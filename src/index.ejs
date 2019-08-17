@@ -2,7 +2,13 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>x-cloud-desktop</title>
+    <title>X Cloud Desktop</title>
+    <link rel="stylesheet" 
+    href="./node_modules/bootstrap/dist/css/bootstrap.css"  
+    crossorigin="anonymous">
+    <script>
+        window.jQuery = window.$ = require('jquery');
+    </script>
     <% if (htmlWebpackPlugin.options.nodeModules) { %>
       <!-- Add `node_modules/` to global paths so `require` works properly in development -->
       <script>
@@ -20,5 +26,7 @@
     <% } %>
 
     <!-- webpack builds are automatically injected -->
+    <script src="./node_modules/popper.js/dist/umd/popper.js" crossorigin="anonymous"></script>
+    <script src="./node_modules/bootstrap/dist/js/bootstrap.js" crossorigin="anonymous"></script>
   </body>
 </html>
