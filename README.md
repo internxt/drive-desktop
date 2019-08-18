@@ -1,3 +1,6 @@
+[![Build status](https://travis-ci.org/JAlbertoGonzalez/x-cloud-desktop.svg?branch=master)](https://travis-ci.org/JAlbertoGonzalez/x-cloud-desktop.svg?branch=master)
+
+
 # x-cloud-desktop
 
 > X Cloud client UI
