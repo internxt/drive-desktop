@@ -58,8 +58,11 @@
   "dependencies": {
     "axios": "^0.18.0",
     "bootstrap": "^4.3.1",
+    "crypto-js": "^3.1.9-1",
+    "dotenv": "^8.1.0",
     "jquery": "^3.4.1",
     "popper.js": "^1.15.0",
+    "storj": "internxt/node-lib",
     "vue": "^2.5.16",
     "vue-electron": "^1.0.6",
     "vue-router": "^3.0.1",

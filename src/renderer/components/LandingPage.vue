@@ -10,15 +10,43 @@
 
 <script>
 import SystemInformation from './LandingPage/SystemInformation'
+import { Environment } from 'storj'
 
 export default {
   name: 'landing-page',
   components: { SystemInformation },
-  created: () => {
-    console.log('HOLI')
+  created: function () {
+    console.log('Check if login is already set, and if it\'s valid')
+
+    if (!localStorage.getItem('xUser')) {
+      this.$router.push('/login')
+    } else {
+      // Check if token is valid
+      // Redirect
+      // storj
+
+      const userSettings = JSON.parse(localStorage.getItem('xUser'))
+      const userMnemonic = localStorage.getItem('xMnemonic')
+
+      console.log(userSettings)
+
+      const storj = new Environment({
+        bridgeUrl: process.env.BRIDGE_URL,
+        bridgeUser: userSettings.user.email,
+        bridgePass: userSettings.user.userId,
+        encryptionKey: userMnemonic
+      })
+
+      storj.getBuckets((err, result) => {
+        console.log('Error', err)
+        console.log('Results', result)
+      })
+
+      console.log(storj)
+    }
   },
   methods: {
-    open (link) {
+    opend (link) {
       this.$electron.shell.openExternal(link)
     }
   }
