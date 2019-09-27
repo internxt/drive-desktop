@@ -1,9 +1,9 @@
 <template>
   <div id="wrapper">
-    <main>
-      <div class="spinner-grow text-primary" role="status">
-        <span class="sr-only">Loading...</span>
-      </div>
+    <main class="centered-container">
+        <div class="spinner-grow text-primary" role="status">
+          <span class="sr-only">Loading...</span>
+        </div>
     </main>
   </div>
 </template>
@@ -28,7 +28,7 @@ export default {
       const userSettings = JSON.parse(localStorage.getItem('xUser'))
       const userMnemonic = localStorage.getItem('xMnemonic')
 
-      console.log(userSettings)
+      this.$router.push('/config')
 
       const storj = new Environment({
         bridgeUrl: process.env.BRIDGE_URL,
@@ -56,7 +56,7 @@ export default {
 <style>
 @import url("https://fonts.googleapis.com/css?family=Source+Sans+Pro");
 
-main {
+.centered-container {
   position: fixed;
   top: 50%;
   left: 50%;

@@ -1,6 +1,6 @@
 <template>
   <div id="wrapper">
-    <main>
+    <main class="centered-container">
       <img src="../../resources/icons/xcloud.png" class="logo" />
       <input
       class="form-control"
