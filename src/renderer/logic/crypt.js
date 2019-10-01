@@ -26,10 +26,62 @@ function HashPassword (rawPassword, salt) {
   return { hash, salt }
 }
 
+function DeterministicDecryption (cipherText, salt) {
+  try {
+    const key = CryptoJS.enc.Hex.parse(process.env.CRYPTO_SECRET)
+    const iv = salt ? CryptoJS.enc.Hex.parse(salt.toString()) : key
+
+    const reb64 = CryptoJS.enc.Hex.parse(cipherText)
+    const bytes = reb64.toString(CryptoJS.enc.Base64)
+    const decrypt = CryptoJS.AES.decrypt(bytes, key, { iv: iv })
+    const plain = decrypt.toString(CryptoJS.enc.Utf8)
+
+    return plain
+  } catch (e) {
+    return null
+  }
+}
+
+function DecryptName (cipherText, salt) {
+  if (!salt) {
+    // If no salt, something is trying to use legacy decryption
+    return ProbabilisticDecryption(cipherText)
+  } else {
+    // If salt is provided, we could have 2 scenarios
+
+    // 1. The cipherText is truly encripted with salt in a deterministic way
+    const decrypted = DeterministicDecryption(cipherText, salt)
+
+    if (!decrypted) {
+      // 2. The deterministic algorithm failed although salt were provided.
+      // So, the cipherText is encrypted in a probabilistic way.
+
+      return ProbabilisticDecryption(cipherText)
+    } else {
+      return decrypted
+    }
+  }
+}
+
+function ProbabilisticDecryption (cipherText) {
+  try {
+    const reb64 = CryptoJS.enc.Hex.parse(cipherText)
+    const bytes = reb64.toString(CryptoJS.enc.Base64)
+    const decrypt = CryptoJS.AES.decrypt(bytes, process.env.CRYPTO_SECRET)
+    const plain = decrypt.toString(CryptoJS.enc.Utf8)
+    return plain
+  } catch (error) {
+    return null
+  }
+}
+
 export default {
   Encrypt,
   EncryptWithKey,
   Decrypt,
   DecryptWithKey,
-  HashPassword
+  HashPassword,
+  DeterministicDecryption,
+  ProbabilisticDecryption,
+  DecryptName
 }

@@ -16,6 +16,11 @@ export default new Router({
       component: require('@/components/ConfigPage').default
     },
     {
+      path: '/xcloud',
+      name: 'xcloud-page',
+      component: require('@/components/XCloudPage').default
+    },
+    {
       path: '/',
       name: 'landing-page',
       component: require('@/components/LandingPage').default

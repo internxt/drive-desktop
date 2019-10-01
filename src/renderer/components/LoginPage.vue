@@ -3,18 +3,18 @@
     <main class="centered-container">
       <img src="../../resources/icons/xcloud.png" class="logo" />
       <input
-      class="form-control"
-      v-model="username"
-      type="text" placeholder="Email address" />
+        class="form-control"
+        v-model="username"
+        type="text" placeholder="Email address" />
       <input
-      class="form-control"
-      v-model="password"
-      type="password" placeholder="Password" />
+        class="form-control"
+        v-model="password"
+        type="password" placeholder="Password" />
       <input
-      class="form-control btn-block btn-primary"
-      type="submit"
-      @click="doLogin()"
-      value="Sign in" />
+        class="form-control btn-block btn-primary"
+        type="submit"
+        @click="doLogin()"
+        value="Sign in" />
     </main>
   </div>
 </template>

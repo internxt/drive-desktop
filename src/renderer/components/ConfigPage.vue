@@ -55,6 +55,7 @@ export default {
     },
     configure () {
       localStorage.setItem('xPath', this.$data.storagePath)
+      this.$router.push('/xcloud')
     }
   }
 }

@@ -28,7 +28,11 @@ export default {
       const userSettings = JSON.parse(localStorage.getItem('xUser'))
       const userMnemonic = localStorage.getItem('xMnemonic')
 
-      this.$router.push('/config')
+      if (localStorage.getItem('xPath')) {
+        this.$router.push('/xcloud')
+      } else {
+        this.$router.push('/config')
+      }
 
       const storj = new Environment({
         bridgeUrl: process.env.BRIDGE_URL,
