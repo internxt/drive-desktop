@@ -12,6 +12,7 @@ import path from 'path'
 import fs from 'fs'
 import { Environment } from 'storj'
 import async from 'async'
+import chokidar from 'chokidar'
 
 export default {
   name: 'xcloud-page',
@@ -63,8 +64,13 @@ export default {
       console.log(res)
       // pullAllDirs loops recursively each dir and downloads its files
       this.pullAllDirs(res.data)
+
+      console.log('Download root files')
       // At the end, download root files
+      console.log('Try download root files')
       this.pullAllFiles(res.data, localStorage.getItem('xPath'))
+
+      this.startWatcher()
     }).catch(err => {
       console.log(err)
     })
@@ -127,6 +133,13 @@ export default {
 
       this.$data.bridgeInstance = storj
       return storj
+    },
+    startWatcher () {
+      const localPath = localStorage.getItem('xPath')
+      chokidar.watch(localPath).on('all', this.watchChange)
+    },
+    watchChange (event, path) {
+      console.log('Event: %s, Path: %s', event, path)
     }
   }
 }
