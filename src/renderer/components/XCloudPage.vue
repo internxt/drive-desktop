@@ -11,12 +11,45 @@ import crypt from '../logic/crypt'
 import path from 'path'
 import fs from 'fs'
 import { Environment } from 'storj'
+import async from 'async'
 
 export default {
   name: 'xcloud-page',
   data () {
     return {
-      bridgeInstance: null
+      bridgeInstance: null,
+      queue: async.queue(function (task, callback) {
+        console.log('Queue new download', task.filePath)
+        const bucketId = task.bucketId
+        const fileId = task.fileId
+        const filePath = task.filePath
+
+        const storj = task.environment
+        const fileExists = fs.existsSync(filePath)
+
+        if (fileExists) {
+          fs.unlinkSync(filePath)
+        }
+
+        try {
+          storj.resolveFile(bucketId, fileId, filePath, {
+            progressCallback: function (progress, downloadedBytes, totalBytes) {
+              console.log('progress:', progress)
+            },
+            finishedCallback: function (err) {
+              if (err) {
+                throw err
+              } else {
+                console.log('File download complete')
+              }
+              callback()
+            }
+          })
+        } catch (e) {
+          console.log('Error downloading file', filePath)
+          callback()
+        }
+      }, 3)
     }
   },
   components: { },
@@ -28,7 +61,10 @@ export default {
       return { res, data: await res.json() }
     }).then(res => {
       console.log(res)
+      // pullAllDirs loops recursively each dir and downloads its files
       this.pullAllDirs(res.data)
+      // At the end, download root files
+      this.pullAllFiles(res.data, localStorage.getItem('xPath'))
     }).catch(err => {
       console.log(err)
     })
@@ -36,13 +72,15 @@ export default {
   methods: {
     pullAllDirs (obj, lastDir = null) {
       obj.children && obj.children.forEach(dir => {
-        let decryptedName = crypt.DeterministicDecryption(dir.name, dir.parentId)
+        let decryptedName = crypt.DecryptName(dir.name, dir.parentId)
         let fullNewPath = path.join(lastDir || localStorage.getItem('xPath'), decryptedName)
+
+        // console.log('Dir to pull', fullNewPath)
 
         try {
           fs.mkdirSync(fullNewPath)
         } catch (e) {
-          // console.log('Error creating folder', e)
+          // console.log('Cannot create', fullNewPath)
         }
 
         this.pullAllFiles(dir, fullNewPath)
@@ -51,27 +89,21 @@ export default {
       })
     },
     pullAllFiles (obj, localPath) {
-      // const storj = this.getEnvironment()
-
+      console.log('pullAllFiles', obj.files)
       obj.files.forEach(file => {
         const fileName = crypt.DecryptName(file.name, file.folder_id + '') + '.' + file.type
         const filePath = path.join(localPath, fileName)
 
-        const storj = this.getEnvironment()
+        console.log('File to pull:', filePath)
 
-        console.log(filePath, fs.existsSync(filePath))
+        const task = {
+          environment: this.getEnvironment(),
+          fileId: file.fileId,
+          bucketId: file.bucket,
+          filePath: filePath
+        }
 
-        storj.resolveFile(file.bucket, file.fileId, filePath, {
-          progressCallback: function (progress, downloadedBytes, totalBytes) {
-            console.log('progress:', progress)
-          },
-          finishedCallback: function (err) {
-            if (err) {
-              return console.error(err)
-            }
-            console.log('File download complete')
-          }
-        })
+        this.$data.queue.push(task)
       })
     },
     createFolders (obj) {
