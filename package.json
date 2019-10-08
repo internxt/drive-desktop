@@ -66,6 +66,8 @@
     "fs-extra": "^8.1.0",
     "jquery": "^3.4.1",
     "popper.js": "^1.15.0",
+    "sequelize": "^5.19.4",
+    "sqlite3": "^4.1.0",
     "storj": "internxt/node-lib",
     "vue": "^2.5.16",
     "vue-electron": "^1.0.6",
