@@ -20,85 +20,85 @@
 </template>
 
 <script>
-  import crypt from '../logic/crypt'
+import crypt from '../logic/crypt'
+import database from '../../database/index'
 
-  export default {
-    name: 'login-page',
-    data () {
-      return {
-        username: '',
-        password: ''
-      }
+export default {
+  name: 'login-page',
+  data () {
+    return {
+      username: '',
+      password: ''
+    }
+  },
+  components: { },
+  methods: {
+    open (link) {
+      this.$electron.shell.openExternal(link)
     },
-    components: { },
-    methods: {
-      open (link) {
-        this.$electron.shell.openExternal(link)
-      },
-      doLogin () {
-        // const username = this.$data.username
-        // const password = this.$data.password
-        // console.log(username, password);
-        console.log(process.env)
+    doLogin () {
+      // const username = this.$data.username
+      // const password = this.$data.password
+      // console.log(username, password);
 
-        fetch('https://cloud.internxt.com/api/login', {
-          method: 'POST',
-          mode: 'cors',
-          headers: {
-            'content-type': 'application/json'
-          },
-          body: JSON.stringify({ email: this.$data.username })
-        }).then(async res => {
-          return { res, body: await res.json() }
-        }).then(res => {
-          if (res.res.status !== 200) {
-            return alert('Login error')
-          }
-          if (res.body.tfa) {
-            throw Error('TFA not implemented yet')
-          } else {
-            this.doAccess(res.body.sKey)
-          }
-        }).catch(err => {
-          console.error(err)
-        })
-      },
-      doAccess (sKey) {
-        const salt = crypt.Decrypt(sKey)
-        const pwd = crypt.HashPassword(this.$data.password, salt)
-        const encryptedHash = crypt.Encrypt(pwd.hash.toString())
+      fetch('https://cloud.internxt.com/api/login', {
+        method: 'POST',
+        mode: 'cors',
+        headers: {
+          'content-type': 'application/json'
+        },
+        body: JSON.stringify({ email: this.$data.username })
+      }).then(async res => {
+        return { res, body: await res.json() }
+      }).then(res => {
+        if (res.res.status !== 200) {
+          return alert('Login error')
+        }
+        if (res.body.tfa) {
+          throw Error('TFA not implemented yet')
+        } else {
+          this.doAccess(res.body.sKey)
+        }
+      }).catch(err => {
+        console.error(err)
+      })
+    },
+    doAccess (sKey) {
+      const salt = crypt.Decrypt(sKey)
+      const pwd = crypt.HashPassword(this.$data.password, salt)
+      const encryptedHash = crypt.Encrypt(pwd.hash.toString())
 
-        fetch(`${process.env.API_URL}/access`, {
-          method: 'POST',
-          headers: {
-            'content-type': 'application/json'
-          },
-          body: JSON.stringify({
-            email: this.$data.username,
-            password: encryptedHash,
-            tfa: null
-          })
-        }).then(async res => {
-          return { res, data: await res.json() }
-        }).then(res => {
-          if (res.res.status !== 200) {
-            if (res.data.error) {
-              alert('Login error\n' + res.data.error)
-            } else {
-              alert('Login error')
-            }
-          } else {
-            res.data.user.email = this.$data.username
-            localStorage.setItem('xMnemonic', crypt.DecryptWithKey(res.data.user.mnemonic, this.$data.password))
-            localStorage.setItem('xUser', JSON.stringify(res.data))
-            this.$router.push('/landing-page')
-          }
-        }).catch(err => {
-          console.log('Error', err)
+      fetch(`${process.env.API_URL}/access`, {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json'
+        },
+        body: JSON.stringify({
+          email: this.$data.username,
+          password: encryptedHash,
+          tfa: null
         })
-      }
+      }).then(async res => {
+        return { res, data: await res.json() }
+      }).then(res => {
+        if (res.res.status !== 200) {
+          if (res.data.error) {
+            alert('Login error\n' + res.data.error)
+          } else {
+            alert('Login error')
+          }
+        } else {
+          res.data.user.email = this.$data.username
+          database.Set('xMnemonic', crypt.DecryptWithKey(res.data.user.mnemonic, this.$data.password))
+          database.Set('xUser', JSON.stringify(res.data))
+          this.$router.push('/landing-page')
+        }
+      }).catch(err => {
+        console.log('Error', err)
+      })
     }
   }
+}
 </script>
 
 <style>

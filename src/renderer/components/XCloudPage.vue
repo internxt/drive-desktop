@@ -2,6 +2,9 @@
     <div id="wrapper">
         <main>
             <div>HOLA</div>
+                    <div class="spinner-grow text-primary" role="status">
+          <span class="sr-only">Loading...</span>
+        </div>
         </main>
     </div>
 </template>
@@ -13,6 +16,7 @@ import fs from 'fs'
 import { Environment } from 'storj'
 import async from 'async'
 import chokidar from 'chokidar'
+import database from '../../database/index'
 
 export default {
   name: 'xcloud-page',
@@ -20,7 +24,6 @@ export default {
     return {
       bridgeInstance: null,
       queue: async.queue(function (task, callback) {
-        console.log('Queue new download', task.filePath)
         const bucketId = task.bucketId
         const fileId = task.fileId
         const filePath = task.filePath
@@ -29,7 +32,7 @@ export default {
         const fileExists = fs.existsSync(filePath)
 
         if (fileExists) {
-          fs.unlinkSync(filePath)
+          return callback()
         }
 
         try {
@@ -47,28 +50,27 @@ export default {
             }
           })
         } catch (e) {
-          console.log('Error downloading file', filePath)
+          console.log('Error downloading file', filePath, e)
           callback()
         }
       }, 3)
     }
   },
   components: { },
-  created: function () {
-    const userData = JSON.parse(localStorage.getItem('xUser'))
+  created: async function () {
+    const userData = JSON.parse(await database.Get('xUser'))
     fetch(`${process.env.API_URL}/storage/tree`, {
       headers: { 'Authorization': `Bearer ${userData.token}` }
     }).then(async res => {
       return { res, data: await res.json() }
-    }).then(res => {
+    }).then(async res => {
       console.log(res)
       // pullAllDirs loops recursively each dir and downloads its files
       this.pullAllDirs(res.data)
 
       console.log('Download root files')
       // At the end, download root files
-      console.log('Try download root files')
-      this.pullAllFiles(res.data, localStorage.getItem('xPath'))
+      this.pullAllFiles(res.data, await database.Get('xPath'))
 
       this.startWatcher()
     }).catch(err => {
@@ -77,11 +79,9 @@ export default {
   },
   methods: {
     pullAllDirs (obj, lastDir = null) {
-      obj.children && obj.children.forEach(dir => {
+      obj.children && obj.children.forEach(async dir => {
         let decryptedName = crypt.DecryptName(dir.name, dir.parentId)
-        let fullNewPath = path.join(lastDir || localStorage.getItem('xPath'), decryptedName)
-
-        // console.log('Dir to pull', fullNewPath)
+        let fullNewPath = path.join(lastDir || await database.Get('xPath'), decryptedName)
 
         try {
           fs.mkdirSync(fullNewPath)
@@ -95,15 +95,12 @@ export default {
       })
     },
     pullAllFiles (obj, localPath) {
-      console.log('pullAllFiles', obj.files)
-      obj.files.forEach(file => {
+      obj.files.forEach(async file => {
         const fileName = crypt.DecryptName(file.name, file.folder_id + '') + '.' + file.type
         const filePath = path.join(localPath, fileName)
 
-        console.log('File to pull:', filePath)
-
         const task = {
-          environment: this.getEnvironment(),
+          environment: await this.getEnvironment(),
           fileId: file.fileId,
           bucketId: file.bucket,
           filePath: filePath
@@ -115,12 +112,13 @@ export default {
     createFolders (obj) {
 
     },
-    getEnvironment () {
+    async getEnvironment () {
       if (this.$data.bridgeInstance) {
         return this.$data.bridgeInstance
       }
-      const userInfo = JSON.parse(localStorage.getItem('xUser')).user
-      const mnemonic = localStorage.getItem('xMnemonic')
+
+      const userInfo = JSON.parse(await database.Get('xUser')).user
+      const mnemonic = await database.Get('xMnemonic')
 
       const options = {
         bridgeUrl: process.env.BRIDGE_URL,
@@ -134,8 +132,8 @@ export default {
       this.$data.bridgeInstance = storj
       return storj
     },
-    startWatcher () {
-      const localPath = localStorage.getItem('xPath')
+    async startWatcher () {
+      const localPath = await database.Get('xPath')
       chokidar.watch(localPath).on('all', this.watchChange)
     },
     watchChange (event, path) {

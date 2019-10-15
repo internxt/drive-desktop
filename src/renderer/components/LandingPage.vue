@@ -11,24 +11,28 @@
 <script>
 import SystemInformation from './LandingPage/SystemInformation'
 import { Environment } from 'storj'
+import database from '../../database/index'
 
 export default {
   name: 'landing-page',
   components: { SystemInformation },
-  created: function () {
+  created: async function () {
     console.log('Check if login is already set, and if it\'s valid')
 
-    if (!localStorage.getItem('xUser')) {
+    const xUser = await database.Get('xUser')
+
+    if (!xUser) {
+      console.log('No xUser is set on database')
       this.$router.push('/login')
     } else {
       // Check if token is valid
       // Redirect
       // storj
 
-      const userSettings = JSON.parse(localStorage.getItem('xUser'))
-      const userMnemonic = localStorage.getItem('xMnemonic')
+      const userSettings = JSON.parse(xUser)
+      const userMnemonic = await database.Get('xMnemonic')
 
-      if (localStorage.getItem('xPath')) {
+      if (await database.Get('xPath')) {
         this.$router.push('/xcloud')
       } else {
         this.$router.push('/config')

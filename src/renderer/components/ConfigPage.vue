@@ -25,6 +25,7 @@
 <script>
 import { remote } from 'electron'
 import fs from 'fs'
+import database from '../../database/index'
 
 export default {
   name: 'config-page',
@@ -54,7 +55,7 @@ export default {
       return fext
     },
     configure () {
-      localStorage.setItem('xPath', this.$data.storagePath)
+      database.Set('xPath', this.$data.storagePath)
       this.$router.push('/xcloud')
     }
   }
