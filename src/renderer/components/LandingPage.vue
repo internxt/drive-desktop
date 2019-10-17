@@ -10,7 +10,6 @@
 
 <script>
 import SystemInformation from './LandingPage/SystemInformation'
-import { Environment } from 'storj'
 import database from '../../database/index'
 
 export default {
@@ -29,28 +28,11 @@ export default {
       // Redirect
       // storj
 
-      const userSettings = JSON.parse(xUser)
-      const userMnemonic = await database.Get('xMnemonic')
-
       if (await database.Get('xPath')) {
         this.$router.push('/xcloud')
       } else {
         this.$router.push('/config')
       }
-
-      const storj = new Environment({
-        bridgeUrl: process.env.BRIDGE_URL,
-        bridgeUser: userSettings.user.email,
-        bridgePass: userSettings.user.userId,
-        encryptionKey: userMnemonic
-      })
-
-      storj.getBuckets((err, result) => {
-        console.log('Error', err)
-        console.log('Results', result)
-      })
-
-      console.log(storj)
     }
   },
   methods: {
