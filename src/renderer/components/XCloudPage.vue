@@ -15,45 +15,16 @@ import path from 'path'
 import fs from 'fs'
 import { Environment } from 'storj'
 import async from 'async'
-import chokidar from 'chokidar'
 import database from '../../database/index'
+// eslint-disable-next-line no-unused-vars
+import { diff, addedDiff, deletedDiff, updatedDiff, detailedDiff } from 'deep-object-diff'
 
 export default {
   name: 'xcloud-page',
   data () {
     return {
       bridgeInstance: null,
-      queue: async.queue(function (task, callback) {
-        const bucketId = task.bucketId
-        const fileId = task.fileId
-        const filePath = task.filePath
-
-        const storj = task.environment
-        const fileExists = fs.existsSync(filePath)
-
-        if (fileExists) {
-          return callback()
-        }
-
-        try {
-          storj.resolveFile(bucketId, fileId, filePath, {
-            progressCallback: function (progress, downloadedBytes, totalBytes) {
-              console.log('progress:', progress)
-            },
-            finishedCallback: function (err) {
-              if (err) {
-                throw err
-              } else {
-                console.log('File download complete')
-              }
-              callback()
-            }
-          })
-        } catch (e) {
-          console.log('Error downloading file', filePath, e)
-          callback()
-        }
-      }, 3)
+      queue: null
     }
   },
   components: { },
@@ -64,15 +35,13 @@ export default {
     }).then(async res => {
       return { res, data: await res.json() }
     }).then(async res => {
-      console.log(res)
+      await database.Set('tree', res)
       // pullAllDirs loops recursively each dir and downloads its files
       this.pullAllDirs(res.data)
 
-      console.log('Download root files')
       // At the end, download root files
       this.pullAllFiles(res.data, await database.Get('xPath'))
-
-      this.startWatcher()
+      await database.FolderSet(await database.Get('xPath'), res.data)
     }).catch(err => {
       console.log(err)
     })
@@ -82,11 +51,12 @@ export default {
       obj.children && obj.children.forEach(async dir => {
         let decryptedName = crypt.DecryptName(dir.name, dir.parentId)
         let fullNewPath = path.join(lastDir || await database.Get('xPath'), decryptedName)
+        console.log('pullAllDirs', fullNewPath)
+        await database.FolderSet(fullNewPath, dir)
 
         try {
           fs.mkdirSync(fullNewPath)
         } catch (e) {
-          // console.log('Cannot create', fullNewPath)
         }
 
         this.pullAllFiles(dir, fullNewPath)
@@ -98,6 +68,7 @@ export default {
       obj.files.forEach(async file => {
         const fileName = crypt.DecryptName(file.name, file.folder_id + '') + '.' + file.type
         const filePath = path.join(localPath, fileName)
+        await database.FileSet(filePath, file)
 
         const task = {
           environment: await this.getEnvironment(),
@@ -106,7 +77,7 @@ export default {
           filePath: filePath
         }
 
-        this.$data.queue.push(task)
+        this.getQueue().push(task)
       })
     },
     createFolders (obj) {
@@ -133,11 +104,47 @@ export default {
       return storj
     },
     async startWatcher () {
-      const localPath = await database.Get('xPath')
-      chokidar.watch(localPath).on('all', this.watchChange)
     },
-    watchChange (event, path) {
-      console.log('Event: %s, Path: %s', event, path)
+    getQueue () {
+      if (this.$data.queue) {
+        return this.$data.queue
+      } else {
+        let newQueue = async.queue(function (task, callback) {
+          const bucketId = task.bucketId
+          const fileId = task.fileId
+          const filePath = task.filePath
+
+          const storj = task.environment
+          const fileExists = fs.existsSync(filePath)
+
+          if (fileExists) {
+            return callback()
+          }
+
+          try {
+            storj.resolveFile(bucketId, fileId, filePath, {
+              progressCallback: function (progress, downloadedBytes, totalBytes) {
+                console.log('progress:', progress)
+              },
+              finishedCallback: function (err) {
+                if (err) {
+                  throw err
+                } else {
+                  console.log('File download complete')
+                }
+                callback()
+              }
+            })
+          } catch (e) {
+            console.log('Error downloading file', filePath, e)
+            callback()
+          }
+        }, 3)
+
+        this.$data.queue = newQueue
+
+        return newQueue
+      }
     }
   }
 }
