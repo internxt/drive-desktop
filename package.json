@@ -56,10 +56,12 @@
     }
   },
   "dependencies": {
+    "@ronomon/utimes": "^2.3.1",
     "async": "^3.1.0",
     "axios": "^0.18.0",
     "bootstrap": "^4.3.1",
     "chokidar": "^3.2.1",
+    "crypto": "^1.0.1",
     "crypto-js": "^3.1.9-1",
     "deep-object-diff": "^1.1.0",
     "directory-tree": "^2.2.4",
@@ -70,6 +72,7 @@
     "nedb": "^1.8.0",
     "popper.js": "^1.15.0",
     "storj": "internxt/node-lib",
+    "temp": "^0.9.0",
     "vue": "^2.5.16",
     "vue-electron": "^1.0.6",
     "vue-router": "^3.0.1",

@@ -16,8 +16,6 @@ export default {
   name: 'landing-page',
   components: { SystemInformation },
   created: async function () {
-    console.log('Check if login is already set, and if it\'s valid')
-
     const xUser = await database.Get('xUser')
 
     if (!xUser) {
@@ -25,9 +23,6 @@ export default {
       this.$router.push('/login')
     } else {
       // Check if token is valid
-      // Redirect
-      // storj
-
       if (await database.Get('xPath')) {
         this.$router.push('/xcloud')
       } else {

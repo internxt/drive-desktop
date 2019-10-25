@@ -1,4 +1,7 @@
 import CryptoJS from 'crypto-js'
+import crypto from 'crypto'
+import fs from 'fs'
+import async from 'async'
 
 function EncryptWithKey (textToEncrypt, key) {
   const bytes = CryptoJS.AES.encrypt(textToEncrypt, key).toString()
@@ -75,6 +78,46 @@ function ProbabilisticDecryption (cipherText) {
   }
 }
 
+function FileHash (path, hash) {
+  return new Promise((resolve, reject) => {
+    let hasher = crypto.createHash(hash || 'SHA256')
+    let stream = fs.createReadStream(path)
+    stream.on('data', function (data) {
+      hasher.update(data)
+    })
+    stream.on('end', function () {
+      resolve(hasher.digest('hex'))
+    })
+    stream.on('error', function (err) {
+      reject(err)
+    })
+  })
+}
+
+function CompareHash (path1, path2, hash) {
+  return new Promise((resolve, reject) => {
+    async.parallel([
+      (next) => {
+        FileHash(path1, hash).then(result => next(null, result)).catch(err => next(err))
+      },
+      (next) => {
+        FileHash(path2, hash).then(result => next(null, result)).catch(err => next(err))
+      }
+    ], function (err, results) {
+      if (err) { reject(err) } else {
+        resolve(results[0] === results[1])
+      }
+    })
+  })
+}
+
+function EncryptFilename (fileName, folderId) {
+  // Separate filename from extension
+  const extSeparatorPos = fileName.lastIndexOf('.')
+  const fileNameNoExt = extSeparatorPos > 0 ? fileName.slice(0, extSeparatorPos) : fileName;
+  const encryptedFileName = Encrypt()
+}
+
 export default {
   Encrypt,
   EncryptWithKey,
@@ -83,5 +126,7 @@ export default {
   HashPassword,
   DeterministicDecryption,
   ProbabilisticDecryption,
-  DecryptName
+  DecryptName,
+  FileHash,
+  CompareHash
 }

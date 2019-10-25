@@ -19,6 +19,8 @@ function createWindow () {
   /**
    * Initial window options
    */
+
+  BrowserWindow.prototype.$app = app
   mainWindow = new BrowserWindow({
     height: 1000,
     useContentSize: true,
