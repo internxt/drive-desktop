@@ -1,9 +1,31 @@
 import { Environment } from 'storj'
 import Utimes from '@ronomon/utimes'
 import fs from 'fs'
+import database from '../../database/index'
+import path from 'path'
+import crypt from './crypt'
+import axios from 'axios'
 
-function DetermineCloudPathFromLocalPath (localPath) {
-  console.log('This is the local path: %s', localPath)
+async function GetAuthHeader (withMnemonic) {
+  const userData = JSON.parse(await database.Get('xUser'))
+  const header = { Authorization: `Bearer ${userData.token}` }
+  if (withMnemonic === true) {
+    const mnemonic = await database.Get('xMnemonic')
+    header['internxt-mnemonic'] = mnemonic.value
+  }
+  return header
+}
+
+function FolderInfoFromPath (localPath) {
+  return new Promise((resolve, reject) => {
+    database.dbFiles.findOne({ key: localPath }, function (err, result) {
+      if (err) {
+        reject(err)
+      } else {
+        resolve(result)
+      }
+    })
+  })
 }
 
 async function SetModifiedTime (path, time) {
@@ -37,18 +59,111 @@ function GetFileModifiedDate (path) {
   return fs.statSync(path).mtime
 }
 
-function UploadFile (storj, bucketId, filePath) {
-  return new Promise((resolve, reject) => {
+function UploadFile (storj, filePath, callback) {
+  return new Promise(async (resolve, reject) => {
+    const fileInfo = await FolderInfoFromPath(filePath)
+
+    // Parameters
+    const bucketId = fileInfo.value.bucket
+    const fileId = fileInfo.value.fileId
+    const folderId = fileInfo.value.folder_id
+
+    // Encrypted filename
+    const originalFileName = path.basename(filePath)
+    const encryptedFileName = crypt.EncryptFilename(originalFileName, folderId)
+
+    // File extension
+    const extSeparatorPos = originalFileName.lastIndexOf('.')
+    const fileExt = originalFileName.slice(extSeparatorPos + 1)
+
+    // File size
+    const fileStats = fs.statSync(filePath)
+    const fileSize = fileStats.size
+
+    // Delete former file
+    // await RemoveFile(bucketId, fileId)
+
+    // Upload new file
     storj.storeFile(bucketId, filePath, {
-      filename: 'encryptedFileName'
+      filename: encryptedFileName,
+      progressCallback: function (progress, uploadedBytes, totalBytes) {
+        console.log('Upload %s', progress)
+      },
+      finishedCallback: function (err, newFileId) {
+        if (err) {
+          console.log('Error uploading file: %s', err)
+          reject(err)
+        } else {
+          CreateFileEntry(bucketId, newFileId, encryptedFileName, fileExt, fileSize, folderId)
+            .then(res => {
+              resolve(res)
+            })
+            .catch(err => {
+              reject(err)
+            })
+        }
+      }
     })
   })
 }
 
+// BucketId and FileId must be the NETWORK ids (mongodb)
+function RemoveFile (bucketId, fileId) {
+  return new Promise(async (resolve, reject) => {
+    const headers = await GetAuthHeader(true)
+    axios.delete(`${process.env.API_URL}/storage/bucket/${bucketId}/file/${fileId}`, {
+      headers: headers
+    }).then(result => {
+      resolve(result)
+    }).catch(err => {
+      reject(err)
+    })
+  })
+}
+
+// folderId must be the CLOUD id (mysql)
+// warning, this method deletes all its contents
+function RemoveFolder (folderId) {
+  return new Promise(async (resolve, reject) => {
+    const headers = await GetAuthHeader(true)
+    axios.delete(`${process.env.API_URL}/storage/folder/${folderId}`, {
+      headers: headers
+    }).then(result => {
+      resolve(result)
+    }).catch(err => {
+      reject(err)
+    })
+  })
+}
+
+async function CreateFileEntry (bucketId, bucketEntryId, fileName, fileExtension, size, folderId) {
+  const file = {
+    file: {
+      bucketId: bucketEntryId,
+      name: fileName,
+      type: fileExtension,
+      size: size,
+      folder_id: folderId,
+      file_id: bucketEntryId,
+      bucket: bucketId
+    }
+  }
+
+  const userData = JSON.parse(await database.Get('xUser'))
+
+  axios.post(`${process.env.API_URL}/storage/file`, { file }, {
+    headers: { Authorization: `Bearer ${userData.token}` }
+  }).then(result => {
+
+  }).catch(err => {
+    if (err) {
+
+    }
+  })
+}
+
 export default {
-  IsFileAvailable,
   UploadFile,
-  DetermineCloudPathFromLocalPath,
   SetModifiedTime,
   GetFileModifiedDate
 }

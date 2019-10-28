@@ -112,10 +112,10 @@ function CompareHash (path1, path2, hash) {
 }
 
 function EncryptFilename (fileName, folderId) {
-  // Separate filename from extension
   const extSeparatorPos = fileName.lastIndexOf('.')
-  const fileNameNoExt = extSeparatorPos > 0 ? fileName.slice(0, extSeparatorPos) : fileName;
-  const encryptedFileName = Encrypt()
+  const fileNameNoExt = extSeparatorPos > 0 ? fileName.slice(0, extSeparatorPos) : fileName
+  const encryptedFileName = EncryptWithKey(fileNameNoExt, folderId + '')
+  return encryptedFileName
 }
 
 export default {
@@ -128,5 +128,6 @@ export default {
   ProbabilisticDecryption,
   DecryptName,
   FileHash,
-  CompareHash
+  CompareHash,
+  EncryptFilename
 }

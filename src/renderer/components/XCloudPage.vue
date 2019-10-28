@@ -162,14 +162,12 @@ export default {
       }
     },
     async checkFile (fileObj, filePath, callback) {
-      console.log('Checkfile', fileObj.created_at, fileObj.updated_at)
       const storj = await this.getEnvironment()
 
       const tempPath = temp.dir
       const tempFilePath = path.join(tempPath, fileObj.fileId + '.dat')
 
       if (fs.existsSync(tempFilePath)) {
-        console.log('Delete temp file')
         fs.unlinkSync(tempFilePath)
       }
 
@@ -181,7 +179,7 @@ export default {
           if (err) {
             throw err
           } else {
-            console.log('File download complete from checkfile', tempFilePath, filePath)
+            // console.log('File download complete from checkfile', tempFilePath, filePath)
             crypt
               .CompareHash(tempFilePath, filePath)
               .then(r => {
@@ -203,17 +201,7 @@ export default {
                 } else {
                   console.log('Replace remote file')
                   // Upload local file
-                  storj.storeFile(fileObj.bucket, filePath, {
-                    filename: 'ENCRYPTNAME',
-                    progressCallback: function (progress, uploadedBytes, totalBytes) {
-                      console.log('Upload', progress)
-                    },
-                    finishedCallback: function (err, fileId) {
-                      if (err) {
-
-                      }
-                    }
-                  })
+                  Sync.UploadFile(storj, filePath, callback)
                 }
               })
               .catch(err => {
