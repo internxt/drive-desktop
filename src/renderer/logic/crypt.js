@@ -78,6 +78,41 @@ function ProbabilisticDecryption (cipherText) {
   }
 }
 
+function DeterministicEncryption (content, salt) {
+  try {
+    const key = CryptoJS.enc.Hex.parse(process.env.CRYPTO_SECRET)
+    const iv = salt ? CryptoJS.enc.Hex.parse(salt.toString()) : key
+
+    const encrypt = CryptoJS.AES.encrypt(content, key, { iv: iv }).toString()
+    const b64 = CryptoJS.enc.Base64.parse(encrypt)
+    const eHex = b64.toString(CryptoJS.enc.Hex)
+    return eHex
+  } catch (e) {
+    return null
+  }
+}
+
+function ProbabilisticEncryption (content) {
+  try {
+    const b64 = CryptoJS.AES.encrypt(content, process.env.CRYPTO_SECRET).toString()
+    const e64 = CryptoJS.enc.Base64.parse(b64)
+    const eHex = e64.toString(CryptoJS.enc.Hex)
+    return eHex
+  } catch (error) {
+    return null
+  }
+}
+
+function EncryptName (name, salt) {
+  if (!salt) {
+    // If no salt, somewhere is trying to use legacy encryption
+    return ProbabilisticEncryption(name)
+  } else {
+    // If salt is provided, use new deterministic encryption
+    return DeterministicEncryption(name, salt)
+  }
+}
+
 function FileHash (path, hash) {
   return new Promise((resolve, reject) => {
     let hasher = crypto.createHash(hash || 'SHA256')
@@ -114,7 +149,7 @@ function CompareHash (path1, path2, hash) {
 function EncryptFilename (fileName, folderId) {
   const extSeparatorPos = fileName.lastIndexOf('.')
   const fileNameNoExt = extSeparatorPos > 0 ? fileName.slice(0, extSeparatorPos) : fileName
-  const encryptedFileName = EncryptWithKey(fileNameNoExt, folderId + '')
+  const encryptedFileName = EncryptName(fileNameNoExt, folderId + '')
   return encryptedFileName
 }
 

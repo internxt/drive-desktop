@@ -18,6 +18,7 @@ import { Environment } from 'storj'
 import async from 'async'
 import database from '../../database/index'
 import Sync from '../logic/sync'
+import Tree from '../logic/tree'
 
 export default {
   name: 'xcloud-page',
@@ -44,8 +45,7 @@ export default {
         .then(async res => {
           await database.Set('tree', res)
           // pullAllDirs loops recursively each dir and downloads its files
-          this.pullAllDirs(res.data)
-
+          await this.pullAllDirs(res.data)
           // At the end, download root files
           this.pullAllFiles(res.data, await database.Get('xPath'))
           await database.FolderSet(await database.Get('xPath'), res.data)
@@ -55,40 +55,51 @@ export default {
         })
     },
     pullAllDirs (obj, lastDir = null) {
-      obj.children &&
-        obj.children.forEach(async dir => {
-          let decryptedName = crypt.DecryptName(dir.name, dir.parentId)
+      return new Promise((resolve, reject) => {
+        async.eachSeries(obj.children, async (element, next) => {
+          let decryptedName = crypt.DecryptName(element.name, element.parentId)
+          console.log('PULL ALL DIRS', decryptedName)
           let fullNewPath = path.join(
             lastDir || (await database.Get('xPath')),
             decryptedName
           )
-          await database.FolderSet(fullNewPath, dir)
-
+          await database.FolderSet(fullNewPath, element)
           try {
             fs.mkdirSync(fullNewPath)
           } catch (e) {}
+          this.pullAllFiles(element, fullNewPath)
+          await this.pullAllDirs(element, fullNewPath)
+          next()
+        }, function (err, result) {
+          if (err) {
 
-          this.pullAllFiles(dir, fullNewPath)
-
-          this.pullAllDirs(dir, fullNewPath)
+          }
+          resolve()
         })
+      })
     },
     pullAllFiles (obj, localPath) {
-      obj.files.forEach(async file => {
-        const fileName =
-          crypt.DecryptName(file.name, file.folder_id + '') + '.' + file.type
-        const filePath = path.join(localPath, fileName)
-        await database.FileSet(filePath, file)
+      const self = this
+      return new Promise(function (resolve, reject) {
+        async.eachSeries(obj.files,
+          async function (element, next) {
+            const fileName = crypt.DecryptName(element.name, element.folder_id + '') + '.' + element.type
+            const filePath = path.join(localPath, fileName)
+            await database.FileSet(filePath, element)
 
-        const task = {
-          environment: await this.getEnvironment(),
-          fileId: file.fileId,
-          bucketId: file.bucket,
-          filePath: filePath,
-          fileObj: file
-        }
+            const task = {
+              environment: await self.getEnvironment(),
+              fileId: element.fileId,
+              bucketId: element.bucket,
+              filePath: filePath,
+              fileObj: element
+            }
 
-        this.getQueue().push(task)
+            self.getQueue().push(task)
+            next()
+          }, function (err, result) {
+            if (err) { }
+          })
       })
     },
     createFolders (obj) {},
@@ -158,6 +169,10 @@ export default {
 
         this.$data.queue = newQueue
 
+        newQueue.drain(() => {
+          this.checkLocalFiles()
+        })
+
         return newQueue
       }
     },
@@ -182,27 +197,26 @@ export default {
             // console.log('File download complete from checkfile', tempFilePath, filePath)
             crypt
               .CompareHash(tempFilePath, filePath)
-              .then(r => {
+              .then(async r => {
                 const mTimeLocal = Sync.GetFileModifiedDate(tempFilePath)
                 const mTimeRemote = Sync.GetFileModifiedDate(filePath)
 
                 if (r === true) {
                   console.log('File match, no action required')
                   if (mTimeLocal !== mTimeRemote) {
-                    Sync.SetModifiedTime(filePath, fileObj.created_at)
+                    await Sync.SetModifiedTime(filePath, fileObj.created_at)
                   }
-                  callback()
                 } else if (mTimeRemote > mTimeLocal) {
                   // Replace local file with cloud file
                   console.log('Replace local file')
                   fs.unlinkSync(filePath)
                   fs.renameSync(tempFilePath, filePath)
-                  callback()
                 } else {
                   console.log('Replace remote file')
                   // Upload local file
-                  Sync.UploadFile(storj, filePath, callback)
+                  await Sync.UploadFile(storj, filePath, callback)
                 }
+                callback()
               })
               .catch(err => {
                 console.log('Error', err)
@@ -210,6 +224,33 @@ export default {
               })
           }
         }
+      })
+    },
+    async checkLocalFiles () {
+      console.log('Start checking local files')
+      const localPath = await database.Get('xPath')
+      const arbol = Tree.GetListFromFolder(localPath)
+      const storj = await this.getEnvironment()
+      async.eachSeries(arbol, async function (item, next) {
+        var stat = Tree.GetStat(item)
+        if (stat.isFile()) {
+          let entry = await database.FileGet(item)
+          if (!entry) {
+            console.log('New local file:', item)
+            await Sync.UploadNewFile(storj, item)
+            next()
+          } else {
+            next()
+          }
+        } else {
+          let entry = await database.FolderGet(item)
+          if (!entry) {
+            console.log('New local folder:', item)
+          }
+          next()
+        }
+      }, (err, result) => {
+        console.log(err, 'FIN')
       })
     }
   }

@@ -5,8 +5,20 @@ const dbFolders = new Datastore({ filename: 'database_folders.db', autoload: tru
 const dbUser = new Datastore({ filename: 'database_user.db', autoload: true })
 
 function InsertKeyValue (db, key, value) {
-  db.remove({ key }, { multi: true }, () => {
-    db.insert({ key, value })
+  return new Promise((resolve, reject) => {
+    db.remove({ key }, { multi: true }, function (err, numRemoved) {
+      if (err) {
+        reject(err)
+      } else {
+        db.insert({ key, value }, function (err, newDoc) {
+          if (err) {
+            reject(err)
+          } else {
+            resolve(newDoc)
+          }
+        })
+      }
+    })
   })
 }
 
@@ -34,6 +46,30 @@ const FileSet = (key, value) => {
   return InsertKeyValue(dbFiles, key, value)
 }
 
+const FolderGet = (key) => {
+  return new Promise((resolve, reject) => {
+    dbFolders.findOne({ key: key }, (err, document) => {
+      if (err) {
+        resolve(null)
+      } else {
+        resolve(document)
+      }
+    })
+  })
+}
+
+const FileGet = (key) => {
+  return new Promise((resolve, reject) => {
+    dbFiles.findOne({ key: key }, (err, document) => {
+      if (err) {
+        resolve(null)
+      } else {
+        resolve(document)
+      }
+    })
+  })
+}
+
 export default {
-  dbFiles, dbFolders, dbUser, Get, Set, FolderSet, FileSet
+  dbFiles, dbFolders, dbUser, Get, Set, FolderSet, FileSet, FolderGet, FileGet
 }

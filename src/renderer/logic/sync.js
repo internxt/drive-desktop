@@ -11,12 +11,12 @@ async function GetAuthHeader (withMnemonic) {
   const header = { Authorization: `Bearer ${userData.token}` }
   if (withMnemonic === true) {
     const mnemonic = await database.Get('xMnemonic')
-    header['internxt-mnemonic'] = mnemonic.value
+    header['internxt-mnemonic'] = mnemonic
   }
   return header
 }
 
-function FolderInfoFromPath (localPath) {
+function FileInfoFromPath (localPath) {
   return new Promise((resolve, reject) => {
     database.dbFiles.findOne({ key: localPath }, function (err, result) {
       if (err) {
@@ -59,9 +59,10 @@ function GetFileModifiedDate (path) {
   return fs.statSync(path).mtime
 }
 
-function UploadFile (storj, filePath, callback) {
+function UploadFile (storj, filePath) {
+  console.log('Upload file', filePath)
   return new Promise(async (resolve, reject) => {
-    const fileInfo = await FolderInfoFromPath(filePath)
+    const fileInfo = await FileInfoFromPath(filePath)
 
     // Parameters
     const bucketId = fileInfo.value.bucket
@@ -81,7 +82,7 @@ function UploadFile (storj, filePath, callback) {
     const fileSize = fileStats.size
 
     // Delete former file
-    // await RemoveFile(bucketId, fileId)
+    await RemoveFile(bucketId, fileId)
 
     // Upload new file
     storj.storeFile(bucketId, filePath, {
@@ -95,12 +96,50 @@ function UploadFile (storj, filePath, callback) {
           reject(err)
         } else {
           CreateFileEntry(bucketId, newFileId, encryptedFileName, fileExt, fileSize, folderId)
-            .then(res => {
-              resolve(res)
-            })
-            .catch(err => {
-              reject(err)
-            })
+            .then(res => { resolve(res) })
+            .catch(err => { reject(err) })
+        }
+      }
+    })
+  })
+}
+
+function UploadNewFile (storj, filePath) {
+  const folderPath = path.dirname(filePath)
+  console.log('Upload new file', folderPath)
+  return new Promise(async (resolve, reject) => {
+    const dbEntry = await database.FolderGet(folderPath)
+    const user = JSON.parse(await database.Get('xUser'))
+    const tree = await database.Get('tree')
+    const bucketId = dbEntry.value.bucket || tree.data.bucket
+    const folderId = dbEntry.value.id || user.user.root_folder_id
+
+    // Encrypted filename
+    const originalFileName = path.basename(filePath)
+    const encryptedFileName = crypt.EncryptFilename(originalFileName, folderId)
+
+    // File extension
+    const extSeparatorPos = originalFileName.lastIndexOf('.')
+    const fileExt = originalFileName.slice(extSeparatorPos + 1)
+
+    // File size
+    const fileStats = fs.statSync(filePath)
+    const fileSize = fileStats.size
+
+    // Upload new file
+    storj.storeFile(bucketId, filePath, {
+      filename: encryptedFileName,
+      progressCallback: function (progress, uploadedBytes, totalBytes) {
+        console.log('Upload %s', progress)
+      },
+      finishedCallback: function (err, newFileId) {
+        if (err) {
+          console.log('Error uploading new file: %s', err)
+          reject(err)
+        } else {
+          CreateFileEntry(bucketId, newFileId, encryptedFileName, fileExt, fileSize, folderId)
+            .then(res => { resolve(res) })
+            .catch(err => { reject(err) })
         }
       }
     })
@@ -110,7 +149,8 @@ function UploadFile (storj, filePath, callback) {
 // BucketId and FileId must be the NETWORK ids (mongodb)
 function RemoveFile (bucketId, fileId) {
   return new Promise(async (resolve, reject) => {
-    const headers = await GetAuthHeader(true)
+    const headers = await GetAuthHeader()
+
     axios.delete(`${process.env.API_URL}/storage/bucket/${bucketId}/file/${fileId}`, {
       headers: headers
     }).then(result => {
@@ -138,32 +178,31 @@ function RemoveFolder (folderId) {
 
 async function CreateFileEntry (bucketId, bucketEntryId, fileName, fileExtension, size, folderId) {
   const file = {
-    file: {
-      bucketId: bucketEntryId,
-      name: fileName,
-      type: fileExtension,
-      size: size,
-      folder_id: folderId,
-      file_id: bucketEntryId,
-      bucket: bucketId
-    }
+    bucketId: bucketEntryId,
+    name: fileName,
+    type: fileExtension,
+    size: size,
+    folder_id: folderId,
+    file_id: bucketEntryId,
+    bucket: bucketId
   }
+
+  console.log('Post data:', file)
 
   const userData = JSON.parse(await database.Get('xUser'))
 
   axios.post(`${process.env.API_URL}/storage/file`, { file }, {
     headers: { Authorization: `Bearer ${userData.token}` }
   }).then(result => {
-
+    console.log('CREATE FILE ENTRY', result)
   }).catch(err => {
-    if (err) {
-
-    }
+    console.log('ERROR CREATE FILE ENTRY', err)
   })
 }
 
 export default {
   UploadFile,
   SetModifiedTime,
-  GetFileModifiedDate
+  GetFileModifiedDate,
+  UploadNewFile
 }
