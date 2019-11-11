@@ -80,7 +80,7 @@ export default {
         })
       }).then(async res => {
         return { res, data: await res.json() }
-      }).then(res => {
+      }).then(async res => {
         if (res.res.status !== 200) {
           if (res.data.error) {
             alert('Login error\n' + res.data.error)
@@ -89,8 +89,8 @@ export default {
           }
         } else {
           res.data.user.email = this.$data.username
-          database.Set('xMnemonic', crypt.DecryptWithKey(res.data.user.mnemonic, this.$data.password))
-          database.Set('xUser', res.data)
+          await database.Set('xMnemonic', crypt.DecryptWithKey(res.data.user.mnemonic, this.$data.password))
+          await database.Set('xUser', res.data)
           this.$router.push('/landing-page')
         }
       }).catch(err => {
