@@ -15,13 +15,11 @@ function StartMonitor () {
   async.waterfall([
     (next) => {
       // Delete remote folders missing in local folder
-      // CleanLocalFolders().then(() => next(null)).catch(err => next(err))
-      next()
+      CleanLocalFolders().then(() => next(null)).catch(err => next(err))
     },
     (next) => {
       // Delete remote files missing in local folder
-      // CleanLocalFiles().then(() => next(null)).catch(err => next(err))
-      next()
+      CleanLocalFiles().then(() => next(null)).catch(err => next(err))
     },
     (next) => {
       // Donwload the tree of remote files and folders
