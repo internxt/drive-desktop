@@ -5,9 +5,11 @@ import database from '../../database/index'
 import path from 'path'
 import crypt from './crypt'
 import axios from 'axios'
+import async from 'async'
+import tree from './tree'
 
 async function GetAuthHeader (withMnemonic) {
-  const userData = JSON.parse(await database.Get('xUser'))
+  const userData = await database.Get('xUser')
   const header = { Authorization: `Bearer ${userData.token}` }
   if (withMnemonic === true) {
     const mnemonic = await database.Get('xMnemonic')
@@ -81,6 +83,8 @@ function UploadFile (storj, filePath) {
     const fileStats = fs.statSync(filePath)
     const fileSize = fileStats.size
 
+    console.log('FILE SIZE', fileSize)
+
     // Delete former file
     await RemoveFile(bucketId, fileId)
 
@@ -109,7 +113,7 @@ function UploadNewFile (storj, filePath) {
   console.log('Upload new file', folderPath)
   return new Promise(async (resolve, reject) => {
     const dbEntry = await database.FolderGet(folderPath)
-    const user = JSON.parse(await database.Get('xUser'))
+    const user = await database.Get('xUser')
     const tree = await database.Get('tree')
     const bucketId = dbEntry.value.bucket || tree.data.bucket
     const folderId = dbEntry.value.id || user.user.root_folder_id
@@ -161,21 +165,48 @@ function RemoveFile (bucketId, fileId) {
   })
 }
 
-// folderId must be the CLOUD id (mysql)
-// warning, this method deletes all its contents
-function RemoveFolder (folderId) {
-  return new Promise(async (resolve, reject) => {
-    const headers = await GetAuthHeader(true)
-    axios.delete(`${process.env.API_URL}/storage/folder/${folderId}`, {
-      headers: headers
-    }).then(result => {
-      resolve(result)
-    }).catch(err => {
-      reject(err)
+function UpdateTree () {
+  return new Promise((resolve, reject) => {
+    GetTree().then(async (tree) => {
+      await database.Set('tree', tree)
+      resolve()
+    }).then(err => reject(err))
+  })
+}
+
+function GetTree () {
+  return new Promise((resolve, reject) => {
+    database.Get('xUser').then(userData => {
+      fetch(`${process.env.API_URL}/storage/tree`, {
+        headers: { Authorization: `Bearer ${userData.token}` }
+      }).then(async res => {
+        return { res, data: await res.json() }
+      }).then(async res => {
+        resolve(res.data)
+      }).catch(err => reject(err))
     })
   })
 }
 
+// folderId must be the CLOUD id (mysql)
+// warning, this method deletes all its contents
+function RemoveFolder (folderId) {
+  console.log('RemoveFolder(%s)', folderId)
+  return new Promise(async (resolve, reject) => {
+    database.Get('xUser').then(userData => {
+      fetch(`${process.env.API_URL}/storage/folder/${folderId}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${userData.token}` }
+      }).then(result => {
+        resolve(result)
+      }).catch(err => {
+        reject(err)
+      })
+    })
+  })
+}
+
+// Create entry in X Cloud Server linked to the Bridge file
 async function CreateFileEntry (bucketId, bucketEntryId, fileName, fileExtension, size, folderId) {
   const file = {
     bucketId: bucketEntryId,
@@ -187,9 +218,7 @@ async function CreateFileEntry (bucketId, bucketEntryId, fileName, fileExtension
     bucket: bucketId
   }
 
-  console.log('Post data:', file)
-
-  const userData = JSON.parse(await database.Get('xUser'))
+  const userData = await database.Get('xUser')
 
   axios.post(`${process.env.API_URL}/storage/file`, { file }, {
     headers: { Authorization: `Bearer ${userData.token}` }
@@ -200,9 +229,118 @@ async function CreateFileEntry (bucketId, bucketEntryId, fileName, fileExtension
   })
 }
 
+// Check files that does not exists in local anymore
+function CheckMissingFiles () {
+  console.log('Checking missing files...')
+  return new Promise((resolve, reject) => {
+    let allData = database.dbFiles.getAllData()
+    async.eachSeries(allData, (item, next) => {
+      let stat
+      try {
+        stat = fs.lstatSync(item.key)
+      } catch (err) {
+        stat = null
+      }
+
+      console.log('CHECKING', item.value)
+
+      if ((stat && !stat.isFile()) || fs.existsSync(item.key)) {
+        console.log('Remove remote file', item.value)
+        const bucketId = item.value.bucket
+        const fileId = item.value.fileId
+
+        RemoveFile(bucketId, fileId).then(() => next()).catch(err => {
+          console.log('Error deleting remote file %j: %s', item, err)
+          next()
+        })
+        next()
+      } else {
+        next()
+      }
+    }, (err, result) => {
+      if (err) {
+        reject(err)
+      } else {
+        resolve(result)
+      }
+    })
+  })
+}
+
+// Check folders that does not exists in local anymore
+function CheckMissingFolders () {
+  console.log('Cheking missing folders')
+  return new Promise((resolve, reject) => {
+    let allData = database.dbFolders.getAllData()
+    async.eachSeries(allData, (item, next) => {
+      let stat
+      try {
+        stat = fs.lstatSync(item.key)
+      } catch (err) {
+        stat = null
+      }
+
+      if ((stat && stat.isFile()) || !fs.existsSync(item.key)) {
+        console.log('Remove remote folder %j', item.value)
+        RemoveFolder(item.value.id).then(() => {
+          database.dbFolders.remove({ key: item.key })
+          next()
+        }).catch(err => {
+          console.log('Error removing remote folder %s, %j', item.value, err)
+          next()
+        })
+      } else {
+        next()
+      }
+    }, (err, result) => {
+      if (err) {
+        reject(err)
+      } else {
+        resolve(result)
+      }
+    })
+  })
+}
+
+// Create all remote folders on local path
+function CreateLocalFolders () {
+  return new Promise(async (resolve, reject) => {
+    tree.GetFolderListFromRemoteTree().then(list => {
+      async.eachSeries(list, (folder, next) => {
+        try {
+          fs.mkdirSync(folder)
+          next()
+        } catch (err) {
+          if (err.code === 'EEXIST') {
+            // Folder already exists, ignore error
+            next()
+          } else {
+            console.log('Error creating folder %s: %j', folder, err)
+            next(err)
+          }
+        }
+      }, (err, result) => {
+        if (err) { reject(err) } else { resolve() }
+      })
+    }).catch(err => reject(err))
+  })
+}
+
+function CleanLocalFolders () {
+  return new Promise((resolve, reject) => {
+    resolve()
+  })
+}
+
 export default {
   UploadFile,
   SetModifiedTime,
   GetFileModifiedDate,
-  UploadNewFile
+  UploadNewFile,
+  UpdateTree,
+  CheckMissingFolders,
+  CheckMissingFiles,
+  CreateLocalFolders,
+  RemoveFile,
+  CleanLocalFolders
 }

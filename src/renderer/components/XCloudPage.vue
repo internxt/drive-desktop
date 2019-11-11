@@ -19,6 +19,7 @@ import async from 'async'
 import database from '../../database/index'
 import Sync from '../logic/sync'
 import Tree from '../logic/tree'
+import Monitor from '../logic/monitor'
 
 export default {
   name: 'xcloud-page',
@@ -31,11 +32,12 @@ export default {
   components: {},
   mounted: function () {
     this.$app = this.$electron.remote.app
-    this.startSync()
+    // this.startSync()
+    Monitor.Monitor(true)
   },
   methods: {
     async startSync () {
-      const userData = JSON.parse(await database.Get('xUser'))
+      const userData = await database.Get('xUser')
       fetch(`${process.env.API_URL}/storage/tree`, {
         headers: { Authorization: `Bearer ${userData.token}` }
       })
@@ -108,7 +110,7 @@ export default {
         return this.$data.bridgeInstance
       }
 
-      const userInfo = JSON.parse(await database.Get('xUser')).user
+      const userInfo = (await database.Get('xUser')).user
       const mnemonic = await database.Get('xMnemonic')
 
       const options = {
@@ -251,6 +253,7 @@ export default {
         }
       }, (err, result) => {
         console.log(err, 'FIN')
+        Sync.CheckMissingFolders()
       })
     }
   }

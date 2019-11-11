@@ -90,7 +90,7 @@ export default {
         } else {
           res.data.user.email = this.$data.username
           database.Set('xMnemonic', crypt.DecryptWithKey(res.data.user.mnemonic, this.$data.password))
-          database.Set('xUser', JSON.stringify(res.data))
+          database.Set('xUser', res.data)
           this.$router.push('/landing-page')
         }
       }).catch(err => {

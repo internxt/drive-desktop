@@ -1,5 +1,8 @@
 import FS from 'fs'
 import PATH from 'path'
+import database from '../../database/index'
+import async from 'async'
+import crypt from './crypt'
 
 function safeReadDirSync (path) {
   let dirData = {}
@@ -76,8 +79,102 @@ function GetStat (path) {
   }
 }
 
+function _recursiveFolderToList (tree, basePath, currentPath = null) {
+  let finalList = []
+  return new Promise((resolve, reject) => {
+    async.eachSeries(tree.children, async (item, next) => {
+      let decryptedName = crypt.DecryptName(item.name, item.parentId)
+      let fullNewPath = PATH.join(currentPath || basePath, decryptedName)
+      finalList.push(fullNewPath)
+      var subFolder = await _recursiveFolderToList(item, basePath, fullNewPath)
+      finalList = finalList.concat(subFolder)
+      next()
+    }, (err, result) => {
+      if (err) { reject(err) } else { resolve(finalList) }
+    })
+  })
+}
+
+function GetFolderListFromRemoteTree () {
+  return new Promise(async (resolve, reject) => {
+    const tree = await database.Get('tree')
+    const basePath = await database.Get('xPath')
+    _recursiveFolderToList(tree, basePath)
+      .then(list => resolve(list))
+      .catch(err => reject(err))
+  })
+}
+
+function _recursiveFolderObjectToList (tree, basePath, currentPath = null) {
+  let finalList = []
+  return new Promise((resolve, reject) => {
+    async.eachSeries(tree.children, async (item, next) => {
+      let decryptedName = crypt.DecryptName(item.name, item.parentId)
+      let fullNewPath = PATH.join(currentPath || basePath, decryptedName)
+      let cloneObject = JSON.parse(JSON.stringify(item))
+      delete cloneObject.children
+      let finalObject = {
+        key: fullNewPath,
+        value: cloneObject
+      }
+      finalList.push(finalObject)
+      var subFolder = await _recursiveFolderObjectToList(item, basePath, fullNewPath)
+      finalList = finalList.concat(subFolder)
+      next()
+    }, (err, result) => {
+      if (err) { reject(err) } else { resolve(finalList) }
+    })
+  })
+}
+
+function GetFolderObjectListFromRemoteTree () {
+  return new Promise(async (resolve, reject) => {
+    const tree = await database.Get('tree')
+    const basePath = await database.Get('xPath')
+    _recursiveFolderObjectToList(tree, basePath)
+      .then(list => resolve(list))
+      .catch(err => reject(err))
+  })
+}
+
+function _recursiveFilesToList (tree, basePath, currentPath = null) {
+  let finalList = tree.files
+
+  finalList.forEach(item => {
+    const encryptedFileName = item.name
+    const salt = item.folder_id
+    item.filename = crypt.DecryptName(encryptedFileName, salt)
+    item.fullpath = PATH.join(currentPath || basePath, item.filename + '.' + item.type)
+  })
+
+  return new Promise((resolve, reject) => {
+    async.eachSeries(tree.children, async (item, next) => {
+      let decryptedName = crypt.DecryptName(item.name, item.parentId)
+      let fullNewPath = PATH.join(currentPath || basePath, decryptedName)
+      var subFolder = await _recursiveFilesToList(item, basePath, fullNewPath)
+      finalList = finalList.concat(subFolder)
+      next()
+    }, (err, result) => {
+      if (err) { reject(err) } else { resolve(finalList) }
+    })
+  })
+}
+
+function GetFileListFromRemoteTree () {
+  return new Promise(async (resolve, reject) => {
+    const tree = await database.Get('tree')
+    const basePath = await database.Get('xPath')
+    _recursiveFilesToList(tree, basePath)
+      .then(list => resolve(list))
+      .catch(err => reject(err))
+  })
+}
+
 export default {
   GetTreeFromFolder,
   GetListFromFolder,
-  GetStat
+  GetStat,
+  GetFolderListFromRemoteTree,
+  GetFileListFromRemoteTree,
+  GetFolderObjectListFromRemoteTree
 }
