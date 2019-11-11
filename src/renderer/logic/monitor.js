@@ -12,6 +12,7 @@ function Monitor (startInmediately = false) {
 }
 
 function StartMonitor () {
+  // Sync
   async.waterfall([
     (next) => {
       // Delete remote folders missing in local folder
@@ -50,7 +51,7 @@ function StartMonitor () {
       CleanRemoteFiles().then(() => next()).catch(err => next(err))
     }
   ], (err, result) => {
-    if (err) { console.log('Error sync:', err) } else { Monitor() }
+    if (err) { console.error('Error sync:', err) } else { Monitor() }
   })
 }
 
@@ -140,9 +141,7 @@ function DownloadFolders () {
 function DownloadFiles () {
   console.log('Downloading files')
   return new Promise((resolve, reject) => {
-    Downloader.DownloadAllFiles().then(result => {
-      resolve()
-    }).catch(err => reject(err))
+    Downloader.DownloadAllFiles().then(result => resolve()).catch(err => reject(err))
   })
 }
 
