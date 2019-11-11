@@ -7,6 +7,7 @@ import crypt from './crypt'
 import axios from 'axios'
 import async from 'async'
 import tree from './tree'
+import rimraf from 'rimraf'
 
 async function GetAuthHeader (withMnemonic) {
   const userData = await database.Get('xUser')
@@ -327,8 +328,54 @@ function CreateLocalFolders () {
 }
 
 function CleanLocalFolders () {
-  return new Promise((resolve, reject) => {
-    resolve()
+  return new Promise(async (resolve, reject) => {
+    const localPath = await database.Get('xPath')
+    // Get a list of all local folders
+    tree.GetLocalFolderList(localPath).then((list) => {
+      // Check what items are in dbFolders
+      async.eachSeries(list, (item, next) => {
+        database.FolderGet(item).then(folder => {
+          if (folder) {
+            // Folder exists in remote, nothing to do
+            next()
+          } else {
+            // Should DELETE that folder in local
+            console.log('Delete folder', item)
+            rimraf(item, (err) => next(err))
+          }
+        }).catch(err => {
+          console.log('ITEM ERR', err)
+          next(err)
+        })
+      }, (err) => {
+        console.log(database.dbFolders.getAllData())
+        if (err) { reject(err) } else { resolve() }
+      })
+    }).catch(err => reject(err))
+  })
+}
+
+function CleanLocalFiles () {
+  return new Promise(async (resolve, reject) => {
+    const localPath = await database.Get('xPath')
+    tree.GetLocalFileList(localPath).then(list => {
+      async.eachSeries(list, (item, next) => {
+        database.FileGet(item).then(fileObj => {
+          if (!fileObj) {
+            console.log('Delete file %s', item)
+            fs.unlinkSync(item)
+          } else {
+            next()
+          }
+        }).catch(err => next(err))
+      }, (err) => {
+        if (err) {
+          reject(err)
+        } else {
+          resolve()
+        }
+      })
+    }).catch(err => reject(err))
   })
 }
 
@@ -342,5 +389,6 @@ export default {
   CheckMissingFiles,
   CreateLocalFolders,
   RemoveFile,
-  CleanLocalFolders
+  CleanLocalFolders,
+  CleanLocalFiles
 }

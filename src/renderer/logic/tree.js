@@ -170,11 +170,57 @@ function GetFileListFromRemoteTree () {
   })
 }
 
+function GetLocalFolderList (localPath) {
+  return new Promise((resolve, reject) => {
+    let data = safeReadDirSync(localPath)
+    let folders = []
+
+    async.eachSeries(data, (item, next) => {
+      const itemPath = PATH.join(localPath, item)
+      const stat = FS.lstatSync(itemPath)
+      if (!stat.isFile()) {
+        folders.push(itemPath)
+        GetLocalFolderList(itemPath).then(subFolders => {
+          folders = folders.concat(subFolders)
+          next()
+        }).catch(err => next(err))
+      } else { next() }
+    }, (err, result) => {
+      if (err) { reject(err) } else { resolve(folders) }
+    })
+  })
+}
+
+function GetLocalFileList (localPath) {
+  return new Promise((resolve, reject) => {
+    let data = safeReadDirSync(localPath)
+    let files = []
+
+    async.eachSeries(data, (item, next) => {
+      const itemPath = PATH.join(localPath, item)
+      const stat = FS.lstatSync(itemPath)
+      if (!stat.isFile()) {
+        GetLocalFileList(itemPath).then(subFolders => {
+          files = files.concat(subFolders)
+          next()
+        }).catch(err => next(err))
+      } else {
+        files.push(itemPath)
+        next()
+      }
+    }, (err, result) => {
+      if (err) { reject(err) } else { resolve(files) }
+    })
+  })
+}
+
 export default {
   GetTreeFromFolder,
   GetListFromFolder,
   GetStat,
   GetFolderListFromRemoteTree,
   GetFileListFromRemoteTree,
-  GetFolderObjectListFromRemoteTree
+  GetFolderObjectListFromRemoteTree,
+  GetLocalFolderList,
+  GetLocalFileList
 }

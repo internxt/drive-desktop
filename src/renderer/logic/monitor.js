@@ -44,8 +44,12 @@ function StartMonitor () {
       DownloadFiles().then(() => next()).catch(err => next(err))
     },
     (next) => {
-      // Delete local files missing in remote
+      // Delete local folders missing in remote
       CleanRemoteFolders().then(() => next()).catch(err => next(err))
+    },
+    (next) => {
+      // Delete local files missing in remote
+      CleanRemoteFiles().then(() => next()).catch(err => next(err))
     }
   ], (err, result) => {
     if (err) { console.log('Error sync:', err) } else { Monitor() }
@@ -103,7 +107,7 @@ function RegenerateLocalDbFiles () {
   return new Promise((resolve, reject) => {
     console.log('Regenerating local files database')
     tree.GetFileListFromRemoteTree().then(list => {
-      database.dbFolders.remove({}, { multi: true }, (err, n) => {
+      database.dbFiles.remove({}, { multi: true }, (err, n) => {
         if (err) { reject(err) } else {
           async.eachSeries(list, (item, next) => {
             let finalObject = {
@@ -147,14 +151,14 @@ function DownloadFiles () {
 function CleanRemoteFolders () {
   console.log('Clear remote folders')
   return new Promise((resolve, reject) => {
-    resolve()
+    Sync.CleanLocalFolders().then(() => resolve()).catch(err => reject(err))
   })
 }
 
 function CleanRemoteFiles () {
   console.log('Clear remote files')
   return new Promise((resolve, reject) => {
-    Sync.CleanLocalFolders().then(() => resolve()).catch(err => reject(err))
+    Sync.CleanLocalFiles().then(() => resolve()).catch(err => reject(err))
   })
 }
 
