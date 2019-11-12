@@ -1,20 +1,23 @@
 <template>
   <div id="wrapper">
     <main class="centered-container">
-      <img src="../../resources/icons/xcloud.png" class="logo" />
-      <input
-        class="form-control"
-        v-model="username"
-        type="text" placeholder="Email address" />
-      <input
-        class="form-control"
-        v-model="password"
-        type="password" placeholder="Password" />
-      <input
-        class="form-control btn-block btn-primary"
-        type="submit"
-        @click="doLogin()"
-        value="Sign in" />
+      <div class="login-container-box">
+        <div class="login-logo-container"><img src="../../resources/icons/xcloud.png" class="logo" /></div>
+        <div class="login-title">Sign in to X Cloud Desktop</div>
+        <input
+          class="form-control"
+          v-model="username"
+          type="text" placeholder="Email address" />
+        <input
+          class="form-control"
+          v-model="password"
+          type="password" placeholder="Password" />
+        <input
+          class="form-control btn-block btn-primary"
+          type="submit"
+          @click="doLogin()"
+          value="Sign in" />
+      </div>
     </main>
   </div>
 </template>
@@ -37,10 +40,6 @@ export default {
       this.$electron.shell.openExternal(link)
     },
     doLogin () {
-      // const username = this.$data.username
-      // const password = this.$data.password
-      // console.log(username, password);
-
       fetch('https://cloud.internxt.com/api/login', {
         method: 'POST',
         mode: 'cors',
@@ -110,8 +109,32 @@ export default {
   }
 
   .logo {
-    width: 40px;
-    margin: auto;
+    width: 50px;
     display: block;
+  }
+
+  .form-control {
+    margin-bottom: 15px;
+    height: 50px !important;
+  }
+
+  .btn-primary {
+    margin-top: 30px !important;
+    background-color: #4585f5 !important;
+    font-weight: bold !important;
+  }
+
+  .login-container-box {
+    background-color: #fff;
+    width: 472px !important;
+    border: 1px solid #eaeced;
+    border-radius: 6px;
+    padding: 40px !important;
+  }
+
+  .login-title {
+    font-size: 25px;
+    font-weight: 600;
+    margin-bottom: 20px;
   }
 </style>

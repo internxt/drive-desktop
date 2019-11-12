@@ -111,13 +111,18 @@ function UploadFile (storj, filePath) {
 
 function UploadNewFile (storj, filePath) {
   const folderPath = path.dirname(filePath)
-  console.log('Upload new file', folderPath)
+  console.log('Upload new file!!!!!', filePath)
   return new Promise(async (resolve, reject) => {
+    console.log(folderPath)
     const dbEntry = await database.FolderGet(folderPath)
+    console.log('DB ENTRY', dbEntry)
     const user = await database.Get('xUser')
     const tree = await database.Get('tree')
-    const bucketId = dbEntry.value.bucket || tree.data.bucket
-    const folderId = dbEntry.value.id || user.user.root_folder_id
+
+    console.log(tree)
+
+    const bucketId = (dbEntry && dbEntry.value && dbEntry.value.bucket) || tree.bucket
+    const folderId = (dbEntry && dbEntry.value && dbEntry.value.id) || user.user.root_folder_id
 
     // Encrypted filename
     const originalFileName = path.basename(filePath)
@@ -237,33 +242,22 @@ function CheckMissingFiles () {
     let allData = database.dbFiles.getAllData()
     async.eachSeries(allData, (item, next) => {
       let stat
-      try {
-        stat = fs.lstatSync(item.key)
-      } catch (err) {
-        stat = null
-      }
+      try { stat = fs.lstatSync(item.key) } catch (err) { stat = null }
 
-      console.log('CHECKING', item.value)
-
-      if ((stat && !stat.isFile()) || fs.existsSync(item.key)) {
+      if ((stat && !stat.isFile()) || !fs.existsSync(item.key)) {
         console.log('Remove remote file', item.value)
         const bucketId = item.value.bucket
         const fileId = item.value.fileId
 
         RemoveFile(bucketId, fileId).then(() => next()).catch(err => {
           console.log('Error deleting remote file %j: %s', item, err)
-          next()
+          next(err)
         })
-        next()
       } else {
         next()
       }
     }, (err, result) => {
-      if (err) {
-        reject(err)
-      } else {
-        resolve(result)
-      }
+      if (err) { reject(err) } else { resolve(result) }
     })
   })
 }
@@ -288,17 +282,11 @@ function CheckMissingFolders () {
           next()
         }).catch(err => {
           console.log('Error removing remote folder %s, %j', item.value, err)
-          next()
+          next(err)
         })
-      } else {
-        next()
-      }
+      } else { next() }
     }, (err, result) => {
-      if (err) {
-        reject(err)
-      } else {
-        resolve(result)
-      }
+      if (err) { reject(err) } else { resolve(result) }
     })
   })
 }
@@ -310,6 +298,7 @@ function CreateLocalFolders () {
       async.eachSeries(list, (folder, next) => {
         try {
           fs.mkdirSync(folder)
+          console.log('Create folder: %s', folder)
           next()
         } catch (err) {
           if (err.code === 'EEXIST') {
@@ -320,7 +309,7 @@ function CreateLocalFolders () {
             next(err)
           }
         }
-      }, (err, result) => {
+      }, (err) => {
         if (err) { reject(err) } else { resolve() }
       })
     }).catch(err => reject(err))
@@ -348,7 +337,6 @@ function CleanLocalFolders () {
           next(err)
         })
       }, (err) => {
-        console.log(database.dbFolders.getAllData())
         if (err) { reject(err) } else { resolve() }
       })
     }).catch(err => reject(err))
@@ -364,6 +352,7 @@ function CleanLocalFiles () {
           if (!fileObj) {
             console.log('Delete file %s', item)
             fs.unlinkSync(item)
+            next()
           } else {
             next()
           }
@@ -379,6 +368,37 @@ function CleanLocalFiles () {
   })
 }
 
+function RemoteCreateFolder (name, parentId) {
+  return new Promise(async (resolve, reject) => {
+    const folder = {
+      folderName: name,
+      parentFolderId: parentId
+    }
+
+    const userData = await database.Get('xUser')
+
+    fetch(`${process.env.API_URL}/storage/folder`, {
+      method: 'POST',
+      mode: 'cors',
+      headers: {
+        'Authorization': `Bearer ${userData.token}`,
+        'content-type': 'application/json'
+      },
+      body: JSON.stringify(folder)
+    }).then(async res => {
+      return { res, data: await res.json() }
+    }).then(res => {
+      if (res.res.status === 500 && res.data.error && res.data.error.includes('Folder with the same name already exists')) {
+        resolve()
+      } else if (res.res.status === 201) {
+        resolve(res.data)
+      } else {
+        reject(res.data)
+      }
+    }).catch(err => reject(err))
+  })
+}
+
 export default {
   UploadFile,
   SetModifiedTime,
@@ -390,5 +410,6 @@ export default {
   CreateLocalFolders,
   RemoveFile,
   CleanLocalFolders,
-  CleanLocalFiles
+  CleanLocalFiles,
+  RemoteCreateFolder
 }

@@ -5,17 +5,15 @@
             <p>Choose folder to sync</p>
             <input type="text" v-model="storagePath" class="form-control" />
             <button @click="chooseFolder()" class="form-control btn-block btn-primary">Choose folder</button>
+
             <div v-if="this.folderExists(storagePath) && !folderIsEmpty" class="alert alert-danger" role="alert">
               This folder is not empty. Please, clear its contents or select another folder
-            </div>
-            <div v-if="storagePath && !this.folderExists(storagePath)" class="alert alert-danger" role="alert">
-              This folder does not exists
             </div>
 
             <button
               class="form-control btn btn-block btn-info"
               @click="configure"
-              :disabled="!storagePath || !this.folderExists(storagePath) || !folderIsEmpty">Continue</button>
+              :disabled="!storagePath || !isEmptyFolder(storagePath)">Continue</button>
           </div>
           
         </main>
@@ -47,12 +45,15 @@ export default {
       }
     },
     isEmptyFolder (path) {
-      var filesInFolder = fs.readdirSync(path)
-      return filesInFolder.length === 0
+      if (!fs.existsSync(path)) {
+        return true
+      } else {
+        var filesInFolder = fs.readdirSync(path)
+        return filesInFolder.length === 0
+      }
     },
     folderExists (path) {
-      var fext = fs.existsSync(path)
-      return fext
+      return fs.existsSync(path)
     },
     configure () {
       database.Set('xPath', this.$data.storagePath)

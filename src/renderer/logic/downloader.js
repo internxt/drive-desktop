@@ -29,11 +29,7 @@ function _getEnvironment () {
   })
 }
 
-function _getQueue () {
-
-}
-
-function DownloadFileTemp (fileObj) {
+function DownloadFileTemp (fileObj, silent = false) {
   return new Promise(async (resolve, reject) => {
     const storj = await _getEnvironment()
 
@@ -45,7 +41,9 @@ function DownloadFileTemp (fileObj) {
 
     storj.resolveFile(fileObj.bucket, fileObj.fileId, tempFilePath, {
       progressCallback: function (progress, downloadedBytes, totalBytes) {
-        console.log('progress:', progress)
+        if (!silent) {
+          console.log('progress:', progress)
+        }
       },
       finishedCallback: function (err) {
         if (err) { reject(err) } else {
@@ -107,16 +105,17 @@ function DownloadAllFiles () {
         } else {
           console.log('DOWNLOAD JUST TO ENSURE FILE')
           // Check file is ok
-          DownloadFileTemp(item)
+          DownloadFileTemp(item, true)
             .then(tempPath => next())
             .catch(err => {
               if (err.message === 'File missing shard error' && localExists) {
+                console.error('Missing shard error. Reuploading...')
                 RestoreFile(item)
                   .then(() => next())
                   .catch(err => next(err))
               } else {
                 console.error('Cannot upload local final')
-                next()
+                next(err)
               }
             })
         }
@@ -127,6 +126,95 @@ function DownloadAllFiles () {
   })
 }
 
+function UploadAllNewFiles () {
+  return new Promise(async (resolve, reject) => {
+    const localPath = await Database.Get('xPath')
+    const arbol = Tree.GetListFromFolder(localPath)
+    const storj = await _getEnvironment()
+
+    async.eachSeries(arbol, async function (item, next) {
+      var stat = Tree.GetStat(item)
+
+      if (stat.isFile()) {
+        // Is a file
+        let entry = await Database.FileGet(item)
+        if (!entry) {
+          // File only exists in local
+          console.log('New local file:', item)
+          Sync.UploadNewFile(storj, item).then(() => next()).catch(err => next(err))
+        } else { next() }
+      } else {
+        // Is a folder
+        let entry = await Database.FolderGet(item)
+        if (!entry) {
+          // Is a NEW folder
+          console.log('New local folder:', item)
+          next()
+        } else {
+          next()
+        }
+      }
+    }, (err, result) => {
+      if (err) {
+        console.error('Error uploading file', err)
+        reject(err)
+      } else {
+        resolve()
+      }
+    })
+  })
+}
+
+function UploadAllNewFolders () {
+  return new Promise(async (resolve, reject) => {
+    const localPath = await Database.Get('xPath')
+    const userInfo = await Database.Get('xUser')
+
+    let lastParentId = null
+    let lastParentFolder = null
+
+    Tree.GetLocalFolderList(localPath).then(list => {
+      async.eachSeries(list, async (item, next) => {
+        // Check if exists in database
+        const dbEntry = await Database.FolderGet(item)
+
+        if (dbEntry) { return next() }
+
+        // Substract local path
+        const folderName = path.basename(item)
+        const parentPath = path.dirname(item)
+
+        let parentId = parentPath === localPath ? userInfo.user.root_folder_id : (await Database.FolderGet(parentPath)).value.id
+        if (parentPath === lastParentFolder) {
+          parentId = lastParentId
+        } else if (lastParentFolder) {
+          lastParentFolder = null
+          lastParentId = null
+        }
+
+        if (parentId) {
+          Sync.RemoteCreateFolder(folderName, parentId).then(async (result) => {
+            console.log('Remote create folder result', result)
+            await Database.FolderSet(item, result)
+            lastParentId = result ? result.id : null
+            lastParentFolder = result ? item : null
+            next()
+          }).catch(err => next(err))
+        } else {
+          next()
+        }
+      }, (err) => {
+        if (err) {
+          console.error(err)
+          reject(err)
+        } else { resolve() }
+      })
+    }).catch(err => reject(err))
+  })
+}
+
 export default {
-  DownloadAllFiles
+  DownloadAllFiles,
+  UploadAllNewFiles,
+  UploadAllNewFolders
 }

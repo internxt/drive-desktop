@@ -6,8 +6,8 @@ import database from '../../database'
 
 function Monitor (startInmediately = false) {
   let timeout = 0
-  if (!startInmediately) { timeout = 60000 }
-  console.log('Waiting %s secs for next sync', timeout / 1000)
+  if (!startInmediately) { timeout = 10000 }
+  console.info('Waiting %s secs for next sync', timeout / 1000)
   setTimeout(() => StartMonitor(), timeout)
 }
 
@@ -15,15 +15,26 @@ function StartMonitor () {
   // Sync
   async.waterfall([
     (next) => {
+      UploadNewFolders().then(() => next()).catch(err => next(err))
+    },
+    (next) => {
+      UploadNewFiles().then(() => next()).catch(err => next(err))
+    },
+    (next) => {
       // Delete remote folders missing in local folder
+      // Borrar diretorios remotos que ya no existen en local
+      // Nos basamos en el último árbol sincronizado
       CleanLocalFolders().then(() => next(null)).catch(err => next(err))
     },
     (next) => {
       // Delete remote files missing in local folder
+      // Borrar archivos remotos que ya no existen en local
+      // Nos basamos en el último árbol sincronizado
       CleanLocalFiles().then(() => next(null)).catch(err => next(err))
     },
     (next) => {
       // Donwload the tree of remote files and folders
+      // Descargamos nuevo árbol
       SyncTree().then(() => next()).catch(err => next(err))
     },
     (next) => {
@@ -36,10 +47,12 @@ function StartMonitor () {
     },
     (next) => {
       // Create local folders
+      // Si hay directorios nuevos en el árbol, los creamos en local
       DownloadFolders().then(() => next()).catch(err => next(err))
     },
     (next) => {
       // Download remote files
+      // Si hay ficheros nuevos en el árbol, los creamos en local
       DownloadFiles().then(() => next()).catch(err => next(err))
     },
     (next) => {
@@ -50,7 +63,7 @@ function StartMonitor () {
       // Delete local files missing in remote
       CleanRemoteFiles().then(() => next()).catch(err => next(err))
     }
-  ], (err, result) => {
+  ], (err) => {
     if (err) { console.error('Error sync:', err) } else { Monitor() }
   })
 }
@@ -76,10 +89,10 @@ function SyncTree () {
   console.log('Sync tree of remote files')
   return new Promise((resolve, reject) => {
     Sync.UpdateTree().then(() => {
-      console.log('Tree of remote folders/files updated')
+      console.log('Tree of remote folders/files successfully updated')
       resolve()
     }).catch(err => {
-      console.log('Error', err)
+      console.error('Error', err)
       reject(err)
     })
   })
@@ -141,7 +154,21 @@ function DownloadFolders () {
 function DownloadFiles () {
   console.log('Downloading files')
   return new Promise((resolve, reject) => {
-    Downloader.DownloadAllFiles().then(result => resolve()).catch(err => reject(err))
+    Downloader.DownloadAllFiles().then(() => resolve()).catch(err => reject(err))
+  })
+}
+
+function UploadNewFolders () {
+  console.log('Creating new folders in remote')
+  return new Promise((resolve, reject) => {
+    Downloader.UploadAllNewFolders().then(() => resolve()).catch(err => reject(err))
+  })
+}
+
+function UploadNewFiles () {
+  console.log('Uploading local new files')
+  return new Promise((resolve, reject) => {
+    Downloader.UploadAllNewFiles().then(() => resolve()).catch(err => reject(err))
   })
 }
 
