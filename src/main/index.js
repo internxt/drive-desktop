@@ -36,7 +36,7 @@ function createWindow () {
     mainWindow = null
   })
 
-  const trayIcon = path.join(__dirname, '../resources/icons/tray-icon.png')
+  const trayIcon = path.join(__dirname, '../resources/icons/tray-icon16.png')
 
   let tray = new Tray(trayIcon)
 }
