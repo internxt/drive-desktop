@@ -3,28 +3,37 @@
     <main class="centered-container">
       <div class="login-container-box">
         <div class="login-logo-container"><img src="../../resources/icons/xcloud.png" class="logo" /></div>
-        <div class="login-title">Sign in to X Cloud Desktop</div>
-        <input
-          class="form-control"
-          v-model="username"
-          type="text" placeholder="Email address" />
-        <input
-          class="form-control"
-          v-model="password"
-          type="password" placeholder="Password" />
-        <div class="form-control-file">
+        <div class="login-title">{{showTwoFactor ? 'Security Verification' : 'Sign in to X Cloud Desktop'}}</div>
+        <div v-if="!showTwoFactor">
           <input
             class="form-control"
-            v-model="storagePath"
-            :disabled="true"
-            type="text" placeholder="Select an empty folder" />
-          <div class="form-control-fake-file"  @click="selectFolder()"></div>
+            v-model="username"
+            type="text" placeholder="Email address" />
+          <input
+            class="form-control"
+            v-model="password"
+            type="password" placeholder="Password" />
+          <div class="form-control-file">
+            <input
+              class="form-control"
+              v-model="storagePath"
+              :disabled="true"
+              type="text" placeholder="Select an empty folder" />
+            <div class="form-control-fake-file"  @click="selectFolder()"></div>
+          </div>
+          <p
+            v-if="storagePath && !isEmptyFolder(storagePath)"
+            class="form-error">
+              This folder is not empty
+          </p>
         </div>
-        <p
-          v-if="storagePath && !isEmptyFolder(storagePath)"
-          class="form-error">
-            This folder is not empty
-        </p>
+        <div v-if="showTwoFactor">
+          <div>Enter your 6 digit authenticator code below</div>
+          <input
+            class="form-control"
+            v-model="twoFactorCode"
+            type="text" placeholder="Authentication code" />
+        </div>
         <input
           class="form-control btn-block btn-primary"
           type="submit"
@@ -32,7 +41,7 @@
           @click="savePathAndLogin()"
           value="Sign in" />
 
-        <div class="create-account-container">Don't have an account? <a href="#" @click="open('https://cloud.internxt.com/new')">Create an account for free</a></div>
+        <div v-if="!showTwoFactor" class="create-account-container">Don't have an account? <a href="#" @click="open('https://cloud.internxt.com/new')">Create an account for free</a></div>
       </div>
     </main>
   </div>
@@ -50,7 +59,9 @@ export default {
     return {
       username: '',
       password: '',
-      storagePath: ''
+      storagePath: '',
+      showTwoFactor: false,
+      twoFactorCode: ''
     }
   },
   components: { },
@@ -99,8 +110,8 @@ export default {
         if (res.res.status !== 200) {
           return alert('Login error')
         }
-        if (res.body.tfa) {
-          throw Error('TFA not implemented yet')
+        if (res.body.tfa && !this.$data.twoFactorCode) {
+          this.$data.showTwoFactor = true
         } else {
           this.doAccess(res.body.sKey)
         }
@@ -121,7 +132,7 @@ export default {
         body: JSON.stringify({
           email: this.$data.username,
           password: encryptedHash,
-          tfa: null
+          tfa: this.$data.twoFactorCode
         })
       }).then(async res => {
         return { res, data: await res.json() }
@@ -129,6 +140,10 @@ export default {
         if (res.res.status !== 200) {
           if (res.data.error) {
             alert('Login error\n' + res.data.error)
+            if (res.data.error.includes('Wrong email')) {
+              this.$data.twoFactorCode = ''
+              this.$data.showTwoFactor = false
+            }
           } else {
             alert('Login error')
           }
