@@ -16,6 +16,8 @@ const winURL = process.env.NODE_ENV === 'development'
   ? `http://localhost:9080`
   : `file://${__dirname}/index.html`
 
+let tray
+
 function createWindow () {
   /**
    * Initial window options
@@ -36,9 +38,9 @@ function createWindow () {
     mainWindow = null
   })
 
-  const trayIcon = path.join(__dirname, '../resources/icons/tray-icon16.png')
+  const trayIcon = path.join(__dirname, '../resources/icons/tray-icon@2x.png')
 
-  let tray = new Tray(trayIcon)
+  tray = new Tray(trayIcon)
 }
 
 app.on('ready', createWindow)
