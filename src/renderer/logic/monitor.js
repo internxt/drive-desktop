@@ -64,8 +64,16 @@ function StartMonitor () {
       CleanRemoteFiles().then(() => next()).catch(err => next(err))
     }
   ], (err) => {
-    if (err) { console.error('Error sync:', err) }
-    Monitor()
+    if (err) {
+      database.dbFiles.remove({}, {multi: true}, () => {
+        database.dbFolders.remove({}, {multi: true}, () => {
+          Monitor()
+        })
+      })
+      console.error('Error sync:', err)
+    } else {
+      Monitor()
+    }
   })
 }
 

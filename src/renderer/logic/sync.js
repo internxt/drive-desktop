@@ -52,9 +52,12 @@ async function SetModifiedTime (path, time) {
 
   return new Promise((resolve, reject) => {
     console.log('Set mtime for %s to %s', path, convertedTime)
-    Utimes.utimes(path, undefined, convertedTime, undefined, function (err) {
-      if (err) { reject(err) } else { resolve() }
-    })
+    try {
+      fs.utimesSync(path, convertedTime, convertedTime)
+      resolve()
+    } catch (err) {
+      reject(err)
+    }
   })
 }
 
