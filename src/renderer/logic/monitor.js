@@ -64,7 +64,8 @@ function StartMonitor () {
       CleanRemoteFiles().then(() => next()).catch(err => next(err))
     }
   ], (err) => {
-    if (err) { console.error('Error sync:', err) } else { Monitor() }
+    if (err) { console.error('Error sync:', err) }
+    Monitor()
   })
 }
 
