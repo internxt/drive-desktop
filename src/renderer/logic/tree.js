@@ -60,9 +60,11 @@ function GetListFromFolder (folderPath) {
     let stats
     try { stats = FS.statSync(fullPath) } catch (e) { return null }
     if (stats.isFile()) {
-      returnResult.push(fullPath)
+      const fileName = PATH.basename(fullPath)
+      if (fileName !== '.DS_Store') {
+        returnResult.push(fullPath)
+      }
     } else {
-      returnResult.push(fullPath)
       returnResult = returnResult.concat(GetListFromFolder(fullPath))
     }
   })

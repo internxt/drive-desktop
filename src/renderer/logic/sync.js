@@ -1,5 +1,4 @@
 import { Environment } from 'storj'
-import Utimes from '@ronomon/utimes'
 import fs from 'fs'
 import database from '../../database/index'
 import path from 'path'
@@ -22,11 +21,7 @@ async function GetAuthHeader (withMnemonic) {
 function FileInfoFromPath (localPath) {
   return new Promise((resolve, reject) => {
     database.dbFiles.findOne({ key: localPath }, function (err, result) {
-      if (err) {
-        reject(err)
-      } else {
-        resolve(result)
-      }
+      if (err) { reject(err) } else { resolve(result) }
     })
   })
 }

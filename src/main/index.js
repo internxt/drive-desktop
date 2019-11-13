@@ -22,10 +22,10 @@ function createWindow () {
 
   BrowserWindow.prototype.$app = app
   mainWindow = new BrowserWindow({
-    height: 1000,
+    height: 550,
     useContentSize: true,
-    width: 1000,
-    frame: true,
+    width: 500,
+    frame: false,
     autoHideMenuBar: true
   })
 

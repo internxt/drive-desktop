@@ -1,7 +1,6 @@
 <template>
   <div id="wrapper">
     <main>
-      <div>HOLA</div>
       <div class="spinner-grow text-primary" role="status">
         <span class="sr-only">Loading...</span>
       </div>

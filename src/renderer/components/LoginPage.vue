@@ -12,11 +12,27 @@
           class="form-control"
           v-model="password"
           type="password" placeholder="Password" />
+        <div class="form-control-file">
+          <input
+            class="form-control"
+            v-model="storagePath"
+            :disabled="true"
+            type="text" placeholder="Select an empty folder" />
+          <div class="form-control-fake-file"  @click="selectFolder()"></div>
+        </div>
+        <p
+          v-if="storagePath && !isEmptyFolder(storagePath)"
+          class="form-error">
+            This folder is not empty
+        </p>
         <input
           class="form-control btn-block btn-primary"
           type="submit"
-          @click="doLogin()"
+          :disabled="checkForm()"
+          @click="savePathAndLogin()"
           value="Sign in" />
+
+        <div class="create-account-container">Don't have an account? <a href="#" @click="open('https://cloud.internxt.com/new')">Create an account for free</a></div>
       </div>
     </main>
   </div>
@@ -25,13 +41,16 @@
 <script>
 import crypt from '../logic/crypt'
 import database from '../../database/index'
+import { remote } from 'electron'
+import fs from 'fs'
 
 export default {
   name: 'login-page',
   data () {
     return {
       username: '',
-      password: ''
+      password: '',
+      storagePath: ''
     }
   },
   components: { },
@@ -39,13 +58,40 @@ export default {
     open (link) {
       this.$electron.shell.openExternal(link)
     },
+    selectFolder () {
+      var path = remote.dialog.showOpenDialog({ properties: ['openDirectory'] })
+      if (path && path[0]) {
+        this.$data.storagePath = path[0]
+        // this.$data.folderIsEmpty = this.isEmptyFolder(path[0])
+      }
+    },
+    isEmptyFolder (path) {
+      if (!fs.existsSync(path)) {
+        return true
+      } else {
+        var filesInFolder = fs.readdirSync(path)
+        return filesInFolder.length === 0
+      }
+    },
+    checkForm () {
+      return this.$data.username &&
+      this.$data.password &&
+      this.$data.storagePath &&
+      !this.isEmptyFolder(this.$data.storagePath)
+    },
+    savePathAndLogin () {
+      database.Set('xPath', this.$data.storagePath).then(() => {
+        this.doLogin()
+      }).catch(err => {
+        console.error(err)
+        alert(err)
+      })
+    },
     doLogin () {
       fetch('https://cloud.internxt.com/api/login', {
         method: 'POST',
         mode: 'cors',
-        headers: {
-          'content-type': 'application/json'
-        },
+        headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ email: this.$data.username })
       }).then(async res => {
         return { res, body: await res.json() }
@@ -103,9 +149,18 @@ export default {
 <style>
   @import url('https://fonts.googleapis.com/css?family=Source+Sans+Pro');
 
+  @font-face {
+    font-family: 'CerebriSans-Regular';
+    src: url('../../resources/fonts/CerebriSans-Regular.ttf');
+  }
+
+  .centered-container {
+    font-family: 'CerebriSans-Regular'
+  }
+
   input {
     border: solid 1px;
-    margin: 4px;
+    margin: 0px 4px 0px 0px;
   }
 
   .logo {
@@ -114,12 +169,12 @@ export default {
   }
 
   .form-control {
-    margin-bottom: 15px;
+    margin-top: 15px;
     height: 50px !important;
   }
 
   .btn-primary {
-    margin-top: 30px !important;
+    margin-top: 39px !important;
     background-color: #4585f5 !important;
     font-weight: bold !important;
   }
@@ -127,8 +182,6 @@ export default {
   .login-container-box {
     background-color: #fff;
     width: 472px !important;
-    border: 1px solid #eaeced;
-    border-radius: 6px;
     padding: 40px !important;
   }
 
@@ -136,5 +189,46 @@ export default {
     font-size: 25px;
     font-weight: 600;
     margin-bottom: 20px;
+  }
+
+  .create-account-container {
+    margin-top: 39px;
+    color: #909090;
+  }
+
+  .form-control-file {
+    position: relative;
+    display: inline-block;
+  }
+
+  .form-control-file::before {
+    position: absolute;
+    content: url('../../resources/icons/arrow-right.svg');
+    top: 25%;
+    right: -8px;
+    height: 50px;
+    width: 40px;
+  }
+
+  input[type="text"]:disabled {
+    background-color: white !important;
+  }
+
+  input[type="submit"]:disabled {
+    background-color: #7aa5ee !important;
+  }
+
+  .form-control-fake-file {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+  }
+
+  .form-error {
+    color: red;
+    font-size: 13px;
+    margin: 0px;
   }
 </style>
