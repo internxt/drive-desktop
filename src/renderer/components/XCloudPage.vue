@@ -19,6 +19,7 @@ import database from '../../database/index'
 import Sync from '../logic/sync'
 import Tree from '../logic/tree'
 import Monitor from '../logic/monitor'
+import { remote } from 'electron'
 
 export default {
   name: 'xcloud-page',
@@ -30,6 +31,7 @@ export default {
   },
   components: {},
   mounted: function () {
+    remote.BrowserWindow.getFocusedWindow().minimize()
     this.$app = this.$electron.remote.app
     Monitor.Monitor(true)
   },

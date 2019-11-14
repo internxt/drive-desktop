@@ -6,7 +6,7 @@ import database from '../../database'
 
 function Monitor (startInmediately = false) {
   let timeout = 0
-  if (!startInmediately) { timeout = 10000 }
+  if (!startInmediately) { timeout = 1000 * 60 * 10 }
   console.info('Waiting %s secs for next sync', timeout / 1000)
   setTimeout(() => StartMonitor(), timeout)
 }

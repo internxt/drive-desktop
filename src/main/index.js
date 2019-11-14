@@ -2,6 +2,9 @@
 
 import { app, BrowserWindow, Tray, Menu } from 'electron'
 import path from 'path'
+import AutoStart from '../libs/autolauncher'
+
+AutoStart.configureAutostart()
 
 /**
  * Set `__static` path to static files in production
@@ -17,6 +20,24 @@ const winURL = process.env.NODE_ENV === 'development'
   : `file://${__dirname}/index.html`
 
 let tray
+
+if (process.platform === 'darwin') {
+  app.dock.hide()
+}
+
+app.on('second-instance', (event, argv, cwd) => {
+  console.log('Second instance')
+  app.quit()
+})
+
+function destroyTray () {
+  if (tray) {
+    tray.destroy()
+    tray = null
+    mainWindow = null
+  }
+  app.quit()
+}
 
 function createWindow () {
   /**
@@ -35,7 +56,7 @@ function createWindow () {
   mainWindow.loadURL(winURL)
 
   mainWindow.on('closed', () => {
-    tray && tray.destroy()
+    destroyTray()
     mainWindow = null
   })
 
@@ -45,7 +66,9 @@ function createWindow () {
   tray.setToolTip('X Cloud Desktop')
 
   const contextMenu = () => Menu.buildFromTemplate([
-    { role: 'quit' }
+    {
+      role: 'quit'
+    }
   ])
 
   tray.setContextMenu(contextMenu())
@@ -54,6 +77,7 @@ function createWindow () {
 app.on('ready', createWindow)
 
 app.on('window-all-closed', () => {
+  destroyTray()
   if (process.platform !== 'darwin') {
     app.quit()
   }
@@ -63,6 +87,10 @@ app.on('activate', () => {
   if (mainWindow === null) {
     createWindow()
   }
+})
+
+app.on('before-quit', function (evt) {
+  tray.destroy()
 })
 
 /**
