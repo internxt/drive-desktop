@@ -2,7 +2,12 @@
   <div id="wrapper">
     <main>
       <div class="spinner-grow text-primary" role="status">
-        <span class="sr-only">Loading...</span>
+        <span class="sr-only">Syncing...</span>
+      </div>
+      <div>
+        <div>User: {{databaseUser}}</div>
+        <div>Folder: {{localPath}}</div>
+        <div>Env: {{currentEnv}}</div>
       </div>
       <div><a href="#" @click="quitApp()">Quit</a></div>
     </main>
@@ -26,8 +31,9 @@ export default {
   name: 'xcloud-page',
   data () {
     return {
-      bridgeInstance: null,
-      queue: null
+      databaseUser: '',
+      localPath: '',
+      currentEnv: ''
     }
   },
   components: {},
@@ -37,10 +43,32 @@ export default {
     }
     this.$app = this.$electron.remote.app
     Monitor.Monitor(true)
+    this.getUser()
+    this.getLocalFolderPath()
+    this.getCurrentEnv()
   },
   methods: {
     quitApp () {
       remote.getCurrentWindow().close()
+    },
+    getUser () {
+      database.Get('xUser').then(userInfo => {
+        this.$data.databaseUser = userInfo.user.email
+      }).catch(err => {
+        console.error(err)
+        this.$data.databaseUser = 'error'
+      })
+    },
+    getLocalFolderPath () {
+      database.Get('xPath').then(path => {
+        this.$data.localPath = path
+      }).catch(err => {
+        console.error(err)
+        this.$data.localPath = 'error'
+      })
+    },
+    getCurrentEnv () {
+      this.$data.currentEnv = process.env.NODE_ENV
     }
   }
 }
