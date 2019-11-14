@@ -60,7 +60,11 @@ function createWindow () {
     mainWindow = null
   })
 
-  const trayIcon = path.join(__dirname, '../resources/icons/tray-icon@2x.png')
+  let trayIcon = path.join(__dirname, '../resources/icons/tray-icon@2x.png')
+
+  if (process.env.NODE_ENV === 'production') {
+    trayIcon = path.join(__dirname, '../../src/resources/icons/tray-icon@2x.png')
+  }
 
   tray = new Tray(trayIcon)
   tray.setToolTip('X Cloud Desktop')
