@@ -1,6 +1,6 @@
 {
   "name": "x-cloud-desktop",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "author": "J. Alberto <45895462+JAlbertoGonzalez@users.noreply.github.com>",
   "description": "X Cloud client UI",
   "license": null,
@@ -22,7 +22,7 @@
     "postinstall": "npm run lint:fix"
   },
   "build": {
-    "productName": "x-cloud-desktop",
+    "productName": "X Cloud Desktop",
     "appId": "com.internxt.xclouddesktop",
     "directories": {
       "output": "build"
@@ -30,7 +30,11 @@
     "files": [
       "dist/electron/**/*"
     ],
+    "publish": {
+      "provider": "github"
+    },
     "dmg": {
+      "sign": false,
       "contents": [
         {
           "x": 410,
@@ -46,14 +50,26 @@
       ]
     },
     "mac": {
-      "icon": "build/icons/icon.icns"
+      "icon": "build/icons/icon.icns",
+      "hardenedRuntime": true,
+      "gatekeeperAssess": false,
+      "entitlements": "./resources/osx/Info.plist",
+      "entitlementsInherit": "./resources/osx/Info.plist"
     },
     "win": {
+      "target": "nsis",
       "icon": "build/icons/icon.ico"
     },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false
+    },
     "linux": {
-      "icon": "build/icons"
-    }
+      "icon": "build/icons",
+      "category": "Network",
+      "target": "deb"
+    },
+    "afterSign": "resources/osx/notarize.js"
   },
   "dependencies": {
     "async": "^3.1.0",
@@ -103,6 +119,7 @@
     "electron-builder": "^20.19.2",
     "electron-debug": "^1.5.0",
     "electron-devtools-installer": "^2.2.4",
+    "electron-notarize": "^0.2.0",
     "eslint": "^4.19.1",
     "eslint-config-standard": "^11.0.0",
     "eslint-friendly-formatter": "^4.0.1",
