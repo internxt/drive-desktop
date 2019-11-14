@@ -67,6 +67,7 @@ function createWindow () {
 
   const contextMenu = () => Menu.buildFromTemplate([
     {
+      label: 'Quit',
       role: 'quit'
     }
   ])
