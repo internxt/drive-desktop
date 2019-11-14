@@ -35,12 +35,20 @@ function createWindow () {
   mainWindow.loadURL(winURL)
 
   mainWindow.on('closed', () => {
+    tray && tray.destroy()
     mainWindow = null
   })
 
   const trayIcon = path.join(__dirname, '../resources/icons/tray-icon@2x.png')
 
   tray = new Tray(trayIcon)
+  tray.setToolTip('X Cloud Desktop')
+
+  const contextMenu = () => Menu.buildFromTemplate([
+    { role: 'quit' }
+  ])
+
+  tray.setContextMenu(contextMenu())
 }
 
 app.on('ready', createWindow)
