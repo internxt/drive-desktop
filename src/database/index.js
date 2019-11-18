@@ -1,8 +1,27 @@
 import Datastore from 'nedb'
+import path from 'path'
+import { remote } from 'electron'
+import fs from 'fs'
 
-const dbFiles = new Datastore({ filename: 'database_files.db', autoload: true })
-const dbFolders = new Datastore({ filename: 'database_folders.db', autoload: true })
-const dbUser = new Datastore({ filename: 'database_user.db', autoload: true })
+const databaseFolder = `${process.env.NODE_ENV === 'production' ? remote.app.getPath('home') + `/.xclouddesktop/` : '.'}`
+
+if (!fs.existsSync(databaseFolder)) { fs.mkdirSync(databaseFolder) }
+
+console.error('Path DB ', databaseFolder)
+console.error('joined path', path.join(databaseFolder, 'database_files.db'))
+
+const dbFiles = new Datastore({
+  filename: path.join(databaseFolder, 'database_files.db'),
+  autoload: true,
+  timestampData: true })
+const dbFolders = new Datastore({
+  filename: path.join(databaseFolder, 'database_folders.db'),
+  autoload: true,
+  timestampData: true })
+const dbUser = new Datastore({
+  filename: path.join(databaseFolder, 'database_user.db'),
+  autoload: true,
+  timestampData: true })
 
 function InsertKeyValue (db, key, value) {
   return new Promise((resolve, reject) => {
@@ -71,5 +90,14 @@ const FileGet = (key) => {
 }
 
 export default {
-  dbFiles, dbFolders, dbUser, Get, Set, FolderSet, FileSet, FolderGet, FileGet
+  dbFiles,
+  dbFolders,
+  dbUser,
+  Get,
+  Set,
+  FolderSet,
+  FileSet,
+  FolderGet,
+  FileGet,
+  GetDatabaseFolder: databaseFolder
 }

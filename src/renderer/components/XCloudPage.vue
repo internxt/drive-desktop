@@ -4,11 +4,6 @@
       <div class="spinner-grow text-primary" role="status">
         <span class="sr-only">Syncing...</span>
       </div>
-      <div>
-        <div>User: {{databaseUser}}</div>
-        <div>Folder: {{localPath}}</div>
-        <div>Env: {{currentEnv}}</div>
-      </div>
       <div><a href="#" @click="quitApp()">Quit</a></div>
     </main>
   </div>
@@ -39,7 +34,7 @@ export default {
   components: {},
   mounted: function () {
     if (process.env.NODE_ENV !== 'development') {
-      remote.BrowserWindow.getFocusedWindow().minimize()
+      remote.BrowserWindow.getFocusedWindow().hide()
     }
     this.$app = this.$electron.remote.app
     Monitor.Monitor(true)

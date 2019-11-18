@@ -184,7 +184,9 @@ function UploadAllNewFolders () {
         const folderName = path.basename(item)
         const parentPath = path.dirname(item)
 
-        let parentId = parentPath === localPath ? userInfo.user.root_folder_id : (await Database.FolderGet(parentPath)).value.id
+        let lastFolder = await Database.FolderGet(parentPath)
+        let lastFolderId = lastFolder && lastFolder.value && lastFolder.value.id
+        let parentId = parentPath === localPath ? userInfo.user.root_folder_id : lastFolderId
         if (parentPath === lastParentFolder) {
           parentId = lastParentId
         } else if (lastParentFolder) {
@@ -199,7 +201,9 @@ function UploadAllNewFolders () {
             lastParentId = result ? result.id : null
             lastParentFolder = result ? item : null
             next()
-          }).catch(err => next(err))
+          }).catch(err => {
+            next(err)
+          })
         } else {
           next()
         }
