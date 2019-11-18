@@ -12,7 +12,7 @@ async function _getStorjCredentials () {
   const userInfo = (await Database.Get('xUser')).user
 
   const options = {
-    bridgeUrl: process.env.BRIDGE_URL,
+    bridgeUrl: 'https://api.internxt.com',
     bridgeUser: userInfo.email,
     bridgePass: userInfo.userId,
     encryptionKey: mnemonic

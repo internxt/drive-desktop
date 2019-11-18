@@ -124,7 +124,7 @@ export default {
       const pwd = crypt.HashPassword(this.$data.password, salt)
       const encryptedHash = crypt.Encrypt(pwd.hash.toString())
 
-      fetch(`${process.env.API_URL}/access`, {
+      fetch(`https://cloud.internxt.com/api/access`, {
         method: 'POST',
         headers: {
           'content-type': 'application/json'

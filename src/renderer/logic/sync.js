@@ -159,7 +159,7 @@ function RemoveFile (bucketId, fileId) {
   return new Promise(async (resolve, reject) => {
     const headers = await GetAuthHeader()
 
-    axios.delete(`${process.env.API_URL}/storage/bucket/${bucketId}/file/${fileId}`, {
+    axios.delete(`https://cloud.internxt.com/api/storage/bucket/${bucketId}/file/${fileId}`, {
       headers: headers
     }).then(result => {
       resolve(result)
@@ -181,7 +181,7 @@ function UpdateTree () {
 function GetTree () {
   return new Promise((resolve, reject) => {
     database.Get('xUser').then(userData => {
-      fetch(`${process.env.API_URL}/storage/tree`, {
+      fetch(`https://cloud.internxt.com/api/storage/tree`, {
         headers: { Authorization: `Bearer ${userData.token}` }
       }).then(async res => {
         return { res, data: await res.json() }
@@ -198,7 +198,7 @@ function RemoveFolder (folderId) {
   console.log('RemoveFolder(%s)', folderId)
   return new Promise(async (resolve, reject) => {
     database.Get('xUser').then(userData => {
-      fetch(`${process.env.API_URL}/storage/folder/${folderId}`, {
+      fetch(`https://cloud.internxt.com/api/storage/folder/${folderId}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${userData.token}` }
       }).then(result => {
@@ -224,7 +224,7 @@ async function CreateFileEntry (bucketId, bucketEntryId, fileName, fileExtension
 
   const userData = await database.Get('xUser')
 
-  axios.post(`${process.env.API_URL}/storage/file`, { file }, {
+  axios.post(`https://cloud.internxt.com/api/storage/file`, { file }, {
     headers: { Authorization: `Bearer ${userData.token}` }
   }).then(result => {
     console.log('CREATE FILE ENTRY', result)
@@ -375,7 +375,7 @@ function RemoteCreateFolder (name, parentId) {
 
     const userData = await database.Get('xUser')
 
-    fetch(`${process.env.API_URL}/storage/folder`, {
+    fetch(`https://cloud.internxt.com/api/storage/folder`, {
       method: 'POST',
       mode: 'cors',
       headers: {
