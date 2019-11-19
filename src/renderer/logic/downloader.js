@@ -161,8 +161,12 @@ function UploadAllNewFiles () {
       }
     }, (err, result) => {
       if (err) {
-        console.error('Error uploading file', err)
-        reject(err)
+        if (err.message.includes('already exists')) {
+          resolve()
+        } else {
+          console.error('Downloader Error uploading file', err)
+          reject(err)
+        }
       } else {
         resolve()
       }

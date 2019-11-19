@@ -96,7 +96,7 @@ function UploadFile (storj, filePath) {
       },
       finishedCallback: function (err, newFileId) {
         if (err) {
-          console.log('Error uploading file: %s', err)
+          console.log('Sync Error uploading file: %s', err)
           reject(err)
         } else {
           CreateFileEntry(bucketId, newFileId, encryptedFileName, fileExt, fileSize, folderId)
@@ -158,14 +158,17 @@ function UploadNewFile (storj, filePath) {
 // BucketId and FileId must be the NETWORK ids (mongodb)
 function RemoveFile (bucketId, fileId) {
   return new Promise(async (resolve, reject) => {
-    const headers = await GetAuthHeader()
-
-    axios.delete(`https://cloud.internxt.com/api/storage/bucket/${bucketId}/file/${fileId}`, {
-      headers: headers
-    }).then(result => {
-      resolve(result)
-    }).catch(err => {
-      reject(err)
+    database.Get('xUser').then(userData => {
+      fetch(`https://cloud.internxt.com/api/storage/bucket/${bucketId}/file/${fileId}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${userData.token}` }
+      }).then(result => {
+        console.log('Remove file result', result)
+        resolve(result)
+      }).catch(err => {
+        console.error('Axios error removing file', err)
+        reject(err)
+      })
     })
   })
 }
