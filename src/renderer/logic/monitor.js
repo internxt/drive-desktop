@@ -15,6 +15,36 @@ function StartMonitor () {
   // Sync
   async.waterfall([
     (next) => {
+      database.Get('lastSyncDate').then(lastDate => {
+        if (!lastDate || !(lastDate instanceof Date)) {
+          database.Set('lastSyncSuccess', false).then(() => next()).catch(err => next(err))
+        } else {
+          var DifferenceInTime = new Date() - lastDate
+          var DifferenceInDays = DifferenceInTime / (1000 * 3600 * 24)
+          if (DifferenceInDays > 2) {
+            database.Set('lastSyncSuccess', false).then(() => next()).catch(err => next(err))
+          } else {
+            next()
+          }
+        }
+      }).catch(err => next(err))
+    },
+    (next) => {
+      // Start to sync. Did last sync failed?
+      database.Get('lastSyncSuccess').then(result => {
+        if (result === true) { next() } else {
+          database.dbFiles.remove({}, { multi: true }, (err, totalFilesRemoved) => {
+            if (err) { next(err) } else {
+              database.dbFolders.remove({}, {multi: true}, (err, totalFoldersRemoved) => next(err))
+            }
+          })
+        }
+      })
+    },
+    (next) => {
+      database.Set('lastSyncSuccess', false).then(() => next()).catch(err => next(err))
+    },
+    (next) => {
       UploadNewFolders().then(() => next()).catch(err => next(err))
     },
     (next) => {
@@ -62,6 +92,12 @@ function StartMonitor () {
     (next) => {
       // Delete local files missing in remote
       CleanRemoteFiles().then(() => next()).catch(err => next(err))
+    },
+    (next) => {
+      database.Set('lastSyncSuccess', true).then(() => next()).catch(err => next(err))
+    },
+    (next) => {
+      database.Set('lastSyncDate', new Date()).then(() => next()).catch(err => next(err))
     }
   ], (err) => {
     if (err) {
