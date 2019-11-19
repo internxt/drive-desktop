@@ -69,9 +69,10 @@ function RestoreFile (fileObj) {
 function DownloadAllFiles () {
   return new Promise((resolve, reject) => {
     Tree.GetFileListFromRemoteTree().then(list => {
-      async.eachSeries(list, (item, next) => {
+      async.eachSeries(list, async (item, next) => {
         console.log('Cheking ', item.fullpath)
         let downloadAndReplace = false
+        let uploadAndReplace = false
 
         const localExists = fs.existsSync(item.fullpath)
 
@@ -81,7 +82,8 @@ function DownloadAllFiles () {
           const remoteTime = new Date(item.created_at)
           const localTime = stat.mtime
 
-          if (localTime > remoteTime) { downloadAndReplace = true }
+          if (remoteTime > localTime) { downloadAndReplace = true }
+          if (localTime > remoteTime) { uploadAndReplace = true }
         } else {
           downloadAndReplace = true
         }
@@ -102,6 +104,9 @@ function DownloadAllFiles () {
             }
             next()
           })
+        } else if (uploadAndReplace) {
+          let storj = await _getEnvironment()
+          Sync.UploadFile(storj, item.fullpath).then(() => next()).catch(err => next(err))
         } else {
           console.log('DOWNLOAD JUST TO ENSURE FILE')
           // Check file is ok

@@ -7,9 +7,6 @@ const databaseFolder = `${process.env.NODE_ENV === 'production' ? remote.app.get
 
 if (!fs.existsSync(databaseFolder)) { fs.mkdirSync(databaseFolder) }
 
-console.error('Path DB ', databaseFolder)
-console.error('joined path', path.join(databaseFolder, 'database_files.db'))
-
 const dbFiles = new Datastore({
   filename: path.join(databaseFolder, 'database_files.db'),
   autoload: true,
