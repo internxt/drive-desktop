@@ -61,7 +61,8 @@ export default {
       password: '',
       storagePath: '',
       showTwoFactor: false,
-      twoFactorCode: ''
+      twoFactorCode: '',
+      isLoading: false
     }
   },
   components: { },
@@ -85,6 +86,9 @@ export default {
       }
     },
     checkForm () {
+      if (this.$data.isLoading) {
+        return true
+      }
       return this.$data.username &&
       this.$data.password &&
       this.$data.storagePath &&
@@ -96,9 +100,11 @@ export default {
       }).catch(err => {
         console.error(err)
         alert(err)
+        this.$data.isLoading = false
       })
     },
     doLogin () {
+      this.$data.isLoading = true
       fetch('https://cloud.internxt.com/api/login', {
         method: 'POST',
         mode: 'cors',
@@ -117,6 +123,7 @@ export default {
         }
       }).catch(err => {
         console.error(err)
+        this.$data.isLoading = false
       })
     },
     doAccess (sKey) {
@@ -155,6 +162,7 @@ export default {
         }
       }).catch(err => {
         console.log('Error', err)
+        this.$data.isLoading = false
       })
     }
   }
