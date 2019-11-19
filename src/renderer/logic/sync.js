@@ -32,7 +32,8 @@ async function SetModifiedTime (path, time) {
   const StringType = /^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\.[0-9]{3}Z$/
   const UnixType = /^[0-9]{14}$/
   if (time.match(StringType)) {
-    convertedTime = new Date(time).getTime() * 1
+    console.log('Convert mtime from string')
+    convertedTime = new Date(time).getTime() * 1 / 1000
   }
 
   if (time.match(UnixType)) {
