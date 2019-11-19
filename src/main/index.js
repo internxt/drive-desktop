@@ -60,6 +60,83 @@ function createWindow () {
     mainWindow = null
   })
 
+  let edit = {
+    label: 'Edit',
+    submenu: [
+      {
+        label: 'Undo',
+        accelerator: 'CmdOrCtrl+Z',
+        click: function () {
+          self.getWindow().webContents.undo()
+        }
+      }, {
+        label: 'Redo',
+        accelerator: 'CmdOrCtrl+Y',
+        click: function () {
+          self.getWindow().webContents.redo()
+        }
+      }, {
+        type: 'separator'
+      }, {
+        label: 'Cut',
+        accelerator: 'CmdOrCtrl+X',
+        click: function () {
+          self.getWindow().webContents.cut()
+        }
+      }, {
+        label: 'Copy',
+        accelerator: 'CmdOrCtrl+C',
+        click: function () {
+          self.getWindow().webContents.copy()
+        }
+      }, {
+        label: 'Paste',
+        accelerator: 'CmdOrCtrl+V',
+        click: function () {
+          self.getWindow().webContents.paste()
+        }
+      }, {
+        label: 'Select All',
+        accelerator: 'CmdOrCtrl+A',
+        click: function () {
+          self.getWindow().webContents.selectAll()
+        }
+      }
+    ]
+  }
+
+  let editMacOS = {
+    label: 'Edit',
+    submenu: [
+      { role: 'undo' },
+      { role: 'redo' },
+      { type: 'separator' },
+      { role: 'cut' },
+      { role: 'copy' },
+      { role: 'paste' },
+      { role: 'pasteandmatchstyle' },
+      { role: 'delete' },
+      { role: 'selectall' }
+    ]
+  }
+
+  let view = {
+    label: 'View',
+    submenu: [
+      {
+        label: 'Developer Tools',
+        accelerator: 'Shift+CmdOrCtrl+J',
+        click: function () {
+          self.getWindow().toggleDevTools()
+        }
+      }
+    ]
+  }
+
+  let windowMenu = Menu.setApplicationMenu(
+    Menu.buildFromTemplate([process.platform === 'darwin' ? editMacOS : edit, view])
+  )
+
   let trayIcon = path.join(__dirname, '../resources/icons/tray-icon@2x.png')
 
   if (process.env.NODE_ENV === 'production') {
