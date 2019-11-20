@@ -89,7 +89,7 @@ function DownloadAllFiles () {
         }
 
         if (downloadAndReplace) {
-          console.log('DOWNLOAD AND REPLACE WITHOUT QUESTION')
+          console.log('DOWNLOAD AND REPLACE WITHOUT QUESTION', item.fullpath)
           DownloadFileTemp(item).then(tempPath => {
             if (localExists) { fs.unlinkSync(item.fullpath) }
             fs.renameSync(tempPath, item.fullpath)

@@ -31,23 +31,12 @@ async function SetModifiedTime (path, time) {
 
   const StringType = /^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\.[0-9]{3}Z$/
   const UnixType = /^[0-9]{14}$/
-  if (time.match(StringType)) {
-    console.log('Convert mtime from string')
-    convertedTime = new Date(time).getTime() * 1 / 1000
-  }
 
-  if (time.match(UnixType)) {
-    console.log('convert time from unix')
-    convertedTime = time * 1
-  }
-
-  if (time instanceof Date) {
-    console.log('convert time from date')
-    convertedTime = time.getTime() / 1000.0
-  }
+  if (time.match(StringType)) { convertedTime = new Date(time).getTime() * 1 / 1000 }
+  if (time.match(UnixType)) { convertedTime = time * 1 }
+  if (time instanceof Date) { convertedTime = time.getTime() / 1000.0 }
 
   return new Promise((resolve, reject) => {
-    console.log('Set mtime for %s to %s', path, convertedTime)
     try {
       fs.utimesSync(path, convertedTime, convertedTime)
       resolve()
@@ -88,9 +77,11 @@ function UploadFile (storj, filePath) {
     // Delete former file
     await RemoveFile(bucketId, fileId)
 
+    const finalName = encryptedFileName + (fileExt ? '.' + fileExt : '')
+
     // Upload new file
     storj.storeFile(bucketId, filePath, {
-      filename: encryptedFileName,
+      filename: finalName,
       progressCallback: function (progress, uploadedBytes, totalBytes) {
         console.log('Upload %s', progress)
       },
@@ -110,15 +101,11 @@ function UploadFile (storj, filePath) {
 
 function UploadNewFile (storj, filePath) {
   const folderPath = path.dirname(filePath)
-  console.log('Upload new file!!!!!', filePath)
+  console.log('NEW file found, uploading:', filePath)
   return new Promise(async (resolve, reject) => {
-    console.log(folderPath)
     const dbEntry = await database.FolderGet(folderPath)
-    console.log('DB ENTRY', dbEntry)
     const user = await database.Get('xUser')
     const tree = await database.Get('tree')
-
-    console.log(tree)
 
     const bucketId = (dbEntry && dbEntry.value && dbEntry.value.bucket) || tree.bucket
     const folderId = (dbEntry && dbEntry.value && dbEntry.value.id) || user.user.root_folder_id
@@ -135,9 +122,11 @@ function UploadNewFile (storj, filePath) {
     const fileStats = fs.statSync(filePath)
     const fileSize = fileStats.size
 
+    const finalName = encryptedFileName + (fileExt ? '.' + fileExt : '')
+
     // Upload new file
     storj.storeFile(bucketId, filePath, {
-      filename: encryptedFileName,
+      filename: finalName,
       progressCallback: function (progress, uploadedBytes, totalBytes) {
         console.log('Upload %s', progress)
       },
@@ -147,8 +136,8 @@ function UploadNewFile (storj, filePath) {
           reject(err)
         } else {
           CreateFileEntry(bucketId, newFileId, encryptedFileName, fileExt, fileSize, folderId)
-            .then(res => { resolve(res) })
-            .catch(err => { reject(err) })
+            .then(res => resolve(res))
+            .catch(err => reject(err))
         }
       }
     })
