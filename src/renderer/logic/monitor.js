@@ -7,7 +7,8 @@ import database from '../../database'
 function Monitor (startInmediately = false) {
   let timeout = 0
   if (!startInmediately) { timeout = 1000 * 60 * 10 }
-  console.info('Waiting %s secs for next sync', timeout / 1000)
+  if (!startInmediately && process.env.NODE_ENV !== 'production') { timeout = 1000 * 15 }
+  console.log('Waiting %s secs for next sync', timeout / 1000)
   setTimeout(() => StartMonitor(), timeout)
 }
 
@@ -33,13 +34,14 @@ function StartMonitor () {
       // Start to sync. Did last sync failed?
       database.Get('lastSyncSuccess').then(result => {
         if (result === true) { next() } else {
+          console.log('LAST SYNC FAILED, CLEARING DATABASES')
           database.dbFiles.remove({}, { multi: true }, (err, totalFilesRemoved) => {
             if (err) { next(err) } else {
               database.dbFolders.remove({}, {multi: true}, (err, totalFoldersRemoved) => next(err))
             }
           })
         }
-      })
+      }).catch(err => next(err))
     },
     (next) => {
       database.Set('lastSyncSuccess', false).then(() => next()).catch(err => next(err))
@@ -66,6 +68,14 @@ function StartMonitor () {
       // Donwload the tree of remote files and folders
       // Descargamos nuevo árbol
       SyncTree().then(() => next()).catch(err => next(err))
+    },
+    (next) => {
+      if (process.env.NODE_ENV !== 'production') {
+        console.log('SYNC FINISHED, SHOULD YOU STOP?')
+        setTimeout(() => next(), 15000)
+      } else {
+        next()
+      }
     },
     (next) => {
       // Regenerate dbFolders and dbFiles
