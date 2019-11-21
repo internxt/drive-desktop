@@ -165,9 +165,8 @@ function RemoveFile (bucketId, fileId) {
 function UpdateTree () {
   return new Promise((resolve, reject) => {
     GetTree().then(async (tree) => {
-      await database.Set('tree', tree)
-      resolve()
-    }).then(err => reject(err))
+      database.Set('tree', tree).then(() => resolve()).catch(err => reject(err))
+    }).then(err => reject(err)).catch(err => reject(err))
   })
 }
 
