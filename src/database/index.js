@@ -24,10 +24,12 @@ function InsertKeyValue (db, key, value) {
   return new Promise((resolve, reject) => {
     db.remove({ key }, { multi: true }, function (err, numRemoved) {
       if (err) {
+        console.error('Error removing key/value: %s/%s', key, value)
         reject(err)
       } else {
         db.insert({ key, value }, function (err, newDoc) {
           if (err) {
+            console.error('Error inserting key/value: %s/%s', key, value)
             reject(err)
           } else {
             resolve(newDoc)

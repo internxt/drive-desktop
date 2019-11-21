@@ -161,7 +161,7 @@ export default {
           this.$router.push('/landing-page')
         }
       }).catch(err => {
-        console.log('Error', err)
+        console.log('Error login', err)
         this.$data.isLoading = false
       })
     }

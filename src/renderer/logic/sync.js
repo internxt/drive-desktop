@@ -83,7 +83,7 @@ function UploadFile (storj, filePath) {
     storj.storeFile(bucketId, filePath, {
       filename: finalName,
       progressCallback: function (progress, uploadedBytes, totalBytes) {
-        console.log('Upload %s', progress)
+        console.log('Upload rf', progress)
       },
       finishedCallback: function (err, newFileId) {
         if (err) {
@@ -128,11 +128,11 @@ function UploadNewFile (storj, filePath) {
     storj.storeFile(bucketId, filePath, {
       filename: finalName,
       progressCallback: function (progress, uploadedBytes, totalBytes) {
-        console.log('Upload %s', progress)
+        console.log('Upload nf', progress)
       },
       finishedCallback: function (err, newFileId) {
         if (err) {
-          console.log('Error uploading new file: %s', err)
+          console.error('Error uploading new file: %s', err)
           reject(err)
         } else {
           CreateFileEntry(bucketId, newFileId, encryptedFileName, fileExt, fileSize, folderId)
@@ -164,9 +164,19 @@ function RemoveFile (bucketId, fileId) {
 
 function UpdateTree () {
   return new Promise((resolve, reject) => {
-    GetTree().then(async (tree) => {
-      database.Set('tree', tree).then(() => resolve()).catch(err => reject(err))
-    }).then(err => reject(err)).catch(err => reject(err))
+    GetTree().then((tree) => {
+      console.log('Tree obtained', tree)
+      database.Set('tree', tree).then(() => {
+        console.log('Tree saved')
+        resolve()
+      }).catch(err => {
+        console.error('THIS')
+        reject(err)
+      })
+    }).catch(err => {
+      console.error('Error updating tree', err)
+      reject(err)
+    })
   })
 }
 
@@ -379,8 +389,10 @@ function RemoteCreateFolder (name, parentId) {
       return { res, data: await res.json() }
     }).then(res => {
       if (res.res.status === 500 && res.data.error && res.data.error.includes('Folder with the same name already exists')) {
+        console.error('Folder with the same name already exists')
         resolve()
       } else if (res.res.status === 201) {
+        console.warn('Error creating new folder, 201')
         resolve(res.data)
       } else {
         reject(res.data)

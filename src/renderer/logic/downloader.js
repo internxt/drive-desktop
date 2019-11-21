@@ -42,7 +42,7 @@ function DownloadFileTemp (fileObj, silent = false) {
     storj.resolveFile(fileObj.bucket, fileObj.fileId, tempFilePath, {
       progressCallback: function (progress, downloadedBytes, totalBytes) {
         if (!silent) {
-          console.log('progress:', progress)
+          console.log('download progress:', progress)
         }
       },
       finishedCallback: function (err) {
@@ -203,6 +203,7 @@ function UploadAllNewFolders () {
           lastParentId = null
         }
 
+        console.log('Parent ID', parentId)
         if (parentId) {
           Sync.RemoteCreateFolder(folderName, parentId).then(async (result) => {
             console.log('Remote create folder result', result)
@@ -211,6 +212,7 @@ function UploadAllNewFolders () {
             lastParentFolder = result ? item : null
             next()
           }).catch(err => {
+            console.error('Error creating remote folder')
             next(err)
           })
         } else {

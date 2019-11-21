@@ -116,7 +116,7 @@ function StartMonitor () {
           Monitor()
         })
       })
-      console.error('Error sync:', err)
+      console.error('Error monitor:', err)
     } else {
       Monitor()
     }
@@ -147,7 +147,7 @@ function SyncTree () {
       console.log('Tree of remote folders/files successfully updated')
       resolve()
     }).catch(err => {
-      console.error('Error', err)
+      console.error('Error sync tree', err)
       reject(err)
     })
   })
