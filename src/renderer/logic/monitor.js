@@ -16,6 +16,12 @@ function StartMonitor () {
   // Sync
   async.waterfall([
     (next) => {
+      UploadNewFolders().then(() => next()).catch(err => next(err))
+    },
+    (next) => {
+      UploadNewFiles().then(() => next()).catch(err => next(err))
+    },
+    (next) => {
       database.Get('lastSyncDate').then(lastDate => {
         if (!lastDate || !(lastDate instanceof Date)) {
           database.Set('lastSyncSuccess', false).then(() => next()).catch(err => next(err))
@@ -45,12 +51,6 @@ function StartMonitor () {
     },
     (next) => {
       database.Set('lastSyncSuccess', false).then(() => next()).catch(err => next(err))
-    },
-    (next) => {
-      UploadNewFolders().then(() => next()).catch(err => next(err))
-    },
-    (next) => {
-      UploadNewFiles().then(() => next()).catch(err => next(err))
     },
     (next) => {
       // Delete remote folders missing in local folder

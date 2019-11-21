@@ -107,10 +107,13 @@ function UploadNewFile (storj, filePath) {
     console.error(dbEntry)
     const user = await database.Get('xUser')
     const tree = await database.Get('tree')
+    const folderRoot = await database.Get('xPath')
 
     if (!dbEntry || !dbEntry.value) {
-      console.error('Folder does not exists in local database')
-      return resolve()
+      if (folderPath !== folderRoot) {
+        console.error('Folder does not exists in local database', folderPath)
+        return resolve()
+      }
     }
 
     const bucketId = (dbEntry && dbEntry.value && dbEntry.value.bucket) || tree.bucket

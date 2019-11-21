@@ -184,6 +184,7 @@ function UploadAllNewFolders () {
 
     Tree.GetLocalFolderList(localPath).then(list => {
       async.eachSeries(list, async (item, next) => {
+        console.log('Checking folder %s', item)
         // Check if exists in database
         const dbEntry = await Database.FolderGet(item)
 
@@ -196,6 +197,7 @@ function UploadAllNewFolders () {
         let lastFolder = await Database.FolderGet(parentPath)
         let lastFolderId = lastFolder && lastFolder.value && lastFolder.value.id
         let parentId = parentPath === localPath ? userInfo.user.root_folder_id : lastFolderId
+
         if (parentPath === lastParentFolder) {
           parentId = lastParentId
         } else if (lastParentFolder) {
@@ -212,10 +214,11 @@ function UploadAllNewFolders () {
             lastParentFolder = result ? item : null
             next()
           }).catch(err => {
-            console.error('Error creating remote folder')
+            console.error('Error creating remote folder', err)
             next(err)
           })
         } else {
+          console.error('Upload new folders: Undefined parent ID')
           next()
         }
       }, (err) => {
