@@ -104,11 +104,20 @@ function UploadNewFile (storj, filePath) {
   console.log('NEW file found, uploading:', filePath)
   return new Promise(async (resolve, reject) => {
     const dbEntry = await database.FolderGet(folderPath)
+    console.error(dbEntry)
     const user = await database.Get('xUser')
     const tree = await database.Get('tree')
 
+    if (!dbEntry || !dbEntry.value) {
+      console.error('Folder does not exists in local database')
+      return resolve()
+    }
+
     const bucketId = (dbEntry && dbEntry.value && dbEntry.value.bucket) || tree.bucket
     const folderId = (dbEntry && dbEntry.value && dbEntry.value.id) || user.user.root_folder_id
+
+    console.log('Folder ID uploading nf', folderId)
+    console.log('Bucket ID uploading nf', bucketId)
 
     // Encrypted filename
     const originalFileName = path.basename(filePath)
@@ -132,7 +141,7 @@ function UploadNewFile (storj, filePath) {
       },
       finishedCallback: function (err, newFileId) {
         if (err) {
-          console.error('Error uploading new file: %s', err)
+          console.error('Error uploading new file', err)
           reject(err)
         } else {
           CreateFileEntry(bucketId, newFileId, encryptedFileName, fileExt, fileSize, folderId)
