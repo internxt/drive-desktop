@@ -118,6 +118,7 @@ export default {
         }
         if (res.body.tfa && !this.$data.twoFactorCode) {
           this.$data.showTwoFactor = true
+          this.$data.isLoading = false
         } else {
           this.doAccess(res.body.sKey)
         }
