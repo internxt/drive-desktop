@@ -137,10 +137,10 @@ function createWindow () {
     Menu.buildFromTemplate([process.platform === 'darwin' ? editMacOS : edit, view])
   )
 
-  let trayIcon = path.join(__dirname, '../resources/icons/tray-icon@2x.png')
+  let trayIcon = path.join(__dirname, '../../src/resources/icons/tray-icon@2x.png')
 
   if (process.env.NODE_ENV === 'production') {
-    trayIcon = path.join(__dirname, '../../src/resources/icons/tray-icon@2x.png')
+    // trayIcon = path.join(__dirname, '../../src/resources/icons/tray-icon@2x.png')
   }
 
   tray = new Tray(trayIcon)
