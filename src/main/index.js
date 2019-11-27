@@ -1,8 +1,7 @@
 'use strict'
 
-import { app, BrowserWindow, Tray, Menu } from 'electron'
+import { app, BrowserWindow, Tray, Menu, shell } from 'electron'
 import path from 'path'
-import AutoStart from '../libs/autolauncher'
 
 /**
  * Set `__static` path to static files in production
@@ -145,6 +144,12 @@ function createWindow () {
   tray.setToolTip('X Cloud Desktop')
 
   const contextMenu = () => Menu.buildFromTemplate([
+    {
+      label: 'Billing',
+      click: function () {
+        shell.openExternal('https://cloud.internxt.com/storage')
+      }
+    },
     {
       label: 'Quit',
       role: 'quit'
