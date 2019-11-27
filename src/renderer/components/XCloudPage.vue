@@ -32,7 +32,7 @@ export default {
     }
   },
   components: {},
-  mounted: function () {
+  created: function () {
     if (process.env.NODE_ENV !== 'development') {
       remote.BrowserWindow.getFocusedWindow().hide()
     }

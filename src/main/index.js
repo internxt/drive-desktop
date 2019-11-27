@@ -4,8 +4,6 @@ import { app, BrowserWindow, Tray, Menu } from 'electron'
 import path from 'path'
 import AutoStart from '../libs/autolauncher'
 
-AutoStart.configureAutostart()
-
 /**
  * Set `__static` path to static files in production
  * https://simulatedgreg.gitbooks.io/electron-vue/content/en/using-static-assets.html
