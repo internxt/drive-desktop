@@ -56,13 +56,15 @@ function StartMonitor () {
       // Delete remote folders missing in local folder
       // Borrar diretorios remotos que ya no existen en local
       // Nos basamos en el último árbol sincronizado
-      CleanLocalFolders().then(() => next(null)).catch(err => next(err))
+      // CleanLocalFolders().then(() => next(null)).catch(err => next(err))
+      next()
     },
     (next) => {
       // Delete remote files missing in local folder
       // Borrar archivos remotos que ya no existen en local
       // Nos basamos en el último árbol sincronizado
-      CleanLocalFiles().then(() => next(null)).catch(err => next(err))
+      // CleanLocalFiles().then(() => next(null)).catch(err => next(err))
+      next()
     },
     (next) => {
       // Donwload the tree of remote files and folders
