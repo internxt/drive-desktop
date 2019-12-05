@@ -6,6 +6,7 @@ import temp from 'temp'
 import path from 'path'
 import fs from 'fs'
 import Sync from './sync'
+import CheckDiskSpace from 'check-disk-space'
 
 async function _getStorjCredentials () {
   const mnemonic = await Database.Get('xMnemonic')
@@ -71,6 +72,13 @@ function DownloadAllFiles () {
     Tree.GetFileListFromRemoteTree().then(list => {
       async.eachSeries(list, async (item, next) => {
         console.log('Cheking ', item.fullpath)
+
+        const freeSpace = await CheckDiskSpace(path.dirname(item.fullpath))
+
+        if (item.size * 3 >= freeSpace) {
+          return next('No space left')
+        }
+
         let downloadAndReplace = false
         let uploadAndReplace = false
 

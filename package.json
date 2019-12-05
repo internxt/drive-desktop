@@ -79,6 +79,7 @@
     "auto-launch": "^5.0.5",
     "axios": "^0.18.0",
     "bootstrap": "^4.3.1",
+    "check-disk-space": "^2.1.0",
     "chokidar": "^3.2.1",
     "crypto": "^1.0.1",
     "crypto-js": "^3.1.9-1",
