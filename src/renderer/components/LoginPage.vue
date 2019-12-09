@@ -74,7 +74,6 @@ export default {
       var path = remote.dialog.showOpenDialog({ properties: ['openDirectory'] })
       if (path && path[0]) {
         this.$data.storagePath = path[0]
-        // this.$data.folderIsEmpty = this.isEmptyFolder(path[0])
       }
     },
     isEmptyFolder (path) {
@@ -98,9 +97,9 @@ export default {
       database.Set('xPath', this.$data.storagePath).then(() => {
         this.doLogin()
       }).catch(err => {
+        this.$data.isLoading = false
         console.error(err)
         alert(err)
-        this.$data.isLoading = false
       })
     },
     doLogin () {
@@ -114,6 +113,7 @@ export default {
         return { res, body: await res.json() }
       }).then(res => {
         if (res.res.status !== 200) {
+          this.$data.isLoading = false
           return alert('Login error')
         }
         if (res.body.tfa && !this.$data.twoFactorCode) {
@@ -123,8 +123,8 @@ export default {
           this.doAccess(res.body.sKey)
         }
       }).catch(err => {
-        console.error(err)
         this.$data.isLoading = false
+        console.error(err)
       })
     },
     doAccess (sKey) {
@@ -146,6 +146,7 @@ export default {
         return { res, data: await res.json() }
       }).then(async res => {
         if (res.res.status !== 200) {
+          this.$data.isLoading = false
           if (res.data.error) {
             alert('Login error\n' + res.data.error)
             if (res.data.error.includes('Wrong email')) {
