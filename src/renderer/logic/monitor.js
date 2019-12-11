@@ -16,6 +16,9 @@ function StartMonitor () {
   // Sync
   async.waterfall([
     (next) => {
+      database.Set('syncStartDate', new Date()).then(() => next()).catch(err => next(err))
+    },
+    (next) => {
       UploadNewFolders().then(() => next()).catch(err => next(err))
     },
     (next) => {
