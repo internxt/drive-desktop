@@ -136,6 +136,10 @@ function createWindow () {
 
   let trayIcon = path.join(__dirname, '../../src/resources/icons/tray-icon@2x.png')
 
+  if (process.platform === 'darwin') {
+    trayIcon = path.join(__dirname, '../../src/resources/icons/tray-icon-mac@2x.png')
+  }
+
   if (process.env.NODE_ENV === 'production') {
     // trayIcon = path.join(__dirname, '../../src/resources/icons/tray-icon@2x.png')
   }
