@@ -1,9 +1,15 @@
 [![Build status](https://travis-ci.org/JAlbertoGonzalez/x-cloud-desktop.svg?branch=master)](https://travis-ci.org/JAlbertoGonzalez/x-cloud-desktop.svg?branch=master)
 
 
-# x-cloud-desktop
+# X Cloud Desktop
 
 > X Cloud client UI
+
+# Installation
+
+## Ubuntu
+
+```sudo apt -y install libgconf2-4```
 
 #### Build Setup
 
