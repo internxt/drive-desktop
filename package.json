@@ -1,7 +1,7 @@
 {
   "name": "x-cloud-desktop",
-  "version": "1.0.0",
-  "author": "J. Alberto <45895462+JAlbertoGonzalez@users.noreply.github.com>",
+  "version": "1.0.1",
+  "author": "Internxt <hello@internxt.com>",
   "description": "X Cloud client UI",
   "license": null,
   "main": "./dist/electron/main.js",
@@ -71,6 +71,9 @@
       "icon": "build/icons",
       "category": "Network",
       "target": "deb"
+    },
+    "deb": {
+      "depends": ["libgconf-2-4"]
     },
     "afterSign": "resources/osx/notarize.js"
   },
