@@ -3,6 +3,9 @@ import async from 'async'
 import Downloader from './downloader'
 import tree from './tree'
 import database from '../../database'
+import nsfw from 'nsfw'
+
+let watcher
 
 function Monitor (startInmediately = false) {
   let timeout = 0
@@ -91,6 +94,45 @@ function StartMonitor () {
       RegenerateLocalDbFiles().then(() => next()).catch(err => next(err))
     },
     (next) => {
+      // Before start downloading files and folders:
+      // - Clear TEMP database
+      // - Start a watcher on the sync path.
+      // If a file was ADDED during the sync...
+      // ...ignore that file con clean step
+
+      database.ClearTemp().then(() => {
+        next()
+      }).catch((err) => {
+        next(err)
+      })
+    },
+    (next) => {
+      database.Get('xPath').then(path => {
+        nsfw(path, events => {
+          async.eachSeries(events, async (event, nextItem) => {
+            if (event.action === 0) {
+              const fullPath = path.join(event.directory, event.file)
+
+              const ifFolder = database.FolderGet(fullPath)
+              const ifFile = database.FileGet(fullPath)
+
+              if (ifFile || ifFolder) { nextItem() } else {
+                database.TempSet(fullPath).then(() => nextItem()).catch(err => nextItem(err))
+              }
+            } else {
+              nextItem()
+            }
+          })
+        }).then(wtch => {
+          watcher = wtch
+          next()
+        }).catch(err => next(err))
+      })
+    },
+    (next) => {
+      watcher.start().then(() => next()).catch(err => next(err))
+    },
+    (next) => {
       // Create local folders
       // Si hay directorios nuevos en el árbol, los creamos en local
       DownloadFolders().then(() => next()).catch(err => next(err))
@@ -99,6 +141,9 @@ function StartMonitor () {
       // Download remote files
       // Si hay ficheros nuevos en el árbol, los creamos en local
       DownloadFiles().then(() => next()).catch(err => next(err))
+    },
+    (next) => {
+      watcher.stop().then(() => next()).catch(err => next(err))
     },
     (next) => {
       // Delete local folders missing in remote

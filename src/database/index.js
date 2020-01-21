@@ -10,15 +10,23 @@ if (!fs.existsSync(databaseFolder)) { fs.mkdirSync(databaseFolder) }
 const dbFiles = new Datastore({
   filename: path.join(databaseFolder, 'database_files.db'),
   autoload: true,
-  timestampData: true })
+  timestampData: true
+})
 const dbFolders = new Datastore({
   filename: path.join(databaseFolder, 'database_folders.db'),
   autoload: true,
-  timestampData: true })
+  timestampData: true
+})
 const dbUser = new Datastore({
   filename: path.join(databaseFolder, 'database_user.db'),
   autoload: true,
-  timestampData: true })
+  timestampData: true
+})
+const dbTemp = new Datastore({
+  filename: path.join(databaseFolder, 'database_temp.db'),
+  autoload: true,
+  timestampData: true
+})
 
 function InsertKeyValue (db, key, value) {
   return new Promise((resolve, reject) => {
@@ -60,6 +68,10 @@ const FolderSet = (key, value) => {
   return InsertKeyValue(dbFolders, key, value)
 }
 
+const TempSet = (key, value) => {
+  return InsertKeyValue(dbTemp, key, value)
+}
+
 const FileSet = (key, value) => {
   return InsertKeyValue(dbFiles, key, value)
 }
@@ -88,6 +100,30 @@ const FileGet = (key) => {
   })
 }
 
+const TempGet = (key) => {
+  return new Promise((resolve, reject) => {
+    dbTemp.findOne({ key: key }, (err, document) => {
+      if (err) {
+        resolve(null)
+      } else {
+        resolve(document)
+      }
+    })
+  })
+}
+
+const ClearTemp = () => {
+  return new Promise((resolve, reject) => {
+    dbTemp.remove({}, { multi: true }, (err, totalFilesRemoved) => {
+      if (err) {
+        reject(err)
+      } else {
+        resolve(totalFilesRemoved)
+      }
+    })
+  })
+}
+
 export default {
   dbFiles,
   dbFolders,
@@ -98,5 +134,8 @@ export default {
   FileSet,
   FolderGet,
   FileGet,
+  TempGet,
+  TempSet,
+  ClearTemp,
   GetDatabaseFolder: databaseFolder
 }

@@ -336,15 +336,16 @@ function CleanLocalFolders () {
     tree.GetLocalFolderList(localPath).then((list) => {
       // Check what items are in dbFolders
       async.eachSeries(list, (item, next) => {
-        database.FolderGet(item).then(folder => {
+        database.FolderGet(item).then(async folder => {
           if (folder) {
             // Folder exists in remote, nothing to do
             next()
           } else {
             // Should DELETE that folder in local
             const creationDate = fs.statSync(item)
+            const isTemp = await database.TempGet(item)
             // Delete only if
-            if (creationDate <= syncDate) {
+            if (creationDate <= syncDate || !isTemp) {
               console.log('Delete folder', item)
               rimraf(item, (err) => next(err))
             } else {
@@ -368,10 +369,11 @@ function CleanLocalFiles () {
     const syncDate = database.Get('syncStartDate')
     tree.GetLocalFileList(localPath).then(list => {
       async.eachSeries(list, (item, next) => {
-        database.FileGet(item).then(fileObj => {
+        database.FileGet(item).then(async fileObj => {
           if (!fileObj) {
             const creationDate = fs.statSync(item)
-            if (creationDate <= syncDate) {
+            const isTemp = await database.TempGet(item)
+            if (creationDate <= syncDate || !isTemp) {
               console.log('Delete file %s', item)
               fs.unlinkSync(item)
             }
