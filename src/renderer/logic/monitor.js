@@ -4,6 +4,7 @@ import Downloader from './downloader'
 import tree from './tree'
 import database from '../../database'
 import nsfw from 'nsfw'
+import path from 'path'
 
 let watcher
 
@@ -80,7 +81,7 @@ function StartMonitor () {
     (next) => {
       if (process.env.NODE_ENV !== 'production') {
         console.log('SYNC FINISHED, SHOULD YOU STOP?')
-        setTimeout(() => next(), 15000)
+        setTimeout(() => next(), 5000)
       } else {
         next()
       }
@@ -107,14 +108,15 @@ function StartMonitor () {
       })
     },
     (next) => {
-      database.Get('xPath').then(path => {
-        nsfw(path, events => {
+      database.Get('xPath').then(xPath => {
+        console.log(xPath)
+        nsfw(xPath, events => {
           async.eachSeries(events, async (event, nextItem) => {
             if (event.action === 0) {
               const fullPath = path.join(event.directory, event.file)
 
-              const ifFolder = database.FolderGet(fullPath)
-              const ifFile = database.FileGet(fullPath)
+              const ifFolder = await database.FolderGet(fullPath)
+              const ifFile = await database.FileGet(fullPath)
 
               if (ifFile || ifFolder) { nextItem() } else {
                 database.TempSet(fullPath).then(() => nextItem()).catch(err => nextItem(err))
@@ -122,15 +124,13 @@ function StartMonitor () {
             } else {
               nextItem()
             }
-          })
+          }, (err) => next(err))
+        }, {
         }).then(wtch => {
           watcher = wtch
-          next()
-        }).catch(err => next(err))
+          return next(null, watcher.start())
+        })
       })
-    },
-    (next) => {
-      watcher.start().then(() => next()).catch(err => next(err))
     },
     (next) => {
       // Create local folders
