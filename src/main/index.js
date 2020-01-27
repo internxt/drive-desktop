@@ -11,12 +11,11 @@ if (process.env.NODE_ENV !== 'development') {
   global.__static = path.join(__dirname, '/static').replace(/\\/g, '\\\\')
 }
 
-let mainWindow
+let mainWindow, tray
+
 const winURL = process.env.NODE_ENV === 'development'
   ? `http://localhost:9080`
   : `file://${__dirname}/index.html`
-
-let tray
 
 if (process.platform === 'darwin') {
   app.dock.hide()
@@ -24,7 +23,7 @@ if (process.platform === 'darwin') {
 
 app.on('second-instance', (event, argv, cwd) => {
   console.log('Second instance')
-  app.quit()
+  appClose()
 })
 
 function destroyTray () {
@@ -33,15 +32,12 @@ function destroyTray () {
     tray = null
     mainWindow = null
   }
-  app.quit()
 }
 
 function createWindow () {
-  /**
-   * Initial window options
-   */
-
+  // Make app available on vue
   BrowserWindow.prototype.$app = app
+
   mainWindow = new BrowserWindow({
     height: 550,
     useContentSize: true,
@@ -52,10 +48,7 @@ function createWindow () {
 
   mainWindow.loadURL(winURL)
 
-  mainWindow.on('closed', () => {
-    destroyTray()
-    mainWindow = null
-  })
+  mainWindow.on('closed', appClose)
 
   let edit = {
     label: 'Edit',
@@ -156,7 +149,7 @@ function createWindow () {
     },
     {
       label: 'Quit',
-      role: 'quit'
+      click: appClose
     }
   ])
 
@@ -165,12 +158,16 @@ function createWindow () {
 
 app.on('ready', createWindow)
 
-app.on('window-all-closed', () => {
+function appClose () {
   destroyTray()
   if (process.platform !== 'darwin') {
     app.quit()
   }
-})
+
+  app = null
+}
+
+app.on('window-all-closed', appClose)
 
 app.on('activate', () => {
   if (mainWindow === null) {
