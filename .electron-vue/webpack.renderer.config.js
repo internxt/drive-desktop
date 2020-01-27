@@ -21,6 +21,10 @@ const { VueLoaderPlugin } = require('vue-loader')
  */
 let whiteListedModules = ['vue']
 
+if (process.platform === 'win32') {
+  delete optionalDependencies['storj']
+}
+
 let rendererConfig = {
   devtool: '#cheap-module-eval-source-map',
   entry: {

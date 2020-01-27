@@ -1,7 +1,7 @@
 import Tree from './tree'
 import async from 'async'
 import Database from '../../database/index'
-import { Environment } from 'storj'
+import { Environment } from './inxtdeps'
 import temp from 'temp'
 import path from 'path'
 import fs from 'fs'

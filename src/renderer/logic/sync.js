@@ -1,4 +1,4 @@
-import { Environment } from 'storj'
+import { Environment } from './inxtdeps'
 import fs from 'fs'
 import database from '../../database/index'
 import path from 'path'

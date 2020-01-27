@@ -8,6 +8,10 @@ const webpack = require('webpack')
 
 const BabiliWebpackPlugin = require('babili-webpack-plugin')
 
+if (process.platform === 'win32') {
+  delete optionalDependencies['storj']
+}
+
 let mainConfig = {
   entry: {
     main: path.join(__dirname, '../src/main/index.js')
