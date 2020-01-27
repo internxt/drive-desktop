@@ -3,7 +3,6 @@ import async from 'async'
 import Downloader from './downloader'
 import tree from './tree'
 import database from '../../database'
-import nsfw from 'nsfw'
 import path from 'path'
 
 let watcher
@@ -107,6 +106,7 @@ function StartMonitor () {
         next(err)
       })
     },
+    /*
     (next) => {
       database.Get('xPath').then(xPath => {
         console.log(xPath)
@@ -132,6 +132,7 @@ function StartMonitor () {
         })
       })
     },
+    */
     (next) => {
       // Create local folders
       // Si hay directorios nuevos en el árbol, los creamos en local
