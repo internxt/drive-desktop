@@ -5,14 +5,11 @@ function configureAutostart () {
     name: 'X Cloud Desktop'
   })
 
-  xcdLauncher.enable()
-
   xcdLauncher.isEnabled()
     .then(function (isEnabled) {
       if (isEnabled) {
-        return
+        xcdLauncher.disable()
       }
-      xcdLauncher.enable()
     }).catch(function (err) {
       console.error(err)
     })

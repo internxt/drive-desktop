@@ -3,6 +3,8 @@ import crypto from 'crypto'
 import fs from 'fs'
 import async from 'async'
 
+const CRYPTO_KEY = ''
+
 function EncryptWithKey (textToEncrypt, key) {
   const bytes = CryptoJS.AES.encrypt(textToEncrypt, key).toString()
   const text64 = CryptoJS.enc.Base64.parse(bytes)
@@ -10,7 +12,7 @@ function EncryptWithKey (textToEncrypt, key) {
 }
 
 function Encrypt (textToEncrypt) {
-  return EncryptWithKey(textToEncrypt, '')
+  return EncryptWithKey(textToEncrypt, CRYPTO_KEY)
 }
 
 function DecryptWithKey (cipherText, key) {
@@ -20,7 +22,7 @@ function DecryptWithKey (cipherText, key) {
 }
 
 function Decrypt (cipherText) {
-  return DecryptWithKey(cipherText, '')
+  return DecryptWithKey(cipherText, CRYPTO_KEY)
 }
 
 function HashPassword (rawPassword, salt) {
@@ -31,7 +33,7 @@ function HashPassword (rawPassword, salt) {
 
 function DeterministicDecryption (cipherText, salt) {
   try {
-    const key = CryptoJS.enc.Hex.parse('')
+    const key = CryptoJS.enc.Hex.parse(CRYPTO_KEY)
     const iv = salt ? CryptoJS.enc.Hex.parse(salt.toString()) : key
 
     const reb64 = CryptoJS.enc.Hex.parse(cipherText)
@@ -70,7 +72,7 @@ function ProbabilisticDecryption (cipherText) {
   try {
     const reb64 = CryptoJS.enc.Hex.parse(cipherText)
     const bytes = reb64.toString(CryptoJS.enc.Base64)
-    const decrypt = CryptoJS.AES.decrypt(bytes, '')
+    const decrypt = CryptoJS.AES.decrypt(bytes, CRYPTO_KEY)
     const plain = decrypt.toString(CryptoJS.enc.Utf8)
     return plain
   } catch (error) {
@@ -80,7 +82,7 @@ function ProbabilisticDecryption (cipherText) {
 
 function DeterministicEncryption (content, salt) {
   try {
-    const key = CryptoJS.enc.Hex.parse('')
+    const key = CryptoJS.enc.Hex.parse(CRYPTO_KEY)
     const iv = salt ? CryptoJS.enc.Hex.parse(salt.toString()) : key
 
     const encrypt = CryptoJS.AES.encrypt(content, key, { iv: iv }).toString()
@@ -94,7 +96,7 @@ function DeterministicEncryption (content, salt) {
 
 function ProbabilisticEncryption (content) {
   try {
-    const b64 = CryptoJS.AES.encrypt(content, '').toString()
+    const b64 = CryptoJS.AES.encrypt(content, CRYPTO_KEY).toString()
     const e64 = CryptoJS.enc.Base64.parse(b64)
     const eHex = e64.toString(CryptoJS.enc.Hex)
     return eHex
