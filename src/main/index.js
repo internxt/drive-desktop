@@ -29,9 +29,9 @@ app.on('second-instance', (event, argv, cwd) => {
 function destroyTray () {
   if (tray) {
     tray.destroy()
-    tray = null
-    mainWindow = null
   }
+  tray = null
+  mainWindow = null
 }
 
 function getTrayIcon (isLoading) {
@@ -180,7 +180,9 @@ app.on('activate', () => {
 })
 
 app.on('before-quit', function (evt) {
-  tray.destroy()
+  if (tray) {
+    tray.destroy()
+  }
 })
 
 app.on('sync-on', function () {
