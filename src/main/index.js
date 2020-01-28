@@ -34,10 +34,23 @@ function destroyTray () {
   }
 }
 
-function createWindow () {
-  // Make app available on vue
-  BrowserWindow.prototype.$app = app
+function getTrayIcon (isLoading) {
+  let iconName = isLoading ? 'sync-icon' : 'tray-icon'
 
+  let trayIcon = path.join(__dirname, '../../src/resources/icons/' + iconName + '@2x.png')
+
+  if (process.platform === 'darwin') {
+    trayIcon = path.join(__dirname, '../../src/resources/icons/' + iconName + '-macTemplate@2x.png')
+  }
+
+  if (tray) {
+    tray.setImage(trayIcon)
+  }
+
+  return trayIcon
+}
+
+function createWindow () {
   mainWindow = new BrowserWindow({
     height: 550,
     useContentSize: true,
@@ -127,11 +140,7 @@ function createWindow () {
     Menu.buildFromTemplate([process.platform === 'darwin' ? editMacOS : edit, view])
   )
 
-  let trayIcon = path.join(__dirname, '../../src/resources/icons/tray-icon@2x.png')
-
-  if (process.platform === 'darwin') {
-    trayIcon = path.join(__dirname, '../../src/resources/icons/tray-icon-macTemplate@2x.png')
-  }
+  let trayIcon = getTrayIcon()
 
   if (process.env.NODE_ENV === 'production') {
     // trayIcon = path.join(__dirname, '../../src/resources/icons/tray-icon@2x.png')
@@ -143,9 +152,7 @@ function createWindow () {
   const contextMenu = () => Menu.buildFromTemplate([
     {
       label: 'Billing',
-      click: function () {
-        shell.openExternal('https://cloud.internxt.com/storage')
-      }
+      click: function () { shell.openExternal('https://cloud.internxt.com/storage') }
     },
     {
       label: 'Quit',
@@ -160,11 +167,8 @@ app.on('ready', createWindow)
 
 function appClose () {
   destroyTray()
-  if (process.platform !== 'darwin') {
-    app.quit()
-  }
-
-  app = null
+  if (process.platform !== 'darwin') { app.quit() }
+  mainWindow = null
 }
 
 app.on('window-all-closed', appClose)
@@ -177,6 +181,14 @@ app.on('activate', () => {
 
 app.on('before-quit', function (evt) {
   tray.destroy()
+})
+
+app.on('sync-on', function () {
+  tray.setImage(getTrayIcon(true))
+})
+
+app.on('sync-off', function () {
+  tray.setImage(getTrayIcon(false))
 })
 
 /**

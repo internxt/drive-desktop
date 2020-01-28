@@ -154,7 +154,12 @@ function UploadAllNewFiles () {
         if (!entry) {
           // File only exists in local
           console.log('New local file:', item)
-          Sync.UploadNewFile(storj, item).then(() => next()).catch(err => next(err))
+          if (fs.statSync(item).size === 0) {
+            console.log('Warning: Filesize 0. Ignoring file.')
+            next()
+          } else {
+            Sync.UploadNewFile(storj, item).then(() => next()).catch(err => next(err))
+          }
         } else { next() }
       } else {
         // Is a folder

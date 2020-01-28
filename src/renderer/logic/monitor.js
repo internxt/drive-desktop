@@ -4,6 +4,10 @@ import Downloader from './downloader'
 import tree from './tree'
 import database from '../../database'
 import path from 'path'
+import chokidar from 'chokidar'
+import electron from 'electron'
+
+const app = electron.remote.app
 
 let watcher
 
@@ -19,24 +23,34 @@ function StartMonitor () {
   // Sync
   async.waterfall([
     (next) => {
+      // New sync started, so we save the current date
+      app.emit('sync-on')
       database.Set('syncStartDate', new Date()).then(() => next()).catch(err => next(err))
     },
     (next) => {
+      // Search for new folders in local folder
+      // It is neccesary to do this before uploading new files
       UploadNewFolders().then(() => next()).catch(err => next(err))
     },
     (next) => {
+      // Search new files in local folder, and upload them
       UploadNewFiles().then(() => next()).catch(err => next(err))
     },
     (next) => {
+      // Will determine if something wrong happened in the last synchronization
       database.Get('lastSyncDate').then(lastDate => {
         if (!lastDate || !(lastDate instanceof Date)) {
+          // If there were never a last time (first time sync), the success is set to false.
           database.Set('lastSyncSuccess', false).then(() => next()).catch(err => next(err))
         } else {
+          // If last time is more than 2 days, let's consider a unsuccessful sync,
+          // to perform the sync from the start
           var DifferenceInTime = new Date() - lastDate
           var DifferenceInDays = DifferenceInTime / (1000 * 3600 * 24)
           if (DifferenceInDays > 2) {
             database.Set('lastSyncSuccess', false).then(() => next()).catch(err => next(err))
           } else {
+            // Sync ok
             next()
           }
         }
@@ -44,12 +58,13 @@ function StartMonitor () {
     },
     (next) => {
       // Start to sync. Did last sync failed?
+      // The last step was performed in order to know if databases should be deleted
       database.Get('lastSyncSuccess').then(result => {
         if (result === true) { next() } else {
           console.log('LAST SYNC FAILED, CLEARING DATABASES')
           database.dbFiles.remove({}, { multi: true }, (err, totalFilesRemoved) => {
             if (err) { next(err) } else {
-              database.dbFolders.remove({}, {multi: true}, (err, totalFoldersRemoved) => next(err))
+              database.dbFolders.remove({}, { multi: true }, (err, totalFoldersRemoved) => next(err))
             }
           })
         }
@@ -78,14 +93,6 @@ function StartMonitor () {
       SyncTree().then(() => next()).catch(err => next(err))
     },
     (next) => {
-      if (process.env.NODE_ENV !== 'production') {
-        console.log('SYNC FINISHED, SHOULD YOU STOP?')
-        setTimeout(() => next(), 5000)
-      } else {
-        next()
-      }
-    },
-    (next) => {
       // Regenerate dbFolders and dbFiles
       RegenerateLocalDbFolders().then(() => next()).catch(err => next(err))
     },
@@ -98,18 +105,18 @@ function StartMonitor () {
       // - Clear TEMP database
       // - Start a watcher on the sync path.
       // If a file was ADDED during the sync...
-      // ...ignore that file con clean step
+      // ...ignore that file on clean step
 
-      database.ClearTemp().then(() => {
-        next()
-      }).catch((err) => {
-        next(err)
-      })
+      database.ClearTemp().then(() => next()).catch((err) => next(err))
     },
     /*
     (next) => {
       database.Get('xPath').then(xPath => {
-        console.log(xPath)
+        watcher = chokidar.watch(xPath)
+        watcher.on('all', (event, path) => {
+          console.log('WATCHER', event, path)
+        })
+
         nsfw(xPath, events => {
           async.eachSeries(events, async (event, nextItem) => {
             if (event.action === 0) {
@@ -130,6 +137,7 @@ function StartMonitor () {
           watcher = wtch
           return next(null, watcher.start())
         })
+
       })
     },
     */
@@ -143,9 +151,11 @@ function StartMonitor () {
       // Si hay ficheros nuevos en el árbol, los creamos en local
       DownloadFiles().then(() => next()).catch(err => next(err))
     },
+    /*
     (next) => {
-      watcher.stop().then(() => next()).catch(err => next(err))
+      watcher.close().then(() => next()).catch(err => next(err))
     },
+    */
     (next) => {
       // Delete local folders missing in remote
       CleanRemoteFolders().then(() => next()).catch(err => next(err))
@@ -161,9 +171,10 @@ function StartMonitor () {
       database.Set('lastSyncDate', new Date()).then(() => next()).catch(err => next(err))
     }
   ], (err) => {
+    app.emit('sync-off')
     if (err) {
-      database.dbFiles.remove({}, {multi: true}, () => {
-        database.dbFolders.remove({}, {multi: true}, () => {
+      database.dbFiles.remove({}, { multi: true }, () => {
+        database.dbFolders.remove({}, { multi: true }, () => {
           Monitor()
         })
       })
@@ -265,14 +276,14 @@ function DownloadFiles () {
 }
 
 function UploadNewFolders () {
-  console.log('Creating new folders in remote')
+  // console.log('Creating new folders in remote')
   return new Promise((resolve, reject) => {
     Downloader.UploadAllNewFolders().then(() => resolve()).catch(err => reject(err))
   })
 }
 
 function UploadNewFiles () {
-  console.log('Uploading local new files')
+  // console.log('Uploading local new files')
   return new Promise((resolve, reject) => {
     Downloader.UploadAllNewFiles().then(() => resolve()).catch(err => reject(err))
   })

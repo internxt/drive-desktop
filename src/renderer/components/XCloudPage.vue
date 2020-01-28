@@ -4,7 +4,15 @@
       <div class="spinner-grow text-primary" role="status">
         <span class="sr-only">Syncing...</span>
       </div>
-      <div><a href="#" @click="quitApp()">Quit</a></div>
+      <div>
+        <a href="#" @click="quitApp()">Quit</a>
+      </div>
+      <div>
+        <a href="#" @click="changeTrayIconOn()">Change Tray Icon ON</a>
+      </div>
+      <div>
+        <a href="#" @click="changeTrayIconOff()">Change Tray Icon OFF</a>
+      </div>
     </main>
   </div>
 </template>
@@ -45,21 +53,35 @@ export default {
     quitApp () {
       remote.getCurrentWindow().close()
     },
+    changeTrayIconOn () {
+      const app = require('electron').remote.app
+      app.emit('sync-on')
+    },
+    changeTrayIconOff () {
+      const app = require('electron').remote.app
+      app.emit('sync-off')
+    },
     getUser () {
-      database.Get('xUser').then(userInfo => {
-        this.$data.databaseUser = userInfo.user.email
-      }).catch(err => {
-        console.error(err)
-        this.$data.databaseUser = 'error'
-      })
+      database
+        .Get('xUser')
+        .then(userInfo => {
+          this.$data.databaseUser = userInfo.user.email
+        })
+        .catch(err => {
+          console.error(err)
+          this.$data.databaseUser = 'error'
+        })
     },
     getLocalFolderPath () {
-      database.Get('xPath').then(path => {
-        this.$data.localPath = path
-      }).catch(err => {
-        console.error(err)
-        this.$data.localPath = 'error'
-      })
+      database
+        .Get('xPath')
+        .then(path => {
+          this.$data.localPath = path
+        })
+        .catch(err => {
+          console.error(err)
+          this.$data.localPath = 'error'
+        })
     },
     getCurrentEnv () {
       this.$data.currentEnv = process.env.NODE_ENV
