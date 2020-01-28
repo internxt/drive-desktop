@@ -191,6 +191,10 @@ app.on('sync-off', function () {
   tray.setImage(getTrayIcon(false))
 })
 
+app.on('set-tooltip', (msg) => {
+  tray.setToolTip('X Cloud Desktop' + (msg ? '\n' + msg : ''))
+})
+
 /**
  * Auto Updater
  *

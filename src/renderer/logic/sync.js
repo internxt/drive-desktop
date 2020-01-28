@@ -7,6 +7,9 @@ import axios from 'axios'
 import async from 'async'
 import tree from './tree'
 import rimraf from 'rimraf'
+import electron from 'electron'
+
+const app = electron.remote.app
 
 async function GetAuthHeader (withMnemonic) {
   const userData = await database.Get('xUser')
@@ -64,6 +67,8 @@ function UploadFile (storj, filePath) {
     const originalFileName = path.basename(filePath)
     const encryptedFileName = crypt.EncryptFilename(originalFileName, folderId)
 
+    app.emit('set-tooltip', 'Uploading ' + originalFileName)
+
     // File extension
     const extSeparatorPos = originalFileName.lastIndexOf('.')
     const fileExt = originalFileName.slice(extSeparatorPos + 1)
@@ -84,8 +89,12 @@ function UploadFile (storj, filePath) {
       filename: finalName,
       progressCallback: function (progress, uploadedBytes, totalBytes) {
         console.log('Upload rf', progress)
+        let progressPtg = progress * 100
+        progressPtg = progressPtg.toFixed(2)
+        app.emit('set-tooltip', 'Uploading ' + originalFileName + ' (' + progressPtg + '%)')
       },
       finishedCallback: function (err, newFileId) {
+        app.emit('set-tooltip')
         if (err) {
           console.log('Sync Error uploading file: %s', err)
           reject(err)
@@ -126,6 +135,8 @@ function UploadNewFile (storj, filePath) {
     const originalFileName = path.basename(filePath)
     const encryptedFileName = crypt.EncryptFilename(originalFileName, folderId)
 
+    app.emit('set-tooltip', 'Uploading ' + originalFileName)
+
     // File extension
     const extSeparatorPos = originalFileName.lastIndexOf('.')
     const fileExt = originalFileName.slice(extSeparatorPos + 1)
@@ -141,8 +152,12 @@ function UploadNewFile (storj, filePath) {
       filename: finalName,
       progressCallback: function (progress, uploadedBytes, totalBytes) {
         console.log('Upload nf', progress)
+        let progressPtg = progress * 100
+        progressPtg = progressPtg.toFixed(2)
+        app.emit('set-tooltip', 'Uploading ' + originalFileName + ' (' + progressPtg + '%)')
       },
       finishedCallback: function (err, newFileId) {
+        app.emit('set-tooltip')
         if (err) {
           console.error('Error uploading new file', err)
           reject(err)

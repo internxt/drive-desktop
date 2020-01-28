@@ -7,6 +7,9 @@ import path from 'path'
 import fs from 'fs'
 import Sync from './sync'
 import CheckDiskSpace from 'check-disk-space'
+import electron from 'electron'
+
+const app = electron.remote.app
 
 async function _getStorjCredentials () {
   const mnemonic = await Database.Get('xMnemonic')
@@ -34,6 +37,8 @@ function DownloadFileTemp (fileObj, silent = false) {
   return new Promise(async (resolve, reject) => {
     const storj = await _getEnvironment()
 
+    const originalFileName = fileObj.name
+
     const tempPath = temp.dir
     const tempFilePath = path.join(tempPath, fileObj.fileId + '.dat')
 
@@ -43,10 +48,14 @@ function DownloadFileTemp (fileObj, silent = false) {
     storj.resolveFile(fileObj.bucket, fileObj.fileId, tempFilePath, {
       progressCallback: function (progress, downloadedBytes, totalBytes) {
         if (!silent) {
+          let progressPtg = progress * 100
+          progressPtg = progressPtg.toFixed(2)
+          app.emit('set-tooltip', 'Uploading ' + originalFileName + ' (' + progressPtg + '%)')
           console.log('download progress:', progress)
         }
       },
       finishedCallback: function (err) {
+        app.emit('set-tooltip')
         if (err) { reject(err) } else {
           Sync.SetModifiedTime(tempFilePath, fileObj.created_at)
             .then(() => resolve(tempFilePath))
