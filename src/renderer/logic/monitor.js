@@ -77,15 +77,13 @@ function StartMonitor () {
       // Delete remote folders missing in local folder
       // Borrar diretorios remotos que ya no existen en local
       // Nos basamos en el último árbol sincronizado
-      // CleanLocalFolders().then(() => next(null)).catch(err => next(err))
-      next()
+      CleanLocalFolders().then(() => next(null)).catch(err => next(err))
     },
     (next) => {
       // Delete remote files missing in local folder
       // Borrar archivos remotos que ya no existen en local
       // Nos basamos en el último árbol sincronizado
-      // CleanLocalFiles().then(() => next(null)).catch(err => next(err))
-      next()
+      CleanLocalFiles().then(() => next(null)).catch(err => next(err))
     },
     (next) => {
       // Donwload the tree of remote files and folders
@@ -112,14 +110,16 @@ function StartMonitor () {
 
     (next) => {
       database.Get('xPath').then(xPath => {
-        watcher = chokidar.watch(xPath)
+        watcher = chokidar.watch(xPath, {
+          awaitWriteFinish: true
+        })
 
         watcher.on('all', (event, fullPath) => {
-          console.log('WATCHER', event, fullPath)
+          console.log(event, fullPath)
           database.TempSet(fullPath)
         })
 
-        next()
+        setTimeout(() => next(), 15000)
       })
     },
 

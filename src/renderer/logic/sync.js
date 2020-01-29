@@ -88,7 +88,7 @@ function UploadFile (storj, filePath) {
     storj.storeFile(bucketId, filePath, {
       filename: finalName,
       progressCallback: function (progress, uploadedBytes, totalBytes) {
-        console.log('Upload rf', progress)
+        // console.log('Upload rf', progress)
         let progressPtg = progress * 100
         progressPtg = progressPtg.toFixed(2)
         app.emit('set-tooltip', 'Uploading ' + originalFileName + ' (' + progressPtg + '%)')
@@ -150,7 +150,7 @@ function UploadNewFile (storj, filePath) {
     storj.storeFile(bucketId, filePath, {
       filename: finalName,
       progressCallback: function (progress, uploadedBytes, totalBytes) {
-        console.log('Upload nf', progress)
+        // console.log('Upload nf', progress)
         let progressPtg = progress * 100
         progressPtg = progressPtg.toFixed(2)
         app.emit('set-tooltip', 'Uploading ' + originalFileName + ' (' + progressPtg + '%)')
@@ -392,8 +392,10 @@ function CleanLocalFiles () {
         database.FileGet(item).then(async fileObj => {
           if (!fileObj) {
             const creationDate = fs.statSync(item)
+            // console.error('DECIDE IF DELETE FILE', item)
             const isTemp = await database.TempGet(item)
-            if (creationDate <= syncDate || !isTemp) {
+
+            if (creationDate <= syncDate && !isTemp) {
               console.log('Delete file %s', item)
               fs.unlinkSync(item)
             }

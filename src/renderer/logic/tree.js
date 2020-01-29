@@ -76,7 +76,6 @@ function GetStat (path) {
   try {
     return FS.lstatSync(path)
   } catch (err) {
-    console.error('Error getting stat of %s. Error: %s', path, err)
     return null
   }
 }

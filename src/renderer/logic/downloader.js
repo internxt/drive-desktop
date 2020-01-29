@@ -37,7 +37,7 @@ function DownloadFileTemp (fileObj, silent = false) {
   return new Promise(async (resolve, reject) => {
     const storj = await _getEnvironment()
 
-    const originalFileName = fileObj.name
+    const originalFileName = path.basename(fileObj.fullpath)
 
     const tempPath = temp.dir
     const tempFilePath = path.join(tempPath, fileObj.fileId + '.dat')
@@ -50,8 +50,10 @@ function DownloadFileTemp (fileObj, silent = false) {
         if (!silent) {
           let progressPtg = progress * 100
           progressPtg = progressPtg.toFixed(2)
-          app.emit('set-tooltip', 'Downloading ' + fileObj.name + ' (' + progressPtg + '%)')
-          console.log('download progress:', progress)
+          app.emit('set-tooltip', 'Downloading ' + originalFileName + ' (' + progressPtg + '%)')
+          // console.log('download progress:', progress)
+        } else {
+          app.emit('set-tooltip', 'Checking ' + originalFileName)
         }
       },
       finishedCallback: function (err) {
@@ -125,6 +127,11 @@ function DownloadAllFiles () {
           let storj = await _getEnvironment()
           Sync.UploadFile(storj, item.fullpath).then(() => next()).catch(err => next(err))
         } else {
+          // Check if should download to ensure file
+          let shouldEnsureFile = false
+          if (!shouldEnsureFile) {
+            return next()
+          }
           console.log('DOWNLOAD JUST TO ENSURE FILE')
           // Check file is ok
           DownloadFileTemp(item, true)
