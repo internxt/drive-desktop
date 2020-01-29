@@ -109,38 +109,20 @@ function StartMonitor () {
 
       database.ClearTemp().then(() => next()).catch((err) => next(err))
     },
-    /*
+
     (next) => {
       database.Get('xPath').then(xPath => {
         watcher = chokidar.watch(xPath)
-        watcher.on('all', (event, path) => {
-          console.log('WATCHER', event, path)
+
+        watcher.on('all', (event, fullPath) => {
+          console.log('WATCHER', event, fullPath)
+          database.TempSet(fullPath)
         })
 
-        nsfw(xPath, events => {
-          async.eachSeries(events, async (event, nextItem) => {
-            if (event.action === 0) {
-              const fullPath = path.join(event.directory, event.file)
-
-              const ifFolder = await database.FolderGet(fullPath)
-              const ifFile = await database.FileGet(fullPath)
-
-              if (ifFile || ifFolder) { nextItem() } else {
-                database.TempSet(fullPath).then(() => nextItem()).catch(err => nextItem(err))
-              }
-            } else {
-              nextItem()
-            }
-          }, (err) => next(err))
-        }, {
-        }).then(wtch => {
-          watcher = wtch
-          return next(null, watcher.start())
-        })
-
+        next()
       })
     },
-    */
+
     (next) => {
       // Create local folders
       // Si hay directorios nuevos en el árbol, los creamos en local
@@ -151,11 +133,11 @@ function StartMonitor () {
       // Si hay ficheros nuevos en el árbol, los creamos en local
       DownloadFiles().then(() => next()).catch(err => next(err))
     },
-    /*
     (next) => {
-      watcher.close().then(() => next()).catch(err => next(err))
+      watcher.close()
+      watcher = null
+      next()
     },
-    */
     (next) => {
       // Delete local folders missing in remote
       CleanRemoteFolders().then(() => next()).catch(err => next(err))
@@ -171,7 +153,15 @@ function StartMonitor () {
       database.Set('lastSyncDate', new Date()).then(() => next()).catch(err => next(err))
     }
   ], (err) => {
+    // If monitor ended before stopping the watcher, let's ensure
+    if (watcher) {
+      watcher.close()
+    }
+    watcher = null
+
+    // Switch "loading" tray icon
     app.emit('sync-off')
+
     if (err) {
       database.dbFiles.remove({}, { multi: true }, () => {
         database.dbFolders.remove({}, { multi: true }, () => {
