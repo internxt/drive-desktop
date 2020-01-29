@@ -50,7 +50,7 @@ function DownloadFileTemp (fileObj, silent = false) {
         if (!silent) {
           let progressPtg = progress * 100
           progressPtg = progressPtg.toFixed(2)
-          app.emit('set-tooltip', 'Uploading ' + originalFileName + ' (' + progressPtg + '%)')
+          app.emit('set-tooltip', 'Downloading ' + fileObj.name + ' (' + progressPtg + '%)')
           console.log('download progress:', progress)
         }
       },
@@ -163,7 +163,7 @@ function UploadAllNewFiles () {
         if (!entry) {
           // File only exists in local
           console.log('New local file:', item)
-          if (fs.statSync(item).size === 0) {
+          if (stat.size === 0) {
             console.log('Warning: Filesize 0. Ignoring file.')
             next()
           } else {
@@ -171,15 +171,7 @@ function UploadAllNewFiles () {
           }
         } else { next() }
       } else {
-        // Is a folder
-        let entry = await Database.FolderGet(item)
-        if (!entry) {
-          // Is a NEW folder
-          console.log('New local folder:', item)
-          next()
-        } else {
-          next()
-        }
+        next()
       }
     }, (err, result) => {
       if (err) {
