@@ -113,7 +113,6 @@ function UploadNewFile (storj, filePath) {
   console.log('NEW file found, uploading:', filePath)
   return new Promise(async (resolve, reject) => {
     const dbEntry = await database.FolderGet(folderPath)
-    console.error(dbEntry)
     const user = await database.Get('xUser')
     const tree = await database.Get('tree')
     const folderRoot = await database.Get('xPath')
@@ -159,8 +158,14 @@ function UploadNewFile (storj, filePath) {
       finishedCallback: function (err, newFileId) {
         app.emit('set-tooltip')
         if (err) {
-          console.error('Error uploading new file', err)
-          reject(err)
+          // If the error is due to file existence, ignore in order to continue uploading
+          const fileExistsPattern = /File already exist/
+          if (fileExistsPattern.exec(err)) {
+            resolve()
+          } else {
+            console.error('Error uploading new file', err)
+            reject(err)
+          }
         } else {
           CreateFileEntry(bucketId, newFileId, encryptedFileName, fileExt, fileSize, folderId)
             .then(res => resolve(res))
