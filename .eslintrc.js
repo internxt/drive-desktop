@@ -12,10 +12,8 @@ module.exports = {
   globals: {
     __static: true
   },
-  plugins: [
-    'html'
-  ],
-  'rules': {
+  plugins: ['html'],
+  rules: {
     // allow paren-less arrow functions
     'arrow-parens': 0,
     // allow async-await
@@ -24,6 +22,8 @@ module.exports = {
     'no-debugger': process.env.NODE_ENV === 'production' ? 2 : 0,
     'no-unused-vars': 'off',
     'no-extra-semi': 'off',
-    'no-unreachable': 'off'
+    'no-unreachable': 'off',
+    'space-before-function-paren': 'off',
+    'no-useless-character': 0
   }
 }
