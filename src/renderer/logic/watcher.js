@@ -1,4 +1,5 @@
 import chokidar from 'chokidar'
+import database from '../../database/index'
 
 function StartWatcher(path) {
   var watcher = chokidar.watch(path, {
@@ -17,18 +18,23 @@ function StartWatcher(path) {
   watcher
     .on('add', function(path) {
       console.log('File', path, 'has been added')
+      database.TempSet(path, 'add')
     })
     .on('addDir', function(path) {
       console.log('Directory', path, 'has been added')
+      database.TempSet(path, 'addDir')
     })
     .on('change', function(path) {
       console.log('File', path, 'has been changed')
+      database.TempSet(path, 'change')
     })
     .on('unlink', function(path) {
       console.log('File', path, 'has been removed')
+      database.TempSet(path, 'unlink')
     })
     .on('unlinkDir', function(path) {
       console.log('Directory', path, 'has been removed')
+      database.TempSet(path, 'unlinkDir')
     })
     .on('error', function(error) {
       console.log('Error happened', error)
