@@ -4,7 +4,7 @@ import database from '../../database/index'
 import async from 'async'
 import crypt from './crypt'
 
-function safeReadDirSync (path) {
+function safeReadDirSync(path) {
   let dirData = {}
   try {
     dirData = FS.readdirSync(path)
@@ -17,7 +17,7 @@ function safeReadDirSync (path) {
   return dirData
 }
 
-function GetTreeFromFolder (folderPath) {
+function GetTreeFromFolder(folderPath) {
   const result = safeReadDirSync(folderPath)
   const folderName = PATH.basename(folderPath)
 
@@ -50,7 +50,7 @@ function GetTreeFromFolder (folderPath) {
   return object
 }
 
-function GetListFromFolder (folderPath) {
+function GetListFromFolder(folderPath) {
   const result = safeReadDirSync(folderPath)
 
   var returnResult = []
@@ -72,7 +72,7 @@ function GetListFromFolder (folderPath) {
   return returnResult
 }
 
-function GetStat (path) {
+function GetStat(path) {
   try {
     return FS.lstatSync(path)
   } catch (err) {
@@ -80,7 +80,7 @@ function GetStat (path) {
   }
 }
 
-function _recursiveFolderToList (tree, basePath, currentPath = null) {
+function _recursiveFolderToList(tree, basePath, currentPath = null) {
   let finalList = []
   return new Promise((resolve, reject) => {
     async.eachSeries(tree.children, async (item, next) => {
@@ -96,17 +96,15 @@ function _recursiveFolderToList (tree, basePath, currentPath = null) {
   })
 }
 
-function GetFolderListFromRemoteTree () {
+function GetFolderListFromRemoteTree() {
   return new Promise(async (resolve, reject) => {
     const tree = await database.Get('tree')
     const basePath = await database.Get('xPath')
-    _recursiveFolderToList(tree, basePath)
-      .then(list => resolve(list))
-      .catch(err => reject(err))
+    _recursiveFolderToList(tree, basePath).then(list => resolve(list)).catch(reject)
   })
 }
 
-function _recursiveFolderObjectToList (tree, basePath, currentPath = null) {
+function _recursiveFolderObjectToList(tree, basePath, currentPath = null) {
   let finalList = []
   return new Promise((resolve, reject) => {
     async.eachSeries(tree.children, async (item, next) => {
@@ -114,10 +112,7 @@ function _recursiveFolderObjectToList (tree, basePath, currentPath = null) {
       let fullNewPath = PATH.join(currentPath || basePath, decryptedName)
       let cloneObject = JSON.parse(JSON.stringify(item))
       delete cloneObject.children
-      let finalObject = {
-        key: fullNewPath,
-        value: cloneObject
-      }
+      let finalObject = { key: fullNewPath, value: cloneObject }
       finalList.push(finalObject)
       var subFolder = await _recursiveFolderObjectToList(item, basePath, fullNewPath)
       finalList = finalList.concat(subFolder)
@@ -128,17 +123,15 @@ function _recursiveFolderObjectToList (tree, basePath, currentPath = null) {
   })
 }
 
-function GetFolderObjectListFromRemoteTree () {
+function GetFolderObjectListFromRemoteTree() {
   return new Promise(async (resolve, reject) => {
     const tree = await database.Get('tree')
     const basePath = await database.Get('xPath')
-    _recursiveFolderObjectToList(tree, basePath)
-      .then(list => resolve(list))
-      .catch(err => reject(err))
+    _recursiveFolderObjectToList(tree, basePath).then(list => resolve(list)).catch(reject)
   })
 }
 
-function _recursiveFilesToList (tree, basePath, currentPath = null) {
+function _recursiveFilesToList(tree, basePath, currentPath = null) {
   let finalList = tree.files
 
   finalList.forEach(item => {
@@ -161,17 +154,15 @@ function _recursiveFilesToList (tree, basePath, currentPath = null) {
   })
 }
 
-function GetFileListFromRemoteTree () {
+function GetFileListFromRemoteTree() {
   return new Promise(async (resolve, reject) => {
     const tree = await database.Get('tree')
     const basePath = await database.Get('xPath')
-    _recursiveFilesToList(tree, basePath)
-      .then(list => resolve(list))
-      .catch(err => reject(err))
+    _recursiveFilesToList(tree, basePath).then(list => resolve(list)).catch(reject)
   })
 }
 
-function GetLocalFolderList (localPath) {
+function GetLocalFolderList(localPath) {
   return new Promise((resolve, reject) => {
     let data = safeReadDirSync(localPath)
     let folders = []
@@ -184,7 +175,7 @@ function GetLocalFolderList (localPath) {
         GetLocalFolderList(itemPath).then(subFolders => {
           folders = folders.concat(subFolders)
           next()
-        }).catch(err => next(err))
+        }).catch(next)
       } else { next() }
     }, (err, result) => {
       if (err) { reject(err) } else { resolve(folders) }
@@ -192,7 +183,7 @@ function GetLocalFolderList (localPath) {
   })
 }
 
-function GetLocalFileList (localPath) {
+function GetLocalFileList(localPath) {
   return new Promise((resolve, reject) => {
     let data = safeReadDirSync(localPath)
     let files = []
@@ -204,7 +195,7 @@ function GetLocalFileList (localPath) {
         GetLocalFileList(itemPath).then(subFolders => {
           files = files.concat(subFolders)
           next()
-        }).catch(err => next(err))
+        }).catch(next)
       } else {
         files.push(itemPath)
         next()

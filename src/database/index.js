@@ -28,7 +28,7 @@ const dbTemp = new Datastore({
   timestampData: true
 })
 
-function InsertKeyValue (db, key, value) {
+function InsertKeyValue(db, key, value) {
   return new Promise((resolve, reject) => {
     db.remove({ key }, { multi: true }, function (err, numRemoved) {
       if (err) {
@@ -103,11 +103,7 @@ const FileGet = (key) => {
 const TempGet = (key) => {
   return new Promise((resolve, reject) => {
     dbTemp.findOne({ key: key }, (err, document) => {
-      if (err) {
-        resolve(null)
-      } else {
-        resolve(document)
-      }
+      if (err) { resolve(null) } else { resolve(document) }
     })
   })
 }
@@ -115,13 +111,31 @@ const TempGet = (key) => {
 const ClearTemp = () => {
   return new Promise((resolve, reject) => {
     dbTemp.remove({}, { multi: true }, (err, totalFilesRemoved) => {
-      if (err) {
-        reject(err)
-      } else {
-        resolve(totalFilesRemoved)
-      }
+      if (err) { reject(err) } else { resolve(totalFilesRemoved) }
     })
   })
+}
+
+const ClearFiles = () => {
+  return new Promise((resolve, reject) => {
+    dbFiles.remove({}, { multi: true }, (err, totalFilesRemoved) => {
+      if (err) { reject(err) } else { resolve(totalFilesRemoved) }
+    })
+  })
+}
+
+const ClearFolders = () => {
+  return new Promise((resolve, reject) => {
+    dbFolders.remove({}, { multi: true }, (err, totalFilesRemoved) => {
+      if (err) { reject(err) } else { resolve(totalFilesRemoved) }
+    })
+  })
+}
+
+const CompactAllDatabases = () => {
+  dbFolders.persistence.compactDatafile()
+  dbFiles.persistence.compactDatafile()
+  dbTemp.persistence.compactDatafile()
 }
 
 export default {
@@ -137,5 +151,8 @@ export default {
   TempGet,
   TempSet,
   ClearTemp,
+  ClearFiles,
+  ClearFolders,
+  CompactAllDatabases,
   GetDatabaseFolder: databaseFolder
 }

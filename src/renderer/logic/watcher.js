@@ -36,8 +36,10 @@ function StartWatcher(path) {
     .on('ready', onWatcherReady)
     .on('raw', function(event, path, details) {
       // This event should be triggered everytime something happens.
-      console.log('Raw event info:', event, path, details)
+      // console.log('Raw event info:', event, path, details)
     })
+
+  return watcher
 }
 
 export default {

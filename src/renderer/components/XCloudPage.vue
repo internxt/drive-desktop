@@ -13,6 +13,7 @@
       <div>
         <a href="#" @click="changeTrayIconOff()">Change Tray Icon OFF</a>
       </div>
+      <div>Path: {{this.$data.localPath}}</div>
     </main>
   </div>
 </template>

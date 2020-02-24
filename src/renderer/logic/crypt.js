@@ -5,6 +5,11 @@ import async from 'async'
 
 const CRYPTO_KEY = ''
 
+if (!CRYPTO_KEY) {
+  console.error('No encryption key provided')
+  process.exit(3)
+}
+
 function EncryptWithKey (textToEncrypt, key) {
   const bytes = CryptoJS.AES.encrypt(textToEncrypt, key).toString()
   const text64 = CryptoJS.enc.Base64.parse(bytes)
@@ -52,15 +57,10 @@ function DecryptName (cipherText, salt) {
     // If no salt, something is trying to use legacy decryption
     return ProbabilisticDecryption(cipherText)
   } else {
-    // If salt is provided, we could have 2 scenarios
-
-    // 1. The cipherText is truly encripted with salt in a deterministic way
     const decrypted = DeterministicDecryption(cipherText, salt)
 
     if (!decrypted) {
-      // 2. The deterministic algorithm failed although salt were provided.
-      // So, the cipherText is encrypted in a probabilistic way.
-
+      console.log('Error decrypting on a deterministic way')
       return ProbabilisticDecryption(cipherText)
     } else {
       return decrypted
@@ -135,10 +135,10 @@ function CompareHash (path1, path2, hash) {
   return new Promise((resolve, reject) => {
     async.parallel([
       (next) => {
-        FileHash(path1, hash).then(result => next(null, result)).catch(err => next(err))
+        FileHash(path1, hash).then(result => next(null, result)).catch(next)
       },
       (next) => {
-        FileHash(path2, hash).then(result => next(null, result)).catch(err => next(err))
+        FileHash(path2, hash).then(result => next(null, result)).catch(next)
       }
     ], function (err, results) {
       if (err) { reject(err) } else {

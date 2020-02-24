@@ -11,7 +11,7 @@ import electron from 'electron'
 
 const app = electron.remote.app
 
-async function _getStorjCredentials () {
+async function _getStorjCredentials() {
   const mnemonic = await Database.Get('xMnemonic')
   const userInfo = (await Database.Get('xUser')).user
 
@@ -25,7 +25,7 @@ async function _getStorjCredentials () {
   return options
 }
 
-function _getEnvironment () {
+function _getEnvironment() {
   return new Promise(async (resolve, reject) => {
     const options = await _getStorjCredentials()
     const storj = new Environment(options)
@@ -33,7 +33,7 @@ function _getEnvironment () {
   })
 }
 
-function DownloadFileTemp (fileObj, silent = false) {
+function DownloadFileTemp(fileObj, silent = false) {
   return new Promise(async (resolve, reject) => {
     const storj = await _getEnvironment()
 
@@ -61,24 +61,24 @@ function DownloadFileTemp (fileObj, silent = false) {
         if (err) { reject(err) } else {
           Sync.SetModifiedTime(tempFilePath, fileObj.created_at)
             .then(() => resolve(tempFilePath))
-            .catch(err => reject(err))
+            .catch(reject)
         }
       }
     })
   })
 }
 
-function RestoreFile (fileObj) {
+function RestoreFile(fileObj) {
   return new Promise(async (resolve, reject) => {
     const storj = await _getEnvironment()
     const bucketId = fileObj.bucket
     const fileId = fileObj.folder_id
 
-    Sync.UploadFile(storj, fileObj.fullpath).then(() => resolve()).catch(err => reject(err))
+    Sync.UploadFile(storj, fileObj.fullpath).then(() => resolve()).catch(reject)
   })
 }
 
-function DownloadAllFiles () {
+function DownloadAllFiles() {
   return new Promise((resolve, reject) => {
     Tree.GetFileListFromRemoteTree().then(list => {
       async.eachSeries(list, async (item, next) => {
@@ -125,7 +125,7 @@ function DownloadAllFiles () {
           })
         } else if (uploadAndReplace) {
           let storj = await _getEnvironment()
-          Sync.UploadFile(storj, item.fullpath).then(() => next()).catch(err => next(err))
+          Sync.UploadFile(storj, item.fullpath).then(() => next()).catch(next)
         } else {
           // Check if should download to ensure file
           let shouldEnsureFile = false
@@ -139,9 +139,7 @@ function DownloadAllFiles () {
             .catch(err => {
               if (err.message === 'File missing shard error' && localExists) {
                 console.error('Missing shard error. Reuploading...')
-                RestoreFile(item)
-                  .then(() => next())
-                  .catch(err => next(err))
+                RestoreFile(item).then(() => next()).catch(next)
               } else {
                 console.error('Cannot upload local final')
                 next(err)
@@ -151,11 +149,11 @@ function DownloadAllFiles () {
       }, (err, result) => {
         if (err) { reject(err) } else { resolve() }
       })
-    }).catch(err => reject(err))
+    }).catch(reject)
   })
 }
 
-function UploadAllNewFiles () {
+function UploadAllNewFiles() {
   return new Promise(async (resolve, reject) => {
     const localPath = await Database.Get('xPath')
     const arbol = Tree.GetListFromFolder(localPath)
@@ -174,7 +172,7 @@ function UploadAllNewFiles () {
             console.log('Warning: Filesize 0. Ignoring file.')
             next()
           } else {
-            Sync.UploadNewFile(storj, item).then(() => next()).catch(err => next(err))
+            Sync.UploadNewFile(storj, item).then(() => next()).catch(next)
           }
         } else { next() }
       } else {
@@ -195,7 +193,7 @@ function UploadAllNewFiles () {
   })
 }
 
-function UploadAllNewFolders () {
+function UploadAllNewFolders() {
   return new Promise(async (resolve, reject) => {
     const localPath = await Database.Get('xPath')
     const userInfo = await Database.Get('xUser')
@@ -248,7 +246,7 @@ function UploadAllNewFolders () {
           reject(err)
         } else { resolve() }
       })
-    }).catch(err => reject(err))
+    }).catch(reject)
   })
 }
 

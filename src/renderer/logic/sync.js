@@ -11,7 +11,7 @@ import electron from 'electron'
 
 const app = electron.remote.app
 
-async function GetAuthHeader (withMnemonic) {
+async function GetAuthHeader(withMnemonic) {
   const userData = await database.Get('xUser')
   const header = { Authorization: `Bearer ${userData.token}` }
   if (withMnemonic === true) {
@@ -21,7 +21,7 @@ async function GetAuthHeader (withMnemonic) {
   return header
 }
 
-function FileInfoFromPath (localPath) {
+function FileInfoFromPath(localPath) {
   return new Promise((resolve, reject) => {
     database.dbFiles.findOne({ key: localPath }, function (err, result) {
       if (err) { reject(err) } else { resolve(result) }
@@ -29,7 +29,7 @@ function FileInfoFromPath (localPath) {
   })
 }
 
-async function SetModifiedTime (path, time) {
+async function SetModifiedTime(path, time) {
   let convertedTime = ''
 
   const StringType = /^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\.[0-9]{3}Z$/
@@ -49,11 +49,11 @@ async function SetModifiedTime (path, time) {
   })
 }
 
-function GetFileModifiedDate (path) {
+function GetFileModifiedDate(path) {
   return fs.statSync(path).mtime
 }
 
-function UploadFile (storj, filePath) {
+function UploadFile(storj, filePath) {
   console.log('Upload file', filePath)
   return new Promise(async (resolve, reject) => {
     const fileInfo = await FileInfoFromPath(filePath)
@@ -108,7 +108,7 @@ function UploadFile (storj, filePath) {
   })
 }
 
-function UploadNewFile (storj, filePath) {
+function UploadNewFile(storj, filePath) {
   const folderPath = path.dirname(filePath)
   console.log('NEW file found, uploading:', filePath)
   return new Promise(async (resolve, reject) => {
@@ -168,8 +168,7 @@ function UploadNewFile (storj, filePath) {
           }
         } else {
           CreateFileEntry(bucketId, newFileId, encryptedFileName, fileExt, fileSize, folderId)
-            .then(res => resolve(res))
-            .catch(err => reject(err))
+            .then(res => resolve(res)).catch(reject)
         }
       }
     })
@@ -177,7 +176,7 @@ function UploadNewFile (storj, filePath) {
 }
 
 // BucketId and FileId must be the NETWORK ids (mongodb)
-function RemoveFile (bucketId, fileId) {
+function RemoveFile(bucketId, fileId) {
   return new Promise(async (resolve, reject) => {
     database.Get('xUser').then(userData => {
       fetch(`https://cloud.internxt.com/api/storage/bucket/${bucketId}/file/${fileId}`, {
@@ -194,7 +193,7 @@ function RemoveFile (bucketId, fileId) {
   })
 }
 
-function UpdateTree () {
+function UpdateTree() {
   return new Promise((resolve, reject) => {
     GetTree().then((tree) => {
       console.log('Tree obtained', tree)
@@ -212,7 +211,7 @@ function UpdateTree () {
   })
 }
 
-function GetTree () {
+function GetTree() {
   return new Promise((resolve, reject) => {
     database.Get('xUser').then(userData => {
       fetch(`https://cloud.internxt.com/api/storage/tree`, {
@@ -221,14 +220,14 @@ function GetTree () {
         return { res, data: await res.json() }
       }).then(async res => {
         resolve(res.data)
-      }).catch(err => reject(err))
+      }).catch(reject)
     })
   })
 }
 
 // folderId must be the CLOUD id (mysql)
 // warning, this method deletes all its contents
-function RemoveFolder (folderId) {
+function RemoveFolder(folderId) {
   console.log('RemoveFolder(%s)', folderId)
   return new Promise(async (resolve, reject) => {
     database.Get('xUser').then(userData => {
@@ -245,7 +244,7 @@ function RemoveFolder (folderId) {
 }
 
 // Create entry in X Cloud Server linked to the Bridge file
-async function CreateFileEntry (bucketId, bucketEntryId, fileName, fileExtension, size, folderId) {
+async function CreateFileEntry(bucketId, bucketEntryId, fileName, fileExtension, size, folderId) {
   const file = {
     bucketId: bucketEntryId,
     name: fileName,
@@ -268,7 +267,7 @@ async function CreateFileEntry (bucketId, bucketEntryId, fileName, fileExtension
 }
 
 // Check files that does not exists in local anymore
-function CheckMissingFiles () {
+function CheckMissingFiles() {
   console.log('Checking missing files...')
   return new Promise((resolve, reject) => {
     let allData = database.dbFiles.getAllData()
@@ -295,7 +294,7 @@ function CheckMissingFiles () {
 }
 
 // Check folders that does not exists in local anymore
-function CheckMissingFolders () {
+function CheckMissingFolders() {
   console.log('Cheking missing folders')
   return new Promise((resolve, reject) => {
     let allData = database.dbFolders.getAllData()
@@ -324,7 +323,7 @@ function CheckMissingFolders () {
 }
 
 // Create all remote folders on local path
-function CreateLocalFolders () {
+function CreateLocalFolders() {
   return new Promise(async (resolve, reject) => {
     tree.GetFolderListFromRemoteTree().then(list => {
       async.eachSeries(list, (folder, next) => {
@@ -344,11 +343,11 @@ function CreateLocalFolders () {
       }, (err) => {
         if (err) { reject(err) } else { resolve() }
       })
-    }).catch(err => reject(err))
+    }).catch(reject)
   })
 }
 
-function CleanLocalFolders () {
+function CleanLocalFolders() {
   return new Promise(async (resolve, reject) => {
     const localPath = await database.Get('xPath')
     const syncDate = database.Get('syncStartDate')
@@ -379,11 +378,11 @@ function CleanLocalFolders () {
       }, (err) => {
         if (err) { reject(err) } else { resolve() }
       })
-    }).catch(err => reject(err))
+    }).catch(reject)
   })
 }
 
-function CleanLocalFiles () {
+function CleanLocalFiles() {
   return new Promise(async (resolve, reject) => {
     const localPath = await database.Get('xPath')
     const syncDate = database.Get('syncStartDate')
@@ -403,19 +402,15 @@ function CleanLocalFiles () {
           } else {
             next()
           }
-        }).catch(err => next(err))
+        }).catch(next)
       }, (err) => {
-        if (err) {
-          reject(err)
-        } else {
-          resolve()
-        }
+        if (err) { reject(err) } else { resolve() }
       })
-    }).catch(err => reject(err))
+    }).catch(reject)
   })
 }
 
-function RemoteCreateFolder (name, parentId) {
+function RemoteCreateFolder(name, parentId) {
   return new Promise(async (resolve, reject) => {
     const folder = {
       folderName: name,
@@ -444,7 +439,7 @@ function RemoteCreateFolder (name, parentId) {
       } else {
         reject(res.data)
       }
-    }).catch(err => reject(err))
+    }).catch(reject)
   })
 }
 
