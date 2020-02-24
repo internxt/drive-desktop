@@ -108,6 +108,14 @@ const TempGet = (key) => {
   })
 }
 
+const TempDel = (key) => {
+  return new Promise((resolve, reject) => {
+    dbTemp.remove({ key: key }, (err, result) => {
+      if (err) { reject(err) } else { resolve() }
+    })
+  })
+}
+
 const ClearTemp = () => {
   return new Promise((resolve, reject) => {
     dbTemp.remove({}, { multi: true }, (err, totalFilesRemoved) => {
@@ -150,6 +158,7 @@ export default {
   FileGet,
   TempGet,
   TempSet,
+  TempDel,
   ClearTemp,
   ClearFiles,
   ClearFolders,
