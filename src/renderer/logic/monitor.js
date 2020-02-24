@@ -115,7 +115,8 @@ function StartMonitor() {
         next()
       },
       next => {
-        database.ClearTemp().then(() => next()).catch(next)
+        // database.ClearTemp().then(() => next()).catch(next)
+        next()
       },
       next => {
         database.Get('xPath').then(xPath => {

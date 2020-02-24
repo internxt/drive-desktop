@@ -26,7 +26,7 @@ function StartWatcher(path) {
     })
     .on('change', function(path) {
       console.log('File', path, 'has been changed')
-      database.TempSet(path, 'change')
+      database.TempSet(path, 'add')
     })
     .on('unlink', function(path) {
       console.log('File', path, 'has been removed')

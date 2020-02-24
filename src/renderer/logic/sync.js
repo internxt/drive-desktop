@@ -88,7 +88,6 @@ function UploadFile(storj, filePath) {
     storj.storeFile(bucketId, filePath, {
       filename: finalName,
       progressCallback: function (progress, uploadedBytes, totalBytes) {
-        // console.log('Upload rf', progress)
         let progressPtg = progress * 100
         progressPtg = progressPtg.toFixed(2)
         app.emit('set-tooltip', 'Uploading ' + originalFileName + ' (' + progressPtg + '%)')
@@ -99,6 +98,7 @@ function UploadFile(storj, filePath) {
           console.log('Sync Error uploading file: %s', err)
           reject(err)
         } else {
+          console.warn('NEW FILE ID', newFileId)
           CreateFileEntry(bucketId, newFileId, encryptedFileName, fileExt, fileSize, folderId)
             .then(res => { resolve(res) })
             .catch(err => { reject(err) })
@@ -127,8 +127,7 @@ function UploadNewFile(storj, filePath) {
     const bucketId = (dbEntry && dbEntry.value && dbEntry.value.bucket) || tree.bucket
     const folderId = (dbEntry && dbEntry.value && dbEntry.value.id) || user.user.root_folder_id
 
-    console.log('Folder ID uploading nf', folderId)
-    console.log('Bucket ID uploading nf', bucketId)
+    console.log('Uploading to folder %s (bucket: %s)', folderId, bucketId)
 
     // Encrypted filename
     const originalFileName = path.basename(filePath)
@@ -146,11 +145,12 @@ function UploadNewFile(storj, filePath) {
 
     const finalName = encryptedFileName + (fileExt ? '.' + fileExt : '')
 
+    console.warn('STAR STORJ STORE')
     // Upload new file
     storj.storeFile(bucketId, filePath, {
       filename: finalName,
       progressCallback: function (progress, uploadedBytes, totalBytes) {
-        // console.log('Upload nf', progress)
+        console.log('Upload nf', progress)
         let progressPtg = progress * 100
         progressPtg = progressPtg.toFixed(2)
         app.emit('set-tooltip', 'Uploading ' + originalFileName + ' (' + progressPtg + '%)')
@@ -158,15 +158,19 @@ function UploadNewFile(storj, filePath) {
       finishedCallback: function (err, newFileId) {
         app.emit('set-tooltip')
         if (err) {
+          console.warn('Error uploading file', err)
           // If the error is due to file existence, ignore in order to continue uploading
           const fileExistsPattern = /File already exist/
           if (fileExistsPattern.exec(err)) {
+            // SHOULD RETURN THE ACTUAL FILE ID?
+            console.warn('FILE ALREADY EXISTS')
             resolve()
           } else {
             console.error('Error uploading new file', err)
             reject(err)
           }
         } else {
+          console.warn('NEW FILE ID 2', newFileId)
           CreateFileEntry(bucketId, newFileId, encryptedFileName, fileExt, fileSize, folderId)
             .then(res => resolve(res)).catch(reject)
         }
@@ -246,7 +250,7 @@ function RemoveFolder(folderId) {
 // Create entry in X Cloud Server linked to the Bridge file
 async function CreateFileEntry(bucketId, bucketEntryId, fileName, fileExtension, size, folderId) {
   const file = {
-    bucketId: bucketEntryId,
+    fileId: bucketEntryId,
     name: fileName,
     type: fileExtension,
     size: size,
@@ -254,6 +258,8 @@ async function CreateFileEntry(bucketId, bucketEntryId, fileName, fileExtension,
     file_id: bucketEntryId,
     bucket: bucketId
   }
+
+  console.log('Metadata to create entry', file)
 
   const userData = await database.Get('xUser')
 
@@ -364,10 +370,11 @@ function CleanLocalFolders() {
             const creationDate = fs.statSync(item)
             const isTemp = await database.TempGet(item)
             // Delete only if
-            if (creationDate <= syncDate || !isTemp) {
+            if (creationDate <= syncDate || !isTemp || isTemp.value !== 'addDir') {
               console.log('Delete folder', item)
               rimraf(item, (err) => next(err))
             } else {
+              database.TempDel(item)
               next()
             }
           }
@@ -394,14 +401,15 @@ function CleanLocalFiles() {
             // console.error('DECIDE IF DELETE FILE', item)
             const isTemp = await database.TempGet(item)
 
-            if (creationDate <= syncDate && !isTemp) {
+            if (creationDate <= syncDate || !isTemp || isTemp.value !== 'add') {
               console.log('Delete file %s', item)
               fs.unlinkSync(item)
+              database.TempDel(item)
+            } else {
+              database.TempDel(item)
             }
             next()
-          } else {
-            next()
-          }
+          } else { next() }
         }).catch(next)
       }, (err) => {
         if (err) { reject(err) } else { resolve() }
