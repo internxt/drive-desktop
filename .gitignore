@@ -11,3 +11,4 @@ thumbs.db
 !.gitkeep
 .env
 database_*.db
+database_*.db~

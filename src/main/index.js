@@ -2,6 +2,7 @@
 
 import { app, BrowserWindow, Tray, Menu, shell } from 'electron'
 import path from 'path'
+import Logger from '../libs/logger'
 
 /**
  * Set `__static` path to static files in production
@@ -22,7 +23,7 @@ if (process.platform === 'darwin') {
 }
 
 app.on('second-instance', (event, argv, cwd) => {
-  console.log('Second instance')
+  Logger.warn('Second instance')
   appClose()
 })
 
@@ -141,10 +142,6 @@ function createWindow () {
   )
 
   let trayIcon = getTrayIcon()
-
-  if (process.env.NODE_ENV === 'production') {
-    // trayIcon = path.join(__dirname, '../../src/resources/icons/tray-icon@2x.png')
-  }
 
   tray = new Tray(trayIcon)
   tray.setToolTip('X Cloud Desktop')

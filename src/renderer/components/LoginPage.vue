@@ -52,6 +52,7 @@ import crypt from '../logic/crypt'
 import database from '../../database/index'
 import { remote } from 'electron'
 import fs from 'fs'
+import Logger from '../../libs/logger'
 
 export default {
   name: 'login-page',
@@ -98,7 +99,7 @@ export default {
         this.doLogin()
       }).catch(err => {
         this.$data.isLoading = false
-        console.error(err)
+        Logger.error(err)
         alert(err)
       })
     },
@@ -124,7 +125,7 @@ export default {
         }
       }).catch(err => {
         this.$data.isLoading = false
-        console.error(err)
+        Logger.error(err)
       })
     },
     doAccess (sKey) {
@@ -163,7 +164,7 @@ export default {
           this.$router.push('/landing-page')
         }
       }).catch(err => {
-        console.log('Error login', err)
+        Logger.error('Error login', err)
         this.$data.isLoading = false
       })
     }

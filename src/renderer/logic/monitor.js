@@ -5,6 +5,7 @@ import tree from './tree'
 import database from '../../database'
 import electron from 'electron'
 import watcher from './watcher'
+import Logger from '../../libs/logger'
 
 let wtc
 
@@ -18,7 +19,7 @@ function Monitor(startInmediately = false) {
   if (!startInmediately && process.env.NODE_ENV !== 'production') {
     timeout = 1000 * 15
   }
-  console.log('Waiting %s secs for next sync', timeout / 1000)
+  Logger.log('Waiting %s secs for next sync', timeout / 1000)
   setTimeout(() => StartMonitor(), timeout)
 }
 
@@ -74,7 +75,7 @@ function StartMonitor() {
           if (result === true) {
             next()
           } else {
-            console.log('LAST SYNC FAILED, CLEARING DATABASES')
+            Logger.warn('LAST SYNC FAILED, CLEARING DATABASES')
             async.parallel(
               [
                 nextParallel => database.ClearFiles().then(() => nextParallel()).catch(nextParallel),
@@ -138,7 +139,7 @@ function StartMonitor() {
         database.ClearFiles()
         database.CompactAllDatabases()
         Monitor()
-        console.error('Error monitor:', err)
+        Logger.error('Error monitor:', err)
       } else {
         Monitor()
       }
@@ -148,7 +149,6 @@ function StartMonitor() {
 
 // Missing folders with entry in local db
 function CleanLocalFolders() {
-  console.log('Clearing missing folders...')
   return new Promise((resolve, reject) => {
     Sync.CheckMissingFolders().then(resolve).catch(reject)
   })
@@ -156,7 +156,6 @@ function CleanLocalFolders() {
 
 // Missing files with entry in local db
 function CleanLocalFiles() {
-  console.log('Clearing missing files...')
   return new Promise((resolve, reject) => {
     Sync.CheckMissingFiles().then(resolve).catch(reject)
   })
@@ -164,15 +163,13 @@ function CleanLocalFiles() {
 
 // Obtain remote tree
 function SyncTree() {
-  console.log('Sync tree of remote files')
   return new Promise((resolve, reject) => {
     Sync.UpdateTree()
       .then(() => {
-        console.log('Tree of remote folders/files successfully updated')
         resolve()
       })
       .catch(err => {
-        console.error('Error sync tree', err)
+        Logger.error('Error sync tree', err)
         reject(err)
       })
   })
@@ -180,7 +177,6 @@ function SyncTree() {
 
 function RegenerateLocalDbFolders() {
   return new Promise((resolve, reject) => {
-    console.log('Regenerating local folders database')
     tree.GetFolderObjectListFromRemoteTree().then(list => {
       database.dbFolders.remove({}, { multi: true }, (err, n) => {
         if (err) { reject(err) } else {
@@ -196,7 +192,6 @@ function RegenerateLocalDbFolders() {
 
 function RegenerateLocalDbFiles() {
   return new Promise((resolve, reject) => {
-    console.log('Regenerating local files database')
     tree.GetFileListFromRemoteTree().then(list => {
       database.dbFiles.remove({}, { multi: true }, (err, n) => {
         if (err) { reject(err) } else {
@@ -234,13 +229,11 @@ function SyncRegenerateAndCompact() {
 
 // Create all existing remote folders on local path
 function DownloadFolders() {
-  console.log('Downloading folders')
   return new Promise((resolve, reject) => {
     Sync.CreateLocalFolders().then(() => {
-      console.log('Local folders created')
       resolve()
     }).catch(err => {
-      console.log('Error creating local folders', err)
+      Logger.error('Error creating local folders', err)
       reject(err)
     })
   })
@@ -248,35 +241,30 @@ function DownloadFolders() {
 
 // Download all the files
 function DownloadFiles() {
-  console.log('Downloading files')
   return new Promise((resolve, reject) => {
     Downloader.DownloadAllFiles().then(() => resolve()).catch(reject)
   })
 }
 
 function UploadNewFolders() {
-  // console.log('Creating new folders in remote')
   return new Promise((resolve, reject) => {
     Downloader.UploadAllNewFolders().then(() => resolve()).catch(reject)
   })
 }
 
 function UploadNewFiles() {
-  // console.log('Uploading local new files')
   return new Promise((resolve, reject) => {
     Downloader.UploadAllNewFiles().then(() => resolve()).catch(reject)
   })
 }
 
 function CleanRemoteFolders() {
-  console.log('Clear remote folders')
   return new Promise((resolve, reject) => {
     Sync.CleanLocalFolders().then(() => resolve()).catch(reject)
   })
 }
 
 function CleanRemoteFiles() {
-  console.log('Clear remote files')
   return new Promise((resolve, reject) => {
     Sync.CleanLocalFiles().then(() => resolve()).catch(reject)
   })

@@ -8,6 +8,7 @@ import async from 'async'
 import tree from './tree'
 import rimraf from 'rimraf'
 import electron from 'electron'
+import Logger from '../../libs/logger'
 
 const app = electron.remote.app
 
@@ -55,7 +56,7 @@ function GetFileModifiedDate(path) {
 }
 
 function UploadFile(storj, filePath) {
-  console.log('Upload file', filePath)
+  Logger.log('Upload file', filePath)
   return new Promise(async (resolve, reject) => {
     const fileInfo = await FileInfoFromPath(filePath)
 
@@ -78,8 +79,6 @@ function UploadFile(storj, filePath) {
     const fileStats = fs.statSync(filePath)
     const fileSize = fileStats.size
 
-    console.log('FILE SIZE', fileSize)
-
     // Delete former file
     await RemoveFile(bucketId, fileId)
 
@@ -96,10 +95,9 @@ function UploadFile(storj, filePath) {
       finishedCallback: function (err, newFileId) {
         app.emit('set-tooltip')
         if (err) {
-          console.log('Sync Error uploading file: %s', err)
+          Logger.error('Sync Error uploading file: %s', err)
           reject(err)
         } else {
-          console.warn('NEW FILE ID', newFileId)
           CreateFileEntry(bucketId, newFileId, encryptedFileName, fileExt, fileSize, folderId)
             .then(res => { resolve(res) })
             .catch(err => { reject(err) })
@@ -111,7 +109,7 @@ function UploadFile(storj, filePath) {
 
 function UploadNewFile(storj, filePath) {
   const folderPath = path.dirname(filePath)
-  console.log('NEW file found, uploading:', filePath)
+  Logger.log('NEW file found, uploading:', filePath)
   return new Promise(async (resolve, reject) => {
     const dbEntry = await database.FolderGet(folderPath)
     const user = await database.Get('xUser')
@@ -120,7 +118,7 @@ function UploadNewFile(storj, filePath) {
 
     if (!dbEntry || !dbEntry.value) {
       if (folderPath !== folderRoot) {
-        console.error('Folder does not exists in local database', folderPath)
+        Logger.error('Folder does not exists in local database', folderPath)
         return resolve()
       }
     }
@@ -128,7 +126,7 @@ function UploadNewFile(storj, filePath) {
     const bucketId = (dbEntry && dbEntry.value && dbEntry.value.bucket) || tree.bucket
     const folderId = (dbEntry && dbEntry.value && dbEntry.value.id) || user.user.root_folder_id
 
-    console.log('Uploading to folder %s (bucket: %s)', folderId, bucketId)
+    Logger.log('Uploading to folder %s (bucket: %s)', folderId, bucketId)
 
     // Encrypted filename
     const originalFileName = path.basename(filePath)
@@ -146,12 +144,10 @@ function UploadNewFile(storj, filePath) {
 
     const finalName = encryptedFileName + (fileExt ? '.' + fileExt : '')
 
-    console.warn('STAR STORJ STORE')
     // Upload new file
     storj.storeFile(bucketId, filePath, {
       filename: finalName,
       progressCallback: function (progress, uploadedBytes, totalBytes) {
-        console.log('Upload nf', progress)
         let progressPtg = progress * 100
         progressPtg = progressPtg.toFixed(2)
         app.emit('set-tooltip', 'Uploading ' + originalFileName + ' (' + progressPtg + '%)')
@@ -159,19 +155,19 @@ function UploadNewFile(storj, filePath) {
       finishedCallback: function (err, newFileId) {
         app.emit('set-tooltip')
         if (err) {
-          console.warn('Error uploading file', err)
+          Logger.warn('Error uploading file', err)
           // If the error is due to file existence, ignore in order to continue uploading
           const fileExistsPattern = /File already exist/
           if (fileExistsPattern.exec(err)) {
             // SHOULD RETURN THE ACTUAL FILE ID?
-            console.warn('FILE ALREADY EXISTS')
+            Logger.warn('FILE ALREADY EXISTS')
             resolve()
           } else {
-            console.error('Error uploading new file', err)
+            Logger.error('Error uploading new file', err)
             reject(err)
           }
         } else {
-          console.warn('NEW FILE ID 2', newFileId)
+          Logger.warn('NEW FILE ID 2', newFileId)
           CreateFileEntry(bucketId, newFileId, encryptedFileName, fileExt, fileSize, folderId)
             .then(res => resolve(res)).catch(reject)
         }
@@ -188,10 +184,9 @@ function RemoveFile(bucketId, fileId) {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${userData.token}` }
       }).then(result => {
-        console.log('Remove file result', result)
         resolve(result)
       }).catch(err => {
-        console.error('Axios error removing file', err)
+        Logger.error('Axios error removing file', err)
         reject(err)
       })
     })
@@ -201,16 +196,13 @@ function RemoveFile(bucketId, fileId) {
 function UpdateTree() {
   return new Promise((resolve, reject) => {
     GetTree().then((tree) => {
-      console.log('Tree obtained', tree)
       database.Set('tree', tree).then(() => {
-        console.log('Tree saved')
         resolve()
       }).catch(err => {
-        console.error('THIS')
         reject(err)
       })
     }).catch(err => {
-      console.error('Error updating tree', err)
+      Logger.error('Error updating tree', err)
       reject(err)
     })
   })
@@ -233,7 +225,6 @@ function GetTree() {
 // folderId must be the CLOUD id (mysql)
 // warning, this method deletes all its contents
 function RemoveFolder(folderId) {
-  console.log('RemoveFolder(%s)', folderId)
   return new Promise(async (resolve, reject) => {
     database.Get('xUser').then(userData => {
       fetch(`https://cloud.internxt.com/api/storage/folder/${folderId}`, {
@@ -266,13 +257,12 @@ async function CreateFileEntry(bucketId, bucketEntryId, fileName, fileExtension,
     headers: { Authorization: `Bearer ${userData.token}` }
   }).then(() => {
   }).catch(err => {
-    console.log('ERROR CREATE FILE ENTRY', err)
+    Logger.error('ERROR CREATE FILE ENTRY', err)
   })
 }
 
 // Check files that does not exists in local anymore
 function CheckMissingFiles() {
-  console.log('Checking missing files...')
   return new Promise((resolve, reject) => {
     let allData = database.dbFiles.getAllData()
     async.eachSeries(allData, (item, next) => {
@@ -280,12 +270,11 @@ function CheckMissingFiles() {
       try { stat = fs.lstatSync(item.key) } catch (err) { stat = null }
 
       if ((stat && !stat.isFile()) || !fs.existsSync(item.key)) {
-        console.log('Remove remote file', item.value)
         const bucketId = item.value.bucket
         const fileId = item.value.fileId
 
         RemoveFile(bucketId, fileId).then(() => next()).catch(err => {
-          console.log('Error deleting remote file %j: %s', item, err)
+          Logger.error('Error deleting remote file %j: %s', item, err)
           next(err)
         })
       } else {
@@ -299,7 +288,6 @@ function CheckMissingFiles() {
 
 // Check folders that does not exists in local anymore
 function CheckMissingFolders() {
-  console.log('Cheking missing folders')
   return new Promise((resolve, reject) => {
     let allData = database.dbFolders.getAllData()
     async.eachSeries(allData, (item, next) => {
@@ -311,12 +299,11 @@ function CheckMissingFolders() {
       }
 
       if ((stat && stat.isFile()) || !fs.existsSync(item.key)) {
-        console.log('Remove remote folder %j', item.value)
         RemoveFolder(item.value.id).then(() => {
           database.dbFolders.remove({ key: item.key })
           next()
         }).catch(err => {
-          console.log('Error removing remote folder %s, %j', item.value, err)
+          Logger.error('Error removing remote folder %s, %j', item.value, err)
           next(err)
         })
       } else { next() }
@@ -333,14 +320,13 @@ function CreateLocalFolders() {
       async.eachSeries(list, (folder, next) => {
         try {
           fs.mkdirSync(folder)
-          console.log('Create folder: %s', folder)
           next()
         } catch (err) {
           if (err.code === 'EEXIST') {
             // Folder already exists, ignore error
             next()
           } else {
-            console.log('Error creating folder %s: %j', folder, err)
+            Logger.error('Error creating folder %s: %j', folder, err)
             next(err)
           }
         }
@@ -369,7 +355,6 @@ function CleanLocalFolders() {
             const isTemp = await database.TempGet(item)
             // Delete only if
             if (creationDate <= syncDate || !isTemp || isTemp.value !== 'addDir') {
-              console.log('Delete folder', item)
               rimraf(item, (err) => next(err))
             } else {
               database.TempDel(item)
@@ -377,7 +362,7 @@ function CleanLocalFolders() {
             }
           }
         }).catch(err => {
-          console.log('ITEM ERR', err)
+          Logger.error('ITEM ERR', err)
           next(err)
         })
       }, (err) => {
@@ -400,13 +385,12 @@ function CleanLocalFiles() {
             const wasDeleted = await database.dbLastFiles.findOne({ key: item })
 
             if (!isTemp || isTemp.value !== 'add' || wasDeleted) {
-              console.log('Delete file %s', item)
               try { fs.unlinkSync(item) } catch (e) { }
               database.TempDel(item)
             }
             next()
           } else {
-            console.log('FILE NOT FOUND ON REMOTE DATABASE')
+            Logger.warn('FILE NOT FOUND ON REMOTE DATABASE')
             next()
           }
         }).catch(next)
@@ -438,10 +422,10 @@ function RemoteCreateFolder(name, parentId) {
       return { res, data: await res.json() }
     }).then(res => {
       if (res.res.status === 500 && res.data.error && res.data.error.includes('Folder with the same name already exists')) {
-        console.error('Folder with the same name already exists')
+        Logger.warn('Folder with the same name already exists')
         resolve()
       } else if (res.res.status === 201) {
-        console.warn('Error creating new folder, 201')
+        Logger.warn('Error creating new folder, 201')
         resolve(res.data)
       } else { reject(res.data) }
     }).catch(reject)

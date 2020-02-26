@@ -8,6 +8,7 @@ import fs from 'fs'
 import Sync from './sync'
 import CheckDiskSpace from 'check-disk-space'
 import electron from 'electron'
+import Logger from '../../libs/logger'
 
 const app = electron.remote.app
 
@@ -51,7 +52,6 @@ function DownloadFileTemp(fileObj, silent = false) {
           let progressPtg = progress * 100
           progressPtg = progressPtg.toFixed(2)
           app.emit('set-tooltip', 'Downloading ' + originalFileName + ' (' + progressPtg + '%)')
-          // console.log('download progress:', progress)
         } else {
           app.emit('set-tooltip', 'Checking ' + originalFileName)
         }
@@ -59,10 +59,7 @@ function DownloadFileTemp(fileObj, silent = false) {
       finishedCallback: function (err) {
         app.emit('set-tooltip')
         if (err) { reject(err) } else {
-          console.log('FINISHED CALLBACK', fileObj)
-          Sync.SetModifiedTime(tempFilePath, fileObj.created_at)
-            .then(() => resolve(tempFilePath))
-            .catch(reject)
+          Sync.SetModifiedTime(tempFilePath, fileObj.created_at).then(() => resolve(tempFilePath)).catch(reject)
         }
       }
     })
@@ -80,8 +77,6 @@ function DownloadAllFiles() {
   return new Promise((resolve, reject) => {
     Tree.GetFileListFromRemoteTree().then(list => {
       async.eachSeries(list, async (item, next) => {
-        console.log('Cheking file', item.fullpath)
-
         const freeSpace = await CheckDiskSpace(path.dirname(item.fullpath))
 
         if (item.size * 3 >= freeSpace) { return next('No space left') }
@@ -114,18 +109,18 @@ function DownloadAllFiles() {
           Database.TempDel(item.fullpath)
           return next()
         } else if (downloadAndReplace) {
-          console.log('DOWNLOAD AND REPLACE WITHOUT QUESTION', item.fullpath)
+          Logger.log('DOWNLOAD AND REPLACE WITHOUT QUESTION', item.fullpath)
           DownloadFileTemp(item).then(tempPath => {
             if (localExists) { try { fs.unlinkSync(item.fullpath) } catch (e) { } }
             fs.renameSync(tempPath, item.fullpath)
             next(null)
           }).catch(err => {
             // On error by shard, upload again
-            console.log(err)
+            Logger.error(err)
             if (localExists) {
-              console.error('Fatal error: Can\'t restore remote file: local is older')
+              Logger.error('Fatal error: Can\'t restore remote file: local is older')
             } else {
-              console.error('Fatal error: Can\'t restore remote file: local does not exists')
+              Logger.error('Fatal error: Can\'t restore remote file: local does not exists')
             }
             next()
           })
@@ -138,14 +133,14 @@ function DownloadAllFiles() {
           if (!shouldEnsureFile) {
             return next()
           }
-          console.log('DOWNLOAD JUST TO ENSURE FILE')
+          Logger.log('DOWNLOAD JUST TO ENSURE FILE')
           // Check file is ok
           DownloadFileTemp(item, true).then(tempPath => next()).catch(err => {
             if (err.message === 'File missing shard error' && localExists) {
-              console.error('Missing shard error. Reuploading...')
+              Logger.error('Missing shard error. Reuploading...')
               RestoreFile(item).then(() => next()).catch(next)
             } else {
-              console.error('Cannot upload local final')
+              Logger.error('Cannot upload local final')
               next(err)
             }
           })
@@ -171,9 +166,8 @@ function UploadAllNewFiles() {
         let entry = await Database.FileGet(item)
         if (!entry) {
           // File only exists in local
-          console.log('New local file:', item)
           if (stat.size === 0) {
-            console.log('Warning: Filesize 0. Ignoring file.')
+            Logger.log('Warning: Filesize 0. Ignoring file.')
             next()
           } else {
             Sync.UploadNewFile(storj, item).then(() => next()).catch(next)
@@ -187,7 +181,7 @@ function UploadAllNewFiles() {
         if (err.message.includes('already exists')) {
           resolve()
         } else {
-          console.error('Downloader Error uploading file', err)
+          Logger.error('Downloader Error uploading file', err)
           reject(err)
         }
       } else {
@@ -207,7 +201,6 @@ function UploadAllNewFolders() {
 
     Tree.GetLocalFolderList(localPath).then(list => {
       async.eachSeries(list, async (item, next) => {
-        console.log('Checking folder %s', item)
         // Check if exists in database
         const dbEntry = await Database.FolderGet(item)
 
@@ -230,22 +223,21 @@ function UploadAllNewFolders() {
 
         if (parentId) {
           Sync.RemoteCreateFolder(folderName, parentId).then(async (result) => {
-            console.log('Remote create folder result', result)
             await Database.FolderSet(item, result)
             lastParentId = result ? result.id : null
             lastParentFolder = result ? item : null
             next()
           }).catch(err => {
-            console.error('Error creating remote folder', err)
+            Logger.error('Error creating remote folder', err)
             next(err)
           })
         } else {
-          console.error('Upload new folders: Undefined parent ID')
+          Logger.error('Upload new folders: Undefined parent ID')
           next()
         }
       }, (err) => {
         if (err) {
-          console.error(err)
+          Logger.error(err)
           reject(err)
         } else { resolve() }
       })

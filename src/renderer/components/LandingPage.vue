@@ -13,6 +13,7 @@
 import SystemInformation from './LandingPage/SystemInformation'
 import database from '../../database/index'
 import async from 'async'
+import Logger from '../../libs/logger'
 
 export default {
   name: 'landing-page',
@@ -26,7 +27,7 @@ export default {
     const xUser = await database.Get('xUser')
     this.$data.dbFolder = database.GetDatabaseFolder
     if (!xUser) {
-      console.log('No xUser is set on database')
+      Logger.info('No xUser is set on database')
       this.$router.push('/login')
     } else {
       // Check if token is valid
