@@ -3,7 +3,6 @@ import async from 'async'
 import Downloader from './downloader'
 import tree from './tree'
 import database from '../../database'
-import path from 'path'
 import electron from 'electron'
 import watcher from './watcher'
 
@@ -28,6 +27,12 @@ function StartMonitor() {
   async.waterfall(
     [
       next => {
+        database.Get('xPath').then(xPath => {
+          if (!wtc) { wtc = watcher.StartWatcher(xPath) }
+          next()
+        }).catch(next)
+      },
+      next => {
         // New sync started, so we save the current date
         app.emit('sync-on')
         database.Set('syncStartDate', new Date()).then(() => next()).catch(next)
@@ -43,44 +48,41 @@ function StartMonitor() {
       },
       next => {
         // Will determine if something wrong happened in the last synchronization
-        database.Get('lastSyncDate')
-          .then(lastDate => {
-            if (!lastDate || !(lastDate instanceof Date)) {
-              // If there were never a last time (first time sync), the success is set to false.
+        database.Get('lastSyncDate').then(lastDate => {
+          if (!lastDate || !(lastDate instanceof Date)) {
+            // If there were never a last time (first time sync), the success is set to false.
+            database.Set('lastSyncSuccess', false).then(() => next()).catch(next)
+          } else {
+            // If last time is more than 2 days, let's consider a unsuccessful sync,
+            // to perform the sync from the start
+            var DifferenceInTime = new Date() - lastDate
+            var DifferenceInDays = DifferenceInTime / (1000 * 3600 * 24)
+            if (DifferenceInDays > 2) {
+              // Last sync > 2 days, assume last sync failed to start from 0
               database.Set('lastSyncSuccess', false).then(() => next()).catch(next)
             } else {
-              // If last time is more than 2 days, let's consider a unsuccessful sync,
-              // to perform the sync from the start
-              var DifferenceInTime = new Date() - lastDate
-              var DifferenceInDays = DifferenceInTime / (1000 * 3600 * 24)
-              if (DifferenceInDays > 2) {
-                // Last sync > 2 days, assume last sync failed to start from 0
-                database.Set('lastSyncSuccess', false).then(() => next()).catch(next)
-              } else {
-                // Sync ok
-                next()
-              }
+              // Sync ok
+              next()
             }
-          })
-          .catch(next)
+          }
+        }).catch(next)
       },
       next => {
         // Start to sync. Did last sync failed?
-        // The last step was performed in order to know if databases should be deleted
-        database.Get('lastSyncSuccess')
-          .then(result => {
-            if (result === true) {
-              next()
-            } else {
-              console.log('LAST SYNC FAILED, CLEARING DATABASES')
-              async.parallel(
-                [
-                  nextParallel => database.ClearFiles().then(() => nextParallel()).catch(nextParallel),
-                  nextParallel => database.ClearFolders().then(() => nextParallel()).catch(nextParallel)
-                ],
-                (err) => next(err))
-            }
-          }).catch(next)
+        // Then, clear all the local databases to start from zero
+        database.Get('lastSyncSuccess').then(result => {
+          if (result === true) {
+            next()
+          } else {
+            console.log('LAST SYNC FAILED, CLEARING DATABASES')
+            async.parallel(
+              [
+                nextParallel => database.ClearFiles().then(() => nextParallel()).catch(nextParallel),
+                nextParallel => database.ClearFolders().then(() => nextParallel()).catch(nextParallel)
+              ],
+              (err) => next(err))
+          }
+        }).catch(next)
       },
       next => {
         database.Set('lastSyncSuccess', false).then(() => next()).catch(next)
@@ -98,31 +100,19 @@ function StartMonitor() {
         CleanLocalFiles().then(() => next()).catch(next)
       },
       next => {
-        // Donwload the tree of remote files and folders
-        // Descargamos nuevo árbol
-        SyncTree().then(() => next()).catch(next)
+        // backup the last database
+        database.BackupCurrentTree().then(() => next()).catch(next)
       },
       next => {
-        // Regenerate dbFolders and dbFiles
-        RegenerateLocalDbFolders().then(() => next()).catch(next)
+        SyncRegenerateAndCompact().then(() => next()).catch(next)
       },
       next => {
-        // Regenerate dbFolders and dbFiles
-        RegenerateLocalDbFiles().then(() => next()).catch(next)
+        // Delete local folders missing in remote
+        CleanRemoteFolders().then(() => next()).catch(next)
       },
       next => {
-        database.CompactAllDatabases()
-        next()
-      },
-      next => {
-        // database.ClearTemp().then(() => next()).catch(next)
-        next()
-      },
-      next => {
-        database.Get('xPath').then(xPath => {
-          if (!wtc) { wtc = watcher.StartWatcher(xPath) }
-          next()
-        }).catch(next)
+        // Delete local files missing in remote
+        CleanRemoteFiles().then(() => next()).catch(next)
       },
       next => {
         // Create local folders
@@ -133,14 +123,6 @@ function StartMonitor() {
         // Download remote files
         // Si hay ficheros nuevos en el árbol, los creamos en local
         DownloadFiles().then(() => next()).catch(next)
-      },
-      next => {
-        // Delete local folders missing in remote
-        CleanRemoteFolders().then(() => next()).catch(next)
-      },
-      next => {
-        // Delete local files missing in remote
-        CleanRemoteFiles().then(() => next()).catch(next)
       },
       next => { database.Set('lastSyncSuccess', true).then(() => next()).catch(next) },
       next => { database.Set('lastSyncDate', new Date()).then(() => next()).catch(next) }
@@ -233,19 +215,34 @@ function RegenerateLocalDbFiles() {
   })
 }
 
+function SyncRegenerateAndCompact() {
+  return new Promise((resolve, reject) => {
+    async.waterfall([
+      next => SyncTree().then(() => next()).catch(next),
+      next => RegenerateLocalDbFolders().then(() => next()).catch(next),
+      next => RegenerateLocalDbFiles().then(() => next()).catch(next)
+    ], (err) => {
+      database.CompactAllDatabases()
+      if (err) {
+        reject(err)
+      } else {
+        resolve()
+      }
+    })
+  })
+}
+
 // Create all existing remote folders on local path
 function DownloadFolders() {
   console.log('Downloading folders')
   return new Promise((resolve, reject) => {
-    Sync.CreateLocalFolders()
-      .then(() => {
-        console.log('Local folders created')
-        resolve()
-      })
-      .catch(err => {
-        console.log('Error creating local folders', err)
-        reject(err)
-      })
+    Sync.CreateLocalFolders().then(() => {
+      console.log('Local folders created')
+      resolve()
+    }).catch(err => {
+      console.log('Error creating local folders', err)
+      reject(err)
+    })
   })
 }
 

@@ -2,6 +2,7 @@ import Datastore from 'nedb'
 import path from 'path'
 import { remote } from 'electron'
 import fs from 'fs'
+import async from 'async'
 
 const databaseFolder = `${process.env.NODE_ENV === 'production' ? remote.app.getPath('home') + `/.xclouddesktop/` : '.'}`
 
@@ -9,6 +10,16 @@ if (!fs.existsSync(databaseFolder)) { fs.mkdirSync(databaseFolder) }
 
 const dbFiles = new Datastore({
   filename: path.join(databaseFolder, 'database_files.db'),
+  autoload: true,
+  timestampData: true
+})
+const dbLastFiles = new Datastore({
+  filename: path.join(databaseFolder, 'database_last_files.db'),
+  autoload: true,
+  timestampData: true
+})
+const dbLastFolders = new Datastore({
+  filename: path.join(databaseFolder, 'database_last_folders.db'),
   autoload: true,
   timestampData: true
 })
@@ -146,10 +157,50 @@ const CompactAllDatabases = () => {
   dbTemp.persistence.compactDatafile()
 }
 
+const BackupCurrentTree = () => {
+  return new Promise((resolve, reject) => {
+    async.waterfall([
+      next => {
+        Get('tree').then(lastTree => {
+          Set('treeBackup', lastTree).then(() => next()).catch(next)
+        }).catch(next)
+      },
+      next => dbLastFolders.remove({}, { multi: true }, (err) => next(err)),
+      next => dbLastFiles.remove({}, { multi: true }, (err) => next(err)),
+      next => {
+        dbFolders.find({}, (err, docs) => {
+          if (err) { return next(err) }
+          async.eachSeries(docs, (doc, nextDoc) => {
+            dbLastFolders.insert(doc, (err) => nextDoc(err))
+          }, (err) => next(err))
+        })
+      },
+      next => {
+        dbFiles.find({}, (err, docs) => {
+          if (err) { return next(err) }
+          async.eachSeries(docs, (doc, nextDoc) => {
+            dbLastFiles.insert(doc, (err) => nextDoc(err))
+          }, (err) => next(err))
+        })
+      },
+      next => {
+        dbLastFiles.persistence.compactDatafile()
+        dbLastFolders.persistence.compactDatafile()
+        dbUser.persistence.compactDatafile()
+        next()
+      }
+    ], (err) => {
+      if (err) { reject(err) } else { resolve() }
+    })
+  })
+}
+
 export default {
   dbFiles,
   dbFolders,
   dbUser,
+  dbLastFolders,
+  dbLastFiles,
   Get,
   Set,
   FolderSet,
@@ -163,5 +214,6 @@ export default {
   ClearFiles,
   ClearFolders,
   CompactAllDatabases,
+  BackupCurrentTree,
   GetDatabaseFolder: databaseFolder
 }

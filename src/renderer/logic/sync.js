@@ -29,7 +29,7 @@ function FileInfoFromPath(localPath) {
   })
 }
 
-async function SetModifiedTime(path, time) {
+function SetModifiedTime(path, time) {
   let convertedTime = ''
 
   const StringType = /^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\.[0-9]{3}Z$/
@@ -40,6 +40,7 @@ async function SetModifiedTime(path, time) {
   if (time instanceof Date) { convertedTime = time.getTime() / 1000.0 }
 
   return new Promise((resolve, reject) => {
+    if (!time) { return resolve() }
     try {
       fs.utimesSync(path, convertedTime, convertedTime)
       resolve()
@@ -259,14 +260,11 @@ async function CreateFileEntry(bucketId, bucketEntryId, fileName, fileExtension,
     bucket: bucketId
   }
 
-  console.log('Metadata to create entry', file)
-
   const userData = await database.Get('xUser')
 
   axios.post(`https://cloud.internxt.com/api/storage/file`, { file }, {
     headers: { Authorization: `Bearer ${userData.token}` }
-  }).then(result => {
-    console.log('CREATE FILE ENTRY', result)
+  }).then(() => {
   }).catch(err => {
     console.log('ERROR CREATE FILE ENTRY', err)
   })
@@ -392,24 +390,25 @@ function CleanLocalFolders() {
 function CleanLocalFiles() {
   return new Promise(async (resolve, reject) => {
     const localPath = await database.Get('xPath')
-    const syncDate = database.Get('syncStartDate')
+    // const syncDate = database.Get('syncStartDate')
     tree.GetLocalFileList(localPath).then(list => {
       async.eachSeries(list, (item, next) => {
         database.FileGet(item).then(async fileObj => {
           if (!fileObj) {
             const creationDate = fs.statSync(item)
-            // console.error('DECIDE IF DELETE FILE', item)
             const isTemp = await database.TempGet(item)
+            const wasDeleted = await database.dbLastFiles.findOne({ key: item })
 
-            if (creationDate <= syncDate || !isTemp || isTemp.value !== 'add') {
+            if (!isTemp || isTemp.value !== 'add' || wasDeleted) {
               console.log('Delete file %s', item)
-              fs.unlinkSync(item)
-              database.TempDel(item)
-            } else {
+              try { fs.unlinkSync(item) } catch (e) { }
               database.TempDel(item)
             }
             next()
-          } else { next() }
+          } else {
+            console.log('FILE NOT FOUND ON REMOTE DATABASE')
+            next()
+          }
         }).catch(next)
       }, (err) => {
         if (err) { reject(err) } else { resolve() }
@@ -444,9 +443,7 @@ function RemoteCreateFolder(name, parentId) {
       } else if (res.res.status === 201) {
         console.warn('Error creating new folder, 201')
         resolve(res.data)
-      } else {
-        reject(res.data)
-      }
+      } else { reject(res.data) }
     }).catch(reject)
   })
 }

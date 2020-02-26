@@ -43,7 +43,7 @@ function DownloadFileTemp(fileObj, silent = false) {
     const tempFilePath = path.join(tempPath, fileObj.fileId + '.dat')
 
     // Delete temp file
-    if (fs.existsSync(tempFilePath)) { fs.unlinkSync(tempFilePath) }
+    if (fs.existsSync(tempFilePath)) { try { fs.unlinkSync(tempFilePath) } catch (e) { } }
 
     storj.resolveFile(fileObj.bucket, fileObj.fileId, tempFilePath, {
       progressCallback: function (progress, downloadedBytes, totalBytes) {
@@ -59,6 +59,7 @@ function DownloadFileTemp(fileObj, silent = false) {
       finishedCallback: function (err) {
         app.emit('set-tooltip')
         if (err) { reject(err) } else {
+          console.log('FINISHED CALLBACK', fileObj)
           Sync.SetModifiedTime(tempFilePath, fileObj.created_at)
             .then(() => resolve(tempFilePath))
             .catch(reject)
@@ -71,9 +72,6 @@ function DownloadFileTemp(fileObj, silent = false) {
 function RestoreFile(fileObj) {
   return new Promise(async (resolve, reject) => {
     const storj = await _getEnvironment()
-    const bucketId = fileObj.bucket
-    const fileId = fileObj.folder_id
-
     Sync.UploadFile(storj, fileObj.fullpath).then(() => resolve()).catch(reject)
   })
 }
@@ -82,16 +80,15 @@ function DownloadAllFiles() {
   return new Promise((resolve, reject) => {
     Tree.GetFileListFromRemoteTree().then(list => {
       async.eachSeries(list, async (item, next) => {
-        console.log('Cheking ', item.fullpath)
+        console.log('Cheking file', item.fullpath)
 
         const freeSpace = await CheckDiskSpace(path.dirname(item.fullpath))
 
-        if (item.size * 3 >= freeSpace) {
-          return next('No space left')
-        }
+        if (item.size * 3 >= freeSpace) { return next('No space left') }
 
         let downloadAndReplace = false
         let uploadAndReplace = false
+        let ignoreThisFile = false
 
         const localExists = fs.existsSync(item.fullpath)
 
@@ -104,22 +101,31 @@ function DownloadAllFiles() {
           if (remoteTime > localTime) { downloadAndReplace = true }
           if (localTime > remoteTime) { uploadAndReplace = true }
         } else {
-          downloadAndReplace = true
+          const isLocallyDeleted = await Database.TempGet(item.fullpath)
+          if (isLocallyDeleted && isLocallyDeleted.value === 'unlink') {
+            ignoreThisFile = true
+          } else {
+            downloadAndReplace = true
+          }
         }
 
-        if (downloadAndReplace) {
+        if (ignoreThisFile) {
+          try { fs.unlinkSync(item.fullpath) } catch (e) { }
+          Database.TempDel(item.fullpath)
+          return next()
+        } else if (downloadAndReplace) {
           console.log('DOWNLOAD AND REPLACE WITHOUT QUESTION', item.fullpath)
           DownloadFileTemp(item).then(tempPath => {
-            if (localExists) { fs.unlinkSync(item.fullpath) }
+            if (localExists) { try { fs.unlinkSync(item.fullpath) } catch (e) { } }
             fs.renameSync(tempPath, item.fullpath)
             next(null)
           }).catch(err => {
             // On error by shard, upload again
             console.log(err)
             if (localExists) {
-              console.error('Fatal error: Cant restore remote file: local is older')
+              console.error('Fatal error: Can\'t restore remote file: local is older')
             } else {
-              console.error('Fatal error: Cant restore remote file: local does not exists')
+              console.error('Fatal error: Can\'t restore remote file: local does not exists')
             }
             next()
           })
@@ -134,17 +140,15 @@ function DownloadAllFiles() {
           }
           console.log('DOWNLOAD JUST TO ENSURE FILE')
           // Check file is ok
-          DownloadFileTemp(item, true)
-            .then(tempPath => next())
-            .catch(err => {
-              if (err.message === 'File missing shard error' && localExists) {
-                console.error('Missing shard error. Reuploading...')
-                RestoreFile(item).then(() => next()).catch(next)
-              } else {
-                console.error('Cannot upload local final')
-                next(err)
-              }
-            })
+          DownloadFileTemp(item, true).then(tempPath => next()).catch(err => {
+            if (err.message === 'File missing shard error' && localExists) {
+              console.error('Missing shard error. Reuploading...')
+              RestoreFile(item).then(() => next()).catch(next)
+            } else {
+              console.error('Cannot upload local final')
+              next(err)
+            }
+          })
         }
       }, (err, result) => {
         if (err) { reject(err) } else { resolve() }
@@ -224,7 +228,6 @@ function UploadAllNewFolders() {
           lastParentId = null
         }
 
-        console.log('Parent ID', parentId)
         if (parentId) {
           Sync.RemoteCreateFolder(folderName, parentId).then(async (result) => {
             console.log('Remote create folder result', result)
