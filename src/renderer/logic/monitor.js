@@ -8,8 +8,18 @@ import watcher from './watcher'
 import Logger from '../../libs/logger'
 
 let wtc
+let isSyncing = false
 
 const app = electron.remote.app
+
+app.on('sync-start', function () {
+  if (!isSyncing) {
+    Logger.log('Sync request by user')
+    Monitor(true)
+  } else {
+    Logger.warn('There is an active sync running right now')
+  }
+})
 
 function Monitor(startInmediately = false) {
   let timeout = 0
@@ -19,28 +29,38 @@ function Monitor(startInmediately = false) {
   if (!startInmediately && process.env.NODE_ENV !== 'production') {
     timeout = 1000 * 15
   }
-  Logger.log('Waiting %s secs for next sync', timeout / 1000)
-  setTimeout(() => StartMonitor(), timeout)
+  if (!isSyncing) {
+    Logger.log('Waiting %s secs for next sync', timeout / 1000)
+    setTimeout(() => StartMonitor(), timeout)
+  }
 }
 
 function StartMonitor() {
+  isSyncing = true
+
   // Sync
   async.waterfall(
     [
       next => {
+        // Start the folder watcher if is not already started
         database.Get('xPath').then(xPath => {
           if (!wtc) { wtc = watcher.StartWatcher(xPath) }
           next()
         }).catch(next)
       },
       next => {
-        // New sync started, so we save the current date
+        // Change icon to "syncing"
         app.emit('sync-on')
-        database.Set('syncStartDate', new Date()).then(() => next()).catch(next)
+        // New sync started, so we save the current date
+        let now = new Date()
+        Logger.log('Sync started at', now)
+        database.Set('syncStartDate', now).then(() => next()).catch(next)
       },
       next => {
         // Search for new folders in local folder
-        // It is neccesary to do this before uploading new files
+        // If a folder exists in local, but is not on the remote tree, create in remote
+        // If is the first time you sync, or the last sync failed, creation may throw an error
+        // because folder already exists on remote. Ignore this error.
         UploadNewFolders().then(() => next()).catch(next)
       },
       next => {
@@ -105,6 +125,7 @@ function StartMonitor() {
         database.BackupCurrentTree().then(() => next()).catch(next)
       },
       next => {
+        // Sync and update the remote tree.
         SyncRegenerateAndCompact().then(() => next()).catch(next)
       },
       next => {
@@ -133,6 +154,7 @@ function StartMonitor() {
 
       // Switch "loading" tray icon
       app.emit('sync-off')
+      isSyncing = false
 
       if (err) {
         database.ClearFolders()
@@ -164,14 +186,10 @@ function CleanLocalFiles() {
 // Obtain remote tree
 function SyncTree() {
   return new Promise((resolve, reject) => {
-    Sync.UpdateTree()
-      .then(() => {
-        resolve()
-      })
-      .catch(err => {
-        Logger.error('Error sync tree', err)
-        reject(err)
-      })
+    Sync.UpdateTree().then(() => { resolve() }).catch(err => {
+      Logger.error('Error sync tree', err)
+      reject(err)
+    })
   })
 }
 

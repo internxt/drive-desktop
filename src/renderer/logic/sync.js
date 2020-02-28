@@ -1,13 +1,13 @@
 import { Environment } from './inxtdeps'
 import fs from 'fs'
-import database from '../../database/index'
 import path from 'path'
-import crypt from './crypt'
-import axios from 'axios'
-import async from 'async'
-import tree from './tree'
 import rimraf from 'rimraf'
 import electron from 'electron'
+import axios from 'axios'
+import async from 'async'
+import database from '../../database/index'
+import crypt from './crypt'
+import tree from './tree'
 import Logger from '../../libs/logger'
 
 const app = electron.remote.app
@@ -45,9 +45,7 @@ function SetModifiedTime(path, time) {
     try {
       fs.utimesSync(path, convertedTime, convertedTime)
       resolve()
-    } catch (err) {
-      reject(err)
-    }
+    } catch (err) { reject(err) }
   })
 }
 
@@ -108,6 +106,7 @@ function UploadFile(storj, filePath) {
 }
 
 function UploadNewFile(storj, filePath) {
+  // Get the folder info of that file.
   const folderPath = path.dirname(filePath)
   Logger.log('NEW file found, uploading:', filePath)
   return new Promise(async (resolve, reject) => {
@@ -116,9 +115,12 @@ function UploadNewFile(storj, filePath) {
     const tree = await database.Get('tree')
     const folderRoot = await database.Get('xPath')
 
+    // Folder doesn't exists. We cannot upload this file yet.
     if (!dbEntry || !dbEntry.value) {
       if (folderPath !== folderRoot) {
         Logger.error('Folder does not exists in local database', folderPath)
+        // Save this file on the temp database, so will not be deleted in the next steps.
+        database.TempSet(filePath, 'add')
         return resolve()
       }
     }
@@ -153,23 +155,29 @@ function UploadNewFile(storj, filePath) {
         app.emit('set-tooltip', 'Uploading ' + originalFileName + ' (' + progressPtg + '%)')
       },
       finishedCallback: function (err, newFileId) {
+        // Clear tooltip text, the upload is finished.
         app.emit('set-tooltip')
+
         if (err) {
           Logger.warn('Error uploading file', err)
           // If the error is due to file existence, ignore in order to continue uploading
           const fileExistsPattern = /File already exist/
           if (fileExistsPattern.exec(err)) {
+            // File already exists, so there's no need to upload again.
             // SHOULD RETURN THE ACTUAL FILE ID?
             Logger.warn('FILE ALREADY EXISTS')
-            resolve()
+
+            // What if the file exists, but is not on cloud database? Let's create the entry.
+            // Note that it may exist on cloud database, so catch errors --> resolve
+            CreateFileEntry(bucketId, newFileId, encryptedFileName, fileExt, fileSize, folderId).then(resolve).catch(resolve)
           } else {
+            // There was an error uploading the new file. Reject to stop the sync.
             Logger.error('Error uploading new file', err)
             reject(err)
           }
         } else {
           Logger.warn('NEW FILE ID 2', newFileId)
-          CreateFileEntry(bucketId, newFileId, encryptedFileName, fileExt, fileSize, folderId)
-            .then(res => resolve(res)).catch(reject)
+          CreateFileEntry(bucketId, newFileId, encryptedFileName, fileExt, fileSize, folderId).then(resolve).catch(reject)
         }
       }
     })
@@ -261,14 +269,14 @@ async function CreateFileEntry(bucketId, bucketEntryId, fileName, fileExtension,
   })
 }
 
-// Check files that does not exists in local anymore
+// Check files that does not exists in local anymore, and remove them from remote
 function CheckMissingFiles() {
   return new Promise((resolve, reject) => {
     let allData = database.dbFiles.getAllData()
     async.eachSeries(allData, (item, next) => {
-      let stat
-      try { stat = fs.lstatSync(item.key) } catch (err) { stat = null }
+      let stat = tree.GetStat(item.key)
 
+      // If it doesn't exists, or it exists and now is not a file, delete from remote.
       if ((stat && !stat.isFile()) || !fs.existsSync(item.key)) {
         const bucketId = item.value.bucket
         const fileId = item.value.fileId
@@ -286,18 +294,14 @@ function CheckMissingFiles() {
   })
 }
 
-// Check folders that does not exists in local anymore
+// Check folders that does not exists in local anymore, and delete those folders on remote
 function CheckMissingFolders() {
   return new Promise((resolve, reject) => {
     let allData = database.dbFolders.getAllData()
     async.eachSeries(allData, (item, next) => {
-      let stat
-      try {
-        stat = fs.lstatSync(item.key)
-      } catch (err) {
-        stat = null
-      }
+      let stat = tree.GetStat(item.key)
 
+      // If doesn't exists, or now is a file (was a folder before) delete from remote.
       if ((stat && stat.isFile()) || !fs.existsSync(item.key)) {
         RemoveFolder(item.value.id).then(() => {
           database.dbFolders.remove({ key: item.key })
@@ -306,7 +310,9 @@ function CheckMissingFolders() {
           Logger.error('Error removing remote folder %s, %j', item.value, err)
           next(err)
         })
-      } else { next() }
+      } else {
+        next()
+      }
     }, (err, result) => {
       if (err) { reject(err) } else { resolve(result) }
     })
@@ -316,8 +322,10 @@ function CheckMissingFolders() {
 // Create all remote folders on local path
 function CreateLocalFolders() {
   return new Promise(async (resolve, reject) => {
+    // Get a list of all the folders on the remote tree
     tree.GetFolderListFromRemoteTree().then(list => {
       async.eachSeries(list, (folder, next) => {
+        // Create the folder, doesn't matter if already exists.
         try {
           fs.mkdirSync(folder)
           next()
@@ -326,6 +334,7 @@ function CreateLocalFolders() {
             // Folder already exists, ignore error
             next()
           } else {
+            // If we cannot create the folder, we won't be able to download it's files.
             Logger.error('Error creating folder %s: %j', folder, err)
             next(err)
           }
@@ -337,23 +346,28 @@ function CreateLocalFolders() {
   })
 }
 
+// Delete local folders that doesn't exists on remote.
 function CleanLocalFolders() {
   return new Promise(async (resolve, reject) => {
     const localPath = await database.Get('xPath')
     const syncDate = database.Get('syncStartDate')
+
     // Get a list of all local folders
     tree.GetLocalFolderList(localPath).then((list) => {
-      // Check what items are in dbFolders
+
       async.eachSeries(list, (item, next) => {
         database.FolderGet(item).then(async folder => {
           if (folder) {
-            // Folder exists in remote, nothing to do
+            // Folder still exists in remote, nothing to do
             next()
           } else {
             // Should DELETE that folder in local
-            const creationDate = fs.statSync(item)
+            const creationDate = fs.statSync(item).mtime
             const isTemp = await database.TempGet(item)
-            // Delete only if
+            // Delete only if:
+            // - Was created before the sync started (nothing changed)
+            // - Is not on temp database (watcher flag)
+            // - If is on watcher database for any reason, the reason is not "just added" during sync.
             if (creationDate <= syncDate || !isTemp || isTemp.value !== 'addDir') {
               rimraf(item, (err) => next(err))
             } else {
@@ -372,25 +386,36 @@ function CleanLocalFolders() {
   })
 }
 
+// Delete local files that doesn't exists on remote.
+// It should be called just after tree sync.
 function CleanLocalFiles() {
   return new Promise(async (resolve, reject) => {
     const localPath = await database.Get('xPath')
-    // const syncDate = database.Get('syncStartDate')
+    const syncDate = database.Get('syncStartDate')
+
+    // List all files in the folder
     tree.GetLocalFileList(localPath).then(list => {
       async.eachSeries(list, (item, next) => {
         database.FileGet(item).then(async fileObj => {
           if (!fileObj) {
-            const creationDate = fs.statSync(item)
+            // File doesn't exists on remote database, should be locally deleted?
+
+            const creationDate = fs.statSync(item).mtime
+            // To check if the file was added during the sync, if so, should not be deleted
             const isTemp = await database.TempGet(item)
+
+            // Also check if the file was present in remote during the last sync
             const wasDeleted = await database.dbLastFiles.findOne({ key: item })
 
+            // Delete if: Not in temp, not was "added" or was deleted
             if (!isTemp || isTemp.value !== 'add' || wasDeleted) {
+              // TODO: Watcher will track this deletion
               try { fs.unlinkSync(item) } catch (e) { }
               database.TempDel(item)
             }
             next()
           } else {
-            Logger.warn('FILE NOT FOUND ON REMOTE DATABASE')
+            // File still exists on the remote database, should not be deleted
             next()
           }
         }).catch(next)

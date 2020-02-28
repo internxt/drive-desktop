@@ -1,9 +1,9 @@
 import log from 'electron-log'
 
-let Logger = console;
+let Logger = console
 
 if (process.env.NODE_ENV === 'production') {
-    Logger = log
+  Logger = log
 }
 
 export default Logger

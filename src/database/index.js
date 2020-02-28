@@ -121,7 +121,7 @@ const TempGet = (key) => {
 
 const TempDel = (key) => {
   return new Promise((resolve, reject) => {
-    dbTemp.remove({ key: key }, (err, result) => {
+    dbTemp.remove({ key: key }, { multi: true }, (err, result) => {
       if (err) { reject(err) } else { resolve() }
     })
   })

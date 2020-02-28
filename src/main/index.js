@@ -152,6 +152,12 @@ function createWindow () {
       click: function () { shell.openExternal('https://cloud.internxt.com/storage') }
     },
     {
+      label: 'Force sync now',
+      click: function () {
+        app.emit('sync-start')
+      }
+    },
+    {
       label: 'Quit',
       click: appClose
     }

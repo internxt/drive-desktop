@@ -73,30 +73,40 @@ function RestoreFile(fileObj) {
   })
 }
 
+// Will download ALL the files from remote
+// If file already exists on local, decide if needs to be checked.
 function DownloadAllFiles() {
   return new Promise((resolve, reject) => {
+    // Get a list of all the files on the remote folder
     Tree.GetFileListFromRemoteTree().then(list => {
       async.eachSeries(list, async (item, next) => {
-        const freeSpace = await CheckDiskSpace(path.dirname(item.fullpath))
 
+        // If not enough space on hard disk, do not download and stop syncing.
+        const freeSpace = await CheckDiskSpace(path.dirname(item.fullpath))
         if (item.size * 3 >= freeSpace) { return next('No space left') }
 
         let downloadAndReplace = false
         let uploadAndReplace = false
         let ignoreThisFile = false
 
+        // Check if local file exists
         const localExists = fs.existsSync(item.fullpath)
 
+        // If local exists, replace, ensure or ignore
         if (localExists) {
-          const stat = fs.lstatSync(item.fullpath)
+          const stat = Tree.GetStat(item.fullpath)
 
+          // "Created at" time from remote database
           const remoteTime = new Date(item.created_at)
+          // "Modified at" from local file
           const localTime = stat.mtime
 
           if (remoteTime > localTime) { downloadAndReplace = true }
-          if (localTime > remoteTime) { uploadAndReplace = true }
+          else if (localTime > remoteTime) { uploadAndReplace = true }
         } else {
+          // Was deleted during the sync?
           const isLocallyDeleted = await Database.TempGet(item.fullpath)
+          
           if (isLocallyDeleted && isLocallyDeleted.value === 'unlink') {
             ignoreThisFile = true
           } else {
@@ -155,24 +165,35 @@ function DownloadAllFiles() {
 function UploadAllNewFiles() {
   return new Promise(async (resolve, reject) => {
     const localPath = await Database.Get('xPath')
+    // Get the local tree from folder (not remote or database) to check for new files.
+    // The list contains the files and folders.
     const arbol = Tree.GetListFromFolder(localPath)
     const storj = await _getEnvironment()
 
     async.eachSeries(arbol, async function (item, next) {
+      // Read filesystem data
       var stat = Tree.GetStat(item)
 
-      if (stat.isFile()) {
-        // Is a file
+      if (stat.isFile()) { // Is a file
+
+        // Check if file exists in the remote database
         let entry = await Database.FileGet(item)
+
         if (!entry) {
-          // File only exists in local
+          // File is not present on the remote database, so it's a new file. Let's upload.
           if (stat.size === 0) {
+            // The network can't hold empty files. Encryption will fail.
+            // So, we will ignore this file.
             Logger.log('Warning: Filesize 0. Ignoring file.')
             next()
           } else {
+            // Upload file.
             Sync.UploadNewFile(storj, item).then(() => next()).catch(next)
           }
-        } else { next() }
+        } else {
+          // Is not a file, so it is a dir. Do nothing.
+          next()
+        }
       } else {
         next()
       }
@@ -199,19 +220,25 @@ function UploadAllNewFolders() {
     let lastParentId = null
     let lastParentFolder = null
 
+    // Create a list with the actual local folders
     Tree.GetLocalFolderList(localPath).then(list => {
+      // For each folder in local...
       async.eachSeries(list, async (item, next) => {
         // Check if exists in database
         const dbEntry = await Database.FolderGet(item)
 
+        // If folder exists on remote database, ignore it, it already exists
         if (dbEntry) { return next() }
 
-        // Substract local path
+        // Substract parent path and folder name
         const folderName = path.basename(item)
         const parentPath = path.dirname(item)
 
+        // Get the parent folder ID from remote database
         let lastFolder = await Database.FolderGet(parentPath)
+        // If parent folder exists on database, pick its ID
         let lastFolderId = lastFolder && lastFolder.value && lastFolder.value.id
+        // If the parent path is the root of the target path, get the root_folder_id from user info
         let parentId = parentPath === localPath ? userInfo.user.root_folder_id : lastFolderId
 
         if (parentPath === lastParentFolder) {
@@ -239,7 +266,9 @@ function UploadAllNewFolders() {
         if (err) {
           Logger.error(err)
           reject(err)
-        } else { resolve() }
+        } else {
+          resolve()
+        }
       })
     }).catch(reject)
   })
