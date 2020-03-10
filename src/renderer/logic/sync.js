@@ -354,7 +354,6 @@ function CleanLocalFolders() {
 
     // Get a list of all local folders
     tree.GetLocalFolderList(localPath).then((list) => {
-
       async.eachSeries(list, (item, next) => {
         database.FolderGet(item).then(async folder => {
           if (folder) {
@@ -450,9 +449,11 @@ function RemoteCreateFolder(name, parentId) {
         Logger.warn('Folder with the same name already exists')
         resolve()
       } else if (res.res.status === 201) {
-        Logger.warn('Error creating new folder, 201')
         resolve(res.data)
-      } else { reject(res.data) }
+      } else {
+        Logger.error('Error creating new folder', res)
+        reject(res.data)
+      }
     }).catch(reject)
   })
 }

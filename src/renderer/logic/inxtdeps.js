@@ -1,16 +1,7 @@
 'use strict'
 
-const OS = process.platform
+const dependency = require('storj')
 
-let dependency
-
-try {
-  if (OS === 'win32') {
-    throw Error(OS)
-  }
-  dependency = require('storj')
-} catch (e) {
-  dependency = require('node-lib-exec')
-}
+console.log(dependency)
 
 module.exports = dependency

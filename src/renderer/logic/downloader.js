@@ -9,6 +9,7 @@ import Sync from './sync'
 import CheckDiskSpace from 'check-disk-space'
 import electron from 'electron'
 import Logger from '../../libs/logger'
+import mkdirp from 'mkdirp'
 
 const app = electron.remote.app
 
@@ -40,7 +41,10 @@ function DownloadFileTemp(fileObj, silent = false) {
 
     const originalFileName = path.basename(fileObj.fullpath)
 
-    const tempPath = temp.dir
+    const tempPath = path.join(electron.remote.app.getPath('home'), '.xclouddesktop', 'tmp')
+    if (!fs.existsSync(tempPath)) {
+      mkdirp.sync(tempPath)
+    }
     const tempFilePath = path.join(tempPath, fileObj.fileId + '.dat')
 
     // Delete temp file
@@ -80,7 +84,6 @@ function DownloadAllFiles() {
     // Get a list of all the files on the remote folder
     Tree.GetFileListFromRemoteTree().then(list => {
       async.eachSeries(list, async (item, next) => {
-
         // If not enough space on hard disk, do not download and stop syncing.
         const freeSpace = await CheckDiskSpace(path.dirname(item.fullpath))
         if (item.size * 3 >= freeSpace) { return next('No space left') }
@@ -101,12 +104,11 @@ function DownloadAllFiles() {
           // "Modified at" from local file
           const localTime = stat.mtime
 
-          if (remoteTime > localTime) { downloadAndReplace = true }
-          else if (localTime > remoteTime) { uploadAndReplace = true }
+          if (remoteTime > localTime) { downloadAndReplace = true } else if (localTime > remoteTime) { uploadAndReplace = true }
         } else {
           // Was deleted during the sync?
           const isLocallyDeleted = await Database.TempGet(item.fullpath)
-          
+
           if (isLocallyDeleted && isLocallyDeleted.value === 'unlink') {
             ignoreThisFile = true
           } else {
@@ -174,8 +176,7 @@ function UploadAllNewFiles() {
       // Read filesystem data
       var stat = Tree.GetStat(item)
 
-      if (stat.isFile()) { // Is a file
-
+      if (stat && stat.isFile()) { // Is a file
         // Check if file exists in the remote database
         let entry = await Database.FileGet(item)
 

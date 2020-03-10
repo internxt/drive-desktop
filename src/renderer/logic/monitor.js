@@ -49,6 +49,9 @@ function StartMonitor() {
         }).catch(next)
       },
       next => {
+        database.ClearTemp().then(() => next()).catch(next)
+      },
+      next => {
         // Change icon to "syncing"
         app.emit('sync-on')
         // New sync started, so we save the current date
@@ -157,11 +160,17 @@ function StartMonitor() {
       isSyncing = false
 
       if (err) {
-        database.ClearFolders()
-        database.ClearFiles()
-        database.CompactAllDatabases()
-        Monitor()
         Logger.error('Error monitor:', err)
+        async.waterfall([
+          next => database.ClearFolders().then(() => next()).catch(next),
+          next => database.ClearFiles().then(() => next()).catch(next),
+          next => {
+            database.CompactAllDatabases()
+            next()
+          }
+        ], () => {
+          Monitor()
+        })
       } else {
         Monitor()
       }
