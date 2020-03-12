@@ -209,7 +209,8 @@ app.on('window-show', function() {
 
 app.on('window-hide', function() {
   if (mainWindow) {
-    mainWindow.hide()
+    // mainWindow.hide()
+    mainWindow.minimize()
   }
 })
 
