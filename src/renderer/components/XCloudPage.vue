@@ -40,9 +40,14 @@ export default {
     }
   },
   components: {},
-  created: function () {
+  beforeCreate() {
     if (process.env.NODE_ENV !== 'development') {
-      remote.BrowserWindow.getFocusedWindow().hide()
+      remote.app.emit('window-hide')
+    }
+  },
+  created: function() {
+    if (process.env.NODE_ENV !== 'development') {
+      remote.app.emit('window-hide')
     }
     this.$app = this.$electron.remote.app
     Monitor.Monitor(true)

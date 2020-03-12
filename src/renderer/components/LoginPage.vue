@@ -56,7 +56,10 @@ import Logger from '../../libs/logger'
 
 export default {
   name: 'login-page',
-  data () {
+  beforeCreate() {
+    remote.app.emit('window-show')
+  },
+  data() {
     return {
       username: '',
       password: '',

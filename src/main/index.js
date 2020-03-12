@@ -61,6 +61,8 @@ function createWindow() {
     autoHideMenuBar: true
   })
 
+  mainWindow.hide()
+
   mainWindow.loadURL(winURL)
 
   mainWindow.on('closed', appClose)
@@ -199,7 +201,19 @@ app.on('sync-off', function () {
   tray.setImage(getTrayIcon(false))
 })
 
-app.on('set-tooltip', (msg) => {
+app.on('window-show', function() {
+  if (mainWindow) {
+    mainWindow.show()
+  }
+})
+
+app.on('window-hide', function() {
+  if (mainWindow) {
+    mainWindow.hide()
+  }
+})
+
+app.on('set-tooltip', msg => {
   tray.setToolTip('X Cloud Desktop' + (msg ? '\n' + msg : ''))
 })
 
