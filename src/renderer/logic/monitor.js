@@ -6,6 +6,7 @@ import database from '../../database'
 import electron from 'electron'
 import watcher from './watcher'
 import Logger from '../../libs/logger'
+import fs from 'fs'
 
 let wtc
 let isSyncing = false
@@ -13,7 +14,7 @@ let isSyncing = false
 const app = electron.remote.app
 
 app.on('sync-start', function () {
-  if (!isSyncing) {
+  if (!isSyncing) {  
     Logger.log('Sync request by user')
     Monitor(true)
   } else {
@@ -35,12 +36,25 @@ function Monitor(startInmediately = false) {
   }
 }
 
+function RootFolderExists() {
+  return new Promise((resolve, reject) => {
+    database.Get('xPath').then(xPath => {
+      resolve(fs.existsSync(xPath))
+    }).catch(reject)
+  })
+}
+
 function StartMonitor() {
   isSyncing = true
 
   // Sync
   async.waterfall(
     [
+      next => {
+        RootFolderExists().then((exists) => {
+          next(exists ? null : exists)
+        }).catch(next)
+      },
       next => {
         // Start the folder watcher if is not already started
         database.Get('xPath').then(xPath => {
@@ -152,12 +166,15 @@ function StartMonitor() {
       next => { database.Set('lastSyncSuccess', true).then(() => next()).catch(next) },
       next => { database.Set('lastSyncDate', new Date()).then(() => next()).catch(next) }
     ],
-    err => {
+    async err => {
       // If monitor ended before stopping the watcher, let's ensure
 
       // Switch "loading" tray icon
       app.emit('sync-off')
       isSyncing = false
+
+      const rootFolderExist = await RootFolderExists()
+      if (!rootFolderExist) { return }
 
       if (err) {
         Logger.error('Error monitor:', err)

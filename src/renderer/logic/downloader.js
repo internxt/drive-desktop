@@ -141,18 +141,24 @@ function DownloadAllFiles() {
           Sync.UploadFile(storj, item.fullpath).then(() => next()).catch(next)
         } else {
           // Check if should download to ensure file
-          let shouldEnsureFile = false
+          let shouldEnsureFile = Math.floor(Math.random() * 33 + 1) % 33 === 0
           if (!shouldEnsureFile) {
+            Logger.log('%cNO ENSURE FILE', 'background-color: #aaaaff')
             return next()
           }
-          Logger.log('DOWNLOAD JUST TO ENSURE FILE')
+          Logger.log('%cENSURE FILE ' + item.filename, 'background-color: #aaaaff')
           // Check file is ok
           DownloadFileTemp(item, true).then(tempPath => next()).catch(err => {
-            if (err.message === 'File missing shard error' && localExists) {
-              Logger.error('Missing shard error. Reuploading...')
+            const isError = [
+              'File missing shard error',
+              'Memory mapped file unmap error'
+            ].find(obj => obj === err.message)
+
+            if (isError && localExists) {
+              Logger.error('%s. Reuploading...', isError)
               RestoreFile(item).then(() => next()).catch(next)
             } else {
-              Logger.error('Cannot upload local final')
+              Logger.error('Cannot restore missing file', err.message)
               next(err)
             }
           })

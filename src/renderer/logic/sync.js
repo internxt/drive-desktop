@@ -160,6 +160,7 @@ function UploadNewFile(storj, filePath) {
 
         if (err) {
           Logger.warn('Error uploading file', err)
+          database.FileSet(filePath, null)
           // If the error is due to file existence, ignore in order to continue uploading
           const fileExistsPattern = /File already exist/
           if (fileExistsPattern.exec(err)) {
@@ -404,7 +405,11 @@ function CleanLocalFiles() {
             const isTemp = await database.TempGet(item)
 
             // Also check if the file was present in remote during the last sync
-            const wasDeleted = await database.dbLastFiles.findOne({ key: item })
+            const wasDeleted = await new Promise((resolve, reject) => {
+              database.dbLastFiles.findOne({ key: item }, (err, result) => {
+                if (err) { reject(err) } else { resolve(result) }
+              })
+            })
 
             // Delete if: Not in temp, not was "added" or was deleted
             if (!isTemp || isTemp.value !== 'add' || wasDeleted) {

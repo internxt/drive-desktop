@@ -1,7 +1,5 @@
 'use strict'
 
-const dependency = require('storj')
-
-console.log(dependency)
+let dependency = require('storj')
 
 module.exports = dependency

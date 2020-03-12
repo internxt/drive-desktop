@@ -14,6 +14,7 @@ import SystemInformation from './LandingPage/SystemInformation'
 import database from '../../database/index'
 import async from 'async'
 import Logger from '../../libs/logger'
+import fs from 'fs'
 
 export default {
   name: 'landing-page',
@@ -25,8 +26,9 @@ export default {
   },
   created: async function () {
     const xUser = await database.Get('xUser')
+    const xPath = await database.Get('xPath')
     this.$data.dbFolder = database.GetDatabaseFolder
-    if (!xUser) {
+    if (!xUser || !fs.existsSync(xPath)) {
       Logger.info('No xUser is set on database')
       this.$router.push('/login')
     } else {

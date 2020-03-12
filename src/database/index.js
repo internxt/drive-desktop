@@ -151,6 +151,14 @@ const ClearFolders = () => {
   })
 }
 
+const ClearUser = () => {
+  return new Promise((resolve, reject) => {
+    dbUser.remove({}, { multi: true }, (err, totalFilesRemoved) => {
+      if (err) { reject(err) } else { resolve(totalFilesRemoved) }
+    })
+  })
+}
+
 const CompactAllDatabases = () => {
   dbFolders.persistence.compactDatafile()
   dbFiles.persistence.compactDatafile()
@@ -195,6 +203,23 @@ const BackupCurrentTree = () => {
   })
 }
 
+const ClearAll = () => {
+  return new Promise((resolve, reject) => {
+    async.parallel([
+      ClearUser(),
+      ClearFolders(),
+      ClearFiles(),
+      ClearTemp()
+    ], (err) => {
+      if (err) {
+        reject(err)
+      } else {
+        resolve()
+      }
+    })
+  })
+}
+
 export default {
   dbFiles,
   dbFolders,
@@ -213,6 +238,7 @@ export default {
   ClearTemp,
   ClearFiles,
   ClearFolders,
+  ClearAll,
   CompactAllDatabases,
   BackupCurrentTree,
   GetDatabaseFolder: databaseFolder

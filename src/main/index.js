@@ -56,7 +56,7 @@ function createWindow () {
     height: 550,
     useContentSize: true,
     width: 500,
-    frame: false,
+    frame: process.env.NODE_ENV === 'development',
     autoHideMenuBar: true
   })
 
@@ -148,14 +148,14 @@ function createWindow () {
 
   const contextMenu = () => Menu.buildFromTemplate([
     {
-      label: 'Billing',
-      click: function () { shell.openExternal('https://cloud.internxt.com/storage') }
-    },
-    {
-      label: 'Force sync now',
+      label: 'Force sync',
       click: function () {
         app.emit('sync-start')
       }
+    },
+    {
+      label: 'Billing',
+      click: function () { shell.openExternal('https://cloud.internxt.com/storage') }
     },
     {
       label: 'Quit',
