@@ -168,9 +168,16 @@ function UploadNewFile(storj, filePath) {
             // SHOULD RETURN THE ACTUAL FILE ID?
             Logger.warn('FILE ALREADY EXISTS')
 
-            // What if the file exists, but is not on cloud database? Let's create the entry.
-            // Note that it may exist on cloud database, so catch errors --> resolve
-            CreateFileEntry(bucketId, newFileId, encryptedFileName, fileExt, fileSize, folderId).then(resolve).catch(resolve)
+            storj.listFiles(bucketId, (err, listFiles) => {
+              if (err) {
+                reject(err)
+              } else {
+                const fileExists = listFiles.find(obj => obj.filename === finalName)
+                newFileId = fileExists.id
+
+                CreateFileEntry(bucketId, newFileId, encryptedFileName, fileExt, fileSize, folderId).then(resolve).catch(resolve)
+              }
+            })
           } else {
             // There was an error uploading the new file. Reject to stop the sync.
             Logger.error('Error uploading new file', err)
@@ -260,13 +267,15 @@ async function CreateFileEntry(bucketId, bucketEntryId, fileName, fileExtension,
     bucket: bucketId
   }
 
-  const userData = await database.Get('xUser')
+  return new Promise(async (resolve, reject) => {
+    const userData = await database.Get('xUser')
 
-  axios.post(`https://cloud.internxt.com/api/storage/file`, { file }, {
-    headers: { Authorization: `Bearer ${userData.token}` }
-  }).then(() => {
-  }).catch(err => {
-    Logger.error('ERROR CREATE FILE ENTRY', err)
+    axios.post(`https://cloud.internxt.com/api/storage/file`, { file }, {
+      headers: { Authorization: `Bearer ${userData.token}` }
+    }).then(resolve).catch(err => {
+      Logger.error('ERROR CREATE FILE ENTRY', err)
+      reject(err)
+    })
   })
 }
 

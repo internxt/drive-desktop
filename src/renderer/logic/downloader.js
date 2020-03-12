@@ -151,7 +151,8 @@ function DownloadAllFiles() {
           DownloadFileTemp(item, true).then(tempPath => next()).catch(err => {
             const isError = [
               'File missing shard error',
-              'Memory mapped file unmap error'
+              'Memory mapped file unmap error',
+              'Bridge request pointer error'
             ].find(obj => obj === err.message)
 
             if (isError && localExists) {

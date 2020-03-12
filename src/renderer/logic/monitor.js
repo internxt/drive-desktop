@@ -14,7 +14,7 @@ let isSyncing = false
 const app = electron.remote.app
 
 app.on('sync-start', function () {
-  if (!isSyncing) {  
+  if (!isSyncing) {
     Logger.log('Sync request by user')
     Monitor(true)
   } else {
