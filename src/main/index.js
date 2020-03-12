@@ -22,7 +22,12 @@ if (process.platform === 'darwin') {
   app.dock.hide()
 }
 
-const isSecondAppInstance = app.makeSingleInstance(function () { return true })
+const isSecondAppInstance = app.makeSingleInstance(function () {
+  if (mainWindow) {
+    mainWindow.getFocusedWindow().minimize()
+  }
+  return true
+})
 
 if (isSecondAppInstance) {
   app.quit()
@@ -58,7 +63,8 @@ function createWindow() {
     height: 550,
     useContentSize: true,
     frame: process.env.NODE_ENV === 'development',
-    autoHideMenuBar: true
+    autoHideMenuBar: true,
+    skipTaskbar: true
   })
 
   mainWindow.hide()
@@ -210,7 +216,8 @@ app.on('window-show', function() {
 app.on('window-hide', function() {
   if (mainWindow) {
     // mainWindow.hide()
-    mainWindow.minimize()
+    // mainWindow.minimize()
+    mainWindow.getFocusedWindow().minimize()
   }
 })
 
