@@ -22,19 +22,13 @@ if (process.platform === 'darwin') {
   app.dock.hide()
 }
 
-const isSecondAppInstance = app.makeSingleInstance(function() {
-  if (mainWindow) {
-    if (mainWindow.isMinimized()) {
-      mainWindow.restore()
-    }
-    mainWindow.show()
-  }
-  return true
-})
+const isSecondAppInstance = app.makeSingleInstance(function () { return true })
 
 if (isSecondAppInstance) {
   app.quit()
 }
+
+function destroyTray () {
   if (tray) {
     tray.destroy()
   }
@@ -42,7 +36,7 @@ if (isSecondAppInstance) {
   mainWindow = null
 }
 
-function getTrayIcon (isLoading) {
+function getTrayIcon(isLoading) {
   let iconName = isLoading ? 'sync-icon' : 'tray-icon'
 
   let trayIcon = path.join(__dirname, '../../src/resources/icons/' + iconName + '@2x.png')
@@ -58,11 +52,11 @@ function getTrayIcon (isLoading) {
   return trayIcon
 }
 
-function createWindow () {
+function createWindow() {
   mainWindow = new BrowserWindow({
+    width: 500,
     height: 550,
     useContentSize: true,
-    width: 500,
     frame: process.env.NODE_ENV === 'development',
     autoHideMenuBar: true
   })
@@ -173,9 +167,11 @@ function createWindow () {
   tray.setContextMenu(contextMenu())
 }
 
-app.on('ready', createWindow)
+app.on('ready', () => {
+  createWindow()
+})
 
-function appClose () {
+function appClose() {
   destroyTray()
   if (process.platform !== 'darwin') { app.quit() }
   mainWindow = null
