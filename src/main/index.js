@@ -22,6 +22,15 @@ if (process.platform === 'darwin') {
   app.dock.hide()
 }
 
+if (app.requestSingleInstanceLock()) {
+  if (mainWindow) {
+    if (mainWindow.isMinimized()) {
+      mainWindow.restore()
+    }
+    mainWindow.show()
+  }
+}
+
 app.on('second-instance', (event, argv, cwd) => {
   Logger.warn('Second instance')
   appClose()
