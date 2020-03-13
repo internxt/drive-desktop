@@ -33,7 +33,7 @@ if (isSecondAppInstance) {
   app.quit()
 }
 
-function destroyTray () {
+function destroyTray() {
   if (tray) {
     tray.destroy()
   }
@@ -64,10 +64,12 @@ function createWindow() {
     useContentSize: true,
     frame: process.env.NODE_ENV === 'development',
     autoHideMenuBar: true,
-    skipTaskbar: true
+    skipTaskbar: process.env.NODE_ENV !== 'development'
   })
 
-  mainWindow.hide()
+  if (process.env.NODE_ENV !== 'development') {
+    mainWindow.hide()
+  }
 
   mainWindow.loadURL(winURL)
 
@@ -207,17 +209,19 @@ app.on('sync-off', function () {
   tray.setImage(getTrayIcon(false))
 })
 
-app.on('window-show', function() {
+app.on('window-show', function () {
   if (mainWindow) {
     mainWindow.show()
   }
 })
 
-app.on('window-hide', function() {
+app.on('window-hide', function () {
   if (mainWindow) {
     // mainWindow.hide()
     // mainWindow.minimize()
-    mainWindow.getFocusedWindow().minimize()
+    if (process.env.NODE_ENV !== 'development') {
+      mainWindow.getFocusedWindow().minimize()
+    }
   }
 })
 

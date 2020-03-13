@@ -22,7 +22,7 @@ const { VueLoaderPlugin } = require('vue-loader')
 let whiteListedModules = ['vue']
 
 if (process.platform === 'win32') {
-  delete optionalDependencies['storj']
+  // delete optionalDependencies['storj']
 }
 
 let rendererConfig = {

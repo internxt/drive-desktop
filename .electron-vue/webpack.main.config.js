@@ -9,7 +9,7 @@ const webpack = require('webpack')
 const BabiliWebpackPlugin = require('babili-webpack-plugin')
 
 if (process.platform === 'win32') {
-  delete optionalDependencies['storj']
+  // delete optionalDependencies['storj']
 }
 
 let mainConfig = {
