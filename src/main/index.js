@@ -23,8 +23,8 @@ if (process.platform === 'darwin') {
 }
 
 const isSecondAppInstance = app.makeSingleInstance(function () {
-  if (mainWindow && mainWindow.getFocusedWindow) {
-    mainWindow.getFocusedWindow().minimize()
+  if (mainWindow) {
+    mainWindow.hide()
   }
   return true
 })
@@ -64,12 +64,9 @@ function createWindow() {
     useContentSize: true,
     frame: process.env.NODE_ENV === 'development',
     autoHideMenuBar: true,
-    skipTaskbar: process.env.NODE_ENV !== 'development'
+    skipTaskbar: process.env.NODE_ENV !== 'development',
+    show: process.env.NODE_ENV === 'development'
   })
-
-  if (process.env.NODE_ENV !== 'development') {
-    mainWindow.hide()
-  }
 
   mainWindow.loadURL(winURL)
 
@@ -216,12 +213,9 @@ app.on('window-show', function () {
 })
 
 app.on('window-hide', function () {
-  if (mainWindow && mainWindow.getFocusedWindow) {
-    // mainWindow.hide()
-    // mainWindow.minimize()
+  if (mainWindow) {
     if (process.env.NODE_ENV !== 'development') {
-      console.log(mainWindow)
-      mainWindow.getFocusedWindow().minimize()
+      mainWindow.hide()
     }
   }
 })

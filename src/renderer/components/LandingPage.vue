@@ -15,10 +15,14 @@ import database from '../../database/index'
 import async from 'async'
 import Logger from '../../libs/logger'
 import fs from 'fs'
+import { remote } from 'electron'
 
 export default {
   name: 'landing-page',
   components: { SystemInformation },
+  beforeCreate() {
+    remote.app.emit('window-hide')
+  },
   data: function () {
     return {
       dbFolder: ''
