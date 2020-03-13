@@ -8,7 +8,7 @@ import watcher from './watcher'
 import Logger from '../../libs/logger'
 import fs from 'fs'
 
-let wtc, timeout
+let wtc, timeoutInstance
 let isSyncing = false
 
 const app = electron.remote.app
@@ -31,9 +31,9 @@ function Monitor(startInmediately = false) {
     timeout = 1000 * 15
   }
   if (!isSyncing) {
-    clearTimeout(timeout)
+    clearTimeout(timeoutInstance)
     Logger.log('Waiting %s secs for next sync', timeout / 1000)
-    timeout = setTimeout(() => StartMonitor(), timeout)
+    timeoutInstance = setTimeout(() => StartMonitor(), timeout)
   }
 }
 
