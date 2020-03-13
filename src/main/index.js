@@ -23,7 +23,7 @@ if (process.platform === 'darwin') {
 }
 
 const isSecondAppInstance = app.makeSingleInstance(function () {
-  if (mainWindow) {
+  if (mainWindow && mainWindow.getFocusedWindow) {
     mainWindow.getFocusedWindow().minimize()
   }
   return true
@@ -216,10 +216,11 @@ app.on('window-show', function () {
 })
 
 app.on('window-hide', function () {
-  if (mainWindow) {
+  if (mainWindow && mainWindow.getFocusedWindow) {
     // mainWindow.hide()
     // mainWindow.minimize()
     if (process.env.NODE_ENV !== 'development') {
+      console.log(mainWindow)
       mainWindow.getFocusedWindow().minimize()
     }
   }

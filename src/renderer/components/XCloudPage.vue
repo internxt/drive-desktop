@@ -13,6 +13,9 @@
       <div>
         <a href="#" @click="changeTrayIconOff()">Change Tray Icon OFF</a>
       </div>
+      <div>
+        <a href="#" @click="forceSync()">Force sync</a>
+      </div>
       <div>Path: {{this.$data.localPath}}</div>
     </main>
   </div>
@@ -59,13 +62,14 @@ export default {
     quitApp () {
       remote.getCurrentWindow().close()
     },
+    forceSync() {
+      remote.app.emit('sync-start')
+    },
     changeTrayIconOn () {
-      const app = require('electron').remote.app
-      app.emit('sync-on')
+      remote.app.emit('sync-on')
     },
     changeTrayIconOff () {
-      const app = require('electron').remote.app
-      app.emit('sync-off')
+      remote.app.emit('sync-off')
     },
     getUser () {
       database

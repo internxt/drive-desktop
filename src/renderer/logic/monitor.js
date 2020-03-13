@@ -8,7 +8,7 @@ import watcher from './watcher'
 import Logger from '../../libs/logger'
 import fs from 'fs'
 
-let wtc
+let wtc, timeout
 let isSyncing = false
 
 const app = electron.remote.app
@@ -31,8 +31,9 @@ function Monitor(startInmediately = false) {
     timeout = 1000 * 15
   }
   if (!isSyncing) {
+    clearTimeout(timeout)
     Logger.log('Waiting %s secs for next sync', timeout / 1000)
-    setTimeout(() => StartMonitor(), timeout)
+    timeout = setTimeout(() => StartMonitor(), timeout)
   }
 }
 
@@ -45,6 +46,9 @@ function RootFolderExists() {
 }
 
 function StartMonitor() {
+  if (isSyncing) {
+    return
+  }
   isSyncing = true
 
   // Sync
