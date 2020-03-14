@@ -8,7 +8,7 @@ const CRYPTO_KEY = ''
 
 if (!CRYPTO_KEY) {
   Logger.error('No encryption key provided')
-  process.exit(3)
+  throw Error('No encryption key provided')
 }
 
 function EncryptWithKey(textToEncrypt, key) {

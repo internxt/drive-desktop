@@ -35,13 +35,21 @@ function _getEnvironment() {
   })
 }
 
+function getTempFolder() {
+  if (process.platform === 'linux') {
+    return path.join(electron.remote.app.getPath('home'), '.xclouddesktop', 'tmp')
+  } else {
+    return temp.dir
+  }
+}
+
 function DownloadFileTemp(fileObj, silent = false) {
   return new Promise(async (resolve, reject) => {
     const storj = await _getEnvironment()
 
     const originalFileName = path.basename(fileObj.fullpath)
 
-    const tempPath = path.join(electron.remote.app.getPath('home'), '.xclouddesktop', 'tmp')
+    const tempPath = getTempFolder()
     if (!fs.existsSync(tempPath)) {
       mkdirp.sync(tempPath)
     }

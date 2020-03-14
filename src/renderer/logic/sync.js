@@ -172,8 +172,12 @@ function UploadNewFile(storj, filePath) {
               if (err) {
                 reject(err)
               } else {
-                const fileExists = listFiles.find(obj => obj.filename === finalName)
+                const fileExists = listFiles.find(obj => obj.filename === finalName || obj.filename === originalFileName)
                 newFileId = fileExists.id
+
+                if (!newFileId) {
+                  return reject(Error('Cannot find file on network'))
+                }
 
                 CreateFileEntry(bucketId, newFileId, encryptedFileName, fileExt, fileSize, folderId).then(resolve).catch(resolve)
               }
@@ -270,10 +274,17 @@ async function CreateFileEntry(bucketId, bucketEntryId, fileName, fileExtension,
   return new Promise(async (resolve, reject) => {
     const userData = await database.Get('xUser')
 
-    axios.post(`https://cloud.internxt.com/api/storage/file`, { file }, {
-      headers: { Authorization: `Bearer ${userData.token}` }
-    }).then(resolve).catch(err => {
-      Logger.error('ERROR CREATE FILE ENTRY', err)
+    fetch(`https://cloud.internxt.com/api/storage/file`, {
+      method: 'POST',
+      mode: 'cors',
+      headers: {
+        Authorization: `Bearer ${userData.token}`,
+        'content-type': 'application/json'
+      },
+      body: JSON.stringify({ file })
+    }).then(res => {
+      resolve()
+    }).catch(err => {
       reject(err)
     })
   })
