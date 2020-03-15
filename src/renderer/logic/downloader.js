@@ -36,11 +36,7 @@ function _getEnvironment() {
 }
 
 function getTempFolder() {
-  if (process.platform === 'linux') {
-    return path.join(electron.remote.app.getPath('home'), '.xclouddesktop', 'tmp')
-  } else {
-    return temp.dir
-  }
+  return path.join(electron.remote.app.getPath('home'), '.xclouddesktop', 'tmp')
 }
 
 function DownloadFileTemp(fileObj, silent = false) {
@@ -50,16 +46,24 @@ function DownloadFileTemp(fileObj, silent = false) {
     const originalFileName = path.basename(fileObj.fullpath)
 
     const tempPath = getTempFolder()
+
     if (!fs.existsSync(tempPath)) {
       mkdirp.sync(tempPath)
     }
     const tempFilePath = path.join(tempPath, fileObj.fileId + '.dat')
 
+    Logger.log('Delete temp file', tempFilePath)
     // Delete temp file
-    if (fs.existsSync(tempFilePath)) { try { fs.unlinkSync(tempFilePath) } catch (e) { } }
+    if (fs.existsSync(tempFilePath)) {
+      try { fs.unlinkSync(tempFilePath) } catch (e) {
+        Logger.error('Delete temp file: Cannot delete', e)
+      }
+    }
 
+    Logger.log('STORJ resolveFile')
     storj.resolveFile(fileObj.bucket, fileObj.fileId, tempFilePath, {
       progressCallback: function (progress, downloadedBytes, totalBytes) {
+        Logger.log('Downloading', progress)
         if (!silent) {
           let progressPtg = progress * 100
           progressPtg = progressPtg.toFixed(2)
@@ -70,7 +74,10 @@ function DownloadFileTemp(fileObj, silent = false) {
       },
       finishedCallback: function (err) {
         app.emit('set-tooltip')
+        Logger.log('Download finished')
+        Logger.log('EXISTS', fs.existsSync(tempFilePath))
         if (err) { reject(err) } else {
+          Logger.log('SetModifiedTime')
           Sync.SetModifiedTime(tempFilePath, fileObj.created_at).then(() => resolve(tempFilePath)).catch(reject)
         }
       }
@@ -132,7 +139,10 @@ function DownloadAllFiles() {
           Logger.log('DOWNLOAD AND REPLACE WITHOUT QUESTION', item.fullpath)
           DownloadFileTemp(item).then(tempPath => {
             if (localExists) { try { fs.unlinkSync(item.fullpath) } catch (e) { } }
-            fs.renameSync(tempPath, item.fullpath)
+            // fs.renameSync gives a "EXDEV: cross-device link not permitted"
+            // when application and local folder are not in the same partition
+            fs.copyFileSync(tempPath, item.fullpath)
+            fs.unlinkSync(tempPath)
             next(null)
           }).catch(err => {
             // On error by shard, upload again
