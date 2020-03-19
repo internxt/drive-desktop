@@ -212,6 +212,15 @@ app.on('window-show', function () {
   }
 })
 
+app.on('show-bubble', (title, content) => {
+  if (tray) {
+    tray.displayBalloon({
+      title: title,
+      content: content
+    })
+  }
+})
+
 app.on('window-hide', function () {
   if (mainWindow) {
     if (process.env.NODE_ENV !== 'development') {
