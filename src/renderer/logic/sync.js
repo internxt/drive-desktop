@@ -67,7 +67,7 @@ function UploadFile(storj, filePath) {
     const originalFileName = path.basename(filePath)
     const encryptedFileName = crypt.EncryptFilename(originalFileName, folderId)
 
-    app.emit('set-tooltip', 'Uploading ' + originalFileName)
+    app.emit('set-tooltip', 'Encrypting ' + originalFileName)
 
     // File extension
     const extSeparatorPos = originalFileName.lastIndexOf('.')
@@ -188,6 +188,10 @@ function UploadNewFile(storj, filePath) {
             reject(err)
           }
         } else {
+          if (!newFileId) {
+            Logger.error('Cannot upload file, no new id was created')
+            return resolve()
+          }
           Logger.warn('NEW FILE ID 2', newFileId)
           CreateFileEntry(bucketId, newFileId, encryptedFileName, fileExt, fileSize, folderId).then(resolve).catch(reject)
         }
@@ -206,7 +210,7 @@ function RemoveFile(bucketId, fileId) {
       }).then(result => {
         resolve(result)
       }).catch(err => {
-        Logger.error('Axios error removing file', err)
+        Logger.error('Fetch error removing file', err)
         reject(err)
       })
     })
