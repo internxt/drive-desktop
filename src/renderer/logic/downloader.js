@@ -63,7 +63,6 @@ function DownloadFileTemp(fileObj, silent = false) {
     Logger.log('STORJ resolveFile')
     storj.resolveFile(fileObj.bucket, fileObj.fileId, tempFilePath, {
       progressCallback: function (progress, downloadedBytes, totalBytes) {
-        Logger.log('Downloading', progress)
         if (!silent) {
           let progressPtg = progress * 100
           progressPtg = progressPtg.toFixed(2)
@@ -161,7 +160,7 @@ function DownloadAllFiles() {
           // Check if should download to ensure file
           let shouldEnsureFile = Math.floor(Math.random() * 33 + 1) % 33 === 0
           if (!shouldEnsureFile) {
-            Logger.log('%cNO ENSURE FILE', 'background-color: #aaaaff')
+            // Logger.log('%cNO ENSURE FILE', 'background-color: #aaaaff')
             return next()
           }
           Logger.log('%cENSURE FILE ' + item.filename, 'background-color: #aaaaff')
@@ -250,6 +249,8 @@ function UploadAllNewFolders() {
     Tree.GetLocalFolderList(localPath).then(list => {
       // For each folder in local...
       async.eachSeries(list, async (item, next) => {
+        // Check if folders still exists
+        if (!fs.existsSync(item)) { return next() }
         // Check if exists in database
         const dbEntry = await Database.FolderGet(item)
 
