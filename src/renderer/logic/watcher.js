@@ -3,7 +3,10 @@ import database from '../../database/index'
 import Logger from '../../libs/logger'
 import { remote } from 'electron'
 
+let watcherStarted = false
+
 function StartWatcher(path) {
+  watcherStarted = false
   var watcher = chokidar.watch(path, {
     // eslint-disable-next-line no-useless-escape
     ignored: /[\/\\]\./,
@@ -11,9 +14,8 @@ function StartWatcher(path) {
   })
 
   function onWatcherReady() {
-    Logger.info(
-      'From here can you check for real changes, the initial scan has been completed.'
-    )
+    watcherStarted = true
+    Logger.info('From here can you check for real changes, the initial scan has been completed.')
   }
 
   const rootFolder = path
@@ -21,35 +23,47 @@ function StartWatcher(path) {
   // Declare the listeners of the watcher
   watcher
     .on('add', function (path) {
-      Logger.log('File', path, 'has been added')
-      database.TempSet(path, 'add')
+      if (watcherStarted) {
+        Logger.log('File', path, 'has been added')
+        database.TempSet(path, 'add')
+      }
     })
     .on('addDir', function (path) {
-      Logger.log('Directory', path, 'has been added')
-      database.TempSet(path, 'addDir')
+      if (watcherStarted) {
+        Logger.log('Directory', path, 'has been added')
+        database.TempSet(path, 'addDir')
+      }
     })
     .on('change', function (path) {
-      Logger.log('File', path, 'has been changed')
-      database.TempSet(path, 'add')
+      if (watcherStarted) {
+        Logger.log('File', path, 'has been changed')
+        database.TempSet(path, 'add')
+      }
     })
     .on('unlink', function (path) {
-      Logger.log('File', path, 'has been removed')
-      database.TempSet(path, 'unlink')
+      if (watcherStarted) {
+        Logger.log('File', path, 'has been removed')
+        database.TempSet(path, 'unlink')
+      }
     })
     .on('unlinkDir', function (path) {
-      Logger.log('Directory', path, 'has been removed')
-      if (path === rootFolder) {
-        database.ClearAll().then(() => {
-          remote.getCurrentWindow().close()
-        }).catch(() => {
-          remote.getCurrentWindow().close()
-        })
-      } else {
-        database.TempSet(path, 'unlinkDir')
+      if (watcherStarted) {
+        Logger.log('Directory', path, 'has been removed')
+        if (path === rootFolder) {
+          database.ClearAll().then(() => {
+            remote.getCurrentWindow().close()
+          }).catch(() => {
+            remote.getCurrentWindow().close()
+          })
+        } else {
+          database.TempSet(path, 'unlinkDir')
+        }
       }
     })
     .on('error', function (error) {
-      Logger.log('Error happened', error)
+      if (watcherStarted) {
+        Logger.log('Error happened', error)
+      }
     })
     .on('ready', onWatcherReady)
     .on('raw', function (event, path, details) {

@@ -166,7 +166,7 @@ function UploadNewFile(storj, filePath) {
           if (fileExistsPattern.exec(err)) {
             // File already exists, so there's no need to upload again.
             // SHOULD RETURN THE ACTUAL FILE ID?
-            Logger.warn('FILE ALREADY EXISTS')
+            Logger.warn('FILE ALREADY EXISTS', fs.statSync(filePath).size)
 
             storj.listFiles(bucketId, (err, listFiles) => {
               if (err) {
@@ -189,6 +189,7 @@ function UploadNewFile(storj, filePath) {
           }
         } else {
           if (!newFileId) {
+            database.TempSet(filePath, 'add')
             Logger.error('Cannot upload file, no new id was created')
             return resolve()
           }
@@ -289,6 +290,7 @@ async function CreateFileEntry(bucketId, bucketEntryId, fileName, fileExtension,
     }).then(res => {
       resolve()
     }).catch(err => {
+      Logger.log('CREATE FILE ENTRY ERROR', err)
       reject(err)
     })
   })

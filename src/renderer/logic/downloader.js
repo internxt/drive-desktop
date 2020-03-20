@@ -74,7 +74,6 @@ function DownloadFileTemp(fileObj, silent = false) {
       finishedCallback: function (err) {
         app.emit('set-tooltip')
         Logger.log('Download finished')
-        Logger.log('EXISTS', fs.existsSync(tempFilePath))
         if (err) { reject(err) } else {
           Logger.log('SetModifiedTime')
           Sync.SetModifiedTime(tempFilePath, fileObj.created_at).then(() => resolve(tempFilePath)).catch(reject)

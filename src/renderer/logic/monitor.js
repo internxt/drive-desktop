@@ -117,12 +117,7 @@ function StartMonitor() {
             next()
           } else {
             Logger.warn('LAST SYNC FAILED, CLEARING DATABASES')
-            async.parallel(
-              [
-                nextParallel => database.ClearFiles().then(() => nextParallel()).catch(nextParallel),
-                nextParallel => database.ClearFolders().then(() => nextParallel()).catch(nextParallel)
-              ],
-              (err) => next(err))
+            database.ClearAll().then(() => next()).catch(next)
           }
         }).catch(next)
       },
