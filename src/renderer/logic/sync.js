@@ -93,8 +93,13 @@ function UploadFile(storj, filePath) {
       finishedCallback: function (err, newFileId) {
         app.emit('set-tooltip')
         if (err) {
-          Logger.error('Sync Error uploading file: %s', err)
-          reject(err)
+          Logger.error('Sync Error uploading and replace file: %s', err)
+          const fileExistsPattern = /File already exist/
+          if (fileExistsPattern.exec(err)) {
+            resolve()
+          } else {
+            reject(err)
+          }
         } else {
           CreateFileEntry(bucketId, newFileId, encryptedFileName, fileExt, fileSize, folderId)
             .then(res => { resolve(res) })
