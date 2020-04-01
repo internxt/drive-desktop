@@ -262,5 +262,6 @@ export default {
   ClearAll,
   CompactAllDatabases,
   BackupCurrentTree,
+  ClearUser,
   GetDatabaseFolder: databaseFolder
 }

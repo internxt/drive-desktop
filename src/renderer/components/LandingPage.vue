@@ -34,6 +34,15 @@ export default {
     this.$data.dbFolder = database.GetDatabaseFolder
     if (!xUser || !fs.existsSync(xPath)) {
       Logger.info('No xUser is set on database')
+
+      await database.ClearFolders()
+      await database.ClearFiles()
+      await database.ClearTemp()
+      await database.ClearLastFiles()
+      await database.ClearLastFolders()
+      await database.ClearUser()
+      await database.CompactAllDatabases()
+
       this.$router.push('/login')
     } else {
       // Check if token is valid
