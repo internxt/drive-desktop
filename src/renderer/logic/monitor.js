@@ -177,6 +177,8 @@ function StartMonitor() {
         await database.ClearFolders()
         await database.ClearFiles()
         await database.ClearTemp()
+        await database.ClearLastFiles()
+        await database.ClearLastFolders()
         await database.ClearUser()
         await database.CompactAllDatabases()
 
