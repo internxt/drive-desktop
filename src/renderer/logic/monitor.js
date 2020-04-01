@@ -173,7 +173,15 @@ function StartMonitor() {
       isSyncing = false
 
       const rootFolderExist = await RootFolderExists()
-      if (!rootFolderExist) { return }
+      if (!rootFolderExist) {
+        await database.ClearFolders()
+        await database.ClearFiles()
+        await database.ClearTemp()
+        await database.ClearUser()
+        await database.CompactAllDatabases()
+
+        return
+      }
 
       if (err) {
         Logger.error('Error monitor:', err)
