@@ -34,6 +34,15 @@ export default {
     this.$data.dbFolder = database.GetDatabaseFolder
     if (!xUser || !fs.existsSync(xPath)) {
       Logger.info('No xUser is set on database')
+
+      await database.ClearFolders()
+      await database.ClearFiles()
+      await database.ClearTemp()
+      await database.ClearLastFiles()
+      await database.ClearLastFolders()
+      await database.ClearUser()
+      await database.CompactAllDatabases()
+
       this.$router.push('/login')
     } else {
       // Check if token is valid
@@ -49,7 +58,7 @@ export default {
       this.$electron.shell.openExternal(link)
     },
     clearDatabase () {
-      var confirmation = confirm('ATTENTION:\nAll your X Cloud Desktop data will be lost forever.\n\nContinue?')
+      var confirmation = confirm('ATTENTION:\nAll your Internxt Drive data will be lost forever.\n\nContinue?')
       if (confirmation) {
         async.waterfall([
           (next) => {

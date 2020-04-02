@@ -3,7 +3,7 @@
     <main class="centered-container">
       <div class="login-container-box">
         <div class="login-logo-container"><img src="../../resources/icons/xcloud.png" class="logo" /></div>
-        <div class="login-title">{{showTwoFactor ? 'Security Verification' : 'Sign in to X Cloud Desktop'}}</div>
+        <div class="login-title">{{showTwoFactor ? 'Security Verification' : 'Sign in to Internxt'}}</div>
         <div v-if="!showTwoFactor">
           <input
             class="form-control"
@@ -41,7 +41,7 @@
           @click="savePathAndLogin()"
           value="Sign in" />
 
-        <div v-if="!showTwoFactor" class="create-account-container">Don't have an account? <a href="#" @click="open('https://cloud.internxt.com/new')">Create an account for free</a></div>
+        <div v-if="!showTwoFactor" class="create-account-container">Don't have an Internxt account? <a href="#" @click="open('https://drive.internxt.com/new')">Get one for free!</a></div>
       </div>
     </main>
   </div>
@@ -108,7 +108,7 @@ export default {
     },
     doLogin () {
       this.$data.isLoading = true
-      fetch('https://cloud.internxt.com/api/login', {
+      fetch('https://drive.internxt.com/api/login', {
         method: 'POST',
         mode: 'cors',
         headers: { 'content-type': 'application/json' },
@@ -136,7 +136,7 @@ export default {
       const pwd = crypt.HashPassword(this.$data.password, salt)
       const encryptedHash = crypt.Encrypt(pwd.hash.toString())
 
-      fetch(`https://cloud.internxt.com/api/access`, {
+      fetch(`https://drive.internxt.com/api/access`, {
         method: 'POST',
         headers: {
           'content-type': 'application/json'

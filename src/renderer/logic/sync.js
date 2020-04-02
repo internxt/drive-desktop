@@ -210,7 +210,7 @@ function UploadNewFile(storj, filePath) {
 function RemoveFile(bucketId, fileId) {
   return new Promise(async (resolve, reject) => {
     database.Get('xUser').then(userData => {
-      fetch(`https://cloud.internxt.com/api/storage/bucket/${bucketId}/file/${fileId}`, {
+      fetch(`https://drive.internxt.com/api/storage/bucket/${bucketId}/file/${fileId}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${userData.token}` }
       }).then(result => {
@@ -241,7 +241,7 @@ function UpdateTree() {
 function GetTree() {
   return new Promise((resolve, reject) => {
     database.Get('xUser').then(userData => {
-      fetch(`https://cloud.internxt.com/api/storage/tree`, {
+      fetch(`https://drive.internxt.com/api/storage/tree`, {
         headers: { Authorization: `Bearer ${userData.token}` }
       }).then(async res => {
         return { res, data: await res.json() }
@@ -257,7 +257,7 @@ function GetTree() {
 function RemoveFolder(folderId) {
   return new Promise(async (resolve, reject) => {
     database.Get('xUser').then(userData => {
-      fetch(`https://cloud.internxt.com/api/storage/folder/${folderId}`, {
+      fetch(`https://drive.internxt.com/api/storage/folder/${folderId}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${userData.token}` }
       }).then(result => {
@@ -284,7 +284,7 @@ async function CreateFileEntry(bucketId, bucketEntryId, fileName, fileExtension,
   return new Promise(async (resolve, reject) => {
     const userData = await database.Get('xUser')
 
-    fetch(`https://cloud.internxt.com/api/storage/file`, {
+    fetch(`https://drive.internxt.com/api/storage/file`, {
       method: 'POST',
       mode: 'cors',
       headers: {
@@ -470,7 +470,7 @@ function RemoteCreateFolder(name, parentId) {
 
     const userData = await database.Get('xUser')
 
-    fetch(`https://cloud.internxt.com/api/storage/folder`, {
+    fetch(`https://drive.internxt.com/api/storage/folder`, {
       method: 'POST',
       mode: 'cors',
       headers: {

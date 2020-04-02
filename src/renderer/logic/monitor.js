@@ -13,6 +13,18 @@ let isSyncing = false
 
 const app = electron.remote.app
 
+app.on('open-folder', function() {
+  database.Get('xPath').then(xPath => {
+    if (fs.existsSync(xPath)) {
+      electron.shell.openItem(xPath)
+    } else {
+      Logger.log('Error openning root folder from try icon')
+    }
+  }).catch(() => {
+    Logger.log('Error openning root folder from try icon')
+  })
+})
+
 app.on('sync-start', function () {
   if (!isSyncing) {
     Logger.log('Sync request by user')
@@ -173,7 +185,17 @@ function StartMonitor() {
       isSyncing = false
 
       const rootFolderExist = await RootFolderExists()
-      if (!rootFolderExist) { return }
+      if (!rootFolderExist) {
+        await database.ClearFolders()
+        await database.ClearFiles()
+        await database.ClearTemp()
+        await database.ClearLastFiles()
+        await database.ClearLastFolders()
+        await database.ClearUser()
+        await database.CompactAllDatabases()
+
+        return
+      }
 
       if (err) {
         Logger.error('Error monitor:', err)
