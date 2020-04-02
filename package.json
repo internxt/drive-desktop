@@ -2,7 +2,7 @@
   "name": "x-cloud-desktop",
   "version": "1.1.1",
   "author": "Internxt <hello@internxt.com>",
-  "description": "X Cloud client UI",
+  "description": "Internxt Drive client UI",
   "license": "AGPL-3.0",
   "main": "./dist/electron/main.js",
   "scripts": {
@@ -23,7 +23,7 @@
     "publish": "./node_modules/.bin/electron-builder --publish always"
   },
   "build": {
-    "productName": "X Cloud Desktop",
+    "productName": "Internxt Drive",
     "appId": "com.internxt.xclouddesktop",
     "directories": {
       "output": "build"

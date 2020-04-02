@@ -1,9 +1,9 @@
-[![Build status](https://travis-ci.org/JAlbertoGonzalez/x-cloud-desktop.svg?branch=master)](https://travis-ci.org/JAlbertoGonzalez/x-cloud-desktop.svg?branch=master)
+[![Build status](https://travis-ci.org/internxt/x-cloud-desktop.svg?branch=master)](https://travis-ci.org/internxt/x-cloud-desktop.svg?branch=master)
 
 
-# X Cloud Desktop
+# Internxt Drive for Desktop
 
-> X Cloud client UI
+> Internxt Drive client UI
 
 # Installation
 

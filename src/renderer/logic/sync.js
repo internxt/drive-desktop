@@ -269,7 +269,7 @@ function RemoveFolder(folderId) {
   })
 }
 
-// Create entry in X Cloud Server linked to the Bridge file
+// Create entry in Drive Server linked to the Bridge file
 async function CreateFileEntry(bucketId, bucketEntryId, fileName, fileExtension, size, folderId) {
   const file = {
     fileId: bucketEntryId,
