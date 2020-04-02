@@ -2,7 +2,7 @@ import AutoLaunch from 'auto-launch'
 
 function configureAutostart () {
   var xcdLauncher = new AutoLaunch({
-    name: 'X Cloud Desktop'
+    name: 'Internxt Drive'
   })
 
   xcdLauncher.isEnabled()

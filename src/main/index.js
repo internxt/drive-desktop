@@ -152,9 +152,15 @@ function createWindow() {
   let trayIcon = getTrayIcon()
 
   tray = new Tray(trayIcon)
-  tray.setToolTip('X Cloud Desktop')
+  tray.setToolTip('Internxt Drive')
 
   const contextMenu = () => Menu.buildFromTemplate([
+    {
+      label: 'Open folder',
+      click: function () {
+        app.emit('open-folder')
+      }
+    },
     {
       label: 'Force sync',
       click: function () {
@@ -163,7 +169,7 @@ function createWindow() {
     },
     {
       label: 'Billing',
-      click: function () { shell.openExternal('https://cloud.internxt.com/storage') }
+      click: function () { shell.openExternal('https://drive.internxt.com/storage') }
     },
     {
       label: 'Quit',
@@ -230,7 +236,7 @@ app.on('window-hide', function () {
 })
 
 app.on('set-tooltip', msg => {
-  tray.setToolTip('X Cloud Desktop' + (msg ? '\n' + msg : ''))
+  tray.setToolTip('Internxt Drive' + (msg ? '\n' + msg : ''))
 })
 
 /**

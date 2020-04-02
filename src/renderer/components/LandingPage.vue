@@ -58,7 +58,7 @@ export default {
       this.$electron.shell.openExternal(link)
     },
     clearDatabase () {
-      var confirmation = confirm('ATTENTION:\nAll your X Cloud Desktop data will be lost forever.\n\nContinue?')
+      var confirmation = confirm('ATTENTION:\nAll your Internxt Drive data will be lost forever.\n\nContinue?')
       if (confirmation) {
         async.waterfall([
           (next) => {

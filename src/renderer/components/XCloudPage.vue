@@ -16,6 +16,9 @@
       <div>
         <a href="#" @click="forceSync()">Force sync</a>
       </div>
+      <div>
+        <a href="#" @click="openFolder()">Open folder</a>
+      </div>
       <div>Path: {{this.$data.localPath}}</div>
     </main>
   </div>
@@ -56,6 +59,9 @@ export default {
   methods: {
     quitApp () {
       remote.getCurrentWindow().close()
+    },
+    openFolder() {
+      remote.app.emit('open-folder')
     },
     forceSync() {
       remote.app.emit('sync-start')
