@@ -24,7 +24,7 @@
   },
   "build": {
     "productName": "Internxt Drive",
-    "appId": "com.internxt.xclouddesktop",
+    "appId": "com.internxt.drive",
     "directories": {
       "output": "build"
     },
