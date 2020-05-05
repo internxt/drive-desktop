@@ -178,11 +178,12 @@ function UploadNewFile(storj, filePath) {
                 reject(err)
               } else {
                 const fileExists = listFiles.find(obj => obj.filename === finalName || obj.filename === originalFileName)
-                newFileId = fileExists.id
 
-                if (!newFileId) {
+                if (!fileExists || !fileExists.id) {
                   return reject(Error('Cannot find file on network'))
                 }
+
+                newFileId = fileExists.id
 
                 CreateFileEntry(bucketId, newFileId, encryptedFileName, fileExt, fileSize, folderId).then(resolve).catch(resolve)
               }
