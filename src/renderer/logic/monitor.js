@@ -74,6 +74,7 @@ function StartMonitor() {
       next => {
         // Start the folder watcher if is not already started
         database.Get('xPath').then(xPath => {
+          console.log('User store path: %s', xPath)
           if (!wtc) { wtc = watcher.StartWatcher(xPath) }
           next()
         }).catch(next)
