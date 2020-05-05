@@ -10,6 +10,7 @@ import CheckDiskSpace from 'check-disk-space'
 import electron from 'electron'
 import Logger from '../../libs/logger'
 import mkdirp from 'mkdirp'
+import rimraf from 'rimraf'
 
 const app = electron.remote.app
 
@@ -73,8 +74,8 @@ function DownloadFileTemp(fileObj, silent = false) {
       },
       finishedCallback: function (err) {
         app.emit('set-tooltip')
-        Logger.log('Download finished')
         if (err) { reject(err) } else {
+          Logger.log('Download finished')
           Logger.log('SetModifiedTime')
           Sync.SetModifiedTime(tempFilePath, fileObj.created_at).then(() => resolve(tempFilePath)).catch(reject)
         }
@@ -114,10 +115,18 @@ function DownloadAllFiles() {
 
           // "Created at" time from remote database
           const remoteTime = new Date(item.created_at)
+          remoteTime.setMilliseconds(0)
           // "Modified at" from local file
           const localTime = stat.mtime
+          localTime.setMilliseconds(0)
 
-          if (remoteTime > localTime) { downloadAndReplace = true } else if (localTime > remoteTime) { uploadAndReplace = true }
+          // Warning, milliseconds are not recorded, so we set to 0 to avoid false comparisons
+
+          if (remoteTime > localTime) {
+            downloadAndReplace = true
+          } else if (localTime > remoteTime) {
+            uploadAndReplace = true
+          }
         } else {
           // Was deleted during the sync?
           const isLocallyDeleted = await Database.TempGet(item.fullpath)
@@ -300,8 +309,21 @@ function UploadAllNewFolders() {
   })
 }
 
+function ClearTempFolder() {
+  return new Promise((resolve, reject) => {
+    const tempPath = getTempFolder()
+
+    if (!fs.existsSync(tempPath)) {
+      return resolve()
+    }
+
+    rimraf(tempPath, () => resolve())
+  })
+}
+
 export default {
   DownloadAllFiles,
   UploadAllNewFiles,
-  UploadAllNewFolders
+  UploadAllNewFolders,
+  ClearTempFolder
 }

@@ -34,11 +34,15 @@ function GetTreeFromFolder(folderPath) {
     try { stats = FS.statSync(fullPath) } catch (e) { return null }
 
     if (stats.isFile()) {
+      const fileCtime = stats.ctime
+      fileCtime.setMilliseconds(0)
+      const fileMtime = stats.mtime
+      fileMtime.setMilliseconds(0)
       const file = {
         name: item,
         size: stats.size,
-        created_at: stats.ctime,
-        updated_at: stats.mtime,
+        created_at: fileCtime,
+        updated_at: fileMtime,
         fullPath: PATH.join(fullPath, item)
       }
       object.files.push(file)

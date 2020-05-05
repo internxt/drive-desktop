@@ -67,6 +67,9 @@ function StartMonitor() {
   async.waterfall(
     [
       next => {
+        Downloader.ClearTempFolder().then(next).catch(() => next())
+      },
+      next => {
         RootFolderExists().then((exists) => {
           next(exists ? null : exists)
         }).catch(next)

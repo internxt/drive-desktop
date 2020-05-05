@@ -8,12 +8,6 @@
         <a href="#" @click="quitApp()">Quit</a>
       </div>
       <div>
-        <a href="#" @click="changeTrayIconOn()">Change Tray Icon ON</a>
-      </div>
-      <div>
-        <a href="#" @click="changeTrayIconOff()">Change Tray Icon OFF</a>
-      </div>
-      <div>
         <a href="#" @click="forceSync()">Force sync</a>
       </div>
       <div>

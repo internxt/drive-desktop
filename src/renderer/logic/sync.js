@@ -50,7 +50,9 @@ function SetModifiedTime(path, time) {
 }
 
 function GetFileModifiedDate(path) {
-  return fs.statSync(path).mtime
+  const date = fs.statSync(path).mtime
+  date.setMilliseconds(0)
+  return date
 }
 
 function UploadFile(storj, filePath) {
@@ -75,6 +77,8 @@ function UploadFile(storj, filePath) {
 
     // File size
     const fileStats = fs.statSync(filePath)
+    const fileMtime = fileStats.mtime
+    fileMtime.setMilliseconds(0)
     const fileSize = fileStats.size
 
     // Delete former file
@@ -101,7 +105,7 @@ function UploadFile(storj, filePath) {
             reject(err)
           }
         } else {
-          CreateFileEntry(bucketId, newFileId, encryptedFileName, fileExt, fileSize, folderId)
+          CreateFileEntry(bucketId, newFileId, encryptedFileName, fileExt, fileSize, folderId, fileMtime)
             .then(res => { resolve(res) })
             .catch(err => { reject(err) })
         }
@@ -183,6 +187,8 @@ function UploadNewFile(storj, filePath) {
                   return reject(Error('Cannot find file on network'))
                 }
 
+                console.log('File exists on network, data:', fileExists)
+
                 newFileId = fileExists.id
 
                 CreateFileEntry(bucketId, newFileId, encryptedFileName, fileExt, fileSize, folderId).then(resolve).catch(resolve)
@@ -200,7 +206,7 @@ function UploadNewFile(storj, filePath) {
             return resolve()
           }
           Logger.warn('NEW FILE ID 2', newFileId)
-          CreateFileEntry(bucketId, newFileId, encryptedFileName, fileExt, fileSize, folderId).then(resolve).catch(reject)
+          CreateFileEntry(bucketId, newFileId, encryptedFileName, fileExt, fileSize, folderId, fileStats.mtime).then(resolve).catch(reject)
         }
       }
     })
@@ -271,7 +277,7 @@ function RemoveFolder(folderId) {
 }
 
 // Create entry in Drive Server linked to the Bridge file
-async function CreateFileEntry(bucketId, bucketEntryId, fileName, fileExtension, size, folderId) {
+async function CreateFileEntry(bucketId, bucketEntryId, fileName, fileExtension, size, folderId, date) {
   const file = {
     fileId: bucketEntryId,
     name: fileName,
@@ -280,6 +286,10 @@ async function CreateFileEntry(bucketId, bucketEntryId, fileName, fileExtension,
     folder_id: folderId,
     file_id: bucketEntryId,
     bucket: bucketId
+  }
+
+  if (date) {
+    file.date = date
   }
 
   return new Promise(async (resolve, reject) => {
@@ -395,6 +405,7 @@ function CleanLocalFolders() {
           } else {
             // Should DELETE that folder in local
             const creationDate = fs.statSync(item).mtime
+            creationDate.setMilliseconds(0)
             const isTemp = await database.TempGet(item)
             // Delete only if:
             // - Was created before the sync started (nothing changed)
@@ -433,6 +444,7 @@ function CleanLocalFiles() {
             // File doesn't exists on remote database, should be locally deleted?
 
             const creationDate = fs.statSync(item).mtime
+            creationDate.setMilliseconds(0)
             // To check if the file was added during the sync, if so, should not be deleted
             const isTemp = await database.TempGet(item)
 
