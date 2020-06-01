@@ -112,7 +112,7 @@ export default {
         method: 'POST',
         mode: 'cors',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ email: this.$data.username })
+        body: JSON.stringify({ email: this.$data.username.toLowerCase() })
       }).then(async res => {
         return { res, body: await res.json() }
       }).then(res => {
