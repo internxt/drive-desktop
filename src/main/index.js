@@ -162,6 +162,12 @@ function createWindow() {
       }
     },
     {
+      label: 'Log out',
+      click: function () {
+        app.emit('user-logout')
+      }
+    },
+    {
       label: 'Force sync',
       click: function () {
         app.emit('sync-start')

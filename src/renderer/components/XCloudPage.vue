@@ -13,6 +13,9 @@
       <div>
         <a href="#" @click="openFolder()">Open folder</a>
       </div>
+      <div>
+        <a href="#" @click="logout()">Log out</a>
+      </div>
       <div>Path: {{this.$data.localPath}}</div>
     </main>
   </div>
@@ -29,6 +32,8 @@ import Sync from '../logic/sync'
 import Tree from '../logic/tree'
 import Monitor from '../logic/monitor'
 import { remote } from 'electron'
+
+var __router = null
 
 export default {
   name: 'xcloud-page',
@@ -49,6 +54,16 @@ export default {
     this.getUser()
     this.getLocalFolderPath()
     this.getCurrentEnv()
+    __router = this.$router
+
+    remote.app.on('user-logout', function() {
+      database.ClearAll().then(() => {
+        console.log('databases cleared')
+        database.ClearUser().then(() => {
+          remote.getCurrentWindow().reload()
+        }).catch(() => console.log(''))
+      }).catch(() => console.log(''))
+    })
   },
   methods: {
     quitApp () {
@@ -56,6 +71,9 @@ export default {
     },
     openFolder() {
       remote.app.emit('open-folder')
+    },
+    logout() {
+      remote.app.emit('user-logout')
     },
     forceSync() {
       remote.app.emit('sync-start')
