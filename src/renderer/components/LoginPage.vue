@@ -112,7 +112,7 @@ export default {
         method: 'POST',
         mode: 'cors',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ email: this.$data.username.toLowerCase() })
+        body: JSON.stringify({ email: this.$data.username })
       }).then(async res => {
         return { res, body: await res.json() }
       }).then(res => {
@@ -161,7 +161,7 @@ export default {
             alert('Login error')
           }
         } else {
-          res.data.user.email = this.$data.username
+          res.data.user.email = this.$data.username.toLowerCase()
           await database.Set('xMnemonic', crypt.DecryptWithKey(res.data.user.mnemonic, this.$data.password))
           await database.Set('xUser', res.data)
           this.$router.push('/landing-page')
