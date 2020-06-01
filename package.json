@@ -1,6 +1,6 @@
 {
   "name": "x-cloud-desktop",
-  "version": "1.1.2",
+  "version": "1.1.4",
   "author": "Internxt <hello@internxt.com>",
   "description": "Internxt Drive client UI",
   "license": "AGPL-3.0",
@@ -61,7 +61,8 @@
     },
     "win": {
       "target": "nsis",
-      "icon": "build/icons/icon.ico"
+      "icon": "build/icons/icon.ico",
+      "certificateSubjectName": "Internxt Universal Technologies SL"
     },
     "nsis": {
       "oneClick": false,
