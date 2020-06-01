@@ -2,7 +2,7 @@
   <div id="wrapper">
     <main class="centered-container">
       <div class="login-container-box">
-        <div class="login-logo-container"><img src="../../resources/icons/xcloud.png" class="logo" /></div>
+        <!-- <div class="login-logo-container"><img src="../../resources/icons/xcloud.png" class="logo" /></div> -->
         <div class="login-title">{{showTwoFactor ? 'Security Verification' : 'Sign in to Internxt'}}</div>
         <div v-if="!showTwoFactor">
           <input
