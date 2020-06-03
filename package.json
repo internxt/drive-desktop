@@ -60,11 +60,15 @@
       "target": "dmg"
     },
     "win": {
-      "target": "nsis",
-      "icon": "build/icons/icon.ico",
-      "certificateSubjectName": "Internxt Universal Technologies SL"
+      "target": [
+        "nsis"
+      ],
+      "icon": "build/icons/icon.ico"
     },
     "nsis": {
+      "allowElevation": true,
+      "deleteAppDataOnUninstall": true,
+      "artifactName": "${productName}-${version}.${ext}",
       "oneClick": false,
       "perMachine": false
     },
