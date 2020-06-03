@@ -3,6 +3,15 @@
 import { app, BrowserWindow, Tray, Menu, shell } from 'electron'
 import path from 'path'
 import Logger from '../libs/logger'
+import AutoLaunch from 'auto-launch'
+
+var autoLaunch = new AutoLaunch({
+  name: 'Internxt Drive'
+})
+
+autoLaunch.isEnabled().then((isEnabled) => {
+  if (!isEnabled) autoLaunch.enable()
+})
 
 /**
  * Set `__static` path to static files in production
