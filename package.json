@@ -63,6 +63,7 @@
       "target": [
         "nsis"
       ],
+      "certificateSubjectName": "Internxt Universal Technologies SL",
       "icon": "build/icons/icon.ico"
     },
     "nsis": {
