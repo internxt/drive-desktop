@@ -57,11 +57,11 @@ function DownloadFileTemp(fileObj, silent = false) {
     // Delete temp file
     if (fs.existsSync(tempFilePath)) {
       try { fs.unlinkSync(tempFilePath) } catch (e) {
-        Logger.error('Delete temp file: Cannot delete', e)
+        Logger.error('Delete temp file: Cannot delete', e.message)
       }
     }
 
-    Logger.log('STORJ resolveFile')
+    Logger.log('DRIVE resolveFile, bucket: %s, file: %s', fileObj.bucket, fileObj.fileId)
     storj.resolveFile(fileObj.bucket, fileObj.fileId, tempFilePath, {
       progressCallback: function (progress, downloadedBytes, totalBytes) {
         if (!silent) {
@@ -76,7 +76,6 @@ function DownloadFileTemp(fileObj, silent = false) {
         app.emit('set-tooltip')
         if (err) { reject(err) } else {
           Logger.log('Download finished')
-          Logger.log('SetModifiedTime')
           Sync.SetModifiedTime(tempFilePath, fileObj.created_at).then(() => resolve(tempFilePath)).catch(reject)
         }
       }
@@ -153,7 +152,7 @@ function DownloadAllFiles() {
             next(null)
           }).catch(err => {
             // On error by shard, upload again
-            Logger.error(err)
+            Logger.error(err.message)
             if (localExists) {
               Logger.error('Fatal error: Can\'t restore remote file: local is older')
             } else {

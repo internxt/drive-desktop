@@ -196,7 +196,7 @@ function UploadNewFile(storj, filePath) {
             })
           } else {
             // There was an error uploading the new file. Reject to stop the sync.
-            Logger.error('Error uploading new file', err)
+            Logger.error('Error uploading new file: %s', err.message)
             reject(err)
           }
         } else {

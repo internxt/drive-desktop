@@ -32,6 +32,7 @@ import Sync from '../logic/sync'
 import Tree from '../logic/tree'
 import Monitor from '../logic/monitor'
 import { remote } from 'electron'
+import Logger from '../../libs/logger'
 
 var __router = null
 
@@ -47,6 +48,7 @@ export default {
   components: {},
   beforeCreate() {
     remote.app.emit('window-hide')
+    Logger.info('User platform: %s %s', process.platform, process.arch)
   },
   created: function() {
     this.$app = this.$electron.remote.app
@@ -58,11 +60,11 @@ export default {
 
     remote.app.on('user-logout', function() {
       database.ClearAll().then(() => {
-        console.log('databases cleared')
+        Logger.info('databases cleared')
         database.ClearUser().then(() => {
           remote.getCurrentWindow().reload()
-        }).catch(() => console.log(''))
-      }).catch(() => console.log(''))
+        }).catch(() => {})
+      }).catch(() => {})
     })
   },
   methods: {
