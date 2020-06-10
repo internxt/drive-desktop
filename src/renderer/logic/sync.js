@@ -3,12 +3,12 @@ import fs from 'fs'
 import path from 'path'
 import rimraf from 'rimraf'
 import electron from 'electron'
-import axios from 'axios'
 import async from 'async'
 import database from '../../database/index'
 import crypt from './crypt'
 import tree from './tree'
 import Logger from '../../libs/logger'
+import mkdirp from 'mkdirp'
 
 const app = electron.remote.app
 
@@ -86,8 +86,20 @@ function UploadFile(storj, filePath) {
 
     const finalName = encryptedFileName + (fileExt ? '.' + fileExt : '')
 
+    // Copy file to temp folder
+    const tempPath = path.join(electron.remote.app.getPath('home'), '.xclouddesktop', 'tmp')
+    if (!fs.existsSync(tempPath)) {
+      mkdirp.sync(tempPath)
+    }
+    const tempFile = path.join(tempPath, finalName)
+    if (fs.existsSync(tempFile)) {
+      fs.unlinkSync(tempFile)
+    }
+
+    fs.copyFileSync(filePath, tempFile)
+
     // Upload new file
-    storj.storeFile(bucketId, filePath, {
+    storj.storeFile(bucketId, tempFile, {
       filename: finalName,
       progressCallback: function (progress, uploadedBytes, totalBytes) {
         let progressPtg = progress * 100
@@ -95,6 +107,9 @@ function UploadFile(storj, filePath) {
         app.emit('set-tooltip', 'Uploading ' + originalFileName + ' (' + progressPtg + '%)')
       },
       finishedCallback: function (err, newFileId) {
+        if (fs.existsSync(tempFile)) {
+          fs.unlinkSync(tempFile)
+        }
         app.emit('set-tooltip')
         if (err) {
           Logger.error('Sync Error uploading and replace file: %s', err)
@@ -117,7 +132,7 @@ function UploadFile(storj, filePath) {
 function UploadNewFile(storj, filePath) {
   // Get the folder info of that file.
   const folderPath = path.dirname(filePath)
-  Logger.log('NEW file found, uploading:', filePath)
+  Logger.log('NEW file found', filePath)
   return new Promise(async (resolve, reject) => {
     const dbEntry = await database.FolderGet(folderPath)
     const user = await database.Get('xUser')
@@ -155,8 +170,20 @@ function UploadNewFile(storj, filePath) {
 
     const finalName = encryptedFileName + (fileExt ? '.' + fileExt : '')
 
+    // Copy file to temp folder
+    const tempPath = path.join(electron.remote.app.getPath('home'), '.xclouddesktop', 'tmp')
+    if (!fs.existsSync(tempPath)) {
+      mkdirp.sync(tempPath)
+    }
+    const tempFile = path.join(tempPath, finalName)
+    if (fs.existsSync(tempFile)) {
+      fs.unlinkSync(tempFile)
+    }
+
+    fs.copyFileSync(filePath, tempFile)
+
     // Upload new file
-    storj.storeFile(bucketId, filePath, {
+    storj.storeFile(bucketId, tempFile, {
       filename: finalName,
       progressCallback: function (progress, uploadedBytes, totalBytes) {
         let progressPtg = progress * 100
@@ -164,6 +191,9 @@ function UploadNewFile(storj, filePath) {
         app.emit('set-tooltip', 'Uploading ' + originalFileName + ' (' + progressPtg + '%)')
       },
       finishedCallback: function (err, newFileId) {
+        if (fs.existsSync(tempFile)) {
+          fs.unlinkSync(tempFile)
+        }
         // Clear tooltip text, the upload is finished.
         app.emit('set-tooltip')
 
