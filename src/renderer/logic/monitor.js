@@ -11,7 +11,19 @@ import fs from 'fs'
 let wtc, timeoutInstance
 let isSyncing = false
 
-const app = electron.remote.app
+const { app, powerMonitor } = electron.remote
+
+powerMonitor.on('suspend', () => {
+  Logger.warn('System suspended')
+  clearTimeout(timeoutInstance)
+})
+
+powerMonitor.on('resume', () => {
+  Logger.warn('System suspended')
+  clearTimeout(timeoutInstance)
+  app.relaunch()
+  Monitor()
+})
 
 app.on('open-folder', function() {
   database.Get('xPath').then(xPath => {
