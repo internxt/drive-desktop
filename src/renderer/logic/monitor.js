@@ -7,11 +7,26 @@ import electron from 'electron'
 import watcher from './watcher'
 import Logger from '../../libs/logger'
 import fs from 'fs'
+import path from 'path'
 
 let wtc, timeoutInstance
 let isSyncing = false
 
-const app = electron.remote.app
+const { app, powerMonitor } = electron.remote
+const ROOT_FOLDER_NAME = 'Internxt Drive'
+const HOME_FOLDER_PATH = app.getPath('home')
+
+powerMonitor.on('suspend', () => {
+  Logger.warn('System suspended')
+  clearTimeout(timeoutInstance)
+})
+
+powerMonitor.on('resume', () => {
+  Logger.warn('System suspended')
+  clearTimeout(timeoutInstance)
+  app.relaunch()
+  Monitor()
+})
 
 app.on('open-folder', function() {
   database.Get('xPath').then(xPath => {
@@ -45,16 +60,62 @@ function Monitor(startInmediately = false) {
   if (!isSyncing) {
     clearTimeout(timeoutInstance)
     Logger.log('Waiting %s secs for next sync', timeout / 1000)
-    timeoutInstance = setTimeout(() => StartMonitor(), timeout)
+    timeoutInstance = setTimeout(() => InitMonitor(), timeout)
   }
 }
 
 function RootFolderExists() {
   return new Promise((resolve, reject) => {
     database.Get('xPath').then(xPath => {
+      if (!xPath) {
+        resolve(false)
+      }
+
       resolve(fs.existsSync(xPath))
     }).catch(reject)
   })
+}
+
+function getRootFolderItName(it) {
+  return it ? ` (${it})` : ''
+}
+
+async function SetDBRootFolder(folderPath) {
+  await database.Set('xPath', folderPath)
+}
+
+function CreateRootFolder(folderName = ROOT_FOLDER_NAME, it = 0) {
+  const rootFolderName = folderName + getRootFolderItName(it)
+  const rootFolderPath = path.join(HOME_FOLDER_PATH, rootFolderName)
+  const exist = fs.existsSync(rootFolderPath)
+  let rootFolderFiles
+  let isEmpty
+  if (exist) {
+    rootFolderFiles = fs.readdirSync(rootFolderPath)
+    isEmpty = !rootFolderFiles || rootFolderFiles.length === 0
+  }
+
+  if (exist && !isEmpty) {
+    return CreateRootFolder(folderName, it + 1)
+  }
+
+  if (!exist) {
+    fs.mkdirSync(rootFolderPath)
+  }
+
+  SetDBRootFolder(rootFolderPath)
+  return rootFolderName
+}
+
+async function InitMonitor() {
+  // Init database if not initialized
+  database.InitDatabase()
+  const dbRootFolderExists = await RootFolderExists()
+  if (!dbRootFolderExists) {
+    await CreateRootFolder()
+  }
+
+  StartMonitor()
 }
 
 function StartMonitor() {

@@ -4,37 +4,41 @@ import { remote } from 'electron'
 import fs from 'fs'
 import async from 'async'
 
-const databaseFolder = `${process.env.NODE_ENV === 'production' ? remote.app.getPath('home') + `/.xclouddesktop/` : '.'}`
+const DB_FOLDER = `${process.env.NODE_ENV === 'production' ? remote.app.getPath('home') + `/.xclouddesktop/` : '.'}`
 
-if (!fs.existsSync(databaseFolder)) { fs.mkdirSync(databaseFolder) }
+const InitDatabase = () => {
+  if (!fs.existsSync(DB_FOLDER)) {
+    fs.mkdirSync(DB_FOLDER)
+  }
+}
 
 const dbFiles = new Datastore({
-  filename: path.join(databaseFolder, 'database_files.db'),
+  filename: path.join(DB_FOLDER, 'database_files.db'),
   autoload: true,
   timestampData: true
 })
 const dbLastFiles = new Datastore({
-  filename: path.join(databaseFolder, 'database_last_files.db'),
+  filename: path.join(DB_FOLDER, 'database_last_files.db'),
   autoload: true,
   timestampData: true
 })
 const dbLastFolders = new Datastore({
-  filename: path.join(databaseFolder, 'database_last_folders.db'),
+  filename: path.join(DB_FOLDER, 'database_last_folders.db'),
   autoload: true,
   timestampData: true
 })
 const dbFolders = new Datastore({
-  filename: path.join(databaseFolder, 'database_folders.db'),
+  filename: path.join(DB_FOLDER, 'database_folders.db'),
   autoload: true,
   timestampData: true
 })
 const dbUser = new Datastore({
-  filename: path.join(databaseFolder, 'database_user.db'),
+  filename: path.join(DB_FOLDER, 'database_user.db'),
   autoload: true,
   timestampData: true
 })
 const dbTemp = new Datastore({
-  filename: path.join(databaseFolder, 'database_temp.db'),
+  filename: path.join(DB_FOLDER, 'database_temp.db'),
   autoload: true,
   timestampData: true
 })
@@ -263,5 +267,6 @@ export default {
   CompactAllDatabases,
   BackupCurrentTree,
   ClearUser,
-  GetDatabaseFolder: databaseFolder
+  GetDatabaseFolder: DB_FOLDER,
+  InitDatabase
 }
