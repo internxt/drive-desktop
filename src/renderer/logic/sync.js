@@ -9,6 +9,7 @@ import crypt from './crypt'
 import tree from './tree'
 import Logger from '../../libs/logger'
 import mkdirp from 'mkdirp'
+import crypto from 'crypto'
 
 const app = electron.remote.app
 
