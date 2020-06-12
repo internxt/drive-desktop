@@ -30,9 +30,9 @@ export default {
   },
   created: async function () {
     const xUser = await database.Get('xUser')
-    const xPath = await database.Get('xPath')
+    // const xPath = await database.Get('xPath')
     this.$data.dbFolder = database.GetDatabaseFolder
-    if (!xUser || !fs.existsSync(xPath)) {
+    if (!xUser) {
       Logger.info('No xUser is set on database')
 
       await database.ClearFolders()
@@ -46,11 +46,7 @@ export default {
       this.$router.push('/login')
     } else {
       // Check if token is valid
-      if (await database.Get('xPath')) {
-        this.$router.push('/xcloud')
-      } else {
-        this.$router.push('/config')
-      }
+      this.$router.push('/xcloud')
     }
   },
   methods: {

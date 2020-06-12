@@ -13,19 +13,19 @@
             class="form-control"
             v-model="password"
             type="password" placeholder="Password" />
-          <div class="form-control-file">
+          <!-- <div class="form-control-file">
             <input
               class="form-control"
               v-model="storagePath"
               :disabled="true"
               type="text" placeholder="Select an empty folder" />
             <div class="form-control-fake-file"  @click="selectFolder()"></div>
-          </div>
-          <p
+          </div> -->
+          <!-- <p
             v-if="storagePath && !isEmptyFolder(storagePath)"
             class="form-error">
               This folder is not empty
-          </p>
+          </p> -->
         </div>
         <div v-if="showTwoFactor">
           <div>Enter your 6 digit authenticator code below</div>
@@ -38,7 +38,7 @@
           class="form-control btn-block btn-primary"
           type="submit"
           :disabled="checkForm()"
-          @click="savePathAndLogin()"
+          @click="doLogin()"
           value="Sign in" />
 
         <div v-if="!showTwoFactor" class="create-account-container">Don't have an Internxt account? <a href="#" @click="open('https://drive.internxt.com/new')">Get one for free!</a></div>
@@ -63,7 +63,6 @@ export default {
     return {
       username: '',
       password: '',
-      storagePath: '',
       showTwoFactor: false,
       twoFactorCode: '',
       isLoading: false
@@ -74,12 +73,12 @@ export default {
     open (link) {
       this.$electron.shell.openExternal(link)
     },
-    selectFolder () {
-      var path = remote.dialog.showOpenDialog({ properties: ['openDirectory'] })
-      if (path && path[0]) {
-        this.$data.storagePath = path[0]
-      }
-    },
+    // selectFolder () {
+    //   var path = remote.dialog.showOpenDialog({ properties: ['openDirectory'] })
+    //   if (path && path[0]) {
+    //     this.$data.storagePath = path[0]
+    //   }
+    // },
     isEmptyFolder (path) {
       if (!fs.existsSync(path)) {
         return true
@@ -92,20 +91,17 @@ export default {
       if (this.$data.isLoading) {
         return true
       }
-      return this.$data.username &&
-      this.$data.password &&
-      this.$data.storagePath &&
-      !this.isEmptyFolder(this.$data.storagePath)
+      return !this.$data.username || !this.$data.password
     },
-    savePathAndLogin () {
-      database.Set('xPath', this.$data.storagePath).then(() => {
-        this.doLogin()
-      }).catch(err => {
-        this.$data.isLoading = false
-        Logger.error(err)
-        alert(err)
-      })
-    },
+    // savePathAndLogin () {
+    //   database.Set('xPath', this.$data.storagePath).then(() => {
+    //     this.doLogin()
+    //   }).catch(err => {
+    //     this.$data.isLoading = false
+    //     Logger.error(err)
+    //     alert(err)
+    //   })
+    // },
     doLogin () {
       this.$data.isLoading = true
       fetch('https://drive.internxt.com/api/login', {
