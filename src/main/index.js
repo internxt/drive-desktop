@@ -10,7 +10,11 @@ var autoLaunch = new AutoLaunch({
 })
 
 autoLaunch.isEnabled().then((isEnabled) => {
-  if (!isEnabled) autoLaunch.enable()
+  if (isEnabled && process.env.NODE_ENV === 'development') {
+    autoLaunch.disable()
+  } else if (!isEnabled) {
+    autoLaunch.enable()
+  }
 })
 
 /**
