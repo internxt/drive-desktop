@@ -112,7 +112,7 @@ async function InitMonitor() {
   database.InitDatabase()
   const dbRootFolderExists = await RootFolderExists()
   if (!dbRootFolderExists) {
-    await CreateRootFolder()
+    CreateRootFolder()
   }
 
   StartMonitor()
