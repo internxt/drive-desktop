@@ -12,6 +12,10 @@ import mkdirp from 'mkdirp'
 
 const app = electron.remote.app
 
+function hasher(input) {
+  return crypto.createHash('ripemd160').update(input).digest('hex')
+}
+
 async function GetAuthHeader(withMnemonic) {
   const userData = await database.Get('xUser')
   const header = { Authorization: `Bearer ${userData.token}` }
@@ -47,12 +51,6 @@ function SetModifiedTime(path, time) {
       resolve()
     } catch (err) { reject(err) }
   })
-}
-
-function GetFileModifiedDate(path) {
-  const date = fs.statSync(path).mtime
-  date.setMilliseconds(0)
-  return date
 }
 
 function UploadFile(storj, filePath) {
@@ -91,7 +89,8 @@ function UploadFile(storj, filePath) {
     if (!fs.existsSync(tempPath)) {
       mkdirp.sync(tempPath)
     }
-    const tempFile = path.join(tempPath, finalName)
+
+    const tempFile = path.join(tempPath, hasher(filePath))
     if (fs.existsSync(tempFile)) {
       fs.unlinkSync(tempFile)
     }
@@ -175,7 +174,7 @@ function UploadNewFile(storj, filePath) {
     if (!fs.existsSync(tempPath)) {
       mkdirp.sync(tempPath)
     }
-    const tempFile = path.join(tempPath, finalName)
+    const tempFile = path.join(tempPath, hasher(filePath))
     if (fs.existsSync(tempFile)) {
       fs.unlinkSync(tempFile)
     }
@@ -205,7 +204,7 @@ function UploadNewFile(storj, filePath) {
           if (fileExistsPattern.exec(err)) {
             // File already exists, so there's no need to upload again.
             // SHOULD RETURN THE ACTUAL FILE ID?
-            Logger.warn('FILE ALREADY EXISTS', fs.statSync(filePath).size)
+            Logger.warn('FILE ALREADY EXISTS')
 
             storj.listFiles(bucketId, (err, listFiles) => {
               if (err) {
@@ -217,7 +216,7 @@ function UploadNewFile(storj, filePath) {
                   return reject(Error('Cannot find file on network'))
                 }
 
-                console.log('File exists on network, data:', fileExists)
+                console.log('File exists and found on network')
 
                 newFileId = fileExists.id
 
@@ -540,7 +539,6 @@ function RemoteCreateFolder(name, parentId) {
 export default {
   UploadFile,
   SetModifiedTime,
-  GetFileModifiedDate,
   UploadNewFile,
   UpdateTree,
   CheckMissingFolders,
