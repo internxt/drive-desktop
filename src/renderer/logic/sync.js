@@ -10,9 +10,14 @@ import tree from './tree'
 import Logger from '../../libs/logger'
 import mkdirp from 'mkdirp'
 import config from '../../config'
+import crypto from 'crypto'
 
 const app = electron.remote.app
 const SYNC_KEEPALIVE_INTERVAL_MS = 25000
+
+function hasher(input) {
+  return crypto.createHash('ripemd160').update(input).digest('hex')
+}
 
 async function GetAuthHeader(withMnemonic) {
   const userData = await database.Get('xUser')
@@ -51,12 +56,6 @@ function SetModifiedTime(path, time) {
   })
 }
 
-function GetFileModifiedDate(path) {
-  const date = fs.statSync(path).mtime
-  date.setMilliseconds(0)
-  return date
-}
-
 function UploadFile(storj, filePath) {
   Logger.log('Upload file', filePath)
   return new Promise(async (resolve, reject) => {
@@ -93,7 +92,8 @@ function UploadFile(storj, filePath) {
     if (!fs.existsSync(tempPath)) {
       mkdirp.sync(tempPath)
     }
-    const tempFile = path.join(tempPath, finalName)
+
+    const tempFile = path.join(tempPath, hasher(filePath))
     if (fs.existsSync(tempFile)) {
       fs.unlinkSync(tempFile)
     }
@@ -177,7 +177,7 @@ function UploadNewFile(storj, filePath) {
     if (!fs.existsSync(tempPath)) {
       mkdirp.sync(tempPath)
     }
-    const tempFile = path.join(tempPath, finalName)
+    const tempFile = path.join(tempPath, hasher(filePath))
     if (fs.existsSync(tempFile)) {
       fs.unlinkSync(tempFile)
     }
@@ -207,7 +207,7 @@ function UploadNewFile(storj, filePath) {
           if (fileExistsPattern.exec(err)) {
             // File already exists, so there's no need to upload again.
             // SHOULD RETURN THE ACTUAL FILE ID?
-            Logger.warn('FILE ALREADY EXISTS', fs.statSync(filePath).size)
+            Logger.warn('FILE ALREADY EXISTS')
 
             storj.listFiles(bucketId, (err, listFiles) => {
               if (err) {
@@ -219,7 +219,7 @@ function UploadNewFile(storj, filePath) {
                   return reject(Error('Cannot find file on network'))
                 }
 
-                console.log('File exists on network, data:', fileExists)
+                console.log('File exists and found on network')
 
                 newFileId = fileExists.id
 
@@ -588,7 +588,6 @@ function UpdateUserSync(toNull = false) {
 export default {
   UploadFile,
   SetModifiedTime,
-  GetFileModifiedDate,
   UploadNewFile,
   UpdateTree,
   CheckMissingFolders,
