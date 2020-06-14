@@ -9,8 +9,10 @@ import crypt from './crypt'
 import tree from './tree'
 import Logger from '../../libs/logger'
 import mkdirp from 'mkdirp'
+import config from '../../config'
 
 const app = electron.remote.app
+const SYNC_KEEPALIVE_INTERVAL_MS = 25000
 
 async function GetAuthHeader(withMnemonic) {
   const userData = await database.Get('xUser')
@@ -247,7 +249,7 @@ function UploadNewFile(storj, filePath) {
 function RemoveFile(bucketId, fileId) {
   return new Promise(async (resolve, reject) => {
     database.Get('xUser').then(userData => {
-      fetch(`https://drive.internxt.com/api/storage/bucket/${bucketId}/file/${fileId}`, {
+      fetch(`${config.DRIVE_API}/storage/bucket/${bucketId}/file/${fileId}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${userData.token}` }
       }).then(result => {
@@ -278,7 +280,7 @@ function UpdateTree() {
 function GetTree() {
   return new Promise((resolve, reject) => {
     database.Get('xUser').then(userData => {
-      fetch(`https://drive.internxt.com/api/storage/tree`, {
+      fetch(`${config.DRIVE_API}/storage/tree`, {
         headers: { Authorization: `Bearer ${userData.token}` }
       }).then(async res => {
         return { res, data: await res.json() }
@@ -294,7 +296,7 @@ function GetTree() {
 function RemoveFolder(folderId) {
   return new Promise(async (resolve, reject) => {
     database.Get('xUser').then(userData => {
-      fetch(`https://drive.internxt.com/api/storage/folder/${folderId}`, {
+      fetch(`${config.DRIVE_API}/storage/folder/${folderId}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${userData.token}` }
       }).then(result => {
@@ -325,7 +327,7 @@ async function CreateFileEntry(bucketId, bucketEntryId, fileName, fileExtension,
   return new Promise(async (resolve, reject) => {
     const userData = await database.Get('xUser')
 
-    fetch(`https://drive.internxt.com/api/storage/file`, {
+    fetch(`${config.DRIVE_API}/storage/file`, {
       method: 'POST',
       mode: 'cors',
       headers: {
@@ -513,7 +515,7 @@ function RemoteCreateFolder(name, parentId) {
 
     const userData = await database.Get('xUser')
 
-    fetch(`https://drive.internxt.com/api/storage/folder`, {
+    fetch(`${config.DRIVE_API}/storage/folder`, {
       method: 'POST',
       mode: 'cors',
       headers: {
@@ -537,6 +539,52 @@ function RemoteCreateFolder(name, parentId) {
   })
 }
 
+function GetOrSetUserSync() {
+  return new Promise(async (resolve, reject) => {
+    database.Get('xUser').then(userData => {
+      fetch(`${config.DRIVE_API}/user/sync`, {
+        method: 'GET',
+        headers: { Authorization: `Bearer ${userData.token}` }
+      }).then(async res => {
+        return { res, data: await res.json() }
+      }).then(res => {
+        resolve(res.data.data)
+      }).catch(err => {
+        Logger.error('Fetch error getting sync', err)
+        reject(err)
+      })
+    })
+  })
+}
+
+function UpdateUserSync(toNull = false) {
+  Logger.log('Updating user sync device time')
+  return new Promise(async (resolve, reject) => {
+    database.Get('xUser').then(userData => {
+      const fetchOpts = {
+        method: 'PUT',
+        headers: { Authorization: `Bearer ${userData.token}`,
+          'content-type': 'application/json' },
+        mode: 'cors'
+      }
+      if (toNull) {
+        fetchOpts.body = JSON.stringify({ toNull })
+      }
+
+      fetch(`${config.DRIVE_API}/user/sync`, fetchOpts)
+        .then(async res => {
+          return { res, data: await res.json() }
+        })
+        .then(res => {
+          resolve(res.data.data)
+        }).catch(err => {
+          Logger.error('Fetch error updating sync', err)
+          reject(err)
+        })
+    })
+  })
+}
+
 export default {
   UploadFile,
   SetModifiedTime,
@@ -549,5 +597,8 @@ export default {
   RemoveFile,
   CleanLocalFolders,
   CleanLocalFiles,
-  RemoteCreateFolder
+  RemoteCreateFolder,
+  GetOrSetUserSync,
+  UpdateUserSync,
+  SYNC_KEEPALIVE_INTERVAL_MS
 }
