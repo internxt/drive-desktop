@@ -14,7 +14,15 @@
   "linux": {
     "icon": "build/icons",
     "category": "Network",
-    "target": "deb"
+    "target": [
+      {
+        "target": "deb"
+      },
+      {
+        "target": "AppImage"
+      }
+    ],
+    "executableName": "internxt-drive"
   },
   "deb": {
     "depends": [
