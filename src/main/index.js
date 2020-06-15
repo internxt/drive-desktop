@@ -4,6 +4,7 @@ import { app, BrowserWindow, Tray, Menu, shell } from 'electron'
 import path from 'path'
 import Logger from '../libs/logger'
 import AutoLaunch from 'auto-launch'
+import config from '../config'
 
 var autoLaunch = new AutoLaunch({
   name: 'Internxt Drive'
@@ -182,7 +183,7 @@ function createWindow() {
     },
     {
       label: 'Billing',
-      click: function () { shell.openExternal('https://drive.internxt.com/storage') }
+      click: function () { shell.openExternal(`${config.DRIVE_BASE}/storage`) }
     },
     {
       label: 'Log out',

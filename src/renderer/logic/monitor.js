@@ -15,10 +15,12 @@ let isSyncing = false
 const { app, powerMonitor } = electron.remote
 const ROOT_FOLDER_NAME = 'Internxt Drive'
 const HOME_FOLDER_PATH = app.getPath('home')
+let updateSyncInterval
 
 powerMonitor.on('suspend', () => {
   Logger.warn('System suspended')
   clearTimeout(timeoutInstance)
+  StopUpdateDeviceSync()
 })
 
 powerMonitor.on('resume', () => {
@@ -118,10 +120,29 @@ async function InitMonitor() {
   StartMonitor()
 }
 
-function StartMonitor() {
-  if (isSyncing) {
+function StartUpdateDeviceSync() {
+  Logger.log('Started sync update interval')
+  Sync.UpdateUserSync()
+  updateSyncInterval = setInterval(() => Sync.UpdateUserSync(), Sync.SYNC_KEEPALIVE_INTERVAL_MS)
+}
+
+function StopUpdateDeviceSync() {
+  Logger.log('Stopped sync update interval')
+  clearInterval(updateSyncInterval)
+}
+
+async function StartMonitor() {
+  const userDevicesSyncing = await Sync.GetOrSetUserSync()
+  if (isSyncing || userDevicesSyncing) {
+    if (userDevicesSyncing) {
+      Logger.log('Sync not started because user have other device syncing')
+      Monitor()
+    }
+
     return
   }
+
+  StartUpdateDeviceSync()
   isSyncing = true
 
   // Sync
@@ -245,8 +266,10 @@ function StartMonitor() {
     async err => {
       // If monitor ended before stopping the watcher, let's ensure
 
-      // Switch "loading" tray icon
+      // Switch "loading" tray ico
       app.emit('sync-off')
+      StopUpdateDeviceSync()
+      Sync.UpdateUserSync(true)
       isSyncing = false
 
       const rootFolderExist = await RootFolderExists()
