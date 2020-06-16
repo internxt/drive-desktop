@@ -8,7 +8,10 @@
     <main class="centered-container">
       <div class="login-container-box">
         <!-- <div class="login-logo-container"><img src="../../resources/icons/xcloud.png" class="logo" /></div> -->
-        <div class="login-title"><img src="src/resources/icons/logo.svg" />{{showTwoFactor ? 'Security Verification' : 'Sign in to Internxt'}}</div>
+        <div class="login-title">
+          <img src="src/resources/icons/logo.svg" />
+          {{showTwoFactor ? 'Security Verification' : 'Sign in to Internxt'}}
+        </div>
         <div v-if="!showTwoFactor">
           <input class="form-control" v-model="username" type="text" placeholder="Email address" />
           <input class="form-control" v-model="password" type="password" placeholder="Password" />
@@ -63,6 +66,10 @@ import { remote } from 'electron'
 import fs from 'fs'
 import Logger from '../../libs/logger'
 import config from '../../config'
+import path from 'path'
+
+const ROOT_FOLDER_NAME = 'Internxt Drive'
+const HOME_FOLDER_PATH = remote.app.getPath('home')
 
 export default {
   name: 'login-page',
@@ -113,6 +120,27 @@ export default {
     //     alert(err)
     //   })
     // },
+    CreateRootFolder(folderName = ROOT_FOLDER_NAME, n = 0) {
+      const rootFolderName = folderName + (n ? ` (${n})` : '')
+      const rootFolderPath = path.join(HOME_FOLDER_PATH, rootFolderName)
+      const exist = fs.existsSync(rootFolderPath)
+      let rootFolderFiles
+      let isEmpty
+      if (exist) {
+        rootFolderFiles = fs.readdirSync(rootFolderPath)
+        isEmpty = !rootFolderFiles || rootFolderFiles.length === 0
+      }
+
+      if (exist && !isEmpty) {
+        return this.CreateRootFolder(folderName, n + 1)
+      }
+
+      if (!exist) {
+        fs.mkdirSync(rootFolderPath)
+      }
+
+      return database.Set('xPath', rootFolderPath)
+    },
     doLogin() {
       this.$data.isLoading = true
       fetch(`${config.DRIVE_API}/login`, {
@@ -174,6 +202,7 @@ export default {
             }
           } else {
             res.data.user.email = this.$data.username.toLowerCase()
+            this.CreateRootFolder()
             await database.Set(
               'xMnemonic',
               crypt.DecryptWithKey(res.data.user.mnemonic, this.$data.password)

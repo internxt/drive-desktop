@@ -13,8 +13,6 @@ let wtc, timeoutInstance
 let isSyncing = false
 
 const { app, powerMonitor } = electron.remote
-const ROOT_FOLDER_NAME = 'Internxt Drive'
-const HOME_FOLDER_PATH = app.getPath('home')
 let updateSyncInterval
 
 powerMonitor.on('suspend', () => {
@@ -78,52 +76,16 @@ function RootFolderExists() {
   })
 }
 
-function getRootFolderItName(it) {
-  return it ? ` (${it})` : ''
-}
-
-async function SetDBRootFolder(folderPath) {
-  await database.Set('xPath', folderPath)
-}
-
-function CreateRootFolder(folderName = ROOT_FOLDER_NAME, it = 0) {
-  const rootFolderName = folderName + getRootFolderItName(it)
-  const rootFolderPath = path.join(HOME_FOLDER_PATH, rootFolderName)
-  const exist = fs.existsSync(rootFolderPath)
-  let rootFolderFiles
-  let isEmpty
-  if (exist) {
-    rootFolderFiles = fs.readdirSync(rootFolderPath)
-    isEmpty = !rootFolderFiles || rootFolderFiles.length === 0
-  }
-
-  if (exist && !isEmpty) {
-    return CreateRootFolder(folderName, it + 1)
-  }
-
-  if (!exist) {
-    fs.mkdirSync(rootFolderPath)
-  }
-
-  SetDBRootFolder(rootFolderPath)
-  return rootFolderName
-}
-
 async function InitMonitor() {
   // Init database if not initialized
   database.InitDatabase()
-  const dbRootFolderExists = await RootFolderExists()
-  if (!dbRootFolderExists) {
-    CreateRootFolder()
-  }
-
   StartMonitor()
 }
 
 function StartUpdateDeviceSync() {
   Logger.log('Started sync update interval')
   Sync.UpdateUserSync()
-  updateSyncInterval = setInterval(() => Sync.UpdateUserSync(), Sync.SYNC_KEEPALIVE_INTERVAL_MS)
+  // updateSyncInterval = setInterval(() => Sync.UpdateUserSync(), Sync.SYNC_KEEPALIVE_INTERVAL_MS)
 }
 
 function StopUpdateDeviceSync() {

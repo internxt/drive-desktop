@@ -1,9 +1,10 @@
 <template>
   <div id="wrapper">
     <main>
-      <div class="spinner-grow text-primary" role="status">
+      <div v-if="isSyncing" class="spinner-border text-primary" role="status">
         <span class="sr-only">Syncing...</span>
       </div>
+      <div>{{ toolTip ? toolTip : 'Paused' }}</div>
       <div>
         <a href="#" @click="quitApp()">Quit</a>
       </div>
@@ -11,12 +12,12 @@
         <a href="#" @click="forceSync()">Force sync</a>
       </div>
       <div>
-        <a href="#" @click="openFolder()">Open folder</a>
-      </div>
-      <div>
         <a href="#" @click="logout()">Log out</a>
       </div>
-      <div>Path: {{this.$data.localPath}}</div>
+      <div>
+        Path:
+        <a href="#" @click="openFolder()">{{this.$data.localPath}}</a>
+      </div>
     </main>
   </div>
 </template>
@@ -34,15 +35,15 @@ import Monitor from '../logic/monitor'
 import { remote } from 'electron'
 import Logger from '../../libs/logger'
 
-var __router = null
-
 export default {
   name: 'xcloud-page',
-  data () {
+  data() {
     return {
       databaseUser: '',
       localPath: '',
-      currentEnv: ''
+      currentEnv: '',
+      isSyncing: false,
+      toolTip: ''
     }
   },
   components: {},
@@ -56,19 +57,31 @@ export default {
     this.getUser()
     this.getLocalFolderPath()
     this.getCurrentEnv()
-    __router = this.$router
+
+    remote.app.on('sync-on', () => {
+      this.isSyncing = true
+    })
+    remote.app.on('sync-off', () => {
+      this.isSyncing = false
+    })
 
     remote.app.on('user-logout', function() {
-      database.ClearAll().then(() => {
-        Logger.info('databases cleared due to log out')
-        database.ClearUser().then(() => {
-          remote.getCurrentWindow().reload()
-        }).catch(() => {})
-      }).catch(() => {})
+      database
+        .ClearAll()
+        .then(() => {
+          Logger.info('databases cleared due to log out')
+          database
+            .ClearUser()
+            .then(() => {
+              remote.getCurrentWindow().reload()
+            })
+            .catch(() => {})
+        })
+        .catch(() => {})
     })
   },
   methods: {
-    quitApp () {
+    quitApp() {
       remote.getCurrentWindow().close()
     },
     openFolder() {
@@ -80,13 +93,13 @@ export default {
     forceSync() {
       remote.app.emit('sync-start')
     },
-    changeTrayIconOn () {
+    changeTrayIconOn() {
       remote.app.emit('sync-on')
     },
-    changeTrayIconOff () {
+    changeTrayIconOff() {
       remote.app.emit('sync-off')
     },
-    getUser () {
+    getUser() {
       database
         .Get('xUser')
         .then(userInfo => {
@@ -97,7 +110,7 @@ export default {
           this.$data.databaseUser = 'error'
         })
     },
-    getLocalFolderPath () {
+    getLocalFolderPath() {
       database
         .Get('xPath')
         .then(path => {
@@ -108,7 +121,7 @@ export default {
           this.$data.localPath = 'error'
         })
     },
-    getCurrentEnv () {
+    getCurrentEnv() {
       this.$data.currentEnv = process.env.NODE_ENV
     }
   }
