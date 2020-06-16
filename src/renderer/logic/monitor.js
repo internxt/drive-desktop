@@ -30,7 +30,7 @@ powerMonitor.on('resume', () => {
   Monitor()
 })
 
-app.on('open-folder', function() {
+app.on('open-folder', function () {
   database.Get('xPath').then(xPath => {
     if (fs.existsSync(xPath)) {
       electron.shell.openItem(xPath)
@@ -132,7 +132,8 @@ function StopUpdateDeviceSync() {
 }
 
 async function StartMonitor() {
-  const userDevicesSyncing = await Sync.GetOrSetUserSync()
+  // const userDevicesSyncing = await Sync.GetOrSetUserSync()
+  const userDevicesSyncing = false
   if (isSyncing || userDevicesSyncing) {
     if (userDevicesSyncing) {
       Logger.log('Sync not started because user have other device syncing')
@@ -142,7 +143,7 @@ async function StartMonitor() {
     return
   }
 
-  StartUpdateDeviceSync()
+  // StartUpdateDeviceSync()
   isSyncing = true
 
   // Sync
@@ -269,7 +270,7 @@ async function StartMonitor() {
       // Switch "loading" tray ico
       app.emit('sync-off')
       StopUpdateDeviceSync()
-      Sync.UpdateUserSync(true)
+      // Sync.UpdateUserSync(true)
       isSyncing = false
 
       const rootFolderExist = await RootFolderExists()

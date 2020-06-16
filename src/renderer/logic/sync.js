@@ -573,12 +573,14 @@ function UpdateUserSync(toNull = false) {
 
       fetch(`${config.DRIVE_API}/user/sync`, fetchOpts)
         .then(async res => {
+          if (res !== 200) {
+            throw Error('Update sync not available on server')
+          }
           return { res, data: await res.json() }
         })
         .then(res => {
           resolve(res.data.data)
         }).catch(err => {
-          Logger.error('Fetch error updating sync', err)
           reject(err)
         })
     })
