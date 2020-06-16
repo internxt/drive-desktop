@@ -41,7 +41,7 @@
           @click="doLogin()"
           value="Sign in" />
 
-        <div v-if="!showTwoFactor" class="create-account-container">Don't have an Internxt account? <a href="#" @click="open('https://drive.internxt.com/new')">Get one for free!</a></div>
+        <div v-if="!showTwoFactor" class="create-account-container">Don't have an Internxt account? <a href="#" @click="open(`${DRIVE_BASE}/new`)">Get one for free!</a></div>
       </div>
     </main>
   </div>
@@ -53,6 +53,7 @@ import database from '../../database/index'
 import { remote } from 'electron'
 import fs from 'fs'
 import Logger from '../../libs/logger'
+import config from '../../config'
 
 export default {
   name: 'login-page',
@@ -65,7 +66,8 @@ export default {
       password: '',
       showTwoFactor: false,
       twoFactorCode: '',
-      isLoading: false
+      isLoading: false,
+      DRIVE_BASE: config.DRIVE_BASE
     }
   },
   components: { },
@@ -104,7 +106,7 @@ export default {
     // },
     doLogin () {
       this.$data.isLoading = true
-      fetch('https://drive.internxt.com/api/login', {
+      fetch(`${config.DRIVE_API}/login`, {
         method: 'POST',
         mode: 'cors',
         headers: { 'content-type': 'application/json' },
@@ -132,7 +134,7 @@ export default {
       const pwd = crypt.HashPassword(this.$data.password, salt)
       const encryptedHash = crypt.Encrypt(pwd.hash.toString())
 
-      fetch(`https://drive.internxt.com/api/access`, {
+      fetch(`${config.DRIVE_API}/access`, {
         method: 'POST',
         headers: {
           'content-type': 'application/json'
