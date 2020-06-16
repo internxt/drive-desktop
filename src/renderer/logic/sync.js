@@ -21,7 +21,10 @@ function hasher(input) {
 
 async function GetAuthHeader(withMnemonic) {
   const userData = await database.Get('xUser')
-  const header = { Authorization: `Bearer ${userData.token}` }
+  const header = {
+    Authorization: `Bearer ${userData.token}`,
+    'content-type': 'application/json; charset=utf-8'
+  }
   if (withMnemonic === true) {
     const mnemonic = await database.Get('xMnemonic')
     header['internxt-mnemonic'] = mnemonic
@@ -106,6 +109,7 @@ function UploadFile(storj, filePath) {
       progressCallback: function (progress, uploadedBytes, totalBytes) {
         let progressPtg = progress * 100
         progressPtg = progressPtg.toFixed(2)
+        app.emit('set-percentage', progressPtg)
         app.emit('set-tooltip', 'Uploading ' + originalFileName + ' (' + progressPtg + '%)')
       },
       finishedCallback: function (err, newFileId) {
@@ -139,6 +143,7 @@ function UploadNewFile(storj, filePath) {
     const dbEntry = await database.FolderGet(folderPath)
     const user = await database.Get('xUser')
     const tree = await database.Get('tree')
+    console.log(tree)
     const folderRoot = await database.Get('xPath')
 
     // Folder doesn't exists. We cannot upload this file yet.
@@ -248,10 +253,10 @@ function UploadNewFile(storj, filePath) {
 // BucketId and FileId must be the NETWORK ids (mongodb)
 function RemoveFile(bucketId, fileId) {
   return new Promise(async (resolve, reject) => {
-    database.Get('xUser').then(userData => {
+    database.Get('xUser').then(async userData => {
       fetch(`${config.DRIVE_API}/storage/bucket/${bucketId}/file/${fileId}`, {
         method: 'DELETE',
-        headers: { Authorization: `Bearer ${userData.token}` }
+        headers: await GetAuthHeader()
       }).then(result => {
         resolve(result)
       }).catch(err => {
@@ -279,9 +284,9 @@ function UpdateTree() {
 
 function GetTree() {
   return new Promise((resolve, reject) => {
-    database.Get('xUser').then(userData => {
+    database.Get('xUser').then(async userData => {
       fetch(`${config.DRIVE_API}/storage/tree`, {
-        headers: { Authorization: `Bearer ${userData.token}` }
+        headers: await GetAuthHeader()
       }).then(async res => {
         return { res, data: await res.json() }
       }).then(async res => {
@@ -295,10 +300,10 @@ function GetTree() {
 // warning, this method deletes all its contents
 function RemoveFolder(folderId) {
   return new Promise(async (resolve, reject) => {
-    database.Get('xUser').then(userData => {
+    database.Get('xUser').then(async userData => {
       fetch(`${config.DRIVE_API}/storage/folder/${folderId}`, {
         method: 'DELETE',
-        headers: { Authorization: `Bearer ${userData.token}` }
+        headers: await GetAuthHeader()
       }).then(result => {
         resolve(result)
       }).catch(err => {
@@ -330,10 +335,7 @@ async function CreateFileEntry(bucketId, bucketEntryId, fileName, fileExtension,
     fetch(`${config.DRIVE_API}/storage/file`, {
       method: 'POST',
       mode: 'cors',
-      headers: {
-        Authorization: `Bearer ${userData.token}`,
-        'content-type': 'application/json'
-      },
+      headers: await GetAuthHeader(),
       body: JSON.stringify({ file })
     }).then(res => {
       resolve()
@@ -513,15 +515,11 @@ function RemoteCreateFolder(name, parentId) {
       parentFolderId: parentId
     }
 
-    const userData = await database.Get('xUser')
-
+    const headers = await GetAuthHeader()
     fetch(`${config.DRIVE_API}/storage/folder`, {
       method: 'POST',
       mode: 'cors',
-      headers: {
-        'Authorization': `Bearer ${userData.token}`,
-        'content-type': 'application/json'
-      },
+      headers: headers,
       body: JSON.stringify(folder)
     }).then(async res => {
       return { res, data: await res.json() }
@@ -541,10 +539,10 @@ function RemoteCreateFolder(name, parentId) {
 
 function GetOrSetUserSync() {
   return new Promise(async (resolve, reject) => {
-    database.Get('xUser').then(userData => {
+    database.Get('xUser').then(async userData => {
       fetch(`${config.DRIVE_API}/user/sync`, {
         method: 'GET',
-        headers: { Authorization: `Bearer ${userData.token}` }
+        headers: await GetAuthHeader()
       }).then(async res => {
         return { res, data: await res.json() }
       }).then(res => {
@@ -563,8 +561,10 @@ function UpdateUserSync(toNull = false) {
     database.Get('xUser').then(userData => {
       const fetchOpts = {
         method: 'PUT',
-        headers: { Authorization: `Bearer ${userData.token}`,
-          'content-type': 'application/json' },
+        headers: {
+          Authorization: `Bearer ${userData.token}`,
+          'content-type': 'application/json'
+        },
         mode: 'cors'
       }
       if (toNull) {
