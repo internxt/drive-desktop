@@ -1,18 +1,17 @@
 <template>
   <div id="wrapper">
+    <div class="close-button">
+      <button @click="closeApp()">
+        <img src="src/resources/icons/close.png" />
+      </button>
+    </div>
     <main class="centered-container">
       <div class="login-container-box">
         <!-- <div class="login-logo-container"><img src="../../resources/icons/xcloud.png" class="logo" /></div> -->
         <div class="login-title">{{showTwoFactor ? 'Security Verification' : 'Sign in to Internxt'}}</div>
         <div v-if="!showTwoFactor">
-          <input
-            class="form-control"
-            v-model="username"
-            type="text" placeholder="Email address" />
-          <input
-            class="form-control"
-            v-model="password"
-            type="password" placeholder="Password" />
+          <input class="form-control" v-model="username" type="text" placeholder="Email address" />
+          <input class="form-control" v-model="password" type="password" placeholder="Password" />
           <!-- <div class="form-control-file">
             <input
               class="form-control"
@@ -20,30 +19,40 @@
               :disabled="true"
               type="text" placeholder="Select an empty folder" />
             <div class="form-control-fake-file"  @click="selectFolder()"></div>
-          </div> -->
+          </div>-->
           <!-- <p
             v-if="storagePath && !isEmptyFolder(storagePath)"
             class="form-error">
               This folder is not empty
-          </p> -->
+          </p>-->
         </div>
         <div v-if="showTwoFactor">
           <div>Enter your 6 digit authenticator code below</div>
           <input
             class="form-control"
             v-model="twoFactorCode"
-            type="text" placeholder="Authentication code" />
+            type="text"
+            placeholder="Authentication code"
+          />
         </div>
         <input
           class="form-control btn-block btn-primary"
           type="submit"
           :disabled="checkForm()"
           @click="doLogin()"
-          value="Sign in" />
+          value="Sign in"
+        />
 
-        <div v-if="!showTwoFactor" class="create-account-container">Don't have an Internxt account? <a href="#" @click="open(`${DRIVE_BASE}/new`)">Get one for free!</a></div>
+        <div v-if="!showTwoFactor" class="create-account-container">
+          Don't have an Internxt account?
+          <a
+            href="#"
+            @click="open(`${DRIVE_BASE}/new`)"
+          >Get one for free!</a>
+        </div>
       </div>
     </main>
+    <footer></footer>
   </div>
 </template>
 
@@ -70,9 +79,9 @@ export default {
       DRIVE_BASE: config.DRIVE_BASE
     }
   },
-  components: { },
+  components: {},
   methods: {
-    open (link) {
+    open(link) {
       this.$electron.shell.openExternal(link)
     },
     // selectFolder () {
@@ -81,7 +90,7 @@ export default {
     //     this.$data.storagePath = path[0]
     //   }
     // },
-    isEmptyFolder (path) {
+    isEmptyFolder(path) {
       if (!fs.existsSync(path)) {
         return true
       } else {
@@ -89,7 +98,7 @@ export default {
         return filesInFolder.length === 0
       }
     },
-    checkForm () {
+    checkForm() {
       if (this.$data.isLoading) {
         return true
       }
@@ -104,32 +113,35 @@ export default {
     //     alert(err)
     //   })
     // },
-    doLogin () {
+    doLogin() {
       this.$data.isLoading = true
       fetch(`${config.DRIVE_API}/login`, {
         method: 'POST',
         mode: 'cors',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ email: this.$data.username })
-      }).then(async res => {
-        return { res, body: await res.json() }
-      }).then(res => {
-        if (res.res.status !== 200) {
-          this.$data.isLoading = false
-          return alert('Login error')
-        }
-        if (res.body.tfa && !this.$data.twoFactorCode) {
-          this.$data.showTwoFactor = true
-          this.$data.isLoading = false
-        } else {
-          this.doAccess(res.body.sKey)
-        }
-      }).catch(err => {
-        this.$data.isLoading = false
-        Logger.error(err)
       })
+        .then(async res => {
+          return { res, body: await res.json() }
+        })
+        .then(res => {
+          if (res.res.status !== 200) {
+            this.$data.isLoading = false
+            return alert('Login error')
+          }
+          if (res.body.tfa && !this.$data.twoFactorCode) {
+            this.$data.showTwoFactor = true
+            this.$data.isLoading = false
+          } else {
+            this.doAccess(res.body.sKey)
+          }
+        })
+        .catch(err => {
+          this.$data.isLoading = false
+          Logger.error(err)
+        })
     },
-    doAccess (sKey) {
+    doAccess(sKey) {
       const salt = crypt.Decrypt(sKey)
       const pwd = crypt.HashPassword(this.$data.password, salt)
       const encryptedHash = crypt.Encrypt(pwd.hash.toString())
@@ -144,118 +156,135 @@ export default {
           password: encryptedHash,
           tfa: this.$data.twoFactorCode
         })
-      }).then(async res => {
-        return { res, data: await res.json() }
-      }).then(async res => {
-        if (res.res.status !== 200) {
-          this.$data.isLoading = false
-          if (res.data.error) {
-            alert('Login error\n' + res.data.error)
-            if (res.data.error.includes('Wrong email')) {
-              this.$data.twoFactorCode = ''
-              this.$data.showTwoFactor = false
+      })
+        .then(async res => {
+          return { res, data: await res.json() }
+        })
+        .then(async res => {
+          if (res.res.status !== 200) {
+            this.$data.isLoading = false
+            if (res.data.error) {
+              alert('Login error\n' + res.data.error)
+              if (res.data.error.includes('Wrong email')) {
+                this.$data.twoFactorCode = ''
+                this.$data.showTwoFactor = false
+              }
+            } else {
+              alert('Login error')
             }
           } else {
-            alert('Login error')
+            res.data.user.email = this.$data.username.toLowerCase()
+            await database.Set(
+              'xMnemonic',
+              crypt.DecryptWithKey(res.data.user.mnemonic, this.$data.password)
+            )
+            await database.Set('xUser', res.data)
+            this.$router.push('/landing-page')
           }
-        } else {
-          res.data.user.email = this.$data.username.toLowerCase()
-          await database.Set('xMnemonic', crypt.DecryptWithKey(res.data.user.mnemonic, this.$data.password))
-          await database.Set('xUser', res.data)
-          this.$router.push('/landing-page')
-        }
-      }).catch(err => {
-        Logger.error('Error login', err)
-        this.$data.isLoading = false
-      })
+        })
+        .catch(err => {
+          Logger.error('Error login', err)
+          this.$data.isLoading = false
+        })
+    },
+    closeApp() {
+      remote.getCurrentWindow().hide()
     }
   }
 }
 </script>
 
 <style>
-  @import url('https://fonts.googleapis.com/css?family=Source+Sans+Pro');
+@import url('https://fonts.googleapis.com/css?family=Source+Sans+Pro');
 
-  @font-face {
-    font-family: 'CerebriSans-Regular';
-    src: url('../../resources/fonts/CerebriSans-Regular.ttf');
-  }
+@font-face {
+  font-family: 'CerebriSans-Regular';
+  src: url('../../resources/fonts/CerebriSans-Regular.ttf');
+}
 
-  .centered-container {
-    font-family: 'CerebriSans-Regular'
-  }
+#wrapper {
+  height: 100%;
+  -webkit-app-region: drag;
 
-  input {
-    border: solid 1px;
-    margin: 0px 4px 0px 0px;
-  }
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+}
 
-  .logo {
-    width: 50px;
-    display: block;
-  }
+.centered-container {
+  -webkit-app-region: no-drag;
+  font-family: 'CerebriSans-Regular';
+}
 
-  .form-control {
-    margin-top: 15px;
-    height: 50px !important;
-  }
+.logo {
+  width: 50px;
+  display: block;
+}
 
-  .btn-primary {
-    margin-top: 39px !important;
-    background-color: #4585f5 !important;
-    font-weight: bold !important;
-  }
+.form-control {
+  margin-top: 15px;
+  height: 50px !important;
+}
 
-  .login-container-box {
-    background-color: #fff;
-    width: 472px !important;
-    padding: 40px !important;
-  }
+.btn-primary {
+  margin-top: 39px !important;
+  background-color: #4585f5 !important;
+  font-weight: bold !important;
+  outline: none;
+}
 
-  .login-title {
-    font-size: 25px;
-    font-weight: 600;
-    margin-bottom: 20px;
-  }
+.btn-primary:disabled {
+  border: solid 0px;
+}
 
-  .create-account-container {
-    margin-top: 39px;
-    color: #909090;
-  }
+.login-container-box {
+  background-color: #fff;
+  width: 472px !important;
+  padding: 40px !important;
+}
 
-  .form-control-file {
-    position: relative;
-    display: inline-block;
-  }
+.login-title {
+  font-size: 25px;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
 
-  .form-control-file::before {
-    position: absolute;
-    content: url('../../resources/icons/arrow-right.svg');
-    top: 25%;
-    right: -8px;
-    height: 50px;
-    width: 40px;
-  }
+.create-account-container {
+  margin-top: 39px;
+  color: #909090;
+}
 
-  input[type="text"]:disabled {
-    background-color: white !important;
-  }
+input[type='text']:disabled {
+  background-color: white !important;
+}
 
-  input[type="submit"]:disabled {
-    background-color: #7aa5ee !important;
-  }
+input[type='submit']:disabled {
+  background-color: #7aa5ee !important;
+}
 
-  .form-control-fake-file {
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 0;
-    bottom: 0;
-  }
+.form-error {
+  color: red;
+  font-size: 13px;
+  margin: 0px;
+}
 
-  .form-error {
-    color: red;
-    font-size: 13px;
-    margin: 0px;
-  }
+.close-button {
+  align-self: flex-end;
+  opacity: 0.05;
+}
+
+.close-button button {
+  background-color: transparent;
+  border-width: 0px;
+}
+
+.close-button button:not(:disabled) {
+  cursor: default;
+}
+
+.close-button button:focus {
+  border-width: 0px;
+  outline: none;
+}
 </style>

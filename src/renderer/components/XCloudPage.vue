@@ -60,7 +60,7 @@ export default {
 
     remote.app.on('user-logout', function() {
       database.ClearAll().then(() => {
-        Logger.info('databases cleared')
+        Logger.info('databases cleared due to log out')
         database.ClearUser().then(() => {
           remote.getCurrentWindow().reload()
         }).catch(() => {})
