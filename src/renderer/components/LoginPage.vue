@@ -8,7 +8,7 @@
     <main class="centered-container">
       <div class="login-container-box">
         <!-- <div class="login-logo-container"><img src="../../resources/icons/xcloud.png" class="logo" /></div> -->
-        <div class="login-title">{{showTwoFactor ? 'Security Verification' : 'Sign in to Internxt'}}</div>
+        <div class="login-title"><img src="src/resources/icons/logo.svg" />{{showTwoFactor ? 'Security Verification' : 'Sign in to Internxt'}}</div>
         <div v-if="!showTwoFactor">
           <input class="form-control" v-model="username" type="text" placeholder="Email address" />
           <input class="form-control" v-model="password" type="password" placeholder="Password" />
@@ -248,6 +248,12 @@ export default {
   font-size: 25px;
   font-weight: 600;
   margin-bottom: 20px;
+}
+
+.login-title img {
+  width: 25px;
+  margin-right: 10px;
+  margin-bottom: 5px;
 }
 
 .create-account-container {
