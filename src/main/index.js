@@ -5,6 +5,7 @@ import path from 'path'
 import Logger from '../libs/logger'
 import AutoLaunch from 'auto-launch'
 import config from '../config'
+import { autoUpdater } from 'electron-updater'
 
 var autoLaunch = new AutoLaunch({
   name: 'Internxt Drive'
@@ -36,16 +37,16 @@ if (process.platform === 'darwin') {
   app.dock.hide()
 }
 
-const isSecondAppInstance = app.makeSingleInstance(function () {
+if (app.requestSingleInstanceLock()) {
   if (mainWindow) {
     mainWindow.hide()
   }
-  return true
-})
-
-if (isSecondAppInstance) {
-  app.quit()
 }
+
+app.on('second-instance', (event, argv, cwd) => {
+  console.log('Second instance')
+  app.quit()
+})
 
 function destroyTray() {
   if (tray) {
@@ -267,14 +268,19 @@ app.on('set-tooltip', msg => {
  * https://simulatedgreg.gitbooks.io/electron-vue/content/en/using-electron-builder.html#auto-updating
  */
 
-/*
-import { autoUpdater } from 'electron-updater'
+if (process.env.NODE_ENV === 'development') {
+  // Only for testing
+  autoUpdater.updateConfigPath = 'dev-app-update.yml'
+  autoUpdater.logger = Logger
+  autoUpdater.currentVersion = '1.0.0'
+}
 
-autoUpdater.on('update-downloaded', () => {
-  autoUpdater.quitAndInstall()
+autoUpdater.on('update-downloaded', (info) => {
+  if (process.env.NODE_ENV !== 'development') autoUpdater.quitAndInstall()
 })
 
 app.on('ready', () => {
-  if (process.env.NODE_ENV === 'production') autoUpdater.checkForUpdates()
+  autoUpdater.checkForUpdates().then((UpdateCheckResult) => {
+    autoUpdater.updateInfoAndProvider = UpdateCheckResult
+  })
 })
- */

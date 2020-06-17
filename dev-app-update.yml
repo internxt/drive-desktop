@@ -1,0 +1,4 @@
+owner: internxt
+repo: drive-desktop
+provider: github
+updaterCacheDirName: drive-desktop-updater
