@@ -54,7 +54,6 @@ export default {
   created: function() {
     this.$app = this.$electron.remote.app
     Monitor.Monitor(true)
-    this.getUser()
     this.getLocalFolderPath()
     this.getCurrentEnv()
 
@@ -62,7 +61,7 @@ export default {
       this.toolTip = text
     })
 
-    remote.app.on('user-logout', function() {
+    remote.app.on('user-logout', () => {
       database
         .ClearAll()
         .then(() => {
@@ -70,11 +69,15 @@ export default {
           database
             .ClearUser()
             .then(() => {
-              remote.getCurrentWindow().reload()
+              this.$router.push('/')
             })
-            .catch(() => {})
+            .catch(err => {
+              Logger.error('ERROR CLEARING USER', err)
+            })
         })
-        .catch(() => {})
+        .catch(() => {
+          Logger.error('ERROR CLEARING ALL')
+        })
     })
   },
   methods: {
@@ -96,17 +99,7 @@ export default {
     changeTrayIconOff() {
       remote.app.emit('sync-off')
     },
-    getUser() {
-      database
-        .Get('xUser')
-        .then(userInfo => {
-          this.$data.databaseUser = userInfo.user.email
-        })
-        .catch(err => {
-          console.error(err)
-          this.$data.databaseUser = 'error'
-        })
-    },
+    getUser() {},
     getLocalFolderPath() {
       database
         .Get('xPath')

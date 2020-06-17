@@ -2,14 +2,13 @@
   <div id="wrapper">
     <div class="close-button">
       <button @click="closeApp()">
-        <img src="src/resources/icons/close.png" />
+        <img src="~@/../resources/icons/close.png" />
       </button>
     </div>
     <main class="centered-container">
       <div class="login-container-box">
-        <!-- <div class="login-logo-container"><img src="../../resources/icons/xcloud.png" class="logo" /></div> -->
         <div class="login-title">
-          <img src="src/resources/icons/logo.svg" />
+          <img src="~@/../resources/icons/logo.svg" />
           {{showTwoFactor ? 'Security Verification' : 'Sign in to Internxt'}}
         </div>
         <div v-if="!showTwoFactor">
@@ -305,7 +304,7 @@ input[type='submit']:disabled {
 
 .close-button {
   align-self: flex-end;
-  opacity: 0.05;
+  opacity: 0;
 }
 
 .close-button button {
