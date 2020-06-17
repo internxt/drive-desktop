@@ -62,7 +62,7 @@ function StartWatcher(path) {
     })
     .on('error', function (error) {
       if (watcherStarted) {
-        Logger.log('Error happened', error)
+        Logger.log('Watcher error', error)
       }
     })
     .on('ready', onWatcherReady)

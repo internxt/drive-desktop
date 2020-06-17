@@ -1,7 +1,7 @@
 <template>
   <div id="wrapper">
     <main>
-      <div v-if="isSyncing" class="spinner-border text-primary" role="status">
+      <div class="spinner-border text-primary" role="status">
         <span class="sr-only">Syncing...</span>
       </div>
       <div>{{ toolTip ? toolTip : 'Paused' }}</div>
@@ -58,11 +58,8 @@ export default {
     this.getLocalFolderPath()
     this.getCurrentEnv()
 
-    remote.app.on('sync-on', () => {
-      this.isSyncing = true
-    })
-    remote.app.on('sync-off', () => {
-      this.isSyncing = false
+    remote.app.on('set-tooltip', text => {
+      this.toolTip = text
     })
 
     remote.app.on('user-logout', function() {

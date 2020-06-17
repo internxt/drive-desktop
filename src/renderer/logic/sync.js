@@ -143,7 +143,6 @@ function UploadNewFile(storj, filePath) {
     const dbEntry = await database.FolderGet(folderPath)
     const user = await database.Get('xUser')
     const tree = await database.Get('tree')
-    console.log(tree)
     const folderRoot = await database.Get('xPath')
 
     // Folder doesn't exists. We cannot upload this file yet.

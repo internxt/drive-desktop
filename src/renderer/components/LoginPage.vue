@@ -124,11 +124,10 @@ export default {
       const rootFolderName = folderName + (n ? ` (${n})` : '')
       const rootFolderPath = path.join(HOME_FOLDER_PATH, rootFolderName)
       const exist = fs.existsSync(rootFolderPath)
-      let rootFolderFiles
+
       let isEmpty
       if (exist) {
-        rootFolderFiles = fs.readdirSync(rootFolderPath)
-        isEmpty = !rootFolderFiles || rootFolderFiles.length === 0
+        isEmpty = this.isEmptyFolder(rootFolderPath)
       }
 
       if (exist && !isEmpty) {
