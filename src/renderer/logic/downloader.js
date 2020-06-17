@@ -166,6 +166,7 @@ function DownloadAllFiles() {
         } else {
           // Check if should download to ensure file
           let shouldEnsureFile = Math.floor(Math.random() * 33 + 1) % 33 === 0
+          shouldEnsureFile = false
           if (!shouldEnsureFile) {
             // Logger.log('%cNO ENSURE FILE', 'background-color: #aaaaff')
             return next()
@@ -184,7 +185,7 @@ function DownloadAllFiles() {
               RestoreFile(item).then(() => next()).catch(next)
             } else {
               Logger.error('Cannot restore missing file', err.message)
-              next(err)
+              next()
             }
           })
         }

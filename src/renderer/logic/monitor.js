@@ -13,8 +13,6 @@ let wtc, timeoutInstance
 let isSyncing = false
 
 const { app, powerMonitor } = electron.remote
-const ROOT_FOLDER_NAME = 'Internxt Drive'
-const HOME_FOLDER_PATH = app.getPath('home')
 let updateSyncInterval
 
 powerMonitor.on('suspend', () => {
@@ -30,7 +28,7 @@ powerMonitor.on('resume', () => {
   Monitor()
 })
 
-app.on('open-folder', function() {
+app.on('open-folder', function () {
   database.Get('xPath').then(xPath => {
     if (fs.existsSync(xPath)) {
       electron.shell.openItem(xPath)
@@ -78,52 +76,16 @@ function RootFolderExists() {
   })
 }
 
-function getRootFolderItName(it) {
-  return it ? ` (${it})` : ''
-}
-
-async function SetDBRootFolder(folderPath) {
-  await database.Set('xPath', folderPath)
-}
-
-function CreateRootFolder(folderName = ROOT_FOLDER_NAME, it = 0) {
-  const rootFolderName = folderName + getRootFolderItName(it)
-  const rootFolderPath = path.join(HOME_FOLDER_PATH, rootFolderName)
-  const exist = fs.existsSync(rootFolderPath)
-  let rootFolderFiles
-  let isEmpty
-  if (exist) {
-    rootFolderFiles = fs.readdirSync(rootFolderPath)
-    isEmpty = !rootFolderFiles || rootFolderFiles.length === 0
-  }
-
-  if (exist && !isEmpty) {
-    return CreateRootFolder(folderName, it + 1)
-  }
-
-  if (!exist) {
-    fs.mkdirSync(rootFolderPath)
-  }
-
-  SetDBRootFolder(rootFolderPath)
-  return rootFolderName
-}
-
 async function InitMonitor() {
   // Init database if not initialized
   database.InitDatabase()
-  const dbRootFolderExists = await RootFolderExists()
-  if (!dbRootFolderExists) {
-    CreateRootFolder()
-  }
-
   StartMonitor()
 }
 
 function StartUpdateDeviceSync() {
   Logger.log('Started sync update interval')
   Sync.UpdateUserSync()
-  updateSyncInterval = setInterval(() => Sync.UpdateUserSync(), Sync.SYNC_KEEPALIVE_INTERVAL_MS)
+  // updateSyncInterval = setInterval(() => Sync.UpdateUserSync(), Sync.SYNC_KEEPALIVE_INTERVAL_MS)
 }
 
 function StopUpdateDeviceSync() {
@@ -132,7 +94,8 @@ function StopUpdateDeviceSync() {
 }
 
 async function StartMonitor() {
-  const userDevicesSyncing = await Sync.GetOrSetUserSync()
+  // const userDevicesSyncing = await Sync.GetOrSetUserSync()
+  const userDevicesSyncing = false
   if (isSyncing || userDevicesSyncing) {
     if (userDevicesSyncing) {
       Logger.log('Sync not started because user have other device syncing')
@@ -142,7 +105,7 @@ async function StartMonitor() {
     return
   }
 
-  StartUpdateDeviceSync()
+  // StartUpdateDeviceSync()
   isSyncing = true
 
   // Sync
@@ -269,7 +232,7 @@ async function StartMonitor() {
       // Switch "loading" tray ico
       app.emit('sync-off')
       StopUpdateDeviceSync()
-      Sync.UpdateUserSync(true)
+      // Sync.UpdateUserSync(true)
       isSyncing = false
 
       const rootFolderExist = await RootFolderExists()

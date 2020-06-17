@@ -8,4 +8,4 @@ const production = {
   DRIVE_BASE: 'https://drive.internxt.com'
 }
 
-export default process.env.NODE_ENV === 'production' ? production : local
+export default process.env.NODE_ENV === 'production' ? production : production

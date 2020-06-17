@@ -1,0 +1,32 @@
+{
+  "productName": "internxt-drive",
+  "appId": "com.internxt.drive",
+  "directories": {
+    "output": "build"
+  },
+  "files": [
+    "dist/electron/**/*",
+    "src/resources/**/*"
+  ],
+  "publish": {
+    "provider": "github"
+  },
+  "linux": {
+    "icon": "build/icons",
+    "category": "Network",
+    "target": [
+      {
+        "target": "deb"
+      },
+      {
+        "target": "AppImage"
+      }
+    ],
+    "executableName": "internxt-drive"
+  },
+  "deb": {
+    "depends": [
+      "libgconf-2-4"
+    ]
+  }
+}
