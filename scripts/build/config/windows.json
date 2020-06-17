@@ -4,17 +4,12 @@
   "directories": {
     "output": "build"
   },
-  "files": [
-    "dist/electron/**/*",
-    "src/resources/**/*"
-  ],
+  "files": ["dist/electron/**/*", "src/resources/**/*"],
   "publish": {
     "provider": "github"
   },
   "win": {
-    "target": [
-      "nsis"
-    ],
+    "target": ["nsis"],
     "certificateSubjectName": "Internxt Universal Technologies SL",
     "icon": "build/icons/icon.ico"
   },

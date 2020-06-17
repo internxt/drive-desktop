@@ -4,29 +4,17 @@
   "directories": {
     "output": "build"
   },
-  "files": [
-    "dist/electron/**/*",
-    "src/resources/**/*"
-  ],
+  "files": ["dist/electron/**/*", "src/resources/**/*"],
   "publish": {
     "provider": "github"
   },
   "linux": {
     "icon": "build/icons",
     "category": "Network",
-    "target": [
-      {
-        "target": "deb"
-      },
-      {
-        "target": "AppImage"
-      }
-    ],
+    "target": ["deb", "AppImage"],
     "executableName": "internxt-drive"
   },
   "deb": {
-    "depends": [
-      "libgconf-2-4"
-    ]
+    "depends": ["libgconf-2-4"]
   }
 }
