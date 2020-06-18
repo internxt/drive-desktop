@@ -6,7 +6,7 @@
   "license": "AGPL-3.0",
   "main": "./dist/electron/main.js",
   "scripts": {
-    "build": "cross-env node .electron-vue/build.js && node ./scripts/build/electron-build.js",
+    "build": "node .electron-vue/build.js && electron-builder",
     "build:dir": "node .electron-vue/build.js && electron-builder --dir",
     "build:clean": "cross-env BUILD_TARGET=clean node .electron-vue/build.js",
     "build:web": "cross-env BUILD_TARGET=web node .electron-vue/build.js",
@@ -20,7 +20,7 @@
     "test": "npm run unit && npm run e2e",
     "unit": "karma start test/unit/karma.conf.js",
     "postinstall": "npm run lint:fix",
-    "publish": "./node_modules/.bin/electron-builder --publish always"
+    "publish": "electron-builder --publish always"
   },
   "build": {
     "productName": "Internxt Drive",
@@ -68,9 +68,9 @@
     },
     "nsis": {
       "allowElevation": true,
-      "deleteAppDataOnUninstall": true,
+      "deleteAppDataOnUninstall": false,
       "artifactName": "${productName}-${version}.${ext}",
-      "oneClick": false,
+      "oneClick": true,
       "perMachine": false
     },
     "linux": {
