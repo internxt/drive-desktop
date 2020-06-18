@@ -268,19 +268,33 @@ app.on('set-tooltip', msg => {
  * https://simulatedgreg.gitbooks.io/electron-vue/content/en/using-electron-builder.html#auto-updating
  */
 
+autoUpdater.logger = Logger
+
 if (process.env.NODE_ENV === 'development') {
   // Only for testing
   autoUpdater.updateConfigPath = 'dev-app-update.yml'
-  autoUpdater.logger = Logger
   autoUpdater.currentVersion = '1.0.0'
 }
 
 autoUpdater.on('update-downloaded', (info) => {
-  if (process.env.NODE_ENV !== 'development') autoUpdater.quitAndInstall()
+  // Silent and force re-open after update
+  if (process.env.NODE_ENV !== 'development') {
+    Logger.info('New update downloaded, quit and install')
+    autoUpdater.quitAndInstall()
+  }
 })
 
-app.on('ready', () => {
+function checkUpdates() {
   autoUpdater.checkForUpdates().then((UpdateCheckResult) => {
     autoUpdater.updateInfoAndProvider = UpdateCheckResult
   })
+}
+
+app.on('ready', () => {
+  checkUpdates()
+
+  // Check updates every 6 hours
+  setInterval(() => {
+    checkUpdates()
+  }, 1000 * 60 * 60 * 6)
 })
