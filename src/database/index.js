@@ -3,8 +3,22 @@ import path from 'path'
 import { remote } from 'electron'
 import fs from 'fs'
 import async from 'async'
+import rimraf from 'rimraf'
+import Logger from '../libs/logger'
 
-const DB_FOLDER = `${process.env.NODE_ENV === 'production' ? remote.app.getPath('home') + `/.xclouddesktop/` : '.'}`
+const OLD_DB_FOLDER = `${process.env.NODE_ENV === 'production' ? remote.app.getPath('home') + `/.xclouddesktop/` : '.'}`
+const DB_FOLDER = `${process.env.NODE_ENV === 'production' ? remote.app.getPath('home') + `/.internxt-desktop/` : '.'}`
+
+// Migration from .xclouddesktop to .internxt-desktop
+const oldFolderExists = fs.existsSync(OLD_DB_FOLDER)
+const newFolderExists = fs.existsSync(DB_FOLDER)
+if (oldFolderExists && !newFolderExists) {
+  fs.renameSync(OLD_DB_FOLDER, DB_FOLDER)
+  Logger.info('Config folder migration success .xclouddesktop > .internxt-desktop')
+} else if (oldFolderExists && newFolderExists) {
+  Logger.info('Remove old .xclouddesktop folder')
+  rimraf.sync(OLD_DB_FOLDER)
+}
 
 const InitDatabase = () => {
   if (!fs.existsSync(DB_FOLDER)) {
@@ -71,7 +85,6 @@ const Get = async (key) => {
   })
 
   const result = await promise
-
   return result ? result.value : null
 }
 
