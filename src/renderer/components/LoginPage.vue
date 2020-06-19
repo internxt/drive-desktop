@@ -54,7 +54,7 @@
         </div>
       </div>
     </main>
-    <footer></footer>
+    <footer>Version: {{version}}</footer>
   </div>
 </template>
 
@@ -66,6 +66,7 @@ import fs from 'fs'
 import Logger from '../../libs/logger'
 import config from '../../config'
 import path from 'path'
+import packageConfig from '../../../package.json'
 
 const ROOT_FOLDER_NAME = 'Internxt Drive'
 const HOME_FOLDER_PATH = remote.app.getPath('home')
@@ -82,7 +83,8 @@ export default {
       showTwoFactor: false,
       twoFactorCode: '',
       isLoading: false,
-      DRIVE_BASE: config.DRIVE_BASE
+      DRIVE_BASE: config.DRIVE_BASE,
+      version: packageConfig.version
     }
   },
   components: {},
@@ -320,4 +322,12 @@ input[type='submit']:disabled {
   border-width: 0px;
   outline: none;
 }
+
+footer {
+  color: #d0d0d0;
+  cursor: default;
+  font-size: 14px;
+  margin: 20px;
+}
+
 </style>
