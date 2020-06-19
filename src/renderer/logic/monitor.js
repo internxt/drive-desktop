@@ -112,6 +112,8 @@ async function StartMonitor() {
   async.waterfall(
     [
       next => {
+        // Change icon to "syncing"
+        app.emit('sync-on')
         Downloader.ClearTempFolder().then(next).catch(() => next())
       },
       next => {
@@ -121,18 +123,23 @@ async function StartMonitor() {
       },
       next => {
         // Start the folder watcher if is not already started
+        app.emit('set-tooltip', 'Initializing watcher...')
         database.Get('xPath').then(xPath => {
           console.log('User store path: %s', xPath)
-          if (!wtc) { wtc = watcher.StartWatcher(xPath) }
-          next()
+          if (!wtc) {
+            watcher.StartWatcher(xPath).then(watcherInstance => {
+              wtc = watcherInstance
+              next()
+            })
+          } else {
+            next()
+          }
         }).catch(next)
       },
       next => {
         database.ClearTemp().then(() => next()).catch(next)
       },
       next => {
-        // Change icon to "syncing"
-        app.emit('sync-on')
         // New sync started, so we save the current date
         let now = new Date()
         Logger.log('Sync started at', now)
@@ -364,12 +371,14 @@ function DownloadFiles() {
 
 function UploadNewFolders() {
   return new Promise((resolve, reject) => {
+    app.emit('set-tooltip', 'Indexing folders...')
     Downloader.UploadAllNewFolders().then(() => resolve()).catch(reject)
   })
 }
 
 function UploadNewFiles() {
   return new Promise((resolve, reject) => {
+    app.emit('set-tooltip', 'Indexing files...')
     Downloader.UploadAllNewFiles().then(() => resolve()).catch(reject)
   })
 }
