@@ -91,7 +91,7 @@ function UploadFile(storj, filePath) {
     const finalName = encryptedFileName + (fileExt ? '.' + fileExt : '')
 
     // Copy file to temp folder
-    const tempPath = path.join(electron.remote.app.getPath('home'), '.xclouddesktop', 'tmp')
+    const tempPath = path.join(electron.remote.app.getPath('home'), '.internxt-desktop', 'tmp')
     if (!fs.existsSync(tempPath)) {
       mkdirp.sync(tempPath)
     }
@@ -138,7 +138,6 @@ function UploadFile(storj, filePath) {
 function UploadNewFile(storj, filePath) {
   // Get the folder info of that file.
   const folderPath = path.dirname(filePath)
-  Logger.log('NEW file found', filePath)
   return new Promise(async (resolve, reject) => {
     const dbEntry = await database.FolderGet(folderPath)
     const user = await database.Get('xUser')
@@ -148,14 +147,16 @@ function UploadNewFile(storj, filePath) {
     // Folder doesn't exists. We cannot upload this file yet.
     if (!dbEntry || !dbEntry.value) {
       if (folderPath !== folderRoot) {
-        Logger.error('Folder does not exists in local database', folderPath)
+        // Logger.error('Folder does not exists in local database', folderPath)
         // Save this file on the temp database, so will not be deleted in the next steps.
         database.TempSet(filePath, 'add')
         return resolve()
       }
     }
 
-    const bucketId = (dbEntry && dbEntry.value && dbEntry.value.bucket) || tree.bucket
+    Logger.log('NEW file found', filePath)
+
+    const bucketId = (dbEntry && dbEntry.value && dbEntry.value.bucket) || (tree && tree.bucket)
     const folderId = (dbEntry && dbEntry.value && dbEntry.value.id) || user.user.root_folder_id
 
     Logger.log('Uploading to folder %s (bucket: %s)', folderId, bucketId)
@@ -177,7 +178,7 @@ function UploadNewFile(storj, filePath) {
     const finalName = encryptedFileName + (fileExt ? '.' + fileExt : '')
 
     // Copy file to temp folder
-    const tempPath = path.join(electron.remote.app.getPath('home'), '.xclouddesktop', 'tmp')
+    const tempPath = path.join(electron.remote.app.getPath('home'), '.internxt-desktop', 'tmp')
     if (!fs.existsSync(tempPath)) {
       mkdirp.sync(tempPath)
     }

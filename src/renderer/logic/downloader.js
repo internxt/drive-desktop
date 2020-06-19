@@ -37,7 +37,7 @@ function _getEnvironment() {
 }
 
 function getTempFolder() {
-  return path.join(electron.remote.app.getPath('home'), '.xclouddesktop', 'tmp')
+  return path.join(electron.remote.app.getPath('home'), '.internxt-desktop', 'tmp')
 }
 
 function DownloadFileTemp(fileObj, silent = false) {
@@ -294,7 +294,7 @@ function UploadAllNewFolders() {
             next(err)
           })
         } else {
-          Logger.error('Upload new folders: Undefined parent ID')
+          // Logger.error('Upload new folders: Undefined parent ID')
           next()
         }
       }, (err) => {
