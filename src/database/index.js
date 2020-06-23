@@ -15,7 +15,7 @@ const newFolderExists = fs.existsSync(DB_FOLDER)
 if (oldFolderExists && !newFolderExists) {
   fs.renameSync(OLD_DB_FOLDER, DB_FOLDER)
   Logger.info('Config folder migration success .xclouddesktop > .internxt-desktop')
-} else if (oldFolderExists && newFolderExists) {
+} else if (oldFolderExists && newFolderExists && process.env.NODE_ENV === 'production') {
   Logger.info('Remove old .xclouddesktop folder')
   rimraf.sync(OLD_DB_FOLDER)
 }

@@ -11,6 +11,7 @@ import Logger from '../../libs/logger'
 import mkdirp from 'mkdirp'
 import config from '../../config'
 import crypto from 'crypto'
+import AesUtil from './AesUtil'
 
 const app = electron.remote.app
 const SYNC_KEEPALIVE_INTERVAL_MS = 25000
@@ -76,8 +77,8 @@ function UploadFile(storj, filePath) {
     app.emit('set-tooltip', 'Encrypting ' + originalFileName)
 
     // File extension
-    const extSeparatorPos = originalFileName.lastIndexOf('.')
-    const fileExt = originalFileName.slice(extSeparatorPos + 1)
+    const fileNameParts = path.parse(originalFileName)
+    const fileExt = fileNameParts.ext ? fileNameParts.ext.substring(1) : ''
 
     // File size
     const fileStats = fs.statSync(filePath)
@@ -168,8 +169,9 @@ function UploadNewFile(storj, filePath) {
     app.emit('set-tooltip', 'Uploading ' + originalFileName)
 
     // File extension
-    const extSeparatorPos = originalFileName.lastIndexOf('.')
-    const fileExt = originalFileName.slice(extSeparatorPos + 1)
+
+    const fileNameParts = path.parse(originalFileName)
+    const fileExt = fileNameParts.ext ? fileNameParts.ext.substring(1) : ''
 
     // File size
     const fileStats = fs.statSync(filePath)
@@ -323,6 +325,13 @@ async function CreateFileEntry(bucketId, bucketEntryId, fileName, fileExtension,
     folder_id: folderId,
     file_id: bucketEntryId,
     bucket: bucketId
+  }
+
+  try {
+    AesUtil.decrypt(fileName, folderId)
+    file.encrypt_version = '03-aes'
+  } catch (e) {
+
   }
 
   if (date) {

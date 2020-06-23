@@ -3,6 +3,8 @@ import crypto from 'crypto'
 import fs from 'fs'
 import async from 'async'
 import Logger from '../../libs/logger'
+import AesUtil from './AesUtil'
+import path from 'path'
 
 const CRYPTO_KEY = ''
 
@@ -58,6 +60,12 @@ function DecryptName(cipherText, salt) {
     // If no salt, something is trying to use legacy decryption
     return ProbabilisticDecryption(cipherText)
   } else {
+    try {
+      const possibleAesResult = AesUtil.decrypt(cipherText, salt)
+      return possibleAesResult
+    } catch (e) {
+
+    }
     const decrypted = DeterministicDecryption(cipherText, salt)
 
     if (!decrypted) {
@@ -81,20 +89,6 @@ function ProbabilisticDecryption(cipherText) {
   }
 }
 
-function DeterministicEncryption(content, salt) {
-  try {
-    const key = CryptoJS.enc.Hex.parse(CRYPTO_KEY)
-    const iv = salt ? CryptoJS.enc.Hex.parse(salt.toString()) : key
-
-    const encrypt = CryptoJS.AES.encrypt(content, key, { iv: iv }).toString()
-    const b64 = CryptoJS.enc.Base64.parse(encrypt)
-    const eHex = b64.toString(CryptoJS.enc.Hex)
-    return eHex
-  } catch (e) {
-    return null
-  }
-}
-
 function ProbabilisticEncryption(content) {
   try {
     const b64 = CryptoJS.AES.encrypt(content, CRYPTO_KEY).toString()
@@ -112,7 +106,7 @@ function EncryptName(name, salt) {
     return ProbabilisticEncryption(name)
   } else {
     // If salt is provided, use new deterministic encryption
-    return DeterministicEncryption(name, salt)
+    return AesUtil.encrypt(name, salt)
   }
 }
 
@@ -150,9 +144,8 @@ function CompareHash(path1, path2, hash) {
 }
 
 function EncryptFilename(fileName, folderId) {
-  const extSeparatorPos = fileName.lastIndexOf('.')
-  const fileNameNoExt = extSeparatorPos > 0 ? fileName.slice(0, extSeparatorPos) : fileName
-  const encryptedFileName = EncryptName(fileNameNoExt, folderId + '')
+  const fileNameParts = path.parse(fileName)
+  const encryptedFileName = EncryptName(fileNameParts.name, folderId + '')
   return encryptedFileName
 }
 

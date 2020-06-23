@@ -142,7 +142,7 @@ function _recursiveFilesToList(tree, basePath, currentPath = null) {
     const encryptedFileName = item.name
     const salt = item.folder_id
     item.filename = crypt.DecryptName(encryptedFileName, salt)
-    item.fullpath = PATH.join(currentPath || basePath, item.filename + '.' + item.type)
+    item.fullpath = PATH.join(currentPath || basePath, item.filename + (item.type ? '.' + item.type : ''))
   })
 
   return new Promise((resolve, reject) => {
