@@ -186,12 +186,14 @@ function createWindow() {
       label: 'Billing',
       click: function () { shell.openExternal(`${config.DRIVE_BASE}/storage`) }
     },
+    /*
     {
       label: 'Log out',
       click: function () {
         app.emit('user-logout')
       }
     },
+    */
     {
       label: 'Quit',
       click: appClose
