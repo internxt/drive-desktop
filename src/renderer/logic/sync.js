@@ -193,7 +193,7 @@ function UploadNewFile(storj, filePath) {
 
     // Upload new file
     storj.storeFile(bucketId, tempFile, {
-      filename: finalName,
+      filename: crypto.createHash('sha256').update(filePath).digest('hex'),
       progressCallback: function (progress, uploadedBytes, totalBytes) {
         let progressPtg = progress * 100
         progressPtg = progressPtg.toFixed(2)
