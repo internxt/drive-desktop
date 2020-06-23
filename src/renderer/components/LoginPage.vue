@@ -54,7 +54,7 @@
         </div>
       </div>
     </main>
-    <footer>Version: {{version}}</footer>
+    <footer>v{{version}}</footer>
   </div>
 </template>
 
