@@ -286,7 +286,9 @@ autoUpdater.on('update-downloaded', (info) => {
 
 function checkUpdates() {
   autoUpdater.checkForUpdates().then((UpdateCheckResult) => {
-    autoUpdater.updateInfoAndProvider = UpdateCheckResult
+    if (process.env.NODE_ENV !== 'development') {
+      autoUpdater.updateInfoAndProvider = UpdateCheckResult
+    }
   })
 }
 

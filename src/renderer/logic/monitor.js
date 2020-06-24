@@ -11,6 +11,7 @@ import path from 'path'
 
 let wtc, timeoutInstance
 let isSyncing = false
+let lastSyncFailed = false
 
 const { app, powerMonitor } = electron.remote
 let updateSyncInterval
@@ -52,6 +53,7 @@ app.on('sync-start', function () {
 function Monitor(startInmediately = false) {
   let timeout = 0
   if (!startInmediately) {
+    isSyncing = false
     timeout = 1000 * 60 * 10
   }
   if (!startInmediately && process.env.NODE_ENV !== 'production') {
@@ -107,6 +109,7 @@ async function StartMonitor() {
 
   // StartUpdateDeviceSync()
   isSyncing = true
+  lastSyncFailed = false
 
   // Sync
   async.waterfall(
@@ -184,6 +187,7 @@ async function StartMonitor() {
           if (result === true) {
             next()
           } else {
+            lastSyncFailed = true
             Logger.warn('LAST SYNC FAILED, CLEARING DATABASES')
             database.ClearAll().then(() => next()).catch(next)
           }
@@ -196,13 +200,23 @@ async function StartMonitor() {
         // Delete remote folders missing in local folder
         // Borrar diretorios remotos que ya no existen en local
         // Nos basamos en el último árbol sincronizado
-        CleanLocalFolders().then(() => next()).catch(next)
+        if (!lastSyncFailed) {
+          Logger.warn('Skip deleting remote folders because last sync failed and tree is incomplete')
+          CleanLocalFolders().then(() => next()).catch(next)
+        } else {
+          next()
+        }
       },
       next => {
         // Delete remote files missing in local folder
         // Borrar archivos remotos que ya no existen en local
         // Nos basamos en el último árbol sincronizado
-        CleanLocalFiles().then(() => next()).catch(next)
+        if (!lastSyncFailed) {
+          Logger.warn('Skip deleting remote files because last sync failed and tree is incomplete')
+          CleanLocalFiles().then(() => next()).catch(next)
+        } else {
+          next()
+        }
       },
       next => {
         // backup the last database
@@ -214,11 +228,21 @@ async function StartMonitor() {
       },
       next => {
         // Delete local folders missing in remote
-        CleanRemoteFolders().then(() => next()).catch(next)
+        if (!lastSyncFailed) {
+          CleanRemoteFolders().then(() => next()).catch(next)
+        } else {
+          Logger.warn('Skip deleting local folders because last sync failed and tree is incomplete')
+          next()
+        }
       },
       next => {
         // Delete local files missing in remote
-        CleanRemoteFiles().then(() => next()).catch(next)
+        if (!lastSyncFailed) {
+          CleanRemoteFiles().then(() => next()).catch(next)
+        } else {
+          Logger.warn('Skip deleting local files because last sync failed and tree is incomplete')
+          next()
+        }
       },
       next => {
         // Create local folders
@@ -237,6 +261,7 @@ async function StartMonitor() {
       // If monitor ended before stopping the watcher, let's ensure
 
       // Switch "loading" tray ico
+      app.emit('set-tooltip')
       app.emit('sync-off')
       StopUpdateDeviceSync()
       // Sync.UpdateUserSync(true)
