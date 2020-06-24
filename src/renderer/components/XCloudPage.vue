@@ -2,7 +2,7 @@
   <div id="wrapper">
     <main>
       <div class="spinner-border text-primary" role="status">
-        <span class="sr-only">Syncing...</span>
+        <span class="sr-only"></span>
       </div>
       <div>{{ toolTip ? toolTip : 'Paused' }}</div>
       <div>
@@ -34,6 +34,7 @@ import Tree from '../logic/tree'
 import Monitor from '../logic/monitor'
 import { remote } from 'electron'
 import Logger from '../../libs/logger'
+import PackageJson from '../../../package.json'
 
 export default {
   name: 'xcloud-page',
@@ -49,7 +50,7 @@ export default {
   components: {},
   beforeCreate() {
     remote.app.emit('window-hide')
-    Logger.info('User platform: %s %s', process.platform, process.arch)
+    Logger.info('User platform: %s %s, version: %s', process.platform, process.arch, PackageJson.version)
   },
   created: function() {
     this.$app = this.$electron.remote.app
