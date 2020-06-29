@@ -143,7 +143,7 @@ export default {
     },
     doLogin() {
       this.$data.isLoading = true
-      fetch(`${config.DRIVE_API}/login`, {
+      fetch(`${process.env.API_URL}/api/login`, {
         method: 'POST',
         mode: 'cors',
         headers: { 'content-type': 'application/json' },
@@ -174,7 +174,7 @@ export default {
       const pwd = crypt.HashPassword(this.$data.password, salt)
       const encryptedHash = crypt.Encrypt(pwd.hash.toString())
 
-      fetch(`${config.DRIVE_API}/access`, {
+      fetch(`${process.env.API_URL}/api/access`, {
         method: 'POST',
         headers: {
           'content-type': 'application/json'

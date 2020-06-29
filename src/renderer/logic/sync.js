@@ -256,7 +256,7 @@ function UploadNewFile(storj, filePath) {
 function RemoveFile(bucketId, fileId) {
   return new Promise(async (resolve, reject) => {
     database.Get('xUser').then(async userData => {
-      fetch(`${config.DRIVE_API}/storage/bucket/${bucketId}/file/${fileId}`, {
+      fetch(`${process.env.API_URL}/api/storage/bucket/${bucketId}/file/${fileId}`, {
         method: 'DELETE',
         headers: await GetAuthHeader()
       }).then(result => {
@@ -287,7 +287,7 @@ function UpdateTree() {
 function GetTree() {
   return new Promise((resolve, reject) => {
     database.Get('xUser').then(async userData => {
-      fetch(`${config.DRIVE_API}/storage/tree`, {
+      fetch(`${process.env.API_URL}/api/storage/tree`, {
         headers: await GetAuthHeader()
       }).then(async res => {
         return { res, data: await res.json() }
@@ -303,7 +303,7 @@ function GetTree() {
 function RemoveFolder(folderId) {
   return new Promise(async (resolve, reject) => {
     database.Get('xUser').then(async userData => {
-      fetch(`${config.DRIVE_API}/storage/folder/${folderId}`, {
+      fetch(`${process.env.API_URL}/api/storage/folder/${folderId}`, {
         method: 'DELETE',
         headers: await GetAuthHeader()
       }).then(result => {
@@ -341,7 +341,7 @@ async function CreateFileEntry(bucketId, bucketEntryId, fileName, fileExtension,
   return new Promise(async (resolve, reject) => {
     const userData = await database.Get('xUser')
 
-    fetch(`${config.DRIVE_API}/storage/file`, {
+    fetch(`${process.env.API_URL}/api/storage/file`, {
       method: 'POST',
       mode: 'cors',
       headers: await GetAuthHeader(),
@@ -525,7 +525,7 @@ function RemoteCreateFolder(name, parentId) {
     }
 
     const headers = await GetAuthHeader()
-    fetch(`${config.DRIVE_API}/storage/folder`, {
+    fetch(`${process.env.API_URL}/api/storage/folder`, {
       method: 'POST',
       mode: 'cors',
       headers: headers,
@@ -549,7 +549,7 @@ function RemoteCreateFolder(name, parentId) {
 function GetOrSetUserSync() {
   return new Promise(async (resolve, reject) => {
     database.Get('xUser').then(async userData => {
-      fetch(`${config.DRIVE_API}/user/sync`, {
+      fetch(`${process.env.API_URL}/api/user/sync`, {
         method: 'GET',
         headers: await GetAuthHeader()
       }).then(async res => {
@@ -580,7 +580,7 @@ function UpdateUserSync(toNull = false) {
         fetchOpts.body = JSON.stringify({ toNull })
       }
 
-      fetch(`${config.DRIVE_API}/user/sync`, fetchOpts)
+      fetch(`${process.env.API_URL}/api/user/sync`, fetchOpts)
         .then(async res => {
           if (res !== 200) {
             throw Error('Update sync not available on server')
