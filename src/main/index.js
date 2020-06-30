@@ -285,11 +285,11 @@ autoUpdater.on('error', (err) => {
 })
 
 autoUpdater.on('checking-for-update', () => {
-  console.log('CHECKING FOR UPDATE EVENT')
+  // console.log('CHECKING FOR UPDATE EVENT')
 })
 
 autoUpdater.on('update-available', () => {
-  console.log('AUTOUPDATER UPD AVAIL')
+  // console.log('AUTOUPDATER UPD AVAIL')
 })
 
 autoUpdater.on('update-not-available', () => {
@@ -297,12 +297,12 @@ autoUpdater.on('update-not-available', () => {
 })
 
 autoUpdater.on('download-progress', (progress) => {
-  console.log('UPDATE DOWNLOAD', progress.percent)
+  // console.log('UPDATE DOWNLOAD', progress.percent)
 })
 
 autoUpdater.on('update-downloaded', (info) => {
   Logger.info('New update downloaded, quit and install')
-  CreateDialogBox(info.versionInfo.version)
+  AnnounceUpdate(info.versionInfo.version)
 
   // Silent and force re-open after update
   if (process.env.NODE_ENV !== 'development') {
@@ -310,7 +310,11 @@ autoUpdater.on('update-downloaded', (info) => {
   }
 })
 
-function CreateDialogBox(version) {
+function AnnounceUpdate(version) {
+  if (UpdateOptions.dialogShow) {
+    return
+  }
+  UpdateOptions.dialogShow = true
   const options = {
     type: 'question',
     buttons: ['Update now', 'Update after closing'],
@@ -318,9 +322,46 @@ function CreateDialogBox(version) {
     title: 'Internxt Drive',
     message: 'New update available: ' + version
   }
-  dialog.showMessageBox(mainWindow, options, (response) => {
-    if (response === 0) {
+  dialog.showMessageBox(new BrowserWindow({
+    show: false,
+    parent: mainWindow,
+    alwaysOnTop: true
+  }), options, (userResponse) => {
+    UpdateOptions.dialogShow = false
+    if (userResponse === 0) {
       autoUpdater.quitAndInstall(false, true)
+    }
+  })
+}
+
+const UpdateOptions = {
+  doNotAskAgain: false,
+  dialogShow: false
+}
+
+function SuggestUpdate(version, downloadUrl) {
+  if (UpdateOptions.dialogShow) {
+    return
+  }
+  UpdateOptions.dialogShow = true
+  const options = {
+    type: 'question',
+    buttons: ['Download update', 'Ignore'],
+    defaultId: 1,
+    title: 'Internxt Drive',
+    message: 'New update available: ' + version
+  }
+
+  dialog.showMessageBox(new BrowserWindow({
+    show: false,
+    parent: mainWindow,
+    alwaysOnTop: true
+  }), options, (userResponse) => {
+    UpdateOptions.dialogShow = false
+    if (userResponse === 0) {
+      shell.openExternal(downloadUrl)
+    } else {
+      UpdateOptions.doNotAskAgain = true
     }
   })
 }
@@ -338,9 +379,14 @@ function GetAppPlatform() {
 }
 
 function checkUpdates() {
-  const platform = GetAppPlatform()
-  console.log('PLATFORM', platform)
+  if (UpdateOptions.doNotAskAgain) {
+    return
+  }
 
+  // Get current platform to decide update method
+  const platform = GetAppPlatform()
+
+  // DEB package doesn't support autoupdate. So let's check updates manually.
   if (platform === 'linux-deb') {
     return ManualCheckUpdate()
   }
@@ -351,38 +397,37 @@ function checkUpdates() {
       // autoUpdater.updateInfoAndProvider = UpdateCheckResult
     }
   }).catch(err => {
-    console.log('Error update', err.message)
+    console.log('Error checking updates: %s', err.message)
   })
 }
 
 async function ManualCheckUpdate() {
-  console.log('MANUAL CHECKING3')
   fetch('https://api.github.com/repos/internxt/drive-desktop/releases/latest')
+    .then(res => res.json())
     .then(res => {
-      return res.json()
-    })
-    .then(res => {
-      console.log('RESPONSE FROM GITHUB')
       const currentVersion = semver.valid(PackageJson.version)
       const latestVersion = semver.valid(res.tag_name)
 
       if (semver.gt(latestVersion, currentVersion)) {
+        console.log('New versión %s is available', latestVersion)
         const currentPlatform = GetAppPlatform()
 
+        let result
         if (currentPlatform === 'linux-deb') {
-          var result = res.assets.filter(value => {
-            return value.name.endsWith('.deb')
-          })
+          result = res.assets.filter(value => value.name.endsWith('.deb'))
 
           if (result && result.length === 1) {
-            console.log('MANUAL UPDATE AVAILABLE', JSON.stringify(result))
+            console.log('MANUAL UPDATE AVAILABLE', JSON.stringify(result[0].browser_download_url))
+            return SuggestUpdate(latestVersion, result[0].browser_download_url)
+          } else {
+            return console.log('Cannot find DEB file for update %s', latestVersion)
           }
         }
       } else {
         console.log('Manual checking updates: no updates')
       }
     }).catch(err => {
-      console.log('FETCH ERROR', JSON.stringify(err))
+      console.log('Manual check update error', JSON.stringify(err))
     })
 }
 
