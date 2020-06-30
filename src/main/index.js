@@ -1,11 +1,13 @@
 'use strict'
 
-import { app, BrowserWindow, Tray, Menu, shell } from 'electron'
+import { app, BrowserWindow, Tray, Menu, shell, dialog } from 'electron'
 import path from 'path'
 import Logger from '../libs/logger'
 import AutoLaunch from 'auto-launch'
-import config from '../config'
 import { autoUpdater } from 'electron-updater'
+import semver from 'semver'
+import PackageJson from '../../package.json'
+import fetch from 'electron-fetch'
 
 var autoLaunch = new AutoLaunch({
   name: 'Internxt Drive'
@@ -278,20 +280,110 @@ if (process.env.NODE_ENV === 'development') {
   autoUpdater.currentVersion = '1.0.0'
 }
 
+autoUpdater.on('error', (err) => {
+  console.log('AUTOUPDATE ERROR', err.message)
+})
+
+autoUpdater.on('checking-for-update', () => {
+  console.log('CHECKING FOR UPDATE EVENT')
+})
+
+autoUpdater.on('update-available', () => {
+  console.log('AUTOUPDATER UPD AVAIL')
+})
+
+autoUpdater.on('update-not-available', () => {
+  console.log('NO UPDATES')
+})
+
+autoUpdater.on('download-progress', (progress) => {
+  console.log('UPDATE DOWNLOAD', progress.percent)
+})
+
 autoUpdater.on('update-downloaded', (info) => {
+  Logger.info('New update downloaded, quit and install')
+  CreateDialogBox(info.versionInfo.version)
+
   // Silent and force re-open after update
   if (process.env.NODE_ENV !== 'development') {
-    Logger.info('New update downloaded, quit and install')
-    autoUpdater.quitAndInstall()
+    // autoUpdater.quitAndInstall()
   }
 })
 
-function checkUpdates() {
-  autoUpdater.checkForUpdates().then((UpdateCheckResult) => {
-    if (process.env.NODE_ENV !== 'development') {
-      autoUpdater.updateInfoAndProvider = UpdateCheckResult
+function CreateDialogBox(version) {
+  const options = {
+    type: 'question',
+    buttons: ['Update now', 'Update after closing'],
+    defaultId: 1,
+    title: 'Internxt Drive',
+    message: 'New update available: ' + version
+  }
+  dialog.showMessageBox(mainWindow, options, (response) => {
+    if (response === 0) {
+      autoUpdater.quitAndInstall(false, true)
     }
   })
+}
+
+function GetAppPlatform() {
+  if (process.platform === 'win32') {
+    return 'win32'
+  }
+
+  if (process.platform === 'linux') {
+    return process.env.APPIMAGE ? 'linux-AppImage' : 'linux-deb'
+  }
+
+  return process.platform
+}
+
+function checkUpdates() {
+  const platform = GetAppPlatform()
+  console.log('PLATFORM', platform)
+
+  if (platform === 'linux-deb') {
+    return ManualCheckUpdate()
+  }
+
+  autoUpdater.checkForUpdates().then((UpdateCheckResult) => {
+    console.log('UpdateCheckResult', JSON.stringify(UpdateCheckResult))
+    if (process.env.NODE_ENV !== 'development') {
+      // autoUpdater.updateInfoAndProvider = UpdateCheckResult
+    }
+  }).catch(err => {
+    console.log('Error update', err.message)
+  })
+}
+
+async function ManualCheckUpdate() {
+  console.log('MANUAL CHECKING3')
+  fetch('https://api.github.com/repos/internxt/drive-desktop/releases/latest')
+    .then(res => {
+      return res.json()
+    })
+    .then(res => {
+      console.log('RESPONSE FROM GITHUB')
+      const currentVersion = semver.valid(PackageJson.version)
+      const latestVersion = semver.valid(res.tag_name)
+
+      if (semver.gt(latestVersion, currentVersion)) {
+        const currentPlatform = GetAppPlatform()
+
+        if (currentPlatform === 'linux-deb') {
+          var result = res.assets.filter(value => {
+            return value.name.endsWith('.deb')
+          })
+
+          if (result && result.length === 1) {
+            console.log('MANUAL UPDATE AVAILABLE', JSON.stringify(result))
+          }
+        }
+      } else {
+        console.log('Manual checking updates: no updates')
+      }
+    }).catch(err => {
+      console.log('FETCH ERROR', JSON.stringify(err))
+    })
 }
 
 app.on('ready', () => {

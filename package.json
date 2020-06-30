@@ -23,7 +23,7 @@
     "publish": "electron-builder --publish always"
   },
   "build": {
-    "productName": "Internxt Drive",
+    "productName": "internxt-drive",
     "appId": "com.internxt.drive",
     "directories": {
       "output": "build"
@@ -76,7 +76,10 @@
     "linux": {
       "icon": "build/icons",
       "category": "Network",
-      "target": "deb"
+      "target": [
+        "deb",
+        "AppImage"
+      ]
     },
     "deb": {
       "depends": [
@@ -97,6 +100,7 @@
     "deep-object-diff": "^1.1.0",
     "directory-tree": "^2.2.4",
     "dotenv": "^8.1.0",
+    "electron-fetch": "^1.4.0",
     "electron-log": "^4.0.7",
     "electron-store": "^5.0.0",
     "electron-updater": "^4.3.1",
