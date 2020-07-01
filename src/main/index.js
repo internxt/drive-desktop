@@ -237,11 +237,17 @@ app.on('sync-off', function () {
   tray.setImage(getTrayIcon(false))
 })
 
-app.on('window-show', function () {
+function maybeShowWindow() {
   if (mainWindow) {
     mainWindow.show()
+  } else {
+    app.on('window-show', function () {
+      if (mainWindow) {
+        mainWindow.show()
+      }
+    })
   }
-})
+}
 
 app.on('show-bubble', (title, content) => {
   if (tray) {
@@ -282,6 +288,7 @@ if (process.env.NODE_ENV === 'development') {
 
 autoUpdater.on('error', (err) => {
   console.log('AUTOUPDATE ERROR', err.message)
+  maybeShowWindow()
 })
 
 autoUpdater.on('checking-for-update', () => {
@@ -294,6 +301,7 @@ autoUpdater.on('update-available', () => {
 
 autoUpdater.on('update-not-available', () => {
   console.log('NO UPDATES')
+  maybeShowWindow()
 })
 
 autoUpdater.on('download-progress', (progress) => {
@@ -331,6 +339,7 @@ function AnnounceUpdate(version) {
     if (userResponse === 0) {
       autoUpdater.quitAndInstall(false, true)
     }
+    maybeShowWindow()
   })
 }
 
@@ -363,6 +372,7 @@ function SuggestUpdate(version, downloadUrl) {
     } else {
       UpdateOptions.doNotAskAgain = true
     }
+    maybeShowWindow()
   })
 }
 
