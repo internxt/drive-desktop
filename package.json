@@ -57,7 +57,10 @@
       "gatekeeperAssess": false,
       "entitlements": "./resources/osx/Info.plist",
       "entitlementsInherit": "./resources/osx/Info.plist",
-      "target": "dmg"
+      "target": [
+        "dmg",
+        "zip"
+      ]
     },
     "win": {
       "target": [

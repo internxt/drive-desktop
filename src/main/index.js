@@ -249,6 +249,8 @@ function maybeShowWindow() {
   }
 }
 
+maybeShowWindow()
+
 app.on('show-bubble', (title, content) => {
   if (tray) {
     tray.displayBalloon({
@@ -288,7 +290,6 @@ if (process.env.NODE_ENV === 'development') {
 
 autoUpdater.on('error', (err) => {
   console.log('AUTOUPDATE ERROR', err.message)
-  maybeShowWindow()
 })
 
 autoUpdater.on('checking-for-update', () => {
@@ -339,7 +340,6 @@ function AnnounceUpdate(version) {
     if (userResponse === 0) {
       autoUpdater.quitAndInstall(false, true)
     }
-    maybeShowWindow()
   })
 }
 
@@ -358,7 +358,7 @@ function SuggestUpdate(version, downloadUrl) {
     buttons: ['Download update', 'Ignore'],
     defaultId: 1,
     title: 'Internxt Drive',
-    message: 'New update available: ' + version
+    message: 'New Internxt Drive update available: ' + version
   }
 
   dialog.showMessageBox(new BrowserWindow({
@@ -372,7 +372,6 @@ function SuggestUpdate(version, downloadUrl) {
     } else {
       UpdateOptions.doNotAskAgain = true
     }
-    maybeShowWindow()
   })
 }
 
@@ -397,7 +396,7 @@ function checkUpdates() {
   const platform = GetAppPlatform()
 
   // DEB package doesn't support autoupdate. So let's check updates manually.
-  if (platform === 'linux-deb') {
+  if (platform === 'linux-deb' || platform === 'darwin') {
     return ManualCheckUpdate()
   }
 
@@ -425,13 +424,16 @@ async function ManualCheckUpdate() {
         let result
         if (currentPlatform === 'linux-deb') {
           result = res.assets.filter(value => value.name.endsWith('.deb'))
+        }
+        if (currentPlatform === 'darwin') {
+          result = res.assets.filter(value => value.name.endsWith('.dmg'))
+        }
 
-          if (result && result.length === 1) {
-            console.log('MANUAL UPDATE AVAILABLE', JSON.stringify(result[0].browser_download_url))
-            return SuggestUpdate(latestVersion, result[0].browser_download_url)
-          } else {
-            return console.log('Cannot find DEB file for update %s', latestVersion)
-          }
+        if (result && result.length === 1) {
+          console.log('Update url available: %s', JSON.stringify(result[0].browser_download_url))
+          return SuggestUpdate(latestVersion, result[0].browser_download_url)
+        } else {
+          return console.log('Cannot find %s file for update %s', currentPlatform === 'darwin' ? 'DMG' : 'DEB', latestVersion)
         }
       } else {
         console.log('Manual checking updates: no updates')
