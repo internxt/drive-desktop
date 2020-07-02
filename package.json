@@ -83,6 +83,7 @@
       "perMachine": false
     },
     "linux": {
+      "artifactName": "${name}-${version}_${arch}.${ext}",
       "icon": "build/icons",
       "category": "Network",
       "target": [
