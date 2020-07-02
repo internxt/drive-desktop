@@ -306,7 +306,6 @@ autoUpdater.on('update-available', () => {
 
 autoUpdater.on('update-not-available', () => {
   console.log('NO UPDATES')
-  maybeShowWindow()
 })
 
 autoUpdater.on('download-progress', (progress) => {

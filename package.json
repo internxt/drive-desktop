@@ -78,7 +78,7 @@
     "nsis": {
       "allowElevation": true,
       "deleteAppDataOnUninstall": false,
-      "artifactName": "${productName}-${version}.${ext}",
+      "artifactName": "${name}-${version}_${arch}.${ext}",
       "oneClick": true,
       "perMachine": false
     },
