@@ -12,6 +12,7 @@ import mkdirp from 'mkdirp'
 import config from '../../config'
 import crypto from 'crypto'
 import AesUtil from './AesUtil'
+import sanitize from 'sanitize-filename'
 
 const app = electron.remote.app
 const SYNC_KEEPALIVE_INTERVAL_MS = 25000
@@ -386,6 +387,9 @@ function CheckMissingFolders() {
     let allData = database.dbFolders.getAllData()
     async.eachSeries(allData, (item, next) => {
       let stat = tree.GetStat(item.key)
+      if (path.basename(item.key) !== sanitize(path.basename(item.key))) {
+        return next()
+      }
 
       // If doesn't exists, or now is a file (was a folder before) delete from remote.
       if ((stat && stat.isFile()) || !fs.existsSync(item.key)) {
