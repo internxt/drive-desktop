@@ -263,6 +263,11 @@ function UploadAllNewFolders() {
       async.eachSeries(list, async (item, next) => {
         // Check if folders still exists
         if (!fs.existsSync(item)) { return next() }
+
+        var stat = Tree.GetStat(item)
+        if (stat && stat.isSymbolicLink()) {
+          return next()
+        }
         // Check if exists in database
         const dbEntry = await Database.FolderGet(item)
 
