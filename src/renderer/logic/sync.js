@@ -224,7 +224,8 @@ function UploadNewFile(storj, filePath) {
                 const fileExists = listFiles.find(obj => obj.filename === finalName || obj.filename === originalFileName)
 
                 if (!fileExists || !fileExists.id) {
-                  return reject(Error('Cannot find file on network'))
+                  return resolve()
+                  // return reject(Error('Cannot find file on network'))
                 }
 
                 console.log('File exists and found on network')
