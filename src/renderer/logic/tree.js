@@ -3,6 +3,7 @@ import PATH from 'path'
 import database from '../../database/index'
 import async from 'async'
 import crypt from './crypt'
+import readdirp from 'readdirp'
 
 function safeReadDirSync(path) {
   let dirData = {}
@@ -167,23 +168,15 @@ function GetFileListFromRemoteTree() {
 }
 
 function GetLocalFolderList(localPath) {
-  return new Promise((resolve, reject) => {
-    let data = safeReadDirSync(localPath)
-    let folders = []
-
-    async.eachSeries(data, (item, next) => {
-      const itemPath = PATH.join(localPath, item)
-      const stat = FS.lstatSync(itemPath)
-      if (!stat.isFile()) {
-        folders.push(itemPath)
-        GetLocalFolderList(itemPath).then(subFolders => {
-          folders = folders.concat(subFolders)
-          next()
-        }).catch(next)
-      } else { next() }
-    }, (err, result) => {
-      if (err) { reject(err) } else { resolve(folders) }
-    })
+  return new Promise((resolve) => {
+    let results = []
+    readdirp(localPath, {
+      type: 'directories'
+    }).on('data', data => {
+      results.push(data.fullPath)
+    }).on('warn', warn => console.error('READDIRP non-fatal error', warn))
+      .on('error', err => console.error('READDIRP fatal error', err.message))
+      .on('end', () => { resolve(results) })
   })
 }
 
