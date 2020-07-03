@@ -201,14 +201,14 @@ function UploadAllNewFiles() {
     const localPath = await Database.Get('xPath')
     // Get the local tree from folder (not remote or database) to check for new files.
     // The list contains the files and folders.
-    const arbol = Tree.GetListFromFolder(localPath)
+    const files = await Tree.GetListFromFolder(localPath)
     const storj = await _getEnvironment()
 
-    async.eachSeries(arbol, async function (item, next) {
+    async.eachSeries(files, async function (item, next) {
       // Read filesystem data
       var stat = Tree.GetStat(item)
 
-      if (stat && stat.isFile()) { // Is a file
+      if (stat && stat.isFile() && !stat.isSymbolicLink()) { // Is a file, and it is not a sym link
         // Check if file exists in the remote database
         let entry = await Database.FileGet(item)
 
@@ -218,11 +218,10 @@ function UploadAllNewFiles() {
             // The network can't hold empty files. Encryption will fail.
             // So, we will ignore this file.
             Logger.log('Warning: Filesize 0. Ignoring file.')
-            next()
-          } else {
-            // Upload file.
-            Sync.UploadNewFile(storj, item).then(() => next()).catch(next)
+            return next()
           }
+          // Upload file.
+          Sync.UploadNewFile(storj, item).then(() => next()).catch(next)
         } else {
           // Is not a file, so it is a dir. Do nothing.
           next()

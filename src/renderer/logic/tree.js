@@ -56,25 +56,16 @@ function GetTreeFromFolder(folderPath) {
 }
 
 function GetListFromFolder(folderPath) {
-  const result = safeReadDirSync(folderPath)
-
-  var returnResult = []
-
-  result.forEach(item => {
-    const fullPath = PATH.join(folderPath, item)
-    let stats
-    try { stats = FS.statSync(fullPath) } catch (e) { return null }
-    if (stats.isFile()) {
-      const fileName = PATH.basename(fullPath)
-      if (fileName !== '.DS_Store') {
-        returnResult.push(fullPath)
-      }
-    } else {
-      returnResult = returnResult.concat(GetListFromFolder(fullPath))
-    }
+  return new Promise((resolve) => {
+    let results = []
+    readdirp(folderPath, {
+      type: 'files'
+    }).on('data', data => {
+      results.push(data.fullPath)
+    }).on('warn', warn => console.error('READDIRP non-fatal error', warn))
+      .on('error', err => console.error('READDIRP fatal error', err.message))
+      .on('end', () => { resolve(results) })
   })
-
-  return returnResult
 }
 
 function GetStat(path) {

@@ -230,7 +230,6 @@ app.on('before-quit', function (evt) {
 })
 
 app.on('browser-window-focus', (e, w) => {
-  Logger.info('BROWSER-WINDOW-FOCUS')
 })
 
 app.on('sync-on', function () {
