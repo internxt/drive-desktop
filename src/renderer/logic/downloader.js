@@ -11,6 +11,7 @@ import electron from 'electron'
 import Logger from '../../libs/logger'
 import mkdirp from 'mkdirp'
 import rimraf from 'rimraf'
+import sanitize from 'sanitize-filename'
 
 const app = electron.remote.app
 
@@ -97,6 +98,10 @@ function DownloadAllFiles() {
     // Get a list of all the files on the remote folder
     Tree.GetFileListFromRemoteTree().then(list => {
       async.eachSeries(list, async (item, next) => {
+        if (path.basename(item.fullpath) !== sanitize(path.basename(item.fullpath))) {
+          Logger.info('Can\'t download %s, invalid filename', path.basename(item.fullpath))
+          return next()
+        }
         // If not enough space on hard disk, do not download and stop syncing.
         const freeSpace = await CheckDiskSpace(path.dirname(item.fullpath))
         if (item.size * 3 >= freeSpace) { return next('No space left') }
