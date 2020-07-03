@@ -8,6 +8,7 @@ import watcher from './watcher'
 import Logger from '../../libs/logger'
 import fs from 'fs'
 import path from 'path'
+import sanitize from 'sanitize-filename'
 
 let wtc, timeoutInstance
 let isSyncing = false
@@ -329,7 +330,13 @@ function RegenerateLocalDbFolders() {
       database.dbFolders.remove({}, { multi: true }, (err, n) => {
         if (err) { reject(err) } else {
           async.eachSeries(list,
-            (item, next) => { database.dbFolders.insert(item, (err, document) => next(err, document)) },
+            (item, next) => {
+              if (path.basename(item.key) !== sanitize(path.basename(item.key))) {
+                Logger.info('Ignosing folder %s, invalid name', item.key)
+                return next()
+              }
+              database.dbFolders.insert(item, (err, document) => next(err, document))
+            },
             err => { if (err) { reject(err) } else { resolve(err) } }
           )
         }
@@ -346,6 +353,10 @@ function RegenerateLocalDbFiles() {
           async.eachSeries(list,
             (item, next) => {
               let finalObject = { key: item.fullpath, value: item }
+              if (path.basename(finalObject.key) !== sanitize(path.basename(finalObject.key))) {
+                Logger.info('Ignosing file %s, invalid name', finalObject.key)
+                return next()
+              }
               database.dbFiles.insert(finalObject, (err, document) => next(err, document))
             },
             err => {
