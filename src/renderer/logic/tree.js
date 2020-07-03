@@ -180,26 +180,7 @@ function GetLocalFolderList(localPath) {
 }
 
 function GetLocalFileList(localPath) {
-  return new Promise((resolve, reject) => {
-    let data = safeReadDirSync(localPath)
-    let files = []
-
-    async.eachSeries(data, (item, next) => {
-      const itemPath = PATH.join(localPath, item)
-      const stat = FS.lstatSync(itemPath)
-      if (!stat.isFile()) {
-        GetLocalFileList(itemPath).then(subFolders => {
-          files = files.concat(subFolders)
-          next()
-        }).catch(next)
-      } else {
-        files.push(itemPath)
-        next()
-      }
-    }, (err, result) => {
-      if (err) { reject(err) } else { resolve(files) }
-    })
-  })
+  return GetListFromFolder(localPath)
 }
 
 export default {
