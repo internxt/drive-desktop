@@ -18,7 +18,7 @@ function StartWatcher(path) {
 
     function onWatcherReady() {
       watcherStarted = true
-      Logger.info('From here can you check for real changes, the initial scan has been completed.')
+      Logger.info('File watcher is ready')
       resolve(watcher)
     }
 

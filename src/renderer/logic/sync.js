@@ -214,7 +214,7 @@ function UploadNewFile(storj, filePath) {
           if (fileExistsPattern.exec(err)) {
             // File already exists, so there's no need to upload again.
             // SHOULD RETURN THE ACTUAL FILE ID?
-            Logger.warn('FILE ALREADY EXISTS')
+            Logger.warn('FILE ALREADY EXISTS', tempFile)
 
             storj.listFiles(bucketId, (err, listFiles) => {
               if (err) {

@@ -4,6 +4,8 @@ import database from '../../database/index'
 import async from 'async'
 import crypt from './crypt'
 import readdirp from 'readdirp'
+import sanitize from 'sanitize-filename'
+import Logger from '../../libs/logger'
 
 function safeReadDirSync(path) {
   let dirData = {}
@@ -61,6 +63,9 @@ function GetListFromFolder(folderPath) {
     readdirp(folderPath, {
       type: 'files'
     }).on('data', data => {
+      if (data.basename !== sanitize(data.basename)) {
+        return Logger.info('Ignoring %s, filename not compatible', data.fullPath)
+      }
       results.push(data.fullPath)
     }).on('warn', warn => console.error('READDIRP non-fatal error', warn))
       .on('error', err => console.error('READDIRP fatal error', err.message))
@@ -164,6 +169,9 @@ function GetLocalFolderList(localPath) {
     readdirp(localPath, {
       type: 'directories'
     }).on('data', data => {
+      if (data.basename !== sanitize(data.basename)) {
+        return Logger.info('Directory %s ignored, name is not compatible')
+      }
       results.push(data.fullPath)
     }).on('warn', warn => console.error('READDIRP non-fatal error', warn))
       .on('error', err => console.error('READDIRP fatal error', err.message))
