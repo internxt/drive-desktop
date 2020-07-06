@@ -274,7 +274,7 @@ function UploadAllNewFolders() {
         // If folder exists on remote database, ignore it, it already exists
         if (dbEntry) { return next() }
 
-        // Substract parent path and folder name
+        // Subtract parent path and folder name
         const folderName = path.basename(item)
         const parentPath = path.dirname(item)
 

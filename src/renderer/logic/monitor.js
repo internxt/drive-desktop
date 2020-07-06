@@ -35,10 +35,10 @@ app.on('open-folder', function () {
     if (fs.existsSync(xPath)) {
       electron.shell.openItem(xPath)
     } else {
-      Logger.log('Error openning root folder from try icon')
+      Logger.log('Error opening root folder from try icon')
     }
   }).catch(() => {
-    Logger.log('Error openning root folder from try icon')
+    Logger.log('Error opening root folder from try icon')
   })
 })
 
@@ -51,13 +51,13 @@ app.on('sync-start', function () {
   }
 })
 
-function Monitor(startInmediately = false) {
+function Monitor(startImmediately = false) {
   let timeout = 0
-  if (!startInmediately) {
+  if (!startImmediately) {
     isSyncing = false
     timeout = 1000 * 60 * 10
   }
-  if (!startInmediately && process.env.NODE_ENV !== 'production') {
+  if (!startImmediately && process.env.NODE_ENV !== 'production') {
     timeout = 1000 * 15
   }
   if (!isSyncing) {
@@ -332,7 +332,7 @@ function RegenerateLocalDbFolders() {
           async.eachSeries(list,
             (item, next) => {
               if (path.basename(item.key) !== sanitize(path.basename(item.key))) {
-                Logger.info('Ignosing folder %s, invalid name', item.key)
+                Logger.info('Ignoring folder %s, invalid name', item.key)
                 return next()
               }
               database.dbFolders.insert(item, (err, document) => next(err, document))
@@ -354,7 +354,7 @@ function RegenerateLocalDbFiles() {
             (item, next) => {
               let finalObject = { key: item.fullpath, value: item }
               if (path.basename(finalObject.key) !== sanitize(path.basename(finalObject.key))) {
-                Logger.info('Ignosing file %s, invalid name', finalObject.key)
+                Logger.info('Ignoring file %s, invalid name', finalObject.key)
                 return next()
               }
               database.dbFiles.insert(finalObject, (err, document) => next(err, document))
