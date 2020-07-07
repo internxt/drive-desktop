@@ -172,7 +172,7 @@ function createWindow() {
   const trayIcon = getTrayIcon()
 
   tray = new Tray(trayIcon)
-  tray.setToolTip('Internxt Drive')
+  tray.setToolTip('Internxt Drive ' + PackageJson.version)
 
   const contextMenu = () => Menu.buildFromTemplate([
     {
