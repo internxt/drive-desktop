@@ -1,18 +1,17 @@
 import AutoLaunch from 'auto-launch'
 
-function configureAutostart () {
-  const xcdLauncher = new AutoLaunch({
+function configureAutostart() {
+  const autoLaunch = new AutoLaunch({
     name: 'Internxt Drive'
   })
 
-  xcdLauncher.isEnabled()
-    .then(function (isEnabled) {
-      if (isEnabled) {
-        xcdLauncher.disable()
-      }
-    }).catch(function (err) {
-      console.error(err)
-    })
+  autoLaunch.isEnabled().then((isEnabled) => {
+    if (isEnabled && process.env.NODE_ENV === 'development') {
+      autoLaunch.disable()
+    } else if (!isEnabled) {
+      autoLaunch.enable()
+    }
+  })
 }
 
 export default {

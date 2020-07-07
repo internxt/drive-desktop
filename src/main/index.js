@@ -3,23 +3,13 @@
 import { app, BrowserWindow, Tray, Menu, shell, dialog } from 'electron'
 import path from 'path'
 import Logger from '../libs/logger'
-import AutoLaunch from 'auto-launch'
+import AutoLaunch from '../libs/autolauncher'
 import { autoUpdater } from 'electron-updater'
 import semver from 'semver'
 import PackageJson from '../../package.json'
 import fetch from 'electron-fetch'
 
-const autoLaunch = new AutoLaunch({
-  name: 'Internxt Drive'
-})
-
-autoLaunch.isEnabled().then((isEnabled) => {
-  if (isEnabled && process.env.NODE_ENV === 'development') {
-    autoLaunch.disable()
-  } else if (!isEnabled) {
-    autoLaunch.enable()
-  }
-})
+AutoLaunch.configureAutostart()
 
 /**
  * Set `__static` path to static files in production
