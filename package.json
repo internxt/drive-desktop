@@ -93,7 +93,6 @@
     },
     "deb": {
       "depends": [
-        "libgconf-2-4"
       ]
     },
     "afterSign": "resources/osx/notarize.js"
