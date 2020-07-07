@@ -59,7 +59,7 @@ function GetTreeFromFolder(folderPath) {
 
 function GetListFromFolder(folderPath) {
   return new Promise((resolve) => {
-    let results = []
+    const results = []
     readdirp(folderPath, {
       type: 'files'
     }).on('data', data => {
@@ -85,8 +85,8 @@ function _recursiveFolderToList(tree, basePath, currentPath = null) {
   let finalList = []
   return new Promise((resolve, reject) => {
     async.eachSeries(tree.children, async (item, next) => {
-      let decryptedName = crypt.DecryptName(item.name, item.parentId)
-      let fullNewPath = PATH.join(currentPath || basePath, decryptedName)
+      const decryptedName = crypt.DecryptName(item.name, item.parentId)
+      const fullNewPath = PATH.join(currentPath || basePath, decryptedName)
       finalList.push(fullNewPath)
       var subFolder = await _recursiveFolderToList(item, basePath, fullNewPath)
       finalList = finalList.concat(subFolder)
@@ -109,11 +109,11 @@ function _recursiveFolderObjectToList(tree, basePath, currentPath = null) {
   let finalList = []
   return new Promise((resolve, reject) => {
     async.eachSeries(tree.children, async (item, next) => {
-      let decryptedName = crypt.DecryptName(item.name, item.parentId)
-      let fullNewPath = PATH.join(currentPath || basePath, decryptedName)
-      let cloneObject = JSON.parse(JSON.stringify(item))
+      const decryptedName = crypt.DecryptName(item.name, item.parentId)
+      const fullNewPath = PATH.join(currentPath || basePath, decryptedName)
+      const cloneObject = JSON.parse(JSON.stringify(item))
       delete cloneObject.children
-      let finalObject = { key: fullNewPath, value: cloneObject }
+      const finalObject = { key: fullNewPath, value: cloneObject }
       finalList.push(finalObject)
       var subFolder = await _recursiveFolderObjectToList(item, basePath, fullNewPath)
       finalList = finalList.concat(subFolder)
@@ -144,8 +144,8 @@ function _recursiveFilesToList(tree, basePath, currentPath = null) {
 
   return new Promise((resolve, reject) => {
     async.eachSeries(tree.children, async (item, next) => {
-      let decryptedName = crypt.DecryptName(item.name, item.parentId)
-      let fullNewPath = PATH.join(currentPath || basePath, decryptedName)
+      const decryptedName = crypt.DecryptName(item.name, item.parentId)
+      const fullNewPath = PATH.join(currentPath || basePath, decryptedName)
       var subFolder = await _recursiveFilesToList(item, basePath, fullNewPath)
       finalList = finalList.concat(subFolder)
       next()
@@ -165,7 +165,7 @@ function GetFileListFromRemoteTree() {
 
 function GetLocalFolderList(localPath) {
   return new Promise((resolve) => {
-    let results = []
+    const results = []
     readdirp(localPath, {
       type: 'directories'
     }).on('data', data => {

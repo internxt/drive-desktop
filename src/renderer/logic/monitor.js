@@ -145,7 +145,7 @@ async function StartMonitor() {
       },
       next => {
         // New sync started, so we save the current date
-        let now = new Date()
+        const now = new Date()
         Logger.log('Sync started at', now)
         database.Set('syncStartDate', now).then(() => next()).catch(next)
       },
@@ -352,7 +352,7 @@ function RegenerateLocalDbFiles() {
         if (err) { reject(err) } else {
           async.eachSeries(list,
             (item, next) => {
-              let finalObject = { key: item.fullpath, value: item }
+              const finalObject = { key: item.fullpath, value: item }
               if (path.basename(finalObject.key) !== sanitize(path.basename(finalObject.key))) {
                 Logger.info('Ignoring file %s, invalid name', finalObject.key)
                 return next()
