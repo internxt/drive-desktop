@@ -88,7 +88,7 @@ function _recursiveFolderToList(tree, basePath, currentPath = null) {
       const decryptedName = crypt.DecryptName(item.name, item.parentId)
       const fullNewPath = PATH.join(currentPath || basePath, decryptedName)
       finalList.push(fullNewPath)
-      var subFolder = await _recursiveFolderToList(item, basePath, fullNewPath)
+      const subFolder = await _recursiveFolderToList(item, basePath, fullNewPath)
       finalList = finalList.concat(subFolder)
       next()
     }, (err, result) => {
@@ -115,7 +115,7 @@ function _recursiveFolderObjectToList(tree, basePath, currentPath = null) {
       delete cloneObject.children
       const finalObject = { key: fullNewPath, value: cloneObject }
       finalList.push(finalObject)
-      var subFolder = await _recursiveFolderObjectToList(item, basePath, fullNewPath)
+      const subFolder = await _recursiveFolderObjectToList(item, basePath, fullNewPath)
       finalList = finalList.concat(subFolder)
       next()
     }, (err, result) => {
@@ -146,7 +146,7 @@ function _recursiveFilesToList(tree, basePath, currentPath = null) {
     async.eachSeries(tree.children, async (item, next) => {
       const decryptedName = crypt.DecryptName(item.name, item.parentId)
       const fullNewPath = PATH.join(currentPath || basePath, decryptedName)
-      var subFolder = await _recursiveFilesToList(item, basePath, fullNewPath)
+      const subFolder = await _recursiveFilesToList(item, basePath, fullNewPath)
       finalList = finalList.concat(subFolder)
       next()
     }, (err, result) => {

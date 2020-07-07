@@ -211,7 +211,7 @@ function UploadAllNewFiles() {
 
     async.eachSeries(files, async function (item, next) {
       // Read filesystem data
-      var stat = Tree.GetStat(item)
+      const stat = Tree.GetStat(item)
 
       if (stat && stat.isFile() && !stat.isSymbolicLink()) { // Is a file, and it is not a sym link
         // Check if file exists in the remote database
@@ -264,7 +264,7 @@ function UploadAllNewFolders() {
         // Check if folders still exists
         if (!fs.existsSync(item)) { return next() }
 
-        var stat = Tree.GetStat(item)
+        const stat = Tree.GetStat(item)
         if (stat && stat.isSymbolicLink()) {
           return next()
         }

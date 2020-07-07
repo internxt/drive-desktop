@@ -114,7 +114,7 @@ function startMain () {
 }
 
 function startElectron () {
-  var args = [
+  let args = [
     '--inspect=5858',
     path.join(__dirname, '../dist/electron/main.js')
   ]
@@ -127,7 +127,7 @@ function startElectron () {
   }
 
   electronProcess = spawn(electron, args)
-  
+
   electronProcess.stdout.on('data', data => {
     electronLog(data, 'blue')
   })

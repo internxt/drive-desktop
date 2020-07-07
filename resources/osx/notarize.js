@@ -15,7 +15,7 @@ exports.default = async function notarizing (context) {
 
   const appName = context.packager.appInfo.productFilename
 
-  var result = await notarize({
+  const result = await notarize({
     appBundleId: 'com.internxt.drive',
     appPath: `${appOutDir}/${appName}.app`,
     appleId: process.env.APPLEID,

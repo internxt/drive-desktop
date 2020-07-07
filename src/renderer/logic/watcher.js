@@ -9,7 +9,7 @@ function StartWatcher(path) {
   watcherStarted = false
 
   return new Promise((resolve, reject) => {
-    var watcher = chokidar.watch(path, {
+    const watcher = chokidar.watch(path, {
       // eslint-disable-next-line no-useless-escape
       ignored: /[\/\\]\./,
       persistent: true,
