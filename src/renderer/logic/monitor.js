@@ -201,23 +201,13 @@ async function StartMonitor() {
         // Delete remote folders missing in local folder
         // Borrar diretorios remotos que ya no existen en local
         // Nos basamos en el último árbol sincronizado
-        if (!lastSyncFailed) {
-          Logger.warn('Skip deleting remote folders because last sync failed and tree is incomplete')
-          CleanLocalFolders().then(() => next()).catch(next)
-        } else {
-          next()
-        }
+        CleanLocalFolders(lastSyncFailed).then(() => next()).catch(next)
       },
       next => {
         // Delete remote files missing in local folder
         // Borrar archivos remotos que ya no existen en local
         // Nos basamos en el último árbol sincronizado
-        if (!lastSyncFailed) {
-          Logger.warn('Skip deleting remote files because last sync failed and tree is incomplete')
-          CleanLocalFiles().then(() => next()).catch(next)
-        } else {
-          next()
-        }
+        CleanLocalFiles(lastSyncFailed).then(() => next()).catch(next)
       },
       next => {
         // backup the last database
@@ -229,21 +219,11 @@ async function StartMonitor() {
       },
       next => {
         // Delete local folders missing in remote
-        if (!lastSyncFailed) {
-          CleanRemoteFolders().then(() => next()).catch(next)
-        } else {
-          Logger.warn('Skip deleting local folders because last sync failed and tree is incomplete')
-          next()
-        }
+        CleanRemoteFolders(lastSyncFailed).then(() => next()).catch(next)
       },
       next => {
         // Delete local files missing in remote
-        if (!lastSyncFailed) {
-          CleanRemoteFiles().then(() => next()).catch(next)
-        } else {
-          Logger.warn('Skip deleting local files because last sync failed and tree is incomplete')
-          next()
-        }
+        CleanRemoteFiles(lastSyncFailed).then(() => next()).catch(next)
       },
       next => {
         // Create local folders
@@ -277,15 +257,17 @@ async function StartMonitor() {
         await database.ClearLastFolders()
         await database.ClearUser()
         await database.CompactAllDatabases()
-
         return
       }
 
       if (err) {
         Logger.error('Error monitor:', err)
         async.waterfall([
-          next => database.ClearFolders().then(() => next()).catch(next),
-          next => database.ClearFiles().then(() => next()).catch(next),
+          next => database.ClearFolders().then(() => next()).catch(() => next()),
+          next => database.ClearFiles().then(() => next()).catch(() => next()),
+          next => database.ClearTemp().then(() => next()).catch(() => next()),
+          next => database.ClearLastFiles().then(() => next()).catch(() => next()),
+          next => database.ClearLastFolders().then(() => next()).catch(() => next()),
           next => {
             database.CompactAllDatabases()
             next()
@@ -301,16 +283,16 @@ async function StartMonitor() {
 }
 
 // Missing folders with entry in local db
-function CleanLocalFolders() {
+function CleanLocalFolders(lastSyncFailed) {
   return new Promise((resolve, reject) => {
-    Sync.CheckMissingFolders().then(resolve).catch(reject)
+    Sync.CheckMissingFolders(lastSyncFailed).then(resolve).catch(reject)
   })
 }
 
 // Missing files with entry in local db
-function CleanLocalFiles() {
+function CleanLocalFiles(lastSyncFailed) {
   return new Promise((resolve, reject) => {
-    Sync.CheckMissingFiles().then(resolve).catch(reject)
+    Sync.CheckMissingFiles(lastSyncFailed).then(resolve).catch(reject)
   })
 }
 
@@ -419,15 +401,15 @@ function UploadNewFiles() {
   })
 }
 
-function CleanRemoteFolders() {
+function CleanRemoteFolders(lastSyncFailed) {
   return new Promise((resolve, reject) => {
-    Sync.CleanLocalFolders().then(() => resolve()).catch(reject)
+    Sync.CleanLocalFolders(lastSyncFailed).then(() => resolve()).catch(reject)
   })
 }
 
-function CleanRemoteFiles() {
+function CleanRemoteFiles(lastSyncFailed) {
   return new Promise((resolve, reject) => {
-    Sync.CleanLocalFiles().then(() => resolve()).catch(reject)
+    Sync.CleanLocalFiles(lastSyncFailed).then(() => resolve()).catch(reject)
   })
 }
 

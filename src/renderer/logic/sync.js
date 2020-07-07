@@ -358,8 +358,11 @@ async function CreateFileEntry(bucketId, bucketEntryId, fileName, fileExtension,
 }
 
 // Check files that does not exists in local anymore, and remove them from remote
-function CheckMissingFiles() {
+function CheckMissingFiles(lastSyncFailed) {
   return new Promise((resolve, reject) => {
+    if (lastSyncFailed) {
+      return resolve()
+    }
     const allData = database.dbFiles.getAllData()
     async.eachSeries(allData, (item, next) => {
       const stat = tree.GetStat(item.key)
@@ -383,8 +386,11 @@ function CheckMissingFiles() {
 }
 
 // Check folders that does not exists in local anymore, and delete those folders on remote
-function CheckMissingFolders() {
+function CheckMissingFolders(lastSyncFailed) {
   return new Promise((resolve, reject) => {
+    if (lastSyncFailed) {
+      return resolve()
+    }
     const allData = database.dbFolders.getAllData()
     async.eachSeries(allData, (item, next) => {
       const stat = tree.GetStat(item.key)
@@ -438,7 +444,7 @@ function CreateLocalFolders() {
 }
 
 // Delete local folders that doesn't exists on remote.
-function CleanLocalFolders() {
+function CleanLocalFolders(lastSyncFailed) {
   return new Promise(async (resolve, reject) => {
     const localPath = await database.Get('xPath')
     const syncDate = database.Get('syncStartDate')
@@ -447,8 +453,9 @@ function CleanLocalFolders() {
     tree.GetLocalFolderList(localPath).then((list) => {
       async.eachSeries(list, (item, next) => {
         database.FolderGet(item).then(async folder => {
-          if (folder) {
+          if (folder || lastSyncFailed) {
             // Folder still exists in remote, nothing to do
+            database.TempDel(item)
             next()
           } else {
             // Should DELETE that folder in local
@@ -479,7 +486,7 @@ function CleanLocalFolders() {
 
 // Delete local files that doesn't exists on remote.
 // It should be called just after tree sync.
-function CleanLocalFiles() {
+function CleanLocalFiles(lastSyncFailed) {
   return new Promise(async (resolve, reject) => {
     const localPath = await database.Get('xPath')
     const syncDate = database.Get('syncStartDate')
@@ -488,7 +495,7 @@ function CleanLocalFiles() {
     tree.GetLocalFileList(localPath).then(list => {
       async.eachSeries(list, (item, next) => {
         database.FileGet(item).then(async fileObj => {
-          if (!fileObj) {
+          if (!fileObj && !lastSyncFailed) {
             // File doesn't exists on remote database, should be locally deleted?
 
             const creationDate = fs.statSync(item).mtime
