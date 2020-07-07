@@ -76,6 +76,9 @@ function getTrayIcon(isLoading) {
 
 function createWindow() {
   mainWindow = new BrowserWindow({
+    webPreferences: {
+      nodeIntegration: true
+    },
     width: 500,
     height: 550,
     useContentSize: true,
@@ -272,14 +275,12 @@ app.on('window-hide', function () {
 })
 
 app.on('set-tooltip', msg => {
-  tray.setToolTip('Internxt Drive' + (msg ? '\n' + msg : ''))
+  tray.setToolTip(`Internxt Drive ${PackageJson.version}${(msg ? '\n' + msg : '')}`)
 })
 
 /**
  * Auto Updater
  *
- * Uncomment the following code below and install `electron-updater` to
- * support auto updating. Code Signing with a valid certificate is required.
  * https://simulatedgreg.gitbooks.io/electron-vue/content/en/using-electron-builder.html#auto-updating
  */
 
@@ -288,7 +289,7 @@ autoUpdater.logger = Logger
 if (process.env.NODE_ENV === 'development') {
   // Only for testing
   autoUpdater.updateConfigPath = 'dev-app-update.yml'
-  autoUpdater.currentVersion = '1.0.0'
+  autoUpdater.currentVersion = '10.0.0'
 }
 
 autoUpdater.on('error', (err) => {
