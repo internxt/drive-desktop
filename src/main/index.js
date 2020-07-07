@@ -9,7 +9,7 @@ import semver from 'semver'
 import PackageJson from '../../package.json'
 import fetch from 'electron-fetch'
 
-var autoLaunch = new AutoLaunch({
+const autoLaunch = new AutoLaunch({
   name: 'Internxt Drive'
 })
 
@@ -59,7 +59,7 @@ function destroyTray() {
 }
 
 function getTrayIcon(isLoading) {
-  let iconName = isLoading ? 'sync-icon' : 'tray-icon'
+  const iconName = isLoading ? 'sync-icon' : 'tray-icon'
 
   let trayIcon = path.join(__dirname, '../../src/resources/icons/' + iconName + '@2x.png')
 
@@ -89,7 +89,7 @@ function createWindow() {
 
   mainWindow.on('closed', appClose)
 
-  let edit = {
+  const edit = {
     label: 'Edit',
     submenu: [
       {
@@ -134,7 +134,7 @@ function createWindow() {
     ]
   }
 
-  let editMacOS = {
+  const editMacOS = {
     label: 'Edit',
     submenu: [
       { role: 'undo' },
@@ -149,7 +149,7 @@ function createWindow() {
     ]
   }
 
-  let view = {
+  const view = {
     label: 'View',
     submenu: [
       {
@@ -162,11 +162,11 @@ function createWindow() {
     ]
   }
 
-  let windowMenu = Menu.setApplicationMenu(
+  const windowMenu = Menu.setApplicationMenu(
     Menu.buildFromTemplate([process.platform === 'darwin' ? editMacOS : edit, view])
   )
 
-  let trayIcon = getTrayIcon()
+  const trayIcon = getTrayIcon()
 
   tray = new Tray(trayIcon)
   tray.setToolTip('Internxt Drive')

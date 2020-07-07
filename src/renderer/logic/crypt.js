@@ -112,8 +112,8 @@ function EncryptName(name, salt) {
 
 function FileHash(path, hash) {
   return new Promise((resolve, reject) => {
-    let hasher = crypto.createHash(hash || 'SHA256')
-    let stream = fs.createReadStream(path)
+    const hasher = crypto.createHash(hash || 'SHA256')
+    const stream = fs.createReadStream(path)
     stream.on('data', function (data) {
       hasher.update(data)
     })

@@ -15,7 +15,7 @@
               @click="configure"
               :disabled="!storagePath || !isEmptyFolder(storagePath)">Continue</button>
           </div>
-          
+
         </main>
     </div>
 </template>
@@ -38,7 +38,7 @@ export default {
   },
   methods: {
     chooseFolder () {
-      var path = remote.dialog.showOpenDialog({ properties: ['openDirectory'] })
+      const path = remote.dialog.showOpenDialog({ properties: ['openDirectory'] })
       if (path && path[0]) {
         this.$data.storagePath = path[0]
         this.$data.folderIsEmpty = this.isEmptyFolder(path[0])
@@ -48,7 +48,7 @@ export default {
       if (!fs.existsSync(path)) {
         return true
       } else {
-        var filesInFolder = fs.readdirSync(path)
+        const filesInFolder = fs.readdirSync(path)
         return filesInFolder.length === 0
       }
     },

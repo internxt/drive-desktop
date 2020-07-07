@@ -24,6 +24,7 @@ module.exports = {
     'no-extra-semi': 'off',
     'no-unreachable': 'off',
     'space-before-function-paren': 'off',
-    'no-useless-character': 0
+    'no-useless-character': 0,
+    'prefer-const': 2
   }
 }

@@ -166,7 +166,7 @@ function DownloadAllFiles() {
             next()
           })
         } else if (uploadAndReplace) {
-          let storj = await _getEnvironment()
+          const storj = await _getEnvironment()
           Sync.UploadFile(storj, item.fullpath).then(() => next()).catch(next)
         } else {
           // Check if should download to ensure file
@@ -211,11 +211,11 @@ function UploadAllNewFiles() {
 
     async.eachSeries(files, async function (item, next) {
       // Read filesystem data
-      var stat = Tree.GetStat(item)
+      const stat = Tree.GetStat(item)
 
       if (stat && stat.isFile() && !stat.isSymbolicLink()) { // Is a file, and it is not a sym link
         // Check if file exists in the remote database
-        let entry = await Database.FileGet(item)
+        const entry = await Database.FileGet(item)
 
         if (!entry) {
           // File is not present on the remote database, so it's a new file. Let's upload.
@@ -264,7 +264,7 @@ function UploadAllNewFolders() {
         // Check if folders still exists
         if (!fs.existsSync(item)) { return next() }
 
-        var stat = Tree.GetStat(item)
+        const stat = Tree.GetStat(item)
         if (stat && stat.isSymbolicLink()) {
           return next()
         }
@@ -274,14 +274,14 @@ function UploadAllNewFolders() {
         // If folder exists on remote database, ignore it, it already exists
         if (dbEntry) { return next() }
 
-        // Substract parent path and folder name
+        // Subtract parent path and folder name
         const folderName = path.basename(item)
         const parentPath = path.dirname(item)
 
         // Get the parent folder ID from remote database
-        let lastFolder = await Database.FolderGet(parentPath)
+        const lastFolder = await Database.FolderGet(parentPath)
         // If parent folder exists on database, pick its ID
-        let lastFolderId = lastFolder && lastFolder.value && lastFolder.value.id
+        const lastFolderId = lastFolder && lastFolder.value && lastFolder.value.id
         // If the parent path is the root of the target path, get the root_folder_id from user info
         let parentId = parentPath === localPath ? userInfo.user.root_folder_id : lastFolderId
 
