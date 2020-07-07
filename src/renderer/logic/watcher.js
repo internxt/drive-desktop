@@ -9,7 +9,7 @@ function StartWatcher(path) {
   watcherStarted = false
 
   return new Promise((resolve, reject) => {
-    var watcher = chokidar.watch(path, {
+    const watcher = chokidar.watch(path, {
       // eslint-disable-next-line no-useless-escape
       ignored: /[\/\\]\./,
       persistent: true,
@@ -71,7 +71,7 @@ function StartWatcher(path) {
       })
       .on('ready', onWatcherReady)
       .on('raw', function (event, path, details) {
-        // This event should be triggered everytime something happens.
+        // This event should be triggered every time something happens.
         // Logger.log('Raw event info:', event, path, details)
       })
   })

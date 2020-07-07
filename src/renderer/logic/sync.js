@@ -360,9 +360,9 @@ async function CreateFileEntry(bucketId, bucketEntryId, fileName, fileExtension,
 // Check files that does not exists in local anymore, and remove them from remote
 function CheckMissingFiles() {
   return new Promise((resolve, reject) => {
-    let allData = database.dbFiles.getAllData()
+    const allData = database.dbFiles.getAllData()
     async.eachSeries(allData, (item, next) => {
-      let stat = tree.GetStat(item.key)
+      const stat = tree.GetStat(item.key)
 
       // If it doesn't exists, or it exists and now is not a file, delete from remote.
       if ((stat && !stat.isFile()) || !fs.existsSync(item.key)) {
@@ -385,9 +385,9 @@ function CheckMissingFiles() {
 // Check folders that does not exists in local anymore, and delete those folders on remote
 function CheckMissingFolders() {
   return new Promise((resolve, reject) => {
-    let allData = database.dbFolders.getAllData()
+    const allData = database.dbFolders.getAllData()
     async.eachSeries(allData, (item, next) => {
-      let stat = tree.GetStat(item.key)
+      const stat = tree.GetStat(item.key)
       if (path.basename(item.key) !== sanitize(path.basename(item.key))) {
         return next()
       }

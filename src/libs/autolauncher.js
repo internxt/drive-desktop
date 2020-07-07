@@ -1,7 +1,7 @@
 import AutoLaunch from 'auto-launch'
 
 function configureAutostart () {
-  var xcdLauncher = new AutoLaunch({
+  const xcdLauncher = new AutoLaunch({
     name: 'Internxt Drive'
   })
 
