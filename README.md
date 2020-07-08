@@ -7,28 +7,40 @@
 
 # Installation
 
-## Ubuntu
+Use node 10.19.0
 
-```sudo apt -y install libgconf2-4```
+``` bash
+nvm install 10.19
+nvm use 10.19
+```
+
+Use yarn
+
+``` bash
+npm i -g yarn
+```
 
 #### Build Setup
 
 ``` bash
 # install dependencies
-npm install
+yarn
 
 # serve with hot reload at localhost:9080
-npm run dev
+yarn run dev
 
 # build electron application for production
-npm run build
+yarn run build
 
 # run unit & end-to-end tests
 npm test
 
 
 # lint all JS/Vue component files in `src/`
-npm run lint
+yarn run lint
+
+# list all JS/Vue component files and fix if needed
+yarn run lint:fix
 
 ```
 

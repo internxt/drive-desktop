@@ -203,12 +203,16 @@ app.on('ready', () => {
 })
 
 function appClose() {
-  destroyTray()
+  if (mainWindow) {
+    mainWindow.destroy()
+  }
   if (process.platform !== 'darwin') { app.quit() }
-  mainWindow = null
+  destroyTray()
 }
 
-app.on('window-all-closed', appClose)
+app.on('window-all-closed', () => {
+  appClose()
+})
 
 app.on('activate', () => {
   if (mainWindow === null) {
@@ -394,7 +398,6 @@ function checkUpdates() {
   }
 
   autoUpdater.checkForUpdates().then((UpdateCheckResult) => {
-    console.log('UpdateCheckResult', JSON.stringify(UpdateCheckResult))
     if (process.env.NODE_ENV !== 'development') {
       // autoUpdater.updateInfoAndProvider = UpdateCheckResult
     }

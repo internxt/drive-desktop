@@ -9,6 +9,7 @@ import Logger from '../../libs/logger'
 import fs from 'fs'
 import path from 'path'
 import sanitize from 'sanitize-filename'
+import PackageJson from '../../../package.json'
 
 let wtc, timeoutInstance
 let isSyncing = false
@@ -62,7 +63,7 @@ function Monitor(startImmediately = false) {
   }
   if (!isSyncing) {
     clearTimeout(timeoutInstance)
-    Logger.log('Waiting %s secs for next sync', timeout / 1000)
+    Logger.log('Waiting %s secs for next sync. Version: v%s', timeout / 1000, PackageJson.version)
     timeoutInstance = setTimeout(() => InitMonitor(), timeout)
   }
 }

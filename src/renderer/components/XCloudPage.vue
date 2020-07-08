@@ -83,7 +83,7 @@ export default {
   },
   methods: {
     quitApp() {
-      remote.getCurrentWindow().close()
+      remote.app.emit('app-close')
     },
     openFolder() {
       remote.app.emit('open-folder')
