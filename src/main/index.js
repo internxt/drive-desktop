@@ -81,6 +81,7 @@ function createWindow() {
   mainWindow.loadURL(winURL)
 
   mainWindow.on('closed', appClose)
+  mainWindow.on('close', appClose)
 
   const edit = {
     label: 'Edit',
