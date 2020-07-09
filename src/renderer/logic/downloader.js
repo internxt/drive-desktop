@@ -181,6 +181,7 @@ function DownloadAllFiles() {
           DownloadFileTemp(item, true).then(tempPath => next()).catch(err => {
             const isError = [
               'File missing shard error',
+              'Farmer request error',
               'Memory mapped file unmap error',
               'Bridge request pointer error'
             ].find(obj => obj === err.message)
@@ -226,7 +227,22 @@ function UploadAllNewFiles() {
             return next()
           }
           // Upload file.
-          Sync.UploadNewFile(storj, item).then(() => next()).catch(next)
+          Sync.UploadNewFile(storj, item).then(() => next()).catch((err) => {
+            // List of unexpected errors, should re-try later
+            const isError = [
+              'Already exists',
+              'Farmer request error',
+            ].find(obj => obj.includes(err.message))
+
+            if (isError) {
+              Logger.error('Error uploading file %s, sync will retry upload in the next sync. Error: %s', item, err.message)
+              database.TempSet(item, 'add')
+              next()
+            } else {
+              Logger.error('Fatal error uploading file: %s', err.message)
+              next(err)
+            }
+          })
         } else {
           // Is not a file, so it is a dir. Do nothing.
           next()
@@ -234,17 +250,8 @@ function UploadAllNewFiles() {
       } else {
         next()
       }
-    }, (err, result) => {
-      if (err) {
-        if (err.message.includes('already exists')) {
-          resolve()
-        } else {
-          Logger.error('Downloader Error uploading file', err)
-          reject(err)
-        }
-      } else {
-        resolve()
-      }
+    }, (err) => {
+      if (err) { reject(err) } else { resolve() }
     })
   })
 }
