@@ -231,12 +231,12 @@ function UploadAllNewFiles() {
             // List of unexpected errors, should re-try later
             const isError = [
               'Already exists',
-              'Farmer request error',
+              'Farmer request error'
             ].find(obj => obj.includes(err.message))
 
             if (isError) {
               Logger.error('Error uploading file %s, sync will retry upload in the next sync. Error: %s', item, err.message)
-              database.TempSet(item, 'add')
+              Database.TempSet(item, 'add')
               next()
             } else {
               Logger.error('Fatal error uploading file: %s', err.message)
