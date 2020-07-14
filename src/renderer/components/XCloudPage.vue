@@ -50,7 +50,12 @@ export default {
   components: {},
   beforeCreate() {
     remote.app.emit('window-hide')
-    Logger.info('User platform: %s %s, version: %s', process.platform, process.arch, PackageJson.version)
+    Logger.info(
+      'User platform: %s %s, version: %s',
+      process.platform,
+      process.arch,
+      PackageJson.version
+    )
   },
   created: function() {
     this.$app = this.$electron.remote.app

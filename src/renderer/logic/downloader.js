@@ -171,7 +171,7 @@ function DownloadAllFiles() {
         } else {
           // Check if should download to ensure file
           let shouldEnsureFile = Math.floor(Math.random() * 33 + 1) % 33 === 0
-          shouldEnsureFile = false
+
           if (!shouldEnsureFile) {
             // Logger.log('%cNO ENSURE FILE', 'background-color: #aaaaff')
             return next()
@@ -236,8 +236,7 @@ function UploadAllNewFiles() {
 
             if (isError) {
               Logger.error('Error uploading file %s, sync will retry upload in the next sync. Error: %s', item, err.message)
-              Database.TempSet(item, 'add')
-              next()
+              Database.TempSet(item, 'add').then(() => next()).catch(() => next())
             } else {
               Logger.error('Fatal error uploading file: %s', err.message)
               next(err)

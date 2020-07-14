@@ -7,55 +7,9 @@ import readdirp from 'readdirp'
 import sanitize from 'sanitize-filename'
 import Logger from '../../libs/logger'
 
-function safeReadDirSync(path) {
-  let dirData = {}
-  try {
-    dirData = FS.readdirSync(path)
-  } catch (ex) {
-    if (ex.code === 'EACCES' || ex.code === 'EPERM') {
-      // User does not have permissions, ignore directory
-      return null
-    } else throw ex
-  }
-  return dirData
-}
-
-function GetTreeFromFolder(folderPath) {
-  const result = safeReadDirSync(folderPath)
-  const folderName = PATH.basename(folderPath)
-
-  const object = {
-    name: folderName,
-    files: [],
-    children: []
-  }
-
-  result.forEach(item => {
-    const fullPath = PATH.join(folderPath, item)
-
-    let stats
-    try { stats = FS.statSync(fullPath) } catch (e) { return null }
-
-    if (stats.isFile()) {
-      const fileCtime = stats.ctime
-      fileCtime.setMilliseconds(0)
-      const fileMtime = stats.mtime
-      fileMtime.setMilliseconds(0)
-      const file = {
-        name: item,
-        size: stats.size,
-        created_at: fileCtime,
-        updated_at: fileMtime,
-        fullPath: PATH.join(fullPath, item)
-      }
-      object.files.push(file)
-    } else {
-      object.children.push(GetTreeFromFolder(fullPath))
-    }
-  })
-
-  return object
-}
+const IgnoredFiles = [
+  '.DS_Store'
+]
 
 function GetListFromFolder(folderPath) {
   return new Promise((resolve) => {
@@ -66,7 +20,9 @@ function GetListFromFolder(folderPath) {
       if (data.basename !== sanitize(data.basename)) {
         return Logger.info('Ignoring %s, filename not compatible', data.fullPath)
       }
-      results.push(data.fullPath)
+      if (IgnoredFiles.indexOf(data.basename) == -1) {
+        results.push(data.fullPath)
+      }
     }).on('warn', warn => console.error('READDIRP non-fatal error', warn))
       .on('error', err => console.error('READDIRP fatal error', err.message))
       .on('end', () => { resolve(results) })
@@ -184,7 +140,6 @@ function GetLocalFileList(localPath) {
 }
 
 export default {
-  GetTreeFromFolder,
   GetListFromFolder,
   GetStat,
   GetFolderListFromRemoteTree,
