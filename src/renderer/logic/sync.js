@@ -106,7 +106,7 @@ function UploadFile(storj, filePath) {
     fs.copyFileSync(filePath, tempFile)
 
     // Upload new file
-    storj.storeFile(bucketId, tempFile, {
+    const state = storj.storeFile(bucketId, tempFile, {
       filename: finalName,
       progressCallback: function (progress, uploadedBytes, totalBytes) {
         let progressPtg = progress * 100
@@ -119,6 +119,7 @@ function UploadFile(storj, filePath) {
           fs.unlinkSync(tempFile)
         }
         app.emit('set-tooltip')
+        app.removeListener('user-logout', stopDownloadHandler)
         if (err) {
           Logger.error('Sync Error uploading and replace file: %s', err)
           const fileExistsPattern = /File already exist/
@@ -134,6 +135,12 @@ function UploadFile(storj, filePath) {
         }
       }
     })
+
+    const stopDownloadHandler = (storj, state) => {
+      storj.storeFileCancel(state)
+    }
+
+    app.on('user-logout', () => stopDownloadHandler(storj, state))
   })
 }
 
@@ -193,7 +200,7 @@ function UploadNewFile(storj, filePath) {
     fs.copyFileSync(filePath, tempFile)
 
     // Upload new file
-    storj.storeFile(bucketId, tempFile, {
+    const state = storj.storeFile(bucketId, tempFile, {
       filename: crypto.createHash('sha256').update(filePath).digest('hex'),
       progressCallback: function (progress, uploadedBytes, totalBytes) {
         let progressPtg = progress * 100
@@ -206,6 +213,7 @@ function UploadNewFile(storj, filePath) {
         }
         // Clear tooltip text, the upload is finished.
         app.emit('set-tooltip')
+        app.removeListener('user-logout', stopDownloadHandler)
 
         if (err) {
           Logger.warn('Error uploading file', err)
@@ -251,6 +259,12 @@ function UploadNewFile(storj, filePath) {
         }
       }
     })
+
+    const stopDownloadHandler = (storj, state) => {
+      storj.storeFileCancel(state)
+    }
+
+    app.on('user-logout', () => stopDownloadHandler(storj, state))
   })
 }
 

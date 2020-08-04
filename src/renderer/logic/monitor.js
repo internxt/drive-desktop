@@ -86,6 +86,10 @@ async function InitMonitor() {
   StartMonitor()
 }
 
+Monitor.prototype.StopMonitor = () => {
+  clearTimeout(timeoutInstance)
+}
+
 function StartUpdateDeviceSync() {
   Logger.log('Started sync update interval')
   Sync.UpdateUserSync()
@@ -108,6 +112,12 @@ async function StartMonitor() {
 
     return
   }
+
+  app.on('user-logout', () => {
+    isSyncing = false
+    app.emit('sync-off')
+    throw Error('Monitor stopped')
+  })
 
   // StartUpdateDeviceSync()
   isSyncing = true

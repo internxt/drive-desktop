@@ -20,7 +20,7 @@ function GetListFromFolder(folderPath) {
       if (data.basename !== sanitize(data.basename)) {
         return Logger.info('Ignoring %s, filename not compatible', data.fullPath)
       }
-      if (IgnoredFiles.indexOf(data.basename) == -1) {
+      if (IgnoredFiles.indexOf(data.basename) === -1) {
         results.push(data.fullPath)
       }
     }).on('warn', warn => console.error('READDIRP non-fatal error', warn))
