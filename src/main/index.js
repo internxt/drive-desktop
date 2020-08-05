@@ -8,6 +8,7 @@ import { autoUpdater } from 'electron-updater'
 import semver from 'semver'
 import PackageJson from '../../package.json'
 import fetch from 'electron-fetch'
+import fs from 'fs'
 
 AutoLaunch.configureAutostart()
 
@@ -63,6 +64,77 @@ function getTrayIcon(isLoading) {
 
   return trayIcon
 }
+
+const contextMenu = async (userEmail) => {
+  let userMenu = []
+  if (userEmail) {
+    userMenu = [
+      {
+        label: userEmail,
+        enabled: false
+      },
+      {
+        type: 'separator'
+      },
+      {
+        label: 'Change sync folder',
+        click: function () {
+          const newDir = dialog.showOpenDialogSync(new BrowserWindow({ show: false }), { properties: ['openDirectory'] })
+          console.log(newDir)
+          if (newDir && newDir.length > 0 && fs.existsSync(newDir[0])) {
+            app.emit('new-folder-path', newDir[0])
+          } else {
+            Logger.info('Sync folder change error or cancelled')
+          }
+        }
+      }
+    ]
+  } else {
+    console.log('xUser is not set, skip from menu')
+  }
+  const contextMenuTemplate = [
+    {
+      label: 'Open folder',
+      click: function () {
+        app.emit('open-folder')
+      }
+    },
+    {
+      label: 'Force sync',
+      click: function () {
+        app.emit('sync-start')
+      }
+    },
+    {
+      label: 'Billing',
+      click: function () { shell.openExternal(`${process.env.API_URL}/storage`) }
+    },
+    {
+      label: 'Log out',
+      click: function () {
+        app.emit('user-logout')
+      }
+    },
+    {
+      label: 'Quit',
+      click: appClose
+    }
+  ]
+  return Menu.buildFromTemplate(Array.concat(userMenu, contextMenuTemplate))
+}
+
+async function updateContextMenu(tray, user) {
+  const ctxMenu = await contextMenu(user)
+  tray.setContextMenu(ctxMenu)
+}
+
+app.on('update-menu', (user) => {
+  if (tray) {
+    updateContextMenu(tray, user)
+  } else {
+    console.log('no tray to update')
+  }
+})
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -165,36 +237,7 @@ function createWindow() {
   tray = new Tray(trayIcon)
   tray.setToolTip('Internxt Drive ' + PackageJson.version)
 
-  const contextMenu = () => Menu.buildFromTemplate([
-    {
-      label: 'Open folder',
-      click: function () {
-        app.emit('open-folder')
-      }
-    },
-    {
-      label: 'Force sync',
-      click: function () {
-        app.emit('sync-start')
-      }
-    },
-    {
-      label: 'Billing',
-      click: function () { shell.openExternal(`${process.env.API_URL}/storage`) }
-    },
-    {
-      label: 'Log out',
-      click: function () {
-        app.emit('user-logout')
-      }
-    },
-    {
-      label: 'Quit',
-      click: appClose
-    }
-  ])
-
-  tray.setContextMenu(contextMenu())
+  updateContextMenu(tray)
 }
 
 app.on('ready', () => {

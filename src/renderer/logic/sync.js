@@ -119,7 +119,7 @@ function UploadFile(storj, filePath) {
           fs.unlinkSync(tempFile)
         }
         app.emit('set-tooltip')
-        app.removeListener('user-logout', stopDownloadHandler)
+        app.removeListener('sync-stop', stopDownloadHandler)
         if (err) {
           Logger.error('Sync Error uploading and replace file: %s', err)
           const fileExistsPattern = /File already exist/
@@ -140,7 +140,7 @@ function UploadFile(storj, filePath) {
       storj.storeFileCancel(state)
     }
 
-    app.on('user-logout', () => stopDownloadHandler(storj, state))
+    app.on('sync-stop', () => stopDownloadHandler(storj, state))
   })
 }
 
@@ -213,7 +213,7 @@ function UploadNewFile(storj, filePath) {
         }
         // Clear tooltip text, the upload is finished.
         app.emit('set-tooltip')
-        app.removeListener('user-logout', stopDownloadHandler)
+        app.removeListener('sync-stop', stopDownloadHandler)
 
         if (err) {
           Logger.warn('Error uploading file', err)
@@ -264,7 +264,7 @@ function UploadNewFile(storj, filePath) {
       storj.storeFileCancel(state)
     }
 
-    app.on('user-logout', () => stopDownloadHandler(storj, state))
+    app.on('sync-stop', () => stopDownloadHandler(storj, state))
   })
 }
 

@@ -113,7 +113,7 @@ async function StartMonitor() {
     return
   }
 
-  app.on('user-logout', () => {
+  app.on('sync-stop', () => {
     isSyncing = false
     app.emit('sync-off')
     throw Error('Monitor stopped')

@@ -75,7 +75,7 @@ function DownloadFileTemp(fileObj, silent = false) {
       },
       finishedCallback: function (err) {
         app.emit('set-tooltip')
-        app.removeListener('user-logout', stopDownloadHandler)
+        app.removeListener('sync-stop', stopDownloadHandler)
         if (err) { reject(err) } else {
           Logger.log('Download finished')
           Sync.SetModifiedTime(tempFilePath, fileObj.created_at).then(() => resolve(tempFilePath)).catch(reject)
@@ -87,7 +87,7 @@ function DownloadFileTemp(fileObj, silent = false) {
       storj.resolveFileCancel(state)
     }
 
-    app.on('user-logout', () => stopDownloadHandler(storj, state))
+    app.on('sync-stop', () => stopDownloadHandler(storj, state))
   })
 }
 
