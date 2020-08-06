@@ -208,7 +208,7 @@ export default {
               crypt.DecryptWithKey(res.data.user.mnemonic, this.$data.password)
             )
             await database.Set('xUser', res.data)
-            this.$router.push('/landing-page')
+            this.$router.push('/landing-page').catch(() => {})
           }
         })
         .catch(err => {

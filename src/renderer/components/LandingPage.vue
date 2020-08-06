@@ -43,10 +43,10 @@ export default {
       await database.ClearUser()
       await database.CompactAllDatabases()
 
-      this.$router.push('/login')
+      this.$router.push('/login').catch(() => {})
     } else {
       // Check if token is valid
-      this.$router.push('/xcloud')
+      this.$router.push('/xcloud').catch(() => {})
     }
   },
   methods: {
@@ -70,7 +70,7 @@ export default {
           if (err) {
             alert('Error clearing database\n\n' + err)
           } else {
-            this.$router.push('/login')
+            this.$router.push('/login').catch(() => {})
           }
         })
       }

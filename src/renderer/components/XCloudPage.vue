@@ -88,7 +88,7 @@ export default {
             .then(() => {
               database.CompactAllDatabases()
               remote.app.emit('update-menu')
-              this.$router.push('/')
+              this.$router.push('/').catch(() => {})
             })
             .catch((err) => {
               Logger.error('ERROR CLEARING USER', err)
@@ -103,7 +103,7 @@ export default {
       remote.app.emit('sync-stop')
       await database.ClearAll()
       database.Set('xPath', newPath)
-      this.$router.push('/')
+      this.$router.push('/').catch(() => {})
     })
   },
   methods: {

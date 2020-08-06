@@ -79,8 +79,7 @@ const contextMenu = async (userEmail) => {
       {
         label: 'Change sync folder',
         click: function () {
-          const newDir = dialog.showOpenDialogSync(new BrowserWindow({ show: false }), { properties: ['openDirectory'] })
-          console.log(newDir)
+          const newDir = dialog.showOpenDialogSync({ properties: ['openDirectory'] })
           if (newDir && newDir.length > 0 && fs.existsSync(newDir[0])) {
             app.emit('new-folder-path', newDir[0])
           } else {

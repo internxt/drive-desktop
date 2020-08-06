@@ -126,7 +126,7 @@ function UploadFile(storj, filePath) {
           if (fileExistsPattern.exec(err)) {
             resolve()
           } else {
-            reject(err)
+            resolve()
           }
         } else {
           CreateFileEntry(bucketId, newFileId, encryptedFileName, fileExt, fileSize, folderId, fileMtime)
