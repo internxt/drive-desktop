@@ -622,6 +622,28 @@ function UpdateUserSync(toNull = false) {
   })
 }
 
+async function UnlockSync() {
+  Logger.info('Sync unlocked')
+  return new Promise(async (resolve, reject) => {
+    const userData = await database.Get('xUser')
+    fetch(`${process.env.API_URL}/api/user/sync`, {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${userData.token}`,
+        'content-type': 'application/json'
+      }
+    }).then(res => {
+      if (res.status === 200) {
+        resolve()
+      } else {
+        reject(res.status)
+      }
+    }).catch(err => {
+      reject(err)
+    })
+  })
+}
+
 export default {
   UploadFile,
   SetModifiedTime,
@@ -636,5 +658,6 @@ export default {
   RemoteCreateFolder,
   GetOrSetUserSync,
   UpdateUserSync,
+  UnlockSync,
   SYNC_KEEPALIVE_INTERVAL_MS
 }
