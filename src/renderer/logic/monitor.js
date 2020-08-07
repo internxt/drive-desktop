@@ -93,20 +93,20 @@ Monitor.prototype.StopMonitor = () => {
 function StartUpdateDeviceSync() {
   Logger.log('Started sync update interval')
   Sync.UpdateUserSync()
-  // updateSyncInterval = setInterval(() => Sync.UpdateUserSync(), Sync.SYNC_KEEPALIVE_INTERVAL_MS)
+  updateSyncInterval = setInterval(() => Sync.UpdateUserSync(), Sync.SYNC_KEEPALIVE_INTERVAL_MS)
 }
 
 function StopUpdateDeviceSync() {
   Logger.log('Stopped sync update interval')
+  Sync.UnlockSync()
   clearInterval(updateSyncInterval)
 }
 
 async function StartMonitor() {
-  // const userDevicesSyncing = await Sync.GetOrSetUserSync()
-  const userDevicesSyncing = false
+  const userDevicesSyncing = await Sync.GetOrSetUserSync()
   if (isSyncing || userDevicesSyncing) {
     if (userDevicesSyncing) {
-      Logger.log('Sync not started because user have other device syncing')
+      Logger.warn('Sync not started because user have other device syncing')
       Monitor()
     }
 
