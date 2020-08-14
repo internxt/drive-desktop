@@ -50,24 +50,35 @@ export default {
   components: {},
   beforeCreate() {
     remote.app.emit('window-hide')
-    Logger.info(
-      'User platform: %s %s, version: %s',
-      process.platform,
-      process.arch,
-      PackageJson.version
-    )
+    database
+      .Get('xUser')
+      .then((xUser) => {
+        const userEmail = xUser.user.email
+        remote.app.emit('update-menu', userEmail)
+        Logger.info(
+          'Account: %s, User platform: %s %s, version: %s',
+          userEmail,
+          process.platform,
+          process.arch,
+          PackageJson.version
+        )
+      })
+      .catch((err) => {
+        console.log('Cannot update tray icon', err.message)
+      })
   },
-  created: function() {
+  created: function () {
     this.$app = this.$electron.remote.app
     Monitor.Monitor(true)
     this.getLocalFolderPath()
     this.getCurrentEnv()
 
-    remote.app.on('set-tooltip', text => {
+    remote.app.on('set-tooltip', (text) => {
       this.toolTip = text
     })
 
     remote.app.on('user-logout', () => {
+      remote.app.emit('sync-stop')
       database
         .ClearAll()
         .then(() => {
@@ -75,15 +86,24 @@ export default {
           database
             .ClearUser()
             .then(() => {
-              this.$router.push('/')
+              database.CompactAllDatabases()
+              remote.app.emit('update-menu')
+              this.$router.push('/').catch(() => {})
             })
-            .catch(err => {
+            .catch((err) => {
               Logger.error('ERROR CLEARING USER', err)
             })
         })
         .catch(() => {
           Logger.error('ERROR CLEARING ALL')
         })
+    })
+
+    remote.app.on('new-folder-path', async (newPath) => {
+      remote.app.emit('sync-stop')
+      await database.ClearAll()
+      database.Set('xPath', newPath)
+      this.$router.push('/').catch(() => {})
     })
   },
   methods: {
@@ -109,10 +129,10 @@ export default {
     getLocalFolderPath() {
       database
         .Get('xPath')
-        .then(path => {
+        .then((path) => {
           this.$data.localPath = path
         })
-        .catch(err => {
+        .catch((err) => {
           console.error(err)
           this.$data.localPath = 'error'
         })

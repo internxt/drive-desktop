@@ -198,6 +198,7 @@ const CompactAllDatabases = () => {
   dbTemp.persistence.compactDatafile()
   dbLastFiles.persistence.compactDatafile()
   dbLastFolders.persistence.compactDatafile()
+  dbUser.persistence.compactDatafile()
 }
 
 const BackupCurrentTree = () => {

@@ -63,7 +63,7 @@ function DownloadFileTemp(fileObj, silent = false) {
     }
 
     Logger.log('DRIVE resolveFile, bucket: %s, file: %s', fileObj.bucket, fileObj.fileId)
-    storj.resolveFile(fileObj.bucket, fileObj.fileId, tempFilePath, {
+    const state = storj.resolveFile(fileObj.bucket, fileObj.fileId, tempFilePath, {
       progressCallback: function (progress, downloadedBytes, totalBytes) {
         if (!silent) {
           let progressPtg = progress * 100
@@ -75,12 +75,19 @@ function DownloadFileTemp(fileObj, silent = false) {
       },
       finishedCallback: function (err) {
         app.emit('set-tooltip')
+        app.removeListener('sync-stop', stopDownloadHandler)
         if (err) { reject(err) } else {
           Logger.log('Download finished')
           Sync.SetModifiedTime(tempFilePath, fileObj.created_at).then(() => resolve(tempFilePath)).catch(reject)
         }
       }
     })
+
+    const stopDownloadHandler = (storj, state) => {
+      storj.resolveFileCancel(state)
+    }
+
+    app.on('sync-stop', () => stopDownloadHandler(storj, state))
   })
 }
 
@@ -170,7 +177,7 @@ function DownloadAllFiles() {
           Sync.UploadFile(storj, item.fullpath).then(() => next()).catch(next)
         } else {
           // Check if should download to ensure file
-          let shouldEnsureFile = Math.floor(Math.random() * 33 + 1) % 33 === 0
+          const shouldEnsureFile = Math.floor(Math.random() * 33 + 1) % 33 === 0
 
           if (!shouldEnsureFile) {
             // Logger.log('%cNO ENSURE FILE', 'background-color: #aaaaff')

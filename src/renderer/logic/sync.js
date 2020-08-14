@@ -106,7 +106,7 @@ function UploadFile(storj, filePath) {
     fs.copyFileSync(filePath, tempFile)
 
     // Upload new file
-    storj.storeFile(bucketId, tempFile, {
+    const state = storj.storeFile(bucketId, tempFile, {
       filename: finalName,
       progressCallback: function (progress, uploadedBytes, totalBytes) {
         let progressPtg = progress * 100
@@ -119,13 +119,14 @@ function UploadFile(storj, filePath) {
           fs.unlinkSync(tempFile)
         }
         app.emit('set-tooltip')
+        app.removeListener('sync-stop', stopDownloadHandler)
         if (err) {
           Logger.error('Sync Error uploading and replace file: %s', err)
           const fileExistsPattern = /File already exist/
           if (fileExistsPattern.exec(err)) {
             resolve()
           } else {
-            reject(err)
+            resolve()
           }
         } else {
           CreateFileEntry(bucketId, newFileId, encryptedFileName, fileExt, fileSize, folderId, fileMtime)
@@ -134,6 +135,12 @@ function UploadFile(storj, filePath) {
         }
       }
     })
+
+    const stopDownloadHandler = (storj, state) => {
+      storj.storeFileCancel(state)
+    }
+
+    app.on('sync-stop', () => stopDownloadHandler(storj, state))
   })
 }
 
@@ -193,7 +200,7 @@ function UploadNewFile(storj, filePath) {
     fs.copyFileSync(filePath, tempFile)
 
     // Upload new file
-    storj.storeFile(bucketId, tempFile, {
+    const state = storj.storeFile(bucketId, tempFile, {
       filename: crypto.createHash('sha256').update(filePath).digest('hex'),
       progressCallback: function (progress, uploadedBytes, totalBytes) {
         let progressPtg = progress * 100
@@ -206,6 +213,7 @@ function UploadNewFile(storj, filePath) {
         }
         // Clear tooltip text, the upload is finished.
         app.emit('set-tooltip')
+        app.removeListener('sync-stop', stopDownloadHandler)
 
         if (err) {
           Logger.warn('Error uploading file', err)
@@ -251,6 +259,12 @@ function UploadNewFile(storj, filePath) {
         }
       }
     })
+
+    const stopDownloadHandler = (storj, state) => {
+      storj.storeFileCancel(state)
+    }
+
+    app.on('sync-stop', () => stopDownloadHandler(storj, state))
   })
 }
 
@@ -608,6 +622,28 @@ function UpdateUserSync(toNull = false) {
   })
 }
 
+async function UnlockSync() {
+  Logger.info('Sync unlocked')
+  return new Promise(async (resolve, reject) => {
+    const userData = await database.Get('xUser')
+    fetch(`${process.env.API_URL}/api/user/sync`, {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${userData.token}`,
+        'content-type': 'application/json'
+      }
+    }).then(res => {
+      if (res.status === 200) {
+        resolve()
+      } else {
+        reject(res.status)
+      }
+    }).catch(err => {
+      reject(err)
+    })
+  })
+}
+
 export default {
   UploadFile,
   SetModifiedTime,
@@ -622,5 +658,6 @@ export default {
   RemoteCreateFolder,
   GetOrSetUserSync,
   UpdateUserSync,
+  UnlockSync,
   SYNC_KEEPALIVE_INTERVAL_MS
 }
