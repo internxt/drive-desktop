@@ -8,7 +8,10 @@ import sanitize from 'sanitize-filename'
 import Logger from '../../libs/logger'
 
 const IgnoredFiles = [
-  '.DS_Store'
+  '^\\.(DS_Store|[Tt]humbs)$',
+  '.*~$',
+  '^\\._.*',
+  '^~.*'
 ]
 
 function GetListFromFolder(folderPath) {
@@ -20,7 +23,10 @@ function GetListFromFolder(folderPath) {
       if (data.basename !== sanitize(data.basename)) {
         return Logger.info('Ignoring %s, filename not compatible', data.fullPath)
       }
-      if (IgnoredFiles.indexOf(data.basename) === -1) {
+
+      const invalid = IgnoredFiles.find(regex => new RegExp(regex).test(data.basename))
+
+      if (typeof invalid === 'undefined') {
         results.push(data.fullPath)
       }
     }).on('warn', warn => console.error('READDIRP non-fatal error', warn))
