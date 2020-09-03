@@ -138,7 +138,8 @@ app.on('update-menu', (user) => {
 function createWindow() {
   mainWindow = new BrowserWindow({
     webPreferences: {
-      nodeIntegration: true
+      nodeIntegration: true,
+      webSecurity: false
     },
     width: 500,
     height: 550,

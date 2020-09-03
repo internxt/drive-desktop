@@ -13,6 +13,7 @@ import config from '../../config'
 import crypto from 'crypto'
 import AesUtil from './AesUtil'
 import sanitize from 'sanitize-filename'
+import BridgeService from './BridgeService'
 
 const app = electron.remote.app
 const SYNC_KEEPALIVE_INTERVAL_MS = 25000
@@ -192,22 +193,27 @@ function UploadNewFile(storj, filePath) {
     if (!fs.existsSync(tempPath)) {
       mkdirp.sync(tempPath)
     }
-    const tempFile = path.join(tempPath, hasher(filePath))
+
+    const hashName = hasher(filePath)
+    const tempFile = path.join(tempPath, hashName)
     if (fs.existsSync(tempFile)) {
       fs.unlinkSync(tempFile)
     }
 
     fs.copyFileSync(filePath, tempFile)
 
+    const relativePath = path.relative(folderRoot, filePath)
+    console.log('Network name should be: %s', relativePath)
+
     // Upload new file
     const state = storj.storeFile(bucketId, tempFile, {
-      filename: crypto.createHash('sha256').update(filePath).digest('hex'),
+      filename: hashName,
       progressCallback: function (progress, uploadedBytes, totalBytes) {
         let progressPtg = progress * 100
         progressPtg = progressPtg.toFixed(2)
         app.emit('set-tooltip', 'Uploading ' + originalFileName + ' (' + progressPtg + '%)')
       },
-      finishedCallback: function (err, newFileId) {
+      finishedCallback: async function (err, newFileId) {
         if (fs.existsSync(tempFile)) {
           fs.unlinkSync(tempFile)
         }
@@ -222,27 +228,19 @@ function UploadNewFile(storj, filePath) {
           const fileExistsPattern = /File already exist/
           if (fileExistsPattern.exec(err)) {
             // File already exists, so there's no need to upload again.
-            // SHOULD RETURN THE ACTUAL FILE ID?
             Logger.warn('FILE ALREADY EXISTS', tempFile)
 
-            storj.listFiles(bucketId, (err, listFiles) => {
-              if (err) {
-                reject(err)
-              } else {
-                const fileExists = listFiles.find(obj => obj.filename === finalName || obj.filename === originalFileName)
+            // Right now file names in network are full paths encrypted.
+            // This could be an issue if user uses multiple devices.
+            // TODO: Migrate to relative paths based on drive folder path
+            const networkId = await BridgeService.FindFileByName(bucketId, hashName)
 
-                if (!fileExists || !fileExists.id) {
-                  return resolve()
-                  // return reject(Error('Cannot find file on network'))
-                }
-
-                console.log('File exists and found on network')
-
-                newFileId = fileExists.id
-
-                CreateFileEntry(bucketId, newFileId, encryptedFileName, fileExt, fileSize, folderId).then(resolve).catch(resolve)
-              }
-            })
+            if (networkId) {
+              newFileId = networkId
+              CreateFileEntry(bucketId, newFileId, encryptedFileName, fileExt, fileSize, folderId).then(resolve).catch(resolve)
+            } else {
+              Logger.warn('Cannot find file %s on network', hashName)
+            }
           } else {
             // There was an error uploading the new file. Reject to stop the sync.
             Logger.error('Error uploading new file: %s', err.message)
