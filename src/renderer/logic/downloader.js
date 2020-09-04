@@ -221,7 +221,7 @@ function UploadAllNewFiles() {
       // Read filesystem data
       const stat = Tree.GetStat(item)
 
-      if (stat && stat.isFile() && !stat.isSymbolicLink()) { // Is a file, and it is not a sym link
+      if (stat && stat.isFile() && !stat.isSymbolicLink() && stat.size < 1024 * 1024 * 1024 * 10) { // Is a file, and it is not a sym link
         // Check if file exists in the remote database
         const entry = await Database.FileGet(item)
 
