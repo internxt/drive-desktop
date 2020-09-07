@@ -68,7 +68,7 @@ function DownloadFileTemp(fileObj, silent = false) {
         if (!silent) {
           let progressPtg = progress * 100
           progressPtg = progressPtg.toFixed(2)
-          app.emit('set-tooltip', 'Downloading ' + originalFileName + ' (' + progressPtg + '%)')
+          app.emit('set-tooltip', 'Downloading ' + originalFileName + ' (' + progressPtg + '%).')
         } else {
           app.emit('set-tooltip', 'Checking ' + originalFileName)
         }
@@ -104,7 +104,10 @@ function DownloadAllFiles() {
   return new Promise((resolve, reject) => {
     // Get a list of all the files on the remote folder
     Tree.GetFileListFromRemoteTree().then(list => {
+      const totalFiles = list.length
+      let currentFiles = 0
       async.eachSeries(list, async (item, next) => {
+        currentFiles++
         if (path.basename(item.fullpath) !== sanitize(path.basename(item.fullpath))) {
           Logger.info('Can\'t download %s, invalid filename', path.basename(item.fullpath))
           return next()
@@ -174,7 +177,7 @@ function DownloadAllFiles() {
           })
         } else if (uploadAndReplace) {
           const storj = await _getEnvironment()
-          Sync.UploadFile(storj, item.fullpath).then(() => next()).catch(next)
+          Sync.UploadFile(storj, item.fullpath, currentFiles, totalFiles).then(() => next()).catch(next)
         } else {
           // Check if should download to ensure file
           const shouldEnsureFile = Math.floor(Math.random() * 33 + 1) % 33 === 0
@@ -217,7 +220,12 @@ function UploadAllNewFiles() {
     const files = await Tree.GetListFromFolder(localPath)
     const storj = await _getEnvironment()
 
+    const totalFiles = files.length
+    let currentFiles = 0
+
     async.eachSeries(files, async function (item, next) {
+      currentFiles++
+
       // Read filesystem data
       const stat = Tree.GetStat(item)
 
@@ -234,11 +242,13 @@ function UploadAllNewFiles() {
             return next()
           }
           // Upload file.
-          Sync.UploadNewFile(storj, item).then(() => next()).catch((err) => {
+          Sync.UploadNewFile(storj, item, currentFiles, totalFiles).then(() => next()).catch((err) => {
             // List of unexpected errors, should re-try later
             const isError = [
               'Already exists',
-              'Farmer request error'
+              'Farmer request error',
+              'File create parity error',
+              'File encryption error'
             ].find(obj => obj.includes(err.message))
 
             if (isError) {

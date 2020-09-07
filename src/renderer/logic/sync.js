@@ -62,7 +62,7 @@ function SetModifiedTime(path, time) {
   })
 }
 
-function UploadFile(storj, filePath) {
+function UploadFile(storj, filePath, nCurrent, nTotal) {
   Logger.log('Upload file', filePath)
   return new Promise(async (resolve, reject) => {
     const fileInfo = await FileInfoFromPath(filePath)
@@ -113,7 +113,7 @@ function UploadFile(storj, filePath) {
         let progressPtg = progress * 100
         progressPtg = progressPtg.toFixed(2)
         app.emit('set-percentage', progressPtg)
-        app.emit('set-tooltip', 'Uploading ' + originalFileName + ' (' + progressPtg + '%)')
+        app.emit('set-tooltip', (nCurrent && nTotal ? `Files: ${nCurrent}/${nTotal}\n` : '') + 'Uploading ' + originalFileName + ' (' + progressPtg + '%)')
       },
       finishedCallback: function (err, newFileId) {
         if (fs.existsSync(tempFile)) {
@@ -145,7 +145,7 @@ function UploadFile(storj, filePath) {
   })
 }
 
-function UploadNewFile(storj, filePath) {
+function UploadNewFile(storj, filePath, nCurrent, nTotal) {
   // Get the folder info of that file.
   const folderPath = path.dirname(filePath)
   return new Promise(async (resolve, reject) => {
@@ -175,7 +175,7 @@ function UploadNewFile(storj, filePath) {
     const originalFileName = path.basename(filePath)
     const encryptedFileName = crypt.EncryptFilename(originalFileName, folderId)
 
-    app.emit('set-tooltip', 'Uploading ' + originalFileName)
+    app.emit('set-tooltip', (nCurrent && nTotal ? `${nCurrent}/${nTotal}\n` : '') + 'Uploading ' + originalFileName)
 
     // File extension
 
@@ -211,7 +211,7 @@ function UploadNewFile(storj, filePath) {
       progressCallback: function (progress, uploadedBytes, totalBytes) {
         let progressPtg = progress * 100
         progressPtg = progressPtg.toFixed(2)
-        app.emit('set-tooltip', 'Uploading ' + originalFileName + ' (' + progressPtg + '%)')
+        app.emit('set-tooltip', (nCurrent && nTotal ? `Files: ${nCurrent}/${nTotal}\n` : '') + 'Uploading ' + originalFileName + ' (' + progressPtg + '%)')
       },
       finishedCallback: async function (err, newFileId) {
         if (fs.existsSync(tempFile)) {
@@ -222,7 +222,7 @@ function UploadNewFile(storj, filePath) {
         app.removeListener('sync-stop', stopDownloadHandler)
 
         if (err) {
-          Logger.warn('Error uploading file', err)
+          Logger.warn('Error uploading file', err.message)
           database.FileSet(filePath, null)
           // If the error is due to file existence, ignore in order to continue uploading
           const fileExistsPattern = /File already exist/
