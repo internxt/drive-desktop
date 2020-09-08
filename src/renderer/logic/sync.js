@@ -175,7 +175,7 @@ function UploadNewFile(storj, filePath, nCurrent, nTotal) {
     const originalFileName = path.basename(filePath)
     const encryptedFileName = crypt.EncryptFilename(originalFileName, folderId)
 
-    app.emit('set-tooltip', (nCurrent && nTotal ? `${nCurrent}/${nTotal}\n` : '') + 'Uploading ' + originalFileName)
+    app.emit('set-tooltip', (nCurrent && nTotal ? `${nCurrent}/${nTotal}\n` : '') + 'Checking ' + originalFileName)
 
     // File extension
 
