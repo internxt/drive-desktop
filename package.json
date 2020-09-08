@@ -23,7 +23,7 @@
     "test": "npm run unit && npm run e2e",
     "unit": "karma start test/unit/karma.conf.js",
     "postinstall": "cross-env NODE_OPTIONS='--max-old-space-size=8192' npm run lint:fix && electron-rebuild",
-    "publish": "cross-env NODE_OPTIONS='--max-old-space-size=8192' electron-builder --publish always"
+    "publish": "cross-env NODE_OPTIONS='--max-old-space-size=8192' node .electron-vue/build.js && electron-builder --publish always"
   },
   "build": {
     "productName": "Internxt Drive",
