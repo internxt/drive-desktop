@@ -350,7 +350,7 @@ autoUpdater.on('download-progress', (progress) => {
 
 autoUpdater.on('update-downloaded', (info) => {
   Logger.info('New update downloaded, quit and install')
-  AnnounceUpdate(info.versionInfo.version)
+  AnnounceUpdate(info.version)
 
   // Silent and force re-open after update
   if (process.env.NODE_ENV !== 'development') {
