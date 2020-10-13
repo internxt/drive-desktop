@@ -160,8 +160,8 @@ function UploadNewFile(storj, filePath, nCurrent, nTotal) {
         // Logger.error('Folder does not exists in local database', folderPath)
         // Save this file on the temp database, so will not be deleted in the next steps.
         database.TempSet(filePath, 'add')
-        return resolve()
       }
+      return resolve()
     }
 
     Logger.log('NEW file found', filePath)
@@ -577,8 +577,16 @@ function GetOrSetUserSync() {
         method: 'GET',
         headers: await GetAuthHeader()
       }).then(async res => {
-        return { res, data: await res.json() }
+        if (res.status !== 200) {
+          throw res.statusText
+        }
+        try {
+          return { res, data: await res.json() }
+        } catch (err) {
+          throw res
+        }
       }).then(res => {
+        console.log('THEN 2')
         resolve(res.data.data)
       }).catch(err => {
         Logger.error('Fetch error getting sync', err)
@@ -604,6 +612,7 @@ function UpdateUserSync(toNull = false) {
         fetchOpts.body = JSON.stringify({ toNull })
       }
 
+      console.log('GET 2')
       fetch(`${process.env.API_URL}/api/user/sync`, fetchOpts)
         .then(async res => {
           if (res !== 200) {
