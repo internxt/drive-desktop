@@ -247,7 +247,7 @@ const ClearAll = () => {
       next => ClearTemp().then(() => next()).catch(next),
       next => ClearLastFiles().then(() => next()).catch(next),
       next => ClearLastFolders().then(() => next()).catch(next),
-      next => dbUser.remove({ key: 'tree' }, { multi: true }, next),
+      next => dbUser.remove({ key: 'tree' }, { multi: true }, () => next()),
       next => {
         CompactAllDatabases()
         next()
