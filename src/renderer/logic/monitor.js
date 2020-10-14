@@ -181,7 +181,7 @@ async function StartMonitor() {
             // If last time is more than 2 days, let's consider a unsuccessful sync,
             // to perform the sync from the start
             const DifferenceInTime = new Date() - lastDate
-            const DifferenceInDays = DifferenceInTime / (1000 * 3600 * 24)
+            const DifferenceInDays = DifferenceInTime / (1000 * 60 * 60 * 24)
             if (DifferenceInDays > 2) {
               // Last sync > 2 days, assume last sync failed to start from 0
               database.Set('lastSyncSuccess', false).then(() => next()).catch(next)
