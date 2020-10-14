@@ -65,6 +65,7 @@ function getTrayIcon(isLoading) {
   return trayIcon
 }
 
+const syncMode = 1
 const contextMenu = async (userEmail) => {
   let userMenu = []
   if (userEmail) {
@@ -97,6 +98,27 @@ const contextMenu = async (userEmail) => {
       click: function () {
         app.emit('open-folder')
       }
+    },
+    {
+      label: 'Sync options',
+      enabled: !!syncMode,
+      submenu: [
+        {
+          label: 'Two way: Local <--> Cloud',
+          type: 'radio',
+          enabled: false,
+          checked: syncMode === 1
+        },
+        {
+          label: 'One way: Local <-- Cloud (Only Download)',
+          type: 'radio',
+          checked: syncMode === 2
+        },
+        {
+          label: 'One way: Local --> Cloud (Only Upload)',
+          type: 'radio',
+          checked: syncMode === 3
+        }]
     },
     {
       label: 'Force sync',
