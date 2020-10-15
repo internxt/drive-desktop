@@ -1,4 +1,5 @@
 import Sync from './sync'
+import Uploader from './Uploader'
 import async from 'async'
 import Downloader from './downloader'
 import tree from './tree'
@@ -10,6 +11,9 @@ import fs from 'fs'
 import path from 'path'
 import sanitize from 'sanitize-filename'
 import PackageJson from '../../../package.json'
+import OneWayUpload from './sync/OneWayUpload'
+import Folder from './Folder'
+import File from './File'
 
 let wtc, timeoutInstance
 let isSyncing = false
@@ -64,7 +68,7 @@ function Monitor(startImmediately = false) {
   if (!isSyncing) {
     clearTimeout(timeoutInstance)
     Logger.log('Waiting %s secs for next sync. Version: v%s', timeout / 1000, PackageJson.version)
-    timeoutInstance = setTimeout(() => InitMonitor(), timeout)
+    timeoutInstance = setTimeout(() => OneWayUpload.Monitor(), timeout)
   }
 }
 
@@ -129,7 +133,7 @@ async function StartMonitor() {
       next => {
         // Change icon to "syncing"
         app.emit('sync-on')
-        Downloader.ClearTempFolder().then(next).catch(() => next())
+        Folder.clearTempFolder().then(next).catch(() => next())
       },
       next => {
         RootFolderExists().then((exists) => {
@@ -218,7 +222,7 @@ async function StartMonitor() {
         // Delete remote files missing in local folder
         // Borrar archivos remotos que ya no existen en local
         // Nos basamos en el último árbol sincronizado
-        CleanLocalFiles(lastSyncFailed).then(() => next()).catch(next)
+        File.CleanLocalFiles(lastSyncFailed).then(() => next()).catch(next)
       },
       next => {
         // backup the last database
@@ -297,13 +301,6 @@ async function StartMonitor() {
 function CleanLocalFolders(lastSyncFailed) {
   return new Promise((resolve, reject) => {
     Sync.CheckMissingFolders(lastSyncFailed).then(resolve).catch(reject)
-  })
-}
-
-// Missing files with entry in local db
-function CleanLocalFiles(lastSyncFailed) {
-  return new Promise((resolve, reject) => {
-    Sync.CheckMissingFiles(lastSyncFailed).then(resolve).catch(reject)
   })
 }
 
@@ -414,17 +411,18 @@ function UploadNewFiles() {
 
 function CleanRemoteFolders(lastSyncFailed) {
   return new Promise((resolve, reject) => {
-    Sync.CleanLocalFolders(lastSyncFailed).then(() => resolve()).catch(reject)
+    Folder.CleanLocalFolders(lastSyncFailed).then(() => resolve()).catch(reject)
   })
 }
 
 function CleanRemoteFiles(lastSyncFailed) {
   return new Promise((resolve, reject) => {
-    Sync.CleanLocalFiles(lastSyncFailed).then(() => resolve()).catch(reject)
+    File.CleanLocalFiles(lastSyncFailed).then(() => resolve()).catch(reject)
   })
 }
 
 export default {
   Monitor,
-  MonitorStart: () => Monitor(true)
+  MonitorStart: () => Monitor(true),
+  RootFolderExists
 }
