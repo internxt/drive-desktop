@@ -3,7 +3,7 @@ import crypto from 'crypto'
 import fs from 'fs'
 import async from 'async'
 import Logger from '../../libs/logger'
-import AesUtil from './AesUtil'
+import AesUtil from './utils/AesUtil'
 import path from 'path'
 
 const CRYPTO_KEY = process.env.CRYPTO_KEY
