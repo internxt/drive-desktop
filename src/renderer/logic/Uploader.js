@@ -1,86 +1,35 @@
 import path from 'path'
 import fs from 'fs'
 import mkdirp from 'mkdirp'
-import database from '../../database/index'
+import Database from '../../Database/index'
 import Logger from '../../libs/logger'
 import electron from 'electron'
 import crypt from './crypt'
-import crypto from 'crypto'
 import BridgeService from './BridgeService'
+import File from './File'
+import Hash from './utils/Hash'
+import Tree from './tree'
+import async from 'async'
+import Folder from './Folder'
+import getEnvironment from './utils/storeJSysCalls'
 
 const app = electron.remote.app
-
-function hasher(input) {
-  return crypto.createHash('ripemd160').update(input).digest('hex')
-}
-
-function FileInfoFromPath(localPath) {
-  return new Promise((resolve, reject) => {
-    database.dbFiles.findOne({ key: localPath }, function (err, result) {
-      if (err) { reject(err) } else { resolve(result) }
-    })
-  })
-}
-
-async function GetAuthHeader(withMnemonic) {
-  const userData = await database.Get('xUser')
-  const header = {
-    Authorization: `Bearer ${userData.token}`,
-    'content-type': 'application/json; charset=utf-8'
-  }
-  if (withMnemonic === true) {
-    const mnemonic = await database.Get('xMnemonic')
-    header['internxt-mnemonic'] = mnemonic
-  }
-  return header
-}
-
-// BucketId and FileId must be the NETWORK ids (mongodb)
-function RemoveFile(bucketId, fileId) {
-  return new Promise(async (resolve, reject) => {
-    database.Get('xUser').then(async userData => {
-      fetch(`${process.env.API_URL}/api/storage/bucket/${bucketId}/file/${fileId}`, {
-        method: 'DELETE',
-        headers: await GetAuthHeader()
-      }).then(result => {
-        resolve(result)
-      }).catch(err => {
-        Logger.error('Fetch error removing file', err)
-        reject(err)
-      })
-    })
-  })
-}
-
-// This function shouldn't be here -> WIP
-// Create entry in Drive Server linked to the Bridge file
-async function CreateFileEntry(bucketId, bucketEntryId, fileName, fileExtension, size, folderId, date) {
-  const file = {
-    fileId: bucketEntryId,
-    name: fileName,
-    type: fileExtension,
-    size: size,
-    folder_id: folderId,
-    file_id: bucketEntryId,
-    bucket: bucketId
-  }
-}
 
 function UploadNewFile(storj, filePath, nCurrent, nTotal) {
   // Get the folder info of that file.
   const folderPath = path.dirname(filePath)
   return new Promise(async (resolve, reject) => {
-    const dbEntry = await database.FolderGet(folderPath)
-    const user = await database.Get('xUser')
-    const tree = await database.Get('tree')
-    const folderRoot = await database.Get('xPath')
+    const dbEntry = await Database.FolderGet(folderPath)
+    const user = await Database.Get('xUser')
+    const tree = await Database.Get('tree')
+    const folderRoot = await Database.Get('xPath')
 
     // Folder doesn't exists. We cannot upload this file yet.
     if (!dbEntry || !dbEntry.value) {
       if (folderPath !== folderRoot) {
-        // Logger.error('Folder does not exists in local database', folderPath)
-        // Save this file on the temp database, so will not be deleted in the next steps.
-        database.TempSet(filePath, 'add')
+        // Logger.error('Folder does not exists in local Database', folderPath)
+        // Save this file on the temp Database, so will not be deleted in the next steps.
+        Database.TempSet(filePath, 'add')
       }
       return resolve()
     }
@@ -115,7 +64,7 @@ function UploadNewFile(storj, filePath, nCurrent, nTotal) {
       mkdirp.sync(tempPath)
     }
 
-    const hashName = hasher(filePath)
+    const hashName = Hash.hasher(filePath)
     const tempFile = path.join(tempPath, hashName)
     if (fs.existsSync(tempFile)) {
       fs.unlinkSync(tempFile)
@@ -144,7 +93,7 @@ function UploadNewFile(storj, filePath, nCurrent, nTotal) {
 
         if (err) {
           Logger.warn('Error uploading file', err.message)
-          database.FileSet(filePath, null)
+          Database.FileSet(filePath, null)
           // If the error is due to file existence, ignore in order to continue uploading
           const fileExistsPattern = /File already exist/
           if (fileExistsPattern.exec(err)) {
@@ -158,7 +107,7 @@ function UploadNewFile(storj, filePath, nCurrent, nTotal) {
 
             if (networkId) {
               newFileId = networkId
-              CreateFileEntry(bucketId, newFileId, encryptedFileName, fileExt, fileSize, folderId).then(resolve).catch(resolve)
+              File.CreateFileEntry(bucketId, newFileId, encryptedFileName, fileExt, fileSize, folderId).then(resolve).catch(resolve)
             } else {
               Logger.warn('Cannot find file %s on network', hashName)
             }
@@ -169,12 +118,12 @@ function UploadNewFile(storj, filePath, nCurrent, nTotal) {
           }
         } else {
           if (!newFileId) {
-            database.TempSet(filePath, 'add')
+            Database.TempSet(filePath, 'add')
             Logger.error('Cannot upload file, no new id was created')
             return resolve()
           }
           Logger.warn('NEW FILE ID 2', newFileId)
-          CreateFileEntry(bucketId, newFileId, encryptedFileName, fileExt, fileSize, folderId, fileStats.mtime).then(resolve).catch(reject)
+          File.CreateFileEntry(bucketId, newFileId, encryptedFileName, fileExt, fileSize, folderId, fileStats.mtime).then(resolve).catch(reject)
         }
       }
     })
@@ -190,7 +139,7 @@ function UploadNewFile(storj, filePath, nCurrent, nTotal) {
 function UploadFile(storj, filePath, nCurrent, nTotal) {
   Logger.log('Upload file', filePath)
   return new Promise(async (resolve, reject) => {
-    const fileInfo = await FileInfoFromPath(filePath)
+    const fileInfo = await File.FileInfoFromPath(filePath)
 
     // Parameters
     const bucketId = fileInfo.value.bucket
@@ -214,7 +163,7 @@ function UploadFile(storj, filePath, nCurrent, nTotal) {
     const fileSize = fileStats.size
 
     // Delete former file
-    await RemoveFile(bucketId, fileId)
+    await File.RemoveFile(bucketId, fileId)
 
     const finalName = encryptedFileName + (fileExt ? '.' + fileExt : '')
 
@@ -224,7 +173,7 @@ function UploadFile(storj, filePath, nCurrent, nTotal) {
       mkdirp.sync(tempPath)
     }
 
-    const tempFile = path.join(tempPath, hasher(filePath))
+    const tempFile = path.join(tempPath, Hash.hasher(filePath))
     if (fs.existsSync(tempFile)) {
       fs.unlinkSync(tempFile)
     }
@@ -255,7 +204,7 @@ function UploadFile(storj, filePath, nCurrent, nTotal) {
             resolve()
           }
         } else {
-          CreateFileEntry(bucketId, newFileId, encryptedFileName, fileExt, fileSize, folderId, fileMtime)
+          File.CreateFileEntry(bucketId, newFileId, encryptedFileName, fileExt, fileSize, folderId, fileMtime)
             .then(res => { resolve(res) })
             .catch(err => { reject(err) })
         }
@@ -270,7 +219,138 @@ function UploadFile(storj, filePath, nCurrent, nTotal) {
   })
 }
 
+function UploadAllNewFolders() {
+  return new Promise(async (resolve, reject) => {
+    const localPath = await Database.Get('xPath')
+    const userInfo = await Database.Get('xUser')
+
+    let lastParentId = null
+    let lastParentFolder = null
+
+    // Create a list with the actual local folders
+    Tree.GetLocalFolderList(localPath).then(list => {
+      // For each folder in local...
+      async.eachSeries(list, async (item, next) => {
+        // Check if folders still exists
+        if (!fs.existsSync(item)) { return next() }
+
+        const stat = Tree.GetStat(item)
+        if (stat && stat.isSymbolicLink()) {
+          return next()
+        }
+        // Check if exists in Database
+        const dbEntry = await Database.FolderGet(item)
+
+        // If folder exists on remote Database, ignore it, it already exists
+        if (dbEntry) { return next() }
+
+        // Subtract parent path and folder name
+        const folderName = path.basename(item)
+        const parentPath = path.dirname(item)
+
+        // Get the parent folder ID from remote Database
+        const lastFolder = await Database.FolderGet(parentPath)
+        // If parent folder exists on Database, pick its ID
+        const lastFolderId = lastFolder && lastFolder.value && lastFolder.value.id
+        // If the parent path is the root of the target path, get the root_folder_id from user info
+        let parentId = parentPath === localPath ? userInfo.user.root_folder_id : lastFolderId
+
+        if (parentPath === lastParentFolder) {
+          parentId = lastParentId
+        } else if (lastParentFolder) {
+          lastParentFolder = null
+          lastParentId = null
+        }
+
+        if (parentId) {
+          Folder.createRemoteFolder(folderName, parentId).then(async (result) => {
+            await Database.FolderSet(item, result)
+            lastParentId = result ? result.id : null
+            lastParentFolder = result ? item : null
+            next()
+          }).catch(err => {
+            Logger.error('Error creating remote folder', err)
+            next(err)
+          })
+        } else {
+          // Logger.error('Upload new folders: Undefined parent ID')
+          next()
+        }
+      }, (err) => {
+        if (err) {
+          Logger.error(err)
+          reject(err)
+        } else {
+          resolve()
+        }
+      })
+    }).catch(reject)
+  })
+}
+
+function UploadAllNewFiles() {
+  return new Promise(async (resolve, reject) => {
+    const localPath = await Database.Get('xPath')
+    // Get the local tree from folder (not remote or database) to check for new files.
+    // The list contains the files and folders.
+    const files = await Tree.GetListFromFolder(localPath)
+    const storj = await getEnvironment()
+
+    const totalFiles = files.length
+    let currentFiles = 0
+
+    async.eachSeries(files, async function (item, next) {
+      currentFiles++
+
+      // Read filesystem data
+      const stat = Tree.GetStat(item)
+
+      if (stat && stat.isFile() && !stat.isSymbolicLink() && stat.size < 1024 * 1024 * 1024 * 10) { // Is a file, and it is not a sym link
+        // Check if file exists in the remote database
+        const entry = await Database.FileGet(item)
+
+        if (!entry) {
+          // File is not present on the remote database, so it's a new file. Let's upload.
+          if (stat.size === 0) {
+            // The network can't hold empty files. Encryption will fail.
+            // So, we will ignore this file.
+            Logger.log('Warning: Filesize 0. Ignoring file.')
+            return next()
+          }
+          // Upload file.
+          UploadNewFile(storj, item, currentFiles, totalFiles).then(() => next()).catch((err) => {
+            // List of unexpected errors, should re-try later
+            const isError = [
+              'Already exists',
+              'Farmer request error',
+              'File create parity error',
+              'File encryption error'
+            ].find(obj => obj.includes(err.message))
+
+            if (isError) {
+              Logger.error('Error uploading file %s, sync will retry upload in the next sync. Error: %s', item, err.message)
+              Database.TempSet(item, 'add').then(() => next()).catch(() => next())
+            } else {
+              Logger.error('Fatal error uploading file: %s', err.message)
+              next(err)
+            }
+          })
+        } else {
+          // Is not a file, so it is a dir. Do nothing.
+          next()
+        }
+      } else {
+        next()
+      }
+    }, (err) => {
+      if (err) { reject(err) } else { resolve() }
+    })
+  })
+}
+
 export default {
   UploadNewFile,
-  UploadFile
+  UploadFile,
+  UploadAllNewFolders,
+  UploadAllNewFiles
 }
