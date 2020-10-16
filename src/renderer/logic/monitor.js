@@ -1,7 +1,7 @@
 import Sync from './sync'
-import Uploader from './Uploader'
 import async from 'async'
-import Downloader from './downloader'
+import Downloader from './Downloader'
+import Uploader from './Uploader'
 import tree from './tree'
 import database from '../../database'
 import electron from 'electron'
@@ -169,11 +169,11 @@ async function StartMonitor() {
         // If a folder exists in local, but is not on the remote tree, create in remote
         // If is the first time you sync, or the last sync failed, creation may throw an error
         // because folder already exists on remote. Ignore this error.
-        UploadNewFolders().then(() => next()).catch(next)
+        Uploader.uploadNewFolders().then(() => next()).catch(next)
       },
       next => {
         // Search new files in local folder, and upload them
-        UploadNewFiles().then(() => next()).catch(next)
+        Uploader.uploadNewFiles().then(() => next()).catch(next)
       },
       next => {
         // Will determine if something wrong happened in the last synchronization
@@ -239,12 +239,12 @@ async function StartMonitor() {
       next => {
         // Create local folders
         // Si hay directorios nuevos en el árbol, los creamos en local
-        DownloadFolders().then(() => next()).catch(next)
+        Downloader.downloadFolders().then(() => next()).catch(next)
       },
       next => {
         // Download remote files
         // Si hay ficheros nuevos en el árbol, los creamos en local
-        DownloadFiles().then(() => next()).catch(next)
+        Downloader.downloadFiles().then(() => next()).catch(next)
       },
       next => { database.Set('lastSyncSuccess', true).then(() => next()).catch(next) },
       next => { database.Set('lastSyncDate', new Date()).then(() => next()).catch(next) }
@@ -362,39 +362,6 @@ function SyncRegenerateAndCompact() {
         resolve()
       }
     })
-  })
-}
-
-// Create all existing remote folders on local path
-function DownloadFolders() {
-  return new Promise((resolve, reject) => {
-    Sync.CreateLocalFolders().then(() => {
-      resolve()
-    }).catch(err => {
-      Logger.error('Error creating local folders', err)
-      reject(err)
-    })
-  })
-}
-
-// Download all the files
-function DownloadFiles() {
-  return new Promise((resolve, reject) => {
-    Downloader.DownloadAllFiles().then(() => resolve()).catch(reject)
-  })
-}
-
-function UploadNewFolders() {
-  return new Promise((resolve, reject) => {
-    app.emit('set-tooltip', 'Indexing folders...')
-    Downloader.UploadAllNewFolders().then(() => resolve()).catch(reject)
-  })
-}
-
-function UploadNewFiles() {
-  return new Promise((resolve, reject) => {
-    app.emit('set-tooltip', 'Indexing files...')
-    Downloader.UploadAllNewFiles().then(() => resolve()).catch(reject)
   })
 }
 

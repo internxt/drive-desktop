@@ -15,7 +15,7 @@ import getEnvironment from './utils/storeJSysCalls'
 
 const app = electron.remote.app
 
-function UploadNewFile(storj, filePath, nCurrent, nTotal) {
+function uploadNewFile(storj, filePath, nCurrent, nTotal) {
   // Get the folder info of that file.
   const folderPath = path.dirname(filePath)
   return new Promise(async (resolve, reject) => {
@@ -136,7 +136,7 @@ function UploadNewFile(storj, filePath, nCurrent, nTotal) {
   })
 }
 
-function UploadFile(storj, filePath, nCurrent, nTotal) {
+function uploadFile(storj, filePath, nCurrent, nTotal) {
   Logger.log('Upload file', filePath)
   return new Promise(async (resolve, reject) => {
     const fileInfo = await File.FileInfoFromPath(filePath)
@@ -219,7 +219,7 @@ function UploadFile(storj, filePath, nCurrent, nTotal) {
   })
 }
 
-function UploadAllNewFolders() {
+function uploadAllNewFolders() {
   return new Promise(async (resolve, reject) => {
     const localPath = await Database.Get('xPath')
     const userInfo = await Database.Get('xUser')
@@ -288,7 +288,7 @@ function UploadAllNewFolders() {
   })
 }
 
-function UploadAllNewFiles() {
+function uploadAllNewFiles() {
   return new Promise(async (resolve, reject) => {
     const localPath = await Database.Get('xPath')
     // Get the local tree from folder (not remote or database) to check for new files.
@@ -318,7 +318,7 @@ function UploadAllNewFiles() {
             return next()
           }
           // Upload file.
-          UploadNewFile(storj, item, currentFiles, totalFiles).then(() => next()).catch((err) => {
+          uploadNewFile(storj, item, currentFiles, totalFiles).then(() => next()).catch((err) => {
             // List of unexpected errors, should re-try later
             const isError = [
               'Already exists',
@@ -348,9 +348,25 @@ function UploadAllNewFiles() {
   })
 }
 
+function uploadNewFolders() {
+  return new Promise((resolve, reject) => {
+    app.emit('set-tooltip', 'Indexing folders...')
+    uploadAllNewFolders().then(() => resolve()).catch(reject)
+  })
+}
+
+function uploadNewFiles() {
+  return new Promise((resolve, reject) => {
+    app.emit('set-tooltip', 'Indexing files...')
+    uploadAllNewFiles().then(() => resolve()).catch(reject)
+  })
+}
+
 export default {
-  UploadNewFile,
-  UploadFile,
-  UploadAllNewFolders,
-  UploadAllNewFiles
+  uploadNewFile,
+  uploadFile,
+  uploadAllNewFolders,
+  uploadAllNewFiles,
+  uploadNewFolders,
+  uploadNewFiles
 }

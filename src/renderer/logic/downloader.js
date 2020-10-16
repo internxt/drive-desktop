@@ -17,7 +17,7 @@ import getEnvironment from './utils/storeJSyscalls'
 
 const app = electron.remote.app
 
-function DownloadFileTemp(fileObj, silent = false) {
+function downloadFileTemp(fileObj, silent = false) {
   return new Promise(async (resolve, reject) => {
     const storj = await getEnvironment()
 
@@ -69,7 +69,7 @@ function DownloadFileTemp(fileObj, silent = false) {
 
 // Will download ALL the files from remote
 // If file already exists on local, decide if needs to be checked.
-function DownloadAllFiles() {
+function _downloadAllFiles() {
   return new Promise((resolve, reject) => {
     // Get a list of all the files on the remote folder
     Tree.GetFileListFromRemoteTree().then(list => {
@@ -127,7 +127,7 @@ function DownloadAllFiles() {
           return next()
         } else if (downloadAndReplace) {
           Logger.log('DOWNLOAD AND REPLACE WITHOUT QUESTION', item.fullpath)
-          DownloadFileTemp(item).then(tempPath => {
+          downloadFileTemp(item).then(tempPath => {
             if (localExists) { try { fs.unlinkSync(item.fullpath) } catch (e) { } }
             // fs.renameSync gives a "EXDEV: cross-device link not permitted"
             // when application and local folder are not in the same partition
@@ -157,7 +157,7 @@ function DownloadAllFiles() {
           }
           Logger.log('%cENSURE FILE ' + item.filename, 'background-color: #aaaaff')
           // Check file is ok
-          DownloadFileTemp(item, true).then(tempPath => next()).catch(err => {
+          downloadFileTemp(item, true).then(tempPath => next()).catch(err => {
             const isError = [
               'File missing shard error',
               'Farmer request error',
@@ -181,7 +181,27 @@ function DownloadAllFiles() {
   })
 }
 
+// Download all the files
+function downloadFiles() {
+  return new Promise((resolve, reject) => {
+    _downloadAllFiles().then(() => resolve()).catch(reject)
+  })
+}
+
+// Create all existing remote folders on local path
+function downloadFolders() {
+  return new Promise((resolve, reject) => {
+    Sync.CreateLocalFolders().then(() => {
+      resolve()
+    }).catch(err => {
+      Logger.error('Error creating local folders', err)
+      reject(err)
+    })
+  })
+}
+
 export default {
-  DownloadAllFiles,
-  DownloadFileTemp
+  downloadFiles,
+  downloadFileTemp,
+  downloadFolders
 }
