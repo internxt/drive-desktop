@@ -6,7 +6,6 @@ import electron from 'electron'
 import async from 'async'
 import database from '../../database/index'
 import crypt from './crypt'
-import tree from './tree'
 import Logger from '../../libs/logger'
 import mkdirp from 'mkdirp'
 import config from '../../config'
@@ -16,17 +15,10 @@ import sanitize from 'sanitize-filename'
 import BridgeService from './BridgeService'
 import Auth from './utils/Auth'
 import File from './File'
+import Tree from './Tree'
 
 const app = electron.remote.app
 const SYNC_KEEPALIVE_INTERVAL_MS = 25000
-
-function FileInfoFromPath(localPath) {
-  return new Promise((resolve, reject) => {
-    database.dbFiles.findOne({ key: localPath }, function (err, result) {
-      if (err) { reject(err) } else { resolve(result) }
-    })
-  })
-}
 
 function SetModifiedTime(path, time) {
   let convertedTime = ''
@@ -44,108 +36,6 @@ function SetModifiedTime(path, time) {
       fs.utimesSync(path, convertedTime, convertedTime)
       resolve()
     } catch (err) { reject(err) }
-  })
-}
-
-function UpdateTree() {
-  return new Promise((resolve, reject) => {
-    GetTree().then((tree) => {
-      database.Set('tree', tree).then(() => {
-        resolve()
-      }).catch(err => {
-        reject(err)
-      })
-    }).catch(err => {
-      Logger.error('Error updating tree', err)
-      reject(err)
-    })
-  })
-}
-
-function GetTree() {
-  return new Promise((resolve, reject) => {
-    database.Get('xUser').then(async userData => {
-      fetch(`${process.env.API_URL}/api/storage/tree`, {
-        headers: await Auth.GetAuthHeader()
-      }).then(async res => {
-        return { res, data: await res.json() }
-      }).then(async res => {
-        resolve(res.data)
-      }).catch(reject)
-    })
-  })
-}
-
-// folderId must be the CLOUD id (mysql)
-// warning, this method deletes all its contents
-function RemoveFolder(folderId) {
-  return new Promise(async (resolve, reject) => {
-    database.Get('xUser').then(async userData => {
-      fetch(`${process.env.API_URL}/api/storage/folder/${folderId}`, {
-        method: 'DELETE',
-        headers: await Auth.GetAuthHeader()
-      }).then(result => {
-        resolve(result)
-      }).catch(err => {
-        reject(err)
-      })
-    })
-  })
-}
-
-// Create all remote folders on local path
-function CreateLocalFolders() {
-  return new Promise(async (resolve, reject) => {
-    // Get a list of all the folders on the remote tree
-    tree.GetFolderListFromRemoteTree().then(list => {
-      async.eachSeries(list, (folder, next) => {
-        // Create the folder, doesn't matter if already exists.
-        try {
-          fs.mkdirSync(folder)
-          next()
-        } catch (err) {
-          if (err.code === 'EEXIST') {
-            // Folder already exists, ignore error
-            next()
-          } else {
-            // If we cannot create the folder, we won't be able to download it's files.
-            Logger.error('Error creating folder %s: %j', folder, err)
-            next(err)
-          }
-        }
-      }, (err) => {
-        if (err) { reject(err) } else { resolve() }
-      })
-    }).catch(reject)
-  })
-}
-
-function createRemoteFolder(name, parentId) {
-  return new Promise(async (resolve, reject) => {
-    const folder = {
-      folderName: name,
-      parentFolderId: parentId
-    }
-
-    const headers = await Auth.GetAuthHeader()
-    fetch(`${process.env.API_URL}/api/storage/folder`, {
-      method: 'POST',
-      mode: 'cors',
-      headers: headers,
-      body: JSON.stringify(folder)
-    }).then(async res => {
-      return { res, data: await res.json() }
-    }).then(res => {
-      if (res.res.status === 500 && res.data.error && res.data.error.includes('Folder with the same name already exists')) {
-        Logger.warn('Folder with the same name already exists')
-        resolve()
-      } else if (res.res.status === 201) {
-        resolve(res.data)
-      } else {
-        Logger.error('Error creating new folder', res)
-        reject(res.data)
-      }
-    }).catch(reject)
   })
 }
 
@@ -232,10 +122,6 @@ async function UnlockSync() {
 
 export default {
   SetModifiedTime,
-  UpdateTree,
-  CheckMissingFolders,
-  CreateLocalFolders,
-  createRemoteFolder,
   GetOrSetUserSync,
   UpdateUserSync,
   UnlockSync,
