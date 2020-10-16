@@ -1,7 +1,6 @@
 import Tree from './Tree'
 import async from 'async'
 import Database from '../../database/index'
-import { Environment } from './utils/inxtdeps'
 import temp from 'temp'
 import path from 'path'
 import fs from 'fs'
