@@ -93,37 +93,6 @@ function RemoveFolder(folderId) {
   })
 }
 
-// Check folders that does not exists in local anymore, and delete those folders on remote
-function CheckMissingFolders(lastSyncFailed) {
-  return new Promise((resolve, reject) => {
-    if (lastSyncFailed) {
-      return resolve()
-    }
-    const allData = database.dbFolders.getAllData()
-    async.eachSeries(allData, (item, next) => {
-      const stat = tree.GetStat(item.key)
-      if (path.basename(item.key) !== sanitize(path.basename(item.key))) {
-        return next()
-      }
-
-      // If doesn't exists, or now is a file (was a folder before) delete from remote.
-      if ((stat && stat.isFile()) || !fs.existsSync(item.key)) {
-        RemoveFolder(item.value.id).then(() => {
-          database.dbFolders.remove({ key: item.key })
-          next()
-        }).catch(err => {
-          Logger.error('Error removing remote folder %s, %j', item.value, err)
-          next(err)
-        })
-      } else {
-        next()
-      }
-    }, (err, result) => {
-      if (err) { reject(err) } else { resolve(result) }
-    })
-  })
-}
-
 // Create all remote folders on local path
 function CreateLocalFolders() {
   return new Promise(async (resolve, reject) => {
