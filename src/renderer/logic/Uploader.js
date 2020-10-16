@@ -8,7 +8,7 @@ import crypt from './crypt'
 import BridgeService from './BridgeService'
 import File from './File'
 import Hash from './utils/Hash'
-import Tree from './tree'
+import Tree from './Tree'
 import async from 'async'
 import Folder from './Folder'
 import getEnvironment from './utils/storeJSysCalls'
@@ -139,7 +139,7 @@ function uploadNewFile(storj, filePath, nCurrent, nTotal) {
 function uploadFile(storj, filePath, nCurrent, nTotal) {
   Logger.log('Upload file', filePath)
   return new Promise(async (resolve, reject) => {
-    const fileInfo = await File.FileInfoFromPath(filePath)
+    const fileInfo = await File.fileInfoFromPath(filePath)
 
     // Parameters
     const bucketId = fileInfo.value.bucket

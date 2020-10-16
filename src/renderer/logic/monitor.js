@@ -2,7 +2,7 @@ import Sync from './sync'
 import async from 'async'
 import Downloader from './Downloader'
 import Uploader from './Uploader'
-import tree from './tree'
+import Tree from './Tree'
 import database from '../../database'
 import electron from 'electron'
 import watcher from './watcher'
@@ -296,7 +296,7 @@ async function StartMonitor() {
 // Obtain remote tree
 function SyncTree() {
   return new Promise((resolve, reject) => {
-    Sync.UpdateTree().then(() => { resolve() }).catch(err => {
+    Tree.updateTree().then(() => { resolve() }).catch(err => {
       Logger.error('Error sync tree', err)
       reject(err)
     })
@@ -305,7 +305,7 @@ function SyncTree() {
 
 function RegenerateLocalDbFolders() {
   return new Promise((resolve, reject) => {
-    tree.GetFolderObjectListFromRemoteTree().then(list => {
+    Tree.getFolderObjectListFromRemoteTree().then(list => {
       database.dbFolders.remove({}, { multi: true }, (err, n) => {
         if (err) { reject(err) } else {
           async.eachSeries(list,
@@ -326,7 +326,7 @@ function RegenerateLocalDbFolders() {
 
 function RegenerateLocalDbFiles() {
   return new Promise((resolve, reject) => {
-    tree.GetFileListFromRemoteTree().then(list => {
+    Tree.GetFileListFromRemoteTree().then(list => {
       database.dbFiles.remove({}, { multi: true }, (err, n) => {
         if (err) { reject(err) } else {
           async.eachSeries(list,

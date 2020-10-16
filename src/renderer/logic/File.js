@@ -5,7 +5,7 @@ import AesUtil from './utils/AesUtil'
 import Uploader from './Uploader'
 import getEnvironment from './utils/storeJSyscalls'
 import async from 'async'
-import Tree from './tree'
+import Tree from './Tree'
 import fs from 'fs'
 
 function FileInfoFromPath(localPath) {
@@ -102,7 +102,6 @@ function cleanRemoteWhenLocalDeleted(lastSyncFailed) {
         next()
       }
     }, (err, result) => {
-      cleanLocalWhenRemoteDeleted
       if (err) { reject(err) } else { resolve(result) }
     })
   })
@@ -153,11 +152,20 @@ function cleanLocalWhenRemoteDeleted(lastSyncFailed) {
   })
 }
 
+function fileInfoFromPath(localPath) {
+  return new Promise((resolve, reject) => {
+    database.dbFiles.findOne({ key: localPath }, function (err, result) {
+      if (err) { reject(err) } else { resolve(result) }
+    })
+  })
+}
+
 export default {
   FileInfoFromPath,
   RemoveFile,
   CreateFileEntry,
   RestoreFile,
   cleanRemoteWhenLocalDeleted,
-  cleanLocalWhenRemoteDeleted
+  cleanLocalWhenRemoteDeleted,
+  fileInfoFromPath
 }

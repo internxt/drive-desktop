@@ -5,9 +5,10 @@ import fs from 'fs'
 import path from 'path'
 import electron from 'electron'
 import rimraf from 'rimraf'
-import Tree from './tree'
+import Tree from './Tree'
 import Database from '../../database/index'
 import async from 'async'
+import sanitize from 'sanitize-filename'
 
 function createRemoteFolder(name, parentId) {
   return new Promise(async (resolve, reject) => {
@@ -101,17 +102,17 @@ function _deleteRemoteFoldersWhenLocalDeleted(lastSyncFailed) {
     if (lastSyncFailed) {
       return resolve()
     }
-    const allData = database.dbFolders.getAllData()
+    const allData = Database.dbFolders.getAllData()
     async.eachSeries(allData, (item, next) => {
-      const stat = tree.GetStat(item.key)
+      const stat = Tree.GetStat(item.key)
       if (path.basename(item.key) !== sanitize(path.basename(item.key))) {
         return next()
       }
 
       // If doesn't exists, or now is a file (was a folder before) delete from remote.
       if ((stat && stat.isFile()) || !fs.existsSync(item.key)) {
-        RemoveFolder(item.value.id).then(() => {
-          database.dbFolders.remove({ key: item.key })
+        removeFolder(item.value.id).then(() => {
+          Database.dbFolders.remove({ key: item.key })
           next()
         }).catch(err => {
           Logger.error('Error removing remote folder %s, %j', item.value, err)
@@ -125,8 +126,6 @@ function _deleteRemoteFoldersWhenLocalDeleted(lastSyncFailed) {
     })
   })
 }
-
-
 
 // Delete local folders missing in remote
 function cleanLocalWhenRemoteDeleted(lastSyncFailed) {
@@ -142,10 +141,56 @@ function cleanRemoteWhenLocalDeleted(lastSyncFailed) {
   })
 }
 
+// folderId must be the CLOUD id (mysql)
+// warning, this method deletes all its contents
+function removeFolder(folderId) {
+  return new Promise(async (resolve, reject) => {
+    Database.Get('xUser').then(async userData => {
+      fetch(`${process.env.API_URL}/api/storage/folder/${folderId}`, {
+        method: 'DELETE',
+        headers: await Auth.GetAuthHeader()
+      }).then(result => {
+        resolve(result)
+      }).catch(err => {
+        reject(err)
+      })
+    })
+  })
+}
+
+// Create all remote folders on local path
+function createLocalFolders() {
+  return new Promise(async (resolve, reject) => {
+    // Get a list of all the folders on the remote tree
+    Tree.GetFolderListFromRemoteTree().then(list => {
+      async.eachSeries(list, (folder, next) => {
+        // Create the folder, doesn't matter if already exists.
+        try {
+          fs.mkdirSync(folder)
+          next()
+        } catch (err) {
+          if (err.code === 'EEXIST') {
+            // Folder already exists, ignore error
+            next()
+          } else {
+            // If we cannot create the folder, we won't be able to download it's files.
+            Logger.error('Error creating folder %s: %j', folder, err)
+            next(err)
+          }
+        }
+      }, (err) => {
+        if (err) { reject(err) } else { resolve() }
+      })
+    }).catch(reject)
+  })
+}
+
 export default {
   createRemoteFolder,
   getTempFolderPath,
   clearTempFolder,
   cleanLocalWhenRemoteDeleted,
-  cleanRemoteWhenLocalDeleted
+  cleanRemoteWhenLocalDeleted,
+  removeFolder,
+  createLocalFolders
 }

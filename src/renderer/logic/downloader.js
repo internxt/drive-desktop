@@ -1,4 +1,4 @@
-import Tree from './tree'
+import Tree from './Tree'
 import async from 'async'
 import Database from '../../database/index'
 import { Environment } from './utils/inxtdeps'
@@ -191,7 +191,7 @@ function downloadFiles() {
 // Create all existing remote folders on local path
 function downloadFolders() {
   return new Promise((resolve, reject) => {
-    Sync.CreateLocalFolders().then(() => {
+    Folder.createLocalFolders().then(() => {
       resolve()
     }).catch(err => {
       Logger.error('Error creating local folders', err)
