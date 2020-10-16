@@ -79,8 +79,8 @@ function RestoreFile(fileObj) {
   })
 }
 
-// Check files that does not exists in local anymore, and remove them from remote
-function CheckMissingFiles(lastSyncFailed) {
+// Check files that does not exists in local anymore (use last sync tree), and remove them from remote
+function cleanRemoteWhenLocalDeleted(lastSyncFailed) {
   return new Promise((resolve, reject) => {
     if (lastSyncFailed) {
       return resolve()
@@ -102,6 +102,7 @@ function CheckMissingFiles(lastSyncFailed) {
         next()
       }
     }, (err, result) => {
+      cleanLocalWhenRemoteDeleted
       if (err) { reject(err) } else { resolve(result) }
     })
   })
@@ -109,7 +110,7 @@ function CheckMissingFiles(lastSyncFailed) {
 
 // Delete local files that doesn't exists on remote.
 // It should be called just after tree sync.
-function CleanLocalFiles(lastSyncFailed) {
+function cleanLocalWhenRemoteDeleted(lastSyncFailed) {
   return new Promise(async (resolve, reject) => {
     const localPath = await database.Get('xPath')
     const syncDate = database.Get('syncStartDate')
@@ -157,6 +158,6 @@ export default {
   RemoveFile,
   CreateFileEntry,
   RestoreFile,
-  CheckMissingFiles,
-  CleanLocalFiles
+  cleanRemoteWhenLocalDeleted,
+  cleanLocalWhenRemoteDeleted
 }

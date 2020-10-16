@@ -214,15 +214,11 @@ async function StartMonitor() {
       },
       next => {
         // Delete remote folders missing in local folder
-        // Borrar diretorios remotos que ya no existen en local
-        // Nos basamos en el último árbol sincronizado
-        CleanLocalFolders(lastSyncFailed).then(() => next()).catch(next)
+        Folder.cleanRemoteWhenLocalDeleted(lastSyncFailed).then(() => next()).catch(next)
       },
       next => {
         // Delete remote files missing in local folder
-        // Borrar archivos remotos que ya no existen en local
-        // Nos basamos en el último árbol sincronizado
-        File.CleanLocalFiles(lastSyncFailed).then(() => next()).catch(next)
+        File.cleanRemoteWhenLocalDeleted(lastSyncFailed).then(() => next()).catch(next)
       },
       next => {
         // backup the last database
@@ -234,11 +230,11 @@ async function StartMonitor() {
       },
       next => {
         // Delete local folders missing in remote
-        CleanRemoteFolders(lastSyncFailed).then(() => next()).catch(next)
+        Folder.cleanLocalWhenRemoteDeleted(lastSyncFailed).then(() => next()).catch(next)
       },
       next => {
         // Delete local files missing in remote
-        CleanRemoteFiles(lastSyncFailed).then(() => next()).catch(next)
+        File.cleanLocalWhenRemoteDeleted(lastSyncFailed).then(() => next()).catch(next)
       },
       next => {
         // Create local folders
@@ -295,13 +291,6 @@ async function StartMonitor() {
       }
     }
   )
-}
-
-// Missing folders with entry in local db
-function CleanLocalFolders(lastSyncFailed) {
-  return new Promise((resolve, reject) => {
-    Sync.CheckMissingFolders(lastSyncFailed).then(resolve).catch(reject)
-  })
 }
 
 // Obtain remote tree
@@ -406,18 +395,6 @@ function UploadNewFiles() {
   return new Promise((resolve, reject) => {
     app.emit('set-tooltip', 'Indexing files...')
     Downloader.UploadAllNewFiles().then(() => resolve()).catch(reject)
-  })
-}
-
-function CleanRemoteFolders(lastSyncFailed) {
-  return new Promise((resolve, reject) => {
-    Folder.CleanLocalFolders(lastSyncFailed).then(() => resolve()).catch(reject)
-  })
-}
-
-function CleanRemoteFiles(lastSyncFailed) {
-  return new Promise((resolve, reject) => {
-    File.CleanLocalFiles(lastSyncFailed).then(() => resolve()).catch(reject)
   })
 }
 

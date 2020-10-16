@@ -54,8 +54,8 @@ function clearTempFolder() {
   })
 }
 
-// Delete local folders that doesn't exists on remote.
-function CleanLocalFolders(lastSyncFailed) {
+// Delete local folders that doesn't exists on remote. [helper for deleteLocalWhenRemoteDeleted]
+function _deleteLocalWhenRemoteDeleted(lastSyncFailed) {
   return new Promise(async (resolve, reject) => {
     const localPath = await Database.Get('xPath')
     const syncDate = Database.Get('syncStartDate')
@@ -95,9 +95,57 @@ function CleanLocalFolders(lastSyncFailed) {
   })
 }
 
+// Check folders that does not exists in local anymore, and delete those folders on remote
+function _deleteRemoteFoldersWhenLocalDeleted(lastSyncFailed) {
+  return new Promise((resolve, reject) => {
+    if (lastSyncFailed) {
+      return resolve()
+    }
+    const allData = database.dbFolders.getAllData()
+    async.eachSeries(allData, (item, next) => {
+      const stat = tree.GetStat(item.key)
+      if (path.basename(item.key) !== sanitize(path.basename(item.key))) {
+        return next()
+      }
+
+      // If doesn't exists, or now is a file (was a folder before) delete from remote.
+      if ((stat && stat.isFile()) || !fs.existsSync(item.key)) {
+        RemoveFolder(item.value.id).then(() => {
+          database.dbFolders.remove({ key: item.key })
+          next()
+        }).catch(err => {
+          Logger.error('Error removing remote folder %s, %j', item.value, err)
+          next(err)
+        })
+      } else {
+        next()
+      }
+    }, (err, result) => {
+      if (err) { reject(err) } else { resolve(result) }
+    })
+  })
+}
+
+
+
+// Delete local folders missing in remote
+function cleanLocalWhenRemoteDeleted(lastSyncFailed) {
+  return new Promise((resolve, reject) => {
+    _deleteLocalWhenRemoteDeleted(lastSyncFailed).then(() => resolve()).catch(reject)
+  })
+}
+
+// Missing folders with entry in local db
+function cleanRemoteWhenLocalDeleted(lastSyncFailed) {
+  return new Promise((resolve, reject) => {
+    _deleteRemoteFoldersWhenLocalDeleted(lastSyncFailed).then(resolve).catch(reject)
+  })
+}
+
 export default {
   createRemoteFolder,
   getTempFolderPath,
   clearTempFolder,
-  CleanLocalFolders
+  cleanLocalWhenRemoteDeleted,
+  cleanRemoteWhenLocalDeleted
 }
