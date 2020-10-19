@@ -1,17 +1,17 @@
 import path from 'path'
 import fs from 'fs'
 import mkdirp from 'mkdirp'
-import Database from '../../Database/index'
+import Database from '../../database'
 import Logger from '../../libs/logger'
 import electron from 'electron'
 import crypt from './crypt'
 import BridgeService from './BridgeService'
-import File from './File'
+import File from './file'
 import Hash from './utils/Hash'
-import Tree from './Tree'
+import Tree from './tree'
 import async from 'async'
-import Folder from './Folder'
-import getEnvironment from './utils/storeJSysCalls'
+import Folder from './folder'
+import getEnvironment from './utils/libinxt'
 
 const app = electron.remote.app
 

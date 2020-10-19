@@ -1,11 +1,11 @@
 import database from '../../database/index'
 import Logger from '../../libs/logger'
 import Auth from './utils/Auth'
-import AesUtil from './utils/AesUtil'
-import Uploader from './Uploader'
-import getEnvironment from './utils/storeJSyscalls'
+import AesUtil from './AesUtil'
+import Uploader from './uploader'
+import getEnvironment from './utils/libinxt'
 import async from 'async'
-import Tree from './Tree'
+import Tree from './tree'
 import fs from 'fs'
 
 function FileInfoFromPath(localPath) {

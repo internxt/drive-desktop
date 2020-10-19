@@ -1,8 +1,8 @@
 import Sync from './sync'
 import async from 'async'
 import Downloader from './Downloader'
-import Uploader from './Uploader'
-import Tree from './Tree'
+import Uploader from './uploader'
+import Tree from './tree'
 import database from '../../database'
 import electron from 'electron'
 import watcher from './watcher'
@@ -12,8 +12,8 @@ import path from 'path'
 import sanitize from 'sanitize-filename'
 import PackageJson from '../../../package.json'
 import OneWayUpload from './sync/OneWayUpload'
-import Folder from './Folder'
-import File from './File'
+import Folder from './folder'
+import File from './file'
 
 let wtc, timeoutInstance
 let isSyncing = false

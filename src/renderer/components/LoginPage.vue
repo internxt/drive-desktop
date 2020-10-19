@@ -9,11 +9,21 @@
       <div class="login-container-box">
         <div class="login-title">
           <img src="~@/../resources/icons/logo.svg" />
-          {{showTwoFactor ? 'Security Verification' : 'Sign in to Internxt'}}
+          {{ showTwoFactor ? 'Security Verification' : 'Sign in to Internxt' }}
         </div>
         <div v-if="!showTwoFactor">
-          <input class="form-control" v-model="username" type="text" placeholder="Email address" />
-          <input class="form-control" v-model="password" type="password" placeholder="Password" />
+          <input
+            class="form-control"
+            v-model="username"
+            type="text"
+            placeholder="Email address"
+          />
+          <input
+            class="form-control"
+            v-model="password"
+            type="password"
+            placeholder="Password"
+          />
           <!-- <div class="form-control-file">
             <input
               class="form-control"
@@ -47,20 +57,17 @@
 
         <div v-if="!showTwoFactor" class="create-account-container">
           Don't have an Internxt account?
-          <a
-            href="#"
-            @click="open(`${DRIVE_BASE}/new`)"
-          >Get one for free!</a>
+          <a href="#" @click="open(`${DRIVE_BASE}/new`)">Get one for free!</a>
         </div>
       </div>
     </main>
-    <footer>v{{version}}</footer>
+    <footer>v{{ version }}</footer>
   </div>
 </template>
 
 <script>
 import crypt from '../logic/crypt'
-import database from '../../database/index'
+import database from '../../database'
 import { remote } from 'electron'
 import fs from 'fs'
 import Logger from '../../libs/logger'
@@ -149,10 +156,10 @@ export default {
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ email: this.$data.username })
       })
-        .then(async res => {
+        .then(async (res) => {
           return { res, body: await res.json() }
         })
-        .then(res => {
+        .then((res) => {
           if (res.res.status !== 200) {
             this.$data.isLoading = false
             return alert('Login error')
@@ -164,7 +171,7 @@ export default {
             this.doAccess(res.body.sKey)
           }
         })
-        .catch(err => {
+        .catch((err) => {
           this.$data.isLoading = false
           Logger.error(err)
         })
@@ -185,10 +192,10 @@ export default {
           tfa: this.$data.twoFactorCode
         })
       })
-        .then(async res => {
+        .then(async (res) => {
           return { res, data: await res.json() }
         })
-        .then(async res => {
+        .then(async (res) => {
           if (res.res.status !== 200) {
             this.$data.isLoading = false
             if (res.data.error) {
@@ -211,7 +218,7 @@ export default {
             this.$router.push('/landing-page').catch(() => {})
           }
         })
-        .catch(err => {
+        .catch((err) => {
           Logger.error('Error login', err)
           this.$data.isLoading = false
         })
@@ -329,5 +336,4 @@ footer {
   font-size: 14px;
   margin: 20px;
 }
-
 </style>

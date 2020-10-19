@@ -1,50 +1,63 @@
 <template>
-    <div id="wrapper">
-        <main>
-          <div class="config-container">
-            <p>Choose folder to sync</p>
-            <input type="text" v-model="storagePath" class="form-control" />
-            <button @click="chooseFolder()" class="form-control btn-block btn-primary">Choose folder</button>
+  <div id="wrapper">
+    <main>
+      <div class="config-container">
+        <p>Choose folder to sync</p>
+        <input type="text" v-model="storagePath" class="form-control" />
+        <button
+          @click="chooseFolder()"
+          class="form-control btn-block btn-primary"
+        >
+          Choose folder
+        </button>
 
-            <div v-if="this.folderExists(storagePath) && !folderIsEmpty" class="alert alert-danger" role="alert">
-              This folder is not empty. Please, clear its contents or select another folder
-            </div>
+        <div
+          v-if="this.folderExists(storagePath) && !folderIsEmpty"
+          class="alert alert-danger"
+          role="alert"
+        >
+          This folder is not empty. Please, clear its contents or select another
+          folder
+        </div>
 
-            <button
-              class="form-control btn btn-block btn-info"
-              @click="configure"
-              :disabled="!storagePath || !isEmptyFolder(storagePath)">Continue</button>
-          </div>
-
-        </main>
-    </div>
+        <button
+          class="form-control btn btn-block btn-info"
+          @click="configure"
+          :disabled="!storagePath || !isEmptyFolder(storagePath)"
+        >
+          Continue
+        </button>
+      </div>
+    </main>
+  </div>
 </template>
 
 <script>
 import { remote } from 'electron'
 import fs from 'fs'
-import database from '../../database/index'
+import database from '../../database'
 
 export default {
   name: 'config-page',
-  data () {
+  data() {
     return {
       storagePath: '',
       folderIsEmpty: true
     }
   },
-  components: { },
-  created: function () {
-  },
+  components: {},
+  created: function () {},
   methods: {
-    chooseFolder () {
-      const path = remote.dialog.showOpenDialog({ properties: ['openDirectory'] })
+    chooseFolder() {
+      const path = remote.dialog.showOpenDialog({
+        properties: ['openDirectory']
+      })
       if (path && path[0]) {
         this.$data.storagePath = path[0]
         this.$data.folderIsEmpty = this.isEmptyFolder(path[0])
       }
     },
-    isEmptyFolder (path) {
+    isEmptyFolder(path) {
       if (!fs.existsSync(path)) {
         return true
       } else {
@@ -52,10 +65,10 @@ export default {
         return filesInFolder.length === 0
       }
     },
-    folderExists (path) {
+    folderExists(path) {
       return fs.existsSync(path)
     },
-    configure () {
+    configure() {
       database.Set('xPath', this.$data.storagePath)
       this.$router.push('/xcloud')
     }
@@ -64,11 +77,11 @@ export default {
 </script>
 
 <style scoped>
-  .config-container {
-    margin: 10px;
-  }
+.config-container {
+  margin: 10px;
+}
 
-  .config-container p {
-    margin-top: 20px;
-  }
+.config-container p {
+  margin-top: 20px;
+}
 </style>

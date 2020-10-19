@@ -1,5 +1,5 @@
 'use strict'
-import Database from '../../database/index'
+import Database from '../../../database'
 
 const Environment = require('storj')
 
@@ -19,10 +19,15 @@ async function _getStorjCredentials() {
 
 function getEnvironment() {
   return new Promise(async (resolve, reject) => {
-    const options = await _getStorjCredentials()
-    const storj = new Environment(options)
-    resolve(storj)
+    try {
+      const options = await _getStorjCredentials()
+      const storj = new Environment(options)
+      resolve(storj)
+    } catch (err) {
+      console.error('get encironment error', err)
+      reject(err)
+    }
   })
 }
 
-module.exports = getEnvironment
+export default getEnvironment

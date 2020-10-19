@@ -9,12 +9,12 @@ import Logger from '../../libs/logger'
 import mkdirp from 'mkdirp'
 import config from '../../config'
 import crypto from 'crypto'
-import AesUtil from './utils/AesUtil'
+import AesUtil from './AesUtil'
 import sanitize from 'sanitize-filename'
 import BridgeService from './BridgeService'
 import Auth from './utils/Auth'
-import File from './File'
-import Tree from './Tree'
+import File from './file'
+import Tree from './tree'
 
 const app = electron.remote.app
 const SYNC_KEEPALIVE_INTERVAL_MS = 25000

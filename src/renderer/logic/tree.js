@@ -1,6 +1,6 @@
 import FS from 'fs'
 import PATH from 'path'
-import database from '../../database/index'
+import database from '../../database'
 import async from 'async'
 import crypt from './crypt'
 import readdirp from 'readdirp'

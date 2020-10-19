@@ -1,18 +1,18 @@
-import Tree from './Tree'
+import Tree from './tree'
 import async from 'async'
 import Database from '../../database/index'
 import temp from 'temp'
 import path from 'path'
 import fs from 'fs'
 import Sync from './sync'
-import Uploader from './Uploader'
+import Uploader from './uploader'
 import CheckDiskSpace from 'check-disk-space'
 import electron from 'electron'
 import Logger from '../../libs/logger'
 import mkdirp from 'mkdirp'
 import sanitize from 'sanitize-filename'
-import Folder from './Folder'
-import getEnvironment from './utils/storeJSyscalls'
+import Folder from './folder'
+import getEnvironment from './utils/libinxt'
 
 const app = electron.remote.app
 
