@@ -87,7 +87,8 @@ function RootFolderExists() {
 async function InitMonitor() {
   // Init database if not initialized
   database.InitDatabase()
-  StartMonitor()
+  // StartMonitor()
+  StartUploadOnlyModeMonitor()
 }
 
 Monitor.prototype.StopMonitor = () => {
@@ -245,6 +246,175 @@ async function StartMonitor() {
         // Download remote files
         // Si hay ficheros nuevos en el árbol, los creamos en local
         Downloader.downloadFiles().then(() => next()).catch(next)
+      },
+      next => { database.Set('lastSyncSuccess', true).then(() => next()).catch(next) },
+      next => { database.Set('lastSyncDate', new Date()).then(() => next()).catch(next) }
+    ],
+    async err => {
+      // If monitor ended before stopping the watcher, let's ensure
+
+      // Switch "loading" tray ico
+      app.emit('set-tooltip')
+      app.emit('sync-off')
+      StopUpdateDeviceSync()
+      // Sync.UpdateUserSync(true)
+      isSyncing = false
+
+      const rootFolderExist = await RootFolderExists()
+      if (!rootFolderExist) {
+        await database.ClearFolders()
+        await database.ClearFiles()
+        await database.ClearTemp()
+        await database.ClearLastFiles()
+        await database.ClearLastFolders()
+        await database.ClearUser()
+        await database.CompactAllDatabases()
+        return
+      }
+
+      if (err) {
+        Logger.error('Error monitor:', err)
+        async.waterfall([
+          next => database.ClearFolders().then(() => next()).catch(() => next()),
+          next => database.ClearFiles().then(() => next()).catch(() => next()),
+          next => database.ClearTemp().then(() => next()).catch(() => next()),
+          next => database.ClearLastFiles().then(() => next()).catch(() => next()),
+          next => database.ClearLastFolders().then(() => next()).catch(() => next()),
+          next => {
+            database.CompactAllDatabases()
+            next()
+          }
+        ], () => {
+          Monitor()
+        })
+      } else {
+        Monitor()
+      }
+    }
+  )
+}
+
+async function StartUploadOnlyModeMonitor() {
+  const userDevicesSyncing = await Sync.GetOrSetUserSync()
+  if (isSyncing || userDevicesSyncing) {
+    if (userDevicesSyncing) {
+      Logger.warn('Sync not started because user have other device syncing')
+      Monitor()
+    }
+
+    return
+  }
+
+  app.on('sync-stop', () => {
+    isSyncing = false
+    app.emit('sync-off')
+    throw Error('Monitor stopped')
+  })
+
+  // StartUpdateDeviceSync()
+  isSyncing = true
+  lastSyncFailed = false
+
+  // Sync
+  async.waterfall(
+    [
+      next => {
+        // Change icon to "syncing"
+        app.emit('sync-on')
+        Folder.clearTempFolder().then(next).catch(() => next())
+      },
+      next => {
+        RootFolderExists().then((exists) => {
+          next(exists ? null : exists)
+        }).catch(next)
+      },
+      next => {
+        // Start the folder watcher if is not already started
+        app.emit('set-tooltip', 'Initializing watcher...')
+        database.Get('xPath').then(xPath => {
+          console.log('User store path: %s', xPath)
+          if (!wtc) {
+            watcher.StartWatcher(xPath).then(watcherInstance => {
+              wtc = watcherInstance
+              next()
+            })
+          } else {
+            next()
+          }
+        }).catch(next)
+      },
+      next => {
+        database.ClearTemp().then(() => next()).catch(next)
+      },
+      next => {
+        // New sync started, so we save the current date
+        const now = new Date()
+        Logger.log('Sync started at', now)
+        database.Set('syncStartDate', now).then(() => next()).catch(next)
+      },
+      next => {
+        // Search for new folders in local folder
+        // If a folder exists in local, but is not on the remote tree, create in remote
+        // If it is the first time you sync, or the last sync failed, creation may throw an error
+        // because folder already exists on remote. Ignore this error.
+        Uploader.uploadNewFolders().then(() => next()).catch(next)
+      },
+      next => {
+        // Search new files in local folder, and upload them
+        Uploader.uploadNewFiles().then(() => next()).catch(next)
+      },
+      next => {
+        // Will determine if something wrong happened in the last synchronization
+        database.Get('lastSyncDate').then(lastDate => {
+          if (!lastDate || !(lastDate instanceof Date)) {
+            // If there were never a last time (first time sync), the success is set to false.
+            database.Set('lastSyncSuccess', false).then(() => next()).catch(next)
+          } else {
+            // If last time is more than 2 days, let's consider a unsuccessful sync,
+            // to perform the sync from the start
+            const DifferenceInTime = new Date() - lastDate
+            const DifferenceInDays = DifferenceInTime / (1000 * 60 * 60 * 24)
+            if (DifferenceInDays > 2) {
+              // Last sync > 2 days, assume last sync failed to start from 0
+              database.Set('lastSyncSuccess', false).then(() => next()).catch(next)
+            } else {
+              // Sync ok
+              next()
+            }
+          }
+        }).catch(next)
+      },
+      next => {
+        // Start to sync. Did last sync failed?
+        // Then, clear all the local databases to start from zero
+        database.Get('lastSyncSuccess').then(result => {
+          if (result === true) {
+            next()
+          } else {
+            lastSyncFailed = true
+            Logger.warn('LAST SYNC FAILED, CLEARING DATABASES')
+            database.ClearAll().then(() => next()).catch(next)
+          }
+        }).catch(next)
+      },
+      next => {
+        database.Set('lastSyncSuccess', false).then(() => next()).catch(next)
+      }, /*
+      next => {
+        // Delete remote folders missing in local folder
+        Folder.cleanRemoteWhenLocalDeleted(lastSyncFailed).then(() => next()).catch(next)
+      },
+      next => {
+        // Delete remote files missing in local folder
+        File.cleanRemoteWhenLocalDeleted(lastSyncFailed).then(() => next()).catch(next)
+      }, */
+      next => {
+        // backup the last database
+        database.BackupCurrentTree().then(() => next()).catch(next)
+      },
+      next => {
+        // Sync and update the remote tree.
+        SyncRegenerateAndCompact().then(() => next()).catch(next)
       },
       next => { database.Set('lastSyncSuccess', true).then(() => next()).catch(next) },
       next => { database.Set('lastSyncDate', new Date()).then(() => next()).catch(next) }
