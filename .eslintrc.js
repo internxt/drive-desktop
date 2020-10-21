@@ -25,6 +25,7 @@ module.exports = {
     'no-unreachable': 'off',
     'space-before-function-paren': 'off',
     'no-useless-character': 0,
-    'prefer-const': 2
+    'prefer-const': 2,
+    'indent': 2
   }
 }

@@ -6,7 +6,7 @@ import watcher from '../watcher'
  * Sync Method: One Way, from LOCAL to CLOUD (Only Upload)
  */
 
-const SYNC_METHOD = '1way-toCloud'
+const SYNC_METHOD = 'one-way-upload'
 const isSyncing = false
 const wtc = null
 

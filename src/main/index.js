@@ -9,6 +9,7 @@ import semver from 'semver'
 import PackageJson from '../../package.json'
 import fetch from 'electron-fetch'
 import fs from 'fs'
+import ConfigStore from './config-store'
 
 AutoLaunch.configureAutostart()
 
@@ -92,6 +93,7 @@ const contextMenu = async (userEmail) => {
   } else {
     console.log('xUser is not set, skip from menu')
   }
+
   const contextMenuTemplate = [
     {
       label: 'Open folder',
@@ -101,23 +103,27 @@ const contextMenu = async (userEmail) => {
     },
     {
       label: 'Sync options',
-      enabled: !!syncMode,
+      enabled: true,
       submenu: [
         {
-          label: 'Two way: Local <--> Cloud',
+          label: 'Two Way Sync',
           type: 'radio',
-          enabled: false,
-          checked: syncMode === 1
+          enabled: true,
+          checked: ConfigStore.get('syncMode') === 'two-way',
+          click: () => {
+            Logger.info('User switched to two way sync mode')
+            ConfigStore.set('syncMode', 'two-way')
+          }
         },
         {
-          label: 'One way: Local <-- Cloud (Only Download)',
+          label: 'Upload Only Mode',
           type: 'radio',
-          checked: syncMode === 2
-        },
-        {
-          label: 'One way: Local --> Cloud (Only Upload)',
-          type: 'radio',
-          checked: syncMode === 3
+          enabled: true,
+          checked: ConfigStore.get('syncMode') === 'one-way-upload',
+          click: () => {
+            Logger.info('User switched to one way upload mode')
+            ConfigStore.set('syncMode', 'one-way-upload')
+          }
         }]
     },
     {
