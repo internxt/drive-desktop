@@ -14,6 +14,7 @@ import PackageJson from '../../../package.json'
 import OneWayUpload from './sync/OneWayUpload'
 import Folder from './folder'
 import File from './file'
+import ConfigStore from '../../main/config-store'
 
 let wtc, timeoutInstance
 let isSyncing = false
@@ -87,8 +88,14 @@ function RootFolderExists() {
 async function InitMonitor() {
   // Init database if not initialized
   database.InitDatabase()
-  // StartMonitor()
-  StartUploadOnlyModeMonitor()
+
+  const syncMode = ConfigStore.get('syncMode')
+
+  if (syncMode === 'two-way') {
+    StartMonitor()
+  } else {
+    StartUploadOnlyModeMonitor()
+  }
 }
 
 Monitor.prototype.StopMonitor = () => {
