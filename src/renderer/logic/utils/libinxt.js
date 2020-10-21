@@ -1,7 +1,7 @@
 'use strict'
 import Database from '../../../database'
 
-const Environment = require('storj')
+const { Environment } = require('storj')
 
 async function _getStorjCredentials() {
   const mnemonic = await Database.Get('xMnemonic')
@@ -24,7 +24,7 @@ function getEnvironment() {
       const storj = new Environment(options)
       resolve(storj)
     } catch (err) {
-      console.error('get encironment error', err)
+      console.error('get environment error', err)
       reject(err)
     }
   })

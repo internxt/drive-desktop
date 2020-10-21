@@ -68,7 +68,7 @@ function Monitor(startImmediately = false) {
   if (!isSyncing) {
     clearTimeout(timeoutInstance)
     Logger.log('Waiting %s secs for next sync. Version: v%s', timeout / 1000, PackageJson.version)
-    timeoutInstance = setTimeout(() => OneWayUpload.Monitor(), timeout)
+    timeoutInstance = setTimeout(() => InitMonitor(), timeout)
   }
 }
 

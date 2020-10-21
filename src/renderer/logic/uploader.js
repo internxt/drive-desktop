@@ -30,8 +30,8 @@ function uploadNewFile(storj, filePath, nCurrent, nTotal) {
         // Logger.error('Folder does not exists in local Database', folderPath)
         // Save this file on the temp Database, so will not be deleted in the next steps.
         Database.TempSet(filePath, 'add')
+        return resolve()
       }
-      return resolve()
     }
 
     Logger.log('NEW file found', filePath)

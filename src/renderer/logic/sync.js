@@ -45,16 +45,8 @@ function GetOrSetUserSync() {
         method: 'GET',
         headers: await Auth.GetAuthHeader()
       }).then(async res => {
-        if (res.status !== 200) {
-          throw res.statusText
-        }
-        try {
-          return { res, data: await res.json() }
-        } catch (err) {
-          throw res
-        }
+        return { res, data: await res.json() }
       }).then(res => {
-        console.log('THEN 2')
         resolve(res.data.data)
       }).catch(err => {
         Logger.error('Fetch error getting sync', err)

@@ -22,9 +22,10 @@ function SyncLogic(callback) {
 }
 
 function Monitor() {
-
+  SyncLogic()
 }
 
 export default {
-  SYNC_METHOD
+  SYNC_METHOD,
+  Monitor
 }
