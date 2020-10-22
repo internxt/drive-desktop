@@ -1,6 +1,6 @@
 import Sync from './sync'
 import async from 'async'
-import Downloader from './Downloader'
+import Downloader from './downloader'
 import Uploader from './uploader'
 import Tree from './tree'
 import database from '../../database'
@@ -408,15 +408,7 @@ async function StartUploadOnlyModeMonitor() {
       },
       next => {
         database.Set('lastSyncSuccess', false).then(() => next()).catch(next)
-      }, /*
-      next => {
-        // Delete remote folders missing in local folder
-        Folder.cleanRemoteWhenLocalDeleted(lastSyncFailed).then(() => next()).catch(next)
       },
-      next => {
-        // Delete remote files missing in local folder
-        File.cleanRemoteWhenLocalDeleted(lastSyncFailed).then(() => next()).catch(next)
-      }, */
       next => {
         // backup the last database
         database.BackupCurrentTree().then(() => next()).catch(next)
