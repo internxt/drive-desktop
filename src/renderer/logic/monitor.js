@@ -92,8 +92,10 @@ async function InitMonitor() {
   const syncMode = ConfigStore.get('syncMode')
 
   if (syncMode === 'two-way') {
+    Logger.info('Start 2-way sync')
     StartMonitor()
   } else {
+    Logger.info('Start 1-way-upload sync')
     StartUploadOnlyModeMonitor()
   }
 }

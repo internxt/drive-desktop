@@ -31,16 +31,9 @@ if (process.platform === 'darwin') {
   app.dock.hide()
 }
 
-if (app.requestSingleInstanceLock()) {
-  if (mainWindow) {
-    mainWindow.hide()
-  }
-}
-
-app.on('second-instance', (event, argv, cwd) => {
-  console.log('Second instance')
+if (!app.requestSingleInstanceLock()) {
   app.quit()
-})
+}
 
 function destroyTray() {
   if (tray) {
