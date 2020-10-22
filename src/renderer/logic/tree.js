@@ -1,11 +1,12 @@
 import FS from 'fs'
 import PATH from 'path'
-import database from '../../database/index'
+import database from '../../database'
 import async from 'async'
 import crypt from './crypt'
 import readdirp from 'readdirp'
 import sanitize from 'sanitize-filename'
 import Logger from '../../libs/logger'
+import Auth from './utils/Auth'
 
 const IgnoredFiles = [
   '^\\.(DS_Store|[Tt]humbs)$',
@@ -86,7 +87,7 @@ function _recursiveFolderObjectToList(tree, basePath, currentPath = null) {
   })
 }
 
-function GetFolderObjectListFromRemoteTree() {
+function getFolderObjectListFromRemoteTree() {
   return new Promise(async (resolve, reject) => {
     const tree = await database.Get('tree')
     const basePath = await database.Get('xPath')
@@ -145,12 +146,43 @@ function GetLocalFileList(localPath) {
   return GetListFromFolder(localPath)
 }
 
+function getTree() {
+  return new Promise((resolve, reject) => {
+    database.Get('xUser').then(async userData => {
+      fetch(`${process.env.API_URL}/api/storage/tree`, {
+        headers: await Auth.GetAuthHeader()
+      }).then(async res => {
+        return { res, data: await res.json() }
+      }).then(async res => {
+        resolve(res.data)
+      }).catch(reject)
+    })
+  })
+}
+
+function updateTree() {
+  return new Promise((resolve, reject) => {
+    getTree().then((tree) => {
+      database.Set('tree', tree).then(() => {
+        resolve()
+      }).catch(err => {
+        reject(err)
+      })
+    }).catch(err => {
+      Logger.error('Error updating tree', err)
+      reject(err)
+    })
+  })
+}
+
 export default {
   GetListFromFolder,
   GetStat,
   GetFolderListFromRemoteTree,
   GetFileListFromRemoteTree,
-  GetFolderObjectListFromRemoteTree,
+  getFolderObjectListFromRemoteTree,
   GetLocalFolderList,
-  GetLocalFileList
+  GetLocalFileList,
+  getTree,
+  updateTree
 }

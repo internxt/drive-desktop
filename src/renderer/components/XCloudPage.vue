@@ -16,7 +16,7 @@
       </div>
       <div>
         Path:
-        <a href="#" @click="openFolder()">{{this.$data.localPath}}</a>
+        <a href="#" @click="openFolder()">{{ this.$data.localPath }}</a>
       </div>
     </main>
   </div>
@@ -28,8 +28,9 @@ import path from 'path'
 import temp from 'temp'
 import fs, { existsSync } from 'fs'
 import async from 'async'
-import database from '../../database/index'
+import database from '../../database'
 import Sync from '../logic/sync'
+import Uploader from '../logic/uploader'
 import Tree from '../logic/tree'
 import Monitor from '../logic/monitor'
 import { remote } from 'electron'

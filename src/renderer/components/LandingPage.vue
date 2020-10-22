@@ -1,17 +1,17 @@
 <template>
   <div id="wrapper">
     <main class="centered-container">
-        <div class="spinner-grow text-primary" role="status">
-          <span class="sr-only">Loading...</span>
-        </div>
-        <div><a href="" @click="clearDatabase()">Clear data</a></div>
+      <div class="spinner-grow text-primary" role="status">
+        <span class="sr-only">Loading...</span>
+      </div>
+      <div><a href="" @click="clearDatabase()">Clear data</a></div>
     </main>
   </div>
 </template>
 
 <script>
 import SystemInformation from './LandingPage/SystemInformation'
-import database from '../../database/index'
+import database from '../../database'
 import async from 'async'
 import Logger from '../../libs/logger'
 import fs from 'fs'
@@ -50,29 +50,40 @@ export default {
     }
   },
   methods: {
-    opend (link) {
+    opend(link) {
       this.$electron.shell.openExternal(link)
     },
-    clearDatabase () {
-      const confirmation = confirm('ATTENTION:\nAll your Internxt Drive data will be lost forever.\n\nContinue?')
+    clearDatabase() {
+      const confirmation = confirm(
+        'ATTENTION:\nAll your Internxt Drive data will be lost forever.\n\nContinue?'
+      )
       if (confirmation) {
-        async.waterfall([
-          (next) => {
-            database.dbFiles.remove({}, {multi: true}, (err, n) => next(err, n))
-          },
-          (next) => {
-            database.dbFolders.remove({}, {multi: true}, (err, n) => next(err, n))
-          },
-          (next) => {
-            database.dbUser.remove({}, {multi: true}, (err, n) => next(err, n))
+        async.waterfall(
+          [
+            (next) => {
+              database.dbFiles.remove({}, { multi: true }, (err, n) =>
+                next(err, n)
+              )
+            },
+            (next) => {
+              database.dbFolders.remove({}, { multi: true }, (err, n) =>
+                next(err, n)
+              )
+            },
+            (next) => {
+              database.dbUser.remove({}, { multi: true }, (err, n) =>
+                next(err, n)
+              )
+            }
+          ],
+          (err, result) => {
+            if (err) {
+              alert('Error clearing database\n\n' + err)
+            } else {
+              this.$router.push('/login').catch(() => {})
+            }
           }
-        ], (err, result) => {
-          if (err) {
-            alert('Error clearing database\n\n' + err)
-          } else {
-            this.$router.push('/login').catch(() => {})
-          }
-        })
+        )
       }
     }
   }
@@ -80,5 +91,5 @@ export default {
 </script>
 
 <style>
-@import url("https://fonts.googleapis.com/css?family=Source+Sans+Pro");
+@import url('https://fonts.googleapis.com/css?family=Source+Sans+Pro');
 </style>

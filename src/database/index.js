@@ -241,17 +241,12 @@ const BackupCurrentTree = () => {
 
 const ClearAll = () => {
   return new Promise((resolve, reject) => {
-    async.waterfall([
+    async.parallel([
       next => ClearFolders().then(() => next()).catch(next),
       next => ClearFiles().then(() => next()).catch(next),
       next => ClearTemp().then(() => next()).catch(next),
       next => ClearLastFiles().then(() => next()).catch(next),
-      next => ClearLastFolders().then(() => next()).catch(next),
-      next => dbUser.remove({ key: 'tree' }, { multi: true }, () => next()),
-      next => {
-        CompactAllDatabases()
-        next()
-      }
+      next => ClearLastFolders().then(() => next()).catch(next)
     ], (err) => {
       if (err) {
         reject(err)

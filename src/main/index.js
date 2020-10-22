@@ -9,6 +9,7 @@ import semver from 'semver'
 import PackageJson from '../../package.json'
 import fetch from 'electron-fetch'
 import fs from 'fs'
+import ConfigStore from './config-store'
 
 AutoLaunch.configureAutostart()
 
@@ -30,16 +31,9 @@ if (process.platform === 'darwin') {
   app.dock.hide()
 }
 
-if (app.requestSingleInstanceLock()) {
-  if (mainWindow) {
-    mainWindow.hide()
-  }
-}
-
-app.on('second-instance', (event, argv, cwd) => {
-  console.log('Second instance')
+if (!app.requestSingleInstanceLock()) {
   app.quit()
-})
+}
 
 function destroyTray() {
   if (tray) {
@@ -65,6 +59,7 @@ function getTrayIcon(isLoading) {
   return trayIcon
 }
 
+const syncMode = 1
 const contextMenu = async (userEmail) => {
   let userMenu = []
   if (userEmail) {
@@ -91,12 +86,38 @@ const contextMenu = async (userEmail) => {
   } else {
     console.log('xUser is not set, skip from menu')
   }
+
   const contextMenuTemplate = [
     {
       label: 'Open folder',
       click: function () {
         app.emit('open-folder')
       }
+    },
+    {
+      label: 'Sync options',
+      enabled: true,
+      submenu: [
+        {
+          label: 'Two Way Sync',
+          type: 'radio',
+          enabled: true,
+          checked: ConfigStore.get('syncMode') === 'two-way',
+          click: () => {
+            Logger.info('User switched to two way sync mode')
+            ConfigStore.set('syncMode', 'two-way')
+          }
+        },
+        {
+          label: 'Upload Only Mode',
+          type: 'radio',
+          enabled: true,
+          checked: ConfigStore.get('syncMode') === 'one-way-upload',
+          click: () => {
+            Logger.info('User switched to one way upload mode')
+            ConfigStore.set('syncMode', 'one-way-upload')
+          }
+        }]
     },
     {
       label: 'Force sync',
