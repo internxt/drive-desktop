@@ -53,7 +53,7 @@ function downloadFileTemp(fileObj, silent = false) {
         app.removeListener('sync-stop', stopDownloadHandler)
         if (err) { reject(err) } else {
           Logger.log('Download finished')
-          Sync.SetModifiedTime(tempFilePath, fileObj.created_at).then(() => resolve(tempFilePath)).catch(reject)
+          resolve(tempFilePath)
         }
       }
     })
@@ -132,7 +132,7 @@ function _downloadAllFiles() {
             // when application and local folder are not in the same partition
             fs.copyFileSync(tempPath, item.fullpath)
             fs.unlinkSync(tempPath)
-            next(null)
+            Sync.SetModifiedTime(item.fullpath, item.created_at).then(() => next(null)).catch(next)
           }).catch(err => {
             // On error by shard, upload again
             Logger.error(err.message)
@@ -154,7 +154,7 @@ function _downloadAllFiles() {
             // Logger.log('%cNO ENSURE FILE', 'background-color: #aaaaff')
             return next()
           }
-          Logger.log('%cENSURE FILE ' + item.filename, 'background-color: #aaaaff')
+          Logger.log('%cENSURE FILE ' + item.filename, 'background-color: #aa00aa')
           // Check file is ok
           downloadFileTemp(item, true).then(tempPath => next()).catch(err => {
             const isError = [

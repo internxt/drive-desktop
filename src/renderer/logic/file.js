@@ -94,7 +94,7 @@ function cleanRemoteWhenLocalDeleted(lastSyncFailed) {
         const bucketId = item.value.bucket
         const fileId = item.value.fileId
 
-        File.RemoveFile(bucketId, fileId).then(() => next()).catch(err => {
+        RemoveFile(bucketId, fileId).then(() => next()).catch(err => {
           Logger.error('Error deleting remote file %j: %s', item, err)
           next(err)
         })
