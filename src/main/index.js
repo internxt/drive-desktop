@@ -27,7 +27,7 @@ const winURL = process.env.NODE_ENV === 'development'
   ? `http://localhost:9080`
   : `file://${__dirname}/index.html`
 
-if (process.platform === 'darwin') {
+if (process.platform === 'darwin' && process.env.NODE_ENV !== 'development') {
   app.dock.hide()
 }
 
