@@ -59,7 +59,6 @@ function getTrayIcon(isLoading) {
   return trayIcon
 }
 
-const syncMode = 1
 const contextMenu = async (userEmail) => {
   let userMenu = []
   if (userEmail) {

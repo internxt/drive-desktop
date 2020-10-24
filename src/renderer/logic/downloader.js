@@ -154,7 +154,7 @@ function _downloadAllFiles() {
             // Logger.log('%cNO ENSURE FILE', 'background-color: #aaaaff')
             return next()
           }
-          Logger.log('%cENSURE FILE ' + item.filename, 'background-color: #aa00aa')
+          Logger.log('%cENSURE FILE ' + item.filename, 'background-color: #aa00aa, color: #ffffff')
           // Check file is ok
           downloadFileTemp(item, true).then(tempPath => next()).catch(err => {
             const isError = [
