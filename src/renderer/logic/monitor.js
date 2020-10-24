@@ -120,7 +120,7 @@ async function StartMonitor() {
   const userDevicesSyncing = await Sync.GetOrSetUserSync()
   if (isSyncing || userDevicesSyncing) {
     if (userDevicesSyncing) {
-      Logger.warn('Sync not started because user have other device syncing')
+      Logger.warn('2-way-sync not started: another device already syncing')
       Monitor()
     }
 
@@ -171,7 +171,7 @@ async function StartMonitor() {
       next => {
         // New sync started, so we save the current date
         const now = new Date()
-        Logger.log('Sync started at', now)
+        Logger.log('Sync started at', now.toISOString())
         database.Set('syncStartDate', now).then(() => next()).catch(next)
       },
       next => {
@@ -307,7 +307,7 @@ async function StartUploadOnlyModeMonitor() {
   const userDevicesSyncing = await Sync.GetOrSetUserSync()
   if (isSyncing || userDevicesSyncing) {
     if (userDevicesSyncing) {
-      Logger.warn('Sync not started because user have other device syncing')
+      Logger.warn('1-way-upload not started: another device already syncing')
       Monitor()
     }
 
@@ -358,7 +358,7 @@ async function StartUploadOnlyModeMonitor() {
       next => {
         // New sync started, so we save the current date
         const now = new Date()
-        Logger.log('Sync started at', now)
+        Logger.log('Sync started at', now.toISOString())
         database.Set('syncStartDate', now).then(() => next()).catch(next)
       },
       next => {
