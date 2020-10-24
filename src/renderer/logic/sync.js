@@ -72,10 +72,9 @@ function UpdateUserSync(toNull = false) {
         fetchOpts.body = JSON.stringify({ toNull })
       }
 
-      console.log('GET 2')
       fetch(`${process.env.API_URL}/api/user/sync`, fetchOpts)
         .then(async res => {
-          if (res !== 200) {
+          if (res.status !== 200) {
             throw Error('Update sync not available on server')
           }
           return { res, data: await res.json() }

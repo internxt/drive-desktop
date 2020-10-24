@@ -105,13 +105,17 @@ Monitor.prototype.StopMonitor = () => {
 }
 
 function StartUpdateDeviceSync() {
-  Logger.log('Started sync update interval')
+  Logger.log('Started sync lock update interval')
   Sync.UpdateUserSync()
   updateSyncInterval = setInterval(() => Sync.UpdateUserSync(), Sync.SYNC_KEEPALIVE_INTERVAL_MS)
 }
 
 function StopUpdateDeviceSync() {
-  Logger.log('Stopped sync update interval')
+  if (!updateSyncInterval) {
+    Logger.warn('No sync lock update interval to stop')
+  } else {
+    Logger.log('Stopped sync lock update interval')
+  }
   Sync.UnlockSync()
   clearInterval(updateSyncInterval)
 }
@@ -125,6 +129,9 @@ async function StartMonitor() {
     }
 
     return
+  } else {
+    Logger.info('This device got the sync lock')
+    StartUpdateDeviceSync()
   }
 
   app.on('sync-stop', () => {
@@ -302,7 +309,6 @@ async function StartUploadOnlyModeMonitor() {
       Logger.warn('1-way-upload not started: another device already syncing')
       Monitor()
     }
-
     return
   }
 
