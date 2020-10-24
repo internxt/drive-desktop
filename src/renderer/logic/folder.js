@@ -1,6 +1,5 @@
 import Logger from '../../libs/logger'
 import Auth from './utils/Auth'
-import Sync from './sync'
 import fs from 'fs'
 import path from 'path'
 import electron from 'electron'
@@ -185,6 +184,18 @@ function createLocalFolders() {
   })
 }
 
+function RootFolderExists() {
+  return new Promise((resolve, reject) => {
+    Database.Get('xPath').then(xPath => {
+      if (!xPath) {
+        resolve(false)
+      }
+
+      resolve(fs.existsSync(xPath))
+    }).catch(reject)
+  })
+}
+
 export default {
   createRemoteFolder,
   getTempFolderPath,
@@ -192,5 +203,6 @@ export default {
   cleanLocalWhenRemoteDeleted,
   cleanRemoteWhenLocalDeleted,
   removeFolder,
-  createLocalFolders
+  createLocalFolders,
+  RootFolderExists
 }

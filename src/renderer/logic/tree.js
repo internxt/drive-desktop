@@ -1,5 +1,5 @@
-import FS from 'fs'
-import PATH from 'path'
+import fs from 'fs'
+import path from 'path'
 import database from '../../database'
 import async from 'async'
 import crypt from './crypt'
@@ -36,9 +36,9 @@ function GetListFromFolder(folderPath) {
   })
 }
 
-function GetStat(path) {
+function GetStat(filepath) {
   try {
-    return FS.lstatSync(path)
+    return fs.lstatSync(filepath)
   } catch (err) {
     return null
   }
@@ -49,7 +49,7 @@ function _recursiveFolderToList(tree, basePath, currentPath = null) {
   return new Promise((resolve, reject) => {
     async.eachSeries(tree.children, async (item, next) => {
       const decryptedName = crypt.DecryptName(item.name, item.parentId)
-      const fullNewPath = PATH.join(currentPath || basePath, decryptedName)
+      const fullNewPath = path.join(currentPath || basePath, decryptedName)
       finalList.push(fullNewPath)
       const subFolder = await _recursiveFolderToList(item, basePath, fullNewPath)
       finalList = finalList.concat(subFolder)
@@ -73,7 +73,7 @@ function _recursiveFolderObjectToList(tree, basePath, currentPath = null) {
   return new Promise((resolve, reject) => {
     async.eachSeries(tree.children, async (item, next) => {
       const decryptedName = crypt.DecryptName(item.name, item.parentId)
-      const fullNewPath = PATH.join(currentPath || basePath, decryptedName)
+      const fullNewPath = path.join(currentPath || basePath, decryptedName)
       const cloneObject = JSON.parse(JSON.stringify(item))
       delete cloneObject.children
       const finalObject = { key: fullNewPath, value: cloneObject }
@@ -87,7 +87,7 @@ function _recursiveFolderObjectToList(tree, basePath, currentPath = null) {
   })
 }
 
-function getFolderObjectListFromRemoteTree() {
+function GetFolderObjectListFromRemoteTree() {
   return new Promise(async (resolve, reject) => {
     const tree = await database.Get('tree')
     const basePath = await database.Get('xPath')
@@ -102,13 +102,13 @@ function _recursiveFilesToList(tree, basePath, currentPath = null) {
     const encryptedFileName = item.name
     const salt = item.folder_id
     item.filename = crypt.DecryptName(encryptedFileName, salt)
-    item.fullpath = PATH.join(currentPath || basePath, item.filename + (item.type ? '.' + item.type : ''))
+    item.fullpath = path.join(currentPath || basePath, item.filename + (item.type ? '.' + item.type : ''))
   })
 
   return new Promise((resolve, reject) => {
     async.eachSeries(tree.children, async (item, next) => {
       const decryptedName = crypt.DecryptName(item.name, item.parentId)
-      const fullNewPath = PATH.join(currentPath || basePath, decryptedName)
+      const fullNewPath = path.join(currentPath || basePath, decryptedName)
       const subFolder = await _recursiveFilesToList(item, basePath, fullNewPath)
       finalList = finalList.concat(subFolder)
       next()
@@ -175,14 +175,77 @@ function updateTree() {
   })
 }
 
+function RegenerateLocalDbFolders() {
+  return new Promise((resolve, reject) => {
+    GetFolderObjectListFromRemoteTree().then(list => {
+      database.dbFolders.remove({}, { multi: true }, (err, n) => {
+        if (err) { reject(err) } else {
+          async.eachSeries(list,
+            (item, next) => {
+              if (path.basename(item.key) !== sanitize(path.basename(item.key))) {
+                Logger.info('Ignoring folder %s, invalid name', item.key)
+                return next()
+              }
+              database.dbFolders.insert(item, (err, document) => next(err, document))
+            },
+            err => { if (err) { reject(err) } else { resolve(err) } }
+          )
+        }
+      })
+    }).catch(reject)
+  })
+}
+
+function RegenerateLocalDbFiles() {
+  return new Promise((resolve, reject) => {
+    GetFileListFromRemoteTree().then(list => {
+      database.dbFiles.remove({}, { multi: true }, (err, n) => {
+        if (err) { reject(err) } else {
+          async.eachSeries(list,
+            (item, next) => {
+              const finalObject = { key: item.fullpath, value: item }
+              if (path.basename(finalObject.key) !== sanitize(path.basename(finalObject.key))) {
+                Logger.info('Ignoring file %s, invalid name', finalObject.key)
+                return next()
+              }
+              database.dbFiles.insert(finalObject, (err, document) => next(err, document))
+            },
+            err => {
+              if (err) { reject(err) } else { resolve() }
+            }
+          )
+        }
+      })
+    }).catch(reject)
+  })
+}
+
+function RegenerateAndCompact() {
+  return new Promise((resolve, reject) => {
+    async.waterfall([
+      next => updateTree().then(() => next()).catch(next),
+      next => RegenerateLocalDbFolders().then(() => next()).catch(next),
+      next => RegenerateLocalDbFiles().then(() => next()).catch(next)
+    ], (err) => {
+      database.CompactAllDatabases()
+      if (err) {
+        reject(err)
+      } else {
+        resolve()
+      }
+    })
+  })
+}
+
 export default {
   GetListFromFolder,
   GetStat,
   GetFolderListFromRemoteTree,
   GetFileListFromRemoteTree,
-  getFolderObjectListFromRemoteTree,
+  GetFolderObjectListFromRemoteTree,
   GetLocalFolderList,
   GetLocalFileList,
   getTree,
-  updateTree
+  updateTree,
+  RegenerateAndCompact
 }

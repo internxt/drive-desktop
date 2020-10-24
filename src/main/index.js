@@ -82,8 +82,6 @@ const contextMenu = async (userEmail) => {
         }
       }
     ]
-  } else {
-    console.log('xUser is not set, skip from menu')
   }
 
   const contextMenuTemplate = [

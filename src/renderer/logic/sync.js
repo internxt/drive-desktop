@@ -1,23 +1,7 @@
 import fs from 'fs'
-import path from 'path'
-import rimraf from 'rimraf'
 import electron from 'electron'
-import async from 'async'
-import database from '../../database/index'
-import crypt from './crypt'
-import Logger from '../../libs/logger'
-import mkdirp from 'mkdirp'
-import config from '../../config'
-import crypto from 'crypto'
-import AesUtil from './AesUtil'
-import sanitize from 'sanitize-filename'
-import BridgeService from './BridgeService'
-import Auth from './utils/Auth'
-import File from './file'
-import Tree from './tree'
 
 const app = electron.remote.app
-const SYNC_KEEPALIVE_INTERVAL_MS = 25000
 
 function SetModifiedTime(path, time) {
   let convertedTime = ''
@@ -38,82 +22,6 @@ function SetModifiedTime(path, time) {
   })
 }
 
-function GetOrSetUserSync() {
-  return new Promise(async (resolve, reject) => {
-    database.Get('xUser').then(async userData => {
-      fetch(`${process.env.API_URL}/api/user/sync`, {
-        method: 'GET',
-        headers: await Auth.GetAuthHeader()
-      }).then(async res => {
-        return { res, data: await res.json() }
-      }).then(res => {
-        resolve(res.data.data)
-      }).catch(err => {
-        Logger.error('Fetch error getting sync', err)
-        reject(err)
-      })
-    })
-  })
-}
-
-function UpdateUserSync(toNull = false) {
-  Logger.log('Updating user sync device time')
-  return new Promise(async (resolve, reject) => {
-    database.Get('xUser').then(userData => {
-      const fetchOpts = {
-        method: 'PUT',
-        headers: {
-          Authorization: `Bearer ${userData.token}`,
-          'content-type': 'application/json'
-        },
-        mode: 'cors'
-      }
-      if (toNull) {
-        fetchOpts.body = JSON.stringify({ toNull })
-      }
-
-      fetch(`${process.env.API_URL}/api/user/sync`, fetchOpts)
-        .then(async res => {
-          if (res.status !== 200) {
-            throw Error('Update sync not available on server')
-          }
-          return { res, data: await res.json() }
-        })
-        .then(res => {
-          resolve(res.data.data)
-        }).catch(err => {
-          reject(err)
-        })
-    })
-  })
-}
-
-async function UnlockSync() {
-  Logger.info('Sync unlocked')
-  return new Promise(async (resolve, reject) => {
-    const userData = await database.Get('xUser')
-    fetch(`${process.env.API_URL}/api/user/sync`, {
-      method: 'DELETE',
-      headers: {
-        Authorization: `Bearer ${userData.token}`,
-        'content-type': 'application/json'
-      }
-    }).then(res => {
-      if (res.status === 200) {
-        resolve()
-      } else {
-        reject(res.status)
-      }
-    }).catch(err => {
-      reject(err)
-    })
-  })
-}
-
 export default {
-  SetModifiedTime,
-  GetOrSetUserSync,
-  UpdateUserSync,
-  UnlockSync,
-  SYNC_KEEPALIVE_INTERVAL_MS
+  SetModifiedTime
 }
