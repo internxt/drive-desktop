@@ -271,24 +271,16 @@ async function StartMonitor() {
 
       const rootFolderExist = await RootFolderExists()
       if (!rootFolderExist) {
-        await database.ClearFolders()
-        await database.ClearFiles()
-        await database.ClearTemp()
-        await database.ClearLastFiles()
-        await database.ClearLastFolders()
+        await database.ClearAll()
         await database.ClearUser()
         await database.CompactAllDatabases()
         return
       }
 
       if (err) {
-        Logger.error('Error monitor:', err)
+        Logger.error('Error 2-way-sync monitor:', err)
         async.waterfall([
-          next => database.ClearFolders().then(() => next()).catch(() => next()),
-          next => database.ClearFiles().then(() => next()).catch(() => next()),
-          next => database.ClearTemp().then(() => next()).catch(() => next()),
-          next => database.ClearLastFiles().then(() => next()).catch(() => next()),
-          next => database.ClearLastFolders().then(() => next()).catch(() => next()),
+          next => database.ClearAll().then(() => next()).catch(() => next()),
           next => {
             database.CompactAllDatabases()
             next()
@@ -432,11 +424,7 @@ async function StartUploadOnlyModeMonitor() {
 
       const rootFolderExist = await RootFolderExists()
       if (!rootFolderExist) {
-        await database.ClearFolders()
-        await database.ClearFiles()
-        await database.ClearTemp()
-        await database.ClearLastFiles()
-        await database.ClearLastFolders()
+        await database.ClearAll()
         await database.ClearUser()
         await database.CompactAllDatabases()
         return
@@ -445,11 +433,7 @@ async function StartUploadOnlyModeMonitor() {
       if (err) {
         Logger.error('Error monitor:', err)
         async.waterfall([
-          next => database.ClearFolders().then(() => next()).catch(() => next()),
-          next => database.ClearFiles().then(() => next()).catch(() => next()),
-          next => database.ClearTemp().then(() => next()).catch(() => next()),
-          next => database.ClearLastFiles().then(() => next()).catch(() => next()),
-          next => database.ClearLastFolders().then(() => next()).catch(() => next()),
+          next => database.ClearAll().then(() => next()).catch(() => next()),
           next => {
             database.CompactAllDatabases()
             next()
