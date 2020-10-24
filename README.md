@@ -33,8 +33,7 @@ yarn run dev
 yarn run build
 
 # run unit & end-to-end tests
-npm test
-
+yarn run test
 
 # lint all JS/Vue component files in `src/`
 yarn run lint
