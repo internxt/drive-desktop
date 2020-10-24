@@ -273,7 +273,7 @@ async function StartMonitor() {
       if (!rootFolderExist) {
         await database.ClearAll()
         await database.ClearUser()
-        await database.CompactAllDatabases()
+        database.CompactAllDatabases()
         return
       }
 
@@ -426,7 +426,7 @@ async function StartUploadOnlyModeMonitor() {
       if (!rootFolderExist) {
         await database.ClearAll()
         await database.ClearUser()
-        await database.CompactAllDatabases()
+        database.CompactAllDatabases()
         return
       }
 
