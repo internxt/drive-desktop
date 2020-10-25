@@ -199,16 +199,16 @@ async function SyncLogic(callback) {
             next()
           }
         ], () => {
-          Start()
+          start()
         })
       } else {
-        Start()
+        start()
       }
     }
   )
 }
 
-function Start(startImmediately = false) {
+function start(startImmediately = false) {
   Logger.info('Start 2-way sync')
   let timeout = 0
   if (!startImmediately) {
@@ -221,16 +221,18 @@ function Start(startImmediately = false) {
   if (!isSyncing) {
     clearTimeout(timeoutInstance)
     Logger.log('Waiting %s secs for next 2-way sync. Version: v%s', timeout / 1000, PackageJson.version)
-    timeoutInstance = setTimeout(() => SyncLogic(), timeout)
+    timeoutInstance = setTimeout(() => {
+      SyncLogic()
+    }, timeout)
   }
 }
 
-function Stop() {
+function end() {
   clearInterval(timeoutInstance)
 }
 
 export default {
   SYNC_METHOD,
-  Start,
-  Stop
+  start,
+  end
 }

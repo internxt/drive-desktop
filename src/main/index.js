@@ -1,6 +1,6 @@
 'use strict'
 
-import { app, BrowserWindow, Tray, Menu, shell, dialog } from 'electron'
+import { app, BrowserWindow, Tray, Menu, shell, dialog, powerMonitor } from 'electron'
 import path from 'path'
 import Logger from '../libs/logger'
 import AutoLaunch from '../libs/autolauncher'
@@ -506,4 +506,14 @@ app.on('ready', () => {
   setInterval(() => {
     checkUpdates()
   }, 1000 * 60 * 60 * 6)
+})
+
+powerMonitor.on('suspend', function() {
+  Logger.warn('User system suspended')
+  app.emit('sync-stop')
+})
+
+powerMonitor.on('resume', function () {
+  Logger.warn('User system resumed')
+  app.emit('sync-start')
 })

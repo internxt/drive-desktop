@@ -32,7 +32,7 @@ async function SyncLogic(callback) {
   if (isSyncing || userDevicesSyncing) {
     if (userDevicesSyncing) {
       Logger.warn('1-way-upload not started: another device already syncing')
-      Start()
+      start()
     }
     return
   }
@@ -169,10 +169,10 @@ async function SyncLogic(callback) {
             next()
           }
         ], () => {
-          Start()
+          start()
         })
       } else {
-        database.ClearAll().then(() => Start()).catch(() => {
+        database.ClearAll().then(() => start()).catch(() => {
           Logger.error('Cannot end up 1-way-upload, fatal error')
         })
       }
@@ -180,7 +180,7 @@ async function SyncLogic(callback) {
   )
 }
 
-function Start(startImmediately = false) {
+function start(startImmediately = false) {
   Logger.info('Start 1-way-upload sync')
   let timeout = 0
   if (!startImmediately) {
@@ -197,12 +197,12 @@ function Start(startImmediately = false) {
   }
 }
 
-function Stop() {
+function end() {
   clearInterval(timeoutInstance)
 }
 
 export default {
   SYNC_METHOD,
-  Start,
-  Stop
+  start,
+  end
 }
