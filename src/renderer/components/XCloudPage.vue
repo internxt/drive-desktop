@@ -12,6 +12,9 @@
         <a href="#" @click="forceSync()">Force sync</a>
       </div>
       <div>
+        <a href="#" @click="unlockDevice()">Unlock this device</a>
+      </div>
+      <div>
         <a href="#" @click="logout()">Log out</a>
       </div>
       <div>
@@ -36,6 +39,7 @@ import Monitor from '../logic/monitor'
 import { remote } from 'electron'
 import Logger from '../../libs/logger'
 import PackageJson from '../../../package.json'
+import DeviceLock from '../logic/devicelock'
 
 export default {
   name: 'xcloud-page',
@@ -119,6 +123,9 @@ export default {
     },
     forceSync() {
       remote.app.emit('sync-start')
+    },
+    unlockDevice() {
+      DeviceLock.Unlock()
     },
     changeTrayIconOn() {
       remote.app.emit('sync-on')
