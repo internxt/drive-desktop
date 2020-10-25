@@ -3,12 +3,14 @@ import Logger from '../../../libs/logger'
 import watcher from '../watcher'
 import database from '../../../database'
 import Folder from '../folder'
+import File from '../file'
 import DeviceLock from '../devicelock'
 import electron from 'electron'
 import Downloader from '../downloader'
 import Tree from '../tree'
 import Uploader from '../uploader'
 import PackageJson from '../../../../package.json'
+import ConfigStore from '../../../main/config-store'
 
 /*
  * Sync Method: One Way, from LOCAL to CLOUD (Only Upload)
@@ -22,6 +24,10 @@ let timeoutInstance = null
 const { app } = electron.remote
 
 async function SyncLogic(callback) {
+  const syncMode = ConfigStore.get('syncMode')
+  if (syncMode !== 'two-way') {
+    return callback()
+  }
   Logger.info('Two way upload started')
   const userDevicesSyncing = await DeviceLock.RequestSyncLock()
   if (isSyncing || userDevicesSyncing) {
@@ -181,6 +187,8 @@ async function SyncLogic(callback) {
         database.CompactAllDatabases()
         return
       }
+
+      Logger.info('2-WAY SYNC END')
 
       if (err) {
         Logger.error('Error 2-way-sync monitor:', err)

@@ -8,6 +8,7 @@ import Uploader from '../uploader'
 import DeviceLock from '../devicelock'
 import Tree from '../tree'
 import PackageJson from '../../../../package.json'
+import ConfigStore from '../../../main/config-store'
 
 /*
  * Sync Method: One Way, from LOCAL to CLOUD (Only Upload)
@@ -22,6 +23,10 @@ let lastSyncFailed = false
 let timeoutInstance = null
 
 async function SyncLogic(callback) {
+  const syncMode = ConfigStore.get('syncMode')
+  if (syncMode !== 'one-way-upload') {
+    return callback()
+  }
   Logger.info('One way upload started')
   const userDevicesSyncing = await DeviceLock.RequestSyncLock()
   if (isSyncing || userDevicesSyncing) {
@@ -143,7 +148,6 @@ async function SyncLogic(callback) {
       app.emit('set-tooltip')
       app.emit('sync-off')
       DeviceLock.StopUpdateDeviceSync()
-      // Sync.UpdateUserSync(true)
       isSyncing = false
 
       const rootFolderExist = await Folder.RootFolderExists()
@@ -153,6 +157,8 @@ async function SyncLogic(callback) {
         database.CompactAllDatabases()
         return
       }
+
+      Logger.info('1-WAY SYNC END')
 
       if (err) {
         Logger.error('Error monitor:', err)
