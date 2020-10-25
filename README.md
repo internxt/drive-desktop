@@ -7,7 +7,7 @@
 
 # Installation
 
-Use node 10.19.0
+Use node 10.19
 
 ``` bash
 nvm install 10.19
