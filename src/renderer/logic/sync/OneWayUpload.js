@@ -40,7 +40,7 @@ async function SyncLogic(callback) {
   app.once('sync-stop', () => {
     isSyncing = false
     app.emit('sync-off')
-    throw Error('Monitor stopped')
+    throw Error('1-WAY-UPLOAD stopped')
   })
 
   isSyncing = true

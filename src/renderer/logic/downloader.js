@@ -1,7 +1,6 @@
 import Tree from './tree'
 import async from 'async'
 import Database from '../../database/index'
-import temp from 'temp'
 import path from 'path'
 import fs from 'fs'
 import Sync from './sync'
@@ -59,10 +58,12 @@ function downloadFileTemp(fileObj, silent = false) {
     })
 
     const stopDownloadHandler = (storj, state) => {
-      storj.resolveFileCancel(state)
+      if (storj) {
+        storj.resolveFileCancel(state)
+      }
     }
 
-    app.on('sync-stop', () => stopDownloadHandler(storj, state))
+    app.once('sync-stop', () => stopDownloadHandler(storj, state))
   })
 }
 

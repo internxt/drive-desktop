@@ -38,10 +38,10 @@ async function SyncLogic(callback) {
 
   Logger.info('Two way upload started')
 
-  app.on('sync-stop', () => {
+  app.once('sync-stop', () => {
     isSyncing = false
     app.emit('sync-off')
-    throw Error('Monitor stopped')
+    throw Error('2-WAY-SYNC stopped')
   })
 
   isSyncing = true

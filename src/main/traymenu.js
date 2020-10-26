@@ -79,6 +79,7 @@ class TrayMenu {
             click: () => {
               Logger.info('User switched to two way sync mode')
               ConfigStore.set('syncMode', 'two-way')
+              app.emit('sync-stop')
             }
           },
           {
@@ -89,6 +90,7 @@ class TrayMenu {
             click: () => {
               Logger.info('User switched to one way upload mode')
               ConfigStore.set('syncMode', 'one-way-upload')
+              app.emit('sync-stop')
             }
           }]
       },
