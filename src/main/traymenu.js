@@ -4,6 +4,7 @@ import { Tray, Menu, app, shell, dialog, remote } from 'electron'
 import ConfigStore from './config-store'
 import Logger from '../libs/logger'
 import fs from 'fs'
+import electronLog from 'electron-log'
 
 class TrayMenu {
   constructor(mainWindow) {
@@ -98,8 +99,23 @@ class TrayMenu {
         }
       },
       {
+        label: 'Open logs',
+        click: function () {
+          try {
+            const logFile = electronLog.transports.file.getFile().path
+            const logPath = path.dirname(logFile)
+            shell.openItem(logPath)
+          } catch (e) {
+            Logger.error('Error opening log path: %s', e.message)
+          }
+        }
+      },
+      {
         label: 'Billing',
         click: function () { shell.openExternal(`${process.env.API_URL}/storage`) }
+      },
+      {
+        type: 'separator'
       },
       {
         label: 'Log out',
