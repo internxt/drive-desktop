@@ -12,6 +12,7 @@ import mkdirp from 'mkdirp'
 import sanitize from 'sanitize-filename'
 import Folder from './folder'
 import getEnvironment from './utils/libinxt'
+import File from './file'
 
 const app = electron.remote.app
 
