@@ -10,6 +10,7 @@ import PackageJson from '../../package.json'
 import fetch from 'electron-fetch'
 import fs from 'fs'
 import ConfigStore from './config-store'
+import TrayMenu from './traymenu'
 
 AutoLaunch.configureAutostart()
 
@@ -21,7 +22,7 @@ if (process.env.NODE_ENV !== 'development') {
   global.__static = path.join(__dirname, '/static').replace(/\\/g, '\\\\')
 }
 
-let mainWindow, tray
+let mainWindow, tray, trayMenu
 
 const winURL = process.env.NODE_ENV === 'development'
   ? `http://localhost:9080`
@@ -35,121 +36,11 @@ if (!app.requestSingleInstanceLock()) {
   app.quit()
 }
 
-function destroyTray() {
-  if (tray) {
-    tray.destroy()
-  }
-  tray = null
-  mainWindow = null
-}
-
-function getTrayIcon(isLoading) {
-  const iconName = isLoading ? 'sync-icon' : 'tray-icon'
-
-  let trayIcon = path.join(__dirname, '../../src/resources/icons/' + iconName + '@2x.png')
-
-  if (process.platform === 'darwin') {
-    trayIcon = path.join(__dirname, '../../src/resources/icons/' + iconName + '-macTemplate@2x.png')
-  }
-
-  if (tray) {
-    tray.setImage(trayIcon)
-  }
-
-  return trayIcon
-}
-
-const contextMenu = async (userEmail) => {
-  let userMenu = []
-  if (userEmail) {
-    userMenu = [
-      {
-        label: userEmail,
-        enabled: false
-      },
-      {
-        type: 'separator'
-      },
-      {
-        label: 'Change sync folder',
-        click: function () {
-          const newDir = dialog.showOpenDialogSync({ properties: ['openDirectory'] })
-          if (newDir && newDir.length > 0 && fs.existsSync(newDir[0])) {
-            app.emit('new-folder-path', newDir[0])
-          } else {
-            Logger.info('Sync folder change error or cancelled')
-          }
-        }
-      }
-    ]
-  }
-
-  const contextMenuTemplate = [
-    {
-      label: 'Open folder',
-      click: function () {
-        app.emit('open-folder')
-      }
-    },
-    {
-      label: 'Sync options',
-      enabled: true,
-      submenu: [
-        {
-          label: 'Two Way Sync',
-          type: 'radio',
-          enabled: true,
-          checked: ConfigStore.get('syncMode') === 'two-way',
-          click: () => {
-            Logger.info('User switched to two way sync mode')
-            ConfigStore.set('syncMode', 'two-way')
-          }
-        },
-        {
-          label: 'Upload Only Mode',
-          type: 'radio',
-          enabled: true,
-          checked: ConfigStore.get('syncMode') === 'one-way-upload',
-          click: () => {
-            Logger.info('User switched to one way upload mode')
-            ConfigStore.set('syncMode', 'one-way-upload')
-          }
-        }]
-    },
-    {
-      label: 'Force sync',
-      click: function () {
-        app.emit('sync-start')
-      }
-    },
-    {
-      label: 'Billing',
-      click: function () { shell.openExternal(`${process.env.API_URL}/storage`) }
-    },
-    {
-      label: 'Log out',
-      click: function () {
-        app.emit('user-logout')
-      }
-    },
-    {
-      label: 'Quit',
-      click: appClose
-    }
-  ]
-  return Menu.buildFromTemplate(Array.concat(userMenu, contextMenuTemplate))
-}
-
-async function updateContextMenu(tray, user) {
-  const ctxMenu = await contextMenu(user)
-  tray.setContextMenu(ctxMenu)
-}
-
 app.on('update-menu', (user) => {
-  if (tray) {
-    updateContextMenu(tray, user)
+  if (trayMenu) {
+    trayMenu.updateContextMenu(user)
   } else {
-    console.log('no tray to update')
+    Logger.error('No tray to update')
   }
 })
 
@@ -172,6 +63,7 @@ function createWindow() {
 
   mainWindow.on('closed', appClose)
   mainWindow.on('close', appClose)
+  app.on('app-close', appClose)
 
   const edit = {
     label: 'Edit',
@@ -250,12 +142,10 @@ function createWindow() {
     Menu.buildFromTemplate([process.platform === 'darwin' ? editMacOS : edit, view])
   )
 
-  const trayIcon = getTrayIcon()
-
-  tray = new Tray(trayIcon)
-  tray.setToolTip('Internxt Drive ' + PackageJson.version)
-
-  updateContextMenu(tray)
+  trayMenu = new TrayMenu(mainWindow)
+  trayMenu.init()
+  trayMenu.setToolTip('Internxt Drive ' + PackageJson.version)
+  trayMenu.updateContextMenu()
 }
 
 app.on('ready', () => {
@@ -263,11 +153,12 @@ app.on('ready', () => {
 })
 
 function appClose() {
-  if (mainWindow) {
-    mainWindow.destroy()
-  }
+  if (mainWindow) { mainWindow.destroy() }
   if (process.platform !== 'darwin') { app.quit() }
-  destroyTray()
+  if (trayMenu) {
+    trayMenu.destroy()
+    trayMenu = null
+  }
 }
 
 app.on('window-all-closed', () => {
@@ -281,8 +172,8 @@ app.on('activate', () => {
 })
 
 app.on('before-quit', function (evt) {
-  if (tray) {
-    tray.destroy()
+  if (trayMenu) {
+    trayMenu.destroy()
   }
 })
 
@@ -290,11 +181,11 @@ app.on('browser-window-focus', (e, w) => {
 })
 
 app.on('sync-on', function () {
-  tray.setImage(getTrayIcon(true))
+  trayMenu.setIsLoadingIcon(true)
 })
 
 app.on('sync-off', function () {
-  tray.setImage(getTrayIcon(false))
+  trayMenu.setIsLoadingIcon(false)
 })
 
 function maybeShowWindow() {
@@ -312,11 +203,8 @@ function maybeShowWindow() {
 maybeShowWindow()
 
 app.on('show-bubble', (title, content) => {
-  if (tray) {
-    tray.displayBalloon({
-      title: title,
-      content: content
-    })
+  if (trayMenu) {
+    trayMenu.displayBallon(title, content)
   }
 })
 
@@ -329,7 +217,8 @@ app.on('window-hide', function () {
 })
 
 app.on('set-tooltip', msg => {
-  tray.setToolTip(`Internxt Drive ${PackageJson.version}${(msg ? '\n' + msg : '')}`)
+  const message = `Internxt Drive ${PackageJson.version}${(msg ? '\n' + msg : '')}`
+  trayMenu.setToolTip(message)
 })
 
 /**
@@ -506,14 +395,14 @@ app.on('ready', () => {
   setInterval(() => {
     checkUpdates()
   }, 1000 * 60 * 60 * 6)
-})
 
-powerMonitor.on('suspend', function() {
-  Logger.warn('User system suspended')
-  app.emit('sync-stop')
-})
+  powerMonitor.on('suspend', function() {
+    Logger.warn('User system suspended')
+    app.emit('sync-stop')
+  })
 
-powerMonitor.on('resume', function () {
-  Logger.warn('User system resumed')
-  app.emit('sync-start')
+  powerMonitor.on('resume', function () {
+    Logger.warn('User system resumed')
+    app.emit('sync-start')
+  })
 })

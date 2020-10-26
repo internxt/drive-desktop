@@ -46,7 +46,7 @@ async function InitMonitor(startImmediately = false) {
     TwoWaySync.start(startImmediately)
   } else {
     OneWayUpload.start(startImmediately)
-}
+  }
 }
 
 export default {
