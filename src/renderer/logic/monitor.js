@@ -24,11 +24,7 @@ app.on('open-folder', function () {
 })
 
 app.on('sync-start', function () {
-  if (!isSyncing) {
-    Monitor(true)
-  } else {
-    Logger.warn('There is an active sync running right now')
-  }
+  Monitor(true)
 })
 
 function Monitor(startImmediately = false) {
@@ -42,6 +38,7 @@ async function InitMonitor(startImmediately = false) {
   const syncMode = ConfigStore.get('syncMode')
 
   isSyncing = true
+
   if (syncMode === 'two-way') {
     TwoWaySync.start(startImmediately)
   } else {

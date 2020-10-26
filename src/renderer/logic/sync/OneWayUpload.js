@@ -25,17 +25,16 @@ let timeoutInstance = null
 async function SyncLogic(callback) {
   const syncMode = ConfigStore.get('syncMode')
   if (syncMode !== 'one-way-upload') {
-    return callback()
+    return callback ? callback() : null
   }
-  Logger.info('One way upload started')
+
   const userDevicesSyncing = await DeviceLock.RequestSyncLock()
-  if (isSyncing || userDevicesSyncing) {
-    if (userDevicesSyncing) {
-      Logger.warn('1-way-upload not started: another device already syncing')
-      start()
-    }
-    return
+  if (userDevicesSyncing) {
+    Logger.warn('1-way-upload not started: another device already syncing')
+    return start()
   }
+
+  Logger.info('One way upload started')
 
   app.once('sync-stop', () => {
     isSyncing = false
@@ -49,15 +48,10 @@ async function SyncLogic(callback) {
   async.waterfall(
     [
       next => {
-        // Change icon to "syncing"
         app.emit('sync-on')
         Folder.clearTempFolder().then(next).catch(() => next())
       },
-      next => {
-        Folder.RootFolderExists().then((exists) => {
-          next(exists ? null : exists)
-        }).catch(next)
-      },
+      next => Folder.RootFolderExists().then((exists) => next(exists ? null : exists)).catch(next),
       next => {
         // Start the folder watcher if is not already started
         app.emit('set-tooltip', 'Initializing watcher...')
@@ -73,26 +67,15 @@ async function SyncLogic(callback) {
           }
         }).catch(next)
       },
-      next => {
-        database.ClearTemp().then(() => next()).catch(next)
-      },
+      next => database.ClearTemp().then(() => next()).catch(next),
       next => {
         // New sync started, so we save the current date
         const now = new Date()
         Logger.log('Sync started at', now.toISOString())
         database.Set('syncStartDate', now).then(() => next()).catch(next)
       },
-      next => {
-        // Search for new folders in local folder
-        // If a folder exists in local, but is not on the remote tree, create in remote
-        // If it is the first time you sync, or the last sync failed, creation may throw an error
-        // because folder already exists on remote. Ignore this error.
-        Uploader.uploadNewFolders().then(() => next()).catch(next)
-      },
-      next => {
-        // Search new files in local folder, and upload them
-        Uploader.uploadNewFiles().then(() => next()).catch(next)
-      },
+      next => Uploader.uploadNewFolders().then(() => next()).catch(next),
+      next => Uploader.uploadNewFiles().then(() => next()).catch(next),
       next => {
         // Will determine if something wrong happened in the last synchronization
         database.Get('lastSyncDate').then(lastDate => {
@@ -114,6 +97,7 @@ async function SyncLogic(callback) {
           }
         }).catch(next)
       },
+      next => database.ClearAll().then(() => next()).catch(next),
       next => {
         // Start to sync. Did last sync failed?
         // Then, clear all the local databases to start from zero
@@ -127,9 +111,7 @@ async function SyncLogic(callback) {
           }
         }).catch(next)
       },
-      next => {
-        database.Set('lastSyncSuccess', false).then(() => next()).catch(next)
-      },
+      next => database.Set('lastSyncSuccess', false).then(() => next()).catch(next),
       next => {
         // backup the last database
         database.BackupCurrentTree().then(() => next()).catch(next)
@@ -138,17 +120,14 @@ async function SyncLogic(callback) {
         // Sync and update the remote tree.
         Tree.RegenerateAndCompact().then(() => next()).catch(next)
       },
-      next => { database.Set('lastSyncSuccess', true).then(() => next()).catch(next) },
-      next => { database.Set('lastSyncDate', new Date()).then(() => next()).catch(next) }
+      next => database.Set('lastSyncSuccess', true).then(() => next()).catch(next),
+      next => database.Set('lastSyncDate', new Date()).then(() => next()).catch(next)
     ],
     async err => {
-      // If monitor ended before stopping the watcher, let's ensure
-
-      // Switch "loading" tray ico
       app.emit('set-tooltip')
       app.emit('sync-off')
-      DeviceLock.StopUpdateDeviceSync()
       isSyncing = false
+      DeviceLock.StopUpdateDeviceSync()
 
       const rootFolderExist = await Folder.RootFolderExists()
       if (!rootFolderExist) {
@@ -181,6 +160,9 @@ async function SyncLogic(callback) {
 }
 
 function start(startImmediately = false) {
+  if (isSyncing) {
+    return Logger.warn('There is an active sync running right now')
+  }
   Logger.info('Start 1-way-upload sync')
   let timeout = 0
   if (!startImmediately) {

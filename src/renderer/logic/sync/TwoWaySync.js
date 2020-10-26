@@ -26,19 +26,16 @@ const { app } = electron.remote
 async function SyncLogic(callback) {
   const syncMode = ConfigStore.get('syncMode')
   if (syncMode !== 'two-way') {
-    return callback()
+    return callback ? callback() : null
   }
-  Logger.info('Two way upload started')
+
   const userDevicesSyncing = await DeviceLock.RequestSyncLock()
-  if (isSyncing || userDevicesSyncing) {
-    if (userDevicesSyncing) {
-      Logger.warn('2-way-sync not started: another device already syncing')
-    }
-    return
-  } else {
-    Logger.info('This device got the sync lock')
-    DeviceLock.StartUpdateDeviceSync()
+  if (userDevicesSyncing) {
+    Logger.warn('1-way-upload not started: another device already syncing')
+    return start()
   }
+
+  Logger.info('Two way upload started')
 
   app.on('sync-stop', () => {
     isSyncing = false
@@ -209,6 +206,9 @@ async function SyncLogic(callback) {
 }
 
 function start(startImmediately = false) {
+  if (isSyncing) {
+    return Logger.warn('There is an active sync running right now')
+  }
   Logger.info('Start 2-way sync')
   let timeout = 0
   if (!startImmediately) {

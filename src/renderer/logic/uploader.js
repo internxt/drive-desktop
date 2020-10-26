@@ -65,6 +65,14 @@ function uploadNewFile(storj, filePath, nCurrent, nTotal) {
     }
 
     const hashName = Hash.hasher(filePath)
+
+    // Double check: Prevent upload if file already exists
+    const maybeNetworkId = await BridgeService.FindFileByName(bucketId, hashName)
+    if (maybeNetworkId) {
+      File.CreateFileEntry(bucketId, maybeNetworkId, encryptedFileName, fileExt, fileSize, folderId).then(resolve).catch(resolve)
+      return
+    }
+
     const tempFile = path.join(tempPath, hashName)
     if (fs.existsSync(tempFile)) {
       fs.unlinkSync(tempFile)
