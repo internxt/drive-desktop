@@ -72,7 +72,7 @@ function downloadFileTemp(fileObj, silent = false) {
 function _downloadAllFiles() {
   return new Promise((resolve, reject) => {
     // Get a list of all the files on the remote folder
-    Tree.GetFileListFromRemoteTree().then(list => {
+    Tree.getFileListFromRemoteTree().then(list => {
       const totalFiles = list.length
       let currentFiles = 0
       async.eachSeries(list, async (item, next) => {
@@ -94,7 +94,7 @@ function _downloadAllFiles() {
 
         // If local exists, replace, ensure or ignore
         if (localExists) {
-          const stat = Tree.GetStat(item.fullpath)
+          const stat = Tree.getStat(item.fullpath)
 
           // "Created at" time from remote database
           const remoteTime = new Date(item.created_at)
@@ -133,7 +133,7 @@ function _downloadAllFiles() {
             // when application and local folder are not in the same partition
             fs.copyFileSync(tempPath, item.fullpath)
             fs.unlinkSync(tempPath)
-            Sync.SetModifiedTime(item.fullpath, item.created_at).then(() => next(null)).catch(next)
+            Sync.setModifiedTime(item.fullpath, item.created_at).then(() => next(null)).catch(next)
           }).catch(err => {
             // On error by shard, upload again
             Logger.error(err.message)
@@ -146,7 +146,7 @@ function _downloadAllFiles() {
           })
         } else if (uploadAndReplace) {
           const storj = await getEnvironment()
-          Uploader.UploadFile(storj, item.fullpath, currentFiles, totalFiles).then(() => next()).catch(next)
+          Uploader.uploadFile(storj, item.fullpath, currentFiles, totalFiles).then(() => next()).catch(next)
         } else {
           // Check if should download to ensure file
           const shouldEnsureFile = Math.floor(Math.random() * 33 + 1) % 33 === 0
@@ -167,7 +167,7 @@ function _downloadAllFiles() {
 
             if (isError && localExists) {
               Logger.error('%s. Reuploading...', isError)
-              File.RestoreFile(item).then(() => next()).catch(next)
+              File.restoreFile(item).then(() => next()).catch(next)
             } else {
               Logger.error('Cannot restore missing file', err.message)
               next()

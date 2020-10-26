@@ -43,7 +43,7 @@ function uploadNewFile(storj, filePath, nCurrent, nTotal) {
 
     // Encrypted filename
     const originalFileName = path.basename(filePath)
-    const encryptedFileName = crypt.EncryptFilename(originalFileName, folderId)
+    const encryptedFileName = crypt.encryptFilename(originalFileName, folderId)
 
     app.emit('set-tooltip', (nCurrent && nTotal ? `${nCurrent}/${nTotal}\n` : '') + 'Checking ' + originalFileName)
 
@@ -69,7 +69,7 @@ function uploadNewFile(storj, filePath, nCurrent, nTotal) {
     // Double check: Prevent upload if file already exists
     const maybeNetworkId = await BridgeService.FindFileByName(bucketId, hashName)
     if (maybeNetworkId) {
-      File.CreateFileEntry(bucketId, maybeNetworkId, encryptedFileName, fileExt, fileSize, folderId).then(resolve).catch(resolve)
+      File.createFileEntry(bucketId, maybeNetworkId, encryptedFileName, fileExt, fileSize, folderId).then(resolve).catch(resolve)
       return
     }
 
@@ -115,7 +115,7 @@ function uploadNewFile(storj, filePath, nCurrent, nTotal) {
 
             if (networkId) {
               newFileId = networkId
-              File.CreateFileEntry(bucketId, newFileId, encryptedFileName, fileExt, fileSize, folderId).then(resolve).catch(resolve)
+              File.createFileEntry(bucketId, newFileId, encryptedFileName, fileExt, fileSize, folderId).then(resolve).catch(resolve)
             } else {
               Logger.warn('Cannot find file %s on network', hashName)
             }
@@ -131,7 +131,7 @@ function uploadNewFile(storj, filePath, nCurrent, nTotal) {
             return resolve()
           }
           Logger.warn('NEW FILE ID 2', newFileId)
-          File.CreateFileEntry(bucketId, newFileId, encryptedFileName, fileExt, fileSize, folderId, fileStats.mtime).then(resolve).catch(reject)
+          File.createFileEntry(bucketId, newFileId, encryptedFileName, fileExt, fileSize, folderId, fileStats.mtime).then(resolve).catch(reject)
         }
       }
     })
@@ -156,7 +156,7 @@ function uploadFile(storj, filePath, nCurrent, nTotal) {
 
     // Encrypted filename
     const originalFileName = path.basename(filePath)
-    const encryptedFileName = crypt.EncryptFilename(originalFileName, folderId)
+    const encryptedFileName = crypt.encryptFilename(originalFileName, folderId)
 
     app.emit('set-tooltip', 'Encrypting ' + originalFileName)
 
@@ -171,7 +171,7 @@ function uploadFile(storj, filePath, nCurrent, nTotal) {
     const fileSize = fileStats.size
 
     // Delete former file
-    await File.RemoveFile(bucketId, fileId)
+    await File.removeFile(bucketId, fileId)
 
     const finalName = encryptedFileName + (fileExt ? '.' + fileExt : '')
 
@@ -212,7 +212,7 @@ function uploadFile(storj, filePath, nCurrent, nTotal) {
             resolve()
           }
         } else {
-          File.CreateFileEntry(bucketId, newFileId, encryptedFileName, fileExt, fileSize, folderId, fileMtime)
+          File.createFileEntry(bucketId, newFileId, encryptedFileName, fileExt, fileSize, folderId, fileMtime)
             .then(res => { resolve(res) })
             .catch(err => { reject(err) })
         }
@@ -236,13 +236,13 @@ function uploadAllNewFolders() {
     let lastParentFolder = null
 
     // Create a list with the actual local folders
-    Tree.GetLocalFolderList(localPath).then(list => {
+    Tree.getLocalFolderList(localPath).then(list => {
       // For each folder in local...
       async.eachSeries(list, async (item, next) => {
         // Check if folders still exists
         if (!fs.existsSync(item)) { return next() }
 
-        const stat = Tree.GetStat(item)
+        const stat = Tree.getStat(item)
         if (stat && stat.isSymbolicLink()) {
           return next()
         }
@@ -301,7 +301,7 @@ function uploadAllNewFiles() {
     const localPath = await Database.Get('xPath')
     // Get the local tree from folder (not remote or database) to check for new files.
     // The list contains the files and folders.
-    const files = await Tree.GetListFromFolder(localPath)
+    const files = await Tree.getListFromFolder(localPath)
     const storj = await getEnvironment()
 
     const totalFiles = files.length
@@ -311,7 +311,7 @@ function uploadAllNewFiles() {
       currentFiles++
 
       // Read filesystem data
-      const stat = Tree.GetStat(item)
+      const stat = Tree.getStat(item)
 
       if (stat && stat.isFile() && !stat.isSymbolicLink() && stat.size < 1024 * 1024 * 1024 * 10) { // Is a file, and it is not a sym link
         // Check if file exists in the remote database

@@ -178,8 +178,8 @@ export default {
     },
     doAccess(sKey) {
       const salt = crypt.Decrypt(sKey)
-      const pwd = crypt.HashPassword(this.$data.password, salt)
-      const encryptedHash = crypt.Encrypt(pwd.hash.toString())
+      const pwd = crypt.hashPassword(this.$data.password, salt)
+      const encryptedHash = crypt.encrypt(pwd.hash.toString())
 
       fetch(`${process.env.API_URL}/api/access`, {
         method: 'POST',
@@ -212,7 +212,7 @@ export default {
             this.CreateRootFolder()
             await database.Set(
               'xMnemonic',
-              crypt.DecryptWithKey(res.data.user.mnemonic, this.$data.password)
+              crypt.decryptWithKey(res.data.user.mnemonic, this.$data.password)
             )
             await database.Set('xUser', res.data)
             this.$router.push('/landing-page').catch(() => {})

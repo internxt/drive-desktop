@@ -25,16 +25,16 @@ app.on('sync-start', function () {
 })
 
 function Monitor(startImmediately = false) {
-  InitMonitor(startImmediately)
+  initMonitor(startImmediately)
 }
 
 function repeat() {
   Monitor(true)
 }
 
-async function InitMonitor(startImmediately = false) {
+async function initMonitor(startImmediately = false) {
   // Init database if not initialized
-  database.InitDatabase()
+  database.initDatabase()
 
   const syncMode = ConfigStore.get('syncMode')
 

@@ -30,7 +30,7 @@ async function SyncLogic(callback) {
     return callback ? callback() : null
   }
 
-  const userDevicesSyncing = await DeviceLock.RequestSyncLock()
+  const userDevicesSyncing = await DeviceLock.requestSyncLock()
   if (userDevicesSyncing) {
     Logger.warn('1-way-upload not started: another device already syncing')
     return start(callback)
@@ -55,7 +55,7 @@ async function SyncLogic(callback) {
         Folder.clearTempFolder().then(next).catch(() => next())
       },
       next => {
-        Folder.RootFolderExists().then((exists) => {
+        Folder.rootFolderExists().then((exists) => {
           next(exists ? null : exists)
         }).catch(next)
       },
@@ -65,7 +65,7 @@ async function SyncLogic(callback) {
         database.Get('xPath').then(xPath => {
           console.log('User store path: %s', xPath)
           if (!wtc) {
-            watcher.StartWatcher(xPath).then(watcherInstance => {
+            watcher.startWatcher(xPath).then(watcherInstance => {
               wtc = watcherInstance
               next()
             })
@@ -141,11 +141,11 @@ async function SyncLogic(callback) {
       },
       next => {
         // backup the last database
-        database.BackupCurrentTree().then(() => next()).catch(next)
+        database.backupCurrentTree().then(() => next()).catch(next)
       },
       next => {
         // Sync and update the remote tree.
-        Tree.RegenerateAndCompact().then(() => next()).catch(next)
+        Tree.regenerateAndCompact().then(() => next()).catch(next)
       },
       next => {
         // Delete local folders missing in remote
@@ -174,15 +174,15 @@ async function SyncLogic(callback) {
       // Switch "loading" tray ico
       app.emit('set-tooltip')
       app.emit('sync-off')
-      DeviceLock.StopUpdateDeviceSync()
+      DeviceLock.stopUpdateDeviceSync()
       // Sync.UpdateUserSync(true)
       isSyncing = false
 
-      const rootFolderExist = await Folder.RootFolderExists()
+      const rootFolderExist = await Folder.rootFolderExists()
       if (!rootFolderExist) {
         await database.ClearAll()
         await database.ClearUser()
-        database.CompactAllDatabases()
+        database.compactAllDatabases()
         return
       }
 
@@ -193,7 +193,7 @@ async function SyncLogic(callback) {
         async.waterfall([
           next => database.ClearAll().then(() => next()).catch(() => next()),
           next => {
-            database.CompactAllDatabases()
+            database.compactAllDatabases()
             next()
           }
         ], () => {

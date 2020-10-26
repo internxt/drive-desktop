@@ -91,7 +91,7 @@ export default {
           database
             .ClearUser()
             .then(() => {
-              database.CompactAllDatabases()
+              database.compactAllDatabases()
               remote.app.emit('update-menu')
               this.$router.push('/').catch(() => {})
             })
@@ -125,7 +125,7 @@ export default {
       remote.app.emit('sync-start')
     },
     unlockDevice() {
-      DeviceLock.Unlock()
+      DeviceLock.unlock()
     },
     changeTrayIconOn() {
       remote.app.emit('sync-on')

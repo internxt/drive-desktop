@@ -1,6 +1,6 @@
 import database from '../../../database/index'
 
-async function GetAuthHeader(withMnemonic) {
+async function getAuthHeader(withMnemonic) {
   const userData = await database.Get('xUser')
   const header = {
     Authorization: `Bearer ${userData.token}`,
@@ -14,5 +14,5 @@ async function GetAuthHeader(withMnemonic) {
 }
 
 export default {
-  GetAuthHeader
+  getAuthHeader
 }
