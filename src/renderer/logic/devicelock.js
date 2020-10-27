@@ -1,7 +1,7 @@
 /**
  * Device Lock
  *
- * Get server lock to prevent multiple devices syncing at the same time
+ * Get server lock to prevent multiple devices syncing at the same time.
  */
 
 import database from '../../database'

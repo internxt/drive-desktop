@@ -9,6 +9,7 @@ import DeviceLock from '../devicelock'
 import Tree from '../tree'
 import PackageJson from '../../../../package.json'
 import ConfigStore from '../../../main/config-store'
+import SpaceUsage from '../utils/spaceusage'
 
 /*
  * Sync Method: One Way, from LOCAL to CLOUD (Only Upload)
@@ -139,6 +140,7 @@ async function SyncLogic(callback) {
       }
 
       Logger.info('1-WAY SYNC END')
+      SpaceUsage.updateUsage().then(() => { }).catch(() => { })
 
       if (err) {
         Logger.error('Error monitor:', err)

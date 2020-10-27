@@ -15,6 +15,9 @@
         <a href="#" @click="unlockDevice()">Unlock this device</a>
       </div>
       <div>
+        <a href="#" @click="getUsage()">Get usage</a>
+      </div>
+      <div>
         <a href="#" @click="logout()">Log out</a>
       </div>
       <div>
@@ -40,6 +43,7 @@ import { remote } from 'electron'
 import Logger from '../../libs/logger'
 import PackageJson from '../../../package.json'
 import DeviceLock from '../logic/devicelock'
+import SpaceUsage from '../logic/utils/spaceusage'
 
 export default {
   name: 'xcloud-page',
@@ -55,6 +59,7 @@ export default {
   components: {},
   beforeCreate() {
     remote.app.emit('window-hide')
+    SpaceUsage.updateUsage().then(() => {}).catch(() => {})
     database
       .Get('xUser')
       .then((xUser) => {
@@ -134,6 +139,14 @@ export default {
       remote.app.emit('sync-off')
     },
     getUser() {},
+    getUsage() {
+      SpaceUsage.getLimit().then(limit => {
+        console.log('Limit: ' + limit)
+      })
+      SpaceUsage.getUsage().then(usage => {
+        console.log('Usage: ' + usage)
+      })
+    },
     getLocalFolderPath() {
       database
         .Get('xPath')
