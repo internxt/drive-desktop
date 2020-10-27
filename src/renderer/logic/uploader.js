@@ -67,7 +67,7 @@ function uploadNewFile(storj, filePath, nCurrent, nTotal) {
     const hashName = Hash.hasher(filePath)
 
     // Double check: Prevent upload if file already exists
-    const maybeNetworkId = await BridgeService.FindFileByName(bucketId, hashName)
+    const maybeNetworkId = await BridgeService.findFileByName(bucketId, hashName)
     if (maybeNetworkId) {
       File.createFileEntry(bucketId, maybeNetworkId, encryptedFileName, fileExt, fileSize, folderId).then(resolve).catch(resolve)
       return
@@ -111,7 +111,7 @@ function uploadNewFile(storj, filePath, nCurrent, nTotal) {
             // Right now file names in network are full paths encrypted.
             // This could be an issue if user uses multiple devices.
             // TODO: Migrate to relative paths based on drive folder path
-            const networkId = await BridgeService.FindFileByName(bucketId, hashName)
+            const networkId = await BridgeService.findFileByName(bucketId, hashName)
 
             if (networkId) {
               newFileId = networkId
