@@ -1,5 +1,14 @@
 import database from '../../../database/index'
 
+async function getUserEmail() {
+  const userData = await database.Get('xUser')
+  try {
+    return userData.user.email
+  } catch (err) {
+    return null
+  }
+}
+
 async function getAuthHeader(withMnemonic) {
   const userData = await database.Get('xUser')
   const header = {
@@ -14,5 +23,6 @@ async function getAuthHeader(withMnemonic) {
 }
 
 export default {
-  getAuthHeader
+  getAuthHeader,
+  getUserEmail
 }

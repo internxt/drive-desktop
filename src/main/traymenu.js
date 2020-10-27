@@ -5,6 +5,7 @@ import ConfigStore from './config-store'
 import Logger from '../libs/logger'
 import fs from 'fs'
 import electronLog from 'electron-log'
+import pretty from 'prettysize'
 
 class TrayMenu {
   constructor(mainWindow) {
@@ -37,12 +38,35 @@ class TrayMenu {
 
   generateContextMenu(userEmail) {
     let userMenu = []
+
     if (userEmail) {
-      userMenu = [
+      // Show user account
+      const userEmailDisplay = [
         {
           label: userEmail,
           enabled: false
-        },
+        }
+      ]
+
+      let userUsage = []
+      // Show user display (if we have the data)
+      const accountLimit = ConfigStore.get('limit')
+      const accountUsage = ConfigStore.get('usage')
+      if (accountLimit < 0 || accountUsage < 0) {
+        // Usage not ready to be displayed
+      } else {
+        const readableUsage = pretty(accountUsage)
+        const readableLimit = pretty(accountLimit)
+        const usageString = `Used ${readableUsage} of ${readableLimit}`
+        userUsage = [
+          {
+            label: usageString,
+            enabled: false
+          }
+        ]
+      }
+
+      const userFooter = [
         {
           type: 'separator'
         },
@@ -58,6 +82,8 @@ class TrayMenu {
           }
         }
       ]
+
+      userMenu = Array.concat(userEmailDisplay, userUsage, userFooter)
     }
 
     const contextMenuTemplate = [
