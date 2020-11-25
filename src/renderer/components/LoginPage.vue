@@ -199,7 +199,7 @@ export default {
             platform: 'desktop',
             traits: {
               email: user.getUser().email,
-              storage_used: ''
+              storage_used: user.getStorage()
             }
           }, () => {
             client.track({
@@ -207,7 +207,7 @@ export default {
               event: 'user-signin',
               platform: 'desktop',
               properties: {
-                email: user.getUser().email,
+                email: user.getUser().email
               }
             })
           })
