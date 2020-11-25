@@ -12,6 +12,7 @@ import Tree from './tree'
 import async from 'async'
 import Folder from './folder'
 import getEnvironment from './utils/libinxt'
+import {client, user} from './utils/analytics'
 
 const app = electron.remote.app
 
@@ -83,6 +84,16 @@ function uploadNewFile(storj, filePath, nCurrent, nTotal) {
     Logger.log('Uploading to folder %s (bucket: %s)', folderId, bucketId)
 
     // Upload new file
+    client.track(
+      {
+        userId: user.user.uuid,
+        event: 'file-upload-start',
+        platform: 'desktop',
+        properties: {
+          email: user.user.email
+        }
+      }
+    )
     const state = storj.storeFile(bucketId, tempFile, {
       filename: hashName,
       progressCallback: function (progress, uploadedBytes, totalBytes) {
@@ -212,7 +223,21 @@ function uploadFile(storj, filePath, nCurrent, nTotal) {
           }
         } else {
           File.createFileEntry(bucketId, newFileId, encryptedFileName, fileExt, fileSize, folderId, fileMtime)
-            .then(res => { resolve(res) })
+            .then(res => {
+              client.track(
+                {
+                  userId: user.getUser().uuid,
+                  event: 'file-upload-finished',
+                  platform: 'desktop',
+                  properties: {
+                    email: user.getUser().email,
+                    file_id: newFileId,
+                    file_size: fileSize
+                  }
+                }
+              )
+              resolve(res)
+            })
             .catch(err => { reject(err) })
         }
       }
