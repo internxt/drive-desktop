@@ -1,5 +1,6 @@
 import database from '../../../database/index'
 import {client, user} from './analytics'
+
 async function getUserEmail() {
   const userData = await database.Get('xUser')
   user.setUser(userData.user)

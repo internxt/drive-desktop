@@ -17,8 +17,8 @@ const user = {
   getUser: function () {
     return this.userData
   },
-  getStorage: async function () {
-    return undefined
+  getStorage: function () {
+    return ConfigStore.get('usage')
   }
 
 }

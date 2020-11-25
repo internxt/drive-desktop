@@ -74,6 +74,7 @@ import Logger from '../../libs/logger'
 import config from '../../config'
 import path from 'path'
 import packageConfig from '../../../package.json'
+import { client, user } from '../logic/utils/analytics'
 
 const ROOT_FOLDER_NAME = 'Internxt Drive'
 const HOME_FOLDER_PATH = remote.app.getPath('home')
@@ -176,7 +177,7 @@ export default {
           Logger.error(err)
         })
     },
-    doAccess(sKey) {
+    async doAccess(sKey) {
       const salt = crypt.decrypt(sKey)
       const pwd = crypt.hashPassword(this.$data.password, salt)
       const encryptedHash = crypt.encrypt(pwd.hash.toString())
@@ -193,6 +194,23 @@ export default {
         })
       })
         .then(async (res) => {
+          await client.identify({
+            userId: user.getUser().uuid,
+            platform: 'desktop',
+            traits: {
+              email: user.getUser().email,
+              storage_used: ''
+            }
+          }, () => {
+            client.track({
+              userId: user.getUser().uuid,
+              event: 'user-signin',
+              platform: 'desktop',
+              properties: {
+                email: user.getUser().email,
+              }
+            })
+          })
           return { res, data: await res.json() }
         })
         .then(async (res) => {
