@@ -13,6 +13,7 @@ import sanitize from 'sanitize-filename'
 import Folder from './folder'
 import getEnvironment from './utils/libinxt'
 import File from './file'
+import {client, user} from './utils/analytics'
 
 const app = electron.remote.app
 
@@ -128,13 +129,42 @@ function _downloadAllFiles() {
           return next()
         } else if (downloadAndReplace) {
           Logger.log('DOWNLOAD AND REPLACE WITHOUT QUESTION', item.fullpath)
+          client.track(
+            {
+              userId: user.getUser().uuid,
+              event: 'file-download-start',
+              platform: 'desktop',
+              properties: {
+                email: user.getUser().email,
+                file_id: item.fileId,
+                file_name: item.name,
+                folder_id: item.folder_id,
+                file_type: item.type,
+                mode: user.getSyncMode()
+              }
+            }
+          )
           downloadFileTemp(item).then(tempPath => {
             if (localExists) { try { fs.unlinkSync(item.fullpath) } catch (e) { } }
             // fs.renameSync gives a "EXDEV: cross-device link not permitted"
             // when application and local folder are not in the same partition
             fs.copyFileSync(tempPath, item.fullpath)
             fs.unlinkSync(tempPath)
-            Sync.setModifiedTime(item.fullpath, item.created_at).then(() => next(null)).catch(next)
+            Sync.setModifiedTime(item.fullpath, item.created_at).then(() =>{
+              client.track(
+                {
+                  userId: user.getUser().uuid,
+                  event: 'file-download-finished',
+                  platform: 'desktop',
+                  properties: {
+                    email: user.getUser().email,
+                    file_id: item.fileId,
+                    mode: user.getSyncMode()
+                  }
+                }
+              )
+              next(null)
+            }).catch(next)
           }).catch(err => {
             // On error by shard, upload again
             Logger.error(err.message)
