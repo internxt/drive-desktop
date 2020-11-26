@@ -7,7 +7,8 @@ import getEnvironment from './utils/libinxt'
 import async from 'async'
 import Tree from './tree'
 import fs from 'fs'
-import {client, user} from './utils/analytics'
+import analytics from './utils/analytics'
+import ConfigStore from '../../main/config-store'
 
 function infoFromPath(localPath) {
   return new Promise((resolve, reject) => {
@@ -96,13 +97,13 @@ function cleanRemoteWhenLocalDeleted(lastSyncFailed) {
         const fileId = item.value.fileId
 
         removeFile(bucketId, fileId).then(() => {
-          client.track(
+          analytics.track(
             {
-              userId: user.getUser().uuid,
+              userId: ConfigStore.get('user.uuid'),
               event: 'file-delete',
               platform: 'desktop',
               properties: {
-                email: user.getUser().email,
+                email: ConfigStore.get('user.email'),
                 file_id: fileId
               }
 

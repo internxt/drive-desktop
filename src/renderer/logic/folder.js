@@ -8,7 +8,8 @@ import Tree from './tree'
 import Database from '../../database'
 import async from 'async'
 import sanitize from 'sanitize-filename'
-import {client, user} from './utils/analytics'
+import analytics from './utils/analytics'
+import ConfigStore from '../../main/config-store'
 
 function createRemoteFolder(name, parentId) {
   return new Promise(async (resolve, reject) => {
@@ -30,13 +31,13 @@ function createRemoteFolder(name, parentId) {
         Logger.warn('Folder with the same name already exists')
         resolve()
       } else if (res.res.status === 201) {
-        client.track(
+        analytics.track(
           {
-            userId: user.getUser().uuid,
+            userId: ConfigStore.get('user.uuid'),
             event: 'folder-created',
             platform: 'desktop',
             properties: {
-              email: user.getUser().email,
+              email: ConfigStore.get('user.email'),
               file_id: res.data.id
             }
           }
@@ -124,13 +125,13 @@ function _deleteRemoteFoldersWhenLocalDeleted(lastSyncFailed) {
       if ((stat && stat.isFile()) || !fs.existsSync(item.key)) {
         removeFolder(item.value.id).then(() => {
           Database.dbFolders.remove({ key: item.key })
-          client.track(
+          analytics.track(
             {
-              userId: user.getUser().uuid,
+              userId: ConfigStore.get('user.uuid'),
               event: 'folder-delete',
               platform: 'desktop',
               properties: {
-                email: user.getUser().email,
+                email: ConfigStore.get('user.email'),
                 file_id: item.value.id
               }
             }

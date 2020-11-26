@@ -13,7 +13,8 @@ import sanitize from 'sanitize-filename'
 import Folder from './folder'
 import getEnvironment from './utils/libinxt'
 import File from './file'
-import {client, user} from './utils/analytics'
+import analytics from './utils/analytics'
+import ConfigStore from '../../main/config-store'
 
 const app = electron.remote.app
 
@@ -129,18 +130,18 @@ function _downloadAllFiles() {
           return next()
         } else if (downloadAndReplace) {
           Logger.log('DOWNLOAD AND REPLACE WITHOUT QUESTION', item.fullpath)
-          client.track(
+          analytics.track(
             {
-              userId: user.getUser().uuid,
+              userId: ConfigStore.get('user.uuid'),
               event: 'file-download-start',
               platform: 'desktop',
               properties: {
-                email: user.getUser().email,
+                email: ConfigStore.get('user.email'),
                 file_id: item.fileId,
                 file_name: item.name,
                 folder_id: item.folder_id,
                 file_type: item.type,
-                mode: user.getSyncMode()
+                mode: ConfigStore.get('syncMode')
               }
             }
           )
@@ -151,15 +152,15 @@ function _downloadAllFiles() {
             fs.copyFileSync(tempPath, item.fullpath)
             fs.unlinkSync(tempPath)
             Sync.setModifiedTime(item.fullpath, item.created_at).then(() => {
-              client.track(
+              analytics.track(
                 {
-                  userId: user.getUser().uuid,
+                  userId: ConfigStore.get('user.uuid'),
                   event: 'file-download-finished',
                   platform: 'desktop',
                   properties: {
-                    email: user.getUser().email,
+                    email: ConfigStore.get('user.email'),
                     file_id: item.fileId,
-                    mode: user.getSyncMode()
+                    mode: ConfigStore.get('syncMode')
                   }
                 }
               )

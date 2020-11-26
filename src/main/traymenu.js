@@ -6,6 +6,7 @@ import Logger from '../libs/logger'
 import fs from 'fs'
 import electronLog from 'electron-log'
 import pretty from 'prettysize'
+import analytics from '../renderer/logic/utils/analytics'
 
 class TrayMenu {
   constructor(mainWindow) {

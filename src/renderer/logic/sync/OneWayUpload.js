@@ -11,7 +11,7 @@ import PackageJson from '../../../../package.json'
 import ConfigStore from '../../../main/config-store'
 import SpaceUsage from '../utils/spaceusage'
 
-import { client, user } from '../utils/analytics'
+import analytics from '../utils/analytics'
 
 /*
  * Sync Method: One Way, from LOCAL to CLOUD (Only Upload)
@@ -80,16 +80,14 @@ async function SyncLogic(callback) {
       },
       next => Uploader.uploadNewFolders().then(() => next()).catch(next),
       next => Uploader.uploadNewFiles().then(() => {
-        if (user.inicialized) {
-          client.identify({
-            userId: user.getUser().uuid,
-            platform: 'desktop',
-            email: user.getUser().email,
-            traits: {
-              storage_used: user.getStorage()
-            }
-          })
-        }
+        analytics.identify({
+          userId: ConfigStore.get('user.uuid'),
+          platform: 'desktop',
+          email: ConfigStore.get('user.email'),
+          traits: {
+            storage_used: ConfigStore.get('usage')
+          }
+        })
         next()
       }).catch(next),
       next => {

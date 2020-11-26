@@ -74,14 +74,11 @@ import Logger from '../../libs/logger'
 import config from '../../config'
 import path from 'path'
 import packageConfig from '../../../package.json'
-import { client, user } from '../logic/utils/analytics'
+import analytics from '../logic/utils/analytics'
 import ConfigStore from '../../main/config-store'
-import uuid4 from 'uuid4'
 
 const ROOT_FOLDER_NAME = 'Internxt Drive'
 const HOME_FOLDER_PATH = remote.app.getPath('home')
-
-const anonymousId = uuid4()
 
 export default {
   name: 'login-page',
@@ -167,8 +164,8 @@ export default {
         .then((res) => {
           if (res.res.status !== 200) {
             this.$data.isLoading = false
-            client.track({
-              anonymousId: anonymousId,
+            analytics.track({
+              anonymousId: ConfigStore.get('user.annonymousID'),
               event: 'user-signin-attempted',
               platform: 'desktop',
               properties: {
@@ -212,8 +209,8 @@ export default {
         .then(async (res) => {
           if (res.res.status !== 200) {
             this.$data.isLoading = false
-            client.track({
-              anonymousId: anonymousId,
+            analytics.track({
+              anonymousId: ConfigStore.get('user.annonymousID'),
               event: 'user-signin-attempted',
               platform: 'desktop',
               properties: {
@@ -240,21 +237,23 @@ export default {
             await database.Set('xUser', res.data)
             console.log('Hello World')
             console.log(JSON.stringify(res.data))
+            /*
             ConfigStore.set('user.email', res.data.user.email)
             ConfigStore.set('user.uuid', res.data.user.uuid)
+            */
             this.$router.push('/landing-page').catch(() => {})
-            await client.identify(
+            await analytics.identify(
               {
-                userId: res.data.user.uuid,
+                userId: ConfigStore.get('user.uuid'),
                 platform: 'desktop',
-                email: res.data.user.email,
+                email: ConfigStore.get('user.email'),
                 traits: {
-                  storage_used: user.getStorage()
+                  storage_used: ConfigStore.get('usage')
                 }
               },
               () => {
-                client.track({
-                  userId: res.data.user.uuid,
+                analytics.track({
+                  userId: ConfigStore.get('user.uuid'),
                   event: 'user-signin',
                   platform: 'desktop',
                   properties: {

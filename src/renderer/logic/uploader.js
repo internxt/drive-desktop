@@ -12,7 +12,8 @@ import Tree from './tree'
 import async from 'async'
 import Folder from './folder'
 import getEnvironment from './utils/libinxt'
-import {client, user} from './utils/analytics'
+import analytics from './utils/analytics'
+import ConfigStore from '../../main/config-store'
 
 const app = electron.remote.app
 
@@ -84,13 +85,14 @@ function uploadNewFile(storj, filePath, nCurrent, nTotal) {
     Logger.log('Uploading to folder %s (bucket: %s)', folderId, bucketId)
 
     // Upload new file
-    client.track(
+    analytics.track(
       {
-        userId: user.user.uuid,
+        userId: ConfigStore.get('user.uuid'),
         event: 'file-upload-start',
         platform: 'desktop',
         properties: {
-          email: user.user.email
+          email: ConfigStore.get('user.email'),
+          mode: ConfigStore.get('syncMode')
         }
       }
     )
@@ -126,15 +128,16 @@ function uploadNewFile(storj, filePath, nCurrent, nTotal) {
             if (networkId) {
               newFileId = networkId
               File.createFileEntry(bucketId, newFileId, encryptedFileName, fileExt, fileSize, folderId).then(res => {
-                client.track(
+                analytics.track(
                   {
-                    userId: user.user.uuid,
+                    userId: ConfigStore.get('user.uuid'),
                     event: 'file-upload-finished',
                     platform: 'desktop',
                     properties: {
-                      email: user.user.email,
+                      email: ConfigStore.get('user.email'),
                       file_id: newFileId,
-                      file_size: fileSize
+                      file_size: fileSize,
+                      mode: ConfigStore.get('syncMode')
                     }
                   }
                 )
@@ -213,13 +216,14 @@ function uploadFile(storj, filePath, nCurrent, nTotal) {
     fs.copyFileSync(filePath, tempFile)
 
     // Upload new file
-    client.track(
+    analytics.track(
       {
-        userId: user.user.uuid,
+        userId: ConfigStore.get('user.uuid'),
         event: 'file-upload-start',
         platform: 'desktop',
         properties: {
-          email: user.getUser().email
+          email: ConfigStore.get('user.email'),
+          mode: ConfigStore.get('syncMode')
         }
       }
     )
@@ -248,15 +252,16 @@ function uploadFile(storj, filePath, nCurrent, nTotal) {
         } else {
           File.createFileEntry(bucketId, newFileId, encryptedFileName, fileExt, fileSize, folderId, fileMtime)
             .then(res => {
-              client.track(
+              analytics.track(
                 {
-                  userId: user.getUser().uuid,
+                  userId: ConfigStore.get('user.uuid'),
                   event: 'file-upload-finished',
                   platform: 'desktop',
                   properties: {
-                    email: user.getUser().email,
+                    email: ConfigStore.get('user.email'),
                     file_id: newFileId,
-                    file_size: fileSize
+                    file_size: fileSize,
+                    mode: ConfigStore.get('syncMode')
                   }
                 }
               )
