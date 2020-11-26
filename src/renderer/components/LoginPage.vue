@@ -75,6 +75,7 @@ import config from '../../config'
 import path from 'path'
 import packageConfig from '../../../package.json'
 import { client, user } from '../logic/utils/analytics'
+import ConfigStore from '../../main/config-store'
 
 const ROOT_FOLDER_NAME = 'Internxt Drive'
 const HOME_FOLDER_PATH = remote.app.getPath('home')
@@ -194,23 +195,6 @@ export default {
         })
       })
         .then(async (res) => {
-          await client.identify({
-            userId: user.getUser().uuid,
-            platform: 'desktop',
-            email: user.getUser().email,
-            traits: {
-              storage_used: user.getStorage()
-            }
-          }, () => {
-            client.track({
-              userId: user.getUser().uuid,
-              event: 'user-signin',
-              platform: 'desktop',
-              properties: {
-                email: user.getUser().email
-              }
-            })
-          })
           return { res, data: await res.json() }
         })
         .then(async (res) => {
@@ -241,6 +225,10 @@ export default {
               crypt.decryptWithKey(res.data.user.mnemonic, this.$data.password)
             )
             await database.Set('xUser', res.data)
+            console.log('Hello World')
+            console.log(JSON.stringify(res.data))
+            ConfigStore.set('user.email', res.data.user.email)
+            ConfigStore.set('user.uuid', res.data.user.uuid)
             this.$router.push('/landing-page').catch(() => {})
           }
         })
