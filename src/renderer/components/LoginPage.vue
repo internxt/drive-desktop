@@ -197,8 +197,8 @@ export default {
           await client.identify({
             userId: user.getUser().uuid,
             platform: 'desktop',
+            email: user.getUser().email,
             traits: {
-              email: user.getUser().email,
               storage_used: user.getStorage()
             }
           }, () => {
@@ -223,6 +223,14 @@ export default {
                 this.$data.showTwoFactor = false
               }
             } else {
+              client.track({
+                userId: user.getUser().uuid,
+                event: 'user-signin-attempted',
+                platform: 'desktop',
+                properties: {
+                  msg: user.getUser().email
+                }
+              })
               alert('Login error')
             }
           } else {

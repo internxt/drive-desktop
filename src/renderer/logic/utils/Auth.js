@@ -3,7 +3,6 @@ import {client, user} from './analytics'
 
 async function getUserEmail() {
   const userData = await database.Get('xUser')
-  user.setUser(userData.user)
   try {
     return userData.user.email
   } catch (err) {
@@ -13,6 +12,7 @@ async function getUserEmail() {
 
 async function getAuthHeader(withMnemonic) {
   const userData = await database.Get('xUser')
+  user.setUser(userData.user)
   const header = {
     Authorization: `Bearer ${userData.token}`,
     'content-type': 'application/json; charset=utf-8'

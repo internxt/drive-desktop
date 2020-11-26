@@ -11,6 +11,8 @@ import PackageJson from '../../../../package.json'
 import ConfigStore from '../../../main/config-store'
 import SpaceUsage from '../utils/spaceusage'
 
+import { client, user } from '../utils/analytics'
+
 /*
  * Sync Method: One Way, from LOCAL to CLOUD (Only Upload)
  */
@@ -37,6 +39,14 @@ async function SyncLogic(callback) {
   }
 
   Logger.info('One way upload started')
+  client.identify({
+    userId: user.getUser().uuid,
+    platform: 'desktop',
+    email: user.getUser().email,
+    traits: {
+      storage_used: user.getStorage()
+    }
+  })
 
   app.once('sync-stop', () => {
     isSyncing = false
