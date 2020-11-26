@@ -232,7 +232,7 @@ autoUpdater.logger = Logger
 if (process.env.NODE_ENV === 'development') {
   // Only for testing
   autoUpdater.updateConfigPath = 'dev-app-update.yml'
-  autoUpdater.currentVersion = '10.0.0'
+  autoUpdater.currentVersion = '1.0.0'
 }
 
 autoUpdater.on('error', (err) => {
@@ -307,18 +307,16 @@ function SuggestUpdate(version, downloadUrl) {
     message: 'New Internxt Drive update available: ' + version
   }
 
-  dialog.showMessageBox(new BrowserWindow({
+  const userResponse = dialog.showMessageBoxSync(new BrowserWindow({
     show: false,
     parent: mainWindow,
     alwaysOnTop: true
-  }), options, (userResponse) => {
-    UpdateOptions.dialogShow = false
-    if (userResponse === 0) {
-      shell.openExternal(downloadUrl)
-    } else {
-      UpdateOptions.doNotAskAgain = true
-    }
-  })
+  }), options)
+  if (userResponse === 0) {
+    shell.openExternal(downloadUrl)
+  } else {
+    UpdateOptions.doNotAskAgain = true
+  }
 }
 
 function GetAppPlatform() {
