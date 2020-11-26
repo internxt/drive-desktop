@@ -40,14 +40,6 @@ async function SyncLogic(callback) {
   }
 
   Logger.info('Two way upload started')
-  client.identify({
-    userId: user.getUser().uuid,
-    platform: 'desktop',
-    email: user.getUser().email,
-    traits: {
-      storage_used: user.getStorage()
-    }
-  })
 
   app.once('sync-stop', () => {
     isSyncing = false
@@ -103,7 +95,19 @@ async function SyncLogic(callback) {
       },
       next => {
         // Search new files in local folder, and upload them
-        Uploader.uploadNewFiles().then(() => next()).catch(next)
+        Uploader.uploadNewFiles().then(() => {
+          next()
+          if (user.inicialized) {
+            client.identify({
+              userId: user.getUser().uuid,
+              platform: 'desktop',
+              email: user.getUser().email,
+              traits: {
+                storage_used: user.getStorage()
+              }
+            })
+          }
+        }).catch(next)
       },
       next => {
         // Will determine if something wrong happened in the last synchronization
@@ -223,20 +227,6 @@ async function start(callback, startImmediately = false) {
     return Logger.warn('There is an active sync running right now')
   }
   Logger.info('Start 2-way sync')
-  console.log('Hello World')
-  const uuidLocal = await user.getUser()
-  console.log(uuidLocal)
-  console.log(JSON.stringify(uuidLocal))
-  console.log('Finito')
-
-  client.identify({
-    userId: uuidLocal,
-    platform: 'desktop',
-    email: user.getUser().email,
-    traits: {
-      storage_used: user.getStorage()
-    }
-  })
   let timeout = 0
   if (!startImmediately) {
     isSyncing = false

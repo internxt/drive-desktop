@@ -39,14 +39,6 @@ async function SyncLogic(callback) {
   }
 
   Logger.info('One way upload started')
-  client.identify({
-    userId: user.getUser().uuid,
-    platform: 'desktop',
-    email: user.getUser().email,
-    traits: {
-      storage_used: user.getStorage()
-    }
-  })
 
   app.once('sync-stop', () => {
     isSyncing = false
@@ -87,7 +79,19 @@ async function SyncLogic(callback) {
         database.Set('syncStartDate', now).then(() => next()).catch(next)
       },
       next => Uploader.uploadNewFolders().then(() => next()).catch(next),
-      next => Uploader.uploadNewFiles().then(() => next()).catch(next),
+      next => Uploader.uploadNewFiles().then(() => {
+        if (user.inicialized) {
+          client.identify({
+            userId: user.getUser().uuid,
+            platform: 'desktop',
+            email: user.getUser().email,
+            traits: {
+              storage_used: user.getStorage()
+            }
+          })
+        }
+        next()
+      }).catch(next),
       next => {
         // Will determine if something wrong happened in the last synchronization
         database.Get('lastSyncDate').then(lastDate => {
