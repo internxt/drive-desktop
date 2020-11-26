@@ -44,6 +44,7 @@ import Logger from '../../libs/logger'
 import PackageJson from '../../../package.json'
 import DeviceLock from '../logic/devicelock'
 import SpaceUsage from '../logic/utils/spaceusage'
+import {client, user} from '../logic/utils/analytics'
 
 export default {
   name: 'xcloud-page',
@@ -96,6 +97,7 @@ export default {
           database
             .ClearUser()
             .then(() => {
+              user.resetData()
               database.compactAllDatabases()
               remote.app.emit('update-menu')
               this.$router.push('/').catch(() => {})

@@ -76,9 +76,12 @@ import path from 'path'
 import packageConfig from '../../../package.json'
 import { client, user } from '../logic/utils/analytics'
 import ConfigStore from '../../main/config-store'
+import uuid4 from 'uuid4'
 
 const ROOT_FOLDER_NAME = 'Internxt Drive'
 const HOME_FOLDER_PATH = remote.app.getPath('home')
+
+const anonymousId = uuid4()
 
 export default {
   name: 'login-page',
@@ -164,6 +167,15 @@ export default {
         .then((res) => {
           if (res.res.status !== 200) {
             this.$data.isLoading = false
+            client.track({
+              anonymousId: anonymousId,
+              event: 'user-signin-attempted',
+              platform: 'desktop',
+              properties: {
+                status: res.res.status,
+                msg: res.body.error
+              }
+            })
             return alert('Login error')
           }
           if (res.body.tfa && !this.$data.twoFactorCode) {
@@ -200,6 +212,15 @@ export default {
         .then(async (res) => {
           if (res.res.status !== 200) {
             this.$data.isLoading = false
+            client.track({
+              anonymousId: anonymousId,
+              event: 'user-signin-attempted',
+              platform: 'desktop',
+              properties: {
+                status: res.data.status,
+                msg: res.data.error
+              }
+            })
             if (res.data.error) {
               alert('Login error\n' + res.data.error)
               if (res.data.error.includes('Wrong email')) {
@@ -207,14 +228,6 @@ export default {
                 this.$data.showTwoFactor = false
               }
             } else {
-              client.track({
-                userId: user.getUser().uuid,
-                event: 'user-signin-attempted',
-                platform: 'desktop',
-                properties: {
-                  msg: user.getUser().email
-                }
-              })
               alert('Login error')
             }
           } else {
@@ -230,6 +243,26 @@ export default {
             ConfigStore.set('user.email', res.data.user.email)
             ConfigStore.set('user.uuid', res.data.user.uuid)
             this.$router.push('/landing-page').catch(() => {})
+            await client.identify(
+              {
+                userId: res.data.user.uuid,
+                platform: 'desktop',
+                email: res.data.user.email,
+                traits: {
+                  storage_used: user.getStorage()
+                }
+              },
+              () => {
+                client.track({
+                  userId: res.data.user.uuid,
+                  event: 'user-signin',
+                  platform: 'desktop',
+                  properties: {
+                    email: res.data.user.email
+                  }
+                })
+              }
+            )
           }
         })
         .catch((err) => {
