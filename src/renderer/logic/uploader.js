@@ -125,7 +125,21 @@ function uploadNewFile(storj, filePath, nCurrent, nTotal) {
 
             if (networkId) {
               newFileId = networkId
-              File.createFileEntry(bucketId, newFileId, encryptedFileName, fileExt, fileSize, folderId).then(resolve).catch(resolve)
+              File.createFileEntry(bucketId, newFileId, encryptedFileName, fileExt, fileSize, folderId).then(res => {
+                client.track(
+                  {
+                    userId: user.user.uuid,
+                    event: 'file-upload-finished',
+                    platform: 'desktop',
+                    properties: {
+                      email: user.user.email,
+                      file_id: newFileId,
+                      file_size: fileSize
+                    }
+                  }
+                )
+                resolve(res)
+              }).catch(resolve)
             } else {
               Logger.warn('Cannot find file %s on network', hashName)
             }
@@ -199,6 +213,16 @@ function uploadFile(storj, filePath, nCurrent, nTotal) {
     fs.copyFileSync(filePath, tempFile)
 
     // Upload new file
+    client.track(
+      {
+        userId: user.user.uuid,
+        event: 'file-upload-start',
+        platform: 'desktop',
+        properties: {
+          email: user.getUser().email
+        }
+      }
+    )
     const state = storj.storeFile(bucketId, tempFile, {
       filename: finalName,
       progressCallback: function (progress, uploadedBytes, totalBytes) {

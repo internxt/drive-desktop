@@ -8,6 +8,7 @@ import Tree from './tree'
 import Database from '../../database'
 import async from 'async'
 import sanitize from 'sanitize-filename'
+import {client, user} from './utils/analytics'
 
 function createRemoteFolder(name, parentId) {
   return new Promise(async (resolve, reject) => {
@@ -29,6 +30,17 @@ function createRemoteFolder(name, parentId) {
         Logger.warn('Folder with the same name already exists')
         resolve()
       } else if (res.res.status === 201) {
+        client.track(
+          {
+            userId: user.getUser().uuid,
+            event: 'folder-created',
+            platform: 'desktop',
+            properties: {
+              email: user.getUser().email,
+              file_id: res.data.id
+            }
+          }
+        )
         resolve(res.data)
       } else {
         Logger.error('Error creating new folder', res)
@@ -112,6 +124,17 @@ function _deleteRemoteFoldersWhenLocalDeleted(lastSyncFailed) {
       if ((stat && stat.isFile()) || !fs.existsSync(item.key)) {
         removeFolder(item.value.id).then(() => {
           Database.dbFolders.remove({ key: item.key })
+          client.track(
+            {
+              userId: user.getUser().uuid,
+              event: 'folder-delete',
+              platform: 'desktop',
+              properties: {
+                email: user.getUser().email,
+                file_id: item.value.id
+              }
+            }
+          )
           next()
         }).catch(err => {
           Logger.error('Error removing remote folder %s, %j', item.value, err)
