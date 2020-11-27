@@ -13,7 +13,7 @@ import sanitize from 'sanitize-filename'
 import Folder from './folder'
 import getEnvironment from './utils/libinxt'
 import File from './file'
-import analytics from './utils/analytics'
+import analytics from '../logic/utils/analytics'
 import ConfigStore from '../../main/config-store'
 
 const app = electron.remote.app

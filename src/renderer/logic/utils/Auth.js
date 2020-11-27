@@ -1,5 +1,4 @@
 import database from '../../../database/index'
-import {client, user} from './analytics'
 
 async function getUserEmail() {
   const userData = await database.Get('xUser')
@@ -12,9 +11,6 @@ async function getUserEmail() {
 
 async function getAuthHeader(withMnemonic) {
   const userData = await database.Get('xUser')
-  if (userData) {
-    user.setUser(userData.user)
-  }
   const header = {
     Authorization: `Bearer ${userData.token}`,
     'content-type': 'application/json; charset=utf-8'
