@@ -107,6 +107,15 @@ class TrayMenu {
               Logger.info('User switched to two way sync mode')
               ConfigStore.set('syncMode', 'two-way')
               app.emit('sync-stop')
+              analytics.track({
+                userId: ConfigStore.get('user.uuid'),
+                event: 'sync-mode-change',
+                platform: 'desktop',
+                properties: {
+                  email: ConfigStore.get('user.email'),
+                  sync_to: 'two-way'
+                }
+              })
             }
           },
           {
@@ -118,12 +127,29 @@ class TrayMenu {
               Logger.info('User switched to one way upload mode')
               ConfigStore.set('syncMode', 'one-way-upload')
               app.emit('sync-stop')
+              analytics.track({
+                userId: ConfigStore.get('user.uuid'),
+                event: 'sync-mode-change',
+                platform: 'desktop',
+                properties: {
+                  email: ConfigStore.get('user.email'),
+                  sync_to: 'one-way-upload'
+                }
+              })
             }
           }]
       },
       {
         label: 'Force sync',
         click: function () {
+          analytics.track({
+            event: 'force-sync',
+            userId: ConfigStore.get('user.uuid'),
+            platform: 'desktop',
+            properties: {
+              storage_used: ConfigStore.get('usage')
+            }
+          })
           app.emit('sync-start')
         }
       },

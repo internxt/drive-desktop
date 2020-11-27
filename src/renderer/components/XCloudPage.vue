@@ -44,6 +44,8 @@ import Logger from '../../libs/logger'
 import PackageJson from '../../../package.json'
 import DeviceLock from '../logic/devicelock'
 import SpaceUsage from '../logic/utils/spaceusage'
+import analytics from '../logic/utils/analytics'
+import ConfigStore from '../../../src/main/config-store'
 
 export default {
   name: 'xcloud-page',
@@ -124,10 +126,26 @@ export default {
       remote.app.emit('open-folder')
     },
     logout() {
+      analytics.track({
+        event: 'user-signout',
+        userId: ConfigStore.get('user.uuid'),
+        platform: 'desktop',
+        properties: {
+          email: ConfigStore.get('user.email')
+        }
+      })
       remote.app.emit('user-logout')
     },
     forceSync() {
       remote.app.emit('sync-start')
+      analytics.track({
+        event: 'force-sync',
+        userId: ConfigStore.get('user.uuid'),
+        platform: 'desktop',
+        properties: {
+          email: ConfigStore.get('user.email')
+        }
+      })
     },
     unlockDevice() {
       DeviceLock.unlock()
