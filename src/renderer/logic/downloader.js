@@ -164,7 +164,7 @@ function _downloadAllFiles() {
                     file_type: item.type,
                     folder_id: item.folderId,
                     file_name: item.name,
-                    size: item.size,
+                    file_size: item.size,
                     mode: ConfigStore.get('syncMode')
                   }
                 }

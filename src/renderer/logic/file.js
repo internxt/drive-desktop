@@ -97,6 +97,7 @@ function cleanRemoteWhenLocalDeleted(lastSyncFailed) {
         const fileId = item.value.fileId
 
         removeFile(bucketId, fileId).then(() => {
+          console.log('FILE REMOVED')
           analytics.track(
             {
               userId: ConfigStore.get('user.uuid'),

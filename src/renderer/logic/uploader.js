@@ -92,7 +92,7 @@ function uploadNewFile(storj, filePath, nCurrent, nTotal) {
         platform: 'desktop',
         properties: {
           email: ConfigStore.get('user.email'),
-          size: fileSize,
+          file_size: fileSize,
           mode: ConfigStore.get('syncMode')
         }
       }
@@ -223,6 +223,7 @@ function uploadFile(storj, filePath, nCurrent, nTotal) {
         event: 'file-upload-start',
         platform: 'desktop',
         properties: {
+          file_size: fileSize,
           email: ConfigStore.get('user.email'),
           mode: ConfigStore.get('syncMode')
         }
