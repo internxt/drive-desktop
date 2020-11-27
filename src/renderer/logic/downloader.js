@@ -152,6 +152,7 @@ function _downloadAllFiles() {
             fs.copyFileSync(tempPath, item.fullpath)
             fs.unlinkSync(tempPath)
             Sync.setModifiedTime(item.fullpath, item.created_at).then(() => {
+              console.log(item)
               analytics.track(
                 {
                   userId: ConfigStore.get('user.uuid'),
@@ -160,6 +161,10 @@ function _downloadAllFiles() {
                   properties: {
                     email: ConfigStore.get('user.email'),
                     file_id: item.fileId,
+                    file_type: item.type,
+                    folder_id: item.folderId,
+                    file_name: item.name,
+                    size: item.size,
                     mode: ConfigStore.get('syncMode')
                   }
                 }

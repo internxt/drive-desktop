@@ -1,5 +1,4 @@
 import Store from 'electron-store'
-
 /**
  * Global user config file
  */

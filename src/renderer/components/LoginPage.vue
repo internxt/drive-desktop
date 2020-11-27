@@ -76,9 +76,11 @@ import path from 'path'
 import packageConfig from '../../../package.json'
 import analytics from '../logic/utils/analytics'
 import ConfigStore from '../../main/config-store'
+import uuid4 from 'uuid4'
 
 const ROOT_FOLDER_NAME = 'Internxt Drive'
 const HOME_FOLDER_PATH = remote.app.getPath('home')
+const anonymousId = uuid4()
 
 export default {
   name: 'login-page',
@@ -165,7 +167,7 @@ export default {
           if (res.res.status !== 200) {
             this.$data.isLoading = false
             analytics.track({
-              anonymousId: ConfigStore.get('user.annonymousID'),
+              anonymousId: anonymousId,
               event: 'user-signin-attempted',
               platform: 'desktop',
               properties: {
@@ -210,7 +212,7 @@ export default {
           if (res.res.status !== 200) {
             this.$data.isLoading = false
             analytics.track({
-              anonymousId: ConfigStore.get('user.annonymousID'),
+              anonymousId: anonymousId,
               event: 'user-signin-attempted',
               platform: 'desktop',
               properties: {
@@ -235,8 +237,6 @@ export default {
               crypt.decryptWithKey(res.data.user.mnemonic, this.$data.password)
             )
             await database.Set('xUser', res.data)
-            console.log('Hello World')
-            console.log(JSON.stringify(res.data))
             /*
             ConfigStore.set('user.email', res.data.user.email)
             ConfigStore.set('user.uuid', res.data.user.uuid)

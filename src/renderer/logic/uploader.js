@@ -92,6 +92,7 @@ function uploadNewFile(storj, filePath, nCurrent, nTotal) {
         platform: 'desktop',
         properties: {
           email: ConfigStore.get('user.email'),
+          size: fileSize,
           mode: ConfigStore.get('syncMode')
         }
       }
