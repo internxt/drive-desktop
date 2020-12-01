@@ -137,15 +137,15 @@ export default {
       remote.app.emit('user-logout')
     },
     forceSync() {
-      remote.app.emit('sync-start')
       analytics.track({
         event: 'force-sync',
         userId: ConfigStore.get('user.uuid'),
         platform: 'desktop',
         properties: {
-          email: ConfigStore.get('user.email')
+          storage_used: ConfigStore.get('usage')
         }
       })
+      remote.app.emit('sync-start')
     },
     unlockDevice() {
       DeviceLock.unlock()

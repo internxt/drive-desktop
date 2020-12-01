@@ -237,10 +237,10 @@ export default {
               crypt.decryptWithKey(res.data.user.mnemonic, this.$data.password)
             )
             await database.Set('xUser', res.data)
-            /*
+
             ConfigStore.set('user.email', res.data.user.email)
             ConfigStore.set('user.uuid', res.data.user.uuid)
-            */
+
             this.$router.push('/landing-page').catch(() => {})
             await analytics.identify(
               {
