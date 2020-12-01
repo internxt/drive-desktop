@@ -242,7 +242,7 @@ export default {
             ConfigStore.set('user.uuid', res.data.user.uuid)
 
             this.$router.push('/landing-page').catch(() => {})
-            await analytics.identify(
+            analytics.identify(
               {
                 userId: ConfigStore.get('user.uuid'),
                 platform: 'desktop',
