@@ -46,7 +46,6 @@ import DeviceLock from '../logic/devicelock'
 import SpaceUsage from '../logic/utils/spaceusage'
 import analytics from '../logic/utils/analytics'
 import ConfigStore from '../../../src/main/config-store'
-import clearConfigStore from '../logic/utils/configure-store-utils'
 
 export default {
   name: 'xcloud-page',
@@ -99,8 +98,16 @@ export default {
           database
             .ClearUser()
             .then(() => {
-              clearConfigStore.clear()
+              analytics.track({
+                event: 'user-signout',
+                userId: ConfigStore.get('user.uuid'),
+                platform: 'desktop',
+                properties: {
+                  email: ConfigStore.get('user.email')
+                }
+              })
               database.compactAllDatabases()
+              ConfigStore.clear()
               remote.app.emit('update-menu')
               this.$router.push('/').catch(() => {})
             })
@@ -128,14 +135,6 @@ export default {
       remote.app.emit('open-folder')
     },
     logout() {
-      analytics.track({
-        event: 'user-signout',
-        userId: ConfigStore.get('user.uuid'),
-        platform: 'desktop',
-        properties: {
-          email: ConfigStore.get('user.email')
-        }
-      })
       remote.app.emit('user-logout')
     },
     forceSync() {
