@@ -95,19 +95,23 @@ export default {
         .ClearAll()
         .then(() => {
           Logger.info('databases cleared due to log out')
+          const localUser = ConfigStore.get('user.uuid')
           database
             .ClearUser()
             .then(() => {
-              analytics.track({
-                event: 'user-signout',
-                userId: ConfigStore.get('user.uuid'),
-                platform: 'desktop',
-                properties: {
-                  email: ConfigStore.get('user.email')
-                }
-              })
+              if (localUser) {
+                analytics.track({
+                  event: 'user-signout',
+                  userId: localUser,
+                  platform: 'desktop',
+                  properties: {
+                    email: ConfigStore.get('user.email')
+                  }
+                })
+              }
               database.compactAllDatabases()
-              ConfigStore.clear()
+              ConfigStore.delete('user')
+              ConfigStore.delete('usage')
               remote.app.emit('update-menu')
               this.$router.push('/').catch(() => {})
             })

@@ -152,7 +152,6 @@ function _downloadAllFiles() {
             fs.copyFileSync(tempPath, item.fullpath)
             fs.unlinkSync(tempPath)
             Sync.setModifiedTime(item.fullpath, item.created_at).then(() => {
-              console.log(item)
               analytics.track(
                 {
                   userId: ConfigStore.get('user.uuid'),

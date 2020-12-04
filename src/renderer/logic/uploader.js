@@ -111,7 +111,19 @@ function uploadNewFile(storj, filePath, nCurrent, nTotal) {
         // Clear tooltip text, the upload is finished.
         app.emit('set-tooltip')
         app.removeListener('sync-stop', stopDownloadHandler)
-
+        analytics.track(
+          {
+            userId: ConfigStore.get('user.uuid'),
+            event: 'file-upload-finished',
+            platform: 'desktop',
+            properties: {
+              email: ConfigStore.get('user.email'),
+              file_id: newFileId,
+              file_size: fileSize,
+              mode: ConfigStore.get('syncMode')
+            }
+          }
+        )
         if (err) {
           Logger.warn('Error uploading file', err.message)
           Database.FileSet(filePath, null)
@@ -129,19 +141,6 @@ function uploadNewFile(storj, filePath, nCurrent, nTotal) {
             if (networkId) {
               newFileId = networkId
               File.createFileEntry(bucketId, newFileId, encryptedFileName, fileExt, fileSize, folderId).then(res => {
-                analytics.track(
-                  {
-                    userId: ConfigStore.get('user.uuid'),
-                    event: 'file-upload-finished',
-                    platform: 'desktop',
-                    properties: {
-                      email: ConfigStore.get('user.email'),
-                      file_id: newFileId,
-                      file_size: fileSize,
-                      mode: ConfigStore.get('syncMode')
-                    }
-                  }
-                )
                 resolve(res)
               }).catch(resolve)
             } else {
@@ -241,6 +240,19 @@ function uploadFile(storj, filePath, nCurrent, nTotal) {
         if (fs.existsSync(tempFile)) {
           fs.unlinkSync(tempFile)
         }
+        analytics.track(
+          {
+            userId: ConfigStore.get('user.uuid'),
+            event: 'file-upload-finished',
+            platform: 'desktop',
+            properties: {
+              email: ConfigStore.get('user.email'),
+              file_id: newFileId,
+              file_size: fileSize,
+              mode: ConfigStore.get('syncMode')
+            }
+          }
+        )
         app.emit('set-tooltip')
         app.removeListener('sync-stop', stopDownloadHandler)
         if (err) {
@@ -254,19 +266,6 @@ function uploadFile(storj, filePath, nCurrent, nTotal) {
         } else {
           File.createFileEntry(bucketId, newFileId, encryptedFileName, fileExt, fileSize, folderId, fileMtime)
             .then(res => {
-              analytics.track(
-                {
-                  userId: ConfigStore.get('user.uuid'),
-                  event: 'file-upload-finished',
-                  platform: 'desktop',
-                  properties: {
-                    email: ConfigStore.get('user.email'),
-                    file_id: newFileId,
-                    file_size: fileSize,
-                    mode: ConfigStore.get('syncMode')
-                  }
-                }
-              )
               resolve(res)
             })
             .catch(err => { reject(err) })
