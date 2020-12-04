@@ -146,6 +146,16 @@ class TrayMenu {
       {
         label: 'Force sync',
         click: function () {
+          if (ConfigStore.get('user.uuid')) {
+            analytics.track({
+              event: 'force-sync',
+              userId: ConfigStore.get('user.uuid'),
+              platform: 'desktop',
+              properties: {
+                storage_used: ConfigStore.get('usage')
+              }
+            })
+          }
           app.emit('sync-start')
         }
       },

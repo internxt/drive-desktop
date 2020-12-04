@@ -99,7 +99,7 @@ export default {
           database
             .ClearUser()
             .then(() => {
-              if(localUser) {
+              if (localUser) {
                 analytics.track({
                   event: 'user-signout',
                   userId: localUser,
@@ -107,7 +107,7 @@ export default {
                   properties: {
                     email: ConfigStore.get('user.email')
                   }
-              })
+                })
               }
               database.compactAllDatabases()
               ConfigStore.delete('user')
@@ -142,16 +142,6 @@ export default {
       remote.app.emit('user-logout')
     },
     forceSync() {
-      if (ConfigStore.get('user.uuid')) {
-        analytics.track({
-          event: 'force-sync',
-          userId: ConfigStore.get('user.uuid'),
-          platform: 'desktop',
-          properties: {
-            storage_used: ConfigStore.get('usage')
-          }
-        })
-      }
       remote.app.emit('sync-start')
     },
     unlockDevice() {
