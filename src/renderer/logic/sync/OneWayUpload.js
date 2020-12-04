@@ -42,8 +42,17 @@ async function SyncLogic(callback) {
 
   app.once('sync-stop', () => {
     isSyncing = false
-    app.emit('sync-off')
-    throw Error('1-WAY-UPLOAD stopped')
+    database.ClearAll().then(() => {
+      app.emit('sync-off')
+      throw Error('1-WAY-UPLOAD stopped')
+    }).catch((err) => {
+      if (err.message !== '1-WAY-UPLOAD stopped') {
+        Logger.error('cannot stop 1-WAY-UPLOAD. ', err)
+        ConfigStore.set('syncMode', 'one-way-upload')
+      } else {
+        Logger.error(err)
+      }
+    })
   })
 
   isSyncing = true
@@ -166,9 +175,7 @@ async function SyncLogic(callback) {
           start(callback)
         })
       } else {
-        database.ClearAll().then(() => start(callback)).catch(() => {
-          Logger.error('Cannot end up 1-way-upload, fatal error')
-        })
+        start(callback)
       }
     }
   )
