@@ -166,9 +166,7 @@ async function SyncLogic(callback) {
           start(callback)
         })
       } else {
-        database.ClearAll().then(() => start(callback)).catch(() => {
-          Logger.error('Cannot end up 1-way-upload, fatal error')
-        })
+        start(callback)
       }
     }
   )
