@@ -99,14 +99,16 @@ export default {
           database
             .ClearUser()
             .then(() => {
-              analytics.track({
-                event: 'user-signout',
-                userId: localUser,
-                platform: 'desktop',
-                properties: {
-                  email: ConfigStore.get('user.email')
-                }
+              if(localUser) {
+                analytics.track({
+                  event: 'user-signout',
+                  userId: localUser,
+                  platform: 'desktop',
+                  properties: {
+                    email: ConfigStore.get('user.email')
+                  }
               })
+              }
               database.compactAllDatabases()
               ConfigStore.delete('user')
               ConfigStore.delete('usage')
