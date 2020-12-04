@@ -47,10 +47,10 @@ async function SyncLogic(callback) {
       throw Error('1-WAY-UPLOAD stopped')
     }).catch((err) => {
       if (err.message !== '1-WAY-UPLOAD stopped') {
-        Logger.error('cannot stop 1-WAY-UPLOAD. ', err)
         ConfigStore.set('syncMode', 'one-way-upload')
+        throw Error('cannot stop 1-WAY-UPLOAD. ' + err.message)
       } else {
-        Logger.error(err)
+        throw Error(err)
       }
     })
   })
