@@ -95,19 +95,21 @@ export default {
         .ClearAll()
         .then(() => {
           Logger.info('databases cleared due to log out')
+          const localUser = ConfigStore.get('user.uuid')
           database
             .ClearUser()
             .then(() => {
               analytics.track({
                 event: 'user-signout',
-                userId: ConfigStore.get('user.uuid'),
+                userId: localUser,
                 platform: 'desktop',
                 properties: {
                   email: ConfigStore.get('user.email')
                 }
               })
               database.compactAllDatabases()
-              ConfigStore.clear()
+              ConfigStore.delete('user')
+              ConfigStore.delete('usage')
               remote.app.emit('update-menu')
               this.$router.push('/').catch(() => {})
             })
@@ -138,6 +140,16 @@ export default {
       remote.app.emit('user-logout')
     },
     forceSync() {
+      if (ConfigStore.get('user.uuid')) {
+        analytics.track({
+          event: 'force-sync',
+          userId: ConfigStore.get('user.uuid'),
+          platform: 'desktop',
+          properties: {
+            storage_used: ConfigStore.get('usage')
+          }
+        })
+      }
       remote.app.emit('sync-start')
     },
     unlockDevice() {
