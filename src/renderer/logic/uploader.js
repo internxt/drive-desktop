@@ -96,7 +96,7 @@ function uploadNewFile(storj, filePath, nCurrent, nTotal) {
           mode: ConfigStore.get('syncMode')
         }
       }
-    )
+    ).catch(err => { Logger.error(err) })
     const state = storj.storeFile(bucketId, tempFile, {
       filename: hashName,
       progressCallback: function (progress, uploadedBytes, totalBytes) {
@@ -123,7 +123,7 @@ function uploadNewFile(storj, filePath, nCurrent, nTotal) {
               mode: ConfigStore.get('syncMode')
             }
           }
-        )
+        ).catch(err => { Logger.error(err) })
         if (err) {
           Logger.warn('Error uploading file', err.message)
           Database.FileSet(filePath, null)
@@ -227,7 +227,7 @@ function uploadFile(storj, filePath, nCurrent, nTotal) {
           mode: ConfigStore.get('syncMode')
         }
       }
-    )
+    ).catch(err => { Logger.error(err) })
     const state = storj.storeFile(bucketId, tempFile, {
       filename: finalName,
       progressCallback: function (progress, uploadedBytes, totalBytes) {
@@ -252,7 +252,7 @@ function uploadFile(storj, filePath, nCurrent, nTotal) {
               mode: ConfigStore.get('syncMode')
             }
           }
-        )
+        ).catch(err => { Logger.error(err) })
         app.emit('set-tooltip')
         app.removeListener('sync-stop', stopDownloadHandler)
         if (err) {

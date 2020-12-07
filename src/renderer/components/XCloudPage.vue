@@ -107,7 +107,7 @@ export default {
                   properties: {
                     email: ConfigStore.get('user.email')
                   }
-                })
+                }).catch(err => { Logger.error(err) })
               }
               database.compactAllDatabases()
               ConfigStore.delete('user')

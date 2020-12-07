@@ -144,7 +144,7 @@ function _downloadAllFiles() {
                 mode: ConfigStore.get('syncMode')
               }
             }
-          )
+          ).catch(err => { Logger.error(err) })
           downloadFileTemp(item).then(tempPath => {
             if (localExists) { try { fs.unlinkSync(item.fullpath) } catch (e) { } }
             // fs.renameSync gives a "EXDEV: cross-device link not permitted"
@@ -167,7 +167,7 @@ function _downloadAllFiles() {
                     mode: ConfigStore.get('syncMode')
                   }
                 }
-              )
+              ).catch(err => { Logger.error(err) })
               next(null)
             }).catch(next)
           }).catch(err => {

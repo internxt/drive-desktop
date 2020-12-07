@@ -174,7 +174,7 @@ export default {
                 status: res.res.status,
                 msg: res.body.error
               }
-            })
+            }).catch(err => { Logger.error(err) })
             return alert('Login error')
           }
           if (res.body.tfa && !this.$data.twoFactorCode) {
@@ -219,7 +219,7 @@ export default {
                 status: res.data.status,
                 msg: res.data.error
               }
-            })
+            }).catch(err => { Logger.error(err) })
             if (res.data.error) {
               alert('Login error\n' + res.data.error)
               if (res.data.error.includes('Wrong email')) {
@@ -259,9 +259,9 @@ export default {
                   properties: {
                     email: res.data.user.email
                   }
-                })
+                }).catch(err => { Logger.error(err) })
               }
-            )
+            ).catch(err => { Logger.error(err) })
           }
         })
         .catch((err) => {

@@ -109,7 +109,7 @@ function cleanRemoteWhenLocalDeleted(lastSyncFailed) {
               }
 
             }
-          )
+          ).catch(err => { Logger.error(err) })
           next()
         }).catch(err => {
           Logger.error('Error deleting remote file %j: %s', item, err)

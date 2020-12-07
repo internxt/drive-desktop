@@ -104,7 +104,7 @@ async function SyncLogic(callback) {
             traits: {
               storage_used: ConfigStore.get('usage')
             }
-          })
+          }).catch(err => { Logger.error(err) })
         }).catch(next)
       },
       next => {

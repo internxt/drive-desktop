@@ -116,7 +116,7 @@ class TrayMenu {
                     email: ConfigStore.get('user.email'),
                     sync_to: 'two-way'
                   }
-                })
+                }).catch(err => { Logger.error(err) })
               }
             }
           },
@@ -138,7 +138,7 @@ class TrayMenu {
                     email: ConfigStore.get('user.email'),
                     sync_to: 'one-way-upload'
                   }
-                })
+                }).catch(err => { Logger.error(err) })
               }
             }
           }]
@@ -154,7 +154,7 @@ class TrayMenu {
               properties: {
                 storage_used: ConfigStore.get('usage')
               }
-            })
+            }).catch(err => { Logger.error(err) })
           }
           app.emit('sync-start')
         }
