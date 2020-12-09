@@ -30,19 +30,20 @@ function stopUpdateDeviceSync() {
 
 function requestSyncLock() {
   return new Promise(async (resolve, reject) => {
-    database.Get('xUser').then(async userData => {
-      fetch(`${process.env.API_URL}/api/user/sync`, {
-        method: 'GET',
-        headers: await Auth.getAuthHeader()
-      }).then(async res => {
+    fetch(`${process.env.API_URL}/api/user/sync`, {
+      method: 'GET',
+      headers: await Auth.getAuthHeader()
+    })
+      .then(async res => {
         return { res, data: await res.json() }
-      }).then(res => {
+      })
+      .then(res => {
         resolve(res.data.data)
-      }).catch(err => {
+      })
+      .catch(err => {
         Logger.error('Fetch error getting sync', err)
         reject(err)
       })
-    })
   })
 }
 
@@ -71,7 +72,8 @@ function update(toNull = false) {
         })
         .then(res => {
           resolve(res.data.data)
-        }).catch(reject)
+        })
+        .catch(reject)
     })
   })
 }
@@ -86,15 +88,17 @@ async function unlock() {
         Authorization: `Bearer ${userData.token}`,
         'content-type': 'application/json'
       }
-    }).then(res => {
-      if (res.status === 200) {
-        resolve()
-      } else {
-        reject(res.status)
-      }
-    }).catch(err => {
-      reject(err)
     })
+      .then(res => {
+        if (res.status === 200) {
+          resolve()
+        } else {
+          reject(res.status)
+        }
+      })
+      .catch(err => {
+        reject(err)
+      })
   })
 }
 
