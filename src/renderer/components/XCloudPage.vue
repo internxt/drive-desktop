@@ -61,10 +61,12 @@ export default {
   components: {},
   beforeCreate() {
     remote.app.emit('window-hide')
-    SpaceUsage.updateUsage().then(() => {}).catch(() => {})
+    SpaceUsage.updateUsage()
+      .then(() => {})
+      .catch(() => {})
     database
       .Get('xUser')
-      .then((xUser) => {
+      .then(xUser => {
         const userEmail = xUser.user.email
         remote.app.emit('update-menu', userEmail)
         Logger.info(
@@ -75,17 +77,21 @@ export default {
           PackageJson.version
         )
       })
-      .catch((err) => {
+      .catch(err => {
         console.log('Cannot update tray icon', err.message)
       })
   },
-  created: function () {
+  destroyed: function() {
+    remote.app.removeAllListeners('user-logout')
+    remote.app.removeAllListeners('new-folder-path')
+    remote.app.removeAllListeners('set-tooltip')
+  },
+  created: function() {
     this.$app = this.$electron.remote.app
     Monitor.Monitor(true)
     this.getLocalFolderPath()
     this.getCurrentEnv()
-
-    remote.app.on('set-tooltip', (text) => {
+    remote.app.on('set-tooltip', text => {
       this.toolTip = text
     })
 
@@ -100,22 +106,27 @@ export default {
             .ClearUser()
             .then(() => {
               if (localUser) {
-                analytics.track({
-                  event: 'user-signout',
-                  userId: localUser,
-                  platform: 'desktop',
-                  properties: {
-                    email: ConfigStore.get('user.email')
-                  }
-                }).catch(err => { Logger.error(err) })
+                analytics
+                  .track({
+                    event: 'user-signout',
+                    userId: undefined,
+                    platform: 'desktop',
+                    properties: {
+                      email: 'email'
+                    }
+                  })
+                  .then(() => {
+                    analytics.resetUser()
+                  })
+                  .catch(err => {
+                    Logger.error(err)
+                  })
               }
               database.compactAllDatabases()
-              ConfigStore.delete('user')
-              ConfigStore.delete('usage')
               remote.app.emit('update-menu')
               this.$router.push('/').catch(() => {})
             })
-            .catch((err) => {
+            .catch(err => {
               Logger.error('ERROR CLEARING USER', err)
             })
         })
@@ -124,7 +135,7 @@ export default {
         })
     })
 
-    remote.app.on('new-folder-path', async (newPath) => {
+    remote.app.on('new-folder-path', async newPath => {
       remote.app.emit('sync-stop')
       await database.ClearAll()
       database.Set('xPath', newPath)
@@ -165,10 +176,10 @@ export default {
     getLocalFolderPath() {
       database
         .Get('xPath')
-        .then((path) => {
+        .then(path => {
           this.$data.localPath = path
         })
-        .catch((err) => {
+        .catch(err => {
           console.error(err)
           this.$data.localPath = 'error'
         })
