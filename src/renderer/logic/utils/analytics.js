@@ -10,7 +10,7 @@ const analytics = {
     uuid: undefined
   },
   track: async function(object) {
-    if (!object.userId) {
+    if (!object.anonymousId) {
       if (!this.userData.uuid) {
         const user = (await database.Get('xUser'))
         if (!user) {
@@ -27,7 +27,7 @@ const analytics = {
     segmentAnalytics.track(object)
   },
   identify: async function(object) {
-    if (!object.userId) {
+    if (!object.anonymousId) {
       if (!this.userData.uuid) {
         const user = (await database.Get('xUser'))
         if (!user) {
