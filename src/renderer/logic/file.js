@@ -100,16 +100,18 @@ function cleanRemoteWhenLocalDeleted(lastSyncFailed) {
           console.log('FILE REMOVED')
           analytics.track(
             {
-              userId: ConfigStore.get('user.uuid'),
+              userId: undefined,
               event: 'file-delete',
               platform: 'desktop',
               properties: {
-                email: ConfigStore.get('user.email'),
+                email: 'email',
                 file_id: fileId
               }
 
             }
-          ).catch(err => { Logger.error(err) })
+          ).catch(err => {
+            Logger.error(err)
+          })
           next()
         }).catch(err => {
           Logger.error('Error deleting remote file %j: %s', item, err)

@@ -87,16 +87,18 @@ function uploadNewFile(storj, filePath, nCurrent, nTotal) {
     // Upload new file
     analytics.track(
       {
-        userId: ConfigStore.get('user.uuid'),
+        userId: undefined,
         event: 'file-upload-start',
         platform: 'desktop',
         properties: {
-          email: ConfigStore.get('user.email'),
+          email: 'email',
           file_size: fileSize,
           mode: ConfigStore.get('syncMode')
         }
       }
-    ).catch(err => { Logger.error(err) })
+    ).catch(err => {
+      Logger.error(err)
+    })
     const state = storj.storeFile(bucketId, tempFile, {
       filename: hashName,
       progressCallback: function (progress, uploadedBytes, totalBytes) {
@@ -113,17 +115,19 @@ function uploadNewFile(storj, filePath, nCurrent, nTotal) {
         app.removeListener('sync-stop', stopDownloadHandler)
         analytics.track(
           {
-            userId: ConfigStore.get('user.uuid'),
+            userId: undefined,
             event: 'file-upload-finished',
             platform: 'desktop',
             properties: {
-              email: ConfigStore.get('user.email'),
+              email: 'email',
               file_id: newFileId,
               file_size: fileSize,
               mode: ConfigStore.get('syncMode')
             }
           }
-        ).catch(err => { Logger.error(err) })
+        ).catch(err => {
+          Logger.error(err)
+        })
         if (err) {
           Logger.warn('Error uploading file', err.message)
           Database.FileSet(filePath, null)
@@ -218,16 +222,18 @@ function uploadFile(storj, filePath, nCurrent, nTotal) {
     // Upload new file
     analytics.track(
       {
-        userId: ConfigStore.get('user.uuid'),
+        userId: undefined,
         event: 'file-upload-start',
         platform: 'desktop',
         properties: {
           file_size: fileSize,
-          email: ConfigStore.get('user.email'),
+          email: 'email',
           mode: ConfigStore.get('syncMode')
         }
       }
-    ).catch(err => { Logger.error(err) })
+    ).catch(err => {
+      Logger.error(err)
+    })
     const state = storj.storeFile(bucketId, tempFile, {
       filename: finalName,
       progressCallback: function (progress, uploadedBytes, totalBytes) {
@@ -242,17 +248,19 @@ function uploadFile(storj, filePath, nCurrent, nTotal) {
         }
         analytics.track(
           {
-            userId: ConfigStore.get('user.uuid'),
+            userId: undefined,
             event: 'file-upload-finished',
             platform: 'desktop',
             properties: {
-              email: ConfigStore.get('user.email'),
+              email: 'email',
               file_id: newFileId,
               file_size: fileSize,
               mode: ConfigStore.get('syncMode')
             }
           }
-        ).catch(err => { Logger.error(err) })
+        ).catch(err => {
+          Logger.error(err)
+        })
         app.emit('set-tooltip')
         app.removeListener('sync-stop', stopDownloadHandler)
         if (err) {

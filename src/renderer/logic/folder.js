@@ -33,15 +33,17 @@ function createRemoteFolder(name, parentId) {
       } else if (res.res.status === 201) {
         analytics.track(
           {
-            userId: ConfigStore.get('user.uuid'),
+            userId: undefined,
             event: 'folder-created',
             platform: 'desktop',
             properties: {
-              email: ConfigStore.get('user.email'),
+              email: 'email',
               file_id: res.data.id
             }
           }
-        )
+        ).catch(err => {
+          Logger.error(err)
+        })
         resolve(res.data)
       } else {
         Logger.error('Error creating new folder', res)
@@ -127,15 +129,17 @@ function _deleteRemoteFoldersWhenLocalDeleted(lastSyncFailed) {
           Database.dbFolders.remove({ key: item.key })
           analytics.track(
             {
-              userId: ConfigStore.get('user.uuid'),
+              userId: undefined,
               event: 'folder-delete',
               platform: 'desktop',
               properties: {
-                email: ConfigStore.get('user.email'),
+                email: 'email',
                 file_id: item.value.id
               }
             }
-          )
+          ).catch(err => {
+            Logger.error(err)
+          })
           next()
         }).catch(err => {
           Logger.error('Error removing remote folder %s, %j', item.value, err)

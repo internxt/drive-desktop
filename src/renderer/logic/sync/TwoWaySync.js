@@ -98,13 +98,15 @@ async function SyncLogic(callback) {
         Uploader.uploadNewFiles().then(() => {
           next()
           analytics.identify({
-            userId: ConfigStore.get('user.uuid'),
+            userId: undefined,
             platform: 'desktop',
-            email: ConfigStore.get('user.email'),
+            email: 'email',
             traits: {
               storage_used: ConfigStore.get('usage')
             }
-          }).catch(err => { Logger.error(err) })
+          }).catch(err => {
+            Logger.error(err)
+          })
         }).catch(next)
       },
       next => {

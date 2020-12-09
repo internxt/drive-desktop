@@ -5,22 +5,41 @@ import fs from 'fs'
 import OneWayUpload from './sync/OneWayUpload'
 import ConfigStore from '../../main/config-store'
 import TwoWaySync from './sync/TwoWaySync'
+import analytics from './utils/analytics'
 
 const { app } = electron.remote
 
-app.on('open-folder', function () {
-  database.Get('xPath').then(xPath => {
-    if (fs.existsSync(xPath)) {
-      electron.shell.openItem(xPath)
-    } else {
+app.on('open-folder', function() {
+  database
+    .Get('xPath')
+    .then(xPath => {
+      if (fs.existsSync(xPath)) {
+        electron.shell.openItem(xPath)
+      } else {
+        Logger.log('Error opening root folder from try icon')
+      }
+    })
+    .catch(() => {
       Logger.log('Error opening root folder from try icon')
-    }
-  }).catch(() => {
-    Logger.log('Error opening root folder from try icon')
-  })
+    })
+})
+app.on('force-sync', function() {
+  analytics
+    .track({
+      event: 'force-sync',
+      userId: undefined,
+      platform: 'desktop',
+      properties: {
+        storage_used: ConfigStore.get('usage')
+      }
+    })
+    .catch(err => {
+      Logger.error(err)
+    })
+  app.emit('sync-start')
 })
 
-app.on('sync-start', function () {
+app.on('sync-start', function() {
   Monitor(true)
 })
 

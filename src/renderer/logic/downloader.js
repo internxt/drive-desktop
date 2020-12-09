@@ -132,11 +132,11 @@ function _downloadAllFiles() {
           Logger.log('DOWNLOAD AND REPLACE WITHOUT QUESTION', item.fullpath)
           analytics.track(
             {
-              userId: ConfigStore.get('user.uuid'),
+              userId: undefined,
               event: 'file-download-start',
               platform: 'desktop',
               properties: {
-                email: ConfigStore.get('user.email'),
+                email: 'email',
                 file_id: item.fileId,
                 file_name: item.name,
                 folder_id: item.folder_id,
@@ -154,11 +154,11 @@ function _downloadAllFiles() {
             Sync.setModifiedTime(item.fullpath, item.created_at).then(() => {
               analytics.track(
                 {
-                  userId: ConfigStore.get('user.uuid'),
+                  userId: undefined,
                   event: 'file-download-finished',
                   platform: 'desktop',
                   properties: {
-                    email: ConfigStore.get('user.email'),
+                    email: 'email',
                     file_id: item.fileId,
                     file_type: item.type,
                     folder_id: item.folderId,
@@ -167,7 +167,9 @@ function _downloadAllFiles() {
                     mode: ConfigStore.get('syncMode')
                   }
                 }
-              ).catch(err => { Logger.error(err) })
+              ).catch(err => {
+                Logger.error(err)
+              })
               next(null)
             }).catch(next)
           }).catch(err => {

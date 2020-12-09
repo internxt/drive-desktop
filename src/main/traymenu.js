@@ -6,7 +6,6 @@ import Logger from '../libs/logger'
 import fs from 'fs'
 import electronLog from 'electron-log'
 import pretty from 'prettysize'
-import analytics from '../renderer/logic/utils/analytics'
 
 class TrayMenu {
   constructor(mainWindow) {
@@ -27,11 +26,17 @@ class TrayMenu {
     const iconName = isLoading ? 'sync-icon' : 'tray-icon'
 
     // Default icon
-    let trayIcon = path.join(__dirname, '../../src/resources/icons/' + iconName + '@2x.png')
+    let trayIcon = path.join(
+      __dirname,
+      '../../src/resources/icons/' + iconName + '@2x.png'
+    )
 
     // Template icon for mac
     if (process.platform === 'darwin') {
-      trayIcon = path.join(__dirname, '../../src/resources/icons/' + iconName + '-macTemplate@2x.png')
+      trayIcon = path.join(
+        __dirname,
+        '../../src/resources/icons/' + iconName + '-macTemplate@2x.png'
+      )
     }
 
     return trayIcon
@@ -73,8 +78,10 @@ class TrayMenu {
         },
         {
           label: 'Change sync folder',
-          click: function () {
-            const newDir = dialog.showOpenDialogSync({ properties: ['openDirectory'] })
+          click: function() {
+            const newDir = dialog.showOpenDialogSync({
+              properties: ['openDirectory']
+            })
             if (newDir && newDir.length > 0 && fs.existsSync(newDir[0])) {
               app.emit('new-folder-path', newDir[0])
             } else {
@@ -90,7 +97,7 @@ class TrayMenu {
     const contextMenuTemplate = [
       {
         label: 'Open folder',
-        click: function () {
+        click: function() {
           app.emit('open-folder')
         }
       },
@@ -107,17 +114,6 @@ class TrayMenu {
               Logger.info('User switched to two way sync mode')
               ConfigStore.set('syncMode', 'two-way')
               app.emit('sync-stop')
-              if (ConfigStore.get('user.uuid')) {
-                analytics.track({
-                  userId: ConfigStore.get('user.uuid'),
-                  event: 'sync-mode-change',
-                  platform: 'desktop',
-                  properties: {
-                    email: ConfigStore.get('user.email'),
-                    sync_to: 'two-way'
-                  }
-                }).catch(err => { Logger.error(err) })
-              }
             }
           },
           {
@@ -129,39 +125,19 @@ class TrayMenu {
               Logger.info('User switched to one way upload mode')
               ConfigStore.set('syncMode', 'one-way-upload')
               app.emit('sync-stop')
-              if (ConfigStore.get('user.uuid')) {
-                analytics.track({
-                  userId: ConfigStore.get('user.uuid'),
-                  event: 'sync-mode-change',
-                  platform: 'desktop',
-                  properties: {
-                    email: ConfigStore.get('user.email'),
-                    sync_to: 'one-way-upload'
-                  }
-                }).catch(err => { Logger.error(err) })
-              }
             }
-          }]
+          }
+        ]
       },
       {
         label: 'Force sync',
-        click: function () {
-          if (ConfigStore.get('user.uuid')) {
-            analytics.track({
-              event: 'force-sync',
-              userId: ConfigStore.get('user.uuid'),
-              platform: 'desktop',
-              properties: {
-                storage_used: ConfigStore.get('usage')
-              }
-            }).catch(err => { Logger.error(err) })
-          }
-          app.emit('sync-start')
+        click: function() {
+          app.emit('force-sync')
         }
       },
       {
         label: 'Open logs',
-        click: function () {
+        click: function() {
           try {
             const logFile = electronLog.transports.file.getFile().path
             const logPath = path.dirname(logFile)
@@ -173,14 +149,16 @@ class TrayMenu {
       },
       {
         label: 'Billing',
-        click: function () { shell.openExternal(`${process.env.API_URL}/storage`) }
+        click: function() {
+          shell.openExternal(`${process.env.API_URL}/storage`)
+        }
       },
       {
         type: 'separator'
       },
       {
         label: 'Log out',
-        click: function () {
+        click: function() {
           app.emit('user-logout')
         }
       },

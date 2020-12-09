@@ -160,21 +160,25 @@ export default {
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ email: this.$data.username })
       })
-        .then(async (res) => {
+        .then(async res => {
           return { res, body: await res.json() }
         })
-        .then((res) => {
+        .then(res => {
           if (res.res.status !== 200) {
             this.$data.isLoading = false
-            analytics.track({
-              anonymousId: anonymousId,
-              event: 'user-signin-attempted',
-              platform: 'desktop',
-              properties: {
-                status: res.res.status,
-                msg: res.body.error
-              }
-            }).catch(err => { Logger.error(err) })
+            analytics
+              .track({
+                anonymousId: anonymousId,
+                event: 'user-signin-attempted',
+                platform: 'desktop',
+                properties: {
+                  status: res.res.status,
+                  msg: res.body.error
+                }
+              })
+              .catch(err => {
+                Logger.error(err)
+              })
             return alert('Login error')
           }
           if (res.body.tfa && !this.$data.twoFactorCode) {
@@ -184,7 +188,7 @@ export default {
             this.doAccess(res.body.sKey)
           }
         })
-        .catch((err) => {
+        .catch(err => {
           this.$data.isLoading = false
           Logger.error(err)
         })
@@ -205,21 +209,25 @@ export default {
           tfa: this.$data.twoFactorCode
         })
       })
-        .then(async (res) => {
+        .then(async res => {
           return { res, data: await res.json() }
         })
-        .then(async (res) => {
+        .then(async res => {
           if (res.res.status !== 200) {
             this.$data.isLoading = false
-            analytics.track({
-              anonymousId: anonymousId,
-              event: 'user-signin-attempted',
-              platform: 'desktop',
-              properties: {
-                status: res.data.status,
-                msg: res.data.error
-              }
-            }).catch(err => { Logger.error(err) })
+            analytics
+              .track({
+                anonymousId: anonymousId,
+                event: 'user-signin-attempted',
+                platform: 'desktop',
+                properties: {
+                  status: res.data.status,
+                  msg: res.data.error
+                }
+              })
+              .catch(err => {
+                Logger.error(err)
+              })
             if (res.data.error) {
               alert('Login error\n' + res.data.error)
               if (res.data.error.includes('Wrong email')) {
@@ -238,33 +246,32 @@ export default {
             )
             await database.Set('xUser', res.data)
 
-            ConfigStore.set('user.email', res.data.user.email)
-            ConfigStore.set('user.uuid', res.data.user.uuid)
-
             this.$router.push('/landing-page').catch(() => {})
-            analytics.identify(
-              {
-                userId: ConfigStore.get('user.uuid'),
+            analytics
+              .identify({
+                userId: undefined,
                 platform: 'desktop',
-                email: ConfigStore.get('user.email'),
+                email: 'email',
                 traits: {
                   storage_used: ConfigStore.get('usage')
                 }
-              },
-              () => {
+              })
+              .then(() => {
                 analytics.track({
-                  userId: ConfigStore.get('user.uuid'),
+                  userId: undefined,
                   event: 'user-signin',
                   platform: 'desktop',
                   properties: {
-                    email: res.data.user.email
+                    email: undefined
                   }
-                }).catch(err => { Logger.error(err) })
-              }
-            ).catch(err => { Logger.error(err) })
+                })
+              })
+              .catch(err => {
+                Logger.error(err)
+              })
           }
         })
-        .catch((err) => {
+        .catch(err => {
           Logger.error('Error login', err)
           this.$data.isLoading = false
         })
