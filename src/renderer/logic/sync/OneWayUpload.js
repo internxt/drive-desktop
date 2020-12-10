@@ -64,7 +64,7 @@ async function SyncLogic(callback) {
         app.emit('sync-on')
         Folder.clearTempFolder().then(next).catch(() => next())
       },
-      next => Folder.rootFolderExists().then((exists) => next(exists ? null : exists)).catch(next),
+      next => Folder.rootFolderExists().then((exists) => next(exists ? null : Error('root folder does not exist'))).catch(next),
       next => {
         // Start the folder watcher if is not already started
         app.emit('set-tooltip', 'Initializing watcher...')
@@ -159,6 +159,7 @@ async function SyncLogic(callback) {
         await database.ClearAll()
         await database.ClearUser()
         database.compactAllDatabases()
+        app.emit('user-logout')
         return
       }
 

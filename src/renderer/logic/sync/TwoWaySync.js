@@ -59,7 +59,7 @@ async function SyncLogic(callback) {
       },
       next => {
         Folder.rootFolderExists().then((exists) => {
-          next(exists ? null : exists)
+          next(exists ? null : Error('root folder does not exist'))
         }).catch(next)
       },
       next => {
@@ -184,6 +184,9 @@ async function SyncLogic(callback) {
       next => { database.Set('lastSyncDate', new Date()).then(() => next()).catch(next) }
     ],
     async err => {
+      if (err) {
+        Logger.error('Error 2-way-sync monitor:', err.message)
+      }
       // If monitor ended before stopping the watcher, let's ensure
 
       // Switch "loading" tray ico
@@ -198,6 +201,7 @@ async function SyncLogic(callback) {
         await database.ClearAll()
         await database.ClearUser()
         database.compactAllDatabases()
+        app.emit('user-logout')
         return
       }
 
@@ -205,7 +209,6 @@ async function SyncLogic(callback) {
       SpaceUsage.updateUsage().then(() => { }).catch(() => { })
 
       if (err) {
-        Logger.error('Error 2-way-sync monitor:', err)
         async.waterfall([
           next => database.ClearAll().then(() => next()).catch(() => next()),
           next => {
