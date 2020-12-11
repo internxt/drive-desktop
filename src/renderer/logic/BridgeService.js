@@ -24,8 +24,13 @@ async function findFileByEncryptedName(bucket, encryptedName) {
     }
   }).then(async (result) => {
     if (result.status === 200) {
-      const contents = await result.json()
-      return contents.id
+      const text = await result.text()
+      try {
+        const contents = JSON.parse(text)
+        return contents.id
+      } catch (err) {
+        throw new Error(err + ' data: ' + text)
+      }
     } else if (result.status === 404) {
       return null
     } else {

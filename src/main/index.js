@@ -1,6 +1,14 @@
 'use strict'
 
-import { app, BrowserWindow, Tray, Menu, shell, dialog, powerMonitor } from 'electron'
+import {
+  app,
+  BrowserWindow,
+  Tray,
+  Menu,
+  shell,
+  dialog,
+  powerMonitor
+} from 'electron'
 import path from 'path'
 import Logger from '../libs/logger'
 import AutoLaunch from '../libs/autolauncher'
@@ -24,9 +32,10 @@ if (process.env.NODE_ENV !== 'development') {
 
 let mainWindow, tray, trayMenu
 
-const winURL = process.env.NODE_ENV === 'development'
-  ? `http://localhost:9080`
-  : `file://${__dirname}/index.html`
+const winURL =
+  process.env.NODE_ENV === 'development'
+    ? `http://localhost:9080`
+    : `file://${__dirname}/index.html`
 
 if (process.platform === 'darwin' && process.env.NODE_ENV !== 'development') {
   app.dock.hide()
@@ -36,7 +45,7 @@ if (!app.requestSingleInstanceLock()) {
   app.quit()
 }
 
-app.on('update-menu', (user) => {
+app.on('update-menu', user => {
   if (trayMenu) {
     trayMenu.updateContextMenu(user)
   } else {
@@ -63,6 +72,7 @@ function createWindow() {
 
   mainWindow.on('closed', appClose)
   mainWindow.on('close', appClose)
+
   app.on('app-close', appClose)
 
   const edit = {
@@ -71,39 +81,45 @@ function createWindow() {
       {
         label: 'Undo',
         accelerator: 'CmdOrCtrl+Z',
-        click: function () {
+        click: function() {
           self.getWindow().webContents.undo()
         }
-      }, {
+      },
+      {
         label: 'Redo',
         accelerator: 'CmdOrCtrl+Y',
-        click: function () {
+        click: function() {
           self.getWindow().webContents.redo()
         }
-      }, {
+      },
+      {
         type: 'separator'
-      }, {
+      },
+      {
         label: 'Cut',
         accelerator: 'CmdOrCtrl+X',
-        click: function () {
+        click: function() {
           self.getWindow().webContents.cut()
         }
-      }, {
+      },
+      {
         label: 'Copy',
         accelerator: 'CmdOrCtrl+C',
-        click: function () {
+        click: function() {
           self.getWindow().webContents.copy()
         }
-      }, {
+      },
+      {
         label: 'Paste',
         accelerator: 'CmdOrCtrl+V',
-        click: function () {
+        click: function() {
           self.getWindow().webContents.paste()
         }
-      }, {
+      },
+      {
         label: 'Select All',
         accelerator: 'CmdOrCtrl+A',
-        click: function () {
+        click: function() {
           self.getWindow().webContents.selectAll()
         }
       }
@@ -131,7 +147,7 @@ function createWindow() {
       {
         label: 'Developer Tools',
         accelerator: 'Shift+CmdOrCtrl+J',
-        click: function () {
+        click: function() {
           self.getWindow().toggleDevTools()
         }
       }
@@ -139,7 +155,10 @@ function createWindow() {
   }
 
   const windowMenu = Menu.setApplicationMenu(
-    Menu.buildFromTemplate([process.platform === 'darwin' ? editMacOS : edit, view])
+    Menu.buildFromTemplate([
+      process.platform === 'darwin' ? editMacOS : edit,
+      view
+    ])
   )
 
   trayMenu = new TrayMenu(mainWindow)
@@ -153,8 +172,12 @@ app.on('ready', () => {
 })
 
 function appClose() {
-  if (mainWindow) { mainWindow.destroy() }
-  if (process.platform !== 'darwin') { app.quit() }
+  if (mainWindow) {
+    mainWindow.destroy()
+  }
+  if (process.platform !== 'darwin') {
+    app.quit()
+  }
   if (trayMenu) {
     trayMenu.destroy()
     trayMenu = null
@@ -171,20 +194,19 @@ app.on('activate', () => {
   }
 })
 
-app.on('before-quit', function (evt) {
+app.on('before-quit', function(evt) {
   if (trayMenu) {
     trayMenu.destroy()
   }
 })
 
-app.on('browser-window-focus', (e, w) => {
-})
+app.on('browser-window-focus', (e, w) => {})
 
-app.on('sync-on', function () {
+app.on('sync-on', function() {
   trayMenu.setIsLoadingIcon(true)
 })
 
-app.on('sync-off', function () {
+app.on('sync-off', function() {
   trayMenu.setIsLoadingIcon(false)
 })
 
@@ -192,7 +214,7 @@ function maybeShowWindow() {
   if (mainWindow) {
     mainWindow.show()
   } else {
-    app.on('window-show', function () {
+    app.on('window-show', function() {
       if (mainWindow) {
         mainWindow.show()
       }
@@ -208,7 +230,7 @@ app.on('show-bubble', (title, content) => {
   }
 })
 
-app.on('window-hide', function () {
+app.on('window-hide', function() {
   if (mainWindow) {
     if (process.env.NODE_ENV !== 'development') {
       mainWindow.hide()
@@ -217,8 +239,14 @@ app.on('window-hide', function () {
 })
 
 app.on('set-tooltip', msg => {
-  const message = `Internxt Drive ${PackageJson.version}${(msg ? '\n' + msg : '')}`
+  const message = `Internxt Drive ${PackageJson.version}${
+    msg ? '\n' + msg : ''
+  }`
   trayMenu.setToolTip(message)
+})
+
+app.on('please-logout', () => {
+  dialog.showErrorBox('Error', 'Database could have been corrupted, please try to logout')
 })
 
 /**
@@ -235,7 +263,7 @@ if (process.env.NODE_ENV === 'development') {
   autoUpdater.currentVersion = '1.0.0'
 }
 
-autoUpdater.on('error', (err) => {
+autoUpdater.on('error', err => {
   console.log('AUTOUPDATE ERROR', err.message)
 })
 
@@ -251,11 +279,11 @@ autoUpdater.on('update-not-available', () => {
   console.log('NO UPDATES')
 })
 
-autoUpdater.on('download-progress', (progress) => {
+autoUpdater.on('download-progress', progress => {
   // console.log('UPDATE DOWNLOAD', progress.percent)
 })
 
-autoUpdater.on('update-downloaded', (info) => {
+autoUpdater.on('update-downloaded', info => {
   Logger.info('New update downloaded, quit and install')
   AnnounceUpdate(info.version)
 
@@ -277,16 +305,20 @@ function AnnounceUpdate(version) {
     title: 'Internxt Drive',
     message: 'New update available: ' + version
   }
-  dialog.showMessageBox(new BrowserWindow({
-    show: false,
-    parent: mainWindow,
-    alwaysOnTop: true
-  }), options, (userResponse) => {
-    UpdateOptions.dialogShow = false
-    if (userResponse === 0) {
-      autoUpdater.quitAndInstall(false, true)
+  dialog.showMessageBox(
+    new BrowserWindow({
+      show: false,
+      parent: mainWindow,
+      alwaysOnTop: true
+    }),
+    options,
+    userResponse => {
+      UpdateOptions.dialogShow = false
+      if (userResponse === 0) {
+        autoUpdater.quitAndInstall(false, true)
+      }
     }
-  })
+  )
 }
 
 const UpdateOptions = {
@@ -307,11 +339,14 @@ function SuggestUpdate(version, downloadUrl) {
     message: 'New Internxt Drive update available: ' + version
   }
 
-  const userResponse = dialog.showMessageBoxSync(new BrowserWindow({
-    show: false,
-    parent: mainWindow,
-    alwaysOnTop: true
-  }), options)
+  const userResponse = dialog.showMessageBoxSync(
+    new BrowserWindow({
+      show: false,
+      parent: mainWindow,
+      alwaysOnTop: true
+    }),
+    options
+  )
   if (userResponse === 0) {
     shell.openExternal(downloadUrl)
   } else {
@@ -344,18 +379,27 @@ function checkUpdates() {
     return ManualCheckUpdate()
   }
 
-  autoUpdater.checkForUpdates().then((UpdateCheckResult) => {
-    if (process.env.NODE_ENV !== 'development') {
-      // autoUpdater.updateInfoAndProvider = UpdateCheckResult
-    }
-  }).catch(err => {
-    console.log('Error checking updates: %s', err.message)
-  })
+  autoUpdater
+    .checkForUpdates()
+    .then(UpdateCheckResult => {
+      if (process.env.NODE_ENV !== 'development') {
+        // autoUpdater.updateInfoAndProvider = UpdateCheckResult
+      }
+    })
+    .catch(err => {
+      console.log('Error checking updates: %s', err.message)
+    })
 }
 
 async function ManualCheckUpdate() {
   fetch('https://api.github.com/repos/internxt/drive-desktop/releases/latest')
-    .then(res => res.json())
+    .then(res => res.text().then((text) => {
+      try {
+        return JSON.parse(text)
+      } catch (err) {
+        throw new Error(err + ' error update, data: ' + text)
+      }
+    }))
     .then(res => {
       const currentVersion = semver.valid(PackageJson.version)
       const latestVersion = semver.valid(res.tag_name)
@@ -373,16 +417,24 @@ async function ManualCheckUpdate() {
         }
 
         if (result && result.length === 1) {
-          console.log('Update url available: %s', JSON.stringify(result[0].browser_download_url))
+          console.log(
+            'Update url available: %s',
+            JSON.stringify(result[0].browser_download_url)
+          )
           return SuggestUpdate(latestVersion, result[0].browser_download_url)
         } else {
-          return console.log('Cannot find %s file for update %s', currentPlatform === 'darwin' ? 'DMG' : 'DEB', latestVersion)
+          return console.log(
+            'Cannot find %s file for update %s',
+            currentPlatform === 'darwin' ? 'DMG' : 'DEB',
+            latestVersion
+          )
         }
       } else {
         console.log('Manual checking updates: no updates')
       }
-    }).catch(err => {
-      console.log('Manual check update error', JSON.stringify(err))
+    })
+    .catch(err => {
+      console.log('Manual check update error ' + err)
     })
 }
 
@@ -399,7 +451,7 @@ app.on('ready', () => {
     app.emit('sync-stop')
   })
 
-  powerMonitor.on('resume', function () {
+  powerMonitor.on('resume', function() {
     Logger.warn('User system resumed')
     app.emit('sync-start')
   })

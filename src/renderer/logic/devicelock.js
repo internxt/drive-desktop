@@ -35,7 +35,12 @@ function requestSyncLock() {
       headers: await Auth.getAuthHeader()
     })
       .then(async res => {
-        return { res, data: await res.json() }
+        const text = await res.text()
+        try {
+          return { res, data: JSON.parse(text) }
+        } catch (err) {
+          throw new Error(err + ' data: ' + text)
+        }
       })
       .then(res => {
         resolve(res.data.data)
@@ -68,7 +73,12 @@ function update(toNull = false) {
           if (res.status !== 200) {
             throw Error('Update sync not available on server')
           }
-          return { res, data: await res.json() }
+          const text = await res.text()
+          try {
+            return { res, data: JSON.parse(text) }
+          } catch (err) {
+            throw new Error(err + ' data: ' + text)
+          }
         })
         .then(res => {
           resolve(res.data.data)

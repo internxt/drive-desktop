@@ -161,7 +161,12 @@ export default {
         body: JSON.stringify({ email: this.$data.username })
       })
         .then(async res => {
-          return { res, body: await res.json() }
+          const text = await res.text()
+          try {
+            return { res, body: JSON.parse(text) }
+          } catch (err) {
+            throw new Error(err + ' data: ' + text)
+          }
         })
         .then(res => {
           if (res.res.status !== 200) {
@@ -210,7 +215,12 @@ export default {
         })
       })
         .then(async res => {
-          return { res, data: await res.json() }
+          const text = await res.text()
+          try {
+            return { res, data: JSON.parse(text) }
+          } catch (err) {
+            throw new Error(err + ' data: ' + text)
+          }
         })
         .then(async res => {
           if (res.res.status !== 200) {

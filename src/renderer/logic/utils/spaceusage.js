@@ -24,15 +24,18 @@ async function getLimit() {
       } else {
         throw new Error(res)
       }
-    }).then((res) => {
+    })
+    .then(res => {
       // Check response body
-      try {
-        const jsonParsed = res.json()
-        return jsonParsed
-      } catch (e) {
-        throw new Error(e)
-      }
-    }).then(body => {
+      return res.text().then(text => {
+        try {
+          return JSON.parse(text)
+        } catch (err) {
+          throw new Error(err + ' error update, data: ' + text)
+        }
+      })
+    })
+    .then(body => {
       return body.maxSpaceBytes
     })
 }
@@ -49,31 +52,38 @@ async function getUsage() {
       } else {
         throw new Error(res)
       }
-    }).then((res) => {
+    })
+    .then(res => {
       // Check response body
-      try {
-        const jsonParsed = res.json()
-        return jsonParsed
-      } catch (e) {
-        throw new Error(e)
-      }
-    }).then(body => {
+      return res.text().then((text) => {
+        try {
+          return JSON.parse(text)
+        } catch (err) {
+          throw new Error(err + ' data: ' + text)
+        }
+      })
+    })
+    .then(body => {
       return body.total
     })
 }
 
 async function updateUsage() {
-  await getLimit().then(limit => {
-    ConfigStore.set('limit', limit)
-  }).catch(() => {
-    Logger.error('Cannot get user limit, won\'t be displayed')
-  })
+  await getLimit()
+    .then(limit => {
+      ConfigStore.set('limit', limit)
+    })
+    .catch(() => {
+      Logger.error("Cannot get user limit, won't be displayed")
+    })
 
-  await getUsage().then(usage => {
-    ConfigStore.set('usage', usage)
-  }).catch(() => {
-    Logger.error('Cannot get user usage, won\'t be displayed')
-  })
+  await getUsage()
+    .then(usage => {
+      ConfigStore.set('usage', usage)
+    })
+    .catch(() => {
+      Logger.error("Cannot get user usage, won't be displayed")
+    })
 
   Auth.getUserEmail().then(email => {
     remote.app.emit('update-menu', email)

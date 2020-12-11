@@ -205,7 +205,12 @@ function getTree() {
       headers: await Auth.getAuthHeader()
     })
       .then(async res => {
-        return { res, data: await res.json() }
+        const text = await res.text()
+        try {
+          return { res, data: JSON.parse(text) }
+        } catch (err) {
+          throw new Error(err + ' data: ' + text)
+        }
       })
       .then(async res => {
         resolve(res.data)
