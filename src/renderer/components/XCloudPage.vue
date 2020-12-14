@@ -21,6 +21,9 @@
         <a href="#" @click="logout()">Log out</a>
       </div>
       <div>
+        <a href="#" @click="mysettooltip()">Tool tip</a>
+      </div>
+      <div>
         Path:
         <a href="#" @click="openFolder()">{{ this.$data.localPath }}</a>
       </div>
@@ -46,6 +49,8 @@ import DeviceLock from '../logic/devicelock'
 import SpaceUsage from '../logic/utils/spaceusage'
 import analytics from '../logic/utils/analytics'
 import ConfigStore from '../../../src/main/config-store'
+
+var t = ''
 
 export default {
   name: 'xcloud-page',
@@ -81,19 +86,17 @@ export default {
         console.log('Cannot update tray icon', err.message)
       })
   },
-  destroyed: function() {
+  beforeDestroy: function() {
     remote.app.removeAllListeners('user-logout')
     remote.app.removeAllListeners('new-folder-path')
-    remote.app.removeAllListeners('set-tooltip')
+    remote.app.removeListener('set-tooltip', this.setTooltip)
   },
   created: function() {
     this.$app = this.$electron.remote.app
     Monitor.Monitor(true)
     this.getLocalFolderPath()
     this.getCurrentEnv()
-    remote.app.on('set-tooltip', text => {
-      this.toolTip = text
-    })
+    remote.app.on('set-tooltip', this.setTooltip)
 
     remote.app.on('user-logout', () => {
       remote.app.emit('sync-stop')
@@ -183,6 +186,13 @@ export default {
           console.error(err)
           this.$data.localPath = 'error'
         })
+    },
+    mysettooltip() {
+      t = t === '' ? 'sadasd' : ''
+      remote.app.emit('set-tooltip', t)
+    },
+    setTooltip(text) {
+      this.toolTip = text
     },
     getCurrentEnv() {
       this.$data.currentEnv = process.env.NODE_ENV
