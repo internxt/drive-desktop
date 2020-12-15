@@ -32,7 +32,6 @@ async function SyncLogic(callback) {
     Logger.warn('SyncLogic stopped on 2-way: syncMode is now %s', syncMode)
     return callback ? callback() : null
   }
-
   const userDevicesSyncing = await DeviceLock.requestSyncLock()
   if (userDevicesSyncing) {
     Logger.warn('1-way-upload not started: another device already syncing')
@@ -96,7 +95,6 @@ async function SyncLogic(callback) {
       next => {
         // Search new files in local folder, and upload them
         Uploader.uploadNewFiles().then(() => {
-          next()
           analytics.identify({
             userId: undefined,
             platform: 'desktop',
@@ -107,6 +105,7 @@ async function SyncLogic(callback) {
           }).catch(err => {
             Logger.error(err)
           })
+          next()
         }).catch(next)
       },
       next => {
