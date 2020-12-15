@@ -180,6 +180,15 @@ function _downloadAllFiles() {
             } else {
               Logger.error('Fatal error: Can\'t restore remote file: local does not exists')
             }
+            const isError = [
+              'File missing shard error',
+              'Farmer request error',
+              'Memory mapped file unmap error',
+              'Bridge request pointer error'
+            ].find(obj => obj === err.message)
+            if (isError) {
+              return next(err)
+            }
             next()
           })
         } else if (uploadAndReplace) {
