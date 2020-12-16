@@ -393,13 +393,14 @@ function checkUpdates() {
 
 async function ManualCheckUpdate() {
   fetch('https://api.github.com/repos/internxt/drive-desktop/releases/latest')
-    .then(res => res.text().then((text) => {
+    .then(res => res.text())
+    .then((text) => {
       try {
         return JSON.parse(text)
       } catch (err) {
         throw new Error(err + ' error update, data: ' + text)
       }
-    }))
+    })
     .then(res => {
       const currentVersion = semver.valid(PackageJson.version)
       const latestVersion = semver.valid(res.tag_name)

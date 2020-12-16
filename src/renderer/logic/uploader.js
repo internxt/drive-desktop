@@ -38,14 +38,22 @@ function uploadNewFile(storj, filePath, nCurrent, nTotal) {
 
     Logger.log('NEW file found', filePath)
 
-    const bucketId = (dbEntry && dbEntry.value && dbEntry.value.bucket) || (tree && tree.bucket)
-    const folderId = (dbEntry && dbEntry.value && dbEntry.value.id) || user.user.root_folder_id
+    const bucketId =
+      (dbEntry && dbEntry.value && dbEntry.value.bucket) ||
+      (tree && tree.bucket)
+    const folderId =
+      (dbEntry && dbEntry.value && dbEntry.value.id) || user.user.root_folder_id
 
     // Encrypted filename
     const originalFileName = path.basename(filePath)
     const encryptedFileName = crypt.encryptFilename(originalFileName, folderId)
 
-    app.emit('set-tooltip', (nCurrent && nTotal ? `${nCurrent}/${nTotal}\n` : '') + 'Checking ' + originalFileName)
+    app.emit(
+      'set-tooltip',
+      (nCurrent && nTotal ? `${nCurrent}/${nTotal}\n` : '') +
+        'Checking ' +
+        originalFileName
+    )
 
     // File extension
 
@@ -59,7 +67,11 @@ function uploadNewFile(storj, filePath, nCurrent, nTotal) {
     const finalName = encryptedFileName + (fileExt ? '.' + fileExt : '')
 
     // Copy file to temp folder
-    const tempPath = path.join(electron.remote.app.getPath('home'), '.internxt-desktop', 'tmp')
+    const tempPath = path.join(
+      electron.remote.app.getPath('home'),
+      '.internxt-desktop',
+      'tmp'
+    )
     if (!fs.existsSync(tempPath)) {
       mkdirp.sync(tempPath)
     }
@@ -69,9 +81,21 @@ function uploadNewFile(storj, filePath, nCurrent, nTotal) {
     const hashName = Hash.hasher(relativePath)
 
     // Double check: Prevent upload if file already exists
-    const maybeNetworkId = await BridgeService.findFileByName(bucketId, hashName)
+    const maybeNetworkId = await BridgeService.findFileByName(
+      bucketId,
+      hashName
+    )
     if (maybeNetworkId) {
-      File.createFileEntry(bucketId, maybeNetworkId, encryptedFileName, fileExt, fileSize, folderId).then(resolve).catch(resolve)
+      File.createFileEntry(
+        bucketId,
+        maybeNetworkId,
+        encryptedFileName,
+        fileExt,
+        fileSize,
+        folderId
+      )
+        .then(resolve)
+        .catch(resolve)
       return
     }
 
@@ -85,8 +109,8 @@ function uploadNewFile(storj, filePath, nCurrent, nTotal) {
     Logger.log('Uploading to folder %s (bucket: %s)', folderId, bucketId)
 
     // Upload new file
-    analytics.track(
-      {
+    analytics
+      .track({
         userId: undefined,
         event: 'file-upload-start',
         platform: 'desktop',
@@ -95,39 +119,32 @@ function uploadNewFile(storj, filePath, nCurrent, nTotal) {
           file_size: fileSize,
           mode: ConfigStore.get('syncMode')
         }
-      }
-    ).catch(err => {
-      Logger.error(err)
-    })
+      })
+      .catch(err => {
+        Logger.error(err)
+      })
     const state = storj.storeFile(bucketId, tempFile, {
       filename: hashName,
-      progressCallback: function (progress, uploadedBytes, totalBytes) {
+      progressCallback: function(progress, uploadedBytes, totalBytes) {
         let progressPtg = progress * 100
         progressPtg = progressPtg.toFixed(2)
-        app.emit('set-tooltip', (nCurrent && nTotal ? `Files: ${nCurrent}/${nTotal}\n` : '') + 'Uploading ' + originalFileName + ' (' + progressPtg + '%)')
+        app.emit(
+          'set-tooltip',
+          (nCurrent && nTotal ? `Files: ${nCurrent}/${nTotal}\n` : '') +
+            'Uploading ' +
+            originalFileName +
+            ' (' +
+            progressPtg +
+            '%)'
+        )
       },
-      finishedCallback: async function (err, newFileId) {
+      finishedCallback: async function(err, newFileId) {
         if (fs.existsSync(tempFile)) {
           fs.unlinkSync(tempFile)
         }
         // Clear tooltip text, the upload is finished.
         app.emit('set-tooltip')
         app.removeListener('sync-stop', stopDownloadHandler)
-        analytics.track(
-          {
-            userId: undefined,
-            event: 'file-upload-finished',
-            platform: 'desktop',
-            properties: {
-              email: 'email',
-              file_id: newFileId,
-              file_size: fileSize,
-              mode: ConfigStore.get('syncMode')
-            }
-          }
-        ).catch(err => {
-          Logger.error(err)
-        })
         if (err) {
           Logger.warn('Error uploading file', err.message)
           Database.FileSet(filePath, null)
@@ -140,13 +157,25 @@ function uploadNewFile(storj, filePath, nCurrent, nTotal) {
             // Right now file names in network are full paths encrypted.
             // This could be an issue if user uses multiple devices.
             // TODO: Migrate to relative paths based on drive folder path
-            const networkId = await BridgeService.findFileByName(bucketId, hashName)
+            const networkId = await BridgeService.findFileByName(
+              bucketId,
+              hashName
+            )
 
             if (networkId) {
               newFileId = networkId
-              File.createFileEntry(bucketId, newFileId, encryptedFileName, fileExt, fileSize, folderId).then(res => {
-                resolve(res)
-              }).catch(resolve)
+              File.createFileEntry(
+                bucketId,
+                newFileId,
+                encryptedFileName,
+                fileExt,
+                fileSize,
+                folderId
+              )
+                .then(res => {
+                  resolve(res)
+                })
+                .catch(resolve)
             } else {
               Logger.warn('Cannot find file %s on network', hashName)
             }
@@ -162,7 +191,32 @@ function uploadNewFile(storj, filePath, nCurrent, nTotal) {
             return resolve()
           }
           Logger.warn('NEW FILE ID 2', newFileId)
-          File.createFileEntry(bucketId, newFileId, encryptedFileName, fileExt, fileSize, folderId, fileStats.mtime).then(resolve).catch(reject)
+          analytics
+            .track({
+              userId: undefined,
+              event: 'file-upload-finished',
+              platform: 'desktop',
+              properties: {
+                email: 'email',
+                file_id: newFileId,
+                file_size: fileSize,
+                mode: ConfigStore.get('syncMode')
+              }
+            })
+            .catch(err => {
+              Logger.error(err)
+            })
+          File.createFileEntry(
+            bucketId,
+            newFileId,
+            encryptedFileName,
+            fileExt,
+            fileSize,
+            folderId,
+            fileStats.mtime
+          )
+            .then(resolve)
+            .catch(reject)
         }
       }
     })
@@ -207,7 +261,11 @@ function uploadFile(storj, filePath, nCurrent, nTotal) {
     const finalName = encryptedFileName + (fileExt ? '.' + fileExt : '')
 
     // Copy file to temp folder
-    const tempPath = path.join(electron.remote.app.getPath('home'), '.internxt-desktop', 'tmp')
+    const tempPath = path.join(
+      electron.remote.app.getPath('home'),
+      '.internxt-desktop',
+      'tmp'
+    )
     if (!fs.existsSync(tempPath)) {
       mkdirp.sync(tempPath)
     }
@@ -220,8 +278,8 @@ function uploadFile(storj, filePath, nCurrent, nTotal) {
     fs.copyFileSync(filePath, tempFile)
 
     // Upload new file
-    analytics.track(
-      {
+    analytics
+      .track({
         userId: undefined,
         event: 'file-upload-start',
         platform: 'desktop',
@@ -230,24 +288,32 @@ function uploadFile(storj, filePath, nCurrent, nTotal) {
           email: 'email',
           mode: ConfigStore.get('syncMode')
         }
-      }
-    ).catch(err => {
-      Logger.error(err)
-    })
+      })
+      .catch(err => {
+        Logger.error(err)
+      })
     const state = storj.storeFile(bucketId, tempFile, {
       filename: finalName,
-      progressCallback: function (progress, uploadedBytes, totalBytes) {
+      progressCallback: function(progress, uploadedBytes, totalBytes) {
         let progressPtg = progress * 100
         progressPtg = progressPtg.toFixed(2)
         app.emit('set-percentage', progressPtg)
-        app.emit('set-tooltip', (nCurrent && nTotal ? `Files: ${nCurrent}/${nTotal}\n` : '') + 'Uploading ' + originalFileName + ' (' + progressPtg + '%)')
+        app.emit(
+          'set-tooltip',
+          (nCurrent && nTotal ? `Files: ${nCurrent}/${nTotal}\n` : '') +
+            'Uploading ' +
+            originalFileName +
+            ' (' +
+            progressPtg +
+            '%)'
+        )
       },
-      finishedCallback: function (err, newFileId) {
+      finishedCallback: function(err, newFileId) {
         if (fs.existsSync(tempFile)) {
           fs.unlinkSync(tempFile)
         }
-        analytics.track(
-          {
+        analytics
+          .track({
             userId: undefined,
             event: 'file-upload-finished',
             platform: 'desktop',
@@ -257,10 +323,10 @@ function uploadFile(storj, filePath, nCurrent, nTotal) {
               file_size: fileSize,
               mode: ConfigStore.get('syncMode')
             }
-          }
-        ).catch(err => {
-          Logger.error(err)
-        })
+          })
+          .catch(err => {
+            Logger.error(err)
+          })
         app.emit('set-tooltip')
         app.removeListener('sync-stop', stopDownloadHandler)
         if (err) {
@@ -272,11 +338,21 @@ function uploadFile(storj, filePath, nCurrent, nTotal) {
             resolve()
           }
         } else {
-          File.createFileEntry(bucketId, newFileId, encryptedFileName, fileExt, fileSize, folderId, fileMtime)
+          File.createFileEntry(
+            bucketId,
+            newFileId,
+            encryptedFileName,
+            fileExt,
+            fileSize,
+            folderId,
+            fileMtime
+          )
             .then(res => {
               resolve(res)
             })
-            .catch(err => { reject(err) })
+            .catch(err => {
+              reject(err)
+            })
         }
       }
     })
@@ -298,63 +374,81 @@ function uploadAllNewFolders() {
     let lastParentFolder = null
 
     // Create a list with the actual local folders
-    Tree.getLocalFolderList(localPath).then(list => {
-      // For each folder in local...
-      async.eachSeries(list, async (item, next) => {
-        // Check if folders still exists
-        if (!fs.existsSync(item)) { return next() }
+    Tree.getLocalFolderList(localPath)
+      .then(list => {
+        // For each folder in local...
+        async.eachSeries(
+          list,
+          async (item, next) => {
+            // Check if folders still exists
+            if (!fs.existsSync(item)) {
+              return next()
+            }
 
-        const stat = Tree.getStat(item)
-        if (stat && stat.isSymbolicLink()) {
-          return next()
-        }
-        // Check if exists in Database
-        const dbEntry = await Database.FolderGet(item)
+            const stat = Tree.getStat(item)
+            if (stat && stat.isSymbolicLink()) {
+              return next()
+            }
+            // Check if exists in Database
+            const dbEntry = await Database.FolderGet(item)
 
-        // If folder exists on remote Database, ignore it, it already exists
-        if (dbEntry) { return next() }
+            // If folder exists on remote Database, ignore it, it already exists
+            if (dbEntry) {
+              return next()
+            }
 
-        // Subtract parent path and folder name
-        const folderName = path.basename(item)
-        const parentPath = path.dirname(item)
+            // Subtract parent path and folder name
+            const folderName = path.basename(item)
+            const parentPath = path.dirname(item)
 
-        // Get the parent folder ID from remote Database
-        const lastFolder = await Database.FolderGet(parentPath)
-        // If parent folder exists on Database, pick its ID
-        const lastFolderId = lastFolder && lastFolder.value && lastFolder.value.id
-        // If the parent path is the root of the target path, get the root_folder_id from user info
-        let parentId = parentPath === localPath ? userInfo.user.root_folder_id : lastFolderId
+            // Get the parent folder ID from remote Database
+            const lastFolder = await Database.FolderGet(parentPath)
+            // If parent folder exists on Database, pick its ID
+            const lastFolderId =
+              lastFolder && lastFolder.value && lastFolder.value.id
+            // If the parent path is the root of the target path, get the root_folder_id from user info
+            let parentId =
+              parentPath === localPath
+                ? userInfo.user.root_folder_id
+                : lastFolderId
 
-        if (parentPath === lastParentFolder) {
-          parentId = lastParentId
-        } else if (lastParentFolder) {
-          lastParentFolder = null
-          lastParentId = null
-        }
+            if (parentPath === lastParentFolder) {
+              parentId = lastParentId
+            } else if (lastParentFolder) {
+              lastParentFolder = null
+              lastParentId = null
+            }
 
-        if (parentId) {
-          Folder.createRemoteFolder(folderName, parentId).then(async (result) => {
-            await Database.FolderSet(item, result)
-            lastParentId = result ? result.id : null
-            lastParentFolder = result ? item : null
-            next()
-          }).catch(err => {
-            Logger.error('Error creating remote folder', err)
-            next(err)
-          })
-        } else {
-          // Logger.error('Upload new folders: Undefined parent ID')
-          next()
-        }
-      }, (err) => {
-        if (err) {
-          Logger.error(err)
-          reject(err)
-        } else {
-          resolve()
-        }
+            if (parentId) {
+              Folder.createRemoteFolder(folderName, parentId)
+                .then(async result => {
+                  await Database.FolderSet(item, result)
+                  lastParentId = result ? result.id : null
+                  lastParentFolder = result ? item : null
+                  next()
+                })
+                .catch(err => {
+                  if (err.error.includes('Parent folder is not yours')) {
+                  }
+                  Logger.error('Error creating remote folder', err)
+                  next(err)
+                })
+            } else {
+              // Logger.error('Upload new folders: Undefined parent ID')
+              next()
+            }
+          },
+          err => {
+            if (err) {
+              Logger.error(err)
+              reject(err)
+            } else {
+              resolve()
+            }
+          }
+        )
       })
-    }).catch(reject)
+      .catch(reject)
   })
 }
 
@@ -369,66 +463,91 @@ function uploadAllNewFiles() {
     const totalFiles = files.length
     let currentFiles = 0
 
-    async.eachSeries(files, async function (item, next) {
-      currentFiles++
+    async.eachSeries(
+      files,
+      async function(item, next) {
+        currentFiles++
 
-      // Read filesystem data
-      const stat = Tree.getStat(item)
+        // Read filesystem data
+        const stat = Tree.getStat(item)
+        // Is a file, and it is not a sym link
+        if (
+          stat &&
+          stat.isFile() &&
+          !stat.isSymbolicLink() &&
+          stat.size < 1024 * 1024 * 1024 * 10
+        ) {
+          // Check if file exists in the remote database
+          const entry = await Database.FileGet(item)
 
-      if (stat && stat.isFile() && !stat.isSymbolicLink() && stat.size < 1024 * 1024 * 1024 * 10) { // Is a file, and it is not a sym link
-        // Check if file exists in the remote database
-        const entry = await Database.FileGet(item)
-
-        if (!entry) {
-          // File is not present on the remote database, so it's a new file. Let's upload.
-          if (stat.size === 0) {
-            // The network can't hold empty files. Encryption will fail.
-            // So, we will ignore this file.
-            Logger.log('Warning: Filesize 0. Ignoring file.')
-            return next()
-          }
-          // Upload file.
-          uploadNewFile(storj, item, currentFiles, totalFiles).then(() => next()).catch((err) => {
-            // List of unexpected errors, should re-try later
-            const isError = [
-              'Already exists',
-              'Farmer request error',
-              'File create parity error',
-              'File encryption error'
-            ].find(obj => obj.includes(err.message))
-
-            if (isError) {
-              Logger.error('Error uploading file %s, sync will retry upload in the next sync. Error: %s', item, err.message)
-              Database.TempSet(item, 'add').then(() => next()).catch(() => next())
-            } else {
-              Logger.error('Fatal error uploading file: %s', err.message)
-              next(err)
+          if (!entry) {
+            // File is not present on the remote database, so it's a new file. Let's upload.
+            if (stat.size === 0) {
+              // The network can't hold empty files. Encryption will fail.
+              // So, we will ignore this file.
+              Logger.log('Warning: Filesize 0. Ignoring file.')
+              return next()
             }
-          })
+            // Upload file.
+            uploadNewFile(storj, item, currentFiles, totalFiles)
+              .then(() => next())
+              .catch(err => {
+                // List of unexpected errors, should re-try later
+                const isError = [
+                  'Already exists',
+                  'Farmer request error',
+                  'File create parity error',
+                  'File encryption error'
+                ].find(obj => obj.includes(err.message))
+
+                if (isError) {
+                  Logger.error(
+                    'Error uploading file %s, sync will retry upload in the next sync. Error: %s',
+                    item,
+                    err.message
+                  )
+                  Database.TempSet(item, 'add')
+                    .then(() => next())
+                    .catch(() => next())
+                } else {
+                  Logger.error('Fatal error uploading file: %s', err.message)
+                  next(err)
+                }
+              })
+          } else {
+            // Is not a file, so it is a dir. Do nothing.
+            next()
+          }
         } else {
-          // Is not a file, so it is a dir. Do nothing.
           next()
         }
-      } else {
-        next()
+      },
+      err => {
+        if (err) {
+          reject(err)
+        } else {
+          resolve()
+        }
       }
-    }, (err) => {
-      if (err) { reject(err) } else { resolve() }
-    })
+    )
   })
 }
 
 function uploadNewFolders() {
   return new Promise((resolve, reject) => {
     app.emit('set-tooltip', 'Indexing folders...')
-    uploadAllNewFolders().then(() => resolve()).catch(reject)
+    uploadAllNewFolders()
+      .then(() => resolve())
+      .catch(reject)
   })
 }
 
 function uploadNewFiles() {
   return new Promise((resolve, reject) => {
     app.emit('set-tooltip', 'Indexing files...')
-    uploadAllNewFiles().then(() => resolve()).catch(reject)
+    uploadAllNewFiles()
+      .then(() => resolve())
+      .catch(reject)
   })
 }
 
