@@ -154,7 +154,7 @@ class TrayMenu {
         }
       },
       {
-        label: 'Auto launch',
+        label: 'Launch at login',
         type: 'checkbox',
         checked: ConfigStore.get('autoLaunch'),
         click: function(check) {
