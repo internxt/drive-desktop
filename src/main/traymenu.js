@@ -154,6 +154,16 @@ class TrayMenu {
         }
       },
       {
+        label: 'Auto launch',
+        type: 'checkbox',
+        checked: ConfigStore.get('autoLaunch'),
+        click: function(check) {
+          ConfigStore.set('autoLaunch', check.checked)
+          console.log(check.checked)
+          app.emit('change-auto-launch')
+        }
+      },
+      {
         label: 'Contact Support',
         click: function() {
           shell.openExternal(`mailto:support@internxt.zohodesk.eu?subject=Support Ticket&body=If you want to upload log files to our tech teams. Please, find them on the Open Logs option in the menu.`)

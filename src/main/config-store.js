@@ -16,13 +16,9 @@ const schema = {
     type: 'number',
     default: -1
   },
-  user: {
-    email: {
-      type: 'string'
-    },
-    uuid: {
-      type: 'string'
-    }
+  autoLaunch: {
+    type: 'boolean',
+    default: true
   }
 
 }

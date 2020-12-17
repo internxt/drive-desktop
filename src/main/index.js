@@ -210,6 +210,8 @@ app.on('sync-off', function() {
   trayMenu.setIsLoadingIcon(false)
 })
 
+app.on('change-auto-launch', AutoLaunch.configureAutostart)
+
 function maybeShowWindow() {
   if (mainWindow) {
     mainWindow.show()

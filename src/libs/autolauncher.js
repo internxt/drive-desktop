@@ -1,5 +1,7 @@
+import { auto } from 'async'
 import AutoLaunch from 'auto-launch'
 import Logger from '../libs/logger'
+import ConfigStore from '../main/config-store'
 
 function configureAutostart() {
   const opts = {
@@ -15,11 +17,18 @@ function configureAutostart() {
     if (isEnabled && process.env.NODE_ENV === 'development') {
       Logger.info('Auto launch disabled')
       autoLaunch.disable()
-    } else if (!isEnabled) {
-      autoLaunch.enable()
-      Logger.info('Auto start registered on the operative system')
+      ConfigStore.set('autoLaunch', false)
     } else {
-      Logger.info('Auto start already registered')
+      const auto = ConfigStore.get('autoLaunch')
+      if (isEnabled !== auto) {
+        if (auto) {
+          Logger.info('Auto launch enabled')
+          autoLaunch.enable()
+        } else {
+          Logger.info('Auto launch disabled')
+          autoLaunch.disable()
+        }
+      }
     }
   })
 }
