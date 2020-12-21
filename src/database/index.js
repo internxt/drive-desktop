@@ -204,11 +204,6 @@ const compactAllDatabases = () => {
 const backupCurrentTree = () => {
   return new Promise((resolve, reject) => {
     async.waterfall([
-      next => {
-        Get('tree').then(lastTree => {
-          Set('treeBackup', lastTree).then(() => next()).catch(next)
-        }).catch(next)
-      },
       next => dbLastFolders.remove({}, { multi: true }, (err) => next(err)),
       next => dbLastFiles.remove({}, { multi: true }, (err) => next(err)),
       next => {
