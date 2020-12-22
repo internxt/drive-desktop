@@ -408,7 +408,7 @@ async function ManualCheckUpdate() {
       const latestVersion = semver.valid(res.tag_name)
 
       if (semver.gt(latestVersion, currentVersion)) {
-        console.log('New versión %s is available', latestVersion)
+        Logger.info('New versión %s is available', latestVersion)
         const currentPlatform = GetAppPlatform()
 
         let result
@@ -433,11 +433,11 @@ async function ManualCheckUpdate() {
           )
         }
       } else {
-        console.log('Manual checking updates: no updates')
+        Logger.info('Manual checking updates: no updates')
       }
     })
     .catch(err => {
-      console.log('Manual check update error ' + err)
+      Logger.error('Manual check update error ' + err)
     })
 }
 
