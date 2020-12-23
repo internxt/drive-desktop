@@ -155,7 +155,10 @@ function cleanLocalWhenRemoteDeleted(lastSyncFailed) {
             // Delete if: Not in temp, not was "added" or was deleted
             if (!isTemp || isTemp.value !== 'add' || wasDeleted) {
               // TODO: Watcher will track this deletion
-              try { fs.unlinkSync(item) } catch (e) { }
+              try {
+                fs.unlinkSync(item)
+                Logger.info(item + ' deleted')
+              } catch (e) { }
               database.TempDel(item)
             }
             next()
