@@ -34,7 +34,7 @@ async function SyncLogic(callback) {
   }
   const userDevicesSyncing = await DeviceLock.requestSyncLock()
   if (userDevicesSyncing) {
-    Logger.warn('1-way-upload not started: another device already syncing')
+    Logger.warn('2-way-upload not started: another device already syncing')
     return start(callback)
   }
 
