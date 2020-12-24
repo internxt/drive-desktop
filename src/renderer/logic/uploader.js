@@ -95,7 +95,7 @@ function uploadNewFile(storj, filePath, nCurrent, nTotal) {
         folderId
       )
         .then(resolve)
-        .catch(resolve)
+        .catch(reject)
       return
     }
 
@@ -387,7 +387,9 @@ function uploadAllNewFolders() {
 
             const stat = Tree.getStat(item)
             if (stat && stat.isSymbolicLink()) {
-              return next()
+              return Database.TempSet(item, 'addDir')
+                .then(() => next())
+                .catch(next)
             }
             // Check if exists in Database
             const dbEntry = await Database.FolderGet(item)
@@ -425,17 +427,17 @@ function uploadAllNewFolders() {
                   await Database.FolderSet(item, result)
                   lastParentId = result ? result.id : null
                   lastParentFolder = result ? item : null
-                  next()
+                  return next()
                 })
                 .catch(err => {
-                  if (err.error.includes('Parent folder is not yours')) {
-                  }
                   Logger.error('Error creating remote folder', err)
                   next(err)
                 })
             } else {
               // Logger.error('Upload new folders: Undefined parent ID')
-              next()
+              return Database.TempSet(item, 'addDir')
+                .then(() => next())
+                .catch(next)
             }
           },
           err => {
@@ -486,7 +488,9 @@ function uploadAllNewFiles() {
               // The network can't hold empty files. Encryption will fail.
               // So, we will ignore this file.
               Logger.log('Warning: Filesize 0. Ignoring file.')
-              return next()
+              return Database.TempSet(item, 'add')
+                .then(() => next())
+                .catch(next)
             }
             // Upload file.
             uploadNewFile(storj, item, currentFiles, totalFiles)
@@ -508,17 +512,21 @@ function uploadAllNewFiles() {
                   )
                   Database.TempSet(item, 'add')
                     .then(() => next())
-                    .catch(() => next())
+                    .catch(next)
                 } else {
                   Logger.error('Fatal error uploading file: %s', err.message)
                   next(err)
                 }
               })
           } else {
-            // Is not a file, so it is a dir. Do nothing.
+            // It is not new file
             next()
           }
         } else {
+          // Add to Temp for don't delete it
+          Database.TempSet(item, 'add')
+            .then(() => next())
+            .catch(next)
           next()
         }
       },
