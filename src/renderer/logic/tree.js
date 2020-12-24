@@ -32,8 +32,8 @@ function getListFromFolder(folderPath) {
           results.push(data.fullPath)
         }
       })
-      .on('warn', warn => console.error('READDIRP non-fatal error', warn))
-      .on('error', err => console.error('READDIRP fatal error', err.message))
+      .on('warn', warn => Logger.error('READDIRP non-fatal error', warn))
+      .on('error', err => Logger.error('READDIRP fatal error', err.message))
       .on('end', () => {
         resolve(results)
       })
@@ -183,7 +183,7 @@ function getLocalFolderList(localPath) {
     })
       .on('data', data => {
         if (data.basename !== sanitize(data.basename)) {
-          return Logger.info('Directory %s ignored, name is not compatible')
+          return Logger.info('Directory %s ignored, name is not compatible', data.basename)
         }
         results.push(data.fullPath)
       })

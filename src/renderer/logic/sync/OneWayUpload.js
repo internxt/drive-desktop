@@ -69,7 +69,7 @@ async function SyncLogic(callback) {
         // Start the folder watcher if is not already started
         app.emit('set-tooltip', 'Initializing watcher...')
         database.Get('xPath').then(xPath => {
-          console.log('User store path: %s', xPath)
+          Logger.info('User store path: %s', xPath)
           if (!wtc) {
             watcher.startWatcher(xPath).then(watcherInstance => {
               wtc = watcherInstance
