@@ -247,8 +247,8 @@ app.on('set-tooltip', msg => {
   trayMenu.setToolTip(message)
 })
 
-app.on('please-logout', () => {
-  dialog.showErrorBox('Error', 'Database could have been corrupted, please try to logout')
+app.on('show-error', (msg) => {
+  dialog.showErrorBox('Error', msg)
 })
 
 /**

@@ -184,7 +184,7 @@ export default {
               .catch(err => {
                 Logger.error(err)
               })
-            return alert('Login error')
+            return remote.app.emit('show-error', 'Login error')
           }
           if (res.body.tfa && !this.$data.twoFactorCode) {
             this.$data.showTwoFactor = true
@@ -239,13 +239,13 @@ export default {
                 Logger.error(err)
               })
             if (res.data.error) {
-              alert('Login error\n' + res.data.error)
+              remote.app.emit('show-error', 'Login error\n' + res.data.error)
               if (res.data.error.includes('Wrong email')) {
                 this.$data.twoFactorCode = ''
                 this.$data.showTwoFactor = false
               }
             } else {
-              alert('Login error')
+              remote.app.emit('show-error', 'Login error')
             }
           } else {
             res.data.user.email = this.$data.username.toLowerCase()
