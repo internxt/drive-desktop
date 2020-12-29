@@ -45,7 +45,7 @@ async function SyncLogic(callback) {
     app.emit('sync-off')
     throw Error('2-WAY-SYNC stopped')
   })
-
+  DeviceLock.startUpdateDeviceSync()
   isSyncing = true
   lastSyncFailed = false
 

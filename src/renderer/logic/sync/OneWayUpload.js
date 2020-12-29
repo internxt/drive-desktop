@@ -39,7 +39,7 @@ async function SyncLogic(callback) {
   }
 
   Logger.info('One way upload started')
-
+  DeviceLock.startUpdateDeviceSync()
   app.once('sync-stop', () => {
     isSyncing = false
     database.ClearAll().then(() => {
