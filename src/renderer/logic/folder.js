@@ -117,7 +117,10 @@ function _deleteLocalWhenRemoteDeleted(lastSyncFailed) {
                     !isTemp ||
                     isTemp.value !== 'addDir'
                   ) {
-                    rimraf(item, err => next(err))
+                    rimraf(item, err => {
+                      Logger.info(item + ' deleted')
+                      next(err)
+                    })
                   } else {
                     Database.TempDel(item)
                     next()
@@ -241,36 +244,34 @@ function removeFolder(folderId) {
 function createLocalFolders() {
   return new Promise(async (resolve, reject) => {
     // Get a list of all the folders on the remote tree
-    Tree.getFolderListFromRemoteTree()
-      .then(list => {
-        async.eachSeries(
-          list,
-          (folder, next) => {
-            // Create the folder, doesn't matter if already exists.
-            try {
-              fs.mkdirSync(folder)
-              next()
-            } catch (err) {
-              if (err.code === 'EEXIST') {
-                // Folder already exists, ignore error
-                next()
-              } else {
-                // If we cannot create the folder, we won't be able to download it's files.
-                Logger.error('Error creating folder %s: %j', folder, err)
-                next(err)
-              }
-            }
-          },
-          err => {
-            if (err) {
-              reject(err)
-            } else {
-              resolve()
-            }
+    const list = Database.dbFolders.getAllData()
+
+    async.eachSeries(
+      list,
+      (folder, next) => {
+        // Create the folder, doesn't matter if already exists.
+        try {
+          fs.mkdirSync(folder.key, {recursive: true})
+          next()
+        } catch (err) {
+          if (err.code === 'EEXIST') {
+            // Folder already exists, ignore error
+            next()
+          } else {
+            // If we cannot create the folder, we won't be able to download it's files.
+            Logger.error('Error creating folder %s: %j', folder, err)
+            next(err)
           }
-        )
-      })
-      .catch(reject)
+        }
+      },
+      err => {
+        if (err) {
+          reject(err)
+        } else {
+          resolve()
+        }
+      }
+    )
   })
 }
 

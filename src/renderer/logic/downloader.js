@@ -75,156 +75,156 @@ function downloadFileTemp(fileObj, silent = false) {
 function _downloadAllFiles() {
   return new Promise((resolve, reject) => {
     // Get a list of all the files on the remote folder
-    Tree.getFileListFromRemoteTree().then(list => {
-      const totalFiles = list.length
-      let currentFiles = 0
-      async.eachSeries(list, async (item, next) => {
-        currentFiles++
-        if (path.basename(item.fullpath) !== sanitize(path.basename(item.fullpath))) {
-          Logger.info('Can\'t download %s, invalid filename', path.basename(item.fullpath))
-          return next()
+    const list = Database.dbFiles.getAllData()
+    const totalFiles = list.length
+    let currentFiles = 0
+    async.eachSeries(list, async (item, next) => {
+      currentFiles++
+      item = item.value
+      if (path.basename(item.fullpath) !== sanitize(path.basename(item.fullpath))) {
+        Logger.info('Can\'t download %s, invalid filename', path.basename(item.fullpath))
+        return next()
+      }
+      // If not enough space on hard disk, do not download and stop syncing.
+      const freeSpace = await CheckDiskSpace(path.dirname(item.fullpath))
+      if (item.size * 3 >= freeSpace) { return next('No space left') }
+
+      let downloadAndReplace = false
+      let uploadAndReplace = false
+      let ignoreThisFile = false
+
+      // Check if local file exists
+      const localExists = fs.existsSync(item.fullpath)
+
+      // If local exists, replace, ensure or ignore
+      if (localExists) {
+        const stat = Tree.getStat(item.fullpath)
+
+        // "Created at" time from remote database
+        const remoteTime = new Date(item.created_at)
+        remoteTime.setMilliseconds(0)
+        // "Modified at" from local file
+        const localTime = stat.mtime
+        localTime.setMilliseconds(0)
+
+        // Warning, milliseconds are not recorded, so we set to 0 to avoid false comparisons
+
+        if (remoteTime > localTime) {
+          downloadAndReplace = true
+        } else if (localTime > remoteTime) {
+          uploadAndReplace = true
         }
-        // If not enough space on hard disk, do not download and stop syncing.
-        const freeSpace = await CheckDiskSpace(path.dirname(item.fullpath))
-        if (item.size * 3 >= freeSpace) { return next('No space left') }
+      } else {
+        // Was deleted during the sync?
+        const isLocallyDeleted = await Database.TempGet(item.fullpath)
 
-        let downloadAndReplace = false
-        let uploadAndReplace = false
-        let ignoreThisFile = false
-
-        // Check if local file exists
-        const localExists = fs.existsSync(item.fullpath)
-
-        // If local exists, replace, ensure or ignore
-        if (localExists) {
-          const stat = Tree.getStat(item.fullpath)
-
-          // "Created at" time from remote database
-          const remoteTime = new Date(item.created_at)
-          remoteTime.setMilliseconds(0)
-          // "Modified at" from local file
-          const localTime = stat.mtime
-          localTime.setMilliseconds(0)
-
-          // Warning, milliseconds are not recorded, so we set to 0 to avoid false comparisons
-
-          if (remoteTime > localTime) {
-            downloadAndReplace = true
-          } else if (localTime > remoteTime) {
-            uploadAndReplace = true
-          }
+        if (isLocallyDeleted && isLocallyDeleted.value === 'unlink') {
+          ignoreThisFile = true
         } else {
-          // Was deleted during the sync?
-          const isLocallyDeleted = await Database.TempGet(item.fullpath)
-
-          if (isLocallyDeleted && isLocallyDeleted.value === 'unlink') {
-            ignoreThisFile = true
-          } else {
-            downloadAndReplace = true
-          }
+          downloadAndReplace = true
         }
+      }
 
-        if (ignoreThisFile) {
-          try { fs.unlinkSync(item.fullpath) } catch (e) { }
-          Database.TempDel(item.fullpath)
-          return next()
-        } else if (downloadAndReplace) {
-          Logger.log('DOWNLOAD AND REPLACE WITHOUT QUESTION', item.fullpath)
-          analytics.track(
-            {
-              userId: undefined,
-              event: 'file-download-start',
-              platform: 'desktop',
-              properties: {
-                email: 'email',
-                file_id: item.fileId,
-                file_name: item.name,
-                folder_id: item.folder_id,
-                file_type: item.type,
-                mode: ConfigStore.get('syncMode')
-              }
+      if (ignoreThisFile) {
+        try { fs.unlinkSync(item.fullpath) } catch (e) { }
+        Database.TempDel(item.fullpath)
+        return next()
+      } else if (downloadAndReplace) {
+        Logger.log('DOWNLOAD AND REPLACE WITHOUT QUESTION', item.fullpath)
+        analytics.track(
+          {
+            userId: undefined,
+            event: 'file-download-start',
+            platform: 'desktop',
+            properties: {
+              email: 'email',
+              file_id: item.fileId,
+              file_name: item.name,
+              folder_id: item.folder_id,
+              file_type: item.type,
+              mode: ConfigStore.get('syncMode')
             }
-          ).catch(err => { Logger.error(err) })
-          downloadFileTemp(item).then(tempPath => {
-            if (localExists) { try { fs.unlinkSync(item.fullpath) } catch (e) { } }
-            // fs.renameSync gives a "EXDEV: cross-device link not permitted"
-            // when application and local folder are not in the same partition
-            fs.copyFileSync(tempPath, item.fullpath)
-            fs.unlinkSync(tempPath)
-            Sync.setModifiedTime(item.fullpath, item.created_at).then(() => {
-              analytics.track(
-                {
-                  userId: undefined,
-                  event: 'file-download-finished',
-                  platform: 'desktop',
-                  properties: {
-                    email: 'email',
-                    file_id: item.fileId,
-                    file_type: item.type,
-                    folder_id: item.folderId,
-                    file_name: item.name,
-                    file_size: item.size,
-                    mode: ConfigStore.get('syncMode')
-                  }
+          }
+        ).catch(err => { Logger.error(err) })
+        downloadFileTemp(item).then(tempPath => {
+          if (localExists) { try { fs.unlinkSync(item.fullpath) } catch (e) { } }
+          // fs.renameSync gives a "EXDEV: cross-device link not permitted"
+          // when application and local folder are not in the same partition
+          fs.copyFileSync(tempPath, item.fullpath)
+          fs.unlinkSync(tempPath)
+          Sync.setModifiedTime(item.fullpath, item.created_at).then(() => {
+            analytics.track(
+              {
+                userId: undefined,
+                event: 'file-download-finished',
+                platform: 'desktop',
+                properties: {
+                  email: 'email',
+                  file_id: item.fileId,
+                  file_type: item.type,
+                  folder_id: item.folderId,
+                  file_name: item.name,
+                  file_size: item.size,
+                  mode: ConfigStore.get('syncMode')
                 }
-              ).catch(err => {
-                Logger.error(err)
-              })
-              next(null)
-            }).catch(next)
-          }).catch(err => {
-            // On error by shard, upload again
-            Logger.error(err.message)
-            if (localExists) {
-              Logger.error('Fatal error: Can\'t restore remote file: local is older')
-            } else {
-              Logger.error('Fatal error: Can\'t restore remote file: local does not exists')
-            }
-            const isError = [
-              'File missing shard error',
-              'Farmer request error',
-              'Memory mapped file unmap error',
-              'Bridge request pointer error'
-            ].find(obj => obj === err.message)
-            if (isError) {
-              return next(err)
-            }
-            next()
-          })
-        } else if (uploadAndReplace) {
-          const storj = await getEnvironment()
-          Uploader.uploadFile(storj, item.fullpath, currentFiles, totalFiles).then(() => next()).catch(next)
-        } else {
-          // Check if should download to ensure file
-          const shouldEnsureFile = Math.floor(Math.random() * 33 + 1) % 33 === 0
-
-          if (!shouldEnsureFile) {
-            // Logger.log('%cNO ENSURE FILE', 'background-color: #aaaaff')
-            return next()
+              }
+            ).catch(err => {
+              Logger.error(err)
+            })
+            next(null)
+          }).catch(next)
+        }).catch(err => {
+          // On error by shard, upload again
+          Logger.error(err.message)
+          if (localExists) {
+            Logger.error('Fatal error: Can\'t restore remote file: local is older')
+          } else {
+            Logger.error('Fatal error: Can\'t restore remote file: local does not exists')
           }
-          Logger.log('%cENSURE FILE ' + item.filename, 'background-color: #aa00aa, color: #ffffff')
-          // Check file is ok
-          downloadFileTemp(item, true).then(tempPath => next()).catch(err => {
-            const isError = [
-              'File missing shard error',
-              'Farmer request error',
-              'Memory mapped file unmap error',
-              'Bridge request pointer error'
-            ].find(obj => obj === err.message)
+          const isError = [
+            'File missing shard error',
+            'Farmer request error',
+            'Memory mapped file unmap error',
+            'Bridge request pointer error'
+          ].find(obj => obj === err.message)
+          if (isError) {
+            return next(err)
+          }
+          next()
+        })
+      } else if (uploadAndReplace) {
+        const storj = await getEnvironment()
+        Uploader.uploadFile(storj, item.fullpath, currentFiles, totalFiles).then(() => next()).catch(next)
+      } else {
+        // Check if should download to ensure file
+        const shouldEnsureFile = Math.floor(Math.random() * 33 + 1) % 33 === 0
 
-            if (isError && localExists) {
-              Logger.error('%s. Reuploading...', isError)
-              File.restoreFile(item).then(() => next()).catch(next)
-            } else {
-              Logger.error('Cannot restore missing file', err.message)
-              next()
-            }
-          })
+        if (!shouldEnsureFile) {
+          // Logger.log('%cNO ENSURE FILE', 'background-color: #aaaaff')
+          return next()
         }
-      }, (err, result) => {
-        if (err) { reject(err) } else { resolve() }
-      })
-    }).catch(reject)
+        Logger.log('%cENSURE FILE ' + item.filename, 'background-color: #aa00aa, color: #ffffff')
+        // Check file is ok
+        downloadFileTemp(item, true).then(tempPath => next()).catch(err => {
+          const isError = [
+            'File missing shard error',
+            'Farmer request error',
+            'Memory mapped file unmap error',
+            'Bridge request pointer error'
+          ].find(obj => obj === err.message)
+
+          if (isError && localExists) {
+            Logger.error('%s. Reuploading...', isError)
+            File.restoreFile(item).then(() => next()).catch(next)
+          } else {
+            Logger.error('Cannot restore missing file', err.message)
+            next()
+          }
+        })
+      }
+    }, (err, result) => {
+      if (err) { reject(err) } else { resolve() }
+    })
   })
 }
 

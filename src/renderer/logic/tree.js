@@ -127,6 +127,98 @@ function getFolderObjectListFromRemoteTree() {
   })
 }
 
+function regenerateLocalDbFolder(tree) {
+  const finalDict = []
+  const dbEntrys = []
+  return new Promise(async (resolve, reject) => {
+    const basePath = await database.Get('xPath')
+    database.dbFolders.remove({}, { multi: true }, (err, n) => {
+      if (err) {
+        reject(err)
+      } else {
+        async.eachSeries(
+          tree.folders,
+          (item, next) => {
+            if (!item.parent_id) {
+              finalDict[item.id] = basePath
+              return next()
+            }
+            const parentPath = finalDict[item.parent_id]
+            const decryptedName = crypt.decryptName(item.name, item.parent_id)
+            const fullNewPath = path.join(parentPath, decryptedName)
+            const cloneObject = JSON.parse(JSON.stringify(item))
+            const finalObject = { key: fullNewPath, value: cloneObject }
+            if (
+              path.basename(fullNewPath) !==
+              sanitize(path.basename(fullNewPath))
+            ) {
+              Logger.info('Ignoring folder %s, invalid name', finalObject.key)
+              return next()
+            }
+            dbEntrys.push(finalObject)
+            finalDict[item.id] = fullNewPath
+            return next()
+          },
+          (err, result) => {
+            if (err) {
+              reject(err)
+            } else {
+              database.dbFolders.insert(dbEntrys, (err, document) => {
+                if (err) reject(err)
+                resolve(finalDict)
+              })
+            }
+          }
+        )
+      }
+    })
+  })
+}
+
+function regenerateLocalDbFile(tree, folderDict) {
+  const dbEntrys = []
+  return new Promise(async (resolve, reject) => {
+    database.dbFiles.remove({}, { multi: true }, (err, n) => {
+      if (err) {
+        reject(err)
+      } else {
+        async.eachSeries(
+          tree.files,
+          (item, next) => {
+            const filePath = folderDict[item.folder_id]
+            item.filename = crypt.decryptName(item.name, item.folder_id)
+            item.fullpath = path.join(
+              filePath,
+              item.filename + (item.type ? '.' + item.type : '')
+            )
+            const cloneObject = JSON.parse(JSON.stringify(item))
+            const finalObject = { key: item.fullpath, value: cloneObject }
+            if (
+              path.basename(finalObject.key) !==
+              sanitize(path.basename(finalObject.key))
+            ) {
+              Logger.info('Ignoring folder %s, invalid name', finalObject.key)
+              return next()
+            }
+            dbEntrys.push(finalObject)
+            return next()
+          },
+          (err, result) => {
+            if (err) {
+              reject(err)
+            } else {
+              database.dbFiles.insert(dbEntrys, (err, document) => {
+                if (err) reject(err)
+                resolve()
+              })
+            }
+          }
+        )
+      }
+    })
+  })
+}
+
 function _recursiveFilesToList(tree, basePath, currentPath = null) {
   let finalList = tree.files
 
@@ -219,10 +311,47 @@ function getTree() {
   })
 }
 
+function getList() {
+  return new Promise(async (resolve, reject) => {
+    fetch(`${process.env.API_URL}/api/desktop/folder`, {
+      headers: await Auth.getAuthHeader()
+    })
+      .then(async res => {
+        const text = await res.text()
+        try {
+          return { res, data: JSON.parse(text) }
+        } catch (err) {
+          throw new Error(err + ' data: ' + text)
+        }
+      })
+      .then(async res => {
+        resolve(res.data)
+      })
+      .catch(reject)
+  })
+}
+
+function updateLocalDb() {
+  return new Promise((resolve, reject) => {
+    getList()
+      .then(tree => {
+        regenerateLocalDbFolder(tree)
+          .then(result => {
+            regenerateLocalDbFile(tree, result).then(resolve)
+          })
+      })
+      .catch(err => {
+        Logger.error('Error updating localDb', err)
+        reject(err)
+      })
+  })
+}
+
 function updateTree() {
   return new Promise((resolve, reject) => {
     getTree()
       .then(tree => {
+        console.log(tree)
         database
           .Set('tree', tree)
           .then(() => {
@@ -239,96 +368,13 @@ function updateTree() {
   })
 }
 
-function regenerateLocalDbFolders() {
-  return new Promise((resolve, reject) => {
-    getFolderObjectListFromRemoteTree()
-      .then(list => {
-        database.dbFolders.remove({}, { multi: true }, (err, n) => {
-          if (err) {
-            reject(err)
-          } else {
-            async.eachSeries(
-              list,
-              (item, next) => {
-                if (
-                  path.basename(item.key) !== sanitize(path.basename(item.key))
-                ) {
-                  Logger.info('Ignoring folder %s, invalid name', item.key)
-                  return next()
-                }
-                database.dbFolders.insert(item, (err, document) =>
-                  next(err, document)
-                )
-              },
-              err => {
-                if (err) {
-                  reject(err)
-                } else {
-                  resolve(err)
-                }
-              }
-            )
-          }
-        })
-      })
-      .catch(reject)
-  })
-}
-
-function regenerateLocalDbFiles() {
-  return new Promise((resolve, reject) => {
-    getFileListFromRemoteTree()
-      .then(list => {
-        database.dbFiles.remove({}, { multi: true }, (err, n) => {
-          if (err) {
-            reject(err)
-          } else {
-            async.eachSeries(
-              list,
-              (item, next) => {
-                const finalObject = { key: item.fullpath, value: item }
-                if (
-                  path.basename(finalObject.key) !==
-                  sanitize(path.basename(finalObject.key))
-                ) {
-                  Logger.info('Ignoring file %s, invalid name', finalObject.key)
-                  return next()
-                }
-                database.dbFiles.insert(finalObject, (err, document) =>
-                  next(err, document)
-                )
-              },
-              err => {
-                if (err) {
-                  reject(err)
-                } else {
-                  resolve()
-                }
-              }
-            )
-          }
-        })
-      })
-      .catch(reject)
-  })
-}
-
 function regenerateAndCompact() {
   return new Promise((resolve, reject) => {
     async.waterfall(
       [
-        next =>
-          updateTree()
-            .then(() => next())
-            .catch(next),
-        next =>
-          regenerateLocalDbFolders()
-            .then(() => next())
-            .catch(next),
-        next =>
-          regenerateLocalDbFiles()
-            .then(() => next())
-            .catch(next)
+        next => updateLocalDb()
+          .then(() => next())
+          .catch(next)
       ],
       err => {
         database.compactAllDatabases()
@@ -351,6 +397,8 @@ export default {
   getLocalFolderList,
   getLocalFileList,
   getTree,
+  getList,
   updateTree,
+  updateLocalDb,
   regenerateAndCompact
 }

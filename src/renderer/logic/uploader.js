@@ -25,7 +25,6 @@ function uploadNewFile(storj, filePath, nCurrent, nTotal) {
     const user = await Database.Get('xUser')
     const tree = await Database.Get('tree')
     const folderRoot = await Database.Get('xPath')
-
     // Folder doesn't exists. We cannot upload this file yet.
     if (!dbEntry || !dbEntry.value) {
       if (folderPath !== folderRoot) {
@@ -40,7 +39,7 @@ function uploadNewFile(storj, filePath, nCurrent, nTotal) {
 
     const bucketId =
       (dbEntry && dbEntry.value && dbEntry.value.bucket) ||
-      (tree && tree.bucket)
+      user.user.bucket
     const folderId =
       (dbEntry && dbEntry.value && dbEntry.value.id) || user.user.root_folder_id
 
@@ -79,7 +78,6 @@ function uploadNewFile(storj, filePath, nCurrent, nTotal) {
     const relativePath = path.relative(folderRoot, filePath)
     Logger.debug('Network name should be: %s', relativePath)
     const hashName = Hash.hasher(relativePath)
-
     // Double check: Prevent upload if file already exists
     const maybeNetworkId = await BridgeService.findFileByName(
       bucketId,
