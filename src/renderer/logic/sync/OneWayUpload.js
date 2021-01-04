@@ -55,7 +55,7 @@ async function SyncLogic(callback) {
 
   const syncComplete = async function(err) {
     if (err) {
-      Logger.error(err)
+      Logger.error('Error 1-way-sync monitor:', err.message ? err.message : err)
     }
     app.emit('set-tooltip')
     app.emit('sync-off')

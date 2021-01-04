@@ -53,7 +53,7 @@ async function SyncLogic(callback) {
 
   const syncComplete = async function(err) {
     if (err) {
-      Logger.error('Error 2-way-sync monitor:', err.message)
+      Logger.error('Error 2-way-sync monitor:', err.message ? err.message : err)
     }
     // If monitor ended before stopping the watcher, let's ensure
 
