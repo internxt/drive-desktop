@@ -141,6 +141,7 @@ export default {
     remote.app.on('new-folder-path', async newPath => {
       remote.app.emit('sync-stop')
       await database.ClearAll()
+      await database.Set('lastSyncSuccess', false)
       database.Set('xPath', newPath)
       this.$router.push('/').catch(() => {})
     })
