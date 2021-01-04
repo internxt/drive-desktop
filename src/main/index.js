@@ -57,7 +57,7 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     webPreferences: {
       nodeIntegration: true,
-      webSecurity: false
+      webSecurity: process.env.NODE_ENV !== 'development'
     },
     width: 500,
     height: 550,
