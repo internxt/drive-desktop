@@ -114,6 +114,7 @@ class TrayMenu {
               Logger.info('User switched to two way sync mode')
               ConfigStore.set('syncMode', 'two-way')
               app.emit('sync-stop')
+              app.emit('switch-to-two-way')
             }
           },
           {

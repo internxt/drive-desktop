@@ -96,7 +96,9 @@ function _deleteLocalWhenRemoteDeleted(lastSyncFailed) {
       .then(list => {
         async.eachSeries(
           list,
-          (item, next) => {
+          async (item, next) => {
+            const stop = await Database.Get('stopSync')
+            if (stop) return next(stop)
             Database.FolderGet(item)
               .then(async folder => {
                 if (folder || lastSyncFailed) {
@@ -154,7 +156,9 @@ function _deleteRemoteFoldersWhenLocalDeleted(lastSyncFailed) {
     const allData = Database.dbFolders.getAllData()
     async.eachSeries(
       allData,
-      (item, next) => {
+      async (item, next) => {
+        const stop = await Database.Get('stopSync')
+        if (stop) return next(stop)
         const stat = Tree.getStat(item.key)
         if (path.basename(item.key) !== sanitize(path.basename(item.key))) {
           return next()
@@ -248,7 +252,9 @@ function createLocalFolders() {
 
     async.eachSeries(
       list,
-      (folder, next) => {
+      async (folder, next) => {
+        const stop = await Database.Get('stopSync')
+        if (stop) return next(stop)
         // Create the folder, doesn't matter if already exists.
         try {
           fs.mkdirSync(folder.key, {recursive: true})

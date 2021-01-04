@@ -375,10 +375,15 @@ function uploadAllNewFolders() {
     Tree.getLocalFolderList(localPath)
       .then(list => {
         // For each folder in local...
+        let count = 0
+        const total = list.length
         async.eachSeries(
           list,
           async (item, next) => {
+            const stop = await Database.Get('stopSync')
+            if (stop) return next(stop)
             // Check if folders still exists
+            app.emit('set-tooltip', 'Indexing folders ' + ++count + '/' + total)
             if (!fs.existsSync(item)) {
               return next()
             }
@@ -467,7 +472,8 @@ function uploadAllNewFiles() {
       files,
       async function(item, next) {
         currentFiles++
-
+        const stop = await Database.Get('stopSync')
+        if (stop) return next(stop)
         // Read filesystem data
         const stat = Tree.getStat(item)
         // Is a file, and it is not a sym link

@@ -12,7 +12,6 @@ import Uploader from '../uploader'
 import PackageJson from '../../../../package.json'
 import ConfigStore from '../../../main/config-store'
 import SpaceUsage from '../utils/spaceusage'
-
 import analytics from '../utils/analytics'
 
 /*
@@ -25,6 +24,11 @@ let wtc = null
 let lastSyncFailed = false
 let timeoutInstance = null
 const { app } = electron.remote
+
+async function syncStop() {
+  isSyncing = false
+  return database.Set('stopSync', 'stop sync').then(() => app.emit('sync-off'))
+}
 
 async function SyncLogic(callback) {
   const syncMode = ConfigStore.get('syncMode')
@@ -40,187 +44,360 @@ async function SyncLogic(callback) {
 
   Logger.info('Two way upload started')
 
-  app.once('sync-stop', () => {
-    isSyncing = false
-    app.emit('sync-off')
-    throw Error('2-WAY-SYNC stopped')
-  })
+  app.once('sync-stop', syncStop)
+  app.once('user-logout', DeviceLock.stopUpdateDeviceSync)
+
   DeviceLock.startUpdateDeviceSync()
   isSyncing = true
   lastSyncFailed = false
+
+  const syncComplete = async function(err) {
+    if (err) {
+      Logger.error('Error 2-way-sync monitor:', err.message)
+    }
+    // If monitor ended before stopping the watcher, let's ensure
+
+    // Switch "loading" tray ico
+    app.emit('set-tooltip')
+    app.emit('sync-off')
+    app.removeListener('sync-stop', syncStop)
+    app.removeListener('user-logout', DeviceLock.stopUpdateDeviceSync)
+    await database.Set('stopSync', null)
+    DeviceLock.stopUpdateDeviceSync()
+    // Sync.UpdateUserSync(true)
+    isSyncing = false
+
+    const rootFolderExist = await Folder.rootFolderExists()
+    if (!rootFolderExist) {
+      await database.ClearAll()
+      await database.ClearUser()
+      database.compactAllDatabases()
+      app.emit('user-logout')
+      return
+    }
+
+    Logger.info('2-WAY SYNC END')
+    SpaceUsage.updateUsage()
+      .then(() => {})
+      .catch(() => {})
+
+    if (err) {
+      async.waterfall(
+        [
+          next =>
+            database
+              .ClearAll()
+              .then(() => next())
+              .catch(() => next()),
+          next => database.Set('lastSyncSuccess', false).then(next),
+          next => {
+            database.compactAllDatabases()
+            next()
+          }
+        ],
+        () => {
+          start(callback)
+        }
+      )
+    } else {
+      start(callback)
+    }
+  }
 
   async.waterfall(
     [
       next => {
         // Change icon to "syncing"
         app.emit('sync-on')
-        Folder.clearTempFolder().then(next).catch(() => next())
+        Folder.clearTempFolder()
+          .then(next)
+          .catch(() => next())
       },
+      next =>
+        database
+          .Get('stopSync')
+          .then(stop => (stop ? next(stop) : next()))
+          .catch(next),
       next => {
-        Folder.rootFolderExists().then((exists) => {
-          next(exists ? null : Error('root folder does not exist'))
-        }).catch(next)
+        Folder.rootFolderExists()
+          .then(exists => {
+            next(exists ? null : Error('root folder does not exist'))
+          })
+          .catch(next)
       },
+      next =>
+        database
+          .Get('stopSync')
+          .then(stop => (stop ? next(stop) : next()))
+          .catch(next),
       next => {
         // Start the folder watcher if is not already started
         app.emit('set-tooltip', 'Initializing watcher...')
-        database.Get('xPath').then(xPath => {
-          Logger.info('User store path: %s', xPath)
-          if (!wtc) {
-            watcher.startWatcher(xPath).then(watcherInstance => {
-              wtc = watcherInstance
+        database
+          .Get('xPath')
+          .then(xPath => {
+            Logger.info('User store path: %s', xPath)
+            if (!wtc) {
+              watcher.startWatcher(xPath).then(watcherInstance => {
+                wtc = watcherInstance
+                next()
+              })
+            } else {
               next()
-            })
-          } else {
-            next()
-          }
-        }).catch(next)
+            }
+          })
+          .catch(next)
       },
+      next =>
+        database
+          .Get('stopSync')
+          .then(stop => (stop ? next(stop) : next()))
+          .catch(next),
       next => {
-        database.ClearTemp().then(() => next()).catch(next)
+        database
+          .ClearTemp()
+          .then(() => next())
+          .catch(next)
       },
+      next =>
+        database
+          .Get('stopSync')
+          .then(stop => (stop ? next(stop) : next()))
+          .catch(next),
       next => {
         // New sync started, so we save the current date
         const now = new Date()
         Logger.log('Sync started at', now.toISOString())
-        database.Set('syncStartDate', now).then(() => next()).catch(next)
+        database
+          .Set('syncStartDate', now)
+          .then(() => next())
+          .catch(next)
       },
+      next =>
+        database
+          .Get('stopSync')
+          .then(stop => (stop ? next(stop) : next()))
+          .catch(next),
       next => {
         // Search for new folders in local folder
         // If a folder exists in local, but is not on the remote tree, create in remote
         // If is the first time you sync, or the last sync failed, creation may throw an error
         // because folder already exists on remote. Ignore this error.
-        Uploader.uploadNewFolders().then(() => next()).catch(next)
+        Uploader.uploadNewFolders()
+          .then(() => next())
+          .catch(next)
       },
+      next =>
+        database
+          .Get('stopSync')
+          .then(stop => (stop ? next(stop) : next()))
+          .catch(next),
       next => {
         // Search new files in local folder, and upload them
-        Uploader.uploadNewFiles().then(() => {
-          analytics.identify({
-            userId: undefined,
-            platform: 'desktop',
-            email: 'email',
-            traits: {
-              storage_used: ConfigStore.get('usage')
-            }
-          }).catch(err => {
-            Logger.error(err)
+        Uploader.uploadNewFiles()
+          .then(() => {
+            analytics
+              .identify({
+                userId: undefined,
+                platform: 'desktop',
+                email: 'email',
+                traits: {
+                  storage_used: ConfigStore.get('usage')
+                }
+              })
+              .catch(err => {
+                Logger.error(err)
+              })
+            next()
           })
-          next()
-        }).catch(next)
+          .catch(next)
       },
+      next =>
+        database
+          .Get('stopSync')
+          .then(stop => (stop ? next(stop) : next()))
+          .catch(next),
       next => {
         // Will determine if something wrong happened in the last synchronization
-        database.Get('lastSyncDate').then(lastDate => {
-          if (!lastDate || !(lastDate instanceof Date)) {
-            // If there were never a last time (first time sync), the success is set to false.
-            database.Set('lastSyncSuccess', false).then(() => next()).catch(next)
-          } else {
-            // If last time is more than 2 days, let's consider a unsuccessful sync,
-            // to perform the sync from the start
-            const DifferenceInTime = new Date() - lastDate
-            const DifferenceInDays = DifferenceInTime / (1000 * 60 * 60 * 24)
-            if (DifferenceInDays > 2) {
-              // Last sync > 2 days, assume last sync failed to start from 0
-              database.Set('lastSyncSuccess', false).then(() => next()).catch(next)
+        database
+          .Get('lastSyncDate')
+          .then(lastDate => {
+            if (!lastDate || !(lastDate instanceof Date)) {
+              // If there were never a last time (first time sync), the success is set to false.
+              database
+                .Set('lastSyncSuccess', false)
+                .then(() => next())
+                .catch(next)
             } else {
-              // Sync ok
-              next()
+              // If last time is more than 2 days, let's consider a unsuccessful sync,
+              // to perform the sync from the start
+              const DifferenceInTime = new Date() - lastDate
+              const DifferenceInDays = DifferenceInTime / (1000 * 60 * 60 * 24)
+              if (DifferenceInDays > 2) {
+                // Last sync > 2 days, assume last sync failed to start from 0
+                database
+                  .Set('lastSyncSuccess', false)
+                  .then(() => next())
+                  .catch(next)
+              } else {
+                // Sync ok
+                next()
+              }
             }
-          }
-        }).catch(next)
+          })
+          .catch(next)
       },
+      next =>
+        database
+          .Get('stopSync')
+          .then(stop => (stop ? next(stop) : next()))
+          .catch(next),
       next => {
         // Start to sync. Did last sync failed?
         // Then, clear all the local databases to start from zero
-        database.Get('lastSyncSuccess').then(result => {
-          if (result === true) {
-            next()
-          } else {
-            lastSyncFailed = true
-            Logger.warn('LAST SYNC FAILED, CLEARING DATABASES')
-            database.ClearAll().then(() => next()).catch(next)
-          }
-        }).catch(next)
+        database
+          .Get('lastSyncSuccess')
+          .then(result => {
+            if (result === true) {
+              next()
+            } else {
+              lastSyncFailed = true
+              Logger.warn('LAST SYNC FAILED, CLEARING DATABASES')
+              database
+                .ClearAll()
+                .then(() => next())
+                .catch(next)
+            }
+          })
+          .catch(next)
       },
+      next =>
+        database
+          .Get('stopSync')
+          .then(stop => (stop ? next(stop) : next()))
+          .catch(next),
       next => {
-        database.Set('lastSyncSuccess', false).then(() => next()).catch(next)
+        database
+          .Set('lastSyncSuccess', false)
+          .then(() => next())
+          .catch(next)
       },
+      next =>
+        database
+          .Get('stopSync')
+          .then(stop => (stop ? next(stop) : next()))
+          .catch(next),
       next => {
         // Delete remote folders missing in local folder
-        Folder.cleanRemoteWhenLocalDeleted(lastSyncFailed).then(() => next()).catch(next)
+
+        Folder.cleanRemoteWhenLocalDeleted(lastSyncFailed)
+          .then(() => next())
+          .catch(next)
       },
+      next =>
+        database
+          .Get('stopSync')
+          .then(stop => (stop ? next(stop) : next()))
+          .catch(next),
       next => {
         // Delete remote files missing in local folder
-        File.cleanRemoteWhenLocalDeleted(lastSyncFailed).then(() => next()).catch(next)
+        File.cleanRemoteWhenLocalDeleted(lastSyncFailed)
+          .then(() => next())
+          .catch(next)
       },
+      next =>
+        database
+          .Get('stopSync')
+          .then(stop => (stop ? next(stop) : next()))
+          .catch(next),
       next => {
         // backup the last database
-        database.backupCurrentTree().then(() => next()).catch(next)
+        database
+          .backupCurrentTree()
+          .then(() => next())
+          .catch(next)
       },
+      next =>
+        database
+          .Get('stopSync')
+          .then(stop => (stop ? next(stop) : next()))
+          .catch(next),
       next => {
         // Sync and update the remote tree.
-        Tree.regenerateAndCompact().then(() => next()).catch(next)
+        Tree.regenerateAndCompact()
+          .then(() => next())
+          .catch(next)
       },
+      next =>
+        database
+          .Get('stopSync')
+          .then(stop => (stop ? next(stop) : next()))
+          .catch(next),
       next => {
         // Delete local folders missing in remote
-        Folder.cleanLocalWhenRemoteDeleted(lastSyncFailed).then(() => next()).catch(next)
+        Folder.cleanLocalWhenRemoteDeleted(lastSyncFailed)
+          .then(() => next())
+          .catch(next)
       },
+      next =>
+        database
+          .Get('stopSync')
+          .then(stop => (stop ? next(stop) : next()))
+          .catch(next),
       next => {
         // Delete local files missing in remote
-        File.cleanLocalWhenRemoteDeleted(lastSyncFailed).then(() => next()).catch(next)
+        File.cleanLocalWhenRemoteDeleted(lastSyncFailed)
+          .then(() => next())
+          .catch(next)
       },
+      next =>
+        database
+          .Get('stopSync')
+          .then(stop => (stop ? next(stop) : next()))
+          .catch(next),
       next => {
         // Create local folders
         // Si hay directorios nuevos en el árbol, los creamos en local
-        Downloader.downloadFolders().then(() => next()).catch(next)
+        Downloader.downloadFolders()
+          .then(() => next())
+          .catch(next)
       },
+      next =>
+        database
+          .Get('stopSync')
+          .then(stop => (stop ? next(stop) : next()))
+          .catch(next),
       next => {
         // Download remote files
         // Si hay ficheros nuevos en el árbol, los creamos en local
-        Downloader.downloadFiles().then(() => next()).catch(next)
+        Downloader.downloadFiles()
+          .then(() => next())
+          .catch(next)
       },
-      next => { database.Set('lastSyncSuccess', true).then(() => next()).catch(next) },
-      next => { database.Set('lastSyncDate', new Date()).then(() => next()).catch(next) }
+      next =>
+        database
+          .Get('stopSync')
+          .then(stop => (stop ? next(stop) : next()))
+          .catch(next),
+      next => {
+        database
+          .Set('lastSyncSuccess', true)
+          .then(() => next())
+          .catch(next)
+      },
+      next =>
+        database
+          .Get('stopSync')
+          .then(stop => (stop ? next(stop) : next()))
+          .catch(next),
+      next => {
+        database
+          .Set('lastSyncDate', new Date())
+          .then(() => next())
+          .catch(next)
+      }
     ],
-    async err => {
-      if (err) {
-        Logger.error('Error 2-way-sync monitor:', err.message)
-      }
-      // If monitor ended before stopping the watcher, let's ensure
-
-      // Switch "loading" tray ico
-      app.emit('set-tooltip')
-      app.emit('sync-off')
-      DeviceLock.stopUpdateDeviceSync()
-      // Sync.UpdateUserSync(true)
-      isSyncing = false
-
-      const rootFolderExist = await Folder.rootFolderExists()
-      if (!rootFolderExist) {
-        await database.ClearAll()
-        await database.ClearUser()
-        database.compactAllDatabases()
-        app.emit('user-logout')
-        return
-      }
-
-      Logger.info('2-WAY SYNC END')
-      SpaceUsage.updateUsage().then(() => { }).catch(() => { })
-
-      if (err) {
-        async.waterfall([
-          next => database.ClearAll().then(() => next()).catch(() => next()),
-          next => {
-            database.compactAllDatabases()
-            next()
-          }
-        ], () => {
-          start(callback)
-        })
-      } else {
-        start(callback)
-      }
-    }
+    syncComplete
   )
 }
 
@@ -239,7 +416,11 @@ async function start(callback, startImmediately = false) {
   }
   if (!isSyncing) {
     clearTimeout(timeoutInstance)
-    Logger.log('Waiting %s secs for next 2-way sync. Version: v%s', timeout / 1000, PackageJson.version)
+    Logger.log(
+      'Waiting %s secs for next 2-way sync. Version: v%s',
+      timeout / 1000,
+      PackageJson.version
+    )
     timeoutInstance = setTimeout(() => {
       SyncLogic(callback)
     }, timeout)

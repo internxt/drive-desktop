@@ -138,7 +138,9 @@ function regenerateLocalDbFolder(tree) {
       } else {
         async.eachSeries(
           tree.folders,
-          (item, next) => {
+          async (item, next) => {
+            const stop = await database.Get('stopSync')
+            if (stop) return next(stop)
             if (!item.parent_id) {
               finalDict[item.id] = basePath
               return next()
@@ -184,7 +186,9 @@ function regenerateLocalDbFile(tree, folderDict) {
       } else {
         async.eachSeries(
           tree.files,
-          (item, next) => {
+          async (item, next) => {
+            const stop = await database.Get('stopSync')
+            if (stop) return next(stop)
             const filePath = folderDict[item.folder_id]
             item.filename = crypt.decryptName(item.name, item.folder_id)
             item.fullpath = path.join(
@@ -313,7 +317,7 @@ function getTree() {
 
 function getList() {
   return new Promise(async (resolve, reject) => {
-    fetch(`${process.env.API_URL}/api/desktop/folder`, {
+    fetch(`${process.env.API_URL}/api/desktop/tree`, {
       headers: await Auth.getAuthHeader()
     })
       .then(async res => {
@@ -351,7 +355,6 @@ function updateTree() {
   return new Promise((resolve, reject) => {
     getTree()
       .then(tree => {
-        console.log(tree)
         database
           .Set('tree', tree)
           .then(() => {

@@ -79,6 +79,8 @@ function _downloadAllFiles() {
     const totalFiles = list.length
     let currentFiles = 0
     async.eachSeries(list, async (item, next) => {
+      const stop = await Database.Get('stopSync')
+      if (stop) return next(stop)
       currentFiles++
       item = item.value
       if (path.basename(item.fullpath) !== sanitize(path.basename(item.fullpath))) {
