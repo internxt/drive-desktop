@@ -44,7 +44,7 @@ async function SyncLogic(callback) {
   }
 
   Logger.info('One way upload started')
-  DeviceLock.startUpdateDeviceSync()
+  // DeviceLock.startUpdateDeviceSync()
   app.once('sync-stop', syncStop)
   app.once('user-logout', DeviceLock.stopUpdateDeviceSync)
   app.once('switch-to-two-way', async () => {

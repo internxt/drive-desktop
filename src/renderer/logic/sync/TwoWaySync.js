@@ -47,7 +47,7 @@ async function SyncLogic(callback) {
   app.once('sync-stop', syncStop)
   app.once('user-logout', DeviceLock.stopUpdateDeviceSync)
 
-  DeviceLock.startUpdateDeviceSync()
+  // DeviceLock.startUpdateDeviceSync()
   isSyncing = true
   lastSyncFailed = false
 
