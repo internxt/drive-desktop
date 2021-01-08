@@ -13,8 +13,9 @@ const analytics = {
     if (!object.anonymousId) {
       if (!this.userData.uuid) {
         const user = (await database.Get('xUser'))
-        if (!user) {
-          throw new Error('xUser is not inicialized')
+        if (!user || !user.email || !user.uuid) {
+          return Logger.warn('xUser is not inicialized')
+          // throw new Error('xUser is not inicialized')
         }
         this.userData.userMail = user.user.email
         this.userData.uuid = user.user.uuid
@@ -30,8 +31,9 @@ const analytics = {
     if (!object.anonymousId) {
       if (!this.userData.uuid) {
         const user = (await database.Get('xUser'))
-        if (!user) {
-          throw new Error('xUser is not inicialized')
+        if (!user || !user.email || !user.uuid) {
+          return Logger.warn('xUser is not inicialized')
+          // throw new Error('xUser is not inicialized')
         }
         this.userData.userMail = user.user.email
         this.userData.uuid = user.user.uuid
