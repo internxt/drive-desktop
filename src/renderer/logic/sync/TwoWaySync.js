@@ -25,7 +25,7 @@ let lastSyncFailed = false
 let timeoutInstance = null
 const { app } = electron.remote
 
-async function syncStop() {
+function syncStop() {
   isSyncing = false
   return database.Set('stopSync', 'stop sync').then(() => app.emit('sync-off'))
 }
@@ -137,14 +137,10 @@ async function SyncLogic(callback) {
           .Get('xPath')
           .then(xPath => {
             Logger.info('User store path: %s', xPath)
-            if (!wtc) {
-              watcher.startWatcher(xPath).then(watcherInstance => {
-                wtc = watcherInstance
-                next()
-              })
-            } else {
+            watcher.startWatcher(xPath).then(watcherInstance => {
+              wtc = watcherInstance
               next()
-            }
+            })
           })
           .catch(next)
       },

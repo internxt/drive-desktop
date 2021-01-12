@@ -4,12 +4,18 @@ import Logger from '../../libs/logger'
 import { remote } from 'electron'
 
 let watcherStarted = false
-
-function startWatcher(path) {
+let watcher = null
+remote.app.on('new-folder-path', () => {
   watcherStarted = false
-
+  watcher.close()
+})
+function startWatcher(path) {
   return new Promise((resolve, reject) => {
-    const watcher = chokidar.watch(path, {
+    if (watcherStarted) {
+      return resolve(watcher)
+    }
+    watcherStarted = false
+    watcher = chokidar.watch(path, {
       // eslint-disable-next-line no-useless-escape
       ignored: /[\/\\]\./,
       persistent: true,
