@@ -167,6 +167,22 @@ async function SyncLogic(callback) {
           .Get('stopSync')
           .then(stop => (stop ? next(stop) : next()))
           .catch(next),
+      next => {
+        database.Get('xUser').then(user => {
+          if (!user.user.bucket) {
+            Tree.updateUserObject()
+              .then(next)
+              .catch(next)
+          } else {
+            next()
+          }
+        }).catch(next)
+      },
+      next =>
+        database
+          .Get('stopSync')
+          .then(stop => (stop ? next(stop) : next()))
+          .catch(next),
       next =>
         Uploader.uploadNewFolders()
           .then(() => next())

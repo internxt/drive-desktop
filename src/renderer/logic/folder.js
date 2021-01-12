@@ -11,37 +11,44 @@ import sanitize from 'sanitize-filename'
 import analytics from './utils/analytics'
 import ConfigStore from '../../main/config-store'
 
-function createRemoteFolder(name, parentId) {
-  return new Promise(async (resolve, reject) => {
+async function createRemoteFolder(name, parentId) {
+  const headers = await Auth.getAuthHeader()
+  return new Promise((resolve, reject) => {
     const folder = {
       folderName: name,
       parentFolderId: parentId
     }
 
-    const headers = await Auth.getAuthHeader()
     fetch(`${process.env.API_URL}/api/storage/folder`, {
       method: 'POST',
       mode: 'cors',
       headers: headers,
       body: JSON.stringify(folder)
     })
-      .then(async res => {
-        const text = await res.text()
+      .then(res => {
+        if (res.status !== 201 && res.status !== 500) {
+          throw Error('Error creating new folder', res)
+        }
+        return res.text()
+      })
+      .then(text => {
         try {
-          return { res, data: JSON.parse(text) }
+          return { data: JSON.parse(text) }
         } catch (err) {
           throw new Error(err + ' data: ' + text)
         }
       })
       .then(res => {
-        if (
-          res.res.status === 500 &&
-          res.data.error &&
-          res.data.error.includes('Folder with the same name already exists')
-        ) {
-          Logger.warn('Folder with the same name already exists')
-          resolve()
-        } else if (res.res.status === 201) {
+        if (res.data.error) {
+          if (
+            res.data.error.includes('Folder with the same name already exists')
+          ) {
+            Logger.warn('Folder with the same name already exists')
+            resolve()
+          } else {
+            reject(res.data.error)
+          }
+        } else {
           analytics
             .track({
               userId: undefined,
@@ -56,9 +63,6 @@ function createRemoteFolder(name, parentId) {
               Logger.error(err)
             })
           resolve(res.data)
-        } else {
-          Logger.error('Error creating new folder', res)
-          reject(res.data)
         }
       })
       .catch(reject)
@@ -86,125 +90,93 @@ function clearTempFolder() {
 }
 
 // Delete local folders that doesn't exists on remote. [helper for deleteLocalWhenRemoteDeleted]
-function _deleteLocalWhenRemoteDeleted(lastSyncFailed) {
-  return new Promise(async (resolve, reject) => {
-    const localPath = await Database.Get('xPath')
-    const syncDate = Database.Get('syncStartDate')
+async function _deleteLocalWhenRemoteDeleted(lastSyncFailed) {
+  const localPath = await Database.Get('xPath')
+  const syncDate = Database.Get('syncStartDate')
 
-    // Get a list of all local folders
-    Tree.getLocalFolderList(localPath)
-      .then(list => {
-        async.eachSeries(
-          list,
-          async (item, next) => {
-            const stop = await Database.Get('stopSync')
-            if (stop) return next(stop)
-            Database.FolderGet(item)
-              .then(async folder => {
-                if (folder || lastSyncFailed) {
-                  // Folder still exists in remote, nothing to do
-                  Database.TempDel(item)
-                  next()
-                } else {
-                  // Should DELETE that folder in local
-                  const creationDate = fs.statSync(item).mtime
-                  creationDate.setMilliseconds(0)
-                  const isTemp = await Database.TempGet(item)
-                  // Delete only if:
-                  // - Was created before the sync started (nothing changed)
-                  // - Is not on temp Database (watcher flag)
-                  // - If is on watcher Database for any reason, the reason is not "just added" during sync.
-                  if (
-                    creationDate <= syncDate ||
-                    !isTemp ||
-                    isTemp.value !== 'addDir'
-                  ) {
-                    rimraf(item, err => {
-                      Logger.info(item + ' deleted')
-                      next(err)
-                    })
-                  } else {
-                    Database.TempDel(item)
-                    next()
-                  }
-                }
-              })
-              .catch(err => {
-                Logger.error('ITEM ERR', err)
-                next(err)
-              })
-          },
-          err => {
-            if (err) {
-              reject(err)
-            } else {
-              resolve()
-            }
-          }
-        )
-      })
-      .catch(reject)
-  })
+  // Get a list of all local folders
+  const list = await Tree.getLocalFolderList(localPath)
+
+  for (const item of list) {
+    const stop = await Database.Get('stopSync')
+    if (stop) throw stop
+    try {
+      const folder = await Database.FolderGet(item)
+
+      if (folder || lastSyncFailed) {
+        // Folder still exists in remote, nothing to do
+        await Database.TempDel(item)
+        continue
+      } else {
+        // Should DELETE that folder in local
+        const creationDate = fs.statSync(item).mtime
+        creationDate.setMilliseconds(0)
+        const isTemp = await Database.TempGet(item)
+        // Delete only if:
+        // - Was created before the sync started (nothing changed)
+        // - Is not on temp Database (watcher flag)
+        // - If is on watcher Database for any reason, the reason is not "just added" during sync.
+        if (creationDate <= syncDate || !isTemp || isTemp.value !== 'addDir') {
+          await new Promise((resolve, reject) => {
+            rimraf(item, err => {
+              Logger.info(item + ' deleted')
+              if (err) resolve()
+              else reject(err)
+            })
+          })
+        } else {
+          await Database.TempDel(item)
+          continue
+        }
+      }
+    } catch (err) {
+      Logger.error('ITEM ERR', err)
+      throw err
+    }
+  }
 }
 
 // Check folders that does not exists in local anymore, and delete those folders on remote
-function _deleteRemoteFoldersWhenLocalDeleted(lastSyncFailed) {
-  return new Promise((resolve, reject) => {
-    if (lastSyncFailed) {
-      return resolve()
+async function _deleteRemoteFoldersWhenLocalDeleted(lastSyncFailed) {
+  if (lastSyncFailed) {
+    return
+  }
+  const allData = Database.dbFolders.getAllData()
+  for (const item of allData) {
+    const stop = await Database.Get('stopSync')
+    if (stop) throw stop
+    const stat = Tree.getStat(item.key)
+    if (path.basename(item.key) !== sanitize(path.basename(item.key))) {
+      continue
     }
-    const allData = Database.dbFolders.getAllData()
-    async.eachSeries(
-      allData,
-      async (item, next) => {
-        const stop = await Database.Get('stopSync')
-        if (stop) return next(stop)
-        const stat = Tree.getStat(item.key)
-        if (path.basename(item.key) !== sanitize(path.basename(item.key))) {
-          return next()
-        }
 
-        // If doesn't exists, or now is a file (was a folder before) delete from remote.
-        if ((stat && stat.isFile()) || !fs.existsSync(item.key)) {
-          removeFolder(item.value.id)
-            .then(() => {
-              Database.dbFolders.remove({ key: item.key })
-              analytics
-                .track({
-                  userId: undefined,
-                  event: 'folder-delete',
-                  platform: 'desktop',
-                  properties: {
-                    email: 'email',
-                    file_id: item.value.id
-                  }
-                })
-                .catch(err => {
-                  Logger.error(err)
-                })
-              next()
-            })
-            .catch(err => {
-              Logger.error(
-                'Error removing remote folder %s, %j',
-                item.value,
-                err
-              )
-              next(err)
-            })
-        } else {
-          next()
-        }
-      },
-      (err, result) => {
-        if (err) {
-          reject(err)
-        } else {
-          resolve(result)
-        }
+    // If doesn't exists, or now is a file (was a folder before) delete from remote.
+    if ((stat && stat.isFile()) || !fs.existsSync(item.key)) {
+      await removeFolder(item.value.id)
+      try {
+        await Database.dbFolders.remove({ key: item.key })
+        analytics
+          .track({
+            userId: undefined,
+            event: 'folder-delete',
+            platform: 'desktop',
+            properties: {
+              email: 'email',
+              file_id: item.value.id
+            }
+          })
+          .catch(err => {
+            Logger.error(err)
+          })
+        continue
+      } catch (err) {
+        Logger.error('Error removing remote folder %s, %j', item.value, err)
+        throw err
       }
-    )
-  })
+    } /* else {
+        return
+      } */
+  }
 }
 
 // Delete local folders missing in remote
@@ -227,12 +199,13 @@ function cleanRemoteWhenLocalDeleted(lastSyncFailed) {
 
 // folderId must be the CLOUD id (mysql)
 // warning, this method deletes all its contents
-function removeFolder(folderId) {
-  return new Promise(async (resolve, reject) => {
-    Database.Get('xUser').then(async userData => {
+async function removeFolder(folderId) {
+  const headers = await Auth.getAuthHeader()
+  return new Promise((resolve, reject) => {
+    Database.Get('xUser').then(userData => {
       fetch(`${process.env.API_URL}/api/storage/folder/${folderId}`, {
         method: 'DELETE',
-        headers: await Auth.getAuthHeader()
+        headers: headers
       })
         .then(result => {
           resolve(result)
@@ -245,40 +218,28 @@ function removeFolder(folderId) {
 }
 
 // Create all remote folders on local path
-function createLocalFolders() {
-  return new Promise(async (resolve, reject) => {
-    // Get a list of all the folders on the remote tree
-    const list = Database.dbFolders.getAllData()
+async function createLocalFolders() {
+  // Get a list of all the folders on the remote tree
+  const list = Database.dbFolders.getAllData()
 
-    async.eachSeries(
-      list,
-      async (folder, next) => {
-        const stop = await Database.Get('stopSync')
-        if (stop) return next(stop)
-        // Create the folder, doesn't matter if already exists.
-        try {
-          fs.mkdirSync(folder.key, {recursive: true})
-          next()
-        } catch (err) {
-          if (err.code === 'EEXIST') {
-            // Folder already exists, ignore error
-            next()
-          } else {
-            // If we cannot create the folder, we won't be able to download it's files.
-            Logger.error('Error creating folder %s: %j', folder, err)
-            next(err)
-          }
-        }
-      },
-      err => {
-        if (err) {
-          reject(err)
-        } else {
-          resolve()
-        }
+  for (const folder of list) {
+    const stop = await Database.Get('stopSync')
+    if (stop) throw stop
+    // Create the folder, doesn't matter if already exists.
+    try {
+      fs.mkdirSync(folder.key, { recursive: true })
+      continue
+    } catch (err) {
+      if (err.code === 'EEXIST') {
+        // Folder already exists, ignore error
+        continue
+      } else {
+        // If we cannot create the folder, we won't be able to download it's files.
+        Logger.error('Error creating folder %s: %j', folder, err)
+        throw err
       }
-    )
-  })
+    }
+  }
 }
 
 function rootFolderExists() {

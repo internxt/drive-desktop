@@ -76,10 +76,10 @@ function _recursiveFolderToList(tree, basePath, currentPath = null) {
   })
 }
 
-function getFolderListFromRemoteTree() {
-  return new Promise(async (resolve, reject) => {
-    const tree = await database.Get('tree')
-    const basePath = await database.Get('xPath')
+async function getFolderListFromRemoteTree() {
+  const tree = await database.Get('tree')
+  const basePath = await database.Get('xPath')
+  return new Promise((resolve, reject) => {
     _recursiveFolderToList(tree, basePath)
       .then(list => resolve(list))
       .catch(reject)
@@ -117,110 +117,75 @@ function _recursiveFolderObjectToList(tree, basePath, currentPath = null) {
   })
 }
 
-function getFolderObjectListFromRemoteTree() {
-  return new Promise(async (resolve, reject) => {
-    const tree = await database.Get('tree')
-    const basePath = await database.Get('xPath')
+async function getFolderObjectListFromRemoteTree() {
+  const tree = await database.Get('tree')
+  const basePath = await database.Get('xPath')
+  return new Promise((resolve, reject) => {
     _recursiveFolderObjectToList(tree, basePath)
       .then(list => resolve(list))
       .catch(reject)
   })
 }
 
-function regenerateLocalDbFolder(tree) {
+async function regenerateLocalDbFolder(tree) {
   const finalDict = []
   const dbEntrys = []
-  return new Promise(async (resolve, reject) => {
-    const basePath = await database.Get('xPath')
-    database.dbFolders.remove({}, { multi: true }, (err, n) => {
-      if (err) {
-        reject(err)
-      } else {
-        async.eachSeries(
-          tree.folders,
-          async (item, next) => {
-            const stop = await database.Get('stopSync')
-            if (stop) return next(stop)
-            if (!item.parent_id) {
-              finalDict[item.id] = basePath
-              return next()
-            }
-            const parentPath = finalDict[item.parent_id]
-            const decryptedName = crypt.decryptName(item.name, item.parent_id)
-            const fullNewPath = path.join(parentPath, decryptedName)
-            const cloneObject = JSON.parse(JSON.stringify(item))
-            const finalObject = { key: fullNewPath, value: cloneObject }
-            if (
-              path.basename(fullNewPath) !==
-              sanitize(path.basename(fullNewPath))
-            ) {
-              Logger.info('Ignoring folder %s, invalid name', finalObject.key)
-              return next()
-            }
-            dbEntrys.push(finalObject)
-            finalDict[item.id] = fullNewPath
-            return next()
-          },
-          (err, result) => {
-            if (err) {
-              reject(err)
-            } else {
-              database.dbFolders.insert(dbEntrys, (err, document) => {
-                if (err) reject(err)
-                resolve(finalDict)
-              })
-            }
-          }
-        )
-      }
-    })
-  })
+
+  const basePath = await database.Get('xPath')
+  await database.dbFolders.remove({}, { multi: true })
+  for (const item of tree.folders) {
+    const stop = await database.Get('stopSync')
+    if (stop) throw stop
+    if (!item.parent_id) {
+      finalDict[item.id] = basePath
+      continue
+    }
+    const parentPath = finalDict[item.parent_id]
+    const decryptedName = crypt.decryptName(item.name, item.parent_id)
+    const fullNewPath = path.join(parentPath, decryptedName)
+    const cloneObject = JSON.parse(JSON.stringify(item))
+    const finalObject = { key: fullNewPath, value: cloneObject }
+    if (path.basename(fullNewPath) !== sanitize(path.basename(fullNewPath))) {
+      Logger.info('Ignoring folder %s, invalid name', finalObject.key)
+      continue
+    }
+    dbEntrys.push(finalObject)
+    finalDict[item.id] = fullNewPath
+    // return
+  }
+  await database.dbFolders.insert(dbEntrys)
+  return finalDict
 }
 
-function regenerateLocalDbFile(tree, folderDict) {
+async function regenerateLocalDbFile(tree, folderDict) {
   const dbEntrys = []
-  return new Promise(async (resolve, reject) => {
-    database.dbFiles.remove({}, { multi: true }, (err, n) => {
-      if (err) {
-        reject(err)
-      } else {
-        async.eachSeries(
-          tree.files,
-          async (item, next) => {
-            const stop = await database.Get('stopSync')
-            if (stop) return next(stop)
-            const filePath = folderDict[item.folder_id]
-            item.filename = crypt.decryptName(item.name, item.folder_id)
-            item.fullpath = path.join(
-              filePath,
-              item.filename + (item.type ? '.' + item.type : '')
-            )
-            const cloneObject = JSON.parse(JSON.stringify(item))
-            const finalObject = { key: item.fullpath, value: cloneObject }
-            if (
-              path.basename(finalObject.key) !==
-              sanitize(path.basename(finalObject.key))
-            ) {
-              Logger.info('Ignoring folder %s, invalid name', finalObject.key)
-              return next()
-            }
-            dbEntrys.push(finalObject)
-            return next()
-          },
-          (err, result) => {
-            if (err) {
-              reject(err)
-            } else {
-              database.dbFiles.insert(dbEntrys, (err, document) => {
-                if (err) reject(err)
-                resolve()
-              })
-            }
-          }
-        )
-      }
-    })
-  })
+
+  await database.dbFiles.remove({}, { multi: true })
+  for (const item of tree.files) {
+    const stop = await database.Get('stopSync')
+    if (stop) throw stop
+    const filePath = folderDict[item.folder_id]
+    item.filename = crypt.decryptName(item.name, item.folder_id)
+
+    item.fullpath = path.join(
+      filePath,
+      item.filename + (item.type ? '.' + item.type : '')
+    )
+
+    const cloneObject = JSON.parse(JSON.stringify(item))
+    const finalObject = { key: item.fullpath, value: cloneObject }
+    if (
+      path.basename(finalObject.key) !==
+      sanitize(path.basename(finalObject.key))
+    ) {
+      Logger.info('Ignoring folder %s, invalid name', finalObject.key)
+      continue
+    }
+    dbEntrys.push(finalObject)
+    // return
+  }
+
+  await database.dbFiles.insert(dbEntrys)
 }
 
 function _recursiveFilesToList(tree, basePath, currentPath = null) {
@@ -261,10 +226,10 @@ function _recursiveFilesToList(tree, basePath, currentPath = null) {
   })
 }
 
-function getFileListFromRemoteTree() {
-  return new Promise(async (resolve, reject) => {
-    const tree = await database.Get('tree')
-    const basePath = await database.Get('xPath')
+async function getFileListFromRemoteTree() {
+  const tree = await database.Get('tree')
+  const basePath = await database.Get('xPath')
+  return new Promise((resolve, reject) => {
     _recursiveFilesToList(tree, basePath)
       .then(list => resolve(list))
       .catch(reject)
@@ -279,7 +244,10 @@ function getLocalFolderList(localPath) {
     })
       .on('data', data => {
         if (data.basename !== sanitize(data.basename)) {
-          return Logger.info('Directory %s ignored, name is not compatible', data.basename)
+          return Logger.info(
+            'Directory %s ignored, name is not compatible',
+            data.basename
+          )
         }
         results.push(data.fullPath)
       })
@@ -315,20 +283,55 @@ function getTree() {
   })
 }
 
-function getList() {
-  return new Promise(async (resolve, reject) => {
-    fetch(`${process.env.API_URL}/api/desktop/tree`, {
-      headers: await Auth.getAuthHeader()
+async function updateUserObject() {
+  const headers = await Auth.getAuthHeader()
+  const lastUser = await database.Get('xUser')
+  return new Promise((resolve, reject) => {
+    fetch(`${process.env.API_URL}/api/user/refresh`, {
+      method: 'GET',
+      headers: headers
     })
-      .then(async res => {
-        const text = await res.text()
+      .then(res => {
+        return res.text()
+      })
+      .then(text => {
         try {
-          return { res, data: JSON.parse(text) }
+          return { data: JSON.parse(text) }
         } catch (err) {
           throw new Error(err + ' data: ' + text)
         }
       })
-      .then(async res => {
+      .then(data => {
+        if (data.data.user) {
+          data.data.user.email = lastUser.user.email
+          data.data.user.mnemonic = lastUser.user.mnemonic
+          return database.Set('xUser', data.data).then(() => {
+            resolve()
+          })
+        }
+        throw Error('no user')
+      })
+      .catch(reject)
+  })
+}
+
+async function getList() {
+  const headers = await Auth.getAuthHeader()
+  return new Promise((resolve, reject) => {
+    fetch(`${process.env.API_URL}/api/desktop/tree`, {
+      headers: headers
+    })
+      .then(res => {
+        return res.text()
+      })
+      .then(text => {
+        try {
+          return { data: JSON.parse(text) }
+        } catch (err) {
+          throw new Error(err + ' data: ' + text)
+        }
+      })
+      .then(res => {
         resolve(res.data)
       })
       .catch(reject)
@@ -339,10 +342,9 @@ function updateLocalDb() {
   return new Promise((resolve, reject) => {
     getList()
       .then(tree => {
-        regenerateLocalDbFolder(tree)
-          .then(result => {
-            regenerateLocalDbFile(tree, result).then(resolve)
-          })
+        regenerateLocalDbFolder(tree).then(result => {
+          regenerateLocalDbFile(tree, result).then(resolve)
+        })
       })
       .catch(err => {
         Logger.error('Error updating localDb', err)
@@ -375,9 +377,10 @@ function regenerateAndCompact() {
   return new Promise((resolve, reject) => {
     async.waterfall(
       [
-        next => updateLocalDb()
-          .then(() => next())
-          .catch(next)
+        next =>
+          updateLocalDb()
+            .then(() => next())
+            .catch(next)
       ],
       err => {
         database.compactAllDatabases()
@@ -403,5 +406,6 @@ export default {
   getList,
   updateTree,
   updateLocalDb,
-  regenerateAndCompact
+  regenerateAndCompact,
+  updateUserObject
 }

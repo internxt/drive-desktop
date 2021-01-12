@@ -22,21 +22,23 @@ async function findFileByEncryptedName(bucket, encryptedName) {
       'content-type': 'application/json; charset=utf-8',
       'Authorization': `Basic ${credential}`
     }
-  }).then(async (result) => {
+  }).then((result) => {
     if (result.status === 200) {
-      const text = await result.text()
-      try {
-        const contents = JSON.parse(text)
-        return contents.id
-      } catch (err) {
-        throw new Error(err + ' data: ' + text)
-      }
+      return result.text()
     } else if (result.status === 404) {
       return null
     } else {
       throw result
     }
-  }).catch(err => err)
+  }).then((text) => {
+    if (!text) return null
+    try {
+      const contents = JSON.parse(text)
+      return contents.id
+    } catch (err) {
+      throw new Error(err + ' data: ' + text)
+    }
+  })
 }
 
 function decryptMeta(bufferBase64, decryptKey) {

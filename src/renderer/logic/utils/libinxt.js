@@ -17,10 +17,10 @@ async function _getStorjCredentials() {
   return options
 }
 
-function getEnvironment() {
-  return new Promise(async (resolve, reject) => {
+async function getEnvironment() {
+  const options = await _getStorjCredentials()
+  return new Promise((resolve, reject) => {
     try {
-      const options = await _getStorjCredentials()
       const storj = new Environment(options)
       resolve(storj)
     } catch (err) {

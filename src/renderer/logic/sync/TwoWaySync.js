@@ -175,6 +175,22 @@ async function SyncLogic(callback) {
           .then(stop => (stop ? next(stop) : next()))
           .catch(next),
       next => {
+        database.Get('xUser').then(user => {
+          if (!user.user.bucket) {
+            Tree.updateUserObject()
+              .then(next)
+              .catch(next)
+          } else {
+            next()
+          }
+        })
+      },
+      next =>
+        database
+          .Get('stopSync')
+          .then(stop => (stop ? next(stop) : next()))
+          .catch(next),
+      next => {
         // Search for new folders in local folder
         // If a folder exists in local, but is not on the remote tree, create in remote
         // If is the first time you sync, or the last sync failed, creation may throw an error
