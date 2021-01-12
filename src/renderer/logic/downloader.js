@@ -66,6 +66,7 @@ function downloadFileTemp(fileObj, silent = false) {
             app.emit('set-tooltip')
             app.removeListener('sync-stop', stopDownloadHandler)
             if (err) {
+              Logger.error('download failed, file id: ' + fileObj.fileId)
               reject(err)
             } else {
               Logger.log('Download finished')
