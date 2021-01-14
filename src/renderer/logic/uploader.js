@@ -141,7 +141,7 @@ async function uploadNewFile(storj, filePath, nCurrent, nTotal) {
         app.removeListener('sync-stop', stopDownloadHandler)
         if (err) {
           Logger.warn('Error uploading file', err.message)
-          Database.FileSet(filePath, null)
+          await Database.FileSet(filePath, null)
           // If the error is due to file existence, ignore in order to continue uploading
           const fileExistsPattern = /File already exist/
           if (fileExistsPattern.exec(err)) {
@@ -158,7 +158,7 @@ async function uploadNewFile(storj, filePath, nCurrent, nTotal) {
 
             if (networkId) {
               newFileId = networkId
-              File.createFileEntry(
+              await File.createFileEntry(
                 bucketId,
                 newFileId,
                 encryptedFileName,
@@ -180,7 +180,7 @@ async function uploadNewFile(storj, filePath, nCurrent, nTotal) {
           }
         } else {
           if (!newFileId) {
-            Database.TempSet(filePath, 'add')
+            await Database.TempSet(filePath, 'add')
             Logger.error('Cannot upload file, no new id was created')
             return resolve()
           }
@@ -200,7 +200,7 @@ async function uploadNewFile(storj, filePath, nCurrent, nTotal) {
             .catch(err => {
               Logger.error(err)
             })
-          File.createFileEntry(
+          await File.createFileEntry(
             bucketId,
             newFileId,
             encryptedFileName,
@@ -272,20 +272,6 @@ async function uploadFile(storj, filePath, nCurrent, nTotal) {
   fs.copyFileSync(filePath, tempFile)
 
   // Upload new file
-  analytics
-    .track({
-      userId: undefined,
-      event: 'file-upload-start',
-      platform: 'desktop',
-      properties: {
-        file_size: fileSize,
-        email: 'email',
-        mode: ConfigStore.get('syncMode')
-      }
-    })
-    .catch(err => {
-      Logger.error(err)
-    })
   return new Promise((resolve, reject) => {
     const state = storj.storeFile(bucketId, tempFile, {
       filename: finalName,
@@ -307,21 +293,6 @@ async function uploadFile(storj, filePath, nCurrent, nTotal) {
         if (fs.existsSync(tempFile)) {
           fs.unlinkSync(tempFile)
         }
-        analytics
-          .track({
-            userId: undefined,
-            event: 'file-upload-finished',
-            platform: 'desktop',
-            properties: {
-              email: 'email',
-              file_id: newFileId,
-              file_size: fileSize,
-              mode: ConfigStore.get('syncMode')
-            }
-          })
-          .catch(err => {
-            Logger.error(err)
-          })
         app.emit('set-tooltip')
         app.removeListener('sync-stop', stopDownloadHandler)
         if (err) {
