@@ -46,6 +46,9 @@ async function SyncLogic(callback) {
 
   app.once('sync-stop', syncStop)
   app.once('user-logout', DeviceLock.stopUpdateDeviceSync)
+  app.once('switch-mode', () => {
+    database.Set('lastSyncSuccess', false)
+  })
 
   DeviceLock.startUpdateDeviceSync()
   isSyncing = true

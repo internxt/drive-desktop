@@ -18,72 +18,71 @@ import ConfigStore from '../../main/config-store'
 
 const app = electron.remote.app
 
-function downloadFileTemp(fileObj, silent = false) {
-  return getEnvironment().then(storj => {
-    const originalFileName = path.basename(fileObj.fullpath)
+async function downloadFileTemp(fileObj, silent = false) {
+  const storj = await getEnvironment()
+  const originalFileName = path.basename(fileObj.fullpath)
 
-    const tempPath = Folder.getTempFolderPath()
+  const tempPath = Folder.getTempFolderPath()
 
-    if (!fs.existsSync(tempPath)) {
-      mkdirp.sync(tempPath)
+  if (!fs.existsSync(tempPath)) {
+    mkdirp.sync(tempPath)
+  }
+  const tempFilePath = path.join(tempPath, fileObj.fileId + '.dat')
+
+  Logger.log('Delete temp file', tempFilePath)
+  // Delete temp file
+  if (fs.existsSync(tempFilePath)) {
+    try {
+      fs.unlinkSync(tempFilePath)
+    } catch (e) {
+      Logger.error('Delete temp file: Cannot delete', e.message)
     }
-    const tempFilePath = path.join(tempPath, fileObj.fileId + '.dat')
+  }
+  Logger.log(
+    'DRIVE resolveFile, bucket: %s, file: %s',
+    fileObj.bucket,
+    fileObj.fileId
+  )
 
-    Logger.log('Delete temp file', tempFilePath)
-    // Delete temp file
-    if (fs.existsSync(tempFilePath)) {
-      try {
-        fs.unlinkSync(tempFilePath)
-      } catch (e) {
-        Logger.error('Delete temp file: Cannot delete', e.message)
-      }
-    }
-    Logger.log(
-      'DRIVE resolveFile, bucket: %s, file: %s',
+  return new Promise((resolve, reject) => {
+    const state = storj.resolveFile(
       fileObj.bucket,
-      fileObj.fileId
-    )
-
-    return new Promise((resolve, reject) => {
-      const state = storj.resolveFile(
-        fileObj.bucket,
-        fileObj.fileId,
-        tempFilePath,
-        {
-          progressCallback: function(progress, downloadedBytes, totalBytes) {
-            if (!silent) {
-              let progressPtg = progress * 100
-              progressPtg = progressPtg.toFixed(2)
-              app.emit(
-                'set-tooltip',
-                'Downloading ' + originalFileName + ' (' + progressPtg + '%).'
-              )
-            } else {
-              app.emit('set-tooltip', 'Checking ' + originalFileName)
-            }
-          },
-          finishedCallback: function(err) {
-            app.emit('set-tooltip')
-            app.removeListener('sync-stop', stopDownloadHandler)
-            if (err) {
-              Logger.error('download failed, file id: ' + fileObj.fileId)
-              reject(err)
-            } else {
-              Logger.log('Download finished')
-              resolve(tempFilePath)
-            }
+      fileObj.fileId,
+      tempFilePath,
+      {
+        progressCallback: function(progress, downloadedBytes, totalBytes) {
+          if (!silent) {
+            let progressPtg = progress * 100
+            progressPtg = progressPtg.toFixed(2)
+            app.emit(
+              'set-tooltip',
+              'Downloading ' + originalFileName + ' (' + progressPtg + '%).'
+            )
+          } else {
+            app.emit('set-tooltip', 'Checking ' + originalFileName)
+          }
+        },
+        finishedCallback: function(err) {
+          app.emit('set-tooltip')
+          app.removeListener('sync-stop', stopDownloadHandler)
+          if (err) {
+            Logger.error('download failed, file id: ' + fileObj.fileId)
+            reject(err)
+          } else {
+            Logger.log('Download finished')
+            resolve(tempFilePath)
           }
         }
-      )
-
-      const stopDownloadHandler = (storj, state) => {
-        if (storj) {
-          storj.resolveFileCancel(state)
-        }
       }
+    )
 
-      app.once('sync-stop', () => stopDownloadHandler(storj, state))
-    })
+    const stopDownloadHandler = (storj, state) => {
+      if (storj) {
+        storj.resolveFileCancel(state)
+      }
+    }
+
+    app.once('sync-stop', () => stopDownloadHandler(storj, state))
   })
 }
 
@@ -155,7 +154,7 @@ async function _downloadAllFiles() {
         fs.unlinkSync(item.fullpath)
       } catch (e) {}
       await Database.TempDel(item.fullpath)
-      // return
+      continue
     } else if (downloadAndReplace) {
       Logger.log('DOWNLOAD AND REPLACE WITHOUT QUESTION', item.fullpath)
       analytics
@@ -264,11 +263,9 @@ async function _downloadAllFiles() {
             await File.restoreFile(item)
           } catch (err) {
             Logger.log(err.message)
-            await Database.dbFiles.remove({ key: item.fullpath })
           }
         } else {
           Logger.error('Cannot restore missing file', err.message)
-          await Database.dbFiles.remove({ key: item.fullpath })
           continue
           // continue
         }

@@ -120,8 +120,8 @@ async function _deleteLocalWhenRemoteDeleted(lastSyncFailed) {
           await new Promise((resolve, reject) => {
             rimraf(item, err => {
               Logger.info(item + ' deleted')
-              if (err) resolve()
-              else reject(err)
+              if (err) reject(err)
+              else resolve()
             })
           })
         } else {
@@ -131,6 +131,7 @@ async function _deleteLocalWhenRemoteDeleted(lastSyncFailed) {
       }
     } catch (err) {
       Logger.error('ITEM ERR', err)
+      console.log('error')
       throw err
     }
   }
