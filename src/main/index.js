@@ -175,13 +175,11 @@ function appClose() {
   if (mainWindow) {
     mainWindow.destroy()
   }
-  if (process.platform !== 'darwin') {
-    app.quit()
-  }
   if (trayMenu) {
     trayMenu.destroy()
     trayMenu = null
   }
+  app.quit()
 }
 
 app.on('window-all-closed', () => {

@@ -28,33 +28,29 @@ function stopUpdateDeviceSync() {
   clearInterval(updateSyncInterval)
 }
 
-function requestSyncLock() {
-  return new Promise(async (resolve, reject) => {
-    fetch(`${process.env.API_URL}/api/user/sync`, {
-      method: 'GET',
-      headers: await Auth.getAuthHeader()
-    })
-      .then(async res => {
-        const text = await res.text()
-        try {
-          return { res, data: JSON.parse(text) }
-        } catch (err) {
-          throw new Error(err + ' data: ' + text)
-        }
-      })
-      .then(res => {
-        resolve(res.data.data)
-      })
-      .catch(err => {
-        Logger.error('Fetch error getting sync', err)
-        reject(err)
-      })
+async function requestSyncLock() {
+  return fetch(`${process.env.API_URL}/api/user/sync`, {
+    method: 'GET',
+    headers: await Auth.getAuthHeader()
   })
+    .then(res => res.text())
+    .then(text => {
+      try {
+        return { data: JSON.parse(text) }
+      } catch (err) {
+        throw new Error(err + ' data: ' + text)
+      }
+    })
+    .then(res => res.data.data)
+    .catch(err => {
+      Logger.error('Fetch error getting sync', err)
+      throw err
+    })
 }
 
 function update(toNull = false) {
   Logger.log('Updating user sync device time')
-  return new Promise(async (resolve, reject) => {
+  return new Promise((resolve, reject) => {
     database.Get('xUser').then(userData => {
       const fetchOpts = {
         method: 'PUT',
@@ -69,17 +65,20 @@ function update(toNull = false) {
       }
 
       fetch(`${process.env.API_URL}/api/user/sync`, fetchOpts)
-        .then(async res => {
+        .then(res => {
           if (res.status !== 200) {
             throw Error('Update sync not available on server')
           }
-          const text = await res.text()
+          return res.text()
+        })
+        .then(text => {
           try {
-            return { res, data: JSON.parse(text) }
+            return { data: JSON.parse(text) }
           } catch (err) {
             throw new Error(err + ' data: ' + text)
           }
         })
+
         .then(res => {
           resolve(res.data.data)
         })
@@ -90,8 +89,8 @@ function update(toNull = false) {
 
 async function unlock() {
   Logger.info('Sync unlocked')
-  return new Promise(async (resolve, reject) => {
-    const userData = await database.Get('xUser')
+  const userData = await database.Get('xUser')
+  return new Promise((resolve, reject) => {
     fetch(`${process.env.API_URL}/api/user/sync`, {
       method: 'DELETE',
       headers: {

@@ -25,7 +25,7 @@ let wtc = null
 let lastSyncFailed = false
 let timeoutInstance = null
 
-async function syncStop() {
+function syncStop() {
   isSyncing = false
   return database.Set('stopSync', 'stop sync').then(() => app.emit('sync-off'))
 }
@@ -47,8 +47,8 @@ async function SyncLogic(callback) {
   // DeviceLock.startUpdateDeviceSync()
   app.once('sync-stop', syncStop)
   app.once('user-logout', DeviceLock.stopUpdateDeviceSync)
-  app.once('switch-to-two-way', async () => {
-    await database.Set('lastSyncSuccess', false)
+  app.once('switch-mode', () => {
+    database.Set('lastSyncSuccess', false)
   })
   isSyncing = true
   lastSyncFailed = false
@@ -131,14 +131,10 @@ async function SyncLogic(callback) {
           .Get('xPath')
           .then(xPath => {
             Logger.info('User store path: %s', xPath)
-            if (!wtc) {
-              watcher.startWatcher(xPath).then(watcherInstance => {
-                wtc = watcherInstance
-                next()
-              })
-            } else {
+            watcher.startWatcher(xPath).then(watcherInstance => {
+              wtc = watcherInstance
               next()
-            }
+            })
           })
           .catch(next)
       },
@@ -165,6 +161,22 @@ async function SyncLogic(callback) {
           .Set('syncStartDate', now)
           .then(() => next())
           .catch(next)
+      },
+      next =>
+        database
+          .Get('stopSync')
+          .then(stop => (stop ? next(stop) : next()))
+          .catch(next),
+      next => {
+        database.Get('xUser').then(user => {
+          if (!user.user.bucket) {
+            Tree.updateUserObject()
+              .then(next)
+              .catch(next)
+          } else {
+            next()
+          }
+        }).catch(next)
       },
       next =>
         database
