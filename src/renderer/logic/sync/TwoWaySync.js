@@ -50,7 +50,7 @@ async function SyncLogic(callback) {
     database.Set('lastSyncSuccess', false)
   })
 
-  // DeviceLock.startUpdateDeviceSync()
+  DeviceLock.startUpdateDeviceSync()
   isSyncing = true
   lastSyncFailed = false
 
