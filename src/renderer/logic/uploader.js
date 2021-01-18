@@ -79,7 +79,7 @@ async function uploadNewFile(storj, filePath, nCurrent, nTotal) {
   const relativePath = path.relative(folderRoot, filePath)
   Logger.debug('Network name should be: %s', relativePath)
   const hashName = Hash.hasher(relativePath)
-  // Double check: Prevent upload if file already exists
+  // Double check: Prevent upload if file already exist
   const maybeNetworkId = await BridgeService.findFileByName(bucketId, hashName)
   if (maybeNetworkId) {
     return File.createFileEntry(
@@ -91,6 +91,14 @@ async function uploadNewFile(storj, filePath, nCurrent, nTotal) {
       folderId
     )
   }
+  await File.removeFileEntry(
+    bucketId,
+    maybeNetworkId,
+    encryptedFileName,
+    fileExt,
+    fileSize,
+    folderId
+  )
   const tempFile = path.join(tempPath, hashName)
   if (fs.existsSync(tempFile)) {
     fs.unlinkSync(tempFile)
@@ -223,7 +231,72 @@ async function uploadNewFile(storj, filePath, nCurrent, nTotal) {
   })
 }
 
-async function uploadFile(storj, filePath, nCurrent, nTotal) {
+async function uploadZeroSizeFile(filePath, nCurrent, nTotal) {
+  // Get the folder info of that file.
+  const folderPath = path.dirname(filePath)
+
+  const dbEntry = await Database.FolderGet(folderPath)
+  const user = await Database.Get('xUser')
+  const folderRoot = await Database.Get('xPath')
+  // Folder doesn't exists. We cannot upload this file yet.
+  if (!dbEntry || !dbEntry.value) {
+    if (folderPath !== folderRoot) {
+      // Logger.error('Folder does not exists in local Database', folderPath)
+      // Save this file on the temp Database, so will not be deleted in the next steps.
+      await Database.TempSet(filePath, 'add')
+      return
+    }
+  }
+
+  Logger.log('NEW file found', filePath)
+
+  const bucketId =
+    (dbEntry && dbEntry.value && dbEntry.value.bucket) || user.user.bucket
+  const folderId =
+    (dbEntry && dbEntry.value && dbEntry.value.id) || user.user.root_folder_id
+
+  // Encrypted filename
+  const originalFileName = path.basename(filePath)
+  const encryptedFileName = crypt.encryptFilename(originalFileName, folderId)
+
+  app.emit(
+    'set-tooltip',
+    (nCurrent && nTotal ? `${nCurrent}/${nTotal}\n` : '') +
+      'Checking ' +
+      originalFileName
+  )
+
+  // File extension
+
+  const fileNameParts = path.parse(originalFileName)
+  const fileExt = fileNameParts.ext ? fileNameParts.ext.substring(1) : ''
+
+  // File size
+  const fileStats = fs.statSync(filePath)
+  const fileSize = fileStats.size
+
+  const finalName = encryptedFileName + (fileExt ? '.' + fileExt : '')
+
+  const relativePath = path.relative(folderRoot, filePath)
+  Logger.debug('Network name should be: %s', relativePath)
+  const hashName = Hash.hasher(relativePath)
+  // Double check: Prevent upload if file already exists
+  const maybeNetworkId = await BridgeService.findFileByName(bucketId, hashName)
+  if (maybeNetworkId) {
+    await File.removeFile(bucketId, maybeNetworkId)
+    await Database.dbFiles.remove({ key: filePath })
+  }
+  return File.createFileEntry(
+    bucketId,
+    '0sizefile',
+    encryptedFileName,
+    fileExt,
+    fileSize,
+    folderId
+  )
+}
+
+async function uploadFile(storj, filePath, nCurrent, nTotal, item) {
   Logger.log('Upload file', filePath)
 
   const fileInfo = await File.fileInfoFromPath(filePath)
@@ -248,9 +321,31 @@ async function uploadFile(storj, filePath, nCurrent, nTotal) {
   const fileMtime = fileStats.mtime
   fileMtime.setMilliseconds(0)
   const fileSize = fileStats.size
-
   // Delete former file
-  await File.removeFile(bucketId, fileId)
+  if (item.size === 0) {
+    await File.removeFileEntry(
+      item.bucket,
+      item.fileId,
+      item.name,
+      item.type,
+      item.size,
+      item.folder_id,
+      item.updateAt
+    )
+  } else {
+    await File.removeFile(bucketId, fileId)
+  }
+  if (fileSize === 0) {
+    return File.createFileEntry(
+      bucketId,
+      '0sizefile',
+      encryptedFileName,
+      fileExt,
+      fileSize,
+      folderId
+    )
+  }
+  await Database.dbFiles.remove({ key: filePath })
 
   const finalName = encryptedFileName + (fileExt ? '.' + fileExt : '')
 
@@ -428,15 +523,15 @@ async function uploadAllNewFiles() {
       const entry = await Database.FileGet(item)
       if (!entry) {
         // File is not present on the remote database, so it's a new file. Let's upload.
-        if (stat.size === 0) {
-          // The network can't hold empty files. Encryption will fail.
-          // So, we will ignore this file.
-          Logger.log('Warning: Filesize 0. Ignoring file.')
-          await Database.TempSet(item, 'add')
-          continue
-        }
         // Upload file.
         try {
+          if (stat.size === 0) {
+            // The network can't hold empty files. Encryption will fail.
+            // So, we will ignore this file.
+            Logger.warn('Warning: Filesize 0.')
+            await uploadZeroSizeFile(item, currentFiles, totalFiles)
+            continue
+          }
           await uploadNewFile(storj, item, currentFiles, totalFiles)
           continue
         } catch (err) {
@@ -494,5 +589,6 @@ export default {
   uploadAllNewFolders,
   uploadAllNewFiles,
   uploadNewFolders,
-  uploadNewFiles
+  uploadNewFiles,
+  uploadZeroSizeFile
 }

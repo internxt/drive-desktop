@@ -83,6 +83,52 @@ async function createFileEntry(
   })
 }
 
+async function removeFileEntry(
+  bucketId,
+  bucketEntryId,
+  fileName,
+  fileExtension,
+  size,
+  folderId,
+  date
+) {
+  const file = {
+    fileId: bucketEntryId,
+    name: fileName,
+    type: fileExtension,
+    size: size,
+    folder_id: folderId,
+    file_id: bucketEntryId,
+    bucket: bucketId
+  }
+  try {
+    AesUtil.decrypt(fileName, folderId)
+    file.encrypt_version = '03-aes'
+  } catch (e) {
+    throw e
+  }
+
+  if (date) {
+    file.date = date
+  }
+  const headers = await Auth.getAuthHeader()
+  return new Promise((resolve, reject) => {
+    fetch(`${process.env.API_URL}/api/storage/file`, {
+      method: 'DELETE',
+      mode: 'cors',
+      headers: headers,
+      body: JSON.stringify({ file })
+    })
+      .then(res => {
+        resolve()
+      })
+      .catch(err => {
+        Logger.log('CREATE FILE ENTRY ERROR', err)
+        reject(err)
+      })
+  })
+}
+
 function restoreFile(fileObj) {
   return getEnvironment().then(storj => {
     return new Promise((resolve, reject) => {
@@ -110,7 +156,19 @@ async function cleanRemoteWhenLocalDeleted(lastSyncFailed) {
       const fileId = item.value.fileId
 
       try {
-        await removeFile(bucketId, fileId)
+        if (item.value.size === 0) {
+          await removeFileEntry(
+            item.value.bucket,
+            item.value.fileId,
+            item.value.name,
+            item.value.type,
+            item.value.size,
+            item.value.folder_id,
+            item.value.updateAt
+          )
+        } else {
+          await removeFile(bucketId, fileId)
+        }
         console.log('FILE REMOVED')
         analytics
           .track({
@@ -175,7 +233,9 @@ async function cleanLocalWhenRemoteDeleted(lastSyncFailed) {
         try {
           fs.unlinkSync(item)
           Logger.info(item + ' deleted')
-        } catch (e) { Logger.warn(e.messages) }
+        } catch (e) {
+          Logger.warn(e.messages)
+        }
         database.TempDel(item)
       }
       // return
@@ -205,5 +265,6 @@ export default {
   restoreFile,
   cleanRemoteWhenLocalDeleted,
   cleanLocalWhenRemoteDeleted,
-  fileInfoFromPath
+  fileInfoFromPath,
+  removeFileEntry
 }
