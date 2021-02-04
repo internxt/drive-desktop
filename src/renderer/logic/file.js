@@ -146,8 +146,9 @@ async function cleanRemoteWhenLocalDeleted(lastSyncFailed) {
   }
   const allData = database.dbFiles.getAllData()
   for (const item of allData) {
-    const stop = await database.Get('stopSync')
-    if (stop) throw stop
+    if (ConfigStore.get('stopSync')) {
+      throw Error('stop sync')
+    }
     const stat = Tree.getStat(item.key)
 
     // If it doesn't exists, or it exists and now is not a file, delete from remote.
@@ -206,8 +207,9 @@ async function cleanLocalWhenRemoteDeleted(lastSyncFailed) {
   for (const item of list) {
     const fileObj = await database.FileGet(item)
 
-    const stop = await database.Get('stopSync')
-    if (stop) throw stop
+    if (ConfigStore.get('stopSync')) {
+      throw Error('stop sync')
+    }
     if (!fileObj && !lastSyncFailed) {
       // File doesn't exists on remote database, should be locally deleted?
 
