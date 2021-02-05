@@ -35,8 +35,6 @@ async function uploadNewFile(storj, filePath, nCurrent, nTotal) {
     }
   }
 
-  Logger.log('NEW file found', filePath)
-
   const bucketId =
     (dbEntry && dbEntry.value && dbEntry.value.bucket) ||
     (tree && tree.bucket) ||
@@ -66,6 +64,7 @@ async function uploadNewFile(storj, filePath, nCurrent, nTotal) {
 
   const finalName = encryptedFileName + (fileExt ? '.' + fileExt : '')
 
+  Logger.log('NEW file found %s , size: %d', filePath, fileSize)
   // Copy file to temp folder
   const tempPath = path.join(
     electron.remote.app.getPath('home'),
@@ -77,7 +76,7 @@ async function uploadNewFile(storj, filePath, nCurrent, nTotal) {
   }
 
   const relativePath = path.relative(folderRoot, filePath)
-  Logger.debug('Network name should be: %s', relativePath)
+  Logger.log('Network name should be: %s', relativePath)
   const hashName = Hash.hasher(relativePath)
   // Double check: Prevent upload if file already exist
   const maybeNetworkId = await BridgeService.findFileByName(bucketId, hashName)
@@ -278,7 +277,7 @@ async function uploadZeroSizeFile(filePath, nCurrent, nTotal) {
   const finalName = encryptedFileName + (fileExt ? '.' + fileExt : '')
 
   const relativePath = path.relative(folderRoot, filePath)
-  Logger.debug('Network name should be: %s', relativePath)
+  Logger.log('Network name should be: %s', relativePath)
   const hashName = Hash.hasher(relativePath)
   // Double check: Prevent upload if file already exists
   const maybeNetworkId = await BridgeService.findFileByName(bucketId, hashName)
@@ -297,7 +296,6 @@ async function uploadZeroSizeFile(filePath, nCurrent, nTotal) {
 }
 
 async function uploadFile(storj, filePath, nCurrent, nTotal, item) {
-  Logger.log('Upload file', filePath)
 
   const fileInfo = await File.fileInfoFromPath(filePath)
 
@@ -321,6 +319,7 @@ async function uploadFile(storj, filePath, nCurrent, nTotal, item) {
   const fileMtime = fileStats.mtime
   fileMtime.setMilliseconds(0)
   const fileSize = fileStats.size
+  Logger.log('Upload file %s , size: %d', filePath, fileSize)
   // Delete former file
   if (item.size === 0) {
     await File.removeFileEntry(
@@ -336,6 +335,9 @@ async function uploadFile(storj, filePath, nCurrent, nTotal, item) {
     await File.removeFile(bucketId, fileId)
   }
   if (fileSize === 0) {
+    Logger.warn('Warning:File %s  ,Filesize 0.', filePath)
+    return
+    /*
     return File.createFileEntry(
       bucketId,
       '0sizefile',
@@ -344,6 +346,7 @@ async function uploadFile(storj, filePath, nCurrent, nTotal, item) {
       fileSize,
       folderId
     )
+    */
   }
   await Database.dbFiles.remove({ key: filePath })
 
@@ -440,8 +443,9 @@ async function uploadAllNewFolders() {
   let count = 0
   const total = list.length
   for (const item of list) {
-    const stop = await Database.Get('stopSync')
-    if (stop) throw stop
+    if (ConfigStore.get('stopSync')) {
+      throw Error('stop sync')
+    }
     // Check if folders still exists
     app.emit('set-tooltip', 'Indexing folders ' + ++count + '/' + total)
     if (!fs.existsSync(item)) {
@@ -508,8 +512,9 @@ async function uploadAllNewFiles() {
   */
   for (const item of files) {
     currentFiles++
-    const stop = await Database.Get('stopSync')
-    if (stop) throw stop
+    if (ConfigStore.get('stopSync')) {
+      throw Error('stop sync')
+    }
     // Read filesystem data
     const stat = Tree.getStat(item)
     // Is a file, and it is not a sym link
@@ -528,8 +533,9 @@ async function uploadAllNewFiles() {
           if (stat.size === 0) {
             // The network can't hold empty files. Encryption will fail.
             // So, we will ignore this file.
-            Logger.warn('Warning: Filesize 0.')
-            await uploadZeroSizeFile(item, currentFiles, totalFiles)
+            Logger.warn('Warning:File %s  ,Filesize 0.', item)
+            Database.TempSet(item, 'add')
+            // await uploadZeroSizeFile(item, currentFiles, totalFiles)
             continue
           }
           await uploadNewFile(storj, item, currentFiles, totalFiles)
