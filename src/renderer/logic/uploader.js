@@ -296,7 +296,6 @@ async function uploadZeroSizeFile(filePath, nCurrent, nTotal) {
 }
 
 async function uploadFile(storj, filePath, nCurrent, nTotal, item) {
-
   const fileInfo = await File.fileInfoFromPath(filePath)
 
   // Parameters
@@ -557,6 +556,7 @@ async function uploadAllNewFiles() {
             await Database.TempSet(item, 'add')
           } else {
             Logger.error('Fatal error uploading file: %s', err.message)
+            await Database.TempSet(item, 'add')
             throw err
           }
         }

@@ -218,19 +218,8 @@ async function cleanLocalWhenRemoteDeleted(lastSyncFailed) {
       // To check if the file was added during the sync, if so, should not be deleted
       const isTemp = await database.TempGet(item)
 
-      // Also check if the file was present in remote during the last sync
-      const wasDeleted = await new Promise((resolve, reject) => {
-        database.dbLastFiles.findOne({ key: item }, (err, result) => {
-          if (err) {
-            reject(err)
-          } else {
-            resolve(result)
-          }
-        })
-      })
-
       // Delete if: Not in temp, not was "added" or was deleted
-      if (!isTemp || isTemp.value !== 'add' || wasDeleted) {
+      if (!isTemp || isTemp.value !== 'add') {
         // TODO: Watcher will track this deletion
         try {
           fs.unlinkSync(item)
