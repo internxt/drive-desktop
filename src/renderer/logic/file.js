@@ -83,6 +83,52 @@ async function createFileEntry(
   })
 }
 
+async function removeFileEntry(
+  bucketId,
+  bucketEntryId,
+  fileName,
+  fileExtension,
+  size,
+  folderId,
+  date
+) {
+  const file = {
+    fileId: bucketEntryId,
+    name: fileName,
+    type: fileExtension,
+    size: size,
+    folder_id: folderId,
+    file_id: bucketEntryId,
+    bucket: bucketId
+  }
+  try {
+    AesUtil.decrypt(fileName, folderId)
+    file.encrypt_version = '03-aes'
+  } catch (e) {
+    throw e
+  }
+
+  if (date) {
+    file.date = date
+  }
+  const headers = await Auth.getAuthHeader()
+  return new Promise((resolve, reject) => {
+    fetch(`${process.env.API_URL}/api/storage/file`, {
+      method: 'DELETE',
+      mode: 'cors',
+      headers: headers,
+      body: JSON.stringify({ file })
+    })
+      .then(res => {
+        resolve()
+      })
+      .catch(err => {
+        Logger.log('CREATE FILE ENTRY ERROR', err)
+        reject(err)
+      })
+  })
+}
+
 function restoreFile(fileObj) {
   return getEnvironment().then(storj => {
     return new Promise((resolve, reject) => {
@@ -100,8 +146,9 @@ async function cleanRemoteWhenLocalDeleted(lastSyncFailed) {
   }
   const allData = database.dbFiles.getAllData()
   for (const item of allData) {
-    const stop = await database.Get('stopSync')
-    if (stop) throw stop
+    if (ConfigStore.get('stopSync')) {
+      throw Error('stop sync')
+    }
     const stat = Tree.getStat(item.key)
 
     // If it doesn't exists, or it exists and now is not a file, delete from remote.
@@ -110,7 +157,19 @@ async function cleanRemoteWhenLocalDeleted(lastSyncFailed) {
       const fileId = item.value.fileId
 
       try {
-        await removeFile(bucketId, fileId)
+        if (item.value.size === 0) {
+          await removeFileEntry(
+            item.value.bucket,
+            item.value.fileId,
+            item.value.name,
+            item.value.type,
+            item.value.size,
+            item.value.folder_id,
+            item.value.updateAt
+          )
+        } else {
+          await removeFile(bucketId, fileId)
+        }
         console.log('FILE REMOVED')
         analytics
           .track({
@@ -148,8 +207,9 @@ async function cleanLocalWhenRemoteDeleted(lastSyncFailed) {
   for (const item of list) {
     const fileObj = await database.FileGet(item)
 
-    const stop = await database.Get('stopSync')
-    if (stop) throw stop
+    if (ConfigStore.get('stopSync')) {
+      throw Error('stop sync')
+    }
     if (!fileObj && !lastSyncFailed) {
       // File doesn't exists on remote database, should be locally deleted?
 
@@ -158,24 +218,15 @@ async function cleanLocalWhenRemoteDeleted(lastSyncFailed) {
       // To check if the file was added during the sync, if so, should not be deleted
       const isTemp = await database.TempGet(item)
 
-      // Also check if the file was present in remote during the last sync
-      const wasDeleted = await new Promise((resolve, reject) => {
-        database.dbLastFiles.findOne({ key: item }, (err, result) => {
-          if (err) {
-            reject(err)
-          } else {
-            resolve(result)
-          }
-        })
-      })
-
       // Delete if: Not in temp, not was "added" or was deleted
-      if (!isTemp || isTemp.value !== 'add' || wasDeleted) {
+      if (!isTemp || isTemp.value !== 'add') {
         // TODO: Watcher will track this deletion
         try {
           fs.unlinkSync(item)
           Logger.info(item + ' deleted')
-        } catch (e) { Logger.warn(e.messages) }
+        } catch (e) {
+          Logger.warn(e.messages)
+        }
         database.TempDel(item)
       }
       // return
@@ -205,5 +256,6 @@ export default {
   restoreFile,
   cleanRemoteWhenLocalDeleted,
   cleanLocalWhenRemoteDeleted,
-  fileInfoFromPath
+  fileInfoFromPath,
+  removeFileEntry
 }

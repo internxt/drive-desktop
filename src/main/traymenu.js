@@ -219,8 +219,10 @@ class TrayMenu {
   }
 
   destroy() {
-    this.tray.destroy()
-    this.tray = null
+    if (this.tray) {
+      this.tray.destroy()
+      this.tray = null
+    }
   }
 }
 

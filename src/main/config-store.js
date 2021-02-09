@@ -19,8 +19,15 @@ const schema = {
   autoLaunch: {
     type: 'boolean',
     default: true
+  },
+  isSyncing: {
+    type: 'boolean',
+    default: false
+  },
+  stopSync: {
+    type: 'boolean',
+    default: false
   }
-
 }
 
 const ConfigStore = new Store({ schema: schema })

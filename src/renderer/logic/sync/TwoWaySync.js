@@ -19,15 +19,17 @@ import analytics from '../utils/analytics'
  */
 
 const SYNC_METHOD = 'two-way-sync'
-let isSyncing = false
+ConfigStore.set('isSyncing', false)
+ConfigStore.set('stopSync', false)
 let wtc = null
 let lastSyncFailed = false
 let timeoutInstance = null
 const { app } = electron.remote
 
 function syncStop() {
-  isSyncing = false
-  return database.Set('stopSync', 'stop sync').then(() => app.emit('sync-off'))
+  ConfigStore.set('isSyncing', false)
+  ConfigStore.set('stopSync', true)
+  app.emit('sync-off')
 }
 
 async function SyncLogic(callback) {
@@ -37,26 +39,32 @@ async function SyncLogic(callback) {
     return callback ? callback() : null
   }
   const userDevicesSyncing = await DeviceLock.requestSyncLock()
-  if (userDevicesSyncing) {
+  if (userDevicesSyncing || ConfigStore.get('isSyncing')) {
     Logger.warn('2-way-upload not started: another device already syncing')
     return start(callback)
   }
 
   Logger.info('Two way upload started')
 
-  app.once('sync-stop', syncStop)
-  app.once('user-logout', DeviceLock.stopUpdateDeviceSync)
+  app.once('sync-stop', async () => {
+    await syncStop()
+  })
+  app.once('user-logout', () => {
+    DeviceLock.stopUpdateDeviceSync()
+    console.log('receive logout')
+  })
   app.once('switch-mode', () => {
     database.Set('lastSyncSuccess', false)
   })
 
   DeviceLock.startUpdateDeviceSync()
-  isSyncing = true
+  ConfigStore.set('isSyncing', true)
   lastSyncFailed = false
 
   const syncComplete = async function(err) {
     if (err) {
       Logger.error('Error 2-way-sync monitor:', err.message ? err.message : err)
+      console.log(err)
     }
     // If monitor ended before stopping the watcher, let's ensure
 
@@ -65,10 +73,10 @@ async function SyncLogic(callback) {
     app.emit('sync-off')
     app.removeListener('sync-stop', syncStop)
     app.removeListener('user-logout', DeviceLock.stopUpdateDeviceSync)
-    await database.Set('stopSync', null)
+    ConfigStore.set('stopSync', false)
     DeviceLock.stopUpdateDeviceSync()
     // Sync.UpdateUserSync(true)
-    isSyncing = false
+    ConfigStore.set('isSyncing', false)
 
     const rootFolderExist = await Folder.rootFolderExists()
     if (!rootFolderExist) {
@@ -116,11 +124,13 @@ async function SyncLogic(callback) {
           .then(next)
           .catch(() => next())
       },
-      next =>
-        database
-          .Get('stopSync')
-          .then(stop => (stop ? next(stop) : next()))
-          .catch(next),
+      next => {
+        if (ConfigStore.get('stopSync')) {
+          next('stop sync')
+        } else {
+          next()
+        }
+      },
       next => {
         Folder.rootFolderExists()
           .then(exists => {
@@ -128,11 +138,13 @@ async function SyncLogic(callback) {
           })
           .catch(next)
       },
-      next =>
-        database
-          .Get('stopSync')
-          .then(stop => (stop ? next(stop) : next()))
-          .catch(next),
+      next => {
+        if (ConfigStore.get('stopSync')) {
+          next('stop sync')
+        } else {
+          next()
+        }
+      },
       next => {
         // Start the folder watcher if is not already started
         app.emit('set-tooltip', 'Initializing watcher...')
@@ -147,22 +159,26 @@ async function SyncLogic(callback) {
           })
           .catch(next)
       },
-      next =>
-        database
-          .Get('stopSync')
-          .then(stop => (stop ? next(stop) : next()))
-          .catch(next),
+      next => {
+        if (ConfigStore.get('stopSync')) {
+          next('stop sync')
+        } else {
+          next()
+        }
+      },
       next => {
         database
           .ClearTemp()
           .then(() => next())
           .catch(next)
       },
-      next =>
-        database
-          .Get('stopSync')
-          .then(stop => (stop ? next(stop) : next()))
-          .catch(next),
+      next => {
+        if (ConfigStore.get('stopSync')) {
+          next('stop sync')
+        } else {
+          next()
+        }
+      },
       next => {
         // New sync started, so we save the current date
         const now = new Date()
@@ -172,11 +188,13 @@ async function SyncLogic(callback) {
           .then(() => next())
           .catch(next)
       },
-      next =>
-        database
-          .Get('stopSync')
-          .then(stop => (stop ? next(stop) : next()))
-          .catch(next),
+      next => {
+        if (ConfigStore.get('stopSync')) {
+          next('stop sync')
+        } else {
+          next()
+        }
+      },
       next => {
         database.Get('xUser').then(user => {
           if (!user.user.bucket) {
@@ -188,11 +206,13 @@ async function SyncLogic(callback) {
           }
         })
       },
-      next =>
-        database
-          .Get('stopSync')
-          .then(stop => (stop ? next(stop) : next()))
-          .catch(next),
+      next => {
+        if (ConfigStore.get('stopSync')) {
+          next('stop sync')
+        } else {
+          next()
+        }
+      },
       next => {
         // Search for new folders in local folder
         // If a folder exists in local, but is not on the remote tree, create in remote
@@ -202,11 +222,13 @@ async function SyncLogic(callback) {
           .then(() => next())
           .catch(next)
       },
-      next =>
-        database
-          .Get('stopSync')
-          .then(stop => (stop ? next(stop) : next()))
-          .catch(next),
+      next => {
+        if (ConfigStore.get('stopSync')) {
+          next('stop sync')
+        } else {
+          next()
+        }
+      },
       next => {
         // Search new files in local folder, and upload them
         Uploader.uploadNewFiles()
@@ -227,11 +249,13 @@ async function SyncLogic(callback) {
           })
           .catch(next)
       },
-      next =>
-        database
-          .Get('stopSync')
-          .then(stop => (stop ? next(stop) : next()))
-          .catch(next),
+      next => {
+        if (ConfigStore.get('stopSync')) {
+          next('stop sync')
+        } else {
+          next()
+        }
+      },
       next => {
         // Will determine if something wrong happened in the last synchronization
         database
@@ -262,11 +286,13 @@ async function SyncLogic(callback) {
           })
           .catch(next)
       },
-      next =>
-        database
-          .Get('stopSync')
-          .then(stop => (stop ? next(stop) : next()))
-          .catch(next),
+      next => {
+        if (ConfigStore.get('stopSync')) {
+          next('stop sync')
+        } else {
+          next()
+        }
+      },
       next => {
         // Start to sync. Did last sync failed?
         // Then, clear all the local databases to start from zero
@@ -286,22 +312,26 @@ async function SyncLogic(callback) {
           })
           .catch(next)
       },
-      next =>
-        database
-          .Get('stopSync')
-          .then(stop => (stop ? next(stop) : next()))
-          .catch(next),
+      next => {
+        if (ConfigStore.get('stopSync')) {
+          next('stop sync')
+        } else {
+          next()
+        }
+      },
       next => {
         database
           .Set('lastSyncSuccess', false)
           .then(() => next())
           .catch(next)
       },
-      next =>
-        database
-          .Get('stopSync')
-          .then(stop => (stop ? next(stop) : next()))
-          .catch(next),
+      next => {
+        if (ConfigStore.get('stopSync')) {
+          next('stop sync')
+        } else {
+          next()
+        }
+      },
       next => {
         // Delete remote folders missing in local folder
 
@@ -309,22 +339,26 @@ async function SyncLogic(callback) {
           .then(() => next())
           .catch(next)
       },
-      next =>
-        database
-          .Get('stopSync')
-          .then(stop => (stop ? next(stop) : next()))
-          .catch(next),
+      next => {
+        if (ConfigStore.get('stopSync')) {
+          next('stop sync')
+        } else {
+          next()
+        }
+      },
       next => {
         // Delete remote files missing in local folder
         File.cleanRemoteWhenLocalDeleted(lastSyncFailed)
           .then(() => next())
           .catch(next)
       },
-      next =>
-        database
-          .Get('stopSync')
-          .then(stop => (stop ? next(stop) : next()))
-          .catch(next),
+      next => {
+        if (ConfigStore.get('stopSync')) {
+          next('stop sync')
+        } else {
+          next()
+        }
+      },
       next => {
         // backup the last database
         database
@@ -332,44 +366,52 @@ async function SyncLogic(callback) {
           .then(() => next())
           .catch(next)
       },
-      next =>
-        database
-          .Get('stopSync')
-          .then(stop => (stop ? next(stop) : next()))
-          .catch(next),
+      next => {
+        if (ConfigStore.get('stopSync')) {
+          next('stop sync')
+        } else {
+          next()
+        }
+      },
       next => {
         // Sync and update the remote tree.
         Tree.regenerateAndCompact()
           .then(() => next())
           .catch(next)
       },
-      next =>
-        database
-          .Get('stopSync')
-          .then(stop => (stop ? next(stop) : next()))
-          .catch(next),
+      next => {
+        if (ConfigStore.get('stopSync')) {
+          next('stop sync')
+        } else {
+          next()
+        }
+      },
       next => {
         // Delete local folders missing in remote
         Folder.cleanLocalWhenRemoteDeleted(lastSyncFailed)
           .then(() => next())
           .catch(next)
       },
-      next =>
-        database
-          .Get('stopSync')
-          .then(stop => (stop ? next(stop) : next()))
-          .catch(next),
+      next => {
+        if (ConfigStore.get('stopSync')) {
+          next('stop sync')
+        } else {
+          next()
+        }
+      },
       next => {
         // Delete local files missing in remote
         File.cleanLocalWhenRemoteDeleted(lastSyncFailed)
           .then(() => next())
           .catch(next)
       },
-      next =>
-        database
-          .Get('stopSync')
-          .then(stop => (stop ? next(stop) : next()))
-          .catch(next),
+      next => {
+        if (ConfigStore.get('stopSync')) {
+          next('stop sync')
+        } else {
+          next()
+        }
+      },
       next => {
         // Create local folders
         // Si hay directorios nuevos en el árbol, los creamos en local
@@ -377,11 +419,13 @@ async function SyncLogic(callback) {
           .then(() => next())
           .catch(next)
       },
-      next =>
-        database
-          .Get('stopSync')
-          .then(stop => (stop ? next(stop) : next()))
-          .catch(next),
+      next => {
+        if (ConfigStore.get('stopSync')) {
+          next('stop sync')
+        } else {
+          next()
+        }
+      },
       next => {
         // Download remote files
         // Si hay ficheros nuevos en el árbol, los creamos en local
@@ -389,22 +433,26 @@ async function SyncLogic(callback) {
           .then(() => next())
           .catch(next)
       },
-      next =>
-        database
-          .Get('stopSync')
-          .then(stop => (stop ? next(stop) : next()))
-          .catch(next),
+      next => {
+        if (ConfigStore.get('stopSync')) {
+          next('stop sync')
+        } else {
+          next()
+        }
+      },
       next => {
         database
           .Set('lastSyncSuccess', true)
           .then(() => next())
           .catch(next)
       },
-      next =>
-        database
-          .Get('stopSync')
-          .then(stop => (stop ? next(stop) : next()))
-          .catch(next),
+      next => {
+        if (ConfigStore.get('stopSync')) {
+          next('stop sync')
+        } else {
+          next()
+        }
+      },
       next => {
         database
           .Set('lastSyncDate', new Date())
@@ -417,19 +465,18 @@ async function SyncLogic(callback) {
 }
 
 async function start(callback, startImmediately = false) {
-  if (isSyncing) {
+  if (ConfigStore.get('isSyncing')) {
     return Logger.warn('There is an active sync running right now')
   }
   Logger.info('Start 2-way sync')
   let timeout = 0
   if (!startImmediately) {
-    isSyncing = false
     timeout = 1000 * 60 * 10
   }
   if (!startImmediately && process.env.NODE_ENV !== 'production') {
     timeout = 1000 * 30
   }
-  if (!isSyncing) {
+  if (!ConfigStore.get('isSyncing')) {
     clearTimeout(timeoutInstance)
     Logger.log(
       'Waiting %s secs for next 2-way sync. Version: v%s',

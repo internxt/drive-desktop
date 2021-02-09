@@ -86,6 +86,19 @@ async function downloadFileTemp(fileObj, silent = false) {
   })
 }
 
+async function downloadZeroSizeFile(fileObj, silent = false) {
+  const originalFileName = path.basename(fileObj.fullpath)
+
+  if (fs.existsSync(fileObj.fullpath)) {
+    try {
+      fs.unlinkSync(fileObj.fullpath)
+    } catch (e) {
+      Logger.error('Delete local file: Cannot delete', e.message)
+    }
+  }
+  fs.closeSync(fs.openSync(fileObj.fullpath, 'w'))
+}
+
 // Will download ALL the files from remote
 // If file already exists on local, decide if needs to be checked.
 async function _downloadAllFiles() {
@@ -94,8 +107,9 @@ async function _downloadAllFiles() {
   const totalFiles = list.length
   let currentFiles = 0
   for (let item of list) {
-    const stop = await Database.Get('stopSync')
-    if (stop) throw stop
+    if (ConfigStore.get('stopSync')) {
+      throw Error('stop sync')
+    }
     currentFiles++
     item = item.value
     if (
@@ -152,6 +166,7 @@ async function _downloadAllFiles() {
     if (ignoreThisFile) {
       try {
         fs.unlinkSync(item.fullpath)
+        Logger.log(item.fullpath + ' deleted')
       } catch (e) {}
       await Database.TempDel(item.fullpath)
       continue
@@ -175,17 +190,20 @@ async function _downloadAllFiles() {
           Logger.error(err)
         })
       try {
-        const tempPath = await downloadFileTemp(item)
-        if (localExists) {
-          try {
-            fs.unlinkSync(item.fullpath)
-          } catch (e) {}
+        if (item.size !== 0) {
+          const tempPath = await downloadFileTemp(item)
+          if (localExists) {
+            try {
+              fs.unlinkSync(item.fullpath)
+            } catch (e) {}
+          }
+          // fs.renameSync gives a "EXDEV: cross-device link not permitted"
+          // when application and local folder are not in the same partition
+          fs.copyFileSync(tempPath, item.fullpath)
+          fs.unlinkSync(tempPath)
+        } else {
+          await downloadZeroSizeFile(item)
         }
-        // fs.renameSync gives a "EXDEV: cross-device link not permitted"
-        // when application and local folder are not in the same partition
-        fs.copyFileSync(tempPath, item.fullpath)
-        fs.unlinkSync(tempPath)
-
         await Sync.setModifiedTime(item.fullpath, item.created_at)
 
         analytics
@@ -225,51 +243,22 @@ async function _downloadAllFiles() {
         ].find(obj => obj === err.message)
         if (isError) {
           Logger.error(err.message)
-          await Database.dbFiles.remove({ key: item.fullpath })
-          continue
         }
-        // continue
-      }
-    } else if (uploadAndReplace) {
-      const storj = await getEnvironment()
-      await Uploader.uploadFile(storj, item.fullpath, currentFiles, totalFiles)
-      // continue
-    } else {
-      // Check if should download to ensure file
-      const shouldEnsureFile = Math.floor(Math.random() * 33 + 1) % 33 === 0
-
-      if (!shouldEnsureFile) {
-        // Logger.log('%cNO ENSURE FILE', 'background-color: #aaaaff')
+        await Database.dbFiles.remove({ key: item.fullpath })
         continue
       }
-      Logger.log(
-        '%cENSURE FILE ' + item.filename,
-        'background-color: #aa00aa, color: #ffffff'
+    } else if (uploadAndReplace) {
+      const stat = Tree.getStat(item.fullpath)
+      const storj = await getEnvironment()
+      await Uploader.uploadFile(
+        storj,
+        item.fullpath,
+        currentFiles,
+        totalFiles,
+        item
       )
-      // Check file is ok
-      try {
-        await downloadFileTemp(item, true)
-      } catch (err) {
-        const isError = [
-          'File missing shard error',
-          'Farmer request error',
-          'Memory mapped file unmap error',
-          'Bridge request pointer error'
-        ].find(obj => obj === err.message)
 
-        if (isError && localExists) {
-          Logger.error('%s. Reuploading...', isError)
-          try {
-            await File.restoreFile(item)
-          } catch (err) {
-            Logger.log(err.message)
-          }
-        } else {
-          Logger.error('Cannot restore missing file', err.message)
-          continue
-          // continue
-        }
-      }
+      // continue
     }
   }
 }

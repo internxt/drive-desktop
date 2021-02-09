@@ -7,6 +7,7 @@ import readdirp from 'readdirp'
 import sanitize from 'sanitize-filename'
 import Logger from '../../libs/logger'
 import Auth from './utils/Auth'
+import ConfigStore from '../../main/config-store'
 
 const IgnoredFiles = ['^\\.(DS_Store|[Tt]humbs)$', '.*~$', '^\\._.*', '^~.*']
 
@@ -30,6 +31,8 @@ function getListFromFolder(folderPath) {
 
         if (typeof invalid === 'undefined') {
           results.push(data.fullPath)
+        } else {
+          console.log('ignored')
         }
       })
       .on('warn', warn => Logger.error('READDIRP non-fatal error', warn))
@@ -134,8 +137,9 @@ async function regenerateLocalDbFolder(tree) {
   const basePath = await database.Get('xPath')
   await database.dbFolders.remove({}, { multi: true })
   for (const item of tree.folders) {
-    const stop = await database.Get('stopSync')
-    if (stop) throw stop
+    if (ConfigStore.get('stopSync')) {
+      throw Error('stop sync')
+    }
     if (!item.parent_id) {
       finalDict[item.id] = basePath
       continue
@@ -162,8 +166,9 @@ async function regenerateLocalDbFile(tree, folderDict) {
 
   await database.dbFiles.remove({}, { multi: true })
   for (const item of tree.files) {
-    const stop = await database.Get('stopSync')
-    if (stop) throw stop
+    if (ConfigStore.get('stopSync')) {
+      throw Error('stop sync')
+    }
     const filePath = folderDict[item.folder_id]
     item.filename = crypt.decryptName(item.name, item.folder_id)
 
@@ -178,7 +183,7 @@ async function regenerateLocalDbFile(tree, folderDict) {
       path.basename(finalObject.key) !==
       sanitize(path.basename(finalObject.key))
     ) {
-      Logger.info('Ignoring folder %s, invalid name', finalObject.key)
+      Logger.info('Ignoring file %s, invalid name', finalObject.key)
       continue
     }
     dbEntrys.push(finalObject)
@@ -343,8 +348,8 @@ function updateLocalDb() {
     getList()
       .then(tree => {
         regenerateLocalDbFolder(tree).then(result => {
-          regenerateLocalDbFile(tree, result).then(resolve)
-        })
+          regenerateLocalDbFile(tree, result).then(resolve).catch(reject)
+        }).catch(reject)
       })
       .catch(err => {
         Logger.error('Error updating localDb', err)
