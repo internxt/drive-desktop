@@ -233,13 +233,18 @@ async function SyncLogic(callback) {
         // Search new files in local folder, and upload them
         Uploader.uploadNewFiles()
           .then(() => {
+            const limit = ConfigStore.get('limit') / 1024
+            const used = ConfigStore.get('usage') / 1024
+            const usage = Math.round(1000 * used / limit) / 10
             analytics
               .identify({
                 userId: undefined,
                 platform: 'desktop',
                 email: 'email',
                 traits: {
-                  storage_used: ConfigStore.get('usage')
+                  storage_used: used,
+                  storage_limit: limit,
+                  storage_usage: usage
                 }
               })
               .catch(err => {
