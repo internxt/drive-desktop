@@ -31,8 +31,6 @@ function getListFromFolder(folderPath) {
 
         if (typeof invalid === 'undefined') {
           results.push(data.fullPath)
-        } else {
-          console.log('ignored')
         }
       })
       .on('warn', warn => Logger.error('READDIRP non-fatal error', warn))
