@@ -28,8 +28,10 @@ let lastSyncFailed = false
 let timeoutInstance = null
 
 function syncStop() {
-  ConfigStore.set('isSyncing', false)
-  ConfigStore.set('stopSync', true)
+  if (ConfigStore.get('isSyncing')) {
+    ConfigStore.set('isSyncing', false)
+    ConfigStore.set('stopSync', true)
+  }
   app.emit('sync-off')
 }
 

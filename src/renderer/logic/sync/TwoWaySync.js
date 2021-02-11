@@ -27,8 +27,10 @@ let timeoutInstance = null
 const { app } = electron.remote
 
 function syncStop() {
-  ConfigStore.set('isSyncing', false)
-  ConfigStore.set('stopSync', true)
+  if (ConfigStore.get('isSyncing')) {
+    ConfigStore.set('isSyncing', false)
+    ConfigStore.set('stopSync', true)
+  }
   app.emit('sync-off')
 }
 
