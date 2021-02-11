@@ -261,10 +261,7 @@ export default {
               .identify({
                 userId: undefined,
                 platform: 'desktop',
-                email: 'email',
-                traits: {
-                  storage_used: ConfigStore.get('usage')
-                }
+                email: 'email'
               })
               .then(() => {
                 analytics.track({

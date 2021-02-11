@@ -12,6 +12,7 @@ import ConfigStore from '../../../main/config-store'
 import SpaceUsage from '../utils/spaceusage'
 
 import analytics from '../utils/analytics'
+import { listenerCount } from 'nedb'
 
 /*
  * Sync Method: One Way, from LOCAL to CLOUD (Only Upload)
@@ -27,8 +28,10 @@ let lastSyncFailed = false
 let timeoutInstance = null
 
 function syncStop() {
-  ConfigStore.set('isSyncing', false)
-  ConfigStore.set('stopSync', true)
+  if (ConfigStore.get('isSyncing')) {
+    ConfigStore.set('isSyncing', false)
+    ConfigStore.set('stopSync', true)
+  }
   app.emit('sync-off')
 }
 
@@ -214,13 +217,18 @@ async function SyncLogic(callback) {
       next =>
         Uploader.uploadNewFiles()
           .then(() => {
+            const limit = ConfigStore.get('limit') / 1024
+            const used = ConfigStore.get('usage') / 1024
+            const usage = Math.round(1000 * used / limit) / 10
             analytics
               .identify({
                 userId: undefined,
                 platform: 'desktop',
                 email: 'email',
                 traits: {
-                  storage_used: ConfigStore.get('usage')
+                  storage_used: used,
+                  storage_limit: limit,
+                  storage_usage: usage
                 }
               })
               .catch(err => {

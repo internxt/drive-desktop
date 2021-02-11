@@ -75,115 +75,122 @@ class TrayMenu {
       const userFooter = [
         {
           type: 'separator'
-        },
-        {
-          label: 'Change sync folder',
-          click: function() {
-            const newDir = dialog.showOpenDialogSync({
-              properties: ['openDirectory']
-            })
-            if (newDir && newDir.length > 0 && fs.existsSync(newDir[0])) {
-              app.emit('new-folder-path', newDir[0])
-            } else {
-              Logger.info('Sync folder change error or cancelled')
-            }
-          }
         }
       ]
+      if (userEmail) {
+        userFooter.push(
+          {
+            label: 'Change sync folder',
+            click: function () {
+              const newDir = dialog.showOpenDialogSync({
+                properties: ['openDirectory']
+              })
+              if (newDir && newDir.length > 0 && fs.existsSync(newDir[0])) {
+                app.emit('new-folder-path', newDir[0])
+              } else {
+                Logger.info('Sync folder change error or cancelled')
+              }
+            }
+          })
+      }
 
       userMenu = Array.concat(userEmailDisplay, userUsage, userFooter)
     }
 
-    const contextMenuTemplate = [
-      {
+    const contextMenuTemplate = []
+    if (userEmail) {
+      contextMenuTemplate.push({
         label: 'Open folder',
-        click: function() {
+        click: function () {
           app.emit('open-folder')
         }
-      },
-      {
-        label: 'Sync options',
-        enabled: true,
-        submenu: [
-          {
-            label: 'Two Way Sync',
-            type: 'radio',
-            enabled: true,
-            checked: ConfigStore.get('syncMode') === 'two-way',
-            click: () => {
-              Logger.info('User switched to two way sync mode')
-              ConfigStore.set('syncMode', 'two-way')
-              app.emit('sync-stop')
-              app.emit('switch-mode')
-            }
-          },
-          {
-            label: 'Upload Only Mode',
-            type: 'radio',
-            enabled: true,
-            checked: ConfigStore.get('syncMode') === 'one-way-upload',
-            click: () => {
-              Logger.info('User switched to one way upload mode')
-              ConfigStore.set('syncMode', 'one-way-upload')
-              app.emit('sync-stop')
-            }
+      })
+    }
+    contextMenuTemplate.push({
+      label: 'Sync options',
+      enabled: true,
+      submenu: [
+        {
+          label: 'Two Way Sync',
+          type: 'radio',
+          enabled: true,
+          checked: ConfigStore.get('syncMode') === 'two-way',
+          click: () => {
+            Logger.info('User switched to two way sync mode')
+            ConfigStore.set('syncMode', 'two-way')
+            app.emit('sync-stop')
+            app.emit('switch-mode')
           }
-        ]
-      },
-      {
+        },
+        {
+          label: 'Upload Only Mode',
+          type: 'radio',
+          enabled: true,
+          checked: ConfigStore.get('syncMode') === 'one-way-upload',
+          click: () => {
+            Logger.info('User switched to one way upload mode')
+            ConfigStore.set('syncMode', 'one-way-upload')
+            app.emit('sync-stop')
+          }
+        }
+      ]
+    })
+    if (userEmail) {
+      contextMenuTemplate.push({
         label: 'Force sync',
-        click: function() {
+        click: function () {
           app.emit('force-sync')
         }
-      },
-      {
-        label: 'Open logs',
-        click: function() {
-          try {
-            const logFile = electronLog.transports.file.getFile().path
-            const logPath = path.dirname(logFile)
-            shell.openItem(logPath)
-          } catch (e) {
-            Logger.error('Error opening log path: %s', e.message)
-          }
+      })
+    }
+    contextMenuTemplate.push({
+      label: 'Open logs',
+      click: function () {
+        try {
+          const logFile = electronLog.transports.file.getFile().path
+          const logPath = path.dirname(logFile)
+          shell.openItem(logPath)
+        } catch (e) {
+          Logger.error('Error opening log path: %s', e.message)
         }
-      },
-      {
-        label: 'Billing',
-        click: function() {
-          shell.openExternal(`${process.env.API_URL}/storage`)
-        }
-      },
-      {
-        label: 'Launch at login',
-        type: 'checkbox',
-        checked: ConfigStore.get('autoLaunch'),
-        click: function(check) {
-          ConfigStore.set('autoLaunch', check.checked)
-          console.log(check.checked)
-          app.emit('change-auto-launch')
-        }
-      },
-      {
-        label: 'Contact Support',
-        click: function() {
-          shell.openExternal(`mailto:support@internxt.zohodesk.eu?subject=Support Ticket&body=If you want to upload log files to our tech teams. Please, find them on the Open Logs option in the menu.`)
-        }
-      },
-      {
-        type: 'separator'
-      },
-      {
+      }
+    }, {
+      label: 'Billing',
+      click: function () {
+        shell.openExternal(`${process.env.API_URL}/storage`)
+      }
+    }, {
+      label: 'Launch at login',
+      type: 'checkbox',
+      checked: ConfigStore.get('autoLaunch'),
+      click: function (check) {
+        ConfigStore.set('autoLaunch', check.checked)
+        console.log(check.checked)
+        app.emit('change-auto-launch')
+      }
+    }, {
+      label: 'Contact Support',
+      click: function () {
+        shell.openExternal(`mailto:support@internxt.zohodesk.eu?subject=Support Ticket&body=If you want to upload log files to our tech teams. Please, find them on the Open Logs option in the menu.`)
+      }
+    },
+    {
+      type: 'separator'
+    })
+
+    if (userEmail) {
+      contextMenuTemplate.push({
         label: 'Log out',
-        click: function() {
+        click: function () {
           app.emit('user-logout')
         }
-      },
-      {
-        label: 'Quit',
-        click: this.appClose
-      }
-    ]
+      })
+    }
+    contextMenuTemplate.push({
+      label: 'Quit',
+      click: this.appClose
+    })
+
     return Menu.buildFromTemplate(Array.concat(userMenu, contextMenuTemplate))
   }
 

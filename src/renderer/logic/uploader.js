@@ -75,11 +75,21 @@ async function uploadNewFile(storj, filePath, nCurrent, nTotal) {
     mkdirp.sync(tempPath)
   }
 
-  const relativePath = path.relative(folderRoot, filePath)
+  let relativePath = path.relative(folderRoot, filePath)
+  relativePath = relativePath.replace(/\\/g, '/')
   Logger.log('Network name should be: %s', relativePath)
   const hashName = Hash.hasher(relativePath)
+  console.log(hashName)
   // Double check: Prevent upload if file already exist
-  const maybeNetworkId = await BridgeService.findFileByName(bucketId, hashName)
+  let maybeNetworkId = await BridgeService.findFileByName(bucketId, hashName)
+  // this will remove in the future version
+  if (!maybeNetworkId) {
+    maybeNetworkId = await BridgeService.findFileByName(
+      bucketId,
+      Hash.hasher(relativePath.replace(/\//g, '\\'))
+    )
+  }
+
   if (maybeNetworkId) {
     return File.createFileEntry(
       bucketId,
@@ -125,7 +135,6 @@ async function uploadNewFile(storj, filePath, nCurrent, nTotal) {
 
   return new Promise((resolve, reject) => {
     const state = storj.storeFile(bucketId, tempFile, {
-      filename: hashName,
       progressCallback: function(progress, uploadedBytes, totalBytes) {
         let progressPtg = progress * 100
         progressPtg = progressPtg.toFixed(2)
@@ -155,9 +164,6 @@ async function uploadNewFile(storj, filePath, nCurrent, nTotal) {
             // File already exists, so there's no need to upload again.
             Logger.warn('FILE ALREADY EXISTS', tempFile)
 
-            // Right now file names in network are full paths encrypted.
-            // This could be an issue if user uses multiple devices.
-            // TODO: Migrate to relative paths based on drive folder path
             const networkId = await BridgeService.findFileByName(
               bucketId,
               hashName
@@ -276,11 +282,20 @@ async function uploadZeroSizeFile(filePath, nCurrent, nTotal) {
 
   const finalName = encryptedFileName + (fileExt ? '.' + fileExt : '')
 
-  const relativePath = path.relative(folderRoot, filePath)
+  let relativePath = path.relative(folderRoot, filePath)
+  relativePath = relativePath.replace(/\\/g, '/')
   Logger.log('Network name should be: %s', relativePath)
   const hashName = Hash.hasher(relativePath)
   // Double check: Prevent upload if file already exists
-  const maybeNetworkId = await BridgeService.findFileByName(bucketId, hashName)
+  let maybeNetworkId = await BridgeService.findFileByName(bucketId, hashName)
+  // this will remove in the future version
+  if (!maybeNetworkId) {
+    maybeNetworkId = await BridgeService.findFileByName(
+      bucketId,
+      Hash.hasher(relativePath.replace(/\//g, '\\'))
+    )
+  }
+
   if (maybeNetworkId) {
     await File.removeFile(bucketId, maybeNetworkId)
     await Database.dbFiles.remove({ key: filePath })
@@ -302,6 +317,7 @@ async function uploadFile(storj, filePath, nCurrent, nTotal, item) {
   const bucketId = fileInfo.value.bucket
   const fileId = fileInfo.value.fileId
   const folderId = fileInfo.value.folder_id
+  const folderRoot = await Database.Get('xPath')
 
   // Encrypted filename
   const originalFileName = path.basename(filePath)
@@ -360,8 +376,9 @@ async function uploadFile(storj, filePath, nCurrent, nTotal, item) {
   if (!fs.existsSync(tempPath)) {
     mkdirp.sync(tempPath)
   }
-
-  const tempFile = path.join(tempPath, Hash.hasher(filePath))
+  let relativePath = path.relative(folderRoot, filePath)
+  relativePath = relativePath.replace(/\\/g, '/')
+  const tempFile = path.join(tempPath, Hash.hasher(relativePath))
   if (fs.existsSync(tempFile)) {
     fs.unlinkSync(tempFile)
   }
@@ -371,7 +388,6 @@ async function uploadFile(storj, filePath, nCurrent, nTotal, item) {
   // Upload new file
   return new Promise((resolve, reject) => {
     const state = storj.storeFile(bucketId, tempFile, {
-      filename: finalName,
       progressCallback: function(progress, uploadedBytes, totalBytes) {
         let progressPtg = progress * 100
         progressPtg = progressPtg.toFixed(2)
