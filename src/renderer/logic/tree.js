@@ -128,31 +128,50 @@ async function getFolderObjectListFromRemoteTree() {
   })
 }
 
+function generatePath(pathDict, item) {
+  if (pathDict[item.parent].full) {
+    return pathDict[item.parent].path
+  } else {
+    pathDict[item.parent].path = path.join(generatePath(pathDict, pathDict[item.parent]), pathDict[item.parent].path)
+    pathDict[item.parent].full = true
+    return pathDict[item.parent].path
+  }
+}
+
 async function regenerateLocalDbFolder(tree) {
-  const finalDict = []
+  const finalDict = {}
   const dbEntrys = []
 
   const basePath = await database.Get('xPath')
   await database.dbFolders.remove({}, { multi: true })
   for (const item of tree.folders) {
+    if (!item.parent_id) {
+      finalDict[item.id] = {path: basePath, parent: item.parent_id, full: true}
+      continue
+    }
+    finalDict[item.id] = {path: crypt.decryptName(item.name, item.parent_id), parent: item.parent_id, full: false}
+  }
+
+  for (const item of tree.folders) {
     if (ConfigStore.get('stopSync')) {
       throw Error('stop sync')
     }
     if (!item.parent_id) {
-      finalDict[item.id] = basePath
       continue
     }
-    const parentPath = finalDict[item.parent_id]
-    const decryptedName = crypt.decryptName(item.name, item.parent_id)
-    const fullNewPath = path.join(parentPath, decryptedName)
+    if (!finalDict[item.id].full) {
+      finalDict[item.id].path = path.join(generatePath(finalDict, finalDict[item.id]), finalDict[item.id].path)
+      finalDict[item.id].full = true
+    }
+    const fullNewPath = finalDict[item.id].path
     const cloneObject = JSON.parse(JSON.stringify(item))
     const finalObject = { key: fullNewPath, value: cloneObject }
     if (path.basename(fullNewPath) !== sanitize(path.basename(fullNewPath))) {
       Logger.info('Ignoring folder %s, invalid name', finalObject.key)
+      delete finalDict[item.id]
       continue
     }
     dbEntrys.push(finalObject)
-    finalDict[item.id] = fullNewPath
     // return
   }
   await database.dbFolders.insert(dbEntrys)
@@ -167,7 +186,7 @@ async function regenerateLocalDbFile(tree, folderDict) {
     if (ConfigStore.get('stopSync')) {
       throw Error('stop sync')
     }
-    const filePath = folderDict[item.folder_id]
+    const filePath = folderDict[item.folder_id].path
     item.filename = crypt.decryptName(item.name, item.folder_id)
 
     item.fullpath = path.join(
