@@ -1,6 +1,9 @@
 <template>
   <div id="wrapper">
     <main>
+      <div id = "selectSyncPanel">
+        <input type = "checkbox" id= "carpeta1" checked = false>
+      </div>
       <div class="spinner-border text-primary" role="status">
         <span class="sr-only"></span>
       </div>
@@ -42,14 +45,13 @@ import Sync from '../logic/sync'
 import Uploader from '../logic/uploader'
 import Tree from '../logic/tree'
 import Monitor from '../logic/monitor'
-import { remote } from 'electron'
 import Logger from '../../libs/logger'
 import PackageJson from '../../../package.json'
 import DeviceLock from '../logic/devicelock'
 import SpaceUsage from '../logic/utils/spaceusage'
 import analytics from '../logic/utils/analytics'
 import ConfigStore from '../../../src/main/config-store'
-
+const remote = require('@electron/remote')
 var t = ''
 
 export default {

@@ -6,15 +6,14 @@ import OneWayUpload from './sync/OneWayUpload'
 import ConfigStore from '../../main/config-store'
 import TwoWaySync from './sync/TwoWaySync'
 import analytics from './utils/analytics'
-
-const { app } = electron.remote
+const { app } = require('@electron/remote')
 
 app.on('open-folder', function() {
   database
     .Get('xPath')
     .then(xPath => {
       if (fs.existsSync(xPath)) {
-        electron.shell.openItem(xPath)
+        electron.shell.openPath(xPath)
       } else {
         Logger.log('Error opening root folder from try icon')
       }

@@ -1,7 +1,7 @@
 import chokidar from 'chokidar'
 import database from '../../database/index'
 import Logger from '../../libs/logger'
-import { remote } from 'electron'
+const remote = require('@electron/remote')
 
 let watcherStarted = false
 let watcher = null

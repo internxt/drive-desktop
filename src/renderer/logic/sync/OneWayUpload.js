@@ -12,13 +12,12 @@ import ConfigStore from '../../../main/config-store'
 import SpaceUsage from '../utils/spaceusage'
 
 import analytics from '../utils/analytics'
-import { listenerCount } from 'nedb'
 
 /*
  * Sync Method: One Way, from LOCAL to CLOUD (Only Upload)
  */
 
-const { app } = electron.remote
+const { app } = require('@electron/remote')
 
 const SYNC_METHOD = 'one-way-upload'
 ConfigStore.set('isSyncing', false)

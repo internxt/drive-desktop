@@ -72,7 +72,6 @@
       "target": [
         "nsis"
       ],
-      "certificateSubjectName": "Internxt Universal Technologies SL",
       "icon": "build/icons/icon.ico"
     },
     "nsis": {
@@ -97,6 +96,7 @@
     "afterSign": "resources/osx/notarize.js"
   },
   "dependencies": {
+    "@electron/remote": "^1.0.4",
     "analytics-node": "^3.4.0-beta.3",
     "async": "^3.1.0",
     "auto-launch": "^5.0.5",
@@ -152,7 +152,7 @@
     "css-loader": "^0.28.11",
     "del": "^3.0.0",
     "devtron": "^1.4.0",
-    "electron": "^7.2.4",
+    "electron": "^12.0.0",
     "electron-builder": "22.1.0",
     "electron-debug": "^3.1.0",
     "electron-devtools-installer": "^3.1.0",

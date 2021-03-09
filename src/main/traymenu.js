@@ -1,6 +1,6 @@
 import path from 'path'
 import PackageJson from '../../package.json'
-import { Tray, Menu, app, shell, dialog, remote } from 'electron'
+import { Tray, Menu, app, shell, dialog } from 'electron'
 import ConfigStore from './config-store'
 import Logger from '../libs/logger'
 import fs from 'fs'
@@ -149,7 +149,7 @@ class TrayMenu {
         try {
           const logFile = electronLog.transports.file.getFile().path
           const logPath = path.dirname(logFile)
-          shell.openItem(logPath)
+          shell.openPath(logPath)
         } catch (e) {
           Logger.error('Error opening log path: %s', e.message)
         }
