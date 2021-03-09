@@ -35,38 +35,47 @@ if (oldFolderExists && !newFolderExists) {
 }
 
 const initDatabase = () => {
+  if (fs.existsSync(path.join(DB_FOLDER, 'database_files.db'))) {
+    rimraf.sync(OLD_DB_FOLDER)
+  }
   if (!fs.existsSync(DB_FOLDER)) {
     fs.mkdirSync(DB_FOLDER)
   }
 }
-
+/*
 const dbFiles = new Datastore({
-  filename: path.join(DB_FOLDER, 'database_files.db'),
+  filename: './database_files_select.db',
   autoload: true,
   timestampData: true
 })
-const dbLastFiles = new Datastore({
-  filename: path.join(DB_FOLDER, 'database_last_files.db'),
+*/
+const dbFiles = new Datastore({
+  filename: path.join(DB_FOLDER, 'database_files_select.db'),
   autoload: true,
   timestampData: true
 })
-const dbLastFolders = new Datastore({
-  filename: path.join(DB_FOLDER, 'database_last_folders.db'),
+const dbFilesCloud = new Datastore({
+  filename: path.join(DB_FOLDER, 'database_files_cloud.db'),
   autoload: true,
   timestampData: true
 })
 const dbFolders = new Datastore({
-  filename: path.join(DB_FOLDER, 'database_folders.db'),
+  filename: path.join(DB_FOLDER, 'database_folders_select.db'),
+  autoload: true,
+  timestampData: true
+})
+const dbFoldersCloud = new Datastore({
+  filename: path.join(DB_FOLDER, 'database_folders_cloud.db'),
+  autoload: true,
+  timestampData: true
+})
+const dbLastFolders = new Datastore({
+  filename: path.join(DB_FOLDER, 'database_last_folders_cloud.db'),
   autoload: true,
   timestampData: true
 })
 const dbUser = new Datastore({
   filename: path.join(DB_FOLDER, 'database_user.db'),
-  autoload: true,
-  timestampData: true
-})
-const dbTemp = new Datastore({
-  filename: path.join(DB_FOLDER, 'database_temp.db'),
   autoload: true,
   timestampData: true
 })
@@ -114,14 +123,34 @@ const FolderSet = (key, value) => {
   return InsertKeyValue(dbFolders, key, value)
 }
 
-const TempSet = (key, value) => {
-  return InsertKeyValue(dbTemp, key, value)
-}
-
 const FileSet = (key, value) => {
   return InsertKeyValue(dbFiles, key, value)
 }
+const dbFindOne = (db, consult) => {
+  return new Promise((resolve, reject) => {
+    db.findOne(consult, (err, document) => {
+      if (err) reject(err)
+      else resolve(document)
+    })
+  })
+}
+const dbFind = (db, consult) => {
+  return new Promise((resolve, reject) => {
+    db.find(consult, (err, document) => {
+      if (err) reject(err)
+      else resolve(document)
+    })
+  })
+}
 
+const dbInsert = (db, entries) => {
+  return new Promise((resolve, reject) => {
+    db.insert(entries, (err, document) => {
+      if (err) reject(err)
+      else resolve(document)
+    })
+  })
+}
 const FolderGet = key => {
   return new Promise((resolve, reject) => {
     dbFolders.findOne({ key: key }, (err, document) => {
@@ -146,33 +175,9 @@ const FileGet = key => {
   })
 }
 
-const TempGet = key => {
+const ClearDatabase = db => {
   return new Promise((resolve, reject) => {
-    dbTemp.findOne({ key: key }, (err, document) => {
-      if (err) {
-        resolve(null)
-      } else {
-        resolve(document)
-      }
-    })
-  })
-}
-
-const TempDel = key => {
-  return new Promise((resolve, reject) => {
-    dbTemp.remove({ key: key }, { multi: true }, (err, result) => {
-      if (err) {
-        reject(err)
-      } else {
-        resolve()
-      }
-    })
-  })
-}
-
-const ClearTemp = () => {
-  return new Promise((resolve, reject) => {
-    dbTemp.remove({}, { multi: true }, (err, totalFilesRemoved) => {
+    db.remove({}, { multi: true }, (err, totalFilesRemoved) => {
       if (err) {
         reject(err)
       } else {
@@ -182,125 +187,32 @@ const ClearTemp = () => {
   })
 }
 
-const ClearFiles = () => {
-  return new Promise((resolve, reject) => {
-    dbFiles.remove({}, { multi: true }, (err, totalFilesRemoved) => {
-      if (err) {
-        reject(err)
-      } else {
-        resolve(totalFilesRemoved)
-      }
-    })
-  })
+const ClearFilesSelect = () => {
+  return ClearDatabase(dbFiles)
 }
-
-const ClearFolders = () => {
-  return new Promise((resolve, reject) => {
-    dbFolders.remove({}, { multi: true }, (err, totalFilesRemoved) => {
-      if (err) {
-        reject(err)
-      } else {
-        resolve(totalFilesRemoved)
-      }
-    })
-  })
+const ClearFilesCloud = () => {
+  return ClearDatabase(dbFilesCloud)
 }
-
-const ClearUser = () => {
-  return new Promise((resolve, reject) => {
-    dbUser.remove({}, { multi: true }, (err, totalFilesRemoved) => {
-      if (err) {
-        reject(err)
-      } else {
-        resolve(totalFilesRemoved)
-      }
-    })
-  })
+const ClearFoldersSelect = () => {
+  return ClearDatabase(dbFolders)
 }
-
-const ClearLastFiles = () => {
-  return new Promise((resolve, reject) => {
-    dbLastFiles.remove({}, { multi: true }, (err, totalFilesRemoved) => {
-      if (err) {
-        reject(err)
-      } else {
-        resolve(totalFilesRemoved)
-      }
-    })
-  })
+const ClearFoldersCloud = () => {
+  return ClearDatabase(dbFoldersCloud)
 }
-
 const ClearLastFolders = () => {
-  return new Promise((resolve, reject) => {
-    dbLastFolders.remove({}, { multi: true }, (err, totalFilesRemoved) => {
-      if (err) {
-        reject(err)
-      } else {
-        resolve(totalFilesRemoved)
-      }
-    })
-  })
+  return ClearDatabase(dbLastFolders)
+}
+const ClearUser = () => {
+  return ClearDatabase(dbUser)
 }
 
 const compactAllDatabases = () => {
   dbFolders.persistence.compactDatafile()
   dbFiles.persistence.compactDatafile()
-  dbTemp.persistence.compactDatafile()
-  dbLastFiles.persistence.compactDatafile()
   dbLastFolders.persistence.compactDatafile()
   dbUser.persistence.compactDatafile()
-}
-
-const backupCurrentTree = () => {
-  return new Promise((resolve, reject) => {
-    async.waterfall(
-      [
-        next => dbLastFolders.remove({}, { multi: true }, err => next(err)),
-        next => dbLastFiles.remove({}, { multi: true }, err => next(err)),
-        next => {
-          dbFolders.find({}, (err, docs) => {
-            if (err) {
-              return next(err)
-            }
-            async.eachSeries(
-              docs,
-              (doc, nextDoc) => {
-                dbLastFolders.insert(doc, err => nextDoc(err))
-              },
-              err => next(err)
-            )
-          })
-        },
-        next => {
-          dbFiles.find({}, (err, docs) => {
-            if (err) {
-              return next(err)
-            }
-            async.eachSeries(
-              docs,
-              (doc, nextDoc) => {
-                dbLastFiles.insert(doc, err => nextDoc(err))
-              },
-              err => next(err)
-            )
-          })
-        },
-        next => {
-          dbLastFiles.persistence.compactDatafile()
-          dbLastFolders.persistence.compactDatafile()
-          dbUser.persistence.compactDatafile()
-          next()
-        }
-      ],
-      err => {
-        if (err) {
-          reject(err)
-        } else {
-          resolve()
-        }
-      }
-    )
-  })
+  dbFoldersCloud.persistence.compactDatafile()
+  dbFilesCloud.persistence.compactDatafile()
 }
 
 const ClearAll = () => {
@@ -308,23 +220,27 @@ const ClearAll = () => {
     async.parallel(
       [
         next =>
-          ClearFolders()
+          ClearFilesSelect()
             .then(() => next())
             .catch(next),
         next =>
-          ClearFiles()
+          ClearFilesCloud()
             .then(() => next())
             .catch(next),
         next =>
-          ClearTemp()
+          ClearFoldersSelect()
             .then(() => next())
             .catch(next),
         next =>
-          ClearLastFiles()
+          ClearFoldersCloud()
             .then(() => next())
             .catch(next),
         next =>
           ClearLastFolders()
+            .then(() => next())
+            .catch(next),
+        next =>
+          ClearUser()
             .then(() => next())
             .catch(next)
       ],
@@ -341,28 +257,28 @@ const ClearAll = () => {
 
 export default {
   dbFiles,
+  dbFilesCloud,
   dbFolders,
-  dbUser,
+  dbFoldersCloud,
   dbLastFolders,
-  dbLastFiles,
+  dbUser,
   Get,
   Set,
   FolderSet,
   FileSet,
   FolderGet,
   FileGet,
-  TempGet,
-  TempSet,
-  TempDel,
-  ClearTemp,
-  ClearFiles,
-  ClearFolders,
-  ClearLastFiles,
+  dbFindOne,
+  dbFind,
+  dbInsert,
+  ClearFilesSelect,
+  ClearFilesCloud,
+  ClearFoldersSelect,
+  ClearFoldersCloud,
   ClearLastFolders,
+  ClearUser,
   ClearAll,
   compactAllDatabases,
-  backupCurrentTree,
-  ClearUser,
   GetDatabaseFolder: DB_FOLDER,
   initDatabase
 }

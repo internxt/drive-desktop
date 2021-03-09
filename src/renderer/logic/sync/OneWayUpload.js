@@ -202,6 +202,12 @@ async function SyncLogic(callback) {
           next()
         }
       },
+      next => {
+        // Sync and update the remote tree.
+        Tree.updateDbAndCompact()
+          .then(() => next())
+          .catch(next)
+      },
       next =>
         Uploader.uploadNewFolders()
           .then(() => next())
@@ -331,24 +337,11 @@ async function SyncLogic(callback) {
         }
       },
       next => {
-        // backup the last database
-        database
-          .backupCurrentTree()
-          .then(() => next())
-          .catch(next)
-      },
-      next => {
         if (ConfigStore.get('stopSync')) {
           next('stop sync')
         } else {
           next()
         }
-      },
-      next => {
-        // Sync and update the remote tree.
-        Tree.regenerateAndCompact()
-          .then(() => next())
-          .catch(next)
       },
       next => {
         if (ConfigStore.get('stopSync')) {

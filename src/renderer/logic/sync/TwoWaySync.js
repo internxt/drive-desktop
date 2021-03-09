@@ -382,7 +382,7 @@ async function SyncLogic(callback) {
       },
       next => {
         // Sync and update the remote tree.
-        Tree.regenerateAndCompact()
+        Tree.updateDbAndCompact()
           .then(() => next())
           .catch(next)
       },
