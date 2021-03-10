@@ -10,8 +10,9 @@ import async from 'async'
 import sanitize from 'sanitize-filename'
 import analytics from './utils/analytics'
 import ConfigStore from '../../main/config-store'
+import state from './utils/state'
+import lodash from 'lodash'
 const remote = require('@electron/remote')
-
 async function createRemoteFolder(name, parentId) {
   const headers = await Auth.getAuthHeader()
   return new Promise((resolve, reject) => {
@@ -71,11 +72,7 @@ async function createRemoteFolder(name, parentId) {
 }
 
 function getTempFolderPath() {
-  return path.join(
-    remote.app.getPath('home'),
-    '.internxt-desktop',
-    'tmp'
-  )
+  return path.join(remote.app.getPath('home'), '.internxt-desktop', 'tmp')
 }
 
 function clearTempFolder() {
@@ -88,6 +85,52 @@ function clearTempFolder() {
 
     rimraf(tempPath, () => resolve())
   })
+}
+
+async function sincronizeLocalFolder() {
+  const localPath = await Database.Get('xPath')
+  var list = await Tree.getLocalFolderList(localPath)
+  var i = 0
+  var select = await Database.dbFind(Database.dbFolders, {})
+  console.log(list)
+  console.log(select)
+  var indexDict = []
+  select.map(elem => {
+    indexDict[elem.key] = i++
+  })
+  for (const item of list) {
+    if (ConfigStore.get('stopSync')) {
+      throw Error('stop sync')
+    }
+    const FolderSelect = indexDict[item]
+    // local existe, select not exist
+    console.log(item, 'existe ', FolderSelect)
+    if (FolderSelect !== undefined) {
+      select[indexDict[item]].state = state.transition(
+        select[indexDict[item]].state,
+        state.word.ensure
+      )
+    } else {
+      select.push({
+        key: item,
+        value: null,
+        needSync: true,
+        select: true,
+        state: state.state.UPLOAD
+      })
+    }
+  }
+  list = lodash.difference(Object.keys(indexDict), list)
+  for (const item of list) {
+    select[indexDict[item]].state = state.transition(
+      select[indexDict[item]].state,
+      state.word.localDeleted
+    )
+    select[indexDict[item]].needSync = true
+  }
+  await Database.ClearFoldersSelect()
+  console.log(select)
+  await Database.dbInsert(Database.dbFolders, select)
 }
 
 // Delete local folders that doesn't exists on remote. [helper for deleteLocalWhenRemoteDeleted]
@@ -269,5 +312,6 @@ export default {
   cleanRemoteWhenLocalDeleted,
   removeFolder,
   createLocalFolders,
+  sincronizeLocalFolder,
   rootFolderExists
 }

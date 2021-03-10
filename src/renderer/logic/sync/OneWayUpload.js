@@ -84,11 +84,6 @@ async function SyncLogic(callback) {
       Logger.error('Error monitor:', err)
       async.waterfall(
         [
-          next =>
-            database
-              .ClearAll()
-              .then(() => next())
-              .catch(() => next()),
           next => database.Set('lastSyncSuccess', false).then(next),
           next => {
             database.compactAllDatabases()
@@ -153,18 +148,6 @@ async function SyncLogic(callback) {
           next()
         }
       },
-      next =>
-        database
-          .ClearTemp()
-          .then(() => next())
-          .catch(next),
-      next => {
-        if (ConfigStore.get('stopSync')) {
-          next('stop sync')
-        } else {
-          next()
-        }
-      },
       next => {
         // New sync started, so we save the current date
         const now = new Date()
@@ -209,38 +192,8 @@ async function SyncLogic(callback) {
           .catch(next)
       },
       next =>
-        Uploader.uploadNewFolders()
+        Folder.sincronizeLocalFolder()
           .then(() => next())
-          .catch(next),
-      next => {
-        if (ConfigStore.get('stopSync')) {
-          next('stop sync')
-        } else {
-          next()
-        }
-      },
-      next =>
-        Uploader.uploadNewFiles()
-          .then(() => {
-            const limit = ConfigStore.get('limit') / 1024
-            const used = ConfigStore.get('usage') / 1024
-            const usage = Math.round(1000 * used / limit) / 10
-            analytics
-              .identify({
-                userId: undefined,
-                platform: 'desktop',
-                email: 'email',
-                traits: {
-                  storage_used: used,
-                  storage_limit: limit,
-                  storage_usage: usage
-                }
-              })
-              .catch(err => {
-                Logger.error(err)
-              })
-            next()
-          })
           .catch(next),
       next => {
         if (ConfigStore.get('stopSync')) {
@@ -286,18 +239,6 @@ async function SyncLogic(callback) {
           next()
         }
       },
-      next =>
-        database
-          .ClearAll()
-          .then(() => next())
-          .catch(next),
-      next => {
-        if (ConfigStore.get('stopSync')) {
-          next('stop sync')
-        } else {
-          next()
-        }
-      },
       next => {
         // Start to sync. Did last sync failed?
         // Then, clear all the local databases to start from zero
@@ -309,10 +250,6 @@ async function SyncLogic(callback) {
             } else {
               lastSyncFailed = true
               Logger.warn('LAST SYNC FAILED, CLEARING DATABASES')
-              database
-                .ClearAll()
-                .then(() => next())
-                .catch(next)
             }
           })
           .catch(next)

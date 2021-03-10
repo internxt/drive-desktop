@@ -45,4 +45,4 @@ machine[state.DELETE_CLOUD] = deleteCloud
 function transition(state, word) {
   return machine[state][word] ? machine[state][word] : state
 }
-export { state, word, transition }
+export default { state, word, transition }

@@ -35,12 +35,7 @@ export default {
     if (!xUser) {
       Logger.info('No xUser is set on database')
 
-      await database.ClearFolders()
-      await database.ClearFiles()
-      await database.ClearTemp()
-      await database.ClearLastFiles()
-      await database.ClearLastFolders()
-      await database.ClearUser()
+      await database.ClearAll()
       await database.compactAllDatabases()
 
       this.$router.push('/login').catch(() => {})

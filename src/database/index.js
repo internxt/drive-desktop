@@ -142,7 +142,14 @@ const dbFind = (db, consult) => {
     })
   })
 }
-
+const dbUpdate = (db, consult, value) => {
+  return new Promise((resolve, reject) => {
+    db.update(consult, value, (err, document) => {
+      if (err) reject(err)
+      else resolve(document)
+    })
+  })
+}
 const dbInsert = (db, entries) => {
   return new Promise((resolve, reject) => {
     db.insert(entries, (err, document) => {
@@ -271,6 +278,7 @@ export default {
   dbFindOne,
   dbFind,
   dbInsert,
+  dbUpdate,
   ClearFilesSelect,
   ClearFilesCloud,
   ClearFoldersSelect,
