@@ -110,7 +110,6 @@ async function _deleteLocalWhenRemoteDeleted(lastSyncFailed) {
         continue
       } else {
         // Should DELETE that folder in local
-        console.log('borrar ', item)
         const creationDate = fs.statSync(item).mtime
         creationDate.setMilliseconds(0)
         const isTemp = await Database.TempGet(item)
