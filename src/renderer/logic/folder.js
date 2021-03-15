@@ -110,6 +110,7 @@ async function _deleteLocalWhenRemoteDeleted(lastSyncFailed) {
         continue
       } else {
         // Should DELETE that folder in local
+        console.log('borrar ', item)
         const creationDate = fs.statSync(item).mtime
         creationDate.setMilliseconds(0)
         const isTemp = await Database.TempGet(item)
@@ -121,8 +122,10 @@ async function _deleteLocalWhenRemoteDeleted(lastSyncFailed) {
           await new Promise((resolve, reject) => {
             rimraf(item, err => {
               Logger.info(item + ' deleted')
-              if (err) reject(err)
-              else resolve()
+              if (err) {
+                console.log(err)
+              }
+              resolve()
             })
           })
         } else {
@@ -131,9 +134,8 @@ async function _deleteLocalWhenRemoteDeleted(lastSyncFailed) {
         }
       }
     } catch (err) {
-      Logger.error('ITEM ERR', err)
-      console.log('error')
-      throw err
+      Logger.warn('ITEM ERR', err)
+      continue
     }
   }
 }
