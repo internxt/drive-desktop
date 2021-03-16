@@ -89,9 +89,9 @@ function clearTempFolder() {
 
 async function sincronizeLocalFolder() {
   const localPath = await Database.Get('xPath')
-  var list = await Tree.getLocalFolderList(localPath)
-  var i = 0
-  var select = await Database.dbFind(Database.dbFolders, {})
+  let list = await Tree.getLocalFolderList(localPath)
+  let i = 0
+  const select = await Database.dbFind(Database.dbFolders, {})
   console.log(list)
   console.log(select)
   var indexDict = []

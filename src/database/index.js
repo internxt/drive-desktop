@@ -49,6 +49,8 @@ const dbFiles = new Datastore({
   timestampData: true
 })
 */
+
+console.log(DB_FOLDER)
 const dbFiles = new Datastore({
   filename: path.join(DB_FOLDER, 'database_files_select.db'),
   autoload: true,
