@@ -43,7 +43,6 @@ machine[state.DELETE_LOCAL] = deleteLocal
 machine[state.DELETE_CLOUD] = deleteCloud
 
 function transition(state, word) {
-  console.log(state, word)
   return machine[state][word] ? machine[state][word] : state
 }
 export default { state, word, transition }

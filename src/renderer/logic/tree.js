@@ -73,7 +73,7 @@ async function regenerateDbFolderCloud(tree) {
   const dbEntrys = []
 
   const basePath = await database.Get('xPath')
-  await database.dbFoldersCloud.remove({}, { multi: true })
+  await database.ClearFoldersCloud
   for (const item of tree.folders) {
     if (!item.parent_id) {
       finalDict[item.id] = {
@@ -125,7 +125,7 @@ async function regenerateDbFolderCloud(tree) {
 async function regenerateDbFileCloud(tree, folderDict) {
   const dbEntrys = []
 
-  await database.dbFiles.remove({}, { multi: true })
+  await database.ClearFilesCloud()
   for (const item of tree.files) {
     if (ConfigStore.get('stopSync')) {
       throw Error('stop sync')

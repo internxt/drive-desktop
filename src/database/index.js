@@ -42,15 +42,7 @@ const initDatabase = () => {
     fs.mkdirSync(DB_FOLDER)
   }
 }
-/*
-const dbFiles = new Datastore({
-  filename: './database_files_select.db',
-  autoload: true,
-  timestampData: true
-})
-*/
 
-console.log(DB_FOLDER)
 const dbFiles = new Datastore({
   filename: path.join(DB_FOLDER, 'database_files_select.db'),
   autoload: true,

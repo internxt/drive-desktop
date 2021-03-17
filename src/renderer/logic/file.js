@@ -1,4 +1,4 @@
-import database from '../../database/index'
+import Database from '../../database/index'
 import Logger from '../../libs/logger'
 import Auth from './utils/Auth'
 import AesUtil from './AesUtil'
@@ -9,10 +9,13 @@ import Tree from './tree'
 import fs from 'fs'
 import analytics from './utils/analytics'
 import ConfigStore from '../../main/config-store'
+import state from './utils/state'
+import lodash from 'lodash'
+import path from 'path'
 
 function infoFromPath(localPath) {
   return new Promise((resolve, reject) => {
-    database.dbFiles.findOne({ key: localPath }, function(err, result) {
+    Database.dbFiles.findOne({ key: localPath }, function(err, result) {
       if (err) {
         reject(err)
       } else {
@@ -139,12 +142,93 @@ function restoreFile(fileObj) {
   })
 }
 
+async function sincronizeLocalFile() {
+  const localPath = await Database.Get('xPath')
+  var list = await Tree.getLocalFileList(localPath)
+  var i = 0
+  var select = await Database.dbFind(Database.dbFiles, {})
+  var indexDict = []
+  select.map(elem => {
+    indexDict[elem.key] = i++
+  })
+  console.log('antes', select)
+  for (const item of list) {
+    if (ConfigStore.get('stopSync')) {
+      throw Error('stop sync')
+    }
+    const localFile = Tree.getStat(item)
+    const FileSelect = indexDict[item]
+    // local existe, select not exist
+    if (FileSelect === undefined) {
+      if (localFile != null) {
+        const file = path.parse(item)
+        select.push({
+          key: item,
+          value: {
+            fileExt: file.ext ? file.ext.substring(1) : '',
+            fileSize: localFile.size,
+            createdAt: localFile.ctime,
+            updatedAt: localFile.mtime
+          },
+          needSync: true,
+          select: true,
+          state: state.state.UPLOAD
+        })
+        continue
+      }
+    } else {
+      // local and select exist
+      const selectFile = select[FileSelect]
+      const selectTime = selectFile.value.updatedAt.setMilliseconds(0)
+      const localTime = localFile.mtime.setMilliseconds(0)
+
+      if (selectTime > localTime) {
+        // select recent, download
+        selectFile.state = state.transition(
+          selectFile.state,
+          state.word.downloadAndReplace
+        )
+        selectFile.needSync = true
+        continue
+      } else if (selectTime < localTime) {
+        // local recent, upload
+        selectFile.value.updateAt = localFile.mtime
+        selectFile.state = state.transition(
+          selectFile.state,
+          state.word.uploadAndReplace
+        )
+        selectFile.needSync = true
+        continue
+      } else {
+        console.log('igual')
+        selectFile.state = state.transition(
+          selectFile.state,
+          state.word.ensure
+        )
+        continue
+      }
+    }
+  }
+  // local not existe select exist
+  list = lodash.difference(Object.keys(indexDict), list)
+  console.log(list)
+  for (const item of list) {
+    select[indexDict[item]].state = state.transition(
+      select[indexDict[item]].state,
+      state.word.localDeleted
+    )
+    select[indexDict[item]].needSync = true
+  }
+  await Database.ClearFilesSelect()
+  await Database.dbInsert(Database.dbFiles, select)
+}
+
 // Check files that does not exists in local anymore (use last sync tree), and remove them from remote
 async function cleanRemoteWhenLocalDeleted(lastSyncFailed) {
   if (lastSyncFailed) {
     return
   }
-  const allData = database.dbFiles.getAllData()
+  const allData = Database.dbFiles.getAllData()
   for (const item of allData) {
     if (ConfigStore.get('stopSync')) {
       throw Error('stop sync')
@@ -198,14 +282,14 @@ async function cleanRemoteWhenLocalDeleted(lastSyncFailed) {
 // Delete local files that doesn't exists on remote.
 // It should be called just after tree sync.
 async function cleanLocalWhenRemoteDeleted(lastSyncFailed) {
-  const localPath = await database.Get('xPath')
-  const syncDate = await database.Get('syncStartDate')
+  const localPath = await Database.Get('xPath')
+  const syncDate = await Database.Get('syncStartDate')
 
   // List all files in the folder
   const list = await Tree.getLocalFileList(localPath)
 
   for (const item of list) {
-    const fileObj = await database.FileGet(item)
+    const fileObj = await Database.FileGet(item)
 
     if (ConfigStore.get('stopSync')) {
       throw Error('stop sync')
@@ -216,7 +300,7 @@ async function cleanLocalWhenRemoteDeleted(lastSyncFailed) {
       const creationDate = fs.statSync(item).mtime
       creationDate.setMilliseconds(0)
       // To check if the file was added during the sync, if so, should not be deleted
-      const isTemp = await database.TempGet(item)
+      const isTemp = await Database.TempGet(item)
 
       // Delete if: Not in temp, not was "added" or was deleted
       if (!isTemp || isTemp.value !== 'add') {
@@ -227,7 +311,7 @@ async function cleanLocalWhenRemoteDeleted(lastSyncFailed) {
         } catch (e) {
           Logger.warn(e.messages)
         }
-        database.TempDel(item)
+        Database.TempDel(item)
       }
       // return
     } /* else {
@@ -239,7 +323,7 @@ async function cleanLocalWhenRemoteDeleted(lastSyncFailed) {
 
 function fileInfoFromPath(localPath) {
   return new Promise((resolve, reject) => {
-    database.dbFiles.findOne({ key: localPath }, function(err, result) {
+    Database.dbFiles.findOne({ key: localPath }, function(err, result) {
       if (err) {
         reject(err)
       } else {
@@ -253,6 +337,7 @@ export default {
   infoFromPath,
   removeFile,
   createFileEntry,
+  sincronizeLocalFile,
   restoreFile,
   cleanRemoteWhenLocalDeleted,
   cleanLocalWhenRemoteDeleted,

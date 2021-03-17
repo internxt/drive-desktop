@@ -3,6 +3,7 @@ import Logger from '../../../libs/logger'
 import watcher from '../watcher'
 import electron from 'electron'
 import Folder from '../folder'
+import File from '../file'
 import database from '../../../database'
 import Uploader from '../uploader'
 import DeviceLock from '../devicelock'
@@ -201,6 +202,20 @@ async function SyncLogic(callback) {
         } else {
           next()
         }
+      },
+      next =>
+        File.sincronizeLocalFile()
+          .then(() => next())
+          .catch(next),
+      next => {
+        if (ConfigStore.get('stopSync')) {
+          next('stop sync')
+        } else {
+          next()
+        }
+      },
+      next => {
+        next('stop sync')
       },
       next => {
         // Will determine if something wrong happened in the last synchronization
