@@ -6,19 +6,37 @@ import async from 'async'
 import rimraf from 'rimraf'
 import Logger from '../libs/logger'
 
-const OLD_DB_FOLDER = `${process.env.NODE_ENV === 'production' ? remote.app.getPath('home') + `/.xclouddesktop/` : '.'}`
-const DB_FOLDER = `${process.env.NODE_ENV === 'production' ? remote.app.getPath('home') + `/.internxt-desktop/` : '.'}`
+const OLD_DB_FOLDER = `${
+  process.env.NODE_ENV === 'production'
+    ? remote.app.getPath('home') + `/.xclouddesktop/`
+    : '.'
+}`
+const DB_FOLDER = `${
+  process.env.NODE_ENV === 'production'
+    ? remote.app.getPath('home') + `/.internxt-desktop/`
+    : '.'
+}`
 
 // Migration from .xclouddesktop to .internxt-desktop
 const oldFolderExists = fs.existsSync(OLD_DB_FOLDER)
 const newFolderExists = fs.existsSync(DB_FOLDER)
 if (oldFolderExists && !newFolderExists) {
   fs.renameSync(OLD_DB_FOLDER, DB_FOLDER)
-  Logger.info('Config folder migration success .xclouddesktop > .internxt-desktop')
-} else if (oldFolderExists && newFolderExists && process.env.NODE_ENV === 'production') {
+  Logger.info(
+    'Config folder migration success .xclouddesktop > .internxt-desktop'
+  )
+} else if (
+  oldFolderExists &&
+  newFolderExists &&
+  process.env.NODE_ENV === 'production'
+) {
   Logger.info('Remove old .xclouddesktop folder')
   rimraf.sync(OLD_DB_FOLDER)
 }
+
+var tempList = []
+var insertPromise
+var insertTimeOut
 
 const initDatabase = () => {
   if (!fs.existsSync(DB_FOLDER)) {
@@ -59,12 +77,12 @@ const dbTemp = new Datastore({
 
 function InsertKeyValue(db, key, value) {
   return new Promise((resolve, reject) => {
-    db.remove({ key }, { multi: true }, function (err, numRemoved) {
+    db.remove({ key }, { multi: true }, function(err, numRemoved) {
       if (err) {
         console.error('Error removing key/value: %s/%s', key, value)
         reject(err)
       } else {
-        db.insert({ key, value }, function (err, newDoc) {
+        db.insert({ key, value }, function(err, newDoc) {
           if (err) {
             console.error('Error inserting key/value: %s/%s', key, value)
             reject(err)
@@ -77,10 +95,14 @@ function InsertKeyValue(db, key, value) {
   })
 }
 
-const Get = async (key) => {
+const Get = async key => {
   const promise = new Promise((resolve, reject) => {
     dbUser.findOne({ key: key }, (err, result) => {
-      if (err) { reject(err) } else { resolve(result) }
+      if (err) {
+        reject(err)
+      } else {
+        resolve(result)
+      }
     })
   })
 
@@ -96,15 +118,56 @@ const FolderSet = (key, value) => {
   return InsertKeyValue(dbFolders, key, value)
 }
 
-const TempSet = (key, value) => {
-  return InsertKeyValue(dbTemp, key, value)
+const TempSet = async (key, value) => {
+  if (insertPromise) {
+    await insertPromise
+  }
+  tempList.push({ key: key, value: value })
+  if (!insertTimeOut) {
+    insertTimeOut = setTimeout(() => {
+      insertPromise = insertTemp()
+    }, 2000)
+  }
+}
+
+function insertTemp() {
+  return new Promise((resolve, reject) => {
+    const keys = []
+    tempList.map(o => {
+      keys.push(o.key)
+    })
+    dbTemp.remove({ key: { $in: keys } }, { multi: true }, function(
+      err,
+      numRemoved
+    ) {
+      if (err) {
+        console.error('Error removing key/value')
+        insertTimeOut = undefined
+        insertPromise = undefined
+        reject(err)
+      } else {
+        dbTemp.insert(tempList, function(err, newDoc) {
+          if (err) {
+            console.error('Error inserting key/value')
+            insertTimeOut = undefined
+            insertPromise = undefined
+            reject(err)
+          } else {
+            insertTimeOut = undefined
+            insertPromise = undefined
+            resolve(newDoc)
+          }
+        })
+      }
+    })
+  })
 }
 
 const FileSet = (key, value) => {
   return InsertKeyValue(dbFiles, key, value)
 }
 
-const FolderGet = (key) => {
+const FolderGet = key => {
   return new Promise((resolve, reject) => {
     dbFolders.findOne({ key: key }, (err, document) => {
       if (err) {
@@ -116,7 +179,7 @@ const FolderGet = (key) => {
   })
 }
 
-const FileGet = (key) => {
+const FileGet = key => {
   return new Promise((resolve, reject) => {
     dbFiles.findOne({ key: key }, (err, document) => {
       if (err) {
@@ -128,18 +191,26 @@ const FileGet = (key) => {
   })
 }
 
-const TempGet = (key) => {
+const TempGet = key => {
   return new Promise((resolve, reject) => {
     dbTemp.findOne({ key: key }, (err, document) => {
-      if (err) { resolve(null) } else { resolve(document) }
+      if (err) {
+        resolve(null)
+      } else {
+        resolve(document)
+      }
     })
   })
 }
 
-const TempDel = (key) => {
+const TempDel = key => {
   return new Promise((resolve, reject) => {
     dbTemp.remove({ key: key }, { multi: true }, (err, result) => {
-      if (err) { reject(err) } else { resolve() }
+      if (err) {
+        reject(err)
+      } else {
+        resolve()
+      }
     })
   })
 }
@@ -147,7 +218,11 @@ const TempDel = (key) => {
 const ClearTemp = () => {
   return new Promise((resolve, reject) => {
     dbTemp.remove({}, { multi: true }, (err, totalFilesRemoved) => {
-      if (err) { reject(err) } else { resolve(totalFilesRemoved) }
+      if (err) {
+        reject(err)
+      } else {
+        resolve(totalFilesRemoved)
+      }
     })
   })
 }
@@ -155,7 +230,11 @@ const ClearTemp = () => {
 const ClearFiles = () => {
   return new Promise((resolve, reject) => {
     dbFiles.remove({}, { multi: true }, (err, totalFilesRemoved) => {
-      if (err) { reject(err) } else { resolve(totalFilesRemoved) }
+      if (err) {
+        reject(err)
+      } else {
+        resolve(totalFilesRemoved)
+      }
     })
   })
 }
@@ -163,7 +242,11 @@ const ClearFiles = () => {
 const ClearFolders = () => {
   return new Promise((resolve, reject) => {
     dbFolders.remove({}, { multi: true }, (err, totalFilesRemoved) => {
-      if (err) { reject(err) } else { resolve(totalFilesRemoved) }
+      if (err) {
+        reject(err)
+      } else {
+        resolve(totalFilesRemoved)
+      }
     })
   })
 }
@@ -171,7 +254,11 @@ const ClearFolders = () => {
 const ClearUser = () => {
   return new Promise((resolve, reject) => {
     dbUser.remove({}, { multi: true }, (err, totalFilesRemoved) => {
-      if (err) { reject(err) } else { resolve(totalFilesRemoved) }
+      if (err) {
+        reject(err)
+      } else {
+        resolve(totalFilesRemoved)
+      }
     })
   })
 }
@@ -179,7 +266,11 @@ const ClearUser = () => {
 const ClearLastFiles = () => {
   return new Promise((resolve, reject) => {
     dbLastFiles.remove({}, { multi: true }, (err, totalFilesRemoved) => {
-      if (err) { reject(err) } else { resolve(totalFilesRemoved) }
+      if (err) {
+        reject(err)
+      } else {
+        resolve(totalFilesRemoved)
+      }
     })
   })
 }
@@ -187,7 +278,11 @@ const ClearLastFiles = () => {
 const ClearLastFolders = () => {
   return new Promise((resolve, reject) => {
     dbLastFolders.remove({}, { multi: true }, (err, totalFilesRemoved) => {
-      if (err) { reject(err) } else { resolve(totalFilesRemoved) }
+      if (err) {
+        reject(err)
+      } else {
+        resolve(totalFilesRemoved)
+      }
     })
   })
 }
@@ -203,52 +298,89 @@ const compactAllDatabases = () => {
 
 const backupCurrentTree = () => {
   return new Promise((resolve, reject) => {
-    async.waterfall([
-      next => dbLastFolders.remove({}, { multi: true }, (err) => next(err)),
-      next => dbLastFiles.remove({}, { multi: true }, (err) => next(err)),
-      next => {
-        dbFolders.find({}, (err, docs) => {
-          if (err) { return next(err) }
-          async.eachSeries(docs, (doc, nextDoc) => {
-            dbLastFolders.insert(doc, (err) => nextDoc(err))
-          }, (err) => next(err))
-        })
-      },
-      next => {
-        dbFiles.find({}, (err, docs) => {
-          if (err) { return next(err) }
-          async.eachSeries(docs, (doc, nextDoc) => {
-            dbLastFiles.insert(doc, (err) => nextDoc(err))
-          }, (err) => next(err))
-        })
-      },
-      next => {
-        dbLastFiles.persistence.compactDatafile()
-        dbLastFolders.persistence.compactDatafile()
-        dbUser.persistence.compactDatafile()
-        next()
+    async.waterfall(
+      [
+        next => dbLastFolders.remove({}, { multi: true }, err => next(err)),
+        next => dbLastFiles.remove({}, { multi: true }, err => next(err)),
+        next => {
+          dbFolders.find({}, (err, docs) => {
+            if (err) {
+              return next(err)
+            }
+            async.eachSeries(
+              docs,
+              (doc, nextDoc) => {
+                dbLastFolders.insert(doc, err => nextDoc(err))
+              },
+              err => next(err)
+            )
+          })
+        },
+        next => {
+          dbFiles.find({}, (err, docs) => {
+            if (err) {
+              return next(err)
+            }
+            async.eachSeries(
+              docs,
+              (doc, nextDoc) => {
+                dbLastFiles.insert(doc, err => nextDoc(err))
+              },
+              err => next(err)
+            )
+          })
+        },
+        next => {
+          dbLastFiles.persistence.compactDatafile()
+          dbLastFolders.persistence.compactDatafile()
+          dbUser.persistence.compactDatafile()
+          next()
+        }
+      ],
+      err => {
+        if (err) {
+          reject(err)
+        } else {
+          resolve()
+        }
       }
-    ], (err) => {
-      if (err) { reject(err) } else { resolve() }
-    })
+    )
   })
 }
 
 const ClearAll = () => {
   return new Promise((resolve, reject) => {
-    async.parallel([
-      next => ClearFolders().then(() => next()).catch(next),
-      next => ClearFiles().then(() => next()).catch(next),
-      next => ClearTemp().then(() => next()).catch(next),
-      next => ClearLastFiles().then(() => next()).catch(next),
-      next => ClearLastFolders().then(() => next()).catch(next)
-    ], (err) => {
-      if (err) {
-        reject(err)
-      } else {
-        resolve()
+    async.parallel(
+      [
+        next =>
+          ClearFolders()
+            .then(() => next())
+            .catch(next),
+        next =>
+          ClearFiles()
+            .then(() => next())
+            .catch(next),
+        next =>
+          ClearTemp()
+            .then(() => next())
+            .catch(next),
+        next =>
+          ClearLastFiles()
+            .then(() => next())
+            .catch(next),
+        next =>
+          ClearLastFolders()
+            .then(() => next())
+            .catch(next)
+      ],
+      err => {
+        if (err) {
+          reject(err)
+        } else {
+          resolve()
+        }
       }
-    })
+    )
   })
 }
 

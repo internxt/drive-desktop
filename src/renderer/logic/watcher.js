@@ -34,31 +34,31 @@ function startWatcher(path) {
     watcher
       .on('add', function (path) {
         if (watcherStarted) {
-          Logger.log('File', path, 'has been added')
+          // Logger.log('File', path, 'has been added')
           database.TempSet(path, 'add')
         }
       })
       .on('addDir', function (path) {
         if (watcherStarted) {
-          Logger.log('Directory', path, 'has been added')
+          // Logger.log('Directory', path, 'has been added')
           database.TempSet(path, 'addDir')
         }
       })
       .on('change', function (path) {
         if (watcherStarted) {
-          Logger.log('File', path, 'has been changed')
+          // Logger.log('File', path, 'has been changed')
           database.TempSet(path, 'add')
         }
       })
       .on('unlink', function (path) {
         if (watcherStarted) {
-          Logger.log('File', path, 'has been removed')
+          // Logger.log('File', path, 'has been removed')
           database.TempSet(path, 'unlink')
         }
       })
       .on('unlinkDir', function (path) {
         if (watcherStarted) {
-          Logger.log('Directory', path, 'has been removed')
+          // Logger.log('Directory', path, 'has been removed')
           if (path === rootFolder) {
             database.ClearAll().then(() => {
               remote.getCurrentWindow().close()
