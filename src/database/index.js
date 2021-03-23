@@ -43,7 +43,9 @@ const initDatabase = () => {
     fs.mkdirSync(DB_FOLDER)
   }
 }
-
+const tempEmpty = () => {
+  return tempList.length === 0
+}
 const dbFiles = new Datastore({
   filename: path.join(DB_FOLDER, 'database_files.db'),
   autoload: true,
@@ -126,7 +128,7 @@ const TempSet = async (key, value) => {
   if (!insertTimeOut) {
     insertTimeOut = setTimeout(() => {
       insertPromise = insertTemp()
-    }, 2000)
+    }, 1000)
   }
 }
 
@@ -144,6 +146,7 @@ function insertTemp() {
         console.error('Error removing key/value')
         insertTimeOut = undefined
         insertPromise = undefined
+        tempList = []
         reject(err)
       } else {
         dbTemp.insert(tempList, function(err, newDoc) {
@@ -151,10 +154,12 @@ function insertTemp() {
             console.error('Error inserting key/value')
             insertTimeOut = undefined
             insertPromise = undefined
+            tempList = []
             reject(err)
           } else {
             insertTimeOut = undefined
             insertPromise = undefined
+            tempList = []
             resolve(newDoc)
           }
         })
@@ -408,6 +413,7 @@ export default {
   compactAllDatabases,
   backupCurrentTree,
   ClearUser,
+  tempEmpty,
   GetDatabaseFolder: DB_FOLDER,
   initDatabase
 }

@@ -94,6 +94,12 @@ async function _deleteLocalWhenRemoteDeleted(lastSyncFailed) {
   const localPath = await Database.Get('xPath')
   const syncDate = Database.Get('syncStartDate')
 
+  while (!Database.tempEmpty()) {
+    await new Promise(resolve => {
+      setTimeout(resolve, 1000)
+    })
+  }
+
   // Get a list of all local folders
   const list = await Tree.getLocalFolderList(localPath)
 
