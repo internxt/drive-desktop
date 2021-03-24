@@ -19,7 +19,7 @@ import fetch from 'electron-fetch'
 import fs from 'fs'
 import ConfigStore from './config-store'
 import TrayMenu from './traymenu'
-
+require('@electron/remote/main').initialize()
 AutoLaunch.configureAutostart()
 
 /**

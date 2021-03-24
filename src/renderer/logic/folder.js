@@ -10,7 +10,7 @@ import async from 'async'
 import sanitize from 'sanitize-filename'
 import analytics from './utils/analytics'
 import ConfigStore from '../../main/config-store'
-
+const remote = require('@electron/remote')
 async function createRemoteFolder(name, parentId) {
   const headers = await Auth.getAuthHeader()
   return new Promise((resolve, reject) => {
@@ -71,7 +71,7 @@ async function createRemoteFolder(name, parentId) {
 
 function getTempFolderPath() {
   return path.join(
-    electron.remote.app.getPath('home'),
+    remote.app.getPath('home'),
     '.internxt-desktop',
     'tmp'
   )

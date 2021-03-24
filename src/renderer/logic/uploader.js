@@ -15,7 +15,7 @@ import getEnvironment from './utils/libinxt'
 import analytics from './utils/analytics'
 import ConfigStore from '../../main/config-store'
 
-const app = electron.remote.app
+const { app } = require('@electron/remote')
 
 async function uploadNewFile(storj, filePath, nCurrent, nTotal) {
   // Get the folder info of that file.
@@ -67,7 +67,7 @@ async function uploadNewFile(storj, filePath, nCurrent, nTotal) {
   Logger.log('NEW file found %s , size: %d', filePath, fileSize)
   // Copy file to temp folder
   const tempPath = path.join(
-    electron.remote.app.getPath('home'),
+    app.getPath('home'),
     '.internxt-desktop',
     'tmp'
   )
@@ -369,7 +369,7 @@ async function uploadFile(storj, filePath, nCurrent, nTotal, item) {
 
   // Copy file to temp folder
   const tempPath = path.join(
-    electron.remote.app.getPath('home'),
+    app.getPath('home'),
     '.internxt-desktop',
     'tmp'
   )
