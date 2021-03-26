@@ -35,6 +35,7 @@ if (oldFolderExists && !newFolderExists) {
 }
 
 var tempList = []
+var tempDict = {}
 var insertPromise
 var insertTimeOut
 
@@ -44,7 +45,7 @@ const initDatabase = () => {
   }
 }
 const tempEmpty = () => {
-  return tempList.length === 0
+  return Object.keys(tempDict).length === 0
 }
 const dbFiles = new Datastore({
   filename: path.join(DB_FOLDER, 'database_files.db'),
@@ -124,47 +125,51 @@ const TempSet = async (key, value) => {
   if (insertPromise) {
     await insertPromise
   }
-  tempList.push({ key: key, value: value })
-  if (!insertTimeOut) {
-    insertTimeOut = setTimeout(() => {
-      insertPromise = insertTemp()
-    }, 1000)
+  tempDict[key] = value
+  if (insertTimeOut) {
+    clearTimeout(insertTimeOut)
   }
+  insertTimeOut = setTimeout(() => {
+    insertPromise = insertTemp()
+  }, 500)
 }
 
 function insertTemp() {
   return new Promise((resolve, reject) => {
-    const keys = []
-    tempList.map(o => {
-      keys.push(o.key)
-    })
-    dbTemp.remove({ key: { $in: keys } }, { multi: true }, function(
-      err,
-      numRemoved
-    ) {
-      if (err) {
-        console.error('Error removing key/value')
-        insertTimeOut = undefined
-        insertPromise = undefined
-        tempList = []
-        reject(err)
-      } else {
-        dbTemp.insert(tempList, function(err, newDoc) {
-          if (err) {
-            console.error('Error inserting key/value')
-            insertTimeOut = undefined
-            insertPromise = undefined
-            tempList = []
-            reject(err)
-          } else {
-            insertTimeOut = undefined
-            insertPromise = undefined
-            tempList = []
-            resolve(newDoc)
+    dbTemp.remove(
+      { key: { $in: Object.keys(tempDict) } },
+      { multi: true },
+      function(err, numRemoved) {
+        if (err) {
+          console.error('Error removing key/value')
+          tempDict = {}
+          insertTimeOut = undefined
+          insertPromise = undefined
+          reject(err)
+        } else {
+          console.log(numRemoved)
+          for (const key of Object.keys(tempDict)) {
+            tempList.push({ key: key, value: tempDict[key] })
           }
-        })
+          dbTemp.insert(tempList, function(err, newDoc) {
+            if (err) {
+              console.error('Error inserting key/value')
+              tempDict = {}
+              tempList = []
+              insertTimeOut = undefined
+              insertPromise = undefined
+              reject(err)
+            } else {
+              tempList = []
+              tempDict = {}
+              insertTimeOut = undefined
+              insertPromise = undefined
+              resolve(newDoc)
+            }
+          })
+        }
       }
-    })
+    )
   })
 }
 

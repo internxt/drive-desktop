@@ -96,7 +96,7 @@ async function _deleteLocalWhenRemoteDeleted(lastSyncFailed) {
 
   while (!Database.tempEmpty()) {
     await new Promise(resolve => {
-      setTimeout(resolve, 1000)
+      setTimeout(resolve, 1500)
     })
   }
 

@@ -206,7 +206,7 @@ async function cleanLocalWhenRemoteDeleted(lastSyncFailed) {
 
   while (!database.tempEmpty()) {
     await new Promise(resolve => {
-      setTimeout(resolve, 1000)
+      setTimeout(resolve, 1500)
     })
   }
 
