@@ -93,6 +93,20 @@ class TrayMenu {
               properties: ['openDirectory']
             })
             if (newDir && newDir.length > 0 && fs.existsSync(newDir[0])) {
+              if ((newDir[0] === app.getPath('home'))) {
+                app.emit('show-error', 'Internxt do not support syncronization of your home directory. Try to sync any of its content instead.')
+                return
+              }
+              const appDir = path.dirname(app.getPath('appData'))
+              const relative = path.relative(appDir, newDir[0])
+              if (
+                (relative &&
+                !relative.startsWith('..') &&
+                !path.isAbsolute(relative)) || appDir === newDir[0]
+              ) {
+                app.emit('show-error', 'Internxt do not support syncronization of your appData directory or anything inside of it.')
+                return
+              }
               app.emit('new-folder-path', newDir[0])
             } else {
               Logger.info('Sync folder change error or cancelled')
@@ -158,6 +172,18 @@ class TrayMenu {
             const logFile = electronLog.transports.file.getFile().path
             const logPath = path.dirname(logFile)
             shell.openPath(logPath)
+          } catch (e) {
+            Logger.error('Error opening log path: %s', e.message)
+          }
+        }
+      },
+      {
+        label: 'print path',
+        click: function() {
+          try {
+            Logger.log(app.getPath('home'))
+            Logger.log(app.getPath('appData'))
+            Logger.log(app.getPath('userData'))
           } catch (e) {
             Logger.error('Error opening log path: %s', e.message)
           }
