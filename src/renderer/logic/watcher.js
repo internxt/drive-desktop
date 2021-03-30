@@ -9,6 +9,10 @@ remote.app.on('new-folder-path', () => {
   watcherStarted = false
   watcher.close()
 })
+remote.app.on('user-logout', () => {
+  watcherStarted = false
+  watcher.close()
+})
 function startWatcher(path) {
   return new Promise((resolve, reject) => {
     if (watcherStarted) {
