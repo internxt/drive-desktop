@@ -149,7 +149,7 @@ function generatePath(pathDict, item) {
 async function regenerateLocalDbFolder(tree) {
   const finalDict = {}
   const dbEntrys = []
-
+  const ignoreHideFolder = new RegExp('^\\.[]*')
   const basePath = await database.Get('xPath')
   await database.dbFolders.remove({}, { multi: true })
   for (const item of tree.folders) {
@@ -187,7 +187,7 @@ async function regenerateLocalDbFolder(tree) {
     const fullNewPath = finalDict[item.id].path
     const cloneObject = JSON.parse(JSON.stringify(item))
     const finalObject = { key: fullNewPath, value: cloneObject }
-    if (path.basename(fullNewPath) !== sanitize(path.basename(fullNewPath))) {
+    if (path.basename(fullNewPath) !== sanitize(path.basename(fullNewPath)) || ignoreHideFolder.test(path.basename(fullNewPath))) {
       Logger.info('Ignoring folder %s, invalid name', finalObject.key)
       delete finalDict[item.id]
       continue
@@ -281,10 +281,10 @@ async function getFileListFromRemoteTree() {
       .catch(reject)
   })
 }
-
 function getLocalFolderList(localPath) {
   return new Promise(resolve => {
     const results = []
+    const ignoreHideFolder = new RegExp('^\\.[]*')
     readdirp(localPath, {
       type: 'directories'
     })
@@ -294,6 +294,9 @@ function getLocalFolderList(localPath) {
             'Directory %s ignored, name is not compatible',
             data.basename
           )
+        }
+        if (ignoreHideFolder.test(data.basename)) {
+          return
         }
         results.push(data.fullPath)
       })

@@ -178,18 +178,6 @@ class TrayMenu {
         }
       },
       {
-        label: 'print path',
-        click: function() {
-          try {
-            Logger.log(app.getPath('home'))
-            Logger.log(app.getPath('appData'))
-            Logger.log(app.getPath('userData'))
-          } catch (e) {
-            Logger.error('Error opening log path: %s', e.message)
-          }
-        }
-      },
-      {
         label: 'Billing',
         click: function() {
           shell.openExternal(`${process.env.API_URL}/storage`)
