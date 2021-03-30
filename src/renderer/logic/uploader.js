@@ -64,7 +64,7 @@ async function uploadNewFile(storj, filePath, nCurrent, nTotal) {
 
   const finalName = encryptedFileName + (fileExt ? '.' + fileExt : '')
 
-  Logger.log('NEW file found %s , size: %d', filePath, fileSize)
+  Logger.log('NEW file found %s, size: %d', filePath, fileSize)
   // Copy file to temp folder
   const tempPath = path.join(app.getPath('home'), '.internxt-desktop', 'tmp')
   if (!fs.existsSync(tempPath)) {
@@ -321,7 +321,7 @@ async function uploadFile(storj, filePath, nCurrent, nTotal, item) {
   const fileMtime = fileStats.mtime
   fileMtime.setMilliseconds(0)
   const fileSize = fileStats.size
-  Logger.log('Upload file %s , size: %d', filePath, fileSize)
+  Logger.log('Upload file %s, size: %d', filePath, fileSize)
   // Delete former file
   if (item.size === 0) {
     await File.removeFileEntry(
@@ -531,7 +531,7 @@ async function uploadAllNewFiles() {
           if (stat.size === 0) {
             // The network can't hold empty files. Encryption will fail.
             // So, we will ignore this file.
-            Logger.warn('Warning:File %s  ,Filesize 0.', item)
+            Logger.warn('Warning:File %s, Filesize 0.', item)
             Database.TempSet(item, 'add')
             // await uploadZeroSizeFile(item, currentFiles, totalFiles)
             continue
