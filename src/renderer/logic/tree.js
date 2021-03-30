@@ -9,7 +9,7 @@ import Logger from '../../libs/logger'
 import Auth from './utils/Auth'
 import ConfigStore from '../../main/config-store'
 
-const IgnoredFiles = ['^\\.(DS_Store|[Tt]humbs)$', '.*~$', '^\\._.*', '^~.*']
+const IgnoredFiles = ['^\\.[]*', '^~.*']
 
 function getListFromFolder(folderPath) {
   return new Promise(resolve => {

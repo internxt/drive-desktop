@@ -105,6 +105,7 @@ async function _downloadAllFiles() {
   // Get a list of all the files on the remote folder
   const list = Database.dbFiles.getAllData()
   const totalFiles = list.length
+  const ignoreHideFile = new RegExp('^\\.[]*')
   let currentFiles = 0
   for (let item of list) {
     if (ConfigStore.get('stopSync')) {
@@ -113,7 +114,7 @@ async function _downloadAllFiles() {
     currentFiles++
     item = item.value
     if (
-      path.basename(item.fullpath) !== sanitize(path.basename(item.fullpath))
+      path.basename(item.fullpath) !== sanitize(path.basename(item.fullpath)) || ignoreHideFile.test(path.basename(item.fullpath))
     ) {
       Logger.info(
         "Can't download %s, invalid filename",

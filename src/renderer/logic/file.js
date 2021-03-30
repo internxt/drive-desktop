@@ -9,6 +9,7 @@ import Tree from './tree'
 import fs from 'fs'
 import analytics from './utils/analytics'
 import ConfigStore from '../../main/config-store'
+import path from 'path'
 
 function infoFromPath(localPath) {
   return new Promise((resolve, reject) => {
@@ -145,9 +146,13 @@ async function cleanRemoteWhenLocalDeleted(lastSyncFailed) {
     return
   }
   const allData = database.dbFiles.getAllData()
+  const ignoreHideFile = new RegExp('^\\.[]*')
   for (const item of allData) {
     if (ConfigStore.get('stopSync')) {
       throw Error('stop sync')
+    }
+    if (ignoreHideFile.test(path.basename(item.key))) {
+      continue
     }
     const stat = Tree.getStat(item.key)
 

@@ -337,7 +337,7 @@ async function uploadFile(storj, filePath, nCurrent, nTotal, item) {
     await File.removeFile(bucketId, fileId)
   }
   if (fileSize === 0) {
-    Logger.warn('Warning:File %s  ,Filesize 0.', filePath)
+    Logger.warn('Warning:File %s, Filesize 0.', filePath)
     return
     /*
     return File.createFileEntry(

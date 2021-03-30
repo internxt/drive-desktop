@@ -147,7 +147,6 @@ function insertTemp() {
           insertPromise = undefined
           reject(err)
         } else {
-          console.log(numRemoved)
           for (const key of Object.keys(tempDict)) {
             tempList.push({ key: key, value: tempDict[key] })
           }
