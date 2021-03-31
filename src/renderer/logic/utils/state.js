@@ -4,7 +4,8 @@ var state = {
   DOWNLOAD: 'download',
   SYNCED: 'synced',
   DELETE_CLOUD: 'deleteCloud',
-  DELETE_LOCAL: 'deleteLocal'
+  DELETE_LOCAL: 'deleteLocal',
+  IGNORE: 'ignore'
 }
 // define words
 var word = {
@@ -34,6 +35,8 @@ synced[word.uploadAndReplace] = state.UPLOAD
 synced[word.downloadAndReplace] = state.DOWNLOAD
 synced[word.localDeleted] = state.DELETE_CLOUD
 synced[word.cloudDeleted] = state.DELETE_LOCAL
+var ignore = []
+ignore[word.cloudDeleted] = state.DELETE_LOCAL
 // define machine
 var machine = []
 machine[state.UPLOAD] = upload
@@ -41,6 +44,7 @@ machine[state.DOWNLOAD] = download
 machine[state.SYNCED] = synced
 machine[state.DELETE_LOCAL] = deleteLocal
 machine[state.DELETE_CLOUD] = deleteCloud
+machine[state.IGNORE] = ignore
 
 function transition(state, word) {
   return machine[state][word] ? machine[state][word] : state
