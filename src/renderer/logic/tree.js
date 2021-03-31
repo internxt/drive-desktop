@@ -187,7 +187,10 @@ async function regenerateLocalDbFolder(tree) {
     const fullNewPath = finalDict[item.id].path
     const cloneObject = JSON.parse(JSON.stringify(item))
     const finalObject = { key: fullNewPath, value: cloneObject }
-    if (path.basename(fullNewPath) !== sanitize(path.basename(fullNewPath)) || ignoreHideFolder.test(path.basename(fullNewPath))) {
+    if (
+      path.basename(fullNewPath) !== sanitize(path.basename(fullNewPath)) ||
+      ignoreHideFolder.test(path.basename(fullNewPath))
+    ) {
       Logger.info('Ignoring folder %s, invalid name', finalObject.key)
       delete finalDict[item.id]
       continue
@@ -363,28 +366,39 @@ async function updateUserObject() {
       .catch(reject)
   })
 }
-
 async function getList() {
   const headers = await Auth.getAuthHeader()
-  return new Promise((resolve, reject) => {
-    fetch(`${process.env.API_URL}/api/desktop/tree`, {
-      headers: headers
-    })
-      .then(res => {
-        return res.text()
-      })
-      .then(text => {
-        try {
-          return { data: JSON.parse(text) }
-        } catch (err) {
-          throw new Error(err + ' data: ' + text)
-        }
-      })
-      .then(res => {
-        resolve(res.data)
-      })
-      .catch(reject)
-  })
+  let finished = false
+  let index = 0
+  const offset = 5000
+  const result = { folders: [], files: [] }
+  while (!finished) {
+    const fetchRes = await fetch(
+      `${process.env.API_URL}/api/desktop/list/${index}`,
+      {
+        headers: headers
+      }
+    )
+    // console.log('fetch, ', fetchRes)
+    const text = await fetchRes.text()
+    // console.log('text, ', text)
+    let data
+    try {
+      data = JSON.parse(text)
+    } catch (err) {
+      throw new Error(err + ' data: ' + text)
+    }
+    // console.log('data, ', data)
+    result.folders = result.folders.concat(data.folders)
+    result.files = result.files.concat(data.files)
+    if (data.folders.length < offset) {
+      finished = true
+    } else {
+      index += offset
+    }
+  }
+  console.log(result)
+  return result
 }
 
 function updateLocalDb() {
