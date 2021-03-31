@@ -9,7 +9,7 @@ import Logger from '../../libs/logger'
 import Auth from './utils/Auth'
 import ConfigStore from '../../main/config-store'
 
-const IgnoredFiles = ['^\\.(DS_Store|[Tt]humbs)$', '.*~$', '^\\._.*', '^~.*']
+const IgnoredFiles = ['^\\.[]*', '^~.*']
 
 function getListFromFolder(folderPath) {
   return new Promise(resolve => {
@@ -129,10 +129,18 @@ async function getFolderObjectListFromRemoteTree() {
 }
 
 function generatePath(pathDict, item) {
+  if (!pathDict[item.parent]) return
   if (pathDict[item.parent].full) {
     return pathDict[item.parent].path
   } else {
-    pathDict[item.parent].path = path.join(generatePath(pathDict, pathDict[item.parent]), pathDict[item.parent].path)
+    var parentPath = generatePath(pathDict, pathDict[item.parent])
+    if (parentPath === undefined) {
+      return
+    }
+    pathDict[item.parent].path = path.join(
+      parentPath,
+      pathDict[item.parent].path
+    )
     pathDict[item.parent].full = true
     return pathDict[item.parent].path
   }
@@ -141,32 +149,45 @@ function generatePath(pathDict, item) {
 async function regenerateLocalDbFolder(tree) {
   const finalDict = {}
   const dbEntrys = []
-
+  const ignoreHideFolder = new RegExp('^\\.[]*')
   const basePath = await database.Get('xPath')
   await database.dbFolders.remove({}, { multi: true })
   for (const item of tree.folders) {
     if (!item.parent_id) {
-      finalDict[item.id] = {path: basePath, parent: item.parent_id, full: true}
+      finalDict[item.id] = {
+        path: basePath,
+        parent: item.parent_id,
+        full: true
+      }
       continue
     }
-    finalDict[item.id] = {path: crypt.decryptName(item.name, item.parent_id), parent: item.parent_id, full: false}
+    finalDict[item.id] = {
+      path: crypt.decryptName(item.name, item.parent_id),
+      parent: item.parent_id,
+      full: false
+    }
   }
 
   for (const item of tree.folders) {
     if (ConfigStore.get('stopSync')) {
       throw Error('stop sync')
     }
-    if (!item.parent_id) {
+    if (!item.parent_id || !finalDict[item.parent_id]) {
       continue
     }
     if (!finalDict[item.id].full) {
-      finalDict[item.id].path = path.join(generatePath(finalDict, finalDict[item.id]), finalDict[item.id].path)
+      var parentPath = generatePath(finalDict, finalDict[item.id])
+      if (parentPath === undefined) {
+        delete finalDict[item.id]
+        continue
+      }
+      finalDict[item.id].path = path.join(parentPath, finalDict[item.id].path)
       finalDict[item.id].full = true
     }
     const fullNewPath = finalDict[item.id].path
     const cloneObject = JSON.parse(JSON.stringify(item))
     const finalObject = { key: fullNewPath, value: cloneObject }
-    if (path.basename(fullNewPath) !== sanitize(path.basename(fullNewPath))) {
+    if (path.basename(fullNewPath) !== sanitize(path.basename(fullNewPath)) || ignoreHideFolder.test(path.basename(fullNewPath))) {
       Logger.info('Ignoring folder %s, invalid name', finalObject.key)
       delete finalDict[item.id]
       continue
@@ -185,6 +206,9 @@ async function regenerateLocalDbFile(tree, folderDict) {
   for (const item of tree.files) {
     if (ConfigStore.get('stopSync')) {
       throw Error('stop sync')
+    }
+    if (!folderDict[item.folder_id]) {
+      continue
     }
     const filePath = folderDict[item.folder_id].path
     item.filename = crypt.decryptName(item.name, item.folder_id)
@@ -257,10 +281,10 @@ async function getFileListFromRemoteTree() {
       .catch(reject)
   })
 }
-
 function getLocalFolderList(localPath) {
   return new Promise(resolve => {
     const results = []
+    const ignoreHideFolder = new RegExp('^\\.[]*')
     readdirp(localPath, {
       type: 'directories'
     })
@@ -270,6 +294,9 @@ function getLocalFolderList(localPath) {
             'Directory %s ignored, name is not compatible',
             data.basename
           )
+        }
+        if (ignoreHideFolder.test(data.basename)) {
+          return
         }
         results.push(data.fullPath)
       })
@@ -364,9 +391,13 @@ function updateLocalDb() {
   return new Promise((resolve, reject) => {
     getList()
       .then(tree => {
-        regenerateLocalDbFolder(tree).then(result => {
-          regenerateLocalDbFile(tree, result).then(resolve).catch(reject)
-        }).catch(reject)
+        regenerateLocalDbFolder(tree)
+          .then(result => {
+            regenerateLocalDbFile(tree, result)
+              .then(resolve)
+              .catch(reject)
+          })
+          .catch(reject)
       })
       .catch(err => {
         Logger.error('Error updating localDb', err)

@@ -1,6 +1,7 @@
 import Logger from '../../../libs/logger'
 import ConfigStore from '../../../main/config-store'
 import database from '../../../database'
+import PackageJson from '../../../../package.json'
 const Analytics = require('analytics-node')
 const segmentAnalytics = new Analytics(process.env.APP_SEGMENT_KEY, {
   flushAt: 1
@@ -25,6 +26,10 @@ const analytics = {
       if (this.userData.userMail && object.properties.email) {
         object.properties.email = this.userData.userMail
       }
+    }
+    object['context'] = {
+      platform: process.platform,
+      version: PackageJson.version
     }
     segmentAnalytics.track(object)
   },

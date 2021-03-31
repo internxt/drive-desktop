@@ -19,7 +19,7 @@ import fetch from 'electron-fetch'
 import fs from 'fs'
 import ConfigStore from './config-store'
 import TrayMenu from './traymenu'
-
+require('@electron/remote/main').initialize()
 AutoLaunch.configureAutostart()
 
 /**
@@ -57,7 +57,9 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     webPreferences: {
       nodeIntegration: true,
-      webSecurity: process.env.NODE_ENV !== 'development'
+      contextIsolation: false,
+      webSecurity: process.env.NODE_ENV !== 'development',
+      enableRemoteModule: true
     },
     width: 500,
     height: 550,
@@ -202,10 +204,12 @@ app.on('browser-window-focus', (e, w) => {})
 
 app.on('sync-on', function() {
   trayMenu.setIsLoadingIcon(true)
+  trayMenu.updateSyncState()
 })
 
 app.on('sync-off', function() {
   trayMenu.setIsLoadingIcon(false)
+  trayMenu.updateSyncState()
 })
 
 app.on('change-auto-launch', AutoLaunch.configureAutostart)
@@ -245,7 +249,7 @@ app.on('set-tooltip', msg => {
   trayMenu.setToolTip(message)
 })
 
-app.on('show-error', (msg) => {
+app.on('show-error', msg => {
   dialog.showErrorBox('Error', msg)
 })
 
@@ -305,20 +309,21 @@ function AnnounceUpdate(version) {
     title: 'Internxt Drive',
     message: 'New update available: ' + version
   }
-  dialog.showMessageBox(
-    new BrowserWindow({
-      show: false,
-      parent: mainWindow,
-      alwaysOnTop: true
-    }),
-    options,
-    userResponse => {
+  dialog
+    .showMessageBox(
+      new BrowserWindow({
+        show: false,
+        parent: mainWindow,
+        alwaysOnTop: true
+      }),
+      options
+    )
+    .then((userResponse, checkboxChecked) => {
       UpdateOptions.dialogShow = false
       if (userResponse === 0) {
         autoUpdater.quitAndInstall(false, true)
       }
-    }
-  )
+    })
 }
 
 const UpdateOptions = {
@@ -394,7 +399,7 @@ function checkUpdates() {
 async function ManualCheckUpdate() {
   fetch('https://api.github.com/repos/internxt/drive-desktop/releases/latest')
     .then(res => res.text())
-    .then((text) => {
+    .then(text => {
       try {
         return JSON.parse(text)
       } catch (err) {
