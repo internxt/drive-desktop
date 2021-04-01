@@ -36,8 +36,8 @@ function invalidFileName(filename, testFolder) {
     createTestFolder(testFolder)
   }
   const filePath = path.join(testFolder, filename)
-  fs.writeFileSync(filePath, '')
   try {
+    fs.writeFileSync(filePath, '')
     fs.renameSync(filePath, filePath)
     return false
   } catch (e) {
@@ -136,7 +136,6 @@ async function _downloadAllFiles() {
   let currentFiles = 0
   const rootPath = await Database.Get('xPath')
   const nameTestFolder = path.join(rootPath, '.internxt_name_test')
-  console.log(nameTestFolder)
   for (let item of list) {
     if (ConfigStore.get('stopSync')) {
       throw Error('stop sync')

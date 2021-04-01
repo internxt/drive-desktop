@@ -8,7 +8,7 @@ import Logger from '../../libs/logger'
 import Auth from './utils/Auth'
 import ConfigStore from '../../main/config-store'
 
-const IgnoredFiles = ['^\\.[]*', '^~.*', '[\\\\/]']
+const IgnoredFiles = ['^\\.[]*', '^~.*', '[\\\\/]|[. ]$']
 
 function getListFromFolder(folderPath) {
   return new Promise(resolve => {
@@ -270,7 +270,7 @@ function getLocalFolderList(localPath) {
   return new Promise(resolve => {
     const results = []
     const ignoreHideFolder = new RegExp('^\\.[]*')
-    const invalidName = /[\\/]/
+    const invalidName = /[\\/]|[. ]$/
     readdirp(localPath, {
       type: 'directories'
     })

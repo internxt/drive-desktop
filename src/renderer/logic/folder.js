@@ -10,7 +10,7 @@ import async from 'async'
 import analytics from './utils/analytics'
 import ConfigStore from '../../main/config-store'
 const remote = require('@electron/remote')
-const invalidName = /[\\/]/
+const invalidName = /[\\/]|[. ]$/
 
 async function createRemoteFolder(name, parentId) {
   const headers = await Auth.getAuthHeader()
