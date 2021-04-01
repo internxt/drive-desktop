@@ -4,12 +4,11 @@ import database from '../../database'
 import async from 'async'
 import crypt from './crypt'
 import readdirp from 'readdirp'
-import sanitize from 'sanitize-filename'
 import Logger from '../../libs/logger'
 import Auth from './utils/Auth'
 import ConfigStore from '../../main/config-store'
 
-const IgnoredFiles = ['^\\.[]*', '^~.*']
+const IgnoredFiles = ['^\\.[]*', '^~.*', '[\\\\/]']
 
 function getListFromFolder(folderPath) {
   return new Promise(resolve => {
@@ -18,13 +17,6 @@ function getListFromFolder(folderPath) {
       type: 'files'
     })
       .on('data', data => {
-        if (data.basename !== sanitize(data.basename)) {
-          return Logger.info(
-            'Ignoring %s, filename not compatible',
-            data.fullPath
-          )
-        }
-
         const invalid = IgnoredFiles.find(regex =>
           new RegExp(regex).test(data.basename)
         )
@@ -187,11 +179,8 @@ async function regenerateLocalDbFolder(tree) {
     const fullNewPath = finalDict[item.id].path
     const cloneObject = JSON.parse(JSON.stringify(item))
     const finalObject = { key: fullNewPath, value: cloneObject }
-    if (
-      path.basename(fullNewPath) !== sanitize(path.basename(fullNewPath)) ||
-      ignoreHideFolder.test(path.basename(fullNewPath))
-    ) {
-      Logger.info('Ignoring folder %s, invalid name', finalObject.key)
+    if (ignoreHideFolder.test(path.basename(fullNewPath))) {
+      Logger.info('Ignoring folder %s, hidden folder', finalObject.key)
       delete finalDict[item.id]
       continue
     }
@@ -223,13 +212,6 @@ async function regenerateLocalDbFile(tree, folderDict) {
 
     const cloneObject = JSON.parse(JSON.stringify(item))
     const finalObject = { key: item.fullpath, value: cloneObject }
-    if (
-      path.basename(finalObject.key) !==
-      sanitize(path.basename(finalObject.key))
-    ) {
-      Logger.info('Ignoring file %s, invalid name', finalObject.key)
-      continue
-    }
     dbEntrys.push(finalObject)
     // return
   }
@@ -288,11 +270,12 @@ function getLocalFolderList(localPath) {
   return new Promise(resolve => {
     const results = []
     const ignoreHideFolder = new RegExp('^\\.[]*')
+    const invalidName = /[\\/]/
     readdirp(localPath, {
       type: 'directories'
     })
       .on('data', data => {
-        if (data.basename !== sanitize(data.basename)) {
+        if (invalidName.test(data.basename)) {
           return Logger.info(
             'Directory %s ignored, name is not compatible',
             data.basename
@@ -379,16 +362,13 @@ async function getList() {
         headers: headers
       }
     )
-    // console.log('fetch, ', fetchRes)
     const text = await fetchRes.text()
-    // console.log('text, ', text)
     let data
     try {
       data = JSON.parse(text)
     } catch (err) {
       throw new Error(err + ' data: ' + text)
     }
-    // console.log('data, ', data)
     result.folders = result.folders.concat(data.folders)
     result.files = result.files.concat(data.files)
     if (data.folders.length < offset) {
