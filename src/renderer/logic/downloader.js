@@ -37,7 +37,7 @@ function testFileName(filename, testFolder) {
   }
   const filePath = path.join(testFolder, filename)
   fs.writeFileSync(filePath, '')
-  return fs.existsSync(filePath)
+  return !fs.existsSync(filePath)
 }
 
 async function downloadFileTemp(fileObj, silent = false) {
@@ -129,8 +129,9 @@ async function _downloadAllFiles() {
   const totalFiles = list.length
   const ignoreHideFile = new RegExp('^\\.[]*')
   let currentFiles = 0
-  const rootPath = await Database.get('xPath')
+  const rootPath = await Database.Get('xPath')
   const nameTestFolder = path.join(rootPath, '.internxt_name_test')
+  console.log(nameTestFolder)
   for (let item of list) {
     if (ConfigStore.get('stopSync')) {
       throw Error('stop sync')
@@ -139,7 +140,7 @@ async function _downloadAllFiles() {
     item = item.value
     if (
       ignoreHideFile.test(path.basename(item.fullpath)) ||
-      testFileName(path.basename(item.fullpath, nameTestFolder))
+      testFileName(path.basename(item.fullpath), nameTestFolder)
     ) {
       Logger.info(
         "Can't download %s, invalid filename",

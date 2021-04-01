@@ -377,7 +377,6 @@ async function getList() {
       index += offset
     }
   }
-  console.log(result)
   return result
 }
 
