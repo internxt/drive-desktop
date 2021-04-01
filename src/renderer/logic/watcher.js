@@ -38,7 +38,7 @@ function startWatcher(path) {
     watcher
       .on('add', function (path) {
         if (watcherStarted) {
-          // Logger.log('File', path, 'has been added')
+          Logger.log('File', path, 'has been added')
           database.TempSet(path, 'add')
         }
       })

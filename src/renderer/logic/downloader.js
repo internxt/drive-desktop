@@ -31,13 +31,18 @@ function removeTestFolder(folderPath) {
   })
 }
 
-function testFileName(filename, testFolder) {
+function invalidFileName(filename, testFolder) {
   if (!fs.existsSync(testFolder)) {
     createTestFolder(testFolder)
   }
   const filePath = path.join(testFolder, filename)
   fs.writeFileSync(filePath, '')
-  return !fs.existsSync(filePath)
+  try {
+    fs.renameSync(filePath, filePath)
+    return false
+  } catch (e) {
+    return true
+  }
 }
 
 async function downloadFileTemp(fileObj, silent = false) {
@@ -140,12 +145,13 @@ async function _downloadAllFiles() {
     item = item.value
     if (
       ignoreHideFile.test(path.basename(item.fullpath)) ||
-      testFileName(path.basename(item.fullpath), nameTestFolder)
+      invalidFileName(path.basename(item.fullpath), nameTestFolder)
     ) {
       Logger.info(
         "Can't download %s, invalid filename",
         path.basename(item.fullpath)
       )
+      await Database.dbFiles.remove({ key: item.fullpath })
       continue
     }
     // If not enough space on hard disk, do not download and stop syncing.
