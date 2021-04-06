@@ -7,6 +7,7 @@ import readdirp from 'readdirp'
 import Logger from '../../libs/logger'
 import Auth from './utils/Auth'
 import ConfigStore from '../../main/config-store'
+import NameTest from './utils/nameTest'
 
 const IgnoredFiles = ['^\\.[]*', '^~.*', '[\\\\/]|[. ]$']
 
@@ -143,6 +144,7 @@ async function regenerateLocalDbFolder(tree) {
   const dbEntrys = []
   const ignoreHideFolder = new RegExp('^\\.[]*')
   const basePath = await database.Get('xPath')
+  const nameTestFolder = path.join(basePath, '.internxt_name_test')
   await database.dbFolders.remove({}, { multi: true })
   for (const item of tree.folders) {
     if (!item.parent_id) {
@@ -159,7 +161,6 @@ async function regenerateLocalDbFolder(tree) {
       full: false
     }
   }
-
   for (const item of tree.folders) {
     if (ConfigStore.get('stopSync')) {
       throw Error('stop sync')
@@ -181,6 +182,13 @@ async function regenerateLocalDbFolder(tree) {
     const finalObject = { key: fullNewPath, value: cloneObject }
     if (ignoreHideFolder.test(path.basename(fullNewPath))) {
       Logger.info('Ignoring folder %s, hidden folder', finalObject.key)
+      delete finalDict[item.id]
+      continue
+    }
+    if (
+      NameTest.invalidFolderName(path.basename(fullNewPath), nameTestFolder)
+    ) {
+      Logger.info('Ignoring folder %s, invalid name', finalObject.key)
       delete finalDict[item.id]
       continue
     }
