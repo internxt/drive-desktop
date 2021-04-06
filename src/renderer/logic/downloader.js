@@ -1,7 +1,7 @@
 import Tree from './tree'
 import async from 'async'
 import Database from '../../database/index'
-import path from 'path'
+import path, { basename } from 'path'
 import fs from 'fs'
 import Sync from './sync'
 import Uploader from './uploader'
@@ -9,14 +9,41 @@ import CheckDiskSpace from 'check-disk-space'
 import electron from 'electron'
 import Logger from '../../libs/logger'
 import mkdirp from 'mkdirp'
-import sanitize from 'sanitize-filename'
 import Folder from './folder'
 import getEnvironment from './utils/libinxt'
 import File from './file'
 import analytics from '../logic/utils/analytics'
 import ConfigStore from '../../main/config-store'
-
+import rimraf from 'rimraf'
+const hidefile = require('hidefile')
 const { app } = require('@electron/remote')
+
+function createTestFolder(folderPath) {
+  fs.mkdirSync(folderPath)
+  hidefile.hideSync(folderPath)
+}
+
+function removeTestFolder(folderPath) {
+  return new Promise((resolve, reject) => {
+    rimraf(folderPath, () => {
+      resolve()
+    })
+  })
+}
+
+function invalidFileName(filename, testFolder) {
+  if (!fs.existsSync(testFolder)) {
+    createTestFolder(testFolder)
+  }
+  const filePath = path.join(testFolder, filename)
+  try {
+    fs.writeFileSync(filePath, '')
+    fs.renameSync(filePath, filePath)
+    return false
+  } catch (e) {
+    return true
+  }
+}
 
 async function downloadFileTemp(fileObj, silent = false) {
   const storj = await getEnvironment()
@@ -107,6 +134,8 @@ async function _downloadAllFiles() {
   const totalFiles = list.length
   const ignoreHideFile = new RegExp('^\\.[]*')
   let currentFiles = 0
+  const rootPath = await Database.Get('xPath')
+  const nameTestFolder = path.join(rootPath, '.internxt_name_test')
   for (let item of list) {
     if (ConfigStore.get('stopSync')) {
       throw Error('stop sync')
@@ -114,12 +143,14 @@ async function _downloadAllFiles() {
     currentFiles++
     item = item.value
     if (
-      path.basename(item.fullpath) !== sanitize(path.basename(item.fullpath)) || ignoreHideFile.test(path.basename(item.fullpath))
+      ignoreHideFile.test(path.basename(item.fullpath)) ||
+      invalidFileName(path.basename(item.fullpath), nameTestFolder)
     ) {
       Logger.info(
         "Can't download %s, invalid filename",
         path.basename(item.fullpath)
       )
+      await Database.dbFiles.remove({ key: item.fullpath })
       continue
     }
     // If not enough space on hard disk, do not download and stop syncing.
@@ -262,6 +293,7 @@ async function _downloadAllFiles() {
       // continue
     }
   }
+  removeTestFolder(nameTestFolder)
 }
 
 // Download all the files

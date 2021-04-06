@@ -7,10 +7,11 @@ import rimraf from 'rimraf'
 import Tree from './tree'
 import Database from '../../database'
 import async from 'async'
-import sanitize from 'sanitize-filename'
 import analytics from './utils/analytics'
 import ConfigStore from '../../main/config-store'
 const remote = require('@electron/remote')
+const invalidName = /[\\/]|[. ]$/
+
 async function createRemoteFolder(name, parentId) {
   const headers = await Auth.getAuthHeader()
   return new Promise((resolve, reject) => {
@@ -156,7 +157,7 @@ async function _deleteRemoteFoldersWhenLocalDeleted(lastSyncFailed) {
       throw Error('stop sync')
     }
     const stat = Tree.getStat(item.key)
-    if (path.basename(item.key) !== sanitize(path.basename(item.key))) {
+    if (invalidName.test(path.basename(item.key))) {
       continue
     }
 
