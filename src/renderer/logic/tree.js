@@ -144,6 +144,7 @@ async function regenerateLocalDbFolder(tree) {
   const dbEntrys = []
   const ignoreHideFolder = new RegExp('^\\.[]*')
   const basePath = await database.Get('xPath')
+  const nameTestFolder = path.join(basePath, '.internxt_name_test')
   await database.dbFolders.remove({}, { multi: true })
   for (const item of tree.folders) {
     if (!item.parent_id) {
@@ -160,7 +161,6 @@ async function regenerateLocalDbFolder(tree) {
       full: false
     }
   }
-
   for (const item of tree.folders) {
     if (ConfigStore.get('stopSync')) {
       throw Error('stop sync')
@@ -185,7 +185,9 @@ async function regenerateLocalDbFolder(tree) {
       delete finalDict[item.id]
       continue
     }
-    if (NameTest.invalidFolderName(path.basename(fullNewPath))) {
+    if (
+      NameTest.invalidFolderName(path.basename(fullNewPath), nameTestFolder)
+    ) {
       Logger.info('Ignoring folder %s, invalid name', finalObject.key)
       delete finalDict[item.id]
       continue
