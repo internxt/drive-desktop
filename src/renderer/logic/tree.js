@@ -7,6 +7,7 @@ import readdirp from 'readdirp'
 import Logger from '../../libs/logger'
 import Auth from './utils/Auth'
 import ConfigStore from '../../main/config-store'
+import NameTest from './utils/nameTest'
 
 const IgnoredFiles = ['^\\.[]*', '^~.*', '[\\\\/]|[. ]$']
 
@@ -181,6 +182,11 @@ async function regenerateLocalDbFolder(tree) {
     const finalObject = { key: fullNewPath, value: cloneObject }
     if (ignoreHideFolder.test(path.basename(fullNewPath))) {
       Logger.info('Ignoring folder %s, hidden folder', finalObject.key)
+      delete finalDict[item.id]
+      continue
+    }
+    if (NameTest.invalidFolderName(path.basename(fullNewPath))) {
+      Logger.info('Ignoring folder %s, invalid name', finalObject.key)
       delete finalDict[item.id]
       continue
     }

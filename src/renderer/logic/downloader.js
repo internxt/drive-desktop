@@ -1,7 +1,7 @@
 import Tree from './tree'
 import async from 'async'
 import Database from '../../database/index'
-import path, { basename } from 'path'
+import path from 'path'
 import fs from 'fs'
 import Sync from './sync'
 import Uploader from './uploader'
@@ -14,36 +14,9 @@ import getEnvironment from './utils/libinxt'
 import File from './file'
 import analytics from '../logic/utils/analytics'
 import ConfigStore from '../../main/config-store'
-import rimraf from 'rimraf'
-const hidefile = require('hidefile')
+import NameTest from './utils/nameTest'
+
 const { app } = require('@electron/remote')
-
-function createTestFolder(folderPath) {
-  fs.mkdirSync(folderPath)
-  hidefile.hideSync(folderPath)
-}
-
-function removeTestFolder(folderPath) {
-  return new Promise((resolve, reject) => {
-    rimraf(folderPath, () => {
-      resolve()
-    })
-  })
-}
-
-function invalidFileName(filename, testFolder) {
-  if (!fs.existsSync(testFolder)) {
-    createTestFolder(testFolder)
-  }
-  const filePath = path.join(testFolder, filename)
-  try {
-    fs.writeFileSync(filePath, '')
-    fs.renameSync(filePath, filePath)
-    return false
-  } catch (e) {
-    return true
-  }
-}
 
 async function downloadFileTemp(fileObj, silent = false) {
   const storj = await getEnvironment()
@@ -144,7 +117,7 @@ async function _downloadAllFiles() {
     item = item.value
     if (
       ignoreHideFile.test(path.basename(item.fullpath)) ||
-      invalidFileName(path.basename(item.fullpath), nameTestFolder)
+      NameTest.invalidFileName(path.basename(item.fullpath), nameTestFolder)
     ) {
       Logger.info(
         "Can't download %s, invalid filename",
@@ -293,7 +266,7 @@ async function _downloadAllFiles() {
       // continue
     }
   }
-  removeTestFolder(nameTestFolder)
+  NameTest.removeTestFolder(nameTestFolder)
 }
 
 // Download all the files
