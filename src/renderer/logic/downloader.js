@@ -9,13 +9,15 @@ import CheckDiskSpace from 'check-disk-space'
 import electron from 'electron'
 import Logger from '../../libs/logger'
 import mkdirp from 'mkdirp'
-import sanitize from 'sanitize-filename'
 import Folder from './folder'
 import getEnvironment from './utils/libinxt'
 import File from './file'
 import analytics from '../logic/utils/analytics'
 import ConfigStore from '../../main/config-store'
+import NameTest from './utils/nameTest'
+
 const { app } = require('@electron/remote')
+
 async function downloadFileTemp(fileObj, silent = false) {
   const storj = await getEnvironment()
   const originalFileName = path.basename(fileObj.fullpath)
@@ -103,7 +105,10 @@ async function _downloadAllFiles() {
   // Get a list of all the files on the remote folder
   const list = Database.dbFiles.getAllData()
   const totalFiles = list.length
+  const ignoreHideFile = new RegExp('^\\.[]*')
   let currentFiles = 0
+  const rootPath = await Database.Get('xPath')
+  const nameTestFolder = path.join(rootPath, '.internxt_name_test')
   for (let item of list) {
     if (ConfigStore.get('stopSync')) {
       throw Error('stop sync')
@@ -111,12 +116,14 @@ async function _downloadAllFiles() {
     currentFiles++
     item = item.value
     if (
-      path.basename(item.fullpath) !== sanitize(path.basename(item.fullpath))
+      ignoreHideFile.test(path.basename(item.fullpath)) ||
+      NameTest.invalidFileName(path.basename(item.fullpath), nameTestFolder)
     ) {
       Logger.info(
         "Can't download %s, invalid filename",
         path.basename(item.fullpath)
       )
+      await Database.dbFiles.remove({ key: item.fullpath })
       continue
     }
     // If not enough space on hard disk, do not download and stop syncing.
@@ -259,6 +266,7 @@ async function _downloadAllFiles() {
       // continue
     }
   }
+  NameTest.removeTestFolder(nameTestFolder)
 }
 
 // Download all the files

@@ -7,12 +7,12 @@ import rimraf from 'rimraf'
 import Tree from './tree'
 import Database from '../../database'
 import async from 'async'
-import sanitize from 'sanitize-filename'
 import analytics from './utils/analytics'
 import ConfigStore from '../../main/config-store'
 import state from './utils/state'
 import lodash from 'lodash'
 const remote = require('@electron/remote')
+const invalidName = /[\\/]|[. ]$/
 async function createRemoteFolder(name, parentId) {
   const headers = await Auth.getAuthHeader()
   return new Promise((resolve, reject) => {
@@ -72,7 +72,11 @@ async function createRemoteFolder(name, parentId) {
 }
 
 function getTempFolderPath() {
-  return path.join(remote.app.getPath('home'), '.internxt-desktop', 'tmp')
+  return path.join(
+    remote.app.getPath('home'),
+    '.internxt-desktop',
+    'tmp'
+  )
 }
 
 function clearTempFolder() {
@@ -136,6 +140,12 @@ async function _deleteLocalWhenRemoteDeleted(lastSyncFailed) {
   const localPath = await Database.Get('xPath')
   const syncDate = Database.Get('syncStartDate')
 
+  while (!Database.tempEmpty()) {
+    await new Promise(resolve => {
+      setTimeout(resolve, 1500)
+    })
+  }
+
   // Get a list of all local folders
   const list = await Tree.getLocalFolderList(localPath)
 
@@ -163,8 +173,10 @@ async function _deleteLocalWhenRemoteDeleted(lastSyncFailed) {
           await new Promise((resolve, reject) => {
             rimraf(item, err => {
               Logger.info(item + ' deleted')
-              if (err) reject(err)
-              else resolve()
+              if (err) {
+                console.log(err)
+              }
+              resolve()
             })
           })
         } else {
@@ -173,9 +185,8 @@ async function _deleteLocalWhenRemoteDeleted(lastSyncFailed) {
         }
       }
     } catch (err) {
-      Logger.error('ITEM ERR', err)
-      console.log('error')
-      throw err
+      Logger.warn('ITEM ERR', err)
+      continue
     }
   }
 }
@@ -191,7 +202,7 @@ async function _deleteRemoteFoldersWhenLocalDeleted(lastSyncFailed) {
       throw Error('stop sync')
     }
     const stat = Tree.getStat(item.key)
-    if (path.basename(item.key) !== sanitize(path.basename(item.key))) {
+    if (invalidName.test(path.basename(item.key))) {
       continue
     }
 

@@ -225,10 +225,14 @@ async function cleanRemoteWhenLocalDeleted(lastSyncFailed) {
   if (lastSyncFailed) {
     return
   }
-  const allData = Database.dbFiles.getAllData()
+  const allData = database.dbFiles.getAllData()
+  const ignoreHideFile = new RegExp('^\\.[]*')
   for (const item of allData) {
     if (ConfigStore.get('stopSync')) {
       throw Error('stop sync')
+    }
+    if (ignoreHideFile.test(path.basename(item.key))) {
+      continue
     }
     const stat = Tree.getStat(item.key)
 
@@ -284,6 +288,12 @@ async function cleanLocalWhenRemoteDeleted(lastSyncFailed) {
 
   // List all files in the folder
   const list = await Tree.getLocalFileList(localPath)
+
+  while (!database.tempEmpty()) {
+    await new Promise(resolve => {
+      setTimeout(resolve, 1500)
+    })
+  }
 
   for (const item of list) {
     const fileObj = await Database.FileGet(item)

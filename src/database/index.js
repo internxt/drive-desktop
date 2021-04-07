@@ -34,6 +34,11 @@ if (oldFolderExists && !newFolderExists) {
   rimraf.sync(OLD_DB_FOLDER)
 }
 
+var tempList = []
+var tempDict = {}
+var insertPromise
+var insertTimeOut
+
 const initDatabase = () => {
   if (fs.existsSync(path.join(DB_FOLDER, 'database_files.db'))) {
     rimraf.sync(DB_FOLDER)
@@ -42,7 +47,9 @@ const initDatabase = () => {
     fs.mkdirSync(DB_FOLDER)
   }
 }
-
+const tempEmpty = () => {
+  return Object.keys(tempDict).length === 0
+}
 const dbFiles = new Datastore({
   filename: path.join(DB_FOLDER, 'database_files_select.db'),
   autoload: true,
