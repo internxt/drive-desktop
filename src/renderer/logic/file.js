@@ -151,7 +151,6 @@ async function sincronizeLocalFile() {
   select.map(elem => {
     indexDict[elem.key] = i++
   })
-  console.log('antes', select)
   for (const item of list) {
     if (ConfigStore.get('stopSync')) {
       throw Error('stop sync')
@@ -200,7 +199,6 @@ async function sincronizeLocalFile() {
         selectFile.needSync = true
         continue
       } else {
-        console.log('igual')
         selectFile.state = state.transition(
           selectFile.state,
           state.word.ensure
@@ -211,7 +209,6 @@ async function sincronizeLocalFile() {
   }
   // local not existe select exist
   list = lodash.difference(Object.keys(indexDict), list)
-  console.log(list)
   for (const item of list) {
     select[indexDict[item]].state = state.transition(
       select[indexDict[item]].state,

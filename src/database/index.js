@@ -14,7 +14,7 @@ const OLD_DB_FOLDER = `${
 const DB_FOLDER = `${
   process.env.NODE_ENV === 'production'
     ? remote.app.getPath('home') + `/.internxt-desktop/`
-    : '.'
+    : './database'
 }`
 
 // Migration from .xclouddesktop to .internxt-desktop
@@ -36,7 +36,7 @@ if (oldFolderExists && !newFolderExists) {
 
 const initDatabase = () => {
   if (fs.existsSync(path.join(DB_FOLDER, 'database_files.db'))) {
-    rimraf.sync(OLD_DB_FOLDER)
+    rimraf.sync(DB_FOLDER)
   }
   if (!fs.existsSync(DB_FOLDER)) {
     fs.mkdirSync(DB_FOLDER)
