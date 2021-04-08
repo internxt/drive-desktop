@@ -306,6 +306,7 @@ function AnnounceUpdate(version) {
     type: 'question',
     buttons: ['Update now', 'Update after closing'],
     defaultId: 1,
+    cancelId: 1,
     title: 'Internxt Drive',
     message: 'New update available: ' + version
   }
