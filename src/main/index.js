@@ -318,9 +318,10 @@ function AnnounceUpdate(version) {
       }),
       options
     )
-    .then((userResponse, checkboxChecked) => {
+    .then((userResponse) => {
       UpdateOptions.dialogShow = false
-      if (userResponse === 0) {
+      if (userResponse.response === 0) {
+        Logger.log('update now')
         autoUpdater.quitAndInstall(false, true)
       }
     })
