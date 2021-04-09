@@ -200,7 +200,9 @@ async function _downloadAllFiles() {
           if (localExists) {
             try {
               fs.unlinkSync(item.fullpath)
-            } catch (e) {}
+            } catch (e) {
+              Logger.log(e)
+            }
           }
           // fs.renameSync gives a "EXDEV: cross-device link not permitted"
           // when application and local folder are not in the same partition

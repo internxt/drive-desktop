@@ -306,6 +306,7 @@ function AnnounceUpdate(version) {
     type: 'question',
     buttons: ['Update now', 'Update after closing'],
     defaultId: 1,
+    cancelId: 1,
     title: 'Internxt Drive',
     message: 'New update available: ' + version
   }
@@ -318,9 +319,10 @@ function AnnounceUpdate(version) {
       }),
       options
     )
-    .then((userResponse, checkboxChecked) => {
+    .then((userResponse) => {
       UpdateOptions.dialogShow = false
-      if (userResponse === 0) {
+      if (userResponse.response === 0) {
+        Logger.log('update now')
         autoUpdater.quitAndInstall(false, true)
       }
     })
