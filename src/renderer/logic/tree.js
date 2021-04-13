@@ -155,7 +155,8 @@ function getLocalFolderList(localPath) {
     const ignoreHideFolder = new RegExp('^\\.[]*')
     const invalidName = /[\\/]|[. ]$/
     readdirp(localPath, {
-      type: 'directories'
+      type: 'directories',
+      directoryFilter: ['!.*']
     })
       .on('data', data => {
         if (invalidName.test(data.basename)) {
@@ -165,6 +166,7 @@ function getLocalFolderList(localPath) {
           )
         }
         if (ignoreHideFolder.test(data.basename)) {
+          console.log('ignored')
           return
         }
         results.push(data.fullPath)
@@ -267,9 +269,13 @@ function updateDbCloud() {
   return new Promise((resolve, reject) => {
     getList()
       .then(tree => {
-        regenerateDbFolderCloud(tree).then(result => {
-          regenerateDbFileCloud(tree, result).then(resolve).catch(reject)
-        }).catch(reject)
+        regenerateDbFolderCloud(tree)
+          .then(result => {
+            regenerateDbFileCloud(tree, result)
+              .then(resolve)
+              .catch(reject)
+          })
+          .catch(reject)
       })
       .catch(err => {
         Logger.error('Error updating localDb', err)
