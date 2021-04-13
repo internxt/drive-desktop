@@ -214,6 +214,17 @@ async function SyncLogic(callback) {
           next()
         }
       },
+      next =>
+        Folder.sincronizeCloudFolder()
+          .then(next)
+          .catch(next),
+      next => {
+        if (ConfigStore.get('stopSync')) {
+          next('stop sync')
+        } else {
+          next()
+        }
+      },
       next => {
         next('stop sync')
       },

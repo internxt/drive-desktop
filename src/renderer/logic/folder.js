@@ -72,11 +72,7 @@ async function createRemoteFolder(name, parentId) {
 }
 
 function getTempFolderPath() {
-  return path.join(
-    remote.app.getPath('home'),
-    '.internxt-desktop',
-    'tmp'
-  )
+  return path.join(remote.app.getPath('home'), '.internxt-desktop', 'tmp')
 }
 
 function clearTempFolder() {
@@ -90,7 +86,61 @@ function clearTempFolder() {
     rimraf(tempPath, () => resolve())
   })
 }
-
+async function sincronizeCloudFolder() {
+  var select = await Database.dbFind(Database.dbFolders, {})
+  var selectIndex = []
+  let i = 0
+  select.map(elem => {
+    selectIndex[elem.key] = i++
+  })
+  var cloud = await Database.dbFind(Database.dbFoldersCloud, {
+    key: { $in: Object.keys(selectIndex) }
+  })
+  var cloudIndex = []
+  cloud.map(elem => {
+    cloudIndex[elem.key] = true
+  })
+  // free memory if it works
+  cloud = undefined
+  for (const f in selectIndex) {
+    var folder = select[selectIndex[f]]
+    if (!cloudIndex[f]) {
+      folder = select[selectIndex[f]]
+      folder.state = state.transition(folder.state, state.word.cloudDeleted)
+    } else {
+      folder.value = (
+        await Database.dbFindOne(Database.dbFoldersCloud, { key: f })
+      ).value
+    }
+  }
+  var newFolders = select.flatMap(e => {
+    if (e.value && e.value.id) {
+      return { key: e.key, id: e.value.id }
+    }
+    return []
+  })
+  var lastSyncDate = await Database.Get('lastFolderSyncDate')
+  if (!lastSyncDate) {
+    lastSyncDate = new Date(0)
+  }
+  while (newFolders.length !== 0) {
+    var childrens = await Database.dbFind(Database.dbFoldersCloud, {
+      'value.parent_id': { $in: newFolders.map(e => e.id) }
+    })
+    newFolders = lodash.differenceBy(childrens, newFolders, 'key')
+    for (const folder of newFolders) {
+      if (new Date(folder.value.created_at) >= lastSyncDate) {
+        folder.needSync = true
+        folder.select = true
+        folder.state = state.state.DOWNLOAD
+        select.push(folder)
+      }
+    }
+  }
+  await Database.ClearFoldersSelect()
+  await Database.dbInsert(Database.dbFolders, select)
+  await Database.Set('lastFolderSyncDate', new Date())
+}
 async function sincronizeLocalFolder() {
   const localPath = await Database.Get('xPath')
   let list = await Tree.getLocalFolderList(localPath)
@@ -131,6 +181,7 @@ async function sincronizeLocalFolder() {
     )
     select[indexDict[item]].needSync = true
   }
+
   await Database.ClearFoldersSelect()
   await Database.dbInsert(Database.dbFolders, select)
 }
@@ -322,5 +373,6 @@ export default {
   removeFolder,
   createLocalFolders,
   sincronizeLocalFolder,
+  sincronizeCloudFolder,
   rootFolderExists
 }
