@@ -88,6 +88,8 @@ function clearTempFolder() {
 }
 async function sincronizeCloudFolder() {
   var select = await Database.dbFind(Database.dbFolders, {})
+  const user = await Database.Get('xUser')
+  const basePath = await Database.Get('xPath')
   var selectIndex = []
   let i = 0
   select.map(elem => {
@@ -107,10 +109,6 @@ async function sincronizeCloudFolder() {
     if (!cloudIndex[f]) {
       folder = select[selectIndex[f]]
       folder.state = state.transition(folder.state, state.word.cloudDeleted)
-    } else {
-      folder.value = (
-        await Database.dbFindOne(Database.dbFoldersCloud, { key: f })
-      ).value
     }
   }
   var newFolders = select.flatMap(e => {
@@ -119,6 +117,7 @@ async function sincronizeCloudFolder() {
     }
     return []
   })
+  newFolders.push({ key: basePath, id: user.user.root_folder_id })
   var lastSyncDate = await Database.Get('lastFolderSyncDate')
   if (!lastSyncDate) {
     lastSyncDate = new Date(0)
@@ -199,7 +198,6 @@ async function _deleteLocalWhenRemoteDeleted(lastSyncFailed) {
 
   // Get a list of all local folders
   const list = await Tree.getLocalFolderList(localPath)
-
   for (const item of list) {
     if (ConfigStore.get('stopSync')) {
       throw Error('stop sync')

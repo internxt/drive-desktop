@@ -142,6 +142,80 @@ function restoreFile(fileObj) {
   })
 }
 
+async function sincronizeCloudFile() {
+  var select = await Database.dbFind(Database.dbFiles, {})
+  const user = await Database.Get('xUser')
+  var selectIndex = []
+  let i = 0
+  select.map(elem => {
+    selectIndex[elem.key] = i++
+  })
+  var cloud = await Database.dbFind(Database.dbFilesCloud, {
+    key: { $in: Object.keys(selectIndex) }
+  })
+  var cloudIndex = []
+  i = 0
+  cloud.map(elem => {
+    cloudIndex[elem.key] = i++
+  })
+  for (const f in selectIndex) {
+    var file = select[selectIndex[f]]
+    if (file.state === state.state.IGNORE) {
+      continue
+    }
+    if (cloudIndex[f] === undefined) {
+      file = select[selectIndex[f]]
+      file.state = state.transition(file.state, state.word.cloudDeleted)
+    } else {
+      // local and select exist
+      const selectTime = new Date(file.value.updatedAt).setMilliseconds(0)
+      const cloudFile = cloud[cloudIndex[f]]
+      const cloudTime = new Date(cloudFile.value.updatedAt).setMilliseconds(0)
+
+      if (selectTime > cloudTime) {
+        // select recent, upload
+        file.state = state.transition(file.state, state.word.uploadAndReplace)
+        file.needSync = true
+        continue
+      } else if (selectTime < cloudTime) {
+        // cloud recent, download
+        file.value = cloudFile.value
+        file.state = state.transition(file.state, state.word.downloadAndReplace)
+        file.needSync = true
+        continue
+      } else {
+        file.state = state.transition(file.state, state.word.ensure)
+        continue
+      }
+    }
+  }
+  var selectFolder = await Database.dbFind(Database.dbFolders, {})
+  var selectFiles = Object.keys(selectIndex).map(e => {
+    return { key: e }
+  })
+  selectFolder = selectFolder.flatMap(e => {
+    if (!e.value || !e.value.id) {
+      return []
+    }
+    return e.value.id
+  })
+  selectFolder.push(user.user.root_folder_id)
+  var newFiles = await Database.dbFind(Database.dbFilesCloud, {
+    'value.folder_id': {
+      $in: selectFolder
+    }
+  })
+  newFiles = lodash.differenceBy(newFiles, selectFiles, 'key')
+  for (const f of newFiles) {
+    f.state = state.state.DOWNLOAD
+    f.needSync = true
+    f.select = true
+    select.push(f)
+  }
+  await Database.ClearFilesSelect()
+  await Database.dbInsert(Database.dbFiles, select)
+}
+
 async function sincronizeLocalFile() {
   const localPath = await Database.Get('xPath')
   var list = await Tree.getLocalFileList(localPath)
@@ -178,7 +252,7 @@ async function sincronizeLocalFile() {
     } else {
       // local and select exist
       const selectFile = select[FileSelect]
-      const selectTime = selectFile.value.updatedAt.setMilliseconds(0)
+      const selectTime = new Date(selectFile.value.updatedAt).setMilliseconds(0)
       const localTime = localFile.mtime.setMilliseconds(0)
 
       if (selectTime > localTime) {
@@ -191,7 +265,7 @@ async function sincronizeLocalFile() {
         continue
       } else if (selectTime < localTime) {
         // local recent, upload
-        selectFile.value.updateAt = localFile.mtime
+        selectFile.value.updatedAt = localFile.mtime
         selectFile.state = state.transition(
           selectFile.state,
           state.word.uploadAndReplace
@@ -199,10 +273,7 @@ async function sincronizeLocalFile() {
         selectFile.needSync = true
         continue
       } else {
-        selectFile.state = state.transition(
-          selectFile.state,
-          state.word.ensure
-        )
+        selectFile.state = state.transition(selectFile.state, state.word.ensure)
         continue
       }
     }
@@ -250,7 +321,7 @@ async function cleanRemoteWhenLocalDeleted(lastSyncFailed) {
             item.value.type,
             item.value.size,
             item.value.folder_id,
-            item.value.updateAt
+            item.value.updatedAt
           )
         } else {
           await removeFile(bucketId, fileId)
@@ -339,6 +410,7 @@ export default {
   removeFile,
   createFileEntry,
   sincronizeLocalFile,
+  sincronizeCloudFile,
   restoreFile,
   cleanRemoteWhenLocalDeleted,
   cleanLocalWhenRemoteDeleted,

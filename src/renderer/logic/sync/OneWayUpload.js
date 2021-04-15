@@ -26,7 +26,7 @@ ConfigStore.set('stopSync', false)
 let wtc = null
 let lastSyncFailed = false
 let timeoutInstance = null
-
+var time
 function syncStop() {
   if (ConfigStore.get('isSyncing')) {
     ConfigStore.set('isSyncing', false)
@@ -188,37 +188,62 @@ async function SyncLogic(callback) {
       },
       next => {
         // Sync and update the remote tree.
+        time = Date.now()
         Tree.updateDbAndCompact()
           .then(() => next())
           .catch(next)
       },
-      next =>
+      next => {
+        Logger.log('update list: ', Date.now() - time)
+        time = Date.now()
         Folder.sincronizeLocalFolder()
           .then(() => next())
-          .catch(next),
+          .catch(next)
+      },
       next => {
+        Logger.log('sincronizar Local folder: ', Date.now() - time)
         if (ConfigStore.get('stopSync')) {
           next('stop sync')
         } else {
           next()
         }
       },
-      next =>
+      next => {
+        time = Date.now()
         File.sincronizeLocalFile()
           .then(() => next())
-          .catch(next),
+          .catch(next)
+      },
       next => {
+        Logger.log('sincronizar Local files: ', Date.now() - time)
         if (ConfigStore.get('stopSync')) {
           next('stop sync')
         } else {
           next()
         }
       },
-      next =>
+      next => {
+        time = Date.now()
         Folder.sincronizeCloudFolder()
           .then(next)
-          .catch(next),
+          .catch(next)
+      },
       next => {
+        Logger.log('sincronizar cloud folder: ', Date.now() - time)
+        if (ConfigStore.get('stopSync')) {
+          next('stop sync')
+        } else {
+          next()
+        }
+      },
+      next => {
+        time = Date.now()
+        File.sincronizeCloudFile()
+          .then(next)
+          .catch(next)
+      },
+      next => {
+        Logger.log('sincronizar cloud files: ', Date.now() - time)
         if (ConfigStore.get('stopSync')) {
           next('stop sync')
         } else {

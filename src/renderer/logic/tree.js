@@ -106,13 +106,6 @@ async function regenerateDbFolderCloud(tree) {
       delete finalDict[item.id]
       continue
     }
-    if (
-      NameTest.invalidFolderName(path.basename(fullNewPath), nameTestFolder)
-    ) {
-      Logger.info('Ignoring folder %s, invalid name', finalObject.key)
-      delete finalDict[item.id]
-      continue
-    }
     dbEntrys.push(finalObject)
     // return
   }
