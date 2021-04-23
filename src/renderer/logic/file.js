@@ -147,7 +147,7 @@ async function sincronizeCloudFile() {
   const user = await Database.Get('xUser')
   var selectIndex = []
   let i = 0
-  select.map(elem => {
+  select.forEach(elem => {
     selectIndex[elem.key] = i++
   })
   var cloud = await Database.dbFind(Database.dbFilesCloud, {
@@ -155,7 +155,7 @@ async function sincronizeCloudFile() {
   })
   var cloudIndex = []
   i = 0
-  cloud.map(elem => {
+  cloud.forEach(elem => {
     cloudIndex[elem.key] = i++
   })
   for (const f in selectIndex) {
@@ -222,7 +222,7 @@ async function sincronizeLocalFile() {
   var i = 0
   var select = await Database.dbFind(Database.dbFiles, {})
   var indexDict = []
-  select.map(elem => {
+  select.forEach(elem => {
     indexDict[elem.key] = i++
   })
   for (const item of list) {

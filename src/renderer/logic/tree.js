@@ -65,8 +65,6 @@ async function regenerateDbFolderCloud(tree) {
   const dbEntrys = []
   const ignoreHideFolder = new RegExp('^\\.[]*')
   const basePath = await database.Get('xPath')
-  await database.ClearFoldersCloud
-  const nameTestFolder = path.join(basePath, '.internxt_name_test')
   for (const item of tree.folders) {
     if (!item.parent_id) {
       finalDict[item.id] = {
@@ -99,13 +97,13 @@ async function regenerateDbFolderCloud(tree) {
       finalDict[item.id].full = true
     }
     const fullNewPath = finalDict[item.id].path
-    const cloneObject = JSON.parse(JSON.stringify(item))
-    const finalObject = { key: fullNewPath, value: cloneObject }
     if (ignoreHideFolder.test(path.basename(fullNewPath))) {
-      Logger.info('Ignoring folder %s, hidden folder', finalObject.key)
+      Logger.info('Ignoring folder %s, hidden folder', fullNewPath)
       delete finalDict[item.id]
       continue
     }
+    const cloneObject = JSON.parse(JSON.stringify(item))
+    const finalObject = { key: fullNewPath, value: cloneObject }
     dbEntrys.push(finalObject)
     // return
   }
@@ -117,7 +115,6 @@ async function regenerateDbFolderCloud(tree) {
 async function regenerateDbFileCloud(tree, folderDict) {
   const dbEntrys = []
 
-  await database.ClearFilesCloud()
   for (const item of tree.files) {
     if (ConfigStore.get('stopSync')) {
       throw Error('stop sync')
@@ -157,10 +154,6 @@ function getLocalFolderList(localPath) {
             'Directory %s ignored, name is not compatible',
             data.basename
           )
-        }
-        if (ignoreHideFolder.test(data.basename)) {
-          console.log('ignored')
-          return
         }
         results.push(data.fullPath)
       })
@@ -260,12 +253,20 @@ async function getList() {
 
 function updateDbCloud() {
   return new Promise((resolve, reject) => {
+    // console.time('getList')
     getList()
       .then(tree => {
+        // console.timeEnd('getList')
+        // console.time('regenerateDbFolderCloud')
         regenerateDbFolderCloud(tree)
           .then(result => {
+            // console.timeEnd('regenerateDbFolderCloud')
+            // console.time('regenerateDbFileCloud')
             regenerateDbFileCloud(tree, result)
-              .then(resolve)
+              .then(() => {
+                // console.timeEnd('regenerateDbFileCloud')
+                resolve()
+              })
               .catch(reject)
           })
           .catch(reject)

@@ -26,7 +26,6 @@ ConfigStore.set('stopSync', false)
 let wtc = null
 let lastSyncFailed = false
 let timeoutInstance = null
-var time
 function syncStop() {
   if (ConfigStore.get('isSyncing')) {
     ConfigStore.set('isSyncing', false)
@@ -135,6 +134,7 @@ async function SyncLogic(callback) {
           .Get('xPath')
           .then(xPath => {
             Logger.info('User store path: %s', xPath)
+            return next()
             watcher.startWatcher(xPath).then(watcherInstance => {
               wtc = watcherInstance
               next()
@@ -188,20 +188,21 @@ async function SyncLogic(callback) {
       },
       next => {
         // Sync and update the remote tree.
-        time = Date.now()
+        console.time('desktop')
+        console.time('update list')
         Tree.updateDbAndCompact()
           .then(() => next())
           .catch(next)
       },
       next => {
-        Logger.log('update list: ', Date.now() - time)
-        time = Date.now()
+        console.timeEnd('update list')
+        console.time('sincronizar Local folder')
         Folder.sincronizeLocalFolder()
           .then(() => next())
           .catch(next)
       },
       next => {
-        Logger.log('sincronizar Local folder: ', Date.now() - time)
+        console.timeEnd('sincronizar Local folder')
         if (ConfigStore.get('stopSync')) {
           next('stop sync')
         } else {
@@ -209,13 +210,13 @@ async function SyncLogic(callback) {
         }
       },
       next => {
-        time = Date.now()
+        console.time('sincronizar Local files')
         File.sincronizeLocalFile()
           .then(() => next())
           .catch(next)
       },
       next => {
-        Logger.log('sincronizar Local files: ', Date.now() - time)
+        console.timeEnd('sincronizar Local files')
         if (ConfigStore.get('stopSync')) {
           next('stop sync')
         } else {
@@ -223,13 +224,13 @@ async function SyncLogic(callback) {
         }
       },
       next => {
-        time = Date.now()
+        console.time('sincronizar cloud folder')
         Folder.sincronizeCloudFolder()
           .then(next)
           .catch(next)
       },
       next => {
-        Logger.log('sincronizar cloud folder: ', Date.now() - time)
+        console.timeEnd('sincronizar cloud folder')
         if (ConfigStore.get('stopSync')) {
           next('stop sync')
         } else {
@@ -237,13 +238,13 @@ async function SyncLogic(callback) {
         }
       },
       next => {
-        time = Date.now()
+        console.time('sincronizar cloud files')
         File.sincronizeCloudFile()
           .then(next)
           .catch(next)
       },
       next => {
-        Logger.log('sincronizar cloud files: ', Date.now() - time)
+        console.timeEnd('sincronizar cloud files')
         if (ConfigStore.get('stopSync')) {
           next('stop sync')
         } else {
@@ -251,6 +252,21 @@ async function SyncLogic(callback) {
         }
       },
       next => {
+        console.time('crearFolder')
+        Folder.createFolder()
+          .then(next)
+          .catch(next)
+      },
+      next => {
+        console.timeEnd('crearFolder')
+        if (ConfigStore.get('stopSync')) {
+          next('stop sync')
+        } else {
+          next()
+        }
+      },
+      next => {
+        console.timeEnd('desktop')
         next('stop sync')
       },
       next => {

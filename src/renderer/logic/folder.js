@@ -11,65 +11,11 @@ import analytics from './utils/analytics'
 import ConfigStore from '../../main/config-store'
 import state from './utils/state'
 import lodash from 'lodash'
+import nameTest from './utils/nameTest'
+import crypt from './crypt'
+
 const remote = require('@electron/remote')
 const invalidName = /[\\/]|[. ]$/
-async function createRemoteFolder(name, parentId) {
-  const headers = await Auth.getAuthHeader()
-  return new Promise((resolve, reject) => {
-    const folder = {
-      folderName: name,
-      parentFolderId: parentId
-    }
-
-    fetch(`${process.env.API_URL}/api/storage/folder`, {
-      method: 'POST',
-      mode: 'cors',
-      headers: headers,
-      body: JSON.stringify(folder)
-    })
-      .then(res => {
-        if (res.status !== 201 && res.status !== 500) {
-          throw Error('Error creating new folder', res)
-        }
-        return res.text()
-      })
-      .then(text => {
-        try {
-          return { data: JSON.parse(text) }
-        } catch (err) {
-          throw new Error(err + ' data: ' + text)
-        }
-      })
-      .then(res => {
-        if (res.data.error) {
-          if (
-            res.data.error.includes('Folder with the same name already exists')
-          ) {
-            Logger.warn('Folder with the same name already exists')
-            resolve()
-          } else {
-            reject(res.data.error)
-          }
-        } else {
-          analytics
-            .track({
-              userId: undefined,
-              event: 'folder-created',
-              platform: 'desktop',
-              properties: {
-                email: 'email',
-                file_id: res.data.id
-              }
-            })
-            .catch(err => {
-              Logger.error(err)
-            })
-          resolve(res.data)
-        }
-      })
-      .catch(reject)
-  })
-}
 
 function getTempFolderPath() {
   return path.join(remote.app.getPath('home'), '.internxt-desktop', 'tmp')
@@ -86,47 +32,219 @@ function clearTempFolder() {
     rimraf(tempPath, () => resolve())
   })
 }
+
+function create(folder) {
+  fs.mkdirSync(folder.key, { recursive: true })
+  if (folder.state === state.state.DOWNLOAD) {
+    folder.state = state.state.SYNCED
+    folder.needSync = false
+    folder.nameChecked = true
+  }
+}
+function ignore(folder) {
+  folder.nameChecked = true
+  folder.state = state.state.IGNORE
+  folder.needSync = false
+}
+
+function createLocalFolder(select, selectIndex, folder, basePath) {
+  if (folder.nameChecked) {
+    create(folder)
+    // return
+  } else {
+    const parentDir = path.dirname(folder.key)
+    const parent =
+      selectIndex[folder.key] !== undefined
+        ? select[selectIndex[parentDir]]
+        : undefined
+    if (parentDir !== basePath) {
+      if (!parent.nameChecked) {
+        createLocalFolder(select, selectIndex, parent, basePath)
+      }
+      if (parent.state === state.state.IGNORE) {
+        ignore(folder)
+        return
+      }
+    }
+    if (nameTest.invalidFolderName(path.basename(folder.key), basePath)) {
+      ignore(folder)
+    } else {
+      create(folder)
+    }
+  }
+}
+
+async function createRemoteFolder(folders, id) {
+  const headers = await Auth.getAuthHeader()
+  return new Promise((resolve, reject) => {
+    fetch(`${process.env.API_URL}/api/desktop/folders/${id}`, {
+      method: 'POST',
+      mode: 'cors',
+      headers: headers,
+      body: JSON.stringify(folders)
+    })
+      .then(res => {
+        if (res.status !== 201) {
+          throw Error('Error creating new folder', res)
+        }
+        return res.text()
+      })
+      .then(text => {
+        try {
+          return JSON.parse(text)
+        } catch (err) {
+          throw new Error(err + ' data: ' + text)
+        }
+      })
+      .then(res => {
+        analytics
+          .track({
+            userId: undefined,
+            event: 'folder-created',
+            platform: 'desktop',
+            properties: {
+              email: 'email'
+            }
+          })
+          .catch(err => {
+            Logger.error(err)
+          })
+        return resolve(res)
+      })
+      .catch(reject)
+  })
+}
+
+async function createFolder() {
+  var select = await Database.dbFind(Database.dbFolders, {})
+  const user = await Database.Get('xUser')
+  const basePath = await Database.Get('xPath')
+  const rootId = user.user.root_folder_id
+  var selectIndex = []
+  let i = 0
+  select.forEach(elem => {
+    selectIndex[elem.key] = i++
+  })
+
+  const needUpload = []
+  needUpload[basePath] = { children: [], id: rootId }
+  for (const folder of select) {
+    if (!folder.needSync || folder.state === state.state.IGNORE) {
+      continue
+    }
+    if (folder.state === state.state.DOWNLOAD) {
+      createLocalFolder(select, selectIndex, folder, basePath)
+      continue
+    }
+    if (folder.state === state.state.UPLOAD) {
+      if (invalidName.test(path.basename(folder.key))) {
+        folder.nameChecked = true
+        folder.state = state.state.IGNORE
+        folder.needSync = false
+        continue
+      }
+      folder.nameChecked = true
+      const parentDir = path.dirname(folder.key)
+      if (needUpload[parentDir]) {
+        needUpload[parentDir].children.push(folder.key)
+      } else {
+        const parent = select[selectIndex[parentDir]]
+        needUpload[parentDir] = {
+          children: [folder.key],
+          id: parent.value ? parent.value.id : undefined
+        }
+      }
+    }
+  }
+
+  await Database.ClearFoldersSelect()
+  var insertPromise = Database.dbInsert(Database.dbFolders, select)
+  // console.log('needUpload: ', needUpload)
+  for (const key of Object.keys(needUpload).sort(
+    (a, b) => a.length - b.length
+  )) {
+    if (needUpload[key].id === undefined || needUpload[key].children === []) {
+      continue
+    }
+    const newFolders = []
+    var res
+    const encryptFolders = []
+    const encryptDict = []
+
+    for (const folder of needUpload[key].children) {
+      const encryptName = crypt.encryptFilename(path.basename(folder), needUpload[key].id)
+      encryptFolders.push(encryptName)
+      encryptDict[encryptName] = folder
+    }
+
+    try {
+      res = await createRemoteFolder(encryptFolders, needUpload[key].id)
+      for (const newFolder of res) {
+        const folder = select[selectIndex[encryptDict[newFolder.name]]]
+        folder.value = newFolder
+        folder.state = state.state.SYNCED
+        folder.needSync = false
+        newFolders.push(folder)
+        if (needUpload[encryptDict[newFolder.name]]) {
+          needUpload[encryptDict[newFolder.name]].id = newFolder.id
+        }
+      }
+    } catch (err) {
+      Logger.warn('error: ', err.message)
+      continue
+    }
+    await insertPromise
+    await Database.dbRemove(Database.dbFolders, {
+      key: {
+        $in: newFolders.map((e) => e.key)
+      }
+    })
+    insertPromise = Database.dbInsert(Database.dbFolders, newFolders)
+  }
+  await insertPromise
+}
 async function sincronizeCloudFolder() {
   var select = await Database.dbFind(Database.dbFolders, {})
   const user = await Database.Get('xUser')
   const basePath = await Database.Get('xPath')
   var selectIndex = []
   let i = 0
-  select.map(elem => {
+  select.forEach(elem => {
     selectIndex[elem.key] = i++
   })
   var cloud = await Database.dbFind(Database.dbFoldersCloud, {
     key: { $in: Object.keys(selectIndex) }
   })
   var cloudIndex = []
-  cloud.map(elem => {
-    cloudIndex[elem.key] = true
+  i = 0
+  cloud.forEach(elem => {
+    cloudIndex[elem.key] = i++
   })
-  // free memory if it works
-  cloud = undefined
   for (const f in selectIndex) {
     var folder = select[selectIndex[f]]
-    if (!cloudIndex[f]) {
+    if (cloudIndex[f] === undefined) {
       folder = select[selectIndex[f]]
       folder.state = state.transition(folder.state, state.word.cloudDeleted)
+    } else {
+      folder.value = cloud[cloudIndex[f]].value
     }
   }
   var newFolders = select.flatMap(e => {
     if (e.value && e.value.id) {
-      return { key: e.key, id: e.value.id }
+      return { key: e.key, value: { id: e.value.id } }
     }
     return []
   })
-  newFolders.push({ key: basePath, id: user.user.root_folder_id })
+  newFolders.push({ key: basePath, value: { id: user.user.root_folder_id } })
   var lastSyncDate = await Database.Get('lastFolderSyncDate')
   if (!lastSyncDate) {
     lastSyncDate = new Date(0)
   }
   while (newFolders.length !== 0) {
-    var childrens = await Database.dbFind(Database.dbFoldersCloud, {
-      'value.parent_id': { $in: newFolders.map(e => e.id) }
+    var children = await Database.dbFind(Database.dbFoldersCloud, {
+      'value.parent_id': { $in: newFolders.map(e => e.value.id) }
     })
-    newFolders = lodash.differenceBy(childrens, newFolders, 'key')
+    newFolders = lodash.differenceBy(children, newFolders, 'key')
     for (const folder of newFolders) {
       if (new Date(folder.value.created_at) >= lastSyncDate) {
         folder.needSync = true
@@ -136,6 +254,7 @@ async function sincronizeCloudFolder() {
       }
     }
   }
+  // console.log('despues sync cloud: ', select)
   await Database.ClearFoldersSelect()
   await Database.dbInsert(Database.dbFolders, select)
   await Database.Set('lastFolderSyncDate', new Date())
@@ -146,7 +265,7 @@ async function sincronizeLocalFolder() {
   let i = 0
   const select = await Database.dbFind(Database.dbFolders, {})
   var indexDict = []
-  select.map(elem => {
+  select.forEach(elem => {
     indexDict[elem.key] = i++
   })
   for (const item of list) {
@@ -180,7 +299,7 @@ async function sincronizeLocalFolder() {
     )
     select[indexDict[item]].needSync = true
   }
-
+  // console.log('despues sync local: ', select)
   await Database.ClearFoldersSelect()
   await Database.dbInsert(Database.dbFolders, select)
 }
@@ -322,32 +441,6 @@ async function removeFolder(folderId) {
   })
 }
 
-// Create all remote folders on local path
-async function createLocalFolders() {
-  // Get a list of all the folders on the remote tree
-  const list = Database.dbFolders.getAllData()
-
-  for (const folder of list) {
-    if (ConfigStore.get('stopSync')) {
-      throw Error('stop sync')
-    }
-    // Create the folder, doesn't matter if already exists.
-    try {
-      fs.mkdirSync(folder.key, { recursive: true })
-      continue
-    } catch (err) {
-      if (err.code === 'EEXIST') {
-        // Folder already exists, ignore error
-        continue
-      } else {
-        // If we cannot create the folder, we won't be able to download it's files.
-        Logger.error('Error creating folder %s: %j', folder, err)
-        throw err
-      }
-    }
-  }
-}
-
 function rootFolderExists() {
   return new Promise((resolve, reject) => {
     Database.Get('xPath')
@@ -365,11 +458,11 @@ function rootFolderExists() {
 export default {
   createRemoteFolder,
   getTempFolderPath,
+  createFolder,
   clearTempFolder,
   cleanLocalWhenRemoteDeleted,
   cleanRemoteWhenLocalDeleted,
   removeFolder,
-  createLocalFolders,
   sincronizeLocalFolder,
   sincronizeCloudFolder,
   rootFolderExists
