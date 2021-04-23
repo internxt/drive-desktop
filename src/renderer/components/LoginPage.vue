@@ -156,7 +156,11 @@ export default {
       fetch(`${process.env.API_URL}/api/login`, {
         method: 'POST',
         mode: 'cors',
-        headers: { 'content-type': 'application/json' },
+        headers: {
+          'content-type': 'application/json',
+          'internxt-client': 'drive-desktop',
+          'internxt-version': packageConfig.version
+        },
         body: JSON.stringify({ email: this.$data.username })
       })
         .then(async res => {
@@ -205,7 +209,9 @@ export default {
       fetch(`${process.env.API_URL}/api/access`, {
         method: 'POST',
         headers: {
-          'content-type': 'application/json'
+          'content-type': 'application/json',
+          'internxt-client': 'drive-desktop',
+          'internxt-version': packageConfig.version
         },
         body: JSON.stringify({
           email: this.$data.username,
