@@ -3,6 +3,7 @@ import rimraf from 'rimraf'
 import path from 'path'
 
 const hidefile = require('hidefile')
+const testFolderName = '.internxt_name_test'
 
 function createTestFolder(folderPath) {
   fs.mkdirSync(folderPath)
@@ -17,7 +18,8 @@ function removeTestFolder(folderPath) {
   })
 }
 
-function invalidFileName(filename, testFolder) {
+function invalidFileName(filename, basePath) {
+  const testFolder = path.join(basePath, testFolderName)
   if (!fs.existsSync(testFolder)) {
     createTestFolder(testFolder)
   }
@@ -31,7 +33,8 @@ function invalidFileName(filename, testFolder) {
   }
 }
 
-function invalidFolderName(foldername, testFolder) {
+function invalidFolderName(foldername, basePath) {
+  const testFolder = path.join(basePath, testFolderName)
   if (!fs.existsSync(testFolder)) {
     createTestFolder(testFolder)
   }
