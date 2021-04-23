@@ -6,15 +6,13 @@ import rimraf from 'rimraf'
 import Logger from '../libs/logger'
 const remote = require('@electron/remote')
 
-const OLD_DB_FOLDER = `${
-  process.env.NODE_ENV === 'production'
-    ? remote.app.getPath('home') + `/.xclouddesktop/`
-    : '.'
+const OLD_DB_FOLDER = `${process.env.NODE_ENV === 'production'
+  ? remote.app.getPath('home') + `/.xclouddesktop/`
+  : '.'
 }`
-const DB_FOLDER = `${
-  process.env.NODE_ENV === 'production'
-    ? remote.app.getPath('home') + `/.internxt-desktop/`
-    : './database'
+const DB_FOLDER = `${process.env.NODE_ENV === 'production'
+  ? remote.app.getPath('home') + `/.internxt-desktop/`
+  : './database'
 }`
 
 // Migration from .xclouddesktop to .internxt-desktop
@@ -75,12 +73,12 @@ const dbUser = new Datastore({
 
 function InsertKeyValue(db, key, value) {
   return new Promise((resolve, reject) => {
-    db.remove({ key }, { multi: true }, function(err, numRemoved) {
+    db.remove({ key }, { multi: true }, function (err, numRemoved) {
       if (err) {
         console.error('Error removing key/value: %s/%s', key, value)
         reject(err)
       } else {
-        db.insert({ key, value }, function(err, newDoc) {
+        db.insert({ key, value }, function (err, newDoc) {
           if (err) {
             console.error('Error inserting key/value: %s/%s', key, value)
             reject(err)
@@ -130,6 +128,14 @@ const dbFindOne = (db, consult) => {
 const dbFind = (db, consult) => {
   return new Promise((resolve, reject) => {
     db.find(consult, (err, document) => {
+      if (err) reject(err)
+      else resolve(document)
+    })
+  })
+}
+const dbRemove = (db, consult) => {
+  return new Promise((resolve, reject) => {
+    db.remove(consult, { multi: true }, (err, document) => {
       if (err) reject(err)
       else resolve(document)
     })
@@ -270,6 +276,7 @@ export default {
   FileGet,
   dbFindOne,
   dbFind,
+  dbRemove,
   dbInsert,
   dbUpdate,
   ClearFilesSelect,
