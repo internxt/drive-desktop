@@ -6,32 +6,45 @@ import rimraf from 'rimraf'
 import Logger from '../libs/logger'
 const remote = require('@electron/remote')
 
-const OLD_DB_FOLDER = `${
-  process.env.NODE_ENV === 'production'
-    ? remote.app.getPath('home') + `/.xclouddesktop/`
-    : '.'
+const OLD_DB_FOLDER = `${process.env.NODE_ENV === 'production'
+  ? remote.app.getPath('home') + `/.xclouddesktop/`
+  : '.'
 }`
-const DB_FOLDER = `${
-  process.env.NODE_ENV === 'production'
-    ? remote.app.getPath('home') + `/.internxt-desktop/`
-    : '.'
+const OLD_DB_FOLDER2 = `${process.env.NODE_ENV === 'production'
+  ? remote.app.getPath('home') + `/.internxt-desktop/`
+  : '.'
 }`
+const DB_FOLDER = `${process.env.NODE_ENV === 'production'
+  ? remote.app.getPath('userData') + `/.internxt-desktop/`
+  : '.'
+}`
+console.log(remote.app.getPath('userData'))
 
-// Migration from .xclouddesktop to .internxt-desktop
+// Migration from .xclouddesktop and .internxt-desktop to userData
 const oldFolderExists = fs.existsSync(OLD_DB_FOLDER)
+const oldFolder2Exists = fs.existsSync(OLD_DB_FOLDER2)
 const newFolderExists = fs.existsSync(DB_FOLDER)
-if (oldFolderExists && !newFolderExists) {
-  fs.renameSync(OLD_DB_FOLDER, DB_FOLDER)
-  Logger.info(
-    'Config folder migration success .xclouddesktop > .internxt-desktop'
-  )
-} else if (
-  oldFolderExists &&
-  newFolderExists &&
-  process.env.NODE_ENV === 'production'
-) {
-  Logger.info('Remove old .xclouddesktop folder')
-  rimraf.sync(OLD_DB_FOLDER)
+if (newFolderExists) {
+  if (oldFolderExists) {
+    Logger.info('Remove old .xclouddesktop folder')
+    rimraf.sync(OLD_DB_FOLDER)
+  }
+  if (oldFolder2Exists) {
+    Logger.info('Remove old .internxt-desktop folder')
+    rimraf.sync(OLD_DB_FOLDER2)
+  }
+} else {
+  if (oldFolder2Exists) {
+    fs.renameSync(OLD_DB_FOLDER2, DB_FOLDER)
+    Logger.info(
+      'Config folder migration success .internxt-desktop > userData'
+    )
+  } else if (oldFolderExists) {
+    fs.renameSync(OLD_DB_FOLDER, DB_FOLDER)
+    Logger.info(
+      'Config folder migration success .xclouddesktop > userData'
+    )
+  }
 }
 
 var tempList = []
@@ -80,12 +93,12 @@ const dbTemp = new Datastore({
 
 function InsertKeyValue(db, key, value) {
   return new Promise((resolve, reject) => {
-    db.remove({ key }, { multi: true }, function(err, numRemoved) {
+    db.remove({ key }, { multi: true }, function (err, numRemoved) {
       if (err) {
         console.error('Error removing key/value: %s/%s', key, value)
         reject(err)
       } else {
-        db.insert({ key, value }, function(err, newDoc) {
+        db.insert({ key, value }, function (err, newDoc) {
           if (err) {
             console.error('Error inserting key/value: %s/%s', key, value)
             reject(err)
@@ -139,7 +152,7 @@ function insertTemp() {
     dbTemp.remove(
       { key: { $in: Object.keys(tempDict) } },
       { multi: true },
-      function(err, numRemoved) {
+      function (err, numRemoved) {
         if (err) {
           console.error('Error removing key/value')
           tempDict = {}
@@ -150,7 +163,7 @@ function insertTemp() {
           for (const key of Object.keys(tempDict)) {
             tempList.push({ key: key, value: tempDict[key] })
           }
-          dbTemp.insert(tempList, function(err, newDoc) {
+          dbTemp.insert(tempList, function (err, newDoc) {
             if (err) {
               console.error('Error inserting key/value')
               tempDict = {}
