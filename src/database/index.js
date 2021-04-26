@@ -18,7 +18,6 @@ const DB_FOLDER = `${process.env.NODE_ENV === 'production'
   ? remote.app.getPath('userData') + `/.internxt-desktop/`
   : '.'
 }`
-console.log(remote.app.getPath('userData'))
 
 // Migration from .xclouddesktop and .internxt-desktop to userData
 const oldFolderExists = fs.existsSync(OLD_DB_FOLDER)

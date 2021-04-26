@@ -77,6 +77,8 @@
     },
     "nsis": {
       "allowElevation": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
       "deleteAppDataOnUninstall": true,
       "artifactName": "${name}-${version}_${arch}.${ext}",
       "oneClick": true,
