@@ -1,6 +1,6 @@
 {
   "name": "internxt-drive",
-  "version": "1.2.12",
+  "version": "1.2.13",
   "author": "Internxt <hello@internxt.com>",
   "description": "Internxt Drive client UI",
   "license": "AGPL-3.0",
@@ -77,7 +77,9 @@
     },
     "nsis": {
       "allowElevation": true,
-      "deleteAppDataOnUninstall": false,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "deleteAppDataOnUninstall": true,
       "artifactName": "${name}-${version}_${arch}.${ext}",
       "oneClick": true,
       "perMachine": false

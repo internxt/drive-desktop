@@ -280,7 +280,8 @@ function getLocalFolderList(localPath) {
     const ignoreHideFolder = new RegExp('^\\.[]*')
     const invalidName = /[\\/]|[. ]$/
     readdirp(localPath, {
-      type: 'directories'
+      type: 'directories',
+      directoryFilter: ['!.*']
     })
       .on('data', data => {
         if (invalidName.test(data.basename)) {

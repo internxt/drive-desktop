@@ -252,6 +252,13 @@ app.on('set-tooltip', msg => {
 app.on('show-error', msg => {
   dialog.showErrorBox('Error', msg)
 })
+app.on('show-info', (msg, title) => {
+  dialog.showMessageBox({
+    message: msg,
+    type: 'info',
+    title: title
+  })
+})
 
 /**
  * Auto Updater

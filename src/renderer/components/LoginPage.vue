@@ -255,7 +255,9 @@ export default {
             )
             await database.Set('xUser', res.data)
 
-            this.$router.push('/landing-page').catch(() => {})
+            this.$router.push('/landing-page').then(() => {
+              remote.app.emit('show-info', "You've securely logged into Internxt Drive. A native Internxt folder has been created on your OS with your files. You can configure additional functionalities from the Internxt tray icon.", 'Login successful')
+            }).catch(() => {})
             analytics
               .identify({
                 userId: undefined,
