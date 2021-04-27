@@ -252,6 +252,13 @@ app.on('set-tooltip', msg => {
 app.on('show-error', msg => {
   dialog.showErrorBox('Error', msg)
 })
+app.on('show-info', (msg, title) => {
+  dialog.showMessageBox({
+    message: msg,
+    type: 'info',
+    title: title
+  })
+})
 
 /**
  * Auto Updater
@@ -304,11 +311,13 @@ function AnnounceUpdate(version) {
   UpdateOptions.dialogShow = true
   const options = {
     type: 'question',
-    buttons: ['Update now', 'Update after closing'],
+    buttons: ['Update now', 'Update later'],
     defaultId: 1,
+    cancelId: 1,
     title: 'Internxt Drive',
     message: 'New update available: ' + version
   }
+  Logger.log('Show update dialog')
   dialog
     .showMessageBox(
       new BrowserWindow({
@@ -318,10 +327,13 @@ function AnnounceUpdate(version) {
       }),
       options
     )
-    .then((userResponse, checkboxChecked) => {
+    .then(userResponse => {
       UpdateOptions.dialogShow = false
-      if (userResponse === 0) {
+      if (userResponse.response === 0) {
+        Logger.log('Update now')
         autoUpdater.quitAndInstall(false, true)
+      } else {
+        Logger.log('Update later')
       }
     })
 }

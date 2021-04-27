@@ -10,26 +10,40 @@ const OLD_DB_FOLDER = `${process.env.NODE_ENV === 'production'
   ? remote.app.getPath('home') + `/.xclouddesktop/`
   : '.'
 }`
-const DB_FOLDER = `${process.env.NODE_ENV === 'production'
+const OLD_DB_FOLDER2 = `${process.env.NODE_ENV === 'production'
   ? remote.app.getPath('home') + `/.internxt-desktop/`
-  : './database'
+  : '.'
+}`
+const DB_FOLDER = `${process.env.NODE_ENV === 'production'
+  ? remote.app.getPath('userData') + `/.internxt-desktop/`
+  : '.'
 }`
 
-// Migration from .xclouddesktop to .internxt-desktop
+// Migration from .xclouddesktop and .internxt-desktop to userData
 const oldFolderExists = fs.existsSync(OLD_DB_FOLDER)
+const oldFolder2Exists = fs.existsSync(OLD_DB_FOLDER2)
 const newFolderExists = fs.existsSync(DB_FOLDER)
-if (oldFolderExists && !newFolderExists) {
-  fs.renameSync(OLD_DB_FOLDER, DB_FOLDER)
-  Logger.info(
-    'Config folder migration success .xclouddesktop > .internxt-desktop'
-  )
-} else if (
-  oldFolderExists &&
-  newFolderExists &&
-  process.env.NODE_ENV === 'production'
-) {
-  Logger.info('Remove old .xclouddesktop folder')
-  rimraf.sync(OLD_DB_FOLDER)
+if (newFolderExists) {
+  if (oldFolderExists) {
+    Logger.info('Remove old .xclouddesktop folder')
+    rimraf.sync(OLD_DB_FOLDER)
+  }
+  if (oldFolder2Exists) {
+    Logger.info('Remove old .internxt-desktop folder')
+    rimraf.sync(OLD_DB_FOLDER2)
+  }
+} else {
+  if (oldFolder2Exists) {
+    fs.renameSync(OLD_DB_FOLDER2, DB_FOLDER)
+    Logger.info(
+      'Config folder migration success .internxt-desktop > userData'
+    )
+  } else if (oldFolderExists) {
+    fs.renameSync(OLD_DB_FOLDER, DB_FOLDER)
+    Logger.info(
+      'Config folder migration success .xclouddesktop > userData'
+    )
+  }
 }
 
 const initDatabase = () => {
@@ -112,6 +126,57 @@ const Set = (key, value) => {
 
 const FolderSet = (key, value) => {
   return InsertKeyValue(dbFolders, key, value)
+}
+
+const TempSet = async (key, value) => {
+  if (insertPromise) {
+    await insertPromise
+  }
+  tempDict[key] = value
+  if (insertTimeOut) {
+    clearTimeout(insertTimeOut)
+  }
+  insertTimeOut = setTimeout(() => {
+    insertPromise = insertTemp()
+  }, 500)
+}
+
+function insertTemp() {
+  return new Promise((resolve, reject) => {
+    dbTemp.remove(
+      { key: { $in: Object.keys(tempDict) } },
+      { multi: true },
+      function(err, numRemoved) {
+        if (err) {
+          console.error('Error removing key/value')
+          tempDict = {}
+          insertTimeOut = undefined
+          insertPromise = undefined
+          reject(err)
+        } else {
+          for (const key of Object.keys(tempDict)) {
+            tempList.push({ key: key, value: tempDict[key] })
+          }
+          dbTemp.insert(tempList, function(err, newDoc) {
+            if (err) {
+              console.error('Error inserting key/value')
+              tempDict = {}
+              tempList = []
+              insertTimeOut = undefined
+              insertPromise = undefined
+              reject(err)
+            } else {
+              tempList = []
+              tempDict = {}
+              insertTimeOut = undefined
+              insertPromise = undefined
+              resolve(newDoc)
+            }
+          })
+        }
+      }
+    )
+  })
 }
 
 const FileSet = (key, value) => {
