@@ -74,10 +74,10 @@ function createLocalFolder(select, selectIndex, folder, basePath) {
   }
 }
 
-async function createRemoteFolder(folders, id) {
+async function createRemoteFolder(folders) {
   const headers = await Auth.getAuthHeader()
   return new Promise((resolve, reject) => {
-    fetch(`${process.env.API_URL}/api/desktop/folders/${id}`, {
+    fetch(`${process.env.API_URL}/api/desktop/folders`, {
       method: 'POST',
       mode: 'cors',
       headers: headers,
@@ -159,49 +159,70 @@ async function createFolder() {
 
   await Database.ClearFoldersSelect()
   var insertPromise = Database.dbInsert(Database.dbFolders, select)
-  // console.log('needUpload: ', needUpload)
-  for (const key of Object.keys(needUpload).sort(
-    (a, b) => a.length - b.length
-  )) {
-    if (needUpload[key].id === undefined || needUpload[key].children === []) {
-      continue
-    }
-    const newFolders = []
-    var res
-    const encryptFolders = []
+  console.log('needUpload: ', needUpload)
+  var done = false
+  const maxLength = 500
+  while (!done) {
+    const uploadingFolders = {}
     const encryptDict = []
+    const foldersUploaded = []
+    let length = 0
 
-    for (const folder of needUpload[key].children) {
-      const encryptName = crypt.encryptFilename(path.basename(folder), needUpload[key].id)
-      encryptFolders.push(encryptName)
-      encryptDict[encryptName] = folder
-    }
-
-    try {
-      res = await createRemoteFolder(encryptFolders, needUpload[key].id)
-      for (const newFolder of res) {
-        const folder = select[selectIndex[encryptDict[newFolder.name]]]
-        folder.value = newFolder
-        folder.state = state.state.SYNCED
-        folder.needSync = false
-        newFolders.push(folder)
-        if (needUpload[encryptDict[newFolder.name]]) {
-          needUpload[encryptDict[newFolder.name]].id = newFolder.id
+    for (const key of Object.keys(needUpload)) {
+      if (needUpload[key].id === undefined || needUpload[key].children === []) {
+        continue
+      }
+      const parentId = needUpload[key].id
+      while (needUpload[key].children.length > 0) {
+        const folderOriginalKey = needUpload[key].children.shift()
+        const encryptName = crypt.encryptFilename(path.basename(folderOriginalKey), parentId)
+        if (uploadingFolders[parentId] === undefined) {
+          uploadingFolders[parentId] = [encryptName]
+        } else {
+          uploadingFolders[parentId].push(encryptName)
+        }
+        encryptDict[encryptName] = folderOriginalKey
+        if (++length === maxLength) {
+          break
         }
       }
-    } catch (err) {
-      Logger.warn('error: ', err.message)
-      continue
-    }
-    await insertPromise
-    await Database.dbRemove(Database.dbFolders, {
-      key: {
-        $in: newFolders.map((e) => e.key)
+      if (needUpload[key].children.length === 0) {
+        delete needUpload[key]
       }
-    })
-    insertPromise = Database.dbInsert(Database.dbFolders, newFolders)
+      if (length === maxLength) {
+        break
+      }
+    }
+    if (length !== 0) {
+      try {
+        const res = await createRemoteFolder(uploadingFolders)
+        console.log(res.length)
+        for (const newFolder of res) {
+          const folder = select[selectIndex[encryptDict[newFolder.name]]]
+          folder.value = newFolder
+          folder.state = state.state.SYNCED
+          folder.needSync = false
+          foldersUploaded.push(folder)
+          if (needUpload[encryptDict[newFolder.name]]) {
+            needUpload[encryptDict[newFolder.name]].id = newFolder.id
+          }
+        }
+      } catch (err) {
+        Logger.warn('error: ', err.message)
+        continue
+      }
+      await insertPromise
+      await Database.dbRemove(Database.dbFolders, {
+        key: {
+          $in: foldersUploaded.map((e) => e.key)
+        }
+      })
+      insertPromise = Database.dbInsert(Database.dbFolders, foldersUploaded)
+    } else {
+      done = true
+      await insertPromise
+    }
   }
-  await insertPromise
 }
 async function sincronizeCloudFolder() {
   var select = await Database.dbFind(Database.dbFolders, {})
@@ -254,7 +275,7 @@ async function sincronizeCloudFolder() {
       }
     }
   }
-  // console.log('despues sync cloud: ', select)
+  console.log('despues sync cloud: ', select)
   await Database.ClearFoldersSelect()
   await Database.dbInsert(Database.dbFolders, select)
   await Database.Set('lastFolderSyncDate', new Date())
@@ -299,7 +320,7 @@ async function sincronizeLocalFolder() {
     )
     select[indexDict[item]].needSync = true
   }
-  // console.log('despues sync local: ', select)
+  console.log('despues sync local: ', select)
   await Database.ClearFoldersSelect()
   await Database.dbInsert(Database.dbFolders, select)
 }

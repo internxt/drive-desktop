@@ -66,6 +66,9 @@ async function regenerateDbFolderCloud(tree) {
   const ignoreHideFolder = new RegExp('^\\.[]*')
   const basePath = await database.Get('xPath')
   for (const item of tree.folders) {
+    if (ConfigStore.get('stopSync')) {
+      throw Error('stop sync')
+    }
     if (!item.parent_id) {
       finalDict[item.id] = {
         path: basePath,
@@ -227,6 +230,9 @@ async function getList() {
   const offset = 5000
   const result = { folders: [], files: [] }
   while (!finished) {
+    if (ConfigStore.get('stopSync')) {
+      throw Error('stop sync')
+    }
     const fetchRes = await fetch(
       `${process.env.API_URL}/api/desktop/list/${index}`,
       {
@@ -253,18 +259,18 @@ async function getList() {
 
 function updateDbCloud() {
   return new Promise((resolve, reject) => {
-    // console.time('getList')
+    console.time('getList')
     getList()
       .then(tree => {
-        // console.timeEnd('getList')
-        // console.time('regenerateDbFolderCloud')
+        console.timeEnd('getList')
+        console.time('regenerateDbFolderCloud')
         regenerateDbFolderCloud(tree)
           .then(result => {
-            // console.timeEnd('regenerateDbFolderCloud')
-            // console.time('regenerateDbFileCloud')
+            console.timeEnd('regenerateDbFolderCloud')
+            console.time('regenerateDbFileCloud')
             regenerateDbFileCloud(tree, result)
               .then(() => {
-                // console.timeEnd('regenerateDbFileCloud')
+                console.timeEnd('regenerateDbFileCloud')
                 resolve()
               })
               .catch(reject)
