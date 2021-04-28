@@ -156,9 +156,9 @@ async function createFolder() {
       }
     }
   }
-
+  ConfigStore.set('updatingDB', true)
   await Database.ClearFoldersSelect()
-  var insertPromise = Database.dbInsert(Database.dbFolders, select)
+  var insertPromise = Database.dbInsert(Database.dbFolders, select).then(() => { ConfigStore.set('updatingDB', false) })
   console.log('needUpload: ', needUpload)
   var done = false
   const maxLength = 500
@@ -212,12 +212,13 @@ async function createFolder() {
         continue
       }
       await insertPromise
+      ConfigStore.set('updatingDB', true)
       await Database.dbRemove(Database.dbFolders, {
         key: {
           $in: foldersUploaded.map((e) => e.key)
         }
       })
-      insertPromise = Database.dbInsert(Database.dbFolders, foldersUploaded)
+      insertPromise = Database.dbInsert(Database.dbFolders, foldersUploaded).then(() => { ConfigStore.set('updatingDB', false) })
     } else {
       done = true
       await insertPromise
@@ -276,8 +277,10 @@ async function sincronizeCloudFolder() {
     }
   }
   console.log('despues sync cloud: ', select)
+  ConfigStore.set('updatingDB', true)
   await Database.ClearFoldersSelect()
   await Database.dbInsert(Database.dbFolders, select)
+  ConfigStore.set('updatingDB', false)
   await Database.Set('lastFolderSyncDate', new Date())
 }
 async function sincronizeLocalFolder() {
@@ -321,8 +324,10 @@ async function sincronizeLocalFolder() {
     select[indexDict[item]].needSync = true
   }
   console.log('despues sync local: ', select)
+  ConfigStore.set('updatingDB', true)
   await Database.ClearFoldersSelect()
   await Database.dbInsert(Database.dbFolders, select)
+  ConfigStore.set('updatingDB', false)
 }
 
 // Delete local folders that doesn't exists on remote. [helper for deleteLocalWhenRemoteDeleted]

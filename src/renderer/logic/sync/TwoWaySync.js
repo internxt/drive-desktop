@@ -21,6 +21,7 @@ import analytics from '../utils/analytics'
 const SYNC_METHOD = 'two-way-sync'
 ConfigStore.set('isSyncing', false)
 ConfigStore.set('stopSync', false)
+ConfigStore.set('updatingDB', false)
 let wtc = null
 let lastSyncFailed = false
 let timeoutInstance = null

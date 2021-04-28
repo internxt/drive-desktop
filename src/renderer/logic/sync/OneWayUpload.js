@@ -23,6 +23,7 @@ const { app } = require('@electron/remote')
 const SYNC_METHOD = 'one-way-upload'
 ConfigStore.set('isSyncing', false)
 ConfigStore.set('stopSync', false)
+ConfigStore.set('updatingDB', false)
 let wtc = null
 let lastSyncFailed = false
 let timeoutInstance = null

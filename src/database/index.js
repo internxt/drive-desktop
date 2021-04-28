@@ -128,57 +128,6 @@ const FolderSet = (key, value) => {
   return InsertKeyValue(dbFolders, key, value)
 }
 
-const TempSet = async (key, value) => {
-  if (insertPromise) {
-    await insertPromise
-  }
-  tempDict[key] = value
-  if (insertTimeOut) {
-    clearTimeout(insertTimeOut)
-  }
-  insertTimeOut = setTimeout(() => {
-    insertPromise = insertTemp()
-  }, 500)
-}
-
-function insertTemp() {
-  return new Promise((resolve, reject) => {
-    dbTemp.remove(
-      { key: { $in: Object.keys(tempDict) } },
-      { multi: true },
-      function(err, numRemoved) {
-        if (err) {
-          console.error('Error removing key/value')
-          tempDict = {}
-          insertTimeOut = undefined
-          insertPromise = undefined
-          reject(err)
-        } else {
-          for (const key of Object.keys(tempDict)) {
-            tempList.push({ key: key, value: tempDict[key] })
-          }
-          dbTemp.insert(tempList, function(err, newDoc) {
-            if (err) {
-              console.error('Error inserting key/value')
-              tempDict = {}
-              tempList = []
-              insertTimeOut = undefined
-              insertPromise = undefined
-              reject(err)
-            } else {
-              tempList = []
-              tempDict = {}
-              insertTimeOut = undefined
-              insertPromise = undefined
-              resolve(newDoc)
-            }
-          })
-        }
-      }
-    )
-  })
-}
-
 const FileSet = (key, value) => {
   return InsertKeyValue(dbFiles, key, value)
 }

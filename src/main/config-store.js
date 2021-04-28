@@ -27,6 +27,10 @@ const schema = {
   stopSync: {
     type: 'boolean',
     default: false
+  },
+  updatingDB: {
+    type: 'boolean',
+    default: false
   }
 }
 

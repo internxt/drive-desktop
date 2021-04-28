@@ -15,7 +15,7 @@ import path from 'path'
 
 function infoFromPath(localPath) {
   return new Promise((resolve, reject) => {
-    Database.dbFiles.findOne({ key: localPath }, function(err, result) {
+    Database.dbFiles.findOne({ key: localPath }, function (err, result) {
       if (err) {
         reject(err)
       } else {
@@ -212,8 +212,10 @@ async function sincronizeCloudFile() {
     f.select = true
     select.push(f)
   }
+  ConfigStore.set('updatingDB', true)
   await Database.ClearFilesSelect()
   await Database.dbInsert(Database.dbFiles, select)
+  ConfigStore.set('updatingDB', false)
 }
 
 async function sincronizeLocalFile() {
@@ -287,8 +289,10 @@ async function sincronizeLocalFile() {
     )
     select[indexDict[item]].needSync = true
   }
+  ConfigStore.set('updatingDB', true)
   await Database.ClearFilesSelect()
   await Database.dbInsert(Database.dbFiles, select)
+  ConfigStore.set('updatingDB', false)
 }
 
 // Check files that does not exists in local anymore (use last sync tree), and remove them from remote
@@ -395,7 +399,7 @@ async function cleanLocalWhenRemoteDeleted(lastSyncFailed) {
 
 function fileInfoFromPath(localPath) {
   return new Promise((resolve, reject) => {
-    Database.dbFiles.findOne({ key: localPath }, function(err, result) {
+    Database.dbFiles.findOne({ key: localPath }, function (err, result) {
       if (err) {
         reject(err)
       } else {
