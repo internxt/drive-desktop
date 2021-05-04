@@ -17,7 +17,7 @@ const analytics = {
       if (!this.userData.uuid) {
         const user = await database.Get('xUser')
         if (!user || !user.user.email || !user.user.uuid) {
-          Logger.error('xUser is no initialized')
+          return Logger.error('xUser is no initialized')
         }
         this.userData.userMail = user.user.email
         this.userData.uuid = user.user.uuid
@@ -38,7 +38,7 @@ const analytics = {
       if (!this.userData.uuid) {
         const user = await database.Get('xUser')
         if (!user || !user.user.email || !user.user.uuid) {
-          Logger.error('xUser is no initialized')
+          return Logger.error('xUser is no initialized')
         }
         this.userData.userMail = user.user.email
         this.userData.uuid = user.user.uuid
