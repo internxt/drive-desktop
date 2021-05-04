@@ -1,8 +1,8 @@
 <template>
   <div id="wrapper">
     <main>
-      <div id = "selectSyncPanel">
-        <input type = "checkbox" id= "carpeta1" checked = false>
+      <div id="selectSyncPanel">
+        <input type="checkbox" id="carpeta1" checked="false" />
       </div>
       <div class="spinner-border text-primary" role="status">
         <span class="sr-only"></span>
@@ -104,6 +104,9 @@ export default {
       remote.app.emit('sync-stop')
       database
         .ClearAll()
+        .then(() => {
+          return database.ClearUser()
+        })
         .then(() => {
           Logger.info('databases cleared due to log out')
           const localUser = ConfigStore.get('user.uuid')
