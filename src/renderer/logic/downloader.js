@@ -18,16 +18,16 @@ import NameTest from './utils/nameTest'
 
 const { app } = require('@electron/remote')
 
-async function downloadFileTemp(fileObj, silent = false) {
+async function downloadFileTemp(cloudFile, filePath) {
   const storj = await getEnvironment()
-  const originalFileName = path.basename(fileObj.fullpath)
+  const originalFileName = path.basename(filePath)
 
   const tempPath = Folder.getTempFolderPath()
 
   if (!fs.existsSync(tempPath)) {
     mkdirp.sync(tempPath)
   }
-  const tempFilePath = path.join(tempPath, fileObj.fileId + '.dat')
+  const tempFilePath = path.join(tempPath, cloudFile.fileId + '.dat')
 
   Logger.log('Delete temp file', tempFilePath)
   // Delete temp file
@@ -40,33 +40,29 @@ async function downloadFileTemp(fileObj, silent = false) {
   }
   Logger.log(
     'DRIVE resolveFile, bucket: %s, file: %s',
-    fileObj.bucket,
-    fileObj.fileId
+    cloudFile.bucket,
+    cloudFile.fileId
   )
 
   return new Promise((resolve, reject) => {
     const state = storj.resolveFile(
-      fileObj.bucket,
-      fileObj.fileId,
+      cloudFile.bucket,
+      cloudFile.fileId,
       tempFilePath,
       {
-        progressCallback: function(progress, downloadedBytes, totalBytes) {
-          if (!silent) {
-            let progressPtg = progress * 100
-            progressPtg = progressPtg.toFixed(2)
-            app.emit(
-              'set-tooltip',
-              'Downloading ' + originalFileName + ' (' + progressPtg + '%).'
-            )
-          } else {
-            app.emit('set-tooltip', 'Checking ' + originalFileName)
-          }
+        progressCallback: function (progress, downloadedBytes, totalBytes) {
+          let progressPtg = progress * 100
+          progressPtg = progressPtg.toFixed(2)
+          app.emit(
+            'set-tooltip',
+            'Downloading ' + originalFileName + ' (' + progressPtg + '%).'
+          )
         },
-        finishedCallback: function(err) {
+        finishedCallback: function (err) {
           app.emit('set-tooltip')
           app.removeListener('sync-stop', stopDownloadHandler)
           if (err) {
-            Logger.error('download failed, file id: ' + fileObj.fileId)
+            Logger.error(`download failed, file id: ${cloudFile.fileId}`)
             reject(err)
           } else {
             Logger.log('Download finished')
@@ -172,28 +168,11 @@ async function _downloadAllFiles() {
       try {
         fs.unlinkSync(item.fullpath)
         Logger.log(item.fullpath + ' deleted')
-      } catch (e) {}
+      } catch (e) { }
       await Database.TempDel(item.fullpath)
       continue
     } else if (downloadAndReplace) {
       Logger.log('DOWNLOAD AND REPLACE WITHOUT QUESTION', item.fullpath)
-      analytics
-        .track({
-          userId: undefined,
-          event: 'file-download-start',
-          platform: 'desktop',
-          properties: {
-            email: 'email',
-            file_id: item.fileId,
-            file_name: item.name,
-            folder_id: item.folder_id,
-            file_type: item.type,
-            mode: ConfigStore.get('syncMode')
-          }
-        })
-        .catch(err => {
-          Logger.error(err)
-        })
       try {
         if (item.size !== 0) {
           const tempPath = await downloadFileTemp(item)
@@ -212,25 +191,6 @@ async function _downloadAllFiles() {
           await downloadZeroSizeFile(item)
         }
         await Sync.setModifiedTime(item.fullpath, item.created_at)
-
-        analytics
-          .track({
-            userId: undefined,
-            event: 'file-download-finished',
-            platform: 'desktop',
-            properties: {
-              email: 'email',
-              file_id: item.fileId,
-              file_type: item.type,
-              folder_id: item.folderId,
-              file_name: item.name,
-              file_size: item.size,
-              mode: ConfigStore.get('syncMode')
-            }
-          })
-          .catch(err => {
-            Logger.error(err)
-          })
         continue
       } catch (err) {
         // On error by shard, upload again

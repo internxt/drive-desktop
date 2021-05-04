@@ -48,9 +48,8 @@ async function uploadNewFile(storj, filePath, nCurrent, nTotal) {
 
   app.emit(
     'set-tooltip',
-    (nCurrent && nTotal ? `${nCurrent}/${nTotal}\n` : '') +
-      'Checking ' +
-      originalFileName
+    'Checking ' +
+    originalFileName
   )
 
   // File extension
@@ -122,20 +121,19 @@ async function uploadNewFile(storj, filePath, nCurrent, nTotal) {
 
   return new Promise((resolve, reject) => {
     const state = storj.storeFile(bucketId, tempFile, {
-      progressCallback: function(progress, uploadedBytes, totalBytes) {
+      progressCallback: function (progress, uploadedBytes, totalBytes) {
         let progressPtg = progress * 100
         progressPtg = progressPtg.toFixed(2)
         app.emit(
           'set-tooltip',
-          (nCurrent && nTotal ? `Files: ${nCurrent}/${nTotal}\n` : '') +
-            'Uploading ' +
-            originalFileName +
-            ' (' +
-            progressPtg +
-            '%)'
+          'Uploading ' +
+          originalFileName +
+          ' (' +
+          progressPtg +
+          '%)'
         )
       },
-      finishedCallback: async function(err, newFileId) {
+      finishedCallback: async function (err, newFileId) {
         if (fs.existsSync(tempFile)) {
           fs.unlinkSync(tempFile)
         }
@@ -254,8 +252,8 @@ async function uploadZeroSizeFile(filePath, nCurrent, nTotal) {
   app.emit(
     'set-tooltip',
     (nCurrent && nTotal ? `${nCurrent}/${nTotal}\n` : '') +
-      'Checking ' +
-      originalFileName
+    'Checking ' +
+    originalFileName
   )
 
   // File extension
@@ -296,19 +294,27 @@ async function uploadZeroSizeFile(filePath, nCurrent, nTotal) {
     folderId
   )
 }
-
-async function uploadFile(storj, filePath, nCurrent, nTotal, item) {
-  const fileInfo = await File.fileInfoFromPath(filePath)
-
+/**
+ *
+ * @param {string} filePath
+ * @param {fs.Stats} localFile
+ * @param {{createdAt, updatedAt,id,fileId}} cloudFile info from server
+ * @param {string} encryptedName
+ * @param {string} folderRoot
+ * @param {{user:{bucket} }} user
+ * @param {{key:string,value:{id:Number},state:string}} folderInfo
+ * @returns info from server
+ */
+async function uploadFile(filePath, localFile, cloudFile, encryptedName, folderRoot, user, folderInfo) {
+  const storj = await getEnvironment()
   // Parameters
-  const bucketId = fileInfo.value.bucket
-  const fileId = fileInfo.value.fileId
-  const folderId = fileInfo.value.folder_id
-  const folderRoot = await Database.Get('xPath')
+  const bucketId = user.user.bucket
+  const fileId = cloudFile ? cloudFile.fileId : null
+  const folderId = folderInfo.value.id
 
   // Encrypted filename
   const originalFileName = path.basename(filePath)
-  const encryptedFileName = crypt.encryptFilename(originalFileName, folderId)
+  const encryptedFileName = encryptedName
 
   app.emit('set-tooltip', 'Encrypting ' + originalFileName)
 
@@ -317,42 +323,18 @@ async function uploadFile(storj, filePath, nCurrent, nTotal, item) {
   const fileExt = fileNameParts.ext ? fileNameParts.ext.substring(1) : ''
 
   // File size
-  const fileStats = fs.statSync(filePath)
-  const fileMtime = fileStats.mtime
+  const fileMtime = localFile.mtime
   fileMtime.setMilliseconds(0)
-  const fileSize = fileStats.size
+  const fileSize = localFile.size
   Logger.log('Upload file %s, size: %d', filePath, fileSize)
   // Delete former file
-  if (item.size === 0) {
-    await File.removeFileEntry(
-      item.bucket,
-      item.fileId,
-      item.name,
-      item.type,
-      item.size,
-      item.folder_id,
-      item.updateAt
-    )
-  } else {
+  if (cloudFile) {
     await File.removeFile(bucketId, fileId)
   }
   if (fileSize === 0) {
     Logger.warn('Warning:File %s, Filesize 0.', filePath)
     return
-    /*
-    return File.createFileEntry(
-      bucketId,
-      '0sizefile',
-      encryptedFileName,
-      fileExt,
-      fileSize,
-      folderId
-    )
-    */
   }
-  await Database.dbFiles.remove({ key: filePath })
-
-  const finalName = encryptedFileName + (fileExt ? '.' + fileExt : '')
 
   // Copy file to temp folder
   const tempPath = path.join(app.getPath('home'), '.internxt-desktop', 'tmp')
@@ -371,21 +353,20 @@ async function uploadFile(storj, filePath, nCurrent, nTotal, item) {
   // Upload new file
   return new Promise((resolve, reject) => {
     const state = storj.storeFile(bucketId, tempFile, {
-      progressCallback: function(progress, uploadedBytes, totalBytes) {
+      progressCallback: function (progress, uploadedBytes, totalBytes) {
         let progressPtg = progress * 100
         progressPtg = progressPtg.toFixed(2)
         app.emit('set-percentage', progressPtg)
         app.emit(
           'set-tooltip',
-          (nCurrent && nTotal ? `Files: ${nCurrent}/${nTotal}\n` : '') +
-            'Uploading ' +
-            originalFileName +
-            ' (' +
-            progressPtg +
-            '%)'
+          'Uploading ' +
+          originalFileName +
+          ' (' +
+          progressPtg +
+          '%)'
         )
       },
-      finishedCallback: function(err, newFileId) {
+      finishedCallback: function (err, newFileId) {
         if (fs.existsSync(tempFile)) {
           fs.unlinkSync(tempFile)
         }
@@ -410,7 +391,14 @@ async function uploadFile(storj, filePath, nCurrent, nTotal, item) {
             fileMtime
           )
             .then(res => {
-              resolve(res)
+              return res.text()
+            }).then(text => {
+              const res = JSON.parse(text)
+              if (!res.id) {
+                throw new Error(res)
+              } else {
+                resolve(res)
+              }
             })
             .catch(err => {
               reject(err)

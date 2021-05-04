@@ -254,12 +254,26 @@ async function SyncLogic(callback) {
       },
       next => {
         console.time('crearFolder')
-        Folder.createFolder()
+        Folder.createFolders()
           .then(next)
           .catch(next)
       },
       next => {
         console.timeEnd('crearFolder')
+        if (ConfigStore.get('stopSync')) {
+          next('stop sync')
+        } else {
+          next()
+        }
+      },
+      next => {
+        console.time('sincronizeFile')
+        File.sincronizeFile()
+          .then(next)
+          .catch(next)
+      },
+      next => {
+        console.timeEnd('sincronizeFile')
         if (ConfigStore.get('stopSync')) {
           next('stop sync')
         } else {

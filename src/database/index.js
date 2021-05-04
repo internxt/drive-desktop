@@ -59,21 +59,25 @@ const dbFiles = new Datastore({
   autoload: true,
   timestampData: true
 })
+dbFiles.ensureIndex({ fieldName: 'key', unique: true }, (err) => { if (err) Logger.error(err) })
 const dbFilesCloud = new Datastore({
   filename: path.join(DB_FOLDER, 'database_files_cloud.db'),
   autoload: true,
   timestampData: true
 })
+dbFilesCloud.ensureIndex({ fieldName: 'key', unique: true }, (err) => { if (err) Logger.error(err) })
 const dbFolders = new Datastore({
   filename: path.join(DB_FOLDER, 'database_folders_select.db'),
   autoload: true,
   timestampData: true
 })
+dbFolders.ensureIndex({ fieldName: 'key', unique: true }, (err) => { if (err) Logger.error(err) })
 const dbFoldersCloud = new Datastore({
   filename: path.join(DB_FOLDER, 'database_folders_cloud.db'),
   autoload: true,
   timestampData: true
 })
+dbFoldersCloud.ensureIndex({ fieldName: 'key', unique: true }, (err) => { if (err) Logger.error(err) })
 const dbLastFolders = new Datastore({
   filename: path.join(DB_FOLDER, 'database_last_folders_cloud.db'),
   autoload: true,
@@ -150,6 +154,14 @@ const dbFind = (db, consult) => {
 const dbRemove = (db, consult) => {
   return new Promise((resolve, reject) => {
     db.remove(consult, { multi: true }, (err, document) => {
+      if (err) reject(err)
+      else resolve(document)
+    })
+  })
+}
+const dbRemoveOne = (db, consult) => {
+  return new Promise((resolve, reject) => {
+    db.remove(consult, (err, document) => {
       if (err) reject(err)
       else resolve(document)
     })
@@ -258,10 +270,6 @@ const ClearAll = () => {
         next =>
           ClearLastFolders()
             .then(() => next())
-            .catch(next),
-        next =>
-          ClearUser()
-            .then(() => next())
             .catch(next)
       ],
       err => {
@@ -291,6 +299,7 @@ export default {
   dbFindOne,
   dbFind,
   dbRemove,
+  dbRemoveOne,
   dbInsert,
   dbUpdate,
   ClearFilesSelect,
