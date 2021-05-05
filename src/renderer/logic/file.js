@@ -384,7 +384,9 @@ async function uploadFile(file, localFile, cloudFile, encryptedName, rootPath, u
       file.needSync = false
     }
   } catch (err) {
-    Logger.error(`Error uploading file: ${file.key}. Error: ${err}`)
+    if (!/Folder not found/.test(err.message)) {
+      Logger.error(`Error uploading file: ${file.key}. Error: ${err}`)
+    }
   }
 }
 /**
