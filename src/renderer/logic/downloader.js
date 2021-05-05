@@ -23,7 +23,10 @@ async function downloadFileTemp(cloudFile, filePath) {
   const originalFileName = path.basename(filePath)
 
   const tempPath = Folder.getTempFolderPath()
-
+  const freeSpace = await CheckDiskSpace(path.dirname(filePath))
+  if (cloudFile.size * 3 >= freeSpace) {
+    throw new Error('No space left')
+  }
   if (!fs.existsSync(tempPath)) {
     mkdirp.sync(tempPath)
   }
