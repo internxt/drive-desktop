@@ -281,6 +281,20 @@ async function SyncLogic(callback) {
         }
       },
       next => {
+        console.time('removeFolders')
+        Folder.removeFolders()
+          .then(next)
+          .catch(next)
+      },
+      next => {
+        console.timeEnd('removeFolders')
+        if (ConfigStore.get('stopSync')) {
+          next('stop sync')
+        } else {
+          next()
+        }
+      },
+      next => {
         console.timeEnd('desktop')
         next('stop sync')
       },

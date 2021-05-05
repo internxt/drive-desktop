@@ -115,7 +115,64 @@ async function createRemoteFolder(folders) {
   })
 }
 
-async function createFolder() {
+async function removeFolders() {
+  var select = await Database.dbFind(Database.dbFolders, {})
+  select.sort((a, b) => { return b.key.length - a.key.length })
+  for (const folder of select) {
+    console.log(JSON.parse(JSON.stringify(folder)))
+    if (!folder.select) {
+      try {
+        await new Promise((resolve, reject) => {
+          rimraf(folder.key, err => {
+            if (err) {
+              reject(err)
+            }
+            resolve()
+          })
+        })
+      } catch (err) {
+        Logger.error(err)
+        continue
+      }
+      await Database.dbRemoveOne(Database.dbFolders, { key: folder.key })
+      continue
+    }
+    if (!folder.needSync || (folder.state !== state.state.DELETE_CLOUD && folder.state !== state.state.DELETE_LOCAL)) {
+      continue
+    }
+    try {
+      if (folder.state === state.state.DELETE_CLOUD) {
+        if (!fs.existsSync(folder.key)) {
+          await removeFolder(folder.value.id)
+          await Database.dbRemoveOne(Database.dbFolders, { key: folder.key })
+          continue
+        } else {
+          folder.state = state.state.SYNCED
+          folder.needSync = false
+          await Database.dbUpdate(Database.dbFolders, { key: folder.key }, { $set: folder })
+          continue
+        }
+      }
+      if (folder.state === state.state.DELETE_LOCAL) {
+        if (fs.existsSync(folder.key) && fs.readdirSync(folder.key).length !== 0) {
+          folder.state = state.state.UPLOAD
+          folder.needSync = true
+          await Database.dbUpdate(Database.dbFolders, { key: folder.key }, { $set: folder })
+          continue
+        } else {
+          fs.rmdirSync(folder.key)
+          await Database.dbRemoveOne(Database.dbFolders, { key: folder.key })
+          continue
+        }
+      }
+    } catch (err) {
+      Logger.error(err)
+      continue
+    }
+  }
+}
+
+async function createFolders() {
   var select = await Database.dbFind(Database.dbFolders, {})
   const user = await Database.Get('xUser')
   const basePath = await Database.Get('xPath')
@@ -159,7 +216,7 @@ async function createFolder() {
   ConfigStore.set('updatingDB', true)
   await Database.ClearFoldersSelect()
   var insertPromise = Database.dbInsert(Database.dbFolders, select).then(() => { ConfigStore.set('updatingDB', false) })
-  console.log('needUpload: ', needUpload)
+  // console.log('needUpload: ', needUpload)
   var done = false
   const maxLength = 500
   while (!done) {
@@ -196,7 +253,6 @@ async function createFolder() {
     if (length !== 0) {
       try {
         const res = await createRemoteFolder(uploadingFolders)
-        console.log(res.length)
         for (const newFolder of res) {
           const folder = select[selectIndex[encryptDict[newFolder.name]]]
           folder.value = newFolder
@@ -246,6 +302,7 @@ async function sincronizeCloudFolder() {
     var folder = select[selectIndex[f]]
     if (cloudIndex[f] === undefined) {
       folder = select[selectIndex[f]]
+      folder.needSync = true
       folder.state = state.transition(folder.state, state.word.cloudDeleted)
     } else {
       folder.value = cloud[cloudIndex[f]].value
@@ -276,7 +333,7 @@ async function sincronizeCloudFolder() {
       }
     }
   }
-  console.log('despues sync cloud: ', select)
+  console.log('despues sync cloud folder: ', select)
   ConfigStore.set('updatingDB', true)
   await Database.ClearFoldersSelect()
   await Database.dbInsert(Database.dbFolders, select)
@@ -323,7 +380,7 @@ async function sincronizeLocalFolder() {
     )
     select[indexDict[item]].needSync = true
   }
-  console.log('despues sync local: ', select)
+  console.log('despues sync local folder: ', select)
   ConfigStore.set('updatingDB', true)
   await Database.ClearFoldersSelect()
   await Database.dbInsert(Database.dbFolders, select)
@@ -451,20 +508,19 @@ function cleanRemoteWhenLocalDeleted(lastSyncFailed) {
 // warning, this method deletes all its contents
 async function removeFolder(folderId) {
   const headers = await Auth.getAuthHeader()
-  return new Promise((resolve, reject) => {
-    Database.Get('xUser').then(userData => {
-      fetch(`${process.env.API_URL}/api/storage/folder/${folderId}`, {
-        method: 'DELETE',
-        headers: headers
-      })
-        .then(result => {
-          resolve(result)
-        })
-        .catch(err => {
-          reject(err)
-        })
-    })
+  const res = await fetch(`${process.env.API_URL}/api/storage/folder/${folderId}`, {
+    method: 'DELETE',
+    headers: headers
   })
+  const text = await res.text()
+  if (res.status !== 204) {
+    const data = JSON.parse(text)
+    if (/Folder does not exists/.test(data.error)) {
+      return true
+    }
+    throw new Error(text)
+  }
+  return true
 }
 
 function rootFolderExists() {
@@ -484,7 +540,8 @@ function rootFolderExists() {
 export default {
   createRemoteFolder,
   getTempFolderPath,
-  createFolder,
+  createFolders,
+  removeFolders,
   clearTempFolder,
   cleanLocalWhenRemoteDeleted,
   cleanRemoteWhenLocalDeleted,
