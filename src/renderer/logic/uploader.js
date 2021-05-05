@@ -366,22 +366,30 @@ async function uploadFile(filePath, localFile, cloudFile, encryptedName, folderR
           '%)'
         )
       },
-      finishedCallback: function (err, newFileId) {
-        if (fs.existsSync(tempFile)) {
-          fs.unlinkSync(tempFile)
-        }
-        app.emit('set-tooltip')
-        app.removeListener('sync-stop', stopDownloadHandler)
-        if (err) {
-          Logger.error('Sync Error uploading and replace file: %s', err)
-          const fileExistsPattern = /File already exist/
-          if (fileExistsPattern.exec(err)) {
-            resolve()
-          } else {
-            resolve()
+      finishedCallback: async function (err, newFileId) {
+        try {
+          if (fs.existsSync(tempFile)) {
+            fs.unlinkSync(tempFile)
           }
-        } else {
-          File.createFileEntry(
+          app.emit('set-tooltip')
+          app.removeListener('sync-stop', stopDownloadHandler)
+          if (err) {
+            const fileExistsPattern = /File already exist/
+            let relativePath = path.relative(folderRoot, filePath)
+            relativePath = relativePath.replace(/\\/g, '/')
+            Logger.log('Network name should be: %s', relativePath)
+            const hashName = Hash.hasher(relativePath)
+            if (fileExistsPattern.exec(err)) {
+              newFileId = await BridgeService.findFileByName(
+                bucketId,
+                hashName
+              )
+            } else {
+              Logger.error('Sync Error uploading and replace file: %s', err)
+              throw new Error(err)
+            }
+          }
+          const fetchRes = await File.createFileEntry(
             bucketId,
             newFileId,
             encryptedFileName,
@@ -390,19 +398,15 @@ async function uploadFile(filePath, localFile, cloudFile, encryptedName, folderR
             folderId,
             fileMtime
           )
-            .then(res => {
-              return res.text()
-            }).then(text => {
-              const res = JSON.parse(text)
-              if (!res.id) {
-                throw new Error(res)
-              } else {
-                resolve(res)
-              }
-            })
-            .catch(err => {
-              reject(err)
-            })
+
+          const text = await fetchRes.text()
+          if (fetchRes.status !== 200) {
+            throw new Error(text)
+          }
+          const res = JSON.parse(text)
+          resolve(res)
+        } catch (err) {
+          reject(err)
         }
       }
     })
