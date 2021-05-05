@@ -335,7 +335,10 @@ async function uploadFile(filePath, localFile, cloudFile, encryptedName, folderR
     Logger.warn('Warning:File %s, Filesize 0.', filePath)
     return
   }
-
+  if (fileSize >= 1024 * 1024 * 1024 * 10) {
+    Logger.warn('Warning:File %s, Filesize larger than 10GB.', filePath)
+    return
+  }
   // Copy file to temp folder
   const tempPath = path.join(app.getPath('home'), '.internxt-desktop', 'tmp')
   if (!fs.existsSync(tempPath)) {
@@ -384,6 +387,9 @@ async function uploadFile(filePath, localFile, cloudFile, encryptedName, folderR
                 bucketId,
                 hashName
               )
+              if (!newFileId) {
+                throw new Error(err)
+              }
             } else {
               Logger.error('Sync Error uploading and replace file: %s', err)
               throw new Error(err)
