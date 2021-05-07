@@ -43,11 +43,11 @@ async function SyncLogic(callback) {
   }
 
   const userDevicesSyncing = await DeviceLock.requestSyncLock()
-  if (userDevicesSyncing || ConfigStore.get('isSyncing')) {
+
+  if (userDevicesSyncing.data || ConfigStore.get('isSyncing')) {
     Logger.warn('1-way-upload not started: another device already syncing')
     return start(callback)
   }
-
   Logger.info('One way upload started')
   DeviceLock.startUpdateDeviceSync()
   app.once('sync-stop', syncStop)
@@ -58,7 +58,7 @@ async function SyncLogic(callback) {
   ConfigStore.set('isSyncing', true)
   lastSyncFailed = false
 
-  const syncComplete = async function(err) {
+  const syncComplete = async function (err) {
     if (err) {
       Logger.error('Error 1-way-sync monitor:', err.message ? err.message : err)
     }
@@ -79,8 +79,8 @@ async function SyncLogic(callback) {
     }
     Logger.info('1-WAY SYNC END')
     SpaceUsage.updateUsage()
-      .then(() => {})
-      .catch(() => {})
+      .then(() => { })
+      .catch(() => { })
     if (err) {
       Logger.error('Error monitor:', err)
       async.waterfall(
