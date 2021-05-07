@@ -15,7 +15,8 @@ function getListFromFolder(folderPath) {
   return new Promise(resolve => {
     const results = []
     readdirp(folderPath, {
-      type: 'files'
+      type: 'files',
+      directoryFilter: ['!.*']
     })
       .on('data', data => {
         const invalid = IgnoredFiles.find(regex =>
