@@ -15,6 +15,7 @@ import nameTest from './utils/nameTest'
 import crypt from './crypt'
 
 const remote = require('@electron/remote')
+
 const invalidName = /[\\/]|[. ]$/
 
 function getTempFolderPath() {
@@ -119,7 +120,10 @@ async function removeFolders() {
   var select = await Database.dbFind(Database.dbFolders, {})
   select.sort((a, b) => { return b.key.length - a.key.length })
   for (const folder of select) {
-    console.log(JSON.parse(JSON.stringify(folder)))
+    // console.log(JSON.parse(JSON.stringify(folder)))
+    if (ConfigStore.get('stopSync')) {
+      throw Error('stop sync')
+    }
     if (!folder.select) {
       try {
         await new Promise((resolve, reject) => {
@@ -185,7 +189,11 @@ async function createFolders() {
 
   const needUpload = []
   needUpload[basePath] = { children: [], id: rootId }
+  let totalFolder = 0
   for (const folder of select) {
+    if (ConfigStore.get('stopSync')) {
+      throw Error('stop sync')
+    }
     if (!folder.needSync || folder.state === state.state.IGNORE) {
       continue
     }
@@ -202,6 +210,7 @@ async function createFolders() {
       }
       folder.nameChecked = true
       const parentDir = path.dirname(folder.key)
+      totalFolder++
       if (needUpload[parentDir]) {
         needUpload[parentDir].children.push(folder.key)
       } else {
@@ -219,12 +228,16 @@ async function createFolders() {
   // console.log('needUpload: ', needUpload)
   var done = false
   const maxLength = 500
+  let folderUploaded = 0
   while (!done) {
+    if (ConfigStore.get('stopSync')) {
+      throw Error('stop sync')
+    }
     const uploadingFolders = {}
     const encryptDict = []
     const foldersUploaded = []
     let length = 0
-
+    remote.app.emit('set-tooltip', `uploading folders ${folderUploaded}/${totalFolder}`)
     for (const key of Object.keys(needUpload)) {
       if (needUpload[key].id === undefined || needUpload[key].children === []) {
         continue
@@ -253,6 +266,7 @@ async function createFolders() {
     if (length !== 0) {
       try {
         const res = await createRemoteFolder(uploadingFolders)
+        folderUploaded += res.length
         for (const newFolder of res) {
           const folder = select[selectIndex[encryptDict[newFolder.name]]]
           folder.value = newFolder
@@ -299,6 +313,9 @@ async function sincronizeCloudFolder() {
     cloudIndex[elem.key] = i++
   })
   for (const f in selectIndex) {
+    if (ConfigStore.get('stopSync')) {
+      throw Error('stop sync')
+    }
     var folder = select[selectIndex[f]]
     if (cloudIndex[f] === undefined) {
       folder = select[selectIndex[f]]
@@ -333,7 +350,7 @@ async function sincronizeCloudFolder() {
       }
     }
   }
-  console.log('despues sync cloud folder: ', select)
+  // console.log('despues sync cloud folder: ', select)
   ConfigStore.set('updatingDB', true)
   await Database.ClearFoldersSelect()
   await Database.dbInsert(Database.dbFolders, select)
@@ -380,7 +397,7 @@ async function sincronizeLocalFolder() {
     )
     select[indexDict[item]].needSync = true
   }
-  console.log('despues sync local folder: ', select)
+  // console.log('despues sync local folder: ', select)
   ConfigStore.set('updatingDB', true)
   await Database.ClearFoldersSelect()
   await Database.dbInsert(Database.dbFolders, select)

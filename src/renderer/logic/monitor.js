@@ -54,13 +54,7 @@ async function initMonitor(startImmediately = false) {
   // Init database if not initialized
   database.initDatabase()
 
-  const syncMode = ConfigStore.get('syncMode')
-
-  if (syncMode === 'two-way') {
-    TwoWaySync.start(repeat, startImmediately)
-  } else {
-    OneWayUpload.start(repeat, startImmediately)
-  }
+  OneWayUpload.start(repeat, startImmediately)
 }
 
 export default {

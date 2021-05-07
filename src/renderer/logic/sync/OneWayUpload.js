@@ -24,7 +24,7 @@ const SYNC_METHOD = 'one-way-upload'
 ConfigStore.set('isSyncing', false)
 ConfigStore.set('stopSync', false)
 ConfigStore.set('updatingDB', false)
-let wtc = null
+const wtc = null
 let lastSyncFailed = false
 let timeoutInstance = null
 function syncStop() {
@@ -37,10 +37,6 @@ function syncStop() {
 
 async function SyncLogic(callback) {
   const syncMode = ConfigStore.get('syncMode')
-  if (syncMode !== 'one-way-upload') {
-    Logger.warn('SyncLogic stopped on 1-way: syncMode is now %s', syncMode)
-    return callback ? callback() : null
-  }
 
   const userDevicesSyncing = await DeviceLock.requestSyncLock()
   if (userDevicesSyncing || ConfigStore.get('isSyncing')) {
@@ -58,10 +54,11 @@ async function SyncLogic(callback) {
   ConfigStore.set('isSyncing', true)
   lastSyncFailed = false
 
-  const syncComplete = async function(err) {
+  const syncComplete = async function (err) {
     if (err) {
       Logger.error('Error 1-way-sync monitor:', err.message ? err.message : err)
     }
+    console.timeEnd('desktop')
     app.emit('set-tooltip')
     app.emit('sync-off')
     app.removeListener('sync-stop', syncStop)
@@ -79,68 +76,23 @@ async function SyncLogic(callback) {
     }
     Logger.info('1-WAY SYNC END')
     SpaceUsage.updateUsage()
-      .then(() => {})
-      .catch(() => {})
+      .then(() => { })
+      .catch(() => { })
     if (err) {
       Logger.error('Error monitor:', err)
-      async.waterfall(
-        [
-          next => database.Set('lastSyncSuccess', false).then(next),
-          next => {
-            database.compactAllDatabases()
-            next()
-          }
-        ],
-        () => {
-          start(callback)
-        }
-      )
-    } else {
-      start(callback)
     }
+    start(callback)
   }
 
   async.waterfall(
     [
       next => {
         app.emit('sync-on')
-        Folder.clearTempFolder()
-          .then(next)
-          .catch(() => next())
-      },
-      next => {
-        if (ConfigStore.get('stopSync')) {
-          next('stop sync')
-        } else {
-          next()
-        }
-      },
-      next =>
+        app.emit('set-tooltip', 'Checking root folder')
         Folder.rootFolderExists()
           .then(exists =>
             next(exists ? null : Error('root folder does not exist'))
           )
-          .catch(next),
-      next => {
-        if (ConfigStore.get('stopSync')) {
-          next('stop sync')
-        } else {
-          next()
-        }
-      },
-      next => {
-        // Start the folder watcher if is not already started
-        app.emit('set-tooltip', 'Initializing watcher...')
-        database
-          .Get('xPath')
-          .then(xPath => {
-            Logger.info('User store path: %s', xPath)
-            return next()
-            watcher.startWatcher(xPath).then(watcherInstance => {
-              wtc = watcherInstance
-              next()
-            })
-          })
           .catch(next)
       },
       next => {
@@ -167,6 +119,7 @@ async function SyncLogic(callback) {
         }
       },
       next => {
+        app.emit('set-tooltip', 'Updating user info')
         database
           .Get('xUser')
           .then(user => {
@@ -189,6 +142,7 @@ async function SyncLogic(callback) {
       },
       next => {
         // Sync and update the remote tree.
+        app.emit('set-tooltip', 'Updating cloud folders and files')
         console.time('desktop')
         console.time('update list')
         Tree.updateDbAndCompact()
@@ -198,6 +152,7 @@ async function SyncLogic(callback) {
       next => {
         console.timeEnd('update list')
         console.time('sincronizar Local folder')
+        app.emit('set-tooltip', 'Checking local folders')
         Folder.sincronizeLocalFolder()
           .then(() => next())
           .catch(next)
@@ -212,6 +167,7 @@ async function SyncLogic(callback) {
       },
       next => {
         console.time('sincronizar Local files')
+        app.emit('set-tooltip', 'Checking local files')
         File.sincronizeLocalFile()
           .then(() => next())
           .catch(next)
@@ -226,6 +182,7 @@ async function SyncLogic(callback) {
       },
       next => {
         console.time('sincronizar cloud folder')
+        app.emit('set-tooltip', 'Checking cloud files')
         Folder.sincronizeCloudFolder()
           .then(next)
           .catch(next)
@@ -240,6 +197,7 @@ async function SyncLogic(callback) {
       },
       next => {
         console.time('sincronizar cloud files')
+        app.emit('set-tooltip', 'Checking cloud files')
         File.sincronizeCloudFile()
           .then(next)
           .catch(next)
@@ -254,6 +212,7 @@ async function SyncLogic(callback) {
       },
       next => {
         console.time('crearFolder')
+        app.emit('set-tooltip', 'Creating folders')
         Folder.createFolders()
           .then(next)
           .catch(next)
@@ -268,6 +227,7 @@ async function SyncLogic(callback) {
       },
       next => {
         console.time('sincronizeFile')
+        app.emit('set-tooltip', 'Synchronizing files')
         File.sincronizeFile()
           .then(next)
           .catch(next)
@@ -282,6 +242,7 @@ async function SyncLogic(callback) {
       },
       next => {
         console.time('removeFolders')
+        app.emit('set-tooltip', 'Remove folders')
         Folder.removeFolders()
           .then(next)
           .catch(next)
@@ -293,113 +254,7 @@ async function SyncLogic(callback) {
         } else {
           next()
         }
-      },
-      next => {
-        console.timeEnd('desktop')
-        next('stop sync')
-      },
-      next => {
-        // Will determine if something wrong happened in the last synchronization
-        database
-          .Get('lastSyncDate')
-          .then(lastDate => {
-            if (!lastDate || !(lastDate instanceof Date)) {
-              // If there were never a last time (first time sync), the success is set to false.
-              database
-                .Set('lastSyncSuccess', false)
-                .then(() => next())
-                .catch(next)
-            } else {
-              // If last time is more than 2 days, let's consider a unsuccessful sync,
-              // to perform the sync from the start
-              const DifferenceInTime = new Date() - lastDate
-              const DifferenceInDays = DifferenceInTime / (1000 * 60 * 60 * 24)
-              if (DifferenceInDays > 2) {
-                // Last sync > 2 days, assume last sync failed to start from 0
-                database
-                  .Set('lastSyncSuccess', false)
-                  .then(() => next())
-                  .catch(next)
-              } else {
-                // Sync ok
-                next()
-              }
-            }
-          })
-          .catch(next)
-      },
-      next => {
-        if (ConfigStore.get('stopSync')) {
-          next('stop sync')
-        } else {
-          next()
-        }
-      },
-      next => {
-        // Start to sync. Did last sync failed?
-        // Then, clear all the local databases to start from zero
-        database
-          .Get('lastSyncSuccess')
-          .then(result => {
-            if (result === true) {
-              next()
-            } else {
-              lastSyncFailed = true
-              Logger.warn('LAST SYNC FAILED, CLEARING DATABASES')
-            }
-          })
-          .catch(next)
-      },
-      next => {
-        if (ConfigStore.get('stopSync')) {
-          next('stop sync')
-        } else {
-          next()
-        }
-      },
-      next =>
-        database
-          .Set('lastSyncSuccess', false)
-          .then(() => next())
-          .catch(next),
-      next => {
-        if (ConfigStore.get('stopSync')) {
-          next('stop sync')
-        } else {
-          next()
-        }
-      },
-      next => {
-        if (ConfigStore.get('stopSync')) {
-          next('stop sync')
-        } else {
-          next()
-        }
-      },
-      next => {
-        if (ConfigStore.get('stopSync')) {
-          next('stop sync')
-        } else {
-          next()
-        }
-      },
-      next =>
-        database
-          .Set('lastSyncSuccess', true)
-          .then(() => next())
-          .catch(next),
-      next => {
-        if (ConfigStore.get('stopSync')) {
-          next('stop sync')
-        } else {
-          next()
-        }
-      },
-      next =>
-        database
-          .Set('lastSyncDate', new Date())
-          .then(() => next())
-          .catch(next)
+      }
     ],
     syncComplete
   )

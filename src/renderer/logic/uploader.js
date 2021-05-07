@@ -359,7 +359,6 @@ async function uploadFile(filePath, localFile, cloudFile, encryptedName, folderR
       progressCallback: function (progress, uploadedBytes, totalBytes) {
         let progressPtg = progress * 100
         progressPtg = progressPtg.toFixed(2)
-        app.emit('set-percentage', progressPtg)
         app.emit(
           'set-tooltip',
           'Uploading ' +
