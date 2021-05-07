@@ -41,9 +41,14 @@ async function SyncLogic(callback) {
     return callback ? callback() : null
   }
   const userDevicesSyncing = await DeviceLock.requestSyncLock()
-  if (userDevicesSyncing || ConfigStore.get('isSyncing')) {
+  if (userDevicesSyncing.data || ConfigStore.get('isSyncing')) {
     Logger.warn('2-way-upload not started: another device already syncing')
     return start(callback)
+  }
+  if (userDevicesSyncing.ensure !== undefined) {
+    Downloader.setEnsureMode(userDevicesSyncing.ensure)
+  } else {
+    Downloader.setEnsureMode(0)
   }
 
   Logger.info('Two way upload started')

@@ -18,6 +18,14 @@ import NameTest from './utils/nameTest'
 
 const { app } = require('@electron/remote')
 
+const ensure = {
+  OFF: 0,
+  RANDOM: 1,
+  ALL: 2
+}
+
+var ensureMode = ensure.OFF
+
 async function downloadFileTemp(fileObj, silent = false) {
   const storj = await getEnvironment()
   const originalFileName = path.basename(fileObj.fullpath)
@@ -50,7 +58,7 @@ async function downloadFileTemp(fileObj, silent = false) {
       fileObj.fileId,
       tempFilePath,
       {
-        progressCallback: function(progress, downloadedBytes, totalBytes) {
+        progressCallback: function (progress, downloadedBytes, totalBytes) {
           if (!silent) {
             let progressPtg = progress * 100
             progressPtg = progressPtg.toFixed(2)
@@ -62,7 +70,7 @@ async function downloadFileTemp(fileObj, silent = false) {
             app.emit('set-tooltip', 'Checking ' + originalFileName)
           }
         },
-        finishedCallback: function(err) {
+        finishedCallback: function (err) {
           app.emit('set-tooltip')
           app.removeListener('sync-stop', stopDownloadHandler)
           if (err) {
@@ -172,7 +180,7 @@ async function _downloadAllFiles() {
       try {
         fs.unlinkSync(item.fullpath)
         Logger.log(item.fullpath + ' deleted')
-      } catch (e) {}
+      } catch (e) { }
       await Database.TempDel(item.fullpath)
       continue
     } else if (downloadAndReplace) {
@@ -264,8 +272,48 @@ async function _downloadAllFiles() {
         totalFiles,
         item
       )
+      continue
+    } else {
+      // Check if should download to ensure file
+      let shouldEnsureFile = false
+      if (ensureMode === ensure.RANDOM) {
+        shouldEnsureFile = Math.floor(Math.random() * 33 + 1) % 33 === 0
+      }
+      if (ensureMode === ensure.ALL) {
+        shouldEnsureFile = true
+      }
+      if (!shouldEnsureFile) {
+        // Logger.log('%cNO ENSURE FILE', 'background-color: #aaaaff')
+        continue
+      }
+      Logger.log(
+        '%cENSURE FILE ' + item.filename,
+        'background-color: #aa00aa, color: #ffffff'
+      )
+      // Check file is ok
+      try {
+        await downloadFileTemp(item, true)
+      } catch (err) {
+        const isError = [
+          'File missing shard error',
+          'Farmer request error',
+          'Memory mapped file unmap error',
+          'Bridge request pointer error'
+        ].find(obj => obj === err.message)
 
-      // continue
+        if (isError && localExists) {
+          Logger.error('%s. Reuploading...', isError)
+          try {
+            await File.restoreFile(item)
+          } catch (err) {
+            Logger.log(err.message)
+          }
+        } else {
+          Logger.error('Cannot restore missing file', err.message)
+          continue
+          // continue
+        }
+      }
     }
   }
   NameTest.removeTestFolder(nameTestFolder)
@@ -294,8 +342,13 @@ function downloadFolders() {
   })
 }
 
+function setEnsureMode(mode) {
+  ensureMode = mode
+}
+
 export default {
   downloadFiles,
   downloadFileTemp,
-  downloadFolders
+  downloadFolders,
+  setEnsureMode
 }
