@@ -80,6 +80,12 @@ async function downloadFileTemp(fileObj, silent = false) {
             Logger.log('Download finished')
             resolve(tempFilePath)
           }
+        },
+        debug: (message) => {
+          // eslint-disable-next-line no-useless-escape
+          if (!/[^\[]*[%$]/.test(message)) {
+            Logger.warn('NODE-LIB DOWNLOAD: ' + message)
+          }
         }
       }
     )
