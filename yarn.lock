@@ -10983,7 +10983,7 @@ stdout-stream@^1.4.0:
 
 storj@internxt/node-lib-exec:
   version "1.0.3"
-  resolved "https://codeload.github.com/internxt/node-lib-exec/tar.gz/ef7c719dbda4549a115e89bdd60adc39da1cbe10"
+  resolved "https://codeload.github.com/internxt/node-lib-exec/tar.gz/f12d7e12989c3ebd6051e6fa56b3374a2f4fe2be"
 
 stream-browserify@^2.0.1:
   version "2.0.2"

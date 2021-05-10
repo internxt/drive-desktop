@@ -85,14 +85,15 @@ async function uploadNewFile(storj, filePath, nCurrent, nTotal) {
     )
   }
   if (maybeNetworkId) {
-    Logger.log('already existe')
+    Logger.log('already exists')
     return File.createFileEntry(
       bucketId,
       maybeNetworkId,
       encryptedFileName,
       fileExt,
       fileSize,
-      folderId
+      folderId,
+      fileStats.mtime
     )
   }
   const tempFile = path.join(tempPath, hashName)
@@ -164,7 +165,8 @@ async function uploadNewFile(storj, filePath, nCurrent, nTotal) {
                 encryptedFileName,
                 fileExt,
                 fileSize,
-                folderId
+                folderId,
+                fileStats.mtime
               )
                 .then(res => {
                   resolve(res)
@@ -211,6 +213,12 @@ async function uploadNewFile(storj, filePath, nCurrent, nTotal) {
           )
             .then(resolve)
             .catch(reject)
+        }
+      },
+      debug: (message) => {
+        // eslint-disable-next-line no-useless-escape
+        if (!/[^\[]*[%$]/.test(message)) {
+          Logger.warn('NODE-LIB UPLOAD 1: ' + message)
         }
       }
     })
@@ -339,16 +347,6 @@ async function uploadFile(storj, filePath, nCurrent, nTotal, item) {
   if (fileSize === 0) {
     Logger.warn('Warning:File %s, Filesize 0.', filePath)
     return
-    /*
-    return File.createFileEntry(
-      bucketId,
-      '0sizefile',
-      encryptedFileName,
-      fileExt,
-      fileSize,
-      folderId
-    )
-    */
   }
   await Database.dbFiles.remove({ key: filePath })
 
@@ -415,6 +413,12 @@ async function uploadFile(storj, filePath, nCurrent, nTotal, item) {
             .catch(err => {
               reject(err)
             })
+        }
+      },
+      debug: (message) => {
+        // eslint-disable-next-line no-useless-escape
+        if (!/[^\[]*[%$]/.test(message)) {
+          Logger.warn('NODE-LIB UPLOAD 1: ' + message)
         }
       }
     })
