@@ -102,11 +102,6 @@ async function SyncLogic(callback) {
     if (err) {
       async.waterfall(
         [
-          next =>
-            database
-              .ClearAll()
-              .then(() => next())
-              .catch(() => next()),
           next => database.Set('lastSyncSuccess', false).then(next),
           next => {
             database.compactAllDatabases()
@@ -316,10 +311,6 @@ async function SyncLogic(callback) {
             } else {
               lastSyncFailed = true
               Logger.warn('LAST SYNC FAILED, CLEARING DATABASES')
-              database
-                .ClearAll()
-                .then(() => next())
-                .catch(next)
             }
           })
           .catch(next)

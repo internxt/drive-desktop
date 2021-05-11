@@ -85,11 +85,6 @@ async function SyncLogic(callback) {
       Logger.error('Error monitor:', err)
       async.waterfall(
         [
-          next =>
-            database
-              .ClearAll()
-              .then(() => next())
-              .catch(() => next()),
           next => database.Set('lastSyncSuccess', false).then(next),
           next => {
             database.compactAllDatabases()
