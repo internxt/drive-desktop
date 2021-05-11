@@ -1,6 +1,6 @@
 // define states
 var state = {
-  UPLOAD: 'uplaod',
+  UPLOAD: 'upload',
   DOWNLOAD: 'download',
   SYNCED: 'synced',
   DELETE_CLOUD: 'deleteCloud',
