@@ -180,7 +180,7 @@ class TrayMenu {
       {
         label: 'Billing',
         click: function() {
-          shell.openExternal(`${process.env.API_URL}/storage`)
+          shell.openExternal(`https://drive.internxt.com/storage`)
         }
       },
       {
