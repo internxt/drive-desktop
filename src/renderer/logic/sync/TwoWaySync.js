@@ -311,6 +311,7 @@ async function SyncLogic(callback) {
             } else {
               lastSyncFailed = true
               Logger.warn('LAST SYNC FAILED, CLEARING DATABASES')
+              next()
             }
           })
           .catch(next)
