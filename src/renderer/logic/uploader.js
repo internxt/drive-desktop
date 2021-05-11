@@ -84,14 +84,15 @@ async function uploadNewFile(storj, filePath, nCurrent, nTotal) {
     )
   }
   if (maybeNetworkId) {
-    Logger.log('already existe')
+    Logger.log('already exists')
     return File.createFileEntry(
       bucketId,
       maybeNetworkId,
       encryptedFileName,
       fileExt,
       fileSize,
-      folderId
+      folderId,
+      fileStats.mtime
     )
   }
   const tempFile = path.join(tempPath, hashName)
@@ -161,7 +162,8 @@ async function uploadNewFile(storj, filePath, nCurrent, nTotal) {
                 encryptedFileName,
                 fileExt,
                 fileSize,
-                folderId
+                folderId,
+                fileStats.mtime
               )
                 .then(res => {
                   resolve(res)
@@ -207,6 +209,12 @@ async function uploadNewFile(storj, filePath, nCurrent, nTotal) {
           )
             .then(resolve)
             .catch(reject)
+        }
+      },
+      debug: (message) => {
+        // eslint-disable-next-line no-useless-escape
+        if (!/[^\[]*[%$]/.test(message)) {
+          Logger.warn('NODE-LIB UPLOAD 1: ' + message)
         }
       }
     })
@@ -410,6 +418,12 @@ async function uploadFile(filePath, localFile, cloudFile, encryptedName, folderR
           resolve(res)
         } catch (err) {
           reject(err)
+        }
+      },
+      debug: (message) => {
+        // eslint-disable-next-line no-useless-escape
+        if (!/[^\[]*[%$]/.test(message)) {
+          Logger.warn('NODE-LIB UPLOAD 1: ' + message)
         }
       }
     })

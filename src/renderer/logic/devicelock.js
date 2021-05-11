@@ -41,7 +41,7 @@ async function requestSyncLock() {
         throw new Error(err + ' data: ' + text)
       }
     })
-    .then(res => res.data.data)
+    .then(res => res.data)
     .catch(err => {
       Logger.error('Fetch error getting sync', err)
       throw err

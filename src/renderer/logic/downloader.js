@@ -18,6 +18,14 @@ import NameTest from './utils/nameTest'
 
 const { app } = require('@electron/remote')
 
+const ensure = {
+  OFF: 0,
+  RANDOM: 1,
+  ALL: 2
+}
+
+var ensureMode = ensure.OFF
+
 async function downloadFileTemp(cloudFile, filePath) {
   const storj = await getEnvironment()
   const originalFileName = path.basename(filePath)
@@ -70,6 +78,12 @@ async function downloadFileTemp(cloudFile, filePath) {
           } else {
             Logger.log('Download finished')
             resolve(tempFilePath)
+          }
+        },
+        debug: (message) => {
+          // eslint-disable-next-line no-useless-escape
+          if (!/[^\[]*[%$]/.test(message)) {
+            Logger.warn('NODE-LIB DOWNLOAD: ' + message)
           }
         }
       }
@@ -227,8 +241,48 @@ async function _downloadAllFiles() {
         totalFiles,
         item
       )
+      continue
+    } else {
+      // Check if should download to ensure file
+      let shouldEnsureFile = false
+      if (ensureMode === ensure.RANDOM) {
+        shouldEnsureFile = Math.floor(Math.random() * 33 + 1) % 33 === 0
+      }
+      if (ensureMode === ensure.ALL) {
+        shouldEnsureFile = true
+      }
+      if (!shouldEnsureFile) {
+        // Logger.log('%cNO ENSURE FILE', 'background-color: #aaaaff')
+        continue
+      }
+      Logger.log(
+        '%cENSURE FILE ' + item.filename,
+        'background-color: #aa00aa, color: #ffffff'
+      )
+      // Check file is ok
+      try {
+        await downloadFileTemp(item, true)
+      } catch (err) {
+        const isError = [
+          'File missing shard error',
+          'Farmer request error',
+          'Memory mapped file unmap error',
+          'Bridge request pointer error'
+        ].find(obj => obj === err.message)
 
-      // continue
+        if (isError && localExists) {
+          Logger.error('%s. Reuploading...', isError)
+          try {
+            await File.restoreFile(item)
+          } catch (err) {
+            Logger.log(err.message)
+          }
+        } else {
+          Logger.error('Cannot restore missing file', err.message)
+          continue
+          // continue
+        }
+      }
     }
   }
   NameTest.removeTestFolder(nameTestFolder)
@@ -257,8 +311,13 @@ function downloadFolders() {
   })
 }
 
+function setEnsureMode(mode) {
+  ensureMode = mode
+}
+
 export default {
   downloadFiles,
   downloadFileTemp,
-  downloadFolders
+  downloadFolders,
+  setEnsureMode
 }
