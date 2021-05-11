@@ -4,10 +4,6 @@ import Store from 'electron-store'
  */
 
 const schema = {
-  syncMode: {
-    type: 'string',
-    default: 'two-way'
-  },
   limit: {
     type: 'number',
     default: -1

@@ -1,18 +1,13 @@
 import async from 'async'
 import Logger from '../../../libs/logger'
-import watcher from '../watcher'
-import electron from 'electron'
 import Folder from '../folder'
 import File from '../file'
 import database from '../../../database'
-import Uploader from '../uploader'
 import DeviceLock from '../devicelock'
 import Tree from '../tree'
 import PackageJson from '../../../../package.json'
 import ConfigStore from '../../../main/config-store'
 import SpaceUsage from '../utils/spaceusage'
-
-import analytics from '../utils/analytics'
 
 /*
  * Sync Method: One Way, from LOCAL to CLOUD (Only Upload)
@@ -20,7 +15,6 @@ import analytics from '../utils/analytics'
 
 const { app } = require('@electron/remote')
 
-const SYNC_METHOD = 'one-way-upload'
 ConfigStore.set('isSyncing', false)
 ConfigStore.set('stopSync', false)
 ConfigStore.set('updatingDB', false)
@@ -36,27 +30,22 @@ function syncStop() {
 }
 
 async function SyncLogic(callback) {
-  const syncMode = ConfigStore.get('syncMode')
-
   const userDevicesSyncing = await DeviceLock.requestSyncLock()
   if (userDevicesSyncing || ConfigStore.get('isSyncing')) {
-    Logger.warn('1-way-upload not started: another device already syncing')
+    Logger.warn('sync not started: another device already syncing')
     return start(callback)
   }
 
-  Logger.info('One way upload started')
+  Logger.info('Sync started')
   DeviceLock.startUpdateDeviceSync()
   app.once('sync-stop', syncStop)
   app.once('user-logout', DeviceLock.stopUpdateDeviceSync)
-  app.once('switch-mode', () => {
-    database.Set('lastSyncSuccess', false)
-  })
   ConfigStore.set('isSyncing', true)
   lastSyncFailed = false
 
   const syncComplete = async function (err) {
     if (err) {
-      Logger.error('Error 1-way-sync monitor:', err.message ? err.message : err)
+      Logger.error('Error sync monitor:', err.message ? err.message : err)
     }
     console.timeEnd('desktop')
     app.emit('set-tooltip')
@@ -74,7 +63,7 @@ async function SyncLogic(callback) {
       app.emit('user-logout')
       return
     }
-    Logger.info('1-WAY SYNC END')
+    Logger.info('SYNC END')
     SpaceUsage.updateUsage()
       .then(() => { })
       .catch(() => { })
@@ -264,7 +253,7 @@ function start(callback, startImmediately = false) {
   if (ConfigStore.get('isSyncing')) {
     return Logger.warn('There is an active sync running right now')
   }
-  Logger.info('Start 1-way-upload sync')
+  Logger.info('Start sync')
   let timeout = 0
   if (!startImmediately) {
     timeout = 1000 * 60 * 10
@@ -275,7 +264,7 @@ function start(callback, startImmediately = false) {
   if (!ConfigStore.get('isSyncing')) {
     clearTimeout(timeoutInstance)
     Logger.log(
-      'Waiting %s secs for next 1-way sync. Version: v%s',
+      'Waiting %s secs for next sync. Version: v%s',
       timeout / 1000,
       PackageJson.version
     )
@@ -288,7 +277,6 @@ function end() {
 }
 
 export default {
-  SYNC_METHOD,
   start,
   end
 }

@@ -2,9 +2,8 @@ import database from '../../database'
 import electron from 'electron'
 import Logger from '../../libs/logger'
 import fs from 'fs'
-import OneWayUpload from './sync/OneWayUpload'
+import SyncProcess from './sync/NewTwoWayUpload'
 import ConfigStore from '../../main/config-store'
-import TwoWaySync from './sync/TwoWaySync'
 import analytics from './utils/analytics'
 const { app } = require('@electron/remote')
 
@@ -53,8 +52,7 @@ function repeat() {
 async function initMonitor(startImmediately = false) {
   // Init database if not initialized
   database.initDatabase()
-
-  OneWayUpload.start(repeat, startImmediately)
+  SyncProcess.start(repeat, startImmediately)
 }
 
 export default {

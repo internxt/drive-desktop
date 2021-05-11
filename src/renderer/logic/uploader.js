@@ -111,8 +111,7 @@ async function uploadNewFile(storj, filePath, nCurrent, nTotal) {
       platform: 'desktop',
       properties: {
         email: 'email',
-        file_size: fileSize,
-        mode: ConfigStore.get('syncMode')
+        file_size: fileSize
       }
     })
     .catch(err => {
@@ -191,8 +190,7 @@ async function uploadNewFile(storj, filePath, nCurrent, nTotal) {
               properties: {
                 email: 'email',
                 file_id: newFileId,
-                file_size: fileSize,
-                mode: ConfigStore.get('syncMode')
+                file_size: fileSize
               }
             })
             .catch(err => {

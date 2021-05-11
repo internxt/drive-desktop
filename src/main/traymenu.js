@@ -127,35 +127,6 @@ class TrayMenu {
         }
       })
     }
-    contextMenuTemplate.push({
-      label: 'Sync options',
-      enabled: true,
-      submenu: [
-        {
-          label: 'Two Way Sync',
-          type: 'radio',
-          enabled: true,
-          checked: ConfigStore.get('syncMode') === 'two-way',
-          click: () => {
-            Logger.info('User switched to two way sync mode')
-            ConfigStore.set('syncMode', 'two-way')
-            app.emit('sync-stop')
-            app.emit('switch-mode')
-          }
-        },
-        {
-          label: 'Upload Only Mode',
-          type: 'radio',
-          enabled: true,
-          checked: ConfigStore.get('syncMode') === 'one-way-upload',
-          click: () => {
-            Logger.info('User switched to one way upload mode')
-            ConfigStore.set('syncMode', 'one-way-upload')
-            app.emit('sync-stop')
-          }
-        }
-      ]
-    })
     if (userEmail) {
       contextMenuTemplate.push({
         label: 'Force sync',
