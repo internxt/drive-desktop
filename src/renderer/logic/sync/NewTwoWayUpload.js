@@ -8,7 +8,7 @@ import Tree from '../tree'
 import PackageJson from '../../../../package.json'
 import ConfigStore from '../../../main/config-store'
 import SpaceUsage from '../utils/spaceusage'
-
+import nameTest from '../utils/nameTest'
 /*
  * Sync Method: One Way, from LOCAL to CLOUD (Only Upload)
  */
@@ -52,6 +52,8 @@ async function SyncLogic(callback) {
       Logger.error('Error sync monitor:', err.message ? err.message : err)
     }
     console.timeEnd('desktop')
+    const basePath = await database.Get('xPath')
+    nameTest.removeTestFolder(basePath)
     app.emit('set-tooltip')
     app.emit('sync-off')
     app.removeListener('sync-stop', syncStop)

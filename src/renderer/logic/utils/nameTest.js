@@ -10,7 +10,8 @@ function createTestFolder(folderPath) {
   hidefile.hideSync(folderPath)
 }
 
-function removeTestFolder(folderPath) {
+function removeTestFolder(basePath) {
+  const folderPath = path.join(basePath, testFolderName)
   return new Promise((resolve, reject) => {
     rimraf(folderPath, () => {
       resolve()
