@@ -31,11 +31,15 @@ function syncStop() {
 
 async function SyncLogic(callback) {
   const userDevicesSyncing = await DeviceLock.requestSyncLock()
-  if (userDevicesSyncing || ConfigStore.get('isSyncing')) {
+  if (userDevicesSyncing.data || ConfigStore.get('isSyncing')) {
     Logger.warn('sync not started: another device already syncing')
     return start(callback)
   }
-
+  if (userDevicesSyncing.ensure !== undefined) {
+    File.setEnsureMode(userDevicesSyncing.ensure)
+  } else {
+    File.setEnsureMode(0)
+  }
   Logger.info('Sync started')
   DeviceLock.startUpdateDeviceSync()
   app.once('sync-stop', syncStop)

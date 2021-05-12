@@ -18,23 +18,20 @@ import crypto from './crypt'
 
 const remote = require('@electron/remote')
 
+const ensure = {
+  OFF: 0,
+  RANDOM: 1,
+  ALL: 2
+}
+
+var ensureMode = ensure.OFF
+
 const sincronizeAction = {}
 sincronizeAction[state.state.UPLOAD] = uploadState
 sincronizeAction[state.state.DOWNLOAD] = downloadState
 sincronizeAction[state.state.DELETE_CLOUD] = deleteCloudState
 sincronizeAction[state.state.DELETE_LOCAL] = deleteLocalState
 
-function infoFromPath(localPath) {
-  return new Promise((resolve, reject) => {
-    Database.dbFiles.findOne({ key: localPath }, function (err, result) {
-      if (err) {
-        reject(err)
-      } else {
-        resolve(result)
-      }
-    })
-  })
-}
 // BucketId and FileId must be the NETWORK ids (mongodb)
 async function removeFile(bucketId, fileId) {
   return fetch(
@@ -249,7 +246,7 @@ async function sincronizeLocalFile() {
     if (ConfigStore.get('stopSync')) {
       throw Error('stop sync')
     }
-    const localFile = Tree.getStat(item)
+    const localFile = fs.lstatSync(item)
     const FileSelect = indexDict[item]
     // local existe, select not exist
     if (FileSelect === undefined) {
@@ -316,11 +313,6 @@ async function sincronizeLocalFile() {
   ConfigStore.set('updatingDB', false)
 }
 
-// Check files that does not exists in local anymore (use last sync tree), and remove them from remote
-async function cleanRemoteWhenLocalDeleted() {
-  // If it doesn't exists, or it exists and now is not a file, delete from remote.
-
-}
 async function sincronizeFile() {
   var select = await Database.dbFind(Database.dbFiles, {})
   const rootPath = await Database.Get('xPath')
@@ -362,7 +354,24 @@ async function sincronizeFile() {
       file.nameChecked = true
       await Database.dbUpdate(Database.dbFiles, { key: file.key }, { $set: file })
     }
-    if (!file.needSync || file.state === state.state.IGNORE) {
+    if (file.state === state.state.SYNCED) {
+      let shouldEnsureFile = false
+      if (ensureMode === ensure.OFF) {
+        continue
+      }
+      if (ensureMode === ensure.RANDOM) {
+        shouldEnsureFile = Math.floor(Math.random() * 33 + 1) % 33 === 0
+      }
+      if (ensureMode === ensure.ALL) {
+        shouldEnsureFile = true
+      }
+      if (shouldEnsureFile) {
+        await ensureFile(file, rootPath, user, parentFolder)
+        await Database.dbUpdate(Database.dbFiles, { key: file.key }, { $set: file })
+      }
+      continue
+    }
+    if (file.state === state.state.IGNORE) {
       // console.log('IGNORE')
       continue
     }
@@ -399,6 +408,41 @@ async function uploadFile(file, localFile, cloudFile, encryptedName, rootPath, u
     }
   }
 }
+
+/**
+ *
+ * @param {{key, value:{createdAt: 'modifiedTime'}}} file
+ * @param {string} rootPath
+ * @param {{user:{bucket} }} user
+ * @param {{key:string,value:{id:Number},state:string}} parentFolder
+ */
+async function ensureFile(file, rootPath, user, parentFolder) {
+  try {
+    remote.app.emit('set-tooltip', `Ensuring file ${file.key}`)
+    const tempPath = await downloader.downloadFileTemp(file.value, file.key)
+    fs.unlinkSync(tempPath)
+  } catch (errDownload) {
+    if (/No space left/.test(errDownload.message)) {
+      return
+    }
+    try {
+      Logger.error(`Can not download, reuploading: ${file.key}`)
+      const localFile = fs.lstatSync(file.key)
+      const encryptedName = file.value.name
+      file.state = state.state.UPLOAD
+      file.needSync = true
+      const newFileInfo = await Uploader.uploadFile(file.key, localFile, file.value, encryptedName, rootPath, user, parentFolder)
+      if (newFileInfo && newFileInfo.fileId) {
+        file.value = newFileInfo
+        file.state = state.state.SYNCED
+        file.needSync = false
+      }
+    } catch (errUpload) {
+      Logger.error(`Error uploading file: ${file.key}. Error: ${errUpload}`)
+    }
+  }
+}
+
 /**
 *
 * @param {{key, value:{createdAt: 'modifiedTime'}}} file select file
@@ -727,70 +771,17 @@ async function deleteLocalState(file, rootPath, user, parentFolder) {
   }
 }
 
-// Delete local files that doesn't exists on remote.
-// It should be called just after tree sync.
-async function cleanLocalWhenRemoteDeleted(lastSyncFailed) {
-  const localPath = await Database.Get('xPath')
-  const syncDate = await Database.Get('syncStartDate')
-
-  // List all files in the folder
-  const list = await Tree.getLocalFileList(localPath)
-
-  for (const item of list) {
-    const fileObj = await Database.FileGet(item)
-
-    if (ConfigStore.get('stopSync')) {
-      throw Error('stop sync')
-    }
-    if (!fileObj && !lastSyncFailed) {
-      // File doesn't exists on remote database, should be locally deleted?
-
-      const creationDate = fs.statSync(item).mtime
-      creationDate.setMilliseconds(0)
-      // To check if the file was added during the sync, if so, should not be deleted
-      const isTemp = await Database.TempGet(item)
-
-      // Delete if: Not in temp, not was "added" or was deleted
-      if (!isTemp || isTemp.value !== 'add') {
-        // TODO: Watcher will track this deletion
-        try {
-          fs.unlinkSync(item)
-          Logger.info(item + ' deleted')
-        } catch (e) {
-          Logger.warn(e.messages)
-        }
-        Database.TempDel(item)
-      }
-      // return
-    } /* else {
-        // File still exists on the remote database, should not be deleted
-        return
-      } */
-  }
-}
-
-function fileInfoFromPath(localPath) {
-  return new Promise((resolve, reject) => {
-    Database.dbFiles.findOne({ key: localPath }, function (err, result) {
-      if (err) {
-        reject(err)
-      } else {
-        resolve(result)
-      }
-    })
-  })
+function setEnsureMode(mode) {
+  ensureMode = mode
 }
 
 export default {
-  infoFromPath,
   removeFile,
   createFileEntry,
   sincronizeLocalFile,
   sincronizeCloudFile,
   restoreFile,
-  cleanRemoteWhenLocalDeleted,
-  cleanLocalWhenRemoteDeleted,
-  fileInfoFromPath,
   removeFileEntry,
-  sincronizeFile
+  sincronizeFile,
+  setEnsureMode
 }

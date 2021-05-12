@@ -1,4 +1,4 @@
-import fs from 'fs'
+
 import path from 'path'
 import database from '../../database'
 import async from 'async'
@@ -7,7 +7,6 @@ import readdirp from 'readdirp'
 import Logger from '../../libs/logger'
 import Auth from './utils/Auth'
 import ConfigStore from '../../main/config-store'
-import NameTest from './utils/nameTest'
 
 const IgnoredFiles = ['^\\.[]*', '^~.*', '[\\\\/]|[. ]$']
 
@@ -33,14 +32,6 @@ function getListFromFolder(folderPath) {
         resolve(results)
       })
   })
-}
-
-function getStat(filepath) {
-  try {
-    return fs.lstatSync(filepath)
-  } catch (err) {
-    return null
-  }
 }
 
 function generatePath(pathDict, item) {
@@ -173,26 +164,6 @@ function getLocalFileList(localPath) {
   return getListFromFolder(localPath)
 }
 
-function getTree() {
-  return new Promise(async (resolve, reject) => {
-    fetch(`${process.env.API_URL}/api/storage/tree`, {
-      headers: await Auth.getAuthHeader()
-    })
-      .then(async res => {
-        const text = await res.text()
-        try {
-          return { res, data: JSON.parse(text) }
-        } catch (err) {
-          throw new Error(err + ' data: ' + text)
-        }
-      })
-      .then(async res => {
-        resolve(res.data)
-      })
-      .catch(reject)
-  })
-}
-
 async function updateUserObject() {
   const headers = await Auth.getAuthHeader()
   const lastUser = await database.Get('xUser')
@@ -288,26 +259,6 @@ function updateDbCloud() {
   })
 }
 
-function updateTree() {
-  return new Promise((resolve, reject) => {
-    getTree()
-      .then(tree => {
-        database
-          .Set('tree', tree)
-          .then(() => {
-            resolve()
-          })
-          .catch(err => {
-            reject(err)
-          })
-      })
-      .catch(err => {
-        Logger.error('Error updating tree', err)
-        reject(err)
-      })
-  })
-}
-
 function updateDbAndCompact() {
   return new Promise((resolve, reject) => {
     async.waterfall(
@@ -331,12 +282,9 @@ function updateDbAndCompact() {
 
 export default {
   getListFromFolder,
-  getStat,
   getLocalFolderList,
   getLocalFileList,
-  getTree,
   getList,
-  updateTree,
   updateLocalDb: updateDbCloud,
   updateDbAndCompact,
   updateUserObject
