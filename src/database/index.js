@@ -16,7 +16,7 @@ const OLD_DB_FOLDER2 = `${process.env.NODE_ENV === 'production'
 }`
 const DB_FOLDER = `${process.env.NODE_ENV === 'production'
   ? remote.app.getPath('userData') + `/.internxt-desktop/`
-  : '.'
+  : './database'
 }`
 
 // Migration from .xclouddesktop and .internxt-desktop to userData

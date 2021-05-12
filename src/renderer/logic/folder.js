@@ -17,7 +17,7 @@ const remote = require('@electron/remote')
 const invalidName = /[\\/]|[. ]$/
 
 function getTempFolderPath() {
-  return path.join(remote.app.getPath('home'), '.internxt-desktop', 'tmp')
+  return path.join(remote.app.getPath('userData'), '.internxt-desktop', 'tmp')
 }
 
 function clearTempFolder() {
