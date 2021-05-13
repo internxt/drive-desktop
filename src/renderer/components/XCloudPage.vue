@@ -27,6 +27,9 @@
         <a href="#" @click="mysettooltip()">Tool tip</a>
       </div>
       <div>
+        <a href="#" @click="stopSync()">Stop Sync</a>
+      </div>
+      <div>
         Path:
         <a href="#" @click="openFolder()">{{ this.$data.localPath }}</a>
       </div>
@@ -163,6 +166,9 @@ export default {
     },
     forceSync() {
       remote.app.emit('sync-start')
+    },
+    stopSync() {
+      remote.app.emit('sync-stop')
     },
     unlockDevice() {
       DeviceLock.unlock()
