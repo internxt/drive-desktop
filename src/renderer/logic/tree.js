@@ -92,11 +92,6 @@ async function regenerateDbFolderCloud(tree) {
       finalDict[item.id].full = true
     }
     const fullNewPath = finalDict[item.id].path
-    if (ignoreHideFolder.test(path.basename(fullNewPath))) {
-      Logger.info('Ignoring folder %s, hidden folder', fullNewPath)
-      delete finalDict[item.id]
-      continue
-    }
     const cloneObject = JSON.parse(JSON.stringify(item))
     const finalObject = { key: fullNewPath, value: cloneObject }
     dbEntrys.push(finalObject)
@@ -137,7 +132,6 @@ async function regenerateDbFileCloud(tree, folderDict) {
 function getLocalFolderList(localPath) {
   return new Promise(resolve => {
     const results = []
-    const ignoreHideFolder = new RegExp('^\\.[]*')
     const invalidName = /[\\/]|[. ]$/
     readdirp(localPath, {
       type: 'directories',

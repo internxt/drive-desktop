@@ -17,7 +17,8 @@ import nameTest from './utils/nameTest'
 import crypto from './crypt'
 
 const remote = require('@electron/remote')
-
+// eslint-disable-next-line no-empty-character-class
+const invalidName = /[\\/]|[. ]$|^\.[]*/
 const ensure = {
   OFF: 0,
   RANDOM: 1,
@@ -346,7 +347,7 @@ async function sincronizeFile() {
       parentFolder = await Database.dbFindOne(Database.dbFolders, { key: path.dirname(file.key) })
     }
     if (!file.nameChecked) {
-      if (!parentFolder || parentFolder.state === state.state.IGNORE || nameTest.invalidFileName(path.basename(file.key), rootPath)) {
+      if (!parentFolder || parentFolder.state === state.state.IGNORE || invalidName.test(path.basename(file.key)) || nameTest.invalidFileName(path.basename(file.key), rootPath)) {
         // console.log('invalid name')
         file.state = state.state.IGNORE
         file.needSync = false

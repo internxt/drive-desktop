@@ -14,7 +14,8 @@ import crypt from './crypt'
 
 const remote = require('@electron/remote')
 
-const invalidName = /[\\/]|[. ]$/
+// eslint-disable-next-line no-empty-character-class
+const invalidName = /[\\/]|[. ]$|^\.[]*/
 
 function getTempFolderPath() {
   return path.join(remote.app.getPath('userData'), '.internxt-desktop', 'tmp')
@@ -65,7 +66,7 @@ function createLocalFolder(select, selectIndex, folder, basePath) {
         return
       }
     }
-    if (nameTest.invalidFolderName(path.basename(folder.key), basePath)) {
+    if (invalidName.test(path.basename(folder.key)) || nameTest.invalidFolderName(path.basename(folder.key), basePath)) {
       ignore(folder)
     } else {
       create(folder)
