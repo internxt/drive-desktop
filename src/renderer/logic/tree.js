@@ -216,7 +216,7 @@ async function getList() {
     try {
       data = JSON.parse(text)
       if (fetchRes.status !== 200) {
-        throw new Error()
+        throw new Error(fetchRes.status)
       }
     } catch (err) {
       throw new Error(err + ' data: ' + text)
