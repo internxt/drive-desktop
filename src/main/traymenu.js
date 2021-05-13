@@ -155,6 +155,15 @@ class TrayMenu {
         }
       },
       {
+        label: 'Upload only',
+        type: 'checkbox',
+        checked: ConfigStore.get('uploadOnly'),
+        click: function(check) {
+          ConfigStore.set('uploadOnly', check.checked)
+          console.log(check.checked)
+        }
+      },
+      {
         label: 'Launch at login',
         type: 'checkbox',
         checked: ConfigStore.get('autoLaunch'),

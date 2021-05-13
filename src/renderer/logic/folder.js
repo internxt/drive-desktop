@@ -116,6 +116,9 @@ async function createRemoteFolder(folders) {
 }
 
 async function removeFolders() {
+  if (ConfigStore.get('uploadOnly')) {
+    return
+  }
   var select = await Database.dbFind(Database.dbFolders, {})
   select.sort((a, b) => { return b.key.length - a.key.length })
   for (const folder of select) {
@@ -196,7 +199,7 @@ async function createFolders() {
     if (!folder.needSync || folder.state === state.state.IGNORE) {
       continue
     }
-    if (folder.state === state.state.DOWNLOAD) {
+    if (folder.state === state.state.DOWNLOAD && !ConfigStore.get('uploadOnly')) {
       createLocalFolder(select, selectIndex, folder, basePath)
       continue
     }

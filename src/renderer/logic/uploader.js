@@ -44,7 +44,7 @@ async function uploadFile(filePath, localFile, cloudFile, encryptedName, folderR
   Logger.log('Upload file %s, size: %d', filePath, fileSize)
   // Delete former file
   if (cloudFile) {
-    await File.removeFile(bucketId, fileId)
+    await File.removeFile(bucketId, fileId, true)
   }
   if (fileSize === 0) {
     Logger.warn('Warning:File %s, Filesize 0.', filePath)
@@ -89,7 +89,7 @@ async function uploadFile(filePath, localFile, cloudFile, encryptedName, folderR
             fs.unlinkSync(tempFile)
           }
           app.emit('set-tooltip')
-          app.removeListener('sync-stop', stopDownloadHandler)
+          app.removeListener('sync-stop', stopUploadHandler)
           if (err) {
             const fileExistsPattern = /File already exist/
             let relativePath = path.relative(folderRoot, filePath)
@@ -137,11 +137,11 @@ async function uploadFile(filePath, localFile, cloudFile, encryptedName, folderR
       }
     })
 
-    const stopDownloadHandler = (storj, state) => {
+    const stopUploadHandler = (storj, state) => {
       storj.storeFileCancel(state)
     }
 
-    app.on('sync-stop', () => stopDownloadHandler(storj, state))
+    app.once('sync-stop', () => stopUploadHandler(storj, state))
   })
 }
 

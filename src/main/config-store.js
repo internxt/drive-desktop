@@ -4,6 +4,10 @@ import Store from 'electron-store'
  */
 
 const schema = {
+  uploadOnly: {
+    type: 'boolean',
+    default: false
+  },
   limit: {
     type: 'number',
     default: -1

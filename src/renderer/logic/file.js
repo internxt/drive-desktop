@@ -34,7 +34,12 @@ sincronizeAction[state.state.DELETE_CLOUD] = deleteCloudState
 sincronizeAction[state.state.DELETE_LOCAL] = deleteLocalState
 
 // BucketId and FileId must be the NETWORK ids (mongodb)
-async function removeFile(bucketId, fileId) {
+async function removeFile(bucketId, fileId, force = false) {
+  if (!force) {
+    if (ConfigStore.get('uploadOnly')) {
+      throw new Error('UploadOnly')
+    }
+  }
   return fetch(
     `${process.env.API_URL}/api/storage/bucket/${bucketId}/file/${fileId}`,
     {
@@ -52,6 +57,13 @@ async function removeFile(bucketId, fileId) {
       return result
     }
   })
+}
+
+function removeLocalFile(path) {
+  if (ConfigStore.get('uploadOnly')) {
+    throw new Error('UploadOnly')
+  }
+  fs.unlink(path)
 }
 
 // Create entry in Drive Server linked to the Bridge file
@@ -452,6 +464,9 @@ async function ensureFile(file, rootPath, user, parentFolder) {
 */
 async function downloadFile(file, cloudFile, localFile) {
   try {
+    if (ConfigStore.get('uploadOnly')) {
+      throw new Error('UploadOnly')
+    }
     remote.app.emit('set-tooltip', `Downloading file to ${file.key}`)
     analytics
       .track({
@@ -501,6 +516,9 @@ async function downloadFile(file, cloudFile, localFile) {
         Logger.error(err)
       })
   } catch (e) {
+    if (/UploadOnly/.test(e.message)) {
+      return
+    }
     Logger.error(`Error downloading file: ${file.key}. Error: ${e}`)
   }
 }
@@ -567,6 +585,9 @@ async function uploadState(file, rootPath, user, parentFolder) {
         await Database.dbRemoveOne(Database.dbFiles, { key: file.key })
         return
       } catch (e) {
+        if (/UploadOnly/.test(e.message)) {
+          return
+        }
         Logger.error(`Error removing remote file ${file.key}. Error: ${e}`)
         await Database.dbUpdate(Database.dbFiles, { key: file.key }, { $set: file })
         return
@@ -624,10 +645,13 @@ async function downloadState(file, rootPath, user, parentFolder) {
     } else {
       file.state = state.state.DELETE_LOCAL
       try {
-        await fs.unlinkSync(file.key)
+        removeLocalFile(file.key)
         await Database.dbRemoveOne(Database.dbFiles, { key: file.key })
         return
       } catch (e) {
+        if (/UploadOnly/.test(e.message)) {
+          return
+        }
         Logger.error(`Error removing local file ${file.key}. Error: ${e}`)
         await Database.dbUpdate(Database.dbFiles, { key: file.key }, { $set: file })
         return
@@ -699,6 +723,9 @@ async function deleteCloudState(file, rootPath, user, parentFolder) {
         await Database.dbRemoveOne(Database.dbFiles, { key: file.key })
         return
       } catch (e) {
+        if (/UploadOnly/.test(e.message)) {
+          return
+        }
         Logger.error(`Error removing remote file ${file.key}. Error: ${e}`)
         return
       }
@@ -753,10 +780,13 @@ async function deleteLocalState(file, rootPath, user, parentFolder) {
       return
     } else {
       try {
-        await fs.unlinkSync(file.key)
+        removeLocalFile(file.key)
         await Database.dbRemoveOne(Database.dbFiles, { key: file.key })
         return
       } catch (e) {
+        if (/UploadOnly/.test(e.message)) {
+          return
+        }
         Logger.error(`Error removing local file ${file.key}. Error: ${e}`)
         return
       }
