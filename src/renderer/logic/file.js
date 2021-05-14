@@ -15,6 +15,7 @@ import path from 'path'
 import downloader from './downloader'
 import nameTest from './utils/nameTest'
 import crypto from './crypt'
+import SyncMode from './sync/NewTwoWayUpload'
 
 const remote = require('@electron/remote')
 // eslint-disable-next-line no-empty-character-class
@@ -35,10 +36,8 @@ sincronizeAction[state.state.DELETE_LOCAL] = deleteLocalState
 
 // BucketId and FileId must be the NETWORK ids (mongodb)
 async function removeFile(bucketId, fileId, force = false) {
-  if (!force) {
-    if (ConfigStore.get('uploadOnly')) {
-      throw new Error('UploadOnly')
-    }
+  if (SyncMode.isUploadOnly()) {
+    return true
   }
   return fetch(
     `${process.env.API_URL}/api/storage/bucket/${bucketId}/file/${fileId}`,
@@ -60,7 +59,7 @@ async function removeFile(bucketId, fileId, force = false) {
 }
 
 function removeLocalFile(path) {
-  if (ConfigStore.get('uploadOnly')) {
+  if (SyncMode.isUploadOnly()) {
     throw new Error('UploadOnly')
   }
   fs.unlink(path)
@@ -464,7 +463,7 @@ async function ensureFile(file, rootPath, user, parentFolder) {
 */
 async function downloadFile(file, cloudFile, localFile) {
   try {
-    if (ConfigStore.get('uploadOnly')) {
+    if (SyncMode.isUploadOnly()) {
       throw new Error('UploadOnly')
     }
     remote.app.emit('set-tooltip', `Downloading file to ${file.key}`)

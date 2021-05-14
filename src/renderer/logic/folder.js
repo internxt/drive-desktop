@@ -11,6 +11,7 @@ import state from './utils/state'
 import lodash from 'lodash'
 import nameTest from './utils/nameTest'
 import crypt from './crypt'
+import SyncMode from './sync/NewTwoWayUpload'
 
 const remote = require('@electron/remote')
 
@@ -116,9 +117,6 @@ async function createRemoteFolder(folders) {
 }
 
 async function removeFolders() {
-  if (ConfigStore.get('uploadOnly')) {
-    return
-  }
   var select = await Database.dbFind(Database.dbFolders, {})
   select.sort((a, b) => { return b.key.length - a.key.length })
   for (const folder of select) {
@@ -166,16 +164,26 @@ async function removeFolders() {
           await Database.dbUpdate(Database.dbFolders, { key: folder.key }, { $set: folder })
           continue
         } else {
-          fs.rmdirSync(folder.key)
+          removeLocalFolder(folder.key)
           await Database.dbRemoveOne(Database.dbFolders, { key: folder.key })
           continue
         }
       }
     } catch (err) {
+      if (/UploadOnly/.test(err.message)) {
+        return
+      }
       Logger.error(err)
       continue
     }
   }
+}
+
+function removeLocalFolder(path) {
+  if (SyncMode.isUploadOnly()) {
+    throw new Error('UploadOnly')
+  }
+  fs.rmdirSync(path)
 }
 
 async function createFolders() {
@@ -199,7 +207,7 @@ async function createFolders() {
     if (!folder.needSync || folder.state === state.state.IGNORE) {
       continue
     }
-    if (folder.state === state.state.DOWNLOAD && !ConfigStore.get('uploadOnly')) {
+    if (folder.state === state.state.DOWNLOAD && !SyncMode.isUploadOnly()) {
       createLocalFolder(select, selectIndex, folder, basePath)
       continue
     }
@@ -344,12 +352,19 @@ async function sincronizeCloudFolder() {
     })
     newFolders = lodash.differenceBy(children, newFolders, 'key')
     for (const folder of newFolders) {
+      /*
+      disable selective sync
       if (new Date(folder.value.created_at) >= lastSyncDate) {
         folder.needSync = true
         folder.select = true
         folder.state = state.state.DOWNLOAD
         select.push(folder)
       }
+      */
+      folder.needSync = true
+      folder.select = true
+      folder.state = state.state.DOWNLOAD
+      select.push(folder)
     }
   }
   // console.log('despues sync cloud folder: ', select)
@@ -409,6 +424,9 @@ async function sincronizeLocalFolder() {
 // folderId must be the CLOUD id (mysql)
 // warning, this method deletes all its contents
 async function removeFolder(folderId) {
+  if (SyncMode.isUploadOnly()) {
+    return true
+  }
   const headers = await Auth.getAuthHeader()
   const res = await fetch(`${process.env.API_URL}/api/storage/folder/${folderId}`, {
     method: 'DELETE',

@@ -31,6 +31,10 @@ const schema = {
   updatingDB: {
     type: 'boolean',
     default: false
+  },
+  forceUpload: {
+    type: 'number',
+    default: -1
   }
 }
 

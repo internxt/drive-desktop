@@ -18,8 +18,12 @@ const { app } = require('@electron/remote')
 ConfigStore.set('isSyncing', false)
 ConfigStore.set('stopSync', false)
 ConfigStore.set('updatingDB', false)
+var uploadOnlyMode = false
+function isUploadOnly() {
+  return uploadOnlyMode
+}
+
 const wtc = null
-let lastSyncFailed = false
 let timeoutInstance = null
 function syncStop() {
   if (ConfigStore.get('isSyncing')) {
@@ -45,11 +49,26 @@ async function SyncLogic(callback) {
   app.once('sync-stop', syncStop)
   app.once('user-logout', DeviceLock.stopUpdateDeviceSync)
   ConfigStore.set('isSyncing', true)
-  lastSyncFailed = false
-
+  if (ConfigStore.get('uploadOnly')) {
+    uploadOnlyMode = true
+  } else {
+    const force = ConfigStore.get('forceUpload')
+    if (force === 2) {
+      ConfigStore.set('forceUpload', 1)
+      uploadOnlyMode = true
+    } else if (force === 1) {
+      uploadOnlyMode = true
+    } else {
+      uploadOnlyMode = false
+    }
+  }
   const syncComplete = async function (err) {
     if (err) {
       Logger.error('Error sync monitor:', err.message ? err.message : err)
+    } else {
+      if (ConfigStore.get('forceUpload') === 1) {
+        ConfigStore.set('forceUpload', 0)
+      }
     }
     console.timeEnd('desktop')
     const basePath = await database.Get('xPath')
@@ -284,5 +303,6 @@ function end() {
 
 export default {
   start,
-  end
+  end,
+  isUploadOnly
 }
