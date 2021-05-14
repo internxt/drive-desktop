@@ -133,7 +133,14 @@ class TrayMenu {
         click: function () {
           app.emit('force-sync')
         }
-      })
+      },
+      {
+        label: 'Stop sync',
+        click: function () {
+          app.emit('sync-stop')
+        }
+      }
+      )
     }
     contextMenuTemplate.push(
       {
