@@ -23,26 +23,28 @@ const DB_FOLDER = `${process.env.NODE_ENV === 'production'
 const oldFolderExists = fs.existsSync(OLD_DB_FOLDER)
 const oldFolder2Exists = fs.existsSync(OLD_DB_FOLDER2)
 const newFolderExists = fs.existsSync(DB_FOLDER)
-if (newFolderExists) {
-  if (oldFolderExists) {
-    Logger.info('Remove old .xclouddesktop folder')
-    rimraf.sync(OLD_DB_FOLDER)
-  }
-  if (oldFolder2Exists) {
-    Logger.info('Remove old .internxt-desktop folder')
-    rimraf.sync(OLD_DB_FOLDER2)
-  }
-} else {
-  if (oldFolder2Exists) {
-    fs.renameSync(OLD_DB_FOLDER2, DB_FOLDER)
-    Logger.info(
-      'Config folder migration success .internxt-desktop > userData'
-    )
-  } else if (oldFolderExists) {
-    fs.renameSync(OLD_DB_FOLDER, DB_FOLDER)
-    Logger.info(
-      'Config folder migration success .xclouddesktop > userData'
-    )
+if (process.env.NODE_ENV === 'production') {
+  if (newFolderExists) {
+    if (oldFolderExists) {
+      Logger.info('Remove old .xclouddesktop folder')
+      rimraf.sync(OLD_DB_FOLDER)
+    }
+    if (oldFolder2Exists) {
+      Logger.info('Remove old .internxt-desktop folder')
+      rimraf.sync(OLD_DB_FOLDER2)
+    }
+  } else {
+    if (oldFolder2Exists) {
+      fs.renameSync(OLD_DB_FOLDER2, DB_FOLDER)
+      Logger.info(
+        'Config folder migration success .internxt-desktop > userData'
+      )
+    } else if (oldFolderExists) {
+      fs.renameSync(OLD_DB_FOLDER, DB_FOLDER)
+      Logger.info(
+        'Config folder migration success .xclouddesktop > userData'
+      )
+    }
   }
 }
 
