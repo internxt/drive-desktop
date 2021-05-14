@@ -281,10 +281,7 @@ function start(callback, startImmediately = false) {
   Logger.info('Start sync')
   let timeout = 0
   if (!startImmediately) {
-    timeout = 1000 * 60 * 10
-  }
-  if (!startImmediately && process.env.NODE_ENV !== 'production') {
-    timeout = 1000 * 30
+    timeout = process.env.NODE_ENV !== 'production' ? 1000 * 30 : 1000 * 60 * 10
   }
   if (!ConfigStore.get('isSyncing')) {
     clearTimeout(timeoutInstance)
