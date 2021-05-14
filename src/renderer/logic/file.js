@@ -62,7 +62,7 @@ function removeLocalFile(path) {
   if (SyncMode.isUploadOnly()) {
     throw new Error('UploadOnly')
   }
-  fs.unlink(path)
+  fs.unlinkSync(path)
 }
 
 // Create entry in Drive Server linked to the Bridge file
