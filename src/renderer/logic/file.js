@@ -35,10 +35,11 @@ sincronizeAction[state.state.DELETE_CLOUD] = deleteCloudState
 sincronizeAction[state.state.DELETE_LOCAL] = deleteLocalState
 
 // BucketId and FileId must be the NETWORK ids (mongodb)
-async function removeFile(bucketId, fileId, force = false) {
+async function removeFile(bucketId, fileId, filename) {
   if (SyncMode.isUploadOnly()) {
     return true
   }
+  Logger.log(`Removing cloud file: ${filename}. file id: ${fileId}`)
   return fetch(
     `${process.env.API_URL}/api/storage/bucket/${bucketId}/file/${fileId}`,
     {
@@ -62,6 +63,7 @@ function removeLocalFile(path) {
   if (SyncMode.isUploadOnly()) {
     throw new Error('UploadOnly')
   }
+  Logger.log(`Removing local file: ${path}.`)
   fs.unlinkSync(path)
 }
 
@@ -431,6 +433,7 @@ async function uploadFile(file, localFile, cloudFile, encryptedName, rootPath, u
 async function ensureFile(file, rootPath, user, parentFolder) {
   try {
     remote.app.emit('set-tooltip', `Ensuring file ${file.key}`)
+    Logger.log(`Ensure file ${file.key}.`)
     const tempPath = await downloader.downloadFileTemp(file.value, file.key)
     fs.unlinkSync(tempPath)
   } catch (errDownload) {
@@ -580,7 +583,7 @@ async function uploadState(file, rootPath, user, parentFolder) {
       // console.log('select recent')
       file.state = state.state.DELETE_CLOUD
       try {
-        await removeFile(cloudFile.bucket, cloudFile.fileId)
+        await removeFile(cloudFile.bucket, cloudFile.fileId, file.key)
         await Database.dbRemoveOne(Database.dbFiles, { key: file.key })
         return
       } catch (e) {
@@ -718,7 +721,7 @@ async function deleteCloudState(file, rootPath, user, parentFolder) {
       return
     } else {
       try {
-        await removeFile(cloudFile.bucket, cloudFile.fileId)
+        await removeFile(cloudFile.bucket, cloudFile.fileId, file.key)
         await Database.dbRemoveOne(Database.dbFiles, { key: file.key })
         return
       } catch (e) {

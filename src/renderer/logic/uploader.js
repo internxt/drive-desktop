@@ -41,7 +41,6 @@ async function uploadFile(filePath, localFile, cloudFile, encryptedName, folderR
   const fileMtime = localFile.mtime
   fileMtime.setMilliseconds(0)
   const fileSize = localFile.size
-  Logger.log('Upload file %s, size: %d', filePath, fileSize)
   // Delete former file
   if (cloudFile) {
     await File.removeFile(bucketId, fileId, true)
@@ -67,7 +66,7 @@ async function uploadFile(filePath, localFile, cloudFile, encryptedName, folderR
   }
 
   fs.copyFileSync(filePath, tempFile)
-
+  Logger.log('Upload file %s, size: %d', filePath, fileSize)
   // Upload new file
   return new Promise((resolve, reject) => {
     const state = storj.storeFile(bucketId, tempFile, {
