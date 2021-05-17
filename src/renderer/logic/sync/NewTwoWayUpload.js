@@ -70,7 +70,7 @@ async function SyncLogic(callback) {
         ConfigStore.set('forceUpload', 0)
       }
     }
-    console.timeEnd('desktop')
+    // console.timeEnd('desktop')
     const basePath = await database.Get('xPath')
     nameTest.removeTestFolder(basePath)
     app.emit('set-tooltip')
@@ -157,22 +157,22 @@ async function SyncLogic(callback) {
       next => {
         // Sync and update the remote tree.
         app.emit('set-tooltip', 'Updating cloud folders and files')
-        console.time('desktop')
-        console.time('update list')
+        // console.time('desktop')
+        // console.time('update list')
         Tree.updateDbAndCompact()
           .then(() => next())
           .catch(next)
       },
       next => {
-        console.timeEnd('update list')
-        console.time('sincronizar Local folder')
+        // console.timeEnd('update list')
+        // console.time('sincronizar Local folder')
         app.emit('set-tooltip', 'Checking local folders')
         Folder.sincronizeLocalFolder()
           .then(() => next())
           .catch(next)
       },
       next => {
-        console.timeEnd('sincronizar Local folder')
+        // console.timeEnd('sincronizar Local folder')
         if (ConfigStore.get('stopSync')) {
           next('stop sync')
         } else {
@@ -180,14 +180,14 @@ async function SyncLogic(callback) {
         }
       },
       next => {
-        console.time('sincronizar Local files')
+        // console.time('sincronizar Local files')
         app.emit('set-tooltip', 'Checking local files')
         File.sincronizeLocalFile()
           .then(() => next())
           .catch(next)
       },
       next => {
-        console.timeEnd('sincronizar Local files')
+        // console.timeEnd('sincronizar Local files')
         if (ConfigStore.get('stopSync')) {
           next('stop sync')
         } else {
@@ -195,14 +195,14 @@ async function SyncLogic(callback) {
         }
       },
       next => {
-        console.time('sincronizar cloud folder')
+        // console.time('sincronizar cloud folder')
         app.emit('set-tooltip', 'Checking cloud files')
         Folder.sincronizeCloudFolder()
           .then(next)
           .catch(next)
       },
       next => {
-        console.timeEnd('sincronizar cloud folder')
+        // console.timeEnd('sincronizar cloud folder')
         if (ConfigStore.get('stopSync')) {
           next('stop sync')
         } else {
@@ -210,14 +210,14 @@ async function SyncLogic(callback) {
         }
       },
       next => {
-        console.time('sincronizar cloud files')
+        // console.time('sincronizar cloud files')
         app.emit('set-tooltip', 'Checking cloud files')
         File.sincronizeCloudFile()
           .then(next)
           .catch(next)
       },
       next => {
-        console.timeEnd('sincronizar cloud files')
+        // console.timeEnd('sincronizar cloud files')
         if (ConfigStore.get('stopSync')) {
           next('stop sync')
         } else {
@@ -225,14 +225,14 @@ async function SyncLogic(callback) {
         }
       },
       next => {
-        console.time('crearFolder')
+        // console.time('crearFolder')
         app.emit('set-tooltip', 'Creating folders')
         Folder.createFolders()
           .then(next)
           .catch(next)
       },
       next => {
-        console.timeEnd('crearFolder')
+        // console.timeEnd('crearFolder')
         if (ConfigStore.get('stopSync')) {
           next('stop sync')
         } else {
@@ -240,14 +240,14 @@ async function SyncLogic(callback) {
         }
       },
       next => {
-        console.time('sincronizeFile')
+        // console.time('sincronizeFile')
         app.emit('set-tooltip', 'Synchronizing files')
         File.sincronizeFile()
           .then(next)
           .catch(next)
       },
       next => {
-        console.timeEnd('sincronizeFile')
+        // console.timeEnd('sincronizeFile')
         if (ConfigStore.get('stopSync')) {
           next('stop sync')
         } else {
@@ -255,14 +255,14 @@ async function SyncLogic(callback) {
         }
       },
       next => {
-        console.time('removeFolders')
+        // console.time('removeFolders')
         app.emit('set-tooltip', 'Remove folders')
         Folder.removeFolders()
           .then(next)
           .catch(next)
       },
       next => {
-        console.timeEnd('removeFolders')
+        // console.timeEnd('removeFolders')
         if (ConfigStore.get('stopSync')) {
           next('stop sync')
         } else {

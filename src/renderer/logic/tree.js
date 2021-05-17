@@ -228,18 +228,18 @@ async function getList() {
 
 function updateDbCloud() {
   return new Promise((resolve, reject) => {
-    console.time('getList')
+    // console.time('getList')
     getList()
       .then(tree => {
-        console.timeEnd('getList')
-        console.time('regenerateDbFolderCloud')
+        // console.timeEnd('getList')
+        // console.time('regenerateDbFolderCloud')
         regenerateDbFolderCloud(tree)
           .then(result => {
-            console.timeEnd('regenerateDbFolderCloud')
-            console.time('regenerateDbFileCloud')
+            // console.timeEnd('regenerateDbFolderCloud')
+            // console.time('regenerateDbFileCloud')
             regenerateDbFileCloud(tree, result)
               .then(() => {
-                console.timeEnd('regenerateDbFileCloud')
+                // console.timeEnd('regenerateDbFileCloud')
                 resolve()
               })
               .catch(reject)
