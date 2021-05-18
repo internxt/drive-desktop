@@ -147,7 +147,9 @@ async function removeFolders() {
     try {
       if (folder.state === state.state.DELETE_CLOUD) {
         if (!fs.existsSync(folder.key)) {
-          await removeFolder(folder.value.id)
+          if (folder.value && folder.value.id) {
+            await removeFolder(folder.value.id)
+          }
           await Database.dbRemoveOne(Database.dbFolders, { key: folder.key })
           continue
         } else {
