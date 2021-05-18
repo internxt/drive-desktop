@@ -27,6 +27,7 @@ const ensure = {
 }
 
 var ensureMode = ensure.OFF
+var ensureProbability
 
 const sincronizeAction = {}
 sincronizeAction[state.state.UPLOAD] = uploadState
@@ -374,7 +375,7 @@ async function sincronizeFile() {
         continue
       }
       if (ensureMode === ensure.RANDOM) {
-        shouldEnsureFile = Math.floor(Math.random() * 33 + 1) % 33 === 0
+        shouldEnsureFile = Math.random() < ensureProbability
       }
       if (ensureMode === ensure.ALL) {
         shouldEnsureFile = true
@@ -804,8 +805,9 @@ async function deleteLocalState(file, rootPath, user, parentFolder) {
   }
 }
 
-function setEnsureMode(mode) {
+function setEnsureMode(mode, probability = 0.01) {
   ensureMode = mode
+  ensureProbability = probability
 }
 
 export default {

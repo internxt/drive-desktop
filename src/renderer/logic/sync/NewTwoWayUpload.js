@@ -40,7 +40,7 @@ async function SyncLogic(callback) {
     return start(callback)
   }
   if (userDevicesSyncing.ensure !== undefined) {
-    File.setEnsureMode(userDevicesSyncing.ensure)
+    File.setEnsureMode(userDevicesSyncing.ensure, userDevicesSyncing.probability)
   } else {
     File.setEnsureMode(0)
   }
