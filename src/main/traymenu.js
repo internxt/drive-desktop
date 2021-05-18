@@ -134,12 +134,12 @@ class TrayMenu {
           app.emit('force-sync')
         }
       },
-      {
-        label: 'Stop sync',
-        click: function () {
-          app.emit('sync-stop')
+        {
+          label: 'Stop sync',
+          click: function () {
+            app.emit('sync-stop')
+          }
         }
-      }
       )
     }
     contextMenuTemplate.push(
@@ -170,6 +170,8 @@ class TrayMenu {
           if (!check.checked) {
             ConfigStore.set('forceUpload', 2)
             app.emit('show-info', 'Next sync will also be upload only for checking which file should not delete.')
+          } else {
+            app.emit('show-info', 'By changing to Upload only you can only upload files. You can delete files locally without lose them from your cloud.')
           }
         }
       },
