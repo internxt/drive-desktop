@@ -55,7 +55,6 @@ function generatePath(pathDict, item) {
 async function regenerateDbFolderCloud(tree) {
   const finalDict = {}
   const dbEntrys = []
-  const ignoreHideFolder = new RegExp('^\\.[]*')
   const basePath = await database.Get('xPath')
   for (const item of tree.folders) {
     if (ConfigStore.get('stopSync')) {
