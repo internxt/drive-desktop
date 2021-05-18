@@ -49,9 +49,6 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 const initDatabase = () => {
-  if (fs.existsSync(path.join(DB_FOLDER, 'database_files.db'))) {
-    rimraf.sync(DB_FOLDER)
-  }
   if (!fs.existsSync(DB_FOLDER)) {
     fs.mkdirSync(DB_FOLDER)
   }
