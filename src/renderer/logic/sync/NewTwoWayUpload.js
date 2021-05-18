@@ -157,6 +157,7 @@ async function SyncLogic(callback) {
       next => {
         // Sync and update the remote tree.
         app.emit('set-tooltip', 'Updating cloud folders and files')
+        Logger.log('Updating cloud folders and files')
         // console.time('desktop')
         // console.time('update list')
         Tree.updateDbAndCompact()
@@ -167,6 +168,7 @@ async function SyncLogic(callback) {
         // console.timeEnd('update list')
         // console.time('sincronizar Local folder')
         app.emit('set-tooltip', 'Checking local folders')
+        Logger.log('Checking local folders')
         Folder.sincronizeLocalFolder()
           .then(() => next())
           .catch(next)
@@ -182,6 +184,7 @@ async function SyncLogic(callback) {
       next => {
         // console.time('sincronizar Local files')
         app.emit('set-tooltip', 'Checking local files')
+        Logger.log('Checking local files')
         File.sincronizeLocalFile()
           .then(() => next())
           .catch(next)
@@ -196,7 +199,8 @@ async function SyncLogic(callback) {
       },
       next => {
         // console.time('sincronizar cloud folder')
-        app.emit('set-tooltip', 'Checking cloud files')
+        app.emit('set-tooltip', 'Checking cloud folders')
+        Logger.log('Checking cloud folders')
         Folder.sincronizeCloudFolder()
           .then(next)
           .catch(next)
@@ -212,6 +216,7 @@ async function SyncLogic(callback) {
       next => {
         // console.time('sincronizar cloud files')
         app.emit('set-tooltip', 'Checking cloud files')
+        Logger.log('Checking cloud files')
         File.sincronizeCloudFile()
           .then(next)
           .catch(next)
@@ -227,6 +232,7 @@ async function SyncLogic(callback) {
       next => {
         // console.time('crearFolder')
         app.emit('set-tooltip', 'Creating folders')
+        Logger.log('Creating folders')
         Folder.createFolders()
           .then(next)
           .catch(next)
@@ -242,6 +248,7 @@ async function SyncLogic(callback) {
       next => {
         // console.time('sincronizeFile')
         app.emit('set-tooltip', 'Synchronizing files')
+        Logger.log('Synchronizing files')
         File.sincronizeFile()
           .then(next)
           .catch(next)
@@ -257,6 +264,7 @@ async function SyncLogic(callback) {
       next => {
         // console.time('removeFolders')
         app.emit('set-tooltip', 'Remove folders')
+        Logger.log('Remove folders')
         Folder.removeFolders()
           .then(next)
           .catch(next)
