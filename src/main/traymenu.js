@@ -134,12 +134,12 @@ class TrayMenu {
           app.emit('force-sync')
         }
       },
-        {
-          label: 'Stop sync',
-          click: function () {
-            app.emit('sync-stop')
-          }
+      {
+        label: 'Stop sync',
+        click: function () {
+          app.emit('sync-stop')
         }
+      }
       )
     }
     contextMenuTemplate.push(
