@@ -70,7 +70,14 @@ function removeLocalFile(path) {
     throw new Error('UploadOnly')
   }
   Logger.log(`Removing local file: ${path}.`)
-  fs.unlinkSync(path)
+  try {
+    fs.unlinkSync(path)
+  } catch (e) {
+    if (/no such file or directory/.test(e.message)) {
+      return
+    }
+    throw e
+  }
 }
 
 // Create entry in Drive Server linked to the Bridge file

@@ -187,7 +187,13 @@ function removeLocalFolder(path) {
   }
   remote.app.emit('set-tooltip', `Removing local folder ${path}`)
   Logger.log(`Removing local folder ${path}`)
-  fs.rmdirSync(path)
+  try {
+    fs.rmdirSync(path)
+  } catch (e) {
+    if (!/no such file or directory/.test(e.message)) {
+      throw e
+    }
+  }
 }
 
 async function createFolders() {
