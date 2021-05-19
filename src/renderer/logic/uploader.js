@@ -43,7 +43,7 @@ async function uploadFile(filePath, localFile, cloudFile, encryptedName, folderR
   const fileSize = localFile.size
   // Delete former file
   if (cloudFile) {
-    await File.removeFile(bucketId, fileId, true)
+    await File.removeFile(bucketId, fileId, filePath, true)
   }
   if (fileSize === 0) {
     Logger.warn('Warning:File %s, Filesize 0.', filePath)

@@ -36,11 +36,16 @@ sincronizeAction[state.state.DELETE_CLOUD] = deleteCloudState
 sincronizeAction[state.state.DELETE_LOCAL] = deleteLocalState
 
 // BucketId and FileId must be the NETWORK ids (mongodb)
-async function removeFile(bucketId, fileId, filename) {
-  if (SyncMode.isUploadOnly()) {
-    return true
+async function removeFile(bucketId, fileId, filename, force = false) {
+  if (force) {
+    Logger.log(`Removing cloud file: ${filename}. file id: ${fileId} for replace`)
+  } else {
+    if (SyncMode.isUploadOnly()) {
+      return true
+    }
+    Logger.log(`Removing cloud file: ${filename}. file id: ${fileId}`)
   }
-  Logger.log(`Removing cloud file: ${filename}. file id: ${fileId}`)
+
   return fetch(
     `${process.env.API_URL}/api/storage/bucket/${bucketId}/file/${fileId}`,
     {
