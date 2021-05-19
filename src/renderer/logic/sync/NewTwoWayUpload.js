@@ -268,14 +268,6 @@ async function SyncLogic(callback) {
         Folder.removeFolders()
           .then(next)
           .catch(next)
-      },
-      next => {
-        // console.timeEnd('removeFolders')
-        if (ConfigStore.get('stopSync')) {
-          next('stop sync')
-        } else {
-          next()
-        }
       }
     ],
     syncComplete

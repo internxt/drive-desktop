@@ -171,7 +171,7 @@ class TrayMenu {
             ConfigStore.set('forceUpload', 2)
             app.emit('show-info', 'Next sync will also be upload only for checking which file should not delete.')
           } else {
-            app.emit('show-info', 'By changing to Upload only you can only upload files. You can delete files locally without lose them from your cloud.')
+            app.emit('show-info', 'By changing to Upload only you can only upload files in next sync. You can delete files locally without lose them from your cloud.')
           }
         }
       },
