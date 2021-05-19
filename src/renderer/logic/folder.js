@@ -148,7 +148,7 @@ async function removeFolders() {
       if (folder.state === state.state.DELETE_CLOUD) {
         if (!fs.existsSync(folder.key)) {
           if (folder.value && folder.value.id) {
-            await removeFolder(folder.value.id)
+            await removeFolder(folder.value.id, folder.key)
           }
           await Database.dbRemoveOne(Database.dbFolders, { key: folder.key })
           continue
@@ -185,6 +185,8 @@ function removeLocalFolder(path) {
   if (SyncMode.isUploadOnly()) {
     throw new Error('UploadOnly')
   }
+  remote.app.emit('set-tooltip', `Removing local folder ${path}`)
+  Logger.log(`Removing local folder ${path}`)
   fs.rmdirSync(path)
 }
 
@@ -425,10 +427,12 @@ async function sincronizeLocalFolder() {
 
 // folderId must be the CLOUD id (mysql)
 // warning, this method deletes all its contents
-async function removeFolder(folderId) {
+async function removeFolder(folderId, path) {
   if (SyncMode.isUploadOnly()) {
     return true
   }
+  remote.app.emit('set-tooltip', `Removing cloud folder ${path}`)
+  Logger.log(`Removing cloud folder ${path}`)
   const headers = await Auth.getAuthHeader()
   const res = await fetch(`${process.env.API_URL}/api/storage/folder/${folderId}`, {
     method: 'DELETE',
