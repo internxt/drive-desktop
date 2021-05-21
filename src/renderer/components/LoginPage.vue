@@ -24,19 +24,6 @@
             type="password"
             placeholder="Password"
           />
-          <!-- <div class="form-control-file">
-            <input
-              class="form-control"
-              v-model="storagePath"
-              :disabled="true"
-              type="text" placeholder="Select an empty folder" />
-            <div class="form-control-fake-file"  @click="selectFolder()"></div>
-          </div>-->
-          <!-- <p
-            v-if="storagePath && !isEmptyFolder(storagePath)"
-            class="form-error">
-              This folder is not empty
-          </p>-->
         </div>
         <div v-if="showTwoFactor">
           <div>Enter your 6 digit authenticator code below</div>
