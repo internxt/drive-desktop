@@ -2,13 +2,13 @@ import async from 'async'
 import Logger from '../../../libs/logger'
 import Folder from '../folder'
 import File from '../file'
-import database from '../../../database'
+import Database from '../../../database'
 import DeviceLock from '../devicelock'
 import Tree from '../tree'
 import PackageJson from '../../../../package.json'
 import ConfigStore from '../../../main/config-store'
 import SpaceUsage from '../utils/spaceusage'
-import nameTest from '../utils/nameTest'
+import NameTest from '../utils/nameTest'
 /*
  * Sync Method: One Way, from LOCAL to CLOUD (Only Upload)
  */
@@ -44,6 +44,9 @@ async function SyncLogic(callback) {
   } else {
     File.setEnsureMode(0)
   }
+  if (userDevicesSyncing.fullReset) {
+    await Database.ClearAll()
+  }
   Logger.info('Sync started')
   DeviceLock.startUpdateDeviceSync()
   app.once('sync-stop', syncStop)
@@ -71,8 +74,8 @@ async function SyncLogic(callback) {
       }
     }
     // console.timeEnd('desktop')
-    const basePath = await database.Get('xPath')
-    nameTest.removeTestFolder(basePath)
+    const basePath = await Database.Get('xPath')
+    NameTest.removeTestFolder(basePath)
     app.emit('set-tooltip')
     app.emit('sync-off')
     app.removeListener('sync-stop', syncStop)
@@ -82,9 +85,9 @@ async function SyncLogic(callback) {
     ConfigStore.set('isSyncing', false)
     const rootFolderExist = await Folder.rootFolderExists()
     if (!rootFolderExist) {
-      await database.ClearAll()
-      await database.ClearUser()
-      database.compactAllDatabases()
+      await Database.ClearAll()
+      await Database.ClearUser()
+      Database.compactAllDatabases()
       app.emit('user-logout')
       return
     }
@@ -120,7 +123,7 @@ async function SyncLogic(callback) {
         // New sync started, so we save the current date
         const now = new Date()
         Logger.log('Sync started at', now.toISOString())
-        database
+        Database
           .Set('syncStartDate', now)
           .then(() => next())
           .catch(next)
@@ -134,7 +137,7 @@ async function SyncLogic(callback) {
       },
       next => {
         app.emit('set-tooltip', 'Updating user info')
-        database
+        Database
           .Get('xUser')
           .then(user => {
             if (!user.user.bucket) {
