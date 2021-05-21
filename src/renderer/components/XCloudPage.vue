@@ -9,7 +9,7 @@
       </div>
       <div>{{ toolTip ? toolTip : 'Paused' }}</div>
       <div>
-        <a href="#" @click="quitApp()">Quit</a>
+        <a href="#" @click="quitApp()">Quitttt</a>
       </div>
       <div>
         <a href="#" @click="forceSync()">Force sync</a>
