@@ -75,13 +75,13 @@ async function downloadFileTemp(cloudFile, filePath) {
       }
     )
 
-    const stopDownloadHandler = (storj, state) => {
-      if (storj) {
+    const stopDownloadHandler = () => {
+      (function (storj, state) {
         storj.resolveFileCancel(state)
-      }
+      })(storj, state)
     }
 
-    app.once('sync-stop', () => stopDownloadHandler(storj, state))
+    app.once('sync-stop', stopDownloadHandler)
   })
 }
 

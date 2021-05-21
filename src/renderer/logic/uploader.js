@@ -136,11 +136,13 @@ async function uploadFile(filePath, localFile, cloudFile, encryptedName, folderR
       }
     })
 
-    const stopUploadHandler = (storj, state) => {
-      storj.storeFileCancel(state)
+    const stopUploadHandler = () => {
+      (function (storj, state) {
+        storj.storeFileCancel(state)
+      })(storj, state)
     }
 
-    app.once('sync-stop', () => stopUploadHandler(storj, state))
+    app.once('sync-stop', stopUploadHandler)
   })
 }
 
