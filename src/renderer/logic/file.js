@@ -507,7 +507,14 @@ async function downloadFile(file, cloudFile, localFile) {
         Logger.log(e)
       }
     }
-    fs.copyFileSync(tempPath, file.key)
+    try {
+      fs.copyFileSync(tempPath, file.key)
+    } catch (err) {
+      if (/no such file or directory/.test(err.message)) {
+        fs.mkdirSync(path.dirname(file.key), { recursive: true })
+      }
+      fs.copyFileSync(tempPath, file.key)
+    }
     fs.unlinkSync(tempPath)
     await Sync.setModifiedTime(file.key, cloudFile.createdAt)
     file.state = state.state.SYNCED
