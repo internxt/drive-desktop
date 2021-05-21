@@ -548,7 +548,7 @@ async function downloadFile(file, cloudFile, localFile) {
 async function uploadState(file, rootPath, user, parentFolder) {
   // console.log('upload')
   // console.log(parentFolder)
-  if (!parentFolder.value || !parentFolder.value.id) {
+  if (!parentFolder || !parentFolder.value || !parentFolder.value.id) {
     // console.log('no parentId')
     return
   }
@@ -623,7 +623,7 @@ async function uploadState(file, rootPath, user, parentFolder) {
 }
 
 async function downloadState(file, rootPath, user, parentFolder) {
-  if (!parentFolder.value || !parentFolder.value.id) {
+  if (!parentFolder || !parentFolder.value || !parentFolder.value.id) {
     return
   }
   const localFile = fs.existsSync(file.key) ? fs.lstatSync(file.key) : undefined
@@ -691,11 +691,11 @@ async function downloadState(file, rootPath, user, parentFolder) {
 }
 
 async function deleteCloudState(file, rootPath, user, parentFolder) {
-  if (!parentFolder.value || !parentFolder.value.id) {
-    return
+  let encryptedName
+  if (parentFolder && parentFolder.value && !parentFolder.value.id) {
+    encryptedName = crypto.encryptFilename(path.basename(file.key), parentFolder.value.id)
   }
   const localFile = fs.existsSync(file.key) ? fs.lstatSync(file.key) : undefined
-  const encryptedName = crypto.encryptFilename(path.basename(file.key), parentFolder.value.id)
   // const cloudFile = await Tree.getCloudFile(encryptedName, parentFolder.value.id)
   let cloudFile = await Database.dbFindOne(Database.dbFilesCloud, { key: file.key })
   cloudFile = cloudFile ? cloudFile.value : null
@@ -759,11 +759,11 @@ async function deleteCloudState(file, rootPath, user, parentFolder) {
 }
 
 async function deleteLocalState(file, rootPath, user, parentFolder) {
-  if (!parentFolder.value || !parentFolder.value.id) {
-    return
+  let encryptedName
+  if (parentFolder && parentFolder.value && !parentFolder.value.id) {
+    encryptedName = crypto.encryptFilename(path.basename(file.key), parentFolder.value.id)
   }
   const localFile = fs.existsSync(file.key) ? fs.lstatSync(file.key) : undefined
-  const encryptedName = crypto.encryptFilename(path.basename(file.key), parentFolder.value.id)
   // const cloudFile = await Tree.getCloudFile(encryptedName, parentFolder.value.id)
   let cloudFile = await Database.dbFindOne(Database.dbFilesCloud, { key: file.key })
   cloudFile = cloudFile ? cloudFile.value : null
