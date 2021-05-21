@@ -88,7 +88,7 @@ class TrayMenu {
       if (userEmail) {
         userFooter.push({
           label: 'Change sync folder',
-          click: function() {
+          click: function () {
             const newDir = dialog.showOpenDialogSync({
               properties: ['openDirectory']
             })
@@ -101,8 +101,8 @@ class TrayMenu {
               const relative = path.relative(appDir, newDir[0])
               if (
                 (relative &&
-                !relative.startsWith('..') &&
-                !path.isAbsolute(relative)) || appDir === newDir[0]
+                  !relative.startsWith('..') &&
+                  !path.isAbsolute(relative)) || appDir === newDir[0]
               ) {
                 app.emit('show-error', 'Internxt do not support syncronization of your appData directory or anything inside of it.')
                 return
@@ -122,52 +122,30 @@ class TrayMenu {
     if (userEmail) {
       contextMenuTemplate.push({
         label: 'Open folder',
-        click: function() {
+        click: function () {
           app.emit('open-folder')
         }
       })
     }
-    contextMenuTemplate.push({
-      label: 'Sync options',
-      enabled: true,
-      submenu: [
-        {
-          label: 'Two Way Sync',
-          type: 'radio',
-          enabled: true,
-          checked: ConfigStore.get('syncMode') === 'two-way',
-          click: () => {
-            Logger.info('User switched to two way sync mode')
-            ConfigStore.set('syncMode', 'two-way')
-            app.emit('sync-stop')
-            app.emit('switch-mode')
-          }
-        },
-        {
-          label: 'Upload Only Mode',
-          type: 'radio',
-          enabled: true,
-          checked: ConfigStore.get('syncMode') === 'one-way-upload',
-          click: () => {
-            Logger.info('User switched to one way upload mode')
-            ConfigStore.set('syncMode', 'one-way-upload')
-            app.emit('sync-stop')
-          }
-        }
-      ]
-    })
     if (userEmail) {
       contextMenuTemplate.push({
         label: 'Force sync',
-        click: function() {
+        click: function () {
           app.emit('force-sync')
         }
-      })
+      },
+      {
+        label: 'Stop sync',
+        click: function () {
+          app.emit('sync-stop')
+        }
+      }
+      )
     }
     contextMenuTemplate.push(
       {
         label: 'Open logs',
-        click: function() {
+        click: function () {
           try {
             const logFile = electronLog.transports.file.getFile().path
             const logPath = path.dirname(logFile)
@@ -179,25 +157,38 @@ class TrayMenu {
       },
       {
         label: 'Billing',
-        click: function() {
+        click: function () {
           shell.openExternal(`https://drive.internxt.com/storage`)
+        }
+      },
+      {
+        label: 'Upload only',
+        type: 'checkbox',
+        checked: ConfigStore.get('uploadOnly'),
+        click: function (check) {
+          ConfigStore.set('uploadOnly', check.checked)
+          if (!check.checked) {
+            ConfigStore.set('forceUpload', 2)
+            app.emit('show-info', 'Next sync will also be upload only for checking which file should not delete.')
+          } else {
+            app.emit('show-info', 'By changing to Upload only you can only upload files in next sync. You can delete files locally without lose them from your cloud.')
+          }
         }
       },
       {
         label: 'Launch at login',
         type: 'checkbox',
         checked: ConfigStore.get('autoLaunch'),
-        click: function(check) {
+        click: function (check) {
           ConfigStore.set('autoLaunch', check.checked)
-          console.log(check.checked)
           app.emit('change-auto-launch')
         }
       },
       {
-        label: 'Contact Support',
-        click: function() {
+        label: 'Bug report',
+        click: function () {
           shell.openExternal(
-            `mailto:support@internxt.zohodesk.eu?subject=Support Ticket&body=If you want to upload log files to our tech teams. Please, find them on the Open Logs option in the menu.`
+            `mailto:joan@internxt.com?subject=Support Ticket&body=If you want to upload log files to our tech teams. Please, find them on the Open Logs option in the menu.`
           )
         }
       },
@@ -209,7 +200,7 @@ class TrayMenu {
     if (userEmail) {
       contextMenuTemplate.push({
         label: 'Log out',
-        click: function() {
+        click: function () {
           app.emit('user-logout')
         }
       })

@@ -46,7 +46,7 @@ export default {
     }
   },
   components: {},
-  created: function () {},
+  created: function() {},
   methods: {
     chooseFolder() {
       const path = remote.dialog.showOpenDialog({

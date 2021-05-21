@@ -1,4 +1,4 @@
-import fs from 'fs'
+
 import path from 'path'
 import database from '../../database'
 import async from 'async'
@@ -7,7 +7,6 @@ import readdirp from 'readdirp'
 import Logger from '../../libs/logger'
 import Auth from './utils/Auth'
 import ConfigStore from '../../main/config-store'
-import NameTest from './utils/nameTest'
 
 const IgnoredFiles = ['^\\.[]*', '^~.*', '[\\\\/]|[. ]$']
 
@@ -35,93 +34,6 @@ function getListFromFolder(folderPath) {
   })
 }
 
-function getStat(filepath) {
-  try {
-    return fs.lstatSync(filepath)
-  } catch (err) {
-    return null
-  }
-}
-
-function _recursiveFolderToList(tree, basePath, currentPath = null) {
-  let finalList = []
-  return new Promise((resolve, reject) => {
-    async.eachSeries(
-      tree.children,
-      async (item, next) => {
-        const decryptedName = crypt.decryptName(item.name, item.parentId)
-        const fullNewPath = path.join(currentPath || basePath, decryptedName)
-        finalList.push(fullNewPath)
-        const subFolder = await _recursiveFolderToList(
-          item,
-          basePath,
-          fullNewPath
-        )
-        finalList = finalList.concat(subFolder)
-        next()
-      },
-      (err, result) => {
-        if (err) {
-          reject(err)
-        } else {
-          resolve(finalList)
-        }
-      }
-    )
-  })
-}
-
-async function getFolderListFromRemoteTree() {
-  const tree = await database.Get('tree')
-  const basePath = await database.Get('xPath')
-  return new Promise((resolve, reject) => {
-    _recursiveFolderToList(tree, basePath)
-      .then(list => resolve(list))
-      .catch(reject)
-  })
-}
-
-function _recursiveFolderObjectToList(tree, basePath, currentPath = null) {
-  let finalList = []
-  return new Promise((resolve, reject) => {
-    async.eachSeries(
-      tree.children,
-      async (item, next) => {
-        const decryptedName = crypt.decryptName(item.name, item.parentId)
-        const fullNewPath = path.join(currentPath || basePath, decryptedName)
-        const cloneObject = JSON.parse(JSON.stringify(item))
-        delete cloneObject.children
-        const finalObject = { key: fullNewPath, value: cloneObject }
-        finalList.push(finalObject)
-        const subFolder = await _recursiveFolderObjectToList(
-          item,
-          basePath,
-          fullNewPath
-        )
-        finalList = finalList.concat(subFolder)
-        next()
-      },
-      (err, result) => {
-        if (err) {
-          reject(err)
-        } else {
-          resolve(finalList)
-        }
-      }
-    )
-  })
-}
-
-async function getFolderObjectListFromRemoteTree() {
-  const tree = await database.Get('tree')
-  const basePath = await database.Get('xPath')
-  return new Promise((resolve, reject) => {
-    _recursiveFolderObjectToList(tree, basePath)
-      .then(list => resolve(list))
-      .catch(reject)
-  })
-}
-
 function generatePath(pathDict, item) {
   if (!pathDict[item.parent]) return
   if (pathDict[item.parent].full) {
@@ -140,14 +52,14 @@ function generatePath(pathDict, item) {
   }
 }
 
-async function regenerateLocalDbFolder(tree) {
+async function regenerateDbFolderCloud(tree) {
   const finalDict = {}
   const dbEntrys = []
-  const ignoreHideFolder = new RegExp('^\\.[]*')
   const basePath = await database.Get('xPath')
-  const nameTestFolder = path.join(basePath, '.internxt_name_test')
-  await database.dbFolders.remove({}, { multi: true })
   for (const item of tree.folders) {
+    if (ConfigStore.get('stopSync')) {
+      throw Error('stop sync')
+    }
     if (!item.parent_id) {
       finalDict[item.id] = {
         path: basePath,
@@ -181,29 +93,17 @@ async function regenerateLocalDbFolder(tree) {
     const fullNewPath = finalDict[item.id].path
     const cloneObject = JSON.parse(JSON.stringify(item))
     const finalObject = { key: fullNewPath, value: cloneObject }
-    if (ignoreHideFolder.test(path.basename(fullNewPath))) {
-      Logger.info('Ignoring folder %s, hidden folder', finalObject.key)
-      delete finalDict[item.id]
-      continue
-    }
-    if (
-      NameTest.invalidFolderName(path.basename(fullNewPath), nameTestFolder)
-    ) {
-      Logger.info('Ignoring folder %s, invalid name', finalObject.key)
-      delete finalDict[item.id]
-      continue
-    }
     dbEntrys.push(finalObject)
     // return
   }
-  await database.dbFolders.insert(dbEntrys)
+  await database.ClearFoldersCloud()
+  await database.dbInsert(database.dbFoldersCloud, dbEntrys)
   return finalDict
 }
 
-async function regenerateLocalDbFile(tree, folderDict) {
+async function regenerateDbFileCloud(tree, folderDict) {
   const dbEntrys = []
 
-  await database.dbFiles.remove({}, { multi: true })
   for (const item of tree.files) {
     if (ConfigStore.get('stopSync')) {
       throw Error('stop sync')
@@ -224,61 +124,13 @@ async function regenerateLocalDbFile(tree, folderDict) {
     dbEntrys.push(finalObject)
     // return
   }
-
-  await database.dbFiles.insert(dbEntrys)
+  await database.ClearFilesCloud()
+  await database.dbInsert(database.dbFilesCloud, dbEntrys)
 }
 
-function _recursiveFilesToList(tree, basePath, currentPath = null) {
-  let finalList = tree.files
-
-  finalList.forEach(item => {
-    const encryptedFileName = item.name
-    const salt = item.folder_id
-    item.filename = crypt.decryptName(encryptedFileName, salt)
-    item.fullpath = path.join(
-      currentPath || basePath,
-      item.filename + (item.type ? '.' + item.type : '')
-    )
-  })
-
-  return new Promise((resolve, reject) => {
-    async.eachSeries(
-      tree.children,
-      async (item, next) => {
-        const decryptedName = crypt.decryptName(item.name, item.parentId)
-        const fullNewPath = path.join(currentPath || basePath, decryptedName)
-        const subFolder = await _recursiveFilesToList(
-          item,
-          basePath,
-          fullNewPath
-        )
-        finalList = finalList.concat(subFolder)
-        next()
-      },
-      (err, result) => {
-        if (err) {
-          reject(err)
-        } else {
-          resolve(finalList)
-        }
-      }
-    )
-  })
-}
-
-async function getFileListFromRemoteTree() {
-  const tree = await database.Get('tree')
-  const basePath = await database.Get('xPath')
-  return new Promise((resolve, reject) => {
-    _recursiveFilesToList(tree, basePath)
-      .then(list => resolve(list))
-      .catch(reject)
-  })
-}
 function getLocalFolderList(localPath) {
   return new Promise(resolve => {
     const results = []
-    const ignoreHideFolder = new RegExp('^\\.[]*')
     const invalidName = /[\\/]|[. ]$/
     readdirp(localPath, {
       type: 'directories',
@@ -290,9 +142,6 @@ function getLocalFolderList(localPath) {
             'Directory %s ignored, name is not compatible',
             data.basename
           )
-        }
-        if (ignoreHideFolder.test(data.basename)) {
-          return
         }
         results.push(data.fullPath)
       })
@@ -306,26 +155,6 @@ function getLocalFolderList(localPath) {
 
 function getLocalFileList(localPath) {
   return getListFromFolder(localPath)
-}
-
-function getTree() {
-  return new Promise(async (resolve, reject) => {
-    fetch(`${process.env.API_URL}/api/storage/tree`, {
-      headers: await Auth.getAuthHeader()
-    })
-      .then(async res => {
-        const text = await res.text()
-        try {
-          return { res, data: JSON.parse(text) }
-        } catch (err) {
-          throw new Error(err + ' data: ' + text)
-        }
-      })
-      .then(async res => {
-        resolve(res.data)
-      })
-      .catch(reject)
-  })
 }
 
 async function updateUserObject() {
@@ -366,6 +195,9 @@ async function getList() {
   const offset = 5000
   const result = { folders: [], files: [] }
   while (!finished) {
+    if (ConfigStore.get('stopSync')) {
+      throw Error('stop sync')
+    }
     const fetchRes = await fetch(
       `${process.env.API_URL}/api/desktop/list/${index}`,
       {
@@ -376,6 +208,9 @@ async function getList() {
     let data
     try {
       data = JSON.parse(text)
+      if (fetchRes.status !== 200) {
+        throw new Error(fetchRes.status)
+      }
     } catch (err) {
       throw new Error(err + ' data: ' + text)
     }
@@ -390,14 +225,22 @@ async function getList() {
   return result
 }
 
-function updateLocalDb() {
+function updateDbCloud() {
   return new Promise((resolve, reject) => {
+    // console.time('getList')
     getList()
       .then(tree => {
-        regenerateLocalDbFolder(tree)
+        // console.timeEnd('getList')
+        // console.time('regenerateDbFolderCloud')
+        regenerateDbFolderCloud(tree)
           .then(result => {
-            regenerateLocalDbFile(tree, result)
-              .then(resolve)
+            // console.timeEnd('regenerateDbFolderCloud')
+            // console.time('regenerateDbFileCloud')
+            regenerateDbFileCloud(tree, result)
+              .then(() => {
+                // console.timeEnd('regenerateDbFileCloud')
+                resolve()
+              })
               .catch(reject)
           })
           .catch(reject)
@@ -409,32 +252,12 @@ function updateLocalDb() {
   })
 }
 
-function updateTree() {
-  return new Promise((resolve, reject) => {
-    getTree()
-      .then(tree => {
-        database
-          .Set('tree', tree)
-          .then(() => {
-            resolve()
-          })
-          .catch(err => {
-            reject(err)
-          })
-      })
-      .catch(err => {
-        Logger.error('Error updating tree', err)
-        reject(err)
-      })
-  })
-}
-
-function regenerateAndCompact() {
+function updateDbAndCompact() {
   return new Promise((resolve, reject) => {
     async.waterfall(
       [
         next =>
-          updateLocalDb()
+          updateDbCloud()
             .then(() => next())
             .catch(next)
       ],
@@ -452,16 +275,10 @@ function regenerateAndCompact() {
 
 export default {
   getListFromFolder,
-  getStat,
-  getFolderListFromRemoteTree,
-  getFileListFromRemoteTree,
-  getFolderObjectListFromRemoteTree,
   getLocalFolderList,
   getLocalFileList,
-  getTree,
   getList,
-  updateTree,
-  updateLocalDb,
-  regenerateAndCompact,
+  updateLocalDb: updateDbCloud,
+  updateDbAndCompact,
   updateUserObject
 }

@@ -1,6 +1,9 @@
 <template>
   <div id="wrapper">
     <main>
+      <div id="selectSyncPanel">
+        <input type="checkbox" id="carpeta1" checked="false" />
+      </div>
       <div class="spinner-border text-primary" role="status">
         <span class="sr-only"></span>
       </div>
@@ -22,6 +25,9 @@
       </div>
       <div>
         <a href="#" @click="mysettooltip()">Tool tip</a>
+      </div>
+      <div>
+        <a href="#" @click="stopSync()">Stop Sync</a>
       </div>
       <div>
         Path:
@@ -102,6 +108,9 @@ export default {
       database
         .ClearAll()
         .then(() => {
+          return database.ClearUser()
+        })
+        .then(() => {
           Logger.info('databases cleared due to log out')
           const localUser = ConfigStore.get('user.uuid')
           database
@@ -157,6 +166,9 @@ export default {
     },
     forceSync() {
       remote.app.emit('sync-start')
+    },
+    stopSync() {
+      remote.app.emit('sync-stop')
     },
     unlockDevice() {
       DeviceLock.unlock()

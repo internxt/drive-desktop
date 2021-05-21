@@ -7,11 +7,15 @@ let watcherStarted = false
 let watcher = null
 remote.app.on('new-folder-path', () => {
   watcherStarted = false
-  watcher.close()
+  if (watcher) {
+    watcher.close()
+  }
 })
 remote.app.on('user-logout', () => {
   watcherStarted = false
-  watcher.close()
+  if (watcher) {
+    watcher.close()
+  }
 })
 function startWatcher(path) {
   return new Promise((resolve, reject) => {
@@ -39,36 +43,41 @@ function startWatcher(path) {
       .on('add', function (path) {
         if (watcherStarted) {
           // Logger.log('File', path, 'has been added')
-          database.TempSet(path, 'add')
+          // database.TempSet(path, 'add')
         }
       })
       .on('addDir', function (path) {
         if (watcherStarted) {
           // Logger.log('Directory', path, 'has been added')
-          database.TempSet(path, 'addDir')
+          // database.TempSet(path, 'addDir')
         }
       })
       .on('change', function (path) {
         if (watcherStarted) {
           // Logger.log('File', path, 'has been changed')
-          database.TempSet(path, 'add')
+          // database.TempSet(path, 'add')
         }
       })
       .on('unlink', function (path) {
         if (watcherStarted) {
           // Logger.log('File', path, 'has been removed')
-          database.TempSet(path, 'unlink')
+          // database.TempSet(path, 'unlink')
         }
       })
       .on('unlinkDir', function (path) {
         if (watcherStarted) {
           // Logger.log('Directory', path, 'has been removed')
           if (path === rootFolder) {
-            database.ClearAll().then(() => {
-              remote.getCurrentWindow().close()
-            }).catch(() => {
-              remote.getCurrentWindow().close()
-            })
+            database
+              .ClearAll().then(() => {
+                database.ClearUser()
+              })
+              .then(() => {
+                remote.getCurrentWindow().close()
+              })
+              .catch(() => {
+                remote.getCurrentWindow().close()
+              })
           } else {
             database.TempSet(path, 'unlinkDir')
           }

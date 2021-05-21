@@ -4,9 +4,9 @@ import Store from 'electron-store'
  */
 
 const schema = {
-  syncMode: {
-    type: 'string',
-    default: 'two-way'
+  uploadOnly: {
+    type: 'boolean',
+    default: false
   },
   limit: {
     type: 'number',
@@ -27,6 +27,14 @@ const schema = {
   stopSync: {
     type: 'boolean',
     default: false
+  },
+  updatingDB: {
+    type: 'boolean',
+    default: false
+  },
+  forceUpload: {
+    type: 'number',
+    default: -1
   }
 }
 

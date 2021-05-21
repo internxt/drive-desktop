@@ -1,6 +1,5 @@
 import fs from 'fs'
 import electron from 'electron'
-
 const { app } = require('@electron/remote')
 
 function setModifiedTime(path, time) {
