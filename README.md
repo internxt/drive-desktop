@@ -7,11 +7,11 @@
 
 # Installation
 
-Use node 10.19
+Use node 14.16.0
 
 ``` bash
-nvm install 10.19
-nvm use 10.19
+nvm install 14.16.0
+nvm use 14.16.0
 ```
 
 Use yarn
