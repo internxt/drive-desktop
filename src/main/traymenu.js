@@ -97,7 +97,7 @@ class TrayMenu {
                 app.emit('show-error', 'Internxt do not support syncronization of your home directory. Try to sync any of its content instead.')
                 return
               }
-              const appDir = path.dirname(app.getPath('appData'))
+              const appDir = /linux/.test(process.platform) ? app.getPath('appData') : path.dirname(app.getPath('appData'))
               const relative = path.relative(appDir, newDir[0])
               if (
                 (relative &&
