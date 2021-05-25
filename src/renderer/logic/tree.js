@@ -128,6 +128,20 @@ async function regenerateDbFileCloud(tree, folderDict) {
   await database.dbInsert(database.dbFilesCloud, dbEntrys)
 }
 
+async function tryFixDuplicateFolder() {
+  const headers = await Auth.getAuthHeader()
+  return new Promise((resolve, reject) => {
+    fetch(`${process.env.API_URL}/api/storage/folder/fixduplicate`, {
+      method: 'POST',
+      headers: headers
+    })
+      .then(res => {
+        resolve()
+      })
+      .catch(reject)
+  })
+}
+
 function getLocalFolderList(localPath) {
   return new Promise(resolve => {
     const results = []
@@ -280,5 +294,6 @@ export default {
   getList,
   updateLocalDb: updateDbCloud,
   updateDbAndCompact,
-  updateUserObject
+  updateUserObject,
+  tryFixDuplicateFolder
 }
