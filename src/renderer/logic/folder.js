@@ -265,7 +265,7 @@ async function createFolders() {
       const parentId = needUpload[key].id
       while (needUpload[key].children.length > 0) {
         const folderOriginalKey = needUpload[key].children.shift()
-        const encryptName = crypt.encryptFilename(path.basename(folderOriginalKey), parentId)
+        const encryptName = crypt.encryptName(path.basename(folderOriginalKey), parentId)
         if (uploadingFolders[parentId] === undefined) {
           uploadingFolders[parentId] = [encryptName]
         } else {
