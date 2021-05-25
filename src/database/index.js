@@ -20,7 +20,7 @@ const DB_FOLDER = `${process.env.NODE_ENV === 'production'
 }`
 
 // Migration from .xclouddesktop and .internxt-desktop to userData
-/*
+
 const oldFolderExists = fs.existsSync(OLD_DB_FOLDER)
 const oldFolder2Exists = fs.existsSync(OLD_DB_FOLDER2)
 const newFolderExists = fs.existsSync(DB_FOLDER)
@@ -48,7 +48,7 @@ if (process.env.NODE_ENV === 'production') {
     }
   }
 }
-*/
+
 const initDatabase = () => {
   if (!fs.existsSync(DB_FOLDER)) {
     fs.mkdirSync(DB_FOLDER)

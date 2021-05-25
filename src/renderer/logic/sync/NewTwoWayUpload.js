@@ -68,6 +68,10 @@ async function SyncLogic(callback) {
   const syncComplete = async function (err) {
     if (err) {
       Logger.error('Error sync monitor:', err.message ? err.message : err)
+      if (/it violates the unique constraint/.test(err.message)) {
+        Tree.tryFixDuplicateFolder()
+        Logger.log('sending request for rename duplicate folder')
+      }
     } else {
       if (ConfigStore.get('forceUpload') === 1) {
         ConfigStore.set('forceUpload', 0)

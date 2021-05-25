@@ -20,7 +20,15 @@ const { app } = require('@electron/remote')
  * @param {{key:string,value:{id:Number},state:string}} folderInfo
  * @returns info from server
  */
-async function uploadFile(filePath, localFile, cloudFile, encryptedName, folderRoot, user, folderInfo) {
+async function uploadFile(
+  filePath,
+  localFile,
+  cloudFile,
+  encryptedName,
+  folderRoot,
+  user,
+  folderInfo
+) {
   const storj = await getEnvironment()
   // Parameters
   const bucketId = user.user.bucket
@@ -70,19 +78,16 @@ async function uploadFile(filePath, localFile, cloudFile, encryptedName, folderR
   // Upload new file
   return new Promise((resolve, reject) => {
     const state = storj.storeFile(bucketId, tempFile, {
-      progressCallback: function (progress, uploadedBytes, totalBytes) {
+      progressCallback: function(progress, uploadedBytes, totalBytes) {
         let progressPtg = progress * 100
         progressPtg = progressPtg.toFixed(2)
         app.emit(
           'set-tooltip',
-          'Uploading ' +
-          originalFileName +
-          ' (' +
-          progressPtg +
-          '%)'
+          'Uploading ' + originalFileName + ' (' + progressPtg + '%)'
         )
       },
-      finishedCallback: async function (err, newFileId) {
+      finishedCallback: async function(err, newFileId) {
+        let text
         try {
           if (fs.existsSync(tempFile)) {
             fs.unlinkSync(tempFile)
@@ -96,10 +101,7 @@ async function uploadFile(filePath, localFile, cloudFile, encryptedName, folderR
             Logger.log('Network name should be: %s', relativePath)
             const hashName = Hash.hasher(relativePath)
             if (fileExistsPattern.exec(err)) {
-              newFileId = await BridgeService.findFileByName(
-                bucketId,
-                hashName
-              )
+              newFileId = await BridgeService.findFileByName(bucketId, hashName)
               if (!newFileId) {
                 throw new Error(err)
               }
@@ -118,17 +120,21 @@ async function uploadFile(filePath, localFile, cloudFile, encryptedName, folderR
             fileMtime
           )
 
-          const text = await fetchRes.text()
+          text = await fetchRes.text()
           if (fetchRes.status !== 200) {
             throw new Error(text)
           }
           const res = JSON.parse(text)
           resolve(res)
         } catch (err) {
-          reject(err)
+          if (text !== undefined) {
+            reject(new Error(`${err} with text: ${text}`))
+          } else {
+            reject(err)
+          }
         }
       },
-      debug: (message) => {
+      debug: message => {
         // eslint-disable-next-line no-useless-escape
         if (!/[^\[]*[%$]/.test(message)) {
           Logger.warn('NODE-LIB UPLOAD 1: ' + message)
@@ -137,7 +143,7 @@ async function uploadFile(filePath, localFile, cloudFile, encryptedName, folderR
     })
 
     const stopUploadHandler = () => {
-      (function (storj, state) {
+      (function(storj, state) {
         storj.storeFileCancel(state)
       })(storj, state)
     }

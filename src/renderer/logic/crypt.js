@@ -160,5 +160,6 @@ export default {
   decryptName,
   fileHash,
   compareHash,
-  encryptFilename
+  encryptFilename,
+  encryptName
 }
