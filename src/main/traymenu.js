@@ -185,10 +185,10 @@ class TrayMenu {
         }
       },
       {
-        label: 'Bug report',
+        label: 'Contact Support',
         click: function () {
           shell.openExternal(
-            `mailto:joan@internxt.com?subject=Support Ticket&body=If you want to upload log files to our tech teams. Please, find them on the Open Logs option in the menu.`
+            `mailto:support@internxt.zohodesk.eu?subject=Support Ticket&body=If you want to upload log files to our tech teams. Please, find them on the Open Logs option in the menu.`
           )
         }
       },
