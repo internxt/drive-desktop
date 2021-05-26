@@ -1,8 +1,5 @@
-const EventEmitter = require('events')
-
-class FileLogger extends EventEmitter {
+class FileLogger {
   constructor(maxSize = 50) {
-    super()
     this.maxSize = maxSize
     this.queue = new Array(maxSize)
     this.head = -1
@@ -11,7 +8,6 @@ class FileLogger extends EventEmitter {
   add(item) {
     this.head = (this.head + 1) % this.maxSize
     this.queue[this.head] = item
-    this.emit('item-added', item)
   }
 
   getAll() {
