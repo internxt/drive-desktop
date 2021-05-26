@@ -6,6 +6,7 @@ import BridgeService from './BridgeService'
 import File from './file'
 import Hash from './utils/Hash'
 import getEnvironment from './utils/libinxt'
+import Notification from '../logic/utils'
 
 const { app } = require('@electron/remote')
 
@@ -81,6 +82,7 @@ async function uploadFile(filePath, localFile, cloudFile, encryptedName, folderR
           progressPtg +
           '%)'
         )
+        Notification.push(filePath, originalFileName, 'upload', 'inProgress', progressPtg)
       },
       finishedCallback: async function (err, newFileId) {
         try {
@@ -101,10 +103,12 @@ async function uploadFile(filePath, localFile, cloudFile, encryptedName, folderR
                 hashName
               )
               if (!newFileId) {
+                Notification.push(filePath, originalFileName, 'upload', 'error')
                 throw new Error(err)
               }
             } else {
               Logger.error('Sync Error uploading and replace file: %s', err)
+              Notification.push(filePath, originalFileName, 'upload', 'error')
               throw new Error(err)
             }
           }
@@ -120,9 +124,11 @@ async function uploadFile(filePath, localFile, cloudFile, encryptedName, folderR
 
           const text = await fetchRes.text()
           if (fetchRes.status !== 200) {
+            Notification.push(filePath, originalFileName, 'upload', 'error')
             throw new Error(text)
           }
           const res = JSON.parse(text)
+          Notification.push(filePath, originalFileName, 'upload', 'success')
           resolve(res)
         } catch (err) {
           reject(err)
@@ -137,6 +143,7 @@ async function uploadFile(filePath, localFile, cloudFile, encryptedName, folderR
     })
 
     const stopUploadHandler = (storj, state) => {
+      Notification.push(filePath, originalFileName, 'upload', 'stopped')
       storj.storeFileCancel(state)
     }
 
