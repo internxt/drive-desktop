@@ -6,6 +6,7 @@ class Notification extends EventEmitter {
     const data = {
       path: path,
       name: name,
+      action: action,
       state: state,
       percentage: percent
     }
