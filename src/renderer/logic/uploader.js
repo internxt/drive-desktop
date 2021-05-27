@@ -6,7 +6,7 @@ import BridgeService from './BridgeService'
 import File from './file'
 import Hash from './utils/Hash'
 import getEnvironment from './utils/libinxt'
-import Notification from '../logic/utils'
+import Notification from '../logic/utils/notifications'
 
 const { app } = require('@electron/remote')
 

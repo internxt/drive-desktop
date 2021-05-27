@@ -20,4 +20,4 @@ class Notification extends EventEmitter {
   }
 }
 
-module.exports = new Notification()
+export default new Notification()

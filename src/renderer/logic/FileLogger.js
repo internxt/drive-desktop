@@ -19,4 +19,4 @@ class FileLogger {
   }
 }
 
-module.exports = new FileLogger()
+export default new FileLogger()
