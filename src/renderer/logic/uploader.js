@@ -145,7 +145,7 @@ async function uploadFile(filePath, localFile, cloudFile, encryptedName, folderR
     })
 
     const stopUploadHandler = (storj, state) => {
-      Notification.push(filePath, originalFileName, 'upload', 'stopped')
+      Notification.push(filePath, originalFileName, 'upload', 'canceled')
       storj.storeFileCancel(state)
     }
 
