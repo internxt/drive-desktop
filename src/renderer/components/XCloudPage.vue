@@ -54,12 +54,12 @@ import DeviceLock from '../logic/devicelock'
 import SpaceUsage from '../logic/utils/spaceusage'
 import analytics from '../logic/utils/analytics'
 import ConfigStore from '../../../src/main/config-store'
-// For Testing Puropses
 import Notification from '../logic/utils/notifications'
 const remote = require('@electron/remote')
 var t = ''
 
-// Test Notification.on('ui-update', (e) => console.log(e))
+// Uncomment for notification testing
+// Notification.on('ui-update', (e) => console.log(e))
 
 export default {
   name: 'xcloud-page',

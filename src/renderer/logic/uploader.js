@@ -47,10 +47,12 @@ async function uploadFile(filePath, localFile, cloudFile, encryptedName, folderR
     await File.removeFile(bucketId, fileId, filePath, true)
   }
   if (fileSize === 0) {
+    Notification.push(filePath, originalFileName, 'upload', 'error', undefined, 'Empty files upload not supported.')
     Logger.warn('Warning:File %s, Filesize 0.', filePath)
     return
   }
   if (fileSize >= 1024 * 1024 * 1024 * 10) {
+    Notification.push(filePath, originalFileName, 'upload', 'error', undefined, 'Upload of files larger than 10GB not supported.')
     Logger.warn('Warning:File %s, Filesize larger than 10GB.', filePath)
     return
   }
