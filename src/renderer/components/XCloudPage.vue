@@ -103,47 +103,29 @@ export default {
     this.getCurrentEnv()
     remote.app.on('set-tooltip', this.setTooltip)
 
-    remote.app.on('user-logout', () => {
+    remote.app.on('user-logout', async (saveData = false) => {
       remote.app.emit('sync-stop')
-      database
-        .ClearAll()
-        .then(() => {
-          return database.ClearUser()
-        })
-        .then(() => {
-          Logger.info('databases cleared due to log out')
-          const localUser = ConfigStore.get('user.uuid')
-          database
-            .ClearUser()
-            .then(() => {
-              if (localUser) {
-                analytics
-                  .track({
-                    event: 'user-signout',
-                    userId: undefined,
-                    platform: 'desktop',
-                    properties: {
-                      email: 'email'
-                    }
-                  })
-                  .then(() => {
-                    analytics.resetUser()
-                  })
-                  .catch(err => {
-                    Logger.error(err)
-                  })
-              }
-              database.compactAllDatabases()
-              remote.app.emit('update-menu')
-              this.$router.push('/').catch(() => {})
-            })
-            .catch(err => {
-              Logger.error('ERROR CLEARING USER', err)
-            })
-        })
-        .catch(() => {
-          Logger.error('ERROR CLEARING ALL')
-        })
+      await database.logOut(saveData)
+      const localUser = ConfigStore.get('user.uuid')
+      if (localUser) {
+        analytics
+          .track({
+            event: 'user-signout',
+            userId: undefined,
+            platform: 'desktop',
+            properties: {
+              email: 'email'
+            }
+          })
+          .then(() => {
+            analytics.resetUser()
+          })
+          .catch(err => {
+            Logger.error(err)
+          })
+      }
+      remote.app.emit('update-menu')
+      this.$router.push('/').catch(() => {})
     })
 
     remote.app.on('new-folder-path', async newPath => {
