@@ -6,8 +6,25 @@ class FileLogger {
   }
 
   add(item) {
-    this.head = (this.head + 1) % this.maxSize
-    this.queue[this.head] = item
+    /*
+    const item = {
+      path: path,
+      name: name,
+      action: action,
+      state: state,
+      percentage: percent,
+      description: description
+    }
+    */
+    const head = this.queue[this.head]
+    if (head && head.path === item.path) {
+      // update the element
+      this.queue[this.head] = item
+    } else {
+      this.head = (this.head + 1) % this.maxSize
+      this.queue[this.head] = item
+    }
+    return item
   }
 
   getAll() {
