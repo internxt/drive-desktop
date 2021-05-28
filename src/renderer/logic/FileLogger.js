@@ -6,25 +6,15 @@ class FileLogger {
   }
 
   add(item) {
-    /*
-    const item = {
-      path: path,
-      name: name,
-      action: action,
-      state: state,
-      percentage: percent,
-      description: description
-    }
-    */
     const head = this.queue[this.head]
-    if (head && head.path === item.path) {
-      // update the element
-      this.queue[this.head] = item
+    if (head && head.filePath === item.filePath && !item.state) {
+      // update the element (it is uploading or downloading)
+      Object.assign(this.queue[this.head], item)
     } else {
       this.head = (this.head + 1) % this.maxSize
       this.queue[this.head] = item
     }
-    return item
+    return this.queue[this.head]
   }
 
   getAll() {
