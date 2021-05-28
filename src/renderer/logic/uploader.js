@@ -62,7 +62,7 @@ async function uploadFile(
     return
   }
   // Copy file to temp folder
-  const tempPath = path.join(app.getPath('home'), '.internxt-desktop', 'tmp')
+  const tempPath = path.join(app.getPath('userData'), '.internxt-desktop', 'tmp')
   if (!fs.existsSync(tempPath)) {
     mkdirp.sync(tempPath)
   }

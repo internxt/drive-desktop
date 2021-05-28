@@ -89,9 +89,6 @@ async function SyncLogic(callback) {
     ConfigStore.set('isSyncing', false)
     const rootFolderExist = await Folder.rootFolderExists()
     if (!rootFolderExist) {
-      await Database.ClearAll()
-      await Database.ClearUser()
-      Database.compactAllDatabases()
       app.emit('user-logout')
       return
     }
