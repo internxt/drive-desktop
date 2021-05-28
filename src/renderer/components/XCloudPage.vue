@@ -4,9 +4,7 @@
       <div id="selectSyncPanel">
         <input type="checkbox" id="carpeta1" checked="false" />
       </div>
-      <div class="spinner-border text-primary" role="status">
-        <span class="sr-only"></span>
-      </div>
+
       <div>{{ toolTip ? toolTip : 'Paused' }}</div>
       <div>
         <a href="#" @click="quitApp()">Quit</a>
