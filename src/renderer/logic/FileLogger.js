@@ -5,9 +5,13 @@ class FileLogger {
     this.head = -1
   }
 
-  add(item) {
+  toUpdate(item) {
     const head = this.queue[this.head]
-    if (head && head.filePath === item.filePath && !item.state) {
+    return head && head.filePath === item.filePath && !item.state && !item.action
+  }
+
+  add(item) {
+    if (this.toUpdate(item)) {
       // update the element (it is uploading or downloading)
       Object.assign(this.queue[this.head], item)
     } else {
