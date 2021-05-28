@@ -1,7 +1,7 @@
 <template>
-  <div id="wrapper">
-    <main>
-      <div id="selectSyncPanel">
+  <div class="bg-white">
+   <div class="text-cool-gray-90">Hola</div>
+      <!-- <div id="selectSyncPanel">
         <input type="checkbox" id="carpeta1" checked="false" />
       </div>
 
@@ -30,8 +30,8 @@
       <div>
         Path:
         <a href="#" @click="openFolder()">{{ this.$data.localPath }}</a>
-      </div>
-    </main>
+      </div> -->
+    
   </div>
 </template>
 
@@ -52,6 +52,7 @@ import DeviceLock from '../logic/devicelock'
 import SpaceUsage from '../logic/utils/spaceusage'
 import analytics from '../logic/utils/analytics'
 import ConfigStore from '../../../src/main/config-store'
+
 const remote = require('@electron/remote')
 var t = ''
 
