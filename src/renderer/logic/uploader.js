@@ -47,14 +47,16 @@ async function uploadFile(filePath, localFile, cloudFile, encryptedName, folderR
     await File.removeFile(bucketId, fileId, filePath, true)
   }
   if (fileSize === 0) {
-    Notification.push(filePath, originalFileName, 'upload', 'error', undefined, 'Empty files upload not supported.')
+    // Lanzar errores sustituyendo return y quitar notificacion
+    // Notification.push({ filePath, originalFileName, state: 'error', de'Empty files upload not supported.' })
     Logger.warn('Warning:File %s, Filesize 0.', filePath)
-    return
+    throw new Error(`Warning:File %s, Filesize 0. ${filePath}`)
   }
   if (fileSize >= 1024 * 1024 * 1024 * 10) {
-    Notification.push(filePath, originalFileName, 'upload', 'error', undefined, 'Upload of files larger than 10GB not supported.')
+    // Lanzar errores sustituyendo return y quitar notificacion
+    // Notification.push(filePath, originalFileName, 'upload', 'error', undefined, 'Upload of files larger than 10GB not supported.')
     Logger.warn('Warning:File %s, Filesize larger than 10GB.', filePath)
-    return
+    throw new Error(`Warning:File %s, Filesize larger than 10GB. ${filePath}`)
   }
   // Copy file to temp folder
   const tempPath = path.join(app.getPath('home'), '.internxt-desktop', 'tmp')
@@ -105,12 +107,12 @@ async function uploadFile(filePath, localFile, cloudFile, encryptedName, folderR
                 hashName
               )
               if (!newFileId) {
-                Notification.push(filePath, originalFileName, 'upload', 'error')
+                Notification.push({filePath, originalFileName, state: 'error'})
                 throw new Error(err)
               }
             } else {
               Logger.error('Sync Error uploading and replace file: %s', err)
-              Notification.push(filePath, originalFileName, 'upload', 'error')
+              Notification.push({filePath, originalFileName, state: 'error'})
               throw new Error(err)
             }
           }
@@ -126,11 +128,11 @@ async function uploadFile(filePath, localFile, cloudFile, encryptedName, folderR
 
           const text = await fetchRes.text()
           if (fetchRes.status !== 200) {
-            Notification.push(filePath, originalFileName, 'upload', 'error')
+            Notification.push({filePath, originalFileName, state: 'error'})
             throw new Error(text)
           }
           const res = JSON.parse(text)
-          Notification.push(filePath, originalFileName, 'upload', 'success')
+          // Notification.push({filePath, originalFileName, 'success'})
           resolve(res)
         } catch (err) {
           reject(err)

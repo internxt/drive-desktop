@@ -16,6 +16,7 @@ import downloader from './downloader'
 import nameTest from './utils/nameTest'
 import crypto from './crypt'
 import SyncMode from './sync/NewTwoWayUpload'
+import Notification from './utils/notifications'
 
 const remote = require('@electron/remote')
 // eslint-disable-next-line no-empty-character-class
@@ -38,12 +39,18 @@ sincronizeAction[state.state.DELETE_LOCAL] = deleteLocalState
 // BucketId and FileId must be the NETWORK ids (mongodb)
 async function removeFile(bucketId, fileId, filename, force = false) {
   if (force) {
+    // Notificate.reemplazar (updating)
     Logger.log(`Removing cloud file: ${filename}. file id: ${fileId} for replace`)
   } else {
     if (SyncMode.isUploadOnly()) {
       return true
     }
     Logger.log(`Removing cloud file: ${filename}. file id: ${fileId}`)
+    // Notificate.borrar fichero nube
+    Notification.push({
+      filename,
+      action: 'remove'
+    })
   }
 
   return fetch(
@@ -58,8 +65,19 @@ async function removeFile(bucketId, fileId, filename, force = false) {
     return JSON.parse(text)
   }).then(result => {
     if (result.error) {
+      // Notificate.error delete cloud
+      Notification.push({
+        action: 'remove',
+        state: 'error',
+        description: result.error.message
+      })
       throw new Error(result.error)
     } else {
+      // Notification delete cloud
+      Notification.push({
+        action: 'remove',
+        state: 'success'
+      })
       return result
     }
   })
@@ -70,12 +88,17 @@ function removeLocalFile(path) {
     throw new Error('UploadOnly')
   }
   Logger.log(`Removing local file: ${path}.`)
+  // Notificate.delete local (start)
+
   try {
     fs.unlinkSync(path)
+    // Notificate.delete local (succ)
   } catch (e) {
     if (/no such file or directory/.test(e.message)) {
+      // Notificate.delete local (succ)
       return
     }
+    // Notificate.delete local (err)
     throw e
   }
 }
@@ -423,16 +446,35 @@ async function sincronizeFile() {
 async function uploadFile(file, localFile, cloudFile, encryptedName, rootPath, user, parentFolder) {
   try {
     remote.app.emit('set-tooltip', `Uploading file ${file.key}`)
+    // Notification.upload
+    Notification.push({
+      filePath: file.key,
+      filename: path.basename(file.key),
+      action: 'upload'
+    })
     const newFileInfo = await Uploader.uploadFile(file.key, localFile, cloudFile, encryptedName, rootPath, user, parentFolder)
     if (newFileInfo && newFileInfo.fileId) {
       file.value = newFileInfo
       file.state = state.state.SYNCED
       file.needSync = false
     }
+    // Notification.upload success
+    Notification.push({
+      filePath: file.key,
+      action: 'upload',
+      state: 'success'
+    })
   } catch (err) {
     if (!/Folder not found/.test(err.message)) {
       Logger.error(`Error uploading file: ${file.key}. Error: ${err}`)
     }
+    // Notification.error
+    Notification.push({
+      filePath: file.key,
+      action: 'upload',
+      state: 'error',
+      description: err.message
+    })
   }
 }
 
@@ -447,14 +489,18 @@ async function ensureFile(file, rootPath, user, parentFolder) {
   try {
     remote.app.emit('set-tooltip', `Ensuring file ${file.key}`)
     Logger.log(`Ensure file ${file.key}.`)
+    // Notificate.ensure download
+    Notification.push()
     const tempPath = await downloader.downloadFileTemp(file.value, file.key)
     fs.unlinkSync(tempPath)
+    // Notficate.ensure.success
   } catch (errDownload) {
-    if (/No space left/.test(errDownload.message)) {
+    if (/No space left/.test(errDownload.message) || /process killed by user/.test(errDownload.message)) {
       return
     }
     try {
       Logger.error(`Can not download, reuploading: ${file.key}`)
+      // Notification.ensure upload
       const localFile = fs.lstatSync(file.key)
       const encryptedName = file.value.name
       file.state = state.state.UPLOAD
@@ -465,7 +511,9 @@ async function ensureFile(file, rootPath, user, parentFolder) {
         file.state = state.state.SYNCED
         file.needSync = false
       }
+      // Notification.ensure.success
     } catch (errUpload) {
+      // Notification.ensure.error upload
       Logger.error(`Error uploading file: ${file.key}. Error: ${errUpload}`)
     }
   }
@@ -483,6 +531,11 @@ async function downloadFile(file, cloudFile, localFile) {
       throw new Error('UploadOnly')
     }
     remote.app.emit('set-tooltip', `Downloading file to ${file.key}`)
+    // Notification.download (normal)
+    Notification.push({
+      filename: cloudFile.name,
+      action: 'download'
+    })
     analytics
       .track({
         userId: undefined,
@@ -513,6 +566,11 @@ async function downloadFile(file, cloudFile, localFile) {
     file.state = state.state.SYNCED
     file.value = cloudFile
     file.needSync = false
+    // Notificatios.download.success (normal)
+    Notification.push({
+      action: 'download',
+      state: 'success'
+    })
     analytics
       .track({
         userId: undefined,
@@ -534,6 +592,13 @@ async function downloadFile(file, cloudFile, localFile) {
     if (/UploadOnly/.test(e.message)) {
       return
     }
+    // Notification.download.error (normal)
+    Notification.push({
+      filename: cloudFile.name,
+      action: 'download', // not really needed
+      state: 'error',
+      description: e.message
+    })
     Logger.error(`Error downloading file: ${file.key}. Error: ${e}`)
   }
 }
