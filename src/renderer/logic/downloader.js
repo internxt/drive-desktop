@@ -5,6 +5,7 @@ import Logger from '../../libs/logger'
 import mkdirp from 'mkdirp'
 import Folder from './folder'
 import getEnvironment from './utils/libinxt'
+import Notification from './utils/notifications'
 
 const { app } = require('@electron/remote')
 
@@ -50,15 +51,18 @@ async function downloadFileTemp(cloudFile, filePath) {
             'set-tooltip',
             'Downloading ' + originalFileName + ' (' + progressPtg + '%).'
           )
+          Notification.push(filePath, originalFileName, 'download', 'inProgress', progressPtg)
         },
         finishedCallback: function (err) {
           app.emit('set-tooltip')
           app.removeListener('sync-stop', stopDownloadHandler)
           if (err) {
             Logger.error(`download failed, file id: ${cloudFile.fileId}`)
+            Notification.push(filePath, originalFileName, 'download', 'error')
             reject(err)
           } else {
             Logger.log('Download finished')
+            Notification.push(filePath, originalFileName, 'download', 'success')
             resolve(tempFilePath)
           }
         },
