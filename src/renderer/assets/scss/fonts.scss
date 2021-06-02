@@ -1,0 +1,15 @@
+@font-face {
+    font-family: 'Averta-light';
+    src: local(Averta-light),
+      url(../fonts/averta-light.otf) format("opentype");
+    font-weight: lighter;
+    font-style: lighter;
+    font-stretch: lighter;
+  }
+
+$font-family-sans-serif: 'Averta-light' !default;
+$font-family-monospace:  'Averta-light', Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !default;
+$font-family-base: $font-family-sans-serif !default;
+
+// Bootstrap and its default variables
+@import "node_modules/bootstrap/scss/bootstrap";

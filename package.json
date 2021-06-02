@@ -100,6 +100,7 @@
   },
   "dependencies": {
     "@electron/remote": "^1.0.4",
+    "@iconscout/vue-unicons": "^0.0.3",
     "analytics-node": "^3.4.0-beta.3",
     "async": "^3.1.0",
     "auto-launch": "^5.0.5",
@@ -134,6 +135,7 @@
     "vue": "^2.5.16",
     "vue-electron": "^1.0.6",
     "vue-router": "^3.0.1",
+    "vue-unicons": "^3.2.1",
     "vuex": "^3.0.1",
     "vuex-electron": "^1.0.0"
   },
@@ -198,6 +200,7 @@
     "vue-html-loader": "^1.2.4",
     "vue-loader": "^15.2.4",
     "vue-style-loader": "^4.1.0",
+    "vue-svg-loader": "^0.17.0-beta.2",
     "vue-template-compiler": "^2.5.16",
     "webpack": "^4.15.1",
     "webpack-cli": "^3.0.8",

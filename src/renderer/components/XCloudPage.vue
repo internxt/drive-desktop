@@ -1,6 +1,11 @@
 <template>
-  <div class="bg-white">
-   <div class="text-cool-gray-90">Hola</div>
+  <div class="bg-cool-gray-10">
+   <div class="text-cool-gray-90"></div>
+
+      <Header 
+      :appName="appName" 
+      :SubtitleApp="SubtitleApp" />
+
       <!-- <div id="selectSyncPanel">
         <input type="checkbox" id="carpeta1" checked="false" />
       </div>
@@ -52,22 +57,32 @@ import DeviceLock from '../logic/devicelock'
 import SpaceUsage from '../logic/utils/spaceusage'
 import analytics from '../logic/utils/analytics'
 import ConfigStore from '../../../src/main/config-store'
+import Header from '../components/Header/Header'
+
+window.resizeTo(400, 400)
 
 const remote = require('@electron/remote')
 var t = ''
 
 export default {
   name: 'xcloud-page',
+  components: {
+    Header
+  },
+
   data() {
     return {
       databaseUser: '',
       localPath: '',
       currentEnv: '',
       isSyncing: false,
-      toolTip: ''
+      toolTip: '',
+      appName: 'Drive',
+      SubtitleApp: 'hello@internxt.com',
+      IconClass: 'prueba'
     }
   },
-  components: {},
+
   beforeCreate() {
     remote.app.emit('window-hide')
     SpaceUsage.updateUsage()

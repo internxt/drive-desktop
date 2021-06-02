@@ -4,10 +4,11 @@ import App from './App'
 import router from './router'
 import store from './store'
 import dotenv from 'dotenv'
-// import '../index.css'
+import '../index.css'
 import '../../scss/internxt-design-system.scss'
+import './assets/scss/fonts.scss'
 
-import 'bootstrap/dist/css/bootstrap.min.css'
+// import 'bootstrap/dist/css/bootstrap.min.css'
 import 'jquery/dist/jquery.min.js'
 import 'bootstrap/dist/js/bootstrap.min.js'
 
