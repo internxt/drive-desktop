@@ -54,7 +54,6 @@ import DeviceLock from '../logic/devicelock'
 import SpaceUsage from '../logic/utils/spaceusage'
 import analytics from '../logic/utils/analytics'
 import ConfigStore from '../../../src/main/config-store'
-import Notification from '../logic/utils/notifications'
 const remote = require('@electron/remote')
 var t = ''
 
