@@ -26,6 +26,7 @@ AutoLaunch.configureAutostart()
  * Set `__static` path to static files in production
  * https://simulatedgreg.gitbooks.io/electron-vue/content/en/using-static-assets.html
  */
+
 if (process.env.NODE_ENV !== 'development') {
   global.__static = path.join(__dirname, '/static').replace(/\\/g, '\\\\')
 }
@@ -325,7 +326,13 @@ function AnnounceUpdate(version) {
       new BrowserWindow({
         show: false,
         parent: mainWindow,
-        alwaysOnTop: true
+        alwaysOnTop: true,
+        width: 400,
+        height: 500,
+        minWidth: 400,
+        minHeight: 500,
+        maxWidth: 400,
+        maxHeight: 500
       }),
       options
     )

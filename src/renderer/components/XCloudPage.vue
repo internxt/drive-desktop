@@ -1,12 +1,18 @@
 <template>
-  <div id="wrapper">
-    <main>
-      <div id="selectSyncPanel">
+  <div class="bg-cool-gray-10">
+   <div class="text-cool-gray-90"></div>
+
+      <Header 
+      :appName="appName" 
+      :SubtitleApp="SubtitleApp" />
+
+      <FileStatus />
+      <SyncButtonAction />
+
+      <!-- <div id="selectSyncPanel">
         <input type="checkbox" id="carpeta1" checked="false" />
       </div>
-      <div class="spinner-border text-primary" role="status">
-        <span class="sr-only"></span>
-      </div>
+
       <div>{{ toolTip ? toolTip : 'Paused' }}</div>
       <div>
         <a href="#" @click="quitApp()">Quitttt</a>
@@ -32,8 +38,8 @@
       <div>
         Path:
         <a href="#" @click="openFolder()">{{ this.$data.localPath }}</a>
-      </div>
-    </main>
+      </div> -->
+    
   </div>
 </template>
 
@@ -54,6 +60,16 @@ import DeviceLock from '../logic/devicelock'
 import SpaceUsage from '../logic/utils/spaceusage'
 import analytics from '../logic/utils/analytics'
 import ConfigStore from '../../../src/main/config-store'
+import Header from '../components/Header/Header'
+import FileStatus from '../components/FileStatus//FileStatus'
+import SyncButtonAction from '../components/SyncButtonAction/SyncButtonAction'
+import FileLogger from '../logic/FileLogger'
+
+window.FileLogger = FileLogger
+window.resizeTo(400, 400)
+
+FileLogger.on('new-entry', (item) => console.log(item))
+
 const remote = require('@electron/remote')
 var t = ''
 
@@ -62,16 +78,25 @@ var t = ''
 
 export default {
   name: 'xcloud-page',
+  components: {
+    Header,
+    FileStatus,
+    SyncButtonAction
+  },
+
   data() {
     return {
       databaseUser: '',
       localPath: '',
       currentEnv: '',
       isSyncing: false,
-      toolTip: ''
+      toolTip: '',
+      appName: 'Drive',
+      SubtitleApp: 'hello@internxt.com',
+      IconClass: 'prueba'
     }
   },
-  components: {},
+
   beforeCreate() {
     remote.app.emit('window-hide')
     SpaceUsage.updateUsage()

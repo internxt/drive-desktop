@@ -34,7 +34,7 @@ class FileLogger extends EventEmitter {
     }
   }
 
-  getAllRecords() {
+  getAll() {
     const queue = (this.queue.slice().reverse()).filter(e => { return (e != null) })
     const head = queue.slice(this.head, this.maxSize)
     const tail = queue.slice(0, this.head)
