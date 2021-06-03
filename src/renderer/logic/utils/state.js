@@ -5,7 +5,9 @@ var state = {
   SYNCED: 'synced',
   DELETE_CLOUD: 'deleteCloud',
   DELETE_LOCAL: 'deleteLocal',
-  IGNORE: 'ignore'
+  IGNORELOCALNOTEXISTS: 'ignorelocalnotexists',
+  IGNORECLOUDNOTEXISTS: 'ignorecloudnotexists',
+  DELETEIGNORE: 'deleteignore'
 }
 // define words
 var word = {
@@ -35,8 +37,13 @@ synced[word.uploadAndReplace] = state.UPLOAD
 synced[word.downloadAndReplace] = state.DOWNLOAD
 synced[word.localDeleted] = state.DELETE_CLOUD
 synced[word.cloudDeleted] = state.DELETE_LOCAL
-var ignore = []
-ignore[word.cloudDeleted] = state.DELETE_LOCAL
+var ignoreLocalNotExists = []
+ignoreLocalNotExists[word.cloudDeleted] = state.DELETEIGNORE
+var ignoreCloudNotExists = []
+ignoreCloudNotExists[word.localDeleted] = state.DELETEIGNORE
+var deleteIgnore = []
+deleteIgnore[word.downloadAndReplace] = state.IGNORELOCALNOTEXISTS
+deleteIgnore[word.uploadAndReplace] = state.IGNORECLOUDNOTEXISTS
 // define machine
 var machine = []
 machine[state.UPLOAD] = upload
@@ -44,9 +51,13 @@ machine[state.DOWNLOAD] = download
 machine[state.SYNCED] = synced
 machine[state.DELETE_LOCAL] = deleteLocal
 machine[state.DELETE_CLOUD] = deleteCloud
-machine[state.IGNORE] = ignore
+machine[state.IGNORELOCALNOTEXISTS] = ignoreLocalNotExists
+machine[state.IGNORECLOUDNOTEXISTS] = ignoreCloudNotExists
+machine[state.DELETEIGNORE] = deleteIgnore
+
+const ignoredState = [state.IGNORELOCALNOTEXISTS, state.IGNORECLOUDNOTEXISTS]
 
 function transition(state, word) {
   return machine[state][word] ? machine[state][word] : state
 }
-export default { state, word, transition }
+export default { state, word, transition, ignoredState }

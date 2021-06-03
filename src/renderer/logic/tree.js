@@ -145,18 +145,11 @@ async function tryFixDuplicateFolder() {
 function getLocalFolderList(localPath) {
   return new Promise(resolve => {
     const results = []
-    const invalidName = /[\\/]|[. ]$/
     readdirp(localPath, {
       type: 'directories',
       directoryFilter: ['!.*']
     })
       .on('data', data => {
-        if (invalidName.test(data.basename)) {
-          return Logger.info(
-            'Directory %s ignored, name is not compatible',
-            data.basename
-          )
-        }
         results.push(data.fullPath)
       })
       .on('warn', warn => console.error('READDIRP non-fatal error', warn))

@@ -44,7 +44,7 @@ function create(folder) {
 }
 function ignore(folder) {
   folder.nameChecked = true
-  folder.state = state.state.IGNORE
+  folder.state = state.state.IGNORELOCALNOTEXISTS
   folder.needSync = false
 }
 
@@ -62,12 +62,15 @@ function createLocalFolder(select, selectIndex, folder, basePath) {
       if (!parent.nameChecked) {
         createLocalFolder(select, selectIndex, parent, basePath)
       }
-      if (parent.state === state.state.IGNORE) {
+      if (state.ignoredState.includes(parent.state)) {
         ignore(folder)
         return
       }
     }
-    if (invalidName.test(path.basename(folder.key)) || nameTest.invalidFolderName(path.basename(folder.key), basePath)) {
+    if (
+      invalidName.test(path.basename(folder.key)) ||
+      nameTest.invalidFolderName(path.basename(folder.key), basePath)
+    ) {
       ignore(folder)
     } else {
       create(folder)
@@ -118,7 +121,9 @@ async function createRemoteFolder(folders) {
 
 async function removeFolders() {
   var select = await Database.dbFind(Database.dbFolders, {})
-  select.sort((a, b) => { return b.key.length - a.key.length })
+  select.sort((a, b) => {
+    return b.key.length - a.key.length
+  })
   for (const folder of select) {
     // console.log(JSON.parse(JSON.stringify(folder)))
     if (ConfigStore.get('stopSync')) {
@@ -141,7 +146,15 @@ async function removeFolders() {
       await Database.dbRemoveOne(Database.dbFolders, { key: folder.key })
       continue
     }
-    if (!folder.needSync || (folder.state !== state.state.DELETE_CLOUD && folder.state !== state.state.DELETE_LOCAL)) {
+    if (folder.state === state.state.DELETEIGNORE) {
+      await Database.dbRemoveOne(Database.dbFolders, { key: folder.key })
+      continue
+    }
+    if (
+      !folder.needSync ||
+      (folder.state !== state.state.DELETE_CLOUD &&
+        folder.state !== state.state.DELETE_LOCAL)
+    ) {
       continue
     }
     try {
@@ -155,15 +168,26 @@ async function removeFolders() {
         } else {
           folder.state = state.state.SYNCED
           folder.needSync = false
-          await Database.dbUpdate(Database.dbFolders, { key: folder.key }, { $set: folder })
+          await Database.dbUpdate(
+            Database.dbFolders,
+            { key: folder.key },
+            { $set: folder }
+          )
           continue
         }
       }
       if (folder.state === state.state.DELETE_LOCAL) {
-        if (fs.existsSync(folder.key) && fs.readdirSync(folder.key).length !== 0) {
+        if (
+          fs.existsSync(folder.key) &&
+          fs.readdirSync(folder.key).length !== 0
+        ) {
           folder.state = state.state.UPLOAD
           folder.needSync = true
-          await Database.dbUpdate(Database.dbFolders, { key: folder.key }, { $set: folder })
+          await Database.dbUpdate(
+            Database.dbFolders,
+            { key: folder.key },
+            { $set: folder }
+          )
           continue
         } else {
           removeLocalFolder(folder.key)
@@ -214,27 +238,47 @@ async function createFolders() {
     if (ConfigStore.get('stopSync')) {
       throw Error('stop sync')
     }
-    if (!folder.needSync || folder.state === state.state.IGNORE) {
+    if (!folder.needSync || state.ignoredState.includes(folder.state)) {
       continue
     }
     if (folder.state === state.state.DOWNLOAD && !SyncMode.isUploadOnly()) {
-      createLocalFolder(select, selectIndex, folder, basePath)
-      continue
+      try {
+        createLocalFolder(select, selectIndex, folder, basePath)
+        continue
+      } catch (e) {
+        Logger.error(`Error creating local folder ${folder.key} Error: ${e}`)
+        continue
+      }
     }
     if (folder.state === state.state.UPLOAD) {
       if (invalidName.test(path.basename(folder.key))) {
         folder.nameChecked = true
-        folder.state = state.state.IGNORE
+        folder.state = state.state.IGNORECLOUDNOTEXISTS
         folder.needSync = false
+        Logger.warn(
+          `Name invalid because contain /\\ or end with space ${folder.key}`
+        )
+        if (needUpload[folder.key]) {
+          totalFolder -= needUpload[folder.key].children.length
+          delete needUpload[folder.key]
+        }
         continue
       }
-      folder.nameChecked = true
       const parentDir = path.dirname(folder.key)
+      folder.nameChecked = true
+      const parent = select[selectIndex[parentDir]]
+      if (state.ignoredState.includes(parent.state)) {
+        folder.nameChecked = true
+        folder.state = state.state.IGNORECLOUDNOTEXISTS
+        folder.needSync = false
+        Logger.warn(
+          `Name invalid because name of parent folder is invalid ${folder.key}`
+        )
+      }
       totalFolder++
       if (needUpload[parentDir]) {
         needUpload[parentDir].children.push(folder.key)
       } else {
-        const parent = select[selectIndex[parentDir]]
         needUpload[parentDir] = {
           children: [folder.key],
           id: parent.value ? parent.value.id : undefined
@@ -244,7 +288,9 @@ async function createFolders() {
   }
   ConfigStore.set('updatingDB', true)
   await Database.ClearFoldersSelect()
-  var insertPromise = Database.dbInsert(Database.dbFolders, select).then(() => { ConfigStore.set('updatingDB', false) })
+  var insertPromise = Database.dbInsert(Database.dbFolders, select).then(() => {
+    ConfigStore.set('updatingDB', false)
+  })
   // console.log('needUpload: ', needUpload)
   var done = false
   const maxLength = 500
@@ -257,7 +303,10 @@ async function createFolders() {
     const encryptDict = []
     const foldersUploaded = []
     let length = 0
-    remote.app.emit('set-tooltip', `uploading folders ${folderUploaded}/${totalFolder}`)
+    remote.app.emit(
+      'set-tooltip',
+      `uploading folders ${folderUploaded}/${totalFolder}`
+    )
     for (const key of Object.keys(needUpload)) {
       if (needUpload[key].id === undefined || needUpload[key].children === []) {
         continue
@@ -265,7 +314,10 @@ async function createFolders() {
       const parentId = needUpload[key].id
       while (needUpload[key].children.length > 0) {
         const folderOriginalKey = needUpload[key].children.shift()
-        const encryptName = crypt.encryptName(path.basename(folderOriginalKey), parentId)
+        const encryptName = crypt.encryptName(
+          path.basename(folderOriginalKey),
+          parentId
+        )
         if (uploadingFolders[parentId] === undefined) {
           uploadingFolders[parentId] = [encryptName]
         } else {
@@ -305,10 +357,15 @@ async function createFolders() {
       ConfigStore.set('updatingDB', true)
       await Database.dbRemove(Database.dbFolders, {
         key: {
-          $in: foldersUploaded.map((e) => e.key)
+          $in: foldersUploaded.map(e => e.key)
         }
       })
-      insertPromise = Database.dbInsert(Database.dbFolders, foldersUploaded).then(() => { ConfigStore.set('updatingDB', false) })
+      insertPromise = Database.dbInsert(
+        Database.dbFolders,
+        foldersUploaded
+      ).then(() => {
+        ConfigStore.set('updatingDB', false)
+      })
     } else {
       done = true
       await insertPromise
@@ -440,10 +497,13 @@ async function removeFolder(folderId, path) {
   remote.app.emit('set-tooltip', `Removing cloud folder ${path}`)
   Logger.log(`Removing cloud folder ${path}`)
   const headers = await Auth.getAuthHeader()
-  const res = await fetch(`${process.env.API_URL}/api/storage/folder/${folderId}`, {
-    method: 'DELETE',
-    headers: headers
-  })
+  const res = await fetch(
+    `${process.env.API_URL}/api/storage/folder/${folderId}`,
+    {
+      method: 'DELETE',
+      headers: headers
+    }
+  )
   const text = await res.text()
   if (res.status !== 204) {
     const data = JSON.parse(text)

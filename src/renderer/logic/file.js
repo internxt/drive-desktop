@@ -35,12 +35,14 @@ sincronizeAction[state.state.UPLOAD] = uploadState
 sincronizeAction[state.state.DOWNLOAD] = downloadState
 sincronizeAction[state.state.DELETE_CLOUD] = deleteCloudState
 sincronizeAction[state.state.DELETE_LOCAL] = deleteLocalState
-
+sincronizeAction[state.state.DELETEIGNORE] = deleteIgnoreState
 // BucketId and FileId must be the NETWORK ids (mongodb)
 async function removeFile(bucketId, fileId, filename, force = false) {
   if (force) {
     // Notificate.replace (updating)
-    Logger.log(`Removing cloud file: ${filename}. file id: ${fileId} for replace`)
+    Logger.log(
+      `Removing cloud file: ${filename}. file id: ${fileId} for replace`
+    )
   } else {
     if (SyncMode.isUploadOnly()) {
       return true
@@ -54,32 +56,34 @@ async function removeFile(bucketId, fileId, filename, force = false) {
       method: 'DELETE',
       headers: await Auth.getAuthHeader()
     }
-  ).then((res) => {
-    return res.text()
-  }).then(text => {
-    return JSON.parse(text)
-  }).then(result => {
-    if (result.error) {
-      // Notificate.error delete cloud
-      FileLogger.push({
-        // filePath:
-        action: 'remove',
-        state: 'error',
-        description: result.error.message
-      })
-      throw new Error(result.error)
-    } else {
-      if (!force) {
-        // FileLogger delete cloud
+  )
+    .then(res => {
+      return res.text()
+    })
+    .then(text => {
+      return JSON.parse(text)
+    })
+    .then(result => {
+      if (result.error) {
+        // Notificate.error delete cloud
         FileLogger.push({
-
+          // filePath:
           action: 'remove',
-          state: 'success'
+          state: 'error',
+          description: result.error.message
         })
+        throw new Error(result.error)
+      } else {
+        if (!force) {
+          // FileLogger delete cloud
+          FileLogger.push({
+            action: 'remove',
+            state: 'success'
+          })
+        }
+        return result
       }
-      return result
-    }
-  })
+    })
 }
 
 function removeLocalFile(path) {
@@ -222,7 +226,7 @@ async function sincronizeCloudFile() {
       throw Error('stop sync')
     }
     var file = select[selectIndex[f]]
-    if (file.state === state.state.IGNORE) {
+    if (state.ignoredState.includes(file.state)) {
       continue
     }
     if (cloudIndex[f] === undefined) {
@@ -365,7 +369,7 @@ async function sincronizeLocalFile() {
 async function sincronizeFile() {
   var select = await Database.dbFind(Database.dbFiles, {})
   const rootPath = await Database.Get('xPath')
-  const user = (await Database.Get('xUser'))
+  const user = await Database.Get('xUser')
   for (const file of select) {
     // console.log('sincroniza: ', file)
     // console.log('state: ', file.state)
@@ -392,16 +396,27 @@ async function sincronizeFile() {
         state: state.state.SYNCED
       }
     } else {
-      parentFolder = await Database.dbFindOne(Database.dbFolders, { key: path.dirname(file.key) })
+      parentFolder = await Database.dbFindOne(Database.dbFolders, {
+        key: path.dirname(file.key)
+      })
     }
     if (!file.nameChecked) {
-      if (!parentFolder || parentFolder.state === state.state.IGNORE || invalidName.test(path.basename(file.key)) || nameTest.invalidFileName(path.basename(file.key), rootPath)) {
-        // console.log('invalid name')
-        file.state = state.state.IGNORE
+      if (!parentFolder || state.ignoredState.includes(parentFolder.state)) {
+        file.state = parentFolder.state
+        file.needSync = false
+      } else if (
+        invalidName.test(path.basename(file.key)) ||
+        nameTest.invalidFileName(path.basename(file.key), rootPath)
+      ) {
+        file.state = state.state.IGNORELOCALNOTEXISTS
         file.needSync = false
       }
       file.nameChecked = true
-      await Database.dbUpdate(Database.dbFiles, { key: file.key }, { $set: file })
+      await Database.dbUpdate(
+        Database.dbFiles,
+        { key: file.key },
+        { $set: file }
+      )
     }
     if (file.state === state.state.SYNCED) {
       let shouldEnsureFile = false
@@ -416,11 +431,15 @@ async function sincronizeFile() {
       }
       if (shouldEnsureFile) {
         await ensureFile(file, rootPath, user, parentFolder)
-        await Database.dbUpdate(Database.dbFiles, { key: file.key }, { $set: file })
+        await Database.dbUpdate(
+          Database.dbFiles,
+          { key: file.key },
+          { $set: file }
+        )
       }
       continue
     }
-    if (file.state === state.state.IGNORE) {
+    if (state.ignoredState.includes(file.state)) {
       // console.log('IGNORE')
       continue
     }
@@ -442,16 +461,26 @@ async function sincronizeFile() {
  * @param {{user:{bucket} }} user
  * @param {{key:string,value:{id:Number},state:string}} parentFolder
  */
-async function uploadFile(file, localFile, cloudFile, encryptedName, rootPath, user, parentFolder) {
+async function uploadFile(
+  file,
+  localFile,
+  cloudFile,
+  encryptedName,
+  rootPath,
+  user,
+  parentFolder
+) {
   try {
     remote.app.emit('set-tooltip', `Uploading file ${file.key}`)
-    // FileLogger.upload
-    FileLogger.push({
-      filePath: file.key,
-      filename: path.basename(file.key),
-      action: 'upload'
-    })
-    const newFileInfo = await Uploader.uploadFile(file.key, localFile, cloudFile, encryptedName, rootPath, user, parentFolder)
+    const newFileInfo = await Uploader.uploadFile(
+      file.key,
+      localFile,
+      cloudFile,
+      encryptedName,
+      rootPath,
+      user,
+      parentFolder
+    )
     if (newFileInfo && newFileInfo.fileId) {
       file.value = newFileInfo
       file.state = state.state.SYNCED
@@ -496,7 +525,10 @@ async function ensureFile(file, rootPath, user, parentFolder) {
     fs.unlinkSync(tempPath)
     // Notficate.ensure.success
   } catch (errDownload) {
-    if (/No space left/.test(errDownload.message) || /process killed by user/.test(errDownload.message)) {
+    if (
+      /No space left/.test(errDownload.message) ||
+      /process killed by user/.test(errDownload.message)
+    ) {
       return
     }
     try {
@@ -506,7 +538,15 @@ async function ensureFile(file, rootPath, user, parentFolder) {
       const encryptedName = file.value.name
       file.state = state.state.UPLOAD
       file.needSync = true
-      const newFileInfo = await Uploader.uploadFile(file.key, localFile, file.value, encryptedName, rootPath, user, parentFolder)
+      const newFileInfo = await Uploader.uploadFile(
+        file.key,
+        localFile,
+        file.value,
+        encryptedName,
+        rootPath,
+        user,
+        parentFolder
+      )
       if (newFileInfo && newFileInfo.fileId) {
         file.value = newFileInfo
         file.state = state.state.SYNCED
@@ -521,11 +561,11 @@ async function ensureFile(file, rootPath, user, parentFolder) {
 }
 
 /**
-*
-* @param {{key, value:{createdAt: 'modifiedTime'}}} file select file
-* @param {{createdAt, updatedAt,id,fileId}} cloudFile info from server
-* @param {fs.Stats} localFile result of fs.lstat
-*/
+ *
+ * @param {{key, value:{createdAt: 'modifiedTime'}}} file select file
+ * @param {{createdAt, updatedAt,id,fileId}} cloudFile info from server
+ * @param {fs.Stats} localFile result of fs.lstat
+ */
 async function downloadFile(file, cloudFile, localFile) {
   try {
     if (SyncMode.isUploadOnly()) {
@@ -622,9 +662,14 @@ async function uploadState(file, rootPath, user, parentFolder) {
     return
   }
   const localFile = fs.existsSync(file.key) ? fs.lstatSync(file.key) : undefined
-  const encryptedName = crypto.encryptFilename(path.basename(file.key), parentFolder.value.id)
+  const encryptedName = crypto.encryptFilename(
+    path.basename(file.key),
+    parentFolder.value.id
+  )
   // const cloudFile = await Tree.getCloudFile(encryptedName, parentFolder.value.id)
-  let cloudFile = await Database.dbFindOne(Database.dbFilesCloud, { key: file.key })
+  let cloudFile = await Database.dbFindOne(Database.dbFilesCloud, {
+    key: file.key
+  })
   cloudFile = cloudFile ? cloudFile.value : null
   if (cloudFile && localFile) {
     // console.log('cloud & local exist')
@@ -632,15 +677,31 @@ async function uploadState(file, rootPath, user, parentFolder) {
     const localTime = localFile.mtime.setMilliseconds(0)
     if (cloudTime < localTime) {
       // console.log('local recent')
-      await uploadFile(file, localFile, cloudFile, encryptedName, rootPath, user, parentFolder)
-      await Database.dbUpdate(Database.dbFiles, { key: file.key }, { $set: file })
+      await uploadFile(
+        file,
+        localFile,
+        cloudFile,
+        encryptedName,
+        rootPath,
+        user,
+        parentFolder
+      )
+      await Database.dbUpdate(
+        Database.dbFiles,
+        { key: file.key },
+        { $set: file }
+      )
       return
     }
     if (cloudTime > localTime) {
       // console.log('cloud recent')
       file.state = state.state.DOWNLOAD
       await downloadFile(file, cloudFile, localFile)
-      await Database.dbUpdate(Database.dbFiles, { key: file.key }, { $set: file })
+      await Database.dbUpdate(
+        Database.dbFiles,
+        { key: file.key },
+        { $set: file }
+      )
       return
     }
     if (cloudTime === localTime) {
@@ -648,12 +709,24 @@ async function uploadState(file, rootPath, user, parentFolder) {
       file.state = state.state.SYNCED
       file.needSync = false
       file.value = cloudFile
-      await Database.dbUpdate(Database.dbFiles, { key: file.key }, { $set: file })
+      await Database.dbUpdate(
+        Database.dbFiles,
+        { key: file.key },
+        { $set: file }
+      )
     }
   }
   if (!cloudFile && localFile) {
     // console.log('local exist')
-    await uploadFile(file, localFile, cloudFile, encryptedName, rootPath, user, parentFolder)
+    await uploadFile(
+      file,
+      localFile,
+      cloudFile,
+      encryptedName,
+      rootPath,
+      user,
+      parentFolder
+    )
     await Database.dbUpdate(Database.dbFiles, { key: file.key }, { $set: file })
     return
   }
@@ -666,14 +739,23 @@ async function uploadState(file, rootPath, user, parentFolder) {
       file.value = cloudFile
       file.state = state.state.DOWNLOAD
       await downloadFile(file, cloudFile, localFile)
-      await Database.dbUpdate(Database.dbFiles, { key: file.key }, { $set: file })
+      await Database.dbUpdate(
+        Database.dbFiles,
+        { key: file.key },
+        { $set: file }
+      )
       return
     } else {
       // console.log('select recent')
       file.state = state.state.DELETE_CLOUD
       try {
         await removeFile(cloudFile.bucket, cloudFile.fileId, file.key)
-        FileLogger.push({ filePath: file.key, filename: path.basename(file.key), action: 'remove', state: 'success' })
+        FileLogger.push({
+          filePath: file.key,
+          filename: path.basename(file.key),
+          action: 'remove',
+          state: 'success'
+        })
         await Database.dbRemoveOne(Database.dbFiles, { key: file.key })
         return
       } catch (e) {
@@ -681,7 +763,11 @@ async function uploadState(file, rootPath, user, parentFolder) {
           return
         }
         Logger.error(`Error removing remote file ${file.key}. Error: ${e}`)
-        await Database.dbUpdate(Database.dbFiles, { key: file.key }, { $set: file })
+        await Database.dbUpdate(
+          Database.dbFiles,
+          { key: file.key },
+          { $set: file }
+        )
         return
       }
     }
@@ -691,15 +777,22 @@ async function uploadState(file, rootPath, user, parentFolder) {
     Database.dbRemoveOne(Database.dbFiles, { key: file.key })
   }
 }
-
+async function deleteIgnoreState(file, rootPath, user, parentFolder) {
+  await Database.dbRemoveOne(Database.dbFiles, { key: file.key })
+}
 async function downloadState(file, rootPath, user, parentFolder) {
   if (!parentFolder || !parentFolder.value || !parentFolder.value.id) {
     return
   }
   const localFile = fs.existsSync(file.key) ? fs.lstatSync(file.key) : undefined
-  const encryptedName = crypto.encryptFilename(path.basename(file.key), parentFolder.value.id)
+  const encryptedName = crypto.encryptFilename(
+    path.basename(file.key),
+    parentFolder.value.id
+  )
   // const cloudFile = await Tree.getCloudFile(encryptedName, parentFolder.value.id)
-  let cloudFile = await Database.dbFindOne(Database.dbFilesCloud, { key: file.key })
+  let cloudFile = await Database.dbFindOne(Database.dbFilesCloud, {
+    key: file.key
+  })
   cloudFile = cloudFile ? cloudFile.value : null
   if (cloudFile && localFile) {
     const cloudTime = new Date(cloudFile.createdAt).setMilliseconds(0)
@@ -709,20 +802,40 @@ async function downloadState(file, rootPath, user, parentFolder) {
     if (cloudTime < localTime) {
       file.state = state.state.UPLOAD
       file.value.createdAt = localTime
-      await uploadFile(file, localFile, cloudFile, encryptedName, rootPath, user, parentFolder)
-      await Database.dbUpdate(Database.dbFiles, { key: file.key }, { $set: file })
+      await uploadFile(
+        file,
+        localFile,
+        cloudFile,
+        encryptedName,
+        rootPath,
+        user,
+        parentFolder
+      )
+      await Database.dbUpdate(
+        Database.dbFiles,
+        { key: file.key },
+        { $set: file }
+      )
       return
     }
     if (cloudTime > localTime) {
       await downloadFile(file, cloudFile, localFile)
-      await Database.dbUpdate(Database.dbFiles, { key: file.key }, { $set: file })
+      await Database.dbUpdate(
+        Database.dbFiles,
+        { key: file.key },
+        { $set: file }
+      )
       return
     }
     if (cloudTime === localTime) {
       file.state = state.state.SYNCED
       file.needSync = false
       file.value = cloudFile
-      await Database.dbUpdate(Database.dbFiles, { key: file.key }, { $set: file })
+      await Database.dbUpdate(
+        Database.dbFiles,
+        { key: file.key },
+        { $set: file }
+      )
     }
   }
   if (!cloudFile && localFile) {
@@ -731,8 +844,20 @@ async function downloadState(file, rootPath, user, parentFolder) {
     if (localTime > selectTime) {
       file.value = cloudFile
       file.state = state.state.UPLOAD
-      await uploadFile(file, localFile, cloudFile, encryptedName, rootPath, user, parentFolder)
-      await Database.dbUpdate(Database.dbFiles, { key: file.key }, { $set: file })
+      await uploadFile(
+        file,
+        localFile,
+        cloudFile,
+        encryptedName,
+        rootPath,
+        user,
+        parentFolder
+      )
+      await Database.dbUpdate(
+        Database.dbFiles,
+        { key: file.key },
+        { $set: file }
+      )
       return
     } else {
       file.state = state.state.DELETE_LOCAL
@@ -745,7 +870,11 @@ async function downloadState(file, rootPath, user, parentFolder) {
           return
         }
         Logger.error(`Error removing local file ${file.key}. Error: ${e}`)
-        await Database.dbUpdate(Database.dbFiles, { key: file.key }, { $set: file })
+        await Database.dbUpdate(
+          Database.dbFiles,
+          { key: file.key },
+          { $set: file }
+        )
         return
       }
     }
@@ -763,11 +892,16 @@ async function downloadState(file, rootPath, user, parentFolder) {
 async function deleteCloudState(file, rootPath, user, parentFolder) {
   let encryptedName
   if (parentFolder && parentFolder.value && !parentFolder.value.id) {
-    encryptedName = crypto.encryptFilename(path.basename(file.key), parentFolder.value.id)
+    encryptedName = crypto.encryptFilename(
+      path.basename(file.key),
+      parentFolder.value.id
+    )
   }
   const localFile = fs.existsSync(file.key) ? fs.lstatSync(file.key) : undefined
   // const cloudFile = await Tree.getCloudFile(encryptedName, parentFolder.value.id)
-  let cloudFile = await Database.dbFindOne(Database.dbFilesCloud, { key: file.key })
+  let cloudFile = await Database.dbFindOne(Database.dbFilesCloud, {
+    key: file.key
+  })
   cloudFile = cloudFile ? cloudFile.value : null
   if (cloudFile && localFile) {
     const cloudTime = new Date(cloudFile.createdAt).setMilliseconds(0)
@@ -775,28 +909,56 @@ async function deleteCloudState(file, rootPath, user, parentFolder) {
     if (cloudTime < localTime) {
       file.state = state.state.UPLOAD
       file.value.createdAt = localTime
-      await uploadFile(file, localFile, cloudFile, encryptedName, rootPath, user, parentFolder)
-      await Database.dbUpdate(Database.dbFiles, { key: file.key }, { $set: file })
+      await uploadFile(
+        file,
+        localFile,
+        cloudFile,
+        encryptedName,
+        rootPath,
+        user,
+        parentFolder
+      )
+      await Database.dbUpdate(
+        Database.dbFiles,
+        { key: file.key },
+        { $set: file }
+      )
       return
     }
     if (cloudTime > localTime) {
       file.state = state.state.DOWNLOAD
       file.value = cloudFile
       await downloadFile(file, cloudFile, localFile)
-      await Database.dbUpdate(Database.dbFiles, { key: file.key }, { $set: file })
+      await Database.dbUpdate(
+        Database.dbFiles,
+        { key: file.key },
+        { $set: file }
+      )
       return
     }
     if (cloudTime === localTime) {
       file.state = state.state.SYNCED
       file.needSync = false
       file.value = cloudFile
-      await Database.dbUpdate(Database.dbFiles, { key: file.key }, { $set: file })
+      await Database.dbUpdate(
+        Database.dbFiles,
+        { key: file.key },
+        { $set: file }
+      )
     }
   }
   if (!cloudFile && localFile) {
     file.value = cloudFile
     file.state = state.state.UPLOAD
-    await uploadFile(file, localFile, cloudFile, encryptedName, rootPath, user, parentFolder)
+    await uploadFile(
+      file,
+      localFile,
+      cloudFile,
+      encryptedName,
+      rootPath,
+      user,
+      parentFolder
+    )
     await Database.dbUpdate(Database.dbFiles, { key: file.key }, { $set: file })
     return
   }
@@ -807,12 +969,21 @@ async function deleteCloudState(file, rootPath, user, parentFolder) {
       file.value = cloudFile
       file.state = state.state.DOWNLOAD
       await downloadFile(file, cloudFile, localFile)
-      await Database.dbUpdate(Database.dbFiles, { key: file.key }, { $set: file })
+      await Database.dbUpdate(
+        Database.dbFiles,
+        { key: file.key },
+        { $set: file }
+      )
       return
     } else {
       try {
         await removeFile(cloudFile.bucket, cloudFile.fileId, file.key)
-        FileLogger.push({ filePath: file.key, filename: path.basename(file.key), action: 'remove', state: 'success' })
+        FileLogger.push({
+          filePath: file.key,
+          filename: path.basename(file.key),
+          action: 'remove',
+          state: 'success'
+        })
         await Database.dbRemoveOne(Database.dbFiles, { key: file.key })
         return
       } catch (e) {
@@ -832,11 +1003,16 @@ async function deleteCloudState(file, rootPath, user, parentFolder) {
 async function deleteLocalState(file, rootPath, user, parentFolder) {
   let encryptedName
   if (parentFolder && parentFolder.value && !parentFolder.value.id) {
-    encryptedName = crypto.encryptFilename(path.basename(file.key), parentFolder.value.id)
+    encryptedName = crypto.encryptFilename(
+      path.basename(file.key),
+      parentFolder.value.id
+    )
   }
   const localFile = fs.existsSync(file.key) ? fs.lstatSync(file.key) : undefined
   // const cloudFile = await Tree.getCloudFile(encryptedName, parentFolder.value.id)
-  let cloudFile = await Database.dbFindOne(Database.dbFilesCloud, { key: file.key })
+  let cloudFile = await Database.dbFindOne(Database.dbFilesCloud, {
+    key: file.key
+  })
   cloudFile = cloudFile ? cloudFile.value : null
   if (cloudFile && localFile) {
     const cloudTime = new Date(cloudFile.createdAt).setMilliseconds(0)
@@ -844,22 +1020,42 @@ async function deleteLocalState(file, rootPath, user, parentFolder) {
     if (cloudTime < localTime) {
       file.state = state.state.UPLOAD
       file.value.createdAt = localTime
-      await uploadFile(file, localFile, cloudFile, encryptedName, rootPath, user, parentFolder)
-      await Database.dbUpdate(Database.dbFiles, { key: file.key }, { $set: file })
+      await uploadFile(
+        file,
+        localFile,
+        cloudFile,
+        encryptedName,
+        rootPath,
+        user,
+        parentFolder
+      )
+      await Database.dbUpdate(
+        Database.dbFiles,
+        { key: file.key },
+        { $set: file }
+      )
       return
     }
     if (cloudTime > localTime) {
       file.state = state.state.DOWNLOAD
       file.value = cloudFile
       await downloadFile(file, cloudFile, localFile)
-      await Database.dbUpdate(Database.dbFiles, { key: file.key }, { $set: file })
+      await Database.dbUpdate(
+        Database.dbFiles,
+        { key: file.key },
+        { $set: file }
+      )
       return
     }
     if (cloudTime === localTime) {
       file.state = state.state.SYNCED
       file.needSync = false
       file.value = cloudFile
-      await Database.dbUpdate(Database.dbFiles, { key: file.key }, { $set: file })
+      await Database.dbUpdate(
+        Database.dbFiles,
+        { key: file.key },
+        { $set: file }
+      )
     }
   }
   if (!cloudFile && localFile) {
@@ -868,8 +1064,20 @@ async function deleteLocalState(file, rootPath, user, parentFolder) {
     if (localTime > selectTime) {
       file.value = cloudFile
       file.state = state.state.UPLOAD
-      await uploadFile(file, localFile, cloudFile, encryptedName, rootPath, user, parentFolder)
-      await Database.dbUpdate(Database.dbFiles, { key: file.key }, { $set: file })
+      await uploadFile(
+        file,
+        localFile,
+        cloudFile,
+        encryptedName,
+        rootPath,
+        user,
+        parentFolder
+      )
+      await Database.dbUpdate(
+        Database.dbFiles,
+        { key: file.key },
+        { $set: file }
+      )
       return
     } else {
       try {
