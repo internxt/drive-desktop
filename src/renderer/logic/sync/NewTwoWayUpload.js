@@ -35,12 +35,19 @@ function syncStop() {
 
 async function SyncLogic(callback) {
   const userDevicesSyncing = await DeviceLock.requestSyncLock()
+  if (userDevicesSyncing.error) {
+    Logger.warn(`Error when try to start sync ${userDevicesSyncing.error}`)
+    return start(callback)
+  }
   if (userDevicesSyncing.data || ConfigStore.get('isSyncing')) {
     Logger.warn('sync not started: another device already syncing')
     return start(callback)
   }
   if (userDevicesSyncing.ensure !== undefined) {
-    File.setEnsureMode(userDevicesSyncing.ensure, userDevicesSyncing.probability)
+    File.setEnsureMode(
+      userDevicesSyncing.ensure,
+      userDevicesSyncing.probability
+    )
   } else {
     File.setEnsureMode(0)
   }
@@ -65,7 +72,7 @@ async function SyncLogic(callback) {
       uploadOnlyMode = false
     }
   }
-  const syncComplete = async function (err) {
+  const syncComplete = async function(err) {
     if (err) {
       Logger.error('Error sync monitor:', err.message ? err.message : err)
       if (/it violates the unique constraint/.test(err.message)) {
@@ -94,8 +101,8 @@ async function SyncLogic(callback) {
     }
     Logger.info('SYNC END')
     SpaceUsage.updateUsage()
-      .then(() => { })
-      .catch(() => { })
+      .then(() => {})
+      .catch(() => {})
     if (err) {
       Logger.error('Error monitor:', err)
     }
@@ -124,8 +131,7 @@ async function SyncLogic(callback) {
         // New sync started, so we save the current date
         const now = new Date()
         Logger.log('Sync started at', now.toISOString())
-        Database
-          .Set('syncStartDate', now)
+        Database.Set('syncStartDate', now)
           .then(() => next())
           .catch(next)
       },
@@ -138,8 +144,7 @@ async function SyncLogic(callback) {
       },
       next => {
         app.emit('set-tooltip', 'Updating user info')
-        Database
-          .Get('xUser')
+        Database.Get('xUser')
           .then(user => {
             if (!user.user.bucket) {
               Tree.updateUserObject()
