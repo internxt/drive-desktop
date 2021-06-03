@@ -49,7 +49,6 @@ async function removeFile(bucketId, fileId, filename, force = false) {
     }
     Logger.log(`Removing cloud file: ${filename}. file id: ${fileId}`)
   }
-
   return fetch(
     `${process.env.API_URL}/api/storage/bucket/${bucketId}/file/${fileId}`,
     {
@@ -226,9 +225,6 @@ async function sincronizeCloudFile() {
       throw Error('stop sync')
     }
     var file = select[selectIndex[f]]
-    if (state.ignoredState.includes(file.state)) {
-      continue
-    }
     if (cloudIndex[f] === undefined) {
       file = select[selectIndex[f]]
       file.needSync = true
