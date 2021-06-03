@@ -23,6 +23,13 @@ let mainConfig = {
   module: {
     rules: [
       {
+        test: /\.svg$/,
+        use: [
+          'vue-loader',
+          'vue-svg-loader',
+        ],
+      },
+      {
         test: /\.(js)$/,
         enforce: 'pre',
         exclude: /node_modules/,
