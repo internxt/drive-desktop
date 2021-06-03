@@ -6,6 +6,9 @@
       :appName="appName" 
       :SubtitleApp="SubtitleApp" />
 
+      <FileStatus />
+      <Sync />
+
       <!-- <div id="selectSyncPanel">
         <input type="checkbox" id="carpeta1" checked="false" />
       </div>
@@ -58,6 +61,8 @@ import SpaceUsage from '../logic/utils/spaceusage'
 import analytics from '../logic/utils/analytics'
 import ConfigStore from '../../../src/main/config-store'
 import Header from '../components/Header/Header'
+import FileStatus from '../components/FileStatus//FileStatus'
+import Sync from '../components/Sync/Sync'
 
 window.resizeTo(400, 400)
 
@@ -67,7 +72,9 @@ var t = ''
 export default {
   name: 'xcloud-page',
   components: {
-    Header
+    Header,
+    FileStatus,
+    Sync
   },
 
   data() {

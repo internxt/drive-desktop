@@ -49,7 +49,17 @@ let rendererConfig = {
       },
       {
         test: /\.scss$/,
-        use: ['vue-style-loader', 'css-loader', 'sass-loader']
+        use: ['vue-style-loader', 'css-loader', {
+          loader: 'sass-loader',
+          options: {
+            data: 
+              '@import "_mixins";',
+              includePaths: [(() => {
+              console.log('REAL PATH', path.resolve(__dirname, '..', 'scss'))
+              return path.resolve(__dirname, '..', 'scss')
+            })()]
+          }
+        }]
       },
       {
         test: /\.sass$/,
@@ -61,7 +71,7 @@ let rendererConfig = {
       },
       {
         test: /\.css$/,
-        use: ['vue-style-loader', 'css-loader']
+        use: ['vue-style-loader', 'css-loader',]
       },
       {
         test: /\.html$/,

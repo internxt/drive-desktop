@@ -1,4 +1,10 @@
 
-  body {
-    font-family: 'Averta-light';
-  }
+@tailwind base;
+@tailwind components;
+
+/* .btn {
+    @apply px-4 py-2 bg-blue-600 text-white rounded;
+  } */
+
+@tailwind utilities;
+

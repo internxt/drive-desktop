@@ -4,13 +4,16 @@ import App from './App'
 import router from './router'
 import store from './store'
 import dotenv from 'dotenv'
-import '../index.css'
+// import '../index.css'
+import './assets/tailwind/tailwind_cdn.min'
+import '../index.scss'
 import '../../scss/internxt-design-system.scss'
 import './assets/scss/fonts.scss'
 
+// import 'bootstrap/dist/css/bootstrap-grid.css'
 // import 'bootstrap/dist/css/bootstrap.min.css'
-import 'jquery/dist/jquery.min.js'
-import 'bootstrap/dist/js/bootstrap.min.js'
+// import 'jquery/dist/jquery.min.js'
+// import 'bootstrap/dist/js/bootstrap.min.js'
 
 dotenv.config()
 
