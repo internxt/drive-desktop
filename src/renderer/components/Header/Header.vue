@@ -3,7 +3,7 @@
       <div class="flex justify-between p-4">
         
         <div>
-          <div>{{Brand}}</div>
+          <!-- <div>{{Brand}}</div> -->
           <div class="text-gray-800 text-xl font-extrabold">{{appName}}</div>
           <div class="text-sm font-extrabold">{{SubtitleApp}}</div>
         </div>

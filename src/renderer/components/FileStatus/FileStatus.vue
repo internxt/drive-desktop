@@ -26,13 +26,13 @@
                 </div>
             </div>
 
-            <div class="mb-1 flex">
+            <!-- <div class="mb-1 flex">
                 <UilFileBlank class="text-2xl mr-3 fill-current text-blue-600" />
                 <div>
                     <div>Name of file</div>
                     <div>File status: Last sync</div>
                 </div>
-            </div>
+            </div> -->
         </ul>
     </div>
 </template>
