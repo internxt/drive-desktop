@@ -19,6 +19,7 @@ import fetch from 'electron-fetch'
 import fs from 'fs'
 import ConfigStore from './config-store'
 import TrayMenu from './traymenu'
+
 require('@electron/remote/main').initialize()
 AutoLaunch.configureAutostart()
 
@@ -84,14 +85,14 @@ function createWindow() {
       {
         label: 'Undo',
         accelerator: 'CmdOrCtrl+Z',
-        click: function () {
+        click: function() {
           self.getWindow().webContents.undo()
         }
       },
       {
         label: 'Redo',
         accelerator: 'CmdOrCtrl+Y',
-        click: function () {
+        click: function() {
           self.getWindow().webContents.redo()
         }
       },
@@ -101,28 +102,28 @@ function createWindow() {
       {
         label: 'Cut',
         accelerator: 'CmdOrCtrl+X',
-        click: function () {
+        click: function() {
           self.getWindow().webContents.cut()
         }
       },
       {
         label: 'Copy',
         accelerator: 'CmdOrCtrl+C',
-        click: function () {
+        click: function() {
           self.getWindow().webContents.copy()
         }
       },
       {
         label: 'Paste',
         accelerator: 'CmdOrCtrl+V',
-        click: function () {
+        click: function() {
           self.getWindow().webContents.paste()
         }
       },
       {
         label: 'Select All',
         accelerator: 'CmdOrCtrl+A',
-        click: function () {
+        click: function() {
           self.getWindow().webContents.selectAll()
         }
       }
@@ -150,7 +151,7 @@ function createWindow() {
       {
         label: 'Developer Tools',
         accelerator: 'Shift+CmdOrCtrl+J',
-        click: function () {
+        click: function() {
           self.getWindow().toggleDevTools()
         }
       }
@@ -176,7 +177,14 @@ app.on('ready', () => {
 
 async function appClose() {
   while (ConfigStore.get('updatingDB')) {
-    await new Promise((resolve) => { setTimeout(resolve, 1000) })
+    await new Promise(resolve => {
+      setTimeout(resolve, 1000)
+    })
+  }
+  if (ConfigStore.get('isSyncing')) {
+    await new Promise(resolve => {
+      setTimeout(resolve, 1000)
+    })
   }
   if (mainWindow) {
     mainWindow.destroy()
@@ -198,20 +206,20 @@ app.on('activate', () => {
   }
 })
 
-app.on('before-quit', function (evt) {
+app.on('before-quit', function(evt) {
   if (trayMenu) {
     trayMenu.destroy()
   }
 })
 
-app.on('browser-window-focus', (e, w) => { })
+app.on('browser-window-focus', (e, w) => {})
 
-app.on('sync-on', function () {
+app.on('sync-on', function() {
   trayMenu.setIsLoadingIcon(true)
   trayMenu.updateSyncState()
 })
 
-app.on('sync-off', function () {
+app.on('sync-off', function() {
   trayMenu.setIsLoadingIcon(false)
   trayMenu.updateSyncState()
 })
@@ -222,7 +230,7 @@ function maybeShowWindow() {
   if (mainWindow) {
     mainWindow.show()
   } else {
-    app.on('window-show', function () {
+    app.on('window-show', function() {
       if (mainWindow) {
         mainWindow.show()
       }
@@ -238,7 +246,7 @@ app.on('show-bubble', (title, content) => {
   }
 })
 
-app.on('window-hide', function () {
+app.on('window-hide', function() {
   if (mainWindow) {
     if (process.env.NODE_ENV !== 'development') {
       mainWindow.hide()
@@ -247,7 +255,8 @@ app.on('window-hide', function () {
 })
 
 app.on('set-tooltip', msg => {
-  const message = `Internxt Drive ${PackageJson.version}${msg ? '\n' + msg : ''
+  const message = `Internxt Drive ${PackageJson.version}${
+    msg ? '\n' + msg : ''
   }`
   trayMenu.setToolTip(message)
 })
@@ -473,12 +482,12 @@ app.on('ready', () => {
     checkUpdates()
   }, 1000 * 60 * 60 * 6)
 
-  powerMonitor.on('suspend', function () {
+  powerMonitor.on('suspend', function() {
     Logger.warn('User system suspended')
     app.emit('sync-stop')
   })
 
-  powerMonitor.on('resume', function () {
+  powerMonitor.on('resume', function() {
     Logger.warn('User system resumed')
     app.emit('sync-start')
   })
