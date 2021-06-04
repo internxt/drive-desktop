@@ -1,3 +1,6 @@
 .text-brand {
     @include text-xs;
 }
+.hide {
+    visibility: hidden !important;
+}
