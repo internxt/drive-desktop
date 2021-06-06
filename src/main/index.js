@@ -62,13 +62,16 @@ function createWindow() {
       webSecurity: process.env.NODE_ENV !== 'development',
       enableRemoteModule: true
     },
-    width: 500,
+    width: 450,
     height: 550,
     useContentSize: true,
-    frame: process.env.NODE_ENV === 'development',
-    autoHideMenuBar: true,
+    // frame: process.env.NODE_ENV === 'development',
+    frame: true,
+    autoHideMenuBar: false,
     skipTaskbar: process.env.NODE_ENV !== 'development',
-    show: process.env.NODE_ENV === 'development'
+    show: process.env.NODE_ENV === 'development',
+    resizable: false,
+    menuBarVisible: false
   })
 
   mainWindow.loadURL(winURL)
