@@ -1,87 +1,130 @@
 <template>
-    <div>
-      <div class="flex justify-between p-4">
-        
-        <div class="flex">
-          <div>
-            <div class="flex">
-              <span><InternxtBrand class="mt-0-64 mr-1.5" :width="16" :height="16"/></span>
-              <div class="text-gray-800 text-xl font-extrabold">{{appName}}</div>
+  <div>
+    <div class="flex justify-between p-4">
+      <div class="flex">
+        <div>
+          <div class="flex">
+            <span
+              ><InternxtBrand class="mt-0-64 mr-1.5" :width="16" :height="16"
+            /></span>
+            <div class="text-gray-800 text-xl font-extrabold">
+              {{ appName }}
             </div>
-            <div class="text-sm text-gray-600">{{SubtitleApp}}</div>
           </div>
-
+          <div class="text-sm text-gray-600">{{ SubtitleApp }}</div>
         </div>
+      </div>
 
       <div class="flex">
         <!-- {{ this.$data.localPath }} -->
-        <div @click="openFolder()"><UilFolderNetwork class="mr-3 fill-current text-blue-600 cursor-pointer" size="24px" /></div>
-        <div v-on:click="ShowModalSettings()"><UilSetting class="mr-3 fill-current text-blue-600 cursor-pointer" size="24px" /></div>
-        <div v-on:click="ShowModalAccount()"><UilUserCircle class="fill-current text-blue-600 cursor-pointer" size="24px" /></div>
+        <div @click="openFolder()">
+          <UilFolderNetwork
+            class="mr-3 fill-current text-blue-600 cursor-pointer"
+            size="24px"
+          />
+        </div>
+        <div v-on:click="ShowModalSettings()">
+          <UilSetting
+            class="mr-3 fill-current text-blue-600 cursor-pointer"
+            size="24px"
+          />
+        </div>
+        <div v-on:click="ShowModalAccount()">
+          <UilUserCircle
+            class="fill-current text-blue-600 cursor-pointer"
+            size="24px"
+          />
+        </div>
       </div>
-      
-      </div>
+    </div>
 
     <!-- Modal settings -->
-    <div v-if="showModal === true" class="bg-white p-4 w-full absolute z-10 rounded-t-2xl h-19r">
+    <div
+      v-if="showModal === true"
+      class="bg-white p-4 w-full absolute z-10 rounded-t-2xl h-19r"
+    >
       <div>
         <div class="flex justify-between">
           <div class="subTitle font-semibold mb-3">Configuration</div>
-          <div class="cursor-pointer" v-on:click="CloseModalSettings()"><UilMultiply class="mr-2 text-blue-600"/></div>
+          <div class="cursor-pointer" v-on:click="CloseModalSettings()">
+            <UilMultiply class="mr-2 text-blue-600" />
+          </div>
         </div>
       </div>
 
       <div>Sync mode</div>
       <form class="mt-2 mb-2">
         <div>
-          <input type="radio" id="contactChoice1" name="contact" value="email">
+          <input
+            type="radio"
+            id="contactChoice1"
+            name="contact"
+            value=false
+            @click="syncModeChange"
+          />
           <label for="contactChoice1">Full sync</label>
         </div>
 
         <div>
-          <input type="radio" id="contactChoice1" name="contact" value="email">
+            <input
+              type="radio"
+              id="contactChoice1"
+              name="contact"
+              value=true
+              @click="syncModeChange"
+            />
           <label for="contactChoice1">Upload only</label>
         </div>
-
       </form>
 
       <div class="mb-2">Change sync folder</div>
       <div class="flex">
         <div class="flex">
-          <UilFolderOpen class="text-blue-600 mr-2 mt-0.5"/>
+          <UilFolderOpen class="text-blue-600 mr-2 mt-0.5" />
           <div class="text-gray-500">/home/desktop/myfolder</div>
         </div>
-          <div class="text-blue-600 ml-8 cursor-pointer">Change</div>
+        <div v-on:click="changeFolder()" class="text-blue-600 ml-8 cursor-pointer">Change</div>
       </div>
-      
-      <div class="mt-2">Launch at login</div>
 
+      <div class="mt-2"><input class="mr-2" type="checkbox" v-on:click="launchAtLogin()"/>Launch at login</div>
     </div>
 
     <!-- Modal Account -->
-    <div v-if="showModalAccount === true" class="bg-white p-4 w-full absolute z-10 rounded-t-2xl h-19r">
+    <div
+      v-if="showModalAccount === true"
+      class="bg-white p-4 w-full absolute z-10 rounded-t-2xl h-19r"
+    >
       <div class="flex justify-between">
         <div class="subTitle font-semibold mb-3">Configuration</div>
-        <div class="cursor-pointer" v-on:click="CloseModalAccount()"><UilMultiply class="mr-2 text-blue-600"/></div>
+        <div class="cursor-pointer" v-on:click="CloseModalAccount()">
+          <UilMultiply class="mr-2 text-blue-600" />
+        </div>
       </div>
 
-      <div class="mb-3">Open logs</div>
-      <div class="mb-3">Contact support</div>
-      <div class="mb-3 hover:text-blue-600 cursor-pointer" @click="logout()">Log out</div>
-      <div class="hover:text-blue-600 cursor-pointer" @click="quitApp()">Quit</div>
-
+      <div v-on:click="openLogs()" class="mb-3 hover:text-blue-600 cursor-pointer">Open logs</div>
+      <div v-on:click="ContactSupportMailto()" class="hover:text-blue-600 cursor-pointer mb-3">Contact support</div>
+      <div class="mb-3 hover:text-blue-600 cursor-pointer" @click="logout()">
+        Log out
+      </div>
+      <div class="hover:text-blue-600 cursor-pointer" @click="quitApp()">
+        Quit
+      </div>
     </div>
-
-    </div>
-
+  </div>
 </template>
 
 <script>
-
 import '../Header/Header.scss'
 import FolderIcon from '../ExportIcons/FolderIcon'
 import ConfigIcon from '../ExportIcons/ConfigIcon'
-import { UilFolderNetwork, UilSetting, UilUserCircle, UilMultiply, UilFolderOpen } from '@iconscout/vue-unicons'
+import fs from 'fs-extra'
+import {
+  UilFolderNetwork,
+  UilSetting,
+  UilUserCircle,
+  UilMultiply,
+  UilFolderOpen
+} from '@iconscout/vue-unicons'
 import 'ant-design-vue/dist/antd.css'
 import InternxtBrand from '../ExportIcons/InternxtBrand'
 import database from '../../../database/index'
@@ -90,6 +133,8 @@ import Monitor from '../../logic/monitor'
 import ConfigStore from '../../../main/config-store'
 import analytics from '../../logic/utils/analytics'
 import Logger from '../../../libs/logger'
+import path from 'path'
+import electronLog from 'electron-log'
 
 FileLogger.on('update-last-entry', (item) => console.log(item))
 const remote = require('@electron/remote')
@@ -103,10 +148,10 @@ export default {
       localPath: ''
     }
   },
-  beforeDestroy: function() {
+  beforeDestroy: function () {
     remote.app.removeAllListeners('user-logout')
   },
-  created: function() {
+  created: function () {
     FileLogger.on('update-last-entry', (item) => {
       this.file = item
     })
@@ -133,7 +178,7 @@ export default {
           .then(() => {
             analytics.resetUser()
           })
-          .catch(err => {
+          .catch((err) => {
             Logger.error(err)
           })
       }
@@ -141,7 +186,7 @@ export default {
       this.$router.push('/').catch(() => {})
     })
 
-    remote.app.on('new-folder-path', async newPath => {
+    remote.app.on('new-folder-path', async (newPath) => {
       remote.app.emit('sync-stop')
       await database.ClearAll()
       await database.Set('lastSyncSuccess', false)
@@ -194,13 +239,78 @@ export default {
     getLocalFolderPath() {
       database
         .Get('xPath')
-        .then(path => {
+        .then((path) => {
           this.$data.localPath = path
         })
-        .catch(err => {
+        .catch((err) => {
           console.error(err)
           this.$data.localPath = 'error'
         })
+    },
+    // Change folder
+    changeFolder() {
+      const newDir = remote.dialog.showOpenDialogSync({
+        properties: ['openDirectory']
+      })
+      if (newDir && newDir.length > 0 && fs.existsSync(newDir[0])) {
+        if (newDir[0] === remote.app.getPath('home')) {
+          remote.app.emit(
+            'show-error',
+            'Internxt do not support syncronization of your home directory. Try to sync any of its content instead.'
+          )
+          return
+        }
+        const appDir = /linux/.test(process.platform)
+          ? remote.app.getPath('appData')
+          : path.dirname(remote.app.getPath('appData'))
+        const relative = path.relative(appDir, newDir[0])
+        if (
+          (relative &&
+            !relative.startsWith('..') &&
+            !path.isAbsolute(relative)) ||
+          appDir === newDir[0]
+        ) {
+          remote.app.emit(
+            'show-error',
+            'Internxt do not support syncronization of your appData directory or anything inside of it.'
+          )
+          return
+        }
+        remote.app.emit('new-folder-path', newDir[0])
+      } else {
+        Logger.info('Sync folder change error or cancelled')
+      }
+    },
+    // Full sync - Upload only Sync mode
+    syncModeChange (check) {
+      ConfigStore.set('uploadOnly', check.checked)
+      if (!check.checked) {
+        ConfigStore.set('forceUpload', 2)
+        remote.app.emit('show-info', 'Next sync will also be upload only for checking which file should not delete.')
+      } else {
+        remote.app.emit('show-info', 'By changing to Upload only you can only upload files in next sync. You can delete files locally without lose them from your cloud.')
+      }
+    },
+    // Open logs
+    openLogs () {
+      try {
+        const logFile = electronLog.transports.file.getFile().path
+        const logPath = path.dirname(logFile)
+        remote.shell.openPath(logPath)
+      } catch (e) {
+        Logger.error('Error opening log path: %s', e.message)
+      }
+    },
+    // Launch at login
+    launchAtLogin (check) {
+      ConfigStore.set('autoLaunch', check.checked)
+      remote.app.emit('change-auto-launch')
+    },
+    // Contact support
+    ContactSupportMailto () {
+      remote.shell.openExternal(
+        `mailto:idajggytsuz7jivosite@jivo-mail.com?subject=Support Ticket&body=If you want to upload log files to our tech teams. Please, find them on the Open Logs option in the menu.`
+      )
     }
   },
   name: 'Header',
@@ -208,7 +318,6 @@ export default {
     appName: {
       type: String,
       default: 'Internxt'
-
     },
     SubtitleApp: {
       type: String,

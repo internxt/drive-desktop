@@ -70,7 +70,7 @@ function createWindow() {
     autoHideMenuBar: false,
     skipTaskbar: process.env.NODE_ENV !== 'development',
     show: process.env.NODE_ENV === 'development',
-    resizable: false,
+    resizable: true,
     menuBarVisible: false
   })
 
