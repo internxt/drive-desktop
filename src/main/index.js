@@ -7,8 +7,7 @@ import {
   Menu,
   shell,
   dialog,
-  powerMonitor
-} from 'electron'
+  powerMonitor } from 'electron'
 import path from 'path'
 import Logger from '../libs/logger'
 import AutoLaunch from '../libs/autolauncher'
@@ -65,13 +64,16 @@ function createWindow() {
       webSecurity: process.env.NODE_ENV !== 'development',
       enableRemoteModule: true
     },
-    width: 500,
+    width: 450,
     height: 550,
     useContentSize: true,
-    frame: process.env.NODE_ENV === 'development',
-    autoHideMenuBar: true,
+    // frame: process.env.NODE_ENV === 'development',
+    frame: true,
+    autoHideMenuBar: false,
     skipTaskbar: process.env.NODE_ENV !== 'development',
-    show: process.env.NODE_ENV === 'development'
+    show: process.env.NODE_ENV === 'development',
+    resizable: true,
+    menuBarVisible: false
   })
 
   mainWindow.loadURL(winURL)

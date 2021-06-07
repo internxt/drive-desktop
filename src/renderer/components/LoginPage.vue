@@ -1,55 +1,57 @@
 <template>
-  <div id="wrapper">
-    <div class="close-button">
-      <button @click="closeApp()">
-        <img src="~@/../resources/icons/close.png" />
-      </button>
-    </div>
-    <main class="centered-container">
-      <div class="login-container-box">
-        <div class="login-title">
-          <img src="~@/../resources/icons/logo.svg" />
-          {{ showTwoFactor ? 'Security Verification' : 'Sign in to Internxt' }}
-        </div>
-        <div v-if="!showTwoFactor">
-          <input
-            class="form-control"
-            v-model="username"
-            type="text"
-            placeholder="Email address"
-          />
-          <input
-            class="form-control"
-            v-model="password"
-            type="password"
-            placeholder="Password"
-          />
-        </div>
-        <div v-if="showTwoFactor">
-          <div>Enter your 6 digit authenticator code below</div>
-          <input
-            class="form-control"
-            v-model="twoFactorCode"
-            type="text"
-            placeholder="Authentication code"
-          />
-        </div>
-        <input
-          class="form-control btn-block btn-primary"
-          type="submit"
-          :disabled="checkForm()"
-          @click="doLogin()"
-          value="Sign in"
-        />
+  <!-- <div class="close-button">
+    <button @click="closeApp()">
+      <img src="~@/../resources/icons/close.png" />
+    </button>
+  </div> -->
 
-        <div v-if="!showTwoFactor" class="create-account-container">
-          Don't have an Internxt account?
-          <a href="#" @click="open(`${DRIVE_BASE}/new`)">Get one for free!</a>
-        </div>
-      </div>
-    </main>
-    <footer>v{{ version }}</footer>
-  </div>
+  <main class="w-full h-full flex flex-col justify-center bg-white px-12">
+    <div class="flex flex-row items-center">
+      <InternxtBrand :width="20" :height="20"/>
+      <span class="text-xl text-black font-bold ml-2">{{ showTwoFactor ? 'Security Verification' : 'Sign in to Internxt Drive' }}</span>
+    </div>
+
+    <div class="mt-8">
+      <input
+        class="w-full h-10 focus:outline-none mb-3 border border-gray-300 rounded px-2 text-xs font-bold"
+        v-model="username"
+        type="text"
+        placeholder="Email address"
+      />
+      <input
+        class="w-full h-10 focus:outline-none border border-gray-300 rounded px-2 text-xs font-bold"
+        v-model="password"
+        type="password"
+        placeholder="Password"
+      />
+    </div>
+
+    <!-- TWO FACTOR NOT ACTUALLY USING IT -->
+    <!-- <div v-if="showTwoFactor">
+      <div>Enter your 6 digit authenticator code below</div>
+      <input
+        class="w-full h-10 focus:outline-none border border-gray-300 rounded px-2 text-xs font-bold"
+        v-model="twoFactorCode"
+        type="text"
+        placeholder="Authentication code"
+      />
+    </div> -->
+
+    <input
+      class="w-full text-white font-bold mt-8 py-2.5 text-sm rounded focus:outline-none cursor-pointer bg-blue-500"
+      type="submit"
+      :disabled="checkForm()"
+      @click="doLogin()"
+      value="Sign in"
+    />
+
+    <div v-if="!showTwoFactor" class="block text-xs font-bold mt-4">
+      <span class="text-gray-400">Don't have an Internxt account?</span>
+      <a class="text-blue-400" href="#" @click="open(`${DRIVE_BASE}/new`)">Get one for free!</a>
+    </div>
+
+    <div class="self-center mt-6 text-gray-300 text-xs">v{{ version }}</div>
+  </main>
 </template>
 
 <script>
@@ -63,6 +65,7 @@ import packageConfig from '../../../package.json'
 import analytics from '../logic/utils/analytics'
 import ConfigStore from '../../main/config-store'
 import uuid4 from 'uuid4'
+import InternxtBrand from '../components/ExportIcons/InternxtBrand'
 const remote = require('@electron/remote')
 const ROOT_FOLDER_NAME = 'Internxt Drive'
 const HOME_FOLDER_PATH = remote.app.getPath('home')
@@ -84,7 +87,9 @@ export default {
       version: packageConfig.version
     }
   },
-  components: {},
+  components: {
+    InternxtBrand
+  },
   methods: {
     open(link) {
       this.$electron.shell.openExternal(link)
@@ -104,10 +109,16 @@ export default {
       }
     },
     checkForm() {
+      // console.log('isLoading:', this.$data.isLoading, 'username:', this.$data.username, 'pass:', this.$data.password)
       if (this.$data.isLoading) {
         return true
       }
-      return !this.$data.username || !this.$data.password
+      console.log(this.$data.username && this.$data.password ? 'true' : 'false')
+      if (this.$data.username && this.$data.password) {
+        return false
+      }
+
+      return true
     },
     // savePathAndLogin () {
     //   database.Set('xPath', this.$data.storagePath).then(() => {
@@ -285,111 +296,3 @@ export default {
   }
 }
 </script>
-
-<style>
-@import url('https://fonts.googleapis.com/css?family=Source+Sans+Pro');
-
-@font-face {
-  font-family: 'CerebriSans-Regular';
-  src: url('../../resources/fonts/CerebriSans-Regular.ttf');
-}
-
-#wrapper {
-  height: 100%;
-  -webkit-app-region: drag;
-
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.centered-container {
-  -webkit-app-region: no-drag;
-  font-family: 'CerebriSans-Regular';
-}
-
-.logo {
-  width: 50px;
-  display: block;
-}
-
-.form-control {
-  margin-top: 15px;
-  height: 50px !important;
-}
-
-.btn-primary {
-  margin-top: 39px !important;
-  background-color: #4585f5 !important;
-  font-weight: bold !important;
-  outline: none;
-}
-
-.btn-primary:disabled {
-  border: solid 0px;
-}
-
-.login-container-box {
-  background-color: #fff;
-  width: 472px !important;
-  padding: 40px !important;
-}
-
-.login-title {
-  font-size: 25px;
-  font-weight: 600;
-  margin-bottom: 20px;
-}
-
-.login-title img {
-  width: 25px;
-  margin-right: 10px;
-  margin-bottom: 5px;
-}
-
-.create-account-container {
-  margin-top: 39px;
-  color: #909090;
-}
-
-input[type='text']:disabled {
-  background-color: white !important;
-}
-
-input[type='submit']:disabled {
-  background-color: #7aa5ee !important;
-}
-
-.form-error {
-  color: red;
-  font-size: 13px;
-  margin: 0px;
-}
-
-.close-button {
-  align-self: flex-end;
-  opacity: 0;
-}
-
-.close-button button {
-  background-color: transparent;
-  border-width: 0px;
-}
-
-.close-button button:not(:disabled) {
-  cursor: default;
-}
-
-.close-button button:focus {
-  border-width: 0px;
-  outline: none;
-}
-
-footer {
-  color: #d0d0d0;
-  cursor: default;
-  font-size: 14px;
-  margin: 20px;
-}
-</style>

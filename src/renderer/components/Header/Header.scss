@@ -1,3 +1,72 @@
 .text-brand {
     @include text-xs;
 }
+.hide {
+    visibility: hidden !important;
+}
+.mt-0-64 {
+    margin-top: 5px;
+}
+input[type='radio']{
+    width: 10px !important;
+    height: 10px !important;
+}
+.h-19r {
+    height: 18.5rem;
+}
+body::-webkit-scrollbar {
+    width: 4px;               /* width of the entire scrollbar */
+  }
+  
+  body::-webkit-scrollbar-track {
+    background: white;        /* color of the tracking area */
+  }
+  
+  body::-webkit-scrollbar-thumb {
+    background-color: #1D4ED8;    /* color of the scroll thumb */
+    border-radius: 20px;       /* roundness of the scroll thumb */
+    // border: 3px solid orange;  /* creates padding around scroll thumb */
+  }
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #1D4ED8 white;
+  }
+  
+  /* Works on Chrome, Edge, and Safari */
+  *::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  *::-webkit-scrollbar-track {
+    background: white;
+  }
+  
+  *::-webkit-scrollbar-thumb {
+    background-color: white;
+    border-radius: 20px;
+    // border: 3px solid orange;
+  }
+
+  // Tooltip styles
+  .tooltip {
+    display: block !important;
+    z-index: 10000;
+  
+    .tooltip-inner {
+      background: black;
+      color: white;
+      border-radius: 16px;
+      padding: 5px 10px 4px;
+    }
+  }
+
+.enter { transform: translateY(100%) }
+.enter-to { transform: translateY(0) }
+.slide-enter-active { position: absolute }
+
+.leave { transform: translateY(0) }
+.leave-to { transform: translateY(130%) }
+
+.slide-enter-active,
+.slide-leave-active { transition: all 500ms ease-in-out }
