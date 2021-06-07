@@ -54,6 +54,10 @@ async function SyncLogic(callback) {
   if (userDevicesSyncing.fullReset) {
     await Database.ClearAll()
   }
+  if (ConfigStore.get('resetAll')) {
+    await Database.ClearAll()
+    ConfigStore.set('resetAll', false)
+  }
   Logger.info('Sync started')
   DeviceLock.startUpdateDeviceSync()
   app.once('sync-stop', syncStop)
