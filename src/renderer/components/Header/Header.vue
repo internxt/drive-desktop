@@ -12,7 +12,12 @@
 
       <div class="flex">
         <!-- {{ this.$data.localPath }} -->
-        <div @click="openFolder()">
+        <div v-tooltip="{
+              content: 'Tooltip content here',
+              delay: {
+                show: 10,
+                hide: 10
+              },}" @click="openFolder()">
           <UilFolderNetwork
             class="mr-3 fill-current text-blue-600 cursor-pointer"
             size="24px"
@@ -74,7 +79,7 @@
       <div class="flex">
         <div class="flex">
           <UilFolderOpen class="text-blue-600 mr-2 mt-0.5" />
-          <div class="text-xs text-gray-500">/home/desktop/myfolder</div>
+          <div class="text-xs text-gray-500">{{this.path}}</div>
         </div>
         <div v-on:click="changeFolder()" class="text-blue-600 ml-8 cursor-pointer">Change</div>
       </div>
@@ -107,6 +112,7 @@
 </template>
 
 <script>
+import Vue from 'vue'
 import '../Header/Header.scss'
 import FolderIcon from '../ExportIcons/FolderIcon'
 import ConfigIcon from '../ExportIcons/ConfigIcon'
@@ -128,9 +134,11 @@ import analytics from '../../logic/utils/analytics'
 import Logger from '../../../libs/logger'
 import path from 'path'
 import electronLog from 'electron-log'
+import VTooltip from 'v-tooltip'
 
 FileLogger.on('update-last-entry', (item) => console.log(item))
 const remote = require('@electron/remote')
+Vue.use(VTooltip)
 
 export default {
   data() {
@@ -140,8 +148,15 @@ export default {
       showModalAccount: false,
       localPath: '',
       CheckedValue: 'full',
-      LaunchCheck: false
+      LaunchCheck: false,
+      path: null,
+      msg: 'Mensaje de texto'
     }
+  },
+  beforeCreate: function () {
+    FileLogger.getPath().then(path => {
+      this.$data.path = path
+    })
   },
   beforeDestroy: function () {
     remote.app.removeAllListeners('user-logout')

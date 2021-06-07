@@ -21,7 +21,7 @@
             </div>
           </div>
           <div v-if="item.progress >= 100">
-            <div class="flex mb-2" v-if="item.state === 'success'">
+            <div class="flex mb-2" v-if="item.state === 'success' || !item.state">
               <UilFileCheckAlt
                 class="text-2xl mr-3 fill-current text-green-500"
               />

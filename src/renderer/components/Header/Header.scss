@@ -47,3 +47,16 @@ body::-webkit-scrollbar {
     border-radius: 20px;
     // border: 3px solid orange;
   }
+
+  // Tooltip styles
+  .tooltip {
+    display: block !important;
+    z-index: 10000;
+  
+    .tooltip-inner {
+      background: black;
+      color: white;
+      border-radius: 16px;
+      padding: 5px 10px 4px;
+    }
+  }
