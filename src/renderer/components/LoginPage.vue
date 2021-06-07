@@ -5,13 +5,13 @@
     </button>
   </div> -->
 
-  <main class="w-full h-full flex flex-col bg-white px-12 py-8">
+  <main class="w-full h-full flex flex-col justify-center bg-white px-12">
     <div class="flex flex-row items-center">
       <InternxtBrand :width="20" :height="20"/>
-      <span class="text-xl text-black font-bold ml-2">{{ showTwoFactor ? 'Security Verification' : 'Sign in to Internxt' }}</span>
+      <span class="text-xl text-black font-bold ml-2">{{ showTwoFactor ? 'Security Verification' : 'Sign in to Internxt Drive' }}</span>
     </div>
 
-    <div class="mt-6">
+    <div class="mt-8">
       <input
         class="w-full h-10 focus:outline-none mb-3 border border-gray-300 rounded px-2 text-xs font-bold"
         v-model="username"
@@ -38,7 +38,7 @@
     </div> -->
 
     <input
-      class="w-full h-12 text-white font-bold mt-6 py-2 text-sm bg-blue-500 rounded focus:outline-none"
+      class="w-full text-white font-bold mt-8 py-2.5 text-sm rounded focus:outline-none cursor-pointer bg-blue-500"
       type="submit"
       :disabled="checkForm()"
       @click="doLogin()"
