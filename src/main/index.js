@@ -7,8 +7,7 @@ import {
   Menu,
   shell,
   dialog,
-  powerMonitor
-  , ipcMain } from 'electron'
+  powerMonitor } from 'electron'
 import path from 'path'
 import Logger from '../libs/logger'
 import AutoLaunch from '../libs/autolauncher'
@@ -31,11 +30,6 @@ AutoLaunch.configureAutostart()
 if (process.env.NODE_ENV !== 'development') {
   global.__static = path.join(__dirname, '/static').replace(/\\/g, '\\\\')
 }
-
-ipcMain.on('resize-window', (event, width, heigth) => {
-  const browserWindow = BrowserWindow.fromWebContents(event.sender)
-  browserWindow.setSize(width, heigth)
-})
 
 let mainWindow, tray, trayMenu
 
