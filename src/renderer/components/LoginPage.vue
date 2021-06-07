@@ -38,7 +38,7 @@
     </div> -->
 
     <input
-      class="w-full h-12 text-white font-bold mt-6 py-2 text-sm bg-blue-500 rounded"
+      class="w-full h-12 text-white font-bold mt-6 py-2 text-sm bg-blue-500 rounded focus:outline-none"
       type="submit"
       :disabled="checkForm()"
       @click="doLogin()"
