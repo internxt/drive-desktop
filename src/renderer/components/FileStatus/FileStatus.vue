@@ -1,6 +1,6 @@
 <template>
-  <div class="bg-white rounded-t-2xl p-4 h-48 fileStatusBox overflow-scroll">
-    <div class="subTitle font-semibold mb-3">File status</div>
+  <div class="bg-white rounded-t-2xl p-4 px-6 h-48 fileStatusBox overflow-scroll">
+    <div class="text-lg text-black font-bold mb-3">File status</div>
     <div>
       <!-- {{this.statusFile()}} -->
       {{ this.AllfilesShow() }}

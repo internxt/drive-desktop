@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <div class="flex justify-between items-start p-4 pt-2 pb-6">
+  <div class="overflow-hidden">
+    <div class="flex justify-between items-start p-4">
       <div class="flex flex-col">
         <div class="flex items-center">
           <InternxtBrand :width="16" :height="16"/>
@@ -35,75 +35,86 @@
     </div>
 
     <!-- Modal settings -->
-    <div v-if="showModal === true" class="bg-white p-4 px-6 w-full absolute rounded-t-2xl -mt-5">
-      <div class="flex justify-between">
-        <span class="subTitle mb-3">Configuration</span>
+    <transition
+      enter-class="enter"
+      enter-to-class="enter-to"
+      enter-active-class="slide-enter-active"
+      leave-class="leave"
+      leave-to-class="leave-to"
+      leave-active-class="slide-leave-active"
+    >
+      <div v-if="showModal === true" class="bg-white p-4 px-6 w-full h-full absolute rounded-t-2xl z-10">
+        <div class="flex justify-between">
+          <div class="text-black text-lg font-bold mb-3">Configuration</div>
 
-        <div class="cursor-pointer" v-on:click="CloseModalSettings()">
-          <UilMultiply class="mr-2 text-blue-600" />
-        </div>
-      </div>
-
-      <span class="text-sm text-black">Sync mode</span>
-      <form class="mt-1 mb-2">
-        <div>
-          <input
-            type="radio"
-            id="contactChoice1"
-            name="contact"
-            value="full"
-            v-model="CheckedValue"
-            @change="syncModeChange()"
-          />
-          <label class="text-xs text-gray-500 cursor-pointer" for="contactChoice1">Full sync</label>
+          <div class="cursor-pointer" v-on:click="CloseModalSettings()">
+            <UilMultiply class="mr-2 text-blue-600" />
+          </div>
         </div>
 
-        <div>
+        <span class="text-base text-black">Sync mode</span>
+        <form class="mt-2 mb-2">
+          <div>
             <input
               type="radio"
-              id="contactChoice2"
+              id="contactChoice1"
               name="contact"
-              value="upload"
+              value="full"
               v-model="CheckedValue"
               @change="syncModeChange()"
             />
-          <label class="text-xs text-gray-500 cursor-pointer" for="contactChoice2">Upload only</label>
-        </div>
-      </form>
+            <label class="text-sm text-gray-500 cursor-pointer" for="contactChoice1">Full sync</label>
+          </div>
 
-      <div class="mb-2">Change sync folder</div>
-      <div class="flex">
-        <div class="flex">
-          <UilFolderOpen class="text-blue-600 mr-2 mt-0.5" />
-          <div class="text-xs text-gray-500">{{this.path}}</div>
+          <div>
+              <input
+                type="radio"
+                id="contactChoice2"
+                name="contact"
+                value="upload"
+                v-model="CheckedValue"
+                @change="syncModeChange()"
+              />
+            <label class="text-sm text-gray-500 cursor-pointer" for="contactChoice2">Upload only</label>
+          </div>
+        </form>
+
+        <div class="text-base mt-3">Change sync folder</div>
+        <div class="flex mt-2">
+          <div class="flex">
+            <UilFolderOpen class="text-blue-600 mr-2 mt-0.5" />
+            <div class="text-sm text-gray-500">{{this.path}}</div>
+          </div>
+          <div v-on:click="changeFolder()" class="text-blue-600 ml-8 cursor-pointer">Change</div>
         </div>
-        <div v-on:click="changeFolder()" class="text-blue-600 ml-8 cursor-pointer">Change</div>
+
+        <div class="text-base mt-4"><input class="mr-2" type="checkbox" v-model="LaunchCheck" value=true v-on:change="launchAtLogin()"/>Launch at login</div>
       </div>
-
-      <div class="mt-2"><input class="mr-2" type="checkbox" v-model="LaunchCheck" value=true v-on:change="launchAtLogin()"/>Launch at login</div>
-    </div>
+    </transition>
 
     <!-- Modal Account -->
-    <div
-      v-if="showModalAccount === true"
-      class="bg-white p-4 w-full absolute rounded-t-2xl h-19"
+    <transition
+      enter-class="enter"
+      enter-to-class="enter-to"
+      enter-active-class="slide-enter-active"
+      leave-class="leave"
+      leave-to-class="leave-to"
+      leave-active-class="slide-leave-active"
     >
-      <div class="flex justify-between">
-        <div class="subTitle mb-3">Account</div>
-        <div class="cursor-pointer" v-on:click="CloseModalAccount()">
-          <UilMultiply class="mr-2 text-blue-600" />
+      <div v-if="showModalAccount === true" class="bg-white p-4 px-6 w-full h-full absolute rounded-t-2xl z-10">
+        <div class="flex justify-between">
+          <div class="text-black text-lg font-bold mb-3">Account</div>
+          <div class="cursor-pointer" v-on:click="CloseModalAccount()">
+            <UilMultiply class="mr-2 text-blue-600" />
+          </div>
         </div>
-      </div>
 
-      <div v-on:click="openLogs()" class="mb-3 hover:text-blue-600 cursor-pointer">Open logs</div>
-      <div v-on:click="ContactSupportMailto()" class="hover:text-blue-600 cursor-pointer mb-3">Contact support</div>
-      <div class="mb-3 hover:text-blue-600 cursor-pointer" @click="logout()">
-        Log out
+        <div v-on:click="openLogs()" class="text-base mb-3 hover:text-blue-600 cursor-pointer">Open logs</div>
+        <div v-on:click="ContactSupportMailto()" class="text-base hover:text-blue-600 cursor-pointer mb-3">Contact support</div>
+        <div class="text-base mb-3 hover:text-blue-600 cursor-pointer" @click="logout()">Log out</div>
+        <div class="text-base hover:text-blue-600 cursor-pointer" @click="quitApp()">Quit</div>
       </div>
-      <div class="hover:text-blue-600 cursor-pointer" @click="quitApp()">
-        Quit
-      </div>
-    </div>
+    </transition>
   </div>
 </template>
 
