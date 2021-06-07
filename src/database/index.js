@@ -4,7 +4,7 @@ import fs from 'fs-extra'
 import async from 'async'
 import rimraf from 'rimraf'
 import Logger from '../libs/logger'
-const remote = require('@electron/remote')
+const remote = require('@electron/remote/main')
 
 const OLD_DB_FOLDER = `${
   process.env.NODE_ENV === 'production'
