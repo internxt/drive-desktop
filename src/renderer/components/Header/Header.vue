@@ -59,8 +59,9 @@
             type="radio"
             id="contactChoice1"
             name="contact"
-            value=false
-            @click="syncModeChange"
+            value="full"
+            v-model="CheckedValue"
+            @change="syncModeChange()"
           />
           <label for="contactChoice1">Full sync</label>
         </div>
@@ -70,8 +71,9 @@
               type="radio"
               id="contactChoice1"
               name="contact"
-              value=true
-              @click="syncModeChange"
+              value="upload"
+              v-model="CheckedValue"
+              @change="syncModeChange()"
             />
           <label for="contactChoice1">Upload only</label>
         </div>
@@ -86,7 +88,7 @@
         <div v-on:click="changeFolder()" class="text-blue-600 ml-8 cursor-pointer">Change</div>
       </div>
 
-      <div class="mt-2"><input class="mr-2" type="checkbox" v-on:click="launchAtLogin()"/>Launch at login</div>
+      <div class="mt-2"><input class="mr-2" type="checkbox" v-model="LaunchCheck" value=true v-on:change="launchAtLogin()"/>Launch at login</div>
     </div>
 
     <!-- Modal Account -->
@@ -145,7 +147,9 @@ export default {
       placement: 'left',
       showModal: false,
       showModalAccount: false,
-      localPath: ''
+      localPath: '',
+      CheckedValue: 'full',
+      LaunchCheck: false
     }
   },
   beforeDestroy: function () {
@@ -193,6 +197,9 @@ export default {
       database.Set('xPath', newPath)
       this.$router.push('/').catch(() => {})
     })
+  },
+  updated: function() {
+    console.log('updated', this.CheckedValue)
   },
   methods: {
     debug() {
@@ -282,12 +289,12 @@ export default {
       }
     },
     // Full sync - Upload only Sync mode
-    syncModeChange (check) {
-      ConfigStore.set('uploadOnly', check.checked)
-      if (!check.checked) {
+    syncModeChange () {
+      if (this.CheckedValue === 'full') {
         ConfigStore.set('forceUpload', 2)
         remote.app.emit('show-info', 'Next sync will also be upload only for checking which file should not delete.')
       } else {
+        ConfigStore.set('uploadOnly', true)
         remote.app.emit('show-info', 'By changing to Upload only you can only upload files in next sync. You can delete files locally without lose them from your cloud.')
       }
     },
@@ -302,8 +309,11 @@ export default {
       }
     },
     // Launch at login
-    launchAtLogin (check) {
-      ConfigStore.set('autoLaunch', check.checked)
+    launchAtLogin () {
+      console.log(this.LaunchCheck) // Pasar aqui lo que sea
+      // if (this.LaunchCheck === true) {
+      // }
+      ConfigStore.set('autoLaunch', this.LaunchCheck)
       remote.app.emit('change-auto-launch')
     },
     // Contact support
