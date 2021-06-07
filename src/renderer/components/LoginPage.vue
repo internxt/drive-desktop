@@ -63,6 +63,7 @@ import packageConfig from '../../../package.json'
 import analytics from '../logic/utils/analytics'
 import ConfigStore from '../../main/config-store'
 import uuid4 from 'uuid4'
+import { ipcRenderer } from 'electron'
 const remote = require('@electron/remote')
 const ROOT_FOLDER_NAME = 'Internxt Drive'
 const HOME_FOLDER_PATH = remote.app.getPath('home')
@@ -71,6 +72,7 @@ const anonymousId = uuid4()
 export default {
   name: 'login-page',
   beforeCreate() {
+    ipcRenderer.send('resize-window', 600, 600)
     remote.app.emit('window-show')
   },
   data() {

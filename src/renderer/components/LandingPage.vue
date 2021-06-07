@@ -15,12 +15,14 @@ import database from '../../database'
 import async from 'async'
 import Logger from '../../libs/logger'
 import fs from 'fs'
+import { ipcRenderer } from 'electron'
 const remote = require('@electron/remote')
 
 export default {
   name: 'landing-page',
   components: { SystemInformation },
   beforeCreate() {
+    ipcRenderer.send('resize-window', 450, 550)
     remote.app.emit('window-hide')
   },
   data: function () {

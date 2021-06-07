@@ -8,7 +8,7 @@ import {
   shell,
   dialog,
   powerMonitor
-} from 'electron'
+  , ipcMain } from 'electron'
 import path from 'path'
 import Logger from '../libs/logger'
 import AutoLaunch from '../libs/autolauncher'
@@ -19,6 +19,7 @@ import fetch from 'electron-fetch'
 import fs from 'fs'
 import ConfigStore from './config-store'
 import TrayMenu from './traymenu'
+
 require('@electron/remote/main').initialize()
 AutoLaunch.configureAutostart()
 
@@ -30,6 +31,11 @@ AutoLaunch.configureAutostart()
 if (process.env.NODE_ENV !== 'development') {
   global.__static = path.join(__dirname, '/static').replace(/\\/g, '\\\\')
 }
+
+ipcMain.on('resize-window', (event, width, heigth) => {
+  const browserWindow = BrowserWindow.fromWebContents(event.sender)
+  browserWindow.setSize(width, heigth)
+})
 
 let mainWindow, tray, trayMenu
 
