@@ -47,7 +47,7 @@
               </div>
             </div>
 
-            <div class="flex mb-2" v-if="!item.state">
+            <!-- <div class="flex mb-2" v-if="!item.state">
               <UilFileUpload class="text-2xl mr-3 fill-current text-blue-400" />
               <div>
                 <div>{{ item.filename }}</div>
@@ -56,7 +56,8 @@
                   Synchronizing file...
                 </div>
               </div>
-            </div>
+            </div> -->
+
           </div>
         </div>
       </div>
