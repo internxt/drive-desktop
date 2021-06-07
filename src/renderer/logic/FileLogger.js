@@ -52,7 +52,7 @@ class FileLogger extends EventEmitter {
 
   saveLogger() {
     try {
-      const jsonQueue = JSON.stringify(this.queue)
+      const jsonQueue = JSON.stringify(this.getAll())
       fs.writeFileSync(path.join(__dirname, '../../../database/fileLogger/fileLogger.json'), jsonQueue)
     } catch (err) {
       Logger.error(err)
@@ -66,6 +66,7 @@ class FileLogger extends EventEmitter {
     } catch (err) {
       this.queue = []
     }
+    return this.queue
   }
 }
 

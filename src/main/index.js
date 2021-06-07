@@ -19,6 +19,7 @@ import fetch from 'electron-fetch'
 import fs from 'fs'
 import ConfigStore from './config-store'
 import TrayMenu from './traymenu'
+import FileLogger from '../renderer/logic/FileLogger'
 
 require('@electron/remote/main').initialize()
 AutoLaunch.configureAutostart()
@@ -44,6 +45,7 @@ if (process.platform === 'darwin' && process.env.NODE_ENV !== 'development') {
 }
 
 if (!app.requestSingleInstanceLock()) {
+  FileLogger.saveLogger()
   app.quit()
 }
 
@@ -193,6 +195,7 @@ async function appClose() {
     trayMenu.destroy()
     trayMenu = null
   }
+  FileLogger.saveLogger()
   app.quit()
 }
 
