@@ -12,12 +12,8 @@
 
       <div class="flex">
         <!-- {{ this.$data.localPath }} -->
-        <div v-tooltip="{
-              content: 'Tooltip content here',
-              delay: {
-                show: 10,
-                hide: 10
-              },}" @click="openFolder()">
+        <!-- <div v-tooltip="{ content: 'Tooltip content here',}" @click="openFolder()"> -->
+        <div @click="openFolder()">
           <UilFolderNetwork
             class="mr-3 fill-current text-blue-600 cursor-pointer"
             size="24px"
