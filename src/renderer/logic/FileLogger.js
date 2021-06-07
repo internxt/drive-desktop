@@ -79,6 +79,10 @@ class FileLogger extends EventEmitter {
       this.queue = []
     }
   }
+
+  getPath() {
+    return ''
+  }
 }
 
 export default new FileLogger()
