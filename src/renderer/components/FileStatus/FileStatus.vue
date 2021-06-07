@@ -41,7 +41,7 @@
               <div>
                 <div>{{ item.filename }}</div>
                 <div class="text-xs text-gray-500">
-                  <span class="text-red-500">{{ formatNumberPercent(item.progress) }} %</span> Error
+                  <span class="text-red-500">0%</span> Error
                   file upload. Try again
                 </div>
               </div>

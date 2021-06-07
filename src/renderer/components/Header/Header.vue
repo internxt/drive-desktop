@@ -102,7 +102,7 @@
       </div>
 
       <div v-on:click="openLogs()" class="mb-3 hover:text-blue-600 cursor-pointer">Open logs</div>
-      <div class="mb-3">Contact support</div>
+      <div v-on:click="ContactSupportMailto()" class="hover:text-blue-600 cursor-pointer mb-3">Contact support</div>
       <div class="mb-3 hover:text-blue-600 cursor-pointer" @click="logout()">
         Log out
       </div>
@@ -305,6 +305,12 @@ export default {
     launchAtLogin (check) {
       ConfigStore.set('autoLaunch', check.checked)
       remote.app.emit('change-auto-launch')
+    },
+    // Contact support
+    ContactSupportMailto () {
+      remote.shell.openExternal(
+        `mailto:idajggytsuz7jivosite@jivo-mail.com?subject=Support Ticket&body=If you want to upload log files to our tech teams. Please, find them on the Open Logs option in the menu.`
+      )
     }
   },
   name: 'Header',
