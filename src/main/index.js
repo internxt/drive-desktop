@@ -7,8 +7,7 @@ import {
   Menu,
   shell,
   dialog,
-  powerMonitor
-} from 'electron'
+  powerMonitor } from 'electron'
 import path from 'path'
 import Logger from '../libs/logger'
 import AutoLaunch from '../libs/autolauncher'
@@ -19,6 +18,7 @@ import fetch from 'electron-fetch'
 import fs from 'fs'
 import ConfigStore from './config-store'
 import TrayMenu from './traymenu'
+
 require('@electron/remote/main').initialize()
 AutoLaunch.configureAutostart()
 
