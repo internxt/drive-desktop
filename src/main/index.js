@@ -66,7 +66,7 @@ function createWindow() {
     height: 550,
     useContentSize: true,
     // frame: process.env.NODE_ENV === 'development',
-    frame: true,
+    frame: false,
     autoHideMenuBar: false,
     skipTaskbar: process.env.NODE_ENV !== 'development',
     show: process.env.NODE_ENV === 'development',
