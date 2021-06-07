@@ -1,18 +1,13 @@
 <template>
   <div>
-    <div class="flex justify-between p-4">
-      <div class="flex">
-        <div>
-          <div class="flex">
-            <span
-              ><InternxtBrand class="mt-0-64 mr-1.5" :width="16" :height="16"
-            /></span>
-            <div class="text-gray-800 text-xl font-extrabold">
-              {{ appName }}
-            </div>
-          </div>
-          <div class="text-sm text-gray-600">{{ SubtitleApp }}</div>
+    <div class="flex justify-between items-start p-4 pt-2 pb-6">
+      <div class="flex flex-col">
+        <div class="flex items-center">
+          <InternxtBrand :width="16" :height="16"/>
+          <div class="text-gray-800 text-xl font-extrabold ml-1.5">{{ appName }}</div>
         </div>
+
+        <div class="text-sm text-gray-500">{{ SubtitleApp }}</div>
       </div>
 
       <div class="flex">
@@ -39,21 +34,17 @@
     </div>
 
     <!-- Modal settings -->
-    <div
-      v-if="showModal === true"
-      class="bg-white p-4 w-full absolute z-10 rounded-t-2xl h-19r"
-    >
-      <div>
-        <div class="flex justify-between">
-          <div class="subTitle font-semibold mb-3">Configuration</div>
-          <div class="cursor-pointer" v-on:click="CloseModalSettings()">
-            <UilMultiply class="mr-2 text-blue-600" />
-          </div>
+    <div v-if="showModal === true" class="bg-white p-4 px-6 w-full absolute rounded-t-2xl -mt-5">
+      <div class="flex justify-between">
+        <span class="subTitle mb-3">Configuration</span>
+
+        <div class="cursor-pointer" v-on:click="CloseModalSettings()">
+          <UilMultiply class="mr-2 text-blue-600" />
         </div>
       </div>
 
-      <div>Sync mode</div>
-      <form class="mt-2 mb-2">
+      <span class="text-sm text-black">Sync mode</span>
+      <form class="mt-1 mb-2">
         <div>
           <input
             type="radio"
@@ -62,18 +53,18 @@
             value=false
             @click="syncModeChange"
           />
-          <label for="contactChoice1">Full sync</label>
+          <label class="text-xs text-gray-500 cursor-pointer" for="contactChoice1">Full sync</label>
         </div>
 
         <div>
             <input
               type="radio"
-              id="contactChoice1"
+              id="contactChoice2"
               name="contact"
               value=true
               @click="syncModeChange"
             />
-          <label for="contactChoice1">Upload only</label>
+          <label class="text-xs text-gray-500 cursor-pointer" for="contactChoice2">Upload only</label>
         </div>
       </form>
 
@@ -81,7 +72,7 @@
       <div class="flex">
         <div class="flex">
           <UilFolderOpen class="text-blue-600 mr-2 mt-0.5" />
-          <div class="text-gray-500">/home/desktop/myfolder</div>
+          <div class="text-xs text-gray-500">/home/desktop/myfolder</div>
         </div>
         <div v-on:click="changeFolder()" class="text-blue-600 ml-8 cursor-pointer">Change</div>
       </div>
@@ -92,10 +83,10 @@
     <!-- Modal Account -->
     <div
       v-if="showModalAccount === true"
-      class="bg-white p-4 w-full absolute z-10 rounded-t-2xl h-19r"
+      class="bg-white p-4 w-full absolute rounded-t-2xl h-19"
     >
       <div class="flex justify-between">
-        <div class="subTitle font-semibold mb-3">Configuration</div>
+        <div class="subTitle mb-3">Account</div>
         <div class="cursor-pointer" v-on:click="CloseModalAccount()">
           <UilMultiply class="mr-2 text-blue-600" />
         </div>
