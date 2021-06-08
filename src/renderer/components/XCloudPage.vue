@@ -132,7 +132,7 @@ export default {
     this.$app = this.$electron.remote.app
     Monitor.Monitor(true)
     remote.app.on('set-tooltip', this.setTooltip)
-    console.log('Filelogger', this.file)
+    // console.log('Filelogger', this.file)
     remote.app.on('user-logout', async (saveData = false) => {
       remote.app.emit('sync-stop', false)
       await database.logOut(saveData)
