@@ -43,16 +43,16 @@
       leave-to-class="leave-to"
       leave-active-class="slide-leave-active"
     >
-      <div v-if="showModal === true" class="bg-white p-4 px-6 w-full h-full absolute rounded-t-2xl z-10">
+      <div v-if="showModal === true" class="bg-white p-4 px-6 w-full h-full fixed rounded-t-2xl z-10">
         <div class="flex justify-between">
-          <div class="text-black text-lg font-bold mb-3">Configuration</div>
+          <div class="text-black text-base font-bold mb-3">Configuration</div>
 
           <div class="cursor-pointer" v-on:click="CloseModalSettings()">
             <UilMultiply class="mr-2 text-blue-600" />
           </div>
         </div>
 
-        <span class="text-base text-black">Sync mode</span>
+        <span class="text-sm text-black">Sync mode</span>
         <form class="mt-2 mb-2">
           <div>
             <input
@@ -63,7 +63,7 @@
               v-model="CheckedValue"
               @change="syncModeChange()"
             />
-            <label class="text-sm text-gray-500 cursor-pointer" for="contactChoice1">Full sync</label>
+            <label class="text-xs text-gray-500 cursor-pointer" for="contactChoice1">Full sync</label>
           </div>
 
           <div>
@@ -75,20 +75,20 @@
                 v-model="CheckedValue"
                 @change="syncModeChange()"
               />
-            <label class="text-sm text-gray-500 cursor-pointer" for="contactChoice2">Upload only</label>
+            <label class="text-xs text-gray-500 cursor-pointer" for="contactChoice2">Upload only</label>
           </div>
         </form>
 
-        <div class="text-base mt-3">Change sync folder</div>
+        <div class="text-sm mt-3">Change sync folder</div>
         <div class="flex mt-2">
           <div class="flex">
             <UilFolderOpen class="text-blue-600 mr-2 mt-0.5" />
-            <div class="text-sm text-gray-500">{{this.path}}</div>
+            <div class="text-xs text-gray-500">{{this.path}}</div>
           </div>
           <div v-on:click="changeFolder()" class="text-blue-600 ml-8 cursor-pointer">Change</div>
         </div>
 
-        <div class="text-base mt-4"><input class="mr-2" type="checkbox" v-model="LaunchCheck" value=true v-on:change="launchAtLogin()"/>Launch at login</div>
+        <div class="text-sm mt-4"><input class="mr-2" type="checkbox" v-model="LaunchCheck" value=true v-on:change="launchAtLogin()"/>Launch at login</div>
       </div>
     </transition>
 
@@ -101,18 +101,18 @@
       leave-to-class="leave-to"
       leave-active-class="slide-leave-active"
     >
-      <div v-if="showModalAccount === true" class="bg-white p-4 px-6 w-full h-full absolute rounded-t-2xl z-10">
+      <div v-if="showModalAccount === true" class="bg-white p-4 px-6 w-full h-full fixed rounded-t-2xl z-10">
         <div class="flex justify-between">
-          <div class="text-black text-lg font-bold mb-3">Account</div>
+          <div class="text-black text-base font-bold mb-3">Account</div>
           <div class="cursor-pointer" v-on:click="CloseModalAccount()">
             <UilMultiply class="mr-2 text-blue-600" />
           </div>
         </div>
 
-        <div v-on:click="openLogs()" class="text-base mb-3 hover:text-blue-600 cursor-pointer">Open logs</div>
-        <div v-on:click="ContactSupportMailto()" class="text-base hover:text-blue-600 cursor-pointer mb-3">Contact support</div>
-        <div class="text-base mb-3 hover:text-blue-600 cursor-pointer" @click="logout()">Log out</div>
-        <div class="text-base hover:text-blue-600 cursor-pointer" @click="quitApp()">Quit</div>
+        <div v-on:click="openLogs()" class="text-sm mb-3 hover:text-blue-600 cursor-pointer">Open logs</div>
+        <div v-on:click="ContactSupportMailto()" class="text-sm hover:text-blue-600 cursor-pointer mb-3">Contact support</div>
+        <div class="text-sm mb-3 hover:text-blue-600 cursor-pointer" @click="logout()">Log out</div>
+        <div class="text-sm hover:text-blue-600 cursor-pointer" @click="quitApp()">Quit</div>
       </div>
     </transition>
   </div>

@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-cool-gray-10">
+  <div class="bg-cool-gray-10 overflow:hidden">
    <div class="text-cool-gray-90"></div>
 
       <Header
