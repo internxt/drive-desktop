@@ -1,6 +1,6 @@
 'use strict'
 
-import {
+import electron, {
   app,
   BrowserWindow,
   Tray,
@@ -57,6 +57,14 @@ app.on('update-menu', user => {
 })
 
 function createWindow() {
+  trayMenu = new TrayMenu(mainWindow)
+  trayMenu.init()
+  trayMenu.setToolTip('Internxt Drive ' + PackageJson.version)
+  trayMenu.updateContextMenu()
+
+  const display = electron.screen.getPrimaryDisplay()
+  const trayBounds = trayMenu.tray.getBounds()
+  console.log('traybound =>', trayBounds)
   mainWindow = new BrowserWindow({
     webPreferences: {
       nodeIntegration: true,
@@ -66,14 +74,17 @@ function createWindow() {
     },
     width: 450,
     height: 550,
+    x: display.bounds.width - 450,
+    y: trayBounds.y,
     useContentSize: true,
     // frame: process.env.NODE_ENV === 'development',
-    frame: true,
+    frame: false,
     autoHideMenuBar: false,
     skipTaskbar: process.env.NODE_ENV !== 'development',
     show: process.env.NODE_ENV === 'development',
-    resizable: true,
-    menuBarVisible: false
+    resizable: false,
+    menuBarVisible: false,
+    movable: false
   })
 
   mainWindow.loadURL(winURL)
@@ -168,11 +179,6 @@ function createWindow() {
       view
     ])
   )
-
-  trayMenu = new TrayMenu(mainWindow)
-  trayMenu.init()
-  trayMenu.setToolTip('Internxt Drive ' + PackageJson.version)
-  trayMenu.updateContextMenu()
 }
 
 app.on('ready', () => {
