@@ -2,8 +2,8 @@
   <div class="bg-cool-gray-10 overflow:hidden">
    <div class="text-cool-gray-90"></div>
 
-      <Header 
-      :appName="appName" 
+      <Header
+      :appName="appName"
       :emailAccount="emailAccount" />
 
       <FileStatus />
@@ -39,7 +39,7 @@
         Path:
         <a href="#" @click="openFolder()">{{ this.$data.localPath }}</a>
       </div> -->
-    
+
   </div>
 </template>
 
@@ -91,7 +91,7 @@ export default {
       isSyncing: false,
       toolTip: '',
       appName: 'Drive',
-      emailAccount: 'hello@internxt.com',
+      emailAccount: null,
       IconClass: 'prueba',
       file: {}
     }
@@ -106,6 +106,7 @@ export default {
       .Get('xUser')
       .then(xUser => {
         const userEmail = xUser.user.email
+        this.emailAccount = userEmail
         remote.app.emit('update-menu', userEmail)
         Logger.info(
           'Account: %s, User platform: %s %s, version: %s',
