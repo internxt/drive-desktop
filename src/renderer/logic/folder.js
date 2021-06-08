@@ -251,7 +251,7 @@ async function createFolders() {
       }
     }
     if (folder.state === state.state.UPLOAD) {
-      if (invalidName.test(path.basename(folder.key))) {
+      if (!folder.nameChecked && invalidName.test(path.basename(folder.key))) {
         folder.nameChecked = true
         folder.state = state.state.IGNORECLOUDNOTEXISTS
         folder.needSync = false
@@ -267,7 +267,7 @@ async function createFolders() {
       const parentDir = path.dirname(folder.key)
       folder.nameChecked = true
       const parent = select[selectIndex[parentDir]]
-      if (state.ignoredState.includes(parent.state)) {
+      if (parentDir !== basePath && state.ignoredState.includes(parent.state)) {
         folder.nameChecked = true
         folder.state = state.state.IGNORECLOUDNOTEXISTS
         folder.needSync = false

@@ -35,6 +35,10 @@ const schema = {
   forceUpload: {
     type: 'number',
     default: -1
+  },
+  resetAll: {
+    type: 'boolean',
+    default: true
   }
 }
 
