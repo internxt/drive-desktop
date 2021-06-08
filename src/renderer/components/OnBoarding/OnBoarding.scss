@@ -1,3 +1,5 @@
+@import "../scss/globals";
+
 .text-gradient {
     font-family: 'Averta-semibold';
     background: linear-gradient(to right, #30CFD0 0%, #330867 100%);
@@ -6,4 +8,14 @@
 }
 .h-800 {
     height: 800px;
+}
+
+.vector {
+  position: absolute;
+  width: 46px;
+  height: 46px;
+  top: -25px;
+  right: -25px;
+  background-color: $blue-60;
+  transform: rotate(45deg)
 }

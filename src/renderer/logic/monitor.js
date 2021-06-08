@@ -26,7 +26,6 @@ app.on('force-sync', function() {
     .track({
       event: 'force-sync',
       userId: undefined,
-      platform: 'desktop',
       properties: {
         storage_used: ConfigStore.get('usage')
       }
