@@ -130,8 +130,6 @@ export default {
     })
     this.$app = this.$electron.remote.app
     Monitor.Monitor(true)
-    this.getLocalFolderPath()
-    this.getCurrentEnv()
     remote.app.on('set-tooltip', this.setTooltip)
     console.log('Filelogger', this.file)
     remote.app.on('user-logout', async (saveData = false) => {
