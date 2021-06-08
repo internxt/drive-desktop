@@ -10,24 +10,38 @@
         <div class="text-sm text-gray-500">{{ SubtitleApp }}</div>
       </div>
 
-      <div class="flex">
+      <div class="flex items-center justify-center">
         <!-- {{ this.$data.localPath }} -->
         <!-- <div v-tooltip="{ content: 'Tooltip content here',}" @click="openFolder()"> -->
-        <div @click="openFolder()">
+        <div class="mr-3 cursor-pointer" @click="openFolder()" v-tooltip="{
+          content: 'Sync folder',
+          placement: 'bottom',
+          delay: { show: 300, hide: 300}
+        }">
           <UilFolderNetwork
-            class="mr-3 fill-current text-blue-600 cursor-pointer"
+            class="text-blue-600"
             size="24px"
           />
         </div>
-        <div v-on:click="ShowModalSettings()">
+
+        <div class="mr-3 cursor-pointer" v-on:click="ShowModalSettings()" v-tooltip="{
+          content: 'Settings',
+          placement: 'bottom',
+          delay: { show: 300, hide: 300}
+        }">
           <UilSetting
-            class="mr-3 fill-current text-blue-600 cursor-pointer"
+            class="text-blue-600"
             size="24px"
           />
         </div>
-        <div v-on:click="ShowModalAccount()">
+
+        <div class="cursor-pointer" v-on:click="ShowModalAccount()" v-tooltip="{
+          content: 'Account',
+          placement: 'bottom',
+          delay: { show: 300, hide: 300}
+        }">
           <UilUserCircle
-            class="fill-current text-blue-600 cursor-pointer"
+            class="text-blue-600"
             size="24px"
           />
         </div>
@@ -144,11 +158,11 @@ import analytics from '../../logic/utils/analytics'
 import Logger from '../../../libs/logger'
 import path from 'path'
 import electronLog from 'electron-log'
-import VTooltip from 'v-tooltip'
+import VToolTip from 'v-tooltip'
 
+Vue.use(VToolTip)
 FileLogger.on('update-last-entry', (item) => console.log(item))
 const remote = require('@electron/remote')
-Vue.use(VTooltip)
 
 export default {
   data() {
