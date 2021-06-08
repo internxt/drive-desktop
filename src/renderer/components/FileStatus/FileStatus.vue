@@ -94,20 +94,20 @@ export default {
     }
   },
   created() {
-    console.log('Entrar')
+    // console.log('Entrar')
     // this.AllfilesShow()
   },
   mounted: function () {
-    console.log('Montado')
+    // console.log('Montado')
   },
   updated: function () {
-    console.log('TTTTTTTTTTTTTT', ConfigStore.get('stopSync'), ConfigStore.get('isSyncing'))
+    console.log('LOG', ConfigStore.get('stopSync'), ConfigStore.get('isSyncing'))
     // app.on('sync-off')
-    console.log('Actualizado')
+    // console.log('Actualizado')
     this.AllfilesShow()
   },
   destroyed: function () {
-    console.log('destroy')
+    // console.log('destroy')
   },
   methods: {
     formatNumberPercent(value) {
