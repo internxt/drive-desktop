@@ -32,7 +32,7 @@ if (process.env.NODE_ENV !== 'development') {
   global.__static = path.join(__dirname, '/static').replace(/\\/g, '\\\\')
 }
 
-let mainWindow, tray, trayMenu
+let mainWindow, mainWindow2, tray, trayMenu
 
 const winURL =
   process.env.NODE_ENV === 'development'
@@ -75,6 +75,30 @@ function createWindow() {
     resizable: true,
     menuBarVisible: false
   })
+
+  mainWindow2 = new BrowserWindow({
+    webPreferences: {
+      nodeIntegration: true,
+      contextIsolation: false,
+      webSecurity: process.env.NODE_ENV !== 'development',
+      enableRemoteModule: true
+    },
+    minWidth: 800,
+    minHeight: 500,
+    width: 1450,
+    height: 550,
+    useContentSize: true,
+    // frame: process.env.NODE_ENV === 'development',
+    frame: true,
+    autoHideMenuBar: false,
+    skipTaskbar: process.env.NODE_ENV !== 'development',
+    show: process.env.NODE_ENV === 'development',
+    resizable: true,
+    menuBarVisible: true
+  })
+
+  mainWindow2.loadURL(winURL + '/#/onboarding')
+  mainWindow2.show()
 
   mainWindow.loadURL(winURL)
 

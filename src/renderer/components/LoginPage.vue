@@ -66,15 +66,21 @@ import analytics from '../logic/utils/analytics'
 import ConfigStore from '../../main/config-store'
 import uuid4 from 'uuid4'
 import InternxtBrand from '../components/ExportIcons/InternxtBrand'
+const { remote: remote2 } = require('electron')
 const remote = require('@electron/remote')
 const ROOT_FOLDER_NAME = 'Internxt Drive'
 const HOME_FOLDER_PATH = remote.app.getPath('home')
 const anonymousId = uuid4()
+let x
 
 export default {
   name: 'login-page',
   beforeCreate() {
     remote.app.emit('window-show')
+  },
+  created() {
+    console.log('NEW WINDOW')
+    const { BrowserWindow } = remote
   },
   data() {
     return {
