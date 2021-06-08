@@ -26,7 +26,8 @@
                 class="text-2xl mr-3 fill-current text-green-500"
               />
               <div>
-                <div>{{ item.filename }}</div>
+                <div v-if="item.filename.length < 30">{{ item.filename }}</div>
+                <div v-if="item.filename.length >= 30">{{ item.filename.substr(0,30) }}...</div>
                 <div class="text-xs text-gray-500">
                   <span class="text-green-500">{{ formatNumberPercent(item.progress) }} %</span> File
                   successfully synchronized
@@ -73,6 +74,10 @@ import {
 } from '@iconscout/vue-unicons'
 import FileLogger from '../../logic/FileLogger'
 import './FileStatus'
+import ConfigStore from '../../../main/config-store'
+
+const { app } = require('@electron/remote')
+// const remote = require('@electron/remote')
 
 // FileLogger.on('update-last-entry', (item) => console.log('LAST-ENTRY', item))
 // FileLogger.on('update-last-entry',(item) => console.log('HERE', item))
@@ -84,7 +89,8 @@ export default {
   data() {
     return {
       test: {},
-      FileStatusSync: []
+      FileStatusSync: [],
+      loading: false
     }
   },
   created() {
@@ -95,6 +101,8 @@ export default {
     console.log('Montado')
   },
   updated: function () {
+    console.log('TTTTTTTTTTTTTT', ConfigStore.get('stopSync'), ConfigStore.get('isSyncing'))
+    // app.on('sync-off')
     console.log('Actualizado')
     this.AllfilesShow()
   },
@@ -110,13 +118,15 @@ export default {
     },
     statusFile() {
       FileLogger.on('update-last-entry', (item) => {
-        this.test = item
-        return this.test
+        const newArray = [item, ...this.FileStatusSync]
+        this.FileStatusSync = newArray
+        return this.FileStatusSync
       })
-      return console.log('DATA', this.test)
+      return console.log('DATA', this.FileStatusSync)
     },
     AllfilesShow() {
       FileLogger.on('new-emit', (item) => {
+        // console.log('organizar', item)
         this.FileStatusSync = item
         return this.FileStatusSync
       })

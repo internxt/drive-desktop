@@ -35,6 +35,10 @@ const schema = {
   forceUpload: {
     type: 'number',
     default: -1
+  },
+  EndSync: {
+    type: 'boolean',
+    default: false
   }
 }
 

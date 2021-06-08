@@ -17,7 +17,6 @@
           </div>
         </div>
 
-
         <div class="text-xs text-gray-500 text-center pt-12">
           Not synchronizations yet. Start on click <span class="text-blue-600">Full sync</span> button
         </div>
@@ -27,6 +26,7 @@
 <script>
 
 import { UilCloudDataConnection } from '@iconscout/vue-unicons'
+import ConfigStore from '../../../main/config-store'
 import './SyncButtonAction.scss'
 
 const remote = require('@electron/remote')
@@ -38,7 +38,17 @@ export default ({
     },
     forceSync() {
       remote.app.emit('sync-start')
+    },
+    StopForceSync() {
+      remote.app.on('sync-off')
+      return console.log('hola')
     }
+  },
+  created: function() {
+    console.log('sale', ConfigStore.get('stopSync'))
+  },
+  updated: function() {
+    console.log('entra', ConfigStore.get('stopSync'))
   },
   name: 'SyncButtonAction',
   props: {

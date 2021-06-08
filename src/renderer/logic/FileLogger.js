@@ -27,15 +27,15 @@ class FileLogger extends EventEmitter {
       try {
         // Update the last record in Logger
         Object.assign(this.queue[this.head], item)
-        console.log('emitiendo', this.getHead(), this.queue, this.getAll())
+        console.log('emitiendo', this.getHead(), this.queue, this.getQueue())
         this.emit('update-last-entry', this.getHead())
-        this.emit('new-emit', this.getAll())
+        this.emit('new-emit', this.getQueue())
       } catch (err) {
         Logger.error(err)
       }
     } else {
       // console.log(3)
-      console.log(this.getAll())
+      console.log(this.getQueue())
       // Create a new record in Logger
       this.head = (this.head + 1) % this.maxSize
       this.queue[this.head] = item
@@ -50,6 +50,11 @@ class FileLogger extends EventEmitter {
     const tail = queue.slice(0, this.head)
     const orderedItems = head.concat(tail)
     return orderedItems
+  }
+  getQueue() {
+    const queue = (this.queue.slice().reverse()).filter(e => { return (e != null) })
+    console.log('la cola', queue)
+    return queue
   }
 
   getHead() {
