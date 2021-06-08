@@ -43,6 +43,7 @@ async function SyncLogic(callback) {
     Logger.warn('sync not started: another device already syncing')
     return start(callback)
   }
+  ConfigStore.set('isSyncing', true)
   if (userDevicesSyncing.ensure !== undefined) {
     File.setEnsureMode(
       userDevicesSyncing.ensure,
