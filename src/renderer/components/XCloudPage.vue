@@ -2,9 +2,9 @@
   <div class="bg-cool-gray-10 overflow:hidden">
    <div class="text-cool-gray-90"></div>
 
-      <Header
-      :appName="appName"
-      :SubtitleApp="SubtitleApp" />
+      <Header 
+      :appName="appName" 
+      :emailAccount="emailAccount" />
 
       <FileStatus />
       <SyncButtonAction />
@@ -39,7 +39,7 @@
         Path:
         <a href="#" @click="openFolder()">{{ this.$data.localPath }}</a>
       </div> -->
-
+    
   </div>
 </template>
 
@@ -91,7 +91,7 @@ export default {
       isSyncing: false,
       toolTip: '',
       appName: 'Drive',
-      SubtitleApp: null,
+      emailAccount: 'hello@internxt.com',
       IconClass: 'prueba',
       file: {}
     }
@@ -106,7 +106,6 @@ export default {
       .Get('xUser')
       .then(xUser => {
         const userEmail = xUser.user.email
-        this.$data.SubtitleApp = userEmail
         remote.app.emit('update-menu', userEmail)
         Logger.info(
           'Account: %s, User platform: %s %s, version: %s',
@@ -134,8 +133,7 @@ export default {
     remote.app.on('set-tooltip', this.setTooltip)
     console.log('Filelogger', this.file)
     remote.app.on('user-logout', async (saveData = false) => {
-      remote.app.emit('sync-stop')
-      console.log('sale', ConfigStore.get('stopSync'))
+      remote.app.emit('sync-stop', false)
       await database.logOut(saveData)
       const localUser = ConfigStore.get('user.uuid')
       if (localUser) {
@@ -143,6 +141,7 @@ export default {
           .track({
             event: 'user-signout',
             userId: undefined,
+            platform: 'desktop',
             properties: {
               email: 'email'
             }
@@ -155,13 +154,11 @@ export default {
           })
       }
       remote.app.emit('update-menu')
-      FileLogger.clearLogger()
-      FileLogger.saveLogger()
       this.$router.push('/').catch(() => {})
     })
 
     remote.app.on('new-folder-path', async newPath => {
-      remote.app.emit('sync-stop')
+      remote.app.emit('sync-stop', false)
       await database.ClearAll()
       await database.Set('lastSyncSuccess', false)
       database.Set('xPath', newPath)
@@ -182,16 +179,16 @@ export default {
       remote.app.emit('sync-start')
     },
     stopSync() {
-      remote.app.emit('sync-stop')
+      remote.app.emit('sync-stop', false)
     },
     unlockDevice() {
       DeviceLock.unlock()
-    },
+    }, /*
     changeTrayIconOn() {
       remote.app.emit('sync-on')
-    },
+    }, */
     changeTrayIconOff() {
-      remote.app.emit('sync-off')
+      remote.app.emit('sync-off', false)
     },
     getUser() {},
     getUsage() {
