@@ -2,7 +2,6 @@ import fs from 'fs'
 import path from 'path'
 import Logger from '../../libs/logger'
 import EventEmitter from 'events'
-import database from '../../database'
 class FileLogger extends EventEmitter {
   constructor(maxSize = 50) {
     super()
@@ -80,10 +79,6 @@ class FileLogger extends EventEmitter {
       this.queue = []
     }
     return this.queue
-  }
-
-  getPath() {
-    return database.Get('xPath')
   }
 }
 
