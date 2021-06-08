@@ -67,28 +67,31 @@
           </div>
 
           <div>
-              <input
-                type="radio"
-                id="contactChoice2"
-                name="contact"
-                value="upload"
-                v-model="CheckedValue"
-                @change="syncModeChange()"
-              />
+            <input
+              type="radio"
+              id="contactChoice2"
+              name="contact"
+              value="upload"
+              v-model="CheckedValue"
+              @change="syncModeChange()"
+            />
             <label class="text-xs text-gray-500 cursor-pointer" for="contactChoice2">Upload only</label>
           </div>
         </form>
 
         <div class="text-sm mt-3">Change sync folder</div>
-        <div class="flex mt-2">
-          <div class="flex">
+        <div class="flex items-center mt-2">
+          <div class="flex items-center">
             <UilFolderOpen class="text-blue-600 mr-2 mt-0.5" />
             <div class="text-xs text-gray-500">{{this.path}}</div>
           </div>
-          <div v-on:click="changeFolder()" class="text-blue-600 ml-8 cursor-pointer">Change</div>
+          <div v-on:click="changeFolder()" class="text-sm text-blue-600 ml-8 cursor-pointer">Change</div>
         </div>
 
-        <div class="text-sm mt-4"><input class="mr-2" type="checkbox" v-model="LaunchCheck" value=true v-on:change="launchAtLogin()"/>Launch at login</div>
+        <label class="checkbox mt-3">
+          <input type="checkbox" v-model="LaunchCheck" value="true" v-on:change="launchAtLogin()">
+          <span class="ml-2 text-gray-700">Launch at login</span>
+        </label>
       </div>
     </transition>
 

@@ -1,3 +1,5 @@
+@import "../scss/globals";
+
 .text-brand {
     @include text-xs;
 }
@@ -70,3 +72,42 @@ body::-webkit-scrollbar {
 
 .slide-enter-active,
 .slide-leave-active { transition: all 500ms ease-in-out }
+
+.checkbox {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  position: relative;
+}
+
+.checkbox > span {
+  color: #34495E;
+}
+
+.checkbox > input {
+  height: 13px;
+  width: 13px;
+  appearance: none;
+  border: 1px solid $gray-60;
+  border-radius: 3px;
+  outline: none;
+  transition-duration: 0.3s;
+  background-color: white;
+  cursor: pointer;
+}
+
+.checkbox > input:checked {
+  border: none;
+  background-color: $blue-60;
+}
+
+.checkbox > input:checked + span::before {
+  content: '\2713';
+  display: block;
+  text-align: center;
+  color: white;
+  position: absolute;
+  left: 3px;
+  top: 4px;
+  font-size: 10px;
+}
