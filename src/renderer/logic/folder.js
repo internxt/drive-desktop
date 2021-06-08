@@ -105,7 +105,6 @@ async function createRemoteFolder(folders) {
           .track({
             userId: undefined,
             event: 'folder-created',
-            platform: 'desktop',
             properties: {
               email: 'email'
             }

@@ -187,7 +187,6 @@ export default {
           .track({
             event: 'user-signout',
             userId: undefined,
-            platform: 'desktop',
             properties: {
               email: 'email'
             }

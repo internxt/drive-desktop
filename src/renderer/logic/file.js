@@ -578,7 +578,6 @@ async function downloadFile(file, cloudFile, localFile) {
       .track({
         userId: undefined,
         event: 'file-download-start',
-        platform: 'desktop',
         properties: {
           email: 'email',
           file_id: cloudFile.fileId,
@@ -621,7 +620,6 @@ async function downloadFile(file, cloudFile, localFile) {
       .track({
         userId: undefined,
         event: 'file-download-finished',
-        platform: 'desktop',
         properties: {
           email: 'email',
           file_id: cloudFile.fileId,
