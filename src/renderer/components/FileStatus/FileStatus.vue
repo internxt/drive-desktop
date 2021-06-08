@@ -1,9 +1,9 @@
 <template>
   <div class="bg-white rounded-t-2xl p-4 px-6 h-48 fileStatusBox overflow-scroll">
-    <div class="text-lg text-black font-bold mb-3">File status</div>
-    <div>
       <!-- {{this.statusFile()}} -->
       {{ this.AllfilesShow() }}
+    <div v-if="FileStatusSync.length > 0">
+      <div class="text-base text-black font-bold mb-3">File status</div>
       <div class="mb-1">
         <div
           class=""
@@ -63,6 +63,11 @@
         </div>
       </div>
     </div>
+
+    <div v-else class="flex flex-col items-center justify-center w-full h-full">
+      <CircleWithCloud :width="65" :height="65"/>
+      <p class="text-base text-gray-500 font-semibold mt-3">There are no files to synchronize yet</p>
+    </div>
   </div>
 </template>
 <script>
@@ -74,6 +79,7 @@ import {
 } from '@iconscout/vue-unicons'
 import FileLogger from '../../logic/FileLogger'
 import './FileStatus'
+import CircleWithCloud from '../ExportIcons/CircleWithCloud'
 import ConfigStore from '../../../main/config-store'
 
 const { app } = require('@electron/remote')
@@ -139,7 +145,8 @@ export default {
     UilFileCheckAlt,
     UilFileUpload,
     UilFileExclamation,
-    UilFileBlank
+    UilFileBlank,
+    CircleWithCloud
   }
 }
 </script>
