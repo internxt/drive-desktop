@@ -13,7 +13,7 @@
           storage with a minimalist interface for ease of use
         </p>
 
-        <input @click.prevent="slideNext" type="button" value="Start" class="text-2xl text-blue-600 font-bold mt-16 cursor-pointer focus:outline-none" />
+        <input @click.prevent="slideNext" type="button" value="Start" class="text-2xl text-blue-600 font-bold mt-16 bg-transparent cursor-pointer focus:outline-none" />
 
         <div class="flex items-center absolute top-0 right-0">
           <img src="../../assets/images/slide-1/top-right-image.png" />
@@ -25,7 +25,7 @@
       </div>
     </slide>
     
-    <slide>
+    <!-- <slide>
       <div class="flex flex-col items-center h-full">
         <div class="flex items-end h-16">
           <img src="../../assets/images/slide-1/internxt-name-logo.png" />
@@ -69,7 +69,7 @@
           </button>
         </div>
       </div>
-    </slide>
+    </slide> -->
 
     <slide>
       <div class="flex h-full">
