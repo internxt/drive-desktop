@@ -64,7 +64,7 @@ function createWindow() {
 
   const display = electron.screen.getPrimaryDisplay()
   const trayBounds = trayMenu.tray.getBounds()
-  console.log('traybound =>', trayBounds)
+
   mainWindow = new BrowserWindow({
     webPreferences: {
       nodeIntegration: true,
@@ -96,8 +96,8 @@ function createWindow() {
     },
     minWidth: 800,
     minHeight: 500,
-    width: 1450,
-    height: 550,
+    width: 800,
+    height: 500,
     useContentSize: true,
     // frame: process.env.NODE_ENV === 'development',
     frame: true,
