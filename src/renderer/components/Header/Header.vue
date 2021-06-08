@@ -96,7 +96,7 @@
         <div class="text-sm mt-3">Change sync folder</div>
         <div class="flex items-center mt-2">
           <div class="flex items-center">
-            <UilFolderOpen class="text-blue-600 mr-2 mt-0.5" />
+            <div><UilFolderOpen class="text-blue-600 mr-2 mt-0.5" /></div>
             <div class="text-xs text-gray-500">{{this.path}}</div>
           </div>
           <div v-on:click="changeFolder()" class="text-sm text-blue-600 ml-8 cursor-pointer">Change</div>
