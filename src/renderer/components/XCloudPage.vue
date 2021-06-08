@@ -2,8 +2,8 @@
   <div class="bg-cool-gray-10">
    <div class="text-cool-gray-90"></div>
 
-      <Header 
-      :appName="appName" 
+      <Header
+      :appName="appName"
       :SubtitleApp="SubtitleApp" />
 
       <FileStatus />
@@ -39,7 +39,7 @@
         Path:
         <a href="#" @click="openFolder()">{{ this.$data.localPath }}</a>
       </div> -->
-    
+
   </div>
 </template>
 
@@ -156,6 +156,8 @@ export default {
           })
       }
       remote.app.emit('update-menu')
+      FileLogger.clearLogger()
+      FileLogger.saveLogger()
       this.$router.push('/').catch(() => {})
     })
 
