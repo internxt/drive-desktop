@@ -27,10 +27,9 @@ const analytics = {
         object.properties.email = this.userData.userMail
       }
     }
-    object['context'] = {
-      platform: process.platform,
-      version: PackageJson.version
-    }
+    object.properties.platform = 'desktop'
+    object.properties.version = PackageJson.version
+
     segmentAnalytics.track(object)
   },
   identify: async function(object) {

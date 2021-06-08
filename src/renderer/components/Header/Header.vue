@@ -10,24 +10,38 @@
         <div class="text-sm text-gray-500">{{ SubtitleApp }}</div>
       </div>
 
-      <div class="flex">
+      <div class="flex items-center justify-center">
         <!-- {{ this.$data.localPath }} -->
         <!-- <div v-tooltip="{ content: 'Tooltip content here',}" @click="openFolder()"> -->
-        <div @click="openFolder()">
+        <div class="mr-3 cursor-pointer" @click="openFolder()" v-tooltip="{
+          content: 'Sync folder',
+          placement: 'bottom',
+          delay: { show: 300, hide: 300}
+        }">
           <UilFolderNetwork
-            class="mr-3 fill-current text-blue-600 cursor-pointer"
+            class="text-blue-600"
             size="24px"
           />
         </div>
-        <div v-on:click="ShowModalSettings()">
+
+        <div class="mr-3 cursor-pointer" v-on:click="ShowModalSettings()" v-tooltip="{
+          content: 'Settings',
+          placement: 'bottom',
+          delay: { show: 300, hide: 300}
+        }">
           <UilSetting
-            class="mr-3 fill-current text-blue-600 cursor-pointer"
+            class="text-blue-600"
             size="24px"
           />
         </div>
-        <div v-on:click="ShowModalAccount()">
+
+        <div class="cursor-pointer" v-on:click="ShowModalAccount()" v-tooltip="{
+          content: 'Account',
+          placement: 'bottom',
+          delay: { show: 300, hide: 300}
+        }">
           <UilUserCircle
-            class="fill-current text-blue-600 cursor-pointer"
+            class="text-blue-600"
             size="24px"
           />
         </div>
@@ -43,16 +57,16 @@
       leave-to-class="leave-to"
       leave-active-class="slide-leave-active"
     >
-      <div v-if="showModal === true" class="bg-white p-4 px-6 w-full h-full absolute rounded-t-2xl z-10">
+      <div v-if="showModal === true" class="bg-white p-4 px-6 w-full h-full fixed rounded-t-2xl z-10">
         <div class="flex justify-between">
-          <div class="text-black text-lg font-bold mb-3">Configuration</div>
+          <div class="text-black text-base font-bold mb-3">Configuration</div>
 
           <div class="cursor-pointer" v-on:click="CloseModalSettings()">
             <UilMultiply class="mr-2 text-blue-600" />
           </div>
         </div>
 
-        <span class="text-base text-black">Sync mode</span>
+        <span class="text-sm text-black">Sync mode</span>
         <form class="mt-2 mb-2">
           <div>
             <input
@@ -63,32 +77,35 @@
               v-model="CheckedValue"
               @change="syncModeChange()"
             />
-            <label class="text-sm text-gray-500 cursor-pointer" for="contactChoice1">Full sync</label>
+            <label class="text-xs text-gray-500 cursor-pointer" for="contactChoice1">Full sync</label>
           </div>
 
           <div>
-              <input
-                type="radio"
-                id="contactChoice2"
-                name="contact"
-                value="upload"
-                v-model="CheckedValue"
-                @change="syncModeChange()"
-              />
-            <label class="text-sm text-gray-500 cursor-pointer" for="contactChoice2">Upload only</label>
+            <input
+              type="radio"
+              id="contactChoice2"
+              name="contact"
+              value="upload"
+              v-model="CheckedValue"
+              @change="syncModeChange()"
+            />
+            <label class="text-xs text-gray-500 cursor-pointer" for="contactChoice2">Upload only</label>
           </div>
         </form>
 
-        <div class="text-base mt-3">Change sync folder</div>
-        <div class="flex mt-2">
-          <div class="flex">
+        <div class="text-sm mt-3">Change sync folder</div>
+        <div class="flex items-center mt-2">
+          <div class="flex items-center">
             <UilFolderOpen class="text-blue-600 mr-2 mt-0.5" />
-            <div class="text-sm text-gray-500">{{this.path}}</div>
+            <div class="text-xs text-gray-500">{{this.path}}</div>
           </div>
-          <div v-on:click="changeFolder()" class="text-blue-600 ml-8 cursor-pointer">Change</div>
+          <div v-on:click="changeFolder()" class="text-sm text-blue-600 ml-8 cursor-pointer">Change</div>
         </div>
 
-        <div class="text-base mt-4"><input class="mr-2" type="checkbox" v-model="LaunchCheck" value=true v-on:change="launchAtLogin()"/>Launch at login</div>
+        <label class="checkbox mt-3">
+          <input type="checkbox" v-model="LaunchCheck" value="true" v-on:change="launchAtLogin()">
+          <span class="ml-2 text-gray-700">Launch at login</span>
+        </label>
       </div>
     </transition>
 
@@ -101,18 +118,18 @@
       leave-to-class="leave-to"
       leave-active-class="slide-leave-active"
     >
-      <div v-if="showModalAccount === true" class="bg-white p-4 px-6 w-full h-full absolute rounded-t-2xl z-10">
+      <div v-if="showModalAccount === true" class="bg-white p-4 px-6 w-full h-full fixed rounded-t-2xl z-10">
         <div class="flex justify-between">
-          <div class="text-black text-lg font-bold mb-3">Account</div>
+          <div class="text-black text-base font-bold mb-3">Account</div>
           <div class="cursor-pointer" v-on:click="CloseModalAccount()">
             <UilMultiply class="mr-2 text-blue-600" />
           </div>
         </div>
 
-        <div v-on:click="openLogs()" class="text-base mb-3 hover:text-blue-600 cursor-pointer">Open logs</div>
-        <div v-on:click="ContactSupportMailto()" class="text-base hover:text-blue-600 cursor-pointer mb-3">Contact support</div>
-        <div class="text-base mb-3 hover:text-blue-600 cursor-pointer" @click="logout()">Log out</div>
-        <div class="text-base hover:text-blue-600 cursor-pointer" @click="quitApp()">Quit</div>
+        <div v-on:click="openLogs()" class="text-sm mb-3 hover:text-blue-600 cursor-pointer">Open logs</div>
+        <div v-on:click="ContactSupportMailto()" class="text-sm hover:text-blue-600 cursor-pointer mb-3">Contact support</div>
+        <div class="text-sm mb-3 hover:text-blue-600 cursor-pointer" @click="logout()">Log out</div>
+        <div class="text-sm hover:text-blue-600 cursor-pointer" @click="quitApp()">Quit</div>
       </div>
     </transition>
   </div>
@@ -141,11 +158,11 @@ import analytics from '../../logic/utils/analytics'
 import Logger from '../../../libs/logger'
 import path from 'path'
 import electronLog from 'electron-log'
-import VTooltip from 'v-tooltip'
+import VToolTip from 'v-tooltip'
 
+Vue.use(VToolTip)
 FileLogger.on('update-last-entry', (item) => console.log(item))
 const remote = require('@electron/remote')
-Vue.use(VTooltip)
 
 export default {
   data() {
@@ -174,9 +191,7 @@ export default {
     })
     this.$app = this.$electron.remote.app
     Monitor.Monitor(true)
-    this.getLocalFolderPath()
-    this.getCurrentEnv()
-    remote.app.on('set-tooltip', this.setTooltip)
+    // remote.app.on('set-tooltip', this.setTooltip)
     console.log('Filelogger', this.file)
     remote.app.on('user-logout', async (saveData = false) => {
       remote.app.emit('sync-stop')
@@ -187,7 +202,6 @@ export default {
           .track({
             event: 'user-signout',
             userId: undefined,
-            platform: 'desktop',
             properties: {
               email: 'email'
             }

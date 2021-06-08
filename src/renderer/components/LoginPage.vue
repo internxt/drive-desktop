@@ -182,7 +182,6 @@ export default {
               .track({
                 anonymousId: anonymousId,
                 event: 'user-signin-attempted',
-                platform: 'desktop',
                 properties: {
                   status: res.res.status,
                   msg: res.body.error
@@ -238,7 +237,6 @@ export default {
               .track({
                 anonymousId: anonymousId,
                 event: 'user-signin-attempted',
-                platform: 'desktop',
                 properties: {
                   status: res.data.status,
                   msg: res.data.error
@@ -273,14 +271,12 @@ export default {
             analytics
               .identify({
                 userId: undefined,
-                platform: 'desktop',
                 email: 'email'
               })
               .then(() => {
                 analytics.track({
                   userId: undefined,
                   event: 'user-signin',
-                  platform: 'desktop',
                   properties: {
                     email: undefined
                   }
