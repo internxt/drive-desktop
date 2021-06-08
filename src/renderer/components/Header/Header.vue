@@ -7,7 +7,7 @@
           <div class="text-gray-800 text-xl font-extrabold ml-1.5">{{ appName }}</div>
         </div>
 
-        <div class="text-sm text-gray-500">{{ SubtitleApp }}</div>
+        <div class="text-sm text-gray-500">{{ emailAccount }}</div>
       </div>
 
       <div class="flex items-center justify-center">
@@ -194,7 +194,7 @@ export default {
     // remote.app.on('set-tooltip', this.setTooltip)
     console.log('Filelogger', this.file)
     remote.app.on('user-logout', async (saveData = false) => {
-      remote.app.emit('sync-stop')
+      remote.app.emit('sync-stop', false)
       await database.logOut(saveData)
       const localUser = ConfigStore.get('user.uuid')
       if (localUser) {
@@ -218,7 +218,7 @@ export default {
     })
 
     remote.app.on('new-folder-path', async (newPath) => {
-      remote.app.emit('sync-stop')
+      remote.app.emit('sync-stop', false)
       await database.ClearAll()
       await database.Set('lastSyncSuccess', false)
       database.Set('xPath', newPath)
@@ -356,7 +356,7 @@ export default {
       type: String,
       default: 'Internxt'
     },
-    SubtitleApp: {
+    emailAccount: {
       type: String,
       default: 'Aplication'
     },

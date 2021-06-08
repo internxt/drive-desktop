@@ -30,7 +30,7 @@ function syncStop() {
     ConfigStore.set('isSyncing', false)
     ConfigStore.set('stopSync', true)
   }
-  app.emit('sync-off')
+  app.emit('sync-off', false)
 }
 
 async function SyncLogic(callback) {
@@ -93,7 +93,7 @@ async function SyncLogic(callback) {
     const basePath = await Database.Get('xPath')
     NameTest.removeTestFolder(basePath)
     app.emit('set-tooltip')
-    app.emit('sync-off')
+    app.emit('sync-off', false)
     app.removeListener('sync-stop', syncStop)
     app.removeListener('user-logout', DeviceLock.stopUpdateDeviceSync)
     ConfigStore.set('stopSync', false)
@@ -117,7 +117,7 @@ async function SyncLogic(callback) {
   async.waterfall(
     [
       next => {
-        app.emit('sync-on')
+        app.emit('sync-on', true)
         app.emit('set-tooltip', 'Checking root folder')
         Folder.rootFolderExists()
           .then(exists =>
