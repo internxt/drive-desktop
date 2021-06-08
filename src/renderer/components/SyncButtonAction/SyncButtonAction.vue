@@ -6,7 +6,12 @@
             <div class="absolute -top-3 centerAbsolute">
               <div class="justify-center">
                 <div class="flex justify-center">
-                  <div @click="forceSync()"><UilCloudDataConnection class="fill-current text-white bg-blue-600 text-3xl p-1.5 rounded-full cursor-pointer hover:bg-indigo-900 shadow-2xl transition duration-500 ease-in-out"/></div>
+                  <div @click="forceSync()">
+                    <UilCloudDataConnection class="fill-current text-white bg-blue-600 text-3xl p-1.5 rounded-full cursor-pointer hover:bg-indigo-900 shadow-2xl transition duration-500 ease-in-out"/>
+                  </div>
+                  <!-- Capturar startsync y endsync
+                  v-if si estarsync existe boton disabled
+                  v-if si existe endsync boton enabled -->
                 </div>
                 <div class="flex justify-center">
                   <div class="text-xs text-blue-600 mt-1">Full sync</div>
@@ -49,6 +54,9 @@ export default ({
   },
   updated: function() {
     console.log('entra', ConfigStore.get('stopSync'))
+  },
+  computed: {
+
   },
   name: 'SyncButtonAction',
   props: {
