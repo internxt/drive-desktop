@@ -161,7 +161,7 @@ export default {
     }
   },
   beforeCreate: function () {
-    FileLogger.getPath().then(path => {
+    database.Get('xPath').then(path => {
       this.$data.path = path
     })
   },
