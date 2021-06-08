@@ -141,6 +141,7 @@
     "vue-electron": "^1.0.6",
     "vue-router": "^3.0.1",
     "vue-unicons": "^3.2.1",
+    "vue2-progress-bar": "^0.1.1",
     "vuex": "^3.0.1",
     "vuex-electron": "^1.0.0"
   },

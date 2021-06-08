@@ -11,6 +11,11 @@ export default new Router({
       component: require('@/components/LoginPage').default
     },
     {
+      path: '/onboarding',
+      name: 'onboarding-page',
+      component: require('@/components/OnBoarding/OnBoarding').default
+    },
+    {
       path: '/config',
       name: 'config-page',
       component: require('@/components/ConfigPage').default

@@ -136,6 +136,7 @@ export default {
     console.log('Filelogger', this.file)
     remote.app.on('user-logout', async (saveData = false) => {
       remote.app.emit('sync-stop')
+      console.log('sale', ConfigStore.get('stopSync'))
       await database.logOut(saveData)
       const localUser = ConfigStore.get('user.uuid')
       if (localUser) {

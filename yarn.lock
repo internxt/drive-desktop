@@ -13314,7 +13314,20 @@ vue-unicons@^3.2.1:
     vue "^2.5.22"
     vue-analytics "^5.16.2"
 
+vue2-progress-bar@^0.1.1:
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/vue2-progress-bar/-/vue2-progress-bar-0.1.1.tgz#df0cdeddee0956a9ff449f87931e2dec28131a42"
+  integrity sha512-c/YWbGSYq18YAEPBZW3nMVGX6pAC2/5s4BWzjvudkNMFNPaocmoAz6xH2VHKVvjGGRUeJMci7AyKIMWTK9OLvw==
+  dependencies:
+    core-js "^3.6.5"
+    vue "^2.6.11"
+
 vue@^2.5.16, vue@^2.5.22:
+  version "2.6.14"
+  resolved "https://registry.yarnpkg.com/vue/-/vue-2.6.14.tgz#e51aa5250250d569a3fbad3a8a5a687d6036e235"
+  integrity sha512-x2284lgYvjOMj3Za7kqzRcUSxBboHqtgRE2zlos1qWaOye5yUmHn42LB1250NJBLRwEcdrB0JRwyPTEPhfQjiQ==
+
+vue@^2.6.11:
   version "2.6.14"
   resolved "https://registry.yarnpkg.com/vue/-/vue-2.6.14.tgz#e51aa5250250d569a3fbad3a8a5a687d6036e235"
   integrity sha512-x2284lgYvjOMj3Za7kqzRcUSxBboHqtgRE2zlos1qWaOye5yUmHn42LB1250NJBLRwEcdrB0JRwyPTEPhfQjiQ==
