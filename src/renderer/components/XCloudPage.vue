@@ -91,7 +91,7 @@ export default {
       isSyncing: false,
       toolTip: '',
       appName: 'Drive',
-      SubtitleApp: 'hello@internxt.com',
+      SubtitleApp: null,
       IconClass: 'prueba',
       file: {}
     }
@@ -106,6 +106,7 @@ export default {
       .Get('xUser')
       .then(xUser => {
         const userEmail = xUser.user.email
+        this.$data.SubtitleApp = userEmail
         remote.app.emit('update-menu', userEmail)
         Logger.info(
           'Account: %s, User platform: %s %s, version: %s',
