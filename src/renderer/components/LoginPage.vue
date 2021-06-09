@@ -20,12 +20,14 @@
         v-model="email"
         type="text"
         placeholder="Email address"
+        tabindex="0"
       />
       <input
         class="w-full h-10 focus:outline-none border border-gray-300 rounded px-2 text-xs font-bold"
         v-model="password"
         :type="visibility"
         placeholder="Password"
+        tabindex="0"
       />
 
       <!-- Shows the password -->
@@ -64,9 +66,10 @@
         </div>
         
         <input
-          class="w-full text-white font-bold mt-8 py-2.5 text-sm rounded focus:outline-none cursor-pointer bg-blue-500"
+          class="native-key-bindings w-full text-white font-bold mt-8 py-2.5 text-sm rounded focus:outline-none cursor-pointer bg-blue-500"
           type="submit"
           value="Sign in"
+          tabindex="-1"
         />
       </div>
 
@@ -85,7 +88,7 @@
 
     <div v-if="!showTwoFactor" class="block text-xs font-bold mt-4">
       <span class="text-gray-400">Don't have an Internxt account?</span>
-      <a class="text-blue-400" href="#" @click="open(`${DRIVE_BASE}/new`)">Get one for free!</a>
+      <a class="text-blue-400" href="#" @click="open(`${DRIVE_BASE}/new`)" tabindex="-1">Get one for free!</a>
     </div>
 
     <div class="self-center mt-6 text-gray-300 text-xs">v{{ version }}</div>
