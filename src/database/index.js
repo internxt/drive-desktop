@@ -333,11 +333,14 @@ const logIn = async function(email) {
         fs.mkdirpSync(rootPath)
       }
       Logger.log('successful load previous user data')
+      return true
     } catch (err) {
       Logger.error(`Error reload old userData`)
       await ClearUser()
+      return true
     }
   }
+  return false
 }
 
 export default {

@@ -3,6 +3,9 @@
 .text-brand {
     @include text-xs;
 }
+.text-xs-bolder {
+  @include text-xs-bolder;
+}
 .hide {
     visibility: hidden !important;
 }

@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-cool-gray-10 overflow:hidden">
+  <div class="bg-cool-gray-10 overflow:hidden h-full">
    <div class="text-cool-gray-90"></div>
 
       <Header
@@ -67,7 +67,7 @@ import FileLogger from '../logic/FileLogger'
 
 window.FileLogger = FileLogger
 window.resizeTo(400, 400)
-FileLogger.on('update-last-entry', (item) => console.log(item))
+// FileLogger.on('update-last-entry', (item) => console.log(item))
 
 const remote = require('@electron/remote')
 var t = ''

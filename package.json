@@ -109,6 +109,7 @@
     "babel-plugin-inline-dotenv": "^1.5.0",
     "bip39": "^3.0.2",
     "bootstrap": "^4.3.1",
+    "bytes": "^3.1.0",
     "check-disk-space": "^2.1.0",
     "crypto": "^1.0.1",
     "crypto-js": "^4.0.0",
