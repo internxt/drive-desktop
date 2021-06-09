@@ -310,13 +310,11 @@ export default {
               })
             if (res.data.error) {
               this.errors.push(res.data.error)
-              console.log(res.data.error)
               if (res.data.error.includes('Wrong email')) {
                 this.$data.twoFactorCode = ''
                 this.$data.showTwoFactor = false
               }
             } else {
-              console.log('res =>', res.data)
               this.errors.push('There was an error while logging in')
             }
           } else {
