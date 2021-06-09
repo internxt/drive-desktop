@@ -11,10 +11,13 @@
       <span class="text-xl text-black font-bold ml-2">{{ showTwoFactor ? 'Security Verification' : 'Sign in to Internxt Drive' }}</span>
     </div>
 
-    <div class="mt-8">
+    <form class="mt-8 bg-white"
+      id="form"
+      @submit="handleFormSubmit"
+    >
       <input
         class="w-full h-10 focus:outline-none mb-3 border border-gray-300 rounded px-2 text-xs font-bold"
-        v-model="username"
+        v-model="email"
         type="text"
         placeholder="Email address"
       />
@@ -24,7 +27,41 @@
         type="password"
         placeholder="Password"
       />
-    </div>
+
+      <transition
+        enter-class="enter"
+        enter-to-class="enter-to"
+        enter-active-class="slide-enter-active"
+        leave-class="leave"
+        leave-to-class="leave-to"
+        leave-active-class="slide-leave-active"
+      >
+        <div v-if="errors.length" class="mt-2 -mb-4">
+          <p v-if="errors.length > 1" class="text-sm text-black font-bold">Please correct the following errors</p>
+          <p v-else class="text-sm text-black font-bold">Please correct the following error</p>
+
+          <ul class="list-disc ml-6">
+            <li v-for="error in errors">
+              {{ error }}
+            </li>
+          </ul>
+        </div>
+
+      </transition>
+
+      <div class="flex flex-row relative">
+        <div v-if="isLoading" class="absolute bottom-2.5 left-24 ml-2.5">
+          <Spinner class="animate-spin z-10" />
+        </div>
+        
+        <input
+          class="w-full text-white font-bold mt-8 py-2.5 text-sm rounded focus:outline-none cursor-pointer bg-blue-500"
+          type="submit"
+          value="Sign in"
+        />
+      </div>
+
+    </form>
 
     <!-- TWO FACTOR NOT ACTUALLY USING IT -->
     <!-- <div v-if="showTwoFactor">
@@ -36,14 +73,6 @@
         placeholder="Authentication code"
       />
     </div> -->
-
-    <input
-      class="w-full text-white font-bold mt-8 py-2.5 text-sm rounded focus:outline-none cursor-pointer bg-blue-500"
-      type="submit"
-      :disabled="checkForm()"
-      @click="doLogin()"
-      value="Sign in"
-    />
 
     <div v-if="!showTwoFactor" class="block text-xs font-bold mt-4">
       <span class="text-gray-400">Don't have an Internxt account?</span>
@@ -66,12 +95,11 @@ import analytics from '../logic/utils/analytics'
 import ConfigStore from '../../main/config-store'
 import uuid4 from 'uuid4'
 import InternxtBrand from '../components/ExportIcons/InternxtBrand'
-const { remote: remote2 } = require('electron')
+import Spinner from '../components/ExportIcons/Spinner'
 const remote = require('@electron/remote')
 const ROOT_FOLDER_NAME = 'Internxt Drive'
 const HOME_FOLDER_PATH = remote.app.getPath('home')
 const anonymousId = uuid4()
-let x
 
 export default {
   name: 'login-page',
@@ -79,24 +107,35 @@ export default {
     remote.app.emit('window-show')
   },
   created() {
-    console.log('NEW WINDOW')
-    const { BrowserWindow } = remote
   },
   data() {
     return {
-      username: '',
+      email: '',
       password: '',
       showTwoFactor: false,
       twoFactorCode: '',
       isLoading: false,
       DRIVE_BASE: config.DRIVE_BASE,
-      version: packageConfig.version
+      version: packageConfig.version,
+      errors: []
     }
   },
   components: {
-    InternxtBrand
+    InternxtBrand,
+    Spinner
   },
   methods: {
+    handleFormSubmit(e) {
+      e.preventDefault()
+      this.errors = []
+
+      if (!this.email) this.errors.push('The email must not be empty')
+      if (!this.password) this.errors.push('The password must not be empty')
+
+      if (!this.errors.length) {
+        this.doLogin()
+      }
+    },
     open(link) {
       this.$electron.shell.openExternal(link)
     },
@@ -114,7 +153,7 @@ export default {
         return filesInFolder.length === 0
       }
     },
-    checkForm() {
+    /* checkForm() {
       // console.log('isLoading:', this.$data.isLoading, 'username:', this.$data.username, 'pass:', this.$data.password)
       if (this.$data.isLoading) {
         return true
@@ -125,7 +164,7 @@ export default {
       }
 
       return true
-    },
+    } */
     // savePathAndLogin () {
     //   database.Set('xPath', this.$data.storagePath).then(() => {
     //     this.doLogin()
@@ -165,7 +204,7 @@ export default {
           'internxt-client': 'drive-desktop',
           'internxt-version': packageConfig.version
         },
-        body: JSON.stringify({ email: this.$data.username })
+        body: JSON.stringify({ email: this.email })
       })
         .then(async res => {
           const text = await res.text()
@@ -190,7 +229,7 @@ export default {
               .catch(err => {
                 Logger.error(err)
               })
-            return remote.app.emit('show-error', 'Login error')
+            return this.errors.push('There was an error while logging in')
           }
           if (res.body.tfa && !this.$data.twoFactorCode) {
             this.$data.showTwoFactor = true
@@ -201,7 +240,7 @@ export default {
         })
         .catch(err => {
           this.$data.isLoading = false
-          Logger.error(err)
+          this.errors.push(err)
         })
     },
     async doAccess(sKey) {
@@ -217,7 +256,7 @@ export default {
           'internxt-version': packageConfig.version
         },
         body: JSON.stringify({
-          email: this.$data.username,
+          email: this.email,
           password: encryptedHash,
           tfa: this.$data.twoFactorCode
         })
@@ -247,15 +286,17 @@ export default {
               })
             if (res.data.error) {
               remote.app.emit('show-error', 'Login error\n' + res.data.error)
+              this.errors.push(res.data.error)
+              console.log(res.data.error)
               if (res.data.error.includes('Wrong email')) {
                 this.$data.twoFactorCode = ''
                 this.$data.showTwoFactor = false
               }
             } else {
-              remote.app.emit('show-error', 'Login error')
+              this.errors.push('There was an error while logging in')
             }
           } else {
-            res.data.user.email = this.$data.username.toLowerCase()
+            res.data.user.email = this.email.toLowerCase()
             this.createRootFolder()
             await database.Set(
               'xMnemonic',
