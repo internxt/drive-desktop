@@ -65,28 +65,53 @@ function createWindow() {
 
   const display = electron.screen.getPrimaryDisplay()
   const trayBounds = trayMenu.tray.getBounds()
-
   mainWindow = new BrowserWindow({
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
       webSecurity: process.env.NODE_ENV !== 'development',
-      enableRemoteModule: true
+      enableRemoteModule: true,
+      devTools: false
     },
     width: 450,
     height: 550,
-    x: display.bounds.width - 450,
-    y: trayBounds.y,
+    // x: display.bounds.width - 450,
+    // y: trayBounds.y,
     useContentSize: true,
     // frame: process.env.NODE_ENV === 'development',
     frame: false,
     autoHideMenuBar: false,
     skipTaskbar: process.env.NODE_ENV !== 'development',
     show: process.env.NODE_ENV === 'development',
-    resizable: false,
+    resizable: process.env.NODE_ENV === 'development',
     menuBarVisible: false,
-    movable: false
+    movable: false,
+    centered: true
   })
+
+  // mainWindow2 = new BrowserWindow({
+  //   webPreferences: {
+  //     nodeIntegration: true,
+  //     contextIsolation: false,
+  //     webSecurity: process.env.NODE_ENV !== 'development',
+  //     enableRemoteModule: true
+  //   },
+  //   minWidth: 800,
+  //   minHeight: 500,
+  //   width: 1450,
+  //   height: 550,
+  //   useContentSize: true,
+  //   // frame: process.env.NODE_ENV === 'development',
+  //   frame: true,
+  //   autoHideMenuBar: false,
+  //   skipTaskbar: process.env.NODE_ENV !== 'development',
+  //   show: process.env.NODE_ENV === 'development',
+  //   resizable: true,
+  //   menuBarVisible: true
+  // })
+
+  // mainWindow2.loadURL(winURL + '/#/onboarding')
+  // mainWindow2.show()
 
   mainWindow.loadURL(winURL)
 
@@ -94,6 +119,38 @@ function createWindow() {
   mainWindow.on('close', appClose)
 
   app.on('app-close', appClose)
+
+  /*
+  app.on('create-onboarbing', () => {
+    // mainWindow.hide()
+    mainWindow2 = new BrowserWindow({
+      webPreferences: {
+        nodeIntegration: true,
+        contextIsolation: false,
+        webSecurity: process.env.NODE_ENV !== 'development',
+        enableRemoteModule: true
+      },
+      minWidth: 800,
+      minHeight: 500,
+      width: 800,
+      height: 500,
+      useContentSize: true,
+      // frame: process.env.NODE_ENV === 'development',
+      frame: false,
+      transparent: true,
+      autoHideMenuBar: false,
+      skipTaskbar: process.env.NODE_ENV !== 'development',
+      show: process.env.NODE_ENV === 'development',
+      resizable: process.env.NODE_ENV === 'development',
+      menuBarVisible: true
+    })
+
+    mainWindow2.loadURL(winURL + '/#/onboarding')
+    mainWindow2.show()
+    mainWindow2.on('close', () => { mainWindow.show() })
+    mainWindow2.on('closed', () => { mainWindow.show() })
+  })
+  */
 
   const edit = {
     label: 'Edit',
@@ -322,7 +379,7 @@ autoUpdater.on('update-available', () => {
 })
 
 autoUpdater.on('update-not-available', () => {
-  console.log('NO UPDATES')
+  // console.log('NO UPDATES')
 })
 
 autoUpdater.on('download-progress', progress => {
@@ -507,7 +564,7 @@ app.on('ready', () => {
 
   powerMonitor.on('suspend', function() {
     Logger.warn('User system suspended')
-    app.emit('sync-stop')
+    app.emit('sync-stop', false)
   })
 
   powerMonitor.on('resume', function() {

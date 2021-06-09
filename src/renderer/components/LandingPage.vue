@@ -4,7 +4,6 @@
       <div class="spinner-grow text-primary" role="status">
         <span class="sr-only">Loading...</span>
       </div>
-      <div><a href="" @click="clearDatabase()">Clear data</a></div>
     </main>
   </div>
 </template>
@@ -14,6 +13,7 @@ import SystemInformation from './LandingPage/SystemInformation'
 import database from '../../database'
 import async from 'async'
 import Logger from '../../libs/logger'
+import ConfigStore from '../../main/config-store'
 import fs from 'fs'
 const remote = require('@electron/remote')
 
@@ -40,46 +40,12 @@ export default {
 
       this.$router.push('/login').catch(() => {})
     } else {
-      // Check if token is valid
       this.$router.push('/xcloud').catch(() => {})
     }
   },
   methods: {
     opend(link) {
       this.$electron.shell.openExternal(link)
-    },
-    clearDatabase() {
-      const confirmation = confirm(
-        'ATTENTION:\nAll your Internxt Drive data will be lost forever.\n\nContinue?'
-      )
-      if (confirmation) {
-        async.waterfall(
-          [
-            (next) => {
-              database.dbFiles.remove({}, { multi: true }, (err, n) =>
-                next(err, n)
-              )
-            },
-            (next) => {
-              database.dbFolders.remove({}, { multi: true }, (err, n) =>
-                next(err, n)
-              )
-            },
-            (next) => {
-              database.dbUser.remove({}, { multi: true }, (err, n) =>
-                next(err, n)
-              )
-            }
-          ],
-          (err, result) => {
-            if (err) {
-              alert('Error clearing database\n\n' + err)
-            } else {
-              this.$router.push('/login').catch(() => {})
-            }
-          }
-        )
-      }
     }
   }
 }

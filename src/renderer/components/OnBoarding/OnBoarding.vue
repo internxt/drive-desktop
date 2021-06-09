@@ -24,7 +24,7 @@
         </div>
       </div>
     </slide>
-    
+
     <!-- <slide>
       <div class="flex flex-col items-center h-full">
         <div class="flex items-end h-16">
@@ -179,13 +179,13 @@
             Simple, Fast, Secure, Private. Welcome to Internxt Drive.
           </div>
 
-          <input @click.prevent="slideNext" type="button" value="Get started!" class="absolute bottom-8 right-12 text-base text-blue-600 font-bold mt-16 bg-transparent cursor-pointer focus:outline-none" />
+          <input @click.prevent="finishOnboarding" type="button" value="Get started!" class="absolute bottom-8 right-12 text-base text-blue-600 font-bold mt-16 bg-transparent cursor-pointer focus:outline-none" />
         </div>
       </div>
     </slide>
   </hooper>
 </template>
-  
+
 <script>
 // import PagesContentOnBoarding from './PagesContentOnBoarding'
 import { Hooper, Slide } from 'hooper'
@@ -209,6 +209,10 @@ export default {
     },
     updateCarousel(payload) {
       this.myCarouselData = payload.currentSlide
+    },
+    finishOnboarding() {
+      // TODO
+      this.$router.push('/xcloud').catch(() => {})
     }
   },
   components: {

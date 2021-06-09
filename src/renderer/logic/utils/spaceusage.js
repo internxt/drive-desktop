@@ -1,6 +1,7 @@
 import Logger from '../../../libs/logger'
 import ConfigStore from '../../../main/config-store'
 import Auth from './Auth'
+import bytes from 'bytes'
 const remote = require('@electron/remote')
 
 const API_URL = process.env.API_URL
@@ -69,11 +70,19 @@ async function getUsage() {
 }
 
 async function updateUsage() {
+  const storage = {
+    limit: null,
+    usage: null
+  }
   await getLimit()
     .then(limit => {
+      /*
       remote.app.emit('update-storage', {
         limit: limit
       })
+      */
+      storage.limit = bytes(limit)
+      // unit = storage.limit.includes('TB') ? 'TB' : 'GB'
       ConfigStore.set('limit', limit)
     })
     .catch(() => {
@@ -82,15 +91,18 @@ async function updateUsage() {
 
   await getUsage()
     .then(usage => {
+      /*
       remote.app.emit('update-storage', {
         usage: usage
       })
+      */
+      storage.usage = bytes(usage)
       ConfigStore.set('usage', usage)
     })
     .catch(() => {
       Logger.error("Cannot get user usage, won't be displayed")
     })
-
+  remote.app.emit('update-storage', storage)
   Auth.getUserEmail().then(email => {
     remote.app.emit('update-menu', email)
   })

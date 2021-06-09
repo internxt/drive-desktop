@@ -130,9 +130,27 @@
         <div v-on:click="ContactSupportMailto()" class="text-sm hover:text-blue-600 cursor-pointer mb-3">Contact support</div>
         <div class="text-sm mb-3 hover:text-blue-600 cursor-pointer" @click="logout()">Log out</div>
         <div class="text-sm hover:text-blue-600 cursor-pointer" @click="quitApp()">Quit</div>
+        <div>
+          <div class="text-xs border border-dashed border-gray-200 p-2 px-3 rounded mt-2">
+
+            <div class="flex">
+              <div><UilServerConnection class="text-blue-600 text-2xl mr-4 mt-0.5" /></div>
+              <div>
+                <div class="font-bold">Storage used</div>
+                <div class="flex">
+                  <div class="mr-0.5 text-gray-400 text-xs-bolder"><strong>{{usage}}</strong> de </div>
+                  <div class="text-blue-500 text-xs-bolder">{{limit}}</div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
       </div>
     </transition>
   </div>
+
 </template>
 
 <script>
@@ -146,7 +164,8 @@ import {
   UilSetting,
   UilUserCircle,
   UilMultiply,
-  UilFolderOpen
+  UilFolderOpen,
+  UilServerConnection
 } from '@iconscout/vue-unicons'
 import 'ant-design-vue/dist/antd.css'
 import InternxtBrand from '../ExportIcons/InternxtBrand'
@@ -159,9 +178,10 @@ import Logger from '../../../libs/logger'
 import path from 'path'
 import electronLog from 'electron-log'
 import VToolTip from 'v-tooltip'
+import bytes from 'bytes'
 
 Vue.use(VToolTip)
-FileLogger.on('update-last-entry', (item) => console.log(item))
+// FileLogger.on('update-last-entry', (item) => console.log(item))
 const remote = require('@electron/remote')
 
 export default {
@@ -174,7 +194,10 @@ export default {
       CheckedValue: 'full',
       LaunchCheck: false,
       path: null,
-      msg: 'Mensaje de texto'
+      msg: 'Mensaje de texto',
+      usage: '',
+      limit: ''
+
     }
   },
   beforeCreate: function () {
@@ -186,13 +209,18 @@ export default {
     remote.app.removeAllListeners('user-logout')
   },
   created: function () {
+    this.$app = this.$electron.remote.app
+    // Storage and space used
+    remote.app.on('update-storage', (data) => {
+      this.usage = data.usage
+      this.limit = data.limit
+    })
     FileLogger.on('update-last-entry', (item) => {
       this.file = item
     })
-    this.$app = this.$electron.remote.app
     Monitor.Monitor(true)
     // remote.app.on('set-tooltip', this.setTooltip)
-    console.log('Filelogger', this.file)
+    // console.log('Filelogger', this.file)
     remote.app.on('user-logout', async (saveData = false) => {
       remote.app.emit('sync-stop', false)
       await database.logOut(saveData)
@@ -226,15 +254,35 @@ export default {
     })
   },
   updated: function() {
-    console.log('updated', this.CheckedValue)
+    // console.log('updated', this.CheckedValue)
   },
   methods: {
     debug() {
     },
+    // Log out - save folder path whe user log out
     logout() {
-      remote.app.emit('user-logout')
+      remote.dialog.showMessageBox(
+        remote.getCurrentWindow(),
+        {
+          type: 'question',
+          buttons: ['Yes', 'No'],
+          default: 1,
+          cancelId: 1,
+          title: 'Log Out',
+          message: 'Would you like to save your login data'
+        }
+      )
+        .then(userResponse => {
+          if (userResponse.response === 0) {
+            remote.app.emit('user-logout', true)
+          } else {
+            remote.app.emit('user-logout', false)
+          }
+        })
     },
+    // Quit
     quitApp() {
+      remote.app.emit('sync-stop', false)
       remote.app.emit('app-close')
     },
     afterVisibleChange(val) {
@@ -261,6 +309,7 @@ export default {
     CloseSettingsModal() {
       this.showSettingsModal = false
     },
+    // Open folder path
     openFolder() {
       remote.app.emit('open-folder')
     },
@@ -332,7 +381,7 @@ export default {
     },
     // Launch at login
     launchAtLogin () {
-      console.log(this.LaunchCheck) // Pasar aqui lo que sea
+      // console.log(this.LaunchCheck) // Pasar aqui lo que sea
       // if (this.LaunchCheck === true) {
       // }
       ConfigStore.set('autoLaunch', this.LaunchCheck)
@@ -368,7 +417,8 @@ export default {
     UilFolderNetwork,
     InternxtBrand,
     UilMultiply,
-    UilFolderOpen
+    UilFolderOpen,
+    UilServerConnection
     // Drawer
   }
 }
