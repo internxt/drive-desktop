@@ -61,7 +61,7 @@
       <!-- </transition> -->
 
       <div class="flex flex-row relative">
-        <div v-if="isLoading" class="absolute bottom-2.5 left-24 ml-2.5">
+        <div v-if="isLoading" class="flex items-center justify-center absolute bg-blue-500 bottom-2.5 left-0 right-0">
           <Spinner class="animate-spin z-10" />
         </div>
         <input
