@@ -3,8 +3,9 @@
     <div class="flex justify-between items-start p-4">
       <div class="flex flex-col">
         <div class="flex items-center">
-          <InternxtBrand :width="16" :height="16"/>
-          <div class="text-gray-800 text-xl font-extrabold ml-1.5">{{ appName }}</div>
+          <img src="../../assets/brand/drive-brand.svg" />
+          <!-- <InternxtBrand :width="16" :height="16"/> -->
+          <!-- <div class="text-gray-800 text-xl font-extrabold ml-1.5">{{ appName }}</div> -->
         </div>
 
         <div class="text-sm text-gray-500">{{ emailAccount }}</div>
@@ -24,7 +25,7 @@
           />
         </div>
 
-        <div class="mr-3 cursor-pointer" v-on:click="ShowSettingsModal()" v-tooltip="{
+        <div class="mr-3 cursor-pointer" v-on:click="ShowModalSettings()" v-tooltip="{
           content: 'Settings',
           placement: 'bottom',
           delay: { show: 300, hide: 300}
@@ -35,7 +36,7 @@
           />
         </div>
 
-        <div class="cursor-pointer" v-on:click="ShowAccountModal()" v-tooltip="{
+        <div class="cursor-pointer" v-on:click="ShowModalAccount()" v-tooltip="{
           content: 'Account',
           placement: 'bottom',
           delay: { show: 300, hide: 300}
@@ -57,11 +58,11 @@
       leave-to-class="leave-to"
       leave-active-class="slide-leave-active"
     >
-      <div v-if="showSettingsModal === true" class="bg-white p-4 px-6 w-full h-full fixed rounded-t-2xl z-10">
+      <div v-if="showModal === true" class="bg-white p-4 px-6 w-full h-full fixed rounded-t-2xl z-10">
         <div class="flex justify-between">
           <div class="text-black text-base font-bold mb-3">Configuration</div>
 
-          <div class="cursor-pointer" v-on:click="CloseSettingsModal()">
+          <div class="cursor-pointer" v-on:click="CloseModalSettings()">
             <UilMultiply class="mr-2 text-blue-600" />
           </div>
         </div>
@@ -118,10 +119,10 @@
       leave-to-class="leave-to"
       leave-active-class="slide-leave-active"
     >
-      <div v-if="showAccountModal === true" class="bg-white p-4 px-6 w-full h-full fixed rounded-t-2xl z-10">
+      <div v-if="showModalAccount === true" class="bg-white p-4 px-6 w-full h-full fixed rounded-t-2xl z-10">
         <div class="flex justify-between">
           <div class="text-black text-base font-bold mb-3">Account</div>
-          <div class="cursor-pointer" v-on:click="CloseAccountModal()">
+          <div class="cursor-pointer" v-on:click="CloseModalAccount()">
             <UilMultiply class="mr-2 text-blue-600" />
           </div>
         </div>
@@ -147,10 +148,12 @@
           </div>
 
         </div>
+        
       </div>
     </transition>
+    
   </div>
-
+  
 </template>
 
 <script>
@@ -188,8 +191,8 @@ export default {
   data() {
     return {
       placement: 'left',
-      showSettingsModal: false,
-      showAccountModal: false,
+      showModal: false,
+      showModalAccount: false,
       localPath: '',
       CheckedValue: 'full',
       LaunchCheck: false,
@@ -212,6 +215,7 @@ export default {
     this.$app = this.$electron.remote.app
     // Storage and space used
     remote.app.on('update-storage', (data) => {
+      console.log('DATA', data)
       this.usage = data.usage
       this.limit = data.limit
     })
@@ -258,21 +262,33 @@ export default {
   },
   methods: {
     debug() {
+      // console.log(appName)
     },
     // Log out - save folder path whe user log out
     logout() {
+      console.log('INICIO DE LOG OUT')
       remote.dialog.showMessageBox(
-        remote.getCurrentWindow(),
+        new remote.BrowserWindow({
+          show: false,
+          alwaysOnTop: true,
+          width: 400,
+          height: 500,
+          minWidth: 400,
+          minHeight: 500,
+          maxWidth: 400,
+          maxHeight: 500
+        }),
         {
           type: 'question',
           buttons: ['Yes', 'No'],
           default: 1,
           cancelId: 1,
-          title: 'Log Out',
+          title: 'Dialog',
           message: 'Would you like to save your login data'
         }
       )
         .then(userResponse => {
+          console.log('FIN DE LOG OUT')
           if (userResponse.response === 0) {
             remote.app.emit('user-logout', true)
           } else {
@@ -286,6 +302,7 @@ export default {
       remote.app.emit('app-close')
     },
     afterVisibleChange(val) {
+      // console.log('visible', val)
     },
     showDrawer() {
       this.visible = true
@@ -294,20 +311,23 @@ export default {
       this.visible = false
     },
     // Open modal account
-    ShowAccountModal() {
-      this.showSettingsModal = false
-      this.showAccountModal = !this.showAccountModal
+    ShowModalAccount() {
+      this.showModalAccount = !this.showModalAccount
+      // return console.log(this.showModalAccount)
     },
-    CloseAccountModal() {
-      this.showAccountModal = false
+    // Close modal account
+    CloseModalAccount() {
+      this.showModalAccount = false
     },
     // Open modal Settings
-    ShowSettingsModal() {
-      this.showAccountModal = false
-      this.showSettingsModal = !this.showSettingsModal
+    ShowModalSettings() {
+      // console.log('click')
+      this.showModal = !this.showModal
+      // return console.log(this.showModal)
     },
-    CloseSettingsModal() {
-      this.showSettingsModal = false
+    // Close Modal Settings
+    CloseModalSettings() {
+      this.showModal = false
     },
     // Open folder path
     openFolder() {
