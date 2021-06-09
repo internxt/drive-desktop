@@ -41,16 +41,6 @@ export default {
       this.$router.push('/login').catch(() => {})
     } else {
       this.$router.push('/xcloud').catch(() => {})
-      /*
-      console.log('From landing page savedCredentials ', ConfigStore.get('savedCredentials'))
-      if (ConfigStore.get('savedCredentials')) {
-        // Check if token is valid
-        this.$router.push('/xcloud').catch(() => {})
-      } else {
-        // redirect to onboarding if not saved credentials
-        this.$router.push('/onboarding').catch(() => {})
-      }
-      */
     }
   },
   methods: {

@@ -39,10 +39,6 @@ const schema = {
   resetAll: {
     type: 'boolean',
     default: true
-  },
-  savedCredentials: {
-    type: 'boolean',
-    default: false
   }
 }
 

@@ -327,19 +327,16 @@ export default {
               'xMnemonic',
               crypt.decryptWithKey(res.data.user.mnemonic, this.$data.password)
             )
-            // const savedCredentials = await database.logIn(res.data.user.email)
-            // ConfigStore.set('savedCredentials', savedCredentials)
-            // console.log('From Login Page ', savedCredentials)
+            const savedCredentials = await database.logIn(res.data.user.email)
             await database.Set('xUser', res.data)
             await database.compactAllDatabases()
             ConfigStore.set('stopSync', false)
             // this.$router.push('/landing-page').catch(() => {})
-            this.$router.push('/onboarding').catch(() => {})
-            /*
             if (!savedCredentials) {
-              remote.app.emit('create-onboarbing')
+              this.$router.push('/onboarding').catch(() => {})
+            } else {
+              this.$router.push('/xcloud').catch(() => {})
             }
-            */
             analytics
               .identify({
                 userId: undefined,
