@@ -52,8 +52,8 @@
           <p v-else class="text-sm text-black font-bold">There has been an error</p>
 
           <ul class="list-disc ml-6">
-            <li v-for="error in errors">
-              {{ error }}
+            <li v-for="error in errors" :key="error">
+              {{ console.log(error) }}
             </li>
           </ul>
         </div>
@@ -64,7 +64,6 @@
         <div v-if="isLoading" class="absolute bottom-2.5 left-24 ml-2.5">
           <Spinner class="animate-spin z-10" />
         </div>
-        
         <input
           class="native-key-bindings w-full text-white font-bold mt-8 py-2.5 text-sm rounded focus:outline-none cursor-pointer bg-blue-500"
           type="submit"
@@ -121,6 +120,8 @@ export default {
     remote.app.emit('window-show')
   },
   created() {
+    // console.log('NEW WINDOW')
+    const { BrowserWindow } = remote
   },
   data() {
     return {
@@ -181,7 +182,7 @@ export default {
       if (this.$data.isLoading) {
         return true
       }
-      console.log(this.$data.username && this.$data.password ? 'true' : 'false')
+      // console.log(this.$data.username && this.$data.password ? 'true' : 'false')
       if (this.$data.username && this.$data.password) {
         return false
       }

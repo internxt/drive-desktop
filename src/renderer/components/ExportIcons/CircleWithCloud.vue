@@ -2,8 +2,8 @@
   <svg
     :width="width"
     :height="height"
-    :viewBox="viewBox"
     :fill="fillColor"
+    viewBox="0 0 47 47"
     xmlns="http://www.w3.org/2000/svg"
   >
     <circle cx="23.5" cy="23.5" r="22.5" stroke="#78A9FF" stroke-width="2" />
@@ -27,10 +27,6 @@ export default {
     height: {
       type: Number,
       default: '18'
-    },
-    viewBox: {
-      type: Number,
-      default: '0 0 47 47'
     },
     fillColor: {
       type: String,
