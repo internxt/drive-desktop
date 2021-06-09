@@ -1,11 +1,6 @@
 <template>
   <div id="wrapper">
-    <main class="centered-container">
-      <div class="spinner-grow text-primary" role="status">
-        <span class="sr-only">Loading...</span>
-      </div>
-      <div><a href="" @click="clearDatabase()">Clear data</a></div>
-    </main>
+    ..cargando
   </div>
 </template>
 
@@ -47,39 +42,6 @@ export default {
   methods: {
     opend(link) {
       this.$electron.shell.openExternal(link)
-    },
-    clearDatabase() {
-      const confirmation = confirm(
-        'ATTENTION:\nAll your Internxt Drive data will be lost forever.\n\nContinue?'
-      )
-      if (confirmation) {
-        async.waterfall(
-          [
-            (next) => {
-              database.dbFiles.remove({}, { multi: true }, (err, n) =>
-                next(err, n)
-              )
-            },
-            (next) => {
-              database.dbFolders.remove({}, { multi: true }, (err, n) =>
-                next(err, n)
-              )
-            },
-            (next) => {
-              database.dbUser.remove({}, { multi: true }, (err, n) =>
-                next(err, n)
-              )
-            }
-          ],
-          (err, result) => {
-            if (err) {
-              alert('Error clearing database\n\n' + err)
-            } else {
-              this.$router.push('/login').catch(() => {})
-            }
-          }
-        )
-      }
     }
   }
 }
