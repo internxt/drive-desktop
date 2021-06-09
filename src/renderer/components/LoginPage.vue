@@ -11,7 +11,7 @@
       <span class="text-xl text-black font-bold ml-2">{{ showTwoFactor ? 'Security Verification' : 'Sign in to Internxt Drive' }}</span>
     </div>
 
-    <form class="mt-8 bg-white"
+    <form class="mt-8 bg-white relative"
       id="form"
       @submit="handleFormSubmit"
     >
@@ -24,21 +24,30 @@
       <input
         class="w-full h-10 focus:outline-none border border-gray-300 rounded px-2 text-xs font-bold"
         v-model="password"
-        type="password"
+        :type="visibility"
         placeholder="Password"
       />
 
-      <transition
+      <!-- Shows the password -->
+      <div v-if="visibility === 'password'" @click="showPassword()" class="absolute right-6 -mt-7 cursor-pointer">
+        <Eye />
+      </div>
+
+      <!-- Hides the password -->
+      <div v-if="visibility === 'text'" @click="hidePassword()" class="absolute right-6 -mt-7 cursor-pointer">
+        <CrossEye />
+      </div>
+      <!-- <transition
         enter-class="enter"
         enter-to-class="enter-to"
         enter-active-class="slide-enter-active"
         leave-class="leave"
         leave-to-class="leave-to"
         leave-active-class="slide-leave-active"
-      >
+      > -->
         <div v-if="errors.length" class="mt-2 -mb-4">
-          <p v-if="errors.length > 1" class="text-sm text-black font-bold">Please correct the following errors</p>
-          <p v-else class="text-sm text-black font-bold">Please correct the following error</p>
+          <p v-if="errors.length > 1" class="text-sm text-black font-bold">There have been errors</p>
+          <p v-else class="text-sm text-black font-bold">There has been an error</p>
 
           <ul class="list-disc ml-6">
             <li v-for="error in errors">
@@ -47,7 +56,7 @@
           </ul>
         </div>
 
-      </transition>
+      <!-- </transition> -->
 
       <div class="flex flex-row relative">
         <div v-if="isLoading" class="absolute bottom-2.5 left-24 ml-2.5">
@@ -96,6 +105,8 @@ import ConfigStore from '../../main/config-store'
 import uuid4 from 'uuid4'
 import InternxtBrand from '../components/ExportIcons/InternxtBrand'
 import Spinner from '../components/ExportIcons/Spinner'
+import Eye from '../components/ExportIcons/eye'
+import CrossEye from '../components/ExportIcons/cross-eye'
 const remote = require('@electron/remote')
 const ROOT_FOLDER_NAME = 'Internxt Drive'
 const HOME_FOLDER_PATH = remote.app.getPath('home')
@@ -117,14 +128,23 @@ export default {
       isLoading: false,
       DRIVE_BASE: config.DRIVE_BASE,
       version: packageConfig.version,
-      errors: []
+      errors: [],
+      visibility: 'password'
     }
   },
   components: {
     InternxtBrand,
-    Spinner
+    Spinner,
+    Eye,
+    CrossEye
   },
   methods: {
+    showPassword() {
+      this.visibility = 'text'
+    },
+    hidePassword() {
+      this.visibility = 'password'
+    },
     handleFormSubmit(e) {
       e.preventDefault()
       this.errors = []
@@ -229,6 +249,10 @@ export default {
               .catch(err => {
                 Logger.error(err)
               })
+            console.log('res =>', res.body)
+            if (res.body.error) {
+              return this.errors.push(res.body.error)
+            }
             return this.errors.push('There was an error while logging in')
           }
           if (res.body.tfa && !this.$data.twoFactorCode) {
@@ -285,7 +309,6 @@ export default {
                 Logger.error(err)
               })
             if (res.data.error) {
-              remote.app.emit('show-error', 'Login error\n' + res.data.error)
               this.errors.push(res.data.error)
               console.log(res.data.error)
               if (res.data.error.includes('Wrong email')) {
@@ -293,6 +316,7 @@ export default {
                 this.$data.showTwoFactor = false
               }
             } else {
+              console.log('res =>', res.data)
               this.errors.push('There was an error while logging in')
             }
           } else {
