@@ -161,7 +161,7 @@ import electronLog from 'electron-log'
 import VToolTip from 'v-tooltip'
 
 Vue.use(VToolTip)
-FileLogger.on('update-last-entry', (item) => console.log(item))
+// FileLogger.on('update-last-entry', (item) => console.log(item))
 const remote = require('@electron/remote')
 
 export default {
@@ -192,7 +192,7 @@ export default {
     this.$app = this.$electron.remote.app
     Monitor.Monitor(true)
     // remote.app.on('set-tooltip', this.setTooltip)
-    console.log('Filelogger', this.file)
+    // console.log('Filelogger', this.file)
     remote.app.on('user-logout', async (saveData = false) => {
       remote.app.emit('sync-stop', false)
       await database.logOut(saveData)
@@ -226,20 +226,49 @@ export default {
     })
   },
   updated: function() {
-    console.log('updated', this.CheckedValue)
+    // console.log('updated', this.CheckedValue)
   },
   methods: {
     debug() {
       // console.log(appName)
     },
+    // Log out - save folder path whe user log out
     logout() {
-      remote.app.emit('user-logout')
+      remote.dialog.showMessageBox(
+        new remote.BrowserWindow({
+          show: false,
+          alwaysOnTop: true,
+          width: 400,
+          height: 500,
+          minWidth: 400,
+          minHeight: 500,
+          maxWidth: 400,
+          maxHeight: 500
+        }),
+        {
+          type: 'question',
+          buttons: ['Yes', 'No'],
+          default: 1,
+          cancelId: 1,
+          title: 'Dialog',
+          message: 'Do you want save data'
+        }
+      )
+        .then(userResponse => {
+          if (userResponse.response === 0) {
+            remote.app.emit('user-logout', true)
+          } else {
+            remote.app.emit('user-logout', false)
+          }
+        })
     },
+    // Quit
     quitApp() {
+      remote.app.emit('sync-stop', false)
       remote.app.emit('app-close')
     },
     afterVisibleChange(val) {
-      console.log('visible', val)
+      // console.log('visible', val)
     },
     showDrawer() {
       this.visible = true
@@ -250,7 +279,7 @@ export default {
     // Open modal account
     ShowModalAccount() {
       this.showModalAccount = !this.showModalAccount
-      return console.log(this.showModalAccount)
+      // return console.log(this.showModalAccount)
     },
     // Close modal account
     CloseModalAccount() {
@@ -258,14 +287,15 @@ export default {
     },
     // Open modal Settings
     ShowModalSettings() {
-      console.log('click')
+      // console.log('click')
       this.showModal = !this.showModal
-      return console.log(this.showModal)
+      // return console.log(this.showModal)
     },
     // Close Modal Settings
     CloseModalSettings() {
       this.showModal = false
     },
+    // Open folder path
     openFolder() {
       remote.app.emit('open-folder')
     },
@@ -337,7 +367,7 @@ export default {
     },
     // Launch at login
     launchAtLogin () {
-      console.log(this.LaunchCheck) // Pasar aqui lo que sea
+      // console.log(this.LaunchCheck) // Pasar aqui lo que sea
       // if (this.LaunchCheck === true) {
       // }
       ConfigStore.set('autoLaunch', this.LaunchCheck)

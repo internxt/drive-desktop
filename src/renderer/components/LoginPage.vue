@@ -79,7 +79,7 @@ export default {
     remote.app.emit('window-show')
   },
   created() {
-    console.log('NEW WINDOW')
+    // console.log('NEW WINDOW')
     const { BrowserWindow } = remote
   },
   data() {
@@ -119,7 +119,7 @@ export default {
       if (this.$data.isLoading) {
         return true
       }
-      console.log(this.$data.username && this.$data.password ? 'true' : 'false')
+      // console.log(this.$data.username && this.$data.password ? 'true' : 'false')
       if (this.$data.username && this.$data.password) {
         return false
       }

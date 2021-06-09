@@ -87,9 +87,9 @@ const { app } = require('@electron/remote')
 
 // FileLogger.on('update-last-entry', (item) => console.log('LAST-ENTRY', item))
 // FileLogger.on('update-last-entry',(item) => console.log('HERE', item))
-FileLogger.on('update-last-entry', (item) =>
-  console.log('update-last-entry', FileLogger.getAll)
-)
+// FileLogger.on('update-last-entry', (item) =>
+//   console.log('update-last-entry', FileLogger.getAll)
+// )
 
 export default {
   data() {
@@ -136,7 +136,7 @@ export default {
         this.FileStatusSync = item
         return this.FileStatusSync
       })
-      return console.log('new-emit', this.FileStatusSync)
+      // return console.log('new-emit', this.FileStatusSync)
     }
   },
   name: 'FileStatus',
