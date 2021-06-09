@@ -7,7 +7,8 @@ import electron, {
   Menu,
   shell,
   dialog,
-  powerMonitor } from 'electron'
+  powerMonitor
+} from 'electron'
 import path from 'path'
 import Logger from '../libs/logger'
 import AutoLaunch from '../libs/autolauncher'
@@ -22,7 +23,7 @@ import FileLogger from '../renderer/logic/FileLogger'
 
 require('@electron/remote/main').initialize()
 AutoLaunch.configureAutostart()
-
+var lock = false
 /**
  * Set `__static` path to static files in production
  * https://simulatedgreg.gitbooks.io/electron-vue/content/en/using-static-assets.html
@@ -216,6 +217,17 @@ function createWindow() {
 app.on('ready', () => {
   createWindow()
 })
+app.on('show-main-windows', showMainWindows)
+
+function showMainWindows() {
+  if (!lock) {
+    if (mainWindow.isVisible()) {
+      mainWindow.hide()
+    } else {
+      mainWindow.show()
+    }
+  }
+}
 
 async function appClose() {
   while (ConfigStore.get('updatingDB')) {
