@@ -210,12 +210,12 @@ class TrayMenu {
       click: this.appClose
     })
 
-    return Menu.buildFromTemplate(Array.concat(userMenu, contextMenuTemplate))
+    // return Menu.buildFromTemplate(Array.concat(userMenu, contextMenuTemplate))
   }
 
   updateContextMenu(user) {
     const ctxMenu = this.generateContextMenu(user)
-    this.tray.setContextMenu(ctxMenu)
+    this.tray.setContextMenu(null)
   }
 
   updateSyncState() {

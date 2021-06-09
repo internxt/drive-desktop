@@ -33,7 +33,7 @@ if (process.env.NODE_ENV !== 'development') {
   global.__static = path.join(__dirname, '/static').replace(/\\/g, '\\\\')
 }
 
-let mainWindow, mainWindow2, tray, trayMenu
+let mainWindow, trayMenu
 
 const winURL =
   process.env.NODE_ENV === 'development'
@@ -51,7 +51,7 @@ if (!app.requestSingleInstanceLock()) {
 
 app.on('update-menu', user => {
   if (trayMenu) {
-    trayMenu.updateContextMenu(user)
+    // trayMenu.updateContextMenu(user)
   } else {
     Logger.error('No tray to update')
   }
@@ -61,7 +61,7 @@ function createWindow() {
   trayMenu = new TrayMenu(mainWindow)
   trayMenu.init()
   trayMenu.setToolTip('Internxt Drive ' + PackageJson.version)
-  trayMenu.updateContextMenu()
+  // trayMenu.updateContextMenu()
 
   const display = electron.screen.getPrimaryDisplay()
   const trayBounds = trayMenu.tray.getBounds()
