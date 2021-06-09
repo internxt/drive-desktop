@@ -149,12 +149,12 @@
           </div>
 
         </div>
-        
+
       </div>
     </transition>
-    
+
   </div>
-  
+
 </template>
 
 <script>
@@ -267,18 +267,8 @@ export default {
     },
     // Log out - save folder path whe user log out
     logout() {
-      console.log('INICIO DE LOG OUT')
       remote.dialog.showMessageBox(
-        new remote.BrowserWindow({
-          show: false,
-          alwaysOnTop: true,
-          width: 400,
-          height: 500,
-          minWidth: 400,
-          minHeight: 500,
-          maxWidth: 400,
-          maxHeight: 500
-        }),
+        remote.getCurrentWindow(),
         {
           type: 'question',
           buttons: ['Yes', 'No'],
