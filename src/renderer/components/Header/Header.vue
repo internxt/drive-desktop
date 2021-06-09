@@ -262,22 +262,13 @@ export default {
     // Log out - save folder path whe user log out
     logout() {
       remote.dialog.showMessageBox(
-        new remote.BrowserWindow({
-          show: false,
-          alwaysOnTop: true,
-          width: 400,
-          height: 500,
-          minWidth: 400,
-          minHeight: 500,
-          maxWidth: 400,
-          maxHeight: 500
-        }),
+        remote.getCurrentWindow(),
         {
           type: 'question',
           buttons: ['Yes', 'No'],
           default: 1,
           cancelId: 1,
-          title: 'Dialog',
+          title: 'Log Out',
           message: 'Would you like to save your login data'
         }
       )
