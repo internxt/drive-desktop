@@ -66,7 +66,7 @@ import SyncButtonAction from '../components/SyncButtonAction/SyncButtonAction'
 import FileLogger from '../logic/FileLogger'
 
 window.FileLogger = FileLogger
-window.resizeTo(400, 400)
+// window.resizeTo(400, 400)
 // FileLogger.on('update-last-entry', (item) => console.log(item))
 
 const remote = require('@electron/remote')

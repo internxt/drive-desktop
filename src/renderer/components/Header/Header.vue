@@ -132,15 +132,16 @@
         <div class="text-sm mb-3 hover:text-blue-600 cursor-pointer" @click="logout()">Log out</div>
         <div class="text-sm hover:text-blue-600 cursor-pointer" @click="quitApp()">Quit</div>
         <div>
-          <div class="text-xs border border-dashed border-gray-200 p-2 px-3 rounded mt-2">
+
+          <div class="text-xs border border-dashed border-gray-200 p-2 px-3 rounded mt-6">
 
             <div class="flex">
               <div><UilServerConnection class="text-blue-600 text-2xl mr-4 mt-0.5" /></div>
               <div>
                 <div class="font-bold">Storage used</div>
                 <div class="flex">
-                  <div class="mr-0.5 text-gray-400 text-xs-bolder"><strong>{{usage}}</strong> de </div>
-                  <div class="text-blue-500 text-xs-bolder">{{limit}}</div>
+                  <div class="mr-0.5 text-gray-400 text-xs">{{usage}} de </div>
+                  <div class="text-blue-500 text-xs italic">{{limit}}</div>
                 </div>
               </div>
             </div>

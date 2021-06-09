@@ -74,7 +74,7 @@ function createWindow() {
       devTools: false
     },
     width: 450,
-    height: 550,
+    height: 360,
     // x: display.bounds.width - 450,
     // y: trayBounds.y,
     useContentSize: true,
