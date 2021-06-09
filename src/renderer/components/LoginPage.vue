@@ -152,7 +152,7 @@ export default {
       if (!this.email) this.errors.push('The email must not be empty')
       if (!this.password) this.errors.push('The password must not be empty')
 
-      if (!this.errors.length) {
+      if (!this.errors.length && !this.isLoading) {
         this.doLogin()
       }
     },
