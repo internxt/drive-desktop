@@ -16,14 +16,14 @@
       @submit="handleFormSubmit"
     >
       <input
-        class="w-full h-10 focus:outline-none mb-3 border border-gray-300 rounded px-2 text-xs font-bold"
+        class="w-full h-10 focus:outline-none focus:ring focus:ring-2 focus:border-blue-300 mb-3 border border-gray-300 rounded px-2 text-xs font-bold"
         v-model="email"
         type="text"
         placeholder="Email address"
         tabindex="0"
       />
       <input
-        class="w-full h-10 focus:outline-none border border-gray-300 rounded px-2 text-xs font-bold"
+        class="w-full h-10 focus:outline-none focus:ring focus:ring-2 focus:border-blue-300 border border-gray-300 rounded px-2 text-xs font-bold"
         v-model="password"
         :type="visibility"
         placeholder="Password"
@@ -61,7 +61,7 @@
       <!-- </transition> -->
 
       <div class="flex flex-row relative">
-        <div v-if="isLoading" class="absolute bottom-2.5 left-24 ml-2.5">
+        <div v-if="isLoading" class="flex items-center justify-center absolute bg-blue-500 bottom-2.5 left-0 right-0">
           <Spinner class="animate-spin z-10" />
         </div>
         <input
@@ -327,19 +327,17 @@ export default {
               'xMnemonic',
               crypt.decryptWithKey(res.data.user.mnemonic, this.$data.password)
             )
-            // const savedCredentials = await database.logIn(res.data.user.email)
-            // ConfigStore.set('savedCredentials', savedCredentials)
-            // console.log('From Login Page ', savedCredentials)
+            const savedCredentials = await database.logIn(res.data.user.email)
             await database.Set('xUser', res.data)
             await database.compactAllDatabases()
             ConfigStore.set('stopSync', false)
             // this.$router.push('/landing-page').catch(() => {})
-            this.$router.push('/onboarding').catch(() => {})
-            /*
             if (!savedCredentials) {
-              remote.app.emit('create-onboarbing')
+              this.$router.push('/onboarding').catch(() => {})
+              remote.getCurrentWindow().setSize(800, 500)
+            } else {
+              this.$router.push('/xcloud').catch(() => {})
             }
-            */
             analytics
               .identify({
                 userId: undefined,
