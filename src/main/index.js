@@ -71,7 +71,7 @@ function createWindow() {
       contextIsolation: false,
       webSecurity: process.env.NODE_ENV !== 'development',
       enableRemoteModule: true,
-      devTools: false
+      devTools: true
     },
     width: 450,
     height: 360,
@@ -113,7 +113,9 @@ function createWindow() {
   // mainWindow2.loadURL(winURL + '/#/onboarding')
   // mainWindow2.show()
 
-  mainWindow.loadURL(winURL)
+  mainWindow.trayBounds = trayBounds
+
+  mainWindow.loadURL(winURL).then(() => { mainWindow.webContents.send('tray-position', {x: 1, y: 1}) })
 
   mainWindow.on('closed', appClose)
   mainWindow.on('close', appClose)

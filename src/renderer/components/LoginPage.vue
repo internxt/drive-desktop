@@ -337,6 +337,8 @@ export default {
               remote.getCurrentWindow().setSize(800, 500)
             } else {
               this.$router.push('/xcloud').catch(() => {})
+              const bounds = remote.getCurrentWindow().trayBounds
+              remote.getCurrentWindow().setBounds({ x: remote.display.bounds.width - 450, y: bounds.y })
             }
             analytics
               .identify({

@@ -216,7 +216,6 @@ export default {
     this.$app = this.$electron.remote.app
     // Storage and space used
     remote.app.on('update-storage', (data) => {
-      console.log('DATA', data)
       this.usage = data.usage
       this.limit = data.limit
     })
