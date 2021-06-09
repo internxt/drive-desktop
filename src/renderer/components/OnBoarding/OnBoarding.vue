@@ -197,6 +197,7 @@
 import { Hooper, Slide, Pagination as HooperPagination } from 'hooper'
 import './OnBoarding.scss'
 import 'hooper/dist/hooper.css'
+const remote = require('@electron/remote')
 
 export default {
   data() {
@@ -222,6 +223,8 @@ export default {
     },
     finishOnboarding() {
       // TODO
+      const bounds = remote.getCurrentWindow().trayBounds
+      remote.getCurrentWindow().setBounds({ width: 450, height: 360, x: bounds.x - 600, y: bounds.y })
       this.$router.push('/xcloud').catch(() => {})
     }
   },

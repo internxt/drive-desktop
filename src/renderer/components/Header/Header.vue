@@ -246,6 +246,10 @@ export default {
           })
       }
       remote.app.emit('update-menu')
+      // Resize window to login window
+      // const bounds = remote.getCurrentWindow().trayBounds
+      remote.getCurrentWindow().setBounds({ height: 550, width: 450 })
+      remote.getCurrentWindow().center()
       this.$router.push('/').catch(() => {})
     })
 
@@ -278,7 +282,6 @@ export default {
         }
       )
         .then(userResponse => {
-          console.log('FIN DE LOG OUT')
           if (userResponse.response === 0) {
             remote.app.emit('user-logout', true)
           } else {

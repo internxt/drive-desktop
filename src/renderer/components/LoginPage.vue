@@ -333,11 +333,12 @@ export default {
             ConfigStore.set('stopSync', false)
             // this.$router.push('/landing-page').catch(() => {})
             if (!savedCredentials) {
+              remote.getCurrentWindow().setBounds({ width: 800, height: 500 })
+              remote.getCurrentWindow().center()
               this.$router.push('/onboarding').catch(() => {})
-              remote.getCurrentWindow().setSize(800, 500)
             } else {
               const bounds = remote.getCurrentWindow().trayBounds
-              remote.getCurrentWindow().setBounds({ x: bounds.x - 600, y: bounds.y })
+              remote.getCurrentWindow().setBounds({ width: 450, height: 360, x: bounds.x - 600, y: bounds.y })
               this.$router.push('/xcloud').catch(() => {})
               /*
               const bounds = remote.getCurrentWindow().trayBounds

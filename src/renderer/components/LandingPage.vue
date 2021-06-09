@@ -38,8 +38,12 @@ export default {
       await database.ClearAll()
       await database.compactAllDatabases()
 
+      remote.getCurrentWindow().setBounds({ width: 450, height: 360 })
+      remote.getCurrentWindow().center()
       this.$router.push('/login').catch(() => {})
     } else {
+      const bounds = remote.getCurrentWindow().trayBounds
+      remote.getCurrentWindow().setBounds({ width: 450, height: 360, x: bounds.x - 600, y: bounds.y })
       this.$router.push('/xcloud').catch(() => {})
     }
   },
