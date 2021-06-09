@@ -1,0 +1,9 @@
+.enter { transform: translateY(100%) }
+.enter-to { transform: translateY(0) }
+.slide-enter-active { position: absolute }
+
+.leave { transform: translateY(0) }
+.leave-to { transform: translateY(130%) }
+
+.slide-enter-active,
+.slide-leave-active { transition: all 500ms ease-in-out }
