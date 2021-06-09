@@ -1,6 +1,10 @@
 <template>
   <div id="wrapper">
-    ..cargando
+    <main class="centered-container">
+      <div class="spinner-grow text-primary" role="status">
+        <span class="sr-only">Loading...</span>
+      </div>
+    </main>
   </div>
 </template>
 
@@ -9,6 +13,7 @@ import SystemInformation from './LandingPage/SystemInformation'
 import database from '../../database'
 import async from 'async'
 import Logger from '../../libs/logger'
+import ConfigStore from '../../main/config-store'
 import fs from 'fs'
 const remote = require('@electron/remote')
 
@@ -35,8 +40,17 @@ export default {
 
       this.$router.push('/login').catch(() => {})
     } else {
-      // Check if token is valid
       this.$router.push('/xcloud').catch(() => {})
+      /*
+      console.log('From landing page savedCredentials ', ConfigStore.get('savedCredentials'))
+      if (ConfigStore.get('savedCredentials')) {
+        // Check if token is valid
+        this.$router.push('/xcloud').catch(() => {})
+      } else {
+        // redirect to onboarding if not saved credentials
+        this.$router.push('/onboarding').catch(() => {})
+      }
+      */
     }
   },
   methods: {

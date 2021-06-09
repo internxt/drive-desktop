@@ -120,7 +120,6 @@ export default {
     remote.app.emit('window-show')
   },
   created() {
-    // console.log('NEW WINDOW')
     const { BrowserWindow } = remote
   },
   data() {
@@ -328,13 +327,19 @@ export default {
               'xMnemonic',
               crypt.decryptWithKey(res.data.user.mnemonic, this.$data.password)
             )
-            await database.logIn(res.data.user.email)
+            // const savedCredentials = await database.logIn(res.data.user.email)
+            // ConfigStore.set('savedCredentials', savedCredentials)
+            // console.log('From Login Page ', savedCredentials)
             await database.Set('xUser', res.data)
             await database.compactAllDatabases()
             ConfigStore.set('stopSync', false)
-            this.$router.push('/landing-page').then(() => {
-              remote.app.emit('show-info', "You've securely logged into Internxt Drive. A native Internxt folder has been created on your OS with your files. You can configure additional functionalities from the Internxt tray icon.", 'Login successful')
-            }).catch(() => {})
+            // this.$router.push('/landing-page').catch(() => {})
+            this.$router.push('/onboarding').catch(() => {})
+            /*
+            if (!savedCredentials) {
+              remote.app.emit('create-onboarbing')
+            }
+            */
             analytics
               .identify({
                 userId: undefined,
