@@ -336,9 +336,14 @@ export default {
               this.$router.push('/onboarding').catch(() => {})
               remote.getCurrentWindow().setSize(800, 500)
             } else {
-              this.$router.push('/xcloud').catch(() => {})
               const bounds = remote.getCurrentWindow().trayBounds
+              remote.getCurrentWindow().setBounds({ x: bounds.x - 600, y: bounds.y })
+              this.$router.push('/xcloud').catch(() => {})
+              /*
+              const bounds = remote.getCurrentWindow().trayBounds
+              console.log(bounds)
               remote.getCurrentWindow().setBounds({ x: remote.display.bounds.width - 450, y: bounds.y })
+              */
             }
             analytics
               .identify({
