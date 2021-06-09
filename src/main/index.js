@@ -65,18 +65,18 @@ function createWindow() {
 
   const display = electron.screen.getPrimaryDisplay()
   const trayBounds = trayMenu.tray.getBounds()
-  console.log('traybound =>', trayBounds)
   mainWindow = new BrowserWindow({
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
       webSecurity: process.env.NODE_ENV !== 'development',
-      enableRemoteModule: true
+      enableRemoteModule: true,
+      devTools: false
     },
     width: 450,
     height: 550,
-    x: display.bounds.width - 450,
-    y: trayBounds.y,
+    // x: display.bounds.width - 450,
+    // y: trayBounds.y,
     useContentSize: true,
     // frame: process.env.NODE_ENV === 'development',
     frame: false,
@@ -85,7 +85,8 @@ function createWindow() {
     show: process.env.NODE_ENV === 'development',
     resizable: process.env.NODE_ENV === 'development',
     menuBarVisible: false,
-    movable: false
+    movable: false,
+    centered: true
   })
 
   // mainWindow2 = new BrowserWindow({

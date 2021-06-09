@@ -334,6 +334,7 @@ export default {
             // this.$router.push('/landing-page').catch(() => {})
             if (!savedCredentials) {
               this.$router.push('/onboarding').catch(() => {})
+              remote.getCurrentWindow().setSize(800, 500)
             } else {
               this.$router.push('/xcloud').catch(() => {})
             }
