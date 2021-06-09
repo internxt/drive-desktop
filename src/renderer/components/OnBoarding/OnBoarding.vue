@@ -74,7 +74,7 @@
     <slide>
       <div class="flex h-full">
         <div class="w-1/2 h-full">
-          <img class="h-full -mb-2 -ml-2" src="../../assets/images/slide-3/image.png" />
+          <img class="h-full" src="../../assets/images/slide-3/image.png" />
         </div>
 
         <div class="flex flex-col w-1/2 bg-white p-10 relative">
@@ -91,6 +91,7 @@
             icon's sync window.
           </div>
 
+          <input @click.prevent="slidePrev" type="button" value="Previous" class="absolute bottom-8 left-12 text-base text-gray-400 font-bold mt-16 bg-transparent cursor-pointer focus:outline-none" />
           <input @click.prevent="slideNext" type="button" value="Next" class="absolute bottom-8 right-12 text-base text-blue-600 font-bold mt-16 bg-transparent cursor-pointer focus:outline-none" />
         </div>
       </div>
@@ -119,6 +120,7 @@
             Privacy like never before.
           </div>
 
+          <input @click.prevent="slidePrev" type="button" value="Previous" class="absolute bottom-8 left-12 text-base text-gray-400 font-bold mt-16 bg-transparent cursor-pointer focus:outline-none" />
           <input @click.prevent="slideNext" type="button" value="Next" class="absolute bottom-8 right-12 text-base text-blue-600 font-bold mt-16 bg-transparent cursor-pointer focus:outline-none" />
         </div>
       </div>
@@ -149,6 +151,7 @@
             a local copy of them so that you can free up local storage space.
           </div>
 
+          <input @click.prevent="slidePrev" type="button" value="Previous" class="absolute bottom-8 left-12 text-base text-gray-400 font-bold mt-16 bg-transparent cursor-pointer focus:outline-none" />
           <input @click.prevent="slideNext" type="button" value="Next" class="absolute bottom-8 right-12 text-base text-blue-600 font-bold mt-16 bg-transparent cursor-pointer focus:outline-none" />
         </div>
 
@@ -166,7 +169,7 @@
           </div>
         </div>
 
-        <div class="flex flex-col w-1/2 bg-white p-10">
+        <div class="flex flex-col w-1/2 bg-white p-10 relative">
           <p class="text-xs text-purple-500 font-thin mt-4">FAST</p>
 
           <h1 class="text-4xl font-extrabold bg-gradient-to-r from-purple-500 via-pink-500 to-red-400 text-transparent bg-clip-text mt-2">
@@ -179,16 +182,19 @@
             Simple, Fast, Secure, Private. Welcome to Internxt Drive.
           </div>
 
+          <input @click.prevent="slidePrev" type="button" value="Previous" class="absolute bottom-8 left-12 text-base text-gray-400 font-bold mt-16 bg-transparent cursor-pointer focus:outline-none" />
           <input @click.prevent="finishOnboarding" type="button" value="Get started!" class="absolute bottom-8 right-12 text-base text-blue-600 font-bold mt-16 bg-transparent cursor-pointer focus:outline-none" />
         </div>
       </div>
     </slide>
+
+    <hooper-pagination v-if="currentSlide !== 0" slot="hooper-addons"></hooper-pagination>
   </hooper>
 </template>
 
 <script>
 // import PagesContentOnBoarding from './PagesContentOnBoarding'
-import { Hooper, Slide } from 'hooper'
+import { Hooper, Slide, Pagination as HooperPagination } from 'hooper'
 import './OnBoarding.scss'
 import 'hooper/dist/hooper.css'
 
@@ -200,6 +206,7 @@ export default {
   },
   watch: {
     currentSlide () {
+      console.log(this.currentSlide)
       this.$refs.carousel.slideTo(this.currentSlide)
     }
   },
@@ -207,8 +214,11 @@ export default {
     slideNext() {
       this.$refs.carousel.slideNext()
     },
+    slidePrev() {
+      this.$refs.carousel.slidePrev()
+    },
     updateCarousel(payload) {
-      this.myCarouselData = payload.currentSlide
+      this.currentSlide = payload.currentSlide
     },
     finishOnboarding() {
       // TODO
@@ -217,7 +227,8 @@ export default {
   },
   components: {
     Hooper,
-    Slide
+    Slide,
+    HooperPagination
   }
 }
 </script>
