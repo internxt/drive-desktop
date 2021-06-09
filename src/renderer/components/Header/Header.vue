@@ -61,7 +61,7 @@
         <div class="flex justify-between">
           <div class="text-black text-base font-bold mb-3">Configuration</div>
 
-          <div class="cursor-pointer" v-on:click="CloseModalSettings()">
+          <div class="cursor-pointer" v-on:click="CloseSettingsModal()">
             <UilMultiply class="mr-2 text-blue-600" />
           </div>
         </div>
@@ -121,7 +121,7 @@
       <div v-if="showAccountModal === true" class="bg-white p-4 px-6 w-full h-full fixed rounded-t-2xl z-10">
         <div class="flex justify-between">
           <div class="text-black text-base font-bold mb-3">Account</div>
-          <div class="cursor-pointer" v-on:click="CloseModalAccount()">
+          <div class="cursor-pointer" v-on:click="CloseAccountModal()">
             <UilMultiply class="mr-2 text-blue-600" />
           </div>
         </div>
@@ -250,10 +250,16 @@ export default {
       this.showSettingsModal = false
       this.showAccountModal = !this.showAccountModal
     },
+    CloseAccountModal() {
+      this.showAccountModal = false
+    },
     // Open modal Settings
     ShowSettingsModal() {
       this.showAccountModal = false
       this.showSettingsModal = !this.showSettingsModal
+    },
+    CloseSettingsModal() {
+      this.showSettingsModal = false
     },
     openFolder() {
       remote.app.emit('open-folder')
