@@ -7,7 +7,8 @@ import electron, {
   Menu,
   shell,
   dialog,
-  powerMonitor } from 'electron'
+  powerMonitor
+} from 'electron'
 import path from 'path'
 import Logger from '../libs/logger'
 import AutoLaunch from '../libs/autolauncher'
@@ -22,7 +23,7 @@ import FileLogger from '../renderer/logic/FileLogger'
 
 require('@electron/remote/main').initialize()
 AutoLaunch.configureAutostart()
-
+var lock = false
 /**
  * Set `__static` path to static files in production
  * https://simulatedgreg.gitbooks.io/electron-vue/content/en/using-static-assets.html
@@ -86,31 +87,6 @@ function createWindow() {
     menuBarVisible: false,
     movable: false
   })
-
-  mainWindow2 = new BrowserWindow({
-    webPreferences: {
-      nodeIntegration: true,
-      contextIsolation: false,
-      webSecurity: process.env.NODE_ENV !== 'development',
-      enableRemoteModule: true
-    },
-    minWidth: 800,
-    minHeight: 500,
-    width: 800,
-    height: 500,
-    useContentSize: true,
-    // frame: process.env.NODE_ENV === 'development',
-    frame: false,
-    transparent: true,
-    autoHideMenuBar: false,
-    skipTaskbar: process.env.NODE_ENV !== 'development',
-    show: process.env.NODE_ENV === 'development',
-    resizable: true,
-    menuBarVisible: true
-  })
-
-  mainWindow2.loadURL(winURL + '/#/onboarding')
-  mainWindow2.show()
 
   mainWindow.loadURL(winURL)
 
@@ -209,6 +185,17 @@ function createWindow() {
 app.on('ready', () => {
   createWindow()
 })
+app.on('show-main-windows', showMainWindows)
+
+function showMainWindows() {
+  if (!lock) {
+    if (mainWindow.isVisible()) {
+      mainWindow.hide()
+    } else {
+      mainWindow.show()
+    }
+  }
+}
 
 async function appClose() {
   while (ConfigStore.get('updatingDB')) {
