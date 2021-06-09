@@ -107,7 +107,7 @@ export default {
     // console.log('Montado')
   },
   updated: function () {
-    console.log('LOG', ConfigStore.get('stopSync'), ConfigStore.get('isSyncing'))
+    // console.log('LOG', ConfigStore.get('stopSync'), ConfigStore.get('isSyncing'))
     // app.on('sync-off')
     // console.log('Actualizado')
     this.AllfilesShow()

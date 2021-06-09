@@ -130,9 +130,29 @@
         <div v-on:click="ContactSupportMailto()" class="text-sm hover:text-blue-600 cursor-pointer mb-3">Contact support</div>
         <div class="text-sm mb-3 hover:text-blue-600 cursor-pointer" @click="logout()">Log out</div>
         <div class="text-sm hover:text-blue-600 cursor-pointer" @click="quitApp()">Quit</div>
+        <div>
+          <div class="text-xs border border-dashed border-gray-200 p-2 px-3 rounded mt-2">
+
+            <div class="flex">
+              <div><UilServerConnection class="text-blue-600 text-2xl mr-4 mt-0.5" /></div>
+              <div>
+                <div class="font-bold">Storage used</div>
+                <div class="flex">
+                  <div class="mr-0.5 text-gray-400 text-xs-bolder"><strong>{{usage}}</strong> de </div>
+                  <div class="text-blue-500 text-xs-bolder">{{limit}}</div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+        
       </div>
     </transition>
+    
   </div>
+  
 </template>
 
 <script>
@@ -146,7 +166,8 @@ import {
   UilSetting,
   UilUserCircle,
   UilMultiply,
-  UilFolderOpen
+  UilFolderOpen,
+  UilServerConnection
 } from '@iconscout/vue-unicons'
 import 'ant-design-vue/dist/antd.css'
 import InternxtBrand from '../ExportIcons/InternxtBrand'
@@ -159,6 +180,7 @@ import Logger from '../../../libs/logger'
 import path from 'path'
 import electronLog from 'electron-log'
 import VToolTip from 'v-tooltip'
+import bytes from 'bytes'
 
 Vue.use(VToolTip)
 // FileLogger.on('update-last-entry', (item) => console.log(item))
@@ -174,7 +196,10 @@ export default {
       CheckedValue: 'full',
       LaunchCheck: false,
       path: null,
-      msg: 'Mensaje de texto'
+      msg: 'Mensaje de texto',
+      usage: '',
+      limit: ''
+
     }
   },
   beforeCreate: function () {
@@ -186,10 +211,16 @@ export default {
     remote.app.removeAllListeners('user-logout')
   },
   created: function () {
+    this.$app = this.$electron.remote.app
+    // Storage and space used
+    remote.app.on('update-storage', (data) => {
+      console.log('DATA', data)
+      this.usage = data.usage
+      this.limit = data.limit
+    })
     FileLogger.on('update-last-entry', (item) => {
       this.file = item
     })
-    this.$app = this.$electron.remote.app
     Monitor.Monitor(true)
     // remote.app.on('set-tooltip', this.setTooltip)
     // console.log('Filelogger', this.file)
@@ -251,7 +282,7 @@ export default {
           default: 1,
           cancelId: 1,
           title: 'Dialog',
-          message: 'Do you want save data'
+          message: 'Would you like to save your login data'
         }
       )
         .then(userResponse => {
@@ -403,7 +434,8 @@ export default {
     UilFolderNetwork,
     InternxtBrand,
     UilMultiply,
-    UilFolderOpen
+    UilFolderOpen,
+    UilServerConnection
     // Drawer
   }
 }
