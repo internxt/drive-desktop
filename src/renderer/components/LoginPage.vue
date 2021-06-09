@@ -16,14 +16,14 @@
       @submit="handleFormSubmit"
     >
       <input
-        class="w-full h-10 focus:outline-none mb-3 border border-gray-300 rounded px-2 text-xs font-bold"
+        class="w-full h-10 focus:outline-none focus:ring focus:ring-2 focus:border-blue-300 mb-3 border border-gray-300 rounded px-2 text-xs font-bold"
         v-model="email"
         type="text"
         placeholder="Email address"
         tabindex="0"
       />
       <input
-        class="w-full h-10 focus:outline-none border border-gray-300 rounded px-2 text-xs font-bold"
+        class="w-full h-10 focus:outline-none focus:ring focus:ring-2 focus:border-blue-300 border border-gray-300 rounded px-2 text-xs font-bold"
         v-model="password"
         :type="visibility"
         placeholder="Password"
