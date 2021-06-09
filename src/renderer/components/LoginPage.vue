@@ -53,7 +53,7 @@
 
           <ul class="list-disc ml-6">
             <li v-for="error in errors" :key="error">
-              {{ console.log(error) }}
+              {{ error }}
             </li>
           </ul>
         </div>
