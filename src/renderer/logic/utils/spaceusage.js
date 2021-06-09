@@ -71,6 +71,9 @@ async function getUsage() {
 async function updateUsage() {
   await getLimit()
     .then(limit => {
+      remote.app.emit('update-storage', {
+        limit: limit
+      })
       ConfigStore.set('limit', limit)
     })
     .catch(() => {
@@ -79,6 +82,9 @@ async function updateUsage() {
 
   await getUsage()
     .then(usage => {
+      remote.app.emit('update-storage', {
+        usage: usage
+      })
       ConfigStore.set('usage', usage)
     })
     .catch(() => {

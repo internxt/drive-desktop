@@ -20,7 +20,7 @@ class TrayMenu {
 
     this.tray = new Tray(trayIcon)
     this.tray.setToolTip('Internxt Drive ' + PackageJson.version)
-
+    this.tray.on('click', () => { app.emit('show-main-windows') })
     this.updateContextMenu()
   }
 
