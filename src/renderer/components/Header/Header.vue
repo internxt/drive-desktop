@@ -24,7 +24,7 @@
           />
         </div>
 
-        <div class="mr-3 cursor-pointer" v-on:click="ShowModalSettings()" v-tooltip="{
+        <div class="mr-3 cursor-pointer" v-on:click="ShowSettingsModal()" v-tooltip="{
           content: 'Settings',
           placement: 'bottom',
           delay: { show: 300, hide: 300}
@@ -35,7 +35,7 @@
           />
         </div>
 
-        <div class="cursor-pointer" v-on:click="ShowModalAccount()" v-tooltip="{
+        <div class="cursor-pointer" v-on:click="ShowAccountModal()" v-tooltip="{
           content: 'Account',
           placement: 'bottom',
           delay: { show: 300, hide: 300}
@@ -57,7 +57,7 @@
       leave-to-class="leave-to"
       leave-active-class="slide-leave-active"
     >
-      <div v-if="showModal === true" class="bg-white p-4 px-6 w-full h-full fixed rounded-t-2xl z-10">
+      <div v-if="showSettingsModal === true" class="bg-white p-4 px-6 w-full h-full fixed rounded-t-2xl z-10">
         <div class="flex justify-between">
           <div class="text-black text-base font-bold mb-3">Configuration</div>
 
@@ -118,7 +118,7 @@
       leave-to-class="leave-to"
       leave-active-class="slide-leave-active"
     >
-      <div v-if="showModalAccount === true" class="bg-white p-4 px-6 w-full h-full fixed rounded-t-2xl z-10">
+      <div v-if="showAccountModal === true" class="bg-white p-4 px-6 w-full h-full fixed rounded-t-2xl z-10">
         <div class="flex justify-between">
           <div class="text-black text-base font-bold mb-3">Account</div>
           <div class="cursor-pointer" v-on:click="CloseModalAccount()">
@@ -168,8 +168,8 @@ export default {
   data() {
     return {
       placement: 'left',
-      showModal: false,
-      showModalAccount: false,
+      showSettingsModal: false,
+      showAccountModal: false,
       localPath: '',
       CheckedValue: 'full',
       LaunchCheck: false,
@@ -230,7 +230,6 @@ export default {
   },
   methods: {
     debug() {
-      // console.log(appName)
     },
     logout() {
       remote.app.emit('user-logout')
@@ -239,7 +238,6 @@ export default {
       remote.app.emit('app-close')
     },
     afterVisibleChange(val) {
-      console.log('visible', val)
     },
     showDrawer() {
       this.visible = true
@@ -248,23 +246,14 @@ export default {
       this.visible = false
     },
     // Open modal account
-    ShowModalAccount() {
-      this.showModalAccount = !this.showModalAccount
-      return console.log(this.showModalAccount)
-    },
-    // Close modal account
-    CloseModalAccount() {
-      this.showModalAccount = false
+    ShowAccountModal() {
+      this.showSettingsModal = false
+      this.showAccountModal = !this.showAccountModal
     },
     // Open modal Settings
-    ShowModalSettings() {
-      console.log('click')
-      this.showModal = !this.showModal
-      return console.log(this.showModal)
-    },
-    // Close Modal Settings
-    CloseModalSettings() {
-      this.showModal = false
+    ShowSettingsModal() {
+      this.showAccountModal = false
+      this.showSettingsModal = !this.showSettingsModal
     },
     openFolder() {
       remote.app.emit('open-folder')
