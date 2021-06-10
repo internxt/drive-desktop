@@ -25,7 +25,18 @@
           />
         </div>
 
-        <div class="mr-3 cursor-pointer" v-on:click="ShowSettingsModal()" v-tooltip="{
+        <div class="cursor-pointer mr-3" v-on:click="ShowAccountModal()" v-tooltip="{
+          content: 'Account',
+          placement: 'bottom',
+          delay: { show: 300, hide: 300}
+        }">
+          <UilUserCircle
+            class="text-blue-600"
+            size="24px"
+          />
+        </div>
+
+        <div class="cursor-pointer" v-on:click="ShowSettingsModal()" v-tooltip="{
           content: 'Settings',
           placement: 'bottom',
           delay: { show: 300, hide: 300}
@@ -36,16 +47,6 @@
           />
         </div>
 
-        <div class="cursor-pointer" v-on:click="ShowAccountModal()" v-tooltip="{
-          content: 'Account',
-          placement: 'bottom',
-          delay: { show: 300, hide: 300}
-        }">
-          <UilUserCircle
-            class="text-blue-600"
-            size="24px"
-          />
-        </div>
       </div>
     </div>
 
@@ -154,11 +155,11 @@
       <p class="text-base text-center w-72 mt-3">By changing to full sync you will start synchronizing all your content.</p>
 
       <div class="mt-4">
+        <button @click="CloseSyncSettingsModal()" class="text-sm mr-5 cursor-pointer focus:outline-none">Cancel</button>
         <button @click="syncModeChange()" class="w-24 py-2 rounded-full bg-white font-semibold text-sm text-blue-600 cursor-pointer focus:outline-none">Accept</button>
-        <button @click="CloseSyncSettingsModal()" class="text-sm ml-5 cursor-pointer focus:outline-none">Cancel</button>
       </div>
 
-      <a href="" class="text-xs underline mt-4 cursor-pointer">Know more about Full Sync</a>
+      <!-- <a href="" class="text-xs underline mt-4 cursor-pointer">Know more about Full Sync</a> -->
     </div>
 
     <div v-if="showSyncSettingsModal && selectedSyncOption === 'upload'" class="absolute top-0 left-0 z-20 bg-blue-600 bg-opacity-90 h-full w-full flex flex-col justify-center items-center text-white">
@@ -166,11 +167,11 @@
       <p class="text-base text-center w-72 mt-3">By changing to Upload only you can only upload files. This way, you will be able to delete files locally whitout losing them from your cloud.</p>
 
       <div class="mt-4">
+        <button @click="CloseSyncSettingsModal()" class="text-sm mr-5 cursor-pointer focus:outline-none">Cancel</button>
         <button @click="syncModeChange()" value="full" class="w-24 py-2 rounded-full bg-white font-semibold text-sm text-blue-600 cursor-pointer focus:outline-none">Accept</button>
-        <button @click="CloseSyncSettingsModal()" class="text-sm ml-5 cursor-pointer focus:outline-none">Cancel</button>
       </div>
 
-      <a href="" class="text-xs underline mt-4 cursor-pointer">Know more about Full Sync</a>
+      <!-- <a href="" class="text-xs underline mt-4 cursor-pointer">Know more about Full Sync</a> -->
     </div>
   </div>
 </template>
