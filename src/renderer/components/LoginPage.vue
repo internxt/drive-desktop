@@ -5,7 +5,11 @@
     </button>
   </div> -->
 
-  <main class="w-full h-full flex flex-col justify-center bg-white px-12">
+  <main class="w-full h-full flex flex-col justify-center bg-white px-12 relative">
+    <div class="cursor-pointer absolute top-6 right-6" v-on:click="CloseAccountModal()">
+      <UilMultiply class="mr-2 text-blue-600" />
+    </div>
+
     <div class="flex flex-row items-center">
       <InternxtBrand :width="20" :height="20"/>
       <span class="text-xl text-black font-bold ml-2">{{ showTwoFactor ? 'Security Verification' : 'Sign in to Internxt Drive' }}</span>
@@ -85,12 +89,14 @@
       />
     </div> -->
 
-    <div v-if="!showTwoFactor" class="block text-xs font-bold mt-4">
-      <span class="text-gray-400">Don't have an Internxt account?</span>
-      <a class="text-blue-400" href="#" @click="open(`${DRIVE_BASE}/new`)" tabindex="-1">Get one for free!</a>
-    </div>
+    <div v-if="!showTwoFactor" class="flex justify-between text-xs font-bold mt-4">
+      <div class="flex">
+        <span class="text-gray-400">Don't have an Internxt account?</span>
+        <a class="text-blue-400 ml-1" href="#" @click="open(`${DRIVE_BASE}/new`)" tabindex="-1">Get one for free!</a>
+      </div>
 
-    <div class="self-center mt-6 text-gray-300 text-xs">v{{ version }}</div>
+      <div class="text-gray-300 text-xs">v{{ version }}</div>
+    </div>
   </main>
 </template>
 
@@ -109,6 +115,7 @@ import InternxtBrand from '../components/ExportIcons/InternxtBrand'
 import Spinner from '../components/ExportIcons/Spinner'
 import Eye from '../components/ExportIcons/eye'
 import CrossEye from '../components/ExportIcons/cross-eye'
+import { UilMultiply } from '@iconscout/vue-unicons'
 const remote = require('@electron/remote')
 const ROOT_FOLDER_NAME = 'Internxt Drive'
 const HOME_FOLDER_PATH = remote.app.getPath('home')
@@ -120,7 +127,6 @@ export default {
     remote.app.emit('window-show')
   },
   created() {
-    const { BrowserWindow } = remote
   },
   data() {
     return {
@@ -139,7 +145,8 @@ export default {
     InternxtBrand,
     Spinner,
     Eye,
-    CrossEye
+    CrossEye,
+    UilMultiply
   },
   methods: {
     showPassword() {
@@ -314,10 +321,12 @@ export default {
               remote.getCurrentWindow().setBounds({ width: 800, height: 500 })
               remote.getCurrentWindow().center()
               this.$router.push('/onboarding').catch(() => {})
+              remote.app.emit('enter-login', false)
             } else {
               const bounds = remote.getCurrentWindow().trayBounds
               remote.getCurrentWindow().setBounds({ width: 450, height: 360, x: bounds.x - 800, y: bounds.y })
               this.$router.push('/xcloud').catch(() => {})
+              remote.app.emit('enter-login', false)
             }
             analytics
               .identify({

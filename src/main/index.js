@@ -25,6 +25,8 @@ import FileLogger from '../renderer/logic/FileLogger'
 require('@electron/remote/main').initialize()
 AutoLaunch.configureAutostart()
 var lock = false
+let isOnboarding = false
+let isLogin = false
 /**
  * Set `__static` path to static files in production
  * https://simulatedgreg.gitbooks.io/electron-vue/content/en/using-static-assets.html
@@ -92,6 +94,13 @@ function createWindow() {
   mainWindow.on('close', appClose)
 
   app.on('app-close', appClose)
+
+  app.on('enter-onboarding', setIsOnboarding => {
+    isOnboarding = setIsOnboarding
+  })
+  app.on('enter-login', setIsLogin => {
+    isLogin = setIsLogin
+  })
 
   app.on('update-configStore', (item) => {
     console.log('Arrived Event Hello Joan')
@@ -205,14 +214,16 @@ function getWindowsPos() {
 }
 
 function showMainWindows() {
-  if (lock) {
-    lock = false
-    mainWindow.hide()
-  } else {
-    lock = true
-    const pos = getWindowsPos()
-    mainWindow.setBounds({ width: 450, height: 360, x: pos.x, y: pos.y })
-    mainWindow.show()
+  if (!isOnboarding && !isLogin) {
+    if (lock) {
+      lock = false
+      mainWindow.hide()
+    } else {
+      lock = true
+      const pos = getWindowsPos()
+      mainWindow.setBounds({ width: 450, height: 360, x: pos.x, y: pos.y })
+      mainWindow.show()
+    }
   }
 }
 

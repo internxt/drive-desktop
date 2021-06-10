@@ -205,6 +205,9 @@ export default {
       currentSlide: 0
     }
   },
+  beforeCreate() {
+    remote.app.emit('enter-onboarding', true)
+  },
   watch: {
     currentSlide () {
       this.$refs.carousel.slideTo(this.currentSlide)
@@ -225,6 +228,7 @@ export default {
       const bounds = remote.getCurrentWindow().trayBounds
       remote.getCurrentWindow().setBounds({ width: 450, height: 360, x: bounds.x - 800, y: bounds.y })
       this.$router.push('/xcloud').catch(() => {})
+      remote.app.emit('enter-onboarding', false)
     }
   },
   components: {

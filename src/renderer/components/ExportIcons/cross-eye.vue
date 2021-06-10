@@ -61,10 +61,6 @@ export default {
       type: Number,
       default: 17
     },
-    viewBox: {
-      type: Number,
-      default: '0 0 47 47'
-    },
     fillColor: {
       type: String,
       default: 'white'

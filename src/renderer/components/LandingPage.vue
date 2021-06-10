@@ -41,6 +41,7 @@ export default {
       remote.getCurrentWindow().setBounds({ width: 450, height: 360 })
       remote.getCurrentWindow().center()
       this.$router.push('/login').catch(() => {})
+      remote.app.emit('enter-login', true)
     } else {
       const bounds = remote.getCurrentWindow().trayBounds
       remote.app.emit('show-main-windows')
