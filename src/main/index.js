@@ -79,7 +79,7 @@ function createWindow() {
       contextIsolation: false,
       webSecurity: process.env.NODE_ENV !== 'development',
       enableRemoteModule: true,
-      devTools: true
+      devTools: process.env.NODE_ENV !== 'development'
     },
     width: 450,
     height: 360,
