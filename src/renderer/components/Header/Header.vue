@@ -212,6 +212,7 @@ export default {
       showSettingsModal: false,
       showAccountModal: false,
       localPath: '',
+      LaunchCheck: ConfigStore.get('autoLaunch'),
       selectedSyncOption: 'none',
       path: null,
       msg: 'Mensaje de texto',
@@ -416,6 +417,7 @@ export default {
       // console.log(this.LaunchCheck) // Pasar aqui lo que sea
       // if (this.LaunchCheck === true) {
       // }
+      console.log(this.LaunchCheck)
       ConfigStore.set('autoLaunch', this.LaunchCheck)
       remote.app.emit('change-auto-launch')
     },

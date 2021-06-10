@@ -71,7 +71,7 @@ export default {
     configure() {
       database.Set('xPath', this.$data.storagePath)
       const bounds = remote.getCurrentWindow().trayBounds
-      remote.getCurrentWindow().setBounds({ width: 450, height: 360, x: bounds.x - 150, y: bounds.y })
+      remote.getCurrentWindow().setBounds({ width: 450, height: 360, x: bounds.x - 800, y: bounds.y })
       this.$router.push('/xcloud')
     }
   }
