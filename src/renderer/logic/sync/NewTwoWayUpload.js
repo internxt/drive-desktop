@@ -59,7 +59,7 @@ async function SyncLogic(callback) {
     await Database.ClearAll()
     ConfigStore.set('resetAll', false)
   }
-  Logger.info('Sync started')
+  Logger.info('Sync started IsUploadOnly? ', ConfigStore.get('uploadOnly'))
   DeviceLock.startUpdateDeviceSync()
   app.once('sync-stop', syncStop)
   app.once('user-logout', DeviceLock.stopUpdateDeviceSync)
