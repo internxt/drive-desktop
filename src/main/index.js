@@ -33,7 +33,7 @@ if (process.env.NODE_ENV !== 'development') {
   global.__static = path.join(__dirname, '/static').replace(/\\/g, '\\\\')
 }
 
-let mainWindow, mainWindow2, tray, trayMenu
+let mainWindow, trayMenu
 
 const winURL =
   process.env.NODE_ENV === 'development'
@@ -51,7 +51,7 @@ if (!app.requestSingleInstanceLock()) {
 
 app.on('update-menu', user => {
   if (trayMenu) {
-    trayMenu.updateContextMenu(user)
+    // trayMenu.updateContextMenu(user)
   } else {
     Logger.error('No tray to update')
   }
@@ -61,31 +61,32 @@ function createWindow() {
   trayMenu = new TrayMenu(mainWindow)
   trayMenu.init()
   trayMenu.setToolTip('Internxt Drive ' + PackageJson.version)
-  trayMenu.updateContextMenu()
+  // trayMenu.updateContextMenu()
 
   const display = electron.screen.getPrimaryDisplay()
   const trayBounds = trayMenu.tray.getBounds()
-  console.log('traybound =>', trayBounds)
   mainWindow = new BrowserWindow({
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
       webSecurity: process.env.NODE_ENV !== 'development',
-      enableRemoteModule: true
+      enableRemoteModule: true,
+      devTools: true
     },
     width: 450,
-    height: 550,
-    x: display.bounds.width - 450,
-    y: trayBounds.y,
+    height: 360,
+    // x: display.bounds.width - 450,
+    // y: trayBounds.y,
     useContentSize: true,
     // frame: process.env.NODE_ENV === 'development',
     frame: false,
     autoHideMenuBar: false,
     skipTaskbar: process.env.NODE_ENV !== 'development',
     show: process.env.NODE_ENV === 'development',
-    resizable: false,
+    resizable: process.env.NODE_ENV === 'development',
     menuBarVisible: false,
-    movable: false
+    movable: false,
+    centered: true
   })
 
   // mainWindow2 = new BrowserWindow({
@@ -112,12 +113,46 @@ function createWindow() {
   // mainWindow2.loadURL(winURL + '/#/onboarding')
   // mainWindow2.show()
 
-  mainWindow.loadURL(winURL)
+  mainWindow.trayBounds = trayBounds
+
+  mainWindow.loadURL(winURL).then(() => { mainWindow.webContents.send('tray-position', {x: 1, y: 1}) })
 
   mainWindow.on('closed', appClose)
   mainWindow.on('close', appClose)
 
   app.on('app-close', appClose)
+
+  /*
+  app.on('create-onboarbing', () => {
+    // mainWindow.hide()
+    mainWindow2 = new BrowserWindow({
+      webPreferences: {
+        nodeIntegration: true,
+        contextIsolation: false,
+        webSecurity: process.env.NODE_ENV !== 'development',
+        enableRemoteModule: true
+      },
+      minWidth: 800,
+      minHeight: 500,
+      width: 800,
+      height: 500,
+      useContentSize: true,
+      // frame: process.env.NODE_ENV === 'development',
+      frame: false,
+      transparent: true,
+      autoHideMenuBar: false,
+      skipTaskbar: process.env.NODE_ENV !== 'development',
+      show: process.env.NODE_ENV === 'development',
+      resizable: process.env.NODE_ENV === 'development',
+      menuBarVisible: true
+    })
+
+    mainWindow2.loadURL(winURL + '/#/onboarding')
+    mainWindow2.show()
+    mainWindow2.on('close', () => { mainWindow.show() })
+    mainWindow2.on('closed', () => { mainWindow.show() })
+  })
+  */
 
   const edit = {
     label: 'Edit',

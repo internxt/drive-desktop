@@ -128,7 +128,6 @@ export default {
         this.FileStatusSync = newArray
         return this.FileStatusSync
       })
-      return console.log('DATA', this.FileStatusSync)
     },
     AllfilesShow() {
       FileLogger.on('new-emit', (item) => {

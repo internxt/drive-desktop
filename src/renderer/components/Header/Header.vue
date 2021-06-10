@@ -3,8 +3,9 @@
     <div class="flex justify-between items-start p-4">
       <div class="flex flex-col">
         <div class="flex items-center">
-          <InternxtBrand :width="16" :height="16"/>
-          <div class="text-gray-800 text-xl font-extrabold ml-1.5">{{ appName }}</div>
+          <img src="../../assets/brand/drive-brand.svg" />
+          <!-- <InternxtBrand :width="16" :height="16"/> -->
+          <!-- <div class="text-gray-800 text-xl font-extrabold ml-1.5">{{ appName }}</div> -->
         </div>
 
         <div class="text-sm text-gray-500">{{ emailAccount }}</div>
@@ -131,20 +132,22 @@
         <div class="text-sm mb-3 hover:text-blue-600 cursor-pointer" @click="logout()">Log out</div>
         <div class="text-sm hover:text-blue-600 cursor-pointer" @click="quitApp()">Quit</div>
         <div>
-          <div class="text-xs border border-dashed border-gray-200 p-2 px-3 rounded mt-2">
+
+          <div class="text-xs border border-dashed border-gray-200 p-2 px-3 rounded mt-6">
 
             <div class="flex">
               <div><UilServerConnection class="text-blue-600 text-2xl mr-4 mt-0.5" /></div>
               <div>
                 <div class="font-bold">Storage used</div>
                 <div class="flex">
-                  <div class="mr-0.5 text-gray-400 text-xs-bolder"><strong>{{usage}}</strong> de </div>
-                  <div class="text-blue-500 text-xs-bolder">{{limit}}</div>
+                  <div class="mr-0.5 text-gray-400 text-xs">{{usage}} de </div>
+                  <div class="text-blue-500 text-xs italic">{{limit}}</div>
                 </div>
               </div>
             </div>
           </div>
         </div>
+
       </div>
     </transition>
 
@@ -233,7 +236,6 @@ export default {
     this.$app = this.$electron.remote.app
     // Storage and space used
     remote.app.on('update-storage', (data) => {
-      console.log('DATA', data)
       this.usage = data.usage
       this.limit = data.limit
     })
@@ -264,6 +266,10 @@ export default {
           })
       }
       remote.app.emit('update-menu')
+      // Resize window to login window
+      // const bounds = remote.getCurrentWindow().trayBounds
+      remote.getCurrentWindow().setBounds({ height: 550, width: 450 })
+      remote.getCurrentWindow().center()
       this.$router.push('/').catch(() => {})
     })
 
@@ -280,20 +286,12 @@ export default {
   },
   methods: {
     debug() {
+      // console.log(appName)
     },
     // Log out - save folder path whe user log out
     logout() {
       remote.dialog.showMessageBox(
-        new remote.BrowserWindow({
-          show: false,
-          alwaysOnTop: true,
-          width: 400,
-          height: 500,
-          minWidth: 400,
-          minHeight: 500,
-          maxWidth: 400,
-          maxHeight: 500
-        }),
+        remote.getCurrentWindow(),
         {
           type: 'question',
           buttons: ['Yes', 'No'],
@@ -326,7 +324,9 @@ export default {
     ShowAccountModal() {
       this.showSettingsModal = false
       this.showAccountModal = !this.showAccountModal
+      // return console.log(this.showModalAccount)
     },
+    // Close modal account
     CloseAccountModal() {
       this.showAccountModal = false
     },
@@ -335,6 +335,7 @@ export default {
       this.showAccountModal = false
       this.showSettingsModal = !this.showSettingsModal
     },
+    // Close Modal Settings
     CloseSettingsModal() {
       this.showSettingsModal = false
     },

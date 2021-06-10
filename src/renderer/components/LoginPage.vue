@@ -16,14 +16,14 @@
       @submit="handleFormSubmit"
     >
       <input
-        class="w-full h-10 focus:outline-none mb-3 border border-gray-300 rounded px-2 text-xs font-bold"
+        class="w-full h-10 focus:outline-none focus:ring focus:ring-2 focus:border-blue-300 mb-3 border border-gray-300 rounded px-2 text-xs font-bold"
         v-model="email"
         type="text"
         placeholder="Email address"
         tabindex="0"
       />
       <input
-        class="w-full h-10 focus:outline-none border border-gray-300 rounded px-2 text-xs font-bold"
+        class="w-full h-10 focus:outline-none focus:ring focus:ring-2 focus:border-blue-300 border border-gray-300 rounded px-2 text-xs font-bold"
         v-model="password"
         :type="visibility"
         placeholder="Password"
@@ -53,7 +53,7 @@
 
           <ul class="list-disc ml-6">
             <li v-for="error in errors" :key="error">
-              {{ console.log(error) }}
+              {{ error }}
             </li>
           </ul>
         </div>
@@ -61,7 +61,7 @@
       <!-- </transition> -->
 
       <div class="flex flex-row relative">
-        <div v-if="isLoading" class="absolute bottom-2.5 left-24 ml-2.5">
+        <div v-if="isLoading" class="flex items-center justify-center absolute bg-blue-500 bottom-2.5 left-0 right-0">
           <Spinner class="animate-spin z-10" />
         </div>
         <input
@@ -120,7 +120,6 @@ export default {
     remote.app.emit('window-show')
   },
   created() {
-    // console.log('NEW WINDOW')
     const { BrowserWindow } = remote
   },
   data() {
@@ -328,13 +327,25 @@ export default {
               'xMnemonic',
               crypt.decryptWithKey(res.data.user.mnemonic, this.$data.password)
             )
-            await database.logIn(res.data.user.email)
+            const savedCredentials = await database.logIn(res.data.user.email)
             await database.Set('xUser', res.data)
             await database.compactAllDatabases()
             ConfigStore.set('stopSync', false)
-            this.$router.push('/landing-page').then(() => {
-              remote.app.emit('show-info', "You've securely logged into Internxt Drive. A native Internxt folder has been created on your OS with your files. You can configure additional functionalities from the Internxt tray icon.", 'Login successful')
-            }).catch(() => {})
+            // this.$router.push('/landing-page').catch(() => {})
+            if (!savedCredentials) {
+              remote.getCurrentWindow().setBounds({ width: 800, height: 500 })
+              remote.getCurrentWindow().center()
+              this.$router.push('/onboarding').catch(() => {})
+            } else {
+              const bounds = remote.getCurrentWindow().trayBounds
+              remote.getCurrentWindow().setBounds({ width: 450, height: 360, x: bounds.x - 150, y: bounds.y })
+              this.$router.push('/xcloud').catch(() => {})
+              /*
+              const bounds = remote.getCurrentWindow().trayBounds
+              console.log(bounds)
+              remote.getCurrentWindow().setBounds({ x: remote.display.bounds.width - 450, y: bounds.y })
+              */
+            }
             analytics
               .identify({
                 userId: undefined,
