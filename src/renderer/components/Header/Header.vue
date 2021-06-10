@@ -176,6 +176,7 @@
 </template>
 
 <script>
+import { ipcRenderer } from 'electron'
 import Vue from 'vue'
 import '../Header/Header.scss'
 import FolderIcon from '../ExportIcons/FolderIcon'
@@ -388,11 +389,11 @@ export default {
     // Full sync - Upload only Sync mode
     syncModeChange () {
       if (this.selectedSyncOption === 'full') {
-        ConfigStore.set('forceUpload', 2)
-        ConfigStore.set('uploadOnly', false)
+        remote.app.emit('update-configStore', { forceUpload: 2 })
+        remote.app.emit('update-configStore', { uploadOnly: false })
         this.CheckedValue = false
       } else {
-        ConfigStore.set('uploadOnly', true)
+        remote.app.emit('update-configStore', { uploadOnly: true })
         this.CheckedValue = true
       }
       this.showSyncSettingsModal = false
@@ -410,8 +411,7 @@ export default {
     // Launch at login
     launchAtLogin () {
       this.LaunchCheck = !this.LaunchCheck
-      console.log(this.LaunchCheck)
-      ConfigStore.set('autoLaunch', this.LaunchCheck)
+      remote.app.emit('update-configStore', { autoLaunch: this.LaunchCheck })
       remote.app.emit('change-auto-launch', this.LaunchCheck)
     },
     // Contact support
