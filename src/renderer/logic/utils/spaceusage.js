@@ -103,9 +103,6 @@ async function updateUsage() {
       Logger.error("Cannot get user usage, won't be displayed")
     })
   remote.app.emit('update-storage', storage)
-  Auth.getUserEmail().then(email => {
-    remote.app.emit('update-menu', email)
-  })
 }
 
 export default {

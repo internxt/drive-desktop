@@ -20,51 +20,109 @@ input[type='radio']{
     height: 18.5rem;
 }
 body::-webkit-scrollbar {
-    width: 4px;               /* width of the entire scrollbar */
-  }
-  
-  body::-webkit-scrollbar-track {
-    background: white;        /* color of the tracking area */
-  }
-  
-  body::-webkit-scrollbar-thumb {
-    background-color: #1D4ED8;    /* color of the scroll thumb */
-    border-radius: 20px;       /* roundness of the scroll thumb */
-    // border: 3px solid orange;  /* creates padding around scroll thumb */
-  }
+  width: 4px;               /* width of the entire scrollbar */
+}
 
-  * {
-    scrollbar-width: thin;
-    scrollbar-color: #1D4ED8 white;
-  }
-  
-  /* Works on Chrome, Edge, and Safari */
-  *::-webkit-scrollbar {
-    width: 6px;
-  }
-  
-  *::-webkit-scrollbar-track {
-    background: white;
-  }
-  
-  *::-webkit-scrollbar-thumb {
-    background-color: white;
-    border-radius: 20px;
-    // border: 3px solid orange;
-  }
+body::-webkit-scrollbar-track {
+  background: white;        /* color of the tracking area */
+}
 
-  // Tooltip styles
-  .tooltip {
-    display: block !important;
-    z-index: 10000;
-  
-    .tooltip-inner {
-      background: black;
-      color: white;
-      border-radius: 16px;
-      padding: 5px 10px 4px;
-    }
-  }
+body::-webkit-scrollbar-thumb {
+  background-color: #1D4ED8;    /* color of the scroll thumb */
+  border-radius: 20px;       /* roundness of the scroll thumb */
+  // border: 3px solid orange;  /* creates padding around scroll thumb */
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #1D4ED8 white;
+}
+
+/* Works on Chrome, Edge, and Safari */
+*::-webkit-scrollbar {
+  width: 6px;
+}
+
+*::-webkit-scrollbar-track {
+  background: white;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: white;
+  border-radius: 20px;
+  // border: 3px solid orange;
+}
+
+/* The container */
+.radioContainer {
+  display: block;
+  position: relative;
+  padding-left: 15px;
+  cursor: pointer;
+  user-select: none;
+}
+
+/* Hide the browser's default radio button */
+.radioContainer input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+}
+
+/* Create a custom radio button */
+.checkmark {
+  position: absolute;
+  top: 3px;
+  left: 0;
+  height: 10px;
+  width: 10px;
+  border-width: 1px;
+  border-color: $gray-60;
+  background-color: white;
+  border-radius: 50%;
+}
+
+.smallCheckmark {
+  position: absolute;
+  top: 5px;
+  left: 2px;
+  height: 6px;
+  width: 6px;
+  background-color: white;
+  border-radius: 50%;
+}
+
+/* On mouse-over, add a grey background color */
+.radioContainer:hover input ~ .checkmark {
+  background-color: $gray-10
+}
+
+/* When the radio button is checked, add a blue background */
+.radioContainer input:checked ~ .checkmark {
+  background-color: white;
+}
+.radioContainer input:checked ~ .smallCheckmark {
+  background-color: $blue-50;
+}
+
+/* Show the indicator (dot/circle) when checked */
+.radioContainer input:checked ~ .checkmark:after {
+  display: block;
+}
+.radioContainer input:checked ~ .smallCheckmark:after {
+  display: block;
+  background-color: $blue-50;
+}
+
+/* Style the indicator (dot/circle) */
+.radioContainer .checkmark:after {
+ 	top: 9px;
+	left: 9px;
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	background: white;
+}
 
 .enter { transform: translateY(100%) }
 .enter-to { transform: translateY(0) }
@@ -76,6 +134,7 @@ body::-webkit-scrollbar {
 .slide-enter-active,
 .slide-leave-active { transition: all 500ms ease-in-out }
 
+// Custom checkbox
 .checkbox {
   display: flex;
   align-items: center;
