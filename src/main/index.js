@@ -327,6 +327,7 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 autoUpdater.on('error', err => {
+  console.log('update error:', err)
 })
 
 autoUpdater.on('checking-for-update', () => {
@@ -455,8 +456,6 @@ function checkUpdates() {
       if (process.env.NODE_ENV !== 'development') {
         // autoUpdater.updateInfoAndProvider = UpdateCheckResult
       }
-    })
-    .catch(err => {
     })
 }
 
