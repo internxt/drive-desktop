@@ -102,7 +102,7 @@
         </div>
 
         <label class="checkbox mt-3">
-          <input type="checkbox" v-model="LaunchCheck" value="true" v-on:change="launchAtLogin()">
+          <input type="checkbox" :checked="LaunchCheck" v-on:change="launchAtLogin()">
           <span class="ml-2 text-gray-700">Launch at login</span>
         </label>
       </div>
@@ -218,7 +218,6 @@ export default {
       msg: 'Mensaje de texto',
       usage: '',
       limit: '',
-      LaunchCheck: false,
       CheckedValue: ConfigStore.get('uploadOnly'),
       showSyncSettingsModal: false
     }
@@ -414,12 +413,10 @@ export default {
     },
     // Launch at login
     launchAtLogin () {
-      // console.log(this.LaunchCheck) // Pasar aqui lo que sea
-      // if (this.LaunchCheck === true) {
-      // }
+      this.LaunchCheck = !this.LaunchCheck
       console.log(this.LaunchCheck)
       ConfigStore.set('autoLaunch', this.LaunchCheck)
-      remote.app.emit('change-auto-launch')
+      remote.app.emit('change-auto-launch', this.LaunchCheck)
     },
     // Contact support
     ContactSupportMailto () {
