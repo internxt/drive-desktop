@@ -8,7 +8,7 @@
           <!-- <div class="text-gray-800 text-xl font-extrabold ml-1.5">{{ appName }}</div> -->
         </div>
 
-        <div class="text-sm text-gray-500">{{ emailAccount }}</div>
+        <div class="text-sm text-gray-500 mt-0.5">{{ emailAccount }}</div>
       </div>
 
       <div class="flex items-center justify-center">
