@@ -79,7 +79,7 @@
     </form>
 
     <!-- TWO FACTOR NOT ACTUALLY USING IT -->
-    <!-- <div v-if="showTwoFactor">
+    <div v-if="showTwoFactor">
       <div>Enter your 6 digit authenticator code below</div>
       <input
         class="w-full h-10 focus:outline-none border border-gray-300 rounded px-2 text-xs font-bold"
@@ -87,7 +87,7 @@
         type="text"
         placeholder="Authentication code"
       />
-    </div> -->
+    </div>
 
     <div v-if="!showTwoFactor" class="flex justify-between text-xs font-bold mt-4">
       <div class="flex">
