@@ -205,14 +205,15 @@ function getWindowsPos() {
 }
 
 function showMainWindows() {
-  if (!lock) {
-    if (mainWindow.isVisible()) {
-      mainWindow.hide()
-    } else {
-      const pos = getWindowsPos()
-      mainWindow.setBounds({ width: 450, height: 360, x: pos.x, y: pos.y })
-      mainWindow.show()
-    }
+  if (lock) {
+    lock = false
+    mainWindow.hide()
+  } else {
+    lock = true
+    const pos = getWindowsPos()
+    console.log('pos =>', pos)
+    mainWindow.setBounds({ width: 450, height: 360, x: pos.x, y: pos.y })
+    mainWindow.show()
   }
 }
 
