@@ -25,22 +25,33 @@
         type="text"
         placeholder="Email address"
         tabindex="0"
+        :disabled="showTwoFactor"
       />
       <input
+        v-if="!showTwoFactor"
         class="w-full h-10 focus:outline-none focus:ring focus:ring-2 focus:border-blue-300 border border-gray-300 rounded px-2 text-xs font-bold"
         v-model="password"
         :type="visibility"
         placeholder="Password"
         tabindex="0"
       />
+      <div v-if="showTwoFactor" class="-mb-4">
+        <input
+          class="w-full h-10 focus:outline-none focus:ring focus:ring-2 focus:border-blue-300 border border-gray-300 rounded px-2 text-xs font-bold"
+          v-model="twoFactorCode"
+          type="text"
+          placeholder="Authentication code"
+        />
+        <p class="mt-1">Enter your 6 digit authenticator code above</p>
+    </div>
 
       <!-- Shows the password -->
-      <div v-if="visibility === 'password'" @click="showPassword()" class="absolute right-6 -mt-7 cursor-pointer">
+      <div v-if="visibility === 'password' && !showTwoFactor" @click="showPassword()" class="absolute right-6 -mt-7 cursor-pointer">
         <Eye />
       </div>
 
       <!-- Hides the password -->
-      <div v-if="visibility === 'text'" @click="hidePassword()" class="absolute right-6 -mt-7 cursor-pointer">
+      <div v-if="visibility === 'text' && !showTwoFactor" @click="hidePassword()" class="absolute right-6 -mt-7 cursor-pointer">
         <CrossEye />
       </div>
       <!-- <transition
@@ -75,21 +86,9 @@
           tabindex="-1"
         />
       </div>
-
     </form>
 
-    <!-- TWO FACTOR NOT ACTUALLY USING IT -->
-    <div v-if="showTwoFactor">
-      <div>Enter your 6 digit authenticator code below</div>
-      <input
-        class="w-full h-10 focus:outline-none border border-gray-300 rounded px-2 text-xs font-bold"
-        v-model="twoFactorCode"
-        type="text"
-        placeholder="Authentication code"
-      />
-    </div>
-
-    <div v-if="!showTwoFactor" class="flex justify-between text-xs font-bold mt-4">
+    <div class="flex justify-between text-xs font-bold mt-4">
       <div class="flex">
         <span class="text-gray-400">Don't have an Internxt account?</span>
         <a class="text-blue-400 ml-1" href="#" @click="open(`${DRIVE_BASE}/new`)" tabindex="-1">Get one for free!</a>
