@@ -196,7 +196,7 @@ export default {
       showAccountModal: false,
       localPath: '',
       CheckedValue: 'full',
-      LaunchCheck: false,
+      LaunchCheck: ConfigStore.get('autoLaunch'),
       path: null,
       msg: 'Mensaje de texto',
       usage: '',
@@ -374,6 +374,7 @@ export default {
     },
     // Full sync - Upload only Sync mode
     syncModeChange () {
+      console.log(ConfigStore.get('uploadOnly'))
       if (this.CheckedValue === 'full') {
         ConfigStore.set('forceUpload', 2)
         remote.app.emit('show-info', 'Next sync will also be upload only for checking which file should not delete.')
@@ -397,6 +398,7 @@ export default {
       // console.log(this.LaunchCheck) // Pasar aqui lo que sea
       // if (this.LaunchCheck === true) {
       // }
+      console.log(this.LaunchCheck)
       ConfigStore.set('autoLaunch', this.LaunchCheck)
       remote.app.emit('change-auto-launch')
     },
