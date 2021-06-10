@@ -70,6 +70,7 @@ function createWindow() {
   trayMenu.init()
   trayMenu.setToolTip('Internxt Drive ' + PackageJson.version)
   // trayMenu.updateContextMenu()
+  const nonMovableProp = process.platform === 'win32' || process.platform === 'darwin'
 
   const display = electron.screen.getPrimaryDisplay()
   const trayBounds = trayMenu.tray.getBounds()
@@ -81,6 +82,7 @@ function createWindow() {
       enableRemoteModule: true,
       devTools: process.env.NODE_ENV !== 'development'
     },
+    movable: nonMovableProp,
     width: 450,
     height: 360,
     // x: display.bounds.width - 450,
@@ -93,7 +95,6 @@ function createWindow() {
     show: process.env.NODE_ENV === 'development',
     resizable: process.env.NODE_ENV === 'development',
     menuBarVisible: false,
-    movable: false,
     centered: true
   })
 
