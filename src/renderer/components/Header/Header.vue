@@ -69,28 +69,26 @@
 
         <span class="text-sm text-black">Sync mode</span>
         <form class="mt-2 mb-2">
-          <div>
+          <div @click="OpenSyncSettingsModal('full')" class="radioContainer">
+            <p class="text-xs text-gray-500 hover:text-blue-500 cursor-pointer">Full sync</p>
             <input
               type="radio"
-              id="contactChoice1"
-              name="contact"
-              value="full"
-              v-model="CheckedValue"
-              @change="syncModeChange()"
+              name="radio"
+              :checked="!CheckedValue"
             />
-            <label class="text-xs text-gray-500 cursor-pointer" for="contactChoice1">Full sync</label>
+            <span class="checkmark"></span>
+            <span class="smallCheckmark"></span>
           </div>
 
-          <div>
+          <div @click="OpenSyncSettingsModal('upload')" class="radioContainer mt-1">
+            <p class="text-xs text-gray-500 hover:text-blue-500 cursor-pointer pt-0.5">Upload only</p>
             <input
               type="radio"
-              id="contactChoice2"
-              name="contact"
-              value="upload"
-              v-model="CheckedValue"
-              @change="syncModeChange()"
+              name="radio"
+              :checked="CheckedValue"
             />
-            <label class="text-xs text-gray-500 cursor-pointer" for="contactChoice2">Upload only</label>
+            <span class="checkmark mt-0.5"></span>
+            <span class="smallCheckmark mt-0.5"></span>
           </div>
         </form>
 
@@ -104,7 +102,7 @@
         </div>
 
         <label class="checkbox mt-3">
-          <input type="checkbox" v-model="LaunchCheck" value="true" v-on:change="launchAtLogin()">
+          <input type="checkbox" :checked="LaunchCheck" v-on:change="launchAtLogin()">
           <span class="ml-2 text-gray-700">Launch at login</span>
         </label>
       </div>
@@ -145,16 +143,36 @@
                 </div>
               </div>
             </div>
-
           </div>
-
         </div>
 
       </div>
     </transition>
 
-  </div>
+    <div v-if="showSyncSettingsModal && selectedSyncOption === 'full'" class="absolute top-0 left-0 z-20 bg-blue-600 bg-opacity-90 h-full w-full flex flex-col justify-center items-center text-white">
+      <h1 class="text-lg text-white font-bold">Attention</h1>
+      <p class="text-base text-center w-72 mt-3">By changing to full sync you will start synchronizing all your content.</p>
 
+      <div class="mt-4">
+        <button @click="syncModeChange()" class="w-24 py-2 rounded-full bg-white font-semibold text-sm text-blue-600 cursor-pointer focus:outline-none">Accept</button>
+        <button @click="CloseSyncSettingsModal()" class="text-sm ml-5 cursor-pointer focus:outline-none">Cancel</button>
+      </div>
+
+      <a href="" class="text-xs underline mt-4 cursor-pointer">Know more about Full Sync</a>
+    </div>
+
+    <div v-if="showSyncSettingsModal && selectedSyncOption === 'upload'" class="absolute top-0 left-0 z-20 bg-blue-600 bg-opacity-90 h-full w-full flex flex-col justify-center items-center text-white">
+      <h1 class="text-lg text-white font-bold">Attention</h1>
+      <p class="text-base text-center w-72 mt-3">By changing to Upload only you can only upload files. This way, you will be able to delete files locally whitout losing them from your cloud.</p>
+
+      <div class="mt-4">
+        <button @click="syncModeChange()" value="full" class="w-24 py-2 rounded-full bg-white font-semibold text-sm text-blue-600 cursor-pointer focus:outline-none">Accept</button>
+        <button @click="CloseSyncSettingsModal()" class="text-sm ml-5 cursor-pointer focus:outline-none">Cancel</button>
+      </div>
+
+      <a href="" class="text-xs underline mt-4 cursor-pointer">Know more about Full Sync</a>
+    </div>
+  </div>
 </template>
 
 <script>
@@ -182,7 +200,6 @@ import Logger from '../../../libs/logger'
 import path from 'path'
 import electronLog from 'electron-log'
 import VToolTip from 'v-tooltip'
-import bytes from 'bytes'
 
 Vue.use(VToolTip)
 // FileLogger.on('update-last-entry', (item) => console.log(item))
@@ -195,13 +212,14 @@ export default {
       showSettingsModal: false,
       showAccountModal: false,
       localPath: '',
-      CheckedValue: 'full',
       LaunchCheck: ConfigStore.get('autoLaunch'),
+      selectedSyncOption: 'none',
       path: null,
       msg: 'Mensaje de texto',
       usage: '',
-      limit: ''
-
+      limit: '',
+      CheckedValue: ConfigStore.get('uploadOnly'),
+      showSyncSettingsModal: false
     }
   },
   beforeCreate: function () {
@@ -294,20 +312,10 @@ export default {
       remote.app.emit('sync-stop', false)
       remote.app.emit('app-close')
     },
-    afterVisibleChange(val) {
-      // console.log('visible', val)
-    },
-    showDrawer() {
-      this.visible = true
-    },
-    onClose() {
-      this.visible = false
-    },
     // Open modal account
     ShowAccountModal() {
       this.showSettingsModal = false
       this.showAccountModal = !this.showAccountModal
-      // return console.log(this.showModalAccount)
     },
     // Close modal account
     CloseAccountModal() {
@@ -321,6 +329,15 @@ export default {
     // Close Modal Settings
     CloseSettingsModal() {
       this.showSettingsModal = false
+    },
+    OpenSyncSettingsModal(syncOption) {
+      if (this.CheckedValue !== syncOption) {
+        this.selectedSyncOption = syncOption
+        this.showSyncSettingsModal = true
+      }
+    },
+    CloseSyncSettingsModal() {
+      this.showSyncSettingsModal = false
     },
     // Open folder path
     openFolder() {
@@ -374,14 +391,15 @@ export default {
     },
     // Full sync - Upload only Sync mode
     syncModeChange () {
-      console.log(ConfigStore.get('uploadOnly'))
-      if (this.CheckedValue === 'full') {
+      if (this.selectedSyncOption === 'full') {
         ConfigStore.set('forceUpload', 2)
-        remote.app.emit('show-info', 'Next sync will also be upload only for checking which file should not delete.')
+        ConfigStore.set('uploadOnly', false)
+        this.CheckedValue = false
       } else {
         ConfigStore.set('uploadOnly', true)
-        remote.app.emit('show-info', 'By changing to Upload only you can only upload files in next sync. You can delete files locally without lose them from your cloud.')
+        this.CheckedValue = true
       }
+      this.showSyncSettingsModal = false
     },
     // Open logs
     openLogs () {
@@ -395,12 +413,10 @@ export default {
     },
     // Launch at login
     launchAtLogin () {
-      // console.log(this.LaunchCheck) // Pasar aqui lo que sea
-      // if (this.LaunchCheck === true) {
-      // }
+      this.LaunchCheck = !this.LaunchCheck
       console.log(this.LaunchCheck)
       ConfigStore.set('autoLaunch', this.LaunchCheck)
-      remote.app.emit('change-auto-launch')
+      remote.app.emit('change-auto-launch', this.LaunchCheck)
     },
     // Contact support
     ContactSupportMailto () {
