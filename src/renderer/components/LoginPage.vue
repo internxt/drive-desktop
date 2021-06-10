@@ -6,7 +6,7 @@
   </div> -->
 
   <main class="w-full h-full flex flex-col justify-center bg-white px-12 relative">
-    <div class="cursor-pointer absolute top-6 right-6" v-on:click="CloseAccountModal()">
+    <div class="cursor-pointer absolute top-6 right-6" @click="quitApp()">
       <UilMultiply class="mr-2 text-blue-600" />
     </div>
 
@@ -319,12 +319,9 @@ export default {
             // this.$router.push('/landing-page').catch(() => {})
             if (!savedCredentials) {
               remote.getCurrentWindow().setBounds({ width: 800, height: 500 })
-              remote.getCurrentWindow().center()
               this.$router.push('/onboarding').catch(() => {})
               remote.app.emit('enter-login', false)
             } else {
-              const bounds = remote.getCurrentWindow().trayBounds
-              remote.getCurrentWindow().setBounds({ width: 450, height: 360, x: bounds.x - 800, y: bounds.y })
               this.$router.push('/xcloud').catch(() => {})
               remote.app.emit('enter-login', false)
             }
@@ -354,6 +351,10 @@ export default {
     },
     closeApp() {
       remote.getCurrentWindow().hide()
+    },
+    quitApp() {
+      remote.app.emit('sync-stop', false)
+      remote.app.emit('app-close')
     }
   }
 }

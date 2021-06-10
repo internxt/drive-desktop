@@ -94,6 +94,9 @@ export default {
 
   beforeCreate() {
     remote.app.emit('window-hide')
+    const pos = remote.getCurrentWindow().getWindowPos()
+    remote.getCurrentWindow().setBounds({ width: 450, height: 360, x: pos.x, y: pos.y })
+
     SpaceUsage.updateUsage()
       .then(() => {})
       .catch(() => {})

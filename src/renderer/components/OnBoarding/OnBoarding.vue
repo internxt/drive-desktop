@@ -206,6 +206,7 @@ export default {
     }
   },
   beforeCreate() {
+    remote.getCurrentWindow().center()
     remote.app.emit('enter-onboarding', true)
   },
   watch: {
@@ -224,9 +225,6 @@ export default {
       this.currentSlide = payload.currentSlide
     },
     finishOnboarding() {
-      // TODO
-      const bounds = remote.getCurrentWindow().trayBounds
-      remote.getCurrentWindow().setBounds({ width: 450, height: 360, x: bounds.x - 800, y: bounds.y })
       this.$router.push('/xcloud').catch(() => {})
       remote.app.emit('enter-onboarding', false)
     }

@@ -52,6 +52,19 @@ if (!app.requestSingleInstanceLock()) {
   app.quit()
 }
 
+const getWindowPos = () => {
+  const display = electron.screen.getPrimaryDisplay()
+  const trayBounds = trayMenu.tray.getBounds()
+  let x = Math.min(trayBounds.x - 450 / 2, display.workArea.width - 450)
+  x = Math.max(display.workArea.x, x)
+  let y = Math.min(trayBounds.y - 360 / 2, display.workArea.height - 360)
+  y = Math.max(display.workArea.y, y)
+  return {
+    x: x,
+    y: y
+  }
+}
+
 function createWindow() {
   trayMenu = new TrayMenu(mainWindow)
   trayMenu.init()
@@ -85,6 +98,7 @@ function createWindow() {
   })
 
   mainWindow.trayBounds = trayBounds
+  mainWindow.getWindowPos = getWindowPos
 
   mainWindow.loadURL(winURL).then(() => {
     mainWindow.webContents.send('tray-position', { x: 1, y: 1 })
@@ -200,19 +214,6 @@ app.on('ready', () => {
 })
 app.on('show-main-windows', showMainWindows)
 
-function getWindowsPos() {
-  const display = electron.screen.getPrimaryDisplay()
-  const trayBounds = trayMenu.tray.getBounds()
-  let x = Math.min(trayBounds.x - 450 / 2, display.workArea.width - 450)
-  x = Math.max(display.workArea.x, x)
-  let y = Math.min(trayBounds.y - 360 / 2, display.workArea.height - 360)
-  y = Math.max(display.workArea.y, y)
-  return {
-    x: x,
-    y: y
-  }
-}
-
 function showMainWindows() {
   if (!isOnboarding && !isLogin) {
     if (lock) {
@@ -220,7 +221,7 @@ function showMainWindows() {
       mainWindow.hide()
     } else {
       lock = true
-      const pos = getWindowsPos()
+      const pos = getWindowPos()
       mainWindow.setBounds({ width: 450, height: 360, x: pos.x, y: pos.y })
       mainWindow.show()
     }
