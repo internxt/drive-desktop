@@ -43,7 +43,7 @@ export default {
       this.$router.push('/login').catch(() => {})
     } else {
       const bounds = remote.getCurrentWindow().trayBounds
-      remote.getCurrentWindow().setBounds({ width: 450, height: 360, x: bounds.x - 800, y: bounds.y })
+      remote.app.emit('show-main-windows')
       this.$router.push('/xcloud').catch(() => {})
     }
   },
