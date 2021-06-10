@@ -55,7 +55,6 @@ let rendererConfig = {
             data: 
               '@import "_mixins";',
               includePaths: [(() => {
-              console.log('REAL PATH', path.resolve(__dirname, '..', 'scss'))
               return path.resolve(__dirname, '..', 'scss')
             })()]
           }

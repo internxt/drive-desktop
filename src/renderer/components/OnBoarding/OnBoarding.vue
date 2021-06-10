@@ -207,7 +207,6 @@ export default {
   },
   watch: {
     currentSlide () {
-      console.log(this.currentSlide)
       this.$refs.carousel.slideTo(this.currentSlide)
     }
   },

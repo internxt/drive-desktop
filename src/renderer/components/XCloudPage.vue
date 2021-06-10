@@ -66,14 +66,9 @@ import SyncButtonAction from '../components/SyncButtonAction/SyncButtonAction'
 import FileLogger from '../logic/FileLogger'
 
 window.FileLogger = FileLogger
-// window.resizeTo(400, 400)
-// FileLogger.on('update-last-entry', (item) => console.log(item))
 
 const remote = require('@electron/remote')
 var t = ''
-
-// Uncomment for notification testing
-// Notification.on('ui-update', (e) => console.log(e))
 
 export default {
   name: 'xcloud-page',
@@ -131,7 +126,6 @@ export default {
     this.$app = this.$electron.remote.app
     Monitor.Monitor(true)
     remote.app.on('set-tooltip', this.setTooltip)
-    // console.log('Filelogger', this.file)
     remote.app.on('user-logout', async (saveData = false) => {
       remote.app.emit('sync-stop', false)
       await database.logOut(saveData)
@@ -191,12 +185,8 @@ export default {
     },
     getUser() {},
     getUsage() {
-      SpaceUsage.getLimit().then(limit => {
-        console.log('Limit: ' + limit)
-      })
-      SpaceUsage.getUsage().then(usage => {
-        console.log('Usage: ' + usage)
-      })
+      SpaceUsage.getLimit()
+      SpaceUsage.getUsage()
     },
     getLocalFolderPath() {
       database
