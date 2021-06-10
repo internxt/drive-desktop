@@ -83,13 +83,6 @@ import CircleWithCloud from '../ExportIcons/CircleWithCloud'
 import ConfigStore from '../../../main/config-store'
 
 const { app } = require('@electron/remote')
-// const remote = require('@electron/remote')
-
-// FileLogger.on('update-last-entry', (item) => console.log('LAST-ENTRY', item))
-// FileLogger.on('update-last-entry',(item) => console.log('HERE', item))
-// FileLogger.on('update-last-entry', (item) =>
-//   console.log('update-last-entry', FileLogger.getAll)
-// )
 
 export default {
   data() {
@@ -100,20 +93,13 @@ export default {
     }
   },
   created() {
-    // console.log('Entrar')
-    // this.AllfilesShow()
   },
   mounted: function () {
-    // console.log('Montado')
   },
   updated: function () {
-    // console.log('LOG', ConfigStore.get('stopSync'), ConfigStore.get('isSyncing'))
-    // app.on('sync-off')
-    // console.log('Actualizado')
     this.AllfilesShow()
   },
   destroyed: function () {
-    // console.log('destroy')
   },
   methods: {
     formatNumberPercent(value) {
@@ -131,11 +117,9 @@ export default {
     },
     AllfilesShow() {
       FileLogger.on('new-emit', (item) => {
-        // console.log('organizar', item)
         this.FileStatusSync = item
         return this.FileStatusSync
       })
-      // return console.log('new-emit', this.FileStatusSync)
     }
   },
   name: 'FileStatus',

@@ -266,7 +266,6 @@ function showMainWindows() {
   } else {
     lock = true
     const pos = getWindowsPos()
-    console.log('pos =>', pos)
     mainWindow.setBounds({ width: 450, height: 360, x: pos.x, y: pos.y })
     mainWindow.show()
   }
@@ -383,23 +382,18 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 autoUpdater.on('error', err => {
-  console.log('AUTOUPDATE ERROR', err.message)
 })
 
 autoUpdater.on('checking-for-update', () => {
-  // console.log('CHECKING FOR UPDATE EVENT')
 })
 
 autoUpdater.on('update-available', () => {
-  // console.log('AUTOUPDATER UPD AVAIL')
 })
 
 autoUpdater.on('update-not-available', () => {
-  // console.log('NO UPDATES')
 })
 
 autoUpdater.on('download-progress', progress => {
-  // console.log('UPDATE DOWNLOAD', progress.percent)
 })
 
 autoUpdater.on('update-downloaded', info => {
@@ -518,7 +512,6 @@ function checkUpdates() {
       }
     })
     .catch(err => {
-      console.log('Error checking updates: %s', err.message)
     })
 }
 
@@ -549,10 +542,6 @@ async function ManualCheckUpdate() {
         }
 
         if (result && result.length === 1) {
-          console.log(
-            'Update url available: %s',
-            JSON.stringify(result[0].browser_download_url)
-          )
           return SuggestUpdate(latestVersion, result[0].browser_download_url)
         } else {
           return console.log(

@@ -8,7 +8,7 @@
           <!-- <div class="text-gray-800 text-xl font-extrabold ml-1.5">{{ appName }}</div> -->
         </div>
 
-        <div class="text-sm text-gray-500">{{ emailAccount }}</div>
+        <div class="text-sm text-gray-500 mt-1">{{ emailAccount }}</div>
       </div>
 
       <div class="flex items-center justify-center">
@@ -202,7 +202,6 @@ import electronLog from 'electron-log'
 import VToolTip from 'v-tooltip'
 
 Vue.use(VToolTip)
-// FileLogger.on('update-last-entry', (item) => console.log(item))
 const remote = require('@electron/remote')
 
 export default {
@@ -241,8 +240,6 @@ export default {
       this.file = item
     })
     Monitor.Monitor(true)
-    // remote.app.on('set-tooltip', this.setTooltip)
-    // console.log('Filelogger', this.file)
     remote.app.on('user-logout', async (saveData = false) => {
       remote.app.emit('sync-stop', false)
       await database.logOut(saveData)
@@ -276,11 +273,9 @@ export default {
     })
   },
   updated: function() {
-    // console.log('updated', this.CheckedValue)
   },
   methods: {
     debug() {
-      // console.log(appName)
     },
     // Log out - save folder path whe user log out
     logout() {
@@ -410,7 +405,6 @@ export default {
     // Launch at login
     launchAtLogin () {
       this.LaunchCheck = !this.LaunchCheck
-      console.log(this.LaunchCheck)
       ConfigStore.set('autoLaunch', this.LaunchCheck)
       remote.app.emit('change-auto-launch', this.LaunchCheck)
     },

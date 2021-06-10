@@ -124,7 +124,6 @@ async function removeFolders() {
     return b.key.length - a.key.length
   })
   for (const folder of select) {
-    // console.log(JSON.parse(JSON.stringify(folder)))
     if (ConfigStore.get('stopSync')) {
       throw Error('stop sync')
     }
@@ -290,7 +289,6 @@ async function createFolders() {
   var insertPromise = Database.dbInsert(Database.dbFolders, select).then(() => {
     ConfigStore.set('updatingDB', false)
   })
-  // console.log('needUpload: ', needUpload)
   var done = false
   const maxLength = 500
   let folderUploaded = 0
@@ -433,7 +431,6 @@ async function sincronizeCloudFolder() {
       select.push(folder)
     }
   }
-  // console.log('despues sync cloud folder: ', select)
   ConfigStore.set('updatingDB', true)
   await Database.ClearFoldersSelect()
   await Database.dbInsert(Database.dbFolders, select)
@@ -480,7 +477,6 @@ async function sincronizeLocalFolder() {
     )
     select[indexDict[item]].needSync = true
   }
-  // console.log('despues sync local folder: ', select)
   ConfigStore.set('updatingDB', true)
   await Database.ClearFoldersSelect()
   await Database.dbInsert(Database.dbFolders, select)

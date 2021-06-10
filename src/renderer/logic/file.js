@@ -275,7 +275,6 @@ async function sincronizeCloudFile() {
     f.select = true
     select.push(f)
   }
-  // console.log('despues sinc cloud: ', select)
   ConfigStore.set('updatingDB', true)
   await Database.ClearFilesSelect()
   await Database.dbInsert(Database.dbFiles, select)
@@ -320,8 +319,6 @@ async function sincronizeLocalFile() {
       const selectFile = select[FileSelect]
       const selectTime = new Date(selectFile.value.createdAt).setMilliseconds(0)
       const localTime = localFile.mtime.setMilliseconds(0)
-      // console.log('selectTime: ', selectTime)
-      // console.log('localTime: ', localTime)
 
       if (selectTime > localTime) {
         // select recent, download
@@ -355,7 +352,6 @@ async function sincronizeLocalFile() {
     )
     select[indexDict[item]].needSync = true
   }
-  // console.log('despues sinc local: ', select)
   ConfigStore.set('updatingDB', true)
   await Database.ClearFilesSelect()
   await Database.dbInsert(Database.dbFiles, select)
@@ -367,14 +363,11 @@ async function sincronizeFile() {
   const rootPath = await Database.Get('xPath')
   const user = await Database.Get('xUser')
   for (const file of select) {
-    // console.log('sincroniza: ', file)
-    // console.log('state: ', file.state)
     if (ConfigStore.get('stopSync')) {
       throw Error('stop sync')
     }
     remote.app.emit('set-tooltip', `Checking file ${file.key}`)
     if (!file.select) {
-      // console.log('not select')
       try {
         fs.unlink(file.key)
         await Database.dbRemoveOne(Database.dbFiles, { key: file.key })
@@ -436,7 +429,6 @@ async function sincronizeFile() {
       continue
     }
     if (state.ignoredState.includes(file.state)) {
-      // console.log('IGNORE')
       continue
     }
     try {
@@ -649,10 +641,7 @@ async function downloadFile(file, cloudFile, localFile) {
 }
 
 async function uploadState(file, rootPath, user, parentFolder) {
-  // console.log('upload')
-  // console.log(parentFolder)
   if (!parentFolder || !parentFolder.value || !parentFolder.value.id) {
-    // console.log('no parentId')
     return
   }
   const localFile = fs.existsSync(file.key) ? fs.lstatSync(file.key) : undefined
@@ -666,11 +655,9 @@ async function uploadState(file, rootPath, user, parentFolder) {
   })
   cloudFile = cloudFile ? cloudFile.value : null
   if (cloudFile && localFile) {
-    // console.log('cloud & local exist')
     const cloudTime = new Date(cloudFile.createdAt).setMilliseconds(0)
     const localTime = localFile.mtime.setMilliseconds(0)
     if (cloudTime < localTime) {
-      // console.log('local recent')
       await uploadFile(
         file,
         localFile,
@@ -688,7 +675,6 @@ async function uploadState(file, rootPath, user, parentFolder) {
       return
     }
     if (cloudTime > localTime) {
-      // console.log('cloud recent')
       file.state = state.state.DOWNLOAD
       await downloadFile(file, cloudFile, localFile)
       await Database.dbUpdate(
@@ -699,7 +685,6 @@ async function uploadState(file, rootPath, user, parentFolder) {
       return
     }
     if (cloudTime === localTime) {
-      // console.log('same')
       file.state = state.state.SYNCED
       file.needSync = false
       file.value = cloudFile
@@ -711,7 +696,6 @@ async function uploadState(file, rootPath, user, parentFolder) {
     }
   }
   if (!cloudFile && localFile) {
-    // console.log('local exist')
     await uploadFile(
       file,
       localFile,
@@ -725,11 +709,9 @@ async function uploadState(file, rootPath, user, parentFolder) {
     return
   }
   if (cloudFile && !localFile) {
-    // console.log('cloud exist')
     const cloudTime = new Date(cloudFile.createdAt).setMilliseconds(0)
     const selectTime = new Date(file.value.createdAt).setMilliseconds(0)
     if (cloudTime > selectTime) {
-      // console.log('cloud recent')
       file.value = cloudFile
       file.state = state.state.DOWNLOAD
       await downloadFile(file, cloudFile, localFile)
@@ -740,7 +722,6 @@ async function uploadState(file, rootPath, user, parentFolder) {
       )
       return
     } else {
-      // console.log('select recent')
       file.state = state.state.DELETE_CLOUD
       try {
         await removeFile(cloudFile.bucket, cloudFile.fileId, file.key)
@@ -767,7 +748,6 @@ async function uploadState(file, rootPath, user, parentFolder) {
     }
   }
   if (!localFile && !cloudFile) {
-    // console.log('cloud & local not exist')
     Database.dbRemoveOne(Database.dbFiles, { key: file.key })
   }
 }
@@ -791,8 +771,6 @@ async function downloadState(file, rootPath, user, parentFolder) {
   if (cloudFile && localFile) {
     const cloudTime = new Date(cloudFile.createdAt).setMilliseconds(0)
     const localTime = localFile.mtime.setMilliseconds(0)
-    // console.log('download state cloudTime: ', cloudTime)
-    // console.log('download state localTime: ', localTime)
     if (cloudTime < localTime) {
       file.state = state.state.UPLOAD
       file.value.createdAt = localTime

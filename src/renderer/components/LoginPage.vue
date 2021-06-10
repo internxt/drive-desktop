@@ -176,27 +176,6 @@ export default {
         return filesInFolder.length === 0
       }
     },
-    /* checkForm() {
-      // console.log('isLoading:', this.$data.isLoading, 'username:', this.$data.username, 'pass:', this.$data.password)
-      if (this.$data.isLoading) {
-        return true
-      }
-      // console.log(this.$data.username && this.$data.password ? 'true' : 'false')
-      if (this.$data.username && this.$data.password) {
-        return false
-      }
-
-      return true
-    } */
-    // savePathAndLogin () {
-    //   database.Set('xPath', this.$data.storagePath).then(() => {
-    //     this.doLogin()
-    //   }).catch(err => {
-    //     this.$data.isLoading = false
-    //     Logger.error(err)
-    //     alert(err)
-    //   })
-    // },
     createRootFolder(folderName = ROOT_FOLDER_NAME, n = 0) {
       const rootFolderName = folderName + (n ? ` (${n})` : '')
       const rootFolderPath = path.join(HOME_FOLDER_PATH, rootFolderName)
@@ -252,7 +231,6 @@ export default {
               .catch(err => {
                 Logger.error(err)
               })
-            console.log('res =>', res.body)
             if (res.body.error) {
               return this.errors.push(res.body.error)
             }
@@ -340,11 +318,6 @@ export default {
               const bounds = remote.getCurrentWindow().trayBounds
               remote.getCurrentWindow().setBounds({ width: 450, height: 360, x: bounds.x - 800, y: bounds.y })
               this.$router.push('/xcloud').catch(() => {})
-              /*
-              const bounds = remote.getCurrentWindow().trayBounds
-              console.log(bounds)
-              remote.getCurrentWindow().setBounds({ x: remote.display.bounds.width - 450, y: bounds.y })
-              */
             }
             analytics
               .identify({

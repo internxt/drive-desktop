@@ -15,31 +15,24 @@ class FileLogger extends EventEmitter {
       return
     }
     if (this.queue[this.head] == null) {
-      // console.log(1)
-      // console.log(this.getAll())
       // Create First record in Logger
       this.queue[this.head] = item
       this.emit('new-entry', this.getHead())
       // this.emit('new-emit', this.getAll())
     } else if (item.filePath === this.queue[this.head].filePath) {
-      // console.log(2)
       try {
         // Update the last record in Logger
         Object.assign(this.queue[this.head], item)
-        // console.log('emitiendo', this.getHead(), this.queue, this.getQueue())
         this.emit('update-last-entry', this.getHead())
         this.emit('new-emit', this.getQueue())
       } catch (err) {
         Logger.error(err)
       }
     } else {
-      // console.log(3)
-      // console.log(this.getQueue())
       // Create a new record in Logger
       this.head = (this.head + 1) % this.maxSize
       this.queue[this.head] = item
       this.emit('new-entry', this.getHead())
-      // this.emit('new-emit', this.getAll())
     }
   }
 
@@ -52,15 +45,11 @@ class FileLogger extends EventEmitter {
   }
   getQueue() {
     const queue = (this.queue.slice().reverse()).filter(e => { return (e != null) })
-    // console.log('la cola', queue)
     return queue
   }
 
   getHead() {
-    // console.log('lo que se envia', this.queue[this.head])
     return this.queue[this.head]
-    // console.log('lo que se envia', this.queue)
-    // return this.queue
   }
 
   clearLogger() {
