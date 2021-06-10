@@ -7,7 +7,8 @@ import electron, {
   Menu,
   shell,
   dialog,
-  powerMonitor
+  powerMonitor,
+  ipcMain
 } from 'electron'
 import path from 'path'
 import Logger from '../libs/logger'
@@ -121,6 +122,11 @@ function createWindow() {
   mainWindow.on('close', appClose)
 
   app.on('app-close', appClose)
+
+  ipcMain.on('update-configStore', (item) => {
+    const [key, value] = Object.entries(item)[0]
+    ConfigStore.set(key, value)
+  })
 
   /*
   app.on('create-onboarbing', () => {

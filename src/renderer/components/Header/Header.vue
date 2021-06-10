@@ -371,7 +371,6 @@ export default {
     },
     // Full sync - Upload only Sync mode
     syncModeChange () {
-      console.log(ConfigStore.get('uploadOnly'))
       if (this.CheckedValue === 'full') {
         ConfigStore.set('forceUpload', 2)
         remote.app.emit('show-info', 'Next sync will also be upload only for checking which file should not delete.')
