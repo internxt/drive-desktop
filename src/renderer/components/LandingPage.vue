@@ -29,6 +29,9 @@ export default {
     }
   },
   created: async function () {
+    /*
+     Relogs automatically a user in
+    */
     const xUser = await database.Get('xUser')
     // const xPath = await database.Get('xPath')
     this.$data.dbFolder = database.GetDatabaseFolder
@@ -42,9 +45,19 @@ export default {
       remote.getCurrentWindow().center()
       this.$router.push('/login').catch(() => {})
     } else {
-      const bounds = remote.getCurrentWindow().trayBounds
-      remote.app.emit('show-main-windows')
-      this.$router.push('/xcloud').catch(() => {})
+      // Does have credentials saved ? If not show onboarding the user is already singned in so email in configStore
+      if (ConfigStore.get('showOnboarding')) {
+        remote.app.emit('update-configStore', { showOnboarding: false })
+        // Show Onboarding
+        remote.getCurrentWindow().setBounds({ width: 800, height: 500 })
+        remote.getCurrentWindow().center()
+        this.$router.push('/onboarding').catch(() => {})
+      } else {
+        // Go to logger
+        const bounds = remote.getCurrentWindow().trayBounds
+        remote.app.emit('show-main-windows')
+        this.$router.push('/xcloud').catch(() => {})
+      }
     }
   },
   methods: {

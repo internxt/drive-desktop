@@ -39,6 +39,10 @@ const schema = {
   resetAll: {
     type: 'boolean',
     default: true
+  },
+  showOnboarding: {
+    type: 'boolean',
+    default: true
   }
 }
 
