@@ -101,7 +101,7 @@
       <div class="flex h-full">
         <div class="flex items-center justify-center w-1/2 h-full">
           <div>
-            <img class="h-full -mb-2 -ml-2" src="../../assets/images/slide-4/image.png" />
+            <img class="p-10" src="../../assets/images/slide-4/image.png" />
           </div>
         </div>
 
@@ -130,11 +130,7 @@
       <div class="flex h-full relative">
         <div class="flex items-center justify-center w-1/2 h-full relative">
           <div class="mb-12 ml-8">
-            <img class="h-full -mb-2 -ml-2" src="../../assets/images/slide-5/center-image.png" />
-          </div>
-
-          <div class="absolute right-12 bottom-44">
-            <img src="../../assets/images/slide-5/sync-mode-image.png" />
+            <img class="p-10 -mb-2 -ml-2" src="../../assets/images/slide-5/center-image.png" />
           </div>
         </div>
 
@@ -165,7 +161,7 @@
       <div class="flex h-full relative">
         <div class="flex items-center justify-center w-1/2 h-full relative">
           <div class="mb-8 ml-8">
-            <img class="h-full" src="../../assets/images/slide-6/image.png" />
+            <img class="p-10" src="../../assets/images/slide-6/image.png" />
           </div>
         </div>
 

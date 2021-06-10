@@ -11,7 +11,7 @@
     </div>
 
     <div class="flex flex-row items-center">
-      <InternxtBrand :width="20" :height="20"/>
+      <img class="w-5" src="../assets/icons/apple/brand-logo.png" />
       <span class="text-xl text-black font-bold ml-2">{{ showTwoFactor ? 'Security Verification' : 'Sign in to Internxt Drive' }}</span>
     </div>
 
@@ -111,7 +111,6 @@ import packageConfig from '../../../package.json'
 import analytics from '../logic/utils/analytics'
 import ConfigStore from '../../main/config-store'
 import uuid4 from 'uuid4'
-import InternxtBrand from '../components/ExportIcons/InternxtBrand'
 import Spinner from '../components/ExportIcons/Spinner'
 import Eye from '../components/ExportIcons/eye'
 import CrossEye from '../components/ExportIcons/cross-eye'
@@ -142,7 +141,6 @@ export default {
     }
   },
   components: {
-    InternxtBrand,
     Spinner,
     Eye,
     CrossEye,
