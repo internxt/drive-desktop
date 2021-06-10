@@ -251,9 +251,9 @@ app.on('show-main-windows', showMainWindows)
 function getWindowsPos() {
   const display = electron.screen.getPrimaryDisplay()
   const trayBounds = trayMenu.tray.getBounds()
-  let x = Math.min(trayBounds.x - 450, display.workArea.width - 450)
+  let x = Math.min(trayBounds.x - 450 / 2, display.workArea.width - 450)
   x = Math.max(display.workArea.x, x)
-  let y = Math.min(trayBounds.y - 360, display.workArea.height - 360)
+  let y = Math.min(trayBounds.y - 360 / 2, display.workArea.height - 360)
   y = Math.max(display.workArea.y, y)
   return {
     x: x,
