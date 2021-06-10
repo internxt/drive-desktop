@@ -6,7 +6,7 @@
           <img src="../../assets/images/slide-1/internxt-name-logo.png" />
         </div>
 
-        <h1 class="text-5xl text-center font-bold bg-gradient-to-r from-purple-500 via-pink-500 to-red-400 text-transparent bg-clip-text">Welcome to Interxt Drive</h1>
+        <h1 class="text-5xl text-center font-bold bg-gradient-to-r from-purple-500 via-pink-500 to-red-400 text-transparent bg-clip-text">Welcome to Internxt Drive</h1>
         <p class="text-2xl text-center text-gray-800 font-bold w-5/6 px-12 mt-8">
           We have designed and deployed all the power of
           the world's only private and secure decentralized
