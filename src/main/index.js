@@ -7,7 +7,8 @@ import electron, {
   Menu,
   shell,
   dialog,
-  powerMonitor
+  powerMonitor,
+  ipcMain
 } from 'electron'
 import path from 'path'
 import Logger from '../libs/logger'
@@ -48,14 +49,6 @@ if (!app.requestSingleInstanceLock()) {
   FileLogger.saveLogger()
   app.quit()
 }
-
-app.on('update-menu', user => {
-  if (trayMenu) {
-    // trayMenu.updateContextMenu(user)
-  } else {
-    Logger.error('No tray to update')
-  }
-})
 
 function createWindow() {
   trayMenu = new TrayMenu(mainWindow)
@@ -123,6 +116,11 @@ function createWindow() {
   mainWindow.on('close', appClose)
 
   app.on('app-close', appClose)
+
+  ipcMain.on('update-configStore', (item) => {
+    const [key, value] = Object.entries(item)[0]
+    ConfigStore.set(key, value)
+  })
 
   /*
   app.on('create-onboarbing', () => {
@@ -251,9 +249,9 @@ app.on('show-main-windows', showMainWindows)
 function getWindowsPos() {
   const display = electron.screen.getPrimaryDisplay()
   const trayBounds = trayMenu.tray.getBounds()
-  let x = Math.min(trayBounds.x - 450, display.workArea.width - 450)
+  let x = Math.min(trayBounds.x - 450 / 2, display.workArea.width - 450)
   x = Math.max(display.workArea.x, x)
-  let y = Math.min(trayBounds.y - 360, display.workArea.height - 360)
+  let y = Math.min(trayBounds.y - 360 / 2, display.workArea.height - 360)
   y = Math.max(display.workArea.y, y)
   return {
     x: x,
@@ -262,14 +260,15 @@ function getWindowsPos() {
 }
 
 function showMainWindows() {
-  if (!lock) {
-    if (mainWindow.isVisible()) {
-      mainWindow.hide()
-    } else {
-      const pos = getWindowsPos()
-      mainWindow.setBounds({ width: 450, height: 360, x: pos.x, y: pos.y })
-      mainWindow.show()
-    }
+  if (lock) {
+    lock = false
+    mainWindow.hide()
+  } else {
+    lock = true
+    const pos = getWindowsPos()
+    console.log('pos =>', pos)
+    mainWindow.setBounds({ width: 450, height: 360, x: pos.x, y: pos.y })
+    mainWindow.show()
   }
 }
 
@@ -315,12 +314,10 @@ app.on('browser-window-focus', (e, w) => {})
 
 app.on('sync-on', function() {
   trayMenu.setIsLoadingIcon(true)
-  trayMenu.updateSyncState()
 })
 
 app.on('sync-off', function() {
   trayMenu.setIsLoadingIcon(false)
-  trayMenu.updateSyncState()
 })
 
 app.on('change-auto-launch', AutoLaunch.configureAutostart)

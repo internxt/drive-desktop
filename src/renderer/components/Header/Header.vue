@@ -246,24 +246,20 @@ export default {
     remote.app.on('user-logout', async (saveData = false) => {
       remote.app.emit('sync-stop', false)
       await database.logOut(saveData)
-      const localUser = ConfigStore.get('user.uuid')
-      if (localUser) {
-        analytics
-          .track({
-            event: 'user-signout',
-            userId: undefined,
-            properties: {
-              email: 'email'
-            }
-          })
-          .then(() => {
-            analytics.resetUser()
-          })
-          .catch((err) => {
-            Logger.error(err)
-          })
-      }
-      remote.app.emit('update-menu')
+      analytics
+        .track({
+          event: 'user-signout',
+          userId: undefined,
+          properties: {
+            email: 'email'
+          }
+        })
+        .then(() => {
+          analytics.resetUser()
+        })
+        .catch((err) => {
+          Logger.error(err)
+        })
       // Resize window to login window
       // const bounds = remote.getCurrentWindow().trayBounds
       remote.getCurrentWindow().setBounds({ height: 550, width: 450 })
