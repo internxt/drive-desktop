@@ -65,8 +65,8 @@
     </div>
 
     <div v-else class="flex flex-col items-center justify-center w-full h-full">
-      <CircleWithCloud :width="65" :height="65"/>
-      <p class="text-base text-gray-500 font-semibold mt-3">There are no files to synchronize yet</p>
+      <!-- <CircleWithCloud :width="65" :height="65"/> -->
+      <img src="../../assets/svg/start-sync-button.svg" />
     </div>
   </div>
 </template>
