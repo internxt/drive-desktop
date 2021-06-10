@@ -107,7 +107,6 @@ export default {
       .then(xUser => {
         const userEmail = xUser.user.email
         this.emailAccount = userEmail
-        remote.app.emit('update-menu', userEmail)
         Logger.info(
           'Account: %s, User platform: %s %s, version: %s',
           userEmail,
@@ -154,7 +153,6 @@ export default {
             Logger.error(err)
           })
       }
-      remote.app.emit('update-menu')
       this.$router.push('/').catch(() => {})
     })
 
