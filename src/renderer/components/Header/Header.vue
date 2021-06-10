@@ -69,28 +69,26 @@
 
         <span class="text-sm text-black">Sync mode</span>
         <form class="mt-2 mb-2">
-          <div>
+          <div @click="OpenSyncSettingsModal('full')" class="radioContainer">
+            <p class="text-xs text-gray-500 hover:text-blue-500 cursor-pointer">Full sync</p>
             <input
               type="radio"
-              id="fullsync"
-              name="fullsync"
-              value="fullsync"
-              v-model="CheckedValue"
-              @change="OpenSyncSettingsModal('full')"
+              name="radio"
+              :checked="!CheckedValue"
             />
-            <label class="text-xs text-gray-500 cursor-pointer" for="fullsync">Full sync</label>
+            <span class="checkmark"></span>
+            <span class="smallCheckmark"></span>
           </div>
 
-          <div>
+          <div @click="OpenSyncSettingsModal('upload')" class="radioContainer mt-1">
+            <p class="text-xs text-gray-500 hover:text-blue-500 cursor-pointer pt-0.5">Upload only</p>
             <input
               type="radio"
-              id="uploadonly"
-              name="uploadonly"
-              value="uploadonly"
-              v-model="CheckedValue"
-              @change="OpenSyncSettingsModal('upload')"
+              name="radio"
+              :checked="CheckedValue"
             />
-            <label class="text-xs text-gray-500 cursor-pointer" for="uploadonly">Upload only</label>
+            <span class="checkmark mt-0.5"></span>
+            <span class="smallCheckmark mt-0.5"></span>
           </div>
         </form>
 
@@ -156,7 +154,7 @@
       <p class="text-base text-center w-72 mt-3">By changing to full sync you will start synchronizing all your content.</p>
 
       <div class="mt-4">
-        <button @click="syncModeChange()" value="full" class="w-24 py-2 rounded-full bg-white font-semibold text-sm text-blue-600 cursor-pointer focus:outline-none">Accept</button>
+        <button @click="syncModeChange()" class="w-24 py-2 rounded-full bg-white font-semibold text-sm text-blue-600 cursor-pointer focus:outline-none">Accept</button>
         <button @click="CloseSyncSettingsModal()" class="text-sm ml-5 cursor-pointer focus:outline-none">Cancel</button>
       </div>
 
@@ -214,13 +212,13 @@ export default {
       showSettingsModal: false,
       showAccountModal: false,
       localPath: '',
-      CheckedValue: 'full',
       selectedSyncOption: 'none',
-      LaunchCheck: false,
       path: null,
       msg: 'Mensaje de texto',
       usage: '',
       limit: '',
+      LaunchCheck: false,
+      CheckedValue: ConfigStore.get('uploadOnly'),
       showSyncSettingsModal: false
     }
   },
@@ -314,17 +312,10 @@ export default {
       remote.app.emit('sync-stop', false)
       remote.app.emit('app-close')
     },
-    showDrawer() {
-      this.visible = true
-    },
-    onClose() {
-      this.visible = false
-    },
     // Open modal account
     ShowAccountModal() {
       this.showSettingsModal = false
       this.showAccountModal = !this.showAccountModal
-      // return console.log(this.showModalAccount)
     },
     // Close modal account
     CloseAccountModal() {
@@ -340,9 +331,10 @@ export default {
       this.showSettingsModal = false
     },
     OpenSyncSettingsModal(syncOption) {
-      console.log('selected sync option:', syncOption)
-      this.selectedSyncOption = syncOption
-      this.showSyncSettingsModal = true
+      if (this.CheckedValue !== syncOption) {
+        this.selectedSyncOption = syncOption
+        this.showSyncSettingsModal = true
+      }
     },
     CloseSyncSettingsModal() {
       this.showSyncSettingsModal = false
@@ -401,14 +393,12 @@ export default {
     syncModeChange () {
       if (this.selectedSyncOption === 'full') {
         ConfigStore.set('forceUpload', 2)
-        console.log('set forceUpload =>', this.selectedSyncOption)
-        // remote.app.emit('show-info', 'Next sync will also be upload only for checking which file should not delete.')
+        ConfigStore.set('uploadOnly', false)
+        this.CheckedValue = false
       } else {
         ConfigStore.set('uploadOnly', true)
-        console.log('set uploadOnly =>', this.selectedSyncOption)
-        // remote.app.emit('show-info', 'By changing to Upload only you can only upload files in next sync. You can delete files locally without lose them from your cloud.')
+        this.CheckedValue = true
       }
-      this.CheckedValue = this.selectedSyncOption
       this.showSyncSettingsModal = false
     },
     // Open logs
