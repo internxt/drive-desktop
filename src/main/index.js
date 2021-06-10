@@ -49,14 +49,6 @@ if (!app.requestSingleInstanceLock()) {
   app.quit()
 }
 
-app.on('update-menu', user => {
-  if (trayMenu) {
-    // trayMenu.updateContextMenu(user)
-  } else {
-    Logger.error('No tray to update')
-  }
-})
-
 function createWindow() {
   trayMenu = new TrayMenu(mainWindow)
   trayMenu.init()
@@ -315,12 +307,10 @@ app.on('browser-window-focus', (e, w) => {})
 
 app.on('sync-on', function() {
   trayMenu.setIsLoadingIcon(true)
-  trayMenu.updateSyncState()
 })
 
 app.on('sync-off', function() {
   trayMenu.setIsLoadingIcon(false)
-  trayMenu.updateSyncState()
 })
 
 app.on('change-auto-launch', AutoLaunch.configureAutostart)

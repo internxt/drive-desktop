@@ -263,7 +263,6 @@ export default {
             Logger.error(err)
           })
       }
-      remote.app.emit('update-menu')
       // Resize window to login window
       // const bounds = remote.getCurrentWindow().trayBounds
       remote.getCurrentWindow().setBounds({ height: 550, width: 450 })
