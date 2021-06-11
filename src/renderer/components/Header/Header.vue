@@ -14,39 +14,41 @@
       <div class="flex items-center justify-center">
         <!-- {{ this.$data.localPath }} -->
         <!-- <div v-tooltip="{ content: 'Tooltip content here',}" @click="openFolder()"> -->
-        <div class="mr-3 cursor-pointer" @click="openFolder()" v-tooltip="{
-          content: 'Sync folder',
-          placement: 'bottom',
-          delay: { show: 300, hide: 300}
-        }">
-          <UilFolderNetwork
-            class="text-blue-600"
-            size="24px"
-          />
+        <div
+          class="mr-3 cursor-pointer"
+          @click="openFolder()"
+          v-tooltip="{
+            content: 'Sync folder',
+            placement: 'bottom',
+            delay: { show: 300, hide: 300 }
+          }"
+        >
+          <UilFolderNetwork class="text-blue-600" size="24px" />
         </div>
 
-        <div class="cursor-pointer mr-3" v-on:click="ShowAccountModal()" v-tooltip="{
-          content: 'Account',
-          placement: 'bottom',
-          delay: { show: 300, hide: 300}
-        }">
-          <UilUserCircle
-            class="text-blue-600"
-            size="24px"
-          />
+        <div
+          class="cursor-pointer mr-3"
+          v-on:click="ShowAccountModal()"
+          v-tooltip="{
+            content: 'Account',
+            placement: 'bottom',
+            delay: { show: 300, hide: 300 }
+          }"
+        >
+          <UilUserCircle class="text-blue-600" size="24px" />
         </div>
 
-        <div class="cursor-pointer" v-on:click="ShowSettingsModal()" v-tooltip="{
-          content: 'Settings',
-          placement: 'bottom',
-          delay: { show: 300, hide: 300}
-        }">
-          <UilSetting
-            class="text-blue-600"
-            size="24px"
-          />
+        <div
+          class="cursor-pointer"
+          v-on:click="ShowSettingsModal()"
+          v-tooltip="{
+            content: 'Settings',
+            placement: 'bottom',
+            delay: { show: 300, hide: 300 }
+          }"
+        >
+          <UilSetting class="text-blue-600" size="24px" />
         </div>
-
       </div>
     </div>
 
@@ -59,7 +61,10 @@
       leave-to-class="leave-to"
       leave-active-class="slide-leave-active"
     >
-      <div v-if="showSettingsModal === true" class="bg-white p-4 px-6 w-full h-full fixed rounded-t-2xl z-10">
+      <div
+        v-if="showSettingsModal === true"
+        class="bg-white p-4 px-6 w-full h-full fixed rounded-t-2xl z-10"
+      >
         <div class="flex justify-between">
           <div class="text-black text-base font-bold mb-3">Configuration</div>
 
@@ -71,23 +76,24 @@
         <span class="text-sm text-black">Sync mode</span>
         <form class="mt-2 mb-2">
           <div @click="OpenSyncSettingsModal('full')" class="radioContainer">
-            <p class="text-xs text-gray-500 hover:text-blue-500 cursor-pointer">Full sync</p>
-            <input
-              type="radio"
-              name="radio"
-              :checked="!CheckedValue"
-            />
+            <p class="text-xs text-gray-500 hover:text-blue-500 cursor-pointer">
+              Full sync
+            </p>
+            <input type="radio" name="radio" :checked="!CheckedValue" />
             <span class="checkmark"></span>
             <span class="smallCheckmark"></span>
           </div>
 
-          <div @click="OpenSyncSettingsModal('upload')" class="radioContainer mt-1">
-            <p class="text-xs text-gray-500 hover:text-blue-500 cursor-pointer pt-0.5">Upload only</p>
-            <input
-              type="radio"
-              name="radio"
-              :checked="CheckedValue"
-            />
+          <div
+            @click="OpenSyncSettingsModal('upload')"
+            class="radioContainer mt-1"
+          >
+            <p
+              class="text-xs text-gray-500 hover:text-blue-500 cursor-pointer pt-0.5"
+            >
+              Upload only
+            </p>
+            <input type="radio" name="radio" :checked="CheckedValue" />
             <span class="checkmark mt-0.5"></span>
             <span class="smallCheckmark mt-0.5"></span>
           </div>
@@ -97,13 +103,22 @@
         <div class="flex items-center mt-2">
           <div class="flex items-center">
             <div><UilFolderOpen class="text-blue-600 mr-2 mt-0.5" /></div>
-            <div class="text-xs text-gray-500">{{this.path}}</div>
+            <div class="text-xs text-gray-500">{{ this.path }}</div>
           </div>
-          <div v-on:click="changeFolder()" class="text-sm text-blue-600 ml-8 cursor-pointer">Change</div>
+          <div
+            v-on:click="changeFolder()"
+            class="text-sm text-blue-600 ml-8 cursor-pointer"
+          >
+            Change
+          </div>
         </div>
 
         <label class="checkbox mt-3">
-          <input type="checkbox" :checked="LaunchCheck" v-on:change="launchAtLogin()">
+          <input
+            type="checkbox"
+            :checked="LaunchCheck"
+            v-on:change="launchAtLogin()"
+          />
           <span class="ml-2 text-gray-700">Launch at login</span>
         </label>
       </div>
@@ -118,7 +133,10 @@
       leave-to-class="leave-to"
       leave-active-class="slide-leave-active"
     >
-      <div v-if="showAccountModal === true" class="bg-white p-4 px-6 w-full h-full fixed rounded-t-2xl z-10">
+      <div
+        v-if="showAccountModal === true"
+        class="bg-white p-4 px-6 w-full h-full fixed rounded-t-2xl z-10"
+      >
         <div class="flex justify-between">
           <div class="text-black text-base font-bold mb-3">Account</div>
           <div class="cursor-pointer" v-on:click="CloseAccountModal()">
@@ -126,49 +144,104 @@
           </div>
         </div>
 
-        <div v-on:click="openLogs()" class="text-sm mb-3 hover:text-blue-600 cursor-pointer">Open logs</div>
-        <div v-on:click="ContactSupportMailto()" class="text-sm hover:text-blue-600 cursor-pointer mb-3">Contact support</div>
-        <div class="text-sm mb-3 hover:text-blue-600 cursor-pointer" @click="logout()">Log out</div>
-        <div class="text-sm hover:text-blue-600 cursor-pointer" @click="quitApp()">Quit</div>
+        <div
+          v-on:click="openLogs()"
+          class="text-sm mb-3 hover:text-blue-600 cursor-pointer"
+        >
+          Open logs
+        </div>
+        <div
+          v-on:click="ContactSupportMailto()"
+          class="text-sm hover:text-blue-600 cursor-pointer mb-3"
+        >
+          Contact support
+        </div>
+        <div
+          class="text-sm mb-3 hover:text-blue-600 cursor-pointer"
+          @click="logout()"
+        >
+          Log out
+        </div>
+        <div
+          class="text-sm hover:text-blue-600 cursor-pointer"
+          @click="quitApp()"
+        >
+          Quit
+        </div>
         <div>
-
-          <div class="text-xs border border-dashed border-gray-200 p-2 px-3 rounded mt-6">
-
+          <div
+            class="text-xs border border-dashed border-gray-200 p-2 px-3 rounded mt-6"
+          >
             <div class="flex">
-              <div><UilServerConnection class="text-blue-600 text-2xl mr-4 mt-0.5" /></div>
+              <div>
+                <UilServerConnection
+                  class="text-blue-600 text-2xl mr-4 mt-0.5"
+                />
+              </div>
               <div>
                 <div class="font-bold">Storage used</div>
                 <div class="flex">
-                  <div class="mr-0.5 text-gray-400 text-xs">{{usage}} de </div>
-                  <div class="text-blue-500 text-xs italic">{{limit}}</div>
+                  <div class="mr-0.5 text-gray-400 text-xs">{{ usage }} de</div>
+                  <div class="text-blue-500 text-xs italic">{{ limit }}</div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-
       </div>
     </transition>
 
-    <div v-if="showSyncSettingsModal && selectedSyncOption === 'full'" class="absolute top-0 left-0 z-20 bg-blue-600 bg-opacity-90 h-full w-full flex flex-col justify-center items-center text-white">
+    <div
+      v-if="showSyncSettingsModal && selectedSyncOption === 'full'"
+      class="absolute top-0 left-0 z-20 bg-blue-600 bg-opacity-90 h-full w-full flex flex-col justify-center items-center text-white"
+    >
       <h1 class="text-lg text-white font-bold">Attention</h1>
-      <p class="text-base text-center w-72 mt-3">By changing to full sync you will start synchronizing all your content.</p>
+      <p class="text-base text-center w-72 mt-3">
+        By changing to full sync you will start synchronizing all your content.
+      </p>
 
       <div class="mt-4">
-        <button @click="CloseSyncSettingsModal()" class="text-sm mr-5 cursor-pointer focus:outline-none">Cancel</button>
-        <button @click="syncModeChange()" class="w-24 py-2 rounded-full bg-white font-semibold text-sm text-blue-600 cursor-pointer focus:outline-none">Accept</button>
+        <button
+          @click="CloseSyncSettingsModal()"
+          class="text-sm mr-5 cursor-pointer focus:outline-none"
+        >
+          Cancel
+        </button>
+        <button
+          @click="syncModeChange()"
+          class="w-24 py-2 rounded-full bg-white font-semibold text-sm text-blue-600 cursor-pointer focus:outline-none"
+        >
+          Accept
+        </button>
       </div>
 
       <!-- <a href="" class="text-xs underline mt-4 cursor-pointer">Know more about Full Sync</a> -->
     </div>
 
-    <div v-if="showSyncSettingsModal && selectedSyncOption === 'upload'" class="absolute top-0 left-0 z-20 bg-blue-600 bg-opacity-90 h-full w-full flex flex-col justify-center items-center text-white">
+    <div
+      v-if="showSyncSettingsModal && selectedSyncOption === 'upload'"
+      class="absolute top-0 left-0 z-20 bg-blue-600 bg-opacity-90 h-full w-full flex flex-col justify-center items-center text-white"
+    >
       <h1 class="text-lg text-white font-bold">Attention</h1>
-      <p class="text-base text-center w-72 mt-3">By changing to Upload only you can only upload files. This way, you will be able to delete files locally whitout losing them from your cloud.</p>
+      <p class="text-base text-center w-72 mt-3">
+        By changing to Upload only you can only upload files. This way, you will
+        be able to delete files locally whitout losing them from your cloud.
+      </p>
 
       <div class="mt-4">
-        <button @click="CloseSyncSettingsModal()" class="text-sm mr-5 cursor-pointer focus:outline-none">Cancel</button>
-        <button @click="syncModeChange()" value="full" class="w-24 py-2 rounded-full bg-white font-semibold text-sm text-blue-600 cursor-pointer focus:outline-none">Accept</button>
+        <button
+          @click="CloseSyncSettingsModal()"
+          class="text-sm mr-5 cursor-pointer focus:outline-none"
+        >
+          Cancel
+        </button>
+        <button
+          @click="syncModeChange()"
+          value="full"
+          class="w-24 py-2 rounded-full bg-white font-semibold text-sm text-blue-600 cursor-pointer focus:outline-none"
+        >
+          Accept
+        </button>
       </div>
 
       <!-- <a href="" class="text-xs underline mt-4 cursor-pointer">Know more about Full Sync</a> -->
@@ -223,22 +296,22 @@ export default {
       showSyncSettingsModal: false
     }
   },
-  beforeCreate: function () {
+  beforeCreate: function() {
     database.Get('xPath').then(path => {
       this.$data.path = path
     })
   },
-  beforeDestroy: function () {
+  beforeDestroy: function() {
     remote.app.removeAllListeners('user-logout')
   },
-  created: function () {
+  created: function() {
     this.$app = this.$electron.remote.app
     // Storage and space used
-    remote.app.on('update-storage', (data) => {
+    remote.app.on('update-storage', data => {
       this.usage = data.usage
       this.limit = data.limit
     })
-    FileLogger.on('update-last-entry', (item) => {
+    FileLogger.on('update-last-entry', item => {
       this.file = item
     })
     Monitor.Monitor(true)
@@ -256,7 +329,7 @@ export default {
         .then(() => {
           analytics.resetUser()
         })
-        .catch((err) => {
+        .catch(err => {
           Logger.error(err)
         })
       // Resize window to login window
@@ -266,7 +339,7 @@ export default {
       this.$router.push('/').catch(() => {})
     })
 
-    remote.app.on('new-folder-path', async (newPath) => {
+    remote.app.on('new-folder-path', async newPath => {
       remote.app.emit('sync-stop', false)
       await database.ClearAll()
       await database.Set('lastSyncSuccess', false)
@@ -275,24 +348,20 @@ export default {
       this.$router.push('/xcloud').catch(() => {})
     })
   },
-  updated: function() {
-  },
+  updated: function() {},
   methods: {
-    debug() {
-    },
+    debug() {},
     // Log out - save folder path whe user log out
     logout() {
-      remote.dialog.showMessageBox(
-        remote.getCurrentWindow(),
-        {
+      remote.dialog
+        .showMessageBox(remote.getCurrentWindow(), {
           type: 'question',
           buttons: ['Yes', 'No'],
           default: 1,
           cancelId: 1,
           title: 'Dialog',
           message: 'Would you like to save your login data'
-        }
-      )
+        })
         .then(userResponse => {
           if (userResponse.response === 0) {
             remote.app.emit('user-logout', true)
@@ -341,10 +410,10 @@ export default {
     getLocalFolderPath() {
       database
         .Get('xPath')
-        .then((path) => {
+        .then(path => {
           this.$data.localPath = path
         })
-        .catch((err) => {
+        .catch(err => {
           console.error(err)
           this.$data.localPath = 'error'
         })
@@ -384,7 +453,7 @@ export default {
       }
     },
     // Full sync - Upload only Sync mode
-    syncModeChange () {
+    syncModeChange() {
       if (this.selectedSyncOption === 'full') {
         remote.app.emit('update-configStore', { forceUpload: 2 })
         remote.app.emit('update-configStore', { uploadOnly: false })
@@ -396,7 +465,7 @@ export default {
       this.showSyncSettingsModal = false
     },
     // Open logs
-    openLogs () {
+    openLogs() {
       try {
         const logFile = electronLog.transports.file.getFile().path
         const logPath = path.dirname(logFile)
@@ -406,16 +475,20 @@ export default {
       }
     },
     // Launch at login
-    launchAtLogin () {
+    launchAtLogin() {
       this.LaunchCheck = !this.LaunchCheck
       remote.app.emit('update-configStore', { autoLaunch: this.LaunchCheck })
       remote.app.emit('change-auto-launch', this.LaunchCheck)
     },
     // Contact support
-    ContactSupportMailto () {
-      remote.shell.openExternal(
-        `mailto:idajggytsuz7jivosite@jivo-mail.com?subject=Support Ticket&body=If you want to upload log files to our tech teams. Please, find them on the Open Logs option in the menu.`
-      )
+    ContactSupportMailto() {
+      if (process.platform === 'linux') {
+        remote.app.emit('show-info', 'email: idajggytsuz7jivosite@jivo-mail.com')
+      } else {
+        remote.shell.openExternal(
+          `mailto:idajggytsuz7jivosite@jivo-mail.com?subject=Support Ticket&body=If you want to upload log files to our tech teams. Please, find them on the Open Logs option in the menu.`
+        )
+      }
     }
   },
   name: 'Header',
@@ -447,4 +520,3 @@ export default {
   }
 }
 </script>
-
