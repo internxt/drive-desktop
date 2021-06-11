@@ -16,9 +16,9 @@ const dimentions = {
 class Dimentions {
   dimentions = dimentions
 
-  constructor(trayMenu, primaryDisplay) {
+  constructor(trayMenu, screen) {
     this.trayBounds = trayMenu.tray.getBounds()
-    this.display = primaryDisplay
+    this.display = screen.getDisplayMatching(this.trayBounds)
     const coordinatesTrayIcon = this.getLoggerWindowPos()
 
     this.dimentions['/xcloud'].x = coordinatesTrayIcon.x

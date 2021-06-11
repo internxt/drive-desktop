@@ -53,6 +53,7 @@ if (!app.requestSingleInstanceLock()) {
   app.quit()
 }
 
+/*
 const getWindowPos = () => {
   const trayBounds = trayMenu.tray.getBounds()
   const display = electron.screen.getDisplayMatching(trayBounds)
@@ -73,17 +74,14 @@ const getWindowPos = () => {
     y: y
   }
 }
+*/
 
 function createWindow() {
   trayMenu = new TrayMenu(mainWindow)
   trayMenu.init()
   trayMenu.setToolTip('Internxt Drive ' + PackageJson.version)
-  // trayMenu.updateContextMenu()
-  const nonMovableProp =
-    process.platform === 'win32' || process.platform === 'darwin'
 
-  const display = electron.screen.getPrimaryDisplay()
-  const trayBounds = trayMenu.tray.getBounds()
+  const windowDimentions = new Dimentions(trayMenu, electron.screen)
   mainWindow = new BrowserWindow({
     webPreferences: {
       nodeIntegration: true,
@@ -92,7 +90,7 @@ function createWindow() {
       enableRemoteModule: true,
       devTools: process.env.NODE_ENV === 'development'
     },
-    movable: nonMovableProp,
+    movable: true,
     width: 450,
     height: 360,
     // x: display.bounds.width - 450,
@@ -107,9 +105,6 @@ function createWindow() {
     menuBarVisible: false,
     centered: true
   })
-
-  mainWindow.trayBounds = trayBounds
-  mainWindow.getWindowPos = getWindowPos
 
   mainWindow.loadURL(winURL).then(() => {
     mainWindow.webContents.send('tray-position', { x: 1, y: 1 })
@@ -134,7 +129,8 @@ function createWindow() {
   })
 
   app.on('window-pushed-to', route => {
-
+    // changing windowDimentions accordingly
+    mainWindow.setBounds(Dimentions.getDimentions(route))
   })
 
   const edit = {
@@ -234,8 +230,7 @@ function showMainWindows() {
     if (mainWindow.isVisible()) {
       mainWindow.hide()
     } else {
-      const pos = getWindowPos()
-      mainWindow.setBounds({ width: 450, height: 360, x: pos.x, y: pos.y })
+      mainWindow.setBounds(Dimentions.getDimentions('xcloud'))
       mainWindow.show()
     }
   }
