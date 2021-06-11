@@ -98,12 +98,9 @@
         <div class="flex items-center mt-2">
           <div class="flex items-center">
             <div><UilFolderOpen class="text-blue-600 mr-2 mt-0.5" /></div>
-            <div class="text-xs text-gray-500">{{ this.path }}</div>
+            <p class="text-xs text-gray-500 break-words w-72">{{ this.path }}</p>
           </div>
-          <div
-            v-on:click="changeFolder()"
-            class="text-sm text-blue-600 ml-8 cursor-pointer"
-          >
+          <div v-on:click="changeFolder()" class="text-sm text-blue-600 ml-8 cursor-pointer">
             Change
           </div>
         </div>
