@@ -202,7 +202,7 @@ export default {
     }
   },
   beforeCreate() {
-    remote.getCurrentWindow().center()
+    // remote.getCurrentWindow().center()
     remote.app.emit('enter-onboarding', true)
   },
   watch: {

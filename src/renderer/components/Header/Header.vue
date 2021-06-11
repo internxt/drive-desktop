@@ -326,8 +326,8 @@ export default {
         })
       // Resize window to login window
       // const bounds = remote.getCurrentWindow().trayBounds
-      remote.getCurrentWindow().setBounds({ height: 550, width: 450 })
-      remote.getCurrentWindow().center()
+      // remote.getCurrentWindow().setBounds({ height: 550, width: 450 })
+      // remote.getCurrentWindow().center()
       this.$router.push('/').catch(() => {})
     })
 
