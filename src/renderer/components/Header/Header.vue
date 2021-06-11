@@ -308,7 +308,7 @@ export default {
     })
     Monitor.Monitor(true)
     remote.app.on('user-logout', async (saveData = false) => {
-      remote.app.emit('sync-stop', false)
+      remote.app.emit('sync-stop')
       await database.logOut(saveData)
       analytics
         .track({
@@ -332,7 +332,7 @@ export default {
     })
 
     remote.app.on('new-folder-path', async newPath => {
-      remote.app.emit('sync-stop', false)
+      remote.app.emit('sync-stop')
       await database.ClearAll()
       await database.Set('lastSyncSuccess', false)
       database.Set('xPath', newPath)
@@ -364,7 +364,7 @@ export default {
     },
     // Quit
     quitApp() {
-      remote.app.emit('sync-stop', false)
+      remote.app.emit('sync-stop')
       remote.app.emit('app-close')
     },
     // Open modal account
