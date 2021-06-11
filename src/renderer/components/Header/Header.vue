@@ -386,9 +386,7 @@ export default {
       this.showSettingsModal = false
     },
     OpenSyncSettingsModal(syncOption) {
-      console.log(syncOption, this.CheckedValue)
       if (this.CheckedValue !== syncOption) {
-        console.log('inside')
         this.selectedSyncOption = syncOption
         this.showSyncSettingsModal = true
       }
