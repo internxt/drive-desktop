@@ -315,10 +315,12 @@ export default {
             ConfigStore.set('stopSync', false)
             // this.$router.push('/landing-page').catch(() => {})
             if (!savedCredentials) {
-              remote.getCurrentWindow().setBounds({ width: 800, height: 500 })
+              // remote.getCurrentWindow().setBounds({ width: 800, height: 500 })
+              remote.app.emit('window-pushed-to', '/onboarding')
               this.$router.push('/onboarding').catch(() => {})
               remote.app.emit('enter-login', false)
             } else {
+              remote.app.emit('window-pushed-to', '/xcloud')
               this.$router.push('/xcloud').catch(() => {})
               remote.app.emit('enter-login', false)
             }

@@ -271,7 +271,8 @@ export default {
       await database.ClearAll()
       await database.Set('lastSyncSuccess', false)
       database.Set('xPath', newPath)
-      this.$router.push('/').catch(() => {})
+      remote.app.emit('window-pushed-to', '/xcloud')
+      this.$router.push('/xcloud').catch(() => {})
     })
   },
   updated: function() {

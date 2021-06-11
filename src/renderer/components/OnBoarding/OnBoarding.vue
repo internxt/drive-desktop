@@ -221,6 +221,7 @@ export default {
       this.currentSlide = payload.currentSlide
     },
     finishOnboarding() {
+      remote.app.emit('window-pushed-to', '/xcloud')
       this.$router.push('/xcloud').catch(() => {})
       remote.app.emit('enter-onboarding', false)
     }
