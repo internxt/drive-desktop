@@ -11,9 +11,7 @@ const dimentions = {
     width: 450,
     height: 360
   }
-}
-
-class Dimentions {
+}/* class Dimentions {
   dimentions = dimentions
 
   constructor(trayMenu, screen) {
@@ -48,5 +46,6 @@ class Dimentions {
     }
   }
 }
+*/
 
-module.exports = Dimentions
+module.exports = dimentions

@@ -21,7 +21,7 @@ import fs from 'fs'
 import ConfigStore from './config-store'
 import TrayMenu from './traymenu'
 import FileLogger from '../renderer/logic/FileLogger'
-import Dimentions from './window-dimentions/dimentions'
+import dimentions from './window-dimentions/dimentions'
 
 require('@electron/remote/main').initialize()
 AutoLaunch.configureAutostart()
@@ -53,8 +53,7 @@ if (!app.requestSingleInstanceLock()) {
   app.quit()
 }
 
-/*
-const getWindowPos = () => {
+function getWindowPos() {
   const trayBounds = trayMenu.tray.getBounds()
   const display = electron.screen.getDisplayMatching(trayBounds)
   let x = Math.min(
@@ -74,14 +73,20 @@ const getWindowPos = () => {
     y: y
   }
 }
-*/
+
+function getDimentions(route) {
+  if (route === '/xcloud') {
+    return Object.assign(dimentions[route], getWindowPos())
+  } else {
+    return dimentions[route]
+  }
+}
 
 function createWindow() {
   trayMenu = new TrayMenu(mainWindow)
   trayMenu.init()
   trayMenu.setToolTip('Internxt Drive ' + PackageJson.version)
 
-  const windowDimentions = new Dimentions(trayMenu, electron.screen)
   mainWindow = new BrowserWindow({
     webPreferences: {
       nodeIntegration: true,
@@ -130,7 +135,10 @@ function createWindow() {
 
   app.on('window-pushed-to', route => {
     // changing windowDimentions accordingly
-    mainWindow.setBounds(Dimentions.getDimentions(route))
+    mainWindow.setBounds(getDimentions(route))
+    if (route !== '/xcloud') {
+      mainWindow.center()
+    }
   })
 
   const edit = {
@@ -230,7 +238,7 @@ function showMainWindows() {
     if (mainWindow.isVisible()) {
       mainWindow.hide()
     } else {
-      mainWindow.setBounds(Dimentions.getDimentions('xcloud'))
+      mainWindow.setBounds(getDimentions('xcloud'))
       mainWindow.show()
     }
   }
