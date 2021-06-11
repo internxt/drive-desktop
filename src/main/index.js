@@ -80,7 +80,7 @@ function createWindow() {
       contextIsolation: false,
       webSecurity: process.env.NODE_ENV !== 'development',
       enableRemoteModule: true,
-      devTools: process.env.NODE_ENV !== 'development'
+      devTools: process.env.NODE_ENV === 'development'
     },
     movable: nonMovableProp,
     width: 450,
