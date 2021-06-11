@@ -128,7 +128,6 @@ function createWindow() {
   })
 
   app.on('update-configStore', item => {
-    console.log('Arrived Event Hello Joan')
     const [key, value] = Object.entries(item)[0]
     ConfigStore.set(key, value)
   })

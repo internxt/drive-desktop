@@ -28,9 +28,8 @@
               <div>
                 <div v-if="item.filename.length < 30">{{ item.filename }}</div>
                 <div v-if="item.filename.length >= 30">{{ item.filename.substr(0,30) }}...</div>
-                <div class="text-xs text-gray-500">
-                  <span class="text-green-500">{{ formatNumberPercent(item.progress) }} %</span> File
-                  successfully synchronized
+                <div class="text-xs text-gray-500"> 
+                  File successfully synchronized
                 </div>
               </div>
             </div>
@@ -48,16 +47,26 @@
               </div>
             </div>
 
-            <!-- <div class="flex mb-2" v-if="!item.state">
+            <div class="flex mb-2" v-if="!item.state">
               <UilFileUpload class="text-2xl mr-3 fill-current text-blue-400" />
               <div>
                 <div>{{ item.filename }}</div>
                 <div class="text-xs text-gray-500">
-                  <span class="text-red-500">{{ formatNumberPercent(item.progress) }} %</span> Start
-                  Synchronizing file...
+                  <span class="text-red-500">{{ formatNumberPercent(item.progress) }} %</span> 
+                    Start Synchronizing file...
+                  </div>
+              </div>
+            </div>
+
+            <div class="flex mb-2" v-if="item.action === 'remove'">
+              <UilFileTimes class="text-2xl mr-3 fill-current text-red-500"/>
+              <div>
+                <div>{{ item.filename }}</div>
+                <div class="text-xs text-red-500">
+                      File removed
                 </div>
               </div>
-            </div> -->
+            </div>
 
           </div>
         </div>
@@ -75,7 +84,8 @@ import {
   UilFileCheckAlt,
   UilFileUpload,
   UilFileExclamation,
-  UilFileBlank
+  UilFileBlank,
+  UilFileTimes
 } from '@iconscout/vue-unicons'
 import FileLogger from '../../logic/FileLogger'
 import './FileStatus'
@@ -83,6 +93,7 @@ import CircleWithCloud from '../ExportIcons/CircleWithCloud'
 import ConfigStore from '../../../main/config-store'
 
 const { app } = require('@electron/remote')
+window.FileLogger = FileLogger
 
 export default {
   data() {
@@ -110,6 +121,7 @@ export default {
     },
     statusFile() {
       FileLogger.on('update-last-entry', (item) => {
+        FileLogger.on('update-last-entry', console.log('ITEM', item))
         const newArray = [item, ...this.FileStatusSync]
         this.FileStatusSync = newArray
         return this.FileStatusSync
@@ -129,7 +141,8 @@ export default {
     UilFileUpload,
     UilFileExclamation,
     UilFileBlank,
-    CircleWithCloud
+    CircleWithCloud,
+    UilFileTimes
   }
 }
 </script>
