@@ -54,7 +54,10 @@ const remote = require('@electron/remote')
 export default {
   data() {
     return {
-      syncState: false
+      syncState: false,
+      changeSyncButton: (isSyncing) => {
+        this.syncState = isSyncing
+      }
     }
   },
   methods: {
@@ -75,15 +78,10 @@ export default {
     this.isSyncing = syncState
   },
   created: function () {
-    remote.app.on('sync-off', (isSyncing) => {
-      this.syncState = isSyncing
-    })
-    remote.app.on('sync-stop', (isSyncing) => {
-      this.syncState = isSyncing
-    })
-    // remote.app.on('sync-on', (isSyncing) => {
-    //   this.syncState = isSyncing
-    // })
+    remote.app.on('sync-off', this.changeSyncButton)
+  },
+  beforeDestroy: function() {
+    remote.app.removeListener('sync-off', this.changeSyncButton)
   },
   updated: function () {
   },
