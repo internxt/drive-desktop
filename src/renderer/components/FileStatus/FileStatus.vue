@@ -58,6 +58,7 @@
                 </div>
               </div>
             </div>
+            {{ item.action.remove }}
 
           </div>
         </div>
@@ -83,6 +84,7 @@ import CircleWithCloud from '../ExportIcons/CircleWithCloud'
 import ConfigStore from '../../../main/config-store'
 
 const { app } = require('@electron/remote')
+FileLogger.on('update-last-entry', a => console.log(a))
 
 export default {
   data() {
