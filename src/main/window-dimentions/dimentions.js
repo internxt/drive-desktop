@@ -17,22 +17,31 @@ class Dimentions {
   dimentions = dimentions
 
   constructor(trayMenu, primaryDisplay) {
-    this.this.trayBounds = trayMenu.tray.getBounds()
+    this.trayBounds = trayMenu.tray.getBounds()
     this.display = primaryDisplay
+    const coordinatesTrayIcon = this.getLoggerWindowPos()
 
-    this.dimentions['/xcloud'].x = this.this.trayBounds.x
-    this.dimentions['/xcloud'].y = this.this.trayBounds.y
+    this.dimentions['/xcloud'].x = coordinatesTrayIcon.x
+    this.dimentions['/xcloud'].y = coordinatesTrayIcon.y
   }
 
   getDimentions(route) {
     return this.dimentions[route]
   }
 
-  getWindowPosition() {
-    let x = Math.min(this.trayBounds.x - 450 / 2, this.display.width - 450)
-    x = Math.max(this.display.x, x)
-    let y = Math.min(this.trayBounds.y - 360 / 2, this.display.height - 360)
-    y = Math.max(this.display.y, y)
+  getLoggerWindowPos() {
+    let x = Math.min(
+      this.trayBounds.x - this.display.workArea.x - 450 / 2,
+      this.display.workArea.width - 450
+    )
+    x += this.display.workArea.x
+    x = Math.max(this.display.workArea.x, x)
+    let y = Math.min(
+      this.trayBounds.y - this.display.workArea.y - 360 / 2,
+      this.display.workArea.height - 360
+    )
+    y += this.display.workArea.y
+    y = Math.max(this.display.workArea.y, y)
     return {
       x: x,
       y: y
