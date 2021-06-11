@@ -53,11 +53,19 @@ if (!app.requestSingleInstanceLock()) {
 }
 
 const getWindowPos = () => {
-  const display = electron.screen.getPrimaryDisplay()
   const trayBounds = trayMenu.tray.getBounds()
-  let x = Math.min(trayBounds.x - 450 / 2, display.workArea.width - 450)
+  const display = electron.screen.getDisplayMatching(trayBounds)
+  let x = Math.min(
+    trayBounds.x - display.workArea.x - 450 / 2,
+    display.workArea.width - 450
+  )
+  x += display.workArea.x
   x = Math.max(display.workArea.x, x)
-  let y = Math.min(trayBounds.y - 360 / 2, display.workArea.height - 360)
+  let y = Math.min(
+    trayBounds.y - display.workArea.y - 360 / 2,
+    display.workArea.height - 360
+  )
+  y += display.workArea.y
   y = Math.max(display.workArea.y, y)
   return {
     x: x,
@@ -70,7 +78,8 @@ function createWindow() {
   trayMenu.init()
   trayMenu.setToolTip('Internxt Drive ' + PackageJson.version)
   // trayMenu.updateContextMenu()
-  const nonMovableProp = process.platform === 'win32' || process.platform === 'darwin'
+  const nonMovableProp =
+    process.platform === 'win32' || process.platform === 'darwin'
 
   const display = electron.screen.getPrimaryDisplay()
   const trayBounds = trayMenu.tray.getBounds()
@@ -117,7 +126,7 @@ function createWindow() {
     isLogin = setIsLogin
   })
 
-  app.on('update-configStore', (item) => {
+  app.on('update-configStore', item => {
     console.log('Arrived Event Hello Joan')
     const [key, value] = Object.entries(item)[0]
     ConfigStore.set(key, value)
@@ -217,11 +226,9 @@ app.on('show-main-windows', showMainWindows)
 
 function showMainWindows() {
   if (!isOnboarding && !isLogin) {
-    if (lock) {
-      lock = false
+    if (mainWindow.isVisible()) {
       mainWindow.hide()
     } else {
-      lock = true
       const pos = getWindowPos()
       mainWindow.setBounds({ width: 450, height: 360, x: pos.x, y: pos.y })
       mainWindow.show()
@@ -343,17 +350,13 @@ autoUpdater.on('error', err => {
   console.log('update error:', err)
 })
 
-autoUpdater.on('checking-for-update', () => {
-})
+autoUpdater.on('checking-for-update', () => {})
 
-autoUpdater.on('update-available', () => {
-})
+autoUpdater.on('update-available', () => {})
 
-autoUpdater.on('update-not-available', () => {
-})
+autoUpdater.on('update-not-available', () => {})
 
-autoUpdater.on('download-progress', progress => {
-})
+autoUpdater.on('download-progress', progress => {})
 
 autoUpdater.on('update-downloaded', info => {
   Logger.info('New update downloaded, quit and install')
@@ -463,13 +466,11 @@ function checkUpdates() {
     return ManualCheckUpdate()
   }
 
-  autoUpdater
-    .checkForUpdates()
-    .then(UpdateCheckResult => {
-      if (process.env.NODE_ENV !== 'development') {
-        // autoUpdater.updateInfoAndProvider = UpdateCheckResult
-      }
-    })
+  autoUpdater.checkForUpdates().then(UpdateCheckResult => {
+    if (process.env.NODE_ENV !== 'development') {
+      // autoUpdater.updateInfoAndProvider = UpdateCheckResult
+    }
+  })
 }
 
 async function ManualCheckUpdate() {
