@@ -68,7 +68,6 @@ import FileLogger from '../logic/FileLogger'
 window.FileLogger = FileLogger
 
 const remote = require('@electron/remote')
-var t = ''
 
 export default {
   name: 'xcloud-page',
@@ -128,39 +127,6 @@ export default {
     })
     this.$app = this.$electron.remote.app
     Monitor.Monitor(true)
-    remote.app.on('set-tooltip', this.setTooltip)
-    remote.app.on('user-logout', async (saveData = false) => {
-      remote.app.emit('sync-stop', false)
-      await database.logOut(saveData)
-      const localUser = ConfigStore.get('user.uuid')
-      if (localUser) {
-        analytics
-          .track({
-            event: 'user-signout',
-            userId: undefined,
-            platform: 'desktop',
-            properties: {
-              email: 'email'
-            }
-          })
-          .then(() => {
-            analytics.resetUser()
-          })
-          .catch(err => {
-            Logger.error(err)
-          })
-      }
-      this.$router.push('/').catch(() => {})
-    })
-
-    remote.app.on('new-folder-path', async newPath => {
-      remote.app.emit('sync-stop', false)
-      await database.ClearAll()
-      await database.Set('lastSyncSuccess', false)
-      database.Set('xPath', newPath)
-      remote.app.emit('window-pushed-to', '/xcloud')
-      this.$router.push('/xcloud').catch(() => {})
-    })
   },
   methods: {
     quitApp() {
@@ -176,7 +142,7 @@ export default {
       remote.app.emit('sync-start')
     },
     stopSync() {
-      remote.app.emit('sync-stop', false)
+      remote.app.emit('sync-stop')
     },
     unlockDevice() {
       DeviceLock.unlock()
@@ -202,10 +168,6 @@ export default {
           console.error(err)
           this.$data.localPath = 'error'
         })
-    },
-    mysettooltip() {
-      t = t === '' ? 'sadasd' : ''
-      remote.app.emit('set-tooltip', t)
     },
     setTooltip(text) {
       this.toolTip = text
