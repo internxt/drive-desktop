@@ -352,7 +352,7 @@ export default {
       remote.getCurrentWindow().hide()
     },
     quitApp() {
-      remote.app.emit('sync-stop', false)
+      remote.app.emit('sync-stop')
       remote.app.emit('app-close')
     }
   }

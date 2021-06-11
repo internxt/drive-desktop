@@ -137,7 +137,7 @@ class TrayMenu {
       {
         label: 'Stop sync',
         click: function () {
-          app.emit('sync-stop', false)
+          app.emit('sync-stop')
         }
       }
       )
@@ -237,7 +237,7 @@ class TrayMenu {
   }
 
   appClose() {
-    app.emit('sync-stop', false)
+    app.emit('sync-stop')
     app.emit('app-close')
   }
 
