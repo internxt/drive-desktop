@@ -2,7 +2,7 @@
   <div class="overflow-hidden">
     <div class="flex justify-between items-start p-4">
       <div class="flex flex-col">
-        <div class="flex items-center">
+        <div @click="CloseModals()" class="flex items-center cursor-pointer">
           <img src="../../assets/brand/drive-brand.svg" />
           <!-- <InternxtBrand :width="16" :height="16"/> -->
           <!-- <div class="text-gray-800 text-xl font-extrabold ml-1.5">{{ appName }}</div> -->
@@ -254,7 +254,8 @@ import {
   UilUserCircle,
   UilMultiply,
   UilFolderOpen,
-  UilServerConnection
+  UilServerConnection,
+  UilFileTimes
 } from '@iconscout/vue-unicons'
 import 'ant-design-vue/dist/antd.css'
 import InternxtBrand from '../ExportIcons/InternxtBrand'
@@ -345,6 +346,7 @@ export default {
     debug() {},
     // Log out - save folder path whe user log out
     logout() {
+      FileLogger.clearLogger() // Clean app statement
       remote.dialog
         .showMessageBox(remote.getCurrentWindow(), {
           type: 'question',
@@ -366,6 +368,10 @@ export default {
     quitApp() {
       remote.app.emit('sync-stop', false)
       remote.app.emit('app-close')
+    },
+    CloseModals() {
+      this.showSettingsModal = false
+      this.showAccountModal = false
     },
     // Open modal account
     ShowAccountModal() {
@@ -446,7 +452,7 @@ export default {
     },
     // Full sync - Upload only Sync mode
     syncModeChange() {
-      if (this.selectedSyncOption === 'full') {
+      if (this.selectedSyncOption === false) {
         remote.app.emit('update-configStore', { forceUpload: 2 })
         remote.app.emit('update-configStore', { uploadOnly: false })
         this.CheckedValue = false
@@ -507,8 +513,8 @@ export default {
     InternxtBrand,
     UilMultiply,
     UilFolderOpen,
-    UilServerConnection
-    // Drawer
+    UilServerConnection,
+    UilFileTimes
   }
 }
 </script>
