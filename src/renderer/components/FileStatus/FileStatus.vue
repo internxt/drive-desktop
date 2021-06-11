@@ -48,7 +48,7 @@
               </div>
             </div>
 
-            <!-- <div class="flex mb-2" v-if="!item.state">
+            <div class="flex mb-2" v-if="!item.state">
               <UilFileUpload class="text-2xl mr-3 fill-current text-blue-400" />
               <div>
                 <div>{{ item.filename }}</div>
@@ -57,7 +57,7 @@
                   Synchronizing file...
                 </div>
               </div>
-            </div> -->
+            </div>
 
           </div>
         </div>
@@ -110,6 +110,7 @@ export default {
     },
     statusFile() {
       FileLogger.on('update-last-entry', (item) => {
+        FileLogger.on('update-last-entry', console.log('ITEM', item))
         const newArray = [item, ...this.FileStatusSync]
         this.FileStatusSync = newArray
         return this.FileStatusSync
