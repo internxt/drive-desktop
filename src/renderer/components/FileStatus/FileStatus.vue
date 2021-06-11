@@ -58,7 +58,7 @@
                 </div>
               </div>
             </div>
-            {{ item.action.remove }}
+            <div v-if="item.action === 'removed'">{{ item.filename }}</div>
 
           </div>
         </div>
