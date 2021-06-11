@@ -20,7 +20,8 @@
               </div>
             </div>
           </div>
-          <div v-if="item.progress >= 100">
+
+          <div v-if="item.state === 'success' & item.action === 'upload'">
             <div class="flex mb-2" v-if="item.state === 'success' || !item.state">
               <UilFileCheckAlt
                 class="text-2xl mr-3 fill-current text-green-500"
