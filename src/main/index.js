@@ -21,6 +21,7 @@ import fs from 'fs'
 import ConfigStore from './config-store'
 import TrayMenu from './traymenu'
 import FileLogger from '../renderer/logic/FileLogger'
+import Dimentions from './window-dimentions/dimentions'
 
 require('@electron/remote/main').initialize()
 AutoLaunch.configureAutostart()
@@ -130,6 +131,10 @@ function createWindow() {
     console.log('Arrived Event Hello Joan')
     const [key, value] = Object.entries(item)[0]
     ConfigStore.set(key, value)
+  })
+
+  app.on('window-pushed-to', route => {
+
   })
 
   const edit = {
