@@ -24,8 +24,8 @@ function stopUpdateDeviceSync() {
   } else {
     Logger.log('Stopped sync lock update interval')
   }
-  unlock().catch(() => {})
   clearInterval(updateSyncInterval)
+  unlock().catch(() => {})
 }
 
 async function requestSyncLock() {
