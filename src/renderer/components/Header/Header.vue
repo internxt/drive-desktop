@@ -75,7 +75,7 @@
 
         <span class="text-sm text-black">Sync mode</span>
         <form class="mt-2 mb-2">
-          <div @click="OpenSyncSettingsModal('full')" class="radioContainer">
+          <div @click="OpenSyncSettingsModal(false)" class="radioContainer">
             <p class="text-xs text-gray-500 hover:text-blue-500 cursor-pointer">
               Full sync
             </p>
@@ -84,13 +84,8 @@
             <span class="smallCheckmark"></span>
           </div>
 
-          <div
-            @click="OpenSyncSettingsModal('upload')"
-            class="radioContainer mt-1"
-          >
-            <p
-              class="text-xs text-gray-500 hover:text-blue-500 cursor-pointer pt-0.5"
-            >
+          <div @click="OpenSyncSettingsModal(true)" class="radioContainer mt-1">
+            <p class="text-xs text-gray-500 hover:text-blue-500 cursor-pointer pt-0.5">
               Upload only
             </p>
             <input type="radio" name="radio" :checked="CheckedValue" />
@@ -103,12 +98,9 @@
         <div class="flex items-center mt-2">
           <div class="flex items-center">
             <div><UilFolderOpen class="text-blue-600 mr-2 mt-0.5" /></div>
-            <div class="text-xs text-gray-500">{{ this.path }}</div>
+            <p class="text-xs text-gray-500 break-words w-72">{{ this.path }}</p>
           </div>
-          <div
-            v-on:click="changeFolder()"
-            class="text-sm text-blue-600 ml-8 cursor-pointer"
-          >
+          <div v-on:click="changeFolder()" class="text-sm text-blue-600 ml-8 cursor-pointer">
             Change
           </div>
         </div>
@@ -192,7 +184,7 @@
     </transition>
 
     <div
-      v-if="showSyncSettingsModal && selectedSyncOption === 'full'"
+      v-if="showSyncSettingsModal && selectedSyncOption === false"
       class="absolute top-0 left-0 z-20 bg-blue-600 bg-opacity-90 h-full w-full flex flex-col justify-center items-center text-white"
     >
       <h1 class="text-lg text-white font-bold">Attention</h1>
@@ -219,7 +211,7 @@
     </div>
 
     <div
-      v-if="showSyncSettingsModal && selectedSyncOption === 'upload'"
+      v-if="showSyncSettingsModal && selectedSyncOption === true"
       class="absolute top-0 left-0 z-20 bg-blue-600 bg-opacity-90 h-full w-full flex flex-col justify-center items-center text-white"
     >
       <h1 class="text-lg text-white font-bold">Attention</h1>
@@ -394,7 +386,9 @@ export default {
       this.showSettingsModal = false
     },
     OpenSyncSettingsModal(syncOption) {
+      console.log(syncOption, this.CheckedValue)
       if (this.CheckedValue !== syncOption) {
+        console.log('inside')
         this.selectedSyncOption = syncOption
         this.showSyncSettingsModal = true
       }
