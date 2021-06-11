@@ -28,7 +28,7 @@
         <UilCloudDataConnection
           class=" w-10 h-10 fill-current text-white bg-blue-600 text-3xl p-2 rounded-full cursor-pointer hover:bg-indigo-900 shadow-2xl transition duration-500 ease-in-out"
         />
-        <div class="text-xs text-blue-600 mt-1">Full sync</div>
+        <div class="text-center text-xs text-blue-600 mt-1">Sync</div>
       </div>
     </div>
 
