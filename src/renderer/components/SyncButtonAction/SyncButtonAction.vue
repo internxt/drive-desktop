@@ -60,6 +60,12 @@ export default {
       }
     }
   },
+  props: {
+    // setUpdateFlag: {
+    //   type: Function,
+    //   required: false
+    // }
+  },
   methods: {
     cambiarEstado() {},
     debug() {
@@ -67,6 +73,7 @@ export default {
     forceSync() {
       remote.app.emit('sync-start')
       this.syncState = true
+      // this.setUpdateFlag()
     },
     StopForceSync() {
       remote.app.on('sync-off', (_) => {
@@ -87,7 +94,6 @@ export default {
   },
   computed: {},
   name: 'SyncButtonAction',
-  props: {},
   components: {
     UilCloudDataConnection
   }
