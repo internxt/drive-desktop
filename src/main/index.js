@@ -105,7 +105,7 @@ function createWindow() {
     frame: false,
     autoHideMenuBar: false,
     skipTaskbar: process.env.NODE_ENV !== 'development',
-    show: process.env.NODE_ENV === 'development',
+    show: true,
     resizable: process.env.NODE_ENV === 'development',
     menuBarVisible: false,
     centered: true
