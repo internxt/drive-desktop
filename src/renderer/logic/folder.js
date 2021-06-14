@@ -239,14 +239,16 @@ async function createFolders() {
     if (!folder.needSync || state.ignoredState.includes(folder.state)) {
       continue
     }
-    if (folder.state === state.state.DOWNLOAD && !SyncMode.isUploadOnly()) {
-      try {
-        createLocalFolder(select, selectIndex, folder, basePath)
-        continue
-      } catch (e) {
-        Logger.error(`Error creating local folder ${folder.key} Error: ${e}`)
-        continue
+    if (folder.state === state.state.DOWNLOAD) {
+      if (!SyncMode.isUploadOnly()) {
+        try {
+          createLocalFolder(select, selectIndex, folder, basePath)
+        } catch (e) {
+          Logger.error(`Error creating local folder ${folder.key} Error: ${e}`)
+          continue
+        }
       }
+      continue
     }
     if (folder.state === state.state.UPLOAD) {
       if (!folder.nameChecked && invalidName.test(path.basename(folder.key))) {
