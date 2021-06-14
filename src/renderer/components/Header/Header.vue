@@ -445,6 +445,7 @@ export default {
           )
           return
         }
+        this.path = newDir[0]
         remote.app.emit('new-folder-path', newDir[0])
       } else {
         Logger.info('Sync folder change error or cancelled')
