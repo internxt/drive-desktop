@@ -6,7 +6,8 @@
       :appName="appName"
       :emailAccount="emailAccount" />
 
-      <FileStatus />
+      <FileStatus
+      :FileStatusSync="FileStatusSync" />
       <SyncButtonAction  />
 
       <!-- <div id="selectSyncPanel">
@@ -88,8 +89,8 @@ export default {
       emailAccount: null,
       IconClass: 'prueba',
       file: {},
-      FileStatusSync: [],
-      flag: false
+      flag: false,
+      FileStatusSync: []
     }
   },
 
@@ -117,14 +118,22 @@ export default {
       })
   },
   beforeDestroy: function() {
+    FileLogger.removeAllListeners('update-last-entry')
+    FileLogger.removeAllListeners('new-entry')
     remote.app.removeAllListeners('user-logout')
     remote.app.removeAllListeners('new-folder-path')
     remote.app.removeListener('set-tooltip', this.setTooltip)
     remote.app.removeAllListeners('update-last-entry')
   },
   created: function() {
-    FileLogger.on('update-last-entry', (item) => {
-      this.file = item
+    FileLogger.on('update-last-entry', (entry) => {
+      this.FileStatusSync[0] = entry
+    })
+    FileLogger.on('new-entry', (entry) => {
+      if (this.FileStatusSync.length >= 50) {
+        this.FileStatusSync.pop()
+      }
+      this.FileStatusSync.unshift(entry)
     })
     this.$app = this.$electron.remote.app
     Monitor.Monitor(true)
@@ -165,8 +174,7 @@ export default {
         .then(path => {
           this.$data.localPath = path
         })
-        .catch(err => {
-          console.error(err)
+        .catch(() => {
           this.$data.localPath = 'error'
         })
     },
