@@ -6,7 +6,8 @@
       :appName="appName"
       :emailAccount="emailAccount" />
 
-      <FileStatus />
+      <FileStatus
+      :FileStatusSync="FileStatusSync" />
       <SyncButtonAction  />
 
       <!-- <div id="selectSyncPanel">
@@ -88,17 +89,8 @@ export default {
       emailAccount: null,
       IconClass: 'prueba',
       file: {},
-      FileStatusSync: [],
       flag: false,
-      updateLastEntry: (entry) => {
-        this.FileStatusSync[0] = entry
-      },
-      pushEntry: (entry) => {
-        if (this.FileStatusSync.length >= 50) {
-          this.FileStatusSync.pop()
-        }
-        this.FileStatusSync.unshift(entry)
-      }
+      FileStatusSync: []
     }
   },
 
@@ -126,16 +118,23 @@ export default {
       })
   },
   beforeDestroy: function() {
-    remote.app.removeAllListeners('update-last-entry', this.updateLastEntry)
-    remote.app.removeAllListeners('new-entry', this.pushEntry)
+    FileLogger.removeAllListeners('update-last-entry')
+    FileLogger.removeAllListeners('new-entry')
     remote.app.removeAllListeners('user-logout')
     remote.app.removeAllListeners('new-folder-path')
     remote.app.removeListener('set-tooltip', this.setTooltip)
   },
   created: function() {
+    FileLogger.on('update-last-entry', (entry) => {
+      this.FileStatusSync[0] = entry
+    })
+    FileLogger.on('new-entry', (entry) => {
+      if (this.FileStatusSync.length >= 50) {
+        this.FileStatusSync.pop()
+      }
+      this.FileStatusSync.unshift(entry)
+    })
     this.$app = this.$electron.remote.app
-    remote.app.on('update-last-entry', this.updateLastEntry)
-    remote.app.on('new-entry', this.pushEntry)
     Monitor.Monitor(true)
   },
   methods: {
@@ -174,8 +173,7 @@ export default {
         .then(path => {
           this.$data.localPath = path
         })
-        .catch(err => {
-          console.error(err)
+        .catch(() => {
           this.$data.localPath = 'error'
         })
     },

@@ -1,7 +1,6 @@
 <template>
   <div class="bg-white rounded-t-2xl p-4 px-6 h-48 fileStatusBox overflow-scroll">
       <!-- {{this.statusFile()}} -->
-      {{'Switch case'}}
     <div v-if="this.FileStatusSync.length > 0">
       <div class="text-base text-black font-bold mb-3">File status</div>
       <div class="mb-1">
@@ -102,22 +101,22 @@ export default {
   data() {
     return {
       test: {},
-      FileStatusSync: [],
       loading: false
     }
   },
   props: {
-    // FileStatusSync: {
-    //   type: Array,
-    //   required: false
-    // }
+    FileStatusSync: {
+      type: Array,
+      required: false
+    }
   },
   created() {
+  },
+  beforeDestroy: function() {
   },
   mounted: function () {
   },
   updated: function () {
-    this.AllfilesShow()
   },
   destroyed: function () {
   },
