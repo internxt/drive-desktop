@@ -76,12 +76,11 @@ async function updateUsage() {
   }
   await getLimit()
     .then(limit => {
-      /*
-      remote.app.emit('update-storage', {
-        limit: limit
-      })
-      */
-      storage.limit = bytes(limit)
+      if (limit >= 108851651149824) {
+        storage.limit = '\u221E'
+      } else {
+        storage.limit = bytes(limit)
+      }
       // unit = storage.limit.includes('TB') ? 'TB' : 'GB'
       ConfigStore.set('limit', limit)
     })
@@ -91,11 +90,6 @@ async function updateUsage() {
 
   await getUsage()
     .then(usage => {
-      /*
-      remote.app.emit('update-storage', {
-        usage: usage
-      })
-      */
       storage.usage = bytes(usage)
       ConfigStore.set('usage', usage)
     })

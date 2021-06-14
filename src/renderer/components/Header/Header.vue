@@ -216,8 +216,7 @@
     >
       <h1 class="text-lg text-white font-bold">Attention</h1>
       <p class="text-base text-center w-72 mt-3">
-        By changing to Upload only you can only upload files. This way, you will
-        be able to delete files locally whitout losing them from your cloud.
+        By changing to Upload only you will be able to delete files locally whitout losing them from your cloud. This option is perfect for backups.
       </p>
 
       <div class="mt-4">
@@ -349,7 +348,7 @@ export default {
           default: 1,
           cancelId: 1,
           title: 'Dialog',
-          message: 'Would you like to save your login data'
+          message: 'Would you like to remember where your sync folder is the next time you log in?'
         })
         .then(userResponse => {
           if (userResponse.response === 0) {
