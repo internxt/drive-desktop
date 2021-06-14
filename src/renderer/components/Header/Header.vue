@@ -164,7 +164,7 @@
         <div
           class="text-sm hover:text-blue-600 cursor-pointer mt-3"
         >
-          <a href="https://drive.internxt.com/storage">Billing</a>
+          <a @click="openLinkBilling()">Billing</a>
         </div>
         <div>
           <div
@@ -353,6 +353,9 @@ export default {
   updated: function() {},
   methods: {
     debug() {},
+    openLinkBilling() {
+      remote.shell.openExternal('https://drive.internxt.com/storage')
+    },
     // Log out - save folder path whe user log out
     stopSync() {
       remote.app.emit('sync-stop')
