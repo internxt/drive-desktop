@@ -4162,11 +4162,6 @@ deep-is@~0.1.3:
   resolved "https://registry.yarnpkg.com/deep-is/-/deep-is-0.1.3.tgz#b369d6fb5dbc13eecf524f91b070feedc357cf34"
   integrity sha1-s2nW+128E+7PUk+RsHD+7cNXzzQ=
 
-deep-object-diff@^1.1.0:
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/deep-object-diff/-/deep-object-diff-1.1.0.tgz#d6fabf476c2ed1751fc94d5ca693d2ed8c18bc5a"
-  integrity sha512-b+QLs5vHgS+IoSNcUE4n9HP2NwcHj7aqnJWsjPtuG75Rh5TOaGt0OjAYInh77d5T16V5cRDC+Pw/6ZZZiETBGw==
-
 deepmerge@^2.1.1:
   version "2.2.1"
   resolved "https://registry.yarnpkg.com/deepmerge/-/deepmerge-2.2.1.tgz#5d3ff22a01c00f645405a2fbc17d0778a1801170"
@@ -4383,11 +4378,6 @@ dir-glob@^2.0.0:
   integrity sha512-f9LBi5QWzIW3I6e//uxZoLBlUt9kcp66qo0sSCxL6YZKc75R1c4MFCoe/LaZiBGmgujvQdxc5Bn3QhfyvK5Hsw==
   dependencies:
     path-type "^3.0.0"
-
-directory-tree@^2.2.4:
-  version "2.2.9"
-  resolved "https://registry.yarnpkg.com/directory-tree/-/directory-tree-2.2.9.tgz#702c193f8b19f1076b585bcf8a2db3b49b11a11c"
-  integrity sha512-BOHxPNvP+XWijPkzoSBvr164IiNxRzvyAiWelbJsU/wG5OYXByer0+Aqo74G1qU+nRKC4yU/czmkmunkWdPPvQ==
 
 dlv@^1.1.3:
   version "1.1.3"
