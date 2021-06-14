@@ -295,6 +295,9 @@ export default {
   },
   beforeDestroy: function() {
     remote.app.removeAllListeners('user-logout')
+    remote.app.removeAllListeners('update-storage')
+    remote.app.removeAllListeners('update-last-entry')
+    remote.app.removeAllListeners('new-folder-path')
   },
   created: function() {
     this.$app = this.$electron.remote.app
