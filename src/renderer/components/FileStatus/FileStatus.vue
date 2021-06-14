@@ -15,7 +15,7 @@
               class="text-2xl mr-3 fill-current text-green-500"
             />
             <div>
-              <div v-if="item.filename.length >= 40">{{ item.filename.substr(0,40) }}...</div>
+              <div>{{ item.filename.substr(0,40) }}...</div>
               <div class="text-xs text-gray-500">
                 {{ item.progress }}% File uploaded
               </div>
@@ -28,7 +28,7 @@
               class="text-2xl mr-3 fill-current text-green-500"
             />
             <div>
-              <div v-if="item.filename.length >= 40">{{ item.filename.substr(0,40) }}...</div>
+              <div>{{ item.filename.substr(0,40) }}...</div>
               <div class="text-xs text-gray-500">
                 {{ item.progress }}% File downloaded
               </div>
@@ -42,7 +42,7 @@
               class="text-2xl mr-3 fill-current text-green-500"
             />
             <div>
-              <div v-if="item.filename.length >= 40">{{ item.filename.substr(0,40) }}...</div>
+              <div>{{ item.filename.substr(0,40) }}...</div>
               <div class="text-xs text-gray-500">
                 File successfully uploaded
               </div>
@@ -55,7 +55,7 @@
               class="text-2xl mr-3 fill-current text-green-500"
             />
             <div>
-              <div v-if="item.filename.length >= 40">{{ item.filename.substr(0,40) }}...</div>
+              <div>{{ item.filename.substr(0,40) }}...</div>
               <div class="text-xs text-gray-500">
                 File successfully downloaded
               </div>
@@ -68,7 +68,7 @@
               class="text-2xl mr-3 fill-current text-red-500"
             />
             <div>
-              <div>{{ item.filename }}</div>
+              <div>{{ item.filename.substr(0,40) }}</div>
               <div class="text-xs text-gray-500">
                 <div class="text-red-500">Error downloading file. Try again.</div>
               </div>
@@ -81,7 +81,7 @@
               class="text-2xl mr-3 fill-current text-red-500"
             />
             <div>
-              <div v-if="item.filename.length >= 40">{{ item.filename.substr(0,40) }}...</div>
+              <div>{{ item.filename.substr(0,40) }}...</div>
               <div class="text-xs text-gray-500">
                 <div class="text-red-500">Error uploading file. Try again</div>
               </div>
@@ -94,7 +94,7 @@
               class="text-2xl mr-3 fill-current text-gray-500"
             />
             <div>
-              <div v-if="item.filename.length >= 40">{{ item.filename.substr(0,40) }}...</div>
+              <div>{{ item.filename.substr(0,40) }}...</div>
               <div class="text-xs text-gray-500">
                 <div class="text-red-500">Error removing file. Try again</div>
               </div>
@@ -108,7 +108,7 @@
               class="text-2xl mr-3 fill-current text-gray-500"
             />
             <div>
-              <div>{{ item.filename }}</div>
+              <div>{{ item.filename.substr(0,40) }}</div>
               <div class="text-xs text-gray-500">
                 <div class="text-red-500">File removed successfully</div>
               </div>
@@ -151,7 +151,6 @@ import CircleWithCloud from '../ExportIcons/CircleWithCloud'
 import ConfigStore from '../../../main/config-store'
 
 const { app } = require('@electron/remote')
-window.FileLogger = FileLogger
 
 export default {
   data() {

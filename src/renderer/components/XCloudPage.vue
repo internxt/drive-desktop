@@ -66,8 +66,6 @@ import FileStatus from '../components/FileStatus//FileStatus'
 import SyncButtonAction from '../components/SyncButtonAction/SyncButtonAction'
 import FileLogger from '../logic/FileLogger'
 
-window.FileLogger = FileLogger
-
 const remote = require('@electron/remote')
 
 export default {
