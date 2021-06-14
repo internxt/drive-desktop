@@ -161,6 +161,11 @@
         >
           Quit
         </div>
+        <div
+          class="text-sm hover:text-blue-600 cursor-pointer mt-3"
+        >
+          <a href="https://drive.internxt.com/storage">Billing</a>
+        </div>
         <div>
           <div
             class="text-xs border border-dashed border-gray-200 p-2 px-3 rounded mt-6"
