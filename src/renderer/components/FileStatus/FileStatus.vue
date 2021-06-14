@@ -10,19 +10,20 @@
           v-for="(item, index) in FileStatusSync"
           v-bind:key="index"
         >
+        <!-- {{ index }} -->
           <div class="flex mb-2" v-if="item.progress < 100">
             <UilFileUpload class="text-2xl mr-3 fill-current text-gray-300" />
             <div>
               <div>{{ item.filename }}</div>
               <div class="text-xs text-gray-500">
                 <span class="text-green-500">{{ formatNumberPercent(item.progress) }} %</span>
-                Synchronizing file upload
+                Synchronizing file
               </div>
             </div>
           </div>
 
-          <div v-if="item.state === 'success' & item.action === 'upload'">
-            <div class="flex mb-2" v-if="item.state === 'success' || !item.state">
+          
+            <div class="flex mb-2" v-if="item.state === 'success' && item.action === 'upload'">
               <UilFileCheckAlt
                 class="text-2xl mr-3 fill-current text-green-500"
               />
@@ -35,7 +36,7 @@
               </div>
             </div>
 
-            <div class="flex mb-2" v-if="item.state === 'error'">
+            <div class="flex mb-2" v-if="item.state === 'error' && item.action === 'upload'">
               <UilFileExclamation
                 class="text-2xl mr-3 fill-current text-red-500"
               />
@@ -48,28 +49,30 @@
               </div>
             </div>
 
-            <div class="flex mb-2" v-if="!item.state">
-              <UilFileUpload class="text-2xl mr-3 fill-current text-blue-400" />
+            <!-- <div class="flex mb-2" v-if="!item.state && item.action === 'upload'">
+              <UilFileUpload class="text-2xl mr-3 fill-current text-gray-400" />
               <div>
                 <div>{{ item.filename }}</div>
                 <div class="text-xs text-gray-500">
-                  <span class="text-red-500">{{ formatNumberPercent(item.progress) }} %</span> 
+                  <span class="text-gray-500">{{ formatNumberPercent(item.progress) }} %</span> 
                     Start Synchronizing file...
                   </div>
               </div>
-            </div>
+            </div> -->
 
+       
             <div class="flex mb-2" v-if="item.action === 'remove'">
               <UilFileTimes class="text-2xl mr-3 fill-current text-red-500"/>
               <div>
                 <div>{{ item.filename }}</div>
+                <!-- <div>{{ item.action }}</div> -->
                 <div class="text-xs text-red-500">
                       File removed
+                      <!-- {{ item.action === 'remove'}} -->
                 </div>
               </div>
             </div>
 
-          </div>
         </div>
       </div>
     </div>
@@ -104,6 +107,12 @@ export default {
       loading: false
     }
   },
+  props: {
+    // FileStatusSync: {
+    //   type: Array,
+    //   required: false
+    // }
+  },
   created() {
   },
   mounted: function () {
@@ -120,23 +129,15 @@ export default {
       })
       return formatter.format(value)
     },
-    statusFile() {
-      FileLogger.on('update-last-entry', (item) => {
-        FileLogger.on('update-last-entry', console.log('ITEM', item))
-        const newArray = [item, ...this.FileStatusSync]
-        this.FileStatusSync = newArray
-        return this.FileStatusSync
-      })
-    },
     AllfilesShow() {
       FileLogger.on('new-emit', (item) => {
+        // console.log(item)
         this.FileStatusSync = item
         return this.FileStatusSync
       })
     }
   },
   name: 'FileStatus',
-  props: {},
   components: {
     UilFileCheckAlt,
     UilFileUpload,

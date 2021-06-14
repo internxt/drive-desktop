@@ -329,6 +329,7 @@ export default {
       // const bounds = remote.getCurrentWindow().trayBounds
       // remote.getCurrentWindow().setBounds({ height: 550, width: 450 })
       // remote.getCurrentWindow().center()
+      // FileLogger.clearLogger()
       this.$router.push('/').catch(() => {})
     })
 
@@ -346,7 +347,6 @@ export default {
     debug() {},
     // Log out - save folder path whe user log out
     logout() {
-      FileLogger.clearLogger() // Clean app statement
       remote.dialog
         .showMessageBox(remote.getCurrentWindow(), {
           type: 'question',

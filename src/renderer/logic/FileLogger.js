@@ -24,7 +24,7 @@ class FileLogger extends EventEmitter {
         // Update the last record in Logger
         Object.assign(this.queue[this.head], item)
         this.emit('update-last-entry', this.getHead())
-        this.emit('new-emit', this.getQueue())
+        this.emit('new-emit', this.getAll())
       } catch (err) {
         Logger.error(err)
       }

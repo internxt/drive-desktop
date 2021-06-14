@@ -7,7 +7,7 @@
       :emailAccount="emailAccount" />
 
       <FileStatus />
-      <SyncButtonAction />
+      <SyncButtonAction  />
 
       <!-- <div id="selectSyncPanel">
         <input type="checkbox" id="carpeta1" checked="false" />
@@ -87,7 +87,9 @@ export default {
       appName: 'Drive',
       emailAccount: null,
       IconClass: 'prueba',
-      file: {}
+      file: {},
+      FileStatusSync: [],
+      flag: false
     }
   },
 
@@ -172,6 +174,12 @@ export default {
     },
     getCurrentEnv() {
       this.$data.currentEnv = process.env.NODE_ENV
+    },
+    // Clear data UI
+    setUpdateFlag() {
+      this.flag = true
+      this.FileStatusSync = []
+      console.log(this.flag)
     }
   }
 }
