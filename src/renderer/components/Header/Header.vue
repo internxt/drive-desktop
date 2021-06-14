@@ -93,6 +93,7 @@
             <span class="smallCheckmark mt-0.5"></span>
           </div>
         </form>
+        <span class="text-xs bg-blue-600 p-1.5 rounded-full text-white px-3 cursor-pointer hover:bg-blue-800" @click="stopSync()">Stop sync</span>
 
         <div class="text-sm mt-3">Change sync folder</div>
         <div class="flex items-center mt-2">
@@ -348,6 +349,9 @@ export default {
   methods: {
     debug() {},
     // Log out - save folder path whe user log out
+    stopSync() {
+      remote.app.emit('sync-stop')
+    },
     logout() {
       remote.dialog
         .showMessageBox(remote.getCurrentWindow(), {
@@ -464,6 +468,7 @@ export default {
         this.CheckedValue = true
       }
       this.showSyncSettingsModal = false
+      this.stopSync()
     },
     // Open logs
     openLogs() {
