@@ -120,6 +120,7 @@ export default {
     remote.app.removeAllListeners('user-logout')
     remote.app.removeAllListeners('new-folder-path')
     remote.app.removeListener('set-tooltip', this.setTooltip)
+    remote.app.removeAllListeners('update-last-entry')
   },
   created: function() {
     FileLogger.on('update-last-entry', (item) => {
