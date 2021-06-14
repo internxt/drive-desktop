@@ -82,7 +82,7 @@ export default {
       databaseUser: '',
       localPath: '',
       currentEnv: '',
-      isSyncing: false,
+      isSyncing: ConfigStore.get('isSyncing'),
       toolTip: '',
       appName: 'Drive',
       emailAccount: null,

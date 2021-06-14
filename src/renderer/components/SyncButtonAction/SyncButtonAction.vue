@@ -48,13 +48,14 @@
 <script>
 import { UilCloudDataConnection } from '@iconscout/vue-unicons'
 import './SyncButtonAction.scss'
+import ConfigStore from '../../../main/config-store'
 
 const remote = require('@electron/remote')
 
 export default {
   data() {
     return {
-      syncState: false,
+      syncState: ConfigStore.get('stopSync'),
       changeSyncButton: (isSyncing) => {
         this.syncState = isSyncing
       }
@@ -72,7 +73,7 @@ export default {
     },
     forceSync() {
       remote.app.emit('sync-start')
-      this.syncState = true
+      // this.syncState = true
       // this.setUpdateFlag()
     },
     StopForceSync() {
@@ -85,10 +86,12 @@ export default {
     this.isSyncing = syncState
   },
   created: function () {
+    remote.app.on('sync-on', this.changeSyncButton)
     remote.app.on('sync-off', this.changeSyncButton)
   },
   beforeDestroy: function() {
     remote.app.removeListener('sync-off', this.changeSyncButton)
+    remote.app.removeListener('sync-on', this.changeSyncButton)
   },
   updated: function () {
   },
