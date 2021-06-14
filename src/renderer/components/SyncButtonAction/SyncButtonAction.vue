@@ -39,7 +39,7 @@
 
       <div class="text-xs text-gray-500 text-center" v-else>
         No synchronizations yet. Start by clicking the
-        <span class="text-blue-600">Full sync</span> button
+        <span class="text-blue-600">Sync</span> button
       </div>
     </div>
   </div>
