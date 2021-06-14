@@ -82,9 +82,6 @@ export default {
       })
     }
   },
-  updateSyncButton(syncState) {
-    this.isSyncing = syncState
-  },
   created: function () {
     remote.app.on('sync-on', this.changeSyncButton)
     remote.app.on('sync-off', this.changeSyncButton)

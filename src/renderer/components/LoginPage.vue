@@ -312,7 +312,8 @@ export default {
             const savedCredentials = await database.logIn(res.data.user.email)
             await database.Set('xUser', res.data)
             await database.compactAllDatabases()
-            ConfigStore.set('stopSync', false)
+            remote.app.emit('update-configStore', {stopSync: false})
+            // ConfigStore.set('stopSync', false)
             // this.$router.push('/landing-page').catch(() => {})
             if (!savedCredentials) {
               // remote.getCurrentWindow().setBounds({ width: 800, height: 500 })

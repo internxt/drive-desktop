@@ -1,26 +1,46 @@
 <template>
   <div class="bg-white rounded-t-2xl p-4 px-6 h-48 fileStatusBox overflow-scroll">
       <!-- {{this.statusFile()}} -->
-    <div v-if="this.FileStatusSync.length > 0">
+      {{this.FileStatusSync}}
       <div class="text-base text-black font-bold mb-3">File status</div>
+    <div v-if="this.FileStatusSync.length > 0">
       <div class="mb-1">
         <div
           class=""
           v-for="(item, index) in FileStatusSync"
           v-bind:key="index"
         >
-        <!-- {{ index }} -->
-          <div class="flex mb-2" v-if="item.progress == null">
-            <UilFileUpload class="text-2xl mr-3 fill-current text-gray-300" />
+
+          <!-- {{ En progreso upload entra aquí }} -->
+          <div class="flex mb-2" v-if="item.state == null && item.action === 'upload'">
+            <UilFileCheckAlt
+              class="text-2xl mr-3 fill-current text-green-500"
+            />
             <div>
-              <div>{{ item.filename }}</div>
+              <div v-if="item.filename.length < 30">{{ item.filename }}</div>
+              <div v-if="item.filename.length >= 30">{{ item.filename.substr(0,30) }}...</div>
               <div class="text-xs text-gray-500">
-                Synchronizing file
+                File successfully synchronized
+              </div>
+            </div>
+          </div>
+
+          <!-- {{ En progreso download entra aquí }} -->
+          <div class="flex mb-2" v-if="item.state == null && item.action === 'download'">
+            <UilFileCheckAlt
+              class="text-2xl mr-3 fill-current text-green-500"
+            />
+            <div>
+              <div v-if="item.filename.length < 30">{{ item.filename }}</div>
+              <div v-if="item.filename.length >= 30">{{ item.filename.substr(0,30) }}...</div>
+              <div class="text-xs text-gray-500">
+                File successfully synchronized
               </div>
             </div>
           </div>
 
 
+          <!-- {{ Upload success }} -->
           <div class="flex mb-2" v-if="item.state === 'success' && item.action === 'upload'">
             <UilFileCheckAlt
               class="text-2xl mr-3 fill-current text-green-500"
@@ -34,7 +54,65 @@
             </div>
           </div>
 
+          <!-- {{ Download success }} -->
+          <div class="flex mb-2" v-if="item.state === 'success' && item.action === 'download'">
+            <UilFileCheckAlt
+              class="text-2xl mr-3 fill-current text-green-500"
+            />
+            <div>
+              <div v-if="item.filename.length < 30">{{ item.filename }}</div>
+              <div v-if="item.filename.length >= 30">{{ item.filename.substr(0,30) }}...</div>
+              <div class="text-xs text-gray-500">
+                File successfully synchronized
+              </div>
+            </div>
+          </div>
+
+          <!-- {{ Download Error }} -->
+          <div class="flex mb-2" v-if="item.state === 'error' && item.action === 'download'">
+            <UilFileExclamation
+              class="text-2xl mr-3 fill-current text-red-500"
+            />
+            <div>
+              <div>{{ item.filename }}</div>
+              <div class="text-xs text-gray-500">
+                <span class="text-red-500">Error</span>
+                file upload. Try again
+              </div>
+            </div>
+          </div>
+
+          <!-- {{ Upload Error }} -->
           <div class="flex mb-2" v-if="item.state === 'error' && item.action === 'upload'">
+            <UilFileExclamation
+              class="text-2xl mr-3 fill-current text-red-500"
+            />
+            <div>
+              <div>{{ item.filename }}</div>
+              <div class="text-xs text-gray-500">
+                <span class="text-red-500">Error</span>
+                file upload. Try again
+              </div>
+            </div>
+          </div>
+
+          <!-- {{ Remove Error }} -->
+          <div class="flex mb-2" v-if="item.state === 'error' && item.action === 'remove'">
+            <UilFileExclamation
+              class="text-2xl mr-3 fill-current text-red-500"
+            />
+            <div>
+              <div>{{ item.filename }}</div>
+              <div class="text-xs text-gray-500">
+                <span class="text-red-500">Error</span>
+                file upload. Try again
+              </div>
+            </div>
+          </div>
+
+
+          <!-- {{ Remove Sccess }} -->
+          <div class="flex mb-2" v-if="item.state === 'success' && item.action === 'remove'">
             <UilFileExclamation
               class="text-2xl mr-3 fill-current text-red-500"
             />
@@ -57,19 +135,6 @@
                   </div>
               </div>
             </div> -->
-
-
-            <div class="flex mb-2" v-if="item.action === 'remove'">
-              <UilFileTimes class="text-2xl mr-3 fill-current text-red-500"/>
-              <div>
-                <div>{{ item.filename }}</div>
-                <!-- <div>{{ item.action }}</div> -->
-                <div class="text-xs text-red-500">
-                      File removed
-                      <!-- {{ item.action === 'remove'}} -->
-                </div>
-              </div>
-            </div>
 
         </div>
       </div>

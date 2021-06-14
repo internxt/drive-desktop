@@ -290,7 +290,9 @@ async function SyncLogic(callback) {
 }
 
 function start(callback, startImmediately = false) {
-  if (ConfigStore.get('isSyncing')) {
+  const isSyncing = ConfigStore.get('isSyncing')
+  Logger.info('isSyncing: %s, startInmediately: %s', isSyncing, startImmediately)
+  if (isSyncing) {
     return Logger.warn('There is an active sync running right now')
   }
   Logger.info('Start sync')
@@ -298,7 +300,7 @@ function start(callback, startImmediately = false) {
   if (!startImmediately) {
     timeout = process.env.NODE_ENV !== 'production' ? 1000 * 30 : 1000 * 60 * 10
   }
-  if (!ConfigStore.get('isSyncing')) {
+  if (!isSyncing) {
     clearTimeout(timeoutInstance)
     Logger.log(
       'Waiting %s secs for next sync. Version: v%s',
