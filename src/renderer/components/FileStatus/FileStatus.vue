@@ -1,7 +1,5 @@
 <template>
   <div class="bg-white rounded-t-2xl p-4 px-6 h-48 fileStatusBox overflow-scroll">
-      <!-- {{this.statusFile()}} -->
-      {{this.FileStatusSync}}
       <div class="text-base text-black font-bold mb-3">File status</div>
     <div v-if="this.FileStatusSync.length > 0">
       <div class="mb-1">
