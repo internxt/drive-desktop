@@ -127,6 +127,10 @@ function createWindow() {
     isLogin = setIsLogin
   })
 
+  app.on('user-logout', () => {
+    FileLogger.clearLogger()
+  })
+
   app.on('update-configStore', item => {
     const [key, value] = Object.entries(item)[0]
     ConfigStore.set(key, value)
