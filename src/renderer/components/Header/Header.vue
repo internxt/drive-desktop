@@ -1,7 +1,7 @@
 <template>
   <div class="overflow-hidden">
-    <div class="flex justify-between items-start p-4">
-      <div class="flex flex-col">
+    <div class="flex justify-between items-start p-4" style="-webkit-app-region: drag">
+      <div class="flex flex-col" style="-webkit-app-region: no-drag;">
         <div @click="CloseModals()" class="flex items-center cursor-pointer">
           <img src="../../assets/brand/drive-brand.svg" />
           <!-- <InternxtBrand :width="16" :height="16"/> -->
@@ -11,7 +11,7 @@
         <div class="text-sm text-gray-500 mt-1">{{ emailAccount }}</div>
       </div>
 
-      <div class="flex items-center justify-center">
+      <div class="flex items-center justify-center" style="-webkit-app-region: no-drag;">
         <!-- {{ this.$data.localPath }} -->
         <!-- <div v-tooltip="{ content: 'Tooltip content here',}" @click="openFolder()"> -->
         <div
@@ -325,6 +325,11 @@ export default {
         .catch(err => {
           Logger.error(err)
         })
+      // Resize window to login window
+      // const bounds = remote.getCurrentWindow().trayBounds
+      // remote.getCurrentWindow().setBounds({ height: 550, width: 450 })
+      // remote.getCurrentWindow().center()
+      // FileLogger.clearLogger()
       this.$router.push('/').catch(() => {})
     })
 
