@@ -400,7 +400,9 @@ async function sincronizeFile() {
         file.state = state.state.IGNORELOCALNOTEXISTS
         file.needSync = false
       }
-      file.nameChecked = true
+      if (parentFolder && parentFolder.nameChecked) {
+        file.nameChecked = true
+      }
       await Database.dbUpdate(
         Database.dbFiles,
         { key: file.key },
