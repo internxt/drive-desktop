@@ -79,6 +79,7 @@ async function uploadFile(
 
   fs.copyFileSync(filePath, tempFile)
   Logger.log('Upload file %s, size: %d', filePath, fileSize)
+
   // Upload new file
   return new Promise((resolve, reject) => {
     FileLogger.push({ filePath: filePath, filename: originalFileName, action: 'encrypt' })
