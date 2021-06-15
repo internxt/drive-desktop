@@ -50,7 +50,7 @@ export default {
   },
 
   beforeCreate() {
-    remote.app.emit('window-hide')
+    remote.app.emit('window-show')
 
     SpaceUsage.updateUsage()
       .then(() => {})
