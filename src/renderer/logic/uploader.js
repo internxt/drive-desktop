@@ -81,6 +81,7 @@ async function uploadFile(
   Logger.log('Upload file %s, size: %d', filePath, fileSize)
   // Upload new file
   return new Promise((resolve, reject) => {
+    FileLogger.push({ filePath: filePath, filename: originalFileName, action: 'encrypt' })
     const state = storj.storeFile(bucketId, tempFile, {
       progressCallback: function(progress, uploadedBytes, totalBytes) {
         let progressPtg = progress * 100

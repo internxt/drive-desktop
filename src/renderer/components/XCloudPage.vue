@@ -1,65 +1,21 @@
 <template>
   <div class="bg-cool-gray-10 overflow:hidden h-full">
-   <div class="text-cool-gray-90"></div>
+    <div class="text-cool-gray-90"></div>
 
-      <Header
-      :appName="appName"
-      :emailAccount="emailAccount" />
+    <Header :appName="appName" :emailAccount="emailAccount" />
 
-      <FileStatus
-      :FileStatusSync="FileStatusSync" />
-      <SyncButtonAction  />
-
-      <!-- <div id="selectSyncPanel">
-        <input type="checkbox" id="carpeta1" checked="false" />
-      </div>
-
-      <div>{{ toolTip ? toolTip : 'Paused' }}</div>
-      <div>
-        <a href="#" @click="quitApp()">Quitttt</a>
-      </div>
-      <div>
-        <a href="#" @click="forceSync()">Force sync</a>
-      </div>
-      <div>
-        <a href="#" @click="unlockDevice()">Unlock this device</a>
-      </div>
-      <div>
-        <a href="#" @click="getUsage()">Get usage</a>
-      </div>
-      <div>
-        <a href="#" @click="logout()">Log out</a>
-      </div>
-      <div>
-        <a href="#" @click="mysettooltip()">Tool tip</a>
-      </div>
-      <div>
-        <a href="#" @click="stopSync()">Stop Sync</a>
-      </div>
-      <div>
-        Path:
-        <a href="#" @click="openFolder()">{{ this.$data.localPath }}</a>
-      </div> -->
-
+    <FileStatus :FileStatusSync="FileStatusSync" />
+    <SyncButtonAction />
   </div>
 </template>
 
 <script>
-import crypt from '../logic/crypt'
-import path from 'path'
-import temp from 'temp'
-import fs, { existsSync } from 'fs'
-import async from 'async'
 import database from '../../database'
-import Sync from '../logic/sync'
-import Uploader from '../logic/uploader'
-import Tree from '../logic/tree'
 import Monitor from '../logic/monitor'
 import Logger from '../../libs/logger'
 import PackageJson from '../../../package.json'
 import DeviceLock from '../logic/devicelock'
 import SpaceUsage from '../logic/utils/spaceusage'
-import analytics from '../logic/utils/analytics'
 import ConfigStore from '../../../src/main/config-store'
 import Header from '../components/Header/Header'
 import FileStatus from '../components/FileStatus//FileStatus'
@@ -100,7 +56,7 @@ export default {
       .catch(() => {})
     database
       .Get('xUser')
-      .then(xUser => {
+      .then((xUser) => {
         const userEmail = xUser.user.email
         this.emailAccount = userEmail
         Logger.info(
@@ -111,11 +67,11 @@ export default {
           PackageJson.version
         )
       })
-      .catch(err => {
+      .catch((err) => {
         console.log('Cannot update tray icon', err.message)
       })
   },
-  beforeDestroy: function() {
+  beforeDestroy: function () {
     FileLogger.removeAllListeners('update-last-entry')
     FileLogger.removeAllListeners('new-entry')
     remote.app.removeAllListeners('user-logout')
@@ -123,7 +79,7 @@ export default {
     remote.app.removeListener('set-tooltip', this.setTooltip)
     remote.app.removeAllListeners('update-last-entry')
   },
-  created: function() {
+  created: function () {
     FileLogger.on('update-last-entry', (entry) => {
       this.FileStatusSync[0] = entry
     })
@@ -169,7 +125,7 @@ export default {
     getLocalFolderPath() {
       database
         .Get('xPath')
-        .then(path => {
+        .then((path) => {
           this.$data.localPath = path
         })
         .catch(() => {
