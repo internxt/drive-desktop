@@ -462,6 +462,11 @@ async function uploadFile(
 ) {
   try {
     remote.app.emit('set-tooltip', `Uploading file ${file.key}`)
+    FileLogger.push({
+      filePath: file.key,
+      filename: path.basename(file.key),
+      action: 'upload'
+    })
     const newFileInfo = await Uploader.uploadFile(
       file.key,
       localFile,

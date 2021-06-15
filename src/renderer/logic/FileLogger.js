@@ -18,11 +18,13 @@ class FileLogger extends EventEmitter {
       // Create First record in Logger
       this.queue[this.head] = item
       this.emit('new-entry', this.getHead())
+      this.emit('update-last-entry', this.getHead())
       // this.emit('new-emit', this.getAll())
     } else if (item.filePath === this.queue[this.head].filePath) {
       try {
         // Update the last record in Logger
         Object.assign(this.queue[this.head], item)
+        this.emit('update-last-entry', this.getHead())
         this.emit('update-last-entry', this.getHead())
       } catch (err) {
         Logger.error(err)
@@ -32,6 +34,7 @@ class FileLogger extends EventEmitter {
       this.head = (this.head + 1) % this.maxSize
       this.queue[this.head] = item
       this.emit('new-entry', this.getHead())
+      this.emit('update-last-entry', this.getHead())
     }
   }
 

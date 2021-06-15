@@ -78,7 +78,7 @@ async function SyncLogic(callback) {
       uploadOnlyMode = false
     }
   }
-  const syncComplete = async function(err) {
+  const syncComplete = async function (err) {
     if (err) {
       Logger.error('Error sync monitor:', err.message ? err.message : err)
       if (/it violates the unique constraint/.test(err.message)) {
