@@ -21,6 +21,7 @@ import Header from '../components/Header/Header'
 import FileStatus from '../components/FileStatus//FileStatus'
 import SyncButtonAction from '../components/SyncButtonAction/SyncButtonAction'
 import FileLogger from '../logic/FileLogger'
+import Vue from 'vue'
 
 const remote = require('@electron/remote')
 
@@ -81,13 +82,15 @@ export default {
   },
   created: function () {
     FileLogger.on('update-last-entry', (entry) => {
-      this.FileStatusSync[0] = entry
+      Vue.set(this.FileStatusSync, 0, entry)
+      // this.$forceUpdate()
     })
     FileLogger.on('new-entry', (entry) => {
       if (this.FileStatusSync.length >= 50) {
         this.FileStatusSync.pop()
       }
       this.FileStatusSync.unshift(entry)
+      this.$forceUpdate()
     })
     this.$app = this.$electron.remote.app
     Monitor.Monitor(true)
