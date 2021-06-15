@@ -150,7 +150,7 @@
         </div>
 
         <div
-          class="text-sm hover:text-blue-600 cursor-pointer mt-3"
+          class="text-sm hover:text-blue-600 cursor-pointer mb-3"
         >
           <a @click="openLinkBilling()">Billing</a>
         </div>
