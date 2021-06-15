@@ -15,7 +15,7 @@
               class="text-2xl mr-3 fill-current text-green-500"
             />
             <div>
-              <div>{{ item.filename.substr(0,40) }}...</div>
+              <div v-if="item.filename.length >= 40">{{ item.filename.substr(0,40) }}...</div>
               <div class="text-xs text-gray-500">
                 {{ item.progress }}% File uploaded
               </div>
@@ -28,7 +28,7 @@
               class="text-2xl mr-3 fill-current text-green-500"
             />
             <div>
-              <div>{{ item.filename.substr(0,40) }}...</div>
+              <div v-if="item.filename.length >= 40">{{ item.filename.substr(0,40) }}...</div>
               <div class="text-xs text-gray-500">
                 {{ item.progress }}% File downloaded
               </div>
@@ -42,7 +42,7 @@
               class="text-2xl mr-3 fill-current text-green-500"
             />
             <div>
-              <div>{{ item.filename.substr(0,40) }}...</div>
+              <div v-if="item.filename.length >= 40">{{ item.filename.substr(0,40) }}...</div>
               <div class="text-xs text-gray-500">
                 File successfully uploaded
               </div>
@@ -51,11 +51,11 @@
 
           <!-- {{ Download success }} -->
           <div class="flex mb-2" v-if="item.state === 'success' && item.action === 'download'">
-            <UilFileCheckAlt
+            <UilFileDownload
               class="text-2xl mr-3 fill-current text-green-500"
             />
             <div>
-              <div>{{ item.filename.substr(0,40) }}...</div>
+              <div v-if="item.filename.length >= 40">{{ item.filename.substr(0,40) }}...</div>
               <div class="text-xs text-gray-500">
                 File successfully downloaded
               </div>
@@ -68,7 +68,7 @@
               class="text-2xl mr-3 fill-current text-red-500"
             />
             <div>
-              <div>{{ item.filename.substr(0,40) }}</div>
+              <div v-if="item.filename.length >= 40">{{ item.filename.substr(0,40) }}...</div>
               <div class="text-xs text-gray-500">
                 <div class="text-red-500">Error downloading file. Try again.</div>
               </div>
@@ -91,12 +91,12 @@
           <!-- {{ Remove Error }} -->
           <div class="flex mb-2" v-if="item.state === 'error' && item.action === 'remove'">
             <UilFileMinusAlt
-              class="text-2xl mr-3 fill-current text-gray-500"
+              class="text-2xl mr-3 fill-current text-red-500"
             />
             <div>
-              <div>{{ item.filename.substr(0,40) }}...</div>
+              <div class="text-gray-500" v-if="item.filename.length >= 40">{{ item.filename.substr(0,40) }}...</div>
               <div class="text-xs text-gray-500">
-                <div class="text-red-500">Error removing file. Try again</div>
+                <div class="text-red-500">Error file upload. Try again</div>
               </div>
             </div>
           </div>
@@ -108,7 +108,7 @@
               class="text-2xl mr-3 fill-current text-gray-500"
             />
             <div>
-              <div>{{ item.filename.substr(0,40) }}</div>
+              <div v-if="item.filename.length >= 40">{{ item.filename.substr(0,40) }}...</div>
               <div class="text-xs text-gray-500">
                 <div class="text-red-500">File removed successfully</div>
               </div>
@@ -143,6 +143,7 @@ import {
   UilFileExclamation,
   UilFileBlank,
   UilFileTimes,
+  UilFileDownload,
   UilFileMinusAlt
 } from '@iconscout/vue-unicons'
 import FileLogger from '../../logic/FileLogger'
@@ -191,6 +192,7 @@ export default {
     UilFileBlank,
     CircleWithCloud,
     UilFileTimes,
+    UilFileDownload,
     UilFileMinusAlt
   }
 }

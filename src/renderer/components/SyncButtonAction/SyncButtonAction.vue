@@ -28,16 +28,16 @@
         <UilCloudDataConnection
           class=" w-10 h-10 fill-current text-white bg-blue-600 text-3xl p-2 rounded-full cursor-pointer hover:bg-indigo-900 shadow-2xl transition duration-500 ease-in-out"
         />
-        <div class="text-center text-xs text-blue-600 mt-1">Sync</div>
+        <div class="text-center text-xs text-blue-600 mt-1 select-none">Sync</div>
       </div>
     </div>
 
     <div class="mt-14">
-      <div v-if="syncState === true" class="text-xs text-gray-500 text-center">
+      <div v-if="syncState === true" class="text-xs text-gray-500 text-center select-none">
         Synchronizing your files...
       </div>
 
-      <div class="text-xs text-gray-500 text-center" v-else>
+      <div class="text-xs text-gray-500 text-center select-none" v-else>
         No synchronizations yet. Start by clicking the
         <span class="text-blue-600">Sync</span> button
       </div>
