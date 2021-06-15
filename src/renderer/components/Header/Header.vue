@@ -13,7 +13,19 @@
 
       <div class="flex items-center justify-center" style="-webkit-app-region: no-drag;">
         <!-- {{ this.$data.localPath }} -->
-        <!-- <div v-tooltip="{ content: 'Tooltip content here',}" @click="openFolder()"> -->
+        <div
+          v-if="!isProduction && false"
+          class="mr-3 cursor-pointer"
+          @click="ShowDevModal()"
+          v-tooltip="{
+            content: 'Dev Mode',
+            placement: 'bottom',
+            delay: { show: 300, hide: 300 }
+          }"
+        >
+          <UilSlidersVAlt class="text-blue-600" size="24px" />
+        </div>
+
         <div
           class="mr-3 cursor-pointer"
           @click="openFolder()"
@@ -184,6 +196,35 @@
       </div>
     </transition>
 
+    <transition
+      enter-class="enter"
+      enter-to-class="enter-to"
+      enter-active-class="slide-enter-active"
+      leave-class="leave"
+      leave-to-class="leave-to"
+      leave-active-class="slide-leave-active"
+    >
+      <div
+        v-if="showDevTools === true"
+        class="bg-white p-4 px-6 w-full h-full fixed rounded-t-2xl z-10"
+      >
+        <div class="flex justify-between">
+          <div class="text-black text-base font-bold mb-3">Dev Mode</div>
+          <div class="cursor-pointer" v-on:click="CloseDevModal()">
+            <UilMultiply class="mr-2 text-blue-600" />
+          </div>
+        </div>
+
+        <a
+          class="btn btn-blue"
+          @click="() => { console.log('HOLA') }"
+        >
+          Log out
+        </a>
+
+      </div>
+    </transition>
+
     <div
       v-if="showSyncSettingsModal && selectedSyncOption === false"
       class="absolute top-0 left-0 z-20 bg-blue-600 bg-opacity-90 h-full w-full flex flex-col justify-center items-center text-white"
@@ -242,11 +283,8 @@
 </template>
 
 <script>
-import { ipcRenderer } from 'electron'
 import Vue from 'vue'
 import '../Header/Header.scss'
-import FolderIcon from '../ExportIcons/FolderIcon'
-import ConfigIcon from '../ExportIcons/ConfigIcon'
 import fs from 'fs-extra'
 import {
   UilFolderNetwork,
@@ -255,7 +293,8 @@ import {
   UilMultiply,
   UilFolderOpen,
   UilServerConnection,
-  UilFileTimes
+  UilFileTimes,
+  UilSlidersVAlt
 } from '@iconscout/vue-unicons'
 import 'ant-design-vue/dist/antd.css'
 import InternxtBrand from '../ExportIcons/InternxtBrand'
@@ -277,7 +316,9 @@ export default {
     return {
       placement: 'left',
       showSettingsModal: false,
+      isProduction: process.env.NODE_ENV === 'production',
       showAccountModal: false,
+      showDevTools: false,
       localPath: '',
       LaunchCheck: ConfigStore.get('autoLaunch'),
       selectedSyncOption: 'none',
@@ -286,7 +327,8 @@ export default {
       usage: '',
       limit: '',
       CheckedValue: ConfigStore.get('uploadOnly'),
-      showSyncSettingsModal: false
+      showSyncSettingsModal: false,
+      console: console
     }
   },
   beforeCreate: function() {
@@ -378,10 +420,18 @@ export default {
     CloseModals() {
       this.showSettingsModal = false
       this.showAccountModal = false
+      this.showDevTools = false
+    },
+    ShowDevModal() {
+      this.CloseModals()
+      this.showDevTools = true
+    },
+    CloseDevModal() {
+      this.showDevTools = false
     },
     // Open modal account
     ShowAccountModal() {
-      this.showSettingsModal = false
+      this.CloseModals()
       this.showAccountModal = !this.showAccountModal
     },
     // Close modal account
@@ -390,7 +440,7 @@ export default {
     },
     // Open modal Settings
     ShowSettingsModal() {
-      this.showAccountModal = false
+      this.CloseModals()
       this.showSettingsModal = !this.showSettingsModal
     },
     // Close Modal Settings
@@ -513,8 +563,6 @@ export default {
     }
   },
   components: {
-    FolderIcon,
-    ConfigIcon,
     UilSetting,
     UilUserCircle,
     UilFolderNetwork,
@@ -522,7 +570,8 @@ export default {
     UilMultiply,
     UilFolderOpen,
     UilServerConnection,
-    UilFileTimes
+    UilFileTimes,
+    UilSlidersVAlt
   }
 }
 </script>

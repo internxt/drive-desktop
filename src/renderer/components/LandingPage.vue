@@ -11,10 +11,8 @@
 <script>
 import SystemInformation from './LandingPage/SystemInformation'
 import database from '../../database'
-import async from 'async'
 import Logger from '../../libs/logger'
 import ConfigStore from '../../main/config-store'
-import fs from 'fs'
 const remote = require('@electron/remote')
 
 export default {
@@ -51,14 +49,10 @@ export default {
       if (ConfigStore.get('showOnboarding')) {
         remote.app.emit('update-configStore', { showOnboarding: false })
         // Show Onboarding
-        // remote.getCurrentWindow().setBounds({ width: 800, height: 500 })
-        // remote.getCurrentWindow().center()
         remote.app.emit('window-pushed-to', '/onboarding')
         this.$router.push('/onboarding').catch(() => {})
       } else {
         // Go to logger
-        // const bounds = remote.getCurrentWindow().trayBounds
-        // remote.app.emit('show-main-windows')
         remote.app.emit('window-pushed-to', '/xcloud')
         this.$router.push('/xcloud').catch(() => {})
       }
