@@ -291,7 +291,6 @@ async function SyncLogic(callback) {
 
 function start(callback, startImmediately = false) {
   const isSyncing = ConfigStore.get('isSyncing')
-  Logger.info('isSyncing: %s, startInmediately: %s', isSyncing, startImmediately)
   if (isSyncing) {
     return Logger.warn('There is an active sync running right now')
   }
