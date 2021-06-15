@@ -78,7 +78,7 @@ async function SyncLogic(callback) {
       uploadOnlyMode = false
     }
   }
-  const syncComplete = async function(err) {
+  const syncComplete = async function (err) {
     if (err) {
       Logger.error('Error sync monitor:', err.message ? err.message : err)
       if (/it violates the unique constraint/.test(err.message)) {
@@ -291,7 +291,6 @@ async function SyncLogic(callback) {
 
 function start(callback, startImmediately = false) {
   const isSyncing = ConfigStore.get('isSyncing')
-  Logger.info('isSyncing: %s, startInmediately: %s', isSyncing, startImmediately)
   if (isSyncing) {
     return Logger.warn('There is an active sync running right now')
   }

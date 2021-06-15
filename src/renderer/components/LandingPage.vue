@@ -39,8 +39,6 @@ export default {
       await database.ClearAll()
       await database.compactAllDatabases()
 
-      // remote.getCurrentWindow().setBounds({ width: 450, height: 360 })
-      // remote.getCurrentWindow().center()
       remote.app.emit('window-pushed-to', '/login')
       this.$router.push('/login').catch(() => {})
       remote.app.emit('enter-login', true)

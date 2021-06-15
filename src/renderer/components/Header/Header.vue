@@ -14,7 +14,7 @@
       <div class="flex items-center justify-center" style="-webkit-app-region: no-drag;">
         <!-- {{ this.$data.localPath }} -->
         <div
-          v-if="!isProduction && false"
+          v-if="!isProduction"
           class="mr-3 cursor-pointer"
           @click="ShowDevModal()"
           v-tooltip="{
@@ -150,6 +150,12 @@
         </div>
 
         <div
+          class="text-sm hover:text-blue-600 cursor-pointer mb-3"
+        >
+          <a @click="openLinkBilling()">Billing</a>
+        </div>
+
+        <div
           v-on:click="openLogs()"
           class="text-sm mb-3 hover:text-blue-600 cursor-pointer"
         >
@@ -173,11 +179,7 @@
         >
           Quit
         </div>
-        <div
-          class="text-sm hover:text-blue-600 cursor-pointer mt-3"
-        >
-          <a @click="openLinkBilling()">Billing</a>
-        </div>
+        
         <div>
           <div
             class="text-xs border border-dashed border-gray-200 p-2 px-3 rounded mt-6"
@@ -219,6 +221,26 @@
             <UilMultiply class="mr-2 text-blue-600" />
           </div>
         </div>
+
+        <div>
+          <a
+            class="btn btn-blue"
+            @click="UnlockDevice()"
+          >
+            Unlock device
+          </a>
+        </div>
+
+        <div>
+          <a
+            class="btn btn-blue"
+            @click="stopSync()"
+          >
+            Stop sync
+          </a>
+        </div>
+
+
 
         <a
           class="btn btn-blue"
@@ -312,6 +334,7 @@ import Logger from '../../../libs/logger'
 import path from 'path'
 import electronLog from 'electron-log'
 import VToolTip from 'v-tooltip'
+import DeviceLock from '../../logic/devicelock'
 
 Vue.use(VToolTip)
 const remote = require('@electron/remote')
@@ -553,6 +576,9 @@ export default {
           `mailto:idajggytsuz7jivosite@jivo-mail.com?subject=Support Ticket&body=If you want to upload log files to our tech teams. Please, find them on the Open Logs option in the menu.`
         )
       }
+    },
+    UnlockDevice() {
+      DeviceLock.unlock()
     }
   },
   name: 'Header',

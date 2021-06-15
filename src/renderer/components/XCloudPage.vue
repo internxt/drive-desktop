@@ -1,14 +1,11 @@
 <template>
   <div class="bg-cool-gray-10 overflow:hidden h-full">
-   <div class="text-cool-gray-90"></div>
+    <div class="text-cool-gray-90"></div>
 
-      <Header
-      :appName="appName"
-      :emailAccount="emailAccount" />
+    <Header :appName="appName" :emailAccount="emailAccount" />
 
-      <FileStatus
-      :FileStatusSync="FileStatusSync" />
-      <SyncButtonAction  />
+    <FileStatus :FileStatusSync="FileStatusSync" />
+    <SyncButtonAction />
   </div>
 </template>
 
@@ -24,6 +21,7 @@ import Header from '../components/Header/Header'
 import FileStatus from '../components/FileStatus//FileStatus'
 import SyncButtonAction from '../components/SyncButtonAction/SyncButtonAction'
 import FileLogger from '../logic/FileLogger'
+import Vue from 'vue'
 
 const remote = require('@electron/remote')
 
@@ -52,14 +50,14 @@ export default {
   },
 
   beforeCreate() {
-    remote.app.emit('window-hide')
+    remote.app.emit('window-show')
 
     SpaceUsage.updateUsage()
       .then(() => {})
       .catch(() => {})
     database
       .Get('xUser')
-      .then(xUser => {
+      .then((xUser) => {
         const userEmail = xUser.user.email
         this.emailAccount = userEmail
         Logger.info(
@@ -70,11 +68,11 @@ export default {
           PackageJson.version
         )
       })
-      .catch(err => {
+      .catch((err) => {
         console.log('Cannot update tray icon', err.message)
       })
   },
-  beforeDestroy: function() {
+  beforeDestroy: function () {
     FileLogger.removeAllListeners('update-last-entry')
     FileLogger.removeAllListeners('new-entry')
     remote.app.removeAllListeners('user-logout')
@@ -82,15 +80,17 @@ export default {
     remote.app.removeListener('set-tooltip', this.setTooltip)
     remote.app.removeAllListeners('update-last-entry')
   },
-  created: function() {
+  created: function () {
     FileLogger.on('update-last-entry', (entry) => {
-      this.FileStatusSync[0] = entry
+      Vue.set(this.FileStatusSync, 0, entry)
+      // this.$forceUpdate()
     })
     FileLogger.on('new-entry', (entry) => {
       if (this.FileStatusSync.length >= 50) {
         this.FileStatusSync.pop()
       }
       this.FileStatusSync.unshift(entry)
+      this.$forceUpdate()
     })
     this.$app = this.$electron.remote.app
     Monitor.Monitor(true)
@@ -128,7 +128,7 @@ export default {
     getLocalFolderPath() {
       database
         .Get('xPath')
-        .then(path => {
+        .then((path) => {
           this.$data.localPath = path
         })
         .catch(() => {
