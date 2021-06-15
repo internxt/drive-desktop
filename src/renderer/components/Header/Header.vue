@@ -14,7 +14,7 @@
       <div class="flex items-center justify-center" style="-webkit-app-region: no-drag;">
         <!-- {{ this.$data.localPath }} -->
         <div
-          v-if="!isProduction && false"
+          v-if="!isProduction"
           class="mr-3 cursor-pointer"
           @click="ShowDevModal()"
           v-tooltip="{
@@ -220,6 +220,26 @@
           </div>
         </div>
 
+        <div>
+          <a
+            class="btn btn-blue"
+            @click="UnlockDevice()"
+          >
+            Unlock device
+          </a>
+        </div>
+
+        <div>
+          <a
+            class="btn btn-blue"
+            @click="stopSync()"
+          >
+            Stop sync
+          </a>
+        </div>
+
+
+
         <a
           class="btn btn-blue"
           @click="() => { console.log('HOLA') }"
@@ -312,6 +332,7 @@ import Logger from '../../../libs/logger'
 import path from 'path'
 import electronLog from 'electron-log'
 import VToolTip from 'v-tooltip'
+import DeviceLock from '../../logic/devicelock'
 
 Vue.use(VToolTip)
 const remote = require('@electron/remote')
@@ -553,6 +574,9 @@ export default {
           `mailto:idajggytsuz7jivosite@jivo-mail.com?subject=Support Ticket&body=If you want to upload log files to our tech teams. Please, find them on the Open Logs option in the menu.`
         )
       }
+    },
+    UnlockDevice() {
+      DeviceLock.unlock()
     }
   },
   name: 'Header',
