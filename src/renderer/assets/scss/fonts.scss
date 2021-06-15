@@ -1,0 +1,41 @@
+@font-face {
+    font-family: 'Averta-light';
+    src: local(Averta-light),
+      url(../fonts/averta-light.otf) format("opentype");
+    font-weight: lighter;
+    font-style: lighter;
+    font-stretch: lighter;
+}
+
+@font-face {
+  font-family: 'Averta-regular';
+  src: local(Averta-regular),
+    url(../fonts/averta-regular.otf) format("opentype");
+  font-weight: normal;
+  font-style: normal;
+  font-stretch: normal;
+}
+
+@font-face {
+  font-family: 'Averta-semibold';
+  src: local(Averta-semibold),
+    url(../fonts/averta-semibold.otf) format("opentype");
+  font-weight: bold;
+  font-style: bold;
+  font-stretch: bold;
+}
+@font-face {
+  font-family: 'Averta-bold';
+  src: local(Averta-bold),
+    url(../fonts/averta-bold.otf) format("opentype");
+  font-weight: bolder;
+  font-style: bolder;
+  font-stretch: bolder;
+}
+
+$font-family-sans-serif: 'Averta-light' !default;
+$font-family-monospace:  'Averta-light', Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !default;
+$font-family-base: $font-family-sans-serif !default;
+
+// Bootstrap and its default variables
+// @import "node_modules/bootstrap/scss/bootstrap";

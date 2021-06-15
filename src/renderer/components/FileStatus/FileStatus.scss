@@ -1,0 +1,36 @@
+.fileStatusBox {
+    overflow-y: auto;
+}
+.fileStatusBox::-webkit-scrollbar {
+    width: 4px;               /* width of the entire scrollbar */
+  }
+  
+  .fileStatusBox::-webkit-scrollbar-track {
+    background: white;        /* color of the tracking area */
+  }
+  
+  .fileStatusBox::-webkit-scrollbar-thumb {
+    background-color: #1D4ED8;    /* color of the scroll thumb */
+    border-radius: 20px;       /* roundness of the scroll thumb */
+    // border: 3px solid orange;  /* creates padding around scroll thumb */
+  }
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #1D4ED8 white;
+  }
+  
+  /* Works on Chrome, Edge, and Safari */
+  *::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  *::-webkit-scrollbar-track {
+    background: white;
+  }
+  
+  *::-webkit-scrollbar-thumb {
+    background-color: white;
+    border-radius: 20px;
+    // border: 3px solid orange;
+  }

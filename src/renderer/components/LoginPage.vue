@@ -1,68 +1,102 @@
 <template>
-  <div id="wrapper">
-    <div class="close-button">
-      <button @click="closeApp()">
-        <img src="~@/../resources/icons/close.png" />
-      </button>
+  <!-- <div class="close-button">
+    <button @click="closeApp()">
+      <img src="~@/../resources/icons/close.png" />
+    </button>
+  </div> -->
+
+  <main class="w-full h-full flex flex-col justify-center bg-white px-12 relative">
+    <div class="cursor-pointer absolute top-6 right-6" @click="quitApp()">
+      <UilMultiply class="mr-2 text-blue-600" />
     </div>
-    <main class="centered-container">
-      <div class="login-container-box">
-        <div class="login-title">
-          <img src="~@/../resources/icons/logo.svg" />
-          {{ showTwoFactor ? 'Security Verification' : 'Sign in to Internxt' }}
+
+    <div class="flex flex-row items-center">
+      <img class="w-5" src="../assets/icons/apple/brand-logo.png" />
+      <span class="text-xl text-black font-bold ml-2">{{ showTwoFactor ? 'Security Verification' : 'Sign in to Internxt Drive' }}</span>
+    </div>
+
+    <form class="mt-8 bg-white relative"
+      id="form"
+      @submit="handleFormSubmit"
+    >
+      <input
+        class="w-full h-10 focus:outline-none focus:ring focus:ring-2 focus:border-blue-300 mb-3 border border-gray-300 rounded px-2 text-xs font-bold"
+        v-model="email"
+        type="text"
+        placeholder="Email address"
+        tabindex="0"
+        :disabled="showTwoFactor"
+      />
+      <input
+        v-if="!showTwoFactor"
+        class="w-full h-10 focus:outline-none focus:ring focus:ring-2 focus:border-blue-300 border border-gray-300 rounded px-2 text-xs font-bold"
+        v-model="password"
+        :type="visibility"
+        placeholder="Password"
+        tabindex="0"
+      />
+      <div v-if="showTwoFactor" class="-mb-4">
+        <input
+          class="w-full h-10 focus:outline-none focus:ring focus:ring-2 focus:border-blue-300 border border-gray-300 rounded px-2 text-xs font-bold"
+          v-model="twoFactorCode"
+          type="text"
+          placeholder="Authentication code"
+        />
+        <p class="mt-1">Enter your 6 digit authenticator code above</p>
+    </div>
+
+      <!-- Shows the password -->
+      <div v-if="visibility === 'password' && !showTwoFactor" @click="showPassword()" class="absolute right-6 -mt-7 cursor-pointer">
+        <Eye />
+      </div>
+
+      <!-- Hides the password -->
+      <div v-if="visibility === 'text' && !showTwoFactor" @click="hidePassword()" class="absolute right-6 -mt-7 cursor-pointer">
+        <CrossEye />
+      </div>
+      <!-- <transition
+        enter-class="enter"
+        enter-to-class="enter-to"
+        enter-active-class="slide-enter-active"
+        leave-class="leave"
+        leave-to-class="leave-to"
+        leave-active-class="slide-leave-active"
+      > -->
+        <div v-if="errors.length" class="mt-2 -mb-4">
+          <p v-if="errors.length > 1" class="text-sm text-black font-bold">There have been errors</p>
+          <p v-else class="text-sm text-black font-bold">There has been an error</p>
+
+          <ul class="list-disc ml-6">
+            <li v-for="error in errors" :key="error">
+              {{ error }}
+            </li>
+          </ul>
         </div>
-        <div v-if="!showTwoFactor">
-          <input
-            class="form-control"
-            v-model="username"
-            type="text"
-            placeholder="Email address"
-          />
-          <input
-            class="form-control"
-            v-model="password"
-            type="password"
-            placeholder="Password"
-          />
-          <!-- <div class="form-control-file">
-            <input
-              class="form-control"
-              v-model="storagePath"
-              :disabled="true"
-              type="text" placeholder="Select an empty folder" />
-            <div class="form-control-fake-file"  @click="selectFolder()"></div>
-          </div>-->
-          <!-- <p
-            v-if="storagePath && !isEmptyFolder(storagePath)"
-            class="form-error">
-              This folder is not empty
-          </p>-->
-        </div>
-        <div v-if="showTwoFactor">
-          <div>Enter your 6 digit authenticator code below</div>
-          <input
-            class="form-control"
-            v-model="twoFactorCode"
-            type="text"
-            placeholder="Authentication code"
-          />
+
+      <!-- </transition> -->
+
+      <div class="flex flex-row relative">
+        <div v-if="isLoading" class="flex items-center justify-center absolute bg-blue-500 bottom-2.5 left-0 right-0">
+          <Spinner class="animate-spin z-10" />
         </div>
         <input
-          class="form-control btn-block btn-primary"
+          class="native-key-bindings w-full text-white font-bold mt-8 py-2.5 text-sm rounded focus:outline-none cursor-pointer bg-blue-500"
           type="submit"
-          :disabled="checkForm()"
-          @click="doLogin()"
           value="Sign in"
+          tabindex="-1"
         />
-
-        <div v-if="!showTwoFactor" class="create-account-container">
-          Don't have an Internxt account?
-          <a href="#" @click="open(`${DRIVE_BASE}/new`)">Get one for free!</a>
-        </div>
       </div>
-    </main>
-    <footer>v{{ version }}</footer>
-  </div>
+    </form>
+
+    <div class="flex justify-between text-xs font-bold mt-4">
+      <div class="flex">
+        <span class="text-gray-400">Don't have an Internxt account?</span>
+        <a class="text-blue-400 ml-1" href="#" @click="open(`${DRIVE_BASE}/new`)" tabindex="-1">Get one for free!</a>
+      </div>
+
+      <div class="text-gray-300 text-xs">v{{ version }}</div>
+    </div>
+  </main>
 </template>
 
 <script>
@@ -76,6 +110,10 @@ import packageConfig from '../../../package.json'
 import analytics from '../logic/utils/analytics'
 import ConfigStore from '../../main/config-store'
 import uuid4 from 'uuid4'
+import Spinner from '../components/ExportIcons/Spinner'
+import Eye from '../components/ExportIcons/eye'
+import CrossEye from '../components/ExportIcons/cross-eye'
+import { UilMultiply } from '@iconscout/vue-unicons'
 const remote = require('@electron/remote')
 const ROOT_FOLDER_NAME = 'Internxt Drive'
 const HOME_FOLDER_PATH = remote.app.getPath('home')
@@ -86,19 +124,45 @@ export default {
   beforeCreate() {
     remote.app.emit('window-show')
   },
+  created() {
+  },
   data() {
     return {
-      username: '',
+      email: '',
       password: '',
       showTwoFactor: false,
       twoFactorCode: '',
       isLoading: false,
       DRIVE_BASE: config.DRIVE_BASE,
-      version: packageConfig.version
+      version: packageConfig.version,
+      errors: [],
+      visibility: 'password'
     }
   },
-  components: {},
+  components: {
+    Spinner,
+    Eye,
+    CrossEye,
+    UilMultiply
+  },
   methods: {
+    showPassword() {
+      this.visibility = 'text'
+    },
+    hidePassword() {
+      this.visibility = 'password'
+    },
+    handleFormSubmit(e) {
+      e.preventDefault()
+      this.errors = []
+
+      if (!this.email) this.errors.push('The email must not be empty')
+      if (!this.password) this.errors.push('The password must not be empty')
+
+      if (!this.errors.length && !this.isLoading) {
+        this.doLogin()
+      }
+    },
     open(link) {
       this.$electron.shell.openExternal(link)
     },
@@ -116,21 +180,6 @@ export default {
         return filesInFolder.length === 0
       }
     },
-    checkForm() {
-      if (this.$data.isLoading) {
-        return true
-      }
-      return !this.$data.username || !this.$data.password
-    },
-    // savePathAndLogin () {
-    //   database.Set('xPath', this.$data.storagePath).then(() => {
-    //     this.doLogin()
-    //   }).catch(err => {
-    //     this.$data.isLoading = false
-    //     Logger.error(err)
-    //     alert(err)
-    //   })
-    // },
     createRootFolder(folderName = ROOT_FOLDER_NAME, n = 0) {
       const rootFolderName = folderName + (n ? ` (${n})` : '')
       const rootFolderPath = path.join(HOME_FOLDER_PATH, rootFolderName)
@@ -161,7 +210,7 @@ export default {
           'internxt-client': 'drive-desktop',
           'internxt-version': packageConfig.version
         },
-        body: JSON.stringify({ email: this.$data.username })
+        body: JSON.stringify({ email: this.email })
       })
         .then(async res => {
           const text = await res.text()
@@ -178,7 +227,6 @@ export default {
               .track({
                 anonymousId: anonymousId,
                 event: 'user-signin-attempted',
-                platform: 'desktop',
                 properties: {
                   status: res.res.status,
                   msg: res.body.error
@@ -187,7 +235,10 @@ export default {
               .catch(err => {
                 Logger.error(err)
               })
-            return remote.app.emit('show-error', 'Login error')
+            if (res.body.error) {
+              return this.errors.push(res.body.error)
+            }
+            return this.errors.push('There was an error while logging in')
           }
           if (res.body.tfa && !this.$data.twoFactorCode) {
             this.$data.showTwoFactor = true
@@ -198,7 +249,7 @@ export default {
         })
         .catch(err => {
           this.$data.isLoading = false
-          Logger.error(err)
+          this.errors.push(err)
         })
     },
     async doAccess(sKey) {
@@ -214,7 +265,7 @@ export default {
           'internxt-version': packageConfig.version
         },
         body: JSON.stringify({
-          email: this.$data.username,
+          email: this.email,
           password: encryptedHash,
           tfa: this.$data.twoFactorCode
         })
@@ -234,7 +285,6 @@ export default {
               .track({
                 anonymousId: anonymousId,
                 event: 'user-signin-attempted',
-                platform: 'desktop',
                 properties: {
                   status: res.data.status,
                   msg: res.data.error
@@ -244,37 +294,46 @@ export default {
                 Logger.error(err)
               })
             if (res.data.error) {
-              remote.app.emit('show-error', 'Login error\n' + res.data.error)
+              this.errors.push(res.data.error)
               if (res.data.error.includes('Wrong email')) {
                 this.$data.twoFactorCode = ''
                 this.$data.showTwoFactor = false
               }
             } else {
-              remote.app.emit('show-error', 'Login error')
+              this.errors.push('There was an error while logging in')
             }
           } else {
-            res.data.user.email = this.$data.username.toLowerCase()
+            res.data.user.email = this.email.toLowerCase()
             this.createRootFolder()
             await database.Set(
               'xMnemonic',
               crypt.decryptWithKey(res.data.user.mnemonic, this.$data.password)
             )
+            const savedCredentials = await database.logIn(res.data.user.email)
             await database.Set('xUser', res.data)
-
-            this.$router.push('/landing-page').then(() => {
-              remote.app.emit('show-info', "You've securely logged into Internxt Drive. A native Internxt folder has been created on your OS with your files. You can configure additional functionalities from the Internxt tray icon.", 'Login successful')
-            }).catch(() => {})
+            await database.compactAllDatabases()
+            remote.app.emit('update-configStore', {stopSync: false})
+            // ConfigStore.set('stopSync', false)
+            // this.$router.push('/landing-page').catch(() => {})
+            if (!savedCredentials) {
+              // remote.getCurrentWindow().setBounds({ width: 800, height: 500 })
+              remote.app.emit('window-pushed-to', '/onboarding')
+              this.$router.push('/onboarding').catch(() => {})
+              remote.app.emit('enter-login', false)
+            } else {
+              remote.app.emit('window-pushed-to', '/xcloud')
+              this.$router.push('/xcloud').catch(() => {})
+              remote.app.emit('enter-login', false)
+            }
             analytics
               .identify({
                 userId: undefined,
-                platform: 'desktop',
                 email: 'email'
               })
               .then(() => {
                 analytics.track({
                   userId: undefined,
                   event: 'user-signin',
-                  platform: 'desktop',
                   properties: {
                     email: undefined
                   }
@@ -292,115 +351,11 @@ export default {
     },
     closeApp() {
       remote.getCurrentWindow().hide()
+    },
+    quitApp() {
+      remote.app.emit('sync-stop')
+      remote.app.emit('app-close')
     }
   }
 }
 </script>
-
-<style>
-@import url('https://fonts.googleapis.com/css?family=Source+Sans+Pro');
-
-@font-face {
-  font-family: 'CerebriSans-Regular';
-  src: url('../../resources/fonts/CerebriSans-Regular.ttf');
-}
-
-#wrapper {
-  height: 100%;
-  -webkit-app-region: drag;
-
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.centered-container {
-  -webkit-app-region: no-drag;
-  font-family: 'CerebriSans-Regular';
-}
-
-.logo {
-  width: 50px;
-  display: block;
-}
-
-.form-control {
-  margin-top: 15px;
-  height: 50px !important;
-}
-
-.btn-primary {
-  margin-top: 39px !important;
-  background-color: #4585f5 !important;
-  font-weight: bold !important;
-  outline: none;
-}
-
-.btn-primary:disabled {
-  border: solid 0px;
-}
-
-.login-container-box {
-  background-color: #fff;
-  width: 472px !important;
-  padding: 40px !important;
-}
-
-.login-title {
-  font-size: 25px;
-  font-weight: 600;
-  margin-bottom: 20px;
-}
-
-.login-title img {
-  width: 25px;
-  margin-right: 10px;
-  margin-bottom: 5px;
-}
-
-.create-account-container {
-  margin-top: 39px;
-  color: #909090;
-}
-
-input[type='text']:disabled {
-  background-color: white !important;
-}
-
-input[type='submit']:disabled {
-  background-color: #7aa5ee !important;
-}
-
-.form-error {
-  color: red;
-  font-size: 13px;
-  margin: 0px;
-}
-
-.close-button {
-  align-self: flex-end;
-  opacity: 0;
-}
-
-.close-button button {
-  background-color: transparent;
-  border-width: 0px;
-}
-
-.close-button button:not(:disabled) {
-  cursor: default;
-}
-
-.close-button button:focus {
-  border-width: 0px;
-  outline: none;
-}
-
-footer {
-  color: #d0d0d0;
-  cursor: default;
-  font-size: 14px;
-  margin: 20px;
-}
-</style>

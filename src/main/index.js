@@ -1,13 +1,14 @@
 'use strict'
 
-import {
+import electron, {
   app,
   BrowserWindow,
   Tray,
   Menu,
   shell,
   dialog,
-  powerMonitor
+  powerMonitor,
+  ipcMain
 } from 'electron'
 import path from 'path'
 import Logger from '../libs/logger'
@@ -19,18 +20,24 @@ import fetch from 'electron-fetch'
 import fs from 'fs'
 import ConfigStore from './config-store'
 import TrayMenu from './traymenu'
+import FileLogger from '../renderer/logic/FileLogger'
+import dimentions from './window-dimentions/dimentions'
+
 require('@electron/remote/main').initialize()
 AutoLaunch.configureAutostart()
-
+var lock = false
+let isOnboarding = false
+let isLogin = false
 /**
  * Set `__static` path to static files in production
  * https://simulatedgreg.gitbooks.io/electron-vue/content/en/using-static-assets.html
  */
+
 if (process.env.NODE_ENV !== 'development') {
   global.__static = path.join(__dirname, '/static').replace(/\\/g, '\\\\')
 }
 
-let mainWindow, tray, trayMenu
+let mainWindow, trayMenu
 
 const winURL =
   process.env.NODE_ENV === 'development'
@@ -42,40 +49,100 @@ if (process.platform === 'darwin' && process.env.NODE_ENV !== 'development') {
 }
 
 if (!app.requestSingleInstanceLock()) {
+  FileLogger.saveLogger()
   app.quit()
 }
 
-app.on('update-menu', user => {
-  if (trayMenu) {
-    trayMenu.updateContextMenu(user)
-  } else {
-    Logger.error('No tray to update')
+function getWindowPos() {
+  const trayBounds = trayMenu.tray.getBounds()
+  const display = electron.screen.getDisplayMatching(trayBounds)
+  let x = Math.min(
+    trayBounds.x - display.workArea.x - 450 / 2,
+    display.workArea.width - 450
+  )
+  x += display.workArea.x
+  x = Math.max(display.workArea.x, x)
+  let y = Math.min(
+    trayBounds.y - display.workArea.y - 360 / 2,
+    display.workArea.height - 360
+  )
+  y += display.workArea.y
+  y = Math.max(display.workArea.y, y)
+  return {
+    x: x,
+    y: y
   }
-})
+}
+
+function getDimentions(route) {
+  if (route === '/xcloud') {
+    return Object.assign(dimentions[route], getWindowPos())
+  } else {
+    return dimentions[route]
+  }
+}
 
 function createWindow() {
+  trayMenu = new TrayMenu(mainWindow)
+  trayMenu.init()
+  trayMenu.setToolTip('Internxt Drive ' + PackageJson.version)
+
   mainWindow = new BrowserWindow({
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
       webSecurity: process.env.NODE_ENV !== 'development',
-      enableRemoteModule: true
+      enableRemoteModule: true,
+      devTools: process.env.NODE_ENV === 'development'
     },
-    width: 500,
-    height: 550,
+    movable: true,
+    width: 450,
+    height: 360,
+    // x: display.bounds.width - 450,
+    // y: trayBounds.y,
     useContentSize: true,
-    frame: process.env.NODE_ENV === 'development',
-    autoHideMenuBar: true,
+    // frame: process.env.NODE_ENV === 'development',
+    frame: false,
+    autoHideMenuBar: false,
     skipTaskbar: process.env.NODE_ENV !== 'development',
-    show: process.env.NODE_ENV === 'development'
+    show: true,
+    resizable: process.env.NODE_ENV === 'development',
+    menuBarVisible: false,
+    centered: true
   })
 
-  mainWindow.loadURL(winURL)
+  mainWindow.loadURL(winURL).then(() => {
+    mainWindow.webContents.send('tray-position', { x: 1, y: 1 })
+  })
 
   mainWindow.on('closed', appClose)
   mainWindow.on('close', appClose)
 
   app.on('app-close', appClose)
+
+  app.on('enter-onboarding', setIsOnboarding => {
+    isOnboarding = setIsOnboarding
+  })
+  app.on('enter-login', setIsLogin => {
+    isLogin = setIsLogin
+  })
+
+  app.on('user-logout', () => {
+    FileLogger.clearLogger()
+  })
+
+  app.on('update-configStore', item => {
+    const [key, value] = Object.entries(item)[0]
+    ConfigStore.set(key, value)
+  })
+
+  app.on('window-pushed-to', route => {
+    // changing windowDimentions accordingly
+    mainWindow.setBounds(getDimentions(route))
+    if (route !== '/xcloud') {
+      mainWindow.center()
+    }
+  })
 
   const edit = {
     label: 'Edit',
@@ -83,14 +150,14 @@ function createWindow() {
       {
         label: 'Undo',
         accelerator: 'CmdOrCtrl+Z',
-        click: function () {
+        click: function() {
           self.getWindow().webContents.undo()
         }
       },
       {
         label: 'Redo',
         accelerator: 'CmdOrCtrl+Y',
-        click: function () {
+        click: function() {
           self.getWindow().webContents.redo()
         }
       },
@@ -100,28 +167,28 @@ function createWindow() {
       {
         label: 'Cut',
         accelerator: 'CmdOrCtrl+X',
-        click: function () {
+        click: function() {
           self.getWindow().webContents.cut()
         }
       },
       {
         label: 'Copy',
         accelerator: 'CmdOrCtrl+C',
-        click: function () {
+        click: function() {
           self.getWindow().webContents.copy()
         }
       },
       {
         label: 'Paste',
         accelerator: 'CmdOrCtrl+V',
-        click: function () {
+        click: function() {
           self.getWindow().webContents.paste()
         }
       },
       {
         label: 'Select All',
         accelerator: 'CmdOrCtrl+A',
-        click: function () {
+        click: function() {
           self.getWindow().webContents.selectAll()
         }
       }
@@ -149,7 +216,7 @@ function createWindow() {
       {
         label: 'Developer Tools',
         accelerator: 'Shift+CmdOrCtrl+J',
-        click: function () {
+        click: function() {
           self.getWindow().toggleDevTools()
         }
       }
@@ -162,20 +229,34 @@ function createWindow() {
       view
     ])
   )
-
-  trayMenu = new TrayMenu(mainWindow)
-  trayMenu.init()
-  trayMenu.setToolTip('Internxt Drive ' + PackageJson.version)
-  trayMenu.updateContextMenu()
 }
 
 app.on('ready', () => {
   createWindow()
 })
+app.on('show-main-windows', showMainWindows)
+
+function showMainWindows() {
+  if (!isOnboarding && !isLogin) {
+    if (mainWindow.isVisible()) {
+      mainWindow.hide()
+    } else {
+      mainWindow.setBounds(getDimentions('xcloud'))
+      mainWindow.show()
+    }
+  }
+}
 
 async function appClose() {
   while (ConfigStore.get('updatingDB')) {
-    await new Promise((resolve) => { setTimeout(resolve, 1000) })
+    await new Promise(resolve => {
+      setTimeout(resolve, 1000)
+    })
+  }
+  if (ConfigStore.get('isSyncing')) {
+    await new Promise(resolve => {
+      setTimeout(resolve, 1000)
+    })
   }
   if (mainWindow) {
     mainWindow.destroy()
@@ -184,6 +265,7 @@ async function appClose() {
     trayMenu.destroy()
     trayMenu = null
   }
+  FileLogger.saveLogger()
   app.quit()
 }
 
@@ -197,22 +279,20 @@ app.on('activate', () => {
   }
 })
 
-app.on('before-quit', function (evt) {
+app.on('before-quit', function(evt) {
   if (trayMenu) {
     trayMenu.destroy()
   }
 })
 
-app.on('browser-window-focus', (e, w) => { })
+app.on('browser-window-focus', (e, w) => {})
 
-app.on('sync-on', function () {
+app.on('sync-on', function() {
   trayMenu.setIsLoadingIcon(true)
-  trayMenu.updateSyncState()
 })
 
-app.on('sync-off', function () {
+app.on('sync-off', function() {
   trayMenu.setIsLoadingIcon(false)
-  trayMenu.updateSyncState()
 })
 
 app.on('change-auto-launch', AutoLaunch.configureAutostart)
@@ -221,7 +301,7 @@ function maybeShowWindow() {
   if (mainWindow) {
     mainWindow.show()
   } else {
-    app.on('window-show', function () {
+    app.on('window-show', function() {
       if (mainWindow) {
         mainWindow.show()
       }
@@ -237,7 +317,7 @@ app.on('show-bubble', (title, content) => {
   }
 })
 
-app.on('window-hide', function () {
+app.on('window-hide', function() {
   if (mainWindow) {
     if (process.env.NODE_ENV !== 'development') {
       mainWindow.hide()
@@ -246,7 +326,8 @@ app.on('window-hide', function () {
 })
 
 app.on('set-tooltip', msg => {
-  const message = `Internxt Drive ${PackageJson.version}${msg ? '\n' + msg : ''
+  const message = `Internxt Drive ${PackageJson.version}${
+    msg ? '\n' + msg : ''
   }`
   trayMenu.setToolTip(message)
 })
@@ -277,24 +358,16 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 autoUpdater.on('error', err => {
-  console.log('AUTOUPDATE ERROR', err.message)
+  console.log('update error:', err)
 })
 
-autoUpdater.on('checking-for-update', () => {
-  // console.log('CHECKING FOR UPDATE EVENT')
-})
+autoUpdater.on('checking-for-update', () => {})
 
-autoUpdater.on('update-available', () => {
-  // console.log('AUTOUPDATER UPD AVAIL')
-})
+autoUpdater.on('update-available', () => {})
 
-autoUpdater.on('update-not-available', () => {
-  console.log('NO UPDATES')
-})
+autoUpdater.on('update-not-available', () => {})
 
-autoUpdater.on('download-progress', progress => {
-  // console.log('UPDATE DOWNLOAD', progress.percent)
-})
+autoUpdater.on('download-progress', progress => {})
 
 autoUpdater.on('update-downloaded', info => {
   Logger.info('New update downloaded, quit and install')
@@ -325,7 +398,13 @@ function AnnounceUpdate(version) {
       new BrowserWindow({
         show: false,
         parent: mainWindow,
-        alwaysOnTop: true
+        alwaysOnTop: true,
+        width: 400,
+        height: 500,
+        minWidth: 400,
+        minHeight: 500,
+        maxWidth: 400,
+        maxHeight: 500
       }),
       options
     )
@@ -333,6 +412,7 @@ function AnnounceUpdate(version) {
       UpdateOptions.dialogShow = false
       if (userResponse.response === 0) {
         Logger.log('Update now')
+        ConfigStore.set('showOnboarding', true)
         autoUpdater.quitAndInstall(false, true)
       } else {
         Logger.log('Update later')
@@ -398,16 +478,11 @@ function checkUpdates() {
     return ManualCheckUpdate()
   }
 
-  autoUpdater
-    .checkForUpdates()
-    .then(UpdateCheckResult => {
-      if (process.env.NODE_ENV !== 'development') {
-        // autoUpdater.updateInfoAndProvider = UpdateCheckResult
-      }
-    })
-    .catch(err => {
-      console.log('Error checking updates: %s', err.message)
-    })
+  autoUpdater.checkForUpdates().then(UpdateCheckResult => {
+    if (process.env.NODE_ENV !== 'development') {
+      // autoUpdater.updateInfoAndProvider = UpdateCheckResult
+    }
+  })
 }
 
 async function ManualCheckUpdate() {
@@ -437,10 +512,6 @@ async function ManualCheckUpdate() {
         }
 
         if (result && result.length === 1) {
-          console.log(
-            'Update url available: %s',
-            JSON.stringify(result[0].browser_download_url)
-          )
           return SuggestUpdate(latestVersion, result[0].browser_download_url)
         } else {
           return console.log(
@@ -466,12 +537,12 @@ app.on('ready', () => {
     checkUpdates()
   }, 1000 * 60 * 60 * 6)
 
-  powerMonitor.on('suspend', function () {
+  powerMonitor.on('suspend', function() {
     Logger.warn('User system suspended')
     app.emit('sync-stop')
   })
 
-  powerMonitor.on('resume', function () {
+  powerMonitor.on('resume', function() {
     Logger.warn('User system resumed')
     app.emit('sync-start')
   })

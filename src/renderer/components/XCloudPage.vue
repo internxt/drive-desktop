@@ -1,15 +1,22 @@
 <template>
-  <div id="wrapper">
-    <main>
-      <div id="selectSyncPanel">
+  <div class="bg-cool-gray-10 overflow:hidden h-full">
+   <div class="text-cool-gray-90"></div>
+
+      <Header
+      :appName="appName"
+      :emailAccount="emailAccount" />
+
+      <FileStatus
+      :FileStatusSync="FileStatusSync" />
+      <SyncButtonAction  />
+
+      <!-- <div id="selectSyncPanel">
         <input type="checkbox" id="carpeta1" checked="false" />
       </div>
-      <div class="spinner-border text-primary" role="status">
-        <span class="sr-only"></span>
-      </div>
+
       <div>{{ toolTip ? toolTip : 'Paused' }}</div>
       <div>
-        <a href="#" @click="quitApp()">Quit</a>
+        <a href="#" @click="quitApp()">Quitttt</a>
       </div>
       <div>
         <a href="#" @click="forceSync()">Force sync</a>
@@ -32,8 +39,8 @@
       <div>
         Path:
         <a href="#" @click="openFolder()">{{ this.$data.localPath }}</a>
-      </div>
-    </main>
+      </div> -->
+
   </div>
 </template>
 
@@ -54,23 +61,40 @@ import DeviceLock from '../logic/devicelock'
 import SpaceUsage from '../logic/utils/spaceusage'
 import analytics from '../logic/utils/analytics'
 import ConfigStore from '../../../src/main/config-store'
+import Header from '../components/Header/Header'
+import FileStatus from '../components/FileStatus//FileStatus'
+import SyncButtonAction from '../components/SyncButtonAction/SyncButtonAction'
+import FileLogger from '../logic/FileLogger'
+
 const remote = require('@electron/remote')
-var t = ''
 
 export default {
   name: 'xcloud-page',
+  components: {
+    Header,
+    FileStatus,
+    SyncButtonAction
+  },
+
   data() {
     return {
       databaseUser: '',
       localPath: '',
       currentEnv: '',
-      isSyncing: false,
-      toolTip: ''
+      isSyncing: ConfigStore.get('isSyncing'),
+      toolTip: '',
+      appName: 'Drive',
+      emailAccount: null,
+      IconClass: 'prueba',
+      file: {},
+      flag: false,
+      FileStatusSync: []
     }
   },
-  components: {},
+
   beforeCreate() {
     remote.app.emit('window-hide')
+
     SpaceUsage.updateUsage()
       .then(() => {})
       .catch(() => {})
@@ -78,7 +102,7 @@ export default {
       .Get('xUser')
       .then(xUser => {
         const userEmail = xUser.user.email
-        remote.app.emit('update-menu', userEmail)
+        this.emailAccount = userEmail
         Logger.info(
           'Account: %s, User platform: %s %s, version: %s',
           userEmail,
@@ -92,67 +116,25 @@ export default {
       })
   },
   beforeDestroy: function() {
+    FileLogger.removeAllListeners('update-last-entry')
+    FileLogger.removeAllListeners('new-entry')
     remote.app.removeAllListeners('user-logout')
     remote.app.removeAllListeners('new-folder-path')
     remote.app.removeListener('set-tooltip', this.setTooltip)
+    remote.app.removeAllListeners('update-last-entry')
   },
   created: function() {
+    FileLogger.on('update-last-entry', (entry) => {
+      this.FileStatusSync[0] = entry
+    })
+    FileLogger.on('new-entry', (entry) => {
+      if (this.FileStatusSync.length >= 50) {
+        this.FileStatusSync.pop()
+      }
+      this.FileStatusSync.unshift(entry)
+    })
     this.$app = this.$electron.remote.app
     Monitor.Monitor(true)
-    this.getLocalFolderPath()
-    this.getCurrentEnv()
-    remote.app.on('set-tooltip', this.setTooltip)
-
-    remote.app.on('user-logout', () => {
-      remote.app.emit('sync-stop')
-      database
-        .ClearAll()
-        .then(() => {
-          return database.ClearUser()
-        })
-        .then(() => {
-          Logger.info('databases cleared due to log out')
-          const localUser = ConfigStore.get('user.uuid')
-          database
-            .ClearUser()
-            .then(() => {
-              if (localUser) {
-                analytics
-                  .track({
-                    event: 'user-signout',
-                    userId: undefined,
-                    platform: 'desktop',
-                    properties: {
-                      email: 'email'
-                    }
-                  })
-                  .then(() => {
-                    analytics.resetUser()
-                  })
-                  .catch(err => {
-                    Logger.error(err)
-                  })
-              }
-              database.compactAllDatabases()
-              remote.app.emit('update-menu')
-              this.$router.push('/').catch(() => {})
-            })
-            .catch(err => {
-              Logger.error('ERROR CLEARING USER', err)
-            })
-        })
-        .catch(() => {
-          Logger.error('ERROR CLEARING ALL')
-        })
-    })
-
-    remote.app.on('new-folder-path', async newPath => {
-      remote.app.emit('sync-stop')
-      await database.ClearAll()
-      await database.Set('lastSyncSuccess', false)
-      database.Set('xPath', newPath)
-      this.$router.push('/').catch(() => {})
-    })
   },
   methods: {
     quitApp() {
@@ -172,21 +154,17 @@ export default {
     },
     unlockDevice() {
       DeviceLock.unlock()
-    },
+    }, /*
     changeTrayIconOn() {
       remote.app.emit('sync-on')
-    },
+    }, */
     changeTrayIconOff() {
-      remote.app.emit('sync-off')
+      remote.app.emit('sync-off', false)
     },
     getUser() {},
     getUsage() {
-      SpaceUsage.getLimit().then(limit => {
-        console.log('Limit: ' + limit)
-      })
-      SpaceUsage.getUsage().then(usage => {
-        console.log('Usage: ' + usage)
-      })
+      SpaceUsage.getLimit()
+      SpaceUsage.getUsage()
     },
     getLocalFolderPath() {
       database
@@ -194,20 +172,21 @@ export default {
         .then(path => {
           this.$data.localPath = path
         })
-        .catch(err => {
-          console.error(err)
+        .catch(() => {
           this.$data.localPath = 'error'
         })
-    },
-    mysettooltip() {
-      t = t === '' ? 'sadasd' : ''
-      remote.app.emit('set-tooltip', t)
     },
     setTooltip(text) {
       this.toolTip = text
     },
     getCurrentEnv() {
       this.$data.currentEnv = process.env.NODE_ENV
+    },
+    // Clear data UI
+    setUpdateFlag() {
+      this.flag = true
+      this.FileStatusSync = []
+      console.log(this.flag)
     }
   }
 }

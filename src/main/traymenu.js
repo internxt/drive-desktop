@@ -20,7 +20,7 @@ class TrayMenu {
 
     this.tray = new Tray(trayIcon)
     this.tray.setToolTip('Internxt Drive ' + PackageJson.version)
-
+    this.tray.on('click', () => { app.emit('show-main-windows') })
     this.updateContextMenu()
   }
 
@@ -188,7 +188,7 @@ class TrayMenu {
         label: 'Contact Support',
         click: function () {
           shell.openExternal(
-            `mailto:support@internxt.zohodesk.eu?subject=Support Ticket&body=If you want to upload log files to our tech teams. Please, find them on the Open Logs option in the menu.`
+            `mailto:idajggytsuz7jivosite@jivo-mail.com?subject=Support Ticket&body=If you want to upload log files to our tech teams. Please, find them on the Open Logs option in the menu.`
           )
         }
       },
@@ -210,12 +210,12 @@ class TrayMenu {
       click: this.appClose
     })
 
-    return Menu.buildFromTemplate(Array.concat(userMenu, contextMenuTemplate))
+    // return Menu.buildFromTemplate(Array.concat(userMenu, contextMenuTemplate))
   }
 
   updateContextMenu(user) {
     const ctxMenu = this.generateContextMenu(user)
-    this.tray.setContextMenu(ctxMenu)
+    this.tray.setContextMenu(null)
   }
 
   updateSyncState() {
@@ -237,6 +237,7 @@ class TrayMenu {
   }
 
   appClose() {
+    app.emit('sync-stop')
     app.emit('app-close')
   }
 

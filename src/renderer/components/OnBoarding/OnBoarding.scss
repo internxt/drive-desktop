@@ -1,0 +1,44 @@
+@import "../scss/globals";
+
+.text-gradient {
+  font-family: "Averta-semibold";
+  background: linear-gradient(to right, #30cfd0 0%, #330867 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.h-800 {
+  height: 800px;
+}
+
+.vector {
+  position: absolute;
+  width: 46px;
+  height: 46px;
+  top: -25px;
+  right: -25px;
+  background-color: $blue-60;
+  transform: rotate(45deg);
+}
+
+.hooper-pagination {
+  position: absolute !important;
+  bottom: 12px !important;
+  display: flex !important;
+  right: 150px !important;
+  transform: none !important;
+  padding: 0 !important;
+}
+
+.hooper-indicator {
+  margin: 0 2px !important;
+  width: 19px !important;
+  height: 3px !important;
+  border-radius: 4px !important;
+  padding: 0 !important;
+  background-color: $blue-20 !important;
+  cursor: pointer !important;
+}
+
+.hooper-indicator.is-active {
+  background-color: $blue-50 !important;
+}

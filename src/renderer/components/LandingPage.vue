@@ -4,7 +4,6 @@
       <div class="spinner-grow text-primary" role="status">
         <span class="sr-only">Loading...</span>
       </div>
-      <div><a href="" @click="clearDatabase()">Clear data</a></div>
     </main>
   </div>
 </template>
@@ -12,9 +11,8 @@
 <script>
 import SystemInformation from './LandingPage/SystemInformation'
 import database from '../../database'
-import async from 'async'
 import Logger from '../../libs/logger'
-import fs from 'fs'
+import ConfigStore from '../../main/config-store'
 const remote = require('@electron/remote')
 
 export default {
@@ -29,6 +27,9 @@ export default {
     }
   },
   created: async function () {
+    /*
+     Relogs automatically a user in
+    */
     const xUser = await database.Get('xUser')
     // const xPath = await database.Get('xPath')
     this.$data.dbFolder = database.GetDatabaseFolder
@@ -38,48 +39,28 @@ export default {
       await database.ClearAll()
       await database.compactAllDatabases()
 
+      // remote.getCurrentWindow().setBounds({ width: 450, height: 360 })
+      // remote.getCurrentWindow().center()
+      remote.app.emit('window-pushed-to', '/login')
       this.$router.push('/login').catch(() => {})
+      remote.app.emit('enter-login', true)
     } else {
-      // Check if token is valid
-      this.$router.push('/xcloud').catch(() => {})
+      // Does have credentials saved ? If not show onboarding the user is already singned in so email in configStore
+      if (ConfigStore.get('showOnboarding')) {
+        remote.app.emit('update-configStore', { showOnboarding: false })
+        // Show Onboarding
+        remote.app.emit('window-pushed-to', '/onboarding')
+        this.$router.push('/onboarding').catch(() => {})
+      } else {
+        // Go to logger
+        remote.app.emit('window-pushed-to', '/xcloud')
+        this.$router.push('/xcloud').catch(() => {})
+      }
     }
   },
   methods: {
     opend(link) {
       this.$electron.shell.openExternal(link)
-    },
-    clearDatabase() {
-      const confirmation = confirm(
-        'ATTENTION:\nAll your Internxt Drive data will be lost forever.\n\nContinue?'
-      )
-      if (confirmation) {
-        async.waterfall(
-          [
-            (next) => {
-              database.dbFiles.remove({}, { multi: true }, (err, n) =>
-                next(err, n)
-              )
-            },
-            (next) => {
-              database.dbFolders.remove({}, { multi: true }, (err, n) =>
-                next(err, n)
-              )
-            },
-            (next) => {
-              database.dbUser.remove({}, { multi: true }, (err, n) =>
-                next(err, n)
-              )
-            }
-          ],
-          (err, result) => {
-            if (err) {
-              alert('Error clearing database\n\n' + err)
-            } else {
-              this.$router.push('/login').catch(() => {})
-            }
-          }
-        )
-      }
     }
   }
 }

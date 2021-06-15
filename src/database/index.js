@@ -1,22 +1,25 @@
 import Datastore from 'nedb'
 import path from 'path'
-import fs from 'fs'
+import fs from 'fs-extra'
 import async from 'async'
 import rimraf from 'rimraf'
 import Logger from '../libs/logger'
 const remote = require('@electron/remote')
 
-const OLD_DB_FOLDER = `${process.env.NODE_ENV === 'production'
-  ? remote.app.getPath('home') + `/.xclouddesktop/`
-  : '.'
+const OLD_DB_FOLDER = `${
+  process.env.NODE_ENV === 'production'
+    ? remote.app.getPath('home') + `/.xclouddesktop/`
+    : '.'
 }`
-const OLD_DB_FOLDER2 = `${process.env.NODE_ENV === 'production'
-  ? remote.app.getPath('home') + `/.internxt-desktop/`
-  : '.'
+const OLD_DB_FOLDER2 = `${
+  process.env.NODE_ENV === 'production'
+    ? remote.app.getPath('home') + `/.internxt-desktop/`
+    : '.'
 }`
-const DB_FOLDER = `${process.env.NODE_ENV === 'production'
-  ? remote.app.getPath('userData') + `/.internxt-desktop/`
-  : './database'
+const DB_FOLDER = `${
+  process.env.NODE_ENV === 'production'
+    ? remote.app.getPath('userData') + `/.internxt-desktop/`
+    : './database'
 }`
 
 // Migration from .xclouddesktop and .internxt-desktop to userData
@@ -42,9 +45,7 @@ if (process.env.NODE_ENV === 'production') {
       )
     } else if (oldFolderExists) {
       fs.renameSync(OLD_DB_FOLDER, DB_FOLDER)
-      Logger.info(
-        'Config folder migration success .xclouddesktop > userData'
-      )
+      Logger.info('Config folder migration success .xclouddesktop > userData')
     }
   }
 }
@@ -59,25 +60,33 @@ const dbFiles = new Datastore({
   autoload: true,
   timestampData: true
 })
-dbFiles.ensureIndex({ fieldName: 'key', unique: true }, (err) => { if (err) Logger.error(err) })
+dbFiles.ensureIndex({ fieldName: 'key', unique: true }, err => {
+  if (err) Logger.error(err)
+})
 const dbFilesCloud = new Datastore({
   filename: path.join(DB_FOLDER, 'database_files_cloud.db'),
   autoload: true,
   timestampData: true
 })
-dbFilesCloud.ensureIndex({ fieldName: 'key', unique: true }, (err) => { if (err) Logger.error(err) })
+dbFilesCloud.ensureIndex({ fieldName: 'key', unique: true }, err => {
+  if (err) Logger.error(err)
+})
 const dbFolders = new Datastore({
   filename: path.join(DB_FOLDER, 'database_folders_select.db'),
   autoload: true,
   timestampData: true
 })
-dbFolders.ensureIndex({ fieldName: 'key', unique: true }, (err) => { if (err) Logger.error(err) })
+dbFolders.ensureIndex({ fieldName: 'key', unique: true }, err => {
+  if (err) Logger.error(err)
+})
 const dbFoldersCloud = new Datastore({
   filename: path.join(DB_FOLDER, 'database_folders_cloud.db'),
   autoload: true,
   timestampData: true
 })
-dbFoldersCloud.ensureIndex({ fieldName: 'key', unique: true }, (err) => { if (err) Logger.error(err) })
+dbFoldersCloud.ensureIndex({ fieldName: 'key', unique: true }, err => {
+  if (err) Logger.error(err)
+})
 const dbLastFolders = new Datastore({
   filename: path.join(DB_FOLDER, 'database_last_folders_cloud.db'),
   autoload: true,
@@ -91,12 +100,12 @@ const dbUser = new Datastore({
 
 function InsertKeyValue(db, key, value) {
   return new Promise((resolve, reject) => {
-    db.remove({ key }, { multi: true }, function (err, numRemoved) {
+    db.remove({ key }, { multi: true }, function(err, numRemoved) {
       if (err) {
         console.error('Error removing key/value: %s/%s', key, value)
         reject(err)
       } else {
-        db.insert({ key, value }, function (err, newDoc) {
+        db.insert({ key, value }, function(err, newDoc) {
           if (err) {
             console.error('Error inserting key/value: %s/%s', key, value)
             reject(err)
@@ -283,6 +292,57 @@ const ClearAll = () => {
   })
 }
 
+const logOut = async function(saveData) {
+  if (saveData) {
+    const userEmail = (await Get('xUser')).user.email
+    const userData = path.dirname(DB_FOLDER)
+    const userDbPath = path.join(userData, userEmail)
+    fs.mkdirpSync(userDbPath)
+    fs.copySync(
+      path.join(DB_FOLDER, 'database_user.db'),
+      path.join(userDbPath, 'database_user.db')
+    )
+  }
+  await ClearAll()
+  await ClearUser()
+  Logger.log('databases cleared due to log out')
+  compactAllDatabases()
+}
+
+const logIn = async function(email) {
+  const userData = path.dirname(DB_FOLDER)
+  const userDbPath = path.join(userData, email)
+  if (fs.existsSync(userDbPath)) {
+    try {
+      fs.copySync(
+        path.join(userDbPath, 'database_user.db'),
+        path.join(DB_FOLDER, 'database_user.db')
+      )
+      await new Promise((resolve, reject) => {
+        dbUser.loadDatabase(err => {
+          if (err) {
+            reject(err)
+          } else {
+            resolve()
+          }
+        })
+      })
+      fs.removeSync(userDbPath)
+      const rootPath = await Get('xPath')
+      if (!fs.existsSync(rootPath)) {
+        fs.mkdirpSync(rootPath)
+      }
+      Logger.log('successful load previous user data')
+      return true
+    } catch (err) {
+      Logger.error(`Error reload old userData`)
+      await ClearUser()
+      return true
+    }
+  }
+  return false
+}
+
 export default {
   dbFiles,
   dbFilesCloud,
@@ -311,5 +371,7 @@ export default {
   ClearAll,
   compactAllDatabases,
   GetDatabaseFolder: DB_FOLDER,
-  initDatabase
+  initDatabase,
+  logOut,
+  logIn
 }

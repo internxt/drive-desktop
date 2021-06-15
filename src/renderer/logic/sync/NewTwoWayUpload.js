@@ -30,24 +30,37 @@ function syncStop() {
     ConfigStore.set('isSyncing', false)
     ConfigStore.set('stopSync', true)
   }
-  app.emit('sync-off')
+  app.emit('sync-off', false)
 }
 
 async function SyncLogic(callback) {
   const userDevicesSyncing = await DeviceLock.requestSyncLock()
-  if (userDevicesSyncing.data || ConfigStore.get('isSyncing')) {
-    Logger.warn('sync not started: another device already syncing')
+  if (userDevicesSyncing.error) {
+    Logger.warn(`Error when try to start sync ${userDevicesSyncing.error}`)
     return start(callback)
   }
+  if (userDevicesSyncing.data || ConfigStore.get('isSyncing')) {
+    Logger.warn('sync not started: another device already syncing')
+    app.emit('sync-blocked-by-other-device')
+    return start(callback)
+  }
+  ConfigStore.set('isSyncing', true)
   if (userDevicesSyncing.ensure !== undefined) {
-    File.setEnsureMode(userDevicesSyncing.ensure, userDevicesSyncing.probability)
+    File.setEnsureMode(
+      userDevicesSyncing.ensure,
+      userDevicesSyncing.probability
+    )
   } else {
     File.setEnsureMode(0)
   }
   if (userDevicesSyncing.fullReset) {
     await Database.ClearAll()
   }
-  Logger.info('Sync started')
+  if (ConfigStore.get('resetAll')) {
+    await Database.ClearAll()
+    ConfigStore.set('resetAll', false)
+  }
+  Logger.info('Sync started IsUploadOnly? ', ConfigStore.get('uploadOnly'))
   DeviceLock.startUpdateDeviceSync()
   app.once('sync-stop', syncStop)
   app.once('user-logout', DeviceLock.stopUpdateDeviceSync)
@@ -65,7 +78,7 @@ async function SyncLogic(callback) {
       uploadOnlyMode = false
     }
   }
-  const syncComplete = async function (err) {
+  const syncComplete = async function(err) {
     if (err) {
       Logger.error('Error sync monitor:', err.message ? err.message : err)
       if (/it violates the unique constraint/.test(err.message)) {
@@ -81,7 +94,7 @@ async function SyncLogic(callback) {
     const basePath = await Database.Get('xPath')
     NameTest.removeTestFolder(basePath)
     app.emit('set-tooltip')
-    app.emit('sync-off')
+    app.emit('sync-off', false)
     app.removeListener('sync-stop', syncStop)
     app.removeListener('user-logout', DeviceLock.stopUpdateDeviceSync)
     ConfigStore.set('stopSync', false)
@@ -89,16 +102,13 @@ async function SyncLogic(callback) {
     ConfigStore.set('isSyncing', false)
     const rootFolderExist = await Folder.rootFolderExists()
     if (!rootFolderExist) {
-      await Database.ClearAll()
-      await Database.ClearUser()
-      Database.compactAllDatabases()
       app.emit('user-logout')
       return
     }
     Logger.info('SYNC END')
     SpaceUsage.updateUsage()
-      .then(() => { })
-      .catch(() => { })
+      .then(() => {})
+      .catch(() => {})
     if (err) {
       Logger.error('Error monitor:', err)
     }
@@ -108,7 +118,7 @@ async function SyncLogic(callback) {
   async.waterfall(
     [
       next => {
-        app.emit('sync-on')
+        app.emit('sync-on', true)
         app.emit('set-tooltip', 'Checking root folder')
         Folder.rootFolderExists()
           .then(exists =>
@@ -127,8 +137,7 @@ async function SyncLogic(callback) {
         // New sync started, so we save the current date
         const now = new Date()
         Logger.log('Sync started at', now.toISOString())
-        Database
-          .Set('syncStartDate', now)
+        Database.Set('syncStartDate', now)
           .then(() => next())
           .catch(next)
       },
@@ -141,8 +150,7 @@ async function SyncLogic(callback) {
       },
       next => {
         app.emit('set-tooltip', 'Updating user info')
-        Database
-          .Get('xUser')
+        Database.Get('xUser')
           .then(user => {
             if (!user.user.bucket) {
               Tree.updateUserObject()
@@ -282,7 +290,9 @@ async function SyncLogic(callback) {
 }
 
 function start(callback, startImmediately = false) {
-  if (ConfigStore.get('isSyncing')) {
+  const isSyncing = ConfigStore.get('isSyncing')
+  Logger.info('isSyncing: %s, startInmediately: %s', isSyncing, startImmediately)
+  if (isSyncing) {
     return Logger.warn('There is an active sync running right now')
   }
   Logger.info('Start sync')
@@ -290,7 +300,7 @@ function start(callback, startImmediately = false) {
   if (!startImmediately) {
     timeout = process.env.NODE_ENV !== 'production' ? 1000 * 30 : 1000 * 60 * 10
   }
-  if (!ConfigStore.get('isSyncing')) {
+  if (!isSyncing) {
     clearTimeout(timeoutInstance)
     Logger.log(
       'Waiting %s secs for next sync. Version: v%s',

@@ -1,0 +1,22 @@
+@import "../scss/globals";
+
+html {
+  background-color: transparent;
+}
+
+  body {
+    @include text-sm ;
+    color: $cool-gray-80;
+    margin: 0px;
+    font-weight: normal;
+    background-color: $cool-gray-10;
+    font-variant: normal;
+    font-feature-settings: normal;
+  }
+  // .mainTitle {
+    
+  // }
+  .subTitle {
+    @include text-sm-bolder;
+    color: $cool-gray-80;
+  }

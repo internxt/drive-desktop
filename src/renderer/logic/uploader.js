@@ -6,6 +6,7 @@ import BridgeService from './BridgeService'
 import File from './file'
 import Hash from './utils/Hash'
 import getEnvironment from './utils/libinxt'
+import FileLogger from './FileLogger'
 
 const { app } = require('@electron/remote')
 
@@ -40,7 +41,6 @@ async function uploadFile(
   const encryptedFileName = encryptedName
 
   app.emit('set-tooltip', 'Encrypting ' + originalFileName)
-
   // File extension
   const fileNameParts = path.parse(originalFileName)
   const fileExt = fileNameParts.ext ? fileNameParts.ext.substring(1) : ''
@@ -54,15 +54,19 @@ async function uploadFile(
     await File.removeFile(bucketId, fileId, filePath, true)
   }
   if (fileSize === 0) {
+    // Lanzar errores sustituyendo return y quitar notificacion
+    // FileLogger.push({ filePath, originalFileName, state: 'error', de'Empty files upload not supported.' })
     Logger.warn('Warning:File %s, Filesize 0.', filePath)
-    return
+    throw new Error(`Warning:File %s, Filesize 0. ${filePath}`)
   }
   if (fileSize >= 1024 * 1024 * 1024 * 10) {
+    // Lanzar errores sustituyendo return y quitar notificacion
+    // FileLogger.push(filePath, originalFileName, 'upload', 'error', undefined, 'Upload of files larger than 10GB not supported.')
     Logger.warn('Warning:File %s, Filesize larger than 10GB.', filePath)
-    return
+    throw new Error(`Warning:File %s, Filesize larger than 10GB. ${filePath}`)
   }
   // Copy file to temp folder
-  const tempPath = path.join(app.getPath('home'), '.internxt-desktop', 'tmp')
+  const tempPath = path.join(app.getPath('userData'), '.internxt-desktop', 'tmp')
   if (!fs.existsSync(tempPath)) {
     mkdirp.sync(tempPath)
   }
@@ -85,6 +89,9 @@ async function uploadFile(
           'set-tooltip',
           'Uploading ' + originalFileName + ' (' + progressPtg + '%)'
         )
+        FileLogger.push({
+          filePath, filename: originalFileName, action: 'upload', progress: progressPtg
+        })
       },
       finishedCallback: async function(err, newFileId) {
         let text
@@ -103,10 +110,12 @@ async function uploadFile(
             if (fileExistsPattern.exec(err)) {
               newFileId = await BridgeService.findFileByName(bucketId, hashName)
               if (!newFileId) {
+                // FileLogger.push({filePath, originalFileName, state: 'error'})
                 throw new Error(err)
               }
             } else {
               Logger.error('Sync Error uploading and replace file: %s', err)
+              // FileLogger.push({filePath, originalFileName, state: 'error'})
               throw new Error(err)
             }
           }
@@ -122,9 +131,11 @@ async function uploadFile(
 
           text = await fetchRes.text()
           if (fetchRes.status !== 200) {
+            // FileLogger.push({filePath, originalFileName, state: 'error'})
             throw new Error(text)
           }
           const res = JSON.parse(text)
+          // FileLogger.push({filePath, originalFileName, 'success'})
           resolve(res)
         } catch (err) {
           if (text !== undefined) {
