@@ -9,57 +9,16 @@
       <FileStatus
       :FileStatusSync="FileStatusSync" />
       <SyncButtonAction  />
-
-      <!-- <div id="selectSyncPanel">
-        <input type="checkbox" id="carpeta1" checked="false" />
-      </div>
-
-      <div>{{ toolTip ? toolTip : 'Paused' }}</div>
-      <div>
-        <a href="#" @click="quitApp()">Quitttt</a>
-      </div>
-      <div>
-        <a href="#" @click="forceSync()">Force sync</a>
-      </div>
-      <div>
-        <a href="#" @click="unlockDevice()">Unlock this device</a>
-      </div>
-      <div>
-        <a href="#" @click="getUsage()">Get usage</a>
-      </div>
-      <div>
-        <a href="#" @click="logout()">Log out</a>
-      </div>
-      <div>
-        <a href="#" @click="mysettooltip()">Tool tip</a>
-      </div>
-      <div>
-        <a href="#" @click="stopSync()">Stop Sync</a>
-      </div>
-      <div>
-        Path:
-        <a href="#" @click="openFolder()">{{ this.$data.localPath }}</a>
-      </div> -->
-
   </div>
 </template>
 
 <script>
-import crypt from '../logic/crypt'
-import path from 'path'
-import temp from 'temp'
-import fs, { existsSync } from 'fs'
-import async from 'async'
 import database from '../../database'
-import Sync from '../logic/sync'
-import Uploader from '../logic/uploader'
-import Tree from '../logic/tree'
 import Monitor from '../logic/monitor'
 import Logger from '../../libs/logger'
 import PackageJson from '../../../package.json'
 import DeviceLock from '../logic/devicelock'
 import SpaceUsage from '../logic/utils/spaceusage'
-import analytics from '../logic/utils/analytics'
 import ConfigStore from '../../../src/main/config-store'
 import Header from '../components/Header/Header'
 import FileStatus from '../components/FileStatus//FileStatus'

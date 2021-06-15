@@ -1,10 +1,4 @@
 <template>
-  <!-- <div class="close-button">
-    <button @click="closeApp()">
-      <img src="~@/../resources/icons/close.png" />
-    </button>
-  </div> -->
-
   <main class="w-full h-full flex flex-col justify-center bg-white px-12 relative">
     <div class="cursor-pointer absolute top-6 right-6" @click="quitApp()">
       <UilMultiply class="mr-2 text-blue-600" />
@@ -54,14 +48,7 @@
       <div v-if="visibility === 'text' && !showTwoFactor" @click="hidePassword()" class="absolute right-6 -mt-7 cursor-pointer">
         <CrossEye />
       </div>
-      <!-- <transition
-        enter-class="enter"
-        enter-to-class="enter-to"
-        enter-active-class="slide-enter-active"
-        leave-class="leave"
-        leave-to-class="leave-to"
-        leave-active-class="slide-leave-active"
-      > -->
+
         <div v-if="errors.length" class="mt-2 -mb-4">
           <p v-if="errors.length > 1" class="text-sm text-black font-bold">There have been errors</p>
           <p v-else class="text-sm text-black font-bold">There has been an error</p>
@@ -108,7 +95,6 @@ import config from '../../config'
 import path from 'path'
 import packageConfig from '../../../package.json'
 import analytics from '../logic/utils/analytics'
-import ConfigStore from '../../main/config-store'
 import uuid4 from 'uuid4'
 import Spinner from '../components/ExportIcons/Spinner'
 import Eye from '../components/ExportIcons/eye'
