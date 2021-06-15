@@ -59,21 +59,25 @@ class FileLogger extends EventEmitter {
   }
 
   saveLogger() {
+    /*
     try {
       const jsonQueue = JSON.stringify(this.getAll())
       fs.writeFileSync(path.join(__dirname, '../../../database/fileLogger/fileLogger.json'), jsonQueue)
     } catch (err) {
       Logger.error(err)
     }
+    */
   }
 
   loadLogger() {
+    /*
     try {
       const savedLogger = require('../../../database/fileLogger/fileLogger.json')
       this.queue = savedLogger
     } catch (err) {
       this.queue = []
     }
+    */
     return this.queue
   }
 }

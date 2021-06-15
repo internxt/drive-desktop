@@ -204,6 +204,7 @@ export default {
   beforeCreate() {
     // remote.getCurrentWindow().center()
     remote.app.emit('enter-onboarding', true)
+    remote.app.emit('window-show')
   },
   watch: {
     currentSlide () {
