@@ -95,7 +95,7 @@
               </div>
               <div class="text-xs text-gray-500">
                 <div class="text-red-500">
-                  Error downloading file. Try again.
+                  Error downloading file.
                 </div>
               </div>
             </div>
@@ -112,7 +112,7 @@
             <div>
               <div>{{ item.filename }}</div>
               <div class="text-xs text-gray-500">
-                <div class="text-red-500">Error uploading file. Try again</div>
+                <div class="text-red-500">Error uploading file.</div>
               </div>
             </div>
           </div>
@@ -128,7 +128,7 @@
                 {{ item.filename }}
               </div>
               <div class="text-xs text-gray-500">
-                <div class="text-red-500">Error file upload. Try again</div>
+                <div class="text-red-500">Error file upload.</div>
               </div>
             </div>
           </div>
