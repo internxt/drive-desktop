@@ -294,7 +294,7 @@
     >
       <h1 class="text-lg text-white font-bold">Attention</h1>
       <p class="text-base text-center w-72 mt-3">
-        By changing to Upload only you will be able to delete files locally whithout losing them from your cloud. This option is perfect for backups.
+        By changing to upload only mode you will be able to delete files locally whithout losing them from your cloud. This option is perfect for backups.
       </p>
 
       <div class="mt-4">
