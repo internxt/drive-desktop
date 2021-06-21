@@ -56,7 +56,7 @@ async function getUsage() {
     })
     .then(res => {
       // Check response body
-      return res.text().then((text) => {
+      return res.text().then(text => {
         try {
           return JSON.parse(text)
         } catch (err) {
@@ -69,33 +69,40 @@ async function getUsage() {
     })
 }
 
-async function updateUsage() {
+async function updateUsage(used = 0) {
   const storage = {
     limit: null,
     usage: null
   }
-  await getLimit()
-    .then(limit => {
-      if (limit >= 108851651149824) {
-        storage.limit = '\u221E'
-      } else {
-        storage.limit = bytes(limit)
-      }
-      // unit = storage.limit.includes('TB') ? 'TB' : 'GB'
-      ConfigStore.set('limit', limit)
-    })
-    .catch(() => {
-      Logger.error("Cannot get user limit, won't be displayed")
-    })
+  if (used) {
+    storage.limit = ConfigStore.get('limit')
+    storage.usage = ConfigStore.get('usage') + used
+    ConfigStore.set('usage', storage.usage)
+  } else {
+    await getLimit()
+      .then(limit => {
+        if (limit >= 108851651149824) {
+          storage.limit = '\u221E'
+        } else {
+          storage.limit = bytes(limit)
+        }
+        // unit = storage.limit.includes('TB') ? 'TB' : 'GB'
+        ConfigStore.set('limit', limit)
+      })
+      .catch(() => {
+        Logger.error("Cannot get user limit, won't be displayed")
+      })
 
-  await getUsage()
-    .then(usage => {
-      storage.usage = bytes(usage)
-      ConfigStore.set('usage', usage)
-    })
-    .catch(() => {
-      Logger.error("Cannot get user usage, won't be displayed")
-    })
+    await getUsage()
+      .then(usage => {
+        storage.usage = bytes(usage)
+        ConfigStore.set('usage', usage)
+      })
+      .catch(() => {
+        Logger.error("Cannot get user usage, won't be displayed")
+      })
+  }
+
   remote.app.emit('update-storage', storage)
 }
 

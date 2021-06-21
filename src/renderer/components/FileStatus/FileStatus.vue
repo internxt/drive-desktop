@@ -13,7 +13,7 @@
           <!-- {{ En progreso upload entra aquí }} -->
           <div
             class="flex mb-2"
-            v-if="item.state == null && (item.action === 'upload' || item.action === 'encrypt')"
+            v-if="item.state == null && (item.action === 'upload')"
           >
             <UilFileUpload
               class="text-2xl mr-3 fill-current text-gray-500"
@@ -27,7 +27,23 @@
               </div>
             </div>
           </div>
-
+          <!-- {{ En progreso encrypt entra aquí }} -->
+          <div
+            class="flex mb-2"
+            v-if="item.state == null && (item.action === 'encrypt')"
+          >
+            <UilFileUpload
+              class="text-2xl mr-3 fill-current text-gray-500"
+            />
+            <div>
+              <div>
+                {{ item.filename }}
+              </div>
+              <div class="text-xs text-gray-500">
+                File encrypting
+              </div>
+            </div>
+          </div>
           <!-- {{ En progreso download entra aquí }} -->
           <div
             class="flex mb-2"
