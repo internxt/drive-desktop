@@ -179,7 +179,7 @@
         >
           Quit
         </div>
-        
+
         <div>
           <div
             class="text-xs border border-dashed border-gray-200 p-2 px-3 rounded mt-6"
@@ -570,10 +570,10 @@ export default {
     // Contact support
     ContactSupportMailto() {
       if (process.platform === 'linux') {
-        remote.app.emit('show-info', 'email: idajggytsuz7jivosite@jivo-mail.com')
+        remote.app.emit('show-info', 'email: hello@internxt.com')
       } else {
         remote.shell.openExternal(
-          `mailto:idajggytsuz7jivosite@jivo-mail.com?subject=Support Ticket&body=If you want to upload log files to our tech teams. Please, find them on the Open Logs option in the menu.`
+          `mailto:hello@internxt.com?subject=Support Ticket&body=If you want to upload log files to our tech teams. Please, find them on the Open Logs option in the menu.`
         )
       }
     },
