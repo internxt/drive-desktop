@@ -17,6 +17,7 @@ import nameTest from './utils/nameTest'
 import crypto from './crypt'
 import SyncMode from './sync/NewTwoWayUpload'
 import FileLogger from './FileLogger'
+import Spaceusage from './utils/spaceusage'
 
 const remote = require('@electron/remote')
 // eslint-disable-next-line no-empty-character-class
@@ -49,7 +50,7 @@ async function removeFile(bucketId, fileId, filename, force = false) {
     }
     Logger.log(`Removing cloud file: ${filename}. file id: ${fileId}`)
   }
-  return fetch(
+  const result = await fetch(
     `${process.env.API_URL}/api/storage/bucket/${bucketId}/file/${fileId}`,
     {
       method: 'DELETE',
@@ -62,27 +63,18 @@ async function removeFile(bucketId, fileId, filename, force = false) {
     .then(text => {
       return JSON.parse(text)
     })
-    .then(result => {
-      if (result.error) {
-        // Notificate.error delete cloud
-        FileLogger.push({
-          // filePath:
-          action: 'remove',
-          state: 'error',
-          description: result.error.message
-        })
-        throw new Error(result.error)
-      } else {
-        if (!force) {
-          // FileLogger delete cloud
-          FileLogger.push({
-            action: 'remove',
-            state: 'success'
-          })
-        }
-        return result
-      }
+  if (result.error) {
+    // Notificate.error delete cloud
+    FileLogger.push({
+      // filePath:
+      action: 'remove',
+      state: 'error',
+      description: result.error.message
     })
+    throw new Error(result.error)
+  } else {
+    return result
+  }
 }
 
 function removeLocalFile(path) {
@@ -481,6 +473,7 @@ async function uploadFile(
       file.state = state.state.SYNCED
       file.needSync = false
     }
+    Spaceusage.updateUsage(file.size)
     // FileLogger.upload success
     FileLogger.push({
       filePath: file.key,
@@ -738,6 +731,8 @@ async function uploadState(file, rootPath, user, parentFolder) {
           action: 'remove',
           state: 'success'
         })
+        // When implement trash may delete next line
+        Spaceusage.updateUsage(file.size)
         await Database.dbRemoveOne(Database.dbFiles, { key: file.key })
         return
       } catch (e) {
@@ -963,6 +958,8 @@ async function deleteCloudState(file, rootPath, user, parentFolder) {
           action: 'remove',
           state: 'success'
         })
+        // When implement trash may delete next line
+        Spaceusage.updateUsage(file.size)
         await Database.dbRemoveOne(Database.dbFiles, { key: file.key })
         return
       } catch (e) {
