@@ -3,12 +3,19 @@
     <div class="flex justify-between items-start p-4" style="-webkit-app-region: drag">
       <div class="flex flex-col" style="-webkit-app-region: no-drag;">
         <div @click="CloseModals()" class="flex items-center cursor-pointer">
-          <img src="../../assets/brand/drive-brand.svg" />
+          <img src="../../assets/svg/brand-app.svg" />
+          <div class="text-xs text-gray-500 ml-2">
+            <div class="">{{ emailAccount }}</div>
+            <div class="flex">
+              <div class="mr-0.5 text-gray-500 text-xs">{{ usage }} of</div>
+              <div class="text-blue-500 text-xs italic">{{ limit }}</div></div>
+          </div>
+
           <!-- <InternxtBrand :width="16" :height="16"/> -->
           <!-- <div class="text-gray-800 text-xl font-extrabold ml-1.5">{{ appName }}</div> -->
         </div>
 
-        <div class="text-sm text-gray-500 mt-1">{{ emailAccount }}</div>
+        
       </div>
 
       <div class="flex items-center justify-center" style="-webkit-app-region: no-drag;">
@@ -193,7 +200,7 @@
               <div>
                 <div class="font-bold">Storage used</div>
                 <div class="flex">
-                  <div class="mr-0.5 text-gray-400 text-xs">{{ usage }} de</div>
+                  <div class="mr-0.5 text-gray-400 text-xs">{{ usage }} of</div>
                   <div class="text-blue-500 text-xs italic">{{ limit }}</div>
                 </div>
               </div>
