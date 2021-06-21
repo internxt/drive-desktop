@@ -1,20 +1,32 @@
 <template>
   <div class="flex justify-between p-4 px-6">
 
-    <div class="">
-      <div v-if="syncState === true" class="text-gray-500 text-center select-none">
-        <div>Synchronizing your files...</div>
-        <div>Status: pending</div>
+    <div class="flex">
+      <div v-if="syncState === true" class="text-4xl mr-4 text-gray-500">
+        <UilCloudDataConnection class="animate-pulse" />
+      </div>
+
+      <div v-else class="text-4xl mr-4 text-gray-400">
+        <UilCloudDataConnection />
+      </div>
+
+      <div v-if="syncState === true" class="text-gray-500 select-none">
+
+        <div>
+          <div>Synchronizing your files</div>
+          <div>Status: pending...</div>
+        </div>
+
       </div>
 
       <div class="text-gray-500 select-none" v-else>
         <div>Start sync your files</div>
-        <div>Status: <span class="text-green-500">Updated</span></div>
+        <div class="flex">Status: <span class="text-green-500"><UilCheckCircle class="text-green-500 ml-1 mr-0.5 mt-0.5" /></span><span class="text-green-500">Updated</span></div>
       </div>
     </div>
 
 
-    <div class="flex justify-center mb-6">
+    <div class="flex justify-center">
       <div v-if="syncState === true" class="flex">
         <div class="bg-blue-300 rounded-full p-2.5 w-10 h-10 mr-1">
           <svg
@@ -61,7 +73,7 @@
 </template>
 
 <script>
-import { UilCloudDataConnection, UilPlayCircle, UilStopCircle } from '@iconscout/vue-unicons'
+import { UilCloudDataConnection, UilPlayCircle, UilStopCircle, UilCheckCircle } from '@iconscout/vue-unicons'
 import './SyncButtonAction.scss'
 import ConfigStore from '../../../main/config-store'
 
@@ -117,7 +129,8 @@ export default {
   components: {
     UilCloudDataConnection,
     UilPlayCircle,
-    UilStopCircle
+    UilStopCircle,
+    UilCheckCircle
   }
 }
 </script>

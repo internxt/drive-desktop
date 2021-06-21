@@ -1,6 +1,6 @@
 <template>
   <div
-    class="bg-white rounded-t-2xl p-4 px-6 h-48 fileStatusBox overflow-scroll"
+    class="bg-white rounded-t-2xl p-4 px-6 h-52 fileStatusBox overflow-scroll"
   >
     <div class="flex justify-between">
       <div class="text-base text-black font-bold">Monitor activity</div>
@@ -11,7 +11,7 @@
     </div>
 
     <div v-if="this.FileStatusSync.length > 0">
-      <div class="mb-1">
+      <div class="mb-1 mt-4">
         <div
           class=""
           v-for="(item, index) in FileStatusSync"
