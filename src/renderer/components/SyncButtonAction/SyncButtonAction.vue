@@ -1,29 +1,32 @@
 <template>
   <div class="flex justify-between p-4 px-6">
-    <div>{{ this.syncState }}</div><br />
+    <!-- <div>{{ this.syncState }}</div><br /> -->
     <div class="flex">
+
       <div v-if="syncState === 'default'">
           <div class="text-gray-500 select-none">
             <div>Start sync your files</div>
             <div class="flex">Status: <span class="text-green-500"><UilCheckCircle class="text-green-500 ml-1 mr-0.5 mt-0.5" /></span><span class="text-green-500">Updated</span></div>
           </div>
       </div>
+
       <div v-else>
-        <div v-if="syncState === true" class="text-gray-500 select-none">
+        <div v-if="syncState === 'pending'" class="text-gray-500 select-none">
             <div class="animate-pulse">
               <div>Synchronizing your files</div>
               <div>Status: pending...</div>
             </div>
         </div>
         <div v-if="syncState === 'success'" class="text-gray-500 select-none">
-            <div>Success</div>
-            <div class="flex">Status: <span class="text-green-500"><UilCheckCircle class="text-green-500 ml-1 mr-0.5 mt-0.5" /></span><span class="text-green-500">Updated</span></div>
+            <div>Sync process successfully</div>
+            <div class="flex">Status: <span class="text-green-500"><UilCheckCircle class="text-green-500 ml-1 mr-0.5 mt-0.5" /></span><span class="text-green-500">Success</span></div>
         </div>
         <div v-if="syncState === 'stop'" class="text-gray-500 select-none">
-            <div>Stop</div>
-            <div class="flex">Status: <span class="text-green-500"><UilCheckCircle class="text-green-500 ml-1 mr-0.5 mt-0.5" /></span><span class="text-green-500">Updated</span></div>
+            <div>Sync process stopped</div>
+            <div class="flex">Status: <span class="text-green-500"><UilStopCircle class="text-gray-500 ml-1 mr-0.5 mt-0.5" /></span><span class="text-gray-500">Stopped sync</span></div>
         </div>
       </div>
+
       <!-- Error - string= 'error' -->
     </div>
     <div class="flex justify-center">
@@ -95,7 +98,6 @@ export default {
         this.syncButtonState = isSyncing
       },
       changeSyncStatus: status => {
-        console.log(`%c ${status}`, 'color: yellow')
         this.syncState = status
       }
     }
