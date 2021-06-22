@@ -9,7 +9,7 @@
             <div class="flex">
               <div class="mr-0.5 text-gray-500 text-xs">{{ usage }} of</div>
               <div class="text-blue-500 text-xs italic">{{ limit }}</div>
-              <div class="ml-2 text-blue-600">Upgrade</div>
+              <div v-if="this.showUpgrade" class="ml-2 text-blue-600"><a @click="openLinkBilling()">Upgrade</a></div>
             </div>
           </div>
 
@@ -17,7 +17,7 @@
           <!-- <div class="text-gray-800 text-xl font-extrabold ml-1.5">{{ appName }}</div> -->
         </div>
 
-        
+
       </div>
 
       <div class="flex items-center justify-center" style="-webkit-app-region: no-drag;">
@@ -346,6 +346,7 @@ import path from 'path'
 import electronLog from 'electron-log'
 import VToolTip from 'v-tooltip'
 import DeviceLock from '../../logic/devicelock'
+import bytes from 'bytes'
 
 Vue.use(VToolTip)
 const remote = require('@electron/remote')
@@ -367,7 +368,8 @@ export default {
       limit: '',
       CheckedValue: ConfigStore.get('uploadOnly'),
       showSyncSettingsModal: false,
-      console: console
+      console: console,
+      showUpgrade: false
     }
   },
   beforeCreate: function() {
@@ -387,6 +389,7 @@ export default {
     remote.app.on('update-storage', data => {
       this.usage = data.usage
       this.limit = data.limit
+      this.showUpgrade = bytes.parse(this.limit) < 2199023255552
     })
     FileLogger.on('update-last-entry', item => {
       this.file = item
