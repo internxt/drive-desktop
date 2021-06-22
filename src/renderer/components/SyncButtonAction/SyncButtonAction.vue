@@ -6,7 +6,7 @@
       <div v-if="syncState === 'default'">
           <div class="text-gray-500 select-none">
             <div>Start sync your files</div>
-            <div class="flex">Status: <span class="text-green-500"><UilCheckCircle class="text-green-500 ml-1 mr-0.5 mt-0.5" /></span><span class="text-green-500">Updated</span></div>
+            <div class="flex text-blue-600">Start by clicking the Play button</div>
           </div>
       </div>
 
@@ -18,7 +18,7 @@
             </div>
         </div>
         <div v-if="syncState === 'success'" class="text-gray-500 select-none">
-            <div>Sync process successfully</div>
+            <div>Sync process successful</div>
             <div class="flex">Status: <span class="text-green-500"><UilCheckCircle class="text-green-500 ml-1 mr-0.5 mt-0.5" /></span><span class="text-green-500">Success</span></div>
         </div>
         <div v-if="syncState === 'stop'" class="text-gray-500 select-none">
