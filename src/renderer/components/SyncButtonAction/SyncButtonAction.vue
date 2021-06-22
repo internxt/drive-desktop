@@ -1,23 +1,23 @@
 <template>
   <div class="flex justify-between p-4 px-6">
-
     <div class="flex">
       <div v-if="syncState === true" class="text-gray-500 select-none">
-
         <div class="animate-pulse">
           <div>Synchronizing your files</div>
           <div>Status: pending...</div>
-          
         </div>
-
       </div>
 
       <div class="text-gray-500 select-none" v-else>
         <div>Start sync your files</div>
-        <div class="flex">Status: <span class="text-green-500"><UilCheckCircle class="text-green-500 ml-1 mr-0.5 mt-0.5" /></span><span class="text-green-500">Updated</span></div>
+        <div class="flex">
+          Status:
+          <span class="text-green-500"
+            ><UilCheckCircle class="text-green-500 ml-1 mr-0.5 mt-0.5"/></span
+          ><span class="text-green-500">Updated</span>
+        </div>
       </div>
     </div>
-
 
     <div class="flex justify-center">
       <div v-if="syncState === true" class="flex">
@@ -48,7 +48,6 @@
             class="w-10 h-10 fill-current text-white bg-blue-600 text-3xl p-2.5 rounded-full cursor-pointer hover:bg-indigo-900 shadow-2xl transition duration-500 ease-in-out"
           />
         </div>
-
       </div>
 
       <div v-else class="flex">
@@ -62,16 +61,18 @@
             class="p-2.5 text-center w-10 h-10 fill-current text-white bg-gray-200 text-3xl rounded-full cursor-not-allowed"
           />
         </div>
-
       </div>
     </div>
-
-
   </div>
 </template>
 
 <script>
-import { UilCloudDataConnection, UilPlayCircle, UilStopCircle, UilCheckCircle } from '@iconscout/vue-unicons'
+import {
+  UilCloudDataConnection,
+  UilPlayCircle,
+  UilStopCircle,
+  UilCheckCircle
+} from '@iconscout/vue-unicons'
 import './SyncButtonAction.scss'
 import ConfigStore from '../../../main/config-store'
 import StopIcon from '../ExportIcons/StopIcon.vue'
@@ -83,8 +84,11 @@ export default {
   data() {
     return {
       syncState: ConfigStore.get('stopSync'),
-      changeSyncButton: (isSyncing) => {
+      changeSyncButton: isSyncing => {
         this.syncState = isSyncing
+      },
+      changeSyncStatus: status => {
+        this.syncState = status
       }
     }
   },
@@ -96,8 +100,7 @@ export default {
   },
   methods: {
     cambiarEstado() {},
-    debug() {
-    },
+    debug() {},
     forceSync() {
       remote.app.emit('sync-start')
       // this.syncState = true
@@ -105,7 +108,7 @@ export default {
     },
     // Stop forceSync
     StopForceSync() {
-      remote.app.on('sync-off', (_) => {
+      remote.app.on('sync-off', _ => {
         // TODO
       })
     },
@@ -114,16 +117,17 @@ export default {
       remote.app.emit('sync-stop')
     }
   },
-  created: function () {
+  created: function() {
     remote.app.on('sync-on', this.changeSyncButton)
     remote.app.on('sync-off', this.changeSyncButton)
+    remote.app.on('ui-sync-status', this.changeSyncStatus)
   },
   beforeDestroy: function() {
     remote.app.removeListener('sync-off', this.changeSyncButton)
     remote.app.removeListener('sync-on', this.changeSyncButton)
+    remote.app.removeListener('ui-sync-status', this.changeSyncStatus)
   },
-  updated: function () {
-  },
+  updated: function() {},
   computed: {},
   name: 'SyncButtonAction',
   components: {
