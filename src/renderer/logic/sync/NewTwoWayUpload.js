@@ -86,7 +86,7 @@ async function SyncLogic(callback) {
         Tree.tryFixDuplicateFolder()
         Logger.log('sending request for rename duplicate folder')
       }
-      if (/stop sync/.test(err.messages)) {
+      if (/stop sync/.test(err.message)) {
         app.emit('ui-sync-status', 'stop')
       } else {
         app.emit('ui-sync-status', 'error')
