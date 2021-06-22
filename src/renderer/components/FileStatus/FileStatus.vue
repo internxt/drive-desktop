@@ -172,22 +172,12 @@
             </div>
           </div>
 
-          <!-- <div class="flex mb-2" v-if="!item.state && item.action === 'upload'">
-              <UilFileUpload class="text-2xl mr-3 fill-current text-gray-400" />
-              <div>
-                <div>{{ item.filename }}</div>
-                <div class="text-xs text-gray-500">
-                  <span class="text-gray-500">{{ formatNumberPercent(item.progress) }} %</span>
-                    Start Synchronizing file...
-                  </div>
-              </div>
-            </div> -->
         </div>
       </div>
     </div>
 
     <div v-else class="flex flex-col items-center justify-center w-full h-full">
-      <!-- <img src="../../assets/svg/start-sync-button.svg" /> -->
+      <div class="text-gray-600 text-sm">Start Synchronizing press on play button</div>
     </div>
   </div>
 </template>
