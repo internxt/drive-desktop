@@ -58,13 +58,18 @@
 
       </div>
 
-      <div @click="forceSync()" v-else class="flex">
-        <UilPlayCircle
-          class="w-10 h-10 mr-1 fill-current text-white bg-blue-600 text-3xl p-2 rounded-full cursor-pointer hover:bg-indigo-900 shadow-2xl transition duration-500 ease-in-out"
-        />
-        <UilStopCircle
-          class="w-10 h-10 fill-current text-white bg-gray-200 text-3xl p-2 rounded-full cursor-not-allowed"
-        />
+      <div v-else class="flex">
+        <div @click="forceSync()">
+          <UilPlayCircle
+            class="w-10 h-10 mr-1 fill-current text-white bg-blue-600 text-3xl p-2 rounded-full cursor-pointer hover:bg-indigo-900 shadow-2xl transition duration-500 ease-in-out"
+          />
+        </div>
+        <div>
+          <UilStopCircle
+            class="w-10 h-10 fill-current text-white bg-gray-200 text-3xl p-2 rounded-full cursor-not-allowed"
+          />
+        </div>
+
       </div>
     </div>
 

@@ -5,7 +5,7 @@
     <div class="flex justify-between">
       <div class="text-base text-black font-bold">Monitor activity</div>
       <div>
-        <div @click="clearFileLogger()" class="bg-blue-600 p-0.5 px-2 text-white text-xs rounded-full cursor-pointer hover:bg-blue-800">clear</div>
+        <div @click="clearFileLogger()" class="text-blue-600 text-sm cursor-pointer hover:text-blue-800">clear activity</div>
       </div>
       
     </div>
