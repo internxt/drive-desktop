@@ -13,6 +13,8 @@ import SystemInformation from './LandingPage/SystemInformation'
 import database from '../../database'
 import Logger from '../../libs/logger'
 import ConfigStore from '../../main/config-store'
+import semver from 'semver'
+import PackageJson from '../../../package.json'
 const remote = require('@electron/remote')
 
 export default {
@@ -44,8 +46,8 @@ export default {
       remote.app.emit('enter-login', true)
     } else {
       // Does have credentials saved ? If not show onboarding the user is already singned in so email in configStore
-      if (ConfigStore.get('showOnboarding')) {
-        remote.app.emit('update-configStore', { showOnboarding: false })
+      const lastVersion = ConfigStore.get('version')
+      if (semver.gt(PackageJson.version, lastVersion)) {
         // Show Onboarding
         remote.app.emit('window-pushed-to', '/onboarding')
         this.$router.push('/onboarding').catch(() => {})
