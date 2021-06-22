@@ -7,7 +7,7 @@
       <div>
         <div @click="clearFileLogger()" class="text-blue-600 text-sm cursor-pointer hover:text-blue-800">clear activity</div>
       </div>
-      
+
     </div>
 
     <div v-if="this.FileStatusSync.length > 0">
@@ -234,7 +234,7 @@ export default {
       return formatter.format(value)
     },
     clearFileLogger() {
-      remote.app.emit('clear-file-logger')
+      this.FileStatusSync = []
     }
   },
   name: 'FileStatus',
