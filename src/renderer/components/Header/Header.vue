@@ -258,7 +258,7 @@
     >
       <h1 class="text-lg text-white font-bold">Attention</h1>
       <p class="text-base text-center w-72 mt-3">
-        By changing to full sync you will start synchronizing all your content.
+        By changing to full sync you will start synchronizing all your content. The next sync will be Upload only to ensure your files.
       </p>
 
       <div class="mt-4">
