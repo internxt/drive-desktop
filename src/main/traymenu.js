@@ -20,7 +20,17 @@ class TrayMenu {
 
     this.tray = new Tray(trayIcon)
     this.tray.setToolTip('Internxt Drive ' + PackageJson.version)
-    this.tray.on('click', () => { app.emit('show-main-windows') })
+    if (process.platform !== 'linux') {
+      this.tray.on('click', () => {
+        app.emit('show-main-windows')
+        this.tray.setContextMenu(null)
+      })
+      this.tray.on('right-click', () => {
+        this.updateContextMenu()
+        this.tray.popUpContextMenu()
+      })
+    }
+
     this.updateContextMenu()
   }
 
@@ -48,7 +58,7 @@ class TrayMenu {
     contextMenuTemplate.push(
       {
         label: 'Minimize',
-        click: function () {
+        click: function() {
           app.emit('show-main-windows')
         }
       },
