@@ -64,6 +64,7 @@ async function SyncLogic(callback) {
   DeviceLock.startUpdateDeviceSync()
   app.once('sync-stop', syncStop)
   app.once('user-logout', DeviceLock.stopUpdateDeviceSync)
+  app.emit('ui-sync-status', 'pending')
   ConfigStore.set('isSyncing', true)
   if (ConfigStore.get('uploadOnly')) {
     uploadOnlyMode = true
@@ -78,17 +79,23 @@ async function SyncLogic(callback) {
       uploadOnlyMode = false
     }
   }
-  const syncComplete = async function (err) {
+  const syncComplete = async function(err) {
     if (err) {
       Logger.error('Error sync monitor:', err.message ? err.message : err)
       if (/it violates the unique constraint/.test(err.message)) {
         Tree.tryFixDuplicateFolder()
         Logger.log('sending request for rename duplicate folder')
       }
+      if (/stop sync/.test(err.messages)) {
+        app.emit('ui-sync-status', 'stop')
+      } else {
+        app.emit('ui-sync-status', 'error')
+      }
     } else {
       if (ConfigStore.get('forceUpload') === 1) {
         ConfigStore.set('forceUpload', 0)
       }
+      app.emit('ui-sync-status', 'success')
     }
     // console.timeEnd('desktop')
     const basePath = await Database.Get('xPath')
