@@ -3,12 +3,21 @@
     <div class="flex justify-between items-start p-4" style="-webkit-app-region: drag">
       <div class="flex flex-col" style="-webkit-app-region: no-drag;">
         <div @click="CloseModals()" class="flex items-center cursor-pointer">
-          <img src="../../assets/brand/drive-brand.svg" />
+          <img src="../../assets/svg/brand-app.svg" />
+          <div class="text-xs text-gray-500 ml-2">
+            <div class="">{{ emailAccount }}</div>
+            <div class="flex">
+              <div class="mr-0.5 text-gray-500 text-xs">{{ usage }} of</div>
+              <div class="text-blue-500 text-xs italic">{{ limit }}</div>
+              <div class="ml-2 text-blue-600">Upgrade</div>
+            </div>
+          </div>
+
           <!-- <InternxtBrand :width="16" :height="16"/> -->
           <!-- <div class="text-gray-800 text-xl font-extrabold ml-1.5">{{ appName }}</div> -->
         </div>
 
-        <div class="text-sm text-gray-500 mt-1">{{ emailAccount }}</div>
+        
       </div>
 
       <div class="flex items-center justify-center" style="-webkit-app-region: no-drag;">
@@ -105,7 +114,7 @@
             <span class="smallCheckmark mt-0.5"></span>
           </div>
         </form>
-        <span class="text-xs bg-blue-600 p-1.5 rounded-full text-white px-3 cursor-pointer hover:bg-blue-800" @click="stopSync()">Stop sync</span>
+        <!-- <span class="text-xs bg-blue-600 p-1.5 rounded-full text-white px-3 cursor-pointer hover:bg-blue-800" @click="stopSync()">Stop sync</span> -->
 
         <div class="text-sm mt-3">Change sync folder</div>
         <div class="flex items-center mt-2">
@@ -193,7 +202,7 @@
               <div>
                 <div class="font-bold">Storage used</div>
                 <div class="flex">
-                  <div class="mr-0.5 text-gray-400 text-xs">{{ usage }} de</div>
+                  <div class="mr-0.5 text-gray-400 text-xs">{{ usage }} of</div>
                   <div class="text-blue-500 text-xs italic">{{ limit }}</div>
                 </div>
               </div>
@@ -231,14 +240,14 @@
           </a>
         </div>
 
-        <div>
+        <!-- <div>
           <a
             class="btn btn-blue"
             @click="stopSync()"
           >
             Stop sync
           </a>
-        </div>
+        </div> -->
 
 
 
@@ -285,7 +294,7 @@
     >
       <h1 class="text-lg text-white font-bold">Attention</h1>
       <p class="text-base text-center w-72 mt-3">
-        By changing to Upload only you will be able to delete files locally whitout losing them from your cloud. This option is perfect for backups.
+        By changing to upload only mode you will be able to delete files locally whithout losing them from your cloud. This option is perfect for backups.
       </p>
 
       <div class="mt-4">

@@ -1,10 +1,17 @@
 <template>
   <div
-    class="bg-white rounded-t-2xl p-4 px-6 h-48 fileStatusBox overflow-scroll"
+    class="bg-white rounded-t-2xl p-4 px-6 h-52 fileStatusBox overflow-scroll"
   >
-    <div class="text-base text-black font-bold mb-3">File status</div>
+    <div class="flex justify-between">
+      <div class="text-base text-black font-bold">Monitor activity</div>
+      <div>
+        <div @click="clearFileLogger()" class="text-blue-600 text-sm cursor-pointer hover:text-blue-800">clear activity</div>
+      </div>
+      
+    </div>
+
     <div v-if="this.FileStatusSync.length > 0">
-      <div class="mb-1">
+      <div class="mb-1 mt-4">
         <div
           class=""
           v-for="(item, index) in FileStatusSync"
@@ -180,7 +187,7 @@
     </div>
 
     <div v-else class="flex flex-col items-center justify-center w-full h-full">
-      <img src="../../assets/svg/start-sync-button.svg" />
+      <!-- <img src="../../assets/svg/start-sync-button.svg" /> -->
     </div>
   </div>
 </template>
@@ -196,12 +203,16 @@ import {
 } from '@iconscout/vue-unicons'
 import './FileStatus'
 import CircleWithCloud from '../ExportIcons/CircleWithCloud'
+import ConfigStore from '../../../main/config-store'
+
+const remote = require('@electron/remote')
 
 export default {
   data() {
     return {
       test: {},
-      loading: false
+      loading: false,
+      stopSync: ConfigStore.get('stopSync')
     }
   },
   props: {
@@ -221,6 +232,9 @@ export default {
         minimumFractionDigits: 0
       })
       return formatter.format(value)
+    },
+    clearFileLogger() {
+      remote.app.emit('clear-file-logger')
     }
   },
   name: 'FileStatus',
