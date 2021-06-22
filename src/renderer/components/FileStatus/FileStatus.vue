@@ -1,10 +1,17 @@
 <template>
   <div
-    class="bg-white rounded-t-2xl p-4 px-6 h-48 fileStatusBox overflow-scroll"
+    class="bg-white rounded-t-2xl p-4 px-6 h-52 fileStatusBox overflow-scroll"
   >
-    <div class="text-base text-black font-bold mb-3">File status</div>
+    <div class="flex justify-between">
+      <div class="text-base text-black font-bold">Activity</div>
+      <div>
+        <div @click="clearFileLogger()" class="text-blue-600 text-sm cursor-pointer hover:text-blue-800">Clear</div>
+      </div>
+
+    </div>
+
     <div v-if="this.FileStatusSync.length > 0">
-      <div class="mb-1">
+      <div class="mb-1 mt-4">
         <div
           class=""
           v-for="(item, index) in FileStatusSync"
@@ -13,7 +20,7 @@
           <!-- {{ En progreso upload entra aquí }} -->
           <div
             class="flex mb-2"
-            v-if="item.state == null && (item.action === 'upload' || item.action === 'encrypt')"
+            v-if="item.state == null && (item.action === 'upload')"
           >
             <UilFileUpload
               class="text-2xl mr-3 fill-current text-gray-500"
@@ -27,7 +34,23 @@
               </div>
             </div>
           </div>
-
+          <!-- {{ En progreso encrypt entra aquí }} -->
+          <div
+            class="flex mb-2"
+            v-if="item.state == null && (item.action === 'encrypt')"
+          >
+            <UilFileUpload
+              class="text-2xl mr-3 fill-current text-gray-500"
+            />
+            <div>
+              <div>
+                {{ item.filename }}
+              </div>
+              <div class="text-xs text-gray-500">
+                File encrypting
+              </div>
+            </div>
+          </div>
           <!-- {{ En progreso download entra aquí }} -->
           <div
             class="flex mb-2"
@@ -95,7 +118,7 @@
               </div>
               <div class="text-xs text-gray-500">
                 <div class="text-red-500">
-                  Error downloading file. Try again.
+                  Error downloading file.
                 </div>
               </div>
             </div>
@@ -112,7 +135,7 @@
             <div>
               <div>{{ item.filename }}</div>
               <div class="text-xs text-gray-500">
-                <div class="text-red-500">Error uploading file. Try again</div>
+                <div class="text-red-500">Error uploading file.</div>
               </div>
             </div>
           </div>
@@ -128,7 +151,7 @@
                 {{ item.filename }}
               </div>
               <div class="text-xs text-gray-500">
-                <div class="text-red-500">Error file upload. Try again</div>
+                <div class="text-red-500">Error file upload.</div>
               </div>
             </div>
           </div>
@@ -149,22 +172,12 @@
             </div>
           </div>
 
-          <!-- <div class="flex mb-2" v-if="!item.state && item.action === 'upload'">
-              <UilFileUpload class="text-2xl mr-3 fill-current text-gray-400" />
-              <div>
-                <div>{{ item.filename }}</div>
-                <div class="text-xs text-gray-500">
-                  <span class="text-gray-500">{{ formatNumberPercent(item.progress) }} %</span>
-                    Start Synchronizing file...
-                  </div>
-              </div>
-            </div> -->
         </div>
       </div>
     </div>
 
     <div v-else class="flex flex-col items-center justify-center w-full h-full">
-      <img src="../../assets/svg/start-sync-button.svg" />
+      <div class="text-gray-600 text-sm">Start Synchronizing press on play button</div>
     </div>
   </div>
 </template>
@@ -180,12 +193,16 @@ import {
 } from '@iconscout/vue-unicons'
 import './FileStatus'
 import CircleWithCloud from '../ExportIcons/CircleWithCloud'
+import ConfigStore from '../../../main/config-store'
+
+const remote = require('@electron/remote')
 
 export default {
   data() {
     return {
       test: {},
-      loading: false
+      loading: false,
+      stopSync: ConfigStore.get('stopSync')
     }
   },
   props: {
@@ -205,6 +222,9 @@ export default {
         minimumFractionDigits: 0
       })
       return formatter.format(value)
+    },
+    clearFileLogger() {
+      this.FileStatusSync = []
     }
   },
   name: 'FileStatus',

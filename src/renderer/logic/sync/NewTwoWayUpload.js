@@ -9,6 +9,7 @@ import PackageJson from '../../../../package.json'
 import ConfigStore from '../../../main/config-store'
 import SpaceUsage from '../utils/spaceusage'
 import NameTest from '../utils/nameTest'
+import semver from 'semver'
 /*
  * Sync Method: One Way, from LOCAL to CLOUD (Only Upload)
  */
@@ -18,6 +19,7 @@ const { app } = require('@electron/remote')
 ConfigStore.set('isSyncing', false)
 ConfigStore.set('stopSync', false)
 ConfigStore.set('updatingDB', false)
+
 var uploadOnlyMode = false
 function isUploadOnly() {
   return uploadOnlyMode
@@ -56,14 +58,15 @@ async function SyncLogic(callback) {
   if (userDevicesSyncing.fullReset) {
     await Database.ClearAll()
   }
-  if (ConfigStore.get('resetAll')) {
+  if (semver.gt(PackageJson.version, ConfigStore.get('version'))) {
     await Database.ClearAll()
-    ConfigStore.set('resetAll', false)
+    ConfigStore.set('version', PackageJson.version)
   }
   Logger.info('Sync started IsUploadOnly? ', ConfigStore.get('uploadOnly'))
   DeviceLock.startUpdateDeviceSync()
   app.once('sync-stop', syncStop)
   app.once('user-logout', DeviceLock.stopUpdateDeviceSync)
+  app.emit('ui-sync-status', 'pending')
   ConfigStore.set('isSyncing', true)
   if (ConfigStore.get('uploadOnly')) {
     uploadOnlyMode = true
@@ -78,17 +81,23 @@ async function SyncLogic(callback) {
       uploadOnlyMode = false
     }
   }
-  const syncComplete = async function (err) {
+  const syncComplete = async function(err) {
     if (err) {
       Logger.error('Error sync monitor:', err.message ? err.message : err)
       if (/it violates the unique constraint/.test(err.message)) {
         Tree.tryFixDuplicateFolder()
         Logger.log('sending request for rename duplicate folder')
       }
+      if (/stop sync/.test(err.message)) {
+        app.emit('ui-sync-status', 'stop')
+      } else {
+        app.emit('ui-sync-status', 'error')
+      }
     } else {
       if (ConfigStore.get('forceUpload') === 1) {
         ConfigStore.set('forceUpload', 0)
       }
+      app.emit('ui-sync-status', 'success')
     }
     // console.timeEnd('desktop')
     const basePath = await Database.Get('xPath')
@@ -107,8 +116,8 @@ async function SyncLogic(callback) {
     }
     Logger.info('SYNC END')
     SpaceUsage.updateUsage()
-      .then(() => {})
-      .catch(() => {})
+      .then(() => { })
+      .catch(() => { })
     if (err) {
       Logger.error('Error monitor:', err)
     }

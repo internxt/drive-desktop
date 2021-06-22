@@ -5,7 +5,7 @@
     </div>
 
     <div class="flex flex-row items-center">
-      <img class="w-5" src="../assets/icons/apple/brand-logo.png" />
+      <img class="w-5" src="../assets/svg/brand-app.svg" />
       <span class="text-xl text-black font-bold ml-2">{{ showTwoFactor ? 'Security Verification' : 'Sign in to Internxt Drive' }}</span>
     </div>
 

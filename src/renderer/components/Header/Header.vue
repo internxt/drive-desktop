@@ -3,12 +3,21 @@
     <div class="flex justify-between items-start p-4" style="-webkit-app-region: drag">
       <div class="flex flex-col" style="-webkit-app-region: no-drag;">
         <div @click="CloseModals()" class="flex items-center cursor-pointer">
-          <img src="../../assets/brand/drive-brand.svg" />
+          <img src="../../assets/svg/brand-app.svg" />
+          <div class="text-xs text-gray-500 ml-2">
+            <div class="">{{ emailAccount }}</div>
+            <div class="flex">
+              <div class="mr-0.5 text-gray-500 text-xs">{{ usage }} of</div>
+              <div class="text-blue-500 text-xs italic">{{ limit }}</div>
+              <div v-if="this.showUpgrade" class="ml-2 text-blue-600"><a @click="openLinkBilling()">Upgrade</a></div>
+            </div>
+          </div>
+
           <!-- <InternxtBrand :width="16" :height="16"/> -->
           <!-- <div class="text-gray-800 text-xl font-extrabold ml-1.5">{{ appName }}</div> -->
         </div>
 
-        <div class="text-sm text-gray-500 mt-1">{{ emailAccount }}</div>
+
       </div>
 
       <div class="flex items-center justify-center" style="-webkit-app-region: no-drag;">
@@ -35,7 +44,7 @@
             delay: { show: 300, hide: 300 }
           }"
         >
-          <UilFolderNetwork class="text-blue-600" size="24px" />
+          <UilFolderOpen class="text-blue-600" size="24px" />
         </div>
 
         <div
@@ -87,7 +96,8 @@
 
         <span class="text-sm text-black">Sync mode</span>
         <form class="mt-2 mb-2">
-          <div @click="OpenSyncSettingsModal(false)" class="radioContainer">
+
+          <div @click="OpenSyncSettingsModal(false)" class="radioContainer ml-2">
             <p class="text-xs text-gray-500 hover:text-blue-500 cursor-pointer">
               Full sync
             </p>
@@ -96,7 +106,7 @@
             <span class="smallCheckmark"></span>
           </div>
 
-          <div @click="OpenSyncSettingsModal(true)" class="radioContainer mt-1">
+          <div @click="OpenSyncSettingsModal(true)" class="radioContainer mt-1 ml-2">
             <p class="text-xs text-gray-500 hover:text-blue-500 cursor-pointer pt-0.5">
               Upload only
             </p>
@@ -104,8 +114,9 @@
             <span class="checkmark mt-0.5"></span>
             <span class="smallCheckmark mt-0.5"></span>
           </div>
+
         </form>
-        <span class="text-xs bg-blue-600 p-1.5 rounded-full text-white px-3 cursor-pointer hover:bg-blue-800" @click="stopSync()">Stop sync</span>
+        <!-- <span class="text-xs bg-blue-600 p-1.5 rounded-full text-white px-3 cursor-pointer hover:bg-blue-800" @click="stopSync()">Stop sync</span> -->
 
         <div class="text-sm mt-3">Change sync folder</div>
         <div class="flex items-center mt-2">
@@ -179,7 +190,7 @@
         >
           Quit
         </div>
-        
+
         <div>
           <div
             class="text-xs border border-dashed border-gray-200 p-2 px-3 rounded mt-6"
@@ -193,7 +204,7 @@
               <div>
                 <div class="font-bold">Storage used</div>
                 <div class="flex">
-                  <div class="mr-0.5 text-gray-400 text-xs">{{ usage }} de</div>
+                  <div class="mr-0.5 text-gray-400 text-xs">{{ usage }} of</div>
                   <div class="text-blue-500 text-xs italic">{{ limit }}</div>
                 </div>
               </div>
@@ -231,14 +242,14 @@
           </a>
         </div>
 
-        <div>
+        <!-- <div>
           <a
             class="btn btn-blue"
             @click="stopSync()"
           >
             Stop sync
           </a>
-        </div>
+        </div> -->
 
 
 
@@ -258,7 +269,7 @@
     >
       <h1 class="text-lg text-white font-bold">Attention</h1>
       <p class="text-base text-center w-72 mt-3">
-        By changing to full sync you will start synchronizing all your content.
+        By changing to full sync you will start synchronizing all your content. The next sync will be Upload only to ensure your files.
       </p>
 
       <div class="mt-4">
@@ -285,7 +296,7 @@
     >
       <h1 class="text-lg text-white font-bold">Attention</h1>
       <p class="text-base text-center w-72 mt-3">
-        By changing to Upload only you will be able to delete files locally whitout losing them from your cloud. This option is perfect for backups.
+        By changing to upload only mode you will be able to delete files locally whithout losing them from your cloud. This option is perfect for backups.
       </p>
 
       <div class="mt-4">
@@ -335,6 +346,7 @@ import path from 'path'
 import electronLog from 'electron-log'
 import VToolTip from 'v-tooltip'
 import DeviceLock from '../../logic/devicelock'
+import bytes from 'bytes'
 
 Vue.use(VToolTip)
 const remote = require('@electron/remote')
@@ -356,7 +368,8 @@ export default {
       limit: '',
       CheckedValue: ConfigStore.get('uploadOnly'),
       showSyncSettingsModal: false,
-      console: console
+      console: console,
+      showUpgrade: false
     }
   },
   beforeCreate: function() {
@@ -376,6 +389,7 @@ export default {
     remote.app.on('update-storage', data => {
       this.usage = data.usage
       this.limit = data.limit
+      this.showUpgrade = bytes.parse(this.limit) < 2199023255552
     })
     FileLogger.on('update-last-entry', item => {
       this.file = item
@@ -570,10 +584,10 @@ export default {
     // Contact support
     ContactSupportMailto() {
       if (process.platform === 'linux') {
-        remote.app.emit('show-info', 'email: idajggytsuz7jivosite@jivo-mail.com')
+        remote.app.emit('show-info', 'email: hello@internxt.com')
       } else {
         remote.shell.openExternal(
-          `mailto:idajggytsuz7jivosite@jivo-mail.com?subject=Support Ticket&body=If you want to upload log files to our tech teams. Please, find them on the Open Logs option in the menu.`
+          `mailto:hello@internxt.com?subject=Support Ticket&body=If you want to upload log files to our tech teams. Please, find them on the Open Logs option in the menu.`
         )
       }
     },
