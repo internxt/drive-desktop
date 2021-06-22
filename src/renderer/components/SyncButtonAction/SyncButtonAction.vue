@@ -2,19 +2,12 @@
   <div class="flex justify-between p-4 px-6">
 
     <div class="flex">
-      <div v-if="syncState === true" class="text-4xl mr-4 text-gray-500">
-        <UilCloudDataConnection class="animate-pulse" />
-      </div>
-
-      <div v-else class="text-4xl mr-4 text-gray-400">
-        <UilCloudDataConnection />
-      </div>
-
       <div v-if="syncState === true" class="text-gray-500 select-none">
 
-        <div>
+        <div class="animate-pulse">
           <div>Synchronizing your files</div>
           <div>Status: pending...</div>
+          
         </div>
 
       </div>
@@ -51,8 +44,8 @@
           </svg>
         </div>
         <div @click="stopSync()">
-          <UilStopCircle
-            class="w-10 h-10 fill-current text-white bg-blue-600 text-3xl p-2 rounded-full cursor-pointer hover:bg-indigo-900 shadow-2xl transition duration-500 ease-in-out"
+          <StopIcon
+            class="w-10 h-10 fill-current text-white bg-blue-600 text-3xl p-2.5 rounded-full cursor-pointer hover:bg-indigo-900 shadow-2xl transition duration-500 ease-in-out"
           />
         </div>
 
@@ -60,13 +53,13 @@
 
       <div v-else class="flex">
         <div @click="forceSync()">
-          <UilPlayCircle
-            class="w-10 h-10 mr-1 fill-current text-white bg-blue-600 text-3xl p-2 rounded-full cursor-pointer hover:bg-indigo-900 shadow-2xl transition duration-500 ease-in-out"
+          <PlayIcon
+            class="w-10 h-10 mr-1 fill-current text-white bg-blue-600 text-3xl p-2.5 rounded-full cursor-pointer hover:bg-indigo-900 shadow-2xl transition duration-500 ease-in-out"
           />
         </div>
         <div>
-          <UilStopCircle
-            class="w-10 h-10 fill-current text-white bg-gray-200 text-3xl p-2 rounded-full cursor-not-allowed"
+          <StopIcon
+            class="p-2.5 text-center w-10 h-10 fill-current text-white bg-gray-200 text-3xl rounded-full cursor-not-allowed"
           />
         </div>
 
@@ -81,6 +74,8 @@
 import { UilCloudDataConnection, UilPlayCircle, UilStopCircle, UilCheckCircle } from '@iconscout/vue-unicons'
 import './SyncButtonAction.scss'
 import ConfigStore from '../../../main/config-store'
+import StopIcon from '../ExportIcons/StopIcon.vue'
+import PlayIcon from '../ExportIcons/PlayIcon.vue'
 
 const remote = require('@electron/remote')
 
@@ -135,7 +130,9 @@ export default {
     UilCloudDataConnection,
     UilPlayCircle,
     UilStopCircle,
-    UilCheckCircle
+    UilCheckCircle,
+    StopIcon,
+    PlayIcon
   }
 }
 </script>
