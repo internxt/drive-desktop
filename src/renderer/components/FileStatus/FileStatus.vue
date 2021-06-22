@@ -3,9 +3,9 @@
     class="bg-white rounded-t-2xl p-4 px-6 h-52 fileStatusBox overflow-scroll"
   >
     <div class="flex justify-between">
-      <div class="text-base text-black font-bold">Monitor activity</div>
+      <div class="text-base text-black font-bold">Activity</div>
       <div>
-        <div @click="clearFileLogger()" class="text-blue-600 text-sm cursor-pointer hover:text-blue-800">clear activity</div>
+        <div @click="clearFileLogger()" class="text-blue-600 text-sm cursor-pointer hover:text-blue-800">Clear</div>
       </div>
 
     </div>

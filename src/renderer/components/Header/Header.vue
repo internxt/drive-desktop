@@ -44,7 +44,7 @@
             delay: { show: 300, hide: 300 }
           }"
         >
-          <UilFolderNetwork class="text-blue-600" size="24px" />
+          <UilFolderOpen class="text-blue-600" size="24px" />
         </div>
 
         <div
@@ -96,7 +96,8 @@
 
         <span class="text-sm text-black">Sync mode</span>
         <form class="mt-2 mb-2">
-          <div @click="OpenSyncSettingsModal(false)" class="radioContainer">
+
+          <div @click="OpenSyncSettingsModal(false)" class="radioContainer ml-2">
             <p class="text-xs text-gray-500 hover:text-blue-500 cursor-pointer">
               Full sync
             </p>
@@ -105,7 +106,7 @@
             <span class="smallCheckmark"></span>
           </div>
 
-          <div @click="OpenSyncSettingsModal(true)" class="radioContainer mt-1">
+          <div @click="OpenSyncSettingsModal(true)" class="radioContainer mt-1 ml-2">
             <p class="text-xs text-gray-500 hover:text-blue-500 cursor-pointer pt-0.5">
               Upload only
             </p>
@@ -113,6 +114,7 @@
             <span class="checkmark mt-0.5"></span>
             <span class="smallCheckmark mt-0.5"></span>
           </div>
+
         </form>
         <!-- <span class="text-xs bg-blue-600 p-1.5 rounded-full text-white px-3 cursor-pointer hover:bg-blue-800" @click="stopSync()">Stop sync</span> -->
 

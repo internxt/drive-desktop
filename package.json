@@ -100,6 +100,9 @@
   },
   "dependencies": {
     "@electron/remote": "^1.0.4",
+    "@fortawesome/fontawesome-svg-core": "^1.2.35",
+    "@fortawesome/free-solid-svg-icons": "^5.15.3",
+    "@heroicons/vue": "^1.0.1",
     "@iconscout/vue-unicons": "^0.0.3",
     "analytics-node": "^3.4.0-beta.3",
     "ant-design-vue": "^1.7.5",
@@ -108,6 +111,7 @@
     "babel-plugin-inline-dotenv": "^1.5.0",
     "bip39": "^3.0.2",
     "bootstrap": "^4.3.1",
+    "bootstrap-icons": "^1.5.0",
     "bytes": "^3.1.0",
     "check-disk-space": "^2.1.0",
     "crypto": "^1.0.1",
