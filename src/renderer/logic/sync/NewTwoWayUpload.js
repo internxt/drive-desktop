@@ -9,6 +9,7 @@ import PackageJson from '../../../../package.json'
 import ConfigStore from '../../../main/config-store'
 import SpaceUsage from '../utils/spaceusage'
 import NameTest from '../utils/nameTest'
+import semver from 'semver'
 /*
  * Sync Method: One Way, from LOCAL to CLOUD (Only Upload)
  */
@@ -18,6 +19,7 @@ const { app } = require('@electron/remote')
 ConfigStore.set('isSyncing', false)
 ConfigStore.set('stopSync', false)
 ConfigStore.set('updatingDB', false)
+
 var uploadOnlyMode = false
 function isUploadOnly() {
   return uploadOnlyMode
@@ -56,9 +58,9 @@ async function SyncLogic(callback) {
   if (userDevicesSyncing.fullReset) {
     await Database.ClearAll()
   }
-  if (ConfigStore.get('resetAll')) {
+  if (semver.gt(PackageJson.version, ConfigStore.get('version'))) {
     await Database.ClearAll()
-    ConfigStore.set('resetAll', false)
+    ConfigStore.set('version', PackageJson.version)
   }
   Logger.info('Sync started IsUploadOnly? ', ConfigStore.get('uploadOnly'))
   DeviceLock.startUpdateDeviceSync()
@@ -107,8 +109,8 @@ async function SyncLogic(callback) {
     }
     Logger.info('SYNC END')
     SpaceUsage.updateUsage()
-      .then(() => {})
-      .catch(() => {})
+      .then(() => { })
+      .catch(() => { })
     if (err) {
       Logger.error('Error monitor:', err)
     }

@@ -36,13 +36,9 @@ const schema = {
     type: 'number',
     default: -1
   },
-  resetAll: {
-    type: 'boolean',
-    default: true
-  },
-  showOnboarding: {
-    type: 'boolean',
-    default: true
+  version: {
+    type: 'string',
+    default: '1.3.0'
   }
 }
 

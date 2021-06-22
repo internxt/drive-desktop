@@ -412,7 +412,6 @@ function AnnounceUpdate(version) {
       UpdateOptions.dialogShow = false
       if (userResponse.response === 0) {
         Logger.log('Update now')
-        ConfigStore.set('showOnboarding', true)
         autoUpdater.quitAndInstall(false, true)
       } else {
         Logger.log('Update later')
