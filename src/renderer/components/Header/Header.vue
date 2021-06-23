@@ -49,18 +49,6 @@
 
         <div
           class="cursor-pointer mr-3"
-          v-on:click="ShowAccountModal()"
-          v-tooltip="{
-            content: 'Account',
-            placement: 'bottom',
-            delay: { show: 300, hide: 300 }
-          }"
-        >
-          <UilUserCircle class="text-blue-600" size="24px" />
-        </div>
-
-        <div
-          class="cursor-pointer"
           v-on:click="ShowSettingsModal()"
           v-tooltip="{
             content: 'Settings',
@@ -69,6 +57,18 @@
           }"
         >
           <UilSetting class="text-blue-600" size="24px" />
+        </div>
+
+        <div
+          class="cursor-pointer mr-3"
+          v-on:click="ShowAccountModal()"
+          v-tooltip="{
+            content: 'Account',
+            placement: 'bottom',
+            delay: { show: 300, hide: 300 }
+          }"
+        >
+          <UilUserCircle class="text-blue-600" size="24px" />
         </div>
       </div>
     </div>
