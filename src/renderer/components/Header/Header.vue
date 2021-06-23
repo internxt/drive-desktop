@@ -6,7 +6,7 @@
           <img src="../../assets/svg/brand-app.svg" />
           <div class="text-xs text-gray-500 ml-2">
             <div class="">{{ emailAccount }}</div>
-            <div class="flex">
+            <div class="flex" v-if="showUsage">
               <div class="mr-0.5 text-gray-500 text-xs">{{ usage }} of</div>
               <div class="text-blue-500 text-xs italic">{{ limit }}</div>
               <div v-if="this.showUpgrade" class="ml-2 text-blue-600"><a @click="openLinkBilling()">Upgrade</a></div>
@@ -203,7 +203,7 @@
               </div>
               <div>
                 <div class="font-bold">Storage used</div>
-                <div class="flex">
+                <div class="flex" v-if="showUsage === true">
                   <div class="mr-0.5 text-gray-400 text-xs">{{ usage }} of</div>
                   <div class="text-blue-500 text-xs italic">{{ limit }}</div>
                 </div>
@@ -369,7 +369,8 @@ export default {
       CheckedValue: ConfigStore.get('uploadOnly'),
       showSyncSettingsModal: false,
       console: console,
-      showUpgrade: false
+      showUpgrade: false,
+      showUsage: false
     }
   },
   beforeCreate: function() {
@@ -389,7 +390,10 @@ export default {
     remote.app.on('update-storage', data => {
       this.usage = data.usage
       this.limit = data.limit
-      this.showUpgrade = bytes.parse(this.limit) < 2199023255552
+      if (this.usage && this.limit) {
+        this.showUpgrade = bytes.parse(this.limit) < 2199023255552
+        this.showUsage = true
+      }
     })
     FileLogger.on('update-last-entry', item => {
       this.file = item
