@@ -47,7 +47,7 @@
                 {{ item.filename }}
               </div>
               <div class="text-xs text-gray-500">
-                File encrypting
+                Encrypting File
               </div>
             </div>
           </div>
