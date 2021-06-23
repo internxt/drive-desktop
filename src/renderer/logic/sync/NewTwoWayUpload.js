@@ -36,7 +36,16 @@ function syncStop() {
 }
 
 async function SyncLogic(callback) {
-  const userDevicesSyncing = await DeviceLock.requestSyncLock()
+  let userDevicesSyncing
+  try {
+    userDevicesSyncing = await DeviceLock.requestSyncLock()
+  } catch (e) {
+    if (/Failed to fetch/.test(e.message)) {
+      app.emit('ui-sync-status', 'error')
+    }
+    Logger.error(e)
+    return
+  }
   if (userDevicesSyncing.error) {
     Logger.warn(`Error when try to start sync ${userDevicesSyncing.error}`)
     return start(callback)
@@ -116,8 +125,8 @@ async function SyncLogic(callback) {
     }
     Logger.info('SYNC END')
     SpaceUsage.updateUsage()
-      .then(() => { })
-      .catch(() => { })
+      .then(() => {})
+      .catch(() => {})
     if (err) {
       Logger.error('Error monitor:', err)
     }
