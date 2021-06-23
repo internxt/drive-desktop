@@ -5,7 +5,7 @@
     <Header :appName="appName" :emailAccount="emailAccount" />
 
     <FileStatus :FileStatusSync="FileStatusSync" />
-    <SyncButtonAction />
+    <SyncButtonAction :FileStatusSync="FileStatusSync"/>
   </div>
 </template>
 

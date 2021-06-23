@@ -107,15 +107,20 @@ export default {
         this.syncButtonState = isSyncing
       },
       changeSyncStatus: status => {
-        this.syncState = status
+        console.log(`%c STATUS: ${status}`, 'color: #bada55')
+        if (status !== 'pending' && status !== 'success' && this.FileStatusSync.length === 0) {
+          this.syncState = 'default'
+        } else {
+          this.syncState = status
+        }
       }
     }
   },
   props: {
-    // setUpdateFlag: {
-    //   type: Function,
-    //   required: false
-    // }
+    FileStatusSync: {
+      type: Array,
+      required: false
+    }
   },
   methods: {
     cambiarEstado() {},
