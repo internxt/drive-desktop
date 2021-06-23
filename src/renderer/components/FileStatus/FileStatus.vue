@@ -81,7 +81,7 @@
                 {{ item.filename }}
               </div>
               <div class="text-xs text-gray-500">
-                File successfully uploaded
+                File uploaded
               </div>
             </div>
           </div>
@@ -151,7 +151,7 @@
                 {{ item.filename }}
               </div>
               <div class="text-xs text-gray-500">
-                <div class="text-red-500">Error file upload.</div>
+                <div class="text-red-500">Error deleting file on the internxt cloud.</div>
               </div>
             </div>
           </div>
@@ -167,7 +167,7 @@
                 {{ item.filename }}
               </div>
               <div class="text-xs text-gray-500">
-                <div class="text-red-500">File removed successfully</div>
+                <div class="text-green-500">File removed from the internxt cloud</div>
               </div>
             </div>
           </div>
@@ -177,7 +177,7 @@
     </div>
 
     <div v-else class="flex flex-col items-center justify-center w-full h-full">
-      <div class="text-gray-600 text-sm">Start Synchronizing press on play button</div>
+      <div class="text-gray-600 text-sm">To start synchronizing press on play button</div>
     </div>
   </div>
 </template>

@@ -5,7 +5,7 @@
 
       <div v-if="syncState === 'default'">
           <div class="text-gray-500 select-none">
-            <div>Start sync your files</div>
+            <div>Start syncing your files</div>
             <div class="flex text-blue-600">Start by clicking the Play button</div>
           </div>
       </div>
@@ -18,16 +18,21 @@
             </div>
         </div>
         <div v-if="syncState === 'success'" class="text-gray-500 select-none">
-            <div>Sync process successful</div>
+            <div>Sync process</div>
             <div class="flex">Status: <span class="text-green-500"><UilCheckCircle class="text-green-500 ml-1 mr-0.5 mt-0.5" /></span><span class="text-green-500">Success</span></div>
         </div>
         <div v-if="syncState === 'stop'" class="text-gray-500 select-none">
-            <div>Sync process stopped</div>
-            <div class="flex">Status: <span class="text-green-500"><UilStopCircle class="text-gray-500 ml-1 mr-0.5 mt-0.5" /></span><span class="text-gray-500">Stopped sync</span></div>
+            <div>Sync process</div>
+            <div>Status: Stopped</div>
         </div>
         <div v-if="syncState === 'error'" class="text-gray-500 select-none">
-            <div>Sync process stopped</div>
-            <div class="flex">Status: <span class="text-green-500"><UilStopCircle class="text-red-500 ml-1 mr-0.5 mt-0.5" /></span><span class="text-red-500">Error sync</span></div>
+            <div>Sync process</div>
+            <!-- <div class="flex">Status: <span class="text-green-500"><UilStopCircle class="text-red-500 ml-1 mr-0.5 mt-0.5" /></span><span class="text-red-500">Error sync</span></div> -->
+            <div>Status: Stopped</div>
+        </div>
+        <div v-if="syncState === 'block'" class="text-gray-500 select-none">
+            <div>Sync process blocked by other device</div>
+            <div class="flex"><span class="text-gray-500 select-none italic">Wait until no devices are syncing</span></div>
         </div>
       </div>
 

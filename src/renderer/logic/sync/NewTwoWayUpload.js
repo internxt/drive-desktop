@@ -52,7 +52,7 @@ async function SyncLogic(callback) {
   }
   if (userDevicesSyncing.data || ConfigStore.get('isSyncing')) {
     Logger.warn('sync not started: another device already syncing')
-    app.emit('sync-blocked-by-other-device')
+    app.emit('ui-sync-status', 'block')
     return start(callback)
   }
   ConfigStore.set('isSyncing', true)

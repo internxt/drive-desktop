@@ -190,27 +190,6 @@
         >
           Quit
         </div>
-
-        <div>
-          <div
-            class="text-xs border border-dashed border-gray-200 p-2 px-3 rounded mt-6"
-          >
-            <div class="flex">
-              <div>
-                <UilServerConnection
-                  class="text-blue-600 text-2xl mr-4 mt-0.5"
-                />
-              </div>
-              <div>
-                <div class="font-bold">Storage used</div>
-                <div class="flex" v-if="showUsage === true">
-                  <div class="mr-0.5 text-gray-400 text-xs">{{ usage }} of</div>
-                  <div class="text-blue-500 text-xs italic">{{ limit }}</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
     </transition>
 
