@@ -27,7 +27,7 @@
         </div>
         <div v-if="syncState === 'error'" class="text-gray-500 select-none">
             <div>Sync process stopped</div>
-            <div class="flex">Status: <span class="text-green-500"><UilStopCircle class="text-red-500 ml-1 mr-0.5 mt-0.5" /></span><span class="text-red-500">Error sync</span></div>
+            <!-- <div class="flex">Status: <span class="text-green-500"><UilStopCircle class="text-red-500 ml-1 mr-0.5 mt-0.5" /></span><span class="text-red-500">Error sync</span></div> -->
         </div>
       </div>
 
