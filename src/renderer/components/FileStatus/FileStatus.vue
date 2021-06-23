@@ -194,6 +194,7 @@ import {
 import './FileStatus'
 import CircleWithCloud from '../ExportIcons/CircleWithCloud'
 import ConfigStore from '../../../main/config-store'
+import FileLogger from '../../logic/FileLogger'
 
 const remote = require('@electron/remote')
 
@@ -224,7 +225,7 @@ export default {
       return formatter.format(value)
     },
     clearFileLogger() {
-      this.FileStatusSync = []
+      FileLogger.emit('clear-log')
     }
   },
   name: 'FileStatus',

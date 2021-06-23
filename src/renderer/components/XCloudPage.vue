@@ -75,12 +75,16 @@ export default {
   beforeDestroy: function () {
     FileLogger.removeAllListeners('update-last-entry')
     FileLogger.removeAllListeners('new-entry')
+    FileLogger.removeAllListeners('clear-log')
     remote.app.removeAllListeners('user-logout')
     remote.app.removeAllListeners('new-folder-path')
     remote.app.removeListener('set-tooltip', this.setTooltip)
     remote.app.removeAllListeners('update-last-entry')
   },
   created: function () {
+    FileLogger.on('clear-log', () => {
+      this.FileStatusSync = []
+    })
     FileLogger.on('update-last-entry', (entry) => {
       Vue.set(this.FileStatusSync, 0, entry)
       // this.$forceUpdate()
@@ -145,7 +149,6 @@ export default {
     setUpdateFlag() {
       this.flag = true
       this.FileStatusSync = []
-      console.log(this.flag)
     }
   }
 }
