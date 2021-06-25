@@ -432,7 +432,8 @@ function SuggestUpdate(version, downloadUrl) {
   const options = {
     type: 'question',
     buttons: ['Download update', 'Ignore'],
-    defaultId: 1,
+    defaultId: 0,
+    cancelId: 1,
     title: 'Internxt Drive',
     message: 'New Internxt Drive update available: ' + version
   }
