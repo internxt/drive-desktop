@@ -3,7 +3,7 @@
     <!-- <div>{{ this.syncState }}</div><br /> -->
     <div class="flex">
 
-      <syncStatusText :msg = "message"/>
+      <syncStatusText :msg = "message" :syncState = "syncState"/>
 
       <!-- Error - string= 'error' -->
     </div>
