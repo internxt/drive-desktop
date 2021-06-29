@@ -63,21 +63,24 @@
           </svg>
         </div>
         <div @click="stopSync()">
-          <StopIcon
+          <!-- <StopIcon
             class="w-10 h-10 fill-current text-white bg-blue-600 text-3xl p-2.5 rounded-full cursor-pointer hover:bg-indigo-900 shadow-2xl transition duration-500 ease-in-out"
-          />
+          /> -->
+          <StopIcon :class="stopStateButtons"/>
         </div>
       </div>
       <div v-else class="flex">
         <div @click="forceSync()">
-          <PlayIcon
+          <!-- <PlayIcon
             class="w-10 h-10 mr-1 fill-current text-white bg-blue-600 text-3xl p-2.5 rounded-full cursor-pointer hover:bg-indigo-900 shadow-2xl transition duration-500 ease-in-out"
-          />
+          /> -->
+          <PlayIcon :class="playStateButtons"/>
         </div>
         <div>
-          <StopIcon
+          <!-- <StopIcon
             class="p-2.5 text-center w-10 h-10 fill-current text-white bg-gray-200 text-3xl rounded-full cursor-not-allowed"
-          />
+          /> -->
+          <StopIcon :class="stopStateButtons"/>
         </div>
       </div>
     </div>
@@ -101,6 +104,8 @@ const remote = require('@electron/remote')
 export default {
   data() {
     return {
+      stopStateButtons: 'inactiveButtonSync',
+      playStateButtons: 'inactiveButtonSync',
       syncState: 'default',
       syncButtonState: ConfigStore.get('isSyncing'),
       changeSyncButton: isSyncing => {
