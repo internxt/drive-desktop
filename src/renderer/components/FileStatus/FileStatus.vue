@@ -169,7 +169,7 @@
                 {{ item.filename }}
               </div>
               <div class="text-xs text-gray-500">
-                <div class="text-green-500">File removed from the internxt cloud</div>
+                <div class="text-green-500">File removed from the Internxt cloud</div>
               </div>
             </div>
           </div>
