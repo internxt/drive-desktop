@@ -63,7 +63,7 @@
                 {{ item.filename }}
               </div>
               <div class="text-xs text-gray-500">
-                {{ item.progress ? item.progress + '%' : '' }} File downloading
+                {{ item.progress ? item.progress + '%' : '' }} File downloaded
               </div>
             </div>
           </div>
