@@ -145,7 +145,7 @@
             class="flex mb-2"
             v-if="item.state === 'error' && item.action === 'remove'"
           >
-            <UilFileMinusAlt class="text-2xl mr-3 fill-current text-red-500" />
+            <UilTrashAlt class="text-2xl mr-3 fill-current text-red-500" />
             <div>
               <div class="text-gray-500">
                 {{ item.filename }}
@@ -161,7 +161,7 @@
             class="flex mb-2"
             v-if="item.state === 'success' && item.action === 'remove'"
           >
-            <UilFileMinusAlt class="text-2xl mr-3 fill-current text-gray-500" />
+            <UilTrashAlt class="text-2xl mr-3 fill-current text-gray-500" />
             <div>
               <div>
                 {{ item.filename }}
@@ -189,7 +189,7 @@ import {
   UilFileBlank,
   UilFileTimes,
   UilFileDownload,
-  UilFileMinusAlt
+  UilTrashAlt
 } from '@iconscout/vue-unicons'
 import './FileStatus'
 import CircleWithCloud from '../ExportIcons/CircleWithCloud'
@@ -237,7 +237,7 @@ export default {
     CircleWithCloud,
     UilFileTimes,
     UilFileDownload,
-    UilFileMinusAlt
+    UilTrashAlt
   }
 }
 </script>
