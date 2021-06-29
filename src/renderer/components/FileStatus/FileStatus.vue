@@ -1,8 +1,7 @@
 <template>
-  <div
-    class="bg-white rounded-t-2xl p-4 px-6 h-52 fileStatusBox overflow-scroll"
-  >
-    <div class="flex justify-between">
+<div>
+
+  <div class="flex justify-between fixed bg-white p-2 px-6 w-full">
       <div class="text-base text-black font-bold">Activity</div>
       <div>
         <div @click="clearFileLogger()" class="text-blue-600 text-sm cursor-pointer hover:text-blue-800">Clear</div>
@@ -10,7 +9,10 @@
 
     </div>
 
-    <div v-if="this.FileStatusSync.length > 0">
+  <div
+    class="bg-white rounded-t-2xl p-4 px-6 h-56 fileStatusBox overflow-scroll"
+  >
+    <div v-if="this.FileStatusSync.length > 0" class="mt-7">
       <div class="mb-1 mt-4">
         <div
           class=""
@@ -167,7 +169,7 @@
                 {{ item.filename }}
               </div>
               <div class="text-xs text-gray-500">
-                <div class="text-green-500">File removed from the internxt cloud</div>
+                <div class="text-green-500">File removed from the Internxt cloud</div>
               </div>
             </div>
           </div>
@@ -175,10 +177,7 @@
         </div>
       </div>
     </div>
-
-    <div v-else class="flex flex-col items-center justify-center w-full h-full">
-      <div class="text-gray-600 text-sm">To start synchronizing press on play button</div>
-    </div>
+  </div>
   </div>
 </template>
 <script>
