@@ -8,6 +8,8 @@ import database from '../../database'
 import Logger from '../../libs/logger'
 import Auth from './utils/Auth'
 
+const { app } = require('@electron/remote')
+
 const SYNC_KEEPALIVE_INTERVAL_MS = 25000
 
 let updateSyncInterval
@@ -86,6 +88,7 @@ function update(toNull = false) {
 
 async function unlock() {
   Logger.info('Sync unlocked')
+  app.emit('ui-sync-status', 'unblock')
   const header = await Auth.getAuthHeader()
   return new Promise((resolve, reject) => {
     fetch(`${process.env.API_URL}/api/user/sync`, {

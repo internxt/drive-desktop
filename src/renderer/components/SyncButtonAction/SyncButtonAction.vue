@@ -3,38 +3,7 @@
     <!-- <div>{{ this.syncState }}</div><br /> -->
     <div class="flex">
 
-      <div v-if="syncState === 'default'">
-          <div class="text-gray-500 select-none">
-            <div>Start syncing your files</div>
-            <div class="flex text-blue-600">Start by clicking the Play button</div>
-          </div>
-      </div>
-
-      <div v-else>
-        <div v-if="syncState === 'pending'" class="text-gray-500 select-none">
-            <div class="animate-pulse">
-              <div>Synchronizing your files</div>
-              <div>Status: pending...</div>
-            </div>
-        </div>
-        <div v-if="syncState === 'success'" class="text-gray-500 select-none">
-            <div>Sync process</div>
-            <div class="flex">Status: <span class="text-green-500"><UilCheckCircle class="text-green-500 ml-1 mr-0.5 mt-0.5" /></span><span class="text-green-500">Success</span></div>
-        </div>
-        <div v-if="syncState === 'stop'" class="text-gray-500 select-none">
-            <div>Sync process</div>
-            <div>Status: Stopped</div>
-        </div>
-        <div v-if="syncState === 'error'" class="text-gray-500 select-none">
-            <div>Sync process</div>
-            <!-- <div class="flex">Status: <span class="text-green-500"><UilStopCircle class="text-red-500 ml-1 mr-0.5 mt-0.5" /></span><span class="text-red-500">Error sync</span></div> -->
-            <div>Status: Stopped</div>
-        </div>
-        <div v-if="syncState === 'block'" class="text-gray-500 select-none">
-            <div>Sync process blocked by other device</div>
-            <div class="flex"><span class="text-gray-500 select-none italic">Wait until no devices are syncing</span></div>
-        </div>
-      </div>
+      <syncStatusText :msg = "message"/>
 
       <!-- Error - string= 'error' -->
     </div>
@@ -71,7 +40,7 @@
       <div v-else class="flex">
         <div @click="forceSync()">
           <PlayIcon
-            class="w-10 h-10 mr-1 fill-current text-white bg-blue-600 text-3xl p-2.5 rounded-full cursor-pointer hover:bg-indigo-900 shadow-2xl transition duration-500 ease-in-out"
+            class='w-10 h-10 mr-1 fill-current text-white bg-blue-600 text-3xl p-2.5 rounded-full cursor-pointer hover:bg-indigo-900 shadow-2xl transition duration-500 ease-in-out'
           />
         </div>
         <div>
@@ -95,6 +64,9 @@ import './SyncButtonAction.scss'
 import ConfigStore from '../../../main/config-store'
 import StopIcon from '../ExportIcons/StopIcon.vue'
 import PlayIcon from '../ExportIcons/PlayIcon.vue'
+import syncButtonState from '../../logic/syncButtonStateMachine'
+import syncStatusText from './syncStatusText'
+import getMessage from './statusMessage'
 
 const remote = require('@electron/remote')
 
@@ -103,16 +75,29 @@ export default {
     return {
       syncState: 'default',
       syncButtonState: ConfigStore.get('isSyncing'),
+      playButtonState: 'active',
+      stopButtonState: 'inactive',
+      message: {},
       changeSyncButton: isSyncing => {
         this.syncButtonState = isSyncing
       },
       changeSyncStatus: status => {
-        console.log(`%c STATUS: ${status}`, 'color: #bada55')
-        if (status !== 'pending' && status !== 'success' && this.FileStatusSync.length === 0) {
+        console.log(`%c Status Change. STATUS: ${this.syncState}, PLAY BUTTON: ${this.playButtonState}, STOP BUTTON: ${this.stopButtonState}, TRANSITION: ${status}`, 'color: #FFA500')
+        const { syncState, playButtonState, stopButtonState } = syncButtonState(this.syncState, status)
+        this.syncState = syncState
+        this.playButtonState = playButtonState
+        this.stopButtonState = stopButtonState
+        this.message = getMessage(syncState)
+        console.log(`%c NEW STATE: ${this.syncState}, PLAY BUTTON: ${this.playButtonState}, STOP BUTTON: ${this.stopButtonState}`, 'color: #FFA500')
+        /* // Do not block if we are syncing
+        if (status === 'block' && this.syncState === 'pending') {
+          this.syncState = this.syncState
+        }
+        if (status !== 'pending' && status !== 'success' && status === 'block' && this.FileStatusSync.length === 0) {
           this.syncState = 'default'
         } else {
           this.syncState = status
-        }
+        } */
       }
     }
   },
@@ -123,12 +108,8 @@ export default {
     }
   },
   methods: {
-    cambiarEstado() {},
-    debug() {},
     forceSync() {
       remote.app.emit('sync-start')
-      // this.syncState = true
-      // this.setUpdateFlag()
     },
     // Stop forceSync
     StopForceSync() {
@@ -160,7 +141,8 @@ export default {
     UilStopCircle,
     UilCheckCircle,
     StopIcon,
-    PlayIcon
+    PlayIcon,
+    syncStatusText
   }
 }
 </script>
