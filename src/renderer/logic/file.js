@@ -38,7 +38,7 @@ sincronizeAction[state.state.DELETE_CLOUD] = deleteCloudState
 sincronizeAction[state.state.DELETE_LOCAL] = deleteLocalState
 sincronizeAction[state.state.DELETEIGNORE] = deleteIgnoreState
 // BucketId and FileId must be the NETWORK ids (mongodb)
-async function removeFile(bucketId, fileId, filename, force = false, file) {
+async function removeFile(bucketId, fileId, filename, file, force = false) {
   if (force) {
     // Notificate.replace (updating)
     Logger.log(
@@ -66,7 +66,7 @@ async function removeFile(bucketId, fileId, filename, force = false, file) {
   if (result.error) {
     // Notificate.error delete cloud
     FileLogger.push({
-      // filePath:
+      filePath: file.key,
       action: 'remove',
       state: 'error',
       description: result.error.message
@@ -730,7 +730,7 @@ async function uploadState(file, rootPath, user, parentFolder) {
     } else {
       file.state = state.state.DELETE_CLOUD
       try {
-        await removeFile(cloudFile.bucket, cloudFile.fileId, file.key)
+        await removeFile(cloudFile.bucket, cloudFile.fileId, file.key, file)
         // When implement trash may delete next line
         Spaceusage.updateUsage(file.size)
         await Database.dbRemoveOne(Database.dbFiles, { key: file.key })

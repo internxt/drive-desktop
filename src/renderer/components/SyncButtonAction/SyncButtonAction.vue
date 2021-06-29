@@ -1,9 +1,8 @@
 <template>
   <div class="flex justify-between p-4 px-6">
-    <!-- <div>{{ this.syncState }}</div><br /> -->
     <div class="flex">
 
-      <syncStatusText :msg = "message"/>
+      <syncStatusText :msg = "message" :syncState = "syncState"/>
 
       <!-- Error - string= 'error' -->
     </div>
@@ -32,24 +31,15 @@
           </svg>
         </div>
         <div @click="stopSync()">
-          <!-- <StopIcon
-            class="w-10 h-10 fill-current text-white bg-blue-600 text-3xl p-2.5 rounded-full cursor-pointer hover:bg-indigo-900 shadow-2xl transition duration-500 ease-in-out"
-          /> -->
-          <StopIcon :class="stopStateButtons"/>
+          <StopIcon :stopButtonState="stopButtonState"/>
         </div>
       </div>
       <div v-else class="flex">
         <div @click="forceSync()">
-          <!-- <PlayIcon
-            class="w-10 h-10 mr-1 fill-current text-white bg-blue-600 text-3xl p-2.5 rounded-full cursor-pointer hover:bg-indigo-900 shadow-2xl transition duration-500 ease-in-out"
-          /> -->
-          <PlayIcon :class="playStateButtons"/>
+          <PlayIcon :playButtonState="playButtonState"/>
         </div>
         <div>
-          <!-- <StopIcon
-            class="p-2.5 text-center w-10 h-10 fill-current text-white bg-gray-200 text-3xl rounded-full cursor-not-allowed"
-          /> -->
-          <StopIcon :class="stopStateButtons"/>
+          <StopIcon :stopButtonState="stopButtonState"/>
         </div>
       </div>
     </div>
@@ -76,12 +66,11 @@ const remote = require('@electron/remote')
 export default {
   data() {
     return {
-      stopStateButtons: 'inactiveButtonSync',
-      playStateButtons: 'inactiveButtonSync',
       syncState: 'default',
       syncButtonState: ConfigStore.get('isSyncing'),
       playButtonState: 'active',
       stopButtonState: 'inactive',
+      stopButtonSync: 'inactiveButtonSync',
       message: {},
       changeSyncButton: isSyncing => {
         this.syncButtonState = isSyncing
