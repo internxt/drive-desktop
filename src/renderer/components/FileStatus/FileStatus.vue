@@ -4,7 +4,8 @@
   <div class="flex justify-between fixed bg-white p-2 px-6 w-full">
       <div class="text-base text-black font-bold">Activity</div>
       <div>
-        <div @click="clearFileLogger()" class="text-blue-600 text-sm cursor-pointer hover:text-blue-800">Clear</div>
+        <div v-if="this.isSyncing" class="text-gray-300 text-sm cursor-pointer hover:text-gray-300">Clear</div>
+        <div v-else @click="clearFileLogger()" class="text-blue-600 text-sm cursor-pointer hover:text-blue-800">Clear</div>
       </div>
 
     </div>
@@ -200,10 +201,13 @@ const remote = require('@electron/remote')
 export default {
   data() {
     return {
-      test: {},
-      loading: false,
-      stopSync: ConfigStore.get('stopSync')
+      isSyncing: ConfigStore.get('isSyncing')
     }
+  },
+  created: function() {
+    remote.app.on('sync-on', this.changeIsSyncing)
+    remote.app.on('sync-off', this.changeIsSyncing)
+    remote.app.on('sync-stop', this.changeIsSyncing)
   },
   props: {
     FileStatusSync: {
@@ -211,8 +215,11 @@ export default {
       required: false
     }
   },
-  created() {},
-  beforeDestroy: function () {},
+  beforeDestroy: function () {
+    remote.app.removeListener('sync-off', this.changeIsSyncing)
+    remote.app.removeListener('sync-on', this.changeIsSyncing)
+    remote.app.removeListener('sync-stop', this.changeIsSyncing)
+  },
   mounted: function () {},
   updated: function () {},
   destroyed: function () {},
@@ -225,6 +232,9 @@ export default {
     },
     clearFileLogger() {
       FileLogger.emit('clear-log')
+    },
+    changeIsSyncing(state) {
+      this.isSyncing = !this.isSyncing
     }
   },
   name: 'FileStatus',
