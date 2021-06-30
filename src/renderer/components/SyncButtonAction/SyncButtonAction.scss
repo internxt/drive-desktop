@@ -4,3 +4,35 @@
     left: 0;
     right: 0;
 }
+.active {
+    height: 2.5rem;
+    width: 2.5rem;
+    margin-right: .5rem;
+    fill: white;
+    background-color: #2563EB;
+    font-size: 1.875rem;
+    line-height: 2.25rem;
+    border-radius: 9999px;
+    cursor: pointer;
+    fill: currentColor;
+    color: white;
+    padding: 0.625rem;
+}
+.inactive {
+    height: 2.5rem;
+    width: 2.5rem;
+    margin-right: .5rem;
+    fill: white;
+    background-color: #E5E7EB;
+    font-size: 1.875rem;
+    line-height: 2.25rem;
+    border-radius: 9999px;
+    cursor: pointer;
+    fill: currentColor;
+    color: #D1D5DB;
+    padding: 0.625rem;
+    cursor: not-allowed;
+}
+// .loadingButtonSync {
+
+// }

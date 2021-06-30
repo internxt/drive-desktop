@@ -1,83 +1,21 @@
 <template>
   <div class="flex justify-between p-4 px-6">
-    <!-- <div>{{ this.syncState }}</div><br /> -->
     <div class="flex">
 
-      <div v-if="syncState === 'default'">
-          <div class="text-gray-500 select-none">
-            <div>Start syncing your files</div>
-            <div class="flex text-blue-600">Start by clicking the Play button</div>
-          </div>
-      </div>
-
-      <div v-else>
-        <div v-if="syncState === 'pending'" class="text-gray-500 select-none">
-            <div class="animate-pulse">
-              <div>Synchronizing your files</div>
-              <div>Status: pending...</div>
-            </div>
-        </div>
-        <div v-if="syncState === 'success'" class="text-gray-500 select-none">
-            <div>Sync process</div>
-            <div class="flex">Status: <span class="text-green-500"><UilCheckCircle class="text-green-500 ml-1 mr-0.5 mt-0.5" /></span><span class="text-green-500">Success</span></div>
-        </div>
-        <div v-if="syncState === 'stop'" class="text-gray-500 select-none">
-            <div>Sync process</div>
-            <div>Status: Stopped</div>
-        </div>
-        <div v-if="syncState === 'error'" class="text-gray-500 select-none">
-            <div>Sync process</div>
-            <!-- <div class="flex">Status: <span class="text-green-500"><UilStopCircle class="text-red-500 ml-1 mr-0.5 mt-0.5" /></span><span class="text-red-500">Error sync</span></div> -->
-            <div>Status: Stopped</div>
-        </div>
-        <div v-if="syncState === 'block'" class="text-gray-500 select-none">
-            <div>Sync process blocked by other device</div>
-            <div class="flex"><span class="text-gray-500 select-none italic">Wait until no devices are syncing</span></div>
-        </div>
-      </div>
+      <syncStatusText :msg = "message" :syncState = "syncState"/>
 
       <!-- Error - string= 'error' -->
     </div>
     <div class="flex justify-center">
-      <div v-if="syncButtonState === true" class="flex">
-        <div class="bg-blue-300 rounded-full p-2.5 w-10 h-10 mr-1">
-          <svg
-            class="animate-spin h-5 w-5 text-white"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-          >
-            <circle
-              class="opacity-25"
-              cx="12"
-              cy="12"
-              r="10"
-              stroke="currentColor"
-              stroke-width="4"
-            ></circle>
-            <path
-              class="opacity-75"
-              fill="currentColor"
-              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-            ></path>
-          </svg>
+      <div class="flex">
+        <div v-if="this.playButtonState !== 'loading'" @click="forceSync()">
+          <PlayIcon :playButtonState="playButtonState"/>
+        </div>
+        <div v-else>
+          <LoadingSpinAnimation/>
         </div>
         <div @click="stopSync()">
-          <StopIcon
-            class="w-10 h-10 fill-current text-white bg-blue-600 text-3xl p-2.5 rounded-full cursor-pointer hover:bg-indigo-900 shadow-2xl transition duration-500 ease-in-out"
-          />
-        </div>
-      </div>
-      <div v-else class="flex">
-        <div @click="forceSync()">
-          <PlayIcon
-            class="w-10 h-10 mr-1 fill-current text-white bg-blue-600 text-3xl p-2.5 rounded-full cursor-pointer hover:bg-indigo-900 shadow-2xl transition duration-500 ease-in-out"
-          />
-        </div>
-        <div>
-          <StopIcon
-            class="p-2.5 text-center w-10 h-10 fill-current text-white bg-gray-200 text-3xl rounded-full cursor-not-allowed"
-          />
+          <StopIcon  :stopButtonState="stopButtonState"/>
         </div>
       </div>
     </div>
@@ -95,6 +33,10 @@ import './SyncButtonAction.scss'
 import ConfigStore from '../../../main/config-store'
 import StopIcon from '../ExportIcons/StopIcon.vue'
 import PlayIcon from '../ExportIcons/PlayIcon.vue'
+import LoadingSpinAnimation from '../ExportIcons/LoadingSpinAnimation'
+import syncButtonState from '../../logic/syncButtonStateMachine'
+import syncStatusText from './syncStatusText'
+import getMessage from './statusMessage'
 
 const remote = require('@electron/remote')
 
@@ -103,16 +45,21 @@ export default {
     return {
       syncState: 'default',
       syncButtonState: ConfigStore.get('isSyncing'),
+      playButtonState: 'active',
+      stopButtonState: 'inactive',
+      stopButtonSync: 'inactiveButtonSync',
+      message: {},
       changeSyncButton: isSyncing => {
         this.syncButtonState = isSyncing
       },
       changeSyncStatus: status => {
-        console.log(`%c STATUS: ${status}`, 'color: #bada55')
-        if (status !== 'pending' && status !== 'success' && this.FileStatusSync.length === 0) {
-          this.syncState = 'default'
-        } else {
-          this.syncState = status
-        }
+        // console.log(`%c Status Change. STATUS: ${this.syncState}, PLAY BUTTON: ${this.playButtonState}, STOP BUTTON: ${this.stopButtonState}, TRANSITION: ${status}`, 'color: #FFA500')
+        const { syncState, playButtonState, stopButtonState } = syncButtonState(this.syncState, status)
+        this.syncState = syncState
+        this.playButtonState = playButtonState
+        this.stopButtonState = stopButtonState
+        this.message = getMessage(syncState)
+        // console.log(`%c NEW STATE: ${this.syncState}, PLAY BUTTON: ${this.playButtonState}, STOP BUTTON: ${this.stopButtonState}`, 'color: #FFA500')
       }
     }
   },
@@ -123,12 +70,10 @@ export default {
     }
   },
   methods: {
-    cambiarEstado() {},
-    debug() {},
     forceSync() {
-      remote.app.emit('sync-start')
-      // this.syncState = true
-      // this.setUpdateFlag()
+      if (this.playButtonState === 'active') {
+        remote.app.emit('sync-start')
+      }
     },
     // Stop forceSync
     StopForceSync() {
@@ -138,7 +83,9 @@ export default {
     },
     // Stop sync
     stopSync() {
-      remote.app.emit('sync-stop')
+      if (this.stopButtonState === 'active') {
+        remote.app.emit('sync-stop')
+      }
     }
   },
   created: function() {
@@ -160,7 +107,9 @@ export default {
     UilStopCircle,
     UilCheckCircle,
     StopIcon,
-    PlayIcon
+    PlayIcon,
+    syncStatusText,
+    LoadingSpinAnimation
   }
 }
 </script>

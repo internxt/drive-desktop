@@ -535,7 +535,7 @@ app.on('ready', () => {
   // Check updates every 6 hours
   setInterval(() => {
     checkUpdates()
-  }, 1000 * 60 * 60 * 6)
+  }, 1000 * 60 * 60 * 12)
 
   powerMonitor.on('suspend', function() {
     Logger.warn('User system suspended')

@@ -1,16 +1,19 @@
 <template>
-  <div
-    class="bg-white rounded-t-2xl p-4 px-6 h-52 fileStatusBox overflow-scroll"
-  >
-    <div class="flex justify-between">
+<div>
+
+  <div class="flex justify-between fixed bg-white p-2 px-6 w-full">
       <div class="text-base text-black font-bold">Activity</div>
       <div>
-        <div @click="clearFileLogger()" class="text-blue-600 text-sm cursor-pointer hover:text-blue-800">Clear</div>
+        <div v-if="this.isSyncing" class="text-gray-300 text-sm cursor-pointer hover:text-gray-300">Clear</div>
+        <div v-else @click="clearFileLogger()" class="text-blue-600 text-sm cursor-pointer hover:text-blue-800">Clear</div>
       </div>
 
     </div>
 
-    <div v-if="this.FileStatusSync.length > 0">
+  <div
+    class="bg-white rounded-t-2xl p-4 px-6 h-56 fileStatusBox overflow-scroll"
+  >
+    <div v-if="this.FileStatusSync.length > 0" class="mt-7">
       <div class="mb-1 mt-4">
         <div
           class=""
@@ -63,7 +66,7 @@
                 {{ item.filename }}
               </div>
               <div class="text-xs text-gray-500">
-                {{ item.progress ? item.progress + '%' : '' }} File downloading
+                {{ item.progress ? item.progress + '%' : '' }} File downloaded
               </div>
             </div>
           </div>
@@ -145,7 +148,7 @@
             class="flex mb-2"
             v-if="item.state === 'error' && item.action === 'remove'"
           >
-            <UilFileMinusAlt class="text-2xl mr-3 fill-current text-red-500" />
+            <UilTrashAlt class="text-2xl mr-3 fill-current text-red-500" />
             <div>
               <div class="text-gray-500">
                 {{ item.filename }}
@@ -161,13 +164,13 @@
             class="flex mb-2"
             v-if="item.state === 'success' && item.action === 'remove'"
           >
-            <UilFileMinusAlt class="text-2xl mr-3 fill-current text-gray-500" />
+            <UilTrashAlt class="text-2xl mr-3 fill-current text-gray-500" />
             <div>
               <div>
                 {{ item.filename }}
               </div>
               <div class="text-xs text-gray-500">
-                <div class="text-green-500">File removed from the internxt cloud</div>
+                <div class="text-green-500">File removed from the Internxt cloud</div>
               </div>
             </div>
           </div>
@@ -175,10 +178,7 @@
         </div>
       </div>
     </div>
-
-    <div v-else class="flex flex-col items-center justify-center w-full h-full">
-      <div class="text-gray-600 text-sm">To start synchronizing press on play button</div>
-    </div>
+  </div>
   </div>
 </template>
 <script>
@@ -189,7 +189,7 @@ import {
   UilFileBlank,
   UilFileTimes,
   UilFileDownload,
-  UilFileMinusAlt
+  UilTrashAlt
 } from '@iconscout/vue-unicons'
 import './FileStatus'
 import CircleWithCloud from '../ExportIcons/CircleWithCloud'
@@ -201,10 +201,13 @@ const remote = require('@electron/remote')
 export default {
   data() {
     return {
-      test: {},
-      loading: false,
-      stopSync: ConfigStore.get('stopSync')
+      isSyncing: ConfigStore.get('isSyncing')
     }
+  },
+  created: function() {
+    remote.app.on('sync-on', this.changeIsSyncing)
+    remote.app.on('sync-off', this.changeIsSyncing)
+    remote.app.on('sync-stop', this.changeIsSyncing)
   },
   props: {
     FileStatusSync: {
@@ -212,8 +215,11 @@ export default {
       required: false
     }
   },
-  created() {},
-  beforeDestroy: function () {},
+  beforeDestroy: function () {
+    remote.app.removeListener('sync-off', this.changeIsSyncing)
+    remote.app.removeListener('sync-on', this.changeIsSyncing)
+    remote.app.removeListener('sync-stop', this.changeIsSyncing)
+  },
   mounted: function () {},
   updated: function () {},
   destroyed: function () {},
@@ -226,6 +232,9 @@ export default {
     },
     clearFileLogger() {
       FileLogger.emit('clear-log')
+    },
+    changeIsSyncing(state) {
+      this.isSyncing = ConfigStore.get('isSyncing')
     }
   },
   name: 'FileStatus',
@@ -237,7 +246,7 @@ export default {
     CircleWithCloud,
     UilFileTimes,
     UilFileDownload,
-    UilFileMinusAlt
+    UilTrashAlt
   }
 }
 </script>
