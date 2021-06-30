@@ -53,13 +53,13 @@ export default {
         this.syncButtonState = isSyncing
       },
       changeSyncStatus: status => {
-        console.log(`%c Status Change. STATUS: ${this.syncState}, PLAY BUTTON: ${this.playButtonState}, STOP BUTTON: ${this.stopButtonState}, TRANSITION: ${status}`, 'color: #FFA500')
+        // console.log(`%c Status Change. STATUS: ${this.syncState}, PLAY BUTTON: ${this.playButtonState}, STOP BUTTON: ${this.stopButtonState}, TRANSITION: ${status}`, 'color: #FFA500')
         const { syncState, playButtonState, stopButtonState } = syncButtonState(this.syncState, status)
         this.syncState = syncState
         this.playButtonState = playButtonState
         this.stopButtonState = stopButtonState
         this.message = getMessage(syncState)
-        console.log(`%c NEW STATE: ${this.syncState}, PLAY BUTTON: ${this.playButtonState}, STOP BUTTON: ${this.stopButtonState}`, 'color: #FFA500')
+        // console.log(`%c NEW STATE: ${this.syncState}, PLAY BUTTON: ${this.playButtonState}, STOP BUTTON: ${this.stopButtonState}`, 'color: #FFA500')
       }
     }
   },
