@@ -234,7 +234,7 @@ export default {
       FileLogger.emit('clear-log')
     },
     changeIsSyncing(state) {
-      this.isSyncing = !this.isSyncing
+      this.isSyncing = ConfigStore.get('isSyncing')
     }
   },
   name: 'FileStatus',
