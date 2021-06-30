@@ -571,6 +571,8 @@ export default {
     },
     UnlockDevice() {
       DeviceLock.unlock()
+      // Unlock ui
+      remote.app.emit('ui-sync-status', 'default')
     }
   },
   name: 'Header',
