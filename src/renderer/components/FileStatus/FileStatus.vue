@@ -4,7 +4,7 @@
   <div class="flex justify-between fixed bg-white p-2 px-6 w-full">
       <div class="text-base text-black font-bold">Activity</div>
       <div>
-        <div v-if="this.isSyncing" class="text-gray-300 text-sm cursor-pointer hover:text-gray-300">Clear</div>
+        <div v-if="this.isSyncing" class="text-gray-300 text-sm cursor-not-allowed hover:text-gray-300">Clear</div>
         <div v-else @click="clearFileLogger()" class="text-blue-600 text-sm cursor-pointer hover:text-blue-800">Clear</div>
       </div>
 
