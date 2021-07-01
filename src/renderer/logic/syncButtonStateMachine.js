@@ -68,7 +68,7 @@ function blockState(transition) {
     case 'pending':
       newState = setState('pending', 'loading', 'active')
       break
-    case 'unblock':
+    case 'default':
       newState = setState('default', 'active', 'inactive')
   }
   return newState

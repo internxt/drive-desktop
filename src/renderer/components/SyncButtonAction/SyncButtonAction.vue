@@ -7,39 +7,15 @@
       <!-- Error - string= 'error' -->
     </div>
     <div class="flex justify-center">
-      <div v-if="syncButtonState === true" class="flex">
-        <div class="bg-blue-300 rounded-full p-2.5 w-10 h-10 mr-1">
-          <svg
-            class="animate-spin h-5 w-5 text-white"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-          >
-            <circle
-              class="opacity-25"
-              cx="12"
-              cy="12"
-              r="10"
-              stroke="currentColor"
-              stroke-width="4"
-            ></circle>
-            <path
-              class="opacity-75"
-              fill="currentColor"
-              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-            ></path>
-          </svg>
-        </div>
-        <div @click="stopSync()">
-          <StopIcon :stopButtonState="stopButtonState"/>
-        </div>
-      </div>
-      <div v-else class="flex">
-        <div @click="forceSync()">
+      <div class="flex">
+        <div v-if="this.playButtonState !== 'loading'" @click="forceSync()">
           <PlayIcon :playButtonState="playButtonState"/>
         </div>
-        <div>
-          <StopIcon :stopButtonState="stopButtonState"/>
+        <div v-else>
+          <LoadingSpinAnimation/>
+        </div>
+        <div @click="stopSync()">
+          <StopIcon  :stopButtonState="stopButtonState"/>
         </div>
       </div>
     </div>
@@ -57,6 +33,7 @@ import './SyncButtonAction.scss'
 import ConfigStore from '../../../main/config-store'
 import StopIcon from '../ExportIcons/StopIcon.vue'
 import PlayIcon from '../ExportIcons/PlayIcon.vue'
+import LoadingSpinAnimation from '../ExportIcons/LoadingSpinAnimation'
 import syncButtonState from '../../logic/syncButtonStateMachine'
 import syncStatusText from './syncStatusText'
 import getMessage from './statusMessage'
@@ -94,7 +71,9 @@ export default {
   },
   methods: {
     forceSync() {
-      remote.app.emit('sync-start')
+      if (this.playButtonState === 'active') {
+        remote.app.emit('sync-start')
+      }
     },
     // Stop forceSync
     StopForceSync() {
@@ -104,7 +83,9 @@ export default {
     },
     // Stop sync
     stopSync() {
-      remote.app.emit('sync-stop')
+      if (this.stopButtonState === 'active') {
+        remote.app.emit('sync-stop')
+      }
     }
   },
   created: function() {
@@ -127,7 +108,8 @@ export default {
     UilCheckCircle,
     StopIcon,
     PlayIcon,
-    syncStatusText
+    syncStatusText,
+    LoadingSpinAnimation
   }
 }
 </script>
