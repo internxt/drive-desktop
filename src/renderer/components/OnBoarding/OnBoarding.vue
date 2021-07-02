@@ -120,7 +120,7 @@
     <slide>
       <div class="grid grid-cols-12">
         <div class="col-span-6 p-14">
-            <img src="../../assets/images/slide-3/full-sync-feedback.png" />
+            <img src="../../assets/images/slide-4/4-securely-sync.svg" />
         </div>
         <div class="col-span-6">
           <div class="px-16 py-12 center-content-slide">
@@ -142,67 +142,60 @@
           </div>
 
         </div>
-
-
       </div>
     </slide>
 
     <slide>
-      <div class="flex h-full relative">
-        <div class="flex items-center justify-center w-1/2 h-full relative">
-          <div class="mb-12 ml-8">
-            <img class="p-10 -mb-2 -ml-2" src="../../assets/images/slide-5/center-image.png" />
-          </div>
+      <div class="grid grid-cols-12">
+        <div class="col-span-6 p-16">
+          <img class="m-auto" src="../../assets/images/slide-5/5-configure-your-sync.svg" />
         </div>
-
-        <div class="flex flex-col w-1/2 bg-white p-10 relative">
-          <p class="text-xs text-purple-500 font-thin mt-4">CHOOSE YOUR FAVORITE SYNC MODE</p>
-
-          <h1 class="text-4xl bg font-extrabold bg-gradient-to-r from-purple-500 via-pink-500 to-red-400 text-transparent bg-clip-text mt-2">
-            Configure your desired sync mode with ease
-          </h1>
-
-          <div class="text-base text-gray-700 font-bold mt-6">
-            Full sync mode will allow you to fully synchronize your files both on the cloud and locally.
-            Upload-only mode will allow you to back up your files on the cloud, without having to keep
-            a local copy of them so that you can free up local storage space.
+        <div class="col-span-6">
+          <div class="px-16 py-12 center-content-slide">
+            <p class="text-xs text-purple-500 font-thin mt-4">CHOOSE YOUR FAVORITE SYNC MODE</p>
+            <h1 class="text-4xl bg bg-gradient-to-r from-purple-500 via-pink-500 to-red-400 text-transparent bg-clip-text mt-2">
+              Configure your desired sync mode with ease
+            </h1>
+            <div class="text-base text-gray-700 font-bold mt-6">
+              Full sync mode will allow you to fully synchronize your files both on the cloud and locally.
+              Upload-only mode will allow you to back up your files on the cloud, without having to keep
+              a local copy of them.
+            </div>
+            <div class="flex justify-between">
+              <input @click.prevent="slidePrev" type="button" value="Previous" class="text-base text-gray-400 font-bold mt-16 bg-transparent cursor-pointer focus:outline-none" />
+              <input @click.prevent="slideNext" type="button" value="Next" class="text-base text-blue-600 font-bold mt-16 bg-transparent cursor-pointer focus:outline-none" />
+            </div>
           </div>
 
-          <input @click.prevent="slidePrev" type="button" value="Previous" class="absolute bottom-8 left-12 text-base text-gray-400 font-bold mt-16 bg-transparent cursor-pointer focus:outline-none" />
-          <input @click.prevent="slideNext" type="button" value="Next" class="absolute bottom-8 right-12 text-base text-blue-600 font-bold mt-16 bg-transparent cursor-pointer focus:outline-none" />
-        </div>
-
-        <div>
-          <img class="absolute bottom-0 left-0" src="../../assets/images/slide-5/bottom-left-image.png" />
         </div>
       </div>
     </slide>
 
     <slide>
-      <div class="flex h-full relative">
-        <div class="flex items-center justify-center w-1/2 h-full relative">
-          <div class="mb-8 ml-8">
-            <img class="p-10" src="../../assets/images/slide-6/image.png" />
-          </div>
+
+      <div class="grid grid-cols-12">
+        <div class="col-span-6 p-16">
+          <img src="../../assets/images/slide-6/6-synchronize-your-files.svg" />
         </div>
+        <div class="col-span-6">
+          <div class="px-16 py-12 center-content-slide">
+            <p class="text-xs text-purple-500 font-thin mt-4">FAST</p>
+            <h1 class="text-4xl bg-gradient-to-r from-purple-500 via-pink-500 to-red-400 text-transparent bg-clip-text mt-2">
+              Securely synchronize all your files real fast.
+            </h1>
+            <div class="text-base text-gray-700 font-bold mt-6">
+              No other service provides such protection for your personal data against third-parties.
+              Client-side encrypted, fragmented, Simple, Fast, Secure, Private. Welcome to Internxt Drive.
+            </div>
 
-        <div class="flex flex-col w-1/2 bg-white p-10 relative">
-          <p class="text-xs text-purple-500 font-thin mt-4">FAST</p>
-
-          <h1 class="text-4xl font-extrabold bg-gradient-to-r from-purple-500 via-pink-500 to-red-400 text-transparent bg-clip-text mt-2">
-            Securely synchronize all your files real fast.
-          </h1>
-
-          <div class="text-base text-gray-700 font-bold mt-6">
-            No other service provides such protection for your personal data against third-parties.
-            Client-side encrypted, fragmented, safe. Say hello to a new era of cloud storage.
-            Simple, Fast, Secure, Private. Welcome to Internxt Drive.
+            <div class="flex justify-between">
+              <input @click.prevent="slidePrev" type="button" value="Previous" class="text-base text-gray-400 font-bold mt-16 bg-transparent cursor-pointer focus:outline-none" />
+              <input @click.prevent="finishOnboarding" type="button" value="Get started!" class="text-base text-blue-600 font-bold mt-16 bg-transparent cursor-pointer focus:outline-none" />
+            </div>
           </div>
-
-          <input @click.prevent="slidePrev" type="button" value="Previous" class="absolute bottom-8 left-12 text-base text-gray-400 font-bold mt-16 bg-transparent cursor-pointer focus:outline-none" />
-          <input @click.prevent="finishOnboarding" type="button" value="Get started!" class="absolute bottom-8 right-12 text-base text-blue-600 font-bold mt-16 bg-transparent cursor-pointer focus:outline-none" />
         </div>
       </div>
+
     </slide>
 
     <hooper-pagination v-if="currentSlide !== 0" slot="hooper-addons"></hooper-pagination>
