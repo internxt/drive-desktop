@@ -117,7 +117,6 @@ export default {
     },
     unlockDevice() {
       DeviceLock.unlock()
-      remote.app('ui-sync-status', 'unblock')
     }, /*
     changeTrayIconOn() {
       remote.app.emit('sync-on')

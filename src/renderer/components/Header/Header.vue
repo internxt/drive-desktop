@@ -395,6 +395,11 @@ export default {
         .catch(err => {
           Logger.error(err)
         })
+      // Resize window to login window
+      // const bounds = remote.getCurrentWindow().trayBounds
+      // remote.getCurrentWindow().setBounds({ height: 550, width: 450 })
+      // remote.getCurrentWindow().center()
+      // FileLogger.clearLogger()
       this.$router.push('/').catch(() => {})
     })
 
@@ -571,8 +576,6 @@ export default {
     },
     UnlockDevice() {
       DeviceLock.unlock()
-      // Unlock ui
-      remote.app.emit('ui-sync-status', 'default')
     }
   },
   name: 'Header',

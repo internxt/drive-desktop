@@ -66,22 +66,19 @@ async function removeFile(bucketId, fileId, filename, force = false) {
   if (result.error) {
     // Notificate.error delete cloud
     FileLogger.push({
-      filePath: filename,
+      // filePath:
       action: 'remove',
       state: 'error',
       description: result.error.message
     })
     throw new Error(result.error)
   } else {
-    if (!force) {
-      FileLogger.push({
-        filePath: filename,
-        filename: path.basename(filename),
-        action: 'remove',
-        state: 'success'
-      })
-    }
-
+    FileLogger.push({
+      filePath: filename,
+      filename: path.basename(filename),
+      action: 'remove',
+      state: 'success'
+    })
     return result
   }
 }
