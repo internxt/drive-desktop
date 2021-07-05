@@ -23,12 +23,12 @@ export default {
   beforeCreate() {
     remote.app.emit('window-hide')
   },
-  data: function () {
+  data: function() {
     return {
       dbFolder: ''
     }
   },
-  created: async function () {
+  created: async function() {
     /*
      Relogs automatically a user in
     */
@@ -47,7 +47,7 @@ export default {
     } else {
       // Does have credentials saved ? If not show onboarding the user is already singned in so email in configStore
       const lastVersion = ConfigStore.get('version')
-      if (semver.gt(PackageJson.version, lastVersion)) {
+      if (semver.lt(lastVersion, '1.3.1')) {
         // Show Onboarding
         remote.app.emit('window-pushed-to', '/onboarding')
         this.$router.push('/onboarding').catch(() => {})
