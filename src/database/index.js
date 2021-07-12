@@ -192,6 +192,16 @@ const dbInsert = (db, entries) => {
     })
   })
 }
+
+const dbCount = (db, consult) => {
+  return new Promise((resolve, reject) => {
+    db.count(consult, (err, document) => {
+      if (err) reject(err)
+      else resolve(document)
+    })
+  })
+}
+
 const FolderGet = key => {
   return new Promise((resolve, reject) => {
     dbFolders.findOne({ key: key }, (err, document) => {
@@ -362,6 +372,7 @@ export default {
   dbRemoveOne,
   dbInsert,
   dbUpdate,
+  dbCount,
   ClearFilesSelect,
   ClearFilesCloud,
   ClearFoldersSelect,
