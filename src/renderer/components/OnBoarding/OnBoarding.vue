@@ -1,187 +1,201 @@
   <template>
-  <hooper ref="carousel" @slide="updateCarousel" class="border h-full w-full rounded-3xl overflow-hidden focus:outline-none">
+  <hooper ref="carousel" @slide="updateCarousel" class="border h-full w-full overflow-hidden focus:outline-none">
     <slide>
-      <div class="flex flex-col items-center h-full relative">
-        <div class="flex items-center h-32">
-          <img src="../../assets/images/slide-1/internxt-name-logo.png" />
+      <div class="h-full image-slide-1">
+        <div class="grid grid-cols-12">
+          <div class="p-16 col-span-8">
+              <img class="mb-16" src="../../assets/images/slide-1/internxt-brand.svg" />
+              <h1 class="mb-10 text-4xl text-left font-bold bg-gradient-to-r from-blue-700 via-pink-500 to-purple-900 text-transparent bg-clip-text">Welcome<br /> to Internxt Drive</h1>
+              <p class="mb-16 text-base text-left text-gray-800 font-bold">
+                We have designed and deployed all the power of
+                the world's only private and secure decentralized
+                storage with a minimalist interface for ease of use
+              </p>
+              <input @click.prevent="slideNext" type="button" value="Start" class="text-left text-xl text-blue-600 font-bold bg-transparent cursor-pointer focus:outline-none" />
+          </div>
+
+          <div class="col-span-4"></div>
         </div>
-
-        <h1 class="text-5xl text-center font-bold bg-gradient-to-r from-purple-500 via-pink-500 to-red-400 text-transparent bg-clip-text">Welcome to Internxt Drive</h1>
-        <p class="text-2xl text-center text-gray-800 font-bold w-5/6 px-12 mt-8">
-          We have designed and deployed all the power of
-          the world's only private and secure decentralized
-          storage with a minimalist interface for ease of use
-        </p>
-
-        <input @click.prevent="slideNext" type="button" value="Start" class="text-2xl text-blue-600 font-bold mt-16 bg-transparent cursor-pointer focus:outline-none" />
-
-        <div class="flex items-center absolute top-0 right-0">
-          <img src="../../assets/images/slide-1/top-right-image.png" />
         </div>
-
-        <div class="flex items-center absolute bottom-0 left-0">
-          <img src="../../assets/images/slide-1/bottom-left-image.png" />
-        </div>
-      </div>
     </slide>
 
-    <!-- <slide>
-      <div class="flex flex-col items-center h-full">
-        <div class="flex items-end h-16">
-          <img src="../../assets/images/slide-1/internxt-name-logo.png" />
-        </div>
+    <slide>
 
-        <h1 class="text-5xl text-center font-bold mt-6 bg-gradient-to-r from-purple-500 via-pink-500 to-red-400 text-transparent bg-clip-text">
-          Internxt Drive
-        </h1>
-        <p class="text-base text-center text-gray-700 font-bold w-5/6 px-16 mt-5">
-          Before starting, let's do an initial set up of your application, so that you can
-          choose the type of synchronization that best suits you.
-        </p>
+      <div>
+        <h1 class="mt-10 text-4xl text-center font-bold bg-gradient-to-r from-blue-700 via-pink-500 text-transparent bg-clip-text">Powerfull sync</h1>
+        <h2 class="text-xl text-center font-bold bg-gradient-to-r from-blue-700 via-pink-500 to-purple-900 text-transparent bg-clip-text">Six amazing features</h2>
+        <div class="grid grid-cols-12">
 
-        <div class="flex flex-row w-full justify-center mt-8">
-          <button class="flex flex-col items-start w-72 bg-white rounded-lg border-3 focus:outline-none ring ring-gray-300 focus:ring-blue-600 mr-4 p-4 relative overflow-hidden">
-            <div class="absolute w-24 h-24 -top-16 -right-16 bg-blue-600 transform rotate-45" />
-            <div class="absolute top-2 right-1.5 w-3">
-              <img src="../../assets/images/slide-2/tick.png" />
+          <div class="col-span-3 mt-6">
+
+            <div class="flex pl-10 mb-4">
+              <div class="mr-6">
+                <div class="font-bold mb-1">Sync progress</div>
+                <div class="text-xs">Experience speed & security by visualising the overall sync status of the app</div>
+              </div>
+              <p class="text-transparent bg-clip-text text-5xl text-left bg-gradient-to-r from-blue-700 via-pink-500 to-purple-900">1</p>
             </div>
 
-            <h2 class="text-left text-base text-blue-600 font-bold">Full sync</h2>
-            <p class="text-left text-xs text-gray-700 mt-2">
-              Select this sync method for a complete sync experience with your Desktop application.
-            </p>
-
-            <input type="button" value="Ok" class="absolute bottom-3 left-4 self-start bg-blue-600 px-3 py-1.5 mt-4 text-white text-xs font-thin rounded-md">
-          </button>
-
-          <button class="flex flex-col items-start w-72 h-36 bg-white rounded-lg border-3 focus:outline-none ring ring-gray-300 focus:ring-blue-600 mr-4 p-4 relative overflow-hidden">
-            <div class="absolute w-24 h-24 -top-16 -right-16 bg-blue-600 transform rotate-45" />
-            <div class="absolute top-2 right-1.5 w-3">
-              <img src="../../assets/images/slide-2/tick.png" />
+            <div class="flex pl-10 mb-4">
+              <div class="mr-6">
+                <div class="font-bold mb-1">Customize your app</div>
+                <div class="text-xs">Easily set up your desktop app. Switch sync modes, change your sync folder & more</div>
+              </div>
+              <p class="text-transparent bg-clip-text text-5xl text-left bg-gradient-to-r from-blue-700 via-pink-500 to-purple-900">2</p>
             </div>
 
-            <h2 class="text-left text-base text-blue-600 font-bold">Upload only</h2>
-            <p class="text-left text-xs text-gray-700 mt-2">
-              Want to free up space on your device? Upload files to the cloud with a one-way upload mode.
-            </p>
+            <div class="flex pl-10">
+              <div class="mr-6">
+                <div class="font-bold mb-1">Upgrade any time</div>
+                <div class="text-xs">Need more storage space? Upgrade at any time with a 30-day money-back guarantee!</div>
+              </div>
+              <p class="text-transparent bg-clip-text text-5xl text-left bg-gradient-to-r from-blue-700 via-pink-500 to-purple-900">3</p>
+            </div>
 
-            <input type="button" value="Ok" class="absolute bottom-3 left-4 self-start bg-blue-600 px-3 py-1.5 mt-4 text-white text-xs font-thin rounded-md">
-          </button>
-        </div>
-      </div>
-    </slide> -->
-
-    <slide>
-      <div class="flex h-full">
-        <div class="w-1/2 h-full">
-          <img class="h-full" src="../../assets/images/slide-3/image.png" />
-        </div>
-
-        <div class="flex flex-col w-1/2 bg-white p-10 relative">
-          <p class="text-xs text-purple-500 font-thin mt-4">DRIVE DESKTOP</p>
-
-          <h1 class="text-4xl bg font-extrabold bg-gradient-to-r from-purple-500 via-pink-500 to-red-400 text-transparent bg-clip-text mt-2">
-            Experience Internxt like never before
-          </h1>
-
-          <div class="text-base text-gray-700 font-bold mt-6">
-            Internxt's Drive Desktop app is incredibly powerful.
-            Synchronize files with ease. Fast, Secure, Private.
-            Quickly check the status of your sync from the tray
-            icon's sync window.
           </div>
 
-          <input @click.prevent="slidePrev" type="button" value="Previous" class="absolute bottom-8 left-12 text-base text-gray-400 font-bold mt-16 bg-transparent cursor-pointer focus:outline-none" />
-          <input @click.prevent="slideNext" type="button" value="Next" class="absolute bottom-8 right-12 text-base text-blue-600 font-bold mt-16 bg-transparent cursor-pointer focus:outline-none" />
+          <div class="col-span-6 center-image"><img class="mt-6" src="../../assets/images/slide-1-2/desktop-app.svg" /></div>
+
+          <div class="col-span-3 mt-6">
+              <div class="flex pr-10 mb-4">
+                <p class="mr-6 text-transparent bg-clip-text text-5xl text-left bg-gradient-to-r from-blue-700 via-pink-500 to-purple-900">4</p>
+                <div>
+                  <div class="font-bold mb-1">Sync progress</div>
+                  <div class="text-xs">Experience speed & security by visualising the overall sync status of the app</div>
+                </div>
+              </div>
+
+              <div class="flex pr-10 mb-4">
+                <p class="mr-6 text-transparent bg-clip-text text-5xl text-left bg-gradient-to-r from-blue-700 via-pink-500 to-purple-900">5</p>
+                <div>
+                  <div class="font-bold mb-1">Customize your app</div>
+                  <div class="text-xs">Easily set up your desktop app. Switch sync modes, change your sync folder & more</div>
+                </div>
+              </div>
+
+              <div class="flex pr-10">
+                <p class="mr-6 text-transparent bg-clip-text text-5xl text-left bg-gradient-to-r from-blue-700 via-pink-500 to-purple-900">6</p>
+                <div>
+                  <div class="font-bold mb-1">Upgrade any time</div>
+                  <div class="text-xs">Need more storage space? Upgrade at any time with a 30-day money-back guarantee!</div>
+                </div>
+              </div>
+          </div>
+        </div>
+      </div>
+
+    </slide>
+
+    <slide>
+        <div class="grid grid-cols-12">
+          <div class="col-span-6 w-auto slide-3">
+            <img src="../../assets/images/slide-2/internxt-like-never-before.png" />
+          </div>
+          <div class="col-span-6">
+
+            <div class="px-16 py-12 center-content-slide">
+              <div class="mt-6">
+                <p class="text-xs text-purple-500 font-thin mt-4">DRIVE DESKTOP</p>
+                <h1 class="text-4xl bg-gradient-to-r from-purple-500 via-pink-500 to-red-400 text-transparent bg-clip-text mt-2">
+                  Experience<br /> Internxt like never before
+                </h1>
+                <div class="text-base text-gray-700 font-bold mt-6">
+                  Internxt's Drive Desktop app is incredibly powerful.
+                  Synchronize files with ease. Fast, Secure, Private.
+                  Quickly check the status of your sync from the tray
+                  icon's sync window.
+                </div>
+              </div>
+
+              <div class="flex justify-between">
+                <input @click.prevent="slidePrev" type="button" value="Previous" class="text-base text-gray-400 font-bold bg-transparent cursor-pointer focus:outline-none" />
+                <input @click.prevent="slideNext" type="button" value="Next" class="text-base text-blue-600 font-bold bg-transparent cursor-pointer focus:outline-none" />
+              </div>
+            </div>
+
+          </div>
+        </div>
+    </slide>
+
+    <slide>
+      <div class="grid grid-cols-12">
+        <div class="col-span-6 p-14">
+            <img src="../../assets/images/slide-4/4-securely-sync.svg" />
+        </div>
+        <div class="col-span-6">
+          <div class="px-16 py-12 center-content-slide">
+            <p class="text-xs text-purple-500 font-thin mt-4">SIMPLE</p>
+            <h1 class="text-4xl bg bg-gradient-to-r from-purple-500 via-pink-500 to-red-400 text-transparent bg-clip-text mt-2">
+              Securely sync your files in one simple,
+              yet powerful app
+            </h1>
+            <div class="text-base text-gray-700 font-bold mt-6">
+              Drive Desktop securely encrypts your files. It also cuts them
+              into small pieces so that a server only holds an encrypted data shard.
+              Maximum security in one simple. Privacy like never before.
+            </div>
+
+            <div class="flex justify-between">
+              <input @click.prevent="slidePrev" type="button" value="Previous" class="text-base text-gray-400 font-bold mt-16 bg-transparent cursor-pointer focus:outline-none" />
+              <input @click.prevent="slideNext" type="button" value="Next" class="text-base text-blue-600 font-bold mt-16 bg-transparent cursor-pointer focus:outline-none" />
+            </div>
+          </div>
+
         </div>
       </div>
     </slide>
 
     <slide>
-      <div class="flex h-full">
-        <div class="flex items-center justify-center w-1/2 h-full">
-          <div>
-            <img class="p-10" src="../../assets/images/slide-4/image.png" />
-          </div>
+      <div class="grid grid-cols-12">
+        <div class="col-span-6 p-16">
+          <img class="m-auto" src="../../assets/images/slide-5/5-configure-your-sync.svg" />
         </div>
-
-        <div class="flex flex-col w-1/2 bg-white p-10 relative">
-          <p class="text-xs text-purple-500 font-thin mt-4">SIMPLE</p>
-
-          <h1 class="text-4xl bg font-extrabold bg-gradient-to-r from-purple-500 via-pink-500 to-red-400 text-transparent bg-clip-text mt-2">
-            Securely sync your files in one simple,
-            yet powerful app
-          </h1>
-
-          <div class="text-base text-gray-700 font-bold mt-6">
-            Drive Desktop securely encrypts your files. It also cuts them
-            into small pieces so that a server only holds an encrypted data shard.
-            Maximum security in one simple, yet incredibly powerful app.
-            Privacy like never before.
+        <div class="col-span-6">
+          <div class="px-16 py-12 center-content-slide">
+            <p class="text-xs text-purple-500 font-thin mt-4">CHOOSE YOUR FAVORITE SYNC MODE</p>
+            <h1 class="text-4xl bg bg-gradient-to-r from-purple-500 via-pink-500 to-red-400 text-transparent bg-clip-text mt-2">
+              Configure your desired sync mode with ease
+            </h1>
+            <div class="text-base text-gray-700 font-bold mt-6">
+              Full sync mode will allow you to fully synchronize your files both on the cloud and locally.
+              Upload-only mode will allow you to back up your files on the cloud, without having to keep
+              a local copy of them.
+            </div>
+            <div class="flex justify-between">
+              <input @click.prevent="slidePrev" type="button" value="Previous" class="text-base text-gray-400 font-bold mt-16 bg-transparent cursor-pointer focus:outline-none" />
+              <input @click.prevent="slideNext" type="button" value="Next" class="text-base text-blue-600 font-bold mt-16 bg-transparent cursor-pointer focus:outline-none" />
+            </div>
           </div>
 
-          <input @click.prevent="slidePrev" type="button" value="Previous" class="absolute bottom-8 left-12 text-base text-gray-400 font-bold mt-16 bg-transparent cursor-pointer focus:outline-none" />
-          <input @click.prevent="slideNext" type="button" value="Next" class="absolute bottom-8 right-12 text-base text-blue-600 font-bold mt-16 bg-transparent cursor-pointer focus:outline-none" />
         </div>
       </div>
     </slide>
 
     <slide>
-      <div class="flex h-full relative">
-        <div class="flex items-center justify-center w-1/2 h-full relative">
-          <div class="mb-12 ml-8">
-            <img class="p-10 -mb-2 -ml-2" src="../../assets/images/slide-5/center-image.png" />
-          </div>
+
+      <div class="grid grid-cols-12">
+        <div class="col-span-6 p-16">
+          <img src="../../assets/images/slide-6/6-synchronize-your-files.svg" />
         </div>
+        <div class="col-span-6">
+          <div class="px-16 py-12 center-content-slide">
+            <p class="text-xs text-purple-500 font-thin mt-4">FAST</p>
+            <h1 class="text-4xl bg-gradient-to-r from-purple-500 via-pink-500 to-red-400 text-transparent bg-clip-text mt-2">
+              Securely synchronize all your files real fast.
+            </h1>
+            <div class="text-base text-gray-700 font-bold mt-6">
+              No other service provides such protection for your personal data against third-parties.
+              Client-side encrypted, fragmented, Simple, Fast, Secure, Private. Welcome to Internxt Drive.
+            </div>
 
-        <div class="flex flex-col w-1/2 bg-white p-10 relative">
-          <p class="text-xs text-purple-500 font-thin mt-4">CHOOSE YOUR FAVORITE SYNC MODE</p>
-
-          <h1 class="text-4xl bg font-extrabold bg-gradient-to-r from-purple-500 via-pink-500 to-red-400 text-transparent bg-clip-text mt-2">
-            Configure your desired sync mode with ease
-          </h1>
-
-          <div class="text-base text-gray-700 font-bold mt-6">
-            Full sync mode will allow you to fully synchronize your files both on the cloud and locally.
-            Upload-only mode will allow you to back up your files on the cloud, without having to keep
-            a local copy of them so that you can free up local storage space.
+            <div class="flex justify-between">
+              <input @click.prevent="slidePrev" type="button" value="Previous" class="text-base text-gray-400 font-bold mt-16 bg-transparent cursor-pointer focus:outline-none" />
+              <input @click.prevent="finishOnboarding" type="button" value="Get started!" class="text-base text-blue-600 font-bold mt-16 bg-transparent cursor-pointer focus:outline-none" />
+            </div>
           </div>
-
-          <input @click.prevent="slidePrev" type="button" value="Previous" class="absolute bottom-8 left-12 text-base text-gray-400 font-bold mt-16 bg-transparent cursor-pointer focus:outline-none" />
-          <input @click.prevent="slideNext" type="button" value="Next" class="absolute bottom-8 right-12 text-base text-blue-600 font-bold mt-16 bg-transparent cursor-pointer focus:outline-none" />
-        </div>
-
-        <div>
-          <img class="absolute bottom-0 left-0" src="../../assets/images/slide-5/bottom-left-image.png" />
         </div>
       </div>
-    </slide>
 
-    <slide>
-      <div class="flex h-full relative">
-        <div class="flex items-center justify-center w-1/2 h-full relative">
-          <div class="mb-8 ml-8">
-            <img class="p-10" src="../../assets/images/slide-6/image.png" />
-          </div>
-        </div>
-
-        <div class="flex flex-col w-1/2 bg-white p-10 relative">
-          <p class="text-xs text-purple-500 font-thin mt-4">FAST</p>
-
-          <h1 class="text-4xl font-extrabold bg-gradient-to-r from-purple-500 via-pink-500 to-red-400 text-transparent bg-clip-text mt-2">
-            Securely synchronize all your files real fast.
-          </h1>
-
-          <div class="text-base text-gray-700 font-bold mt-6">
-            No other service provides such protection for your personal data against third-parties.
-            Client-side encrypted, fragmented, safe. Say hello to a new era of cloud storage.
-            Simple, Fast, Secure, Private. Welcome to Internxt Drive.
-          </div>
-
-          <input @click.prevent="slidePrev" type="button" value="Previous" class="absolute bottom-8 left-12 text-base text-gray-400 font-bold mt-16 bg-transparent cursor-pointer focus:outline-none" />
-          <input @click.prevent="finishOnboarding" type="button" value="Get started!" class="absolute bottom-8 right-12 text-base text-blue-600 font-bold mt-16 bg-transparent cursor-pointer focus:outline-none" />
-        </div>
-      </div>
     </slide>
 
     <hooper-pagination v-if="currentSlide !== 0" slot="hooper-addons"></hooper-pagination>
