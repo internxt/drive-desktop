@@ -76,7 +76,6 @@ async function uploadFile(
   }
   let relativePath = path.relative(folderRoot, filePath)
   relativePath = relativePath.replace(/\\/g, '/')
-  console.log(relativePath)
   const tempFile = path.join(tempPath, Hash.hasher(relativePath))
   const hashName = Hash.hasher(relativePath)
   const alreadyExists = await BridgeService.findFileByName(bucketId, hashName)
@@ -146,7 +145,6 @@ async function uploadFile(
           }
           app.emit('set-tooltip')
           app.removeListener('sync-stop', stopUploadHandler)
-          console.log('acabado')
           if (err) {
             const fileExistsPattern = /File already exist/
             let relativePath = path.relative(folderRoot, filePath)

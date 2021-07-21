@@ -7222,7 +7222,7 @@ invariant@^2.2.0, invariant@^2.2.2:
 
 "inxt-js@git+ssh://git@github.com:internxt/inxt-js.git#remove-rs":
   version "1.0.0"
-  resolved "git+ssh://git@github.com:internxt/inxt-js.git#41c68fdd9f4f1883bf6a25a9e37c4f0efa2304f2"
+  resolved "git+ssh://git@github.com:internxt/inxt-js.git#ae02b3fa3da062598ab6c9b841b8f73f2659e378"
   dependencies:
     async "^3.2.0"
     axios "^0.19.2"
