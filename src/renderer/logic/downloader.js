@@ -4,7 +4,7 @@ import CheckDiskSpace from 'check-disk-space'
 import Logger from '../../libs/logger'
 import mkdirp from 'mkdirp'
 import Folder from './folder'
-import getEnvironment from './utils/libinxt'
+import getEnvironment from './utils/localuploadProcess'
 import FileLogger from './FileLogger'
 
 const { app } = require('@electron/remote')

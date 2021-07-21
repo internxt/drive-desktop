@@ -5,7 +5,7 @@ import Logger from '../../libs/logger'
 import BridgeService from './BridgeService'
 import File from './file'
 import Hash from './utils/Hash'
-import getEnvironment from './utils/libinxt'
+import getEnvironment from './utils/localuploadProcess'
 import FileLogger from './FileLogger'
 
 const { app } = require('@electron/remote')
@@ -66,13 +66,48 @@ async function uploadFile(
     throw new Error(`Warning:File %s, Filesize larger than 10GB. ${filePath}`)
   }
   // Copy file to temp folder
-  const tempPath = path.join(app.getPath('userData'), '.internxt-desktop', 'tmp')
+  const tempPath = path.join(
+    app.getPath('userData'),
+    '.internxt-desktop',
+    'tmp'
+  )
   if (!fs.existsSync(tempPath)) {
     mkdirp.sync(tempPath)
   }
   let relativePath = path.relative(folderRoot, filePath)
   relativePath = relativePath.replace(/\\/g, '/')
   const tempFile = path.join(tempPath, Hash.hasher(relativePath))
+  const hashName = Hash.hasher(relativePath)
+  const alreadyExists = await BridgeService.findFileByName(bucketId, hashName)
+  if (alreadyExists) {
+    let text
+    try {
+      const fetchRes = await File.createFileEntry(
+        bucketId,
+        alreadyExists,
+        encryptedFileName,
+        fileExt,
+        fileSize,
+        folderId,
+        fileMtime
+      )
+
+      text = await fetchRes.text()
+      if (fetchRes.status !== 200) {
+        // FileLogger.push({filePath, originalFileName, state: 'error'})
+        throw new Error(text)
+      }
+      const res = JSON.parse(text)
+      // FileLogger.push({filePath, originalFileName, 'success'})
+      return res
+    } catch (err) {
+      if (text !== undefined) {
+        throw new Error(`${err} with text: ${text}`)
+      } else {
+        throw err
+      }
+    }
+  }
   if (fs.existsSync(tempFile)) {
     fs.unlinkSync(tempFile)
   }
@@ -82,7 +117,11 @@ async function uploadFile(
 
   // Upload new file
   return new Promise((resolve, reject) => {
-    FileLogger.push({ filePath: filePath, filename: originalFileName, action: 'encrypt' })
+    FileLogger.push({
+      filePath: filePath,
+      filename: originalFileName,
+      action: 'encrypt'
+    })
     const state = storj.storeFile(bucketId, tempFile, {
       progressCallback: function(progress, uploadedBytes, totalBytes) {
         let progressPtg = progress * 100
@@ -92,7 +131,10 @@ async function uploadFile(
           'Uploading ' + originalFileName + ' (' + progressPtg + '%)'
         )
         FileLogger.push({
-          filePath, filename: originalFileName, action: 'upload', progress: progressPtg
+          filePath,
+          filename: originalFileName,
+          action: 'upload',
+          progress: progressPtg
         })
       },
       finishedCallback: async function(err, newFileId) {
@@ -156,7 +198,7 @@ async function uploadFile(
     })
 
     const stopUploadHandler = () => {
-      (function(storj, state) {
+      ;(function(storj, state) {
         storj.storeFileCancel(state)
       })(storj, state)
     }
