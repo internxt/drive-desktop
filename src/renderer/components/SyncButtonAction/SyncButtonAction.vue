@@ -1,21 +1,20 @@
 <template>
   <div class="flex justify-between p-4 px-6">
     <div class="flex">
-
-      <syncStatusText :msg = "message" :syncState = "syncState"/>
+      <syncStatusText :msg="message" :syncState="syncState" />
 
       <!-- Error - string= 'error' -->
     </div>
     <div class="flex justify-center">
       <div class="flex">
         <div v-if="this.playButtonState !== 'loading'" @click="forceSync()">
-          <PlayIcon :playButtonState="playButtonState"/>
+          <PlayIcon :playButtonState="playButtonState" />
         </div>
         <div v-else>
-          <LoadingSpinAnimation/>
+          <LoadingSpinAnimation />
         </div>
         <div @click="stopSync()">
-          <StopIcon  :stopButtonState="stopButtonState"/>
+          <StopIcon :stopButtonState="stopButtonState" />
         </div>
       </div>
     </div>
@@ -43,11 +42,11 @@ const remote = require('@electron/remote')
 export default {
   data() {
     return {
-      syncState: 'default',
       playButtonState: 'active',
       stopButtonState: 'inactive',
-      stopButtonSync: 'inactiveButtonSync',
-      message: getMessage('default')
+      message: getMessage('default'),
+      blockTimeout: undefined,
+      syncState: 'default'
     }
   },
   props: {
@@ -58,32 +57,25 @@ export default {
   },
   methods: {
     forceSync() {
-      if (this.playButtonState === 'active') {
+      if (this.playButtonState === 'active' || this.playButtonState === 'loading') {
         this.playButtonState = 'loading'
         this.stopButtonState = 'inactive'
         this.message = getMessage('pending')
         remote.app.emit('sync-start')
       }
     },
-    // Stop forceSync
-    StopForceSync() {
-      remote.app.on('sync-off', _ => {
-        // TODO
-      })
-    },
     // Stop sync
     stopSync() {
       if (this.stopButtonState === 'active') {
         remote.app.emit('sync-stop')
-        this.playButtonState = 'active'
+        this.playButtonState = 'loading'
         this.stopButtonState = 'inactive'
         this.message = getMessage('stop')
       }
     }
   },
   created: function() {
-    remote.app.on('ui-sync-status', (status) => {
-      console.log(`status entering: ${status}`)
+    remote.app.on('ui-sync-status', status => {
       if (status === 'success') {
         this.playButtonState = 'active'
         this.stopButtonState = 'inactive'
@@ -96,10 +88,16 @@ export default {
       }
 
       if (status === 'block') {
+        if (!this.blockTimeout) {
+          this.blockTimeout = setTimeout(() => {
+            this.playButtonState = 'active'
+            this.stopButtonState = 'inactive'
+            this.blockTimeout = undefined
+          }, 60 * 1000)
+        }
         this.playButtonState = 'inactive'
         this.stopButtonState = 'inactive'
         this.message = getMessage('block')
-        console.log('%c SYNC BLOCKED', 'color: #FF0000')
       }
       /*
       if (status === 'error') {
@@ -108,13 +106,14 @@ export default {
         this.message = getMessage('error')
       }
       */
-      if (status === 'pending' && this.playButtonState !== 'inactive') {
+      if (status === 'pending') {
+        clearTimeout(this.blockTimeout)
+        this.timeout = undefined
         this.playButtonState = 'loading'
         this.stopButtonState = 'active'
         this.message = getMessage('pending')
       }
     })
-    // remote.app.on('ui-sync-status', this.changeSyncStatus)
   },
   beforeDestroy: function() {
     remote.app.removeListener('ui-sync-status', this.changeSyncStatus)
