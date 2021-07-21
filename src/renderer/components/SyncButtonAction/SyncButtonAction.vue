@@ -45,7 +45,6 @@ export default {
   data() {
     return {
       syncState: 'default',
-      syncButtonState: ConfigStore.get('isSyncing'),
       playButtonState: 'active',
       stopButtonState: 'inactive',
       stopButtonSync: 'inactiveButtonSync',
@@ -71,7 +70,7 @@ export default {
     forceSync() {
       if (this.playButtonState === 'active') {
         this.playButtonState = 'loading'
-        this.stopButtonState = 'active'
+        this.stopButtonState = 'inactive'
         this.message = getMessage('pending')
         remote.app.emit('sync-start')
       }
@@ -85,15 +84,47 @@ export default {
     // Stop sync
     stopSync() {
       if (this.stopButtonState === 'active') {
+        remote.app.emit('sync-stop')
         this.playButtonState = 'active'
         this.stopButtonState = 'inactive'
         this.message = getMessage('stop')
-        remote.app.emit('sync-stop')
       }
     }
   },
   created: function() {
-    remote.app.on('ui-sync-status', this.changeSyncStatus)
+    remote.app.on('ui-sync-status', (status) => {
+      console.log(`status entering: ${status}`)
+      if (status === 'success') {
+        this.playButtonState = 'active'
+        this.stopButtonState = 'inactive'
+        this.message = getMessage('complete')
+      }
+      if (status === 'default') {
+        this.playButtonState = 'active'
+        this.stopButtonState = 'inactive'
+        this.message = getMessage('default')
+      }
+
+      if (status === 'block') {
+        this.playButtonState = 'inactive'
+        this.stopButtonState = 'inactive'
+        this.message = getMessage('block')
+        console.log('%c SYNC BLOCKED', 'color: #FF0000')
+      }
+      /*
+      if (status === 'error') {
+        this.playButtonState = 'active'
+        this.stopButtonState = 'inactive'
+        this.message = getMessage('error')
+      }
+      */
+      if (status === 'pending' && this.playButtonState !== 'inactive') {
+        this.playButtonState = 'loading'
+        this.stopButtonState = 'active'
+        this.message = getMessage('pending')
+      }
+    })
+    // remote.app.on('ui-sync-status', this.changeSyncStatus)
   },
   beforeDestroy: function() {
     remote.app.removeListener('ui-sync-status', this.changeSyncStatus)
