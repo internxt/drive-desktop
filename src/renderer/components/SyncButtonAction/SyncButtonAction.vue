@@ -34,7 +34,6 @@ import ConfigStore from '../../../main/config-store'
 import StopIcon from '../ExportIcons/StopIcon.vue'
 import PlayIcon from '../ExportIcons/PlayIcon.vue'
 import LoadingSpinAnimation from '../ExportIcons/LoadingSpinAnimation'
-import syncButtonState from '../../logic/syncButtonStateMachine'
 import syncStatusText from './syncStatusText'
 import getMessage from './statusMessage'
 import Logger from '../../../libs/logger'
@@ -48,16 +47,7 @@ export default {
       playButtonState: 'active',
       stopButtonState: 'inactive',
       stopButtonSync: 'inactiveButtonSync',
-      message: getMessage('default'),
-      changeSyncStatus: status => {
-        // Logger.info(`%c Status Change. STATUS: ${this.syncState}, PLAY BUTTON: ${this.playButtonState}, STOP BUTTON: ${this.stopButtonState}, TRANSITION: ${status}`, 'color: #FFA500')
-        const { syncState, playButtonState, stopButtonState } = syncButtonState(this.syncState, status)
-        this.syncState = syncState
-        this.playButtonState = playButtonState
-        this.stopButtonState = stopButtonState
-        this.message = getMessage(syncState)
-        // Logger.info(`%c NEW STATE: ${this.syncState}, PLAY BUTTON: ${this.playButtonState}, STOP BUTTON: ${this.stopButtonState}`, 'color: #FFA500')
-      }
+      message: getMessage('default')
     }
   },
   props: {
