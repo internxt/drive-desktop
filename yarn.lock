@@ -7220,9 +7220,9 @@ invariant@^2.2.0, invariant@^2.2.2:
   dependencies:
     loose-envify "^1.0.0"
 
-"inxt-js@git+ssh://git@github.com:internxt/inxt-js.git#remove-rs":
+"inxt-js@git+ssh://git@github.com:internxt/inxt-js.git#api-class":
   version "1.0.0"
-  resolved "git+ssh://git@github.com:internxt/inxt-js.git#ae02b3fa3da062598ab6c9b841b8f73f2659e378"
+  resolved "git+ssh://git@github.com:internxt/inxt-js.git#d9583387d25fb13498e64071e925edd855cb8e78"
   dependencies:
     async "^3.2.0"
     axios "^0.19.2"
