@@ -53,9 +53,11 @@ function stopState(transition) {
     case 'pending':
       newState = setState('pending', 'loading', 'active')
       break
+      /*
     case 'block':
       newState = setState('block', 'inactive', 'inactive')
       break
+      */
     case 'unblock':
       newState = setState('default', 'active', 'inactive')
   }

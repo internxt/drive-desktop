@@ -18,6 +18,10 @@ const messages = {
   'default': {
     'line1': 'Sync your files',
     'line2': 'Start by clicking the Play button'
+  },
+  'error': {
+    'line1': 'No access to internxt cloud',
+    'line2': 'Check your internet connection and try again'
   }
 }
 
