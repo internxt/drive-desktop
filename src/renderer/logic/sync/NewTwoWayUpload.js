@@ -106,13 +106,13 @@ async function SyncLogic(callback) {
       if (ConfigStore.get('forceUpload') === 1) {
         ConfigStore.set('forceUpload', 0)
       }
-      app.emit('ui-sync-status', 'success')
     }
     // console.timeEnd('desktop')
     const basePath = await Database.Get('xPath')
     NameTest.removeTestFolder(basePath)
     app.emit('set-tooltip')
     app.emit('sync-off', false)
+    app.emit('ui-sync-status', 'success')
     app.removeListener('sync-stop', syncStop)
     app.removeListener('user-logout', DeviceLock.stopUpdateDeviceSync)
     ConfigStore.set('stopSync', false)
