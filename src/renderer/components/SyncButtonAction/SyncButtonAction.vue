@@ -60,7 +60,7 @@ export default {
       if (this.playButtonState === 'active' || this.playButtonState === 'loading') {
         this.playButtonState = 'loading'
         this.stopButtonState = 'inactive'
-        this.message = getMessage('pending')
+        this.message = getMessage('starting')
         remote.app.emit('sync-start')
       }
     },
@@ -70,7 +70,7 @@ export default {
         remote.app.emit('sync-stop')
         this.playButtonState = 'loading'
         this.stopButtonState = 'inactive'
-        this.message = getMessage('stop')
+        this.message = getMessage('stopping')
       }
     }
   },
@@ -112,6 +112,11 @@ export default {
         this.playButtonState = 'loading'
         this.stopButtonState = 'active'
         this.message = getMessage('pending')
+      }
+      if (status === 'stop') {
+        this.playButtonState = 'active'
+        this.stopButtonState = 'inactive'
+        this.message = getMessage('stop')
       }
     })
   },

@@ -3,6 +3,10 @@ const messages = {
     'line1': 'Synchronizing your files',
     'line2': 'Status: pending...'
   },
+  'starting': {
+    'line1': 'Synchronizing your files',
+    'line2': 'Status: starting'
+  },
   'complete': {
     'line1': 'Sync Process',
     'line2': 'Status: Finished'
@@ -22,6 +26,10 @@ const messages = {
   'error': {
     'line1': 'No access to internxt cloud',
     'line2': 'Check your internet connection and try again'
+  },
+  'stopping': {
+    'line1': 'Sync Process',
+    'line2': 'Status: Stopping'
   }
 }
 

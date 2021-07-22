@@ -20,10 +20,10 @@
           v-for="(item, index) in FileStatusSync"
           v-bind:key="index"
         >
-          <!-- {{ En progreso upload entra aquí }} -->
+          <!-- {{ Upload in progress}} -->
           <div
             class="flex mb-2"
-            v-if="item.state == null && (item.action === 'upload')"
+            v-if="!item.state && (item.action === 'upload')"
           >
             <UilFileUpload
               class="text-2xl mr-3 fill-current text-gray-500"
@@ -102,7 +102,7 @@
                 {{ item.filename }}
               </div>
               <div class="text-xs text-gray-500">
-                File successfully downloaded
+                File downloaded
               </div>
             </div>
           </div>
