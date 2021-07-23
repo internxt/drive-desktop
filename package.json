@@ -1,6 +1,6 @@
 {
   "name": "internxt-drive",
-  "version": "1.3.2",
+  "version": "1.3.3",
   "author": "Internxt <hello@internxt.com>",
   "description": "Internxt Drive client UI",
   "license": "AGPL-3.0",
@@ -124,7 +124,7 @@
     "fs-extra": "^8.1.0",
     "hidefile": "^3.0.0",
     "hooper": "^0.3.4",
-    "inxt-js": "git+ssh://git@github.com:internxt/inxt-js.git#api-class",
+    "inxt-js": "git+ssh://git@github.com:internxt/inxt-js.git#remove-rs-wrapper",
     "jquery": "^3.4.1",
     "lodash": "^4.17.21",
     "mkdirp": "^1.0.3",

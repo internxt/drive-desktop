@@ -4,7 +4,7 @@
   <div class="flex justify-between fixed bg-white p-2 px-6 w-full">
       <div class="text-base text-black font-bold">Activity</div>
       <div>
-        <div v-if="this.isSyncing" class="text-gray-300 text-sm cursor-pointer hover:text-gray-300">Clear</div>
+        <div v-if="this.isSyncing" class="text-gray-300 text-sm cursor-not-allowed hover:text-gray-300">Clear</div>
         <div v-else @click="clearFileLogger()" class="text-blue-600 text-sm cursor-pointer hover:text-blue-800">Clear</div>
       </div>
 
@@ -20,10 +20,10 @@
           v-for="(item, index) in FileStatusSync"
           v-bind:key="index"
         >
-          <!-- {{ En progreso upload entra aquí }} -->
+          <!-- {{ Upload in progress}} -->
           <div
             class="flex mb-2"
-            v-if="item.state == null && (item.action === 'upload')"
+            v-if="!item.state && (item.action === 'upload')"
           >
             <UilFileUpload
               class="text-2xl mr-3 fill-current text-gray-500"
@@ -102,7 +102,7 @@
                 {{ item.filename }}
               </div>
               <div class="text-xs text-gray-500">
-                File successfully downloaded
+                File downloaded
               </div>
             </div>
           </div>

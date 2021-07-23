@@ -39,7 +39,7 @@ async function downloadFileTemp(cloudFile, filePath) {
   )
 
   return new Promise((resolve, reject) => {
-    FileLogger.push({ filePath: filePath, filename: originalFileName, action: 'download' })
+    FileLogger.push({ filePath: filePath, filename: originalFileName, action: 'download', status: 'pending' })
     const state = storj.resolveFile(
       cloudFile.bucket,
       cloudFile.fileId,

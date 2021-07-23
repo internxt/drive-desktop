@@ -1,21 +1,20 @@
 <template>
   <div class="flex justify-between p-4 px-6">
     <div class="flex">
-
-      <syncStatusText :msg = "message" :syncState = "syncState"/>
+      <syncStatusText :msg="message" :syncState="syncState" />
 
       <!-- Error - string= 'error' -->
     </div>
     <div class="flex justify-center">
       <div class="flex">
         <div v-if="this.playButtonState !== 'loading'" @click="forceSync()">
-          <PlayIcon :playButtonState="playButtonState"/>
+          <PlayIcon :playButtonState="playButtonState" />
         </div>
         <div v-else>
-          <LoadingSpinAnimation/>
+          <LoadingSpinAnimation />
         </div>
         <div @click="stopSync()">
-          <StopIcon  :stopButtonState="stopButtonState"/>
+          <StopIcon :stopButtonState="stopButtonState" />
         </div>
       </div>
     </div>
@@ -34,33 +33,20 @@ import ConfigStore from '../../../main/config-store'
 import StopIcon from '../ExportIcons/StopIcon.vue'
 import PlayIcon from '../ExportIcons/PlayIcon.vue'
 import LoadingSpinAnimation from '../ExportIcons/LoadingSpinAnimation'
-import syncButtonState from '../../logic/syncButtonStateMachine'
 import syncStatusText from './syncStatusText'
 import getMessage from './statusMessage'
+import Logger from '../../../libs/logger'
 
 const remote = require('@electron/remote')
 
 export default {
   data() {
     return {
-      syncState: 'default',
-      syncButtonState: ConfigStore.get('isSyncing'),
       playButtonState: 'active',
       stopButtonState: 'inactive',
-      stopButtonSync: 'inactiveButtonSync',
-      message: {},
-      changeSyncButton: isSyncing => {
-        this.syncButtonState = isSyncing
-      },
-      changeSyncStatus: status => {
-        // console.log(`%c Status Change. STATUS: ${this.syncState}, PLAY BUTTON: ${this.playButtonState}, STOP BUTTON: ${this.stopButtonState}, TRANSITION: ${status}`, 'color: #FFA500')
-        const { syncState, playButtonState, stopButtonState } = syncButtonState(this.syncState, status)
-        this.syncState = syncState
-        this.playButtonState = playButtonState
-        this.stopButtonState = stopButtonState
-        this.message = getMessage(syncState)
-        // console.log(`%c NEW STATE: ${this.syncState}, PLAY BUTTON: ${this.playButtonState}, STOP BUTTON: ${this.stopButtonState}`, 'color: #FFA500')
-      }
+      message: getMessage('default'),
+      blockTimeout: undefined,
+      syncState: 'default'
     }
   },
   props: {
@@ -71,31 +57,70 @@ export default {
   },
   methods: {
     forceSync() {
-      if (this.playButtonState === 'active') {
+      if (this.playButtonState === 'active' || this.playButtonState === 'loading') {
+        this.playButtonState = 'loading'
+        this.stopButtonState = 'inactive'
+        this.message = getMessage('starting')
         remote.app.emit('sync-start')
       }
-    },
-    // Stop forceSync
-    StopForceSync() {
-      remote.app.on('sync-off', _ => {
-        // TODO
-      })
     },
     // Stop sync
     stopSync() {
       if (this.stopButtonState === 'active') {
         remote.app.emit('sync-stop')
+        this.playButtonState = 'loading'
+        this.stopButtonState = 'inactive'
+        this.message = getMessage('stopping')
       }
     }
   },
   created: function() {
-    remote.app.on('sync-on', this.changeSyncButton)
-    remote.app.on('sync-off', this.changeSyncButton)
-    remote.app.on('ui-sync-status', this.changeSyncStatus)
+    remote.app.on('ui-sync-status', status => {
+      if (status === 'success') {
+        this.playButtonState = 'active'
+        this.stopButtonState = 'inactive'
+        this.message = getMessage('complete')
+      }
+      if (status === 'default') {
+        this.playButtonState = 'active'
+        this.stopButtonState = 'inactive'
+        this.message = getMessage('default')
+      }
+
+      if (status === 'block') {
+        if (!this.blockTimeout) {
+          this.blockTimeout = setTimeout(() => {
+            this.playButtonState = 'active'
+            this.stopButtonState = 'inactive'
+            this.blockTimeout = undefined
+          }, 60 * 1000)
+        }
+        this.playButtonState = 'inactive'
+        this.stopButtonState = 'inactive'
+        this.message = getMessage('block')
+      }
+      /*
+      if (status === 'error') {
+        this.playButtonState = 'active'
+        this.stopButtonState = 'inactive'
+        this.message = getMessage('error')
+      }
+      */
+      if (status === 'pending') {
+        clearTimeout(this.blockTimeout)
+        this.timeout = undefined
+        this.playButtonState = 'loading'
+        this.stopButtonState = 'active'
+        this.message = getMessage('pending')
+      }
+      if (status === 'stop') {
+        this.playButtonState = 'active'
+        this.stopButtonState = 'inactive'
+        this.message = getMessage('stop')
+      }
+    })
   },
   beforeDestroy: function() {
-    remote.app.removeListener('sync-off', this.changeSyncButton)
-    remote.app.removeListener('sync-on', this.changeSyncButton)
     remote.app.removeListener('ui-sync-status', this.changeSyncStatus)
   },
   updated: function() {},
