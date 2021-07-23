@@ -91,7 +91,6 @@ async function SyncLogic(callback) {
     }
   }
   const syncComplete = async function(err) {
-    let syncStopped = false
     if (err) {
       Logger.error('Error sync monitor:', err.message ? err.message : err)
       if (/it violates the unique constraint/.test(err.message)) {
@@ -99,7 +98,6 @@ async function SyncLogic(callback) {
         Logger.log('sending request for rename duplicate folder')
       }
       if (/stop sync/.test(err.message)) {
-        syncStopped = true
         app.emit('ui-sync-status', 'stop')
       } else {
         app.emit('ui-sync-status', 'error')
@@ -108,15 +106,13 @@ async function SyncLogic(callback) {
       if (ConfigStore.get('forceUpload') === 1) {
         ConfigStore.set('forceUpload', 0)
       }
+      app.emit('ui-sync-status', 'success')
     }
     // console.timeEnd('desktop')
     const basePath = await Database.Get('xPath')
     NameTest.removeTestFolder(basePath)
     app.emit('set-tooltip')
     app.emit('sync-off', false)
-    if (!syncStopped) {
-      app.emit('ui-sync-status', 'success')
-    }
     app.removeListener('sync-stop', syncStop)
     app.removeListener('user-logout', DeviceLock.stopUpdateDeviceSync)
     ConfigStore.set('stopSync', false)
