@@ -372,7 +372,6 @@ async function sincronizeFile() {
     if (file.needSync) {
       now++
     }
-    console.log(`${now}/${total}`)
     remote.app.emit('set-tooltip', `Checking file ${file.key}`)
     if (!file.select) {
       try {
