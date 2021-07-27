@@ -363,9 +363,14 @@ async function sincronizeFile() {
   var select = await Database.dbFind(Database.dbFiles, {})
   const rootPath = await Database.Get('xPath')
   const user = await Database.Get('xUser')
+  const total = await Database.dbCount(Database.dbFiles, { needSync: true })
+  let now = 0
   for (const file of select) {
     if (ConfigStore.get('stopSync')) {
       throw Error('stop sync')
+    }
+    if (file.needSync) {
+      now++
     }
     remote.app.emit('set-tooltip', `Checking file ${file.key}`)
     if (!file.select) {
