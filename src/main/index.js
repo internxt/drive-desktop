@@ -539,7 +539,6 @@ app.on('ready', () => {
 
   powerMonitor.on('suspend', function() {
     Logger.warn('User system suspended')
-    app.emit('myEvent', 'hellloooososojdhsjdowj')
     app.emit('sync-stop')
   })
 

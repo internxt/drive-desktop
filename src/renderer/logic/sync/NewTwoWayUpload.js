@@ -24,9 +24,7 @@ var uploadOnlyMode = false
 function isUploadOnly() {
   return uploadOnlyMode
 }
-app.on('myEvent', (msg) => {
-  Logger.log(msg)
-})
+
 const wtc = null
 let timeoutInstance = null
 function syncStop() {
