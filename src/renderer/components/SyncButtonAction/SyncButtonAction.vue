@@ -1,21 +1,20 @@
 <template>
   <div class="flex justify-between p-4 px-6">
     <div class="flex">
-
-      <syncStatusText :msg = "message" :syncState = "syncState"/>
+      <syncStatusText :msg="message" :syncState="syncState" />
 
       <!-- Error - string= 'error' -->
     </div>
     <div class="flex justify-center">
       <div class="flex">
         <div v-if="this.playButtonState !== 'loading'" @click="forceSync()">
-          <PlayIcon :playButtonState="playButtonState"/>
+          <PlayIcon :playButtonState="playButtonState" />
         </div>
         <div v-else>
-          <LoadingSpinAnimation/>
+          <LoadingSpinAnimation />
         </div>
         <div @click="stopSync()">
-          <StopIcon  :stopButtonState="stopButtonState"/>
+          <StopIcon :stopButtonState="stopButtonState" />
         </div>
       </div>
     </div>
@@ -50,7 +49,8 @@ export default {
       message: {},
       changeSyncButton: isSyncing => {
         this.syncButtonState = isSyncing
-      }
+      },
+      blockTimeout: undefined
     }
   },
   props: {
@@ -79,9 +79,11 @@ export default {
     }
   },
   created: function() {
-    remote.app.on('ui-sync-status', (status) => {
+    remote.app.on('ui-sync-status', status => {
       console.log(`status entering: ${status}`)
       if (status === 'success') {
+        clearTimeout(this.blockTimeout)
+        this.blockTimeout = 0
         this.playButtonState = 'active'
         this.stopButtonState = 'inactive'
         this.message = getMessage('complete')
@@ -93,6 +95,11 @@ export default {
       }
 
       if (status === 'block') {
+        if (!this.blockTimeout) {
+          this.blockTimeout = setTimeout(() => {
+            this.playButtonState = 'active'
+          }, 60 * 1000)
+        }
         this.playButtonState = 'inactive'
         this.stopButtonState = 'inactive'
         this.message = getMessage('block')
@@ -106,6 +113,8 @@ export default {
       }
       */
       if (status === 'pending') {
+        clearTimeout(this.blockTimeout)
+        this.blockTimeout = 0
         this.playButtonState = 'loading'
         this.stopButtonState = 'active'
         this.message = getMessage('pending')
