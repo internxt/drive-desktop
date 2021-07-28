@@ -69,10 +69,7 @@ async function downloadFileTemp(cloudFile, filePath) {
         },
         debug: (message) => {
           try {
-            // eslint-disable-next-line no-useless-escape
-            if (!/[^\[]*[%$]/.test(message)) {
-              Logger.warn('NODE-LIB DOWNLOAD: ' + message)
-            }
+            Logger.warn('NODE-LIB DOWNLOAD: ' + message)
           } catch (e) {
             Logger.warn(e)
           }
