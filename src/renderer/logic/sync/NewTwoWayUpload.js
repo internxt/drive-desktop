@@ -31,10 +31,8 @@ const wtc = null
 let timeoutInstance = null
 function syncStop() {
   if (ConfigStore.get('isSyncing')) {
-    ConfigStore.set('isSyncing', false)
     ConfigStore.set('stopSync', true)
   }
-  app.emit('sync-off', false)
 }
 
 async function SyncLogic(callback) {
@@ -120,6 +118,7 @@ async function SyncLogic(callback) {
     ConfigStore.set('stopSync', false)
     DeviceLock.stopUpdateDeviceSync()
     ConfigStore.set('isSyncing', false)
+    app.emit('sync-off', false)
     const rootFolderExist = await Folder.rootFolderExists()
     if (!rootFolderExist) {
       app.emit('user-logout')
