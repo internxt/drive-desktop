@@ -72,7 +72,6 @@
       "target": [
         "nsis"
       ],
-      "certificateSubjectName": "Internxt Universal Technologies SL",
       "icon": "build/icons/icon.ico"
     },
     "nsis": {
@@ -124,7 +123,7 @@
     "fs-extra": "^8.1.0",
     "hidefile": "^3.0.0",
     "hooper": "^0.3.4",
-    "inxt-js": "git+ssh://git@github.com:internxt/inxt-js.git#remove-rs-wrapper",
+    "inxt-js": "git+ssh://git@github.com:internxt/inxt-js.git#inxt-js-web-integration-without-rs",
     "jquery": "^3.4.1",
     "lodash": "^4.17.21",
     "mkdirp": "^1.0.3",
