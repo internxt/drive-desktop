@@ -95,7 +95,6 @@ class TrayMenu {
   }
 
   appClose() {
-    app.emit('sync-stop')
     app.emit('app-close')
   }
 
