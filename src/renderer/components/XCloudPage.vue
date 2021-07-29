@@ -1,11 +1,8 @@
 <template>
-  <div class="bg-cool-gray-10 overflow:hidden h-full">
-    <div class="text-cool-gray-90"></div>
-
-    <Header :appName="appName" :emailAccount="emailAccount" />
-
-    <FileStatus :FileStatusSync="FileStatusSync" />
-    <SyncButtonAction :FileStatusSync="FileStatusSync"/>
+  <div class="flex flex-none flex-col h-full w-full overflow-x-hidden">
+    <Header class="overflow-hidden" :appName="appName" :emailAccount="emailAccount"/>
+    <FileStatus class="bg-white fileLogger overflow-y-auto overflow-x-hidden flex flex-col flex-grow flex-shrink py-2" :FileStatusSync="FileStatusSync" />
+    <SyncButtonAction class="flex flex-none justify-between p-4 px-6" :FileStatusSync="FileStatusSync"/>
   </div>
 </template>
 

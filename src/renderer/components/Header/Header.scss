@@ -36,6 +36,7 @@ body::-webkit-scrollbar-thumb {
 * {
   scrollbar-width: thin;
   scrollbar-color: #1D4ED8 white;
+  user-select: none;
 }
 
 /* Works on Chrome, Edge, and Safari */
@@ -268,4 +269,16 @@ body::-webkit-scrollbar-thumb {
     opacity: 1;
     transition: opacity .15s;
   }
+}
+
+.selectedModal {
+  background: $blue-20;
+}
+
+.menuItem {
+  padding: 8px;
+  height: 40px;
+  width: 40px;
+  border-radius: 8px;
+  transition: all .15 ease-in-out;
 }

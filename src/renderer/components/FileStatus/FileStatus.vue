@@ -1,200 +1,42 @@
 <template>
+  <!--
+    <div class="flex justify-between fixed bg-white p-4 px-6 w-full">
+    <div class="text-base text-black font-bold">Activity</div>
+    <div>
+      <div v-if="this.isSyncing" class="text-gray-300 text-sm cursor-pointer hover:text-gray-300">Clear</div>
+      <div v-else @click="clearFileLogger()" class="text-blue-600 text-sm cursor-pointer hover:text-blue-800">Clear</div>
+    </div>
+
+  </div>
+  -->
 <div>
+  <FileItem fileType="folder" :name="'Test folder'" info="File uploaded" status='uploaded'/>
+  <FileItem fileType="" :name="'Test folder'" info="Uploading... 69%" status='uploading'/>
 
-  <div class="flex justify-between fixed bg-white p-2 px-6 w-full">
-      <div class="text-base text-black font-bold">Activity</div>
-      <div>
-        <div v-if="this.isSyncing" class="text-gray-300 text-sm cursor-pointer hover:text-gray-300">Clear</div>
-        <div v-else @click="clearFileLogger()" class="text-blue-600 text-sm cursor-pointer hover:text-blue-800">Clear</div>
-      </div>
-
-    </div>
-
-  <div
-    class="bg-white rounded-t-2xl p-4 px-6 h-56 fileStatusBox overflow-scroll"
-  >
-    <div v-if="this.FileStatusSync.length > 0" class="mt-7">
-      <div class="mb-1 mt-4">
-        <div
-          class=""
-          v-for="(item, index) in FileStatusSync"
-          v-bind:key="index"
-        >
-          <!-- {{ En progreso upload entra aquí }} -->
-          <div
-            class="flex mb-2"
-            v-if="!item.state && (item.action === 'upload')"
-          >
-            <UilFileUpload
-              class="text-2xl mr-3 fill-current text-gray-500"
-            />
-            <div>
-              <div>
-                {{ item.filename }}
-              </div>
-              <div class="text-xs text-gray-500">
-                {{ item.progress ? item.progress + '%' : '' }} File uploading
-              </div>
-            </div>
-          </div>
-          <!-- {{ En progreso encrypt entra aquí }} -->
-          <div
-            class="flex mb-2"
-            v-if="item.state == null && (item.action === 'encrypt')"
-          >
-            <UilFileUpload
-              class="text-2xl mr-3 fill-current text-gray-500"
-            />
-            <div>
-              <div>
-                {{ item.filename }}
-              </div>
-              <div class="text-xs text-gray-500">
-                Encrypting File
-              </div>
-            </div>
-          </div>
-          <!-- {{ En progreso download entra aquí }} -->
-          <div
-            class="flex mb-2"
-            v-if="!item.state && item.action === 'download'"
-          >
-            <UilFileDownload class="text-2xl mr-3 fill-current text-gray-500" />
-
-            <div>
-              <div>
-                {{ item.filename }}
-              </div>
-              <div class="text-xs text-gray-500">
-                {{ item.progress ? item.progress + '%' : '' }} File downloaded
-              </div>
-            </div>
-          </div>
-
-          <!-- {{ Upload success }} -->
-          <div
-            class="flex mb-2"
-            v-if="item.state === 'success' && item.action === 'upload'"
-          >
-            <UilFileCheckAlt
-              class="text-2xl mr-3 fill-current text-green-500"
-            />
-            <div>
-              <div>
-                {{ item.filename }}
-              </div>
-              <div class="text-xs text-gray-500">
-                File uploaded
-              </div>
-            </div>
-          </div>
-
-          <!-- {{ Download success }} -->
-          <div
-            class="flex mb-2"
-            v-if="item.state === 'success' && item.action === 'download'"
-          >
-            <UilFileDownload
-              class="text-2xl mr-3 fill-current text-green-500"
-            />
-            <div>
-              <div>
-                {{ item.filename }}
-              </div>
-              <div class="text-xs text-gray-500">
-                File downloaded
-              </div>
-            </div>
-          </div>
-
-          <!-- {{ Download Error }} -->
-          <div
-            class="flex mb-2"
-            v-if="item.state === 'error' && item.action === 'download'"
-          >
-            <UilFileExclamation
-              class="text-2xl mr-3 fill-current text-red-500"
-            />
-            <div>
-              <div>
-                {{ item.filename }}
-              </div>
-              <div class="text-xs text-gray-500">
-                <div class="text-red-500">
-                  Error downloading file.
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- {{ Upload Error }} -->
-          <div
-            class="flex mb-2"
-            v-if="item.state === 'error' && item.action === 'upload'"
-          >
-            <UilFileExclamation
-              class="text-2xl mr-3 fill-current text-red-500"
-            />
-            <div>
-              <div>{{ item.filename }}</div>
-              <div class="text-xs text-gray-500">
-                <div class="text-red-500">Error uploading file.</div>
-              </div>
-            </div>
-          </div>
-
-          <!-- {{ Remove Error }} -->
-          <div
-            class="flex mb-2"
-            v-if="item.state === 'error' && item.action === 'remove'"
-          >
-            <UilTrashAlt class="text-2xl mr-3 fill-current text-red-500" />
-            <div>
-              <div class="text-gray-500">
-                {{ item.filename }}
-              </div>
-              <div class="text-xs text-gray-500">
-                <div class="text-red-500">Error deleting file on the internxt cloud.</div>
-              </div>
-            </div>
-          </div>
-
-          <!-- {{ Remove Sccess }} -->
-          <div
-            class="flex mb-2"
-            v-if="item.state === 'success' && item.action === 'remove'"
-          >
-            <UilTrashAlt class="text-2xl mr-3 fill-current text-gray-500" />
-            <div>
-              <div>
-                {{ item.filename }}
-              </div>
-              <div class="text-xs text-gray-500">
-                <div class="text-green-500">File removed from the Internxt cloud</div>
-              </div>
-            </div>
-          </div>
-
-        </div>
-      </div>
+  <div v-if="this.FileStatusSync.length > 0">
+    <div class="" v-for="(item, index) in FileStatusSync" v-bind:key="index">
+      <!-- Uploading -->  <FileItem v-if="item.state === null && (item.action === 'upload')" fileType="" :name="item.filename" :info="'Uploading... '+item.progress ? item.progress + '%' : ''" status='uploading'/>
+      <!-- Encrypting --> <FileItem v-if="item.state == null && (item.action === 'encrypt')" fileType="" :name="item.filename" info="Encrypting" status='encrypting'/>
+      <!-- Download --> <FileItem v-if="!item.state && item.action === 'download'" fileType="" :name="item.filename" :info="'Downloading... '+item.progress ? item.progress + '%' : ''" status='downloading'/>
+      <!-- Upload success --> <FileItem v-if="item.state === 'success' && item.action === 'upload'" fileType="" :name="item.filename" info="File uploaded" status='uploaded'/>
+      <!-- Download success --> <FileItem v-if="item.state === 'success' && item.action === 'download'" fileType="" :name="item.filename" info="File downloaded" status='downloaded'/>
+      <!-- Download Error --> <FileItem v-if="item.state === 'error' && item.action === 'download'" fileType="" :name="item.filename" info="Error downloading file" status='error'/>
+      <!-- Upload Error --> <FileItem v-if="item.state === 'error' && item.action === 'upload'" fileType="" :name="item.filename" info="Error uploading file" status='error'/>
+      <!-- Remove Error --> <FileItem v-if="item.state === 'error' && item.action === 'remove'" fileType="" :name="item.filename" info="Error deleting file on the internxt cloud" status='error'/>
+      <!-- Remove Success --> <FileItem v-if="item.state === 'success' && item.action === 'remove'" fileType="" :name="item.filename" info="File removed" status='removed'/>
     </div>
   </div>
-  </div>
+</div>
 </template>
+
 <script>
-import {
-  UilFileCheckAlt,
-  UilFileUpload,
-  UilFileExclamation,
-  UilFileBlank,
-  UilFileTimes,
-  UilFileDownload,
-  UilTrashAlt
-} from '@iconscout/vue-unicons'
-import './FileStatus'
-import CircleWithCloud from '../ExportIcons/CircleWithCloud'
+import FileItem from './FileItem.vue'
 import ConfigStore from '../../../main/config-store'
 import FileLogger from '../../logic/FileLogger'
+
+function fileExtension(filename) {
+  return (filename.match(/[^\\/]\.([^\\/.]+)$/) || [null]).pop()
+}
 
 const remote = require('@electron/remote')
 
@@ -239,14 +81,7 @@ export default {
   },
   name: 'FileStatus',
   components: {
-    UilFileCheckAlt,
-    UilFileUpload,
-    UilFileExclamation,
-    UilFileBlank,
-    CircleWithCloud,
-    UilFileTimes,
-    UilFileDownload,
-    UilTrashAlt
+    FileItem
   }
 }
 </script>

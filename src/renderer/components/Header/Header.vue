@@ -1,79 +1,80 @@
 <template>
-  <div class="overflow-hidden">
-    <div class="flex justify-between items-start p-4" style="-webkit-app-region: drag">
+  <div>
+    <div class="flex justify-between self-center p-3 pl-4 pr-4" style="-webkit-app-region: drag">
       <div class="flex flex-col" style="-webkit-app-region: no-drag;">
-        <div @click="CloseModals()" class="flex items-center cursor-pointer">
-          <img src="../../assets/svg/brand-app.svg" />
-          <div class="text-xs text-gray-500 ml-2">
-            <div class="">{{ emailAccount }}</div>
+        <div class="flex items-center">
+          <img src="../../assets/svg/brand-app.svg" width="40px" height="40px" style="min-width:40px;"/>
+          <div class="text-base ml-3">
+            <div class="text-neutral-500 text-xs">{{ emailAccount }}</div>
             <div class="flex" v-if="showUsage">
-              <div class="mr-0.5 text-gray-500 text-xs">{{ usage }} of</div>
-              <div class="text-blue-500 text-xs italic">{{ limit }}</div>
-              <div v-if="this.showUpgrade" class="ml-2 text-blue-600"><a @click="openLinkBilling()">Upgrade</a></div>
+              <div class="mr-0.5 text-neutral-900">{{ usage }} of {{ limit }}</div>
+              <div v-if="this.showUpgrade" class="ml-1 text-blue-600 cursor-pointer" @click="openLinkBilling()">Upgrade</div>
             </div>
           </div>
-
-          <!-- <InternxtBrand :width="16" :height="16"/> -->
-          <!-- <div class="text-gray-800 text-xl font-extrabold ml-1.5">{{ appName }}</div> -->
         </div>
 
 
       </div>
 
-      <div class="flex items-center justify-center" style="-webkit-app-region: no-drag;">
+      <div class="flex items-center justify-center"> <!-- style="-webkit-app-region: no-drag;"-->
         <!-- {{ this.$data.localPath }} -->
         <div
           v-if="!isProduction"
-          class="mr-3 cursor-pointer"
-          @click="ShowDevModal()"
+          class="flex items-center justify-center cursor-pointer menuItem"
+          :class="{ 'selectedModal' : showModal === 'dev'}"
+          v-on:click="toggleModal('dev')"
           v-tooltip="{
-            content: 'Dev Mode',
+            content: 'Developer Tools',
             placement: 'bottom',
-            delay: { show: 300, hide: 300 }
+            delay: { show: 1000, hide: 50 }
           }"
         >
-          <UilSlidersVAlt class="text-blue-600" size="24px" />
+          <UilSlidersVAlt class="text-blue-600" size="22px" />
         </div>
 
         <div
-          class="mr-3 cursor-pointer"
+          class="flex items-center justify-center cursor-pointer menuItem"
+          :class="{ 'selectedModal' : showModal === 'sync'}"
+          v-on:click="toggleModal('sync')"
+          v-tooltip="{
+            content: 'Selective sync',
+            placement: 'bottom',
+            delay: { show: 1000, hide: 50 }
+          }"
+        >
+          <UilSync class="text-blue-600" size="22px" />
+        </div>
+
+        <div
+          class="flex items-center justify-center cursor-pointer menuItem"
           @click="openFolder()"
           v-tooltip="{
-            content: 'Sync folder',
+            content: 'Open sync folder',
             placement: 'bottom',
-            delay: { show: 300, hide: 300 }
+            delay: { show: 1000, hide: 50 }
           }"
         >
-          <UilFolderOpen class="text-blue-600" size="24px" />
+          <UilFolderOpen class="text-blue-600" size="22px" />
         </div>
 
         <div
-          class="cursor-pointer mr-3"
-          v-on:click="ShowSettingsModal()"
+          class="flex items-center justify-center cursor-pointer menuItem"
+          :class="{ 'selectedModal' : showModal === 'settings'}"
+          @click="toggleModal('settings')"
           v-tooltip="{
             content: 'Settings',
             placement: 'bottom',
-            delay: { show: 300, hide: 300 }
+            delay: { show: 1000, hide: 50 }
           }"
         >
-          <UilSetting class="text-blue-600" size="24px" />
+          <UilSetting class="text-blue-600" size="22px" />
         </div>
 
-        <div
-          class="cursor-pointer mr-3"
-          v-on:click="ShowAccountModal()"
-          v-tooltip="{
-            content: 'Account',
-            placement: 'bottom',
-            delay: { show: 300, hide: 300 }
-          }"
-        >
-          <UilUserCircle class="text-blue-600" size="24px" />
-        </div>
       </div>
     </div>
 
-    <!-- Modal settings -->
+    <!-- SETTINGS MODAL -->
+    <!--
     <transition
       enter-class="enter"
       enter-to-class="enter-to"
@@ -82,17 +83,21 @@
       leave-to-class="leave-to"
       leave-active-class="slide-leave-active"
     >
+    -->
       <div
-        v-if="showSettingsModal === true"
-        class="bg-white p-4 px-6 w-full h-full fixed rounded-t-2xl z-10"
+        v-if="showModal === 'settings'"
+        class="bg-white p-6 w-full h-full fixed z-10 overflow-scroll"
       >
-        <div class="flex justify-between">
-          <div class="text-black text-base font-bold mb-3">Configuration</div>
+        <div class="flex justify-between self-center">
+          <div class="text-black text-base font-bold mb-3">Settings</div>
 
-          <div class="cursor-pointer" v-on:click="CloseSettingsModal()">
-            <UilMultiply class="mr-2 text-blue-600" />
+          <div class="cursor-pointer" v-on:click="toggleModal()">
+            <UilMultiply class="text-blue-600" size="22px" />
           </div>
         </div>
+
+        <span class="text-sm text-black">File logger</span>
+        <div @click="FileLogger.clearFileLogger()" class="text-blue-600 text-sm cursor-pointer mb-2">Clear history</div>
 
         <span class="text-sm text-black">Sync mode</span>
         <form class="mt-2 mb-2">
@@ -119,80 +124,64 @@
         <!-- <span class="text-xs bg-blue-600 p-1.5 rounded-full text-white px-3 cursor-pointer hover:bg-blue-800" @click="stopSync()">Stop sync</span> -->
 
         <div class="text-sm mt-3">Change sync folder</div>
-        <div class="flex items-center mt-2">
+        <div class="flex flex-row items-center justify-between flex-grow mt-2">
           <div class="flex items-center">
-            <div><UilFolderOpen class="text-blue-600 mr-2 mt-0.5" /></div>
-            <p class="text-xs text-gray-500 break-words w-72">{{ this.path }}</p>
+            <div><UilFolderOpen class="text-blue-600 mr-2 mb-0.5" /></div>
+            <p class="text-xs text-gray-500 break-words w-full">{{ this.path }}</p>
           </div>
-          <div v-on:click="changeFolder()" class="text-sm text-blue-600 ml-8 cursor-pointer">
-            Change
-          </div>
+          <div v-on:click="changeFolder()" class="text-sm text-blue-600 cursor-pointer">Change</div>
         </div>
 
         <label class="checkbox mt-3">
           <input
             type="checkbox"
             :checked="LaunchCheck"
-            v-on:change="launchAtLogin()"
+            @change="launchAtLogin()"
           />
           <span class="ml-2 text-gray-700">Launch at login</span>
         </label>
-      </div>
-    </transition>
 
-    <!-- Modal Account -->
-    <transition
-      enter-class="enter"
-      enter-to-class="enter-to"
-      enter-active-class="slide-enter-active"
-      leave-class="leave"
-      leave-to-class="leave-to"
-      leave-active-class="slide-leave-active"
-    >
-      <div
-        v-if="showAccountModal === true"
-        class="bg-white p-4 px-6 w-full h-full fixed rounded-t-2xl z-10"
-      >
-        <div class="flex justify-between">
-          <div class="text-black text-base font-bold mb-3">Account</div>
-          <div class="cursor-pointer" v-on:click="CloseAccountModal()">
-            <UilMultiply class="mr-2 text-blue-600" />
-          </div>
-        </div>
+        <div class="text-black text-base font-bold mb-3 mt-3">Account</div>
 
         <div
-          class="text-sm hover:text-blue-600 cursor-pointer mb-3"
+          class="text-sm cursor-pointer mb-1"
+          @click="openLinkBilling()"
         >
-          <a @click="openLinkBilling()">Billing</a>
+          Billing
         </div>
 
         <div
-          v-on:click="openLogs()"
-          class="text-sm mb-3 hover:text-blue-600 cursor-pointer"
+          class="text-sm mb-1 cursor-pointer"
+          @click="openLogs()"
         >
           Open logs
         </div>
         <div
-          v-on:click="ContactSupportMailto()"
-          class="text-sm hover:text-blue-600 cursor-pointer mb-3"
+          class="text-sm cursor-pointer mb-1"
+          @click="ContactSupportMailto()"
         >
           Contact support
         </div>
         <div
-          class="text-sm mb-3 hover:text-blue-600 cursor-pointer"
+          class="text-sm mb-1 text-blue-600 cursor-pointer"
           @click="logout()"
         >
           Log out
         </div>
         <div
-          class="text-sm hover:text-blue-600 cursor-pointer"
+          class="text-sm text-red-60 cursor-pointer"
           @click="quitApp()"
         >
           Quit
         </div>
-      </div>
-    </transition>
 
+      </div>
+    <!--
+    </transition>
+    -->
+
+    <!-- SYNC MODAL -->
+    <!--
     <transition
       enter-class="enter"
       enter-to-class="enter-to"
@@ -201,14 +190,48 @@
       leave-to-class="leave-to"
       leave-active-class="slide-leave-active"
     >
+    -->
       <div
-        v-if="showDevTools === true"
-        class="bg-white p-4 px-6 w-full h-full fixed rounded-t-2xl z-10"
+        v-if="showModal === 'sync'"
+        class="bg-white p-6 px-6 w-full h-full fixed z-10"
       >
         <div class="flex justify-between">
-          <div class="text-black text-base font-bold mb-3">Dev Mode</div>
-          <div class="cursor-pointer" v-on:click="CloseDevModal()">
-            <UilMultiply class="mr-2 text-blue-600" />
+          <div class="flex flex-col">
+            <div class="text-black text-base font-bold mb-1">Synced folders</div>
+            <div class="text-neutral-500 text-sm mb-3">Internxt Drive folders synced with your computer</div>
+          </div>
+
+          <div class="cursor-pointer" v-on:click="toggleModal()">
+            <UilMultiply class="text-blue-600" size="22px" />
+          </div>
+        </div>
+
+
+
+      </div>
+    <!--
+    </transition>
+    -->
+
+    <!-- DEV MODAL -->
+    <!--
+    <transition
+      enter-class="enter"
+      enter-to-class="enter-to"
+      enter-active-class="slide-enter-active"
+      leave-class="leave"
+      leave-to-class="leave-to"
+      leave-active-class="slide-leave-active"
+    >
+    -->
+      <div
+        v-if="showModal === 'dev'"
+        class="bg-white p-6 px-6 w-full h-full fixed z-10"
+      >
+        <div class="flex justify-between self-center">
+          <div class="text-black text-base font-bold mb-3">Developer Tools</div>
+          <div class="cursor-pointer" v-on:click="toggleModal()">
+            <UilMultiply class="text-blue-600" size="22px" />
           </div>
         </div>
 
@@ -240,7 +263,9 @@
         </a>
 
       </div>
+    <!--
     </transition>
+    -->
 
     <div
       v-if="showSyncSettingsModal && selectedSyncOption === false"
@@ -265,8 +290,6 @@
           Accept
         </button>
       </div>
-
-      <!-- <a href="" class="text-xs underline mt-4 cursor-pointer">Know more about Full Sync</a> -->
     </div>
 
     <div
@@ -293,8 +316,6 @@
           Accept
         </button>
       </div>
-
-      <!-- <a href="" class="text-xs underline mt-4 cursor-pointer">Know more about Full Sync</a> -->
     </div>
   </div>
 </template>
@@ -306,6 +327,7 @@ import fs from 'fs-extra'
 import {
   UilFolderNetwork,
   UilSetting,
+  UilSync,
   UilUserCircle,
   UilMultiply,
   UilFolderOpen,
@@ -334,10 +356,8 @@ export default {
   data() {
     return {
       placement: 'left',
-      showSettingsModal: false,
       isProduction: process.env.NODE_ENV === 'production',
-      showAccountModal: false,
-      showDevTools: false,
+      showModal: '',
       localPath: '',
       LaunchCheck: ConfigStore.get('autoLaunch'),
       selectedSyncOption: 'none',
@@ -440,36 +460,13 @@ export default {
       remote.app.emit('sync-stop')
       remote.app.emit('app-close')
     },
-    CloseModals() {
-      this.showSettingsModal = false
-      this.showAccountModal = false
-      this.showDevTools = false
+    toggleModal(mdl) {
+      (mdl === ('' || undefined)) ? this.showModal = '' : ((mdl === this.showModal) ? this.showModal = '' : this.showModal = mdl)
     },
-    ShowDevModal() {
-      this.CloseModals()
-      this.showDevTools = true
-    },
-    CloseDevModal() {
-      this.showDevTools = false
-    },
-    // Open modal account
-    ShowAccountModal() {
-      this.CloseModals()
-      this.showAccountModal = !this.showAccountModal
-    },
-    // Close modal account
-    CloseAccountModal() {
-      this.showAccountModal = false
-    },
-    // Open modal Settings
-    ShowSettingsModal() {
-      this.CloseModals()
-      this.showSettingsModal = !this.showSettingsModal
+    closeModal(mdl) {
+      this.showModal = mdl
     },
     // Close Modal Settings
-    CloseSettingsModal() {
-      this.showSettingsModal = false
-    },
     OpenSyncSettingsModal(syncOption) {
       if (this.CheckedValue !== syncOption) {
         this.selectedSyncOption = syncOption
@@ -597,6 +594,7 @@ export default {
     InternxtBrand,
     UilMultiply,
     UilFolderOpen,
+    UilSync,
     UilServerConnection,
     UilFileTimes,
     UilSlidersVAlt

@@ -22,6 +22,7 @@ import ConfigStore from './config-store'
 import TrayMenu from './traymenu'
 import FileLogger from '../renderer/logic/FileLogger'
 import dimentions from './window-dimentions/dimentions'
+import { toggleModal } from '../renderer/components/Header/Header.vue'
 
 require('@electron/remote/main').initialize()
 AutoLaunch.configureAutostart()
@@ -57,14 +58,14 @@ function getWindowPos() {
   const trayBounds = trayMenu.tray.getBounds()
   const display = electron.screen.getDisplayMatching(trayBounds)
   let x = Math.min(
-    trayBounds.x - display.workArea.x - 450 / 2,
-    display.workArea.width - 450
+    trayBounds.x - display.workArea.x - (dimentions['/xcloud'].width / 2),
+    display.workArea.width - dimentions['/xcloud'].width
   )
   x += display.workArea.x
   x = Math.max(display.workArea.x, x)
   let y = Math.min(
-    trayBounds.y - display.workArea.y - 360 / 2,
-    display.workArea.height - 360
+    trayBounds.y - display.workArea.y - dimentions['/xcloud'].height / 2,
+    display.workArea.height - dimentions['/xcloud'].height
   )
   y += display.workArea.y
   y = Math.max(display.workArea.y, y)
@@ -85,7 +86,7 @@ function getDimentions(route) {
 function createWindow() {
   trayMenu = new TrayMenu(mainWindow)
   trayMenu.init()
-  trayMenu.setToolTip('Internxt Drive ' + PackageJson.version)
+  trayMenu.setToolTip('Internxt Drive ' + PackageJson.version) // Tray tooltip
 
   mainWindow = new BrowserWindow({
     webPreferences: {
@@ -96,13 +97,14 @@ function createWindow() {
       devTools: process.env.NODE_ENV === 'development'
     },
     movable: true,
-    width: 450,
-    height: 360,
+    width: dimentions['/xcloud'].width,
+    height: dimentions['/xcloud'].height,
     // x: display.bounds.width - 450,
     // y: trayBounds.y,
     useContentSize: true,
     // frame: process.env.NODE_ENV === 'development',
-    frame: false,
+    frame: true,
+    maximizable: false, // this won't work on linux
     autoHideMenuBar: false,
     skipTaskbar: process.env.NODE_ENV !== 'development',
     show: true,
@@ -217,7 +219,7 @@ function createWindow() {
         label: 'Developer Tools',
         accelerator: 'Shift+CmdOrCtrl+J',
         click: function() {
-          self.getWindow().toggleDevTools()
+          self.getWindow().webContents.toggleDevTools()
         }
       }
     ]
@@ -234,6 +236,7 @@ function createWindow() {
 app.on('ready', () => {
   createWindow()
 })
+
 app.on('show-main-windows', showMainWindows)
 
 function showMainWindows() {
@@ -253,7 +256,6 @@ async function appClose() {
       setTimeout(resolve, 1000)
     })
   }
-  app.emit('sync-stop')
   if (ConfigStore.get('isSyncing')) {
     await new Promise(resolve => {
       setTimeout(resolve, 1000)

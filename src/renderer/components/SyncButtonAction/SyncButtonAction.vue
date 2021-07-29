@@ -1,5 +1,5 @@
 <template>
-  <div class="flex justify-between p-4 px-6">
+  <div>
     <div class="flex">
 
       <syncStatusText :msg = "message" :syncState = "syncState"/>
