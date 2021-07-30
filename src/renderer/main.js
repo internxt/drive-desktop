@@ -8,7 +8,7 @@ import dotenv from 'dotenv'
 import './assets/tailwind/tailwind_cdn.min'
 import '../index.scss'
 import '../../scss/internxt-design-system.scss'
-import './assets/scss/fonts.scss'
+// import './assets/scss/fonts.scss'
 
 // import 'bootstrap/dist/css/bootstrap-grid.css'
 // import 'bootstrap/dist/css/bootstrap.min.css'

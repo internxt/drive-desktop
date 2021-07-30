@@ -1,8 +1,8 @@
 <template>
   <div class="flex flex-none flex-col h-full w-full overflow-x-hidden">
-    <Header class="overflow-hidden" :appName="appName" :emailAccount="emailAccount"/>
-    <FileStatus class="bg-white fileLogger overflow-y-auto overflow-x-hidden flex flex-col flex-grow flex-shrink py-2" :FileStatusSync="FileStatusSync" />
-    <SyncButtonAction class="flex flex-none justify-between p-4 px-6" :FileStatusSync="FileStatusSync"/>
+    <Header class="header overflow-hidden" :appName="appName" :emailAccount="emailAccount"/>
+    <FileStatus class="fileStatus bg-white fileLogger overflow-y-auto overflow-x-hidden flex flex-col flex-grow flex-shrink" :FileStatusSync="FileStatusSync" />
+    <SyncButtonAction class="syncButtonAction overflow-hidden flex flex-none justify-between p-2 px-4" :FileStatusSync="FileStatusSync"/>
   </div>
 </template>
 

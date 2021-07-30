@@ -4,16 +4,14 @@
       <div class="flex flex-col" style="-webkit-app-region: no-drag;">
         <div class="flex items-center">
           <img src="../../assets/svg/brand-app.svg" width="40px" height="40px" style="min-width:40px;"/>
-          <div class="text-base ml-3">
-            <div class="text-neutral-500 text-xs">{{ emailAccount }}</div>
+          <div class="ml-3 text-sm">
+            <div>{{ emailAccount }}</div>
             <div class="flex" v-if="showUsage">
-              <div class="mr-0.5 text-neutral-900">{{ usage }} of {{ limit }}</div>
-              <div v-if="this.showUpgrade" class="ml-1 text-blue-600 cursor-pointer" @click="openLinkBilling()">Upgrade</div>
+              <div class="mr-0.5">{{ usage }} of {{ limit }}</div>
+              <div v-if="this.showUpgrade" class="ml-1 text-blue-60 cursor-pointer" @click="openLinkBilling()">Upgrade</div>
             </div>
           </div>
         </div>
-
-
       </div>
 
       <div class="flex items-center justify-center"> <!-- style="-webkit-app-region: no-drag;"-->
@@ -74,16 +72,6 @@
     </div>
 
     <!-- SETTINGS MODAL -->
-    <!--
-    <transition
-      enter-class="enter"
-      enter-to-class="enter-to"
-      enter-active-class="slide-enter-active"
-      leave-class="leave"
-      leave-to-class="leave-to"
-      leave-active-class="slide-leave-active"
-    >
-    -->
       <div
         v-if="showModal === 'settings'"
         class="bg-white p-6 w-full h-full fixed z-10 overflow-scroll"
@@ -95,9 +83,6 @@
             <UilMultiply class="text-blue-600" size="22px" />
           </div>
         </div>
-
-        <span class="text-sm text-black">File logger</span>
-        <div @click="FileLogger.clearFileLogger()" class="text-blue-600 text-sm cursor-pointer mb-2">Clear history</div>
 
         <span class="text-sm text-black">Sync mode</span>
         <form class="mt-2 mb-2">
@@ -176,21 +161,8 @@
         </div>
 
       </div>
-    <!--
-    </transition>
-    -->
 
     <!-- SYNC MODAL -->
-    <!--
-    <transition
-      enter-class="enter"
-      enter-to-class="enter-to"
-      enter-active-class="slide-enter-active"
-      leave-class="leave"
-      leave-to-class="leave-to"
-      leave-active-class="slide-leave-active"
-    >
-    -->
       <div
         v-if="showModal === 'sync'"
         class="bg-white p-6 px-6 w-full h-full fixed z-10"
@@ -214,16 +186,6 @@
     -->
 
     <!-- DEV MODAL -->
-    <!--
-    <transition
-      enter-class="enter"
-      enter-to-class="enter-to"
-      enter-active-class="slide-enter-active"
-      leave-class="leave"
-      leave-to-class="leave-to"
-      leave-active-class="slide-leave-active"
-    >
-    -->
       <div
         v-if="showModal === 'dev'"
         class="bg-white p-6 px-6 w-full h-full fixed z-10"
@@ -253,19 +215,7 @@
           </a>
         </div> -->
 
-
-
-        <a
-          class="btn btn-blue"
-          @click="() => { console.log('HOLA') }"
-        >
-          Log out
-        </a>
-
       </div>
-    <!--
-    </transition>
-    -->
 
     <div
       v-if="showSyncSettingsModal && selectedSyncOption === false"
@@ -322,7 +272,7 @@
 
 <script>
 import Vue from 'vue'
-import '../Header/Header.scss'
+import './Header.scss'
 import fs from 'fs-extra'
 import {
   UilFolderNetwork,
@@ -348,6 +298,7 @@ import electronLog from 'electron-log'
 import VToolTip from 'v-tooltip'
 import DeviceLock from '../../logic/devicelock'
 import bytes from 'bytes'
+import FileStatus from '../FileStatus/FileStatus.vue'
 
 Vue.use(VToolTip)
 const remote = require('@electron/remote')

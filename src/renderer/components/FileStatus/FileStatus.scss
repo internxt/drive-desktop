@@ -1,3 +1,116 @@
+@import "../../../../src/index.scss";
+
+.fileLogger {
+  position: relative;
+  @include text-base;
+}
+
+.clearLog {
+  position: sticky;
+  height: 0 !important;
+  right: 0 !important;
+
+  .button {
+    @include text-sm;
+    float: right;
+    padding: $spacing-1 $spacing-6;
+    margin: $spacing-4 $spacing-6;
+    color: $blue-60;
+    border-radius: $spacing-3;
+    cursor: pointer;
+    transition: all .1s ease-out;
+
+    &:hover {
+      background: $blue-10;
+    }
+
+    &.disabled {
+      color: $m-neutral-80;
+
+      &:hover {
+        background: $l-neutral-20;
+      }
+    }
+  }
+}
+
+.timeStamp {
+  margin-top: $spacing-7;
+  @include bg-opacity($white,.8);
+  @include bg-blur($spacing-2);
+  color: $neutral-500;
+}
+
+.timeStampGroup:first-child .timeStamp {
+  margin-top: 0;
+}
+
+.fileItem {
+  cursor: pointer;
+  display: block;
+
+  &:not([status="error"],[status="removed"]):hover {
+    background: $l-neutral-10;
+    transition: all .1s ease-out;
+  }
+
+  .itemIcon {
+    width: $spacing-19;
+    height: $spacing-19;
+  }
+  .itemTag {
+    width: 100% !important;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    padding-right: $spacing-3;
+    // box-shadow: inset 0 0 0 1px red;
+  }
+  .itemName {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+  .itemInfo {
+    color: $neutral-500;
+  }
+
+  // Opacity .5 when file is uploading, downloading or encrypting
+  &[status="uploading"], &[status="downloading"], &[status="encrypting"] {
+    .itemIcon, .itemTag {
+      opacity: .3;
+    }
+  }
+  &[status="encrypting"] {
+    cursor: pointer;
+  }
+
+  // Info color when success
+  &[status="uploaded"], &[status="downloaded"] {
+    .itemInfo {
+      color: $green-60;
+    }
+  }
+
+  // Info color when error
+  &[status="error"] {
+    .itemInfo {
+      color: $red-60;
+    }
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
 
 /*
 .fileStatusBox {

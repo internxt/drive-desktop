@@ -314,7 +314,9 @@ function start(callback, startImmediately = false) {
   Logger.info('Start sync')
   let timeout = 0
   if (!startImmediately) {
-    timeout = process.env.NODE_ENV !== 'production' ? 1000 * 30 : 1000 * 60 * 10
+    const UPDATES_EVERY_MINUTES = 5
+    const UPDATES_EVERY_MINUTES_DEV = 10
+    timeout = process.env.NODE_ENV !== 'production' ? 1000 * 60 * UPDATES_EVERY_MINUTES_DEV : 1000 * 60 * UPDATES_EVERY_MINUTES
   }
   if (!isSyncing) {
     clearTimeout(timeoutInstance)

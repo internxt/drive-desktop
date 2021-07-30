@@ -4,19 +4,28 @@ html {
   background-color: transparent;
 }
 
-  body {
-    @include text-sm ;
-    color: $cool-gray-80;
-    margin: 0px;
-    font-weight: normal;
-    background-color: $cool-gray-10;
-    font-variant: normal;
-    font-feature-settings: normal;
-  }
-  // .mainTitle {
-    
-  // }
-  .subTitle {
-    @include text-sm-bolder;
-    color: $cool-gray-80;
-  }
+body {
+  @include text-base ;
+  color: $neutral-900;
+  margin: 0;
+  font-weight: normal;
+  background: $l-neutral-20;
+  font-variant: normal;
+  font-feature-settings: normal;
+}
+
+.text-blue-60 {
+  color: $blue-60;
+}
+.text-green-60 {
+  color: $green-60;
+}
+.text-red-60 {
+  color: $red-60;
+}
+.text-neutral-900 {
+  color: $neutral-900;
+}
+.text-neutral-500 {
+  color: $neutral-500;
+}

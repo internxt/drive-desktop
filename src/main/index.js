@@ -22,7 +22,6 @@ import ConfigStore from './config-store'
 import TrayMenu from './traymenu'
 import FileLogger from '../renderer/logic/FileLogger'
 import dimentions from './window-dimentions/dimentions'
-import { toggleModal } from '../renderer/components/Header/Header.vue'
 
 require('@electron/remote/main').initialize()
 AutoLaunch.configureAutostart()

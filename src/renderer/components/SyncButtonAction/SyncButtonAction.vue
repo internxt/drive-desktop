@@ -1,23 +1,18 @@
 <template>
   <div>
     <div class="flex">
-
-      <syncStatusText :msg = "message" :syncState = "syncState"/>
-
-      <!-- Error - string= 'error' -->
+      <syncStatusText :msg="message" :syncState="syncState"/>
     </div>
-    <div class="flex justify-center">
-      <div class="flex">
+    <div class="flex justify-center flex-row">
         <div v-if="this.playButtonState !== 'loading'" @click="forceSync()">
-          <PlayIcon :playButtonState="playButtonState"/>
+          <PlayIcon class="buttonStatus" :playButtonState="playButtonState"/>
         </div>
         <div v-else>
-          <LoadingSpinAnimation/>
+          <LoadingSpinAnimation class="buttonStatus" />
         </div>
         <div @click="stopSync()">
-          <StopIcon  :stopButtonState="stopButtonState"/>
+          <StopIcon class="buttonStatus" :stopButtonState="stopButtonState"/>
         </div>
-      </div>
     </div>
   </div>
 </template>

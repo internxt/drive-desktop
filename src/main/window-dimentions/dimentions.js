@@ -1,7 +1,7 @@
 const dimentions = {
   '/xcloud': {
     width: 420,
-    height: 550
+    height: 580
   },
   '/onboarding': {
     width: 900,
@@ -9,7 +9,7 @@ const dimentions = {
   },
   '/login': {
     width: 420,
-    height: 550
+    height: 580
   }
 }/* class Dimentions {
   dimentions = dimentions

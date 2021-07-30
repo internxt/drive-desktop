@@ -1,10 +1,14 @@
-@import "../scss/globals";
+@import "../../../../src/index.scss";
+
+.header {
+  border-bottom: 1px solid $l-neutral-30;
+}
 
 .text-brand {
     @include text-xs;
 }
 .text-xs-bolder {
-  @include text-xs-bolder;
+  @include text-xs;
 }
 .hide {
     visibility: hidden !important;
@@ -19,18 +23,20 @@ input[type='radio']{
 .h-19r {
     height: 18.5rem;
 }
+
+/*
 body::-webkit-scrollbar {
-  width: 4px;               /* width of the entire scrollbar */
+  width: 4px;               // width of the entire scrollbar
 }
 
 body::-webkit-scrollbar-track {
-  background: white;        /* color of the tracking area */
+  background: white;        // color of the tracking area
 }
 
 body::-webkit-scrollbar-thumb {
-  background-color: #1D4ED8;    /* color of the scroll thumb */
-  border-radius: 20px;       /* roundness of the scroll thumb */
-  // border: 3px solid orange;  /* creates padding around scroll thumb */
+  background-color: #1D4ED8;    // color of the scroll thumb
+  border-radius: 20px;       // roundness of the scroll thumb
+  // border: 3px solid orange;  // creates padding around scroll thumb
 }
 
 * {
@@ -39,7 +45,7 @@ body::-webkit-scrollbar-thumb {
   user-select: none;
 }
 
-/* Works on Chrome, Edge, and Safari */
+// Works on Chrome, Edge, and Safari
 *::-webkit-scrollbar {
   width: 6px;
 }
@@ -53,6 +59,7 @@ body::-webkit-scrollbar-thumb {
   border-radius: 20px;
   // border: 3px solid orange;
 }
+*/
 
 /* The container */
 .radioContainer {
@@ -279,6 +286,6 @@ body::-webkit-scrollbar-thumb {
   padding: 8px;
   height: 40px;
   width: 40px;
-  border-radius: 8px;
+  border-radius: $spacing-3;
   transition: all .15 ease-in-out;
 }

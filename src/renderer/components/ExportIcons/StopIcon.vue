@@ -1,9 +1,9 @@
 <template>
-    <div>
-        <svg xmlns="http://www.w3.org/2000/svg" :width="width" :height="height" :class="stopButtonState" viewBox="0 0 20 20" fill="currentColor">
-        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a1 1 0 00-1 1v4a1 1 0 001 1h4a1 1 0 001-1V8a1 1 0 00-1-1H8z" clip-rule="evenodd" />
-        </svg>
-    </div>
+  <svg width="32" height="32" :class="stopButtonState" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path v-if="stopButtonState==='active'" d="M0 20C0 8.95431 8.95431 0 20 0C31.0457 0 40 8.95431 40 20C40 31.0457 31.0457 40 20 40C8.95431 40 0 31.0457 0 20Z" fill="#0F62FE"/>
+    <path v-else d="M0 20C0 8.95431 8.95431 0 20 0C31.0457 0 40 8.95431 40 20C40 31.0457 31.0457 40 20 40C8.95431 40 0 31.0457 0 20Z" fill="#DFE1E6"/>
+    <rect x="12" y="12" width="16" height="16" rx="2" fill="white"/>
+  </svg>
 </template>
 
 <script>
@@ -12,14 +12,6 @@
         stopButtonState: {
           type: String,
           default: ''
-        },
-        width: {
-          type: String,
-          default: '1.25rem'
-        },
-        height: {
-          type: String,
-          default: '1.25rem'
         }
       }
     }
