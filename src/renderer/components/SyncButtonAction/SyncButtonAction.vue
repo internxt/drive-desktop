@@ -80,7 +80,7 @@ export default {
   },
   created: function() {
     remote.app.on('ui-sync-status', status => {
-      console.log(`status entering: ${status}`)
+      // console.log(`status entering: ${status}`)
       if (status === 'success') {
         clearTimeout(this.blockTimeout)
         this.blockTimeout = 0
@@ -98,12 +98,13 @@ export default {
         if (!this.blockTimeout) {
           this.blockTimeout = setTimeout(() => {
             this.playButtonState = 'active'
+            this.blockTimeout = 0
           }, 60 * 1000)
         }
         this.playButtonState = 'inactive'
         this.stopButtonState = 'inactive'
         this.message = getMessage('block')
-        console.log('%c SYNC BLOCKED', 'color: #FF0000')
+        // console.log('%c SYNC BLOCKED', 'color: #FF0000')
       }
       /*
       if (status === 'error') {
