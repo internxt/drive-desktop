@@ -4,9 +4,9 @@
  * Get server lock to prevent multiple devices syncing at the same time.
  */
 
-import database from '../../database'
 import Logger from '../../libs/logger'
 import Auth from './utils/Auth'
+const remote = require('@electron/remote')
 
 const SYNC_KEEPALIVE_INTERVAL_MS = 25000
 
@@ -104,6 +104,8 @@ async function unlock() {
       })
   })
 }
+
+remote.app.on('app-close', stopUpdateDeviceSync)
 
 export default {
   SYNC_KEEPALIVE_INTERVAL_MS,

@@ -437,7 +437,6 @@ export default {
     },
     // Quit
     quitApp() {
-      remote.app.emit('sync-stop')
       remote.app.emit('app-close')
     },
     CloseModals() {
