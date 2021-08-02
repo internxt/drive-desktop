@@ -3,7 +3,6 @@ import Logger from '../../libs/logger'
 import Auth from './utils/Auth'
 import AesUtil from './AesUtil'
 import Uploader from './uploader'
-import getEnvironment from './utils/libinxt'
 import Sync from './sync'
 import Tree from './tree'
 import fs from 'fs'
@@ -192,16 +191,6 @@ async function removeFileEntry(
         Logger.log('CREATE FILE ENTRY ERROR', err)
         reject(err)
       })
-  })
-}
-
-function restoreFile(fileObj) {
-  return getEnvironment().then(storj => {
-    return new Promise((resolve, reject) => {
-      Uploader.uploadFile(storj, fileObj.fullpath)
-        .then(() => resolve())
-        .catch(reject)
-    })
   })
 }
 
@@ -1091,7 +1080,6 @@ export default {
   createFileEntry,
   sincronizeLocalFile,
   sincronizeCloudFile,
-  restoreFile,
   removeFileEntry,
   sincronizeFile,
   setEnsureMode
