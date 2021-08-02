@@ -253,7 +253,6 @@ async function appClose() {
       setTimeout(resolve, 1000)
     })
   }
-  app.emit('sync-stop')
   if (ConfigStore.get('isSyncing')) {
     await new Promise(resolve => {
       setTimeout(resolve, 1000)
