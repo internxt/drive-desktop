@@ -30,24 +30,24 @@
 
             <div class="flex pl-10 mb-4">
               <div class="mr-6">
-                <div class="font-bold mb-1">Sync progress</div>
-                <div class="text-xs">Experience speed & security by visualising the overall sync status of the app</div>
+                <div class="font-bold mb-1">Activity monitor</div>
+                <div class="text-xs">Check how many files have already been synchronized, right from your Desktop app</div>
               </div>
               <p class="text-transparent bg-clip-text text-5xl text-left bg-gradient-to-r from-blue-700 via-pink-500 to-purple-900">1</p>
             </div>
 
             <div class="flex pl-10 mb-4">
               <div class="mr-6">
-                <div class="font-bold mb-1">Customize your app</div>
-                <div class="text-xs">Easily set up your desktop app. Switch sync modes, change your sync folder & more</div>
+                <div class="font-bold mb-1">Start and Pause</div>
+                <div class="text-xs">Are you in a rush? Instantly Start and Pause your sync at any time</div>
               </div>
               <p class="text-transparent bg-clip-text text-5xl text-left bg-gradient-to-r from-blue-700 via-pink-500 to-purple-900">2</p>
             </div>
 
             <div class="flex pl-10">
               <div class="mr-6">
-                <div class="font-bold mb-1">Upgrade any time</div>
-                <div class="text-xs">Need more storage space? Upgrade at any time with a 30-day money-back guarantee!</div>
+                <div class="font-bold mb-1">File sync status</div>
+                <div class="text-xs">Take a look at how fast your files securely synchronize with the cloud</div>
               </div>
               <p class="text-transparent bg-clip-text text-5xl text-left bg-gradient-to-r from-blue-700 via-pink-500 to-purple-900">3</p>
             </div>
