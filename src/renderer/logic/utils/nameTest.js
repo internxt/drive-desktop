@@ -11,6 +11,9 @@ function createTestFolder(folderPath) {
 }
 
 function removeTestFolder(basePath) {
+  if (!basePath) {
+    return
+  }
   const folderPath = path.join(basePath, testFolderName)
   return new Promise((resolve, reject) => {
     rimraf(folderPath, () => {
