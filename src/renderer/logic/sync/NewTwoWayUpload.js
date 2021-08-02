@@ -111,6 +111,7 @@ async function SyncLogic(callback) {
     NameTest.removeTestFolder(basePath)
     app.emit('set-tooltip')
     app.emit('sync-off', false)
+    app.emit('ui-sync-status', 'success')
     app.removeListener('sync-stop', syncStop)
     app.removeListener('user-logout', DeviceLock.stopUpdateDeviceSync)
     ConfigStore.set('stopSync', false)
