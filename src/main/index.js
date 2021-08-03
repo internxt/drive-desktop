@@ -248,7 +248,9 @@ function showMainWindows() {
 }
 
 async function appClose() {
-  while (ConfigStore.get('updatingDB')) {
+  let attempts = 5
+  while (ConfigStore.get('updatingDB') && attempts > 0) {
+    attempts--
     await new Promise(resolve => {
       setTimeout(resolve, 1000)
     })

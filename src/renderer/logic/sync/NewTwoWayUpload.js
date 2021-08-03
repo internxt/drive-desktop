@@ -117,6 +117,7 @@ async function SyncLogic(callback) {
     ConfigStore.set('stopSync', false)
     DeviceLock.stopUpdateDeviceSync()
     ConfigStore.set('isSyncing', false)
+    ConfigStore.set('updatingDB', false)
     app.emit('sync-off', false)
     const rootFolderExist = await Folder.rootFolderExists()
     if (!rootFolderExist) {
