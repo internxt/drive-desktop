@@ -28,13 +28,14 @@ export default {
     startTimer() {
       this.lastUpdate = Date.now()
       this.setlastUpdatemsg()
-      console.log('%cTimer started', 'background: #A7F0BA; color: #198038')
+      // console.log('%cTimer reset', 'background: #A7F0BA; color: #198038')
       setInterval(() => {
         this.setlastUpdatemsg()
       }, 1000)
     },
     restartTimer() {
       this.lastUpdate = Date.now()
+      // console.log('%cTimer reset', 'background: #A7F0BA; color: #198038')
     },
     getLastUpdate() {
       return {

@@ -49,7 +49,7 @@ if (process.platform === 'darwin' && process.env.NODE_ENV !== 'development') {
 }
 
 if (!app.requestSingleInstanceLock()) {
-  FileLogger.saveLogger()
+  FileLogger.saveLog()
   app.quit()
 }
 
@@ -267,7 +267,7 @@ async function appClose() {
     trayMenu.destroy()
     trayMenu = null
   }
-  FileLogger.saveLogger()
+  FileLogger.saveLog()
   app.quit()
 }
 

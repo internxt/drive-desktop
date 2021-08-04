@@ -32,6 +32,8 @@ import LoadingSpinAnimation from '../ExportIcons/LoadingSpinAnimation'
 import syncButtonState from '../../logic/syncButtonStateMachine'
 import syncStatusText from './syncStatusText'
 import getMessage from './statusMessage'
+import { statSync } from 'original-fs'
+import FileLogger from '../../logic/FileLogger'
 
 const remote = require('@electron/remote')
 
@@ -93,7 +95,11 @@ export default {
     remote.app.removeListener('sync-on', this.changeSyncButton)
     remote.app.removeListener('ui-sync-status', this.changeSyncStatus)
   },
-  updated: function() {},
+  updated: function() {
+    if (this.syncState === 'complete') {
+      FileLogger.saveLog()
+    }
+  },
   computed: {},
   name: 'SyncButtonAction',
   components: {

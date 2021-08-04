@@ -4,6 +4,7 @@
     <div class="flex w-full flex-col itemTag">
       <div class="text-base itemName">{{ name }}</div>
       <div class="text-sm itemInfo" style="margin-top:-6px;">{{ info }}</div>
+      <!--<div class="text-sm itemInfo" style="margin-top:-6px;">{{ info }} state: {{state ? state : '---'}} action: {{action ? action : '---'}}</div>-->
     </div>
   </div>
 </template>
@@ -26,9 +27,6 @@ import electron from 'electron'
 
 export default {
   props: {
-    fileObject: {
-      type: Object
-    },
     fileType: {
       type: String,
       default: 'file'
@@ -53,9 +51,6 @@ export default {
   methods: {
     openFilePath (filePath) {
       if (this.filePath && (this.status === 'encrypting' || this.status === 'uploading' || this.status === 'uploaded' || this.status === 'downloaded')) electron.shell.showItemInFolder(filePath) // showItemInFolder or openPath
-    },
-    printObject (obj) {
-      console.table(obj)
     }
   },
   components: {

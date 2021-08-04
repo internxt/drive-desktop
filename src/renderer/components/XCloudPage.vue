@@ -1,8 +1,8 @@
 <template>
   <div class="flex flex-none flex-col h-full w-full overflow-x-hidden">
-    <Header class="header overflow-hidden" :appName="appName" :emailAccount="emailAccount"/>
+    <Header class="header overflow-hidden z-20" :appName="appName" :emailAccount="emailAccount"/>
     <FileStatus class="fileStatus bg-white fileLogger overflow-y-auto overflow-x-hidden flex flex-col flex-grow flex-shrink" :FileStatusSync="FileStatusSync" />
-    <SyncButtonAction class="syncButtonAction overflow-hidden flex flex-none justify-between p-2 px-4" :FileStatusSync="FileStatusSync"/>
+    <SyncButtonAction class="statusBar overflow-hidden flex flex-none justify-between p-2 px-4" :FileStatusSync="FileStatusSync"/>
   </div>
 </template>
 
@@ -69,6 +69,9 @@ export default {
         console.log('Cannot update tray icon', err.message)
       })
   },
+  mounted: function () {
+    FileLogger.loadLog()
+  },
   beforeDestroy: function () {
     FileLogger.removeAllListeners('update-last-entry')
     FileLogger.removeAllListeners('new-entry')
@@ -77,6 +80,7 @@ export default {
     remote.app.removeAllListeners('new-folder-path')
     remote.app.removeListener('set-tooltip', this.setTooltip)
     remote.app.removeAllListeners('update-last-entry')
+    FileLogger.saveLog()
   },
   created: function () {
     FileLogger.on('clear-log', () => {
