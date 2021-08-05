@@ -5,7 +5,7 @@ const messages = {
   'complete': { 'line1': '' }, // Computed
   'stop': { 'line1': 'Stopped' },
   'block': { 'line1': 'Sync blocked by other device, try later' },
-  'default': { 'line1': 'Tap play to start syncing' },
+  'default': { 'line1': 'Press play to start syncing' },
   'error': { 'line1': 'Can\'t connect to internxt cloud' },
   'stopping': { 'line1': 'Stopping...' }
 }

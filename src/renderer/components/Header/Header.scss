@@ -150,24 +150,19 @@ body::-webkit-scrollbar-thumb {
   position: relative;
 }
 
-.checkbox > span {
-  color: #34495E;
-}
-
 .checkbox > input {
-  height: 13px;
-  width: 13px;
+  height: $spacing-7;
+  width: $spacing-7;
   appearance: none;
-  border: 1px solid $gray-60;
-  border-radius: 3px;
+  border: 2px solid $neutral-500;
+  border-radius: $spacing-1;
   outline: none;
-  transition-duration: 0.3s;
   background-color: white;
   cursor: pointer;
 }
 
 .checkbox > input:checked {
-  border: none;
+  border-color: $blue-60;
   background-color: $blue-60;
 }
 
@@ -175,11 +170,11 @@ body::-webkit-scrollbar-thumb {
   content: '\2713';
   display: block;
   text-align: center;
-  color: white;
+  color: $white;
   position: absolute;
-  left: 3px;
-  top: 4px;
-  font-size: 10px;
+  left: 11px;
+  top: 10px;
+  @include text-sm;
 }
 
 // v-tooltip styling
@@ -305,7 +300,8 @@ body::-webkit-scrollbar-thumb {
 .title {
   color: $neutral-900;
   margin-top: $spacing-7;
-  @include text-xl;
+  // @include text-xl;
+  @include text-lg;
   &:first-child {
     margin-top: 0;
   }
@@ -318,4 +314,20 @@ body::-webkit-scrollbar-thumb {
 .subgroup {
   color: $neutral-500;
   padding: $spacing-3;
+
+  &.note {
+    background: $l-neutral-20;
+    border-radius: $spacing-3;
+    padding: $spacing-8 $spacing-10;
+
+    &.dev {
+      background: $orange-10;
+      color: $orange-60;
+
+      .title {
+        color: $orange-80;
+        @include text-xl;
+      }
+    }
+  }
 }

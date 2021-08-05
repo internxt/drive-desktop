@@ -57,7 +57,7 @@
       <div v-if="this.FileStatusSync.length > 0">
         <div v-for="(item, index) in FileStatusSync" v-bind:key="index">
           <!-- Debug --> <!--<FileItem :name="'File debugger'" :info="'Click to print debug info'" status='debug'/>-->
-          <!-- Uploading -->  <FileItem v-if="!item.state && (item.action === 'upload')" fileType="" :filePath="item.filePath" :name="item.filename" :info="'Uploading... ' + (item.progress ? Math.trunc(item.progress) + '%' : '')" status='uploading'/>
+          <!-- Uploading -->  <FileItem v-if="!item.state && (item.action === 'upload')" fileType="" :filePath="item.filePath" :name="item.filename" :info="'Processing... ' + (item.progress ? Math.trunc(item.progress) + '%' : '')" status='uploading'/>
           <!-- Encrypting --> <FileItem v-if="item.action === 'encrypt'" fileType="" :filePath="item.filePath" :name="item.filename" info="Encrypting..." status='encrypting'/>
           <!-- Download --> <FileItem v-if="!item.state && item.action === 'download'" fileType="" :filePath="item.filePath" :name="item.filename" :info="'Downloading... ' + (item.progress ? Math.trunc(item.progress) + '%' : '')" status='downloading'/>
           <!-- Upload success --> <FileItem v-if="item.state === 'success' && item.action === 'upload'" fileType="" :filePath="item.filePath" :name="item.filename" info="File uploaded" status='uploaded'/>

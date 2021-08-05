@@ -34,8 +34,6 @@ body {
   color: $neutral-500;
 }
 
-.check-success {
-  background: $green-50;
-  border-radius: 100%;
-  fill: $white;
+.selectable {
+  user-select: all;
 }

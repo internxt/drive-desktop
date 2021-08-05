@@ -14,21 +14,8 @@
         </div>
       </div>
 
-      <div class="flex items-center justify-center"> <!-- style="-webkit-app-region: no-drag;"-->
+      <div class="flex items-center justify-center">
         <!-- {{ this.$data.localPath }} -->
-        <div
-          v-if="!isProduction"
-          class="flex items-center justify-center cursor-pointer menuItem"
-          :class="{ 'selectedModal' : showModal === 'dev'}"
-          v-on:click="toggleModal('dev')"
-          v-tooltip="{
-            content: 'Developer Tools',
-            placement: 'bottom',
-            delay: { show: 1000, hide: 50 }
-          }"
-        >
-          <UilSlidersVAlt class="text-blue-60" size="22px" />
-        </div>
 
         <div
           class="flex items-center justify-center cursor-pointer menuItem"
@@ -76,14 +63,25 @@
         v-if="showModal === 'settings'"
         class="headerModal"
       >
-        <div class="text-xl title">Sync folder location</div>
-        <div class="flex flex-row items-center justify-between flex-grow subgroup">
-          <div class="flex items-center">
-            <FileIcon icon="folder" class="mr-2" width="20" height="20"/>
-            <span class="break-words w-full">{{this.path}}</span>
-          </div>
-          <div v-on:click="changeFolder()" class="text-blue-60 cursor-pointer">Change</div>
+        <!-- DEV TOOLS -->
+        <div v-if="!isProduction" class="subgroup note dev">
+          <div class="title">Developer Tools</div>
+          <div class="cursor-pointer" @click="UnlockDevice()">Unlock device</div>
         </div>
+
+        <!-- USER SETTINGS -->
+        <div class="title">Sync folder location</div>
+        <div class="flex flex-col subgroup">
+          <div class="flex flex-row items-center justify-between flex-grow">
+            <div class="flex items-center" @dblclick="openFolder()">
+              <FileIcon icon="folder" class="mr-2" width="20" height="20"/>
+              <span>{{this.path}}</span>
+            </div>
+            <div v-on:click="changeFolder()" class="text-blue-60 cursor-pointer">Change</div>
+          </div>
+          <div v-on:click="toggleModal('sync')" class="text-blue-60 cursor-pointer mt-1">Selective sync</div>
+        </div>
+        
 
         <!--
         <span class="text-sm">Sync mode</span>
@@ -111,13 +109,13 @@
         -->
 
         <div class="title">Launch at login</div>
-        <label class="checkbox subgroup">
+        <label class="flex items-center checkbox subgroup">
           <input
             type="checkbox"
             :checked="LaunchCheck"
             @change="launchAtLogin()"
           />
-          <span class="ml-2 text-gray-700">Launch minimized</span>
+          <span class="ml-2">Launch minimized</span>
         </label>
 
         <div class="title">Account</div>
@@ -136,17 +134,8 @@
       v-if="showModal === 'sync'"
       class="headerModal"
     >
-      <div class="title">Synced folders</div>
+      <div class="title">Selective Sync</div>
       <div class="subtitle">Hide folders you don't want to sync with this device</div>
-    </div>
-
-    <!-- DEV MODAL -->
-    <div
-      v-if="showModal === 'dev'"
-      class="headerModal"
-    >
-      <div class="title">Developer Tools</div>
-      <div class="cursor-pointer mt-1 text-blue-60" @click="UnlockDevice()">Unlock device</div>
     </div>
 
     <div

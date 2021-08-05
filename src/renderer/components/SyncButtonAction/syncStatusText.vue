@@ -1,12 +1,14 @@
 <template>
-<div class="flex items-center justify-center text-neutral-500 text-sm" :class="syncState === 'pending' ? 'animate-pulse' : null">
+<div class="flex items-center justify-center"> <!-- :class="syncState === 'pending' ? 'animate-pulse' : null" -->
   <!--
     <div>{{msg.line1}}</div>
     <div class="flex">{{msg.line2}}</div>
   -->
   <div class="flex text-sm">
-    <div v-if="syncState === 'pending'" class="flex items-center" style="transform: rotateX(180deg)"><UilSync class="animate-spin-reverse mr-3" width="14" height="14"/></div>
-    {{msg.line1}}
+    <div v-if="syncState === 'pending'" class="flex items-center"><SyncSpinner class="mr-2 animate-spin" width="18" height="18"/></div>
+    <div :class="syncState === 'pending' ? 'animate-pulse' : null">
+      {{msg.line1}}
+    </div>
     <div v-if="syncState === 'complete'" class="flex items-center"><CheckSuccess class="mr-2" width="18" height="18"/>{{lastUpdatemsg}}</div>
   </div>
 </div>
@@ -18,6 +20,7 @@ import {
   UilSync
 } from '@iconscout/vue-unicons'
 import CheckSuccess from '../Icons/Check-success.vue'
+import SyncSpinner from '../Icons/Sync-spinner.vue'
 export default {
   data () {
     return {
@@ -79,7 +82,8 @@ export default {
   components: {
     UilCloudDataConnection,
     CheckSuccess,
-    UilSync
+    UilSync,
+    SyncSpinner
   }
 }
 </script>

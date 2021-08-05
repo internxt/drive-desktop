@@ -2,6 +2,10 @@
 
 .statusBar {
     box-shadow: inset 0 1px 0 0 $l-neutral-30;
+
+    .statusBarMsg {
+        color: $neutral-500;
+    }
 }
 
 .centerAbsolute {
@@ -26,6 +30,8 @@
     cursor: pointer;
     cursor: not-allowed;
 }
-// .loadingButtonSync {
 
-// }
+.syncSpinner {
+    background: $blue-60;
+    border-radius: 100%;
+}

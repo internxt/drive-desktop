@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="flex">
+    <div class="flex statusBarMsg">
       <syncStatusText :msg="message" :syncState="syncState"/>
     </div>
     <div class="flex justify-center flex-row">
