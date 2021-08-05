@@ -112,7 +112,7 @@ export default {
     remote.app.removeListener('sync-stop', this.changeIsSyncing)
   },
   updated: function () {
-    console.log(this.FileStatusSync)
+    // console.log(this.FileStatusSync)
   },
   destroyed: function () {},
   methods: {
@@ -124,6 +124,8 @@ export default {
     },
     clearFileLogger() {
       FileLogger.emit('clear-log')
+      FileLogger.eraseQueue()
+      FileLogger.eraseLog()
     },
     loadFileLogger() {
       FileLogger.loadLog()

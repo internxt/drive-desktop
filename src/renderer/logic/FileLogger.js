@@ -61,6 +61,7 @@ class FileLogger extends EventEmitter {
     const orderedItems = head.concat(tail)
     return orderedItems
   }
+
   getQueue() {
     const queue = this.queue
       .slice()
@@ -71,38 +72,53 @@ class FileLogger extends EventEmitter {
     return queue
   }
 
+  eraseQueue() {
+    this.queue = new Array(this.maxSize)
+    this.head = 0
+  }
+
   getHead() {
     return this.queue[this.head]
   }
 
-  clearLogger() {
-    // this.queue.splice(0, this.queue.length)
-    this.queue = new Array(this.maxSize)
-    this.head = 0
-    this.saveLog(true)
-  }
-
-  saveLog(erase) {
-    // console.log('%cSAVING LOG...', 'background: red; color: white')
+  saveLog() {
     if (!this.getQueue().length > 0) {
-      // console.log('%cFilelogger log is empty, there is nothing to save', 'background: #FCF4D6; color: #8E6A00')
+      // Filelogger log is empty, there is nothing to save
       return
     }
     // var content = JSON.stringify(this.getAll())
     var content = JSON.stringify(this.getQueue().reverse())
     var filepath = path.join(__dirname, '../../../database/fileLogger/fileLogger.json')
-    fs.writeFile(filepath, erase ? '' : content, (err) => {
+    fs.writeFile(filepath, content, (err) => {
       if (err) {
-        console.log('An error ocurred updating the filelogger log' + err.message)
+        console.log('An error ocurred updating Filelogger.json' + err.message)
         return
       }
-      // console.log('%cFilelogger log succesfully saved', 'background: #DEFBE6; color: #198038')
+      // Filelogger.json succesfully saved
       return true
     })
   }
 
+  eraseLog() {
+    if (this.getQueue().length > 0) {
+      return
+    }
+    var filepath = path.join(__dirname, '../../../database/fileLogger/fileLogger.json')
+    if (fs.existsSync(filepath)) {
+      fs.unlink(filepath, (err) => {
+        if (err) {
+          console.warn('An error ocurred updating Filelogger.json: ' + err.message)
+          console.log(err)
+          return false
+        }
+        // Filelogger.json succesfully deleted
+      })
+    } else {
+      console.warn('Filelogger.json does not exist, cannot delete')
+    }
+  }
+
   loadLog() {
-    // console.log('%cLOADING LOG', 'background: red; color: white')
     var filepath = path.join(__dirname, '../../../database/fileLogger/fileLogger.json')
     fs.readFile(filepath, 'utf-8', (err, data) => {
       if (err) {
@@ -110,13 +126,12 @@ class FileLogger extends EventEmitter {
         return
       }
       if ((data && data.length > 0 && !(data === [] || data === '[]')) && JSON.parse(data).length >= this.getAll().length) {
+        // Loading log
         JSON.parse(data).forEach((item) => {
           this.push(item)
         })
       }
     })
-    // console.log('%cLOG CONTENT:', 'background: red; color: white', this.queue)
-    // return this.queue
     return true
   }
 }

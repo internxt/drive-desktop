@@ -4,11 +4,20 @@
     <div>{{msg.line1}}</div>
     <div class="flex">{{msg.line2}}</div>
   -->
-  <div class="flex">{{msg.line1}}<div v-if="syncState === 'complete'">&nbsp;{{lastUpdatemsg}}</div></div>
+  <div class="flex text-sm">
+    <div v-if="syncState === 'pending'" class="flex items-center"><UilSync class="animate-spin-reverse mr-2.5" width="14" height="14"/></div>
+    {{msg.line1}}
+    <div v-if="syncState === 'complete'" class="flex items-center"><UilCheck class="mr-1.5" width="20" height="20"/>{{lastUpdatemsg}}</div>
+  </div>
 </div>
 </template>
 
 <script>
+import {
+  UilCloudDataConnection,
+  UilCheck,
+  UilSync
+} from '@iconscout/vue-unicons'
 export default {
   data () {
     return {
@@ -66,6 +75,11 @@ export default {
   },
   created () {
     this.startTimer()
+  },
+  components: {
+    UilCloudDataConnection,
+    UilCheck,
+    UilSync
   }
 }
 </script>
