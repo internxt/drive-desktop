@@ -2,7 +2,7 @@
 
 .fileLogger {
   position: relative;
-  max-height: calc(100% - (64px + 48px));
+  max-height: calc(100% - (64px + 44px));
   @include text-base;
 
   .emptyState {
@@ -13,7 +13,6 @@
 
     .icon {
       position: relative;
-      margin: 0 auto;
       width: 200px;
       height: 200px;
       background: $l-neutral-10;

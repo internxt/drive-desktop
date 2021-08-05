@@ -87,7 +87,7 @@ class FileLogger extends EventEmitter {
       return
     }
     // var content = JSON.stringify(this.getAll())
-    var content = JSON.stringify(this.getQueue().reverse())
+    var content = JSON.stringify(this.getQueue().reverse(), null, 2)
     var filepath = path.join(__dirname, '../../../database/fileLogger/fileLogger.json')
     fs.writeFile(filepath, content, (err) => {
       if (err) {

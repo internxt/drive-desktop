@@ -16,7 +16,7 @@
 .mt-0-64 {
     margin-top: 5px;
 }
-input[type='radio']{
+input[type='radio'] {
     width: 10px !important;
     height: 10px !important;
 }
@@ -140,7 +140,7 @@ body::-webkit-scrollbar-thumb {
 .leave-to { transform: translateY(130%) }
 
 .slide-enter-active,
-.slide-leave-active { transition: all 500ms ease-in-out }
+.slide-leave-active { transition: all .25s ease-in-out }
 
 // Custom checkbox
 .checkbox {
@@ -278,8 +278,17 @@ body::-webkit-scrollbar-thumb {
   }
 }
 
-.selectedModal {
-  background: $blue-20;
+.headerModal {
+  position: fixed;
+  top: 64px;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: calc(100% - 64px);
+  overflow: auto;
+  background: $white;
+  padding: $spacing-11;
+  z-index: 10;
 }
 
 .menuItem {
@@ -287,5 +296,26 @@ body::-webkit-scrollbar-thumb {
   height: 40px;
   width: 40px;
   border-radius: $spacing-3;
-  transition: all .15 ease-in-out;
+
+  &.selectedModal {
+    background: $blue-20;
+  }
+}
+
+.title {
+  color: $neutral-900;
+  margin-top: $spacing-7;
+  @include text-xl;
+  &:first-child {
+    margin-top: 0;
+  }
+}
+.subtitle {
+  color: $m-neutral-80;
+  @include text-sm;
+}
+
+.subgroup {
+  color: $neutral-500;
+  padding: $spacing-3;
 }

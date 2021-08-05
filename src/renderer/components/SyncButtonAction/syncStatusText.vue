@@ -5,9 +5,9 @@
     <div class="flex">{{msg.line2}}</div>
   -->
   <div class="flex text-sm">
-    <div v-if="syncState === 'pending'" class="flex items-center"><UilSync class="animate-spin-reverse mr-2.5" width="14" height="14"/></div>
+    <div v-if="syncState === 'pending'" class="flex items-center" style="transform: rotateX(180deg)"><UilSync class="animate-spin-reverse mr-3" width="14" height="14"/></div>
     {{msg.line1}}
-    <div v-if="syncState === 'complete'" class="flex items-center"><UilCheck class="mr-1.5" width="20" height="20"/>{{lastUpdatemsg}}</div>
+    <div v-if="syncState === 'complete'" class="flex items-center"><CheckSuccess class="mr-2" width="18" height="18"/>{{lastUpdatemsg}}</div>
   </div>
 </div>
 </template>
@@ -15,9 +15,9 @@
 <script>
 import {
   UilCloudDataConnection,
-  UilCheck,
   UilSync
 } from '@iconscout/vue-unicons'
+import CheckSuccess from '../Icons/Check-success.vue'
 export default {
   data () {
     return {
@@ -78,7 +78,7 @@ export default {
   },
   components: {
     UilCloudDataConnection,
-    UilCheck,
+    CheckSuccess,
     UilSync
   }
 }

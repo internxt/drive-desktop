@@ -3,12 +3,15 @@
 html {
   background-color: transparent;
   user-select: none;
+  margin: 0;
+  padding: 0;
 }
 
 body {
   @include text-base ;
   color: $neutral-900;
   margin: 0;
+  padding: 0;
   font-weight: normal;
   background: $l-neutral-20;
   font-variant: normal;
@@ -29,4 +32,10 @@ body {
 }
 .text-neutral-500 {
   color: $neutral-500;
+}
+
+.check-success {
+  background: $green-50;
+  border-radius: 100%;
+  fill: $white;
 }

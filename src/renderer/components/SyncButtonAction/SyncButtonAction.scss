@@ -1,5 +1,9 @@
 @import "../../../../src/index.scss";
 
+.statusBar {
+    box-shadow: inset 0 1px 0 0 $l-neutral-30;
+}
+
 .centerAbsolute {
     margin-left: auto;
     margin-right: auto;

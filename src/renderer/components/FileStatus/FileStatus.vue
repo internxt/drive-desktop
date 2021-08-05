@@ -9,7 +9,7 @@
         <div v-if="this.isSyncing" class="button disabled">Clear</div>
         <div v-else @click="clearFileLogger()" class="button">Clear</div>
     </div>
-    <div class="overflow-auto overflow-x-hidden pb-3">
+    <div class="overflow-auto overflow-x-hidden py-2">
       <!-- Test for future time stamps -->
       <!-- (⚠️) Header modals (Settings, Sync and Devtools) z-index and top become unstable (⚠️) -->
       <!--
