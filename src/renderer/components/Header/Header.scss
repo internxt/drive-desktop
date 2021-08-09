@@ -181,13 +181,15 @@ body::-webkit-scrollbar-thumb {
 .tooltip {
   display: block !important;
   z-index: 10000;
-  font-size: 12px;
+  @include text-xs;
+  pointer-events: none;
 
   .tooltip-inner {
-    background: white;
-    color: black;
-    border-radius: 9999px;
-    padding: 5px 10px 4px;
+    background: $cool-gray-90;
+    color: $cool-gray-10;
+    border-radius: $spacing-1;
+    border: 1px solid $cool-gray-70;
+    padding: 4px 10px;
   }
 
   .tooltip-arrow {
@@ -196,8 +198,23 @@ body::-webkit-scrollbar-thumb {
     border-style: solid;
     position: absolute;
     margin: 5px;
-    border-color: white;
+    border-color: $cool-gray-90;
     z-index: 1;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: -1px;
+      left: 0;
+      width: 9px;
+      height: 9px;
+      transform-origin: top left;
+      transform: rotateZ(45deg);
+      border-left: 1px solid $cool-gray-70;
+      border-top: 1px solid $cool-gray-70;
+      background: $cool-gray-90;
+      border-bottom-right-radius: 100%;
+    }
   }
 
   &[x-placement^="top"] {
@@ -269,7 +286,7 @@ body::-webkit-scrollbar-thumb {
   &[aria-hidden='false'] {
     visibility: visible;
     opacity: 1;
-    transition: opacity .15s;
+    transition: opacity .15s, visibility .15s;
   }
 }
 

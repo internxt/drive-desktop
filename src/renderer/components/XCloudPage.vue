@@ -91,10 +91,14 @@ export default {
       // this.$forceUpdate()
     })
     FileLogger.on('new-entry', (entry) => {
-      if (this.FileStatusSync.length >= 50) {
+      if (this.FileStatusSync.length >= 100) {
         this.FileStatusSync.pop()
       }
       this.FileStatusSync.unshift(entry)
+      this.$forceUpdate()
+    })
+    FileLogger.on('delete-entry', (index) => {
+      this.FileStatusSync.splice((this.FileStatusSync.length - index), 1)
       this.$forceUpdate()
     })
     this.$app = this.$electron.remote.app

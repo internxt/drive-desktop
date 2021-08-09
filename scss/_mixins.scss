@@ -77,6 +77,11 @@
   background: rgba($color, $opacity);
 }
 
+@mixin text-opacity($color, $opacity) {
+  color: $color;
+  color: rgba($color, $opacity);
+}
+
 @mixin bg-blur($px) {
   backdrop-filter: blur($px);
   -webkit-backdrop-filter: blur($px);

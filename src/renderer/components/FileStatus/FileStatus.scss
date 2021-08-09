@@ -78,10 +78,16 @@
   @include bg-blur($spacing-2);
   color: $neutral-500;
   @include text-sm;
+  z-index: 5;
 }
 
-.timeStampGroup:first-child .timeStamp {
-  margin-top: 0;
+.timeStampGroup:first-child {
+  .timeStamp {
+    margin-top: 0;
+  }
+}
+.timeStampGroup:last-child {
+  margin-bottom: $spacing-3;
 }
 
 .fileItem {
@@ -90,8 +96,13 @@
   &:hover {
     background: $l-neutral-10;
     transition: all .1s ease-out;
+  }
 
-    [status="error"],[status="removed"] {
+  &:active {
+    background: $blue-10;
+    transition: all .1s ease-out;
+
+    &[status="error"],&[status="removed"] {
       background: none;
     }
   }
@@ -106,7 +117,6 @@
     white-space: nowrap;
     text-overflow: ellipsis;
     padding-right: $spacing-3;
-    // box-shadow: inset 0 0 0 1px red;
   }
   .itemName {
     text-overflow: ellipsis;

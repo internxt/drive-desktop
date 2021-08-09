@@ -21,6 +21,7 @@ export default {
       type: String,
       default: '18'
     }
-  }
+  },
+  name: 'CheckSuccess'
 }
 </script>

@@ -9,66 +9,69 @@
         <div v-if="this.isSyncing" class="button disabled">Clear</div>
         <div v-else @click="clearFileLogger()" class="button">Clear</div>
     </div>
-    <div class="overflow-auto overflow-x-hidden py-2">
-      <!-- Test for future time stamps -->
-      <!-- (⚠️) Header modals (Settings, Sync and Devtools) z-index and top become unstable (⚠️) -->
-      <!--
-      <div class="timeStampGroup">
-        <div class="timeStamp sticky top-0 px-5 py-3">Today</div>
-        <FileItem fileType="" :filePath="''" :name="'Test name'" :info="'File uploaded'" status='uploaded'/>
-        <FileItem fileType="" :filePath="''" :name="'Test name large'" :info="'File uploaded'" status='uploaded'/>
-        <FileItem fileType="" :filePath="''" :name="'Test name very large'" :info="'File uploaded'" status='uploaded'/>
-        <FileItem fileType="" :filePath="''" :name="'Test name with many words in the name field'" :info="'File uploaded'" status='uploaded'/>
-        <FileItem fileType="" :filePath="''" :name="'Test name'" :info="'File uploaded'" status='uploaded'/>
-      </div>
-      <div class="timeStampGroup">
-        <div class="timeStamp sticky top-0 px-5 py-3">Yesterday</div>
-        <FileItem fileType="" :filePath="''" :name="'Test name'" :info="'File uploaded'" status='uploaded'/>
-        <FileItem fileType="" :filePath="''" :name="'Test name'" :info="'File uploaded'" status='uploaded'/>
-        <FileItem fileType="" :filePath="''" :name="'Test name'" :info="'File uploaded'" status='uploaded'/>
-        <FileItem fileType="" :filePath="''" :name="'Test name'" :info="'File uploaded'" status='uploaded'/>
-        <FileItem fileType="" :filePath="''" :name="'Test name'" :info="'File uploaded'" status='uploaded'/>
-        <FileItem fileType="" :filePath="''" :name="'Test name'" :info="'File uploaded'" status='uploaded'/>
-        <FileItem fileType="" :filePath="''" :name="'Test name'" :info="'File uploaded'" status='uploaded'/>
-        <FileItem fileType="" :filePath="''" :name="'Test name'" :info="'File uploaded'" status='uploaded'/>
-        <FileItem fileType="" :filePath="''" :name="'Test name'" :info="'File uploaded'" status='uploaded'/>
-        <FileItem fileType="" :filePath="''" :name="'Test name'" :info="'File uploaded'" status='uploaded'/>
-      </div>
-      <div class="timeStampGroup">
-        <div class="timeStamp sticky top-0 px-5 py-3">This week</div>
-        <FileItem fileType="" :filePath="''" :name="'Test name'" :info="'File uploaded'" status='uploaded'/>
-        <FileItem fileType="" :filePath="''" :name="'Test name'" :info="'File uploaded'" status='uploaded'/>
-        <FileItem fileType="" :filePath="''" :name="'Test name'" :info="'File uploaded'" status='uploaded'/>
-        <FileItem fileType="" :filePath="''" :name="'Test name'" :info="'File uploaded'" status='uploaded'/>
-        <FileItem fileType="" :filePath="''" :name="'Test name'" :info="'File uploaded'" status='uploaded'/>
-        <FileItem fileType="" :filePath="''" :name="'Test name'" :info="'File uploaded'" status='uploaded'/>
-        <FileItem fileType="" :filePath="''" :name="'Test name'" :info="'File uploaded'" status='uploaded'/>
-        <FileItem fileType="" :filePath="''" :name="'Test name'" :info="'File uploaded'" status='uploaded'/>
-        <FileItem fileType="" :filePath="''" :name="'Test name'" :info="'File uploaded'" status='uploaded'/>
-        <FileItem fileType="" :filePath="''" :name="'Test name'" :info="'File uploaded'" status='uploaded'/>
-        <FileItem fileType="" :filePath="''" :name="'Test name'" :info="'File uploaded'" status='uploaded'/>
-        <FileItem fileType="" :filePath="''" :name="'Test name'" :info="'File uploaded'" status='uploaded'/>
-        <FileItem fileType="" :filePath="''" :name="'Test name'" :info="'File uploaded'" status='uploaded'/>
-        <FileItem fileType="" :filePath="''" :name="'Test name'" :info="'File uploaded'" status='uploaded'/>
-        <FileItem fileType="" :filePath="''" :name="'Test name'" :info="'File uploaded'" status='uploaded'/>
-      </div>
-      -->
+    <div class="overflow-auto overflow-x-hidden">
 
-      <div v-if="this.FileStatusSync.length > 0">
-        <div v-for="(item, index) in FileStatusSync" v-bind:key="index">
-          <!-- Debug --> <!--<FileItem :name="'File debugger'" :info="'Click to print debug info'" status='debug'/>-->
-          <!-- Uploading -->  <FileItem v-if="!item.state && (item.action === 'upload')" fileType="" :filePath="item.filePath" :name="item.filename" :info="'Processing... ' + (item.progress ? Math.trunc(item.progress) + '%' : '')" status='uploading'/>
-          <!-- Encrypting --> <FileItem v-if="item.action === 'encrypt'" fileType="" :filePath="item.filePath" :name="item.filename" info="Encrypting..." status='encrypting'/>
-          <!-- Download --> <FileItem v-if="!item.state && item.action === 'download'" fileType="" :filePath="item.filePath" :name="item.filename" :info="'Downloading... ' + (item.progress ? Math.trunc(item.progress) + '%' : '')" status='downloading'/>
-          <!-- Upload success --> <FileItem v-if="item.state === 'success' && item.action === 'upload'" fileType="" :filePath="item.filePath" :name="item.filename" info="File uploaded" status='uploaded'/>
-          <!-- Download success --> <FileItem v-if="item.state === 'success' && item.action === 'download'" fileType="" :filePath="item.filePath" :name="item.filename" info="File downloaded" status='downloaded'/>
-          <!-- Download Error --> <FileItem v-if="item.state === 'error' && item.action === 'download'" fileType="" :filePath="item.filePath" :name="item.filename" info="Error downloading file" status='error'/>
-          <!-- Upload Error --> <FileItem v-if="item.state === 'error' && item.action === 'upload'" fileType="" :filePath="item.filePath" :name="item.filename" info="Error uploading file" status='error'/>
-          <!-- Remove Error --> <FileItem v-if="item.state === 'error' && item.action === 'remove'" fileType="" :filePath="item.filePath" :name="item.filename" info="Error deleting file on the internxt cloud" status='error'/>
-          <!-- Remove Success --> <FileItem v-if="item.state === 'success' && item.action === 'remove'" fileType="" :filePath="item.filePath" :name="item.filename" info="File removed" status='removed'/>
+      <div v-if="this.dateStamp('today').length > 0" class="timeStampGroup">
+        <div class="timeStamp sticky top-0 px-5 py-3">Today</div>
+        <div v-for="(item, index) in this.dateStamp('today')" v-bind:key="index">
+          <FileItem v-if="!item.state && item.progress && item.action === 'upload'" fileType="" :filePath="item.filePath" :name="item.filename" :info="'Uploading... ' + (item.progress ? Math.trunc(item.progress) + '%' : '')" status='uploading'/>
+          <FileItem v-if="item.action === 'encrypt'" fileType="" :filePath="item.filePath" :name="item.filename" info="Encrypting..." status='encrypting'/>
+          <FileItem v-if="!item.state && item.action === 'download'" fileType="" :filePath="item.filePath" :name="item.filename" :info="'Downloading... ' + (item.progress ? Math.trunc(item.progress) + '%' : '')" status='downloading'/>
+          <FileItem v-if="item.state === 'success' && item.action === 'upload'" fileType="" :filePath="item.filePath" :name="item.filename" info="File uploaded" status='uploaded'/>
+          <FileItem v-if="item.state === 'success' && item.action === 'download'" fileType="" :filePath="item.filePath" :name="item.filename" info="File downloaded" status='downloaded'/>
+          <FileItem v-if="item.state === 'error' && item.action === 'download'" fileType="" :filePath="item.filePath" :name="item.filename" info="Error downloading file" status='error'/>
+          <FileItem v-if="item.state === 'error' && item.action === 'upload'" fileType="" :filePath="item.filePath" :name="item.filename" info="Error uploading file" status='error'/>
+          <FileItem v-if="item.state === 'error' && item.action === 'remove'" fileType="" :filePath="item.filePath" :name="item.filename" info="Error deleting file on the internxt cloud" status='error'/>
+          <FileItem v-if="item.state === 'success' && item.action === 'remove'" fileType="" :filePath="item.filePath" :name="item.filename" info="File removed" status='removed'/>
         </div>
       </div>
-      <div v-else class="emptyState flex flex-col items-center justify-center">
+
+      <div v-if="this.dateStamp('yesterday').length > 0" class="timeStampGroup">
+        <div class="timeStamp sticky top-0 px-5 py-3">Yesterday</div>
+        <div v-for="(item, index) in this.dateStamp('yesterday')" v-bind:key="index">
+          <FileItem v-if="!item.state && item.progress && item.action === 'upload'" fileType="" :filePath="item.filePath" :name="item.filename" :info="'Uploading... ' + (item.progress ? Math.trunc(item.progress) + '%' : '')" status='uploading'/>
+          <FileItem v-if="item.action === 'encrypt'" fileType="" :filePath="item.filePath" :name="item.filename" info="Encrypting..." status='encrypting'/>
+          <FileItem v-if="!item.state && item.action === 'download'" fileType="" :filePath="item.filePath" :name="item.filename" :info="'Downloading... ' + (item.progress ? Math.trunc(item.progress) + '%' : '')" status='downloading'/>
+          <FileItem v-if="item.state === 'success' && item.action === 'upload'" fileType="" :filePath="item.filePath" :name="item.filename" info="File uploaded" status='uploaded'/>
+          <FileItem v-if="item.state === 'success' && item.action === 'download'" fileType="" :filePath="item.filePath" :name="item.filename" info="File downloaded" status='downloaded'/>
+          <FileItem v-if="item.state === 'error' && item.action === 'download'" fileType="" :filePath="item.filePath" :name="item.filename" info="Error downloading file" status='error'/>
+          <FileItem v-if="item.state === 'error' && item.action === 'upload'" fileType="" :filePath="item.filePath" :name="item.filename" info="Error uploading file" status='error'/>
+          <FileItem v-if="item.state === 'error' && item.action === 'remove'" fileType="" :filePath="item.filePath" :name="item.filename" info="Error deleting file on the internxt cloud" status='error'/>
+          <FileItem v-if="item.state === 'success' && item.action === 'remove'" fileType="" :filePath="item.filePath" :name="item.filename" info="File removed" status='removed'/>
+        </div>
+      </div>
+
+      <div v-if="this.dateStamp('thisWeek').length > 0" class="timeStampGroup">
+        <div class="timeStamp sticky top-0 px-5 py-3">A week ago</div>
+        <div v-for="(item, index) in this.dateStamp('thisWeek')" v-bind:key="index">
+          <FileItem v-if="!item.state && item.progress && item.action === 'upload'" fileType="" :filePath="item.filePath" :name="item.filename" :info="'Uploading... ' + (item.progress ? Math.trunc(item.progress) + '%' : '')" status='uploading'/>
+          <FileItem v-if="item.action === 'encrypt'" fileType="" :filePath="item.filePath" :name="item.filename" info="Encrypting..." status='encrypting'/>
+          <FileItem v-if="!item.state && item.action === 'download'" fileType="" :filePath="item.filePath" :name="item.filename" :info="'Downloading... ' + (item.progress ? Math.trunc(item.progress) + '%' : '')" status='downloading'/>
+          <FileItem v-if="item.state === 'success' && item.action === 'upload'" fileType="" :filePath="item.filePath" :name="item.filename" info="File uploaded" status='uploaded'/>
+          <FileItem v-if="item.state === 'success' && item.action === 'download'" fileType="" :filePath="item.filePath" :name="item.filename" info="File downloaded" status='downloaded'/>
+          <FileItem v-if="item.state === 'error' && item.action === 'download'" fileType="" :filePath="item.filePath" :name="item.filename" info="Error downloading file" status='error'/>
+          <FileItem v-if="item.state === 'error' && item.action === 'upload'" fileType="" :filePath="item.filePath" :name="item.filename" info="Error uploading file" status='error'/>
+          <FileItem v-if="item.state === 'error' && item.action === 'remove'" fileType="" :filePath="item.filePath" :name="item.filename" info="Error deleting file on the internxt cloud" status='error'/>
+          <FileItem v-if="item.state === 'success' && item.action === 'remove'" fileType="" :filePath="item.filePath" :name="item.filename" info="File removed" status='removed'/>
+        </div>
+      </div>
+
+      <div v-if="this.dateStamp('old').length > 0" class="timeStampGroup">
+        <div class="timeStamp sticky top-0 px-5 py-3">Older</div>
+        <div v-for="(item, index) in this.dateStamp('old')" v-bind:key="index">
+          <FileItem v-if="!item.state && item.progress && item.action === 'upload'" fileType="" :filePath="item.filePath" :name="item.filename" :info="'Uploading... ' + (item.progress ? Math.trunc(item.progress) + '%' : '')" status='uploading'/>
+          <FileItem v-if="item.action === 'encrypt'" fileType="" :filePath="item.filePath" :name="item.filename" info="Encrypting..." status='encrypting'/>
+          <FileItem v-if="!item.state && item.action === 'download'" fileType="" :filePath="item.filePath" :name="item.filename" :info="'Downloading... ' + (item.progress ? Math.trunc(item.progress) + '%' : '')" status='downloading'/>
+          <FileItem v-if="item.state === 'success' && item.action === 'upload'" fileType="" :filePath="item.filePath" :name="item.filename" info="File uploaded" status='uploaded'/>
+          <FileItem v-if="item.state === 'success' && item.action === 'download'" fileType="" :filePath="item.filePath" :name="item.filename" info="File downloaded" status='downloaded'/>
+          <FileItem v-if="item.state === 'error' && item.action === 'download'" fileType="" :filePath="item.filePath" :name="item.filename" info="Error downloading file" status='error'/>
+          <FileItem v-if="item.state === 'error' && item.action === 'upload'" fileType="" :filePath="item.filePath" :name="item.filename" info="Error uploading file" status='error'/>
+          <FileItem v-if="item.state === 'error' && item.action === 'remove'" fileType="" :filePath="item.filePath" :name="item.filename" info="Error deleting file on the internxt cloud" status='error'/>
+          <FileItem v-if="item.state === 'success' && item.action === 'remove'" fileType="" :filePath="item.filePath" :name="item.filename" info="File removed" status='removed'/>
+        </div>
+      </div>
+
+      <div v-if="this.FileStatusSync.length <= 0" class="emptyState flex flex-col items-center justify-center">
         <div class="icon flex-none">
           <FileIcon class="iconBack" icon="file" width="100px" height="100px"/>
           <FileIcon class="iconFront" icon="file" width="100px" height="100px"/>
@@ -111,9 +114,6 @@ export default {
     remote.app.removeListener('sync-on', this.changeIsSyncing)
     remote.app.removeListener('sync-stop', this.changeIsSyncing)
   },
-  updated: function () {
-    // console.log(this.FileStatusSync)
-  },
   destroyed: function () {},
   methods: {
     formatNumberPercent(value) {
@@ -148,28 +148,51 @@ export default {
       // To complete
       return fExtension
     },
-    dateUpdated(givenDate) {
-      console.log(`%c item : : ${this.givenDate}`, 'color: #8A3FFC')
-      console.log(`%c dateUpdated() : item.date: ${this.givenDate.date}`, 'color: #8A3FFC')
+    dateStamp(thisTimeStamp) {
+      /*
+      * Returns FileStatusSync filtered by thisTimeStamp
+      */
 
-      var date = new Date()
-      var today = new Date(date.getFullYear(), date.getMonth() - 1, date.getDay() - 1) // Today
-      var yesterday = new Date(date.getFullYear(), date.getMonth() - 1, date.getDay() - 2) // Yesterday
-      var aWeekAgo = new Date(date.getFullYear(), date.getMonth() - 1, date.getDay() - 8) // A week ago
+      var today = new Date()
+      today.setHours(0)
+      today.setMinutes(0)
+      today.setSeconds(0, 0)
 
-      givenDate.setHours(0)
-      givenDate.setMinutes(0)
-      givenDate.setSeconds(0, 0)
+      var yesterday = new Date()
+      yesterday.setDate(today.getDate() - 1)
+      yesterday.setHours(0)
+      yesterday.setMinutes(0)
+      yesterday.setSeconds(0, 0)
 
-      if (today.getTime() === givenDate.getTime()) {
-        console.log()
-        return 'today'
-      } else if (yesterday.getTime() === givenDate.getTime()) {
-        return 'yesterday'
-      } else if (aWeekAgo.getTime() < givenDate.getTime()) {
-        return 'thisWeek'
+      var thisWeek = new Date()
+      thisWeek.setDate(today.getDate() - 7)
+      thisWeek.setHours(0)
+      thisWeek.setMinutes(0)
+      thisWeek.setSeconds(0, 0)
+
+      var activityLog = []
+
+      if (thisTimeStamp === 'today') {
+        activityLog = this.FileStatusSync.filter(item => today.getTime() === this.getDayInMili(item.date))
+      } else if (thisTimeStamp === 'yesterday') {
+        activityLog = this.FileStatusSync.filter(item => yesterday.getTime() === this.getDayInMili(item.date))
+      } else if (thisTimeStamp === 'thisWeek') {
+        activityLog = this.FileStatusSync.filter(item => thisWeek.getTime() <= this.getDayInMili(item.date) && yesterday.getTime() > this.getDayInMili(item.date))
+      } else if (thisTimeStamp === 'old') {
+        activityLog = this.FileStatusSync.filter(item => thisWeek.getTime() > this.getDayInMili(item.date))
+      } else {
+        console.warn('Error filtering filelogger log: date must be now or earlier, item date is future')
       }
-      return 'old'
+
+      return activityLog
+    },
+    getDayInMili(date) {
+      // Cleans all Hour, Minute, Seconds and Milisecond data and only leaves Year, Month and Day in Miliseconds
+      var result = new Date(date)
+      result.setHours(0)
+      result.setMinutes(0)
+      result.setSeconds(0, 0)
+      return result.getTime()
     }
   },
   name: 'FileStatus',

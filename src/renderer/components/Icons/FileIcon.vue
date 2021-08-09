@@ -142,6 +142,7 @@ export default {
       type: String,
       default: 'white'
     }
-  }
+  },
+  name: 'FileIcon'
 }
 </script>

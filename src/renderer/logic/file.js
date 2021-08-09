@@ -69,7 +69,8 @@ async function removeFile(bucketId, fileId, filename, force = false) {
       filePath: filename,
       action: 'remove',
       state: 'error',
-      description: result.error.message
+      description: result.error.message,
+      date: Date()
     })
     throw new Error(result.error)
   } else {
@@ -78,7 +79,8 @@ async function removeFile(bucketId, fileId, filename, force = false) {
         filePath: filename,
         filename: path.basename(filename),
         action: 'remove',
-        state: 'success'
+        state: 'success',
+        date: Date()
       })
     }
 
@@ -493,7 +495,8 @@ async function uploadFile(
       filePath: file.key,
       filename: path.basename(file.key),
       action: 'upload',
-      state: 'success'
+      state: 'success',
+      date: Date()
     })
   } catch (err) {
     if (!/Folder not found/.test(err.message)) {
@@ -505,7 +508,8 @@ async function uploadFile(
       filename: path.basename(file.key),
       action: 'upload',
       state: 'error',
-      description: err.message
+      description: err.message,
+      date: Date()
     })
   }
 }
@@ -647,7 +651,8 @@ async function downloadFile(file, cloudFile, localFile) {
       filePath: file.key,
       filename: path.basename(file.key),
       action: 'download', // not really needed
-      state: 'error'
+      state: 'error',
+      date: Date()
       // description: e.message
     })
     Logger.error(`Error downloading file: ${file.key}. Error: ${e}`)

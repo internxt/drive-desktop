@@ -11,7 +11,8 @@ class FileLogger extends EventEmitter {
     this.head = 0
   }
 
-  push(item) {
+  // Old push
+  pushO(item) {
     if (!item.filePath) {
       return
     }
@@ -46,6 +47,51 @@ class FileLogger extends EventEmitter {
       this.queue[this.head] = item
       this.queue[this.head]['date'] = Date() // Date of update
       this.emit('new-entry', this.getHead())
+    }
+  }
+
+  // Refresh
+  push(item) {
+    if (!item.filePath) {
+      return
+    }
+    // console.log('%c(PUSH ITEM) Head: ' + this.head, 'color:blue')
+    // console.log('%cItem to push:\nfilename = ' + item.filename + '\naction = ' + item.action + '\ndate = ' + item.date + '\nduplicated (>= 0) = ' + this.queue.map(({filePath}) => filePath).reverse().indexOf(item.filePath), 'color:blue')
+    if (this.queue[this.head] == null) {
+      // Create first entry in Logger
+      this.queue[this.head] = item
+      this.emit('new-entry', this.getHead())
+      // console.log('%c(CREATED FIRST ITEM) Index: ' + this.queue.indexOf(item.filePath), 'color:blue')
+    } else if (item.filePath === this.queue[this.head].filePath) {
+      try {
+        // Update the last entry in logger
+        Object.assign(this.queue[this.head], item)
+        if (!item.progress && !item.state) {
+          this.queue[this.head]['state'] = ''
+        }
+        this.emit('update-last-entry', this.getHead())
+        // console.log('%c(UPDATED LAST ITEM) Index: ' + this.queue.indexOf(item.filePath), 'color:blue')
+      } catch (err) {
+        Logger.error(err)
+      }
+    } else if (this.queue.map(({filePath}) => filePath).indexOf(item.filePath) >= 0) {
+      // Remove old entry and create new entry
+      try {
+        // Update the last entry in logger
+        this.queue.splice(this.queue.map(({filePath}) => filePath).indexOf(item.filePath), 1)
+        this.head = this.head - 1
+        this.queue[this.head + 1] = item
+        // this.emit('delete-entry', this.queue.map(({filePath}) => filePath).indexOf(item.filePath))
+        // console.log('%c(REMOVED OLD AND CREATED NEW ITEM) Index: ' + this.queue.map(({filePath}) => filePath).indexOf(item.filePath) + ', StatusSync Index: ' + (this.getQueue().length - this.queue.map(({filePath}) => filePath).indexOf(item.filePath)), 'color:blue')
+      } catch (err) {
+        Logger.error(err)
+      }
+    } else {
+      // Create a new entry in logger
+      this.head = (this.head + 1) % this.maxSize
+      this.queue[this.head] = item
+      this.emit('new-entry', this.getHead())
+      // console.log('%c(CREATED NEW ITEM) Index: ' + this.queue.indexOf(item.filePath), 'color:blue')
     }
   }
 
@@ -87,7 +133,7 @@ class FileLogger extends EventEmitter {
       return
     }
     // var content = JSON.stringify(this.getAll())
-    var content = JSON.stringify(this.getQueue().reverse(), null, 2)
+    var content = JSON.stringify(this.getQueue(), null, 2)
     var filepath = path.join(__dirname, '../../../database/fileLogger/fileLogger.json')
     fs.writeFile(filepath, content, (err) => {
       if (err) {
@@ -127,7 +173,7 @@ class FileLogger extends EventEmitter {
       }
       if ((data && data.length > 0 && !(data === [] || data === '[]')) && JSON.parse(data).length >= this.getAll().length) {
         // Loading log
-        JSON.parse(data).forEach((item) => {
+        JSON.parse(data).reverse().forEach((item) => {
           this.push(item)
         })
       }

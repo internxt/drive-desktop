@@ -19,8 +19,8 @@ import {
   UilCloudDataConnection,
   UilSync
 } from '@iconscout/vue-unicons'
-import CheckSuccess from '../Icons/Check-success.vue'
-import SyncSpinner from '../Icons/Sync-spinner.vue'
+import CheckSuccess from '../Icons/CheckSuccess.vue'
+import SyncSpinner from '../Icons/SyncSpinner.vue'
 export default {
   data () {
     return {

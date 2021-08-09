@@ -24,7 +24,7 @@
           v-tooltip="{
             content: 'Selective sync',
             placement: 'bottom',
-            delay: { show: 1000, hide: 50 }
+            delay: { show: 1500, hide: 50 }
           }"
         >
           <UilSync class="text-blue-60" size="22px" />
@@ -36,7 +36,7 @@
           v-tooltip="{
             content: 'Open sync folder',
             placement: 'bottom',
-            delay: { show: 1000, hide: 50 }
+            delay: { show: 1500, hide: 50 }
           }"
         >
           <UilFolderOpen class="text-blue-60" size="22px" />
@@ -49,7 +49,7 @@
           v-tooltip="{
             content: 'Settings',
             placement: 'bottom',
-            delay: { show: 1000, hide: 50 }
+            delay: { show: 1500, hide: 50 }
           }"
         >
           <UilSetting class="text-blue-60" size="22px" />
@@ -67,6 +67,7 @@
         <div v-if="!isProduction" class="subgroup note dev">
           <div class="title">Developer Tools</div>
           <div class="cursor-pointer" @click="UnlockDevice()">Unlock device</div>
+          <div class="cursor-pointer" @click="openFileloggerLog()">Open filelogger log</div>
         </div>
 
         <!-- USER SETTINGS -->
@@ -109,14 +110,22 @@
         -->
 
         <div class="title">Launch at login</div>
-        <label class="flex items-center checkbox subgroup">
-          <input
-            type="checkbox"
-            :checked="LaunchCheck"
-            @change="launchAtLogin()"
-          />
-          <span class="ml-2">Launch minimized</span>
-        </label>
+        <div class="subgroup">
+          <!--
+          <label class="flex items-center checkbox">
+            <input
+              type="checkbox"
+              :checked="LaunchCheck"
+              @change="launchAtLogin()"
+            />
+            <span class="ml-2">Launch minimized</span>
+          </label>
+          -->
+
+          <div @click="launchAtLogin()">
+            <Checkbox :forceStatus="LaunchCheck ? 'checked' : 'unchecked'" label="Launch minimized"/>
+          </div>
+        </div>
 
         <div class="title">Account</div>
         <div class="subgroup flex-col justify-start">
@@ -136,6 +145,10 @@
     >
       <div class="title">Selective Sync</div>
       <div class="subtitle">Hide folders you don't want to sync with this device</div>
+
+      <div class="flex py-24 mt-4 w-full items-center justify-center bg-gray-100 rounded-lg">
+        <div class="subtitle">Coming soon</div>
+      </div>
     </div>
 
     <div
@@ -221,6 +234,7 @@ import DeviceLock from '../../logic/devicelock'
 import bytes from 'bytes'
 import FileStatus from '../FileStatus/FileStatus.vue'
 import FileIcon from '../Icons/FileIcon.vue'
+import Checkbox from '../Icons/Checkbox.vue'
 
 Vue.use(VToolTip)
 const remote = require('@electron/remote')
@@ -425,6 +439,10 @@ export default {
         Logger.error('Error opening log path: %s', e.message)
       }
     },
+    // Open Filelogger log (activity of uploads, downloads, etc)
+    openFileloggerLog() {
+      remote.shell.openPath(path.join(__dirname, '../../../../database/fileLogger'))
+    },
     // Launch at login
     launchAtLogin() {
       this.LaunchCheck = !this.LaunchCheck
@@ -473,7 +491,8 @@ export default {
     UilServerConnection,
     UilFileTimes,
     UilSlidersVAlt,
-    FileIcon
+    FileIcon,
+    Checkbox
   }
 }
 </script>
