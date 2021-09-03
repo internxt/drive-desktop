@@ -549,3 +549,12 @@ app.on('ready', () => {
     app.emit('sync-start')
   })
 })
+
+function checkIfThereAreBackupsPending() {
+  const worker = new BrowserWindow({
+    webPreferences: { nodeIntegration: true },
+    show: false
+  })
+
+  worker.loadFile('../../dist/backup-process/index.html')
+}
