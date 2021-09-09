@@ -346,6 +346,22 @@ app.on('show-info', (msg, title) => {
   })
 })
 
+app.on('open-settings-window', () => {
+  const settingsPath = process.env.NODE_ENV === 'development'
+    ? 'http://localhost:9080/#/settings'
+    : `file://${__dirname}/index.html#settings`
+
+  const settingsWindow = new BrowserWindow({ width: 600,
+    height: 500,
+    webPreferences: {
+      nodeIntegration: true,
+      enableRemoteModule: true,
+      contextIsolation: false
+    }
+  })
+  settingsWindow.loadURL(settingsPath)
+})
+
 /**
  * Auto Updater
  *
@@ -539,8 +555,6 @@ app.on('ready', () => {
   setInterval(() => {
     checkUpdates()
   }, 1000 * 60 * 60 * 12)
-
-  checkIfThereAreBackupsPending()
 
   powerMonitor.on('suspend', function() {
     Logger.warn('User system suspended')

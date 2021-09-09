@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-none flex-col h-full w-full overflow-x-hidden">
-    <Header class="header overflow-hidden z-20" :appName="appName" :emailAccount="emailAccount"/>
+    <Header class="header z-20" :appName="appName" :emailAccount="emailAccount"/>
     <FileStatus class="fileStatus bg-white fileLogger overflow-y-auto overflow-x-hidden flex flex-col flex-grow flex-shrink" :FileStatusSync="FileStatusSync" />
     <SyncButtonAction class="statusBar overflow-hidden flex flex-none justify-between p-2 px-4" :FileStatusSync="FileStatusSync"/>
   </div>
