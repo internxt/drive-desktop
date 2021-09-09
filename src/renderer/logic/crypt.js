@@ -111,9 +111,13 @@ function encryptName(name, salt) {
 }
 
 function fileHash(path, hash) {
+  const stream = fs.createReadStream(path)
+  return streamHash(stream, hash)
+}
+
+function streamHash(stream, hash) {
   return new Promise((resolve, reject) => {
     const hasher = crypto.createHash(hash || 'SHA256')
-    const stream = fs.createReadStream(path)
     stream.on('data', function (data) {
       hasher.update(data)
     })
@@ -159,6 +163,7 @@ export default {
   probabilisticDecryption,
   decryptName,
   fileHash,
+  streamHash,
   compareHash,
   encryptFilename,
   encryptName

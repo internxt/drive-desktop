@@ -39,6 +39,10 @@ const schema = {
   version: {
     type: 'string',
     default: '1.3.0'
+  },
+  authHeaders: {
+    type: 'object',
+    default: {}
   }
 }
 

@@ -187,6 +187,7 @@ async function updateUserObject() {
           data.data.user.email = lastUser.user.email
           data.data.user.mnemonic = lastUser.user.mnemonic
           return database.Set('xUser', data.data).then(() => {
+            Auth.saveHeadersInConfigStore()
             resolve()
           })
         }

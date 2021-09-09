@@ -99,6 +99,7 @@ import uuid4 from 'uuid4'
 import Spinner from '../components/ExportIcons/Spinner'
 import Eye from '../components/ExportIcons/eye'
 import CrossEye from '../components/ExportIcons/cross-eye'
+import Auth from '../logic/utils/Auth'
 import { UilMultiply } from '@iconscout/vue-unicons'
 const remote = require('@electron/remote')
 const ROOT_FOLDER_NAME = 'Internxt Drive'
@@ -297,6 +298,7 @@ export default {
             )
             const savedCredentials = await database.logIn(res.data.user.email)
             await database.Set('xUser', res.data)
+            Auth.saveHeadersInConfigStore()
             await database.compactAllDatabases()
             remote.app.emit('update-configStore', {stopSync: false})
             // ConfigStore.set('stopSync', false)

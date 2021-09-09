@@ -152,7 +152,7 @@ function startElectron() {
 
 function startBackupProcess() {
   return new Promise((resolve, reject) => {
-    const compiler = webpack(backupProcessConfig)
+    const compiler = webpack({...backupProcessConfig, mode: 'development'})
 
     compiler.watch({}, (err, stats) => {
       if (err) {

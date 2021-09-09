@@ -7,8 +7,7 @@ import electron, {
   Menu,
   shell,
   dialog,
-  powerMonitor,
-  ipcMain
+  powerMonitor
 } from 'electron'
 import path from 'path'
 import Logger from '../libs/logger'
@@ -539,6 +538,8 @@ app.on('ready', () => {
     checkUpdates()
   }, 1000 * 60 * 60 * 12)
 
+  checkIfThereAreBackupsPending()
+
   powerMonitor.on('suspend', function() {
     Logger.warn('User system suspended')
     app.emit('sync-stop')
@@ -550,11 +551,14 @@ app.on('ready', () => {
   })
 })
 
-function checkIfThereAreBackupsPending() {
+async function checkIfThereAreBackupsPending() {
   const worker = new BrowserWindow({
-    webPreferences: { nodeIntegration: true },
+    webPreferences: {
+      nodeIntegration: true,
+      enableRemoteModule: true,
+      contextIsolation: false
+    },
     show: false
   })
-
   worker.loadFile('../../dist/backup-process/index.html')
 }

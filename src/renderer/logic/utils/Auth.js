@@ -1,5 +1,6 @@
 import database from '../../../database/index'
 import packageJson from '../../../../package.json'
+import ConfigStore from '../../../main/config-store'
 
 async function getUserEmail() {
   const userData = await database.Get('xUser')
@@ -25,7 +26,12 @@ async function getAuthHeader(withMnemonic) {
   return header
 }
 
+async function saveHeadersInConfigStore() {
+  ConfigStore.set('authHeaders', await getAuthHeader())
+}
+
 export default {
   getAuthHeader,
-  getUserEmail
+  getUserEmail,
+  saveHeadersInConfigStore
 }

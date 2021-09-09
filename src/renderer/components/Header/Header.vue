@@ -23,6 +23,17 @@
       <div class="flex items-center justify-center" style="-webkit-app-region: no-drag;">
         <!-- {{ this.$data.localPath }} -->
         <div
+          class="mr-3 cursor-pointer"
+          @click="ShowBackupsModal"
+          v-tooltip="{
+            content: 'Backups',
+            placement: 'bottom',
+            delay: { show: 300, hide: 300 }
+          }"
+        >
+          <UilHistory class="text-blue-600" size="24px" />
+        </div>
+        <div
           v-if="!isProduction"
           class="mr-3 cursor-pointer"
           @click="ShowDevModal()"
@@ -242,6 +253,29 @@
       </div>
     </transition>
 
+    <transition
+      enter-class="enter"
+      enter-to-class="enter-to"
+      enter-active-class="slide-enter-active"
+      leave-class="leave"
+      leave-to-class="leave-to"
+      leave-active-class="slide-leave-active"
+    >
+      <div
+        v-if="showBackupsModal"
+        class="bg-white p-4 px-6 w-full h-full fixed rounded-t-2xl z-10"
+      >
+        <div class="flex justify-between">
+          <div class="text-black text-base font-bold mb-3">Backups</div>
+          <div class="cursor-pointer" v-on:click="CloseBackupsModal">
+            <UilMultiply class="mr-2 text-blue-600" />
+          </div>
+        </div>
+        <BackupsModal/>
+        
+      </div>
+    </transition>
+
     <div
       v-if="showSyncSettingsModal && selectedSyncOption === false"
       class="absolute top-0 left-0 z-20 bg-blue-600 bg-opacity-90 h-full w-full flex flex-col justify-center items-center text-white"
@@ -311,7 +345,8 @@ import {
   UilFolderOpen,
   UilServerConnection,
   UilFileTimes,
-  UilSlidersVAlt
+  UilSlidersVAlt,
+  UilHistory
 } from '@iconscout/vue-unicons'
 import 'ant-design-vue/dist/antd.css'
 import InternxtBrand from '../ExportIcons/InternxtBrand'
@@ -326,6 +361,7 @@ import electronLog from 'electron-log'
 import VToolTip from 'v-tooltip'
 import DeviceLock from '../../logic/devicelock'
 import bytes from 'bytes'
+import BackupsModal from '../BackupsModal/BackupsModal.vue'
 
 Vue.use(VToolTip)
 const remote = require('@electron/remote')
@@ -338,6 +374,7 @@ export default {
       isProduction: process.env.NODE_ENV === 'production',
       showAccountModal: false,
       showDevTools: false,
+      showBackupsModal: false,
       localPath: '',
       LaunchCheck: ConfigStore.get('autoLaunch'),
       selectedSyncOption: 'none',
@@ -450,6 +487,12 @@ export default {
     },
     CloseDevModal() {
       this.showDevTools = false
+    },
+    ShowBackupsModal() {
+      this.showBackupsModal = true
+    },
+    CloseBackupsModal() {
+      this.showBackupsModal = false
     },
     // Open modal account
     ShowAccountModal() {
@@ -598,7 +641,9 @@ export default {
     UilFolderOpen,
     UilServerConnection,
     UilFileTimes,
-    UilSlidersVAlt
+    UilSlidersVAlt,
+    UilHistory,
+    BackupsModal
   }
 }
 </script>
