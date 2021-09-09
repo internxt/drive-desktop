@@ -120,7 +120,8 @@ async function uploadFile(
     FileLogger.push({
       filePath: filePath,
       filename: originalFileName,
-      action: 'encrypt'
+      action: 'encrypt',
+      date: Date()
     })
     const state = storj.storeFile(bucketId, tempFile, {
       progressCallback: function(progress, uploadedBytes, totalBytes) {
@@ -134,7 +135,8 @@ async function uploadFile(
           filePath,
           filename: originalFileName,
           action: 'upload',
-          progress: progressPtg
+          progress: progressPtg,
+          date: Date()
         })
       },
       finishedCallback: async function(err, newFileId) {

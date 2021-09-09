@@ -1,4 +1,95 @@
 @mixin text-6xl {
+  font-family: NeueEinstellung-Regular;
+  font-size: 60px;
+  line-height: 1.5;
+}
+
+@mixin text-5xl {
+  font-family: NeueEinstellung-Regular;
+  font-size: 48px;
+  line-height: 1.5;
+}
+
+@mixin text-4xl {
+  font-family: NeueEinstellung-Regular;
+  font-size: 36px;
+  line-height: 1.11;
+}
+
+@mixin text-3xl {
+  font-family: NeueEinstellung-Regular;
+  font-size: 30px;
+  line-height: 1.2;
+}
+
+@mixin text-2xl {
+  font-family: NeueEinstellung-Regular;
+  font-size: 24px;
+  line-height: 1.33;
+}
+
+@mixin text-xl {
+  font-family: NeueEinstellung-Regular;
+  font-size: 20px;
+  line-height: 1.4;
+}
+
+@mixin text-lg {
+  font-family: NeueEinstellung-Regular;
+  font-size: 18px;
+  line-height: 1.56;
+}
+
+@mixin text-base {
+  font-family: NeueEinstellung-Regular;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+@mixin text-sm {
+  font-family: NeueEinstellung-Regular;
+  font-size: 14px;
+  line-height: 1.43;
+}
+
+@mixin text-xs {
+  font-family: NeueEinstellung-Regular;
+  font-size: 12px;
+  line-height: 1.33;
+}
+
+@mixin text-supporting-2 {
+  font-family: NeueEinstellung-Regular;
+  font-size: 10px;
+  line-height: 1.2;
+}
+
+@mixin text-supporting-1 {
+  font-family: NeueEinstellung-Regular;
+  font-size: 8px;
+  line-height: 1.25;
+}
+
+// Custom
+
+@mixin bg-opacity($color, $opacity) {
+  background: $color;
+  background: rgba($color, $opacity);
+}
+
+@mixin text-opacity($color, $opacity) {
+  color: $color;
+  color: rgba($color, $opacity);
+}
+
+@mixin bg-blur($px) {
+  backdrop-filter: blur($px);
+  -webkit-backdrop-filter: blur($px);
+}
+
+
+/*
+  @mixin text-6xl {
     font-family: Averta-light;
     font-size: 60px;
     line-height: 1.5;
@@ -96,6 +187,4 @@
     font-size: 12px;
     line-height: 1.33;
   }
-
-
-  
+*/

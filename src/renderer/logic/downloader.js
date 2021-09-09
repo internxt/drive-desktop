@@ -39,7 +39,7 @@ async function downloadFileTemp(cloudFile, filePath) {
   )
 
   return new Promise((resolve, reject) => {
-    FileLogger.push({ filePath: filePath, filename: originalFileName, action: 'download', status: 'pending' })
+    FileLogger.push({ filePath: filePath, filename: originalFileName, action: 'download', status: 'pending', date: Date() })
     const state = storj.resolveFile(
       cloudFile.bucket,
       cloudFile.fileId,
@@ -52,7 +52,7 @@ async function downloadFileTemp(cloudFile, filePath) {
             'set-tooltip',
             'Downloading ' + originalFileName + ' (' + progressPtg + '%).'
           )
-          FileLogger.push({ filePath: filePath, filename: originalFileName, action: 'download', progress: progressPtg })
+          FileLogger.push({ filePath: filePath, filename: originalFileName, action: 'download', progress: progressPtg, date: Date() })
         },
         finishedCallback: function (err) {
           app.emit('set-tooltip')

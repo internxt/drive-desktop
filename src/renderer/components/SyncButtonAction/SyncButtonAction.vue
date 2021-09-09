@@ -1,22 +1,18 @@
 <template>
-  <div class="flex justify-between p-4 px-6">
-    <div class="flex">
-      <syncStatusText :msg="message" :syncState="syncState" />
-
-      <!-- Error - string= 'error' -->
+  <div>
+    <div class="flex statusBarMsg">
+      <syncStatusText :msg="message" :syncState="syncState"/>
     </div>
-    <div class="flex justify-center">
-      <div class="flex">
+    <div class="flex justify-center flex-row">
         <div v-if="this.playButtonState !== 'loading'" @click="forceSync()">
-          <PlayIcon :playButtonState="playButtonState" />
+          <PlayIcon class="buttonStatus" :playButtonState="playButtonState"/>
         </div>
         <div v-else>
-          <LoadingSpinAnimation />
+          <LoadingSpinAnimation class="buttonStatus" />
         </div>
         <div @click="stopSync()">
-          <StopIcon :stopButtonState="stopButtonState" />
+          <StopIcon class="buttonStatus" :stopButtonState="stopButtonState"/>
         </div>
-      </div>
     </div>
   </div>
 </template>
@@ -36,6 +32,8 @@ import LoadingSpinAnimation from '../ExportIcons/LoadingSpinAnimation'
 import syncButtonState from '../../logic/syncButtonStateMachine'
 import syncStatusText from './syncStatusText'
 import getMessage from './statusMessage'
+import { statSync } from 'original-fs'
+import FileLogger from '../../logic/FileLogger'
 
 const remote = require('@electron/remote')
 
@@ -126,7 +124,11 @@ export default {
   beforeDestroy: function() {
     remote.app.removeListener('ui-sync-status', this.changeSyncStatus)
   },
-  updated: function() {},
+  updated: function() {
+    if (this.syncState === 'complete') {
+      FileLogger.saveLog()
+    }
+  },
   computed: {},
   name: 'SyncButtonAction',
   components: {
