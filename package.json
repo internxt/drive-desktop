@@ -119,6 +119,7 @@
     "check-disk-space": "^2.1.0",
     "crypto": "^1.0.1",
     "crypto-js": "^4.0.0",
+    "dayjs": "^1.10.7",
     "dotenv": "^8.1.0",
     "electron-fetch": "^1.4.0",
     "electron-log": "^4.0.7",

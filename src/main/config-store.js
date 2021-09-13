@@ -51,6 +51,10 @@ const schema = {
   backupInterval: {
     type: 'number',
     default: 24 * 3600 * 1000
+  },
+  lastBackup: {
+    type: 'number',
+    default: -1
   }
 }
 

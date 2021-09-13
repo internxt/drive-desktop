@@ -15,7 +15,7 @@ import DeviceLock from '../logic/devicelock'
 import SpaceUsage from '../logic/utils/spaceusage'
 import ConfigStore from '../../../src/main/config-store'
 import Header from '../components/Header/Header'
-import FileStatus from '../components/FileStatus//FileStatus'
+import FileStatus from '../components/FileStatus/FileStatus'
 import SyncButtonAction from '../components/SyncButtonAction/SyncButtonAction'
 import FileLogger from '../logic/FileLogger'
 import Vue from 'vue'
@@ -80,6 +80,7 @@ export default {
     remote.app.removeAllListeners('new-folder-path')
     remote.app.removeListener('set-tooltip', this.setTooltip)
     remote.app.removeAllListeners('update-last-entry')
+    remote.app.removeAllListeners('filelogger-push')
     FileLogger.saveLog()
   },
   created: function () {
@@ -101,6 +102,7 @@ export default {
       this.FileStatusSync.splice((this.FileStatusSync.length - index), 1)
       this.$forceUpdate()
     })
+    remote.app.on('filelogger-push', payload => FileLogger.push(payload))
     this.$app = this.$electron.remote.app
     Monitor.Monitor(true)
   },

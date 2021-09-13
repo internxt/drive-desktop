@@ -10,9 +10,9 @@
       >Select folders to backup</Button
     >
     <div class="flex items-center mt-3">
-      <Button state="accent">Backup now</Button>
+      <Button state="accent" @click="startBackupProcess" :disabled="!backupsEnabled">Backup now</Button>
 
-      <p class="text-sm text-gray-500 ml-3">Updated 23 minutes ago</p>
+      <p class="text-sm text-gray-500 ml-3">{{backupStatus }}</p>
     </div>
     <p class="mt-3 text-sm text-gray-500">Upload frequency</p>
     <div class="dropdown mt-2">
@@ -53,6 +53,11 @@ import {
 import {updateBackupsOfDevice, getDeviceByMac} from '../../../backup-process/service'
 import ConfigStore from '../../../main/config-store'
 import BackupsList from './BackupsList.vue'
+import { ipcRenderer } from 'electron'
+import dayjs from 'dayjs'
+import relativeTime from 'dayjs/plugin/relativeTime'
+
+const app = require('@electron/remote').app
 
 export default {
   components: {
@@ -71,8 +76,17 @@ export default {
       ],
       currentInterval: ConfigStore.get('backupInterval'),
       backupsEnabled: ConfigStore.get('backupsEnabled'),
-      showList: false
+      showList: false,
+      isCurrentlyBackingUp: false
     }
+  },
+  mounted() {
+    ipcRenderer.invoke('is-backup-running')
+      .then(this.setCurrentlyBackingUp)
+    app.on('backup-running-update', this.setCurrentlyBackingUp)
+  },
+  beforeDestroy() {
+    ipcRenderer.removeListener('backup-running-update', this.setCurrentlyBackingUp)
   },
   methods: {
     humanifyInterval(interval) {
@@ -86,6 +100,12 @@ export default {
         default:
           return null
       }
+    },
+    startBackupProcess() {
+      ipcRenderer.send('start-backup-process')
+    },
+    setCurrentlyBackingUp(value) {
+      this.isCurrentlyBackingUp = value
     }
   },
   watch: {
@@ -97,6 +117,18 @@ export default {
 
       const device = await getDeviceByMac()
       updateBackupsOfDevice(device.id, {interval: val})
+    }
+  },
+  computed: {
+    backupStatus() {
+      if (this.isCurrentlyBackingUp) { return 'Backup in progress...' }
+
+      const lastBackupTimestamp = ConfigStore.get('lastBackup')
+      if (lastBackupTimestamp !== -1) {
+        dayjs.extend(relativeTime)
+        const lastBackupFormatted = dayjs().to(dayjs(lastBackupTimestamp))
+        return `Updated ${lastBackupFormatted}`
+      } else { return '' }
     }
   }
 

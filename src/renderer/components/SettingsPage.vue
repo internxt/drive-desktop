@@ -171,7 +171,7 @@ export default {
       UilSetting,
       UilAt,
       UilHistory,
-      active: 'backups',
+      active: 'general',
       user: null,
       usage: '',
       limit: ''

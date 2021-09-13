@@ -81,15 +81,15 @@
           />
 
           <div class="dropdown-menu">
-            <a class="text-gray-600 dropdown-item" @click="openSettingsWindow"
+            <a class="text-gray-700 dropdown-item" @click="openSettingsWindow"
               >Preferences</a
             >
-            <a class="text-gray-600 dropdown-item" @click="ContactSupportMailto"
+            <a class="text-gray-700 dropdown-item" @click="ContactSupportMailto"
               >Support</a
             >
-            <a class="text-gray-600 dropdown-item">Send feedback</a>
-            <a class="text-gray-600 dropdown-item">Error log</a>
-            <a class="text-gray-600 dropdown-item" @click="quitApp">Quit</a>
+            <a class="text-gray-700 dropdown-item">Send feedback</a>
+            <a class="text-gray-700 dropdown-item">Error log</a>
+            <a class="text-gray-700 dropdown-item" @click="quitApp">Quit</a>
           </div>
         </div>
       </div>

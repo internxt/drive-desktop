@@ -7,7 +7,8 @@ import electron, {
   Menu,
   shell,
   dialog,
-  powerMonitor
+  powerMonitor,
+  ipcMain
 } from 'electron'
 import path from 'path'
 import Logger from '../libs/logger'
@@ -56,7 +57,7 @@ function getWindowPos() {
   const trayBounds = trayMenu.tray.getBounds()
   const display = electron.screen.getDisplayMatching(trayBounds)
   let x = Math.min(
-    trayBounds.x - display.workArea.x - (dimentions['/xcloud'].width / 2),
+    trayBounds.x - display.workArea.x - dimentions['/xcloud'].width / 2,
     display.workArea.width - dimentions['/xcloud'].width
   )
   x += display.workArea.x
@@ -347,11 +348,13 @@ app.on('show-info', (msg, title) => {
 })
 
 app.on('open-settings-window', () => {
-  const settingsPath = process.env.NODE_ENV === 'development'
-    ? 'http://localhost:9080/#/settings'
-    : `file://${__dirname}/index.html#settings`
+  const settingsPath =
+    process.env.NODE_ENV === 'development'
+      ? 'http://localhost:9080/#/settings'
+      : `file://${__dirname}/index.html#settings`
 
-  const settingsWindow = new BrowserWindow({ width: 600,
+  const settingsWindow = new BrowserWindow({
+    width: 600,
     height: 500,
     webPreferences: {
       nodeIntegration: true,
@@ -550,7 +553,7 @@ async function ManualCheckUpdate() {
 
 app.on('ready', () => {
   checkUpdates()
-
+  startBackupProcess()
   // Check updates every 6 hours
   setInterval(() => {
     checkUpdates()
@@ -567,14 +570,43 @@ app.on('ready', () => {
   })
 })
 
-async function checkIfThereAreBackupsPending() {
-  const worker = new BrowserWindow({
-    webPreferences: {
-      nodeIntegration: true,
-      enableRemoteModule: true,
-      contextIsolation: false
-    },
-    show: false
-  })
-  worker.loadFile('../../dist/backup-process/index.html')
+let backupProcessRunning = false
+let backupProcessRerun = null
+
+async function startBackupProcess() {
+  const backupsAreEnabled = ConfigStore.get('backupsEnabled')
+
+  if (backupsAreEnabled && !backupProcessRunning) {
+    backupProcessRunning = true
+    app.emit('backup-running-update', true)
+
+    const worker = new BrowserWindow({
+      webPreferences: {
+        nodeIntegration: true,
+        enableRemoteModule: true,
+        contextIsolation: false
+      },
+      show: false
+    })
+    worker.loadFile('../../dist/backup-process/index.html')
+
+    ipcMain.once('backup-process-done', () => {
+      worker.destroy()
+      if (backupProcessRerun) {
+        clearTimeout(backupProcessRerun)
+      }
+      backupProcessRerun = setTimeout(
+        startBackupProcess,
+        ConfigStore.get('backupInterval')
+      )
+
+      ConfigStore.set('lastBackup', new Date().valueOf())
+      backupProcessRunning = false
+      app.emit('backup-running-update', false)
+    })
+  }
 }
+
+ipcMain.on('start-backup-process', startBackupProcess)
+
+ipcMain.handle('is-backup-running', () => backupProcessRunning)

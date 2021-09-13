@@ -1,18 +1,23 @@
-import {getAllBackups} from './service'
+import { getAllBackups } from './service'
 
-export default async function () {
-  const backups = await getAllBackups()
-  const backupsThatWereNeverDone = backups.filter((backup) => backup.fileId === null)
+export default async function(backupsToExclude = new Set()) {
+  const backups = (await getAllBackups()).filter(
+    backup => backup.enabled && !backupsToExclude.has(backup.id)
+  )
 
-  if (backupsThatWereNeverDone.length) { return backupsThatWereNeverDone.pop() }
+  if (backups.length === 0) return null
 
-  const currentTime = new Date().valueOf()
+  const backupThatWasNeverDone = backups.find(
+    backup => backup.lastBackupAt === null
+  )
 
-  const dueBackups = backups.map(backup => ({...backup, updatedAt: backup.updateAt.valueOf()})).filter((backup) => backup.updatedAt + backup.interval <= currentTime)
+  if (backupThatWasNeverDone) {
+    return backupThatWasNeverDone
+  }
 
-  if (dueBackups.length === 0) { return null }
+  const sortedBackupsWithOldestFirst = backups.sort(
+    (a, b) => a.lastBackupAt - b.lastBackupAt
+  )
 
-  const dueBackupsSortedOlderFirst = dueBackups.sort((a, b) => a.updatedAt - b.updatedAt)
-
-  return dueBackupsSortedOlderFirst[0]
+  return sortedBackupsWithOldestFirst[0]
 }
