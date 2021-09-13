@@ -1,51 +1,5 @@
 <template>
   <div class="h-full">
-    <div v-show="false" class="headerModal">
-      <!-- DEV TOOLS -->
-      <div v-if="!isProduction" class="subgroup note dev">
-        <div class="title">Developer Tools</div>
-        <div class="cursor-pointer" @click="UnlockDevice()">Unlock device</div>
-        <div class="cursor-pointer" @click="openFileloggerLog()">
-          Open filelogger log
-        </div>
-      </div>
-
-      <!-- USER SETTINGS -->
-
-      <!--
-        <span class="text-sm">Sync mode</span>
-        <form class="mt-2 mb-2">
-
-          <div @click="OpenSyncSettingsModal(false)" class="radioContainer ml-2">
-            <p class="text-xs text-gray-500 hover:text-blue-500 cursor-pointer">
-              Full sync
-            </p>
-            <input type="radio" name="radio" :checked="!CheckedValue" />
-            <span class="checkmark"></span>
-            <span class="smallCheckmark"></span>
-          </div>
-
-          <div @click="OpenSyncSettingsModal(true)" class="radioContainer mt-1 ml-2">
-            <p class="text-xs text-gray-500 hover:text-blue-500 cursor-pointer pt-0.5">
-              Upload only
-            </p>
-            <input type="radio" name="radio" :checked="CheckedValue" />
-            <span class="checkmark mt-0.5"></span>
-            <span class="smallCheckmark mt-0.5"></span>
-          </div>
-
-        </form>
-        -->
-
-      <div class="title">Account</div>
-      <div class="subgroup flex-col justify-start">
-        <div class="cursor-pointer" @click="openLinkBilling()">Billing</div>
-        <div class="cursor-pointer mt-1" @click="openLogs()">Open logs</div>
-        <div class="cursor-pointer mt-1 text-blue-60" @click="logout()">
-          Log out
-        </div>
-      </div>
-    </div>
     <div class="bg-white flex justify-center py-2 border-b-2 border-gray-100">
       <settings-header-item
         title="General"
@@ -66,21 +20,9 @@
         @click="active = 'backups'"
       />
     </div>
-    <div class="p-10 bg-gray-50" style="min-height: calc(100% - 93px)">
+    <div class="p-10 bg-gray-50" style="height: calc(100% - 93px)">
       <div v-if="active === 'general'">
-        <div
-          class="
-            flex
-            justify-center
-            items-center
-            text-2xl
-            font-semibold
-            tracking-wide
-          "
-        >
-          <p>Mac Mini M1</p>
-          <UilPen class="text-gray-400 ml-1 cursor-pointer" size="15px" />
-        </div>
+        <DevicePanel />
         <div class="my-3">
           <div @click="launchAtLogin()" class="mt-4">
             <Checkbox
@@ -184,6 +126,7 @@
           </div>
         </div>
       </div>
+      <backups-section v-if="active === 'backups'" />
     </div>
   </div>
 </template>
@@ -202,13 +145,14 @@ import SettingsHeaderItem from './Settings/SettingsHeaderItem.vue'
 import {
   UilSetting,
   UilAt,
-  UilHistory,
-  UilPen
+  UilHistory
 } from '@iconscout/vue-unicons'
 import Button from './Button/Button.vue'
 import PackageJson from '../../../package.json'
 import bytes from 'bytes'
 import SpaceUsage from '../logic/utils/spaceusage'
+import DevicePanel from '../components/Settings/DevicePanel.vue'
+import BackupsSection from './Settings/BackupsSection.vue'
 const remote = require('@electron/remote')
 
 export default {
@@ -217,7 +161,8 @@ export default {
     Checkbox,
     SettingsHeaderItem,
     Button,
-    UilPen
+    DevicePanel,
+    BackupsSection
   },
   data() {
     return {
@@ -226,7 +171,7 @@ export default {
       UilSetting,
       UilAt,
       UilHistory,
-      active: 'general',
+      active: 'backups',
       user: null,
       usage: '',
       limit: ''
@@ -239,7 +184,6 @@ export default {
 
     database.Get('xUser').then(({user}) => {
       this.user = user
-      console.log(this.user)
     })
     remote.app.on('update-storage', data => {
       this.usage = data.usage

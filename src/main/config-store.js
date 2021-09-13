@@ -43,6 +43,14 @@ const schema = {
   authHeaders: {
     type: 'object',
     default: {}
+  },
+  backupsEnabled: {
+    type: 'boolean',
+    default: false
+  },
+  backupInterval: {
+    type: 'number',
+    default: 24 * 3600 * 1000
   }
 }
 
