@@ -4,7 +4,6 @@ import { updateBackup } from './service'
 import { ipcRenderer } from 'electron'
 import fs from 'fs'
 const archiver = require('archiver')
-const app = require('@electron/remote').app
 
 async function main() {
   // This allows adding new backups
@@ -64,32 +63,8 @@ function zipAndHash(backupPath) {
   return crypt.streamHash(archive)
 }
 
-function notifyProgress(backup, progress) {
-  app.emit('filelogger-push', {
-    filePath: backup.path,
-    filename: backup.path,
-    action: 'backup',
-    date: new Date(),
-    progress
-  })
-}
+function notifyProgress(backup, progress) {}
 
-function notifySuccess(backup) {
-  app.emit('filelogger-push', {
-    filePath: backup.path,
-    filename: backup.path,
-    action: 'backup',
-    state: 'success',
-    date: new Date()
-  })
-}
+function notifySuccess(backup) {}
 
-function notifyError(backup) {
-  app.emit('filelogger-push', {
-    filePath: backup.path,
-    filename: backup.path,
-    action: 'backup',
-    state: 'error',
-    date: new Date()
-  })
-}
+function notifyError(backup) {}
