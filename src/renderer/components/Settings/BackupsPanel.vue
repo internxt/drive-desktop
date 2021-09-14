@@ -10,7 +10,8 @@
       >Select folders to backup</Button
     >
     <div class="flex items-center mt-3">
-      <Button state="accent" @click="startBackupProcess" :disabled="!backupsEnabled">Backup now</Button>
+      <Button v-if="!isCurrentlyBackingUp" state="accent" @click="startBackupProcess" :disabled="!backupsEnabled">Backup now</Button>
+      <Button v-else state="danger" @click="stopBackupProcess">Stop backup</Button>
 
       <p class="text-sm text-gray-500 ml-3">{{backupStatus }}</p>
     </div>
@@ -103,6 +104,9 @@ export default {
     },
     startBackupProcess() {
       ipcRenderer.send('start-backup-process')
+    },
+    stopBackupProcess() {
+      ipcRenderer.send('stop-backup-process')
     },
     setCurrentlyBackingUp(value) {
       this.isCurrentlyBackingUp = value

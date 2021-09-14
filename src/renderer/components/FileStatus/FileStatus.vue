@@ -26,6 +26,7 @@
             <FileItem v-if="item.state === 'error' && item.action === 'remove'" fileType="" :filePath="item.filePath" :name="item.filename" info="Error deleting file on the internxt cloud" status='error'/>
             <FileItem v-if="item.state === 'success' && item.action === 'remove'" fileType="" :filePath="item.filePath" :name="item.filename" info="File removed" status='removed'/>
             <FileItem v-if="item.state === 'success' && item.action === 'backup'" fileType="" :filePath="item.filePath" :name="item.filename" info="Backup completed" status='uploaded'/>
+            <FileItem v-if="item.state === 'error' && item.action === 'backup'" fileType="" :filePath="item.filePath" :name="item.filename" info="Backup failed" status='error'/>
             <FileItem v-if="!item.state && item.action === 'backup'" fileType="" :filePath="item.filePath" :name="item.filename" :info="`Backing up ${item.progress ? `(Uploading ${Math.trunc(item.progress)}%)` : ''}`" status='uploading'/>
           </div>
         </div>

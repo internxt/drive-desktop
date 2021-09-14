@@ -590,7 +590,7 @@ async function startBackupProcess() {
     })
     worker.loadFile('../../dist/backup-process/index.html')
 
-    ipcMain.once('backup-process-done', () => {
+    const cleanUp = () => {
       worker.destroy()
       if (backupProcessRerun) {
         clearTimeout(backupProcessRerun)
@@ -603,7 +603,11 @@ async function startBackupProcess() {
       ConfigStore.set('lastBackup', new Date().valueOf())
       backupProcessRunning = false
       app.emit('backup-running-update', false)
-    })
+    }
+
+    ipcMain.once('backup-process-done', cleanUp)
+
+    ipcMain.once('stop-backup-process', cleanUp)
   }
 }
 

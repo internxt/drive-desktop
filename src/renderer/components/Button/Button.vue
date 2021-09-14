@@ -6,7 +6,8 @@
       'bg-gray-200': isActive,
       'bg-blue-600': isAccent,
       'bg-blue-800': isAccentActive,
-      'text-white': !disabled && (isAccent || isAccentActive),
+      'bg-red-500': isDanger,
+      'text-white': (!disabled && (isAccent || isAccentActive)) || isDanger,
       'text-blue-400': disabled && (isAccent || isAccentActive),
       'text-gray-800': !disabled && (isDefault || isActive),
       'text-gray-300': disabled && (isDefault || isActive)
@@ -34,6 +35,9 @@ export default {
     },
     isAccentActive() {
       return this.state === 'accentActive'
+    },
+    isDanger() {
+      return this.state === 'danger'
     }
   }
 }
