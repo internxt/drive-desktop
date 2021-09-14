@@ -59,9 +59,9 @@
       <div v-if="active === 'account'">
         <div v-if="user" class="flex items-center justify-between">
           <div class="flex items-center">
-            <Avatar :userFullname="userFullname" size="64"/>
+            <Avatar :userFullname="userFullname" size="60"/>
             <div class="ml-4">
-              <p class="font-semibold text-2xl text-gray-700 tracking-wide">
+              <p class="font-semibold text-xl text-gray-700 tracking-wide">
                 {{ userFullname }}
               </p>
               <p class="tracking-wide">{{ user.email }}</p>
@@ -76,7 +76,7 @@
           <div class="flex justify-between items-center">
             <div>
               <div class="flex items-center">
-                <p class="text-xl font-semibold mr-2 tracking-wide">
+                <p class="text-lg font-semibold mr-2 tracking-wide">
                   Current Plan
                 </p>
                 <div class="px-2 rounded bg-gray-200 text-sm text-gray-500">
@@ -84,7 +84,7 @@
                 </div>
               </div>
               <div class="mt-1 flex items-center">
-                <div class="text-2xl text-gray-600 font-semibold tracking-wide">
+                <div class="text-xl text-gray-600 font-semibold tracking-wide">
                   {{ limit }}
                 </div>
                 <!-- <div class="text-gray-400 text-lg tracking-wide ml-3">
