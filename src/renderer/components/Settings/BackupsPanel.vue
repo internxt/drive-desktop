@@ -87,7 +87,7 @@ export default {
     app.on('backup-running-update', this.setCurrentlyBackingUp)
   },
   beforeDestroy() {
-    ipcRenderer.removeListener('backup-running-update', this.setCurrentlyBackingUp)
+    app.removeListener('backup-running-update', this.setCurrentlyBackingUp)
   },
   methods: {
     humanifyInterval(interval) {

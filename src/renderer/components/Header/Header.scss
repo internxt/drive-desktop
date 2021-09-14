@@ -1,27 +1,27 @@
-@import "../../../../src/index.scss";
+@import '../../../../src/index.scss';
 
 .header {
   box-shadow: inset 0 -1px 0 0 $l-neutral-30;
 }
 
 .text-brand {
-    @include text-xs;
+  @include text-xs;
 }
 .text-xs-bolder {
   @include text-xs;
 }
 .hide {
-    visibility: hidden !important;
+  visibility: hidden !important;
 }
 .mt-0-64 {
-    margin-top: 5px;
+  margin-top: 5px;
 }
 input[type='radio'] {
-    width: 10px !important;
-    height: 10px !important;
+  width: 10px !important;
+  height: 10px !important;
 }
 .h-19r {
-    height: 18.5rem;
+  height: 18.5rem;
 }
 
 /*
@@ -102,7 +102,7 @@ body::-webkit-scrollbar-thumb {
 
 /* On mouse-over, add a grey background color */
 .radioContainer:hover input ~ .checkmark {
-  background-color: $gray-10
+  background-color: $gray-10;
 }
 
 /* When the radio button is checked, add a blue background */
@@ -124,23 +124,35 @@ body::-webkit-scrollbar-thumb {
 
 /* Style the indicator (dot/circle) */
 .radioContainer .checkmark:after {
- 	top: 9px;
-	left: 9px;
-	width: 8px;
-	height: 8px;
-	border-radius: 50%;
-	background: white;
+  top: 9px;
+  left: 9px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: white;
 }
 
-.enter { transform: translateY(100%) }
-.enter-to { transform: translateY(0) }
-.slide-enter-active { position: absolute }
+.enter {
+  transform: translateY(100%);
+}
+.enter-to {
+  transform: translateY(0);
+}
+.slide-enter-active {
+  position: absolute;
+}
 
-.leave { transform: translateY(0) }
-.leave-to { transform: translateY(130%) }
+.leave {
+  transform: translateY(0);
+}
+.leave-to {
+  transform: translateY(130%);
+}
 
 .slide-enter-active,
-.slide-leave-active { transition: all .25s ease-in-out }
+.slide-leave-active {
+  transition: all 0.25s ease-in-out;
+}
 
 // Custom checkbox
 .checkbox {
@@ -217,7 +229,7 @@ body::-webkit-scrollbar-thumb {
     }
   }
 
-  &[x-placement^="top"] {
+  &[x-placement^='top'] {
     margin-bottom: 5px;
 
     .tooltip-arrow {
@@ -232,7 +244,7 @@ body::-webkit-scrollbar-thumb {
     }
   }
 
-  &[x-placement^="bottom"] {
+  &[x-placement^='bottom'] {
     margin-top: 5px;
 
     .tooltip-arrow {
@@ -247,7 +259,7 @@ body::-webkit-scrollbar-thumb {
     }
   }
 
-  &[x-placement^="right"] {
+  &[x-placement^='right'] {
     margin-left: 5px;
 
     .tooltip-arrow {
@@ -262,7 +274,7 @@ body::-webkit-scrollbar-thumb {
     }
   }
 
-  &[x-placement^="left"] {
+  &[x-placement^='left'] {
     margin-right: 5px;
 
     .tooltip-arrow {
@@ -280,13 +292,13 @@ body::-webkit-scrollbar-thumb {
   &[aria-hidden='true'] {
     visibility: hidden;
     opacity: 0;
-    transition: opacity .15s, visibility .15s;
+    transition: opacity 0.15s, visibility 0.15s;
   }
 
   &[aria-hidden='false'] {
     visibility: visible;
     opacity: 1;
-    transition: opacity .15s, visibility .15s;
+    transition: opacity 0.15s, visibility 0.15s;
   }
 }
 
@@ -301,17 +313,6 @@ body::-webkit-scrollbar-thumb {
   background: $white;
   padding: $spacing-11;
   z-index: 10;
-}
-
-.menuItem {
-  padding: 8px;
-  height: 40px;
-  width: 40px;
-  border-radius: $spacing-3;
-
-  &.selectedModal {
-    background: $blue-20;
-  }
 }
 
 .title {

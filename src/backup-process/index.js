@@ -26,7 +26,7 @@ async function main() {
         await updateBackup({ id: backup.id, hash, lastBackupAt: new Date() })
       }
       notifySuccess(backup)
-    } catch {
+    } catch (_) {
       notifyError(backup)
     }
 

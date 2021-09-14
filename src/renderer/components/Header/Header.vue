@@ -1,22 +1,16 @@
 <template>
   <div>
     <div
-      class="flex justify-between self-center p-3 pl-4 pr-4"
+      class="flex justify-between self-center p-3"
       style="-webkit-app-region: drag"
     >
       <div class="flex flex-col" style="-webkit-app-region: no-drag">
         <div class="flex items-center">
-          <img
-            class="mr-3"
-            src="../../assets/svg/brand-app.svg"
-            width="40px"
-            height="40px"
-            style="min-width: 40px"
-          />
-          <div class="text-sm">
+          <Avatar size="40" :userFullname="userFullname"/>
+          <div class="text-sm ml-3">
             <div>{{ emailAccount }}</div>
             <div class="flex" v-if="showUsage">
-              <div class="mr-0.5">{{ usage }} of {{ limit }}</div>
+              <div class="mr-0.5 text-gray-500">{{ usage }} of {{ limit }}</div>
               <div
                 v-if="this.showUpgrade"
                 class="ml-1 text-blue-60 cursor-pointer"
@@ -29,24 +23,14 @@
         </div>
       </div>
 
-      <div class="flex items-center justify-center">
+      <div class="flex items-center justify-center space-x-3">
         <!-- {{ this.$data.localPath }} -->
 
-        <div
-          class="flex items-center justify-center cursor-pointer menuItem"
-          :class="{ selectedModal: showModal === 'sync' }"
-          v-on:click="toggleModal('sync')"
-          v-tooltip="{
-            content: 'Selective sync',
-            placement: 'bottom',
-            delay: { show: 1500, hide: 50 },
-          }"
-        >
-          <UilSync class="text-blue-60" size="22px" />
-        </div>
+        <backup-icon
+          @click="() =>openSettingsWindow('backups')" :state="backupStatus"/>
 
         <div
-          class="flex items-center justify-center cursor-pointer menuItem"
+          class="flex items-center justify-center cursor-pointer"
           @click="openFolder()"
           v-tooltip="{
             content: 'Open sync folder',
@@ -54,7 +38,7 @@
             delay: { show: 1500, hide: 50 },
           }"
         >
-          <UilFolderOpen class="text-blue-60" size="22px" />
+          <UilFolderOpen class="text-gray-500" size="22px" />
         </div>
 
         <div
@@ -63,7 +47,6 @@
             items-center
             justify-center
             cursor-pointer
-            menuItem
             dropdown
           "
           v-tooltip="{
@@ -73,7 +56,7 @@
           }"
         >
           <UilSetting
-            class="text-blue-60 dropdown-toggle"
+            class="text-gray-500 dropdown-toggle"
             data-toggle="dropdown"
             aria-haspopup="true"
             aria-expanded="false"
@@ -81,7 +64,7 @@
           />
 
           <div class="dropdown-menu">
-            <a class="text-gray-700 dropdown-item" @click="openSettingsWindow"
+            <a class="text-gray-700 dropdown-item" @click="() =>openSettingsWindow('general')"
               >Preferences</a
             >
             <a class="text-gray-700 dropdown-item" @click="ContactSupportMailto"
@@ -223,7 +206,6 @@ import fs from 'fs-extra'
 import {
   UilFolderNetwork,
   UilSetting,
-  UilSync,
   UilUserCircle,
   UilMultiply,
   UilFolderOpen,
@@ -243,9 +225,11 @@ import Logger from '../../../libs/logger'
 import path from 'path'
 import VToolTip from 'v-tooltip'
 import bytes from 'bytes'
-import FileStatus from '../FileStatus/FileStatus.vue'
 import FileIcon from '../Icons/FileIcon.vue'
 import Checkbox from '../Icons/Checkbox.vue'
+import Avatar from '../Avatar/Avatar.vue'
+import BackupIcon from '../Icons/BackupIcon.vue'
+import { ipcRenderer } from 'electron'
 
 Vue.use(VToolTip)
 const remote = require('@electron/remote')
@@ -268,7 +252,8 @@ export default {
       showSyncSettingsModal: false,
       console: console,
       showUpgrade: false,
-      showUsage: false
+      showUsage: false,
+      backupStatus: null
     }
   },
   beforeCreate: function() {
@@ -276,11 +261,17 @@ export default {
       this.$data.path = path
     })
   },
+  mounted() {
+    ipcRenderer.invoke('is-backup-running')
+      .then(this.onBackupRunningUpdate)
+    remote.app.on('backup-running-update', this.onBackupRunningUpdate)
+  },
   beforeDestroy: function() {
     remote.app.removeAllListeners('user-logout')
     remote.app.removeAllListeners('update-storage')
     remote.app.removeAllListeners('update-last-entry')
     remote.app.removeAllListeners('new-folder-path')
+    remote.app.removeListener('backup-running-update', this.onBackupRunningUpdate)
   },
   created: function() {
     this.$app = this.$electron.remote.app
@@ -381,8 +372,8 @@ export default {
       this.showSyncSettingsModal = false
       this.stopSync()
     },
-    openSettingsWindow() {
-      remote.app.emit('open-settings-window')
+    openSettingsWindow(section = 'general') {
+      ipcRenderer.send('open-settings-window', section)
     },
     // Contact support
     ContactSupportMailto() {
@@ -396,6 +387,11 @@ export default {
     },
     quitApp() {
       remote.app.emit('app-close')
+    },
+    onBackupRunningUpdate(value) {
+      if (value) {
+        this.backupStatus = 'in-progress'
+      } else if (this.backupStatus === 'in-progress') { this.backupStatus = 'success' }
     }
   },
   name: 'Header',
@@ -411,6 +407,10 @@ export default {
     IconClass: {
       type: String,
       default: ''
+    },
+    userFullname: {
+      type: String,
+      default: ''
     }
   },
   components: {
@@ -419,13 +419,15 @@ export default {
     UilFolderNetwork,
     InternxtBrand,
     UilMultiply,
+    UilHistory,
     UilFolderOpen,
-    UilSync,
     UilServerConnection,
     UilFileTimes,
     UilSlidersVAlt,
     FileIcon,
-    Checkbox
+    Checkbox,
+    Avatar,
+    BackupIcon
   }
 }
 </script>

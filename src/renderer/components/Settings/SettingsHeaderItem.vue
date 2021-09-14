@@ -11,7 +11,7 @@
       cursor-pointer
     "
     :class="{
-      'text-gray-400': !active,
+      'text-gray-400 hover:bg-gray-100': !active,
       'text-blue-600': active,
       'bg-blue-50': active,
     }"

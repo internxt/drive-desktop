@@ -1,8 +1,8 @@
 <template>
   <div class="flex flex-none flex-col h-full w-full overflow-x-hidden">
-    <Header class="header z-20" :appName="appName" :emailAccount="emailAccount"/>
+    <Header class="header z-20 bg-white" :appName="appName" :emailAccount="emailAccount" :userFullname="userFullname"/>
     <FileStatus class="fileStatus bg-white fileLogger overflow-y-auto overflow-x-hidden flex flex-col flex-grow flex-shrink" :FileStatusSync="FileStatusSync" />
-    <SyncButtonAction class="statusBar overflow-hidden flex flex-none justify-between p-2 px-4" :FileStatusSync="FileStatusSync"/>
+    <SyncButtonAction class="statusBar overflow-hidden flex flex-none justify-between py-2 px-3" :FileStatusSync="FileStatusSync"/>
   </div>
 </template>
 
@@ -42,7 +42,8 @@ export default {
       IconClass: 'prueba',
       file: {},
       flag: false,
-      FileStatusSync: []
+      FileStatusSync: [],
+      userFullname: ''
     }
   },
 
@@ -57,6 +58,7 @@ export default {
       .then((xUser) => {
         const userEmail = xUser.user.email
         this.emailAccount = userEmail
+        this.userFullname = xUser.user.name + ' ' + xUser.user.lastname
         Logger.info(
           'Account: %s, User platform: %s %s, version: %s',
           userEmail,

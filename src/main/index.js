@@ -347,11 +347,11 @@ app.on('show-info', (msg, title) => {
   })
 })
 
-app.on('open-settings-window', () => {
+ipcMain.on('open-settings-window', (_, section) => {
   const settingsPath =
     process.env.NODE_ENV === 'development'
-      ? 'http://localhost:9080/#/settings'
-      : `file://${__dirname}/index.html#settings`
+      ? `http://localhost:9080/#/settings?section=${section}`
+      : `file://${__dirname}/index.html#settings?section=${section}`
 
   const settingsWindow = new BrowserWindow({
     width: 600,

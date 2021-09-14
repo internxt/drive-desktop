@@ -59,24 +59,7 @@
       <div v-if="active === 'account'">
         <div v-if="user" class="flex items-center justify-between">
           <div class="flex items-center">
-            <div
-              class="
-                h-16
-                w-16
-                flex
-                justify-center
-                items-center
-                rounded-full
-                text-blue-600
-                bg-blue-200
-                text-2xl
-                font-semibold
-              "
-            >
-              <p>
-                {{ nameToInitials(userFullname).toUpperCase() }}
-              </p>
-            </div>
+            <Avatar :userFullname="userFullname" size="64"/>
             <div class="ml-4">
               <p class="font-semibold text-2xl text-gray-700 tracking-wide">
                 {{ userFullname }}
@@ -153,6 +136,7 @@ import bytes from 'bytes'
 import SpaceUsage from '../logic/utils/spaceusage'
 import DevicePanel from '../components/Settings/DevicePanel.vue'
 import BackupsSection from './Settings/BackupsSection.vue'
+import Avatar from './Avatar/Avatar.vue'
 const remote = require('@electron/remote')
 
 export default {
@@ -162,7 +146,8 @@ export default {
     SettingsHeaderItem,
     Button,
     DevicePanel,
-    BackupsSection
+    BackupsSection,
+    Avatar
   },
   data() {
     return {
@@ -178,6 +163,9 @@ export default {
     }
   },
   mounted() {
+    const section = document.location.href.match(/section=(.+)/)[1]
+    this.active = section
+
     database.Get('xPath').then(path => {
       this.$data.path = path
     })
@@ -276,11 +264,6 @@ export default {
             remote.app.emit('user-logout', false)
           }
         })
-    },
-    nameToInitials(fullName) {
-      const namesArray = fullName.trim().split(' ')
-      if (namesArray.length === 1) return `${namesArray[0].charAt(0)}`
-      else return `${namesArray[0].charAt(0)}${namesArray[namesArray.length - 1].charAt(0)}`
     }
   },
   computed: {
