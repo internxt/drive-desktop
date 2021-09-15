@@ -202,7 +202,6 @@
 <script>
 import Vue from 'vue'
 import './Header.scss'
-import fs from 'fs-extra'
 import {
   UilFolderNetwork,
   UilSetting,
@@ -222,7 +221,6 @@ import Monitor from '../../logic/monitor'
 import ConfigStore from '../../../main/config-store'
 import analytics from '../../logic/utils/analytics'
 import Logger from '../../../libs/logger'
-import path from 'path'
 import VToolTip from 'v-tooltip'
 import bytes from 'bytes'
 import FileIcon from '../Icons/FileIcon.vue'
@@ -230,6 +228,7 @@ import Checkbox from '../Icons/Checkbox.vue'
 import Avatar from '../Avatar/Avatar.vue'
 import BackupIcon from '../Icons/BackupIcon.vue'
 import { ipcRenderer } from 'electron'
+import BackupsDB from '../../../backup-process/backups-db'
 
 Vue.use(VToolTip)
 const remote = require('@electron/remote')
@@ -388,8 +387,11 @@ export default {
     quitApp() {
       remote.app.emit('app-close')
     },
-    onBackupRunningUpdate(value) {
-      if (value) {
+    async onBackupRunningUpdate(value) {
+      const errors = await BackupsDB.getErrors()
+      if (errors.length) {
+        this.backupStatus = 'warn'
+      } else if (value) {
         this.backupStatus = 'in-progress'
       } else if (this.backupStatus === 'in-progress') { this.backupStatus = 'success' }
     }

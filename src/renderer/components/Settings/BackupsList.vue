@@ -175,7 +175,7 @@ export default {
         case ErrorCodes.NOT_FOUND:
           return 'This folder could not be found in your file system'
         case ErrorCodes.PATH_IS_NOT_DIRECTORY:
-          return 'This path of this backup is not a folder'
+          return 'The path of this backup is not a folder'
         default:
           return 'An unknown error has ocurred'
       }
