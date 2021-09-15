@@ -1,21 +1,18 @@
 <template>
-  
-            <div
-            :style="`height:${size}px;width: ${size}px; font-size: ${fontSize}px`"
-              class="
-                flex
-                justify-center
-                items-center
-                rounded-full
-                text-blue-600
-                bg-blue-200
-                font-semibold
-              "
-            >
-              <p>
-                {{ nameToInitials(userFullname).toUpperCase() }}
-              </p>
-            </div>
+  <div
+  :style="`height:${size}px;width: ${size}px; font-size: ${fontSize}px`"
+    class="
+      flex
+      justify-center
+      items-center
+      rounded-full
+      text-blue-600
+      bg-blue-200
+      font-semibold">
+    <p>
+      {{ nameToInitials(userFullname).toUpperCase() }}
+    </p>
+  </div>
 </template>
 
 <script>

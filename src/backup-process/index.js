@@ -1,12 +1,11 @@
-import getOldestBackupPending from './getOldestBackupPending'
 import crypt from '../renderer/logic/crypt'
-import { updateBackup } from './service'
+import { updateBackup, getAllBackups } from './service'
 import { ipcRenderer } from 'electron'
 import fs from 'fs'
 import ErrorCodes from './error-codes'
 const archiver = require('archiver')
 
-async function main() {
+;(async function main() {
   // This allows adding new backups
   // while the process is running
   const backupsAlreadyDone = new Set()
@@ -36,9 +35,7 @@ async function main() {
   }
 
   ipcRenderer.send('backup-process-done')
-}
-
-main()
+})()
 
 function checkThatItExists(path) {
   return new Promise((resolve, reject) => {
@@ -80,4 +77,26 @@ function notifyError(backup, errorCode) {
     errorCode,
     timestamp: new Date().valueOf()
   })
+}
+
+async function getOldestBackupPending(backupsToExclude = new Set()) {
+  const backups = (await getAllBackups()).filter(
+    backup => backup.enabled && !backupsToExclude.has(backup.id)
+  )
+
+  if (backups.length === 0) return null
+
+  const backupThatWasNeverDone = backups.find(
+    backup => backup.lastBackupAt === null
+  )
+
+  if (backupThatWasNeverDone) {
+    return backupThatWasNeverDone
+  }
+
+  const sortedBackupsWithOldestFirst = backups.sort(
+    (a, b) => a.lastBackupAt - b.lastBackupAt
+  )
+
+  return sortedBackupsWithOldestFirst[0]
 }
