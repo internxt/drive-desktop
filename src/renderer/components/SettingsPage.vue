@@ -164,7 +164,8 @@ export default {
   },
   mounted() {
     const section = document.location.href.match(/section=(.+)/)[1]
-    this.active = section
+    this.setActive(section)
+    remote.app.on('settings-change-section', this.setActive)
 
     database.Get('xPath').then(path => {
       this.$data.path = path
@@ -178,6 +179,10 @@ export default {
       this.limit = data.limit
     })
     SpaceUsage.updateUsage()
+  },
+  beforeDestroy () {
+    remote.app.removeAllListeners('new-folder-path')
+    remote.app.removeListener('settings-change-section', this.setActive)
   },
   methods: {
     UnlockDevice() {
@@ -264,6 +269,9 @@ export default {
             remote.app.emit('user-logout', false)
           }
         })
+    },
+    setActive(section) {
+      this.active = section
     }
   },
   computed: {

@@ -79,7 +79,6 @@ export default {
     FileLogger.removeAllListeners('new-entry')
     FileLogger.removeAllListeners('clear-log')
     remote.app.removeAllListeners('user-logout')
-    remote.app.removeAllListeners('new-folder-path')
     remote.app.removeListener('set-tooltip', this.setTooltip)
     remote.app.removeAllListeners('update-last-entry')
     remote.app.removeAllListeners('filelogger-push')

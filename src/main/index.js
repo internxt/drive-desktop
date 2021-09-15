@@ -3,7 +3,6 @@
 import electron, {
   app,
   BrowserWindow,
-  Tray,
   Menu,
   shell,
   dialog,
@@ -17,7 +16,6 @@ import { autoUpdater } from 'electron-updater'
 import semver from 'semver'
 import PackageJson from '../../package.json'
 import fetch from 'electron-fetch'
-import fs from 'fs'
 import ConfigStore from './config-store'
 import TrayMenu from './traymenu'
 import FileLogger from '../renderer/logic/FileLogger'
@@ -45,7 +43,7 @@ const winURL =
     ? `http://localhost:9080`
     : `file://${__dirname}/index.html`
 
-if (process.platform === 'darwin' && process.env.NODE_ENV !== 'development') {
+if (process.platform === 'darwin') {
   app.dock.hide()
 }
 
@@ -96,19 +94,16 @@ function createWindow() {
       enableRemoteModule: true,
       devTools: process.env.NODE_ENV === 'development'
     },
-    movable: true,
+    movable: false,
+    frame: false,
+    resizable: false,
     width: dimentions['/xcloud'].width,
     height: dimentions['/xcloud'].height,
-    // x: display.bounds.width - 450,
-    // y: trayBounds.y,
     useContentSize: true,
-    // frame: process.env.NODE_ENV === 'development',
-    frame: true,
     maximizable: false, // this won't work on linux
     autoHideMenuBar: false,
     skipTaskbar: process.env.NODE_ENV !== 'development',
     show: true,
-    resizable: process.env.NODE_ENV === 'development',
     menuBarVisible: false,
     centered: true
   })
@@ -119,6 +114,10 @@ function createWindow() {
 
   mainWindow.on('closed', appClose)
   mainWindow.on('close', appClose)
+
+  mainWindow.on('blur', () => {
+    mainWindow.hide()
+  })
 
   app.on('app-close', appClose)
 
@@ -212,24 +211,8 @@ function createWindow() {
     ]
   }
 
-  const view = {
-    label: 'View',
-    submenu: [
-      {
-        label: 'Developer Tools',
-        accelerator: 'Shift+CmdOrCtrl+J',
-        click: function() {
-          self.getWindow().webContents.toggleDevTools()
-        }
-      }
-    ]
-  }
-
   const windowMenu = Menu.setApplicationMenu(
-    Menu.buildFromTemplate([
-      process.platform === 'darwin' ? editMacOS : edit,
-      view
-    ])
+    Menu.buildFromTemplate([process.platform === 'darwin' ? editMacOS : edit])
   )
 }
 
@@ -290,8 +273,6 @@ app.on('before-quit', function(evt) {
   }
 })
 
-app.on('browser-window-focus', (e, w) => {})
-
 app.on('sync-on', function() {
   trayMenu.setIsLoadingIcon(true)
 })
@@ -348,22 +329,32 @@ app.on('show-info', (msg, title) => {
   })
 })
 
-ipcMain.on('open-settings-window', (_, section) => {
-  const settingsPath =
-    process.env.NODE_ENV === 'development'
-      ? `http://localhost:9080/#/settings?section=${section}`
-      : `file://${__dirname}/index.html#settings?section=${section}`
+let settingsWindow = null
 
-  const settingsWindow = new BrowserWindow({
-    width: 600,
-    height: 500,
-    webPreferences: {
-      nodeIntegration: true,
-      enableRemoteModule: true,
-      contextIsolation: false
-    }
-  })
-  settingsWindow.loadURL(settingsPath)
+ipcMain.on('open-settings-window', (_, section) => {
+  if (settingsWindow) {
+    app.emit('settings-change-section', section)
+    settingsWindow.focus()
+  } else {
+    const settingsPath =
+      process.env.NODE_ENV === 'development'
+        ? `http://localhost:9080/#/settings?section=${section}`
+        : `file://${__dirname}/index.html#settings?section=${section}`
+
+    settingsWindow = new BrowserWindow({
+      width: 600,
+      height: 500,
+      webPreferences: {
+        nodeIntegration: true,
+        enableRemoteModule: true,
+        contextIsolation: false
+      }
+    })
+    settingsWindow.loadURL(settingsPath)
+    settingsWindow.once('closed', () => {
+      settingsWindow = null
+    })
+  }
 })
 
 /**
