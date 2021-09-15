@@ -18,12 +18,21 @@
           'bg-gray-50': i % 2 != 0 && backupSelected != backup,
           'bg-blue-50': backupSelected === backup,
         }"
-        class="flex items-center pl-2 py-1"
+        class="flex items-center justify-between px-2 py-1"
         @click.stop="backupSelected = backup"
       >
-        <input v-model="backup.enabled" type="checkbox" style="margin-right: 6px" @change="() => onBackupCheckboxChanged(backup)"/>
-        <UilFolder style="margin-right: 6px" class="text-blue-500" />
-        <p class="tracking-wide">{{ backup.path }}</p>
+        <div class="flex items-center">
+          <input v-model="backup.enabled" type="checkbox" style="margin-right: 6px" @change="() => onBackupCheckboxChanged(backup)"/>
+          <UilFolder style="margin-right: 6px" class="text-blue-500" />
+          <p class="tracking-wide">{{ backup.path }}</p>
+        </div>
+        <UilExclamationTriangle class="text-yellow-400" v-if="backup.id && findErrorForBackup(backup.id)" 
+          v-tooltip="{
+            content: errorMessage(findErrorForBackup(backup.id).error_code),
+            placement: 'bottom',
+            delay: { show: 500, hide: 50 },
+          }"
+        />
       </div>
     </div>
     <div class="flex items-center justify-between mt-3">
@@ -53,16 +62,18 @@
 import {
   UilFolder,
   UilPlus,
-  UilTrashAlt
+  UilTrashAlt,
+  UilExclamationTriangle
 } from '@iconscout/vue-unicons'
 import {getAllBackups, createBackup, deleteBackup, updateBackup} from '../../../backup-process/service'
 import Button from '../Button/Button.vue'
+import ErrorCodes from '../../../backup-process/error-codes'
 import fs from 'fs'
 const remote = require('@electron/remote')
 
 export default {
-  components: {UilFolder, Button, UilPlus, UilTrashAlt},
-  props: ['backupsBucket'],
+  components: {UilFolder, Button, UilPlus, UilTrashAlt, UilExclamationTriangle},
+  props: ['backupsBucket', 'errors'],
   data() {
     return {
       backups: [
@@ -100,7 +111,7 @@ export default {
 
       if (this.findBackupByPath(this.backups, path)) { return }
 
-      const newBackup = {path, enabled: false}
+      const newBackup = {path, enabled: true}
       this.backupsToAdd.push(newBackup)
       this.backups.push(newBackup)
     },
@@ -124,27 +135,25 @@ export default {
         if (hasBeenCheckedAlready) { this.deleteBackupFromList(this.backupsToUpdate, backup.path) } else { this.backupsToUpdate.push(backup) }
       }
     },
-    async save() {
-      console.log('Backups to add ', this.backupsToAdd)
-      console.log('Backups to delete ', this.backupsToDelete)
-      console.log('Backups to update ', this.backupsToUpdate)
-
+    async save(closeAfter = true) {
       const addPromises = this.backupsToAdd.map(backup => createBackup(backup, this.backupsBucket))
       const deletePromises = this.backupsToDelete.map(backup => deleteBackup(backup.id))
       const updatePromises = this.backupsToUpdate.map(({id, enabled}) => updateBackup({id, enabled}))
 
-      try {
-        this.resetChanges()
-        await Promise.all([ ...addPromises, ...deletePromises, ...updatePromises ])
-        this.getAllBackups()
-      } catch (err) {
-        console.log(err)
-        remote.app.emit(
-          'show-error',
-          'Something went wrong while saving your backups settings'
-        )
-        this.getAllBackups()
-      }
+      if (!closeAfter) {
+        try {
+          this.resetChanges()
+          await Promise.all([ ...addPromises, ...deletePromises, ...updatePromises ])
+          this.getAllBackups()
+        } catch (err) {
+          console.log(err)
+          remote.app.emit(
+            'show-error',
+            'Something went wrong while saving your backups settings'
+          )
+          this.getAllBackups()
+        }
+      } else { this.$emit('close') }
     },
     findBackupByPath(arr, path) {
       return arr.find(backup => backup.path === path)
@@ -157,6 +166,19 @@ export default {
       this.backupsToAdd = []
       this.backupsToDelete = []
       this.backupsToUpdate = []
+    },
+    findErrorForBackup(id) {
+      return this.errors.find(error => error.backup_id === id)
+    },
+    errorMessage(errorCode) {
+      switch (errorCode) {
+        case ErrorCodes.NOT_FOUND:
+          return 'This folder could not be found in your file system'
+        case ErrorCodes.PATH_IS_NOT_DIRECTORY:
+          return 'This path of this backup is not a folder'
+        default:
+          return 'An unknown error has ocurred'
+      }
     }
   },
   computed: {

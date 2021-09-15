@@ -22,6 +22,7 @@ import ConfigStore from './config-store'
 import TrayMenu from './traymenu'
 import FileLogger from '../renderer/logic/FileLogger'
 import dimentions from './window-dimentions/dimentions'
+import BackupsDB from '../backup-process/backups-db'
 
 require('@electron/remote/main').initialize()
 AutoLaunch.configureAutostart()
@@ -578,6 +579,7 @@ async function startBackupProcess() {
 
   if (backupsAreEnabled && !backupProcessRunning) {
     backupProcessRunning = true
+    await BackupsDB.cleanErrors()
     app.emit('backup-running-update', true)
 
     const worker = new BrowserWindow({
@@ -614,3 +616,7 @@ async function startBackupProcess() {
 ipcMain.on('start-backup-process', startBackupProcess)
 
 ipcMain.handle('is-backup-running', () => backupProcessRunning)
+
+ipcMain.on('insert-backup-error', (_, error) => {
+  BackupsDB.insertError(error)
+})
