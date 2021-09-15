@@ -344,6 +344,8 @@ ipcMain.on('open-settings-window', (_, section) => {
     settingsWindow = new BrowserWindow({
       width: 600,
       height: 500,
+      visibleOnAllWorkspaces: true,
+      alwaysOnTop: true,
       webPreferences: {
         nodeIntegration: true,
         enableRemoteModule: true,
