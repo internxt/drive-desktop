@@ -55,7 +55,7 @@ class TrayMenu {
     const contextMenuTemplate = []
     contextMenuTemplate.push(
       {
-        label: 'Minimize',
+        label: 'Show/Hide',
         click: function() {
           app.emit('show-main-windows')
         }
