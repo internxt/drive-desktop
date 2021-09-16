@@ -115,7 +115,7 @@ function createWindow() {
   mainWindow.on('close', appClose)
 
   mainWindow.on('blur', () => {
-    mainWindow.hide()
+    if (!isLogin && !isOnboarding) mainWindow.hide()
   })
 
   app.on('app-close', appClose)
@@ -128,7 +128,7 @@ function createWindow() {
   })
 
   app.on('user-logout', () => {
-    FileLogger.clearLogger()
+    FileLogger.eraseLog()
   })
 
   app.on('update-configStore', item => {
@@ -222,13 +222,11 @@ app.on('ready', () => {
 app.on('show-main-windows', showMainWindows)
 
 function showMainWindows(trayBounds) {
-  if (!isOnboarding && !isLogin) {
-    if (mainWindow.isVisible()) {
-      mainWindow.hide()
-    } else {
-      mainWindow.setBounds(getWindowPos(trayBounds))
-      mainWindow.show()
-    }
+  if (mainWindow.isVisible()) {
+    mainWindow.hide()
+  } else {
+    mainWindow.setBounds(getWindowPos(trayBounds))
+    mainWindow.show()
   }
 }
 

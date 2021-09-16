@@ -19,7 +19,7 @@
       @click.native="editing = !editing"
     />
   </div>
-  <div v-else class="h-8"></div>
+  <div v-else class="h-7"></div>
 </template>
 
 <script>
