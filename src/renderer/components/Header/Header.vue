@@ -2,9 +2,8 @@
   <div>
     <div
       class="flex justify-between self-center p-3"
-      style="-webkit-app-region: drag"
     >
-      <div class="flex flex-col" style="-webkit-app-region: no-drag">
+      <div class="flex flex-col">
         <div class="flex items-center">
           <Avatar size="40" :userFullname="userFullname"/>
           <div class="text-sm ml-3">
