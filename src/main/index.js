@@ -345,6 +345,8 @@ ipcMain.on('open-settings-window', (_, section) => {
       height: 428,
       show: false,
       titleBarStyle: 'hidden',
+      maximizable: false,
+      resizable: false,
       webPreferences: {
         nodeIntegration: true,
         enableRemoteModule: true,
