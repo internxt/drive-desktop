@@ -343,7 +343,8 @@ ipcMain.on('open-settings-window', (_, section) => {
       width: 500,
       height: 428,
       show: false,
-      titleBarStyle: 'hidden',
+      titleBarStyle: process.platform === 'darwin' ? 'hidden' : undefined,
+      frame: process.platform !== 'darwin' ? false : undefined,
       maximizable: false,
       resizable: false,
       webPreferences: {
@@ -360,6 +361,10 @@ ipcMain.on('open-settings-window', (_, section) => {
       settingsWindow.show()
     })
   }
+})
+
+app.on('close-settings-window', () => {
+  if (settingsWindow) settingsWindow.close()
 })
 
 /**

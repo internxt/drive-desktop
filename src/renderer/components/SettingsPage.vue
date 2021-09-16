@@ -1,5 +1,6 @@
 <template>
-  <div class="h-full flex flex-col">
+  <div class="h-full flex flex-col relative">
+    <UilMultiply v-if="!isMacOS" class="absolute top-1 left-1 hover:text-gray-500 block" style="-webkit-app-region: no-drag" @click.native="closeWindow"/>
     <div class="bg-white flex justify-center items-center py-1" style="-webkit-app-region: drag"><p class="text-sm">Internxt Drive</p></div>
     <div class="bg-white flex justify-center py-2 border-b-2 border-gray-100" style="-webkit-app-region: drag">
       <settings-header-item
@@ -36,7 +37,8 @@ import SettingsHeaderItem from './Settings/SettingsHeaderItem.vue'
 import {
   UilSetting,
   UilAt,
-  UilHistory
+  UilHistory,
+  UilMultiply
 } from '@iconscout/vue-unicons'
 import Button from './Button/Button.vue'
 import BackupsSection from './Settings/BackupsSection.vue'
@@ -52,7 +54,8 @@ export default {
     BackupsSection,
     AccountSection,
     GeneralSection,
-    Avatar
+    Avatar,
+    UilMultiply
   },
   data() {
     return {
@@ -86,6 +89,9 @@ export default {
     },
     setActive(section) {
       this.active = section
+    },
+    closeWindow() {
+      remote.app.emit('close-settings-window')
     }
   },
   computed: {
@@ -98,6 +104,9 @@ export default {
         default:
           return GeneralSection
       }
+    },
+    isMacOS() {
+      return process.platform === 'darwin'
     }
   }
 
