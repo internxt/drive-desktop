@@ -1,6 +1,7 @@
 <template>
   <div
     @click="$emit('click')"
+    style="-webkit-app-region: no-drag"
     class="
       flex flex-col
       items-center
@@ -8,8 +9,7 @@
       py-2
       rounded-xl
       tracking-wider
-      cursor-pointer
-    "
+      cursor-pointer"
     :class="{
       'text-gray-400 hover:text-gray-500': !active,
       'text-blue-600': active,

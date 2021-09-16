@@ -1,7 +1,7 @@
 <template>
   <div class="h-full flex flex-col">
     <div class="bg-white flex justify-center items-center py-1" style="-webkit-app-region: drag"><p class="text-sm">Internxt Drive</p></div>
-    <div class="bg-white flex justify-center py-2 border-b-2 border-gray-100" >
+    <div class="bg-white flex justify-center py-2 border-b-2 border-gray-100" style="-webkit-app-region: drag">
       <settings-header-item
         title="General"
         :icon="UilSetting"
