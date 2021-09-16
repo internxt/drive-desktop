@@ -14,6 +14,9 @@ class TrayMenu {
     const trayIcon = this.iconPath()
 
     this.tray = new Tray(trayIcon)
+
+    this.tray.setIgnoreDoubleClickEvents(true)
+
     this.tray.setToolTip('Internxt Drive ' + PackageJson.version)
     if (process.platform !== 'linux') {
       this.tray.on('click', (_, bounds) => {
