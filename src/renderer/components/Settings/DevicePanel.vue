@@ -4,7 +4,7 @@
       flex
       justify-center
       items-center
-      text-2xl
+      text-lg
       font-semibold
       tracking-wide
     "

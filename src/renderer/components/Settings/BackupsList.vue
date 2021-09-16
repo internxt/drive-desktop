@@ -1,9 +1,9 @@
 <template>
   <div @click.stop="backupSelected = null">
-    <p>Select folders you want to add to the next backup</p>
+    <p class="text-sm">Select folders you want to add to the next backup</p>
     <div
       class="
-        h-52
+        h-44
         mt-3
         border border-gray-200
         bg-white
@@ -24,7 +24,7 @@
         <div class="flex items-center">
           <input v-model="backup.enabled" type="checkbox" style="margin-right: 6px" @change="() => onBackupCheckboxChanged(backup)"/>
           <UilFolder style="margin-right: 6px" class="text-blue-500" />
-          <p class="tracking-wide">{{ backup.path }}</p>
+          <p>{{ backup.path }}</p>
         </div>
         <UilExclamationTriangle class="text-yellow-400" v-if="backup.id && findErrorForBackup(backup.id)" 
           v-tooltip="{

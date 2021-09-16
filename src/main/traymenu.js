@@ -1,11 +1,6 @@
 import path from 'path'
 import PackageJson from '../../package.json'
-import { Tray, Menu, app, shell, dialog } from 'electron'
-import ConfigStore from './config-store'
-import Logger from '../libs/logger'
-import fs from 'fs'
-import electronLog from 'electron-log'
-import pretty from 'prettysize'
+import { Tray, Menu, app } from 'electron'
 
 var email
 
@@ -21,8 +16,8 @@ class TrayMenu {
     this.tray = new Tray(trayIcon)
     this.tray.setToolTip('Internxt Drive ' + PackageJson.version)
     if (process.platform !== 'linux') {
-      this.tray.on('click', () => {
-        app.emit('show-main-windows')
+      this.tray.on('click', (_, bounds) => {
+        app.emit('show-main-windows', bounds)
         this.tray.setContextMenu(null)
       })
       this.tray.on('right-click', () => {

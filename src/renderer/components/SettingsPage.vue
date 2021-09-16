@@ -1,6 +1,7 @@
 <template>
-  <div class="h-full">
-    <div class="bg-white flex justify-center py-2 border-b-2 border-gray-100">
+  <div class="h-full flex flex-col">
+    <div class="bg-white flex justify-center items-center py-1" style="-webkit-app-region: drag"><p class="text-sm">Internxt Drive</p></div>
+    <div class="bg-white flex justify-center py-2 border-b-2 border-gray-100" >
       <settings-header-item
         title="General"
         :icon="UilSetting"
@@ -20,7 +21,7 @@
         @click="active = 'backups'"
       />
     </div>
-    <div class="p-10 bg-gray-50" style="height: calc(100% - 93px)">
+    <div class="p-8 bg-gray-50 flex-grow">
       <div v-if="active === 'general'">
         <DevicePanel />
         <div class="my-3">
@@ -41,17 +42,17 @@
             <Button @click="changeFolder">Change folder</Button>
           </div>
         </div>
-        <div class="border-t-2 border-gray-100 mt-4 pt-4">
-          <p class="text-sm font-semibold tracking-wide text-gray-600">
+        <div class="border-t-2 border-gray-100 mt-3 pt-3">
+          <p class="text-xs font-semibold tracking-wide text-gray-600">
             Internxt Drive v{{ appVersion }}
           </p>
           <p
-            class="text-blue-600 cursor-pointer text-lg mt-1"
+            class="text-blue-600 cursor-pointer text-sm mt-1"
             @click="openLogs"
           >
             Open logs
           </p>
-          <p class="text-blue-600 cursor-pointer text-lg mt-1">
+          <p class="text-blue-600 cursor-pointer text-sm mt-1">
             Learn more about Internxt Drive
           </p>
         </div>
@@ -59,32 +60,32 @@
       <div v-if="active === 'account'">
         <div v-if="user" class="flex items-center justify-between">
           <div class="flex items-center">
-            <Avatar :userFullname="userFullname" size="60"/>
+            <Avatar :userFullname="userFullname" size="56"/>
             <div class="ml-4">
-              <p class="font-semibold text-xl text-gray-700 tracking-wide">
+              <p class="font-semibold text-lg text-gray-700 tracking-wide">
                 {{ userFullname }}
               </p>
-              <p class="tracking-wide">{{ user.email }}</p>
+              <p class="tracking-wide text-sm">{{ user.email }}</p>
             </div>
           </div>
           <Button @click="logout">Log out</Button>
         </div>
         <div
-          class="p-4 mt-4 bg-gray-100 border border-gray-400 rounded-xl"
+          class="p-3 mt-4 bg-gray-100 border border-gray-400 rounded-xl"
           v-if="limit && usage"
         >
           <div class="flex justify-between items-center">
             <div>
               <div class="flex items-center">
-                <p class="text-lg font-semibold mr-2 tracking-wide">
+                <p class="font-semibold mr-2 tracking-wide">
                   Current Plan
                 </p>
-                <div class="px-2 rounded bg-gray-200 text-sm text-gray-500">
+                <div class="px-2 rounded bg-gray-200 text-gray-500" style="font-size:10px">
                   Individual
                 </div>
               </div>
               <div class="mt-1 flex items-center">
-                <div class="text-xl text-gray-600 font-semibold tracking-wide">
+                <div class="text-lg text-gray-600 font-semibold tracking-wide">
                   {{ limit }}
                 </div>
                 <!-- <div class="text-gray-400 text-lg tracking-wide ml-3">
@@ -101,7 +102,7 @@
               :style="`width: ${percentageUsed}%`"
             ></div>
           </div>
-          <div class="flex justify-between align-center mt-2 text-sm">
+          <div class="flex justify-between align-center mt-2 text-xs">
             <p class="font-semibold tracking-wide text-gray-600">
               Used {{ usage }} of {{ limit }}
             </p>

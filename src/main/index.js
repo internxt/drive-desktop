@@ -52,8 +52,7 @@ if (!app.requestSingleInstanceLock()) {
   app.quit()
 }
 
-function getWindowPos() {
-  const trayBounds = trayMenu.tray.getBounds()
+function getWindowPos(trayBounds = trayMenu.tray.getBounds()) {
   const display = electron.screen.getDisplayMatching(trayBounds)
   let x = Math.min(
     trayBounds.x - display.workArea.x - dimentions['/xcloud'].width / 2,
@@ -222,12 +221,12 @@ app.on('ready', () => {
 
 app.on('show-main-windows', showMainWindows)
 
-function showMainWindows() {
+function showMainWindows(trayBounds) {
   if (!isOnboarding && !isLogin) {
     if (mainWindow.isVisible()) {
       mainWindow.hide()
     } else {
-      mainWindow.setBounds(getDimentions('xcloud'))
+      mainWindow.setBounds(getWindowPos(trayBounds))
       mainWindow.show()
     }
   }
@@ -342,10 +341,10 @@ ipcMain.on('open-settings-window', (_, section) => {
         : `file://${__dirname}/index.html#settings?section=${section}`
 
     settingsWindow = new BrowserWindow({
-      width: 600,
-      height: 500,
-      visibleOnAllWorkspaces: true,
-      alwaysOnTop: true,
+      width: 500,
+      height: 428,
+      show: false,
+      titleBarStyle: 'hidden',
       webPreferences: {
         nodeIntegration: true,
         enableRemoteModule: true,
@@ -355,6 +354,9 @@ ipcMain.on('open-settings-window', (_, section) => {
     settingsWindow.loadURL(settingsPath)
     settingsWindow.once('closed', () => {
       settingsWindow = null
+    })
+    settingsWindow.once('ready-to-show', () => {
+      settingsWindow.show()
     })
   }
 })

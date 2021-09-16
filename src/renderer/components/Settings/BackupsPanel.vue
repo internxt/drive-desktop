@@ -14,9 +14,9 @@
       <Button v-if="!isCurrentlyBackingUp" state="accent" @click="startBackupProcess" :disabled="!backupsEnabled">Backup now</Button>
       <Button v-else state="danger" @click="stopBackupProcess">Stop backup</Button>
 
-      <p class="text-sm text-gray-500 ml-3">{{backupStatus }}</p>
+      <p class="text-xs text-gray-500 ml-3">{{backupStatus }}</p>
     </div>
-    <p class="mt-3 text-sm text-gray-500">Upload frequency</p>
+    <p class="mt-3 text-xs text-gray-500">Upload frequency</p>
     <div class="dropdown mt-2">
       <button
         class="bg-white border border-gray-400 rounded-md text-sm"
