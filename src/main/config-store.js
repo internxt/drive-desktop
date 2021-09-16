@@ -44,6 +44,14 @@ const schema = {
     type: 'object',
     default: {}
   },
+  userData: {
+    type: 'object',
+    default: {}
+  },
+  mnemonic: {
+    type: 'string',
+    default: ''
+  },
   backupsEnabled: {
     type: 'boolean',
     default: false

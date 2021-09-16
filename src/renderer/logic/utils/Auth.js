@@ -26,12 +26,14 @@ async function getAuthHeader(withMnemonic) {
   return header
 }
 
-async function saveHeadersInConfigStore() {
+async function denormalizeAuthInfoInConfigStore() {
   ConfigStore.set('authHeaders', await getAuthHeader())
+  ConfigStore.set('userData', await database.Get('xUser'))
+  ConfigStore.set('mnemonic', await database.Get('xMnemonic'))
 }
 
 export default {
   getAuthHeader,
   getUserEmail,
-  saveHeadersInConfigStore
+  denormalizeAuthInfoInConfigStore
 }

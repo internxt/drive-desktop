@@ -298,7 +298,7 @@ export default {
             )
             const savedCredentials = await database.logIn(res.data.user.email)
             await database.Set('xUser', res.data)
-            Auth.saveHeadersInConfigStore()
+            Auth.denormalizeAuthInfoInConfigStore()
             await database.compactAllDatabases()
             remote.app.emit('update-configStore', {stopSync: false})
             // ConfigStore.set('stopSync', false)

@@ -18,6 +18,7 @@ import Header from '../components/Header/Header'
 import FileStatus from '../components/FileStatus/FileStatus'
 import SyncButtonAction from '../components/SyncButtonAction/SyncButtonAction'
 import FileLogger from '../logic/FileLogger'
+import Auth from '../logic/utils/Auth'
 import Vue from 'vue'
 
 const remote = require('@electron/remote')
@@ -72,6 +73,7 @@ export default {
       })
   },
   mounted: function () {
+    Auth.denormalizeAuthInfoInConfigStore()
     FileLogger.loadLog()
   },
   beforeDestroy: function () {
