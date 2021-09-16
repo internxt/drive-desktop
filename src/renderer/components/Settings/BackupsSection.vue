@@ -28,6 +28,7 @@ import ConfigStore from '../../../main/config-store'
 
 export default {
   components: {Button, BackupsPanel},
+  name: 'BackupsSection',
   data() {
     return {
       status: 'LOADING',

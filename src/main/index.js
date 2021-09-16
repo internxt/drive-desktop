@@ -129,6 +129,7 @@ function createWindow() {
 
   app.on('user-logout', () => {
     FileLogger.eraseLog()
+    if (settingsWindow) settingsWindow.destroy()
   })
 
   app.on('update-configStore', item => {

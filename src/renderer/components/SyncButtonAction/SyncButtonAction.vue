@@ -85,6 +85,7 @@ export default {
         this.playButtonState = 'active'
         this.stopButtonState = 'inactive'
         this.message = getMessage('complete')
+        FileLogger.saveLog()
       }
       if (status === 'default') {
         this.playButtonState = 'active'
@@ -123,11 +124,6 @@ export default {
   },
   beforeDestroy: function() {
     remote.app.removeListener('ui-sync-status', this.changeSyncStatus)
-  },
-  updated: function() {
-    if (this.syncState === 'complete') {
-      FileLogger.saveLog()
-    }
   },
   computed: {},
   name: 'SyncButtonAction',

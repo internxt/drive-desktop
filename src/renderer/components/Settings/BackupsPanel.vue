@@ -1,7 +1,7 @@
 <template>
   <backups-list @close="showList = false" v-if="showList" :backupsBucket="backupsBucket" :errors="errors" />
   <div v-else>
-    <p class="p-3 rounded-xl bg-yellow-100 text-yellow-700 mb-3" v-if="errors.length"><UilExclamationTriangle class="mr-2 text-xs inline text-yellow-700" size="20px"/>{{errors.length}} folder(s) in your backup failed. <u class="font-semibold cursor-pointer" @click="startBackupProcess">Retry now</u> or <u class="font-semibold cursor-pointer" @click="showList = true">check what failed</u></p>
+    <p class="p-3 rounded-xl bg-yellow-100 text-yellow-700 mb-3 text-xs" v-if="errors.length"><UilExclamationTriangle class="mr-2 inline text-yellow-700" size="20px"/>{{errors.length}} folder(s) in your backup failed. <u class="font-semibold cursor-pointer" @click="startBackupProcess">Retry now</u> or <u class="font-semibold cursor-pointer" @click="showList = true">check what failed</u></p>
     <Checkbox
       :forceStatus="backupsEnabled ? 'checked' : 'unchecked'"
       @click.native="backupsEnabled = !backupsEnabled"
