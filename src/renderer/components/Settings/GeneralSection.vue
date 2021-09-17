@@ -14,9 +14,9 @@
         <div class="text-gray-500 text-sm">Internxt Drive Folder</div>
         <div class="flex flex-col mt-2">
           <div class="flex flex-row items-center justify-between flex-grow">
-            <div class="flex items-center" @dblclick="openFolder()">
+            <div class="flex items-center overflow-hidden" @dblclick="openFolder()">
               <FileIcon icon="folder" class="mr-2" width="20" height="20" />
-              <span>{{ this.path }}</span>
+              <span class="truncate">{{ this.path }}</span>
             </div>
             <Button @click="changeFolder">Change folder</Button>
           </div>

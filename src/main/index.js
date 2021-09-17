@@ -555,7 +555,13 @@ async function ManualCheckUpdate() {
 
 app.on('ready', () => {
   checkUpdates()
-  startBackupProcess()
+
+  /*
+    Don't start backup process right away
+    as the load is already high on ready
+  */
+  setTimeout(startBackupProcess, 8000)
+
   // Check updates every 6 hours
   setInterval(() => {
     checkUpdates()

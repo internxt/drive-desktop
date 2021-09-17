@@ -1,6 +1,6 @@
 <template>
   <button
-    class="border-gray-200 tracking-wide text-sm"
+    class="border-gray-200 tracking-wide text-sm whitespace-nowrap"
     :class="{
       'bg-white': isDefault,
       'bg-gray-200': isActive,
