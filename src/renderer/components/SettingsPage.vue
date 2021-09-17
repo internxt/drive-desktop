@@ -1,7 +1,11 @@
 <template>
-  <div class="h-full flex flex-col relative">
-    <UilMultiply v-if="!isMacOS" class="absolute top-1 left-1 hover:text-gray-500 block" style="-webkit-app-region: no-drag" @click.native="closeWindow"/>
-    <div class="bg-white flex justify-center items-center py-1" style="-webkit-app-region: drag"><p class="text-sm">Internxt Drive</p></div>
+  <div class="h-full flex flex-col">
+    <div class="relative bg-white p-1 h-6" style="-webkit-app-region: drag">
+      <div v-if="!isMacOS" class="w-min" @click="closeWindow" style="-webkit-app-region: no-drag">
+        <UilMultiply class="hover:text-gray-500 block"/>
+      </div>
+      <p class="text-sm" style="position:absolute;top:4px;left:50%; transform: translateX(-50%);">Internxt Drive</p>
+    </div>
     <div class="bg-white flex justify-center py-2 border-b-2 border-gray-100" style="-webkit-app-region: drag">
       <settings-header-item
         title="General"
