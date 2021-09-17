@@ -43,7 +43,7 @@
             <p>Add folder</p>
           </div>
         </Button>
-        <Button :disabled="!backupSelected" @click="removeBackup">
+        <Button :state="backupSelected ? 'red' : 'red-disabled'" @click="removeBackup">
           <div class="flex items-center">
             <UilTrashAlt class="inline mr-1" size="18px" />
             <p>Remove folder</p>
@@ -52,7 +52,7 @@
       </div>
       <div class="flex items-center space-x-1">
         <Button @click="$emit('close')">Cancel</Button>
-        <Button state="accent" :disabled="!thereIsSomethingToSave" @click="save">Save</Button>
+        <Button :state="thereIsSomethingToSave ? 'accent' : 'accent-disabled'" @click="save">Save</Button>
       </div>
     </div>
   </div>

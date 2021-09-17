@@ -11,8 +11,8 @@
       >Select folders to backup</Button
     >
     <div class="flex items-center mt-3">
-      <Button v-if="!isCurrentlyBackingUp" state="accent" @click="startBackupProcess" :disabled="!backupsEnabled">Backup now</Button>
-      <Button v-else state="danger" @click="stopBackupProcess">Stop backup</Button>
+      <Button v-if="!isCurrentlyBackingUp" :state="backupsEnabled ? 'accent' : 'accent-disabled'" @click="startBackupProcess">Backup now</Button>
+      <Button v-else state="red" @click="stopBackupProcess">Stop backup</Button>
 
       <p class="text-xs text-gray-500 ml-3">{{backupStatus }}</p>
     </div>
