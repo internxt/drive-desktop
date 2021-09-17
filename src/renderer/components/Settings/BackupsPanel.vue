@@ -61,7 +61,8 @@ import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import BackupsDB from '../../../backup-process/backups-db'
 
-const app = require('@electron/remote').app
+const remote = require('@electron/remote')
+const {app} = remote
 
 export default {
   components: {
@@ -113,8 +114,11 @@ export default {
     startBackupProcess() {
       ipcRenderer.send('start-backup-process')
     },
-    stopBackupProcess() {
-      ipcRenderer.send('stop-backup-process')
+    async stopBackupProcess() {
+      const {response} = await remote.dialog.showMessageBox(remote.getCurrentWindow(),
+        { type: 'question', buttons: ['Confirm', 'Cancel'], defaultId: 1, cancelId: 1, title: 'Confirm backup stop', message: 'Are you sure that you want to stop the ongoing backup process?' })
+
+      if (response === 0) { ipcRenderer.send('stop-backup-process') }
     },
     setCurrentlyBackingUp(value) {
       this.isCurrentlyBackingUp = value
