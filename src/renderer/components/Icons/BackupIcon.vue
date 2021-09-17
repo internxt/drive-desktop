@@ -5,7 +5,7 @@
     v-tooltip="{
       content: 'Backups',
       placement: 'bottom',
-      delay: { show: 1500, hide: 50 },
+      delay: { show: 750, hide: 50 },
     }"
   >
     <UilHistory class="text-gray-500 relative" size="22px" />

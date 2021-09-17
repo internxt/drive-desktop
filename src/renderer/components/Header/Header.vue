@@ -34,7 +34,7 @@
           v-tooltip="{
             content: 'Open sync folder',
             placement: 'bottom',
-            delay: { show: 1500, hide: 50 },
+            delay: { show: 750, hide: 50 },
           }"
         >
           <UilFolderOpen class="text-gray-500" size="22px" />
@@ -46,20 +46,20 @@
             items-center
             justify-center
             cursor-pointer
-            dropdown
-          "
-          v-tooltip="{
-            content: 'Settings',
-            placement: 'bottom',
-            delay: { show: 1500, hide: 50 },
-          }"
+            dropdown"
         >
           <UilSetting
             class="text-gray-500 dropdown-toggle"
+            style="outline: none"
             data-toggle="dropdown"
             aria-haspopup="true"
             aria-expanded="false"
             size="22px"
+          v-tooltip="{
+            content: 'Settings',
+            placement: 'bottom',
+            delay: { show: 750, hide: 50 },
+          }"
           />
 
           <div class="dropdown-menu">
