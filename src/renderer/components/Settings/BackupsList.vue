@@ -18,13 +18,15 @@
           'bg-gray-50': i % 2 != 0 && backupSelected != backup,
           'bg-blue-50': backupSelected === backup,
         }"
-        class="flex items-center justify-between px-2 py-1"
+        class="flex items-center justify-between px-2 py-1 group max-w-full"
         @click.stop="backupSelected = backup"
+        @dblclick="() => openFolder(backup.path)"
       >
-        <div class="flex items-center">
+        <div class="flex items-center overflow-hidden">
           <input v-model="backup.enabled" type="checkbox" style="margin-right: 6px" @change="() => onBackupCheckboxChanged(backup)"/>
-          <UilFolder style="margin-right: 6px" class="text-blue-500" />
-          <p>{{ backup.path }}</p>
+          <UilFolder style="margin-right: 6px" class="text-blue-500 flex-shrink-0" />
+          <p class="truncate">{{ basename(backup.path) }}</p>
+          <p v-if="!backup.id || !(backup.id && findErrorForBackup(backup.id))" class="ml-2 text-xs text-gray-400 opacity-0 group-hover:opacity-100 truncate">{{backup.path}}</p>
         </div>
         <UilExclamationTriangle class="text-yellow-400" v-if="backup.id && findErrorForBackup(backup.id)" 
           v-tooltip="{
@@ -69,6 +71,8 @@ import {getAllBackups, createBackup, deleteBackup, updateBackup} from '../../../
 import Button from '../Button/Button.vue'
 import ErrorCodes from '../../../backup-process/error-codes'
 import fs from 'fs'
+import path from 'path'
+import electron from 'electron'
 const remote = require('@electron/remote')
 
 export default {
@@ -179,7 +183,14 @@ export default {
         default:
           return 'An unknown error has ocurred'
       }
+    },
+    basename(completePath) {
+      return path.basename(completePath)
+    },
+    openFolder(path) {
+      electron.shell.openPath(path)
     }
+
   },
   computed: {
     thereIsSomethingToSave() {

@@ -1,41 +1,39 @@
 <template>
-	
-
-      <div>
-        <DevicePanel />
-        <div class="my-3">
-          <div @click="launchAtLogin()" class="mt-4">
-            <Checkbox
-              :forceStatus="LaunchCheck ? 'checked' : 'unchecked'"
-              label="Start Internxt Drive on system startup"
-            />
-          </div>
-        </div>
-        <div class="text-gray-500 text-sm">Internxt Drive Folder</div>
-        <div class="flex flex-col mt-2">
-          <div class="flex flex-row items-center justify-between flex-grow">
-            <div class="flex items-center overflow-hidden" @dblclick="openFolder()">
-              <FileIcon icon="folder" class="mr-2" width="20" height="20" />
-              <span class="truncate">{{ this.path }}</span>
-            </div>
-            <Button @click="changeFolder">Change folder</Button>
-          </div>
-        </div>
-        <div class="border-t-2 border-gray-100 mt-3 pt-3">
-          <p class="text-xs font-semibold tracking-wide text-gray-600">
-            Internxt Drive v{{ appVersion }}
-          </p>
-          <p
-            class="text-blue-600 cursor-pointer text-sm mt-1"
-            @click="openLogs"
-          >
-            Open logs
-          </p>
-          <p class="text-blue-600 cursor-pointer text-sm mt-1">
-            Learn more about Internxt Drive
-          </p>
-        </div>
+  <div>
+    <DevicePanel />
+    <div class="my-3">
+      <div @click="launchAtLogin()" class="mt-4">
+        <Checkbox
+          :forceStatus="LaunchCheck ? 'checked' : 'unchecked'"
+          label="Start Internxt Drive on system startup"
+        />
       </div>
+    </div>
+    <div class="text-gray-500 text-sm">Internxt Drive Folder</div>
+    <div class="flex flex-col mt-2">
+      <div class="flex flex-row items-center justify-between flex-grow">
+        <div class="flex items-center overflow-hidden" @dblclick="openFolder()">
+          <FileIcon icon="folder" class="mr-2" width="20" height="20" />
+          <span class="truncate">{{ this.path }}</span>
+        </div>
+        <Button @click="changeFolder">Change folder</Button>
+      </div>
+    </div>
+    <div class="border-t-2 border-gray-100 mt-3 pt-3">
+      <p class="text-xs font-semibold tracking-wide text-gray-600">
+        Internxt Drive v{{ appVersion }}
+      </p>
+      <p
+        class="text-blue-600 cursor-pointer text-sm mt-1"
+        @click="openLogs"
+      >
+        Open logs
+      </p>
+      <p class="text-blue-600 cursor-pointer text-sm mt-1">
+        Learn more about Internxt Drive
+      </p>
+    </div>
+  </div>
 
 </template>
 

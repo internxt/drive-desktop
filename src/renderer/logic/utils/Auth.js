@@ -28,7 +28,7 @@ async function getAuthHeader(withMnemonic) {
 
 async function denormalizeAuthInfoInConfigStore() {
   ConfigStore.set('authHeaders', await getAuthHeader())
-  ConfigStore.set('userData', await database.Get('xUser'))
+  ConfigStore.set('userData', (await database.Get('xUser')).user)
   ConfigStore.set('mnemonic', await database.Get('xMnemonic'))
 }
 

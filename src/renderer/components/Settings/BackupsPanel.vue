@@ -60,6 +60,7 @@ import { ipcRenderer } from 'electron'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import BackupsDB from '../../../backup-process/backups-db'
+import path from 'path'
 
 const remote = require('@electron/remote')
 const {app} = remote
@@ -84,16 +85,19 @@ export default {
       backupsEnabled: ConfigStore.get('backupsEnabled'),
       showList: false,
       isCurrentlyBackingUp: false,
-      errors: []
+      errors: [],
+      backupProgress: null
     }
   },
   mounted() {
     ipcRenderer.invoke('is-backup-running')
       .then(this.setCurrentlyBackingUp)
     app.on('backup-running-update', this.setCurrentlyBackingUp)
+    app.on('backup-progress', this.setBackupProgress)
   },
   beforeDestroy() {
     app.removeListener('backup-running-update', this.setCurrentlyBackingUp)
+    app.removeListener('backup-progress', this.setBackupProgress)
   },
   methods: {
     humanifyInterval(interval) {
@@ -123,6 +127,9 @@ export default {
     setCurrentlyBackingUp(value) {
       this.isCurrentlyBackingUp = value
       this.getAllErrors()
+    },
+    setBackupProgress(value) {
+      this.backupProgress = value
     }
   },
   watch: {
@@ -134,11 +141,20 @@ export default {
 
       const device = await getDeviceByMac()
       updateBackupsOfDevice(device.id, {interval: val})
+    },
+    isCurrentlyBackingUp(value) {
+      if (!value) { this.backupProgress = null }
     }
   },
   computed: {
     backupStatus() {
-      if (this.isCurrentlyBackingUp) { return 'Backup in progress...' }
+      if (this.isCurrentlyBackingUp) {
+        if (!this.backupProgress) { return 'Backup in progress...' } else {
+          const {currentBackup, currentBackupProgress, currentBackupIndex, totalBackupsCount} = this.backupProgress
+          const currentBackupName = path.basename(currentBackup.path)
+          return `${currentBackupIndex + 1} of ${totalBackupsCount} folders - Backing up ${currentBackupName} (${currentBackupProgress}%)`
+        }
+      }
 
       const lastBackupTimestamp = ConfigStore.get('lastBackup')
       if (lastBackupTimestamp !== -1) {
