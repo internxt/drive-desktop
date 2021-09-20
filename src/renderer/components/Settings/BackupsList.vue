@@ -18,7 +18,7 @@
           'bg-gray-50': i % 2 != 0 && backupSelected != backup,
           'bg-blue-50': backupSelected === backup,
         }"
-        class="flex items-center justify-between px-2 py-1 group max-w-full"
+        class="flex items-center justify-between px-2 py-1 max-w-full"
         @click.stop="backupSelected = backup"
         @dblclick="() => openFolder(backup.path)"
       >
@@ -26,15 +26,13 @@
           <input v-model="backup.enabled" type="checkbox" style="margin-right: 6px" @change="() => onBackupCheckboxChanged(backup)"/>
           <UilFolder style="margin-right: 6px" class="text-blue-500 flex-shrink-0" />
           <p class="truncate">{{ basename(backup.path) }}</p>
-          <p v-if="!backup.id || !(backup.id && findErrorForBackup(backup.id))" class="ml-2 text-xs text-gray-400 opacity-0 group-hover:opacity-100 truncate">{{backup.path}}</p>
         </div>
-        <UilExclamationTriangle class="text-yellow-400" v-if="backup.id && findErrorForBackup(backup.id)" 
-          v-tooltip="{
-            content: errorMessage(findErrorForBackup(backup.id).error_code),
-            placement: 'bottom',
-            delay: { show: 500, hide: 50 },
-          }"
-        />
+        <div class="flex items-center space-x-2 ml-2" v-if="backup.id && findErrorForBackup(backup.id)">
+          <p class="text-xs text-yellow-400 whitespace-nowrap">{{errorMessage(findErrorForBackup(backup.id).error_code)}}</p>
+          <p @click="() => findFolder(backup)" v-if="findErrorForBackup(backup.id).error_code !== 'UNKNOWN'" class="text-xs text-yellow-500 underline whitespace-nowrap cursor-pointer">Find folder</p>
+          <p v-else @click="startBackupProcess" class="text-xs text-yellow-500 underline whitespace-nowrap cursor-pointer">Try again</p>
+          <UilExclamationTriangle class="text-yellow-400 flex-shrink-0" />
+        </div>
       </div>
     </div>
     <div class="flex items-center justify-between mt-3">
@@ -67,12 +65,12 @@ import {
   UilTrashAlt,
   UilExclamationTriangle
 } from '@iconscout/vue-unicons'
-import {getAllBackups, createBackup, deleteBackup, updateBackup} from '../../../backup-process/service'
+import {getAllBackups, createBackup, deleteBackup, updateBackup, updateBackupPath} from '../../../backup-process/service'
 import Button from '../Button/Button.vue'
 import ErrorCodes from '../../../backup-process/error-codes'
 import fs from 'fs'
 import path from 'path'
-import electron from 'electron'
+import electron, {ipcRenderer} from 'electron'
 const remote = require('@electron/remote')
 
 export default {
@@ -177,9 +175,9 @@ export default {
     errorMessage(errorCode) {
       switch (errorCode) {
         case ErrorCodes.NOT_FOUND:
-          return 'This folder could not be found in your file system'
+          return 'Folder missing'
         case ErrorCodes.PATH_IS_NOT_DIRECTORY:
-          return 'The path of this backup is not a folder'
+          return 'Path is not a folder'
         default:
           return 'An unknown error has ocurred'
       }
@@ -189,8 +187,28 @@ export default {
     },
     openFolder(path) {
       electron.shell.openPath(path)
-    }
+    },
+    async findFolder(backup) {
+      let familiarPath = path.dirname(backup.path)
 
+      while (!fs.existsSync(path.join(familiarPath))) {
+        familiarPath = path.dirname(familiarPath)
+      }
+
+      const newDir = remote.dialog.showOpenDialogSync({
+        properties: ['openDirectory'],
+        defaultPath: path.join(familiarPath)
+      })
+
+      if (newDir) {
+        await updateBackupPath({ id: backup.id, backupsBucketId: this.backupsBucket, plainPath: newDir[0] })
+        this.getAllBackups()
+        this.startBackupProcess()
+      }
+    },
+    startBackupProcess() {
+      ipcRenderer.send('start-backup-process')
+    }
   },
   computed: {
     thereIsSomethingToSave() {

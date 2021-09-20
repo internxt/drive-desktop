@@ -87,6 +87,22 @@ export function updateBackup({ id, enabled, fileId, hash, lastBackupAt }) {
   })
 }
 
+export function updateBackupPath({ id, backupsBucketId, plainPath }) {
+  const headers = getHeaders()
+  const encryptedPath = crypt.encryptName(plainPath, backupsBucketId)
+
+  return fetch(`${process.env.API_URL}/api/backup/${id}`, {
+    method: 'PATCH',
+    headers,
+    body: JSON.stringify({
+      path: encryptedPath
+    })
+  }).then(res => {
+    if (res.status !== 200) throw new Error()
+    else return res.json()
+  })
+}
+
 export function deleteBackup(id) {
   const headers = getHeaders()
   return fetch(`${process.env.API_URL}/api/backup/${id}`, {

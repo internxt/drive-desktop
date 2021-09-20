@@ -597,7 +597,14 @@ async function startBackupProcess() {
       },
       show: false
     })
-    worker.loadFile('../../dist/backup-process/index.html')
+
+    worker
+      .loadFile(
+        process.env.NODE_ENV === 'development'
+          ? '../backup-process/index.html'
+          : `${path.join(__dirname, '..', 'backup-process')}/index.html`
+      )
+      .catch(Logger.error)
 
     const cleanUp = () => {
       worker.destroy()

@@ -31,7 +31,7 @@ const { Environment } = require('@internxt/inxt-js')
         fileEncryptionKey,
         index
       )
-      if (plainHash || plainHash !== backup.hash) {
+      if (plainHash !== backup.hash) {
         const fileId = await upload({
           backup,
           userInfo,
