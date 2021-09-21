@@ -5,6 +5,7 @@ import ErrorCodes from './error-codes'
 import ConfigStore from '../main/config-store'
 import { createCipheriv, randomBytes } from 'crypto'
 import { pipeline } from 'stream'
+import Logger from '../libs/logger'
 const archiver = require('archiver')
 const app = require('@electron/remote').app
 const { Environment } = require('@internxt/inxt-js')
@@ -60,9 +61,11 @@ const { Environment } = require('@internxt/inxt-js')
         }
       }
     } catch (error) {
-      console.error(error)
       if (error.name in ErrorCodes) notifyError(backup, error.name)
-      else notifyError(backup, ErrorCodes.UNKNOWN)
+      else {
+        notifyError(backup, ErrorCodes.UNKNOWN)
+        Logger.log(error)
+      }
     }
   }
 
