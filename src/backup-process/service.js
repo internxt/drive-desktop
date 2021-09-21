@@ -70,17 +70,12 @@ export async function createBackup({ path, enabled }, backupsBucketId) {
   })
 }
 
-export function updateBackup({ id, enabled, fileId, hash, lastBackupAt }) {
+export function updateBackup({ id, ...body }) {
   const headers = getHeaders()
   return fetch(`${process.env.API_URL}/api/backup/${id}`, {
     method: 'PATCH',
     headers,
-    body: JSON.stringify({
-      enabled,
-      fileId,
-      hash,
-      lastBackupAt
-    })
+    body: JSON.stringify(body)
   }).then(res => {
     if (res.status !== 200) throw new Error()
     else return res.json()

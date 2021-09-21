@@ -5,7 +5,6 @@ import ErrorCodes from './error-codes'
 import ConfigStore from '../main/config-store'
 import { createCipheriv, randomBytes } from 'crypto'
 import { pipeline } from 'stream'
-import reject from 'lodash.reject'
 const archiver = require('archiver')
 const app = require('@electron/remote').app
 const { Environment } = require('@internxt/inxt-js')
@@ -53,7 +52,8 @@ const { Environment } = require('@internxt/inxt-js')
           id: backup.id,
           hash: plainHash,
           lastBackupAt: new Date(),
-          fileId
+          fileId,
+          size
         })
         if (backup.fileId) {
           deleteOldBackup({ bucketId: backup.bucket, fileId: backup.fileId })
@@ -96,7 +96,7 @@ function getZipStream(backupPath) {
 }
 
 function zipAndHash(backupPath, fileEncryptionKey, index) {
-  return new Promise(resolve => {
+  return new Promise((resolve, reject) => {
     const archive = archiver('zip', { zlib: { level: 9 } })
 
     archive.directory(backupPath, false)
@@ -119,7 +119,7 @@ function zipAndHash(backupPath, fileEncryptionKey, index) {
 
         resolve({ plainHash, encryptedHash, size: archive.pointer() })
       })
-      .on('error', console.error)
+      .on('error', reject)
 
     archive.finalize()
   })
@@ -150,7 +150,7 @@ async function upload({
 
   const environment = new Environment(options)
 
-  return new Promise(resolve => {
+  return new Promise((resolve, reject) => {
     environment.upload(
       backup.bucket,
       {
