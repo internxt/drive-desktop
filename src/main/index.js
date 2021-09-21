@@ -364,9 +364,9 @@ ipcMain.on('open-settings-window', (_, section) => {
   }
 })
 
-ipcMain.on('settings-window-resize', (_, { height }) =>
+ipcMain.on('settings-window-resize', (_, { height }) => {
   if (settingsWindow) settingsWindow.setBounds({ height: Math.trunc(height) })
-)
+})
 
 app.on('close-settings-window', () => {
   if (settingsWindow) settingsWindow.close()
