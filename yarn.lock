@@ -238,12 +238,14 @@
   resolved "https://registry.yarnpkg.com/@iconscout/vue-unicons/-/vue-unicons-0.0.3.tgz#3569422a46c2b242a39a5654b3f4dbe13a19e706"
   integrity sha512-wVYaEPNXNCqYoyrhEMoYAm8rxFnPmXLduzH3WmROTdU0D1qcuHj5AjxSCJ+OOs9+Tz3woUjDRjINlZHQmdiPBw==
 
-"@internxt/inxt-js@^1.2.1":
-  version "1.2.1"
-  resolved "https://npm.pkg.github.com/download/@internxt/inxt-js/1.2.1/a962263fd545c8f3cd3515b88c81b5f7e27c847c5f3e9ce6c118cf4b0849bd8b#a4e8e83920ddc6fda7a73a32852d9b4e6334d95a"
-  integrity sha512-hxc65rGf4SSo9owyKsKSjDAYI4RzqQYunhyO9Hgfu92ZY/IOzN3FmJFRk6fattRib8LelUvD5SkXH1hKn/8Qng==
+"@internxt/inxt-js@^1.2.2":
+  version "1.2.2"
+  resolved "https://npm.pkg.github.com/download/@internxt/inxt-js/1.2.2/bf98b001984f69db087699bde2a73d1024bd446484b39b683f7080d8b9c021aa#a51fe456e7b691dbbadaf616cd0866442d17aaa6"
+  integrity sha512-V2Ij+ZnKWa32eFsihChACqH42nqMjBJV6aof9WQmEKmgUoIEPpidlUyCuYUiyRVQvUhHR0Bj33pMnR+3MkLL7Q==
   dependencies:
     "@types/progress-stream" "^2.0.2"
+    abort-controller "^3.0.0"
+    archiver "^5.3.0"
     async "^3.2.0"
     axios "^0.19.2"
     bip39 "^3.0.2"
@@ -253,6 +255,8 @@
     memory-blob-store "^5.0.1"
     multistream "^4.1.0"
     mux-demux "^3.7.9"
+    needle "^3.0.0"
+    node-fetch "=2.6.2"
     progress-stream "^2.0.0"
     stream-to-blob "^2.0.1"
     streamsaver "^2.0.4"
@@ -581,6 +585,13 @@ abbrev@1.0.x:
   version "1.0.9"
   resolved "https://registry.yarnpkg.com/abbrev/-/abbrev-1.0.9.tgz#91b4792588a7738c25f35dd6f63752a2f8776135"
   integrity sha1-kbR5JYinc4wl813W9jdSovh3YTU=
+
+abort-controller@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/abort-controller/-/abort-controller-3.0.0.tgz#eaf54d53b62bae4138e809ca225c8439a6efb392"
+  integrity sha512-h8lQ8tacZYnR3vNQTgibj+tODHI5/+l06Au2Pcriv/Gmet0eaj4TwWH41sO9wnHDiQsEj19q0drzdWdeAHtweg==
+  dependencies:
+    event-target-shim "^5.0.0"
 
 accepts@~1.3.4, accepts@~1.3.5, accepts@~1.3.7:
   version "1.3.7"
@@ -5573,6 +5584,11 @@ etag@~1.8.1:
   resolved "https://registry.yarnpkg.com/etag/-/etag-1.8.1.tgz#41ae2eeb65efa62268aebfea83ac7d79299b0887"
   integrity sha1-Qa4u62XvpiJorr/qg6x9eSmbCIc=
 
+event-target-shim@^5.0.0:
+  version "5.0.1"
+  resolved "https://registry.yarnpkg.com/event-target-shim/-/event-target-shim-5.0.1.tgz#5d4d3ebdf9583d63a5333ce2deb7480ab2b05789"
+  integrity sha512-i/2XbnSz/uxRCU6+NdVJgKWDTM427+MqYbkQzD321DuCQJUqOuJKIA0IM2+W2xtYHdKOmZ4dR6fExsd4SXL+WQ==
+
 eventemitter3@^4.0.0:
   version "4.0.7"
   resolved "https://registry.yarnpkg.com/eventemitter3/-/eventemitter3-4.0.7.tgz#2de9b68f6528d5644ef5c59526a1b4a07306169f"
@@ -9394,6 +9410,15 @@ needle@^2.4.0:
     iconv-lite "^0.4.4"
     sax "^1.2.4"
 
+needle@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/needle/-/needle-3.0.0.tgz#5808f20246d69ffd7ebd42109eb58d1442b98e6e"
+  integrity sha512-eGr0qnfHxAjr+Eptl1zr2lgUQUPC1SZfTkg2kFi0kxr1ChJonHUVYobkug8siBKMlyUVVp56MSkp6CSeXH/jgw==
+  dependencies:
+    debug "^3.2.6"
+    iconv-lite "^0.4.4"
+    sax "^1.2.4"
+
 negotiator@0.6.2:
   version "0.6.2"
   resolved "https://registry.yarnpkg.com/negotiator/-/negotiator-0.6.2.tgz#feacf7ccf525a77ae9634436a64883ffeca346fb"
@@ -9449,6 +9474,11 @@ node-emoji@^1.10.0, node-emoji@^1.8.1:
   integrity sha512-Yt3384If5H6BYGVHiHwTL+99OzJKHhgp82S8/dktEK73T26BazdgZ4JZh92xSVtGNJvz9UbXdNAc5hcrXV42vw==
   dependencies:
     lodash.toarray "^4.4.0"
+
+node-fetch@=2.6.2:
+  version "2.6.2"
+  resolved "https://registry.yarnpkg.com/node-fetch/-/node-fetch-2.6.2.tgz#986996818b73785e47b1965cc34eb093a1d464d0"
+  integrity sha512-aLoxToI6RfZ+0NOjmWAgn9+LEd30YCkJKFSyWacNZdEKTit/ZMcKjGkTRo8uWEsnIb/hfKecNPEbln02PdWbcA==
 
 node-forge@^0.10.0:
   version "0.10.0"
