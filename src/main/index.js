@@ -21,6 +21,7 @@ import TrayMenu from './traymenu'
 import FileLogger from '../renderer/logic/FileLogger'
 import dimentions from './window-dimentions/dimentions'
 import BackupsDB from '../backup-process/backups-db'
+import { debounce } from 'lodash'
 
 require('@electron/remote/main').initialize()
 AutoLaunch.configureAutostart()
@@ -362,6 +363,15 @@ ipcMain.on('open-settings-window', (_, section) => {
     })
   }
 })
+
+ipcMain.on(
+  'settings-window-resize',
+  debounce((_, { height }) => resizeSettingsWindow(height), 300)
+)
+
+function resizeSettingsWindow(height) {
+  if (settingsWindow) settingsWindow.setSize(500, Math.trunc(height), true)
+}
 
 app.on('close-settings-window', () => {
   if (settingsWindow) settingsWindow.close()

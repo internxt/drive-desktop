@@ -66,6 +66,6 @@ const schema = {
   }
 }
 
-const ConfigStore = new Store({ schema: schema })
+const ConfigStore = new Store({ schema })
 
 export default ConfigStore

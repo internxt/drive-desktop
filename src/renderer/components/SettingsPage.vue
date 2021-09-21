@@ -1,5 +1,5 @@
 <template>
-  <div class="h-full flex flex-col">
+  <div ref="rootElement">
     <div class="relative bg-white p-1 h-6" style="-webkit-app-region: drag">
       <div v-if="!isMacOS" class="w-min" @click="closeWindow" style="-webkit-app-region: no-drag">
         <UilMultiply class="hover:text-gray-500 block"/>
@@ -26,7 +26,7 @@
         @click="active = 'backups'"
       />
     </div>
-    <div class="p-8 bg-gray-50 flex-grow">
+    <div class="p-8 ">
       <keep-alive>
         <component :is="currentSection"/>
       </keep-alive>
@@ -49,6 +49,7 @@ import BackupsSection from './Settings/BackupsSection.vue'
 import AccountSection from './Settings/AccountSection.vue'
 import GeneralSection from './Settings/GeneralSection.vue'
 import Avatar from './Avatar/Avatar.vue'
+import { ipcRenderer } from 'electron'
 const remote = require('@electron/remote')
 
 export default {
@@ -73,6 +74,10 @@ export default {
     const section = document.location.href.match(/section=(.+)/)[1]
     this.setActive(section)
     remote.app.on('settings-change-section', this.setActive)
+
+    const resizeObserver = new ResizeObserver(([rootElement]) => this.emitResize({width: rootElement.borderBoxSize[0].inlineSize, height: rootElement.borderBoxSize[0].blockSize}))
+
+    resizeObserver.observe(this.$refs.rootElement)
   },
   beforeDestroy () {
     remote.app.removeAllListeners('new-folder-path')
@@ -96,6 +101,9 @@ export default {
     },
     closeWindow() {
       remote.app.emit('close-settings-window')
+    },
+    emitResize(dimensions) {
+      ipcRenderer.send('settings-window-resize', dimensions)
     }
   },
   computed: {
