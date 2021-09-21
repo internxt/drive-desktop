@@ -365,12 +365,8 @@ ipcMain.on('open-settings-window', (_, section) => {
 })
 
 ipcMain.on('settings-window-resize', (_, { height }) =>
-  resizeSettingsWindow(height)
+  if (settingsWindow) settingsWindow.setBounds({ height: Math.trunc(height) })
 )
-
-function resizeSettingsWindow(height) {
-  if (settingsWindow) settingsWindow.setSize(500, Math.trunc(height), false)
-}
 
 app.on('close-settings-window', () => {
   if (settingsWindow) settingsWindow.close()
