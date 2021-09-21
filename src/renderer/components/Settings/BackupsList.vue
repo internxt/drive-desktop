@@ -43,7 +43,7 @@
             <p>Add folder</p>
           </div>
         </Button>
-        <Button :state="backupSelected ? 'red' : 'red-disabled'" @click="removeBackup">
+        <Button v-if="false" :state="backupSelected ? 'red' : 'red-disabled'" @click="removeBackup">
           <div class="flex items-center">
             <UilTrashAlt class="inline mr-1" size="18px" />
             <p>Remove folder</p>
@@ -202,6 +202,7 @@ export default {
 
       if (newDir) {
         await updateBackupPath({ id: backup.id, backupsBucketId: this.backupsBucket, plainPath: newDir[0] })
+        this.resetChanges()
         this.getAllBackups()
         this.startBackupProcess()
       }

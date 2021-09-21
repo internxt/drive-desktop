@@ -26,7 +26,7 @@
         @click="active = 'backups'"
       />
     </div>
-    <div class="p-8 ">
+    <div class="p-8">
       <keep-alive>
         <component :is="currentSection"/>
       </keep-alive>
