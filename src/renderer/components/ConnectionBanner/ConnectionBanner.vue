@@ -1,7 +1,7 @@
 <template>
   <div class="px-4 py-3 bg-white" :class="{'hidden': online}">
     <div class="rounded-lg border bg-gray-100 text-gray-500 py-3 px-4 flex items-stretch justify-between">
-      <img class="mr-3 flex-shrink-0" src="../../assets/icons/apple/no-signal.svg" width="35px" height="35px"/>
+      <img class="mr-3 flex-shrink-0 filter grayscale opacity-70" src="../../assets/icons/apple/no-signal.svg" width="35px" height="35px"/>
       <p class="text-sm" >You are offline, changes will be synced when you go back online</p>
     </div>
   </div>	
