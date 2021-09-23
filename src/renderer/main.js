@@ -4,6 +4,8 @@ import App from './App'
 import router from './router'
 import store from './store'
 import dotenv from 'dotenv'
+import VueContentPlaceholders from 'vue-content-placeholders'
+
 // import '../index.css'
 import 'bootstrap/dist/css/bootstrap-grid.css'
 import 'bootstrap/dist/css/bootstrap.min.css'
@@ -19,6 +21,8 @@ dotenv.config()
 if (!process.env.IS_WEB) Vue.use(require('vue-electron'))
 Vue.http = Vue.prototype.$http = axios
 Vue.config.productionTip = false
+
+Vue.use(VueContentPlaceholders)
 
 /* eslint-disable no-new */
 new Vue({

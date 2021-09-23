@@ -29,6 +29,9 @@
         </div>
         <BackupsError :error="findErrorForBackup(backup.id)" @actionClick="(action) => action === 'FIND_FOLDER' ? findFolder(backup) : startBackupProcess()"/>
       </div>
+      <content-placeholders v-if="loading" :rounded="true" class="mt-2 ml-2">
+        <content-placeholders-text v-for="i in 4" :lines="1" :key="i" />
+      </content-placeholders>
     </div>
     <div class="flex items-center justify-between mt-3">
       <div class="flex items-center space-x-1">
@@ -77,7 +80,8 @@ export default {
       backupsToAdd: [],
       backupsToDelete: [],
       backupsToUpdate: [],
-      backupSelected: null
+      backupSelected: null,
+      loading: false
     }
   },
   mounted() {
@@ -85,7 +89,9 @@ export default {
   },
   methods: {
     async getAllBackups() {
+      this.loading = true
       this.backups = await getAllBackups()
+      this.loading = false
     },
     selectFolder() {
       const newDir = remote.dialog.showOpenDialogSync({

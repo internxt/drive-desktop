@@ -15,6 +15,9 @@
                 Upgrade
               </div>
             </div>
+            <content-placeholders v-else class="h-5 pt-1" :rounded="true" style="margin-bottom: -4px;" >
+              <content-placeholders-text :lines="1" />
+            </content-placeholders>
           </div>
         </div>
       </div>

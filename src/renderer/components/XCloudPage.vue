@@ -2,6 +2,7 @@
   <div class="flex flex-none flex-col h-full w-full overflow-x-hidden relative">
     <Header class="header z-20 bg-white" :appName="appName" :emailAccount="emailAccount" :userFullname="userFullname" :backupStatus="backupStatus"/>
     <BackupErrorBanner :backupStatus="backupStatus" @actionClick="openBackupsWindow"/>
+    <ConnectionBanner/>
     <FileStatus :backupProgress="backupProgress" class="fileStatus bg-white fileLogger overflow-y-auto overflow-x-hidden flex flex-col flex-grow flex-shrink" :FileStatusSync="FileStatusSync" />
     <SyncButtonAction class="statusBar overflow-hidden flex flex-none justify-between py-2 px-3" :FileStatusSync="FileStatusSync"/>
     <BackupProgress v-if="backupProgress" style="transform: translateX(-50%)" class="absolute bottom-14 left-1/2 w-11/12" :progress="backupProgress"/>
@@ -22,6 +23,7 @@ import SyncButtonAction from '../components/SyncButtonAction/SyncButtonAction'
 import BackupProgress from '../components/BackupProgress/BackupProgress.vue'
 import BackupErrorBanner from './BackupErrorBanner/BackupErrorBanner.vue'
 import BackupStatus from '../../backup-process/status'
+import ConnectionBanner from './ConnectionBanner/ConnectionBanner.vue'
 import FileLogger from '../logic/FileLogger'
 import Auth from '../logic/utils/Auth'
 import Vue from 'vue'
@@ -36,7 +38,8 @@ export default {
     FileStatus,
     SyncButtonAction,
     BackupProgress,
-    BackupErrorBanner
+    BackupErrorBanner,
+    ConnectionBanner
   },
 
   data() {

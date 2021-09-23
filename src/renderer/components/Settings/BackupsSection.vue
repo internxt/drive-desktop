@@ -9,12 +9,10 @@
       </p>
       <Button class="mt-3" @click="activateBackups">Start using backup</Button>
     </div>
-    <div
-      v-else-if="status === 'LOADING'"
-      class="h-full flex items-center justify-center"
-    >
-      <p>Loading...</p>
-    </div>
+    <content-placeholders v-else-if="status === 'LOADING'" class="h-44" :rounded="true">
+      <content-placeholders-heading />
+      <content-placeholders-text :lines="5" />
+    </content-placeholders>
     <backups-panel v-else :backupsBucket="backupsBucket" :backupStatus="backupStatus" />
   </div>
 </template>

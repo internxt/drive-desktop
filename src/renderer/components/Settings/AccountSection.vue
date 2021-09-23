@@ -51,6 +51,9 @@
             <p class="text-gray-500">{{ percentageUsed }}% in use</p>
           </div>
         </div>
+        <content-placeholders v-else :rounded="true" :centered="true" class="mt-4">
+          <content-placeholders-img />
+        </content-placeholders>
       </div>
 </template>
 
