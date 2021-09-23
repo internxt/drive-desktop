@@ -5,6 +5,7 @@
     <div class="flex">{{msg.line2}}</div>
   -->
   <div class="flex text-sm">
+    <img v-if="icon" class="mr-1" :src="icon" width="20px" height="20px">
     <div v-if="syncState === 'pending'" class="flex items-center"><SyncSpinner class="mr-2 animate-spin" width="18" height="18"/></div>
     <div :class="syncState === 'pending' ? 'animate-pulse' : null">
       {{msg.line1}}
@@ -33,6 +34,9 @@ export default {
       type: String
     },
     msg: {
+      type: Object
+    },
+    icon: {
       type: Object
     }
   },

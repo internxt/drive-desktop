@@ -1,7 +1,7 @@
 <template>
   <div class="bg-white">
     <div class="flex statusBarMsg">
-      <syncStatusText :msg="message" :syncState="syncState"/>
+      <syncStatusText :msg="message" :syncState="syncState" :icon="icon"/>
     </div>
     <div class="flex justify-center flex-row">
         <div v-if="playButtonState === 'active'" @click="forceSync()">
@@ -34,6 +34,9 @@ import syncStatusText from './syncStatusText'
 import getMessage from './statusMessage'
 import { statSync } from 'original-fs'
 import FileLogger from '../../logic/FileLogger'
+import NoSignal from '../../assets/icons/apple/no-signal.svg'
+import Syncing from '../../assets/icons/apple/syncing.svg'
+import Warn from '../../assets/icons/apple/warn.svg'
 
 const remote = require('@electron/remote')
 
@@ -48,7 +51,8 @@ export default {
       changeSyncButton: isSyncing => {
         this.syncButtonState = isSyncing
       },
-      blockTimeout: undefined
+      blockTimeout: undefined,
+      icon: null
     }
   },
   props: {
@@ -63,6 +67,7 @@ export default {
         this.playButtonState = 'loading'
         this.stopButtonState = 'inactive'
         this.message = getMessage('pending')
+        this.icon = Syncing
         remote.app.emit('sync-start')
       }
     },
@@ -72,6 +77,7 @@ export default {
         remote.app.emit('sync-stop')
         this.playButtonState = 'loading'
         this.stopButtonState = 'inactive'
+        this.icon = null
         this.message = getMessage('stop')
       }
     }
@@ -85,12 +91,14 @@ export default {
         this.playButtonState = 'active'
         this.stopButtonState = 'inactive'
         this.message = getMessage('complete')
+        this.icon = null
         FileLogger.saveLog()
       }
       if (status === 'default') {
         this.playButtonState = 'active'
         this.stopButtonState = 'inactive'
         this.message = getMessage('default')
+        this.icon = null
       }
 
       if (status === 'block') {
@@ -103,6 +111,7 @@ export default {
         this.playButtonState = 'inactive'
         this.stopButtonState = 'inactive'
         this.message = getMessage('block')
+        this.icon = Warn
         // console.log('%c SYNC BLOCKED', 'color: #FF0000')
       }
       /*
