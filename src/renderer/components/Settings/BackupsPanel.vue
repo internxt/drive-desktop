@@ -1,11 +1,14 @@
 <template>
   <backups-list @close="showList = false" v-if="showList" :backupsBucket="backupsBucket" :errors="errors" />
   <div v-else>
-    <Checkbox
-      :forceStatus="backupsEnabled ? 'checked' : 'unchecked'"
-      @click.native="backupsEnabled = !backupsEnabled"
-      label="Back up your folder and files"
-    />
+    <div class="flex items-center space-x-3">
+      <Checkbox
+        :forceStatus="backupsEnabled ? 'checked' : 'unchecked'"
+        @click.native="backupsEnabled = !backupsEnabled"
+        label="Back up your folder and files"
+      />
+      <p class="text-blue-500 underline cursor-pointer text-xs" @click="openDriveWeb">View your backups</p>
+    </div>
     <div class="flex items-baseline">
     <Button class="mt-2" @click="showList = true"
       >Select folders to backup</Button
@@ -126,6 +129,9 @@ export default {
     },
     setBackupProgress(value) {
       this.backupProgress = value
+    },
+    openDriveWeb() {
+      remote.shell.openExternal('https://drive.internxt.com/app/backups')
     }
   },
   watch: {
