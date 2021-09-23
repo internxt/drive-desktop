@@ -15,7 +15,7 @@
     >
       <p>Loading...</p>
     </div>
-    <backups-panel v-else :backupsBucket="backupsBucket" />
+    <backups-panel v-else :backupsBucket="backupsBucket" :backupStatus="backupStatus" />
   </div>
 </template>
 
@@ -29,6 +29,7 @@ import ConfigStore from '../../../main/config-store'
 export default {
   components: {Button, BackupsPanel},
   name: 'BackupsSection',
+  props: ['backupStatus'],
   data() {
     return {
       status: 'LOADING',

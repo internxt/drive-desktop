@@ -1,20 +1,22 @@
 <template>
   <backups-list @close="showList = false" v-if="showList" :backupsBucket="backupsBucket" :errors="errors" />
   <div v-else>
-    <p class="p-3 rounded-xl bg-yellow-100 text-yellow-700 mb-3 text-xs" v-if="errors.length"><UilExclamationTriangle class="mr-2 inline text-yellow-700" size="20px"/>{{errors.length}} folder(s) in your backup failed. <u class="font-semibold cursor-pointer" @click="startBackupProcess">Retry now</u> or <u class="font-semibold cursor-pointer" @click="showList = true">check what failed</u></p>
     <Checkbox
       :forceStatus="backupsEnabled ? 'checked' : 'unchecked'"
       @click.native="backupsEnabled = !backupsEnabled"
       label="Back up your folder and files"
     />
+    <div class="flex items-baseline">
     <Button class="mt-2" @click="showList = true"
       >Select folders to backup</Button
     >
+    <p class="ml-2 text-xs" :class="{'text-red-600': backupStatus === 'FATAL', 'text-yellow-500': backupStatus === 'WARN', 'hidden': !['WARN', 'FATAL'].includes(backupStatus)}" >Could not upload some folders</p>
+</div>
     <div class="flex items-center mt-3">
-      <Button v-if="!isCurrentlyBackingUp" :state="backupsEnabled ? 'accent' : 'accent-disabled'" @click="startBackupProcess">Backup now</Button>
+      <Button v-if="backupStatus !== 'IN_PROGRESS'" :state="backupsEnabled ? 'accent' : 'accent-disabled'" @click="startBackupProcess">Backup now</Button>
       <Button v-else state="red" @click="stopBackupProcess">Stop backup</Button>
 
-      <p class="text-xs text-gray-500 ml-3">{{backupStatus }}</p>
+      <p class="text-xs text-gray-500 ml-3">{{backupMessage }}</p>
     </div>
     <p class="mt-3 text-xs text-gray-500">Upload frequency</p>
     <div class="dropdown mt-2">
@@ -61,6 +63,7 @@ import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import BackupsDB from '../../../backup-process/backups-db'
 import path from 'path'
+import BackupStatus from '../../../backup-process/status'
 
 const remote = require('@electron/remote')
 const {app} = remote
@@ -73,7 +76,7 @@ export default {
     BackupsList,
     UilExclamationTriangle
   },
-  props: ['backupsBucket'],
+  props: ['backupsBucket', 'backupStatus'],
   data() {
     return {
       intervalOptions: [
@@ -89,14 +92,11 @@ export default {
       backupProgress: null
     }
   },
-  mounted() {
-    ipcRenderer.invoke('is-backup-running')
-      .then(this.setCurrentlyBackingUp)
-    app.on('backup-running-update', this.setCurrentlyBackingUp)
+  async mounted() {
     app.on('backup-progress', this.setBackupProgress)
+    this.errors = await BackupsDB.getErrors()
   },
   beforeDestroy() {
-    app.removeListener('backup-running-update', this.setCurrentlyBackingUp)
     app.removeListener('backup-progress', this.setBackupProgress)
   },
   methods: {
@@ -124,10 +124,6 @@ export default {
 
       if (response === 0) { ipcRenderer.send('stop-backup-process') }
     },
-    setCurrentlyBackingUp(value) {
-      this.isCurrentlyBackingUp = value
-      this.getAllErrors()
-    },
     setBackupProgress(value) {
       this.backupProgress = value
     }
@@ -142,17 +138,20 @@ export default {
       const device = await getDeviceByMac()
       updateBackupsOfDevice(device.id, {interval: val})
     },
-    isCurrentlyBackingUp(value) {
-      if (!value) { this.backupProgress = null }
+    async backupStatus(_, oldValue) {
+      if (oldValue === BackupStatus.IN_PROGRESS) {
+        this.backupProgress = null
+      }
+      this.errors = await BackupsDB.getErrors()
     }
   },
   computed: {
-    backupStatus() {
-      if (this.isCurrentlyBackingUp) {
+    backupMessage() {
+      if (this.backupStatus === BackupStatus.IN_PROGRESS) {
         if (!this.backupProgress) { return 'Backup in progress...' } else {
           const {currentBackup, currentBackupProgress, currentBackupIndex, totalBackupsCount} = this.backupProgress
           const currentBackupName = path.basename(currentBackup.path)
-          return `${currentBackupIndex + 1} of ${totalBackupsCount} folders - Backing up ${currentBackupName} (${currentBackupProgress}%)`
+          return `${currentBackupIndex + 1} of ${totalBackupsCount} folders - Backing up ${currentBackupName} ${currentBackupProgress !== null ? `(${currentBackupProgress}%)` : ''}`
         }
       }
 

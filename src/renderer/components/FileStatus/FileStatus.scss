@@ -73,7 +73,6 @@
 }
 
 .timeStamp {
-  margin-top: $spacing-7;
   @include bg-opacity($white,.8);
   @include bg-blur($spacing-2);
   color: $neutral-500;

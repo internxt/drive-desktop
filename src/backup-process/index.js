@@ -14,11 +14,26 @@ const { Environment } = require('@internxt/inxt-js')
   const userInfo = ConfigStore.get('userData')
   const mnemonic = ConfigStore.get('mnemonic')
 
-  const pendingBackups = await getPendingBackups()
+  let pendingBackups
+
+  try {
+    pendingBackups = await getPendingBackups()
+  } catch (err) {
+    Logger.error('Error fetching backups', err)
+    ipcRenderer.send('backup-process-fatal-error')
+    return
+  }
 
   for (const [i, backup] of pendingBackups.entries()) {
     try {
       await checkThatItExists(backup.path)
+      notifyProgress({
+        currentBackup: backup,
+        currentBackupProgress: null,
+        currentBackupIndex: i,
+        totalBackupsCount: pendingBackups.length
+      })
+
       const index = randomBytes(32)
 
       const fileEncryptionKey = await Environment.utils.generateFileKey(
@@ -62,7 +77,9 @@ const { Environment } = require('@internxt/inxt-js')
       }
     } catch (error) {
       if (error.name in ErrorCodes) notifyError(backup, error.name)
-      else {
+      else if (!navigator.onLine) {
+        notifyError(backup, ErrorCodes.NO_CONNECTION)
+      } else {
         notifyError(backup, ErrorCodes.UNKNOWN)
         Logger.log(error)
       }
@@ -190,7 +207,7 @@ function notifyProgress({
 }) {
   app.emit('backup-progress', {
     currentBackup,
-    currentBackupProgress: (currentBackupProgress * 100).toFixed(2),
+    currentBackupProgress: currentBackupProgress !== null ? (currentBackupProgress * 100).toFixed(2) : null,
     currentBackupIndex,
     totalBackupsCount
   })

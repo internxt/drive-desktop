@@ -21,7 +21,8 @@ import TrayMenu from './traymenu'
 import FileLogger from '../renderer/logic/FileLogger'
 import dimentions from './window-dimentions/dimentions'
 import BackupsDB from '../backup-process/backups-db'
-import { debounce } from 'lodash'
+import BackupStatus from '../backup-process/status'
+import ErrorCodes from '../backup-process/error-codes'
 
 require('@electron/remote/main').initialize()
 AutoLaunch.configureAutostart()
@@ -583,16 +584,16 @@ app.on('ready', () => {
   })
 })
 
-let backupProcessRunning = false
+let backupProcessStatus = BackupStatus.STANDBY
 let backupProcessRerun = null
 
 async function startBackupProcess() {
   const backupsAreEnabled = ConfigStore.get('backupsEnabled')
 
-  if (backupsAreEnabled && !backupProcessRunning) {
-    backupProcessRunning = true
+  if (backupsAreEnabled && backupProcessStatus !== BackupStatus.IN_PROGRESS) {
+    backupProcessStatus = BackupStatus.IN_PROGRESS
     await BackupsDB.cleanErrors()
-    app.emit('backup-running-update', true)
+    app.emit('backup-status-update', backupProcessStatus)
 
     const worker = new BrowserWindow({
       webPreferences: {
@@ -611,7 +612,7 @@ async function startBackupProcess() {
       )
       .catch(Logger.error)
 
-    const cleanUp = () => {
+    const cleanUp = async ({exitReason}) => {
       worker.destroy()
       if (backupProcessRerun) {
         clearTimeout(backupProcessRerun)
@@ -621,20 +622,31 @@ async function startBackupProcess() {
         ConfigStore.get('backupInterval')
       )
 
-      ConfigStore.set('lastBackup', new Date().valueOf())
-      backupProcessRunning = false
-      app.emit('backup-running-update', false)
+      if (exitReason === 'DONE') {
+        ConfigStore.set('lastBackup', new Date().valueOf())
+        const errors = await BackupsDB.getErrors()
+        if (errors.length === 0) {
+          backupProcessStatus = BackupStatus.SUCCESS
+        } else {
+          const thereAreFatalErrors = errors.find(error => [ErrorCodes.NO_CONNECTION, ErrorCodes.UNKNOWN].includes(error.error_code))
+          backupProcessStatus = thereAreFatalErrors ? BackupStatus.FATAL : BackupStatus.WARN
+        }
+      } else {
+        backupProcessStatus = BackupStatus.STANDBY
+      }
+
+      app.emit('backup-status-update', backupProcessStatus)
     }
 
-    ipcMain.once('backup-process-done', cleanUp)
-
-    ipcMain.once('stop-backup-process', cleanUp)
+    ipcMain.once('backup-process-done', () => cleanUp({exitReason: 'DONE'}))
+    ipcMain.once('backup-process-fatal-error', () => cleanUp({exitReason: 'ERROR'}))
+    ipcMain.once('stop-backup-process', () => cleanUp({exitReason: 'STOP'}))
   }
 }
 
 ipcMain.on('start-backup-process', startBackupProcess)
 
-ipcMain.handle('is-backup-running', () => backupProcessRunning)
+ipcMain.handle('get-backup-status', () => backupProcessStatus)
 
 ipcMain.on('insert-backup-error', (_, error) => {
   BackupsDB.insertError(error)

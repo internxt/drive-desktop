@@ -1,12 +1,9 @@
 <template>
   <div>
-    <div
-      class="flex justify-between self-center p-3"
-    >
+    <div class="flex justify-between self-center p-3">
       <div class="flex flex-col">
         <div class="flex items-center">
-          <Avatar size="40" :userFullname="userFullname"/>
-          <div class="text-sm ml-3">
+          <div class="text-sm">
             <div>{{ emailAccount }}</div>
             <div class="flex" v-if="showUsage">
               <div class="mr-0.5 text-gray-500">{{ usage }} of {{ limit }}</div>
@@ -26,7 +23,11 @@
         <!-- {{ this.$data.localPath }} -->
 
         <backup-icon
-          @click="() =>openSettingsWindow('backups')" :state="backupStatus"/>
+          @click="() => openSettingsWindow('backups')"
+          class="text-gray-500"
+          :state="backupStatus"
+          size="22"
+        />
 
         <div
           class="flex items-center justify-center cursor-pointer"
@@ -34,7 +35,7 @@
           v-tooltip="{
             content: 'Open sync folder',
             placement: 'bottom',
-            delay: { show: 750, hide: 50 },
+            delay: { show: 750, hide: 50 }
           }"
         >
           <UilFolderOpen class="text-gray-500" size="22px" />
@@ -55,15 +56,17 @@
             aria-haspopup="true"
             aria-expanded="false"
             size="22px"
-          v-tooltip="{
-            content: 'Settings',
-            placement: 'bottom',
-            delay: { show: 750, hide: 50 },
-          }"
+            v-tooltip="{
+              content: 'Settings',
+              placement: 'bottom',
+              delay: { show: 750, hide: 50 }
+            }"
           />
 
           <div class="dropdown-menu">
-            <a class="text-gray-700 dropdown-item" @click="() =>openSettingsWindow('general')"
+            <a
+              class="text-gray-700 dropdown-item"
+              @click="() => openSettingsWindow('general')"
               >Preferences</a
             >
             <a class="text-gray-700 dropdown-item" @click="ContactSupportMailto"
@@ -227,7 +230,6 @@ import Checkbox from '../Icons/Checkbox.vue'
 import Avatar from '../Avatar/Avatar.vue'
 import BackupIcon from '../Icons/BackupIcon.vue'
 import { ipcRenderer } from 'electron'
-import BackupsDB from '../../../backup-process/backups-db'
 
 Vue.use(VToolTip)
 const remote = require('@electron/remote')
@@ -250,8 +252,7 @@ export default {
       showSyncSettingsModal: false,
       console: console,
       showUpgrade: false,
-      showUsage: false,
-      backupStatus: null
+      showUsage: false
     }
   },
   beforeCreate: function() {
@@ -259,17 +260,11 @@ export default {
       this.$data.path = path
     })
   },
-  mounted() {
-    ipcRenderer.invoke('is-backup-running')
-      .then(this.onBackupRunningUpdate)
-    remote.app.on('backup-running-update', this.onBackupRunningUpdate)
-  },
   beforeDestroy: function() {
     remote.app.removeAllListeners('user-logout')
     remote.app.removeAllListeners('update-storage')
     remote.app.removeAllListeners('update-last-entry')
     remote.app.removeAllListeners('new-folder-path')
-    remote.app.removeListener('backup-running-update', this.onBackupRunningUpdate)
   },
   created: function() {
     this.$app = this.$electron.remote.app
@@ -385,14 +380,6 @@ export default {
     },
     quitApp() {
       remote.app.emit('app-close')
-    },
-    async onBackupRunningUpdate(value) {
-      const errors = await BackupsDB.getErrors()
-      if (errors.length) {
-        this.backupStatus = 'warn'
-      } else if (value) {
-        this.backupStatus = 'in-progress'
-      } else if (this.backupStatus === 'in-progress') { this.backupStatus = 'success' }
     }
   },
   name: 'Header',
@@ -410,6 +397,10 @@ export default {
       default: ''
     },
     userFullname: {
+      type: String,
+      default: ''
+    },
+    backupStatus: {
       type: String,
       default: ''
     }

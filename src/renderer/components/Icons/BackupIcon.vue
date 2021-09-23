@@ -8,27 +8,35 @@
       delay: { show: 750, hide: 50 },
     }"
   >
-    <UilHistory class="text-gray-500 relative" size="22px" />
-    <UilCheckCircle v-if="state === 'success'" class="text-green-500 absolute" style="bottom:-2; right:-2" size="15px" />
-    <UilSync v-if="state === 'in-progress'" class="text-blue-500 absolute" style="bottom:-2; right:-2" size="15px" />
-    <UilExclamationCircle v-if="state === 'warn' || state === 'error'" :class="{'text-yellow-400' : state === 'warn', 'text-red-500' : state === 'error'}" class="absolute" style="bottom:-2; right:-2" size="15px" />
+    <UilHistory class=" relative" :size="size" />
+    <img v-if="state === 'SUCCESS'" class="backup-status-small-icon" :width="smallSize" :height="smallSize" src="../../assets/icons/apple/completed.svg"  />
+    <img v-if="state === 'IN_PROGRESS'" class="backup-status-small-icon" :width="smallSize" :height="smallSize" src="../../assets/icons/apple/syncing.svg" />
+    <img v-if="state === 'WARN'" class="backup-status-small-icon" :width="smallSize" :height="smallSize" src="../../assets/icons/apple/warn.svg" />
+    <img v-if="state === 'FATAL'" class="backup-status-small-icon" :width="smallSize" :height="smallSize" src="../../assets/icons/apple/error.svg" />
   </div>
 </template>
 
 <script>
 import {
-  UilHistory,
-  UilCheckCircle,
-  UilSync,
-  UilExclamationCircle
+  UilHistory
 } from '@iconscout/vue-unicons'
 export default {
-  props: ['state'],
+  props: ['state', 'size'],
   components: {
-    UilHistory,
-    UilCheckCircle,
-    UilSync,
-    UilExclamationCircle
+    UilHistory
+  },
+  computed: {
+    smallSize() {
+      return (this.size / 1.47).toString()
+    }
   }
 }
 </script>
+
+<style>
+.backup-status-small-icon {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+}
+</style>

@@ -9,26 +9,23 @@
     <div class="bg-white flex justify-center py-2 border-b-2 border-gray-100" style="-webkit-app-region: drag">
       <settings-header-item
         title="General"
-        :icon="UilSetting"
         @click="active = 'general'"
         :active="active === 'general'"
-      />
+      > <UilSetting size="27px"/> </settings-header-item>
       <settings-header-item
         title="Account"
-        :icon="UilAt"
         :active="active === 'account'"
         @click="active = 'account'"
-      />
+      ><UilAt size="27px"/></settings-header-item>
       <settings-header-item
         title="Backups"
         :active="active === 'backups'"
-        :icon="UilHistory"
         @click="active = 'backups'"
-      />
+      > <BackupIcon size="27" :state="backupStatus"/> </settings-header-item>
     </div>
     <div class="p-8">
       <keep-alive>
-        <component :is="currentSection"/>
+        <component :is="currentSection" :backupStatus="backupStatus" />
       </keep-alive>
     </div>
   </div>
@@ -48,6 +45,7 @@ import Button from './Button/Button.vue'
 import BackupsSection from './Settings/BackupsSection.vue'
 import AccountSection from './Settings/AccountSection.vue'
 import GeneralSection from './Settings/GeneralSection.vue'
+import BackupIcon from './Icons/BackupIcon.vue'
 import Avatar from './Avatar/Avatar.vue'
 import { ipcRenderer } from 'electron'
 const remote = require('@electron/remote')
@@ -60,14 +58,16 @@ export default {
     AccountSection,
     GeneralSection,
     Avatar,
-    UilMultiply
+    UilMultiply,
+    UilSetting,
+    UilAt,
+    UilHistory,
+    BackupIcon
   },
   data() {
     return {
-      UilSetting,
-      UilAt,
-      UilHistory,
-      active: 'general'
+      active: 'general',
+      backupStatus: ''
     }
   },
   mounted() {
@@ -78,10 +78,15 @@ export default {
     const resizeObserver = new ResizeObserver(([rootElement]) => this.emitResize({width: rootElement.borderBoxSize[0].inlineSize, height: rootElement.borderBoxSize[0].blockSize}))
 
     resizeObserver.observe(this.$refs.rootElement)
+
+    ipcRenderer.invoke('get-backup-status')
+      .then(this.setBackupStatus)
+    remote.app.on('backup-status-update', this.setBackupStatus)
   },
   beforeDestroy () {
     remote.app.removeAllListeners('new-folder-path')
     remote.app.removeListener('settings-change-section', this.setActive)
+    remote.app.removeListener('backup-status-update', this.setBackupStatus)
   },
   methods: {
     UnlockDevice() {
@@ -104,6 +109,9 @@ export default {
     },
     emitResize(dimensions) {
       ipcRenderer.send('settings-window-resize', dimensions)
+    },
+    setBackupStatus(val) {
+      this.backupStatus = val
     }
   },
   computed: {

@@ -16,13 +16,13 @@
       'bg-blue-50': active,
     }"
   >
-    <component :is="icon" size="27px" />
+    <slot/>
     <p class="font-semibold text-xs">{{ title }}</p>
   </div>
 </template>
 
 <script>
 export default {
-  props: ['title', 'active', 'icon']
+  props: ['title', 'active']
 }
 </script>

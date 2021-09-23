@@ -15,7 +15,7 @@
 
     <!-- Folder -->
     <svg
-      v-if="icon==='folder'"
+      v-if="icon==='folder' || icon === 'backup'"
       :width="width"
       :height="height"
       viewBox="0 0 32 32"

@@ -5,16 +5,20 @@
       <div @click="loadQueueLog()" class="ml-3 cursor-pointer">Queue log</div>
       <div @click="saveFileLogger()" class="ml-3 cursor-pointer">Save log</div>
     </div>
-    <div v-if="this.FileStatusSync.length > 0" class="clearLog top-0 right-0 z-10">
-        <div v-if="this.isSyncing" class="button disabled">Clear</div>
-        <div v-else @click="clearFileLogger()" class="button">Clear</div>
-    </div>
     <div class="overflow-auto overflow-x-hidden">
 
+      <div v-if="backupProgress">
+        <div class="timeStamp px-3 py-3 sticky top-0">Backups</div>
+        <FileItem fileType="backup" :filePath="backupProgress.currentBackup.path" :name="basename(backupProgress.currentBackup.path)" :info="`Backing up... ${backupProgress.currentBackupProgress !== null ? `(${backupProgress.currentBackupProgress}%)` : ''}`" />
+      </div>
+      <div v-if="this.FileStatusSync.length > 0" class="clearLog top-0 right-0 z-10">
+          <div v-if="this.isSyncing" class="button disabled">Clear</div>
+          <div v-else @click="clearFileLogger()" class="button">Clear</div>
+      </div>
       <div v-for="group in timestampGroups" :key="group.name">
 
         <div v-if="group.items.length > 0" class="timeStampGroup">
-          <div class="timeStamp sticky top-0 px-5 py-3">{{group.name}}</div>
+          <div class="timeStamp sticky top-0 px-3 py-3">{{group.name}}</div>
           <div v-for="(item, index) in group.items" :key="index">
             <FileItem v-if="!item.state && item.progress && item.action === 'upload'" fileType="" :filePath="item.filePath" :name="item.filename" :info="'Uploading... ' + (item.progress ? Math.trunc(item.progress) + '%' : '')" status='uploading'/>
             <FileItem v-if="item.action === 'encrypt'" fileType="" :filePath="item.filePath" :name="item.filename" info="Encrypting..." status='encrypting'/>
@@ -30,7 +34,7 @@
 
       </div>
 
-      <div v-if="this.FileStatusSync.length <= 0" class="emptyState flex flex-col items-center justify-center">
+      <div v-if="this.FileStatusSync.length <= 0 && !backupProgress" class="emptyState flex flex-col items-center justify-center">
         <div class="icon flex-none">
           <FileIcon class="iconBack" icon="file" width="100px" height="100px"/>
           <FileIcon class="iconFront" icon="file" width="100px" height="100px"/>
@@ -47,6 +51,7 @@ import FileItem from './FileItem.vue'
 import FileIcon from '../Icons/FileIcon.vue'
 import ConfigStore from '../../../main/config-store'
 import FileLogger from '../../logic/FileLogger'
+import {basename} from 'path'
 import './FileStatus.scss'
 
 const remote = require('@electron/remote')
@@ -54,7 +59,8 @@ const remote = require('@electron/remote')
 export default {
   data() {
     return {
-      isSyncing: ConfigStore.get('isSyncing')
+      isSyncing: ConfigStore.get('isSyncing'),
+      basename
     }
   },
   created: function() {
@@ -62,12 +68,7 @@ export default {
     remote.app.on('sync-off', this.changeIsSyncing)
     remote.app.on('sync-stop', this.changeIsSyncing)
   },
-  props: {
-    FileStatusSync: {
-      type: Array,
-      required: false
-    }
-  },
+  props: ['FileStatusSync', 'backupProgress'],
   beforeDestroy: function () {
     remote.app.removeListener('sync-off', this.changeIsSyncing)
     remote.app.removeListener('sync-on', this.changeIsSyncing)

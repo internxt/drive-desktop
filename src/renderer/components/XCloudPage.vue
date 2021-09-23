@@ -1,8 +1,10 @@
 <template>
-  <div class="flex flex-none flex-col h-full w-full overflow-x-hidden">
-    <Header class="header z-20 bg-white" :appName="appName" :emailAccount="emailAccount" :userFullname="userFullname"/>
-    <FileStatus class="fileStatus bg-white fileLogger overflow-y-auto overflow-x-hidden flex flex-col flex-grow flex-shrink" :FileStatusSync="FileStatusSync" />
+  <div class="flex flex-none flex-col h-full w-full overflow-x-hidden relative">
+    <Header class="header z-20 bg-white" :appName="appName" :emailAccount="emailAccount" :userFullname="userFullname" :backupStatus="backupStatus"/>
+    <BackupErrorBanner :backupStatus="backupStatus" @actionClick="openBackupsWindow"/>
+    <FileStatus :backupProgress="backupProgress" class="fileStatus bg-white fileLogger overflow-y-auto overflow-x-hidden flex flex-col flex-grow flex-shrink" :FileStatusSync="FileStatusSync" />
     <SyncButtonAction class="statusBar overflow-hidden flex flex-none justify-between py-2 px-3" :FileStatusSync="FileStatusSync"/>
+    <BackupProgress v-if="backupProgress" style="transform: translateX(-50%)" class="absolute bottom-14 left-1/2 w-11/12" :progress="backupProgress"/>
   </div>
 </template>
 
@@ -17,9 +19,13 @@ import ConfigStore from '../../../src/main/config-store'
 import Header from '../components/Header/Header'
 import FileStatus from '../components/FileStatus/FileStatus'
 import SyncButtonAction from '../components/SyncButtonAction/SyncButtonAction'
+import BackupProgress from '../components/BackupProgress/BackupProgress.vue'
+import BackupErrorBanner from './BackupErrorBanner/BackupErrorBanner.vue'
+import BackupStatus from '../../backup-process/status'
 import FileLogger from '../logic/FileLogger'
 import Auth from '../logic/utils/Auth'
 import Vue from 'vue'
+import {ipcRenderer} from 'electron'
 
 const remote = require('@electron/remote')
 
@@ -28,7 +34,9 @@ export default {
   components: {
     Header,
     FileStatus,
-    SyncButtonAction
+    SyncButtonAction,
+    BackupProgress,
+    BackupErrorBanner
   },
 
   data() {
@@ -44,7 +52,9 @@ export default {
       file: {},
       flag: false,
       FileStatusSync: [],
-      userFullname: ''
+      userFullname: '',
+      backupProgress: null,
+      backupStatus: ''
     }
   },
 
@@ -75,6 +85,10 @@ export default {
   mounted: function () {
     Auth.denormalizeAuthInfoInConfigStore()
     FileLogger.loadLog()
+    ipcRenderer.invoke('get-backup-status')
+      .then(this.setBackupStatus)
+    remote.app.on('backup-status-update', this.setBackupStatus)
+    remote.app.on('backup-progress', this.setBackupProgress)
   },
   beforeDestroy: function () {
     FileLogger.removeAllListeners('update-last-entry')
@@ -84,6 +98,8 @@ export default {
     remote.app.removeListener('set-tooltip', this.setTooltip)
     remote.app.removeAllListeners('update-last-entry')
     remote.app.removeAllListeners('filelogger-push')
+    remote.app.removeListener('backup-status-update', this.setBackupStatus)
+    remote.app.removeListener('backup-progress', this.setBackupProgress)
     FileLogger.saveLog()
   },
   created: function () {
@@ -160,6 +176,22 @@ export default {
     setUpdateFlag() {
       this.flag = true
       this.FileStatusSync = []
+    },
+    setBackupStatus(value) {
+      this.backupStatus = value
+    },
+    setBackupProgress(value) {
+      this.backupProgress = value
+    },
+    openBackupsWindow() {
+      ipcRenderer.send('open-settings-window', 'backups')
+    }
+  },
+  watch: {
+    backupStatus(_, oldVal) {
+      if (oldVal === BackupStatus.IN_PROGRESS) {
+        this.backupProgress = null
+      }
     }
   }
 }

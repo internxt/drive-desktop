@@ -27,12 +27,7 @@
           <UilFolder style="margin-right: 6px" class="text-blue-500 flex-shrink-0" />
           <p class="truncate">{{ basename(backup.path) }}</p>
         </div>
-        <div class="flex items-center space-x-2 ml-2" v-if="backup.id && findErrorForBackup(backup.id)">
-          <p class="text-xs text-yellow-400 whitespace-nowrap">{{errorMessage(findErrorForBackup(backup.id).error_code)}}</p>
-          <p @click="() => findFolder(backup)" v-if="findErrorForBackup(backup.id).error_code !== 'UNKNOWN'" class="text-xs text-yellow-500 underline whitespace-nowrap cursor-pointer">Find folder</p>
-          <p v-else @click="startBackupProcess" class="text-xs text-yellow-500 underline whitespace-nowrap cursor-pointer">Try again</p>
-          <UilExclamationTriangle class="text-yellow-400 flex-shrink-0" />
-        </div>
+        <BackupsError :error="findErrorForBackup(backup.id)" @actionClick="(action) => action === 'FIND_FOLDER' ? findFolder(backup) : startBackupProcess()"/>
       </div>
     </div>
     <div class="flex items-center justify-between mt-3">
@@ -62,19 +57,18 @@
 import {
   UilFolder,
   UilPlus,
-  UilTrashAlt,
-  UilExclamationTriangle
+  UilTrashAlt
 } from '@iconscout/vue-unicons'
 import {getAllBackups, createBackup, deleteBackup, updateBackup, updateBackupPath} from '../../../backup-process/service'
 import Button from '../Button/Button.vue'
-import ErrorCodes from '../../../backup-process/error-codes'
 import fs from 'fs'
 import path from 'path'
 import electron, {ipcRenderer} from 'electron'
+import BackupsError from './BackupError.vue'
 const remote = require('@electron/remote')
 
 export default {
-  components: {UilFolder, Button, UilPlus, UilTrashAlt, UilExclamationTriangle},
+  components: {UilFolder, Button, UilPlus, UilTrashAlt, BackupsError},
   props: ['backupsBucket', 'errors'],
   data() {
     return {
@@ -171,16 +165,6 @@ export default {
     },
     findErrorForBackup(id) {
       return this.errors.find(error => error.backup_id === id)
-    },
-    errorMessage(errorCode) {
-      switch (errorCode) {
-        case ErrorCodes.NOT_FOUND:
-          return 'Folder missing'
-        case ErrorCodes.PATH_IS_NOT_DIRECTORY:
-          return 'Path is not a folder'
-        default:
-          return 'An unknown error has ocurred'
-      }
     },
     basename(completePath) {
       return path.basename(completePath)
