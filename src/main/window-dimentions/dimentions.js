@@ -8,8 +8,8 @@ const dimentions = {
     height: 500
   },
   '/login': {
-    width: 400,
-    height: 560
+    width: 300,
+    height: 474
   }
 }/* class Dimentions {
   dimentions = dimentions

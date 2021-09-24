@@ -1,34 +1,57 @@
 <template>
-  <main class="w-full h-full flex flex-col justify-center bg-white px-12 relative">
-    <div class="cursor-pointer absolute top-6 right-6" @click="quitApp()">
+  <main class="w-full h-full flex flex-col justify-between bg-white px-6 pb-6 relative">
+    <div class="cursor-pointer absolute top-4 right-4 z-10" @click="quitApp()">
       <UilMultiply class="mr-2 text-blue-600" />
     </div>
 
-    <div class="flex flex-row items-center">
-      <img class="w-5" src="../assets/svg/brand-app.svg" />
-      <span class="text-xl text-black font-bold ml-2">{{ showTwoFactor ? 'Security Verification' : 'Sign in to Internxt Drive' }}</span>
+    <div class="flex flex-col items-center justify-center relative flex-grow">
+      <span class="text-xl text-black font-bold ml-2 tracking-wide">{{ showTwoFactor ? 'Security Verification' : 'Internxt Drive' }}</span>
+      <span class="text-xs text-gray-300">v{{version}}</span>
+      <div v-if="!online" style="border-radius: 8px" class="w-full flex justify-center items-center absolute p-2 mx-6 bottom-2  bg-yellow-50 text-yellow-600 font-bold text-sm"><img class="mr-2 opacity-60" src="../assets/icons/apple/no-signal.svg" width="20px" height="20px"/>No internet connection</div>
+      <div v-else-if="error" style="border-radius: 8px" class="w-full flex justify-center items-center absolute p-2 mx-6 bottom-2  bg-red-50 text-red-600 font-bold text-sm">{{error}}</div>
     </div>
 
-    <form class="mt-8 bg-white relative"
+    <form class=" bg-white relative"
       id="form"
       @submit="handleFormSubmit"
     >
-      <input
-        class="w-full h-10 focus:outline-none focus:ring focus:ring-2 focus:border-blue-300 mb-3 border border-gray-300 rounded px-2 text-xs font-bold"
-        v-model="email"
-        type="text"
-        placeholder="Email address"
-        tabindex="0"
-        :disabled="showTwoFactor"
-      />
-      <input
-        v-if="!showTwoFactor"
-        class="w-full h-10 focus:outline-none focus:ring focus:ring-2 focus:border-blue-300 border border-gray-300 rounded px-2 text-xs font-bold"
-        v-model="password"
-        :type="visibility"
-        placeholder="Password"
-        tabindex="0"
-      />
+      <div class="text-xs text-gray-500 font-bold " :class="{'text-red-600': error, 'focus-within:text-blue-500': !error}">
+        <label for="email" id="emailLabel">Email address</label>
+        <input
+          id="email"
+          aria-labelledby="emailLabel"
+          style="border-width: 1px;border-radius: 8px;"
+          class="w-full h-10 focus:outline-none focus:ring-2  mb-2 border-gray-300 px-3 font-bold text-gray-700 text-base bg-gray-50"
+          :class="{'ring-red-100 ring-2 border-red-600': error, 'ring-blue-300 focus:border-blue-500': !error}"
+          v-model="email"
+          type="email"
+          tabindex="0"
+          :disabled="showTwoFactor"
+          required="true"
+          ref="emailInput"
+        />
+      </div>
+      <div class="text-xs text-gray-500 font-bold " :class="{'text-red-600': error, 'focus-within:text-blue-500': !error}">
+        <label for="password" id="passwordLabel">Password</label>
+        <div class="relative">
+          <input
+            v-if="!showTwoFactor"
+            aria-labelledby="passwordLabel"
+            style="border-width: 1px;border-radius: 8px;"
+            class="w-full h-10 focus:outline-none focus:ring-2  border-gray-300 pl-3 pr-20 font-bold text-gray-700 text-base bg-gray-50" 
+            :class="{'ring-red-100 ring-2 border-red-600': error, 'ring-blue-300 focus:border-blue-500': !error}"
+            v-model="password"
+            id="password"
+            :type="showPassword ? 'text' : 'password'"
+            tabindex="0"
+            @focus="isPasswordFocused = true"
+            @blur="isPasswordFocused = false"
+            required="true"
+          />
+          <p v-if="isPasswordFocused" style="transform: translateY(50%)" class="text-gray-500 absolute bottom-1/2 right-3 cursor-pointer font-bold" @click="toggleShowPassword">{{showPassword ? 'Hide' : 'Show'}}</p>
+          <UilArrowCircleUp v-if="capsLock && isPasswordFocused" style="transform: translateY(50%)" class="absolute text-gray-500 bottom-1/2 right-12"  size="18px" />
+        </div>
+      </div>
       <div v-if="showTwoFactor" class="-mb-4">
         <input
           class="w-full h-10 focus:outline-none focus:ring focus:ring-2 focus:border-blue-300 border border-gray-300 rounded px-2 text-xs font-bold"
@@ -39,50 +62,25 @@
         <p class="mt-1">Enter your 6 digit authenticator code above</p>
     </div>
 
-      <!-- Shows the password -->
-      <div v-if="visibility === 'password' && !showTwoFactor" @click="showPassword()" class="absolute right-6 -mt-7 cursor-pointer">
-        <Eye />
+      <div class="flex justify-center items-center pt-3">
+        <a class="text-blue-600 text-sm" href="#" @click="open(`${DRIVE_BASE}/remove`)" tabindex="-1">Forgot your password?</a>
       </div>
 
-      <!-- Hides the password -->
-      <div v-if="visibility === 'text' && !showTwoFactor" @click="hidePassword()" class="absolute right-6 -mt-7 cursor-pointer">
-        <CrossEye />
-      </div>
-
-        <div v-if="errors.length" class="mt-2 -mb-4">
-          <p v-if="errors.length > 1" class="text-sm text-black font-bold">There have been errors</p>
-          <p v-else class="text-sm text-black font-bold">There has been an error</p>
-
-          <ul class="list-disc ml-6">
-            <li v-for="error in errors" :key="error">
-              {{ error }}
-            </li>
-          </ul>
-        </div>
-
-      <!-- </transition> -->
-
-      <div class="flex flex-row relative">
-        <div v-if="isLoading" class="flex items-center justify-center absolute bg-blue-500 bottom-2.5 left-0 right-0">
-          <Spinner class="animate-spin z-10" />
-        </div>
-        <input
-          class="native-key-bindings w-full text-white font-bold mt-8 py-2.5 text-sm rounded focus:outline-none cursor-pointer bg-blue-500"
+        <button
+          class="mt-6 native-key-bindings w-full text-white font-bold py-2.5 text-base focus:outline-none bg-blue-600 relative flex justify-end items-center h-10"
+          style="border-radius: 8px"
+          :class="{'cursor-default opacity-40': !online, 'cursor-pointer': online, 'bg-blue-700 text-opacity-60 text-white': isLoading}"
           type="submit"
-          value="Sign in"
           tabindex="-1"
-        />
+          :disabled="!online"
+        >
+          <p style="transform: translate(-50%, -50%)" class="absolute left-1/2 top-1/2" :class="{'opacity-60': isLoading}">{{isLoading ? 'Logging in...'  : 'Login'}}</p>
+          <UilSpinnerAlt v-if="isLoading" class="z-10 text-white animate-spin mr-3" size="22px" />
+        </button>
+      <div class="flex justify-center items-center pt-3">
+        <a class="text-blue-600 text-sm" href="#" @click="open(`${DRIVE_BASE}/new`)" tabindex="-1">Create account</a>
       </div>
     </form>
-
-    <div class="flex justify-between text-xs font-bold mt-4">
-      <div class="flex">
-        <span class="text-gray-400">Don't have an Internxt account?</span>
-        <a class="text-blue-400 ml-1" href="#" @click="open(`${DRIVE_BASE}/new`)" tabindex="-1">Get one for free!</a>
-      </div>
-
-      <div class="text-gray-300 text-xs">v{{ version }}</div>
-    </div>
   </main>
 </template>
 
@@ -100,7 +98,7 @@ import Spinner from '../components/ExportIcons/Spinner'
 import Eye from '../components/ExportIcons/eye'
 import CrossEye from '../components/ExportIcons/cross-eye'
 import Auth from '../logic/utils/Auth'
-import { UilMultiply } from '@iconscout/vue-unicons'
+import { UilMultiply, UilArrowCircleUp, UilSpinnerAlt } from '@iconscout/vue-unicons'
 const remote = require('@electron/remote')
 const ROOT_FOLDER_NAME = 'Internxt Drive'
 const HOME_FOLDER_PATH = remote.app.getPath('home')
@@ -122,33 +120,43 @@ export default {
       isLoading: false,
       DRIVE_BASE: config.DRIVE_BASE,
       version: packageConfig.version,
-      errors: [],
-      visibility: 'password'
+      showPassword: false,
+      capsLock: false,
+      isPasswordFocused: false,
+      error: null,
+      online: navigator.onLine
     }
   },
   components: {
     Spinner,
     Eye,
     CrossEye,
-    UilMultiply
+    UilMultiply,
+    UilArrowCircleUp,
+    UilSpinnerAlt
+  },
+
+  mounted() {
+    document.addEventListener('keyup', this.detectCapsLock)
+    document.addEventListener('keydown', this.detectCapsLock)
+    window.addEventListener('online', this.onOnlineChanged)
+    window.addEventListener('offline', this.onOnlineChanged)
+
+    this.$refs.emailInput.focus()
+  },
+  beforeDestroy() {
+    document.removeEventListener('keyup', this.detectCapsLock)
+    document.removeEventListener('keydown', this.detectCapsLock)
+    window.removeEventListener('online', this.onOnlineChanged)
+    window.removeEventListener('offline', this.onOnlineChanged)
   },
   methods: {
-    showPassword() {
-      this.visibility = 'text'
-    },
-    hidePassword() {
-      this.visibility = 'password'
+    toggleShowPassword() {
+      this.showPassword = !this.showPassword
     },
     handleFormSubmit(e) {
       e.preventDefault()
-      this.errors = []
-
-      if (!this.email) this.errors.push('The email must not be empty')
-      if (!this.password) this.errors.push('The password must not be empty')
-
-      if (!this.errors.length && !this.isLoading) {
-        this.doLogin()
-      }
+      this.doLogin()
     },
     open(link) {
       this.$electron.shell.openExternal(link)
@@ -223,9 +231,11 @@ export default {
                 Logger.error(err)
               })
             if (res.body.error) {
-              return this.errors.push(res.body.error)
+              this.error = res.body.error
+              return
             }
-            return this.errors.push('There was an error while logging in')
+            this.error = 'There was an error while logging in'
+            return
           }
           if (res.body.tfa && !this.$data.twoFactorCode) {
             this.$data.showTwoFactor = true
@@ -236,7 +246,7 @@ export default {
         })
         .catch(err => {
           this.$data.isLoading = false
-          this.errors.push(err)
+          this.error = err
         })
     },
     async doAccess(sKey) {
@@ -281,13 +291,13 @@ export default {
                 Logger.error(err)
               })
             if (res.data.error) {
-              this.errors.push(res.data.error)
+              this.error = res.data.error
               if (res.data.error.includes('Wrong email')) {
                 this.$data.twoFactorCode = ''
                 this.$data.showTwoFactor = false
               }
             } else {
-              this.errors.push('There was an error while logging in')
+              this.error = 'There was an error while logging in'
             }
           } else {
             res.data.user.email = this.email.toLowerCase()
@@ -343,6 +353,12 @@ export default {
     quitApp() {
       remote.app.emit('sync-stop')
       remote.app.emit('app-close')
+    },
+    detectCapsLock(event) {
+      this.capsLock = event.getModifierState('CapsLock')
+    },
+    onOnlineChanged() {
+      this.online = navigator.onLine
     }
   }
 }
