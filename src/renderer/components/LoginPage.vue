@@ -15,7 +15,7 @@
       id="form"
       @submit="handleFormSubmit"
     >
-      <div class="text-xs text-gray-500 font-bold " :class="{'text-red-600': error, 'focus-within:text-blue-500': !error}">
+      <div class="text-xs text-gray-500 font-bold" :class="{'text-red-600': error, 'focus-within:text-blue-500': !error, 'opacity-40': isLoading}">
         <label for="email" id="emailLabel">Email address</label>
         <input
           id="email"
@@ -31,7 +31,7 @@
           ref="emailInput"
         />
       </div>
-      <div class="text-xs text-gray-500 font-bold " :class="{'text-red-600': error, 'focus-within:text-blue-500': !error}">
+      <div class="text-xs text-gray-500 font-bold " :class="{'text-red-600': error, 'focus-within:text-blue-500': !error, 'opacity-40': isLoading}">
         <label for="password" id="passwordLabel">Password</label>
         <div class="relative">
           <input
@@ -63,7 +63,7 @@
     </div>
 
       <div class="flex justify-center items-center pt-3">
-        <a class="text-blue-600 text-sm" href="#" @click="open(`${DRIVE_BASE}/remove`)" tabindex="-1">Forgot your password?</a>
+        <a class="text-sm" :class="{'text-gray-400': isLoading, 'text-blue-600': !isLoading}" href="#" @click="open(`${DRIVE_BASE}/remove`)" tabindex="-1">Forgot your password?</a>
       </div>
 
         <button
@@ -78,7 +78,7 @@
           <UilSpinnerAlt v-if="isLoading" class="z-10 text-white animate-spin mr-3" size="22px" />
         </button>
       <div class="flex justify-center items-center pt-3">
-        <a class="text-blue-600 text-sm" href="#" @click="open(`${DRIVE_BASE}/new`)" tabindex="-1">Create account</a>
+        <a class="text-sm" :class="{'text-gray-400': isLoading, 'text-blue-600': !isLoading}" href="#" @click="open(`${DRIVE_BASE}/new`)" tabindex="-1">Create account</a>
       </div>
     </form>
   </main>
