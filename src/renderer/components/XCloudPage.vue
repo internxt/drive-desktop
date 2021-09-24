@@ -187,7 +187,7 @@ export default {
       this.backupProgress = value
     },
     openBackupsWindow() {
-      ipcRenderer.send('open-settings-window', 'backups')
+      ipcRenderer.send('open-settings-window', 'backups', 'list')
     }
   },
   watch: {

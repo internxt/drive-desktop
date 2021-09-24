@@ -19,8 +19,8 @@
       @click.native="editing = !editing"
     />
   </div>
-  <content-placeholders v-else class="h-7" centered="true" rounded="true">
-    <content-placeholders-text lines="1"/>
+  <content-placeholders v-else class="h-7" :centered="true" :rounded="true">
+    <content-placeholders-text :lines="1"/>
   </content-placeholders>
 </template>
 

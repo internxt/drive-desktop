@@ -96,6 +96,13 @@ export default {
     }
   },
   async mounted() {
+    const queryParams = new URLSearchParams(location.href.split('?')[1])
+    const subsection = queryParams.get('subsection')
+
+    if (subsection === 'list') {
+      this.showList = true
+    }
+
     app.on('backup-progress', this.setBackupProgress)
     this.errors = await BackupsDB.getErrors()
   },

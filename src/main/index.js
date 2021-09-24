@@ -7,7 +7,8 @@ import electron, {
   shell,
   dialog,
   powerMonitor,
-  ipcMain
+  ipcMain,
+  Notification
 } from 'electron'
 import path from 'path'
 import Logger from '../libs/logger'
@@ -331,15 +332,19 @@ app.on('show-info', (msg, title) => {
 
 let settingsWindow = null
 
-ipcMain.on('open-settings-window', (_, section) => {
+ipcMain.on('open-settings-window', (_, section, subsection) => {
+  openSettingsWindow(section, subsection)
+})
+
+function openSettingsWindow(section, subsection) {
   if (settingsWindow) {
     app.emit('settings-change-section', section)
     settingsWindow.focus()
   } else {
     const settingsPath =
       process.env.NODE_ENV === 'development'
-        ? `http://localhost:9080/#/settings?section=${section}`
-        : `file://${__dirname}/index.html#settings?section=${section}`
+        ? `http://localhost:9080/#/settings?section=${section}&subsection=${subsection}`
+        : `file://${__dirname}/index.html#settings?section=${section}&subsection=${subsection}`
 
     settingsWindow = new BrowserWindow({
       width: 500,
@@ -363,7 +368,7 @@ ipcMain.on('open-settings-window', (_, section) => {
       settingsWindow.show()
     })
   }
-})
+}
 
 ipcMain.on('settings-window-resize', (_, { height }) => {
   if (settingsWindow) settingsWindow.setBounds({ height: Math.trunc(height) })
@@ -630,7 +635,11 @@ async function startBackupProcess() {
         } else {
           const thereAreFatalErrors = errors.find(error => [ErrorCodes.NO_CONNECTION, ErrorCodes.UNKNOWN].includes(error.error_code))
           backupProcessStatus = thereAreFatalErrors ? BackupStatus.FATAL : BackupStatus.WARN
+          notifyBackupErrors()
         }
+      } else if (exitReason === 'ERROR') {
+        notifyBackupCouldntStart()
+        backupProcessStatus = BackupStatus.STANDBY
       } else {
         backupProcessStatus = BackupStatus.STANDBY
       }
@@ -651,3 +660,29 @@ ipcMain.handle('get-backup-status', () => backupProcessStatus)
 ipcMain.on('insert-backup-error', (_, error) => {
   BackupsDB.insertError(error)
 })
+
+function notifyBackupErrors() {
+  const notification = new Notification({
+    title: 'Some folders could not be uploaded',
+    body: "Your backup process wasn't completely successful, click to see the details"
+  })
+
+  notification.show()
+
+  notification.on('click', () => {
+    openSettingsWindow('backups', 'list')
+  })
+}
+
+function notifyBackupCouldntStart() {
+  const notification = new Notification({
+    title: 'Backup Process could not start',
+    body: 'Check that you have a working internet connection. We will retry later, click to try now.'
+  })
+
+  notification.show()
+
+  notification.on('click', () => {
+    startBackupProcess()
+  })
+}

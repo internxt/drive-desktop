@@ -71,7 +71,8 @@ export default {
     }
   },
   mounted() {
-    const section = document.location.href.match(/section=(.+)/)[1]
+    const queryParams = new URLSearchParams(location.href.split('?')[1])
+    const section = queryParams.get('section')
     this.setActive(section)
     remote.app.on('settings-change-section', this.setActive)
 
