@@ -6,7 +6,7 @@
           <div class="text-sm">
             <div>{{ emailAccount }}</div>
             <div class="flex" v-if="showUsage">
-              <div class="mr-0.5 text-gray-500">{{ usage }} of {{ limit }}</div>
+              <div class="mr-0.5 text-gray-500"> <span :class="{'text-red-600': showUsageWarning }">{{ usage }}</span> of {{ limit }}</div>
               <div
                 v-if="this.showUpgrade"
                 class="ml-1 text-blue-60 cursor-pointer"
@@ -200,6 +200,11 @@
           Accept
         </button>
       </div>
+    </div>
+    <div v-if="showUsageWarning" class="px-3 py-2 flex items-center text-xs border-yellow-100 border-b bg-yellow-50 text-yellow-600">
+      <img style="width: 20px; height:20px" src="../../assets/icons/apple/warn.svg"/>
+      <p class="ml-2">Running out of space</p>
+      <p @click="openLinkBilling" class="flex-grow underline cursor-pointer flex justify-end items-center">Upgrade now</p>
     </div>
   </div>
 </template>
@@ -423,6 +428,14 @@ export default {
     Checkbox,
     Avatar,
     BackupIcon
+  },
+  computed: {
+    showUsageWarning() {
+      const usageInBytes = bytes.parse(this.usage)
+      const limitInBytes = bytes.parse(this.limit)
+
+      return usageInBytes / limitInBytes >= 0.9
+    }
   }
 }
 </script>
