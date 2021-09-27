@@ -15,7 +15,7 @@
 
     <!-- Folder -->
     <svg
-      v-if="icon==='folder' || icon === 'backup'"
+      v-if="icon==='folder'"
       :width="width"
       :height="height"
       viewBox="0 0 32 32"
@@ -53,6 +53,8 @@
       </clipPath>
       </defs>
     </svg>
+
+    <img v-if="icon === 'backup'" src="../../assets/icons/apple/folder-backup.svg" :height="height" :width="width"/>
 
     <!-- Image -->
     <svg
