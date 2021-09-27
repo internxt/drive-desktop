@@ -15,6 +15,7 @@ import './assets/tailwind/tailwind_cdn.min'
 import '../index.scss'
 import '../../scss/internxt-design-system.scss'
 import './assets/scss/fonts.scss'
+import 'vue-content-placeholders/src/styles.scss'
 
 dotenv.config()
 
