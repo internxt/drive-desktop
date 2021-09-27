@@ -5,7 +5,7 @@
     </div>
 
     <div class="flex flex-col items-center justify-center relative flex-grow">
-      <span class="text-xl text-black font-bold ml-2 tracking-wide">{{ showTwoFactor ? 'Security Verification' : 'Internxt Drive' }}</span>
+      <span class="text-xl text-black font-bold ml-2 tracking-wide">Internxt Drive</span>
       <span class="text-xs text-gray-300">v{{version}}</span>
       <div v-if="!online" style="border-radius: 8px" class="w-full flex justify-center items-center absolute p-2 mx-6 bottom-2  bg-yellow-50 text-yellow-600 font-bold text-sm"><img class="mr-2 opacity-60" src="../assets/icons/apple/no-signal.svg" width="20px" height="20px"/>No internet connection</div>
       <div v-else-if="error" style="border-radius: 8px" class="w-full flex justify-center items-center absolute p-2 mx-6 bottom-2  bg-red-50 text-red-600 font-bold text-sm">{{error}}</div>
@@ -15,7 +15,7 @@
       id="form"
       @submit="handleFormSubmit"
     >
-      <div class="text-xs text-gray-500 font-bold" :class="{'text-red-600': error, 'focus-within:text-blue-500': !error, 'opacity-40': isLoading}">
+      <div v-if="!showTwoFactor" class="text-xs text-gray-500 font-bold" :class="{'text-red-600': error, 'focus-within:text-blue-500': !error, 'opacity-40': isLoading}">
         <label for="email" id="emailLabel">Email address</label>
         <input
           id="email"
@@ -26,16 +26,14 @@
           v-model="email"
           type="email"
           tabindex="0"
-          :disabled="showTwoFactor"
           required="true"
           ref="emailInput"
         />
       </div>
-      <div class="text-xs text-gray-500 font-bold " :class="{'text-red-600': error, 'focus-within:text-blue-500': !error, 'opacity-40': isLoading}">
+      <div v-if="!showTwoFactor" class="text-xs text-gray-500 font-bold " :class="{'text-red-600': error, 'focus-within:text-blue-500': !error, 'opacity-40': isLoading}">
         <label for="password" id="passwordLabel">Password</label>
         <div class="relative">
           <input
-            v-if="!showTwoFactor"
             aria-labelledby="passwordLabel"
             style="border-width: 1px;border-radius: 8px;"
             class="w-full h-10 focus:outline-none focus:ring-2  border-gray-300 pl-3 pr-20 font-bold text-gray-700 text-base bg-gray-50" 
@@ -43,7 +41,7 @@
             v-model="password"
             id="password"
             :type="showPassword ? 'text' : 'password'"
-            tabindex="0"
+            tabindex="1"
             @focus="isPasswordFocused = true"
             @blur="isPasswordFocused = false"
             required="true"
@@ -52,17 +50,25 @@
           <UilArrowCircleUp v-if="capsLock && isPasswordFocused" style="transform: translateY(50%)" class="absolute text-gray-500 bottom-1/2 right-12"  size="18px" />
         </div>
       </div>
-      <div v-if="showTwoFactor" class="-mb-4">
-        <input
-          class="w-full h-10 focus:outline-none focus:ring focus:ring-2 focus:border-blue-300 border border-gray-300 rounded px-2 text-xs font-bold"
-          v-model="twoFactorCode"
-          type="text"
-          placeholder="Authentication code"
-        />
-        <p class="mt-1">Enter your 6 digit authenticator code above</p>
-    </div>
+      <div v-if="showTwoFactor" class="text-xs text-gray-500 font-bold " :class="{'text-red-600': error, 'focus-within:text-blue-500': !error, 'opacity-40': isLoading}">
+        <label for="2fa" id="2faLabel">Authentication code</label>
+        <div class="relative">
+          <input
+            aria-labelledby="2faLabel"
+            style="border-width: 1px;border-radius: 8px;"
+            class="w-full h-10 focus:outline-none focus:ring-2  border-gray-300 px-3 font-bold text-gray-700 text-base bg-gray-50" 
+            :class="{'ring-red-100 ring-2 border-red-600': error, 'ring-blue-300 focus:border-blue-500': !error}"
+            v-model="twoFactorCode"
+            id="2fa"
+            type="text"
+            tabindex="0"
+            required="true"
+          />
+        </div>
+        <p class="text-xs text-gray-400 mt-2">You have configured two factor authentication, please enter the 6 digit code</p>
+      </div>
 
-      <div class="flex justify-center items-center pt-3">
+      <div v-if="!showTwoFactor" class="flex justify-center items-center pt-3">
         <a class="text-sm" :class="{'text-gray-400': isLoading, 'text-blue-600': !isLoading}" href="#" @click="open(`${DRIVE_BASE}/remove`)" tabindex="-1">Forgot your password?</a>
       </div>
 
