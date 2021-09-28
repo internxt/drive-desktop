@@ -1,17 +1,17 @@
 <template>
-  <div class="bg-white">
-    <div class="flex statusBarMsg">
+  <div>
+    <div class="flex bg-white">
       <syncStatusText :msg="message" :syncState="syncState" :icon="icon"/>
     </div>
     <div class="flex justify-center flex-row">
-        <div v-if="playButtonState === 'active'" @click="forceSync()">
+        <div v-if="this.playButtonState !== 'loading'" @click="forceSync()">
           <PlayIcon class="buttonStatus" :playButtonState="playButtonState"/>
         </div>
-        <div v-else-if="stopButtonState === 'active'" @click="stopSync()">
-          <StopIcon class="buttonStatus" :stopButtonState="stopButtonState"/>
-        </div>
-        <div v-else >
+        <div v-else>
           <LoadingSpinAnimation class="buttonStatus" />
+        </div>
+        <div @click="stopSync()">
+          <StopIcon class="buttonStatus" :stopButtonState="stopButtonState"/>
         </div>
     </div>
   </div>

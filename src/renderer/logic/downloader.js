@@ -12,7 +12,6 @@ const { app } = require('@electron/remote')
 async function downloadFileTemp(cloudFile, filePath) {
   const storj = await getEnvironment()
   storj.config.download = { concurrency: 10 }
-  storj.config.useProxy = true
   const originalFileName = path.basename(filePath)
 
   const tempPath = Folder.getTempFolderPath()
