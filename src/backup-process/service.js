@@ -31,7 +31,7 @@ export async function createDevice() {
     {
       method: 'POST',
       headers,
-      body: JSON.stringify({ deviceName: os.hostname() })
+      body: JSON.stringify({ deviceName: os.hostname(), platform: os.platform() })
     }
   ).then(res => {
     return res.json()
