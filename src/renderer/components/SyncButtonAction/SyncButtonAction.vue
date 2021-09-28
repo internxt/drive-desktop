@@ -1,8 +1,6 @@
 <template>
-  <div>
-    <div class="flex bg-white">
-      <syncStatusText :msg="message" :syncState="syncState" :icon="icon"/>
-    </div>
+  <div class="bg-white flex">
+    <syncStatusText :msg="message" :syncState="syncState" :icon="icon"/>
     <div class="flex justify-center flex-row">
         <div v-if="this.playButtonState !== 'loading'" @click="forceSync()">
           <PlayIcon class="buttonStatus" :playButtonState="playButtonState"/>
