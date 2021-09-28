@@ -1,5 +1,5 @@
 import path from 'path'
-import fs from 'fs'
+import fs, { createWriteStream } from 'fs'
 import CheckDiskSpace from 'check-disk-space'
 import Logger from '../../libs/logger'
 import mkdirp from 'mkdirp'
@@ -11,6 +11,8 @@ const { app } = require('@electron/remote')
 
 async function downloadFileTemp(cloudFile, filePath) {
   const storj = await getEnvironment()
+  storj.config.download = { concurrency: 10 }
+  storj.config.useProxy = true
   const originalFileName = path.basename(filePath)
 
   const tempPath = Folder.getTempFolderPath()
@@ -39,48 +41,47 @@ async function downloadFileTemp(cloudFile, filePath) {
   )
 
   return new Promise((resolve, reject) => {
-    FileLogger.push({ filePath: filePath, filename: originalFileName, action: 'download', status: 'pending', date: Date() })
-    const state = storj.resolveFile(
-      cloudFile.bucket,
-      cloudFile.fileId,
-      tempFilePath,
-      {
-        progressCallback: function (progress, downloadedBytes, totalBytes) {
-          let progressPtg = progress * 100
-          progressPtg = progressPtg.toFixed(2)
-          app.emit(
-            'set-tooltip',
-            'Downloading ' + originalFileName + ' (' + progressPtg + '%).'
-          )
-          FileLogger.push({ filePath: filePath, filename: originalFileName, action: 'download', progress: progressPtg, date: Date() })
-        },
-        finishedCallback: function (err) {
-          app.emit('set-tooltip')
-          app.removeListener('sync-stop', stopDownloadHandler)
-          if (err) {
-            Logger.error(`download failed, file id: ${cloudFile.fileId}`)
-            // FileLogger.push(filePath, originalFileName, 'download', 'error')
-            reject(err)
-          } else {
+    const state = storj.download(cloudFile.bucket, cloudFile.fileId, {
+      progressCallback: function (progress) {
+        let progressPtg = progress * 100
+        progressPtg = progressPtg.toFixed(2)
+        app.emit(
+          'set-tooltip',
+          'Downloading ' + originalFileName + ' (' + progressPtg + '%).'
+        )
+        FileLogger.push({ filePath: filePath, filename: originalFileName, action: 'download', progress: progressPtg, date: Date() })
+      },
+      finishedCallback: (err, downloadStream) => {
+        if (err || !downloadStream) {
+          Logger.error(`download failed, file id: ${cloudFile.fileId}`)
+          // FileLogger.push(filePath, originalFileName, 'download', 'error')
+          reject(err)
+        } else {
+          FileLogger.push({ filePath: filePath, filename: originalFileName, action: 'download', status: 'pending', date: Date() })
+          const writable = createWriteStream(tempFilePath)
+
+          downloadStream.on('data', (chunk) => {
+            writable.write(chunk)
+          })
+
+          downloadStream.once('end', () => {
+            writable.close()
+            app.emit('set-tooltip')
+            app.removeListener('sync-stop', stopDownloadHandler)
             Logger.log('Download finished')
-            // FileLogger.push(filePath, originalFileName, 'download', 'success')
             resolve(tempFilePath)
-          }
-        },
-        debug: (message) => {
-          try {
-            Logger.warn('NODE-LIB DOWNLOAD: ' + message)
-          } catch (e) {
-            Logger.warn(e)
-          }
+          })
+
+          downloadStream.once('error', (err) => {
+            writable.close()
+            Logger.error(`download failed, file id: ${cloudFile.fileId} ${err}`)
+            reject(err)
+          })
         }
-      }
-    )
+      }}, { label: 'OneStreamOnly', params: {} })
 
     const stopDownloadHandler = () => {
-      (function (storj, state) {
-        storj.resolveFileCancel(state)
-      })(storj, state)
+      state.stop()
     }
 
     app.once('sync-stop', stopDownloadHandler)

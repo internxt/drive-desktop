@@ -12,8 +12,7 @@
         <FileItem fileType="backup" :filePath="backupProgress.currentBackup.path" :name="basename(backupProgress.currentBackup.path)" :info="`Backing up... ${backupProgress.currentBackupProgress !== null ? `(${backupProgress.currentBackupProgress}%)` : ''}`" />
       </div>
       <div v-if="this.FileStatusSync.length > 0" class="clearLog top-0 right-0 z-10">
-          <div v-if="this.isSyncing" class="button disabled">Clear</div>
-          <div v-else @click="clearFileLogger()" class="button">Clear</div>
+          <div v-if="!this.isSyncing" @click="clearFileLogger()" class="button">Clear</div>
       </div>
       <div v-for="group in timestampGroups" :key="group.name">
 
