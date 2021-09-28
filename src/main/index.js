@@ -105,7 +105,7 @@ function createWindow() {
     maximizable: false, // this won't work on linux
     autoHideMenuBar: false,
     skipTaskbar: process.env.NODE_ENV !== 'development',
-    show: true,
+    show: false,
     menuBarVisible: false,
     centered: true
   })
@@ -116,6 +116,10 @@ function createWindow() {
 
   mainWindow.on('closed', appClose)
   mainWindow.on('close', appClose)
+
+  mainWindow.once('ready-to-show', () => {
+    mainWindow.show()
+  })
 
   mainWindow.on('blur', () => {
     if (!isLogin && !isOnboarding) mainWindow.hide()
