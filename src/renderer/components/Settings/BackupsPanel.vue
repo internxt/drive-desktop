@@ -129,10 +129,17 @@ export default {
       ipcRenderer.send('start-backup-process')
     },
     async stopBackupProcess() {
-      const {response} = await remote.dialog.showMessageBox(remote.getCurrentWindow(),
-        { type: 'question', buttons: ['Confirm', 'Cancel'], defaultId: 1, cancelId: 1, title: 'Confirm backup stop', message: 'Are you sure that you want to stop the ongoing backup process?' })
-
-      if (response === 0) { ipcRenderer.send('stop-backup-process') }
+      this.$store.originalDispatch('showSettingsDialog', {
+        title: 'Confirm backup stop',
+        description: 'Are you sure that you want to stop the ongoing backup process?',
+        answers: [
+          {text: 'Cancel'},
+          {text: 'Confirm', state: 'red'}
+        ],
+        callback: (response) => {
+          if (response === 1) { ipcRenderer.send('stop-backup-process') }
+        }
+      })
     },
     setBackupProgress(value) {
       this.backupProgress = value

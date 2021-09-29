@@ -1,6 +1,6 @@
 <template>
   <button
-    :class="`tracking-wide text-sm whitespace-nowrap ${style}`"
+    :class="`tracking-wide text-sm whitespace-nowrap ${style} ${fluid ? 'w-full' : ''}`"
     :style="`border-width: 1px; border-radius: 8px; padding: 4px 12px; cursor: ${isDisabled ? 'default' : 'pointer'} !important;`"
     @click.stop="$emit('click')"
     :disabled="isDisabled"
@@ -11,7 +11,7 @@
 
 <script>
 export default {
-  props: { state: {type: String, default: 'default'} },
+  props: { state: {type: String, default: 'default'}, fluid: {type: Boolean, default: false} },
   computed: {
     style() {
       switch (this.state) {

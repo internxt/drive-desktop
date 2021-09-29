@@ -90,22 +90,18 @@ export default {
   },
   methods: {
     logout() {
-      remote.dialog
-        .showMessageBox(remote.getCurrentWindow(), {
-          type: 'question',
-          buttons: ['Yes', 'No'],
-          default: 1,
-          cancelId: 1,
-          title: 'Dialog',
-          message: 'Would you like to remember where your sync folder is the next time you log in?'
-        })
-        .then(userResponse => {
+      this.$store.originalDispatch('showSettingsDialog', {
+        title: 'You are about to log out',
+        description: 'Would you like to remember where your sync folder is the next time you log in?',
+        answers: [{text: 'No'}, {text: 'Yes', state: 'accent'}],
+        callback: (userResponse) => {
           if (userResponse.response === 0) {
             remote.app.emit('user-logout', true)
           } else {
             remote.app.emit('user-logout', false)
           }
-        })
+        }
+      })
     }
   },
   computed: {

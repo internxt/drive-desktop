@@ -1,5 +1,5 @@
 <template>
-  <div ref="rootElement">
+  <div ref="rootElement" class="relative">
     <div class="relative bg-white p-1 h-6" style="-webkit-app-region: drag">
       <div v-if="!isMacOS" class="w-min" @click="closeWindow" style="-webkit-app-region: no-drag">
         <UilMultiply class="hover:text-gray-500 block"/>
@@ -28,6 +28,7 @@
         <component :is="currentSection" :backupStatus="backupStatus" />
       </keep-alive>
     </div>
+    <Dialog v-if="$store.state.ui.settingsDialog"/>
   </div>
 </template>
 
@@ -45,6 +46,7 @@ import Button from './Button/Button.vue'
 import BackupsSection from './Settings/BackupsSection.vue'
 import AccountSection from './Settings/AccountSection.vue'
 import GeneralSection from './Settings/GeneralSection.vue'
+import Dialog from './Settings/Dialog.vue'
 import BackupIcon from './Icons/BackupIcon.vue'
 import Avatar from './Avatar/Avatar.vue'
 import { ipcRenderer } from 'electron'
@@ -62,7 +64,8 @@ export default {
     UilSetting,
     UilAt,
     UilHistory,
-    BackupIcon
+    BackupIcon,
+    Dialog
   },
   data() {
     return {
