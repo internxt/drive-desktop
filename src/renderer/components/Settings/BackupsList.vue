@@ -24,7 +24,7 @@
       >
         <div class="flex items-center overflow-hidden">
           <input v-model="backup.enabled" type="checkbox" style="margin-right: 6px" @change="() => onBackupCheckboxChanged(backup)"/>
-          <UilFolder style="margin-right: 6px" class="text-blue-500 flex-shrink-0" />
+          <img :src="FolderIcon" style="margin-right: 6px" class="flex-shrink-0 w-4 h-4" />
           <p class="truncate">{{ basename(backup.path) }}</p>
         </div>
         <BackupsError :error="findErrorForBackup(backup.id)" @actionClick="(action) => action === 'FIND_FOLDER' ? findFolder(backup) : startBackupProcess()"/>
@@ -68,6 +68,7 @@ import fs from 'fs'
 import path from 'path'
 import electron, {ipcRenderer} from 'electron'
 import BackupsError from './BackupError.vue'
+import FolderIcon from '../../assets/icons/apple/folder.svg'
 const remote = require('@electron/remote')
 
 export default {
@@ -81,7 +82,8 @@ export default {
       backupsToDelete: [],
       backupsToUpdate: [],
       backupSelected: null,
-      loading: false
+      loading: false,
+      FolderIcon
     }
   },
   mounted() {
