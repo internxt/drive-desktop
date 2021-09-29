@@ -27,7 +27,7 @@ export default {
   },
   computed: {
     fontSize() {
-      return parseInt(this.size) / 2
+      return parseInt(this.size) / 2.5
     }
   }
 }
