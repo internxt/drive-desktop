@@ -621,7 +621,7 @@ async function startBackupProcess() {
       )
       .catch(Logger.error)
 
-    const cleanUp = async ({exitReason}) => {
+    const cleanUp = async ({exitReason, errorCode}) => {
       worker.destroy()
       if (backupProcessRerun) {
         clearTimeout(backupProcessRerun)
@@ -642,7 +642,7 @@ async function startBackupProcess() {
           notifyBackupErrors()
         }
       } else if (exitReason === 'ERROR') {
-        notifyBackupCouldntStart()
+        notifyBackupsFatalError(errorCode)
         backupProcessStatus = BackupStatus.STANDBY
       } else {
         backupProcessStatus = BackupStatus.STANDBY
@@ -652,7 +652,7 @@ async function startBackupProcess() {
     }
 
     ipcMain.once('backup-process-done', () => cleanUp({exitReason: 'DONE'}))
-    ipcMain.once('backup-process-fatal-error', () => cleanUp({exitReason: 'ERROR'}))
+    ipcMain.once('backup-process-fatal-error', (_, errorCode) => cleanUp({exitReason: 'ERROR', errorCode}))
     ipcMain.once('stop-backup-process', () => cleanUp({exitReason: 'STOP'}))
   }
 }
@@ -678,9 +678,26 @@ function notifyBackupErrors() {
   })
 }
 
-function notifyBackupCouldntStart() {
+function notifyBackupsFatalError(errorCode) {
+  if (errorCode === ErrorCodes.NO_CONNECTION) {
+    notifyBackupProcessWithNoConnection()
+  } else if (errorCode === ErrorCodes.NO_SPACE) {
+    notifyBackupHasNoSpace()
+  }
+}
+
+function notifyBackupHasNoSpace() {
   const notification = new Notification({
-    title: 'Backup Process could not start',
+    title: `Backup Process couldn't continue`,
+    body: 'There was no space to do one of your backups'
+  })
+
+  notification.show()
+}
+
+function notifyBackupProcessWithNoConnection() {
+  const notification = new Notification({
+    title: `Backup Process couldn't start`,
     body: 'Check that you have a working internet connection. We will retry later, click to try now.'
   })
 

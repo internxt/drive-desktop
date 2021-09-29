@@ -143,3 +143,23 @@ export function updateBackupsOfDevice(deviceId, data) {
     body: JSON.stringify(data)
   })
 }
+
+export function fetchUsage() {
+  const headers = getHeaders()
+  return fetch(`${process.env.API_URL}/api/usage`, {
+    method: 'GET',
+    headers
+  }).then(res => {
+    return res.json()
+  })
+}
+
+export function fetchLimit() {
+  const headers = getHeaders()
+  return fetch(`${process.env.API_URL}/api/limit`, {
+    method: 'GET',
+    headers
+  }).then(res => {
+    return res.json()
+  })
+}

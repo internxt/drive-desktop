@@ -1,4 +1,4 @@
-import { updateBackup, getAllBackups } from './service'
+import { updateBackup, getAllBackups, fetchLimit, fetchUsage } from './service'
 import { ipcRenderer } from 'electron'
 import fs from 'fs'
 import ErrorCodes from './error-codes'
@@ -20,7 +20,7 @@ const { Environment } = require('@internxt/inxt-js')
     pendingBackups = await getPendingBackups()
   } catch (err) {
     Logger.error('Error fetching backups', err)
-    ipcRenderer.send('backup-process-fatal-error')
+    ipcRenderer.send('backup-process-fatal-error', ErrorCodes.NO_CONNECTION)
     return
   }
 
@@ -47,6 +47,14 @@ const { Environment } = require('@internxt/inxt-js')
         index
       )
       if (plainHash !== backup.hash) {
+        const enoughSpace = await isThereEnoughSpace(backup.size ? backup.size : 0, size)
+
+        if (!enoughSpace) {
+          Logger.error('Ran out of space before a backup', backup)
+          ipcRenderer.send('backup-process-fatal-error', ErrorCodes.NO_SPACE)
+          return
+        }
+
         const fileId = await upload({
           backup,
           userInfo,
@@ -233,4 +241,13 @@ async function getPendingBackups() {
       new Date(a.lastBackupAt).valueOf() - new Date(b.lastBackupAt).valueOf()
     )
   })
+}
+
+async function isThereEnoughSpace(sizeOfLastVersion, sizeOfNewVersion) {
+  const [limitInfo, usageInfo] = await Promise.all([fetchLimit(), fetchUsage()])
+
+  const limit = limitInfo.maxSpaceBytes
+  const usage = usageInfo.total
+
+  return (limit - usage - sizeOfNewVersion + sizeOfLastVersion) >= 0
 }
