@@ -103,6 +103,8 @@ export default {
         if (!this.blockTimeout) {
           this.blockTimeout = setTimeout(() => {
             this.playButtonState = 'active'
+            this.message = getMessage('default')
+            this.icon = null
             this.blockTimeout = 0
           }, 60 * 1000)
         }
