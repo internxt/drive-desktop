@@ -55,25 +55,25 @@ function deterministicDecryption(cipherText, salt) {
   }
 }
 
-function decryptName(cipherText, salt) {
+function decryptName(cipherText, salt, encryptVersion) {
   if (!salt) {
     // If no salt, something is trying to use legacy decryption
     return probabilisticDecryption(cipherText)
+  }
+  try {
+    const possibleAesResult = AesUtil.decrypt(cipherText, salt)
+    return possibleAesResult
+  } catch (e) {
+    Logger.warn(`AES Decrypt failed cipher: ${cipherText}, salt: ${salt}, message: ${e.message}, encryptVersion: ${encryptVersion}`)
+    Logger.warn(e.stack)
+  }
+  const decrypted = deterministicDecryption(cipherText, salt)
+
+  if (!decrypted) {
+    Logger.warn('Error decrypting on a deterministic way')
+    return probabilisticDecryption(cipherText)
   } else {
-    try {
-      const possibleAesResult = AesUtil.decrypt(cipherText, salt)
-      return possibleAesResult
-    } catch (e) {
-
-    }
-    const decrypted = deterministicDecryption(cipherText, salt)
-
-    if (!decrypted) {
-      Logger.warn('Error decrypting on a deterministic way')
-      return probabilisticDecryption(cipherText)
-    } else {
-      return decrypted
-    }
+    return decrypted
   }
 }
 

@@ -131,7 +131,7 @@ export async function getAllBackups() {
   })
   return backups.map(backup => ({
     ...backup,
-    path: crypt.decryptName(backup.path, backup.bucket)
+    path: crypt.decryptName(backup.path, backup.bucket, backup.encrypt_version)
   }))
 }
 

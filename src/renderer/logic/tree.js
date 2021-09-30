@@ -68,7 +68,7 @@ async function regenerateDbFolderCloud(tree) {
       continue
     }
     finalDict[item.id] = {
-      path: crypt.decryptName(item.name, item.parent_id),
+      path: crypt.decryptName(item.name, item.parent_id, item.encrypt_version),
       parent: item.parent_id,
       full: false
     }
@@ -111,7 +111,7 @@ async function regenerateDbFileCloud(tree, folderDict) {
       continue
     }
     const filePath = folderDict[item.folder_id].path
-    item.filename = crypt.decryptName(item.name, item.folder_id)
+    item.filename = crypt.decryptName(item.name, item.folder_id, item.encrypt_version)
 
     item.fullpath = path.join(
       filePath,
