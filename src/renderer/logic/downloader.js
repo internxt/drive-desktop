@@ -40,50 +40,52 @@ async function downloadFileTemp(cloudFile, filePath) {
   )
 
   return new Promise((resolve, reject) => {
-    const state = storj.download(cloudFile.bucket, cloudFile.fileId, {
-      progressCallback: function (progress) {
-        let progressPtg = progress * 100
-        progressPtg = progressPtg.toFixed(2)
-        app.emit(
-          'set-tooltip',
-          'Downloading ' + originalFileName + ' (' + progressPtg + '%).'
-        )
-        FileLogger.push({ filePath: filePath, filename: originalFileName, action: 'download', progress: progressPtg, date: Date() })
-      },
-      finishedCallback: (err, downloadStream) => {
-        if (err || !downloadStream) {
-          Logger.error(`download failed, file id: ${cloudFile.fileId}`)
-          // FileLogger.push(filePath, originalFileName, 'download', 'error')
-          reject(err)
-        } else {
-          FileLogger.push({ filePath: filePath, filename: originalFileName, action: 'download', status: 'pending', date: Date() })
-          const writable = createWriteStream(tempFilePath)
-
-          downloadStream.on('data', (chunk) => {
-            writable.write(chunk)
-          })
-
-          downloadStream.once('end', () => {
-            writable.close()
-            app.emit('set-tooltip')
-            app.removeListener('sync-stop', stopDownloadHandler)
-            Logger.log('Download finished')
-            resolve(tempFilePath)
-          })
-
-          downloadStream.once('error', (err) => {
-            writable.close()
-            Logger.error(`download failed, file id: ${cloudFile.fileId} ${err}`)
+    try {
+      const state = storj.download(cloudFile.bucket, cloudFile.fileId, {
+        progressCallback: function (progress) {
+          let progressPtg = progress * 100
+          progressPtg = progressPtg.toFixed(2)
+          app.emit(
+            'set-tooltip',
+            'Downloading ' + originalFileName + ' (' + progressPtg + '%).'
+          )
+          FileLogger.push({ filePath: filePath, filename: originalFileName, action: 'download', progress: progressPtg, date: Date() })
+        },
+        finishedCallback: (err, downloadStream) => {
+          if (err || !downloadStream) {
+            Logger.error(`download failed, file id: ${cloudFile.fileId}`)
+            FileLogger.push({filePath, filename: originalFileName, action: 'download', status: 'error'})
             reject(err)
-          })
-        }
-      }}, { label: 'OneStreamOnly', params: {} })
+          } else {
+            const writable = createWriteStream(tempFilePath)
 
-    const stopDownloadHandler = () => {
-      state.stop()
+            downloadStream.on('data', (chunk) => {
+              writable.write(chunk)
+            })
+
+            downloadStream.once('end', () => {
+              writable.close()
+              app.emit('set-tooltip')
+              app.removeListener('sync-stop', stopDownloadHandler)
+              Logger.log('Download finished')
+              resolve(tempFilePath)
+            })
+
+            downloadStream.once('error', (err) => {
+              writable.close()
+              Logger.error(`download failed, file id: ${cloudFile.fileId} ${err}`)
+              reject(err)
+            })
+          }
+        }}, { label: 'OneStreamOnly', params: {} })
+      const stopDownloadHandler = () => {
+        state.stop()
+        reject(new Error('stop sync'))
+      }
+      app.once('sync-stop', stopDownloadHandler)
+    } catch (err) {
+      reject(err)
     }
-
-    app.once('sync-stop', stopDownloadHandler)
   })
 }
 

@@ -77,6 +77,7 @@
             >
             <a class="text-gray-700 dropdown-item">Send feedback</a>
             <a class="text-gray-700 dropdown-item">Error log</a>
+            <a v-if="!isProduction" class="text-gray-700 dropdown-item" @click="unlockDevice">Unlock</a>
             <a class="text-gray-700 dropdown-item" @click="quitApp">Quit</a>
           </div>
         </div>
@@ -238,6 +239,7 @@ import Checkbox from '../Icons/Checkbox.vue'
 import Avatar from '../Avatar/Avatar.vue'
 import BackupIcon from '../Icons/BackupIcon.vue'
 import { ipcRenderer } from 'electron'
+import DeviceLock from '../../logic/devicelock'
 
 Vue.use(VToolTip)
 const remote = require('@electron/remote')
@@ -388,6 +390,10 @@ export default {
     },
     quitApp() {
       remote.app.emit('app-close')
+    },
+    unlockDevice() {
+      DeviceLock.unlock()
+      remote.app.emit('ui-sync-status', 'unblock')
     }
   },
   name: 'Header',

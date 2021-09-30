@@ -568,11 +568,6 @@ async function downloadFile(file, cloudFile, localFile) {
     }
     remote.app.emit('set-tooltip', `Downloading file to ${file.key}`)
     // FileLogger.download (normal)
-    FileLogger.push({
-      filePath: file.key,
-      filename: path.basename(file.key),
-      action: 'download'
-    })
     analytics
       .track({
         userId: undefined,
@@ -589,6 +584,11 @@ async function downloadFile(file, cloudFile, localFile) {
         Logger.error(err)
       })
     const tempPath = await downloader.downloadFileTemp(cloudFile, file.key)
+    FileLogger.push({
+      filePath: file.key,
+      action: 'download',
+      state: 'success'
+    })
     if (localFile) {
       try {
         fs.unlinkSync(file.key)
@@ -610,11 +610,6 @@ async function downloadFile(file, cloudFile, localFile) {
     file.value = cloudFile
     file.needSync = false
     // Notificatios.download.success (normal)
-    FileLogger.push({
-      filePath: file.key,
-      action: 'download',
-      state: 'success'
-    })
     analytics
       .track({
         userId: undefined,

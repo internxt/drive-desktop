@@ -82,7 +82,7 @@ export default {
   },
   created: function() {
     remote.app.on('ui-sync-status', status => {
-      // console.log(`status entering: ${status}`)
+      console.log(`status entering: ${status}`)
       if (status === 'success') {
         clearTimeout(this.blockTimeout)
         this.blockTimeout = 0
@@ -92,7 +92,7 @@ export default {
         this.icon = null
         FileLogger.saveLog()
       }
-      if (status === 'default') {
+      if (status === 'default' || status === 'unblock') {
         this.playButtonState = 'active'
         this.stopButtonState = 'inactive'
         this.message = getMessage('default')

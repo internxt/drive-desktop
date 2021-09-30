@@ -93,11 +93,6 @@ export default {
     remote.app.removeListener('backup-status-update', this.setBackupStatus)
   },
   methods: {
-    UnlockDevice() {
-      DeviceLock.unlock()
-      // Unlock ui
-      remote.app.emit('ui-sync-status', 'default')
-    },
     // Open Filelogger log (activity of uploads, downloads, etc)
     openFileloggerLog() {
       remote.shell.openPath(path.join(__dirname, '../../../../database/fileLogger'))
