@@ -35,7 +35,7 @@
                 </div> -->
               </div>
             </div>
-            <Button state="accent">Upgrade</Button>
+            <Button state="accent" @click="goToPricing">Upgrade</Button>
           </div>
           <div class="progress mt-4 h-1">
             <div
@@ -102,6 +102,9 @@ export default {
           }
         }
       })
+    },
+    goToPricing() {
+      remote.shell.openExternal('https://www.internxt.com/pricing')
     }
   },
   computed: {
@@ -111,7 +114,7 @@ export default {
       return this.user.name + ' ' + this.user.lastname
     },
     percentageUsed() {
-      return ((bytes.parse(this.usage) / bytes.parse(this.limit)) * 100).toFixed(2)
+      return parseInt((bytes.parse(this.usage) / bytes.parse(this.limit)) * 100)
     }
   }
 }
