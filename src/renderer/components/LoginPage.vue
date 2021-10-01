@@ -46,7 +46,7 @@
             @blur="isPasswordFocused = false"
             required="true"
           />
-          <p v-if="isPasswordFocused" style="transform: translateY(50%)" class="text-gray-500 absolute bottom-1/2 right-3 cursor-pointer font-bold" @click="toggleShowPassword">{{showPassword ? 'Hide' : 'Show'}}</p>
+          <p v-if="isPasswordFocused" style="transform: translateY(50%)" class="text-gray-500 absolute bottom-1/2 right-3 cursor-pointer font-bold" @mousedown.prevent="toggleShowPassword" >{{showPassword ? 'Hide' : 'Show'}}</p>
           <UilArrowCircleUp v-if="capsLock && isPasswordFocused" style="transform: translateY(50%)" class="absolute text-gray-500 bottom-1/2 right-12"  size="18px" />
         </div>
       </div>
