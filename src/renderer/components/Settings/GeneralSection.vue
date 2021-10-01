@@ -74,7 +74,8 @@ export default {
 
     changeFolder() {
       const newDir = remote.dialog.showOpenDialogSync({
-        properties: ['openDirectory']
+        properties: ['openDirectory'],
+        defaultPath: this.path
       })
       if (newDir && newDir.length > 0 && fs.existsSync(newDir[0])) {
         if (newDir[0] === remote.app.getPath('home')) {
