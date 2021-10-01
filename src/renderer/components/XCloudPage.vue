@@ -6,6 +6,7 @@
     <FileStatus :backupProgress="backupProgress" class="fileStatus bg-white fileLogger overflow-y-auto overflow-x-hidden flex flex-col flex-grow flex-shrink" :FileStatusSync="FileStatusSync" />
     <SyncButtonAction class="statusBar overflow-hidden flex flex-none justify-between py-2 px-3" :FileStatusSync="FileStatusSync"/>
     <BackupProgress v-if="backupProgress" style="transform: translateX(-50%)" class="absolute bottom-14 left-1/2 w-11/12" :progress="backupProgress"/>
+    <Dialog v-if="$store.state.ui.settingsDialog"/>
   </div>
 </template>
 
@@ -19,6 +20,7 @@ import SpaceUsage from '../logic/utils/spaceusage'
 import ConfigStore from '../../../src/main/config-store'
 import Header from '../components/Header/Header'
 import FileStatus from '../components/FileStatus/FileStatus'
+import Dialog from '../components/Settings/Dialog.vue'
 import SyncButtonAction from '../components/SyncButtonAction/SyncButtonAction'
 import BackupProgress from '../components/BackupProgress/BackupProgress.vue'
 import BackupErrorBanner from './BackupErrorBanner/BackupErrorBanner.vue'
@@ -39,7 +41,8 @@ export default {
     SyncButtonAction,
     BackupProgress,
     BackupErrorBanner,
-    ConnectionBanner
+    ConnectionBanner,
+    Dialog
   },
 
   data() {

@@ -66,7 +66,7 @@
             }"
           />
 
-          <div class="dropdown-menu">
+          <div class="dropdown-menu rounded-lg">
             <a
               class="text-gray-700 dropdown-item"
               @click="() => openSettingsWindow('general')"
@@ -75,10 +75,9 @@
             <a class="text-gray-700 dropdown-item" @click="ContactSupportMailto"
               >Support</a
             >
-            <a class="text-gray-700 dropdown-item">Send feedback</a>
-            <a class="text-gray-700 dropdown-item">Error log</a>
+            <a class="text-gray-700 dropdown-item" @click="logout">Log out</a>
             <a v-if="!isProduction" class="text-gray-700 dropdown-item" @click="unlockDevice">Unlock</a>
-            <a class="text-gray-700 dropdown-item" @click="quitApp">Quit</a>
+            <a class="text-gray-700 dropdown-item border-gray-100 border-t border-solid pt-2" @click="quitApp">Quit</a>
           </div>
         </div>
       </div>
@@ -394,6 +393,20 @@ export default {
     unlockDevice() {
       DeviceLock.unlock()
       remote.app.emit('ui-sync-status', 'unblock')
+    },
+    logout() {
+      this.$store.originalDispatch('showSettingsDialog', {
+        title: 'You are about to log out',
+        description: 'Would you like to remember where your sync folder is the next time you log in?',
+        answers: [{text: 'No'}, {text: 'Yes', state: 'accent'}],
+        callback: (userResponse) => {
+          if (userResponse.response === 0) {
+            remote.app.emit('user-logout', true)
+          } else {
+            remote.app.emit('user-logout', false)
+          }
+        }
+      })
     }
   },
   name: 'Header',
