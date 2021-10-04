@@ -63,6 +63,10 @@ const schema = {
   lastBackup: {
     type: 'number',
     default: -1
+  },
+  askBeforeDisablingBackup: {
+    type: 'boolean',
+    default: true
   }
 }
 

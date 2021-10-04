@@ -1,5 +1,5 @@
 <template>
-  <div class="flex items-center cursor-pointer" :class="state">
+  <div class="flex items-center cursor-pointer w-max" :class="state">
     <svg
       @click="!disabled ? changeState() : null"
       :width="width"

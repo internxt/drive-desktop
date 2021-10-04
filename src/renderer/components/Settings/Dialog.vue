@@ -4,7 +4,10 @@
     
       <h1 class="font-semibold text-gray-800">{{details.title}}</h1>
       <p class="text-sm text-gray-500 mt-2">{{details.description}}</p>
-      <div class="flex items-center justify-center space-x-4 mt-6">
+      <div v-if="details.checkbox" class="mt-4 mx-auto">
+        <checkbox :label="details.checkbox" @click.native="checkboxValue = !checkboxValue"/> 
+      </div>
+      <div class="flex items-center justify-center mt-6" :class="{'flex-col space-y-2': details.buttonsInColumn, 'space-x-4': !details.buttonsInColumn}">
         <Button v-for="(answer,i) in details.answers" :key="i" :fluid="true" :state="answer.state" @click="() => emitAnswer(i)"> {{answer.text}}</Button>
       </div>
     </div>
@@ -13,10 +16,17 @@
 
 <script>
 import Button from '../Button/Button.vue'
+import Checkbox from '../Icons/Checkbox.vue'
 
 export default {
   components: {
-    Button
+    Button,
+    Checkbox
+  },
+  data() {
+    return {
+      checkboxValue: false
+    }
   },
   computed: {
     details() {
@@ -27,7 +37,7 @@ export default {
     emitAnswer(value) {
       const {callback} = this.details
       this.$store.originalDispatch('hideSettingsDialog')
-      callback(value)
+      callback(value, this.checkboxValue)
     }
   }
 }

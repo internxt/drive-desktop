@@ -98,16 +98,6 @@ export function updateBackupPath({ id, backupsBucketId, plainPath }) {
   })
 }
 
-export function deleteBackup(id) {
-  const headers = getHeaders()
-  return fetch(`${process.env.API_URL}/api/backup/${id}`, {
-    method: 'DELETE',
-    headers
-  }).then(res => {
-    if (res.status !== 200) throw new Error()
-  })
-}
-
 export function fetchUsersBackupBucket() {
   const headers = getHeaders()
   return fetch(`${process.env.API_URL}/api/user/backupsBucket`, {

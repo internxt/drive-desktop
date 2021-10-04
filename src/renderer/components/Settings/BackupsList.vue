@@ -1,6 +1,6 @@
 <template>
   <div @click.stop="backupSelected = null">
-    <p class="text-sm">Select folders you want to add to the next backup</p>
+    <p class="text-sm">Folders you want to add to the next backup</p>
     <div
       class="
         h-44
@@ -12,18 +12,17 @@
       "
     >
       <div
-        v-for="(backup, i) in backups"
+        v-for="(backup, i) in enabledBackups"
         :key="backup.id"
         :class="{
           'bg-gray-50': i % 2 != 0 && backupSelected != backup,
-          'bg-blue-50': backupSelected === backup,
+          'bg-blue-600 text-white': backupSelected === backup,
         }"
         class="flex items-center justify-between px-2 py-1 max-w-full"
         @click.stop="backupSelected = backup"
         @dblclick="() => openFolder(backup.path)"
       >
         <div class="flex items-center overflow-hidden">
-          <input v-model="backup.enabled" type="checkbox" style="margin-right: 6px" @change="() => onBackupCheckboxChanged(backup)"/>
           <img :src="FolderIcon" style="margin-right: 6px" class="flex-shrink-0 w-4 h-4" />
           <p class="truncate">{{ basename(backup.path) }}</p>
         </div>
@@ -37,14 +36,12 @@
       <div class="flex items-center space-x-1">
         <Button @click="selectFolder">
           <div class="flex items-center">
-            <UilPlus class="inline mr-1" size="18px" />
-            <p>Add folder</p>
+            <UilPlus class="inline" size="18px" />
           </div>
         </Button>
-        <Button v-if="false" :state="backupSelected ? 'red' : 'red-disabled'" @click="removeBackup">
+        <Button @click="disableBackup" :state="backupSelected ? 'default' : 'default-disabled'">
           <div class="flex items-center">
-            <UilTrashAlt class="inline mr-1" size="18px" />
-            <p>Remove folder</p>
+            <UilMinus class="inline" size="18px" />
           </div>
         </Button>
       </div>
@@ -60,27 +57,28 @@
 import {
   UilFolder,
   UilPlus,
-  UilTrashAlt
+  UilTrashAlt,
+  UilMinus
 } from '@iconscout/vue-unicons'
-import {getAllBackups, createBackup, deleteBackup, updateBackup, updateBackupPath} from '../../../backup-process/service'
+import {getAllBackups, createBackup, updateBackup, updateBackupPath} from '../../../backup-process/service'
 import Button from '../Button/Button.vue'
 import fs from 'fs'
 import path from 'path'
 import electron, {ipcRenderer} from 'electron'
 import BackupsError from './BackupError.vue'
 import FolderIcon from '../../assets/icons/apple/folder.svg'
+import ConfigStore from '../../../main/config-store'
 const remote = require('@electron/remote')
 
 export default {
-  components: {UilFolder, Button, UilPlus, UilTrashAlt, BackupsError},
+  components: {UilFolder, Button, UilPlus, UilTrashAlt, BackupsError, UilMinus},
   props: ['backupsBucket', 'errors'],
   data() {
     return {
-      backups: [
-      ],
-      backupsToAdd: [],
-      backupsToDelete: [],
-      backupsToUpdate: [],
+      backups: [],
+      backupsToCreate: [],
+      backupsToDisable: [],
+      backupsToEnable: [],
       backupSelected: null,
       loading: false,
       FolderIcon
@@ -102,52 +100,77 @@ export default {
       if (newDir && newDir.length > 0 && fs.existsSync(newDir[0])) {
         const newDirPath = newDir[0]
 
-        this.addBackup(newDirPath)
+        this.enableBackup(newDirPath)
       }
     },
-    addBackup(path) {
-      const isDeleted = this.findBackupByPath(this.backupsToDelete, path)
-      if (isDeleted) {
-        this.backups.push(isDeleted)
-        this.deleteBackupFromList(this.backupsToDelete, path)
-        return
+    enableBackup(path) {
+      const existsAlready = this.findBackupByPath(this.backups, path)
+
+      if (!existsAlready) {
+        const newBackup = {path, enabled: true}
+        this.backupsToCreate.push(newBackup)
+        this.backups.push(newBackup)
+      } else {
+        existsAlready.enabled = true
+
+        const toDisable = this.findBackupByPath(this.backupsToDisable, path)
+        if (toDisable) {
+          this.deleteBackupFromList(this.backupsToDisable, path)
+        } else {
+          this.backupsToEnable.push(existsAlready)
+        }
+      }
+    },
+    disableBackup() {
+      const dialogCallback = (response = 0, dontAskAgain = false) => {
+        if (response === 0) {
+          const toCreate = this.findBackupByPath(this.backupsToCreate, this.backupSelected.path)
+          const toEnable = this.findBackupByPath(this.backupsToEnable, this.backupSelected.path)
+
+          if (toCreate) {
+            this.deleteBackupFromList(this.backupsToCreate, this.backupSelected.path)
+            this.deleteBackupFromList(this.backups, this.backupSelected.path)
+          } else if (toEnable) {
+            this.deleteBackupFromList(this.backupsToEnable, this.backupSelected.path)
+            this.findBackupByPath(this.backups, this.backupSelected.path).enabled = false
+          } else {
+            this.backupsToDisable.push(this.backupSelected)
+            this.findBackupByPath(this.backups, this.backupSelected.path).enabled = false
+          }
+
+          this.backupSelected = null
+        }
+
+        if (dontAskAgain) {
+          ConfigStore.set('askBeforeDisablingBackup', false)
+        }
       }
 
-      if (this.findBackupByPath(this.backups, path)) { return }
-
-      const newBackup = {path, enabled: true}
-      this.backupsToAdd.push(newBackup)
-      this.backups.push(newBackup)
-    },
-    removeBackup() {
-      this.deleteBackupFromList(this.backups, this.backupSelected.path)
-
-      const isAdded = this.findBackupByPath(this.backupsToAdd, this.backupSelected.path)
-
-      if (isAdded) { this.deleteBackupFromList(this.backupsToAdd, this.backupSelected.path) } else {
-        this.backupsToDelete.push(this.backupSelected)
-        this.deleteBackupFromList(this.backupsToUpdate, this.backupSelected.path)
-      }
-      this.backupSelected = null
-    },
-    onBackupCheckboxChanged(backup) {
-      const existsInDB = !this.findBackupByPath(this.backupsToAdd, backup.path)
-
-      if (existsInDB) {
-        const hasBeenCheckedAlready = this.findBackupByPath(this.backupsToUpdate, backup.path)
-
-        if (hasBeenCheckedAlready) { this.deleteBackupFromList(this.backupsToUpdate, backup.path) } else { this.backupsToUpdate.push(backup) }
+      if (ConfigStore.get('askBeforeDisablingBackup')) {
+        this.$store.originalDispatch('showSettingsDialog', {
+          title: `Stop backing up "${this.basename(this.backupSelected.path)}"?`,
+          description: `New files added to this folder will no longer backup in your Internxt Drive. Original files will remain on your computer`,
+          answers: [
+            {text: 'Stop backing up this folder', state: 'accent'},
+            {text: 'Keep backing up'}
+          ],
+          checkbox: `Don't ask me again`,
+          buttonsInColumn: true,
+          callback: dialogCallback
+        })
+      } else {
+        dialogCallback()
       }
     },
     async save(closeAfter = true) {
-      const addPromises = this.backupsToAdd.map(backup => createBackup(backup, this.backupsBucket))
-      const deletePromises = this.backupsToDelete.map(backup => deleteBackup(backup.id))
-      const updatePromises = this.backupsToUpdate.map(({id, enabled}) => updateBackup({id, enabled}))
+      const createPromises = this.backupsToCreate.map(backup => createBackup(backup, this.backupsBucket))
+      const enablePromises = this.backupsToEnable.map(({id}) => updateBackup({id, enabled: true}))
+      const disablePromises = this.backupsToDisable.map(({id}) => updateBackup({id, enabled: false}))
 
       if (!closeAfter) {
         try {
           this.resetChanges()
-          await Promise.all([ ...addPromises, ...deletePromises, ...updatePromises ])
+          await Promise.all([ ...createPromises, ...enablePromises, ...disablePromises ])
           this.getAllBackups()
         } catch (err) {
           console.log(err)
@@ -167,9 +190,9 @@ export default {
       if (index !== -1) { arr.splice(index, 1) }
     },
     resetChanges() {
-      this.backupsToAdd = []
-      this.backupsToDelete = []
-      this.backupsToUpdate = []
+      this.backupsToCreate = []
+      this.backupsToEnable = []
+      this.backupsToDisable = []
     },
     findErrorForBackup(id) {
       return this.errors.find(error => error.backup_id === id)
@@ -205,7 +228,10 @@ export default {
   },
   computed: {
     thereIsSomethingToSave() {
-      return this.backupsToAdd.length || this.backupsToDelete.length || this.backupsToUpdate.length
+      return this.backupsToCreate.length || this.backupsToEnable.length || this.backupsToDisable.length
+    },
+    enabledBackups() {
+      return this.backups.filter(backup => backup.enabled)
     }
   }
 }
