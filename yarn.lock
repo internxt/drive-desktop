@@ -140,6 +140,13 @@
     lodash "^4.2.0"
     to-fast-properties "^2.0.0"
 
+"@bachdgvn/vue-otp-input@^1.0.8":
+  version "1.0.8"
+  resolved "https://registry.yarnpkg.com/@bachdgvn/vue-otp-input/-/vue-otp-input-1.0.8.tgz#e870f222170902ad9b39177949735990f36e15ac"
+  integrity sha512-yZJD3ONjwEfwrgvP1M+aMYK8VirMzsU4mUihz0SQokda4KX7zFPiWMUP0JNYvpomkrhLMXvFQaA+DsTmrfHSUg==
+  dependencies:
+    vue "^2.5.22"
+
 "@dabh/diagnostics@^2.0.2":
   version "2.0.2"
   resolved "https://registry.yarnpkg.com/@dabh/diagnostics/-/diagnostics-2.0.2.tgz#290d08f7b381b8f94607dc8f471a12c675f9db31"

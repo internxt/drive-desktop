@@ -50,21 +50,9 @@
           <UilArrowCircleUp v-if="capsLock && isPasswordFocused" style="transform: translateY(50%)" class="absolute text-gray-500 bottom-1/2 right-12"  size="18px" />
         </div>
       </div>
-      <div v-if="showTwoFactor" class="text-xs text-gray-500 font-bold " :class="{'text-red-600': error, 'focus-within:text-blue-500': !error, 'opacity-40': isLoading}">
+      <div v-if="showTwoFactor" class="text-xs text-gray-500 font-bold mb-10" :class="{'text-red-600': error, 'focus-within:text-blue-500': !error, 'opacity-40': isLoading}">
         <label for="2fa" id="2faLabel">Authentication code</label>
-        <div class="relative">
-          <input
-            aria-labelledby="2faLabel"
-            style="border-width: 1px;border-radius: 8px;"
-            class="w-full h-10 focus:outline-none focus:ring-2  border-gray-300 px-3 font-bold text-gray-700 text-base bg-gray-50" 
-            :class="{'ring-red-100 ring-2 border-red-600': error, 'ring-blue-300 focus:border-blue-500': !error}"
-            v-model="twoFactorCode"
-            id="2fa"
-            type="text"
-            tabindex="0"
-            required="true"
-          />
-        </div>
+        <OtpInput class="justify-center" :input-classes="`otp-input text-gray-600 h-10 w-8 mr-2 px-2 text-center text-base outline-none ${error ? 'border-red-600 ring-red-100 ring-2' : 'focus:ring-2 focus:border-blue-500 focus:ring-blue-300'}`" :num-inputs="6" :should-auto-focus="true" :is-input-num="true" @on-change="v => twoFactorCode = v" @on-complete="() => $refs['submit-button'].click()" separator=""/>
         <p class="text-xs text-gray-400 mt-2">You have configured two factor authentication, please enter the 6 digit code</p>
       </div>
 
@@ -75,16 +63,17 @@
         <button
           class="mt-6 native-key-bindings w-full text-white font-bold py-2.5 text-base focus:outline-none bg-blue-600 relative flex justify-end items-center h-10"
           style="border-radius: 8px"
-          :class="{'cursor-default opacity-40': !online, 'cursor-pointer': online, 'bg-blue-700 text-opacity-60 text-white': isLoading}"
+          :class="{'cursor-default opacity-40': !online, 'cursor-pointer': online, 'bg-blue-700 text-opacity-60 text-white': isLoading, 'hidden': showTwoFactor}"
           type="submit"
           tabindex="-1"
           :disabled="!online"
+          ref="submit-button"
         >
           <p style="transform: translate(-50%, -50%)" class="absolute left-1/2 top-1/2" :class="{'opacity-60': isLoading}">{{isLoading ? 'Logging in...'  : 'Login'}}</p>
           <UilSpinnerAlt v-if="isLoading" class="z-10 text-white animate-spin mr-3" size="22px" />
         </button>
       <div class="flex justify-center items-center pt-3">
-        <a class="text-sm" :class="{'text-gray-400': isLoading, 'text-blue-600': !isLoading}" href="#" @click="open(`${DRIVE_BASE}/new`)" tabindex="-1">Create account</a>
+        <a class="text-sm" :class="{'text-gray-400': isLoading, 'text-blue-600': !isLoading}" href="#" @click="() => showTwoFactor ? resetForm() : open(`${DRIVE_BASE}/new`)" tabindex="-1">{{showTwoFactor ? 'Change account' : 'Create account'}}</a>
       </div>
     </form>
   </main>
@@ -105,6 +94,7 @@ import Eye from '../components/ExportIcons/eye'
 import CrossEye from '../components/ExportIcons/cross-eye'
 import Auth from '../logic/utils/Auth'
 import { UilMultiply, UilArrowCircleUp, UilSpinnerAlt } from '@iconscout/vue-unicons'
+import OtpInput from '@bachdgvn/vue-otp-input'
 const remote = require('@electron/remote')
 const ROOT_FOLDER_NAME = 'Internxt Drive'
 const HOME_FOLDER_PATH = remote.app.getPath('home')
@@ -114,8 +104,6 @@ export default {
   name: 'login-page',
   beforeCreate() {
     remote.app.emit('window-show')
-  },
-  created() {
   },
   data() {
     return {
@@ -139,7 +127,8 @@ export default {
     CrossEye,
     UilMultiply,
     UilArrowCircleUp,
-    UilSpinnerAlt
+    UilSpinnerAlt,
+    OtpInput
   },
 
   mounted() {
@@ -365,7 +354,22 @@ export default {
     },
     onOnlineChanged() {
       this.online = navigator.onLine
+    },
+    resetForm() {
+      this.email = ''
+      this.password = ''
+      this.showTwoFactor = false
+      this.twoFactorCode = ''
+      this.error = null
     }
   }
 }
 </script>
+
+<style>
+
+.otp-input {
+  border-radius: 8px;
+  border-width: 1px;
+}
+</style>

@@ -101,6 +101,7 @@
     "afterSign": "resources/osx/notarize.js"
   },
   "dependencies": {
+    "@bachdgvn/vue-otp-input": "^1.0.8",
     "@electron/remote": "^1.0.4",
     "@fortawesome/fontawesome-svg-core": "^1.2.35",
     "@fortawesome/free-solid-svg-icons": "^5.15.3",
