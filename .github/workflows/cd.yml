@@ -45,24 +45,24 @@ jobs:
           path: |
             ./build/**/*
             ./node_modules/**/*
-  publish:
-    environment: 
-      name: production
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest]
-        node-version: [14.16.0]
+  # publish:
+  #   environment: 
+  #     name: production
+  #   runs-on: ${{ matrix.os }}
+  #   strategy:
+  #     matrix:
+  #       os: [ubuntu-latest]
+  #       node-version: [14.16.0]
 
-    steps:
-      - uses: actions/checkout@v2
-      - name: Use Node.js ${{ matrix.node-version }} and OS ${{ matrix.os }}
-        uses: actions/setup-node@v1
-        with:
-          node-version: ${{ matrix.node-version }}
-          registry-url: 'https://npm.pkg.github.com'
-      - name: Download build & node_modules
-        uses: actions/download-artifact@v2
-        with:
-          name: ${{ matrix.os }}-artifact
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #     - name: Use Node.js ${{ matrix.node-version }} and OS ${{ matrix.os }}
+  #       uses: actions/setup-node@v1
+  #       with:
+  #         node-version: ${{ matrix.node-version }}
+  #         registry-url: 'https://npm.pkg.github.com'
+  #     - name: Download build & node_modules
+  #       uses: actions/download-artifact@v2
+  #       with:
+  #         name: ${{ matrix.os }}-artifact
  
