@@ -62,6 +62,7 @@ import database from '../../../database/index'
 import SpaceUsage from '../../logic/utils/spaceusage'
 import Button from '../Button/Button.vue'
 import bytes from 'bytes'
+import analytics from '../../logic/utils/analytics'
 const remote = require('@electron/remote')
 
 export default {
@@ -89,6 +90,7 @@ export default {
   },
   methods: {
     goToPricing() {
+      analytics.trackUpgradeButton()
       remote.shell.openExternal('https://www.internxt.com/pricing')
     }
   },

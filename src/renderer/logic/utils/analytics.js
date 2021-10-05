@@ -3,7 +3,7 @@ import PackageJson from '../../../../package.json'
 import { v4 as uuidv4 } from 'uuid'
 const Analytics = require('analytics-node')
 const analyticsKey = process.env.NODE_ENV !== 'production' ? process.env.APP_SEGMENT_KEY_TEST : process.env.APP_SEGMENT_KEY
-const analyticsSegment = new Analytics(analyticsKey, {
+const analyticsLibrary = new Analytics(analyticsKey, {
   flushAt: 1
 })
 const anonymousId = uuidv4()
@@ -14,7 +14,7 @@ const context = {
 
 function trackBackupStarted(properties) {
   const { uuid } = ConfigStore.get('userData')
-  analyticsSegment.track({
+  analyticsLibrary.track({
     userId: uuid,
     event: 'Backup Started',
     properties,
@@ -24,7 +24,7 @@ function trackBackupStarted(properties) {
 
 function trackBackupCompleted(properties) {
   const { uuid } = ConfigStore.get('userData')
-  analyticsSegment.track({
+  analyticsLibrary.track({
     userId: uuid,
     event: 'Backup Completed',
     properties,
@@ -34,7 +34,7 @@ function trackBackupCompleted(properties) {
 
 function trackBackupError(properties) {
   const { uuid } = ConfigStore.get('userData')
-  analyticsSegment.track({
+  analyticsLibrary.track({
     userId: uuid,
     event: 'Backup Error',
     properties,
@@ -45,13 +45,13 @@ function trackBackupError(properties) {
 function trackSignin() {
   const { uuid, email } = ConfigStore.get('userData')
 
-  analyticsSegment.identify({
+  analyticsLibrary.identify({
     userId: uuid,
     traits: {
       email
     }
   })
-  analyticsSegment.track({
+  analyticsLibrary.track({
     userId: uuid,
     event: 'User Signin',
     context
@@ -59,7 +59,7 @@ function trackSignin() {
 }
 
 function trackSigninAttempted(properties) {
-  analyticsSegment.track({
+  analyticsLibrary.track({
     anonymousId,
     event: 'User Signin Attempted',
     properties,
@@ -69,7 +69,7 @@ function trackSigninAttempted(properties) {
 
 function trackDownloadError(properties) {
   const { uuid } = ConfigStore.get('userData')
-  analyticsSegment.track({
+  analyticsLibrary.track({
     userId: uuid,
     event: 'Download Error',
     properties,
@@ -77,9 +77,20 @@ function trackDownloadError(properties) {
   })
 }
 
+function trackBackupsEnabled() {
+  const { uuid } = ConfigStore.get('userData')
+  const backupsActivation = ConfigStore.get('backupsEnabled')
+  analyticsLibrary.identify({
+    userId: uuid,
+    traits: {
+      backups_activated: backupsActivation
+    }
+  })
+}
+
 function trackUploadError(properties) {
   const { uuid } = ConfigStore.get('userData')
-  analyticsSegment.track({
+  analyticsLibrary.track({
     userId: uuid,
     event: 'Upload Error',
     properties,
@@ -90,7 +101,7 @@ function trackUploadError(properties) {
 function trackUploadStarted(properties) {
   const { uuid } = ConfigStore.get('userData')
 
-  analyticsSegment.track({
+  analyticsLibrary.track({
     userId: uuid,
     event: 'Upload Started',
     properties,
@@ -101,7 +112,7 @@ function trackUploadStarted(properties) {
 function trackDownloadStarted(properties) {
   const { uuid } = ConfigStore.get('userData')
 
-  analyticsSegment.track({
+  analyticsLibrary.track({
     userId: uuid,
     event: 'Download Started',
     properties,
@@ -112,7 +123,7 @@ function trackDownloadStarted(properties) {
 function trackUploadCompleted(properties) {
   const { uuid } = ConfigStore.get('userData')
 
-  analyticsSegment.track({
+  analyticsLibrary.track({
     userId: uuid,
     event: 'Upload Completed',
     properties,
@@ -123,7 +134,7 @@ function trackUploadCompleted(properties) {
 function trackDownloadCompleted(properties) {
   const { uuid } = ConfigStore.get('userData')
 
-  analyticsSegment.track({
+  analyticsLibrary.track({
     userId: uuid,
     event: 'Download Completed',
     properties,
@@ -134,10 +145,18 @@ function trackDownloadCompleted(properties) {
 function trackSignOut() {
   const { uuid } = ConfigStore.get('userData')
 
-  analyticsSegment.track({
+  analyticsLibrary.track({
     userId: uuid,
     event: 'User Signout',
     context
+  })
+}
+
+function trackUpgradeButton() {
+  const { uuid } = ConfigStore.get('userData')
+  analyticsLibrary.track({
+    userId: uuid,
+    event: 'Upgrade Clicked'
   })
 }
 
@@ -153,6 +172,8 @@ const analytics = {
   trackDownloadError,
   trackSigninAttempted,
   trackBackupError,
-  trackBackupCompleted
+  trackBackupCompleted,
+  trackBackupsEnabled,
+  trackUpgradeButton
 }
 export default analytics

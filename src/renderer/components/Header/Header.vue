@@ -310,6 +310,7 @@ export default {
   methods: {
     debug() {},
     openLinkBilling() {
+      analytics.trackUpgradeButton()
       remote.shell.openExternal('https://drive.internxt.com/storage')
     },
     // Log out - save folder path whe user log out

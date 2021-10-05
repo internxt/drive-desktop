@@ -70,6 +70,7 @@ import relativeTime from 'dayjs/plugin/relativeTime'
 import BackupsDB from '../../../backup-process/backups-db'
 import path from 'path'
 import BackupStatus from '../../../backup-process/status'
+import analytics from '../../logic/utils/analytics'
 
 const remote = require('@electron/remote')
 const {app} = remote
@@ -154,6 +155,7 @@ export default {
   watch: {
     backupsEnabled(val) {
       ConfigStore.set('backupsEnabled', val)
+      analytics.trackBackupsEnabled()
     },
     async currentInterval(val) {
       ConfigStore.set('backupInterval', val)
