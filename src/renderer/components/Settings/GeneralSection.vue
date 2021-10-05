@@ -49,6 +49,7 @@ import Checkbox from '../Icons/Checkbox.vue'
 import Logger from '../../../libs/logger'
 import electronLog from 'electron-log'
 import PackageJson from '../../../../package.json'
+import analytics from '../../logic/utils/analytics'
 const remote = require('@electron/remote')
 
 export default {
@@ -110,6 +111,9 @@ export default {
       this.LaunchCheck = !this.LaunchCheck
       remote.app.emit('update-configStore', { autoLaunch: this.LaunchCheck })
       remote.app.emit('change-auto-launch', this.LaunchCheck)
+      analytics.trackStartInternxtOnStartup({
+        launch_desktop_app_on_startup: this.LaunchCheck
+      })
     },
     openFolder() {
       remote.app.emit('open-folder')

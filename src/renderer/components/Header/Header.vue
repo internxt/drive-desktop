@@ -286,6 +286,12 @@ export default {
         this.showUpgrade = bytes.parse(this.limit) < 2199023255552
         this.showUsage = true
       }
+      /*
+      analytics.trackUsageAndLimit({
+        usage: bytes.parse(data.usage),
+        limit: bytes.parse(data.limit)
+      })
+      */
     })
     FileLogger.on('update-last-entry', item => {
       this.file = item
@@ -376,6 +382,7 @@ export default {
       }
     },
     quitApp() {
+      analytics.trackQuit()
       remote.app.emit('app-close')
     },
     unlockDevice() {
@@ -392,6 +399,9 @@ export default {
           if (userResponse === 1) {
             ipcRenderer.send('stop-backup-process')
             remote.app.emit('user-logout', checkbox)
+            analytics.trackLogOut({
+              remember_sync_folder: checkbox
+            })
           }
         }
       })

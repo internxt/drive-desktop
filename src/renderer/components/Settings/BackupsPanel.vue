@@ -149,6 +149,7 @@ export default {
       this.backupProgress = value
     },
     openDriveWeb() {
+      analytics.trackLinkToDriveBackups()
       remote.shell.openExternal('https://drive.internxt.com/app/backups')
     }
   },
@@ -159,6 +160,7 @@ export default {
     },
     async currentInterval(val) {
       ConfigStore.set('backupInterval', val)
+      analytics.trackBackupInterval()
 
       const device = await getDeviceByMac()
       updateBackupsOfDevice(device.id, {interval: val})

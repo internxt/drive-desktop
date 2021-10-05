@@ -85,6 +85,10 @@ export default {
     remote.app.on('update-storage', data => {
       this.usage = data.usage
       this.limit = data.limit
+      analytics.trackUsageAndLimit({
+        usage: bytes.parse(data.usage),
+        limit: bytes.parse(data.limit)
+      })
     })
     SpaceUsage.updateUsage()
   },

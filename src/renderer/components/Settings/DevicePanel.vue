@@ -29,6 +29,7 @@
 
 <script>
 import {getDeviceByMac, createDevice, updateDevice} from '../../../backup-process/service'
+import analytics from '../../logic/utils/analytics'
 import {
   UilPen,
   UilCheck,
@@ -72,6 +73,9 @@ export default {
       if (this.nameToEdit.length && this.nameToEdit.length <= 40) {
         updateDevice(this.device.id, this.nameToEdit)
         this.device.name = this.nameToEdit
+        analytics.trackDeviceName({
+          device_name: this.device.name
+        })
       }
       this.stopEditing()
     }

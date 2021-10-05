@@ -49,7 +49,8 @@ function trackSignin() {
     userId: uuid,
     traits: {
       email
-    }
+    },
+    context
   })
   analyticsLibrary.track({
     userId: uuid,
@@ -84,7 +85,8 @@ function trackBackupsEnabled() {
     userId: uuid,
     traits: {
       backups_activated: backupsActivation
-    }
+    },
+    context
   })
 }
 
@@ -156,7 +158,139 @@ function trackUpgradeButton() {
   const { uuid } = ConfigStore.get('userData')
   analyticsLibrary.track({
     userId: uuid,
-    event: 'Upgrade Clicked'
+    event: 'Upgrade Clicked',
+    context
+  })
+}
+
+function trackBackupInterval() {
+  const { uuid } = ConfigStore.get('userData')
+  analyticsLibrary.identify({
+    userId: uuid,
+    traits: {
+      backup_interval: ConfigStore.get('backupInterval')
+    }
+  })
+}
+
+function trackDeviceName(properties) {
+  const { uuid } = ConfigStore.get('userData')
+  analyticsLibrary.track({
+    userId: uuid,
+    event: 'Device Name Added',
+    properties,
+    context
+  })
+}
+
+function trackUsageAndLimit(traits) {
+  const { uuid } = ConfigStore.get('userData')
+  analyticsLibrary.identify({
+    userId: uuid,
+    traits,
+    context
+  })
+}
+
+function trackLinkToDriveBackups() {
+  const { uuid } = ConfigStore.get('userData')
+  analyticsLibrary.track({
+    userId: uuid,
+    event: 'Backups Web Redirected',
+    context
+  })
+}
+
+function trackStartInternxtOnStartup(traits) {
+  const { uuid } = ConfigStore.get('userData')
+  analyticsLibrary.identify({
+    userId: uuid,
+    traits,
+    context
+  })
+}
+
+function trackBlockedDevice() {
+  const { uuid } = ConfigStore.get('userData')
+  analyticsLibrary.track({
+    userId: uuid,
+    event: 'Device Blocked',
+    context
+  })
+}
+
+function trackSyncStarted() {
+  const { uuid } = ConfigStore.get('userData')
+  analyticsLibrary.track({
+    userId: uuid,
+    event: 'Sync Started',
+    context
+  })
+}
+
+function trackSyncStoped() {
+  const { uuid } = ConfigStore.get('userData')
+  analyticsLibrary.track({
+    userId: uuid,
+    event: 'Sync Stoped',
+    context
+  })
+}
+
+function trackLogOut(properties) {
+  const { uuid } = ConfigStore.get('userData')
+  analyticsLibrary.track({
+    userId: uuid,
+    event: 'User Log Out',
+    properties,
+    context
+  })
+}
+
+function trackQuit() {
+  const { uuid } = ConfigStore.get('userData')
+  analyticsLibrary.track({
+    userId: uuid,
+    event: 'User Quit',
+    context
+  })
+}
+
+function trackSyncCompleted(properties) {
+  const { uuid } = ConfigStore.get('userData')
+  analyticsLibrary.track({
+    userId: uuid,
+    event: 'Sync Completed',
+    properties,
+    context
+  })
+}
+
+function trackSyncError(properties) {
+  const { uuid } = ConfigStore.get('userData')
+  analyticsLibrary.track({
+    userId: uuid,
+    event: 'Sync Error',
+    properties,
+    context
+  })
+}
+
+function trackRegisterViaDesktop() {
+  const { uuid } = ConfigStore.get('userData')
+  analyticsLibrary.track({
+    userId: uuid,
+    event: 'Register Redirected',
+    context
+  })
+}
+
+function trackForgotPassword() {
+  const { uuid } = ConfigStore.get('userData')
+  analyticsLibrary.track({
+    userId: uuid,
+    event: 'Password Forgotten',
+    context
   })
 }
 
@@ -174,6 +308,20 @@ const analytics = {
   trackBackupError,
   trackBackupCompleted,
   trackBackupsEnabled,
-  trackUpgradeButton
+  trackUpgradeButton,
+  trackBackupInterval,
+  trackDeviceName,
+  trackUsageAndLimit,
+  trackLinkToDriveBackups,
+  trackStartInternxtOnStartup,
+  trackBlockedDevice,
+  trackSyncStarted,
+  trackSyncStoped,
+  trackLogOut,
+  trackQuit,
+  trackSyncCompleted,
+  trackSyncError,
+  trackForgotPassword,
+  trackRegisterViaDesktop
 }
 export default analytics

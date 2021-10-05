@@ -152,6 +152,13 @@ export default {
       this.doLogin()
     },
     open(link) {
+      console.log(link)
+      if (/remove/.test(link)) {
+        analytics.trackForgotPassword()
+      }
+      if (/new/.test(link)) {
+        analytics.trackRegisterViaDesktop()
+      }
       this.$electron.shell.openExternal(link)
     },
     // selectFolder () {
