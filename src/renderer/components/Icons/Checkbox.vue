@@ -1,12 +1,12 @@
 <template>
-  <div class="flex items-center cursor-pointer w-max" :class="state">
+  <div class="flex items-center cursor-pointer" :class="state" style="width: fit-content">
     <svg
       @click="!disabled ? changeState() : null"
       :width="width"
       :height="height"
       viewBox="0 0 16 16"
       fill="none"
-      class="mr-2"
+      class="mr-2 flex-shrink-0"
       xmlns="http://www.w3.org/2000/svg"
     >
       <rect

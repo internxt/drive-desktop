@@ -10,7 +10,6 @@
               <p class="tracking-wide text-sm">{{ user.email }}</p>
             </div>
           </div>
-          <Button @click="logout">Log out</Button>
         </div>
         <div
           class="p-3 mt-4 bg-gray-100 border border-gray-400 rounded-xl"
@@ -89,20 +88,6 @@ export default {
     SpaceUsage.updateUsage()
   },
   methods: {
-    logout() {
-      this.$store.originalDispatch('showSettingsDialog', {
-        title: 'You are about to log out',
-        description: 'Would you like to remember where your sync folder is the next time you log in?',
-        answers: [{text: 'No'}, {text: 'Yes', state: 'accent'}],
-        callback: (userResponse) => {
-          if (userResponse.response === 0) {
-            remote.app.emit('user-logout', true)
-          } else {
-            remote.app.emit('user-logout', false)
-          }
-        }
-      })
-    },
     goToPricing() {
       remote.shell.openExternal('https://www.internxt.com/pricing')
     }

@@ -396,14 +396,14 @@ export default {
     },
     logout() {
       this.$store.originalDispatch('showSettingsDialog', {
-        title: 'You are about to log out',
+        title: 'Log out',
         description: 'Would you like to remember where your sync folder is the next time you log in?',
-        answers: [{text: 'No'}, {text: 'Yes', state: 'accent'}],
-        callback: (userResponse) => {
-          if (userResponse.response === 0) {
-            remote.app.emit('user-logout', true)
-          } else {
-            remote.app.emit('user-logout', false)
+        checkbox: 'Remember sync folder path',
+        answers: [{text: 'Cancel'}, {text: 'Log out', state: 'accent'}],
+        callback: (userResponse, checkbox) => {
+          if (userResponse === 1) {
+            ipcRenderer.send('stop-backup-process')
+            remote.app.emit('user-logout', checkbox)
           }
         }
       })

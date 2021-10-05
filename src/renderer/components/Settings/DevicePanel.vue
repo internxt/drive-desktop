@@ -1,4 +1,6 @@
 <template>
+<div class="flex flex-col items-center">
+  <p v-if="device" class="text-xs text-gray-400 mb-1" :class="{'text-gray-400': !editing, 'text-blue-500': editing}">Device name</p>
   <div
     class="
       flex
@@ -20,6 +22,7 @@
   <content-placeholders v-else class="h-7" :centered="true" :rounded="true">
     <content-placeholders-text :lines="1"/>
   </content-placeholders>
+</div>
 </template>
 
 <script>

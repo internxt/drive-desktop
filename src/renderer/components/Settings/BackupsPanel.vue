@@ -130,11 +130,11 @@ export default {
     },
     async stopBackupProcess() {
       this.$store.originalDispatch('showSettingsDialog', {
-        title: 'Confirm backup stop',
+        title: 'Stop ongoing backup',
         description: 'Are you sure that you want to stop the ongoing backup process?',
         answers: [
           {text: 'Cancel'},
-          {text: 'Confirm', state: 'red'}
+          {text: 'Stop backup', state: 'red'}
         ],
         callback: (response) => {
           if (response === 1) { ipcRenderer.send('stop-backup-process') }

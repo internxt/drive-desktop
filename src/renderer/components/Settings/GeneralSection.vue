@@ -29,7 +29,7 @@
       >
         Open logs
       </p>
-      <p class="text-blue-600 cursor-pointer text-sm mt-1">
+      <p class="text-blue-600 cursor-pointer text-sm mt-1" @click="openDriveWeb">
         Learn more about Internxt Drive
       </p>
     </div>
@@ -71,7 +71,6 @@ export default {
     })
   },
   methods: {
-
     changeFolder() {
       const newDir = remote.dialog.showOpenDialogSync({
         properties: ['openDirectory'],
@@ -123,10 +122,12 @@ export default {
       } catch (e) {
         Logger.error('Error opening log path: %s', e.message)
       }
+    },
+    openDriveWeb() {
+      remote.shell.openExternal('https://drive.internxt.com')
     }
   },
   computed: {
-
     appVersion() {
       return PackageJson.version
     }

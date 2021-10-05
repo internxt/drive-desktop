@@ -357,6 +357,7 @@ function openSettingsWindow(section, subsection) {
       titleBarStyle: process.platform === 'darwin' ? 'hidden' : undefined,
       frame: process.platform !== 'darwin' ? false : undefined,
       maximizable: false,
+      minimizable: false,
       resizable: false,
       webPreferences: {
         nodeIntegration: true,
