@@ -21,9 +21,9 @@
                 <p class="font-semibold mr-2 tracking-wide">
                   Current Plan
                 </p>
-                <div class="px-2 rounded bg-gray-200 text-gray-500" style="font-size:10px">
+                <!-- <div class="px-2 rounded bg-gray-200 text-gray-500" style="font-size:10px">
                   Individual
-                </div>
+                </div> -->
               </div>
               <div class="mt-1 flex items-center">
                 <div class="text-lg text-gray-600 font-semibold tracking-wide">
