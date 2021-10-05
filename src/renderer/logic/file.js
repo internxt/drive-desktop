@@ -6,7 +6,7 @@ import Uploader from './uploader'
 import Sync from './sync'
 import Tree from './tree'
 import fs from 'fs'
-import analytics from './utils/analytics'
+import { trackDownloadError, trackUploadError, trackUploadStarted, trackUploadCompleted, trackDownloadCompleted, trackDownloadStarted } from './utils/analytics'
 import ConfigStore from '../../main/config-store'
 import state from './utils/state'
 import lodash from 'lodash'
@@ -464,6 +464,13 @@ async function uploadFile(
       filename: path.basename(file.key),
       action: 'upload'
     })
+
+    trackUploadStarted({
+      type: file.value.fileExt,
+      size: file.value.fileSize,
+      item_type: 'file'
+    })
+    let timeToUpload = new Date()
     const newFileInfo = await Uploader.uploadFile(
       file.key,
       localFile,
@@ -473,12 +480,19 @@ async function uploadFile(
       user,
       parentFolder
     )
+    timeToUpload = new Date() - timeToUpload
     if (newFileInfo && newFileInfo.fileId) {
       file.value = newFileInfo
       file.state = state.state.SYNCED
       file.needSync = false
     }
     Spaceusage.updateUsage(file.size)
+    trackUploadCompleted({
+      type: file.value.fileExt,
+      size: file.value.fileSize,
+      item_type: 'file',
+      time_to_upload: timeToUpload
+    })
     // FileLogger.upload success
     FileLogger.push({
       filePath: file.key,
@@ -491,6 +505,14 @@ async function uploadFile(
     if (!/Folder not found/.test(err.message)) {
       Logger.error(`Error uploading file: ${file.key}. Error: ${err}`)
     }
+
+    trackUploadError({
+      type: file.value.fileExt,
+      size: file.value.fileSize,
+      error_id: null,
+      message: err.message,
+      item_type: 'file'
+    })
     // FileLogger.error
     FileLogger.push({
       filePath: file.key,
@@ -567,22 +589,15 @@ async function downloadFile(file, cloudFile, localFile) {
       throw new Error('UploadOnly')
     }
     remote.app.emit('set-tooltip', `Downloading file to ${file.key}`)
-    // FileLogger.download (normal)
-    analytics
-      .track({
-        userId: undefined,
-        event: 'file-download-start',
-        properties: {
-          email: 'email',
-          file_id: cloudFile.fileId,
-          file_name: cloudFile.name,
-          folder_id: cloudFile.folder_id,
-          file_type: cloudFile.type
-        }
-      })
-      .catch(err => {
-        Logger.error(err)
-      })
+
+    trackDownloadStarted({
+      type: cloudFile.type,
+      folder_id: cloudFile.folder_id,
+      file_id: cloudFile.fileId,
+      item_type: 'file',
+      size: cloudFile.size
+    })
+    let timeToDownload = new Date()
     const tempPath = await downloader.downloadFileTemp(cloudFile, file.key)
     FileLogger.push({
       filePath: file.key,
@@ -609,27 +624,28 @@ async function downloadFile(file, cloudFile, localFile) {
     file.state = state.state.SYNCED
     file.value = cloudFile
     file.needSync = false
-    // Notificatios.download.success (normal)
-    analytics
-      .track({
-        userId: undefined,
-        event: 'file-download-finished',
-        properties: {
-          email: 'email',
-          file_id: cloudFile.fileId,
-          file_type: cloudFile.type,
-          folder_id: cloudFile.folderId,
-          file_name: cloudFile.name,
-          file_size: cloudFile.size
-        }
-      })
-      .catch(err => {
-        Logger.error(err)
-      })
+
+    timeToDownload = new Date() - timeToDownload
+    trackDownloadCompleted({
+      file_id: cloudFile.fileId,
+      type: cloudFile.type,
+      folder_id: cloudFile.folderId,
+      size: cloudFile.size,
+      item_type: 'file',
+      time_to_download: timeToDownload
+    })
   } catch (e) {
     if (/UploadOnly/.test(e.message)) {
       return
     }
+    trackDownloadError({
+      file_id: cloudFile.fileId,
+      error_id: null,
+      type: cloudFile.type,
+      size: cloudFile.size,
+      message: e.message,
+      item_type: 'file'
+    })
     // FileLogger.download.error (normal)
     FileLogger.push({
       filePath: file.key,
