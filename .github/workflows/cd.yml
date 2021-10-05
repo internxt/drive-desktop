@@ -46,7 +46,8 @@ jobs:
             ./build/**/*
             ./node_modules/**/*
   publish:
-    environment: production
+    environment: 
+      name: production
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
