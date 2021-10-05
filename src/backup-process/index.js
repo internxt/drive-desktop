@@ -182,7 +182,7 @@ async function upload({
   const zipStream = getZipStream(backup.path)
 
   const options = {
-    bridgeUrl: 'https://api.internxt.com',
+    bridgeUrl: process.env.BRIDGE_URL,
     bridgeUser: userInfo.email,
     bridgePass: userInfo.userId,
     encryptionKey: mnemonic,
