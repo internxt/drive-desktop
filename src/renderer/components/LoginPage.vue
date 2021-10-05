@@ -297,7 +297,7 @@ export default {
             remote.app.emit('update-configStore', {stopSync: false})
             // ConfigStore.set('stopSync', false)
             // this.$router.push('/landing-page').catch(() => {})
-            trackSignin(res.data.user.uuid, res.data.user.email)
+            trackSignin()
 
             if (!savedCredentials) {
               // remote.getCurrentWindow().setBounds({ width: 800, height: 500 })

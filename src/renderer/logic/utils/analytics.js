@@ -46,23 +46,22 @@ const context = {
   version: PackageJson.version
 }
 
-export function trackSignin(userId, email) {
+export function trackSignin() {
   const analytics = new Analytics(process.env.APP_SEGMENT_KEY, {
     flushAt: 1
   })
 
+  const { uuid, email } = ConfigStore.get('userData')
+
   analytics.identify({
-    userId,
+    userId: uuid,
     traits: {
       email
     }
   })
   analytics.track({
-    userId,
+    userId: uuid,
     event: 'User Signin',
-    properties: {
-      email
-    },
     context
   })
 }
