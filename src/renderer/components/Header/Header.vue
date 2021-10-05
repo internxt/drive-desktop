@@ -451,6 +451,10 @@ export default {
   },
   computed: {
     showUsageWarning() {
+      if (this.usage === '' || this.limit === '') {
+        return false
+      }
+
       const usageInBytes = bytes.parse(this.usage)
       const limitInBytes = bytes.parse(this.limit)
 
