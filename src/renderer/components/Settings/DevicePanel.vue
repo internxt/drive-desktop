@@ -1,23 +1,25 @@
 <template>
-<div class="flex flex-col items-center">
-  <p v-if="device" class="text-xs text-gray-400 mb-1" :class="{'text-gray-400': !editing, 'text-blue-500': editing}">Device name</p>
-  <div
-    class="
-      flex
-      justify-center
-      items-center
-      text-lg
-      font-semibold
-      tracking-wide
-    "
-    v-if="device"
-  >
-    <input @blur="saveName" @keypress.enter="saveName" @keyup.esc="stopEditing" ref="field" v-if="editing" v-model="nameToEdit" type="text" style="border-radius: 8px; border-width: 1px" class="w-1/2 h-8 outline-none ring-2  px-3 font-bold text-gray-700 text-base bg-gray-50 ring-blue-300 border-blue-500" />
-    <p v-else>{{ device.name }}</p>
+<div>
+  <div v-if="device" class="flex flex-col items-center">
+    <p class="text-xs text-gray-400 mb-1" :class="{'text-gray-400': !editing, 'text-blue-500': editing}">Device name</p>
+    <div
+      class="
+        flex
+        justify-center
+        items-center
+        text-lg
+        font-semibold
+        tracking-wide
+      "
+      v-if="device"
+    >
+      <input @blur="saveName" @keypress.enter="saveName" @keyup.esc="stopEditing" ref="field" v-if="editing" v-model="nameToEdit" type="text" style="border-radius: 8px; border-width: 1px" class="w-1/2 h-8 outline-none ring-2  px-3 font-bold text-gray-700 text-base bg-gray-50 ring-blue-300 border-blue-500" />
+      <p v-else>{{ device.name }}</p>
 
-    <UilPen v-if="!editing" size="15px" class="text-gray-400 ml-2 cursor-pointer" @click.native="startEditing"/>
-    <UilCheck v-if="editing" size="22px" class="text-blue-500 ml-2 cursor-pointer p-1 bg-blue-100 rounded-full" @click.native="saveName"/>
-    <UilMultiply v-if="editing" size="22px" class="text-gray-500 bg-gray-100 p-1 cursor-pointer rounded-full ml-2" @click.native="stopEditing"/>
+      <UilPen v-if="!editing" size="15px" class="text-gray-400 ml-2 cursor-pointer" @click.native="startEditing"/>
+      <UilCheck v-if="editing" size="22px" class="text-blue-500 ml-2 cursor-pointer p-1 bg-blue-100 rounded-full" @click.native="saveName"/>
+      <UilMultiply v-if="editing" size="22px" class="text-gray-500 bg-gray-100 p-1 cursor-pointer rounded-full ml-2" @click.native="stopEditing"/>
+    </div>
   </div>
   <content-placeholders v-else class="h-7" :centered="true" :rounded="true">
     <content-placeholders-text :lines="1"/>
