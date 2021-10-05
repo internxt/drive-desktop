@@ -74,7 +74,8 @@ export function trackSigninAttempted(properties) {
   analytics.track({
     anonymousId,
     event: 'User Signin Attempted',
-    properties
+    properties,
+    context
   })
 }
 
