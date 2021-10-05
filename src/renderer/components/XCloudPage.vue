@@ -3,7 +3,7 @@
     <Header class="header z-20 bg-white" :appName="appName" :emailAccount="emailAccount" :userFullname="userFullname" :backupStatus="backupStatus"/>
     <BackupErrorBanner :backupStatus="backupStatus" @actionClick="openBackupsWindow"/>
     <ConnectionBanner/>
-    <FileStatus :backupProgress="backupProgress" class="fileStatus bg-white fileLogger overflow-y-auto overflow-x-hidden flex flex-col flex-grow flex-shrink" :FileStatusSync="FileStatusSync" />
+    <FileStatus :backupProgress="backupProgress" class="fileStatus fileLogger overflow-y-auto overflow-x-hidden flex flex-col flex-grow flex-shrink" :FileStatusSync="FileStatusSync" />
     <SyncButtonAction class="statusBar overflow-hidden flex flex-none justify-between py-2 px-3" :FileStatusSync="FileStatusSync"/>
     <BackupProgress v-if="backupProgress" style="transform: translateX(-50%)" class="absolute bottom-14 left-1/2 w-11/12" :progress="backupProgress"/>
     <Dialog v-if="$store.state.ui.settingsDialog"/>

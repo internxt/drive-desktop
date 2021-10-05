@@ -13,8 +13,8 @@
       "
       v-if="device"
     >
-      <input @blur="saveName" @keypress.enter="saveName" @keyup.esc="stopEditing" ref="field" v-if="editing" v-model="nameToEdit" type="text" style="border-radius: 8px; border-width: 1px" class="w-1/2 h-8 outline-none ring-2  px-3 font-bold text-gray-700 text-base bg-gray-50 ring-blue-300 border-blue-500" />
-      <p v-else>{{ device.name }}</p>
+      <input @blur="saveName" @keypress.enter="saveName" @keyup.esc="stopEditing" ref="field" v-if="editing" v-model="nameToEdit" type="text" style="border-radius: 8px; border-width: 1px;margin-left: 60px" class="w-1/2 h-8 outline-none ring-2  px-3 font-bold text-gray-700 text-base bg-gray-50 ring-blue-300 border-blue-500" />
+      <p v-else style="margin-left: 23px">{{ device.name }}</p>
 
       <UilPen v-if="!editing" size="15px" class="text-gray-400 ml-2 cursor-pointer" @click.native="startEditing"/>
       <UilCheck v-if="editing" size="22px" class="text-blue-500 ml-2 cursor-pointer p-1 bg-blue-100 rounded-full" @click.native="saveName"/>

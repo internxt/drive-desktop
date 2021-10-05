@@ -56,6 +56,7 @@
             class="text-gray-500 dropdown-toggle"
             style="outline: none"
             data-toggle="dropdown"
+            data-offset="10,10"
             aria-haspopup="true"
             aria-expanded="false"
             size="22px"
@@ -436,6 +437,10 @@ export default {
   },
   computed: {
     showUsageWarning() {
+      if (this.usage === '' || this.limit === '') {
+        return false
+      }
+
       const usageInBytes = bytes.parse(this.usage)
       const limitInBytes = bytes.parse(this.limit)
 

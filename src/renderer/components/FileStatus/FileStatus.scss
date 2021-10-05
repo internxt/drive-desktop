@@ -54,7 +54,6 @@
     margin: $spacing-4 $spacing-6;
     color: $blue-60;
     border-radius: $spacing-3;
-    background: $white;
     cursor: pointer;
     transition: all .1s ease-out;
 
@@ -73,7 +72,6 @@
 }
 
 .timeStamp {
-  @include bg-opacity($white,.8);
   @include bg-blur($spacing-2);
   color: $neutral-500;
   @include text-sm;
@@ -90,8 +88,6 @@
 }
 
 .fileItem {
-  display: block;
-
   &:hover {
     background: $l-neutral-10;
     transition: all .1s ease-out;

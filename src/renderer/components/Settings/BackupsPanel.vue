@@ -25,15 +25,18 @@
     <div class="dropdown mt-2">
       <button
         class="bg-white border border-gray-400 rounded-md text-sm"
+        :class="{'text-gray-400 cursor-default': !backupsEnabled}"
         style="padding-left: 10px"
         type="button"
         data-toggle="dropdown"
         aria-haspopup="true"
         aria-expanded="false"
+        :disabled="!backupsEnabled"
       >
         {{ humanifyInterval(currentInterval) }}
         <UilAngleDown
-          class="inline bg-blue-600 text-white rounded-tr-md rounded-br-md"
+          class="inline rounded-tr-md rounded-br-md"
+          :class="{'bg-blue-300 text-blue-100': !backupsEnabled, 'bg-blue-600 text-white': backupsEnabled}"
           style="margin-left: 5px"
           size="25px"
         />
