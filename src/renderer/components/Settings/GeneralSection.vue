@@ -101,6 +101,10 @@ export default {
           )
           return
         }
+        analytics.trackSyncFolderChanged({
+          old_folder: this.path,
+          new_folder: newDir[0]
+        })
         this.path = newDir[0]
         remote.app.emit('new-folder-path', newDir[0])
       } else {

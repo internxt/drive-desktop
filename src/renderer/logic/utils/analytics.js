@@ -294,6 +294,16 @@ function trackForgotPassword() {
   })
 }
 
+function trackSyncFolderChanged(properties) {
+  const { uuid } = ConfigStore.get('userData')
+  analyticsLibrary.track({
+    userId: uuid,
+    event: 'Sync Folder Cheanged',
+    properties,
+    context
+  })
+}
+
 const analytics = {
   trackSignOut,
   trackBackupStarted,
@@ -322,6 +332,7 @@ const analytics = {
   trackSyncCompleted,
   trackSyncError,
   trackForgotPassword,
-  trackRegisterViaDesktop
+  trackRegisterViaDesktop,
+  trackSyncFolderChanged
 }
 export default analytics
