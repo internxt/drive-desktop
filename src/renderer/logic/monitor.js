@@ -22,17 +22,6 @@ app.on('open-folder', function() {
     })
 })
 app.on('force-sync', function() {
-  analytics
-    .track({
-      event: 'force-sync',
-      userId: undefined,
-      properties: {
-        storage_used: ConfigStore.get('usage')
-      }
-    })
-    .catch(err => {
-      Logger.error(err)
-    })
   app.emit('sync-start')
 })
 

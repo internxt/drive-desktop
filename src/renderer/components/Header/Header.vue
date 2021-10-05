@@ -293,20 +293,6 @@ export default {
     remote.app.on('user-logout', async (saveData = false) => {
       remote.app.emit('sync-stop')
       await database.logOut(saveData)
-      analytics
-        .track({
-          event: 'user-signout',
-          userId: undefined,
-          properties: {
-            email: 'email'
-          }
-        })
-        .then(() => {
-          analytics.resetUser()
-        })
-        .catch(err => {
-          Logger.error(err)
-        })
       this.$router.push('/').catch(() => {})
     })
 
