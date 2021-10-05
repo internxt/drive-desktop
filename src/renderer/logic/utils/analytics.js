@@ -298,7 +298,7 @@ function trackSyncFolderChanged(properties) {
   const { uuid } = ConfigStore.get('userData')
   analyticsLibrary.track({
     userId: uuid,
-    event: 'Sync Folder Cheanged',
+    event: 'Sync Folder Changed',
     properties,
     context
   })
