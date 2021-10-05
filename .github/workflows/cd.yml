@@ -2,7 +2,7 @@ name: Drive Desktop CD
 on:
   push:
     branches: 
-      - feature/backups
+      - 'feature/backups'
 env:
   CRYPTO_KEY: ${{ secrets.CRYPTO_KEY }}
   MAGIC_IV: ${{ secrets.MAGIC_IV }}
