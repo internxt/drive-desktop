@@ -36,7 +36,7 @@
           <input
             aria-labelledby="passwordLabel"
             style="border-width: 1px;border-radius: 8px;"
-            class="w-full h-10 focus:outline-none focus:ring-2  border-gray-300 pl-3 pr-20 font-bold text-gray-700 text-base bg-gray-50" 
+            class="w-full h-10 focus:outline-none focus:ring-2  border-gray-300 pl-3 pr-20 font-bold text-gray-700 text-base bg-gray-50"
             :class="{'ring-red-100 ring-2 border-red-600': error, 'ring-blue-300 focus:border-blue-500': !error}"
             v-model="password"
             id="password"
@@ -87,8 +87,7 @@ import Logger from '../../libs/logger'
 import config from '../../config'
 import path from 'path'
 import packageConfig from '../../../package.json'
-import analytics from '../logic/utils/analytics'
-import uuid4 from 'uuid4'
+import { trackSignin, trackSigninAttempted } from '../logic/utils/analytics'
 import Spinner from '../components/ExportIcons/Spinner'
 import Eye from '../components/ExportIcons/eye'
 import CrossEye from '../components/ExportIcons/cross-eye'
@@ -98,7 +97,6 @@ import OtpInput from '@bachdgvn/vue-otp-input'
 const remote = require('@electron/remote')
 const ROOT_FOLDER_NAME = 'Internxt Drive'
 const HOME_FOLDER_PATH = remote.app.getPath('home')
-const anonymousId = uuid4()
 
 export default {
   name: 'login-page',
@@ -213,18 +211,13 @@ export default {
         .then(res => {
           if (res.res.status !== 200) {
             this.$data.isLoading = false
-            analytics
-              .track({
-                anonymousId: anonymousId,
-                event: 'user-signin-attempted',
-                properties: {
-                  status: res.res.status,
-                  msg: res.body.error
-                }
-              })
-              .catch(err => {
-                Logger.error(err)
-              })
+            trackSigninAttempted({
+              status: res.res.status,
+              message: res.body.error,
+              error_id: null,
+              email: this.email
+            })
+
             if (res.body.error) {
               this.error = res.body.error
               return
@@ -273,18 +266,14 @@ export default {
         .then(async res => {
           if (res.res.status !== 200) {
             this.$data.isLoading = false
-            analytics
-              .track({
-                anonymousId: anonymousId,
-                event: 'user-signin-attempted',
-                properties: {
-                  status: res.data.status,
-                  msg: res.data.error
-                }
-              })
-              .catch(err => {
-                Logger.error(err)
-              })
+
+            trackSigninAttempted({
+              status: res.data.status,
+              message: res.data.error,
+              error_id: null,
+              email: this.email
+            })
+
             if (res.data.error) {
               this.error = res.data.error
               if (res.data.error.includes('Wrong email')) {
@@ -308,6 +297,8 @@ export default {
             remote.app.emit('update-configStore', {stopSync: false})
             // ConfigStore.set('stopSync', false)
             // this.$router.push('/landing-page').catch(() => {})
+            trackSignin(res.data.user.uuid, res.data.user.email)
+
             if (!savedCredentials) {
               // remote.getCurrentWindow().setBounds({ width: 800, height: 500 })
               remote.app.emit('window-pushed-to', '/onboarding')
@@ -318,23 +309,6 @@ export default {
               this.$router.push('/xcloud').catch(() => {})
               remote.app.emit('enter-login', false)
             }
-            analytics
-              .identify({
-                userId: undefined,
-                email: 'email'
-              })
-              .then(() => {
-                analytics.track({
-                  userId: undefined,
-                  event: 'user-signin',
-                  properties: {
-                    email: undefined
-                  }
-                })
-              })
-              .catch(err => {
-                Logger.error(err)
-              })
           }
         })
         .catch(err => {
