@@ -87,7 +87,7 @@ import Logger from '../../libs/logger'
 import config from '../../config'
 import path from 'path'
 import packageConfig from '../../../package.json'
-import { trackSignin, trackSigninAttempted } from '../logic/utils/analytics'
+import analytics from '../logic/utils/analytics'
 import Spinner from '../components/ExportIcons/Spinner'
 import Eye from '../components/ExportIcons/eye'
 import CrossEye from '../components/ExportIcons/cross-eye'
@@ -211,7 +211,7 @@ export default {
         .then(res => {
           if (res.res.status !== 200) {
             this.$data.isLoading = false
-            trackSigninAttempted({
+            analytics.trackSigninAttempted({
               status: res.res.status,
               message: res.body.error,
               error_id: null,
@@ -267,7 +267,7 @@ export default {
           if (res.res.status !== 200) {
             this.$data.isLoading = false
 
-            trackSigninAttempted({
+            analytics.trackSigninAttempted({
               status: res.data.status,
               message: res.data.error,
               error_id: null,
@@ -297,7 +297,7 @@ export default {
             remote.app.emit('update-configStore', {stopSync: false})
             // ConfigStore.set('stopSync', false)
             // this.$router.push('/landing-page').catch(() => {})
-            trackSignin()
+            analytics.trackSignin()
 
             if (!savedCredentials) {
               // remote.getCurrentWindow().setBounds({ width: 800, height: 500 })

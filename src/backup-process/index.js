@@ -6,7 +6,7 @@ import ConfigStore from '../main/config-store'
 import { createCipheriv, randomBytes } from 'crypto'
 import { pipeline } from 'stream'
 import Logger from '../libs/logger'
-import { trackBackupStarted, trackBackupCompleted, trackBackupError } from '../renderer/logic/utils/analytics'
+import analytics from '../renderer/logic/utils/analytics'
 const archiver = require('archiver')
 const app = require('@electron/remote').app
 const { Environment } = require('@internxt/inxt-js')
@@ -56,7 +56,7 @@ const { Environment } = require('@internxt/inxt-js')
           return
         }
         let timeToBackup = new Date()
-        trackBackupStarted({
+        analytics.trackBackupStarted({
           size
         })
 
@@ -78,7 +78,7 @@ const { Environment } = require('@internxt/inxt-js')
         })
 
         timeToBackup = new Date() - timeToBackup
-        trackBackupCompleted({
+        analytics.trackBackupCompleted({
           time_to_backup: timeToBackup,
           size: size,
           file_id: fileId
@@ -103,7 +103,7 @@ const { Environment } = require('@internxt/inxt-js')
         notifyError(backup, ErrorCodes.UNKNOWN)
         Logger.log(error)
       }
-      trackBackupError({
+      analytics.trackBackupError({
         message: error.message,
         error_id: error.name
       })

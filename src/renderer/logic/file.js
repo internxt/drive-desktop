@@ -6,7 +6,7 @@ import Uploader from './uploader'
 import Sync from './sync'
 import Tree from './tree'
 import fs from 'fs'
-import { trackDownloadError, trackUploadError, trackUploadStarted, trackUploadCompleted, trackDownloadCompleted, trackDownloadStarted } from './utils/analytics'
+import analytics from './utils/analytics'
 import ConfigStore from '../../main/config-store'
 import state from './utils/state'
 import lodash from 'lodash'
@@ -465,7 +465,7 @@ async function uploadFile(
       action: 'upload'
     })
 
-    trackUploadStarted({
+    analytics.trackUploadStarted({
       type: file.value.fileExt,
       size: file.value.fileSize,
       item_type: 'file'
@@ -487,7 +487,7 @@ async function uploadFile(
       file.needSync = false
     }
     Spaceusage.updateUsage(file.size)
-    trackUploadCompleted({
+    analytics.trackUploadCompleted({
       type: file.value.fileExt,
       size: file.value.fileSize,
       item_type: 'file',
@@ -506,7 +506,7 @@ async function uploadFile(
       Logger.error(`Error uploading file: ${file.key}. Error: ${err}`)
     }
 
-    trackUploadError({
+    analytics.trackUploadError({
       type: file.value.fileExt,
       size: file.value.fileSize,
       error_id: null,
@@ -590,7 +590,7 @@ async function downloadFile(file, cloudFile, localFile) {
     }
     remote.app.emit('set-tooltip', `Downloading file to ${file.key}`)
 
-    trackDownloadStarted({
+    analytics.trackDownloadStarted({
       type: cloudFile.type,
       folder_id: cloudFile.folder_id,
       file_id: cloudFile.fileId,
@@ -626,7 +626,7 @@ async function downloadFile(file, cloudFile, localFile) {
     file.needSync = false
 
     timeToDownload = new Date() - timeToDownload
-    trackDownloadCompleted({
+    analytics.trackDownloadCompleted({
       file_id: cloudFile.fileId,
       type: cloudFile.type,
       folder_id: cloudFile.folderId,
@@ -638,7 +638,7 @@ async function downloadFile(file, cloudFile, localFile) {
     if (/UploadOnly/.test(e.message)) {
       return
     }
-    trackDownloadError({
+    analytics.trackDownloadError({
       file_id: cloudFile.fileId,
       error_id: null,
       type: cloudFile.type,
