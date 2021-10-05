@@ -4,53 +4,47 @@ import database from '../../../database'
 import PackageJson from '../../../../package.json'
 import uuid4 from 'uuid4'
 const Analytics = require('analytics-node')
-
-const anonymousId = uuid4()
-const segmentAnalytics = new Analytics(process.env.APP_SEGMENT_KEY, {
+const analyticsKey = process.env.NODE_ENV !== 'production' ? process.env.APP_SEGMENT_KEY_TEST : process.env.APP_SEGMENT_KEY
+const analytics = new Analytics(analyticsKey, {
   flushAt: 1
 })
-
-const analytics = {
-  userData: {
-    userMail: undefined,
-    uuid: undefined
-  },
-  track: async function(object) {
-    if (!object.anonymousId) {
-      if (!this.userData.uuid) {
-        const user = await database.Get('xUser')
-        if (!user || !user.user.email || !user.user.uuid) {
-          return Logger.error('xUser is no initialized')
-        }
-        this.userData.userMail = user.user.email
-        this.userData.uuid = user.user.uuid
-      }
-      object.userId = this.userData.uuid
-      if (this.userData.userMail && object.properties.email) {
-        object.properties.email = this.userData.userMail
-      }
-    }
-    object.properties.platform = 'desktop'
-    object.properties.version = PackageJson.version
-
-    segmentAnalytics.track(object)
-  },
-
-  resetUser: function() {
-    this.userData.userMail = undefined
-    this.userData.uuid = undefined
-  }
-}
+const anonymousId = uuid4()
 
 const context = {
   version: PackageJson.version
 }
 
-export function trackSignin() {
-  const analytics = new Analytics(process.env.APP_SEGMENT_KEY, {
-    flushAt: 1
+export function trackBackupStarted(properties) {
+  const { uuid } = ConfigStore.get('userData')
+  analytics.track({
+    userId: uuid,
+    event: 'Backup Started',
+    properties,
+    context
   })
+}
 
+export function trackBackupCompleted(properties) {
+  const { uuid } = ConfigStore.get('userData')
+  analytics.track({
+    userId: uuid,
+    event: 'Backup Completed',
+    properties,
+    context
+  })
+}
+
+export function trackBackupError(properties) {
+  const { uuid } = ConfigStore.get('userData')
+  analytics.track({
+    userId: uuid,
+    event: 'Backup Error',
+    properties,
+    context
+  })
+}
+
+export function trackSignin() {
   const { uuid, email } = ConfigStore.get('userData')
 
   analytics.identify({
@@ -67,13 +61,84 @@ export function trackSignin() {
 }
 
 export function trackSigninAttempted(properties) {
-  const analytics = new Analytics(process.env.APP_SEGMENT_KEY, {
-    flushAt: 1
-  })
   analytics.track({
     anonymousId,
     event: 'User Signin Attempted',
     properties,
+    context
+  })
+}
+
+export function trackDownloadError(properties) {
+  const { uuid } = ConfigStore.get('userData')
+  analytics.track({
+    userId: uuid,
+    event: 'Download Error',
+    properties,
+    context
+  })
+}
+
+export function trackUploadError(properties) {
+  const { uuid } = ConfigStore.get('userData')
+  analytics.track({
+    userId: uuid,
+    event: 'Upload Error',
+    properties,
+    context
+  })
+}
+
+export function trackUploadStarted(properties) {
+  const { uuid } = ConfigStore.get('userData')
+
+  analytics.track({
+    userId: uuid,
+    event: 'Upload Started',
+    properties,
+    context
+  })
+}
+
+export function trackDownloadStarted(properties) {
+  const { uuid } = ConfigStore.get('userData')
+
+  analytics.track({
+    userId: uuid,
+    event: 'Download Started',
+    properties,
+    context
+  })
+}
+
+export function trackUploadCompleted(properties) {
+  const { uuid } = ConfigStore.get('userData')
+
+  analytics.track({
+    userId: uuid,
+    event: 'Upload Completed',
+    properties,
+    context
+  })
+}
+
+export function trackDownloadCompleted(properties) {
+  const { uuid } = ConfigStore.get('userData')
+
+  analytics.track({
+    userId: uuid,
+    event: 'Download Completed',
+    properties,
+    context
+  })
+}
+
+export function trackSignOut() {
+  const { uuid } = ConfigStore.get('userData')
+
+  analytics.track({
+    userId: uuid,
+    event: 'User Signout',
     context
   })
 }
