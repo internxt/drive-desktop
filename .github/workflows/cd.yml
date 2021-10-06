@@ -1,7 +1,7 @@
 name: Drive Desktop CD
 on: 
-  release:
-    types: [created]
+  push:
+    branches: [master]
 
 env:
   CRYPTO_KEY: ${{ secrets.CRYPTO_KEY }}
@@ -14,7 +14,7 @@ env:
   GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
 jobs:
-  build:
+  build-and-publish:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -38,37 +38,4 @@ jobs:
       - name: Install
         run: yarn
       - name: Build
-        run: yarn build
-      - name: Create artifact
-        run: tar czf artifact.tar.gz node_modules build
-      - name: Upload artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: ${{ matrix.os }}-artifact
-          path: artifact.tar.gz
-  publish:
-    environment: 
-      name: production
-    runs-on: ${{ matrix.os }}
-    needs: build
-    strategy:
-      matrix:
-        os: [ubuntu-latest]
-        node-version: [14.16.0]
-
-    steps:
-      - uses: actions/checkout@v2
-      - name: Use Node.js ${{ matrix.node-version }} and OS ${{ matrix.os }}
-        uses: actions/setup-node@v1
-        with:
-          node-version: ${{ matrix.node-version }}
-          registry-url: 'https://npm.pkg.github.com'
-      - name: Download build & node_modules
-        uses: actions/download-artifact@v2
-        with:
-          name: ${{ matrix.os }}-artifact
-      - name: Extract artifact
-        run: tar xvf artifact.tar.gz
-      - name: publish
-        run: yarn publish
- 
+        run: yarn run publish
