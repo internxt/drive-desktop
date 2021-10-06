@@ -1,6 +1,7 @@
 .DS_Store
 dist/electron/*
 dist/web/*
+dist/backup-process/index.js
 build/*
 !build/icons
 coverage
@@ -13,3 +14,4 @@ thumbs.db
 database_*.db
 database_*.db~
 database/fileLogger/*
+.npmrc

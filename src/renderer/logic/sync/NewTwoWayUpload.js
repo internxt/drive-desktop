@@ -10,6 +10,7 @@ import ConfigStore from '../../../main/config-store'
 import SpaceUsage from '../utils/spaceusage'
 import NameTest from '../utils/nameTest'
 import semver from 'semver'
+import analytics from '../utils/analytics'
 /*
  * Sync Method: One Way, from LOCAL to CLOUD (Only Upload)
  */
@@ -28,6 +29,7 @@ function isUploadOnly() {
 const wtc = null
 let timeoutInstance = null
 function syncStop() {
+  // analytics.trackSyncStoped()
   if (ConfigStore.get('isSyncing')) {
     ConfigStore.set('stopSync', true)
   }
@@ -50,10 +52,15 @@ async function SyncLogic(callback) {
   }
   if (userDevicesSyncing.data || ConfigStore.get('isSyncing')) {
     Logger.warn('sync not started: another device already syncing')
+    analytics.trackBlockedDevice()
     app.emit('ui-sync-status', 'block')
     return start(callback)
   }
   ConfigStore.set('isSyncing', true)
+
+  let syncTime = new Date()
+  analytics.trackSyncStarted()
+
   if (userDevicesSyncing.ensure !== undefined) {
     File.setEnsureMode(
       userDevicesSyncing.ensure,
@@ -90,6 +97,9 @@ async function SyncLogic(callback) {
   }
   const syncComplete = async function(err) {
     if (err) {
+      analytics.trackSyncError({
+        message: err.message
+      })
       Logger.error('Error sync monitor:', err.message ? err.message : err)
       if (/it violates the unique constraint/.test(err.message)) {
         Tree.tryFixDuplicateFolder()
@@ -104,6 +114,10 @@ async function SyncLogic(callback) {
       if (ConfigStore.get('forceUpload') === 1) {
         ConfigStore.set('forceUpload', 0)
       }
+      syncTime = new Date() - syncTime
+      analytics.trackSyncCompleted({
+        time_to_sync: syncTime
+      })
       app.emit('ui-sync-status', 'success')
     }
     // console.timeEnd('desktop')
@@ -311,13 +325,16 @@ async function SyncLogic(callback) {
 function start(callback, startImmediately = false) {
   const isSyncing = ConfigStore.get('isSyncing')
   if (isSyncing) {
+    analytics.trackBlockedDevice()
     app.emit('ui-sync-status', 'block')
     return Logger.warn('There is an active sync running right now')
   }
   Logger.info('Start sync')
   let timeout = 0
   if (!startImmediately) {
-    timeout = process.env.NODE_ENV !== 'production' ? 1000 * 30 : 1000 * 60 * 10
+    const UPDATES_EVERY_MINUTES = 5
+    const UPDATES_EVERY_MINUTES_DEV = 10
+    timeout = process.env.NODE_ENV !== 'production' ? 1000 * 60 * UPDATES_EVERY_MINUTES_DEV : 1000 * 60 * UPDATES_EVERY_MINUTES
   }
   if (!isSyncing) {
     clearTimeout(timeoutInstance)

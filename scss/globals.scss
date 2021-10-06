@@ -84,6 +84,63 @@ $purple-10: #f6f2ff;
 $purple-80: #491d8b;
 $purple-60: #8a3ffc;
 $purple-70: #6929c4;
+$cyan-900: #164e63;
+$cyan-800: #155e75;
+$cyan-200: #a5f3fc;
+$cyan-300: #67e8f9;
+$cyan-500: #06b6d4;
+$cyan-100: #cffafe;
+$cyan-50: #ecfeff;
+$indigo-900: #312e81;
+$indigo-800: #3730a3;
+$indigo-700: #4338ca;
+$cyan-700: #0e7490;
+$cyan-600: #0891b2;
+$cyan-400: #22d3ee;
+$indigo-600: #4f46e5;
+$indigo-500: #3b82f6;
+$indigo-400: #60a5fa;
+$indigo-300: #93c5fd;
+$indigo-100: #dbeafe;
+$indigo-200: #bfdbfe;
+$indigo-50: #eff6ff;
+$fuchsia-900: #701a75;
+$fuchsia-800: #86198f;
+$fuchsia-700: #a21caf;
+$fuchsia-600: #c026d3;
+$fuchsia-500: #d946ef;
+$fuchsia-400: #e879f9;
+$fuchsia-300: #f0abfc;
+$fuchsia-100: #fae8ff;
+$fuchsia-200: #f5d0fe;
+$fuchsia-50: #fdf4ff;
+$pink-900: #831843;
+$pink-800: #9d174d;
+$pink-700: #be185d;
+$pink-600: #db2777;
+$pink-500: #ec4899;
+$pink-400: #f472b6;
+$pink-300: #f9a8d4;
+$pink-200: #fbcfe8;
+$pink-100: #fce7f3;
+$pink-50: #fdf2f8;
+$neutral-700: #253858;
+$neutral-600: #344563;
+$m-neutral-400: #505f79;
+$neutral-800: #172b4d;
+$neutral-500: #42526e;
+$neutral-900: #091e42;
+$m-neutral-200: #6b778c;
+$m-neutral-300: #5e6c84;
+$m-neutral-100: #7a869a;
+$m-neutral-80: #97a0af;
+$m-neutral-60: #b3bac5;
+$m-neutral-70: #a5adba;
+$l-neutral-50: #c1c7d0;
+$l-neutral-40: #dfe1e6;
+$l-neutral-30: #ebecf0;
+$l-neutral-10: #fafbfc;
+$l-neutral-20: #f4f5f7;
 
 // Spacing
 
@@ -138,3 +195,11 @@ $spacing-47: 96px;
 $spacing-48: 98px;
 $spacing-49: 100px;
 $spacing-50: 102px;
+
+html {
+  overflow: hidden;
+}
+
+a {
+  transition: none !important;
+}

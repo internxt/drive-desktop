@@ -39,9 +39,37 @@ const schema = {
   version: {
     type: 'string',
     default: '1.3.0'
+  },
+  authHeaders: {
+    type: 'object',
+    default: {}
+  },
+  userData: {
+    type: 'object',
+    default: {}
+  },
+  mnemonic: {
+    type: 'string',
+    default: ''
+  },
+  backupsEnabled: {
+    type: 'boolean',
+    default: false
+  },
+  backupInterval: {
+    type: 'number',
+    default: 24 * 3600 * 1000
+  },
+  lastBackup: {
+    type: 'number',
+    default: -1
+  },
+  askBeforeDisablingBackup: {
+    type: 'boolean',
+    default: true
   }
 }
 
-const ConfigStore = new Store({ schema: schema })
+const ConfigStore = new Store({ schema })
 
 export default ConfigStore

@@ -1,22 +1,16 @@
 <template>
-  <div class="flex justify-between p-4 px-6">
-    <div class="flex">
-      <syncStatusText :msg="message" :syncState="syncState" />
-
-      <!-- Error - string= 'error' -->
-    </div>
-    <div class="flex justify-center">
-      <div class="flex">
+  <div class="bg-white flex">
+    <syncStatusText :msg="message" :syncState="syncState" :icon="icon"/>
+    <div class="flex justify-center flex-row">
         <div v-if="this.playButtonState !== 'loading'" @click="forceSync()">
-          <PlayIcon :playButtonState="playButtonState" />
+          <PlayIcon class="buttonStatus" :playButtonState="playButtonState"/>
         </div>
         <div v-else>
-          <LoadingSpinAnimation />
+          <LoadingSpinAnimation class="buttonStatus" />
         </div>
         <div @click="stopSync()">
-          <StopIcon :stopButtonState="stopButtonState" />
+          <StopIcon class="buttonStatus" :stopButtonState="stopButtonState"/>
         </div>
-      </div>
     </div>
   </div>
 </template>
@@ -36,6 +30,11 @@ import LoadingSpinAnimation from '../ExportIcons/LoadingSpinAnimation'
 import syncButtonState from '../../logic/syncButtonStateMachine'
 import syncStatusText from './syncStatusText'
 import getMessage from './statusMessage'
+import { statSync } from 'original-fs'
+import FileLogger from '../../logic/FileLogger'
+import NoSignal from '../../assets/icons/apple/no-signal.svg'
+import Syncing from '../../assets/icons/apple/syncing.svg'
+import Warn from '../../assets/icons/apple/warn.svg'
 
 const remote = require('@electron/remote')
 
@@ -50,7 +49,8 @@ export default {
       changeSyncButton: isSyncing => {
         this.syncButtonState = isSyncing
       },
-      blockTimeout: undefined
+      blockTimeout: undefined,
+      icon: null
     }
   },
   props: {
@@ -65,6 +65,7 @@ export default {
         this.playButtonState = 'loading'
         this.stopButtonState = 'inactive'
         this.message = getMessage('pending')
+        this.icon = Syncing
         remote.app.emit('sync-start')
       }
     },
@@ -74,36 +75,43 @@ export default {
         remote.app.emit('sync-stop')
         this.playButtonState = 'loading'
         this.stopButtonState = 'inactive'
+        this.icon = null
         this.message = getMessage('stop')
       }
     }
   },
   created: function() {
     remote.app.on('ui-sync-status', status => {
-      // console.log(`status entering: ${status}`)
+      console.log(`status entering: ${status}`)
       if (status === 'success') {
         clearTimeout(this.blockTimeout)
         this.blockTimeout = 0
         this.playButtonState = 'active'
         this.stopButtonState = 'inactive'
         this.message = getMessage('complete')
+        this.icon = null
+        FileLogger.saveLog()
       }
-      if (status === 'default') {
+      if (status === 'default' || status === 'unblock') {
         this.playButtonState = 'active'
         this.stopButtonState = 'inactive'
         this.message = getMessage('default')
+        this.icon = null
       }
 
       if (status === 'block') {
         if (!this.blockTimeout) {
           this.blockTimeout = setTimeout(() => {
             this.playButtonState = 'active'
+            this.message = getMessage('default')
+            this.icon = null
             this.blockTimeout = 0
           }, 60 * 1000)
         }
         this.playButtonState = 'inactive'
         this.stopButtonState = 'inactive'
         this.message = getMessage('block')
+        this.icon = Warn
         // console.log('%c SYNC BLOCKED', 'color: #FF0000')
       }
       /*
@@ -126,7 +134,6 @@ export default {
   beforeDestroy: function() {
     remote.app.removeListener('ui-sync-status', this.changeSyncStatus)
   },
-  updated: function() {},
   computed: {},
   name: 'SyncButtonAction',
   components: {

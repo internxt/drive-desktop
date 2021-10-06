@@ -1,38 +1,37 @@
+@import "../../../../src/index.scss";
+
+.statusBar {
+    box-shadow: inset 0 1px 0 0 $l-neutral-30;
+
+    .statusBarMsg {
+        color: $neutral-500;
+    }
+}
+
 .centerAbsolute {
     margin-left: auto;
     margin-right: auto;
     left: 0;
     right: 0;
 }
+.buttonStatus {
+    transition: all .1s ease-out;
+    &:active {
+        filter: brightness(.9);
+    }
+}
 .active {
-    height: 2.5rem;
-    width: 2.5rem;
-    margin-right: .5rem;
-    fill: white;
-    background-color: #2563EB;
-    font-size: 1.875rem;
-    line-height: 2.25rem;
-    border-radius: 9999px;
+    margin-left: .5rem;
+    fill: $white;
     cursor: pointer;
-    fill: currentColor;
-    color: white;
-    padding: 0.625rem;
 }
 .inactive {
-    height: 2.5rem;
-    width: 2.5rem;
-    margin-right: .5rem;
-    fill: white;
-    background-color: #E5E7EB;
-    font-size: 1.875rem;
-    line-height: 2.25rem;
-    border-radius: 9999px;
+    margin-left: .5rem;
     cursor: pointer;
-    fill: currentColor;
-    color: #D1D5DB;
-    padding: 0.625rem;
     cursor: not-allowed;
 }
-// .loadingButtonSync {
 
-// }
+.syncSpinner {
+    background: $blue-60;
+    border-radius: 100%;
+}

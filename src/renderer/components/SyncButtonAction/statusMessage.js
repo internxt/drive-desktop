@@ -1,4 +1,22 @@
 const messages = {
+  pending: { line1: 'Synchronizing your files...' },
+  starting: { line1: 'Checking for updates...' },
+  complete: { line1: '' }, // Computed
+  stop: { line1: 'Stopped, press play to start syncing' },
+  block: { line1: 'Sync blocked by other device, try later' },
+  default: { line1: 'Press play to start syncing' },
+  error: { line1: "Can't connect to internxt cloud" },
+  stopping: { line1: 'Stopping...' }
+}
+
+function getMessage(state) {
+  return messages[state]
+}
+
+module.exports = getMessage
+
+/*
+const messages = {
   'pending': {
     'line1': 'Synchronizing your files',
     'line2': 'Status: pending...'
@@ -32,9 +50,4 @@ const messages = {
     'line2': 'Status: Stopping'
   }
 }
-
-function getMessage(state) {
-  return messages[state]
-}
-
-module.exports = getMessage
+*/

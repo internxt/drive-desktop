@@ -1,5 +1,6 @@
 import database from '../../../database/index'
 import packageJson from '../../../../package.json'
+import ConfigStore from '../../../main/config-store'
 
 async function getUserEmail() {
   const userData = await database.Get('xUser')
@@ -25,7 +26,14 @@ async function getAuthHeader(withMnemonic) {
   return header
 }
 
+async function denormalizeAuthInfoInConfigStore() {
+  ConfigStore.set('authHeaders', await getAuthHeader())
+  ConfigStore.set('userData', (await database.Get('xUser')).user)
+  ConfigStore.set('mnemonic', await database.Get('xMnemonic'))
+}
+
 export default {
   getAuthHeader,
-  getUserEmail
+  getUserEmail,
+  denormalizeAuthInfoInConfigStore
 }

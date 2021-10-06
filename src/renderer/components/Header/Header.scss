@@ -1,44 +1,51 @@
-@import "../scss/globals";
+@import '../../../../src/index.scss';
+
+.header {
+  box-shadow: inset 0 -1px 0 0 $l-neutral-30;
+}
 
 .text-brand {
-    @include text-xs;
+  @include text-xs;
 }
 .text-xs-bolder {
-  @include text-xs-bolder;
+  @include text-xs;
 }
 .hide {
-    visibility: hidden !important;
+  visibility: hidden !important;
 }
 .mt-0-64 {
-    margin-top: 5px;
+  margin-top: 5px;
 }
-input[type='radio']{
-    width: 10px !important;
-    height: 10px !important;
+input[type='radio'] {
+  width: 10px !important;
+  height: 10px !important;
 }
 .h-19r {
-    height: 18.5rem;
+  height: 18.5rem;
 }
+
+/*
 body::-webkit-scrollbar {
-  width: 4px;               /* width of the entire scrollbar */
+  width: 4px;               // width of the entire scrollbar
 }
 
 body::-webkit-scrollbar-track {
-  background: white;        /* color of the tracking area */
+  background: white;        // color of the tracking area
 }
 
 body::-webkit-scrollbar-thumb {
-  background-color: #1D4ED8;    /* color of the scroll thumb */
-  border-radius: 20px;       /* roundness of the scroll thumb */
-  // border: 3px solid orange;  /* creates padding around scroll thumb */
+  background-color: #1D4ED8;    // color of the scroll thumb
+  border-radius: 20px;       // roundness of the scroll thumb
+  // border: 3px solid orange;  // creates padding around scroll thumb
 }
 
 * {
   scrollbar-width: thin;
   scrollbar-color: #1D4ED8 white;
+  user-select: none;
 }
 
-/* Works on Chrome, Edge, and Safari */
+// Works on Chrome, Edge, and Safari
 *::-webkit-scrollbar {
   width: 6px;
 }
@@ -52,6 +59,7 @@ body::-webkit-scrollbar-thumb {
   border-radius: 20px;
   // border: 3px solid orange;
 }
+*/
 
 /* The container */
 .radioContainer {
@@ -94,7 +102,7 @@ body::-webkit-scrollbar-thumb {
 
 /* On mouse-over, add a grey background color */
 .radioContainer:hover input ~ .checkmark {
-  background-color: $gray-10
+  background-color: $gray-10;
 }
 
 /* When the radio button is checked, add a blue background */
@@ -116,23 +124,35 @@ body::-webkit-scrollbar-thumb {
 
 /* Style the indicator (dot/circle) */
 .radioContainer .checkmark:after {
- 	top: 9px;
-	left: 9px;
-	width: 8px;
-	height: 8px;
-	border-radius: 50%;
-	background: white;
+  top: 9px;
+  left: 9px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: white;
 }
 
-.enter { transform: translateY(100%) }
-.enter-to { transform: translateY(0) }
-.slide-enter-active { position: absolute }
+.enter {
+  transform: translateY(100%);
+}
+.enter-to {
+  transform: translateY(0);
+}
+.slide-enter-active {
+  position: absolute;
+}
 
-.leave { transform: translateY(0) }
-.leave-to { transform: translateY(130%) }
+.leave {
+  transform: translateY(0);
+}
+.leave-to {
+  transform: translateY(130%);
+}
 
 .slide-enter-active,
-.slide-leave-active { transition: all 500ms ease-in-out }
+.slide-leave-active {
+  transition: all 0.25s ease-in-out;
+}
 
 // Custom checkbox
 .checkbox {
@@ -142,24 +162,19 @@ body::-webkit-scrollbar-thumb {
   position: relative;
 }
 
-.checkbox > span {
-  color: #34495E;
-}
-
 .checkbox > input {
-  height: 13px;
-  width: 13px;
+  height: $spacing-7;
+  width: $spacing-7;
   appearance: none;
-  border: 1px solid $gray-60;
-  border-radius: 3px;
+  border: 2px solid $neutral-500;
+  border-radius: $spacing-1;
   outline: none;
-  transition-duration: 0.3s;
   background-color: white;
   cursor: pointer;
 }
 
 .checkbox > input:checked {
-  border: none;
+  border-color: $blue-60;
   background-color: $blue-60;
 }
 
@@ -167,24 +182,26 @@ body::-webkit-scrollbar-thumb {
   content: '\2713';
   display: block;
   text-align: center;
-  color: white;
+  color: $white;
   position: absolute;
-  left: 3px;
-  top: 4px;
-  font-size: 10px;
+  left: 11px;
+  top: 10px;
+  @include text-sm;
 }
 
 // v-tooltip styling
 .tooltip {
   display: block !important;
   z-index: 10000;
-  font-size: 12px;
+  @include text-xs;
+  pointer-events: none;
 
   .tooltip-inner {
-    background: white;
-    color: black;
-    border-radius: 9999px;
-    padding: 5px 10px 4px;
+    background: $cool-gray-90;
+    color: $cool-gray-10;
+    border-radius: $spacing-1;
+    border: 1px solid $cool-gray-70;
+    padding: 4px 10px;
   }
 
   .tooltip-arrow {
@@ -193,11 +210,26 @@ body::-webkit-scrollbar-thumb {
     border-style: solid;
     position: absolute;
     margin: 5px;
-    border-color: white;
+    border-color: $cool-gray-90;
     z-index: 1;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: -1px;
+      left: 0;
+      width: 9px;
+      height: 9px;
+      transform-origin: top left;
+      transform: rotateZ(45deg);
+      border-left: 1px solid $cool-gray-70;
+      border-top: 1px solid $cool-gray-70;
+      background: $cool-gray-90;
+      border-bottom-right-radius: 100%;
+    }
   }
 
-  &[x-placement^="top"] {
+  &[x-placement^='top'] {
     margin-bottom: 5px;
 
     .tooltip-arrow {
@@ -212,7 +244,7 @@ body::-webkit-scrollbar-thumb {
     }
   }
 
-  &[x-placement^="bottom"] {
+  &[x-placement^='bottom'] {
     margin-top: 5px;
 
     .tooltip-arrow {
@@ -227,7 +259,7 @@ body::-webkit-scrollbar-thumb {
     }
   }
 
-  &[x-placement^="right"] {
+  &[x-placement^='right'] {
     margin-left: 5px;
 
     .tooltip-arrow {
@@ -242,7 +274,7 @@ body::-webkit-scrollbar-thumb {
     }
   }
 
-  &[x-placement^="left"] {
+  &[x-placement^='left'] {
     margin-right: 5px;
 
     .tooltip-arrow {
@@ -260,12 +292,60 @@ body::-webkit-scrollbar-thumb {
   &[aria-hidden='true'] {
     visibility: hidden;
     opacity: 0;
-    transition: opacity .15s, visibility .15s;
+    transition: opacity 0.15s, visibility 0.15s;
   }
 
   &[aria-hidden='false'] {
     visibility: visible;
     opacity: 1;
-    transition: opacity .15s;
+    transition: opacity 0.15s, visibility 0.15s;
+  }
+}
+
+.headerModal {
+  position: fixed;
+  top: 64px;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: calc(100% - 64px);
+  overflow: auto;
+  background: $white;
+  padding: $spacing-11;
+  z-index: 10;
+}
+
+.title {
+  color: $neutral-900;
+  margin-top: $spacing-7;
+  // @include text-xl;
+  @include text-lg;
+  &:first-child {
+    margin-top: 0;
+  }
+}
+.subtitle {
+  color: $m-neutral-80;
+  @include text-sm;
+}
+
+.subgroup {
+  color: $neutral-500;
+  padding: $spacing-3;
+
+  &.note {
+    background: $l-neutral-20;
+    border-radius: $spacing-3;
+    padding: $spacing-8 $spacing-10;
+
+    &.dev {
+      background: $orange-10;
+      color: $orange-60;
+
+      .title {
+        color: $orange-80;
+        @include text-xl;
+      }
+    }
   }
 }

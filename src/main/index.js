@@ -3,12 +3,12 @@
 import electron, {
   app,
   BrowserWindow,
-  Tray,
   Menu,
   shell,
   dialog,
   powerMonitor,
-  ipcMain
+  ipcMain,
+  Notification
 } from 'electron'
 import path from 'path'
 import Logger from '../libs/logger'
@@ -17,11 +17,13 @@ import { autoUpdater } from 'electron-updater'
 import semver from 'semver'
 import PackageJson from '../../package.json'
 import fetch from 'electron-fetch'
-import fs from 'fs'
 import ConfigStore from './config-store'
 import TrayMenu from './traymenu'
 import FileLogger from '../renderer/logic/FileLogger'
 import dimentions from './window-dimentions/dimentions'
+import BackupsDB from '../backup-process/backups-db'
+import BackupStatus from '../backup-process/status'
+import ErrorCodes from '../backup-process/error-codes'
 
 require('@electron/remote/main').initialize()
 AutoLaunch.configureAutostart()
@@ -44,27 +46,26 @@ const winURL =
     ? `http://localhost:9080`
     : `file://${__dirname}/index.html`
 
-if (process.platform === 'darwin' && process.env.NODE_ENV !== 'development') {
+if (process.platform === 'darwin') {
   app.dock.hide()
 }
 
 if (!app.requestSingleInstanceLock()) {
-  FileLogger.saveLogger()
+  FileLogger.saveLog()
   app.quit()
 }
 
-function getWindowPos() {
-  const trayBounds = trayMenu.tray.getBounds()
+function getWindowPos(trayBounds = trayMenu.tray.getBounds()) {
   const display = electron.screen.getDisplayMatching(trayBounds)
   let x = Math.min(
-    trayBounds.x - display.workArea.x - 450 / 2,
-    display.workArea.width - 450
+    trayBounds.x - display.workArea.x - dimentions['/xcloud'].width / 2,
+    display.workArea.width - dimentions['/xcloud'].width
   )
   x += display.workArea.x
   x = Math.max(display.workArea.x, x)
   let y = Math.min(
-    trayBounds.y - display.workArea.y - 360 / 2,
-    display.workArea.height - 360
+    trayBounds.y - display.workArea.y - dimentions['/xcloud'].height / 2,
+    display.workArea.height - dimentions['/xcloud'].height
   )
   y += display.workArea.y
   y = Math.max(display.workArea.y, y)
@@ -85,7 +86,7 @@ function getDimentions(route) {
 function createWindow() {
   trayMenu = new TrayMenu(mainWindow)
   trayMenu.init()
-  trayMenu.setToolTip('Internxt Drive ' + PackageJson.version)
+  trayMenu.setToolTip('Internxt Drive ' + PackageJson.version) // Tray tooltip
 
   mainWindow = new BrowserWindow({
     webPreferences: {
@@ -95,18 +96,16 @@ function createWindow() {
       enableRemoteModule: true,
       devTools: process.env.NODE_ENV === 'development'
     },
-    movable: true,
-    width: 450,
-    height: 360,
-    // x: display.bounds.width - 450,
-    // y: trayBounds.y,
-    useContentSize: true,
-    // frame: process.env.NODE_ENV === 'development',
+    movable: false,
     frame: false,
+    resizable: false,
+    width: dimentions['/xcloud'].width,
+    height: dimentions['/xcloud'].height,
+    useContentSize: true,
+    maximizable: false, // this won't work on linux
     autoHideMenuBar: false,
     skipTaskbar: process.env.NODE_ENV !== 'development',
-    show: true,
-    resizable: process.env.NODE_ENV === 'development',
+    show: false,
     menuBarVisible: false,
     centered: true
   })
@@ -118,6 +117,14 @@ function createWindow() {
   mainWindow.on('closed', appClose)
   mainWindow.on('close', appClose)
 
+  mainWindow.once('ready-to-show', () => {
+    mainWindow.show()
+  })
+
+  mainWindow.on('blur', () => {
+    if (!isLogin && !isOnboarding) mainWindow.hide()
+  })
+
   app.on('app-close', appClose)
 
   app.on('enter-onboarding', setIsOnboarding => {
@@ -128,7 +135,8 @@ function createWindow() {
   })
 
   app.on('user-logout', () => {
-    FileLogger.clearLogger()
+    if (settingsWindow) settingsWindow.destroy()
+    FileLogger.eraseLog()
   })
 
   app.on('update-configStore', item => {
@@ -210,40 +218,23 @@ function createWindow() {
     ]
   }
 
-  const view = {
-    label: 'View',
-    submenu: [
-      {
-        label: 'Developer Tools',
-        accelerator: 'Shift+CmdOrCtrl+J',
-        click: function() {
-          self.getWindow().toggleDevTools()
-        }
-      }
-    ]
-  }
-
   const windowMenu = Menu.setApplicationMenu(
-    Menu.buildFromTemplate([
-      process.platform === 'darwin' ? editMacOS : edit,
-      view
-    ])
+    Menu.buildFromTemplate([process.platform === 'darwin' ? editMacOS : edit])
   )
 }
 
 app.on('ready', () => {
   createWindow()
 })
+
 app.on('show-main-windows', showMainWindows)
 
-function showMainWindows() {
-  if (!isOnboarding && !isLogin) {
-    if (mainWindow.isVisible()) {
-      mainWindow.hide()
-    } else {
-      mainWindow.setBounds(getDimentions('xcloud'))
-      mainWindow.show()
-    }
+function showMainWindows(trayBounds) {
+  if (mainWindow.isVisible()) {
+    mainWindow.hide()
+  } else {
+    mainWindow.setBounds(getWindowPos(trayBounds))
+    mainWindow.show()
   }
 }
 
@@ -267,7 +258,7 @@ async function appClose() {
     trayMenu.destroy()
     trayMenu = null
   }
-  FileLogger.saveLogger()
+  FileLogger.saveLog()
   app.quit()
 }
 
@@ -286,8 +277,6 @@ app.on('before-quit', function(evt) {
     trayMenu.destroy()
   }
 })
-
-app.on('browser-window-focus', (e, w) => {})
 
 app.on('sync-on', function() {
   trayMenu.setIsLoadingIcon(true)
@@ -343,6 +332,55 @@ app.on('show-info', (msg, title) => {
     type: 'info',
     title: title
   })
+})
+
+let settingsWindow = null
+
+ipcMain.on('open-settings-window', (_, section, subsection) => {
+  openSettingsWindow(section, subsection)
+})
+
+function openSettingsWindow(section, subsection) {
+  if (settingsWindow) {
+    app.emit('settings-change-section', section)
+    settingsWindow.focus()
+  } else {
+    const settingsPath =
+      process.env.NODE_ENV === 'development'
+        ? `http://localhost:9080/#/settings?section=${section}&subsection=${subsection}`
+        : `file://${__dirname}/index.html#settings?section=${section}&subsection=${subsection}`
+
+    settingsWindow = new BrowserWindow({
+      width: 500,
+      height: 428,
+      show: false,
+      titleBarStyle: process.platform === 'darwin' ? 'hidden' : undefined,
+      frame: process.platform !== 'darwin' ? false : undefined,
+      maximizable: false,
+      minimizable: false,
+      resizable: false,
+      webPreferences: {
+        nodeIntegration: true,
+        enableRemoteModule: true,
+        contextIsolation: false
+      }
+    })
+    settingsWindow.loadURL(settingsPath)
+    settingsWindow.once('closed', () => {
+      settingsWindow = null
+    })
+    settingsWindow.once('ready-to-show', () => {
+      settingsWindow.show()
+    })
+  }
+}
+
+ipcMain.on('settings-window-resize', (_, { height }) => {
+  if (settingsWindow) settingsWindow.setBounds({ height: Math.trunc(height) })
+})
+
+app.on('close-settings-window', () => {
+  if (settingsWindow) settingsWindow.close()
 })
 
 /**
@@ -534,6 +572,12 @@ async function ManualCheckUpdate() {
 app.on('ready', () => {
   checkUpdates()
 
+  /*
+    Don't start backup process right away
+    as the load is already high on ready
+  */
+  setTimeout(startBackupProcess, 8000)
+
   // Check updates every 6 hours
   setInterval(() => {
     checkUpdates()
@@ -549,3 +593,118 @@ app.on('ready', () => {
     app.emit('sync-start')
   })
 })
+
+let backupProcessStatus = BackupStatus.STANDBY
+let backupProcessRerun = null
+
+async function startBackupProcess() {
+  const backupsAreEnabled = ConfigStore.get('backupsEnabled')
+
+  if (backupsAreEnabled && backupProcessStatus !== BackupStatus.IN_PROGRESS) {
+    backupProcessStatus = BackupStatus.IN_PROGRESS
+    await BackupsDB.cleanErrors()
+    app.emit('backup-status-update', backupProcessStatus)
+
+    const worker = new BrowserWindow({
+      webPreferences: {
+        nodeIntegration: true,
+        enableRemoteModule: true,
+        contextIsolation: false
+      },
+      show: false
+    })
+
+    worker
+      .loadFile(
+        process.env.NODE_ENV === 'development'
+          ? '../backup-process/index.html'
+          : `${path.join(__dirname, '..', 'backup-process')}/index.html`
+      )
+      .catch(Logger.error)
+
+    const cleanUp = async ({exitReason, errorCode}) => {
+      worker.destroy()
+      if (backupProcessRerun) {
+        clearTimeout(backupProcessRerun)
+      }
+      backupProcessRerun = setTimeout(
+        startBackupProcess,
+        ConfigStore.get('backupInterval')
+      )
+
+      if (exitReason === 'DONE') {
+        ConfigStore.set('lastBackup', new Date().valueOf())
+        const errors = await BackupsDB.getErrors()
+        if (errors.length === 0) {
+          backupProcessStatus = BackupStatus.SUCCESS
+        } else {
+          const thereAreFatalErrors = errors.find(error => [ErrorCodes.NO_CONNECTION, ErrorCodes.UNKNOWN].includes(error.error_code))
+          backupProcessStatus = thereAreFatalErrors ? BackupStatus.FATAL : BackupStatus.WARN
+          notifyBackupErrors()
+        }
+      } else if (exitReason === 'ERROR') {
+        notifyBackupsFatalError(errorCode)
+        backupProcessStatus = BackupStatus.STANDBY
+      } else {
+        backupProcessStatus = BackupStatus.STANDBY
+      }
+
+      app.emit('backup-status-update', backupProcessStatus)
+    }
+
+    ipcMain.once('backup-process-done', () => cleanUp({exitReason: 'DONE'}))
+    ipcMain.once('backup-process-fatal-error', (_, errorCode) => cleanUp({exitReason: 'ERROR', errorCode}))
+    ipcMain.once('stop-backup-process', () => cleanUp({exitReason: 'STOP'}))
+  }
+}
+
+ipcMain.on('start-backup-process', startBackupProcess)
+
+ipcMain.handle('get-backup-status', () => backupProcessStatus)
+
+ipcMain.on('insert-backup-error', (_, error) => {
+  BackupsDB.insertError(error)
+})
+
+function notifyBackupErrors() {
+  const notification = new Notification({
+    title: 'Some folders could not be uploaded',
+    body: "Your backup process wasn't completely successful, click to see the details"
+  })
+
+  notification.show()
+
+  notification.on('click', () => {
+    openSettingsWindow('backups', 'list')
+  })
+}
+
+function notifyBackupsFatalError(errorCode) {
+  if (errorCode === ErrorCodes.NO_CONNECTION) {
+    notifyBackupProcessWithNoConnection()
+  } else if (errorCode === ErrorCodes.NO_SPACE) {
+    notifyBackupHasNoSpace()
+  }
+}
+
+function notifyBackupHasNoSpace() {
+  const notification = new Notification({
+    title: `Backup Process couldn't continue`,
+    body: 'There was no space to do one of your backups'
+  })
+
+  notification.show()
+}
+
+function notifyBackupProcessWithNoConnection() {
+  const notification = new Notification({
+    title: `Backup Process couldn't start`,
+    body: 'Check that you have a working internet connection. We will retry later, click to try now.'
+  })
+
+  notification.show()
+
+  notification.on('click', () => {
+    startBackupProcess()
+  })
+}

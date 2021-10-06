@@ -1,254 +1,132 @@
 <template>
-  <div class="overflow-hidden">
-    <div class="flex justify-between items-start p-4" style="-webkit-app-region: drag">
-      <div class="flex flex-col" style="-webkit-app-region: no-drag;">
-        <div @click="CloseModals()" class="flex items-center cursor-pointer">
-          <img src="../../assets/svg/brand-app.svg" />
-          <div class="text-xs text-gray-500 ml-2">
-            <div class="">{{ emailAccount }}</div>
+  <div>
+    <div class="flex justify-between self-center p-3">
+      <div class="flex flex-col">
+        <div class="flex items-center">
+          <div class="text-sm">
+            <div>{{ emailAccount }}</div>
             <div class="flex" v-if="showUsage">
-              <div class="mr-0.5 text-gray-500 text-xs">{{ usage }} of</div>
-              <div class="text-blue-500 text-xs italic">{{ limit }}</div>
-              <div v-if="this.showUpgrade" class="ml-2 text-blue-600"><a @click="openLinkBilling()">Upgrade</a></div>
+              <div class="mr-0.5 text-gray-500"> <span :class="{'text-red-600': showUsageWarning }">{{ usage }}</span> of {{ limit }}</div>
+              <div
+                v-if="this.showUpgrade"
+                class="ml-1 text-blue-60 cursor-pointer"
+                @click="openLinkBilling()"
+              >
+                Upgrade
+              </div>
             </div>
+            <content-placeholders v-else class="h-5 pt-1" :rounded="true" style="margin-bottom: -4px;" >
+              <content-placeholders-text :lines="1" />
+            </content-placeholders>
           </div>
-
-          <!-- <InternxtBrand :width="16" :height="16"/> -->
-          <!-- <div class="text-gray-800 text-xl font-extrabold ml-1.5">{{ appName }}</div> -->
         </div>
-
-
       </div>
 
-      <div class="flex items-center justify-center" style="-webkit-app-region: no-drag;">
+      <div class="flex items-center justify-center space-x-3">
         <!-- {{ this.$data.localPath }} -->
-        <div
-          v-if="!isProduction"
-          class="mr-3 cursor-pointer"
-          @click="ShowDevModal()"
-          v-tooltip="{
-            content: 'Dev Mode',
-            placement: 'bottom',
-            delay: { show: 300, hide: 300 }
-          }"
-        >
-          <UilSlidersVAlt class="text-blue-600" size="24px" />
-        </div>
+
+        <backup-icon
+          @click="() => openSettingsWindow('backups')"
+          class="text-gray-500"
+          :state="backupStatus"
+          size="22"
+        />
 
         <div
-          class="mr-3 cursor-pointer"
+          class="flex items-center justify-center cursor-pointer"
           @click="openFolder()"
           v-tooltip="{
-            content: 'Sync folder',
+            content: 'Open sync folder',
             placement: 'bottom',
-            delay: { show: 300, hide: 300 }
+            delay: { show: 750, hide: 50 }
           }"
         >
-          <UilFolderOpen class="text-blue-600" size="24px" />
+          <UilFolderOpen class="text-gray-500" size="22px" />
         </div>
 
         <div
-          class="cursor-pointer mr-3"
-          v-on:click="ShowSettingsModal()"
-          v-tooltip="{
-            content: 'Settings',
-            placement: 'bottom',
-            delay: { show: 300, hide: 300 }
-          }"
+          class="
+            flex
+            items-center
+            justify-center
+            cursor-pointer
+            dropdown"
         >
-          <UilSetting class="text-blue-600" size="24px" />
-        </div>
+          <UilSetting
+            class="text-gray-500 dropdown-toggle"
+            style="outline: none"
+            data-toggle="dropdown"
+            data-offset="10,10"
+            aria-haspopup="true"
+            aria-expanded="false"
+            size="22px"
+            v-tooltip="{
+              content: 'Settings',
+              placement: 'bottom',
+              delay: { show: 750, hide: 50 }
+            }"
+          />
 
-        <div
-          class="cursor-pointer mr-3"
-          v-on:click="ShowAccountModal()"
-          v-tooltip="{
-            content: 'Account',
-            placement: 'bottom',
-            delay: { show: 300, hide: 300 }
-          }"
-        >
-          <UilUserCircle class="text-blue-600" size="24px" />
+          <div class="dropdown-menu rounded-lg">
+            <a
+              class="text-gray-700 dropdown-item"
+              @click="() => openSettingsWindow('general')"
+              >Preferences</a
+            >
+            <a class="text-gray-700 dropdown-item" @click="ContactSupportMailto"
+              >Support</a
+            >
+            <a class="text-gray-700 dropdown-item" @click="logout">Log out</a>
+            <a v-if="!isProduction" class="text-gray-700 dropdown-item" @click="unlockDevice">Unlock</a>
+            <a class="text-gray-700 dropdown-item border-gray-100 border-t border-solid pt-2" @click="quitApp">Quit</a>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- Modal settings -->
-    <transition
-      enter-class="enter"
-      enter-to-class="enter-to"
-      enter-active-class="slide-enter-active"
-      leave-class="leave"
-      leave-to-class="leave-to"
-      leave-active-class="slide-leave-active"
-    >
-      <div
-        v-if="showSettingsModal === true"
-        class="bg-white p-4 px-6 w-full h-full fixed rounded-t-2xl z-10"
-      >
-        <div class="flex justify-between">
-          <div class="text-black text-base font-bold mb-3">Configuration</div>
-
-          <div class="cursor-pointer" v-on:click="CloseSettingsModal()">
-            <UilMultiply class="mr-2 text-blue-600" />
-          </div>
-        </div>
-
-        <span class="text-sm text-black">Sync mode</span>
-        <form class="mt-2 mb-2">
-
-          <div @click="OpenSyncSettingsModal(false)" class="radioContainer ml-2">
-            <p class="text-xs text-gray-500 hover:text-blue-500 cursor-pointer">
-              Full sync
-            </p>
-            <input type="radio" name="radio" :checked="!CheckedValue" />
-            <span class="checkmark"></span>
-            <span class="smallCheckmark"></span>
-          </div>
-
-          <div @click="OpenSyncSettingsModal(true)" class="radioContainer mt-1 ml-2">
-            <p class="text-xs text-gray-500 hover:text-blue-500 cursor-pointer pt-0.5">
-              Upload only
-            </p>
-            <input type="radio" name="radio" :checked="CheckedValue" />
-            <span class="checkmark mt-0.5"></span>
-            <span class="smallCheckmark mt-0.5"></span>
-          </div>
-
-        </form>
-        <!-- <span class="text-xs bg-blue-600 p-1.5 rounded-full text-white px-3 cursor-pointer hover:bg-blue-800" @click="stopSync()">Stop sync</span> -->
-
-        <div class="text-sm mt-3">Change sync folder</div>
-        <div class="flex items-center mt-2">
-          <div class="flex items-center">
-            <div><UilFolderOpen class="text-blue-600 mr-2 mt-0.5" /></div>
-            <p class="text-xs text-gray-500 break-words w-72">{{ this.path }}</p>
-          </div>
-          <div v-on:click="changeFolder()" class="text-sm text-blue-600 ml-8 cursor-pointer">
-            Change
-          </div>
-        </div>
-
-        <label class="checkbox mt-3">
-          <input
-            type="checkbox"
-            :checked="LaunchCheck"
-            v-on:change="launchAtLogin()"
-          />
-          <span class="ml-2 text-gray-700">Launch at login</span>
-        </label>
+    <!-- SYNC MODAL -->
+    <div v-if="showModal === 'sync'" class="headerModal">
+      <div class="title">Selective Sync</div>
+      <div class="subtitle">
+        Hide folders you don't want to sync with this device
       </div>
-    </transition>
 
-    <!-- Modal Account -->
-    <transition
-      enter-class="enter"
-      enter-to-class="enter-to"
-      enter-active-class="slide-enter-active"
-      leave-class="leave"
-      leave-to-class="leave-to"
-      leave-active-class="slide-leave-active"
-    >
       <div
-        v-if="showAccountModal === true"
-        class="bg-white p-4 px-6 w-full h-full fixed rounded-t-2xl z-10"
+        class="
+          flex
+          py-24
+          mt-4
+          w-full
+          items-center
+          justify-center
+          bg-gray-100
+          rounded-lg
+        "
       >
-        <div class="flex justify-between">
-          <div class="text-black text-base font-bold mb-3">Account</div>
-          <div class="cursor-pointer" v-on:click="CloseAccountModal()">
-            <UilMultiply class="mr-2 text-blue-600" />
-          </div>
-        </div>
-
-        <div
-          class="text-sm hover:text-blue-600 cursor-pointer mb-3"
-        >
-          <a @click="openLinkBilling()">Billing</a>
-        </div>
-
-        <div
-          v-on:click="openLogs()"
-          class="text-sm mb-3 hover:text-blue-600 cursor-pointer"
-        >
-          Open logs
-        </div>
-        <div
-          v-on:click="ContactSupportMailto()"
-          class="text-sm hover:text-blue-600 cursor-pointer mb-3"
-        >
-          Contact support
-        </div>
-        <div
-          class="text-sm mb-3 hover:text-blue-600 cursor-pointer"
-          @click="logout()"
-        >
-          Log out
-        </div>
-        <div
-          class="text-sm hover:text-blue-600 cursor-pointer"
-          @click="quitApp()"
-        >
-          Quit
-        </div>
+        <div class="subtitle">Coming soon</div>
       </div>
-    </transition>
-
-    <transition
-      enter-class="enter"
-      enter-to-class="enter-to"
-      enter-active-class="slide-enter-active"
-      leave-class="leave"
-      leave-to-class="leave-to"
-      leave-active-class="slide-leave-active"
-    >
-      <div
-        v-if="showDevTools === true"
-        class="bg-white p-4 px-6 w-full h-full fixed rounded-t-2xl z-10"
-      >
-        <div class="flex justify-between">
-          <div class="text-black text-base font-bold mb-3">Dev Mode</div>
-          <div class="cursor-pointer" v-on:click="CloseDevModal()">
-            <UilMultiply class="mr-2 text-blue-600" />
-          </div>
-        </div>
-
-        <div>
-          <a
-            class="btn btn-blue"
-            @click="UnlockDevice()"
-          >
-            Unlock device
-          </a>
-        </div>
-
-        <!-- <div>
-          <a
-            class="btn btn-blue"
-            @click="stopSync()"
-          >
-            Stop sync
-          </a>
-        </div> -->
-
-
-
-        <a
-          class="btn btn-blue"
-          @click="() => { console.log('HOLA') }"
-        >
-          Log out
-        </a>
-
-      </div>
-    </transition>
+    </div>
 
     <div
       v-if="showSyncSettingsModal && selectedSyncOption === false"
-      class="absolute top-0 left-0 z-20 bg-blue-600 bg-opacity-90 h-full w-full flex flex-col justify-center items-center text-white"
+      class="
+        absolute
+        top-0
+        left-0
+        z-20
+        bg-blue-600 bg-opacity-90
+        h-full
+        w-full
+        flex flex-col
+        justify-center
+        items-center
+        text-white
+      "
     >
       <h1 class="text-lg text-white font-bold">Attention</h1>
       <p class="text-base text-center w-72 mt-3">
-        By changing to full sync you will start synchronizing all your content. The next sync will be Upload only to ensure your files.
+        By changing to full sync you will start synchronizing all your content.
+        The next sync will be Upload only to ensure your files.
       </p>
 
       <div class="mt-4">
@@ -260,22 +138,43 @@
         </button>
         <button
           @click="syncModeChange()"
-          class="w-24 py-2 rounded-full bg-white font-semibold text-sm text-blue-600 cursor-pointer focus:outline-none"
+          class="
+            w-24
+            py-2
+            rounded-full
+            bg-white
+            font-semibold
+            text-sm text-blue-600
+            cursor-pointer
+            focus:outline-none
+          "
         >
           Accept
         </button>
       </div>
-
-      <!-- <a href="" class="text-xs underline mt-4 cursor-pointer">Know more about Full Sync</a> -->
     </div>
 
     <div
       v-if="showSyncSettingsModal && selectedSyncOption === true"
-      class="absolute top-0 left-0 z-20 bg-blue-600 bg-opacity-90 h-full w-full flex flex-col justify-center items-center text-white"
+      class="
+        absolute
+        top-0
+        left-0
+        z-20
+        bg-blue-600 bg-opacity-90
+        h-full
+        w-full
+        flex flex-col
+        justify-center
+        items-center
+        text-white
+      "
     >
       <h1 class="text-lg text-white font-bold">Attention</h1>
       <p class="text-base text-center w-72 mt-3">
-        By changing to upload only mode you will be able to delete files locally whithout losing them from your cloud. This option is perfect for backups.
+        By changing to upload only mode you will be able to delete files locally
+        whithout losing them from your cloud. This option is perfect for
+        backups.
       </p>
 
       <div class="mt-4">
@@ -288,21 +187,32 @@
         <button
           @click="syncModeChange()"
           value="full"
-          class="w-24 py-2 rounded-full bg-white font-semibold text-sm text-blue-600 cursor-pointer focus:outline-none"
+          class="
+            w-24
+            py-2
+            rounded-full
+            bg-white
+            font-semibold
+            text-sm text-blue-600
+            cursor-pointer
+            focus:outline-none
+          "
         >
           Accept
         </button>
       </div>
-
-      <!-- <a href="" class="text-xs underline mt-4 cursor-pointer">Know more about Full Sync</a> -->
+    </div>
+    <div v-if="showUsageWarning" class="px-3 py-2 flex items-center text-xs border-yellow-100 border-b bg-yellow-50 text-yellow-600">
+      <img style="width: 20px; height:20px" src="../../assets/icons/apple/warn.svg"/>
+      <p class="ml-2">Running out of space</p>
+      <p @click="openLinkBilling" class="flex-grow underline cursor-pointer flex justify-end items-center">Upgrade now</p>
     </div>
   </div>
 </template>
 
 <script>
 import Vue from 'vue'
-import '../Header/Header.scss'
-import fs from 'fs-extra'
+import './Header.scss'
 import {
   UilFolderNetwork,
   UilSetting,
@@ -311,7 +221,8 @@ import {
   UilFolderOpen,
   UilServerConnection,
   UilFileTimes,
-  UilSlidersVAlt
+  UilSlidersVAlt,
+  UilHistory
 } from '@iconscout/vue-unicons'
 import 'ant-design-vue/dist/antd.css'
 import InternxtBrand from '../ExportIcons/InternxtBrand'
@@ -321,25 +232,27 @@ import Monitor from '../../logic/monitor'
 import ConfigStore from '../../../main/config-store'
 import analytics from '../../logic/utils/analytics'
 import Logger from '../../../libs/logger'
-import path from 'path'
-import electronLog from 'electron-log'
 import VToolTip from 'v-tooltip'
-import DeviceLock from '../../logic/devicelock'
 import bytes from 'bytes'
+import FileIcon from '../Icons/FileIcon.vue'
+import Checkbox from '../Icons/Checkbox.vue'
+import Avatar from '../Avatar/Avatar.vue'
+import BackupIcon from '../Icons/BackupIcon.vue'
+import { ipcRenderer } from 'electron'
+import DeviceLock from '../../logic/devicelock'
 
 Vue.use(VToolTip)
 const remote = require('@electron/remote')
+
+// Close all modals when pressing 'Escape'
 
 export default {
   data() {
     return {
       placement: 'left',
-      showSettingsModal: false,
       isProduction: process.env.NODE_ENV === 'production',
-      showAccountModal: false,
-      showDevTools: false,
+      showModal: '',
       localPath: '',
-      LaunchCheck: ConfigStore.get('autoLaunch'),
       selectedSyncOption: 'none',
       path: null,
       msg: 'Mensaje de texto',
@@ -373,6 +286,12 @@ export default {
         this.showUpgrade = bytes.parse(this.limit) < 2199023255552
         this.showUsage = true
       }
+      /*
+      analytics.trackUsageAndLimit({
+        usage: bytes.parse(data.usage),
+        limit: bytes.parse(data.limit)
+      })
+      */
     })
     FileLogger.on('update-last-entry', item => {
       this.file = item
@@ -381,20 +300,6 @@ export default {
     remote.app.on('user-logout', async (saveData = false) => {
       remote.app.emit('sync-stop')
       await database.logOut(saveData)
-      analytics
-        .track({
-          event: 'user-signout',
-          userId: undefined,
-          properties: {
-            email: 'email'
-          }
-        })
-        .then(() => {
-          analytics.resetUser()
-        })
-        .catch(err => {
-          Logger.error(err)
-        })
       this.$router.push('/').catch(() => {})
     })
 
@@ -411,64 +316,20 @@ export default {
   methods: {
     debug() {},
     openLinkBilling() {
+      analytics.trackUpgradeButton()
       remote.shell.openExternal('https://drive.internxt.com/storage')
     },
     // Log out - save folder path whe user log out
     stopSync() {
       remote.app.emit('sync-stop')
     },
-    logout() {
-      remote.dialog
-        .showMessageBox(remote.getCurrentWindow(), {
-          type: 'question',
-          buttons: ['Yes', 'No'],
-          default: 1,
-          cancelId: 1,
-          title: 'Dialog',
-          message: 'Would you like to remember where your sync folder is the next time you log in?'
-        })
-        .then(userResponse => {
-          if (userResponse.response === 0) {
-            remote.app.emit('user-logout', true)
-          } else {
-            remote.app.emit('user-logout', false)
-          }
-        })
+    toggleModal(mdl) {
+      (mdl === ('' || undefined)) ? this.showModal = '' : ((mdl === this.showModal) ? this.showModal = '' : this.showModal = mdl)
     },
-    // Quit
-    quitApp() {
-      remote.app.emit('app-close')
-    },
-    CloseModals() {
-      this.showSettingsModal = false
-      this.showAccountModal = false
-      this.showDevTools = false
-    },
-    ShowDevModal() {
-      this.CloseModals()
-      this.showDevTools = true
-    },
-    CloseDevModal() {
-      this.showDevTools = false
-    },
-    // Open modal account
-    ShowAccountModal() {
-      this.CloseModals()
-      this.showAccountModal = !this.showAccountModal
-    },
-    // Close modal account
-    CloseAccountModal() {
-      this.showAccountModal = false
-    },
-    // Open modal Settings
-    ShowSettingsModal() {
-      this.CloseModals()
-      this.showSettingsModal = !this.showSettingsModal
+    closeModal(mdl) {
+      this.showModal = mdl
     },
     // Close Modal Settings
-    CloseSettingsModal() {
-      this.showSettingsModal = false
-    },
     OpenSyncSettingsModal(syncOption) {
       if (this.CheckedValue !== syncOption) {
         this.selectedSyncOption = syncOption
@@ -494,41 +355,6 @@ export default {
           this.$data.localPath = 'error'
         })
     },
-    // Change folder
-    changeFolder() {
-      const newDir = remote.dialog.showOpenDialogSync({
-        properties: ['openDirectory']
-      })
-      if (newDir && newDir.length > 0 && fs.existsSync(newDir[0])) {
-        if (newDir[0] === remote.app.getPath('home')) {
-          remote.app.emit(
-            'show-error',
-            'Internxt do not support syncronization of your home directory. Try to sync any of its content instead.'
-          )
-          return
-        }
-        const appDir = /linux/.test(process.platform)
-          ? remote.app.getPath('appData')
-          : path.dirname(remote.app.getPath('appData'))
-        const relative = path.relative(appDir, newDir[0])
-        if (
-          (relative &&
-            !relative.startsWith('..') &&
-            !path.isAbsolute(relative)) ||
-          appDir === newDir[0]
-        ) {
-          remote.app.emit(
-            'show-error',
-            'Internxt do not support syncronization of your appData directory or anything inside of it.'
-          )
-          return
-        }
-        this.path = newDir[0]
-        remote.app.emit('new-folder-path', newDir[0])
-      } else {
-        Logger.info('Sync folder change error or cancelled')
-      }
-    },
     // Full sync - Upload only Sync mode
     syncModeChange() {
       if (this.selectedSyncOption === false) {
@@ -542,21 +368,8 @@ export default {
       this.showSyncSettingsModal = false
       this.stopSync()
     },
-    // Open logs
-    openLogs() {
-      try {
-        const logFile = electronLog.transports.file.getFile().path
-        const logPath = path.dirname(logFile)
-        remote.shell.openPath(logPath)
-      } catch (e) {
-        Logger.error('Error opening log path: %s', e.message)
-      }
-    },
-    // Launch at login
-    launchAtLogin() {
-      this.LaunchCheck = !this.LaunchCheck
-      remote.app.emit('update-configStore', { autoLaunch: this.LaunchCheck })
-      remote.app.emit('change-auto-launch', this.LaunchCheck)
+    openSettingsWindow(section = 'general') {
+      ipcRenderer.send('open-settings-window', section)
     },
     // Contact support
     ContactSupportMailto() {
@@ -568,10 +381,30 @@ export default {
         )
       }
     },
-    UnlockDevice() {
+    quitApp() {
+      analytics.trackQuit()
+      remote.app.emit('app-close')
+    },
+    unlockDevice() {
       DeviceLock.unlock()
-      // Unlock ui
-      remote.app.emit('ui-sync-status', 'default')
+      remote.app.emit('ui-sync-status', 'unblock')
+    },
+    logout() {
+      this.$store.originalDispatch('showSettingsDialog', {
+        title: 'Log out',
+        description: 'Would you like to remember where your sync folder is the next time you log in?',
+        checkbox: 'Remember sync folder path',
+        answers: [{text: 'Cancel'}, {text: 'Log out', state: 'accent'}],
+        callback: (userResponse, checkbox) => {
+          if (userResponse === 1) {
+            ipcRenderer.send('stop-backup-process')
+            remote.app.emit('user-logout', checkbox)
+            analytics.trackLogOut({
+              remember_sync_folder: checkbox
+            })
+          }
+        }
+      })
     }
   },
   name: 'Header',
@@ -587,6 +420,14 @@ export default {
     IconClass: {
       type: String,
       default: ''
+    },
+    userFullname: {
+      type: String,
+      default: ''
+    },
+    backupStatus: {
+      type: String,
+      default: ''
     }
   },
   components: {
@@ -595,10 +436,27 @@ export default {
     UilFolderNetwork,
     InternxtBrand,
     UilMultiply,
+    UilHistory,
     UilFolderOpen,
     UilServerConnection,
     UilFileTimes,
-    UilSlidersVAlt
+    UilSlidersVAlt,
+    FileIcon,
+    Checkbox,
+    Avatar,
+    BackupIcon
+  },
+  computed: {
+    showUsageWarning() {
+      if (this.usage === '' || this.limit === '') {
+        return false
+      }
+
+      const usageInBytes = bytes.parse(this.usage)
+      const limitInBytes = bytes.parse(this.limit)
+
+      return usageInBytes / limitInBytes >= 0.9
+    }
   }
 }
 </script>

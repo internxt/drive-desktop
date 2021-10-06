@@ -1,0 +1,9 @@
+const ErrorCodes = {
+  NOT_FOUND: 'NOT_FOUND',
+  PATH_IS_NOT_DIRECTORY: 'PATH_IS_NOT_DIRECTORY',
+  NO_CONNECTION: 'NO_CONNECTION',
+  NO_SPACE: 'NO_SPACE',
+  UNKNOWN: 'UNKNOWN'
+}
+
+export default ErrorCodes

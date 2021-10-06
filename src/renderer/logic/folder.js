@@ -101,6 +101,7 @@ async function createRemoteFolder(folders) {
         }
       })
       .then(res => {
+        /*
         analytics
           .track({
             userId: undefined,
@@ -112,6 +113,7 @@ async function createRemoteFolder(folders) {
           .catch(err => {
             Logger.error(err)
           })
+          */
         return resolve(res)
       })
       .catch(reject)

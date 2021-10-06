@@ -1,4 +1,50 @@
 @font-face {
+  font-family: 'NeueEinstellung-Regular';
+  src: local(NeueEinstellung-Regular),
+    url(../fonts/NeueEinstellung/NeueEinstellung-Regular.woff2) format("woff2"),
+    url(../fonts/NeueEinstellung/NeueEinstellung-Regular.woff) format("woff"),
+    url(../fonts/NeueEinstellung/NeueEinstellung-Regular.ttf) format("truetype");
+    font-weight: normal;
+    font-style: normal;
+    font-stretch: normal;
+}
+
+@font-face {
+  font-family: 'NeueEinstellung-Light';
+  src: local(NeueEinstellung-Regular),
+    url(../fonts/NeueEinstellung/NeueEinstellung-Light.woff2) format("woff2"),
+    url(../fonts/NeueEinstellung/NeueEinstellung-Light.woff) format("woff"),
+    url(../fonts/NeueEinstellung/NeueEinstellung-Light.ttf) format("truetype");
+    font-weight: lighter;
+    font-style: lighter;
+    font-stretch: lighter;
+}
+
+@font-face {
+  font-family: 'NeueEinstellung-Semibold';
+  src: local(NeueEinstellung-Semibold),
+  url(../fonts/NeueEinstellung/NeueEinstellung-SemiBold.woff2) format("woff2"),
+  url(../fonts/NeueEinstellung/NeueEinstellung-SemiBold.woff) format("woff"),
+  url(../fonts/NeueEinstellung/NeueEinstellung-SemiBold.ttf) format("truetype");
+  font-weight: bold;
+  font-style: bold;
+  font-stretch: bold;
+}
+
+@font-face {
+  font-family: 'NeueEinstellung-Bold';
+  src: local(NeueEinstellung-Semibold),
+  url(../fonts/NeueEinstellung/NeueEinstellung-Bold.woff2) format("woff2"),
+  url(../fonts/NeueEinstellung/NeueEinstellung-Bold.woff) format("woff"),
+  url(../fonts/NeueEinstellung/NeueEinstellung-Bold.ttf) format("truetype");
+  font-weight: bolder;
+  font-style: bolder;
+  font-stretch: bolder;
+}
+
+
+/*
+@font-face {
     font-family: 'Averta-light';
     src: local(Averta-light),
       url(../fonts/averta-light.otf) format("opentype");
@@ -35,6 +81,11 @@
 
 $font-family-sans-serif: 'Averta-light' !default;
 $font-family-monospace:  'Averta-light', Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !default;
+$font-family-base: $font-family-sans-serif !default;
+*/
+
+$font-family-sans-serif: 'NeueEinstellung-Regular' !default;
+$font-family-monospace:  'NeueEinstellung-Regular', Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !default;
 $font-family-base: $font-family-sans-serif !default;
 
 // Bootstrap and its default variables

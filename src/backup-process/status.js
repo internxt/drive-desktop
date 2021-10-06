@@ -1,0 +1,8 @@
+
+export default {
+  STANDBY: 'STANDBY',
+  IN_PROGRESS: 'IN_PROGRESS',
+  SUCCESS: 'SUCCESS',
+  WARN: 'WARN',
+  FATAL: 'FATAL'
+}

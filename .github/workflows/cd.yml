@@ -1,0 +1,74 @@
+name: Drive Desktop CD
+on: 
+  release:
+    types: [created]
+
+env:
+  CRYPTO_KEY: ${{ secrets.CRYPTO_KEY }}
+  MAGIC_IV: ${{ secrets.MAGIC_IV }}
+  MAGIC_SALT: ${{ secrets.MAGIC_SALT }}
+  NEW_CRYPTO_KEY: ${{ secrets.NEW_CRYPTO_KEY }}
+  API_URL: https://desktop.internxt.com
+  BRIDGE_URL: https://api.internxt.com
+  APP_SEGMENT_KEY: ${{ secrets.APP_SEGMENT_KEY }}
+  GH_TOKEN: ${{ secrets.GH_TOKEN }}
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        node-version: [14.16.0]
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js ${{ matrix.node-version }} and OS ${{ matrix.os }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+          registry-url: 'https://npm.pkg.github.com'
+
+      - run: echo "registry=https://registry.yarnpkg.com/" > .npmrc
+      - run: echo "@internxt:registry=https://npm.pkg.github.com" >> .npmrc
+      # You cannot read packages from other private repos with GITHUB_TOKEN
+      # You have to use a PAT instead https://github.com/actions/setup-node/issues/49
+      - run: echo //npm.pkg.github.com/:_authToken=${{ secrets.GH_TOKEN }} >> .npmrc
+      - run: echo "always-auth=true" >> .npmrc
+      - name: Install
+        run: yarn
+      - name: Build
+        run: yarn build
+      - name: Create artifact
+        run: tar czf artifact.tar.gz node_modules build
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ matrix.os }}-artifact
+          path: artifact.tar.gz
+  publish:
+    environment: 
+      name: production
+    runs-on: ${{ matrix.os }}
+    needs: build
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        node-version: [14.16.0]
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js ${{ matrix.node-version }} and OS ${{ matrix.os }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+          registry-url: 'https://npm.pkg.github.com'
+      - name: Download build & node_modules
+        uses: actions/download-artifact@v2
+        with:
+          name: ${{ matrix.os }}-artifact
+      - name: Extract artifact
+        run: tar xvf artifact.tar.gz
+      - name: publish
+        run: yarn publish
+ 

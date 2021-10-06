@@ -8,27 +8,32 @@ export default new Router({
     {
       path: '/login',
       name: 'login-page',
-      component: require('@/components/LoginPage').default
+      component: () => import(/* webpackChunkName: "main-widget" */ '@/components/LoginPage.vue')
     },
     {
       path: '/onboarding',
       name: 'onboarding-page',
-      component: require('@/components/OnBoarding/OnBoarding').default
+      component: () => import(/* webpackChunkName: "main-widget" */ '@/components/OnBoarding/OnBoarding')
     },
     {
       path: '/config',
       name: 'config-page',
-      component: require('@/components/ConfigPage').default
+      component: () => import(/* webpackChunkName: "main-widget" */ '@/components/ConfigPage')
     },
     {
       path: '/xcloud',
       name: 'xcloud-page',
-      component: require('@/components/XCloudPage').default
+      component: () => import(/* webpackChunkName: "main-widget" */ '@/components/XCloudPage')
     },
     {
       path: '/',
       name: 'landing-page',
-      component: require('@/components/LandingPage').default
+      component: () => import(/* webpackChunkName: "main-widget" */ '@/components/LandingPage')
+    },
+    {
+      path: '/settings',
+      name: 'settings-page',
+      component: () => import(/* webpackChunkName: "settings-widget" */ '@/components/SettingsPage')
     },
     {
       path: '*',
