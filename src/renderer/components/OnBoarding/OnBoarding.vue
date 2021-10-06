@@ -1,5 +1,5 @@
   <template>
-  <hooper ref="carousel" @slide="updateCarousel" class="border h-full w-full overflow-hidden focus:outline-none">
+  <hooper ref="carousel" @slide="updateCarousel" class="border w-full overflow-hidden focus:outline-none" style="height: 100% !important">
     <slide>
       <div class="h-full image-slide-1">
         <div class="grid grid-cols-12">
