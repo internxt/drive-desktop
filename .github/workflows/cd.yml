@@ -1,5 +1,7 @@
 name: Drive Desktop CD
-on: push
+on: 
+  release:
+    types: [created]
 
 env:
   CRYPTO_KEY: ${{ secrets.CRYPTO_KEY }}
@@ -65,4 +67,8 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: ${{ matrix.os }}-artifact
+      - name: Extract artifact
+        run: tar xvf artifact.tar.gz
+      - name: publish
+        run: yarn publish
  
