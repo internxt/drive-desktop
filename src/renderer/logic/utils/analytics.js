@@ -2,8 +2,8 @@ import ConfigStore from '../../../main/config-store'
 import PackageJson from '../../../../package.json'
 import { v4 as uuidv4 } from 'uuid'
 const Analytics = require('analytics-node')
-const analyticsKey = process.env.NODE_ENV !== 'production' ? process.env.APP_SEGMENT_KEY_TEST : process.env.APP_SEGMENT_KEY
-const analyticsLibrary = new Analytics(analyticsKey, {
+
+const analyticsLibrary = new Analytics(process.env.APP_SEGMENT_KEY, {
   flushAt: 1
 })
 const anonymousId = uuidv4()
