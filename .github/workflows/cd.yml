@@ -9,6 +9,7 @@ env:
   API_URL: https://desktop.internxt.com
   BRIDGE_URL: https://api.internxt.com
   APP_SEGMENT_KEY: ${{ secrets.APP_SEGMENT_KEY }}
+  GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
 jobs:
   build:
