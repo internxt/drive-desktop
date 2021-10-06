@@ -47,6 +47,7 @@ jobs:
     environment: 
       name: production
     runs-on: ${{ matrix.os }}
+    needs: build
     strategy:
       matrix:
         os: [ubuntu-latest]
