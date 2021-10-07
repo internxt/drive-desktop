@@ -1,7 +1,5 @@
 name: Drive Desktop CD
-on: 
-  push:
-    branches: [master]
+on: workflow_dispatch
 
 env:
   CRYPTO_KEY: ${{ secrets.CRYPTO_KEY }}
