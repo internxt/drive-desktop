@@ -204,8 +204,8 @@
     </div>
     <div v-if="showUsageWarning" class="px-3 py-2 flex items-center text-xs border-yellow-100 border-b bg-yellow-50 text-yellow-600">
       <img style="width: 20px; height:20px" src="../../assets/icons/apple/warn.svg"/>
-      <p class="ml-2">Running out of space</p>
-      <p @click="openLinkBilling" class="flex-grow underline cursor-pointer flex justify-end items-center">Upgrade now</p>
+      <p class="ml-2 mb-0">Running out of space</p>
+      <p @click="openLinkBilling" class="flex-grow underline cursor-pointer flex justify-end items-center mb-0">Upgrade now</p>
     </div>
   </div>
 </template>
