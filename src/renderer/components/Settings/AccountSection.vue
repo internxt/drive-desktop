@@ -34,9 +34,9 @@
                 </div> -->
               </div>
             </div>
-            <Button state="accent" @click="goToPricing">Upgrade</Button>
+            <Button v-if="!itsUnlimited" state="accent" @click="goToPricing">Upgrade</Button>
           </div>
-          <div class="progress mt-4 h-1">
+          <div v-if="!itsUnlimited" class="progress mt-4 h-1">
             <div
               class="progress-bar bg-blue-600"
               role="progressbar"
@@ -47,7 +47,7 @@
             <p class="font-semibold tracking-wide text-gray-600">
               Used {{ usage }} of {{ limit }}
             </p>
-            <p class="text-gray-500">{{ percentageUsed }}% in use</p>
+            <p class="text-gray-500" v-if="!itsUnlimited" >{{ percentageUsed }}% in use</p>
           </div>
         </div>
         <content-placeholders v-else :rounded="true" :centered="true" class="mt-4" style="height:142px;">
@@ -106,6 +106,9 @@ export default {
     },
     percentageUsed() {
       return parseInt((bytes.parse(this.usage) / bytes.parse(this.limit)) * 100)
+    },
+    itsUnlimited() {
+      return this.limit === '\u221E'
     }
   }
 }
