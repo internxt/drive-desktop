@@ -388,7 +388,6 @@ async function sincronizeFile() {
     }
     if (!file.nameChecked) {
       if (!parentFolder || state.ignoredState.includes(parentFolder.state)) {
-        file.state = parentFolder.state
         file.needSync = false
       } else if (
         invalidName.test(path.basename(file.key)) ||
