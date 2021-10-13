@@ -2,6 +2,7 @@
 dist/electron/*
 dist/web/*
 dist/backup-process/index.js
+dist/sync/index.js
 build/*
 !build/icons
 coverage

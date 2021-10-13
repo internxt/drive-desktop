@@ -13,6 +13,7 @@ const mainConfig = require('./webpack.main.config')
 const rendererConfig = require('./webpack.renderer.config')
 const webConfig = require('./webpack.web.config')
 const backupProcessConfig = require('./webpack.backup-process.config')
+const syncConfig = require('./webpack.sync.config')
 
 const doneLog = chalk.bgGreen.white(' DONE ') + ' '
 const errorLog = chalk.bgRed.white(' ERROR ') + ' '
@@ -34,7 +35,7 @@ function build() {
 
   del.sync(['dist/electron/*', '!.gitkeep'])
 
-  const tasks = ['main', 'renderer', 'backup-process']
+  const tasks = ['main', 'renderer', 'backup-process', 'sync']
   const m = new Multispinner(tasks, {
     preText: 'building',
     postText: 'process'
@@ -83,6 +84,18 @@ function build() {
     .catch(err => {
       m.error('backup-process')
       console.log(`\n  ${errorLog}failed to build backup process`)
+      console.error(`\n${err}\n`)
+      process.exit(1)
+    })
+
+  pack(syncConfig)
+    .then(result => {
+      results += result + '\n\n'
+      m.success('sync')
+    })
+    .catch(err => {
+      m.error('sync')
+      console.log(`\n  ${errorLog}failed to build sync`)
       console.error(`\n${err}\n`)
       process.exit(1)
     })

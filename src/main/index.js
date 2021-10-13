@@ -578,6 +578,8 @@ app.on('ready', () => {
   */
   setTimeout(startBackupProcess, 8000)
 
+  startSyncProcess()
+
   // Check updates every 6 hours
   setInterval(() => {
     checkUpdates()
@@ -707,4 +709,23 @@ function notifyBackupProcessWithNoConnection() {
   notification.on('click', () => {
     startBackupProcess()
   })
+}
+
+function startSyncProcess() {
+  const sync = new BrowserWindow({
+    webPreferences: {
+      nodeIntegration: true,
+      enableRemoteModule: true,
+      contextIsolation: false
+    },
+    show: false
+  })
+
+  sync
+    .loadFile(
+      process.env.NODE_ENV === 'development'
+        ? '../sync/index.html'
+        : `${path.join(__dirname, '..', 'sync')}/index.html`
+    )
+    .catch(Logger.error)
 }

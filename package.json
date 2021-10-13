@@ -157,6 +157,7 @@
     "vuex-electron": "^1.0.0"
   },
   "devDependencies": {
+    "@types/lodash": "^4.14.175",
     "ajv": "^6.5.0",
     "autoprefixer": "^10.2.5",
     "babel-core": "^6.26.3",
@@ -214,6 +215,8 @@
     "spectron": "^3.8.0",
     "style-loader": "^0.21.0",
     "tailwindcss": "^2.1.2",
+    "ts-loader": "8.2.0",
+    "typescript": "^4.4.4",
     "url-loader": "^1.0.1",
     "vue-html-loader": "^1.2.4",
     "vue-loader": "^15.2.4",
