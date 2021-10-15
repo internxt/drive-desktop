@@ -39,8 +39,9 @@ export default class Sync extends EventEmitter {
 		const renameInLocal: [string, string][] = []
 		const renameInRemote: [string, string][] = []
 
-		for (const nameLocal of Object.keys(currentLocal)) {
-			if ((nameLocal in currentRemote)) {
+		for (const [nameLocal, modTimeLocal] of Object.entries(currentLocal)) {
+			const modTimeRemote = currentRemote[nameLocal]
+			if (modTimeRemote && modTimeRemote !== modTimeLocal) {
 				const name = nameLocal
 
 				const localRenamed = this.rename(name, 'local')
