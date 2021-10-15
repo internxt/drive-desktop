@@ -2,6 +2,7 @@ import Sync, {FileSystem} from "../sync"
 
 describe('sync tests', () => {
 	const mockBase: () => FileSystem = () => ({
+		kind: 'LOCAL',
 		async getCurrentListing() {
 			return {}
 		},

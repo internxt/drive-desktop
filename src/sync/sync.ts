@@ -182,23 +182,23 @@ import * as path from 'path'
 
 	private async consumeRenameQueue(queue: [string, string][], fileSystem: FileSystem): Promise<void> {
 		for (const [oldName, newName] of queue) {
-			this.emit('RENAMING_FILE', oldName, newName)
+			this.emit('RENAMING_FILE', oldName, newName, fileSystem.kind)
 			await fileSystem.renameFile(oldName, newName)
-			this.emit('FILE_RENAMED', oldName, newName)
+			this.emit('FILE_RENAMED', oldName, newName,fileSystem.kind) 
 		}
 	}
 	private async consumePullQueue(queue: string[], fileSystem: FileSystem): Promise<void> {
 		for (const name of queue) {
-			this.emit('PULLING_FILE', name, 0)
-			await fileSystem.pullFile(name, progress => this.emit('PULLING_FILE', name, progress))
-			this.emit('FILE_PULLED', name)
+			this.emit('PULLING_FILE', name, 0, fileSystem.kind)
+			await fileSystem.pullFile(name, progress => this.emit('PULLING_FILE', name, progress, fileSystem.kind))
+			this.emit('FILE_PULLED', name, fileSystem.kind)
 		}
 	}
 	private async consumeDeleteQueue(queue: string[], fileSystem: FileSystem): Promise<void> {
 		for (const name of queue) {
-			this.emit('DELETING_FILE', name)
+			this.emit('DELETING_FILE', name, fileSystem.kind)
 			await fileSystem.deleteFile(name)
-			this.emit('FILE_DELETED', name)
+			this.emit('FILE_DELETED', name, fileSystem.kind)
 		}
 	}
 
@@ -214,6 +214,8 @@ import * as path from 'path'
 }
 
 export interface FileSystem {
+	kind: FileSystemKind
+
 	getLastSavedListing(): Promise<Listing | null>
 	removeSavedListing(): Promise<void>
 	getCurrentListing(): Promise<Listing>
@@ -230,22 +232,64 @@ type Deltas = Record<string, Delta>
 
 type Delta = 'NEW' | 'NEWER' | 'DELETED' | 'OLDER' | 'UNCHANGED'
 
+type FileSystemKind = 'LOCAL' | 'REMOTE'
+
 interface SyncEvents {
+	/**
+	 * Triggered when the process tries to gather
+	 * information about the outcome of the last run
+	 */
   'CHECKING_LAST_RUN_OUTCOME': () => void;
+	/**
+	 * Triggered when the process has not enough information 
+	 * to do a default sync, because either something went wrong
+	 * in the last run or because it is the first one
+	 */
   'NEEDS_RESYNC': () => void;
+	/**
+	 * Triggered when the default run has started and processing
+	 * what changes need to be done in remote/local to be 
+	 * properly synced
+	 */
   'GENERATING_ACTIONS_NEEDED_TO_SYNC': () => void;
 
-  'PULLING_FILE': (name: string, progress: number) => void;
-  'FILE_PULLED': (name: string) => void;
+	/**
+	 * Triggered when a file is being pulled 
+	 */
+  'PULLING_FILE': (name: string, progress: number, fileSystemKind: FileSystemKind) => void;
+	/**
+	 * Triggered when a file has been pulled 
+	 */
+  'FILE_PULLED': (name: string, fileSystemKind: FileSystemKind) => void;
 
-	'DELETING_FILE': (name: string) => void;
-	'FILE_DELETED': (name: string) => void;
+	/**
+	 * Triggered when a file is being deleted 
+	 */
+	'DELETING_FILE': (name: string, fileSystemKind: FileSystemKind) => void;
+	/**
+	 * Triggered when a file has been deleted 
+	 */
+	'FILE_DELETED': (name: string, fileSystemKind: FileSystemKind) => void;
 
-	'RENAMING_FILE': (oldName: string, newName: string) => void;
-	'FILE_RENAMED': (oldName: string, newName: string) => void;
+	/**
+	 * Triggered when a file is being renamed 
+	 */
+	'RENAMING_FILE': (oldName: string, newName: string, fileSystemKind: FileSystemKind) => void;
+	/**
+	 * Triggered when a file has been renamed 
+	 */
+	'FILE_RENAMED': (oldName: string, newName: string, fileSystemKind: FileSystemKind) => void;
 
+	/**
+	 * Triggered when the changed needed to be in sync
+	 * has been made (either by a default run or a resync)
+	 * and new listings will be generated and saved
+	 */
 	'SAVING_LISTINGS': () => void;
 
+	/**
+	 * Triggered when the process is done
+	 */
 	'DONE': () => void;
 }
 
