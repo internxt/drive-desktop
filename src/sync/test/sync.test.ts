@@ -254,4 +254,30 @@ describe('sync tests', () => {
 
 		expect(sync['rename']('nested/.hidden', 'sufix')).toBe('nested/.hidden_sufix')
 	})
+
+	it('should generate deltas correctly', () => {
+		const sync = dummySync()
+
+		const savedListing = {
+			unchanged: 44,
+			newer: 44,
+			older: 44,
+			deleted: 44
+		}
+
+		const currentListing = {
+			unchanged: 44,
+			newer: 45,
+			older: 43,
+			new: 44
+		}
+
+		const deltas = sync['generateDeltas'](savedListing, currentListing)
+
+		expect(deltas.unchanged).toBe('UNCHANGED')
+		expect(deltas.newer).toBe('NEWER')
+		expect(deltas.older).toBe('OLDER')
+		expect(deltas.deleted).toBe('DELETED')
+		expect(deltas.new).toBe('NEW')
+	})
 })
