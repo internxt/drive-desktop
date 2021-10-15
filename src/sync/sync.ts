@@ -1,16 +1,19 @@
 import * as EventEmitter from 'events'
 import * as path from 'path'
 
-export default class Sync extends EventEmitter {
+ class Sync extends EventEmitter {
 	constructor (private readonly local: FileSystem, private readonly remote: FileSystem) {
 		super()
 	}
 
 	async run(): Promise<void> {
+		this.emit('CHECKING_LAST_RUN_OUTCOME')
 		const [lastSavedLocal, lastSavedRemote] = await Promise.all([this.local.getLastSavedListing(), this.remote.getLastSavedListing()])
 
 		if (!lastSavedLocal || !lastSavedRemote)
 			return this.resync()
+
+		this.emit('GENERATING_ACTIONS_NEEDED_TO_SYNC')
 
 		const [currentLocal, currentRemote] = await Promise.all([this.local.getCurrentListing(), this.remote.getCurrentListing()])
 
@@ -25,13 +28,12 @@ export default class Sync extends EventEmitter {
 		await Promise.all([this.consumePullQueue(pullFromLocal, this.local), this.consumePullQueue(pullFromRemote, this.remote)])
 		await Promise.all([this.consumeDeleteQueue(deleteInLocal, this.local), this.consumeDeleteQueue(deleteInRemote, this.remote)])
 
-
-		const [newLocal, newRemote] = await Promise.all([this.local.getCurrentListing(), this.remote.getCurrentListing()])
-
-		await Promise.all([this.local.saveListing(newLocal), this.remote.saveListing(newRemote)])
+		await this.saveListings()
 	}
 
 	private async resync(): Promise<void> {
+		this.emit('NEEDS_RESYNC')
+
 		const [currentLocal, currentRemote] = await Promise.all([this.local.getCurrentListing(), this.remote.getCurrentListing()])
 
 		const pullFromLocal: string[] = []
@@ -52,7 +54,7 @@ export default class Sync extends EventEmitter {
 
 				pullFromLocal.push(remoteRenamed)
 				pullFromRemote.push(localRenamed)
-			} else {
+			} else if(modTimeRemote === undefined) {
 				pullFromRemote.push(nameLocal)
 			}
 		}
@@ -67,9 +69,7 @@ export default class Sync extends EventEmitter {
 		await Promise.all([this.consumePullQueue(pullFromLocal, this.local), this.consumePullQueue(pullFromRemote, this.remote)])
 
 
-		const [newLocal, newRemote] = await Promise.all([this.local.getCurrentListing(), this.remote.getCurrentListing()])
-
-		await Promise.all([this.local.saveListing(newLocal), this.remote.saveListing(newRemote)])
+		await this.saveListings()
 	}
 
 	private generateActionQueues(deltasLocal: Deltas, deltasRemote: Deltas): {renameInLocal:[string,string][], renameInRemote: [string, string][], pullFromLocal: string[], pullFromRemote: string[], deleteInLocal: string[], deleteInRemote: string[]} {
@@ -182,18 +182,34 @@ export default class Sync extends EventEmitter {
 
 	private async consumeRenameQueue(queue: [string, string][], fileSystem: FileSystem): Promise<void> {
 		for (const [oldName, newName] of queue) {
+			this.emit('RENAMING_FILE', oldName, newName)
 			await fileSystem.renameFile(oldName, newName)
+			this.emit('FILE_RENAMED', oldName, newName)
 		}
 	}
 	private async consumePullQueue(queue: string[], fileSystem: FileSystem): Promise<void> {
 		for (const name of queue) {
-			await fileSystem.pullFile(name)
+			this.emit('PULLING_FILE', name, 0)
+			await fileSystem.pullFile(name, progress => this.emit('PULLING_FILE', name, progress))
+			this.emit('FILE_PULLED', name)
 		}
 	}
 	private async consumeDeleteQueue(queue: string[], fileSystem: FileSystem): Promise<void> {
 		for (const name of queue) {
+			this.emit('DELETING_FILE', name)
 			await fileSystem.deleteFile(name)
+			this.emit('FILE_DELETED', name)
 		}
+	}
+
+	private async saveListings(){
+		this.emit('SAVING_LISTINGS')
+
+		const [newLocal, newRemote] = await Promise.all([this.local.getCurrentListing(), this.remote.getCurrentListing()])
+
+		await Promise.all([this.local.saveListing(newLocal), this.remote.saveListing(newRemote)])
+
+		this.emit('DONE')
 	}
 }
 
@@ -205,7 +221,7 @@ export interface FileSystem {
 
 	renameFile(oldName: string, newName: string): Promise<void>
 	deleteFile(name: string): Promise<void>
-	pullFile(name: string): Promise<void>
+	pullFile(name: string, progressCallback: (progress: number) => void): Promise<void>
 }
 
 type Listing = Record<string, number>
@@ -213,3 +229,34 @@ type Listing = Record<string, number>
 type Deltas = Record<string, Delta>
 
 type Delta = 'NEW' | 'NEWER' | 'DELETED' | 'OLDER' | 'UNCHANGED'
+
+interface SyncEvents {
+  'CHECKING_LAST_RUN_OUTCOME': () => void;
+  'NEEDS_RESYNC': () => void;
+  'GENERATING_ACTIONS_NEEDED_TO_SYNC': () => void;
+
+  'PULLING_FILE': (name: string, progress: number) => void;
+  'FILE_PULLED': (name: string) => void;
+
+	'DELETING_FILE': (name: string) => void;
+	'FILE_DELETED': (name: string) => void;
+
+	'RENAMING_FILE': (oldName: string, newName: string) => void;
+	'FILE_RENAMED': (oldName: string, newName: string) => void;
+
+	'SAVING_LISTINGS': () => void;
+
+	'DONE': () => void;
+}
+
+declare interface Sync {
+  on<U extends keyof SyncEvents>(
+    event: U, listener: SyncEvents[U]
+  ): this;
+
+  emit<U extends keyof SyncEvents>(
+    event: U, ...args: Parameters<SyncEvents[U]>
+  ): boolean;
+}
+
+export default Sync;

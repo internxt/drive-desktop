@@ -24,6 +24,39 @@ describe('sync tests', () => {
 				return;
 			},
 		})
+
+		function setupEventSpies(sync: Sync) {
+			const checkingLastRunCB = jest.fn()
+			const needResyncCB = jest.fn()
+			const generatingActionsCB = jest.fn()
+			const pullingFileCB = jest.fn()
+			const pulledFileCB = jest.fn()
+			const deletingFileCB = jest.fn()
+			const deletedFileCB = jest.fn()
+			const renamingFileCB = jest.fn()
+			const renamedFileCB = jest.fn()
+			const savingListingsCB = jest.fn()
+			const doneCB = jest.fn()
+			
+
+			sync.on('CHECKING_LAST_RUN_OUTCOME', checkingLastRunCB)
+			sync.on('NEEDS_RESYNC', needResyncCB)
+			sync.on('GENERATING_ACTIONS_NEEDED_TO_SYNC', generatingActionsCB)
+			sync.on('PULLING_FILE', pullingFileCB)
+			sync.on('FILE_PULLED', pulledFileCB)
+			sync.on('DELETING_FILE', deletingFileCB)
+			sync.on('FILE_DELETED', deletedFileCB)
+			sync.on('RENAMING_FILE', renamingFileCB)
+			sync.on('FILE_RENAMED', renamedFileCB)
+			sync.on('SAVING_LISTINGS', savingListingsCB)
+			sync.on('DONE', doneCB)
+
+			return {
+				checkingLastRunCB, needResyncCB, generatingActionsCB, 
+				pullingFileCB, pulledFileCB, deletingFileCB, deletedFileCB,
+				renamingFileCB, renamedFileCB, savingListingsCB, doneCB
+			}
+		}
 	
 	it ('should do resync correctly', async () => {
 		const local: FileSystem = {
@@ -50,6 +83,20 @@ describe('sync tests', () => {
 
 		const sync = new Sync(local, remote)
 
+		const {
+			checkingLastRunCB, 
+			needResyncCB, 
+			generatingActionsCB, 
+			pullingFileCB, 
+			pulledFileCB, 
+			deletingFileCB,
+			deletedFileCB, 
+			renamingFileCB, 
+			renamedFileCB, 
+			savingListingsCB, 
+			doneCB
+		} = setupEventSpies(sync)
+
 		const spyRemotePull = jest.spyOn(remote, 'pullFile')
 		const spyRemoteRename = jest.spyOn(remote, 'renameFile')
 
@@ -59,12 +106,24 @@ describe('sync tests', () => {
 		await sync.run()
 		
 		expect(spyRemoteRename).toBeCalledWith('folder/nested/existInBoth.txt', 'folder/nested/existInBoth_remote.txt')
-		expect(spyRemotePull).toHaveBeenCalledWith('notExistInRemote')
-		expect(spyRemotePull).toHaveBeenCalledWith('folder/nested/existInBoth_local.txt')
+		expect(spyRemotePull).toHaveBeenCalledWith('notExistInRemote', expect.anything())
+		expect(spyRemotePull).toHaveBeenCalledWith('folder/nested/existInBoth_local.txt', expect.anything())
 
 		expect(spyLocalRename).toBeCalledWith('folder/nested/existInBoth.txt', 'folder/nested/existInBoth_local.txt')
-		expect(spyLocalPull).toHaveBeenCalledWith('notExistInLocal')
-		expect(spyLocalPull).toHaveBeenCalledWith('folder/nested/existInBoth_remote.txt')
+		expect(spyLocalPull).toHaveBeenCalledWith('notExistInLocal', expect.anything())
+		expect(spyLocalPull).toHaveBeenCalledWith('folder/nested/existInBoth_remote.txt', expect.anything())
+
+		expect(checkingLastRunCB).toBeCalledTimes(1)
+		expect(needResyncCB).toBeCalledTimes(1)
+		expect(generatingActionsCB).toBeCalledTimes(0)
+		expect(pullingFileCB).toBeCalledTimes(4)
+		expect(pulledFileCB).toBeCalledTimes(4)
+		expect(deletingFileCB).toBeCalledTimes(0)
+		expect(deletedFileCB).toBeCalledTimes(0)
+		expect(renamingFileCB).toBeCalledTimes(2)
+		expect(renamedFileCB).toBeCalledTimes(2)
+		expect(savingListingsCB).toBeCalledTimes(1)
+		expect(doneCB).toBeCalledTimes(1)
 	})
 
 	it ('should do a default run correctly', async () => {
@@ -116,6 +175,20 @@ describe('sync tests', () => {
 
 		const sync = new Sync(local, remote)
 
+		const {
+			checkingLastRunCB, 
+			needResyncCB, 
+			generatingActionsCB, 
+			pullingFileCB, 
+			pulledFileCB, 
+			deletingFileCB,
+			deletedFileCB, 
+			renamingFileCB, 
+			renamedFileCB, 
+			savingListingsCB, 
+			doneCB
+		} = setupEventSpies(sync)
+
 		const spyRemotePull = jest.spyOn(remote, 'pullFile')
 		const spyRemoteRename = jest.spyOn(remote, 'renameFile')
 		const spyRemoteDelete = jest.spyOn(remote, 'deleteFile')
@@ -126,21 +199,33 @@ describe('sync tests', () => {
 
 		await sync.run()
 		
-		expect(spyRemotePull).toBeCalledWith('aFile')
+		expect(spyRemotePull).toBeCalledWith('aFile', expect.anything())
 		expect(spyRemoteDelete).toBeCalledWith('nested/anotherFile.pdf')
 		expect(spyLocalDelete).toBeCalledWith('nested/quiteNested/oneMoreFile.pdf')
 		expect(spyLocalRename).toBeCalledWith('anotherRootFile', 'anotherRootFile_local')
-		expect(spyLocalPull).toBeCalledWith('anotherRootFile_remote')
+		expect(spyLocalPull).toBeCalledWith('anotherRootFile_remote', expect.anything())
 		expect(spyRemoteRename).toBeCalledWith('anotherRootFile', 'anotherRootFile_remote')
-		expect(spyRemotePull).toBeCalledWith('anotherRootFile_local')
+		expect(spyRemotePull).toBeCalledWith('anotherRootFile_local', expect.anything())
 		expect(spyLocalDelete).not.toBeCalledWith('oneMoreRootFile')
 		expect(spyRemoteDelete).not.toBeCalledWith('oneMoreRootFile')
-		expect(spyRemotePull).toBeCalledWith('oneNewFileInLocal')
-		expect(spyLocalPull).toBeCalledWith('oneNewFileInRemote')
+		expect(spyRemotePull).toBeCalledWith('oneNewFileInLocal', expect.anything())
+		expect(spyLocalPull).toBeCalledWith('oneNewFileInRemote', expect.anything())
 		expect(spyRemoteRename).toBeCalledWith('olderInBoth','olderInBoth_remote')
 		expect(spyLocalRename).toBeCalledWith('olderInBoth','olderInBoth_local')
-		expect(spyLocalPull).toBeCalledWith('olderInBoth_remote')
-		expect(spyRemotePull).toBeCalledWith('olderInBoth_local')
+		expect(spyLocalPull).toBeCalledWith('olderInBoth_remote', expect.anything())
+		expect(spyRemotePull).toBeCalledWith('olderInBoth_local', expect.anything())
+
+		expect(checkingLastRunCB).toBeCalledTimes(1)
+		expect(needResyncCB).toBeCalledTimes(0)
+		expect(generatingActionsCB).toBeCalledTimes(1)
+		expect(pullingFileCB).toBeCalledTimes(7)
+		expect(pulledFileCB).toBeCalledTimes(7)
+		expect(deletingFileCB).toBeCalledTimes(2)
+		expect(deletedFileCB).toBeCalledTimes(2)
+		expect(renamingFileCB).toBeCalledTimes(4)
+		expect(renamedFileCB).toBeCalledTimes(4)
+		expect(savingListingsCB).toBeCalledTimes(1)
+		expect(doneCB).toBeCalledTimes(1)
 	})
 
 })
