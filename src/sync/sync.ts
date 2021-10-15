@@ -214,15 +214,49 @@ import * as path from 'path'
 }
 
 export interface FileSystem {
+	/**
+	 * The kind of filesystem, it's emitted
+	 * in some fs events
+	 */
 	kind: FileSystemKind
 
+	/**
+	 * Returns the listing of the files 
+	 * in this FileSystem saved the last time 
+	 * a sync was completed or null otherwise
+	 */
 	getLastSavedListing(): Promise<Listing | null>
+	/**
+	 * Removes the last saved listing of files
+	 */
 	removeSavedListing(): Promise<void>
+	/**
+	 * Returns the listing of the current files 
+	 * in this FileSystem
+	 */
 	getCurrentListing(): Promise<Listing>
+	/**
+	 * Saves a listing to be queried in
+	 * consecutive runs
+	 */
 	saveListing(listing: Listing): Promise<void>
 
+	/**
+	 * Renames a file in the FileSystem
+	 * @param oldName 
+	 * @param newName 
+	 */
 	renameFile(oldName: string, newName: string): Promise<void>
+	/**
+	 * Deletes a file in the FileSystem
+	 * @param name 
+	 */
 	deleteFile(name: string): Promise<void>
+	/**
+	 * Pulls a file from other FileSystem into this FileSystem
+	 * @param name 
+	 * @param progressCallback 
+	 */
 	pullFile(name: string, progressCallback: (progress: number) => void): Promise<void>
 }
 
