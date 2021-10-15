@@ -174,10 +174,10 @@ import * as path from 'path'
 		return deltas
 	}
 
-	private rename(name: string, prefix: string): string {
+	private rename(name: string, sufix: string): string {
 		const {dir,ext,name: base} = path.parse(name)
 
-		return `${dir ? `${dir}/` : ''}${base}_${prefix}${ext}`
+		return `${dir ? `${dir}/` : ''}${base}_${sufix}${ext}`
 	}
 
 	private async consumeRenameQueue(queue: [string, string][], fileSystem: FileSystem): Promise<void> {

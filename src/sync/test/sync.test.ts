@@ -1,62 +1,66 @@
 import Sync, {FileSystem} from "../sync"
 
 describe('sync tests', () => {
-		const mockBase: () => FileSystem = () => ({
-			async getCurrentListing() {
-				return {}
-			},
-			async getLastSavedListing(){
-				return null
-			},
-			async saveListing() {
-				return;
-			},
-			async removeSavedListing() {
-				return;
-			},
-			async deleteFile() {
-				return;
-			},
-			async pullFile() {
-				return;
-			},
-			async renameFile() {
-				return;
-			},
-		})
+	const mockBase: () => FileSystem = () => ({
+		async getCurrentListing() {
+			return {}
+		},
+		async getLastSavedListing(){
+			return null
+		},
+		async saveListing() {
+			return;
+		},
+		async removeSavedListing() {
+			return;
+		},
+		async deleteFile() {
+			return;
+		},
+		async pullFile() {
+			return;
+		},
+		async renameFile() {
+			return;
+		},
+	})
 
-		function setupEventSpies(sync: Sync) {
-			const checkingLastRunCB = jest.fn()
-			const needResyncCB = jest.fn()
-			const generatingActionsCB = jest.fn()
-			const pullingFileCB = jest.fn()
-			const pulledFileCB = jest.fn()
-			const deletingFileCB = jest.fn()
-			const deletedFileCB = jest.fn()
-			const renamingFileCB = jest.fn()
-			const renamedFileCB = jest.fn()
-			const savingListingsCB = jest.fn()
-			const doneCB = jest.fn()
-			
+	function setupEventSpies(sync: Sync) {
+		const checkingLastRunCB = jest.fn()
+		const needResyncCB = jest.fn()
+		const generatingActionsCB = jest.fn()
+		const pullingFileCB = jest.fn()
+		const pulledFileCB = jest.fn()
+		const deletingFileCB = jest.fn()
+		const deletedFileCB = jest.fn()
+		const renamingFileCB = jest.fn()
+		const renamedFileCB = jest.fn()
+		const savingListingsCB = jest.fn()
+		const doneCB = jest.fn()
+		
 
-			sync.on('CHECKING_LAST_RUN_OUTCOME', checkingLastRunCB)
-			sync.on('NEEDS_RESYNC', needResyncCB)
-			sync.on('GENERATING_ACTIONS_NEEDED_TO_SYNC', generatingActionsCB)
-			sync.on('PULLING_FILE', pullingFileCB)
-			sync.on('FILE_PULLED', pulledFileCB)
-			sync.on('DELETING_FILE', deletingFileCB)
-			sync.on('FILE_DELETED', deletedFileCB)
-			sync.on('RENAMING_FILE', renamingFileCB)
-			sync.on('FILE_RENAMED', renamedFileCB)
-			sync.on('SAVING_LISTINGS', savingListingsCB)
-			sync.on('DONE', doneCB)
+		sync.on('CHECKING_LAST_RUN_OUTCOME', checkingLastRunCB)
+		sync.on('NEEDS_RESYNC', needResyncCB)
+		sync.on('GENERATING_ACTIONS_NEEDED_TO_SYNC', generatingActionsCB)
+		sync.on('PULLING_FILE', pullingFileCB)
+		sync.on('FILE_PULLED', pulledFileCB)
+		sync.on('DELETING_FILE', deletingFileCB)
+		sync.on('FILE_DELETED', deletedFileCB)
+		sync.on('RENAMING_FILE', renamingFileCB)
+		sync.on('FILE_RENAMED', renamedFileCB)
+		sync.on('SAVING_LISTINGS', savingListingsCB)
+		sync.on('DONE', doneCB)
 
-			return {
-				checkingLastRunCB, needResyncCB, generatingActionsCB, 
-				pullingFileCB, pulledFileCB, deletingFileCB, deletedFileCB,
-				renamingFileCB, renamedFileCB, savingListingsCB, doneCB
-			}
+		return {
+			checkingLastRunCB, needResyncCB, generatingActionsCB, 
+			pullingFileCB, pulledFileCB, deletingFileCB, deletedFileCB,
+			renamingFileCB, renamedFileCB, savingListingsCB, doneCB
 		}
+	}
+
+	function dummySync() {
+		return new Sync(mockBase(), mockBase())
+	}
 	
 	it ('should do resync correctly', async () => {
 		const local: FileSystem = {
@@ -228,4 +232,25 @@ describe('sync tests', () => {
 		expect(doneCB).toBeCalledTimes(1)
 	})
 
+	it('should rename correctly', () => {
+		const sync = dummySync()
+
+		expect(sync['rename']('whatever', 'sufix')).toBe('whatever_sufix')
+
+		expect(sync['rename']('whatever.txt', 'sufix')).toBe('whatever_sufix.txt')
+
+		expect(sync['rename']('nested/whatever.txt', 'sufix')).toBe('nested/whatever_sufix.txt')
+
+		expect(sync['rename']('nested/deep/whatever.txt', 'sufix')).toBe('nested/deep/whatever_sufix.txt')
+
+		expect(sync['rename']('nested/deep/whatever', 'sufix')).toBe('nested/deep/whatever_sufix')
+
+		expect(sync['rename']('.hidden', 'sufix')).toBe('.hidden_sufix')
+
+		expect(sync['rename']('.hidden.txt', 'sufix')).toBe('.hidden_sufix.txt')
+
+		expect(sync['rename']('nested/.hidden.txt', 'sufix')).toBe('nested/.hidden_sufix.txt')
+
+		expect(sync['rename']('nested/.hidden', 'sufix')).toBe('nested/.hidden_sufix')
+	})
 })
