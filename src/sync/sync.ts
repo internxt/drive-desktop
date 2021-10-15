@@ -80,7 +80,7 @@ export default class Sync extends EventEmitter {
 		const deleteInLocal: string[] = []
 		const deleteInRemote: string[] = []
 
-		function renameAndKeepBoth(name: string) {
+		const renameAndKeepBoth = (name: string) => {
 			const localRenamed = this.rename(name, 'local')
 			const remoteRenamed = this.rename(name, 'remote')
 
@@ -93,7 +93,7 @@ export default class Sync extends EventEmitter {
 
 		for (const [name, deltaLocal] of Object.entries(deltasLocal)) {
 			const deltaRemote = deltasRemote[name]
-			const doesntExistInRemote = deltasRemote === undefined
+			const doesntExistInRemote = deltaRemote === undefined
 
 			if (deltaLocal === 'NEW') {
 				if (deltaRemote === 'NEW') {
