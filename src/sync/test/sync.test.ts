@@ -1,5 +1,4 @@
 import Sync, {FileSystem} from "../sync"
-import * as _ from 'lodash'
 
 describe('sync tests', () => {
 	
@@ -33,7 +32,8 @@ describe('sync tests', () => {
 			async getCurrentListing() {
 				return {
 					notExistInRemote: 40,
-					existInBoth: 30
+					existInBoth: 30,
+					'folder/nested/existInBoth.txt': 44
 				}
 			},
 		}
@@ -43,7 +43,8 @@ describe('sync tests', () => {
 			async getCurrentListing() {
 				return {
 					notExistInLocal: 40,
-					existInBoth: 30
+					existInBoth: 30,
+					'folder/nested/existInBoth.txt': 44
 				}
 			},
 		}
@@ -59,11 +60,15 @@ describe('sync tests', () => {
 		await sync.run()
 		
 		expect(spyRemoteRename).toBeCalledWith('existInBoth', 'existInBoth_remote')
+		expect(spyRemoteRename).toBeCalledWith('folder/nested/existInBoth.txt', 'folder/nested/existInBoth_remote.txt')
 		expect(spyRemotePull).toHaveBeenCalledWith('notExistInRemote')
 		expect(spyRemotePull).toHaveBeenCalledWith('existInBoth_local')
+		expect(spyRemotePull).toHaveBeenCalledWith('folder/nested/existInBoth_local.txt')
 
 		expect(spyLocalRename).toBeCalledWith('existInBoth', 'existInBoth_local')
+		expect(spyLocalRename).toBeCalledWith('folder/nested/existInBoth.txt', 'folder/nested/existInBoth_local.txt')
 		expect(spyLocalPull).toHaveBeenCalledWith('notExistInLocal')
 		expect(spyLocalPull).toHaveBeenCalledWith('existInBoth_remote')
+		expect(spyLocalPull).toHaveBeenCalledWith('folder/nested/existInBoth_remote.txt')
 	})
 })

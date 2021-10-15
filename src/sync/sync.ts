@@ -1,5 +1,5 @@
 import * as EventEmitter from 'events'
-import { items } from '@internxt/lib'
+import * as path from 'path'
 
 export default class Sync extends EventEmitter {
 	constructor (private readonly local: FileSystem, private readonly remote: FileSystem) {
@@ -174,9 +174,9 @@ export default class Sync extends EventEmitter {
 	}
 
 	private rename(name: string, prefix: string): string {
-		const {extension, filename} = items.getFilenameAndExt(name)
+		const {dir,ext,name: base} = path.parse(name)
 
-		return extension ? `${filename}_${prefix}.${extension}` : `${filename}_${prefix}`
+		return `${dir ? `${dir}/` : ''}${base}_${prefix}${ext}`
 	}
 
 	private async consumeRenameQueue(queue: [string, string][], fileSystem: FileSystem): Promise<void> {
