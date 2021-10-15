@@ -262,7 +262,7 @@ export interface FileSystem {
 
 type Listing = Record<string, number>
 
-type Deltas = Record<string, Delta>
+export type Deltas = Record<string, Delta>
 
 type Delta = 'NEW' | 'NEWER' | 'DELETED' | 'OLDER' | 'UNCHANGED'
 

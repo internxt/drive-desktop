@@ -1,4 +1,4 @@
-import Sync, {FileSystem} from "../sync"
+import Sync, {Deltas, FileSystem} from "../sync"
 
 describe('sync tests', () => {
 	const mockBase: () => FileSystem = () => ({
@@ -279,5 +279,71 @@ describe('sync tests', () => {
 		expect(deltas.older).toBe('OLDER')
 		expect(deltas.deleted).toBe('DELETED')
 		expect(deltas.new).toBe('NEW')
+	})
+
+	it('should generate action queues correctly', () => {
+		const sync = dummySync()
+
+		const deltasLocal: Deltas = {
+			a: 'NEW',
+			b: 'NEW',
+
+			c: 'NEWER',
+			d: 'NEWER',
+			e: 'NEWER',
+			f: 'NEWER',
+
+			g: 'DELETED',
+			h: 'DELETED',
+			i: 'DELETED',
+			j: 'DELETED',
+
+			k: 'OLDER',
+			m: 'OLDER',
+			n: 'OLDER',
+			l: 'OLDER',
+
+			o: 'UNCHANGED',
+			p: 'UNCHANGED',
+			q: 'UNCHANGED',
+			r: 'UNCHANGED'
+		}
+
+		const deltasRemote: Deltas = {
+			a: 'NEW',
+
+			c: 'NEWER',
+			d: 'DELETED',
+			e: 'OLDER',
+			f: 'UNCHANGED',
+
+			g: 'NEWER',
+			h: 'DELETED',
+			i: 'OLDER',
+			j: 'UNCHANGED',
+
+			k: 'NEWER',
+			m: 'DELETED',
+			n: 'OLDER',
+			l: 'UNCHANGED',
+
+			o: 'NEWER',
+			p: 'DELETED',
+			q: 'OLDER',
+			r: 'UNCHANGED',
+
+			s: 'NEW'
+		}
+
+		const {pullFromLocal, pullFromRemote, renameInLocal, renameInRemote, deleteInLocal, deleteInRemote} = sync['generateActionQueues'](deltasLocal, deltasRemote)
+
+		expect(pullFromLocal.sort()).toEqual(['a_remote', 'c_remote', 'e_remote', 'g', 'i', 'k_remote', 'n_remote', 'o', 'q', 's'].sort())
+		expect(pullFromRemote.sort()).toEqual(['a_local', 'c_local', 'e_local', 'k_local', 'n_local', 'b', 'd', 'f', 'm', 'l'].sort())
+
+		expect(renameInLocal.sort()).toEqual([['a', 'a_local'],['c', 'c_local'],['e', 'e_local'],['k', 'k_local'],['n', 'n_local']].sort())
+		expect(renameInRemote.sort()).toEqual([['a', 'a_remote'],['c', 'c_remote'],['e', 'e_remote'],['k', 'k_remote'],['n', 'n_remote']].sort())
+
+		expect(deleteInLocal).toEqual(['p'])
+		expect(deleteInRemote).toEqual(['j'])
 	})
 })
