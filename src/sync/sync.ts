@@ -9,12 +9,13 @@ import * as path from 'path'
 	async run(): Promise<void> {
 		this.emit('CHECKING_LAST_RUN_OUTCOME')
 		const [lastSavedLocal, lastSavedRemote] = await Promise.all([this.local.getLastSavedListing(), this.remote.getLastSavedListing()])
-
+		console.log("last saved local", lastSavedLocal)
+		console.log("last saved remote", lastSavedRemote)
 		if (!lastSavedLocal || !lastSavedRemote)
 			return this.resync()
 
 		this.emit('GENERATING_ACTIONS_NEEDED_TO_SYNC')
-
+		console.log("default run")
 		const [currentLocal, currentRemote] = await Promise.all([this.local.getCurrentListing(), this.remote.getCurrentListing()])
 
 		const deltasLocal = this.generateDeltas(lastSavedLocal, currentLocal)
@@ -23,6 +24,15 @@ import * as path from 'path'
 		const {renameInLocal, renameInRemote, pullFromLocal, pullFromRemote, deleteInLocal, deleteInRemote} = this.generateActionQueues(deltasLocal, deltasRemote)
 
 		await Promise.all([this.local.removeSavedListing(), this.remote.removeSavedListing()])
+
+		console.log("current local", currentLocal)
+		console.log("current remote", currentRemote)
+		console.log("rename in local", renameInLocal)
+		console.log("rename in remote", renameInRemote)
+		console.log("pull from local", pullFromLocal)
+		console.log("pull from remote", pullFromRemote)
+		console.log("delete from local", deleteInLocal)
+		console.log("delete from remote", deleteInRemote)
 
 		await Promise.all([this.consumeRenameQueue(renameInLocal, this.local), this.consumeRenameQueue(renameInRemote, this.remote)])
 		await Promise.all([this.consumePullQueue(pullFromLocal, this.local), this.consumePullQueue(pullFromRemote, this.remote)])
@@ -64,7 +74,12 @@ import * as path from 'path'
 				pullFromLocal.push(nameRemote)
 			}
 		}
-
+		console.log("current local", currentLocal)
+		console.log("current remote", currentRemote)
+		console.log("rename in local", renameInLocal)
+		console.log("rename in remote", renameInRemote)
+		console.log("pull from local", pullFromLocal)
+		console.log("pull from remote", pullFromRemote)
 		await Promise.all([this.consumeRenameQueue(renameInLocal, this.local), this.consumeRenameQueue(renameInRemote, this.remote)])
 		await Promise.all([this.consumePullQueue(pullFromLocal, this.local), this.consumePullQueue(pullFromRemote, this.remote)])
 
@@ -175,7 +190,7 @@ import * as path from 'path'
 	}
 
 	private rename(name: string, sufix: string): string {
-		const {dir,ext,name: base} = path.parse(name)
+		const {dir, ext, name: base} = path.parse(name)
 
 		return `${dir ? `${dir}/` : ''}${base}_${sufix}${ext}`
 	}
@@ -225,11 +240,11 @@ export interface FileSystem {
 	 * in this FileSystem saved the last time 
 	 * a sync was completed or null otherwise
 	 */
-	getLastSavedListing(): Promise<Listing | null>
+	getLastSavedListing(): Listing | null
 	/**
 	 * Removes the last saved listing of files
 	 */
-	removeSavedListing(): Promise<void>
+	removeSavedListing(): void
 	/**
 	 * Returns the listing of the current files 
 	 * in this FileSystem
@@ -239,7 +254,7 @@ export interface FileSystem {
 	 * Saves a listing to be queried in
 	 * consecutive runs
 	 */
-	saveListing(listing: Listing): Promise<void>
+	saveListing(listing: Listing): void
 
 	/**
 	 * Renames a file in the FileSystem
@@ -253,14 +268,23 @@ export interface FileSystem {
 	 */
 	deleteFile(name: string): Promise<void>
 	/**
-	 * Pulls a file from other FileSystem into this FileSystem
+	 * Pulls a file from other FileSystem into this FileSystem,
+	 * overwriting it if already exists
 	 * @param name 
 	 * @param progressCallback 
 	 */
 	pullFile(name: string, progressCallback: (progress: number) => void): Promise<void>
 }
 
-type Listing = Record<string, number>
+/**
+ * Represents a list of files, each with
+ * its modTime that is set as ms since epoc
+ * 
+ * The name of each file can be namespaced by
+ * his ancestors such as: folderA/folderB/fileName
+ * It cannot start or end with "/"
+ */
+export type Listing = Record<string, number>
 
 export type Deltas = Record<string, Delta>
 

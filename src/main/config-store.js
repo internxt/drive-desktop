@@ -67,6 +67,14 @@ const schema = {
   askBeforeDisablingBackup: {
     type: 'boolean',
     default: true
+  },
+  localListings: {
+    type: 'object',
+    default: {}
+  },
+  remoteListings: {
+    type: 'object',
+    default: {}
   }
 }
 

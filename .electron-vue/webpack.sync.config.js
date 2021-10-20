@@ -17,7 +17,10 @@ module.exports = {
     ],
   },
   resolve: {
-    extensions: ['.ts'],
+    extensions: ['.ts','.js'],
+  },
+  externals: {
+    "tiny-glob": "require('tiny-glob')"   
   },
   target: 'electron-renderer',
   plugins: [

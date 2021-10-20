@@ -6,13 +6,13 @@ describe('sync tests', () => {
 		async getCurrentListing() {
 			return {}
 		},
-		async getLastSavedListing(){
+		getLastSavedListing(){
 			return null
 		},
-		async saveListing() {
+		saveListing() {
 			return;
 		},
-		async removeSavedListing() {
+		removeSavedListing() {
 			return;
 		},
 		async deleteFile() {
@@ -134,7 +134,7 @@ describe('sync tests', () => {
 	it ('should do a default run correctly', async () => {
 		const local: FileSystem = {
 			...mockBase(),
-			async getLastSavedListing() {
+			getLastSavedListing() {
 				return {
 					'aFile': 33,
 					'nested/anotherFile.pdf': 44,
@@ -157,7 +157,7 @@ describe('sync tests', () => {
 
 		const remote: FileSystem = {
 			...mockBase(),
-			async getLastSavedListing() {
+			getLastSavedListing() {
 				return {
 					'aFile': 33,
 					'nested/anotherFile.pdf': 44,
