@@ -1,10 +1,10 @@
-
 import ConfigStore from '../main/config-store'
 import {FileSystem, Listing} from './sync'
 import * as fs from 'fs/promises'
 
 import glob from 'tiny-glob'
 import path from 'path'
+import { getModTimeInSeconds } from './utils'
 
 export function getLocalFilesystem(localPath:string , downloadFile: (name: string, downloadPath: string, progressCallback: (progress:number) => void) => Promise<void>): FileSystem {
 	function getLocalListings() {
@@ -14,15 +14,13 @@ export function getLocalFilesystem(localPath:string , downloadFile: (name: strin
 	return {
 		kind: 'LOCAL',
 		async getCurrentListing(): Promise<Listing> {
-			const list = await glob(`${localPath}/**/*`, {filesOnly: true, absolute: true})
+			const list = await glob(`${localPath}/**/*`, { filesOnly: true, absolute: true })
 			const listing: Listing = {}
 
 			for (const fileName of list) {
-				const stat = await fs.stat(fileName)
-
 				const nameRelativeToBase = fileName.split(localPath)[1]
 
-				listing[nameRelativeToBase] = Math.trunc(stat.mtimeMs / 1000) * 1000
+				listing[nameRelativeToBase] = await getModTimeInSeconds(localPath)
 			}
 			return listing
 		},

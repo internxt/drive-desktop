@@ -278,7 +278,7 @@ export interface FileSystem {
 
 /**
  * Represents a list of files, each with
- * its modTime that is set as ms since epoc
+ * its modTime that is set as seconds since epoch
  * 
  * The name of each file can be namespaced by
  * his ancestors such as: folderA/folderB/fileName

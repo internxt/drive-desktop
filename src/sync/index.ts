@@ -5,7 +5,7 @@ import Sync from "./sync"
 (async function () {
   await new Promise((resolve) => setTimeout(resolve, 5000))
   // testing phase
-  const localPath = '/Users/xxx/Internxt Drive/'
+  const localPath = '/Users/alex/Internxt Drive/'
   const remoteFolderId = 30584191
 
 	const remote = getRemoteFilesystem(remoteFolderId, localPath)
