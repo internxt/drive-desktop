@@ -1,15 +1,14 @@
-import ConfigStore from "../main/config-store";
 import { Listing, ListingStore } from "./sync";
 
-export default function getListingStore(localPath: string, remoteFolderId: number): ListingStore {
+export default function getListingStore(localPath: string, remoteFolderId: number, configStore: any): ListingStore {
 	const key = `local:${localPath}--remote:${remoteFolderId}`
 
 	function getAllListings(): Record<string, Listing>{
-		return ConfigStore.get('listings') as Record<string, Listing>
+		return configStore.get('listings') as Record<string, Listing>
 	}
 
 	function saveAllListings(allListings: Record<string, Listing>): void {
-		ConfigStore.set('listings', allListings)
+		configStore.set('listings', allListings)
 	}
 
 	return {

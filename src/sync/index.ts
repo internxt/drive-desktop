@@ -1,4 +1,5 @@
 import getListingStore from "./listing-store"
+import configStore from "../main/config-store"
 import { getLocalFilesystem } from "./local-filesystem"
 import { getRemoteFilesystem } from "./remote-filesystem"
 import Sync from "./sync"
@@ -12,7 +13,7 @@ import Sync from "./sync"
 	const remote = getRemoteFilesystem(remoteFolderId, localPath)
 	const local = getLocalFilesystem(localPath, remote.downloadFile)
 
-  const listingStore = getListingStore(localPath, remoteFolderId)
+  const listingStore = getListingStore(localPath, remoteFolderId, configStore)
 
   const sync = new Sync(local, remote, listingStore)
 
