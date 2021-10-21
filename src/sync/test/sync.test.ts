@@ -266,12 +266,18 @@ describe('sync tests', () => {
 		expect(checkingLastRunCB).toBeCalledTimes(1)
 		expect(needResyncCB).toBeCalledTimes(0)
 		expect(generatingActionsCB).toBeCalledTimes(1)
-		expect(pullingFileCB).toBeCalledTimes(20)
-		expect(pulledFileCB).toBeCalledTimes(20)
+
+		const expectedPulls = expectPullLocal.length + expectPullRemote.length
+		expect(pullingFileCB).toBeCalledTimes(expectedPulls)
+		expect(pulledFileCB).toBeCalledTimes(expectedPulls)
+
 		expect(deletingFileCB).toBeCalledTimes(2)
 		expect(deletedFileCB).toBeCalledTimes(2)
-		expect(renamingFileCB).toBeCalledTimes(10)
-		expect(renamedFileCB).toBeCalledTimes(10)
+
+		const expectedRenames = expectRenameLocal.length + expectRenameRemote.length
+		expect(renamingFileCB).toBeCalledTimes(expectedRenames)
+		expect(renamedFileCB).toBeCalledTimes(expectedRenames)
+
 		expect(savingListingsCB).toBeCalledTimes(1)
 		expect(doneCB).toBeCalledTimes(1)
 	})
