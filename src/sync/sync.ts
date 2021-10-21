@@ -29,7 +29,7 @@ import Logger from '../libs/logger'
 		Logger.log("Local deltas", deltasLocal)
 		Logger.log("Remote deltas", deltasRemote)
 
-		const {renameInLocal, renameInRemote, pullFromLocal, pullFromRemote, deleteInLocal, deleteInRemote} = this.generateActionQueues(deltasLocal, deltasRemote)
+		const {renameInLocal, renameInRemote, pullFromLocal, pullFromRemote, deleteInLocal, deleteInRemote} = this.generateActionQueues(deltasLocal, deltasRemote, currentLocal, currentRemote)
 
 		this.listingStore.removeSavedListing()
 
@@ -73,7 +73,7 @@ import Logger from '../libs/logger'
 
 				pullFromLocal.push(remoteRenamed)
 				pullFromRemote.push(localRenamed)
-			} else if(modTimeRemote === undefined) {
+			} else if (modTimeRemote === undefined) {
 				pullFromRemote.push(nameLocal)
 			}
 		}
@@ -95,7 +95,7 @@ import Logger from '../libs/logger'
 		await this.saveListings()
 	}
 
-	private generateActionQueues(deltasLocal: Deltas, deltasRemote: Deltas): {renameInLocal:[string,string][], renameInRemote: [string, string][], pullFromLocal: string[], pullFromRemote: string[], deleteInLocal: string[], deleteInRemote: string[]} {
+	private generateActionQueues(deltasLocal: Deltas, deltasRemote: Deltas, currentLocalListing: Listing, currentRemoteListing: Listing): {renameInLocal:[string,string][], renameInRemote: [string, string][], pullFromLocal: string[], pullFromRemote: string[], deleteInLocal: string[], deleteInRemote: string[]} {
 		const pullFromLocal: string[] = []
 		const pullFromRemote: string[] = []
 		const renameInLocal: [string, string][] = []
@@ -117,41 +117,54 @@ import Logger from '../libs/logger'
 		for (const [name, deltaLocal] of Object.entries(deltasLocal)) {
 			const deltaRemote = deltasRemote[name]
 			const doesntExistInRemote = deltaRemote === undefined
+			const sameModTime = currentLocalListing[name] === currentRemoteListing[name]
 
-			if (deltaLocal === 'NEW') {
-				if (deltaRemote === 'NEW') {
-					renameAndKeepBoth(name)
-				}
-				if (doesntExistInRemote) {
-					pullFromRemote.push(name)
-				}
+			if (deltaLocal === 'NEW' && deltaRemote === 'NEW' && !sameModTime) {
+				renameAndKeepBoth(name)
 			}
 
-			if (deltaLocal === 'NEWER' || deltaLocal === 'OLDER') {
-				if (deltaRemote === 'NEWER' || deltaRemote === 'OLDER') {
-					renameAndKeepBoth(name)
-				}
-				if (deltaRemote === 'DELETED' || deltaRemote === 'UNCHANGED') {
-					pullFromRemote.push(name)
-				}
+			if (deltaLocal === 'NEW' && doesntExistInRemote) {
+				pullFromRemote.push(name)
 			}
 
-			if (deltaLocal === 'DELETED') {
-				if (deltaRemote === 'NEWER' || deltaRemote === 'OLDER') {
-					pullFromLocal.push(name)
-				}
-				if (deltaRemote === 'UNCHANGED') {
-					deleteInRemote.push(name)
-				}
+			if (deltaLocal === 'NEWER' && deltaRemote === 'NEWER' && !sameModTime) {
+				renameAndKeepBoth(name)
 			}
 
-			if (deltaLocal === 'UNCHANGED') {
-				if (deltaRemote === 'NEWER' || deltaRemote === 'OLDER') {
-					pullFromLocal.push(name)
-				}
-				if (deltaRemote === 'DELETED') {
-					deleteInLocal.push(name)
-				}
+			if (deltaLocal === 'NEWER' && (deltaRemote === 'DELETED' || deltaRemote === 'UNCHANGED')) {
+				pullFromRemote.push(name)
+			}
+
+			if (deltaLocal === 'NEWER' && deltaRemote === 'OLDER') {
+				renameAndKeepBoth(name)
+			}
+
+			if (deltaLocal === 'DELETED' && (deltaRemote === 'NEWER' || deltaRemote === 'OLDER')) {
+				pullFromLocal.push(name)
+			}
+
+			if (deltaLocal === 'DELETED' && deltaRemote === 'UNCHANGED') {
+				deleteInRemote.push(name)
+			}
+
+			if (deltaLocal === 'OLDER' && deltaRemote === 'NEWER') {
+				renameAndKeepBoth(name)
+			}
+
+			if (deltaLocal === 'OLDER' && (deltaRemote === 'DELETED' || deltaRemote === 'UNCHANGED')) {
+				pullFromRemote.push(name)
+			}
+
+			if (deltaLocal === 'OLDER' && deltaRemote === 'OLDER' && !sameModTime) {
+				renameAndKeepBoth(name)
+			}
+
+			if (deltaLocal === 'UNCHANGED' && (deltaRemote === 'NEWER' || deltaRemote === 'OLDER')) {
+				pullFromLocal.push(name)
+			}
+
+			if (deltaLocal === 'UNCHANGED' && deltaRemote === 'DELETED') {
+				deleteInLocal.push(name)
 			}
 		}
 
