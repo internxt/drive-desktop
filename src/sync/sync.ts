@@ -1,6 +1,7 @@
 import * as EventEmitter from 'events'
 import * as path from 'path'
 import * as _ from 'lodash'
+import Logger from '../libs/logger'
 
  class Sync extends EventEmitter {
 	constructor (private readonly local: FileSystem, private readonly remote: FileSystem, private readonly listingStore: ListingStore) {
@@ -10,30 +11,34 @@ import * as _ from 'lodash'
 	async run(): Promise<void> {
 		this.emit('CHECKING_LAST_RUN_OUTCOME')
 		const lastSavedListing = this.listingStore.getLastSavedListing()
-		console.log("last saved listing", lastSavedListing)
+
+		Logger.log("last saved listing: ", lastSavedListing)
 
 		if (!lastSavedListing) 
 			return this.resync()
 
 		this.emit('GENERATING_ACTIONS_NEEDED_TO_SYNC')
-		console.log("default run")
 		const [currentLocal, currentRemote] = await Promise.all([this.local.getCurrentListing(), this.remote.getCurrentListing()])
+
+		Logger.log("Current local before", currentLocal)
+		Logger.log("Current remote before", currentRemote)
 
 		const deltasLocal = this.generateDeltas(lastSavedListing, currentLocal)
 		const deltasRemote = this.generateDeltas(lastSavedListing, currentRemote)
+
+		Logger.log("Local deltas", deltasLocal)
+		Logger.log("Remote deltas", deltasRemote)
 
 		const {renameInLocal, renameInRemote, pullFromLocal, pullFromRemote, deleteInLocal, deleteInRemote} = this.generateActionQueues(deltasLocal, deltasRemote)
 
 		this.listingStore.removeSavedListing()
 
-		console.log("current local", currentLocal)
-		console.log("current remote", currentRemote)
-		console.log("rename in local", renameInLocal)
-		console.log("rename in remote", renameInRemote)
-		console.log("pull from local", pullFromLocal)
-		console.log("pull from remote", pullFromRemote)
-		console.log("delete from local", deleteInLocal)
-		console.log("delete from remote", deleteInRemote)
+		Logger.log("Queue rename in local", renameInLocal)
+		Logger.log("Queue rename in remote", renameInRemote)
+		Logger.log("Queue pull from local", pullFromLocal)
+		Logger.log("Queue pull from remote", pullFromRemote)
+		Logger.log("Queue delete from local", deleteInLocal)
+		Logger.log("Queue delete from remote", deleteInRemote)
 
 		await Promise.all([this.consumeRenameQueue(renameInLocal, this.local), this.consumeRenameQueue(renameInRemote, this.remote)])
 		await Promise.all([this.consumePullQueue(pullFromLocal, this.local), this.consumePullQueue(pullFromRemote, this.remote)])
@@ -46,6 +51,9 @@ import * as _ from 'lodash'
 		this.emit('NEEDS_RESYNC')
 
 		const [currentLocal, currentRemote] = await Promise.all([this.local.getCurrentListing(), this.remote.getCurrentListing()])
+
+		Logger.log("Current local before", currentLocal)
+		Logger.log("Current remote before", currentRemote)
 
 		const pullFromLocal: string[] = []
 		const pullFromRemote: string[] = []
@@ -75,12 +83,11 @@ import * as _ from 'lodash'
 				pullFromLocal.push(nameRemote)
 			}
 		}
-		console.log("current local", currentLocal)
-		console.log("current remote", currentRemote)
-		console.log("rename in local", renameInLocal)
-		console.log("rename in remote", renameInRemote)
-		console.log("pull from local", pullFromLocal)
-		console.log("pull from remote", pullFromRemote)
+		Logger.log("Queue rename in local", renameInLocal)
+		Logger.log("Queue rename in remote", renameInRemote)
+		Logger.log("Queue pull from local", pullFromLocal)
+		Logger.log("Queue pull from remote", pullFromRemote)
+
 		await Promise.all([this.consumeRenameQueue(renameInLocal, this.local), this.consumeRenameQueue(renameInRemote, this.remote)])
 		await Promise.all([this.consumePullQueue(pullFromLocal, this.local), this.consumePullQueue(pullFromRemote, this.remote)])
 
@@ -224,14 +231,14 @@ import * as _ from 'lodash'
 		const [newLocal, newRemote] = await Promise.all([this.local.getCurrentListing(), this.remote.getCurrentListing()])
 
 		if (_.isEqual(newLocal, newRemote)) {
-			console.log("Listings are equal -> Bisync successful")
-			console.log("Current in both: ", newLocal)
+			Logger.log("Listings are equal: Bisync successful")
+			Logger.log("Current in both:", newLocal)
 			this.listingStore.saveListing(newLocal)
 		} 
 		else {
-			console.log("Listings are not equal")
-			console.log("Current local: ", newLocal)
-			console.log("Current remote: ", newRemote)
+			Logger.log("Listings are not equal")
+			Logger.log("Current local:", newLocal)
+			Logger.log("Current remote:", newRemote)
 		}
 
 		this.emit('DONE')
