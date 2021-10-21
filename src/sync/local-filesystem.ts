@@ -10,7 +10,7 @@ export function getLocalFilesystem(localPath:string , downloadFile: (name: strin
 	return {
 		kind: 'LOCAL',
 		async getCurrentListing(): Promise<Listing> {
-			const list = await glob(`${localPath}/**/*`, { filesOnly: true, absolute: true })
+			const list = (await glob(`${localPath}/**/*`, { filesOnly: true, absolute: true, dot: true })).filter(fileName => !/.DS_Store$/.test(fileName))
 			const listing: Listing = {}
 
 			for (const fileName of list) {

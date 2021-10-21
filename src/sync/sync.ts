@@ -236,7 +236,7 @@ import Logger from '../libs/logger'
 			this.listingStore.saveListing(newLocal)
 		} 
 		else {
-			Logger.log("Listings are not equal")
+			Logger.warn("Listings are not equal")
 			Logger.log("Current local:", newLocal)
 			Logger.log("Current remote:", newRemote)
 		}
