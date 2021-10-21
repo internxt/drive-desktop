@@ -1,3 +1,4 @@
+import getListingStore from "./listing-store"
 import { getLocalFilesystem } from "./local-filesystem"
 import { getRemoteFilesystem } from "./remote-filesystem"
 import Sync from "./sync"
@@ -11,7 +12,9 @@ import Sync from "./sync"
 	const remote = getRemoteFilesystem(remoteFolderId, localPath)
 	const local = getLocalFilesystem(localPath, remote.downloadFile)
 
-  const sync = new Sync(local, remote)
+  const listingStore = getListingStore(localPath, remoteFolderId)
+
+  const sync = new Sync(local, remote, listingStore)
 
   sync.on('CHECKING_LAST_RUN_OUTCOME', () => console.log('chekinglastrunoutcome'))
   sync.on('DONE', () => console.log('done'))

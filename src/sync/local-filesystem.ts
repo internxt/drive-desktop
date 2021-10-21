@@ -1,4 +1,3 @@
-import ConfigStore from '../main/config-store'
 import {FileSystem, Listing} from './sync'
 import * as fs from 'fs/promises'
 
@@ -7,9 +6,6 @@ import path from 'path'
 import { getModTimeInSeconds } from './utils'
 
 export function getLocalFilesystem(localPath:string , downloadFile: (name: string, downloadPath: string, progressCallback: (progress:number) => void) => Promise<void>): FileSystem {
-	function getLocalListings() {
-		return ConfigStore.get('localListings') as Record<string, Listing | undefined>
-	}
 
 	return {
 		kind: 'LOCAL',
@@ -20,7 +16,7 @@ export function getLocalFilesystem(localPath:string , downloadFile: (name: strin
 			for (const fileName of list) {
 				const nameRelativeToBase = fileName.split(localPath)[1]
 
-				listing[nameRelativeToBase] = await getModTimeInSeconds(localPath)
+				listing[nameRelativeToBase] = await getModTimeInSeconds(fileName)
 			}
 			return listing
 		},
@@ -36,21 +32,6 @@ export function getLocalFilesystem(localPath:string , downloadFile: (name: strin
 		},
 		renameFile(oldName: string, newName: string) {
 			return fs.rename(path.join(localPath, oldName), path.join(localPath, newName))
-		},
-		saveListing(listing: Listing): void {
-			const localListings = getLocalListings()
-			ConfigStore.set('localListings', {...localListings, [localPath]: listing})
-		},
-		removeSavedListing(): void {
-			const localListings = getLocalListings()
-			delete localListings[localPath]
-			ConfigStore.set('localListings', localListings)
-		},
-		getLastSavedListing(): Listing {
-			const localListings = getLocalListings()
-			const listing = localListings[localPath]
-
-			return listing ?? null
 		},
 	}
 }

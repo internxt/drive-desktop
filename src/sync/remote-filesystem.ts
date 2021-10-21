@@ -47,10 +47,6 @@ export function getRemoteFilesystem(baseFolderId: number, baseLocalPath: string)
 
 	const cache: RemoteCache = {}
 
-	function getRemoteListings() {
-		return ConfigStore.get('remoteListings') as Record<string, Listing | undefined>
-	}
-
 	return {
 		kind: 'REMOTE',
 		async getCurrentListing() {
@@ -86,21 +82,6 @@ export function getRemoteFilesystem(baseFolderId: number, baseLocalPath: string)
 
 			return listing
 		},
-		saveListing(listing: Listing): void {
-			const remoteListings = getRemoteListings()
-			ConfigStore.set('remoteListings', {...remoteListings, [baseFolderId]: listing})
-		},
-		removeSavedListing(): void {
-			const remoteListings = getRemoteListings()
-			delete remoteListings[baseFolderId]
-			ConfigStore.set('remoteListings', remoteListings)
-		},
-		getLastSavedListing(): Listing | null {
-			const remoteListings = getRemoteListings()
-			const listing = remoteListings[baseFolderId]
-
-			return listing ?? null
-		},
 
 		async deleteFile(name: string): Promise<void> {
 			const fileInCache = cache[name]
@@ -113,7 +94,7 @@ export function getRemoteFilesystem(baseFolderId: number, baseLocalPath: string)
 
 		async renameFile(oldName: string, newName: string): Promise<void> {
 			const fileInCache = cache[oldName]
-			const newNameBase = path.parse(newName.split('/').pop()).base
+			const newNameBase = path.parse(newName).name
 
 			if(fileInCache) {
 				await fetch(`${process.env.API_URL}/api/storage/file/${fileInCache.fileId}/meta`, {method: 'POST', headers: {...headers, 'internxt-mnemonic': mnemonic}, body: JSON.stringify({metadata:{itemName: newNameBase}, bucketId: fileInCache.bucket, relativePath: uuid.v4() })})

@@ -1,29 +1,30 @@
 import * as EventEmitter from 'events'
 import * as path from 'path'
+import * as _ from 'lodash'
 
  class Sync extends EventEmitter {
-	constructor (private readonly local: FileSystem, private readonly remote: FileSystem) {
+	constructor (private readonly local: FileSystem, private readonly remote: FileSystem, private readonly listingStore: ListingStore) {
 		super()
 	}
 
 	async run(): Promise<void> {
 		this.emit('CHECKING_LAST_RUN_OUTCOME')
-		const [lastSavedLocal, lastSavedRemote] = await Promise.all([this.local.getLastSavedListing(), this.remote.getLastSavedListing()])
-		console.log("last saved local", lastSavedLocal)
-		console.log("last saved remote", lastSavedRemote)
-		if (!lastSavedLocal || !lastSavedRemote)
+		const lastSavedListing = this.listingStore.getLastSavedListing()
+		console.log("last saved listing", lastSavedListing)
+
+		if (!lastSavedListing) 
 			return this.resync()
 
 		this.emit('GENERATING_ACTIONS_NEEDED_TO_SYNC')
 		console.log("default run")
 		const [currentLocal, currentRemote] = await Promise.all([this.local.getCurrentListing(), this.remote.getCurrentListing()])
 
-		const deltasLocal = this.generateDeltas(lastSavedLocal, currentLocal)
-		const deltasRemote = this.generateDeltas(lastSavedRemote, currentRemote)
+		const deltasLocal = this.generateDeltas(lastSavedListing, currentLocal)
+		const deltasRemote = this.generateDeltas(lastSavedListing, currentRemote)
 
 		const {renameInLocal, renameInRemote, pullFromLocal, pullFromRemote, deleteInLocal, deleteInRemote} = this.generateActionQueues(deltasLocal, deltasRemote)
 
-		await Promise.all([this.local.removeSavedListing(), this.remote.removeSavedListing()])
+		this.listingStore.removeSavedListing()
 
 		console.log("current local", currentLocal)
 		console.log("current remote", currentRemote)
@@ -222,7 +223,16 @@ import * as path from 'path'
 
 		const [newLocal, newRemote] = await Promise.all([this.local.getCurrentListing(), this.remote.getCurrentListing()])
 
-		await Promise.all([this.local.saveListing(newLocal), this.remote.saveListing(newRemote)])
+		if (_.isEqual(newLocal, newRemote)) {
+			console.log("Listings are equal -> Bisync successful")
+			console.log("Current in both: ", newLocal)
+			this.listingStore.saveListing(newLocal)
+		} 
+		else {
+			console.log("Listings are not equal")
+			console.log("Current local: ", newLocal)
+			console.log("Current remote: ", newRemote)
+		}
 
 		this.emit('DONE')
 	}
@@ -236,8 +246,37 @@ export interface FileSystem {
 	kind: FileSystemKind
 
 	/**
+	 * Returns the listing of the current files 
+	 * in this FileSystem
+	 */
+	getCurrentListing(): Promise<Listing>
+
+	/**
+	 * Renames a file in the FileSystem
+	 * @param oldName 
+	 * @param newName 
+	 */
+	renameFile(oldName: string, newName: string): Promise<void>
+
+	/**
+	 * Deletes a file in the FileSystem
+	 * @param name 
+	 */
+	deleteFile(name: string): Promise<void>
+
+	/**
+	 * Pulls a file from other FileSystem into this FileSystem,
+	 * overwriting it if already exists
+	 * @param name 
+	 * @param progressCallback 
+	 */
+	pullFile(name: string, progressCallback: (progress: number) => void): Promise<void>
+}
+
+export type ListingStore = {
+	/**
 	 * Returns the listing of the files 
-	 * in this FileSystem saved the last time 
+	 * saved the last time 
 	 * a sync was completed or null otherwise
 	 */
 	getLastSavedListing(): Listing | null
@@ -246,34 +285,10 @@ export interface FileSystem {
 	 */
 	removeSavedListing(): void
 	/**
-	 * Returns the listing of the current files 
-	 * in this FileSystem
-	 */
-	getCurrentListing(): Promise<Listing>
-	/**
 	 * Saves a listing to be queried in
 	 * consecutive runs
 	 */
 	saveListing(listing: Listing): void
-
-	/**
-	 * Renames a file in the FileSystem
-	 * @param oldName 
-	 * @param newName 
-	 */
-	renameFile(oldName: string, newName: string): Promise<void>
-	/**
-	 * Deletes a file in the FileSystem
-	 * @param name 
-	 */
-	deleteFile(name: string): Promise<void>
-	/**
-	 * Pulls a file from other FileSystem into this FileSystem,
-	 * overwriting it if already exists
-	 * @param name 
-	 * @param progressCallback 
-	 */
-	pullFile(name: string, progressCallback: (progress: number) => void): Promise<void>
 }
 
 /**

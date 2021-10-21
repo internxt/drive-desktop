@@ -68,11 +68,7 @@ const schema = {
     type: 'boolean',
     default: true
   },
-  localListings: {
-    type: 'object',
-    default: {}
-  },
-  remoteListings: {
+  listings: {
     type: 'object',
     default: {}
   }

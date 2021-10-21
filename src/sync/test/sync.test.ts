@@ -1,19 +1,10 @@
-import Sync, {Deltas, FileSystem} from "../sync"
+import Sync, {Deltas, FileSystem, ListingStore} from "../sync"
 
 describe('sync tests', () => {
 	const mockBase: () => FileSystem = () => ({
 		kind: 'LOCAL',
 		async getCurrentListing() {
 			return {}
-		},
-		getLastSavedListing(){
-			return null
-		},
-		saveListing() {
-			return;
-		},
-		removeSavedListing() {
-			return;
 		},
 		async deleteFile() {
 			return;
@@ -59,8 +50,22 @@ describe('sync tests', () => {
 		}
 	}
 
+	function listingStore(): ListingStore {
+		return {
+			getLastSavedListing(){
+				return null 
+			},
+			removeSavedListing() {
+				return
+			},
+			saveListing() {
+				return
+			}
+		}
+	}
+
 	function dummySync() {
-		return new Sync(mockBase(), mockBase())
+		return new Sync(mockBase(), mockBase(), listingStore())
 	}
 	
 	it ('should do resync correctly', async () => {
@@ -86,7 +91,7 @@ describe('sync tests', () => {
 			},
 		}
 
-		const sync = new Sync(local, remote)
+		const sync = new Sync(local, remote, listingStore())
 
 		const {
 			checkingLastRunCB, 
@@ -132,9 +137,9 @@ describe('sync tests', () => {
 	})
 
 	it ('should do a default run correctly', async () => {
-		const local: FileSystem = {
-			...mockBase(),
-			getLastSavedListing() {
+		const listingStoreMocked: ListingStore = {
+			...listingStore(),
+			getLastSavedListing(){
 				return {
 					'aFile': 33,
 					'nested/anotherFile.pdf': 44,
@@ -143,7 +148,10 @@ describe('sync tests', () => {
 					'oneMoreRootFile': 20,
 					'olderInBoth': 2
 				}
-			},
+			}
+		}
+		const local: FileSystem = {
+			...mockBase(),
 			async getCurrentListing() {
 				return {
 					'aFile': 35,
@@ -157,16 +165,6 @@ describe('sync tests', () => {
 
 		const remote: FileSystem = {
 			...mockBase(),
-			getLastSavedListing() {
-				return {
-					'aFile': 33,
-					'nested/anotherFile.pdf': 44,
-					'nested/quiteNested/oneMoreFile.pdf': 44,
-					'anotherRootFile': 10,
-					'oneMoreRootFile': 20,
-					'olderInBoth': 2
-				}
-			},
 			async getCurrentListing() {
 				return {
 					'aFile': 33,
@@ -178,7 +176,7 @@ describe('sync tests', () => {
 			},
 		}
 
-		const sync = new Sync(local, remote)
+		const sync = new Sync(local, remote, listingStoreMocked)
 
 		const {
 			checkingLastRunCB, 
