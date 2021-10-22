@@ -2,6 +2,7 @@ import * as EventEmitter from 'events'
 import * as path from 'path'
 import * as _ from 'lodash'
 import Logger from '../libs/logger'
+import { Readable } from 'stream'
 
  class Sync extends EventEmitter {
 	constructor (private readonly local: FileSystem, private readonly remote: FileSystem, private readonly listingStore: ListingStore) {
@@ -41,7 +42,7 @@ import Logger from '../libs/logger'
 		Logger.log("Queue delete from remote", deleteInRemote)
 
 		await Promise.all([this.consumeRenameQueue(renameInLocal, this.local), this.consumeRenameQueue(renameInRemote, this.remote)])
-		await Promise.all([this.consumePullQueue(pullFromLocal, this.local), this.consumePullQueue(pullFromRemote, this.remote)])
+		await Promise.all([this.consumePullQueue(pullFromLocal, this.local, this.remote), this.consumePullQueue(pullFromRemote, this.remote, this.local)])
 		await Promise.all([this.consumeDeleteQueue(deleteInLocal, this.local), this.consumeDeleteQueue(deleteInRemote, this.remote)])
 
 		const [foldersDeletedInLocal, foldersDeletedInRemote] = await Promise.all([this.listDeletedFolders(lastSavedListing, currentLocal, this.local), this.listDeletedFolders(lastSavedListing, currentRemote, this.remote)])
@@ -95,7 +96,7 @@ import Logger from '../libs/logger'
 		Logger.log("Queue pull from remote", pullFromRemote)
 
 		await Promise.all([this.consumeRenameQueue(renameInLocal, this.local), this.consumeRenameQueue(renameInRemote, this.remote)])
-		await Promise.all([this.consumePullQueue(pullFromLocal, this.local), this.consumePullQueue(pullFromRemote, this.remote)])
+		await Promise.all([this.consumePullQueue(pullFromLocal, this.local, this.remote), this.consumePullQueue(pullFromRemote, this.remote, this.local)])
 
 
 		await this.saveListings()
@@ -263,11 +264,17 @@ import Logger from '../libs/logger'
 			this.emit('FILE_RENAMED', oldName, newName,fileSystem.kind) 
 		}
 	}
-	private async consumePullQueue(queue: string[], fileSystem: FileSystem): Promise<void> {
+	private async consumePullQueue(queue: string[], destFs: Pick<FileSystem, 'pullFile' | 'kind'>, srcFs: Pick<FileSystem, 'getSource'>): Promise<void> {
 		for (const name of queue) {
-			this.emit('PULLING_FILE', name, 0, fileSystem.kind)
-			await fileSystem.pullFile(name, progress => this.emit('PULLING_FILE', name, progress, fileSystem.kind))
-			this.emit('FILE_PULLED', name, fileSystem.kind)
+			this.emit('PULLING_FILE', name, 0, destFs.kind)
+
+			const progressCallback = (progress: number) => this.emit('PULLING_FILE', name, progress, destFs.kind)
+
+			const source = await srcFs.getSource(name, progressCallback)
+
+			await destFs.pullFile(name, source, progressCallback)
+
+			this.emit('FILE_PULLED', name, destFs.kind)
 		}
 	}
 	private async consumeDeleteQueue(queue: string[], fileSystem: FileSystem): Promise<void> {
@@ -335,10 +342,11 @@ export interface FileSystem {
 	/**
 	 * Pulls a file from other FileSystem into this FileSystem,
 	 * overwriting it if already exists
-	 * @param name 
+	 * @param name
+	 * @param source 
 	 * @param progressCallback 
 	 */
-	pullFile(name: string, progressCallback: (progress: number) => void): Promise<void>
+	pullFile(name: string, source: Source, progressCallback: FileSystemProgressCallback): Promise<void>
 
 	/**
 	 * Checks if a folder exists in the filesystem 
@@ -351,6 +359,23 @@ export interface FileSystem {
 	 * @param name 
 	 */
 	deleteFolder(name: string): Promise<void>
+
+	/**
+	 * Returns an object source that contains
+	 * anything that another filesystem would need
+	 * to pull it 
+	 * @param name 
+	 * @param progressCallback 
+	 */
+	getSource(name: string, progressCallback: FileSystemProgressCallback): Promise<Source>
+}
+
+export type FileSystemProgressCallback = (progress:number) => void
+
+export type Source = {
+	stream: Readable
+	modTime: number
+	size: number
 }
 
 export type ListingStore = {

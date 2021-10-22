@@ -12,8 +12,8 @@ import {app} from '@electron/remote'
   const tmpPath = app.getPath('temp')
   const remoteFolderId = 30584191
 
-	const remote = getRemoteFilesystem(remoteFolderId, localPath)
-	const local = getLocalFilesystem(localPath, remote.downloadFile, tmpPath)
+	const remote = getRemoteFilesystem(remoteFolderId)
+	const local = getLocalFilesystem(localPath, tmpPath)
 
   const listingStore = getListingStore(localPath, remoteFolderId, configStore)
 
@@ -32,5 +32,6 @@ import {app} from '@electron/remote'
   sync.on('FOLDER_DELETED', (name, kind) => console.log(`Deleted folder ${name} in ${kind}`))
   sync.on('SAVING_LISTINGS', () => console.log('Saving listings'))
   sync.on('DONE', () => console.log('Done'))
+
   await sync.run()
 })()

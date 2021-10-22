@@ -536,10 +536,10 @@
   resolved "https://registry.yarnpkg.com/@iconscout/vue-unicons/-/vue-unicons-0.0.3.tgz#3569422a46c2b242a39a5654b3f4dbe13a19e706"
   integrity sha512-wVYaEPNXNCqYoyrhEMoYAm8rxFnPmXLduzH3WmROTdU0D1qcuHj5AjxSCJ+OOs9+Tz3woUjDRjINlZHQmdiPBw==
 
-"@internxt/inxt-js@^1.2.3-4":
-  version "1.2.3-7"
-  resolved "https://npm.pkg.github.com/download/@internxt/inxt-js/1.2.3-7/f850b168a13e83d94d7fb59ad473937d9cc6e172957f9d381bccc54cf8f262e0#e043dbc3b417fba9ba9ecd08dc066c6baf736c97"
-  integrity sha512-D5/rkbDx7YgFY8xDG0sIjOFTJY7mQZnRlF/U7L1cT4Juzr7SErFxU+pDVNbs5HT29f30pSGlwFf82zw9h4JTxg==
+"@internxt/inxt-js@^1.2.5":
+  version "1.2.5"
+  resolved "https://npm.pkg.github.com/download/@internxt/inxt-js/1.2.5/03e0e88af7e206dceef54d5824cfc728d39ceb3cdf5dbed089cf320c4373d73e#362928555a220563c5a54c946b6447baa861b4da"
+  integrity sha512-BedvSgP6rh63dOOAdIiWDjbnNdvzQrnHIv8IqYlVFU0lU++NfAqi/VZbNiAKlAxcnXVMW6k+KTZqlC7LUM7qsw==
   dependencies:
     abort-controller "^3.0.0"
     async "^3.2.0"
@@ -547,6 +547,7 @@
     bip39 "^3.0.2"
     blob-to-stream "^1.0.3"
     needle "^3.0.0"
+    uuid "^8.3.2"
     winston "^3.3.3"
 
 "@internxt/lib@^1.1.3":

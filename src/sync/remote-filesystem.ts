@@ -1,19 +1,17 @@
 import ConfigStore from "../main/config-store";
 import crypt from "../renderer/logic/crypt";
 import path from 'path'
-import { Listing, FileSystem } from "./sync";
+import { Listing, FileSystem, FileSystemProgressCallback, Source } from "./sync";
 import { Environment } from "@internxt/inxt-js"
-import { stat, utimes } from "fs/promises";
-import { createWriteStream } from "fs";
 import * as uuid from 'uuid'
-import { getDateFromSeconds, getModTimeInSeconds, getSecondsFromDateString } from "./utils";
+import { getDateFromSeconds, getSecondsFromDateString } from "./utils";
 
 /**
  * Server cannot find a file given its route,
  * while we traverse the tree we also store in a cache
  * the info of every file by its route so we can operate with them
  */
-type RemoteCache = Record<string, {id: number, parentId: number, isFolder: boolean, bucket: string | null, fileId?: string, modificationTime?: number}>
+type RemoteCache = Record<string, {id: number, parentId: number, isFolder: boolean, bucket: string | null, fileId?: string, modificationTime?: number, size?: number}>
 
 type ServerFile = {
 	bucket: string
@@ -40,7 +38,7 @@ type ServerFolder = {
 }
 
 
-export function getRemoteFilesystem(baseFolderId: number, baseLocalPath: string): FileSystem & {downloadFile: (name: string, downloadPath: string, progressCallback: (progress:number) => void) => Promise<void>}{
+export function getRemoteFilesystem(baseFolderId: number): FileSystem {
 	const headers = ConfigStore.get('authHeaders') as HeadersInit
 	const userInfo = ConfigStore.get('userData') as {email:string, userId: string, bucket: string}
 	const mnemonic = ConfigStore.get('mnemonic') as string
@@ -49,6 +47,7 @@ export function getRemoteFilesystem(baseFolderId: number, baseLocalPath: string)
 
 	return {
 		kind: 'REMOTE',
+
 		async getCurrentListing() {
 			const tree: {files: ServerFile[], folders: ServerFolder[]} = await fetch(
 				`${process.env.API_URL}/api/desktop/list/0`,
@@ -70,7 +69,7 @@ export function getRemoteFilesystem(baseFolderId: number, baseLocalPath: string)
 					const name = currentName + crypt.decryptName(file.name, file.folderId, file.encrypt_version) + (file.type ? `.${file.type}`: '')
 					const modificationTime = getSecondsFromDateString(file.modificationTime)
 					listing[name] = modificationTime
-					cache[name] = {id: file.id, parentId: file.folderId, isFolder: false, bucket: file.bucket, fileId: file.fileId, modificationTime}
+					cache[name] = {id: file.id, parentId: file.folderId, isFolder: false, bucket: file.bucket, fileId: file.fileId, modificationTime, size: file.size}
 				})
 
 				foldersInThisFolder.forEach(folder => {
@@ -105,10 +104,11 @@ export function getRemoteFilesystem(baseFolderId: number, baseLocalPath: string)
 				throw new Error()
 		},
 
-		async pullFile(name: string, progressCallback: (progress:number) => void): Promise<void> {
+		async pullFile(name: string, source: Source, progressCallback: (progress:number) => void): Promise<void> {
+			const { size, modTime: modTimeInSeconds } = source
 			const route = name.split('/')
 
-			const {base: baseName, ext} = path.parse(route.pop())
+			const {name: baseNameWithoutExt, ext} = path.parse(route.pop())
 			const fileType = ext.slice(1)
 
 			let lastParentId = baseFolderId
@@ -135,6 +135,24 @@ export function getRemoteFilesystem(baseFolderId: number, baseLocalPath: string)
 
 			const { bucket } = userInfo
 
+			const uploadedFileId: string = await new Promise((resolve,reject) => {
+				localUpload.upload(bucket, {
+					filename: uuid.v4(),
+					progressCallback,
+					finishedCallback: (err, fileId) => {
+						if (err)
+							reject(err)
+						else
+							resolve(fileId)
+					}
+				}, {
+					label: 'OneStreamOnly',
+					params: {
+						source
+					}
+				})
+			})
+
 			const oldFileInCache = cache[name]
 
 			if (oldFileInCache) {
@@ -146,28 +164,12 @@ export function getRemoteFilesystem(baseFolderId: number, baseLocalPath: string)
 					})
 			}
 
-			const localPath = path.join(baseLocalPath, name)
-
-			const uploadedFileId: string = await new Promise((resolve,reject) => {
-				localUpload.storeFile(bucket, localPath, {
-					progressCallback,
-					finishedCallback: (err, newFileId) => {
-						if (err)
-							reject(err)
-						
-						resolve(newFileId)
-					}
-				} )
-			})
-
-			const encryptedName = crypt.encryptFilename(
-				baseName,
+			const encryptedName = crypt.encryptName(
+				baseNameWithoutExt,
 				folderIdOfTheNewFile
 			)
 
-			const {size} = await stat(localPath)
-
-			const modificationTime = getDateFromSeconds(await getModTimeInSeconds(localPath))
+			const modificationTime = getDateFromSeconds(modTimeInSeconds)
 
 			await fetch(`${process.env.API_URL}/api/storage/file`, 
 			{headers, method: 'POST', body: JSON.stringify(
@@ -176,7 +178,18 @@ export function getRemoteFilesystem(baseFolderId: number, baseLocalPath: string)
 			})
 		},
 
-		downloadFile(name: string, downloadPath: string, progressCallback: (progress:number) => void): Promise<void> {
+		async existsFolder(name: string): Promise<boolean> {
+			return name in cache
+		},
+
+		async deleteFolder(name: string): Promise<void> {
+			const { id } = cache[name]
+
+			await fetch(`${process.env.API_URL}/api/storage/folder/${id}`, 
+			{headers, method: 'DELETE'})
+		},
+
+		getSource(name: string, progressCallback: FileSystemProgressCallback): Promise<Source> {
 			const environment = new Environment({bridgeUrl: process.env.BRIDGE_URL, bridgeUser: userInfo.email, bridgePass: userInfo.userId, encryptionKey: mnemonic })
 
 			environment.config.download = { concurrency: 10 }
@@ -191,27 +204,10 @@ export function getRemoteFilesystem(baseFolderId: number, baseLocalPath: string)
 					if (err)
 						reject(err)
 					else {
-						const writable = createWriteStream(downloadPath)
-
-						downloadStream.on('data', chunk => writable.write(chunk))
-						downloadStream.on('end', () => {
-							writable.close()
-							const modificationTime = getDateFromSeconds(fileInCache.modificationTime)
-							utimes(downloadPath, modificationTime, modificationTime)
-							resolve()
-						})
+						resolve({stream: downloadStream, size: fileInCache.size, modTime: fileInCache.modificationTime})
 					}
 				}}, {label: 'OneStreamOnly', params: {}})
 			})
-		},
-		async existsFolder(name: string): Promise<boolean> {
-			return name in cache
-		},
-		async deleteFolder(name: string): Promise<void> {
-			const { id } = cache[name]
-
-			await fetch(`${process.env.API_URL}/api/storage/folder/${id}`, 
-			{headers, method: 'DELETE'})
 		}
 	}
 }

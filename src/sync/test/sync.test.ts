@@ -1,3 +1,4 @@
+import { Readable } from "stream";
 import Sync, {Deltas, FileSystem, Listing, ListingStore} from "../sync"
 
 describe('sync tests', () => {
@@ -20,6 +21,9 @@ describe('sync tests', () => {
 		},
 		async deleteFolder(){
 			return;
+		},
+		async getSource(){
+			return {modTime:4, size:4, stream: {} as Readable}
 		}
 	})
 
@@ -127,12 +131,12 @@ describe('sync tests', () => {
 		await sync.run()
 		
 		expect(spyRemoteRename).toBeCalledWith('folder/nested/existInBoth.txt', 'folder/nested/existInBoth_remote.txt')
-		expect(spyRemotePull).toHaveBeenCalledWith('notExistInRemote', expect.anything())
-		expect(spyRemotePull).toHaveBeenCalledWith('folder/nested/existInBoth_local.txt', expect.anything())
+		expect(spyRemotePull).toHaveBeenCalledWith('notExistInRemote', expect.anything(), expect.anything())
+		expect(spyRemotePull).toHaveBeenCalledWith('folder/nested/existInBoth_local.txt', expect.anything(), expect.anything())
 
 		expect(spyLocalRename).toBeCalledWith('folder/nested/existInBoth.txt', 'folder/nested/existInBoth_local.txt')
-		expect(spyLocalPull).toHaveBeenCalledWith('notExistInLocal', expect.anything())
-		expect(spyLocalPull).toHaveBeenCalledWith('folder/nested/existInBoth_remote.txt', expect.anything())
+		expect(spyLocalPull).toHaveBeenCalledWith('notExistInLocal', expect.anything(), expect.anything())
+		expect(spyLocalPull).toHaveBeenCalledWith('folder/nested/existInBoth_remote.txt', expect.anything(), expect.anything())
 
 		expect(checkingLastRunCB).toBeCalledTimes(1)
 		expect(needResyncCB).toBeCalledTimes(1)
@@ -259,11 +263,11 @@ describe('sync tests', () => {
 		const notExpectPullLocal = ['new/new/same_remote', 'newer/newer/same_remote', 'unchanged/unchanged', 'older/older/same_remote']
 
 
-		expectPullRemote.forEach(name => expect(spyRemotePull).toBeCalledWith(name, expect.anything()))
-		expectPullLocal.forEach(name => expect(spyLocalPull).toBeCalledWith(name, expect.anything()))
+		expectPullRemote.forEach(name => expect(spyRemotePull).toBeCalledWith(name, expect.anything(), expect.anything()))
+		expectPullLocal.forEach(name => expect(spyLocalPull).toBeCalledWith(name, expect.anything(), expect.anything()))
 
-		notExpectPullRemote.forEach(name => expect(spyRemotePull).not.toBeCalledWith(name, expect.anything()))
-		notExpectPullLocal.forEach(name => expect(spyLocalPull).not.toBeCalledWith(name, expect.anything()))
+		notExpectPullRemote.forEach(name => expect(spyRemotePull).not.toBeCalledWith(name, expect.anything(), expect.anything()))
+		notExpectPullLocal.forEach(name => expect(spyLocalPull).not.toBeCalledWith(name, expect.anything(), expect.anything()))
 
 		const expectRenameRemote = [['new/new/different', 'new/new/different_remote'], ['newer/newer/different', 'newer/newer/different_remote'], ['older/older/different', 'older/older/different_remote'], ['newer/older', 'newer/older_remote'], ['older/newer', 'older/newer_remote']]
 		const expectRenameLocal = [['new/new/different', 'new/new/different_local'], ['newer/newer/different', 'newer/newer/different_local'], ['older/older/different', 'older/older/different_local'], ['newer/older', 'newer/older_local'], ['newer/older', 'newer/older_local']]
