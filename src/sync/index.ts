@@ -3,15 +3,17 @@ import configStore from "../main/config-store"
 import { getLocalFilesystem } from "./local-filesystem"
 import { getRemoteFilesystem } from "./remote-filesystem"
 import Sync from "./sync"
+import {app} from '@electron/remote'
 
 (async function () {
   await new Promise((resolve) => setTimeout(resolve, 5000))
   // testing phase
   const localPath = '/Users/alex/Internxt Drive/'
+  const tmpPath = app.getPath('temp')
   const remoteFolderId = 30584191
 
 	const remote = getRemoteFilesystem(remoteFolderId, localPath)
-	const local = getLocalFilesystem(localPath, remote.downloadFile)
+	const local = getLocalFilesystem(localPath, remote.downloadFile, tmpPath)
 
   const listingStore = getListingStore(localPath, remoteFolderId, configStore)
 

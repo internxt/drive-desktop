@@ -3,9 +3,11 @@ import * as fs from 'fs/promises'
 
 import glob from 'tiny-glob'
 import path from 'path'
+import * as uuid from 'uuid'
 import { getModTimeInSeconds } from './utils'
+import Logger from '../libs/logger'
 
-export function getLocalFilesystem(localPath:string , downloadFile: (name: string, downloadPath: string, progressCallback: (progress:number) => void) => Promise<void>): FileSystem {
+export function getLocalFilesystem(localPath:string , downloadFile: (name: string, downloadPath: string, progressCallback: (progress:number) => void) => Promise<void>, tempDirectory: string): FileSystem {
 
 	return {
 		kind: 'LOCAL',
@@ -24,11 +26,17 @@ export function getLocalFilesystem(localPath:string , downloadFile: (name: strin
 			return fs.unlink(path.join(localPath, name))
 		},
 		async pullFile(name: string, progressCallback: (progress: number) => void) {
+			const tmpFilePath = path.join(tempDirectory, `${uuid.v4()}.tmp`)
+
+			Logger.log(`Downloading ${name} to temp location ${tmpFilePath}`)
+
+			await downloadFile(name, tmpFilePath, progressCallback)
+
 			const destPath = path.join(localPath, name)
 
 			await fs.mkdir(path.parse(destPath).dir, {recursive: true})
 
-			return downloadFile(name, path.join(localPath, name), progressCallback)
+			await fs.rename(tmpFilePath, destPath)
 		},
 		renameFile(oldName: string, newName: string) {
 			return fs.rename(path.join(localPath, oldName), path.join(localPath, newName))
