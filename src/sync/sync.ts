@@ -12,7 +12,7 @@ import Logger from '../libs/logger'
 		this.emit('CHECKING_LAST_RUN_OUTCOME')
 		const lastSavedListing = this.listingStore.getLastSavedListing()
 
-		Logger.log("last saved listing: ", lastSavedListing)
+		Logger.log("Last saved listing:", lastSavedListing)
 
 		if (!lastSavedListing) 
 			return this.resync()
@@ -29,7 +29,7 @@ import Logger from '../libs/logger'
 		Logger.log("Local deltas", deltasLocal)
 		Logger.log("Remote deltas", deltasRemote)
 
-		const {renameInLocal, renameInRemote, pullFromLocal, pullFromRemote, deleteInLocal, deleteInRemote} = this.generateActionQueues(deltasLocal, deltasRemote, currentLocal, currentRemote)
+		const { renameInLocal, renameInRemote, pullFromLocal, pullFromRemote, deleteInLocal, deleteInRemote } = this.generateActionQueues(deltasLocal, deltasRemote, currentLocal, currentRemote)
 
 		this.listingStore.removeSavedListing()
 
@@ -43,6 +43,12 @@ import Logger from '../libs/logger'
 		await Promise.all([this.consumeRenameQueue(renameInLocal, this.local), this.consumeRenameQueue(renameInRemote, this.remote)])
 		await Promise.all([this.consumePullQueue(pullFromLocal, this.local), this.consumePullQueue(pullFromRemote, this.remote)])
 		await Promise.all([this.consumeDeleteQueue(deleteInLocal, this.local), this.consumeDeleteQueue(deleteInRemote, this.remote)])
+
+		const [foldersDeletedInLocal, foldersDeletedInRemote] = await Promise.all([this.listDeletedFolders(lastSavedListing, currentLocal, this.local), this.listDeletedFolders(lastSavedListing, currentRemote, this.remote)])
+
+		Logger.log("Folders deleted in local", foldersDeletedInLocal)
+		Logger.log("Folders deleted in remote", foldersDeletedInRemote)
+		await Promise.all([this.consumeDeleteFolderQueue(foldersDeletedInRemote, this.local), this.consumeDeleteFolderQueue(foldersDeletedInLocal, this.remote)])
 
 		await this.saveListings()
 	}
@@ -210,6 +216,40 @@ import Logger from '../libs/logger'
 		return deltas
 	}
 
+	private async listDeletedFolders(saved: Listing, current: Listing, filesystem: Pick<FileSystem, 'existsFolder'>): Promise<string[]> {
+
+		function getFoldersInListing(listing: Listing): Set<string> {
+			const setOfFolders = new Set<string>()
+			for (const fileName of Object.keys(listing)){
+				const names = fileName.split('/')
+				names.pop()
+
+				for (let i = 0 ; i < names.length ; i++) {
+					const routeToThisPoint = names.slice(0, i + 1).join('/')
+
+					setOfFolders.add(routeToThisPoint)
+				}
+			}
+			return setOfFolders
+		}
+
+		const foldersInSaved = getFoldersInListing(saved)
+		const foldersInCurrent = getFoldersInListing(current)
+
+		const difference = [...foldersInSaved].filter(folder => !foldersInCurrent.has(folder))
+
+		const toReturn = []
+
+		for (const folder of difference) {
+			const existsInFilesystem = await filesystem.existsFolder(folder)
+
+			if (!existsInFilesystem)
+				toReturn.push(folder)
+		}
+
+		return toReturn
+	}
+
 	private rename(name: string, sufix: string): string {
 		const {dir, ext, name: base} = path.parse(name)
 
@@ -235,6 +275,14 @@ import Logger from '../libs/logger'
 			this.emit('DELETING_FILE', name, fileSystem.kind)
 			await fileSystem.deleteFile(name)
 			this.emit('FILE_DELETED', name, fileSystem.kind)
+		}
+	}
+
+	private async consumeDeleteFolderQueue(queue: string[], fileSystem: FileSystem): Promise<void> {
+		for (const name of queue) {
+			this.emit('DELETING_FOLDER', name, fileSystem.kind)
+			await fileSystem.deleteFolder(name)
+			this.emit('FOLDER_DELETED', name, fileSystem.kind)
 		}
 	}
 
@@ -291,6 +339,18 @@ export interface FileSystem {
 	 * @param progressCallback 
 	 */
 	pullFile(name: string, progressCallback: (progress: number) => void): Promise<void>
+
+	/**
+	 * Checks if a folder exists in the filesystem 
+	 * @param name 
+	 */
+	existsFolder(name: string): Promise<boolean>
+
+	/**
+	 * Deletes a folder in the filesystem 
+	 * @param name 
+	 */
+	deleteFolder(name: string): Promise<void>
 }
 
 export type ListingStore = {
@@ -363,6 +423,15 @@ interface SyncEvents {
 	 * Triggered when a file has been deleted 
 	 */
 	'FILE_DELETED': (name: string, fileSystemKind: FileSystemKind) => void;
+
+	/**
+	 * Triggered when a folder is being deleted 
+	 */
+	'DELETING_FOLDER': (name: string, fileSystemKind: FileSystemKind) => void;
+	/**
+	 * Triggered when a folder has been deleted 
+	 */
+	'FOLDER_DELETED': (name: string, fileSystemKind: FileSystemKind) => void;
 
 	/**
 	 * Triggered when a file is being renamed 

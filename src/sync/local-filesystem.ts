@@ -33,6 +33,20 @@ export function getLocalFilesystem(localPath:string , downloadFile: (name: strin
 		renameFile(oldName: string, newName: string) {
 			return fs.rename(path.join(localPath, oldName), path.join(localPath, newName))
 		},
+		async existsFolder(name: string): Promise<boolean> {
+			const completePath = path.join(localPath, name)
+			try {
+				await fs.access(completePath)
+				return true
+			} catch {
+				return false
+			}
+		},
+		async deleteFolder(name: string): Promise<void> {
+			const completePath = path.join(localPath, name)
+
+			await fs.rm(completePath, {recursive: true, force: true})
+		}
 	}
 }
  

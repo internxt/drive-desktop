@@ -15,6 +15,12 @@ describe('sync tests', () => {
 		async renameFile() {
 			return;
 		},
+		async existsFolder(){
+			return false;
+		},
+		async deleteFolder(){
+			return;
+		}
 	})
 
 	function setupEventSpies(sync: Sync) {
@@ -25,6 +31,8 @@ describe('sync tests', () => {
 		const pulledFileCB = jest.fn()
 		const deletingFileCB = jest.fn()
 		const deletedFileCB = jest.fn()
+		const deletingFolderCB = jest.fn()
+		const deletedFolderCB = jest.fn()
 		const renamingFileCB = jest.fn()
 		const renamedFileCB = jest.fn()
 		const savingListingsCB = jest.fn()
@@ -38,6 +46,8 @@ describe('sync tests', () => {
 		sync.on('FILE_PULLED', pulledFileCB)
 		sync.on('DELETING_FILE', deletingFileCB)
 		sync.on('FILE_DELETED', deletedFileCB)
+		sync.on('DELETING_FOLDER', deletingFolderCB)
+		sync.on('FOLDER_DELETED', deletedFolderCB)
 		sync.on('RENAMING_FILE', renamingFileCB)
 		sync.on('FILE_RENAMED', renamedFileCB)
 		sync.on('SAVING_LISTINGS', savingListingsCB)
@@ -46,6 +56,7 @@ describe('sync tests', () => {
 		return {
 			checkingLastRunCB, needResyncCB, generatingActionsCB, 
 			pullingFileCB, pulledFileCB, deletingFileCB, deletedFileCB,
+			deletingFolderCB, deletedFolderCB,
 			renamingFileCB, renamedFileCB, savingListingsCB, doneCB
 		}
 	}
@@ -222,6 +233,8 @@ describe('sync tests', () => {
 			pulledFileCB, 
 			deletingFileCB,
 			deletedFileCB, 
+			deletingFolderCB,
+			deletedFolderCB,
 			renamingFileCB, 
 			renamedFileCB, 
 			savingListingsCB, 
@@ -231,10 +244,12 @@ describe('sync tests', () => {
 		const spyRemotePull = jest.spyOn(remote, 'pullFile')
 		const spyRemoteRename = jest.spyOn(remote, 'renameFile')
 		const spyRemoteDelete = jest.spyOn(remote, 'deleteFile')
+		const spyRemoteDeleteFolder = jest.spyOn(remote, 'deleteFolder')
 
 		const spyLocalPull = jest.spyOn(local, 'pullFile')
 		const spyLocalRename = jest.spyOn(local, 'renameFile')
 		const spyLocalDelete = jest.spyOn(local, 'deleteFile')
+		const spyLocalDeleteFolder = jest.spyOn(local, 'deleteFolder')
 
 		await sync.run()
 
@@ -262,6 +277,8 @@ describe('sync tests', () => {
 		expect(spyLocalDelete).toBeCalledWith('unchanged/deleted')
 		expect(spyRemoteDelete).toBeCalledWith('deleted/unchanged')
 		
+		expect(spyRemoteDeleteFolder).toBeCalledWith('deleted')
+		expect(spyLocalDeleteFolder).not.toBeCalled()
 
 		expect(checkingLastRunCB).toBeCalledTimes(1)
 		expect(needResyncCB).toBeCalledTimes(0)
@@ -273,6 +290,9 @@ describe('sync tests', () => {
 
 		expect(deletingFileCB).toBeCalledTimes(2)
 		expect(deletedFileCB).toBeCalledTimes(2)
+
+		expect(deletingFolderCB).toBeCalledTimes(1)
+		expect(deletedFolderCB).toBeCalledTimes(1)
 
 		const expectedRenames = expectRenameLocal.length + expectRenameRemote.length
 		expect(renamingFileCB).toBeCalledTimes(expectedRenames)
@@ -447,5 +467,45 @@ describe('sync tests', () => {
 
 		expect(deleteInLocal).toEqual(['p'])
 		expect(deleteInRemote).toEqual(['j'])
+	})
+
+	it('should detect folder that has been deleted', async () => {
+		const sync = dummySync()
+
+		const savedListing: Listing = {
+			'a': 4,
+			'b': 4,
+			'c/d': 5,
+			'c/e': 6,
+			'c/f': 7,
+			'd/a': 2,
+			'd/b': 2,
+			'e/a': 1,
+			'e/b': 2,
+			'nested/quite/a': 1,
+			'nested/quite/b': 1,
+			'nested/dontDisapear/a': 1,
+			'nested/dontDisapear/b': 1,
+			'disapear/but/returnfalse': 2
+		}
+
+		const currentListing: Listing = {
+			'a': 4,
+			'c/d': 5,
+			'c/e': 6,
+			'c/f': 7,
+			'd/a': 2,
+			'nested/dontDisapear/a': 1,
+		}
+
+		const fileSystem = {
+			async existsFolder(name: string){
+				return name === 'disapear/but' || name === 'disapear'
+			}
+		}
+
+		const result = await sync['listDeletedFolders'](savedListing, currentListing, fileSystem)
+
+		expect(result.sort()).toEqual(['e', 'nested/quite'].sort())
 	})
 })

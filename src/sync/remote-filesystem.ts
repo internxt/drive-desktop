@@ -203,6 +203,15 @@ export function getRemoteFilesystem(baseFolderId: number, baseLocalPath: string)
 					}
 				}}, {label: 'OneStreamOnly', params: {}})
 			})
+		},
+		async existsFolder(name: string): Promise<boolean> {
+			return name in cache
+		},
+		async deleteFolder(name: string): Promise<void> {
+			const { id } = cache[name]
+
+			await fetch(`${process.env.API_URL}/api/storage/folder/${id}`, 
+			{headers, method: 'DELETE'})
 		}
 	}
 }

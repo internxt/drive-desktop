@@ -26,6 +26,8 @@ import Sync from "./sync"
   sync.on('FILE_RENAMED', (oldName, newName, kind) => console.log(`File ${oldName} renamed -> ${newName} in ${kind}`))
   sync.on('DELETING_FILE', (name, kind) => console.log(`Deleting file ${name} in ${kind}`))
   sync.on('FILE_DELETED', (name, kind) => console.log(`Deleted file ${name} in ${kind}`))
+  sync.on('DELETING_FOLDER', (name, kind) => console.log(`Deleting folder ${name} in ${kind}`))
+  sync.on('FOLDER_DELETED', (name, kind) => console.log(`Deleted folder ${name} in ${kind}`))
   sync.on('SAVING_LISTINGS', () => console.log('Saving listings'))
   sync.on('DONE', () => console.log('Done'))
   await sync.run()
