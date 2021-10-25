@@ -85,7 +85,7 @@ export function getRemoteFilesystem(baseFolderId: number): FileSystem {
 		async deleteFile(name: string): Promise<void> {
 			const fileInCache = cache[name]
 
-			if(fileInCache)
+			if (fileInCache) 
 		  	await fetch(`${process.env.API_URL}/api/storage/bucket/${fileInCache.bucket}/file/${fileInCache.fileId}`, {method: 'DELETE', headers})
 			else
 				throw new Error()

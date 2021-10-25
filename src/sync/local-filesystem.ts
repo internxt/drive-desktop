@@ -26,8 +26,13 @@ export function getLocalFilesystem(localPath:string , tempDirectory: string): Fi
 			return listing
 		},
 
-		deleteFile(name:string) {
-			return fs.unlink(path.join(localPath, name))
+		async deleteFile(name:string) {
+			try{
+				await fs.unlink(path.join(localPath, name))
+			} catch(err){
+				if (err.code !== 'ENOENT')
+					throw err
+			}
 		},
 
 		pullFile(name: string, source: Source) {

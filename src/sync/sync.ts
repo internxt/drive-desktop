@@ -334,7 +334,8 @@ export interface FileSystem {
 	renameFile(oldName: string, newName: string): Promise<void>
 
 	/**
-	 * Deletes a file in the FileSystem
+	 * Deletes a file in the FileSystem,
+	 * doesn't throw if the file doesn't exist anymore
 	 * @param name 
 	 */
 	deleteFile(name: string): Promise<void>
