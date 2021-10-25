@@ -51,7 +51,7 @@ import { Readable } from 'stream'
 		Logger.log("Folders deleted in remote", foldersDeletedInRemote)
 		await Promise.all([this.consumeDeleteFolderQueue(foldersDeletedInRemote, this.local), this.consumeDeleteFolderQueue(foldersDeletedInLocal, this.remote)])
 
-		await this.saveListings()
+		await this.finalize()
 	}
 
 	private async resync(): Promise<void> {
@@ -99,7 +99,7 @@ import { Readable } from 'stream'
 		await Promise.all([this.consumePullQueue(pullFromLocal, this.local, this.remote), this.consumePullQueue(pullFromRemote, this.remote, this.local)])
 
 
-		await this.saveListings()
+		await this.finalize()
 	}
 
 	private generateActionQueues(deltasLocal: Deltas, deltasRemote: Deltas, currentLocalListing: Listing, currentRemoteListing: Listing): {renameInLocal:[string,string][], renameInRemote: [string, string][], pullFromLocal: string[], pullFromRemote: string[], deleteInLocal: string[], deleteInRemote: string[]} {
@@ -293,7 +293,7 @@ import { Readable } from 'stream'
 		}
 	}
 
-	private async saveListings(){
+	private async finalize(){
 		this.emit('SAVING_LISTINGS')
 
 		const [newLocal, newRemote] = await Promise.all([this.local.getCurrentListing(), this.remote.getCurrentListing()])
