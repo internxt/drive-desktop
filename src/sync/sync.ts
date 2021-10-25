@@ -357,6 +357,7 @@ export interface FileSystem {
 
 	/**
 	 * Deletes a folder in the filesystem 
+	 * doesn't throw if the folder doesn't exist anymore
 	 * @param name 
 	 */
 	deleteFolder(name: string): Promise<void>
