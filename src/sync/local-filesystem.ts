@@ -1,10 +1,9 @@
 import {FileSystem, Listing, Source} from './sync'
 import * as fs from 'fs/promises'
-
 import glob from 'tiny-glob'
 import path from 'path'
 import * as uuid from 'uuid'
-import { getDateFromSeconds, getModTimeInSeconds } from './utils'
+import { getDateFromSeconds, getLocalMeta } from './utils'
 import Logger from '../libs/logger'
 import { createReadStream, createWriteStream} from 'fs'
 
@@ -19,7 +18,10 @@ export function getLocalFilesystem(localPath:string , tempDirectory: string): Fi
 			for (const fileName of list) {
 				const nameRelativeToBase = fileName.split(localPath)[1]
 
-				listing[nameRelativeToBase] = await getModTimeInSeconds(fileName)
+				const {modTimeInSeconds, size} = await getLocalMeta(fileName)
+
+				if (size)
+					listing[nameRelativeToBase] = modTimeInSeconds
 			}
 			return listing
 		},
@@ -32,7 +34,7 @@ export function getLocalFilesystem(localPath:string , tempDirectory: string): Fi
 			return new Promise((resolve, reject) => {
 				const tmpFilePath = path.join(tempDirectory, `${uuid.v4()}.tmp`)
 
-				const { stream} = source
+				const { stream } = source
 
 				Logger.log(`Downloading ${name} to temp location ${tmpFilePath}`)
 
@@ -84,9 +86,7 @@ export function getLocalFilesystem(localPath:string , tempDirectory: string): Fi
 
 			const stream = createReadStream(completePath)
 
-			const modTime = await getModTimeInSeconds(completePath)
-
-			const { size } = await fs.stat(completePath)
+			const {modTimeInSeconds: modTime, size} = await getLocalMeta(completePath)
 
 			return {stream, modTime, size}
 		}

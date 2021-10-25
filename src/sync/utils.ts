@@ -1,8 +1,8 @@
 import fs from 'fs/promises'
 
-export async function getModTimeInSeconds(localPath: string): Promise<number> {
+export async function getLocalMeta(localPath: string): Promise<{modTimeInSeconds: number, size:number}> {
 	const stat = await fs.stat(localPath)
-	return Math.trunc(stat.mtimeMs / 1000)
+	return {modTimeInSeconds: Math.trunc(stat.mtimeMs / 1000), size: stat.size}
 }
 
 export function getDateFromSeconds(seconds: number): Date {
