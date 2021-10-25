@@ -88,7 +88,7 @@ export function getRemoteFilesystem(baseFolderId: number): FileSystem {
 			if (fileInCache) 
 		  	await fetch(`${process.env.API_URL}/api/storage/bucket/${fileInCache.bucket}/file/${fileInCache.fileId}`, {method: 'DELETE', headers})
 			else
-				throw new Error()
+				throw new Error(`${name} file not found in remote cache when tried to delete it`)
 		},
 
 		async renameFile(oldName: string, newName: string): Promise<void> {
@@ -101,7 +101,7 @@ export function getRemoteFilesystem(baseFolderId: number): FileSystem {
 				cache[newName] = fileInCache
 			}
 			else
-				throw new Error()
+				throw new Error(`${oldName} file not found in remote cache when tried to rename it`)
 		},
 
 		async pullFile(name: string, source: Source, progressCallback: (progress:number) => void): Promise<void> {
@@ -183,21 +183,27 @@ export function getRemoteFilesystem(baseFolderId: number): FileSystem {
 		},
 
 		async deleteFolder(name: string): Promise<void> {
-			const { id } = cache[name]
+			const folderInCache = cache[name]
 
-			await fetch(`${process.env.API_URL}/api/storage/folder/${id}`, 
-			{headers, method: 'DELETE'})
+			if (folderInCache) {
+				const { id } = folderInCache
+
+				await fetch(`${process.env.API_URL}/api/storage/folder/${id}`, 
+				{headers, method: 'DELETE'})
+			} else 
+				throw new Error(`${name} folder not found in remote cache when tried to delete`)
+			
 		},
 
 		getSource(name: string, progressCallback: FileSystemProgressCallback): Promise<Source> {
-			const environment = new Environment({bridgeUrl: process.env.BRIDGE_URL, bridgeUser: userInfo.email, bridgePass: userInfo.userId, encryptionKey: mnemonic })
-
-			environment.config.download = { concurrency: 10 }
-
 			const fileInCache = cache[name]
 
 			if (!fileInCache)
-				throw new Error(`${name} not in remote cache`)
+				throw new Error(`${name} file not found in remote cache when tried to return a source`)
+
+			const environment = new Environment({bridgeUrl: process.env.BRIDGE_URL, bridgeUser: userInfo.email, bridgePass: userInfo.userId, encryptionKey: mnemonic })
+
+			environment.config.download = { concurrency: 10 }
 
 			return new Promise((resolve, reject) => {
 				environment.download(fileInCache.bucket, fileInCache.fileId, {progressCallback, finishedCallback: (err, downloadStream) => {
