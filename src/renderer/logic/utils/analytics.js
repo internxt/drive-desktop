@@ -1,7 +1,6 @@
 import ConfigStore from '../../../main/config-store'
 import PackageJson from '../../../../package.json'
 import { v4 as uuidv4 } from 'uuid'
-import database from '../../../database'
 const Analytics = require('analytics-node')
 
 const analyticsLibrary = new Analytics(process.env.APP_SEGMENT_KEY, {
