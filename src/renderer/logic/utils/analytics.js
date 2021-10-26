@@ -42,19 +42,22 @@ function trackBackupError(properties) {
   })
 }
 
-function trackSignin() {
-  const { uuid, email } = ConfigStore.get('userData')
-
+function trackSignin(credentials) {
+  const { userId, email } = credentials
+  console.log(`Track Signin ${userId}, ${email}`)
   analyticsLibrary.identify({
-    userId: uuid,
+    userId,
     traits: {
       email
     },
     context
   })
   analyticsLibrary.track({
-    userId: uuid,
+    userId,
     event: 'User Signin',
+    properties: {
+      inxt_platform: 'drive-desktop'
+    },
     context
   })
 }

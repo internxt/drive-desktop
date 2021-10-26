@@ -304,7 +304,10 @@ export default {
             remote.app.emit('update-configStore', {stopSync: false})
             // ConfigStore.set('stopSync', false)
             // this.$router.push('/landing-page').catch(() => {})
-            analytics.trackSignin()
+            analytics.trackSignin({
+              userId: res.data.user.uuid,
+              email: res.data.user.email
+            })
 
             if (!savedCredentials) {
               // remote.getCurrentWindow().setBounds({ width: 800, height: 500 })
