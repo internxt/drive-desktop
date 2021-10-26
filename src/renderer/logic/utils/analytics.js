@@ -43,7 +43,7 @@ function trackBackupError(properties) {
   })
 }
 
-async function trackSignin(credentials) {
+function trackSignin(credentials) {
   const { userId, email } = credentials
   console.log(`Track Signin ${userId}, ${email}`)
   analyticsLibrary.identify({
