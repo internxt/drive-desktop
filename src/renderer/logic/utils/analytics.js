@@ -1,6 +1,7 @@
 import ConfigStore from '../../../main/config-store'
 import PackageJson from '../../../../package.json'
 import { v4 as uuidv4 } from 'uuid'
+import database from '../../../database'
 const Analytics = require('analytics-node')
 
 const analyticsLibrary = new Analytics(process.env.APP_SEGMENT_KEY, {
@@ -42,19 +43,22 @@ function trackBackupError(properties) {
   })
 }
 
-function trackSignin() {
-  const { uuid, email } = ConfigStore.get('userData')
-
+async function trackSignin(credentials) {
+  const { userId, email } = credentials
+  console.log(`Track Signin ${userId}, ${email}`)
   analyticsLibrary.identify({
-    userId: uuid,
+    userId,
     traits: {
       email
     },
     context
   })
   analyticsLibrary.track({
-    userId: uuid,
+    userId,
     event: 'User Signin',
+    properties: {
+      inxt_platform: 'drive-desktop'
+    },
     context
   })
 }
