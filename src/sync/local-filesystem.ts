@@ -89,9 +89,20 @@ export function getLocalFilesystem(localPath:string , tempDirectory: string): Fi
 		async getSource(name: string): Promise<Source> {
 			const completePath = path.join(localPath, name)
 
-			const stream = createReadStream(completePath)
-
 			const {modTimeInSeconds: modTime, size} = await getLocalMeta(completePath)
+
+			const tmpFilePath = path.join(tempDirectory, `${uuid.v4()}.tmp`)
+
+			await fs.copyFile(completePath, tmpFilePath)
+
+			const stream = createReadStream(tmpFilePath)
+
+			const onEndOrError = () => fs.unlink(tmpFilePath)
+
+			stream.once('end', onEndOrError)
+			stream.once('error', onEndOrError)
+
+			Logger.log(`Uploading ${name} from temp location ${tmpFilePath}`)
 
 			return {stream, modTime, size}
 		}
