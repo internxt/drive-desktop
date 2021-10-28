@@ -248,36 +248,56 @@ import { Readable } from 'stream'
 	private async consumeRenameQueue(queue: [string, string][], fileSystem: FileSystem): Promise<void> {
 		for (const [oldName, newName] of queue) {
 			this.emit('RENAMING_FILE', oldName, newName, fileSystem.kind)
-			await fileSystem.renameFile(oldName, newName)
-			this.emit('FILE_RENAMED', oldName, newName,fileSystem.kind) 
+
+			try {
+				await fileSystem.renameFile(oldName, newName)
+				this.emit('FILE_RENAMED', oldName, newName, fileSystem.kind) 
+			} catch (err) {
+				Logger.error(`Error renaming file in ${fileSystem.kind} ${oldName} to ${newName} (${err.name}: ${err.message})`)
+				this.emit('ERROR_RENAMING_FILE', oldName, newName, fileSystem.kind)
+			}
 		}
 	}
 	private async consumePullQueue(queue: string[], destFs: Pick<FileSystem, 'pullFile' | 'kind'>, srcFs: Pick<FileSystem, 'getSource'>): Promise<void> {
 		for (const name of queue) {
-			this.emit('PULLING_FILE', name, 0, destFs.kind)
-
 			const progressCallback = (progress: number) => this.emit('PULLING_FILE', name, progress, destFs.kind)
+			progressCallback(0)
 
-			const source = await srcFs.getSource(name, progressCallback)
-
-			await destFs.pullFile(name, source, progressCallback)
-
-			this.emit('FILE_PULLED', name, destFs.kind)
+			try {
+				const source = await srcFs.getSource(name, progressCallback)
+				await destFs.pullFile(name, source, progressCallback)
+				this.emit('FILE_PULLED', name, destFs.kind)
+			} catch(err) {
+				Logger.error(`Error pulling file from ${destFs.kind}, ${name} (${err.name}: ${err.message})`)
+				this.emit('ERROR_PULLING_FILE', name, destFs.kind)
+			}
 		}
 	}
 	private async consumeDeleteQueue(queue: string[], fileSystem: FileSystem): Promise<void> {
 		for (const name of queue) {
 			this.emit('DELETING_FILE', name, fileSystem.kind)
-			await fileSystem.deleteFile(name)
-			this.emit('FILE_DELETED', name, fileSystem.kind)
+
+			try {
+				await fileSystem.deleteFile(name)
+				this.emit('FILE_DELETED', name, fileSystem.kind)
+			} catch(err) {
+				Logger.error(`Error deleting file in ${fileSystem.kind}, ${name} (${err.name}: ${err.message})`)
+				this.emit('ERROR_DELETING_FILE', name, fileSystem.kind)
+			}
 		}
 	}
 
 	private async consumeDeleteFolderQueue(queue: string[], fileSystem: FileSystem): Promise<void> {
 		for (const name of queue) {
 			this.emit('DELETING_FOLDER', name, fileSystem.kind)
-			await fileSystem.deleteFolder(name)
-			this.emit('FOLDER_DELETED', name, fileSystem.kind)
+
+			try {
+				await fileSystem.deleteFolder(name)
+				this.emit('FOLDER_DELETED', name, fileSystem.kind)
+			} catch (err) {
+				Logger.error(`Error deleting folder in ${fileSystem.kind}, ${name} (${err.name}: ${err.message})`)
+				this.emit('ERROR_DELETING_FOLDER', name, fileSystem.kind)
+			}
 		}
 	}
 
@@ -287,7 +307,6 @@ import { Readable } from 'stream'
 		const [newLocal, newRemote] = await Promise.all([this.local.getCurrentListing(), this.remote.getCurrentListing()])
 
 		if (_.isEqual(newLocal, newRemote)) {
-			Logger.log("Listings are equal: Bisync successful")
 			Logger.log("Current in both:", newLocal)
 
 			this.listingStore.saveListing(newLocal)
@@ -295,7 +314,6 @@ import { Readable } from 'stream'
 			this.emit('DONE', {status: 'IN_SYNC'})
 		} 
 		else {
-			Logger.warn("Listings are not equal")
 			Logger.log("Current local:", newLocal)
 			Logger.log("Current remote:", newRemote)
 
@@ -458,6 +476,10 @@ interface SyncEvents {
 	 * Triggered when a file has been pulled 
 	 */
   'FILE_PULLED': (name: string, fileSystemKind: FileSystemKind) => void;
+	/**
+	 * Triggered when an error has occurred while pulling a file
+	 */
+	'ERROR_PULLING_FILE': (name: string, fileSystemKind: FileSystemKind) => void;
 
 	/**
 	 * Triggered when a file is being deleted 
@@ -467,6 +489,10 @@ interface SyncEvents {
 	 * Triggered when a file has been deleted 
 	 */
 	'FILE_DELETED': (name: string, fileSystemKind: FileSystemKind) => void;
+	/**
+	 * Triggered when an error has occurred while deleting a file
+	 */
+	'ERROR_DELETING_FILE': (name: string, fileSystemKind: FileSystemKind) => void;
 
 	/**
 	 * Triggered when a folder is being deleted 
@@ -476,6 +502,10 @@ interface SyncEvents {
 	 * Triggered when a folder has been deleted 
 	 */
 	'FOLDER_DELETED': (name: string, fileSystemKind: FileSystemKind) => void;
+	/**
+	 * Triggered when an error has occurred while deleting a folder
+	 */
+	'ERROR_DELETING_FOLDER': (name: string, fileSystemKind: FileSystemKind) => void;
 
 	/**
 	 * Triggered when a file is being renamed 
@@ -485,6 +515,10 @@ interface SyncEvents {
 	 * Triggered when a file has been renamed 
 	 */
 	'FILE_RENAMED': (oldName: string, newName: string, fileSystemKind: FileSystemKind) => void;
+	/**
+	 * Triggered when an error has occurred while renaming a file
+	 */
+	'ERROR_RENAMING_FILE': (oldName: string, newName: string, fileSystemKind: FileSystemKind) => void;
 
 	/**
 	 * Triggered when the changes needed to be in sync
