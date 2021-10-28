@@ -62,34 +62,22 @@ import { Readable } from 'stream'
 		Logger.log("Current local before", currentLocal)
 		Logger.log("Current remote before", currentRemote)
 
-		const pullFromLocal: string[] = []
-		const pullFromRemote: string[] = []
+		const {filesNotInLocal: pullFromLocal, filesNotInRemote: pullFromRemote, filesWithDifferentModtime} = this.getListingsDiff(currentLocal, currentRemote)
+
 		const renameInLocal: [string, string][] = []
 		const renameInRemote: [string, string][] = []
 
-		for (const [nameLocal, modTimeLocal] of Object.entries(currentLocal)) {
-			const modTimeRemote = currentRemote[nameLocal]
-			if (modTimeRemote && modTimeRemote !== modTimeLocal) {
-				const name = nameLocal
+		for (const name of filesWithDifferentModtime) {
+			const localRenamed = this.rename(name, 'local')
+			const remoteRenamed = this.rename(name, 'remote')
 
-				const localRenamed = this.rename(name, 'local')
-				const remoteRenamed = this.rename(name, 'remote')
+			renameInLocal.push([name, localRenamed])
+			renameInRemote.push([name, remoteRenamed])
 
-				renameInLocal.push([name, localRenamed])
-				renameInRemote.push([name, remoteRenamed])
-
-				pullFromLocal.push(remoteRenamed)
-				pullFromRemote.push(localRenamed)
-			} else if (modTimeRemote === undefined) {
-				pullFromRemote.push(nameLocal)
-			}
+			pullFromLocal.push(remoteRenamed)
+			pullFromRemote.push(localRenamed)
 		}
 
-		for (const nameRemote of Object.keys(currentRemote)) {
-			if (!(nameRemote in currentLocal)) {
-				pullFromLocal.push(nameRemote)
-			}
-		}
 		Logger.log("Queue rename in local", renameInLocal)
 		Logger.log("Queue rename in remote", renameInRemote)
 		Logger.log("Queue pull from local", pullFromLocal)
@@ -294,22 +282,51 @@ import { Readable } from 'stream'
 	}
 
 	private async finalize(){
-		this.emit('SAVING_LISTINGS')
+		this.emit('FINALIZING')
 
 		const [newLocal, newRemote] = await Promise.all([this.local.getCurrentListing(), this.remote.getCurrentListing()])
 
 		if (_.isEqual(newLocal, newRemote)) {
 			Logger.log("Listings are equal: Bisync successful")
 			Logger.log("Current in both:", newLocal)
+
 			this.listingStore.saveListing(newLocal)
+
+			this.emit('DONE', {status: 'IN_SYNC'})
 		} 
 		else {
 			Logger.warn("Listings are not equal")
 			Logger.log("Current local:", newLocal)
 			Logger.log("Current remote:", newRemote)
+
+			const diff = this.getListingsDiff(newLocal, newRemote)
+			this.emit('DONE', {status: 'NOT_IN_SYNC', diff})
+		}
+	}
+
+	private getListingsDiff(local: Listing, remote: Listing): ListingsDiff {
+		const filesNotInLocal = []
+		const filesNotInRemote = []
+		const filesWithDifferentModtime = []
+
+		for (const [localName, localModtime] of Object.entries(local)) {
+			const remoteModTime = remote[localName]
+
+			if (!remoteModTime) {
+				filesNotInRemote.push(localName)
+			}
+			else if (localModtime !== remoteModTime){
+				filesWithDifferentModtime.push(localName)
+			}
 		}
 
-		this.emit('DONE')
+		for (const remoteName of Object.keys(remote)){
+			if (!(remoteName in local)){
+				filesNotInLocal.push(remoteName)
+			}
+		}
+
+		return {filesNotInLocal, filesNotInRemote, filesWithDifferentModtime}
 	}
 }
 
@@ -470,16 +487,32 @@ interface SyncEvents {
 	'FILE_RENAMED': (oldName: string, newName: string, fileSystemKind: FileSystemKind) => void;
 
 	/**
-	 * Triggered when the changed needed to be in sync
-	 * has been made (either by a default run or a resync)
-	 * and new listings will be generated and saved
+	 * Triggered when the changes needed to be in sync
+	 * have been made (either by a default run or a resync)
+	 * and new listings will be generated and saved if the
+	 * filesystems are in sync
 	 */
-	'SAVING_LISTINGS': () => void;
+	'FINALIZING': () => void;
 
 	/**
 	 * Triggered when the process is done
 	 */
-	'DONE': () => void;
+	'DONE': (result: SuccessfulSyncResult | UnsuccessfulSyncResult) => void;
+}
+
+type SuccessfulSyncResult = {
+	status: 'IN_SYNC' 
+}
+
+type UnsuccessfulSyncResult = {
+	status: 'NOT_IN_SYNC',
+	diff: ListingsDiff
+}
+
+type ListingsDiff = {
+	filesNotInLocal: string[],
+	filesNotInRemote: string[],
+	filesWithDifferentModtime: string[]
 }
 
 declare interface Sync {

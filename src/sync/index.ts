@@ -30,7 +30,7 @@ import {app} from '@electron/remote'
   sync.on('FILE_DELETED', (name, kind) => console.log(`Deleted file ${name} in ${kind}`))
   sync.on('DELETING_FOLDER', (name, kind) => console.log(`Deleting folder ${name} in ${kind}`))
   sync.on('FOLDER_DELETED', (name, kind) => console.log(`Deleted folder ${name} in ${kind}`))
-  sync.on('SAVING_LISTINGS', () => console.log('Saving listings'))
+  sync.on('FINALIZING', () => console.log('Finalizing'))
   sync.on('DONE', () => console.log('Done'))
 
   await sync.run()

@@ -39,7 +39,7 @@ describe('sync tests', () => {
 		const deletedFolderCB = jest.fn()
 		const renamingFileCB = jest.fn()
 		const renamedFileCB = jest.fn()
-		const savingListingsCB = jest.fn()
+		const finalizingCB = jest.fn()
 		const doneCB = jest.fn()
 		
 
@@ -54,14 +54,14 @@ describe('sync tests', () => {
 		sync.on('FOLDER_DELETED', deletedFolderCB)
 		sync.on('RENAMING_FILE', renamingFileCB)
 		sync.on('FILE_RENAMED', renamedFileCB)
-		sync.on('SAVING_LISTINGS', savingListingsCB)
+		sync.on('FINALIZING', finalizingCB)
 		sync.on('DONE', doneCB)
 
 		return {
 			checkingLastRunCB, needResyncCB, generatingActionsCB, 
 			pullingFileCB, pulledFileCB, deletingFileCB, deletedFileCB,
 			deletingFolderCB, deletedFolderCB,
-			renamingFileCB, renamedFileCB, savingListingsCB, doneCB
+			renamingFileCB, renamedFileCB, finalizingCB, doneCB
 		}
 	}
 
@@ -118,7 +118,7 @@ describe('sync tests', () => {
 			deletedFileCB, 
 			renamingFileCB, 
 			renamedFileCB, 
-			savingListingsCB, 
+			finalizingCB, 
 			doneCB
 		} = setupEventSpies(sync)
 
@@ -147,7 +147,7 @@ describe('sync tests', () => {
 		expect(deletedFileCB).toBeCalledTimes(0)
 		expect(renamingFileCB).toBeCalledTimes(2)
 		expect(renamedFileCB).toBeCalledTimes(2)
-		expect(savingListingsCB).toBeCalledTimes(1)
+		expect(finalizingCB).toBeCalledTimes(1)
 		expect(doneCB).toBeCalledTimes(1)
 	})
 
@@ -241,7 +241,7 @@ describe('sync tests', () => {
 			deletedFolderCB,
 			renamingFileCB, 
 			renamedFileCB, 
-			savingListingsCB, 
+			finalizingCB, 
 			doneCB
 		} = setupEventSpies(sync)
 
@@ -302,7 +302,7 @@ describe('sync tests', () => {
 		expect(renamingFileCB).toBeCalledTimes(expectedRenames)
 		expect(renamedFileCB).toBeCalledTimes(expectedRenames)
 
-		expect(savingListingsCB).toBeCalledTimes(1)
+		expect(finalizingCB).toBeCalledTimes(1)
 		expect(doneCB).toBeCalledTimes(1)
 	})
 
