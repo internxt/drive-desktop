@@ -24,10 +24,15 @@ describe('sync tests', () => {
 		},
 		async getSource(){
 			return {modTime:4, size:4, stream: {} as Readable}
+		},
+		async smokeTest(){
+			return
 		}
 	})
 
 	function setupEventSpies(sync: Sync) {
+		const fatalErrorCB = jest.fn()
+		const smokeTestingCB = jest.fn()
 		const checkingLastRunCB = jest.fn()
 		const needResyncCB = jest.fn()
 		const generatingActionsCB = jest.fn()
@@ -42,7 +47,8 @@ describe('sync tests', () => {
 		const finalizingCB = jest.fn()
 		const doneCB = jest.fn()
 		
-
+		sync.on('FATAL_ERROR', fatalErrorCB)
+		sync.on('SMOKE_TESTING', smokeTestingCB)
 		sync.on('CHECKING_LAST_RUN_OUTCOME', checkingLastRunCB)
 		sync.on('NEEDS_RESYNC', needResyncCB)
 		sync.on('GENERATING_ACTIONS_NEEDED_TO_SYNC', generatingActionsCB)
@@ -58,6 +64,7 @@ describe('sync tests', () => {
 		sync.on('DONE', doneCB)
 
 		return {
+			smokeTestingCB,fatalErrorCB,
 			checkingLastRunCB, needResyncCB, generatingActionsCB, 
 			pullingFileCB, pulledFileCB, deletingFileCB, deletedFileCB,
 			deletingFolderCB, deletedFolderCB,
@@ -109,6 +116,7 @@ describe('sync tests', () => {
 		const sync = new Sync(local, remote, listingStore())
 
 		const {
+			smokeTestingCB,
 			checkingLastRunCB, 
 			needResyncCB, 
 			generatingActionsCB, 
@@ -138,6 +146,7 @@ describe('sync tests', () => {
 		expect(spyLocalPull).toHaveBeenCalledWith('notExistInLocal', expect.anything(), expect.anything())
 		expect(spyLocalPull).toHaveBeenCalledWith('folder/nested/existInBoth_remote.txt', expect.anything(), expect.anything())
 
+		expect(smokeTestingCB).toBeCalledTimes(1)
 		expect(checkingLastRunCB).toBeCalledTimes(1)
 		expect(needResyncCB).toBeCalledTimes(1)
 		expect(generatingActionsCB).toBeCalledTimes(0)
@@ -230,6 +239,7 @@ describe('sync tests', () => {
 		const sync = new Sync(local, remote, listingStoreMocked)
 
 		const {
+			smokeTestingCB,
 			checkingLastRunCB, 
 			needResyncCB, 
 			generatingActionsCB, 
@@ -284,6 +294,7 @@ describe('sync tests', () => {
 		expect(spyRemoteDeleteFolder).toBeCalledWith('deleted')
 		expect(spyLocalDeleteFolder).not.toBeCalled()
 
+		expect(smokeTestingCB).toBeCalledTimes(1)
 		expect(checkingLastRunCB).toBeCalledTimes(1)
 		expect(needResyncCB).toBeCalledTimes(0)
 		expect(generatingActionsCB).toBeCalledTimes(1)
@@ -511,5 +522,26 @@ describe('sync tests', () => {
 		const result = await sync['listDeletedFolders'](savedListing, currentListing, fileSystem)
 
 		expect(result.sort()).toEqual(['e', 'nested/quite'].sort())
+	})
+
+	it('should emit a fatal error if smoke testing fails', async () => {
+		const fsFailing = mockBase()
+		const sync = new Sync(fsFailing, mockBase(), listingStore())
+
+		jest.spyOn(fsFailing, 'smokeTest').mockImplementation(async () => {
+			const error = new Error()
+			error.name = 'NO_INTERNET' 
+			throw error
+		})
+
+		const {
+			fatalErrorCB
+		} = setupEventSpies(sync)
+
+		await sync.run()
+
+		expect(fatalErrorCB).toBeCalledWith('NO_INTERNET')
+
+
 	})
 })

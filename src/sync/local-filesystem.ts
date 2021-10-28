@@ -105,6 +105,10 @@ export function getLocalFilesystem(localPath:string , tempDirectory: string): Fi
 			Logger.log(`Uploading ${name} from temp location ${tmpFilePath}`)
 
 			return {stream, modTime, size}
+		},
+
+		async smokeTest() {
+			
 		}
 	}
 }

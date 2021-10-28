@@ -214,6 +214,10 @@ export function getRemoteFilesystem(baseFolderId: number): FileSystem {
 					}
 				}}, {label: 'OneStreamOnly', params: {}})
 			})
+		},
+
+		async smokeTest() {
+
 		}
 	}
 }

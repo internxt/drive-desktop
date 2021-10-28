@@ -10,6 +10,24 @@ import { Readable } from 'stream'
 	}
 
 	async run(): Promise<void> {
+
+		this.emit('SMOKE_TESTING')
+
+		try {
+			await this.local.smokeTest()
+			await this.remote.smokeTest()
+		} catch (err) {
+			if (SyncFatalErrors.includes(err.name))
+				this.emit('FATAL_ERROR', err.name)
+			else {
+				Logger.error(`An unknown error has occured in the smoke test: (${err.name}:${err.code}: ${err.message})`)
+				Logger.error(err.stack)
+				this.emit('FATAL_ERROR', 'UNKNOWN')
+			}
+
+			return
+		}
+
 		this.emit('CHECKING_LAST_RUN_OUTCOME')
 		const lastSavedListing = this.listingStore.getLastSavedListing()
 
@@ -405,6 +423,12 @@ export interface FileSystem {
 	 * @param progressCallback 
 	 */
 	getSource(name: string, progressCallback: FileSystemProgressCallback): Promise<Source>
+
+	/**
+	 * Check critical resources of this filesystem
+	 * and throw an error if it's not operative
+	 */
+	smokeTest(): Promise<void>
 }
 
 export type FileSystemProgressCallback = (progress:number) => void
@@ -450,6 +474,16 @@ type Delta = 'NEW' | 'NEWER' | 'DELETED' | 'OLDER' | 'UNCHANGED'
 type FileSystemKind = 'LOCAL' | 'REMOTE'
 
 interface SyncEvents {
+	/**
+	 * Triggered when the process tries to test
+	 * whether the filesystems are operational
+	 */
+	'SMOKE_TESTING': () => void;
+	/**
+	 * Triggered when a fatal error occurs and
+	 * the process must exit completely
+	 */
+	'FATAL_ERROR': (error: SyncFatalError) => void;
 	/**
 	 * Triggered when the process tries to gather
 	 * information about the outcome of the last run
@@ -548,6 +582,17 @@ type ListingsDiff = {
 	filesNotInRemote: string[],
 	filesWithDifferentModtime: string[]
 }
+
+const SyncFatalErrors = 
+	[	'NO_INTERNET', 
+		'NO_REMOTE_CONNECTION', 
+		'NO_LOCAL_BASE_DIRECTORY',
+		'NO_LOCAL_TMP_DIRECTORY', 
+		'NO_CURRENT_LISTINGS', 
+		'UNKNOWN'
+	] as const
+
+type SyncFatalError = typeof SyncFatalErrors[number]
 
 declare interface Sync {
   on<U extends keyof SyncEvents>(

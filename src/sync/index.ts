@@ -19,7 +19,9 @@ import {app} from '@electron/remote'
 
   const sync = new Sync(local, remote, listingStore)
 
-  sync.on('CHECKING_LAST_RUN_OUTCOME', () => console.log('Cheking last run outcome'))
+  sync.on('SMOKE_TESTING', () => console.log('Smoke testing'))
+  sync.on('FATAL_ERROR', (name) => console.error('Fatal error:', name))
+  sync.on('CHECKING_LAST_RUN_OUTCOME', () => console.log('Checking last run outcome'))
   sync.on('NEEDS_RESYNC', () => console.log('Needs resync'))
   sync.on('GENERATING_ACTIONS_NEEDED_TO_SYNC', () => console.log("Generating actions needed to sync"))
   sync.on('PULLING_FILE', (name, progress, kind) => console.log(`Pulling file ${name} from ${kind}: ${progress * 100}%`))
