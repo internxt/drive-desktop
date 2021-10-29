@@ -605,6 +605,9 @@ export class FilesystemError extends Error {
 	}
 }
 
+/**
+ * Enable event typing
+ */
 declare interface Sync {
   on<U extends keyof SyncEvents>(
     event: U, listener: SyncEvents[U]
