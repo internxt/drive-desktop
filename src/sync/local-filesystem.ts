@@ -1,11 +1,11 @@
-import {FileSystem, Listing, Source} from './sync'
+import {FileSystem, FilesystemError, Listing, Source} from './sync'
 import * as fs from 'fs/promises'
 import glob from 'tiny-glob'
 import path from 'path'
 import * as uuid from 'uuid'
 import { getDateFromSeconds, getLocalMeta } from './utils'
 import Logger from '../libs/logger'
-import { createReadStream, createWriteStream} from 'fs'
+import { constants, createReadStream, createWriteStream} from 'fs'
 
 export function getLocalFilesystem(localPath:string , tempDirectory: string): FileSystem {
 
@@ -108,8 +108,21 @@ export function getLocalFilesystem(localPath:string , tempDirectory: string): Fi
 		},
 
 		async smokeTest() {
-			
+			try {
+				await fs.access(localPath, constants.R_OK | constants.W_OK)
+			} catch (err){
+				Logger.error(`Error accessing base directory ${localPath} (${err.name}:${err.code}: ${err.message})`)
+				throw new FilesystemError('CANNOT_ACCESS_BASE_DIRECTORY')
+			}
+
+			try {
+				await fs.access(tempDirectory, constants.R_OK | constants.W_OK)
+			} catch (err){
+				Logger.error(`Error accessing temp directory ${tempDirectory} (${err.name}:${err.code}: ${err.message})`)
+				throw new FilesystemError('CANNOT_ACCESS_TMP_DIRECTORY')
+			}
 		}
 	}
 }
+
  

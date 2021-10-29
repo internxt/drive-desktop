@@ -586,13 +586,19 @@ type ListingsDiff = {
 const SyncFatalErrors = 
 	[	'NO_INTERNET', 
 		'NO_REMOTE_CONNECTION', 
-		'NO_LOCAL_BASE_DIRECTORY',
-		'NO_LOCAL_TMP_DIRECTORY', 
-		'NO_CURRENT_LISTINGS', 
+		'CANNOT_ACCESS_BASE_DIRECTORY',
+		'CANNOT_ACCESS_TMP_DIRECTORY',
+		'CANNOT_GET_CURRENT_LISTINGS', 
 		'UNKNOWN'
 	] as const
 
 type SyncFatalError = typeof SyncFatalErrors[number]
+export class FilesystemError extends Error {
+	constructor(name: SyncFatalError){
+		super()
+		this.name = name
+	}
+}
 
 declare interface Sync {
   on<U extends keyof SyncEvents>(

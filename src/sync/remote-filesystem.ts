@@ -1,10 +1,11 @@
 import ConfigStore from "../main/config-store";
 import crypt from "../renderer/logic/crypt";
 import path from 'path'
-import { Listing, FileSystem, FileSystemProgressCallback, Source } from "./sync";
+import { Listing, FileSystem, FileSystemProgressCallback, Source, FilesystemError } from "./sync";
 import { Environment } from "@internxt/inxt-js"
 import * as uuid from 'uuid'
 import { getDateFromSeconds, getSecondsFromDateString } from "./utils";
+import Logger from '../libs/logger'
 
 /**
  * Server cannot find a file given its route,
@@ -217,7 +218,17 @@ export function getRemoteFilesystem(baseFolderId: number): FileSystem {
 		},
 
 		async smokeTest() {
+			if (!navigator.onLine) {
+				Logger.error(`User had no internet connection in remote filesystem smoke test`)				
+				throw new FilesystemError('NO_INTERNET')
+			}
 
+			const res = await fetch(`${process.env.API_URL}/api/storage/v2/folder/${baseFolderId}`, {headers})
+
+			if (!res.ok) {
+				Logger.error(`Tried to get base folder (${baseFolderId}) and response was not ok`)
+				throw new FilesystemError('NO_REMOTE_CONNECTION')
+			}
 		}
 	}
 }

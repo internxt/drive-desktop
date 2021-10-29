@@ -541,7 +541,5 @@ describe('sync tests', () => {
 		await sync.run()
 
 		expect(fatalErrorCB).toBeCalledWith('NO_INTERNET')
-
-
 	})
 })
