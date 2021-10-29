@@ -80,33 +80,7 @@ async function uploadFile(
   const hashName = Hash.hasher(relativePath)
   const alreadyExists = await BridgeService.findFileByName(bucketId, hashName)
   if (alreadyExists) {
-    let text
-    try {
-      const fetchRes = await File.createFileEntry(
-        bucketId,
-        alreadyExists,
-        encryptedFileName,
-        fileExt,
-        fileSize,
-        folderId,
-        fileMtime
-      )
-
-      text = await fetchRes.text()
-      if (fetchRes.status !== 200) {
-        // FileLogger.push({filePath, originalFileName, state: 'error'})
-        throw new Error(text)
-      }
-      const res = JSON.parse(text)
-      // FileLogger.push({filePath, originalFileName, 'success'})
-      return res
-    } catch (err) {
-      if (text !== undefined) {
-        throw new Error(`${err} with text: ${text}`)
-      } else {
-        throw err
-      }
-    }
+    await BridgeService.deleteFile(bucketId, alreadyExists)
   }
   if (fs.existsSync(tempFile)) {
     fs.unlinkSync(tempFile)
