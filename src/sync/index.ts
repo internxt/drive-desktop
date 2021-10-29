@@ -20,7 +20,6 @@ import { app } from '@electron/remote'
   const sync = new Sync(local, remote, listingStore)
 
   sync.on('SMOKE_TESTING', () => console.log('Smoke testing'))
-  sync.on('FATAL_ERROR', name => console.error('Fatal error:', name))
   sync.on('CHECKING_LAST_RUN_OUTCOME', () =>
     console.log('Checking last run outcome')
   )
@@ -67,5 +66,9 @@ import { app } from '@electron/remote'
   sync.on('FINALIZING', () => console.log('Finalizing'))
   sync.on('DONE', result => console.log('Done, result: ', result))
 
-  await sync.run()
+  try{
+    await sync.run()
+  } catch(err) {
+    console.log("Fatal error", err)
+  }
 })()

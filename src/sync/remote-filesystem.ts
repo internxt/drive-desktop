@@ -6,7 +6,7 @@ import {
   FileSystem,
   FileSystemProgressCallback,
   Source,
-  FilesystemError
+  SyncFatalError
 } from './sync'
 import { Environment } from '@internxt/inxt-js'
 import * as uuid from 'uuid'
@@ -343,9 +343,9 @@ export function getRemoteFilesystem(baseFolderId: number): FileSystem {
     async smokeTest() {
       if (!navigator.onLine) {
         Logger.error(
-          `User had no internet connection in remote filesystem smoke test`
+          `No internet connection`
         )
-        throw new FilesystemError('NO_INTERNET')
+        throw new SyncFatalError('NO_INTERNET')
       }
 
       const res = await fetch(
@@ -357,7 +357,7 @@ export function getRemoteFilesystem(baseFolderId: number): FileSystem {
         Logger.error(
           `Tried to get base folder (${baseFolderId}) and response was not ok`
         )
-        throw new FilesystemError('NO_REMOTE_CONNECTION')
+        throw new SyncFatalError('NO_REMOTE_CONNECTION')
       }
     }
   }

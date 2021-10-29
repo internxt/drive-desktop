@@ -1,4 +1,4 @@
-import { FileSystem, FilesystemError, Listing, Source } from './sync'
+import { FileSystem, SyncFatalError, Listing, Source } from './sync'
 import * as fs from 'fs/promises'
 import glob from 'tiny-glob'
 import path from 'path'
@@ -125,7 +125,8 @@ export function getLocalFilesystem(
         Logger.error(
           `Error accessing base directory ${localPath} (${err.name}:${err.code}: ${err.message})`
         )
-        throw new FilesystemError('CANNOT_ACCESS_BASE_DIRECTORY')
+        Logger.error(err.stack)
+        throw new SyncFatalError('CANNOT_ACCESS_BASE_DIRECTORY')
       }
 
       try {
@@ -134,7 +135,8 @@ export function getLocalFilesystem(
         Logger.error(
           `Error accessing temp directory ${tempDirectory} (${err.name}:${err.code}: ${err.message})`
         )
-        throw new FilesystemError('CANNOT_ACCESS_TMP_DIRECTORY')
+        Logger.error(err.stack)
+        throw new SyncFatalError('CANNOT_ACCESS_TMP_DIRECTORY')
       }
     }
   }

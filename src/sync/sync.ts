@@ -16,21 +16,8 @@ class Sync extends EventEmitter {
   async run(): Promise<void> {
     this.emit('SMOKE_TESTING')
 
-    try {
-      await this.local.smokeTest()
-      await this.remote.smokeTest()
-    } catch (err) {
-      if (SyncFatalErrors.includes(err.name)) this.emit('FATAL_ERROR', err.name)
-      else {
-        Logger.error(
-          `An unknown error has occured in the smoke test: (${err.name}:${err.code}: ${err.message})`
-        )
-        Logger.error(err.stack)
-        this.emit('FATAL_ERROR', 'UNKNOWN')
-      }
-
-      return
-    }
+		await this.local.smokeTest()
+		await this.remote.smokeTest()
 
     this.emit('CHECKING_LAST_RUN_OUTCOME')
     const lastSavedListing = this.listingStore.getLastSavedListing()
@@ -40,10 +27,8 @@ class Sync extends EventEmitter {
     if (!lastSavedListing) return this.resync()
 
     this.emit('GENERATING_ACTIONS_NEEDED_TO_SYNC')
-    const [currentLocal, currentRemote] = await Promise.all([
-      this.local.getCurrentListing(),
-      this.remote.getCurrentListing()
-    ])
+
+		const {currentLocal, currentRemote} = await this.getCurrentListings()
 
     Logger.log('Current local before', currentLocal)
     Logger.log('Current remote before', currentRemote)
@@ -97,6 +82,7 @@ class Sync extends EventEmitter {
 
     Logger.log('Folders deleted in local', foldersDeletedInLocal)
     Logger.log('Folders deleted in remote', foldersDeletedInRemote)
+
     await Promise.all([
       this.consumeDeleteFolderQueue(foldersDeletedInRemote, this.local),
       this.consumeDeleteFolderQueue(foldersDeletedInLocal, this.remote)
@@ -108,10 +94,7 @@ class Sync extends EventEmitter {
   private async resync(): Promise<void> {
     this.emit('NEEDS_RESYNC')
 
-    const [currentLocal, currentRemote] = await Promise.all([
-      this.local.getCurrentListing(),
-      this.remote.getCurrentListing()
-    ])
+		const {currentLocal, currentRemote} = await this.getCurrentListings()
 
     Logger.log('Current local before', currentLocal)
     Logger.log('Current remote before', currentRemote)
@@ -351,6 +334,7 @@ class Sync extends EventEmitter {
         Logger.error(
           `Error renaming file in ${fileSystem.kind} ${oldName} to ${newName} (${err.name}: ${err.message})`
         )
+				Logger.error(err.stack)
         this.emit('ERROR_RENAMING_FILE', oldName, newName, fileSystem.kind)
       }
     }
@@ -373,6 +357,7 @@ class Sync extends EventEmitter {
         Logger.error(
           `Error pulling file from ${destFs.kind}, ${name} (${err.name}: ${err.message})`
         )
+				Logger.error(err.stack)
         this.emit('ERROR_PULLING_FILE', name, destFs.kind)
       }
     }
@@ -391,6 +376,7 @@ class Sync extends EventEmitter {
         Logger.error(
           `Error deleting file in ${fileSystem.kind}, ${name} (${err.name}: ${err.message})`
         )
+				Logger.error(err.stack)
         this.emit('ERROR_DELETING_FILE', name, fileSystem.kind)
       }
     }
@@ -410,6 +396,7 @@ class Sync extends EventEmitter {
         Logger.error(
           `Error deleting folder in ${fileSystem.kind}, ${name} (${err.name}: ${err.message})`
         )
+				Logger.error(err.stack)
         this.emit('ERROR_DELETING_FOLDER', name, fileSystem.kind)
       }
     }
@@ -418,22 +405,20 @@ class Sync extends EventEmitter {
   private async finalize() {
     this.emit('FINALIZING')
 
-    const [newLocal, newRemote] = await Promise.all([
-      this.local.getCurrentListing(),
-      this.remote.getCurrentListing()
-    ])
+		const {currentLocal, currentRemote} = await this.getCurrentListings()
 
-    if (_.isEqual(newLocal, newRemote)) {
-      Logger.log('Current in both:', newLocal)
+    if (_.isEqual(currentLocal, currentRemote)) {
+			const currentInBoth = currentLocal
+      Logger.log('Current in both:', currentInBoth)
 
-      this.listingStore.saveListing(newLocal)
+      this.listingStore.saveListing(currentInBoth)
 
       this.emit('DONE', { status: 'IN_SYNC' })
     } else {
-      Logger.log('Current local:', newLocal)
-      Logger.log('Current remote:', newRemote)
+      Logger.log('Current local:', currentLocal)
+      Logger.log('Current remote:', currentRemote)
 
-      const diff = this.getListingsDiff(newLocal, newRemote)
+      const diff = this.getListingsDiff(currentLocal, currentRemote)
       this.emit('DONE', { status: 'NOT_IN_SYNC', diff })
     }
   }
@@ -461,6 +446,20 @@ class Sync extends EventEmitter {
 
     return { filesNotInLocal, filesNotInRemote, filesWithDifferentModtime }
   }
+
+	private async getCurrentListings(): Promise<{currentLocal: Listing, currentRemote: Listing}> {
+		try {
+			const [currentLocal, currentRemote] = await Promise.all([
+				this.local.getCurrentListing(),
+				this.remote.getCurrentListing()
+			])
+			return {currentLocal, currentRemote}
+		} catch(err) {
+			Logger.error(`Error while getting current listing (${err.name}:${err.code}:${err.message})`)
+			Logger.error(err.stack)
+			throw new SyncFatalError('CANNOT_GET_CURRENT_LISTINGS')
+		}
+	}
 }
 
 export interface FileSystem {
@@ -584,11 +583,6 @@ interface SyncEvents {
    */
   SMOKE_TESTING: () => void
   /**
-   * Triggered when a fatal error occurs and
-   * the process must exit completely
-   */
-  FATAL_ERROR: (error: SyncFatalError) => void
-  /**
    * Triggered when the process tries to gather
    * information about the outcome of the last run
    */
@@ -703,23 +697,15 @@ type ListingsDiff = {
   filesWithDifferentModtime: string[]
 }
 
-/**
- * This way we can check if the errors thrown by filesystems
- * are between the expected and also generate a type with the
- * expected errors with no duplication
- */
-const SyncFatalErrors = [
-  'NO_INTERNET',
-  'NO_REMOTE_CONNECTION',
-  'CANNOT_ACCESS_BASE_DIRECTORY',
-  'CANNOT_ACCESS_TMP_DIRECTORY',
-  'CANNOT_GET_CURRENT_LISTINGS',
-  'UNKNOWN'
-] as const
+type SyncFatalErrorName = 
+  'NO_INTERNET' |
+  'NO_REMOTE_CONNECTION' |
+  'CANNOT_ACCESS_BASE_DIRECTORY' |
+  'CANNOT_ACCESS_TMP_DIRECTORY' |
+  'CANNOT_GET_CURRENT_LISTINGS' 
 
-type SyncFatalError = typeof SyncFatalErrors[number]
-export class FilesystemError extends Error {
-  constructor(name: SyncFatalError) {
+export class SyncFatalError extends Error {
+  constructor(name: SyncFatalErrorName) {
     super()
     this.name = name
   }

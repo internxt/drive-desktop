@@ -1,5 +1,5 @@
 import { Readable } from 'stream'
-import Sync, { Deltas, FileSystem, Listing, ListingStore } from '../sync'
+import Sync, { Deltas, FileSystem, Listing, ListingStore, SyncFatalError } from '../sync'
 
 describe('sync tests', () => {
   const mockBase: () => FileSystem = () => ({
@@ -31,7 +31,6 @@ describe('sync tests', () => {
   })
 
   function setupEventSpies(sync: Sync) {
-    const fatalErrorCB = jest.fn()
     const smokeTestingCB = jest.fn()
     const checkingLastRunCB = jest.fn()
     const needResyncCB = jest.fn()
@@ -47,7 +46,6 @@ describe('sync tests', () => {
     const finalizingCB = jest.fn()
     const doneCB = jest.fn()
 
-    sync.on('FATAL_ERROR', fatalErrorCB)
     sync.on('SMOKE_TESTING', smokeTestingCB)
     sync.on('CHECKING_LAST_RUN_OUTCOME', checkingLastRunCB)
     sync.on('NEEDS_RESYNC', needResyncCB)
@@ -65,7 +63,6 @@ describe('sync tests', () => {
 
     return {
       smokeTestingCB,
-      fatalErrorCB,
       checkingLastRunCB,
       needResyncCB,
       generatingActionsCB,
@@ -696,19 +693,36 @@ describe('sync tests', () => {
   })
 
   it('should emit a fatal error if smoke testing fails', async () => {
+    expect.assertions(1)
+
     const fsFailing = mockBase()
     const sync = new Sync(fsFailing, mockBase(), listingStore())
 
     jest.spyOn(fsFailing, 'smokeTest').mockImplementation(async () => {
-      const error = new Error()
-      error.name = 'NO_INTERNET'
-      throw error
+      throw new SyncFatalError('NO_INTERNET')
     })
 
-    const { fatalErrorCB } = setupEventSpies(sync)
+    try {
+      await sync.run()
+    } catch (err) {
+      expect(err.name).toBe('NO_INTERNET')
+    }
+  })
 
-    await sync.run()
+  it('should emit a fatal error if get current listings fails', async () => {
+    expect.assertions(1)
 
-    expect(fatalErrorCB).toBeCalledWith('NO_INTERNET')
+    const fsFailing = mockBase()
+    const sync = new Sync(fsFailing, mockBase(), listingStore())
+
+    jest.spyOn(fsFailing, 'getCurrentListing').mockImplementation(async () => {
+     throw new Error()
+    })
+
+    try {
+      await sync.run()
+    } catch (err) {
+      expect(err.name).toBe('CANNOT_GET_CURRENT_LISTINGS')
+    }
   })
 })
