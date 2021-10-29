@@ -583,6 +583,11 @@ type ListingsDiff = {
 	filesWithDifferentModtime: string[]
 }
 
+/**
+ * This way we can check if the errors thrown by filesystems
+ * are between the expected and also generate a type with the
+ * expected errors with no duplication
+ */
 const SyncFatalErrors = 
 	[	'NO_INTERNET', 
 		'NO_REMOTE_CONNECTION', 
