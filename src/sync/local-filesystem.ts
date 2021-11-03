@@ -11,6 +11,31 @@ export function getLocalFilesystem(
   localPath: string,
   tempDirectory: string
 ): FileSystem {
+
+  /**
+   * 
+   * @param actualPath OS Specific absolute path
+   * @returns Listing path relative to localPath with '/' as separator
+   */
+  function getListingPath(actualPath: string) {
+    return actualPath.split(localPath)[1].replaceAll(path.sep, '/')
+  }
+
+  /**
+   * 
+   * @param listingPath Relative to localPath with '/' as separator
+   * @returns OS Specific absolute path
+   */
+  function getActualPath(listingPath: string) {
+    const osSpecificRelative = listingPath.replaceAll('/', path.sep)
+    
+    return path.join(localPath, osSpecificRelative)
+  }
+
+  function getTempFilePath() {
+    return path.join(tempDirectory, `${uuid.v4()}.tmp`)
+  }
+
   return {
     kind: 'LOCAL',
     async getCurrentListing(): Promise<Listing> {
@@ -24,18 +49,19 @@ export function getLocalFilesystem(
       const listing: Listing = {}
 
       for (const fileName of list) {
-        const nameRelativeToBase = fileName.split(localPath)[1]
+        const relativeName = getListingPath(fileName)
 
         const { modTimeInSeconds, size } = await getLocalMeta(fileName)
 
-        if (size) listing[nameRelativeToBase] = modTimeInSeconds
+        if (size) listing[relativeName] = modTimeInSeconds
       }
       return listing
     },
 
     async deleteFile(name: string) {
+      const actualPath = getActualPath(name)
       try {
-        await fs.unlink(path.join(localPath, name))
+        await fs.unlink(actualPath)
       } catch (err) {
         if (err.code !== 'ENOENT') throw err
       }
@@ -43,7 +69,7 @@ export function getLocalFilesystem(
 
     pullFile(name: string, source: Source) {
       return new Promise((resolve, reject) => {
-        const tmpFilePath = path.join(tempDirectory, `${uuid.v4()}.tmp`)
+        const tmpFilePath = getTempFilePath()
 
         const { stream } = source
 
@@ -58,14 +84,14 @@ export function getLocalFilesystem(
         stream.on('end', async () => {
           writeStream.close()
 
-          const destPath = path.join(localPath, name)
+          const actualPath = getActualPath(name)
 
-          await fs.mkdir(path.parse(destPath).dir, { recursive: true })
+          await fs.mkdir(path.parse(actualPath).dir, { recursive: true })
 
-          await fs.rename(tmpFilePath, destPath)
+          await fs.rename(tmpFilePath, actualPath)
 
           const modTime = getDateFromSeconds(source.modTime)
-          fs.utimes(destPath, modTime, modTime)
+          fs.utimes(actualPath, modTime, modTime)
 
           resolve()
         })
@@ -74,15 +100,15 @@ export function getLocalFilesystem(
 
     renameFile(oldName: string, newName: string) {
       return fs.rename(
-        path.join(localPath, oldName),
-        path.join(localPath, newName)
+        getActualPath(oldName),
+        getActualPath(newName),
       )
     },
 
     async existsFolder(name: string): Promise<boolean> {
-      const completePath = path.join(localPath, name)
+      const actualPath = getActualPath(name)
       try {
-        await fs.access(completePath)
+        await fs.access(actualPath)
         return true
       } catch {
         return false
@@ -90,21 +116,21 @@ export function getLocalFilesystem(
     },
 
     async deleteFolder(name: string): Promise<void> {
-      const completePath = path.join(localPath, name)
+      const actualPath = getActualPath(name)
 
-      await fs.rm(completePath, { recursive: true, force: true })
+      await fs.rm(actualPath, { recursive: true, force: true })
     },
 
     async getSource(name: string): Promise<Source> {
-      const completePath = path.join(localPath, name)
+      const actualPath = getActualPath(name)
 
       const { modTimeInSeconds: modTime, size } = await getLocalMeta(
-        completePath
+        actualPath
       )
 
-      const tmpFilePath = path.join(tempDirectory, `${uuid.v4()}.tmp`)
+      const tmpFilePath = getTempFilePath()
 
-      await fs.copyFile(completePath, tmpFilePath)
+      await fs.copyFile(actualPath, tmpFilePath)
 
       const stream = createReadStream(tmpFilePath)
 
