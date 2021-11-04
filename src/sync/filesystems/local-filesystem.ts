@@ -1,10 +1,10 @@
-import { FileSystem, SyncFatalError, Listing, Source } from './sync'
+import { FileSystem, SyncFatalError, Listing, Source } from '../sync'
 import * as fs from 'fs/promises'
 import glob from 'tiny-glob'
 import path from 'path'
 import * as uuid from 'uuid'
-import { getDateFromSeconds, getLocalMeta } from './utils'
-import Logger from '../libs/logger'
+import { getDateFromSeconds, getLocalMeta } from '../utils'
+import Logger from '../../libs/logger'
 import { constants, createReadStream, createWriteStream } from 'fs'
 
 export function getLocalFilesystem(

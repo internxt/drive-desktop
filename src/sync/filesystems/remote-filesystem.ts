@@ -1,5 +1,5 @@
-import ConfigStore from '../main/config-store'
-import crypt from '../renderer/logic/crypt'
+import ConfigStore from '../../main/config-store'
+import crypt from '../../renderer/logic/crypt'
 import path from 'path'
 import {
   Listing,
@@ -7,12 +7,12 @@ import {
   FileSystemProgressCallback,
   Source,
   SyncFatalError
-} from './sync'
+} from '../sync'
 import { Environment } from '@internxt/inxt-js'
 import * as uuid from 'uuid'
-import { getDateFromSeconds, getSecondsFromDateString } from './utils'
-import Logger from '../libs/logger'
-import {getHeaders, getUser} from '../main/auth'
+import { getDateFromSeconds, getSecondsFromDateString } from '../utils'
+import Logger from '../../libs/logger'
+import {getHeaders, getUser} from '../../main/auth'
 
 /**
  * Server cannot find a file given its route,

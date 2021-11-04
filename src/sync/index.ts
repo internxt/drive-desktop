@@ -1,7 +1,7 @@
 import getListingStore from './listing-store'
 import configStore from '../main/config-store'
-import { getLocalFilesystem } from './local-filesystem'
-import { getRemoteFilesystem } from './remote-filesystem'
+import { getLocalFilesystem } from './filesystems/local-filesystem'
+import { getRemoteFilesystem } from './filesystems/remote-filesystem'
 import Sync from './sync'
 import { app } from '@electron/remote'
 
