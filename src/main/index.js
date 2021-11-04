@@ -19,7 +19,6 @@ import PackageJson from '../../package.json'
 import fetch from 'electron-fetch'
 import ConfigStore from './config-store'
 import TrayMenu from './traymenu'
-import FileLogger from '../renderer/logic/FileLogger'
 import dimentions from './window-dimentions/dimentions'
 import BackupsDB from '../backup-process/backups-db'
 import BackupStatus from '../backup-process/status'
@@ -51,7 +50,6 @@ if (process.platform === 'darwin') {
 }
 
 if (!app.requestSingleInstanceLock()) {
-  FileLogger.saveLog()
   app.quit()
 }
 
@@ -136,7 +134,6 @@ function createWindow() {
 
   app.on('user-logout', () => {
     if (settingsWindow) settingsWindow.destroy()
-    FileLogger.eraseLog()
   })
 
   app.on('update-configStore', item => {
@@ -246,11 +243,6 @@ async function appClose() {
       setTimeout(resolve, 1000)
     })
   }
-  if (ConfigStore.get('isSyncing')) {
-    await new Promise(resolve => {
-      setTimeout(resolve, 1000)
-    })
-  }
   if (mainWindow) {
     mainWindow.destroy()
   }
@@ -258,7 +250,6 @@ async function appClose() {
     trayMenu.destroy()
     trayMenu = null
   }
-  FileLogger.saveLog()
   app.quit()
 }
 
@@ -276,14 +267,6 @@ app.on('before-quit', function(evt) {
   if (trayMenu) {
     trayMenu.destroy()
   }
-})
-
-app.on('sync-on', function() {
-  trayMenu.setIsLoadingIcon(true)
-})
-
-app.on('sync-off', function() {
-  trayMenu.setIsLoadingIcon(false)
 })
 
 app.on('change-auto-launch', AutoLaunch.configureAutostart)
@@ -587,12 +570,10 @@ app.on('ready', () => {
 
   powerMonitor.on('suspend', function() {
     Logger.warn('User system suspended')
-    app.emit('sync-stop')
   })
 
   powerMonitor.on('resume', function() {
     Logger.warn('User system resumed')
-    app.emit('sync-start')
   })
 })
 

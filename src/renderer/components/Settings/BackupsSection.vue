@@ -20,9 +20,9 @@
 <script>
 import {fetchUsersBackupBucket} from '../../../backup-process/service'
 import Button from '../../components/Button/Button.vue'
-import Auth from '../../logic/utils/Auth'
 import BackupsPanel from './BackupsPanel.vue'
 import ConfigStore from '../../../main/config-store'
+import {getHeaders} from '../../../main/auth'
 
 export default {
   components: {Button, BackupsPanel},
@@ -40,7 +40,7 @@ export default {
   methods: {
     async activateBackups() {
       this.status = 'LOADING'
-      const headers = await Auth.getAuthHeader()
+      const headers = getHeaders()
       await fetch(`${process.env.API_URL}/api/backup/activate`, {
         method: 'POST',
         headers

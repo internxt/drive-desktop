@@ -58,11 +58,11 @@
 
 <script>
 import Avatar from '../Avatar/Avatar.vue'
-import database from '../../../database/index'
 import SpaceUsage from '../../logic/utils/spaceusage'
 import Button from '../Button/Button.vue'
 import bytes from 'bytes'
 import analytics from '../../logic/utils/analytics'
+import * as Auth from '../../../main/auth'
 const remote = require('@electron/remote')
 
 export default {
@@ -79,9 +79,7 @@ export default {
     }
   },
   mounted() {
-    database.Get('xUser').then(({user}) => {
-      this.user = user
-    })
+    this.user = Auth.getUser()
     remote.app.on('update-storage', data => {
       this.usage = data.usage
       this.limit = data.limit

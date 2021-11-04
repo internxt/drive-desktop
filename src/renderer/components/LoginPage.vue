@@ -1,6 +1,6 @@
 <template>
   <main class="w-full h-full flex flex-col justify-between bg-white px-6 pb-6 relative">
-    <div class="cursor-pointer absolute top-4 right-4 z-10" @click="quitApp()">
+    <div class="cursor-pointer absolute top-4 right-4 z-10" @click="quitApp">
       <UilMultiply class="mr-2 text-blue-600" />
     </div>
 
@@ -81,22 +81,17 @@
 
 <script>
 import crypt from '../logic/crypt'
-import database from '../../database'
-import fs from 'fs'
 import Logger from '../../libs/logger'
 import config from '../../config'
-import path from 'path'
 import packageConfig from '../../../package.json'
 import analytics from '../logic/utils/analytics'
 import Spinner from '../components/ExportIcons/Spinner'
 import Eye from '../components/ExportIcons/eye'
 import CrossEye from '../components/ExportIcons/cross-eye'
-import Auth from '../logic/utils/Auth'
 import { UilMultiply, UilArrowCircleUp, UilSpinnerAlt } from '@iconscout/vue-unicons'
 import OtpInput from '@bachdgvn/vue-otp-input'
+import * as Auth from '../../main/auth'
 const remote = require('@electron/remote')
-const ROOT_FOLDER_NAME = 'Internxt Drive'
-const HOME_FOLDER_PATH = remote.app.getPath('home')
 
 export default {
   name: 'login-page',
@@ -160,40 +155,6 @@ export default {
         analytics.trackRegisterViaDesktop()
       }
       this.$electron.shell.openExternal(link)
-    },
-    // selectFolder () {
-    //   const path = remote.dialog.showOpenDialog({ properties: ['openDirectory'] })
-    //   if (path && path[0]) {
-    //     this.$data.storagePath = path[0]
-    //   }
-    // },
-    isEmptyFolder(path) {
-      if (!fs.existsSync(path)) {
-        return true
-      } else {
-        const filesInFolder = fs.readdirSync(path)
-        return filesInFolder.length === 0
-      }
-    },
-    createRootFolder(folderName = ROOT_FOLDER_NAME, n = 0) {
-      const rootFolderName = folderName + (n ? ` (${n})` : '')
-      const rootFolderPath = path.join(HOME_FOLDER_PATH, rootFolderName)
-      const exist = fs.existsSync(rootFolderPath)
-
-      let isEmpty
-      if (exist) {
-        isEmpty = this.isEmptyFolder(rootFolderPath)
-      }
-
-      if (exist && !isEmpty) {
-        return this.createRootFolder(folderName, n + 1)
-      }
-
-      if (!exist) {
-        fs.mkdirSync(rootFolderPath)
-      }
-
-      return database.Set('xPath', rootFolderPath)
     },
     doLogin() {
       this.$data.isLoading = true
@@ -292,33 +253,18 @@ export default {
             }
           } else {
             res.data.user.email = this.email.toLowerCase()
-            this.createRootFolder()
-            await database.Set(
-              'xMnemonic',
-              crypt.decryptWithKey(res.data.user.mnemonic, this.$data.password)
-            )
-            const savedCredentials = await database.logIn(res.data.user.email)
-            await database.Set('xUser', res.data)
-            Auth.denormalizeAuthInfoInConfigStore()
-            await database.compactAllDatabases()
-            remote.app.emit('update-configStore', {stopSync: false})
-            // ConfigStore.set('stopSync', false)
-            // this.$router.push('/landing-page').catch(() => {})
+            const mnemonic = crypt.decryptWithKey(res.data.user.mnemonic, this.$data.password)
+
+            Auth.setCredentials(res.data.user, mnemonic, res.data.token)
+
             analytics.trackSignin({
               userId: res.data.user.uuid,
               email: res.data.user.email
             })
 
-            if (!savedCredentials) {
-              // remote.getCurrentWindow().setBounds({ width: 800, height: 500 })
-              remote.app.emit('window-pushed-to', '/onboarding')
-              this.$router.push('/onboarding').catch(() => {})
-              remote.app.emit('enter-login', false)
-            } else {
-              remote.app.emit('window-pushed-to', '/xcloud')
-              this.$router.push('/xcloud').catch(() => {})
-              remote.app.emit('enter-login', false)
-            }
+            remote.app.emit('window-pushed-to', '/xcloud')
+            this.$router.push('/xcloud').catch(() => {})
+            remote.app.emit('enter-login', false)
           }
         })
         .catch(err => {

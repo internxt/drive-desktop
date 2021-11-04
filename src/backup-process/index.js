@@ -7,12 +7,13 @@ import { createCipheriv, randomBytes } from 'crypto'
 import { pipeline } from 'stream'
 import Logger from '../libs/logger'
 import analytics from '../renderer/logic/utils/analytics'
+import * as Auth from '../main/auth'
 const archiver = require('archiver')
 const app = require('@electron/remote').app
 const { Environment } = require('@internxt/inxt-js')
 
 ;(async function main() {
-  const userInfo = ConfigStore.get('userData')
+  const userInfo = Auth.getUser()
   const mnemonic = ConfigStore.get('mnemonic')
 
   let pendingBackups
@@ -218,7 +219,7 @@ function deleteOldBackup({ bucketId, fileId }) {
     `${process.env.API_URL}/api/storage/bucket/${bucketId}/file/${fileId}`,
     {
       method: 'DELETE',
-      headers: ConfigStore.get('authHeaders')
+      headers: Auth.getHeaders()
     }
   ).then(res => res.json())
 }

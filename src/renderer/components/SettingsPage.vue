@@ -33,8 +33,6 @@
 </template>
 
 <script>
-import DeviceLock from '../logic/devicelock'
-import path from 'path'
 import SettingsHeaderItem from './Settings/SettingsHeaderItem.vue'
 import {
   UilSetting,
@@ -93,10 +91,6 @@ export default {
     remote.app.removeListener('backup-status-update', this.setBackupStatus)
   },
   methods: {
-    // Open Filelogger log (activity of uploads, downloads, etc)
-    openFileloggerLog() {
-      remote.shell.openPath(path.join(__dirname, '../../../../database/fileLogger'))
-    },
     openLinkBilling() {
       remote.shell.openExternal('https://drive.internxt.com/storage')
     },

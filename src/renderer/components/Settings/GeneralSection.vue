@@ -9,16 +9,6 @@
         />
       </div>
     </div>
-    <div class="text-gray-500 text-sm">Internxt Drive Folder</div>
-    <div class="flex flex-col mt-2">
-      <div class="flex flex-row items-center justify-between flex-grow">
-        <div class="flex items-center overflow-hidden" @dblclick="openFolder()">
-          <FileIcon icon="folder" class="mr-2" width="20" height="20" />
-          <span class="truncate">{{ this.path }}</span>
-        </div>
-        <Button @click="changeFolder">Change folder</Button>
-      </div>
-    </div>
     <div class="border-t-2 border-gray-100 mt-3 pt-3">
       <p class="text-xs font-semibold tracking-wide text-gray-600">
         Internxt Drive v{{ appVersion }}
@@ -38,12 +28,10 @@
 </template>
 
 <script>
-import fs from 'fs'
 import path from 'path'
 import ConfigStore from '../../../main/config-store'
 import DevicePanel from '../../components/Settings/DevicePanel.vue'
 import Button from '../Button/Button.vue'
-import database from '../../../database/index'
 import FileIcon from '../Icons/FileIcon.vue'
 import Checkbox from '../Icons/Checkbox.vue'
 import Logger from '../../../libs/logger'
@@ -61,56 +49,10 @@ export default {
   },
   data() {
     return {
-      path: '',
       LaunchCheck: ConfigStore.get('autoLaunch')
-
     }
   },
-  mounted() {
-    database.Get('xPath').then(path => {
-      this.$data.path = path
-    })
-  },
   methods: {
-    changeFolder() {
-      const newDir = remote.dialog.showOpenDialogSync({
-        properties: ['openDirectory'],
-        defaultPath: this.path
-      })
-      if (newDir && newDir.length > 0 && fs.existsSync(newDir[0])) {
-        if (newDir[0] === remote.app.getPath('home')) {
-          remote.app.emit(
-            'show-error',
-            'Internxt do not support syncronization of your home directory. Try to sync any of its content instead.'
-          )
-          return
-        }
-        const appDir = /linux/.test(process.platform)
-          ? remote.app.getPath('appData')
-          : path.dirname(remote.app.getPath('appData'))
-        const relative = path.relative(appDir, newDir[0])
-        if (
-          (relative &&
-            !relative.startsWith('..') &&
-            !path.isAbsolute(relative)) ||
-          appDir === newDir[0]
-        ) {
-          remote.app.emit(
-            'show-error',
-            'Internxt do not support syncronization of your appData directory or anything inside of it.'
-          )
-          return
-        }
-        analytics.trackSyncFolderChanged({
-          old_folder: this.path,
-          new_folder: newDir[0]
-        })
-        this.path = newDir[0]
-        remote.app.emit('new-folder-path', newDir[0])
-      } else {
-        Logger.info('Sync folder change error or cancelled')
-      }
-    },
     launchAtLogin() {
       this.LaunchCheck = !this.LaunchCheck
       remote.app.emit('update-configStore', { autoLaunch: this.LaunchCheck })
@@ -118,9 +60,6 @@ export default {
       analytics.trackStartInternxtOnStartup({
         launch_desktop_app_on_startup: this.LaunchCheck
       })
-    },
-    openFolder() {
-      remote.app.emit('open-folder')
     },
     openLogs() {
       try {

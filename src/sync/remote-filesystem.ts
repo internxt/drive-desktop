@@ -12,6 +12,7 @@ import { Environment } from '@internxt/inxt-js'
 import * as uuid from 'uuid'
 import { getDateFromSeconds, getSecondsFromDateString } from './utils'
 import Logger from '../libs/logger'
+import {getHeaders, getUser} from '../main/auth'
 
 /**
  * Server cannot find a file given its route,
@@ -56,8 +57,8 @@ type ServerFolder = {
 }
 
 export function getRemoteFilesystem(baseFolderId: number): FileSystem {
-  const headers = ConfigStore.get('authHeaders') as HeadersInit
-  const userInfo = ConfigStore.get('userData') as {
+  const headers = getHeaders() as HeadersInit
+  const userInfo = getUser() as {
     email: string
     userId: string
     bucket: string

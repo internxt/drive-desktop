@@ -11,16 +11,6 @@ export default new Router({
       component: () => import(/* webpackChunkName: "main-widget" */ '@/components/LoginPage.vue')
     },
     {
-      path: '/onboarding',
-      name: 'onboarding-page',
-      component: () => import(/* webpackChunkName: "main-widget" */ '@/components/OnBoarding/OnBoarding')
-    },
-    {
-      path: '/config',
-      name: 'config-page',
-      component: () => import(/* webpackChunkName: "main-widget" */ '@/components/ConfigPage')
-    },
-    {
       path: '/xcloud',
       name: 'xcloud-page',
       component: () => import(/* webpackChunkName: "main-widget" */ '@/components/XCloudPage')

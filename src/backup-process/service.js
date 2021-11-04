@@ -2,10 +2,7 @@ import macaddress from 'macaddress'
 import crypt from '../renderer/logic/crypt'
 import ConfigStore from '../main/config-store'
 import os from 'os'
-
-function getHeaders() {
-  return ConfigStore.get('authHeaders')
-}
+import {getHeaders} from '../main/auth'
 
 export async function getDeviceByMac() {
   const headers = getHeaders()
