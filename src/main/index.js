@@ -236,13 +236,6 @@ function showMainWindows(trayBounds) {
 }
 
 async function appClose() {
-  let attempts = 5
-  while (ConfigStore.get('updatingDB') && attempts > 0) {
-    attempts--
-    await new Promise(resolve => {
-      setTimeout(resolve, 1000)
-    })
-  }
   if (mainWindow) {
     mainWindow.destroy()
   }
