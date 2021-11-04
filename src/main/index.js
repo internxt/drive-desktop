@@ -263,20 +263,6 @@ app.on('before-quit', function(evt) {
 
 app.on('change-auto-launch', AutoLaunch.configureAutostart)
 
-function maybeShowWindow() {
-  if (mainWindow) {
-    mainWindow.show()
-  } else {
-    app.on('window-show', function() {
-      if (mainWindow) {
-        mainWindow.show()
-      }
-    })
-  }
-}
-
-maybeShowWindow()
-
 app.on('show-bubble', (title, content) => {
   if (trayMenu) {
     trayMenu.displayBallon(title, content)
