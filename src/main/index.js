@@ -210,7 +210,7 @@ function createWindow() {
     ]
   }
 
-  const windowMenu = Menu.setApplicationMenu(
+  Menu.setApplicationMenu(
     Menu.buildFromTemplate([process.platform === 'darwin' ? editMacOS : edit])
   )
 }
