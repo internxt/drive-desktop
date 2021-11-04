@@ -93,7 +93,6 @@ import {
   UilSlidersVAlt,
   UilHistory
 } from '@iconscout/vue-unicons'
-import 'ant-design-vue/dist/antd.css'
 import InternxtBrand from '../ExportIcons/InternxtBrand'
 import analytics from '../../logic/utils/analytics'
 import VToolTip from 'v-tooltip'
