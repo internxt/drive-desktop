@@ -26,7 +26,6 @@ import ErrorCodes from '../backup-process/error-codes'
 
 require('@electron/remote/main').initialize()
 AutoLaunch.configureAutostart()
-let isOnboarding = false
 let isLogin = false
 /**
  * Set `__static` path to static files in production
@@ -119,14 +118,11 @@ function createWindow() {
   })
 
   mainWindow.on('blur', () => {
-    if (!isLogin && !isOnboarding) mainWindow.hide()
+    if (!isLogin) mainWindow.hide()
   })
 
   app.on('app-close', appClose)
 
-  app.on('enter-onboarding', setIsOnboarding => {
-    isOnboarding = setIsOnboarding
-  })
   app.on('enter-login', setIsLogin => {
     isLogin = setIsLogin
   })
