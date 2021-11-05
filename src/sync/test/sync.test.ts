@@ -81,13 +81,13 @@ describe('sync tests', () => {
 
   function listingStore(): ListingStore {
     return {
-      getLastSavedListing() {
+      async getLastSavedListing() {
         return null
       },
-      removeSavedListing() {
+      async removeSavedListing() {
         return
       },
-      saveListing() {
+      async saveListing() {
         return
       }
     }
@@ -192,7 +192,7 @@ describe('sync tests', () => {
   it('should do a default run correctly', async () => {
     const listingStoreMocked: ListingStore = {
       ...listingStore(),
-      getLastSavedListing() {
+      async getLastSavedListing() {
         return {
           'newer/newer/different': 4,
           'newer/newer/same': 4,

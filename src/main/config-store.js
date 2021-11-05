@@ -47,10 +47,6 @@ const schema = {
   askBeforeDisablingBackup: {
     type: 'boolean',
     default: true
-  },
-  listings: {
-    type: 'object',
-    default: {}
   }
 }
 

@@ -15,7 +15,7 @@ import { app } from '@electron/remote'
   const remote = getRemoteFilesystem(remoteFolderId)
   const local = getLocalFilesystem(localPath, tmpPath)
 
-  const listingStore = getListingStore(localPath, remoteFolderId, configStore)
+  const listingStore = getListingStore(localPath, remoteFolderId)
 
   const sync = new Sync(local, remote, listingStore)
 

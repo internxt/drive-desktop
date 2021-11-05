@@ -20,7 +20,8 @@ module.exports = {
     extensions: ['.ts','.js'],
   },
   externals: {
-    "tiny-glob": "require('tiny-glob')"   
+    "tiny-glob": "require('tiny-glob')",
+    "sqlite3": "require('sqlite3')"
   },
   target: 'electron-renderer',
   plugins: [

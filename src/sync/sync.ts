@@ -20,7 +20,7 @@ class Sync extends EventEmitter {
 		await this.remote.smokeTest()
 
     this.emit('CHECKING_LAST_RUN_OUTCOME')
-    const lastSavedListing = this.listingStore.getLastSavedListing()
+    const lastSavedListing = await this.listingStore.getLastSavedListing()
 
     Logger.log('Last saved listing:', lastSavedListing)
 
@@ -53,7 +53,7 @@ class Sync extends EventEmitter {
       currentRemote
     )
 
-    this.listingStore.removeSavedListing()
+    await this.listingStore.removeSavedListing()
 
     Logger.log('Queue rename in local', renameInLocal)
     Logger.log('Queue rename in remote', renameInRemote)
@@ -411,7 +411,7 @@ class Sync extends EventEmitter {
 			const currentInBoth = currentLocal
       Logger.log('Current in both:', currentInBoth)
 
-      this.listingStore.saveListing(currentInBoth)
+      await this.listingStore.saveListing(currentInBoth)
 
       this.emit('DONE', { status: 'IN_SYNC' })
     } else {
@@ -548,16 +548,16 @@ export type ListingStore = {
    * saved the last time
    * a sync was completed or null otherwise
    */
-  getLastSavedListing(): Listing | null
+  getLastSavedListing(): Promise<Listing | null>
   /**
    * Removes the last saved listing of files
    */
-  removeSavedListing(): void
+  removeSavedListing(): Promise<void>
   /**
    * Saves a listing to be queried in
    * consecutive runs
    */
-  saveListing(listing: Listing): void
+  saveListing(listing: Listing): Promise<void>
 }
 
 /**

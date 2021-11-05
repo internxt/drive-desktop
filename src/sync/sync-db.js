@@ -52,4 +52,28 @@ function disableOne({folderId, localPath}) {
   })
 }
 
-export default { insert, get, disableOne }
+function getOne({folderId, localPath}) {
+  return new Promise((resolve, reject) => {
+    db.all(`SELECT * from sync where "folderId" = '${folderId}' and "localPath" = '${localPath}';`, (err, result) => {
+      if (err) reject(err)
+      else resolve(result)
+    })
+  })
+}
+
+function removeListing({folderId, localPath}) {
+  return new Promise((resolve, reject) => {
+    db.run(`UPDATE sync SET listing = NULL WHERE "folderId" = '${folderId}' and "localPath" = '${localPath}';`, (result, error) => {
+      if (error) { reject(error) } else { resolve(result) }
+    })
+  })
+}
+
+function saveListing({folderId, localPath, listing}) {
+  return new Promise((resolve, reject) => {
+    db.run(`UPDATE sync SET listing = '${JSON.stringify(listing)}' WHERE "folderId" = '${folderId}' and "localPath" = '${localPath}';`, (result, error) => {
+      if (error) { reject(error) } else { resolve(result) }
+    })
+  })
+}
+export default { insert, get, disableOne, getOne, removeListing, saveListing }
