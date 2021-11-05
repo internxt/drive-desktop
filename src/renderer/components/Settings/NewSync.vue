@@ -7,7 +7,7 @@
           <img :src="FolderIcon" style="margin-right: 6px" class="flex-shrink-0 w-4 h-4" />
           <p class="text-sm">{{localPath}}</p>
         </div>
-        <Button @click="browseLocal">Browse</Button>
+        <Button :state="localPath ? 'default' : 'accent'" @click="browseLocal">Browse</Button>
       </div>
     </div>
     <div v-if="step === 2">
