@@ -9,7 +9,8 @@
       py-2
       rounded-xl
       tracking-wider
-      cursor-pointer"
+      cursor-pointer
+      w-20"
     :class="{
       'text-gray-400 hover:text-gray-500': !active,
       'text-blue-600': active,

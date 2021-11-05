@@ -535,7 +535,7 @@ app.on('ready', () => {
   */
   setTimeout(startBackupProcess, 8000)
 
-  startSyncProcess()
+  // startSyncProcess()
 
   // Check updates every 6 hours
   setInterval(() => {
