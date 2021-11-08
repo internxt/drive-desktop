@@ -40,7 +40,7 @@ export function getLocalFilesystem(
     kind: 'LOCAL',
     async getCurrentListing(): Promise<Listing> {
       const list = (
-        await glob(`${localPath}/**/*`, {
+        await glob(`${localPath}**/*`, {
           filesOnly: true,
           absolute: true,
           dot: true

@@ -23,6 +23,8 @@ import dimentions from './window-dimentions/dimentions'
 import BackupsDB from '../backup-process/backups-db'
 import BackupStatus from '../backup-process/status'
 import ErrorCodes from '../backup-process/error-codes'
+import SyncDB from '../sync/sync-db'
+import locksService from '../sync/locks-service'
 
 require('@electron/remote/main').initialize()
 AutoLaunch.configureAutostart()
@@ -535,7 +537,7 @@ app.on('ready', () => {
   */
   setTimeout(startBackupProcess, 8000)
 
-  // startSyncProcess()
+  startSyncProcess()
 
   // Check updates every 6 hours
   setInterval(() => {
@@ -666,8 +668,48 @@ function notifyBackupProcessWithNoConnection() {
   })
 }
 
-function startSyncProcess() {
-  const sync = new BrowserWindow({
+let syncRunning = false
+
+async function startSyncProcess() {
+  if (syncRunning) { return }
+
+  syncRunning = true
+
+  const syncItems = await SyncDB.get()
+
+  for (const item of syncItems) {
+    await new Promise(async (resolve) => {
+      const {worker, spawn} = getSyncWorker()
+      let lockRefreshInterval
+
+      function onExit() {
+        worker.destroy()
+        clearInterval(lockRefreshInterval)
+        resolve()
+      }
+
+      ipcMain.handleOnce('getSyncDetails', () => ({...item, folderId: parseInt(item.folderId)}))
+      ipcMain.once('SYNC_FATAL_ERROR', onExit)
+      ipcMain.once('SYNC_EXIT', onExit)
+
+      try {
+        await locksService.adquireLock(item.folderId)
+        lockRefreshInterval = setInterval(() => {
+          locksService.refreshLock(item.folderId)
+            .catch(onExit)
+        }, 7000)
+        spawn()
+      } catch (_) {
+        resolve()
+      }
+    })
+  }
+
+  syncRunning = false
+}
+
+function getSyncWorker() {
+  const worker = new BrowserWindow({
     webPreferences: {
       nodeIntegration: true,
       enableRemoteModule: true,
@@ -676,11 +718,15 @@ function startSyncProcess() {
     show: false
   })
 
-  sync
-    .loadFile(
-      process.env.NODE_ENV === 'development'
-        ? '../sync/index.html'
-        : `${path.join(__dirname, '..', 'sync')}/index.html`
-    )
-    .catch(Logger.error)
+  const spawn = () => {
+    worker
+      .loadFile(
+        process.env.NODE_ENV === 'development'
+          ? '../sync/index.html'
+          : `${path.join(__dirname, '..', 'sync')}/index.html`
+      )
+      .catch(Logger.error)
+  }
+
+  return {worker, spawn}
 }

@@ -78,7 +78,7 @@ function removeListing({folderId, localPath}) {
 
 function saveListing({folderId, localPath, listing}) {
   return new Promise((resolve, reject) => {
-    db.run(`UPDATE sync SET listing = '${JSON.stringify(listing)}' WHERE "folderId" = '${folderId}' and "localPath" = '${localPath}';`, (result, error) => {
+    db.run(`UPDATE sync SET listing = '${listing}' WHERE "folderId" = '${folderId}' and "localPath" = '${localPath}';`, (result, error) => {
       if (error) { reject(error) } else { resolve(result) }
     })
   })
