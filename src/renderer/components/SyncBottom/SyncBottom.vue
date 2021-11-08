@@ -1,5 +1,5 @@
 <template>
-	<div class="absolute bottom-0 flex w-full justify-between items-center bg-white border border-t border-gray-50" style="padding: 12px">
+	<div class="absolute bottom-0 flex w-full justify-between items-center bg-white border border-t border-gray-50" style="padding: .75rem 1rem">
 		<p class="text-sm">{{status === 'RUNNING' ? 'Synchronizing your files' : ''}}</p>
 		<stop-icon v-if="status === 'RUNNING'"  class="cursor-pointer" stopButtonState="active"/>
 		<play-icon v-else @click.native="startSync" class="cursor-pointer" playButtonState="active" />
