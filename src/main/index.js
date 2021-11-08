@@ -25,6 +25,7 @@ import BackupStatus from '../backup-process/status'
 import ErrorCodes from '../backup-process/error-codes'
 import SyncDB from '../sync/sync-db'
 import locksService from '../sync/locks-service'
+import SyncStatus from '../sync/sync-status'
 
 require('@electron/remote/main').initialize()
 AutoLaunch.configureAutostart()
@@ -537,8 +538,6 @@ app.on('ready', () => {
   */
   setTimeout(startBackupProcess, 8000)
 
-  startSyncProcess()
-
   // Check updates every 6 hours
   setInterval(() => {
     checkUpdates()
@@ -668,12 +667,22 @@ function notifyBackupProcessWithNoConnection() {
   })
 }
 
-let syncRunning = false
+/** SYNC */
+
+let syncStatus = SyncStatus.STANDBY
+
+ipcMain.on('start-sync-process', startSyncProcess)
+ipcMain.handle('get-sync-status', () => syncStatus)
+
+function changeSyncStatus(newStatus) {
+  syncStatus = newStatus
+  app.emit('sync-status-changed', newStatus)
+}
 
 async function startSyncProcess() {
-  if (syncRunning) { return }
+  if (syncStatus === SyncStatus.RUNNING) { return }
 
-  syncRunning = true
+  changeSyncStatus(SyncStatus.RUNNING)
 
   const syncItems = await SyncDB.get()
 
@@ -688,7 +697,7 @@ async function startSyncProcess() {
         resolve()
       }
 
-      ipcMain.handleOnce('getSyncDetails', () => ({...item, folderId: parseInt(item.folderId)}))
+      ipcMain.handleOnce('get-sync-details', () => ({...item, folderId: parseInt(item.folderId)}))
       ipcMain.once('SYNC_FATAL_ERROR', onExit)
       ipcMain.once('SYNC_EXIT', onExit)
 
@@ -705,7 +714,7 @@ async function startSyncProcess() {
     })
   }
 
-  syncRunning = false
+  changeSyncStatus(SyncStatus.STANDBY)
 }
 
 function getSyncWorker() {

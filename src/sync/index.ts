@@ -5,7 +5,7 @@ import Sync from './sync'
 import { app } from '@electron/remote'
 import {ipcRenderer} from 'electron'
 
-  ipcRenderer.invoke('getSyncDetails').then(async ({localPath, folderId}: {localPath: string, folderId: number}) => {
+  ipcRenderer.invoke('get-sync-details').then(async ({localPath, folderId}: {localPath: string, folderId: number}) => {
     const tmpPath = app.getPath('temp')
 
     const remote = getRemoteFilesystem(folderId)
