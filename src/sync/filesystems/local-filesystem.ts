@@ -6,6 +6,7 @@ import * as uuid from 'uuid'
 import { getDateFromSeconds, getLocalMeta } from '../utils'
 import Logger from '../../libs/logger'
 import { constants, createReadStream, createWriteStream } from 'fs'
+import { stringify } from 'querystring'
 
 export function getLocalFilesystem(
   localPath: string,
@@ -30,6 +31,19 @@ export function getLocalFilesystem(
     const osSpecificRelative = listingPath.replaceAll('/', path.sep)
     
     return path.join(localPath, osSpecificRelative)
+  }
+
+  async function saferRenameFile(oldPath: string, newPath: string) {
+    try{
+      await fs.rename(oldPath, newPath)
+    } catch (err) {
+      if (err.code === 'EXDEV') {
+        await fs.copyFile(oldPath, newPath)
+        await fs.unlink(oldPath)
+      } else {
+        throw err
+      }
+    }
   }
 
   function getTempFilePath() {
@@ -89,7 +103,7 @@ export function getLocalFilesystem(
 
           await fs.mkdir(path.parse(actualPath).dir, { recursive: true })
 
-          await fs.rename(tmpFilePath, actualPath)
+          await saferRenameFile(tmpFilePath, actualPath)
 
           const modTime = getDateFromSeconds(source.modTime)
           fs.utimes(actualPath, modTime, modTime)
@@ -100,10 +114,7 @@ export function getLocalFilesystem(
     },
 
     renameFile(oldName: string, newName: string) {
-      return fs.rename(
-        getActualPath(oldName),
-        getActualPath(newName),
-      )
+      return saferRenameFile(oldName, newName)
     },
 
     async existsFolder(name: string): Promise<boolean> {
