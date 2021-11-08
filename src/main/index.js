@@ -684,34 +684,44 @@ async function startSyncProcess() {
 
   changeSyncStatus(SyncStatus.RUNNING)
 
+  let hasBeenStopped = false
+
+  ipcMain.once('stop-sync-process', () => { hasBeenStopped = true })
+
   const syncItems = await SyncDB.get()
 
   for (const item of syncItems) {
-    await new Promise(async (resolve) => {
-      const {worker, spawn} = getSyncWorker()
-      let lockRefreshInterval
+    if (!hasBeenStopped) {
+      await new Promise(async (resolve) => {
+        const {worker, spawn} = getSyncWorker()
+        let lockRefreshInterval
 
-      function onExit() {
-        worker.destroy()
-        clearInterval(lockRefreshInterval)
-        resolve()
-      }
+        function onExit() {
+          worker.destroy()
+          clearInterval(lockRefreshInterval)
+          ipcMain.removeHandler('get-sync-details')
+          ipcMain.removeListener('SYNC_FATAL_ERROR', onExit)
+          ipcMain.removeListener('SYNC_EXIT', onExit)
+          ipcMain.removeListener('stop-sync-process', onExit)
+          resolve()
+        }
 
-      ipcMain.handleOnce('get-sync-details', () => ({...item, folderId: parseInt(item.folderId)}))
-      ipcMain.once('SYNC_FATAL_ERROR', onExit)
-      ipcMain.once('SYNC_EXIT', onExit)
-
-      try {
-        await locksService.adquireLock(item.folderId)
-        lockRefreshInterval = setInterval(() => {
-          locksService.refreshLock(item.folderId)
-            .catch(onExit)
-        }, 7000)
-        spawn()
-      } catch (_) {
-        resolve()
-      }
-    })
+        try {
+          await locksService.adquireLock(item.folderId)
+          ipcMain.handle('get-sync-details', () => ({...item, folderId: parseInt(item.folderId)}))
+          ipcMain.once('SYNC_FATAL_ERROR', onExit)
+          ipcMain.once('SYNC_EXIT', onExit)
+          ipcMain.once('stop-sync-process', onExit)
+          lockRefreshInterval = setInterval(() => {
+            locksService.refreshLock(item.folderId)
+              .catch(onExit)
+          }, 7000)
+          spawn()
+        } catch (_) {
+          resolve()
+        }
+      })
+    }
   }
 
   changeSyncStatus(SyncStatus.STANDBY)
@@ -728,13 +738,15 @@ function getSyncWorker() {
   })
 
   const spawn = () => {
-    worker
-      .loadFile(
-        process.env.NODE_ENV === 'development'
-          ? '../sync/index.html'
-          : `${path.join(__dirname, '..', 'sync')}/index.html`
-      )
-      .catch(Logger.error)
+    if (!worker.isDestroyed()) {
+      worker
+        .loadFile(
+          process.env.NODE_ENV === 'development'
+            ? '../sync/index.html'
+            : `${path.join(__dirname, '..', 'sync')}/index.html`
+        )
+        .catch(Logger.error)
+    }
   }
 
   return {worker, spawn}

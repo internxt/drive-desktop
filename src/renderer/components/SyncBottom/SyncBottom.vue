@@ -1,7 +1,7 @@
 <template>
 	<div class="absolute bottom-0 flex w-full justify-between items-center bg-white border border-t border-gray-50" style="padding: .75rem 1rem">
 		<p class="text-sm">{{status === 'RUNNING' ? 'Synchronizing your files' : ''}}</p>
-		<stop-icon v-if="status === 'RUNNING'"  class="cursor-pointer" stopButtonState="active"/>
+		<stop-icon v-if="status === 'RUNNING'"  @click.native="stopSync" class="cursor-pointer" stopButtonState="active"/>
 		<play-icon v-else @click.native="startSync" class="cursor-pointer" playButtonState="active" />
 	</div>
 </template>
@@ -32,6 +32,9 @@ export default {
     },
     startSync() {
       ipcRenderer.send('start-sync-process')
+    },
+    stopSync() {
+      ipcRenderer.send('stop-sync-process')
     }
   },
   components: {
