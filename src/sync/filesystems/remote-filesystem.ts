@@ -67,17 +67,41 @@ export function getRemoteFilesystem(baseFolderId: number): FileSystem {
 
   const cache: RemoteCache = {}
 
+  async function getTree(): Promise<{
+    files: ServerFile[]
+    folders: ServerFolder[]
+  }> {
+    const PAGE_SIZE = 5000
+
+    let thereIsMore = true
+    let offset = 0
+
+    const files: ServerFile[] = []
+    const folders: ServerFolder[] = []
+
+    while (thereIsMore) {
+      const batch = await fetch(`${process.env.API_URL}/api/desktop/list/${offset}`, {
+        method: 'GET',
+        headers
+      }).then(res => res.json())
+
+      files.push(...batch.files)
+      folders.push(...batch.folders)
+
+      thereIsMore = batch.folders.length === PAGE_SIZE
+
+      if (thereIsMore)
+        offset += PAGE_SIZE
+    }
+
+    return {files, folders}
+  }
+
   return {
     kind: 'REMOTE',
 
     async getCurrentListing() {
-      const tree: {
-        files: ServerFile[]
-        folders: ServerFolder[]
-      } = await fetch(`${process.env.API_URL}/api/desktop/list/0`, {
-        method: 'GET',
-        headers
-      }).then(res => res.json())
+      const tree = await getTree()
 
       const listing: Listing = {}
 
