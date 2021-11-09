@@ -26,6 +26,7 @@ import ErrorCodes from '../backup-process/error-codes'
 import SyncDB from '../sync/sync-db'
 import locksService from '../sync/locks-service'
 import SyncStatus from '../sync/sync-status'
+import { v4 } from 'uuid'
 
 require('@electron/remote/main').initialize()
 AutoLaunch.configureAutostart()
@@ -707,17 +708,19 @@ async function startSyncProcess() {
         }
 
         try {
-          await locksService.adquireLock(item.folderId)
+          const lockId = v4()
+          await locksService.adquireLock(item.folderId, lockId)
           ipcMain.handle('get-sync-details', () => ({...item, folderId: parseInt(item.folderId)}))
           ipcMain.once('SYNC_FATAL_ERROR', onExit)
           ipcMain.once('SYNC_EXIT', onExit)
           ipcMain.once('stop-sync-process', onExit)
           lockRefreshInterval = setInterval(() => {
-            locksService.refreshLock(item.folderId)
+            locksService.refreshLock(item.folderId, lockId)
               .catch(onExit)
           }, 7000)
           spawn()
-        } catch (_) {
+        } catch (err) {
+          Logger.error('Could not adquire lock', err)
           resolve()
         }
       })
