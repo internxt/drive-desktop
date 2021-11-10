@@ -2,7 +2,7 @@
   <div>
     <new-sync v-if="showNewSync" @cancel="showNewSync = false" @finish="e => {showNewSync = false; addItem(e);}"/>
     <div v-else @click.stop="selectedItem = null">
-      <p></p>
+      <p class="text-sm">Folders you want to keep in sync</p>
       <div
       class="
         h-44

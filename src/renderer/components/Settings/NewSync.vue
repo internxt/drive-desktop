@@ -12,11 +12,16 @@
     </div>
     <div v-if="step === 2">
       <h1 class="text-gray-600">2. Select a remote folder</h1>
-      <div class="flex items-center mt-2 space-x-4 ">
-        <Button :state="popable ? 'default' : 'default-disabled'" @click="popFolder">
-          <UilArrowUp />
+      <div class="flex items-center mt-2 justify-between">
+        <div class="flex items-center space-x-4">
+          <Button :state="popable ? 'default' : 'default-disabled'" @click="popFolder">
+            <UilArrowUp />
+          </Button>
+          <p class="text-gray-600">{{remotePath}}</p>
+        </div>
+        <Button :state="loading ? 'default-disabled' : 'default'" @click="refresh">
+          Refresh
         </Button>
-        <p class="text-gray-600">{{remotePath}}</p>
       </div>
       <div
       class="
@@ -125,6 +130,10 @@ export default {
         await this.fetchFolder(currentFolder.id)
         this.folderId = currentFolder.id
       }
+    },
+    refresh() {
+      const currentFolder = this.stack[this.stack.length - 1]
+      this.fetchFolder(currentFolder.id)
     },
     finish() {
       const lastFolderInStack = this.stack[this.stack.length - 1]
