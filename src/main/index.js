@@ -703,7 +703,9 @@ async function startSyncProcess() {
           if (lockId) {
             locksService.releaseLock(item.folderId, lockId)
           }
-          clearInterval(lockRefreshInterval)
+          if (lockRefreshInterval) {
+            clearInterval(lockRefreshInterval)
+          }
           ipcMain.removeHandler('get-sync-details')
           ipcMain.removeAllListeners('SYNC_FATAL_ERROR')
           ipcMain.removeAllListeners('SYNC_EXIT')
@@ -720,14 +722,6 @@ async function startSyncProcess() {
           lockId = v4()
           app.emit('SYNC_INFO_UPDATE', {...item, action: 'ADQUIRING_LOCK'})
           await locksService.adquireLock(item.folderId, lockId)
-          app.emit('SYNC_INFO_UPDATE', {...item, action: 'STARTING'})
-          ipcMain.handle('get-sync-details', () => ({...item, folderId: parseInt(item.folderId)}))
-          ipcMain.once('SYNC_FATAL_ERROR', (_, errorName) => {
-            app.emit('SYNC_NEXT', {...item, result: {status: 'FATAL_ERROR', errorName}})
-            onExit()
-          })
-          ipcMain.once('SYNC_EXIT', onExit)
-          ipcMain.once('stop-sync-process', onUserStopped)
           lockRefreshInterval = setInterval(() => {
             locksService.refreshLock(item.folderId, lockId)
               .catch(() => {
@@ -735,6 +729,20 @@ async function startSyncProcess() {
                 onExit()
               })
           }, 7000)
+
+          app.emit('SYNC_INFO_UPDATE', {...item, action: 'STARTING'})
+
+          ipcMain.handle('get-sync-details', () => ({...item, folderId: parseInt(item.folderId)}))
+
+          ipcMain.once('SYNC_FATAL_ERROR', (_, errorName) => {
+            app.emit('SYNC_NEXT', {...item, result: {status: 'FATAL_ERROR', errorName}})
+            onExit()
+          })
+
+          ipcMain.once('SYNC_EXIT', onExit)
+
+          ipcMain.once('stop-sync-process', onUserStopped)
+
           spawn()
         } catch (err) {
           Logger.error('Could not adquire lock', err)
