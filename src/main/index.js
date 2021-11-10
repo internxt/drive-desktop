@@ -701,33 +701,47 @@ async function startSyncProcess() {
           worker.destroy()
           clearInterval(lockRefreshInterval)
           ipcMain.removeHandler('get-sync-details')
-          ipcMain.removeListener('SYNC_FATAL_ERROR', onExit)
-          ipcMain.removeListener('SYNC_EXIT', onExit)
-          ipcMain.removeListener('stop-sync-process', onExit)
+          ipcMain.removeAllListeners('SYNC_FATAL_ERROR')
+          ipcMain.removeAllListeners('SYNC_EXIT')
+          ipcMain.removeListener('stop-sync-process', onUserStopped)
           resolve()
+        }
+
+        function onUserStopped() {
+          app.emit('SYNC_NEXT', {...item, result: {status: 'STOPPED_BY_USER'}})
+          onExit()
         }
 
         try {
           const lockId = v4()
+          app.emit('SYNC_INFO_UPDATE', {...item, action: 'ADQUIRING_LOCK'})
           await locksService.adquireLock(item.folderId, lockId)
+          app.emit('SYNC_INFO_UPDATE', {...item, action: 'STARTING'})
           ipcMain.handle('get-sync-details', () => ({...item, folderId: parseInt(item.folderId)}))
-          ipcMain.once('SYNC_FATAL_ERROR', onExit)
+          ipcMain.once('SYNC_FATAL_ERROR', (_, errorName) => {
+            app.emit('SYNC_NEXT', {...item, result: {status: 'FATAL_ERROR', errorName}})
+            onExit()
+          })
           ipcMain.once('SYNC_EXIT', onExit)
-          ipcMain.once('stop-sync-process', onExit)
+          ipcMain.once('stop-sync-process', onUserStopped)
           lockRefreshInterval = setInterval(() => {
             locksService.refreshLock(item.folderId, lockId)
-              .catch(onExit)
+              .catch(() => {
+                app.emit('SYNC_NEXT', {...item, result: {status: 'COULD_NOT_ADQUIRE_LOCK'}})
+                onExit()
+              })
           }, 7000)
           spawn()
         } catch (err) {
           Logger.error('Could not adquire lock', err)
+          app.emit('SYNC_NEXT', {...item, result: {status: 'COULD_NOT_ADQUIRE_LOCK'}})
           resolve()
         }
       })
     }
   }
-
   changeSyncStatus(SyncStatus.STANDBY)
+  ipcMain.removeAllListeners('stop-sync-process')
 }
 
 function getSyncWorker() {

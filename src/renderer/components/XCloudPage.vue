@@ -5,6 +5,7 @@
     <ConnectionBanner/>
     <BackupProgress v-if="backupProgress" style="transform: translateX(-50%)" class="absolute bottom-14 left-1/2 w-11/12" :progress="backupProgress"/>
     <Dialog v-if="$store.state.ui.settingsDialog"/>
+    <sync-info/>
     <sync-bottom />
   </div>
 </template>
@@ -18,6 +19,7 @@ import BackupErrorBanner from './BackupErrorBanner/BackupErrorBanner.vue'
 import BackupStatus from '../../backup-process/status'
 import ConnectionBanner from './ConnectionBanner/ConnectionBanner.vue'
 import SyncBottom from './SyncBottom/SyncBottom.vue'
+import SyncInfo from './SyncInfo/SyncInfo.vue'
 import * as Auth from '../../main/auth'
 import {ipcRenderer} from 'electron'
 
@@ -31,7 +33,8 @@ export default {
     BackupErrorBanner,
     ConnectionBanner,
     Dialog,
-    SyncBottom
+    SyncBottom,
+    SyncInfo
   },
 
   data() {

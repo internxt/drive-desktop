@@ -6,7 +6,6 @@ import * as uuid from 'uuid'
 import { getDateFromSeconds, getLocalMeta } from '../utils'
 import Logger from '../../libs/logger'
 import { constants, createReadStream, createWriteStream } from 'fs'
-import { stringify } from 'querystring'
 
 export function getLocalFilesystem(
   localPath: string,
