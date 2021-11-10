@@ -718,6 +718,8 @@ async function startSyncProcess() {
           onExit()
         }
 
+        ipcMain.once('stop-sync-process', onUserStopped)
+
         try {
           lockId = v4()
           app.emit('SYNC_INFO_UPDATE', {...item, action: 'ADQUIRING_LOCK'})
@@ -740,8 +742,6 @@ async function startSyncProcess() {
           })
 
           ipcMain.once('SYNC_EXIT', onExit)
-
-          ipcMain.once('stop-sync-process', onUserStopped)
 
           spawn()
         } catch (err) {
