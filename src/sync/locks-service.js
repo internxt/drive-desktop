@@ -11,4 +11,8 @@ async function refreshLock(folderId, lockId) {
   if (!res.ok) { throw new Error(`Lock could not be refreshed, status: ${res.status}`) }
 }
 
-export default {adquireLock, refreshLock}
+async function releaseLock(folderId, lockId) {
+  await fetch(`${process.env.API_URL}/api/storage/folder/${folderId}/lock/${lockId}`, {method: 'DELETE', headers: getHeaders()})
+}
+
+export default {adquireLock, refreshLock, releaseLock}

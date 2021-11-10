@@ -696,9 +696,13 @@ async function startSyncProcess() {
       await new Promise(async (resolve) => {
         const {worker, spawn} = getSyncWorker()
         let lockRefreshInterval
+        let lockId
 
         function onExit() {
           worker.destroy()
+          if (lockId) {
+            locksService.releaseLock(item.folderId, lockId)
+          }
           clearInterval(lockRefreshInterval)
           ipcMain.removeHandler('get-sync-details')
           ipcMain.removeAllListeners('SYNC_FATAL_ERROR')
@@ -713,7 +717,7 @@ async function startSyncProcess() {
         }
 
         try {
-          const lockId = v4()
+          lockId = v4()
           app.emit('SYNC_INFO_UPDATE', {...item, action: 'ADQUIRING_LOCK'})
           await locksService.adquireLock(item.folderId, lockId)
           app.emit('SYNC_INFO_UPDATE', {...item, action: 'STARTING'})
