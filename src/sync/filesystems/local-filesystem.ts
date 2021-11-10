@@ -113,7 +113,9 @@ export function getLocalFilesystem(
     },
 
     renameFile(oldName: string, newName: string) {
-      return saferRenameFile(oldName, newName)
+      const oldActualPath = getActualPath(oldName)
+      const newActualPath = getActualPath(newName)
+      return saferRenameFile(oldActualPath, newActualPath)
     },
 
     async existsFolder(name: string): Promise<boolean> {
