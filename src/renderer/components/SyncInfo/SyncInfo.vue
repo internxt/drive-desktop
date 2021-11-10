@@ -13,7 +13,7 @@
 			</div>
 			<p class="text-xs text-gray-400">{{currentItemStatus}}</p>
 		</div>	
-		<div v-if="doneItems.length" class="flex items-center justify-between mb-3 pt-2">
+		<div v-if="doneItems.length" class="flex items-center justify-between mb-3">
 			<p class="text-gray-500 text-sm sticky top-0 bg-gray-50">Finalized</p>
 			<p class="text-gray-500 font-bold text-xs cursor-pointer" @click="clear">Clear</p>
 		</div>
