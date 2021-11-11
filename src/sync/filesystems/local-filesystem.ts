@@ -132,10 +132,10 @@ export function getLocalFilesystem(
       }
     },
 
-    async deleteFolder(name: string): Promise<void> {
+    deleteFolder(name: string): Promise<void> {
       const actualPath = getActualPath(name)
 
-      await fs.rm(actualPath, { recursive: true, force: true })
+      return fs.rm(actualPath, { recursive: true, force: true })
     },
 
     async getSource(name: string): Promise<Source> {
