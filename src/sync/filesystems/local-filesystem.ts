@@ -96,18 +96,22 @@ export function getLocalFilesystem(
         stream.on('error', reject)
 
         stream.on('end', async () => {
-          writeStream.close()
+          try{
+            writeStream.close()
 
-          const actualPath = getActualPath(name)
+            const actualPath = getActualPath(name)
 
-          await fs.mkdir(path.parse(actualPath).dir, { recursive: true })
+            await fs.mkdir(path.parse(actualPath).dir, { recursive: true })
 
-          await saferRenameFile(tmpFilePath, actualPath)
+            await saferRenameFile(tmpFilePath, actualPath)
 
-          const modTime = getDateFromSeconds(source.modTime)
-          fs.utimes(actualPath, modTime, modTime)
+            const modTime = getDateFromSeconds(source.modTime)
+            fs.utimes(actualPath, modTime, modTime)
 
-          resolve()
+            resolve()
+          } catch (err){
+            reject(err)
+          }
         })
       })
     },
