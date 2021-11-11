@@ -5,7 +5,7 @@
       <div class="flex items-center mt-2 space-x-2">
         <div v-if="localPath" class="flex items-center">
           <img :src="FolderIcon" style="margin-right: 6px" class="flex-shrink-0 w-4 h-4" />
-          <p class="text-sm">{{localPath}}</p>
+          <p class="text-sm">{{localPath | truncatePath}}</p>
         </div>
         <Button :state="localPath ? 'default' : 'accent'" @click="browseLocal">Browse</Button>
       </div>
@@ -17,7 +17,7 @@
           <Button :state="popable ? 'default' : 'default-disabled'" @click="popFolder">
             <UilArrowUp />
           </Button>
-          <p class="text-gray-600">{{remotePath}}</p>
+          <p class="text-gray-600">{{remotePath | truncatePath}}</p>
         </div>
         <Button :state="loading ? 'default-disabled' : 'default'" @click="refresh">
           Refresh
@@ -78,6 +78,7 @@ import {
 } from '@iconscout/vue-unicons'
 import FolderIcon from '../../assets/icons/apple/folder.svg'
 import path from 'path'
+import {truncatePath} from '../../../renderer/logic/utils/path'
 const remote = require('@electron/remote')
 
 export default {
@@ -161,6 +162,11 @@ export default {
     },
     popable() {
       return this.stack.length > 1
+    }
+  },
+  filters: {
+    truncatePath(path) {
+      return truncatePath(path, 38)
     }
   }
 }

@@ -4,12 +4,12 @@
 		<div class="flex flex-col space-y-2 mb-3" v-if="currentItem">
 			<div class="flex items-center space-x-2">
 				<UilFolder class="text-blue-500"/>
-				<p class="text-xs">{{currentItem.localPath}}</p>
+				<p class="text-xs">{{currentItem.localPath | truncatePath}}</p>
 			</div>
 
 			<div class="flex items-center space-x-2">
 				<UilCloud class="text-blue-500"/>
-				<p class="text-xs">{{currentItem.remotePath}}</p>
+				<p class="text-xs">{{currentItem.remotePath | truncatePath}}</p>
 			</div>
 			<p class="text-xs text-gray-400">{{currentItemStatus}}</p>
 		</div>	
@@ -21,11 +21,11 @@
 			<div v-for="item in doneItems" class="flex flex-col space-y-2" :key="item.remotePath + item.localPath">
 				<div class="flex items-center space-x-2">
 					<UilFolder/>
-					<p class="text-xs">{{item.localPath}}</p>
+					<p class="text-xs">{{item.localPath | truncatePath}}</p>
 				</div>
 				<div class="flex items-center space-x-2">
 					<UilCloud/>
-					<p class="text-xs">{{item.remotePath}}</p>
+					<p class="text-xs">{{item.remotePath | truncatePath}}</p>
 				</div>
 				<p v-if="item.result.status === 'IN_SYNC'" class="text-xs text-green-700">In sync</p>
 				<div v-else-if="item.result.status === 'NOT_IN_SYNC'" class="flex items-center justify-between">
@@ -53,6 +53,7 @@ import {
   UilFolder,
   UilCloud
 } from '@iconscout/vue-unicons'
+import {truncatePath} from '../../../renderer/logic/utils/path'
 const app = require('@electron/remote').app
 
 export default {
@@ -119,6 +120,11 @@ export default {
       if (action === 'ADQUIRING_LOCK') { return 'Checking that other device is not syncing this folder' } else if (action === 'STARTING') { return 'Starting the sync process' } else if (action === 'PULL') {
         if (kind === 'REMOTE') { return `Uploading file ${name} (${(progress * 100).toFixed(2)}%)` } else { return `Downloading file ${name} (${(progress * 100).toFixed(2)}%)` }
       } else if (action === 'RENAME') { return `Renaming file ${name}` } else if (action === 'DELETE') { return `Deleting ${name} in ${kind === 'REMOTE' ? 'Internxt drive' : 'local'}` } else if (action === 'FINALIZE') { return `Finalizing` } else { return '' }
+    }
+  },
+  filters: {
+    truncatePath(path) {
+      return truncatePath(path, 50)
     }
   }
 }
