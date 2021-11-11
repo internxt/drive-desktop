@@ -685,75 +685,80 @@ async function startSyncProcess() {
 
   changeSyncStatus(SyncStatus.RUNNING)
 
-  let hasBeenStopped = false
+  // It's an object to pass it to
+  // the individual item processors
+  const hasBeenStopped = {value: false}
 
-  ipcMain.once('stop-sync-process', () => { hasBeenStopped = true })
+  ipcMain.once('stop-sync-process', () => { hasBeenStopped.value = true })
 
   const syncItems = await SyncDB.get()
 
   for (const item of syncItems) {
-    if (!hasBeenStopped) {
-      await new Promise(async (resolve) => {
-        const {worker, spawn} = getSyncWorker()
-        let lockRefreshInterval
-        let lockId
-
-        function onExit() {
-          worker.destroy()
-          if (lockId) {
-            locksService.releaseLock(item.folderId, lockId)
-          }
-          if (lockRefreshInterval) {
-            clearInterval(lockRefreshInterval)
-          }
-          ipcMain.removeHandler('get-sync-details')
-          ipcMain.removeAllListeners('SYNC_FATAL_ERROR')
-          ipcMain.removeAllListeners('SYNC_EXIT')
-          ipcMain.removeListener('stop-sync-process', onUserStopped)
-          resolve()
-        }
-
-        function onUserStopped() {
-          app.emit('SYNC_NEXT', {...item, result: {status: 'STOPPED_BY_USER'}})
-          onExit()
-        }
-
-        ipcMain.once('stop-sync-process', onUserStopped)
-
-        try {
-          lockId = v4()
-          app.emit('SYNC_INFO_UPDATE', {...item, action: 'ADQUIRING_LOCK'})
-          await locksService.adquireLock(item.folderId, lockId)
-          lockRefreshInterval = setInterval(() => {
-            locksService.refreshLock(item.folderId, lockId)
-              .catch(() => {
-                app.emit('SYNC_NEXT', {...item, result: {status: 'COULD_NOT_ADQUIRE_LOCK'}})
-                onExit()
-              })
-          }, 7000)
-
-          app.emit('SYNC_INFO_UPDATE', {...item, action: 'STARTING'})
-
-          ipcMain.handle('get-sync-details', () => ({...item, folderId: parseInt(item.folderId)}))
-
-          ipcMain.once('SYNC_FATAL_ERROR', (_, errorName) => {
-            app.emit('SYNC_NEXT', {...item, result: {status: 'FATAL_ERROR', errorName}})
-            onExit()
-          })
-
-          ipcMain.once('SYNC_EXIT', onExit)
-
-          spawn()
-        } catch (err) {
-          Logger.error('Could not adquire lock', err)
-          app.emit('SYNC_NEXT', {...item, result: {status: 'COULD_NOT_ADQUIRE_LOCK'}})
-          resolve()
-        }
-      })
+    if (!hasBeenStopped.value) {
+      await processSyncItem(item, hasBeenStopped)
     }
   }
   changeSyncStatus(SyncStatus.STANDBY)
   ipcMain.removeAllListeners('stop-sync-process')
+}
+
+function processSyncItem(item, hasBeenStopped) {
+  return new Promise(async (resolve) => {
+    const onExitFuncs = []
+
+    function onExit(reason, errorName) {
+      Logger.log('onSyncExit, reason: ', reason, 'errorName:', errorName)
+      onExitFuncs.forEach(f => f())
+      if (reason) {
+        app.emit('SYNC_NEXT', {...item, result: {status: reason, errorName}})
+      }
+      resolve()
+    }
+
+    app.emit('SYNC_INFO_UPDATE', {...item, action: 'ADQUIRING_LOCK'})
+
+    try {
+      const lockId = v4()
+      await locksService.adquireLock(item.folderId, lockId)
+      onExitFuncs.push(() => locksService.releaseLock(item.folderId, lockId))
+
+      const lockRefreshInterval = setInterval(() => {
+        locksService.refreshLock(item.folderId, lockId)
+          .catch(() => {
+            onExit('COULD_NOT_ADQUIRE_LOCK')
+          })
+      }, 7000)
+      onExitFuncs.push(() => clearInterval(lockRefreshInterval))
+
+      // So the interval is cleared before the lock is released
+      onExitFuncs.reverse()
+    } catch (err) {
+      Logger.error('Could not adquire lock', err)
+      onExit('COULD_NOT_ADQUIRE_LOCK')
+    }
+
+    if (hasBeenStopped.value) { return onExit('STOPPED_BY_USER') }
+
+    app.emit('SYNC_INFO_UPDATE', {...item, action: 'STARTING'})
+
+    ipcMain.handle('get-sync-details', () => ({...item, folderId: parseInt(item.folderId)}))
+    onExitFuncs.push(() => ipcMain.removeHandler('get-sync-details'))
+
+    ipcMain.once('SYNC_FATAL_ERROR', (_, errorName) => onExit('FATAL_ERROR', errorName))
+    onExitFuncs.push(() => ipcMain.removeAllListeners('SYNC_FATAL_ERROR'))
+
+    ipcMain.once('SYNC_EXIT', () => onExit())
+    onExitFuncs.push(() => ipcMain.removeAllListeners('SYNC_EXIT'))
+
+    const worker = getSyncWorker()
+    onExitFuncs.push(() => worker.destroy())
+
+    if (hasBeenStopped.value) { return onExit('STOPPED_BY_USER') }
+
+    const onUserStopped = () => onExit('STOPPED_BY_USER')
+    ipcMain.once('stop-sync-process', onUserStopped)
+    onExitFuncs.push(() => ipcMain.removeListener('stop-sync-process', onUserStopped))
+  })
 }
 
 function getSyncWorker() {
@@ -766,17 +771,13 @@ function getSyncWorker() {
     show: false
   })
 
-  const spawn = () => {
-    if (!worker.isDestroyed()) {
-      worker
-        .loadFile(
-          process.env.NODE_ENV === 'development'
-            ? '../sync/index.html'
-            : `${path.join(__dirname, '..', 'sync')}/index.html`
-        )
-        .catch(Logger.error)
-    }
-  }
+  worker
+    .loadFile(
+      process.env.NODE_ENV === 'development'
+        ? '../sync/index.html'
+        : `${path.join(__dirname, '..', 'sync')}/index.html`
+    )
+    .catch(Logger.error)
 
-  return {worker, spawn}
+  return worker
 }

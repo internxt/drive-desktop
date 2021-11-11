@@ -2,7 +2,8 @@
 	<div class="flex w-full justify-between items-center bg-white border border-t border-gray-50" style="padding: .75rem 1rem">
 		<p class="text-sm">{{status === 'RUNNING' ? 'Synchronizing your files' : ''}}</p>
 		<stop-icon v-if="status === 'RUNNING'"  @click.native="stopSync" class="cursor-pointer" stopButtonState="active"/>
-		<play-icon v-else @click.native="startSync" class="cursor-pointer" playButtonState="active" />
+		<play-icon v-else-if="status === 'STANDBY'" @click.native="startSync" class="cursor-pointer" playButtonState="active" />
+    <Spinner v-else/>
 	</div>
 </template>
 
@@ -10,10 +11,16 @@
 import { ipcRenderer } from 'electron'
 import PlayIcon from '../ExportIcons/PlayIcon.vue'
 import StopIcon from '../ExportIcons/StopIcon.vue'
+import Spinner from '../ExportIcons/Spinner.vue'
 import syncStatus from '../../../sync/sync-status'
 const remote = require('@electron/remote')
 
 export default {
+  components: {
+    PlayIcon,
+    StopIcon,
+    Spinner
+  },
   data() {
     return {
       status: syncStatus.STANDBY
@@ -35,11 +42,8 @@ export default {
     },
     stopSync() {
       ipcRenderer.send('stop-sync-process')
+      this.status = null
     }
-  },
-  components: {
-    PlayIcon,
-    StopIcon
   }
 }
 </script>
