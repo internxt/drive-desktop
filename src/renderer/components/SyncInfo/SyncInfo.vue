@@ -117,7 +117,7 @@ export default {
 
       const {action, kind, progress, name} = this.currentItem
 
-      if (action === 'ADQUIRING_LOCK') { return 'Checking that other device is not syncing this folder' } else if (action === 'STARTING') { return 'Starting the sync process' } else if (action === 'PULL') {
+      if (action === 'ACQUIRING_LOCK') { return 'Checking that other device is not syncing this folder' } else if (action === 'STARTING') { return 'Starting the sync process' } else if (action === 'PULL') {
         if (kind === 'REMOTE') { return `Uploading file ${name} (${(progress * 100).toFixed(2)}%)` } else { return `Downloading file ${name} (${(progress * 100).toFixed(2)}%)` }
       } else if (action === 'RENAME') { return `Renaming file ${name}` } else if (action === 'DELETE') { return `Deleting ${name} in ${kind === 'REMOTE' ? 'Internxt drive' : 'local'}` } else if (action === 'FINALIZE') { return `Finalizing` } else { return '' }
     }

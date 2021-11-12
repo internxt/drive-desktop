@@ -715,7 +715,7 @@ function processSyncItem(item, hasBeenStopped) {
       resolve()
     }
 
-    app.emit('SYNC_INFO_UPDATE', {...item, action: 'ADQUIRING_LOCK'})
+    app.emit('SYNC_INFO_UPDATE', {...item, action: 'ACQUIRING_LOCK'})
 
     try {
       const lockId = v4()
