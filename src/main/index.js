@@ -750,7 +750,7 @@ function processSyncItem(item, hasBeenStopped) {
     ipcMain.once('SYNC_EXIT', () => onExit())
     onExitFuncs.push(() => ipcMain.removeAllListeners('SYNC_EXIT'))
 
-    const worker = getSyncWorker()
+    const worker = spawnSyncWorker()
     onExitFuncs.push(() => worker.destroy())
 
     if (hasBeenStopped.value) { return onExit('STOPPED_BY_USER') }
@@ -761,7 +761,7 @@ function processSyncItem(item, hasBeenStopped) {
   })
 }
 
-function getSyncWorker() {
+function spawnSyncWorker() {
   const worker = new BrowserWindow({
     webPreferences: {
       nodeIntegration: true,
