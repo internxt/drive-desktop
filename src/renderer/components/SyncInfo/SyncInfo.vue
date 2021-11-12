@@ -34,7 +34,7 @@
 				</div>
 				<p v-else-if="item.result.status === 'STOPPED_BY_USER'" class="text-xs text-yellow-700">Forced to stop</p>
 				<p v-else-if="item.result.status === 'FATAL_ERROR'" class="text-xs text-red-700">{{getErrorMessage(item)}}</p>
-				<p v-else-if="item.result.status === 'COULD_NOT_ADQUIRE_LOCK'" class="text-xs text-yellow-700">Other device is already syncing this folder</p>
+				<p v-else-if="item.result.status === 'COULD_NOT_ACQUIRE_LOCK'" class="text-xs text-yellow-700">Other device is already syncing this folder</p>
 				<div v-if="item.seeDetails && item.result.diff">
 					<p v-if="item.result.diff.filesNotInLocal.length" class="text-sm">Files in remote that are not in local</p>
 					<p class="text-xs text-gray-600 mt-2" v-for="file in item.result.diff.filesNotInLocal" :key="file" >{{file}}</p>

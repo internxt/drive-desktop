@@ -1,9 +1,9 @@
 import {getHeaders} from '../main/auth'
 import fetch from 'electron-fetch'
 
-async function adquireLock(folderId, lockId) {
+async function acquireLock(folderId, lockId) {
   const res = await fetch(`${process.env.API_URL}/api/storage/folder/${folderId}/lock/${lockId}`, {method: 'POST', headers: getHeaders()})
-  if (!res.ok) { throw new Error(`Lock could not be adquired, status: ${res.status}`) }
+  if (!res.ok) { throw new Error(`Lock could not be acquired, status: ${res.status}`) }
 }
 
 async function refreshLock(folderId, lockId) {
@@ -15,4 +15,4 @@ async function releaseLock(folderId, lockId) {
   await fetch(`${process.env.API_URL}/api/storage/folder/${folderId}/lock/${lockId}`, {method: 'DELETE', headers: getHeaders()})
 }
 
-export default {adquireLock, refreshLock, releaseLock}
+export default {acquireLock, refreshLock, releaseLock}

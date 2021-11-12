@@ -719,13 +719,13 @@ function processSyncItem(item, hasBeenStopped) {
 
     try {
       const lockId = v4()
-      await locksService.adquireLock(item.folderId, lockId)
+      await locksService.acquireLock(item.folderId, lockId)
       onExitFuncs.push(() => locksService.releaseLock(item.folderId, lockId))
 
       const lockRefreshInterval = setInterval(() => {
         locksService.refreshLock(item.folderId, lockId)
           .catch(() => {
-            onExit('COULD_NOT_ADQUIRE_LOCK')
+            onExit('COULD_NOT_ACQUIRE_LOCK')
           })
       }, 7000)
       onExitFuncs.push(() => clearInterval(lockRefreshInterval))
@@ -733,8 +733,8 @@ function processSyncItem(item, hasBeenStopped) {
       // So the interval is cleared before the lock is released
       onExitFuncs.reverse()
     } catch (err) {
-      Logger.error('Could not adquire lock', err)
-      onExit('COULD_NOT_ADQUIRE_LOCK')
+      Logger.error('Could not acquire lock', err)
+      onExit('COULD_NOT_ACQUIRE_LOCK')
     }
 
     if (hasBeenStopped.value) { return onExit('STOPPED_BY_USER') }
