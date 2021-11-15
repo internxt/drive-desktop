@@ -668,7 +668,7 @@ function notifyBackupProcessWithNoConnection() {
   })
 }
 
-/** SYNC */
+/** SYNC **/
 
 let syncStatus = SyncStatus.STANDBY
 
