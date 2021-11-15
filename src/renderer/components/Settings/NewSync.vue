@@ -11,7 +11,12 @@
       </div>
     </div>
     <div v-if="step === 2">
-      <h1 class="text-gray-600">2. Select a remote folder</h1>
+      <div class="flex items-center justify-between">
+        <h1 class="text-gray-600">2. Select a remote folder</h1>
+        <Button :state="loading ? 'default-disabled' : 'default'" @click="refresh">
+          Refresh
+        </Button>
+      </div>
       <div class="flex items-center mt-2 justify-between">
         <div class="flex items-center space-x-4">
           <Button :state="popable ? 'default' : 'default-disabled'" @click="popFolder">
@@ -19,8 +24,8 @@
           </Button>
           <p class="text-gray-600">{{remotePath | truncatePath}}</p>
         </div>
-        <Button :state="loading ? 'default-disabled' : 'default'" @click="refresh">
-          Refresh
+        <Button :state="creatingFolder ? 'default-disabled' : 'default'" @click="createFolder">
+          <UilFolderPlus />
         </Button>
       </div>
       <div
@@ -37,6 +42,15 @@
         <content-placeholders-text v-for="i in 4" :lines="1" :key="i" />
       </content-placeholders>
       <div v-else class="h-full">
+        <div
+          v-if="creatingFolder"
+          class="flex items-center justify-between px-2 py-1 max-w-full bg-gray-50"
+        >
+          <div class="flex items-center overflow-hidden">
+            <img :src="FolderIcon" style="margin-right: 6px" class="flex-shrink-0 w-4 h-4" />
+            <input class="outline-none" @keyup.enter="onCreatingFolderBlur" @blur="onCreatingFolderBlur" v-model="newFolderName" ref="newFolderInput" type="text" />
+          </div>
+        </div>
         <div
           v-for="(item, i) in items"
           :key="item.id"
@@ -74,15 +88,17 @@ import Button from '../Button/Button.vue'
 import fs from 'fs'
 import {getUser, getHeaders} from '../../../main/auth'
 import {
-  UilArrowUp
+  UilArrowUp,
+  UilFolderPlus
 } from '@iconscout/vue-unicons'
 import FolderIcon from '../../assets/icons/apple/folder.svg'
 import path from 'path'
 import {truncatePath} from '../../../renderer/logic/utils/path'
+import crypt from '../../logic/crypt'
 const remote = require('@electron/remote')
 
 export default {
-  components: {Button, UilArrowUp},
+  components: {Button, UilArrowUp, UilFolderPlus},
   data() {
     return {
       step: 1,
@@ -91,6 +107,8 @@ export default {
       folderId: null,
       loading: false,
       items: null,
+      creatingFolder: false,
+      newFolderName: '',
       FolderIcon
     }
   },
@@ -148,6 +166,34 @@ export default {
       const localPath = this.localPath + path.sep
 
       this.$emit('finish', {folderId: this.folderId, localPath, remotePath: finalRemotePath})
+    },
+    createFolder() {
+      this.creatingFolder = true
+      this.$nextTick(() => this.$refs.newFolderInput.focus())
+    },
+    async onCreatingFolderBlur() {
+      if (!this.creatingFolder) {
+        return
+      }
+
+      this.creatingFolder = false
+      this.loading = true
+      const newFolderParentId = this.stack[this.stack.length - 1].id
+      const newFolder = await fetch(
+        `${process.env.API_URL}/api/storage/folder`,
+        {
+          method: 'POST',
+          headers: getHeaders(),
+          body: JSON.stringify({
+            folderName: this.newFolderName,
+            parentFolderId: newFolderParentId
+          })
+        }
+      ).then(res => res.json())
+      newFolder.name = crypt.decryptName(newFolder.name, newFolderParentId)
+      this.items = [newFolder, ...this.items]
+      this.loading = false
+      this.newFolderName = ''
     }
   },
   computed: {
