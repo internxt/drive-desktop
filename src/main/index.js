@@ -745,7 +745,7 @@ function processSyncItem(item, hasBeenStopped) {
       // So the interval is cleared before the lock is released
       onExitFuncs.reverse()
     } catch (err) {
-      onAcquireLockError(err)
+      return onAcquireLockError(err)
     }
 
     if (hasBeenStopped.value) { return onExit('STOPPED_BY_USER') }
