@@ -35,6 +35,7 @@
     "files": [
       "dist/electron/**/*",
       "dist/backup-process/**/*",
+      "dist/sync/**/*",
       "src/resources/**/*"
     ],
     "publish": {
