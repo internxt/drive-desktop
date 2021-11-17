@@ -9,7 +9,7 @@ async function _getStorjCredentials() {
 
   const options = {
     bridgeUrl: 'https://api.internxt.com',
-    bridgeUser: userInfo.email,
+    bridgeUser: userInfo.bridgeUser,
     bridgePass: userInfo.userId,
     encryptionKey: mnemonic
   }
