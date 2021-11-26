@@ -199,7 +199,7 @@ async function upload({
     environment.upload(
       backup.bucket,
       {
-        filename: randomBytes(24).toString(),
+        name: randomBytes(24).toString(),
         progressCallback,
         finishedCallback: (err, response) => {
           if (err) reject(err)
@@ -208,7 +208,7 @@ async function upload({
       },
       {
         label: 'OneStreamOnly',
-        params: { source: { stream: zipStream, hash: encryptedHash, size } }
+        params: { source: { stream: zipStream, hash: encryptedHash, size }, useProxy: false, concurrency: 1 }
       }
     )
   })

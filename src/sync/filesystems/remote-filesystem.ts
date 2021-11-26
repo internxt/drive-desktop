@@ -13,6 +13,7 @@ import * as uuid from 'uuid'
 import { getDateFromSeconds, getSecondsFromDateString } from '../utils'
 import Logger from '../../libs/logger'
 import {getHeaders, getUser} from '../../main/auth'
+import { Readable } from 'stream'
 
 /**
  * Server cannot find a file given its route,
@@ -249,9 +250,9 @@ export function getRemoteFilesystem(baseFolderId: number): FileSystem {
         localUpload.upload(
           bucket,
           {
-            filename: uuid.v4(),
+            name: uuid.v4(),
             progressCallback,
-            finishedCallback: (err, fileId) => {
+            finishedCallback: (err: any, fileId: string) => {
               if (err) reject(err)
               else resolve(fileId)
             }
@@ -259,7 +260,9 @@ export function getRemoteFilesystem(baseFolderId: number): FileSystem {
           {
             label: 'OneStreamOnly',
             params: {
-              source
+              source,
+              useProxy: false,
+              concurrency:10 
             }
           }
         )
@@ -341,15 +344,13 @@ export function getRemoteFilesystem(baseFolderId: number): FileSystem {
         encryptionKey: mnemonic
       })
 
-      environment.config.download = { concurrency: 10 }
-
       return new Promise((resolve, reject) => {
         environment.download(
           fileInCache.bucket,
           fileInCache.fileId,
           {
             progressCallback,
-            finishedCallback: (err, downloadStream) => {
+            finishedCallback: (err: any, downloadStream: Readable) => {
               if (err) reject(err)
               else {
                 resolve({
@@ -360,7 +361,11 @@ export function getRemoteFilesystem(baseFolderId: number): FileSystem {
               }
             }
           },
-          { label: 'OneStreamOnly', params: {} }
+          { label: 'OneStreamOnly', params: {
+              useProxy: false,
+              concurrency: 10 
+            } 
+          }
         )
       })
     },
