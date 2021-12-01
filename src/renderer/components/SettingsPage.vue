@@ -1,39 +1,59 @@
 <template>
   <div ref="rootElement" class="relative">
     <div class="relative bg-white p-1 h-6" style="-webkit-app-region: drag">
-      <div v-if="!isMacOS" class="w-min" @click="closeWindow" style="-webkit-app-region: no-drag">
-        <UilMultiply class="hover:text-gray-500 block"/>
+      <div
+        v-if="!isMacOS"
+        class="w-min"
+        @click="closeWindow"
+        style="-webkit-app-region: no-drag"
+      >
+        <UilMultiply class="hover:text-gray-500 block" />
       </div>
-      <p class="text-sm" style="position:absolute;top:4px;left:50%; transform: translateX(-50%);">Internxt Drive</p>
+      <p
+        class="text-sm"
+        style="position:absolute;top:4px;left:50%; transform: translateX(-50%);"
+      >
+        Internxt Drive
+      </p>
     </div>
-    <div class="bg-white flex justify-center py-2 border-b-2 border-gray-100" style="-webkit-app-region: drag">
+    <div
+      class="bg-white flex justify-center py-2 border-b-2 border-gray-100"
+      style="-webkit-app-region: drag"
+    >
       <settings-header-item
         title="General"
         @click="active = 'general'"
         :active="active === 'general'"
-      > <UilSetting size="27px"/> </settings-header-item>
-      <settings-header-item
-        title="Sync"
-        @click="active = 'sync'"
-        :active="active === 'sync'"
-      > <UilSync size="27px"/> </settings-header-item>
+      >
+        <UilSetting size="27px" />
+      </settings-header-item>
       <settings-header-item
         title="Account"
         :active="active === 'account'"
         @click="active = 'account'"
-      ><UilAt size="27px"/></settings-header-item>
+        ><UilAt size="27px"
+      /></settings-header-item>
       <settings-header-item
         title="Backups"
         :active="active === 'backups'"
         @click="active = 'backups'"
-      > <BackupIcon size="27" :state="backupStatus"/> </settings-header-item>
+      >
+        <BackupIcon size="27" :state="backupStatus" />
+      </settings-header-item>
+      <settings-header-item
+        title="Sync"
+        @click="active = 'sync'"
+        :active="active === 'sync'"
+      >
+        <UilSync size="27px" />
+      </settings-header-item>
     </div>
     <div class="p-8">
       <keep-alive>
         <component :is="currentSection" :backupStatus="backupStatus" />
       </keep-alive>
     </div>
-    <Dialog v-if="$store.state.ui.settingsDialog"/>
+    <Dialog v-if="$store.state.ui.settingsDialog" />
   </div>
 </template>
 
@@ -86,15 +106,19 @@ export default {
     this.setActive(section)
     remote.app.on('settings-change-section', this.setActive)
 
-    const resizeObserver = new ResizeObserver(([rootElement]) => this.emitResize({width: rootElement.borderBoxSize[0].inlineSize, height: rootElement.borderBoxSize[0].blockSize}))
+    const resizeObserver = new ResizeObserver(([rootElement]) =>
+      this.emitResize({
+        width: rootElement.borderBoxSize[0].inlineSize,
+        height: rootElement.borderBoxSize[0].blockSize
+      })
+    )
 
     resizeObserver.observe(this.$refs.rootElement)
 
-    ipcRenderer.invoke('get-backup-status')
-      .then(this.setBackupStatus)
+    ipcRenderer.invoke('get-backup-status').then(this.setBackupStatus)
     remote.app.on('backup-status-update', this.setBackupStatus)
   },
-  beforeDestroy () {
+  beforeDestroy() {
     remote.app.removeAllListeners('new-folder-path')
     remote.app.removeListener('settings-change-section', this.setActive)
     remote.app.removeListener('backup-status-update', this.setBackupStatus)
@@ -133,6 +157,5 @@ export default {
       return process.platform === 'darwin'
     }
   }
-
 }
 </script>
