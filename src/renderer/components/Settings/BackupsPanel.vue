@@ -130,7 +130,12 @@ export default {
   props: ['backupsBucket', 'backupStatus'],
   data() {
     return {
-      intervalOptions: [6 * 3600 * 1000, 12 * 3600 * 1000, 24 * 3600 * 1000],
+      intervalOptions: [
+        6 * 3600 * 1000,
+        12 * 3600 * 1000,
+        24 * 3600 * 1000,
+        -1
+      ],
       currentInterval: ConfigStore.get('backupInterval'),
       backupsEnabled: ConfigStore.get('backupsEnabled'),
       showList: false,
@@ -162,6 +167,8 @@ export default {
           return 'Every 12h'
         case 24 * 3600 * 1000:
           return 'Every day'
+        case -1:
+          return 'Manually'
         default:
           return null
       }

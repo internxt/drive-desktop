@@ -581,15 +581,15 @@ async function startBackupProcess() {
       )
       .catch(Logger.error)
 
-    const cleanUp = async ({exitReason, errorCode}) => {
+    const cleanUp = async ({ exitReason, errorCode }) => {
       worker.destroy()
       if (backupProcessRerun) {
         clearTimeout(backupProcessRerun)
       }
-      backupProcessRerun = setTimeout(
-        startBackupProcess,
-        ConfigStore.get('backupInterval')
-      )
+      const backupInterval = ConfigStore.get('backupInterval')
+      if (backupInterval !== -1) {
+        backupProcessRerun = setTimeout(startBackupProcess, backupInterval)
+      }
 
       if (exitReason === 'DONE') {
         ConfigStore.set('lastBackup', new Date().valueOf())
@@ -597,8 +597,14 @@ async function startBackupProcess() {
         if (errors.length === 0) {
           backupProcessStatus = BackupStatus.SUCCESS
         } else {
-          const thereAreFatalErrors = errors.find(error => [ErrorCodes.NO_CONNECTION, ErrorCodes.UNKNOWN].includes(error.error_code))
-          backupProcessStatus = thereAreFatalErrors ? BackupStatus.FATAL : BackupStatus.WARN
+          const thereAreFatalErrors = errors.find(error =>
+            [ErrorCodes.NO_CONNECTION, ErrorCodes.UNKNOWN].includes(
+              error.error_code
+            )
+          )
+          backupProcessStatus = thereAreFatalErrors
+            ? BackupStatus.FATAL
+            : BackupStatus.WARN
           notifyBackupErrors()
         }
       } else if (exitReason === 'ERROR') {
@@ -611,9 +617,11 @@ async function startBackupProcess() {
       app.emit('backup-status-update', backupProcessStatus)
     }
 
-    ipcMain.once('backup-process-done', () => cleanUp({exitReason: 'DONE'}))
-    ipcMain.once('backup-process-fatal-error', (_, errorCode) => cleanUp({exitReason: 'ERROR', errorCode}))
-    ipcMain.once('stop-backup-process', () => cleanUp({exitReason: 'STOP'}))
+    ipcMain.once('backup-process-done', () => cleanUp({ exitReason: 'DONE' }))
+    ipcMain.once('backup-process-fatal-error', (_, errorCode) =>
+      cleanUp({ exitReason: 'ERROR', errorCode })
+    )
+    ipcMain.once('stop-backup-process', () => cleanUp({ exitReason: 'STOP' }))
   }
 }
 
@@ -628,7 +636,8 @@ ipcMain.on('insert-backup-error', (_, error) => {
 function notifyBackupErrors() {
   const notification = new Notification({
     title: 'Some folders could not be uploaded',
-    body: "Your backup process wasn't completely successful, click to see the details"
+    body:
+      "Your backup process wasn't completely successful, click to see the details"
   })
 
   notification.show()
@@ -658,7 +667,8 @@ function notifyBackupHasNoSpace() {
 function notifyBackupProcessWithNoConnection() {
   const notification = new Notification({
     title: `Backup Process couldn't start`,
-    body: 'Check that you have a working internet connection. We will retry later, click to try now.'
+    body:
+      'Check that you have a working internet connection. We will retry later, click to try now.'
   })
 
   notification.show()
@@ -681,15 +691,19 @@ function changeSyncStatus(newStatus) {
 }
 
 async function startSyncProcess() {
-  if (syncStatus === SyncStatus.RUNNING) { return }
+  if (syncStatus === SyncStatus.RUNNING) {
+    return
+  }
 
   changeSyncStatus(SyncStatus.RUNNING)
 
   // It's an object to pass it to
   // the individual item processors
-  const hasBeenStopped = {value: false}
+  const hasBeenStopped = { value: false }
 
-  ipcMain.once('stop-sync-process', () => { hasBeenStopped.value = true })
+  ipcMain.once('stop-sync-process', () => {
+    hasBeenStopped.value = true
+  })
 
   const syncItems = await SyncDB.get()
 
@@ -703,19 +717,22 @@ async function startSyncProcess() {
 }
 
 function processSyncItem(item, hasBeenStopped) {
-  return new Promise(async (resolve) => {
+  return new Promise(async resolve => {
     const onExitFuncs = []
 
     function onExit(reason, errorName) {
       Logger.log('onSyncExit, reason: ', reason, 'errorName:', errorName)
       onExitFuncs.forEach(f => f())
       if (reason) {
-        app.emit('SYNC_NEXT', {...item, result: {status: reason, errorName}})
+        app.emit('SYNC_NEXT', {
+          ...item,
+          result: { status: reason, errorName }
+        })
       }
       resolve()
     }
 
-    app.emit('SYNC_INFO_UPDATE', {...item, action: 'ACQUIRING_LOCK'})
+    app.emit('SYNC_INFO_UPDATE', { ...item, action: 'ACQUIRING_LOCK' })
 
     function onAcquireLockError(err) {
       Logger.error('Could not acquire lock', err)
@@ -728,17 +745,16 @@ function processSyncItem(item, hasBeenStopped) {
       onExitFuncs.push(() => locksService.releaseLock(item.folderId, lockId))
 
       const lockRefreshInterval = setInterval(() => {
-        locksService.refreshLock(item.folderId, lockId)
-          .catch(async() => {
-            // If we fail to refresh the lock
-            // we try to acquire it again
-            // before stopping everything
-            try {
-              await locksService.acquireLock(item.folderId, lockId)
-            } catch (err) {
-              onAcquireLockError(err)
-            }
-          })
+        locksService.refreshLock(item.folderId, lockId).catch(async () => {
+          // If we fail to refresh the lock
+          // we try to acquire it again
+          // before stopping everything
+          try {
+            await locksService.acquireLock(item.folderId, lockId)
+          } catch (err) {
+            onAcquireLockError(err)
+          }
+        })
       }, 7000)
       onExitFuncs.push(() => clearInterval(lockRefreshInterval))
 
@@ -748,14 +764,21 @@ function processSyncItem(item, hasBeenStopped) {
       return onAcquireLockError(err)
     }
 
-    if (hasBeenStopped.value) { return onExit('STOPPED_BY_USER') }
+    if (hasBeenStopped.value) {
+      return onExit('STOPPED_BY_USER')
+    }
 
-    app.emit('SYNC_INFO_UPDATE', {...item, action: 'STARTING'})
+    app.emit('SYNC_INFO_UPDATE', { ...item, action: 'STARTING' })
 
-    ipcMain.handle('get-sync-details', () => ({...item, folderId: parseInt(item.folderId)}))
+    ipcMain.handle('get-sync-details', () => ({
+      ...item,
+      folderId: parseInt(item.folderId)
+    }))
     onExitFuncs.push(() => ipcMain.removeHandler('get-sync-details'))
 
-    ipcMain.once('SYNC_FATAL_ERROR', (_, errorName) => onExit('FATAL_ERROR', errorName))
+    ipcMain.once('SYNC_FATAL_ERROR', (_, errorName) =>
+      onExit('FATAL_ERROR', errorName)
+    )
     onExitFuncs.push(() => ipcMain.removeAllListeners('SYNC_FATAL_ERROR'))
 
     ipcMain.once('SYNC_EXIT', () => onExit())
@@ -764,11 +787,15 @@ function processSyncItem(item, hasBeenStopped) {
     const worker = spawnSyncWorker()
     onExitFuncs.push(() => worker.destroy())
 
-    if (hasBeenStopped.value) { return onExit('STOPPED_BY_USER') }
+    if (hasBeenStopped.value) {
+      return onExit('STOPPED_BY_USER')
+    }
 
     const onUserStopped = () => onExit('STOPPED_BY_USER')
     ipcMain.once('stop-sync-process', onUserStopped)
-    onExitFuncs.push(() => ipcMain.removeListener('stop-sync-process', onUserStopped))
+    onExitFuncs.push(() =>
+      ipcMain.removeListener('stop-sync-process', onUserStopped)
+    )
   })
 }
 
