@@ -71,7 +71,7 @@
       </button>
       <div
         class="dropdown-menu border-0 shadow-sm rounded-md"
-        style="min-width: 8.5rem"
+        style="min-width: 8.5rem; margin: 4px 0; padding: 4px 0"
       >
         <a
           v-for="interval in intervalOptions"
