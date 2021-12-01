@@ -16,17 +16,29 @@
         :key="backup.id"
         :class="{
           'bg-gray-50': i % 2 != 0 && backupSelected != backup,
-          'bg-blue-600 text-white': backupSelected === backup,
+          'bg-blue-600 text-white': backupSelected === backup
         }"
         class="flex items-center justify-between px-2 py-1 max-w-full"
         @click.stop="backupSelected = backup"
         @dblclick="() => openFolder(backup.path)"
       >
         <div class="flex items-center overflow-hidden">
-          <img :src="FolderIcon" style="margin-right: 6px" class="flex-shrink-0 w-4 h-4" />
+          <img
+            :src="FolderIcon"
+            style="margin-right: 6px"
+            class="flex-shrink-0 w-4 h-4"
+          />
           <p class="truncate">{{ basename(backup.path) }}</p>
         </div>
-        <BackupsError :error="findErrorForBackup(backup.id)" @actionClick="(action) => action === 'FIND_FOLDER' ? findFolder(backup) : startBackupProcess()"/>
+        <BackupsError
+          :error="findErrorForBackup(backup.id)"
+          @actionClick="
+            action =>
+              action === 'FIND_FOLDER'
+                ? findFolder(backup)
+                : startBackupProcess()
+          "
+        />
       </div>
       <content-placeholders v-if="loading" :rounded="true" class="mt-2 ml-2">
         <content-placeholders-text v-for="i in 4" :lines="1" :key="i" />
@@ -39,7 +51,10 @@
             <UilPlus class="inline" size="18px" />
           </div>
         </Button>
-        <Button @click="disableBackup" :state="backupSelected ? 'default' : 'default-disabled'">
+        <Button
+          @click="disableBackup"
+          :state="backupSelected ? 'default' : 'default-disabled'"
+        >
           <div class="flex items-center">
             <UilMinus class="inline" size="18px" />
           </div>
@@ -47,7 +62,11 @@
       </div>
       <div class="flex items-center space-x-1">
         <Button @click="$emit('close')">Cancel</Button>
-        <Button :state="thereIsSomethingToSave ? 'accent' : 'accent-disabled'" @click="save">Save</Button>
+        <Button
+          :state="thereIsSomethingToSave ? 'accent' : 'accent-disabled'"
+          @click="save"
+          >Save</Button
+        >
       </div>
     </div>
   </div>
@@ -60,18 +79,30 @@ import {
   UilTrashAlt,
   UilMinus
 } from '@iconscout/vue-unicons'
-import {getAllBackups, createBackup, updateBackup, updateBackupPath} from '../../../backup-process/service'
+import {
+  getAllBackups,
+  createBackup,
+  updateBackup,
+  updateBackupPath,
+  deleteBackup
+} from '../../../backup-process/service'
 import Button from '../Button/Button.vue'
 import fs from 'fs'
 import path from 'path'
-import electron, {ipcRenderer} from 'electron'
+import electron, { ipcRenderer } from 'electron'
 import BackupsError from './BackupError.vue'
 import FolderIcon from '../../assets/icons/apple/folder.svg'
-import ConfigStore from '../../../main/config-store'
 const remote = require('@electron/remote')
 
 export default {
-  components: {UilFolder, Button, UilPlus, UilTrashAlt, BackupsError, UilMinus},
+  components: {
+    UilFolder,
+    Button,
+    UilPlus,
+    UilTrashAlt,
+    BackupsError,
+    UilMinus
+  },
   props: ['backupsBucket', 'errors'],
   data() {
     return {
@@ -107,7 +138,7 @@ export default {
       const existsAlready = this.findBackupByPath(this.backups, path)
 
       if (!existsAlready) {
-        const newBackup = {path, enabled: true}
+        const newBackup = { path, enabled: true }
         this.backupsToCreate.push(newBackup)
         this.backups.push(newBackup)
       } else {
@@ -122,55 +153,76 @@ export default {
       }
     },
     disableBackup() {
-      const dialogCallback = (response = 0, dontAskAgain = false) => {
-        if (response === 0) {
-          const toCreate = this.findBackupByPath(this.backupsToCreate, this.backupSelected.path)
-          const toEnable = this.findBackupByPath(this.backupsToEnable, this.backupSelected.path)
+      const dialogCallback = (response = 0, deleteFromTheCloud = false) => {
+        if (response === 1) {
+          const toCreate = this.findBackupByPath(
+            this.backupsToCreate,
+            this.backupSelected.path
+          )
+          const toEnable = this.findBackupByPath(
+            this.backupsToEnable,
+            this.backupSelected.path
+          )
 
           if (toCreate) {
-            this.deleteBackupFromList(this.backupsToCreate, this.backupSelected.path)
+            this.deleteBackupFromList(
+              this.backupsToCreate,
+              this.backupSelected.path
+            )
             this.deleteBackupFromList(this.backups, this.backupSelected.path)
           } else if (toEnable) {
-            this.deleteBackupFromList(this.backupsToEnable, this.backupSelected.path)
-            this.findBackupByPath(this.backups, this.backupSelected.path).enabled = false
+            this.deleteBackupFromList(
+              this.backupsToEnable,
+              this.backupSelected.path
+            )
+            this.findBackupByPath(
+              this.backups,
+              this.backupSelected.path
+            ).enabled = false
           } else {
             this.backupsToDisable.push(this.backupSelected)
-            this.findBackupByPath(this.backups, this.backupSelected.path).enabled = false
+            this.findBackupByPath(
+              this.backups,
+              this.backupSelected.path
+            ).enabled = false
+          }
+
+          if (deleteFromTheCloud && this.backupSelected.id) {
+            deleteBackup(this.backupSelected.id)
           }
 
           this.backupSelected = null
         }
-
-        if (dontAskAgain) {
-          ConfigStore.set('askBeforeDisablingBackup', false)
-        }
       }
 
-      if (ConfigStore.get('askBeforeDisablingBackup')) {
-        this.$store.originalDispatch('showSettingsDialog', {
-          title: `Stop backing up "${this.basename(this.backupSelected.path)}"?`,
-          description: `New files added to this folder will no longer backup in your Internxt Drive. Original files will remain on your computer`,
-          answers: [
-            {text: 'Stop backing up this folder', state: 'accent'},
-            {text: 'Keep backing up'}
-          ],
-          checkbox: `Don't ask me again`,
-          buttonsInColumn: true,
-          callback: dialogCallback
-        })
-      } else {
-        dialogCallback()
-      }
+      this.$store.originalDispatch('showSettingsDialog', {
+        title: `Stop backing up "${this.basename(this.backupSelected.path)}"?`,
+        description: `This folder will remain in your device.`,
+        answers: [{ text: 'Cancel' }, { text: 'Stop backup', state: 'accent' }],
+        checkbox: `Also delete this folder from the cloud`,
+        buttonsInColumn: false,
+        callback: dialogCallback
+      })
     },
     async save(closeAfter = true) {
-      const createPromises = this.backupsToCreate.map(backup => createBackup(backup, this.backupsBucket))
-      const enablePromises = this.backupsToEnable.map(({id}) => updateBackup({id, enabled: true}))
-      const disablePromises = this.backupsToDisable.map(({id}) => updateBackup({id, enabled: false}))
+      const createPromises = this.backupsToCreate.map(backup =>
+        createBackup(backup, this.backupsBucket)
+      )
+      const enablePromises = this.backupsToEnable.map(({ id }) =>
+        updateBackup({ id, enabled: true })
+      )
+      const disablePromises = this.backupsToDisable.map(({ id }) =>
+        updateBackup({ id, enabled: false })
+      )
 
       if (!closeAfter) {
         try {
           this.resetChanges()
-          await Promise.all([ ...createPromises, ...enablePromises, ...disablePromises ])
+          await Promise.all([
+            ...createPromises,
+            ...enablePromises,
+            ...disablePromises
+          ])
           this.getAllBackups()
         } catch (err) {
           console.log(err)
@@ -180,14 +232,18 @@ export default {
           )
           this.getAllBackups()
         }
-      } else { this.$emit('close') }
+      } else {
+        this.$emit('close')
+      }
     },
     findBackupByPath(arr, path) {
       return arr.find(backup => backup.path === path)
     },
     deleteBackupFromList(arr, path) {
       const index = arr.findIndex(backup => backup.path === path)
-      if (index !== -1) { arr.splice(index, 1) }
+      if (index !== -1) {
+        arr.splice(index, 1)
+      }
     },
     resetChanges() {
       this.backupsToCreate = []
@@ -216,7 +272,11 @@ export default {
       })
 
       if (newDir) {
-        await updateBackupPath({ id: backup.id, backupsBucketId: this.backupsBucket, plainPath: newDir[0] })
+        await updateBackupPath({
+          id: backup.id,
+          backupsBucketId: this.backupsBucket,
+          plainPath: newDir[0]
+        })
         this.resetChanges()
         this.getAllBackups()
         this.startBackupProcess()
@@ -228,7 +288,11 @@ export default {
   },
   computed: {
     thereIsSomethingToSave() {
-      return this.backupsToCreate.length || this.backupsToEnable.length || this.backupsToDisable.length
+      return (
+        this.backupsToCreate.length ||
+        this.backupsToEnable.length ||
+        this.backupsToDisable.length
+      )
     },
     enabledBackups() {
       return this.backups.filter(backup => backup.enabled)

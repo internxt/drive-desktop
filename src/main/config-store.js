@@ -16,10 +16,6 @@ const schema = {
     type: 'boolean',
     default: true
   },
-  version: {
-    type: 'string',
-    default: '1.3.0'
-  },
   bearerToken: {
     type: 'string',
     default: ''
@@ -43,10 +39,6 @@ const schema = {
   lastBackup: {
     type: 'number',
     default: -1
-  },
-  askBeforeDisablingBackup: {
-    type: 'boolean',
-    default: true
   }
 }
 

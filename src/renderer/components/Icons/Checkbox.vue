@@ -1,5 +1,9 @@
 <template>
-  <div class="flex items-center cursor-pointer" :class="state" style="width: fit-content">
+  <div
+    class="flex items-center cursor-pointer"
+    :class="state"
+    style="width: fit-content"
+  >
     <svg
       @click="!disabled ? changeState() : null"
       :width="width"
@@ -18,7 +22,7 @@
         rx="2.25"
         fill="white"
         stroke="#42526E"
-        stroke-width="2"
+        stroke-width="0.5"
       />
       <rect
         v-if="state === 'indeterminate' || state === 'checked'"

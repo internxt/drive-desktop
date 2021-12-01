@@ -6,10 +6,14 @@
   >
     <div
       style="border-radius: 8px"
-      class="bg-white p-4 flex flex-col justify-between items-stretch text-center w-80"
+      class="bg-white p-3 flex flex-col justify-between items-stretch text-center w-80"
     >
-      <h1 class="font-semibold text-gray-800">{{ details.title }}</h1>
-      <p class="text-sm text-gray-500 mt-2">{{ details.description }}</p>
+      <h1 class="font-semibold text-gray-800 tracking-wide">
+        {{ details.title }}
+      </h1>
+      <p class="text-sm text-gray-500 mt-2 tracking-wide">
+        {{ details.description }}
+      </p>
       <div v-if="details.checkbox" class="mt-4 mx-auto">
         <checkbox
           class="text-gray-800"
