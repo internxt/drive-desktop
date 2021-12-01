@@ -69,13 +69,24 @@
           size="25px"
         />
       </button>
-      <div class="dropdown-menu">
+      <div
+        class="dropdown-menu border-0 shadow-sm rounded-md"
+        style="min-width: 8.5rem"
+      >
         <a
           v-for="interval in intervalOptions"
-          class="dropdown-item text-sm"
+          class="dropdown-item text-sm mx-1"
+          style="padding: 0.15rem 0.3rem"
           :key="interval"
           @click="currentInterval = interval"
-          >{{ humanifyInterval(interval) }}</a
+          ><UilCheck
+            size="18px"
+            :style="
+              `opacity:${
+                currentInterval === interval ? 1 : 0
+              };padding-right: 0.3rem`
+            "
+          />{{ humanifyInterval(interval) }}</a
         >
       </div>
     </div>
@@ -85,7 +96,11 @@
 <script>
 import Checkbox from '../Icons/Checkbox.vue'
 import Button from '../Button/Button.vue'
-import { UilAngleDown, UilExclamationTriangle } from '@iconscout/vue-unicons'
+import {
+  UilAngleDown,
+  UilExclamationTriangle,
+  UilCheck
+} from '@iconscout/vue-unicons'
 import {
   updateBackupsOfDevice,
   getDeviceByMac
@@ -109,7 +124,8 @@ export default {
     Button,
     UilAngleDown,
     BackupsList,
-    UilExclamationTriangle
+    UilExclamationTriangle,
+    UilCheck
   },
   props: ['backupsBucket', 'backupStatus'],
   data() {
@@ -141,9 +157,9 @@ export default {
     humanifyInterval(interval) {
       switch (interval) {
         case 6 * 3600 * 1000:
-          return 'Every 6 hours'
+          return 'Every 6h'
         case 12 * 3600 * 1000:
-          return 'Every 12 hours'
+          return 'Every 12h'
         case 24 * 3600 * 1000:
           return 'Every day'
         default:
@@ -228,3 +244,17 @@ export default {
   }
 }
 </script>
+
+<style>
+.dropdown-item:hover {
+  background: #4589ff;
+  color: white;
+}
+
+.dropdown-item {
+  width: initial !important;
+  border-radius: 0.4rem;
+  display: flex;
+  align-items: center;
+}
+</style>
