@@ -1,5 +1,10 @@
 <template>
-  <backups-list @close="showList = false" v-if="showList" :backupsBucket="backupsBucket" :errors="errors" />
+  <backups-list
+    @close="showList = false"
+    v-if="showList"
+    :backupsBucket="backupsBucket"
+    :errors="errors"
+  />
   <div v-else>
     <div class="flex items-center space-x-3">
       <Checkbox
@@ -7,25 +12,45 @@
         @click.native="backupsEnabled = !backupsEnabled"
         label="Back up your folder and files"
       />
-      <p class="text-blue-500 underline cursor-pointer text-xs" @click="openDriveWeb">View your backups</p>
+      <p
+        class="text-blue-500 underline cursor-pointer font-bold tracking-wide"
+        style="font-size: 0.6rem"
+        @click="openDriveWeb"
+      >
+        View your backups
+      </p>
     </div>
     <div class="flex items-baseline">
-    <Button class="mt-2" @click="showList = true"
-      >Select folders to backup</Button
-    >
-    <p class="ml-2 text-xs" :class="{'text-red-600': backupStatus === 'FATAL', 'text-yellow-500': backupStatus === 'WARN', 'hidden': !['WARN', 'FATAL'].includes(backupStatus)}" >Could not upload some folders</p>
-</div>
-    <div class="flex items-center mt-3">
-      <Button v-if="backupStatus !== 'IN_PROGRESS'" :state="backupsEnabled ? 'accent' : 'accent-disabled'" @click="startBackupProcess">Backup now</Button>
+      <Button class="mt-2" @click="showList = true"
+        >Select folders to backup</Button
+      >
+      <p
+        class="ml-2 text-xs"
+        :class="{
+          'text-red-600': backupStatus === 'FATAL',
+          'text-yellow-500': backupStatus === 'WARN',
+          hidden: !['WARN', 'FATAL'].includes(backupStatus)
+        }"
+      >
+        Could not upload some folders
+      </p>
+    </div>
+    <div class="flex items-center mt-1">
+      <Button
+        v-if="backupStatus !== 'IN_PROGRESS'"
+        :state="backupsEnabled ? 'accent' : 'accent-disabled'"
+        @click="startBackupProcess"
+        >Backup now</Button
+      >
       <Button v-else state="red" @click="stopBackupProcess">Stop backup</Button>
 
-      <p class="text-xs text-gray-500 ml-3">{{backupMessage }}</p>
+      <p class="text-xs text-gray-500 ml-3">{{ backupMessage }}</p>
     </div>
-    <p class="mt-3 text-xs text-gray-500">Upload frequency</p>
-    <div class="dropdown mt-2">
+    <p class="mt-4 text-xs text-gray-500">Upload frequency</p>
+    <div class="dropdown mt-2 mb-3">
       <button
         class="bg-white border border-gray-400 rounded-md text-sm"
-        :class="{'text-gray-400 cursor-default': !backupsEnabled}"
+        :class="{ 'text-gray-400 cursor-default': !backupsEnabled }"
         style="padding-left: 10px"
         type="button"
         data-toggle="dropdown"
@@ -36,7 +61,10 @@
         {{ humanifyInterval(currentInterval) }}
         <UilAngleDown
           class="inline rounded-tr-md rounded-br-md"
-          :class="{'bg-blue-300 text-blue-100': !backupsEnabled, 'bg-blue-600 text-white': backupsEnabled}"
+          :class="{
+            'bg-blue-300 text-blue-100': !backupsEnabled,
+            'bg-blue-600 text-white': backupsEnabled
+          }"
           style="margin-left: 5px"
           size="25px"
         />
@@ -57,11 +85,11 @@
 <script>
 import Checkbox from '../Icons/Checkbox.vue'
 import Button from '../Button/Button.vue'
+import { UilAngleDown, UilExclamationTriangle } from '@iconscout/vue-unicons'
 import {
-  UilAngleDown,
-  UilExclamationTriangle
-} from '@iconscout/vue-unicons'
-import {updateBackupsOfDevice, getDeviceByMac} from '../../../backup-process/service'
+  updateBackupsOfDevice,
+  getDeviceByMac
+} from '../../../backup-process/service'
 import ConfigStore from '../../../main/config-store'
 import BackupsList from './BackupsList.vue'
 import { ipcRenderer } from 'electron'
@@ -73,7 +101,7 @@ import BackupStatus from '../../../backup-process/status'
 import analytics from '../../logic/utils/analytics'
 
 const remote = require('@electron/remote')
-const {app} = remote
+const { app } = remote
 
 export default {
   components: {
@@ -86,11 +114,7 @@ export default {
   props: ['backupsBucket', 'backupStatus'],
   data() {
     return {
-      intervalOptions: [
-        6 * 3600 * 1000,
-        12 * 3600 * 1000,
-        24 * 3600 * 1000
-      ],
+      intervalOptions: [6 * 3600 * 1000, 12 * 3600 * 1000, 24 * 3600 * 1000],
       currentInterval: ConfigStore.get('backupInterval'),
       backupsEnabled: ConfigStore.get('backupsEnabled'),
       showList: false,
@@ -135,13 +159,13 @@ export default {
     async stopBackupProcess() {
       this.$store.originalDispatch('showSettingsDialog', {
         title: 'Stop ongoing backup',
-        description: 'Are you sure that you want to stop the ongoing backup process?',
-        answers: [
-          {text: 'Cancel'},
-          {text: 'Stop backup', state: 'red'}
-        ],
-        callback: (response) => {
-          if (response === 1) { ipcRenderer.send('stop-backup-process') }
+        description:
+          'Are you sure that you want to stop the ongoing backup process?',
+        answers: [{ text: 'Cancel' }, { text: 'Stop backup', state: 'red' }],
+        callback: response => {
+          if (response === 1) {
+            ipcRenderer.send('stop-backup-process')
+          }
         }
       })
     },
@@ -163,7 +187,7 @@ export default {
       analytics.trackBackupInterval()
 
       const device = await getDeviceByMac()
-      updateBackupsOfDevice(device.id, {interval: val})
+      updateBackupsOfDevice(device.id, { interval: val })
     },
     async backupStatus(_, oldValue) {
       if (oldValue === BackupStatus.IN_PROGRESS) {
@@ -175,10 +199,20 @@ export default {
   computed: {
     backupMessage() {
       if (this.backupStatus === BackupStatus.IN_PROGRESS) {
-        if (!this.backupProgress) { return 'Backup in progress...' } else {
-          const {currentBackup, currentBackupProgress, currentBackupIndex, totalBackupsCount} = this.backupProgress
+        if (!this.backupProgress) {
+          return 'Backup in progress...'
+        } else {
+          const {
+            currentBackup,
+            currentBackupProgress,
+            currentBackupIndex,
+            totalBackupsCount
+          } = this.backupProgress
           const currentBackupName = path.basename(currentBackup.path)
-          return `${currentBackupIndex + 1} of ${totalBackupsCount} folders - Backing up ${currentBackupName} ${currentBackupProgress !== null ? `(${currentBackupProgress}%)` : ''}`
+          return `${currentBackupIndex +
+            1} of ${totalBackupsCount} folders - Backing up ${currentBackupName} ${
+            currentBackupProgress !== null ? `(${currentBackupProgress}%)` : ''
+          }`
         }
       }
 
@@ -187,9 +221,10 @@ export default {
         dayjs.extend(relativeTime)
         const lastBackupFormatted = dayjs().to(dayjs(lastBackupTimestamp))
         return `Updated ${lastBackupFormatted}`
-      } else { return '' }
+      } else {
+        return ''
+      }
     }
   }
-
 }
 </script>
