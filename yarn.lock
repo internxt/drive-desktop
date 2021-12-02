@@ -472,10 +472,10 @@
   resolved "https://registry.yarnpkg.com/@iconscout/vue-unicons/-/vue-unicons-0.0.3.tgz#3569422a46c2b242a39a5654b3f4dbe13a19e706"
   integrity sha512-wVYaEPNXNCqYoyrhEMoYAm8rxFnPmXLduzH3WmROTdU0D1qcuHj5AjxSCJ+OOs9+Tz3woUjDRjINlZHQmdiPBw==
 
-"@internxt/inxt-js@=1.2.10":
-  version "1.2.10"
-  resolved "https://npm.pkg.github.com/download/@internxt/inxt-js/1.2.10/42e4f9dbc186b9fa0262ed5e10e1bb43f59f7d8a3cf78963b35e5c46a527216f#1202771c7822e0b2bd378d9ff04fe4c35131272c"
-  integrity sha512-mM+RHeeAengf2RrolCaNy9ERnBLY4yKOSTePW4t7gSmAkwwrtrtBbKAsnOnHd4a33C4StjhQa7VRBt5M0xspnw==
+"@internxt/inxt-js@=1.2.14":
+  version "1.2.14"
+  resolved "https://npm.pkg.github.com/download/@internxt/inxt-js/1.2.14/0208ddb893d6ef50e8b2693c07c99217fa0f3a43dc1898dfa111defdac462385#1362f8c0ec0c084a1bb79af979d1133f1fbc85e0"
+  integrity sha512-RpsyA/e/eLK4z0pH3nG7jyziIuWLDOJrgZWU3bbaMJFuJRClEWg+QZKbnMzMe15mURjYRgFg8MXgmstt40dunw==
   dependencies:
     async "^3.2.0"
     axios "^0.23.0"
