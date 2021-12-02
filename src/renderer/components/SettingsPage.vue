@@ -119,7 +119,6 @@ export default {
     remote.app.on('backup-status-update', this.setBackupStatus)
   },
   beforeDestroy() {
-    remote.app.removeAllListeners('new-folder-path')
     remote.app.removeListener('settings-change-section', this.setActive)
     remote.app.removeListener('backup-status-update', this.setBackupStatus)
   },

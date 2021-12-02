@@ -39,6 +39,10 @@ const schema = {
   lastBackup: {
     type: 'number',
     default: -1
+  },
+  syncRoot: {
+    type: 'string',
+    default: ''
   }
 }
 
