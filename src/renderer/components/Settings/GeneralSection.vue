@@ -9,7 +9,7 @@
         />
       </div>
     </div>
-    <div class="text-gray-500 text-sm">Internxt Drive Folder</div>
+    <div class="text-gray-500 text-sm">Internxt Drive folder location</div>
     <div class="flex flex-col mt-2">
       <div class="flex flex-row items-center justify-between flex-grow">
         <div class="flex items-center overflow-hidden" @dblclick="openFolder">
@@ -99,7 +99,7 @@ export default {
           new_folder: newDir[0]
         })
         this.path = newDir[0]
-        ConfigStore.set('syncRoot', this.path)
+        ConfigStore.set('syncRoot', this.path + path.sep)
       } else {
         Logger.info('Sync folder change error or cancelled')
       }

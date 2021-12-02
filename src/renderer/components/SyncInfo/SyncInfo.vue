@@ -1,99 +1,84 @@
 <template>
-	<div style="padding: .75rem" class="h-full overflow-y-auto">
-		<p v-if="currentItem" class="mb-3 text-gray-500 text-sm sticky top-0 bg-gray-50">Current</p>
-		<div class="flex flex-col space-y-2 mb-3" v-if="currentItem">
-			<div class="flex items-center space-x-2">
-				<UilFolder class="text-blue-500"/>
-				<p class="text-xs">{{currentItem.localPath | truncatePath}}</p>
-			</div>
-
-			<div class="flex items-center space-x-2">
-				<UilCloud class="text-blue-500"/>
-				<p class="text-xs">{{currentItem.remotePath | truncatePath}}</p>
-			</div>
-			<p class="text-xs text-gray-400">{{currentItemStatus}}</p>
-		</div>	
-		<div v-if="doneItems.length" class="flex items-center justify-between mb-3">
-			<p class="text-gray-500 text-sm sticky top-0 bg-gray-50">Finalized</p>
-			<p class="text-gray-500 font-bold text-xs cursor-pointer" @click="clear">Clear</p>
-		</div>
-		<div class="flex flex-col space-y-4">
-			<div v-for="item in doneItems" class="flex flex-col space-y-2" :key="item.remotePath + item.localPath">
-				<div class="flex items-center space-x-2">
-					<UilFolder/>
-					<p class="text-xs">{{item.localPath | truncatePath}}</p>
-				</div>
-				<div class="flex items-center space-x-2">
-					<UilCloud/>
-					<p class="text-xs">{{item.remotePath | truncatePath}}</p>
-				</div>
-				<p v-if="item.result.status === 'IN_SYNC'" class="text-xs text-green-700">In sync</p>
-				<div v-else-if="item.result.status === 'NOT_IN_SYNC'" class="flex items-center justify-between">
-					<p class="text-xs text-yellow-700">Partially in sync</p>
-					<p class="text-xs text-gray-500 font-bold cursor-pointer" @click="item.seeDetails = !item.seeDetails">{{item.seeDetails ? 'Hide' : 'See'}} details</p>
-				</div>
-				<p v-else-if="item.result.status === 'STOPPED_BY_USER'" class="text-xs text-yellow-700">Forced to stop</p>
-				<p v-else-if="item.result.status === 'FATAL_ERROR'" class="text-xs text-red-700">{{getErrorMessage(item)}}</p>
-				<p v-else-if="item.result.status === 'COULD_NOT_ACQUIRE_LOCK'" class="text-xs text-yellow-700">Other device is already syncing this folder</p>
-				<div v-if="item.seeDetails && item.result.diff">
-					<p v-if="item.result.diff.filesNotInLocal.length" class="text-sm">Files in remote that are not in local</p>
-					<p class="text-xs text-gray-600 mt-2" v-for="file in item.result.diff.filesNotInLocal" :key="file" >{{file}}</p>
-					<p v-if="item.result.diff.filesNotInRemote.length" class="mt-2 text-sm">Files in local that are not in remote</p>
-					<p class="text-xs text-gray-600 mt-2" v-for="file in item.result.diff.filesNotInRemote" :key="file">{{file}}</p>
-					<p v-if="item.result.diff.filesWithDifferentModtime.length" class="mt-2 text-sm">Files that are different in remote and local</p>
-					<p class="text-xs text-gray-600 mt-2" v-for="file in item.result.diff.filesWithDifferentModtime" :key="file">{{file}}</p>
-				</div>
-			</div>
-		</div>
-	</div>	
+  <div
+    style="padding: .75rem"
+    class="h-full w-full overflow-y-auto overflow-x-hidden"
+  >
+    <!-- <div class="flex items-center justify-between mb-3">
+      <p class="text-gray-500 text-sm sticky top-0 bg-gray-50"></p>
+      <p class="text-gray-500 font-bold text-xs cursor-pointer" @click="clear">
+        Clear
+      </p>
+    </div> -->
+    <div class="flex flex-col space-y-4 ">
+      <div v-for="item in items" :key="item.name" class="flex items-center">
+        <file-icon :width="32" :height="32" class="flex-shrink-0" />
+        <div class="ml-2" style="max-width: 85%">
+          <p class="text-sm truncate mt-1">
+            {{ item.name | showOnlyFilename }}
+          </p>
+          <p class="text-xs text-gray-600">{{ getStatusMessage(item) }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script>
-import {
-  UilFolder,
-  UilCloud
-} from '@iconscout/vue-unicons'
-import {truncatePath} from '../../../renderer/logic/utils/path'
+import { UilFolder, UilCloud } from '@iconscout/vue-unicons'
+import path from 'path'
+import FileIcon from '../Icons/FileIcon.vue'
 const app = require('@electron/remote').app
 
 export default {
   components: {
     UilFolder,
-    UilCloud
+    UilCloud,
+    FileIcon
   },
   data() {
     return {
-      doneItems: [],
-      currentItem: null
+      items: []
     }
   },
   mounted() {
-    app.on('SYNC_INFO_UPDATE', this.onCurrentChanged)
+    app.on('SYNC_INFO_UPDATE', this.onInfoUpdate)
     app.on('SYNC_NEXT', this.onNext)
   },
   beforeDestroy() {
-    app.removeListener('SYNC_INFO_UPDATE', this.onCurrentChanged)
+    app.removeListener('SYNC_INFO_UPDATE', this.onInfoUpdate)
     app.removeListener('SYNC_NEXT', this.onNext)
   },
   methods: {
-    onCurrentChanged(item) {
-      this.removeItemFromDone(item)
-      this.currentItem = item
+    onInfoUpdate(item) {
+      if (
+        ![
+          'PULL',
+          'DELETE',
+          'PULLED',
+          'DELETED',
+          'PULL_ERROR',
+          'DELETE_ERROR'
+        ].includes(item.action)
+      ) {
+        return
+      }
+
+      const itemIndex = this.items.findIndex(i => i.name === item.name)
+
+      const alreadyExists = itemIndex !== -1
+
+      if (!alreadyExists) {
+        this.items = [item, ...this.items.slice(0, 50)]
+      } else {
+        this.items[itemIndex] = item
+      }
     },
     onNext(item) {
-      item.seeDetails = false
-      this.removeItemFromDone(item)
-      this.doneItems = [item, ...this.doneItems]
-      this.currentItem = null
+      this.items = []
     },
-    clear() {
-      this.doneItems = []
-    },
-    removeItemFromDone(item) {
-      this.doneItems = this.doneItems.filter(i => item.remotePath !== i.remotePath || item.localPath !== i.localPath)
-    },
+    clear() {},
     getErrorMessage(item) {
-      const {errorName} = item.result
+      const { errorName } = item.result
 
       switch (errorName) {
         case 'NO_INTERNET':
@@ -109,22 +94,41 @@ export default {
         default:
           return 'An unknown error ocurred'
       }
-    }
-  },
-  computed: {
-    currentItemStatus() {
-      if (!this.currentItem) { return null }
-
-      const {action, kind, progress, name} = this.currentItem
-
-      if (action === 'ACQUIRING_LOCK') { return 'Checking that other device is not syncing this folder' } else if (action === 'STARTING') { return 'Starting the sync process' } else if (action === 'PULL') {
-        if (kind === 'REMOTE') { return `Uploading file ${name} (${(progress * 100).toFixed(2)}%)` } else { return `Downloading file ${name} (${(progress * 100).toFixed(2)}%)` }
-      } else if (action === 'RENAME') { return `Renaming file ${name}` } else if (action === 'DELETE') { return `Deleting ${name} in ${kind === 'REMOTE' ? 'Internxt drive' : 'local'}` } else if (action === 'FINALIZE') { return `Finalizing` } else { return '' }
+    },
+    getStatusMessage(item) {
+      if (item.action === 'PULL' && item.kind === 'REMOTE') {
+        return `Uploading (${(item.progress * 100).toFixed(0)}%)`
+      } else if (item.action === 'PULL' && item.kind === 'LOCAL') {
+        return `Downloading (${(item.progress * 100).toFixed(0)}%)`
+      }
+      if (item.action === 'PULLED' && item.kind === 'REMOTE') {
+        return `Uploaded`
+      } else if (item.action === 'PULLED' && item.kind === 'LOCAL') {
+        return `Downloaded`
+      } else if (item.action === 'PULL_ERROR' && item.kind === 'LOCAL') {
+        return 'Error while downloading'
+      } else if (item.action === 'PULL_ERROR' && item.kind === 'REMOTE') {
+        return 'Error while uploading'
+      } else if (item.action === 'DELETE' && item.kind === 'LOCAL') {
+        return `Deleting from your computer`
+      } else if (item.action === 'DELETE' && item.kind === 'REMOTE') {
+        return `Deleting from Internxt Drive`
+      } else if (item.action === 'DELETED' && item.kind === 'LOCAL') {
+        return `Deleted from your computer`
+      } else if (item.action === 'DELETED' && item.kind === 'REMOTE') {
+        return `Deleted from Internxt Drive`
+      } else if (item.action === 'DELETE_ERROR' && item.kind === 'LOCAL') {
+        return 'Error while deleting from your computer'
+      } else if (item.action === 'DELETE_ERROR' && item.kind === 'REMOTE') {
+        return 'Error while deleting from Internxt Drive'
+      } else {
+        return ''
+      }
     }
   },
   filters: {
-    truncatePath(path) {
-      return truncatePath(path, 50)
+    showOnlyFilename(name) {
+      return path.parse(name).base
     }
   }
 }

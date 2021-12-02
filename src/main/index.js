@@ -725,14 +725,13 @@ function processSyncItem(item, hasBeenStopped) {
       onExitFuncs.forEach(f => f())
       if (reason) {
         app.emit('SYNC_NEXT', {
-          ...item,
           result: { status: reason, errorName }
         })
       }
       resolve()
     }
 
-    app.emit('SYNC_INFO_UPDATE', { ...item, action: 'ACQUIRING_LOCK' })
+    app.emit('SYNC_INFO_UPDATE', { action: 'ACQUIRING_LOCK' })
 
     function onAcquireLockError(err) {
       Logger.error('Could not acquire lock', err)
@@ -768,10 +767,10 @@ function processSyncItem(item, hasBeenStopped) {
       return onExit('STOPPED_BY_USER')
     }
 
-    app.emit('SYNC_INFO_UPDATE', { ...item, action: 'STARTING' })
+    app.emit('SYNC_INFO_UPDATE', { action: 'STARTING' })
 
     ipcMain.handle('get-sync-details', () => ({
-      ...item,
+      localPath: item.localPath,
       folderId: parseInt(item.folderId)
     }))
     onExitFuncs.push(() => ipcMain.removeHandler('get-sync-details'))
@@ -831,5 +830,5 @@ if (!isAlreadySet) {
 
   fs.mkdir(syncRoot, { recursive: true }, console.log)
 
-  ConfigStore.set('syncRoot', syncRoot)
+  ConfigStore.set('syncRoot', syncRoot + path.sep)
 }

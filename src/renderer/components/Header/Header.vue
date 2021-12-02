@@ -40,13 +40,10 @@
             placement: 'bottom',
             delay: { show: 750, hide: 50 }
           }"
-          class="header-item"
+          class="header-item cursor-pointer"
+          @click="goToDriveWeb"
         >
-          <UilGlobe
-            @click.native="goToDriveWeb"
-            class="text-gray-500 cursor-pointer"
-            size="20px"
-          />
+          <UilGlobe class="text-gray-500" size="20px" />
         </div>
         <div
           class="flex items-center justify-center cursor-pointer header-item"
@@ -66,15 +63,15 @@
             justify-center
             cursor-pointer
             header-item
+            dropdown-toggle
             dropdown"
+          data-toggle="dropdown"
+          aria-haspopup="true"
+          aria-expanded="false"
         >
           <UilSetting
-            class="text-gray-500 dropdown-toggle"
+            class="text-gray-500 "
             style="outline: none"
-            data-toggle="dropdown"
-            data-offset="10,10"
-            aria-haspopup="true"
-            aria-expanded="false"
             size="20px"
             v-tooltip="{
               content: 'Settings',
@@ -83,18 +80,20 @@
             }"
           />
 
-          <div class="dropdown-menu rounded-lg">
+          <div class="dropdown-menu rounded-lg" data-offset="0,10">
             <a
-              class="text-gray-700 dropdown-item"
+              class="text-gray-600 dropdown-item"
               @click="() => openSettingsWindow('general')"
               >Preferences</a
             >
-            <a class="text-gray-700 dropdown-item" @click="ContactSupportMailto"
+            <a class="text-gray-600 dropdown-item" @click="ContactSupportMailto"
               >Support</a
             >
-            <a class="text-gray-700 dropdown-item" @click="logout">Log out</a>
+            <a class="text-gray-600 dropdown-item pb-2" @click="logout"
+              >Log out</a
+            >
             <a
-              class="text-gray-700 dropdown-item border-gray-100 border-t border-solid pt-2"
+              class="text-gray-600 dropdown-item border-gray-100 border-t border-solid pt-2"
               @click="quitApp"
               >Quit</a
             >
@@ -283,5 +282,9 @@ export default {
 }
 .header-item:active {
   background-color: #ebecf0;
+}
+
+.dropdown::after {
+  display: none;
 }
 </style>
