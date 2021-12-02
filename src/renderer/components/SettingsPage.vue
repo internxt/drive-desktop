@@ -40,13 +40,6 @@
       >
         <BackupIcon size="27" :state="backupStatus" />
       </settings-header-item>
-      <settings-header-item
-        title="Sync"
-        @click="active = 'sync'"
-        :active="active === 'sync'"
-      >
-        <UilSync size="27px" />
-      </settings-header-item>
     </div>
     <div class="p-8">
       <keep-alive>
@@ -63,14 +56,12 @@ import {
   UilSetting,
   UilAt,
   UilHistory,
-  UilMultiply,
-  UilSync
+  UilMultiply
 } from '@iconscout/vue-unicons'
 import Button from './Button/Button.vue'
 import BackupsSection from './Settings/BackupsSection.vue'
 import AccountSection from './Settings/AccountSection.vue'
 import GeneralSection from './Settings/GeneralSection.vue'
-import SyncSection from './Settings/SyncSection.vue'
 import Dialog from './Settings/Dialog.vue'
 import BackupIcon from './Icons/BackupIcon.vue'
 import Avatar from './Avatar/Avatar.vue'
@@ -84,13 +75,11 @@ export default {
     BackupsSection,
     AccountSection,
     GeneralSection,
-    SyncSection,
     Avatar,
     UilMultiply,
     UilSetting,
     UilAt,
     UilHistory,
-    UilSync,
     BackupIcon,
     Dialog
   },
@@ -146,8 +135,6 @@ export default {
           return AccountSection
         case 'backups':
           return BackupsSection
-        case 'sync':
-          return SyncSection
         default:
           return GeneralSection
       }
