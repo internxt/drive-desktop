@@ -534,11 +534,18 @@ async function ManualCheckUpdate() {
 app.on('ready', () => {
   checkUpdates()
 
-  /*
-    Don't start backup process right away
-    as the load is already high on ready
-  */
-  setTimeout(startBackupProcess, 8000)
+  const backupInterval = ConfigStore.get('backupInterval')
+  const lastBackup = ConfigStore.get('lastBackup')
+
+  if (backupInterval !== -1 && lastBackup !== -1) {
+    const currentTimestamp = new Date().valueOf()
+
+    const enoughTimePassed = lastBackup + backupInterval <= currentTimestamp
+
+    if (enoughTimePassed) {
+      startBackupProcess()
+    }
+  }
 
   // Check updates every 6 hours
   setInterval(() => {
