@@ -43,6 +43,10 @@ const schema = {
   syncRoot: {
     type: 'string',
     default: ''
+  },
+  lastSavedListing: {
+    type: 'string',
+    default: ''
   }
 }
 

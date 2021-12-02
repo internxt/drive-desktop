@@ -23,11 +23,11 @@ import dimentions from './window-dimentions/dimentions'
 import BackupsDB from '../backup-process/backups-db'
 import BackupStatus from '../backup-process/status'
 import ErrorCodes from '../backup-process/error-codes'
-import SyncDB from '../sync/sync-db'
 import locksService from '../sync/locks-service'
 import SyncStatus from '../sync/sync-status'
 import { v4 } from 'uuid'
 import fs from 'fs'
+import { getUser } from './auth'
 
 require('@electron/remote/main').initialize()
 AutoLaunch.configureAutostart()
@@ -706,13 +706,12 @@ async function startSyncProcess() {
     hasBeenStopped.value = true
   })
 
-  const syncItems = await SyncDB.get()
-
-  for (const item of syncItems) {
-    if (!hasBeenStopped.value) {
-      await processSyncItem(item, hasBeenStopped)
-    }
+  const item = {
+    folderId: getUser().root_folder_id,
+    localPath: ConfigStore.get('syncRoot')
   }
+  await processSyncItem(item, hasBeenStopped)
+
   changeSyncStatus(SyncStatus.STANDBY)
   ipcMain.removeAllListeners('stop-sync-process')
 }

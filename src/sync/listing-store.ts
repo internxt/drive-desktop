@@ -1,23 +1,19 @@
+import ConfigStore from '../main/config-store'
 import { Listing, ListingStore } from './sync'
-import SyncDB from './sync-db'
 
-export default function getListingStore(
-  localPath: string,
-  folderId: number
-): ListingStore {
-
+export default function getListingStore(): ListingStore {
   return {
     async getLastSavedListing(): Promise<Listing | null> {
-      const res = await SyncDB.getOne({localPath, folderId})
-      return res.length === 1 ? JSON.parse(res[0].listing) : null
+      const lastSavedListing = ConfigStore.get('lastSavedListing') as string
+      return lastSavedListing !== '' ? JSON.parse(lastSavedListing) : null
     },
 
     async saveListing(listing: Listing): Promise<void> {
-      await SyncDB.saveListing({localPath, folderId, listing: JSON.stringify(listing)})
+      ConfigStore.set('lastSavedListing', JSON.stringify(listing))
     },
 
     async removeSavedListing(): Promise<void> {
-      await SyncDB.removeListing({localPath, folderId})
+      ConfigStore.set('lastSavedListing', '')
     }
   }
 }
