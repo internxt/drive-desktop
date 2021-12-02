@@ -20,7 +20,7 @@
         }"
         class="flex items-center justify-between px-2 py-1 max-w-full"
         @click.stop="backupSelected = backup"
-        @dblclick="() => openFolder(backup.path)"
+        @dblclick="() => openParentFolder(backup.path)"
       >
         <div class="flex items-center overflow-hidden">
           <img
@@ -256,8 +256,9 @@ export default {
     basename(completePath) {
       return path.basename(completePath)
     },
-    openFolder(path) {
-      electron.shell.openPath(path)
+    openParentFolder(completePath) {
+      const parentPath = path.parse(completePath).dir
+      electron.shell.openPath(parentPath)
     },
     async findFolder(backup) {
       let familiarPath = path.dirname(backup.path)
