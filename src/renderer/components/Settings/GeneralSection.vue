@@ -100,6 +100,7 @@ export default {
         })
         this.path = newDir[0]
         ConfigStore.set('syncRoot', this.path + path.sep)
+        ConfigStore.set('lastSavedListing', '')
       } else {
         Logger.info('Sync folder change error or cancelled')
       }
