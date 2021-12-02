@@ -1,11 +1,24 @@
 <template>
   <div class="flex flex-none flex-col h-full w-full overflow-x-hidden relative">
-    <Header class="header z-20 bg-white" :appName="appName" :emailAccount="emailAccount" :userFullname="userFullname" :backupStatus="backupStatus"/>
-    <BackupErrorBanner :backupStatus="backupStatus" @actionClick="openBackupsWindow"/>
-    <ConnectionBanner/>
-    <BackupProgress v-if="backupProgress" style="transform: translateX(-50%)" class="absolute bottom-14 left-1/2 w-11/12" :progress="backupProgress"/>
-    <Dialog v-if="$store.state.ui.settingsDialog"/>
-    <sync-info/>
+    <Header
+      class="header z-20 bg-white"
+      :appName="appName"
+      :emailAccount="emailAccount"
+      :userFullname="userFullname"
+    />
+    <BackupErrorBanner
+      :backupStatus="backupStatus"
+      @actionClick="openBackupsWindow"
+    />
+    <ConnectionBanner />
+    <BackupProgress
+      v-if="backupProgress"
+      style="transform: translateX(-50%)"
+      class="absolute bottom-14 left-1/2 w-11/12"
+      :progress="backupProgress"
+    />
+    <Dialog v-if="$store.state.ui.settingsDialog" />
+    <sync-info />
     <sync-bottom />
   </div>
 </template>
@@ -21,7 +34,7 @@ import ConnectionBanner from './ConnectionBanner/ConnectionBanner.vue'
 import SyncBottom from './SyncBottom/SyncBottom.vue'
 import SyncInfo from './SyncInfo/SyncInfo.vue'
 import * as Auth from '../../main/auth'
-import {ipcRenderer} from 'electron'
+import { ipcRenderer } from 'electron'
 
 const remote = require('@electron/remote')
 
@@ -53,8 +66,7 @@ export default {
     SpaceUsage.updateUsage()
   },
   mounted() {
-    ipcRenderer.invoke('get-backup-status')
-      .then(this.setBackupStatus)
+    ipcRenderer.invoke('get-backup-status').then(this.setBackupStatus)
     remote.app.on('backup-status-update', this.setBackupStatus)
     remote.app.on('backup-progress', this.setBackupProgress)
     const user = Auth.getUser()

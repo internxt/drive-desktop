@@ -3,41 +3,69 @@
     <div class="flex justify-between self-center p-3">
       <div class="flex flex-col">
         <div class="flex items-center">
-          <div class="text-sm">
+          <div class="text-xs">
             <div>{{ emailAccount }}</div>
             <div class="flex" v-if="showUsage">
-              <div class="mr-0.5 text-gray-500"> <span :class="{'text-red-600': showUsageWarning }">{{ usage }}</span> of {{ limit }}</div>
+              <div class="mr-0.5 text-gray-500 text-xs">
+                <span :class="{ 'text-red-600': showUsageWarning }">{{
+                  usage
+                }}</span>
+                of {{ limit }}
+              </div>
               <div
                 v-if="showUpgrade"
-                class="ml-1 text-blue-60 cursor-pointer"
+                class="ml-1 text-blue-60 cursor-pointer text-xs"
                 @click="openLinkBilling"
               >
                 Upgrade
               </div>
             </div>
-            <content-placeholders v-else class="h-5 pt-1" :rounded="true" style="margin-bottom: -4px;" >
+            <content-placeholders
+              v-else
+              class="h-5 pt-1"
+              :rounded="true"
+              style="margin-bottom: -4px;"
+            >
               <content-placeholders-text :lines="1" />
             </content-placeholders>
           </div>
         </div>
       </div>
 
-      <div class="flex items-center justify-center space-x-3">
+      <div class="flex items-center justify-center">
         <!-- {{ this.$data.localPath }} -->
-
-        <backup-icon
-          @click="() => openSettingsWindow('backups')"
-          class="text-gray-500"
-          :state="backupStatus"
-          size="22"
-        />
-
+        <div
+          v-tooltip="{
+            content: 'Open drive web',
+            placement: 'bottom',
+            delay: { show: 750, hide: 50 }
+          }"
+          class="header-item"
+        >
+          <UilGlobe
+            @click.native="goToDriveWeb"
+            class="text-gray-500 cursor-pointer"
+            size="20px"
+          />
+        </div>
+        <div
+          class="flex items-center justify-center cursor-pointer header-item"
+          @click="openFolder"
+          v-tooltip="{
+            content: 'Open sync folder',
+            placement: 'bottom',
+            delay: { show: 750, hide: 50 }
+          }"
+        >
+          <UilFolderOpen class="text-gray-500" size="20px" />
+        </div>
         <div
           class="
             flex
             items-center
             justify-center
             cursor-pointer
+            header-item
             dropdown"
         >
           <UilSetting
@@ -47,7 +75,7 @@
             data-offset="10,10"
             aria-haspopup="true"
             aria-expanded="false"
-            size="22px"
+            size="20px"
             v-tooltip="{
               content: 'Settings',
               placement: 'bottom',
@@ -65,16 +93,31 @@
               >Support</a
             >
             <a class="text-gray-700 dropdown-item" @click="logout">Log out</a>
-            <a class="text-gray-700 dropdown-item border-gray-100 border-t border-solid pt-2" @click="quitApp">Quit</a>
+            <a
+              class="text-gray-700 dropdown-item border-gray-100 border-t border-solid pt-2"
+              @click="quitApp"
+              >Quit</a
+            >
           </div>
         </div>
       </div>
     </div>
 
-    <div v-if="showUsageWarning" class="px-3 py-2 flex items-center text-xs border-yellow-100 border-b bg-yellow-50 text-yellow-600">
-      <img style="width: 20px; height:20px" src="../../assets/icons/apple/warn.svg"/>
+    <div
+      v-if="showUsageWarning"
+      class="px-3 py-2 flex items-center text-xs border-yellow-100 border-b bg-yellow-50 text-yellow-600"
+    >
+      <img
+        style="width: 20px; height:20px"
+        src="../../assets/icons/apple/warn.svg"
+      />
       <p class="ml-2 mb-0">Running out of space</p>
-      <p @click="openLinkBilling" class="flex-grow underline cursor-pointer flex justify-end items-center mb-0">Upgrade now</p>
+      <p
+        @click="openLinkBilling"
+        class="flex-grow underline cursor-pointer flex justify-end items-center mb-0"
+      >
+        Upgrade now
+      </p>
     </div>
   </div>
 </template>
@@ -91,7 +134,8 @@ import {
   UilServerConnection,
   UilFileTimes,
   UilSlidersVAlt,
-  UilHistory
+  UilHistory,
+  UilGlobe
 } from '@iconscout/vue-unicons'
 import InternxtBrand from '../ExportIcons/InternxtBrand'
 import analytics from '../../logic/utils/analytics'
@@ -100,9 +144,9 @@ import bytes from 'bytes'
 import FileIcon from '../Icons/FileIcon.vue'
 import Checkbox from '../Icons/Checkbox.vue'
 import Avatar from '../Avatar/Avatar.vue'
-import BackupIcon from '../Icons/BackupIcon.vue'
 import * as Auth from '../../../main/auth'
-import { ipcRenderer } from 'electron'
+import ConfigStore from '../../../main/config-store'
+import electron, { ipcRenderer } from 'electron'
 Vue.use(VToolTip)
 const remote = require('@electron/remote')
 
@@ -157,8 +201,8 @@ export default {
       this.$store.originalDispatch('showSettingsDialog', {
         title: 'Log out',
         description: 'Are you sure?',
-        answers: [{text: 'Cancel'}, {text: 'Log out', state: 'accent'}],
-        callback: (userResponse) => {
+        answers: [{ text: 'Cancel' }, { text: 'Log out', state: 'accent' }],
+        callback: userResponse => {
           if (userResponse === 1) {
             ipcRenderer.send('stop-backup-process')
             remote.app.emit('user-logout')
@@ -167,6 +211,16 @@ export default {
           }
         }
       })
+    },
+    openFolder() {
+      electron.shell.openPath(ConfigStore.get('rootSync'))
+    },
+    goToDriveWeb() {
+      console.log('heuyeheyrue')
+      remote.shell
+        .openExternal('https://drive.internxt.com')
+        .then(console.log)
+        .catch(console.log)
     }
   },
   name: 'Header',
@@ -186,10 +240,6 @@ export default {
     userFullname: {
       type: String,
       default: ''
-    },
-    backupStatus: {
-      type: String,
-      default: ''
     }
   },
   components: {
@@ -206,7 +256,7 @@ export default {
     FileIcon,
     Checkbox,
     Avatar,
-    BackupIcon
+    UilGlobe
   },
   computed: {
     showUsageWarning() {
@@ -222,3 +272,16 @@ export default {
   }
 }
 </script>
+
+<style>
+.header-item {
+  padding: 6px;
+  border-radius: 0.5rem;
+}
+.header-item:hover {
+  background-color: #f4f5f7;
+}
+.header-item:active {
+  background-color: #ebecf0;
+}
+</style>

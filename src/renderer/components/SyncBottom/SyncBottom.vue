@@ -1,10 +1,25 @@
 <template>
-	<div class="flex w-full justify-between items-center bg-white border border-t border-gray-50" style="padding: .75rem 1rem">
-		<p class="text-sm">{{status === 'RUNNING' ? 'Synchronizing your files' : ''}}</p>
-		<stop-icon v-if="status === 'RUNNING'"  @click.native="stopSync" class="cursor-pointer" stopButtonState="active"/>
-		<play-icon v-else-if="status === 'STANDBY'" @click.native="startSync" class="cursor-pointer" playButtonState="active" />
-    <Spinner v-else/>
-	</div>
+  <div
+    class="flex w-full justify-between items-center bg-white border border-t border-gray-50"
+    style="padding: .3rem 1rem"
+  >
+    <p class="text-xs">
+      {{ status === 'RUNNING' ? 'Synchronizing your files' : '' }}
+    </p>
+    <stop-icon
+      v-if="status === 'RUNNING'"
+      @click.native="stopSync"
+      class="cursor-pointer"
+      stopButtonState="active"
+    />
+    <play-icon
+      v-else-if="status === 'STANDBY'"
+      @click.native="startSync"
+      class="cursor-pointer"
+      playButtonState="active"
+    />
+    <Spinner v-else />
+  </div>
 </template>
 
 <script>
