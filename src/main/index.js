@@ -714,7 +714,7 @@ function notifyBackupProcessWithNoConnection() {
 
 let syncStatus = SyncStatus.STANDBY
 let syncProcessRerun = null
-const SYNC_INTERVAL = 1 * 60 * 1000
+const SYNC_INTERVAL = 10 * 60 * 1000
 
 ipcMain.on('start-sync-process', startSyncProcess)
 ipcMain.handle('get-sync-status', () => syncStatus)
