@@ -10,6 +10,7 @@
       :backupStatus="backupStatus"
       @actionClick="openBackupsWindow"
     />
+    <SyncErrorBanner />
     <ConnectionBanner />
     <BackupProgress
       v-if="backupProgress"
@@ -29,6 +30,7 @@ import Header from '../components/Header/Header'
 import Dialog from '../components/Settings/Dialog.vue'
 import BackupProgress from '../components/BackupProgress/BackupProgress.vue'
 import BackupErrorBanner from './BackupErrorBanner/BackupErrorBanner.vue'
+import SyncErrorBanner from './SyncErrorBanner/SyncErrorBanner.vue'
 import BackupStatus from '../../backup-process/status'
 import ConnectionBanner from './ConnectionBanner/ConnectionBanner.vue'
 import SyncBottom from './SyncBottom/SyncBottom.vue'
@@ -44,6 +46,7 @@ export default {
     Header,
     BackupProgress,
     BackupErrorBanner,
+    SyncErrorBanner,
     ConnectionBanner,
     Dialog,
     SyncBottom,

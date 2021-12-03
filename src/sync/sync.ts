@@ -16,8 +16,8 @@ class Sync extends EventEmitter {
   async run(): Promise<void> {
     this.emit('SMOKE_TESTING')
 
-		await this.local.smokeTest()
-		await this.remote.smokeTest()
+    await this.local.smokeTest()
+    await this.remote.smokeTest()
 
     this.emit('CHECKING_LAST_RUN_OUTCOME')
     const lastSavedListing = await this.listingStore.getLastSavedListing()
@@ -28,7 +28,7 @@ class Sync extends EventEmitter {
 
     this.emit('GENERATING_ACTIONS_NEEDED_TO_SYNC')
 
-		const {currentLocal, currentRemote} = await this.getCurrentListings()
+    const { currentLocal, currentRemote } = await this.getCurrentListings()
 
     Logger.log('Current local before', currentLocal)
     Logger.log('Current remote before', currentRemote)
@@ -94,7 +94,7 @@ class Sync extends EventEmitter {
   private async resync(): Promise<void> {
     this.emit('NEEDS_RESYNC')
 
-		const {currentLocal, currentRemote} = await this.getCurrentListings()
+    const { currentLocal, currentRemote } = await this.getCurrentListings()
 
     Logger.log('Current local before', currentLocal)
     Logger.log('Current remote before', currentRemote)
@@ -334,7 +334,7 @@ class Sync extends EventEmitter {
         Logger.error(
           `Error renaming file in ${fileSystem.kind} ${oldName} to ${newName} (${err.name}: ${err.message})`
         )
-				Logger.error(err.stack)
+        Logger.error(err.stack)
         this.emit('ERROR_RENAMING_FILE', oldName, newName, fileSystem.kind)
       }
     }
@@ -357,7 +357,7 @@ class Sync extends EventEmitter {
         Logger.error(
           `Error pulling file from ${destFs.kind}, ${name} (${err.name}: ${err.message})`
         )
-				Logger.error(err.stack)
+        Logger.error(err.stack)
         this.emit('ERROR_PULLING_FILE', name, destFs.kind)
       }
     }
@@ -376,7 +376,7 @@ class Sync extends EventEmitter {
         Logger.error(
           `Error deleting file in ${fileSystem.kind}, ${name} (${err.name}: ${err.message})`
         )
-				Logger.error(err.stack)
+        Logger.error(err.stack)
         this.emit('ERROR_DELETING_FILE', name, fileSystem.kind)
       }
     }
@@ -396,7 +396,7 @@ class Sync extends EventEmitter {
         Logger.error(
           `Error deleting folder in ${fileSystem.kind}, ${name} (${err.name}: ${err.message})`
         )
-				Logger.error(err.stack)
+        Logger.error(err.stack)
         this.emit('ERROR_DELETING_FOLDER', name, fileSystem.kind)
       }
     }
@@ -405,10 +405,10 @@ class Sync extends EventEmitter {
   private async finalize() {
     this.emit('FINALIZING')
 
-		const {currentLocal, currentRemote} = await this.getCurrentListings()
+    const { currentLocal, currentRemote } = await this.getCurrentListings()
 
     if (_.isEqual(currentLocal, currentRemote)) {
-			const currentInBoth = currentLocal
+      const currentInBoth = currentLocal
       Logger.log('Current in both:', currentInBoth)
 
       await this.listingStore.saveListing(currentInBoth)
@@ -447,19 +447,24 @@ class Sync extends EventEmitter {
     return { filesNotInLocal, filesNotInRemote, filesWithDifferentModtime }
   }
 
-	private async getCurrentListings(): Promise<{currentLocal: Listing, currentRemote: Listing}> {
-		try {
-			const [currentLocal, currentRemote] = await Promise.all([
-				this.local.getCurrentListing(),
-				this.remote.getCurrentListing()
-			])
-			return {currentLocal, currentRemote}
-		} catch(err) {
-			Logger.error(`Error while getting current listing (${err.name}:${err.code}:${err.message})`)
-			Logger.error(err.stack)
-			throw new SyncFatalError('CANNOT_GET_CURRENT_LISTINGS')
-		}
-	}
+  private async getCurrentListings(): Promise<{
+    currentLocal: Listing
+    currentRemote: Listing
+  }> {
+    try {
+      const [currentLocal, currentRemote] = await Promise.all([
+        this.local.getCurrentListing(),
+        this.remote.getCurrentListing()
+      ])
+      return { currentLocal, currentRemote }
+    } catch (err) {
+      Logger.error(
+        `Error while getting current listing (${err.name}:${err.code}:${err.message})`
+      )
+      Logger.error(err.stack)
+      throw new SyncFatalError('CANNOT_GET_CURRENT_LISTINGS')
+    }
+  }
 }
 
 export interface FileSystem {
@@ -697,12 +702,12 @@ type ListingsDiff = {
   filesWithDifferentModtime: string[]
 }
 
-type SyncFatalErrorName = 
-  'NO_INTERNET' |
-  'NO_REMOTE_CONNECTION' |
-  'CANNOT_ACCESS_BASE_DIRECTORY' |
-  'CANNOT_ACCESS_TMP_DIRECTORY' |
-  'CANNOT_GET_CURRENT_LISTINGS' 
+type SyncFatalErrorName =
+  | 'NO_INTERNET'
+  | 'NO_REMOTE_CONNECTION'
+  | 'CANNOT_ACCESS_BASE_DIRECTORY'
+  | 'CANNOT_ACCESS_TMP_DIRECTORY'
+  | 'CANNOT_GET_CURRENT_LISTINGS'
 
 export class SyncFatalError extends Error {
   constructor(name: SyncFatalErrorName) {
