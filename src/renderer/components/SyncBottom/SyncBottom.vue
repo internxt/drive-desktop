@@ -4,7 +4,13 @@
     style="padding: .3rem 1rem"
   >
     <p class="text-xs">
-      {{ status === 'RUNNING' ? 'Synchronizing your files' : '' }}
+      {{
+        status === 'RUNNING'
+          ? 'Synchronizing your files'
+          : showUpdatedJustNow
+          ? 'Updated just now'
+          : ''
+      }}
     </p>
     <stop-icon
       v-if="status === 'RUNNING'"
@@ -38,15 +44,19 @@ export default {
   },
   data() {
     return {
-      status: syncStatus.STANDBY
+      status: syncStatus.STANDBY,
+      showUpdatedJustNow: false,
+      showUpdatedJustNowTimeout: null
     }
   },
   async mounted() {
     this.setStatus(await ipcRenderer.invoke('get-sync-status'))
     remote.app.on('sync-status-changed', this.setStatus)
+    remote.app.on('SYNC_NEXT', this.onNext)
   },
   beforeDestroy() {
     remote.app.removeListener('sync-status-schanged', this.setStatus)
+    remote.app.removeListener('SYNC_NEXT', this.onNext)
   },
   methods: {
     setStatus(newStatus) {
@@ -58,6 +68,18 @@ export default {
     stopSync() {
       ipcRenderer.send('stop-sync-process')
       this.status = null
+    },
+    onNext({ result }) {
+      this.showUpdatedJustNow =
+        result.status === 'IN_SYNC' || result.status === 'NOT_IN_SYNC'
+
+      if (this.showUpdatedJustNowTimeout) {
+        clearTimeout(this.showUpdatedJustNowTimeout)
+      }
+
+      if (this.showUpdatedJustNow) {
+        setTimeout(() => (this.showUpdatedJustNow = false), 30 * 1000)
+      }
     }
   }
 }
