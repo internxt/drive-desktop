@@ -70,7 +70,9 @@ export default {
       if (!alreadyExists) {
         this.items = [item, ...this.items.slice(0, 50)]
       } else {
-        this.items[itemIndex] = item
+        const itemsCopy = [...this.items]
+        itemsCopy[itemIndex] = item
+        this.items = itemsCopy
       }
     },
     onNext(item) {

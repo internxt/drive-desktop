@@ -534,6 +534,8 @@ async function ManualCheckUpdate() {
 app.on('ready', () => {
   checkUpdates()
 
+  // Check if we should launch backup process
+
   const backupInterval = ConfigStore.get('backupInterval')
   const lastBackup = ConfigStore.get('lastBackup')
 
@@ -544,6 +546,20 @@ app.on('ready', () => {
 
     if (enoughTimePassed) {
       startBackupProcess()
+    }
+  }
+
+  // Check if we should launch sync process
+
+  const lastSync = ConfigStore.get('lastSync')
+
+  if (lastSync !== -1) {
+    const currentTimestamp = new Date().valueOf()
+
+    const enoughTimePassed = lastSync + SYNC_INTERVAL <= currentTimestamp
+
+    if (enoughTimePassed) {
+      startSyncProcess()
     }
   }
 
@@ -689,6 +705,8 @@ function notifyBackupProcessWithNoConnection() {
 /** SYNC **/
 
 let syncStatus = SyncStatus.STANDBY
+let syncProcessRerun = null
+const SYNC_INTERVAL = 10 * 60 * 1000
 
 ipcMain.on('start-sync-process', startSyncProcess)
 ipcMain.handle('get-sync-status', () => syncStatus)
@@ -719,6 +737,15 @@ async function startSyncProcess() {
   }
   await processSyncItem(item, hasBeenStopped)
 
+  const currentTimestamp = new Date().valueOf()
+
+  ConfigStore.set('lastSync', currentTimestamp)
+
+  if (syncProcessRerun) {
+    clearTimeout(syncProcessRerun)
+  }
+  syncProcessRerun = setTimeout(startSyncProcess, SYNC_INTERVAL)
+
   changeSyncStatus(SyncStatus.STANDBY)
   ipcMain.removeAllListeners('stop-sync-process')
 }
@@ -735,6 +762,7 @@ function processSyncItem(item, hasBeenStopped) {
           result: { status: reason, errorName }
         })
       }
+
       resolve()
     }
 

@@ -47,6 +47,10 @@ const schema = {
   lastSavedListing: {
     type: 'string',
     default: ''
+  },
+  lastSync: {
+    type: 'number',
+    default: -1
   }
 }
 
