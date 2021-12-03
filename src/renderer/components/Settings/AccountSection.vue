@@ -71,7 +71,6 @@ import Button from '../Button/Button.vue'
 import bytes from 'bytes'
 import analytics from '../../logic/utils/analytics'
 import * as Auth from '../../../main/auth'
-import { ipcRenderer } from 'electron'
 const remote = require('@electron/remote')
 
 export default {
@@ -111,8 +110,7 @@ export default {
         answers: [{ text: 'Cancel' }, { text: 'Log out', state: 'accent' }],
         callback: userResponse => {
           if (userResponse === 1) {
-            Auth.logout()
-            this.$router.push('/')
+            remote.app.emit('logout-from-settings')
           }
         }
       })

@@ -161,6 +161,7 @@ export default {
   },
   beforeDestroy() {
     remote.app.removeAllListeners('update-storage')
+    remote.app.removeAllListeners('logout-from-settings')
   },
   created() {
     this.$app = this.$electron.remote.app
@@ -173,6 +174,8 @@ export default {
         this.showUsage = true
       }
     })
+
+    remote.app.on('logout-from-settings', this.logout)
   },
   methods: {
     openLinkBilling() {
@@ -196,18 +199,21 @@ export default {
       analytics.trackQuit()
       remote.app.emit('app-close')
     },
-    logout() {
+    onLogoutClick() {
       this.$store.originalDispatch('showSettingsDialog', {
         title: 'Log out',
         description: 'Are you sure?',
         answers: [{ text: 'Cancel' }, { text: 'Log out', state: 'accent' }],
         callback: userResponse => {
           if (userResponse === 1) {
-            Auth.logout()
-            this.$router.push('/')
+            this.logout()
           }
         }
       })
+    },
+    logout() {
+      Auth.logout()
+      this.$router.push('/')
     },
     openFolder() {
       electron.shell.openPath(ConfigStore.get('syncRoot'))
