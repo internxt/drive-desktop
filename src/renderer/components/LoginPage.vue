@@ -391,6 +391,8 @@ export default {
             remote.app.emit('window-pushed-to', '/xcloud')
             this.$router.push('/xcloud').catch(() => {})
             remote.app.emit('enter-login', false)
+
+            remote.app.emit('logged-in')
           }
         })
         .catch(err => {

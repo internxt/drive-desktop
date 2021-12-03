@@ -133,6 +133,13 @@ function createWindow() {
 
   app.on('user-logout', () => {
     if (settingsWindow) settingsWindow.destroy()
+    if (backupProcessRerun) {
+      clearTimeout(backupProcessRerun)
+    }
+
+    if (syncProcessRerun) {
+      clearTimeout(syncProcessRerun)
+    }
   })
 
   app.on('update-configStore', item => {
@@ -531,6 +538,24 @@ async function ManualCheckUpdate() {
 }
 
 app.on('ready', () => {
+  const isLoggedIn = !!ConfigStore.get('bearerToken')
+
+  if (isLoggedIn) {
+    startBackgroundProcesses()
+  }
+
+  powerMonitor.on('suspend', function() {
+    Logger.warn('User system suspended')
+  })
+
+  powerMonitor.on('resume', function() {
+    Logger.warn('User system resumed')
+  })
+})
+
+app.on('logged-in', startBackgroundProcesses)
+
+function startBackgroundProcesses() {
   checkUpdates()
 
   // Check if we should launch backup process
@@ -574,15 +599,7 @@ app.on('ready', () => {
   setInterval(() => {
     checkUpdates()
   }, 1000 * 60 * 60 * 12)
-
-  powerMonitor.on('suspend', function() {
-    Logger.warn('User system suspended')
-  })
-
-  powerMonitor.on('resume', function() {
-    Logger.warn('User system resumed')
-  })
-})
+}
 
 let backupProcessStatus = BackupStatus.STANDBY
 let backupProcessRerun = null
