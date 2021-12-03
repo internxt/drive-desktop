@@ -51,6 +51,10 @@ const schema = {
   lastSync: {
     type: 'number',
     default: -1
+  },
+  savedConfigs: {
+    type: 'object',
+    default: {}
   }
 }
 

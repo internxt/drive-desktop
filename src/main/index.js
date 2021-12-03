@@ -26,7 +26,6 @@ import ErrorCodes from '../backup-process/error-codes'
 import locksService from '../sync/locks-service'
 import SyncStatus from '../sync/sync-status'
 import { v4 } from 'uuid'
-import fs from 'fs'
 import { getUser } from './auth'
 
 require('@electron/remote/main').initialize()
@@ -860,18 +859,4 @@ function spawnSyncWorker() {
     .catch(Logger.error)
 
   return worker
-}
-
-/**
- * TEMP DEFAULT SETTING OF ROOT SYNC
- */
-
-const isAlreadySet = !!ConfigStore.get('syncRoot')
-
-if (!isAlreadySet) {
-  const syncRoot = path.join(app.getPath('home'), 'Internxt Drive')
-
-  fs.mkdir(syncRoot, { recursive: true }, console.log)
-
-  ConfigStore.set('syncRoot', syncRoot + path.sep)
 }

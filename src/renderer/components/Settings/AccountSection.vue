@@ -111,9 +111,7 @@ export default {
         answers: [{ text: 'Cancel' }, { text: 'Log out', state: 'accent' }],
         callback: userResponse => {
           if (userResponse === 1) {
-            ipcRenderer.send('stop-backup-process')
-            remote.app.emit('user-logout')
-            Auth.resetCredentials()
+            Auth.logout()
             this.$router.push('/')
           }
         }

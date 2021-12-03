@@ -203,23 +203,17 @@ export default {
         answers: [{ text: 'Cancel' }, { text: 'Log out', state: 'accent' }],
         callback: userResponse => {
           if (userResponse === 1) {
-            ipcRenderer.send('stop-backup-process')
-            remote.app.emit('user-logout')
-            Auth.resetCredentials()
+            Auth.logout()
             this.$router.push('/')
           }
         }
       })
     },
     openFolder() {
-      electron.shell.openPath(ConfigStore.get('rootSync'))
+      electron.shell.openPath(ConfigStore.get('syncRoot'))
     },
     goToDriveWeb() {
-      console.log('heuyeheyrue')
-      remote.shell
-        .openExternal('https://drive.internxt.com')
-        .then(console.log)
-        .catch(console.log)
+      remote.shell.openExternal('https://drive.internxt.com')
     }
   },
   name: 'Header',
