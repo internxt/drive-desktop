@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flex w-full justify-between items-center bg-white border border-t border-gray-50"
+    class="flex w-full justify-between items-center bg-white sync-bottom"
     style="padding: .3rem 1rem"
   >
     <p class="text-xs">
@@ -84,3 +84,9 @@ export default {
   }
 }
 </script>
+
+<style>
+.sync-bottom {
+  border-top: 1px solid rgb(233, 233, 233);
+}
+</style>
