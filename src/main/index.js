@@ -27,6 +27,7 @@ import locksService from '../sync/locks-service'
 import SyncStatus from '../sync/sync-status'
 import { v4 } from 'uuid'
 import { getUser } from './auth'
+import { setupRootFolder } from '../libs/root-folder-utils'
 
 require('@electron/remote/main').initialize()
 AutoLaunch.configureAutostart()
@@ -876,4 +877,12 @@ function spawnSyncWorker() {
     .catch(Logger.error)
 
   return worker
+}
+
+// Migration to new sync
+
+const hasAlreadyMigrated = !!ConfigStore.get('syncRoot')
+
+if (!hasAlreadyMigrated) {
+  setupRootFolder()
 }

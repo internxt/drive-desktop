@@ -204,13 +204,8 @@ import {
 } from '@iconscout/vue-unicons'
 import OtpInput from '@bachdgvn/vue-otp-input'
 import * as Auth from '../../main/auth'
-import ConfigStore from '../../main/config-store'
-import path from 'path'
-import fs from 'fs'
+import { setupRootFolder } from '../../libs/root-folder-utils'
 const remote = require('@electron/remote')
-
-const ROOT_FOLDER_NAME = 'Internxt Drive'
-const HOME_FOLDER_PATH = remote.app.getPath('home')
 
 export default {
   name: 'login-page',
@@ -380,7 +375,7 @@ export default {
             Auth.setCredentials(res.data.user, mnemonic, res.data.token)
 
             if (!Auth.canHisConfigBeRestored(res.data.user.uuid)) {
-              this.createRootFolder()
+              setupRootFolder()
             }
 
             analytics.trackSignin({
@@ -399,32 +394,6 @@ export default {
           Logger.error('Error login', err)
           this.$data.isLoading = false
         })
-    },
-    createRootFolder(folderName = ROOT_FOLDER_NAME, n = 0) {
-      const rootFolderName = folderName + (n ? ` (${n})` : '')
-      const rootFolderPath = path.join(HOME_FOLDER_PATH, rootFolderName)
-      const exists = fs.existsSync(rootFolderPath)
-
-      if (exists) {
-        const isEmpty = this.isEmptyFolder(rootFolderPath)
-        if (!isEmpty) {
-          return this.createRootFolder(folderName, n + 1)
-        }
-      }
-
-      if (!exists) {
-        fs.mkdirSync(rootFolderPath)
-      }
-
-      return ConfigStore.set('syncRoot', path.join(rootFolderPath, path.sep))
-    },
-    isEmptyFolder(path) {
-      if (!fs.existsSync(path)) {
-        return true
-      } else {
-        const filesInFolder = fs.readdirSync(path)
-        return filesInFolder.length === 0
-      }
     },
     closeApp() {
       remote.getCurrentWindow().hide()
