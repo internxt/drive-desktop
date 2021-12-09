@@ -894,7 +894,7 @@ if (!hasAlreadyMigrated) {
 let syncIssues = []
 
 function onSyncIssuesChanged() {
-  app.emit('syncIssuesChanged', syncIssues)
+  app.emit('sync-issues-changed', syncIssues)
 }
 
 function clearSyncIssues() {

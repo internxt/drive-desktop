@@ -69,16 +69,23 @@
           aria-haspopup="true"
           aria-expanded="false"
         >
-          <UilSetting
-            class="text-gray-500 "
-            style="outline: none"
-            size="20px"
-            v-tooltip="{
-              content: 'Settings',
-              placement: 'bottom',
-              delay: { show: 750, hide: 50 }
-            }"
-          />
+          <div class="relative">
+            <UilSetting
+              class="text-gray-500 "
+              style="outline: none"
+              size="20px"
+              v-tooltip="{
+                content: 'Settings',
+                placement: 'bottom',
+                delay: { show: 750, hide: 50 }
+              }"
+            />
+            <div
+              v-if="numberOfSyncIssues > 0"
+              style="height:7px;width:7px;right:1px;top:1px;"
+              class="bg-red-600 rounded-full absolute"
+            ></div>
+          </div>
 
           <div class="dropdown-menu rounded-lg" data-offset="0,10">
             <a
@@ -156,12 +163,14 @@ export default {
       usage: '',
       limit: '',
       showUsage: false,
-      showUpgrade: false
+      showUpgrade: false,
+      numberOfSyncIssues: 0
     }
   },
   beforeDestroy() {
     remote.app.removeAllListeners('update-storage')
     remote.app.removeAllListeners('logout-from-settings')
+    remote.app.removeAllListeners('sync-issues-changed')
   },
   created() {
     this.$app = this.$electron.remote.app
@@ -176,6 +185,10 @@ export default {
     })
 
     remote.app.on('logout-from-settings', this.logout)
+
+    ipcRenderer.invoke('getSyncIssues').then(this.numberOfSyncIssues)
+
+    remote.app.on('sync-issues-changed', this.setNumberOfSyncIssues)
   },
   methods: {
     openLinkBilling() {
@@ -220,6 +233,10 @@ export default {
     },
     goToDriveWeb() {
       remote.shell.openExternal('https://drive.internxt.com')
+    },
+    setNumberOfSyncIssues(syncIssues) {
+      this.numberOfSyncIssues =
+        syncIssues && syncIssues.length ? syncIssues.length : 0
     }
   },
   name: 'Header',
