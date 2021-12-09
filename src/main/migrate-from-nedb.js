@@ -1,10 +1,10 @@
 import Datastore from 'nedb'
 import path from 'path'
 import fs, { constants } from 'fs'
-const remote = require('@electron/remote')
+import { app } from 'electron'
 
 const DB_FILE = path.join(
-  remote.app.getPath('userData'),
+  app.getPath('userData'),
   '.internxt-desktop',
   'database_user.db'
 )
