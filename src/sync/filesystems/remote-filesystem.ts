@@ -12,7 +12,7 @@ import { Environment } from '@internxt/inxt-js'
 import * as uuid from 'uuid'
 import { getDateFromSeconds, getSecondsFromDateString } from '../utils'
 import Logger from '../../libs/logger'
-import {getHeaders, getUser} from '../../main/auth'
+import { getHeaders, getUser } from '../../main/auth'
 import { Readable } from 'stream'
 
 /**
@@ -63,6 +63,7 @@ export function getRemoteFilesystem(baseFolderId: number): FileSystem {
     email: string
     userId: string
     bucket: string
+    bridgeUser: string
   }
   const mnemonic = ConfigStore.get('mnemonic') as string
 
@@ -81,21 +82,23 @@ export function getRemoteFilesystem(baseFolderId: number): FileSystem {
     const folders: ServerFolder[] = []
 
     while (thereIsMore) {
-      const batch = await fetch(`${process.env.API_URL}/api/desktop/list/${offset}`, {
-        method: 'GET',
-        headers
-      }).then(res => res.json())
+      const batch = await fetch(
+        `${process.env.API_URL}/api/desktop/list/${offset}`,
+        {
+          method: 'GET',
+          headers
+        }
+      ).then(res => res.json())
 
       files.push(...batch.files)
       folders.push(...batch.folders)
 
       thereIsMore = batch.folders.length === PAGE_SIZE
 
-      if (thereIsMore)
-        offset += PAGE_SIZE
+      if (thereIsMore) offset += PAGE_SIZE
     }
 
-    return {files, folders}
+    return { files, folders }
   }
 
   return {
@@ -239,7 +242,7 @@ export function getRemoteFilesystem(baseFolderId: number): FileSystem {
 
       const localUpload = new Environment({
         bridgeUrl: process.env.BRIDGE_URL,
-        bridgeUser: userInfo.email,
+        bridgeUser: userInfo.bridgeUser,
         bridgePass: userInfo.userId,
         encryptionKey: mnemonic
       })
@@ -262,7 +265,7 @@ export function getRemoteFilesystem(baseFolderId: number): FileSystem {
             params: {
               source,
               useProxy: false,
-              concurrency:10 
+              concurrency: 10
             }
           }
         )
@@ -339,7 +342,7 @@ export function getRemoteFilesystem(baseFolderId: number): FileSystem {
 
       const environment = new Environment({
         bridgeUrl: process.env.BRIDGE_URL,
-        bridgeUser: userInfo.email,
+        bridgeUser: userInfo.bridgeUser,
         bridgePass: userInfo.userId,
         encryptionKey: mnemonic
       })
@@ -361,10 +364,12 @@ export function getRemoteFilesystem(baseFolderId: number): FileSystem {
               }
             }
           },
-          { label: 'OneStreamOnly', params: {
+          {
+            label: 'OneStreamOnly',
+            params: {
               useProxy: false,
-              concurrency: 10 
-            } 
+              concurrency: 10
+            }
           }
         )
       })
@@ -372,9 +377,7 @@ export function getRemoteFilesystem(baseFolderId: number): FileSystem {
 
     async smokeTest() {
       if (!navigator.onLine) {
-        Logger.error(
-          `No internet connection`
-        )
+        Logger.error(`No internet connection`)
         throw new SyncFatalError('NO_INTERNET')
       }
 

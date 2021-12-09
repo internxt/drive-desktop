@@ -49,7 +49,10 @@ const { Environment } = require('@internxt/inxt-js')
         index
       )
       if (plainHash !== backup.hash) {
-        const enoughSpace = await isThereEnoughSpace(backup.size ? backup.size : 0, size)
+        const enoughSpace = await isThereEnoughSpace(
+          backup.size ? backup.size : 0,
+          size
+        )
 
         if (!enoughSpace) {
           Logger.error('Ran out of space before a backup', backup)
@@ -184,7 +187,7 @@ async function upload({
 
   const options = {
     bridgeUrl: process.env.BRIDGE_URL,
-    bridgeUser: userInfo.email,
+    bridgeUser: userInfo.bridgeUser,
     bridgePass: userInfo.userId,
     encryptionKey: mnemonic,
     inject: {
@@ -208,7 +211,11 @@ async function upload({
       },
       {
         label: 'OneStreamOnly',
-        params: { source: { stream: zipStream, hash: encryptedHash, size }, useProxy: false, concurrency: 1 }
+        params: {
+          source: { stream: zipStream, hash: encryptedHash, size },
+          useProxy: false,
+          concurrency: 1
+        }
       }
     )
   })
@@ -232,7 +239,10 @@ function notifyProgress({
 }) {
   app.emit('backup-progress', {
     currentBackup,
-    currentBackupProgress: currentBackupProgress !== null ? (currentBackupProgress * 100).toFixed(2) : null,
+    currentBackupProgress:
+      currentBackupProgress !== null
+        ? (currentBackupProgress * 100).toFixed(2)
+        : null,
     currentBackupIndex,
     totalBackupsCount
   })
@@ -266,5 +276,5 @@ async function isThereEnoughSpace(sizeOfLastVersion, sizeOfNewVersion) {
   const limit = limitInfo.maxSpaceBytes
   const usage = usageInfo.total
 
-  return (limit - usage - sizeOfNewVersion + sizeOfLastVersion) >= 0
+  return limit - usage - sizeOfNewVersion + sizeOfLastVersion >= 0
 }
