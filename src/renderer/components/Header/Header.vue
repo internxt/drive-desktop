@@ -313,4 +313,13 @@ export default {
 .dropdown::after {
   display: none;
 }
+
+.dropdown-item:active {
+  background-color: #ebecf0;
+  color: initial !important;
+}
+
+.dropdown-item:hover {
+  background-color: #f4f5f7;
+}
 </style>
