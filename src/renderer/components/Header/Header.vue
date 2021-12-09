@@ -93,6 +93,15 @@
               @click="() => openSettingsWindow('general')"
               >Preferences</a
             >
+            <div
+              v-if="numberOfSyncIssues > 0"
+              class="text-gray-600 dropdown-item flex items-center justify-between"
+            >
+              <div>Sync Issues</div>
+              <div class="text-red-600 text-xs font-semibold">
+                {{ numberOfSyncIssues }}
+              </div>
+            </div>
             <a class="text-gray-600 dropdown-item" @click="ContactSupportMailto"
               >Support</a
             >
