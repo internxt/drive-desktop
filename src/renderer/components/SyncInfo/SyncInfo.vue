@@ -75,7 +75,7 @@ export default {
         this.items = itemsCopy
       }
     },
-    onNext(item) {
+    onNext() {
       this.items = []
     },
     clear() {},

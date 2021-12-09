@@ -748,6 +748,8 @@ async function startSyncProcess() {
 
   changeSyncStatus(SyncStatus.RUNNING)
 
+  clearSyncIssues()
+
   // It's an object to pass it to
   // the individual item processors
   const hasBeenStopped = { value: false }
@@ -886,3 +888,25 @@ const hasAlreadyMigrated = !!ConfigStore.get('syncRoot')
 if (!hasAlreadyMigrated) {
   setupRootFolder()
 }
+
+// Sync issues
+
+let syncIssues = []
+
+function onSyncIssuesChanged() {
+  app.emit('syncIssuesChanged', syncIssues)
+}
+
+function clearSyncIssues() {
+  syncIssues = []
+  onSyncIssuesChanged()
+}
+
+app.on('SYNC_INFO_UPDATE', payload => {
+  if (['PULL_ERROR', 'RENAME_ERROR', 'DELETE_ERROR'].includes(payload.action)) {
+    syncIssues.push(payload)
+  }
+  onSyncIssuesChanged()
+})
+
+ipcMain.handle('getSyncIssues', () => syncIssues)
