@@ -27,7 +27,6 @@ import locksService from '../sync/locks-service'
 import SyncStatus from '../sync/sync-status'
 import { v4 } from 'uuid'
 import { getUser } from './auth'
-import { getXPath } from './migrate-from-nedb'
 
 require('@electron/remote/main').initialize()
 AutoLaunch.configureAutostart()
@@ -877,16 +876,4 @@ function spawnSyncWorker() {
     .catch(Logger.error)
 
   return worker
-}
-
-/**
- * Migration from nedb
- */
-
-const isPathSetInConfig = !!ConfigStore.get('syncRoot')
-
-if (!isPathSetInConfig) {
-  getXPath().then(xPath => {
-    ConfigStore.set('syncRoot', xPath)
-  })
 }
