@@ -139,12 +139,16 @@ export function getLocalFilesystem(
 
     async getSource(name: string): Promise<Source> {
       const actualPath = getActualPath(name)
-
-      const { modTimeInSeconds: modTime, size } = await getLocalMeta(actualPath)
-
       const tmpFilePath = getTempFilePath()
 
+      let modTime: number
+      let size: number
+
       try {
+        const localMeta = await getLocalMeta(actualPath)
+        modTime = localMeta.modTimeInSeconds
+        size = localMeta.size
+
         await fs.copyFile(actualPath, tmpFilePath)
       } catch (err) {
         if (err.code === 'ENOENT') {
