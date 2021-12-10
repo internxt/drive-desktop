@@ -3,11 +3,11 @@
     <div class="relative bg-white p-1 h-6" style="-webkit-app-region: drag">
       <div
         v-if="!isMacOS"
-        class="w-min"
+        class="absolute right-0 top-0 py-2 px-3 text-gray-600 hover:text-white hover:bg-red-600"
         @click="closeWindow"
         style="-webkit-app-region: no-drag"
       >
-        <UilMultiply class="hover:text-gray-500 block" />
+        <UilMultiply />
       </div>
       <p
         class="text-sm"
