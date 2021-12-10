@@ -30,6 +30,10 @@ export function getUser() {
   return Object.keys(user).length ? user : null
 }
 
+export function getToken() {
+  return ConfigStore.get('bearerToken')
+}
+
 export function resetCredentials() {
   ConfigStore.delete('mnemonic')
   ConfigStore.delete('userData')

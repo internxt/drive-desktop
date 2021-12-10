@@ -1,6 +1,5 @@
 <template>
-  <div id="wrapper">
-  </div>
+  <div id="wrapper"></div>
 </template>
 
 <script>
@@ -12,14 +11,14 @@ export default {
   beforeCreate() {
     remote.app.emit('window-hide')
   },
-  data: function () {
+  data: function() {
     return {
       dbFolder: ''
     }
   },
-  async created () {
-    const user = Auth.getUser()
-    if (user) {
+  async created() {
+    const token = Auth.getToken()
+    if (token) {
       remote.app.emit('window-pushed-to', '/xcloud')
       this.$router.push('/xcloud').catch(() => {})
     } else {
