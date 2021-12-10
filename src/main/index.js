@@ -910,3 +910,49 @@ app.on('SYNC_INFO_UPDATE', payload => {
 })
 
 ipcMain.handle('getSyncIssues', () => syncIssues)
+
+// Sync issues window
+
+let syncIssuesWindow = null
+
+ipcMain.on('open-sync-issues-window', () => {
+  openSyncIssuesWindow()
+})
+
+function openSyncIssuesWindow() {
+  if (syncIssuesWindow) {
+    syncIssuesWindow.focus()
+  } else {
+    const syncIssuesPath =
+      process.env.NODE_ENV === 'development'
+        ? `http://localhost:9080/#/sync-issues`
+        : `file://${__dirname}/index.html#sync-issues`
+
+    syncIssuesWindow = new BrowserWindow({
+      width: 500,
+      height: 384,
+      show: false,
+      titleBarStyle: process.platform === 'darwin' ? 'hidden' : undefined,
+      frame: process.platform !== 'darwin' ? false : undefined,
+      maximizable: false,
+      minimizable: false,
+      resizable: false,
+      webPreferences: {
+        nodeIntegration: true,
+        enableRemoteModule: true,
+        contextIsolation: false
+      }
+    })
+    syncIssuesWindow.loadURL(syncIssuesPath)
+    syncIssuesWindow.once('closed', () => {
+      syncIssuesWindow = null
+    })
+    syncIssuesWindow.once('ready-to-show', () => {
+      syncIssuesWindow.show()
+    })
+  }
+}
+
+app.on('close-sync-issues-window', () => {
+  if (syncIssuesWindow) syncIssuesWindow.close()
+})

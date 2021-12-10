@@ -96,6 +96,7 @@
             <div
               v-if="numberOfSyncIssues > 0"
               class="text-gray-600 dropdown-item flex items-center justify-between"
+              @click="openSyncIssuesWindow"
             >
               <div>Sync Issues</div>
               <div class="text-red-600 text-xs font-semibold">
@@ -246,6 +247,9 @@ export default {
     setNumberOfSyncIssues(syncIssues) {
       this.numberOfSyncIssues =
         syncIssues && syncIssues.length ? syncIssues.length : 0
+    },
+    openSyncIssuesWindow() {
+      ipcRenderer.send('open-sync-issues-window')
     }
   },
   name: 'Header',
