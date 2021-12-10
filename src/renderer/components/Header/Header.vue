@@ -180,7 +180,7 @@ export default {
   beforeDestroy() {
     remote.app.removeAllListeners('update-storage')
     remote.app.removeAllListeners('logout-from-settings')
-    remote.app.removeAllListeners('sync-issues-changed')
+    remote.app.removeListener('sync-issues-changed', this.setNumberOfSyncIssues)
   },
   created() {
     this.$app = this.$electron.remote.app
