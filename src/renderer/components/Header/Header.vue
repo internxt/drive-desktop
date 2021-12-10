@@ -196,7 +196,7 @@ export default {
 
     remote.app.on('logout-from-settings', this.logout)
 
-    ipcRenderer.invoke('getSyncIssues').then(this.numberOfSyncIssues)
+    ipcRenderer.invoke('getSyncIssues').then(this.setNumberOfSyncIssues)
 
     remote.app.on('sync-issues-changed', this.setNumberOfSyncIssues)
   },
