@@ -54,12 +54,13 @@ ipcRenderer
         })
       })
 
-      sync.on('ERROR_PULLING_FILE', (name, kind) => {
+      sync.on('ERROR_PULLING_FILE', (name, kind, errorName) => {
         Logger.log(`Error pulling file ${name} from ${kind}`)
         app.emit('SYNC_INFO_UPDATE', {
           action: 'PULL_ERROR',
           kind,
-          name
+          name,
+          errorName
         })
       })
 
@@ -81,14 +82,15 @@ ipcRenderer
         })
       })
 
-      sync.on('ERROR_RENAMING_FILE', (oldName, newName, kind) => {
+      sync.on('ERROR_RENAMING_FILE', (oldName, newName, kind, errorName) => {
         Logger.log(
           `Error renaming file from ${oldName} to ${newName} in ${kind}`
         )
         app.emit('SYNC_INFO_UPDATE', {
           action: 'RENAME_ERROR',
           kind,
-          name: oldName
+          name: oldName,
+          errorName
         })
       })
 
@@ -101,12 +103,13 @@ ipcRenderer
         })
       })
 
-      sync.on('ERROR_DELETING_FILE', (name, kind) => {
+      sync.on('ERROR_DELETING_FILE', (name, kind, errorName) => {
         Logger.log(`Error deleting file ${name} in ${kind}`)
         app.emit('SYNC_INFO_UPDATE', {
           action: 'DELETE_ERROR',
           kind,
-          name
+          name,
+          errorName
         })
       })
 

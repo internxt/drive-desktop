@@ -1,4 +1,4 @@
-import { FileSystem, SyncFatalError, Listing, Source } from '../sync'
+import { FileSystem, SyncFatalError, Listing, Source, SyncError } from '../sync'
 import * as fs from 'fs/promises'
 import glob from 'tiny-glob'
 import path from 'path'
@@ -11,9 +11,8 @@ export function getLocalFilesystem(
   localPath: string,
   tempDirectory: string
 ): FileSystem {
-
   /**
-   * 
+   *
    * @param actualPath OS Specific absolute path
    * @returns Listing path relative to localPath with '/' as separator
    */
@@ -22,18 +21,18 @@ export function getLocalFilesystem(
   }
 
   /**
-   * 
+   *
    * @param listingPath Relative to localPath with '/' as separator
    * @returns OS Specific absolute path
    */
   function getActualPath(listingPath: string) {
     const osSpecificRelative = listingPath.replaceAll('/', path.sep)
-    
+
     return path.join(localPath, osSpecificRelative)
   }
 
   async function saferRenameFile(oldPath: string, newPath: string) {
-    try{
+    try {
       await fs.rename(oldPath, newPath)
     } catch (err) {
       if (err.code === 'EXDEV') {
@@ -96,7 +95,7 @@ export function getLocalFilesystem(
         stream.on('error', reject)
 
         stream.on('end', async () => {
-          try{
+          try {
             writeStream.close()
 
             const actualPath = getActualPath(name)
@@ -109,7 +108,7 @@ export function getLocalFilesystem(
             fs.utimes(actualPath, modTime, modTime)
 
             resolve()
-          } catch (err){
+          } catch (err) {
             reject(err)
           }
         })
@@ -141,13 +140,21 @@ export function getLocalFilesystem(
     async getSource(name: string): Promise<Source> {
       const actualPath = getActualPath(name)
 
-      const { modTimeInSeconds: modTime, size } = await getLocalMeta(
-        actualPath
-      )
+      const { modTimeInSeconds: modTime, size } = await getLocalMeta(actualPath)
 
       const tmpFilePath = getTempFilePath()
 
-      await fs.copyFile(actualPath, tmpFilePath)
+      try {
+        await fs.copyFile(actualPath, tmpFilePath)
+      } catch (err) {
+        if (err.code === 'ENOENT') {
+          throw new SyncError('NOT_EXISTS')
+        } else if (err.code === 'EACCES') {
+          throw new SyncError('NO_PERMISSION')
+        } else {
+          throw err
+        }
+      }
 
       const stream = createReadStream(tmpFilePath)
 

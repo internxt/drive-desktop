@@ -335,7 +335,13 @@ class Sync extends EventEmitter {
           `Error renaming file in ${fileSystem.kind} ${oldName} to ${newName} (${err.name}: ${err.message})`
         )
         Logger.error(err.stack)
-        this.emit('ERROR_RENAMING_FILE', oldName, newName, fileSystem.kind)
+        this.emit(
+          'ERROR_RENAMING_FILE',
+          oldName,
+          newName,
+          fileSystem.kind,
+          SyncErrorName.includes(err.name) ? err.name : 'UNKNOWN'
+        )
       }
     }
   }
@@ -358,7 +364,12 @@ class Sync extends EventEmitter {
           `Error pulling file from ${destFs.kind}, ${name} (${err.name}: ${err.message})`
         )
         Logger.error(err.stack)
-        this.emit('ERROR_PULLING_FILE', name, destFs.kind)
+        this.emit(
+          'ERROR_PULLING_FILE',
+          name,
+          destFs.kind,
+          SyncErrorName.includes(err.name) ? err.name : 'UNKNOWN'
+        )
       }
     }
   }
@@ -377,7 +388,12 @@ class Sync extends EventEmitter {
           `Error deleting file in ${fileSystem.kind}, ${name} (${err.name}: ${err.message})`
         )
         Logger.error(err.stack)
-        this.emit('ERROR_DELETING_FILE', name, fileSystem.kind)
+        this.emit(
+          'ERROR_DELETING_FILE',
+          name,
+          fileSystem.kind,
+          SyncErrorName.includes(err.name) ? err.name : 'UNKNOWN'
+        )
       }
     }
   }
@@ -397,7 +413,12 @@ class Sync extends EventEmitter {
           `Error deleting folder in ${fileSystem.kind}, ${name} (${err.name}: ${err.message})`
         )
         Logger.error(err.stack)
-        this.emit('ERROR_DELETING_FOLDER', name, fileSystem.kind)
+        this.emit(
+          'ERROR_DELETING_FOLDER',
+          name,
+          fileSystem.kind,
+          SyncErrorName.includes(err.name) ? err.name : 'UNKNOWN'
+        )
       }
     }
   }
@@ -620,7 +641,11 @@ interface SyncEvents {
   /**
    * Triggered when an error has occurred while pulling a file
    */
-  ERROR_PULLING_FILE: (name: string, fileSystemKind: FileSystemKind) => void
+  ERROR_PULLING_FILE: (
+    name: string,
+    fileSystemKind: FileSystemKind,
+    errName: typeof SyncErrorName[number] | 'UNKNOWN'
+  ) => void
 
   /**
    * Triggered when a file is being deleted
@@ -633,7 +658,11 @@ interface SyncEvents {
   /**
    * Triggered when an error has occurred while deleting a file
    */
-  ERROR_DELETING_FILE: (name: string, fileSystemKind: FileSystemKind) => void
+  ERROR_DELETING_FILE: (
+    name: string,
+    fileSystemKind: FileSystemKind,
+    errName: typeof SyncErrorName[number] | 'UNKNOWN'
+  ) => void
 
   /**
    * Triggered when a folder is being deleted
@@ -646,7 +675,11 @@ interface SyncEvents {
   /**
    * Triggered when an error has occurred while deleting a folder
    */
-  ERROR_DELETING_FOLDER: (name: string, fileSystemKind: FileSystemKind) => void
+  ERROR_DELETING_FOLDER: (
+    name: string,
+    fileSystemKind: FileSystemKind,
+    errName: typeof SyncErrorName[number] | 'UNKNOWN'
+  ) => void
 
   /**
    * Triggered when a file is being renamed
@@ -670,7 +703,8 @@ interface SyncEvents {
   ERROR_RENAMING_FILE: (
     oldName: string,
     newName: string,
-    fileSystemKind: FileSystemKind
+    fileSystemKind: FileSystemKind,
+    errName: typeof SyncErrorName[number] | 'UNKNOWN'
   ) => void
 
   /**
@@ -711,6 +745,30 @@ type SyncFatalErrorName =
 
 export class SyncFatalError extends Error {
   constructor(name: SyncFatalErrorName) {
+    super()
+    this.name = name
+  }
+}
+
+const SyncErrorName = [
+  // File or folder does not exist
+  'NOT_EXISTS',
+
+  // No permission to read or write file or folder
+  'NO_PERMISSION',
+
+  // No internet connection
+  'NO_INTERNET',
+
+  // Could not connect to Internxt servers
+  'NO_REMOTE_CONNECTION',
+
+  // Had a bad response (not in the 200 status range) from the server
+  'BAD_RESPONSE'
+] as const
+
+export class SyncError extends Error {
+  constructor(name: typeof SyncErrorName[number]) {
     super()
     this.name = name
   }

@@ -6,7 +6,8 @@ import {
   FileSystem,
   FileSystemProgressCallback,
   Source,
-  SyncFatalError
+  SyncFatalError,
+  SyncError
 } from '../sync'
 import { Environment } from '@internxt/inxt-js'
 import * as uuid from 'uuid'
@@ -101,6 +102,18 @@ export function getRemoteFilesystem(baseFolderId: number): FileSystem {
     return { files, folders }
   }
 
+  function handleFetchError(err: any) {
+    const isOnline = navigator.onLine
+
+    Logger.info(`Handling fetch error: ${err.name} ${err.code} ${err.stack}`)
+
+    if (isOnline) {
+      throw new SyncError('NO_REMOTE_CONNECTION')
+    } else {
+      throw new SyncError('NO_INTERNET')
+    }
+  }
+
   return {
     kind: 'REMOTE',
 
@@ -159,15 +172,20 @@ export function getRemoteFilesystem(baseFolderId: number): FileSystem {
     async deleteFile(name: string): Promise<void> {
       const fileInCache = cache[name]
 
-      if (fileInCache)
-        await fetch(
-          `${process.env.API_URL}/api/storage/bucket/${fileInCache.bucket}/file/${fileInCache.fileId}`,
-          { method: 'DELETE', headers }
-        )
-      else
+      if (fileInCache) {
+        try {
+          await fetch(
+            `${process.env.API_URL}/api/storage/bucket/${fileInCache.bucket}/file/${fileInCache.fileId}`,
+            { method: 'DELETE', headers }
+          )
+        } catch (err) {
+          handleFetchError(err)
+        }
+      } else {
         throw new Error(
           `${name} file not found in remote cache when tried to delete it`
         )
+      }
     },
 
     async renameFile(oldName: string, newName: string): Promise<void> {
@@ -175,20 +193,31 @@ export function getRemoteFilesystem(baseFolderId: number): FileSystem {
       const newNameBase = path.parse(newName).name
 
       if (fileInCache) {
-        await fetch(
-          `${process.env.API_URL}/api/storage/file/${fileInCache.fileId}/meta`,
-          {
-            method: 'POST',
-            headers: { ...headers, 'internxt-mnemonic': mnemonic },
-            body: JSON.stringify({
-              metadata: { itemName: newNameBase },
-              bucketId: fileInCache.bucket,
-              relativePath: uuid.v4()
-            })
+        try {
+          const res = await fetch(
+            `${process.env.API_URL}/api/storage/file/${fileInCache.fileId}/meta`,
+            {
+              method: 'POST',
+              headers: { ...headers, 'internxt-mnemonic': mnemonic },
+              body: JSON.stringify({
+                metadata: { itemName: newNameBase },
+                bucketId: fileInCache.bucket,
+                relativePath: uuid.v4()
+              })
+            }
+          )
+          if (!res.ok) {
+            Logger.info(
+              `Bad response from server while renaming`,
+              JSON.stringify(res, null, 2)
+            )
+            throw new SyncError('BAD_RESPONSE')
           }
-        )
-        delete cache[oldName]
-        cache[newName] = fileInCache
+          delete cache[oldName]
+          cache[newName] = fileInCache
+        } catch (err) {
+          handleFetchError(err)
+        }
       } else
         throw new Error(
           `${oldName} file not found in remote cache when tried to rename it`
@@ -226,7 +255,11 @@ export function getRemoteFilesystem(baseFolderId: number): FileSystem {
                   parentFolderId: lastParentId
                 })
               }
-            ).then(res => res.json())
+            )
+              .then(res => res.json())
+              .catch(err => {
+                handleFetchError(err)
+              })
             lastParentId = createdFolder.id
             cache[routeToThisPoint] = {
               id: createdFolder.id,
@@ -274,13 +307,19 @@ export function getRemoteFilesystem(baseFolderId: number): FileSystem {
       const oldFileInCache = cache[name]
 
       if (oldFileInCache) {
-        await fetch(
-          `${process.env.API_URL}/api/storage/bucket/${bucket}/file/${oldFileInCache.fileId}`,
-          {
-            method: 'DELETE',
-            headers
-          }
-        )
+        try {
+          await fetch(
+            `${process.env.API_URL}/api/storage/bucket/${bucket}/file/${oldFileInCache.fileId}`,
+            {
+              method: 'DELETE',
+              headers
+            }
+          )
+        } catch (err) {
+          Logger.error(
+            `Error trying to delete outdated remote file. ${err.name} ${err.code} ${err.stack}`
+          )
+        }
       }
 
       const encryptedName = crypt.encryptName(
@@ -290,23 +329,34 @@ export function getRemoteFilesystem(baseFolderId: number): FileSystem {
 
       const modificationTime = getDateFromSeconds(modTimeInSeconds)
 
-      await fetch(`${process.env.API_URL}/api/storage/file`, {
-        headers,
-        method: 'POST',
-        body: JSON.stringify({
-          file: {
-            bucket,
-            encrypt_version: '03-aes',
-            fileId: uploadedFileId,
-            file_id: uploadedFileId,
-            folder_id: folderIdOfTheNewFile,
-            name: encryptedName,
-            size,
-            type: fileType,
-            modificationTime
-          }
+      try {
+        const res = await fetch(`${process.env.API_URL}/api/storage/file`, {
+          headers,
+          method: 'POST',
+          body: JSON.stringify({
+            file: {
+              bucket,
+              encrypt_version: '03-aes',
+              fileId: uploadedFileId,
+              file_id: uploadedFileId,
+              folder_id: folderIdOfTheNewFile,
+              name: encryptedName,
+              size,
+              type: fileType,
+              modificationTime
+            }
+          })
         })
-      })
+        if (!res.ok) {
+          Logger.error(
+            'Bad response while creating file',
+            JSON.stringify(res, null, 2)
+          )
+          throw new SyncError('BAD_RESPONSE')
+        }
+      } catch (err) {
+        handleFetchError(err)
+      }
     },
 
     async existsFolder(name: string): Promise<boolean> {
@@ -319,10 +369,24 @@ export function getRemoteFilesystem(baseFolderId: number): FileSystem {
       if (folderInCache) {
         const { id } = folderInCache
 
-        await fetch(`${process.env.API_URL}/api/storage/folder/${id}`, {
-          headers,
-          method: 'DELETE'
-        })
+        try {
+          const res = await fetch(
+            `${process.env.API_URL}/api/storage/folder/${id}`,
+            {
+              headers,
+              method: 'DELETE'
+            }
+          )
+          if (!res.ok) {
+            Logger.error(
+              `Bad response wihle deleting folder`,
+              JSON.stringify(res, null, 2)
+            )
+            throw new SyncError('BAD_RESPONSE')
+          }
+        } catch (err) {
+          handleFetchError(err)
+        }
       } else
         throw new Error(
           `${name} folder not found in remote cache when tried to delete`
