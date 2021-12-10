@@ -33,12 +33,52 @@
         Open log
       </div>
     </div>
-    <div class="m-3 p-2 flex-grow rounded-md" style="border: 1px solid #ebecf0">
+    <div class="m-3 flex-grow rounded-md" style="border: 1px solid #ebecf0">
       <div
         v-if="syncIssues.length === 0"
         class="flex justify-center items-center text-gray-400 text-sm h-full"
       >
         No issues found
+      </div>
+      <div v-for="type in issueTypes" :key="type">
+        <div
+          v-if="issuesOfType(type).length > 0"
+          class="hover:bg-gray-100 rounded-md cursor-pointer p-2"
+          @click="() => onIssueClicked(type)"
+        >
+          <div class="flex items-center justify-between ">
+            <div class="flex items-center">
+              <img class="w-9 h-9" :src="warnIcon" />
+              <div class="ml-2">
+                <h2 class="text-sm tracking-wide font-semibold text-gray-600">
+                  {{ displayNameOfType(type) }}
+                </h2>
+                <p class="text-sm tracking-wide text-gray-500">
+                  {{ issuesOfType(type).length + ' ' }}files
+                </p>
+              </div>
+            </div>
+            <div
+              class="transform transition-all"
+              :class="{
+                'rotate-180': expanded === type,
+                'rotate-0': expanded !== type
+              }"
+            >
+              <UilAngleDown />
+            </div>
+          </div>
+          <div v-if="expanded === type">
+            <div
+              class="ml-11 flex items-center mt-2"
+              v-for="issue in issuesOfType(type)"
+              :key="issue.name"
+            >
+              <file-icon />
+              <p class="text-sm text-gray-700 ml-2">{{ issue.name }}</p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -49,10 +89,13 @@ import {
   UilSetting,
   UilAt,
   UilHistory,
-  UilMultiply
+  UilMultiply,
+  UilAngleDown
 } from '@iconscout/vue-unicons'
 import Button from './Button/Button.vue'
 import { ipcRenderer } from 'electron'
+import warnIcon from '../assets/icons/apple/warn.svg'
+import FileIcon from '../components/Icons/FileIcon.vue'
 const remote = require('@electron/remote')
 
 export default {
@@ -61,11 +104,23 @@ export default {
     UilMultiply,
     UilSetting,
     UilAt,
-    UilHistory
+    UilHistory,
+    UilAngleDown,
+    FileIcon
   },
   data() {
     return {
-      syncIssues: []
+      issueTypes: [
+        'NOT_EXISTS',
+        'NO_PERMISSION',
+        'NO_INTERNET',
+        'NO_REMOTE_CONNECTION',
+        'BAD_RESPONSE',
+        'UNKNOWN'
+      ],
+      syncIssues: [],
+      expanded: null,
+      warnIcon
     }
   },
   mounted() {
@@ -82,6 +137,28 @@ export default {
     },
     setSyncIssues(newValue) {
       this.syncIssues = newValue
+    },
+    issuesOfType(type) {
+      return this.syncIssues.filter(issue => issue.errorName === type)
+    },
+    displayNameOfType(type) {
+      switch (type) {
+        case 'NOT_EXISTS':
+          return 'File does not exist'
+        case 'NO_PERMISSION':
+          return 'Insufficient permissions'
+        case 'NO_INTERNET':
+          return 'No internet connection'
+        case 'NO_REMOTE_CONNECTION':
+          return "Can't connect to Internxt servers"
+        case 'BAD_RESPONSE':
+          return 'Bad response from Internxt servers'
+        default:
+          return 'Unknown error'
+      }
+    },
+    onIssueClicked(type) {
+      this.expanded = this.expanded === type ? null : type
     }
   },
   computed: {
