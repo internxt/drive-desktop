@@ -15,6 +15,7 @@ import { getDateFromSeconds, getSecondsFromDateString } from '../utils'
 import Logger from '../../libs/logger'
 import { getHeaders, getUser } from '../../main/auth'
 import { Readable } from 'stream'
+import isOnline from '../../libs/is-online'
 
 /**
  * Server cannot find a file given its route,
@@ -102,12 +103,10 @@ export function getRemoteFilesystem(baseFolderId: number): FileSystem {
     return { files, folders }
   }
 
-  function handleFetchError(err: any) {
-    const isOnline = navigator.onLine
-
+  async function handleFetchError(err: any) {
     Logger.info(`Handling fetch error: ${err.name} ${err.code} ${err.stack}`)
 
-    if (isOnline) {
+    if (await isOnline()) {
       throw new SyncError('NO_REMOTE_CONNECTION')
     } else {
       throw new SyncError('NO_INTERNET')
@@ -179,7 +178,7 @@ export function getRemoteFilesystem(baseFolderId: number): FileSystem {
             { method: 'DELETE', headers }
           )
         } catch (err) {
-          handleFetchError(err)
+          await handleFetchError(err)
         }
       } else {
         throw new Error(
@@ -216,7 +215,7 @@ export function getRemoteFilesystem(baseFolderId: number): FileSystem {
           delete cache[oldName]
           cache[newName] = fileInCache
         } catch (err) {
-          handleFetchError(err)
+          await handleFetchError(err)
         }
       } else
         throw new Error(
@@ -257,8 +256,8 @@ export function getRemoteFilesystem(baseFolderId: number): FileSystem {
               }
             )
               .then(res => res.json())
-              .catch(err => {
-                handleFetchError(err)
+              .catch(async err => {
+                await handleFetchError(err)
               })
             lastParentId = createdFolder.id
             cache[routeToThisPoint] = {
@@ -355,7 +354,7 @@ export function getRemoteFilesystem(baseFolderId: number): FileSystem {
           throw new SyncError('BAD_RESPONSE')
         }
       } catch (err) {
-        handleFetchError(err)
+        await handleFetchError(err)
       }
     },
 
@@ -385,7 +384,7 @@ export function getRemoteFilesystem(baseFolderId: number): FileSystem {
             throw new SyncError('BAD_RESPONSE')
           }
         } catch (err) {
-          handleFetchError(err)
+          await handleFetchError(err)
         }
       } else
         throw new Error(

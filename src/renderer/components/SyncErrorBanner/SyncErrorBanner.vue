@@ -23,6 +23,7 @@
 
 <script>
 import syncStatus from '../../../sync/sync-status'
+import isOnline from '../../../libs/is-online'
 const app = require('@electron/remote').app
 
 export default {
@@ -40,11 +41,11 @@ export default {
     app.removeListener('sync-status-schanged', this.onStatusChanged)
   },
   methods: {
-    onNext({ result }) {
+    async onNext({ result }) {
       if (result.status === 'FATAL_ERROR') {
         this.errorName = result.errorName
       } else if (result.status === 'COULD_NOT_ACQUIRE_LOCK') {
-        this.errorName = navigator.onLine
+        this.errorName = (await isOnline())
           ? 'COULD_NOT_ACQUIRE_LOCK'
           : 'NO_INTERNET'
       }

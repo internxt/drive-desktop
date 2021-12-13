@@ -8,6 +8,7 @@ import { pipeline } from 'stream'
 import Logger from '../libs/logger'
 import analytics from '../renderer/logic/utils/analytics'
 import * as Auth from '../main/auth'
+import isOnline from '../libs/is-online'
 const archiver = require('archiver')
 const app = require('@electron/remote').app
 const { Environment } = require('@internxt/inxt-js')
@@ -101,7 +102,7 @@ const { Environment } = require('@internxt/inxt-js')
       }
     } catch (error) {
       if (error.name in ErrorCodes) notifyError(backup, error.name)
-      else if (!navigator.onLine) {
+      else if (!(await isOnline())) {
         notifyError(backup, ErrorCodes.NO_CONNECTION)
       } else {
         notifyError(backup, ErrorCodes.UNKNOWN)
