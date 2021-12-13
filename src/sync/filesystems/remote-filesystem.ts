@@ -287,9 +287,10 @@ export function getRemoteFilesystem(baseFolderId: number): FileSystem {
           {
             name: uuid.v4(),
             progressCallback,
-            finishedCallback: (err: any, fileId: string) => {
-              if (err) reject(err)
-              else resolve(fileId)
+            finishedCallback: async (err: any, fileId: string) => {
+              if (err) {
+                reject((await isOnline()) ? err : new SyncError('NO_INTERNET'))
+              } else resolve(fileId)
             }
           },
           {
@@ -416,9 +417,10 @@ export function getRemoteFilesystem(baseFolderId: number): FileSystem {
           fileInCache.fileId,
           {
             progressCallback,
-            finishedCallback: (err: any, downloadStream: Readable) => {
-              if (err) reject(err)
-              else {
+            finishedCallback: async (err: any, downloadStream: Readable) => {
+              if (err) {
+                reject((await isOnline()) ? err : new SyncError('NO_INTERNET'))
+              } else {
                 resolve({
                   stream: downloadStream,
                   size: fileInCache.size,
