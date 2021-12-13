@@ -4,16 +4,9 @@
       class="relative px-1 pt-1 h-6 flex-grow-0"
       style="-webkit-app-region: drag; "
     >
-      <div
-        v-if="!isMacOS"
-        class="w-min"
-        @click="closeWindow"
-        style="-webkit-app-region: no-drag"
-      >
-        <UilMultiply class="hover:text-gray-500 block" />
-      </div>
+      <exit-window-button v-if="!isMacOS" @click="closeWindow" />
       <p
-        class="text-sm text-gray-700 tracking-wide"
+        class="text-sm text-gray-700"
         style="position:absolute;top:4px;left:50%; transform: translateX(-50%);"
       >
         Sync issues
@@ -89,24 +82,24 @@ import {
   UilSetting,
   UilAt,
   UilHistory,
-  UilMultiply,
   UilAngleDown
 } from '@iconscout/vue-unicons'
 import Button from './Button/Button.vue'
 import { ipcRenderer } from 'electron'
 import warnIcon from '../assets/icons/apple/warn.svg'
 import FileIcon from '../components/Icons/FileIcon.vue'
+import ExitWindowButton from './ExitWindowButton/ExitWindowButton.vue'
 const remote = require('@electron/remote')
 
 export default {
   components: {
     Button,
-    UilMultiply,
     UilSetting,
     UilAt,
     UilHistory,
     UilAngleDown,
-    FileIcon
+    FileIcon,
+    ExitWindowButton
   },
   data() {
     return {

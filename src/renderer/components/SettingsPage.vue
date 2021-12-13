@@ -1,14 +1,7 @@
 <template>
   <div ref="rootElement" class="relative">
     <div class="relative bg-white p-1 h-6" style="-webkit-app-region: drag">
-      <div
-        v-if="!isMacOS"
-        class="absolute right-0 top-0 py-2 px-3 text-gray-600 hover:text-white hover:bg-red-600"
-        @click="closeWindow"
-        style="-webkit-app-region: no-drag"
-      >
-        <UilMultiply />
-      </div>
+      <exit-window-button v-if="!isMacOS" @click="closeWindow" />
       <p
         class="text-sm"
         style="position:absolute;top:4px;left:50%; transform: translateX(-50%);"
@@ -52,18 +45,14 @@
 
 <script>
 import SettingsHeaderItem from './Settings/SettingsHeaderItem.vue'
-import {
-  UilSetting,
-  UilAt,
-  UilHistory,
-  UilMultiply
-} from '@iconscout/vue-unicons'
+import { UilSetting, UilAt, UilHistory } from '@iconscout/vue-unicons'
 import Button from './Button/Button.vue'
 import BackupsSection from './Settings/BackupsSection.vue'
 import AccountSection from './Settings/AccountSection.vue'
 import GeneralSection from './Settings/GeneralSection.vue'
 import Dialog from './Settings/Dialog.vue'
 import BackupIcon from './Icons/BackupIcon.vue'
+import ExitWindowButton from './ExitWindowButton/ExitWindowButton.vue'
 import Avatar from './Avatar/Avatar.vue'
 import { ipcRenderer } from 'electron'
 const remote = require('@electron/remote')
@@ -76,12 +65,12 @@ export default {
     AccountSection,
     GeneralSection,
     Avatar,
-    UilMultiply,
     UilSetting,
     UilAt,
     UilHistory,
     BackupIcon,
-    Dialog
+    Dialog,
+    ExitWindowButton
   },
   data() {
     return {
