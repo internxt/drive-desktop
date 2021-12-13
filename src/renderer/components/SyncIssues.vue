@@ -27,7 +27,10 @@
         Open log
       </div>
     </div>
-    <div class="m-3 flex-grow rounded-md" style="border: 1px solid #ebecf0">
+    <div
+      class="m-3 flex-grow rounded-md overflow-y-auto"
+      style="border: 1px solid #ebecf0"
+    >
       <div
         v-if="syncIssues.length === 0"
         class="flex justify-center items-center text-gray-400 text-sm h-full"
@@ -45,9 +48,17 @@
             <div class="flex items-center">
               <img class="w-9 h-9" :src="warnIcon" />
               <div class="ml-2">
-                <h2 class="text-sm tracking-wide font-semibold text-gray-600">
-                  {{ displayNameOfType(type) }}
-                </h2>
+                <div class="flex items-center">
+                  <h2 class="text-sm tracking-wide font-semibold text-gray-600">
+                    {{ displayNameOfType(type) }}
+                  </h2>
+                  <UilInfoCircle
+                    size="15px"
+                    class="ml-1 block h-4 text-blue-500 cursor-pointer hover:opacity-60"
+                    style="margin-top:3px"
+                    @click.native.stop="moreInfoType = type"
+                  />
+                </div>
                 <p class="text-sm tracking-wide text-gray-500">
                   {{ issuesOfType(type).length + ' ' }}files
                 </p>
@@ -76,6 +87,53 @@
         </div>
       </div>
     </div>
+    <div
+      class="min-h-full min-w-full top-0 left-0 absolute z-50 flex justify-center items-center"
+      style="background-color: rgba(0,0,0,0.3)"
+      @click.self="hideMoreInfo"
+      v-if="moreInfoType !== null"
+    >
+      <div
+        style="border-radius: 8px"
+        class="bg-white p-3 flex flex-col justify-between w-11/12"
+      >
+        <h1 class="font-semibold text-gray-800 tracking-wide">
+          {{ displayNameOfType(moreInfoType) }}
+        </h1>
+        <p v-if="!report" class="text-xs text-gray-500 mt-2">
+          {{ displayLongMessageOfType(moreInfoType) }}
+        </p>
+        <p v-else class="text-xs text-gray-500 mt-2">
+          To get help visit
+          <span class="text-blue-500 underline cursor-pointer" @click="goToHelp"
+            >help.internxt.com</span
+          >. You can also send a report about this error.
+        </p>
+        <div v-if="report"></div>
+        <p class="mt-2 text-xs text-gray-500">Comments</p>
+        <textarea
+          class="w-full mt-1 text-xs outline-none border-gray-100 border p-1 rounded-md text-gray-800 h-16"
+          style="resize:none;caret-color: rgba(31, 41, 55, 0.6)"
+        />
+        <div class="flex items-center mt-2 cursor-pointer">
+          <input type="checkbox" v-model="sendLogsWithReport" />
+          <p class="text-xs ml-1 text-gray-500">
+            Include the logs of this sync process for debug purposes
+          </p>
+        </div>
+        <div
+          class="flex items-center justify-end mt-6 space-x-2"
+          :class="{ 'mt-2': report, 'mt-6': !report }"
+        >
+          <Button v-if="!report" @click="hideMoreInfo"> Close</Button>
+          <Button v-else @click="report = false"> Cancel</Button>
+          <Button v-if="!report" @click="report = true" state="accent">
+            Report</Button
+          >
+          <Button v-else @click="sendReport" state="accent">Send</Button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -84,12 +142,14 @@ import {
   UilSetting,
   UilAt,
   UilHistory,
-  UilAngleDown
+  UilAngleDown,
+  UilInfoCircle
 } from '@iconscout/vue-unicons'
 import Button from './Button/Button.vue'
 import warnIcon from '../assets/icons/apple/warn.svg'
 import FileIcon from '../components/Icons/FileIcon.vue'
 import ExitWindowButton from './ExitWindowButton/ExitWindowButton.vue'
+import { longMessages, shortMessages } from '../../sync/sync-error-messages'
 
 import { ipcRenderer } from 'electron'
 import Logger from '../../libs/logger'
@@ -105,7 +165,8 @@ export default {
     UilHistory,
     UilAngleDown,
     FileIcon,
-    ExitWindowButton
+    ExitWindowButton,
+    UilInfoCircle
   },
   data() {
     return {
@@ -119,7 +180,10 @@ export default {
       ],
       syncIssues: [],
       expanded: null,
-      warnIcon
+      warnIcon,
+      moreInfoType: null,
+      report: false,
+      sendLogsWithReport: true
     }
   },
   mounted() {
@@ -141,20 +205,10 @@ export default {
       return this.syncIssues.filter(issue => issue.errorName === type)
     },
     displayNameOfType(type) {
-      switch (type) {
-        case 'NOT_EXISTS':
-          return 'File does not exist'
-        case 'NO_PERMISSION':
-          return 'Insufficient permissions'
-        case 'NO_INTERNET':
-          return 'No internet connection'
-        case 'NO_REMOTE_CONNECTION':
-          return "Can't connect to Internxt servers"
-        case 'BAD_RESPONSE':
-          return 'Bad response from Internxt servers'
-        default:
-          return 'Unknown error'
-      }
+      return shortMessages[type] || shortMessages['UNKNOWN']
+    },
+    displayLongMessageOfType(type) {
+      return longMessages[type] || longMessages['UNKNOWN']
     },
     onIssueClicked(type) {
       this.expanded = this.expanded === type ? null : type
@@ -167,6 +221,16 @@ export default {
       } catch (e) {
         Logger.error('Error opening log path: %s', e.message)
       }
+    },
+    hideMoreInfo() {
+      this.moreInfoType = null
+      this.report = false
+    },
+    async sendReport() {
+      this.hideMoreInfo()
+    },
+    goToHelp() {
+      remote.shell.openExternal('https://help.internxt.com')
     }
   },
   computed: {

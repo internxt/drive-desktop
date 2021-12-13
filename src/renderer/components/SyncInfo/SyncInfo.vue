@@ -79,24 +79,6 @@ export default {
       this.items = []
     },
     clear() {},
-    getErrorMessage(item) {
-      const { errorName } = item.result
-
-      switch (errorName) {
-        case 'NO_INTERNET':
-          return 'No internet connection'
-        case 'NO_REMOTE_CONNECTION':
-          return `Could not connect to Internxt`
-        case 'CANNOT_ACCESS_BASE_DIRECTORY':
-          return `Check that ${item.localPath} exists and your user has read and write permission there`
-        case 'CANNOT_ACCESS_TMP_DIRECTORY':
-          return `Could not access to your temporary directory`
-        case 'CANNOT_GET_CURRENT_LISTINGS':
-          return 'Could not get the content of your folders'
-        default:
-          return 'An unknown error ocurred'
-      }
-    },
     getStatusMessage(item) {
       if (item.action === 'PULL' && item.kind === 'REMOTE') {
         return `Uploading (${(item.progress * 100).toFixed(0)}%)`
