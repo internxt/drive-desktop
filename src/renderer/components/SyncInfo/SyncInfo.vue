@@ -11,7 +11,11 @@
     </div> -->
     <div class="flex flex-col space-y-4 ">
       <div v-for="item in items" :key="item.name" class="flex items-center">
-        <file-icon width="32" height="32" class="flex-shrink-0" />
+        <file-icon-with-operation
+          :operation="getOperation(item)"
+          size="32"
+          class="flex-shrink-0"
+        />
         <div class="ml-2" style="max-width: 85%">
           <p class="text-sm truncate mt-1">
             {{ item.name | showOnlyFilename }}
@@ -26,14 +30,14 @@
 <script>
 import { UilFolder, UilCloud } from '@iconscout/vue-unicons'
 import path from 'path'
-import FileIcon from '../Icons/FileIcon.vue'
+import FileIconWithOperation from '../Icons/FileIconWithOperation.vue'
 const app = require('@electron/remote').app
 
 export default {
   components: {
     UilFolder,
     UilCloud,
-    FileIcon
+    FileIconWithOperation
   },
   data() {
     return {
@@ -76,7 +80,7 @@ export default {
       }
     },
     onNext() {
-      this.items = []
+      //  this.items = []
     },
     clear() {},
     getStatusMessage(item) {
@@ -107,6 +111,19 @@ export default {
         return 'Error while deleting from Internxt Drive'
       } else {
         return ''
+      }
+    },
+    getOperation(item) {
+      if (
+        item.action === 'DELETE' ||
+        item.action === 'DELETED' ||
+        item.action === 'DELETE_ERROR'
+      ) {
+        return 'delete'
+      } else if (item.kind === 'LOCAL') {
+        return 'download'
+      } else {
+        return 'upload'
       }
     }
   },

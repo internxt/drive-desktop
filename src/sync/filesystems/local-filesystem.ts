@@ -175,6 +175,7 @@ export function getLocalFilesystem(
     async smokeTest() {
       try {
         await fs.access(localPath, constants.R_OK | constants.W_OK)
+        await fs.lstat(localPath)
       } catch (err) {
         Logger.error(
           `Error accessing base directory ${localPath} (${err.name}:${err.code}: ${err.message})`
