@@ -296,6 +296,8 @@ export default {
       const usageInBytes = bytes.parse(this.usage)
       const limitInBytes = bytes.parse(this.limit)
 
+      if (usageInBytes === null || limitInBytes === null) return false
+
       return usageInBytes / limitInBytes >= 0.9
     }
   }
