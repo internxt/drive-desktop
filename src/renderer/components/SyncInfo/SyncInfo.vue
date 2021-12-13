@@ -10,34 +10,46 @@
       </p>
     </div> -->
     <div class="flex flex-col space-y-4 ">
-      <div v-for="item in items" :key="item.name" class="flex items-center">
+      <div
+        v-for="item in items"
+        :key="item.name"
+        class="flex items-center w-full"
+      >
         <file-icon-with-operation
           :operation="getOperation(item)"
           size="32"
-          class="flex-shrink-0"
+          class="flex-shrink-0 flex-grow-0"
         />
-        <div class="ml-2" style="max-width: 85%">
+        <div class="ml-2 flex-shrink flex-grow">
           <p class="text-sm truncate mt-1">
             {{ item.name | showOnlyFilename }}
           </p>
           <p class="text-xs text-gray-600">{{ getStatusMessage(item) }}</p>
         </div>
+        <UilInfoCircle
+          v-if="isAnError(item)"
+          size="20px"
+          class=" text-blue-500 cursor-pointer hover:opacity-60 flex-shrink-0 flex-grow-0"
+          @click.native="openSyncIssuesWindow"
+        />
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import { UilFolder, UilCloud } from '@iconscout/vue-unicons'
+import { UilFolder, UilCloud, UilInfoCircle } from '@iconscout/vue-unicons'
 import path from 'path'
 import FileIconWithOperation from '../Icons/FileIconWithOperation.vue'
 import { shortMessages } from '../../../sync/sync-error-messages'
+import { ipcRenderer } from 'electron'
 const app = require('@electron/remote').app
 
 export default {
   components: {
     UilFolder,
     UilCloud,
+    UilInfoCircle,
     FileIconWithOperation
   },
   data() {
@@ -82,7 +94,7 @@ export default {
       }
     },
     onNext() {
-      //  this.items = []
+      this.items = []
     },
     clear() {},
     getStatusMessage(item) {
@@ -133,6 +145,14 @@ export default {
       } else {
         return ''
       }
+    },
+    openSyncIssuesWindow() {
+      ipcRenderer.send('open-sync-issues-window')
+    },
+    isAnError(item) {
+      return ['PULL_ERROR', 'DELETE_ERROR', 'METADATA_READ_ERROR'].includes(
+        item.action
+      )
     }
   },
   filters: {
