@@ -4,6 +4,7 @@ export const shortMessages = {
   NO_INTERNET: 'No internet connection',
   NO_REMOTE_CONNECTION: "Can't connect to Internxt servers",
   BAD_RESPONSE: 'Bad response from Internxt servers',
+  EMPTY_FILE: 'File is empty',
   UNKNOWN: 'Unknown error'
 }
 
@@ -18,5 +19,7 @@ export const longMessages = {
     'We had no access to our servers while processing this file. Please, try starting the sync process again.',
   BAD_RESPONSE:
     'We got a bad response from our servers while processing this file. Please, try starting the sync process again.',
+  EMPTY_FILE:
+    "We don't support files with a size of 0 bytes because of our processes of sharding and encryption",
   UNKNOWN: 'An unknown error happened while processing this file.'
 }

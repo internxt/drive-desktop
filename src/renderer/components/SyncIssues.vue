@@ -109,17 +109,18 @@
             >help.internxt.com</span
           >. You can also send a report about this error.
         </p>
-        <div v-if="report"></div>
-        <p class="mt-2 text-xs text-gray-500">Comments</p>
-        <textarea
-          class="w-full mt-1 text-xs outline-none border-gray-100 border p-1 rounded-md text-gray-800 h-16"
-          style="resize:none;caret-color: rgba(31, 41, 55, 0.6)"
-        />
-        <div class="flex items-center mt-2 cursor-pointer">
-          <input type="checkbox" v-model="sendLogsWithReport" />
-          <p class="text-xs ml-1 text-gray-500">
-            Include the logs of this sync process for debug purposes
-          </p>
+        <div v-if="report">
+          <p class="mt-2 text-xs text-gray-500">Comments</p>
+          <textarea
+            class="w-full mt-1 text-xs outline-none border-gray-100 border p-1 rounded-md text-gray-800 h-16"
+            style="resize:none;caret-color: rgba(31, 41, 55, 0.6)"
+          />
+          <div class="flex items-center mt-2 cursor-pointer">
+            <input type="checkbox" v-model="sendLogsWithReport" />
+            <p class="text-xs ml-1 text-gray-500">
+              Include the logs of this sync process for debug purposes
+            </p>
+          </div>
         </div>
         <div
           class="flex items-center justify-end mt-6 space-x-2"
@@ -176,6 +177,7 @@ export default {
         'NO_INTERNET',
         'NO_REMOTE_CONNECTION',
         'BAD_RESPONSE',
+        'EMPTY_FILE',
         'UNKNOWN'
       ],
       syncIssues: [],

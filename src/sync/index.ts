@@ -139,6 +139,18 @@ ipcRenderer
         Logger.log(`Error deleting folder ${name} in ${kind}`)
       )
 
+      sync.on('ERROR_READING_METADATA', (name, kind, errorName) => {
+        Logger.log(
+          `Error reading metadata of a file: ${name} in ${kind} (${errorName})`
+        )
+        app.emit('SYNC_INFO_UPDATE', {
+          action: 'METADATA_READ_ERROR',
+          kind,
+          name,
+          errorName
+        })
+      })
+
       sync.on('FINALIZING', () => {
         Logger.log('Finalizing sync')
         app.emit('SYNC_INFO_UPDATE', {

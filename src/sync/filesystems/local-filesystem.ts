@@ -1,4 +1,11 @@
-import { FileSystem, SyncFatalError, Listing, Source, SyncError } from '../sync'
+import {
+  FileSystem,
+  SyncFatalError,
+  Listing,
+  Source,
+  SyncError,
+  ReadingMetaErrorEntry
+} from '../sync'
 import * as fs from 'fs/promises'
 import glob from 'tiny-glob'
 import path from 'path'
@@ -50,7 +57,7 @@ export function getLocalFilesystem(
 
   return {
     kind: 'LOCAL',
-    async getCurrentListing(): Promise<Listing> {
+    async getCurrentListing() {
       const list = (
         await glob('**', {
           filesOnly: true,
@@ -60,15 +67,25 @@ export function getLocalFilesystem(
         })
       ).filter(fileName => !/.DS_Store$/.test(fileName))
       const listing: Listing = {}
+      const readingMetaErrors: ReadingMetaErrorEntry[] = []
 
       for (const fileName of list) {
         const relativeName = getListingPath(fileName)
+        try {
+          const { modTimeInSeconds, size } = await getLocalMeta(fileName)
 
-        const { modTimeInSeconds, size } = await getLocalMeta(fileName)
-
-        if (size) listing[relativeName] = modTimeInSeconds
+          if (size) listing[relativeName] = modTimeInSeconds
+          else {
+            readingMetaErrors.push({ name: relativeName, error: 'EMPTY_FILE' })
+          }
+        } catch (err) {
+          readingMetaErrors.push({
+            name: relativeName,
+            error: err.code === 'EPERM' ? 'NO_PERMISSION' : 'UNKNOWN'
+          })
+        }
       }
-      return listing
+      return { listing, readingMetaErrors }
     },
 
     async deleteFile(name: string) {

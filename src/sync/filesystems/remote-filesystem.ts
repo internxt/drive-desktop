@@ -165,7 +165,7 @@ export function getRemoteFilesystem(baseFolderId: number): FileSystem {
         })
       }
 
-      return listing
+      return { listing, readingMetaErrors: [] }
     },
 
     async deleteFile(name: string): Promise<void> {

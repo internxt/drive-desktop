@@ -903,7 +903,14 @@ function clearSyncIssues() {
 }
 
 app.on('SYNC_INFO_UPDATE', payload => {
-  if (['PULL_ERROR', 'RENAME_ERROR', 'DELETE_ERROR'].includes(payload.action)) {
+  if (
+    [
+      'PULL_ERROR',
+      'RENAME_ERROR',
+      'DELETE_ERROR',
+      'METADATA_READ_ERROR'
+    ].includes(payload.action)
+  ) {
     syncIssues.push(payload)
     onSyncIssuesChanged()
   }

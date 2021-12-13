@@ -28,7 +28,9 @@ class Sync extends EventEmitter {
 
     this.emit('GENERATING_ACTIONS_NEEDED_TO_SYNC')
 
-    const { currentLocal, currentRemote } = await this.getCurrentListings()
+    const { currentLocal, currentRemote } = await this.getCurrentListings({
+      emitErrors: true
+    })
 
     Logger.log('Current local before', currentLocal)
     Logger.log('Current remote before', currentRemote)
@@ -94,7 +96,9 @@ class Sync extends EventEmitter {
   private async resync(): Promise<void> {
     this.emit('NEEDS_RESYNC')
 
-    const { currentLocal, currentRemote } = await this.getCurrentListings()
+    const { currentLocal, currentRemote } = await this.getCurrentListings({
+      emitErrors: true
+    })
 
     Logger.log('Current local before', currentLocal)
     Logger.log('Current remote before', currentRemote)
@@ -426,7 +430,9 @@ class Sync extends EventEmitter {
   private async finalize() {
     this.emit('FINALIZING')
 
-    const { currentLocal, currentRemote } = await this.getCurrentListings()
+    const { currentLocal, currentRemote } = await this.getCurrentListings({
+      emitErrors: false
+    })
 
     if (_.isEqual(currentLocal, currentRemote)) {
       const currentInBoth = currentLocal
@@ -468,16 +474,27 @@ class Sync extends EventEmitter {
     return { filesNotInLocal, filesNotInRemote, filesWithDifferentModtime }
   }
 
-  private async getCurrentListings(): Promise<{
+  private async getCurrentListings(options: {
+    emitErrors: boolean
+  }): Promise<{
     currentLocal: Listing
     currentRemote: Listing
   }> {
     try {
-      const [currentLocal, currentRemote] = await Promise.all([
+      const [localResult, remoteResult] = await Promise.all([
         this.local.getCurrentListing(),
         this.remote.getCurrentListing()
       ])
-      return { currentLocal, currentRemote }
+
+      if (options.emitErrors) {
+        this.emitReadingMetaErrors(localResult.readingMetaErrors, 'LOCAL')
+        this.emitReadingMetaErrors(remoteResult.readingMetaErrors, 'REMOTE')
+      }
+
+      return {
+        currentLocal: localResult.listing,
+        currentRemote: remoteResult.listing
+      }
     } catch (err) {
       Logger.error(
         `Error while getting current listing (${err.name}:${err.code}:${err.message})`
@@ -485,6 +502,15 @@ class Sync extends EventEmitter {
       Logger.error(err.stack)
       throw new SyncFatalError('CANNOT_GET_CURRENT_LISTINGS')
     }
+  }
+
+  private emitReadingMetaErrors(
+    errors: ReadingMetaErrorEntry[],
+    kind: FileSystemKind
+  ) {
+    errors.forEach(entry => {
+      this.emit('ERROR_READING_METADATA', entry.name, kind, entry.error)
+    })
   }
 }
 
@@ -499,7 +525,10 @@ export interface FileSystem {
    * Returns the listing of the current files
    * in this FileSystem
    */
-  getCurrentListing(): Promise<Listing>
+  getCurrentListing(): Promise<{
+    listing: Listing
+    readingMetaErrors: ReadingMetaErrorEntry[]
+  }>
 
   /**
    * Renames a file in the FileSystem
@@ -558,6 +587,11 @@ export interface FileSystem {
    * and throw an error if it's not operative
    */
   smokeTest(): Promise<void>
+}
+
+export type ReadingMetaErrorEntry = {
+  name: string
+  error: typeof SyncErrorName[number] | 'UNKNOWN'
 }
 
 export type FileSystemProgressCallback = (progress: number) => void
@@ -708,6 +742,15 @@ interface SyncEvents {
   ) => void
 
   /**
+   * Triggered when an error has occurred while reading the metadata of a file
+   */
+  ERROR_READING_METADATA: (
+    name: string,
+    fileSystemKind: FileSystemKind,
+    errName: typeof SyncErrorName[number] | 'UNKNOWN'
+  ) => void
+
+  /**
    * Triggered when the changes needed to be in sync
    * have been made (either by a default run or a resync)
    * and new listings will be generated and saved if the
@@ -764,7 +807,10 @@ const SyncErrorName = [
   'NO_REMOTE_CONNECTION',
 
   // Had a bad response (not in the 200 status range) from the server
-  'BAD_RESPONSE'
+  'BAD_RESPONSE',
+
+  // The file has a size of 0 bytes
+  'EMPTY_FILE'
 ] as const
 
 export class SyncError extends Error {
