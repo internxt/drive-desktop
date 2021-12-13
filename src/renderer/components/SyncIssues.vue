@@ -22,6 +22,7 @@
       <div
         class=" text-gray-600 rounded-md py-1 font-semibold cursor-pointer"
         style="font-size: 12px; -webkit-app-region: no-drag; padding: 4px 11px; background-color: #ebecf0"
+        @click="openLogs"
       >
         Open log
       </div>
@@ -85,10 +86,14 @@ import {
   UilAngleDown
 } from '@iconscout/vue-unicons'
 import Button from './Button/Button.vue'
-import { ipcRenderer } from 'electron'
 import warnIcon from '../assets/icons/apple/warn.svg'
 import FileIcon from '../components/Icons/FileIcon.vue'
 import ExitWindowButton from './ExitWindowButton/ExitWindowButton.vue'
+
+import { ipcRenderer } from 'electron'
+import Logger from '../../libs/logger'
+import path from 'path'
+import electronLog from 'electron-log'
 const remote = require('@electron/remote')
 
 export default {
@@ -152,6 +157,15 @@ export default {
     },
     onIssueClicked(type) {
       this.expanded = this.expanded === type ? null : type
+    },
+    openLogs() {
+      try {
+        const logFile = electronLog.transports.file.getFile().path
+        const logPath = path.dirname(logFile)
+        remote.shell.openPath(logPath)
+      } catch (e) {
+        Logger.error('Error opening log path: %s', e.message)
+      }
     }
   },
   computed: {
