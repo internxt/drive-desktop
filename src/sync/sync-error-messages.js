@@ -17,6 +17,6 @@ export const longMessages = {
   NO_REMOTE_CONNECTION:
     'We had no access to our servers while processing this file. Please, try starting the sync process again.',
   BAD_RESPONSE:
-    'We got a but response from our servers while processing this file. Please, try starting the sync process again.',
+    'We got a bad response from our servers while processing this file. Please, try starting the sync process again.',
   UNKNOWN: 'An unknown error happened while processing this file.'
 }
