@@ -20,8 +20,8 @@
         {{ syncIssues.length ? `${syncIssues.length} issues` : 'No issues' }}
       </div>
       <div
-        class=" text-gray-600 rounded-md py-1 font-semibold cursor-pointer"
-        style="font-size: 12px; -webkit-app-region: no-drag; padding: 4px 11px; background-color: #ebecf0"
+        class=" text-gray-600 rounded-md py-1 font-semibold cursor-pointer open-logs-button"
+        style="font-size: 12px; -webkit-app-region: no-drag; padding: 4px 11px;"
         @click="openLogs"
       >
         Open log
@@ -34,10 +34,11 @@
       >
         No issues found
       </div>
-      <div v-for="type in issueTypes" :key="type">
+      <div v-for="(type, i) in issueTypes" :key="type">
         <div
           v-if="issuesOfType(type).length > 0"
-          class="hover:bg-gray-100 rounded-md cursor-pointer p-2"
+          class="rounded-md cursor-pointer p-2 sync-issue"
+          :class="{ 'odd-sync-issue': i % 2 !== 0 }"
           @click="() => onIssueClicked(type)"
         >
           <div class="flex items-center justify-between ">
@@ -175,3 +176,22 @@ export default {
   }
 }
 </script>
+
+<style>
+.open-logs-button {
+  background-color: #ebecf0;
+}
+.open-logs-button:active {
+  background-color: #cdcdd1;
+}
+
+.odd-sync-issue {
+  background-color: #f4f4f579;
+}
+.sync-issue:hover {
+  background-color: #f5f5f5cc;
+}
+.sync-issue:active {
+  background-color: #eeecec93;
+}
+</style>
