@@ -31,6 +31,7 @@
 import { UilFolder, UilCloud } from '@iconscout/vue-unicons'
 import path from 'path'
 import FileIconWithOperation from '../Icons/FileIconWithOperation.vue'
+import { shortMessages } from '../../../sync/sync-error-messages'
 const app = require('@electron/remote').app
 
 export default {
@@ -61,7 +62,8 @@ export default {
           'PULLED',
           'DELETED',
           'PULL_ERROR',
-          'DELETE_ERROR'
+          'DELETE_ERROR',
+          'METADATA_READ_ERROR'
         ].includes(item.action)
       ) {
         return
@@ -93,10 +95,8 @@ export default {
         return `Uploaded`
       } else if (item.action === 'PULLED' && item.kind === 'LOCAL') {
         return `Downloaded`
-      } else if (item.action === 'PULL_ERROR' && item.kind === 'LOCAL') {
-        return 'Error while downloading'
-      } else if (item.action === 'PULL_ERROR' && item.kind === 'REMOTE') {
-        return 'Error while uploading'
+      } else if (item.action === 'PULL_ERROR') {
+        return shortMessages[item.errorName]
       } else if (item.action === 'DELETE' && item.kind === 'LOCAL') {
         return `Deleting from your computer`
       } else if (item.action === 'DELETE' && item.kind === 'REMOTE') {
@@ -105,10 +105,10 @@ export default {
         return `Deleted from your computer`
       } else if (item.action === 'DELETED' && item.kind === 'REMOTE') {
         return `Deleted from Internxt Drive`
-      } else if (item.action === 'DELETE_ERROR' && item.kind === 'LOCAL') {
-        return 'Error while deleting from your computer'
-      } else if (item.action === 'DELETE_ERROR' && item.kind === 'REMOTE') {
-        return 'Error while deleting from Internxt Drive'
+      } else if (item.action === 'DELETE_ERROR') {
+        return shortMessages[item.errorName]
+      } else if (item.action === 'METADATA_READ_ERROR') {
+        return shortMessages[item.errorName]
       } else {
         return ''
       }
@@ -120,10 +120,18 @@ export default {
         item.action === 'DELETE_ERROR'
       ) {
         return 'delete'
-      } else if (item.kind === 'LOCAL') {
-        return 'download'
+      } else if (
+        item.action === 'PULL' ||
+        item.action === 'PULLED' ||
+        item.action === 'PULL_ERROR'
+      ) {
+        if (item.kind === 'LOCAL') {
+          return 'download'
+        } else {
+          return 'upload'
+        }
       } else {
-        return 'upload'
+        return ''
       }
     }
   },
