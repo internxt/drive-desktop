@@ -883,9 +883,10 @@ function spawnSyncWorker() {
 
 // Migration to new sync
 
+const isLoggedIn = !!ConfigStore.get('bearerToken')
 const hasAlreadyMigrated = !!ConfigStore.get('syncRoot')
 
-if (!hasAlreadyMigrated) {
+if (!hasAlreadyMigrated && isLoggedIn) {
   setupRootFolder()
 }
 
