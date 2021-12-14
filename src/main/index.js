@@ -8,7 +8,8 @@ import electron, {
   dialog,
   powerMonitor,
   ipcMain,
-  Notification
+  Notification,
+  powerSaveBlocker
 } from 'electron'
 import path from 'path'
 import Logger from '../libs/logger'
@@ -751,6 +752,8 @@ async function startSyncProcess() {
     return
   }
 
+  const suspensionBlockId = powerSaveBlocker.start('prevent-app-suspension')
+
   changeSyncStatus(SyncStatus.RUNNING)
 
   clearSyncIssues()
@@ -779,7 +782,10 @@ async function startSyncProcess() {
   syncProcessRerun = setTimeout(startSyncProcess, SYNC_INTERVAL)
 
   changeSyncStatus(SyncStatus.STANDBY)
+
   ipcMain.removeAllListeners('stop-sync-process')
+
+  powerSaveBlocker.stop(suspensionBlockId)
 }
 
 function processSyncItem(item, hasBeenStopped) {
