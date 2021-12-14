@@ -616,7 +616,11 @@ async function startBackupProcess() {
 
   if (backupsAreEnabled && backupProcessStatus !== BackupStatus.IN_PROGRESS) {
     backupProcessStatus = BackupStatus.IN_PROGRESS
+
+    const suspensionBlockId = powerSaveBlocker.start('prevent-app-suspension')
+
     await BackupsDB.cleanErrors()
+
     app.emit('backup-status-update', backupProcessStatus)
 
     const worker = new BrowserWindow({
@@ -670,6 +674,8 @@ async function startBackupProcess() {
       }
 
       app.emit('backup-status-update', backupProcessStatus)
+
+      powerSaveBlocker.stop(suspensionBlockId)
     }
 
     ipcMain.once('backup-process-done', () => cleanUp({ exitReason: 'DONE' }))
