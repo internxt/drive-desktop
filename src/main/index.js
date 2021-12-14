@@ -134,6 +134,9 @@ function createWindow() {
 
   app.on('user-logout', () => {
     if (settingsWindow) settingsWindow.destroy()
+
+    if (syncIssuesWindow) syncIssuesWindow.destroy()
+
     if (backupProcessRerun) {
       clearTimeout(backupProcessRerun)
     }
@@ -141,6 +144,8 @@ function createWindow() {
     if (syncProcessRerun) {
       clearTimeout(syncProcessRerun)
     }
+
+    clearSyncIssues()
   })
 
   app.on('update-configStore', item => {
