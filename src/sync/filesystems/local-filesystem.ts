@@ -10,7 +10,7 @@ import * as fs from 'fs/promises'
 import glob from 'tiny-glob'
 import path from 'path'
 import * as uuid from 'uuid'
-import { getDateFromSeconds, getLocalMeta } from '../utils'
+import { createErrorDetails, getDateFromSeconds, getLocalMeta } from '../utils'
 import Logger from '../../libs/logger'
 import { constants, createReadStream, createWriteStream } from 'fs'
 
@@ -46,7 +46,14 @@ export function getLocalFilesystem(
         await fs.copyFile(oldPath, newPath)
         await fs.unlink(oldPath)
       } else {
-        throw err
+        throw new SyncError(
+          'UNKNOWN',
+          createErrorDetails(
+            err,
+            'Doing a safe rename',
+            `oldPath: ${oldPath}, newPath: ${newPath}`
+          )
+        )
       }
     }
   }
@@ -76,12 +83,30 @@ export function getLocalFilesystem(
 
           if (size) listing[relativeName] = modTimeInSeconds
           else {
-            readingMetaErrors.push({ name: relativeName, error: 'EMPTY_FILE' })
+            const emptyFileError = {
+              message: 'Internxt does not support empty files',
+              code: '',
+              stack: ''
+            }
+            readingMetaErrors.push({
+              name: relativeName,
+              errorName: 'EMPTY_FILE',
+              errorDetails: createErrorDetails(
+                emptyFileError,
+                'Reading metadata of file',
+                `Size of file is ${size}`
+              )
+            })
           }
         } catch (err) {
           readingMetaErrors.push({
             name: relativeName,
-            error: err.code === 'EPERM' ? 'NO_PERMISSION' : 'UNKNOWN'
+            errorName: err.code === 'EPERM' ? 'NO_PERMISSION' : 'UNKNOWN',
+            errorDetails: createErrorDetails(
+              err,
+              'Reading metadata of file',
+              `File name is ${fileName}`
+            )
           })
         }
       }
@@ -93,7 +118,11 @@ export function getLocalFilesystem(
       try {
         await fs.unlink(actualPath)
       } catch (err) {
-        if (err.code !== 'ENOENT') throw err
+        if (err.code !== 'ENOENT')
+          throw new SyncError(
+            'UNKNOWN',
+            createErrorDetails(err, 'Deleting a file locally', `Name: ${name}`)
+          )
       }
     },
 
@@ -103,13 +132,21 @@ export function getLocalFilesystem(
 
         const { stream } = source
 
-        Logger.log(`Downloading ${name} to temp location ${tmpFilePath}`)
+        Logger.debug(`Downloading ${name} to temp location ${tmpFilePath}`)
 
         const writeStream = createWriteStream(tmpFilePath)
 
         stream.on('data', chunk => writeStream.write(chunk))
 
-        stream.on('error', reject)
+        stream.on('error', err =>
+          reject(
+            createErrorDetails(
+              err,
+              `Pulling file locally`,
+              `Name: ${name}, source: ${JSON.stringify(source, null, 2)}`
+            )
+          )
+        )
 
         stream.on('end', async () => {
           try {
@@ -126,7 +163,17 @@ export function getLocalFilesystem(
 
             resolve()
           } catch (err) {
-            reject(err)
+            if (err instanceof SyncError) {
+              reject(err)
+            } else {
+              reject(
+                createErrorDetails(
+                  err,
+                  `Making local directory if needed and updating local modtime`,
+                  `Name: ${name}, source: ${JSON.stringify(source, null, 2)}`
+                )
+              )
+            }
           }
         })
       })
@@ -168,12 +215,23 @@ export function getLocalFilesystem(
 
         await fs.copyFile(actualPath, tmpFilePath)
       } catch (err) {
+        const action = 'Getting local meta and copying file to a temp directory'
+        const additional = `Actual path: ${actualPath}, temp path: ${tmpFilePath}, size: ${size}, modTime: ${modTime}`
         if (err.code === 'ENOENT') {
-          throw new SyncError('NOT_EXISTS')
+          throw new SyncError(
+            'NOT_EXISTS',
+            createErrorDetails(err, action, additional)
+          )
         } else if (err.code === 'EACCES') {
-          throw new SyncError('NO_PERMISSION')
+          throw new SyncError(
+            'NO_PERMISSION',
+            createErrorDetails(err, action, additional)
+          )
         } else {
-          throw err
+          throw new SyncError(
+            'UNKNOWN',
+            createErrorDetails(err, action, additional)
+          )
         }
       }
 
@@ -184,7 +242,7 @@ export function getLocalFilesystem(
       stream.once('end', onEndOrError)
       stream.once('error', onEndOrError)
 
-      Logger.log(`Uploading ${name} from temp location ${tmpFilePath}`)
+      Logger.debug(`Uploading ${name} from temp location ${tmpFilePath}`)
 
       return { stream, modTime, size }
     },
@@ -194,21 +252,27 @@ export function getLocalFilesystem(
         await fs.access(localPath, constants.R_OK | constants.W_OK)
         await fs.lstat(localPath)
       } catch (err) {
-        Logger.error(
-          `Error accessing base directory ${localPath} (${err.name}:${err.code}: ${err.message})`
+        throw new SyncFatalError(
+          'CANNOT_ACCESS_BASE_DIRECTORY',
+          createErrorDetails(
+            err,
+            'Error accessing local base directory',
+            `localPath: ${localPath}`
+          )
         )
-        Logger.error(err.stack)
-        throw new SyncFatalError('CANNOT_ACCESS_BASE_DIRECTORY')
       }
 
       try {
         await fs.access(tempDirectory, constants.R_OK | constants.W_OK)
       } catch (err) {
-        Logger.error(
-          `Error accessing temp directory ${tempDirectory} (${err.name}:${err.code}: ${err.message})`
+        throw new SyncFatalError(
+          'CANNOT_ACCESS_TMP_DIRECTORY',
+          createErrorDetails(
+            err,
+            'Error accessing local temp directory',
+            `localPath: ${tempDirectory}`
+          )
         )
-        Logger.error(err.stack)
-        throw new SyncFatalError('CANNOT_ACCESS_TMP_DIRECTORY')
       }
     }
   }

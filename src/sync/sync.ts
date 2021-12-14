@@ -3,6 +3,7 @@ import * as path from 'path'
 import * as _ from 'lodash'
 import Logger from '../libs/logger'
 import { Readable } from 'stream'
+import { createErrorDetails } from './utils'
 
 class Sync extends EventEmitter {
   constructor(
@@ -335,16 +336,25 @@ class Sync extends EventEmitter {
         await fileSystem.renameFile(oldName, newName)
         this.emit('FILE_RENAMED', oldName, newName, fileSystem.kind)
       } catch (err) {
-        Logger.error(
-          `Error renaming file in ${fileSystem.kind} ${oldName} to ${newName} (${err.name}: ${err.message})`
-        )
-        Logger.error(err.stack)
+        const syncError =
+          err instanceof SyncError
+            ? err
+            : new SyncError(
+                'UNKNOWN',
+                createErrorDetails(
+                  err,
+                  'Renaming file',
+                  `oldName: ${oldName}, newName: ${newName}, kind: ${fileSystem.kind}`
+                )
+              )
+
         this.emit(
           'ERROR_RENAMING_FILE',
           oldName,
           newName,
           fileSystem.kind,
-          SyncErrorName.includes(err.name) ? err.name : 'UNKNOWN'
+          syncError.name as SyncErrorName,
+          syncError.details
         )
       }
     }
@@ -364,15 +374,23 @@ class Sync extends EventEmitter {
         await destFs.pullFile(name, source, progressCallback)
         this.emit('FILE_PULLED', name, destFs.kind)
       } catch (err) {
-        Logger.error(
-          `Error pulling file from ${destFs.kind}, ${name} (${err.name}: ${err.message})`
-        )
-        Logger.error(err.stack)
+        const syncError =
+          err instanceof SyncError
+            ? err
+            : new SyncError(
+                'UNKNOWN',
+                createErrorDetails(
+                  err,
+                  'Pulling file',
+                  `name: ${name}, kind: ${destFs.kind}`
+                )
+              )
         this.emit(
           'ERROR_PULLING_FILE',
           name,
           destFs.kind,
-          SyncErrorName.includes(err.name) ? err.name : 'UNKNOWN'
+          syncError.name as SyncErrorName,
+          syncError.details
         )
       }
     }
@@ -388,15 +406,23 @@ class Sync extends EventEmitter {
         await fileSystem.deleteFile(name)
         this.emit('FILE_DELETED', name, fileSystem.kind)
       } catch (err) {
-        Logger.error(
-          `Error deleting file in ${fileSystem.kind}, ${name} (${err.name}: ${err.message})`
-        )
-        Logger.error(err.stack)
+        const syncError =
+          err instanceof SyncError
+            ? err
+            : new SyncError(
+                'UNKNOWN',
+                createErrorDetails(
+                  err,
+                  'Deleting file',
+                  `name: ${name}, kind: ${fileSystem.kind}`
+                )
+              )
         this.emit(
           'ERROR_DELETING_FILE',
           name,
           fileSystem.kind,
-          SyncErrorName.includes(err.name) ? err.name : 'UNKNOWN'
+          syncError.name as SyncErrorName,
+          syncError.details
         )
       }
     }
@@ -413,15 +439,23 @@ class Sync extends EventEmitter {
         await fileSystem.deleteFolder(name)
         this.emit('FOLDER_DELETED', name, fileSystem.kind)
       } catch (err) {
-        Logger.error(
-          `Error deleting folder in ${fileSystem.kind}, ${name} (${err.name}: ${err.message})`
-        )
-        Logger.error(err.stack)
+        const syncError =
+          err instanceof SyncError
+            ? err
+            : new SyncError(
+                'UNKNOWN',
+                createErrorDetails(
+                  err,
+                  'Deleting folder',
+                  `name: ${name}, kind: ${fileSystem.kind}`
+                )
+              )
         this.emit(
           'ERROR_DELETING_FOLDER',
           name,
           fileSystem.kind,
-          SyncErrorName.includes(err.name) ? err.name : 'UNKNOWN'
+          syncError.name as SyncErrorName,
+          syncError.details
         )
       }
     }
@@ -496,11 +530,15 @@ class Sync extends EventEmitter {
         currentRemote: remoteResult.listing
       }
     } catch (err) {
-      Logger.error(
-        `Error while getting current listing (${err.name}:${err.code}:${err.message})`
-      )
-      Logger.error(err.stack)
-      throw new SyncFatalError('CANNOT_GET_CURRENT_LISTINGS')
+      const syncError =
+        err instanceof SyncFatalError
+          ? err
+          : new SyncFatalError(
+              'CANNOT_GET_CURRENT_LISTINGS',
+              createErrorDetails(err, 'Getting current listings')
+            )
+
+      throw syncError
     }
   }
 
@@ -509,7 +547,13 @@ class Sync extends EventEmitter {
     kind: FileSystemKind
   ) {
     errors.forEach(entry => {
-      this.emit('ERROR_READING_METADATA', entry.name, kind, entry.error)
+      this.emit(
+        'ERROR_READING_METADATA',
+        entry.name,
+        kind,
+        entry.errorName,
+        entry.errorDetails
+      )
     })
   }
 }
@@ -591,7 +635,8 @@ export interface FileSystem {
 
 export type ReadingMetaErrorEntry = {
   name: string
-  error: typeof SyncErrorName[number] | 'UNKNOWN'
+  errorName: SyncErrorName
+  errorDetails: ErrorDetails
 }
 
 export type FileSystemProgressCallback = (progress: number) => void
@@ -678,7 +723,8 @@ interface SyncEvents {
   ERROR_PULLING_FILE: (
     name: string,
     fileSystemKind: FileSystemKind,
-    errName: typeof SyncErrorName[number] | 'UNKNOWN'
+    errName: SyncErrorName,
+    errDetails: ErrorDetails
   ) => void
 
   /**
@@ -695,7 +741,8 @@ interface SyncEvents {
   ERROR_DELETING_FILE: (
     name: string,
     fileSystemKind: FileSystemKind,
-    errName: typeof SyncErrorName[number] | 'UNKNOWN'
+    errName: SyncErrorName,
+    errDetails: ErrorDetails
   ) => void
 
   /**
@@ -712,7 +759,8 @@ interface SyncEvents {
   ERROR_DELETING_FOLDER: (
     name: string,
     fileSystemKind: FileSystemKind,
-    errName: typeof SyncErrorName[number] | 'UNKNOWN'
+    errName: SyncErrorName,
+    errDetails: ErrorDetails
   ) => void
 
   /**
@@ -738,7 +786,8 @@ interface SyncEvents {
     oldName: string,
     newName: string,
     fileSystemKind: FileSystemKind,
-    errName: typeof SyncErrorName[number] | 'UNKNOWN'
+    errName: SyncErrorName,
+    errDetails: ErrorDetails
   ) => void
 
   /**
@@ -747,7 +796,8 @@ interface SyncEvents {
   ERROR_READING_METADATA: (
     name: string,
     fileSystemKind: FileSystemKind,
-    errName: typeof SyncErrorName[number] | 'UNKNOWN'
+    errName: SyncErrorName,
+    errDetails: ErrorDetails
   ) => void
 
   /**
@@ -787,37 +837,74 @@ type SyncFatalErrorName =
   | 'CANNOT_GET_CURRENT_LISTINGS'
 
 export class SyncFatalError extends Error {
-  constructor(name: SyncFatalErrorName) {
+  details: ErrorDetails
+  constructor(name: SyncFatalErrorName, details: ErrorDetails) {
     super()
     this.name = name
+    this.details = details
   }
 }
 
-const SyncErrorName = [
+type SyncErrorName =
   // File or folder does not exist
-  'NOT_EXISTS',
+  | 'NOT_EXISTS'
 
   // No permission to read or write file or folder
-  'NO_PERMISSION',
+  | 'NO_PERMISSION'
 
   // No internet connection
-  'NO_INTERNET',
+  | 'NO_INTERNET'
 
   // Could not connect to Internxt servers
-  'NO_REMOTE_CONNECTION',
+  | 'NO_REMOTE_CONNECTION'
 
   // Had a bad response (not in the 200 status range) from the server
-  'BAD_RESPONSE',
+  | 'BAD_RESPONSE'
 
   // The file has a size of 0 bytes
-  'EMPTY_FILE'
-] as const
+  | 'EMPTY_FILE'
+
+  // Unknown error
+  | 'UNKNOWN'
 
 export class SyncError extends Error {
-  constructor(name: typeof SyncErrorName[number]) {
+  details: ErrorDetails
+  constructor(name: SyncErrorName, details: ErrorDetails) {
     super()
     this.name = name
+    this.details = details
   }
+}
+
+/**
+ * Only for error reporting purposes, should not be used
+ * to adjust UI to specific errors for example.
+ * That's what SyncError and SyncFatalError classes are for
+ */
+export type ErrorDetails = {
+  /* Describes in natural language what was being 
+   done when this error was thrown */
+  action: string
+
+  // Message of the original error instance
+  message: string
+  // Error code of the original error instance
+  code: string
+  // Stack of the original error instance
+  stack: string
+
+  /* SYSTEM ERROR SPECIFICS */
+
+  // Error number
+  errno?: number
+  // System call name
+  syscall?: string
+  // Extra details about the error
+  info?: Record<string, any>
+
+  // Aditional info that could be helpful
+  // to debug
+  additionalInfo?: string
 }
 
 /**

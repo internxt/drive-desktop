@@ -1,7 +1,7 @@
 import getListingStore from './listing-store'
 import { getLocalFilesystem } from './filesystems/local-filesystem'
 import { getRemoteFilesystem } from './filesystems/remote-filesystem'
-import Sync from './sync'
+import Sync, { SyncFatalError } from './sync'
 import { app } from '@electron/remote'
 import { ipcRenderer } from 'electron'
 import Logger from '../libs/logger'
@@ -36,7 +36,7 @@ ipcRenderer
         Logger.log('Generating actions needed to sync')
       )
       sync.on('PULLING_FILE', (name, progress, kind) => {
-        Logger.log(`Pulling file ${name} from ${kind}: ${progress * 100}%`)
+        Logger.debug(`Pulling file ${name} from ${kind}: ${progress * 100}%`)
         app.emit('SYNC_INFO_UPDATE', {
           action: 'PULL',
           kind,
@@ -46,7 +46,7 @@ ipcRenderer
       })
 
       sync.on('FILE_PULLED', (name, kind) => {
-        Logger.log(`File ${name} pulled from ${kind}`)
+        Logger.debug(`File ${name} pulled from ${kind}`)
         app.emit('SYNC_INFO_UPDATE', {
           action: 'PULLED',
           kind,
@@ -54,18 +54,25 @@ ipcRenderer
         })
       })
 
-      sync.on('ERROR_PULLING_FILE', (name, kind, errorName) => {
-        Logger.log(`Error pulling file ${name} from ${kind}`)
+      sync.on('ERROR_PULLING_FILE', (name, kind, errorName, errorDetails) => {
+        Logger.error(
+          `Error pulling file in ${kind} (${errorName}), details: ${JSON.stringify(
+            errorDetails,
+            null,
+            2
+          )}`
+        )
         app.emit('SYNC_INFO_UPDATE', {
           action: 'PULL_ERROR',
           kind,
           name,
-          errorName
+          errorName,
+          errorDetails
         })
       })
 
       sync.on('RENAMING_FILE', (oldName, newName, kind) => {
-        Logger.log(`Renaming file ${oldName} -> ${newName} in ${kind}`)
+        Logger.debug(`Renaming file ${oldName} -> ${newName} in ${kind}`)
         app.emit('SYNC_INFO_UPDATE', {
           action: 'RENAME',
           kind,
@@ -74,7 +81,7 @@ ipcRenderer
       })
 
       sync.on('FILE_RENAMED', (oldName, newName, kind) => {
-        Logger.log(`File ${oldName} renamed -> ${newName} in ${kind}`)
+        Logger.debug(`File ${oldName} renamed -> ${newName} in ${kind}`)
         app.emit('SYNC_INFO_UPDATE', {
           action: 'RENAMED',
           kind,
@@ -82,20 +89,28 @@ ipcRenderer
         })
       })
 
-      sync.on('ERROR_RENAMING_FILE', (oldName, newName, kind, errorName) => {
-        Logger.log(
-          `Error renaming file from ${oldName} to ${newName} in ${kind}`
-        )
-        app.emit('SYNC_INFO_UPDATE', {
-          action: 'RENAME_ERROR',
-          kind,
-          name: oldName,
-          errorName
-        })
-      })
+      sync.on(
+        'ERROR_RENAMING_FILE',
+        (oldName, newName, kind, errorName, errorDetails) => {
+          Logger.error(
+            `Error renaming file ${oldName} -> ${newName} in ${kind} (${errorName}), details: ${JSON.stringify(
+              errorDetails,
+              null,
+              2
+            )}`
+          )
+          app.emit('SYNC_INFO_UPDATE', {
+            action: 'RENAME_ERROR',
+            kind,
+            name: oldName,
+            errorName,
+            errorDetails
+          })
+        }
+      )
 
       sync.on('DELETING_FILE', (name, kind) => {
-        Logger.log(`Deleting file ${name} in ${kind}`)
+        Logger.debug(`Deleting file ${name} in ${kind}`)
         app.emit('SYNC_INFO_UPDATE', {
           action: 'DELETE',
           kind,
@@ -103,18 +118,25 @@ ipcRenderer
         })
       })
 
-      sync.on('ERROR_DELETING_FILE', (name, kind, errorName) => {
-        Logger.log(`Error deleting file ${name} in ${kind}`)
+      sync.on('ERROR_DELETING_FILE', (name, kind, errorName, errorDetails) => {
+        Logger.error(
+          `Error deleting file ${name} in ${kind} (${errorName}), details: ${JSON.stringify(
+            errorDetails,
+            null,
+            2
+          )}`
+        )
         app.emit('SYNC_INFO_UPDATE', {
           action: 'DELETE_ERROR',
           kind,
           name,
-          errorName
+          errorName,
+          errorDetails
         })
       })
 
       sync.on('FILE_DELETED', (name, kind) => {
-        Logger.log(`Deleted file ${name} in ${kind}`)
+        Logger.debug(`Deleted file ${name} in ${kind}`)
         app.emit('SYNC_INFO_UPDATE', {
           action: 'DELETED',
           kind,
@@ -123,7 +145,7 @@ ipcRenderer
       })
 
       sync.on('DELETING_FOLDER', (name, kind) => {
-        Logger.log(`Deleting folder ${name} in ${kind}`)
+        Logger.debug(`Deleting folder ${name} in ${kind}`)
         app.emit('SYNC_INFO_UPDATE', {
           action: 'DELETE',
           kind,
@@ -132,24 +154,38 @@ ipcRenderer
       })
 
       sync.on('FOLDER_DELETED', (name, kind) =>
-        Logger.log(`Deleted folder ${name} in ${kind}`)
+        Logger.debug(`Deleted folder ${name} in ${kind}`)
       )
 
-      sync.on('ERROR_DELETING_FOLDER', (name, kind) =>
-        Logger.log(`Error deleting folder ${name} in ${kind}`)
-      )
-
-      sync.on('ERROR_READING_METADATA', (name, kind, errorName) => {
-        Logger.log(
-          `Error reading metadata of a file: ${name} in ${kind} (${errorName})`
+      sync.on('ERROR_DELETING_FOLDER', (name, kind, errorName, errorDetails) =>
+        Logger.error(
+          `Error deleting folder ${name} in ${kind} (${errorName}), details: ${JSON.stringify(
+            errorDetails,
+            null,
+            2
+          )}`
         )
-        app.emit('SYNC_INFO_UPDATE', {
-          action: 'METADATA_READ_ERROR',
-          kind,
-          name,
-          errorName
-        })
-      })
+      )
+
+      sync.on(
+        'ERROR_READING_METADATA',
+        (name, kind, errorName, errorDetails) => {
+          Logger.error(
+            `Error reading metadata ${name} in ${kind} (${errorName}), details: ${JSON.stringify(
+              errorDetails,
+              null,
+              2
+            )}`
+          )
+          app.emit('SYNC_INFO_UPDATE', {
+            action: 'METADATA_READ_ERROR',
+            kind,
+            name,
+            errorName,
+            errorDetails
+          })
+        }
+      )
 
       sync.on('FINALIZING', () => {
         Logger.log('Finalizing sync')
@@ -168,7 +204,20 @@ ipcRenderer
         Logger.log('Sync exit')
         ipcRenderer.send('SYNC_EXIT')
       } catch (err) {
-        Logger.error('Sync fatal error', err)
+        if (err instanceof SyncFatalError) {
+          Logger.error(
+            `Sync fatal error (${err.name}), details: ${JSON.stringify(
+              err.details,
+              null,
+              2
+            )}`
+          )
+        } else {
+          Logger.error(
+            'Completely unhandled sync fatal error',
+            JSON.stringify(err, null, 2)
+          )
+        }
         ipcRenderer.send('SYNC_FATAL_ERROR', err.name)
       }
     }

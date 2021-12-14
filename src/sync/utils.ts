@@ -1,4 +1,5 @@
 import fs from 'fs/promises'
+import { ErrorDetails } from './sync'
 
 export async function getLocalMeta(
   localPath: string
@@ -13,4 +14,14 @@ export function getDateFromSeconds(seconds: number): Date {
 
 export function getSecondsFromDateString(dateString: string): number {
   return Math.trunc(new Date(dateString).valueOf() / 1000)
+}
+
+export function createErrorDetails(
+  originalError: any,
+  action: string,
+  additionalInfo?: string
+): ErrorDetails {
+  const { message, code, stack, errno, syscall, info } = originalError
+
+  return { message, code, stack, errno, syscall, info, action, additionalInfo }
 }

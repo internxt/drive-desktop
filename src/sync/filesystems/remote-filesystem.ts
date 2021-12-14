@@ -11,7 +11,11 @@ import {
 } from '../sync'
 import { Environment } from '@internxt/inxt-js'
 import * as uuid from 'uuid'
-import { getDateFromSeconds, getSecondsFromDateString } from '../utils'
+import {
+  createErrorDetails,
+  getDateFromSeconds,
+  getSecondsFromDateString
+} from '../utils'
 import Logger from '../../libs/logger'
 import { getHeaders, getUser } from '../../main/auth'
 import { Readable } from 'stream'
@@ -84,32 +88,39 @@ export function getRemoteFilesystem(baseFolderId: number): FileSystem {
     const folders: ServerFolder[] = []
 
     while (thereIsMore) {
-      const batch = await fetch(
-        `${process.env.API_URL}/api/desktop/list/${offset}`,
-        {
-          method: 'GET',
-          headers
-        }
-      ).then(res => res.json())
+      try {
+        const batch = await fetch(
+          `${process.env.API_URL}/api/desktop/list/${offset}`,
+          {
+            method: 'GET',
+            headers
+          }
+        ).then(res => res.json())
 
-      files.push(...batch.files)
-      folders.push(...batch.folders)
+        files.push(...batch.files)
+        folders.push(...batch.folders)
 
-      thereIsMore = batch.folders.length === PAGE_SIZE
+        thereIsMore = batch.folders.length === PAGE_SIZE
 
-      if (thereIsMore) offset += PAGE_SIZE
+        if (thereIsMore) offset += PAGE_SIZE
+      } catch (err) {
+        await handleFetchError(err, 'Fetching tree', `offset: ${offset}`)
+      }
     }
 
     return { files, folders }
   }
 
-  async function handleFetchError(err: any) {
-    Logger.info(`Handling fetch error: ${err.name} ${err.code} ${err.stack}`)
-
+  async function handleFetchError(
+    err: any,
+    action: string,
+    additionalInfo?: string
+  ) {
+    const details = createErrorDetails(err, action, additionalInfo)
     if (await isOnline()) {
-      throw new SyncError('NO_REMOTE_CONNECTION')
+      throw new SyncError('NO_REMOTE_CONNECTION', details)
     } else {
-      throw new SyncError('NO_INTERNET')
+      throw new SyncError('NO_INTERNET', details)
     }
   }
 
@@ -171,18 +182,16 @@ export function getRemoteFilesystem(baseFolderId: number): FileSystem {
     async deleteFile(name: string): Promise<void> {
       const fileInCache = cache[name]
 
-      if (fileInCache) {
-        try {
-          await fetch(
-            `${process.env.API_URL}/api/storage/bucket/${fileInCache.bucket}/file/${fileInCache.fileId}`,
-            { method: 'DELETE', headers }
-          )
-        } catch (err) {
-          await handleFetchError(err)
-        }
-      } else {
-        throw new Error(
-          `${name} file not found in remote cache when tried to delete it`
+      try {
+        await fetch(
+          `${process.env.API_URL}/api/storage/bucket/${fileInCache.bucket}/file/${fileInCache.fileId}`,
+          { method: 'DELETE', headers }
+        )
+      } catch (err) {
+        await handleFetchError(
+          err,
+          'Deleting remote file',
+          `Name: ${name}, fileInCache: ${JSON.stringify(fileInCache, null, 2)}`
         )
       }
     },
@@ -191,36 +200,46 @@ export function getRemoteFilesystem(baseFolderId: number): FileSystem {
       const fileInCache = cache[oldName]
       const newNameBase = path.parse(newName).name
 
-      if (fileInCache) {
-        try {
-          const res = await fetch(
-            `${process.env.API_URL}/api/storage/file/${fileInCache.fileId}/meta`,
-            {
-              method: 'POST',
-              headers: { ...headers, 'internxt-mnemonic': mnemonic },
-              body: JSON.stringify({
-                metadata: { itemName: newNameBase },
-                bucketId: fileInCache.bucket,
-                relativePath: uuid.v4()
-              })
-            }
-          )
-          if (!res.ok) {
-            Logger.info(
-              `Bad response from server while renaming`,
-              JSON.stringify(res, null, 2)
-            )
-            throw new SyncError('BAD_RESPONSE')
+      try {
+        const res = await fetch(
+          `${process.env.API_URL}/api/storage/file/${fileInCache.fileId}/meta`,
+          {
+            method: 'POST',
+            headers: { ...headers, 'internxt-mnemonic': mnemonic },
+            body: JSON.stringify({
+              metadata: { itemName: newNameBase },
+              bucketId: fileInCache.bucket,
+              relativePath: uuid.v4()
+            })
           }
-          delete cache[oldName]
-          cache[newName] = fileInCache
-        } catch (err) {
-          await handleFetchError(err)
-        }
-      } else
-        throw new Error(
-          `${oldName} file not found in remote cache when tried to rename it`
         )
+        if (!res.ok) {
+          throw new SyncError(
+            'BAD_RESPONSE',
+            createErrorDetails(
+              {},
+              'Renaming remote file',
+              `oldName: ${oldName}, newName: ${newName}, fileInCache: ${JSON.stringify(
+                fileInCache,
+                null,
+                2
+              )}, res: ${JSON.stringify(res, null, 2)}`
+            )
+          )
+        }
+        delete cache[oldName]
+        cache[newName] = fileInCache
+      } catch (err) {
+        await handleFetchError(
+          err,
+          'Renaming remote file',
+          `oldName: ${oldName}, newName: ${newName}, fileInCache: ${JSON.stringify(
+            fileInCache,
+            null,
+            2
+          )}`
+        )
+      }
     },
 
     async pullFile(
@@ -257,7 +276,11 @@ export function getRemoteFilesystem(baseFolderId: number): FileSystem {
             )
               .then(res => res.json())
               .catch(async err => {
-                await handleFetchError(err)
+                await handleFetchError(
+                  err,
+                  'Creating remote folder',
+                  `name: ${name}, folderName: ${folderName}, lastParentId: ${lastParentId}`
+                )
               })
             lastParentId = createdFolder.id
             cache[routeToThisPoint] = {
@@ -289,7 +312,24 @@ export function getRemoteFilesystem(baseFolderId: number): FileSystem {
             progressCallback,
             finishedCallback: async (err: any, fileId: string) => {
               if (err) {
-                reject((await isOnline()) ? err : new SyncError('NO_INTERNET'))
+                const details = createErrorDetails(
+                  err,
+                  'Uploading a file',
+                  `bucket: ${bucket}, source: ${JSON.stringify(
+                    source,
+                    null,
+                    2
+                  )}, name: ${name}, userInfo: ${JSON.stringify(
+                    userInfo,
+                    null,
+                    2
+                  )}`
+                )
+                reject(
+                  (await isOnline())
+                    ? new SyncError('UNKNOWN', details)
+                    : new SyncError('NO_INTERNET', details)
+                )
               } else resolve(fileId)
             }
           },
@@ -316,7 +356,7 @@ export function getRemoteFilesystem(baseFolderId: number): FileSystem {
             }
           )
         } catch (err) {
-          Logger.error(
+          Logger.warn(
             `Error trying to delete outdated remote file. ${err.name} ${err.code} ${err.stack}`
           )
         }
@@ -348,14 +388,25 @@ export function getRemoteFilesystem(baseFolderId: number): FileSystem {
           })
         })
         if (!res.ok) {
-          Logger.error(
-            'Bad response while creating file',
-            JSON.stringify(res, null, 2)
+          throw new SyncError(
+            'BAD_RESPONSE',
+            createErrorDetails(
+              {},
+              'Creating file in drive server',
+              `res: ${JSON.stringify(
+                res,
+                null,
+                2
+              )}, encryptedName: ${encryptedName}, modificationTime: ${modificationTime}`
+            )
           )
-          throw new SyncError('BAD_RESPONSE')
         }
       } catch (err) {
-        await handleFetchError(err)
+        await handleFetchError(
+          err,
+          'Creating file in drive server',
+          `encryptedName: ${encryptedName}, modificationTime: ${modificationTime}`
+        )
       }
     },
 
@@ -366,31 +417,37 @@ export function getRemoteFilesystem(baseFolderId: number): FileSystem {
     async deleteFolder(name: string): Promise<void> {
       const folderInCache = cache[name]
 
-      if (folderInCache) {
-        const { id } = folderInCache
+      const { id } = folderInCache
 
-        try {
-          const res = await fetch(
-            `${process.env.API_URL}/api/storage/folder/${id}`,
-            {
-              headers,
-              method: 'DELETE'
-            }
-          )
-          if (!res.ok) {
-            Logger.error(
-              `Bad response wihle deleting folder`,
-              JSON.stringify(res, null, 2)
-            )
-            throw new SyncError('BAD_RESPONSE')
+      try {
+        const res = await fetch(
+          `${process.env.API_URL}/api/storage/folder/${id}`,
+          {
+            headers,
+            method: 'DELETE'
           }
-        } catch (err) {
-          await handleFetchError(err)
-        }
-      } else
-        throw new Error(
-          `${name} folder not found in remote cache when tried to delete`
         )
+        if (!res.ok) {
+          throw new SyncError(
+            'BAD_RESPONSE',
+            createErrorDetails(
+              {},
+              'Deleting folder from server',
+              `res: ${JSON.stringify(
+                res,
+                null,
+                2
+              )}, folderInCache: ${JSON.stringify(folderInCache, null, 2)}`
+            )
+          )
+        }
+      } catch (err) {
+        await handleFetchError(
+          err,
+          'Deleting folder from server',
+          `folderInCache: ${JSON.stringify(folderInCache, null, 2)}`
+        )
+      }
     },
 
     getSource(
@@ -398,11 +455,6 @@ export function getRemoteFilesystem(baseFolderId: number): FileSystem {
       progressCallback: FileSystemProgressCallback
     ): Promise<Source> {
       const fileInCache = cache[name]
-
-      if (!fileInCache)
-        throw new Error(
-          `${name} file not found in remote cache when tried to return a source`
-        )
 
       const environment = new Environment({
         bridgeUrl: process.env.BRIDGE_URL,
@@ -419,7 +471,24 @@ export function getRemoteFilesystem(baseFolderId: number): FileSystem {
             progressCallback,
             finishedCallback: async (err: any, downloadStream: Readable) => {
               if (err) {
-                reject((await isOnline()) ? err : new SyncError('NO_INTERNET'))
+                const details = createErrorDetails(
+                  err,
+                  'Downloading a file',
+                  `fileInCache: ${JSON.stringify(
+                    fileInCache,
+                    null,
+                    2
+                  )}, name: ${name}, userInfo: ${JSON.stringify(
+                    userInfo,
+                    null,
+                    2
+                  )}`
+                )
+                reject(
+                  (await isOnline())
+                    ? new SyncError('UNKNOWN', details)
+                    : new SyncError('NO_INTERNET', details)
+                )
               } else {
                 resolve({
                   stream: downloadStream,
@@ -441,9 +510,11 @@ export function getRemoteFilesystem(baseFolderId: number): FileSystem {
     },
 
     async smokeTest() {
-      if (!navigator.onLine) {
-        Logger.error(`No internet connection`)
-        throw new SyncFatalError('NO_INTERNET')
+      if (!(await isOnline())) {
+        throw new SyncFatalError(
+          'NO_INTERNET',
+          createErrorDetails({}, 'Remote smoke test (online test)')
+        )
       }
 
       const res = await fetch(
@@ -452,10 +523,14 @@ export function getRemoteFilesystem(baseFolderId: number): FileSystem {
       )
 
       if (!res.ok) {
-        Logger.error(
-          `Tried to get base folder (${baseFolderId}) and response was not ok`
+        throw new SyncFatalError(
+          'NO_REMOTE_CONNECTION',
+          createErrorDetails(
+            {},
+            'Remote smoke test (get base folder test)',
+            `res: ${JSON.stringify(res, null, 2)}`
+          )
         )
-        throw new SyncFatalError('NO_REMOTE_CONNECTION')
       }
     }
   }

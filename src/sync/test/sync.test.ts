@@ -1,6 +1,7 @@
 import { Readable } from 'stream'
 import Sync, {
   Deltas,
+  ErrorDetails,
   FileSystem,
   Listing,
   ListingStore,
@@ -717,7 +718,7 @@ describe('sync tests', () => {
     const sync = new Sync(fsFailing, mockBase(), listingStore())
 
     jest.spyOn(fsFailing, 'smokeTest').mockImplementation(async () => {
-      throw new SyncFatalError('NO_INTERNET')
+      throw new SyncFatalError('NO_INTERNET', {} as ErrorDetails)
     })
 
     try {
