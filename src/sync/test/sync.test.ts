@@ -1,11 +1,17 @@
 import { Readable } from 'stream'
-import Sync, { Deltas, FileSystem, Listing, ListingStore, SyncFatalError } from '../sync'
+import Sync, {
+  Deltas,
+  FileSystem,
+  Listing,
+  ListingStore,
+  SyncFatalError
+} from '../sync'
 
 describe('sync tests', () => {
   const mockBase: () => FileSystem = () => ({
     kind: 'LOCAL',
     async getCurrentListing() {
-      return {}
+      return { listing: {}, readingMetaErrors: [] }
     },
     async deleteFile() {
       return
@@ -102,9 +108,12 @@ describe('sync tests', () => {
       ...mockBase(),
       async getCurrentListing() {
         return {
-          notExistInRemote: 40,
-          existInBothButIsTheSame: 30,
-          'folder/nested/existInBoth.txt': 44
+          listing: {
+            notExistInRemote: 40,
+            existInBothButIsTheSame: 30,
+            'folder/nested/existInBoth.txt': 44
+          },
+          readingMetaErrors: []
         }
       }
     }
@@ -113,9 +122,12 @@ describe('sync tests', () => {
       ...mockBase(),
       async getCurrentListing() {
         return {
-          notExistInLocal: 40,
-          existInBothButIsTheSame: 30,
-          'folder/nested/existInBoth.txt': 55
+          listing: {
+            notExistInLocal: 40,
+            existInBothButIsTheSame: 30,
+            'folder/nested/existInBoth.txt': 55
+          },
+          readingMetaErrors: []
         }
       }
     }
@@ -219,23 +231,26 @@ describe('sync tests', () => {
       ...mockBase(),
       async getCurrentListing() {
         return {
-          'new/new/different': 4,
-          'new/new/same': 4,
-          'new/noexist': 43,
-          'newer/newer/different': 5,
-          'newer/newer/same': 5,
-          'newer/deleted': 6,
-          'newer/older': 6,
-          'newer/unchanged': 5,
-          'older/newer': 3,
-          'older/deleted': 3,
-          'older/older/same': 3,
-          'older/older/different': 3,
-          'older/unchanged': 3,
-          'unchanged/newer': 4,
-          'unchanged/deleted': 4,
-          'unchanged/older': 4,
-          'unchanged/unchanged': 4
+          listing: {
+            'new/new/different': 4,
+            'new/new/same': 4,
+            'new/noexist': 43,
+            'newer/newer/different': 5,
+            'newer/newer/same': 5,
+            'newer/deleted': 6,
+            'newer/older': 6,
+            'newer/unchanged': 5,
+            'older/newer': 3,
+            'older/deleted': 3,
+            'older/older/same': 3,
+            'older/older/different': 3,
+            'older/unchanged': 3,
+            'unchanged/newer': 4,
+            'unchanged/deleted': 4,
+            'unchanged/older': 4,
+            'unchanged/unchanged': 4
+          },
+          readingMetaErrors: []
         }
       }
     }
@@ -244,23 +259,26 @@ describe('sync tests', () => {
       ...mockBase(),
       async getCurrentListing() {
         return {
-          'new/new/different': 5,
-          'new/new/same': 4,
-          'newer/newer/different': 6,
-          'newer/newer/same': 5,
-          'newer/older': 4,
-          'newer/unchanged': 4,
-          'deleted/newer': 5,
-          'deleted/older': 3,
-          'deleted/unchanged': 4,
-          'older/newer': 5,
-          'older/older/same': 3,
-          'older/older/different': 2,
-          'older/unchanged': 4,
-          'unchanged/newer': 5,
-          'unchanged/older': 3,
-          'unchanged/unchanged': 4,
-          'noexist/new': 4
+          listing: {
+            'new/new/different': 5,
+            'new/new/same': 4,
+            'newer/newer/different': 6,
+            'newer/newer/same': 5,
+            'newer/older': 4,
+            'newer/unchanged': 4,
+            'deleted/newer': 5,
+            'deleted/older': 3,
+            'deleted/unchanged': 4,
+            'older/newer': 5,
+            'older/older/same': 3,
+            'older/older/different': 2,
+            'older/unchanged': 4,
+            'unchanged/newer': 5,
+            'unchanged/older': 3,
+            'unchanged/unchanged': 4,
+            'noexist/new': 4
+          },
+          readingMetaErrors: []
         }
       }
     }
@@ -716,7 +734,7 @@ describe('sync tests', () => {
     const sync = new Sync(fsFailing, mockBase(), listingStore())
 
     jest.spyOn(fsFailing, 'getCurrentListing').mockImplementation(async () => {
-     throw new Error()
+      throw new Error()
     })
 
     try {
