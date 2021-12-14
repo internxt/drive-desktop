@@ -87,15 +87,18 @@
             ></div>
           </div>
 
-          <div class="dropdown-menu rounded-lg" data-offset="0,10">
+          <div
+            class="dropdown-menu rounded-lg text-sm text-gray-600"
+            data-offset="0,10"
+          >
             <a
-              class="text-gray-600 dropdown-item"
+              class="dropdown-item"
               @click="() => openSettingsWindow('general')"
               >Preferences</a
             >
             <div
               v-if="numberOfSyncIssues > 0"
-              class="text-gray-600 dropdown-item flex items-center justify-between"
+              class="dropdown-item flex items-center justify-between"
               @click="openSyncIssuesWindow"
             >
               <div>Sync Issues</div>
@@ -103,14 +106,10 @@
                 {{ numberOfSyncIssues }}
               </div>
             </div>
-            <a class="text-gray-600 dropdown-item" @click="ContactSupportMailto"
-              >Support</a
-            >
-            <a class="text-gray-600 dropdown-item pb-2" @click="logout"
-              >Log out</a
-            >
+            <a class="dropdown-item" @click="ContactSupportMailto">Support</a>
+            <a class="dropdown-item pb-2" @click="logout">Log out</a>
             <a
-              class="text-gray-600 dropdown-item border-gray-100 border-t border-solid pt-2"
+              class="dropdown-item border-gray-100 border-t border-solid pt-2"
               @click="quitApp"
               >Quit</a
             >
