@@ -140,10 +140,13 @@ export function getLocalFilesystem(
 
         stream.on('error', err =>
           reject(
-            createErrorDetails(
-              err,
-              `Pulling file locally`,
-              `Name: ${name}, source: ${JSON.stringify(source, null, 2)}`
+            new SyncError(
+              'UNKNOWN',
+              createErrorDetails(
+                err,
+                `Pulling file locally`,
+                `Name: ${name}, source: ${JSON.stringify(source, null, 2)}`
+              )
             )
           )
         )
@@ -167,10 +170,13 @@ export function getLocalFilesystem(
               reject(err)
             } else {
               reject(
-                createErrorDetails(
-                  err,
-                  `Making local directory if needed and updating local modtime`,
-                  `Name: ${name}, source: ${JSON.stringify(source, null, 2)}`
+                new SyncError(
+                  'UNKNOWN',
+                  createErrorDetails(
+                    err,
+                    `Making local directory if needed and updating local modtime`,
+                    `Name: ${name}, source: ${JSON.stringify(source, null, 2)}`
+                  )
                 )
               )
             }
