@@ -813,7 +813,7 @@ function processSyncItem(item, hasBeenStopped) {
     app.emit('SYNC_INFO_UPDATE', { action: 'ACQUIRING_LOCK' })
 
     function onAcquireLockError(err) {
-      Logger.error('Could not acquire lock', err)
+      Logger.log('Could not acquire lock', err)
       onExit('COULD_NOT_ACQUIRE_LOCK')
     }
 
@@ -904,6 +904,7 @@ const isLoggedIn = !!ConfigStore.get('bearerToken')
 const hasAlreadyMigrated = !!ConfigStore.get('syncRoot')
 
 if (!hasAlreadyMigrated && isLoggedIn) {
+  Logger.log('Setting up Internxt folder in main process')
   setupRootFolder()
 }
 
