@@ -348,16 +348,31 @@ export function getRemoteFilesystem(baseFolderId: number): FileSystem {
 
       if (oldFileInCache) {
         try {
-          await fetch(
+          const res = await fetch(
             `${process.env.API_URL}/api/storage/bucket/${bucket}/file/${oldFileInCache.fileId}`,
             {
               method: 'DELETE',
               headers
             }
           )
+          if (!res.ok) {
+            Logger.warn(
+              `Error trying to delete outdated remote file. res: ${JSON.stringify(
+                res,
+                null,
+                2
+              )} fileInCache: ${JSON.stringify(oldFileInCache, null, 2)}`
+            )
+          }
         } catch (err) {
           Logger.warn(
-            `Error trying to delete outdated remote file. ${err.name} ${err.code} ${err.stack}`
+            `Error trying to delete outdated remote file. ${err.name} ${
+              err.code
+            } ${err.stack} fileInCache: ${JSON.stringify(
+              oldFileInCache,
+              null,
+              2
+            )}`
           )
         }
       }
