@@ -3,17 +3,22 @@ import { createReadStream } from 'fs'
 import fs from 'fs/promises'
 
 export async function reportBug(errorDetails, userComment, includeLogs) {
-  const logs = includeLogs ? await readLog() : undefined
+  const form = new FormData()
 
   const reportBody = {
     ...errorDetails,
-    userComment,
-    logs
+    userComment
+  }
+
+  form.set('reportBody', JSON.stringify(reportBody))
+
+  if (includeLogs) {
+    form.set('logs', await readLog())
   }
 
   await fetch(process.env.BUG_REPORTING_URL, {
     method: 'POST',
-    body: JSON.stringify(reportBody)
+    body: form
   })
 }
 
@@ -33,7 +38,7 @@ export function readLog() {
 
     stream.on('data', buf => rawFile.push(buf))
     stream.on('close', () => {
-      resolve(Buffer.concat(rawFile).toString('utf-8'))
+      resolve(Buffer.concat(rawFile))
     })
     stream.on('error', reject)
   })
