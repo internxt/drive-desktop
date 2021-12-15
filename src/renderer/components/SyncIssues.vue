@@ -112,6 +112,7 @@
         <div v-if="report">
           <p class="mt-2 text-xs text-gray-500">Comments</p>
           <textarea
+            v-model="userComment"
             class="w-full mt-1 text-xs outline-none border-gray-100 border p-1 rounded-md text-gray-800 h-16"
             style="resize:none;caret-color: rgba(31, 41, 55, 0.6)"
           />
@@ -123,15 +124,34 @@
           </div>
         </div>
         <div
-          class="flex items-center justify-end mt-6 space-x-2"
+          class="flex items-center justify-between"
           :class="{ 'mt-2': report, 'mt-6': !report }"
         >
-          <Button v-if="!report" @click="hideMoreInfo"> Close</Button>
-          <Button v-else @click="report = false"> Cancel</Button>
-          <Button v-if="!report" @click="report = true" state="accent">
-            Report</Button
+          <p
+            class="text-xs text-red-600"
+            :class="{ 'opacity-0': !report || reportState !== 'ERROR' }"
           >
-          <Button v-else @click="sendReport" state="accent">Send</Button>
+            An error happened while sending your report
+          </p>
+          <div class="flex items-center justify-end space-x-2">
+            <Button v-if="!report" @click="hideMoreInfo"> Close</Button>
+            <Button v-else @click="report = false"> Cancel</Button>
+            <Button v-if="!report" @click="report = true" state="accent">
+              Report</Button
+            >
+            <Button
+              v-else-if="report && reportState !== 'LOADING'"
+              @click="sendReport"
+              state="accent"
+              >Send</Button
+            >
+            <UilSpinnerAlt
+              v-else-if="report && reportState === 'LOADING'"
+              class="z-10 text-gray-500 animate-spin"
+              style="width: 58px"
+              size="22px"
+            />
+          </div>
         </div>
       </div>
     </div>
@@ -144,7 +164,8 @@ import {
   UilAt,
   UilHistory,
   UilAngleDown,
-  UilInfoCircle
+  UilInfoCircle,
+  UilSpinnerAlt
 } from '@iconscout/vue-unicons'
 import Button from './Button/Button.vue'
 import warnIcon from '../assets/icons/apple/warn.svg'
@@ -154,6 +175,7 @@ import { longMessages, shortMessages } from '../../sync/sync-error-messages'
 
 import { ipcRenderer } from 'electron'
 import Logger from '../../libs/logger'
+import { reportBug } from '../logic/bug-report'
 import path from 'path'
 import electronLog from 'electron-log'
 const remote = require('@electron/remote')
@@ -167,7 +189,8 @@ export default {
     UilAngleDown,
     FileIcon,
     ExitWindowButton,
-    UilInfoCircle
+    UilInfoCircle,
+    UilSpinnerAlt
   },
   data() {
     return {
@@ -185,7 +208,9 @@ export default {
       warnIcon,
       moreInfoType: null,
       report: false,
-      sendLogsWithReport: true
+      sendLogsWithReport: true,
+      reportState: null,
+      userComment: ''
     }
   },
   mounted() {
@@ -226,10 +251,28 @@ export default {
     },
     hideMoreInfo() {
       this.moreInfoType = null
+      this.userComment = ''
       this.report = false
+      this.reportState = null
     },
     async sendReport() {
-      this.hideMoreInfo()
+      try {
+        const issueOfSelectedType = this.syncIssues.find(
+          issue => issue.errorName === this.moreInfoType
+        )
+        if (issueOfSelectedType) {
+          this.reportState = 'LOADING'
+          await reportBug(
+            issueOfSelectedType.errorDetails,
+            this.userComment,
+            this.sendLogsWithReport
+          )
+        }
+        this.hideMoreInfo()
+      } catch (err) {
+        Logger.error('Error while sending a bug report', err)
+        this.reportState = 'ERROR'
+      }
     },
     goToHelp() {
       remote.shell.openExternal('https://help.internxt.com')
