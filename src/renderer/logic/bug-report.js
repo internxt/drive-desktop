@@ -21,7 +21,7 @@ export function readLog() {
   return new Promise(async (resolve, reject) => {
     const logPath = log.transports.file.getFile().path
 
-    const MAX_SIZE = 1024 * 30
+    const MAX_SIZE = 1024 * 1024 * 5
 
     const { size } = await fs.lstat(logPath)
 
