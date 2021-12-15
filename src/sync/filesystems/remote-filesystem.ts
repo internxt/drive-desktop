@@ -312,6 +312,8 @@ export function getRemoteFilesystem(baseFolderId: number): FileSystem {
             progressCallback,
             finishedCallback: async (err: any, fileId: string) => {
               if (err) {
+                // Don't include the stream in the details
+                delete source.stream
                 const details = createErrorDetails(
                   err,
                   'Uploading a file',

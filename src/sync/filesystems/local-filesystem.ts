@@ -138,7 +138,9 @@ export function getLocalFilesystem(
 
         stream.on('data', chunk => writeStream.write(chunk))
 
-        stream.on('error', err =>
+        stream.on('error', err => {
+          // Don't include the stream in the details
+          delete source.stream
           reject(
             new SyncError(
               'UNKNOWN',
@@ -149,7 +151,7 @@ export function getLocalFilesystem(
               )
             )
           )
-        )
+        })
 
         stream.on('end', async () => {
           try {
@@ -169,6 +171,8 @@ export function getLocalFilesystem(
             if (err instanceof SyncError) {
               reject(err)
             } else {
+              // Don't include the stream in the details
+              delete source.stream
               reject(
                 new SyncError(
                   'UNKNOWN',
