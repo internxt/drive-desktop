@@ -116,7 +116,7 @@
             class="w-full mt-1 text-xs outline-none border-gray-100 border p-1 rounded-md text-gray-800 h-16"
             style="resize:none;caret-color: rgba(31, 41, 55, 0.6)"
           />
-          <div class="flex items-center mt-2 cursor-pointer">
+          <div class="flex items-center mt-2">
             <input type="checkbox" v-model="sendLogsWithReport" />
             <p class="text-xs ml-1 text-gray-500">
               Include the logs of this sync process for debug purposes
