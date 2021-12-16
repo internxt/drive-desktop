@@ -1,6 +1,7 @@
 import log from 'electron-log'
 import { createReadStream } from 'fs'
 import fs from 'fs/promises'
+import { getToken } from '../../main/auth'
 
 export async function reportBug(errorDetails, userComment, includeLogs) {
   const form = new FormData()
@@ -16,9 +17,13 @@ export async function reportBug(errorDetails, userComment, includeLogs) {
     form.set('logs', await readLog())
   }
 
+  const headers = new Headers()
+  headers.set('Authorization', `Bearer ${getToken()}`)
+
   await fetch(process.env.BUG_REPORTING_URL, {
     method: 'POST',
-    body: form
+    body: form,
+    headers
   })
 }
 
