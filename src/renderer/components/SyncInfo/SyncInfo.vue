@@ -34,6 +34,26 @@
         />
       </div>
     </div>
+    <div
+      v-if="items.length === 0"
+      class="h-full flex flex-col items-center justify-center text-center"
+    >
+      <div class="relative w-full h-20">
+        <div
+          class="absolute transform rotate-12 left-1/2 -translate-x-6 opacity-60"
+        >
+          <file-icon-with-operation :size="70" />
+        </div>
+        <div class="absolute transform -rotate-12 left-1/2 -translate-x-10">
+          <file-icon-with-operation :size="70" />
+        </div>
+      </div>
+      <p class="mt-7 text-sm text-gray-600">There is no recent activity</p>
+      <p class="mt-1 text-xs text-gray-400 px-4">
+        Information will show up here when changes are made to sync your local
+        folder with Internxt Drive
+      </p>
+    </div>
   </div>
 </template>
 
