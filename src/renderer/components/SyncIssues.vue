@@ -290,6 +290,9 @@ export default {
 .open-logs-button {
   background-color: #ebecf0;
 }
+.open-logs-button:hover {
+  background-color: #cdcdd1ad;
+}
 .open-logs-button:active {
   background-color: #cdcdd1;
 }
