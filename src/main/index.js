@@ -28,7 +28,7 @@ import ErrorCodes from '../backup-process/error-codes'
 require('@electron/remote/main').initialize()
 AutoLaunch.configureAutostart()
 var lock = false
-let isOnboarding = false
+let isOnboarding = true
 let isLogin = false
 /**
  * Set `__static` path to static files in production
