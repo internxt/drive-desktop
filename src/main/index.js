@@ -243,7 +243,6 @@ function showMainWindows(trayBounds) {
   if (mainWindow.isVisible()) {
     mainWindow.hide()
   } else {
-    mainWindow.setBounds(getWindowPos(trayBounds))
     mainWindow.show()
   }
 }
