@@ -26,6 +26,14 @@ export default new Router({
         import(/* webpackChunkName: "main-widget" */ '@/components/LandingPage')
     },
     {
+      path: '/onboarding',
+      name: 'onboarding-page',
+      component: () =>
+        import(
+          /* webpackChunkName: "onboarding" */ '@/components/OnBoarding/OnBoarding'
+        )
+    },
+    {
       path: '/settings',
       name: 'settings-page',
       component: () =>

@@ -1,7 +1,7 @@
 <template>
   <div v-if="!widgetTransition" class="window flex flex-row w-full h-full text-neutral-500">
 
-    <div class="relative flex flex-row justify-end w-full h-full p-8">
+    <div class="relative flex flex-row justify-end w-full h-full px-8 py-12">
 
       <div v-bind:class="`relative flex flex-col flex-grow h-full -ml-8 pointer-events-none transition-all duration-500 delay-100 ${slide === 0 && 'mr-8'}`">
         <transition
@@ -78,7 +78,7 @@
             </div>
 
             <button
-              @click="goToSlide(0)"
+              @click="finishOnboarding()"
               class="flex flex-row px-3 py-1 text-base bg-white rounded-lg border border-gray-100 shadow-sm"
             >
               Cool, open the widget
@@ -88,7 +88,7 @@
         </transition>
 
         <div v-bind:class="`absolute bottom-0 left-0 w-full h-auto flex flex-col justify-center items-center transition-opacity ease-in-out duration-500 ${slide >= 1 ? 'opacity-100' : 'opacity-0'}`">
-          <div @mouseover="stepsHover=true" @mouseleave="stepsHover=false" v-bind:class="`flex flex-row p-1 space-x-1.5 rounded-full transition-all duration-200 transform ${stepsHover && 'bg-white shadow-md scale-150'}`">
+          <div @mouseover="stepsHover=true" @mouseleave="stepsHover=false" v-bind:class="`flex flex-row p-1 space-x-1.5 rounded-full transition-all ease-out duration-200 transform ${stepsHover && 'bg-white shadow-md scale-150'}`">
             <div @click="goToSlide(1)" v-bind:class="`flex h-1.5 rounded-full transition-all ease-in-out duration-300 ${slide === 1 ? 'w-4' : 'w-1.5'} ${slide >= 1 ? 'bg-gray-400 bg-opacity-75' : 'bg-gray-300'}`"></div>
             <div @click="goToSlide(2)" v-bind:class="`flex h-1.5 rounded-full transition-all ease-in-out duration-300 ${slide === 2 ? 'w-4' : 'w-1.5'} ${slide >= 2 ? 'bg-gray-400 bg-opacity-75' : 'bg-gray-300'}`"></div>
           </div>
@@ -102,7 +102,7 @@
 </template>
 
 <script>
-import database from '../../../database'
+// import database from '../../../database'
 const remote = require('@electron/remote')
 
 export default {
@@ -116,18 +116,18 @@ export default {
     }
   },
   beforeCreate() {
-    // remote.getCurrentWindow().center()
+    remote.getCurrentWindow().center()
     remote.app.emit('enter-onboarding', true)
     remote.app.emit('window-show')
 
-    database
-      .Get('xUser')
-      .then((xUser) => {
-        this.userName = xUser.user.name
-      })
-      .catch((err) => {
-        console.log('[Onboarding] Cannot get user name: ', err.message)
-      })
+    // Database
+    //   .Get('xUser')
+    //   .then((xUser) => {
+    //     this.userName = xUser.user.name
+    //   })
+    //   .catch((err) => {
+    //     console.log('[Onboarding] Cannot get user name: ', err.message)
+    //   })
   },
   methods: {
     getOS() {
@@ -160,9 +160,10 @@ export default {
     },
     finishOnboarding() {
       this.widgetTransition = true
+      remote.app.emit('close-onboarding')
       remote.app.emit('window-pushed-to', '/xcloud')
       this.$router.push('/xcloud').catch(() => {})
-      // remote.app.emit('enter-onboarding', false)
+      remote.app.emit('enter-onboarding', false)
     },
     openLink(link) {
       remote.shell.openExternal(link)
