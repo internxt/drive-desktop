@@ -1,40 +1,75 @@
 <template>
-<div>
-  <div v-if="device" class="flex flex-col items-center">
-    <p class="text-xs text-gray-400 mb-1" :class="{'text-gray-400': !editing, 'text-blue-500': editing}">Device name</p>
-    <div
-      class="
+  <div>
+    <div v-if="device">
+      <p class="text-xs text-gray-600 mb-1">
+        Device name
+      </p>
+      <div
+        class="
         flex
-        justify-center
         items-center
         text-lg
         font-semibold
         tracking-wide
       "
-      v-if="device"
-    >
-      <input @blur="saveName" @keypress.enter="saveName" @keyup.esc="stopEditing" ref="field" v-if="editing" v-model="nameToEdit" type="text" style="border-radius: 8px; border-width: 1px;margin-left: 60px" class="w-1/2 h-8 outline-none ring-2  px-3 font-bold text-gray-700 text-base bg-gray-50 ring-blue-300 border-blue-500" />
-      <p v-else style="margin-left: 23px">{{ device.name }}</p>
+        v-if="device"
+      >
+        <input
+          @blur="saveName"
+          @keypress.enter="saveName"
+          @keyup.esc="stopEditing"
+          ref="field"
+          v-if="editing"
+          v-model="nameToEdit"
+          type="text"
+          style="border-radius: 8px; border-width: 1px"
+          class="h-8 w-full outline-none ring-2 px-3 font-bold text-gray-700 text-base bg-gray-50 ring-blue-300 border-blue-500 tracking-wider"
+        />
+        <p class="h-8 tracking-wider" style="line-height: 32px" v-else>
+          {{ device.name }}
+        </p>
 
-      <UilPen v-if="!editing" size="15px" class="text-gray-400 ml-2 cursor-pointer" @click.native="startEditing"/>
-      <UilCheck v-if="editing" size="22px" class="text-blue-500 ml-2 cursor-pointer p-1 bg-blue-100 rounded-full" @click.native="saveName"/>
-      <UilMultiply v-if="editing" size="22px" class="text-gray-500 bg-gray-100 p-1 cursor-pointer rounded-full ml-2" @click.native="stopEditing"/>
+        <UilPen
+          v-if="!editing"
+          size="15px"
+          class="text-gray-400 ml-2 cursor-pointer"
+          @click.native="startEditing"
+        />
+        <UilCheck
+          v-if="editing"
+          size="32px"
+          class="text-white ml-1 cursor-pointer px-1 flex-shrink-0"
+          style="border-radius: 8px;background-color: #0f62fe"
+          @click.native="saveName"
+        />
+        <UilMultiply
+          v-if="editing"
+          size="32px"
+          style="border-radius: 8px; padding: 7px"
+          class="text-gray-500 bg-gray-200 cursor-pointer ml-1 flex-shrink-0"
+          @click.native="stopEditing"
+        />
+      </div>
     </div>
+    <content-placeholders
+      v-else
+      style="height:52px"
+      :centered="false"
+      :rounded="true"
+    >
+      <content-placeholders-text :lines="1" />
+    </content-placeholders>
   </div>
-  <content-placeholders v-else class="h-7" :centered="true" :rounded="true">
-    <content-placeholders-text :lines="1"/>
-  </content-placeholders>
-</div>
 </template>
 
 <script>
-import {getDeviceByMac, createDevice, updateDevice} from '../../../backup-process/service'
-import analytics from '../../logic/utils/analytics'
 import {
-  UilPen,
-  UilCheck,
-  UilMultiply
-} from '@iconscout/vue-unicons'
+  getDeviceByMac,
+  createDevice,
+  updateDevice
+} from '../../../backup-process/service'
+import analytics from '../../logic/utils/analytics'
+import { UilPen, UilCheck, UilMultiply } from '@iconscout/vue-unicons'
 export default {
   components: {
     UilMultiply,

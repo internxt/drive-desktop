@@ -1,53 +1,58 @@
 <template>
   <div ref="rootElement" class="relative">
     <div class="relative bg-white p-1 h-6" style="-webkit-app-region: drag">
-      <div v-if="!isMacOS" class="w-min" @click="closeWindow" style="-webkit-app-region: no-drag">
-        <UilMultiply class="hover:text-gray-500 block"/>
-      </div>
-      <p class="text-sm" style="position:absolute;top:4px;left:50%; transform: translateX(-50%);">Internxt Drive</p>
+      <exit-window-button v-if="!isMacOS" @click="closeWindow" />
+      <p
+        class="text-sm"
+        style="position:absolute;top:4px;left:50%; transform: translateX(-50%);"
+      >
+        Internxt Drive
+      </p>
     </div>
-    <div class="bg-white flex justify-center py-2 border-b-2 border-gray-100" style="-webkit-app-region: drag">
+    <div
+      class="bg-white flex justify-center py-2 border-b-2 border-gray-100"
+      style="-webkit-app-region: drag"
+    >
       <settings-header-item
         title="General"
         @click="active = 'general'"
         :active="active === 'general'"
-      > <UilSetting size="27px"/> </settings-header-item>
+      >
+        <UilSetting size="27px" />
+      </settings-header-item>
       <settings-header-item
         title="Account"
         :active="active === 'account'"
         @click="active = 'account'"
-      ><UilAt size="27px"/></settings-header-item>
+        ><UilAt size="27px"
+      /></settings-header-item>
       <settings-header-item
         title="Backups"
         :active="active === 'backups'"
         @click="active = 'backups'"
-      > <BackupIcon size="27" :state="backupStatus"/> </settings-header-item>
+      >
+        <BackupIcon size="27" :state="backupStatus" />
+      </settings-header-item>
     </div>
     <div class="p-8">
       <keep-alive>
         <component :is="currentSection" :backupStatus="backupStatus" />
       </keep-alive>
     </div>
-    <Dialog v-if="$store.state.ui.settingsDialog"/>
+    <Dialog v-if="$store.state.ui.settingsDialog" />
   </div>
 </template>
 
 <script>
-import DeviceLock from '../logic/devicelock'
-import path from 'path'
 import SettingsHeaderItem from './Settings/SettingsHeaderItem.vue'
-import {
-  UilSetting,
-  UilAt,
-  UilHistory,
-  UilMultiply
-} from '@iconscout/vue-unicons'
+import { UilSetting, UilAt, UilHistory } from '@iconscout/vue-unicons'
 import Button from './Button/Button.vue'
 import BackupsSection from './Settings/BackupsSection.vue'
 import AccountSection from './Settings/AccountSection.vue'
 import GeneralSection from './Settings/GeneralSection.vue'
 import Dialog from './Settings/Dialog.vue'
 import BackupIcon from './Icons/BackupIcon.vue'
+import ExitWindowButton from './ExitWindowButton/ExitWindowButton.vue'
 import Avatar from './Avatar/Avatar.vue'
 import { ipcRenderer } from 'electron'
 const remote = require('@electron/remote')
@@ -60,12 +65,12 @@ export default {
     AccountSection,
     GeneralSection,
     Avatar,
-    UilMultiply,
     UilSetting,
     UilAt,
     UilHistory,
     BackupIcon,
-    Dialog
+    Dialog,
+    ExitWindowButton
   },
   data() {
     return {
@@ -79,24 +84,23 @@ export default {
     this.setActive(section)
     remote.app.on('settings-change-section', this.setActive)
 
-    const resizeObserver = new ResizeObserver(([rootElement]) => this.emitResize({width: rootElement.borderBoxSize[0].inlineSize, height: rootElement.borderBoxSize[0].blockSize}))
+    const resizeObserver = new ResizeObserver(([rootElement]) =>
+      this.emitResize({
+        width: rootElement.borderBoxSize[0].inlineSize,
+        height: rootElement.borderBoxSize[0].blockSize
+      })
+    )
 
     resizeObserver.observe(this.$refs.rootElement)
 
-    ipcRenderer.invoke('get-backup-status')
-      .then(this.setBackupStatus)
+    ipcRenderer.invoke('get-backup-status').then(this.setBackupStatus)
     remote.app.on('backup-status-update', this.setBackupStatus)
   },
-  beforeDestroy () {
-    remote.app.removeAllListeners('new-folder-path')
+  beforeDestroy() {
     remote.app.removeListener('settings-change-section', this.setActive)
     remote.app.removeListener('backup-status-update', this.setBackupStatus)
   },
   methods: {
-    // Open Filelogger log (activity of uploads, downloads, etc)
-    openFileloggerLog() {
-      remote.shell.openPath(path.join(__dirname, '../../../../database/fileLogger'))
-    },
     openLinkBilling() {
       remote.shell.openExternal('https://drive.internxt.com/storage')
     },
@@ -128,6 +132,5 @@ export default {
       return process.platform === 'darwin'
     }
   }
-
 }
 </script>

@@ -8,7 +8,8 @@ import electron, {
   dialog,
   powerMonitor,
   ipcMain,
-  Notification
+  Notification,
+  powerSaveBlocker
 } from 'electron'
 import path from 'path'
 import Logger from '../libs/logger'
@@ -19,16 +20,18 @@ import PackageJson from '../../package.json'
 import fetch from 'electron-fetch'
 import ConfigStore from './config-store'
 import TrayMenu from './traymenu'
-import FileLogger from '../renderer/logic/FileLogger'
 import dimentions from './window-dimentions/dimentions'
 import BackupsDB from '../backup-process/backups-db'
 import BackupStatus from '../backup-process/status'
 import ErrorCodes from '../backup-process/error-codes'
+import locksService from '../sync/locks-service'
+import SyncStatus from '../sync/sync-status'
+import { v4 } from 'uuid'
+import { getUser } from './auth'
+import { setupRootFolder } from '../libs/root-folder-utils'
 
 require('@electron/remote/main').initialize()
 AutoLaunch.configureAutostart()
-var lock = false
-let isOnboarding = false
 let isLogin = false
 /**
  * Set `__static` path to static files in production
@@ -51,7 +54,6 @@ if (process.platform === 'darwin') {
 }
 
 if (!app.requestSingleInstanceLock()) {
-  FileLogger.saveLog()
   app.quit()
 }
 
@@ -122,21 +124,29 @@ function createWindow() {
   })
 
   mainWindow.on('blur', () => {
-    if (!isLogin && !isOnboarding) mainWindow.hide()
+    if (!isLogin) mainWindow.hide()
   })
 
   app.on('app-close', appClose)
 
-  app.on('enter-onboarding', setIsOnboarding => {
-    isOnboarding = setIsOnboarding
-  })
   app.on('enter-login', setIsLogin => {
     isLogin = setIsLogin
   })
 
   app.on('user-logout', () => {
     if (settingsWindow) settingsWindow.destroy()
-    FileLogger.eraseLog()
+
+    if (syncIssuesWindow) syncIssuesWindow.destroy()
+
+    if (backupProcessRerun) {
+      clearTimeout(backupProcessRerun)
+    }
+
+    if (syncProcessRerun) {
+      clearTimeout(syncProcessRerun)
+    }
+
+    clearSyncIssues()
   })
 
   app.on('update-configStore', item => {
@@ -218,7 +228,7 @@ function createWindow() {
     ]
   }
 
-  const windowMenu = Menu.setApplicationMenu(
+  Menu.setApplicationMenu(
     Menu.buildFromTemplate([process.platform === 'darwin' ? editMacOS : edit])
   )
 }
@@ -233,24 +243,11 @@ function showMainWindows(trayBounds) {
   if (mainWindow.isVisible()) {
     mainWindow.hide()
   } else {
-    mainWindow.setBounds(getWindowPos(trayBounds))
     mainWindow.show()
   }
 }
 
 async function appClose() {
-  let attempts = 5
-  while (ConfigStore.get('updatingDB') && attempts > 0) {
-    attempts--
-    await new Promise(resolve => {
-      setTimeout(resolve, 1000)
-    })
-  }
-  if (ConfigStore.get('isSyncing')) {
-    await new Promise(resolve => {
-      setTimeout(resolve, 1000)
-    })
-  }
   if (mainWindow) {
     mainWindow.destroy()
   }
@@ -258,7 +255,6 @@ async function appClose() {
     trayMenu.destroy()
     trayMenu = null
   }
-  FileLogger.saveLog()
   app.quit()
 }
 
@@ -278,29 +274,7 @@ app.on('before-quit', function(evt) {
   }
 })
 
-app.on('sync-on', function() {
-  trayMenu.setIsLoadingIcon(true)
-})
-
-app.on('sync-off', function() {
-  trayMenu.setIsLoadingIcon(false)
-})
-
 app.on('change-auto-launch', AutoLaunch.configureAutostart)
-
-function maybeShowWindow() {
-  if (mainWindow) {
-    mainWindow.show()
-  } else {
-    app.on('window-show', function() {
-      if (mainWindow) {
-        mainWindow.show()
-      }
-    })
-  }
-}
-
-maybeShowWindow()
 
 app.on('show-bubble', (title, content) => {
   if (trayMenu) {
@@ -570,29 +544,68 @@ async function ManualCheckUpdate() {
 }
 
 app.on('ready', () => {
+  const isLoggedIn = !!ConfigStore.get('bearerToken')
+
+  if (isLoggedIn) {
+    startBackgroundProcesses()
+  }
+
+  powerMonitor.on('suspend', function() {
+    Logger.warn('User system suspended')
+  })
+
+  powerMonitor.on('resume', function() {
+    Logger.warn('User system resumed')
+  })
+})
+
+app.on('logged-in', startBackgroundProcesses)
+
+function startBackgroundProcesses() {
   checkUpdates()
 
-  /*
-    Don't start backup process right away
-    as the load is already high on ready
-  */
-  setTimeout(startBackupProcess, 8000)
+  // Check if we should launch backup process
+
+  const backupInterval = ConfigStore.get('backupInterval')
+  const lastBackup = ConfigStore.get('lastBackup')
+
+  if (backupInterval !== -1 && lastBackup !== -1) {
+    const currentTimestamp = new Date().valueOf()
+
+    const millisecondsToNextBackup =
+      lastBackup + backupInterval - currentTimestamp
+
+    if (millisecondsToNextBackup <= 0) {
+      startBackupProcess()
+    } else {
+      backupProcessRerun = setTimeout(
+        startBackupProcess,
+        millisecondsToNextBackup
+      )
+    }
+  }
+
+  // Check if we should launch sync process
+
+  const lastSync = ConfigStore.get('lastSync')
+
+  if (lastSync !== -1) {
+    const currentTimestamp = new Date().valueOf()
+
+    const millisecondsToNextSync = lastSync + SYNC_INTERVAL - currentTimestamp
+
+    if (millisecondsToNextSync <= 0) {
+      startSyncProcess()
+    } else {
+      syncProcessRerun = setTimeout(startSyncProcess, millisecondsToNextSync)
+    }
+  }
 
   // Check updates every 6 hours
   setInterval(() => {
     checkUpdates()
   }, 1000 * 60 * 60 * 12)
-
-  powerMonitor.on('suspend', function() {
-    Logger.warn('User system suspended')
-    app.emit('sync-stop')
-  })
-
-  powerMonitor.on('resume', function() {
-    Logger.warn('User system resumed')
-    app.emit('sync-start')
-  })
-})
+}
 
 let backupProcessStatus = BackupStatus.STANDBY
 let backupProcessRerun = null
@@ -602,7 +615,11 @@ async function startBackupProcess() {
 
   if (backupsAreEnabled && backupProcessStatus !== BackupStatus.IN_PROGRESS) {
     backupProcessStatus = BackupStatus.IN_PROGRESS
+
+    const suspensionBlockId = powerSaveBlocker.start('prevent-app-suspension')
+
     await BackupsDB.cleanErrors()
+
     app.emit('backup-status-update', backupProcessStatus)
 
     const worker = new BrowserWindow({
@@ -622,15 +639,15 @@ async function startBackupProcess() {
       )
       .catch(Logger.error)
 
-    const cleanUp = async ({exitReason, errorCode}) => {
+    const cleanUp = async ({ exitReason, errorCode }) => {
       worker.destroy()
       if (backupProcessRerun) {
         clearTimeout(backupProcessRerun)
       }
-      backupProcessRerun = setTimeout(
-        startBackupProcess,
-        ConfigStore.get('backupInterval')
-      )
+      const backupInterval = ConfigStore.get('backupInterval')
+      if (backupInterval !== -1) {
+        backupProcessRerun = setTimeout(startBackupProcess, backupInterval)
+      }
 
       if (exitReason === 'DONE') {
         ConfigStore.set('lastBackup', new Date().valueOf())
@@ -638,8 +655,14 @@ async function startBackupProcess() {
         if (errors.length === 0) {
           backupProcessStatus = BackupStatus.SUCCESS
         } else {
-          const thereAreFatalErrors = errors.find(error => [ErrorCodes.NO_CONNECTION, ErrorCodes.UNKNOWN].includes(error.error_code))
-          backupProcessStatus = thereAreFatalErrors ? BackupStatus.FATAL : BackupStatus.WARN
+          const thereAreFatalErrors = errors.find(error =>
+            [ErrorCodes.NO_CONNECTION, ErrorCodes.UNKNOWN].includes(
+              error.error_code
+            )
+          )
+          backupProcessStatus = thereAreFatalErrors
+            ? BackupStatus.FATAL
+            : BackupStatus.WARN
           notifyBackupErrors()
         }
       } else if (exitReason === 'ERROR') {
@@ -650,11 +673,15 @@ async function startBackupProcess() {
       }
 
       app.emit('backup-status-update', backupProcessStatus)
+
+      powerSaveBlocker.stop(suspensionBlockId)
     }
 
-    ipcMain.once('backup-process-done', () => cleanUp({exitReason: 'DONE'}))
-    ipcMain.once('backup-process-fatal-error', (_, errorCode) => cleanUp({exitReason: 'ERROR', errorCode}))
-    ipcMain.once('stop-backup-process', () => cleanUp({exitReason: 'STOP'}))
+    ipcMain.once('backup-process-done', () => cleanUp({ exitReason: 'DONE' }))
+    ipcMain.once('backup-process-fatal-error', (_, errorCode) =>
+      cleanUp({ exitReason: 'ERROR', errorCode })
+    )
+    ipcMain.once('stop-backup-process', () => cleanUp({ exitReason: 'STOP' }))
   }
 }
 
@@ -669,7 +696,8 @@ ipcMain.on('insert-backup-error', (_, error) => {
 function notifyBackupErrors() {
   const notification = new Notification({
     title: 'Some folders could not be uploaded',
-    body: "Your backup process wasn't completely successful, click to see the details"
+    body:
+      "Your backup process wasn't completely successful, click to see the details"
   })
 
   notification.show()
@@ -699,7 +727,8 @@ function notifyBackupHasNoSpace() {
 function notifyBackupProcessWithNoConnection() {
   const notification = new Notification({
     title: `Backup Process couldn't start`,
-    body: 'Check that you have a working internet connection. We will retry later, click to try now.'
+    body:
+      'Check that you have a working internet connection. We will retry later, click to try now.'
   })
 
   notification.show()
@@ -708,3 +737,247 @@ function notifyBackupProcessWithNoConnection() {
     startBackupProcess()
   })
 }
+
+/** SYNC **/
+
+let syncStatus = SyncStatus.STANDBY
+let syncProcessRerun = null
+const SYNC_INTERVAL = 10 * 60 * 1000
+
+ipcMain.on('start-sync-process', startSyncProcess)
+ipcMain.handle('get-sync-status', () => syncStatus)
+
+function changeSyncStatus(newStatus) {
+  syncStatus = newStatus
+  app.emit('sync-status-changed', newStatus)
+}
+
+async function startSyncProcess() {
+  if (syncStatus === SyncStatus.RUNNING) {
+    return
+  }
+
+  const suspensionBlockId = powerSaveBlocker.start('prevent-app-suspension')
+
+  changeSyncStatus(SyncStatus.RUNNING)
+
+  clearSyncIssues()
+
+  // It's an object to pass it to
+  // the individual item processors
+  const hasBeenStopped = { value: false }
+
+  ipcMain.once('stop-sync-process', () => {
+    hasBeenStopped.value = true
+  })
+
+  const item = {
+    folderId: getUser().root_folder_id,
+    localPath: ConfigStore.get('syncRoot')
+  }
+  await processSyncItem(item, hasBeenStopped)
+
+  const currentTimestamp = new Date().valueOf()
+
+  ConfigStore.set('lastSync', currentTimestamp)
+
+  if (syncProcessRerun) {
+    clearTimeout(syncProcessRerun)
+  }
+  syncProcessRerun = setTimeout(startSyncProcess, SYNC_INTERVAL)
+
+  changeSyncStatus(SyncStatus.STANDBY)
+
+  ipcMain.removeAllListeners('stop-sync-process')
+
+  powerSaveBlocker.stop(suspensionBlockId)
+}
+
+function processSyncItem(item, hasBeenStopped) {
+  return new Promise(async resolve => {
+    const onExitFuncs = []
+
+    function onExit(reason, errorName) {
+      Logger.log('onSyncExit, reason: ', reason, 'errorName:', errorName)
+      onExitFuncs.forEach(f => f())
+      if (reason) {
+        app.emit('SYNC_NEXT', {
+          result: { status: reason, errorName }
+        })
+      }
+
+      resolve()
+    }
+
+    app.emit('SYNC_INFO_UPDATE', { action: 'ACQUIRING_LOCK' })
+
+    function onAcquireLockError(err) {
+      Logger.log('Could not acquire lock', err)
+      onExit('COULD_NOT_ACQUIRE_LOCK')
+    }
+
+    try {
+      const lockId = v4()
+      await locksService.acquireLock(item.folderId, lockId)
+      onExitFuncs.push(() => locksService.releaseLock(item.folderId, lockId))
+
+      const lockRefreshInterval = setInterval(() => {
+        locksService.refreshLock(item.folderId, lockId).catch(async () => {
+          // If we fail to refresh the lock
+          // we try to acquire it again
+          // before stopping everything
+          try {
+            await locksService.acquireLock(item.folderId, lockId)
+          } catch (err) {
+            onAcquireLockError(err)
+          }
+        })
+      }, 7000)
+      onExitFuncs.push(() => clearInterval(lockRefreshInterval))
+
+      // So the interval is cleared before the lock is released
+      onExitFuncs.reverse()
+    } catch (err) {
+      return onAcquireLockError(err)
+    }
+
+    if (hasBeenStopped.value) {
+      return onExit('STOPPED_BY_USER')
+    }
+
+    app.emit('SYNC_INFO_UPDATE', { action: 'STARTING' })
+
+    ipcMain.handle('get-sync-details', () => ({
+      localPath: item.localPath,
+      folderId: parseInt(item.folderId)
+    }))
+    onExitFuncs.push(() => ipcMain.removeHandler('get-sync-details'))
+
+    ipcMain.once('SYNC_FATAL_ERROR', (_, errorName) =>
+      onExit('FATAL_ERROR', errorName)
+    )
+    onExitFuncs.push(() => ipcMain.removeAllListeners('SYNC_FATAL_ERROR'))
+
+    ipcMain.once('SYNC_EXIT', () => onExit())
+    onExitFuncs.push(() => ipcMain.removeAllListeners('SYNC_EXIT'))
+
+    const worker = spawnSyncWorker()
+    onExitFuncs.push(() => worker.destroy())
+
+    if (hasBeenStopped.value) {
+      return onExit('STOPPED_BY_USER')
+    }
+
+    const onUserStopped = () => onExit('STOPPED_BY_USER')
+    ipcMain.once('stop-sync-process', onUserStopped)
+    onExitFuncs.push(() =>
+      ipcMain.removeListener('stop-sync-process', onUserStopped)
+    )
+  })
+}
+
+function spawnSyncWorker() {
+  const worker = new BrowserWindow({
+    webPreferences: {
+      nodeIntegration: true,
+      enableRemoteModule: true,
+      contextIsolation: false
+    },
+    show: false
+  })
+
+  worker
+    .loadFile(
+      process.env.NODE_ENV === 'development'
+        ? '../sync/index.html'
+        : `${path.join(__dirname, '..', 'sync')}/index.html`
+    )
+    .catch(Logger.error)
+
+  return worker
+}
+
+// Migration to new sync
+
+const isLoggedIn = !!ConfigStore.get('bearerToken')
+const hasAlreadyMigrated = !!ConfigStore.get('syncRoot')
+
+if (!hasAlreadyMigrated && isLoggedIn) {
+  Logger.log('Setting up Internxt folder in main process')
+  setupRootFolder()
+}
+
+// Sync issues
+
+let syncIssues = []
+
+function onSyncIssuesChanged() {
+  app.emit('sync-issues-changed', syncIssues)
+}
+
+function clearSyncIssues() {
+  syncIssues = []
+  onSyncIssuesChanged()
+}
+
+app.on('SYNC_INFO_UPDATE', payload => {
+  if (
+    [
+      'PULL_ERROR',
+      'RENAME_ERROR',
+      'DELETE_ERROR',
+      'METADATA_READ_ERROR'
+    ].includes(payload.action)
+  ) {
+    syncIssues.push(payload)
+    onSyncIssuesChanged()
+  }
+})
+
+ipcMain.handle('getSyncIssues', () => syncIssues)
+
+// Sync issues window
+
+let syncIssuesWindow = null
+
+ipcMain.on('open-sync-issues-window', () => {
+  openSyncIssuesWindow()
+})
+
+function openSyncIssuesWindow() {
+  if (syncIssuesWindow) {
+    syncIssuesWindow.focus()
+  } else {
+    const syncIssuesPath =
+      process.env.NODE_ENV === 'development'
+        ? `http://localhost:9080/#/sync-issues`
+        : `file://${__dirname}/index.html#sync-issues`
+
+    syncIssuesWindow = new BrowserWindow({
+      width: 500,
+      height: 384,
+      show: false,
+      titleBarStyle: process.platform === 'darwin' ? 'hidden' : undefined,
+      frame: process.platform !== 'darwin' ? false : undefined,
+      maximizable: false,
+      minimizable: false,
+      resizable: false,
+      webPreferences: {
+        nodeIntegration: true,
+        enableRemoteModule: true,
+        contextIsolation: false
+      }
+    })
+    syncIssuesWindow.loadURL(syncIssuesPath)
+    syncIssuesWindow.once('closed', () => {
+      syncIssuesWindow = null
+    })
+    syncIssuesWindow.once('ready-to-show', () => {
+      syncIssuesWindow.show()
+    })
+  }
+}
+
+app.on('close-sync-issues-window', () => {
+  if (syncIssuesWindow) syncIssuesWindow.close()
+})

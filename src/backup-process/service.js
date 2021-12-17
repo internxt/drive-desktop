@@ -2,10 +2,7 @@ import macaddress from 'macaddress'
 import crypt from '../renderer/logic/crypt'
 import ConfigStore from '../main/config-store'
 import os from 'os'
-
-function getHeaders() {
-  return ConfigStore.get('authHeaders')
-}
+import { getHeaders } from '../main/auth'
 
 export async function getDeviceByMac() {
   const headers = getHeaders()
@@ -31,7 +28,10 @@ export async function createDevice() {
     {
       method: 'POST',
       headers,
-      body: JSON.stringify({ deviceName: os.hostname(), platform: os.platform() })
+      body: JSON.stringify({
+        deviceName: os.hostname(),
+        platform: os.platform()
+      })
     }
   ).then(res => {
     return res.json()
@@ -79,6 +79,16 @@ export function updateBackup({ id, ...body }) {
   }).then(res => {
     if (res.status !== 200) throw new Error()
     else return res.json()
+  })
+}
+
+export function deleteBackup(id) {
+  const headers = getHeaders()
+  return fetch(`${process.env.API_URL}/api/backup/${id}`, {
+    method: 'DELETE',
+    headers
+  }).then(res => {
+    if (res.status !== 200) throw new Error()
   })
 }
 

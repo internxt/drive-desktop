@@ -57,13 +57,13 @@ async function uploadFile(
     // Lanzar errores sustituyendo return y quitar notificacion
     // FileLogger.push({ filePath, originalFileName, state: 'error', de'Empty files upload not supported.' })
     Logger.warn('Warning:File %s, Filesize 0.', filePath)
-    throw new Error(`Warning:File ${filePath}, Filesize 0.`)
+    throw new Error(`Warning:File %s, Filesize 0. ${filePath}`)
   }
   if (fileSize >= 1024 * 1024 * 1024 * 10) {
     // Lanzar errores sustituyendo return y quitar notificacion
     // FileLogger.push(filePath, originalFileName, 'upload', 'error', undefined, 'Upload of files larger than 10GB not supported.')
     Logger.warn('Warning:File %s, Filesize larger than 10GB.', filePath)
-    throw new Error(`Warning:File ${filePath}, Filesize larger than 10GB.`)
+    throw new Error(`Warning:File %s, Filesize larger than 10GB. ${filePath}`)
   }
   // Copy file to temp folder
   const tempPath = path.join(

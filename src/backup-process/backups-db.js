@@ -1,7 +1,6 @@
 import sqlite from 'sqlite3'
 import fs from 'fs-extra'
 import path from 'path'
-import { reject } from 'async'
 
 const app =
   process.type === 'renderer'
@@ -23,7 +22,7 @@ db.run(`CREATE TABLE IF NOT EXISTS errors (
 ); `)
 
 function insertError({ backupId, errorCode, timestamp }) {
-  return new Promise(resolve => {
+  return new Promise((resolve, reject) => {
     db.run(
       `INSERT INTO errors(backup_id, error_code, timestamp)
     VALUES(${backupId}, '${errorCode}', ${timestamp})

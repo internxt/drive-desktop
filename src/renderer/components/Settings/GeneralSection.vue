@@ -2,19 +2,19 @@
   <div>
     <DevicePanel />
     <div class="my-3">
-      <div @click="launchAtLogin()" class="mt-4">
+      <div @click="launchAtLogin" class="mt-4">
         <Checkbox
           :forceStatus="LaunchCheck ? 'checked' : 'unchecked'"
           label="Start Internxt Drive on system startup"
         />
       </div>
     </div>
-    <div class="text-gray-500 text-sm">Internxt Drive Folder</div>
+    <div class="text-gray-500 text-sm">Internxt Drive folder location</div>
     <div class="flex flex-col mt-2">
       <div class="flex flex-row items-center justify-between flex-grow">
-        <div class="flex items-center overflow-hidden" @dblclick="openFolder()">
+        <div class="flex items-center overflow-hidden" @dblclick="openFolder">
           <FileIcon icon="folder" class="mr-2" width="20" height="20" />
-          <span class="truncate">{{ this.path }}</span>
+          <span class="truncate">{{ this.parentOfSyncRoot }}</span>
         </div>
         <Button @click="changeFolder">Change folder</Button>
       </div>
@@ -23,18 +23,17 @@
       <p class="text-xs font-semibold tracking-wide text-gray-600">
         Internxt Drive v{{ appVersion }}
       </p>
-      <p
-        class="text-blue-600 cursor-pointer text-sm mt-1"
-        @click="openLogs"
-      >
+      <p class="text-blue-600 cursor-pointer text-sm mt-1" @click="openLogs">
         Open logs
       </p>
-      <p class="text-blue-600 cursor-pointer text-sm mt-1" @click="openDriveWeb">
+      <p
+        class="text-blue-600 cursor-pointer text-sm mt-1"
+        @click="openDriveWeb"
+      >
         Learn more about Internxt Drive
       </p>
     </div>
   </div>
-
 </template>
 
 <script>
@@ -43,13 +42,13 @@ import path from 'path'
 import ConfigStore from '../../../main/config-store'
 import DevicePanel from '../../components/Settings/DevicePanel.vue'
 import Button from '../Button/Button.vue'
-import database from '../../../database/index'
 import FileIcon from '../Icons/FileIcon.vue'
 import Checkbox from '../Icons/Checkbox.vue'
 import Logger from '../../../libs/logger'
 import electronLog from 'electron-log'
 import PackageJson from '../../../../package.json'
 import analytics from '../../logic/utils/analytics'
+import electron from 'electron'
 const remote = require('@electron/remote')
 
 export default {
@@ -61,15 +60,9 @@ export default {
   },
   data() {
     return {
-      path: '',
+      path: ConfigStore.get('syncRoot'),
       LaunchCheck: ConfigStore.get('autoLaunch')
-
     }
-  },
-  mounted() {
-    database.Get('xPath').then(path => {
-      this.$data.path = path
-    })
   },
   methods: {
     changeFolder() {
@@ -106,7 +99,8 @@ export default {
           new_folder: newDir[0]
         })
         this.path = newDir[0]
-        remote.app.emit('new-folder-path', newDir[0])
+        ConfigStore.set('syncRoot', this.path + path.sep)
+        ConfigStore.set('lastSavedListing', '')
       } else {
         Logger.info('Sync folder change error or cancelled')
       }
@@ -120,7 +114,7 @@ export default {
       })
     },
     openFolder() {
-      remote.app.emit('open-folder')
+      electron.shell.openPath(this.path)
     },
     openLogs() {
       try {
@@ -138,8 +132,12 @@ export default {
   computed: {
     appVersion() {
       return PackageJson.version
+    },
+    parentOfSyncRoot() {
+      const absolutePathOfParent = path.parse(this.path).dir
+
+      return absolutePathOfParent.split(path.sep).pop()
     }
   }
-
 }
 </script>
