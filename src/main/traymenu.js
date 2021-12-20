@@ -1,6 +1,6 @@
 import path from 'path'
 import PackageJson from '../../package.json'
-import { Tray, Menu, app } from 'electron'
+import { Tray, Menu, app, nativeImage } from 'electron'
 
 export const TrayMenuState = {
   STANDBY: 'standby',
@@ -18,9 +18,9 @@ class TrayMenu {
 
     this.tray = new Tray(trayIcon)
 
-    this.tray.setIgnoreDoubleClickEvents(true)
+    this.setState(TrayMenuState.STANDBY)
 
-    this.setTooltip(TrayMenuState.STANDBY)
+    this.tray.setIgnoreDoubleClickEvents(true)
 
     if (process.platform !== 'linux') {
       this.tray.on('click', (_, bounds) => {
@@ -74,7 +74,8 @@ class TrayMenu {
   }
 
   setImage(imagePath) {
-    this.tray.setImage(imagePath)
+    const image = nativeImage.createFromPath(imagePath)
+    this.tray.setImage(image)
   }
 
   setTooltip(state) {
