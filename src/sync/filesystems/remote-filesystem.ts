@@ -184,7 +184,7 @@ export function getRemoteFilesystem(baseFolderId: number): FileSystem {
 
       try {
         await fetch(
-          `${process.env.API_URL}/api/storage/bucket/${fileInCache.bucket}/file/${fileInCache.fileId}`,
+          `${process.env.API_URL}/api/storage/folder/${fileInCache.parentId}/file/${fileInCache.id}`,
           { method: 'DELETE', headers }
         )
       } catch (err) {
@@ -350,7 +350,7 @@ export function getRemoteFilesystem(baseFolderId: number): FileSystem {
 
       try {
         const res = await fetch(
-          `${process.env.API_URL}/api/storage/bucket/${bucket}/file/${oldFileInCache.fileId}`,
+          `${process.env.API_URL}/api/storage/folder/${oldFileInCache.parentId}/file/${oldFileInCache.id}`,
           {
             method: 'DELETE',
             headers
