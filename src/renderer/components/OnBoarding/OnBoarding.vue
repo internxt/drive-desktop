@@ -1,5 +1,5 @@
 <template>
-  <div v-if="!widgetTransition" class="window flex flex-row w-full h-full text-neutral-500">
+  <div v-if="!widgetTransition" class="window flex flex-row w-full h-full text-neutral-500" style="-webkit-app-region: drag">
 
     <div class="relative flex flex-row justify-end w-full h-full px-8 py-12">
 
@@ -34,7 +34,9 @@
               <img src="../../assets/images/onboarding/logo.svg" />
             
               <div class="flex flex-col items-center max-w-full">
-                <h3 class="text-2xl font-semibold tracking-wide text-neutral-900 text-center">Welcome to Internxt, {{this.userName}}!</h3>
+                <h3 class="text-2xl font-semibold tracking-wide text-neutral-900 text-center">
+                  Welcome to Internxt{{ userName }}!
+                  </h3>
                 <p>Let’s get everything on point together.</p>
               </div>
             </div>
@@ -102,7 +104,7 @@
 </template>
 
 <script>
-// import database from '../../../database'
+import * as Auth from '../../../main/auth'
 const remote = require('@electron/remote')
 
 export default {
@@ -110,7 +112,7 @@ export default {
     return {
       slide: 0,
       forward: true,
-      userName: null,
+      user: null,
       stepsHover: false,
       widgetTransition: false
     }
@@ -119,15 +121,9 @@ export default {
     remote.getCurrentWindow().center()
     remote.app.emit('enter-onboarding', true)
     remote.app.emit('window-show')
-
-    // Database
-    //   .Get('xUser')
-    //   .then((xUser) => {
-    //     this.userName = xUser.user.name
-    //   })
-    //   .catch((err) => {
-    //     console.log('[Onboarding] Cannot get user name: ', err.message)
-    //   })
+  },
+  mounted() {
+    this.user = Auth.getUser()
   },
   methods: {
     getOS() {
@@ -167,6 +163,14 @@ export default {
     },
     openLink(link) {
       remote.shell.openExternal(link)
+    }
+  },
+  computed: {
+    userName() {
+      if (!this.user) {
+        return ''
+      }
+      return ', ' + this.user.name
     }
   }
 }

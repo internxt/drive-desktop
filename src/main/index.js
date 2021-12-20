@@ -377,10 +377,7 @@ function openOnboarding() {
     width: 732,
     height: 470,
     show: false,
-    titleBarStyle: process.platform === 'darwin' ? 'hidden' : undefined,
-    frame: process.platform !== 'darwin' ? false : undefined,
-    maximizable: false,
-    minimizable: true,
+    frame: false,
     resizable: false,
     webPreferences: {
       nodeIntegration: true,
