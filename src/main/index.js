@@ -19,7 +19,7 @@ import semver from 'semver'
 import PackageJson from '../../package.json'
 import fetch from 'electron-fetch'
 import ConfigStore from './config-store'
-import TrayMenu from './traymenu'
+import TrayMenu, { TrayMenuState } from './traymenu'
 import dimentions from './window-dimentions/dimentions'
 import BackupsDB from '../backup-process/backups-db'
 import BackupStatus from '../backup-process/status'
@@ -86,9 +86,8 @@ function getDimentions(route) {
 }
 
 function createWindow() {
-  trayMenu = new TrayMenu(mainWindow)
+  trayMenu = new TrayMenu()
   trayMenu.init()
-  trayMenu.setToolTip('Internxt Drive ' + PackageJson.version) // Tray tooltip
 
   mainWindow = new BrowserWindow({
     webPreferences: {
@@ -239,7 +238,7 @@ app.on('ready', () => {
 
 app.on('show-main-windows', showMainWindows)
 
-function showMainWindows(trayBounds) {
+function showMainWindows() {
   if (mainWindow.isVisible()) {
     mainWindow.hide()
   } else {
@@ -268,7 +267,7 @@ app.on('activate', () => {
   }
 })
 
-app.on('before-quit', function(evt) {
+app.on('before-quit', function() {
   if (trayMenu) {
     trayMenu.destroy()
   }
@@ -276,25 +275,12 @@ app.on('before-quit', function(evt) {
 
 app.on('change-auto-launch', AutoLaunch.configureAutostart)
 
-app.on('show-bubble', (title, content) => {
-  if (trayMenu) {
-    trayMenu.displayBallon(title, content)
-  }
-})
-
 app.on('window-hide', function() {
   if (mainWindow) {
     if (process.env.NODE_ENV !== 'development') {
       mainWindow.hide()
     }
   }
-})
-
-app.on('set-tooltip', msg => {
-  const message = `Internxt Drive ${PackageJson.version}${
-    msg ? '\n' + msg : ''
-  }`
-  trayMenu.setToolTip(message)
 })
 
 app.on('show-error', msg => {
@@ -746,6 +732,16 @@ const SYNC_INTERVAL = 10 * 60 * 1000
 
 ipcMain.on('start-sync-process', startSyncProcess)
 ipcMain.handle('get-sync-status', () => syncStatus)
+
+app.on('sync-status-changed', newStatus => {
+  if (newStatus === SyncStatus.RUNNING) {
+    trayMenu.setState(TrayMenuState.SYNCING)
+  } else if (syncIssues.length !== 0) {
+    trayMenu.setState(TrayMenuState.ISSUES)
+  } else {
+    trayMenu.setState(TrayMenuState.STANDBY)
+  }
+})
 
 function changeSyncStatus(newStatus) {
   syncStatus = newStatus
