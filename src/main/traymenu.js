@@ -75,6 +75,7 @@ class TrayMenu {
 
   setImage(imagePath) {
     const image = nativeImage.createFromPath(imagePath)
+    if (process.platform === 'darwin') image.setTemplateImage(true)
     this.tray.setImage(image)
   }
 
