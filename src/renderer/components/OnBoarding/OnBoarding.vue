@@ -87,7 +87,7 @@
 
         </transition>
 
-        <div v-bind:class="`absolute bottom-0 left-0 w-full h-auto flex flex-col justify-center items-center transition-opacity ease-in-out duration-500 ${slide >= 1 ? 'opacity-100' : 'opacity-0'}`">
+        <div v-bind:class="`absolute bottom-0 left-0 w-full h-auto flex flex-col justify-center items-center transition-opacity ease-in-out duration-500 ${slide >= 1 ? 'opacity-100' : 'opacity-0'} opacity-0 hidden pointer-events-none`">
           <div @mouseover="stepsHover=true" @mouseleave="stepsHover=false" v-bind:class="`flex flex-row p-1 space-x-1.5 rounded-full transition-all ease-out duration-200 transform ${stepsHover && 'bg-white shadow-md scale-150'}`">
             <div @click="goToSlide(1)" v-bind:class="`flex h-1.5 rounded-full transition-all ease-in-out duration-300 ${slide === 1 ? 'w-4' : 'w-1.5'} ${slide >= 1 ? 'bg-gray-400 bg-opacity-75' : 'bg-gray-300'}`"></div>
             <div @click="goToSlide(2)" v-bind:class="`flex h-1.5 rounded-full transition-all ease-in-out duration-300 ${slide === 2 ? 'w-4' : 'w-1.5'} ${slide >= 2 ? 'bg-gray-400 bg-opacity-75' : 'bg-gray-300'}`"></div>
