@@ -348,33 +348,35 @@ export function getRemoteFilesystem(baseFolderId: number): FileSystem {
 
       const oldFileInCache = cache[name]
 
-      try {
-        const res = await fetch(
-          `${process.env.API_URL}/api/storage/folder/${oldFileInCache.parentId}/file/${oldFileInCache.id}`,
-          {
-            method: 'DELETE',
-            headers
+      if (oldFileInCache) {
+        try {
+          const res = await fetch(
+            `${process.env.API_URL}/api/storage/folder/${oldFileInCache.parentId}/file/${oldFileInCache.id}`,
+            {
+              method: 'DELETE',
+              headers
+            }
+          )
+          if (!res.ok) {
+            Logger.warn(
+              `Error trying to delete outdated remote file. res: ${JSON.stringify(
+                res,
+                null,
+                2
+              )} fileInCache: ${JSON.stringify(oldFileInCache, null, 2)}`
+            )
           }
-        )
-        if (!res.ok) {
+        } catch (err) {
           Logger.warn(
-            `Error trying to delete outdated remote file. res: ${JSON.stringify(
-              res,
+            `Error trying to delete outdated remote file. ${err.name} ${
+              err.code
+            } ${err.stack} fileInCache: ${JSON.stringify(
+              oldFileInCache,
               null,
               2
-            )} fileInCache: ${JSON.stringify(oldFileInCache, null, 2)}`
+            )}`
           )
         }
-      } catch (err) {
-        Logger.warn(
-          `Error trying to delete outdated remote file. ${err.name} ${
-            err.code
-          } ${err.stack} fileInCache: ${JSON.stringify(
-            oldFileInCache,
-            null,
-            2
-          )}`
-        )
       }
 
       const encryptedName = crypt.encryptName(
