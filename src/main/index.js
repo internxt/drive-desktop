@@ -146,6 +146,8 @@ function createWindow() {
     }
 
     clearSyncIssues()
+
+    trayMenu.setState(TrayMenuState.STANDBY)
   })
 
   app.on('update-configStore', item => {

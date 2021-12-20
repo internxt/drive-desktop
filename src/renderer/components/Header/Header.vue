@@ -178,7 +178,7 @@ export default {
   },
   beforeDestroy() {
     remote.app.removeAllListeners('update-storage')
-    remote.app.removeAllListeners('logout-from-settings')
+    remote.app.removeAllListeners('logout-entrypoint')
     remote.app.removeListener('sync-issues-changed', this.setNumberOfSyncIssues)
   },
   created() {
@@ -193,7 +193,7 @@ export default {
       }
     })
 
-    remote.app.on('logout-from-settings', this.logout)
+    remote.app.on('logout-entrypoint', this.logout)
 
     ipcRenderer.invoke('getSyncIssues').then(this.setNumberOfSyncIssues)
 

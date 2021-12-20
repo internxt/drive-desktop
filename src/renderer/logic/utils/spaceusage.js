@@ -1,7 +1,8 @@
 import Logger from '../../../libs/logger'
 import ConfigStore from '../../../main/config-store'
-import {getHeaders} from '../../../main/auth'
+import { getHeaders } from '../../../main/auth'
 import bytes from 'bytes'
+import { httpRequest } from '../../../libs/http-request'
 const remote = require('@electron/remote')
 
 const API_URL = process.env.API_URL
@@ -17,7 +18,7 @@ async function getLimit() {
   const endpoint = `${API_URL}/api/limit`
   const options = await fetchOptions()
 
-  return fetch(endpoint, options)
+  return httpRequest(endpoint, options)
     .then(res => {
       // Check server response
       if (res.status === 200) {
@@ -45,7 +46,7 @@ async function getUsage() {
   const endpoint = `${API_URL}/api/usage`
   const options = await fetchOptions()
 
-  return fetch(endpoint, options)
+  return httpRequest(endpoint, options)
     .then(res => {
       // Check server response
       if (res.status === 200) {

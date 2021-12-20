@@ -9,23 +9,32 @@
       </p>
       <Button class="mt-3" @click="activateBackups">Start using backup</Button>
     </div>
-    <content-placeholders v-else-if="status === 'LOADING'" class="h-44" :rounded="true">
+    <content-placeholders
+      v-else-if="status === 'LOADING'"
+      class="h-44"
+      :rounded="true"
+    >
       <content-placeholders-heading />
       <content-placeholders-text :lines="5" />
     </content-placeholders>
-    <backups-panel v-else :backupsBucket="backupsBucket" :backupStatus="backupStatus" />
+    <backups-panel
+      v-else
+      :backupsBucket="backupsBucket"
+      :backupStatus="backupStatus"
+    />
   </div>
 </template>
 
 <script>
-import {fetchUsersBackupBucket} from '../../../backup-process/service'
+import { fetchUsersBackupBucket } from '../../../backup-process/service'
 import Button from '../../components/Button/Button.vue'
 import BackupsPanel from './BackupsPanel.vue'
 import ConfigStore from '../../../main/config-store'
-import {getHeaders} from '../../../main/auth'
+import { getHeaders } from '../../../main/auth'
+import { httpRequest } from '../../../libs/http-request'
 
 export default {
-  components: {Button, BackupsPanel},
+  components: { Button, BackupsPanel },
   name: 'BackupsSection',
   props: ['backupStatus'],
   data() {
@@ -41,7 +50,7 @@ export default {
     async activateBackups() {
       this.status = 'LOADING'
       const headers = getHeaders()
-      await fetch(`${process.env.API_URL}/api/backup/activate`, {
+      await httpRequest(`${process.env.API_URL}/api/backup/activate`, {
         method: 'POST',
         headers
       })
@@ -50,7 +59,12 @@ export default {
     },
     async setBackupStatus() {
       const userData = await fetchUsersBackupBucket()
-      if (userData.backupsBucket) { this.status = 'ACTIVATED'; this.backupsBucket = userData.backupsBucket } else { this.status = 'TO_ACTIVATE' }
+      if (userData.backupsBucket) {
+        this.status = 'ACTIVATED'
+        this.backupsBucket = userData.backupsBucket
+      } else {
+        this.status = 'TO_ACTIVATE'
+      }
     }
   }
 }

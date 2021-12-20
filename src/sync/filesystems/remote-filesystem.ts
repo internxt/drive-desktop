@@ -17,6 +17,7 @@ import {
   getSecondsFromDateString
 } from '../utils'
 import Logger from '../../libs/logger'
+import { httpRequest } from '../../libs/http-request'
 import { getHeaders, getUser } from '../../main/auth'
 import { Readable } from 'stream'
 import isOnline from '../../libs/is-online'
@@ -89,7 +90,7 @@ export function getRemoteFilesystem(baseFolderId: number): FileSystem {
 
     while (thereIsMore) {
       try {
-        const batch = await fetch(
+        const batch = await httpRequest(
           `${process.env.API_URL}/api/desktop/list/${offset}`,
           {
             method: 'GET',
@@ -183,7 +184,7 @@ export function getRemoteFilesystem(baseFolderId: number): FileSystem {
       const fileInCache = cache[name]
 
       try {
-        await fetch(
+        await httpRequest(
           `${process.env.API_URL}/api/storage/folder/${fileInCache.parentId}/file/${fileInCache.id}`,
           { method: 'DELETE', headers }
         )
@@ -201,7 +202,7 @@ export function getRemoteFilesystem(baseFolderId: number): FileSystem {
       const newNameBase = path.parse(newName).name
 
       try {
-        const res = await fetch(
+        const res = await httpRequest(
           `${process.env.API_URL}/api/storage/file/${fileInCache.fileId}/meta`,
           {
             method: 'POST',
@@ -263,7 +264,7 @@ export function getRemoteFilesystem(baseFolderId: number): FileSystem {
 
           if (folderInCache) lastParentId = folderInCache.id
           else {
-            const createdFolder: ServerFolder = await fetch(
+            const createdFolder: ServerFolder = await httpRequest(
               `${process.env.API_URL}/api/storage/folder`,
               {
                 method: 'POST',
@@ -350,7 +351,7 @@ export function getRemoteFilesystem(baseFolderId: number): FileSystem {
 
       if (oldFileInCache) {
         try {
-          const res = await fetch(
+          const res = await httpRequest(
             `${process.env.API_URL}/api/storage/folder/${oldFileInCache.parentId}/file/${oldFileInCache.id}`,
             {
               method: 'DELETE',
@@ -387,23 +388,26 @@ export function getRemoteFilesystem(baseFolderId: number): FileSystem {
       const modificationTime = getDateFromSeconds(modTimeInSeconds)
 
       try {
-        const res = await fetch(`${process.env.API_URL}/api/storage/file`, {
-          headers,
-          method: 'POST',
-          body: JSON.stringify({
-            file: {
-              bucket,
-              encrypt_version: '03-aes',
-              fileId: uploadedFileId,
-              file_id: uploadedFileId,
-              folder_id: folderIdOfTheNewFile,
-              name: encryptedName,
-              size,
-              type: fileType,
-              modificationTime
-            }
-          })
-        })
+        const res = await httpRequest(
+          `${process.env.API_URL}/api/storage/file`,
+          {
+            headers,
+            method: 'POST',
+            body: JSON.stringify({
+              file: {
+                bucket,
+                encrypt_version: '03-aes',
+                fileId: uploadedFileId,
+                file_id: uploadedFileId,
+                folder_id: folderIdOfTheNewFile,
+                name: encryptedName,
+                size,
+                type: fileType,
+                modificationTime
+              }
+            })
+          }
+        )
         if (!res.ok) {
           throw new SyncError(
             'BAD_RESPONSE',
@@ -437,7 +441,7 @@ export function getRemoteFilesystem(baseFolderId: number): FileSystem {
       const { id } = folderInCache
 
       try {
-        const res = await fetch(
+        const res = await httpRequest(
           `${process.env.API_URL}/api/storage/folder/${id}`,
           {
             headers,
@@ -534,7 +538,7 @@ export function getRemoteFilesystem(baseFolderId: number): FileSystem {
         )
       }
 
-      const res = await fetch(
+      const res = await httpRequest(
         `${process.env.API_URL}/api/storage/v2/folder/${baseFolderId}`,
         { headers }
       )

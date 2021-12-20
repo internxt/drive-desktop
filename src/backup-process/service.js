@@ -3,10 +3,11 @@ import crypt from '../renderer/logic/crypt'
 import ConfigStore from '../main/config-store'
 import os from 'os'
 import { getHeaders } from '../main/auth'
+import { httpRequest } from '../libs/http-request'
 
 export async function getDeviceByMac() {
   const headers = getHeaders()
-  return fetch(
+  return httpRequest(
     `${process.env.API_URL}/api/backup/device/${await macaddress.one()}`,
     {
       method: 'GET',
@@ -23,7 +24,7 @@ export async function getDeviceByMac() {
 
 export async function createDevice() {
   const headers = getHeaders()
-  return fetch(
+  return httpRequest(
     `${process.env.API_URL}/api/backup/device/${await macaddress.one()}`,
     {
       method: 'POST',
@@ -40,7 +41,7 @@ export async function createDevice() {
 
 export function updateDevice(id, name) {
   const headers = getHeaders()
-  return fetch(`${process.env.API_URL}/api/backup/device/${id}`, {
+  return httpRequest(`${process.env.API_URL}/api/backup/device/${id}`, {
     method: 'PATCH',
     headers,
     body: JSON.stringify({ deviceName: name })
@@ -54,7 +55,7 @@ export async function createBackup({ path, enabled }, backupsBucketId) {
   const headers = getHeaders()
   const encryptedPath = crypt.encryptName(path, backupsBucketId)
   const { id: deviceId } = await getDeviceByMac()
-  return fetch(`${process.env.API_URL}/api/backup`, {
+  return httpRequest(`${process.env.API_URL}/api/backup`, {
     method: 'POST',
     headers,
     body: JSON.stringify({
@@ -72,7 +73,7 @@ export async function createBackup({ path, enabled }, backupsBucketId) {
 
 export function updateBackup({ id, ...body }) {
   const headers = getHeaders()
-  return fetch(`${process.env.API_URL}/api/backup/${id}`, {
+  return httpRequest(`${process.env.API_URL}/api/backup/${id}`, {
     method: 'PATCH',
     headers,
     body: JSON.stringify(body)
@@ -84,7 +85,7 @@ export function updateBackup({ id, ...body }) {
 
 export function deleteBackup(id) {
   const headers = getHeaders()
-  return fetch(`${process.env.API_URL}/api/backup/${id}`, {
+  return httpRequest(`${process.env.API_URL}/api/backup/${id}`, {
     method: 'DELETE',
     headers
   }).then(res => {
@@ -96,7 +97,7 @@ export function updateBackupPath({ id, backupsBucketId, plainPath }) {
   const headers = getHeaders()
   const encryptedPath = crypt.encryptName(plainPath, backupsBucketId)
 
-  return fetch(`${process.env.API_URL}/api/backup/${id}`, {
+  return httpRequest(`${process.env.API_URL}/api/backup/${id}`, {
     method: 'PATCH',
     headers,
     body: JSON.stringify({
@@ -110,7 +111,7 @@ export function updateBackupPath({ id, backupsBucketId, plainPath }) {
 
 export function fetchUsersBackupBucket() {
   const headers = getHeaders()
-  return fetch(`${process.env.API_URL}/api/user/backupsBucket`, {
+  return httpRequest(`${process.env.API_URL}/api/user/backupsBucket`, {
     method: 'GET',
     headers
   }).then(res => {
@@ -120,7 +121,7 @@ export function fetchUsersBackupBucket() {
 
 export async function getAllBackups() {
   const headers = getHeaders()
-  const backups = await fetch(
+  const backups = await httpRequest(
     `${process.env.API_URL}/api/backup/${await macaddress.one()}`,
     {
       method: 'GET',
@@ -137,16 +138,19 @@ export async function getAllBackups() {
 
 export function updateBackupsOfDevice(deviceId, data) {
   const headers = getHeaders()
-  return fetch(`${process.env.API_URL}/api/backup/fromDevice/${deviceId}`, {
-    method: 'PATCH',
-    headers,
-    body: JSON.stringify(data)
-  })
+  return httpRequest(
+    `${process.env.API_URL}/api/backup/fromDevice/${deviceId}`,
+    {
+      method: 'PATCH',
+      headers,
+      body: JSON.stringify(data)
+    }
+  )
 }
 
 export function fetchUsage() {
   const headers = getHeaders()
-  return fetch(`${process.env.API_URL}/api/usage`, {
+  return httpRequest(`${process.env.API_URL}/api/usage`, {
     method: 'GET',
     headers
   }).then(res => {
@@ -156,7 +160,7 @@ export function fetchUsage() {
 
 export function fetchLimit() {
   const headers = getHeaders()
-  return fetch(`${process.env.API_URL}/api/limit`, {
+  return httpRequest(`${process.env.API_URL}/api/limit`, {
     method: 'GET',
     headers
   }).then(res => {

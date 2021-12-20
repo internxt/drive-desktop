@@ -9,6 +9,7 @@ import Logger from '../libs/logger'
 import analytics from '../renderer/logic/utils/analytics'
 import * as Auth from '../main/auth'
 import isOnline from '../libs/is-online'
+import { httpRequest } from '../libs/http-request'
 const archiver = require('archiver')
 const app = require('@electron/remote').app
 const { Environment } = require('@internxt/inxt-js')
@@ -223,7 +224,7 @@ async function upload({
 }
 
 function deleteOldBackup({ bucketId, fileId }) {
-  return fetch(
+  return httpRequest(
     `${process.env.API_URL}/api/storage/bucket/${bucketId}/file/${fileId}`,
     {
       method: 'DELETE',

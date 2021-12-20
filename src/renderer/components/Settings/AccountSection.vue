@@ -110,7 +110,7 @@ export default {
         answers: [{ text: 'Cancel' }, { text: 'Log out', state: 'accent' }],
         callback: userResponse => {
           if (userResponse === 1) {
-            remote.app.emit('logout-from-settings')
+            remote.app.emit('logout-entrypoint')
           }
         }
       })
