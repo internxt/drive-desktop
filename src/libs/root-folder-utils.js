@@ -38,3 +38,13 @@ function isEmptyFolder(path) {
     return filesInFolder.length === 0
   }
 }
+
+const OLD_DB_FOLDER = path.join(app.getPath('userData'), '.internxt-desktop')
+const anOldDB = path.join(OLD_DB_FOLDER, 'database_user.db')
+export function comesFromOldSync() {
+  return fs.existsSync(anOldDB)
+}
+
+export function removeOldDB() {
+  fs.unlinkSync(anOldDB)
+}
