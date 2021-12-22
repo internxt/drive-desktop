@@ -55,6 +55,10 @@ const schema = {
   savedConfigs: {
     type: 'object',
     default: {}
+  },
+  lastOnboardingShown: {
+    type: 'string',
+    default: ''
   }
 }
 

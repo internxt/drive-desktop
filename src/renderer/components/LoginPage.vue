@@ -205,6 +205,8 @@ import {
 import OtpInput from '@bachdgvn/vue-otp-input'
 import * as Auth from '../../main/auth'
 import { setupRootFolder } from '../../libs/root-folder-utils'
+import ConfigStore from '../../main/config-store'
+import { ipcRenderer } from 'electron'
 const remote = require('@electron/remote')
 
 export default {
@@ -388,6 +390,14 @@ export default {
             remote.app.emit('enter-login', false)
 
             remote.app.emit('logged-in')
+
+            const lastOnboardingShown = ConfigStore.get('lastOnboardingShown')
+            const currentOnboarding = '1'
+
+            if (lastOnboardingShown !== currentOnboarding) {
+              ipcRenderer.send('open-onboarding')
+              ConfigStore.set('lastOnboardingShown', currentOnboarding)
+            }
           }
         })
         .catch(err => {
