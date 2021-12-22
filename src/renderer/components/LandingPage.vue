@@ -8,9 +8,6 @@ const remote = require('@electron/remote')
 
 export default {
   name: 'landing-page',
-  beforeCreate() {
-    remote.app.emit('window-hide')
-  },
   data: function() {
     return {
       dbFolder: ''

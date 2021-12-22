@@ -281,9 +281,7 @@ app.on('change-auto-launch', AutoLaunch.configureAutostart)
 
 app.on('window-hide', function() {
   if (mainWindow) {
-    if (process.env.NODE_ENV !== 'development') {
-      mainWindow.hide()
-    }
+    mainWindow.hide()
   }
 })
 

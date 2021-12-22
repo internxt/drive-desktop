@@ -20,7 +20,7 @@
     />
     <play-icon
       v-else-if="status === 'STANDBY'"
-      @click.native="startSync"
+      @click.native="onStartClick"
       class="cursor-pointer"
       playButtonState="active"
     />
@@ -34,6 +34,7 @@ import PlayIcon from '../ExportIcons/PlayIcon.vue'
 import StopIcon from '../ExportIcons/StopIcon.vue'
 import Spinner from '../ExportIcons/Spinner.vue'
 import syncStatus from '../../../sync/sync-status'
+import { comesFromOldSync, removeOldDB } from '../../../libs/root-folder-utils'
 const remote = require('@electron/remote')
 
 export default {
@@ -79,6 +80,22 @@ export default {
 
       if (this.showUpdatedJustNow) {
         setTimeout(() => (this.showUpdatedJustNow = false), 30 * 1000)
+      }
+    },
+    onStartClick() {
+      if (comesFromOldSync()) {
+        this.$store.originalDispatch('showSettingsDialog', {
+          title: 'Important',
+          description:
+            'Since you come from a previous Drive Desktop version, due to the in-depth improvements made in this version, your new sync folder will now be Internxt. Feel free to delete your previous local folder, since it will no longer be used.',
+          answers: [{ text: 'Accept', state: 'accent' }],
+          callback: () => {
+            removeOldDB()
+            this.startSync()
+          }
+        })
+      } else {
+        this.startSync()
       }
     }
   }

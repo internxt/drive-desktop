@@ -23,28 +23,9 @@
           leave-to-class="opacity-0"
         >
           <img
-            v-if="slide === 1 && (getOS() === 'mac' || getOS() === 'linux')"
-            key="image-mac-1"
+            v-if="slide === 1"
             class="absolute object-right object-cover h-full"
             src="../../assets/images/onboarding/mac-finder-widget.png"
-          />
-          <img
-            v-if="slide === 1 && getOS() === 'windows'"
-            key="image-windows-1"
-            class="absolute object-right object-cover h-full"
-            src="../../assets/images/onboarding/mac-finder-widget.png"
-          />
-          <img
-            v-if="slide === 2 && (getOS() === 'mac' || getOS() === 'linux')"
-            key="image-mac-2"
-            class="absolute object-right object-cover h-full"
-            src="../../assets/images/onboarding/mac-blog.png"
-          />
-          <img
-            v-if="slide === 2 && getOS() === 'windows'"
-            key="image-windows-2"
-            class="absolute object-right object-cover h-full"
-            src="../../assets/images/onboarding/mac-blog.png"
           />
         </transition>
       </div>
@@ -103,46 +84,27 @@
                 />
                 <p class="font-medium text-neutral-900">Internxt</p>
               </div>
-
-              <div class="relative text-justify w-full max-w-xs">
-                Internxt is a folder on your computer. It works like your
-                Documents or Photos folder. The files you put in there are
-                automatically synced for you on
-                <a
-                  class="text-blue-600 underline cursor-pointer"
-                  @click="openLink('https://drive.internxt.com/app')"
-                  >drive.internxt.com</a
-                >.
+              <div class="relative text-left w-full max-w-xs">
+                <p class="text-base font-medium mb-2">
+                  Internxt is a folder on your computer that works like your
+                  Documents or Photos folder.
+                </p>
+                <p class="text-sm opacity-75">
+                  The files you put in there are automatically synced for you on
+                  <a
+                    class="text-blue-600 underline cursor-pointer"
+                    @click="openLink('https://drive.internxt.com/app')"
+                    >drive.internxt.com</a
+                  >.
+                </p>
               </div>
-            </div>
-
-            <button
-              @click="nextSlide"
-              class="flex flex-row px-3 py-1 text-base bg-white rounded-lg border border-gray-100 shadow-sm"
-            >
-              Next
-            </button>
-          </div>
-
-          <div
-            v-if="slide === 2"
-            key="slide-2"
-            class="absolute flex flex-col w-full h-full flex-shrink-0 items-center justify-center space-y-6"
-          >
-            <div class="relative text-justify w-full max-w-xs">
-              To discover all the new release features, check out our blog post
-              <a
-                class="text-blue-600 underline cursor-pointer"
-                @click="openLink('https://blog.internxt.com/')"
-                >here</a
-              >.
             </div>
 
             <button
               @click="finishOnboarding"
               class="flex flex-row px-3 py-1 text-base bg-white rounded-lg border border-gray-100 shadow-sm"
             >
-              Cool, open the widget
+              Finish
             </button>
           </div>
         </transition>
