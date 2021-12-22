@@ -8,32 +8,46 @@ export default new Router({
     {
       path: '/login',
       name: 'login-page',
-      component: () => import(/* webpackChunkName: "main-widget" */ '@/components/LoginPage.vue')
-    },
-    {
-      path: '/onboarding',
-      name: 'onboarding-page',
-      component: () => import(/* webpackChunkName: "main-widget" */ '@/components/OnBoarding/OnBoarding')
-    },
-    {
-      path: '/config',
-      name: 'config-page',
-      component: () => import(/* webpackChunkName: "main-widget" */ '@/components/ConfigPage')
+      component: () =>
+        import(
+          /* webpackChunkName: "main-widget" */ '@/components/LoginPage.vue'
+        )
     },
     {
       path: '/xcloud',
       name: 'xcloud-page',
-      component: () => import(/* webpackChunkName: "main-widget" */ '@/components/XCloudPage')
+      component: () =>
+        import(/* webpackChunkName: "main-widget" */ '@/components/XCloudPage')
     },
     {
       path: '/',
       name: 'landing-page',
-      component: () => import(/* webpackChunkName: "main-widget" */ '@/components/LandingPage')
+      component: () =>
+        import(/* webpackChunkName: "main-widget" */ '@/components/LandingPage')
+    },
+    {
+      path: '/onboarding',
+      name: 'onboarding-page',
+      component: () =>
+        import(
+          /* webpackChunkName: "onboarding" */ '@/components/OnBoarding/OnBoarding'
+        )
     },
     {
       path: '/settings',
       name: 'settings-page',
-      component: () => import(/* webpackChunkName: "settings-widget" */ '@/components/SettingsPage')
+      component: () =>
+        import(
+          /* webpackChunkName: "settings-widget" */ '@/components/SettingsPage'
+        )
+    },
+    {
+      path: '/sync-issues',
+      name: 'sync-issues-page',
+      component: () =>
+        import(
+          /* webpackChunkName: "sync-issues-widget" */ '@/components/SyncIssues'
+        )
     },
     {
       path: '*',

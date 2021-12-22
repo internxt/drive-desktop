@@ -1,28 +1,57 @@
 <template>
-  <main class="w-full h-full flex flex-col justify-between bg-white px-6 pb-6 relative">
-    <div class="cursor-pointer absolute top-4 right-4 z-10" @click="quitApp()">
+  <main
+    class="w-full h-full flex flex-col justify-between bg-white px-6 pb-6 relative"
+  >
+    <div class="cursor-pointer absolute top-4 right-4 z-10" @click="quitApp">
       <UilMultiply class="mr-2 text-blue-600" />
     </div>
 
     <div class="flex flex-col items-center justify-center relative flex-grow">
-      <span class="text-xl text-black font-bold ml-2 tracking-wide">Internxt Drive</span>
-      <span class="text-xs text-gray-300">v{{version}}</span>
-      <div v-if="!online" style="border-radius: 8px" class="w-full flex justify-center items-center absolute p-2 mx-6 bottom-2  bg-yellow-50 text-yellow-600 font-bold text-sm"><img class="mr-2 opacity-60" src="../assets/icons/apple/no-signal.svg" width="20px" height="20px"/>No internet connection</div>
-      <div v-else-if="error" style="border-radius: 8px" class="w-full flex justify-center items-center absolute p-2 mx-6 bottom-2  bg-red-50 text-red-600 font-bold text-sm">{{error}}</div>
+      <span class="text-xl text-black font-bold ml-2 tracking-wide"
+        >Internxt Drive</span
+      >
+      <span class="text-xs text-gray-300">v{{ version }}</span>
+      <div
+        v-if="!online"
+        style="border-radius: 8px"
+        class="w-full flex justify-center items-center absolute p-2 mx-6 bottom-2  bg-yellow-50 text-yellow-600 font-bold text-sm"
+      >
+        <img
+          class="mr-2 opacity-60"
+          src="../assets/icons/apple/no-signal.svg"
+          width="20px"
+          height="20px"
+        />No internet connection
+      </div>
+      <div
+        v-else-if="error"
+        style="border-radius: 8px"
+        class="w-full flex justify-center items-center absolute p-2 mx-6 bottom-2  bg-red-50 text-red-600 font-bold text-sm"
+      >
+        {{ error }}
+      </div>
     </div>
 
-    <form class=" bg-white relative"
-      id="form"
-      @submit="handleFormSubmit"
-    >
-      <div v-if="!showTwoFactor" class="text-xs text-gray-500 font-bold" :class="{'text-red-600': error, 'focus-within:text-blue-500': !error, 'opacity-40': isLoading}">
+    <form class=" bg-white relative" id="form" @submit="handleFormSubmit">
+      <div
+        v-if="!showTwoFactor"
+        class="text-xs text-gray-500 font-bold"
+        :class="{
+          'text-red-600': error,
+          'focus-within:text-blue-500': !error,
+          'opacity-40': isLoading
+        }"
+      >
         <label for="email" id="emailLabel">Email address</label>
         <input
           id="email"
           aria-labelledby="emailLabel"
           style="border-width: 1px;border-radius: 8px;"
           class="w-full h-10 focus:outline-none focus:ring-2  mb-2 border-gray-300 px-3 font-bold text-gray-700 text-base bg-gray-50"
-          :class="{'ring-red-100 ring-2 border-red-600': error, 'ring-blue-300 focus:border-blue-500': !error}"
+          :class="{
+            'ring-red-100 ring-2 border-red-600': error,
+            'ring-blue-300 focus:border-blue-500': !error
+          }"
           v-model="email"
           type="email"
           tabindex="0"
@@ -30,14 +59,25 @@
           ref="emailInput"
         />
       </div>
-      <div v-if="!showTwoFactor" class="text-xs text-gray-500 font-bold " :class="{'text-red-600': error, 'focus-within:text-blue-500': !error, 'opacity-40': isLoading}">
+      <div
+        v-if="!showTwoFactor"
+        class="text-xs text-gray-500 font-bold "
+        :class="{
+          'text-red-600': error,
+          'focus-within:text-blue-500': !error,
+          'opacity-40': isLoading
+        }"
+      >
         <label for="password" id="passwordLabel">Password</label>
         <div class="relative">
           <input
             aria-labelledby="passwordLabel"
             style="border-width: 1px;border-radius: 8px;"
             class="w-full h-10 focus:outline-none focus:ring-2  border-gray-300 pl-3 pr-20 font-bold text-gray-700 text-base bg-gray-50"
-            :class="{'ring-red-100 ring-2 border-red-600': error, 'ring-blue-300 focus:border-blue-500': !error}"
+            :class="{
+              'ring-red-100 ring-2 border-red-600': error,
+              'ring-blue-300 focus:border-blue-500': !error
+            }"
             v-model="password"
             id="password"
             :type="showPassword ? 'text' : 'password'"
@@ -46,34 +86,103 @@
             @blur="isPasswordFocused = false"
             required="true"
           />
-          <p v-if="isPasswordFocused" style="transform: translateY(50%)" class="mb-0 text-gray-500 absolute bottom-1/2 right-3 cursor-pointer font-bold" @mousedown.prevent="toggleShowPassword" >{{showPassword ? 'Hide' : 'Show'}}</p>
-          <UilArrowCircleUp v-if="capsLock && isPasswordFocused" style="transform: translateY(50%)" class="absolute text-gray-500 bottom-1/2 right-12"  size="18px" />
+          <p
+            v-if="isPasswordFocused"
+            style="transform: translateY(50%)"
+            class="mb-0 text-gray-500 absolute bottom-1/2 right-3 cursor-pointer font-bold"
+            @mousedown.prevent="toggleShowPassword"
+          >
+            {{ showPassword ? 'Hide' : 'Show' }}
+          </p>
+          <UilArrowCircleUp
+            v-if="capsLock && isPasswordFocused"
+            style="transform: translateY(50%)"
+            class="absolute text-gray-500 bottom-1/2 right-12"
+            size="18px"
+          />
         </div>
       </div>
-      <div v-if="showTwoFactor" class="text-xs text-gray-500 font-bold mb-10" :class="{'text-red-600': error, 'focus-within:text-blue-500': !error, 'opacity-40': isLoading}">
+      <div
+        v-if="showTwoFactor"
+        class="text-xs text-gray-500 font-bold mb-10"
+        :class="{
+          'text-red-600': error,
+          'focus-within:text-blue-500': !error,
+          'opacity-40': isLoading
+        }"
+      >
         <label for="2fa" id="2faLabel">Authentication code</label>
-        <OtpInput class="justify-center" :input-classes="`otp-input text-gray-600 h-10 w-8 mr-2 px-2 text-center text-base outline-none ${error ? 'border-red-600 ring-red-100 ring-2' : 'focus:ring-2 focus:border-blue-500 focus:ring-blue-300'}`" :num-inputs="6" :should-auto-focus="true" :is-input-num="true" @on-change="v => twoFactorCode = v" @on-complete="() => $refs['submit-button'].click()" separator=""/>
-        <p class="text-xs text-gray-400 mt-2">You have configured two factor authentication, please enter the 6 digit code</p>
+        <OtpInput
+          class="justify-center"
+          :input-classes="
+            `otp-input text-gray-600 h-10 w-8 mr-2 px-2 text-center text-base outline-none ${
+              error
+                ? 'border-red-600 ring-red-100 ring-2'
+                : 'focus:ring-2 focus:border-blue-500 focus:ring-blue-300'
+            }`
+          "
+          :num-inputs="6"
+          :should-auto-focus="true"
+          :is-input-num="true"
+          @on-change="v => (twoFactorCode = v)"
+          @on-complete="() => $refs['submit-button'].click()"
+          separator=""
+        />
+        <p class="text-xs text-gray-400 mt-2">
+          You have configured two factor authentication, please enter the 6
+          digit code
+        </p>
       </div>
 
       <div v-if="!showTwoFactor" class="flex justify-center items-center pt-3">
-        <a class="text-sm" :class="{'text-gray-400': isLoading, 'text-blue-600': !isLoading}" href="#" @click="open(`${DRIVE_BASE}/remove`)" tabindex="-1">Forgot your password?</a>
+        <a
+          class="text-sm"
+          :class="{ 'text-gray-400': isLoading, 'text-blue-600': !isLoading }"
+          href="#"
+          @click="open(`${DRIVE_BASE}/remove`)"
+          tabindex="-1"
+          >Forgot your password?</a
+        >
       </div>
 
-        <button
-          class="mt-6 native-key-bindings w-full text-white font-bold py-2.5 text-base focus:outline-none bg-blue-600 relative flex justify-end items-center h-10"
-          style="border-radius: 8px"
-          :class="{'cursor-default opacity-40': !online, 'cursor-pointer': online, 'bg-blue-700 text-opacity-60 text-white': isLoading, 'hidden': showTwoFactor}"
-          type="submit"
-          tabindex="-1"
-          :disabled="!online"
-          ref="submit-button"
+      <button
+        class="mt-6 native-key-bindings w-full text-white font-bold py-2.5 text-base focus:outline-none bg-blue-600 relative flex justify-end items-center h-10"
+        style="border-radius: 8px"
+        :class="{
+          'cursor-default opacity-40': !online,
+          'cursor-pointer': online,
+          'bg-blue-700 text-opacity-60 text-white': isLoading,
+          hidden: showTwoFactor
+        }"
+        type="submit"
+        tabindex="-1"
+        :disabled="!online"
+        ref="submit-button"
+      >
+        <p
+          style="transform: translate(-50%, -50%)"
+          class="absolute left-1/2 top-1/2"
+          :class="{ 'opacity-60': isLoading }"
         >
-          <p style="transform: translate(-50%, -50%)" class="absolute left-1/2 top-1/2" :class="{'opacity-60': isLoading}">{{isLoading ? 'Logging in...'  : 'Login'}}</p>
-          <UilSpinnerAlt v-if="isLoading" class="z-10 text-white animate-spin mr-3" size="22px" />
-        </button>
+          {{ isLoading ? 'Logging in...' : 'Login' }}
+        </p>
+        <UilSpinnerAlt
+          v-if="isLoading"
+          class="z-10 text-white animate-spin mr-3"
+          size="22px"
+        />
+      </button>
       <div class="flex justify-center items-center pt-3">
-        <a class="text-sm" :class="{'text-gray-400': isLoading, 'text-blue-600': !isLoading}" href="#" @click="() => showTwoFactor ? resetForm() : open(`${DRIVE_BASE}/new`)" tabindex="-1">{{showTwoFactor ? 'Change account' : 'Create account'}}</a>
+        <a
+          class="text-sm"
+          :class="{ 'text-gray-400': isLoading, 'text-blue-600': !isLoading }"
+          href="#"
+          @click="
+            () => (showTwoFactor ? resetForm() : open(`${DRIVE_BASE}/new`))
+          "
+          tabindex="-1"
+          >{{ showTwoFactor ? 'Change account' : 'Create account' }}</a
+        >
       </div>
     </form>
   </main>
@@ -81,22 +190,24 @@
 
 <script>
 import crypt from '../logic/crypt'
-import database from '../../database'
-import fs from 'fs'
 import Logger from '../../libs/logger'
 import config from '../../config'
-import path from 'path'
 import packageConfig from '../../../package.json'
 import analytics from '../logic/utils/analytics'
 import Spinner from '../components/ExportIcons/Spinner'
 import Eye from '../components/ExportIcons/eye'
 import CrossEye from '../components/ExportIcons/cross-eye'
-import Auth from '../logic/utils/Auth'
-import { UilMultiply, UilArrowCircleUp, UilSpinnerAlt } from '@iconscout/vue-unicons'
+import {
+  UilMultiply,
+  UilArrowCircleUp,
+  UilSpinnerAlt
+} from '@iconscout/vue-unicons'
 import OtpInput from '@bachdgvn/vue-otp-input'
+import * as Auth from '../../main/auth'
+import { setupRootFolder } from '../../libs/root-folder-utils'
+import ConfigStore from '../../main/config-store'
+import { ipcRenderer } from 'electron'
 const remote = require('@electron/remote')
-const ROOT_FOLDER_NAME = 'Internxt Drive'
-const HOME_FOLDER_PATH = remote.app.getPath('home')
 
 export default {
   name: 'login-page',
@@ -160,40 +271,6 @@ export default {
         analytics.trackRegisterViaDesktop()
       }
       this.$electron.shell.openExternal(link)
-    },
-    // selectFolder () {
-    //   const path = remote.dialog.showOpenDialog({ properties: ['openDirectory'] })
-    //   if (path && path[0]) {
-    //     this.$data.storagePath = path[0]
-    //   }
-    // },
-    isEmptyFolder(path) {
-      if (!fs.existsSync(path)) {
-        return true
-      } else {
-        const filesInFolder = fs.readdirSync(path)
-        return filesInFolder.length === 0
-      }
-    },
-    createRootFolder(folderName = ROOT_FOLDER_NAME, n = 0) {
-      const rootFolderName = folderName + (n ? ` (${n})` : '')
-      const rootFolderPath = path.join(HOME_FOLDER_PATH, rootFolderName)
-      const exist = fs.existsSync(rootFolderPath)
-
-      let isEmpty
-      if (exist) {
-        isEmpty = this.isEmptyFolder(rootFolderPath)
-      }
-
-      if (exist && !isEmpty) {
-        return this.createRootFolder(folderName, n + 1)
-      }
-
-      if (!exist) {
-        fs.mkdirSync(rootFolderPath)
-      }
-
-      return database.Set('xPath', rootFolderPath)
     },
     doLogin() {
       this.$data.isLoading = true
@@ -292,32 +369,34 @@ export default {
             }
           } else {
             res.data.user.email = this.email.toLowerCase()
-            this.createRootFolder()
-            await database.Set(
-              'xMnemonic',
-              crypt.decryptWithKey(res.data.user.mnemonic, this.$data.password)
+            const mnemonic = crypt.decryptWithKey(
+              res.data.user.mnemonic,
+              this.$data.password
             )
-            const savedCredentials = await database.logIn(res.data.user.email)
-            await database.Set('xUser', res.data)
-            Auth.denormalizeAuthInfoInConfigStore()
-            await database.compactAllDatabases()
-            remote.app.emit('update-configStore', {stopSync: false})
-            // ConfigStore.set('stopSync', false)
-            // this.$router.push('/landing-page').catch(() => {})
+
+            Auth.setCredentials(res.data.user, mnemonic, res.data.token)
+
+            if (!Auth.canHisConfigBeRestored(res.data.user.uuid)) {
+              setupRootFolder()
+            }
+
             analytics.trackSignin({
               userId: res.data.user.uuid,
               email: res.data.user.email
             })
 
-            if (!savedCredentials) {
-              // remote.getCurrentWindow().setBounds({ width: 800, height: 500 })
-              remote.app.emit('window-pushed-to', '/onboarding')
-              this.$router.push('/onboarding').catch(() => {})
-              remote.app.emit('enter-login', false)
-            } else {
-              remote.app.emit('window-pushed-to', '/xcloud')
-              this.$router.push('/xcloud').catch(() => {})
-              remote.app.emit('enter-login', false)
+            remote.app.emit('window-pushed-to', '/xcloud')
+            this.$router.push('/xcloud').catch(() => {})
+            remote.app.emit('enter-login', false)
+
+            remote.app.emit('logged-in')
+
+            const lastOnboardingShown = ConfigStore.get('lastOnboardingShown')
+            const currentOnboarding = '1'
+
+            if (lastOnboardingShown !== currentOnboarding) {
+              ipcRenderer.send('open-onboarding')
+              ConfigStore.set('lastOnboardingShown', currentOnboarding)
             }
           }
         })
@@ -351,7 +430,6 @@ export default {
 </script>
 
 <style>
-
 .otp-input {
   border-radius: 8px;
   border-width: 1px;

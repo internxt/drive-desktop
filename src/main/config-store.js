@@ -4,10 +4,6 @@ import Store from 'electron-store'
  */
 
 const schema = {
-  uploadOnly: {
-    type: 'boolean',
-    default: false
-  },
   limit: {
     type: 'number',
     default: -1
@@ -20,29 +16,9 @@ const schema = {
     type: 'boolean',
     default: true
   },
-  isSyncing: {
-    type: 'boolean',
-    default: false
-  },
-  stopSync: {
-    type: 'boolean',
-    default: false
-  },
-  updatingDB: {
-    type: 'boolean',
-    default: false
-  },
-  forceUpload: {
-    type: 'number',
-    default: -1
-  },
-  version: {
+  bearerToken: {
     type: 'string',
-    default: '1.3.0'
-  },
-  authHeaders: {
-    type: 'object',
-    default: {}
+    default: ''
   },
   userData: {
     type: 'object',
@@ -64,9 +40,25 @@ const schema = {
     type: 'number',
     default: -1
   },
-  askBeforeDisablingBackup: {
-    type: 'boolean',
-    default: true
+  syncRoot: {
+    type: 'string',
+    default: ''
+  },
+  lastSavedListing: {
+    type: 'string',
+    default: ''
+  },
+  lastSync: {
+    type: 'number',
+    default: -1
+  },
+  savedConfigs: {
+    type: 'object',
+    default: {}
+  },
+  lastOnboardingShown: {
+    type: 'string',
+    default: ''
   }
 }
 

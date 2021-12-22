@@ -12,6 +12,7 @@ const webpackHotMiddleware = require('webpack-hot-middleware')
 const mainConfig = require('./webpack.main.config')
 const rendererConfig = require('./webpack.renderer.config')
 const backupProcessConfig = require('./webpack.backup-process.config')
+const syncConfig = require('./webpack.sync.config')
 
 let electronProcess = null
 let manualRestart = false
@@ -167,6 +168,23 @@ function startBackupProcess() {
   })
 }
 
+function startSync() {
+  return new Promise((resolve, reject) => {
+    const compiler = webpack({...syncConfig, mode: 'development'})
+
+    compiler.watch({}, (err, stats) => {
+      if (err) {
+        console.log(err)
+        return
+      }
+
+      logStats('Sync', stats)
+
+      resolve()
+    })
+  })
+}
+
 function electronLog(data, color) {
   let log = ''
   data = data.toString().split(/\r?\n/)
@@ -205,7 +223,7 @@ function greeting() {
 function init() {
   greeting()
 
-  Promise.all([startRenderer(), startMain(), startBackupProcess()])
+  Promise.all([startRenderer(), startMain(), startBackupProcess(), startSync()])
     .then(() => {
       startElectron()
     })

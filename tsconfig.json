@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "outDir": "./dist/sync/",
+    "noImplicitAny": true,
+    "module": "es6",
+    "target": "es6",
+    "allowJs": true,
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true,
+  }
+}

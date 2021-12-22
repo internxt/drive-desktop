@@ -2,6 +2,7 @@
 dist/electron/*
 dist/web/*
 dist/backup-process/index.js
+dist/sync/index.js
 build/*
 !build/icons
 coverage
@@ -15,3 +16,4 @@ database_*.db
 database_*.db~
 database/fileLogger/*
 .npmrc
+yarn-error.log

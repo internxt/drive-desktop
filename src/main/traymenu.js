@@ -1,23 +1,27 @@
 import path from 'path'
 import PackageJson from '../../package.json'
-import { Tray, Menu, app } from 'electron'
+import { Tray, Menu, app, nativeImage } from 'electron'
 
-var email
+export const TrayMenuState = {
+  STANDBY: 'standby',
+  SYNCING: 'syncing',
+  ISSUES: 'issues'
+}
 
 class TrayMenu {
-  constructor(mainWindow) {
+  constructor() {
     this.tray = null
-    this.mainWindow = mainWindow
   }
 
   init() {
-    const trayIcon = this.iconPath()
+    const trayIcon = this.getIconPath(TrayMenuState.STANDBY)
 
     this.tray = new Tray(trayIcon)
 
+    this.setState(TrayMenuState.STANDBY)
+
     this.tray.setIgnoreDoubleClickEvents(true)
 
-    this.tray.setToolTip('Internxt Drive ' + PackageJson.version)
     if (process.platform !== 'linux') {
       this.tray.on('click', (_, bounds) => {
         app.emit('show-main-windows', bounds)
@@ -32,24 +36,12 @@ class TrayMenu {
     this.updateContextMenu()
   }
 
-  iconPath(isLoading = false) {
-    const iconName = isLoading ? 'sync-icon' : 'tray-icon'
-
-    // Default icon
-    let trayIcon = path.join(
+  getIconPath(state, isDarwin) {
+    const templatePart = isDarwin ? 'Template' : ''
+    return path.join(
       __dirname,
-      '../../src/resources/icons/' + iconName + '@2x.png'
+      `../../src/resources/icons/${state}${templatePart}.png`
     )
-
-    // Template icon for mac
-    if (process.platform === 'darwin') {
-      trayIcon = path.join(
-        __dirname,
-        '../../src/resources/icons/' + iconName + '-macTemplate@2x.png'
-      )
-    }
-
-    return trayIcon
   }
   generateContextMenu() {
     const contextMenuTemplate = []
@@ -69,40 +61,35 @@ class TrayMenu {
     return Menu.buildFromTemplate(contextMenuTemplate)
   }
 
-  updateContextMenu(user) {
-    const ctxMenu = this.generateContextMenu(user)
+  updateContextMenu() {
+    const ctxMenu = this.generateContextMenu()
     this.tray.setContextMenu(ctxMenu)
-  }
-
-  updateSyncState() {
-    const ctxMenu = this.generateContextMenu(email)
-    this.tray.setContextMenu(ctxMenu)
-  }
-
-  setToolTip(text) {
-    this.tray.setToolTip(text)
-  }
-
-  displayBallon(title, content) {
-    if (this.tray) {
-      this.tray.displayBalloon({
-        title: title,
-        content: content
-      })
-    }
   }
 
   appClose() {
     app.emit('app-close')
   }
 
-  setImage(imagePath) {
-    this.tray.setImage(imagePath)
+  setState(state) {
+    const iconPath = this.getIconPath(state, process.platform === 'darwin')
+    this.setImage(iconPath)
+
+    this.setTooltip(state)
   }
 
-  setIsLoadingIcon(isLoading) {
-    const newImage = this.iconPath(isLoading)
-    this.setImage(newImage)
+  setImage(imagePath) {
+    const image = nativeImage.createFromPath(imagePath)
+    this.tray.setImage(image)
+  }
+
+  setTooltip(state) {
+    if (state === TrayMenuState.SYNCING) {
+      this.tray.setToolTip('Sync in process')
+    } else if (state === TrayMenuState.ISSUES) {
+      this.tray.setToolTip('There are some issues with your sync')
+    } else {
+      this.tray.setToolTip('Internxt Drive ' + PackageJson.version)
+    }
   }
 
   destroy() {

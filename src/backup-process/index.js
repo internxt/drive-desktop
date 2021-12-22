@@ -7,12 +7,15 @@ import { createCipheriv, randomBytes } from 'crypto'
 import { pipeline } from 'stream'
 import Logger from '../libs/logger'
 import analytics from '../renderer/logic/utils/analytics'
+import * as Auth from '../main/auth'
+import isOnline from '../libs/is-online'
+import { httpRequest } from '../libs/http-request'
 const archiver = require('archiver')
 const app = require('@electron/remote').app
 const { Environment } = require('@internxt/inxt-js')
 
 ;(async function main() {
-  const userInfo = ConfigStore.get('userData')
+  const userInfo = Auth.getUser()
   const mnemonic = ConfigStore.get('mnemonic')
 
   let pendingBackups
@@ -48,7 +51,10 @@ const { Environment } = require('@internxt/inxt-js')
         index
       )
       if (plainHash !== backup.hash) {
-        const enoughSpace = await isThereEnoughSpace(backup.size ? backup.size : 0, size)
+        const enoughSpace = await isThereEnoughSpace(
+          backup.size ? backup.size : 0,
+          size
+        )
 
         if (!enoughSpace) {
           Logger.error('Ran out of space before a backup', backup)
@@ -97,7 +103,7 @@ const { Environment } = require('@internxt/inxt-js')
       }
     } catch (error) {
       if (error.name in ErrorCodes) notifyError(backup, error.name)
-      else if (!navigator.onLine) {
+      else if (!(await isOnline())) {
         notifyError(backup, ErrorCodes.NO_CONNECTION)
       } else {
         notifyError(backup, ErrorCodes.UNKNOWN)
@@ -183,7 +189,7 @@ async function upload({
 
   const options = {
     bridgeUrl: process.env.BRIDGE_URL,
-    bridgeUser: userInfo.email,
+    bridgeUser: userInfo.bridgeUser,
     bridgePass: userInfo.userId,
     encryptionKey: mnemonic,
     inject: {
@@ -198,7 +204,7 @@ async function upload({
     environment.upload(
       backup.bucket,
       {
-        filename: randomBytes(24).toString(),
+        name: randomBytes(24).toString(),
         progressCallback,
         finishedCallback: (err, response) => {
           if (err) reject(err)
@@ -207,18 +213,22 @@ async function upload({
       },
       {
         label: 'OneStreamOnly',
-        params: { source: { stream: zipStream, hash: encryptedHash, size } }
+        params: {
+          source: { stream: zipStream, hash: encryptedHash, size },
+          useProxy: false,
+          concurrency: 1
+        }
       }
     )
   })
 }
 
 function deleteOldBackup({ bucketId, fileId }) {
-  return fetch(
+  return httpRequest(
     `${process.env.API_URL}/api/storage/bucket/${bucketId}/file/${fileId}`,
     {
       method: 'DELETE',
-      headers: ConfigStore.get('authHeaders')
+      headers: Auth.getHeaders()
     }
   ).then(res => res.json())
 }
@@ -231,7 +241,10 @@ function notifyProgress({
 }) {
   app.emit('backup-progress', {
     currentBackup,
-    currentBackupProgress: currentBackupProgress !== null ? (currentBackupProgress * 100).toFixed(2) : null,
+    currentBackupProgress:
+      currentBackupProgress !== null
+        ? (currentBackupProgress * 100).toFixed(2)
+        : null,
     currentBackupIndex,
     totalBackupsCount
   })
@@ -265,5 +278,5 @@ async function isThereEnoughSpace(sizeOfLastVersion, sizeOfNewVersion) {
   const limit = limitInfo.maxSpaceBytes
   const usage = usageInfo.total
 
-  return (limit - usage - sizeOfNewVersion + sizeOfLastVersion) >= 0
+  return limit - usage - sizeOfNewVersion + sizeOfLastVersion >= 0
 }
