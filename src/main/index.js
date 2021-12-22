@@ -137,6 +137,8 @@ function createWindow() {
 
     if (syncIssuesWindow) syncIssuesWindow.destroy()
 
+    if (onboardingWindow) onboardingWindow.destroy()
+
     if (backupProcessRerun) {
       clearTimeout(backupProcessRerun)
     }
@@ -357,9 +359,9 @@ ipcMain.on('open-onboarding', () => {
 
 function openOnboarding() {
   const onboardingPath =
-      process.env.NODE_ENV === 'development'
-        ? `http://localhost:9080/#/onboarding`
-        : `file://${__dirname}/index.html#onboarding`
+    process.env.NODE_ENV === 'development'
+      ? `http://localhost:9080/#/onboarding`
+      : `file://${__dirname}/index.html#onboarding`
 
   onboardingWindow = new BrowserWindow({
     width: 732,
