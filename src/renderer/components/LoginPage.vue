@@ -395,6 +395,7 @@ export default {
             const currentOnboarding = '1'
 
             if (lastOnboardingShown !== currentOnboarding) {
+              remote.app.emit('window-hide')
               ipcRenderer.send('open-onboarding')
               ConfigStore.set('lastOnboardingShown', currentOnboarding)
             }
