@@ -235,9 +235,8 @@ export default {
     finishOnboarding() {
       this.widgetTransition = true
       remote.app.emit('close-onboarding')
-      remote.app.emit('window-pushed-to', '/xcloud')
-      this.$router.push('/xcloud').catch(() => {})
       remote.app.emit('enter-onboarding', false)
+      remote.app.emit('show-main-windows')
     },
     openLink(link) {
       remote.shell.openExternal(link)
