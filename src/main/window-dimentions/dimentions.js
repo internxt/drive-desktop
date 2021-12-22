@@ -4,8 +4,8 @@ const dimentions = {
     height: 392
   },
   '/onboarding': {
-    width: 900,
-    height: 500
+    width: 732,
+    height: 470
   },
   '/login': {
     width: 300,

@@ -346,6 +346,47 @@ app.on('close-settings-window', () => {
 })
 
 /**
+ * Onboarding window
+ */
+
+let onboardingWindow = null
+
+ipcMain.on('open-onboarding', () => {
+  openOnboarding()
+})
+
+function openOnboarding() {
+  const onboardingPath =
+      process.env.NODE_ENV === 'development'
+        ? `http://localhost:9080/#/onboarding`
+        : `file://${__dirname}/index.html#onboarding`
+
+  onboardingWindow = new BrowserWindow({
+    width: 732,
+    height: 470,
+    show: false,
+    frame: false,
+    resizable: false,
+    webPreferences: {
+      nodeIntegration: true,
+      enableRemoteModule: true,
+      contextIsolation: false
+    }
+  })
+  onboardingWindow.loadURL(onboardingPath)
+  onboardingWindow.once('closed', () => {
+    onboardingWindow = null
+  })
+  onboardingWindow.once('ready-to-show', () => {
+    onboardingWindow.show()
+  })
+}
+
+app.on('close-onboarding', () => {
+  if (onboardingWindow) onboardingWindow.close()
+})
+
+/**
  * Auto Updater
  *
  * https://simulatedgreg.gitbooks.io/electron-vue/content/en/using-electron-builder.html#auto-updating
