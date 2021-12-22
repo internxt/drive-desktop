@@ -36,8 +36,12 @@ class TrayMenu {
     this.updateContextMenu()
   }
 
-  getIconPath(state) {
-    return path.join(__dirname, `../../src/resources/icons/${state}.png`)
+  getIconPath(state, isDarwin) {
+    const templatePart = isDarwin ? 'Template' : ''
+    return path.join(
+      __dirname,
+      `../../src/resources/icons/${state}${templatePart}.png`
+    )
   }
   generateContextMenu() {
     const contextMenuTemplate = []
@@ -74,8 +78,10 @@ class TrayMenu {
   }
 
   setImage(imagePath) {
-    const image = nativeImage.createFromPath(imagePath)
-    if (process.platform === 'darwin') image.setTemplateImage(true)
+    const image = nativeImage.createFromPath(
+      imagePath,
+      process.platform === 'darwin'
+    )
     this.tray.setImage(image)
   }
 
