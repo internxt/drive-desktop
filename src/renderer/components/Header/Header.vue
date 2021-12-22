@@ -108,7 +108,6 @@
             </div>
             <a class="dropdown-item" @click="ContactSupportMailto">Support</a>
             <a class="dropdown-item pb-2" @click="logout">Log out</a>
-            <a class="dropdown-item pb-2" @click="openOnboarding()">Show Onboarding</a>
             <a
               class="dropdown-item border-gray-100 border-t border-solid pt-2"
               @click="quitApp"
@@ -237,9 +236,6 @@ export default {
     logout() {
       Auth.logout()
       this.$router.push('/')
-    },
-    openOnboarding() {
-      ipcRenderer.send('open-onboarding')
     },
     openFolder() {
       electron.shell.openPath(ConfigStore.get('syncRoot'))
