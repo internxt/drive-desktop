@@ -71,17 +71,14 @@ class TrayMenu {
   }
 
   setState(state) {
-    const iconPath = this.getIconPath(state)
+    const iconPath = this.getIconPath(state, process.platform === 'darwin')
     this.setImage(iconPath)
 
     this.setTooltip(state)
   }
 
   setImage(imagePath) {
-    const image = nativeImage.createFromPath(
-      imagePath,
-      process.platform === 'darwin'
-    )
+    const image = nativeImage.createFromPath(imagePath)
     this.tray.setImage(image)
   }
 
