@@ -15,17 +15,24 @@
         "
       >
         <transition
-          enter-active-class="transition-all duration-500"
+          enter-active-class="transition-all duration-500 delay-0"
           enter-class="opacity-0"
           enter-to-class="opacity-100"
-          leave-active-class="transition-all ease-out duration-500 delay-1000"
+          leave-active-class="transition-all ease-out duration-500 delay-0"
           leave-class="opacity-100"
           leave-to-class="opacity-0"
         >
           <img
             v-if="slide === 1"
+            key="image-1"
             class="absolute object-right object-cover h-full"
             src="../../assets/images/onboarding/mac-finder-widget.png"
+          />
+          <img
+            v-if="slide === 2"
+            key="image-2"
+            class="absolute widget object-right object-cover h-full origin-top-right"
+            src="../../assets/images/onboarding/widget.png"
           />
         </transition>
       </div>
@@ -48,18 +55,19 @@
           <div
             v-if="slide === 0"
             key="slide-0"
-            class="absolute flex flex-col w-96 h-full flex-shrink-0 items-center justify-center space-y-6"
+            class="absolute flex flex-col w-full h-full flex-shrink-0 items-center justify-center space-y-6"
           >
-            <div class="flex flex-col items-center space-y-3">
+            <div class="flex flex-col items-center space-y-6">
               <img src="../../assets/images/onboarding/logo.svg" />
 
-              <div class="flex flex-col items-center max-w-full">
+              <div class="flex flex-col items-center text-center max-w-full">
                 <h3
-                  class="text-2xl font-semibold tracking-wide text-neutral-900 text-center"
+                  class="text-2xl font-semibold tracking-wide text-neutral-900 mb-2"
                 >
                   Welcome to Internxt{{ userName }}!
                 </h3>
-                <p>Let’s get everything on point together.</p>
+                <p>Client-side encrypted, fragmented, simple, fast, secure and private.</p>
+                <p>Discover the brand new features of Internxt Drive.</p>
               </div>
             </div>
 
@@ -74,30 +82,75 @@
           <div
             v-if="slide === 1"
             key="slide-1"
-            class="absolute flex flex-col w-96 h-full flex-shrink-0 items-center justify-center space-y-6"
+            class="absolute flex flex-col w-96 h-full flex-shrink-0 items-center justify-between space-y-6 py-8"
           >
             <div class="flex flex-col items-center space-y-6">
-              <div class="flex flex-col items-center space-y-0.5">
-                <img
-                  class="pointer-events-none"
-                  src="../../assets/images/onboarding/folder.svg"
-                />
-                <p class="font-medium text-neutral-900">Internxt</p>
-              </div>
-              <div class="relative text-left w-full max-w-xs">
-                <p class="text-base font-medium mb-2">
-                  Internxt is a folder on your computer that works like your
-                  Documents or Photos folder.
-                </p>
-                <p class="text-sm opacity-75">
-                  The files you put in there are automatically synced for you on
-                  <a
-                    class="text-blue-600 underline cursor-pointer"
-                    @click="openLink('https://drive.internxt.com/app')"
-                    >drive.internxt.com</a
-                  >.
-                </p>
-              </div>
+              <h3
+                class="w-full text-left text-2xl font-semibold tracking-wide text-neutral-900"
+              >
+                Sync Folder
+              </h3>
+
+              <ul class="relative list-disc flex flex-col items-left space-y-3 pl-4 text-base text-neutral-500 w-full max-w-xs">
+                <li>
+                  You'll find a new folder where all your data from the Internxt cloud will be accessible.
+                </li>
+
+                <li>
+                  Simply drag and drop items into this folder and press the play button to upload them.
+                </li>
+
+                <li>
+                  Press the play button to keep this folder synchronized with other devices.
+                </li>
+
+                <li>
+                  Choose sync folder location from settings.
+                </li>
+              </ul>
+            </div>
+
+            <button
+              @click="nextSlide"
+              class="flex flex-row px-3 py-1 text-base bg-white rounded-lg border border-gray-100 shadow-sm"
+            >
+              Next
+            </button>
+          </div>
+
+          <div
+            v-if="slide === 2"
+            key="slide-2"
+            class="absolute flex flex-col w-96 h-full flex-shrink-0 items-center justify-between space-y-6 py-8"
+          >
+            <div class="flex flex-col items-center space-y-6">
+              <h3
+                class="w-full text-left text-2xl font-semibold tracking-wide text-neutral-900"
+              >
+                Internxt Widget
+              </h3>
+
+              <ul class="relative list-disc flex flex-col items-left space-y-3 pl-4 text-base text-neutral-500 w-full max-w-xs">
+                <li>
+                  Quick access to <a class="text-blue-600 underline cursor-pointer" @click="openLink('https://drive.internxt.com/app')">drive.internxt.com</a>.
+                </li>
+
+                <li>
+                  Update your plan, device name or configure backups from the settings menu.
+                </li>
+
+                <li>
+                  View the state of your data transfer.
+                </li>
+
+                <li>
+                  Check the status of your sync and backups processes.
+                </li>
+
+                <li>
+                  Start or stop your sync process anytime.
+                </li>
+              </ul>
             </div>
 
             <button
@@ -148,6 +201,7 @@
 </template>
 
 <script>
+import './OnBoarding.scss'
 import * as Auth from '../../../main/auth'
 const remote = require('@electron/remote')
 
