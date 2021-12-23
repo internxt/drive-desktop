@@ -28,7 +28,7 @@
       </p>
       <p
         class="text-blue-600 cursor-pointer text-sm mt-1"
-        @click="openDriveWeb"
+        @click="openDriveWebsite"
       >
         Learn more about Internxt Drive
       </p>
@@ -127,6 +127,9 @@ export default {
     },
     openDriveWeb() {
       remote.shell.openExternal('https://drive.internxt.com')
+    },
+    openDriveWebsite() {
+      remote.shell.openExternal('https://internxt.com/drive')
     }
   },
   computed: {

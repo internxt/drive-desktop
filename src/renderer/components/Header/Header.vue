@@ -36,7 +36,7 @@
         <!-- {{ this.$data.localPath }} -->
         <div
           v-tooltip="{
-            content: 'Open drive web',
+            content: 'Open Drive Web',
             placement: 'bottom',
             delay: { show: 750, hide: 50 }
           }"
@@ -49,7 +49,7 @@
           class="flex items-center justify-center cursor-pointer header-item"
           @click="openFolder"
           v-tooltip="{
-            content: 'Open sync folder',
+            content: 'Open Sync Folder',
             placement: 'bottom',
             delay: { show: 750, hide: 50 }
           }"
