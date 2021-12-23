@@ -67,7 +67,7 @@
                   Welcome to Internxt{{ userName }}!
                 </h3>
                 <p>Client-side encrypted, fragmented, simple, fast, secure and private.</p>
-                <p>Discover the brand new features of Internxt Drive.</p>
+                <p>Discover the brand new features of Drive Desktop.</p>
               </div>
             </div>
 
@@ -132,7 +132,7 @@
 
               <ul class="relative list-disc flex flex-col items-left space-y-3 pl-4 text-base text-neutral-500 w-full max-w-xs">
                 <li>
-                  Quick access to <a class="text-blue-600 underline cursor-pointer" @click="openLink('https://drive.internxt.com/app')">drive.internxt.com</a>.
+                  Quick access to <a class="text-blue-600 underline cursor-pointer" @click="openLink('https://drive.internxt.com/app')">Drive Web</a>.
                 </li>
 
                 <li>
