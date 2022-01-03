@@ -135,3 +135,7 @@ app
     });
   })
   .catch(console.log);
+
+ipcMain.on('path-changed', (_, pathname) =>
+  console.log('Renderer navigated to ', pathname)
+);
