@@ -63,6 +63,7 @@ import path from 'path'
 import FileIconWithOperation from '../Icons/FileIconWithOperation.vue'
 import { shortMessages } from '../../../sync/sync-error-messages'
 import { ipcRenderer } from 'electron'
+import syncStatus from '../../../sync/sync-status'
 const app = require('@electron/remote').app
 
 export default {
@@ -79,11 +80,11 @@ export default {
   },
   mounted() {
     app.on('SYNC_INFO_UPDATE', this.onInfoUpdate)
-    app.on('SYNC_NEXT', this.onNext)
+    app.on('sync-status-changed', this.onSyncStatusChanged)
   },
   beforeDestroy() {
     app.removeListener('SYNC_INFO_UPDATE', this.onInfoUpdate)
-    app.removeListener('SYNC_NEXT', this.onNext)
+    app.removeListener('sync-status-changed', this.onSyncStatusChanged)
   },
   methods: {
     onInfoUpdate(item) {
@@ -113,8 +114,8 @@ export default {
         this.items = itemsCopy
       }
     },
-    onNext() {
-      this.items = []
+    onSyncStatusChanged(newStatus) {
+      if (newStatus === syncStatus.RUNNING) this.items = []
     },
     clear() {},
     getStatusMessage(item) {
