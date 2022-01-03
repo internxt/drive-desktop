@@ -20,7 +20,7 @@
           size="32"
           class="flex-shrink-0 flex-grow-0"
         />
-        <div class="ml-2 flex-shrink flex-grow">
+        <div class="ml-2 flex-shrink flex-grow min-w-0">
           <p class="text-sm truncate mt-1">
             {{ item.name | showOnlyFilename }}
           </p>
