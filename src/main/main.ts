@@ -1,4 +1,4 @@
-/* eslint global-require: off, no-console: off, promise/always-return: off */
+/* eslint no-console: off, promise/always-return: off */
 
 /**
  * This module executes inside of electron's main process. You can start
@@ -139,3 +139,7 @@ app
 ipcMain.on('path-changed', (_, pathname) =>
   console.log('Renderer navigated to ', pathname)
 );
+
+export function onUserUnauthorized() {}
+
+ipcMain.on('user-is-unauthorized', onUserUnauthorized);

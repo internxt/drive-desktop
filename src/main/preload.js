@@ -4,6 +4,9 @@ contextBridge.exposeInMainWorld('electron', {
   pathChanged(path) {
     ipcRenderer.send('path-changed', path);
   },
+  userIsUnauthorized() {
+    ipcRenderer.send('user-is-unauthorized');
+  },
   ipcRenderer: {
     on(channel, func) {
       const validChannels = ['ipc-example'];
