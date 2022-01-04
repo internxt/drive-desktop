@@ -639,7 +639,17 @@ function startBackgroundProcesses() {
 let backupProcessStatus = BackupStatus.STANDBY
 let backupProcessRerun = null
 
-async function startBackupProcess() {
+function waitForSyncToFinish() {
+  if (syncStatus === SyncStatus.STANDBY) return Promise.resolve()
+
+  return new Promise(resolve => {
+    app.once('sync-status-changed', resolve)
+  })
+}
+
+async function startBackupProcess({ avoidRunningWithSync = true }) {
+  if (avoidRunningWithSync) await waitForSyncToFinish()
+
   const backupsAreEnabled = ConfigStore.get('backupsEnabled')
 
   if (backupsAreEnabled && backupProcessStatus !== BackupStatus.IN_PROGRESS) {
@@ -714,7 +724,9 @@ async function startBackupProcess() {
   }
 }
 
-ipcMain.on('start-backup-process', startBackupProcess)
+ipcMain.on('start-backup-process', () =>
+  startBackupProcess({ avoidRunningWithSync: false })
+)
 
 ipcMain.handle('get-backup-status', () => backupProcessStatus)
 
@@ -763,7 +775,7 @@ function notifyBackupProcessWithNoConnection() {
   notification.show()
 
   notification.on('click', () => {
-    startBackupProcess()
+    startBackupProcess({ avoidRunningWithSync: false })
   })
 }
 
