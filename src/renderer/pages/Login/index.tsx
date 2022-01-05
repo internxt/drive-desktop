@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import packageJson from '../../../../package.json';
 import Button from './Button';
 import ErrorBanner from './ErrorBanner';
 import Input from './Input';
 import TwoFA from './TwoFA';
+import { accessRequest, hashPassword, loginRequest } from './service';
 
 export default function Login() {
   const [phase, setPhase] = useState<'credentials' | '2fa'>('credentials');
@@ -13,9 +14,58 @@ export default function Login() {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+
   const [twoFA, setTwoFA] = useState('');
 
+  const sKey = useRef<string>('');
+
   const [errorDetails, setErrorDetails] = useState('');
+
+  async function access() {
+    setState('loading');
+
+    const encryptedHash = hashPassword(password, sKey.current);
+
+    try {
+      await accessRequest(email, encryptedHash, twoFA);
+    } catch (err) {
+      setState('error');
+      setErrorDetails((err as Error).message);
+    }
+  }
+
+  async function onSubmit() {
+    setState('loading');
+
+    if (!email || !password) {
+      setState('error');
+      setErrorDetails('Please enter email and password');
+      return;
+    }
+
+    try {
+      const body = await loginRequest(email);
+      sKey.current = body.sKey;
+      if (body.tfa) {
+        setState('ready');
+        setPhase('2fa');
+      } else {
+        access();
+      }
+    } catch (err) {
+      setState('error');
+      setErrorDetails((err as Error).message);
+    }
+  }
+
+  function resetForm() {
+    setPhase('credentials');
+    setState('ready');
+    setEmail('');
+    setPassword('');
+    setTwoFA('');
+    sKey.current = '';
+  }
 
   const credentialsComponents = (
     <>
@@ -48,7 +98,8 @@ export default function Login() {
       <Button
         className="mt-4"
         state={state !== 'loading' ? 'ready' : 'loading'}
-        onClick={() => undefined}
+        // eslint-disable-next-line react/jsx-no-bind
+        onClick={onSubmit}
       />
       <a
         href="https://drive.internxt.com/new"
@@ -64,6 +115,13 @@ export default function Login() {
       </a>
     </>
   );
+
+  useEffect(() => {
+    if (twoFA.length === 6) {
+      access();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [twoFA]);
 
   const twoFAComponents = (
     <>
@@ -90,6 +148,10 @@ export default function Login() {
             ? 'text-m-neutral-80 pointer-events-none cursor-default'
             : 'text-blue-60 cursor-pointer'
         }`}
+        onClick={resetForm}
+        onKeyDown={resetForm}
+        role="button"
+        tabIndex={0}
       >
         Change account
       </div>

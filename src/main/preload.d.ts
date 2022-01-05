@@ -3,5 +3,7 @@ declare interface Window {
     pathChanged(path: string): void;
 
     userIsUnauthorized(): void;
+
+    env: typeof process.env;
   };
 }

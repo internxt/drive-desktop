@@ -23,4 +23,5 @@ contextBridge.exposeInMainWorld('electron', {
       }
     },
   },
+  env: { ...process.env },
 });
