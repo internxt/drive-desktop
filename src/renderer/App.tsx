@@ -4,17 +4,11 @@ import {
   Routes,
   Route,
   useLocation,
-  Link,
 } from 'react-router-dom';
-import './App.css';
 
-const Hello = () => {
-  return (
-    <div>
-      <Link to="/another">Hey</Link>
-    </div>
-  );
-};
+import Login from './pages/Login';
+
+import './App.css';
 
 function LocationWrapper({ children }: { children: JSX.Element }) {
   const { pathname } = useLocation();
@@ -31,8 +25,7 @@ export default function App() {
     <Router>
       <LocationWrapper>
         <Routes>
-          <Route path="/" element={<Hello />} />
-          <Route path="/another" element={<Hello />} />
+          <Route path="/" element={<Login />} />
         </Routes>
       </LocationWrapper>
     </Router>

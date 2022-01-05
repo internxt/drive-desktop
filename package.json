@@ -1,5 +1,6 @@
 {
   "name": "electron-react-boilerplate",
+  "version": "1.6.0",
   "description": "Electron application boilerplate based on React, React Router, Webpack, React Fast Refresh for rapid application development",
   "scripts": {
     "build": "concurrently \"npm run build:main\" \"npm run build:renderer\"",
@@ -160,6 +161,7 @@
   },
   "devDependencies": {
     "@pmmmwh/react-refresh-webpack-plugin": "0.5.4",
+    "@svgr/webpack": "^6.1.2",
     "@teamsupercell/typings-for-css-modules-loader": "^2.5.1",
     "@testing-library/jest-dom": "^5.16.1",
     "@testing-library/react": "^12.1.2",
@@ -236,6 +238,7 @@
     "electron-updater": "^4.6.4",
     "history": "^5.2.0",
     "react": "^17.0.2",
+    "react-auth-code-input": "^2.0.0",
     "react-dom": "^17.0.2",
     "react-router-dom": "^6.2.1",
     "regenerator-runtime": "^0.13.9"

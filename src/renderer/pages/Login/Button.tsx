@@ -1,0 +1,48 @@
+import Spinner from '../../assets/spinner.svg';
+
+type ButtonProps = {
+  state: 'ready' | 'loading' | 'disabled';
+  className: string;
+  onClick: () => void;
+};
+
+export default function Button({
+  state,
+  className = '',
+  onClick,
+}: ButtonProps) {
+  let colors;
+
+  switch (state) {
+    case 'ready':
+      colors = 'bg-blue-60 text-white';
+      break;
+    case 'disabled':
+      colors = 'bg-blue-30 text-blue-10';
+      break;
+    case 'loading':
+      colors = 'bg-blue-70 text-blue-30';
+      break;
+    default:
+      // eslint-disable-next-line
+      const _exhaustiveChecking: never = state;
+  }
+
+  return (
+    <button
+      className={`w-full block h-10 rounded-lg font-medium relative ${colors} ${className}`}
+      type="submit"
+      onClick={onClick}
+      disabled={state !== 'ready'}
+    >
+      {state === 'loading' ? 'Logging in...' : 'Login'}
+      {state === 'loading' && (
+        <div className="absolute top-1/2 transform -translate-y-1/2 right-4">
+          <div className=" animate-spin">
+            <Spinner width="18" height="18" />
+          </div>
+        </div>
+      )}
+    </button>
+  );
+}

@@ -1,3 +1,40 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* TEXT */
+@font-face {
+  font-family: 'NeueEinstellung';
+  font-weight: 400;
+  font-style: normal;
+  font-display: auto;
+  src: url(./assets/fonts/NeueEinstellung-Regular.ttf) format('truetype');
+}
+
+@font-face {
+  font-family: 'NeueEinstellung';
+  font-weight: 500;
+  font-style: normal;
+  font-display: auto;
+  src: url(./assets/fonts/NeueEinstellung-Medium.ttf) format('truetype');
+}
+
+@font-face {
+  font-family: 'NeueEinstellung';
+  font-weight: 600;
+  font-style: normal;
+  font-display: auto;
+  src: url(./assets/fonts/NeueEinstellung-Semibold.ttf) format('truetype');
+}
+
+@font-face {
+  font-family: 'NeueEinstellung';
+  font-weight: 700;
+  font-style: normal;
+  font-display: auto;
+  src: url(./assets/fonts/NeueEinstellung-Bold.ttf) format('truetype');
+}
+
+* {
+  font-family: 'NeueEinstellung', sans-serif;
+}
