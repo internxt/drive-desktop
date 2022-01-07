@@ -593,6 +593,22 @@ app.on('logged-in', startBackgroundProcesses)
 function startBackgroundProcesses() {
   checkUpdates()
 
+  // Check if we should launch sync process
+
+  const lastSync = ConfigStore.get('lastSync')
+
+  if (lastSync !== -1) {
+    const currentTimestamp = new Date().valueOf()
+
+    const millisecondsToNextSync = lastSync + SYNC_INTERVAL - currentTimestamp
+
+    if (millisecondsToNextSync <= 0) {
+      startSyncProcess()
+    } else {
+      syncProcessRerun = setTimeout(startSyncProcess, millisecondsToNextSync)
+    }
+  }
+
   // Check if we should launch backup process
 
   const backupInterval = ConfigStore.get('backupInterval')
@@ -614,22 +630,6 @@ function startBackgroundProcesses() {
     }
   }
 
-  // Check if we should launch sync process
-
-  const lastSync = ConfigStore.get('lastSync')
-
-  if (lastSync !== -1) {
-    const currentTimestamp = new Date().valueOf()
-
-    const millisecondsToNextSync = lastSync + SYNC_INTERVAL - currentTimestamp
-
-    if (millisecondsToNextSync <= 0) {
-      startSyncProcess()
-    } else {
-      syncProcessRerun = setTimeout(startSyncProcess, millisecondsToNextSync)
-    }
-  }
-
   // Check updates every 6 hours
   setInterval(() => {
     checkUpdates()
@@ -647,7 +647,7 @@ function waitForSyncToFinish() {
   })
 }
 
-async function startBackupProcess({ avoidRunningWithSync = true }) {
+async function startBackupProcess(avoidRunningWithSync = true) {
   if (avoidRunningWithSync) await waitForSyncToFinish()
 
   const backupsAreEnabled = ConfigStore.get('backupsEnabled')
@@ -724,9 +724,7 @@ async function startBackupProcess({ avoidRunningWithSync = true }) {
   }
 }
 
-ipcMain.on('start-backup-process', () =>
-  startBackupProcess({ avoidRunningWithSync: false })
-)
+ipcMain.on('start-backup-process', () => startBackupProcess(false))
 
 ipcMain.handle('get-backup-status', () => backupProcessStatus)
 
@@ -775,7 +773,7 @@ function notifyBackupProcessWithNoConnection() {
   notification.show()
 
   notification.on('click', () => {
-    startBackupProcess({ avoidRunningWithSync: false })
+    startBackupProcess(false)
   })
 }
 
