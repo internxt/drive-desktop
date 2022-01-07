@@ -4,6 +4,7 @@ import {
   Routes,
   Route,
   useLocation,
+  useNavigate,
 } from 'react-router-dom';
 
 import Login from './pages/Login';
@@ -20,13 +21,33 @@ function LocationWrapper({ children }: { children: JSX.Element }) {
   return children;
 }
 
+function LoggedInWrapper({ children }: { children: JSX.Element }) {
+  const navigate = useNavigate();
+
+  function onUserLoggedInChanged(value: boolean) {
+    if (!value) navigate('/login');
+    else navigate('/');
+  }
+  useEffect(() => {
+    window.electron.onUserLoggedInChanged(onUserLoggedInChanged);
+    window.electron.isUserLoggedIn().then(onUserLoggedInChanged);
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  return children;
+}
+
 export default function App() {
   return (
     <Router>
       <LocationWrapper>
-        <Routes>
-          <Route path="/" element={<Login />} />
-        </Routes>
+        <LoggedInWrapper>
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route path="/" element={<div>Logged in</div>} />
+          </Routes>
+        </LoggedInWrapper>
       </LocationWrapper>
     </Router>
   );

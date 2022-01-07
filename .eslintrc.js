@@ -9,6 +9,8 @@ module.exports = {
     'global-require': 'off',
     'react/require-default-props': 'off',
     'no-nested-ternary': 'off',
+    'no-restricted-syntax': 'off',
+    'promise/catch-or-return': 'off',
   },
   parserOptions: {
     ecmaVersion: 2020,

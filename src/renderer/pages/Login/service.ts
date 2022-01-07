@@ -25,7 +25,7 @@ export function hashPassword(password: string, sKey: string): string {
   return encryptedHash;
 }
 
-type AccessResponse = {
+export type AccessResponse = {
   newToken: string;
   token: string;
   user: User;

@@ -16,6 +16,8 @@ import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
+import * as Auth from './auth';
+import { AccessResponse } from '../renderer/pages/Login/service';
 
 require('dotenv').config();
 
@@ -28,12 +30,6 @@ export default class AppUpdater {
 }
 
 let mainWindow: BrowserWindow | null = null;
-
-ipcMain.on('ipc-example', async (event, arg) => {
-  const msgTemplate = (pingPong: string) => `IPC test: ${pingPong}`;
-  console.log(msgTemplate(arg));
-  event.reply('ipc-example', msgTemplate('pong'));
-});
 
 if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support');
@@ -145,3 +141,29 @@ ipcMain.on('path-changed', (_, pathname) =>
 export function onUserUnauthorized() {}
 
 ipcMain.on('user-is-unauthorized', onUserUnauthorized);
+
+// Logged In handling
+
+let isLoggedIn: boolean;
+
+function setIsLoggedIn(value: boolean) {
+  isLoggedIn = value;
+  if (mainWindow) mainWindow.webContents.send('user-logged-in-changed', value);
+}
+
+ipcMain.handle('is-user-logged-in', () => isLoggedIn);
+
+setIsLoggedIn(!!Auth.getUser());
+
+// Login handling
+
+ipcMain.on('user-logged-in', (_, data: AccessResponse) => {
+  Auth.setCredentials(data.user, data.user.mnemonic, data.token);
+  if (!Auth.canHisConfigBeRestored(data.user.uuid)) {
+    // setupRootFolder()
+  }
+
+  setIsLoggedIn(true);
+
+  // startBackgroundProcesses()
+});

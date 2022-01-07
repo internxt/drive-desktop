@@ -7,21 +7,15 @@ contextBridge.exposeInMainWorld('electron', {
   userIsUnauthorized() {
     ipcRenderer.send('user-is-unauthorized');
   },
-  ipcRenderer: {
-    on(channel, func) {
-      const validChannels = ['ipc-example'];
-      if (validChannels.includes(channel)) {
-        // Deliberately strip event as it includes `sender`
-        ipcRenderer.on(channel, (event, ...args) => func(...args));
-      }
-    },
-    once(channel, func) {
-      const validChannels = ['ipc-example'];
-      if (validChannels.includes(channel)) {
-        // Deliberately strip event as it includes `sender`
-        ipcRenderer.once(channel, (event, ...args) => func(...args));
-      }
-    },
+  userLoggedIn(data) {
+    return ipcRenderer.send('user-logged-in', data);
   },
+  isUserLoggedIn() {
+    return ipcRenderer.invoke('is-user-logged-in');
+  },
+  onUserLoggedInChanged(func) {
+    return ipcRenderer.on('user-logged-in-changed', (_, v) => func(v));
+  },
+
   env: { ...process.env },
 });

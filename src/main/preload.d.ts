@@ -4,6 +4,14 @@ declare interface Window {
 
     userIsUnauthorized(): void;
 
+    userLoggedIn(
+      data: import('../renderer/pages/Login/service').AccessResponse
+    ): void;
+
+    isUserLoggedIn(): Promise<boolean>;
+
+    onUserLoggedInChanged(func: (value: boolean) => void): void;
+
     env: typeof process.env;
   };
 }

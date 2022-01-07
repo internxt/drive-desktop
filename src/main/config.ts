@@ -1,8 +1,15 @@
 import Store, { Schema } from 'electron-store';
 import { User } from './types';
-/**
- * Global user config file
- */
+
+// Fields to persist between user sessions
+export const fieldsToSave = [
+  'backupsEnabled',
+  'backupInterval',
+  'lastBackup',
+  'syncRoot',
+  'lastSavedListing',
+  'lastSync',
+] as const;
 
 interface ConfigStore {
   limit: number;
@@ -17,80 +24,72 @@ interface ConfigStore {
   syncRoot: string;
   lastSavedListing: string;
   lastSync: number;
-  savedConfigs: Record<
-    string,
-    Pick<
-      ConfigStore,
-      | 'backupsEnabled'
-      | 'backupInterval'
-      | 'lastBackup'
-      | 'syncRoot'
-      | 'lastSavedListing'
-      | 'lastSync'
-    >
-  >;
+  savedConfigs: Record<string, Pick<ConfigStore, typeof fieldsToSave[number]>>;
   lastOnboardingShown: string;
 }
 
 const schema: Schema<ConfigStore> = {
   limit: {
     type: 'number',
-    default: -1,
   },
   usage: {
     type: 'number',
-    default: -1,
   },
   autoLaunch: {
     type: 'boolean',
-    default: true,
   },
   bearerToken: {
     type: 'string',
-    default: '',
   },
   userData: {
     type: 'object',
-    default: {},
   },
   mnemonic: {
     type: 'string',
-    default: '',
   },
   backupsEnabled: {
     type: 'boolean',
-    default: false,
   },
   backupInterval: {
     type: 'number',
-    default: 24 * 3600 * 1000,
   },
   lastBackup: {
     type: 'number',
-    default: -1,
   },
   syncRoot: {
     type: 'string',
-    default: '',
   },
   lastSavedListing: {
     type: 'string',
-    default: '',
   },
   lastSync: {
     type: 'number',
-    default: -1,
   },
   savedConfigs: {
     type: 'object',
-    default: {},
   },
   lastOnboardingShown: {
     type: 'string',
-    default: '',
   },
 } as const;
 
-const configStore = new Store({ schema });
+export const defaults: ConfigStore = {
+  limit: -1,
+  usage: -1,
+  autoLaunch: true,
+  bearerToken: '',
+  userData: {} as User,
+  mnemonic: '',
+  backupsEnabled: false,
+  backupInterval: 24 * 3600 * 1000,
+  lastBackup: -1,
+  syncRoot: '',
+  lastSavedListing: '',
+  lastSync: -1,
+  savedConfigs: {},
+  lastOnboardingShown: '',
+};
+
+const configStore = new Store({ schema, defaults });
 
 export default configStore;

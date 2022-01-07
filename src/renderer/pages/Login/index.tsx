@@ -28,6 +28,7 @@ export default function Login() {
 
     try {
       const res = await accessRequest(email, encryptedHash, twoFA);
+      window.electron.userLoggedIn(res);
     } catch (err) {
       const { message } = err as Error;
       const phaseToSet =
