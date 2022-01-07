@@ -1,4 +1,5 @@
 import CryptoJS from 'crypto-js';
+import { User } from '../../../main/types';
 
 export function hashPassword(password: string, sKey: string): string {
   const reb = CryptoJS.enc.Hex.parse(sKey);
@@ -24,11 +25,17 @@ export function hashPassword(password: string, sKey: string): string {
   return encryptedHash;
 }
 
+type AccessResponse = {
+  newToken: string;
+  token: string;
+  user: User;
+};
+
 export async function accessRequest(
   email: string,
   password: string,
   tfa?: string
-) {
+): Promise<AccessResponse> {
   const fallbackErrorMessage = 'Error while logging in';
 
   let accessRes;
@@ -48,6 +55,8 @@ export async function accessRequest(
     const errorMessage = body.error ?? fallbackErrorMessage;
     throw new Error(errorMessage);
   }
+
+  return accessRes.json();
 }
 
 export async function loginRequest(email: string): Promise<{

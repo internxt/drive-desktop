@@ -27,7 +27,7 @@ export default function Login() {
     const encryptedHash = hashPassword(password, sKey.current);
 
     try {
-      await accessRequest(email, encryptedHash, twoFA);
+      const res = await accessRequest(email, encryptedHash, twoFA);
     } catch (err) {
       const { message } = err as Error;
       const phaseToSet =
