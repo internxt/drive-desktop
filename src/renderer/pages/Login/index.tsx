@@ -29,8 +29,13 @@ export default function Login() {
     try {
       await accessRequest(email, encryptedHash, twoFA);
     } catch (err) {
+      const { message } = err as Error;
+      const phaseToSet =
+        message === 'Wrong 2-factor auth code' ? '2fa' : 'credentials';
+
       setState('error');
-      setErrorDetails((err as Error).message);
+      setPhase(phaseToSet);
+      setErrorDetails(message);
     }
   }
 
@@ -75,6 +80,7 @@ export default function Login() {
         label="Email address"
         onChange={setEmail}
         type="email"
+        value={email}
       />
       <Input
         className="mt-2"
@@ -82,6 +88,7 @@ export default function Login() {
         label="Password"
         onChange={setPassword}
         type="password"
+        value={password}
       />
       <a
         href="https://drive.internxt.com/remove"

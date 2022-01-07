@@ -3,6 +3,7 @@ import { useState } from 'react';
 type InputProps = {
   type: 'password' | 'email';
   label: string;
+  value: string;
   state: 'ready' | 'loading' | 'error';
   className?: string;
   onChange: (value: string) => void;
@@ -14,6 +15,7 @@ export default function Input({
   onChange,
   className = '',
   state,
+  value,
 }: InputProps) {
   const [isFocused, setIsFocused] = useState(false);
 
@@ -59,6 +61,7 @@ export default function Input({
           onChange={(e) => onChange(e.target.value)}
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
+          value={value}
         />
         {type === 'password' && isFocused && (
           <div
