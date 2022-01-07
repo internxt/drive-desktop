@@ -23,7 +23,7 @@ class Sync extends EventEmitter {
     this.emit('CHECKING_LAST_RUN_OUTCOME')
     const lastSavedListing = await this.listingStore.getLastSavedListing()
 
-    Logger.log('Last saved listing:', lastSavedListing)
+    Logger.debug('Last saved listing:', lastSavedListing)
 
     if (!lastSavedListing) return this.resync()
 
@@ -33,14 +33,14 @@ class Sync extends EventEmitter {
       emitErrors: true
     })
 
-    Logger.log('Current local before', currentLocal)
-    Logger.log('Current remote before', currentRemote)
+    Logger.debug('Current local before', currentLocal)
+    Logger.debug('Current remote before', currentRemote)
 
     const deltasLocal = this.generateDeltas(lastSavedListing, currentLocal)
     const deltasRemote = this.generateDeltas(lastSavedListing, currentRemote)
 
-    Logger.log('Local deltas', deltasLocal)
-    Logger.log('Remote deltas', deltasRemote)
+    Logger.debug('Local deltas', deltasLocal)
+    Logger.debug('Remote deltas', deltasRemote)
 
     const {
       renameInLocal,
@@ -58,12 +58,12 @@ class Sync extends EventEmitter {
 
     await this.listingStore.removeSavedListing()
 
-    Logger.log('Queue rename in local', renameInLocal)
-    Logger.log('Queue rename in remote', renameInRemote)
-    Logger.log('Queue pull from local', pullFromLocal)
-    Logger.log('Queue pull from remote', pullFromRemote)
-    Logger.log('Queue delete from local', deleteInLocal)
-    Logger.log('Queue delete from remote', deleteInRemote)
+    Logger.debug('Queue rename in local', renameInLocal)
+    Logger.debug('Queue rename in remote', renameInRemote)
+    Logger.debug('Queue pull from local', pullFromLocal)
+    Logger.debug('Queue pull from remote', pullFromRemote)
+    Logger.debug('Queue delete from local', deleteInLocal)
+    Logger.debug('Queue delete from remote', deleteInRemote)
 
     await Promise.all([
       this.consumeRenameQueue(renameInLocal, this.local),
@@ -101,8 +101,8 @@ class Sync extends EventEmitter {
       emitErrors: true
     })
 
-    Logger.log('Current local before', currentLocal)
-    Logger.log('Current remote before', currentRemote)
+    Logger.debug('Current local before', currentLocal)
+    Logger.debug('Current remote before', currentRemote)
 
     const {
       filesNotInLocal: pullFromLocal,
@@ -110,29 +110,17 @@ class Sync extends EventEmitter {
       filesWithDifferentModtime
     } = this.getListingsDiff(currentLocal, currentRemote)
 
-    const renameInLocal: [string, string][] = []
-    const renameInRemote: [string, string][] = []
-
     for (const name of filesWithDifferentModtime) {
-      const localRenamed = this.rename(name, 'local')
-      const remoteRenamed = this.rename(name, 'remote')
+      const modtimeInLocal = currentLocal[name]
+      const modtimeInRemote = currentRemote[name]
 
-      renameInLocal.push([name, localRenamed])
-      renameInRemote.push([name, remoteRenamed])
-
-      pullFromLocal.push(remoteRenamed)
-      pullFromRemote.push(localRenamed)
+      if (modtimeInLocal < modtimeInRemote) pullFromLocal.push(name)
+      else pullFromRemote.push(name)
     }
 
-    Logger.log('Queue rename in local', renameInLocal)
-    Logger.log('Queue rename in remote', renameInRemote)
-    Logger.log('Queue pull from local', pullFromLocal)
-    Logger.log('Queue pull from remote', pullFromRemote)
+    Logger.debug('Queue pull from local', pullFromLocal)
+    Logger.debug('Queue pull from remote', pullFromRemote)
 
-    await Promise.all([
-      this.consumeRenameQueue(renameInLocal, this.local),
-      this.consumeRenameQueue(renameInRemote, this.remote)
-    ])
     await Promise.all([
       this.consumePullQueue(pullFromLocal, this.local, this.remote),
       this.consumePullQueue(pullFromRemote, this.remote, this.local)
@@ -161,15 +149,12 @@ class Sync extends EventEmitter {
     const deleteInLocal: string[] = []
     const deleteInRemote: string[] = []
 
-    const renameAndKeepBoth = (name: string) => {
-      const localRenamed = this.rename(name, 'local')
-      const remoteRenamed = this.rename(name, 'remote')
+    const keepMostRecent = (name: string) => {
+      const modtimeInLocal = currentLocalListing[name]
+      const modtimeInRemote = currentRemoteListing[name]
 
-      renameInLocal.push([name, localRenamed])
-      renameInRemote.push([name, remoteRenamed])
-
-      pullFromLocal.push(remoteRenamed)
-      pullFromRemote.push(localRenamed)
+      if (modtimeInLocal < modtimeInRemote) pullFromLocal.push(name)
+      else pullFromRemote.push(name)
     }
 
     for (const [name, deltaLocal] of Object.entries(deltasLocal)) {
@@ -179,7 +164,7 @@ class Sync extends EventEmitter {
         currentLocalListing[name] === currentRemoteListing[name]
 
       if (deltaLocal === 'NEW' && deltaRemote === 'NEW' && !sameModTime) {
-        renameAndKeepBoth(name)
+        keepMostRecent(name)
       }
 
       if (deltaLocal === 'NEW' && doesntExistInRemote) {
@@ -187,7 +172,7 @@ class Sync extends EventEmitter {
       }
 
       if (deltaLocal === 'NEWER' && deltaRemote === 'NEWER' && !sameModTime) {
-        renameAndKeepBoth(name)
+        keepMostRecent(name)
       }
 
       if (
@@ -198,7 +183,7 @@ class Sync extends EventEmitter {
       }
 
       if (deltaLocal === 'NEWER' && deltaRemote === 'OLDER') {
-        renameAndKeepBoth(name)
+        pullFromRemote.push(name)
       }
 
       if (
@@ -213,7 +198,7 @@ class Sync extends EventEmitter {
       }
 
       if (deltaLocal === 'OLDER' && deltaRemote === 'NEWER') {
-        renameAndKeepBoth(name)
+        pullFromLocal.push(name)
       }
 
       if (
@@ -224,7 +209,7 @@ class Sync extends EventEmitter {
       }
 
       if (deltaLocal === 'OLDER' && deltaRemote === 'OLDER' && !sameModTime) {
-        renameAndKeepBoth(name)
+        keepMostRecent(name)
       }
 
       if (
@@ -470,14 +455,14 @@ class Sync extends EventEmitter {
 
     if (_.isEqual(currentLocal, currentRemote)) {
       const currentInBoth = currentLocal
-      Logger.log('Current in both:', currentInBoth)
+      Logger.debug('Current in both:', currentInBoth)
 
       await this.listingStore.saveListing(currentInBoth)
 
       this.emit('DONE', { status: 'IN_SYNC' })
     } else {
-      Logger.log('Current local:', currentLocal)
-      Logger.log('Current remote:', currentRemote)
+      Logger.debug('Current local:', currentLocal)
+      Logger.debug('Current remote:', currentRemote)
 
       const diff = this.getListingsDiff(currentLocal, currentRemote)
       this.emit('DONE', { status: 'NOT_IN_SYNC', diff })

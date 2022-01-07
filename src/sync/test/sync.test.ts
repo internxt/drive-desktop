@@ -151,39 +151,24 @@ describe('sync tests', () => {
     } = setupEventSpies(sync)
 
     const spyRemotePull = jest.spyOn(remote, 'pullFile')
-    const spyRemoteRename = jest.spyOn(remote, 'renameFile')
 
     const spyLocalPull = jest.spyOn(local, 'pullFile')
-    const spyLocalRename = jest.spyOn(local, 'renameFile')
 
     await sync.run()
 
-    expect(spyRemoteRename).toBeCalledWith(
-      'folder/nested/existInBoth.txt',
-      'folder/nested/existInBoth_remote.txt'
-    )
     expect(spyRemotePull).toHaveBeenCalledWith(
       'notExistInRemote',
       expect.anything(),
       expect.anything()
     )
-    expect(spyRemotePull).toHaveBeenCalledWith(
-      'folder/nested/existInBoth_local.txt',
+    expect(spyLocalPull).toHaveBeenCalledWith(
+      'folder/nested/existInBoth.txt',
       expect.anything(),
       expect.anything()
     )
 
-    expect(spyLocalRename).toBeCalledWith(
-      'folder/nested/existInBoth.txt',
-      'folder/nested/existInBoth_local.txt'
-    )
     expect(spyLocalPull).toHaveBeenCalledWith(
       'notExistInLocal',
-      expect.anything(),
-      expect.anything()
-    )
-    expect(spyLocalPull).toHaveBeenCalledWith(
-      'folder/nested/existInBoth_remote.txt',
       expect.anything(),
       expect.anything()
     )
@@ -192,12 +177,12 @@ describe('sync tests', () => {
     expect(checkingLastRunCB).toBeCalledTimes(1)
     expect(needResyncCB).toBeCalledTimes(1)
     expect(generatingActionsCB).toBeCalledTimes(0)
-    expect(pullingFileCB).toBeCalledTimes(4)
-    expect(pulledFileCB).toBeCalledTimes(4)
+    expect(pullingFileCB).toBeCalledTimes(3)
+    expect(pulledFileCB).toBeCalledTimes(3)
     expect(deletingFileCB).toBeCalledTimes(0)
     expect(deletedFileCB).toBeCalledTimes(0)
-    expect(renamingFileCB).toBeCalledTimes(2)
-    expect(renamedFileCB).toBeCalledTimes(2)
+    expect(renamingFileCB).toBeCalledTimes(0)
+    expect(renamedFileCB).toBeCalledTimes(0)
     expect(finalizingCB).toBeCalledTimes(1)
     expect(doneCB).toBeCalledTimes(1)
   })
@@ -236,7 +221,7 @@ describe('sync tests', () => {
             'new/new/different': 4,
             'new/new/same': 4,
             'new/noexist': 43,
-            'newer/newer/different': 5,
+            'newer/newer/different': 6,
             'newer/newer/same': 5,
             'newer/deleted': 6,
             'newer/older': 6,
@@ -263,7 +248,7 @@ describe('sync tests', () => {
           listing: {
             'new/new/different': 5,
             'new/new/same': 4,
-            'newer/newer/different': 6,
+            'newer/newer/different': 5,
             'newer/newer/same': 5,
             'newer/older': 4,
             'newer/unchanged': 4,
@@ -297,46 +282,37 @@ describe('sync tests', () => {
       deletedFileCB,
       deletingFolderCB,
       deletedFolderCB,
-      renamingFileCB,
-      renamedFileCB,
       finalizingCB,
       doneCB
     } = setupEventSpies(sync)
 
     const spyRemotePull = jest.spyOn(remote, 'pullFile')
-    const spyRemoteRename = jest.spyOn(remote, 'renameFile')
     const spyRemoteDelete = jest.spyOn(remote, 'deleteFile')
     const spyRemoteDeleteFolder = jest.spyOn(remote, 'deleteFolder')
 
     const spyLocalPull = jest.spyOn(local, 'pullFile')
-    const spyLocalRename = jest.spyOn(local, 'renameFile')
     const spyLocalDelete = jest.spyOn(local, 'deleteFile')
     const spyLocalDeleteFolder = jest.spyOn(local, 'deleteFolder')
 
     await sync.run()
 
     const expectPullRemote = [
-      'new/new/different_local',
       'new/noexist',
-      'newer/newer/different_local',
       'newer/deleted',
       'newer/unchanged',
-      'newer/older_local',
+      'newer/older',
       'older/deleted',
-      'older/newer_local',
-      'older/older/different_local',
+      'older/older/different',
+      'newer/newer/different',
       'older/unchanged'
     ]
     const expectPullLocal = [
-      'new/new/different_remote',
+      'new/new/different',
       'noexist/new',
-      'newer/newer/different_remote',
       'deleted/newer',
-      'newer/older_remote',
+      'older/newer',
       'unchanged/newer',
-      'older/newer_remote',
       'deleted/older',
-      'older/older/different_remote',
       'unchanged/older'
     ]
     const notExpectPullRemote = [
@@ -382,28 +358,6 @@ describe('sync tests', () => {
       )
     )
 
-    const expectRenameRemote = [
-      ['new/new/different', 'new/new/different_remote'],
-      ['newer/newer/different', 'newer/newer/different_remote'],
-      ['older/older/different', 'older/older/different_remote'],
-      ['newer/older', 'newer/older_remote'],
-      ['older/newer', 'older/newer_remote']
-    ]
-    const expectRenameLocal = [
-      ['new/new/different', 'new/new/different_local'],
-      ['newer/newer/different', 'newer/newer/different_local'],
-      ['older/older/different', 'older/older/different_local'],
-      ['newer/older', 'newer/older_local'],
-      ['newer/older', 'newer/older_local']
-    ]
-
-    expectRenameLocal.forEach(args =>
-      expect(spyLocalRename).toBeCalledWith(...args)
-    )
-    expectRenameRemote.forEach(args =>
-      expect(spyRemoteRename).toBeCalledWith(...args)
-    )
-
     expect(spyLocalDelete).not.toBeCalledWith('deleted/deleted')
     expect(spyRemoteDelete).not.toBeCalledWith('deleted/deleted')
 
@@ -427,10 +381,6 @@ describe('sync tests', () => {
 
     expect(deletingFolderCB).toBeCalledTimes(1)
     expect(deletedFolderCB).toBeCalledTimes(1)
-
-    const expectedRenames = expectRenameLocal.length + expectRenameRemote.length
-    expect(renamingFileCB).toBeCalledTimes(expectedRenames)
-    expect(renamedFileCB).toBeCalledTimes(expectedRenames)
 
     expect(finalizingCB).toBeCalledTimes(1)
     expect(doneCB).toBeCalledTimes(1)
@@ -502,7 +452,7 @@ describe('sync tests', () => {
       aa: 2,
       b: 2,
 
-      c: 2,
+      c: 1,
       cc: 2,
       d: 2,
       e: 2,
@@ -510,7 +460,7 @@ describe('sync tests', () => {
 
       k: 2,
       m: 2,
-      n: 2,
+      n: 1,
       nn: 2,
       l: 2,
 
@@ -525,9 +475,9 @@ describe('sync tests', () => {
       aa: 2,
       b: 2,
 
-      c: 1,
+      c: 2,
       cc: 2,
-      e: 2,
+      e: 1,
       f: 2,
 
       g: 2,
@@ -535,8 +485,8 @@ describe('sync tests', () => {
       i: 2,
       j: 2,
 
-      k: 2,
-      n: 1,
+      k: 3,
+      n: 2,
       nn: 2,
       l: 2,
 
@@ -604,8 +554,6 @@ describe('sync tests', () => {
     const {
       pullFromLocal,
       pullFromRemote,
-      renameInLocal,
-      renameInRemote,
       deleteInLocal,
       deleteInRemote
     } = sync['generateActionQueues'](
@@ -616,51 +564,10 @@ describe('sync tests', () => {
     )
 
     expect(pullFromLocal.sort()).toEqual(
-      [
-        'a_remote',
-        'c_remote',
-        'e_remote',
-        'g',
-        'i',
-        'k_remote',
-        'n_remote',
-        'o',
-        'q',
-        's'
-      ].sort()
+      ['c', 'g', 'i', 'n', 'k', 'o', 'q', 's'].sort()
     )
     expect(pullFromRemote.sort()).toEqual(
-      [
-        'a_local',
-        'c_local',
-        'e_local',
-        'k_local',
-        'n_local',
-        'b',
-        'd',
-        'f',
-        'm',
-        'l'
-      ].sort()
-    )
-
-    expect(renameInLocal.sort()).toEqual(
-      [
-        ['a', 'a_local'],
-        ['c', 'c_local'],
-        ['e', 'e_local'],
-        ['k', 'k_local'],
-        ['n', 'n_local']
-      ].sort()
-    )
-    expect(renameInRemote.sort()).toEqual(
-      [
-        ['a', 'a_remote'],
-        ['c', 'c_remote'],
-        ['e', 'e_remote'],
-        ['k', 'k_remote'],
-        ['n', 'n_remote']
-      ].sort()
+      ['a', 'b', 'e', 'd', 'f', 'm', 'l'].sort()
     )
 
     expect(deleteInLocal).toEqual(['p'])

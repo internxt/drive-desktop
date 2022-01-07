@@ -79,7 +79,10 @@ export default {
       }
 
       if (this.showUpdatedJustNow) {
-        setTimeout(() => (this.showUpdatedJustNow = false), 30 * 1000)
+        this.showUpdatedJustNowTimeout = setTimeout(
+          () => (this.showUpdatedJustNow = false),
+          30 * 1000
+        )
       }
     },
     onStartClick() {

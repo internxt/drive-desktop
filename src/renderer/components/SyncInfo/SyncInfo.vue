@@ -20,7 +20,7 @@
           size="32"
           class="flex-shrink-0 flex-grow-0"
         />
-        <div class="ml-2 flex-shrink flex-grow">
+        <div class="ml-2 flex-shrink flex-grow min-w-0">
           <p class="text-sm truncate mt-1">
             {{ item.name | showOnlyFilename }}
           </p>
@@ -63,6 +63,7 @@ import path from 'path'
 import FileIconWithOperation from '../Icons/FileIconWithOperation.vue'
 import { shortMessages } from '../../../sync/sync-error-messages'
 import { ipcRenderer } from 'electron'
+import syncStatus from '../../../sync/sync-status'
 const app = require('@electron/remote').app
 
 export default {
@@ -79,10 +80,12 @@ export default {
   },
   mounted() {
     app.on('SYNC_INFO_UPDATE', this.onInfoUpdate)
+    app.on('sync-status-changed', this.onSyncStatusChanged)
     app.on('SYNC_NEXT', this.onNext)
   },
   beforeDestroy() {
     app.removeListener('SYNC_INFO_UPDATE', this.onInfoUpdate)
+    app.removeListener('sync-status-changed', this.onSyncStatusChanged)
     app.removeListener('SYNC_NEXT', this.onNext)
   },
   methods: {
@@ -113,8 +116,11 @@ export default {
         this.items = itemsCopy
       }
     },
+    onSyncStatusChanged(newStatus) {
+      if (newStatus === syncStatus.RUNNING) this.items = []
+    },
     onNext() {
-      this.items = []
+      this.items = this.items.filter(item => item.progress === undefined)
     },
     clear() {},
     getStatusMessage(item) {

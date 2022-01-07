@@ -136,7 +136,7 @@ function checkThatItExists(path) {
 }
 
 function getZipStream(backupPath) {
-  const archive = archiver('zip', { zlib: { level: 9 } })
+  const archive = archiver('zip', { store: true })
 
   archive.directory(backupPath, false)
 
@@ -147,7 +147,7 @@ function getZipStream(backupPath) {
 
 function zipAndHash(backupPath, fileEncryptionKey, index) {
   return new Promise((resolve, reject) => {
-    const archive = archiver('zip', { zlib: { level: 9 } })
+    const archive = archiver('zip', { store: true })
 
     archive.directory(backupPath, false)
 
@@ -161,7 +161,7 @@ function zipAndHash(backupPath, fileEncryptionKey, index) {
 
     const encryptedHasher = new Environment.utils.Hasher()
 
-    pipeline(archive, hasher, cypher, encryptedHasher, console.log)
+    pipeline(archive, hasher, cypher, encryptedHasher, () => undefined)
       .on('data', () => {})
       .on('end', () => {
         const plainHash = hasher.getHash().toString('hex')
