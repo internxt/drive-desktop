@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 
+import { UilMultiply } from '@iconscout/react-unicons';
+
 import packageJson from '../../../../package.json';
 import Button from './Button';
 import ErrorBanner from './ErrorBanner';
@@ -167,10 +169,19 @@ export default function Login() {
   );
 
   return (
-    <div className="bg-l-neutral-10 h-screen overflow-hidden p-6">
-      <div className="h-24">
+    <div className="bg-l-neutral-10 h-screen overflow-hidden p-6 relative">
+      <div
+        className="cursor-pointer absolute right-2 top-2"
+        role="button"
+        tabIndex={0}
+        onKeyDown={window.electron.closeWindow}
+        onClick={window.electron.closeWindow}
+      >
+        <UilMultiply className="h-5 w-5" />
+      </div>
+      <div className="h-28">
         <div className="flex flex-col items-center">
-          <h1 className="mt-8 text-xl font-semibold text-neutral-700">
+          <h1 className="mt-12 text-xl font-semibold text-neutral-700">
             Internxt Drive
           </h1>
           <h2 className="text-supporting-1 font-semibold text-m-neutral-60">

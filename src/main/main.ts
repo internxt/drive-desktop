@@ -116,6 +116,10 @@ const createWidget = async () => {
     shell.openExternal(url);
   });
 
+  widget.webContents.on('ipc-message', (_, channel) => {
+    if (channel === 'user-closed-window') widget?.close();
+  });
+
   // Remove this if your app does not use auto updates
   // eslint-disable-next-line
   new AppUpdater();

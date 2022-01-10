@@ -14,6 +14,8 @@ declare interface Window {
 
     logout(): void;
 
+    closeWindow(): void;
+
     env: typeof process.env;
   };
 }

@@ -19,6 +19,9 @@ contextBridge.exposeInMainWorld('electron', {
   logout() {
     return ipcRenderer.send('user-logged-out');
   },
+  closeWindow() {
+    return ipcRenderer.send('user-closed-window');
+  },
 
   env: { ...process.env },
 });
