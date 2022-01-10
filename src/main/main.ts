@@ -18,6 +18,7 @@ import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
 import * as Auth from './auth';
 import { AccessResponse } from '../renderer/pages/Login/service';
+import { setupRootFolder } from './root-folder';
 
 require('dotenv').config();
 
@@ -160,7 +161,7 @@ setIsLoggedIn(!!Auth.getUser());
 ipcMain.on('user-logged-in', (_, data: AccessResponse) => {
   Auth.setCredentials(data.user, data.user.mnemonic, data.token);
   if (!Auth.canHisConfigBeRestored(data.user.uuid)) {
-    // setupRootFolder()
+    setupRootFolder();
   }
 
   setIsLoggedIn(true);

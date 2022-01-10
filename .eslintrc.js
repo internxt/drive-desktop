@@ -11,6 +11,7 @@ module.exports = {
     'no-nested-ternary': 'off',
     'no-restricted-syntax': 'off',
     'promise/catch-or-return': 'off',
+    'import/prefer-default-export': 'off',
   },
   parserOptions: {
     ecmaVersion: 2020,
