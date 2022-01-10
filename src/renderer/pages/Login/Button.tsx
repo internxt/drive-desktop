@@ -3,14 +3,9 @@ import Spinner from '../../assets/spinner.svg';
 type ButtonProps = {
   state: 'ready' | 'loading' | 'disabled';
   className: string;
-  onClick: () => void;
 };
 
-export default function Button({
-  state,
-  className = '',
-  onClick,
-}: ButtonProps) {
+export default function Button({ state, className = '' }: ButtonProps) {
   let colors;
 
   switch (state) {
@@ -32,7 +27,6 @@ export default function Button({
     <button
       className={`w-full block h-10 rounded-lg font-medium relative ${colors} ${className}`}
       type="submit"
-      onClick={onClick}
       disabled={state !== 'ready'}
     >
       {state === 'loading' ? 'Logging in...' : 'Login'}

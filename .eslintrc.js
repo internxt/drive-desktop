@@ -14,6 +14,7 @@ module.exports = {
     'import/prefer-default-export': 'off',
     'class-methods-use-this': 'off',
     '@typescript-eslint/no-use-before-define': 'off',
+    'react-hooks/exhaustive-deps': 'off',
   },
   parserOptions: {
     ecmaVersion: 2020,

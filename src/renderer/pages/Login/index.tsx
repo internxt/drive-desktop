@@ -76,7 +76,12 @@ export default function Login() {
   }
 
   const credentialsComponents = (
-    <>
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        onSubmit();
+      }}
+    >
       <Input
         className="mt-2"
         state={state}
@@ -108,8 +113,6 @@ export default function Login() {
       <Button
         className="mt-4"
         state={state !== 'loading' ? 'ready' : 'loading'}
-        // eslint-disable-next-line react/jsx-no-bind
-        onClick={onSubmit}
       />
       <a
         href="https://drive.internxt.com/new"
@@ -123,14 +126,13 @@ export default function Login() {
       >
         Create account
       </a>
-    </>
+    </form>
   );
 
   useEffect(() => {
     if (twoFA.length === 6) {
       access();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [twoFA]);
 
   const twoFAComponents = (

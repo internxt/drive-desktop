@@ -31,8 +31,6 @@ function LoggedInWrapper({ children }: { children: JSX.Element }) {
   useEffect(() => {
     window.electron.onUserLoggedInChanged(onUserLoggedInChanged);
     window.electron.isUserLoggedIn().then(onUserLoggedInChanged);
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return children;
