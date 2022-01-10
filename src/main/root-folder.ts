@@ -35,6 +35,5 @@ export async function setupRootFolder(n = 0): Promise<void> {
   if (notExistsOrIsEmpty) {
     await fs.mkdir(rootFolderPath, { recursive: true });
     configStore.set('syncRoot', path.join(rootFolderPath, path.sep));
-  }
-  return setupRootFolder(n + 1);
+  } else setupRootFolder(n + 1);
 }
