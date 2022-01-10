@@ -12,6 +12,8 @@ declare interface Window {
 
     onUserLoggedInChanged(func: (value: boolean) => void): void;
 
+    logout(): void;
+
     env: typeof process.env;
   };
 }

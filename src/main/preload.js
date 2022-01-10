@@ -16,6 +16,9 @@ contextBridge.exposeInMainWorld('electron', {
   onUserLoggedInChanged(func) {
     return ipcRenderer.on('user-logged-in-changed', (_, v) => func(v));
   },
+  logout() {
+    return ipcRenderer.send('user-logged-out');
+  },
 
   env: { ...process.env },
 });

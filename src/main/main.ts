@@ -158,12 +158,13 @@ function setBoundsOfWidgetByPath(pathname = currentWidgetPath) {
 
   const bounds = tray?.bounds;
 
-  const location =
-    placeUnderTray && bounds
-      ? getLocationUnderTray(size, bounds)
-      : { x: 0, y: 0 };
-
-  widget?.setBounds({ ...size, ...location });
+  if (placeUnderTray && bounds) {
+    const location = getLocationUnderTray(size, bounds);
+    widget?.setBounds({ ...size, ...location });
+  } else {
+    widget?.center();
+    widget?.setBounds(size);
+  }
 }
 
 app.on('window-all-closed', () => {
@@ -233,4 +234,15 @@ ipcMain.on('user-logged-in', (_, data: AccessResponse) => {
   setIsLoggedIn(true);
 
   // startBackgroundProcesses()
+});
+
+// Logout handling
+
+ipcMain.on('user-logged-out', () => {
+  // stopBackgroundProcesses()
+  // closeAuxWindows
+
+  Auth.logout();
+
+  setIsLoggedIn(false);
 });

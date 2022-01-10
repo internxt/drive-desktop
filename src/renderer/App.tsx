@@ -45,7 +45,16 @@ export default function App() {
         <LoggedInWrapper>
           <Routes>
             <Route path="/login" element={<Login />} />
-            <Route path="/" element={<div>Logged in</div>} />
+            <Route
+              path="/"
+              element={
+                <div>
+                  <button type="button" onClick={window.electron.logout}>
+                    Logout
+                  </button>
+                </div>
+              }
+            />
           </Routes>
         </LoggedInWrapper>
       </LocationWrapper>
