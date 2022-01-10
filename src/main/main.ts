@@ -19,8 +19,16 @@ import { resolveHtmlPath } from './util';
 import * as Auth from './auth';
 import { AccessResponse } from '../renderer/pages/Login/service';
 import { setupRootFolder } from './root-folder';
+import TrayMenu from './tray';
 
 require('dotenv').config();
+
+const isDevelopment =
+  process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true';
+
+const RESOURCES_PATH = app.isPackaged
+  ? path.join(process.resourcesPath, 'assets')
+  : path.join(__dirname, '../../assets');
 
 export default class AppUpdater {
   constructor() {
@@ -36,9 +44,6 @@ if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support');
   sourceMapSupport.install();
 }
-
-const isDevelopment =
-  process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true';
 
 if (isDevelopment) {
   require('electron-debug')({ showDevTools: false });
@@ -61,10 +66,6 @@ const createWindow = async () => {
   if (isDevelopment) {
     await installExtensions();
   }
-
-  const RESOURCES_PATH = app.isPackaged
-    ? path.join(process.resourcesPath, 'assets')
-    : path.join(__dirname, '../../assets');
 
   const getAssetPath = (...paths: string[]): string => {
     return path.join(RESOURCES_PATH, ...paths);
@@ -132,8 +133,23 @@ app
       // dock icon is clicked and there are no other windows open.
       if (mainWindow === null) createWindow();
     });
+
+    setupTrayIcon();
   })
   .catch(console.log);
+
+// Tray icon
+
+function setupTrayIcon() {
+  const iconsPath = path.join(RESOURCES_PATH, 'tray');
+  const tray = new TrayMenu(
+    iconsPath,
+    () => console.log('Tray clicked'),
+    () => console.log('Tray wants to quit')
+  );
+}
+
+// Current widget pathname
 
 ipcMain.on('path-changed', (_, pathname) =>
   console.log('Renderer navigated to ', pathname)

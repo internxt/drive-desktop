@@ -12,6 +12,8 @@ module.exports = {
     'no-restricted-syntax': 'off',
     'promise/catch-or-return': 'off',
     'import/prefer-default-export': 'off',
+    'class-methods-use-this': 'off',
+    '@typescript-eslint/no-use-before-define': 'off',
   },
   parserOptions: {
     ecmaVersion: 2020,
