@@ -13,7 +13,7 @@ export default class TrayMenu {
 
   constructor(
     private readonly iconsPath: string,
-    private readonly onClick: (bounds: Electron.Rectangle) => void,
+    private readonly onClick: () => void,
     private readonly onQuit: () => void
   ) {
     const trayIcon = this.getIconPath('STANDBY');
@@ -26,7 +26,7 @@ export default class TrayMenu {
 
     if (process.platform !== 'linux') {
       this.tray.on('click', (_, bounds) => {
-        this.onClick(bounds);
+        this.onClick();
         this.tray.setContextMenu(null);
       });
       this.tray.on('right-click', () => {
@@ -51,7 +51,7 @@ export default class TrayMenu {
       {
         label: 'Show/Hide',
         click: () => {
-          this.onClick(this.bounds);
+          this.onClick();
         },
       },
       {

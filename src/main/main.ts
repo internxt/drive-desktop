@@ -11,7 +11,7 @@
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 import path from 'path';
-import { app, BrowserWindow, shell, ipcMain } from 'electron';
+import { app, BrowserWindow, shell, ipcMain, screen } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './menu';
@@ -20,6 +20,7 @@ import * as Auth from './auth';
 import { AccessResponse } from '../renderer/pages/Login/service';
 import { setupRootFolder } from './root-folder';
 import TrayMenu from './tray';
+import dimentions from './widget-bounds';
 
 require('dotenv').config();
 
@@ -38,7 +39,12 @@ export default class AppUpdater {
   }
 }
 
-let mainWindow: BrowserWindow | null = null;
+let widget: BrowserWindow | null = null;
+let tray: TrayMenu | null = null;
+
+let currentWidgetPath = '/';
+
+if (process.platform === 'darwin') app.dock.hide();
 
 if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support');
@@ -62,7 +68,7 @@ const installExtensions = async () => {
     .catch(console.log);
 };
 
-const createWindow = async () => {
+const createWidget = async () => {
   if (isDevelopment) {
     await installExtensions();
   }
@@ -71,38 +77,41 @@ const createWindow = async () => {
     return path.join(RESOURCES_PATH, ...paths);
   };
 
-  mainWindow = new BrowserWindow({
+  widget = new BrowserWindow({
     show: false,
-    width: 300,
-    height: 474,
     icon: getAssetPath('icon.png'),
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
     },
+    movable: false,
+    frame: false,
+    resizable: false,
+    maximizable: false,
+    skipTaskbar: true,
   });
 
-  mainWindow.loadURL(resolveHtmlPath('index.html'));
+  widget.loadURL(resolveHtmlPath('index.html'));
 
-  mainWindow.on('ready-to-show', () => {
-    if (!mainWindow) {
-      throw new Error('"mainWindow" is not defined');
+  widget.on('ready-to-show', () => {
+    if (!widget) {
+      throw new Error('"widget" is not defined');
     }
     if (process.env.START_MINIMIZED) {
-      mainWindow.minimize();
+      widget.minimize();
     } else {
-      mainWindow.show();
+      widget.show();
     }
   });
 
-  mainWindow.on('closed', () => {
-    mainWindow = null;
+  widget.on('blur', () => {
+    widget?.hide();
   });
 
-  const menuBuilder = new MenuBuilder(mainWindow);
+  const menuBuilder = new MenuBuilder(widget);
   menuBuilder.buildMenu();
 
   // Open urls in the user's browser
-  mainWindow.webContents.on('new-window', (event, url) => {
+  widget.webContents.on('new-window', (event, url) => {
     event.preventDefault();
     shell.openExternal(url);
   });
@@ -112,29 +121,60 @@ const createWindow = async () => {
   new AppUpdater();
 };
 
-/**
- * Add event listeners...
- */
+function toggleWidgetVisibility() {
+  if (!widget) {
+    return;
+  }
+
+  if (widget.isVisible()) widget.hide();
+  else widget.show();
+}
+
+function getLocationUnderTray(
+  { width, height }: { width: number; height: number },
+  bounds: Electron.Rectangle
+): { x: number; y: number } {
+  const display = screen.getDisplayMatching(bounds);
+  let x = Math.min(
+    bounds.x - display.workArea.x - width / 2,
+    display.workArea.width - width
+  );
+  x += display.workArea.x;
+  x = Math.max(display.workArea.x, x);
+  let y = Math.min(
+    bounds.y - display.workArea.y - height / 2,
+    display.workArea.height - height
+  );
+  y += display.workArea.y;
+  y = Math.max(display.workArea.y, y);
+  return {
+    x,
+    y,
+  };
+}
+
+function setBoundsOfWidgetByPath(pathname = currentWidgetPath) {
+  const { placeUnderTray, ...size } = dimentions[pathname];
+
+  const bounds = tray?.bounds;
+
+  const location =
+    placeUnderTray && bounds
+      ? getLocationUnderTray(size, bounds)
+      : { x: 0, y: 0 };
+
+  widget?.setBounds({ ...size, ...location });
+}
 
 app.on('window-all-closed', () => {
-  // Respect the OSX convention of having the application in memory even
-  // after all windows have been closed
-  if (process.platform !== 'darwin') {
-    app.quit();
-  }
+  app.quit();
 });
 
 app
   .whenReady()
   .then(() => {
-    createWindow();
-    app.on('activate', () => {
-      // On macOS it's common to re-create a window in the app when the
-      // dock icon is clicked and there are no other windows open.
-      if (mainWindow === null) createWindow();
-    });
-
     setupTrayIcon();
+    createWidget();
   })
   .catch(console.log);
 
@@ -142,18 +182,28 @@ app
 
 function setupTrayIcon() {
   const iconsPath = path.join(RESOURCES_PATH, 'tray');
-  const tray = new TrayMenu(
-    iconsPath,
-    () => console.log('Tray clicked'),
-    () => console.log('Tray wants to quit')
-  );
+
+  function onTrayClick() {
+    setBoundsOfWidgetByPath(currentWidgetPath);
+    toggleWidgetVisibility();
+  }
+
+  function onQuitClick() {
+    app.quit();
+  }
+
+  tray = new TrayMenu(iconsPath, onTrayClick, onQuitClick);
 }
 
 // Current widget pathname
 
-ipcMain.on('path-changed', (_, pathname) =>
-  console.log('Renderer navigated to ', pathname)
-);
+ipcMain.on('path-changed', (_, pathname: string) => {
+  console.log('Renderer navigated to ', pathname);
+
+  currentWidgetPath = pathname;
+
+  setBoundsOfWidgetByPath(pathname);
+});
 
 export function onUserUnauthorized() {}
 
@@ -165,7 +215,7 @@ let isLoggedIn: boolean;
 
 function setIsLoggedIn(value: boolean) {
   isLoggedIn = value;
-  if (mainWindow) mainWindow.webContents.send('user-logged-in-changed', value);
+  if (widget) widget.webContents.send('user-logged-in-changed', value);
 }
 
 ipcMain.handle('is-user-logged-in', () => isLoggedIn);
