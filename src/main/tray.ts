@@ -25,7 +25,7 @@ export default class TrayMenu {
     this.tray.setIgnoreDoubleClickEvents(true);
 
     if (process.platform !== 'linux') {
-      this.tray.on('click', (_, bounds) => {
+      this.tray.on('click', () => {
         this.onClick();
         this.tray.setContextMenu(null);
       });
