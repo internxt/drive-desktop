@@ -1,21 +1,13 @@
 import { UilGlobe, UilFolderOpen, UilSetting } from '@iconscout/react-unicons';
 import { Menu, Transition } from '@headlessui/react';
-import { ReactNode } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
+import bytes from 'bytes';
+
+import { User } from '../../../main/types';
+import { getUsage, Usage } from '../../utils/usage';
 
 export default function Header() {
   const syncIssues = true;
-
-  const accountSection = (
-    <div>
-      <p className="text-xs font-semibold text-neutral-700">
-        alvaro@internxt.com
-      </p>
-      <div className="flex">
-        <p className="text-xs text-neutral-500">0,13GB of 2,0GB</p>
-        <p className="ml-1 text-xs text-blue-60">Upgrade</p>
-      </div>
-    </div>
-  );
 
   const dropdown = (
     <Transition
@@ -99,8 +91,70 @@ export default function Header() {
 
   return (
     <div className="flex justify-between items-center p-3 border border-b-l-neutral-30">
-      {accountSection}
+      <AccountSection />
       {itemsSection}
+    </div>
+  );
+}
+
+function AccountSection() {
+  const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    window.electron.getUser().then(setUser);
+  }, []);
+
+  const [rawUsage, setRawUsage] = useState<Usage | 'loading' | 'error'>(
+    'loading'
+  );
+
+  async function updateUsage() {
+    setRawUsage('loading');
+    try {
+      const usage = await getUsage();
+      setRawUsage(usage);
+    } catch (err) {
+      console.error(err);
+      setRawUsage('error');
+    }
+  }
+
+  useEffect(() => {
+    updateUsage();
+  }, []);
+
+  const usageIsAvailable = rawUsage !== 'loading' && rawUsage !== 'error';
+
+  let usageDisplayElement: JSX.Element;
+
+  if (rawUsage === 'loading')
+    usageDisplayElement = (
+      <p className="text-xs text-neutral-500/80">Loading...</p>
+    );
+  else if (rawUsage === 'error') usageDisplayElement = <p />;
+  else
+    usageDisplayElement = (
+      <p className="text-xs text-neutral-500">{`${bytes.format(
+        rawUsage.usageInBytes
+      )} of ${bytes.format(rawUsage.limitInBytes)}`}</p>
+    );
+
+  return (
+    <div>
+      <p className="text-xs font-semibold text-neutral-700">{user?.email}</p>
+      <div className="flex">
+        {usageDisplayElement}
+        {usageIsAvailable && rawUsage.offerUpgrade && (
+          <a
+            href="https://drive.internxt.com/storage"
+            target="_blank"
+            rel="noreferrer noopener"
+            className="ml-1 text-xs text-blue-60"
+          >
+            Upgrade
+          </a>
+        )}
+      </div>
     </div>
   );
 }

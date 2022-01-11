@@ -260,3 +260,15 @@ ipcMain.handle('open-sync-folder', () => {
 ipcMain.on('user-quit', () => {
   app.quit();
 });
+
+// getUser handling
+
+ipcMain.handle('get-user', () => {
+  return Auth.getUser();
+});
+
+// getHeaders handling
+
+ipcMain.handle('get-headers', () => {
+  return Auth.getHeaders();
+});

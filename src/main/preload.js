@@ -28,6 +28,12 @@ contextBridge.exposeInMainWorld('electron', {
   quit() {
     return ipcRenderer.send('user-quit');
   },
+  getUser() {
+    return ipcRenderer.invoke('get-user');
+  },
+  getHeaders() {
+    return ipcRenderer.invoke('get-headers');
+  },
 
   env: { ...process.env },
 });

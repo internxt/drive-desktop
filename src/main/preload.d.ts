@@ -20,6 +20,10 @@ declare interface Window {
 
     quit(): void;
 
+    getUser(): Promise<import('./types').User>;
+
+    getHeaders(): Promise<ReturnType<typeof import('./auth').getHeaders>>;
+
     env: typeof process.env;
   };
 }
