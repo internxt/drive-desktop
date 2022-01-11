@@ -20,6 +20,7 @@ import { AccessResponse } from '../renderer/pages/Login/service';
 import { setupRootFolder } from './root-folder';
 import TrayMenu from './tray';
 import dimentions from './widget-bounds';
+import configStore from './config';
 
 require('dotenv').config();
 
@@ -245,4 +246,17 @@ ipcMain.on('user-logged-out', () => {
   Auth.logout();
 
   setIsLoggedIn(false);
+});
+
+// Open sync folder handler
+
+ipcMain.handle('open-sync-folder', () => {
+  const syncFolderPath = configStore.get('syncRoot');
+  return shell.openPath(syncFolderPath);
+});
+
+// Quit handling
+
+ipcMain.on('user-quit', () => {
+  app.quit();
 });

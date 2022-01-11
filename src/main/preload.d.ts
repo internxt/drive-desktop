@@ -16,6 +16,10 @@ declare interface Window {
 
     closeWindow(): void;
 
+    openSyncFolder(): Promise<void>;
+
+    quit(): void;
+
     env: typeof process.env;
   };
 }

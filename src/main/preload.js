@@ -22,6 +22,12 @@ contextBridge.exposeInMainWorld('electron', {
   closeWindow() {
     return ipcRenderer.send('user-closed-window');
   },
+  openSyncFolder() {
+    return ipcRenderer.invoke('open-sync-folder');
+  },
+  quit() {
+    return ipcRenderer.send('user-quit');
+  },
 
   env: { ...process.env },
 });

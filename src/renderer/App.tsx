@@ -8,6 +8,7 @@ import {
 } from 'react-router-dom';
 
 import Login from './pages/Login';
+import Widget from './pages/Widget';
 
 import './App.css';
 
@@ -43,16 +44,7 @@ export default function App() {
         <LoggedInWrapper>
           <Routes>
             <Route path="/login" element={<Login />} />
-            <Route
-              path="/"
-              element={
-                <div>
-                  <button type="button" onClick={window.electron.logout}>
-                    Logout
-                  </button>
-                </div>
-              }
-            />
+            <Route path="/" element={<Widget />} />
           </Routes>
         </LoggedInWrapper>
       </LocationWrapper>
