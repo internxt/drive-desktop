@@ -14,7 +14,6 @@ import path from 'path';
 import { app, BrowserWindow, shell, ipcMain, screen } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
-import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
 import * as Auth from './auth';
 import { AccessResponse } from '../renderer/pages/Login/service';
@@ -106,9 +105,6 @@ const createWidget = async () => {
   widget.on('blur', () => {
     widget?.hide();
   });
-
-  const menuBuilder = new MenuBuilder(widget);
-  menuBuilder.buildMenu();
 
   // Open urls in the user's browser
   widget.webContents.on('new-window', (event, url) => {
