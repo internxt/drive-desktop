@@ -12,8 +12,6 @@ export const fieldsToSave = [
 ] as const;
 
 interface ConfigStore {
-  limit: number;
-  usage: number;
   autoLaunch: boolean;
   bearerToken: string;
   userData: User;
@@ -29,12 +27,6 @@ interface ConfigStore {
 }
 
 const schema: Schema<ConfigStore> = {
-  limit: {
-    type: 'number',
-  },
-  usage: {
-    type: 'number',
-  },
   autoLaunch: {
     type: 'boolean',
   },
@@ -74,8 +66,6 @@ const schema: Schema<ConfigStore> = {
 } as const;
 
 export const defaults: ConfigStore = {
-  limit: -1,
-  usage: -1,
   autoLaunch: true,
   bearerToken: '',
   userData: {} as User,
