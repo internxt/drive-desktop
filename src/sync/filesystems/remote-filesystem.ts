@@ -98,8 +98,12 @@ export function getRemoteFilesystem(baseFolderId: number): FileSystem {
           }
         ).then(res => res.json())
 
-        files.push(...batch.files)
-        folders.push(...batch.folders)
+        // We can't use spread operator with big arrays
+        // see: https://anchortagdev.com/range-error-maximum-call-stack-size-exceeded-error-using-spread-operator-in-node-js-javascript/
+
+        for (const file of batch.files) files.push(file)
+
+        for (const folder of batch.folders) folders.push(folder)
 
         thereIsMore = batch.folders.length === PAGE_SIZE
 
@@ -118,6 +122,7 @@ export function getRemoteFilesystem(baseFolderId: number): FileSystem {
     additionalInfo?: string
   ) {
     const details = createErrorDetails(err, action, additionalInfo)
+    Logger.debug('these are the details', details)
     if (await isOnline()) {
       throw new SyncError('NO_REMOTE_CONNECTION', details)
     } else {
