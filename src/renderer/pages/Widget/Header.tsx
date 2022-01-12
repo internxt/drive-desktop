@@ -18,7 +18,7 @@ export default function Header() {
       leaveFrom="transform scale-100 opacity-100"
       leaveTo="transform scale-95 opacity-0"
     >
-      <Menu.Items className="absolute py-1 right-0 w-32 origin-top-right bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+      <Menu.Items className="absolute z-10 py-1 right-0 w-32 origin-top-right bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
         <Menu.Item>
           <DropdownItem>
             <span>Preferences</span>
@@ -90,7 +90,7 @@ export default function Header() {
   );
 
   return (
-    <div className="flex justify-between items-center p-3 border border-b-l-neutral-30">
+    <div className="flex justify-between items-center p-3">
       <AccountSection />
       {itemsSection}
     </div>
