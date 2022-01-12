@@ -4,6 +4,7 @@ on: [push, pull_request]
 
 jobs:
   release:
+    if: ${{ github.repository_owner == 'electron-react-boilerplate' }}
     runs-on: ${{ matrix.os }}
 
     strategy:
