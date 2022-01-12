@@ -1,9 +1,9 @@
 import FileIcon from '../../assets/file.svg';
+import FileWithOperation from '../../components/FileWithOperation';
 
 export default function SyncInfo() {
   return (
     <div className="flex-grow bg-l-neutral-10 border-t border-t-l-neutral-30 px-3 pt-3 relative">
-      <Empty />
       <div className="flex w-full justify-end">
         <button
           tabIndex={0}
@@ -12,6 +12,38 @@ export default function SyncInfo() {
         >
           Clear
         </button>
+      </div>
+    </div>
+  );
+}
+
+type ItemProps = {
+  name: string;
+  action:
+    | 'PULL'
+    | 'DELETE'
+    | 'PULLED'
+    | 'DELETED'
+    | 'PULL_ERROR'
+    | 'DELETE_ERROR'
+    | 'METADATA_READ_ERROR';
+  filesystem: 'REMOTE' | 'LOCAL';
+  progress?: number;
+};
+function Item({ name, action, filesystem, progress }: ItemProps) {
+  const description = 'Downloading';
+  const progressDisplay =
+    progress !== undefined ? `${(progress * 100).toFixed(0)}%` : '';
+
+  return (
+    <div className="h-10 flex items-center w-full overflow-hidden">
+      <FileWithOperation className="flex-shrink-0" width={24} />
+      <div className="ml-4 overflow-hidden">
+        <h2 className="text-neutral-700 font-medium truncate">{name}</h2>
+        <p className="text-neutral-500 text-xs">
+          {description}
+          <span>&nbsp;{progressDisplay}</span>
+        </p>
       </div>
     </div>
   );
