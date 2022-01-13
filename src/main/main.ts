@@ -10,6 +10,8 @@
  */
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
+import './logger';
+
 import path from 'path';
 import { app, BrowserWindow, shell, ipcMain, screen } from 'electron';
 import { autoUpdater } from 'electron-updater';
