@@ -34,6 +34,30 @@ contextBridge.exposeInMainWorld('electron', {
   getHeaders() {
     return ipcRenderer.invoke('get-headers');
   },
+  startSyncProcess() {
+    return ipcRenderer.send('start-sync-process');
+  },
+  stopSyncProcess() {
+    return ipcRenderer.send('stop-sync-process');
+  },
+  getSyncStatus() {
+    return ipcRenderer.invoke('get-sync-status');
+  },
+  onSyncStatusChanged(func) {
+    return ipcRenderer.on('sync-status-changed', (_, v) => func(v));
+  },
+  onSyncStopped(func) {
+    return ipcRenderer.on('sync-stopped', (_, v) => func(v));
+  },
+  onSyncInfoUpdate(func) {
+    return ipcRenderer.on('sync-info-update', (_, v) => func(v));
+  },
+  getSyncIssues() {
+    return ipcRenderer.invoke('get-sync-issues');
+  },
+  onSyncIssuesChanged(func) {
+    return ipcRenderer.on('sync-issues-changed', (_, v) => func(v));
+  },
 
   env: { ...process.env },
 });

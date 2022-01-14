@@ -24,6 +24,30 @@ declare interface Window {
 
     getHeaders(): Promise<ReturnType<typeof import('./auth').getHeaders>>;
 
+    startSyncProcess(): void;
+
+    stopSyncProcess(): void;
+
+    getSyncStatus(): Promise<import('main/main').SyncStatus>;
+
+    onSyncStatusChanged(
+      func: (value: import('main/main').SyncStatus) => void
+    ): void;
+
+    onSyncStopped(
+      func: (value: import('main/main').SyncStoppedPayload) => void
+    ): void;
+
+    onSyncInfoUpdate(
+      func: (value: import('../workers/sync').SyncInfoUpdatePayload) => void
+    ): void;
+
+    getSyncIssues(): Promise<import('../workers/sync').SyncInfoUpdatePayload[]>;
+
+    onSyncIssuesChanged(
+      func: (value: import('../workers/sync').SyncInfoUpdatePayload[]) => void
+    ): void;
+
     env: typeof process.env;
   };
 }

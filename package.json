@@ -168,11 +168,13 @@
     "@types/bytes": "^3.1.1",
     "@types/crypto-js": "^4.1.0",
     "@types/jest": "^27.0.3",
+    "@types/lodash": "^4.14.178",
     "@types/node": "17.0.5",
     "@types/react": "^17.0.38",
     "@types/react-dom": "^17.0.11",
     "@types/react-test-renderer": "^17.0.1",
     "@types/terser-webpack-plugin": "^5.0.4",
+    "@types/uuid": "^8.3.4",
     "@types/webpack-env": "^1.16.3",
     "@typescript-eslint/eslint-plugin": "^5.8.1",
     "@typescript-eslint/parser": "^5.8.1",
@@ -237,6 +239,8 @@
   "dependencies": {
     "@headlessui/react": "^1.4.2",
     "@iconscout/react-unicons": "^1.1.6",
+    "@internxt/inxt-js": "^1.2.19",
+    "@internxt/lib": "^1.1.6",
     "bytes": "^3.1.1",
     "crypto-js": "^4.1.1",
     "electron-debug": "^3.2.0",
@@ -245,11 +249,14 @@
     "electron-store": "^8.0.1",
     "electron-updater": "^4.6.4",
     "history": "^5.2.0",
+    "lodash": "^4.17.21",
     "react": "^17.0.2",
     "react-auth-code-input": "^2.0.0",
     "react-dom": "^17.0.2",
     "react-router-dom": "^6.2.1",
-    "regenerator-runtime": "^0.13.9"
+    "regenerator-runtime": "^0.13.9",
+    "tiny-glob": "^0.2.9",
+    "uuid": "^8.3.2"
   },
   "devEngines": {
     "node": ">=14.x",
