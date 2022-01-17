@@ -3,6 +3,7 @@ import Warn from '../../assets/warn.svg';
 import Error from '../../assets/error.svg';
 import { SyncStatus, SyncStoppedPayload } from '../../../main/main';
 import FatalErrorMessages from '../../messages/sync-fatal-error';
+import useSyncStatus from '../../hooks/SubscribeToSyncStatus';
 
 export default function SyncErrorBanner() {
   const [stopReason, setStopReason] = useState<SyncStoppedPayload | null>(null);
@@ -16,11 +17,7 @@ export default function SyncErrorBanner() {
     if (value === 'RUNNING') setStopReason(null);
   }
 
-  useEffect(() => {
-    const removeListener =
-      window.electron.onSyncStatusChanged(onSyncStatusChanged);
-    return removeListener;
-  }, []);
+  useSyncStatus(onSyncStatusChanged);
 
   const severity =
     stopReason?.reason === 'COULD_NOT_ACQUIRE_LOCK' ? 'WARN' : 'FATAL';

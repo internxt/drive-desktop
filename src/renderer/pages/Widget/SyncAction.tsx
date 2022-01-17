@@ -3,18 +3,14 @@ import { SyncStatus } from '../../../main/main';
 import PlayButton from '../../assets/play.svg';
 import StopButton from '../../assets/stop.svg';
 import Spinner from '../../assets/spinner.svg';
+import useSyncStatus from '../../hooks/SubscribeToSyncStatus';
 
 export default function SyncAction() {
   const [state, setState] = useState<SyncStatus | 'LOADING'>('STANDBY');
 
   const [showUpdatedJustNow, setShowUpdatedJustNow] = useState(false);
 
-  useEffect(() => {
-    window.electron.getSyncStatus().then(setState);
-
-    const removeListener = window.electron.onSyncStatusChanged(setState);
-    return removeListener;
-  }, []);
+  useSyncStatus(setState);
 
   useEffect(() => {
     if (state === 'STANDBY') {

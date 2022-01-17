@@ -5,6 +5,7 @@ import FileIcon from '../../assets/file.svg';
 import FileWithOperation, {
   Operation,
 } from '../../components/FileWithOperation';
+import useSyncStatus from '../../hooks/SubscribeToSyncStatus';
 import { shortMessages } from '../../messages/sync-error';
 
 export default function SyncInfo() {
@@ -19,13 +20,7 @@ export default function SyncInfo() {
     if (value === 'RUNNING') clearItems();
   }
 
-  useEffect(() => {
-    window.electron.getSyncStatus().then(onSyncStatusChanged);
-
-    const removeListener =
-      window.electron.onSyncStatusChanged(onSyncStatusChanged);
-    return removeListener;
-  }, []);
+  useSyncStatus(onSyncStatusChanged);
 
   function onSyncItem(item: SyncInfoUpdatePayload) {
     const MAX_ITEMS = 50;
