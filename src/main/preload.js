@@ -44,7 +44,9 @@ contextBridge.exposeInMainWorld('electron', {
     return ipcRenderer.invoke('get-sync-status');
   },
   onSyncStatusChanged(func) {
-    return ipcRenderer.on('sync-status-changed', (_, v) => func(v));
+    const callback = (_, v) => func(v);
+    ipcRenderer.on('sync-status-changed', callback);
+    return () => ipcRenderer.removeListener('sync-status-changed', callback);
   },
   onSyncStopped(func) {
     return ipcRenderer.on('sync-stopped', (_, v) => func(v));

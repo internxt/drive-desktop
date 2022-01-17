@@ -32,7 +32,7 @@ declare interface Window {
 
     onSyncStatusChanged(
       func: (value: import('main/main').SyncStatus) => void
-    ): void;
+    ): () => void;
 
     onSyncStopped(
       func: (value: import('main/main').SyncStoppedPayload) => void

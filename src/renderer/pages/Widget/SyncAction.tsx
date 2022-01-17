@@ -11,7 +11,9 @@ export default function SyncAction() {
 
   useEffect(() => {
     window.electron.getSyncStatus().then(setState);
-    window.electron.onSyncStatusChanged(setState);
+
+    const removeListener = window.electron.onSyncStatusChanged(setState);
+    return removeListener;
   }, []);
 
   useEffect(() => {
