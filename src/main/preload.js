@@ -44,9 +44,10 @@ contextBridge.exposeInMainWorld('electron', {
     return ipcRenderer.invoke('get-sync-status');
   },
   onSyncStatusChanged(func) {
+    const eventName = 'sync-status-changed';
     const callback = (_, v) => func(v);
-    ipcRenderer.on('sync-status-changed', callback);
-    return () => ipcRenderer.removeListener('sync-status-changed', callback);
+    ipcRenderer.on(eventName, callback);
+    return () => ipcRenderer.removeListener(eventName, callback);
   },
   onSyncStopped(func) {
     return ipcRenderer.on('sync-stopped', (_, v) => func(v));
@@ -58,7 +59,10 @@ contextBridge.exposeInMainWorld('electron', {
     return ipcRenderer.invoke('get-sync-issues');
   },
   onSyncIssuesChanged(func) {
-    return ipcRenderer.on('sync-issues-changed', (_, v) => func(v));
+    const eventName = 'sync-issues-changed';
+    const callback = (_, v) => func(v);
+    ipcRenderer.on(eventName, callback);
+    return () => ipcRenderer.removeListener(eventName, callback);
   },
 
   env: { ...process.env },

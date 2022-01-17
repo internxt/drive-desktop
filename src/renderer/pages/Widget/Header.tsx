@@ -7,7 +7,14 @@ import { User } from '../../../main/types';
 import { getUsage, Usage } from '../../utils/usage';
 
 export default function Header() {
-  const syncIssues = true;
+  const [numberOfSyncIssues, setNumberOfSyncIssues] = useState(0);
+
+  useEffect(() => {
+    const callback = (issues: any[]) => setNumberOfSyncIssues(issues.length);
+    window.electron.getSyncIssues().then(callback);
+    const removeListener = window.electron.onSyncIssuesChanged(callback);
+    return removeListener;
+  }, []);
 
   const dropdown = (
     <Transition
@@ -28,8 +35,10 @@ export default function Header() {
           <DropdownItem>
             <div className="flex items-baseline">
               <p>Sync issues</p>
-              {syncIssues && (
-                <p className="ml-4 text-red-60 text-xs font-semibold">12</p>
+              {numberOfSyncIssues > 0 && (
+                <p className="ml-4 text-red-60 text-xs font-semibold">
+                  {numberOfSyncIssues}
+                </p>
               )}
             </div>
           </DropdownItem>
@@ -82,7 +91,7 @@ export default function Header() {
       </HeaderItemWrapper>
       <Menu as="div" className="relative h-7">
         <Menu.Button>
-          <SettingsIcon hasIssues={syncIssues} />
+          <SettingsIcon hasIssues={numberOfSyncIssues > 0} />
         </Menu.Button>
         {dropdown}
       </Menu>
