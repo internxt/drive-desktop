@@ -1,7 +1,7 @@
 import { UilArrowDown, UilArrowUp, UilTrash } from '@iconscout/react-unicons';
 import FileIcon from '../assets/file.svg';
 
-type Operation = 'download' | 'upload' | 'delete';
+export type Operation = 'download' | 'upload' | 'delete';
 
 export default function FileWithOperation({
   operation,

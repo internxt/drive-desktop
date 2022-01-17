@@ -38,3 +38,7 @@
 * {
   font-family: 'NeueEinstellung', sans-serif;
 }
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}

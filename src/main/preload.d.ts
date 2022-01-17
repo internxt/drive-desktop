@@ -40,7 +40,7 @@ declare interface Window {
 
     onSyncInfoUpdate(
       func: (value: import('../workers/sync').SyncInfoUpdatePayload) => void
-    ): void;
+    ): () => void;
 
     getSyncIssues(): Promise<import('../workers/sync').SyncInfoUpdatePayload[]>;
 
