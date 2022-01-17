@@ -34,6 +34,7 @@ export type AccessResponse = {
 export async function accessRequest(
   email: string,
   password: string,
+  hashedPassword: string,
   tfa?: string
 ): Promise<AccessResponse> {
   const fallbackErrorMessage = 'Error while logging in';
@@ -42,7 +43,7 @@ export async function accessRequest(
   try {
     accessRes = await fetch(`${window.electron.env.API_URL}/api/access`, {
       method: 'POST',
-      body: JSON.stringify({ email, password, tfa }),
+      body: JSON.stringify({ email, password: hashedPassword, tfa }),
       headers: {
         'content-type': 'application/json',
       },
@@ -56,7 +57,14 @@ export async function accessRequest(
     throw new Error(errorMessage);
   }
 
-  return accessRes.json();
+  const res: AccessResponse = await accessRes.json();
+
+  res.user.mnemonic = CryptoJS.AES.decrypt(
+    CryptoJS.enc.Hex.parse(res.user.mnemonic).toString(CryptoJS.enc.Base64),
+    password
+  ).toString(CryptoJS.enc.Utf8);
+
+  return res;
 }
 
 export async function loginRequest(email: string): Promise<{

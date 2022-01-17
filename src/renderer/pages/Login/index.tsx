@@ -29,7 +29,7 @@ export default function Login() {
     const encryptedHash = hashPassword(password, sKey.current);
 
     try {
-      const res = await accessRequest(email, encryptedHash, twoFA);
+      const res = await accessRequest(email, password, encryptedHash, twoFA);
       window.electron.userLoggedIn(res);
     } catch (err) {
       const { message } = err as Error;
