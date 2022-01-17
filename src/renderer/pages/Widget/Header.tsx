@@ -149,7 +149,7 @@ function AccountSection() {
     );
 
   return (
-    <div>
+    <div className="select-none">
       <p className="text-xs font-semibold text-neutral-700">{user?.email}</p>
       <div className="flex">
         {usageDisplayElement}
