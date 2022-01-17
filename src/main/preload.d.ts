@@ -36,7 +36,7 @@ declare interface Window {
 
     onSyncStopped(
       func: (value: import('main/main').SyncStoppedPayload) => void
-    ): void;
+    ): () => void;
 
     onSyncInfoUpdate(
       func: (value: import('../workers/sync').SyncInfoUpdatePayload) => void
