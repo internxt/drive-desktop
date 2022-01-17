@@ -457,7 +457,7 @@ function spawnSyncWorker() {
   worker
     .loadFile(
       process.env.NODE_ENV === 'development'
-        ? '../sync/index.html'
+        ? '../../release/app/dist/sync/index.html'
         : `${path.join(__dirname, '..', 'sync')}/index.html`
     )
     .catch(Logger.error);

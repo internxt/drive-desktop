@@ -2,7 +2,9 @@ import CryptoJS from 'crypto-js';
 import Logger from 'electron-log';
 import { aes } from '@internxt/lib';
 
-const { CRYPTO_KEY } = process.env;
+// Webpack dotenv plugin won't replace if you destructure
+// eslint-disable-next-line prefer-destructuring
+const CRYPTO_KEY = process.env.NEW_CRYPTO_KEY;
 
 if (!CRYPTO_KEY) {
   Logger.error('No encryption key provided');
@@ -31,7 +33,7 @@ function decryptName(cipherText: string, salt: string, encryptVersion: string) {
     return probabilisticDecryption(cipherText);
   }
   try {
-    const possibleAesResult = aes.decrypt(cipherText, salt);
+    const possibleAesResult = aes.decrypt(cipherText, `${CRYPTO_KEY}-${salt}`);
     return possibleAesResult;
   } catch (e) {
     Logger.warn(
@@ -79,7 +81,7 @@ function encryptName(name: string, salt: string) {
     return probabilisticEncryption(name);
   }
   // If salt is provided, use new deterministic encryption
-  return aes.encrypt(name, salt);
+  return aes.encrypt(name, `${CRYPTO_KEY}-${salt}`);
 }
 
 export default {
