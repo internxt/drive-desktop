@@ -290,7 +290,7 @@ ipcMain.handle('get-headers', () => {
 // Broadcast to renderers
 
 function broadcastToRenderers(eventName: string, data: any) {
-  widget?.webContents.emit(eventName, data);
+  widget?.webContents.send(eventName, data);
 }
 
 /* BACKGROUND PROCESSES */

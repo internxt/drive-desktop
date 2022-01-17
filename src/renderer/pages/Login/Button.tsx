@@ -32,8 +32,8 @@ export default function Button({ state, className = '' }: ButtonProps) {
       {state === 'loading' ? 'Logging in...' : 'Login'}
       {state === 'loading' && (
         <div className="absolute top-1/2 transform -translate-y-1/2 right-4">
-          <div className=" animate-spin">
-            <Spinner width="18" height="18" />
+          <div className="animate-spin">
+            <Spinner className="fill-white" width="18" height="18" />
           </div>
         </div>
       )}

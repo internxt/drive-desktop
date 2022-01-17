@@ -25,6 +25,7 @@ module.exports = {
     'promise/always-return': 'off',
     'no-else-return': 'off',
     'no-async-promise-executor': 'off',
+    'react/jsx-no-bind': 'off',
   },
   parserOptions: {
     ecmaVersion: 2020,
