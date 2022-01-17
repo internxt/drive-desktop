@@ -189,8 +189,9 @@ app
   .then(() => {
     setupTrayIcon();
     createWidget();
+    if (isLoggedIn) startBackgroundProcesses();
   })
-  .catch(console.log);
+  .catch(Logger.error);
 
 // Tray icon
 
@@ -246,13 +247,14 @@ ipcMain.on('user-logged-in', (_, data: AccessResponse) => {
 
   setIsLoggedIn(true);
 
-  // startBackgroundProcesses()
+  startBackgroundProcesses();
 });
 
 // Logout handling
 
 ipcMain.on('user-logged-out', () => {
-  // stopBackgroundProcesses()
+  cleanBackgroundProcesses();
+
   // closeAuxWindows
 
   Auth.logout();
@@ -289,6 +291,35 @@ ipcMain.handle('get-headers', () => {
 
 function broadcastToRenderers(eventName: string, data: any) {
   widget?.webContents.emit(eventName, data);
+}
+
+/* BACKGROUND PROCESSES */
+function startBackgroundProcesses() {
+  // Check if we should launch sync process
+  const lastSync = configStore.get('lastSync');
+
+  if (lastSync !== -1) {
+    const currentTimestamp = new Date().valueOf();
+
+    const millisecondsToNextSync = lastSync + SYNC_INTERVAL - currentTimestamp;
+
+    if (millisecondsToNextSync <= 0) {
+      startSyncProcess();
+    } else {
+      syncProcessRerun = setTimeout(startSyncProcess, millisecondsToNextSync);
+    }
+  }
+}
+
+function cleanBackgroundProcesses() {
+  // stop processes
+  ipcMain.emit('stop-sync-process');
+
+  // clear timeouts
+  if (syncProcessRerun) clearTimeout(syncProcessRerun);
+
+  clearSyncIssues();
+  setTraySyncStatus('STANDBY');
 }
 
 /* SYNC */
@@ -351,7 +382,8 @@ async function startSyncProcess() {
   if (syncProcessRerun) {
     clearTimeout(syncProcessRerun);
   }
-  syncProcessRerun = setTimeout(startSyncProcess, SYNC_INTERVAL);
+  if (isLoggedIn)
+    syncProcessRerun = setTimeout(startSyncProcess, SYNC_INTERVAL);
 
   changeSyncStatus('STANDBY');
 
