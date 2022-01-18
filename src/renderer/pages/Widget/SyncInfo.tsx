@@ -41,7 +41,7 @@ export default function SyncInfo() {
   }
 
   return (
-    <div className="flex-grow min-h-0 bg-l-neutral-10 border-t border-t-l-neutral-30 px-3 relative">
+    <div className="flex-grow min-h-0 bg-l-neutral-10 border-t border-t-l-neutral-30 px-3 relative -z-10">
       <div className="flex w-full justify-end absolute top-0 left-0 p-3">
         <div className="bg-l-neutral-10 px-2 rounded">
           <button
