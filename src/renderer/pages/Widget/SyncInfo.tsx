@@ -122,7 +122,7 @@ function Item({
 
 function Empty() {
   return (
-    <div className="absolute left-1/2 top-1/2 trasform -translate-x-1/2 -translate-y-1/2 w-full text-center">
+    <div className="absolute left-1/2 top-1/2 trasform -translate-x-1/2 -translate-y-1/2 w-full text-center select-none">
       <div className="relative h-16">
         <div className="absolute transform rotate-12 left-1/2 -translate-x-6 opacity-60">
           <FileIcon className="h-16 w-16" />
