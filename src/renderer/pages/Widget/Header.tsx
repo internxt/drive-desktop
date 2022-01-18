@@ -86,7 +86,9 @@ export default function Header() {
       </a>
       <HeaderItemWrapper>
         <UilFolderOpen
+          tabIndex={0}
           onClick={window.electron.openSyncFolder}
+          onKeyPress={window.electron.openSyncFolder}
           className="h-5 w-5"
         />
       </HeaderItemWrapper>

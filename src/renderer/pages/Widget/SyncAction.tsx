@@ -46,7 +46,9 @@ export default function SyncAction() {
           : ''}
       </p>
       <Button
+        tabIndex={0}
         onClick={() => state !== 'LOADING' && onClick()}
+        onKeyPress={() => state !== 'LOADING' && onClick()}
         className={`h-7 w-7 fill-blue-60 ${
           state !== 'LOADING' ? 'cursor-pointer' : 'animate-spin'
         }`}
