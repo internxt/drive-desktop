@@ -34,8 +34,11 @@ import configStore from './config';
 import { SyncArgs, SyncInfoUpdatePayload } from '../workers/sync';
 import locksService from './locks-service';
 import { SyncFatalErrorName, SyncResult } from '../workers/sync/sync';
+import packageJson from '../../package.json';
 
 require('dotenv').config();
+
+Logger.log(`Running ${packageJson.version}`);
 
 const isDevelopment =
   process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true';
