@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { SyncStatus } from '../../../main/main';
 import { SyncInfoUpdatePayload } from '../../../workers/sync';
 import FileIcon from '../../assets/file.svg';
@@ -60,11 +61,37 @@ export default function SyncInfo() {
 
       {items.length === 0 && <Empty />}
       <div className="overflow-y-auto scroll h-full no-scrollbar">
-        {items.map((item) => (
-          <Item key={item.name} {...item} />
-        ))}
+        <AnimatePresence>
+          {items.map((item, i) => (
+            <AnimationWrapper key={item.name} i={i}>
+              <Item key={item.name} {...item} />
+            </AnimationWrapper>
+          ))}
+        </AnimatePresence>
       </div>
     </div>
+  );
+}
+
+function AnimationWrapper({
+  children,
+  key,
+  i,
+}: {
+  children: ReactNode;
+  key: string;
+  i: number;
+}) {
+  return (
+    <motion.div
+      key={key}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0, transition: { delay: i * 0.03 } }}
+      transition={{ duration: 0.25, ease: 'easeInOut' }}
+    >
+      {children}
+    </motion.div>
   );
 }
 
@@ -101,7 +128,7 @@ function Item({
   else if (errorName) description = shortMessages[errorName];
 
   return (
-    <div className="h-10 my-4 flex items-center w-full overflow-hidden">
+    <div className="h-10 my-4 flex items-center w-full overflow-hidden select-none">
       <FileWithOperation
         operation={operation}
         className="flex-shrink-0"
@@ -122,20 +149,31 @@ function Item({
 
 function Empty() {
   return (
-    <div className="absolute left-1/2 top-1/2 trasform -translate-x-1/2 -translate-y-1/2 w-full text-center select-none">
-      <div className="relative h-16">
-        <div className="absolute transform rotate-12 left-1/2 -translate-x-6 opacity-60">
-          <FileIcon className="h-16 w-16" />
+    <AnimatePresence>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1, transition: { delay: 0.4 } }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.5, ease: 'easeInOut' }}
+      >
+        <div className="absolute left-1/2 top-1/2 trasform -translate-x-1/2 -translate-y-1/2 w-full text-center select-none">
+          <div className="relative h-16">
+            <div className="absolute transform rotate-12 left-1/2 -translate-x-6 opacity-60">
+              <FileIcon className="h-16 w-16" />
+            </div>
+            <div className="absolute transform -rotate-12 left-1/2 -translate-x-10">
+              <FileIcon className="h-16 w-16" />
+            </div>
+          </div>
+          <p className="mt-7 text-sm text-blue-100">
+            There is no recent activity
+          </p>
+          <p className="mt-1 text-xs text-m-neutral-100 px-4">
+            Information will show up here when changes are made to sync your
+            local folder with Internxt Drive
+          </p>
         </div>
-        <div className="absolute transform -rotate-12 left-1/2 -translate-x-10">
-          <FileIcon className="h-16 w-16" />
-        </div>
-      </div>
-      <p className="mt-7 text-sm text-blue-100">There is no recent activity</p>
-      <p className="mt-1 text-xs text-m-neutral-100 px-4">
-        Information will show up here when changes are made to sync your local
-        folder with Internxt Drive
-      </p>
-    </div>
+      </motion.div>
+    </AnimatePresence>
   );
 }
