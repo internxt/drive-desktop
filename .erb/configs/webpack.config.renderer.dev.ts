@@ -2,6 +2,7 @@ import path from 'path';
 import fs from 'fs';
 import webpack from 'webpack';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
+import Dotenv from 'dotenv-webpack';
 import chalk from 'chalk';
 import { merge } from 'webpack-merge';
 import { spawn, execSync } from 'child_process';
@@ -136,6 +137,7 @@ const configuration: webpack.Configuration = {
     new webpack.EnvironmentPlugin({
       NODE_ENV: 'development',
     }),
+    new Dotenv({ ignoreStub: true }),
 
     new webpack.LoaderOptionsPlugin({
       debug: true,

@@ -7,6 +7,7 @@ import webpack from 'webpack';
 import { merge } from 'webpack-merge';
 import TerserPlugin from 'terser-webpack-plugin';
 import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
+import Dotenv from 'dotenv-webpack';
 import baseConfig from './webpack.config.base';
 import webpackPaths from './webpack.paths';
 import checkNodeEnv from '../scripts/check-node-env';
@@ -66,6 +67,7 @@ const configuration: webpack.Configuration = {
       DEBUG_PROD: false,
       START_MINIMIZED: false,
     }),
+    new Dotenv({ ignoreStub: true }),
   ],
 
   /**

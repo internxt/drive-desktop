@@ -70,6 +70,4 @@ contextBridge.exposeInMainWorld('electron', {
     ipcRenderer.on(eventName, callback);
     return () => ipcRenderer.removeListener(eventName, callback);
   },
-
-  env: { ...process.env },
 });

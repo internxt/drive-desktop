@@ -47,7 +47,5 @@ declare interface Window {
     onSyncIssuesChanged(
       func: (value: import('../workers/sync').SyncInfoUpdatePayload[]) => void
     ): () => void;
-
-    env: typeof process.env;
   };
 }

@@ -5,7 +5,7 @@ export function hashPassword(password: string, sKey: string): string {
   const reb = CryptoJS.enc.Hex.parse(sKey);
   const bytes = CryptoJS.AES.decrypt(
     reb.toString(CryptoJS.enc.Base64),
-    window.electron.env.CRYPTO_KEY
+    process.env.CRYPTO_KEY
   );
 
   const salt = bytes.toString(CryptoJS.enc.Utf8);
@@ -17,7 +17,7 @@ export function hashPassword(password: string, sKey: string): string {
 
   const pwdBytes = CryptoJS.AES.encrypt(
     hashedPassword,
-    window.electron.env.CRYPTO_KEY
+    process.env.CRYPTO_KEY
   ).toString();
   const text64 = CryptoJS.enc.Base64.parse(pwdBytes);
   const encryptedHash = text64.toString(CryptoJS.enc.Hex);
@@ -41,7 +41,7 @@ export async function accessRequest(
 
   let accessRes;
   try {
-    accessRes = await fetch(`${window.electron.env.API_URL}/api/access`, {
+    accessRes = await fetch(`${process.env.API_URL}/api/access`, {
       method: 'POST',
       body: JSON.stringify({ email, password: hashedPassword, tfa }),
       headers: {
@@ -76,7 +76,7 @@ export async function loginRequest(email: string): Promise<{
   let loginRes;
 
   try {
-    loginRes = await fetch(`${window.electron.env.API_URL}/api/login`, {
+    loginRes = await fetch(`${process.env.API_URL}/api/login`, {
       method: 'POST',
       body: JSON.stringify({ email }),
       headers: {

@@ -10,10 +10,10 @@ export type Usage = {
 export async function getUsage(): Promise<Usage> {
   const headers = await window.electron.getHeaders();
 
-  const usageRequest = httpRequest(`${window.electron.env.API_URL}/api/usage`, {
+  const usageRequest = httpRequest(`${process.env.API_URL}/api/usage`, {
     headers,
   });
-  const limitRequest = httpRequest(`${window.electron.env.API_URL}/api/limit`, {
+  const limitRequest = httpRequest(`${process.env.API_URL}/api/limit`, {
     headers,
   });
 
