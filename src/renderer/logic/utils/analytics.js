@@ -284,6 +284,7 @@ function trackRegisterViaDesktop() {
   analyticsLibrary.track({
     userId: uuid,
     event: 'Register Redirected',
+    anonymousId,
     context
   })
 }
@@ -292,6 +293,7 @@ function trackForgotPassword() {
   const { uuid } = ConfigStore.get('userData')
   analyticsLibrary.track({
     userId: uuid,
+    anonymousId,
     event: 'Password Forgotten',
     context
   })

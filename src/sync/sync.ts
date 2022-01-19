@@ -516,8 +516,8 @@ class Sync extends EventEmitter {
       }
     } catch (err) {
       const syncError =
-        err instanceof SyncFatalError
-          ? err
+        err instanceof SyncError
+          ? new SyncFatalError('CANNOT_GET_CURRENT_LISTINGS', err.details)
           : new SyncFatalError(
               'CANNOT_GET_CURRENT_LISTINGS',
               createErrorDetails(err, 'Getting current listings')

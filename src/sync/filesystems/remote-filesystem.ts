@@ -14,7 +14,8 @@ import * as uuid from 'uuid'
 import {
   createErrorDetails,
   getDateFromSeconds,
-  getSecondsFromDateString
+  getSecondsFromDateString,
+  serializeRes
 } from '../utils'
 import Logger from '../../libs/logger'
 import { httpRequest } from '../../libs/http-request'
@@ -98,8 +99,12 @@ export function getRemoteFilesystem(baseFolderId: number): FileSystem {
           }
         ).then(res => res.json())
 
-        files.push(...batch.files)
-        folders.push(...batch.folders)
+        // We can't use spread operator with big arrays
+        // see: https://anchortagdev.com/range-error-maximum-call-stack-size-exceeded-error-using-spread-operator-in-node-js-javascript/
+
+        for (const file of batch.files) files.push(file)
+
+        for (const folder of batch.folders) folders.push(folder)
 
         thereIsMore = batch.folders.length === PAGE_SIZE
 
@@ -117,7 +122,10 @@ export function getRemoteFilesystem(baseFolderId: number): FileSystem {
     action: string,
     additionalInfo?: string
   ) {
+    if (err instanceof SyncError) throw err
+
     const details = createErrorDetails(err, action, additionalInfo)
+
     if (await isOnline()) {
       throw new SyncError('NO_REMOTE_CONNECTION', details)
     } else {
@@ -224,7 +232,7 @@ export function getRemoteFilesystem(baseFolderId: number): FileSystem {
                 fileInCache,
                 null,
                 2
-              )}, res: ${JSON.stringify(res, null, 2)}`
+              )}, res: ${await serializeRes(res)}`
             )
           )
         }
@@ -360,10 +368,8 @@ export function getRemoteFilesystem(baseFolderId: number): FileSystem {
           )
           if (!res.ok) {
             Logger.warn(
-              `Error trying to delete outdated remote file. res: ${JSON.stringify(
-                res,
-                null,
-                2
+              `Error trying to delete outdated remote file. res: ${await serializeRes(
+                res
               )} fileInCache: ${JSON.stringify(oldFileInCache, null, 2)}`
             )
           }
@@ -414,10 +420,8 @@ export function getRemoteFilesystem(baseFolderId: number): FileSystem {
             createErrorDetails(
               {},
               'Creating file in drive server',
-              `res: ${JSON.stringify(
-                res,
-                null,
-                2
+              `res: ${await serializeRes(
+                res
               )}, encryptedName: ${encryptedName}, modificationTime: ${modificationTime}`
             )
           )
@@ -454,11 +458,11 @@ export function getRemoteFilesystem(baseFolderId: number): FileSystem {
             createErrorDetails(
               {},
               'Deleting folder from server',
-              `res: ${JSON.stringify(
-                res,
+              `res: ${await serializeRes(res)}, folderInCache: ${JSON.stringify(
+                folderInCache,
                 null,
                 2
-              )}, folderInCache: ${JSON.stringify(folderInCache, null, 2)}`
+              )}`
             )
           )
         }
@@ -476,7 +480,7 @@ export function getRemoteFilesystem(baseFolderId: number): FileSystem {
       progressCallback: FileSystemProgressCallback
     ): Promise<Source> {
       const fileInCache = cache[name]
-
+      Logger.log(`Getting source of ${name} fileId: ${fileInCache.fileId}`)
       const environment = new Environment({
         bridgeUrl: process.env.BRIDGE_URL,
         bridgeUser: userInfo.bridgeUser,
@@ -549,7 +553,7 @@ export function getRemoteFilesystem(baseFolderId: number): FileSystem {
           createErrorDetails(
             {},
             'Remote smoke test (get base folder test)',
-            `res: ${JSON.stringify(res, null, 2)}`
+            `res: ${await serializeRes(res)}`
           )
         )
       }
