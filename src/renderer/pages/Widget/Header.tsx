@@ -5,16 +5,12 @@ import bytes from 'bytes';
 
 import { User } from '../../../main/types';
 import { getUsage, Usage } from '../../utils/usage';
+import useSyncIssues from '../../hooks/SyncIssues';
 
 export default function Header() {
-  const [numberOfSyncIssues, setNumberOfSyncIssues] = useState(0);
+  const syncIssues = useSyncIssues();
 
-  useEffect(() => {
-    const callback = (issues: any[]) => setNumberOfSyncIssues(issues.length);
-    window.electron.getSyncIssues().then(callback);
-    const removeListener = window.electron.onSyncIssuesChanged(callback);
-    return removeListener;
-  }, []);
+  const numberOfSyncIssues = syncIssues.length;
 
   const thereAreSyncIssues = numberOfSyncIssues > 0;
 
