@@ -292,6 +292,7 @@ function trackForgotPassword() {
   const { uuid } = ConfigStore.get('userData')
   analyticsLibrary.track({
     userId: uuid,
+    anonymousId,
     event: 'Password Forgotten',
     context
   })
