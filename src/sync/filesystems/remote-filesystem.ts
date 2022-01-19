@@ -480,7 +480,7 @@ export function getRemoteFilesystem(baseFolderId: number): FileSystem {
       progressCallback: FileSystemProgressCallback
     ): Promise<Source> {
       const fileInCache = cache[name]
-
+      Logger.log(`Getting source of ${name} fileId: ${fileInCache.fileId}`)
       const environment = new Environment({
         bridgeUrl: process.env.BRIDGE_URL,
         bridgeUser: userInfo.bridgeUser,
