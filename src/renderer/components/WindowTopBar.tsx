@@ -1,8 +1,8 @@
 import { UilMultiply } from '@iconscout/react-unicons';
 
-export default function WindowTopBar() {
+export default function WindowTopBar({ title }: { title: string }) {
   return (
-    <div className="relative px-1 pt-1 h-10 flex-grow-0 draggable">
+    <div className="relative px-1 h-10 flex-grow-0 draggable">
       {process.env.platform !== 'darwin' && (
         <div
           role="button"
@@ -14,8 +14,8 @@ export default function WindowTopBar() {
           <UilMultiply className="h-5 w-5" />
         </div>
       )}
-      <p className="text-sm text-gray-700 absolute top-2 left-1/2 transform -translate-x-1/2">
-        Sync issues
+      <p className="text-sm text-gray-80 absolute top-2 left-1/2 transform -translate-x-1/2">
+        {title}
       </p>
     </div>
   );

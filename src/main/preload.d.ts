@@ -42,12 +42,14 @@ declare interface Window {
       func: (value: import('../workers/sync').SyncInfoUpdatePayload) => void
     ): () => void;
 
-    getSyncIssues(): Promise<import('../workers/sync').SyncInfoUpdatePayload[]>;
+    getSyncIssues(): Promise<import('../workers/sync').SyncIssue[]>;
 
     onSyncIssuesChanged(
-      func: (value: import('../workers/sync').SyncInfoUpdatePayload[]) => void
+      func: (value: import('../workers/sync').SyncIssue[]) => void
     ): () => void;
 
     openSyncIssuesWindow(): void;
+
+    openLogs(): void;
   };
 }

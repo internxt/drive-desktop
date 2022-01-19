@@ -8,6 +8,7 @@ import FileWithOperation, {
 } from '../../components/FileWithOperation';
 import useSyncStatus from '../../hooks/SubscribeToSyncStatus';
 import { shortMessages } from '../../messages/sync-error';
+import { SyncErrorName } from '../../../workers/sync/sync';
 
 export default function SyncInfo() {
   const [items, setItems] = useState<SyncInfoUpdatePayload[]>([]);
@@ -101,7 +102,7 @@ function Item({
   kind,
   progress,
   errorName,
-}: SyncInfoUpdatePayload) {
+}: SyncInfoUpdatePayload & { progress?: number; errorName?: SyncErrorName }) {
   const progressDisplay =
     progress !== undefined ? `${(progress * 100).toFixed(0)}%` : '';
 

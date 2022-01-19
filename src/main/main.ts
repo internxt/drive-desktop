@@ -570,3 +570,11 @@ async function openSyncIssuesWindow() {
     if (channel === 'user-closed-window') syncIssuesWindow?.close();
   });
 }
+
+// Handle open logs
+
+ipcMain.on('open-logs', () => {
+  const logfilePath = Logger.transports.file.getFile().path;
+  const logFolderPath = path.dirname(logfilePath);
+  shell.openPath(logFolderPath);
+});

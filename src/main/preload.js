@@ -73,4 +73,7 @@ contextBridge.exposeInMainWorld('electron', {
   openSyncIssuesWindow() {
     return ipcRenderer.send('open-sync-issues-window');
   },
+  openLogs() {
+    return ipcRenderer.send('open-logs');
+  },
 });

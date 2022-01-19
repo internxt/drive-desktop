@@ -17,27 +17,34 @@ export type SyncArgs = {
   tmpPath: string;
   folderId: number;
 };
-
-type SyncAction =
-  | 'PULL'
-  | 'PULLED'
-  | 'PULL_ERROR'
-  | 'RENAME'
-  | 'RENAMED'
-  | 'RENAME_ERROR'
-  | 'DELETE'
-  | 'DELETED'
-  | 'DELETE_ERROR'
-  | 'METADATA_READ_ERROR';
-
-export type SyncInfoUpdatePayload = {
-  action: SyncAction;
+type SyncInfoBase = {
   kind: FileSystemKind;
   name: string;
-  progress?: number;
-  errorName?: SyncErrorName;
-  errorDetails?: ErrorDetails;
 };
+
+export type SyncIssue = SyncInfoBase & {
+  action:
+    | 'PULL_ERROR'
+    | 'RENAME_ERROR'
+    | 'RENAME_ERROR'
+    | 'DELETE_ERROR'
+    | 'METADATA_READ_ERROR';
+  errorName: SyncErrorName;
+  errorDetails: ErrorDetails;
+};
+
+export type SyncInfoUpdatePayload =
+  | (SyncInfoBase &
+      (
+        | {
+            action: 'PULL' | 'RENAME' | 'DELETE';
+            progress: number;
+          }
+        | {
+            action: 'RENAMED' | 'PULLED' | 'DELETED';
+          }
+      ))
+  | SyncIssue;
 
 export interface SyncEvents {
   SYNC_INFO_UPDATE: (payload: SyncInfoUpdatePayload) => void;
@@ -117,6 +124,7 @@ ipcRenderer
         action: 'RENAME',
         kind,
         name: oldName,
+        progress: 0,
       });
     });
 
@@ -155,6 +163,7 @@ ipcRenderer
         action: 'DELETE',
         kind,
         name,
+        progress: 0,
       });
     });
 
