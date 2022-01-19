@@ -65,7 +65,7 @@ export default function SyncInfo() {
         <AnimatePresence>
           {items.map((item, i) => (
             <AnimationWrapper key={item.name} i={i}>
-              <Item key={item.name} {...item} />
+              <Item {...item} />
             </AnimationWrapper>
           ))}
         </AnimatePresence>
