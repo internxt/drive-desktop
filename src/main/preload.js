@@ -70,4 +70,7 @@ contextBridge.exposeInMainWorld('electron', {
     ipcRenderer.on(eventName, callback);
     return () => ipcRenderer.removeListener(eventName, callback);
   },
+  openSyncIssuesWindow() {
+    return ipcRenderer.send('open-sync-issues-window');
+  },
 });

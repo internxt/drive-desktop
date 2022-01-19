@@ -1,6 +1,6 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import {
-  MemoryRouter as Router,
+  HashRouter as Router,
   Routes,
   Route,
   useLocation,
@@ -9,12 +9,12 @@ import {
 
 import Login from './pages/Login';
 import Widget from './pages/Widget';
+import SyncIssues from './pages/SyncIssues';
 
 import './App.css';
 
 function LocationWrapper({ children }: { children: JSX.Element }) {
   const { pathname } = useLocation();
-
   useEffect(() => {
     window.electron.pathChanged(pathname);
   }, [pathname]);
@@ -24,10 +24,17 @@ function LocationWrapper({ children }: { children: JSX.Element }) {
 
 function LoggedInWrapper({ children }: { children: JSX.Element }) {
   const navigate = useNavigate();
+  const { pathname } = useLocation();
+  const intendedRoute = useRef<null | string>(null);
 
-  function onUserLoggedInChanged(value: boolean) {
-    if (!value) navigate('/login');
-    else navigate('/');
+  function onUserLoggedInChanged(isLoggedIn: boolean) {
+    if (!isLoggedIn) {
+      intendedRoute.current = pathname;
+      navigate('/login');
+    } else if (intendedRoute.current) {
+      navigate(intendedRoute.current);
+      intendedRoute.current = null;
+    }
   }
   useEffect(() => {
     window.electron.onUserLoggedInChanged(onUserLoggedInChanged);
@@ -44,6 +51,7 @@ export default function App() {
         <LoggedInWrapper>
           <Routes>
             <Route path="/login" element={<Login />} />
+            <Route path="/sync-issues" element={<SyncIssues />} />
             <Route path="/" element={<Widget />} />
           </Routes>
         </LoggedInWrapper>

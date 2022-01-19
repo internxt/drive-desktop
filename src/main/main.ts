@@ -40,8 +40,7 @@ require('dotenv').config();
 
 Logger.log(`Running ${packageJson.version}`);
 
-const isDevelopment =
-  process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true';
+const isDevelopment = process.env.NODE_ENV === 'development';
 
 const RESOURCES_PATH = app.isPackaged
   ? path.join(process.resourcesPath, 'assets')
@@ -88,13 +87,8 @@ const createWidget = async () => {
     await installExtensions();
   }
 
-  const getAssetPath = (...paths: string[]): string => {
-    return path.join(RESOURCES_PATH, ...paths);
-  };
-
   widget = new BrowserWindow({
     show: false,
-    icon: getAssetPath('icon.png'),
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
     },
@@ -105,17 +99,10 @@ const createWidget = async () => {
     skipTaskbar: true,
   });
 
-  widget.loadURL(resolveHtmlPath('index.html'));
+  widget.loadURL(resolveHtmlPath('index.html', ''));
 
   widget.on('ready-to-show', () => {
-    if (!widget) {
-      throw new Error('"widget" is not defined');
-    }
-    if (process.env.START_MINIMIZED) {
-      widget.minimize();
-    } else {
-      widget.show();
-    }
+    widget?.show();
   });
 
   widget.on('blur', () => {
@@ -128,8 +115,18 @@ const createWidget = async () => {
     shell.openExternal(url);
   });
 
-  widget.webContents.on('ipc-message', (_, channel) => {
+  widget.webContents.on('ipc-message', (_, channel, payload) => {
     if (channel === 'user-closed-window') widget?.close();
+
+    // Current widget pathname
+
+    if (channel === 'path-changed') {
+      console.log('Renderer navigated to ', payload);
+
+      currentWidgetPath = payload;
+
+      setBoundsOfWidgetByPath(payload);
+    }
   });
 
   // Remove this if your app does not use auto updates
@@ -213,16 +210,6 @@ function setupTrayIcon() {
   tray = new TrayMenu(iconsPath, onTrayClick, onQuitClick);
 }
 
-// Current widget pathname
-
-ipcMain.on('path-changed', (_, pathname: string) => {
-  console.log('Renderer navigated to ', pathname);
-
-  currentWidgetPath = pathname;
-
-  setBoundsOfWidgetByPath(pathname);
-});
-
 export function onUserUnauthorized() {}
 
 ipcMain.on('user-is-unauthorized', onUserUnauthorized);
@@ -255,10 +242,14 @@ ipcMain.on('user-logged-in', (_, data: AccessResponse) => {
 
 // Logout handling
 
+function closeAuxWindows() {
+  syncIssuesWindow?.close();
+}
+
 ipcMain.on('user-logged-out', () => {
   cleanBackgroundProcesses();
 
-  // closeAuxWindows
+  closeAuxWindows();
 
   Auth.logout();
 
@@ -293,7 +284,9 @@ ipcMain.handle('get-headers', () => {
 // Broadcast to renderers
 
 function broadcastToRenderers(eventName: string, data: any) {
-  widget?.webContents.send(eventName, data);
+  const renderers = [widget, syncIssuesWindow];
+
+  renderers.forEach((r) => r?.webContents.send(eventName, data));
 }
 
 /* BACKGROUND PROCESSES */
@@ -532,3 +525,48 @@ ipcMain.on('SYNC_INFO_UPDATE', (_, payload: SyncInfoUpdatePayload) => {
 });
 
 ipcMain.handle('get-sync-issues', () => syncIssues);
+
+let syncIssuesWindow: BrowserWindow | null = null;
+
+ipcMain.on('open-sync-issues-window', openSyncIssuesWindow);
+
+// Sync issues window
+async function openSyncIssuesWindow() {
+  if (syncIssuesWindow) {
+    syncIssuesWindow.focus();
+    return;
+  }
+
+  syncIssuesWindow = new BrowserWindow({
+    width: 500,
+    height: 384,
+    show: false,
+    webPreferences: {
+      preload: path.join(__dirname, 'preload.js'),
+    },
+    titleBarStyle: process.platform === 'darwin' ? 'hidden' : undefined,
+    frame: process.platform !== 'darwin' ? false : undefined,
+    resizable: false,
+    maximizable: false,
+  });
+
+  syncIssuesWindow.loadURL(resolveHtmlPath('index.html', 'sync-issues'));
+
+  syncIssuesWindow.on('ready-to-show', () => {
+    syncIssuesWindow?.show();
+  });
+
+  syncIssuesWindow.on('close', () => {
+    syncIssuesWindow = null;
+  });
+
+  // Open urls in the user's browser
+  syncIssuesWindow.webContents.on('new-window', (event, url) => {
+    event.preventDefault();
+    shell.openExternal(url);
+  });
+
+  syncIssuesWindow.webContents.on('ipc-message', (_, channel) => {
+    if (channel === 'user-closed-window') syncIssuesWindow?.close();
+  });
+}

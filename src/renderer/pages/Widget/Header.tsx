@@ -16,6 +16,8 @@ export default function Header() {
     return removeListener;
   }, []);
 
+  const thereAreSyncIssues = numberOfSyncIssues > 0;
+
   const dropdown = (
     <Transition
       enter="transition duration-100 ease-out"
@@ -32,18 +34,18 @@ export default function Header() {
             <span>Preferences</span>
           </DropdownItem>
         </Menu.Item>
-        <Menu.Item>
-          <DropdownItem>
-            <div className="flex items-baseline">
-              <p>Sync issues</p>
-              {numberOfSyncIssues > 0 && (
+        {thereAreSyncIssues && (
+          <Menu.Item>
+            <DropdownItem onClick={window.electron.openSyncIssuesWindow}>
+              <div className="flex items-baseline">
+                <p>Sync issues</p>
                 <p className="ml-4 text-red-60 text-xs font-semibold">
                   {numberOfSyncIssues}
                 </p>
-              )}
-            </div>
-          </DropdownItem>
-        </Menu.Item>
+              </div>
+            </DropdownItem>
+          </Menu.Item>
+        )}
         <Menu.Item>
           <DropdownItem>
             <a

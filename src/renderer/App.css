@@ -42,3 +42,13 @@
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
+.draggable {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-app-region: drag;
+}
+
+.non-draggable {
+  -webkit-app-region: no-drag;
+}

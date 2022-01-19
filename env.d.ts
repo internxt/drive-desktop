@@ -10,6 +10,7 @@ declare global {
       APP_SEGMENT_KEY: string;
       APP_SEGMENT_KEY_TEST: string;
       BUG_REPORTING_URL: string;
+      platform: string;
     }
   }
 }

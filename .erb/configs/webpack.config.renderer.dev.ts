@@ -136,6 +136,7 @@ const configuration: webpack.Configuration = {
      */
     new webpack.EnvironmentPlugin({
       NODE_ENV: 'development',
+      platform: process.platform,
     }),
     new Dotenv({ ignoreStub: true }),
 
