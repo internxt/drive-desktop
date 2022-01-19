@@ -284,6 +284,7 @@ function trackRegisterViaDesktop() {
   analyticsLibrary.track({
     userId: uuid,
     event: 'Register Redirected',
+    anonymousId,
     context
   })
 }
