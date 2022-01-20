@@ -628,6 +628,7 @@ export type FileSystemProgressCallback = (progress: number) => void;
 
 export type Source = {
   stream: Readable;
+  additionalStream: Readable;
   modTime: number;
   size: number;
 };

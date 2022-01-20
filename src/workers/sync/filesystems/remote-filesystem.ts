@@ -356,11 +356,17 @@ export function getRemoteFilesystem(baseFolderId: number): FileSystem {
             },
           },
           {
-            label: 'OneStreamOnly',
+            label: 'OneShardOnly',
             params: {
-              source,
+              sourceToHash: {
+                stream: source.additionalStream,
+                size: source.size,
+              },
+              sourceToUpload: {
+                stream: source.stream,
+                size: source.size,
+              },
               useProxy: false,
-              concurrency: 10,
             },
           }
         );
@@ -531,6 +537,7 @@ export function getRemoteFilesystem(baseFolderId: number): FileSystem {
               } else {
                 resolve({
                   stream: downloadStream,
+                  additionalStream: downloadStream,
                   size: fileInCache.size as number,
                   modTime: fileInCache.modificationTime as number,
                 });
@@ -538,7 +545,7 @@ export function getRemoteFilesystem(baseFolderId: number): FileSystem {
             },
           },
           {
-            label: 'OneStreamOnly',
+            label: 'Dynamic',
             params: {
               useProxy: false,
               concurrency: 10,
