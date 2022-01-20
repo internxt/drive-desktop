@@ -33,6 +33,7 @@ export default function SyncIssuesList({
     <div className="flex-grow border border-l-neutral-30 rounded-lg m-4 min-h-0 overflow-y-auto no-scrollbar">
       {errors.map((error) => (
         <Item
+          key={error}
           onClick={() =>
             selectedErrorName === error
               ? setSelectedErrorName(null)
