@@ -1,5 +1,6 @@
 import { Dialog, Transition } from '@headlessui/react';
 import { Fragment, useState } from 'react';
+import { motion } from 'framer-motion';
 import { SyncIssue } from '../../../workers/sync';
 import { longMessages, shortMessages } from '../../messages/sync-error';
 import Spinner from '../../assets/spinner.svg';
@@ -87,7 +88,17 @@ export function ReportModal({
             leaveFrom="opacity-100 scale-100"
             leaveTo="opacity-0 scale-95"
           >
-            <div className="inline-block w-full max-w-md p-5 my-6 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-lg">
+            <motion.div
+              variants={{
+                INITIAL: { height: '150px' },
+                REPORTING: {
+                  height: requestState === 'ERROR' ? '305px' : '273px',
+                },
+              }}
+              animate={phase}
+              transition={{ duration: 0.08, type: 'spring' }}
+              className="inline-block w-full max-w-md p-5 my-6 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-lg"
+            >
               <Dialog.Title
                 as="h3"
                 className="font-medium leading-6 text-gray-90"
@@ -158,7 +169,7 @@ export function ReportModal({
                   )}
                 </button>
               </div>
-            </div>
+            </motion.div>
           </Transition.Child>
         </div>
       </Dialog>
