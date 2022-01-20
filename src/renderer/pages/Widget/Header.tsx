@@ -159,7 +159,7 @@ function AccountSection() {
             href="https://drive.internxt.com/storage"
             target="_blank"
             rel="noreferrer noopener"
-            className="ml-1 text-xs text-blue-60"
+            className="ml-1 text-xs text-blue-60 hover:text-blue-70 active:text-blue-80"
           >
             Upgrade
           </a>
