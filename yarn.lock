@@ -472,11 +472,12 @@
   resolved "https://registry.yarnpkg.com/@iconscout/vue-unicons/-/vue-unicons-0.0.3.tgz#3569422a46c2b242a39a5654b3f4dbe13a19e706"
   integrity sha512-wVYaEPNXNCqYoyrhEMoYAm8rxFnPmXLduzH3WmROTdU0D1qcuHj5AjxSCJ+OOs9+Tz3woUjDRjINlZHQmdiPBw==
 
-"@internxt/inxt-js@=1.2.14":
-  version "1.2.14"
-  resolved "https://npm.pkg.github.com/download/@internxt/inxt-js/1.2.14/0208ddb893d6ef50e8b2693c07c99217fa0f3a43dc1898dfa111defdac462385#1362f8c0ec0c084a1bb79af979d1133f1fbc85e0"
-  integrity sha512-RpsyA/e/eLK4z0pH3nG7jyziIuWLDOJrgZWU3bbaMJFuJRClEWg+QZKbnMzMe15mURjYRgFg8MXgmstt40dunw==
+"@internxt/inxt-js@=1.3.0":
+  version "1.3.0"
+  resolved "https://npm.pkg.github.com/download/@internxt/inxt-js/1.3.0/89a47918aa512d08227637eaddc0941c31b3aa9653d2e3639f15785d47c99008#442a1551efd6f3dc8d60cd35bfc7380663c65df7"
+  integrity sha512-lyHQXfaB+FEY1KgWS33w3ff4tnmQzejRxiOmGSgXljVrTZtVc2A3IFwSY5keobfyJu2rJKmIDlXwbse4gARM5A==
   dependencies:
+    "@internxt/lib" "^1.1.6"
     async "^3.2.0"
     axios "^0.23.0"
     bip39 "^3.0.2"
@@ -486,6 +487,11 @@
   version "1.1.3"
   resolved "https://npm.pkg.github.com/download/@internxt/lib/1.1.3/8e6b89849287a398904d5cf1a0016ef79fb6c8aca478bd076ac2d2142a72ed4b#6f0bbb68f52f9429375922800a5158185ab2ee39"
   integrity sha512-ATcInvNspO3xxvSQIVc+9iAUFq56MV+Q6cYkJytgfrwcajfjoHmVpchT5r35crgITQ7xGRspqp+7KMqPtvtaTw==
+
+"@internxt/lib@^1.1.6":
+  version "1.1.6"
+  resolved "https://npm.pkg.github.com/download/@internxt/lib/1.1.6/f756c6d77338d351ab797f40cc1bf3c25ecccf9ac0c8298c939ee5000ebc42d1#ea931ba39aa0e715704400603beb8833c73c05e4"
+  integrity sha512-xpnSpDsWr+jemV2aI71B39LGfXnNCsyv2VKND0JAgrOeyHXjnChH+IHxGLq/8f73HT47mpkNXrK4nfpzH4OaaQ==
 
 "@istanbuljs/load-nyc-config@^1.0.0":
   version "1.1.0"

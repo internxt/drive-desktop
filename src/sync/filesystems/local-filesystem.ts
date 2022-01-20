@@ -246,6 +246,7 @@ export function getLocalFilesystem(
       }
 
       const stream = createReadStream(tmpFilePath)
+      const additionalStream = createReadStream(tmpFilePath)
 
       const onEndOrError = () => fs.unlink(tmpFilePath)
 
@@ -254,7 +255,7 @@ export function getLocalFilesystem(
 
       Logger.debug(`Uploading ${name} from temp location ${tmpFilePath}`)
 
-      return { stream, modTime, size }
+      return { stream, additionalStream, modTime, size }
     },
 
     async smokeTest() {
