@@ -50,7 +50,7 @@ export default function SyncInfo() {
           <button
             tabIndex={0}
             type="button"
-            className={`text-xs font-medium text-blue-60 active:text-blue-70 select-none ${
+            className={`text-xs font-medium text-blue-60 hover:text-blue-70 active:text-blue-80 select-none ${
               items.length === 0 ? 'opacity-0' : ''
             }`}
             onClick={clearItems}
