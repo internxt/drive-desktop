@@ -35,6 +35,7 @@ import { SyncArgs, SyncInfoUpdatePayload } from '../workers/sync';
 import locksService from './locks-service';
 import { SyncFatalErrorName, SyncResult } from '../workers/sync/sync';
 import packageJson from '../../package.json';
+import { sendReport } from './bug-report';
 
 require('dotenv').config();
 
@@ -578,3 +579,7 @@ ipcMain.on('open-logs', () => {
   const logFolderPath = path.dirname(logfilePath);
   shell.openPath(logFolderPath);
 });
+
+// Handle send report
+
+ipcMain.handle('send-report', (_, report) => sendReport(report));

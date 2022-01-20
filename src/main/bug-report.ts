@@ -3,15 +3,20 @@ import { createReadStream } from 'fs';
 import fs from 'fs/promises';
 import fetch from 'electron-fetch';
 import FormData from 'form-data';
+import path from 'path';
 import { ErrorDetails } from '../workers/sync/sync';
 import { getToken } from './auth';
 import packageJson from '../../package.json';
 
-export async function reportBug(
-  errorDetails: ErrorDetails,
-  userComment: string,
-  includeLogs: boolean
-): Promise<void> {
+export async function sendReport({
+  errorDetails,
+  userComment,
+  includeLogs,
+}: {
+  errorDetails: ErrorDetails;
+  userComment: string;
+  includeLogs: boolean;
+}): Promise<void> {
   const form = new FormData();
 
   const reportBody = {
@@ -26,16 +31,18 @@ export async function reportBug(
     form.append('logs', await readLog());
   }
 
-  await fetch(process.env.BUG_REPORTING_URL, {
+  const res = await fetch(process.env.BUG_REPORTING_URL, {
     method: 'POST',
     body: form,
     headers: { Authorization: `Bearer ${getToken()}` },
   });
+  if (!res.ok) throw new Error();
 }
 
 export function readLog(): Promise<string> {
   return new Promise(async (resolve, reject) => {
-    const logPath = log.transports.file.getFile().path;
+    const logDir = path.parse(log.transports.file.getFile().path).dir;
+    const logPath = path.join(logDir, 'renderer.log');
 
     const MAX_SIZE = 1024 * 1024 * 5;
 

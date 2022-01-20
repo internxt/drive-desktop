@@ -51,5 +51,7 @@ declare interface Window {
     openSyncIssuesWindow(): void;
 
     openLogs(): void;
+
+    sendReport: typeof import('../main/bug-report').sendReport;
   };
 }

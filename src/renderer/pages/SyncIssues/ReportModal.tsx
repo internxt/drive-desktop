@@ -2,6 +2,7 @@ import { Dialog, Transition } from '@headlessui/react';
 import { Fragment, useState } from 'react';
 import { SyncIssue } from '../../../workers/sync';
 import { longMessages, shortMessages } from '../../messages/sync-error';
+import Spinner from '../../assets/spinner.svg';
 
 export function ReportModal({
   data,
@@ -11,6 +12,12 @@ export function ReportModal({
   onClose: () => void;
 }) {
   const [phase, setPhase] = useState<'INITIAL' | 'REPORTING'>('INITIAL');
+  const [requestState, setRequestState] = useState<
+    'READY' | 'SENDING' | 'ERROR'
+  >('READY');
+
+  const [includeLogs, setIncludeLogs] = useState(true);
+  const [userComment, setUserComment] = useState('');
 
   const dialogTitle = data ? shortMessages[data.errorName] : undefined;
   const errorDescription = data ? longMessages[data.errorName] : undefined;
@@ -29,6 +36,20 @@ export function ReportModal({
       .&nbsp; You can also send a report about this error.
     </>
   );
+
+  async function handleSubmit() {
+    setRequestState('SENDING');
+    try {
+      await window.electron.sendReport({
+        errorDetails: data!.errorDetails,
+        userComment,
+        includeLogs,
+      });
+      onClose();
+    } catch {
+      setRequestState('ERROR');
+    }
+  }
 
   return (
     <Transition appear show={data !== null} as={Fragment}>
@@ -81,13 +102,27 @@ export function ReportModal({
               {phase === 'REPORTING' && (
                 <>
                   <p className="mt-2 text-gray-50 text-xs">Comments</p>
-                  <textarea className="w-full mt-1 text-xs outline-none border-l-neutral-40 border p-1 rounded-md text-gray-80 h-16 resize-none caret-gray-60" />
+                  <textarea
+                    value={userComment}
+                    onChange={(e) => setUserComment(e.target.value)}
+                    className="w-full mt-1 text-xs outline-none border-l-neutral-40 border p-1 rounded-md text-gray-80 h-16 resize-none caret-gray-60"
+                  />
                   <div className="flex items-center mt-2">
-                    <input type="checkbox" />
+                    <input
+                      checked={includeLogs}
+                      onChange={(e) => setIncludeLogs(e.target.checked)}
+                      type="checkbox"
+                    />
                     <p className="text-xs ml-1 text-gray-50">
                       Include the logs of this sync process for debug purposes
                     </p>
                   </div>
+                  {requestState === 'ERROR' && (
+                    <p className="text-red-60 text-xs mt-4">
+                      We could not send your request, make sure you are
+                      connected to the internet
+                    </p>
+                  )}
                 </>
               )}
 
@@ -101,14 +136,26 @@ export function ReportModal({
                 >
                   {phase === 'INITIAL' ? 'Close' : 'Cancel'}
                 </button>
+
                 <button
+                  disabled={requestState === 'SENDING'}
                   type="button"
                   onClick={() =>
-                    phase === 'INITIAL' ? setPhase('REPORTING') : true
+                    phase === 'INITIAL' ? setPhase('REPORTING') : handleSubmit()
                   }
-                  className="px-4 py-1 rounded-lg text-white bg-blue-60 hover:bg-blue-70 active:bg-blue-80 text-sm"
+                  className="w-20 h-7 px-4 py-1 rounded-lg text-white bg-blue-60 hover:bg-blue-70 active:bg-blue-80 disabled:bg-blue-30 text-sm"
                 >
-                  {phase === 'INITIAL' ? 'Report' : 'Send'}
+                  {phase === 'INITIAL' ? (
+                    'Report'
+                  ) : requestState === 'SENDING' ? (
+                    <Spinner
+                      className="fill-white animate-spin mx-auto"
+                      width="18"
+                      height="18"
+                    />
+                  ) : (
+                    'Send'
+                  )}
                 </button>
               </div>
             </div>
