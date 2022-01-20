@@ -6,6 +6,7 @@ import { SyncErrorName } from '../../../workers/sync/sync';
 import WarnIcon from '../../assets/warn.svg';
 import FileIcon from '../../assets/file.svg';
 import { shortMessages } from '../../messages/sync-error';
+import getDisplayName from '../../utils/get-display-name';
 
 export default function SyncIssuesList({
   syncIssues,
@@ -106,7 +107,7 @@ function Item({
               <div className="flex items-center min-w-0 overflow-hidden mt-2">
                 <FileIcon className="h-5 w-5 flex-shrink-0" />
                 <p className="flex-grow text-gray-70 ml-2 truncate">
-                  {issue.name}
+                  {getDisplayName(issue.name)}
                 </p>
               </div>
             ))}
