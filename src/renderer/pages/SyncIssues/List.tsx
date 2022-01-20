@@ -105,7 +105,10 @@ function Item({
             className="pl-10 overflow-hidden"
           >
             {issues.map((issue) => (
-              <div className="flex items-center min-w-0 overflow-hidden mt-2">
+              <div
+                className="flex items-center min-w-0 overflow-hidden mt-2"
+                key={issue.name}
+              >
                 <FileIcon className="h-5 w-5 flex-shrink-0" />
                 <p className="flex-grow text-gray-70 ml-2 truncate">
                   {getDisplayName(issue.name)}
