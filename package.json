@@ -218,6 +218,7 @@
     "electron-log": "^4.4.4",
     "electron-store": "^8.0.1",
     "electron-updater": "^4.6.4",
+    "form-data": "^4.0.0",
     "framer-motion": "^5.6.0",
     "history": "^5.2.0",
     "lodash": "^4.17.21",
