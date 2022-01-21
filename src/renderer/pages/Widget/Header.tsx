@@ -129,7 +129,9 @@ function AccountSection() {
     usageDisplayElement = (
       <p className="text-xs text-neutral-500">{`${bytes.format(
         rawUsage.usageInBytes
-      )} of ${bytes.format(rawUsage.limitInBytes)}`}</p>
+      )} of ${
+        rawUsage.isInfinite ? '∞' : bytes.format(rawUsage.limitInBytes)
+      }`}</p>
     );
 
   return (
