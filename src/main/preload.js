@@ -82,4 +82,7 @@ contextBridge.exposeInMainWorld('electron', {
   openSettingsWindow() {
     return ipcRenderer.send('open-settings-window');
   },
+  settingsWindowResized(payload) {
+    return ipcRenderer.send('settings-window-resized', payload);
+  },
 });

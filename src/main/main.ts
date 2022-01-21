@@ -630,3 +630,11 @@ async function openSettingsWindow() {
     if (channel === 'user-closed-window') settingsWindow?.close();
   });
 }
+
+// Handle settings window resize
+
+ipcMain.on('settings-window-resized', (_, { width, height }) => {
+  if (settingsWindow) {
+    settingsWindow.setBounds({ height, width });
+  }
+});

@@ -55,5 +55,7 @@ declare interface Window {
     sendReport: typeof import('../main/bug-report').sendReport;
 
     openSettingsWindow(): void;
+
+    settingsWindowResized(payload: { width: number; height: number }): void;
   };
 }
