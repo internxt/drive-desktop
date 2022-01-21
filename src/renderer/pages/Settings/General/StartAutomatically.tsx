@@ -1,5 +1,5 @@
 export default function StartAutomatically({
-  className,
+  className = '',
 }: {
   className: string;
 }) {
