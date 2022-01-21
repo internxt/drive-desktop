@@ -4,8 +4,8 @@ import { ReactNode, useEffect, useState } from 'react';
 import bytes from 'bytes';
 
 import { User } from '../../../main/types';
-import { getUsage, Usage } from '../../utils/usage';
 import useSyncIssues from '../../hooks/SyncIssues';
+import useUsage from '../../hooks/Usage';
 
 export default function Header() {
   const syncIssues = useSyncIssues();
@@ -114,24 +114,7 @@ function AccountSection() {
     window.electron.getUser().then(setUser);
   }, []);
 
-  const [rawUsage, setRawUsage] = useState<Usage | 'loading' | 'error'>(
-    'loading'
-  );
-
-  async function updateUsage() {
-    setRawUsage('loading');
-    try {
-      const usage = await getUsage();
-      setRawUsage(usage);
-    } catch (err) {
-      console.error(err);
-      setRawUsage('error');
-    }
-  }
-
-  useEffect(() => {
-    updateUsage();
-  }, []);
+  const rawUsage = useUsage();
 
   const usageIsAvailable = rawUsage !== 'loading' && rawUsage !== 'error';
 
