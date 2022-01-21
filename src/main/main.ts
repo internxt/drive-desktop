@@ -285,7 +285,7 @@ ipcMain.handle('get-headers', () => {
 // Broadcast to renderers
 
 function broadcastToRenderers(eventName: string, data: any) {
-  const renderers = [widget, syncIssuesWindow];
+  const renderers = [widget, syncIssuesWindow, settingsWindow];
 
   renderers.forEach((r) => r?.webContents.send(eventName, data));
 }
@@ -527,11 +527,12 @@ ipcMain.on('SYNC_INFO_UPDATE', (_, payload: SyncInfoUpdatePayload) => {
 
 ipcMain.handle('get-sync-issues', () => syncIssues);
 
+// Sync issues window
+
 let syncIssuesWindow: BrowserWindow | null = null;
 
 ipcMain.on('open-sync-issues-window', openSyncIssuesWindow);
 
-// Sync issues window
 async function openSyncIssuesWindow() {
   if (syncIssuesWindow) {
     syncIssuesWindow.focus();
@@ -583,3 +584,49 @@ ipcMain.on('open-logs', () => {
 // Handle send report
 
 ipcMain.handle('send-report', (_, report) => sendReport(report));
+
+// Settings window
+
+let settingsWindow: BrowserWindow | null = null;
+
+ipcMain.on('open-settings-window', openSettingsWindow);
+
+async function openSettingsWindow() {
+  if (settingsWindow) {
+    settingsWindow.focus();
+    return;
+  }
+
+  settingsWindow = new BrowserWindow({
+    width: 500,
+    height: 428,
+    show: false,
+    webPreferences: {
+      preload: path.join(__dirname, 'preload.js'),
+    },
+    titleBarStyle: process.platform === 'darwin' ? 'hidden' : undefined,
+    frame: process.platform !== 'darwin' ? false : undefined,
+    resizable: false,
+    maximizable: false,
+  });
+
+  settingsWindow.loadURL(resolveHtmlPath('index.html', 'settings'));
+
+  settingsWindow.on('ready-to-show', () => {
+    settingsWindow?.show();
+  });
+
+  settingsWindow.on('close', () => {
+    settingsWindow = null;
+  });
+
+  // Open urls in the user's browser
+  settingsWindow.webContents.on('new-window', (event, url) => {
+    event.preventDefault();
+    shell.openExternal(url);
+  });
+
+  settingsWindow.webContents.on('ipc-message', (_, channel) => {
+    if (channel === 'user-closed-window') settingsWindow?.close();
+  });
+}

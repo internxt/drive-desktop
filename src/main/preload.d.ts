@@ -53,5 +53,7 @@ declare interface Window {
     openLogs(): void;
 
     sendReport: typeof import('../main/bug-report').sendReport;
+
+    openSettingsWindow(): void;
   };
 }
