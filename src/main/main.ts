@@ -24,6 +24,7 @@ import {
 import { autoUpdater } from 'electron-updater';
 import Logger from 'electron-log';
 import * as uuid from 'uuid';
+import lodash from 'lodash';
 import { resolveHtmlPath } from './util';
 import * as Auth from './auth';
 import { AccessResponse } from '../renderer/pages/Login/service';
@@ -635,11 +636,20 @@ async function openSettingsWindow() {
 
 // Handle settings window resize
 
-ipcMain.on('settings-window-resized', (_, { width, height }) => {
+function handleSettingsWindowResize(
+  _: Electron.Event,
+  { height }: { width: number; height: number }
+) {
   if (settingsWindow) {
-    settingsWindow.setBounds({ height, width });
+    // Not ceiling the height makes this function throw
+    // in windows
+    settingsWindow.setBounds({ height: Math.ceil(height) });
   }
-});
+}
+ipcMain.on(
+  'settings-window-resized',
+  lodash.debounce(handleSettingsWindowResize, 10)
+);
 
 // Handle auto launch
 
