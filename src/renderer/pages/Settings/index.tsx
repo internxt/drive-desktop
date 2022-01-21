@@ -11,7 +11,7 @@ export default function Settings() {
       <WindowTopBar title="Internxt Drive" />
       <Header active={activeSection} onClick={setActiveSection} />
       <div className="bg-l-neutral-10 flex-grow border-t border-t-l-neutral-30 p-8">
-        {activeSection === 'GENERAL' && <GeneralSection />}
+        <GeneralSection active={activeSection === 'GENERAL'} />
       </div>
     </div>
   );
