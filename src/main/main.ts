@@ -36,6 +36,7 @@ import locksService from './locks-service';
 import { SyncFatalErrorName, SyncResult } from '../workers/sync/sync';
 import packageJson from '../../package.json';
 import { sendReport } from './bug-report';
+import { isAutoLaunchEnabled, toggleAutoLaunch } from './auto-launch';
 
 require('dotenv').config();
 
@@ -639,3 +640,9 @@ ipcMain.on('settings-window-resized', (_, { width, height }) => {
     settingsWindow.setBounds({ height, width });
   }
 });
+
+// Handle auto launch
+
+ipcMain.handle('is-auto-launch-enabled', () => isAutoLaunchEnabled(app));
+
+ipcMain.handle('toggle-auto-launch', () => toggleAutoLaunch(app));

@@ -85,4 +85,10 @@ contextBridge.exposeInMainWorld('electron', {
   settingsWindowResized(payload) {
     return ipcRenderer.send('settings-window-resized', payload);
   },
+  isAutoLaunchEnabled() {
+    return ipcRenderer.invoke('is-auto-launch-enabled');
+  },
+  toggleAutoLaunch() {
+    return ipcRenderer.invoke('toggle-auto-launch');
+  },
 });

@@ -57,5 +57,9 @@ declare interface Window {
     openSettingsWindow(): void;
 
     settingsWindowResized(payload: { width: number; height: number }): void;
+
+    isAutoLaunchEnabled(): Promise<boolean>;
+
+    toggleAutoLaunch(): Promise<void>;
   };
 }
