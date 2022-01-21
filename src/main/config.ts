@@ -12,7 +12,6 @@ export const fieldsToSave = [
 ] as const;
 
 interface ConfigStore {
-  autoLaunch: boolean;
   bearerToken: string;
   userData: User;
   mnemonic: string;
@@ -27,9 +26,6 @@ interface ConfigStore {
 }
 
 const schema: Schema<ConfigStore> = {
-  autoLaunch: {
-    type: 'boolean',
-  },
   bearerToken: {
     type: 'string',
   },
@@ -66,7 +62,6 @@ const schema: Schema<ConfigStore> = {
 } as const;
 
 export const defaults: ConfigStore = {
-  autoLaunch: true,
   bearerToken: '',
   userData: {} as User,
   mnemonic: '',
