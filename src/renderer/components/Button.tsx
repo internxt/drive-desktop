@@ -5,13 +5,13 @@ export default function Button({
   children,
   className = '',
   disabled = false,
-  onClick,
+  onClick = () => undefined,
 }: {
   variant?: 'default' | 'primary' | 'danger' | 'secondary';
   children: ReactNode;
   className?: string;
   disabled?: boolean;
-  onClick: () => void;
+  onClick?: () => void;
 }) {
   let styles = '';
 
