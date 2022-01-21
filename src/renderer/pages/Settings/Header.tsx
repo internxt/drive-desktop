@@ -32,7 +32,7 @@ export default function Header({
     );
 
   return (
-    <div className="draggable">
+    <div className="draggable pb-1">
       <div className="flex mx-auto w-max relative non-draggable">
         <motion.div
           animate={active}
