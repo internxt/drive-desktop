@@ -245,6 +245,7 @@ ipcMain.on('user-logged-in', (_, data: AccessResponse) => {
 
 function closeAuxWindows() {
   syncIssuesWindow?.close();
+  settingsWindow?.close();
 }
 
 ipcMain.on('user-logged-out', () => {
