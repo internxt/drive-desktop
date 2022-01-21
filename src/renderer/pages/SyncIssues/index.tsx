@@ -13,7 +13,7 @@ export default function Index() {
   > | null>(null);
 
   return (
-    <div className="h-screen overflow-hidden flex flex-col">
+    <div className="h-screen overflow-hidden flex flex-col bg-l-neutral-10">
       <WindowTopBar title="Sync issues" />
       <div className="flex justify-between items-center pt-4 pr-3 pl-4 flex-grow-0 draggable">
         <p className="font-medium text-gray-80 text-sm">

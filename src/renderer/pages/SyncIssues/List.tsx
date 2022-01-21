@@ -30,7 +30,7 @@ export default function SyncIssuesList({
     });
   }
   return (
-    <div className="flex-grow border border-l-neutral-30 rounded-lg m-4 min-h-0 overflow-y-auto no-scrollbar">
+    <div className="flex-grow border bg-white border-l-neutral-30 rounded-lg m-4 min-h-0 overflow-y-auto no-scrollbar">
       {errors.map((error) => (
         <Item
           key={error}
@@ -45,6 +45,15 @@ export default function SyncIssuesList({
           isSelected={selectedErrorName === error}
         />
       ))}
+      {errors.length === 0 && <Empty />}
+    </div>
+  );
+}
+
+function Empty() {
+  return (
+    <div className="flex items-center justify-center select-none h-full">
+      <p className="text-xs font-medium text-m-neutral-60">No issues found</p>
     </div>
   );
 }
