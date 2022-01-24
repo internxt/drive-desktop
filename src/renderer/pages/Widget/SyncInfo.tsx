@@ -10,9 +10,12 @@ import useSyncStatus from '../../hooks/SyncStatus';
 import { shortMessages } from '../../messages/sync-error';
 import { SyncErrorName } from '../../../workers/sync/sync';
 import { getBaseName } from '../../utils/path';
+import useSyncStopped from '../../hooks/SyncStopped';
 
 export default function SyncInfo() {
   const [items, setItems] = useState<SyncInfoUpdatePayload[]>([]);
+
+  const [syncStopped] = useSyncStopped();
 
   useEffect(() => {
     const removeListener = window.electron.onSyncInfoUpdate(onSyncItem);
@@ -42,6 +45,21 @@ export default function SyncInfo() {
   function clearItems() {
     setItems([]);
   }
+
+  function removeOnProgressItems() {
+    setItems((currentItems) => {
+      return currentItems.filter(
+        (item) =>
+          item.action !== 'DELETE' &&
+          item.action !== 'PULL' &&
+          item.action !== 'RENAME'
+      );
+    });
+  }
+
+  useEffect(() => {
+    if (syncStopped) removeOnProgressItems();
+  }, [syncStopped]);
 
   return (
     <div className="flex-grow min-h-0 bg-l-neutral-10 border-t border-t-l-neutral-30 px-3 relative">
