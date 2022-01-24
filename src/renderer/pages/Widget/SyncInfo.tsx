@@ -9,7 +9,7 @@ import FileWithOperation, {
 import useSyncStatus from '../../hooks/SubscribeToSyncStatus';
 import { shortMessages } from '../../messages/sync-error';
 import { SyncErrorName } from '../../../workers/sync/sync';
-import getDisplayName from '../../utils/get-display-name';
+import { getBaseName } from '../../utils/path';
 
 export default function SyncInfo() {
   const [items, setItems] = useState<SyncInfoUpdatePayload[]>([]);
@@ -129,7 +129,7 @@ function Item({
     description = 'Deleted from Internxt Drive';
   else if (errorName) description = shortMessages[errorName];
 
-  const displayName = getDisplayName(name);
+  const displayName = getBaseName(name);
 
   return (
     <div className="h-10 my-4 flex items-center w-full overflow-hidden select-none">

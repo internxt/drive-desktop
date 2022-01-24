@@ -20,11 +20,11 @@ import {
   ipcMain,
   screen,
   powerSaveBlocker,
+  dialog,
 } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import Logger from 'electron-log';
 import * as uuid from 'uuid';
-import lodash from 'lodash';
 import { resolveHtmlPath } from './util';
 import * as Auth from './auth';
 import { AccessResponse } from '../renderer/pages/Login/service';
@@ -661,4 +661,28 @@ ipcMain.handle('get-backups-interval', () => {
 
 ipcMain.handle('set-backups-interval', (_, newValue: number) => {
   return configStore.set('backupInterval', newValue);
+});
+
+// Handle sync root setting
+
+ipcMain.handle('get-sync-root', () => {
+  return configStore.get('syncRoot');
+});
+
+ipcMain.handle('set-sync-root', async () => {
+  const result = await dialog.showOpenDialog({ properties: ['openDirectory'] });
+  if (!result.canceled) {
+    const chosenPath = result.filePaths[0];
+    const chosenPathWithSepInTheEnd =
+      chosenPath[chosenPath.length - 1] === path.sep
+        ? chosenPath
+        : chosenPath + path.sep;
+
+    configStore.set('syncRoot', chosenPathWithSepInTheEnd);
+    configStore.set('lastSavedListing', '');
+
+    return chosenPathWithSepInTheEnd;
+  } else {
+    return null;
+  }
 });

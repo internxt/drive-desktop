@@ -97,4 +97,10 @@ contextBridge.exposeInMainWorld('electron', {
   setBackupsInterval(value) {
     return ipcRenderer.invoke('set-backups-interval', value);
   },
+  getSyncRoot() {
+    return ipcRenderer.invoke('get-sync-root');
+  },
+  setSyncRoot() {
+    return ipcRenderer.invoke('set-sync-root');
+  },
 });

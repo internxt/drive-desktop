@@ -65,5 +65,9 @@ declare interface Window {
     getBackupsInterval(): Promise<number>;
 
     setBackupsInterval(value: number): Promise<void>;
+
+    getSyncRoot(): Promise<string>;
+
+    setSyncRoot(): Promise<string | null>;
   };
 }
