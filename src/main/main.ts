@@ -636,19 +636,15 @@ async function openSettingsWindow() {
 
 // Handle settings window resize
 
-function handleSettingsWindowResize(
-  _: Electron.Event,
-  { height }: { width: number; height: number }
-) {
-  if (settingsWindow) {
-    // Not ceiling the height makes this function throw
-    // in windows
-    settingsWindow.setBounds({ height: Math.ceil(height) });
-  }
-}
 ipcMain.on(
   'settings-window-resized',
-  lodash.debounce(handleSettingsWindowResize, 10)
+  (_, { height }: { width: number; height: number }) => {
+    if (settingsWindow) {
+      // Not ceiling the height makes this function throw
+      // in windows
+      settingsWindow.setBounds({ height: Math.trunc(height) });
+    }
+  }
 );
 
 // Handle auto launch
