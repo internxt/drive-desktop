@@ -4,6 +4,7 @@ import PlayButton from '../../assets/play.svg';
 import StopButton from '../../assets/stop.svg';
 import Spinner from '../../assets/spinner.svg';
 import useSyncStatus from '../../hooks/SyncStatus';
+import useSyncStopped from '../../hooks/SyncStopped';
 
 export default function SyncAction() {
   const [state, setState] = useState<SyncStatus | 'LOADING'>('STANDBY');
@@ -12,8 +13,10 @@ export default function SyncAction() {
 
   useSyncStatus(setState);
 
+  const [syncStoppedReason] = useSyncStopped();
+
   useEffect(() => {
-    if (state === 'STANDBY') {
+    if (state === 'STANDBY' && syncStoppedReason?.reason === 'EXIT') {
       setShowUpdatedJustNow(true);
       const timeout = setTimeout(() => setShowUpdatedJustNow(false), 1000 * 10);
       return () => {
