@@ -75,7 +75,7 @@ function Item({
       }`}
     >
       <Icon size="27px" />
-      <p className="font-medium text-xs capitalize">{title.toLowerCase()}</p>
+      <p className="text-xs capitalize">{title.toLowerCase()}</p>
     </button>
   );
 }
