@@ -61,5 +61,9 @@ declare interface Window {
     isAutoLaunchEnabled(): Promise<boolean>;
 
     toggleAutoLaunch(): Promise<void>;
+
+    getBackupsInterval(): Promise<number>;
+
+    setBackupsInterval(value: number): Promise<void>;
   };
 }

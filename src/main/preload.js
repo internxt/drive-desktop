@@ -91,4 +91,10 @@ contextBridge.exposeInMainWorld('electron', {
   toggleAutoLaunch() {
     return ipcRenderer.invoke('toggle-auto-launch');
   },
+  getBackupsInterval() {
+    return ipcRenderer.invoke('get-backups-interval');
+  },
+  setBackupsInterval(value) {
+    return ipcRenderer.invoke('set-backups-interval', value);
+  },
 });

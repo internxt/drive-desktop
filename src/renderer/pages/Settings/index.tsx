@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import WindowTopBar from '../../components/WindowTopBar';
 import AccountSection from './Account';
+import BackupsSection from './Backups';
 import GeneralSection from './General';
 import Header, { Section } from './Header';
 
@@ -27,6 +28,7 @@ export default function Settings() {
       <div className="bg-l-neutral-10 border-t border-t-l-neutral-30 p-8">
         <GeneralSection active={activeSection === 'GENERAL'} />
         <AccountSection active={activeSection === 'ACCOUNT'} />
+        <BackupsSection active={activeSection === 'BACKUPS'} />
       </div>
     </div>
   );

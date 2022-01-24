@@ -652,3 +652,13 @@ ipcMain.on(
 ipcMain.handle('is-auto-launch-enabled', () => isAutoLaunchEnabled(app));
 
 ipcMain.handle('toggle-auto-launch', () => toggleAutoLaunch(app));
+
+// Handle backups interval
+
+ipcMain.handle('get-backups-interval', () => {
+  return configStore.get('backupInterval');
+});
+
+ipcMain.handle('set-backups-interval', (_, newValue: number) => {
+  return configStore.set('backupInterval', newValue);
+});
