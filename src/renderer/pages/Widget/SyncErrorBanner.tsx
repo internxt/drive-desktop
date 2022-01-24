@@ -1,17 +1,12 @@
-import { useEffect, useState } from 'react';
 import Warn from '../../assets/warn.svg';
 import Error from '../../assets/error.svg';
-import { SyncStatus, SyncStoppedPayload } from '../../../main/main';
+import { SyncStatus } from '../../../main/main';
 import FatalErrorMessages from '../../messages/sync-fatal-error';
-import useSyncStatus from '../../hooks/SubscribeToSyncStatus';
+import useSyncStatus from '../../hooks/SyncStatus';
+import useSyncStopped from '../../hooks/SyncStopped';
 
 export default function SyncErrorBanner() {
-  const [stopReason, setStopReason] = useState<SyncStoppedPayload | null>(null);
-
-  useEffect(() => {
-    const removeListener = window.electron.onSyncStopped(setStopReason);
-    return removeListener;
-  }, []);
+  const [stopReason, setStopReason] = useSyncStopped();
 
   function onSyncStatusChanged(value: SyncStatus) {
     if (value === 'RUNNING') setStopReason(null);

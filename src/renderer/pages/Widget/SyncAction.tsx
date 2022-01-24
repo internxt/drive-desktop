@@ -3,7 +3,7 @@ import { SyncStatus } from '../../../main/main';
 import PlayButton from '../../assets/play.svg';
 import StopButton from '../../assets/stop.svg';
 import Spinner from '../../assets/spinner.svg';
-import useSyncStatus from '../../hooks/SubscribeToSyncStatus';
+import useSyncStatus from '../../hooks/SyncStatus';
 
 export default function SyncAction() {
   const [state, setState] = useState<SyncStatus | 'LOADING'>('STANDBY');

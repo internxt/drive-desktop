@@ -6,7 +6,7 @@ import FileIcon from '../../assets/file.svg';
 import FileWithOperation, {
   Operation,
 } from '../../components/FileWithOperation';
-import useSyncStatus from '../../hooks/SubscribeToSyncStatus';
+import useSyncStatus from '../../hooks/SyncStatus';
 import { shortMessages } from '../../messages/sync-error';
 import { SyncErrorName } from '../../../workers/sync/sync';
 import { getBaseName } from '../../utils/path';
