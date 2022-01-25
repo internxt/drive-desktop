@@ -32,6 +32,7 @@ import './auto-launch/handlers';
 import './logger';
 import './bug-report/handlers';
 import './auth/handlers';
+import { getSettingsWindow } from './windows/settings-window';
 
 // Only effective during development
 // the variables are injected
@@ -242,7 +243,7 @@ ipcMain.on('user-logged-in', (_, data: AccessResponse) => {
 
 function closeAuxWindows() {
   syncIssuesWindow?.close();
-  settingsWindow?.close();
+  getSettingsWindow()?.close();
 }
 
 ipcMain.on('user-logged-out', () => {
@@ -258,7 +259,7 @@ ipcMain.on('user-logged-out', () => {
 // Broadcast to renderers
 
 function broadcastToRenderers(eventName: string, data: any) {
-  const renderers = [widget, syncIssuesWindow, settingsWindow];
+  const renderers = [widget, syncIssuesWindow, getSettingsWindow()];
 
   renderers.forEach((r) => r?.webContents.send(eventName, data));
 }
@@ -545,65 +546,6 @@ async function openSyncIssuesWindow() {
     if (channel === 'user-closed-window') syncIssuesWindow?.close();
   });
 }
-
-// Settings window
-
-let settingsWindow: BrowserWindow | null = null;
-
-ipcMain.on('open-settings-window', openSettingsWindow);
-
-async function openSettingsWindow() {
-  if (settingsWindow) {
-    settingsWindow.focus();
-    return;
-  }
-
-  settingsWindow = new BrowserWindow({
-    width: 500,
-    height: 428,
-    show: false,
-    webPreferences: {
-      preload: path.join(__dirname, 'preload.js'),
-    },
-    titleBarStyle: process.platform === 'darwin' ? 'hidden' : undefined,
-    frame: process.platform !== 'darwin' ? false : undefined,
-    resizable: false,
-    maximizable: false,
-  });
-
-  settingsWindow.loadURL(resolveHtmlPath('settings'));
-
-  settingsWindow.on('ready-to-show', () => {
-    settingsWindow?.show();
-  });
-
-  settingsWindow.on('close', () => {
-    settingsWindow = null;
-  });
-
-  // Open urls in the user's browser
-  settingsWindow.webContents.on('new-window', (event, url) => {
-    event.preventDefault();
-    shell.openExternal(url);
-  });
-
-  settingsWindow.webContents.on('ipc-message', (_, channel) => {
-    if (channel === 'user-closed-window') settingsWindow?.close();
-  });
-}
-
-// Handle settings window resize
-
-ipcMain.on(
-  'settings-window-resized',
-  (_, { height }: { width: number; height: number }) => {
-    if (settingsWindow) {
-      // Not ceiling the height makes this function throw
-      // in windows
-      settingsWindow.setBounds({ height: Math.trunc(height) });
-    }
-  }
-);
 
 // Handle backups interval
 
