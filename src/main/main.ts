@@ -2,23 +2,13 @@ import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 
 import path from 'path';
-import {
-  app,
-  BrowserWindow,
-  shell,
-  ipcMain,
-  screen,
-  powerSaveBlocker,
-} from 'electron';
+import { app, BrowserWindow, ipcMain, powerSaveBlocker } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import Logger from 'electron-log';
 import * as uuid from 'uuid';
-import { resolveHtmlPath } from './util';
 import * as Auth from './auth/service';
 import { AccessResponse } from '../renderer/pages/Login/service';
 import { setupRootFolder } from './sync-root-folder/service';
-import TrayMenu from './tray';
-import dimentions from './widget-bounds';
 import configStore from './config';
 import { SyncArgs, SyncInfoUpdatePayload } from '../workers/sync';
 import locksService from './locks-service';
@@ -34,6 +24,8 @@ import './bug-report/handlers';
 import './auth/handlers';
 import { getSettingsWindow } from './windows/settings';
 import { getSyncIssuesWindow } from './windows/sync-issues';
+import { getTray, setupTrayIcon } from './tray';
+import { createWidget, getWidget } from './windows/widget';
 
 // Only effective during development
 // the variables are injected
@@ -81,134 +73,17 @@ ipcMain.on('user-quit', () => {
 
 app
   .whenReady()
-  .then(() => {
+  .then(async () => {
     setupTrayIcon();
+
+    if (process.env.NODE_ENV === 'development') {
+      await installExtensions();
+    }
     createWidget();
     checkForUpdates();
     if (isLoggedIn) startBackgroundProcesses();
   })
   .catch(Logger.error);
-
-// ******** WIDGET ***************************************************************** //
-
-let widget: BrowserWindow | null = null;
-let currentWidgetPath = '/';
-
-const createWidget = async () => {
-  if (process.env.NODE_ENV === 'development') {
-    await installExtensions();
-  }
-
-  widget = new BrowserWindow({
-    show: false,
-    webPreferences: {
-      preload: path.join(__dirname, 'preload.js'),
-    },
-    movable: false,
-    frame: false,
-    resizable: false,
-    maximizable: false,
-    skipTaskbar: true,
-  });
-
-  widget.loadURL(resolveHtmlPath(''));
-
-  widget.on('ready-to-show', () => {
-    widget?.show();
-  });
-
-  widget.on('blur', () => {
-    widget?.hide();
-  });
-
-  // Open urls in the user's browser
-  widget.webContents.on('new-window', (event, url) => {
-    event.preventDefault();
-    shell.openExternal(url);
-  });
-
-  widget.webContents.on('ipc-message', (_, channel, payload) => {
-    if (channel === 'user-closed-window') widget?.close();
-
-    // Current widget pathname
-
-    if (channel === 'path-changed') {
-      console.log('Renderer navigated to ', payload);
-
-      currentWidgetPath = payload;
-
-      setBoundsOfWidgetByPath(payload);
-    }
-  });
-};
-
-function toggleWidgetVisibility() {
-  if (!widget) {
-    return;
-  }
-
-  if (widget.isVisible()) widget.hide();
-  else widget.show();
-}
-
-function getLocationUnderTray(
-  { width, height }: { width: number; height: number },
-  bounds: Electron.Rectangle
-): { x: number; y: number } {
-  const display = screen.getDisplayMatching(bounds);
-  let x = Math.min(
-    bounds.x - display.workArea.x - width / 2,
-    display.workArea.width - width
-  );
-  x += display.workArea.x;
-  x = Math.max(display.workArea.x, x);
-  let y = Math.min(
-    bounds.y - display.workArea.y - height / 2,
-    display.workArea.height - height
-  );
-  y += display.workArea.y;
-  y = Math.max(display.workArea.y, y);
-  return {
-    x,
-    y,
-  };
-}
-
-function setBoundsOfWidgetByPath(pathname: string) {
-  const { placeUnderTray, ...size } = dimentions[pathname];
-
-  const bounds = tray?.bounds;
-
-  if (placeUnderTray && bounds) {
-    const location = getLocationUnderTray(size, bounds);
-    widget?.setBounds({ ...size, ...location });
-  } else {
-    widget?.center();
-    widget?.setBounds(size);
-  }
-}
-
-// ****** TRAY ICON ************************************************************************* //
-
-let tray: TrayMenu | null = null;
-function setupTrayIcon() {
-  const RESOURCES_PATH = app.isPackaged
-    ? path.join(process.resourcesPath, 'assets')
-    : path.join(__dirname, '../../assets');
-
-  const iconsPath = path.join(RESOURCES_PATH, 'tray');
-
-  function onTrayClick() {
-    setBoundsOfWidgetByPath(currentWidgetPath);
-    toggleWidgetVisibility();
-  }
-
-  function onQuitClick() {
-    app.quit();
-  }
-
-  tray = new TrayMenu(iconsPath, onTrayClick, onQuitClick);
-}
 
 export function onUserUnauthorized() {}
 
@@ -220,7 +95,8 @@ let isLoggedIn: boolean;
 
 function setIsLoggedIn(value: boolean) {
   isLoggedIn = value;
-  if (widget) widget.webContents.send('user-logged-in-changed', value);
+
+  getWidget()?.webContents.send('user-logged-in-changed', value);
 }
 
 ipcMain.handle('is-user-logged-in', () => isLoggedIn);
@@ -260,7 +136,7 @@ ipcMain.on('user-logged-out', () => {
 // Broadcast to renderers
 
 function broadcastToRenderers(eventName: string, data: any) {
-  const renderers = [widget, getSyncIssuesWindow(), getSettingsWindow()];
+  const renderers = [getWidget(), getSyncIssuesWindow(), getSettingsWindow()];
 
   renderers.forEach((r) => r?.webContents.send(eventName, data));
 }
@@ -306,6 +182,7 @@ ipcMain.on('start-sync-process', startSyncProcess);
 ipcMain.handle('get-sync-status', () => syncStatus);
 
 function setTraySyncStatus(newStatus: SyncStatus) {
+  const tray = getTray();
   if (newStatus === 'RUNNING') {
     tray?.setState('SYNCING');
   } else if (syncIssues.length !== 0) {

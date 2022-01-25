@@ -1,10 +1,14 @@
-import { Tray, Menu, nativeImage } from 'electron';
+import { Tray, Menu, nativeImage, app } from 'electron';
 import path from 'path';
 import PackageJson from '../../package.json';
+import {
+  setBoundsOfWidgetByPath,
+  toggleWidgetVisibility,
+} from './windows/widget';
 
-export type TrayMenuState = 'STANDBY' | 'SYNCING' | 'ISSUES';
+type TrayMenuState = 'STANDBY' | 'SYNCING' | 'ISSUES';
 
-export default class TrayMenu {
+class TrayMenu {
   private tray: Tray;
 
   get bounds() {
@@ -96,4 +100,26 @@ export default class TrayMenu {
       this.tray.destroy();
     }
   }
+}
+
+let tray: TrayMenu | null = null;
+export const getTray = () => tray;
+
+export function setupTrayIcon() {
+  const RESOURCES_PATH = app.isPackaged
+    ? path.join(process.resourcesPath, 'assets')
+    : path.join(__dirname, '../../assets');
+
+  const iconsPath = path.join(RESOURCES_PATH, 'tray');
+
+  function onTrayClick() {
+    setBoundsOfWidgetByPath();
+    toggleWidgetVisibility();
+  }
+
+  function onQuitClick() {
+    app.quit();
+  }
+
+  tray = new TrayMenu(iconsPath, onTrayClick, onQuitClick);
 }
