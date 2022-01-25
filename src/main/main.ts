@@ -7,13 +7,12 @@ import { autoUpdater } from 'electron-updater';
 import Logger from 'electron-log';
 import * as uuid from 'uuid';
 import * as Auth from './auth/service';
-import { AccessResponse } from '../renderer/pages/Login/service';
-import { setupRootFolder } from './sync-root-folder/service';
 import configStore from './config';
 import { SyncArgs, SyncInfoUpdatePayload } from '../workers/sync';
 import locksService from './locks-service';
 import { SyncFatalErrorName, SyncResult } from '../workers/sync/sync';
 import packageJson from '../../package.json';
+import { broadcastToWindows } from './windows';
 
 // ***** APP BOOTSTRAPPING ****************************************************** //
 
@@ -21,11 +20,11 @@ import './sync-root-folder/handlers';
 import './auto-launch/handlers';
 import './logger';
 import './bug-report/handlers';
-import './auth/handlers';
-import { getSettingsWindow } from './windows/settings';
-import { getSyncIssuesWindow } from './windows/sync-issues';
+import { getIsLoggedIn } from './auth/handlers';
+import './windows/settings';
+import './windows/sync-issues';
 import { getTray, setupTrayIcon } from './tray';
-import { createWidget, getWidget } from './windows/widget';
+import { createWidget } from './windows/widget';
 
 // Only effective during development
 // the variables are injected
@@ -81,68 +80,13 @@ app
     }
     createWidget();
     checkForUpdates();
-    if (isLoggedIn) startBackgroundProcesses();
+    if (getIsLoggedIn()) startBackgroundProcesses();
   })
   .catch(Logger.error);
 
-export function onUserUnauthorized() {}
+// ******* BACKGROUND PROCESSES *********************************************************/
 
-ipcMain.on('user-is-unauthorized', onUserUnauthorized);
-
-// Logged In handling
-
-let isLoggedIn: boolean;
-
-function setIsLoggedIn(value: boolean) {
-  isLoggedIn = value;
-
-  getWidget()?.webContents.send('user-logged-in-changed', value);
-}
-
-ipcMain.handle('is-user-logged-in', () => isLoggedIn);
-
-setIsLoggedIn(!!Auth.getUser());
-
-// Login handling
-
-ipcMain.on('user-logged-in', (_, data: AccessResponse) => {
-  Auth.setCredentials(data.user, data.user.mnemonic, data.token);
-  if (!Auth.canHisConfigBeRestored(data.user.uuid)) {
-    setupRootFolder();
-  }
-
-  setIsLoggedIn(true);
-
-  startBackgroundProcesses();
-});
-
-// Logout handling
-
-function closeAuxWindows() {
-  getSyncIssuesWindow()?.close();
-  getSettingsWindow()?.close();
-}
-
-ipcMain.on('user-logged-out', () => {
-  cleanBackgroundProcesses();
-
-  closeAuxWindows();
-
-  Auth.logout();
-
-  setIsLoggedIn(false);
-});
-
-// Broadcast to renderers
-
-function broadcastToRenderers(eventName: string, data: any) {
-  const renderers = [getWidget(), getSyncIssuesWindow(), getSettingsWindow()];
-
-  renderers.forEach((r) => r?.webContents.send(eventName, data));
-}
-
-/* BACKGROUND PROCESSES */
-function startBackgroundProcesses() {
+export function startBackgroundProcesses() {
   // Check if we should launch sync process
   const lastSync = configStore.get('lastSync');
 
@@ -159,7 +103,7 @@ function startBackgroundProcesses() {
   }
 }
 
-function cleanBackgroundProcesses() {
+export function cleanBackgroundProcesses() {
   // stop processes
   ipcMain.emit('stop-sync-process');
 
@@ -194,7 +138,7 @@ function setTraySyncStatus(newStatus: SyncStatus) {
 
 function changeSyncStatus(newStatus: SyncStatus) {
   syncStatus = newStatus;
-  broadcastToRenderers('sync-status-changed', newStatus);
+  broadcastToWindows('sync-status-changed', newStatus);
   setTraySyncStatus(newStatus);
 }
 
@@ -231,7 +175,7 @@ async function startSyncProcess() {
   if (syncProcessRerun) {
     clearTimeout(syncProcessRerun);
   }
-  if (isLoggedIn)
+  if (getIsLoggedIn())
     syncProcessRerun = setTimeout(startSyncProcess, SYNC_INTERVAL);
 
   changeSyncStatus('STANDBY');
@@ -260,7 +204,7 @@ function processSyncItem(item: SyncArgs, hasBeenStopped: { value: boolean }) {
         } ${payload.reason === 'EXIT' ? payload.result.status : ''}`
       );
       onExitFuncs.forEach((f) => f());
-      broadcastToRenderers('sync-stopped', payload);
+      broadcastToWindows('sync-stopped', payload);
 
       resolve();
     }
@@ -347,7 +291,7 @@ function spawnSyncWorker() {
 }
 
 ipcMain.on('SYNC_INFO_UPDATE', (_, payload: SyncInfoUpdatePayload) => {
-  broadcastToRenderers('sync-info-update', payload);
+  broadcastToWindows('sync-info-update', payload);
 });
 
 // Sync issues
@@ -355,7 +299,7 @@ ipcMain.on('SYNC_INFO_UPDATE', (_, payload: SyncInfoUpdatePayload) => {
 let syncIssues: SyncInfoUpdatePayload[] = [];
 
 function onSyncIssuesChanged() {
-  broadcastToRenderers('sync-issues-changed', syncIssues);
+  broadcastToWindows('sync-issues-changed', syncIssues);
 }
 
 function clearSyncIssues() {
