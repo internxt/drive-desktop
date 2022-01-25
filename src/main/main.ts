@@ -25,7 +25,8 @@ import locksService from './locks-service';
 import { SyncFatalErrorName, SyncResult } from '../workers/sync/sync';
 import packageJson from '../../package.json';
 
-// Register handlers from main modules
+// ***** APP BOOTSTRAPPING ********* //
+
 import './sync-root-folder/handlers';
 import './auto-launch/handlers';
 import './logger';
@@ -42,11 +43,6 @@ function checkForUpdates() {
   autoUpdater.logger = Logger;
   autoUpdater.checkForUpdatesAndNotify();
 }
-
-let widget: BrowserWindow | null = null;
-let tray: TrayMenu | null = null;
-
-let currentWidgetPath = '/';
 
 if (process.platform === 'darwin') app.dock.hide();
 
@@ -71,6 +67,29 @@ const installExtensions = async () => {
     )
     .catch(console.log);
 };
+
+app.on('window-all-closed', () => {
+  app.quit();
+});
+
+ipcMain.on('user-quit', () => {
+  app.quit();
+});
+
+app
+  .whenReady()
+  .then(() => {
+    setupTrayIcon();
+    createWidget();
+    checkForUpdates();
+    if (isLoggedIn) startBackgroundProcesses();
+  })
+  .catch(Logger.error);
+
+// ******** WIDGET ********* //
+
+let widget: BrowserWindow | null = null;
+let currentWidgetPath = '/';
 
 const createWidget = async () => {
   if (process.env.NODE_ENV === 'development') {
@@ -166,22 +185,9 @@ function setBoundsOfWidgetByPath(pathname: string) {
   }
 }
 
-app.on('window-all-closed', () => {
-  app.quit();
-});
+// ****** TRAY ICON ********* //
 
-app
-  .whenReady()
-  .then(() => {
-    setupTrayIcon();
-    createWidget();
-    checkForUpdates();
-    if (isLoggedIn) startBackgroundProcesses();
-  })
-  .catch(Logger.error);
-
-// Tray icon
-
+let tray: TrayMenu | null = null;
 function setupTrayIcon() {
   const RESOURCES_PATH = app.isPackaged
     ? path.join(process.resourcesPath, 'assets')
@@ -253,12 +259,6 @@ ipcMain.on('user-logged-out', () => {
 ipcMain.handle('open-sync-folder', () => {
   const syncFolderPath = configStore.get('syncRoot');
   return shell.openPath(syncFolderPath);
-});
-
-// Quit handling
-
-ipcMain.on('user-quit', () => {
-  app.quit();
 });
 
 // getUser handling
