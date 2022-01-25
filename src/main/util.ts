@@ -22,3 +22,5 @@ if (process.env.NODE_ENV === 'development') {
     )}#/${pathname}`;
   };
 }
+
+export const preloadPath = path.join(__dirname, 'preload.js');

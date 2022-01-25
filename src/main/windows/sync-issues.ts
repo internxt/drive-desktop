@@ -1,6 +1,5 @@
 import { BrowserWindow, ipcMain, shell } from 'electron';
-import path from 'path';
-import { resolveHtmlPath } from '../util';
+import { preloadPath, resolveHtmlPath } from '../util';
 
 let syncIssuesWindow: BrowserWindow | null = null;
 export const getSyncIssuesWindow = () => syncIssuesWindow;
@@ -18,7 +17,7 @@ async function openSyncIssuesWindow() {
     height: 384,
     show: false,
     webPreferences: {
-      preload: path.join(__dirname, '..', 'preload.js'),
+      preload: preloadPath,
     },
     titleBarStyle: process.platform === 'darwin' ? 'hidden' : undefined,
     frame: process.platform !== 'darwin' ? false : undefined,

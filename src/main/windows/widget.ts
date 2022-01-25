@@ -1,7 +1,6 @@
 import { BrowserWindow, shell, screen } from 'electron';
-import path from 'path';
 import { getTray } from '../tray';
-import { resolveHtmlPath } from '../util';
+import { preloadPath, resolveHtmlPath } from '../util';
 
 let widget: BrowserWindow | null = null;
 export const getWidget = () => widget;
@@ -12,7 +11,7 @@ export const createWidget = async () => {
   widget = new BrowserWindow({
     show: false,
     webPreferences: {
-      preload: path.join(__dirname, '..', 'preload.js'),
+      preload: preloadPath,
     },
     movable: false,
     frame: false,
