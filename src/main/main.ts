@@ -26,10 +26,10 @@ import locksService from './locks-service';
 import { SyncFatalErrorName, SyncResult } from '../workers/sync/sync';
 import packageJson from '../../package.json';
 import { sendReport } from './bug-report';
-import { isAutoLaunchEnabled, toggleAutoLaunch } from './auto-launch';
 
 // Register handlers from main modules
 import './sync-root-folder/handlers';
+import './auto-launch/handlers';
 
 // Only effective during development
 // the variables are injected
@@ -634,12 +634,6 @@ ipcMain.on(
     }
   }
 );
-
-// Handle auto launch
-
-ipcMain.handle('is-auto-launch-enabled', () => isAutoLaunchEnabled(app));
-
-ipcMain.handle('toggle-auto-launch', () => toggleAutoLaunch(app));
 
 // Handle backups interval
 

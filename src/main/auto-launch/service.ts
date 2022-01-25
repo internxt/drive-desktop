@@ -1,3 +1,4 @@
+import { app } from 'electron';
 import Path from 'path';
 
 const appFolder = Path.dirname(process.execPath);
@@ -10,13 +11,13 @@ const args =
     ? ['--processStart', `"${exeName}"`, '--process-start-args', `"--hidden"`]
     : undefined;
 
-export function isAutoLaunchEnabled(app: Electron.App) {
+export function isAutoLaunchEnabled() {
   const loginItem = app.getLoginItemSettings({ path, args });
   return loginItem.openAtLogin;
 }
 
-export function toggleAutoLaunch(app: Electron.App) {
-  const currentSetting = isAutoLaunchEnabled(app);
+export function toggleAutoLaunch() {
+  const currentSetting = isAutoLaunchEnabled();
 
   app.setLoginItemSettings({
     path,
