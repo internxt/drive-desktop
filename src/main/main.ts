@@ -43,8 +43,6 @@ require('dotenv').config();
 
 Logger.log(`Running ${packageJson.version}`);
 
-const isDevelopment = process.env.NODE_ENV === 'development';
-
 const RESOURCES_PATH = app.isPackaged
   ? path.join(process.resourcesPath, 'assets')
   : path.join(__dirname, '../../assets');
@@ -68,7 +66,7 @@ if (process.env.NODE_ENV === 'production') {
   sourceMapSupport.install();
 }
 
-if (isDevelopment) {
+if (process.env.NODE_ENV === 'development') {
   require('electron-debug')({ showDevTools: false });
 }
 
@@ -86,7 +84,7 @@ const installExtensions = async () => {
 };
 
 const createWidget = async () => {
-  if (isDevelopment) {
+  if (process.env.NODE_ENV === 'development') {
     await installExtensions();
   }
 
