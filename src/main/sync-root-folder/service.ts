@@ -3,7 +3,7 @@ import fs from 'fs/promises';
 
 import { app } from 'electron';
 
-import configStore from './config';
+import configStore from '../config';
 
 const ROOT_FOLDER_NAME = 'Internxt';
 const HOME_FOLDER_PATH = app.getPath('home');
