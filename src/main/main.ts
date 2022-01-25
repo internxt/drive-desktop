@@ -14,7 +14,7 @@ import { autoUpdater } from 'electron-updater';
 import Logger from 'electron-log';
 import * as uuid from 'uuid';
 import { resolveHtmlPath } from './util';
-import * as Auth from './auth';
+import * as Auth from './auth/service';
 import { AccessResponse } from '../renderer/pages/Login/service';
 import { setupRootFolder } from './sync-root-folder/service';
 import TrayMenu from './tray';
@@ -25,12 +25,13 @@ import locksService from './locks-service';
 import { SyncFatalErrorName, SyncResult } from '../workers/sync/sync';
 import packageJson from '../../package.json';
 
-// ***** APP BOOTSTRAPPING ********* //
+// ***** APP BOOTSTRAPPING ****************************************************** //
 
 import './sync-root-folder/handlers';
 import './auto-launch/handlers';
 import './logger';
 import './bug-report/handlers';
+import './auth/handlers';
 
 // Only effective during development
 // the variables are injected
@@ -86,7 +87,7 @@ app
   })
   .catch(Logger.error);
 
-// ******** WIDGET ********* //
+// ******** WIDGET ***************************************************************** //
 
 let widget: BrowserWindow | null = null;
 let currentWidgetPath = '/';
@@ -185,7 +186,7 @@ function setBoundsOfWidgetByPath(pathname: string) {
   }
 }
 
-// ****** TRAY ICON ********* //
+// ****** TRAY ICON ************************************************************************* //
 
 let tray: TrayMenu | null = null;
 function setupTrayIcon() {
@@ -252,18 +253,6 @@ ipcMain.on('user-logged-out', () => {
   Auth.logout();
 
   setIsLoggedIn(false);
-});
-
-// getUser handling
-
-ipcMain.handle('get-user', () => {
-  return Auth.getUser();
-});
-
-// getHeaders handling
-
-ipcMain.handle('get-headers', () => {
-  return Auth.getHeaders();
 });
 
 // Broadcast to renderers

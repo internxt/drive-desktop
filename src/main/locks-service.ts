@@ -1,6 +1,6 @@
 import fetch from 'electron-fetch';
 
-import { getHeaders } from './auth';
+import { getHeaders } from './auth/service';
 
 async function acquireLock(folderId: number, lockId: string) {
   const res = await fetch(

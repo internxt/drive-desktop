@@ -22,7 +22,9 @@ declare interface Window {
 
     getUser(): Promise<import('./types').User>;
 
-    getHeaders(): Promise<ReturnType<typeof import('./auth').getHeaders>>;
+    getHeaders(): Promise<
+      ReturnType<typeof import('./auth/service').getHeaders>
+    >;
 
     startSyncProcess(): void;
 

@@ -1,6 +1,6 @@
-import ConfigStore, { defaults, fieldsToSave } from './config';
-import packageConfig from '../../package.json';
-import { User } from './types';
+import ConfigStore, { defaults, fieldsToSave } from '../config';
+import packageConfig from '../../../package.json';
+import { User } from '../types';
 
 export function setCredentials(
   userData: User,

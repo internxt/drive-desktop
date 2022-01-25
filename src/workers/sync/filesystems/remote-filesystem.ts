@@ -20,7 +20,7 @@ import {
   serializeRes,
 } from '../utils';
 import httpRequest from '../../utils/http-request';
-import { getHeaders, getUser } from '../../../main/auth';
+import { getHeaders, getUser } from '../../../main/auth/service';
 import isOnline from '../../utils/is-online';
 
 /**

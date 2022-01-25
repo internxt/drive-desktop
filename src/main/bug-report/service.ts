@@ -5,7 +5,7 @@ import fetch from 'electron-fetch';
 import FormData from 'form-data';
 import path from 'path';
 import { ErrorDetails } from '../../workers/sync/sync';
-import { getToken } from '../auth';
+import { getToken } from '../auth/service';
 import packageJson from '../../../package.json';
 
 export async function sendReport({
