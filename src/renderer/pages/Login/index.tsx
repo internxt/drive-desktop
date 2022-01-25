@@ -102,9 +102,9 @@ export default function Login() {
         href="https://drive.internxt.com/remove"
         target="_blank"
         rel="noreferrer noopener"
-        className={`mt-2 block w-max mx-auto text-sm font-medium ${
+        className={`mx-auto mt-2 block w-max text-sm font-medium ${
           state === 'loading'
-            ? 'text-m-neutral-80 pointer-events-none cursor-default'
+            ? 'pointer-events-none cursor-default text-m-neutral-80'
             : 'text-blue-60'
         }`}
       >
@@ -118,9 +118,9 @@ export default function Login() {
         href="https://drive.internxt.com/new"
         target="_blank"
         rel="noreferrer noopener"
-        className={`mt-5 block w-max mx-auto text-sm font-medium ${
+        className={`mx-auto mt-5 block w-max text-sm font-medium ${
           state === 'loading'
-            ? 'text-m-neutral-80 pointer-events-none cursor-default'
+            ? 'pointer-events-none cursor-default text-m-neutral-80'
             : 'text-blue-60'
         }`}
       >
@@ -138,7 +138,7 @@ export default function Login() {
   const twoFAComponents = (
     <>
       <p
-        className={`text-xs font-medium mt-3 ${
+        className={`mt-3 text-xs font-medium ${
           state === 'error'
             ? 'text-red-60'
             : state === 'loading'
@@ -155,10 +155,10 @@ export default function Login() {
       </p>
 
       <div
-        className={`mt-5 block w-max mx-auto text-sm font-medium ${
+        className={`mx-auto mt-5 block w-max text-sm font-medium ${
           state === 'loading'
-            ? 'text-m-neutral-80 pointer-events-none cursor-default'
-            : 'text-blue-60 cursor-pointer'
+            ? 'pointer-events-none cursor-default text-m-neutral-80'
+            : 'cursor-pointer text-blue-60'
         }`}
         onClick={resetForm}
         onKeyDown={resetForm}
@@ -171,9 +171,9 @@ export default function Login() {
   );
 
   return (
-    <div className="bg-l-neutral-10 h-screen overflow-hidden p-6 relative">
+    <div className="relative h-screen overflow-hidden bg-l-neutral-10 p-6">
       <div
-        className="cursor-pointer absolute right-2 top-2"
+        className="absolute right-2 top-2 cursor-pointer"
         role="button"
         tabIndex={0}
         onKeyDown={window.electron.closeWindow}
