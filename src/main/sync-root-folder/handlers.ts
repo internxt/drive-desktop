@@ -1,4 +1,4 @@
-import { ipcMain } from 'electron';
+import { ipcMain, shell } from 'electron';
 import configStore from '../config';
 import { chooseSyncRootWithDialog } from './service';
 
@@ -7,3 +7,8 @@ ipcMain.handle('get-sync-root', () => {
 });
 
 ipcMain.handle('set-sync-root', chooseSyncRootWithDialog);
+
+ipcMain.handle('open-sync-folder', () => {
+  const syncFolderPath = configStore.get('syncRoot');
+  return shell.openPath(syncFolderPath);
+});

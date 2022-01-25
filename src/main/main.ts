@@ -254,13 +254,6 @@ ipcMain.on('user-logged-out', () => {
   setIsLoggedIn(false);
 });
 
-// Open sync folder handler
-
-ipcMain.handle('open-sync-folder', () => {
-  const syncFolderPath = configStore.get('syncRoot');
-  return shell.openPath(syncFolderPath);
-});
-
 // getUser handling
 
 ipcMain.handle('get-user', () => {
