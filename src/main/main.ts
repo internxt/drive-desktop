@@ -43,10 +43,6 @@ require('dotenv').config();
 
 Logger.log(`Running ${packageJson.version}`);
 
-const RESOURCES_PATH = app.isPackaged
-  ? path.join(process.resourcesPath, 'assets')
-  : path.join(__dirname, '../../assets');
-
 function checkForUpdates() {
   autoUpdater.logger = Logger;
   autoUpdater.checkForUpdatesAndNotify();
@@ -192,6 +188,10 @@ app
 // Tray icon
 
 function setupTrayIcon() {
+  const RESOURCES_PATH = app.isPackaged
+    ? path.join(process.resourcesPath, 'assets')
+    : path.join(__dirname, '../../assets');
+
   const iconsPath = path.join(RESOURCES_PATH, 'tray');
 
   function onTrayClick() {
