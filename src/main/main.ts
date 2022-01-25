@@ -32,7 +32,8 @@ import './auto-launch/handlers';
 import './logger';
 import './bug-report/handlers';
 import './auth/handlers';
-import { getSettingsWindow } from './windows/settings-window';
+import { getSettingsWindow } from './windows/settings';
+import { getSyncIssuesWindow } from './windows/sync-issues';
 
 // Only effective during development
 // the variables are injected
@@ -242,7 +243,7 @@ ipcMain.on('user-logged-in', (_, data: AccessResponse) => {
 // Logout handling
 
 function closeAuxWindows() {
-  syncIssuesWindow?.close();
+  getSyncIssuesWindow()?.close();
   getSettingsWindow()?.close();
 }
 
@@ -259,7 +260,7 @@ ipcMain.on('user-logged-out', () => {
 // Broadcast to renderers
 
 function broadcastToRenderers(eventName: string, data: any) {
-  const renderers = [widget, syncIssuesWindow, getSettingsWindow()];
+  const renderers = [widget, getSyncIssuesWindow(), getSettingsWindow()];
 
   renderers.forEach((r) => r?.webContents.send(eventName, data));
 }
@@ -500,52 +501,6 @@ ipcMain.on('SYNC_INFO_UPDATE', (_, payload: SyncInfoUpdatePayload) => {
 });
 
 ipcMain.handle('get-sync-issues', () => syncIssues);
-
-// Sync issues window
-
-let syncIssuesWindow: BrowserWindow | null = null;
-
-ipcMain.on('open-sync-issues-window', openSyncIssuesWindow);
-
-async function openSyncIssuesWindow() {
-  if (syncIssuesWindow) {
-    syncIssuesWindow.focus();
-    return;
-  }
-
-  syncIssuesWindow = new BrowserWindow({
-    width: 500,
-    height: 384,
-    show: false,
-    webPreferences: {
-      preload: path.join(__dirname, 'preload.js'),
-    },
-    titleBarStyle: process.platform === 'darwin' ? 'hidden' : undefined,
-    frame: process.platform !== 'darwin' ? false : undefined,
-    resizable: false,
-    maximizable: false,
-  });
-
-  syncIssuesWindow.loadURL(resolveHtmlPath('sync-issues'));
-
-  syncIssuesWindow.on('ready-to-show', () => {
-    syncIssuesWindow?.show();
-  });
-
-  syncIssuesWindow.on('close', () => {
-    syncIssuesWindow = null;
-  });
-
-  // Open urls in the user's browser
-  syncIssuesWindow.webContents.on('new-window', (event, url) => {
-    event.preventDefault();
-    shell.openExternal(url);
-  });
-
-  syncIssuesWindow.webContents.on('ipc-message', (_, channel) => {
-    if (channel === 'user-closed-window') syncIssuesWindow?.close();
-  });
-}
 
 // Handle backups interval
 
