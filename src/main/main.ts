@@ -87,7 +87,7 @@ const createWidget = async () => {
     skipTaskbar: true,
   });
 
-  widget.loadURL(resolveHtmlPath('index.html', ''));
+  widget.loadURL(resolveHtmlPath(''));
 
   widget.on('ready-to-show', () => {
     widget?.show();
@@ -541,7 +541,7 @@ async function openSyncIssuesWindow() {
     maximizable: false,
   });
 
-  syncIssuesWindow.loadURL(resolveHtmlPath('index.html', 'sync-issues'));
+  syncIssuesWindow.loadURL(resolveHtmlPath('sync-issues'));
 
   syncIssuesWindow.on('ready-to-show', () => {
     syncIssuesWindow?.show();
@@ -599,7 +599,7 @@ async function openSettingsWindow() {
     maximizable: false,
   });
 
-  settingsWindow.loadURL(resolveHtmlPath('index.html', 'settings'));
+  settingsWindow.loadURL(resolveHtmlPath('settings'));
 
   settingsWindow.on('ready-to-show', () => {
     settingsWindow?.show();
