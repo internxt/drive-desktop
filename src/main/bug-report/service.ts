@@ -4,9 +4,9 @@ import fs from 'fs/promises';
 import fetch from 'electron-fetch';
 import FormData from 'form-data';
 import path from 'path';
-import { ErrorDetails } from '../workers/sync/sync';
-import { getToken } from './auth';
-import packageJson from '../../package.json';
+import { ErrorDetails } from '../../workers/sync/sync';
+import { getToken } from '../auth';
+import packageJson from '../../../package.json';
 
 export async function sendReport({
   errorDetails,
@@ -39,7 +39,7 @@ export async function sendReport({
   if (!res.ok) throw new Error();
 }
 
-export function readLog(): Promise<string> {
+function readLog(): Promise<string> {
   return new Promise(async (resolve, reject) => {
     const logDir = path.parse(log.transports.file.getFile().path).dir;
     const logPath = path.join(logDir, 'renderer.log');

@@ -1,6 +1,5 @@
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
-import './logger';
 
 import path from 'path';
 import {
@@ -25,11 +24,12 @@ import { SyncArgs, SyncInfoUpdatePayload } from '../workers/sync';
 import locksService from './locks-service';
 import { SyncFatalErrorName, SyncResult } from '../workers/sync/sync';
 import packageJson from '../../package.json';
-import { sendReport } from './bug-report';
 
 // Register handlers from main modules
 import './sync-root-folder/handlers';
 import './auto-launch/handlers';
+import './logger';
+import './bug-report/handlers';
 
 // Only effective during development
 // the variables are injected
@@ -563,18 +563,6 @@ async function openSyncIssuesWindow() {
     if (channel === 'user-closed-window') syncIssuesWindow?.close();
   });
 }
-
-// Handle open logs
-
-ipcMain.on('open-logs', () => {
-  const logfilePath = Logger.transports.file.getFile().path;
-  const logFolderPath = path.dirname(logfilePath);
-  shell.openPath(logFolderPath);
-});
-
-// Handle send report
-
-ipcMain.handle('send-report', (_, report) => sendReport(report));
 
 // Settings window
 
