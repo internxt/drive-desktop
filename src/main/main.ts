@@ -150,7 +150,7 @@ function getLocationUnderTray(
   };
 }
 
-function setBoundsOfWidgetByPath(pathname = currentWidgetPath) {
+function setBoundsOfWidgetByPath(pathname: string) {
   const { placeUnderTray, ...size } = dimentions[pathname];
 
   const bounds = tray?.bounds;
