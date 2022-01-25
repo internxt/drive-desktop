@@ -47,11 +47,9 @@ const RESOURCES_PATH = app.isPackaged
   ? path.join(process.resourcesPath, 'assets')
   : path.join(__dirname, '../../assets');
 
-export default class AppUpdater {
-  constructor() {
-    autoUpdater.logger = Logger;
-    autoUpdater.checkForUpdatesAndNotify();
-  }
+function checkForUpdates() {
+  autoUpdater.logger = Logger;
+  autoUpdater.checkForUpdatesAndNotify();
 }
 
 let widget: BrowserWindow | null = null;
@@ -129,10 +127,6 @@ const createWidget = async () => {
       setBoundsOfWidgetByPath(payload);
     }
   });
-
-  // Remove this if your app does not use auto updates
-  // eslint-disable-next-line
-  new AppUpdater();
 };
 
 function toggleWidgetVisibility() {
@@ -190,6 +184,7 @@ app
   .then(() => {
     setupTrayIcon();
     createWidget();
+    checkForUpdates();
     if (isLoggedIn) startBackgroundProcesses();
   })
   .catch(Logger.error);
