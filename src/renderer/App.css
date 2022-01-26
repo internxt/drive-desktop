@@ -61,6 +61,6 @@ body {
   outline: none;
 }
 
-*:focus-visible {
+:not(input):focus-visible {
   outline: auto;
 }
