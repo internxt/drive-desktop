@@ -20,7 +20,7 @@ declare interface Window {
 
     quit(): void;
 
-    getUser(): Promise<import('./types').User>;
+    getUser(): Promise<ReturnType<typeof import('./auth/service').getUser>>;
 
     getHeaders(): Promise<
       ReturnType<typeof import('./auth/service').getHeaders>
@@ -70,6 +70,6 @@ declare interface Window {
 
     getSyncRoot(): Promise<string>;
 
-    chooseSyncRootWithDialog(): Promise<string | null>;
+    chooseSyncRootWithDialog: typeof import('./sync-root-folder/service').chooseSyncRootWithDialog;
   };
 }
