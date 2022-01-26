@@ -33,7 +33,7 @@ export function getToken() {
   return ConfigStore.get('bearerToken');
 }
 
-export function resetCredentials() {
+function resetCredentials() {
   for (const field of ['mnemonic', 'userData', 'bearerToken'] as const) {
     ConfigStore.set(field, defaults[field]);
   }
@@ -51,6 +51,12 @@ export function canHisConfigBeRestored(uuid: string) {
   }
 
   return true;
+}
+
+export function logout() {
+  saveConfig();
+  resetConfig();
+  resetCredentials();
 }
 
 function saveConfig() {
@@ -78,10 +84,4 @@ function resetConfig() {
   for (const field of fieldsToSave) {
     ConfigStore.set(field, defaults[field]);
   }
-}
-
-export function logout() {
-  saveConfig();
-  resetConfig();
-  resetCredentials();
 }
