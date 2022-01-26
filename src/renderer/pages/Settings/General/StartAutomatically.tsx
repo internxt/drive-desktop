@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import Checkbox from '../../../components/Checkbox';
 
 export default function StartAutomatically({
   className = '',
@@ -15,20 +16,17 @@ export default function StartAutomatically({
     refreshValue();
   }, []);
 
+  const onCheckboxClicked = async () => {
+    await window.electron.toggleAutoLaunch();
+    refreshValue();
+  };
+
   return (
-    <div className={`flex items-baseline ${className}`}>
-      <input
-        type="checkbox"
-        checked={value}
-        onClick={async (e) => {
-          e.preventDefault();
-          await window.electron.toggleAutoLaunch();
-          refreshValue();
-        }}
-      />
-      <p className="ml-2 text-neutral-700">
-        Start Internxt Drive on system startup
-      </p>
-    </div>
+    <Checkbox
+      className={className}
+      label="Start Internxt Drive on system startup"
+      value={value}
+      onClick={onCheckboxClicked}
+    />
   );
 }
