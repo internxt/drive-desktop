@@ -1,4 +1,5 @@
-import { BrowserWindow, ipcMain, shell } from 'electron';
+import { BrowserWindow, ipcMain } from 'electron';
+import { setUpCommonWindowHandlers } from '.';
 import { preloadPath, resolveHtmlPath } from '../util';
 
 let settingsWindow: BrowserWindow | null = null;
@@ -35,15 +36,7 @@ async function openSettingsWindow() {
     settingsWindow = null;
   });
 
-  // Open urls in the user's browser
-  settingsWindow.webContents.on('new-window', (event, url) => {
-    event.preventDefault();
-    shell.openExternal(url);
-  });
-
-  settingsWindow.webContents.on('ipc-message', (_, channel) => {
-    if (channel === 'user-closed-window') settingsWindow?.close();
-  });
+  setUpCommonWindowHandlers(settingsWindow);
 }
 
 ipcMain.on(

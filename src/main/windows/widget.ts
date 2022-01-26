@@ -1,4 +1,5 @@
-import { BrowserWindow, shell, screen } from 'electron';
+import { BrowserWindow, screen } from 'electron';
+import { setUpCommonWindowHandlers } from '.';
 import { getTray } from '../tray';
 import { preloadPath, resolveHtmlPath } from '../util';
 
@@ -30,17 +31,10 @@ export const createWidget = async () => {
     widget?.hide();
   });
 
-  // Open urls in the user's browser
-  widget.webContents.on('new-window', (event, url) => {
-    event.preventDefault();
-    shell.openExternal(url);
-  });
+  setUpCommonWindowHandlers(widget);
 
   widget.webContents.on('ipc-message', (_, channel, payload) => {
-    if (channel === 'user-closed-window') widget?.close();
-
     // Current widget pathname
-
     if (channel === 'path-changed') {
       console.log('Renderer navigated to ', payload);
 

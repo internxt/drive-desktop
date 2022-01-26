@@ -1,4 +1,5 @@
-import { BrowserWindow, ipcMain, shell } from 'electron';
+import { BrowserWindow, ipcMain } from 'electron';
+import { setUpCommonWindowHandlers } from '.';
 import { preloadPath, resolveHtmlPath } from '../util';
 
 let syncIssuesWindow: BrowserWindow | null = null;
@@ -35,13 +36,5 @@ async function openSyncIssuesWindow() {
     syncIssuesWindow = null;
   });
 
-  // Open urls in the user's browser
-  syncIssuesWindow.webContents.on('new-window', (event, url) => {
-    event.preventDefault();
-    shell.openExternal(url);
-  });
-
-  syncIssuesWindow.webContents.on('ipc-message', (_, channel) => {
-    if (channel === 'user-closed-window') syncIssuesWindow?.close();
-  });
+  setUpCommonWindowHandlers(syncIssuesWindow);
 }
