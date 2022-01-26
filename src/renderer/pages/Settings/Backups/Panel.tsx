@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import Button from '../../../components/Button';
+import Checkbox from '../../../components/Checkbox';
 import Dropdown from './Dropdown';
 
 export default function BackupsPanel({
@@ -25,8 +26,11 @@ export default function BackupsPanel({
   return (
     <>
       <div className="flex items-baseline space-x-2">
-        <input type="checkbox" />
-        <p className="text-neutral-700">Back up your folders and files</p>
+        <Checkbox
+          value={false}
+          label="Back up your folders and files"
+          onClick={() => undefined}
+        />
         <a
           className="text-xs font-medium text-blue-60 underline"
           href="https://drive.internxt.com/app/backups"
