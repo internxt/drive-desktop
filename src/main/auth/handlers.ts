@@ -28,13 +28,9 @@ ipcMain.handle('is-user-logged-in', getIsLoggedIn);
 
 setIsLoggedIn(!!getUser());
 
-ipcMain.handle('get-user', () => {
-  return getUser();
-});
+ipcMain.handle('get-user', getUser);
 
-ipcMain.handle('get-headers', () => {
-  return getHeaders();
-});
+ipcMain.handle('get-headers', getHeaders);
 
 export function onUserUnauthorized() {}
 
