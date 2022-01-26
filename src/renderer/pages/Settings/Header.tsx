@@ -33,11 +33,12 @@ export default function Header({
 
   return (
     <div className="draggable pb-1">
-      <div className="flex mx-auto w-max relative non-draggable">
+      <div className="non-draggable relative mx-auto flex w-max">
         <motion.div
           animate={active}
           variants={animationVariants}
-          className="absolute w-1/3 min-h-full bg-blue-10 rounded-xl"
+          transition={{ ease: 'easeOut' }}
+          className="absolute min-h-full w-1/3 rounded-xl bg-blue-10"
         />
         {sections.map((section) => (
           <Item
@@ -68,10 +69,10 @@ function Item({
     <button
       onClick={onClick}
       type="button"
-      className={`relative flex flex-col items-center px-3 py-2 rounded-xl tracking-wider cursor-pointer w-20 ${
+      className={`relative flex w-20 cursor-pointer flex-col items-center rounded-xl px-3 py-2 tracking-wider ${
         isActive
           ? 'text-blue-60'
-          : 'hover:text-m-neutral-100 active:text-m-neutral-300 active:bg-l-neutral-20 text-m-neutral-80'
+          : 'text-m-neutral-80 hover:text-m-neutral-100 active:text-m-neutral-300'
       }`}
     >
       <Icon size="27px" />
