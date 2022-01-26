@@ -56,3 +56,11 @@
 body {
   overflow: hidden;
 }
+
+*:focus {
+  outline: none;
+}
+
+*:focus-visible {
+  outline: auto;
+}
