@@ -7,7 +7,7 @@ export default function SyncRoot({ className = '' }: { className?: string }) {
   const [currentSyncRoot, setCurrentSyncRoot] = useState('');
 
   const handleChangeFolder = async () => {
-    const newSyncRoot = await window.electron.setSyncRoot();
+    const newSyncRoot = await window.electron.chooseSyncRootWithDialog();
     if (newSyncRoot) setCurrentSyncRoot(newSyncRoot);
   };
 
@@ -19,22 +19,22 @@ export default function SyncRoot({ className = '' }: { className?: string }) {
   const baseOfParentDir = getBaseName(parentDir);
 
   return (
-    <div className={`flex justify-between items-center ${className}`}>
+    <div className={`flex items-center justify-between ${className}`}>
       <div
-        className="w-full overflow-hidden select-none"
+        className="w-full select-none overflow-hidden"
         onDoubleClick={window.electron.openSyncFolder}
       >
-        <p className="text-xs text-m-neutral-100 tracking-wide">
+        <p className="text-xs tracking-wide text-m-neutral-100">
           Internxt Drive Folder
         </p>
         <div className="mt-2 flex items-center">
-          <FolderIcon className="w-5 h-5 flex-shrink-0" />
-          <p className="ml-2 text-neutral-700 relative top-0.5 truncate">
+          <FolderIcon className="h-5 w-5 flex-shrink-0" />
+          <p className="relative top-0.5 ml-2 truncate text-neutral-700">
             {baseOfParentDir}
           </p>
         </div>
       </div>
-      <Button onClick={handleChangeFolder} className="flex-shrink-0 ml-4">
+      <Button onClick={handleChangeFolder} className="ml-4 flex-shrink-0">
         Change folder
       </Button>
     </div>

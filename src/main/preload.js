@@ -100,7 +100,7 @@ contextBridge.exposeInMainWorld('electron', {
   getSyncRoot() {
     return ipcRenderer.invoke('get-sync-root');
   },
-  setSyncRoot() {
-    return ipcRenderer.invoke('set-sync-root');
+  chooseSyncRootWithDialog() {
+    return ipcRenderer.invoke('choose-sync-root-with-dialog');
   },
 });

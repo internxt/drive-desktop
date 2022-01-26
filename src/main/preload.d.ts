@@ -70,6 +70,6 @@ declare interface Window {
 
     getSyncRoot(): Promise<string>;
 
-    setSyncRoot(): Promise<string | null>;
+    chooseSyncRootWithDialog(): Promise<string | null>;
   };
 }
