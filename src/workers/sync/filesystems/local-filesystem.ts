@@ -135,7 +135,7 @@ export function getLocalFilesystem(
       return new Promise((resolve, reject) => {
         const tmpFilePath = getTempFilePath();
 
-        const { stream, ...sourceWithoutStream } = source;
+        const { stream, additionalStream, ...sourceWithoutStream } = source;
 
         Logger.debug(`Downloading ${name} to temp location ${tmpFilePath}`);
 

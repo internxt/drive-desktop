@@ -332,7 +332,8 @@ export function getRemoteFilesystem(baseFolderId: number): FileSystem {
             finishedCallback: async (err: any, fileId: string) => {
               if (err) {
                 // Don't include the stream in the details
-                const { stream, ...sourceWithoutStream } = source;
+                const { stream, additionalStream, ...sourceWithoutStream } =
+                  source;
 
                 const details = createErrorDetails(
                   err,
