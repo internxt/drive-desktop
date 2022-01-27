@@ -71,5 +71,7 @@ declare interface Window {
     getSyncRoot(): Promise<string>;
 
     chooseSyncRootWithDialog: typeof import('./sync-root-folder/service').chooseSyncRootWithDialog;
+
+    path: typeof import('path');
   };
 }

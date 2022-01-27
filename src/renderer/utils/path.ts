@@ -1,4 +1,4 @@
-import path from 'path-browserify';
+const { path } = window.electron;
 
 export function getBaseName(pathname: string): string {
   return path.parse(pathname).base;

@@ -1,8 +1,9 @@
 const { contextBridge, ipcRenderer } = require('electron');
+const path = require('path');
 
 contextBridge.exposeInMainWorld('electron', {
-  pathChanged(path) {
-    ipcRenderer.send('path-changed', path);
+  pathChanged(pathname) {
+    ipcRenderer.send('path-changed', pathname);
   },
   userIsUnauthorized() {
     ipcRenderer.send('user-is-unauthorized');
@@ -103,4 +104,5 @@ contextBridge.exposeInMainWorld('electron', {
   chooseSyncRootWithDialog() {
     return ipcRenderer.invoke('choose-sync-root-with-dialog');
   },
+  path,
 });
