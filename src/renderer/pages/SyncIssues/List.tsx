@@ -30,7 +30,7 @@ export default function SyncIssuesList({
     });
   }
   return (
-    <div className="flex-grow border bg-white border-l-neutral-30 rounded-lg m-4 min-h-0 overflow-y-auto no-scrollbar">
+    <div className="no-scrollbar m-4 min-h-0 flex-grow overflow-y-auto rounded-lg border border-l-neutral-30 bg-white">
       {errors.map((error) => (
         <Item
           key={error}
@@ -52,7 +52,7 @@ export default function SyncIssuesList({
 
 function Empty() {
   return (
-    <div className="flex items-center justify-center select-none h-full">
+    <div className="flex h-full select-none items-center justify-center">
       <p className="text-xs font-medium text-m-neutral-60">No issues found</p>
     </div>
   );
@@ -74,19 +74,19 @@ function Item({
   return (
     <div
       onClick={onClick}
-      className="p-2 hover:bg-l-neutral-10 active:bg-l-neutral-20 select-none"
+      className="select-none p-2 hover:bg-l-neutral-10 active:bg-l-neutral-20"
       role="button"
       onKeyPress={onClick}
       tabIndex={0}
     >
       <div className="flex items-center">
-        <WarnIcon className="h-7 w-7 mr-3" />
+        <WarnIcon className="mr-3 h-7 w-7" />
         <div className="flex-grow">
           <h1 className="font-semibold text-gray-70">
             {shortMessages[errorName]}
             &nbsp;
             <UilInfoCircle
-              className="h-4 w-4 text-blue-60 hover:text-blue-50 active:text-blue-60 inline"
+              className="inline h-4 w-4 text-blue-60 hover:text-blue-50 active:text-blue-60"
               onClick={(e: MouseEvent) => {
                 e.stopPropagation();
                 onInfoClick();
@@ -111,15 +111,16 @@ function Item({
               open: { height: 'auto' },
               collapsed: { height: 0 },
             }}
-            className="pl-10 overflow-hidden"
+            transition={{ ease: 'easeInOut' }}
+            className="overflow-hidden pl-10"
           >
             {issues.map((issue) => (
               <div
-                className="flex items-center min-w-0 overflow-hidden mt-2"
+                className="mt-2 flex min-w-0 items-center overflow-hidden"
                 key={issue.name}
               >
                 <FileIcon className="h-5 w-5 flex-shrink-0" />
-                <p className="flex-grow text-gray-70 ml-2 truncate">
+                <p className="ml-2 flex-grow truncate text-gray-70">
                   {getBaseName(issue.name)}
                 </p>
               </div>
