@@ -10,7 +10,8 @@ import useUsage from '../../hooks/Usage';
 export default function Header() {
   const syncIssues = useSyncIssues();
 
-  const numberOfSyncIssues = syncIssues.length;
+  const numberOfSyncIssues =
+    syncIssues.length < 100 ? syncIssues.length : '99+';
 
   const thereAreSyncIssues = numberOfSyncIssues > 0;
 
@@ -24,24 +25,24 @@ export default function Header() {
       leaveTo="transform scale-95 opacity-0"
       className="relative z-10"
     >
-      <Menu.Items className="absolute py-1 right-0 w-32 origin-top-right bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+      <Menu.Items className="absolute right-0 w-32 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
         <Menu.Item>
           <DropdownItem onClick={window.electron.openSettingsWindow}>
             <span>Preferences</span>
           </DropdownItem>
         </Menu.Item>
-        {thereAreSyncIssues && (
-          <Menu.Item>
-            <DropdownItem onClick={window.electron.openSyncIssuesWindow}>
-              <div className="flex items-baseline">
-                <p>Sync issues</p>
-                <p className="ml-4 text-red-60 text-xs font-semibold">
+        <Menu.Item>
+          <DropdownItem onClick={window.electron.openSyncIssuesWindow}>
+            <div className="flex items-baseline justify-between">
+              <p>Sync issues</p>
+              {thereAreSyncIssues && (
+                <p className="ml-4 text-xs font-semibold text-red-60">
                   {numberOfSyncIssues}
                 </p>
-              </div>
-            </DropdownItem>
-          </Menu.Item>
-        )}
+              )}
+            </div>
+          </DropdownItem>
+        </Menu.Item>
         <Menu.Item>
           <DropdownItem>
             <a
@@ -100,7 +101,7 @@ export default function Header() {
   );
 
   return (
-    <div className="flex justify-between items-center p-3">
+    <div className="flex items-center justify-between p-3">
       <AccountSection />
       {itemsSection}
     </div>
@@ -166,7 +167,7 @@ function DropdownItem({
   return (
     <div
       className={`cursor-pointer text-sm text-neutral-500 hover:bg-l-neutral-20 active:bg-l-neutral-30 ${className}`}
-      style={{ padding: '6px 12px' }}
+      style={{ padding: '6px 16px' }}
       role="button"
       tabIndex={0}
       onKeyDown={onClick}
@@ -182,7 +183,7 @@ function SettingsIcon({ hasIssues = false }: { hasIssues?: boolean }) {
     <HeaderItemWrapper>
       <UilSetting className="h-5 w-5" />
       {hasIssues && (
-        <div className="bg-red-60 rounded-full h-2 w-2 absolute top-1 right-1" />
+        <div className="absolute top-1 right-1 h-2 w-2 rounded-full bg-red-60" />
       )}
     </HeaderItemWrapper>
   );
@@ -190,7 +191,7 @@ function SettingsIcon({ hasIssues = false }: { hasIssues?: boolean }) {
 
 function HeaderItemWrapper({ children }: { children: ReactNode }) {
   return (
-    <div className="p-1 cursor-pointer hover:bg-l-neutral-30 active:bg-l-neutral-40 rounded-lg relative">
+    <div className="relative cursor-pointer rounded-lg p-1 hover:bg-l-neutral-30 active:bg-l-neutral-40">
       {children}
     </div>
   );
