@@ -36,7 +36,16 @@ export default function SyncInfo() {
         (i) => i.name !== item.name
       );
 
-      const newItems = [item, ...itemsWithoutGivenItem].slice(0, MAX_ITEMS);
+      const itemIsAnError = [
+        'PULL_ERROR',
+        'RENAME_ERROR',
+        'DELETE_ERROR',
+        'METADATA_READ_ERROR',
+      ].includes(item.action);
+
+      const newItems = itemIsAnError
+        ? itemsWithoutGivenItem
+        : [item, ...itemsWithoutGivenItem].slice(0, MAX_ITEMS);
 
       return newItems;
     });
@@ -62,13 +71,13 @@ export default function SyncInfo() {
   }, [syncStopped]);
 
   return (
-    <div className="flex-grow min-h-0 bg-l-neutral-10 border-t border-t-l-neutral-30 px-3 relative">
-      <div className="flex w-full justify-end absolute top-0 left-0 p-1">
-        <div className="bg-l-neutral-10 px-2 rounded">
+    <div className="relative min-h-0 flex-grow border-t border-t-l-neutral-30 bg-l-neutral-10 px-3">
+      <div className="absolute top-0 left-0 flex w-full justify-end p-1">
+        <div className="rounded bg-l-neutral-10 px-2">
           <button
             tabIndex={0}
             type="button"
-            className={`text-xs font-medium text-blue-60 hover:text-blue-70 active:text-blue-80 select-none ${
+            className={`select-none text-xs font-medium text-blue-60 hover:text-blue-70 active:text-blue-80 ${
               items.length === 0 ? 'opacity-0' : ''
             }`}
             onClick={clearItems}
@@ -80,7 +89,7 @@ export default function SyncInfo() {
       </div>
 
       {items.length === 0 && <Empty />}
-      <div className="overflow-y-auto scroll h-full no-scrollbar">
+      <div className="scroll no-scrollbar h-full overflow-y-auto">
         <AnimatePresence>
           {items.map((item, i) => (
             <AnimationWrapper key={item.name} i={i}>
@@ -150,17 +159,17 @@ function Item({
   const displayName = getBaseName(name);
 
   return (
-    <div className="h-10 my-4 flex items-center w-full overflow-hidden select-none">
+    <div className="my-4 flex h-10 w-full select-none items-center overflow-hidden">
       <FileWithOperation
         operation={operation}
         className="flex-shrink-0"
         width={24}
       />
       <div className="ml-4 overflow-hidden">
-        <h2 className="text-neutral-700 font-medium truncate text-sm">
+        <h2 className="truncate text-sm font-medium text-neutral-700">
           {displayName}
         </h2>
-        <p className="text-neutral-500 text-xs">
+        <p className="text-xs text-neutral-500">
           {description}
           <span>&nbsp;{progressDisplay}</span>
         </p>
@@ -178,19 +187,19 @@ function Empty() {
         exit={{ opacity: 0 }}
         transition={{ duration: 0.5, ease: 'easeInOut' }}
       >
-        <div className="absolute left-1/2 top-1/2 trasform -translate-x-1/2 -translate-y-1/2 w-full text-center select-none">
+        <div className="trasform absolute left-1/2 top-1/2 w-full -translate-x-1/2 -translate-y-1/2 select-none text-center">
           <div className="relative h-16">
-            <div className="absolute transform rotate-12 left-1/2 -translate-x-6 opacity-60">
+            <div className="absolute left-1/2 -translate-x-6 rotate-12 transform opacity-60">
               <FileIcon className="h-16 w-16" />
             </div>
-            <div className="absolute transform -rotate-12 left-1/2 -translate-x-10">
+            <div className="absolute left-1/2 -translate-x-10 -rotate-12 transform">
               <FileIcon className="h-16 w-16" />
             </div>
           </div>
           <p className="mt-7 text-sm text-blue-100">
             There is no recent activity
           </p>
-          <p className="mt-1 text-xs text-m-neutral-100 px-4">
+          <p className="mt-1 px-4 text-xs text-m-neutral-100">
             Information will show up here when changes are made to sync your
             local folder with Internxt Drive
           </p>
