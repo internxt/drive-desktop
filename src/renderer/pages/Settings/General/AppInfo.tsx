@@ -15,7 +15,7 @@ export default function AppInfo({ className = '' }: { className: string }) {
       </button>
       <a
         className="block text-sm text-blue-60 hover:text-blue-70 active:text-blue-80"
-        href="https://drive.internxt.com"
+        href="https://internxt.com/drive"
         target="_blank"
         rel="noopener noreferrer"
       >
