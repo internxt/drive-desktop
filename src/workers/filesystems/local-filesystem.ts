@@ -4,15 +4,19 @@ import path from 'path';
 import * as uuid from 'uuid';
 import Logger from 'electron-log';
 import { constants, createReadStream, createWriteStream } from 'fs';
-import { createErrorDetails, getDateFromSeconds, getLocalMeta } from '../utils';
+import {
+  createErrorDetails,
+  getDateFromSeconds,
+  getLocalMeta,
+} from '../sync/utils';
 import {
   FileSystem,
-  SyncFatalError,
   Listing,
   Source,
-  SyncError,
   ReadingMetaErrorEntry,
-} from '../sync';
+  ProcessError,
+  ProcessFatalError,
+} from '../types';
 
 export function getLocalFilesystem(
   localPath: string,
@@ -47,7 +51,7 @@ export function getLocalFilesystem(
         await fs.copyFile(oldPath, newPath);
         await fs.unlink(oldPath);
       } else {
-        throw new SyncError(
+        throw new ProcessError(
           'UNKNOWN',
           createErrorDetails(
             err,
@@ -124,7 +128,7 @@ export function getLocalFilesystem(
         const err = e as { code?: string };
 
         if (err.code !== 'ENOENT')
-          throw new SyncError(
+          throw new ProcessError(
             'UNKNOWN',
             createErrorDetails(err, 'Deleting a file locally', `Name: ${name}`)
           );
@@ -145,7 +149,7 @@ export function getLocalFilesystem(
 
         stream.on('error', (err) => {
           reject(
-            new SyncError(
+            new ProcessError(
               'UNKNOWN',
               createErrorDetails(
                 err,
@@ -175,11 +179,11 @@ export function getLocalFilesystem(
 
             resolve();
           } catch (err) {
-            if (err instanceof SyncError) {
+            if (err instanceof ProcessError) {
               reject(err);
             } else {
               reject(
-                new SyncError(
+                new ProcessError(
                   'UNKNOWN',
                   createErrorDetails(
                     err,
@@ -239,17 +243,17 @@ export function getLocalFilesystem(
           'Getting local meta and copying file to a temp directory';
         const additional = `Actual path: ${actualPath}, temp path: ${tmpFilePath}, size: ${size}, modTime: ${modTime}`;
         if (err.code === 'ENOENT') {
-          throw new SyncError(
+          throw new ProcessError(
             'NOT_EXISTS',
             createErrorDetails(err, action, additional)
           );
         } else if (err.code === 'EACCES') {
-          throw new SyncError(
+          throw new ProcessError(
             'NO_PERMISSION',
             createErrorDetails(err, action, additional)
           );
         } else {
-          throw new SyncError(
+          throw new ProcessError(
             'UNKNOWN',
             createErrorDetails(err, action, additional)
           );
@@ -274,7 +278,7 @@ export function getLocalFilesystem(
         await fs.access(localPath, constants.R_OK | constants.W_OK);
         await fs.lstat(localPath);
       } catch (err) {
-        throw new SyncFatalError(
+        throw new ProcessFatalError(
           'CANNOT_ACCESS_BASE_DIRECTORY',
           createErrorDetails(
             err,
@@ -287,7 +291,7 @@ export function getLocalFilesystem(
       try {
         await fs.access(tempDirectory, constants.R_OK | constants.W_OK);
       } catch (err) {
-        throw new SyncFatalError(
+        throw new ProcessFatalError(
           'CANNOT_ACCESS_TMP_DIRECTORY',
           createErrorDetails(
             err,

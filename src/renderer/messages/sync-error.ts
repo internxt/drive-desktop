@@ -1,6 +1,6 @@
-import { SyncErrorName } from '../../workers/sync/sync';
+import { ProcessErrorName } from '../../workers/types';
 
-type SyncErrorMessages = Record<SyncErrorName, string>;
+type SyncErrorMessages = Record<ProcessErrorName, string>;
 
 export const shortMessages: SyncErrorMessages = {
   NOT_EXISTS: "File doesn't exist",

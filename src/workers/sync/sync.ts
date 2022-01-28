@@ -1,9 +1,18 @@
 import { EventEmitter } from 'events';
 import path from 'path';
 import _ from 'lodash';
-import { Readable } from 'stream';
 import Logger from 'electron-log';
 import { createErrorDetails } from './utils';
+import {
+  ErrorDetails,
+  FileSystem,
+  FileSystemKind,
+  Listing,
+  ProcessError,
+  ProcessErrorName,
+  ProcessFatalError,
+  ReadingMetaErrorEntry,
+} from '../types';
 
 class Sync extends EventEmitter {
   constructor(
@@ -322,9 +331,9 @@ class Sync extends EventEmitter {
         this.emit('FILE_RENAMED', oldName, newName, fileSystem.kind);
       } catch (err) {
         const syncError =
-          err instanceof SyncError
+          err instanceof ProcessError
             ? err
-            : new SyncError(
+            : new ProcessError(
                 'UNKNOWN',
                 createErrorDetails(
                   err,
@@ -338,7 +347,7 @@ class Sync extends EventEmitter {
           oldName,
           newName,
           fileSystem.kind,
-          syncError.name as SyncErrorName,
+          syncError.name as ProcessErrorName,
           syncError.details
         );
       }
@@ -361,9 +370,9 @@ class Sync extends EventEmitter {
         this.emit('FILE_PULLED', name, destFs.kind);
       } catch (err) {
         const syncError =
-          err instanceof SyncError
+          err instanceof ProcessError
             ? err
-            : new SyncError(
+            : new ProcessError(
                 'UNKNOWN',
                 createErrorDetails(
                   err,
@@ -375,7 +384,7 @@ class Sync extends EventEmitter {
           'ERROR_PULLING_FILE',
           name,
           destFs.kind,
-          syncError.name as SyncErrorName,
+          syncError.name as ProcessErrorName,
           syncError.details
         );
       }
@@ -394,9 +403,9 @@ class Sync extends EventEmitter {
         this.emit('FILE_DELETED', name, fileSystem.kind);
       } catch (err) {
         const syncError =
-          err instanceof SyncError
+          err instanceof ProcessError
             ? err
-            : new SyncError(
+            : new ProcessError(
                 'UNKNOWN',
                 createErrorDetails(
                   err,
@@ -408,7 +417,7 @@ class Sync extends EventEmitter {
           'ERROR_DELETING_FILE',
           name,
           fileSystem.kind,
-          syncError.name as SyncErrorName,
+          syncError.name as ProcessErrorName,
           syncError.details
         );
       }
@@ -427,9 +436,9 @@ class Sync extends EventEmitter {
         this.emit('FOLDER_DELETED', name, fileSystem.kind);
       } catch (err) {
         const syncError =
-          err instanceof SyncError
+          err instanceof ProcessError
             ? err
-            : new SyncError(
+            : new ProcessError(
                 'UNKNOWN',
                 createErrorDetails(
                   err,
@@ -441,7 +450,7 @@ class Sync extends EventEmitter {
           'ERROR_DELETING_FOLDER',
           name,
           fileSystem.kind,
-          syncError.name as SyncErrorName,
+          syncError.name as ProcessErrorName,
           syncError.details
         );
       }
@@ -516,9 +525,9 @@ class Sync extends EventEmitter {
       };
     } catch (err) {
       const syncError =
-        err instanceof SyncError
-          ? new SyncFatalError('CANNOT_GET_CURRENT_LISTINGS', err.details)
-          : new SyncFatalError(
+        err instanceof ProcessError
+          ? new ProcessFatalError('CANNOT_GET_CURRENT_LISTINGS', err.details)
+          : new ProcessFatalError(
               'CANNOT_GET_CURRENT_LISTINGS',
               createErrorDetails(err, 'Getting current listings')
             );
@@ -543,96 +552,6 @@ class Sync extends EventEmitter {
   }
 }
 
-export interface FileSystem {
-  /**
-   * The kind of filesystem, it's emitted
-   * in some fs events
-   */
-  kind: FileSystemKind;
-
-  /**
-   * Returns the listing of the current files
-   * in this FileSystem
-   */
-  getCurrentListing(): Promise<{
-    listing: Listing;
-    readingMetaErrors: ReadingMetaErrorEntry[];
-  }>;
-
-  /**
-   * Renames a file in the FileSystem
-   * @param oldName
-   * @param newName
-   */
-  renameFile(oldName: string, newName: string): Promise<void>;
-
-  /**
-   * Deletes a file in the FileSystem,
-   * doesn't throw if the file doesn't exist anymore
-   * @param name
-   */
-  deleteFile(name: string): Promise<void>;
-
-  /**
-   * Pulls a file from other FileSystem into this FileSystem,
-   * overwriting it if already exists
-   * @param name
-   * @param source
-   * @param progressCallback
-   */
-  pullFile(
-    name: string,
-    source: Source,
-    progressCallback: FileSystemProgressCallback
-  ): Promise<void>;
-
-  /**
-   * Checks if a folder exists in the filesystem
-   * @param name
-   */
-  existsFolder(name: string): Promise<boolean>;
-
-  /**
-   * Deletes a folder in the filesystem
-   * doesn't throw if the folder doesn't exist anymore
-   * @param name
-   */
-  deleteFolder(name: string): Promise<void>;
-
-  /**
-   * Returns an object source that contains
-   * anything that another filesystem would need
-   * to pull it
-   * @param name
-   * @param progressCallback
-   */
-  getSource(
-    name: string,
-    progressCallback: FileSystemProgressCallback
-  ): Promise<Source>;
-
-  /**
-   * Check critical resources of this filesystem
-   * and throw an error if it's not operative
-   */
-  smokeTest(): Promise<void>;
-}
-
-export type ReadingMetaErrorEntry = {
-  name: string;
-  errorName: SyncErrorName;
-  errorDetails: ErrorDetails;
-};
-
-export type FileSystemProgressCallback = (progress: number) => void;
-
-export type Source = {
-  stream: Readable;
-  additionalStream: Readable;
-  modTime: number;
-  size: number;
-};
-
 export type ListingStore = {
   /**
    * Returns the listing of the files
@@ -651,21 +570,9 @@ export type ListingStore = {
   saveListing(listing: Listing): Promise<void>;
 };
 
-/**
- * Represents a list of files, each with
- * its modTime that is set as seconds since epoch
- *
- * The name of each file can be namespaced by
- * his ancestors such as: folderA/folderB/fileName
- * It cannot start or end with "/"
- */
-export type Listing = Record<string, number>;
-
 export type Deltas = Record<string, Delta>;
 
 type Delta = 'NEW' | 'NEWER' | 'DELETED' | 'OLDER' | 'UNCHANGED';
-
-export type FileSystemKind = 'LOCAL' | 'REMOTE';
 
 interface SyncEvents {
   /**
@@ -709,7 +616,7 @@ interface SyncEvents {
   ERROR_PULLING_FILE: (
     name: string,
     fileSystemKind: FileSystemKind,
-    errName: SyncErrorName,
+    errName: ProcessErrorName,
     errDetails: ErrorDetails
   ) => void;
 
@@ -727,7 +634,7 @@ interface SyncEvents {
   ERROR_DELETING_FILE: (
     name: string,
     fileSystemKind: FileSystemKind,
-    errName: SyncErrorName,
+    errName: ProcessErrorName,
     errDetails: ErrorDetails
   ) => void;
 
@@ -745,7 +652,7 @@ interface SyncEvents {
   ERROR_DELETING_FOLDER: (
     name: string,
     fileSystemKind: FileSystemKind,
-    errName: SyncErrorName,
+    errName: ProcessErrorName,
     errDetails: ErrorDetails
   ) => void;
 
@@ -772,7 +679,7 @@ interface SyncEvents {
     oldName: string,
     newName: string,
     fileSystemKind: FileSystemKind,
-    errName: SyncErrorName,
+    errName: ProcessErrorName,
     errDetails: ErrorDetails
   ) => void;
 
@@ -782,7 +689,7 @@ interface SyncEvents {
   ERROR_READING_METADATA: (
     name: string,
     fileSystemKind: FileSystemKind,
-    errName: SyncErrorName,
+    errName: ProcessErrorName,
     errDetails: ErrorDetails
   ) => void;
 
@@ -810,87 +717,6 @@ type ListingsDiff = {
   filesNotInLocal: string[];
   filesNotInRemote: string[];
   filesWithDifferentModtime: string[];
-};
-
-export type SyncFatalErrorName =
-  | 'NO_INTERNET'
-  | 'NO_REMOTE_CONNECTION'
-  | 'CANNOT_ACCESS_BASE_DIRECTORY'
-  | 'CANNOT_ACCESS_TMP_DIRECTORY'
-  | 'CANNOT_GET_CURRENT_LISTINGS'
-  | 'UNKNOWN';
-
-export class SyncFatalError extends Error {
-  details: ErrorDetails;
-
-  constructor(name: SyncFatalErrorName, details: ErrorDetails) {
-    super();
-    this.name = name;
-    this.details = details;
-  }
-}
-
-export type SyncErrorName =
-  // File or folder does not exist
-  | 'NOT_EXISTS'
-
-  // No permission to read or write file or folder
-  | 'NO_PERMISSION'
-
-  // No internet connection
-  | 'NO_INTERNET'
-
-  // Could not connect to Internxt servers
-  | 'NO_REMOTE_CONNECTION'
-
-  // Had a bad response (not in the 200 status range) from the server
-  | 'BAD_RESPONSE'
-
-  // The file has a size of 0 bytes
-  | 'EMPTY_FILE'
-
-  // Unknown error
-  | 'UNKNOWN';
-
-export class SyncError extends Error {
-  details: ErrorDetails;
-
-  constructor(name: SyncErrorName, details: ErrorDetails) {
-    super();
-    this.name = name;
-    this.details = details;
-  }
-}
-
-/**
- * Only for error reporting purposes, should not be used
- * to adjust UI to specific errors for example.
- * That's what SyncError and SyncFatalError classes are for
- */
-export type ErrorDetails = {
-  /* Describes in natural language what was being 
-   done when this error was thrown */
-  action: string;
-
-  // Message of the original error instance
-  message: string;
-  // Error code of the original error instance
-  code: string;
-  // Stack of the original error instance
-  stack: string;
-
-  /* SYSTEM ERROR SPECIFICS */
-
-  // Error number
-  errno?: number;
-  // System call name
-  syscall?: string;
-  // Extra details about the error
-  info?: Record<string, any>;
-
-  // Aditional info that could be helpful
-  // to debug
-  additionalInfo?: string;
 };
 
 /**

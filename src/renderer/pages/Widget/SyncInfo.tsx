@@ -8,9 +8,9 @@ import FileWithOperation, {
 } from '../../components/FileWithOperation';
 import useSyncStatus from '../../hooks/SyncStatus';
 import { shortMessages } from '../../messages/sync-error';
-import { SyncErrorName } from '../../../workers/sync/sync';
 import { getBaseName } from '../../utils/path';
 import useSyncStopped from '../../hooks/SyncStopped';
+import { ProcessErrorName } from '../../../workers/types';
 
 export default function SyncInfo() {
   const [items, setItems] = useState<SyncInfoUpdatePayload[]>([]);
@@ -130,7 +130,10 @@ function Item({
   kind,
   progress,
   errorName,
-}: SyncInfoUpdatePayload & { progress?: number; errorName?: SyncErrorName }) {
+}: SyncInfoUpdatePayload & {
+  progress?: number;
+  errorName?: ProcessErrorName;
+}) {
   const progressDisplay =
     progress !== undefined ? `${(progress * 100).toFixed(0)}%` : '';
 

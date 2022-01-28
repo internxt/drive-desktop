@@ -10,7 +10,7 @@ import * as Auth from './auth/service';
 import configStore from './config';
 import { SyncArgs, SyncInfoUpdatePayload } from '../workers/sync';
 import locksService from './locks-service';
-import { SyncFatalErrorName, SyncResult } from '../workers/sync/sync';
+import { SyncResult } from '../workers/sync/sync';
 import packageJson from '../../package.json';
 import { broadcastToWindows } from './windows';
 
@@ -25,6 +25,7 @@ import './windows/settings';
 import './windows/sync-issues';
 import { getTray, setupTrayIcon } from './tray';
 import { createWidget } from './windows/widget';
+import { ProcessFatalErrorName } from '../workers/types';
 
 // Only effective during development
 // the variables are injected
@@ -189,7 +190,7 @@ export type SyncStoppedPayload =
   | { reason: 'STOPPED_BY_USER' | 'COULD_NOT_ACQUIRE_LOCK' }
   | {
       reason: 'FATAL_ERROR';
-      errorName: SyncFatalErrorName;
+      errorName: ProcessFatalErrorName;
     }
   | { reason: 'EXIT'; result: SyncResult };
 

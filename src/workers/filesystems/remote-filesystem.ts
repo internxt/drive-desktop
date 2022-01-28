@@ -3,25 +3,25 @@ import { Environment } from '@internxt/inxt-js';
 import * as uuid from 'uuid';
 import { Readable } from 'stream';
 import Logger from 'electron-log';
-import ConfigStore from '../../../main/config';
-import crypt from '../../utils/crypt';
+import ConfigStore from '../../main/config';
+import crypt from '../utils/crypt';
 import {
   Listing,
   FileSystem,
   FileSystemProgressCallback,
   Source,
-  SyncFatalError,
-  SyncError,
-} from '../sync';
+  ProcessError,
+  ProcessFatalError,
+} from '../types';
 import {
   createErrorDetails,
   getDateFromSeconds,
   getSecondsFromDateString,
   serializeRes,
-} from '../utils';
-import httpRequest from '../../utils/http-request';
-import { getHeaders, getUser } from '../../../main/auth/service';
-import isOnline from '../../utils/is-online';
+} from '../sync/utils';
+import httpRequest from '../utils/http-request';
+import { getHeaders, getUser } from '../../main/auth/service';
+import isOnline from '../utils/is-online';
 
 /**
  * Server cannot find a file given its route,
@@ -122,14 +122,14 @@ export function getRemoteFilesystem(baseFolderId: number): FileSystem {
     action: string,
     additionalInfo?: string
   ) {
-    if (err instanceof SyncError) throw err;
+    if (err instanceof ProcessError) throw err;
 
     const details = createErrorDetails(err, action, additionalInfo);
 
     if (await isOnline()) {
-      throw new SyncError('NO_REMOTE_CONNECTION', details);
+      throw new ProcessError('NO_REMOTE_CONNECTION', details);
     } else {
-      throw new SyncError('NO_INTERNET', details);
+      throw new ProcessError('NO_INTERNET', details);
     }
   }
 
@@ -231,7 +231,7 @@ export function getRemoteFilesystem(baseFolderId: number): FileSystem {
           }
         );
         if (!res.ok) {
-          throw new SyncError(
+          throw new ProcessError(
             'BAD_RESPONSE',
             createErrorDetails(
               {},
@@ -350,8 +350,8 @@ export function getRemoteFilesystem(baseFolderId: number): FileSystem {
                 );
                 reject(
                   (await isOnline())
-                    ? new SyncError('UNKNOWN', details)
-                    : new SyncError('NO_INTERNET', details)
+                    ? new ProcessError('UNKNOWN', details)
+                    : new ProcessError('NO_INTERNET', details)
                 );
               } else resolve(fileId);
             },
@@ -434,7 +434,7 @@ export function getRemoteFilesystem(baseFolderId: number): FileSystem {
           }
         );
         if (!res.ok) {
-          throw new SyncError(
+          throw new ProcessError(
             'BAD_RESPONSE',
             createErrorDetails(
               {},
@@ -472,7 +472,7 @@ export function getRemoteFilesystem(baseFolderId: number): FileSystem {
           }
         );
         if (!res.ok) {
-          throw new SyncError(
+          throw new ProcessError(
             'BAD_RESPONSE',
             createErrorDetails(
               {},
@@ -532,8 +532,8 @@ export function getRemoteFilesystem(baseFolderId: number): FileSystem {
                 );
                 reject(
                   (await isOnline())
-                    ? new SyncError('UNKNOWN', details)
-                    : new SyncError('NO_INTERNET', details)
+                    ? new ProcessError('UNKNOWN', details)
+                    : new ProcessError('NO_INTERNET', details)
                 );
               } else {
                 resolve({
@@ -558,7 +558,7 @@ export function getRemoteFilesystem(baseFolderId: number): FileSystem {
 
     async smokeTest() {
       if (!(await isOnline())) {
-        throw new SyncFatalError(
+        throw new ProcessFatalError(
           'NO_INTERNET',
           createErrorDetails({}, 'Remote smoke test (online test)')
         );
@@ -570,7 +570,7 @@ export function getRemoteFilesystem(baseFolderId: number): FileSystem {
       );
 
       if (!res.ok) {
-        throw new SyncFatalError(
+        throw new ProcessFatalError(
           'NO_REMOTE_CONNECTION',
           createErrorDetails(
             {},

@@ -1,5 +1,5 @@
 import fs from 'fs/promises';
-import { ErrorDetails } from './sync';
+import { ErrorDetails } from '../types';
 
 export async function getLocalMeta(
   localPath: string

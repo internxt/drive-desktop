@@ -1,6 +1,6 @@
-import { SyncFatalErrorName } from '../../workers/sync/sync';
+import { ProcessFatalErrorName } from '../../workers/types';
 
-const messages: Record<SyncFatalErrorName, string> = {
+const messages: Record<ProcessFatalErrorName, string> = {
   NO_INTERNET:
     "Looks like you are not connected to the internet, we'll try again later",
   NO_REMOTE_CONNECTION:

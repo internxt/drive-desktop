@@ -1,16 +1,16 @@
 import { ipcRenderer as electronIpcRenderer } from 'electron';
 import Logger from 'electron-log';
 import getListingStore from './listing-store';
-import { getLocalFilesystem } from './filesystems/local-filesystem';
-import { getRemoteFilesystem } from './filesystems/remote-filesystem';
-import Sync, {
+import { getLocalFilesystem } from '../filesystems/local-filesystem';
+import { getRemoteFilesystem } from '../filesystems/remote-filesystem';
+import {
   ErrorDetails,
   FileSystemKind,
-  SyncErrorName,
-  SyncFatalError,
-  SyncFatalErrorName,
-  SyncResult,
-} from './sync';
+  ProcessErrorName,
+  ProcessFatalError,
+  ProcessFatalErrorName,
+} from '../types';
+import Sync, { SyncResult } from './sync';
 
 export type SyncArgs = {
   localPath: string;
@@ -29,7 +29,7 @@ export type SyncIssue = SyncInfoBase & {
     | 'RENAME_ERROR'
     | 'DELETE_ERROR'
     | 'METADATA_READ_ERROR';
-  errorName: SyncErrorName;
+  errorName: ProcessErrorName;
   errorDetails: ErrorDetails;
 };
 
@@ -48,7 +48,7 @@ export type SyncInfoUpdatePayload =
 
 export interface SyncEvents {
   SYNC_INFO_UPDATE: (payload: SyncInfoUpdatePayload) => void;
-  SYNC_FATAL_ERROR: (errorName: SyncFatalErrorName) => void;
+  SYNC_FATAL_ERROR: (errorName: ProcessFatalErrorName) => void;
   SYNC_EXIT: (result: SyncResult) => void;
 }
 
@@ -237,7 +237,7 @@ ipcRenderer
       Logger.log('Sync done, result: ', result);
       ipcRenderer.send('SYNC_EXIT', result);
     } catch (err) {
-      if (err instanceof SyncFatalError) {
+      if (err instanceof ProcessFatalError) {
         Logger.error(
           `Sync fatal error (${err.name}), details: ${JSON.stringify(
             err.details,
@@ -245,7 +245,7 @@ ipcRenderer
             2
           )}`
         );
-        ipcRenderer.send('SYNC_FATAL_ERROR', err.name as SyncFatalErrorName);
+        ipcRenderer.send('SYNC_FATAL_ERROR', err.name as ProcessFatalErrorName);
       } else {
         Logger.error(
           'Completely unhandled sync fatal error',

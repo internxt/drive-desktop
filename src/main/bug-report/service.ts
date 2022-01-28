@@ -4,9 +4,9 @@ import fs from 'fs/promises';
 import fetch from 'electron-fetch';
 import FormData from 'form-data';
 import path from 'path';
-import { ErrorDetails } from '../../workers/sync/sync';
 import { getToken } from '../auth/service';
 import packageJson from '../../../package.json';
+import { ErrorDetails } from '../../workers/types';
 
 export async function sendReport({
   errorDetails,

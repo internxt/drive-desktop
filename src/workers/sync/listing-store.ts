@@ -1,5 +1,6 @@
 import ConfigStore from '../../main/config';
-import { Listing, ListingStore } from './sync';
+import { Listing } from '../types';
+import { ListingStore } from './sync';
 
 export default function getListingStore(): ListingStore {
   return {

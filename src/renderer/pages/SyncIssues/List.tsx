@@ -2,11 +2,11 @@ import { MouseEvent, useState } from 'react';
 import { UilInfoCircle, UilAngleDown } from '@iconscout/react-unicons';
 import { motion, AnimatePresence } from 'framer-motion';
 import { SyncIssue } from '../../../workers/sync';
-import { SyncErrorName } from '../../../workers/sync/sync';
 import WarnIcon from '../../assets/warn.svg';
 import FileIcon from '../../assets/file.svg';
 import { shortMessages } from '../../messages/sync-error';
 import { getBaseName } from '../../utils/path';
+import { ProcessErrorName } from '../../../workers/types';
 
 export default function SyncIssuesList({
   syncIssues,
@@ -18,11 +18,11 @@ export default function SyncIssuesList({
   ) => void;
 }) {
   const [selectedErrorName, setSelectedErrorName] =
-    useState<SyncErrorName | null>(null);
+    useState<ProcessErrorName | null>(null);
 
   const errors = [...new Set(syncIssues.map((issue) => issue.errorName))];
 
-  function onInfoClick(errorName: SyncErrorName) {
+  function onInfoClick(errorName: ProcessErrorName) {
     onClickOnErrorInfo({
       errorName,
       errorDetails: syncIssues.find((i) => i.errorName === errorName)!
@@ -65,7 +65,7 @@ function Item({
   onClick,
   onInfoClick,
 }: {
-  errorName: SyncErrorName;
+  errorName: ProcessErrorName;
   issues: SyncIssue[];
   isSelected: boolean;
   onClick: () => void;
