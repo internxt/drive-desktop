@@ -25,13 +25,13 @@ export default function Button({ state, className = '' }: ButtonProps) {
 
   return (
     <button
-      className={`w-full block h-10 rounded-lg font-medium relative ${colors} ${className}`}
+      className={`relative block h-10 w-full rounded-lg font-medium ${colors} ${className}`}
       type="submit"
       disabled={state !== 'ready'}
     >
       {state === 'loading' ? 'Logging in...' : 'Login'}
       {state === 'loading' && (
-        <div className="absolute top-1/2 transform -translate-y-1/2 right-4">
+        <div className="absolute top-1/2 right-4 -translate-y-1/2 transform">
           <div className="animate-spin">
             <Spinner className="fill-white" width="18" height="18" />
           </div>

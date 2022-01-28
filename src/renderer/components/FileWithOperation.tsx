@@ -26,7 +26,7 @@ export default function FileWithOperation({
       {operation && (
         <AuxIcon
           size={width * 0.65}
-          className="absolute text-blue-50 right-0 top-1/2"
+          className="absolute right-0 top-1/2 text-blue-50"
         />
       )}
     </div>

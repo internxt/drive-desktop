@@ -40,7 +40,7 @@ export default function SyncAction() {
   }
 
   return (
-    <div className="bg-white px-3 py-1 border-t border-t-l-neutral-30 flex items-center justify-between">
+    <div className="flex items-center justify-between border-t border-t-l-neutral-30 bg-white px-3 py-1">
       <p className="text-xs text-neutral-500">
         {state === 'RUNNING'
           ? 'Synchronising your files'

@@ -5,7 +5,7 @@ import SyncInfo from './SyncInfo';
 
 export default function Widget() {
   return (
-    <div className="h-screen overflow-hidden flex flex-col">
+    <div className="flex h-screen flex-col overflow-hidden">
       <Header />
       <SyncErrorBanner />
       <SyncInfo />

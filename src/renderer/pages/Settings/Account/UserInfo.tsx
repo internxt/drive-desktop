@@ -22,7 +22,7 @@ export default function UserInfo({
   return (
     <div className="flex items-center">
       <Avatar initials={initials} />
-      <div className="flex-grow ml-4">
+      <div className="ml-4 flex-grow">
         <h1 className="font-semibold text-neutral-700">{name}</h1>
         <p className="text-sm text-m-neutral-100">{email}</p>
       </div>
@@ -33,7 +33,7 @@ export default function UserInfo({
 
 function Avatar({ initials }: { initials: string }) {
   return (
-    <div className="h-14 w-14 flex text-xl justify-center items-center rounded-full text-blue-80 bg-blue-20 font-semibold">
+    <div className="flex h-14 w-14 items-center justify-center rounded-full bg-blue-20 text-xl font-semibold text-blue-80">
       <p>{initials}</p>
     </div>
   );

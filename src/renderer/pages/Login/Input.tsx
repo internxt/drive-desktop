@@ -55,7 +55,7 @@ export default function Input({
       </p>
       <div className="relative mt-1">
         <input
-          className={`h-10 w-full py-2 px-4 rounded-lg border outline-none bg-l-neutral-20 ${inputColors}`}
+          className={`h-10 w-full rounded-lg border bg-l-neutral-20 py-2 px-4 outline-none ${inputColors}`}
           type={type === 'password' && showPassword ? 'text' : type}
           disabled={state === 'loading'}
           onChange={(e) => onChange(e.target.value)}
@@ -71,7 +71,7 @@ export default function Input({
               e.preventDefault();
               setShowPassword(!showPassword);
             }}
-            className="text-m-neutral-100 pl-2 py-2 bg-l-neutral-20 text-sm font-semibold absolute top-1/2 transform -translate-y-1/2 right-4 cursor-pointer"
+            className="absolute top-1/2 right-4 -translate-y-1/2 transform cursor-pointer bg-l-neutral-20 py-2 pl-2 text-sm font-semibold text-m-neutral-100"
           >
             {showPassword ? 'Hide' : 'Show'}
           </div>

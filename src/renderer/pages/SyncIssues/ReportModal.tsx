@@ -107,7 +107,7 @@ export function ReportModal({
               }}
               animate={phase}
               transition={{ duration: 0.08, type: 'spring' }}
-              className="overflow-hidden inline-block w-full max-w-md my-6 text-left align-middle transition-all transform bg-white shadow-xl rounded-lg"
+              className="my-6 inline-block w-full max-w-md transform overflow-hidden rounded-lg bg-white text-left align-middle shadow-xl transition-all"
             >
               <div className="p-5" ref={measuredRef}>
                 <Dialog.Title
@@ -123,24 +123,24 @@ export function ReportModal({
                 </div>
                 {phase === 'REPORTING' && (
                   <>
-                    <p className="mt-2 text-gray-50 text-xs">Comments</p>
+                    <p className="mt-2 text-xs text-gray-50">Comments</p>
                     <textarea
                       value={userComment}
                       onChange={(e) => setUserComment(e.target.value)}
-                      className="w-full mt-1 text-xs outline-none border-l-neutral-40 border p-1 rounded-md text-gray-80 h-16 resize-none caret-gray-60"
+                      className="mt-1 h-16 w-full resize-none rounded-md border border-l-neutral-40 p-1 text-xs text-gray-80 caret-gray-60 outline-none"
                     />
-                    <div className="flex items-center mt-2">
+                    <div className="mt-2 flex items-center">
                       <input
                         checked={includeLogs}
                         onChange={(e) => setIncludeLogs(e.target.checked)}
                         type="checkbox"
                       />
-                      <p className="text-xs ml-1 text-gray-50">
+                      <p className="ml-1 text-xs text-gray-50">
                         Include the logs of this sync process for debug purposes
                       </p>
                     </div>
                     {requestState === 'ERROR' && (
-                      <p className="text-red-60 text-xs mt-4">
+                      <p className="mt-4 text-xs text-red-60">
                         We could not send your request, make sure you are
                         connected to the internet
                       </p>
@@ -154,7 +154,7 @@ export function ReportModal({
                     onClick={() =>
                       phase === 'INITIAL' ? onClose() : setPhase('INITIAL')
                     }
-                    className="border border-l-neutral-30 px-4 py-1 rounded-lg text-gray-70 hover:bg-l-neutral-20 active:bg-l-neutral-30 text-sm"
+                    className="rounded-lg border border-l-neutral-30 px-4 py-1 text-sm text-gray-70 hover:bg-l-neutral-20 active:bg-l-neutral-30"
                   >
                     {phase === 'INITIAL' ? 'Close' : 'Cancel'}
                   </button>
@@ -167,13 +167,13 @@ export function ReportModal({
                         ? setPhase('REPORTING')
                         : handleSubmit()
                     }
-                    className="w-20 h-7 px-4 py-1 rounded-lg text-white bg-blue-60 hover:bg-blue-70 active:bg-blue-80 disabled:bg-blue-30 text-sm"
+                    className="h-7 w-20 rounded-lg bg-blue-60 px-4 py-1 text-sm text-white hover:bg-blue-70 active:bg-blue-80 disabled:bg-blue-30"
                   >
                     {phase === 'INITIAL' ? (
                       'Report'
                     ) : requestState === 'SENDING' ? (
                       <Spinner
-                        className="fill-white animate-spin mx-auto"
+                        className="mx-auto animate-spin fill-white"
                         width="18"
                         height="18"
                       />

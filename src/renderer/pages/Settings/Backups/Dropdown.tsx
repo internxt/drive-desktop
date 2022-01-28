@@ -26,11 +26,11 @@ export default function Dropdown({
         {({ open }) => (
           <>
             <div className="relative mt-1">
-              <Listbox.Button className="relative w-fit py-1 pl-3 pr-8 text-left bg-white rounded-md drop-shadow-sm cursor-pointer border border-l-neutral-40">
-                <span className="block truncate text-neutral-500 text-sm">
+              <Listbox.Button className="relative w-fit cursor-pointer rounded-md border border-l-neutral-40 bg-white py-1 pl-3 pr-8 text-left drop-shadow-sm">
+                <span className="block truncate text-sm text-neutral-500">
                   {display}
                 </span>
-                <span className="absolute inset-y-0 right-0 flex items-center pointer-events-none bg-blue-60 text-white rounded-r-md">
+                <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center rounded-r-md bg-blue-60 text-white">
                   <UilAngleDown />
                 </span>
               </Listbox.Button>
@@ -45,16 +45,16 @@ export default function Dropdown({
               >
                 <Listbox.Options
                   static
-                  className="duration-150 ease-in-out transform transition absolute bottom-full w-fit p-1 overflow-auto text-sm bg-white rounded-md shadow-lg max-h-60 border border-l-neutral-40"
+                  className="absolute bottom-full max-h-60 w-fit transform overflow-auto rounded-md border border-l-neutral-40 bg-white p-1 text-sm shadow-lg transition duration-150 ease-in-out"
                 >
                   {intervals.map((interval) => (
                     <Listbox.Option
                       key={interval.value}
                       className={({ active }) =>
                         `${
-                          active ? 'text-white bg-blue-50' : 'text-neutral-500'
+                          active ? 'bg-blue-50 text-white' : 'text-neutral-500'
                         }
-                          cursor-default select-none relative py-1 pl-6 pr-8 rounded-md`
+                          relative cursor-default select-none rounded-md py-1 pl-6 pr-8`
                       }
                       value={interval.value}
                     >
@@ -66,7 +66,7 @@ export default function Dropdown({
                           {selected ? (
                             <span className="absolute inset-y-0 left-0 flex items-center pl-1">
                               <UilCheck
-                                className="w-4 h-4"
+                                className="h-4 w-4"
                                 aria-hidden="true"
                               />
                             </span>

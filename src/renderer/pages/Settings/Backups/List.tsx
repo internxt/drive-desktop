@@ -14,11 +14,11 @@ export default function BackupsList({
 
   return (
     <>
-      <p className="text-neutral-500 text-sm">
+      <p className="text-sm text-neutral-500">
         Folders you want to add to the next backup
       </p>
       <div
-        className="h-44 mt-4 bg-white rounded-lg border-l-neutral-30 border overflow-y-auto"
+        className="mt-4 h-44 overflow-y-auto rounded-lg border border-l-neutral-30 bg-white"
         onClick={() => setSelected(null)}
         role="none"
       >
@@ -32,7 +32,7 @@ export default function BackupsList({
             onKeyDown={() => setSelected(folder)}
             tabIndex={0}
             key={folder}
-            className={`p-2 flex items-center w-full overflow-hidden transition-colors duration-75 ${
+            className={`flex w-full items-center overflow-hidden p-2 transition-colors duration-75 ${
               selected === folder
                 ? 'bg-blue-60 text-white'
                 : i % 2 !== 0
@@ -40,9 +40,9 @@ export default function BackupsList({
                 : 'bg-l-neutral-10 text-neutral-700'
             }`}
           >
-            <FolderIcon className="flex-shrink-0 h-4 w-4" />
+            <FolderIcon className="h-4 w-4 flex-shrink-0" />
             <p
-              className="ml-1 leading-none truncate flex-grow relative select-none"
+              className="relative ml-1 flex-grow select-none truncate leading-none"
               style={{ top: '1px' }}
             >
               {folder}

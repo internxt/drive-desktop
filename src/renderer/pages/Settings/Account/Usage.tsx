@@ -14,7 +14,7 @@ export default function Usage({
   const limitDisplay = isInfinite ? '∞' : bytes.format(limitInBytes);
   return (
     <div className="flex-grow">
-      <div className="flex justify-between items-center">
+      <div className="flex items-center justify-between">
         <div>
           <p className="text-xs text-neutral-500">Current plan</p>
           <p className="text-xl font-semibold text-neutral-700">
@@ -32,14 +32,14 @@ export default function Usage({
         )}
       </div>
       {!isInfinite && (
-        <div className="mt-4 h-1 bg-l-neutral-40 rounded">
+        <div className="mt-4 h-1 rounded bg-l-neutral-40">
           <div
-            className="h-full bg-blue-60 rounded"
+            className="h-full rounded bg-blue-60"
             style={{ width: percentageDisplay }}
           />
         </div>
       )}
-      <div className="mt-2 flex justify-between items-center">
+      <div className="mt-2 flex items-center justify-between">
         <p className="text-xs font-semibold text-m-neutral-300">
           Used {bytes.format(usageInBytes)} of {limitDisplay}
         </p>

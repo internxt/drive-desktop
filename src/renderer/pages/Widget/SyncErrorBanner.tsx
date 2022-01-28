@@ -33,13 +33,13 @@ export default function SyncErrorBanner() {
 
   return show ? (
     <div
-      className={`px-3 py-2 flex items-center text-xs ${
+      className={`flex items-center px-3 py-2 text-xs ${
         severity === 'WARN'
           ? 'bg-yellow-10 text-yellow-60'
           : 'bg-red-10 text-red-60'
       }`}
     >
-      <Icon className="w-5 h-5" />
+      <Icon className="h-5 w-5" />
       <p className="ml-2 mb-0">{message}</p>
     </div>
   ) : (

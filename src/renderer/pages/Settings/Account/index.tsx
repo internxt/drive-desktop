@@ -21,11 +21,11 @@ export default function AccountSection({ active }: { active: boolean }) {
       )}
       <div className="mt-8">
         <div
-          className="p-6 bg-l-neutral-20 rounded-lg flex justify-center items-center w-full h-full"
+          className="flex h-full w-full items-center justify-center rounded-lg bg-l-neutral-20 p-6"
           style={{ height: '136px' }}
         >
           {rawUsage === 'loading' ? (
-            <Spinner className="fill-neutral-500 animate-spin w-8 h-8" />
+            <Spinner className="h-8 w-8 animate-spin fill-neutral-500" />
           ) : rawUsage === 'error' ? (
             <p className="text-sm text-red-60">
               We could not fetch your usage details
