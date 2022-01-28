@@ -13,15 +13,11 @@ import {
   ProcessError,
   ProcessFatalError,
 } from '../types';
-import {
-  createErrorDetails,
-  getDateFromSeconds,
-  getSecondsFromDateString,
-  serializeRes,
-} from '../sync/utils';
+import { createErrorDetails, serializeRes } from '../sync/utils';
 import httpRequest from '../utils/http-request';
 import { getHeaders, getUser } from '../../main/auth/service';
 import isOnline from '../utils/is-online';
+import { getDateFromSeconds, getSecondsFromDateString } from '../utils/date';
 
 /**
  * Server cannot find a file given its route,
