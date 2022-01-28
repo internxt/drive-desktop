@@ -18,6 +18,7 @@ import './windows/sync-issues';
 import { setupTrayIcon } from './tray';
 import { createWidget } from './windows/widget';
 import { startBackgroundProcesses } from './background-processes';
+import './background-processes/backups';
 
 // Only effective during development
 // the variables are injected
