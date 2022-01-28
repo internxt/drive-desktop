@@ -1,6 +1,9 @@
 import { ipcMain } from 'electron';
 import { AccessResponse } from '../../renderer/pages/Login/service';
-import { cleanBackgroundProcesses, startBackgroundProcesses } from '../main';
+import {
+  cleanBackgroundProcesses,
+  startBackgroundProcesses,
+} from '../background-processes';
 import { setupRootFolder } from '../sync-root-folder/service';
 import { closeAuxWindows } from '../windows';
 import { getWidget } from '../windows/widget';

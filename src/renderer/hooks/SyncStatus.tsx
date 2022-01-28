@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { SyncStatus } from '../../main/main';
+import { SyncStatus } from '../../main/background-processes/sync';
 
 export default function useSyncStatus(
   onSyncStatusChanged: (value: SyncStatus) => void

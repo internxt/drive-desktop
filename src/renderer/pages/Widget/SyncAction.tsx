@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
-import { SyncStatus } from '../../../main/main';
 import PlayButton from '../../assets/play.svg';
 import StopButton from '../../assets/stop.svg';
 import Spinner from '../../assets/spinner.svg';
 import useSyncStatus from '../../hooks/SyncStatus';
 import useSyncStopped from '../../hooks/SyncStopped';
+import { SyncStatus } from '../../../main/background-processes/sync';
 
 export default function SyncAction() {
   const [state, setState] = useState<SyncStatus | 'LOADING'>('STANDBY');

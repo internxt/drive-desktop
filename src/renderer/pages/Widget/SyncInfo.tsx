@@ -1,6 +1,5 @@
 import { ReactNode, useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { SyncStatus } from '../../../main/main';
 import { SyncInfoUpdatePayload } from '../../../workers/sync';
 import FileIcon from '../../assets/file.svg';
 import FileWithOperation, {
@@ -11,6 +10,7 @@ import { shortMessages } from '../../messages/sync-error';
 import { getBaseName } from '../../utils/path';
 import useSyncStopped from '../../hooks/SyncStopped';
 import { ProcessErrorName } from '../../../workers/types';
+import { SyncStatus } from '../../../main/background-processes/sync';
 
 export default function SyncInfo() {
   const [items, setItems] = useState<SyncInfoUpdatePayload[]>([]);

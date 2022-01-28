@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { SyncStoppedPayload } from '../../main/main';
+import { SyncStoppedPayload } from '../../main/background-processes/sync';
 
 export default function useSyncStopped(): [
   SyncStoppedPayload | null,

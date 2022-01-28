@@ -1,9 +1,9 @@
 import Warn from '../../assets/warn.svg';
 import Error from '../../assets/error.svg';
-import { SyncStatus } from '../../../main/main';
 import FatalErrorMessages from '../../messages/sync-fatal-error';
 import useSyncStatus from '../../hooks/SyncStatus';
 import useSyncStopped from '../../hooks/SyncStopped';
+import { SyncStatus } from '../../../main/background-processes/sync';
 
 export default function SyncErrorBanner() {
   const [stopReason, setStopReason] = useSyncStopped();
