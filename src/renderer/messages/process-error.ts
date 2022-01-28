@@ -1,8 +1,8 @@
 import { ProcessErrorName } from '../../workers/types';
 
-type SyncErrorMessages = Record<ProcessErrorName, string>;
+type ProcessErrorMessages = Record<ProcessErrorName, string>;
 
-export const shortMessages: SyncErrorMessages = {
+export const shortMessages: ProcessErrorMessages = {
   NOT_EXISTS: "File doesn't exist",
   NO_PERMISSION: 'Insufficient permissions',
   NO_INTERNET: 'No internet connection',
@@ -12,7 +12,7 @@ export const shortMessages: SyncErrorMessages = {
   UNKNOWN: 'Unknown error',
 };
 
-export const longMessages: SyncErrorMessages = {
+export const longMessages: ProcessErrorMessages = {
   NOT_EXISTS:
     "This file was present when we compared your local folder with your Internxt drive but dissapeared when we tried to access it. If you deleted this file, don't worry, this error should dissapear the next time the sync process starts.",
   NO_PERMISSION:

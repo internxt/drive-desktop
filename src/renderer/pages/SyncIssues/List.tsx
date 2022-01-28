@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { SyncIssue } from '../../../workers/sync';
 import WarnIcon from '../../assets/warn.svg';
 import FileIcon from '../../assets/file.svg';
-import { shortMessages } from '../../messages/sync-error';
+import { shortMessages } from '../../messages/process-error';
 import { getBaseName } from '../../utils/path';
 import { ProcessErrorName } from '../../../workers/types';
 

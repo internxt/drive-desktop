@@ -1,6 +1,6 @@
 import Warn from '../../assets/warn.svg';
 import Error from '../../assets/error.svg';
-import FatalErrorMessages from '../../messages/sync-fatal-error';
+import FatalErrorMessages from '../../messages/process-fatal-error';
 import useSyncStatus from '../../hooks/SyncStatus';
 import useSyncStopped from '../../hooks/SyncStopped';
 import { SyncStatus } from '../../../main/background-processes/sync';

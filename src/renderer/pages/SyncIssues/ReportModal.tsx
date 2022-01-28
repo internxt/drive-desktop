@@ -2,7 +2,7 @@ import { Dialog, Transition } from '@headlessui/react';
 import { Fragment, useCallback, useState } from 'react';
 import { motion } from 'framer-motion';
 import { SyncIssue } from '../../../workers/sync';
-import { longMessages, shortMessages } from '../../messages/sync-error';
+import { longMessages, shortMessages } from '../../messages/process-error';
 import Spinner from '../../assets/spinner.svg';
 
 export function ReportModal({

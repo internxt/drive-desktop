@@ -6,7 +6,7 @@ import FileWithOperation, {
   Operation,
 } from '../../components/FileWithOperation';
 import useSyncStatus from '../../hooks/SyncStatus';
-import { shortMessages } from '../../messages/sync-error';
+import { shortMessages } from '../../messages/process-error';
 import { getBaseName } from '../../utils/path';
 import useSyncStopped from '../../hooks/SyncStopped';
 import { ProcessErrorName } from '../../../workers/types';
