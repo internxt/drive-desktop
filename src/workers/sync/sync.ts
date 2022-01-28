@@ -2,7 +2,6 @@ import { EventEmitter } from 'events';
 import path from 'path';
 import _ from 'lodash';
 import Logger from 'electron-log';
-import { createErrorDetails } from './utils';
 import {
   ErrorDetails,
   FileSystem,
@@ -13,6 +12,7 @@ import {
   ProcessFatalError,
   ReadingMetaErrorEntry,
 } from '../types';
+import { createErrorDetails } from '../utils/reporting';
 
 class Sync extends EventEmitter {
   constructor(

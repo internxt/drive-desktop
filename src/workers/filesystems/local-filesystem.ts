@@ -4,7 +4,6 @@ import path from 'path';
 import * as uuid from 'uuid';
 import Logger from 'electron-log';
 import { constants, createReadStream, createWriteStream } from 'fs';
-import { createErrorDetails } from '../sync/utils';
 import {
   FileSystem,
   Listing,
@@ -14,6 +13,7 @@ import {
   ProcessFatalError,
 } from '../types';
 import { getDateFromSeconds } from '../utils/date';
+import { createErrorDetails } from '../utils/reporting';
 
 export function getLocalFilesystem(
   localPath: string,
