@@ -1,12 +1,4 @@
-import fs from 'fs/promises';
 import { ErrorDetails } from '../types';
-
-export async function getLocalMeta(
-  localPath: string
-): Promise<{ modTimeInSeconds: number; size: number }> {
-  const stat = await fs.stat(localPath);
-  return { modTimeInSeconds: Math.trunc(stat.mtimeMs / 1000), size: stat.size };
-}
 
 export function getDateFromSeconds(seconds: number): Date {
   return new Date(seconds * 1000);

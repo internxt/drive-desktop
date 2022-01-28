@@ -4,11 +4,7 @@ import path from 'path';
 import * as uuid from 'uuid';
 import Logger from 'electron-log';
 import { constants, createReadStream, createWriteStream } from 'fs';
-import {
-  createErrorDetails,
-  getDateFromSeconds,
-  getLocalMeta,
-} from '../sync/utils';
+import { createErrorDetails, getDateFromSeconds } from '../sync/utils';
 import {
   FileSystem,
   Listing,
@@ -65,6 +61,16 @@ export function getLocalFilesystem(
 
   function getTempFilePath() {
     return path.join(tempDirectory, `${uuid.v4()}.tmp`);
+  }
+
+  async function getLocalMeta(
+    pathname: string
+  ): Promise<{ modTimeInSeconds: number; size: number }> {
+    const stat = await fs.stat(pathname);
+    return {
+      modTimeInSeconds: Math.trunc(stat.mtimeMs / 1000),
+      size: stat.size,
+    };
   }
 
   return {
