@@ -1,14 +1,15 @@
 /* eslint-disable jest/no-conditional-expect */
 /* eslint-disable @typescript-eslint/no-empty-function */
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-nocheck
 import { Readable } from 'stream';
-import Sync, {
-  Deltas,
+import Sync, { Deltas, ListingStore } from '../sync';
+import {
   ErrorDetails,
   FileSystem,
   Listing,
-  ListingStore,
-  SyncFatalError,
-} from '../sync';
+  ProcessFatalError,
+} from '../../types';
 
 describe('sync tests', () => {
   const mockBase: () => FileSystem = () => ({
@@ -24,7 +25,12 @@ describe('sync tests', () => {
     },
     async deleteFolder() {},
     async getSource() {
-      return { modTime: 4, size: 4, stream: {} as Readable };
+      return {
+        modTime: 4,
+        size: 4,
+        stream: {} as Readable,
+        additionalStream: {} as Readable,
+      };
     },
     async smokeTest() {},
   });
@@ -43,7 +49,6 @@ describe('sync tests', () => {
     const renamingFileCB = jest.fn();
     const renamedFileCB = jest.fn();
     const finalizingCB = jest.fn();
-    const doneCB = jest.fn();
 
     sync.on('SMOKE_TESTING', smokeTestingCB);
     sync.on('CHECKING_LAST_RUN_OUTCOME', checkingLastRunCB);
@@ -58,7 +63,6 @@ describe('sync tests', () => {
     sync.on('RENAMING_FILE', renamingFileCB);
     sync.on('FILE_RENAMED', renamedFileCB);
     sync.on('FINALIZING', finalizingCB);
-    sync.on('DONE', doneCB);
 
     return {
       smokeTestingCB,
@@ -74,7 +78,6 @@ describe('sync tests', () => {
       renamingFileCB,
       renamedFileCB,
       finalizingCB,
-      doneCB,
     };
   }
 
@@ -135,7 +138,6 @@ describe('sync tests', () => {
       renamingFileCB,
       renamedFileCB,
       finalizingCB,
-      doneCB,
     } = setupEventSpies(sync);
 
     const spyRemotePull = jest.spyOn(remote, 'pullFile');
@@ -172,7 +174,6 @@ describe('sync tests', () => {
     expect(renamingFileCB).toBeCalledTimes(0);
     expect(renamedFileCB).toBeCalledTimes(0);
     expect(finalizingCB).toBeCalledTimes(1);
-    expect(doneCB).toBeCalledTimes(1);
   });
 
   it('should do a default run correctly', async () => {
@@ -271,7 +272,6 @@ describe('sync tests', () => {
       deletingFolderCB,
       deletedFolderCB,
       finalizingCB,
-      doneCB,
     } = setupEventSpies(sync);
 
     const spyRemotePull = jest.spyOn(remote, 'pullFile');
@@ -371,7 +371,6 @@ describe('sync tests', () => {
     expect(deletedFolderCB).toBeCalledTimes(1);
 
     expect(finalizingCB).toBeCalledTimes(1);
-    expect(doneCB).toBeCalledTimes(1);
   });
 
   it('should rename correctly', () => {
@@ -607,7 +606,7 @@ describe('sync tests', () => {
     const sync = new Sync(fsFailing, mockBase(), listingStore());
 
     jest.spyOn(fsFailing, 'smokeTest').mockImplementation(async () => {
-      throw new SyncFatalError('NO_INTERNET', {} as ErrorDetails);
+      throw new ProcessFatalError('NO_INTERNET', {} as ErrorDetails);
     });
 
     try {
