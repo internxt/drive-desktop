@@ -16,6 +16,7 @@ import {
 } from './service';
 
 let isLoggedIn: boolean;
+setIsLoggedIn(!!getUser());
 
 export function setIsLoggedIn(value: boolean) {
   isLoggedIn = value;
@@ -28,8 +29,6 @@ export function getIsLoggedIn() {
 }
 
 ipcMain.handle('is-user-logged-in', getIsLoggedIn);
-
-setIsLoggedIn(!!getUser());
 
 ipcMain.handle('get-user', getUser);
 
