@@ -62,17 +62,17 @@ contextBridge.exposeInMainWorld('electron', {
     ipcRenderer.on(eventName, callback);
     return () => ipcRenderer.removeListener(eventName, callback);
   },
-  getSyncIssues() {
-    return ipcRenderer.invoke('get-sync-issues');
+  getProcessIssues() {
+    return ipcRenderer.invoke('get-process-issues');
   },
-  onSyncIssuesChanged(func) {
-    const eventName = 'sync-issues-changed';
+  onProcessIssuesChanged(func) {
+    const eventName = 'process-issues-changed';
     const callback = (_, v) => func(v);
     ipcRenderer.on(eventName, callback);
     return () => ipcRenderer.removeListener(eventName, callback);
   },
-  openSyncIssuesWindow() {
-    return ipcRenderer.send('open-sync-issues-window');
+  openProcessIssuesWindow() {
+    return ipcRenderer.send('open-process-issues-window');
   },
   openLogs() {
     return ipcRenderer.send('open-logs');

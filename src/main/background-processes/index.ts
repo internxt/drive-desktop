@@ -5,8 +5,8 @@ import {
   scheduleBackups,
   startBackupProcess,
 } from './backups';
+import { clearSyncIssues } from './process-issues';
 import {
-  clearSyncIssues,
   clearSyncTimeout,
   scheduleSync,
   setTraySyncStatus,

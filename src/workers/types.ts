@@ -182,3 +182,33 @@ export type ErrorDetails = {
   // to debug
   additionalInfo?: string;
 };
+
+type ProcessInfoBase = {
+  kind: FileSystemKind;
+  name: string;
+};
+
+export type ProcessIssue = ProcessInfoBase & {
+  action:
+    | 'PULL_ERROR'
+    | 'RENAME_ERROR'
+    | 'RENAME_ERROR'
+    | 'DELETE_ERROR'
+    | 'METADATA_READ_ERROR';
+  errorName: ProcessErrorName;
+  errorDetails: ErrorDetails;
+  process: 'SYNC' | 'BACKUPS';
+};
+
+export type ProcessInfoUpdatePayload =
+  | (ProcessInfoBase &
+      (
+        | {
+            action: 'PULL' | 'RENAME' | 'DELETE';
+            progress: number;
+          }
+        | {
+            action: 'RENAMED' | 'PULLED' | 'DELETED';
+          }
+      ))
+  | ProcessIssue;

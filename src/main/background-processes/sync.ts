@@ -2,15 +2,19 @@ import { ipcMain, powerSaveBlocker, app, BrowserWindow } from 'electron';
 import path from 'path';
 import Logger from 'electron-log';
 import * as uuid from 'uuid';
-import { SyncArgs, SyncInfoUpdatePayload } from '../../workers/sync';
+import { SyncArgs } from '../../workers/sync';
 import { SyncResult } from '../../workers/sync/sync';
-import { ProcessFatalErrorName } from '../../workers/types';
+import {
+  ProcessFatalErrorName,
+  ProcessInfoUpdatePayload,
+} from '../../workers/types';
 import { getIsLoggedIn } from '../auth/handlers';
 import * as Auth from '../auth/service';
 import configStore from '../config';
 import locksService from './locks-service';
 import { getTray } from '../tray';
 import { broadcastToWindows } from '../windows';
+import { clearSyncIssues, getProcessIssues } from './process-issues';
 
 export type SyncStatus = 'STANDBY' | 'RUNNING';
 
@@ -33,7 +37,7 @@ export function setTraySyncStatus(newStatus: SyncStatus) {
   const tray = getTray();
   if (newStatus === 'RUNNING') {
     tray?.setState('SYNCING');
-  } else if (syncIssues.length !== 0) {
+  } else if (getProcessIssues().length !== 0) {
     tray?.setState('ISSUES');
   } else {
     tray?.setState('STANDBY');
@@ -192,35 +196,6 @@ function spawnSyncWorker() {
   return worker;
 }
 
-ipcMain.on('SYNC_INFO_UPDATE', (_, payload: SyncInfoUpdatePayload) => {
+ipcMain.on('SYNC_INFO_UPDATE', (_, payload: ProcessInfoUpdatePayload) => {
   broadcastToWindows('sync-info-update', payload);
 });
-
-// Sync issues
-
-let syncIssues: SyncInfoUpdatePayload[] = [];
-
-function onSyncIssuesChanged() {
-  broadcastToWindows('sync-issues-changed', syncIssues);
-}
-
-export function clearSyncIssues() {
-  syncIssues = [];
-  onSyncIssuesChanged();
-}
-
-ipcMain.on('SYNC_INFO_UPDATE', (_, payload: SyncInfoUpdatePayload) => {
-  if (
-    [
-      'PULL_ERROR',
-      'RENAME_ERROR',
-      'DELETE_ERROR',
-      'METADATA_READ_ERROR',
-    ].includes(payload.action)
-  ) {
-    syncIssues.push(payload);
-    onSyncIssuesChanged();
-  }
-});
-
-ipcMain.handle('get-sync-issues', () => syncIssues);

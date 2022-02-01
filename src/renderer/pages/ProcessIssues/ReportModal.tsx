@@ -1,15 +1,15 @@
 import { Dialog, Transition } from '@headlessui/react';
 import { Fragment, useCallback, useState } from 'react';
 import { motion } from 'framer-motion';
-import { SyncIssue } from '../../../workers/sync';
 import { longMessages, shortMessages } from '../../messages/process-error';
 import Spinner from '../../assets/spinner.svg';
+import { ProcessIssue } from '../../../workers/types';
 
 export function ReportModal({
   data,
   onClose,
 }: {
-  data: Pick<SyncIssue, 'errorName' | 'errorDetails'> | null;
+  data: Pick<ProcessIssue, 'errorName' | 'errorDetails'> | null;
   onClose: () => void;
 }) {
   const [height, setHeight] = useState(0);

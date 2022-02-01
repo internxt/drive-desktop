@@ -1,6 +1,5 @@
 import { ReactNode, useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { SyncInfoUpdatePayload } from '../../../workers/sync';
 import FileIcon from '../../assets/file.svg';
 import FileWithOperation, {
   Operation,
@@ -9,11 +8,14 @@ import useSyncStatus from '../../hooks/SyncStatus';
 import { shortMessages } from '../../messages/process-error';
 import { getBaseName } from '../../utils/path';
 import useSyncStopped from '../../hooks/SyncStopped';
-import { ProcessErrorName } from '../../../workers/types';
+import {
+  ProcessErrorName,
+  ProcessInfoUpdatePayload,
+} from '../../../workers/types';
 import { SyncStatus } from '../../../main/background-processes/sync';
 
 export default function SyncInfo() {
-  const [items, setItems] = useState<SyncInfoUpdatePayload[]>([]);
+  const [items, setItems] = useState<ProcessInfoUpdatePayload[]>([]);
 
   const [syncStopped] = useSyncStopped();
 
@@ -28,7 +30,7 @@ export default function SyncInfo() {
 
   useSyncStatus(onSyncStatusChanged);
 
-  function onSyncItem(item: SyncInfoUpdatePayload) {
+  function onSyncItem(item: ProcessInfoUpdatePayload) {
     const MAX_ITEMS = 50;
 
     setItems((currentItems) => {
@@ -130,7 +132,7 @@ function Item({
   kind,
   progress,
   errorName,
-}: SyncInfoUpdatePayload & {
+}: ProcessInfoUpdatePayload & {
   progress?: number;
   errorName?: ProcessErrorName;
 }) {

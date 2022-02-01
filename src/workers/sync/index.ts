@@ -4,11 +4,9 @@ import getListingStore from './listing-store';
 import { getLocalFilesystem } from '../filesystems/local-filesystem';
 import { getRemoteFilesystem } from '../filesystems/remote-filesystem';
 import {
-  ErrorDetails,
-  FileSystemKind,
-  ProcessErrorName,
   ProcessFatalError,
   ProcessFatalErrorName,
+  ProcessInfoUpdatePayload,
 } from '../types';
 import Sync, { SyncResult } from './sync';
 
@@ -17,37 +15,9 @@ export type SyncArgs = {
   tmpPath: string;
   folderId: number;
 };
-type SyncInfoBase = {
-  kind: FileSystemKind;
-  name: string;
-};
-
-export type SyncIssue = SyncInfoBase & {
-  action:
-    | 'PULL_ERROR'
-    | 'RENAME_ERROR'
-    | 'RENAME_ERROR'
-    | 'DELETE_ERROR'
-    | 'METADATA_READ_ERROR';
-  errorName: ProcessErrorName;
-  errorDetails: ErrorDetails;
-};
-
-export type SyncInfoUpdatePayload =
-  | (SyncInfoBase &
-      (
-        | {
-            action: 'PULL' | 'RENAME' | 'DELETE';
-            progress: number;
-          }
-        | {
-            action: 'RENAMED' | 'PULLED' | 'DELETED';
-          }
-      ))
-  | SyncIssue;
 
 export interface SyncEvents {
-  SYNC_INFO_UPDATE: (payload: SyncInfoUpdatePayload) => void;
+  SYNC_INFO_UPDATE: (payload: ProcessInfoUpdatePayload) => void;
   SYNC_FATAL_ERROR: (errorName: ProcessFatalErrorName) => void;
   SYNC_EXIT: (result: SyncResult) => void;
 }
@@ -115,6 +85,7 @@ ipcRenderer
         name,
         errorName,
         errorDetails,
+        process: 'SYNC',
       });
     });
 
@@ -153,6 +124,7 @@ ipcRenderer
           name: oldName,
           errorName,
           errorDetails,
+          process: 'SYNC',
         });
       }
     );
@@ -190,6 +162,7 @@ ipcRenderer
         name,
         errorName,
         errorDetails,
+        process: 'SYNC',
       });
     });
 
@@ -225,6 +198,7 @@ ipcRenderer
         name,
         errorName,
         errorDetails,
+        process: 'SYNC',
       });
     });
 

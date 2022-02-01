@@ -14,12 +14,13 @@ import './logger';
 import './bug-report/handlers';
 import { getIsLoggedIn } from './auth/handlers';
 import './windows/settings';
-import './windows/sync-issues';
+import './windows/process-issues';
 import { setupTrayIcon } from './tray';
 import { createWidget } from './windows/widget';
 import { startBackgroundProcesses } from './background-processes';
 import './background-processes/backups';
 import './background-processes/sync';
+import './background-processes/process-issues';
 
 // Only effective during development
 // the variables are injected

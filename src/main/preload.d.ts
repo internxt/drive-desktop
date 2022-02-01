@@ -45,16 +45,16 @@ declare interface Window {
     ): () => void;
 
     onSyncInfoUpdate(
-      func: (value: import('../workers/sync').SyncInfoUpdatePayload) => void
+      func: (value: import('../workers/types').ProcessInfoUpdatePayload) => void
     ): () => void;
 
-    getSyncIssues(): Promise<import('../workers/sync').SyncIssue[]>;
+    getProcessIssues(): Promise<import('../workers/types').ProcessIssue[]>;
 
-    onSyncIssuesChanged(
-      func: (value: import('../workers/sync').SyncIssue[]) => void
+    onProcessIssuesChanged(
+      func: (value: import('../workers/types').ProcessIssue[]) => void
     ): () => void;
 
-    openSyncIssuesWindow(): void;
+    openProcessIssuesWindow(): void;
 
     openLogs(): void;
 

@@ -4,16 +4,16 @@ import { ReactNode, useEffect, useState } from 'react';
 import bytes from 'bytes';
 
 import { User } from '../../../main/types';
-import useSyncIssues from '../../hooks/SyncIssues';
+import useProcessIssues from '../../hooks/ProcessIssues';
 import useUsage from '../../hooks/Usage';
 
 export default function Header() {
-  const syncIssues = useSyncIssues();
+  const processIssues = useProcessIssues();
 
-  const numberOfSyncIssues =
-    syncIssues.length < 100 ? syncIssues.length : '99+';
+  const numberOfProcessIssues =
+    processIssues.length < 100 ? processIssues.length : '99+';
 
-  const thereAreSyncIssues = numberOfSyncIssues > 0;
+  const thereAreProcessIssues = numberOfProcessIssues > 0;
 
   const dropdown = (
     <Transition
@@ -32,12 +32,12 @@ export default function Header() {
           </DropdownItem>
         </Menu.Item>
         <Menu.Item>
-          <DropdownItem onClick={window.electron.openSyncIssuesWindow}>
+          <DropdownItem onClick={window.electron.openProcessIssuesWindow}>
             <div className="flex items-baseline justify-between">
-              <p>Sync issues</p>
-              {thereAreSyncIssues && (
+              <p>Issues</p>
+              {thereAreProcessIssues && (
                 <p className="ml-4 text-xs font-semibold text-red-60">
-                  {numberOfSyncIssues}
+                  {numberOfProcessIssues}
                 </p>
               )}
             </div>
@@ -93,7 +93,7 @@ export default function Header() {
       </HeaderItemWrapper>
       <Menu as="div" className="relative h-7">
         <Menu.Button>
-          <SettingsIcon hasIssues={numberOfSyncIssues > 0} />
+          <SettingsIcon hasIssues={numberOfProcessIssues > 0} />
         </Menu.Button>
         {dropdown}
       </Menu>

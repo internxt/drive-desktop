@@ -1,31 +1,30 @@
 import { MouseEvent, useState } from 'react';
 import { UilInfoCircle, UilAngleDown } from '@iconscout/react-unicons';
 import { motion, AnimatePresence } from 'framer-motion';
-import { SyncIssue } from '../../../workers/sync';
 import WarnIcon from '../../assets/warn.svg';
 import FileIcon from '../../assets/file.svg';
 import { shortMessages } from '../../messages/process-error';
 import { getBaseName } from '../../utils/path';
-import { ProcessErrorName } from '../../../workers/types';
+import { ProcessErrorName, ProcessIssue } from '../../../workers/types';
 
-export default function SyncIssuesList({
-  syncIssues,
+export default function ProcessIssuesList({
+  processIssues,
   onClickOnErrorInfo,
 }: {
-  syncIssues: SyncIssue[];
+  processIssues: ProcessIssue[];
   onClickOnErrorInfo: (
-    errorClicked: Pick<SyncIssue, 'errorName' | 'errorDetails'>
+    errorClicked: Pick<ProcessIssue, 'errorName' | 'errorDetails'>
   ) => void;
 }) {
   const [selectedErrorName, setSelectedErrorName] =
     useState<ProcessErrorName | null>(null);
 
-  const errors = [...new Set(syncIssues.map((issue) => issue.errorName))];
+  const errors = [...new Set(processIssues.map((issue) => issue.errorName))];
 
   function onInfoClick(errorName: ProcessErrorName) {
     onClickOnErrorInfo({
       errorName,
-      errorDetails: syncIssues.find((i) => i.errorName === errorName)!
+      errorDetails: processIssues.find((i) => i.errorName === errorName)!
         .errorDetails,
     });
   }
@@ -41,7 +40,7 @@ export default function SyncIssuesList({
           }
           onInfoClick={() => onInfoClick(error)}
           errorName={error}
-          issues={syncIssues.filter((i) => i.errorName === error)}
+          issues={processIssues.filter((i) => i.errorName === error)}
           isSelected={selectedErrorName === error}
         />
       ))}
@@ -66,7 +65,7 @@ function Item({
   onInfoClick,
 }: {
   errorName: ProcessErrorName;
-  issues: SyncIssue[];
+  issues: ProcessIssue[];
   isSelected: boolean;
   onClick: () => void;
   onInfoClick: () => void;

@@ -1,15 +1,19 @@
 import { BrowserWindow, shell } from 'electron';
 import { getSettingsWindow } from './settings';
-import { getSyncIssuesWindow } from './sync-issues';
+import { getProcessIssuesWindow } from './process-issues';
 import { getWidget } from './widget';
 
 export function closeAuxWindows() {
-  getSyncIssuesWindow()?.close();
+  getProcessIssuesWindow()?.close();
   getSettingsWindow()?.close();
 }
 
 export function broadcastToWindows(eventName: string, data: any) {
-  const renderers = [getWidget(), getSyncIssuesWindow(), getSettingsWindow()];
+  const renderers = [
+    getWidget(),
+    getProcessIssuesWindow(),
+    getSettingsWindow(),
+  ];
 
   renderers.forEach((r) => r?.webContents.send(eventName, data));
 }

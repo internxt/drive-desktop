@@ -1,23 +1,25 @@
 import { useState } from 'react';
-import { SyncIssue } from '../../../workers/sync';
+import { ProcessIssue } from '../../../workers/types';
 import WindowTopBar from '../../components/WindowTopBar';
-import useSyncIssues from '../../hooks/SyncIssues';
-import SyncIssuesList from './List';
+import useProcessIssues from '../../hooks/ProcessIssues';
+import ProcessIssuesList from './List';
 import { ReportModal } from './ReportModal';
 
-export default function Index() {
-  const syncIssues = useSyncIssues();
+export default function ProcessIssues() {
+  const processIssues = useProcessIssues();
   const [reportData, setReportData] = useState<Pick<
-    SyncIssue,
+    ProcessIssue,
     'errorName' | 'errorDetails'
   > | null>(null);
 
   return (
     <div className="flex h-screen flex-col overflow-hidden bg-l-neutral-10">
-      <WindowTopBar title="Sync issues" />
+      <WindowTopBar title="Issues" />
       <div className="draggable flex flex-grow-0 items-center justify-between pt-4 pr-3 pl-4">
         <p className="text-sm font-medium text-gray-80">
-          {syncIssues.length ? `${syncIssues.length} issues` : 'No issues'}
+          {processIssues.length
+            ? `${processIssues.length} issues`
+            : 'No issues'}
         </p>
         <button
           type="button"
@@ -27,8 +29,8 @@ export default function Index() {
           Open log
         </button>
       </div>
-      <SyncIssuesList
-        syncIssues={syncIssues}
+      <ProcessIssuesList
+        processIssues={processIssues}
         onClickOnErrorInfo={setReportData}
       />
       <ReportModal

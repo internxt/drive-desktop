@@ -9,7 +9,7 @@ import {
 
 import Login from './pages/Login';
 import Widget from './pages/Widget';
-import SyncIssues from './pages/SyncIssues';
+import ProcessIssues from './pages/ProcessIssues';
 import Settings from './pages/Settings';
 
 import './App.css';
@@ -52,7 +52,7 @@ export default function App() {
         <LoggedInWrapper>
           <Routes>
             <Route path="/login" element={<Login />} />
-            <Route path="/sync-issues" element={<SyncIssues />} />
+            <Route path="/process-issues" element={<ProcessIssues />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/" element={<Widget />} />
           </Routes>
