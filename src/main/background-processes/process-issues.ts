@@ -4,7 +4,7 @@ import { broadcastToWindows } from '../windows';
 
 let processIssues: ProcessIssue[] = [];
 
-ipcMain.handle('get-process-issues', () => processIssues);
+ipcMain.handle('get-process-issues', getProcessIssues);
 
 function onProcessIssuesChanged() {
   broadcastToWindows('process-issues-changed', processIssues);
