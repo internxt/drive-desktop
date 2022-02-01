@@ -1,8 +1,8 @@
 import Logger from 'electron-log';
-import Process, { ProcessEvents } from '../process';
+import Process, { ProcessEvents, ProcessResult } from '../process';
 
 class Backups extends Process {
-  async run(): Promise<void> {
+  async run(): Promise<ProcessResult> {
     this.emit('SMOKE_TESTING');
 
     await this.local.smokeTest();
@@ -37,6 +37,15 @@ class Backups extends Process {
       this.consumePullQueue(pullFromRemote, this.remote, this.local),
       this.consumeDeleteQueue(deleteInRemote, this.remote),
     ]);
+
+    const result = await this.generateResult();
+
+    if (result.status === 'IN_SYNC') {
+      const { listing, ...rest } = result;
+      return rest;
+    } else {
+      return result;
+    }
   }
 }
 

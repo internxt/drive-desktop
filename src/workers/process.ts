@@ -1,6 +1,7 @@
 import { EventEmitter } from 'events';
 import path from 'path';
 import _ from 'lodash';
+import Logger from 'electron-log';
 import {
   ErrorDetails,
   FileSystem,
@@ -13,7 +14,7 @@ import {
 } from './types';
 import { createErrorDetails } from './utils/reporting';
 
-class Process extends EventEmitter {
+abstract class Process extends EventEmitter {
   constructor(
     protected readonly local: FileSystem,
     protected readonly remote: FileSystem
@@ -237,6 +238,29 @@ class Process extends EventEmitter {
       );
     });
   }
+
+  protected async generateResult(): Promise<
+    (SuccessfulProcessResult & { listing: Listing }) | UnsuccessfulProcessResult
+  > {
+    const { currentLocal, currentRemote } = await this.getCurrentListings({
+      emitErrors: false,
+    });
+
+    if (_.isEqual(currentLocal, currentRemote)) {
+      const currentInBoth = currentLocal;
+      Logger.debug('Current in both:', currentInBoth);
+
+      return { status: 'IN_SYNC', listing: currentInBoth };
+    } else {
+      Logger.debug('Current local:', currentLocal);
+      Logger.debug('Current remote:', currentRemote);
+
+      const diff = this.getListingsDiff(currentLocal, currentRemote);
+      return { status: 'NOT_IN_SYNC', diff };
+    }
+  }
+
+  abstract run(): Promise<ProcessResult>;
 }
 
 export interface ProcessEvents {
@@ -352,6 +376,17 @@ export type ListingsDiff = {
   filesNotInLocal: string[];
   filesNotInRemote: string[];
   filesWithDifferentModtime: string[];
+};
+
+export type ProcessResult = SuccessfulProcessResult | UnsuccessfulProcessResult;
+
+type SuccessfulProcessResult = {
+  status: 'IN_SYNC';
+};
+
+type UnsuccessfulProcessResult = {
+  status: 'NOT_IN_SYNC';
+  diff: ListingsDiff;
 };
 
 export default Process;

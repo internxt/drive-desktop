@@ -1,7 +1,6 @@
-import _ from 'lodash';
 import Logger from 'electron-log';
 import { FileSystem, Listing } from '../types';
-import Process, { ListingsDiff, ProcessEvents } from '../process';
+import Process, { ProcessEvents, ProcessResult } from '../process';
 
 class Sync extends Process {
   constructor(
@@ -12,7 +11,7 @@ class Sync extends Process {
     super(local, remote);
   }
 
-  async run(): Promise<SyncResult> {
+  async run(): Promise<ProcessResult> {
     this.emit('SMOKE_TESTING');
 
     await this.local.smokeTest();
@@ -92,7 +91,7 @@ class Sync extends Process {
     return this.finalize();
   }
 
-  private async resync(): Promise<SyncResult> {
+  private async resync(): Promise<ProcessResult> {
     this.emit('NEEDS_RESYNC');
 
     const { currentLocal, currentRemote } = await this.getCurrentListings({
@@ -302,26 +301,17 @@ class Sync extends Process {
     return toReturn;
   }
 
-  private async finalize(): Promise<SyncResult> {
+  private async finalize(): Promise<ProcessResult> {
     this.emit('FINALIZING');
 
-    const { currentLocal, currentRemote } = await this.getCurrentListings({
-      emitErrors: false,
-    });
+    const result = await this.generateResult();
 
-    if (_.isEqual(currentLocal, currentRemote)) {
-      const currentInBoth = currentLocal;
-      Logger.debug('Current in both:', currentInBoth);
-
-      await this.listingStore.saveListing(currentInBoth);
-
-      return { status: 'IN_SYNC' };
+    if (result.status === 'IN_SYNC') {
+      await this.listingStore.saveListing(result.listing);
+      const { listing, ...rest } = result;
+      return rest;
     } else {
-      Logger.debug('Current local:', currentLocal);
-      Logger.debug('Current remote:', currentRemote);
-
-      const diff = this.getListingsDiff(currentLocal, currentRemote);
-      return { status: 'NOT_IN_SYNC', diff };
+      return result;
     }
   }
 }
@@ -369,17 +359,6 @@ interface SyncEvents extends ProcessEvents {
    */
   FINALIZING: () => void;
 }
-
-export type SyncResult = SuccessfulSyncResult | UnsuccessfulSyncResult;
-
-type SuccessfulSyncResult = {
-  status: 'IN_SYNC';
-};
-
-type UnsuccessfulSyncResult = {
-  status: 'NOT_IN_SYNC';
-  diff: ListingsDiff;
-};
 
 /**
  * Enable event typing

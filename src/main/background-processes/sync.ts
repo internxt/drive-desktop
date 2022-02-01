@@ -3,7 +3,6 @@ import path from 'path';
 import Logger from 'electron-log';
 import * as uuid from 'uuid';
 import { SyncArgs } from '../../workers/sync';
-import { SyncResult } from '../../workers/sync/sync';
 import {
   ProcessFatalErrorName,
   ProcessInfoUpdatePayload,
@@ -15,6 +14,7 @@ import locksService from './locks-service';
 import { getTray } from '../tray';
 import { broadcastToWindows } from '../windows';
 import { clearSyncIssues, getProcessIssues } from './process-issues';
+import { ProcessResult } from '../../workers/process';
 
 export type SyncStatus = 'STANDBY' | 'RUNNING';
 
@@ -97,7 +97,7 @@ export type SyncStoppedPayload =
       reason: 'FATAL_ERROR';
       errorName: ProcessFatalErrorName;
     }
-  | { reason: 'EXIT'; result: SyncResult };
+  | { reason: 'EXIT'; result: ProcessResult };
 
 function processSyncItem(item: SyncArgs, hasBeenStopped: { value: boolean }) {
   return new Promise<void>(async (resolve) => {

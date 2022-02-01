@@ -8,7 +8,8 @@ import {
   ProcessFatalErrorName,
   ProcessInfoUpdatePayload,
 } from '../types';
-import Sync, { SyncResult } from './sync';
+import Sync from './sync';
+import { ProcessResult } from '../process';
 
 export type SyncArgs = {
   localPath: string;
@@ -19,7 +20,7 @@ export type SyncArgs = {
 export interface SyncEvents {
   SYNC_INFO_UPDATE: (payload: ProcessInfoUpdatePayload) => void;
   SYNC_FATAL_ERROR: (errorName: ProcessFatalErrorName) => void;
-  SYNC_EXIT: (result: SyncResult) => void;
+  SYNC_EXIT: (result: ProcessResult) => void;
 }
 
 interface IpcRenderer {
