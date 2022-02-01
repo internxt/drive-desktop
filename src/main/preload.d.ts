@@ -30,14 +30,18 @@ declare interface Window {
 
     stopSyncProcess(): void;
 
-    getSyncStatus(): Promise<import('main/main').SyncStatus>;
+    getSyncStatus(): Promise<
+      import('main/background-processes/sync').SyncStatus
+    >;
 
     onSyncStatusChanged(
-      func: (value: import('main/main').SyncStatus) => void
+      func: (value: import('main/background-processes/sync').SyncStatus) => void
     ): () => void;
 
     onSyncStopped(
-      func: (value: import('main/main').SyncStoppedPayload) => void
+      func: (
+        value: import('main/background-processes/sync').SyncStoppedPayload
+      ) => void
     ): () => void;
 
     onSyncInfoUpdate(
@@ -67,6 +71,20 @@ declare interface Window {
     getBackupsInterval(): Promise<number>;
 
     setBackupsInterval(value: number): Promise<void>;
+
+    startBackupsProcess(): void;
+
+    stopBackupsProcess(): void;
+
+    getBackupsStatus(): Promise<
+      import('main/background-processes/backups').BackupsStatus
+    >;
+
+    onBackupsStatusChanged(
+      func: (
+        value: import('main/background-processes/backups').BackupsStatus
+      ) => void
+    ): () => void;
 
     getSyncRoot(): Promise<string>;
 

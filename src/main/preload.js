@@ -98,6 +98,21 @@ contextBridge.exposeInMainWorld('electron', {
   setBackupsInterval(value) {
     return ipcRenderer.invoke('set-backups-interval', value);
   },
+  startBackupsProcess() {
+    return ipcRenderer.send('start-backups-process');
+  },
+  stopBackupsProcess() {
+    return ipcRenderer.send('stop-backups-process');
+  },
+  getBackupsStatus() {
+    return ipcRenderer.invoke('get-backups-status');
+  },
+  onBackupsStatusChanged(func) {
+    const eventName = 'backups-status-changed';
+    const callback = (_, v) => func(v);
+    ipcRenderer.on(eventName, callback);
+    return () => ipcRenderer.removeListener(eventName, callback);
+  },
   getSyncRoot() {
     return ipcRenderer.invoke('get-sync-root');
   },

@@ -28,6 +28,11 @@ class Backups extends Process {
     Logger.debug('Queue pull from remote', pullFromRemote);
     Logger.debug('Queue delete from remote', deleteInRemote);
 
+    this.emit(
+      'ACTION_QUEUE_GENERATED',
+      pullFromRemote.length + deleteInRemote.length
+    );
+
     await Promise.all([
       this.consumePullQueue(pullFromRemote, this.remote, this.local),
       this.consumeDeleteQueue(deleteInRemote, this.remote),
@@ -35,15 +40,19 @@ class Backups extends Process {
   }
 }
 
+interface BackupsEvents extends ProcessEvents {
+  ACTION_QUEUE_GENERATED: (totalItems: number) => void;
+}
+
 /**
  * Enable event typing
  */
 declare interface Backups {
-  on<U extends keyof ProcessEvents>(event: U, listener: ProcessEvents[U]): this;
+  on<U extends keyof BackupsEvents>(event: U, listener: BackupsEvents[U]): this;
 
-  emit<U extends keyof ProcessEvents>(
+  emit<U extends keyof BackupsEvents>(
     event: U,
-    ...args: Parameters<ProcessEvents[U]>
+    ...args: Parameters<BackupsEvents[U]>
   ): boolean;
 }
 
