@@ -18,6 +18,10 @@ export function clearSyncIssues() {
   processIssues = processIssues.filter((issue) => issue.process === 'BACKUPS');
   onProcessIssuesChanged();
 }
+export function clearBackupsIssues() {
+  processIssues = processIssues.filter((issue) => issue.process === 'SYNC');
+  onProcessIssuesChanged();
+}
 
 export function addProcessIssue(issue: ProcessIssue) {
   processIssues.push(issue);
@@ -35,4 +39,8 @@ ipcMain.on('SYNC_INFO_UPDATE', (_, payload: ProcessInfoUpdatePayload) => {
   ) {
     addProcessIssue(payload as ProcessIssue);
   }
+});
+
+ipcMain.on('BACKUP_ISSUE', (_, issue: ProcessIssue) => {
+  addProcessIssue(issue);
 });

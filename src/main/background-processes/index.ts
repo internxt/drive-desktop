@@ -5,7 +5,7 @@ import {
   scheduleBackups,
   startBackupProcess,
 } from './backups';
-import { clearSyncIssues } from './process-issues';
+import { clearBackupsIssues, clearSyncIssues } from './process-issues';
 import {
   clearSyncTimeout,
   scheduleSync,
@@ -58,5 +58,6 @@ export function cleanBackgroundProcesses() {
   clearBackupsTimeout();
 
   clearSyncIssues();
+  clearBackupsIssues();
   setTraySyncStatus('STANDBY');
 }

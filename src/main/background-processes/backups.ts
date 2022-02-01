@@ -5,6 +5,7 @@ import { BackupsArgs } from '../../workers/backups';
 import { getIsLoggedIn } from '../auth/handlers';
 import configStore from '../config';
 import { broadcastToWindows } from '../windows';
+import { clearBackupsIssues } from './process-issues';
 
 ipcMain.handle('get-backups-interval', () => {
   return configStore.get('backupInterval');
@@ -44,6 +45,7 @@ export async function startBackupProcess() {
   const suspensionBlockId = powerSaveBlocker.start('prevent-app-suspension');
 
   changeBackupsStatus('RUNNING');
+  clearBackupsIssues();
 
   // It's an object to pass it to
   // the individual item processors

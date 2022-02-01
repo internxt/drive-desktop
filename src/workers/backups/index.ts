@@ -2,7 +2,11 @@ import { ipcRenderer as electronIpcRenderer } from 'electron';
 import Logger from 'electron-log';
 import { getLocalFilesystem } from '../filesystems/local-filesystem';
 import { getRemoteFilesystem } from '../filesystems/remote-filesystem';
-import { ProcessFatalError, ProcessFatalErrorName } from '../types';
+import {
+  ProcessFatalError,
+  ProcessFatalErrorName,
+  ProcessIssue,
+} from '../types';
 import Backups from './backups';
 
 export type BackupsArgs = {
@@ -17,6 +21,7 @@ export interface BackupsEvents {
     currentItems: number;
     totalItems: number;
   }) => void;
+  BACKUP_ISSUE: (issue: ProcessIssue) => void;
   BACKUP_EXIT: () => void;
 }
 
@@ -73,6 +78,14 @@ ipcRenderer
           2
         )}`
       );
+      ipcRenderer.send('BACKUP_ISSUE', {
+        action: 'PULL_ERROR',
+        kind,
+        name,
+        errorName,
+        errorDetails,
+        process: 'BACKUPS',
+      });
     });
 
     backups.on('RENAMING_FILE', (oldName, newName, kind) => {
@@ -113,6 +126,14 @@ ipcRenderer
           2
         )}`
       );
+      ipcRenderer.send('BACKUP_ISSUE', {
+        action: 'DELETE_ERROR',
+        kind,
+        name,
+        errorName,
+        errorDetails,
+        process: 'BACKUPS',
+      });
     });
 
     backups.on('DELETING_FOLDER', (name, kind) => {
