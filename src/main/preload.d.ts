@@ -22,9 +22,9 @@ declare interface Window {
 
     getUser(): Promise<ReturnType<typeof import('./auth/service').getUser>>;
 
-    getHeaders(): Promise<
-      ReturnType<typeof import('./auth/service').getHeaders>
-    >;
+    getHeaders(
+      includeMnemonic?: boolean
+    ): Promise<ReturnType<typeof import('./auth/service').getHeaders>>;
 
     startSyncProcess(): void;
 
@@ -91,5 +91,7 @@ declare interface Window {
     chooseSyncRootWithDialog: typeof import('./sync-root-folder/service').chooseSyncRootWithDialog;
 
     path: typeof import('path');
+
+    getOrCreateDevice: typeof import('../main/device/service').getOrCreateDevice;
   };
 }

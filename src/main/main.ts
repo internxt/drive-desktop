@@ -21,6 +21,7 @@ import { startBackgroundProcesses } from './background-processes';
 import './background-processes/backups';
 import './background-processes/sync';
 import './background-processes/process-issues';
+import './device/handlers';
 
 // Only effective during development
 // the variables are injected

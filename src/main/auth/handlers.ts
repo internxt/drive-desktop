@@ -32,7 +32,9 @@ ipcMain.handle('is-user-logged-in', getIsLoggedIn);
 
 ipcMain.handle('get-user', getUser);
 
-ipcMain.handle('get-headers', getHeaders);
+ipcMain.handle('get-headers', (_, includeMnemonic) =>
+  getHeaders(includeMnemonic)
+);
 
 export function onUserUnauthorized() {}
 

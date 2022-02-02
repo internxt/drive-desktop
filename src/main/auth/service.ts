@@ -12,13 +12,18 @@ export function setCredentials(
   ConfigStore.set('bearerToken', bearerToken);
 }
 
-export function getHeaders() {
+export function getHeaders(includeMnemonic = false) {
   const token = ConfigStore.get('bearerToken');
   const header = {
     Authorization: `Bearer ${token}`,
     'content-type': 'application/json; charset=utf-8',
     'internxt-client': 'drive-desktop',
     'internxt-version': packageConfig.version,
+    ...(includeMnemonic
+      ? {
+          'internxt-mnemonic': ConfigStore.get('mnemonic'),
+        }
+      : {}),
   };
 
   return header;

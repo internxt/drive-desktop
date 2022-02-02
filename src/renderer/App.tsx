@@ -13,6 +13,7 @@ import ProcessIssues from './pages/ProcessIssues';
 import Settings from './pages/Settings';
 
 import './App.css';
+import { DeviceProvider } from './context/DeviceContext';
 
 function LocationWrapper({ children }: { children: JSX.Element }) {
   const { pathname } = useLocation();
@@ -47,17 +48,19 @@ function LoggedInWrapper({ children }: { children: JSX.Element }) {
 
 export default function App() {
   return (
-    <Router>
-      <LocationWrapper>
-        <LoggedInWrapper>
-          <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route path="/process-issues" element={<ProcessIssues />} />
-            <Route path="/settings" element={<Settings />} />
-            <Route path="/" element={<Widget />} />
-          </Routes>
-        </LoggedInWrapper>
-      </LocationWrapper>
-    </Router>
+    <DeviceProvider>
+      <Router>
+        <LocationWrapper>
+          <LoggedInWrapper>
+            <Routes>
+              <Route path="/login" element={<Login />} />
+              <Route path="/process-issues" element={<ProcessIssues />} />
+              <Route path="/settings" element={<Settings />} />
+              <Route path="/" element={<Widget />} />
+            </Routes>
+          </LoggedInWrapper>
+        </LocationWrapper>
+      </Router>
+    </DeviceProvider>
   );
 }

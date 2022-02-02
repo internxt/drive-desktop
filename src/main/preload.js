@@ -32,8 +32,8 @@ contextBridge.exposeInMainWorld('electron', {
   getUser() {
     return ipcRenderer.invoke('get-user');
   },
-  getHeaders() {
-    return ipcRenderer.invoke('get-headers');
+  getHeaders(includeMnemonic = false) {
+    return ipcRenderer.invoke('get-headers', includeMnemonic);
   },
   startSyncProcess() {
     return ipcRenderer.send('start-sync-process');
@@ -118,6 +118,9 @@ contextBridge.exposeInMainWorld('electron', {
   },
   chooseSyncRootWithDialog() {
     return ipcRenderer.invoke('choose-sync-root-with-dialog');
+  },
+  getOrCreateDevice() {
+    return ipcRenderer.invoke('get-or-create-device');
   },
   path,
 });
