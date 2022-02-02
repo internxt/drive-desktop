@@ -28,11 +28,11 @@ class TrayMenu {
 
     this.tray.setIgnoreDoubleClickEvents(true);
 
+    this.tray.on('click', () => {
+      this.onClick();
+      this.tray.setContextMenu(null);
+    });
     if (process.platform !== 'linux') {
-      this.tray.on('click', () => {
-        this.onClick();
-        this.tray.setContextMenu(null);
-      });
       this.tray.on('right-click', () => {
         this.updateContextMenu();
         this.tray.popUpContextMenu();
