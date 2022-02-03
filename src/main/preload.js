@@ -122,5 +122,8 @@ contextBridge.exposeInMainWorld('electron', {
   getOrCreateDevice() {
     return ipcRenderer.invoke('get-or-create-device');
   },
+  renameDevice(deviceName) {
+    return ipcRenderer.invoke('rename-device', deviceName);
+  },
   path,
 });

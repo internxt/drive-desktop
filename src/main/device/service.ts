@@ -58,3 +58,20 @@ function decryptDeviceName({ name, ...rest }: Device): Device {
     ...rest,
   };
 }
+
+export async function renameDevice(deviceName: string) {
+  const deviceId = configStore.get('deviceId');
+
+  if (deviceId === -1) throw new Error('deviceId is not defined');
+
+  const res = await fetch(
+    `${process.env.API_URL}/api/backup/deviceAsFolder/${deviceId}`,
+    {
+      method: 'PATCH',
+      headers: getHeaders(true),
+      body: JSON.stringify({ deviceName }),
+    }
+  );
+  if (res.ok) return decryptDeviceName(await res.json());
+  else throw new Error();
+}

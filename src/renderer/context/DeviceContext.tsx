@@ -7,7 +7,9 @@ type DeviceState =
 
 const defaultState = { status: 'LOADING' } as const;
 
-export const DeviceContext = createContext<DeviceState>(defaultState);
+export const DeviceContext = createContext<
+  [DeviceState, (deviceName: string) => void]
+>([defaultState, () => undefined]);
 
 export const DeviceProvider = ({ children }: { children: ReactNode }) => {
   const [state, setState] = useState<DeviceState>(defaultState);
@@ -23,7 +25,21 @@ export const DeviceProvider = ({ children }: { children: ReactNode }) => {
       });
   }, []);
 
+  async function handleRename(deviceName: string) {
+    setState({ status: 'LOADING' });
+
+    try {
+      const updatedDevice = await window.electron.renameDevice(deviceName);
+      setState({ status: 'SUCCESS', device: updatedDevice });
+    } catch (err) {
+      console.log(err);
+      setState({ status: 'ERROR' });
+    }
+  }
+
   return (
-    <DeviceContext.Provider value={state}>{children}</DeviceContext.Provider>
+    <DeviceContext.Provider value={[state, handleRename]}>
+      {children}
+    </DeviceContext.Provider>
   );
 };

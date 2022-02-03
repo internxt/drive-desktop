@@ -93,5 +93,7 @@ declare interface Window {
     path: typeof import('path');
 
     getOrCreateDevice: typeof import('../main/device/service').getOrCreateDevice;
+
+    renameDevice: typeof import('../main/device/service').renameDevice;
   };
 }
