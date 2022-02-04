@@ -10,11 +10,43 @@ import configStore from '../config';
 export type Device = { name: string; id: number; bucket: string };
 
 export async function getOrCreateDevice() {
+  async function createDevice(deviceName: string) {
+    return fetch(`${process.env.API_URL}/api/backup/deviceAsFolder`, {
+      method: 'POST',
+      headers: getHeaders(true),
+      body: JSON.stringify({ deviceName }),
+    });
+  }
+
+  async function tryToCreateDeviceWithDifferentNames(): Promise<Device> {
+    let res = await createDevice(os.hostname());
+
+    let i = 1;
+
+    while (res.status === 409 && i <= 10) {
+      res = await createDevice(`${os.hostname()} (${i})`);
+      i++;
+    }
+
+    if (!res.ok)
+      res = await createDevice(
+        `${os.hostname()} (${new Date().valueOf() % 1000})`
+      );
+
+    if (res.ok) {
+      return res.json();
+    } else {
+      throw new Error('Could not create device trying different names');
+    }
+  }
+
   const savedDeviceId = configStore.get('deviceId');
 
-  let device: Device | null = null;
+  const deviceIsDefined = savedDeviceId !== -1;
 
-  if (savedDeviceId !== -1) {
+  let newDevice: Device | null = null;
+
+  if (deviceIsDefined) {
     const res = await fetch(
       `${process.env.API_URL}/api/backup/deviceAsFolder/${savedDeviceId}`,
       {
@@ -22,37 +54,21 @@ export async function getOrCreateDevice() {
         headers: getHeaders(),
       }
     );
-    if (res.ok) device = await res.json();
+    if (res.ok) return decryptDeviceName(await res.json());
+    else if (res.status === 404)
+      newDevice = await tryToCreateDeviceWithDifferentNames();
+  } else {
+    newDevice = await tryToCreateDeviceWithDifferentNames();
   }
 
-  if (!device) {
-    try {
-      device = await createDevice(os.hostname());
-    } catch {
-      device = await createDevice(
-        `${os.hostname()} (${new Date().valueOf() % 1000})`
-      );
-    }
+  if (newDevice) {
+    configStore.set('deviceId', newDevice.id);
+    configStore.set('backupList', {});
 
-    if (device) {
-      configStore.set('deviceId', device.id);
-      configStore.set('backupList', {});
-    }
+    return decryptDeviceName(newDevice);
+  } else {
+    throw new Error('Could not get or create device');
   }
-
-  if (!device) throw new Error();
-
-  return decryptDeviceName(device);
-}
-
-async function createDevice(deviceName: string) {
-  const res = await fetch(`${process.env.API_URL}/api/backup/deviceAsFolder`, {
-    method: 'POST',
-    headers: getHeaders(true),
-    body: JSON.stringify({ deviceName }),
-  });
-  if (res.ok) return res.json();
-  else throw new Error();
 }
 
 function decryptDeviceName({ name, ...rest }: Device): Device {
