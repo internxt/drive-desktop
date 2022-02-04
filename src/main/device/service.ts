@@ -72,9 +72,7 @@ export async function getOrCreateDevice() {
 }
 
 export async function renameDevice(deviceName: string): Promise<Device> {
-  const deviceId = configStore.get('deviceId');
-
-  if (deviceId === -1) throw new Error('deviceId is not defined');
+  const deviceId = getDeviceId();
 
   const res = await fetch(
     `${process.env.API_URL}/api/backup/deviceAsFolder/${deviceId}`,
@@ -98,9 +96,7 @@ function decryptDeviceName({ name, ...rest }: Device): Device {
 export type Backup = { id: number; name: string };
 
 export async function getBackupsFromDevice(): Promise<Backup[]> {
-  const deviceId = configStore.get('deviceId');
-
-  if (deviceId === -1) throw new Error('deviceId is not defined');
+  const deviceId = getDeviceId();
 
   const folder = await fetchFolder(deviceId);
 
@@ -220,4 +216,12 @@ function findBackupPathnameFromId(id: number): string | undefined {
   );
 
   return entryfound?.[0];
+}
+
+function getDeviceId(): number {
+  const deviceId = configStore.get('deviceId');
+
+  if (deviceId === -1) throw new Error('deviceId is not defined');
+
+  return deviceId;
 }
