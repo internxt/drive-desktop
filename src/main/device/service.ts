@@ -108,19 +108,6 @@ export async function getBackupsFromDevice(): Promise<Backup[]> {
   });
 }
 
-async function fetchFolder(folderId: number) {
-  const res = await fetch(
-    `${process.env.API_URL}/api/storage/v2/folder/${folderId}`,
-    {
-      method: 'GET',
-      headers: getHeaders(true),
-    }
-  );
-
-  if (res.ok) return res.json();
-  else throw new Error('Unsuccesful request to fetch folder');
-}
-
 export async function addBackup(): Promise<void> {
   const result = await dialog.showOpenDialog({
     properties: ['openDirectory'],
@@ -177,6 +164,19 @@ async function postBackup(name: string): Promise<Backup> {
   });
   if (res.ok) return res.json();
   else throw new Error();
+}
+
+async function fetchFolder(folderId: number) {
+  const res = await fetch(
+    `${process.env.API_URL}/api/storage/v2/folder/${folderId}`,
+    {
+      method: 'GET',
+      headers: getHeaders(true),
+    }
+  );
+
+  if (res.ok) return res.json();
+  else throw new Error('Unsuccesful request to fetch folder');
 }
 
 export async function deleteBackup(backup: Backup): Promise<void> {
