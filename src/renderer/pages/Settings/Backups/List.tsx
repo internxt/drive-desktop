@@ -1,39 +1,51 @@
-import { useState } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import { UilPlus, UilMinus } from '@iconscout/react-unicons';
 import FolderIcon from '../../../assets/folder.svg';
 import Button from '../../../components/Button';
+import { Backup } from '../../../../main/device/service';
+import Spinner from '../../../assets/spinner.svg';
 
 export default function BackupsList({
   onGoToPanel,
 }: {
   onGoToPanel: () => void;
 }) {
-  const folders = ['Desktop', 'Documents', 'Downloads'];
+  const [state, setState] = useState<
+    { status: 'LOADING' | 'ERROR' } | { status: 'SUCCESS'; backups: Backup[] }
+  >({ status: 'LOADING' });
 
-  const [selected, setSelected] = useState<string | null>(null);
+  const [selected, setSelected] = useState<number | null>(null);
 
-  return (
-    <>
-      <p className="text-sm text-neutral-500">
-        Folders you want to add to the next backup
-      </p>
-      <div
-        className="mt-4 h-44 overflow-y-auto rounded-lg border border-l-neutral-30 bg-white"
-        onClick={() => setSelected(null)}
-        role="none"
-      >
-        {folders.map((folder, i) => (
+  useEffect(() => {
+    setState({ status: 'LOADING' });
+    window.electron
+      .getBackups()
+      .then((backups) => {
+        setState({ status: 'SUCCESS', backups });
+        setSelected(null);
+      })
+      .catch(() => {
+        setState({ status: 'ERROR' });
+      });
+  }, []);
+
+  let content: ReactNode;
+
+  if (state.status === 'SUCCESS') {
+    content = (
+      <>
+        {state.backups.map((folder, i) => (
           <div
             onClick={(e) => {
               e.stopPropagation();
-              setSelected(folder);
+              setSelected(folder.id);
             }}
             role="row"
-            onKeyDown={() => setSelected(folder)}
+            onKeyDown={() => setSelected(folder.id)}
             tabIndex={0}
-            key={folder}
+            key={folder.id}
             className={`flex w-full items-center overflow-hidden p-2 transition-colors duration-75 ${
-              selected === folder
+              selected === folder.id
                 ? 'bg-blue-60 text-white'
                 : i % 2 !== 0
                 ? 'bg-white text-neutral-700'
@@ -45,10 +57,35 @@ export default function BackupsList({
               className="relative ml-1 flex-grow select-none truncate leading-none"
               style={{ top: '1px' }}
             >
-              {folder}
+              {folder.name}
             </p>
           </div>
         ))}
+      </>
+    );
+  } else {
+    content = (
+      <div className="flex h-full items-center justify-center">
+        {state.status === 'LOADING' ? (
+          <Spinner className="h-6 w-6 animate-spin fill-l-neutral-50" />
+        ) : (
+          <p className="ted-red-50 text-sm">We could not load your backups</p>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <p className="text-sm text-neutral-500">
+        Folders you want to add to the next backup
+      </p>
+      <div
+        className="mt-4 h-44 overflow-y-auto rounded-lg border border-l-neutral-30 bg-white"
+        onClick={() => setSelected(null)}
+        role="none"
+      >
+        {content}
       </div>
       <div className="mt-4 flex items-center justify-between">
         <div className="flex">

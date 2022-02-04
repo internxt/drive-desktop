@@ -75,3 +75,22 @@ export async function renameDevice(deviceName: string) {
   if (res.ok) return decryptDeviceName(await res.json());
   else throw new Error();
 }
+
+export type Backup = { id: number; name: string };
+
+export async function getBackupsFromDevice(): Promise<Backup[]> {
+  const deviceId = configStore.get('deviceId');
+
+  if (deviceId === -1) throw new Error('deviceId is not defined');
+
+  const res = await fetch(
+    `${process.env.API_URL}/api/storage/v2/folder/${deviceId}`,
+    {
+      method: 'GET',
+      headers: getHeaders(true),
+    }
+  );
+
+  if (res.ok) return (await res.json()).children;
+  else throw new Error('Unsuccesful request to get backups from device');
+}

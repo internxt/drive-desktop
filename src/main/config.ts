@@ -10,6 +10,7 @@ export const fieldsToSave = [
   'lastSavedListing',
   'lastSync',
   'deviceId',
+  'backupList',
 ] as const;
 
 interface ConfigStore {
@@ -25,6 +26,7 @@ interface ConfigStore {
   savedConfigs: Record<string, Pick<ConfigStore, typeof fieldsToSave[number]>>;
   lastOnboardingShown: string;
   deviceId: number;
+  backupList: Record<string, { enabled: boolean; folderId: number }>;
 }
 
 const schema: Schema<ConfigStore> = {
@@ -64,6 +66,9 @@ const schema: Schema<ConfigStore> = {
   deviceId: {
     type: 'number',
   },
+  backupList: {
+    type: 'object',
+  },
 } as const;
 
 export const defaults: ConfigStore = {
@@ -79,6 +84,7 @@ export const defaults: ConfigStore = {
   savedConfigs: {},
   lastOnboardingShown: '',
   deviceId: -1,
+  backupList: {},
 };
 
 const configStore = new Store({ schema, defaults });
