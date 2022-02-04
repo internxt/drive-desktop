@@ -16,9 +16,7 @@ export async function getOrCreateDevice() {
 
   if (savedDeviceId !== -1) {
     const res = await fetch(
-      `${
-        process.env.API_URL
-      }/api/backup/deviceAsFolder/${savedDeviceId.toString()}`,
+      `${process.env.API_URL}/api/backup/deviceAsFolder/${savedDeviceId}`,
       {
         method: 'GET',
         headers: getHeaders(),
@@ -35,11 +33,14 @@ export async function getOrCreateDevice() {
         `${os.hostname()} (${new Date().valueOf() % 1000})`
       );
     }
+
+    if (device) {
+      configStore.set('deviceId', device.id);
+      configStore.set('backupList', {});
+    }
   }
 
   if (!device) throw new Error();
-
-  configStore.set('deviceId', device.id);
 
   return decryptDeviceName(device);
 }
