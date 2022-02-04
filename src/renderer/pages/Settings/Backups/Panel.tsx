@@ -9,13 +9,19 @@ export default function BackupsPanel({
   onGoToList: () => void;
 }) {
   const [backupsInterval, setBackupsInterval] = useState(-1);
+  const [backupsEnabled, setBackupsEnabled] = useState(false);
 
   function refreshBackupsInterval() {
     window.electron.getBackupsInterval().then(setBackupsInterval);
   }
 
+  function refreshBackupsEnabled() {
+    window.electron.getBackupsEnabled().then(setBackupsEnabled);
+  }
+
   useEffect(() => {
     refreshBackupsInterval();
+    refreshBackupsEnabled();
   }, []);
 
   async function onBackupsIntervalChanged(newValue: number) {
@@ -23,13 +29,18 @@ export default function BackupsPanel({
     refreshBackupsInterval();
   }
 
+  async function onBackupsEnabledClicked() {
+    await window.electron.toggleBackupsEnabled();
+    refreshBackupsEnabled();
+  }
+
   return (
     <>
       <div className="flex items-baseline space-x-2">
         <Checkbox
-          value={false}
+          value={backupsEnabled}
           label="Back up your folders and files"
-          onClick={() => undefined}
+          onClick={onBackupsEnabledClicked}
         />
         <a
           className="text-xs font-medium text-blue-60 underline"

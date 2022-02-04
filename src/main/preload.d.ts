@@ -103,5 +103,9 @@ declare interface Window {
     deleteBackup: typeof import('../main/device/service').deleteBackup;
 
     disableBackup: typeof import('../main/device/service').disableBackup;
+
+    getBackupsEnabled: () => Promise<boolean>;
+
+    toggleBackupsEnabled: () => Promise<void>;
   };
 }

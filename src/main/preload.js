@@ -137,5 +137,11 @@ contextBridge.exposeInMainWorld('electron', {
   disableBackup(backup) {
     return ipcRenderer.invoke('disable-backup', backup);
   },
+  getBackupsEnabled() {
+    return ipcRenderer.invoke('get-backups-enabled');
+  },
+  toggleBackupsEnabled() {
+    return ipcRenderer.invoke('toggle-backups-enabled');
+  },
   path,
 });

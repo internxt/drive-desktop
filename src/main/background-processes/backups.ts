@@ -22,6 +22,12 @@ let backupsProcessRerun: null | ReturnType<typeof setTimeout> = null;
 
 ipcMain.handle('get-backups-status', () => backupsStatus);
 
+ipcMain.handle('get-backups-enabled', () => configStore.get('backupsEnabled'));
+
+ipcMain.handle('toggle-backups-enabled', () => {
+  configStore.set('backupsEnabled', !configStore.get('backupsEnabled'));
+});
+
 export function clearBackupsTimeout() {
   if (backupsProcessRerun) clearTimeout(backupsProcessRerun);
 }
