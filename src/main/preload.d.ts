@@ -97,5 +97,7 @@ declare interface Window {
     renameDevice: typeof import('../main/device/service').renameDevice;
 
     getBackups: typeof import('../main/device/service').getBackupsFromDevice;
+
+    addBackup: typeof import('../main/device/service').addBackup;
   };
 }

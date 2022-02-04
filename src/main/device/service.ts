@@ -1,6 +1,8 @@
 import { aes } from '@internxt/lib';
+import { dialog } from 'electron';
 import fetch from 'electron-fetch';
 import os from 'os';
+import path from 'path';
 
 import { getHeaders } from '../auth/service';
 import configStore from '../config';
@@ -83,14 +85,78 @@ export async function getBackupsFromDevice(): Promise<Backup[]> {
 
   if (deviceId === -1) throw new Error('deviceId is not defined');
 
+  const folder = await fetchFolder(deviceId);
+
+  return folder.children;
+}
+
+async function fetchFolder(folderId: number) {
   const res = await fetch(
-    `${process.env.API_URL}/api/storage/v2/folder/${deviceId}`,
+    `${process.env.API_URL}/api/storage/v2/folder/${folderId}`,
     {
       method: 'GET',
       headers: getHeaders(true),
     }
   );
 
-  if (res.ok) return (await res.json()).children;
-  else throw new Error('Unsuccesful request to get backups from device');
+  if (res.ok) return res.json();
+  else throw new Error('Unsuccesful request to fetch folder');
+}
+
+export async function addBackup(): Promise<void> {
+  const result = await dialog.showOpenDialog({
+    properties: ['openDirectory'],
+  });
+
+  if (result.canceled) return;
+
+  let chosenPath = result.filePaths[0];
+  chosenPath += chosenPath[chosenPath.length - 1] === path.sep ? '' : path.sep;
+
+  const backupList = configStore.get('backupList');
+
+  const existingBackup = backupList[chosenPath];
+
+  if (!existingBackup) {
+    return createBackup(chosenPath);
+  }
+
+  let folderStillExists;
+  try {
+    await fetchFolder(existingBackup.folderId);
+    folderStillExists = true;
+  } catch {
+    folderStillExists = false;
+  }
+
+  if (folderStillExists) {
+    backupList[chosenPath].enabled = true;
+    configStore.set('backupList', backupList);
+  } else {
+    createBackup(chosenPath);
+  }
+}
+
+async function createBackup(pathname: string): Promise<void> {
+  const { name } = path.parse(pathname);
+  const newBackup = await postBackup(name);
+
+  const backupList = configStore.get('backupList');
+
+  backupList[pathname] = { enabled: true, folderId: newBackup.id };
+
+  configStore.set('backupList', backupList);
+}
+
+async function postBackup(name: string): Promise<Backup> {
+  const deviceId = configStore.get('deviceId');
+  if (deviceId === -1) throw new Error('Device id is not set');
+
+  const res = await fetch(`${process.env.API_URL}/api/storage/folder`, {
+    method: 'POST',
+    headers: getHeaders(true),
+    body: JSON.stringify({ parentFolderId: deviceId, folderName: name }),
+  });
+  if (res.ok) return res.json();
+  else throw new Error();
 }

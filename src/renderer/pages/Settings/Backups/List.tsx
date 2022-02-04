@@ -16,7 +16,9 @@ export default function BackupsList({
 
   const [selected, setSelected] = useState<number | null>(null);
 
-  useEffect(() => {
+  useEffect(fetchBackups, []);
+
+  function fetchBackups() {
     setState({ status: 'LOADING' });
     window.electron
       .getBackups()
@@ -27,7 +29,17 @@ export default function BackupsList({
       .catch(() => {
         setState({ status: 'ERROR' });
       });
-  }, []);
+  }
+
+  async function handleAddBackup() {
+    setState({ status: 'LOADING' });
+    try {
+      await window.electron.addBackup();
+      fetchBackups();
+    } catch {
+      setState({ status: 'ERROR' });
+    }
+  }
 
   let content: ReactNode;
 
@@ -91,19 +103,14 @@ export default function BackupsList({
       </div>
       <div className="mt-4 flex items-center justify-between">
         <div className="flex">
-          <Button>
+          <Button onClick={handleAddBackup}>
             <UilPlus size="17" />
           </Button>
-          <Button className="ml-1">
+          <Button className="ml-1" disabled={selected === null}>
             <UilMinus size="17" />
           </Button>
         </div>
-        <div className="flex">
-          <Button onClick={onGoToPanel}>Cancel</Button>
-          <Button disabled className="ml-1" variant="primary">
-            Save
-          </Button>
-        </div>
+        <Button onClick={onGoToPanel}>Done</Button>
       </div>
     </>
   );

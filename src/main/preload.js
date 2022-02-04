@@ -128,5 +128,8 @@ contextBridge.exposeInMainWorld('electron', {
   getBackups() {
     return ipcRenderer.invoke('get-backups');
   },
+  addBackup() {
+    return ipcRenderer.invoke('add-backup');
+  },
   path,
 });
