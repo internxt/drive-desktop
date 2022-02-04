@@ -71,13 +71,6 @@ export async function getOrCreateDevice() {
   }
 }
 
-function decryptDeviceName({ name, ...rest }: Device): Device {
-  return {
-    name: aes.decrypt(name, `${process.env.NEW_CRYPTO_KEY}-${rest.bucket}`),
-    ...rest,
-  };
-}
-
 export async function renameDevice(deviceName: string) {
   const deviceId = configStore.get('deviceId');
 
@@ -93,6 +86,13 @@ export async function renameDevice(deviceName: string) {
   );
   if (res.ok) return decryptDeviceName(await res.json());
   else throw new Error();
+}
+
+function decryptDeviceName({ name, ...rest }: Device): Device {
+  return {
+    name: aes.decrypt(name, `${process.env.NEW_CRYPTO_KEY}-${rest.bucket}`),
+    ...rest,
+  };
 }
 
 export type Backup = { id: number; name: string };
