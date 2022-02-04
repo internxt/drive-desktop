@@ -101,6 +101,7 @@ export async function getBackupsFromDevice(): Promise<Backup[]> {
   const folder = await fetchFolder(deviceId);
 
   const backupsList = configStore.get('backupList');
+
   return folder.children.filter((backup: Backup) => {
     const pathname = findBackupPathnameFromId(backup.id);
 
@@ -109,6 +110,29 @@ export async function getBackupsFromDevice(): Promise<Backup[]> {
 }
 
 export async function addBackup(): Promise<void> {
+  async function createBackup(pathname: string): Promise<void> {
+    const { name } = path.parse(pathname);
+    const newBackup = await postBackup(name);
+
+    const backupList = configStore.get('backupList');
+
+    backupList[pathname] = { enabled: true, folderId: newBackup.id };
+
+    configStore.set('backupList', backupList);
+  }
+
+  async function postBackup(name: string): Promise<Backup> {
+    const deviceId = getDeviceId();
+
+    const res = await fetch(`${process.env.API_URL}/api/storage/folder`, {
+      method: 'POST',
+      headers: getHeaders(true),
+      body: JSON.stringify({ parentFolderId: deviceId, folderName: name }),
+    });
+    if (res.ok) return res.json();
+    else throw new Error('Post backup request wasnt successful');
+  }
+
   const result = await dialog.showOpenDialog({
     properties: ['openDirectory'],
   });
@@ -138,32 +162,8 @@ export async function addBackup(): Promise<void> {
     backupList[chosenPath].enabled = true;
     configStore.set('backupList', backupList);
   } else {
-    createBackup(chosenPath);
+    return createBackup(chosenPath);
   }
-}
-
-async function createBackup(pathname: string): Promise<void> {
-  const { name } = path.parse(pathname);
-  const newBackup = await postBackup(name);
-
-  const backupList = configStore.get('backupList');
-
-  backupList[pathname] = { enabled: true, folderId: newBackup.id };
-
-  configStore.set('backupList', backupList);
-}
-
-async function postBackup(name: string): Promise<Backup> {
-  const deviceId = configStore.get('deviceId');
-  if (deviceId === -1) throw new Error('Device id is not set');
-
-  const res = await fetch(`${process.env.API_URL}/api/storage/folder`, {
-    method: 'POST',
-    headers: getHeaders(true),
-    body: JSON.stringify({ parentFolderId: deviceId, folderName: name }),
-  });
-  if (res.ok) return res.json();
-  else throw new Error();
 }
 
 async function fetchFolder(folderId: number) {
