@@ -187,7 +187,7 @@ export async function deleteBackup(backup: Backup): Promise<void> {
       headers: getHeaders(true),
     }
   );
-  if (!res.ok) throw new Error();
+  if (!res.ok) throw new Error('Request to delete backup wasnt succesful');
 
   const backupsList = configStore.get('backupList');
 
