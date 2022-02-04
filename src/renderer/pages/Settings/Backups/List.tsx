@@ -31,7 +31,7 @@ export default function BackupsList({
 
   let content: ReactNode;
 
-  if (state.status === 'SUCCESS') {
+  if (state.status === 'SUCCESS' && state.backups.length) {
     content = (
       <>
         {state.backups.map((folder, i) => (
@@ -68,8 +68,10 @@ export default function BackupsList({
       <div className="flex h-full items-center justify-center">
         {state.status === 'LOADING' ? (
           <Spinner className="h-6 w-6 animate-spin fill-l-neutral-50" />
+        ) : state.status === 'ERROR' ? (
+          <p className="text-sm text-red-50">We could not load your backups</p>
         ) : (
-          <p className="ted-red-50 text-sm">We could not load your backups</p>
+          <p className="text-sm text-l-neutral-50">No backups yet</p>
         )}
       </div>
     );
