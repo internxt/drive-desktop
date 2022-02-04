@@ -87,7 +87,12 @@ export async function getBackupsFromDevice(): Promise<Backup[]> {
 
   const folder = await fetchFolder(deviceId);
 
-  return folder.children;
+  const backupsList = configStore.get('backupList');
+  return folder.children.filter((backup: Backup) => {
+    const pathname = findBackupPathnameFromId(backup.id);
+
+    return pathname && backupsList[pathname].enabled;
+  });
 }
 
 async function fetchFolder(folderId: number) {
@@ -159,4 +164,43 @@ async function postBackup(name: string): Promise<Backup> {
   });
   if (res.ok) return res.json();
   else throw new Error();
+}
+
+export async function deleteBackup(backup: Backup): Promise<void> {
+  const res = await fetch(
+    `${process.env.API_URL}/api/storage/folder/${backup.id}`,
+    {
+      method: 'DELETE',
+      headers: getHeaders(true),
+    }
+  );
+  if (!res.ok) throw new Error();
+
+  const backupsList = configStore.get('backupList');
+
+  const entriesFiltered = Object.entries(backupsList).filter(
+    ([, b]) => b.folderId !== backup.id
+  );
+
+  const backupListFiltered = Object.fromEntries(entriesFiltered);
+
+  configStore.set('backupList', backupListFiltered);
+}
+
+export async function disableBackup(backup: Backup): Promise<void> {
+  const backupsList = configStore.get('backupList');
+  const pathname = findBackupPathnameFromId(backup.id)!;
+
+  backupsList[pathname].enabled = false;
+
+  configStore.set('backupList', backupsList);
+}
+
+function findBackupPathnameFromId(id: number): string | undefined {
+  const backupsList = configStore.get('backupList');
+  const entryfound = Object.entries(backupsList).find(
+    ([, b]) => b.folderId === id
+  );
+
+  return entryfound?.[0];
 }

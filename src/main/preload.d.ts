@@ -99,5 +99,9 @@ declare interface Window {
     getBackups: typeof import('../main/device/service').getBackupsFromDevice;
 
     addBackup: typeof import('../main/device/service').addBackup;
+
+    deleteBackup: typeof import('../main/device/service').deleteBackup;
+
+    disableBackup: typeof import('../main/device/service').disableBackup;
   };
 }
