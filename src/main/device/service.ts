@@ -71,7 +71,7 @@ export async function getOrCreateDevice() {
   }
 }
 
-export async function renameDevice(deviceName: string) {
+export async function renameDevice(deviceName: string): Promise<Device> {
   const deviceId = configStore.get('deviceId');
 
   if (deviceId === -1) throw new Error('deviceId is not defined');
@@ -85,7 +85,7 @@ export async function renameDevice(deviceName: string) {
     }
   );
   if (res.ok) return decryptDeviceName(await res.json());
-  else throw new Error();
+  else throw new Error('Error in the request to rename a device');
 }
 
 function decryptDeviceName({ name, ...rest }: Device): Device {
