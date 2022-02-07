@@ -60,6 +60,7 @@ export default function BackupsPanel({
       <div className="flex items-baseline">
         <Button
           variant={backupStatus === 'STANDBY' ? 'primary' : 'danger'}
+          disabled={!backupsEnabled}
           className="mt-2"
           onClick={
             backupStatus === 'STANDBY'
