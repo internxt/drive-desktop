@@ -142,7 +142,7 @@ export default function BackupsList({
       <Modal
         isOpen={showDeleteModal}
         onClose={handleOnCloseDeleteModal}
-        nameOfBackup="Downloads"
+        nameOfBackup={selected?.name}
       />
     </>
   );
