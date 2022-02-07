@@ -1,4 +1,4 @@
-import { BrowserWindow, ipcMain, powerSaveBlocker } from 'electron';
+import { app, BrowserWindow, ipcMain, powerSaveBlocker } from 'electron';
 import Logger from 'electron-log';
 import path from 'path';
 import { BackupsArgs } from '../../workers/backups';
@@ -16,9 +16,11 @@ ipcMain.handle('set-backups-interval', (_, newValue: number) => {
 });
 
 export type BackupsStatus = 'STANDBY' | 'RUNNING';
+export type BackupExitReason = 'FORCED_BY_USER' | 'PROCESS_FINISHED';
 
 let backupsStatus: BackupsStatus = 'STANDBY';
 let backupsProcessRerun: null | ReturnType<typeof setTimeout> = null;
+let backupsLastExitReason: BackupExitReason | null = null;
 
 ipcMain.handle('get-backups-status', () => backupsStatus);
 
@@ -27,6 +29,16 @@ ipcMain.handle('get-backups-enabled', () => configStore.get('backupsEnabled'));
 ipcMain.handle('toggle-backups-enabled', () => {
   configStore.set('backupsEnabled', !configStore.get('backupsEnabled'));
 });
+
+ipcMain.handle('get-last-backup-timestamp', () =>
+  configStore.get('lastBackup')
+);
+
+ipcMain.handle('get-last-backup-exit-reason', () => backupsLastExitReason);
+
+export function clearBackupsLastExitReason() {
+  backupsLastExitReason = null;
+}
 
 export function clearBackupsTimeout() {
   if (backupsProcessRerun) clearTimeout(backupsProcessRerun);
@@ -61,11 +73,24 @@ export async function startBackupProcess() {
     hasBeenStopped.value = true;
   });
 
-  const items: BackupsArgs[] = [];
+  const backupList = configStore.get('backupList');
+
+  const enabledBackupEntries = Object.entries(backupList).filter(
+    ([, backup]) => backup.enabled
+  );
+
+  const items: BackupsArgs[] = enabledBackupEntries.map(
+    ([pathname, backup]) => ({
+      path: pathname,
+      folderId: backup.folderId,
+      tmpPath: app.getPath('temp'),
+    })
+  );
 
   for (const item of items) {
-    await processBackupsItem(item, hasBeenStopped);
+    if (!hasBeenStopped.value) await processBackupsItem(item, hasBeenStopped);
   }
+
   const currentTimestamp = new Date().valueOf();
 
   configStore.set('lastBackup', currentTimestamp);
@@ -82,14 +107,56 @@ export async function startBackupProcess() {
   ipcMain.removeAllListeners('stop-backups-process');
 
   powerSaveBlocker.stop(suspensionBlockId);
+
+  backupsLastExitReason = hasBeenStopped.value
+    ? 'FORCED_BY_USER'
+    : 'PROCESS_FINISHED';
 }
 
-async function processBackupsItem(
+function processBackupsItem(
   item: BackupsArgs,
   hasBeenStopped: { value: boolean }
 ) {
-  ipcMain.handleOnce('get-backups-details', () => item);
-  spawnBackupsWorker();
+  return new Promise<void>((resolve) => {
+    const onExitFuncs: (() => void)[] = [];
+
+    function onExit(
+      reason: 'USER_STOPPED' | 'FATAL_ERROR' | 'PROCESS_FINISHED'
+    ) {
+      Logger.log(
+        `[onBackupsExit] ${item.path} (${item.folderId}) reason: ${reason}`
+      );
+      onExitFuncs.forEach((f) => f());
+
+      resolve();
+    }
+
+    if (hasBeenStopped.value) {
+      return onExit('USER_STOPPED');
+    }
+
+    ipcMain.handleOnce('get-backups-details', () => item);
+    onExitFuncs.push(() => ipcMain.removeHandler('get-backups-details'));
+
+    ipcMain.once('BACKUP_FATAL_ERROR', (_, errorName) => onExit('FATAL_ERROR'));
+    onExitFuncs.push(() => ipcMain.removeAllListeners('BACKUP_FATAL_ERROR'));
+
+    ipcMain.once('BACKUP_EXIT', () => onExit('PROCESS_FINISHED'));
+    onExitFuncs.push(() => ipcMain.removeAllListeners('BACKUP_EXIT'));
+
+    const worker = spawnBackupsWorker();
+    onExitFuncs.push(() => worker.destroy());
+
+    if (hasBeenStopped.value) {
+      return onExit('USER_STOPPED');
+    }
+
+    const onUserStopped = () => onExit('USER_STOPPED');
+    ipcMain.once('stop-backups-process', onUserStopped);
+    onExitFuncs.push(() =>
+      ipcMain.removeListener('stop-backups-process', onUserStopped)
+    );
+  });
 }
 
 function spawnBackupsWorker() {

@@ -107,5 +107,11 @@ declare interface Window {
     getBackupsEnabled: () => Promise<boolean>;
 
     toggleBackupsEnabled: () => Promise<void>;
+
+    getLastBackupTimestamp: () => Promise<number>;
+
+    getLastBackupExitReason: () => Promise<
+      import('../main/background-processes/backups').BackupExitReason | null
+    >;
   };
 }

@@ -1,6 +1,7 @@
 import { ipcMain } from 'electron';
 import configStore from '../config';
 import {
+  clearBackupsLastExitReason,
   clearBackupsTimeout,
   scheduleBackups,
   startBackupProcess,
@@ -59,5 +60,6 @@ export function cleanBackgroundProcesses() {
 
   clearSyncIssues();
   clearBackupsIssues();
+  clearBackupsLastExitReason();
   setTraySyncStatus('STANDBY');
 }
