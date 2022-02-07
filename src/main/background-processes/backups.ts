@@ -55,6 +55,13 @@ function changeBackupsStatus(newStatus: BackupsStatus) {
 
 ipcMain.on('start-backups-process', startBackupProcess);
 
+export type BackupProgress = {
+  currentFolder: number;
+  totalFolders: number;
+  currentItems?: number;
+  totalItems?: number;
+};
+
 export async function startBackupProcess() {
   const backupsEnabled = configStore.get('backupsEnabled');
 
@@ -87,8 +94,24 @@ export async function startBackupProcess() {
     })
   );
 
+  let currentFolder = 1;
+  const totalFolders = items.length;
+
+  ipcMain.on('BACKUP_PROGRESS', (_, { currentItems, totalItems }) => {
+    broadcastToWindows('backup-progress', {
+      currentFolder,
+      totalFolders,
+      currentItems,
+      totalItems,
+    });
+  });
+
   for (const item of items) {
+    broadcastToWindows('backup-progress', { currentFolder, totalFolders });
+
     if (!hasBeenStopped.value) await processBackupsItem(item, hasBeenStopped);
+
+    currentFolder++;
   }
 
   const currentTimestamp = new Date().valueOf();
@@ -111,6 +134,8 @@ export async function startBackupProcess() {
   backupsLastExitReason = hasBeenStopped.value
     ? 'FORCED_BY_USER'
     : 'PROCESS_FINISHED';
+
+  ipcMain.removeAllListeners('BACKUP_PROGRESS');
 }
 
 function processBackupsItem(

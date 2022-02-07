@@ -113,5 +113,11 @@ declare interface Window {
     getLastBackupExitReason: () => Promise<
       import('../main/background-processes/backups').BackupExitReason | null
     >;
+
+    onBackupProgress(
+      func: (
+        value: import('main/background-processes/backups').BackupProgress
+      ) => void
+    ): () => void;
   };
 }
