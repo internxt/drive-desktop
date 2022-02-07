@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import Button from '../../../components/Button';
 import Checkbox from '../../../components/Checkbox';
+import useBackupStatus from '../../../hooks/BackupStatus';
 import Dropdown from './Dropdown';
 
 export default function BackupsPanel({
@@ -10,6 +11,8 @@ export default function BackupsPanel({
 }) {
   const [backupsInterval, setBackupsInterval] = useState(-1);
   const [backupsEnabled, setBackupsEnabled] = useState(false);
+
+  const backupStatus = useBackupStatus();
 
   function refreshBackupsInterval() {
     window.electron.getBackupsInterval().then(setBackupsInterval);
@@ -55,8 +58,16 @@ export default function BackupsPanel({
         Select folders to backup
       </Button>
       <div className="flex items-baseline">
-        <Button variant="primary" className="mt-2">
-          Backup now
+        <Button
+          variant={backupStatus === 'STANDBY' ? 'primary' : 'danger'}
+          className="mt-2"
+          onClick={
+            backupStatus === 'STANDBY'
+              ? window.electron.startBackupsProcess
+              : window.electron.stopBackupsProcess
+          }
+        >
+          {backupStatus === 'STANDBY' ? 'Backup now' : 'Stop backup'}
         </Button>
         <p className="ml-3 text-xs text-m-neutral-100">
           Updated 23 minutes ago
