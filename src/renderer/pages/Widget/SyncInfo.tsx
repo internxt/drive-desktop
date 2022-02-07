@@ -1,5 +1,6 @@
 import { ReactNode, useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { UilHistory } from '@iconscout/react-unicons';
 import FileIcon from '../../assets/file.svg';
 import FileWithOperation, {
   Operation,
@@ -13,6 +14,13 @@ import {
   ProcessInfoUpdatePayload,
 } from '../../../workers/types';
 import { SyncStatus } from '../../../main/background-processes/sync';
+import useBackupStatus from '../../hooks/BackupStatus';
+import useBackupFatalErrors from '../../hooks/BackupFatalErrors';
+import useProcessIssues from '../../hooks/ProcessIssues';
+import {
+  BackupExitReason,
+  BackupProgress,
+} from '../../../main/background-processes/backups';
 
 export default function SyncInfo() {
   const [items, setItems] = useState<ProcessInfoUpdatePayload[]>([]);
@@ -73,7 +81,7 @@ export default function SyncInfo() {
   }, [syncStopped]);
 
   return (
-    <div className="relative min-h-0 flex-grow border-t border-t-l-neutral-30 bg-l-neutral-10 px-3">
+    <div className="relative min-h-0 flex-grow border-t border-t-l-neutral-30 bg-l-neutral-10">
       <div className="absolute top-0 left-0 flex w-full justify-end p-1">
         <div className="rounded bg-l-neutral-10 px-2">
           <button
@@ -89,7 +97,7 @@ export default function SyncInfo() {
           </button>
         </div>
       </div>
-
+      <BackupsBanner />
       {items.length === 0 && <Empty />}
       <div className="scroll no-scrollbar h-full overflow-y-auto">
         <AnimatePresence>
@@ -164,7 +172,7 @@ function Item({
   const displayName = getBaseName(name);
 
   return (
-    <div className="my-4 flex h-10 w-full select-none items-center overflow-hidden">
+    <div className="my-4 flex h-10 w-full select-none items-center overflow-hidden px-3">
       <FileWithOperation
         operation={operation}
         className="flex-shrink-0"
@@ -211,5 +219,72 @@ function Empty() {
         </div>
       </motion.div>
     </AnimatePresence>
+  );
+}
+
+function BackupsBanner() {
+  const status = useBackupStatus();
+  const fatalErrors = useBackupFatalErrors();
+  const issues = useProcessIssues().filter(
+    (issue) => issue.process === 'BACKUPS'
+  );
+
+  const [backupProgress, setBackupProgress] = useState<null | BackupProgress>(
+    null
+  );
+
+  const [lastExit, setLastExit] = useState<null | BackupExitReason>(null);
+
+  useEffect(() => {
+    const removeListener = window.electron.onBackupProgress(setBackupProgress);
+
+    return removeListener;
+  }, []);
+
+  useEffect(() => {
+    window.electron.getLastBackupExitReason().then(setLastExit);
+  }, [status]);
+
+  let body = '';
+  let percentage = '';
+
+  if (status === 'RUNNING' && backupProgress) {
+    body = `Backed up ${backupProgress.currentFolder - 1} out of ${
+      backupProgress.totalFolders
+    }`;
+
+    const partialProgress = backupProgress.totalItems
+      ? backupProgress.currentItems! / backupProgress.totalItems
+      : 0;
+    const totalProgress =
+      (backupProgress.currentFolder - 1 + partialProgress) /
+      backupProgress.totalFolders;
+    percentage = `${(totalProgress * 100).toFixed(0)}%`;
+  } else if (fatalErrors.length) {
+    body = 'At least one of your backups failed';
+  } else if (issues.length) {
+    body = 'Backup completed with issues';
+  } else if (lastExit === 'FORCED_BY_USER') {
+    body = 'Backup stopped';
+  } else {
+    body = `Backed up ${backupProgress?.totalFolders} folders`;
+  }
+
+  return (
+    <>
+      {status !== 'STANDBY' || backupProgress ? (
+        <div className="mt-8 flex h-12 w-full select-none items-center bg-blue-10 px-3">
+          <UilHistory className="h-6 w-6 text-blue-60" />
+          <div className="ml-3">
+            <h1 className="text-sm font-medium text-neutral-700">Backup</h1>
+            <p className="text-xs font-medium text-neutral-500">
+              {body} <span className="text-neutral-500/50">{percentage}</span>
+            </p>
+          </div>
+        </div>
+      ) : (
+        <div />
+      )}
+    </>
   );
 }
