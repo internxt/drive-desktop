@@ -119,5 +119,15 @@ declare interface Window {
         value: import('main/background-processes/backups').BackupProgress
       ) => void
     ): () => void;
+
+    getBackupFatalErrors(): Promise<
+      import('../main/background-processes/backups').BackupFatalError[]
+    >;
+
+    onBackupFatalErrorsChanged(
+      func: (
+        value: import('../main/background-processes/backups').BackupFatalError[]
+      ) => void
+    ): () => void;
   };
 }

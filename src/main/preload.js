@@ -152,5 +152,14 @@ contextBridge.exposeInMainWorld('electron', {
     ipcRenderer.on(eventName, callback);
     return () => ipcRenderer.removeListener(eventName, callback);
   },
+  getBackupFatalErrors() {
+    return ipcRenderer.invoke('get-backup-fatal-errors');
+  },
+  onBackupFatalErrorsChanged(func) {
+    const eventName = 'backup-fatal-errors-changed';
+    const callback = (_, v) => func(v);
+    ipcRenderer.on(eventName, callback);
+    return () => ipcRenderer.removeListener(eventName, callback);
+  },
   path,
 });

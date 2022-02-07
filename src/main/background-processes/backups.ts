@@ -2,6 +2,7 @@ import { app, BrowserWindow, ipcMain, powerSaveBlocker } from 'electron';
 import Logger from 'electron-log';
 import path from 'path';
 import { BackupsArgs } from '../../workers/backups';
+import { ProcessFatalErrorName } from '../../workers/types';
 import { getIsLoggedIn } from '../auth/handlers';
 import configStore from '../config';
 import { broadcastToWindows } from '../windows';
@@ -71,6 +72,7 @@ export async function startBackupProcess() {
 
   changeBackupsStatus('RUNNING');
   clearBackupsIssues();
+  clearBackupFatalErrors();
 
   // It's an object to pass it to
   // the individual item processors
@@ -146,37 +148,44 @@ function processBackupsItem(
     const onExitFuncs: (() => void)[] = [];
 
     function onExit(
-      reason: 'USER_STOPPED' | 'FATAL_ERROR' | 'PROCESS_FINISHED'
+      payload:
+        | { reason: 'USER_STOPPED' | 'PROCESS_FINISHED' }
+        | { reason: 'FATAL_ERROR'; errorName: ProcessFatalErrorName }
     ) {
       Logger.log(
-        `[onBackupsExit] ${item.path} (${item.folderId}) reason: ${reason}`
+        `[onBackupsExit] ${item.path} (${item.folderId}) reason: ${payload.reason}`
       );
       onExitFuncs.forEach((f) => f());
+
+      if (payload.reason === 'FATAL_ERROR')
+        addBackupFatalError({ errorName: payload.errorName, ...item });
 
       resolve();
     }
 
     if (hasBeenStopped.value) {
-      return onExit('USER_STOPPED');
+      return onExit({ reason: 'USER_STOPPED' });
     }
 
     ipcMain.handleOnce('get-backups-details', () => item);
     onExitFuncs.push(() => ipcMain.removeHandler('get-backups-details'));
 
-    ipcMain.once('BACKUP_FATAL_ERROR', (_, errorName) => onExit('FATAL_ERROR'));
+    ipcMain.once('BACKUP_FATAL_ERROR', (_, errorName) =>
+      onExit({ reason: 'FATAL_ERROR', errorName })
+    );
     onExitFuncs.push(() => ipcMain.removeAllListeners('BACKUP_FATAL_ERROR'));
 
-    ipcMain.once('BACKUP_EXIT', () => onExit('PROCESS_FINISHED'));
+    ipcMain.once('BACKUP_EXIT', () => onExit({ reason: 'PROCESS_FINISHED' }));
     onExitFuncs.push(() => ipcMain.removeAllListeners('BACKUP_EXIT'));
 
     const worker = spawnBackupsWorker();
     onExitFuncs.push(() => worker.destroy());
 
     if (hasBeenStopped.value) {
-      return onExit('USER_STOPPED');
+      return onExit({ reason: 'USER_STOPPED' });
     }
 
-    const onUserStopped = () => onExit('USER_STOPPED');
+    const onUserStopped = () => onExit({ reason: 'USER_STOPPED' });
     ipcMain.once('stop-backups-process', onUserStopped);
     onExitFuncs.push(() =>
       ipcMain.removeListener('stop-backups-process', onUserStopped)
@@ -202,4 +211,28 @@ function spawnBackupsWorker() {
     .catch(Logger.error);
 
   return worker;
+}
+
+export type BackupFatalError = {
+  path: string;
+  folderId: number;
+  errorName: ProcessFatalErrorName;
+};
+
+let fatalErrors: BackupFatalError[] = [];
+
+ipcMain.handle('get-backup-fatal-errors', () => fatalErrors);
+
+function onBackupFatalErrorsChanged() {
+  broadcastToWindows('backup-fatal-errors-changed', fatalErrors);
+}
+
+export function clearBackupFatalErrors() {
+  fatalErrors = [];
+  onBackupFatalErrorsChanged();
+}
+
+function addBackupFatalError(error: BackupFatalError) {
+  fatalErrors.push(error);
+  onBackupFatalErrorsChanged();
 }
