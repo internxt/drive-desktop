@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
 import { ProcessIssue } from '../../../workers/types';
 import WindowTopBar from '../../components/WindowTopBar';
+import useBackupFatalErrors from '../../hooks/BackupFatalErrors';
 import useProcessIssues from '../../hooks/ProcessIssues';
 import ProcessIssuesList from './List';
 import { ReportModal } from './ReportModal';
@@ -10,6 +11,7 @@ type Section = 'SYNC' | 'BACKUPS';
 
 export default function ProcessIssues() {
   const processIssues = useProcessIssues();
+  const backupFatalErrors = useBackupFatalErrors();
   const [reportData, setReportData] = useState<Pick<
     ProcessIssue,
     'errorName' | 'errorDetails'
@@ -23,11 +25,19 @@ export default function ProcessIssues() {
 
   useEffect(() => {
     if (
+      activeSection === 'SYNC' &&
       processIssuesFilteredByActiveSection.length === 0 &&
-      processIssues.length !== 0
+      (backupFatalErrors.length || processIssues.length)
     )
-      setActiveSection(activeSection === 'SYNC' ? 'BACKUPS' : 'SYNC');
-  }, [processIssues]);
+      setActiveSection('BACKUPS');
+    else if (
+      activeSection === 'BACKUPS' &&
+      processIssuesFilteredByActiveSection.length === 0 &&
+      backupFatalErrors.length === 0 &&
+      processIssues.length
+    )
+      setActiveSection('SYNC');
+  }, [processIssues, backupFatalErrors]);
 
   return (
     <div className="flex h-screen flex-col overflow-hidden bg-l-neutral-10">
@@ -36,6 +46,8 @@ export default function ProcessIssues() {
         <Tabs active={activeSection} onClick={setActiveSection} />
       </div>
       <ProcessIssuesList
+        showBackupFatalErrors={activeSection === 'BACKUPS'}
+        backupFatalErrors={backupFatalErrors}
         processIssues={processIssuesFilteredByActiveSection}
         onClickOnErrorInfo={setReportData}
       />

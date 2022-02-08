@@ -2,16 +2,27 @@ import { MouseEvent, useEffect, useState } from 'react';
 import { UilInfoCircle, UilAngleDown } from '@iconscout/react-unicons';
 import { motion, AnimatePresence } from 'framer-motion';
 import WarnIcon from '../../assets/warn.svg';
+import ErrorIcon from '../../assets/error.svg';
 import FileIcon from '../../assets/file.svg';
 import { shortMessages } from '../../messages/process-error';
 import { getBaseName } from '../../utils/path';
-import { ProcessErrorName, ProcessIssue } from '../../../workers/types';
+import {
+  ProcessErrorName,
+  ProcessFatalErrorName,
+  ProcessIssue,
+} from '../../../workers/types';
+import { BackupFatalError } from '../../../main/background-processes/backups';
+import messages from '../../messages/process-fatal-error';
 
 export default function ProcessIssuesList({
   processIssues,
+  backupFatalErrors,
+  showBackupFatalErrors,
   onClickOnErrorInfo,
 }: {
   processIssues: ProcessIssue[];
+  backupFatalErrors: BackupFatalError[];
+  showBackupFatalErrors: boolean;
   onClickOnErrorInfo: (
     errorClicked: Pick<ProcessIssue, 'errorName' | 'errorDetails'>
   ) => void;
@@ -34,6 +45,15 @@ export default function ProcessIssuesList({
   }
   return (
     <div className="no-scrollbar m-4 min-h-0 flex-grow overflow-y-auto rounded-lg border border-l-neutral-30 bg-white">
+      {showBackupFatalErrors &&
+        backupFatalErrors.map((error) => (
+          <FatalError
+            key={error.folderId}
+            errorName={error.errorName}
+            onInfoClick={console.log}
+            path={error.path}
+          />
+        ))}
       {errors.map((error) => (
         <Item
           key={error}
@@ -48,7 +68,8 @@ export default function ProcessIssuesList({
           isSelected={selectedErrorName === error}
         />
       ))}
-      {errors.length === 0 && <Empty />}
+      {errors.length === 0 &&
+        (backupFatalErrors.length === 0 || !showBackupFatalErrors) && <Empty />}
     </div>
   );
 }
@@ -131,6 +152,38 @@ function Item({
           </motion.div>
         )}
       </AnimatePresence>
+    </div>
+  );
+}
+
+function FatalError({
+  errorName,
+  path,
+  onInfoClick,
+}: {
+  errorName: ProcessFatalErrorName;
+  path: string;
+  onInfoClick: () => void;
+}) {
+  return (
+    <div className="select-none p-2 hover:bg-l-neutral-10 active:bg-l-neutral-20">
+      <div className="flex items-center">
+        <ErrorIcon className="mr-3 h-7 w-7" />
+        <div className="flex-grow">
+          <h1 className="font-semibold text-gray-70">
+            {window.electron.path.basename(path)}
+            &nbsp;
+            <UilInfoCircle
+              className="inline h-4 w-4 text-blue-60 hover:text-blue-50 active:text-blue-60"
+              onClick={(e: MouseEvent) => {
+                e.stopPropagation();
+                onInfoClick();
+              }}
+            />
+          </h1>
+          <p className="text-gray-70">{messages[errorName]}</p>
+        </div>
+      </div>
     </div>
   );
 }
