@@ -178,13 +178,10 @@ function DropdownItem({
   );
 }
 
-function SettingsIcon({ hasIssues = false }: { hasIssues?: boolean }) {
+function SettingsIcon() {
   return (
     <HeaderItemWrapper>
       <UilSetting className="h-5 w-5" />
-      {hasIssues && (
-        <div className="absolute top-1 right-1 h-2 w-2 rounded-full bg-red-60" />
-      )}
     </HeaderItemWrapper>
   );
 }
