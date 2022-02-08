@@ -271,11 +271,12 @@ function BackupsBanner({
 
   let body = '';
   let percentage = '';
+  let action = '';
 
   if (status === 'RUNNING' && backupProgress) {
     body = `Backed up ${backupProgress.currentFolder - 1} out of ${
       backupProgress.totalFolders
-    } folders `;
+    } folders`;
 
     const partialProgress = backupProgress.totalItems
       ? backupProgress.currentItems! / backupProgress.totalItems
@@ -286,10 +287,13 @@ function BackupsBanner({
     percentage = `${(totalProgress * 100).toFixed(0)}%`;
   } else if (fatalErrors.length) {
     body = 'At least one of your backups failed';
+    action = 'See more';
   } else if (issues.length) {
     body = 'Backup completed with issues';
+    action = 'See more';
   } else if (lastExit === 'FORCED_BY_USER') {
     body = 'Backup stopped';
+    action = 'Start again';
   } else {
     body = `Backed up ${backupProgress?.totalFolders} folders`;
   }
@@ -334,7 +338,9 @@ function BackupsBanner({
           <div className="ml-3">
             <h1 className="text-sm font-medium text-neutral-700">Backup</h1>
             <p className="text-xs font-medium text-neutral-500">
-              {body} <span className="text-neutral-500/50">{percentage}</span>
+              {body}
+              <span className="ml-1 text-neutral-500/50">{percentage}</span>
+              <span className="ml-1 text-blue-60 underline">{action}</span>
             </p>
           </div>
           <UilMultiply
