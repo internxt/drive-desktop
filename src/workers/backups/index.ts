@@ -164,6 +164,14 @@ ipcRenderer
             2
           )}`
         );
+        ipcRenderer.send('BACKUP_ISSUE', {
+          action: 'METADATA_READ_ERROR',
+          kind,
+          name,
+          errorName,
+          errorDetails,
+          process: 'BACKUPS',
+        });
       }
     );
 
