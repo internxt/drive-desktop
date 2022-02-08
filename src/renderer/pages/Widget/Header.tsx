@@ -6,14 +6,16 @@ import bytes from 'bytes';
 import { User } from '../../../main/types';
 import useProcessIssues from '../../hooks/ProcessIssues';
 import useUsage from '../../hooks/Usage';
+import useBackupFatalErrors from '../../hooks/BackupFatalErrors';
 
 export default function Header() {
   const processIssues = useProcessIssues();
+  const backupFatalErrors = useBackupFatalErrors();
 
-  const numberOfProcessIssues =
-    processIssues.length < 100 ? processIssues.length : '99+';
+  const numberOfIssues: number =
+    processIssues.length + backupFatalErrors.length;
 
-  const thereAreProcessIssues = numberOfProcessIssues > 0;
+  const numberOfIssuesDisplay = numberOfIssues > 99 ? '99+' : numberOfIssues;
 
   const dropdown = (
     <Transition
@@ -35,9 +37,9 @@ export default function Header() {
           <DropdownItem onClick={window.electron.openProcessIssuesWindow}>
             <div className="flex items-baseline justify-between">
               <p>Issues</p>
-              {thereAreProcessIssues && (
+              {numberOfIssues > 0 && (
                 <p className="ml-4 text-xs font-semibold text-red-60">
-                  {numberOfProcessIssues}
+                  {numberOfIssuesDisplay}
                 </p>
               )}
             </div>
@@ -93,7 +95,7 @@ export default function Header() {
       </HeaderItemWrapper>
       <Menu as="div" className="relative h-7">
         <Menu.Button>
-          <SettingsIcon hasIssues={numberOfProcessIssues > 0} />
+          <SettingsIcon />
         </Menu.Button>
         {dropdown}
       </Menu>
