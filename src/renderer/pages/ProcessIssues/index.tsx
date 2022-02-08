@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ProcessIssue } from '../../../workers/types';
 import WindowTopBar from '../../components/WindowTopBar';
 import useProcessIssues from '../../hooks/ProcessIssues';
@@ -20,6 +20,14 @@ export default function ProcessIssues() {
   const processIssuesFilteredByActiveSection = processIssues.filter(
     (issue) => issue.process === activeSection
   );
+
+  useEffect(() => {
+    if (
+      processIssuesFilteredByActiveSection.length === 0 &&
+      processIssues.length !== 0
+    )
+      setActiveSection(activeSection === 'SYNC' ? 'BACKUPS' : 'SYNC');
+  }, [processIssues]);
 
   return (
     <div className="flex h-screen flex-col overflow-hidden bg-l-neutral-10">
