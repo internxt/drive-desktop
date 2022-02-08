@@ -312,11 +312,23 @@ function BackupsBanner({
     onVisibilityChanged(show as boolean);
   }, [status, backupProgress, hidden]);
 
+  function onClick() {
+    if (issues.length || fatalErrors.length)
+      window.electron.openProcessIssuesWindow();
+    else if (lastExit === 'FORCED_BY_USER')
+      window.electron.startBackupsProcess();
+    else window.electron.openSettingsWindow();
+
+    if (status !== 'RUNNING') setHidden(true);
+  }
+
   return (
     <>
       {show ? (
         <div
-          className={`group relative flex h-14 w-full flex-shrink-0 select-none items-center bg-blue-10 px-3 ${className}`}
+          className={`group relative flex h-14 w-full flex-shrink-0 cursor-pointer select-none items-center bg-blue-10 px-3 ${className}`}
+          role="none"
+          onClick={onClick}
         >
           <BackupsIcon variant={iconVariant} />
           <div className="ml-3">
@@ -326,8 +338,11 @@ function BackupsBanner({
             </p>
           </div>
           <UilMultiply
-            onClick={() => setHidden(true)}
-            className={`absolute top-1/2 right-5 hidden h-5 w-5 -translate-y-1/2 cursor-pointer text-neutral-500/50 ${
+            onClick={(e: MouseEvent) => {
+              e.stopPropagation();
+              setHidden(true);
+            }}
+            className={`absolute top-1/2 right-5 hidden h-5 w-5 -translate-y-1/2 cursor-pointer text-neutral-500/50 hover:text-neutral-500/70 active:text-neutral-500 ${
               status === 'STANDBY' ? 'group-hover:block' : ''
             }`}
           />
