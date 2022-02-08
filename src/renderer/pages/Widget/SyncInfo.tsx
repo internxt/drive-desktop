@@ -67,7 +67,11 @@ export default function SyncInfo() {
   }
 
   function clearItems() {
-    setItems([]);
+    setItems((current) =>
+      current.filter((item) =>
+        ['PULL', 'RENAME', 'DELETE'].includes(item.action)
+      )
+    );
   }
 
   function removeOnProgressItems() {
