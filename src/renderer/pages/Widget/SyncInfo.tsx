@@ -2,6 +2,9 @@ import { ReactNode, useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { UilHistory, UilMultiply } from '@iconscout/react-unicons';
 import FileIcon from '../../assets/file.svg';
+import Success from '../../assets/success.svg';
+import Warn from '../../assets/warn.svg';
+import Error from '../../assets/error.svg';
 import FileWithOperation, {
   Operation,
 } from '../../components/FileWithOperation';
@@ -276,11 +279,23 @@ function BackupsBanner() {
     body = `Backed up ${backupProgress?.totalFolders} folders`;
   }
 
+  let iconVariant: 'SUCCESS' | 'WARNING' | 'ERROR' | undefined;
+
+  if (
+    status === 'STANDBY' &&
+    issues.length === 0 &&
+    fatalErrors.length === 0 &&
+    lastExit === 'PROCESS_FINISHED'
+  )
+    iconVariant = 'SUCCESS';
+  else if (fatalErrors.length) iconVariant = 'ERROR';
+  else if (issues.length) iconVariant = 'WARNING';
+
   return (
     <>
       {(status !== 'STANDBY' || backupProgress) && !hidden ? (
         <div className="group relative mt-8 flex h-14 w-full select-none items-center bg-blue-10 px-3">
-          <UilHistory className="h-6 w-6 text-blue-60" />
+          <BackupsIcon variant={iconVariant} />
           <div className="ml-3">
             <h1 className="text-sm font-medium text-neutral-700">Backup</h1>
             <p className="text-xs font-medium text-neutral-500">
@@ -298,5 +313,29 @@ function BackupsBanner() {
         <div />
       )}
     </>
+  );
+}
+
+function BackupsIcon({
+  variant,
+}: {
+  variant?: 'SUCCESS' | 'WARNING' | 'ERROR';
+}) {
+  return (
+    <div className="relative">
+      <UilHistory className="h-6 w-6 text-blue-60" />
+      {variant === 'SUCCESS' && (
+        <>
+          <div className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-white" />
+          <Success className="absolute bottom-0 right-0 h-3 w-3 " />
+        </>
+      )}
+      {variant === 'WARNING' && (
+        <Warn className="absolute bottom-0 right-0 h-3 w-3 " />
+      )}
+      {variant === 'ERROR' && (
+        <Error className="absolute bottom-0 right-0 h-3 w-3 " />
+      )}
+    </div>
   );
 }
