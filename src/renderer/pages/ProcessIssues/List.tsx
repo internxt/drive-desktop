@@ -1,4 +1,4 @@
-import { MouseEvent, useState } from 'react';
+import { MouseEvent, useEffect, useState } from 'react';
 import { UilInfoCircle, UilAngleDown } from '@iconscout/react-unicons';
 import { motion, AnimatePresence } from 'framer-motion';
 import WarnIcon from '../../assets/warn.svg';
@@ -18,6 +18,10 @@ export default function ProcessIssuesList({
 }) {
   const [selectedErrorName, setSelectedErrorName] =
     useState<ProcessErrorName | null>(null);
+
+  useEffect(() => {
+    setSelectedErrorName(null);
+  }, [processIssues]);
 
   const errors = [...new Set(processIssues.map((issue) => issue.errorName))];
 

@@ -17,6 +17,10 @@ export default function ProcessIssues() {
 
   const [activeSection, setActiveSection] = useState<Section>('SYNC');
 
+  const processIssuesFilteredByActiveSection = processIssues.filter(
+    (issue) => issue.process === activeSection
+  );
+
   return (
     <div className="flex h-screen flex-col overflow-hidden bg-l-neutral-10">
       <WindowTopBar title="Issues" />
@@ -24,7 +28,7 @@ export default function ProcessIssues() {
         <Tabs active={activeSection} onClick={setActiveSection} />
       </div>
       <ProcessIssuesList
-        processIssues={processIssues}
+        processIssues={processIssuesFilteredByActiveSection}
         onClickOnErrorInfo={setReportData}
       />
       <ReportModal
