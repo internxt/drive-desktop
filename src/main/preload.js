@@ -80,8 +80,8 @@ contextBridge.exposeInMainWorld('electron', {
   sendReport(report) {
     return ipcRenderer.invoke('send-report', report);
   },
-  openSettingsWindow() {
-    return ipcRenderer.send('open-settings-window');
+  openSettingsWindow(section) {
+    return ipcRenderer.send('open-settings-window', section);
   },
   settingsWindowResized(payload) {
     return ipcRenderer.send('settings-window-resized', payload);

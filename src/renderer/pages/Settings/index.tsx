@@ -21,6 +21,13 @@ export default function Settings() {
     resizeObserver.observe(rootRef.current!);
   }, []);
 
+  useEffect(() => {
+    const url = new URL(window.location.href);
+    const section = url.searchParams.get('section');
+    if (section && ['BACKUPS', 'GENERAL', 'ACCOUNT'].includes(section))
+      setActiveSection(section as Section);
+  }, []);
+
   return (
     <div ref={rootRef}>
       <WindowTopBar title="Internxt Drive" />

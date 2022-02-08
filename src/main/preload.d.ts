@@ -60,7 +60,7 @@ declare interface Window {
 
     sendReport: typeof import('./bug-report/service').sendReport;
 
-    openSettingsWindow(): void;
+    openSettingsWindow(section?: 'BACKUPS' | 'GENERAL' | 'ACCOUNT'): void;
 
     settingsWindowResized(payload: { width: number; height: number }): void;
 

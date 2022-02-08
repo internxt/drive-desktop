@@ -321,7 +321,7 @@ function BackupsBanner({
       window.electron.openProcessIssuesWindow();
     else if (lastExit === 'FORCED_BY_USER')
       window.electron.startBackupsProcess();
-    else window.electron.openSettingsWindow();
+    else window.electron.openSettingsWindow('BACKUPS');
 
     if (status !== 'RUNNING') setHidden(true);
   }

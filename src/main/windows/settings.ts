@@ -5,9 +5,9 @@ import { preloadPath, resolveHtmlPath } from '../util';
 let settingsWindow: BrowserWindow | null = null;
 export const getSettingsWindow = () => settingsWindow;
 
-ipcMain.on('open-settings-window', openSettingsWindow);
+ipcMain.on('open-settings-window', (_, section) => openSettingsWindow(section));
 
-async function openSettingsWindow() {
+async function openSettingsWindow(section?: string) {
   if (settingsWindow) {
     settingsWindow.focus();
     return;
@@ -26,7 +26,7 @@ async function openSettingsWindow() {
     maximizable: false,
   });
 
-  settingsWindow.loadURL(resolveHtmlPath('settings'));
+  settingsWindow.loadURL(resolveHtmlPath('settings', `section=${section}`));
 
   settingsWindow.on('ready-to-show', () => {
     settingsWindow?.show();

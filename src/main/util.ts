@@ -2,24 +2,23 @@
 import { URL } from 'url';
 import path from 'path';
 
-export let resolveHtmlPath: (pathname: string) => string;
+export let resolveHtmlPath: (pathname: string, query?: string) => string;
 const htmlFileName = 'index.html';
 
 if (process.env.NODE_ENV === 'development') {
   const port = process.env.PORT || 1212;
-  resolveHtmlPath = (pathname: string) => {
+  resolveHtmlPath = (pathname: string, query = '') => {
     const url = new URL(`http://localhost:${port}`);
     url.pathname = htmlFileName;
     url.hash = `/${pathname}`;
+    url.search = query;
     return url.href;
   };
 } else {
-  resolveHtmlPath = (pathname: string) => {
-    return `file://${path.resolve(
-      __dirname,
-      '../renderer/',
-      htmlFileName
-    )}#/${pathname}`;
+  resolveHtmlPath = (pathname: string, query = '') => {
+    return `file://${path.resolve(__dirname, '../renderer/', htmlFileName)}${
+      query ? `?${query}` : ''
+    }#/${pathname}`;
   };
 }
 
