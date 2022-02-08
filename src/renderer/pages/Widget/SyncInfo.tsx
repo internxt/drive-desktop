@@ -1,6 +1,6 @@
 import { ReactNode, useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { UilHistory } from '@iconscout/react-unicons';
+import { UilHistory, UilMultiply } from '@iconscout/react-unicons';
 import FileIcon from '../../assets/file.svg';
 import FileWithOperation, {
   Operation,
@@ -233,6 +233,12 @@ function BackupsBanner() {
     null
   );
 
+  const [hidden, setHidden] = useState(false);
+
+  useEffect(() => {
+    setHidden(false);
+  }, [status]);
+
   const [lastExit, setLastExit] = useState<null | BackupExitReason>(null);
 
   useEffect(() => {
@@ -272,8 +278,8 @@ function BackupsBanner() {
 
   return (
     <>
-      {status !== 'STANDBY' || backupProgress ? (
-        <div className="mt-8 flex h-12 w-full select-none items-center bg-blue-10 px-3">
+      {(status !== 'STANDBY' || backupProgress) && !hidden ? (
+        <div className="group relative mt-8 flex h-14 w-full select-none items-center bg-blue-10 px-3">
           <UilHistory className="h-6 w-6 text-blue-60" />
           <div className="ml-3">
             <h1 className="text-sm font-medium text-neutral-700">Backup</h1>
@@ -281,6 +287,12 @@ function BackupsBanner() {
               {body} <span className="text-neutral-500/50">{percentage}</span>
             </p>
           </div>
+          <UilMultiply
+            onClick={() => setHidden(true)}
+            className={`absolute top-1/2 right-5 hidden h-5 w-5 -translate-y-1/2 cursor-pointer text-neutral-500/50 ${
+              status === 'STANDBY' ? 'group-hover:block' : ''
+            }`}
+          />
         </div>
       ) : (
         <div />
