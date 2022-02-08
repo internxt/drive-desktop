@@ -125,7 +125,10 @@ export default function BackupsList({
       </div>
       <div className="mt-4 flex items-center justify-between">
         <div className="flex">
-          <Button onClick={handleAddBackup}>
+          <Button
+            onClick={handleAddBackup}
+            disabled={state.status === 'LOADING'}
+          >
             <UilPlus size="17" />
           </Button>
           <Button
