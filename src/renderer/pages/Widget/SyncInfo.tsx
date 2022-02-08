@@ -327,9 +327,13 @@ function BackupsBanner({
   }
 
   return (
-    <>
-      {show ? (
-        <div
+    <AnimatePresence>
+      {show && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.25, ease: 'easeInOut' }}
           className={`group relative flex h-14 w-full flex-shrink-0 cursor-pointer select-none items-center bg-blue-10 px-3 ${className}`}
           role="none"
           onClick={onClick}
@@ -352,11 +356,9 @@ function BackupsBanner({
               status === 'STANDBY' ? 'group-hover:block' : ''
             }`}
           />
-        </div>
-      ) : (
-        <div />
+        </motion.div>
       )}
-    </>
+    </AnimatePresence>
   );
 }
 
