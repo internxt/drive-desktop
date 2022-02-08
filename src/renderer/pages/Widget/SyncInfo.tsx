@@ -30,6 +30,8 @@ export default function SyncInfo() {
 
   const [syncStopped] = useSyncStopped();
 
+  const [backupsBannerVisible, setBackupsBannerVisible] = useState(false);
+
   useEffect(() => {
     const removeListener = window.electron.onSyncInfoUpdate(onSyncItem);
     return removeListener;
@@ -84,7 +86,7 @@ export default function SyncInfo() {
   }, [syncStopped]);
 
   return (
-    <div className="relative min-h-0 flex-grow border-t border-t-l-neutral-30 bg-l-neutral-10">
+    <div className="relative flex min-h-0 flex-grow flex-col border-t border-t-l-neutral-30 bg-l-neutral-10">
       <div className="absolute top-0 left-0 flex w-full justify-end p-1">
         <div className="rounded bg-l-neutral-10 px-2">
           <button
@@ -100,8 +102,11 @@ export default function SyncInfo() {
           </button>
         </div>
       </div>
-      <BackupsBanner />
-      {items.length === 0 && <Empty />}
+      <BackupsBanner
+        onVisibilityChanged={setBackupsBannerVisible}
+        className={items.length > 0 ? 'mt-8' : ''}
+      />
+      {items.length === 0 && !backupsBannerVisible && <Empty />}
       <div className="scroll no-scrollbar h-full overflow-y-auto">
         <AnimatePresence>
           {items.map((item, i) => (
@@ -225,7 +230,13 @@ function Empty() {
   );
 }
 
-function BackupsBanner() {
+function BackupsBanner({
+  className = '',
+  onVisibilityChanged,
+}: {
+  className?: string;
+  onVisibilityChanged: (value: boolean) => void;
+}) {
   const status = useBackupStatus();
   const fatalErrors = useBackupFatalErrors();
   const issues = useProcessIssues().filter(
@@ -260,7 +271,7 @@ function BackupsBanner() {
   if (status === 'RUNNING' && backupProgress) {
     body = `Backed up ${backupProgress.currentFolder - 1} out of ${
       backupProgress.totalFolders
-    }`;
+    } folders `;
 
     const partialProgress = backupProgress.totalItems
       ? backupProgress.currentItems! / backupProgress.totalItems
@@ -291,10 +302,18 @@ function BackupsBanner() {
   else if (fatalErrors.length) iconVariant = 'ERROR';
   else if (issues.length) iconVariant = 'WARNING';
 
+  const show = (status !== 'STANDBY' || backupProgress) && !hidden;
+
+  useEffect(() => {
+    onVisibilityChanged(show as boolean);
+  }, [status, backupProgress, hidden]);
+
   return (
     <>
-      {(status !== 'STANDBY' || backupProgress) && !hidden ? (
-        <div className="group relative mt-8 flex h-14 w-full select-none items-center bg-blue-10 px-3">
+      {show ? (
+        <div
+          className={`group relative flex h-14 w-full flex-shrink-0 select-none items-center bg-blue-10 px-3 ${className}`}
+        >
           <BackupsIcon variant={iconVariant} />
           <div className="ml-3">
             <h1 className="text-sm font-medium text-neutral-700">Backup</h1>
