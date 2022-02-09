@@ -37,8 +37,8 @@ export async function setupRootFolder(n = 0): Promise<void> {
   const rootFolderPath = path.join(HOME_FOLDER_PATH, rootFolderName);
 
   const notExistsOrIsEmpty =
-    !(await existsFolder(rootFolderName)) ||
-    (await isEmptyFolder(rootFolderName));
+    !(await existsFolder(rootFolderPath)) ||
+    (await isEmptyFolder(rootFolderPath));
 
   if (notExistsOrIsEmpty) {
     await fs.mkdir(rootFolderPath, { recursive: true });
