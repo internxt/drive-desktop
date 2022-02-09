@@ -43,6 +43,27 @@ export default function ProcessIssuesList({
         .errorDetails,
     });
   }
+
+  const defaultAction = {
+    name: 'Try again',
+    func: window.electron.startBackupsProcess,
+  };
+
+  const fatalErrorActionMap: Record<
+    ProcessFatalErrorName,
+    { name: string; func: () => void }
+  > = {
+    CANNOT_ACCESS_BASE_DIRECTORY: {
+      name: 'Find folder',
+      func: () => undefined,
+    },
+    CANNOT_ACCESS_TMP_DIRECTORY: defaultAction,
+    CANNOT_GET_CURRENT_LISTINGS: defaultAction,
+    NO_INTERNET: defaultAction,
+    NO_REMOTE_CONNECTION: defaultAction,
+    UNKNOWN: defaultAction,
+  };
+
   return (
     <div className="no-scrollbar m-4 min-h-0 flex-grow overflow-y-auto rounded-lg border border-l-neutral-30 bg-white">
       {showBackupFatalErrors &&
@@ -50,8 +71,9 @@ export default function ProcessIssuesList({
           <FatalError
             key={error.folderId}
             errorName={error.errorName}
-            onInfoClick={console.log}
             path={error.path}
+            actionName={fatalErrorActionMap[error.errorName].name}
+            onActionClick={fatalErrorActionMap[error.errorName].func}
           />
         ))}
       {errors.map((error) => (
@@ -159,11 +181,13 @@ function Item({
 function FatalError({
   errorName,
   path,
-  onInfoClick,
+  onActionClick,
+  actionName,
 }: {
   errorName: ProcessFatalErrorName;
   path: string;
-  onInfoClick: () => void;
+  actionName: string;
+  onActionClick: () => void;
 }) {
   return (
     <div className="select-none p-2 hover:bg-l-neutral-10 active:bg-l-neutral-20">
@@ -172,16 +196,19 @@ function FatalError({
         <div className="flex-grow">
           <h1 className="font-semibold text-gray-70">
             {window.electron.path.basename(path)}
-            &nbsp;
-            <UilInfoCircle
-              className="inline h-4 w-4 text-blue-60 hover:text-blue-50 active:text-blue-60"
-              onClick={(e: MouseEvent) => {
-                e.stopPropagation();
-                onInfoClick();
-              }}
-            />
           </h1>
-          <p className="text-gray-70">{messages[errorName]}</p>
+          <p className="text-gray-70">
+            {messages[errorName]}
+            <span
+              onClick={onActionClick}
+              role="button"
+              tabIndex={0}
+              onKeyDown={onActionClick}
+              className="ml-2 cursor-pointer text-blue-60 underline"
+            >
+              {actionName}
+            </span>
+          </p>
         </div>
       </div>
     </div>
