@@ -3,7 +3,6 @@ import { Environment } from '@internxt/inxt-js';
 import * as uuid from 'uuid';
 import { Readable } from 'stream';
 import Logger from 'electron-log';
-import ConfigStore from '../../main/config';
 import crypt from '../utils/crypt';
 import {
   Listing,
@@ -14,7 +13,6 @@ import {
   ProcessFatalError,
 } from '../types';
 import httpRequest from '../utils/http-request';
-import { getHeaders, getUser } from '../../main/auth/service';
 import isOnline from '../utils/is-online';
 import { getDateFromSeconds, getSecondsFromDateString } from '../utils/date';
 import { createErrorDetails, serializeRes } from '../utils/reporting';
@@ -61,16 +59,19 @@ type ServerFolder = {
   updated_at: string;
 };
 
-export function getRemoteFilesystem(baseFolderId: number): FileSystem {
-  const headers = getHeaders() as HeadersInit;
-  const userInfo = getUser() as {
-    email: string;
-    userId: string;
-    bucket: string;
-    bridgeUser: string;
-  };
-  const mnemonic = ConfigStore.get('mnemonic') as string;
-
+export function getRemoteFilesystem({
+  baseFolderId,
+  headers,
+  userInfo,
+  mnemonic,
+  bucket,
+}: {
+  baseFolderId: number;
+  headers: HeadersInit;
+  userInfo: { email: string; userId: string; bridgeUser: string };
+  mnemonic: string;
+  bucket: string;
+}): FileSystem {
   const cache: RemoteCache = {};
 
   async function getTree(): Promise<{
@@ -316,8 +317,6 @@ export function getRemoteFilesystem(baseFolderId: number): FileSystem {
         bridgePass: userInfo.userId,
         encryptionKey: mnemonic,
       });
-
-      const { bucket } = userInfo;
 
       const uploadedFileId: string = await new Promise((resolve, reject) => {
         localUpload.upload(

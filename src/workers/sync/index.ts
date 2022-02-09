@@ -10,6 +10,8 @@ import {
 } from '../types';
 import Sync from './sync';
 import { ProcessResult } from '../process';
+import { getHeaders, getUser } from '../../main/auth/service';
+import configStore from '../../main/config';
 
 export type SyncArgs = {
   localPath: string;
@@ -36,7 +38,14 @@ const ipcRenderer = electronIpcRenderer as IpcRenderer;
 ipcRenderer
   .invoke('get-sync-details')
   .then(async ({ localPath, tmpPath, folderId }) => {
-    const remote = getRemoteFilesystem(folderId);
+    const user = getUser();
+    const remote = getRemoteFilesystem({
+      baseFolderId: folderId,
+      headers: getHeaders(),
+      bucket: user!.bucket,
+      mnemonic: configStore.get('mnemonic'),
+      userInfo: user!,
+    });
     const local = getLocalFilesystem(localPath, tmpPath);
 
     const listingStore = getListingStore();

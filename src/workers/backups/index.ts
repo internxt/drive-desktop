@@ -1,5 +1,7 @@
 import { ipcRenderer as electronIpcRenderer } from 'electron';
 import Logger from 'electron-log';
+import { getHeaders, getUser } from '../../main/auth/service';
+import configStore from '../../main/config';
 import { getLocalFilesystem } from '../filesystems/local-filesystem';
 import { getRemoteFilesystem } from '../filesystems/remote-filesystem';
 import {
@@ -13,6 +15,7 @@ export type BackupsArgs = {
   folderId: number;
   path: string;
   tmpPath: string;
+  backupsBucket: string;
 };
 
 export interface BackupsEvents {
@@ -45,8 +48,14 @@ function onProcessingItem() {
 
 ipcRenderer
   .invoke('get-backups-details')
-  .then(async ({ tmpPath, path, folderId }) => {
-    const remote = getRemoteFilesystem(folderId);
+  .then(async ({ tmpPath, path, folderId, backupsBucket }) => {
+    const remote = getRemoteFilesystem({
+      baseFolderId: folderId,
+      headers: getHeaders(),
+      bucket: backupsBucket,
+      mnemonic: configStore.get('mnemonic'),
+      userInfo: getUser()!,
+    });
     const local = getLocalFilesystem(path, tmpPath);
 
     const backups = new Backups(local, remote);

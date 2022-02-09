@@ -5,6 +5,7 @@ import { BackupsArgs } from '../../workers/backups';
 import { ProcessFatalErrorName } from '../../workers/types';
 import { getIsLoggedIn } from '../auth/handlers';
 import configStore from '../config';
+import { getOrCreateDevice } from '../device/service';
 import { broadcastToWindows } from '../windows';
 import { clearBackupsIssues } from './process-issues';
 
@@ -82,6 +83,8 @@ export async function startBackupProcess() {
     hasBeenStopped.value = true;
   });
 
+  const device = await getOrCreateDevice();
+
   const backupList = configStore.get('backupList');
 
   const enabledBackupEntries = Object.entries(backupList).filter(
@@ -93,6 +96,7 @@ export async function startBackupProcess() {
       path: pathname,
       folderId: backup.folderId,
       tmpPath: app.getPath('temp'),
+      backupsBucket: device.bucket,
     })
   );
 
