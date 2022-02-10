@@ -164,5 +164,8 @@ contextBridge.exposeInMainWorld('electron', {
   getLastBackupExitReason() {
     return ipcRenderer.invoke('get-last-backup-exit-reason');
   },
+  changeBackupPath(currentPath) {
+    return ipcRenderer.invoke('change-backup-path', currentPath);
+  },
   path,
 });

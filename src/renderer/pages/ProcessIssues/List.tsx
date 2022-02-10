@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import WarnIcon from '../../assets/warn.svg';
 import ErrorIcon from '../../assets/error.svg';
 import FileIcon from '../../assets/file.svg';
+import Spinner from '../../assets/spinner.svg';
 import { shortMessages } from '../../messages/process-error';
 import { getBaseName } from '../../utils/path';
 import {
@@ -27,6 +28,8 @@ export default function ProcessIssuesList({
     errorClicked: Pick<ProcessIssue, 'errorName' | 'errorDetails'>
   ) => void;
 }) {
+  const [isLoading, setIsLoading] = useState(false);
+
   const [selectedErrorName, setSelectedErrorName] =
     useState<ProcessErrorName | null>(null);
 
@@ -51,11 +54,16 @@ export default function ProcessIssuesList({
 
   const fatalErrorActionMap: Record<
     ProcessFatalErrorName,
-    { name: string; func: () => void }
+    { name: string; func: (error: BackupFatalError) => void }
   > = {
     CANNOT_ACCESS_BASE_DIRECTORY: {
       name: 'Find folder',
-      func: () => undefined,
+      func: async (error) => {
+        setIsLoading(true);
+        const result = await window.electron.changeBackupPath(error.path);
+        setIsLoading(false);
+        if (result) window.electron.startBackupsProcess();
+      },
     },
     CANNOT_ACCESS_TMP_DIRECTORY: defaultAction,
     CANNOT_GET_CURRENT_LISTINGS: defaultAction,
@@ -65,7 +73,7 @@ export default function ProcessIssuesList({
   };
 
   return (
-    <div className="no-scrollbar m-4 min-h-0 flex-grow overflow-y-auto rounded-lg border border-l-neutral-30 bg-white">
+    <div className="no-scrollbar relative m-4 min-h-0 flex-grow overflow-y-auto rounded-lg border border-l-neutral-30 bg-white">
       {showBackupFatalErrors &&
         backupFatalErrors.map((error) => (
           <FatalError
@@ -73,7 +81,9 @@ export default function ProcessIssuesList({
             errorName={error.errorName}
             path={error.path}
             actionName={fatalErrorActionMap[error.errorName].name}
-            onActionClick={fatalErrorActionMap[error.errorName].func}
+            onActionClick={() =>
+              fatalErrorActionMap[error.errorName].func(error)
+            }
           />
         ))}
       {errors.map((error) => (
@@ -92,6 +102,9 @@ export default function ProcessIssuesList({
       ))}
       {errors.length === 0 &&
         (backupFatalErrors.length === 0 || !showBackupFatalErrors) && <Empty />}
+      {isLoading && (
+        <Spinner className="absolute top-1 right-1 h-3 w-3 animate-spin fill-neutral-700" />
+      )}
     </div>
   );
 }
@@ -204,7 +217,7 @@ function FatalError({
               role="button"
               tabIndex={0}
               onKeyDown={onActionClick}
-              className="ml-2 cursor-pointer text-blue-60 underline"
+              className="ml-2 cursor-pointer text-sm text-blue-60 underline"
             >
               {actionName}
             </span>

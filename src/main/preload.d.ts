@@ -129,5 +129,7 @@ declare interface Window {
         value: import('../main/background-processes/backups').BackupFatalError[]
       ) => void
     ): () => void;
+
+    changeBackupPath: typeof import('../main/device/service').changeBackupPath;
   };
 }

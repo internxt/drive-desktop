@@ -5,6 +5,7 @@ import os from 'os';
 import path from 'path';
 
 import { getHeaders } from '../auth/service';
+import { BackupFatalError } from '../background-processes/backups';
 import configStore from '../config';
 
 export type Device = { name: string; id: number; bucket: string };
@@ -133,14 +134,8 @@ export async function addBackup(): Promise<void> {
     else throw new Error('Post backup request wasnt successful');
   }
 
-  const result = await dialog.showOpenDialog({
-    properties: ['openDirectory'],
-  });
-
-  if (result.canceled) return;
-
-  let chosenPath = result.filePaths[0];
-  chosenPath += chosenPath[chosenPath.length - 1] === path.sep ? '' : path.sep;
+  const chosenPath = await getPathFromDialog();
+  if (!chosenPath) return;
 
   const backupList = configStore.get('backupList');
 
@@ -209,6 +204,41 @@ export async function disableBackup(backup: Backup): Promise<void> {
   configStore.set('backupList', backupsList);
 }
 
+export async function changeBackupPath(currentPath: string): Promise<boolean> {
+  const backupsList = configStore.get('backupList');
+  const existingBackup = backupsList[currentPath];
+
+  if (!existingBackup) throw new Error('Backup no longer exists');
+
+  const chosenPath = await getPathFromDialog();
+
+  if (!chosenPath) return false;
+
+  if (backupsList[chosenPath])
+    throw new Error('A backup with this path already exists');
+
+  const res = await fetch(
+    `${process.env.API_URL}/api/storage/folder/${existingBackup.folderId}/meta`,
+    {
+      method: 'POST',
+      headers: getHeaders(true),
+      body: JSON.stringify({
+        metadata: { itemName: path.basename(chosenPath) },
+      }),
+    }
+  );
+
+  if (!res.ok) throw new Error('Error in the request to rename a backup');
+
+  delete backupsList[currentPath];
+
+  backupsList[chosenPath] = existingBackup;
+
+  configStore.set('backupList', backupsList);
+
+  return true;
+}
+
 function findBackupPathnameFromId(id: number): string | undefined {
   const backupsList = configStore.get('backupList');
   const entryfound = Object.entries(backupsList).find(
@@ -224,4 +254,18 @@ function getDeviceId(): number {
   if (deviceId === -1) throw new Error('deviceId is not defined');
 
   return deviceId;
+}
+
+async function getPathFromDialog(): Promise<string | null> {
+  const result = await dialog.showOpenDialog({
+    properties: ['openDirectory'],
+  });
+
+  if (result.canceled) return null;
+
+  const chosenPath = result.filePaths[0];
+  return (
+    chosenPath +
+    (chosenPath[chosenPath.length - 1] === path.sep ? '' : path.sep)
+  );
 }
