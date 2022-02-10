@@ -294,8 +294,8 @@ function BackupsBanner({
   } else if (lastExit === 'FORCED_BY_USER') {
     body = 'Backup stopped';
     action = 'Start again';
-  } else {
-    body = `Backed up ${backupProgress?.totalFolders} folders`;
+  } else if (backupProgress) {
+    body = `Backed up ${backupProgress.totalFolders} folders`;
   }
 
   let iconVariant: 'SUCCESS' | 'WARNING' | 'ERROR' | undefined;

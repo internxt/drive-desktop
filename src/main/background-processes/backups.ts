@@ -5,7 +5,7 @@ import { BackupsArgs } from '../../workers/backups';
 import { ProcessFatalErrorName } from '../../workers/types';
 import { getIsLoggedIn } from '../auth/handlers';
 import configStore from '../config';
-import { getOrCreateDevice } from '../device/service';
+import { getBackupsFromDevice, getOrCreateDevice } from '../device/service';
 import { broadcastToWindows } from '../windows';
 import { clearBackupsIssues } from './process-issues';
 
@@ -85,20 +85,14 @@ export async function startBackupProcess() {
 
   const device = await getOrCreateDevice();
 
-  const backupList = configStore.get('backupList');
+  const enabledBackupEntries = await getBackupsFromDevice();
 
-  const enabledBackupEntries = Object.entries(backupList).filter(
-    ([, backup]) => backup.enabled
-  );
-
-  const items: BackupsArgs[] = enabledBackupEntries.map(
-    ([pathname, backup]) => ({
-      path: pathname,
-      folderId: backup.folderId,
-      tmpPath: app.getPath('temp'),
-      backupsBucket: device.bucket,
-    })
-  );
+  const items: BackupsArgs[] = enabledBackupEntries.map((backup) => ({
+    path: backup.pathname,
+    folderId: backup.id,
+    tmpPath: app.getPath('temp'),
+    backupsBucket: device.bucket,
+  }));
 
   let currentFolder = 1;
   const totalFolders = items.length;

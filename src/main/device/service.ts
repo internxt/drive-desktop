@@ -5,7 +5,6 @@ import os from 'os';
 import path from 'path';
 
 import { getHeaders } from '../auth/service';
-import { BackupFatalError } from '../background-processes/backups';
 import configStore from '../config';
 
 export type Device = { name: string; id: number; bucket: string };
@@ -96,18 +95,25 @@ function decryptDeviceName({ name, ...rest }: Device): Device {
 
 export type Backup = { id: number; name: string };
 
-export async function getBackupsFromDevice(): Promise<Backup[]> {
+export async function getBackupsFromDevice(): Promise<
+  (Backup & { pathname: string })[]
+> {
   const deviceId = getDeviceId();
 
   const folder = await fetchFolder(deviceId);
 
   const backupsList = configStore.get('backupList');
 
-  return folder.children.filter((backup: Backup) => {
-    const pathname = findBackupPathnameFromId(backup.id);
+  return folder.children
+    .filter((backup: Backup) => {
+      const pathname = findBackupPathnameFromId(backup.id);
 
-    return pathname && backupsList[pathname].enabled;
-  });
+      return pathname && backupsList[pathname].enabled;
+    })
+    .map((backup: Backup) => ({
+      ...backup,
+      pathname: findBackupPathnameFromId(backup.id),
+    }));
 }
 
 export async function addBackup(): Promise<void> {
