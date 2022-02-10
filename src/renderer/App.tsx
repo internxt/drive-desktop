@@ -48,19 +48,24 @@ function LoggedInWrapper({ children }: { children: JSX.Element }) {
 
 export default function App() {
   return (
-    <DeviceProvider>
-      <Router>
-        <LocationWrapper>
-          <LoggedInWrapper>
-            <Routes>
-              <Route path="/login" element={<Login />} />
-              <Route path="/process-issues" element={<ProcessIssues />} />
-              <Route path="/settings" element={<Settings />} />
-              <Route path="/" element={<Widget />} />
-            </Routes>
-          </LoggedInWrapper>
-        </LocationWrapper>
-      </Router>
-    </DeviceProvider>
+    <Router>
+      <LocationWrapper>
+        <LoggedInWrapper>
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route path="/process-issues" element={<ProcessIssues />} />
+            <Route
+              path="/settings"
+              element={
+                <DeviceProvider>
+                  <Settings />
+                </DeviceProvider>
+              }
+            />
+            <Route path="/" element={<Widget />} />
+          </Routes>
+        </LoggedInWrapper>
+      </LocationWrapper>
+    </Router>
   );
 }
