@@ -13,7 +13,7 @@ import configStore from '../config';
 import locksService from './locks-service';
 import { getTray } from '../tray';
 import { broadcastToWindows } from '../windows';
-import { clearSyncIssues, getProcessIssues } from './process-issues';
+import { clearSyncIssues, getSyncIssues } from './process-issues';
 import { ProcessResult } from '../../workers/process';
 
 export type SyncStatus = 'STANDBY' | 'RUNNING';
@@ -37,7 +37,7 @@ export function setTraySyncStatus(newStatus: SyncStatus) {
   const tray = getTray();
   if (newStatus === 'RUNNING') {
     tray?.setState('SYNCING');
-  } else if (getProcessIssues().length !== 0) {
+  } else if (getSyncIssues().length !== 0) {
     tray?.setState('ISSUES');
   } else {
     tray?.setState('STANDBY');

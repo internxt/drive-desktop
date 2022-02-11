@@ -14,6 +14,10 @@ export function getProcessIssues() {
   return processIssues;
 }
 
+export function getSyncIssues() {
+  return processIssues.filter((issue) => issue.process === 'SYNC');
+}
+
 export function clearSyncIssues() {
   processIssues = processIssues.filter((issue) => issue.process === 'BACKUPS');
   onProcessIssuesChanged();
