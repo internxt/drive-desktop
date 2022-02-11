@@ -82,7 +82,8 @@
     "win": {
       "target": [
         "nsis"
-      ]
+      ],
+      "certificateSubjectName": "Internxt Universal Technologies SL"
     },
     "linux": {
       "target": [
