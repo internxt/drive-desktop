@@ -274,9 +274,12 @@ function BackupsBanner({
   let action = '';
 
   if (status === 'RUNNING' && backupProgress) {
-    body = `Backed up ${backupProgress.currentFolder - 1} out of ${
-      backupProgress.totalFolders
-    } folders`;
+    body =
+      backupProgress.totalFolders > 1
+        ? `Backed up ${backupProgress.currentFolder - 1} out of ${
+            backupProgress.totalFolders
+          } folders`
+        : 'Backing up your folder';
 
     const partialProgress = backupProgress.totalItems
       ? backupProgress.currentItems! / backupProgress.totalItems
@@ -295,7 +298,10 @@ function BackupsBanner({
     body = 'Backup stopped';
     action = 'Start again';
   } else if (backupProgress) {
-    body = `Backed up ${backupProgress.totalFolders} folders`;
+    body =
+      backupProgress.totalFolders > 1
+        ? `Backed up ${backupProgress.totalFolders} folders`
+        : 'Backed up your folder';
   }
 
   let iconVariant: 'SUCCESS' | 'WARNING' | 'ERROR' | undefined;
