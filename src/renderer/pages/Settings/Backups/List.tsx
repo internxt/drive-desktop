@@ -161,6 +161,11 @@ function Modal({
   onClose: (result: 'CANCEL' | 'DISABLE' | 'DELETE') => void;
 }) {
   const [checkbox, setCheckbox] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) setCheckbox(false);
+  }, [isOpen]);
+
   return (
     <Transition appear show={isOpen} as={Fragment}>
       <Dialog
