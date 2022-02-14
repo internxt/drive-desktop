@@ -5,6 +5,8 @@ import Button from '../../../components/Button';
 import Checkbox from '../../../components/Checkbox';
 import useBackupStatus from '../../../hooks/BackupStatus';
 import Dropdown from './Dropdown';
+import { BackupProgress } from '../../../../main/background-processes/backups';
+import { getPercentualProgress } from '../../../utils/backups-progress';
 
 dayjs.extend(relativeTime);
 
@@ -16,8 +18,15 @@ export default function BackupsPanel({
   const [backupsInterval, setBackupsInterval] = useState(-1);
   const [backupsEnabled, setBackupsEnabled] = useState(false);
   const [lastBackupTimestamp, setLastBackupTimestamp] = useState(-1);
+  const [backupProgress, setBackupProgress] = useState<null | BackupProgress>(
+    null
+  );
 
   const backupStatus = useBackupStatus();
+
+  useEffect(() => {
+    if (backupStatus === 'STANDBY') setBackupProgress(null);
+  }, [backupStatus]);
 
   function refreshBackupsInterval() {
     window.electron.getBackupsInterval().then(setBackupsInterval);
@@ -36,6 +45,12 @@ export default function BackupsPanel({
     refreshBackupsEnabled();
   }, []);
 
+  useEffect(() => {
+    const removeListener = window.electron.onBackupProgress(setBackupProgress);
+
+    return removeListener;
+  }, []);
+
   useEffect(refreshLastBackupTimestamp, [backupStatus]);
 
   async function onBackupsIntervalChanged(newValue: number) {
@@ -47,6 +62,10 @@ export default function BackupsPanel({
     await window.electron.toggleBackupsEnabled();
     refreshBackupsEnabled();
   }
+
+  const progressDisplay = backupProgress
+    ? `(${getPercentualProgress(backupProgress).toFixed(0)}%)`
+    : '';
 
   return (
     <>
@@ -86,7 +105,7 @@ export default function BackupsPanel({
             ? lastBackupTimestamp !== -1
               ? `Last updated ${dayjs(lastBackupTimestamp).fromNow()}`
               : ''
-            : 'Backup in progress'}
+            : `Backup in progress ${progressDisplay}`}
         </p>
       </div>
       <p className="mt-6 text-xs text-neutral-500">Upload frequency</p>
