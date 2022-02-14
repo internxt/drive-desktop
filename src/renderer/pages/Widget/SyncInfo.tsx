@@ -24,6 +24,7 @@ import {
   BackupExitReason,
   BackupProgress,
 } from '../../../main/background-processes/backups';
+import { getPercentualProgress } from '../../utils/backups-progress';
 
 export default function SyncInfo() {
   const [items, setItems] = useState<ProcessInfoUpdatePayload[]>([]);
@@ -281,13 +282,9 @@ function BackupsBanner({
           } folders`
         : 'Backing up your folder';
 
-    const partialProgress = backupProgress.totalItems
-      ? backupProgress.currentItems! / backupProgress.totalItems
-      : 0;
-    const totalProgress =
-      (backupProgress.currentFolder - 1 + partialProgress) /
-      backupProgress.totalFolders;
-    percentage = `${(totalProgress * 100).toFixed(0)}%`;
+    const percentualProgress = getPercentualProgress(backupProgress);
+
+    percentage = `${percentualProgress.toFixed(0)}%`;
   } else if (fatalErrors.length) {
     body = 'At least one of your backups failed';
     action = 'See more';
