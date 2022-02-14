@@ -52,7 +52,7 @@ export default function SyncAction() {
         tabIndex={0}
         onClick={() => state !== 'LOADING' && onClick()}
         onKeyPress={() => state !== 'LOADING' && onClick()}
-        className={`h-7 w-7 fill-blue-60 ${
+        className={`h-7 w-7 rounded fill-blue-60 outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-0 focus-visible:ring-offset-blue-60 ${
           state !== 'LOADING' ? 'cursor-pointer' : 'animate-spin'
         }`}
       />
