@@ -1,6 +1,7 @@
+/* eslint-disable jsx-a11y/no-noninteractive-tabindex */
 import { UilGlobe, UilFolderOpen, UilSetting } from '@iconscout/react-unicons';
 import { Menu, Transition } from '@headlessui/react';
-import { ReactNode, useEffect, useState } from 'react';
+import { ReactNode, useEffect, useRef, useState } from 'react';
 import bytes from 'bytes';
 
 import { User } from '../../../main/types';
@@ -16,6 +17,23 @@ export default function Header() {
     processIssues.length + backupFatalErrors.length;
 
   const numberOfIssuesDisplay = numberOfIssues > 99 ? '99+' : numberOfIssues;
+
+  /* Electron on MacOS kept focusing the first focusable
+  element on start so we had to create a dummy element
+  to get that focus, remove it and make itself 
+  non-focusable */
+  const dummyRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (process.env.platform === 'darwin') {
+      const listener = () => {
+        dummyRef.current?.blur();
+        dummyRef.current?.removeEventListener('focus', listener);
+        dummyRef.current?.setAttribute('tabindex', '-1');
+      };
+      dummyRef.current?.addEventListener('focus', listener);
+    }
+  }, []);
 
   const dropdown = (
     <Transition
@@ -76,6 +94,9 @@ export default function Header() {
 
   const itemsSection = (
     <div className="flex items-center text-m-neutral-100">
+      {process.env.platform === 'darwin' && (
+        <div className="h-0 w-0" tabIndex={0} ref={dummyRef} />
+      )}
       <a
         href="https://drive.internxt.com"
         target="_blank"
