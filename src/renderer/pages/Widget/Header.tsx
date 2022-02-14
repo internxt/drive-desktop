@@ -45,48 +45,84 @@ export default function Header() {
       leaveTo="transform scale-95 opacity-0"
       className="relative z-10"
     >
-      <Menu.Items className="absolute right-0 w-32 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+      <Menu.Items className="absolute top-5 right-0 w-32 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
         <Menu.Item>
-          <DropdownItem onClick={() => window.electron.openSettingsWindow()}>
-            <span>Preferences</span>
-          </DropdownItem>
-        </Menu.Item>
-        <Menu.Item>
-          <DropdownItem onClick={window.electron.openProcessIssuesWindow}>
-            <div className="flex items-baseline justify-between">
-              <p>Issues</p>
-              {numberOfIssues > 0 && (
-                <p className="ml-4 text-xs font-semibold text-red-60">
-                  {numberOfIssuesDisplay}
-                </p>
-              )}
+          {({ active }) => (
+            <div
+              role="button"
+              tabIndex={0}
+              aria-hidden="true"
+              onClick={() => window.electron.openSettingsWindow()}
+            >
+              <DropdownItem active={active}>
+                <span>Preferences</span>
+              </DropdownItem>
             </div>
-          </DropdownItem>
+          )}
         </Menu.Item>
         <Menu.Item>
-          <DropdownItem>
+          {({ active }) => (
+            <div
+              role="button"
+              tabIndex={0}
+              aria-hidden="true"
+              onClick={window.electron.openProcessIssuesWindow}
+            >
+              <DropdownItem active={active}>
+                <div className="flex items-baseline justify-between">
+                  <p>Issues</p>
+                  {numberOfIssues > 0 && (
+                    <p className="ml-4 text-xs font-semibold text-red-60">
+                      {numberOfIssuesDisplay}
+                    </p>
+                  )}
+                </div>
+              </DropdownItem>
+            </div>
+          )}
+        </Menu.Item>
+        <Menu.Item>
+          {({ active }) => (
             <a
               className="block w-full"
               href="https://help.internxt.com"
               target="_blank"
               rel="noopener noreferrer"
             >
-              Support
+              <DropdownItem active={active}>
+                <span>Support</span>
+              </DropdownItem>
             </a>
-          </DropdownItem>
+          )}
         </Menu.Item>
         <Menu.Item>
-          <DropdownItem onClick={window.electron.logout}>
-            <span>Log out</span>
-          </DropdownItem>
+          {({ active }) => (
+            <div
+              role="button"
+              tabIndex={0}
+              aria-hidden="true"
+              onClick={window.electron.logout}
+            >
+              <DropdownItem active={active}>
+                <span>Log out</span>
+              </DropdownItem>
+            </div>
+          )}
         </Menu.Item>
         <Menu.Item>
-          <DropdownItem
-            className="border-t border-t-l-neutral-20"
-            onClick={window.electron.quit}
-          >
-            <span>Quit</span>
-          </DropdownItem>
+          {({ active }) => (
+            <div
+              role="button"
+              tabIndex={0}
+              aria-hidden="true"
+              onClick={window.electron.quit}
+              className="border-t border-t-l-neutral-30"
+            >
+              <DropdownItem active={active}>
+                <span>Quit</span>
+              </DropdownItem>
+            </div>
+          )}
         </Menu.Item>
       </Menu.Items>
     </Transition>
@@ -101,21 +137,29 @@ export default function Header() {
         href="https://drive.internxt.com"
         target="_blank"
         rel="noopener noreferrer"
+        className="rounded-lg outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-blue-60"
       >
         <HeaderItemWrapper>
           <UilGlobe className="h-5 w-5" />
         </HeaderItemWrapper>
       </a>
-      <HeaderItemWrapper>
-        <UilFolderOpen
-          tabIndex={0}
-          onClick={window.electron.openSyncFolder}
-          onKeyPress={window.electron.openSyncFolder}
-          className="h-5 w-5"
-        />
-      </HeaderItemWrapper>
-      <Menu as="div" className="relative h-7">
-        <Menu.Button>
+      <div
+        role="button"
+        tabIndex={0}
+        onClick={window.electron.openSyncFolder}
+        onKeyPress={window.electron.openSyncFolder}
+        className="rounded-lg outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-blue-60"
+      >
+        <HeaderItemWrapper>
+          <UilFolderOpen
+            onClick={window.electron.openSyncFolder}
+            onKeyPress={window.electron.openSyncFolder}
+            className="h-5 w-5"
+          />
+        </HeaderItemWrapper>
+      </div>
+      <Menu as="div" className="relative flex h-8 items-center ">
+        <Menu.Button className="rounded-lg outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-0 focus-visible:ring-offset-blue-60">
           <SettingsIcon />
         </Menu.Button>
         {dropdown}
@@ -168,7 +212,7 @@ function AccountSection() {
             href="https://drive.internxt.com/storage"
             target="_blank"
             rel="noreferrer noopener"
-            className="ml-1 text-xs text-blue-60 hover:text-blue-70 active:text-blue-80"
+            className="ml-1 rounded-sm text-xs text-blue-60 outline-none hover:text-blue-70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-0 focus-visible:ring-offset-blue-60 active:text-blue-80"
           >
             Upgrade
           </a>
@@ -180,17 +224,18 @@ function AccountSection() {
 
 function DropdownItem({
   children,
-  className,
+  active,
   onClick,
 }: {
   children: JSX.Element;
-  className?: string;
+  active?: boolean;
   onClick?: () => void;
 }) {
   return (
     <div
-      className={`cursor-pointer text-sm text-neutral-500 hover:bg-l-neutral-20 active:bg-l-neutral-30 ${className}`}
-      style={{ padding: '6px 16px' }}
+      className={`cursor-pointer py-1.5 px-4 text-sm text-neutral-500 hover:bg-l-neutral-20 active:bg-l-neutral-30 ${
+        active && 'bg-l-neutral-20'
+      }`}
       role="button"
       tabIndex={0}
       onKeyDown={onClick}
@@ -211,7 +256,7 @@ function SettingsIcon() {
 
 function HeaderItemWrapper({ children }: { children: ReactNode }) {
   return (
-    <div className="relative cursor-pointer rounded-lg p-1 hover:bg-l-neutral-30 active:bg-l-neutral-40">
+    <div className="relative cursor-pointer rounded-lg p-1.5 hover:bg-l-neutral-30 active:bg-l-neutral-40">
       {children}
     </div>
   );
