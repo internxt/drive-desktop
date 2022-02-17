@@ -171,12 +171,14 @@ abstract class Process extends EventEmitter {
     const filesNotInRemote = [];
     const filesWithDifferentModtime = [];
 
-    for (const [localName, localModtime] of Object.entries(local)) {
-      const remoteModTime = remote[localName];
+    for (const [localName, { modtime: localModtime }] of Object.entries(
+      local
+    )) {
+      const entryInRemote = remote[localName];
 
-      if (!remoteModTime) {
+      if (!entryInRemote) {
         filesNotInRemote.push(localName);
-      } else if (localModtime !== remoteModTime) {
+      } else if (localModtime !== entryInRemote.modtime) {
         filesWithDifferentModtime.push(localName);
       }
     }

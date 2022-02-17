@@ -108,8 +108,8 @@ class Sync extends Process {
     } = this.getListingsDiff(currentLocal, currentRemote);
 
     for (const name of filesWithDifferentModtime) {
-      const modtimeInLocal = currentLocal[name];
-      const modtimeInRemote = currentRemote[name];
+      const { modtime: modtimeInLocal } = currentLocal[name];
+      const { modtime: modtimeInRemote } = currentRemote[name];
 
       if (modtimeInLocal < modtimeInRemote) pullFromLocal.push(name);
       else pullFromRemote.push(name);
@@ -147,8 +147,8 @@ class Sync extends Process {
     const deleteInRemote: string[] = [];
 
     const keepMostRecent = (name: string) => {
-      const modtimeInLocal = currentLocalListing[name];
-      const modtimeInRemote = currentRemoteListing[name];
+      const { modtime: modtimeInLocal } = currentLocalListing[name];
+      const { modtime: modtimeInRemote } = currentRemoteListing[name];
 
       if (modtimeInLocal < modtimeInRemote) pullFromLocal.push(name);
       else pullFromRemote.push(name);
@@ -158,7 +158,8 @@ class Sync extends Process {
       const deltaRemote = deltasRemote[name];
       const doesntExistInRemote = deltaRemote === undefined;
       const sameModTime =
-        currentLocalListing[name] === currentRemoteListing[name];
+        currentLocalListing[name]?.modtime ===
+        currentRemoteListing[name]?.modtime;
 
       if (deltaLocal === 'NEW' && deltaRemote === 'NEW' && !sameModTime) {
         keepMostRecent(name);
@@ -240,14 +241,14 @@ class Sync extends Process {
   private generateDeltas(saved: Listing, current: Listing): Deltas {
     const deltas: Deltas = {};
 
-    for (const [name, currentModTime] of Object.entries(current)) {
-      const savedModTime = saved[name];
+    for (const [name, { modtime: currentModTime }] of Object.entries(current)) {
+      const savedEntry = saved[name];
 
-      if (!savedModTime) {
+      if (!savedEntry) {
         deltas[name] = 'NEW';
-      } else if (savedModTime === currentModTime) {
+      } else if (savedEntry.modtime === currentModTime) {
         deltas[name] = 'UNCHANGED';
-      } else if (savedModTime < currentModTime) {
+      } else if (savedEntry.modtime < currentModTime) {
         deltas[name] = 'NEWER';
       } else {
         deltas[name] = 'OLDER';

@@ -160,7 +160,7 @@ export function getRemoteFilesystem({
           const modificationTime = getSecondsFromDateString(
             file.modificationTime
           );
-          listing[name] = modificationTime;
+          listing[name] = { modtime: modificationTime, size: file.size };
           cache[name] = {
             id: file.id,
             parentId: file.folderId,

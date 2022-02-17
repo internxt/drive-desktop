@@ -101,9 +101,9 @@ describe('sync tests', () => {
       async getCurrentListing() {
         return {
           listing: {
-            notExistInRemote: 40,
-            existInBothButIsTheSame: 30,
-            'folder/nested/existInBoth.txt': 44,
+            notExistInRemote: { modtime: 40, size: 1 },
+            existInBothButIsTheSame: { modtime: 30, size: 2 },
+            'folder/nested/existInBoth.txt': { modtime: 44, size: 3 },
           },
           readingMetaErrors: [],
         };
@@ -115,9 +115,9 @@ describe('sync tests', () => {
       async getCurrentListing() {
         return {
           listing: {
-            notExistInLocal: 40,
-            existInBothButIsTheSame: 30,
-            'folder/nested/existInBoth.txt': 55,
+            notExistInLocal: { modtime: 40, size: 1 },
+            existInBothButIsTheSame: { modtime: 30, size: 2 },
+            'folder/nested/existInBoth.txt': { modtime: 55, size: 3 },
           },
           readingMetaErrors: [],
         };
@@ -181,24 +181,24 @@ describe('sync tests', () => {
       ...listingStore(),
       async getLastSavedListing() {
         return {
-          'newer/newer/different': 4,
-          'newer/newer/same': 4,
-          'newer/deleted': 5,
-          'newer/older': 5,
-          'newer/unchanged': 4,
-          'deleted/newer': 4,
-          'deleted/deleted': 4,
-          'deleted/older': 4,
-          'deleted/unchanged': 4,
-          'older/newer': 4,
-          'older/deleted': 4,
-          'older/older/same': 4,
-          'older/older/different': 4,
-          'older/unchanged': 4,
-          'unchanged/newer': 4,
-          'unchanged/deleted': 4,
-          'unchanged/older': 4,
-          'unchanged/unchanged': 4,
+          'newer/newer/different': { modtime: 4, size: 4 },
+          'newer/newer/same': { modtime: 4, size: 4 },
+          'newer/deleted': { modtime: 5, size: 4 },
+          'newer/older': { modtime: 5, size: 4 },
+          'newer/unchanged': { modtime: 4, size: 4 },
+          'deleted/newer': { modtime: 4, size: 4 },
+          'deleted/deleted': { modtime: 4, size: 4 },
+          'deleted/older': { modtime: 4, size: 4 },
+          'deleted/unchanged': { modtime: 4, size: 4 },
+          'older/newer': { modtime: 4, size: 4 },
+          'older/deleted': { modtime: 4, size: 4 },
+          'older/older/same': { modtime: 4, size: 4 },
+          'older/older/different': { modtime: 4, size: 4 },
+          'older/unchanged': { modtime: 4, size: 4 },
+          'unchanged/newer': { modtime: 4, size: 4 },
+          'unchanged/deleted': { modtime: 4, size: 4 },
+          'unchanged/older': { modtime: 4, size: 4 },
+          'unchanged/unchanged': { modtime: 4, size: 4 },
         };
       },
     };
@@ -207,23 +207,23 @@ describe('sync tests', () => {
       async getCurrentListing() {
         return {
           listing: {
-            'new/new/different': 4,
-            'new/new/same': 4,
-            'new/noexist': 43,
-            'newer/newer/different': 6,
-            'newer/newer/same': 5,
-            'newer/deleted': 6,
-            'newer/older': 6,
-            'newer/unchanged': 5,
-            'older/newer': 3,
-            'older/deleted': 3,
-            'older/older/same': 3,
-            'older/older/different': 3,
-            'older/unchanged': 3,
-            'unchanged/newer': 4,
-            'unchanged/deleted': 4,
-            'unchanged/older': 4,
-            'unchanged/unchanged': 4,
+            'new/new/different': { modtime: 4, size: 3 },
+            'new/new/same': { modtime: 4, size: 3 },
+            'new/noexist': { modtime: 43, size: 3 },
+            'newer/newer/different': { modtime: 6, size: 3 },
+            'newer/newer/same': { modtime: 5, size: 3 },
+            'newer/deleted': { modtime: 6, size: 3 },
+            'newer/older': { modtime: 6, size: 3 },
+            'newer/unchanged': { modtime: 5, size: 3 },
+            'older/newer': { modtime: 3, size: 3 },
+            'older/deleted': { modtime: 3, size: 3 },
+            'older/older/same': { modtime: 3, size: 3 },
+            'older/older/different': { modtime: 3, size: 3 },
+            'older/unchanged': { modtime: 3, size: 3 },
+            'unchanged/newer': { modtime: 4, size: 3 },
+            'unchanged/deleted': { modtime: 4, size: 3 },
+            'unchanged/older': { modtime: 4, size: 3 },
+            'unchanged/unchanged': { modtime: 4, size: 3 },
           },
           readingMetaErrors: [],
         };
@@ -235,23 +235,23 @@ describe('sync tests', () => {
       async getCurrentListing() {
         return {
           listing: {
-            'new/new/different': 5,
-            'new/new/same': 4,
-            'newer/newer/different': 5,
-            'newer/newer/same': 5,
-            'newer/older': 4,
-            'newer/unchanged': 4,
-            'deleted/newer': 5,
-            'deleted/older': 3,
-            'deleted/unchanged': 4,
-            'older/newer': 5,
-            'older/older/same': 3,
-            'older/older/different': 2,
-            'older/unchanged': 4,
-            'unchanged/newer': 5,
-            'unchanged/older': 3,
-            'unchanged/unchanged': 4,
-            'noexist/new': 4,
+            'new/new/different': { modtime: 5, size: 1 },
+            'new/new/same': { modtime: 4, size: 1 },
+            'newer/newer/different': { modtime: 5, size: 1 },
+            'newer/newer/same': { modtime: 5, size: 1 },
+            'newer/older': { modtime: 4, size: 1 },
+            'newer/unchanged': { modtime: 4, size: 1 },
+            'deleted/newer': { modtime: 5, size: 1 },
+            'deleted/older': { modtime: 3, size: 1 },
+            'deleted/unchanged': { modtime: 4, size: 1 },
+            'older/newer': { modtime: 5, size: 1 },
+            'older/older/same': { modtime: 3, size: 1 },
+            'older/older/different': { modtime: 2, size: 1 },
+            'older/unchanged': { modtime: 4, size: 1 },
+            'unchanged/newer': { modtime: 5, size: 1 },
+            'unchanged/older': { modtime: 3, size: 1 },
+            'unchanged/unchanged': { modtime: 4, size: 1 },
+            'noexist/new': { modtime: 4, size: 1 },
           },
           readingMetaErrors: [],
         };
@@ -407,17 +407,17 @@ describe('sync tests', () => {
     const sync = dummySync();
 
     const savedListing = {
-      unchanged: 44,
-      newer: 44,
-      older: 44,
-      deleted: 44,
+      unchanged: { modtime: 44, size: 1 },
+      newer: { modtime: 44, size: 1 },
+      older: { modtime: 44, size: 1 },
+      deleted: { modtime: 44, size: 1 },
     };
 
     const currentListing = {
-      unchanged: 44,
-      newer: 45,
-      older: 43,
-      new: 44,
+      unchanged: { modtime: 44, size: 1 },
+      newer: { modtime: 45, size: 1 },
+      older: { modtime: 43, size: 1 },
+      new: { modtime: 44, size: 1 },
     };
 
     const deltas = sync.generateDeltas(savedListing, currentListing);
@@ -433,51 +433,51 @@ describe('sync tests', () => {
     const sync = dummySync();
 
     const localListing: Listing = {
-      a: 2,
-      aa: 2,
-      b: 2,
+      a: { modtime: 2, size: 1 },
+      aa: { modtime: 2, size: 1 },
+      b: { modtime: 2, size: 1 },
 
-      c: 1,
-      cc: 2,
-      d: 2,
-      e: 2,
-      f: 2,
+      c: { modtime: 1, size: 1 },
+      cc: { modtime: 2, size: 1 },
+      d: { modtime: 2, size: 1 },
+      e: { modtime: 2, size: 1 },
+      f: { modtime: 2, size: 1 },
 
-      k: 2,
-      m: 2,
-      n: 1,
-      nn: 2,
-      l: 2,
+      k: { modtime: 2, size: 1 },
+      m: { modtime: 2, size: 1 },
+      n: { modtime: 1, size: 1 },
+      nn: { modtime: 2, size: 1 },
+      l: { modtime: 2, size: 1 },
 
-      o: 2,
-      p: 2,
-      q: 2,
-      r: 2,
+      o: { modtime: 2, size: 1 },
+      p: { modtime: 2, size: 1 },
+      q: { modtime: 2, size: 1 },
+      r: { modtime: 2, size: 1 },
     };
 
     const remoteListing: Listing = {
-      a: 1,
-      aa: 2,
-      b: 2,
+      a: { modtime: 1, size: 1 },
+      aa: { modtime: 2, size: 1 },
+      b: { modtime: 2, size: 1 },
 
-      c: 2,
-      cc: 2,
-      e: 1,
-      f: 2,
+      c: { modtime: 2, size: 1 },
+      cc: { modtime: 2, size: 1 },
+      e: { modtime: 1, size: 1 },
+      f: { modtime: 2, size: 1 },
 
-      g: 2,
-      h: 2,
-      i: 2,
-      j: 2,
+      g: { modtime: 2, size: 1 },
+      h: { modtime: 2, size: 1 },
+      i: { modtime: 2, size: 1 },
+      j: { modtime: 2, size: 1 },
 
-      k: 3,
-      n: 2,
-      nn: 2,
-      l: 2,
+      k: { modtime: 3, size: 1 },
+      n: { modtime: 2, size: 1 },
+      nn: { modtime: 2, size: 1 },
+      l: { modtime: 2, size: 1 },
 
-      o: 2,
-      q: 2,
-      r: 2,
+      o: { modtime: 2, size: 1 },
+      q: { modtime: 2, size: 1 },
+      r: { modtime: 2, size: 1 },
     };
 
     const deltasLocal: Deltas = {
@@ -559,29 +559,29 @@ describe('sync tests', () => {
     const sync = dummySync();
 
     const savedListing: Listing = {
-      a: 4,
-      b: 4,
-      'c/d': 5,
-      'c/e': 6,
-      'c/f': 7,
-      'd/a': 2,
-      'd/b': 2,
-      'e/a': 1,
-      'e/b': 2,
-      'nested/quite/a': 1,
-      'nested/quite/b': 1,
-      'nested/dontDisapear/a': 1,
-      'nested/dontDisapear/b': 1,
-      'disapear/but/returnfalse': 2,
+      a: { modtime: 4, size: 1 },
+      b: { modtime: 4, size: 1 },
+      'c/d': { modtime: 5, size: 1 },
+      'c/e': { modtime: 6, size: 1 },
+      'c/f': { modtime: 7, size: 1 },
+      'd/a': { modtime: 2, size: 1 },
+      'd/b': { modtime: 2, size: 1 },
+      'e/a': { modtime: 1, size: 1 },
+      'e/b': { modtime: 2, size: 1 },
+      'nested/quite/a': { modtime: 1, size: 1 },
+      'nested/quite/b': { modtime: 1, size: 1 },
+      'nested/dontDisapear/a': { modtime: 1, size: 1 },
+      'nested/dontDisapear/b': { modtime: 1, size: 1 },
+      'disapear/but/returnfalse': { modtime: 2, size: 1 },
     };
 
     const currentListing: Listing = {
-      a: 4,
-      'c/d': 5,
-      'c/e': 6,
-      'c/f': 7,
-      'd/a': 2,
-      'nested/dontDisapear/a': 1,
+      a: { modtime: 4, size: 1 },
+      'c/d': { modtime: 5, size: 1 },
+      'c/e': { modtime: 6, size: 1 },
+      'c/f': { modtime: 7, size: 1 },
+      'd/a': { modtime: 2, size: 1 },
+      'nested/dontDisapear/a': { modtime: 1, size: 1 },
     };
 
     const fileSystem = {

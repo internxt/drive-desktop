@@ -95,12 +95,13 @@ export type Source = {
 /**
  * Represents a list of files, each with
  * its modTime that is set as seconds since epoch
+ * and size in bytes
  *
  * The name of each file can be namespaced by
  * his ancestors such as: folderA/folderB/fileName
  * It cannot start or end with "/"
  */
-export type Listing = Record<string, number>;
+export type Listing = Record<string, { modtime: number; size: number }>;
 
 export type ProcessFatalErrorName =
   | 'NO_INTERNET'
