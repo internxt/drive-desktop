@@ -77,9 +77,9 @@ describe('backups tests', () => {
       async getCurrentListing() {
         return {
           listing: {
-            notExistInLocal: 40,
-            existInBothButIsTheSame: 30,
-            'folder/nested/existInBoth.txt': 44,
+            notExistInLocal: { modtime: 40, size: 1 },
+            existInBothButIsTheSame: { modtime: 30, size: 1 },
+            'folder/nested/existInBoth.txt': { modtime: 44, size: 1 },
           },
           readingMetaErrors: [],
         };
@@ -91,9 +91,9 @@ describe('backups tests', () => {
       async getCurrentListing() {
         return {
           listing: {
-            notExistInRemote: 40,
-            existInBothButIsTheSame: 30,
-            'folder/nested/existInBoth.txt': 55,
+            notExistInRemote: { modtime: 40, size: 1 },
+            existInBothButIsTheSame: { modtime: 30, size: 1 },
+            'folder/nested/existInBoth.txt': { modtime: 55, size: 1 },
           },
           readingMetaErrors: [],
         };

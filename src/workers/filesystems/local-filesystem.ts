@@ -93,7 +93,7 @@ export function getLocalFilesystem(
         try {
           const { modTimeInSeconds, size } = await getLocalMeta(fileName);
 
-          if (size) listing[relativeName] = modTimeInSeconds;
+          if (size) listing[relativeName] = { modtime: modTimeInSeconds, size };
           else {
             const emptyFileError = {
               message: 'Internxt does not support empty files',

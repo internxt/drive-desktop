@@ -1,7 +1,12 @@
 import Logger from 'electron-log';
+import _ from 'lodash';
 import Process, { ProcessEvents, ProcessResult } from '../process';
 
 class Backups extends Process {
+  private static NUMBER_OF_PARALLEL_QUEUES_FOR_SMALL_FILES = 16;
+
+  private static SMALL_FILE_THRESHOLD = 1024 * 1024;
+
   async run(): Promise<ProcessResult> {
     this.emit('SMOKE_TESTING');
 
@@ -33,8 +38,33 @@ class Backups extends Process {
       pullFromRemote.length + deleteInRemote.length
     );
 
+    const smallFiles = pullFromRemote.filter(
+      (name) => currentLocal[name].size <= Backups.SMALL_FILE_THRESHOLD
+    );
+    Logger.debug('Small files: ', smallFiles);
+
+    const chunks = _.chunk(
+      smallFiles,
+      Math.ceil(
+        smallFiles.length / Backups.NUMBER_OF_PARALLEL_QUEUES_FOR_SMALL_FILES
+      )
+    );
+    Logger.debug('Chunks: ', chunks);
+
+    const smallFileQueues = chunks.map((chunk) =>
+      this.consumePullQueue(chunk, this.remote, this.local)
+    );
+
+    await Promise.all(smallFileQueues);
+
+    const bigFiles = pullFromRemote.filter(
+      (name) => currentLocal[name].size > Backups.SMALL_FILE_THRESHOLD
+    );
+
+    Logger.debug('Big files: ', bigFiles);
+
     await Promise.all([
-      this.consumePullQueue(pullFromRemote, this.remote, this.local),
+      this.consumePullQueue(bigFiles, this.remote, this.local),
       this.consumeDeleteQueue(deleteInRemote, this.remote),
     ]);
 
