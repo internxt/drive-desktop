@@ -69,7 +69,7 @@ export async function startBackupProcess() {
 
   if (backupsStatus === 'RUNNING' || !backupsEnabled) return;
 
-  const suspensionBlockId = powerSaveBlocker.start('prevent-app-suspension');
+  const suspensionBlockId = powerSaveBlocker.start('prevent-display-sleep');
 
   changeBackupsStatus('RUNNING');
   clearBackupsIssues();

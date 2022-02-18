@@ -55,7 +55,7 @@ export async function startSyncProcess() {
     return;
   }
 
-  const suspensionBlockId = powerSaveBlocker.start('prevent-app-suspension');
+  const suspensionBlockId = powerSaveBlocker.start('prevent-display-sleep');
 
   changeSyncStatus('RUNNING');
 
