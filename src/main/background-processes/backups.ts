@@ -60,7 +60,7 @@ ipcMain.on('start-backups-process', startBackupProcess);
 export type BackupProgress = {
   currentFolder: number;
   totalFolders: number;
-  currentItems?: number;
+  completedItems?: number;
   totalItems?: number;
 };
 
@@ -97,11 +97,11 @@ export async function startBackupProcess() {
   let currentFolder = 1;
   const totalFolders = items.length;
 
-  ipcMain.on('BACKUP_PROGRESS', (_, { currentItems, totalItems }) => {
+  ipcMain.on('BACKUP_PROGRESS', (_, { completedItems, totalItems }) => {
     broadcastToWindows('backup-progress', {
       currentFolder,
       totalFolders,
-      currentItems,
+      completedItems,
       totalItems,
     });
   });
