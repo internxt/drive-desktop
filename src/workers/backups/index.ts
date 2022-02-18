@@ -21,7 +21,7 @@ export type BackupsArgs = {
 export interface BackupsEvents {
   BACKUP_FATAL_ERROR: (errorName: ProcessFatalErrorName) => void;
   BACKUP_PROGRESS: (payload: {
-    currentItems: number;
+    completedItems: number;
     totalItems: number;
   }) => void;
   BACKUP_ISSUE: (issue: ProcessIssue) => void;
@@ -38,12 +38,12 @@ interface IpcRenderer {
 
 const ipcRenderer = electronIpcRenderer as IpcRenderer;
 
-let currentItems = 0;
+let completedItems = 0;
 let totalItems = 0;
 
-function onProcessingItem() {
-  currentItems++;
-  ipcRenderer.send('BACKUP_PROGRESS', { currentItems, totalItems });
+function onCompletedItem() {
+  completedItems++;
+  ipcRenderer.send('BACKUP_PROGRESS', { completedItems, totalItems });
 }
 
 ipcRenderer
@@ -71,11 +71,11 @@ ipcRenderer
     });
 
     backups.on('PULLING_FILE', (name, progress, kind) => {
-      onProcessingItem();
       Logger.debug(`Pulling file ${name} from ${kind}: ${progress * 100}%`);
     });
 
     backups.on('FILE_PULLED', (name, kind) => {
+      onCompletedItem();
       Logger.debug(`File ${name} pulled from ${kind}`);
     });
 
@@ -119,11 +119,11 @@ ipcRenderer
     );
 
     backups.on('DELETING_FILE', (name, kind) => {
-      onProcessingItem();
       Logger.debug(`Deleting file ${name} in ${kind}`);
     });
 
     backups.on('FILE_DELETED', (name, kind) => {
+      onCompletedItem();
       Logger.debug(`Deleted file ${name} in ${kind}`);
     });
 
