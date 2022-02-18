@@ -1,5 +1,6 @@
 import { ipcMain } from 'electron';
 import configStore from '../config';
+import { clearPendingChanges } from '../realtime';
 import {
   clearBackupFatalErrors,
   clearBackupsLastExitReason,
@@ -8,29 +9,10 @@ import {
   startBackupProcess,
 } from './backups';
 import { clearBackupsIssues, clearSyncIssues } from './process-issues';
-import {
-  clearSyncTimeout,
-  scheduleSync,
-  setTraySyncStatus,
-  startSyncProcess,
-  SYNC_INTERVAL,
-} from './sync';
+import { setTraySyncStatus, startSyncProcess } from './sync';
 
 export function startBackgroundProcesses() {
-  // Check if we should launch sync process
-  const lastSync = configStore.get('lastSync');
-
-  if (lastSync !== -1) {
-    const currentTimestamp = new Date().valueOf();
-
-    const millisecondsToNextSync = lastSync + SYNC_INTERVAL - currentTimestamp;
-
-    if (millisecondsToNextSync <= 0) {
-      startSyncProcess();
-    } else {
-      scheduleSync(millisecondsToNextSync);
-    }
-  }
+  startSyncProcess();
 
   // Check if we should launch backup process
   const lastBackup = configStore.get('lastBackup');
@@ -56,7 +38,6 @@ export function cleanBackgroundProcesses() {
   ipcMain.emit('stop-backups-process');
 
   // clear timeouts
-  clearSyncTimeout();
   clearBackupsTimeout();
 
   clearSyncIssues();
@@ -64,4 +45,5 @@ export function cleanBackgroundProcesses() {
   clearBackupsLastExitReason();
   clearBackupFatalErrors();
   setTraySyncStatus('STANDBY');
+  clearPendingChanges();
 }

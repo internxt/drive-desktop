@@ -22,6 +22,7 @@ import './background-processes/backups';
 import './background-processes/sync';
 import './background-processes/process-issues';
 import './device/handlers';
+import './realtime';
 
 // Only effective during development
 // the variables are injected
