@@ -30,15 +30,16 @@ const LOCAL_DEBOUNCE_IN_MS = 2000;
 let subscription: watcher.AsyncSubscription;
 
 export async function cleanAndStartLocalWatcher() {
-  if (subscription) await subscription.unsubscribe();
-
+  stopLocalWatcher();
   subscription = await watcher.subscribe(
     configStore.get('syncRoot'),
     debounce(onLocalChange, LOCAL_DEBOUNCE_IN_MS)
   );
 }
 
-cleanAndStartLocalWatcher();
+export async function stopLocalWatcher() {
+  if (subscription) await subscription.unsubscribe();
+}
 
 // REMOTE TRIGGER
 

@@ -4,6 +4,7 @@ import {
   cleanBackgroundProcesses,
   startBackgroundProcesses,
 } from '../background-processes';
+import { cleanAndStartLocalWatcher } from '../realtime';
 import { setupRootFolder } from '../sync-root-folder/service';
 import { closeAuxWindows } from '../windows';
 import { getWidget } from '../windows/widget';
@@ -49,6 +50,7 @@ ipcMain.on('user-logged-in', (_, data: AccessResponse) => {
   setIsLoggedIn(true);
 
   startBackgroundProcesses();
+  cleanAndStartLocalWatcher();
 });
 
 ipcMain.on('user-logged-out', () => {

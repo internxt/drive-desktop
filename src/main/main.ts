@@ -27,7 +27,7 @@ import './background-processes/backups';
 import './background-processes/sync';
 import './background-processes/process-issues';
 import './device/handlers';
-import './realtime';
+import { cleanAndStartLocalWatcher } from './realtime';
 
 Logger.log(`Running ${packageJson.version}`);
 
@@ -78,6 +78,9 @@ app
     }
     createWidget();
     checkForUpdates();
-    if (getIsLoggedIn()) startBackgroundProcesses();
+    if (getIsLoggedIn()) {
+      startBackgroundProcesses();
+      cleanAndStartLocalWatcher();
+    }
   })
   .catch(Logger.error);
