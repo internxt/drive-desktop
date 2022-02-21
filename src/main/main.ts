@@ -6,6 +6,11 @@ import { autoUpdater } from 'electron-updater';
 import Logger from 'electron-log';
 import packageJson from '../../package.json';
 
+// Only effective during development
+// the variables are injected
+// via webpack in prod
+import 'dotenv/config';
+
 // ***** APP BOOTSTRAPPING ****************************************************** //
 
 import './sync-root-folder/handlers';
@@ -23,11 +28,6 @@ import './background-processes/sync';
 import './background-processes/process-issues';
 import './device/handlers';
 import './realtime';
-
-// Only effective during development
-// the variables are injected
-// via webpack in prod
-require('dotenv').config();
 
 Logger.log(`Running ${packageJson.version}`);
 

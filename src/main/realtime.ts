@@ -1,5 +1,7 @@
 import watcher from '@parcel/watcher';
 import { debounce } from 'lodash';
+import logger from 'electron-log';
+import { io } from 'socket.io-client';
 import { getSyncStatus, startSyncProcess } from './background-processes/sync';
 import configStore from './config';
 
@@ -37,3 +39,24 @@ export async function cleanAndStartLocalWatcher() {
 }
 
 cleanAndStartLocalWatcher();
+
+// REMOTE TRIGGER
+
+const socket = io(process.env.NOTIFICATIONS_URL, {
+  auth: {
+    token: configStore.get('bearerToken'),
+  },
+});
+
+socket.on('connect', () => {
+  logger.log('Remote notifications connected');
+});
+
+socket.on('disconnect', () => {
+  logger.log('Remote notifications disconnected');
+});
+
+socket.on('event', (data) => {
+  logger.log('Notification received: ', JSON.stringify(data, null, 2));
+  tryToStartSyncProcess();
+});

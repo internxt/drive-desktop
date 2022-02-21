@@ -11,6 +11,7 @@ declare global {
       APP_SEGMENT_KEY_TEST: string;
       BUG_REPORTING_URL: string;
       platform: string;
+      NOTIFICATIONS_URL: string;
     }
   }
 }
