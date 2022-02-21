@@ -27,7 +27,10 @@ import './background-processes/backups';
 import './background-processes/sync';
 import './background-processes/process-issues';
 import './device/handlers';
-import { cleanAndStartLocalWatcher } from './realtime';
+import {
+  cleanAndStartLocalWatcher,
+  cleanAndStartRemoteNotifications,
+} from './realtime';
 
 Logger.log(`Running ${packageJson.version}`);
 
@@ -81,6 +84,7 @@ app
     if (getIsLoggedIn()) {
       startBackgroundProcesses();
       cleanAndStartLocalWatcher();
+      cleanAndStartRemoteNotifications();
     }
   })
   .catch(Logger.error);

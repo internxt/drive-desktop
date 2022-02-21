@@ -1,6 +1,10 @@
 import { ipcMain } from 'electron';
 import configStore from '../config';
-import { clearPendingChanges, stopLocalWatcher } from '../realtime';
+import {
+  clearPendingChanges,
+  stopLocalWatcher,
+  stopRemoteNotifications,
+} from '../realtime';
 import {
   clearBackupFatalErrors,
   clearBackupsLastExitReason,
@@ -48,4 +52,5 @@ export function cleanBackgroundProcesses() {
 
   clearPendingChanges();
   stopLocalWatcher();
+  stopRemoteNotifications();
 }

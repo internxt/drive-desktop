@@ -4,7 +4,10 @@ import {
   cleanBackgroundProcesses,
   startBackgroundProcesses,
 } from '../background-processes';
-import { cleanAndStartLocalWatcher } from '../realtime';
+import {
+  cleanAndStartLocalWatcher,
+  cleanAndStartRemoteNotifications,
+} from '../realtime';
 import { setupRootFolder } from '../sync-root-folder/service';
 import { closeAuxWindows } from '../windows';
 import { getWidget } from '../windows/widget';
@@ -51,6 +54,7 @@ ipcMain.on('user-logged-in', (_, data: AccessResponse) => {
 
   startBackgroundProcesses();
   cleanAndStartLocalWatcher();
+  cleanAndStartRemoteNotifications();
 });
 
 ipcMain.on('user-logged-out', () => {

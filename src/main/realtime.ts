@@ -1,9 +1,10 @@
 import watcher from '@parcel/watcher';
 import { debounce } from 'lodash';
 import logger from 'electron-log';
-import { io } from 'socket.io-client';
+import { io, Socket } from 'socket.io-client';
 import { getSyncStatus, startSyncProcess } from './background-processes/sync';
 import configStore from './config';
+import { getToken } from './auth/service';
 
 let thereArePendingChanges = false;
 
@@ -27,10 +28,11 @@ function onLocalChange() {
 }
 
 const LOCAL_DEBOUNCE_IN_MS = 2000;
-let subscription: watcher.AsyncSubscription;
+let subscription: watcher.AsyncSubscription | undefined;
 
 export async function cleanAndStartLocalWatcher() {
   stopLocalWatcher();
+
   subscription = await watcher.subscribe(
     configStore.get('syncRoot'),
     debounce(onLocalChange, LOCAL_DEBOUNCE_IN_MS)
@@ -38,26 +40,42 @@ export async function cleanAndStartLocalWatcher() {
 }
 
 export async function stopLocalWatcher() {
-  if (subscription) await subscription.unsubscribe();
+  if (subscription) {
+    await subscription.unsubscribe();
+    subscription = undefined;
+  }
 }
 
 // REMOTE TRIGGER
 
-const socket = io(process.env.NOTIFICATIONS_URL, {
-  auth: {
-    token: configStore.get('bearerToken'),
-  },
-});
+let socket: Socket | undefined;
 
-socket.on('connect', () => {
-  logger.log('Remote notifications connected');
-});
+export function cleanAndStartRemoteNotifications() {
+  stopRemoteNotifications();
 
-socket.on('disconnect', () => {
-  logger.log('Remote notifications disconnected');
-});
+  socket = io(process.env.NOTIFICATIONS_URL, {
+    auth: {
+      token: getToken(),
+    },
+  });
 
-socket.on('event', (data) => {
-  logger.log('Notification received: ', JSON.stringify(data, null, 2));
-  tryToStartSyncProcess();
-});
+  socket.on('connect', () => {
+    logger.log('Remote notifications connected');
+  });
+
+  socket.on('disconnect', () => {
+    logger.log('Remote notifications disconnected');
+  });
+
+  socket.on('event', (data) => {
+    logger.log('Notification received: ', JSON.stringify(data, null, 2));
+    tryToStartSyncProcess();
+  });
+}
+
+export function stopRemoteNotifications() {
+  if (socket) {
+    socket.close();
+    socket = undefined;
+  }
+}
