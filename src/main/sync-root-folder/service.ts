@@ -46,7 +46,7 @@ export async function setupRootFolder(n = 0): Promise<void> {
   if (notExistsOrIsEmpty) {
     await fs.mkdir(rootFolderPath, { recursive: true });
     setSyncRoot(rootFolderPath);
-  } else setupRootFolder(n + 1);
+  } else return setupRootFolder(n + 1);
 }
 
 export async function chooseSyncRootWithDialog(): Promise<string | null> {
