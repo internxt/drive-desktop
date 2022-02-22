@@ -78,7 +78,7 @@ export async function startSyncProcess() {
   configStore.set('lastSync', currentTimestamp);
 
   if (getIsLoggedIn() && getThereArePendingChanges() && !hasBeenStopped.value) {
-    startSyncProcess();
+    setImmediate(startSyncProcess);
   }
 
   changeSyncStatus('STANDBY');
