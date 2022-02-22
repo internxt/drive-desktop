@@ -24,19 +24,20 @@ function tryToStartSyncProcess() {
 
 // LOCAL TRIGGER
 
-function onLocalChange() {
-  if (getSyncStatus() === 'STANDBY') tryToStartSyncProcess();
-}
-
 const LOCAL_DEBOUNCE_IN_MS = 2000;
 let subscription: watcher.AsyncSubscription | undefined;
 
 export async function cleanAndStartLocalWatcher() {
   stopLocalWatcher();
 
+  const debouncedCallback = debounce(
+    tryToStartSyncProcess,
+    LOCAL_DEBOUNCE_IN_MS
+  );
+
   subscription = await watcher.subscribe(
     configStore.get('syncRoot'),
-    debounce(onLocalChange, LOCAL_DEBOUNCE_IN_MS)
+    () => getSyncStatus() === 'STANDBY' && debouncedCallback()
   );
 }
 
