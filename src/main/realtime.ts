@@ -5,6 +5,7 @@ import { io, Socket } from 'socket.io-client';
 import { getSyncStatus, startSyncProcess } from './background-processes/sync';
 import configStore from './config';
 import { getToken } from './auth/service';
+import { broadcastToWindows } from './windows';
 
 let thereArePendingChanges = false;
 
@@ -70,6 +71,7 @@ export function cleanAndStartRemoteNotifications() {
   socket.on('event', (data) => {
     logger.log('Notification received: ', JSON.stringify(data, null, 2));
     tryToStartSyncProcess();
+    broadcastToWindows('remote-changes', undefined);
   });
 }
 

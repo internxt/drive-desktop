@@ -7,7 +7,6 @@ export default function useUsage() {
   );
 
   async function updateUsage() {
-    setRawUsage('loading');
     try {
       const usage = await getUsage();
       setRawUsage(usage);
@@ -18,7 +17,10 @@ export default function useUsage() {
   }
 
   useEffect(() => {
+    setRawUsage('loading');
     updateUsage();
+    const listener = window.electron.onRemoteChanges(updateUsage);
+    return listener;
   }, []);
   return rawUsage;
 }
