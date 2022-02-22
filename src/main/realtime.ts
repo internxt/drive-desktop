@@ -71,7 +71,9 @@ export function cleanAndStartRemoteNotifications() {
 
   socket.on('event', (data) => {
     logger.log('Notification received: ', JSON.stringify(data, null, 2));
-    tryToStartSyncProcess();
+
+    if (data.clientId !== configStore.get('clientId')) tryToStartSyncProcess();
+
     broadcastToWindows('remote-changes', undefined);
   });
 }

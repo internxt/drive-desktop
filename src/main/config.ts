@@ -1,4 +1,5 @@
 import Store, { Schema } from 'electron-store';
+import * as uuid from 'uuid';
 import { User } from './types';
 
 // Fields to persist between user sessions
@@ -27,6 +28,7 @@ interface ConfigStore {
   lastOnboardingShown: string;
   deviceId: number;
   backupList: Record<string, { enabled: boolean; folderId: number }>;
+  clientId: string;
 }
 
 const schema: Schema<ConfigStore> = {
@@ -69,6 +71,9 @@ const schema: Schema<ConfigStore> = {
   backupList: {
     type: 'object',
   },
+  clientId: {
+    type: 'string',
+  },
 } as const;
 
 export const defaults: ConfigStore = {
@@ -85,6 +90,7 @@ export const defaults: ConfigStore = {
   lastOnboardingShown: '',
   deviceId: -1,
   backupList: {},
+  clientId: uuid.v4(),
 };
 
 const configStore = new Store({ schema, defaults });
