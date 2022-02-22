@@ -15,23 +15,18 @@ import { getTray } from '../tray';
 import { broadcastToWindows } from '../windows';
 import { clearSyncIssues, getSyncIssues } from './process-issues';
 import { ProcessResult } from '../../workers/process';
+import { clearPendingChanges, getThereArePendingChanges } from '../realtime';
 
 export type SyncStatus = 'STANDBY' | 'RUNNING';
 
-let syncStatus = 'STANDBY';
-let syncProcessRerun: null | ReturnType<typeof setTimeout> = null;
-export const SYNC_INTERVAL = 10 * 60 * 1000;
+let syncStatus: SyncStatus = 'STANDBY';
+
+export function getSyncStatus() {
+  return syncStatus;
+}
 
 ipcMain.on('start-sync-process', startSyncProcess);
-ipcMain.handle('get-sync-status', () => syncStatus);
-
-export function clearSyncTimeout() {
-  if (syncProcessRerun) clearTimeout(syncProcessRerun);
-}
-
-export function scheduleSync(milliseconds: number) {
-  syncProcessRerun = setTimeout(startSyncProcess, milliseconds);
-}
+ipcMain.handle('get-sync-status', getSyncStatus);
 
 export function setTraySyncStatus(newStatus: SyncStatus) {
   const tray = getTray();
@@ -61,6 +56,8 @@ export async function startSyncProcess() {
 
   clearSyncIssues();
 
+  clearPendingChanges();
+
   // It's an object to pass it to
   // the individual item processors
   const hasBeenStopped = { value: false };
@@ -80,9 +77,9 @@ export async function startSyncProcess() {
 
   configStore.set('lastSync', currentTimestamp);
 
-  clearSyncTimeout();
-
-  if (getIsLoggedIn()) scheduleSync(SYNC_INTERVAL);
+  if (getIsLoggedIn() && getThereArePendingChanges() && !hasBeenStopped.value) {
+    setImmediate(startSyncProcess);
+  }
 
   changeSyncStatus('STANDBY');
 

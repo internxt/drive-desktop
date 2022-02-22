@@ -6,6 +6,11 @@ import { autoUpdater } from 'electron-updater';
 import Logger from 'electron-log';
 import packageJson from '../../package.json';
 
+// Only effective during development
+// the variables are injected
+// via webpack in prod
+import 'dotenv/config';
+
 // ***** APP BOOTSTRAPPING ****************************************************** //
 
 import './sync-root-folder/handlers';
@@ -22,11 +27,10 @@ import './background-processes/backups';
 import './background-processes/sync';
 import './background-processes/process-issues';
 import './device/handlers';
-
-// Only effective during development
-// the variables are injected
-// via webpack in prod
-require('dotenv').config();
+import {
+  cleanAndStartLocalWatcher,
+  cleanAndStartRemoteNotifications,
+} from './realtime';
 
 Logger.log(`Running ${packageJson.version}`);
 
@@ -77,6 +81,10 @@ app
     }
     createWidget();
     checkForUpdates();
-    if (getIsLoggedIn()) startBackgroundProcesses();
+    if (getIsLoggedIn()) {
+      startBackgroundProcesses();
+      cleanAndStartLocalWatcher();
+      cleanAndStartRemoteNotifications();
+    }
   })
   .catch(Logger.error);

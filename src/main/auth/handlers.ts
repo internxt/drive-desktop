@@ -4,6 +4,10 @@ import {
   cleanBackgroundProcesses,
   startBackgroundProcesses,
 } from '../background-processes';
+import {
+  cleanAndStartLocalWatcher,
+  cleanAndStartRemoteNotifications,
+} from '../realtime';
 import { setupRootFolder } from '../sync-root-folder/service';
 import { closeAuxWindows } from '../windows';
 import { getWidget } from '../windows/widget';
@@ -40,15 +44,17 @@ export function onUserUnauthorized() {}
 
 ipcMain.on('user-is-unauthorized', onUserUnauthorized);
 
-ipcMain.on('user-logged-in', (_, data: AccessResponse) => {
+ipcMain.on('user-logged-in', async (_, data: AccessResponse) => {
   setCredentials(data.user, data.user.mnemonic, data.token);
   if (!canHisConfigBeRestored(data.user.uuid)) {
-    setupRootFolder();
+    await setupRootFolder();
   }
 
   setIsLoggedIn(true);
 
   startBackgroundProcesses();
+  cleanAndStartLocalWatcher();
+  cleanAndStartRemoteNotifications();
 });
 
 ipcMain.on('user-logged-out', () => {

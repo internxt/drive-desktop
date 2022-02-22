@@ -4,6 +4,7 @@ import fs from 'fs/promises';
 import { app, dialog } from 'electron';
 
 import configStore from '../config';
+import { cleanAndStartLocalWatcher } from '../realtime';
 
 const ROOT_FOLDER_NAME = 'Internxt';
 const HOME_FOLDER_PATH = app.getPath('home');
@@ -28,6 +29,8 @@ function setSyncRoot(pathname: string): void {
 
   configStore.set('syncRoot', pathNameWithSepInTheEnd);
   configStore.set('lastSavedListing', '');
+
+  cleanAndStartLocalWatcher();
 }
 
 export async function setupRootFolder(n = 0): Promise<void> {
@@ -43,7 +46,7 @@ export async function setupRootFolder(n = 0): Promise<void> {
   if (notExistsOrIsEmpty) {
     await fs.mkdir(rootFolderPath, { recursive: true });
     setSyncRoot(rootFolderPath);
-  } else setupRootFolder(n + 1);
+  } else return setupRootFolder(n + 1);
 }
 
 export async function chooseSyncRootWithDialog(): Promise<string | null> {

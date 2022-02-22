@@ -157,8 +157,7 @@ function Item({
   progress?: number;
   errorName?: ProcessErrorName;
 }) {
-  const progressDisplay =
-    progress !== undefined ? `${(progress * 100).toFixed(0)}%` : '';
+  const progressDisplay = progress ? `${Math.ceil(progress * 100)}%` : '';
 
   let operation: Operation | undefined;
   if (action === 'DELETE' || action === 'DELETED' || action === 'DELETE_ERROR')
@@ -168,8 +167,10 @@ function Item({
 
   let description = '';
 
-  if (action === 'PULL' && kind === 'LOCAL') description = 'Downloading';
-  else if (action === 'PULL' && kind === 'REMOTE') description = 'Uploading';
+  if (action === 'PULL' && kind === 'LOCAL')
+    description = progress ? 'Downloading' : 'Decrypting';
+  else if (action === 'PULL' && kind === 'REMOTE')
+    description = progress ? 'Uploading' : 'Encrypting';
   else if (action === 'PULLED' && kind === 'LOCAL') description = 'Downloaded';
   else if (action === 'PULLED' && kind === 'REMOTE') description = 'Uploaded';
   else if (action === 'DELETE' && kind === 'LOCAL')

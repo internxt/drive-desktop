@@ -167,5 +167,11 @@ contextBridge.exposeInMainWorld('electron', {
   changeBackupPath(currentPath) {
     return ipcRenderer.invoke('change-backup-path', currentPath);
   },
+  onRemoteChanges(func) {
+    const eventName = 'remote-changes';
+    const callback = () => func();
+    ipcRenderer.on(eventName, callback);
+    return () => ipcRenderer.removeListener(eventName, callback);
+  },
   path,
 });
