@@ -68,16 +68,20 @@
     "dmg": {
       "contents": [
         {
-          "x": 130,
-          "y": 220
+          "x": 137,
+          "y": 152
         },
         {
-          "x": 410,
-          "y": 220,
+          "x": 337,
+          "y": 152,
           "type": "link",
           "path": "/Applications"
         }
-      ]
+      ],
+      "window": {
+        "width": 470,
+        "height": 370
+      }
     },
     "win": {
       "target": [
