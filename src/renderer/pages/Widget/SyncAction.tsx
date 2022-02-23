@@ -43,7 +43,7 @@ export default function SyncAction() {
     <div className="flex items-center justify-between border-t border-t-l-neutral-30 bg-white px-3 py-1">
       <p className="text-xs text-neutral-500">
         {state === 'RUNNING'
-          ? 'Synchronising your files'
+          ? 'Syncing your files'
           : showUpdatedJustNow
           ? 'Updated just now'
           : ''}
