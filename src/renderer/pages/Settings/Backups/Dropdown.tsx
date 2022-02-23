@@ -43,10 +43,7 @@ export default function Dropdown({
                 leaveTo="scale-95 opacity-0"
                 unmount={false}
               >
-                <Listbox.Options
-                  static
-                  className="absolute bottom-full max-h-60 w-fit transform overflow-auto rounded-md border border-l-neutral-40 bg-white p-1 text-sm shadow-lg transition duration-150 ease-in-out"
-                >
+                <Listbox.Options className="absolute bottom-full max-h-60 w-fit transform overflow-auto rounded-md border border-l-neutral-40 bg-white p-1 text-sm shadow-lg transition duration-150 ease-in-out">
                   {intervals.map((interval) => (
                     <Listbox.Option
                       key={interval.value}
