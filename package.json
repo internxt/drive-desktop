@@ -42,6 +42,7 @@
   },
   "build": {
     "productName": "Internxt Drive",
+    "beforeBuild": "./beforeBuild.js",
     "appId": "com.internxt.drive",
     "asar": true,
     "asarUnpack": "**\\*.{node,dll}",
