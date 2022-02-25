@@ -7,6 +7,7 @@ type InputProps = {
   state: 'ready' | 'loading' | 'error';
   className?: string;
   onChange: (value: string) => void;
+  tabIndex?: number;
 };
 
 export default function Input({
@@ -16,6 +17,7 @@ export default function Input({
   className = '',
   state,
   value,
+  tabIndex = 0,
 }: InputProps) {
   const [isFocused, setIsFocused] = useState(false);
 
@@ -55,6 +57,7 @@ export default function Input({
       </p>
       <div className="relative mt-1">
         <input
+          tabIndex={tabIndex}
           className={`h-10 w-full rounded-lg border bg-l-neutral-20 py-2 px-4 outline-none ${inputColors}`}
           type={type === 'password' && showPassword ? 'text' : type}
           disabled={state === 'loading'}

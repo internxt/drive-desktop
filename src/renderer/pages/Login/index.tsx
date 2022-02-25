@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/tabindex-no-positive */
 import { useEffect, useRef, useState } from 'react';
 
 import { UilMultiply } from '@iconscout/react-unicons';
@@ -89,6 +90,7 @@ export default function Login() {
         onChange={setEmail}
         type="email"
         value={email}
+        tabIndex={1}
       />
       <Input
         className="mt-2"
@@ -97,10 +99,12 @@ export default function Login() {
         onChange={setPassword}
         type="password"
         value={password}
+        tabIndex={2}
       />
       <a
         href="https://drive.internxt.com/remove"
         target="_blank"
+        tabIndex={3}
         rel="noreferrer noopener"
         className={`mx-auto mt-2 block w-max text-sm font-medium ${
           state === 'loading'
@@ -111,10 +115,12 @@ export default function Login() {
         Forgot your password?
       </a>
       <Button
+        tabIndex={4}
         className="mt-4"
         state={state !== 'loading' ? 'ready' : 'loading'}
       />
       <a
+        tabIndex={5}
         href="https://drive.internxt.com/new"
         target="_blank"
         rel="noreferrer noopener"

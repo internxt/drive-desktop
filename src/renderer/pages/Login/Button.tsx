@@ -3,9 +3,14 @@ import Spinner from '../../assets/spinner.svg';
 type ButtonProps = {
   state: 'ready' | 'loading' | 'disabled';
   className: string;
+  tabIndex?: number;
 };
 
-export default function Button({ state, className = '' }: ButtonProps) {
+export default function Button({
+  state,
+  className = '',
+  tabIndex = 0,
+}: ButtonProps) {
   let colors;
 
   switch (state) {
@@ -28,6 +33,7 @@ export default function Button({ state, className = '' }: ButtonProps) {
       className={`relative block h-10 w-full rounded-lg font-medium ${colors} ${className}`}
       type="submit"
       disabled={state !== 'ready'}
+      tabIndex={tabIndex}
     >
       {state === 'loading' ? 'Logging in...' : 'Login'}
       {state === 'loading' && (
