@@ -86,8 +86,8 @@ export function cleanAndStartRemoteNotifications() {
     logger.log('Remote notifications connected');
   });
 
-  socket.on('disconnect', () => {
-    logger.log('Remote notifications disconnected');
+  socket.on('disconnect', (reason) => {
+    logger.log('Remote notifications disconnected, reason: ', reason);
   });
 
   socket.on('event', (data) => {
