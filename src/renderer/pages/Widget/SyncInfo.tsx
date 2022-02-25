@@ -59,9 +59,14 @@ export default function SyncInfo() {
         'METADATA_READ_ERROR',
       ].includes(item.action);
 
-      const newItems = itemIsAnError
-        ? itemsWithoutGivenItem
-        : [item, ...itemsWithoutGivenItem].slice(0, MAX_ITEMS);
+      const itemIsLocalDelete =
+        (item.action === 'DELETE' || item.action === 'DELETED') &&
+        item.kind === 'LOCAL';
+
+      const newItems =
+        itemIsAnError || itemIsLocalDelete
+          ? itemsWithoutGivenItem
+          : [item, ...itemsWithoutGivenItem].slice(0, MAX_ITEMS);
 
       return newItems;
     });
