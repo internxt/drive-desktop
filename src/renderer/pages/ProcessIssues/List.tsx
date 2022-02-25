@@ -33,10 +33,6 @@ export default function ProcessIssuesList({
   const [selectedErrorName, setSelectedErrorName] =
     useState<ProcessErrorName | null>(null);
 
-  useEffect(() => {
-    setSelectedErrorName(null);
-  }, [processIssues]);
-
   const errors = [...new Set(processIssues.map((issue) => issue.errorName))];
 
   function onInfoClick(errorName: ProcessErrorName) {
