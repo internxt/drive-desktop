@@ -2,7 +2,7 @@ import { UilMultiply } from '@iconscout/react-unicons';
 
 export default function WindowTopBar({ title }: { title: string }) {
   return (
-    <div className="draggable relative h-10 flex-grow-0 px-1">
+    <div className="draggable relative h-10 flex-shrink-0 flex-grow-0 px-1">
       {process.env.platform !== 'darwin' && (
         <div
           role="button"

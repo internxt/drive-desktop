@@ -42,7 +42,7 @@ export default function ProcessIssues() {
   return (
     <div className="flex h-screen flex-col overflow-hidden bg-l-neutral-10">
       <WindowTopBar title="Issues" />
-      <div className="draggable flex flex-grow-0 items-center justify-center pt-4">
+      <div className="draggable flex flex-shrink-0 flex-grow-0 items-center justify-center pt-4">
         <Tabs active={activeSection} onClick={setActiveSection} />
       </div>
       <ProcessIssuesList
