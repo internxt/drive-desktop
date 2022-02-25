@@ -6,6 +6,7 @@ import { ProcessFatalErrorName } from '../../workers/types';
 import { getIsLoggedIn } from '../auth/handlers';
 import configStore from '../config';
 import { getBackupsFromDevice, getOrCreateDevice } from '../device/service';
+import eventBus from '../event-bus';
 import { broadcastToWindows } from '../windows';
 import { clearBackupsIssues } from './process-issues';
 
@@ -38,15 +39,15 @@ ipcMain.handle('get-last-backup-timestamp', () =>
 
 ipcMain.handle('get-last-backup-exit-reason', () => backupsLastExitReason);
 
-export function clearBackupsLastExitReason() {
+function clearBackupsLastExitReason() {
   backupsLastExitReason = null;
 }
 
-export function clearBackupsTimeout() {
+function clearBackupsTimeout() {
   if (backupsProcessRerun) clearTimeout(backupsProcessRerun);
 }
 
-export function scheduleBackups(milliseconds: number) {
+function scheduleBackups(milliseconds: number) {
   backupsProcessRerun = setTimeout(startBackupProcess, milliseconds);
 }
 
@@ -64,7 +65,7 @@ export type BackupProgress = {
   totalItems?: number;
 };
 
-export async function startBackupProcess() {
+async function startBackupProcess() {
   const backupsEnabled = configStore.get('backupsEnabled');
 
   if (backupsStatus === 'RUNNING' || !backupsEnabled) return;
@@ -225,7 +226,7 @@ function onBackupFatalErrorsChanged() {
   broadcastToWindows('backup-fatal-errors-changed', fatalErrors);
 }
 
-export function clearBackupFatalErrors() {
+function clearBackupFatalErrors() {
   fatalErrors = [];
   onBackupFatalErrorsChanged();
 }
@@ -234,3 +235,29 @@ function addBackupFatalError(error: BackupFatalError) {
   fatalErrors.push(error);
   onBackupFatalErrorsChanged();
 }
+
+eventBus.on('USER_LOGGED_IN', () => {
+  // Check if we should launch backup process
+  const lastBackup = configStore.get('lastBackup');
+  const backupsInterval = configStore.get('backupInterval');
+
+  if (lastBackup !== -1 && backupsInterval !== -1) {
+    const currentTimestamp = new Date().valueOf();
+
+    const millisecondsToNextBackup =
+      lastBackup + backupsInterval - currentTimestamp;
+
+    if (millisecondsToNextBackup <= 0) {
+      startBackupProcess();
+    } else {
+      scheduleBackups(millisecondsToNextBackup);
+    }
+  }
+});
+
+eventBus.on('USER_LOGGED_OUT', () => {
+  ipcMain.emit('stop-backups-process');
+  clearBackupsTimeout();
+  clearBackupFatalErrors();
+  clearBackupsLastExitReason();
+});

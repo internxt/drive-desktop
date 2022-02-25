@@ -7,6 +7,7 @@ import configStore from './config';
 import { getToken } from './auth/service';
 
 import { broadcastToWindows } from './windows';
+import eventBus from './event-bus';
 
 let thereArePendingChanges = false;
 
@@ -23,12 +24,14 @@ function tryToStartSyncProcess() {
   else thereArePendingChanges = true;
 }
 
+eventBus.on('USER_LOGGED_OUT', clearPendingChanges);
+
 // LOCAL TRIGGER
 
 const LOCAL_DEBOUNCE_IN_MS = 2000;
 let subscription: watcher.AsyncSubscription | undefined;
 
-export async function cleanAndStartLocalWatcher() {
+async function cleanAndStartLocalWatcher() {
   stopLocalWatcher();
 
   const debouncedCallback = debounce(
@@ -49,11 +52,15 @@ export async function stopLocalWatcher() {
   }
 }
 
+eventBus.on('USER_LOGGED_IN', cleanAndStartLocalWatcher);
+eventBus.on('SYNC_ROOT_CHANGED', cleanAndStartLocalWatcher);
+eventBus.on('USER_LOGGED_OUT', stopLocalWatcher);
+
 // REMOTE TRIGGER
 
 let socket: Socket | undefined;
 
-export function cleanAndStartRemoteNotifications() {
+function cleanAndStartRemoteNotifications() {
   stopRemoteNotifications();
 
   socket = io(process.env.NOTIFICATIONS_URL, {
@@ -103,9 +110,12 @@ export function cleanAndStartRemoteNotifications() {
   });
 }
 
-export function stopRemoteNotifications() {
+function stopRemoteNotifications() {
   if (socket) {
     socket.close();
     socket = undefined;
   }
 }
+
+eventBus.on('USER_LOGGED_IN', cleanAndStartRemoteNotifications);
+eventBus.on('USER_LOGGED_OUT', stopRemoteNotifications);

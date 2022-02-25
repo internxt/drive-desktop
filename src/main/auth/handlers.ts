@@ -1,15 +1,7 @@
 import { ipcMain } from 'electron';
 import { AccessResponse } from '../../renderer/pages/Login/service';
-import {
-  cleanBackgroundProcesses,
-  startBackgroundProcesses,
-} from '../background-processes';
-import {
-  cleanAndStartLocalWatcher,
-  cleanAndStartRemoteNotifications,
-} from '../realtime';
+import eventBus from '../event-bus';
 import { setupRootFolder } from '../sync-root-folder/service';
-import { closeAuxWindows } from '../windows';
 import { getWidget } from '../windows/widget';
 import {
   getUser,
@@ -51,18 +43,17 @@ ipcMain.on('user-logged-in', async (_, data: AccessResponse) => {
   }
 
   setIsLoggedIn(true);
-
-  startBackgroundProcesses();
-  cleanAndStartLocalWatcher();
-  cleanAndStartRemoteNotifications();
+  eventBus.emit('USER_LOGGED_IN');
 });
 
 ipcMain.on('user-logged-out', () => {
-  cleanBackgroundProcesses();
-
-  closeAuxWindows();
+  eventBus.emit('USER_LOGGED_OUT');
 
   logout();
 
   setIsLoggedIn(false);
+});
+
+eventBus.on('APP_IS_READY', () => {
+  if (isLoggedIn) eventBus.emit('USER_LOGGED_IN');
 });

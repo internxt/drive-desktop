@@ -1,5 +1,6 @@
 import { ipcMain } from 'electron';
 import { ProcessInfoUpdatePayload, ProcessIssue } from '../../workers/types';
+import eventBus from '../event-bus';
 import { broadcastToWindows } from '../windows';
 
 let processIssues: ProcessIssue[] = [];
@@ -10,7 +11,7 @@ function onProcessIssuesChanged() {
   broadcastToWindows('process-issues-changed', processIssues);
 }
 
-export function getProcessIssues() {
+function getProcessIssues() {
   return processIssues;
 }
 
@@ -47,4 +48,9 @@ ipcMain.on('SYNC_INFO_UPDATE', (_, payload: ProcessInfoUpdatePayload) => {
 
 ipcMain.on('BACKUP_ISSUE', (_, issue: ProcessIssue) => {
   addProcessIssue(issue);
+});
+
+eventBus.on('USER_LOGGED_OUT', () => {
+  clearSyncIssues();
+  clearBackupsIssues();
 });

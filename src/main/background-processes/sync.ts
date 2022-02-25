@@ -16,6 +16,7 @@ import { broadcastToWindows } from '../windows';
 import { clearSyncIssues, getSyncIssues } from './process-issues';
 import { ProcessResult } from '../../workers/process';
 import { clearPendingChanges, getThereArePendingChanges } from '../realtime';
+import eventBus from '../event-bus';
 
 export type SyncStatus = 'STANDBY' | 'RUNNING';
 
@@ -195,4 +196,11 @@ function spawnSyncWorker() {
 
 ipcMain.on('SYNC_INFO_UPDATE', (_, payload: ProcessInfoUpdatePayload) => {
   broadcastToWindows('sync-info-update', payload);
+});
+
+eventBus.on('USER_LOGGED_IN', startSyncProcess);
+
+eventBus.on('USER_LOGGED_OUT', () => {
+  ipcMain.emit('stop-sync-process');
+  setTraySyncStatus('STANDBY');
 });

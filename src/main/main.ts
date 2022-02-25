@@ -6,6 +6,8 @@ import { autoUpdater } from 'electron-updater';
 import Logger from 'electron-log';
 import packageJson from '../../package.json';
 
+import eventBus from './event-bus';
+
 // Only effective during development
 // the variables are injected
 // via webpack in prod
@@ -17,20 +19,16 @@ import './sync-root-folder/handlers';
 import './auto-launch/handlers';
 import './logger';
 import './bug-report/handlers';
-import { getIsLoggedIn } from './auth/handlers';
+import './auth/handlers';
 import './windows/settings';
 import './windows/process-issues';
-import { setupTrayIcon } from './tray';
-import { createWidget } from './windows/widget';
-import { startBackgroundProcesses } from './background-processes';
+import './windows';
 import './background-processes/backups';
 import './background-processes/sync';
 import './background-processes/process-issues';
 import './device/handlers';
-import {
-  cleanAndStartLocalWatcher,
-  cleanAndStartRemoteNotifications,
-} from './realtime';
+import './realtime';
+import './tray';
 
 Logger.log(`Running ${packageJson.version}`);
 
@@ -74,17 +72,11 @@ ipcMain.on('user-quit', () => {
 app
   .whenReady()
   .then(async () => {
-    setupTrayIcon();
+    eventBus.emit('APP_IS_READY');
 
     if (process.env.NODE_ENV === 'development') {
       await installExtensions();
     }
-    createWidget();
     checkForUpdates();
-    if (getIsLoggedIn()) {
-      startBackgroundProcesses();
-      cleanAndStartLocalWatcher();
-      cleanAndStartRemoteNotifications();
-    }
   })
   .catch(Logger.error);

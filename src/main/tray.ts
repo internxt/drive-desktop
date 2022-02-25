@@ -5,6 +5,7 @@ import {
   setBoundsOfWidgetByPath,
   toggleWidgetVisibility,
 } from './windows/widget';
+import eventBus from './event-bus';
 
 type TrayMenuState = 'STANDBY' | 'SYNCING' | 'ISSUES';
 
@@ -123,3 +124,5 @@ export function setupTrayIcon() {
 
   tray = new TrayMenu(iconsPath, onTrayClick, onQuitClick);
 }
+
+eventBus.on('APP_IS_READY', setupTrayIcon);

@@ -1,5 +1,6 @@
 import { BrowserWindow, screen } from 'electron';
 import { setUpCommonWindowHandlers } from '.';
+import eventBus from '../event-bus';
 import { getTray } from '../tray';
 import { preloadPath, resolveHtmlPath } from '../util';
 
@@ -98,3 +99,5 @@ function getLocationUnderTray(
     y,
   };
 }
+
+eventBus.on('APP_IS_READY', createWidget);

@@ -2,11 +2,14 @@ import { BrowserWindow, shell } from 'electron';
 import { getSettingsWindow } from './settings';
 import { getProcessIssuesWindow } from './process-issues';
 import { getWidget } from './widget';
+import eventBus from '../event-bus';
 
-export function closeAuxWindows() {
+function closeAuxWindows() {
   getProcessIssuesWindow()?.close();
   getSettingsWindow()?.close();
 }
+
+eventBus.on('USER_LOGGED_OUT', closeAuxWindows);
 
 export function broadcastToWindows(eventName: string, data: any) {
   const renderers = [
