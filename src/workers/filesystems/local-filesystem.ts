@@ -4,6 +4,7 @@ import path from 'path';
 import * as uuid from 'uuid';
 import Logger from 'electron-log';
 import { constants, createReadStream, createWriteStream } from 'fs';
+import ignore from 'ignore';
 import {
   FileSystem,
   Listing,
@@ -14,6 +15,7 @@ import {
 } from '../types';
 import { getDateFromSeconds } from '../utils/date';
 import { createErrorDetails } from '../utils/reporting';
+import ignoredFiles from '../../../ignored-files.json';
 
 export function getLocalFilesystem(
   localPath: string,
@@ -77,6 +79,8 @@ export function getLocalFilesystem(
   return {
     kind: 'LOCAL',
     async getCurrentListing() {
+      const ig = ignore().add(ignoredFiles);
+
       const list = (
         await glob('**', {
           filesOnly: true,
@@ -84,7 +88,8 @@ export function getLocalFilesystem(
           dot: true,
           cwd: localPath,
         })
-      ).filter((fileName) => !/.DS_Store$/.test(fileName));
+      ).filter((fileName) => !ig.ignores(path.relative(localPath, fileName)));
+
       const listing: Listing = {};
       const readingMetaErrors: ReadingMetaErrorEntry[] = [];
 
