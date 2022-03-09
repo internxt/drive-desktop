@@ -232,6 +232,7 @@
     "form-data": "^4.0.0",
     "framer-motion": "^5.6.0",
     "history": "^5.2.0",
+    "ignore": "^5.2.0",
     "lodash": "^4.17.21",
     "react": "^17.0.2",
     "react-auth-code-input": "^2.0.0",
