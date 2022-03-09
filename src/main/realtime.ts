@@ -2,12 +2,15 @@ import watcher from '@parcel/watcher';
 import { debounce } from 'lodash';
 import logger from 'electron-log';
 import { io, Socket } from 'socket.io-client';
+import ignore from 'ignore';
+
+import path from 'path';
 import { getSyncStatus, startSyncProcess } from './background-processes/sync';
 import configStore from './config';
 import { getToken } from './auth/service';
-
 import { broadcastToWindows } from './windows';
 import eventBus from './event-bus';
+import ignoredFiles from '../../ignored-files.json';
 
 let thereArePendingChanges = false;
 
@@ -41,7 +44,30 @@ async function cleanAndStartLocalWatcher() {
 
   subscription = await watcher.subscribe(
     configStore.get('syncRoot'),
-    () => getSyncStatus() === 'STANDBY' && debouncedCallback()
+    (err, events) => {
+      if (err) {
+        return logger.warn(
+          'Error in local watcher ',
+          JSON.stringify(err, null, 2)
+        );
+      }
+
+      logger.log('Local change(s) detected: ', JSON.stringify(events, null, 2));
+
+      const ig = ignore().add(ignoredFiles);
+
+      const shouldBeIgnored = events.every((event) =>
+        ig.ignores(path.relative(configStore.get('syncRoot'), event.path))
+      );
+
+      if (shouldBeIgnored)
+        logger.log(
+          'Local watcher is not triggering because they are ignored files'
+        );
+
+      if (!shouldBeIgnored && getSyncStatus() === 'STANDBY')
+        debouncedCallback();
+    }
   );
 }
 
