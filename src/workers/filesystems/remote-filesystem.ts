@@ -3,6 +3,7 @@ import { Environment } from '@internxt/inxt-js';
 import * as uuid from 'uuid';
 import { Readable } from 'stream';
 import Logger from 'electron-log';
+import EventEmitter from 'events';
 import crypt from '../utils/crypt';
 import {
   Listing,
@@ -73,6 +74,7 @@ export function getRemoteFilesystem({
   bucket: string;
 }): FileSystem {
   const cache: RemoteCache = {};
+  const createFolderQueue = new EventEmitter().setMaxListeners(0);
 
   async function getTree(): Promise<{
     files: ServerFile[];
@@ -279,32 +281,58 @@ export function getRemoteFilesystem({
 
           if (folderInCache) lastParentId = folderInCache.id;
           else {
-            const createdFolder: ServerFolder = await httpRequest(
-              `${process.env.API_URL}/api/storage/folder`,
-              {
+            if (createFolderQueue.listeners(routeToThisPoint).length === 0) {
+              httpRequest(`${process.env.API_URL}/api/storage/folder`, {
                 method: 'POST',
                 headers,
                 body: JSON.stringify({
                   folderName,
                   parentFolderId: lastParentId,
                 }),
-              }
-            )
-              .then((res) => res.json())
-              .catch(async (err) => {
-                await handleFetchError(
-                  err,
-                  'Creating remote folder',
-                  `name: ${name}, folderName: ${folderName}, lastParentId: ${lastParentId}`
-                );
-              });
-            lastParentId = createdFolder.id;
-            cache[routeToThisPoint] = {
-              id: createdFolder.id,
-              parentId: createdFolder.parent_id as number,
-              isFolder: true,
-              bucket: createdFolder.bucket,
-            };
+              })
+                .then(async (res) => {
+                  if (!res.ok) {
+                    throw new ProcessError(
+                      'BAD_RESPONSE',
+                      createErrorDetails(
+                        {},
+                        'Creating file in drive server',
+                        `res: ${await serializeRes(
+                          res
+                        )}, encryptedName: ${encryptedName}, modificationTime: ${modificationTime}`
+                      )
+                    );
+                  } else return res;
+                })
+                .then((res) => res.json())
+                .then((createdFolder: ServerFolder) => {
+                  cache[routeToThisPoint] = {
+                    id: createdFolder.id,
+                    parentId: createdFolder.parent_id as number,
+                    isFolder: true,
+                    bucket: createdFolder.bucket,
+                  };
+                  createFolderQueue.emit(routeToThisPoint, createdFolder.id);
+                })
+                .catch(async (err) => {
+                  createFolderQueue.emit(routeToThisPoint, err);
+                });
+            }
+
+            try {
+              lastParentId = await new Promise((resolve, reject) =>
+                createFolderQueue.once(routeToThisPoint, (value) => {
+                  if (value instanceof Error) reject(value);
+                  else resolve(value);
+                })
+              );
+            } catch (err) {
+              await handleFetchError(
+                err,
+                'Creating remote folder',
+                `name: ${name}, folderName: ${folderName}, lastParentId: ${lastParentId}`
+              );
+            }
           }
         }
       }
