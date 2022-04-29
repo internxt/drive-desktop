@@ -1123,12 +1123,13 @@
   dependencies:
     react ">=15.0.0 <17.0.0"
 
-"@internxt/inxt-js@=1.4.0":
-  version "1.4.0"
-  resolved "https://npm.pkg.github.com/download/@internxt/inxt-js/1.4.0/2af8df6b0d441fa9277bc0c2b22172cd21573e13806e6b00c76fb25e3b36aa3f#0522c7b7d705e6df07ff566111971bc223aac7d6"
-  integrity sha512-GuTTXvwDK0jzSp6yu0gBaDr119dc0Ye6X64bJ4H3JglOlUOhptkHFn/laKyAa0E3I9scIFt2uJ72x1YZ+eO+nQ==
+"@internxt/inxt-js@=1.6.2":
+  version "1.6.2"
+  resolved "https://npm.pkg.github.com/download/@internxt/inxt-js/1.6.2/2b53a933d14a39beb3c668d04e5874ca5ebe4cbc9b551a1fbd25771e9fbccab2#a06f0a5fa3d7017405c3bc7f8854d80d60e625d1"
+  integrity sha512-w4t8+nbyBMJGUirDwx3dJaxXbaUIOhBcSbVIfdMbscFPy01progsj2Rz3Wi9LBsGCaSRqebyxVVb1ZbWQTEEhQ==
   dependencies:
     "@internxt/lib" "^1.1.6"
+    "@internxt/sdk" "0.7.8"
     async "^3.2.0"
     axios "^0.23.0"
     bip39 "^3.0.2"
@@ -1138,6 +1139,15 @@
   version "1.1.6"
   resolved "https://npm.pkg.github.com/download/@internxt/lib/1.1.6/f756c6d77338d351ab797f40cc1bf3c25ecccf9ac0c8298c939ee5000ebc42d1#ea931ba39aa0e715704400603beb8833c73c05e4"
   integrity sha512-xpnSpDsWr+jemV2aI71B39LGfXnNCsyv2VKND0JAgrOeyHXjnChH+IHxGLq/8f73HT47mpkNXrK4nfpzH4OaaQ==
+
+"@internxt/sdk@0.7.8":
+  version "0.7.8"
+  resolved "https://npm.pkg.github.com/download/@internxt/sdk/0.7.8/4f892ed17ef40e241eedda59732a5758d0d9d6ea3679c1b3749f053b3833e06b#3a695c170b355c8e4c564fb80d0935d53dea6773"
+  integrity sha512-YpYa+JMkSFgb6YFEnqaqLg5OEq3EXHMj3R/XnIJhdtybPE4xziAj0x0qL4bxnc9N4rA5U5lAj5Uj+VbtF2dnfw==
+  dependencies:
+    axios "^0.24.0"
+    query-string "^7.1.0"
+    uuid "^8.3.2"
 
 "@istanbuljs/load-nyc-config@^1.0.0":
   version "1.1.0"
@@ -2780,6 +2790,13 @@ axios@^0.23.0:
   version "0.23.0"
   resolved "https://registry.yarnpkg.com/axios/-/axios-0.23.0.tgz#b0fa5d0948a8d1d75e3d5635238b6c4625b05149"
   integrity sha512-NmvAE4i0YAv5cKq8zlDoPd1VLKAqX5oLuZKs8xkJa4qi6RGn0uhCYFjWtHHC9EM/MwOwYWOs53W+V0aqEXq1sg==
+  dependencies:
+    follow-redirects "^1.14.4"
+
+axios@^0.24.0:
+  version "0.24.0"
+  resolved "https://registry.yarnpkg.com/axios/-/axios-0.24.0.tgz#804e6fa1e4b9c5288501dd9dff56a7a0940d20d6"
+  integrity sha512-Q6cWsys88HoPgAaFAVUb0WpPk0O8iTeisR9IMqy9G8AbO4NlpVknrnQS03zzF9PGAWgO3cgletO3VjV/P7VztA==
   dependencies:
     follow-redirects "^1.14.4"
 
@@ -5289,6 +5306,11 @@ fill-range@^7.0.1:
   integrity sha512-qOo9F+dMUmC2Lcb4BbVvnKJxTPjCm+RRpe4gDuGrzkL7mEVl/djYSu2OdQ2Pa302N4oqkSg9ir6jaLWJ2USVpQ==
   dependencies:
     to-regex-range "^5.0.1"
+
+filter-obj@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/filter-obj/-/filter-obj-1.1.0.tgz#9b311112bc6c6127a16e016c6c5d7f19e0805c5b"
+  integrity sha1-mzERErxsYSehbgFsbF1/GeCAXFs=
 
 finalhandler@~1.1.2:
   version "1.1.2"
@@ -8591,6 +8613,16 @@ qs@6.9.6:
   resolved "https://registry.yarnpkg.com/qs/-/qs-6.9.6.tgz#26ed3c8243a431b2924aca84cc90471f35d5a0ee"
   integrity sha512-TIRk4aqYLNoJUbd+g2lEdz5kLWIuTMRagAXxl78Q0RiVjAOugHmeKNGdd3cwo/ktpf9aL9epCfFqWDEKysUlLQ==
 
+query-string@^7.1.0:
+  version "7.1.1"
+  resolved "https://registry.yarnpkg.com/query-string/-/query-string-7.1.1.tgz#754620669db978625a90f635f12617c271a088e1"
+  integrity sha512-MplouLRDHBZSG9z7fpuAAcI7aAYjDLhtsiVZsevsfaHWDS2IDdORKbSd1kWUA+V4zyva/HZoSfpwnYMMQDhb0w==
+  dependencies:
+    decode-uri-component "^0.2.0"
+    filter-obj "^1.1.0"
+    split-on-first "^1.0.0"
+    strict-uri-encode "^2.0.0"
+
 queue-microtask@^1.2.2:
   version "1.2.3"
   resolved "https://registry.yarnpkg.com/queue-microtask/-/queue-microtask-1.2.3.tgz#4929228bbc724dfac43e0efb058caf7b6cfb6243"
@@ -9454,6 +9486,11 @@ spdy@^4.0.2:
     select-hose "^2.0.0"
     spdy-transport "^3.0.0"
 
+split-on-first@^1.0.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/split-on-first/-/split-on-first-1.1.0.tgz#f610afeee3b12bce1d0c30425e76398b78249a5f"
+  integrity sha512-43ZssAJaMusuKWL8sKUBQXHWOpq8d6CfN/u1p4gUzfJkM05C8rxTmYrkIPTXapZpORA6LkkzcUulJ8FqA7Uudw==
+
 sprintf-js@^1.1.2:
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/sprintf-js/-/sprintf-js-1.1.2.tgz#da1765262bf8c0f571749f2ad6c26300207ae673"
@@ -9502,6 +9539,11 @@ stat-mode@^1.0.0:
   version "1.5.0"
   resolved "https://registry.yarnpkg.com/statuses/-/statuses-1.5.0.tgz#161c7dac177659fd9811f43771fa99381478628c"
   integrity sha1-Fhx9rBd2Wf2YEfQ3cfqZOBR4Yow=
+
+strict-uri-encode@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/strict-uri-encode/-/strict-uri-encode-2.0.0.tgz#b9c7330c7042862f6b142dc274bbcc5866ce3546"
+  integrity sha1-ucczDHBChi9rFC3CdLvMWGbONUY=
 
 string-argv@^0.3.1:
   version "0.3.1"
