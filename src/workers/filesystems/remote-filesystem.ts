@@ -347,53 +347,36 @@ export function getRemoteFilesystem({
       });
 
       const uploadedFileId: string = await new Promise((resolve, reject) => {
-        localUpload.upload(
-          bucket,
-          {
-            name: uuid.v4(),
-            progressCallback,
-            finishedCallback: async (err: any, fileId: string) => {
-              if (err) {
-                // Don't include the stream in the details
-                const { stream, additionalStream, ...sourceWithoutStream } =
-                  source;
+        localUpload.upload(bucket, {
+          progressCallback,
+          finishedCallback: async (err: any, fileId: string) => {
+            if (err) {
+              // Don't include the stream in the details
+              const { stream, ...sourceWithoutStream } = source;
 
-                const details = createErrorDetails(
-                  err,
-                  'Uploading a file',
-                  `bucket: ${bucket}, source: ${JSON.stringify(
-                    sourceWithoutStream,
-                    null,
-                    2
-                  )}, name: ${name}, userInfo: ${JSON.stringify(
-                    userInfo,
-                    null,
-                    2
-                  )}`
-                );
-                reject(
-                  (await isOnline())
-                    ? new ProcessError('UNKNOWN', details)
-                    : new ProcessError('NO_INTERNET', details)
-                );
-              } else resolve(fileId);
-            },
+              const details = createErrorDetails(
+                err,
+                'Uploading a file',
+                `bucket: ${bucket}, source: ${JSON.stringify(
+                  sourceWithoutStream,
+                  null,
+                  2
+                )}, name: ${name}, userInfo: ${JSON.stringify(
+                  userInfo,
+                  null,
+                  2
+                )}`
+              );
+              reject(
+                (await isOnline())
+                  ? new ProcessError('UNKNOWN', details)
+                  : new ProcessError('NO_INTERNET', details)
+              );
+            } else resolve(fileId);
           },
-          {
-            label: 'OneShardOnly',
-            params: {
-              sourceToHash: {
-                stream: source.additionalStream,
-                size: source.size,
-              },
-              sourceToUpload: {
-                stream: source.stream,
-                size: source.size,
-              },
-              useProxy: false,
-            },
-          }
-        );
+          fileSize: source.size,
+          source: source.stream,
+        });
       });
 
       const oldFileInCache = cache[name];
@@ -561,7 +544,6 @@ export function getRemoteFilesystem({
               } else {
                 resolve({
                   stream: downloadStream,
-                  additionalStream: downloadStream,
                   size: fileInCache.size as number,
                   modTime: fileInCache.modificationTime as number,
                 });

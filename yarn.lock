@@ -1123,13 +1123,13 @@
   dependencies:
     react ">=15.0.0 <17.0.0"
 
-"@internxt/inxt-js@=1.6.2":
-  version "1.6.2"
-  resolved "https://npm.pkg.github.com/download/@internxt/inxt-js/1.6.2/2b53a933d14a39beb3c668d04e5874ca5ebe4cbc9b551a1fbd25771e9fbccab2#a06f0a5fa3d7017405c3bc7f8854d80d60e625d1"
-  integrity sha512-w4t8+nbyBMJGUirDwx3dJaxXbaUIOhBcSbVIfdMbscFPy01progsj2Rz3Wi9LBsGCaSRqebyxVVb1ZbWQTEEhQ==
+"@internxt/inxt-js@=2.0.1":
+  version "2.0.1"
+  resolved "https://npm.pkg.github.com/download/@internxt/inxt-js/2.0.1/5a077ee494397a2d212a037956414cbbd7a9ffe846034131f2165c6d84295124#714384f0e4d26b791f5dc1499d276bc1fb02e269"
+  integrity sha512-EO8cNLfiMhM1EuZ4RONcBdTS6jjrsz37QSAjwi147qGDqr7Cz2gGly8DhuUjeZgzCkto3ZGYZ9NYViDlLXNKeQ==
   dependencies:
     "@internxt/lib" "^1.1.6"
-    "@internxt/sdk" "0.7.8"
+    "@internxt/sdk" "0.8.0"
     async "^3.2.0"
     axios "^0.23.0"
     bip39 "^3.0.2"
@@ -1140,10 +1140,10 @@
   resolved "https://npm.pkg.github.com/download/@internxt/lib/1.1.6/f756c6d77338d351ab797f40cc1bf3c25ecccf9ac0c8298c939ee5000ebc42d1#ea931ba39aa0e715704400603beb8833c73c05e4"
   integrity sha512-xpnSpDsWr+jemV2aI71B39LGfXnNCsyv2VKND0JAgrOeyHXjnChH+IHxGLq/8f73HT47mpkNXrK4nfpzH4OaaQ==
 
-"@internxt/sdk@0.7.8":
-  version "0.7.8"
-  resolved "https://npm.pkg.github.com/download/@internxt/sdk/0.7.8/4f892ed17ef40e241eedda59732a5758d0d9d6ea3679c1b3749f053b3833e06b#3a695c170b355c8e4c564fb80d0935d53dea6773"
-  integrity sha512-YpYa+JMkSFgb6YFEnqaqLg5OEq3EXHMj3R/XnIJhdtybPE4xziAj0x0qL4bxnc9N4rA5U5lAj5Uj+VbtF2dnfw==
+"@internxt/sdk@0.8.0":
+  version "0.8.0"
+  resolved "https://npm.pkg.github.com/download/@internxt/sdk/0.8.0/6546b25f9f1bb6705a4eb357bc1f4605f93ebca8f194946ab9f0dfb5da0784d0#3cce6be6241f803fbf516d36d2b1722a3b20ff84"
+  integrity sha512-AQR1FttPD+trYc3F9QfuuW22JB4+DVbrRZiqGOH1NKVJEjR+fsSHv63BTlJK5oAe4aZuK6EJbzhjoq/MhWxMxg==
   dependencies:
     axios "^0.24.0"
     query-string "^7.1.0"

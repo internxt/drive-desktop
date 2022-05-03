@@ -151,7 +151,7 @@ export function getLocalFilesystem(
       return new Promise((resolve, reject) => {
         const tmpFilePath = getTempFilePath();
 
-        const { stream, additionalStream, ...sourceWithoutStream } = source;
+        const { stream, ...sourceWithoutStream } = source;
 
         Logger.debug(`Downloading ${name} to temp location ${tmpFilePath}`);
 
@@ -273,7 +273,6 @@ export function getLocalFilesystem(
       }
 
       const stream = createReadStream(tmpFilePath);
-      const additionalStream = createReadStream(tmpFilePath);
 
       const onEndOrError = () => fs.unlink(tmpFilePath);
 
@@ -282,7 +281,7 @@ export function getLocalFilesystem(
 
       Logger.debug(`Uploading ${name} from temp location ${tmpFilePath}`);
 
-      return { stream, additionalStream, modTime, size };
+      return { stream, modTime, size };
     },
 
     async smokeTest() {

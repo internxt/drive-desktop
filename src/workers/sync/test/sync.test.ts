@@ -29,7 +29,6 @@ describe('sync tests', () => {
         modTime: 4,
         size: 4,
         stream: {} as Readable,
-        additionalStream: {} as Readable,
       };
     },
     async smokeTest() {},
