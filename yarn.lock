@@ -1123,10 +1123,10 @@
   dependencies:
     react ">=15.0.0 <17.0.0"
 
-"@internxt/inxt-js@=2.0.1":
-  version "2.0.1"
-  resolved "https://npm.pkg.github.com/download/@internxt/inxt-js/2.0.1/5a077ee494397a2d212a037956414cbbd7a9ffe846034131f2165c6d84295124#714384f0e4d26b791f5dc1499d276bc1fb02e269"
-  integrity sha512-EO8cNLfiMhM1EuZ4RONcBdTS6jjrsz37QSAjwi147qGDqr7Cz2gGly8DhuUjeZgzCkto3ZGYZ9NYViDlLXNKeQ==
+"@internxt/inxt-js@=2.0.2":
+  version "2.0.2"
+  resolved "https://npm.pkg.github.com/download/@internxt/inxt-js/2.0.2/8e7cd88546088c626127294f04175f2d91989ca6a5c0ef475387ce29b084cec4#4ab1b67b546cb27e1d666798b18c083f50f58070"
+  integrity sha512-a/Wo5WXS3jmUq8m0STZKPvkRkls1YIsbyE9pV4470ZwAryupXva2wfRl3JEQqUWIFPq16ADsfquInbJenOSIwQ==
   dependencies:
     "@internxt/lib" "^1.1.6"
     "@internxt/sdk" "0.8.0"
