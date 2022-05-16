@@ -296,10 +296,10 @@ export function getRemoteFilesystem({
                       'BAD_RESPONSE',
                       createErrorDetails(
                         {},
-                        'Creating file in drive server',
+                        'Creating folder in drive server',
                         `res: ${await serializeRes(
                           res
-                        )}, encryptedName: ${encryptedName}, modificationTime: ${modificationTime}`
+                        )}, folderName: ${folderName}, parentFolderId: ${lastParentId}`
                       )
                     );
                   } else return res;
