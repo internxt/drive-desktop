@@ -5,9 +5,13 @@ import Process, { ProcessEvents, ProcessResult } from '../process';
 class Backups extends Process {
   private static NUMBER_OF_PARALLEL_QUEUES_FOR_SMALL_FILES = 16;
 
+  private static NUMBER_OF_PARALLEL_QUEUES_FOR_MEDIUM_FILES = 6;
+
   private static NUMBER_OF_PARALLEL_QUEUES_FOR_BIG_FILES = 2;
 
-  private static SMALL_FILE_THRESHOLD = 1024 * 1024;
+  private static MAX_SMALL_FILE_SIZE = 1024 * 1024;
+
+  private static MAX_MEDIUM_FILE_SIZE = 20 * 1024 * 1024;
 
   async run(): Promise<ProcessResult> {
     this.emit('SMOKE_TESTING');
@@ -40,15 +44,20 @@ class Backups extends Process {
       pullFromRemote.length + deleteInRemote.length
     );
 
+    function getChunkSize(numberOfFiles: number, numberOfQueues: number) {
+      return Math.ceil(numberOfFiles / numberOfQueues);
+    }
+
     const smallFiles = pullFromRemote.filter(
-      (name) => currentLocal[name].size <= Backups.SMALL_FILE_THRESHOLD
+      (name) => currentLocal[name].size <= Backups.MAX_SMALL_FILE_SIZE
     );
     Logger.debug('Small files: ', smallFiles);
 
     const smallFileChunks = _.chunk(
       smallFiles,
-      Math.ceil(
-        smallFiles.length / Backups.NUMBER_OF_PARALLEL_QUEUES_FOR_SMALL_FILES
+      getChunkSize(
+        smallFiles.length,
+        Backups.NUMBER_OF_PARALLEL_QUEUES_FOR_SMALL_FILES
       )
     );
     Logger.debug('Small file chunks: ', smallFileChunks);
@@ -59,16 +68,42 @@ class Backups extends Process {
 
     await Promise.all(smallFileQueues);
 
+    const mediumFiles = pullFromRemote.filter((name) => {
+      const { size } = currentLocal[name];
+
+      return (
+        size > Backups.MAX_SMALL_FILE_SIZE &&
+        size <= Backups.MAX_MEDIUM_FILE_SIZE
+      );
+    });
+    Logger.debug('Medium files: ', mediumFiles);
+
+    const mediumFileChunks = _.chunk(
+      mediumFiles,
+      getChunkSize(
+        mediumFiles.length,
+        Backups.NUMBER_OF_PARALLEL_QUEUES_FOR_MEDIUM_FILES
+      )
+    );
+    Logger.debug('Medium file chunks: ', mediumFileChunks);
+
+    const mediumFileQueues = mediumFileChunks.map((chunk) =>
+      this.consumePullQueue(chunk, this.remote, this.local)
+    );
+
+    await Promise.all(mediumFileQueues);
+
     const bigFiles = pullFromRemote.filter(
-      (name) => currentLocal[name].size > Backups.SMALL_FILE_THRESHOLD
+      (name) => currentLocal[name].size > Backups.MAX_MEDIUM_FILE_SIZE
     );
 
     Logger.debug('Big files: ', bigFiles);
 
     const bigFileChunks = _.chunk(
       bigFiles,
-      Math.ceil(
-        bigFiles.length / Backups.NUMBER_OF_PARALLEL_QUEUES_FOR_BIG_FILES
+      getChunkSize(
+        bigFiles.length,
+        Backups.NUMBER_OF_PARALLEL_QUEUES_FOR_BIG_FILES
       )
     );
     Logger.debug('Big file chunks: ', bigFileChunks);
