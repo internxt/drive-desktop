@@ -99,15 +99,19 @@ export type SyncStoppedPayload =
 
 function processSyncItem(item: SyncArgs, hasBeenStopped: { value: boolean }) {
   return new Promise<void>(async (resolve) => {
-    const onExitFuncs: (() => void)[] = [];
+    const onExitFuncs: ((() => void) | (() => Promise<void>))[] = [];
+    let exited = false;
 
-    function onExit(payload: SyncStoppedPayload) {
+    async function onExit(payload: SyncStoppedPayload) {
+      exited = true;
       Logger.log(
         `[onSyncExit] (${payload.reason}) ${
           payload.reason === 'FATAL_ERROR' ? payload.errorName : ''
         } ${payload.reason === 'EXIT' ? payload.result.status : ''}`
       );
-      onExitFuncs.forEach((f) => f());
+      for (const func of onExitFuncs) {
+        await func();
+      }
       broadcastToWindows('sync-stopped', payload);
 
       resolve();
@@ -115,7 +119,7 @@ function processSyncItem(item: SyncArgs, hasBeenStopped: { value: boolean }) {
 
     function onAcquireLockError(err: any) {
       Logger.log('Could not acquire lock', err);
-      onExit({ reason: 'COULD_NOT_ACQUIRE_LOCK' });
+      if (!exited) onExit({ reason: 'COULD_NOT_ACQUIRE_LOCK' });
     }
 
     try {
@@ -126,12 +130,6 @@ function processSyncItem(item: SyncArgs, hasBeenStopped: { value: boolean }) {
       const lockRefreshInterval = setInterval(() => {
         locksService
           .refreshLock(item.folderId, lockId)
-          .catch(() => {
-            // If we fail to refresh the lock
-            // we try to acquire it again
-            // before stopping everything
-            return locksService.acquireLock(item.folderId, lockId);
-          })
           .catch(onAcquireLockError);
       }, 7000);
       onExitFuncs.push(() => clearInterval(lockRefreshInterval));
