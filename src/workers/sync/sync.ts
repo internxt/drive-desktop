@@ -312,6 +312,7 @@ class Sync extends Process {
       const { listing, ...rest } = result;
       return rest;
     } else {
+      await this.listingStore.saveListing(result.diff.filesInSync);
       return result;
     }
   }

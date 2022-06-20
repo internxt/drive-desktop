@@ -170,6 +170,7 @@ abstract class Process extends EventEmitter {
     const filesNotInLocal = [];
     const filesNotInRemote = [];
     const filesWithDifferentModtime = [];
+    const filesInSync: Listing = {};
 
     for (const [localName, { modtime: localModtime }] of Object.entries(
       local
@@ -180,6 +181,8 @@ abstract class Process extends EventEmitter {
         filesNotInRemote.push(localName);
       } else if (localModtime !== entryInRemote.modtime) {
         filesWithDifferentModtime.push(localName);
+      } else {
+        filesInSync[localName] = entryInRemote;
       }
     }
 
@@ -189,7 +192,12 @@ abstract class Process extends EventEmitter {
       }
     }
 
-    return { filesNotInLocal, filesNotInRemote, filesWithDifferentModtime };
+    return {
+      filesNotInLocal,
+      filesNotInRemote,
+      filesWithDifferentModtime,
+      filesInSync,
+    };
   }
 
   protected async getCurrentListings(options: {
@@ -378,6 +386,7 @@ export type ListingsDiff = {
   filesNotInLocal: string[];
   filesNotInRemote: string[];
   filesWithDifferentModtime: string[];
+  filesInSync: Listing;
 };
 
 export type ProcessResult = SuccessfulProcessResult | UnsuccessfulProcessResult;
