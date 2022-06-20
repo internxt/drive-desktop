@@ -3,34 +3,18 @@ import Logger from 'electron-log';
 
 import { getHeaders } from '../auth/service';
 
-async function acquireLock(folderId: number, lockId: string) {
+async function acquireOrRefreshLock(folderId: number, lockId: string) {
   const res = await fetch(
-    `${process.env.API_URL}/api/storage/folder/${folderId}/lock/${lockId}`,
-    { method: 'POST', headers: getHeaders() }
-  );
-  if (!res.ok) {
-    throw new Error(
-      `Lock for folderId ${folderId} with id ${lockId} could not be acquired, status: ${res.status}`
-    );
-  } else {
-    Logger.debug(
-      `Lock for folderId ${folderId} with id ${lockId} acquired with status: ${res.status}`
-    );
-  }
-}
-
-async function refreshLock(folderId: number, lockId: string) {
-  const res = await fetch(
-    `${process.env.API_URL}/api/storage/folder/${folderId}/lock/${lockId}`,
+    `${process.env.API_URL}/api/storage/folder/${folderId}/lock/${lockId}/acquireOrRefresh`,
     { method: 'PUT', headers: getHeaders() }
   );
   if (!res.ok) {
     throw new Error(
-      `Lock for folderId ${folderId} with id ${lockId} could not be refreshed, status: ${res.status}`
+      `Lock for folderId ${folderId} with id ${lockId} could not be acquired/refreshed, status: ${res.status}`
     );
   } else {
     Logger.debug(
-      `Lock for folderId ${folderId} with id ${lockId} refreshed with status: ${res.status}`
+      `Lock for folderId ${folderId} with id ${lockId} acquired/refreshed with status: ${res.status}`
     );
   }
 }
@@ -51,4 +35,4 @@ async function releaseLock(folderId: number, lockId: string) {
   }
 }
 
-export default { acquireLock, refreshLock, releaseLock };
+export default { releaseLock, acquireOrRefreshLock };
