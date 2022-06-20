@@ -631,4 +631,40 @@ describe('sync tests', () => {
       expect(err.name).toBe('CANNOT_GET_CURRENT_LISTINGS');
     }
   });
+
+  it('should compute correctly the listing diff', async () => {
+    const sync = new Sync(mockBase(), mockBase(), listingStore());
+
+    const local: Listing = {
+      imsync: { modtime: 4, size: 5 },
+      imnotinremote: { modtime: 4, size: 5 },
+      imindiffmodtimes: { modtime: 4, size: 5 },
+    };
+
+    const remote: Listing = {
+      imsync: { modtime: 4, size: 5 },
+      imnotinlocal: { modtime: 4, size: 5 },
+      imindiffmodtimes: { modtime: 8, size: 5 },
+    };
+
+    const diff = sync.getListingsDiff(local, remote);
+
+    expect(diff.filesNotInLocal.length).toEqual(1);
+    expect(
+      diff.filesNotInLocal.find((el) => el === 'imnotinlocal')
+    ).toBeDefined();
+
+    expect(diff.filesNotInRemote.length).toEqual(1);
+    expect(
+      diff.filesNotInRemote.find((el) => el === 'imnotinremote')
+    ).toBeDefined();
+
+    expect(diff.filesWithDifferentModtime.length).toEqual(1);
+    expect(
+      diff.filesWithDifferentModtime.find((el) => el === 'imindiffmodtimes')
+    ).toBeDefined();
+
+    expect(Object.entries(diff.filesInSync).length).toEqual(1);
+    expect(diff.filesInSync.imsync).toMatchObject({ modtime: 4, size: 5 });
+  });
 });

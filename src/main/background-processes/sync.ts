@@ -18,6 +18,8 @@ import { ProcessResult } from '../../workers/process';
 import { clearPendingChanges, getThereArePendingChanges } from '../realtime';
 import eventBus from '../event-bus';
 
+const LOCK_ID = uuid.v4();
+
 export type SyncStatus = 'STANDBY' | 'RUNNING';
 
 let syncStatus: SyncStatus = 'STANDBY';
@@ -123,19 +125,16 @@ function processSyncItem(item: SyncArgs, hasBeenStopped: { value: boolean }) {
     }
 
     try {
-      const lockId = uuid.v4();
-      await locksService.acquireLock(item.folderId, lockId);
-      onExitFuncs.push(() => locksService.releaseLock(item.folderId, lockId));
+      await locksService.acquireOrRefreshLock(item.folderId, LOCK_ID);
 
       const lockRefreshInterval = setInterval(() => {
         locksService
-          .refreshLock(item.folderId, lockId)
+          .acquireOrRefreshLock(item.folderId, LOCK_ID)
           .catch(onAcquireLockError);
       }, 7000);
       onExitFuncs.push(() => clearInterval(lockRefreshInterval));
 
-      // So the interval is cleared before the lock is released
-      onExitFuncs.reverse();
+      onExitFuncs.push(() => locksService.releaseLock(item.folderId, LOCK_ID));
     } catch (err) {
       return onAcquireLockError(err);
     }

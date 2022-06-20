@@ -1125,16 +1125,17 @@
   dependencies:
     react ">=15.0.0 <17.0.0"
 
-"@internxt/inxt-js@=2.0.3":
-  version "2.0.3"
-  resolved "https://npm.pkg.github.com/download/@internxt/inxt-js/2.0.3/1714dc6aba439d6bbcfd55ec2be431a11be784082ef79b91ea62579d5047b325#f56cf792bd8ef0e08e5081e72510dec23e53774b"
-  integrity sha512-VM5/inpVs/y+XM831Fq8LVKCsJmWxcFLnr6n7/3VmwHeixnTMJ7QvnJTampqTBlmhPthrEGOCb2yNfsAG6ggOA==
+"@internxt/inxt-js@^2.0.4":
+  version "2.0.4"
+  resolved "https://npm.pkg.github.com/download/@internxt/inxt-js/2.0.4/ae95da9a64dbe87f6fbd2581aaf3590a85e89f06d98d733abeca04843ae0194d#daeeb173765aabea4d0189fa12495bd218e69fca"
+  integrity sha512-ren1LJEC0xm7HkgbGvuSRdZcZcAseeTLpOZgkYTx38GZR/wJMIpDNOf+Dy8UQEtzNZxH2vAms/ScCgonjS/6lw==
   dependencies:
     "@internxt/lib" "^1.1.6"
     "@internxt/sdk" "0.9.2"
     async "^3.2.0"
     axios "^0.23.0"
     bip39 "^3.0.2"
+    undici "^5.5.1"
     winston "^3.3.3"
 
 "@internxt/lib@^1.1.6":
@@ -10190,6 +10191,11 @@ unbox-primitive@^1.0.1:
     has-bigints "^1.0.1"
     has-symbols "^1.0.2"
     which-boxed-primitive "^1.0.2"
+
+undici@^5.5.1:
+  version "5.5.1"
+  resolved "https://registry.yarnpkg.com/undici/-/undici-5.5.1.tgz#baaf25844a99eaa0b22e1ef8d205bffe587c8f43"
+  integrity sha512-MEvryPLf18HvlCbLSzCW0U00IMftKGI5udnjrQbC5D4P0Hodwffhv+iGfWuJwg16Y/TK11ZFK8i+BPVW2z/eAw==
 
 unicode-canonical-property-names-ecmascript@^2.0.0:
   version "2.0.0"
