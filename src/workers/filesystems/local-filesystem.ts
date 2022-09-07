@@ -289,6 +289,27 @@ export function getLocalFilesystem(
         await fs.access(localPath, constants.R_OK | constants.W_OK);
         await fs.lstat(localPath);
       } catch (err) {
+        const systemError = err as { code?: string };
+        if (systemError.code === 'ENOENT') {
+          throw new ProcessFatalError(
+            'BASE_DIRECTORY_DOES_NOT_EXIST',
+            createErrorDetails(
+              err,
+              'Error accessing local base directory',
+              `localPath: ${localPath}`
+            )
+          );
+        }
+        if (systemError.code === 'EACCES') {
+          throw new ProcessFatalError(
+            'INSUFICIENT_PERMISION_ACCESSING_BASE_DIRECTORY',
+            createErrorDetails(
+              err,
+              'Error accessing local base directory',
+              `localPath: ${localPath}`
+            )
+          );
+        }
         throw new ProcessFatalError(
           'CANNOT_ACCESS_BASE_DIRECTORY',
           createErrorDetails(

@@ -1,4 +1,4 @@
-import { MouseEvent, useEffect, useState } from 'react';
+import { MouseEvent, useState } from 'react';
 import { UilInfoCircle, UilAngleDown } from '@iconscout/react-unicons';
 import { motion, AnimatePresence } from 'framer-motion';
 import WarnIcon from '../../assets/warn.svg';
@@ -65,6 +65,8 @@ export default function ProcessIssuesList({
     CANNOT_GET_CURRENT_LISTINGS: defaultAction,
     NO_INTERNET: defaultAction,
     NO_REMOTE_CONNECTION: defaultAction,
+    BASE_DIRECTORY_DOES_NOT_EXIST: defaultAction,
+    INSUFICIENT_PERMISION_ACCESSING_BASE_DIRECTORY: defaultAction,
     UNKNOWN: defaultAction,
   };
 
