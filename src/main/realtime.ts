@@ -56,9 +56,23 @@ async function cleanAndStartLocalWatcher() {
 
       const ig = ignore().add(ignoredFiles);
 
-      const shouldBeIgnored = events.every((event) =>
-        ig.ignores(path.relative(configStore.get('syncRoot'), event.path))
-      );
+      const shouldBeIgnored = events.every((event) => {
+        const relativePath = path.relative(
+          configStore.get('syncRoot'),
+          event.path
+        );
+
+        if (relativePath.length === 0) {
+          if (event.type === 'delete') {
+            logger.warn(
+              `The root folder was deleted, the synchronization will not work until a new one is selected`
+            );
+          }
+          return true;
+        }
+
+        return ig.ignores(relativePath);
+      });
 
       if (shouldBeIgnored)
         logger.log(
