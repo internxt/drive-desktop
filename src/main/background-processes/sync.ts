@@ -99,6 +99,12 @@ export type SyncStoppedPayload =
     }
   | { reason: 'EXIT'; result: ProcessResult };
 
+function refreshLockEvery(): number {
+  const interval = process.env.LOCK_REFRESH_INTERVAL;
+
+  return interval ? parseInt(interval, 10) : 7000;
+}
+
 function processSyncItem(item: SyncArgs, hasBeenStopped: { value: boolean }) {
   return new Promise<void>(async (resolve) => {
     const onExitFuncs: ((() => void) | (() => Promise<void>))[] = [];
@@ -131,7 +137,7 @@ function processSyncItem(item: SyncArgs, hasBeenStopped: { value: boolean }) {
         locksService
           .acquireOrRefreshLock(item.folderId, LOCK_ID)
           .catch(onAcquireLockError);
-      }, 7000);
+      }, refreshLockEvery());
       onExitFuncs.push(() => clearInterval(lockRefreshInterval));
 
       onExitFuncs.push(() => locksService.releaseLock(item.folderId, LOCK_ID));
