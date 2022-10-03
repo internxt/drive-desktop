@@ -18,6 +18,10 @@ declare interface Window {
 
     openSyncFolder(): Promise<void>;
 
+    openOnboardingWindow(): void;
+
+    finishOnboarding(): void;
+
     quit(): void;
 
     getUser(): Promise<ReturnType<typeof import('./auth/service').getUser>>;
