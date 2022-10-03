@@ -11,6 +11,7 @@ import Login from './pages/Login';
 import Widget from './pages/Widget';
 import ProcessIssues from './pages/ProcessIssues';
 import Settings from './pages/Settings';
+import Onboarding from './pages/Onboarding';
 
 import './App.css';
 import { DeviceProvider } from './context/DeviceContext';
@@ -54,6 +55,7 @@ export default function App() {
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/process-issues" element={<ProcessIssues />} />
+            <Route path="/onboarding" element={<Onboarding />} />
             <Route
               path="/settings"
               element={

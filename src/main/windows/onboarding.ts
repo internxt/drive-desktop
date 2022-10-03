@@ -1,14 +1,26 @@
 import { BrowserWindow, ipcMain } from 'electron';
+import logger from 'electron-log';
+import eventBus from '../event-bus';
 import { setUpCommonWindowHandlers } from '.';
 import { preloadPath, resolveHtmlPath } from '../util';
+import configStore from '../config';
 
 let onboardingWindow: BrowserWindow | null = null;
+export const getOnboardingWindow = () => onboardingWindow;
 
-ipcMain.on('open-onboarding-window', (_, userName) =>
-  openOnboardingWindow(userName)
-);
+eventBus.on('APP_IS_READY', () => {
+  const lastOnboardingShown = configStore.get('lastOnboardingShown');
 
-const openOnboardingWindow = (userName: string) => {
+  if (lastOnboardingShown) return;
+
+  openOnboardingWindow();
+});
+
+ipcMain.on('open-onboarding-window', () => openOnboardingWindow());
+
+const openOnboardingWindow = () => {
+  logger.debug('openOnboardingWindow');
+
   if (onboardingWindow) {
     onboardingWindow.focus();
     return;
@@ -27,30 +39,16 @@ const openOnboardingWindow = (userName: string) => {
     maximizable: false,
   });
 
-  onboardingWindow.loadURL(
-    resolveHtmlPath('onboarding', `userName=${userName}`)
-  );
+  onboardingWindow.loadURL(resolveHtmlPath('onboarding'));
 
   onboardingWindow.on('ready-to-show', () => {
     onboardingWindow?.show();
   });
 
   onboardingWindow.on('close', () => {
+    configStore.get('lastOnboardingShown');
     onboardingWindow = null;
   });
 
   setUpCommonWindowHandlers(onboardingWindow);
 };
-
-// ipcMain.on(
-//   'settings-window-resized',
-//   (_, { height }: { width: number; height: number }) => {
-//     if (onboardingWindow) {
-//       // Not truncating the height makes this function throw
-//       // in windows
-//       onboardingWindow.setBounds({ height: Math.trunc(height) });
-//     }
-//   }
-// );
-
-export const getOnboardingWindow = () => onboardingWindow;

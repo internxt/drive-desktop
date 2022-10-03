@@ -101,6 +101,20 @@ export default function Header() {
               role="button"
               tabIndex={0}
               aria-hidden="true"
+              onClick={() => window.electron.openOnboardingWindow()}
+            >
+              <DropdownItem active={active}>
+                <span>Onboarding</span>
+              </DropdownItem>
+            </div>
+          )}
+        </Menu.Item>
+        <Menu.Item>
+          {({ active }) => (
+            <div
+              role="button"
+              tabIndex={0}
+              aria-hidden="true"
               onClick={window.electron.logout}
             >
               <DropdownItem active={active}>
