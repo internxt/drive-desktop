@@ -1,5 +1,4 @@
 import { BrowserWindow, ipcMain } from 'electron';
-import logger from 'electron-log';
 import eventBus from '../event-bus';
 import { setUpCommonWindowHandlers } from '.';
 import { preloadPath, resolveHtmlPath } from '../util';
@@ -19,8 +18,6 @@ eventBus.on('APP_IS_READY', () => {
 ipcMain.on('open-onboarding-window', () => openOnboardingWindow());
 
 const openOnboardingWindow = () => {
-  logger.debug('openOnboardingWindow');
-
   if (onboardingWindow) {
     onboardingWindow.focus();
     return;
