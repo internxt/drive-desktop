@@ -1,28 +1,21 @@
-/* eslint-disable jsx-a11y/anchor-is-valid */
-/* eslint-disable jsx-a11y/no-static-element-interactions */
-/* eslint-disable jsx-a11y/click-events-have-key-events */
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Transition } from '@headlessui/react';
 import Button from '../../components/Button';
-
+import { User } from '../../../main/types';
 import widgedWidget from '../../assets/onboarding/widget.png';
 import macFinderWidgetAsset from '../../assets/onboarding/mac-finder-widget.png';
 import Logo from '../../assets/onboarding/logo.svg';
 
 export default function Onboarding() {
   const [slide, setSlide] = useState<number>(0);
-  const userName = 'SSSS';
+  const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    window.electron.getUser().then(setUser);
+  }, []);
 
   const nextSlide = () => {
     setSlide(slide + 1);
-  };
-
-  const prevSlide = () => {
-    if (slide === 0) {
-      return;
-    }
-
-    setSlide(slide - 1);
   };
 
   const finish = () => {
@@ -69,7 +62,7 @@ export default function Onboarding() {
             <Logo />
             <div>
               <h3 className="mb-2 text-2xl font-semibold tracking-wide text-neutral-900">
-                Welcome to Internxt, {userName}!
+                Welcome to Internxt, {user?.name}!
               </h3>
               <p>
                 Client-side encrypted, fragmented, simple, fast, secure and
@@ -130,10 +123,12 @@ export default function Onboarding() {
 
               <ul className="items-left relative flex w-full max-w-xs list-disc flex-col space-y-3 pl-4 text-base text-neutral-500">
                 <li>
-                  Quick access to
+                  Quick access to{' '}
                   <a
                     className="text-blue-600 cursor-pointer underline"
-                    onClick={() => {}}
+                    href="https://drive.internxt.com/app"
+                    target="_blank"
+                    rel="noreferrer"
                   >
                     Drive Web
                   </a>
