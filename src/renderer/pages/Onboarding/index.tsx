@@ -6,6 +6,52 @@ import widgedWidget from '../../assets/onboarding/widget.png';
 import macFinderWidgetAsset from '../../assets/onboarding/mac-finder-widget.png';
 import Logo from '../../assets/onboarding/logo.svg';
 
+function SideImageAnimation({
+  display,
+  children,
+}: {
+  display: boolean;
+  children: JSX.Element;
+}) {
+  return (
+    <Transition
+      enter="transition-all duration-500 delay-0"
+      enterFrom="opacity-0"
+      enterTo="opacity-100"
+      leave="transition-all ease-out duration-500 delay-0"
+      leaveFrom="opacity-100"
+      leaveTo="opacity-0"
+      show={display}
+      appear={display}
+    >
+      {children}
+    </Transition>
+  );
+}
+
+function SideTextAnimation({
+  display,
+  children,
+}: {
+  display: boolean;
+  children: JSX.Element;
+}): JSX.Element {
+  return (
+    <Transition
+      enter="transition-all duration-200 delay-300"
+      enterFrom="transform -translate-y-1.5 opacity-0"
+      enterTo="transform translate-y-0 opacity-100"
+      leave="transition-all ease-out duration-300"
+      leaveFrom="transform translate-y-0 opacity-100"
+      leaveTo="transform translate-y-2 opacity-0"
+      show={display}
+      appear={display}
+    >
+      {children}
+    </Transition>
+  );
+}
+
 export default function Onboarding() {
   const [slide, setSlide] = useState<number>(0);
   const [user, setUser] = useState<User | null>(null);
@@ -24,39 +70,31 @@ export default function Onboarding() {
 
   return (
     <div className="flex h-screen w-full bg-l-neutral-10 px-8 py-12 text-neutral-500">
-      {slide > 0 && (
-        <div className="pointer-events-none relative -mb-12 -ml-8 flex h-full flex-grow flex-col transition-all  delay-100 duration-500">
-          <Transition
-            enter="transition-all duration-500 delay-0"
-            enterFrom="opacity-0"
-            enterTo="opacity-100"
-            leave="transition-all ease-out duration-500 delay-0"
-            leaveFrom="opacity-100"
-            leaveTo="opacity-0"
-            show={slide > 0}
-          >
-            {slide === 1 && (
-              <img
-                key="image-1"
-                className="absolute h-full object-cover object-right"
-                src={macFinderWidgetAsset}
-                alt="screenshot of the app widget on a mac"
-              />
-            )}
-            {slide === 2 && (
-              <img
-                key="image-2"
-                className="absolute h-full origin-top-right object-cover object-right"
-                style={{ transform: 'scale(1.14)' }}
-                src={widgedWidget}
-                alt="screenshot of the app widget on a mac"
-              />
-            )}
-          </Transition>
-        </div>
-      )}
+      <div className="pointer-events-none relative -mb-12 -ml-8 flex h-full flex-grow flex-col transition-all delay-100 duration-500 ease-in-out">
+        <SideImageAnimation display={slide === 1}>
+          <img
+            key="image-1"
+            className="absolute h-full object-cover object-right"
+            src={macFinderWidgetAsset}
+            alt="screenshot of the app widget on a mac"
+          />
+        </SideImageAnimation>
+        <SideImageAnimation display={slide === 2}>
+          <img
+            key="image-2"
+            className="absolute h-full origin-top-right object-cover object-right"
+            style={{ transform: 'scale(1.14)' }}
+            src={widgedWidget}
+            alt="screenshot of the app widget on a mac"
+          />
+        </SideImageAnimation>
+      </div>
 
-      <div className={slide === 0 ? 'w-full' : 'w-96'}>
+      <div
+        className={`${
+          slide === 0 ? 'w-full' : 'w-96'
+        }  transition-all delay-100 duration-500 ease-in-out`}
+      >
         {slide === 0 && (
           <div className="flex h-full grow flex-col items-center justify-center space-y-6 text-center">
             <Logo />
@@ -76,7 +114,7 @@ export default function Onboarding() {
             </Button>
           </div>
         )}
-        {slide === 1 && (
+        <SideTextAnimation display={slide === 1}>
           <div
             key="slide-1"
             className="flex h-full w-96 flex-shrink-0 flex-col items-center justify-between space-y-6 py-8"
@@ -110,8 +148,8 @@ export default function Onboarding() {
               Next
             </Button>
           </div>
-        )}
-        {slide === 2 && (
+        </SideTextAnimation>
+        <SideTextAnimation display={slide === 2}>
           <div
             key="slide-2"
             className="flex h-full w-96 flex-shrink-0 flex-col items-center justify-between space-y-6 py-8"
@@ -152,7 +190,7 @@ export default function Onboarding() {
               Finish
             </Button>
           </div>
-        )}
+        </SideTextAnimation>
       </div>
     </div>
   );
