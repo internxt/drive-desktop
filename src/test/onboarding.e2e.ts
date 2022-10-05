@@ -2,7 +2,7 @@ import { test, expect, ElectronApplication, Page } from '@playwright/test';
 import { _electron as electron } from 'playwright';
 import { ipcMainEmit } from 'electron-playwright-helpers';
 
-import AccessResponseFixtures from './fixtures/AccesResponse.json';
+import AccessResponseFixtures from './fixtures/AccessResponse.json';
 
 const transitionToTakePalce = async (ms: number): Promise<void> => {
   return new Promise((resolve) => {
@@ -22,71 +22,87 @@ test.describe('onboaring', () => {
     await ipcMainEmit(electronApp, 'user-logged-in', AccessResponseFixtures);
   });
 
-  test('app is defined', () => {
-    expect(electronApp).toBeDefined();
+  test.describe('onbaring window', () => {
+    test('app is defined', () => {
+      expect(electronApp).toBeDefined();
+    });
+
+    test('onboaring window opens', async () => {
+      ipcMainEmit(electronApp, 'open-onboarding-window');
+      const newPage = await electronApp.firstWindow();
+      expect(newPage).toBeTruthy();
+      expect(await newPage.title()).toBe('Internxt Drive');
+      page = newPage;
+    });
   });
 
-  test('onboaring window opens', async () => {
-    ipcMainEmit(electronApp, 'open-onboarding-window');
-    const newPage = await electronApp.firstWindow();
-    expect(newPage).toBeTruthy();
-    expect(await newPage.title()).toBe('Internxt Drive');
-    page = newPage;
+  test.describe('welcome slide', () => {
+    test('onboaring windows starts with welcome message', async () => {
+      const content = await page.innerHTML('h3');
+      expect(content).toBe(
+        `Welcome to Internxt, ${AccessResponseFixtures.user.name}!`
+      );
+    });
+
+    test('welcome slide has lets go button', async () => {
+      const button = await page.innerHTML('button');
+
+      expect(button).toBe("Let's go!");
+    });
   });
 
-  test('onboaring windows starts with welcome message', async () => {
-    const content = await page.innerHTML('h3');
-    expect(content).toBe(
-      `Welcome to Internxt, ${AccessResponseFixtures.user.name}!`
-    );
+  test.describe('sync folder slide', () => {
+    test('is sync folder explanation', async () => {
+      await page.click('button');
+
+      const title = await page.innerHTML('h3');
+
+      expect(title).toBe('Sync Folder');
+    });
+
+    test('sync slide has next button', async () => {
+      const button = await page.innerHTML('button');
+
+      expect(button).toBe('Next');
+    });
   });
 
-  test('first slide is sync folder explanation', async () => {
-    await page.click('button');
+  test.describe('widget slide', () => {
+    test('is widget explanation', async () => {
+      await page.click('button');
 
-    const title = await page.innerHTML('h3');
+      await transitionToTakePalce(600);
 
-    expect(title).toBe('Sync Folder');
-  });
+      await page.screenshot();
+      const title = await page.innerHTML('h3');
 
-  test('first slide has next button', async () => {
-    const button = await page.innerHTML('button');
+      expect(title).toBe('Internxt Widget');
+    });
 
-    expect(button).toBe('Next');
-  });
+    test('widget slide has next button', async () => {
+      const button = await page.innerHTML('button');
 
-  test('second slide is widget explanation', async () => {
-    await page.click('button');
+      expect(button).toBe('Finish');
+    });
 
-    await transitionToTakePalce(600);
+    test('widget explanation link opens in broswer', async () => {
+      const driveWebUrl = 'https://drive.internxt.com/app';
 
-    await page.screenshot();
-    const title = await page.innerHTML('h3');
+      await page.click(`a[href="${driveWebUrl}"]`);
 
-    expect(title).toBe('Internxt Widget');
-  });
+      const url = page.url();
 
-  test('second slide has next button', async () => {
-    const button = await page.innerHTML('button');
+      expect(url).not.toBe(driveWebUrl);
+    });
 
-    expect(button).toBe('Finish');
-  });
+    test('when finish button is pressed the windows is closed', async () => {
+      const windowsBefore = electronApp.windows();
+      await page.click('button');
 
-  test('widget explanation link opens in broswer', async () => {
-    await page.click('a[href="https://drive.internxt.com/app"]');
+      const windowsAfter = electronApp.windows();
 
-    const url = page.url();
-
-    expect(url).not.toBe('https://drive.internxt.com/app');
-  });
-
-  test('when finish button is pressed the windows is closed', async () => {
-    const windowsBefore = electronApp.windows();
-    await page.click('button');
-
-    const windowsAfter = electronApp.windows();
-
-    expect(windowsBefore.length).toBe(1);
-    expect(windowsAfter.length).toBe(0);
+      expect(windowsBefore).toHaveLength(1);
+      expect(windowsAfter).toHaveLength(0);
+    });
   });
 });
