@@ -138,6 +138,7 @@
     ]
   },
   "devDependencies": {
+    "@playwright/test": "^1.26.1",
     "@pmmmwh/react-refresh-webpack-plugin": "0.5.4",
     "@svgr/webpack": "^6.1.2",
     "@teamsupercell/typings-for-css-modules-loader": "^2.5.1",
@@ -171,6 +172,7 @@
     "electron-builder": "^23.0.3",
     "electron-devtools-installer": "^3.2.0",
     "electron-notarize": "^1.1.1",
+    "electron-playwright-helpers": "^1.2.0",
     "electron-rebuild": "^3.2.5",
     "eslint": "^8.5.0",
     "eslint-config-airbnb-base": "^15.0.0",
@@ -192,6 +194,7 @@
     "lint-staged": "^12.1.4",
     "mini-css-extract-plugin": "^2.4.5",
     "opencollective-postinstall": "^2.0.3",
+    "playwright": "^1.26.1",
     "postcss": "^8.4.5",
     "postcss-loader": "^6.2.1",
     "prettier": "^2.5.1",
