@@ -69,8 +69,8 @@ export default function Onboarding() {
   };
 
   return (
-    <div className="flex h-screen w-full bg-l-neutral-10 px-8 py-12 text-neutral-500">
-      <div className="pointer-events-none relative -mb-12 -ml-8 flex h-full flex-grow flex-col transition-all delay-100 duration-500 ease-in-out">
+    <div className="draggable flex h-screen w-full bg-l-neutral-10 px-8 py-12 text-neutral-500">
+      <div className="non-draggable pointer-events-none relative -mb-12 -ml-8 flex h-full flex-grow flex-col transition-all delay-100 duration-500 ease-in-out">
         <SideImageAnimation display={slide === 1}>
           <img
             key="image-1"
@@ -93,7 +93,7 @@ export default function Onboarding() {
       <div
         className={`${
           slide === 0 ? 'w-full' : 'w-96'
-        }  transition-all delay-100 duration-500 ease-in-out`}
+        } transition-all delay-100 duration-500 ease-in-out`}
       >
         {slide === 0 && (
           <div className="flex h-full grow flex-col items-center justify-center space-y-6 text-center">
@@ -109,7 +109,11 @@ export default function Onboarding() {
               <p>Discover the brand new features of Drive Desktop.</p>
             </div>
 
-            <Button variant="default" onClick={() => nextSlide()}>
+            <Button
+              className="non-draggable"
+              variant="default"
+              onClick={() => nextSlide()}
+            >
               Let&apos;s go!
             </Button>
           </div>
@@ -144,7 +148,11 @@ export default function Onboarding() {
               </ul>
             </div>
 
-            <Button variant="default" onClick={() => nextSlide()}>
+            <Button
+              className="non-draggable"
+              variant="default"
+              onClick={() => nextSlide()}
+            >
               Next
             </Button>
           </div>
@@ -186,7 +194,11 @@ export default function Onboarding() {
               </ul>
             </div>
 
-            <Button variant="default" onClick={() => finish()}>
+            <Button
+              className="non-draggable"
+              variant="default"
+              onClick={() => finish()}
+            >
               Finish
             </Button>
           </div>
