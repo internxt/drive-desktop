@@ -2,6 +2,8 @@ import { test, expect, ElectronApplication, Page } from '@playwright/test';
 import { _electron as electron } from 'playwright';
 import { ipcMainEmit } from 'electron-playwright-helpers';
 
+import AccessResponseFixtures from './fixtures/AccesResponse.json';
+
 const transitionToTakePalce = async (ms: number): Promise<void> => {
   return new Promise((resolve) => {
     setTimeout(resolve, ms);
@@ -16,6 +18,8 @@ test.describe('onboaring', () => {
     electronApp = await electron.launch({
       args: ['release/app/dist/main/main.js'],
     });
+
+    await ipcMainEmit(electronApp, 'user-logged-in', AccessResponseFixtures);
   });
 
   test('app is defined', () => {
@@ -31,8 +35,10 @@ test.describe('onboaring', () => {
   });
 
   test('onboaring windows starts with welcome message', async () => {
-    const content = await page.content();
-    expect(content).toContain('Welcome to Internxt, ');
+    const content = await page.innerHTML('h3');
+    expect(content).toBe(
+      `Welcome to Internxt, ${AccessResponseFixtures.user.name}!`
+    );
   });
 
   test('first slide is sync folder explanation', async () => {
