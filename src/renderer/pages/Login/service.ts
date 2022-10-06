@@ -1,6 +1,8 @@
 import CryptoJS from 'crypto-js';
 import { User } from '../../../main/types';
 
+import packageConfig from '../../../../package.json';
+
 export function hashPassword(password: string, sKey: string): string {
   const reb = CryptoJS.enc.Hex.parse(sKey);
   const bytes = CryptoJS.AES.decrypt(
@@ -46,6 +48,8 @@ export async function accessRequest(
       body: JSON.stringify({ email, password: hashedPassword, tfa }),
       headers: {
         'content-type': 'application/json',
+        'internxt-client': 'drive-desktop',
+        'internxt-version': packageConfig.version,
       },
     });
   } catch {
@@ -81,6 +85,8 @@ export async function loginRequest(email: string): Promise<{
       body: JSON.stringify({ email }),
       headers: {
         'content-type': 'application/json',
+        'internxt-client': 'drive-desktop',
+        'internxt-version': packageConfig.version,
       },
     });
   } catch {
