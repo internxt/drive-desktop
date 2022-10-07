@@ -4,13 +4,13 @@ import { ipcMainEmit } from 'electron-playwright-helpers';
 
 import AccessResponseFixtures from './fixtures/AccessResponse.json';
 
-const transitionToTakePalce = async (ms: number): Promise<void> => {
+const wait = async (ms: number): Promise<void> => {
   return new Promise((resolve) => {
     setTimeout(resolve, ms);
   });
 };
 
-test.describe('onboaring', () => {
+test.describe('onboarding', () => {
   let electronApp: ElectronApplication;
   let page: Page;
 
@@ -22,12 +22,12 @@ test.describe('onboaring', () => {
     await ipcMainEmit(electronApp, 'user-logged-in', AccessResponseFixtures);
   });
 
-  test.describe('onbaring window', () => {
+  test.describe('onboarding window', () => {
     test('app is defined', () => {
       expect(electronApp).toBeDefined();
     });
 
-    test('onboaring window opens', async () => {
+    test('onboarding window opens', async () => {
       ipcMainEmit(electronApp, 'open-onboarding-window');
       const newPage = await electronApp.firstWindow();
       expect(newPage).toBeTruthy();
@@ -37,7 +37,7 @@ test.describe('onboaring', () => {
   });
 
   test.describe('welcome slide', () => {
-    test('onboaring windows starts with welcome message', async () => {
+    test('onboarding windows starts with welcome message', async () => {
       const content = await page.innerHTML('h3');
       expect(content).toBe(
         `Welcome to Internxt, ${AccessResponseFixtures.user.name}!`
@@ -71,9 +71,8 @@ test.describe('onboaring', () => {
     test('is widget explanation', async () => {
       await page.click('button');
 
-      await transitionToTakePalce(600);
+      await wait(600);
 
-      await page.screenshot();
       const title = await page.innerHTML('h3');
 
       expect(title).toBe('Internxt Widget');
