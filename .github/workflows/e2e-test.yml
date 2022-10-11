@@ -18,29 +18,34 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           registry-url: 'https://npm.pkg.github.com'
-      - run: echo "registry=https://registry.yarnpkg.com/" > .npmrc
-      - run: echo "@internxt:registry=https://npm.pkg.github.com" >> .npmrc
-      # You cannot read packages from other private repos with GITHUB_TOKEN
-      # You have to use a PAT instead https://github.com/actions/setup-node/issues/49
-      - run: echo //npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN }} >> .npmrc
-      - run: echo "always-auth=true" >> .npmrc
+      - name: Create .npmrc file
+        run: |
+          echo "registry=https://registry.yarnpkg.com/" > .npmrc
+          echo "@internxt:registry=https://npm.pkg.github.com" >> .npmrc
+          # You cannot read packages from other private repos with GITHUB_TOKEN
+          # You have to use a PAT instead https://github.com/actions/setup-node/issues/49
+          echo //npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN }} >> .npmrc
+          echo "always-auth=true" >> .npmrc
         env:
           PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 1
-
-      - run: yarn
-      - run: touch .env
-      - run: echo "CRYPTO_KEY=6KYQBP847D4ATSFA" >> .env
-      - run: echo "MAGIC_IV=uB5xL72szFpJmjVn2reHN8T2WAVg2yXw" >> .env
-      - run: echo "MAGIC_SALT=qEN1W5R2MNVJKSWx47mZpIkdqwilhazfnhp74f3vEAF05w5j4X0ghfwtJhNmUYDjN7H64VIw91X4ZZYUep1zic9MRCCIiYKVXLkwupvmEhvQv6nbelTBtXn10WVPEYZL" >> .env
-      - run: echo "NEW_CRYPTO_KEY=WZOuIHK0S1vFjjMc" >> .env
-      - run: echo "API_URL=https://desktop.internxt.com" >> .env
-      - run: echo "BRIDGE_URL=https://api.internxt.com" >> .env
-      - run: echo "APP_SEGMENT_KEY=Mf8sJnBfm3HKNt3RpQ8I5PPwjtoeAZK6" >> .env
-      - run: echo "APP_SEGMENT_KEY_TEST=81naPdzAMHb8Sw5HZQb3xSa4yPtE70Op" >> .env
-      - run: echo "BUG_REPORTING_URL=https://desktop-bug-reporting.inxt.workers.dev" >> .env
-      - run: echo "NOTIFICATIONS_URL=https://notifications.internxt.com" >> .env
-      - run: echo "LOCK_REFRESH_INTERVAL=20000" >> .env
-      - run: yarn build
+      - name: Install dependencies
+        run: yarn
+      - name: Create .env file
+        run: |
+          touch .env
+          echo "CRYPTO_KEY=6KYQBP847D4ATSFA" >> .env
+          echo "MAGIC_IV=uB5xL72szFpJmjVn2reHN8T2WAVg2yXw" >> .env
+          echo "MAGIC_SALT=qEN1W5R2MNVJKSWx47mZpIkdqwilhazfnhp74f3vEAF05w5j4X0ghfwtJhNmUYDjN7H64VIw91X4ZZYUep1zic9MRCCIiYKVXLkwupvmEhvQv6nbelTBtXn10WVPEYZL" >> .env
+          echo "NEW_CRYPTO_KEY=WZOuIHK0S1vFjjMc" >> .env
+          echo "API_URL=https://desktop.internxt.com" >> .env
+          echo "BRIDGE_URL=https://api.internxt.com" >> .env
+          echo "APP_SEGMENT_KEY=Mf8sJnBfm3HKNt3RpQ8I5PPwjtoeAZK6" >> .env
+          echo "APP_SEGMENT_KEY_TEST=81naPdzAMHb8Sw5HZQb3xSa4yPtE70Op" >> .env
+          echo "BUG_REPORTING_URL=https://desktop-bug-reporting.inxt.workers.dev" >> .env
+          echo "NOTIFICATIONS_URL=https://notifications.internxt.com" >> .env
+          echo "LOCK_REFRESH_INTERVAL=20000" >> .env
+      - name: Build app
+        run: yarn build
       - run: xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" -- yarn test:e2e
         if: matrix.os == 'ubuntu-latest'
 
