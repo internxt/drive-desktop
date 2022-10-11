@@ -1,35 +1,29 @@
 name: Test
 
-on: [push, pull_request]
+on: [pull_request]
 
 jobs:
-  release:
-    if: ${{ github.repository_owner == 'electron-react-boilerplate' }}
-    runs-on: ${{ matrix.os }}
-
-    strategy:
-      matrix:
-        os: [macos-latest, windows-latest, ubuntu-latest]
+  test:
+    runs-on: ubuntu-latest
 
     steps:
       - name: Check out Git repository
-        uses: actions/checkout@v1
-
-      - name: Install Node.js and NPM
+        uses: actions/checkout@v2
+      - name: Use Node.js
         uses: actions/setup-node@v2
         with:
           node-version: 16
-          cache: npm
-
-      - name: npm install
+      - name: Create .npmrc file
         run: |
-          npm install
-
-      - name: npm test
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          npm run package
-          npm run lint
-          npm exec tsc
-          npm test
+          echo "registry=https://registry.yarnpkg.com/" > .npmrc
+          echo "@internxt:registry=https://npm.pkg.github.com" >> .npmrc
+          # You cannot read packages from other private repos with GITHUB_TOKEN
+          # You have to use a PAT instead https://github.com/actions/setup-node/issues/49
+          echo //npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN }} >> .npmrc
+          echo "always-auth=true" >> .npmrc
+      - name: Install dependenciies
+        run: yarn
+      - name: Build main process
+        run: yarn build
+      - name: Run test
+        run: yarn test
