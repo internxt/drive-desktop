@@ -1,6 +1,6 @@
 name: Test
 
-on: [push, pull_request]
+on: [pull_request]
 
 jobs:
   test:
@@ -25,5 +25,5 @@ jobs:
         run: yarn
       - name: Build main process
         run: yarn build
-      - name: run test
+      - name: Run test
         run: yarn test
