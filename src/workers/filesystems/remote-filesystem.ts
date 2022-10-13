@@ -432,6 +432,7 @@ export function getRemoteFilesystem({
                 file_id: uploadedFileId,
                 folder_id: folderIdOfTheNewFile,
                 name: encryptedName,
+                plain_name: baseNameWithoutExt,
                 size,
                 type: fileType,
                 modificationTime,
