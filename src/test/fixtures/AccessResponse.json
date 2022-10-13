@@ -1,0 +1,18 @@
+{
+  "newToken": "test_new_token",
+  "token": "test_new_token",
+  "user": {
+    "email": "luv@izadoab.ke",
+    "userId": "$2a$08$6BfcfDqh18sI07ngolt7dO4KZNJUBjWK6/e4q1jirTvK7NMa8vfi.",
+    "mnemonic": "Bill Hunt Sally Reed Bobby Powell Willie Johnson Ethan Christensen Lawrence Washington",
+    "root_folder_id": 57561489,
+    "name": "test",
+    "lastname": "test",
+    "uuid": "1a811efd-9b19-5fbc-8db1-c7b15e959aae",
+    "credit": 0,
+    "createdAt": "2022-08-11T15:45:39.000Z",
+    "privateKey": "",
+    "publicKey": "",
+    "revocateKey": ""
+  }
+}
