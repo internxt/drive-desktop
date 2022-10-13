@@ -101,10 +101,10 @@ export default function Header() {
               role="button"
               tabIndex={0}
               aria-hidden="true"
-              onClick={() => window.electron.openOnboardingWindow()}
+              onClick={window.electron.logout}
             >
               <DropdownItem active={active}>
-                <span>Onboarding</span>
+                <span>Log out</span>
               </DropdownItem>
             </div>
           )}
@@ -115,10 +115,10 @@ export default function Header() {
               role="button"
               tabIndex={0}
               aria-hidden="true"
-              onClick={window.electron.logout}
+              onClick={() => window.electron.openOnboardingWindow()}
             >
               <DropdownItem active={active}>
-                <span>Log out</span>
+                <span>Show Onboarding</span>
               </DropdownItem>
             </div>
           )}
