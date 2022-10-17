@@ -26,4 +26,4 @@ jobs:
       - name: Build main process
         run: yarn build
       - name: Run test
-        run: yarn test
+        run: yarn test:unit
