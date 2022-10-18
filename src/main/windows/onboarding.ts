@@ -1,5 +1,4 @@
 import { BrowserWindow, ipcMain } from 'electron';
-import eventBus from '../event-bus';
 import { setUpCommonWindowHandlers } from '.';
 import { preloadPath, resolveHtmlPath } from '../util';
 import configStore from '../config';
@@ -7,7 +6,7 @@ import configStore from '../config';
 let onboardingWindow: BrowserWindow | null = null;
 export const getOnboardingWindow = () => onboardingWindow;
 
-eventBus.on('APP_IS_READY', () => {
+ipcMain.on('user-logged-in', () => {
   const lastOnboardingShown = configStore.get('lastOnboardingShown');
 
   if (lastOnboardingShown) return;
@@ -43,7 +42,7 @@ const openOnboardingWindow = () => {
   });
 
   onboardingWindow.on('close', () => {
-    configStore.get('lastOnboardingShown');
+    configStore.set('lastOnboardingShown', Date.now().toLocaleString());
     onboardingWindow = null;
   });
 
