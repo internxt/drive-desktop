@@ -1,6 +1,9 @@
+import { safeStorage } from 'electron';
 import ConfigStore, { defaults, fieldsToSave } from '../config';
 import packageConfig from '../../../package.json';
 import { User } from '../types';
+
+const charset = 'latin1';
 
 export function setCredentials(
   userData: User,
@@ -9,11 +12,32 @@ export function setCredentials(
 ) {
   ConfigStore.set('mnemonic', mnemonic);
   ConfigStore.set('userData', userData);
-  ConfigStore.set('bearerToken', bearerToken);
+
+  if (safeStorage.isEncryptionAvailable()) {
+    const buffer = safeStorage.encryptString(bearerToken);
+    const encrypted = buffer.toString(charset);
+
+    ConfigStore.set('bearerToken', encrypted);
+    ConfigStore.set('encrypedToken', true);
+  } else {
+    ConfigStore.set('bearerToken', bearerToken);
+    ConfigStore.set('encrypedToken', false);
+  }
 }
 
 export function getHeaders(includeMnemonic = false) {
-  const token = ConfigStore.get('bearerToken');
+  let token = ConfigStore.get('bearerToken');
+  const tokenWasEncrypted = ConfigStore.get('encrypedToken') as boolean;
+
+  if (tokenWasEncrypted) {
+    try {
+      const buffer = Buffer.from(token, charset);
+      token = safeStorage.decryptString(buffer);
+    } catch (err: any) {
+      console.error(err);
+    }
+  }
+
   const header = {
     Authorization: `Bearer ${token}`,
     'content-type': 'application/json; charset=utf-8',
@@ -26,6 +50,7 @@ export function getHeaders(includeMnemonic = false) {
       : {}),
   };
 
+  console.log(header);
   return header;
 }
 
@@ -35,7 +60,19 @@ export function getUser(): User | null {
 }
 
 export function getToken() {
-  return ConfigStore.get('bearerToken');
+  let token = ConfigStore.get('bearerToken');
+  const tokenWasEncrypted = ConfigStore.get('encrypedToken') as boolean;
+
+  if (tokenWasEncrypted) {
+    try {
+      const buffer = Buffer.from(token, charset);
+      token = safeStorage.decryptString(buffer);
+    } catch (err: any) {
+      console.error(err);
+    }
+  }
+
+  return token;
 }
 
 function resetCredentials() {
