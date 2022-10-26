@@ -18,6 +18,7 @@ export function setCredentials(
   const encryptedToken = buffer.toString(TOKEN_ENCODING);
 
   ConfigStore.set('bearerToken', encryptedToken);
+  ConfigStore.set('bearerTokenEncrypted', true);
   ConfigStore.set('mnemonic', mnemonic);
   ConfigStore.set('userData', userData);
 }
@@ -46,6 +47,12 @@ export function getUser(): User | null {
 }
 
 export function getToken(): string {
+  const bearerTokenEncrypted = ConfigStore.get('bearerTokenEncrypted');
+
+  if (!bearerTokenEncrypted) {
+    return ConfigStore.get('bearerToken');
+  }
+
   if (!safeStorage.isEncryptionAvailable()) {
     throw new Error('Safe Storage is not available');
   }
