@@ -1,9 +1,30 @@
 import { safeStorage } from 'electron';
+import Logger from 'electron-log';
 import ConfigStore, { defaults, fieldsToSave } from '../config';
 import packageConfig from '../../../package.json';
 import { User } from '../types';
 
 const TOKEN_ENCODING = 'latin1';
+
+export function encryptToken() {
+  const bearerTokenEncrypted = ConfigStore.get('bearerTokenEncrypted');
+
+  if (bearerTokenEncrypted) return;
+
+  Logger.info('TOKEN WAS NOT ENCRYPTED, ENCRYPTING...');
+
+  if (!safeStorage.isEncryptionAvailable()) {
+    throw new Error('Safe Storage is not available');
+  }
+
+  const plainToken = ConfigStore.get('bearerToken');
+
+  const buffer = safeStorage.encryptString(plainToken);
+  const encryptedToken = buffer.toString(TOKEN_ENCODING);
+
+  ConfigStore.set('bearerToken', encryptedToken);
+  ConfigStore.set('bearerTokenEncrypted', true);
+}
 
 export function setCredentials(
   userData: User,
