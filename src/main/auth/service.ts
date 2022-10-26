@@ -3,40 +3,27 @@ import ConfigStore, { defaults, fieldsToSave } from '../config';
 import packageConfig from '../../../package.json';
 import { User } from '../types';
 
-const charset = 'latin1';
+const TOKEN_ENCODING = 'latin1';
 
 export function setCredentials(
   userData: User,
   mnemonic: string,
   bearerToken: string
 ) {
+  if (!safeStorage.isEncryptionAvailable()) {
+    throw new Error('Safe Storage is not available');
+  }
+
+  const buffer = safeStorage.encryptString(bearerToken);
+  const encryptedToken = buffer.toString(TOKEN_ENCODING);
+
+  ConfigStore.set('bearerToken', encryptedToken);
   ConfigStore.set('mnemonic', mnemonic);
   ConfigStore.set('userData', userData);
-
-  if (safeStorage.isEncryptionAvailable()) {
-    const buffer = safeStorage.encryptString(bearerToken);
-    const encrypted = buffer.toString(charset);
-
-    ConfigStore.set('bearerToken', encrypted);
-    ConfigStore.set('encrypedToken', true);
-  } else {
-    ConfigStore.set('bearerToken', bearerToken);
-    ConfigStore.set('encrypedToken', false);
-  }
 }
 
-export function getHeaders(includeMnemonic = false) {
-  let token = ConfigStore.get('bearerToken');
-  const tokenWasEncrypted = ConfigStore.get('encrypedToken') as boolean;
-
-  if (tokenWasEncrypted) {
-    try {
-      const buffer = Buffer.from(token, charset);
-      token = safeStorage.decryptString(buffer);
-    } catch (err: any) {
-      console.error(err);
-    }
-  }
+export function getHeaders(includeMnemonic = false): HeadersInit {
+  const token = getToken();
 
   const header = {
     Authorization: `Bearer ${token}`,
@@ -50,7 +37,6 @@ export function getHeaders(includeMnemonic = false) {
       : {}),
   };
 
-  console.log(header);
   return header;
 }
 
@@ -59,20 +45,15 @@ export function getUser(): User | null {
   return Object.keys(user).length ? user : null;
 }
 
-export function getToken() {
-  let token = ConfigStore.get('bearerToken');
-  const tokenWasEncrypted = ConfigStore.get('encrypedToken') as boolean;
-
-  if (tokenWasEncrypted) {
-    try {
-      const buffer = Buffer.from(token, charset);
-      token = safeStorage.decryptString(buffer);
-    } catch (err: any) {
-      console.error(err);
-    }
+export function getToken(): string {
+  if (!safeStorage.isEncryptionAvailable()) {
+    throw new Error('Safe Storage is not available');
   }
 
-  return token;
+  const encrypedToken = ConfigStore.get('bearerToken');
+  const buffer = Buffer.from(encrypedToken, TOKEN_ENCODING);
+
+  return safeStorage.decryptString(buffer);
 }
 
 function resetCredentials() {
