@@ -1,6 +1,6 @@
 import { ipcRenderer as electronIpcRenderer } from 'electron';
 import Logger from 'electron-log';
-import { getHeaders, getUser } from '../../main/auth/service';
+import { getUser } from '../../main/auth/service';
 import configStore from '../../main/config';
 import { getLocalFilesystem } from '../filesystems/local-filesystem';
 import { getRemoteFilesystem } from '../filesystems/remote-filesystem';
