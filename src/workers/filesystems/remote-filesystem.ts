@@ -4,6 +4,10 @@ import * as uuid from 'uuid';
 import { Readable } from 'stream';
 import Logger from 'electron-log';
 import EventEmitter from 'events';
+import {
+  fileNameIsValid,
+  fileNameNotValidError,
+} from '../utils/name-verification';
 import crypt from '../utils/crypt';
 import {
   Listing,
@@ -12,6 +16,7 @@ import {
   Source,
   ProcessError,
   ProcessFatalError,
+  ReadingMetaErrorEntry,
 } from '../types';
 import httpRequest from '../utils/http-request';
 import isOnline from '../utils/is-online';
@@ -139,6 +144,7 @@ export function getRemoteFilesystem({
       const tree = await getTree();
 
       const listing: Listing = {};
+      const readingMetaErrors: Array<ReadingMetaErrorEntry> = [];
 
       traverse(baseFolderId);
 
@@ -150,29 +156,45 @@ export function getRemoteFilesystem({
           (folder) => folder.parent_id === currentId
         );
 
-        filesInThisFolder.forEach((file) => {
-          const name =
-            currentName +
-            crypt.decryptName(
-              file.name,
-              file.folderId.toString(),
-              file.encrypt_version
-            ) +
-            (file.type ? `.${file.type}` : '');
-          const modificationTime = getSecondsFromDateString(
-            file.modificationTime
-          );
-          listing[name] = { modtime: modificationTime, size: file.size };
-          cache[name] = {
-            id: file.id,
-            parentId: file.folderId,
-            isFolder: false,
-            bucket: file.bucket,
-            fileId: file.fileId,
-            modificationTime,
-            size: file.size,
-          };
-        });
+        filesInThisFolder
+          .map((file) => ({
+            name:
+              currentName +
+              crypt.decryptName(
+                file.name,
+                file.folderId.toString(),
+                file.encrypt_version
+              ) +
+              (file.type ? `.${file.type}` : ''),
+            file,
+          }))
+          .filter(({ name }) => {
+            const failedTest = fileNameIsValid(name);
+
+            if (failedTest.length > 0) {
+              failedTest.forEach((test) =>
+                readingMetaErrors.push(fileNameNotValidError(name, test.reason))
+              );
+              return false;
+            }
+
+            return true;
+          })
+          .forEach(({ file, name }) => {
+            const modificationTime = getSecondsFromDateString(
+              file.modificationTime
+            );
+            listing[name] = { modtime: modificationTime, size: file.size };
+            cache[name] = {
+              id: file.id,
+              parentId: file.folderId,
+              isFolder: false,
+              bucket: file.bucket,
+              fileId: file.fileId,
+              modificationTime,
+              size: file.size,
+            };
+          });
 
         foldersInThisFolder.forEach((folder) => {
           const name =
@@ -192,7 +214,7 @@ export function getRemoteFilesystem({
         });
       }
 
-      return { listing, readingMetaErrors: [] };
+      return { listing, readingMetaErrors };
     },
 
     async deleteFile(name: string): Promise<void> {

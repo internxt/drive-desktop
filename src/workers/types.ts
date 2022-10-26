@@ -142,7 +142,10 @@ export type ProcessErrorName =
   | 'EMPTY_FILE'
 
   // Unknown error
-  | 'UNKNOWN';
+  | 'UNKNOWN'
+
+  // The file name may be malignus
+  | 'TRAVERSAL_PATH';
 
 export class ProcessError extends Error {
   details: ErrorDetails;
