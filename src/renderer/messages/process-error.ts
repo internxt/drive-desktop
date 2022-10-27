@@ -10,7 +10,6 @@ export const shortMessages: ProcessErrorMessages = {
   BAD_RESPONSE: 'Bad response from Internxt servers',
   EMPTY_FILE: 'File is empty',
   UNKNOWN: 'Unknown error',
-  TRAVERSAL_PATH: 'Posible risk',
 };
 
 export const longMessages: ProcessErrorMessages = {
@@ -27,6 +26,4 @@ export const longMessages: ProcessErrorMessages = {
   EMPTY_FILE:
     "We don't support files with a size of 0 bytes because of our processes of sharding and encryption",
   UNKNOWN: 'An unknown error happened while processing this file.',
-  TRAVERSAL_PATH:
-    'This file name cotains a sequence of characters that could lead to a path travesal attack',
 };
