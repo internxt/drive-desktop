@@ -4,10 +4,7 @@ import * as uuid from 'uuid';
 import { Readable } from 'stream';
 import Logger from 'electron-log';
 import EventEmitter from 'events';
-import {
-  fileNameIsValid,
-  fileNameNotValidError,
-} from '../utils/name-verification';
+import { fileNameIsValid } from '../utils/name-verification';
 import crypt from '../utils/crypt';
 import {
   Listing,
@@ -169,11 +166,11 @@ export function getRemoteFilesystem({
             file,
           }))
           .filter(({ name }) => {
-            const failedTest = fileNameIsValid(name);
+            const isValid = fileNameIsValid(name);
 
-            if (failedTest.length > 0) {
-              failedTest.forEach((test) =>
-                readingMetaErrors.push(fileNameNotValidError(name, test.reason))
+            if (!isValid) {
+              Logger.warn(
+                `File with name ${name} will be ignored due an invalid name`
               );
               return false;
             }
