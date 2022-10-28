@@ -2,7 +2,7 @@ import { fileNameIsValid } from '../name-verification';
 
 describe('name verifiaction test', () => {
   const invalidFileNames = [
-    '..AppDataRoamingMicrosoftWindowsStart MenuProgramsStartup',
+    '..App\\DataRoaming\\MicrosoftWindows\\Start Menu\\Programs\\Startup',
     'c:/all.txt',
     'C:windowswin.ini',
     'C:windowssystem.ini',
@@ -29,7 +29,8 @@ describe('name verifiaction test', () => {
     '/etc/passwd',
     '/etc/shadow',
     '/etc/crontab',
-    'secret.doc%00.pdf',
+    'secret.doc\0.pdf',
+    '/filename.txt',
   ];
 
   it.each(invalidFileNames)('returns false', (fileName: string) => {
