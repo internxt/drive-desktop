@@ -170,7 +170,7 @@ export function getRemoteFilesystem({
 
             if (!isValid) {
               Logger.warn(
-                `File with name ${name} will be ignored due an invalid name`
+                `REMOTE file with name ${name} will be ignored due an invalid name`
               );
               return false;
             }
