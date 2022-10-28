@@ -24,7 +24,7 @@
     "start:sync": "cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true webpack --config ./.erb/configs/webpack.config.sync.ts",
     "start:backups": "cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true webpack --config ./.erb/configs/webpack.config.backups.ts",
     "test": "jest && playwright test --config=src/test",
-    "test:unit": "jest",
+    "test:unit": "jest --silent",
     "test:e2e": "playwright test --config=src/test",
     "prepare": "husky install"
   },
