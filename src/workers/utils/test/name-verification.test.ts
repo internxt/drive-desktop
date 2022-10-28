@@ -1,41 +1,109 @@
 import { fileNameIsValid } from '../name-verification';
 
+import sensibleFiles from './sensible-files.json';
+
 describe('name verifiaction test', () => {
-  const invalidFileNames = [
-    '..App\\DataRoaming\\MicrosoftWindows\\Start Menu\\Programs\\Startup',
-    'c:/all.txt',
-    'C:windowswin.ini',
-    'C:windowssystem.ini',
-    'C:windowsiis.log',
-    'C:windowsSystem32Driversetchosts',
-    'C:Windowssystem32configSYSTEM',
-    'C:windowsdebug\netsetup.log',
-    'C:windowsdebugsammui.log',
-    'C:windowsdebug\netlogon.log',
-    'C:windowsdebugpasswd.log',
-    'C:windowssystem32winevtlogssystem.evtx',
-    'C:windowssystem32winevtlogsWindows Powershell.evtx',
-    'C:windowsWindowsUpdate.log',
-    'C:windowssystem32calc.exe',
-    'C:windowssystem32windowspowershell\v1.0powershell.exe',
-    'C:windowsccmlogs\filesystemfile.log',
-    'C:\\usersadministratorappdatalocal\recently-used.xbel',
-    'C:\\usersadministratordesktopdesktop.ini',
-    'C:windowspanther\\unattended.xml',
-    'C:windowspanther\\unattended\\unattended.xml',
-    'C:windows\repairsam',
-    'C:windowssystem32\tasksdaily',
-    'C:windowspanthersysprep.inf',
-    '/etc/passwd',
-    '/etc/shadow',
-    '/etc/crontab',
-    'secret.doc\0.pdf',
-    '/filename.txt',
-  ];
+  const INVALID = false;
+  const VALID = true;
 
-  it.each(invalidFileNames)('returns false', (fileName: string) => {
-    const result = fileNameIsValid(fileName);
+  describe('sensible files', () => {
+    it.each(sensibleFiles.unix)(
+      'sensible unix files are not valid',
+      (fileName) => expect(fileNameIsValid(fileName)).toBe(INVALID)
+    );
 
-    expect(result).toBe(false);
+    it.each(sensibleFiles.windows)(
+      'sensible windows files are not valid',
+      (fileName) => expect(fileNameIsValid(fileName)).toBe(INVALID)
+    );
+
+    it.each(sensibleFiles['logs-linux'])(
+      'linux logs are not valid',
+      (fileName) => expect(fileNameIsValid(fileName)).toBe(INVALID)
+    );
+  });
+
+  describe('firts level files', () => {
+    it('startup folder is not valid', () => {
+      const maliciousFileName =
+        '..App\\DataRoaming\\MicrosoftWindows\\Start Menu\\Programs\\Startup';
+
+      const result = fileNameIsValid(maliciousFileName);
+
+      expect(result).toBe(INVALID);
+    });
+
+    it('parent folder is not valid', () => {
+      const maliciousFileName = '../file.txt';
+
+      const result = fileNameIsValid(maliciousFileName);
+
+      expect(result).toBe(INVALID);
+    });
+
+    it('file name with null character are not valid', () => {
+      const maliciousFileName = 'secret.doc\0.pdf';
+
+      const result = fileNameIsValid(maliciousFileName);
+
+      expect(result).toBe(INVALID);
+    });
+
+    it('root unix folder is not valid', () => {
+      const maliciousFileName = '/filename.txt';
+
+      const result = fileNameIsValid(maliciousFileName);
+
+      expect(result).toBe(INVALID);
+    });
+
+    it('root windows folder with slash is not valid', () => {
+      const maliciousFileName = 'C:/filename.txt';
+
+      const result = fileNameIsValid(maliciousFileName);
+
+      expect(result).toBe(INVALID);
+    });
+    it('root windows folder with back slash is not valid', () => {
+      const maliciousFileName = 'C:\\filename.txt';
+
+      const result = fileNameIsValid(maliciousFileName);
+
+      expect(result).toBe(INVALID);
+    });
+  });
+
+  describe('second level files', () => {
+    it('second level files contain relative path', () => {
+      const secondLevelFile = 'memes/cat.jpg';
+
+      const result = fileNameIsValid(secondLevelFile);
+
+      expect(result).toBe(VALID);
+    });
+
+    it('second level files cannot include previous folder', () => {
+      const secondLevelFile = 'memes/../cat.jpg';
+
+      const result = fileNameIsValid(secondLevelFile);
+
+      expect(result).toBe(INVALID);
+    });
+
+    it('second level files cannot include windows root folder', () => {
+      const secondLevelFile = 'memes/c:/cat.jpg';
+
+      const result = fileNameIsValid(secondLevelFile);
+
+      expect(result).toBe(INVALID);
+    });
+
+    it('second level files cannot include windows with backslash root folder', () => {
+      const secondLevelFile = 'memes/c:\\cat.jpg';
+
+      const result = fileNameIsValid(secondLevelFile);
+
+      expect(result).toBe(INVALID);
+    });
   });
 });
