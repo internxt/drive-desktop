@@ -108,6 +108,7 @@ function cleanAndStartRemoteNotifications() {
       token: getToken(),
     },
     withCredentials: true,
+    transports: ['polling'],
   });
 
   socket.io.on('open', () => {
