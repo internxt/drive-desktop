@@ -30,6 +30,8 @@ declare interface Window {
       includeMnemonic?: boolean
     ): Promise<ReturnType<typeof import('./auth/service').getHeaders>>;
 
+    getNewToken(): Promise<string>;
+
     startSyncProcess(): void;
 
     stopSyncProcess(): void;
@@ -137,5 +139,7 @@ declare interface Window {
     changeBackupPath: typeof import('../main/device/service').changeBackupPath;
 
     onRemoteChanges(func: () => void): () => void;
+
+    getUsage: () => Promise<import('../main/usage/usage').Usage>;
   };
 }
