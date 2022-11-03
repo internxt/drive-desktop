@@ -29,19 +29,26 @@ export function encryptToken() {
 export function setCredentials(
   userData: User,
   mnemonic: string,
-  bearerToken: string
+  bearerToken: string,
+  newToken: string
 ) {
   if (!safeStorage.isEncryptionAvailable()) {
     throw new Error('Safe Storage is not available');
   }
+
+  ConfigStore.set('mnemonic', mnemonic);
+  ConfigStore.set('userData', userData);
 
   const buffer = safeStorage.encryptString(bearerToken);
   const encryptedToken = buffer.toString(TOKEN_ENCODING);
 
   ConfigStore.set('bearerToken', encryptedToken);
   ConfigStore.set('bearerTokenEncrypted', true);
-  ConfigStore.set('mnemonic', mnemonic);
-  ConfigStore.set('userData', userData);
+
+  const newTokenBuffer = safeStorage.encryptString(newToken);
+  const encryptedNewToken = newTokenBuffer.toString(TOKEN_ENCODING);
+
+  ConfigStore.set('newToken', encryptedNewToken);
 }
 
 export function getHeaders(includeMnemonic = false): HeadersInit {
@@ -84,8 +91,25 @@ export function getToken(): string {
   return safeStorage.decryptString(buffer);
 }
 
+export function getNewToken(): string {
+  if (!safeStorage.isEncryptionAvailable()) {
+    throw new Error('Safe Storage is not available');
+  }
+
+  const encrypedToken = ConfigStore.get('newToken');
+  const buffer = Buffer.from(encrypedToken, TOKEN_ENCODING);
+
+  return safeStorage.decryptString(buffer);
+}
+
 function resetCredentials() {
-  for (const field of ['mnemonic', 'userData', 'bearerToken'] as const) {
+  for (const field of [
+    'mnemonic',
+    'userData',
+    'bearerToken',
+    'bearerTokenEncrypted',
+    'newToken',
+  ] as const) {
     ConfigStore.set(field, defaults[field]);
   }
 }

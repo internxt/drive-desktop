@@ -86,9 +86,6 @@ contextBridge.exposeInMainWorld('electron', {
   settingsWindowResized(payload) {
     return ipcRenderer.send('settings-window-resized', payload);
   },
-  openOnboardingWindow() {
-    return ipcRenderer.send('open-onboarding-window');
-  },
   finishOnboarding() {
     return ipcRenderer.send('user-finished-onboarding');
   },
@@ -178,6 +175,9 @@ contextBridge.exposeInMainWorld('electron', {
     const callback = () => func();
     ipcRenderer.on(eventName, callback);
     return () => ipcRenderer.removeListener(eventName, callback);
+  },
+  getUsage() {
+    return ipcRenderer.invoke('get-usage');
   },
   path,
 });

@@ -27,6 +27,7 @@ import './background-processes/backups';
 import './background-processes/sync';
 import './background-processes/process-issues';
 import './device/handlers';
+import './usage/handlers';
 import './realtime';
 import './tray';
 

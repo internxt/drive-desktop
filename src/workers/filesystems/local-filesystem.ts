@@ -5,6 +5,7 @@ import * as uuid from 'uuid';
 import Logger from 'electron-log';
 import { constants, createReadStream, createWriteStream } from 'fs';
 import ignore from 'ignore';
+import { fileNameIsValid } from '../utils/name-verification';
 import {
   FileSystem,
   Listing,
@@ -88,7 +89,23 @@ export function getLocalFilesystem(
           dot: true,
           cwd: localPath,
         })
-      ).filter((fileName) => !ig.ignores(path.relative(localPath, fileName)));
+      ).filter((fileName) => {
+        const relativeFileName = path.relative(localPath, fileName);
+
+        if (ig.ignores(relativeFileName)) {
+          return false;
+        }
+
+        const isValid = fileNameIsValid(relativeFileName);
+        if (!isValid) {
+          Logger.warn(
+            `${this.kind} file with name ${relativeFileName} will be ignored due an invalid name`
+          );
+          return false;
+        }
+
+        return true;
+      });
 
       const listing: Listing = {};
       const readingMetaErrors: ReadingMetaErrorEntry[] = [];

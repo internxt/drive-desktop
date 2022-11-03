@@ -24,7 +24,7 @@
     "start:sync": "cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true webpack --config ./.erb/configs/webpack.config.sync.ts",
     "start:backups": "cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true webpack --config ./.erb/configs/webpack.config.backups.ts",
     "test": "jest && playwright test --config=src/test",
-    "test:unit": "jest",
+    "test:unit": "jest --silent",
     "test:e2e": "playwright test --config=src/test",
     "prepare": "husky install"
   },
@@ -226,6 +226,7 @@
     "@iconscout/react-unicons": "^1.1.6",
     "@internxt/inxt-js": "^2.0.5",
     "@internxt/lib": "^1.1.6",
+    "@internxt/sdk": "^1.4.16",
     "bytes": "^3.1.1",
     "crypto-js": "^4.1.1",
     "dayjs": "^1.10.7",
