@@ -30,8 +30,6 @@ declare interface Window {
       includeMnemonic?: boolean
     ): Promise<ReturnType<typeof import('./auth/service').getHeaders>>;
 
-    getNewToken(): Promise<string>;
-
     startSyncProcess(): void;
 
     stopSyncProcess(): void;
