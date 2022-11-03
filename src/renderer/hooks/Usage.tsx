@@ -7,6 +7,10 @@ export default function useUsage() {
   );
 
   async function updateUsage() {
+    if (!(await window.electron.isUserLoggedIn())) {
+      return;
+    }
+
     try {
       const usage = await window.electron.getUsage();
       setRawUsage(usage);

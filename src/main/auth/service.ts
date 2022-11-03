@@ -1,5 +1,6 @@
 import { safeStorage } from 'electron';
 import Logger from 'electron-log';
+import { HeadersInit } from 'electron-fetch';
 import ConfigStore, { defaults, fieldsToSave } from '../config';
 import packageConfig from '../../../package.json';
 import { User } from '../types';

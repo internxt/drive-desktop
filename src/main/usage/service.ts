@@ -7,25 +7,19 @@ import { Usage } from './usage';
 const driveUrl = process.env.API_URL;
 const photosUrl = process.env.PHOTOS_URL;
 
-let photosSubmodule: PhotosSubmodule | null = null;
-
-function sataticPhotosSubmodule(): PhotosSubmodule {
-  if (photosSubmodule) return photosSubmodule;
-
+async function getPhotosUsage(): Promise<number> {
   if (!photosUrl) {
     throw new Error('PHOTOS API URL NOT DEFINED');
   }
 
-  photosSubmodule = new PhotosSubmodule({
+  const accessToken = getNewToken();
+
+  const photosSubmodule = new PhotosSubmodule({
     baseUrl: photosUrl,
-    accessToken: getNewToken(),
+    accessToken,
   });
 
-  return photosSubmodule;
-}
-
-async function getPhotosUsage(): Promise<number> {
-  const { usage } = await sataticPhotosSubmodule().getUsage();
+  const { usage } = await photosSubmodule.getUsage();
 
   return usage;
 }
