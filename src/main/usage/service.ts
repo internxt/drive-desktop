@@ -1,5 +1,6 @@
 import PhotosSubmodule from '@internxt/sdk/dist/photos/photos';
 import Logger from 'electron-log';
+import fetch, { HeadersInit } from 'electron-fetch';
 import { getHeaders, getNewToken } from '../auth/service';
 import { Usage } from './usage';
 
