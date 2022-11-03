@@ -9,6 +9,7 @@ import {
   canHisConfigBeRestored,
   setCredentials,
   logout,
+  encryptToken,
 } from './service';
 
 let isLoggedIn: boolean;
@@ -55,5 +56,8 @@ ipcMain.on('user-logged-out', () => {
 });
 
 eventBus.on('APP_IS_READY', () => {
-  if (isLoggedIn) eventBus.emit('USER_LOGGED_IN');
+  if (!isLoggedIn) return;
+
+  encryptToken();
+  eventBus.emit('USER_LOGGED_IN');
 });
