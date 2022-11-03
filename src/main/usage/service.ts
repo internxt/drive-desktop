@@ -12,16 +12,24 @@ async function getPhotosUsage(): Promise<number> {
     throw new Error('PHOTOS API URL NOT DEFINED');
   }
 
-  const accessToken = getNewToken();
+  try {
+    const accessToken = getNewToken();
 
-  const photosSubmodule = new PhotosSubmodule({
-    baseUrl: photosUrl,
-    accessToken,
-  });
+    const photosSubmodule = new PhotosSubmodule({
+      baseUrl: photosUrl,
+      accessToken,
+    });
 
-  const { usage } = await photosSubmodule.getUsage();
+    const { usage } = await photosSubmodule.getUsage();
 
-  return usage;
+    return usage;
+  } catch (error: any) {
+    Logger.warn(
+      'User is missing new access token, photos usage will not be counted'
+    );
+  }
+
+  return 0;
 }
 
 async function getDriveUsage(headers: HeadersInit): Promise<number> {
