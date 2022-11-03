@@ -18,8 +18,6 @@ declare interface Window {
 
     openSyncFolder(): Promise<void>;
 
-    openOnboardingWindow(): void;
-
     finishOnboarding(): void;
 
     quit(): void;

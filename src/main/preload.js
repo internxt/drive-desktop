@@ -86,9 +86,6 @@ contextBridge.exposeInMainWorld('electron', {
   settingsWindowResized(payload) {
     return ipcRenderer.send('settings-window-resized', payload);
   },
-  openOnboardingWindow() {
-    return ipcRenderer.send('open-onboarding-window');
-  },
   finishOnboarding() {
     return ipcRenderer.send('user-finished-onboarding');
   },
