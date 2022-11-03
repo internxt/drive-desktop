@@ -16,6 +16,7 @@ export const fieldsToSave = [
 
 interface ConfigStore {
   bearerToken: string;
+  newToken: string;
   userData: User;
   mnemonic: string;
   backupsEnabled: boolean;
@@ -33,6 +34,9 @@ interface ConfigStore {
 
 const schema: Schema<ConfigStore> = {
   bearerToken: {
+    type: 'string',
+  },
+  newToken: {
     type: 'string',
   },
   userData: {
@@ -78,6 +82,7 @@ const schema: Schema<ConfigStore> = {
 
 export const defaults: ConfigStore = {
   bearerToken: '',
+  newToken: '',
   userData: {} as User,
   mnemonic: '',
   backupsEnabled: false,

@@ -176,5 +176,8 @@ contextBridge.exposeInMainWorld('electron', {
     ipcRenderer.on(eventName, callback);
     return () => ipcRenderer.removeListener(eventName, callback);
   },
+  getUsage() {
+    return ipcRenderer.invoke('get-usage');
+  },
   path,
 });

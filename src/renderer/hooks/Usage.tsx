@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getUsage, Usage } from '../utils/usage';
+import { Usage } from '../../main/usage/usage';
 
 export default function useUsage() {
   const [rawUsage, setRawUsage] = useState<Usage | 'loading' | 'error'>(
@@ -8,7 +8,7 @@ export default function useUsage() {
 
   async function updateUsage() {
     try {
-      const usage = await getUsage();
+      const usage = await window.electron.getUsage();
       setRawUsage(usage);
     } catch (err) {
       console.error(err);

@@ -135,5 +135,7 @@ declare interface Window {
     changeBackupPath: typeof import('../main/device/service').changeBackupPath;
 
     onRemoteChanges(func: () => void): () => void;
+
+    getUsage: () => Promise<import('../main/usage/usage').Usage>;
   };
 }

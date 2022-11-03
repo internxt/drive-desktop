@@ -1,15 +1,24 @@
+import { safeStorage } from 'electron';
 import ConfigStore, { defaults, fieldsToSave } from '../config';
 import packageConfig from '../../../package.json';
 import { User } from '../types';
 
+const TOKEN_ENCODING = 'latin1';
+
 export function setCredentials(
   userData: User,
   mnemonic: string,
-  bearerToken: string
+  bearerToken: string,
+  newToken: string
 ) {
   ConfigStore.set('mnemonic', mnemonic);
   ConfigStore.set('userData', userData);
   ConfigStore.set('bearerToken', bearerToken);
+
+  const newTokenBuffer = safeStorage.encryptString(newToken);
+  const encryptedNewToken = newTokenBuffer.toString(TOKEN_ENCODING);
+
+  ConfigStore.set('newToken', encryptedNewToken);
 }
 
 export function getHeaders(includeMnemonic = false) {
@@ -36,6 +45,17 @@ export function getUser(): User | null {
 
 export function getToken() {
   return ConfigStore.get('bearerToken');
+}
+
+export function getNewToken(): string {
+  if (!safeStorage.isEncryptionAvailable()) {
+    throw new Error('Safe Storage is not available');
+  }
+
+  const encrypedToken = ConfigStore.get('newToken');
+  const buffer = Buffer.from(encrypedToken, TOKEN_ENCODING);
+
+  return safeStorage.decryptString(buffer);
 }
 
 function resetCredentials() {
