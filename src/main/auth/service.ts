@@ -65,7 +65,7 @@ export function updateCredentials(bearerToken: string, newBearerToken: string) {
   ConfigStore.set('newToken', encryptedNewToken);
 }
 
-export function getHeaders(includeMnemonic = false): HeadersInit {
+export function getHeaders(includeMnemonic = false): Record<string, string> {
   const token = getToken();
 
   const header = {

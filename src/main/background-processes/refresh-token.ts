@@ -1,23 +1,16 @@
+import Logger from 'electron-log';
 import { TokenScheduler } from '../token-scheduler/TokenScheduler';
-import {
-  getHeaders,
-  getNewToken,
-  getToken,
-  updateCredentials,
-} from '../auth/service';
-import httpRequest from '../../workers/utils/http-request';
+import { getNewToken, getToken, updateCredentials } from '../auth/service';
+import { getClient } from '../../shared/HttpClient/main-process-client';
+
+const authorizedClient = getClient();
 
 async function obtainTokens() {
-  const headers = getHeaders();
-  const res = await httpRequest(`${process.env.API_URL}/api/user/refresh`, {
-    headers,
-  });
+  const res = await authorizedClient.get(
+    `${process.env.API_URL}/api/user/refresh`
+  );
 
-  if (!res.ok) {
-    return;
-  }
-
-  return res.json();
+  return res.data;
 }
 
 async function refreshToken() {
@@ -35,6 +28,7 @@ export async function createTokenSchedule(refreshedTokens?: Array<string>) {
   const schedule = shceduler.schedule(refreshToken);
 
   if (!schedule && !refreshedTokens) {
+    Logger.debug('[TOKEN] Refreshing tokens');
     createTokenSchedule(await refreshToken());
   }
 }
