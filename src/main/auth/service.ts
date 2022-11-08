@@ -52,6 +52,19 @@ export function setCredentials(
   ConfigStore.set('newToken', encryptedNewToken);
 }
 
+export function updateCredentials(bearerToken: string, newBearerToken: string) {
+  const buffer = safeStorage.encryptString(bearerToken);
+  const encryptedToken = buffer.toString(TOKEN_ENCODING);
+
+  ConfigStore.set('bearerToken', encryptedToken);
+  ConfigStore.set('bearerTokenEncrypted', true);
+
+  const newTokenBuffer = safeStorage.encryptString(newBearerToken);
+  const encryptedNewToken = newTokenBuffer.toString(TOKEN_ENCODING);
+
+  ConfigStore.set('newToken', encryptedNewToken);
+}
+
 export function getHeaders(includeMnemonic = false): HeadersInit {
   const token = getToken();
 
