@@ -24,9 +24,13 @@ export class TokenScheduler {
     return Math.min(...expirations);
   }
 
-  private expToDate(exp: number): Date {
+  private calculateRenewDate(expiration: number): Date {
+    const renewSecondsBefore = this.daysBefore * 24 * 60 * 60;
+
+    const renewDateInSeconds = expiration - renewSecondsBefore;
+
     const date = new Date(0);
-    date.setUTCSeconds(exp);
+    date.setUTCSeconds(renewDateInSeconds);
 
     return date;
   }
@@ -39,9 +43,7 @@ export class TokenScheduler {
       return;
     }
 
-    const renewDate = this.expToDate(
-      expiration - this.daysBefore * 24 * 60 * 60
-    );
+    const renewDate = this.calculateRenewDate(expiration);
 
     Logger.info(
       '[TOKEN] Tokens will be refreshed on ',
