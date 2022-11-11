@@ -9,7 +9,7 @@ const syncProgressInfo = {
 };
 
 ipcMain.on('SYNC_ACTION_QUEUE_GENERATED', (_, actions: EnqueuedSyncActions) => {
-  const filesToUpload = actions.pullFromRemote.length;
+  const filesToUpload = actions.pullFromRemote?.length || 0;
 
   syncProgressInfo.totalActionsToPerform = filesToUpload;
 

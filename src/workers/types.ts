@@ -225,4 +225,4 @@ type SyncActionName =
 
 type SyncAction = Array<[string, string]> | Array<string>;
 
-export type EnqueuedSyncActions = Record<SyncActionName, SyncAction>;
+export type EnqueuedSyncActions = Partial<Record<SyncActionName, SyncAction>>;

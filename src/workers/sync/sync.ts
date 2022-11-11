@@ -127,6 +127,11 @@ class Sync extends Process {
     Logger.debug('Queue pull from local', pullFromLocal);
     Logger.debug('Queue pull from remote', pullFromRemote);
 
+    this.emit('ACTION_QUEUE_GENERATED', {
+      pullFromLocal,
+      pullFromRemote,
+    });
+
     await Promise.all([
       this.consumePullQueue(pullFromLocal, this.local, this.remote),
       this.consumePullQueue(pullFromRemote, this.remote, this.local),
