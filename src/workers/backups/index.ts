@@ -26,6 +26,8 @@ export interface BackupsEvents {
   }) => void;
   BACKUP_ISSUE: (issue: ProcessIssue) => void;
   BACKUP_EXIT: () => void;
+  BACKUP_ACTION_DONE: () => void;
+  BACKUP_ACTION_QUEUE_GENERATED: (n: number) => void;
 }
 
 interface IpcRenderer {
@@ -77,6 +79,7 @@ async function setUp() {
 
   backups.on('ACTION_QUEUE_GENERATED', (n) => {
     totalItems = n;
+    ipcRenderer.send('BACKUP_ACTION_QUEUE_GENERATED', n);
   });
 
   backups.on('PULLING_FILE', (name, progress, kind) => {
@@ -86,6 +89,7 @@ async function setUp() {
   backups.on('FILE_PULLED', (name, kind) => {
     onCompletedItem();
     Logger.debug(`File ${name} pulled from ${kind}`);
+    ipcRenderer.send('BACKUP_ACTION_DONE');
   });
 
   backups.on('ERROR_PULLING_FILE', (name, kind, errorName, errorDetails) => {
@@ -112,6 +116,7 @@ async function setUp() {
 
   backups.on('FILE_RENAMED', (oldName, newName, kind) => {
     Logger.debug(`File ${oldName} renamed -> ${newName} in ${kind}`);
+    ipcRenderer.send('BACKUP_ACTION_DONE');
   });
 
   backups.on(
@@ -134,6 +139,7 @@ async function setUp() {
   backups.on('FILE_DELETED', (name, kind) => {
     onCompletedItem();
     Logger.debug(`Deleted file ${name} in ${kind}`);
+    ipcRenderer.send('BACKUP_ACTION_DONE');
   });
 
   backups.on('ERROR_DELETING_FILE', (name, kind, errorName, errorDetails) => {
@@ -158,9 +164,10 @@ async function setUp() {
     Logger.debug(`Deleting folder ${name} in ${kind}`);
   });
 
-  backups.on('FOLDER_DELETED', (name, kind) =>
-    Logger.debug(`Deleted folder ${name} in ${kind}`)
-  );
+  backups.on('FOLDER_DELETED', (name, kind) => {
+    Logger.debug(`Deleted folder ${name} in ${kind}`);
+    ipcRenderer.send('BACKUP_ACTION_DONE');
+  });
 
   backups.on('ERROR_DELETING_FOLDER', (name, kind, errorName, errorDetails) =>
     Logger.error(

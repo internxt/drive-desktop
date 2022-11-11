@@ -112,6 +112,7 @@ function processSyncItem(item: SyncArgs, hasBeenStopped: { value: boolean }) {
 
     async function onExit(payload: SyncStoppedPayload) {
       exited = true;
+      ipcMain.emit('sync-stopped', payload);
       Logger.log(
         `[onSyncExit] (${payload.reason}) ${
           payload.reason === 'FATAL_ERROR' ? payload.errorName : ''

@@ -1,5 +1,5 @@
 import Logger from 'electron-log';
-import { FileSystem, Listing } from '../types';
+import { EnqueuedSyncActions, FileSystem, Listing } from '../types';
 import Process, { ProcessEvents, ProcessResult } from '../process';
 
 class Sync extends Process {
@@ -54,6 +54,15 @@ class Sync extends Process {
     );
 
     await this.listingStore.removeSavedListing();
+
+    this.emit('ACTION_QUEUE_GENERATED', {
+      renameInLocal,
+      renameInRemote,
+      pullFromLocal,
+      pullFromRemote,
+      deleteInLocal,
+      deleteInRemote,
+    });
 
     Logger.debug('Queue rename in local', renameInLocal);
     Logger.debug('Queue rename in remote', renameInRemote);
@@ -352,6 +361,8 @@ interface SyncEvents extends ProcessEvents {
    * in the last run or because it is the first one
    */
   NEEDS_RESYNC: () => void;
+
+  ACTION_QUEUE_GENERATED: (files: EnqueuedSyncActions) => void;
 
   /**
    * Triggered when the changes needed to be in sync
