@@ -137,5 +137,7 @@ declare interface Window {
     onRemoteChanges(func: () => void): () => void;
 
     getUsage: () => Promise<import('../main/usage/usage').Usage>;
+
+    userLoggInFailed: (email: string) => void;
   };
 }

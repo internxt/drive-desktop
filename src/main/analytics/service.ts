@@ -37,10 +37,24 @@ export function userSignin() {
   );
 }
 
-export function userSigninFailded() {
+export function userSigninFailded(email?: string) {
   Logger.debug('[ANALYTICS]: userSigninFailded called');
+  const clientId = ConfigStore.get('clientId');
 
-  // TODO
+  client.identify(
+    {
+      anonymousId: clientId,
+      traits: {
+        email,
+      },
+    },
+    () => {
+      client.track({
+        event: 'User Signin Failed',
+        properties: { email },
+      });
+    }
+  );
 }
 
 export function userLogout() {
