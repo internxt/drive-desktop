@@ -30,6 +30,7 @@ import './device/handlers';
 import './usage/handlers';
 import './realtime';
 import './tray';
+import './analytics/handlers';
 
 Logger.log(`Running ${packageJson.version}`);
 
