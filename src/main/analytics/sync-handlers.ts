@@ -9,11 +9,11 @@ const syncProgressInfo = {
 };
 
 ipcMain.on('SYNC_ACTION_QUEUE_GENERATED', (_, actions: EnqueuedSyncActions) => {
-  const totalFiles = Object.values(actions).flat().length;
+  const filesToUpload = actions.pullFromRemote.length;
 
-  syncProgressInfo.totalActionsToPerform = totalFiles;
+  syncProgressInfo.totalActionsToPerform = filesToUpload;
 
-  syncStarted(totalFiles);
+  syncStarted(filesToUpload);
 });
 
 ipcMain.on('SYNC_INFO_UPDATE', (_, data) => {
@@ -30,13 +30,13 @@ ipcMain.on('sync-stopped', (payload: any) => {
 
   switch (payload.reason) {
     case 'STOPPED_BY_USER':
-      syncPaused(syncProgressInfo.actionsPerformed);
+      syncPaused(syncProgressInfo.totalActionsToPerform);
       break;
     case 'COULD_NOT_ACQUIRE_LOCK':
-      syncBlocked(syncProgressInfo.actionsPerformed);
+      syncBlocked(syncProgressInfo.totalActionsToPerform);
       break;
     case 'FATAL_ERROR':
-      syncError(syncProgressInfo.actionsPerformed);
+      syncError(syncProgressInfo.totalActionsToPerform);
       break;
     case 'EXIT':
       Logger.debug('[ANALYTICS] SYNC EXIT');

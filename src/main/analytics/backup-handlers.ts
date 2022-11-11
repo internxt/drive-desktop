@@ -1,4 +1,6 @@
 import { ipcMain } from 'electron';
+import Logger from 'electron-log';
+import { ProcessIssue } from '../../workers/types';
 import { backupStarted, backupCompleted, backupError } from './service';
 
 const backupProcessInfo = {
@@ -28,15 +30,23 @@ ipcMain.on('BACKUP_ACTION_QUEUE_GENERATED', (_, numberOfActions: number) => {
 ipcMain.on('BACKUP_COMPLETED', () =>
   backupCompleted(
     backupProcessInfo.shceduled,
-    backupProcessInfo.actionsPerformed
+    backupProcessInfo.totalActionsToPerform
   )
 );
 
 ipcMain.on('BACKUP_FATAL_ERROR', (_, errorName) => {
   backupError(
     backupProcessInfo.shceduled,
-    backupProcessInfo.actionsPerformed,
+    backupProcessInfo.totalActionsToPerform,
     errorName
+  );
+});
+
+ipcMain.on('BACKUP_ISSUE', (_, issue: ProcessIssue) => {
+  backupError(
+    backupProcessInfo.shceduled,
+    backupProcessInfo.totalActionsToPerform,
+    issue.errorName
   );
 });
 

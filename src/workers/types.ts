@@ -215,4 +215,14 @@ export type ProcessInfoUpdatePayload =
       ))
   | ProcessIssue;
 
-export type EnqueuedSyncActions = Record<string, Array<any>>;
+type SyncActionName =
+  | 'renameInLocal'
+  | 'renameInRemote'
+  | 'pullFromLocal'
+  | 'pullFromRemote'
+  | 'deleteInLocal'
+  | 'deleteInRemote';
+
+type SyncAction = Array<[string, string]> | Array<string>;
+
+export type EnqueuedSyncActions = Record<SyncActionName, SyncAction>;
