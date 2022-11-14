@@ -14,8 +14,8 @@ declare global {
       NOTIFICATIONS_URL: string;
       LOCK_REFRESH_INTERVAL: number;
       PHOTOS_URL: string;
-      ANALITICS_KEY: string;
-      ANALITICS_URL: string;
+      RUDDERSTACK_KEY: string;
+      RUDDERSTACK_DATA_PLANE_URL: string;
     }
   }
 }
