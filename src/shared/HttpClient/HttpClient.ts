@@ -1,17 +1,22 @@
-import axios, { Axios, AxiosRequestConfig, AxiosResponse } from 'axios';
+import axios, {
+  AxiosError,
+  AxiosInstance,
+  AxiosRequestConfig,
+  AxiosResponse,
+} from 'axios';
 
 export type HeadersProvider = () => Promise<Record<string, string>>;
 export type UnauthorizedNotifier = () => void;
 
 export class AuthorizedHttpClient {
-  public readonly client: Axios;
+  public readonly client: AxiosInstance;
 
-  private handleUnauthorizedResponse(response: AxiosResponse) {
-    if (response.status === 401) {
+  private handleUnauthorizedResponse(error: AxiosError) {
+    if (error?.response?.status === 401) {
       this.unauthorizedNotifier();
     }
 
-    return response;
+    return error;
   }
 
   private async addApplicationHeaders(config: AxiosRequestConfig) {
@@ -28,9 +33,8 @@ export class AuthorizedHttpClient {
 
     this.client.interceptors.request.use(this.addApplicationHeaders.bind(this));
 
-    this.client.interceptors.response.use(
-      (response: AxiosResponse) => response,
-      this.handleUnauthorizedResponse.bind(this)
-    );
+    this.client.interceptors.response.use((response: AxiosResponse) => {
+      return response;
+    }, this.handleUnauthorizedResponse.bind(this));
   }
 }
