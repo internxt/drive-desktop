@@ -1,9 +1,7 @@
-import Logger from 'electron-log';
-import { client } from './client';
+import { client } from './rudderstack-client';
 import ConfigStore from '../config';
 
 export function identify() {
-  Logger.debug('[ANALYTICS]: identify called');
   const user = ConfigStore.get('userData');
 
   client.identify({
@@ -17,7 +15,6 @@ export function identify() {
 }
 
 export function userSignin() {
-  Logger.debug('[ANALYTICS]: userSignin called');
   const { uuid: userId, email } = ConfigStore.get('userData');
 
   client.identify(
@@ -38,7 +35,6 @@ export function userSignin() {
 }
 
 export function userSigninFailded(email?: string) {
-  Logger.debug('[ANALYTICS]: userSigninFailded called');
   const clientId = ConfigStore.get('clientId');
 
   client.identify(
@@ -58,7 +54,6 @@ export function userSigninFailded(email?: string) {
 }
 
 export function userLogout() {
-  Logger.debug('[ANALYTICS]: userLogout called');
   const { uuid: userId } = ConfigStore.get('userData');
 
   client.track({
@@ -68,7 +63,6 @@ export function userLogout() {
 }
 
 export function syncStarted(numberOfItems: number) {
-  Logger.debug('[ANALYTICS]: syncStarted called with: ', numberOfItems);
   const { uuid: userId } = ConfigStore.get('userData');
 
   client.track({
@@ -81,7 +75,6 @@ export function syncStarted(numberOfItems: number) {
 }
 
 export function syncPaused(numberOfItems: number) {
-  Logger.debug('[ANALYTICS]: syncPaused called');
   const { uuid: userId } = ConfigStore.get('userData');
 
   client.track({
@@ -94,7 +87,6 @@ export function syncPaused(numberOfItems: number) {
 }
 
 export function syncBlocked(numberOfItems: number) {
-  Logger.debug('[ANALYTICS]: syncBlocked called');
   const { uuid: userId } = ConfigStore.get('userData');
 
   client.track({
@@ -107,7 +99,6 @@ export function syncBlocked(numberOfItems: number) {
 }
 
 export function syncError(numberOfItems: number) {
-  Logger.debug('[ANALYTICS]: syncError called');
   const { uuid: userId } = ConfigStore.get('userData');
 
   client.track({
@@ -120,7 +111,6 @@ export function syncError(numberOfItems: number) {
 }
 
 export function backupStarted(scheduled: boolean, numberOfItems: number) {
-  Logger.debug('[ANALYTICS]: backupStarted called');
   const { uuid: userId } = ConfigStore.get('userData');
 
   client.track({
@@ -134,7 +124,6 @@ export function backupStarted(scheduled: boolean, numberOfItems: number) {
 }
 
 export function backupCompleted(scheduled: boolean, numberOfItems: number) {
-  Logger.debug('[ANALYTICS]: backupCompleted called');
   const { uuid: userId } = ConfigStore.get('userData');
 
   client.track({
@@ -152,7 +141,6 @@ export function backupError(
   numberOfItems: number,
   error: string
 ) {
-  Logger.debug('[ANALYTICS]: backupError called');
   const { uuid: userId } = ConfigStore.get('userData');
 
   client.track({
