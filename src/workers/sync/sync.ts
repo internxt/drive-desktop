@@ -367,6 +367,10 @@ interface SyncEvents extends ProcessEvents {
    */
   NEEDS_RESYNC: () => void;
 
+  /**
+   * Triggered when the actions needed to sync the remote and
+   * local systems have been successfully calculated
+   */
   ACTION_QUEUE_GENERATED: (files: EnqueuedSyncActions) => void;
 
   /**

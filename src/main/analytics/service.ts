@@ -34,7 +34,7 @@ export function userSignin() {
   );
 }
 
-export function userSigninFailded(email?: string) {
+export function userSigninFailed(email?: string) {
   const clientId = ConfigStore.get('clientId');
 
   client.identify(

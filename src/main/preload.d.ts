@@ -138,6 +138,6 @@ declare interface Window {
 
     getUsage: () => Promise<import('../main/usage/usage').Usage>;
 
-    userLoggInFailed: (email: string) => void;
+    userLogginFailed: (email: string) => void;
   };
 }
