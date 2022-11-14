@@ -33,7 +33,13 @@ ipcMain.handle('get-headers', (_, includeMnemonic) =>
   getHeaders(includeMnemonic)
 );
 
-export function onUserUnauthorized() {}
+export function onUserUnauthorized() {
+  eventBus.emit('USER_LOGGED_OUT');
+
+  logout();
+
+  setIsLoggedIn(false);
+}
 
 ipcMain.on('user-is-unauthorized', onUserUnauthorized);
 
