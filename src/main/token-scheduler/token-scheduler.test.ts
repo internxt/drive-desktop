@@ -37,7 +37,7 @@ describe('Token Scheduler', () => {
     }
   );
 
-  it('shedules to refresh even if a token does not expire', () => {
+  it('shcedules to refresh even if a token does not expire', () => {
     const scheduler = new TokenScheduler(4, [
       jwtWithoutExpiration,
       jwtExpiresTwentyNinthOfNovember,
@@ -53,7 +53,7 @@ describe('Token Scheduler', () => {
     expect(nextInvocation?.getDay()).toBe(expectedExpireDay.getDay());
   });
 
-  it('shedules to refresh even if a token is not valid', () => {
+  it('schedules to refresh even if a token is not valid', () => {
     const scheduler = new TokenScheduler(4, [
       invalidToken,
       jwtExpiresTwentyNinthOfNovember,
@@ -76,7 +76,7 @@ describe('Token Scheduler', () => {
     expect(schedule).toBeDefined();
   });
 
-  it('does not schedules if any token expires', () => {
+  it('does not schedule if any token expires', () => {
     const scheduler = new TokenScheduler(7, [jwtWithoutExpiration]);
 
     const schedule = scheduler.schedule(taks);
