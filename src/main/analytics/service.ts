@@ -1,18 +1,34 @@
 import { client } from './rudderstack-client';
 import ConfigStore from '../config';
+import packageJson from '../../../package.json';
 
-export function identify() {
-  const user = ConfigStore.get('userData');
+const os = require('os');
 
-  client.identify({
-    userId: user.userId,
-    traits: {
-      name: user.name,
-      email: user.email,
-      plan: user.credit,
-    },
-  });
+function platformShortName(platform: string) {
+  switch (platform) {
+    case 'darwin':
+      return 'MAC';
+    case 'win32':
+      return 'WIN';
+    case 'linux':
+      return 'LINUX';
+    default:
+      return '';
+  }
 }
+
+const deviceContext = {
+  app: {
+    name: 'drive-desktop',
+    version: packageJson.version,
+  },
+  os: {
+    family: os.platform(),
+    name: os.type(),
+    short_name: platformShortName(process.platform),
+    version: os.release(),
+  },
+};
 
 export function userSignin() {
   const { uuid: userId, email } = ConfigStore.get('userData');
@@ -23,12 +39,14 @@ export function userSignin() {
       traits: {
         email,
       },
+      context: deviceContext,
     },
     () => {
       client.track({
         userId,
         event: 'User Signin',
         properties: { email },
+        context: deviceContext,
       });
     }
   );
@@ -48,6 +66,7 @@ export function userSigninFailed(email?: string) {
       client.track({
         event: 'User Signin Failed',
         properties: { email },
+        context: deviceContext,
       });
     }
   );
@@ -71,6 +90,7 @@ export function syncStarted(numberOfItems: number) {
     properties: {
       number_of_items: numberOfItems,
     },
+    context: deviceContext,
   });
 }
 
@@ -83,6 +103,7 @@ export function syncPaused(numberOfItems: number) {
     properties: {
       number_of_items: numberOfItems,
     },
+    context: deviceContext,
   });
 }
 
@@ -95,6 +116,7 @@ export function syncBlocked(numberOfItems: number) {
     properties: {
       number_of_items: numberOfItems,
     },
+    context: deviceContext,
   });
 }
 
@@ -107,6 +129,7 @@ export function syncError(numberOfItems: number) {
     properties: {
       number_of_items: numberOfItems,
     },
+    context: deviceContext,
   });
 }
 
@@ -120,6 +143,7 @@ export function backupStarted(scheduled: boolean, numberOfItems: number) {
       scheduled,
       number_of_items: numberOfItems,
     },
+    context: deviceContext,
   });
 }
 
@@ -133,6 +157,7 @@ export function backupCompleted(scheduled: boolean, numberOfItems: number) {
       scheduled,
       number_of_items: numberOfItems,
     },
+    context: deviceContext,
   });
 }
 
@@ -151,5 +176,6 @@ export function backupError(
       number_of_items: numberOfItems,
       message: error,
     },
+    context: deviceContext,
   });
 }
