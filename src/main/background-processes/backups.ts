@@ -48,7 +48,10 @@ function clearBackupsTimeout() {
 }
 
 function scheduleBackups(milliseconds: number) {
-  backupsProcessRerun = setTimeout(startBackupProcess, milliseconds);
+  backupsProcessRerun = setTimeout(
+    () => startBackupProcess(true),
+    milliseconds
+  );
 }
 
 function changeBackupsStatus(newStatus: BackupsStatus) {
@@ -56,7 +59,11 @@ function changeBackupsStatus(newStatus: BackupsStatus) {
   broadcastToWindows('backups-status-changed', newStatus);
 }
 
-ipcMain.on('start-backups-process', startBackupProcess);
+function scheduledBackupStarted() {
+  ipcMain.emit('SCHEDULED_BACKUP_PROCESS_STARTED');
+}
+
+ipcMain.on('start-backups-process', () => startBackupProcess(false));
 
 export type BackupProgress = {
   currentFolder: number;
@@ -65,13 +72,14 @@ export type BackupProgress = {
   totalItems?: number;
 };
 
-async function startBackupProcess() {
+async function startBackupProcess(scheduled: boolean) {
   const backupsEnabled = configStore.get('backupsEnabled');
 
   if (backupsStatus === 'RUNNING' || !backupsEnabled) return;
 
   const suspensionBlockId = powerSaveBlocker.start('prevent-display-sleep');
 
+  if (scheduled) scheduledBackupStarted();
   changeBackupsStatus('RUNNING');
   clearBackupsIssues();
   clearBackupFatalErrors();
@@ -174,7 +182,10 @@ function processBackupsItem(
     );
     onExitFuncs.push(() => ipcMain.removeAllListeners('BACKUP_FATAL_ERROR'));
 
-    ipcMain.once('BACKUP_EXIT', () => onExit({ reason: 'PROCESS_FINISHED' }));
+    ipcMain.once('BACKUP_EXIT', () => {
+      onExit({ reason: 'PROCESS_FINISHED' });
+      ipcMain.emit('BACKUP_COMPLETED');
+    });
     onExitFuncs.push(() => ipcMain.removeAllListeners('BACKUP_EXIT'));
 
     const worker = spawnBackupsWorker();
@@ -248,7 +259,7 @@ eventBus.on('USER_LOGGED_IN', () => {
       lastBackup + backupsInterval - currentTimestamp;
 
     if (millisecondsToNextBackup <= 0) {
-      startBackupProcess();
+      startBackupProcess(true);
     } else {
       scheduleBackups(millisecondsToNextBackup);
     }

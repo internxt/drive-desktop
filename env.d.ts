@@ -12,6 +12,10 @@ declare global {
       BUG_REPORTING_URL: string;
       platform: string;
       NOTIFICATIONS_URL: string;
+      LOCK_REFRESH_INTERVAL: number;
+      PHOTOS_URL: string;
+      RUDDERSTACK_KEY: string;
+      RUDDERSTACK_DATA_PLANE_URL: string;
     }
   }
 }

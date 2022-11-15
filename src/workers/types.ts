@@ -160,7 +160,7 @@ export class ProcessError extends Error {
  * That's what SyncError and SyncFatalError classes are for
  */
 export type ErrorDetails = {
-  /* Describes in natural language what was being 
+  /* Describes in natural language what was being
    done when this error was thrown */
   action: string;
 
@@ -214,3 +214,15 @@ export type ProcessInfoUpdatePayload =
           }
       ))
   | ProcessIssue;
+
+type SyncActionName =
+  | 'renameInLocal'
+  | 'renameInRemote'
+  | 'pullFromLocal'
+  | 'pullFromRemote'
+  | 'deleteInLocal'
+  | 'deleteInRemote';
+
+type SyncAction = Array<[string, string]> | Array<string>;
+
+export type EnqueuedSyncActions = Partial<Record<SyncActionName, SyncAction>>;

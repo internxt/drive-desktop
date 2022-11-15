@@ -40,6 +40,7 @@ export default function Login() {
       setState('error');
       setPhase(phaseToSet);
       setErrorDetails(message);
+      window.electron.userLogginFailed(email);
     }
   }
 

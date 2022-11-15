@@ -4,6 +4,7 @@ import getListingStore from './listing-store';
 import { getLocalFilesystem } from '../filesystems/local-filesystem';
 import { getRemoteFilesystem } from '../filesystems/remote-filesystem';
 import {
+  EnqueuedSyncActions,
   ProcessFatalError,
   ProcessFatalErrorName,
   ProcessInfoUpdatePayload,
@@ -23,6 +24,7 @@ export interface SyncEvents {
   SYNC_INFO_UPDATE: (payload: ProcessInfoUpdatePayload) => void;
   SYNC_FATAL_ERROR: (errorName: ProcessFatalErrorName) => void;
   SYNC_EXIT: (result: ProcessResult) => void;
+  SYNC_ACTION_QUEUE_GENERATED: (actions: EnqueuedSyncActions) => void;
 }
 
 interface IpcRenderer {
@@ -218,6 +220,10 @@ async function setUp() {
       errorDetails,
       process: 'SYNC',
     });
+  });
+
+  sync.on('ACTION_QUEUE_GENERATED', (files) => {
+    ipcRenderer.send('SYNC_ACTION_QUEUE_GENERATED', files);
   });
 
   sync.on('FINALIZING', () => {

@@ -48,6 +48,7 @@ describe('sync tests', () => {
     const renamingFileCB = jest.fn();
     const renamedFileCB = jest.fn();
     const finalizingCB = jest.fn();
+    const actionsGeneratedCB = jest.fn();
 
     sync.on('SMOKE_TESTING', smokeTestingCB);
     sync.on('CHECKING_LAST_RUN_OUTCOME', checkingLastRunCB);
@@ -62,6 +63,7 @@ describe('sync tests', () => {
     sync.on('RENAMING_FILE', renamingFileCB);
     sync.on('FILE_RENAMED', renamedFileCB);
     sync.on('FINALIZING', finalizingCB);
+    sync.on('ACTION_QUEUE_GENERATED', actionsGeneratedCB);
 
     return {
       smokeTestingCB,
@@ -77,6 +79,7 @@ describe('sync tests', () => {
       renamingFileCB,
       renamedFileCB,
       finalizingCB,
+      actionsGeneratedCB,
     };
   }
 
@@ -137,6 +140,7 @@ describe('sync tests', () => {
       renamingFileCB,
       renamedFileCB,
       finalizingCB,
+      actionsGeneratedCB,
     } = setupEventSpies(sync);
 
     const spyRemotePull = jest.spyOn(remote, 'pullFile');
@@ -173,6 +177,7 @@ describe('sync tests', () => {
     expect(renamingFileCB).toBeCalledTimes(0);
     expect(renamedFileCB).toBeCalledTimes(0);
     expect(finalizingCB).toBeCalledTimes(1);
+    expect(actionsGeneratedCB).toBeCalledTimes(1);
   });
 
   it('should do a default run correctly', async () => {
@@ -271,6 +276,7 @@ describe('sync tests', () => {
       deletingFolderCB,
       deletedFolderCB,
       finalizingCB,
+      actionsGeneratedCB,
     } = setupEventSpies(sync);
 
     const spyRemotePull = jest.spyOn(remote, 'pullFile');
@@ -280,7 +286,6 @@ describe('sync tests', () => {
     const spyLocalPull = jest.spyOn(local, 'pullFile');
     const spyLocalDelete = jest.spyOn(local, 'deleteFile');
     const spyLocalDeleteFolder = jest.spyOn(local, 'deleteFolder');
-
     await sync.run();
 
     const expectPullRemote = [
@@ -370,6 +375,7 @@ describe('sync tests', () => {
     expect(deletedFolderCB).toBeCalledTimes(1);
 
     expect(finalizingCB).toBeCalledTimes(1);
+    expect(actionsGeneratedCB).toBeCalledTimes(1);
   });
 
   it('should rename correctly', () => {

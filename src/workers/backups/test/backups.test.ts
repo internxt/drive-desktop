@@ -5,6 +5,7 @@
 import { Readable } from 'stream';
 import { FileSystem } from '../../types';
 import Backups from '../backups';
+import { ProcessResult } from '../../process';
 
 describe('backups tests', () => {
   const mockBase: () => FileSystem = () => ({
@@ -40,6 +41,7 @@ describe('backups tests', () => {
     const deletedFolderCB = jest.fn();
     const renamingFileCB = jest.fn();
     const renamedFileCB = jest.fn();
+    const actionQueueGeneratedCB = jest.fn();
 
     backups.on('SMOKE_TESTING', smokeTestingCB);
     backups.on('GENERATING_ACTIONS_NEEDED_TO_SYNC', generatingActionsCB);
@@ -51,6 +53,7 @@ describe('backups tests', () => {
     backups.on('FOLDER_DELETED', deletedFolderCB);
     backups.on('RENAMING_FILE', renamingFileCB);
     backups.on('FILE_RENAMED', renamedFileCB);
+    backups.on('ACTION_QUEUE_GENERATED', actionQueueGeneratedCB);
 
     return {
       smokeTestingCB,
@@ -63,11 +66,8 @@ describe('backups tests', () => {
       deletedFolderCB,
       renamingFileCB,
       renamedFileCB,
+      actionQueueGeneratedCB,
     };
-  }
-
-  function dummyBackups() {
-    return new Backups(mockBase(), mockBase());
   }
 
   it('should run correctly', async () => {
@@ -110,6 +110,7 @@ describe('backups tests', () => {
       deletedFileCB,
       renamingFileCB,
       renamedFileCB,
+      actionQueueGeneratedCB,
     } = setupEventSpies(backups);
 
     const spyRemotePull = jest.spyOn(remote, 'pullFile');
@@ -139,6 +140,7 @@ describe('backups tests', () => {
     expect(deletedFileCB).toBeCalledTimes(1);
     expect(renamingFileCB).toBeCalledTimes(0);
     expect(renamedFileCB).toBeCalledTimes(0);
+    expect(actionQueueGeneratedCB).toBeCalledTimes(1);
   });
 
   it('should emit a fatal error if get current listings fails', async () => {
@@ -156,5 +158,28 @@ describe('backups tests', () => {
     } catch (err) {
       expect(err.name).toBe('CANNOT_GET_CURRENT_LISTINGS');
     }
+  });
+
+  it('Emits BACKUP_FATAL_ERROR when a file is empty', async () => {
+    const fsFailing = mockBase();
+    const fatalCB = jest.fn();
+
+    jest.spyOn(fsFailing, 'getCurrentListing').mockResolvedValueOnce({
+      listing: {},
+      readingMetaErrors: [
+        {
+          name: 'my file is awesome',
+          errorName: 'TEST_ERROR',
+          errorDetails: 'duno',
+        },
+      ],
+    });
+
+    const backups = new Backups(fsFailing, mockBase());
+    backups.on('ERROR_READING_METADATA', fatalCB);
+
+    const result = await backups.run();
+    expect(fatalCB).toBeCalledTimes(1);
+    expect.assertions(1);
   });
 });
