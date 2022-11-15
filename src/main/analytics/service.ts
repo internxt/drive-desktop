@@ -133,6 +133,19 @@ export function syncError(numberOfItems: number) {
   });
 }
 
+export function syncFinished(numberOfItems: number) {
+  const { uuid: userId } = ConfigStore.get('userData');
+
+  client.track({
+    userId,
+    event: 'Sync Finished',
+    properties: {
+      number_of_items: numberOfItems,
+    },
+    context: deviceContext,
+  });
+}
+
 export function backupStarted(scheduled: boolean, numberOfItems: number) {
   const { uuid: userId } = ConfigStore.get('userData');
 

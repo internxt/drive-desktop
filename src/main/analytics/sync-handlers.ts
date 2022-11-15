@@ -1,7 +1,12 @@
 import { ipcMain } from 'electron';
-import Logger from 'electron-log';
 import { EnqueuedSyncActions } from '../../workers/types';
-import { syncStarted, syncPaused, syncBlocked, syncError } from './service';
+import {
+  syncStarted,
+  syncPaused,
+  syncBlocked,
+  syncError,
+  syncFinished,
+} from './service';
 
 const syncProgressInfo = {
   totalActionsToPerform: 0,
@@ -39,7 +44,7 @@ ipcMain.on('sync-stopped', (payload: any) => {
       syncError(syncProgressInfo.totalActionsToPerform);
       break;
     case 'EXIT':
-      Logger.debug('[ANALYTICS] SYNC EXIT');
+      syncFinished(syncProgressInfo.totalActionsToPerform);
       break;
     default:
   }
