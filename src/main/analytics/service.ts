@@ -177,7 +177,7 @@ export function backupCompleted(scheduled: boolean, numberOfItems: number) {
 export function backupError(
   scheduled: boolean,
   numberOfItems: number,
-  error: string
+  issues: Array<string>
 ) {
   const { uuid: userId } = ConfigStore.get('userData');
 
@@ -187,7 +187,7 @@ export function backupError(
     properties: {
       scheduled,
       number_of_items: numberOfItems,
-      message: error,
+      message: issues,
     },
     context: deviceContext,
   });
