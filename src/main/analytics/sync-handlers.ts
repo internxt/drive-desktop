@@ -11,19 +11,23 @@ import {
 const syncProgressInfo = {
   totalActionsToPerform: 0,
   actionsPerformed: 0,
+  errors: new Array<string>(),
 };
 
 ipcMain.on('SYNC_ACTION_QUEUE_GENERATED', (_, actions: EnqueuedSyncActions) => {
   const filesToUpload = actions.pullFromRemote?.length || 0;
 
   syncProgressInfo.totalActionsToPerform = filesToUpload;
+  syncProgressInfo.errors = [];
 
   syncStarted(filesToUpload);
 });
 
 ipcMain.on('SYNC_INFO_UPDATE', (_, data) => {
   if (data.errorName) {
-    syncError(syncProgressInfo.actionsPerformed);
+    syncProgressInfo.errors.push(
+      `${data.errorName} error when ${data.errorDetails.action}`
+    );
     return;
   }
 
@@ -47,5 +51,9 @@ ipcMain.on('sync-stopped', (payload: any) => {
       syncFinished(syncProgressInfo.totalActionsToPerform);
       break;
     default:
+  }
+
+  if (syncProgressInfo.errors.length > 0 && payload.reason !== 'FATAL_ERROR') {
+    syncError(syncProgressInfo.totalActionsToPerform);
   }
 });
