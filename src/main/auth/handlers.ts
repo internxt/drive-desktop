@@ -1,4 +1,5 @@
 import { ipcMain } from 'electron';
+import { applicationOpened } from '../analytics/service';
 import { AccessResponse } from '../../renderer/pages/Login/service';
 import eventBus from '../event-bus';
 import { setupRootFolder } from '../sync-root-folder/service';
@@ -65,5 +66,6 @@ eventBus.on('APP_IS_READY', () => {
   if (!isLoggedIn) return;
 
   encryptToken();
+  applicationOpened();
   eventBus.emit('USER_LOGGED_IN');
 });

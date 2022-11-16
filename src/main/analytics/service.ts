@@ -39,6 +39,7 @@ export function applicationOpened() {
     },
     () => {
       client.track({
+        anonymousId: clientId,
         event: 'Application Opened',
         context: deviceContext,
       });
@@ -80,6 +81,7 @@ export function userSigninFailed(email?: string) {
     },
     () => {
       client.track({
+        anonymousId: clientId,
         event: 'User Signin Failed',
         properties: { email },
         context: deviceContext,
