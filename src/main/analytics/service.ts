@@ -30,6 +30,22 @@ const deviceContext = {
   },
 };
 
+export function applicationOpened() {
+  const clientId = ConfigStore.get('clientId');
+
+  client.identify(
+    {
+      anonymousId: clientId,
+    },
+    () => {
+      client.track({
+        event: 'Application Opened',
+        context: deviceContext,
+      });
+    }
+  );
+}
+
 export function userSignin() {
   const { uuid: userId, email } = ConfigStore.get('userData');
 
