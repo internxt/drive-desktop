@@ -30,6 +30,23 @@ const deviceContext = {
   },
 };
 
+export function applicationOpened() {
+  const clientId = ConfigStore.get('clientId');
+
+  client.identify(
+    {
+      anonymousId: clientId,
+    },
+    () => {
+      client.track({
+        anonymousId: clientId,
+        event: 'Application Opened',
+        context: deviceContext,
+      });
+    }
+  );
+}
+
 export function userSignin() {
   const { uuid: userId, email } = ConfigStore.get('userData');
 
@@ -64,6 +81,7 @@ export function userSigninFailed(email?: string) {
     },
     () => {
       client.track({
+        anonymousId: clientId,
         event: 'User Signin Failed',
         properties: { email },
         context: deviceContext,
@@ -177,7 +195,7 @@ export function backupCompleted(scheduled: boolean, numberOfItems: number) {
 export function backupError(
   scheduled: boolean,
   numberOfItems: number,
-  error: string
+  issues: Array<string>
 ) {
   const { uuid: userId } = ConfigStore.get('userData');
 
@@ -187,7 +205,7 @@ export function backupError(
     properties: {
       scheduled,
       number_of_items: numberOfItems,
-      message: error,
+      message: issues,
     },
     context: deviceContext,
   });
