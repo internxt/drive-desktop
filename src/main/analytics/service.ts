@@ -1,6 +1,7 @@
 import { client } from './rudderstack-client';
 import ConfigStore from '../config';
 import packageJson from '../../../package.json';
+import { BackupInfo } from './backup-handlers';
 
 const os = require('os');
 
@@ -164,7 +165,7 @@ export function syncFinished(numberOfItems: number) {
   });
 }
 
-export function backupStarted(scheduled: boolean, numberOfItems: number) {
+export function backupProcessStarted(scheduled: boolean, totalFolders: number) {
   const { uuid: userId } = ConfigStore.get('userData');
 
   client.track({
@@ -172,7 +173,7 @@ export function backupStarted(scheduled: boolean, numberOfItems: number) {
     event: 'Backup Started',
     properties: {
       scheduled,
-      number_of_items: numberOfItems,
+      number_of_items: totalFolders,
     },
     context: deviceContext,
   });
@@ -184,6 +185,37 @@ export function backupCompleted(scheduled: boolean, numberOfItems: number) {
   client.track({
     userId,
     event: 'Backup Completed',
+    properties: {
+      scheduled,
+      number_of_items: numberOfItems,
+    },
+    context: deviceContext,
+  });
+}
+
+export function folderBackupStarted(scheduled: boolean, numberOfItems: number) {
+  const { uuid: userId } = ConfigStore.get('userData');
+
+  client.track({
+    userId,
+    event: 'Folder Backup Started',
+    properties: {
+      scheduled,
+      number_of_items: numberOfItems,
+    },
+    context: deviceContext,
+  });
+}
+
+export function folderBackupCompleted(
+  scheduled: boolean,
+  numberOfItems: number
+) {
+  const { uuid: userId } = ConfigStore.get('userData');
+
+  client.track({
+    userId,
+    event: 'Folder Backup Completed',
     properties: {
       scheduled,
       number_of_items: numberOfItems,

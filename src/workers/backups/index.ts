@@ -18,16 +18,29 @@ export type BackupsArgs = {
   backupsBucket: string;
 };
 
+export type BackupProgressIssue = ProcessIssue & {
+  folderId: number;
+};
+
 export interface BackupsEvents {
-  BACKUP_FATAL_ERROR: (errorName: ProcessFatalErrorName) => void;
+  BACKUP_FATAL_ERROR: (
+    folderId: number,
+    errorName: ProcessFatalErrorName
+  ) => void;
   BACKUP_PROGRESS: (payload: {
     completedItems: number;
     totalItems: number;
   }) => void;
-  BACKUP_ISSUE: (issue: ProcessIssue) => void;
-  BACKUP_EXIT: () => void;
+  BACKUP_ISSUE: (issue: BackupProgressIssue) => void;
+  BACKUP_EXIT: (folderId: number) => void;
   BACKUP_ACTION_DONE: () => void;
-  BACKUP_ACTION_QUEUE_GENERATED: (n: number) => void;
+  BACKUP_ACTION_QUEUE_GENERATED: ({
+    folderId,
+    items,
+  }: {
+    folderId: number;
+    items: number;
+  }) => void;
 }
 
 interface IpcRenderer {
@@ -79,7 +92,7 @@ async function setUp() {
 
   backups.on('ACTION_QUEUE_GENERATED', (n) => {
     totalItems = n;
-    ipcRenderer.send('BACKUP_ACTION_QUEUE_GENERATED', n);
+    ipcRenderer.send('BACKUP_ACTION_QUEUE_GENERATED', { folderId, items: n });
   });
 
   backups.on('PULLING_FILE', (name, progress, kind) => {
@@ -107,6 +120,7 @@ async function setUp() {
       errorName,
       errorDetails,
       process: 'BACKUPS',
+      folderId,
     });
   });
 
@@ -157,6 +171,7 @@ async function setUp() {
       errorName,
       errorDetails,
       process: 'BACKUPS',
+      folderId,
     });
   });
 
@@ -196,6 +211,7 @@ async function setUp() {
         errorName,
         errorDetails,
         process: 'BACKUPS',
+        folderId,
       });
     }
   );
@@ -203,7 +219,7 @@ async function setUp() {
   try {
     await backups.run();
     Logger.log(`Backup done, folderId: ${folderId} & path: ${path}`);
-    ipcRenderer.send('BACKUP_EXIT');
+    ipcRenderer.send('BACKUP_EXIT', folderId);
   } catch (err) {
     if (err instanceof ProcessFatalError) {
       Logger.error(
@@ -213,13 +229,17 @@ async function setUp() {
           2
         )}`
       );
-      ipcRenderer.send('BACKUP_FATAL_ERROR', err.name as ProcessFatalErrorName);
+      ipcRenderer.send(
+        'BACKUP_FATAL_ERROR',
+        folderId,
+        err.name as ProcessFatalErrorName
+      );
     } else {
       Logger.error(
         'Completely unhandled backups fatal error',
         JSON.stringify(err, null, 2)
       );
-      ipcRenderer.send('BACKUP_FATAL_ERROR', 'UNKNOWN');
+      ipcRenderer.send('BACKUP_FATAL_ERROR', folderId, 'UNKNOWN');
     }
   }
 }

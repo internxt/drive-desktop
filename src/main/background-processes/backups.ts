@@ -59,10 +59,6 @@ function changeBackupsStatus(newStatus: BackupsStatus) {
   broadcastToWindows('backups-status-changed', newStatus);
 }
 
-function scheduledBackupStarted() {
-  ipcMain.emit('SCHEDULED_BACKUP_PROCESS_STARTED');
-}
-
 ipcMain.on('start-backups-process', () => startBackupProcess(false));
 
 export type BackupProgress = {
@@ -79,7 +75,6 @@ async function startBackupProcess(scheduled: boolean) {
 
   const suspensionBlockId = powerSaveBlocker.start('prevent-display-sleep');
 
-  if (scheduled) scheduledBackupStarted();
   changeBackupsStatus('RUNNING');
   clearBackupsIssues();
   clearBackupFatalErrors();
@@ -115,6 +110,11 @@ async function startBackupProcess(scheduled: boolean) {
     });
   });
 
+  ipcMain.emit('BACKUP_PROCESS_STARTED', {
+    scheduled,
+    foldersToBackup: items,
+  });
+
   for (const item of items) {
     broadcastToWindows('backup-progress', { currentFolder, totalFolders });
 
@@ -143,6 +143,12 @@ async function startBackupProcess(scheduled: boolean) {
   backupsLastExitReason = hasBeenStopped.value
     ? 'FORCED_BY_USER'
     : 'PROCESS_FINISHED';
+
+  ipcMain.emit('BACKUP_PROCESS_FINISHED', {
+    scheduled,
+    foldersToBackup: items.length,
+    lastExitReason: backupsLastExitReason,
+  });
 
   ipcMain.removeAllListeners('BACKUP_PROGRESS');
 }
@@ -182,9 +188,9 @@ function processBackupsItem(
     );
     onExitFuncs.push(() => ipcMain.removeAllListeners('BACKUP_FATAL_ERROR'));
 
-    ipcMain.once('BACKUP_EXIT', () => {
+    ipcMain.once('BACKUP_EXIT', (_, folderId) => {
       onExit({ reason: 'PROCESS_FINISHED' });
-      ipcMain.emit('BACKUP_COMPLETED');
+      ipcMain.emit('BACKUP_COMPLETED', folderId);
     });
     onExitFuncs.push(() => ipcMain.removeAllListeners('BACKUP_EXIT'));
 
