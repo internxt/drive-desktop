@@ -6,15 +6,25 @@ import { getClient } from '../../shared/HttpClient/main-process-client';
 const authorizedClient = getClient();
 
 async function obtainTokens() {
-  const res = await authorizedClient.get(
-    `${process.env.API_URL}/api/user/refresh`
-  );
+  try {
+    const res = await authorizedClient.get(
+      `${process.env.API_URL}/api/user/refresh`
+    );
 
-  return res.data;
+    return res.data;
+  } catch (err) {
+    Logger.debug('[TOKEN] Could not obtain tokens: ', err);
+  }
 }
 
 async function refreshToken() {
-  const { token, newToken } = await obtainTokens();
+  const response = await obtainTokens();
+
+  if (!response) {
+    return;
+  }
+
+  const { token, newToken } = response;
 
   updateCredentials(token, newToken);
 
