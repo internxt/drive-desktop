@@ -73,6 +73,10 @@ ipcMain.on('BACKUP_FATAL_ERROR', (_, { folderId, errorName }) => {
 });
 
 ipcMain.on('BACKUP_ISSUE', (_, issue: BackupProgressIssue) => {
+  if (!backupProcessInfo.errors[issue.folderId]) {
+    backupProcessInfo.errors[issue.folderId] = [];
+  }
+
   backupProcessInfo.errors[issue.folderId].push(
     `${issue.errorName} error when ${issue.errorDetails.action}`
   );
