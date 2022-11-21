@@ -138,6 +138,10 @@ declare interface Window {
 
     getUsage: () => Promise<import('../main/usage/usage').Usage>;
 
+    getPlatform: () => Promise<
+      import('../main/platform/DesktopPlatform').DesktopPlatform
+    >;
+
     userLogginFailed: (email: string) => void;
   };
 }
