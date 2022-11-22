@@ -2,10 +2,10 @@ import { app } from 'electron';
 import Path from 'path';
 
 const appFolder = Path.dirname(process.execPath);
-const updateExe = Path.resolve(appFolder, '..', 'Update.exe');
+const appExe = Path.resolve(appFolder, 'Internxt Drive.exe');
 const exeName = Path.basename(process.execPath);
 
-const path = process.platform === 'win32' ? updateExe : undefined;
+const path = process.platform === 'win32' ? appExe : undefined;
 const args =
   process.platform === 'win32'
     ? ['--processStart', `"${exeName}"`, '--process-start-args', `"--hidden"`]

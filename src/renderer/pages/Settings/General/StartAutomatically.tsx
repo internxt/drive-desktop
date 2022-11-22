@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import useClientPlatform from '../../../hooks/ClientPlatform';
 import Checkbox from '../../../components/Checkbox';
 
 export default function StartAutomatically({
@@ -7,6 +8,7 @@ export default function StartAutomatically({
   className: string;
 }) {
   const [value, setValue] = useState(false);
+  const platform = useClientPlatform();
 
   function refreshValue() {
     window.electron.isAutoLaunchEnabled().then(setValue);
@@ -20,6 +22,10 @@ export default function StartAutomatically({
     await window.electron.toggleAutoLaunch();
     refreshValue();
   };
+
+  if (platform === 'linux') {
+    return <></>;
+  }
 
   return (
     <Checkbox
