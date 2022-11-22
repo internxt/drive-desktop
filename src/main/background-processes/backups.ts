@@ -253,7 +253,7 @@ function addBackupFatalError(error: BackupFatalError) {
   onBackupFatalErrorsChanged();
 }
 
-eventBus.on('USER_LOGGED_IN', () => {
+eventBus.on('WIDGET_IS_READY', () => {
   // Check if we should launch backup process
   const lastBackup = configStore.get('lastBackup');
   const backupsInterval = configStore.get('backupInterval');

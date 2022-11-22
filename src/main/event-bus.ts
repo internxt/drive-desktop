@@ -13,6 +13,8 @@ interface Events {
   SYNC_ROOT_CHANGED: (newPath: string) => void;
 
   USER_LOGGED_OUT: () => void;
+
+  WIDGET_IS_READY: () => void;
 }
 
 declare interface EventBus {
