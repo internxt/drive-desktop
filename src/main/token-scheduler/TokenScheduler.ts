@@ -2,7 +2,7 @@ import jwtDecode, { JwtPayload } from 'jwt-decode';
 import nodeSchedule from 'node-schedule';
 import Logger from 'electron-log';
 
-const FIVE_MINUTES = 5 * 60000;
+const FIVE_SECONDS = 5 * 60;
 
 export class TokenScheduler {
   private static MAX_TIME = 8640000000000000;
@@ -40,7 +40,7 @@ export class TokenScheduler {
     const renewDateInSeconds = expiration - renewSecondsBefore;
 
     if (renewDateInSeconds < Date.now()) {
-      return new Date(Date.now() + FIVE_MINUTES);
+      return new Date(Date.now() + FIVE_SECONDS);
     }
 
     const date = new Date(0);
