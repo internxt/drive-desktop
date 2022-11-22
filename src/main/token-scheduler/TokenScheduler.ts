@@ -7,7 +7,11 @@ const FIVE_MINUTES = 5 * 60000;
 export class TokenScheduler {
   private static MAX_TIME = 8640000000000000;
 
-  constructor(private daysBefore: number, private tokens: Array<string>) {}
+  constructor(
+    private daysBefore: number,
+    private tokens: Array<string>,
+    private unauthorized: () => void
+  ) {}
 
   private getExpiration(token: string): number {
     try {
@@ -26,7 +30,11 @@ export class TokenScheduler {
     return Math.min(...expirations);
   }
 
-  private calculateRenewDate(expiration: number): Date {
+  private calculateRenewDate(expiration: number): Date | undefined {
+    if (expiration < Date.now()) {
+      return;
+    }
+
     const renewSecondsBefore = this.daysBefore * 24 * 60 * 60;
 
     const renewDateInSeconds = expiration - renewSecondsBefore;
@@ -50,6 +58,11 @@ export class TokenScheduler {
     }
 
     const renewDate = this.calculateRenewDate(expiration);
+
+    if (!renewDate) {
+      this.unauthorized();
+      return;
+    }
 
     Logger.info(
       '[TOKEN] Tokens will be refreshed on ',

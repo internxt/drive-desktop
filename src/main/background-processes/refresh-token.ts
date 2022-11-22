@@ -2,6 +2,7 @@ import Logger from 'electron-log';
 import { TokenScheduler } from '../token-scheduler/TokenScheduler';
 import { getNewToken, getToken, updateCredentials } from '../auth/service';
 import { getClient } from '../../shared/HttpClient/main-process-client';
+import { onUserUnauthorized } from '../auth/handlers';
 
 const authorizedClient = getClient();
 
@@ -34,7 +35,7 @@ async function refreshToken() {
 export async function createTokenSchedule(refreshedTokens?: Array<string>) {
   const tokens = refreshedTokens || [getToken(), getNewToken()];
 
-  const shceduler = new TokenScheduler(5, tokens);
+  const shceduler = new TokenScheduler(5, tokens, onUserUnauthorized);
   const schedule = shceduler.schedule(refreshToken);
 
   if (!schedule && !refreshedTokens) {
