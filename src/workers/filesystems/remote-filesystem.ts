@@ -4,6 +4,7 @@ import * as uuid from 'uuid';
 import { Readable } from 'stream';
 import Logger from 'electron-log';
 import EventEmitter from 'events';
+import { ipcRenderer } from 'electron';
 import { fileNameIsValid } from '../utils/name-verification';
 import crypt from '../utils/crypt';
 import {
@@ -595,6 +596,9 @@ export function getRemoteFilesystem({
       );
 
       if (!res.ok) {
+        if (res.status === 401) {
+          ipcRenderer.emit('user-is-unauthorized');
+        }
         throw new ProcessFatalError(
           'NO_REMOTE_CONNECTION',
           createErrorDetails(
