@@ -53,14 +53,4 @@ test.describe('user gets unauthorized', () => {
     expect(isLoggedInBefore).toBe(true);
     expect(isLoggedIn).toBe(false);
   });
-
-  test('when the user is unauthorized it will be redirected to login page', async () => {
-    await ipcMainEmit(electronApp, 'open-onboarding-window');
-
-    const newPage = await electronApp.firstWindow();
-    expect(newPage).toBeTruthy();
-    expect(await newPage.title()).toBe('Internxt Drive');
-
-    expect(await newPage.innerHTML('button')).toBe('Login');
-  });
 });
