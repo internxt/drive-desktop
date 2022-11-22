@@ -1,4 +1,5 @@
 import { BrowserWindow, screen } from 'electron';
+import { isAutoLaunchEnabled } from '../auto-launch/service';
 import { setUpCommonWindowHandlers } from '.';
 import eventBus from '../event-bus';
 import { getTray } from '../tray';
@@ -25,6 +26,9 @@ export const createWidget = async () => {
   widget.loadURL(resolveHtmlPath(''));
 
   widget.on('ready-to-show', () => {
+    if (isAutoLaunchEnabled()) {
+      return;
+    }
     widget?.show();
   });
 
