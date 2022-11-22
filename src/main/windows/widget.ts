@@ -22,7 +22,7 @@ export const createWidget = async () => {
     skipTaskbar: true,
   });
 
-  widget.loadURL(resolveHtmlPath(''));
+  const widgedLoaded = widget.loadURL(resolveHtmlPath(''));
 
   widget.on('ready-to-show', () => {
     widget?.show();
@@ -44,6 +44,8 @@ export const createWidget = async () => {
       setBoundsOfWidgetByPath(payload);
     }
   });
+
+  await widgedLoaded;
 };
 
 export function toggleWidgetVisibility() {
@@ -100,4 +102,8 @@ function getLocationUnderTray(
   };
 }
 
-eventBus.on('APP_IS_READY', createWidget);
+eventBus.on('APP_IS_READY', async () => {
+  await createWidget();
+
+  eventBus.emit('WIDGET_IS_READY');
+});

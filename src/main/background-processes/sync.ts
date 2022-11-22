@@ -202,7 +202,7 @@ ipcMain.on('SYNC_INFO_UPDATE', (_, payload: ProcessInfoUpdatePayload) => {
   broadcastToWindows('sync-info-update', payload);
 });
 
-eventBus.on('USER_LOGGED_IN', startSyncProcess);
+eventBus.on('WIDGET_IS_READY', startSyncProcess);
 
 eventBus.on('USER_LOGGED_OUT', () => {
   ipcMain.emit('stop-sync-process');
