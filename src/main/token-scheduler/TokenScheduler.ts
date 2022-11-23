@@ -32,6 +32,7 @@ export class TokenScheduler {
 
   private calculateRenewDate(expiration: number): Date | undefined {
     if (expiration < Date.now()) {
+      Logger.warn('[TOKEN] TOKEN IS EXPIRED');
       return;
     }
 
