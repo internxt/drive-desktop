@@ -28,6 +28,7 @@ function tryToStartSyncProcess() {
 }
 
 eventBus.on('USER_LOGGED_OUT', clearPendingChanges);
+eventBus.on('USER_WAS_UNAUTHORIZED', clearPendingChanges);
 
 // LOCAL TRIGGER
 
@@ -95,6 +96,7 @@ export async function stopLocalWatcher() {
 eventBus.on('USER_LOGGED_IN', cleanAndStartLocalWatcher);
 eventBus.on('SYNC_ROOT_CHANGED', cleanAndStartLocalWatcher);
 eventBus.on('USER_LOGGED_OUT', stopLocalWatcher);
+eventBus.on('USER_WAS_UNAUTHORIZED', stopLocalWatcher);
 
 // REMOTE TRIGGER
 
@@ -159,3 +161,4 @@ function stopRemoteNotifications() {
 
 eventBus.on('USER_LOGGED_IN', cleanAndStartRemoteNotifications);
 eventBus.on('USER_LOGGED_OUT', stopRemoteNotifications);
+eventBus.on('USER_WAS_UNAUTHORIZED', stopRemoteNotifications);

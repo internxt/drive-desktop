@@ -12,6 +12,7 @@ function closeAuxWindows() {
 }
 
 eventBus.on('USER_LOGGED_OUT', closeAuxWindows);
+eventBus.on('USER_WAS_UNAUTHORIZED', closeAuxWindows);
 
 export function broadcastToWindows(eventName: string, data: any) {
   const renderers = [

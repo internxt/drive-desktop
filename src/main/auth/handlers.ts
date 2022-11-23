@@ -36,7 +36,7 @@ ipcMain.handle('get-headers', (_, includeMnemonic) =>
 );
 
 export function onUserUnauthorized() {
-  eventBus.emit('USER_LOGGED_OUT');
+  eventBus.emit('USER_WAS_UNAUTHORIZED');
 
   logout();
 
