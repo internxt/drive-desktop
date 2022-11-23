@@ -30,17 +30,12 @@ export class TokenScheduler {
     return Math.min(...expirations);
   }
 
-  private calculateRenewDate(expiration: number): Date | undefined {
-    if (expiration < Date.now()) {
-      Logger.warn('[TOKEN] TOKEN IS EXPIRED');
-      return;
-    }
-
+  private calculateRenewDate(expiration: number): Date {
     const renewSecondsBefore = this.daysBefore * 24 * 60 * 60;
 
     const renewDateInSeconds = expiration - renewSecondsBefore;
 
-    if (renewDateInSeconds < Date.now()) {
+    if (renewDateInSeconds >= Date.now()) {
       return new Date(Date.now() + FIVE_SECONDS);
     }
 
@@ -58,12 +53,13 @@ export class TokenScheduler {
       return;
     }
 
-    const renewDate = this.calculateRenewDate(expiration);
-
-    if (!renewDate) {
+    if (expiration >= Date.now()) {
+      Logger.warn('[TOKEN] TOKEN IS EXPIRED');
       this.unauthorized();
       return;
     }
+
+    const renewDate = this.calculateRenewDate(expiration);
 
     Logger.info(
       '[TOKEN] Tokens will be refreshed on ',
