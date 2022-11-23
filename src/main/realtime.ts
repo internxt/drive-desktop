@@ -11,7 +11,6 @@ import { getToken } from './auth/service';
 import { broadcastToWindows } from './windows';
 import eventBus from './event-bus';
 import ignoredFiles from '../../ignored-files.json';
-import { createTokenSchedule } from './background-processes/refresh-token';
 
 let thereArePendingChanges = false;
 
@@ -94,7 +93,6 @@ export async function stopLocalWatcher() {
 }
 
 eventBus.on('USER_LOGGED_IN', cleanAndStartLocalWatcher);
-eventBus.on('USER_LOGGED_IN', createTokenSchedule);
 eventBus.on('SYNC_ROOT_CHANGED', cleanAndStartLocalWatcher);
 eventBus.on('USER_LOGGED_OUT', stopLocalWatcher);
 

@@ -12,6 +12,7 @@ import {
   logout,
   encryptToken,
 } from './service';
+import { createTokenSchedule } from './refresh-token';
 
 let isLoggedIn: boolean;
 setIsLoggedIn(!!getUser());
@@ -62,10 +63,11 @@ ipcMain.on('user-logged-out', () => {
   setIsLoggedIn(false);
 });
 
-eventBus.on('APP_IS_READY', () => {
+eventBus.on('APP_IS_READY', async () => {
   if (!isLoggedIn) return;
 
   encryptToken();
   applicationOpened();
+  await createTokenSchedule();
   eventBus.emit('USER_LOGGED_IN');
 });

@@ -1,8 +1,8 @@
 import Logger from 'electron-log';
 import { TokenScheduler } from '../token-scheduler/TokenScheduler';
-import { getNewToken, getToken, updateCredentials } from '../auth/service';
+import { getNewToken, getToken, updateCredentials } from './service';
 import { getClient } from '../../shared/HttpClient/main-process-client';
-import { onUserUnauthorized } from '../auth/handlers';
+import { onUserUnauthorized } from './handlers';
 
 const authorizedClient = getClient();
 
