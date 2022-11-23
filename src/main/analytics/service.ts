@@ -129,6 +129,10 @@ export function syncPaused(numberOfItems: number) {
 export function syncBlocked(numberOfItems: number) {
   const { uuid: userId } = ConfigStore.get('userData');
 
+  // Sync can be blocked beacuse the user is unauthorized
+  // In that case we don't have user data to track
+  if (!userId) return;
+
   client.track({
     userId,
     event: 'Sync Blocked',
