@@ -1,4 +1,5 @@
 import { ipcMain } from 'electron';
+import Logger from 'electron-log';
 import { applicationOpened } from '../analytics/service';
 import { AccessResponse } from '../../renderer/pages/Login/service';
 import eventBus from '../event-bus';
@@ -12,6 +13,7 @@ import {
   logout,
   encryptToken,
 } from './service';
+import { createTokenSchedule } from './refresh-token';
 
 let isLoggedIn: boolean;
 setIsLoggedIn(!!getUser());
@@ -35,10 +37,10 @@ ipcMain.handle('get-headers', (_, includeMnemonic) =>
 );
 
 export function onUserUnauthorized() {
-  eventBus.emit('USER_LOGGED_OUT');
+  eventBus.emit('USER_WAS_UNAUTHORIZED');
 
   logout();
-
+  Logger.info('[AUTH] User has been logged out because it was unauthorized');
   setIsLoggedIn(false);
 }
 
@@ -62,10 +64,11 @@ ipcMain.on('user-logged-out', () => {
   setIsLoggedIn(false);
 });
 
-eventBus.on('APP_IS_READY', () => {
+eventBus.on('APP_IS_READY', async () => {
   if (!isLoggedIn) return;
 
   encryptToken();
   applicationOpened();
+  await createTokenSchedule();
   eventBus.emit('USER_LOGGED_IN');
 });

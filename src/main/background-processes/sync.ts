@@ -208,3 +208,8 @@ eventBus.on('USER_LOGGED_OUT', () => {
   ipcMain.emit('stop-sync-process');
   setTraySyncStatus('STANDBY');
 });
+
+eventBus.on('USER_WAS_UNAUTHORIZED', () => {
+  ipcMain.emit('stop-sync-process');
+  setTraySyncStatus('STANDBY');
+});

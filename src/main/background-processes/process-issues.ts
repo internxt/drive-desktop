@@ -54,3 +54,8 @@ eventBus.on('USER_LOGGED_OUT', () => {
   clearSyncIssues();
   clearBackupsIssues();
 });
+
+eventBus.on('USER_WAS_UNAUTHORIZED', () => {
+  clearSyncIssues();
+  clearBackupsIssues();
+});

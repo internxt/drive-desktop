@@ -1,7 +1,9 @@
 import { ipcRenderer } from 'electron';
+import Logger from 'electron-log';
 import configStore from '../../main/config';
 
 const userIsUnauthorized = () => {
+  Logger.warn('[AUTH] Request unauthorized');
   ipcRenderer.send('user-is-unauthorized');
 };
 

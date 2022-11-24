@@ -272,9 +272,12 @@ eventBus.on('WIDGET_IS_READY', () => {
   }
 });
 
-eventBus.on('USER_LOGGED_OUT', () => {
+function stopAndClearBackups() {
   ipcMain.emit('stop-backups-process');
   clearBackupsTimeout();
   clearBackupFatalErrors();
   clearBackupsLastExitReason();
-});
+}
+
+eventBus.on('USER_LOGGED_OUT', stopAndClearBackups);
+eventBus.on('USER_WAS_UNAUTHORIZED', stopAndClearBackups);

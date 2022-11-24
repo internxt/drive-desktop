@@ -4,6 +4,7 @@ import axios, {
   AxiosRequestConfig,
   AxiosResponse,
 } from 'axios';
+import Logger from 'electron-log';
 
 export type HeadersProvider = () => Promise<Record<string, string>>;
 export type UnauthorizedNotifier = () => void;
@@ -13,6 +14,7 @@ export class AuthorizedHttpClient {
 
   private handleUnauthorizedResponse(error: AxiosError) {
     if (error?.response?.status === 401) {
+      Logger.warn('[AUTH] Request unauthorized');
       this.unauthorizedNotifier();
     }
 

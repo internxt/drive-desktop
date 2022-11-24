@@ -7,12 +7,16 @@ interface Events {
 
   // Fired when the user either
   // logs in or is already logged
-  // in on app start
+  // in on app start and the tokens are correct
   USER_LOGGED_IN: () => void;
 
   SYNC_ROOT_CHANGED: (newPath: string) => void;
 
   USER_LOGGED_OUT: () => void;
+
+  // Fired when a response to any internxt service
+  // has status 401 UNAUTHORIZED
+  USER_WAS_UNAUTHORIZED: () => void;
 
   WIDGET_IS_READY: () => void;
 }
