@@ -19,7 +19,7 @@ export class TokenScheduler {
 
       return decoded.exp || TokenScheduler.MAX_TIME;
     } catch (err) {
-      Logger.error('[TOKEN] Token could be not decoded', token);
+      Logger.error('[TOKEN] Token could be not decoded');
       return TokenScheduler.MAX_TIME;
     }
   }
