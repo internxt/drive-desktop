@@ -1,4 +1,5 @@
 import { ipcMain } from 'electron';
+import Logger from 'electron-log';
 import { applicationOpened } from '../analytics/service';
 import { AccessResponse } from '../../renderer/pages/Login/service';
 import eventBus from '../event-bus';
@@ -39,7 +40,7 @@ export function onUserUnauthorized() {
   eventBus.emit('USER_WAS_UNAUTHORIZED');
 
   logout();
-
+  Logger.info('[AUTH] User has been logged out because it was unauthorized');
   setIsLoggedIn(false);
 }
 
