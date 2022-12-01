@@ -2,6 +2,8 @@ import { fileNameIsValid } from '../name-verification';
 
 import sensibleFiles from './sensible-files.json';
 
+const path = require('path');
+
 describe('name verifiaction test', () => {
   const INVALID = false;
   const VALID = true;
@@ -24,15 +26,6 @@ describe('name verifiaction test', () => {
   });
 
   describe('firts level files', () => {
-    it('startup folder is not valid', () => {
-      const maliciousFileName =
-        '..App\\DataRoaming\\MicrosoftWindows\\Start Menu\\Programs\\Startup';
-
-      const result = fileNameIsValid(maliciousFileName);
-
-      expect(result).toBe(INVALID);
-    });
-
     it('parent folder is not valid', () => {
       const maliciousFileName = '../file.txt';
 
@@ -104,6 +97,54 @@ describe('name verifiaction test', () => {
       const result = fileNameIsValid(secondLevelFile);
 
       expect(result).toBe(INVALID);
+    });
+  });
+
+  describe('windows file system', () => {
+    let originalPathSeparation: string;
+
+    beforeAll(() => {
+      originalPathSeparation = path.sep as string;
+      path.sep = '\\';
+    });
+
+    afterAll(() => {
+      path.sep = originalPathSeparation;
+    });
+
+    it('startup folder is not valid', () => {
+      const maliciousFileName =
+        '..App\\DataRoaming\\MicrosoftWindows\\Start Menu\\Programs\\Startup';
+
+      const result = fileNameIsValid(maliciousFileName);
+
+      expect(result).toBe(INVALID);
+    });
+
+    it('second level files on windows are valid', () => {
+      const fileName = 'folder_name\\my-image.jpg';
+
+      const result = fileNameIsValid(fileName);
+
+      expect(result).toBe(VALID);
+    });
+
+    describe('n level files', () => {
+      const correctWindowsFiles = [
+        'folder_name\\my-images\\cat.jpg',
+        'cat.jpg',
+        'folder_name\\my-images\\february\\cat.jpg',
+        'folder_name\\my-image.jpg',
+      ];
+
+      it.each(correctWindowsFiles)(
+        'valid paths are correctly validated',
+        (fileName: string) => {
+          const result = fileNameIsValid(fileName);
+
+          expect(result).toBe(VALID);
+        }
+      );
     });
   });
 });
