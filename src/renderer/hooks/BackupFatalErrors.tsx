@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { BackupFatalError } from '../../main/background-processes/backups';
+import { BackupFatalError } from '../../main/background-processes/types/BackupFatalError';
 
 export default function useBackupFatalErrors() {
   const [errors, setErrors] = useState<BackupFatalError[]>([]);

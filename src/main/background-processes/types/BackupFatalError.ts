@@ -1,9 +1,7 @@
 import { ProcessFatalErrorName } from '../../../workers/types';
 
-type BackupFatalError = {
+export type BackupFatalError = {
   path: string;
   folderId: number;
   errorName: ProcessFatalErrorName;
 };
-
-export default BackupFatalError;

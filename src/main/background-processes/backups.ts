@@ -9,7 +9,7 @@ import { getBackupsFromDevice, getOrCreateDevice } from '../device/service';
 import eventBus from '../event-bus';
 import { broadcastToWindows } from '../windows';
 import { clearBackupsIssues } from './process-issues';
-import BackupFatalError from './types/BackupFatalError';
+import { BackupFatalError } from './types/BackupFatalError';
 
 ipcMain.handle('get-backups-interval', () => {
   return configStore.get('backupInterval');

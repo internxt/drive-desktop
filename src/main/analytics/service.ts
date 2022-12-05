@@ -1,7 +1,6 @@
 import { client } from './rudderstack-client';
 import ConfigStore from '../config';
 import packageJson from '../../../package.json';
-import { BackupInfo } from './backup-handlers';
 
 const os = require('os');
 
