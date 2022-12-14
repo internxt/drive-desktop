@@ -35,10 +35,10 @@ const fatalErrorActionMap: Record<
 
 const lockErrorMessages: Record<LockErrorReason, string> = {
   FOLDER_IS_LOCKED:
-    "Looks like other of your devices is already syncing, we'll try again later",
+    "Looks like other of your devices are already syncing, we'll try again later",
   SERVICE_UNAVAILABE:
     'We cannot perform the action at the moment, please try again later',
-  UNKNONW_LOCK_SERVICE_ERROR: 'An unkown error has occured',
+  UNKNONW_LOCK_SERVICE_ERROR: 'An unknown error has occurred',
   LOCK_UNAUTHORIZED:
     'Your session has expired, if the app does not log out shortly please log out manually',
 };
