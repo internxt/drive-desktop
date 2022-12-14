@@ -5,6 +5,7 @@ import useSyncStatus from '../../hooks/SyncStatus';
 import useSyncStopped from '../../hooks/SyncStopped';
 import { SyncStatus } from '../../../main/background-processes/sync';
 import { ProcessFatalErrorName } from '../../../workers/types';
+import { LockErrorReason } from '../../../main/background-processes/lock-erros';
 
 const fatalErrorActionMap: Record<
   ProcessFatalErrorName,
@@ -32,6 +33,16 @@ const fatalErrorActionMap: Record<
   UNKNOWN: undefined,
 };
 
+const lockErrorMessages: Record<LockErrorReason, string> = {
+  FOLDER_IS_LOCKED:
+    "Looks like other of your devices is already syncing, we'll try again later",
+  SERVICE_UNAVAILABE:
+    'We cannot perform the action at the moment, please try again later',
+  UNKNONW_LOCK_SERVICE_ERROR: 'An unkown error has occured',
+  LOCK_UNAUTHORIZED:
+    'Your session has expired, if the app does not log out shortly please log out manually',
+};
+
 export default function SyncErrorBanner() {
   const [stopReason, setStopReason] = useSyncStopped();
 
@@ -53,8 +64,7 @@ export default function SyncErrorBanner() {
   let message = '';
 
   if (stopReason?.reason === 'COULD_NOT_ACQUIRE_LOCK')
-    message =
-      "Looks like other of your devices is already syncing, we'll try again later";
+    message = lockErrorMessages[stopReason?.cause];
   else if (stopReason?.reason === 'FATAL_ERROR')
     message = FatalErrorMessages[stopReason.errorName];
 
