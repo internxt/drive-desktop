@@ -28,6 +28,10 @@ jobs:
           echo "always-auth=true" >> .npmrc
         env:
           PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 1
+      - name: Install production depencies
+        run: |
+          cd release/app
+          yarn
       - name: Install dependencies
         run: yarn
       - name: Create .env file
