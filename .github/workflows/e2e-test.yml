@@ -28,6 +28,8 @@ jobs:
           echo "always-auth=true" >> .npmrc
         env:
           PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 1
+      - name: Install typescript
+        run: npm install -g ts-node
       - name: Install production depencies
         run: |
           cd release/app
