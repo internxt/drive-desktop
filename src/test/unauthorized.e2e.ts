@@ -4,15 +4,10 @@ import { ipcMainEmit, ipcMainInvokeHandler } from 'electron-playwright-helpers';
 
 import AccessResponseFixtures from './fixtures/AccessResponse.json';
 
-const wait = async (ms: number): Promise<void> => {
-  return new Promise((resolve) => {
-    setTimeout(resolve, ms);
-  });
-};
-
 test.describe('user gets unauthorized', () => {
   let electronApp: ElectronApplication;
-  test.beforeAll(async () => {
+
+  test.beforeEach(async () => {
     electronApp = await electron.launch({
       args: ['release/app/dist/main/main.js'],
     });
@@ -45,7 +40,7 @@ test.describe('user gets unauthorized', () => {
       electronApp,
       'is-user-logged-in'
     );
-    await wait(1000);
+    await ipcMainEmit(electronApp, 'user-is-unauthorized');
     const isLoggedIn = await ipcMainInvokeHandler(
       electronApp,
       'is-user-logged-in'
