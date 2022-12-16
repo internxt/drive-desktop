@@ -30,10 +30,6 @@ jobs:
           PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 1
       - name: Install dependencies
         run: yarn install --ignore-scripts
-      - name: Install production dependencies
-        run: |
-          cd release/app
-          yarn
       - name: Create .env file
         run: |
           touch .env
