@@ -18,6 +18,9 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           registry-url: 'https://npm.pkg.github.com'
+      - name: yarn 3
+        run: |
+          echo  "nodeLinker: \"node-modules\""" > .yarnrc.yaml
       - name: Create .npmrc file
         run: |
           echo "registry=https://registry.yarnpkg.com/" > .npmrc
