@@ -26,6 +26,8 @@ jobs:
           gperf bison python3-dbusmock openjdk-8-jre
           sudo apt-get install manpages-dev
           gcc --version
+      - name: use lastest npm version
+        run: npm install -g npm@latest
       - name: Create .npmrc file
         run: |
           echo "registry=https://registry.yarnpkg.com/" > .npmrc
