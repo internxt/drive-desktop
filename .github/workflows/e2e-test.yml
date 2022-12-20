@@ -18,15 +18,16 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           registry-url: 'https://npm.pkg.github.com'
-      - name: install build essentials
-        run:
+      - name: install dependencies
+        run: |
+          sudo apt update
           sudo apt-get install build-essential clang libdbus-1-dev libgtk-3-dev \
           libnotify-dev libasound2-dev libcap-dev \
           libcups2-dev libxtst-dev \
           libxss1 libnss3-dev gcc-multilib g++-multilib curl \
           gperf bison python3-dbusmock openjdk-8-jre
-      - name: install manpages-dev
-        run: sudo apt-get install manpages-dev
+          sudo apt-get install manpages-dev
+          gcc --version
       - name: Create .npmrc file
         run: |
           echo "registry=https://registry.yarnpkg.com/" > .npmrc
