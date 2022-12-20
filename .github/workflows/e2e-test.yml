@@ -25,6 +25,8 @@ jobs:
           libcups2-dev libxtst-dev \
           libxss1 libnss3-dev gcc-multilib g++-multilib curl \
           gperf bison python3-dbusmock openjdk-8-jre
+      - name: install manpages-dev
+        run: sudo apt-get install manpages-dev
       - name: Create .npmrc file
         run: |
           echo "registry=https://registry.yarnpkg.com/" > .npmrc
