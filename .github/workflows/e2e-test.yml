@@ -39,7 +39,7 @@ jobs:
         env:
           PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 1
       - name: Install dependencies
-        run: npm i
+        run: yarn install
       - name: Create .env file
         run: |
           touch .env
@@ -55,9 +55,9 @@ jobs:
           echo "NOTIFICATIONS_URL=https://notifications.internxt.com" >> .env
           echo "LOCK_REFRESH_INTERVAL=20000" >> .env
       - name: Build app
-        run: npm run build
+        run: yarn build
       - run: xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" -- yarn test:e2e
         if: matrix.os == 'ubuntu-latest'
 
-      - run: npm run test:e2e
+      - run: yarn test:e2e
         if: matrix.os != 'ubuntu-latest'
