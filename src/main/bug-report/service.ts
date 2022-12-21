@@ -43,7 +43,7 @@ export async function sendReport({
   log.error(`Report status: ${res.status}`);
 
   if (res.status === 429) {
-    return { state: 'TO_MANY_REPORTS' };
+    return { state: 'TOO_MANY_REPORTS' };
   }
 
   return { state: 'ERROR' };

@@ -5,7 +5,7 @@ import { longMessages, shortMessages } from '../../messages/process-error';
 import Spinner from '../../assets/spinner.svg';
 import { ProcessIssue } from '../../../workers/types';
 
-const posibleErrorStates = ['ERROR', 'TO_MANY_REPORTS'] as const;
+const posibleErrorStates = ['ERROR', 'TOO_MANY_REPORTS'] as const;
 type ErrorReportRequestState = typeof posibleErrorStates[number];
 type ReportRequestState = 'READY' | 'SENDING' | ErrorReportRequestState;
 
@@ -16,7 +16,7 @@ const stateIsError = (maybe: unknown): maybe is ErrorReportRequestState =>
 const errorMessages: Record<ErrorReportRequestState, string> = {
   ERROR:
     'We could not send your request, make sure you are connected to the internet',
-  TO_MANY_REPORTS: 'You cannot create more request for today',
+  TOO_MANY_REPORTS: 'You cannot create more request for today',
 };
 
 export function ReportModal({
@@ -74,8 +74,8 @@ export function ReportModal({
       return;
     }
 
-    if (result.state === 'TO_MANY_REPORTS') {
-      setRequestState('TO_MANY_REPORTS');
+    if (result.state === 'TOO_MANY_REPORTS') {
+      setRequestState('TOO_MANY_REPORTS');
       return;
     }
 
