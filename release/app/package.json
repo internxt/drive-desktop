@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@parcel/watcher": "^2.0.5",
-    "@rudderstack/rudder-sdk-node": "^1.1.4"
+    "rudder-sdk-js": "^2.21.0"
   },
   "license": "MIT"
 }
