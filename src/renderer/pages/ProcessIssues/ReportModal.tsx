@@ -16,7 +16,7 @@ const stateIsError = (maybe: unknown): maybe is ErrorReportRequestState =>
 const errorMessages: Record<ErrorReportRequestState, string> = {
   ERROR:
     'We could not send your request, make sure you are connected to the internet',
-  TOO_MANY_REPORTS: 'You cannot create more request for today',
+  TOO_MANY_REPORTS: 'Reached reporting errors day limit',
 };
 
 export function ReportModal({
