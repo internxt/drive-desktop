@@ -1,4 +1,4 @@
-import Analytics from '@rudderstack/rudder-sdk-node';
+import * as rudderanalytics from 'rudder-sdk-js';
 
 const WRITE_KEY = process.env.RUDDERSTACK_KEY;
 const DATA_PLANE_URL = process.env.RUDDERSTACK_DATA_PLANE_URL;
@@ -11,6 +11,8 @@ if (!DATA_PLANE_URL) {
   throw Error('[CONFIG] Missing ANALITICS URL');
 }
 
-const client = new Analytics(WRITE_KEY, `${DATA_PLANE_URL}`);
+export function loadRudderstak() {
+  rudderanalytics.load(WRITE_KEY, `${DATA_PLANE_URL}`);
+}
 
-export { client };
+export * as client from 'rudder-sdk-js';
