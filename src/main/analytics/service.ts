@@ -1,7 +1,6 @@
 import { client } from './rudderstack-client';
 import ConfigStore from '../config';
 import packageJson from '../../../package.json';
-import { BackupInfo } from './backup-handlers';
 
 const os = require('os');
 
@@ -39,9 +38,8 @@ export function applicationOpened() {
       anonymousId: clientId,
     },
     () => {
-      client.track({
+      client.track('Application Opened', {
         anonymousId: clientId,
-        event: 'Application Opened',
         context: deviceContext,
       });
     }
@@ -60,9 +58,8 @@ export function userSignin() {
       context: deviceContext,
     },
     () => {
-      client.track({
+      client.track('User Signin', {
         userId,
-        event: 'User Signin',
         properties: { email },
         context: deviceContext,
       });
@@ -81,9 +78,8 @@ export function userSigninFailed(email?: string) {
       },
     },
     () => {
-      client.track({
+      client.track('User Signin Failed', {
         anonymousId: clientId,
-        event: 'User Signin Failed',
         properties: { email },
         context: deviceContext,
       });
@@ -94,18 +90,16 @@ export function userSigninFailed(email?: string) {
 export function userLogout() {
   const { uuid: userId } = ConfigStore.get('userData');
 
-  client.track({
+  client.track('User Logout', {
     userId,
-    event: 'User Logout',
   });
 }
 
 export function syncStarted(numberOfItems: number) {
   const { uuid: userId } = ConfigStore.get('userData');
 
-  client.track({
+  client.track('Sync Started', {
     userId,
-    event: 'Sync Started',
     properties: {
       number_of_items: numberOfItems,
     },
@@ -116,9 +110,8 @@ export function syncStarted(numberOfItems: number) {
 export function syncPaused(numberOfItems: number) {
   const { uuid: userId } = ConfigStore.get('userData');
 
-  client.track({
+  client.track('Sync Paused', {
     userId,
-    event: 'Sync Paused',
     properties: {
       number_of_items: numberOfItems,
     },
@@ -133,9 +126,8 @@ export function syncBlocked(numberOfItems: number) {
   // In that case we don't have user data to track
   if (!userId) return;
 
-  client.track({
+  client.track('Sync Blocked', {
     userId,
-    event: 'Sync Blocked',
     properties: {
       number_of_items: numberOfItems,
     },
@@ -146,9 +138,8 @@ export function syncBlocked(numberOfItems: number) {
 export function syncError(numberOfItems: number) {
   const { uuid: userId } = ConfigStore.get('userData');
 
-  client.track({
+  client.track('Sync Error', {
     userId,
-    event: 'Sync Error',
     properties: {
       number_of_items: numberOfItems,
     },
@@ -159,9 +150,8 @@ export function syncError(numberOfItems: number) {
 export function syncFinished(numberOfItems: number) {
   const { uuid: userId } = ConfigStore.get('userData');
 
-  client.track({
+  client.track('Sync Finished', {
     userId,
-    event: 'Sync Finished',
     properties: {
       number_of_items: numberOfItems,
     },
@@ -172,9 +162,8 @@ export function syncFinished(numberOfItems: number) {
 export function backupProcessStarted(scheduled: boolean, totalFolders: number) {
   const { uuid: userId } = ConfigStore.get('userData');
 
-  client.track({
+  client.track('Backup Started', {
     userId,
-    event: 'Backup Started',
     properties: {
       scheduled,
       number_of_items: totalFolders,
@@ -186,9 +175,8 @@ export function backupProcessStarted(scheduled: boolean, totalFolders: number) {
 export function backupCompleted(scheduled: boolean, numberOfItems: number) {
   const { uuid: userId } = ConfigStore.get('userData');
 
-  client.track({
+  client.track('Backup Completed', {
     userId,
-    event: 'Backup Completed',
     properties: {
       scheduled,
       number_of_items: numberOfItems,
@@ -200,9 +188,8 @@ export function backupCompleted(scheduled: boolean, numberOfItems: number) {
 export function folderBackupStarted(scheduled: boolean, numberOfItems: number) {
   const { uuid: userId } = ConfigStore.get('userData');
 
-  client.track({
+  client.track('Folder Backup Started', {
     userId,
-    event: 'Folder Backup Started',
     properties: {
       scheduled,
       number_of_items: numberOfItems,
@@ -217,9 +204,8 @@ export function folderBackupCompleted(
 ) {
   const { uuid: userId } = ConfigStore.get('userData');
 
-  client.track({
+  client.track('Folder Backup Completed', {
     userId,
-    event: 'Folder Backup Completed',
     properties: {
       scheduled,
       number_of_items: numberOfItems,
@@ -235,9 +221,8 @@ export function backupError(
 ) {
   const { uuid: userId } = ConfigStore.get('userData');
 
-  client.track({
+  client.track('Backup Error', {
     userId,
-    event: 'Backup Error',
     properties: {
       scheduled,
       number_of_items: numberOfItems,
