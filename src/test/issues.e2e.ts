@@ -99,7 +99,7 @@ test.describe('process issues', () => {
       expect(numberOfIssues).toBe(`${emitNErrors} files`);
     });
 
-    test('does not display any async issue is none is emited', async () => {
+    test('does not display any async issue is none is emitted', async () => {
       const list = await page.innerHTML(emptyIssuesListSelector);
 
       expect(list).toBeDefined();
