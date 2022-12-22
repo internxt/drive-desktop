@@ -7,7 +7,7 @@ import ignore from 'ignore';
 import path from 'path';
 import { getSyncStatus, startSyncProcess } from './background-processes/sync';
 import configStore from './config';
-import { getToken } from './auth/service';
+import { obtainToken } from './auth/service';
 import { broadcastToWindows } from './windows';
 import eventBus from './event-bus';
 import ignoredFiles from '../../ignored-files.json';
@@ -107,7 +107,7 @@ function cleanAndStartRemoteNotifications() {
 
   socket = io(process.env.NOTIFICATIONS_URL, {
     auth: {
-      token: getToken(),
+      token: obtainToken('bearerToken'),
     },
     withCredentials: true,
   });
