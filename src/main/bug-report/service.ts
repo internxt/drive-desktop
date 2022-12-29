@@ -36,7 +36,13 @@ export async function sendReport({
     body: form,
     headers: { Authorization: `Bearer ${getToken()}` },
   });
-  if (!res.ok) throw new Error();
+
+  if (!res.ok) {
+    log.error(
+      `[BUG-REPORT] Request to report bug failed with status: ${res.status}`
+    );
+    throw new Error();
+  }
 }
 
 function readLog(): Promise<string> {
