@@ -20,6 +20,7 @@ import httpRequest from '../utils/http-request';
 import isOnline from '../utils/is-online';
 import { getDateFromSeconds, getSecondsFromDateString } from '../utils/date';
 import { createErrorDetails, serializeRes } from '../utils/reporting';
+import { AuthorizedClients } from '../../shared/HttpClient/Clients';
 
 /**
  * Server cannot find a file given its route,
@@ -69,12 +70,14 @@ export function getRemoteFilesystem({
   userInfo,
   mnemonic,
   bucket,
+  clients,
 }: {
   baseFolderId: number;
   headers: HeadersInit;
   userInfo: { email: string; userId: string; bridgeUser: string };
   mnemonic: string;
   bucket: string;
+  clients: AuthorizedClients;
 }): FileSystem {
   const cache: RemoteCache = {};
   const createFolderQueue = new EventEmitter().setMaxListeners(0);
@@ -218,15 +221,22 @@ export function getRemoteFilesystem({
     async deleteFile(name: string): Promise<void> {
       const fileInCache = cache[name];
 
-      try {
-        await httpRequest(
-          `${process.env.API_URL}/api/storage/folder/${fileInCache.parentId}/file/${fileInCache.id}`,
-          { method: 'DELETE', headers }
-        );
-      } catch (err) {
+      const result = await clients.newDrive.post(
+        `${process.env.NEW_DRIVE_URL}/drive/storage/trash/add`,
+        {
+          items: [
+            {
+              type: 'file',
+              id: fileInCache.fileId,
+            },
+          ],
+        }
+      );
+
+      if (result.status !== 200) {
         await handleFetchError(
-          err,
-          'Deleting remote file',
+          result.data(),
+          'Moving remote file to trash',
           `Name: ${name}, fileInCache: ${JSON.stringify(fileInCache, null, 2)}`
         );
       }
