@@ -69,4 +69,13 @@ describe('file is on folder', () => {
 
     expect(result).toBe(false);
   });
+
+  it('folders path is empty folder is not found', () => {
+    const filter = fileIsInFolder([]);
+    const fileName = 'folder/file.txt';
+
+    const result = filter(fileName);
+
+    expect(result).toBe(false);
+  });
 });
