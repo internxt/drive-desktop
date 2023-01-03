@@ -501,24 +501,27 @@ export function getRemoteFilesystem({
       const { id } = folderInCache;
 
       try {
-        const res = await httpRequest(
-          `${process.env.API_URL}/api/storage/folder/${id}`,
+        const result = await clients.newDrive.post(
+          `${process.env.NEW_DRIVE_URL}/drive/storage/trash/add`,
           {
-            headers,
-            method: 'DELETE',
+            items: [
+              {
+                type: 'folder',
+                id,
+              },
+            ],
           }
         );
-        if (!res.ok) {
+
+        if (result.status !== 200) {
           throw new ProcessError(
             'BAD_RESPONSE',
             createErrorDetails(
               {},
               'Deleting folder from server',
-              `res: ${await serializeRes(res)}, folderInCache: ${JSON.stringify(
-                folderInCache,
-                null,
-                2
-              )}`
+              `res: ${await serializeRes(
+                result.data
+              )}, folderInCache: ${JSON.stringify(folderInCache, null, 2)}`
             )
           );
         }
