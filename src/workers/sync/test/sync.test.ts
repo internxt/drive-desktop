@@ -354,7 +354,7 @@ describe('sync tests', () => {
     expect(spyRemoteDelete).not.toBeCalledWith('deleted/deleted');
 
     expect(spyLocalDelete).toBeCalledWith('unchanged/deleted');
-    expect(spyRemoteDelete).toBeCalledWith('deleted/unchanged');
+    expect(spyRemoteDelete).not.toBeCalledWith('deleted/unchanged');
 
     expect(spyRemoteDeleteFolder).toBeCalledWith('deleted');
     expect(spyLocalDeleteFolder).not.toBeCalled();
