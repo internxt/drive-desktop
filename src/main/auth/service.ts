@@ -89,6 +89,17 @@ export function getHeaders(includeMnemonic = false): Record<string, string> {
   return header;
 }
 
+export function getNewApiHeaders(): Record<string, string> {
+  const token = getNewToken();
+
+  return {
+    Authorization: `Bearer ${token}`,
+    'content-type': 'application/json; charset=utf-8',
+    'internxt-client': 'drive-desktop',
+    'internxt-version': packageConfig.version,
+  };
+}
+
 export function getUser(): User | null {
   const user = ConfigStore.get('userData');
   return Object.keys(user).length ? user : null;

@@ -12,6 +12,7 @@ import {
   setCredentials,
   logout,
   encryptToken,
+  getNewApiHeaders,
 } from './service';
 import { createTokenSchedule } from './refresh-token';
 
@@ -35,6 +36,8 @@ ipcMain.handle('get-user', getUser);
 ipcMain.handle('get-headers', (_, includeMnemonic) =>
   getHeaders(includeMnemonic)
 );
+
+ipcMain.handle('get-headers-for-new-api', () => getNewApiHeaders());
 
 export function onUserUnauthorized() {
   eventBus.emit('USER_WAS_UNAUTHORIZED');
