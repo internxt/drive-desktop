@@ -91,16 +91,28 @@ export type Source = {
   size: number;
 };
 
+export type ListingData = {
+  // modTime: seconds since epoch
+  modtime: number;
+  // size: file size in bytes
+  size: number;
+  // dev: the numeric identifier of the device containing the file
+  dev?: number;
+  /**
+   * ino: The file system specific "Inode" number for the file.
+   * the ino is unique for a specific device (disk or partition)
+   */
+  ino?: number;
+};
+
 /**
- * Represents a list of files, each with
- * its modTime that is set as seconds since epoch
- * and size in bytes
- *
  * The name of each file can be namespaced by
  * his ancestors such as: folderA/folderB/fileName
  * It cannot start or end with "/"
  */
-export type Listing = Record<string, { modtime: number; size: number }>;
+export type FileName = string;
+
+export type Listing = Record<FileName, ListingData>;
 
 export type ProcessFatalErrorName =
   | 'NO_INTERNET'

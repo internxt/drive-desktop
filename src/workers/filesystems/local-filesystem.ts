@@ -67,13 +67,18 @@ export function getLocalFilesystem(
     return path.join(tempDirectory, `${uuid.v4()}.tmp`);
   }
 
-  async function getLocalMeta(
-    pathname: string
-  ): Promise<{ modTimeInSeconds: number; size: number }> {
-    const stat = await fs.stat(pathname);
+  async function getLocalMeta(pathname: string): Promise<{
+    modTimeInSeconds: number;
+    size: number;
+    dev: number;
+    ino: number;
+  }> {
+    const { mtimeMs, size, dev, ino } = await fs.stat(pathname);
     return {
-      modTimeInSeconds: Math.trunc(stat.mtimeMs / 1000),
-      size: stat.size,
+      modTimeInSeconds: Math.trunc(mtimeMs / 1000),
+      size,
+      dev,
+      ino,
     };
   }
 
@@ -113,9 +118,17 @@ export function getLocalFilesystem(
       for (const fileName of list) {
         const relativeName = getListingPath(fileName);
         try {
-          const { modTimeInSeconds, size } = await getLocalMeta(fileName);
+          const { modTimeInSeconds, size, dev, ino } = await getLocalMeta(
+            fileName
+          );
 
-          if (size) listing[relativeName] = { modtime: modTimeInSeconds, size };
+          if (size)
+            listing[relativeName] = {
+              modtime: modTimeInSeconds,
+              size,
+              dev,
+              ino,
+            };
           else {
             const emptyFileError = {
               message: 'Internxt does not support empty files',
