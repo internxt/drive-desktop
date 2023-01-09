@@ -1,5 +1,5 @@
 import ConfigStore from '../../main/config';
-import { FileName, Listing } from '../types';
+import { FileName, Listing, LocalListing } from '../types';
 import { ListingStore } from './sync';
 
 type OriginalListingData = number;
@@ -33,8 +33,8 @@ export default function getListingStore(): ListingStore {
 
   function convertListingWithSize(
     listing: OldListing<ListingDataWithSize>
-  ): Listing {
-    const listingConverted: Listing = {};
+  ): LocalListing {
+    const listingConverted: LocalListing = {};
 
     for (const [name, data] of Object.entries(listing)) {
       listingConverted[name] = { ...data, ino: undefined, dev: undefined };
@@ -44,7 +44,7 @@ export default function getListingStore(): ListingStore {
   }
 
   return {
-    async getLastSavedListing(): Promise<Listing | null> {
+    async getLastSavedListing(): Promise<LocalListing | null> {
       const lastSavedListing = ConfigStore.get('lastSavedListing') as string;
       if (lastSavedListing === '') return null;
 

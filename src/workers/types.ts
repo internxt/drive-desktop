@@ -12,7 +12,7 @@ export interface FileSystem {
    * in this FileSystem
    */
   getCurrentListing(): Promise<{
-    listing: Listing;
+    listing: FileListing<ListingData | LocalListingData>;
     readingMetaErrors: ReadingMetaErrorEntry[];
   }>;
 
@@ -96,6 +96,9 @@ export type ListingData = {
   modtime: number;
   // size: file size in bytes
   size: number;
+};
+
+export type LocalListingData = ListingData & {
   // dev: the numeric identifier of the device containing the file
   dev?: number;
   /**
@@ -112,7 +115,10 @@ export type ListingData = {
  */
 export type FileName = string;
 
-export type Listing = Record<FileName, ListingData>;
+export type FileListing<T> = Record<FileName, T>;
+
+export type Listing = FileListing<ListingData>;
+export type LocalListing = FileListing<LocalListingData>;
 
 export type ProcessFatalErrorName =
   | 'NO_INTERNET'

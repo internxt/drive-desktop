@@ -7,12 +7,14 @@ import {
   FileSystem,
   FileSystemKind,
   Listing,
+  LocalListing,
   ProcessError,
   ProcessErrorName,
   ProcessFatalError,
   ReadingMetaErrorEntry,
 } from './types';
 import { createErrorDetails } from './utils/reporting';
+import { listingsAreEqual } from './utils/change-is-rename';
 
 abstract class Process extends EventEmitter {
   constructor(
@@ -203,7 +205,7 @@ abstract class Process extends EventEmitter {
   protected async getCurrentListings(options: {
     emitErrors: boolean;
   }): Promise<{
-    currentLocal: Listing;
+    currentLocal: LocalListing;
     currentRemote: Listing;
   }> {
     try {
@@ -256,7 +258,7 @@ abstract class Process extends EventEmitter {
       emitErrors: false,
     });
 
-    if (_.isEqual(currentLocal, currentRemote)) {
+    if (_.isEqualWith(currentLocal, currentRemote, listingsAreEqual)) {
       const currentInBoth = currentLocal;
       Logger.debug('Current in both:', currentInBoth);
 

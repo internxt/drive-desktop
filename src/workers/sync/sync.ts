@@ -1,6 +1,7 @@
 import Logger from 'electron-log';
 import { EnqueuedSyncActions, FileSystem, Listing } from '../types';
 import Process, { ProcessEvents, ProcessResult } from '../process';
+import { generateRenameDeltas } from '../utils/change-is-rename';
 
 class Sync extends Process {
   constructor(
@@ -46,7 +47,7 @@ class Sync extends Process {
       pullFromRemote,
       deleteInLocal,
       deleteInRemote,
-    } = this.generateActionQueues(
+    } = await this.generateActionQueues(
       deltasLocal,
       deltasRemote,
       currentLocal,
@@ -140,25 +141,25 @@ class Sync extends Process {
     return this.finalize();
   }
 
-  private generateActionQueues(
+  private async generateActionQueues(
     deltasLocal: Deltas,
     deltasRemote: Deltas,
     currentLocalListing: Listing,
     currentRemoteListing: Listing
-  ): {
+  ): Promise<{
     renameInLocal: [string, string][];
     renameInRemote: [string, string][];
     pullFromLocal: string[];
     pullFromRemote: string[];
     deleteInLocal: string[];
     deleteInRemote: string[];
-  } {
+  }> {
     const pullFromLocal: string[] = [];
-    const pullFromRemote: string[] = [];
+    let pullFromRemote: string[] = [];
     const renameInLocal: [string, string][] = [];
     const renameInRemote: [string, string][] = [];
     const deleteInLocal: string[] = [];
-    const deleteInRemote: string[] = [];
+    let deleteInRemote: string[] = [];
 
     const keepMostRecent = (name: string) => {
       const { modtime: modtimeInLocal } = currentLocalListing[name];
@@ -242,6 +243,23 @@ class Sync extends Process {
       }
     }
 
+    if (Object.entries(deltasLocal).length === 2) {
+      const oldName = Object.entries(deltasLocal).find(
+        ([_, delta]) => delta === 'RENAMED'
+      )?.[0];
+
+      const newName = Object.entries(deltasLocal).find(
+        ([_, delta]) => delta === 'NEW_NAME'
+      )?.[0];
+
+      if (oldName && newName) {
+        renameInRemote.push([oldName, newName]);
+      }
+
+      pullFromRemote = [];
+      deleteInRemote = [];
+    }
+
     return {
       pullFromLocal,
       pullFromRemote,
@@ -273,6 +291,14 @@ class Sync extends Process {
       if (!(name in current)) {
         deltas[name] = 'DELETED';
       }
+    }
+
+    const renameDeltas = generateRenameDeltas(deltas, saved, current);
+
+    Logger.debug('RENAME DELTAS', renameDeltas);
+
+    if (Object.keys(renameDeltas).length > 0) {
+      return renameDeltas;
     }
 
     return deltas;
@@ -352,7 +378,14 @@ export type ListingStore = {
 
 export type Deltas = Record<string, Delta>;
 
-type Delta = 'NEW' | 'NEWER' | 'DELETED' | 'OLDER' | 'UNCHANGED';
+export type Delta =
+  | 'NEW'
+  | 'NEWER'
+  | 'DELETED'
+  | 'OLDER'
+  | 'UNCHANGED'
+  | 'NEW_NAME'
+  | 'RENAMED';
 
 interface SyncEvents extends ProcessEvents {
   /**

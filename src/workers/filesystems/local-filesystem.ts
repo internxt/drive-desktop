@@ -8,11 +8,11 @@ import ignore from 'ignore';
 import { fileNameIsValid } from '../utils/name-verification';
 import {
   FileSystem,
-  Listing,
   Source,
   ReadingMetaErrorEntry,
   ProcessError,
   ProcessFatalError,
+  LocalListing,
 } from '../types';
 import { getDateFromSeconds } from '../utils/date';
 import { createErrorDetails } from '../utils/reporting';
@@ -112,7 +112,7 @@ export function getLocalFilesystem(
         return true;
       });
 
-      const listing: Listing = {};
+      const listing: LocalListing = {};
       const readingMetaErrors: ReadingMetaErrorEntry[] = [];
 
       for (const fileName of list) {
