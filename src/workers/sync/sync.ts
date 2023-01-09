@@ -141,19 +141,19 @@ class Sync extends Process {
     return this.finalize();
   }
 
-  private async generateActionQueues(
+  private generateActionQueues(
     deltasLocal: Deltas,
     deltasRemote: Deltas,
     currentLocalListing: Listing,
     currentRemoteListing: Listing
-  ): Promise<{
+  ): {
     renameInLocal: [string, string][];
     renameInRemote: [string, string][];
     pullFromLocal: string[];
     pullFromRemote: string[];
     deleteInLocal: string[];
     deleteInRemote: string[];
-  }> {
+  } {
     const pullFromLocal: string[] = [];
     let pullFromRemote: string[] = [];
     const renameInLocal: [string, string][] = [];
