@@ -16,16 +16,16 @@ export type RenameChanges =
       changes: [OldName, NewName];
     };
 
-function cannotCheck(created: LocalListingData, deleted: LocalListingData) {
-  return (
-    !created.dev ||
-    !deleted.dev ||
-    !created.ino ||
-    !deleted.ino ||
-    created.size === 0 ||
-    deleted.size === 0
-  );
-}
+// function cannotCheck(created: LocalListingData, deleted: LocalListingData) {
+//   return (
+//     !created.dev ||
+//     !deleted.dev ||
+//     !created.ino ||
+//     !deleted.ino ||
+//     created.size === 0 ||
+//     deleted.size === 0
+//   );
+// }
 
 function checkSingleItemRename(
   [newName, created]: Tuple<NewName, LocalListingData>,
