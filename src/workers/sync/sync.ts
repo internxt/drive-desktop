@@ -3,7 +3,7 @@ import { EnqueuedSyncActions, FileSystem, ItemKind, Listing } from '../types';
 import Process, { ProcessEvents, ProcessResult } from '../process';
 import { generateRenameDeltas } from '../utils/change-is-rename';
 import { Delta, Deltas } from './Deltas';
-import { DeleteQueue, PullQueue, Queues, RenameQueue } from './action-queue';
+import { SyncQueues } from './sync-queues';
 
 class Sync extends Process {
   constructor(
@@ -43,9 +43,9 @@ class Sync extends Process {
     Logger.debug('Remote deltas', deltasRemote);
 
     const {
-      PULL: pullQueue,
-      DELETE: deleteQueue,
-      RENAME: renameQueue,
+      pull: pullQueue,
+      delete: deleteQueue,
+      rename: renameQueue,
     } = this.generateActionQueues(
       deltasLocal,
       deltasRemote,
@@ -158,17 +158,16 @@ class Sync extends Process {
     deltasRemote: Deltas,
     currentLocalListing: Listing,
     currentRemoteListing: Listing
-  ): Queues {
-    const pullQueue = new PullQueue();
-    const deleteQueue = new DeleteQueue();
-    const renameQueue = new RenameQueue();
+  ): SyncQueues {
+    const queues = new SyncQueues();
 
     const keepMostRecent = (name: string, kind: ItemKind) => {
       const { modtime: modtimeInLocal } = currentLocalListing[name];
       const { modtime: modtimeInRemote } = currentRemoteListing[name];
 
-      if (modtimeInLocal < modtimeInRemote) pullQueue.add('LOCAL', kind, name);
-      else pullQueue.add('REMOTE', kind, name);
+      if (modtimeInLocal < modtimeInRemote)
+        queues.pull.add('LOCAL', kind, name);
+      else queues.pull.add('REMOTE', kind, name);
     };
 
     for (const [name, deltaLocal] of Object.entries(deltasLocal)) {
@@ -179,7 +178,7 @@ class Sync extends Process {
         currentRemoteListing[name]?.modtime;
 
       if (deltaLocal.is('NEW') && doesntExistInRemote) {
-        pullQueue.add('REMOTE', deltaLocal.itemKind, name);
+        queues.pull.add('REMOTE', deltaLocal.itemKind, name);
         // eslint-disable-next-line no-continue
         continue;
       }
@@ -195,33 +194,33 @@ class Sync extends Process {
         deltaLocal.is('NEWER') &&
         (deltaRemote.is('DELETED') || deltaRemote.is('UNCHANGED'))
       ) {
-        pullQueue.add('REMOTE', deltaLocal.itemKind, name);
+        queues.pull.add('REMOTE', deltaLocal.itemKind, name);
       }
 
       if (deltaLocal.is('NEWER') && deltaRemote.is('OLDER')) {
-        pullQueue.add('REMOTE', deltaLocal.itemKind, name);
+        queues.pull.add('REMOTE', deltaLocal.itemKind, name);
       }
 
       if (
         deltaLocal.is('DELETED') &&
         (deltaRemote.is('NEWER') || deltaRemote.is('OLDER'))
       ) {
-        pullQueue.add('LOCAL', deltaLocal.itemKind, name);
+        queues.pull.add('LOCAL', deltaLocal.itemKind, name);
       }
 
       if (deltaLocal.is('DELETED') && deltaRemote.is('UNCHANGED')) {
-        deleteQueue.add('REMOTE', deltaLocal.itemKind, name);
+        queues.delete.add('REMOTE', deltaLocal.itemKind, name);
       }
 
       if (deltaLocal.is('OLDER') && deltaRemote.is('NEWER')) {
-        pullQueue.add('LOCAL', deltaLocal.itemKind, name);
+        queues.pull.add('LOCAL', deltaLocal.itemKind, name);
       }
 
       if (
         deltaLocal.is('OLDER') &&
         (deltaRemote.is('DELETED') || deltaRemote.is('UNCHANGED'))
       ) {
-        pullQueue.add('REMOTE', deltaLocal.itemKind, name);
+        queues.pull.add('REMOTE', deltaLocal.itemKind, name);
       }
 
       if (deltaLocal.is('OLDER') && deltaRemote.is('OLDER') && !sameModTime) {
@@ -232,45 +231,41 @@ class Sync extends Process {
         deltaLocal.is('UNCHANGED') &&
         (deltaRemote.is('NEWER') || deltaRemote.is('OLDER'))
       ) {
-        pullQueue.add('LOCAL', deltaLocal.itemKind, name);
+        queues.pull.add('LOCAL', deltaLocal.itemKind, name);
       }
 
       if (deltaLocal.is('UNCHANGED') && deltaRemote.is('DELETED')) {
-        deleteQueue.add('LOCAL', deltaLocal.itemKind, name);
+        queues.delete.add('LOCAL', deltaLocal.itemKind, name);
       }
     }
 
     for (const [name, deltaRemote] of Object.entries(deltasRemote)) {
       if (deltaRemote.is('NEW') && !(name in deltasLocal)) {
-        pullQueue.add('LOCAL', deltaRemote.itemKind, name);
+        queues.pull.add('LOCAL', deltaRemote.itemKind, name);
       }
     }
 
     if (Object.entries(deltasLocal).length === 2) {
-      const oldName = Object.entries(deltasLocal).find(([_, delta]) =>
+      const oldName = Object.entries(deltasLocal).find(([, delta]) =>
         delta.is('RENAMED')
       )?.[0];
 
-      const newName = Object.entries(deltasLocal).find(([_, delta]) =>
+      const newName = Object.entries(deltasLocal).find(([, delta]) =>
         delta.is('NEW_NAME')
       )?.[0];
 
       if (oldName && newName) {
-        renameQueue.add('REMOTE', Object.values(deltasLocal)[0].itemKind, [
+        queues.rename.add('REMOTE', Object.values(deltasLocal)[0].itemKind, [
           oldName,
           newName,
         ]);
       }
 
-      pullQueue.empty();
-      deleteQueue.empty();
+      queues.pull.empty();
+      queues.delete.empty();
     }
 
-    return {
-      PULL: pullQueue,
-      DELETE: deleteQueue,
-      RENAME: renameQueue,
-    };
+    return queues;
   }
 
   private generateDeltas(saved: Listing, current: Listing): Deltas {

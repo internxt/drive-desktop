@@ -46,15 +46,38 @@ export abstract class ActionQueue<T> {
   public get = (fileSystem: FileSystemKind, itemKind: ItemKind) => {
     return this.queues[fileSystem][itemKind];
   };
+
+  public getAll = () => {
+    return [
+      ...this.queues.LOCAL.FILE,
+      ...this.queues.REMOTE.FILE,
+      ...this.queues.LOCAL.FOLDER,
+      ...this.queues.REMOTE.FOLDER,
+    ];
+  };
 }
 
 export class DeleteQueue extends ActionQueue<FileName> {}
-export class PullQueue extends ActionQueue<FileName> {}
+
+export class PullQueue extends ActionQueue<FileName> {
+  public add = (
+    fileSystem: FileSystemKind,
+    itemKind: ItemKind,
+    item: FileName
+  ): void => {
+    if (itemKind === 'FOLDER') {
+      // At the moment the folder creation is controlled on the file creation
+      return;
+    }
+
+    this.queues[fileSystem][itemKind].push(item);
+  };
+}
 
 export class RenameQueue extends ActionQueue<Tuple<OldName, NewName>> {}
 
 export type Queues = {
-  PULL: PullQueue;
-  DELETE: DeleteQueue;
-  RENAME: RenameQueue;
+  pull: PullQueue;
+  delete: DeleteQueue;
+  rename: RenameQueue;
 };

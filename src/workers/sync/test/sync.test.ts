@@ -410,155 +410,388 @@ describe('sync tests', () => {
     expect(sync.rename('nested/.hidden', 'sufix')).toBe('nested/.hidden_sufix');
   });
 
-  it('should generate deltas correctly', () => {
-    const sync = dummySync();
+  describe('deltas generation', () => {
+    const incompleteLocalListingData = [
+      {
+        saved: {
+          deleted: { modtime: 44, size: 1, ino: 2 },
+        },
+        current: {
+          new: { modtime: 70, size: 1, dev: 6, ino: 2 },
+        },
+      },
+      {
+        saved: { deleted: { modtime: 44, size: 1, dev: 6, ino: 2 } },
+        current: { new: { modtime: 70, size: 1, ino: 2 } },
+      },
+      {
+        saved: { deleted: { modtime: 44, size: 1, dev: 6 } },
+        current: { new: { modtime: 70, size: 1, dev: 6, ino: 2 } },
+      },
+      {
+        saved: { deleted: { modtime: 44, size: 1, dev: 6, ino: 2 } },
+        current: { new: { modtime: 70, size: 1, dev: 6 } },
+      },
+      {
+        saved: { deleted: { modtime: 44, size: 1 } },
+        current: { new: { modtime: 70, size: 1, dev: 6, ino: 2 } },
+      },
+      {
+        saved: { deleted: { modtime: 44, size: 1, dev: 6, ino: 2 } },
+        current: { new: { modtime: 70, size: 1 } },
+      },
+      {
+        saved: { deleted: { modtime: 44, size: 1 } },
+        current: { new: { modtime: 70, size: 1 } },
+      },
+    ];
 
-    const savedListing = {
-      unchanged: { modtime: 44, size: 1 },
-      newer: { modtime: 44, size: 1 },
-      older: { modtime: 44, size: 1 },
-      deleted: { modtime: 44, size: 1 },
-    };
+    it.each(incompleteLocalListingData)(
+      'does not generate rename actions if cannot determine the changes are a rename',
+      (listings) => {
+        const sync = dummySync();
 
-    const currentListing = {
-      unchanged: { modtime: 44, size: 1 },
-      newer: { modtime: 45, size: 1 },
-      older: { modtime: 43, size: 1 },
-      new: { modtime: 44, size: 1 },
-    };
+        const deltas = sync.generateDeltas(listings.saved, listings.current);
 
-    const deltas = sync.generateDeltas(savedListing, currentListing);
+        expect(deltas.deleted.status).toBe('DELETED');
+        expect(deltas.new.status).toBe('NEW');
+      }
+    );
 
-    expect(deltas.unchanged.status).toBe('UNCHANGED');
-    expect(deltas.newer.status).toBe('NEWER');
-    expect(deltas.older.status).toBe('OLDER');
-    expect(deltas.deleted.status).toBe('DELETED');
-    expect(deltas.new.status).toBe('NEW');
+    it('should generate deltas correctly', () => {
+      const sync = dummySync();
+
+      const savedListing = {
+        unchanged: { modtime: 44, size: 1 },
+        newer: { modtime: 44, size: 1 },
+        older: { modtime: 44, size: 1 },
+        deleted: { modtime: 44, size: 1 },
+      };
+
+      const currentListing = {
+        unchanged: { modtime: 44, size: 1 },
+        newer: { modtime: 45, size: 1 },
+        older: { modtime: 43, size: 1 },
+        new: { modtime: 44, size: 1 },
+      };
+
+      const deltas = sync.generateDeltas(savedListing, currentListing);
+
+      expect(deltas.unchanged.status).toBe('UNCHANGED');
+      expect(deltas.newer.status).toBe('NEWER');
+      expect(deltas.older.status).toBe('OLDER');
+      expect(deltas.deleted.status).toBe('DELETED');
+      expect(deltas.new.status).toBe('NEW');
+    });
+
+    it('generates rename deltas when a file in a folder is renamed', () => {
+      const sync = dummySync();
+      const lastSavedLocalListing = {
+        folder: {
+          modtime: 1,
+          isFolder: true,
+          size: 4096,
+          dev: 64770,
+          ino: 13852866,
+        },
+        'folder/original_name': {
+          modtime: 2,
+          isFolder: false,
+          size: 2093,
+          dev: 64770,
+          ino: 13821414,
+        },
+      };
+
+      const currentSavedLocalListing = {
+        folder: {
+          modtime: 3,
+          isFolder: true,
+          size: 4096,
+          dev: 64770,
+          ino: 13852866,
+        },
+        'folder/new_name': {
+          modtime: 3,
+          isFolder: false,
+          size: 2093,
+          dev: 64770,
+          ino: 13821414,
+        },
+      };
+
+      const deltas = sync.generateDeltas(
+        lastSavedLocalListing,
+        currentSavedLocalListing
+      );
+
+      expect(deltas['folder/original_name']).toStrictEqual(
+        new Delta('RENAMED', 'FILE')
+      );
+      expect(deltas['folder/new_name']).toStrictEqual(
+        new Delta('NEW_NAME', 'FILE')
+      );
+    });
+
+    it('generates rename deltas for single file rename', () => {
+      const sync = dummySync();
+
+      const saved: LocalListing = {
+        deleted: { modtime: 44, size: 1, dev: 6, ino: 2 },
+      };
+
+      const current: LocalListingData = {
+        new: { modtime: 70, size: 1, dev: 6, ino: 2 },
+      };
+
+      const deltas = sync.generateDeltas(saved, current);
+
+      expect(deltas.deleted.status).toBe('RENAMED');
+      expect(deltas.new.status).toBe('NEW_NAME');
+    });
   });
 
-  it('should generate action queues correctly', () => {
-    const sync = dummySync();
+  describe('Queue generation', () => {
+    it('should generate action queues correctly', () => {
+      const sync = dummySync();
 
-    const localListing: Listing = {
-      a: { modtime: 2, size: 1 },
-      aa: { modtime: 2, size: 1 },
-      b: { modtime: 2, size: 1 },
+      const localListing: Listing = {
+        a: { modtime: 2, size: 1 },
+        aa: { modtime: 2, size: 1 },
+        b: { modtime: 2, size: 1 },
 
-      c: { modtime: 1, size: 1 },
-      cc: { modtime: 2, size: 1 },
-      d: { modtime: 2, size: 1 },
-      e: { modtime: 2, size: 1 },
-      f: { modtime: 2, size: 1 },
+        c: { modtime: 1, size: 1 },
+        cc: { modtime: 2, size: 1 },
+        d: { modtime: 2, size: 1 },
+        e: { modtime: 2, size: 1 },
+        f: { modtime: 2, size: 1 },
 
-      k: { modtime: 2, size: 1 },
-      m: { modtime: 2, size: 1 },
-      n: { modtime: 1, size: 1 },
-      nn: { modtime: 2, size: 1 },
-      l: { modtime: 2, size: 1 },
+        k: { modtime: 2, size: 1 },
+        m: { modtime: 2, size: 1 },
+        n: { modtime: 1, size: 1 },
+        nn: { modtime: 2, size: 1 },
+        l: { modtime: 2, size: 1 },
 
-      o: { modtime: 2, size: 1 },
-      p: { modtime: 2, size: 1 },
-      q: { modtime: 2, size: 1 },
-      r: { modtime: 2, size: 1 },
-    };
+        o: { modtime: 2, size: 1 },
+        p: { modtime: 2, size: 1 },
+        q: { modtime: 2, size: 1 },
+        r: { modtime: 2, size: 1 },
+      };
 
-    const remoteListing: Listing = {
-      a: { modtime: 1, size: 1 },
-      aa: { modtime: 2, size: 1 },
-      b: { modtime: 2, size: 1 },
+      const remoteListing: Listing = {
+        a: { modtime: 1, size: 1 },
+        aa: { modtime: 2, size: 1 },
+        b: { modtime: 2, size: 1 },
 
-      c: { modtime: 2, size: 1 },
-      cc: { modtime: 2, size: 1 },
-      e: { modtime: 1, size: 1 },
-      f: { modtime: 2, size: 1 },
+        c: { modtime: 2, size: 1 },
+        cc: { modtime: 2, size: 1 },
+        e: { modtime: 1, size: 1 },
+        f: { modtime: 2, size: 1 },
 
-      g: { modtime: 2, size: 1 },
-      h: { modtime: 2, size: 1 },
-      i: { modtime: 2, size: 1 },
-      j: { modtime: 2, size: 1 },
+        g: { modtime: 2, size: 1 },
+        h: { modtime: 2, size: 1 },
+        i: { modtime: 2, size: 1 },
+        j: { modtime: 2, size: 1 },
 
-      k: { modtime: 3, size: 1 },
-      n: { modtime: 2, size: 1 },
-      nn: { modtime: 2, size: 1 },
-      l: { modtime: 2, size: 1 },
+        k: { modtime: 3, size: 1 },
+        n: { modtime: 2, size: 1 },
+        nn: { modtime: 2, size: 1 },
+        l: { modtime: 2, size: 1 },
 
-      o: { modtime: 2, size: 1 },
-      q: { modtime: 2, size: 1 },
-      r: { modtime: 2, size: 1 },
-    };
+        o: { modtime: 2, size: 1 },
+        q: { modtime: 2, size: 1 },
+        r: { modtime: 2, size: 1 },
+      };
 
-    const deltasLocal: Deltas = {
-      a: new Delta('NEW', 'FILE'),
-      aa: new Delta('NEW', 'FILE'),
-      b: new Delta('NEW', 'FILE'),
+      const deltasLocal: Deltas = {
+        a: new Delta('NEW', 'FILE'),
+        aa: new Delta('NEW', 'FILE'),
+        b: new Delta('NEW', 'FILE'),
 
-      c: new Delta('NEWER', 'FILE'),
-      cc: new Delta('NEWER', 'FILE'),
-      d: new Delta('NEWER', 'FILE'),
-      e: new Delta('NEWER', 'FILE'),
-      f: new Delta('NEWER', 'FILE'),
+        c: new Delta('NEWER', 'FILE'),
+        cc: new Delta('NEWER', 'FILE'),
+        d: new Delta('NEWER', 'FILE'),
+        e: new Delta('NEWER', 'FILE'),
+        f: new Delta('NEWER', 'FILE'),
 
-      g: new Delta('DELETED', 'FILE'),
-      i: new Delta('DELETED', 'FILE'),
-      j: new Delta('DELETED', 'FILE'),
+        g: new Delta('DELETED', 'FILE'),
+        i: new Delta('DELETED', 'FILE'),
+        j: new Delta('DELETED', 'FILE'),
 
-      k: new Delta('OLDER', 'FILE'),
-      m: new Delta('OLDER', 'FILE'),
-      n: new Delta('OLDER', 'FILE'),
-      nn: new Delta('OLDER', 'FILE'),
-      l: new Delta('OLDER', 'FILE'),
+        k: new Delta('OLDER', 'FILE'),
+        m: new Delta('OLDER', 'FILE'),
+        n: new Delta('OLDER', 'FILE'),
+        nn: new Delta('OLDER', 'FILE'),
+        l: new Delta('OLDER', 'FILE'),
 
-      o: new Delta('UNCHANGED', 'FILE'),
-      p: new Delta('UNCHANGED', 'FILE'),
-      q: new Delta('UNCHANGED', 'FILE'),
-      r: new Delta('UNCHANGED', 'FILE'),
-    };
+        o: new Delta('UNCHANGED', 'FILE'),
+        p: new Delta('UNCHANGED', 'FILE'),
+        q: new Delta('UNCHANGED', 'FILE'),
+        r: new Delta('UNCHANGED', 'FILE'),
+      };
 
-    const deltasRemote: Deltas = {
-      a: new Delta('NEW', 'FILE'),
-      aa: new Delta('NEW', 'FILE'),
+      const deltasRemote: Deltas = {
+        a: new Delta('NEW', 'FILE'),
+        aa: new Delta('NEW', 'FILE'),
 
-      c: new Delta('NEWER', 'FILE'),
-      cc: new Delta('NEWER', 'FILE'),
-      d: new Delta('DELETED', 'FILE'),
-      e: new Delta('OLDER', 'FILE'),
-      f: new Delta('UNCHANGED', 'FILE'),
+        c: new Delta('NEWER', 'FILE'),
+        cc: new Delta('NEWER', 'FILE'),
+        d: new Delta('DELETED', 'FILE'),
+        e: new Delta('OLDER', 'FILE'),
+        f: new Delta('UNCHANGED', 'FILE'),
 
-      g: new Delta('NEWER', 'FILE'),
-      h: new Delta('DELETED', 'FILE'),
-      i: new Delta('OLDER', 'FILE'),
-      j: new Delta('UNCHANGED', 'FILE'),
+        g: new Delta('NEWER', 'FILE'),
+        h: new Delta('DELETED', 'FILE'),
+        i: new Delta('OLDER', 'FILE'),
+        j: new Delta('UNCHANGED', 'FILE'),
 
-      k: new Delta('NEWER', 'FILE'),
-      m: new Delta('DELETED', 'FILE'),
-      n: new Delta('OLDER', 'FILE'),
-      nn: new Delta('OLDER', 'FILE'),
-      l: new Delta('UNCHANGED', 'FILE'),
+        k: new Delta('NEWER', 'FILE'),
+        m: new Delta('DELETED', 'FILE'),
+        n: new Delta('OLDER', 'FILE'),
+        nn: new Delta('OLDER', 'FILE'),
+        l: new Delta('UNCHANGED', 'FILE'),
 
-      o: new Delta('NEWER', 'FILE'),
-      p: new Delta('DELETED', 'FILE'),
-      q: new Delta('OLDER', 'FILE'),
-      r: new Delta('UNCHANGED', 'FILE'),
+        o: new Delta('NEWER', 'FILE'),
+        p: new Delta('DELETED', 'FILE'),
+        q: new Delta('OLDER', 'FILE'),
+        r: new Delta('UNCHANGED', 'FILE'),
 
-      s: new Delta('NEW', 'FILE'),
-    };
+        s: new Delta('NEW', 'FILE'),
+      };
 
-    const { PULL: pullQueue, DELETE: deleteQueue } = sync.generateActionQueues(
-      deltasLocal,
-      deltasRemote,
-      localListing,
-      remoteListing
-    );
+      const { pull: pullQueue, delete: deleteQueue } =
+        sync.generateActionQueues(
+          deltasLocal,
+          deltasRemote,
+          localListing,
+          remoteListing
+        );
 
-    expect(pullQueue.get('LOCAL', 'FILE').sort()).toEqual(
-      ['c', 'g', 'i', 'n', 'k', 'o', 'q', 's'].sort()
-    );
-    expect(pullQueue.get('REMOTE', 'FILE').sort()).toEqual(
-      ['a', 'b', 'e', 'd', 'f', 'm', 'l'].sort()
-    );
+      expect(pullQueue.get('LOCAL', 'FILE').sort()).toEqual(
+        ['c', 'g', 'i', 'n', 'k', 'o', 'q', 's'].sort()
+      );
+      expect(pullQueue.get('REMOTE', 'FILE').sort()).toEqual(
+        ['a', 'b', 'e', 'd', 'f', 'm', 'l'].sort()
+      );
 
-    expect(deleteQueue.get('LOCAL', 'FILE')).toEqual(['p']);
-    expect(deleteQueue.get('REMOTE', 'FILE')).toEqual(['j']);
+      expect(deleteQueue.get('LOCAL', 'FILE')).toEqual(['p']);
+      expect(deleteQueue.get('REMOTE', 'FILE')).toEqual(['j']);
+    });
+
+    it('generates the rename queue', () => {
+      const sync = dummySync();
+
+      const currentLocal = {
+        new_root_filename: {
+          modtime: 10,
+          isFolder: false,
+          size: 2093,
+          dev: 64770,
+          ino: 13642307,
+        },
+      };
+
+      const currentRemote = {
+        old_root_filename: {
+          modtime: 3,
+          size: '2093',
+          isFolder: false,
+        },
+      };
+
+      const localDeltas = {
+        new_root_filename: new Delta('NEW_NAME', 'FILE'),
+        old_root_filename: new Delta('RENAMED', 'FILE'),
+      };
+
+      const remoteDeltas = {
+        old_root_filename: new Delta('UNCHANGED', 'FILE'),
+      };
+
+      const queues = sync.generateActionQueues(
+        localDeltas,
+        remoteDeltas,
+        currentLocal,
+        currentRemote
+      );
+
+      expect(queues.rename.get('REMOTE', 'FILE')).toStrictEqual([
+        ['old_root_filename', 'new_root_filename'],
+      ]);
+    });
+
+    it('generates the rename queue when 2 files where renamed', () => {
+      const sync = dummySync();
+
+      const currentLocal = {
+        new_root_filename: {
+          modtime: 10,
+          isFolder: false,
+          size: 2093,
+          dev: 64770,
+          ino: 13642307,
+        },
+        folder: {
+          modtime: 14,
+          isFolder: true,
+          size: 4096,
+          dev: 64770,
+          ino: 13852866,
+        },
+        'folder/new_subfolder_filename': {
+          modtime: 15,
+          isFolder: false,
+          size: 2093,
+          dev: 64770,
+          ino: 13821414,
+        },
+      };
+
+      const currentRemote = {
+        old_root_filename: {
+          modtime: 3,
+          size: '2093',
+          isFolder: false,
+        },
+        folder: {
+          modtime: 1,
+          isFolder: true,
+          size: 4096,
+        },
+        'folder/old_subfolder_filename': {
+          modtime: 4,
+          size: '2093',
+          isFolder: false,
+        },
+      };
+
+      const localDeltas = {
+        new_root_filename: new Delta('NEW_NAME', 'FILE'),
+        old_root_filename: new Delta('RENAMED', 'FILE'),
+        folder: new Delta('NEWER', 'FOLDER'),
+        'folder/new_subfolder_filename': new Delta('NEW_NAME', 'FILE'),
+        'folder/old_subfolder_filename': new Delta('RENAMED', 'FILE'),
+      };
+
+      const remoteDeltas = {
+        old_root_filename: new Delta('UNCHANGED', 'FILE'),
+        'folder/old_subfolder_filename': new Delta('UNCHANGED', 'FILE'),
+        folder: new Delta('UNCHANGED', 'FOLDER'),
+      };
+
+      const queues = sync.generateActionQueues(
+        localDeltas,
+        remoteDeltas,
+        currentLocal,
+        currentRemote
+      );
+
+      expect(queues.areEmpty()).toBe(false);
+
+      expect(queues.rename.get('REMOTE', 'FILE')).toStrictEqual([
+        ['old_root_filename', 'new_root_filename'],
+      ]);
+    });
   });
 
   it('should detect folder that has been deleted', async () => {
@@ -673,200 +906,5 @@ describe('sync tests', () => {
 
     expect(Object.entries(diff.filesInSync).length).toEqual(1);
     expect(diff.filesInSync.imsync).toMatchObject({ modtime: 4, size: 5 });
-  });
-
-  describe('rename queue', () => {
-    const incompleteLocalListingData = [
-      {
-        saved: {
-          deleted: { modtime: 44, size: 1, ino: 2 },
-        },
-        current: {
-          new: { modtime: 70, size: 1, dev: 6, ino: 2 },
-        },
-      },
-      {
-        saved: { deleted: { modtime: 44, size: 1, dev: 6, ino: 2 } },
-        current: { new: { modtime: 70, size: 1, ino: 2 } },
-      },
-      {
-        saved: { deleted: { modtime: 44, size: 1, dev: 6 } },
-        current: { new: { modtime: 70, size: 1, dev: 6, ino: 2 } },
-      },
-      {
-        saved: { deleted: { modtime: 44, size: 1, dev: 6, ino: 2 } },
-        current: { new: { modtime: 70, size: 1, dev: 6 } },
-      },
-      {
-        saved: { deleted: { modtime: 44, size: 1 } },
-        current: { new: { modtime: 70, size: 1, dev: 6, ino: 2 } },
-      },
-      {
-        saved: { deleted: { modtime: 44, size: 1, dev: 6, ino: 2 } },
-        current: { new: { modtime: 70, size: 1 } },
-      },
-      {
-        saved: { deleted: { modtime: 44, size: 1 } },
-        current: { new: { modtime: 70, size: 1 } },
-      },
-    ];
-
-    it.each(incompleteLocalListingData)(
-      'does not generate rename actions if cannot determine the changes are a rename',
-      (listings) => {
-        const sync = dummySync();
-
-        const deltas = sync.generateDeltas(listings.saved, listings.current);
-
-        expect(deltas.deleted.status).toBe('DELETED');
-        expect(deltas.new.status).toBe('NEW');
-      }
-    );
-
-    it('generates rename actions for single file rename', () => {
-      const sync = dummySync();
-
-      const saved: LocalListing = {
-        deleted: { modtime: 44, size: 1, dev: 6, ino: 2 },
-      };
-
-      const current: LocalListingData = {
-        new: { modtime: 70, size: 1, dev: 6, ino: 2 },
-      };
-
-      const deltas = sync.generateDeltas(saved, current);
-
-      expect(deltas.deleted.status).toBe('RENAMED');
-      expect(deltas.new.status).toBe('NEW_NAME');
-    });
-
-    it('generates the rename queue', () => {
-      const sync = dummySync();
-
-      const currentLocal = {
-        'k.log': {
-          modtime: 1672824000,
-          isFolder: false,
-          size: 2093,
-          dev: 64770,
-          ino: 13642307,
-        },
-        'ola 2244.log': {
-          modtime: 1672824000,
-          isFolder: false,
-          size: 2093,
-          dev: 64770,
-          ino: 13642287,
-        },
-        'test/Captura de pantalla de 2023-01-03 11-35-39.png': {
-          modtime: 1672742139,
-          isFolder: false,
-          size: 76685,
-          dev: 64770,
-          ino: 13820748,
-        },
-        'test/ola RENAMED.log': {
-          modtime: 1672824000,
-          isFolder: false,
-          size: 2093,
-          dev: 64770,
-          ino: 13821414,
-        },
-      };
-
-      const currentRemote = {
-        'ola 224.log': {
-          modtime: 1672824000,
-          size: '2093',
-          isFolder: false,
-        },
-        'k.log': { modtime: 1672824000, size: '2093', isFolder: false },
-        'test/Captura de pantalla de 2023-01-03 11-35-39.png': {
-          modtime: 1672742139,
-          size: '76685',
-          isFolder: false,
-        },
-        'test/ola RENAMED.log': {
-          modtime: 1672824000,
-          size: '2093',
-          isFolder: false,
-        },
-      };
-
-      const localDeltas = {
-        'ola 2244.log': new Delta('NEW_NAME', 'FILE'),
-        'ola 224.log': new Delta('RENAMED', 'FILE'),
-      };
-
-      const remoteDeltas = {
-        'ola 224.log': new Delta('UNCHANGED', 'FILE'),
-        'k.log': new Delta('UNCHANGED', 'FILE'),
-        'test/Captura de pantalla de 2023-01-03 11-35-39.png': new Delta(
-          'UNCHANCEHD',
-          'FILE'
-        ),
-        'test/ola RENAMED.log': new Delta('UNCHANGED', 'FILE'),
-      };
-
-      try {
-        sync.generateActionQueues(
-          localDeltas,
-          remoteDeltas,
-          currentLocal,
-          currentRemote
-        );
-      } catch (err) {
-        console.error(err);
-        expect(err).not.toBeDefined();
-      }
-    });
-
-    it('generates rename deltas when a file in a folder is renamed', () => {
-      const sync = dummySync();
-      const lastSavedLocalListing = {
-        test: {
-          modtime: 1,
-          isFolder: true,
-          size: 4096,
-          dev: 64770,
-          ino: 13852866,
-        },
-        'test/ola.log': {
-          modtime: 2,
-          isFolder: false,
-          size: 2093,
-          dev: 64770,
-          ino: 13821414,
-        },
-      };
-
-      const currentSavedLocalListing = {
-        test: {
-          modtime: 3,
-          isFolder: true,
-          size: 4096,
-          dev: 64770,
-          ino: 13852866,
-        },
-        'test/ola 2.log': {
-          modtime: 3,
-          isFolder: false,
-          size: 2093,
-          dev: 64770,
-          ino: 13821414,
-        },
-      };
-
-      try {
-        const deltas = sync.generateDeltas(
-          lastSavedLocalListing,
-          currentSavedLocalListing
-        );
-        console.log(JSON.stringify(deltas, null, 2));
-      } catch (err) {
-        console.error(err);
-        expect(err).not.toBeDefined();
-      }
-    });
   });
 });
