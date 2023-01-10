@@ -165,9 +165,9 @@ class Sync extends Process {
       const { modtime: modtimeInLocal } = currentLocalListing[name];
       const { modtime: modtimeInRemote } = currentRemoteListing[name];
 
-      if (modtimeInLocal < modtimeInRemote)
-        queues.pull.add('LOCAL', kind, name);
-      else queues.pull.add('REMOTE', kind, name);
+      const fileSystem = modtimeInLocal < modtimeInRemote ? 'LOCAL' : 'REMOTE';
+
+      queues.pull.add(fileSystem, kind, name);
     };
 
     for (const [name, deltaLocal] of Object.entries(deltasLocal)) {
@@ -177,11 +177,25 @@ class Sync extends Process {
         currentLocalListing[name]?.modtime ===
         currentRemoteListing[name]?.modtime;
 
+      if (deltaLocal.is('RENAMED') && deltaLocal.related) {
+        const [newName, status] = deltaLocal.related;
+
+        const relatedExists =
+          Object.keys(deltasLocal).find(
+            (path: string) => status === 'NEW_NAME' && newName === path
+          ) !== undefined;
+
+        if (relatedExists) {
+          queues.rename.add('REMOTE', deltaLocal.itemKind, [name, newName]);
+        }
+      }
+
       if (deltaLocal.is('NEW') && doesntExistInRemote) {
         queues.pull.add('REMOTE', deltaLocal.itemKind, name);
         // eslint-disable-next-line no-continue
         continue;
       }
+
       if (deltaLocal.is('NEW') && deltaRemote.is('NEW') && !sameModTime) {
         keepMostRecent(name, deltaLocal.itemKind);
       }
@@ -245,25 +259,25 @@ class Sync extends Process {
       }
     }
 
-    if (Object.entries(deltasLocal).length === 2) {
-      const oldName = Object.entries(deltasLocal).find(([, delta]) =>
-        delta.is('RENAMED')
-      )?.[0];
+    // if (Object.entries(deltasLocal).length === 2) {
+    //   const oldName = Object.entries(deltasLocal).find(([, delta]) =>
+    //     delta.is('RENAMED')
+    //   )?.[0];
 
-      const newName = Object.entries(deltasLocal).find(([, delta]) =>
-        delta.is('NEW_NAME')
-      )?.[0];
+    //   const newName = Object.entries(deltasLocal).find(([, delta]) =>
+    //     delta.is('NEW_NAME')
+    //   )?.[0];
 
-      if (oldName && newName) {
-        queues.rename.add('REMOTE', Object.values(deltasLocal)[0].itemKind, [
-          oldName,
-          newName,
-        ]);
-      }
+    //   if (oldName && newName) {
+    //     queues.rename.add('REMOTE', Object.values(deltasLocal)[0].itemKind, [
+    //       oldName,
+    //       newName,
+    //     ]);
+    //   }
 
-      queues.pull.empty();
-      queues.delete.empty();
-    }
+    //   queues.pull.empty();
+    //   queues.delete.empty();
+    // }
 
     return queues;
   }

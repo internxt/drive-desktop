@@ -47,8 +47,8 @@ function checkSingleItemRename(
   }
 
   return {
-    [newName]: new Delta('NEW_NAME', created.isFolder),
-    [oldName]: new Delta('RENAMED', deleted.isFolder),
+    [newName]: new Delta('NEW_NAME', created.isFolder, [oldName, 'RENAMED']),
+    [oldName]: new Delta('RENAMED', deleted.isFolder, [newName, 'NEW_NAME']),
   };
 }
 
@@ -68,7 +68,7 @@ function findRootPath(changes: Array<string>): string | null {
   return thereIsRootPath ? potentialFolder : null;
 }
 
-function checkFolderRename(created: Listing, deleted: Listing): Deltas {
+export function checkFolderRename(created: Listing, deleted: Listing): Deltas {
   const createRootPath = findRootPath(Object.keys(created));
   const deletedRootPath = findRootPath(Object.keys(deleted));
 
@@ -143,24 +143,42 @@ export function generateRenameDeltas(
   const created = deltasByType.NEW;
   const deleted = deltasByType.DELETED;
 
-  if (created.length === 1) {
-    return checkSingleItemRename(
-      [created[0], current[created[0]]],
-      [deleted[0], old[deleted[0]]]
-    );
-  }
+  const itemsCreated = created.map(
+    (name: string): Tuple<string, LocalListingData> => [name, current[name]]
+  );
 
-  const createdListing = created.reduce((acc: LocalListing, name: string) => {
-    acc[name] = current[name];
-    return acc;
-  }, {});
+  const itemsDeleted = deleted.map(
+    (name: string): Tuple<string, LocalListingData> => [name, old[name]]
+  );
 
-  const deletedListing = deleted.reduce((acc: LocalListing, name: string) => {
-    acc[name] = old[name];
-    return acc;
-  }, {});
+  return itemsCreated.reduce(
+    (
+      renameDeltas: Deltas,
+      [newName, createdData]: Tuple<string, LocalListingData>
+    ) => {
+      const result = itemsDeleted.find(
+        ([, { dev, ino }]) => dev === createdData.dev && ino === createdData.ino
+      );
 
-  return checkFolderRename(createdListing, deletedListing);
+      if (!result) return renameDeltas;
+
+      const [oldName, deletedData] = result;
+
+      renameDeltas[oldName] = new Delta('RENAMED', deletedData.isFolder, [
+        newName,
+        'NEW_NAME',
+      ]);
+      renameDeltas[newName] = new Delta('NEW_NAME', deletedData.isFolder, [
+        oldName,
+        'RENAMED',
+      ]);
+
+      return renameDeltas;
+    },
+    {}
+  );
+
+  // return checkFolderRename(createdListing, deletedListing);
 }
 
 export function listingsAreEqual(

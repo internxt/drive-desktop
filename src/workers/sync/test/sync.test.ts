@@ -526,10 +526,10 @@ describe('sync tests', () => {
       );
 
       expect(deltas['folder/original_name']).toStrictEqual(
-        new Delta('RENAMED', 'FILE')
+        new Delta('RENAMED', 'FILE', ['folder/new_name', 'NEW_NAME'])
       );
       expect(deltas['folder/new_name']).toStrictEqual(
-        new Delta('NEW_NAME', 'FILE')
+        new Delta('NEW_NAME', 'FILE', ['folder/original_name', 'RENAMED'])
       );
     });
 
@@ -548,6 +548,28 @@ describe('sync tests', () => {
 
       expect(deltas.deleted.status).toBe('RENAMED');
       expect(deltas.new.status).toBe('NEW_NAME');
+    });
+
+    it('links the correspondand related field when generating deltas', () => {
+      const sync = dummySync();
+
+      const saved: LocalListing = {
+        'old_image_name.png': { modtime: 44, size: 1, dev: 6, ino: 2 },
+        'old_doc_name.doc': { modtime: 30, size: 1, dev: 20, ino: 40 },
+      };
+
+      const current: LocalListingData = {
+        'new_image_name.png': { modtime: 46, size: 1, dev: 6, ino: 2 },
+        'new_doc_name.doc': { modtime: 32, size: 1, dev: 20, ino: 40 },
+      };
+
+      const deltas = sync.generateDeltas(saved, current);
+
+      expect(deltas['old_doc_name.doc'].status).toBe('RENAMED');
+      expect(deltas['new_doc_name.doc'].status).toBe('NEW_NAME');
+
+      expect(deltas['old_image_name.png'].status).toBe('RENAMED');
+      expect(deltas['new_image_name.png'].status).toBe('NEW_NAME');
     });
   });
 
@@ -700,8 +722,14 @@ describe('sync tests', () => {
       };
 
       const localDeltas = {
-        new_root_filename: new Delta('NEW_NAME', 'FILE'),
-        old_root_filename: new Delta('RENAMED', 'FILE'),
+        new_root_filename: new Delta('NEW_NAME', 'FILE', [
+          'old_root_filename',
+          'RENAMED',
+        ]),
+        old_root_filename: new Delta('RENAMED', 'FILE', [
+          'new_root_filename',
+          'NEW_NAME',
+        ]),
       };
 
       const remoteDeltas = {
@@ -766,11 +794,23 @@ describe('sync tests', () => {
       };
 
       const localDeltas = {
-        new_root_filename: new Delta('NEW_NAME', 'FILE'),
-        old_root_filename: new Delta('RENAMED', 'FILE'),
+        new_root_filename: new Delta('NEW_NAME', 'FILE', [
+          'old_root_filename',
+          'RENAMED',
+        ]),
+        old_root_filename: new Delta('RENAMED', 'FILE', [
+          'new_root_filename',
+          'NEW_NAME',
+        ]),
         folder: new Delta('NEWER', 'FOLDER'),
-        'folder/new_subfolder_filename': new Delta('NEW_NAME', 'FILE'),
-        'folder/old_subfolder_filename': new Delta('RENAMED', 'FILE'),
+        'folder/new_subfolder_filename': new Delta('NEW_NAME', 'FILE', [
+          'folder/old_subfolder_filename',
+          'RENAMED',
+        ]),
+        'folder/old_subfolder_filename': new Delta('RENAMED', 'FILE', [
+          'folder/new_subfolder_filename',
+          'NEW_NAME',
+        ]),
       };
 
       const remoteDeltas = {
@@ -790,6 +830,7 @@ describe('sync tests', () => {
 
       expect(queues.rename.get('REMOTE', 'FILE')).toStrictEqual([
         ['old_root_filename', 'new_root_filename'],
+        ['folder/old_subfolder_filename', 'folder/new_subfolder_filename'],
       ]);
     });
   });

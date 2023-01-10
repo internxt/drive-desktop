@@ -1,3 +1,4 @@
+import { Tuple } from '../utils/types';
 import { ItemKind } from '../types';
 
 export type Deltas = Record<string, Delta>;
@@ -16,10 +17,24 @@ export class Delta {
 
   public readonly itemKind: ItemKind;
 
-  constructor(status: Status, isFolder: boolean);
-  constructor(status: Status, itemKind: ItemKind);
-  constructor(...args: [Status, boolean] | [Status, ItemKind]) {
-    const [status, kind] = args;
+  public readonly related: Tuple<string, Status> | undefined;
+
+  constructor(
+    status: Status,
+    isFolder: boolean,
+    related?: Tuple<string, Status>
+  );
+  constructor(
+    status: Status,
+    itemKind: ItemKind,
+    related?: Tuple<string, Status>
+  );
+  constructor(
+    ...args:
+      | [Status, boolean, Tuple<string, Status>?]
+      | [Status, ItemKind, Tuple<string, Status>?]
+  ) {
+    const [status, kind, related] = args;
 
     this.status = status;
 
@@ -28,6 +43,8 @@ export class Delta {
     } else {
       this.itemKind = kind;
     }
+
+    this.related = related;
   }
 
   public is(status: Status): boolean {
