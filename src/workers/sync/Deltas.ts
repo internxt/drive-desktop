@@ -12,10 +12,23 @@ export type Status =
   | 'RENAMED';
 
 export class Delta {
-  constructor(
-    public readonly status: Status,
-    public readonly itemKind: ItemKind = 'FILE'
-  ) {}
+  public readonly status: Status;
+
+  public readonly itemKind: ItemKind;
+
+  constructor(status: Status, isFolder: boolean);
+  constructor(status: Status, itemKind: ItemKind);
+  constructor(...args: [Status, boolean] | [Status, ItemKind]) {
+    const [status, kind] = args;
+
+    this.status = status;
+
+    if (typeof kind === 'boolean') {
+      this.itemKind = kind ? 'FOLDER' : 'FILE';
+    } else {
+      this.itemKind = kind;
+    }
+  }
 
   public is(status: Status): boolean {
     return this.status === status;

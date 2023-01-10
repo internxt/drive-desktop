@@ -42,9 +42,13 @@ function checkSingleItemRename(
     return {};
   }
 
+  if (created.isFolder !== deleted.isFolder) {
+    return {};
+  }
+
   return {
-    [newName]: new Delta('NEW_NAME'),
-    [oldName]: new Delta('RENAMED'),
+    [newName]: new Delta('NEW_NAME', created.isFolder),
+    [oldName]: new Delta('RENAMED', deleted.isFolder),
   };
 }
 
@@ -101,7 +105,15 @@ function index(deltas: Deltas): DeltasByType {
   );
 }
 
-const otherDeltas: Array<Status> = ['NEWER', 'OLDER', 'NEW_NAME', 'RENAMED'];
+function thereAreNewerDeltasAndTheyAreFiles(deltas: Deltas): boolean {
+  // When a file gets renamed inside a folder the last update of that folders gets updated
+  // making it appera as newer
+  return (
+    Object.values(deltas).filter(
+      (delta: Delta) => delta.is('NEWER') && delta.itemKind === 'FILE'
+    ).length > 0
+  );
+}
 
 export function generateRenameDeltas(
   deltas: Deltas,
@@ -109,13 +121,20 @@ export function generateRenameDeltas(
   current: LocalListing
 ): Deltas {
   if (cannotCheck(old, current)) {
-    Logger.debug('Cannot check for renames');
+    Logger.warn('Cannot check for renames');
     return {};
   }
 
   const deltasByType = index(deltas);
 
-  if (otherDeltas.some((delta) => deltasByType[delta].length !== 0)) return {};
+  if (thereAreNewerDeltasAndTheyAreFiles(deltas)) return {};
+
+  if (
+    (['OLDER', 'NEW_NAME', 'RENAMED'] as Status[]).some(
+      (delta) => deltasByType[delta].length !== 0
+    )
+  )
+    return {};
 
   if (deltasByType.NEW.length !== deltasByType.DELETED.length) return {};
 

@@ -233,7 +233,6 @@ async function setUp() {
   try {
     Logger.debug('SYNC STARTING ');
     const result = await sync.run();
-    Logger.log('Sync done, result: ', result);
     ipcRenderer.send('SYNC_EXIT', result);
   } catch (err) {
     if (err instanceof ProcessFatalError) {

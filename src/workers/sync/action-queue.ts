@@ -2,8 +2,6 @@ import { NewName, OldName } from '../utils/change-is-rename';
 import { Tuple } from '../utils/types';
 import { FileName, FileSystemKind, ItemKind } from '../types';
 
-// type Action = 'PULL' | 'DELETE' | 'RENAME';
-
 type Queue<T> = Record<FileSystemKind, Record<ItemKind, T[]>>;
 
 const defult = {
@@ -18,16 +16,20 @@ const defult = {
 };
 
 export abstract class ActionQueue<T> {
-  public queues: Queue<T> = {
-    LOCAL: {
-      FILE: [],
-      FOLDER: [],
-    },
-    REMOTE: {
-      FILE: [],
-      FOLDER: [],
-    },
-  };
+  public queues: Queue<T>;
+
+  constructor() {
+    this.queues = {
+      LOCAL: {
+        FILE: [],
+        FOLDER: [],
+      },
+      REMOTE: {
+        FILE: [],
+        FOLDER: [],
+      },
+    };
+  }
 
   public add = (
     fileSystem: FileSystemKind,

@@ -7,6 +7,7 @@ import {
   FileSystem,
   FileSystemKind,
   Listing,
+  ListingData,
   LocalListing,
   ProcessError,
   ProcessErrorName,
@@ -14,7 +15,8 @@ import {
   ReadingMetaErrorEntry,
 } from './types';
 import { createErrorDetails } from './utils/reporting';
-import { listingsAreEqual, NewName, OldName } from './utils/change-is-rename';
+import { Tuple } from './utils/types';
+import { OldName, NewName } from './utils/change-is-rename';
 
 abstract class Process extends EventEmitter {
   constructor(
@@ -203,6 +205,41 @@ abstract class Process extends EventEmitter {
     }
   }
 
+  protected async consumeRenameFolderQueue(
+    queue: Array<Tuple<string, string>>,
+    fileSystem: FileSystem
+  ): Promise<void> {
+    for (const [oldName, newName] of queue) {
+      this.emit('RENAMING_FOLDER', oldName, newName, fileSystem.kind);
+
+      try {
+        await fileSystem.renameFolder(oldName, newName);
+        this.emit('FOLDER_RENAMED', oldName, newName, fileSystem.kind);
+      } catch (err) {
+        const syncError =
+          err instanceof ProcessError
+            ? err
+            : new ProcessError(
+                'UNKNOWN',
+                createErrorDetails(
+                  err,
+                  'Renaming folder',
+                  `oldName: ${oldName}, newName: ${newName}, kind: ${fileSystem.kind}`
+                )
+              );
+
+        this.emit(
+          'ERROR_RENAMING_FOLDER',
+          oldName,
+          newName,
+          fileSystem.kind,
+          syncError.name as ProcessErrorName,
+          syncError.details
+        );
+      }
+    }
+  }
+
   protected getListingsDiff(local: Listing, remote: Listing): ListingsDiff {
     const filesNotInLocal = [];
     const filesNotInRemote = [];
@@ -293,16 +330,29 @@ abstract class Process extends EventEmitter {
       emitErrors: false,
     });
 
-    if (_.isEqualWith(currentLocal, currentRemote, listingsAreEqual)) {
-      const currentInBoth = currentLocal;
+    const currentLocalFileListing = Object.entries(currentLocal)
+      .filter(([, data]) => !data.isFolder)
+      .reduce((acc, [name, data]) => {
+        const { modtime, size, isFolder } = data;
+        acc[name] = {
+          modtime,
+          size: size.toString(),
+          isFolder,
+        } as unknown as ListingData;
+
+        return acc;
+      }, {} as Listing);
+
+    if (_.isEqualWith(currentLocalFileListing, currentRemote)) {
+      const currentInBoth = currentLocalFileListing;
       Logger.debug('Current in both:', currentInBoth);
 
-      return { status: 'IN_SYNC', listing: currentInBoth };
+      return { status: 'IN_SYNC', listing: currentLocal };
     } else {
-      Logger.debug('Current local:', currentLocal);
+      Logger.debug('Current local:', currentLocalFileListing);
       Logger.debug('Current remote:', currentRemote);
 
-      const diff = this.getListingsDiff(currentLocal, currentRemote);
+      const diff = this.getListingsDiff(currentLocalFileListing, currentRemote);
       return { status: 'NOT_IN_SYNC', diff };
     }
   }

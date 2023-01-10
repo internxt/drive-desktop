@@ -187,24 +187,24 @@ describe('sync tests', () => {
       ...listingStore(),
       async getLastSavedListing() {
         return {
-          'newer/newer/different': { modtime: 4, size: 4 },
-          'newer/newer/same': { modtime: 4, size: 4 },
-          'newer/deleted': { modtime: 5, size: 4 },
-          'newer/older': { modtime: 5, size: 4 },
-          'newer/unchanged': { modtime: 4, size: 4 },
-          'deleted/newer': { modtime: 4, size: 4 },
-          'deleted/deleted': { modtime: 4, size: 4 },
-          'deleted/older': { modtime: 4, size: 4 },
-          'deleted/unchanged': { modtime: 4, size: 4 },
-          'older/newer': { modtime: 4, size: 4 },
-          'older/deleted': { modtime: 4, size: 4 },
-          'older/older/same': { modtime: 4, size: 4 },
-          'older/older/different': { modtime: 4, size: 4 },
-          'older/unchanged': { modtime: 4, size: 4 },
-          'unchanged/newer': { modtime: 4, size: 4 },
-          'unchanged/deleted': { modtime: 4, size: 4 },
-          'unchanged/older': { modtime: 4, size: 4 },
-          'unchanged/unchanged': { modtime: 4, size: 4 },
+          'newer/newer/different': { modtime: 4, size: 4, isFolder: false },
+          'newer/newer/same': { modtime: 4, size: 4, isFolder: false },
+          'newer/deleted': { modtime: 5, size: 4, isFolder: false },
+          'newer/older': { modtime: 5, size: 4, isFolder: false },
+          'newer/unchanged': { modtime: 4, size: 4, isFolder: false },
+          'deleted/newer': { modtime: 4, size: 4, isFolder: false },
+          'deleted/deleted': { modtime: 4, size: 4, isFolder: false },
+          'deleted/older': { modtime: 4, size: 4, isFolder: false },
+          'deleted/unchanged': { modtime: 4, size: 4, isFolder: false },
+          'older/newer': { modtime: 4, size: 4, isFolder: false },
+          'older/deleted': { modtime: 4, size: 4, isFolder: false },
+          'older/older/same': { modtime: 4, size: 4, isFolder: false },
+          'older/older/different': { modtime: 4, size: 4, isFolder: false },
+          'older/unchanged': { modtime: 4, size: 4, isFolder: false },
+          'unchanged/newer': { modtime: 4, size: 4, isFolder: false },
+          'unchanged/deleted': { modtime: 4, size: 4, isFolder: false },
+          'unchanged/older': { modtime: 4, size: 4, isFolder: false },
+          'unchanged/unchanged': { modtime: 4, size: 4, isFolder: false },
         };
       },
     };
@@ -213,23 +213,23 @@ describe('sync tests', () => {
       async getCurrentListing() {
         return {
           listing: {
-            'new/new/different': { modtime: 4, size: 3 },
-            'new/new/same': { modtime: 4, size: 3 },
-            'new/noexist': { modtime: 43, size: 3 },
-            'newer/newer/different': { modtime: 6, size: 3 },
-            'newer/newer/same': { modtime: 5, size: 3 },
-            'newer/deleted': { modtime: 6, size: 3 },
-            'newer/older': { modtime: 6, size: 3 },
-            'newer/unchanged': { modtime: 5, size: 3 },
-            'older/newer': { modtime: 3, size: 3 },
-            'older/deleted': { modtime: 3, size: 3 },
-            'older/older/same': { modtime: 3, size: 3 },
-            'older/older/different': { modtime: 3, size: 3 },
-            'older/unchanged': { modtime: 3, size: 3 },
-            'unchanged/newer': { modtime: 4, size: 3 },
-            'unchanged/deleted': { modtime: 4, size: 3 },
-            'unchanged/older': { modtime: 4, size: 3 },
-            'unchanged/unchanged': { modtime: 4, size: 3 },
+            'new/new/different': { modtime: 4, size: 3, isFolder: false },
+            'new/new/same': { modtime: 4, size: 3, isFolder: false },
+            'new/noexist': { modtime: 43, size: 3, isFolder: false },
+            'newer/newer/different': { modtime: 6, size: 3, isFolder: false },
+            'newer/newer/same': { modtime: 5, size: 3, isFolder: false },
+            'newer/deleted': { modtime: 6, size: 3, isFolder: false },
+            'newer/older': { modtime: 6, size: 3, isFolder: false },
+            'newer/unchanged': { modtime: 5, size: 3, isFolder: false },
+            'older/newer': { modtime: 3, size: 3, isFolder: false },
+            'older/deleted': { modtime: 3, size: 3, isFolder: false },
+            'older/older/same': { modtime: 3, size: 3, isFolder: false },
+            'older/older/different': { modtime: 3, size: 3, isFolder: false },
+            'older/unchanged': { modtime: 3, size: 3, isFolder: false },
+            'unchanged/newer': { modtime: 4, size: 3, isFolder: false },
+            'unchanged/deleted': { modtime: 4, size: 3, isFolder: false },
+            'unchanged/older': { modtime: 4, size: 3, isFolder: false },
+            'unchanged/unchanged': { modtime: 4, size: 3, isFolder: false },
           },
           readingMetaErrors: [],
         };
@@ -241,23 +241,23 @@ describe('sync tests', () => {
       async getCurrentListing() {
         return {
           listing: {
-            'new/new/different': { modtime: 5, size: 1 },
-            'new/new/same': { modtime: 4, size: 1 },
-            'newer/newer/different': { modtime: 5, size: 1 },
-            'newer/newer/same': { modtime: 5, size: 1 },
-            'newer/older': { modtime: 4, size: 1 },
-            'newer/unchanged': { modtime: 4, size: 1 },
-            'deleted/newer': { modtime: 5, size: 1 },
-            'deleted/older': { modtime: 3, size: 1 },
-            'deleted/unchanged': { modtime: 4, size: 1 },
-            'older/newer': { modtime: 5, size: 1 },
-            'older/older/same': { modtime: 3, size: 1 },
-            'older/older/different': { modtime: 2, size: 1 },
-            'older/unchanged': { modtime: 4, size: 1 },
-            'unchanged/newer': { modtime: 5, size: 1 },
-            'unchanged/older': { modtime: 3, size: 1 },
-            'unchanged/unchanged': { modtime: 4, size: 1 },
-            'noexist/new': { modtime: 4, size: 1 },
+            'new/new/different': { modtime: 5, size: 1, isFolder: false },
+            'new/new/same': { modtime: 4, size: 1, isFolder: false },
+            'newer/newer/different': { modtime: 5, size: 1, isFolder: false },
+            'newer/newer/same': { modtime: 5, size: 1, isFolder: false },
+            'newer/older': { modtime: 4, size: 1, isFolder: false },
+            'newer/unchanged': { modtime: 4, size: 1, isFolder: false },
+            'deleted/newer': { modtime: 5, size: 1, isFolder: false },
+            'deleted/older': { modtime: 3, size: 1, isFolder: false },
+            'deleted/unchanged': { modtime: 4, size: 1, isFolder: false },
+            'older/newer': { modtime: 5, size: 1, isFolder: false },
+            'older/older/same': { modtime: 3, size: 1, isFolder: false },
+            'older/older/different': { modtime: 2, size: 1, isFolder: false },
+            'older/unchanged': { modtime: 4, size: 1, isFolder: false },
+            'unchanged/newer': { modtime: 5, size: 1, isFolder: false },
+            'unchanged/older': { modtime: 3, size: 1, isFolder: false },
+            'unchanged/unchanged': { modtime: 4, size: 1, isFolder: false },
+            'noexist/new': { modtime: 4, size: 1, isFolder: false },
           },
           readingMetaErrors: [],
         };
@@ -488,59 +488,59 @@ describe('sync tests', () => {
     };
 
     const deltasLocal: Deltas = {
-      a: new Delta('NEW'),
-      aa: new Delta('NEW'),
-      b: new Delta('NEW'),
+      a: new Delta('NEW', 'FILE'),
+      aa: new Delta('NEW', 'FILE'),
+      b: new Delta('NEW', 'FILE'),
 
-      c: new Delta('NEWER'),
-      cc: new Delta('NEWER'),
-      d: new Delta('NEWER'),
-      e: new Delta('NEWER'),
-      f: new Delta('NEWER'),
+      c: new Delta('NEWER', 'FILE'),
+      cc: new Delta('NEWER', 'FILE'),
+      d: new Delta('NEWER', 'FILE'),
+      e: new Delta('NEWER', 'FILE'),
+      f: new Delta('NEWER', 'FILE'),
 
-      g: new Delta('DELETED'),
-      i: new Delta('DELETED'),
-      j: new Delta('DELETED'),
+      g: new Delta('DELETED', 'FILE'),
+      i: new Delta('DELETED', 'FILE'),
+      j: new Delta('DELETED', 'FILE'),
 
-      k: new Delta('OLDER'),
-      m: new Delta('OLDER'),
-      n: new Delta('OLDER'),
-      nn: new Delta('OLDER'),
-      l: new Delta('OLDER'),
+      k: new Delta('OLDER', 'FILE'),
+      m: new Delta('OLDER', 'FILE'),
+      n: new Delta('OLDER', 'FILE'),
+      nn: new Delta('OLDER', 'FILE'),
+      l: new Delta('OLDER', 'FILE'),
 
-      o: new Delta('UNCHANGED'),
-      p: new Delta('UNCHANGED'),
-      q: new Delta('UNCHANGED'),
-      r: new Delta('UNCHANGED'),
+      o: new Delta('UNCHANGED', 'FILE'),
+      p: new Delta('UNCHANGED', 'FILE'),
+      q: new Delta('UNCHANGED', 'FILE'),
+      r: new Delta('UNCHANGED', 'FILE'),
     };
 
     const deltasRemote: Deltas = {
-      a: new Delta('NEW'),
-      aa: new Delta('NEW'),
+      a: new Delta('NEW', 'FILE'),
+      aa: new Delta('NEW', 'FILE'),
 
-      c: new Delta('NEWER'),
-      cc: new Delta('NEWER'),
-      d: new Delta('DELETED'),
-      e: new Delta('OLDER'),
-      f: new Delta('UNCHANGED'),
+      c: new Delta('NEWER', 'FILE'),
+      cc: new Delta('NEWER', 'FILE'),
+      d: new Delta('DELETED', 'FILE'),
+      e: new Delta('OLDER', 'FILE'),
+      f: new Delta('UNCHANGED', 'FILE'),
 
-      g: new Delta('NEWER'),
-      h: new Delta('DELETED'),
-      i: new Delta('OLDER'),
-      j: new Delta('UNCHANGED'),
+      g: new Delta('NEWER', 'FILE'),
+      h: new Delta('DELETED', 'FILE'),
+      i: new Delta('OLDER', 'FILE'),
+      j: new Delta('UNCHANGED', 'FILE'),
 
-      k: new Delta('NEWER'),
-      m: new Delta('DELETED'),
-      n: new Delta('OLDER'),
-      nn: new Delta('OLDER'),
-      l: new Delta('UNCHANGED'),
+      k: new Delta('NEWER', 'FILE'),
+      m: new Delta('DELETED', 'FILE'),
+      n: new Delta('OLDER', 'FILE'),
+      nn: new Delta('OLDER', 'FILE'),
+      l: new Delta('UNCHANGED', 'FILE'),
 
-      o: new Delta('NEWER'),
-      p: new Delta('DELETED'),
-      q: new Delta('OLDER'),
-      r: new Delta('UNCHANGED'),
+      o: new Delta('NEWER', 'FILE'),
+      p: new Delta('DELETED', 'FILE'),
+      q: new Delta('OLDER', 'FILE'),
+      r: new Delta('UNCHANGED', 'FILE'),
 
-      s: new Delta('NEW'),
+      s: new Delta('NEW', 'FILE'),
     };
 
     const { PULL: pullQueue, DELETE: deleteQueue } = sync.generateActionQueues(
@@ -740,7 +740,7 @@ describe('sync tests', () => {
       expect(deltas.new.status).toBe('NEW_NAME');
     });
 
-    it('generetaes the rename queue', () => {
+    it('generates the rename queue', () => {
       const sync = dummySync();
 
       const currentLocal = {
@@ -815,6 +815,54 @@ describe('sync tests', () => {
           currentLocal,
           currentRemote
         );
+      } catch (err) {
+        console.error(err);
+        expect(err).not.toBeDefined();
+      }
+    });
+
+    it('generates rename deltas when a file in a folder is renamed', () => {
+      const sync = dummySync();
+      const lastSavedLocalListing = {
+        test: {
+          modtime: 1,
+          isFolder: true,
+          size: 4096,
+          dev: 64770,
+          ino: 13852866,
+        },
+        'test/ola.log': {
+          modtime: 2,
+          isFolder: false,
+          size: 2093,
+          dev: 64770,
+          ino: 13821414,
+        },
+      };
+
+      const currentSavedLocalListing = {
+        test: {
+          modtime: 3,
+          isFolder: true,
+          size: 4096,
+          dev: 64770,
+          ino: 13852866,
+        },
+        'test/ola 2.log': {
+          modtime: 3,
+          isFolder: false,
+          size: 2093,
+          dev: 64770,
+          ino: 13821414,
+        },
+      };
+
+      try {
+        const deltas = sync.generateDeltas(
+          lastSavedLocalListing,
+          currentSavedLocalListing
+        );
+        console.log(JSON.stringify(deltas, null, 2));
       } catch (err) {
         console.error(err);
         expect(err).not.toBeDefined();

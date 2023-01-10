@@ -104,6 +104,12 @@ class Sync extends Process {
       this.consumeDeleteFolderQueue(foldersDeletedInLocal, this.remote),
     ]);
 
+    const renameFoldersInLocal = renameQueue.get('LOCAL', 'FOLDER');
+    const renameFoldersInRemote = renameQueue.get('REMOTE', 'FOLDER');
+
+    Logger.log('Queue rename folders in local', renameFoldersInLocal);
+    Logger.log('Queue rename folders in remote', renameFoldersInRemote);
+
     return this.finalize();
   }
 
@@ -270,23 +276,25 @@ class Sync extends Process {
   private generateDeltas(saved: Listing, current: Listing): Deltas {
     const deltas: Deltas = {};
 
-    for (const [name, { modtime: currentModTime }] of Object.entries(current)) {
+    for (const [name, { modtime: currentModTime, isFolder }] of Object.entries(
+      current
+    )) {
       const savedEntry = saved[name];
 
       if (!savedEntry) {
-        deltas[name] = new Delta('NEW');
+        deltas[name] = new Delta('NEW', isFolder);
       } else if (savedEntry.modtime === currentModTime) {
-        deltas[name] = new Delta('UNCHANGED');
+        deltas[name] = new Delta('UNCHANGED', isFolder);
       } else if (savedEntry.modtime < currentModTime) {
-        deltas[name] = new Delta('NEWER');
+        deltas[name] = new Delta('NEWER', isFolder);
       } else {
-        deltas[name] = new Delta('OLDER');
+        deltas[name] = new Delta('OLDER', isFolder);
       }
     }
 
     for (const name of Object.keys(saved)) {
       if (!(name in current)) {
-        deltas[name] = new Delta('DELETED');
+        deltas[name] = new Delta('DELETED', saved[name].isFolder);
       }
     }
 

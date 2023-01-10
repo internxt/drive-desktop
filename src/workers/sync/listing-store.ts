@@ -61,7 +61,7 @@ export default function getListingStore(): ListingStore {
       } else return listingParsed;
     },
 
-    async saveListing(listing: Listing): Promise<void> {
+    async saveListing(listing: Listing | LocalListing): Promise<void> {
       ConfigStore.set('lastSavedListing', JSON.stringify(listing));
     },
 

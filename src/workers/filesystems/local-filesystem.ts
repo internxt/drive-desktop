@@ -91,7 +91,7 @@ export function getLocalFilesystem(
 
       const list = (
         await glob('**', {
-          filesOnly: true,
+          filesOnly: false,
           absolute: true,
           dot: true,
           cwd: localPath,
