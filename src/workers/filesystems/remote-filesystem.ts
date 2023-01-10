@@ -182,7 +182,11 @@ export function getRemoteFilesystem({
             const modificationTime = getSecondsFromDateString(
               file.modificationTime
             );
-            listing[name] = { modtime: modificationTime, size: file.size };
+            listing[name] = {
+              modtime: modificationTime,
+              size: file.size,
+              isFolder: false,
+            };
             cache[name] = {
               id: file.id,
               parentId: file.folderId,
@@ -271,6 +275,52 @@ export function getRemoteFilesystem({
           'Renaming remote file',
           `oldName: ${oldName}, newName: ${newName}, fileInCache: ${JSON.stringify(
             fileInCache,
+            null,
+            2
+          )}`
+        );
+      }
+    },
+
+    async renameFolder(oldName: string, newName: string): Promise<void> {
+      const folderInCache = cache[oldName];
+      const newNameBase = path.parse(newName).name;
+
+      try {
+        const res = await httpRequest(
+          `${process.env.API_URL}/api/storage/folder/${folderInCache.id}/meta`,
+          {
+            method: 'POST',
+            headers: { ...headers, 'internxt-mnemonic': mnemonic },
+            body: JSON.stringify({
+              metadata: { itemName: newNameBase },
+              bucketId: folderInCache.bucket,
+              relativePath: uuid.v4(),
+            }),
+          }
+        );
+        if (!res.ok) {
+          throw new ProcessError(
+            'BAD_RESPONSE',
+            createErrorDetails(
+              {},
+              'Renaming remote file',
+              `oldName: ${oldName}, newName: ${newName}, fileInCache: ${JSON.stringify(
+                folderInCache,
+                null,
+                2
+              )}, res: ${await serializeRes(res)}`
+            )
+          );
+        }
+        delete cache[oldName];
+        cache[newName] = folderInCache;
+      } catch (err) {
+        await handleFetchError(
+          err,
+          'Renaming remote file',
+          `oldName: ${oldName}, newName: ${newName}, fileInCache: ${JSON.stringify(
+            folderInCache,
             null,
             2
           )}`

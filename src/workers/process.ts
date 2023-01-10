@@ -14,7 +14,7 @@ import {
   ReadingMetaErrorEntry,
 } from './types';
 import { createErrorDetails } from './utils/reporting';
-import { listingsAreEqual } from './utils/change-is-rename';
+import { listingsAreEqual, NewName, OldName } from './utils/change-is-rename';
 
 abstract class Process extends EventEmitter {
   constructor(
@@ -55,6 +55,41 @@ abstract class Process extends EventEmitter {
 
         this.emit(
           'ERROR_RENAMING_FILE',
+          oldName,
+          newName,
+          fileSystem.kind,
+          syncError.name as ProcessErrorName,
+          syncError.details
+        );
+      }
+    }
+  }
+
+  protected async consumeRenameFolderQueu(
+    queue: [OldName, NewName][],
+    fileSystem: FileSystem
+  ): Promise<void> {
+    for (const [oldName, newName] of queue) {
+      this.emit('RENAMING_FOLDER', oldName, newName, fileSystem.kind);
+
+      try {
+        await fileSystem.renameFile(oldName, newName);
+        this.emit('FOLDER_RENAMED', oldName, newName, fileSystem.kind);
+      } catch (err) {
+        const syncError =
+          err instanceof ProcessError
+            ? err
+            : new ProcessError(
+                'UNKNOWN',
+                createErrorDetails(
+                  err,
+                  'Renaming folder',
+                  `oldName: ${oldName}, newName: ${newName}, kind: ${fileSystem.kind}`
+                )
+              );
+
+        this.emit(
+          'ERROR_RENAMING_FOLDER',
           oldName,
           newName,
           fileSystem.kind,

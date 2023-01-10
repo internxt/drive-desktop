@@ -1,7 +1,9 @@
 import Logger from 'electron-log';
-import { EnqueuedSyncActions, FileSystem, Listing } from '../types';
+import { EnqueuedSyncActions, FileSystem, ItemKind, Listing } from '../types';
 import Process, { ProcessEvents, ProcessResult } from '../process';
 import { generateRenameDeltas } from '../utils/change-is-rename';
+import { Delta, Deltas } from './Deltas';
+import { DeleteQueue, PullQueue, Queues, RenameQueue } from './action-queue';
 
 class Sync extends Process {
   constructor(
@@ -41,13 +43,10 @@ class Sync extends Process {
     Logger.debug('Remote deltas', deltasRemote);
 
     const {
-      renameInLocal,
-      renameInRemote,
-      pullFromLocal,
-      pullFromRemote,
-      deleteInLocal,
-      deleteInRemote,
-    } = await this.generateActionQueues(
+      PULL: pullQueue,
+      DELETE: deleteQueue,
+      RENAME: renameQueue,
+    } = this.generateActionQueues(
       deltasLocal,
       deltasRemote,
       currentLocal,
@@ -55,6 +54,13 @@ class Sync extends Process {
     );
 
     await this.listingStore.removeSavedListing();
+
+    const renameInLocal = renameQueue.get('LOCAL', 'FILE');
+    const renameInRemote = renameQueue.get('REMOTE', 'FILE');
+    const pullFromLocal = pullQueue.get('LOCAL', 'FILE');
+    const pullFromRemote = pullQueue.get('REMOTE', 'FILE');
+    const deleteInLocal = deleteQueue.get('LOCAL', 'FILE');
+    const deleteInRemote = deleteQueue.get('REMOTE', 'FILE');
 
     this.emit('ACTION_QUEUE_GENERATED', {
       renameInLocal,
@@ -146,27 +152,17 @@ class Sync extends Process {
     deltasRemote: Deltas,
     currentLocalListing: Listing,
     currentRemoteListing: Listing
-  ): {
-    renameInLocal: [string, string][];
-    renameInRemote: [string, string][];
-    pullFromLocal: string[];
-    pullFromRemote: string[];
-    deleteInLocal: string[];
-    deleteInRemote: string[];
-  } {
-    const pullFromLocal: string[] = [];
-    let pullFromRemote: string[] = [];
-    const renameInLocal: [string, string][] = [];
-    const renameInRemote: [string, string][] = [];
-    const deleteInLocal: string[] = [];
-    let deleteInRemote: string[] = [];
+  ): Queues {
+    const pullQueue = new PullQueue();
+    const deleteQueue = new DeleteQueue();
+    const renameQueue = new RenameQueue();
 
-    const keepMostRecent = (name: string) => {
+    const keepMostRecent = (name: string, kind: ItemKind) => {
       const { modtime: modtimeInLocal } = currentLocalListing[name];
       const { modtime: modtimeInRemote } = currentRemoteListing[name];
 
-      if (modtimeInLocal < modtimeInRemote) pullFromLocal.push(name);
-      else pullFromRemote.push(name);
+      if (modtimeInLocal < modtimeInRemote) pullQueue.add('LOCAL', kind, name);
+      else pullQueue.add('REMOTE', kind, name);
     };
 
     for (const [name, deltaLocal] of Object.entries(deltasLocal)) {
@@ -176,97 +172,98 @@ class Sync extends Process {
         currentLocalListing[name]?.modtime ===
         currentRemoteListing[name]?.modtime;
 
-      if (deltaLocal === 'NEW' && deltaRemote === 'NEW' && !sameModTime) {
-        keepMostRecent(name);
+      if (deltaLocal.is('NEW') && doesntExistInRemote) {
+        pullQueue.add('REMOTE', deltaLocal.itemKind, name);
+        // eslint-disable-next-line no-continue
+        continue;
+      }
+      if (deltaLocal.is('NEW') && deltaRemote.is('NEW') && !sameModTime) {
+        keepMostRecent(name, deltaLocal.itemKind);
       }
 
-      if (deltaLocal === 'NEW' && doesntExistInRemote) {
-        pullFromRemote.push(name);
-      }
-
-      if (deltaLocal === 'NEWER' && deltaRemote === 'NEWER' && !sameModTime) {
-        keepMostRecent(name);
-      }
-
-      if (
-        deltaLocal === 'NEWER' &&
-        (deltaRemote === 'DELETED' || deltaRemote === 'UNCHANGED')
-      ) {
-        pullFromRemote.push(name);
-      }
-
-      if (deltaLocal === 'NEWER' && deltaRemote === 'OLDER') {
-        pullFromRemote.push(name);
+      if (deltaLocal.is('NEWER') && deltaRemote.is('NEWER') && !sameModTime) {
+        keepMostRecent(name, deltaLocal.itemKind);
       }
 
       if (
-        deltaLocal === 'DELETED' &&
-        (deltaRemote === 'NEWER' || deltaRemote === 'OLDER')
+        deltaLocal.is('NEWER') &&
+        (deltaRemote.is('DELETED') || deltaRemote.is('UNCHANGED'))
       ) {
-        pullFromLocal.push(name);
+        pullQueue.add('REMOTE', deltaLocal.itemKind, name);
       }
 
-      if (deltaLocal === 'DELETED' && deltaRemote === 'UNCHANGED') {
-        deleteInRemote.push(name);
-      }
-
-      if (deltaLocal === 'OLDER' && deltaRemote === 'NEWER') {
-        pullFromLocal.push(name);
+      if (deltaLocal.is('NEWER') && deltaRemote.is('OLDER')) {
+        pullQueue.add('REMOTE', deltaLocal.itemKind, name);
       }
 
       if (
-        deltaLocal === 'OLDER' &&
-        (deltaRemote === 'DELETED' || deltaRemote === 'UNCHANGED')
+        deltaLocal.is('DELETED') &&
+        (deltaRemote.is('NEWER') || deltaRemote.is('OLDER'))
       ) {
-        pullFromRemote.push(name);
+        pullQueue.add('LOCAL', deltaLocal.itemKind, name);
       }
 
-      if (deltaLocal === 'OLDER' && deltaRemote === 'OLDER' && !sameModTime) {
-        keepMostRecent(name);
+      if (deltaLocal.is('DELETED') && deltaRemote.is('UNCHANGED')) {
+        deleteQueue.add('REMOTE', deltaLocal.itemKind, name);
+      }
+
+      if (deltaLocal.is('OLDER') && deltaRemote.is('NEWER')) {
+        pullQueue.add('LOCAL', deltaLocal.itemKind, name);
       }
 
       if (
-        deltaLocal === 'UNCHANGED' &&
-        (deltaRemote === 'NEWER' || deltaRemote === 'OLDER')
+        deltaLocal.is('OLDER') &&
+        (deltaRemote.is('DELETED') || deltaRemote.is('UNCHANGED'))
       ) {
-        pullFromLocal.push(name);
+        pullQueue.add('REMOTE', deltaLocal.itemKind, name);
       }
 
-      if (deltaLocal === 'UNCHANGED' && deltaRemote === 'DELETED') {
-        deleteInLocal.push(name);
+      if (deltaLocal.is('OLDER') && deltaRemote.is('OLDER') && !sameModTime) {
+        keepMostRecent(name, deltaLocal.itemKind);
+      }
+
+      if (
+        deltaLocal.is('UNCHANGED') &&
+        (deltaRemote.is('NEWER') || deltaRemote.is('OLDER'))
+      ) {
+        pullQueue.add('LOCAL', deltaLocal.itemKind, name);
+      }
+
+      if (deltaLocal.is('UNCHANGED') && deltaRemote.is('DELETED')) {
+        deleteQueue.add('LOCAL', deltaLocal.itemKind, name);
       }
     }
 
     for (const [name, deltaRemote] of Object.entries(deltasRemote)) {
-      if (deltaRemote === 'NEW' && !(name in deltasLocal)) {
-        pullFromLocal.push(name);
+      if (deltaRemote.is('NEW') && !(name in deltasLocal)) {
+        pullQueue.add('LOCAL', deltaRemote.itemKind, name);
       }
     }
 
     if (Object.entries(deltasLocal).length === 2) {
-      const oldName = Object.entries(deltasLocal).find(
-        ([_, delta]) => delta === 'RENAMED'
+      const oldName = Object.entries(deltasLocal).find(([_, delta]) =>
+        delta.is('RENAMED')
       )?.[0];
 
-      const newName = Object.entries(deltasLocal).find(
-        ([_, delta]) => delta === 'NEW_NAME'
+      const newName = Object.entries(deltasLocal).find(([_, delta]) =>
+        delta.is('NEW_NAME')
       )?.[0];
 
       if (oldName && newName) {
-        renameInRemote.push([oldName, newName]);
+        renameQueue.add('REMOTE', Object.values(deltasLocal)[0].itemKind, [
+          oldName,
+          newName,
+        ]);
       }
 
-      pullFromRemote = [];
-      deleteInRemote = [];
+      pullQueue.empty();
+      deleteQueue.empty();
     }
 
     return {
-      pullFromLocal,
-      pullFromRemote,
-      renameInLocal,
-      renameInRemote,
-      deleteInLocal,
-      deleteInRemote,
+      PULL: pullQueue,
+      DELETE: deleteQueue,
+      RENAME: renameQueue,
     };
   }
 
@@ -277,19 +274,19 @@ class Sync extends Process {
       const savedEntry = saved[name];
 
       if (!savedEntry) {
-        deltas[name] = 'NEW';
+        deltas[name] = new Delta('NEW');
       } else if (savedEntry.modtime === currentModTime) {
-        deltas[name] = 'UNCHANGED';
+        deltas[name] = new Delta('UNCHANGED');
       } else if (savedEntry.modtime < currentModTime) {
-        deltas[name] = 'NEWER';
+        deltas[name] = new Delta('NEWER');
       } else {
-        deltas[name] = 'OLDER';
+        deltas[name] = new Delta('OLDER');
       }
     }
 
     for (const name of Object.keys(saved)) {
       if (!(name in current)) {
-        deltas[name] = 'DELETED';
+        deltas[name] = new Delta('DELETED');
       }
     }
 
@@ -375,17 +372,6 @@ export type ListingStore = {
    */
   saveListing(listing: Listing): Promise<void>;
 };
-
-export type Deltas = Record<string, Delta>;
-
-export type Delta =
-  | 'NEW'
-  | 'NEWER'
-  | 'DELETED'
-  | 'OLDER'
-  | 'UNCHANGED'
-  | 'NEW_NAME'
-  | 'RENAMED';
 
 interface SyncEvents extends ProcessEvents {
   /**

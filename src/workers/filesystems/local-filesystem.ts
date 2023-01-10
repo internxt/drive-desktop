@@ -70,15 +70,17 @@ export function getLocalFilesystem(
   async function getLocalMeta(pathname: string): Promise<{
     modTimeInSeconds: number;
     size: number;
+    isFolder: boolean;
     dev: number;
     ino: number;
   }> {
-    const { mtimeMs, size, dev, ino } = await fs.stat(pathname);
+    const stat = await fs.stat(pathname);
     return {
-      modTimeInSeconds: Math.trunc(mtimeMs / 1000),
-      size,
-      dev,
-      ino,
+      modTimeInSeconds: Math.trunc(stat.mtimeMs / 1000),
+      isFolder: stat.isDirectory(),
+      size: stat.size,
+      dev: stat.dev,
+      ino: stat.ino,
     };
   }
 
@@ -118,13 +120,13 @@ export function getLocalFilesystem(
       for (const fileName of list) {
         const relativeName = getListingPath(fileName);
         try {
-          const { modTimeInSeconds, size, dev, ino } = await getLocalMeta(
-            fileName
-          );
+          const { modTimeInSeconds, size, dev, ino, isFolder } =
+            await getLocalMeta(fileName);
 
           if (size)
             listing[relativeName] = {
               modtime: modTimeInSeconds,
+              isFolder,
               size,
               dev,
               ino,
@@ -245,6 +247,12 @@ export function getLocalFilesystem(
     },
 
     renameFile(oldName: string, newName: string) {
+      const oldActualPath = getActualPath(oldName);
+      const newActualPath = getActualPath(newName);
+      return saferRenameFile(oldActualPath, newActualPath);
+    },
+
+    renameFolder(oldName: string, newName: string) {
       const oldActualPath = getActualPath(oldName);
       const newActualPath = getActualPath(newName);
       return saferRenameFile(oldActualPath, newActualPath);

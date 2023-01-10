@@ -37,7 +37,12 @@ export default function getListingStore(): ListingStore {
     const listingConverted: LocalListing = {};
 
     for (const [name, data] of Object.entries(listing)) {
-      listingConverted[name] = { ...data, ino: undefined, dev: undefined };
+      listingConverted[name] = {
+        ...data,
+        isFolder: false, // isFolder can be set since before all items were files
+        ino: undefined,
+        dev: undefined,
+      };
     }
 
     return listingConverted;

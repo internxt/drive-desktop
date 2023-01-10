@@ -24,6 +24,13 @@ export interface FileSystem {
   renameFile(oldName: string, newName: string): Promise<void>;
 
   /**
+   * Renames a folder in the FileSystem
+   * @param oldName
+   * @param newName
+   */
+  renameFolder(oldName: string, newName: string): Promise<void>;
+
+  /**
    * Deletes a file in the FileSystem,
    * doesn't throw if the file doesn't exist anymore
    * @param name
@@ -77,6 +84,8 @@ export interface FileSystem {
 
 export type FileSystemKind = 'LOCAL' | 'REMOTE';
 
+export type ItemKind = 'FILE' | 'FOLDER';
+
 export type ReadingMetaErrorEntry = {
   name: string;
   errorName: ProcessErrorName;
@@ -94,15 +103,17 @@ export type Source = {
 export type ListingData = {
   // modTime: seconds since epoch
   modtime: number;
-  // size: file size in bytes
+  // item size in bytes
   size: number;
+  // The item is a folder
+  isFolder: boolean;
 };
 
 export type LocalListingData = ListingData & {
-  // dev: the numeric identifier of the device containing the file
+  // The numeric identifier of the device containing the file
   dev?: number;
   /**
-   * ino: The file system specific "Inode" number for the file.
+   * The file system specific "Inode" number for the file.
    * the ino is unique for a specific device (disk or partition)
    */
   ino?: number;
