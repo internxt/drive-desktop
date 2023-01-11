@@ -96,19 +96,29 @@ class Sync extends Process {
       this.listDeletedFolders(lastSavedListing, currentRemote, this.remote),
     ]);
 
-    Logger.log('Folders deleted in local', foldersDeletedInLocal);
-    Logger.log('Folders deleted in remote', foldersDeletedInRemote);
-
-    await Promise.all([
-      this.consumeDeleteFolderQueue(foldersDeletedInRemote, this.local),
-      this.consumeDeleteFolderQueue(foldersDeletedInLocal, this.remote),
-    ]);
-
     const renameFoldersInLocal = renameQueue.get('LOCAL', 'FOLDER');
     const renameFoldersInRemote = renameQueue.get('REMOTE', 'FOLDER');
 
     Logger.log('Queue rename folders in local', renameFoldersInLocal);
     Logger.log('Queue rename folders in remote', renameFoldersInRemote);
+
+    await Promise.all([
+      this.consumeRenameFolderQueue(renameFoldersInRemote, this.remote),
+      this.consumeRenameFolderQueue(renameFoldersInLocal, this.local),
+    ]);
+
+    const nonRenamed = foldersDeletedInLocal.filter(
+      (folder: string) =>
+        !renameFoldersInRemote.some(([oldName]) => folder === oldName)
+    );
+
+    Logger.log('Folders deleted in local', nonRenamed);
+    Logger.log('Folders deleted in remote', foldersDeletedInRemote);
+
+    await Promise.all([
+      this.consumeDeleteFolderQueue(foldersDeletedInRemote, this.local),
+      this.consumeDeleteFolderQueue(nonRenamed, this.remote),
+    ]);
 
     return this.finalize();
   }

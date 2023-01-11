@@ -149,6 +149,46 @@ async function setUp() {
     }
   );
 
+  sync.on('RENAMING_FOLDER', (oldName, newName, kind) => {
+    Logger.debug(`Renaming folder ${oldName} -> ${newName} in ${kind}`);
+    ipcRenderer.send('SYNC_INFO_UPDATE', {
+      action: 'RENAME',
+      kind,
+      name: oldName,
+      progress: 0,
+    });
+  });
+
+  sync.on('FOLDER_RENAMED', (oldName, newName, kind) => {
+    Logger.debug(`Folder ${oldName} renamed -> ${newName} in ${kind}`);
+    ipcRenderer.send('SYNC_INFO_UPDATE', {
+      action: 'RENAMED',
+      kind,
+      name: oldName,
+    });
+  });
+
+  sync.on(
+    'ERROR_RENAMING_FOLDER',
+    (oldName, newName, kind, errorName, errorDetails) => {
+      Logger.error(
+        `Error renaming file ${oldName} -> ${newName} in ${kind} (${errorName}), details: ${JSON.stringify(
+          errorDetails,
+          null,
+          2
+        )}`
+      );
+      ipcRenderer.send('SYNC_INFO_UPDATE', {
+        action: 'RENAME_ERROR',
+        kind,
+        name: oldName,
+        errorName,
+        errorDetails,
+        process: 'SYNC',
+      });
+    }
+  );
+
   sync.on('DELETING_FILE', (name, kind) => {
     Logger.debug(`Deleting file ${name} in ${kind}`);
     ipcRenderer.send('SYNC_INFO_UPDATE', {

@@ -3,19 +3,22 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 import { Readable } from 'stream';
-import Sync, { Deltas, ListingStore } from '../sync';
+import Sync, { ListingStore } from '../sync';
 import {
   ErrorDetails,
   FileSystem,
+  FileSystemKind,
   Listing,
   LocalListingData,
   ProcessFatalError,
 } from '../../types';
-import { Delta } from '../Deltas';
+import { Deltas, Delta } from '../Deltas';
 
 describe('sync tests', () => {
-  const mockBase: () => FileSystem = () => ({
-    kind: 'LOCAL',
+  const partialFileSystem = (
+    kind: FileSystemKind = 'LOCAL'
+  ): Partial<FileSystem> => ({
+    kind,
     async getCurrentListing() {
       return { listing: {}, readingMetaErrors: [] };
     },
@@ -35,6 +38,8 @@ describe('sync tests', () => {
     },
     async smokeTest() {},
   });
+  const mockBase = (kind: FileSystemKind = 'LOCAL'): FileSystem =>
+    partialFileSystem(kind) as unknown as FileSystem;
 
   function setupEventSpies(sync: Sync) {
     const smokeTestingCB = jest.fn();
@@ -48,6 +53,7 @@ describe('sync tests', () => {
     const deletingFolderCB = jest.fn();
     const deletedFolderCB = jest.fn();
     const renamingFileCB = jest.fn();
+    const renamingFolderCB = jest.fn();
     const renamedFileCB = jest.fn();
     const finalizingCB = jest.fn();
     const actionsGeneratedCB = jest.fn();
@@ -63,6 +69,7 @@ describe('sync tests', () => {
     sync.on('DELETING_FOLDER', deletingFolderCB);
     sync.on('FOLDER_DELETED', deletedFolderCB);
     sync.on('RENAMING_FILE', renamingFileCB);
+    sync.on('RENAMING_FOLDER', renamingFolderCB);
     sync.on('FILE_RENAMED', renamedFileCB);
     sync.on('FINALIZING', finalizingCB);
     sync.on('ACTION_QUEUE_GENERATED', actionsGeneratedCB);
@@ -80,6 +87,7 @@ describe('sync tests', () => {
       deletedFolderCB,
       renamingFileCB,
       renamedFileCB,
+      renamingFolderCB,
       finalizingCB,
       actionsGeneratedCB,
     };
@@ -380,6 +388,108 @@ describe('sync tests', () => {
     expect(actionsGeneratedCB).toBeCalledTimes(1);
   });
 
+  it('does not delete anything when a folder is renamed', async () => {
+    const listingStoreMocked: ListingStore = {
+      ...listingStore(),
+      async getLastSavedListing() {
+        return {
+          folder: {
+            modtime: 1673432981,
+            isFolder: true,
+            size: 4096,
+            dev: 64770,
+            ino: 13844966,
+          },
+          'folder/file.txt': {
+            modtime: 1672824000,
+            isFolder: false,
+            size: 2093,
+            dev: 64770,
+            ino: 13819698,
+          },
+        };
+      },
+    };
+    const local: FileSystem = {
+      ...mockBase('LOCAL'),
+      async getCurrentListing() {
+        return {
+          listing: {
+            'new-folder-name': {
+              modtime: 1673432981,
+              isFolder: true,
+              size: 4096,
+              dev: 64770,
+              ino: 13844966,
+            },
+            'new-folder-name/file.txt': {
+              modtime: 1672824000,
+              isFolder: false,
+              size: 2093,
+              dev: 64770,
+              ino: 13819698,
+            },
+          },
+          readingMetaErrors: [],
+        };
+      },
+    };
+
+    const remote: FileSystem = {
+      ...mockBase('REMOTE'),
+      async getCurrentListing() {
+        return {
+          listing: {
+            folder: {
+              modtime: 1673432981,
+              isFolder: true,
+              size: 4096,
+              dev: 64770,
+              ino: 13844966,
+            },
+            'folder/file.txt': {
+              modtime: 1672824000,
+              isFolder: false,
+              size: 2093,
+              dev: 64770,
+              ino: 13819698,
+            },
+          },
+          readingMetaErrors: [],
+        };
+      },
+    };
+
+    const sync = new Sync(local, remote, listingStoreMocked);
+    const {
+      pullingFileCB,
+      pulledFileCB,
+      deletingFileCB,
+      deletedFileCB,
+      deletingFolderCB,
+      deletedFolderCB,
+      renamingFileCB,
+      renamedFileCB,
+      renamingFolderCB,
+    } = setupEventSpies(sync);
+
+    await sync.run();
+
+    expect(renamingFolderCB).toBeCalledWith(
+      'folder',
+      'new-folder-name',
+      'REMOTE'
+    );
+    expect(pullingFileCB).not.toBeCalled();
+    expect(pulledFileCB).not.toBeCalled();
+    expect(deletingFileCB).not.toBeCalled();
+    expect(deletedFileCB).not.toBeCalled();
+    expect(deletingFolderCB).not.toBeCalled();
+    expect(deletedFolderCB).not.toBeCalled();
+    expect(renamingFileCB).not.toBeCalled();
+    expect(renamedFileCB).not.toBeCalled();
+  });
+
   it('should rename correctly', () => {
     const sync = dummySync();
 
@@ -570,6 +680,52 @@ describe('sync tests', () => {
 
       expect(deltas['old_image_name.png'].status).toBe('RENAMED');
       expect(deltas['new_image_name.png'].status).toBe('NEW_NAME');
+    });
+
+    it('generates rename deltas for a folder and not for its contents', () => {
+      const sync = dummySync();
+
+      const saved = {
+        folder: {
+          modtime: 1673432981,
+          isFolder: true,
+          size: 4096,
+          dev: 64770,
+          ino: 13844966,
+        },
+        'folder/file.txt': {
+          modtime: 1672824000,
+          isFolder: false,
+          size: 2093,
+          dev: 64770,
+          ino: 13819698,
+        },
+      };
+
+      const current = {
+        'new-folder-name': {
+          modtime: 1673432981,
+          isFolder: true,
+          size: 4096,
+          dev: 64770,
+          ino: 13844966,
+        },
+        'new-folder-name/file.txt': {
+          modtime: 1672824000,
+          isFolder: false,
+          size: 2093,
+          dev: 64770,
+          ino: 13819698,
+        },
+      };
+
+      const deltas = sync.generateDeltas(saved, current);
+
+      expect(deltas['folder/file.txt']).not.toBeDefined();
+      expect(deltas['new-folder-name/file.txt']).not.toBeDefined();
+
+      expect(deltas['new-folder-name'].status).toBe('NEW_NAME');
+      expect(deltas.folder.status).toBe('RENAMED');
     });
   });
 

@@ -67,41 +67,6 @@ abstract class Process extends EventEmitter {
     }
   }
 
-  protected async consumeRenameFolderQueu(
-    queue: [OldName, NewName][],
-    fileSystem: FileSystem
-  ): Promise<void> {
-    for (const [oldName, newName] of queue) {
-      this.emit('RENAMING_FOLDER', oldName, newName, fileSystem.kind);
-
-      try {
-        await fileSystem.renameFile(oldName, newName);
-        this.emit('FOLDER_RENAMED', oldName, newName, fileSystem.kind);
-      } catch (err) {
-        const syncError =
-          err instanceof ProcessError
-            ? err
-            : new ProcessError(
-                'UNKNOWN',
-                createErrorDetails(
-                  err,
-                  'Renaming folder',
-                  `oldName: ${oldName}, newName: ${newName}, kind: ${fileSystem.kind}`
-                )
-              );
-
-        this.emit(
-          'ERROR_RENAMING_FOLDER',
-          oldName,
-          newName,
-          fileSystem.kind,
-          syncError.name as ProcessErrorName,
-          syncError.details
-        );
-      }
-    }
-  }
-
   protected async consumePullQueue(
     queue: string[],
     destFs: Pick<FileSystem, 'pullFile' | 'kind'>,
@@ -206,7 +171,7 @@ abstract class Process extends EventEmitter {
   }
 
   protected async consumeRenameFolderQueue(
-    queue: Array<Tuple<string, string>>,
+    queue: Array<Tuple<OldName, NewName>>,
     fileSystem: FileSystem
   ): Promise<void> {
     for (const [oldName, newName] of queue) {
@@ -453,6 +418,33 @@ export interface ProcessEvents {
   ERROR_RENAMING_FILE: (
     oldName: string,
     newName: string,
+    fileSystemKind: FileSystemKind,
+    errName: ProcessErrorName,
+    errDetails: ErrorDetails
+  ) => void;
+
+  /**
+   * Triggered when a folder is being renamed
+   */
+  RENAMING_FOLDER: (
+    oldFolderName: OldName,
+    newFolderName: NewName,
+    fileSystemKind: FileSystemKind
+  ) => void;
+  /**
+   * Triggered when a folder has been renamed
+   */
+  FOLDER_RENAMED: (
+    oldName: OldName,
+    newName: NewName,
+    fileSystemKind: FileSystemKind
+  ) => void;
+  /**
+   * Triggered when an error has occurred while renaming a folder
+   */
+  ERROR_RENAMING_FOLDER: (
+    oldName: OldName,
+    newName: NewName,
     fileSystemKind: FileSystemKind,
     errName: ProcessErrorName,
     errDetails: ErrorDetails

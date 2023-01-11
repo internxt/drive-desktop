@@ -151,9 +151,9 @@ export function generateRenameDeltas(
     (name: string): Tuple<string, LocalListingData> => [name, old[name]]
   );
 
-  return itemsCreated.reduce(
+  const r = itemsCreated.reduce(
     (
-      renameDeltas: Deltas,
+      renameDeltas: { FOLDER: Deltas; FILE: Deltas },
       [newName, createdData]: Tuple<string, LocalListingData>
     ) => {
       const result = itemsDeleted.find(
@@ -164,21 +164,27 @@ export function generateRenameDeltas(
 
       const [oldName, deletedData] = result;
 
-      renameDeltas[oldName] = new Delta('RENAMED', deletedData.isFolder, [
+      const kind = deletedData.isFolder ? 'FOLDER' : 'FILE';
+
+      renameDeltas[kind][oldName] = new Delta('RENAMED', kind, [
         newName,
         'NEW_NAME',
       ]);
-      renameDeltas[newName] = new Delta('NEW_NAME', deletedData.isFolder, [
+      renameDeltas[kind][newName] = new Delta('NEW_NAME', kind, [
         oldName,
         'RENAMED',
       ]);
 
       return renameDeltas;
     },
-    {}
+    { FOLDER: {}, FILE: {} }
   );
 
-  // return checkFolderRename(createdListing, deletedListing);
+  if (Object.keys(r.FOLDER).length === 0) {
+    return r.FILE;
+  }
+
+  return filterFileRenamesInsideFolder(r);
 }
 
 export function listingsAreEqual(
@@ -201,4 +207,45 @@ export function listingsAreEqual(
   );
 
   return _.isEqual(l, remote);
+}
+
+function filterFileRenamesInsideFolder(r: { FOLDER: Deltas; FILE: Deltas }) {
+  const isolatedRenames: Deltas = {};
+
+  const parentFolers = (filePath: string): Array<string> => {
+    const paths = filePath.split('/');
+    paths.pop();
+
+    return paths;
+  };
+
+  const searchForDelta = (
+    fileStatus: Status,
+    fileParentFolers: Array<string>
+  ) =>
+    Object.entries(r.FOLDER).find(([folderName, { status }]) => {
+      const folders = folderName.split('/');
+
+      return _.isEqual(folders, fileParentFolers) && fileStatus === status;
+    });
+
+  for (const [name, data] of Object.entries(r.FILE)) {
+    if (data.status !== 'RENAMED' && data.status !== 'NEW_NAME') {
+      // eslint-disable-next-line no-continue
+      continue;
+    }
+
+    const fileParentFolders = parentFolers(name);
+    const folderDelta = searchForDelta(data.status, fileParentFolders);
+
+    if (!folderDelta) {
+      isolatedRenames[name] = data;
+    }
+  }
+
+  for (const [name, data] of Object.entries(r.FOLDER)) {
+    isolatedRenames[name] = data;
+  }
+
+  return isolatedRenames;
 }
