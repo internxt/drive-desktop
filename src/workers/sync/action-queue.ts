@@ -1,6 +1,7 @@
 import { NewName, OldName } from '../utils/change-is-rename';
 import { Tuple } from '../utils/types';
-import { FileName, FileSystemKind, ItemKind } from '../types';
+import { FileName, FileSystemKind } from '../types';
+import { ItemKind } from '../../shared/ItemKind';
 
 type Queue<T> = Record<FileSystemKind, Record<ItemKind, T[]>>;
 

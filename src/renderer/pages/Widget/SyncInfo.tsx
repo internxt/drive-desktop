@@ -25,6 +25,7 @@ import {
   BackupProgress,
 } from '../../../main/background-processes/backups';
 import { getPercentualProgress } from '../../utils/backups-progress';
+import { ItemKind } from '../../../shared/ItemKind';
 
 export default function SyncInfo() {
   const [items, setItems] = useState<ProcessInfoUpdatePayload[]>([]);
@@ -158,9 +159,13 @@ function Item({
   kind,
   progress,
   errorName,
+  itemKind,
+  resultName,
 }: ProcessInfoUpdatePayload & {
   progress?: number;
   errorName?: ProcessErrorName;
+  itemKind?: ItemKind;
+  resultName?: string;
 }) {
   const progressDisplay = progress ? `${Math.ceil(progress * 100)}%` : '';
 
@@ -169,6 +174,7 @@ function Item({
     operation = 'delete';
   else if (action === 'PULL' || action === 'PULLED' || action === 'PULL_ERROR')
     operation = kind === 'LOCAL' ? 'download' : 'upload';
+  else if (action === 'RENAME' || action === 'RENAMED') operation = 'rename';
 
   let description = '';
 
@@ -186,6 +192,14 @@ function Item({
     description = 'Deleted from your computer';
   else if (action === 'DELETED' && kind === 'REMOTE')
     description = 'Deleted from Internxt Drive';
+  else if (action === 'RENAMED' && kind === 'REMOTE')
+    description = `Renamed as ${resultName} on Internxt Drive`;
+  else if (action === 'RENAMED' && kind === 'LOCAL')
+    description = `Renamed as ${resultName} on your computer`;
+  else if (action === 'RENAME' && kind === 'REMOTE')
+    description = `Renaming as ${resultName} on Internxt Drive`;
+  else if (action === 'RENAME' && kind === 'LOCAL')
+    description = `Renaming as ${resultName} on your computer`;
   else if (errorName) description = shortMessages[errorName];
 
   const displayName = getBaseName(name);
@@ -194,6 +208,7 @@ function Item({
     <div className="my-4 flex h-10 w-full select-none items-center overflow-hidden px-3">
       <FileWithOperation
         operation={operation}
+        itemKind={itemKind ?? 'FILE'}
         className="flex-shrink-0"
         width={24}
       />

@@ -1,4 +1,5 @@
 import { Readable } from 'stream';
+import { ItemKind } from '../shared/ItemKind';
 
 export interface FileSystem {
   /**
@@ -83,8 +84,6 @@ export interface FileSystem {
 }
 
 export type FileSystemKind = 'LOCAL' | 'REMOTE';
-
-export type ItemKind = 'FILE' | 'FOLDER';
 
 export type ReadingMetaErrorEntry = {
   name: string;
@@ -231,15 +230,23 @@ export type ProcessIssue = ProcessInfoBase & {
   process: 'SYNC' | 'BACKUPS';
 };
 
+type SuccuessfullUpdate = ProcessInfoBase & {
+  itemKind: ItemKind;
+};
+
 export type ProcessInfoUpdatePayload =
-  | (ProcessInfoBase &
+  | (SuccuessfullUpdate &
       (
         | {
-            action: 'PULL' | 'RENAME' | 'DELETE';
+            action: 'RENAME' | 'RENAMED';
+            resultName: string;
+          }
+        | {
+            action: 'PULL' | 'DELETE';
             progress: number;
           }
         | {
-            action: 'RENAMED' | 'PULLED' | 'DELETED';
+            action: 'PULLED' | 'DELETED';
           }
       ))
   | ProcessIssue;

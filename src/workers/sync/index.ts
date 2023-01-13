@@ -77,6 +77,7 @@ async function setUp() {
     ipcRenderer.send('SYNC_INFO_UPDATE', {
       action: 'PULL',
       kind,
+      itemKind: 'FILE',
       progress,
       name,
     });
@@ -87,6 +88,7 @@ async function setUp() {
     ipcRenderer.send('SYNC_INFO_UPDATE', {
       action: 'PULLED',
       kind,
+      itemKind: 'FILE',
       name,
     });
   });
@@ -114,8 +116,9 @@ async function setUp() {
     ipcRenderer.send('SYNC_INFO_UPDATE', {
       action: 'RENAME',
       kind,
+      itemKind: 'FILE',
       name: oldName,
-      progress: 0,
+      resultName: newName,
     });
   });
 
@@ -125,6 +128,8 @@ async function setUp() {
       action: 'RENAMED',
       kind,
       name: oldName,
+      itemKind: 'FILE',
+      resultName: newName,
     });
   });
 
@@ -154,8 +159,9 @@ async function setUp() {
     ipcRenderer.send('SYNC_INFO_UPDATE', {
       action: 'RENAME',
       kind,
+      itemKind: 'FOLDER',
       name: oldName,
-      progress: 0,
+      resultName: newName,
     });
   });
 
@@ -164,7 +170,9 @@ async function setUp() {
     ipcRenderer.send('SYNC_INFO_UPDATE', {
       action: 'RENAMED',
       kind,
+      itemKind: 'FOLDER',
       name: oldName,
+      resultName: newName,
     });
   });
 
@@ -194,6 +202,7 @@ async function setUp() {
     ipcRenderer.send('SYNC_INFO_UPDATE', {
       action: 'DELETE',
       kind,
+      itemKind: 'FILE',
       name,
       progress: 0,
     });
@@ -204,6 +213,7 @@ async function setUp() {
     ipcRenderer.send('SYNC_INFO_UPDATE', {
       action: 'DELETED',
       kind,
+      itemKind: 'FILE',
       name,
     });
   });

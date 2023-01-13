@@ -1,14 +1,23 @@
-import { UilArrowDown, UilArrowUp, UilTrash } from '@iconscout/react-unicons';
+import {
+  UilArrowDown,
+  UilArrowUp,
+  UilTrash,
+  UilPen,
+} from '@iconscout/react-unicons';
+import { ItemKind } from '../../shared/ItemKind';
 import FileIcon from '../assets/file.svg';
+import FolderIcon from '../assets/folder.svg';
 
-export type Operation = 'download' | 'upload' | 'delete';
+export type Operation = 'download' | 'upload' | 'delete' | 'rename';
 
 export default function FileWithOperation({
   operation,
+  itemKind,
   width,
   className = '',
 }: {
   operation?: Operation;
+  itemKind: ItemKind;
   width: number;
   className?: string;
 }) {
@@ -16,13 +25,15 @@ export default function FileWithOperation({
     download: UilArrowDown,
     upload: UilArrowUp,
     delete: UilTrash,
+    rename: UilPen,
   };
 
   const AuxIcon = operation ? iconMap[operation] : null;
 
   return (
     <div className={`relative ${className}`} style={{ width: `${width}px` }}>
-      <FileIcon />
+      {itemKind === 'FILE' && <FileIcon />}
+      {itemKind === 'FOLDER' && <FolderIcon />}
       {operation && (
         <AuxIcon
           size={width * 0.65}
