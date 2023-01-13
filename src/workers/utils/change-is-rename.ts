@@ -244,7 +244,17 @@ function filterFileRenamesInsideFolder(r: { FOLDER: Deltas; FILE: Deltas }) {
   }
 
   for (const [name, data] of Object.entries(r.FOLDER)) {
-    isolatedRenames[name] = data;
+    if (data.status !== 'RENAMED' && data.status !== 'NEW_NAME') {
+      // eslint-disable-next-line no-continue
+      continue;
+    }
+
+    const folderParentFolders = parentFolers(name);
+    const folderDelta = searchForDelta(data.status, folderParentFolders);
+
+    if (!folderDelta) {
+      isolatedRenames[name] = data;
+    }
   }
 
   return isolatedRenames;

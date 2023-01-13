@@ -304,7 +304,7 @@ export function getRemoteFilesystem({
             'BAD_RESPONSE',
             createErrorDetails(
               {},
-              'Renaming remote file',
+              'Renaming remote folder',
               `oldName: ${oldName}, newName: ${newName}, fileInCache: ${JSON.stringify(
                 folderInCache,
                 null,
@@ -318,7 +318,7 @@ export function getRemoteFilesystem({
       } catch (err) {
         await handleFetchError(
           err,
-          'Renaming remote file',
+          'Renaming remote folder',
           `oldName: ${oldName}, newName: ${newName}, fileInCache: ${JSON.stringify(
             folderInCache,
             null,
