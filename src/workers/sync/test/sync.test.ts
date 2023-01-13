@@ -682,7 +682,7 @@ describe('sync tests', () => {
       expect(deltas['new_image_name.png'].status).toBe('NEW_NAME');
     });
 
-    it('generates rename deltas for a folder and not for its contents', () => {
+    it('generates rename deltas for a folder and not for the files it contents', () => {
       const sync = dummySync();
 
       const saved = {
@@ -723,6 +723,83 @@ describe('sync tests', () => {
 
       expect(deltas['folder/file.txt']).not.toBeDefined();
       expect(deltas['new-folder-name/file.txt']).not.toBeDefined();
+
+      expect(deltas['new-folder-name'].status).toBe('NEW_NAME');
+      expect(deltas.folder.status).toBe('RENAMED');
+    });
+
+    it('generates rename deltas for a folder and not for the folders it contents', () => {
+      const sync = dummySync();
+
+      const saved = {
+        folder: {
+          modtime: 1673432981,
+          isFolder: true,
+          size: 4096,
+          dev: 64770,
+          ino: 13844966,
+        },
+        'folder/file.txt': {
+          modtime: 1672824000,
+          isFolder: false,
+          size: 2093,
+          dev: 64770,
+          ino: 13819698,
+        },
+        'folder/subfolder': {
+          modtime: 1672824020,
+          isFolder: true,
+          size: 2093,
+          dev: 4,
+          ino: 5,
+        },
+        'folder/subfolder/file.txt': {
+          modtime: 1672824020,
+          isFolder: true,
+          size: 2093,
+          dev: 4,
+          ino: 6,
+        },
+      };
+
+      const current = {
+        'new-folder-name': {
+          modtime: 1673432981,
+          isFolder: true,
+          size: 4096,
+          dev: 64770,
+          ino: 13844966,
+        },
+        'new-folder-name/file.txt': {
+          modtime: 1672824000,
+          isFolder: false,
+          size: 2093,
+          dev: 64770,
+          ino: 13819698,
+        },
+        'new-folder-name/subfolder': {
+          modtime: 1672824020,
+          isFolder: true,
+          size: 2093,
+          dev: 4,
+          ino: 5,
+        },
+        'new-folder-name/subfolder/file.txt': {
+          modtime: 1672824020,
+          isFolder: true,
+          size: 2093,
+          dev: 4,
+          ino: 6,
+        },
+      };
+
+      const deltas = sync.generateDeltas(saved, current);
+
+      expect(deltas['folder/file.txt']).not.toBeDefined();
+      expect(deltas['new-folder-name/file.txt']).not.toBeDefined();
+
+      expect(deltas['new-folder-name/subfolder']).not.toBeDefined();
+      expect(deltas['new-folder-name/subfolder/file.txt']).not.toBeDefined();
 
       expect(deltas['new-folder-name'].status).toBe('NEW_NAME');
       expect(deltas.folder.status).toBe('RENAMED');
