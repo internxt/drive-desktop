@@ -1,5 +1,5 @@
+import { ItemKind } from '../../shared/ItemKind';
 import { Tuple } from '../utils/types';
-import { ItemKind } from '../types';
 
 export type Deltas = Record<string, Delta>;
 

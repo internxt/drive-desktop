@@ -1,5 +1,4 @@
 import _ from 'lodash';
-import Logger from 'electron-log';
 import { Delta, Deltas, Status } from '../sync/Deltas';
 import { Listing, ListingData, LocalListing, LocalListingData } from '../types';
 import { Tuple } from './types';
@@ -7,16 +6,7 @@ import { Tuple } from './types';
 export type OldName = string;
 export type NewName = string;
 
-export type RenameChanges =
-  | {
-      isRename: false;
-    }
-  | {
-      isRename: true;
-      changes: [OldName, NewName];
-    };
-
-function cannotCheck(...listings: Array<LocalListing>): boolean {
+export function cannotCheck(...listings: Array<LocalListing>): boolean {
   return listings.every((listing) => {
     const listingsData = Object.values(listing);
 
@@ -86,7 +76,7 @@ type DeltasByType = {
   [D in Status]: string[];
 };
 
-function index(deltas: Deltas): DeltasByType {
+export function reindexByType(deltas: Deltas): DeltasByType {
   return Object.keys(deltas).reduce(
     (obj: DeltasByType, name: string) => {
       obj[deltas[name].status].push(name);
@@ -105,87 +95,76 @@ function index(deltas: Deltas): DeltasByType {
   );
 }
 
-function thereAreNewerDeltasAndTheyAreFiles(deltas: Deltas): boolean {
-  // When a file gets renamed inside a folder the last update of that folders gets updated
-  // making it appera as newer
-  return (
-    Object.values(deltas).filter(
-      (delta: Delta) => delta.is('NEWER') && delta.itemKind === 'FILE'
-    ).length > 0
-  );
-}
+// export function generateRenameDeltas(
+//   deltas: Deltas,
+//   old: LocalListing,
+//   current: LocalListing
+// ): Deltas {
+//   if (cannotCheck(old, current)) {
+//     return {};
+//   }
 
-export function generateRenameDeltas(
-  deltas: Deltas,
-  old: LocalListing,
-  current: LocalListing
-): Deltas {
-  if (cannotCheck(old, current)) {
-    Logger.warn('Cannot check for renames');
-    return {};
-  }
+//   if (thereAreNewerDeltasAndTheyAreFiles(deltas)) return {};
 
-  const deltasByType = index(deltas);
+//   const deltasByType = index(deltas);
 
-  if (thereAreNewerDeltasAndTheyAreFiles(deltas)) return {};
+//   if (
+//     (['OLDER', 'NEW_NAME', 'RENAMED'] as Status[]).some(
+//       (delta) => deltasByType[delta].length !== 0
+//     )
+//   )
+//     return {};
 
-  if (
-    (['OLDER', 'NEW_NAME', 'RENAMED'] as Status[]).some(
-      (delta) => deltasByType[delta].length !== 0
-    )
-  )
-    return {};
+//   if (deltasByType.NEW.length !== deltasByType.DELETED.length) return {};
 
-  if (deltasByType.NEW.length !== deltasByType.DELETED.length) return {};
+//   if (deltasByType.NEW.length === 0) return {};
 
-  if (deltasByType.NEW.length === 0) return {};
+//   const created = deltasByType.NEW;
+//   const deleted = deltasByType.DELETED;
 
-  const created = deltasByType.NEW;
-  const deleted = deltasByType.DELETED;
+//   const itemsCreated = created.map(
+//     (name: string): Tuple<string, LocalListingData> => [name, current[name]]
+//   );
 
-  const itemsCreated = created.map(
-    (name: string): Tuple<string, LocalListingData> => [name, current[name]]
-  );
+//   const itemsDeleted = deleted.map(
+//     (name: string): Tuple<string, LocalListingData> => [name, old[name]]
+//   );
 
-  const itemsDeleted = deleted.map(
-    (name: string): Tuple<string, LocalListingData> => [name, old[name]]
-  );
+//   const r = itemsCreated.reduce(
+//     (
+//       renameDeltas: { FOLDER: Deltas; FILE: Deltas },
+//       [newName, createdData]: Tuple<string, LocalListingData>
+//     ) => {
+//       const result = itemsDeleted.find(
+//         ([, { dev, ino }]) => dev === createdData.dev && ino === createdData.ino
+//       );
 
-  const r = itemsCreated.reduce(
-    (
-      renameDeltas: { FOLDER: Deltas; FILE: Deltas },
-      [newName, createdData]: Tuple<string, LocalListingData>
-    ) => {
-      const result = itemsDeleted.find(
-        ([, { dev, ino }]) => dev === createdData.dev && ino === createdData.ino
-      );
+//       if (!result) return renameDeltas;
 
-      if (!result) return renameDeltas;
+//       const [oldName, deletedData] = result;
 
-      const [oldName, deletedData] = result;
+//       const kind = deletedData.isFolder ? 'FOLDER' : 'FILE';
 
-      const kind = deletedData.isFolder ? 'FOLDER' : 'FILE';
+//       renameDeltas[kind][oldName] = new Delta('RENAMED', kind, [
+//         newName,
+//         'NEW_NAME',
+//       ]);
+//       renameDeltas[kind][newName] = new Delta('NEW_NAME', kind, [
+//         oldName,
+//         'RENAMED',
+//       ]);
 
-      renameDeltas[kind][oldName] = new Delta('RENAMED', kind, [
-        newName,
-        'NEW_NAME',
-      ]);
-      renameDeltas[kind][newName] = new Delta('NEW_NAME', kind, [
-        oldName,
-        'RENAMED',
-      ]);
+//       return renameDeltas;
+//     },
+//     { FOLDER: {}, FILE: {} }
+//   );
 
-      return renameDeltas;
-    },
-    { FOLDER: {}, FILE: {} }
-  );
+//   if (Object.keys(r.FOLDER).length === 0) {
+//     return r.FILE;
+//   }
 
-  if (Object.keys(r.FOLDER).length === 0) {
-    return r.FILE;
-  }
-
-  return filterFileRenamesInsideFolder(r);
-}
+//   return filterFileRenamesInsideFolder(r);
+// }
 
 export function listingsAreEqual(
   local: LocalListing,
@@ -209,7 +188,10 @@ export function listingsAreEqual(
   return _.isEqual(l, remote);
 }
 
-function filterFileRenamesInsideFolder(r: { FOLDER: Deltas; FILE: Deltas }) {
+export function filterFileRenamesInsideFolder(r: {
+  FOLDER: Deltas;
+  FILE: Deltas;
+}) {
   const isolatedRenames: Deltas = {};
 
   const parentFolers = (filePath: string): Array<string> => {

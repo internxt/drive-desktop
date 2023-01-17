@@ -1,9 +1,21 @@
 import Logger from 'electron-log';
-import { EnqueuedSyncActions, FileSystem, ItemKind, Listing } from '../types';
+import { Tuple } from '../utils/types';
+import {
+  EnqueuedSyncActions,
+  FileSystem,
+  Listing,
+  LocalListing,
+  LocalListingData,
+} from '../types';
 import Process, { ProcessEvents, ProcessResult } from '../process';
-import { generateRenameDeltas } from '../utils/change-is-rename';
-import { Delta, Deltas } from './Deltas';
+import {
+  cannotCheck,
+  filterFileRenamesInsideFolder,
+  reindexByType,
+} from '../utils/rename-utils';
+import { Delta, Deltas, Status } from './Deltas';
 import { SyncQueues } from './sync-queues';
+import { ItemKind } from '../../shared/ItemKind';
 
 class Sync extends Process {
   constructor(
@@ -269,26 +281,6 @@ class Sync extends Process {
       }
     }
 
-    // if (Object.entries(deltasLocal).length === 2) {
-    //   const oldName = Object.entries(deltasLocal).find(([, delta]) =>
-    //     delta.is('RENAMED')
-    //   )?.[0];
-
-    //   const newName = Object.entries(deltasLocal).find(([, delta]) =>
-    //     delta.is('NEW_NAME')
-    //   )?.[0];
-
-    //   if (oldName && newName) {
-    //     queues.rename.add('REMOTE', Object.values(deltasLocal)[0].itemKind, [
-    //       oldName,
-    //       newName,
-    //     ]);
-    //   }
-
-    //   queues.pull.empty();
-    //   queues.delete.empty();
-    // }
-
     return queues;
   }
 
@@ -317,15 +309,97 @@ class Sync extends Process {
       }
     }
 
-    const renameDeltas = generateRenameDeltas(deltas, saved, current);
-
-    Logger.debug('RENAME DELTAS', renameDeltas);
+    const renameDeltas = this.generateRenameDeltas(deltas, saved, current);
 
     if (Object.keys(renameDeltas).length > 0) {
       return renameDeltas;
     }
 
     return deltas;
+  }
+
+  private generateRenameDeltas(
+    deltas: Deltas,
+    old: LocalListing,
+    current: LocalListing
+  ): Deltas {
+    if (cannotCheck(old, current)) {
+      return {};
+    }
+
+    const thereAreNewerDeltasAndTheyAreFiles = (): boolean => {
+      /**
+       * When a file gets renamed inside a folder the last update of that folders gets updated
+       * making it appear as NEWER
+       * */
+      return (
+        Object.values(deltas).filter(
+          (delta: Delta) => delta.is('NEWER') && delta.itemKind === 'FILE'
+        ).length > 0
+      );
+    };
+
+    if (thereAreNewerDeltasAndTheyAreFiles()) return {};
+
+    const deltasByType = reindexByType(deltas);
+
+    if (
+      (['OLDER', 'NEW_NAME', 'RENAMED'] as Status[]).some(
+        (delta) => deltasByType[delta].length !== 0
+      )
+    )
+      return {};
+
+    if (deltasByType.NEW.length !== deltasByType.DELETED.length) return {};
+
+    if (deltasByType.NEW.length === 0) return {};
+
+    const created = deltasByType.NEW;
+    const deleted = deltasByType.DELETED;
+
+    const itemsCreated = created.map(
+      (name: string): Tuple<string, LocalListingData> => [name, current[name]]
+    );
+
+    const itemsDeleted = deleted.map(
+      (name: string): Tuple<string, LocalListingData> => [name, old[name]]
+    );
+
+    const r = itemsCreated.reduce(
+      (
+        renameDeltas: { FOLDER: Deltas; FILE: Deltas },
+        [newName, createdData]: Tuple<string, LocalListingData>
+      ) => {
+        const result = itemsDeleted.find(
+          ([, { dev, ino }]) =>
+            dev === createdData.dev && ino === createdData.ino
+        );
+
+        if (!result) return renameDeltas;
+
+        const [oldName, deletedData] = result;
+
+        const kind = deletedData.isFolder ? 'FOLDER' : 'FILE';
+
+        renameDeltas[kind][oldName] = new Delta('RENAMED', kind, [
+          newName,
+          'NEW_NAME',
+        ]);
+        renameDeltas[kind][newName] = new Delta('NEW_NAME', kind, [
+          oldName,
+          'RENAMED',
+        ]);
+
+        return renameDeltas;
+      },
+      { FOLDER: {}, FILE: {} }
+    );
+
+    if (Object.keys(r.FOLDER).length === 0) {
+      return r.FILE;
+    }
+
+    return filterFileRenamesInsideFolder(r);
   }
 
   private async listDeletedFolders(

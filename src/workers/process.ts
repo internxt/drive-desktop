@@ -16,7 +16,7 @@ import {
 } from './types';
 import { createErrorDetails } from './utils/reporting';
 import { Tuple } from './utils/types';
-import { OldName, NewName } from './utils/change-is-rename';
+import { OldName, NewName } from './utils/rename-utils';
 
 abstract class Process extends EventEmitter {
   constructor(

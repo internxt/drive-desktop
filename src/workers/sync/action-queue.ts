@@ -1,4 +1,4 @@
-import { NewName, OldName } from '../utils/change-is-rename';
+import { NewName, OldName } from '../utils/rename-utils';
 import { Tuple } from '../utils/types';
 import { FileName, FileSystemKind } from '../types';
 import { ItemKind } from '../../shared/ItemKind';
