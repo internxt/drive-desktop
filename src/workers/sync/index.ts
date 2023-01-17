@@ -112,24 +112,28 @@ async function setUp() {
   });
 
   sync.on('RENAMING_FILE', (oldName, newName, kind) => {
+    const newNameWithoutPath = newName.split('/').pop();
+
     Logger.debug(`Renaming file ${oldName} -> ${newName} in ${kind}`);
     ipcRenderer.send('SYNC_INFO_UPDATE', {
       action: 'RENAME',
       kind,
       itemKind: 'FILE',
       name: oldName,
-      resultName: newName,
+      resultName: newNameWithoutPath || newName,
     });
   });
 
   sync.on('FILE_RENAMED', (oldName, newName, kind) => {
+    const newNameWithoutPath = newName.split('/').pop();
+
     Logger.debug(`File ${oldName} renamed -> ${newName} in ${kind}`);
     ipcRenderer.send('SYNC_INFO_UPDATE', {
       action: 'RENAMED',
       kind,
       name: oldName,
       itemKind: 'FILE',
-      resultName: newName,
+      resultName: newNameWithoutPath || newName,
     });
   });
 
@@ -155,24 +159,28 @@ async function setUp() {
   );
 
   sync.on('RENAMING_FOLDER', (oldName, newName, kind) => {
+    const newNameWithoutPath = newName.split('/').pop();
+
     Logger.debug(`Renaming folder ${oldName} -> ${newName} in ${kind}`);
     ipcRenderer.send('SYNC_INFO_UPDATE', {
       action: 'RENAME',
       kind,
       itemKind: 'FOLDER',
       name: oldName,
-      resultName: newName,
+      resultName: newNameWithoutPath || newName,
     });
   });
 
   sync.on('FOLDER_RENAMED', (oldName, newName, kind) => {
+    const newNameWithoutPath = newName.split('/').pop();
+
     Logger.debug(`Folder ${oldName} renamed -> ${newName} in ${kind}`);
     ipcRenderer.send('SYNC_INFO_UPDATE', {
       action: 'RENAMED',
       kind,
       itemKind: 'FOLDER',
       name: oldName,
-      resultName: newName,
+      resultName: newNameWithoutPath || newName,
     });
   });
 
@@ -283,6 +291,7 @@ async function setUp() {
   try {
     Logger.debug('SYNC STARTING ');
     const result = await sync.run();
+    Logger.log('Sync done, result: ', result);
     ipcRenderer.send('SYNC_EXIT', result);
   } catch (err) {
     if (err instanceof ProcessFatalError) {
