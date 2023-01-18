@@ -188,56 +188,121 @@ export function listingsAreEqual(
   return _.isEqual(l, remote);
 }
 
-export function filterFileRenamesInsideFolder(r: {
+const parentFolers = (filePath: string): Array<string> => {
+  const paths = filePath.split('/');
+  paths.pop();
+
+  return paths;
+};
+
+const searchForDelta = (
+  deltas: Deltas,
+  fileStatus: Status,
+  fileParentFolers: Array<string>
+) =>
+  Object.entries(deltas).find(([folderName, { status }]) => {
+    const folders = folderName.split('/');
+
+    return _.isEqual(folders, fileParentFolers) && fileStatus === status;
+  });
+
+export function filterFileRenamesInsideFolder(allDeltas: {
   FOLDER: Deltas;
   FILE: Deltas;
 }) {
   const isolatedRenames: Deltas = {};
 
-  const parentFolers = (filePath: string): Array<string> => {
-    const paths = filePath.split('/');
-    paths.pop();
-
-    return paths;
-  };
-
-  const searchForDelta = (
-    fileStatus: Status,
-    fileParentFolers: Array<string>
-  ) =>
-    Object.entries(r.FOLDER).find(([folderName, { status }]) => {
-      const folders = folderName.split('/');
-
-      return _.isEqual(folders, fileParentFolers) && fileStatus === status;
-    });
-
-  for (const [name, data] of Object.entries(r.FILE)) {
+  for (const [name, data] of Object.entries(allDeltas.FILE)) {
     if (data.status !== 'RENAMED' && data.status !== 'NEW_NAME') {
       // eslint-disable-next-line no-continue
       continue;
     }
 
     const fileParentFolders = parentFolers(name);
-    const folderDelta = searchForDelta(data.status, fileParentFolders);
+    const folderDelta = searchForDelta(
+      allDeltas.FOLDER,
+      data.status,
+      fileParentFolders
+    );
 
     if (!folderDelta) {
       isolatedRenames[name] = data;
     }
   }
 
-  for (const [name, data] of Object.entries(r.FOLDER)) {
+  for (const [name, data] of Object.entries(allDeltas.FOLDER)) {
     if (data.status !== 'RENAMED' && data.status !== 'NEW_NAME') {
       // eslint-disable-next-line no-continue
       continue;
     }
 
     const folderParentFolders = parentFolers(name);
-    const folderDelta = searchForDelta(data.status, folderParentFolders);
+    const folderDelta = searchForDelta(
+      allDeltas.FOLDER,
+      data.status,
+      folderParentFolders
+    );
 
     if (!folderDelta) {
       isolatedRenames[name] = data;
     }
   }
 
+  for (const [name, data] of Object.entries(allDeltas.FILE)) {
+    // Once we have the folder renames we can set the files on a renamed folder to UNCHAGNED
+    if (data.status !== 'RENAMED' && data.status !== 'NEW_NAME') {
+      // eslint-disable-next-line no-continue
+      continue;
+    }
+
+    const fileParentFolders = parentFolers(name);
+    const folderDelta = searchForDelta(
+      isolatedRenames,
+      data.status,
+      fileParentFolders
+    );
+
+    if (folderDelta) {
+      isolatedRenames[name] = new Delta(
+        'UNCHANGED',
+        data.itemKind === 'FOLDER'
+      );
+    }
+  }
+
+  for (const [name, data] of Object.entries(allDeltas.FOLDER)) {
+    if (data.status !== 'RENAMED' && data.status !== 'NEW_NAME') {
+      // eslint-disable-next-line no-continue
+      continue;
+    }
+
+    const folderParentFolders = parentFolers(name);
+    const folderDelta = searchForDelta(
+      allDeltas.FOLDER,
+      data.status,
+      folderParentFolders
+    );
+
+    if (folderDelta) {
+      isolatedRenames[name] = new Delta(
+        'UNCHANGED',
+        data.itemKind === 'FOLDER'
+      );
+    }
+  }
+
   return isolatedRenames;
+}
+
+export function mergeDeltas(...deltas: Array<Deltas>): Deltas {
+  // Merges all deltas overriding them if they match
+  const result: Deltas = {};
+
+  for (const d of deltas) {
+    for (const [name, value] of Object.entries(d)) {
+      result[name] = value;
+    }
+  }
+
+  return result;
 }

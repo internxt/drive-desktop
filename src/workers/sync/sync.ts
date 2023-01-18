@@ -11,6 +11,7 @@ import Process, { ProcessEvents, ProcessResult } from '../process';
 import {
   cannotCheck,
   filterFileRenamesInsideFolder,
+  mergeDeltas,
   reindexByType,
 } from '../utils/rename-utils';
 import { Delta, Deltas, Status } from './Deltas';
@@ -212,6 +213,16 @@ class Sync extends Process {
         }
       }
 
+      if (deltaLocal.is('UNCHANGED') && doesntExistInRemote) {
+        /**
+         * This happends when the parent foler has changed.
+         * The delta for the new path on remote cannot exist yet
+         * so we don't do anything
+         */
+        // eslint-disable-next-line no-continue
+        continue;
+      }
+
       if (deltaLocal.is('NEW') && doesntExistInRemote) {
         queues.pull.add('REMOTE', deltaLocal.itemKind, name);
         // eslint-disable-next-line no-continue
@@ -365,7 +376,7 @@ class Sync extends Process {
       (name: string): Tuple<string, LocalListingData> => [name, old[name]]
     );
 
-    const r = itemsCreated.reduce(
+    const resultDeltas = itemsCreated.reduce(
       (
         renameDeltas: { FOLDER: Deltas; FILE: Deltas },
         [newName, createdData]: Tuple<string, LocalListingData>
@@ -395,11 +406,13 @@ class Sync extends Process {
       { FOLDER: {}, FILE: {} }
     );
 
-    if (Object.keys(r.FOLDER).length === 0) {
-      return r.FILE;
+    if (Object.keys(resultDeltas.FOLDER).length === 0) {
+      return mergeDeltas(deltas, resultDeltas.FILE);
     }
 
-    return filterFileRenamesInsideFolder(r);
+    const filtered = filterFileRenamesInsideFolder(resultDeltas);
+
+    return mergeDeltas(deltas, filtered);
   }
 
   private async listDeletedFolders(
