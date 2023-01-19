@@ -239,8 +239,8 @@ describe('deltas generation', () => {
 
     const deltas = generateDeltasWrapper(saved, current);
 
-    expectStatus(deltas['folder/file.txt'], 'UNCHANGED');
-    expectStatus(deltas['new-folder-name/file.txt'], 'UNCHANGED');
+    expectStatus(deltas['folder/file.txt'], 'MOVED_OUT');
+    expectStatus(deltas['new-folder-name/file.txt'], 'MOVED_IN');
 
     expect(deltas['new-folder-name'].status).toBe('NEW_NAME');
     expect(deltas.folder.status).toBe('RENAMED');
@@ -311,10 +311,10 @@ describe('deltas generation', () => {
 
     const deltas = generateDeltasWrapper(saved, current);
 
-    expectStatus(deltas['folder/file.txt'], 'UNCHANGED');
-    expectStatus(deltas['new-folder-name/file.txt'], 'UNCHANGED');
-    expectStatus(deltas['new-folder-name/subfolder'], 'UNCHANGED');
-    expectStatus(deltas['new-folder-name/subfolder/file.txt'], 'UNCHANGED');
+    expectStatus(deltas['folder/file.txt'], 'MOVED_OUT');
+    expectStatus(deltas['new-folder-name/file.txt'], 'MOVED_IN');
+    expectStatus(deltas['new-folder-name/subfolder'], 'MOVED_IN');
+    expectStatus(deltas['new-folder-name/subfolder/file.txt'], 'MOVED_IN');
 
     expect(deltas['new-folder-name'].status).toBe('NEW_NAME');
     expect(deltas.folder.status).toBe('RENAMED');
@@ -455,9 +455,9 @@ describe('deltas generation', () => {
 
     const deltas = generateDeltasWrapper(saved, current);
 
-    expect(deltas['new-folder-name/unchanged-file-1'].status).toBe('UNCHANGED');
-    expect(deltas['new-folder-name/unchanged-file-2'].status).toBe('UNCHANGED');
-    expect(deltas['new-folder-name/unchanged-file-3'].status).toBe('UNCHANGED');
+    expect(deltas['new-folder-name/unchanged-file-1'].status).toBe('MOVED_IN');
+    expect(deltas['new-folder-name/unchanged-file-2'].status).toBe('MOVED_IN');
+    expect(deltas['new-folder-name/unchanged-file-3'].status).toBe('MOVED_IN');
   });
 
   const dataSetNumberOfDeltas: Array<
@@ -677,19 +677,19 @@ describe('deltas generation', () => {
       expectStatus(deltas['folder O'], 'NEW_NAME');
       expectStatus(
         deltas['folder O/Captura de pantalla de 2023-01-03 11-35-39.png'],
-        'UNCHANGED'
+        'MOVED_IN'
       );
-      expectStatus(deltas['folder O/file.log'], 'UNCHANGED');
-      expectStatus(deltas['folder O/subfolder B'], 'UNCHANGED');
-      expectStatus(deltas['folder O/subfolder B/r.log'], 'UNCHANGED');
+      expectStatus(deltas['folder O/file.log'], 'MOVED_IN');
+      expectStatus(deltas['folder O/subfolder B'], 'MOVED_IN');
+      expectStatus(deltas['folder O/subfolder B/r.log'], 'MOVED_IN');
       expectStatus(deltas['folder U'], 'RENAMED');
       expectStatus(
         deltas['folder U/Captura de pantalla de 2023-01-03 11-35-39.png'],
-        'UNCHANGED'
+        'MOVED_OUT'
       );
-      expectStatus(deltas['folder U/file.log'], 'UNCHANGED');
-      expectStatus(deltas['folder U/subfolder B'], 'UNCHANGED');
-      expectStatus(deltas['folder U/subfolder B/r.log'], 'UNCHANGED');
+      expectStatus(deltas['folder U/file.log'], 'MOVED_OUT');
+      expectStatus(deltas['folder U/subfolder B'], 'MOVED_OUT');
+      expectStatus(deltas['folder U/subfolder B/r.log'], 'MOVED_OUT');
     });
   });
 });

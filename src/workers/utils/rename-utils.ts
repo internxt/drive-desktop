@@ -91,6 +91,8 @@ export function reindexByType(deltas: Deltas): DeltasByType {
       UNCHANGED: [],
       NEW_NAME: [],
       RENAMED: [],
+      MOVED_OUT: [],
+      MOVED_IN: [],
     }
   );
 }
@@ -193,10 +195,9 @@ export function filterFileRenamesInsideFolder(allDeltas: {
     );
 
     if (folderDelta) {
-      isolatedRenames[name] = new Delta(
-        'UNCHANGED',
-        data.itemKind === 'FOLDER'
-      );
+      const status =
+        folderDelta[1].status === 'RENAMED' ? 'MOVED_OUT' : 'MOVED_IN';
+      isolatedRenames[name] = new Delta(status, data.itemKind === 'FOLDER');
     }
   }
 
@@ -214,10 +215,9 @@ export function filterFileRenamesInsideFolder(allDeltas: {
     );
 
     if (folderDelta) {
-      isolatedRenames[name] = new Delta(
-        'UNCHANGED',
-        data.itemKind === 'FOLDER'
-      );
+      const status =
+        folderDelta[1].status === 'RENAMED' ? 'MOVED_OUT' : 'MOVED_IN';
+      isolatedRenames[name] = new Delta(status, data.itemKind === 'FOLDER');
     }
   }
 

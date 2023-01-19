@@ -10,7 +10,15 @@ export type Status =
   | 'OLDER'
   | 'UNCHANGED'
   | 'NEW_NAME'
-  | 'RENAMED';
+  | 'RENAMED'
+  /**
+   * When an item gets moved out of a folder or the parent folder it's renamed
+   */
+  | 'MOVED_OUT'
+  /**
+   * When an item gets moved in to a folder or the parent folder its the result of a rename
+   */
+  | 'MOVED_IN';
 
 export class Delta {
   public readonly status: Status;
