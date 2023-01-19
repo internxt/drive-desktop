@@ -591,4 +591,105 @@ describe('deltas generation', () => {
       expect(Object.keys(deltas).length).toBe(expectedNumberOfDetlas);
     }
   );
+
+  describe('rename folder with subfolders', () => {
+    it('only updates the renamed folder', () => {
+      const saved = {
+        'folder U': {
+          modtime: 1674120777,
+          isFolder: true,
+          size: 4096,
+          dev: 64770,
+          ino: 13844981,
+        },
+        'folder U/Captura de pantalla de 2023-01-03 11-35-39.png': {
+          modtime: 1672742139,
+          isFolder: false,
+          size: 76685,
+          dev: 64770,
+          ino: 13770821,
+        },
+        'folder U/file.log': {
+          modtime: 1672824000,
+          isFolder: false,
+          size: 2093,
+          dev: 64770,
+          ino: 13778310,
+        },
+        'folder U/subfolder B': {
+          modtime: 1674120777,
+          isFolder: true,
+          size: 4096,
+          dev: 64770,
+          ino: 13852678,
+        },
+        'folder U/subfolder B/r.log': {
+          modtime: 1672824000,
+          isFolder: false,
+          size: 2093,
+          dev: 64770,
+          ino: 13778314,
+        },
+      };
+
+      const current = {
+        'folder O': {
+          modtime: 1674120777,
+          isFolder: true,
+          size: 4096,
+          dev: 64770,
+          ino: 13844981,
+        },
+        'folder O/Captura de pantalla de 2023-01-03 11-35-39.png': {
+          modtime: 1672742139,
+          isFolder: false,
+          size: 76685,
+          dev: 64770,
+          ino: 13770821,
+        },
+        'folder O/file.log': {
+          modtime: 1672824000,
+          isFolder: false,
+          size: 2093,
+          dev: 64770,
+          ino: 13778310,
+        },
+        'folder O/subfolder B': {
+          modtime: 1674120777,
+          isFolder: true,
+          size: 4096,
+          dev: 64770,
+          ino: 13852678,
+        },
+        'folder O/subfolder B/r.log': {
+          modtime: 1672824000,
+          isFolder: false,
+          size: 2093,
+          dev: 64770,
+          ino: 13778314,
+        },
+      };
+
+      const deltas = generateDeltasWrapper(saved, current);
+
+      expect(deltas).toBeDefined();
+
+      expectStatus(deltas['folder O'], 'NEW_NAME');
+      expectStatus(
+        deltas['folder O/Captura de pantalla de 2023-01-03 11-35-39.png'],
+        'UNCHANGED'
+      );
+      expectStatus(deltas['folder O/file.log'], 'UNCHANGED');
+      expectStatus(deltas['folder O/subfolder B'], 'UNCHANGED');
+      expectStatus(deltas['folder O/subfolder B/r.log'], 'UNCHANGED');
+      expectStatus(deltas['folder U'], 'RENAMED');
+      expectStatus(
+        deltas['folder U/Captura de pantalla de 2023-01-03 11-35-39.png'],
+        'UNCHANGED'
+      );
+      expectStatus(deltas['folder U/file.log'], 'UNCHANGED');
+      expectStatus(deltas['folder U/subfolder B'], 'UNCHANGED');
+      expectStatus(deltas['folder U/subfolder B/r.log'], 'UNCHANGED');
+    });
+  });
 });

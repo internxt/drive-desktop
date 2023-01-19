@@ -95,77 +95,6 @@ export function reindexByType(deltas: Deltas): DeltasByType {
   );
 }
 
-// export function generateRenameDeltas(
-//   deltas: Deltas,
-//   old: LocalListing,
-//   current: LocalListing
-// ): Deltas {
-//   if (cannotCheck(old, current)) {
-//     return {};
-//   }
-
-//   if (thereAreNewerDeltasAndTheyAreFiles(deltas)) return {};
-
-//   const deltasByType = index(deltas);
-
-//   if (
-//     (['OLDER', 'NEW_NAME', 'RENAMED'] as Status[]).some(
-//       (delta) => deltasByType[delta].length !== 0
-//     )
-//   )
-//     return {};
-
-//   if (deltasByType.NEW.length !== deltasByType.DELETED.length) return {};
-
-//   if (deltasByType.NEW.length === 0) return {};
-
-//   const created = deltasByType.NEW;
-//   const deleted = deltasByType.DELETED;
-
-//   const itemsCreated = created.map(
-//     (name: string): Tuple<string, LocalListingData> => [name, current[name]]
-//   );
-
-//   const itemsDeleted = deleted.map(
-//     (name: string): Tuple<string, LocalListingData> => [name, old[name]]
-//   );
-
-//   const r = itemsCreated.reduce(
-//     (
-//       renameDeltas: { FOLDER: Deltas; FILE: Deltas },
-//       [newName, createdData]: Tuple<string, LocalListingData>
-//     ) => {
-//       const result = itemsDeleted.find(
-//         ([, { dev, ino }]) => dev === createdData.dev && ino === createdData.ino
-//       );
-
-//       if (!result) return renameDeltas;
-
-//       const [oldName, deletedData] = result;
-
-//       const kind = deletedData.isFolder ? 'FOLDER' : 'FILE';
-
-//       renameDeltas[kind][oldName] = new Delta('RENAMED', kind, [
-//         newName,
-//         'NEW_NAME',
-//       ]);
-//       renameDeltas[kind][newName] = new Delta('NEW_NAME', kind, [
-//         oldName,
-//         'RENAMED',
-//       ]);
-
-//       return renameDeltas;
-//     },
-//     { FOLDER: {}, FILE: {} }
-//   );
-
-//   if (Object.keys(r.FOLDER).length === 0) {
-//     return r.FILE;
-//   }
-
-//   return filterFileRenamesInsideFolder(r);
-// }
-
 export function listingsAreEqual(
   local: LocalListing,
   remote: Listing
@@ -195,6 +124,10 @@ const parentFolers = (filePath: string): Array<string> => {
   return paths;
 };
 
+function arrayContains(set: Array<string>, subset: Array<string>): boolean {
+  return subset.every((value: string) => set.includes(value));
+}
+
 const searchForDelta = (
   deltas: Deltas,
   fileStatus: Status,
@@ -203,7 +136,9 @@ const searchForDelta = (
   Object.entries(deltas).find(([folderName, { status }]) => {
     const folders = folderName.split('/');
 
-    return _.isEqual(folders, fileParentFolers) && fileStatus === status;
+    const hasParentDeleta = arrayContains(fileParentFolers, folders);
+
+    return hasParentDeleta && fileStatus === status;
   });
 
 export function filterFileRenamesInsideFolder(allDeltas: {
@@ -213,11 +148,6 @@ export function filterFileRenamesInsideFolder(allDeltas: {
   const isolatedRenames: Deltas = {};
 
   for (const [name, data] of Object.entries(allDeltas.FILE)) {
-    if (data.status !== 'RENAMED' && data.status !== 'NEW_NAME') {
-      // eslint-disable-next-line no-continue
-      continue;
-    }
-
     const fileParentFolders = parentFolers(name);
     const folderDelta = searchForDelta(
       allDeltas.FOLDER,
@@ -250,10 +180,10 @@ export function filterFileRenamesInsideFolder(allDeltas: {
 
   for (const [name, data] of Object.entries(allDeltas.FILE)) {
     // Once we have the folder renames we can set the files on a renamed folder to UNCHAGNED
-    if (data.status !== 'RENAMED' && data.status !== 'NEW_NAME') {
-      // eslint-disable-next-line no-continue
-      continue;
-    }
+    // if (data.status !== 'RENAMED' && data.status !== 'NEW_NAME') {
+    //   // eslint-disable-next-line no-continue
+    //   continue;
+    // }
 
     const fileParentFolders = parentFolers(name);
     const folderDelta = searchForDelta(
