@@ -104,8 +104,8 @@ class Sync extends Process {
       this.consumeDeleteQueue(deleteInRemote, this.remote),
     ]);
 
-    const [foldersDeletedInLocal, foldersDeletedInRemote] = await Promise.all([
-      this.listDeletedFolders(lastSavedListing, currentLocal, this.local),
+    const [foldersDeletedInRemote] = await Promise.all([
+      // this.listDeletedFolders(lastSavedListing, currentLocal, this.local),
       this.listDeletedFolders(lastSavedListing, currentRemote, this.remote),
     ]);
 
@@ -120,17 +120,19 @@ class Sync extends Process {
       this.consumeRenameFolderQueue(renameFoldersInLocal, this.local),
     ]);
 
-    const nonRenamed = foldersDeletedInLocal.filter(
-      (folder: string) =>
-        !renameFoldersInRemote.some(([oldName]) => folder === oldName)
-    );
+    // const nonRenamed = foldersDeletedInLocal.filter(
+    //   (folder: string) =>
+    //     !renameFoldersInRemote.some(([oldName]) => folder === oldName)
+    // );
 
-    Logger.log('Folders deleted in local', nonRenamed);
+    const a = deleteQueue.get('LOCAL', 'FOLDER');
+
+    Logger.log('Folders deleted in local', a);
     Logger.log('Folders deleted in remote', foldersDeletedInRemote);
 
     await Promise.all([
       this.consumeDeleteFolderQueue(foldersDeletedInRemote, this.local),
-      this.consumeDeleteFolderQueue(nonRenamed, this.remote),
+      this.consumeDeleteFolderQueue(a, this.remote),
     ]);
 
     return this.finalize();
@@ -211,16 +213,6 @@ class Sync extends Process {
         if (relatedExists) {
           queues.rename.add('REMOTE', deltaLocal.itemKind, [name, newName]);
         }
-      }
-
-      if (deltaLocal.is('UNCHANGED') && doesntExistInRemote) {
-        /**
-         * This happends when the parent foler has changed.
-         * The delta for the new path on remote cannot exist yet
-         * so we don't do anything
-         */
-        // eslint-disable-next-line no-continue
-        continue;
       }
 
       if (deltaLocal.is('NEW') && doesntExistInRemote) {

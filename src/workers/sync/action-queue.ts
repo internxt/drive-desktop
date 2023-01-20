@@ -60,20 +60,7 @@ export abstract class ActionQueue<T> {
 
 export class DeleteQueue extends ActionQueue<FileName> {}
 
-export class PullQueue extends ActionQueue<FileName> {
-  public add = (
-    fileSystem: FileSystemKind,
-    itemKind: ItemKind,
-    item: FileName
-  ): void => {
-    if (itemKind === 'FOLDER') {
-      // At the moment the folder creation is controlled on the file creation
-      return;
-    }
-
-    this.queues[fileSystem][itemKind].push(item);
-  };
-}
+export class PullQueue extends ActionQueue<FileName> {}
 
 export class RenameQueue extends ActionQueue<Tuple<OldName, NewName>> {}
 
