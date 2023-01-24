@@ -12,7 +12,7 @@ import {
   ProcessFatalErrorName,
   ProcessIssue,
 } from '../../../workers/types';
-import { BackupFatalError } from '../../../main/background-processes/backups';
+import { BackupFatalError } from '../../../main/background-processes/types/BackupFatalError';
 import messages from '../../messages/process-fatal-error';
 
 export default function ProcessIssuesList({
@@ -139,7 +139,10 @@ function Item({
       <div className="flex items-center">
         <WarnIcon className="mr-3 h-7 w-7" />
         <div className="flex-grow">
-          <h1 className="font-semibold text-gray-70">
+          <h1
+            className="font-semibold text-gray-70"
+            data-test="sync-issue-name"
+          >
             {shortMessages[errorName]}
             &nbsp;
             <UilInfoCircle
@@ -150,7 +153,9 @@ function Item({
               }}
             />
           </h1>
-          <p className="text-gray-70">{issues.length} files</p>
+          <p className="text-gray-70" data-test="number-sync-issues">
+            {issues.length} files
+          </p>
         </div>
         <UilAngleDown
           className={`h-4 w-4 transform transition-all ${

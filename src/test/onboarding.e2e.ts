@@ -1,14 +1,9 @@
 import { test, expect, ElectronApplication, Page } from '@playwright/test';
 import { _electron as electron } from 'playwright';
 import { ipcMainEmit } from 'electron-playwright-helpers';
+import { wait } from './utils';
 
 import AccessResponseFixtures from './fixtures/AccessResponse.json';
-
-const wait = async (ms: number): Promise<void> => {
-  return new Promise((resolve) => {
-    setTimeout(resolve, ms);
-  });
-};
 
 test.describe('onboarding', () => {
   let electronApp: ElectronApplication;
