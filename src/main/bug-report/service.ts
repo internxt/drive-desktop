@@ -7,6 +7,7 @@ import path from 'path';
 import { getToken } from '../auth/service';
 import packageJson from '../../../package.json';
 import { ErrorDetails } from '../../workers/types';
+import { BugReportResult } from './BugReportResult';
 
 export async function sendReport({
   errorDetails,
@@ -16,7 +17,7 @@ export async function sendReport({
   errorDetails: ErrorDetails;
   userComment: string;
   includeLogs: boolean;
-}): Promise<void> {
+}): Promise<BugReportResult> {
   const form = new FormData();
 
   const reportBody = {
@@ -37,12 +38,18 @@ export async function sendReport({
     headers: { Authorization: `Bearer ${getToken()}` },
   });
 
-  if (!res.ok) {
-    log.error(
-      `[BUG-REPORT] Request to report bug failed with status: ${res.status}`
-    );
-    throw new Error();
+  if (res.ok) return { state: 'OK' };
+
+  log.error(`Report status: ${res.status}`);
+
+  if (res.status === 429) {
+    return { state: 'TOO_MANY_REPORTS' };
   }
+
+  log.error(
+    `[BUG-REPORT] Request to report bug failed with status: ${res.status}`
+  );
+  return { state: 'ERROR' };
 }
 
 function readLog(): Promise<string> {
