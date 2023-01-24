@@ -46,6 +46,9 @@ export async function sendReport({
     return { state: 'TOO_MANY_REPORTS' };
   }
 
+  log.error(
+    `[BUG-REPORT] Request to report bug failed with status: ${res.status}`
+  );
   return { state: 'ERROR' };
 }
 
