@@ -1,5 +1,6 @@
 import { ipcRenderer as electronIpcRenderer } from 'electron';
 import Logger from 'electron-log';
+import { getClients } from '../../shared/HttpClient/backgroud-process-clients';
 import { getUser } from '../../main/auth/service';
 import configStore from '../../main/config';
 import { getLocalFilesystem } from '../filesystems/local-filesystem';
@@ -73,12 +74,15 @@ async function setUp() {
     throw new Error('No user');
   }
 
+  const clients = getClients();
+
   const remote = getRemoteFilesystem({
     baseFolderId: folderId,
     headers,
     bucket: backupsBucket,
     mnemonic: configStore.get('mnemonic'),
     userInfo: user,
+    clients,
   });
   const local = getLocalFilesystem(path, tmpPath);
 
