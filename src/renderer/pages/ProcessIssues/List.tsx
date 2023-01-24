@@ -14,6 +14,8 @@ import {
 } from '../../../workers/types';
 import { BackupFatalError } from '../../../main/background-processes/types/BackupFatalError';
 import messages from '../../messages/process-fatal-error';
+import useFatalErrorActions from '../../hooks/FatalErrorActions';
+import { Action } from '../../actions/types';
 
 export default function ProcessIssuesList({
   processIssues,
@@ -29,6 +31,9 @@ export default function ProcessIssuesList({
   ) => void;
 }) {
   const [isLoading, setIsLoading] = useState(false);
+  const fatalErrorActionMap = useFatalErrorActions(
+    showBackupFatalErrors ? 'BACKUPS' : 'SYNC'
+  );
 
   const [selectedErrorName, setSelectedErrorName] =
     useState<ProcessErrorName | null>(null);
@@ -43,32 +48,12 @@ export default function ProcessIssuesList({
     });
   }
 
-  const defaultAction = {
-    name: 'Try again',
-    func: window.electron.startBackupsProcess,
-  };
-
-  const fatalErrorActionMap: Record<
-    ProcessFatalErrorName,
-    { name: string; func: (error: BackupFatalError) => void }
-  > = {
-    CANNOT_ACCESS_BASE_DIRECTORY: {
-      name: 'Find folder',
-      func: async (error) => {
-        setIsLoading(true);
-        const result = await window.electron.changeBackupPath(error.path);
-        setIsLoading(false);
-        if (result) window.electron.startBackupsProcess();
-      },
-    },
-    CANNOT_ACCESS_TMP_DIRECTORY: defaultAction,
-    CANNOT_GET_CURRENT_LISTINGS: defaultAction,
-    NO_INTERNET: defaultAction,
-    NO_REMOTE_CONNECTION: defaultAction,
-    BASE_DIRECTORY_DOES_NOT_EXIST: defaultAction,
-    INSUFICIENT_PERMISION_ACCESSING_BASE_DIRECTORY: defaultAction,
-    UNKNOWN: defaultAction,
-  };
+  const actionWrapper =
+    (action: Action) => async (error: BackupFatalError | undefined) => {
+      setIsLoading(true);
+      await action.func(error);
+      setIsLoading(false);
+    };
 
   return (
     <div className="no-scrollbar relative m-4 min-h-0 flex-grow overflow-y-auto rounded-lg border border-l-neutral-30 bg-white">
@@ -80,7 +65,7 @@ export default function ProcessIssuesList({
             path={error.path}
             actionName={fatalErrorActionMap[error.errorName].name}
             onActionClick={() =>
-              fatalErrorActionMap[error.errorName].func(error)
+              actionWrapper(fatalErrorActionMap[error.errorName])(error)
             }
           />
         ))}

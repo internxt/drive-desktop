@@ -184,7 +184,7 @@ function processBackupsItem(
     ipcMain.handleOnce('get-backups-details', () => item);
     onExitFuncs.push(() => ipcMain.removeHandler('get-backups-details'));
 
-    ipcMain.once('BACKUP_FATAL_ERROR', (_, errorName) =>
+    ipcMain.once('BACKUP_FATAL_ERROR', (_, _folderId, errorName) =>
       onExit({ reason: 'FATAL_ERROR', errorName })
     );
     onExitFuncs.push(() => ipcMain.removeAllListeners('BACKUP_FATAL_ERROR'));
