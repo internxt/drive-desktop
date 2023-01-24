@@ -25,6 +25,7 @@ export interface SyncEvents {
   SYNC_FATAL_ERROR: (errorName: ProcessFatalErrorName) => void;
   SYNC_EXIT: (result: ProcessResult) => void;
   SYNC_ACTION_QUEUE_GENERATED: (actions: EnqueuedSyncActions) => void;
+  REMOTE_FILE_PULL_COMPLETED: (name: string, fileId: number) => void;
 }
 
 interface IpcRenderer {
@@ -82,13 +83,17 @@ async function setUp() {
     });
   });
 
-  sync.on('FILE_PULLED', (name, kind) => {
+  sync.on('FILE_PULLED', (name, kind, fileId) => {
     Logger.debug(`File ${name} pulled from ${kind}`);
     ipcRenderer.send('SYNC_INFO_UPDATE', {
       action: 'PULLED',
       kind,
       name,
     });
+
+    if (fileId && kind === 'REMOTE') {
+      ipcRenderer.send('REMOTE_FILE_PULL_COMPLETED', name, fileId);
+    }
   });
 
   sync.on('ERROR_PULLING_FILE', (name, kind, errorName, errorDetails) => {
