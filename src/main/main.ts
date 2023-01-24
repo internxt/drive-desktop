@@ -32,6 +32,7 @@ import './realtime';
 import './tray';
 import './analytics/handlers';
 import './platform/handlers';
+import './thumbnails/handlers';
 
 Logger.log(`Running ${packageJson.version}`);
 
