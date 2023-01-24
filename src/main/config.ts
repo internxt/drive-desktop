@@ -18,6 +18,7 @@ interface ConfigStore {
   bearerToken: string;
   bearerTokenEncrypted: boolean;
   newToken: string;
+  newTokenEncrypted: boolean;
   userData: User;
   mnemonic: string;
   backupsEnabled: boolean;
@@ -42,6 +43,9 @@ const schema: Schema<ConfigStore> = {
   },
   newToken: {
     type: 'string',
+  },
+  newTokenEncrypted: {
+    type: 'boolean',
   },
   userData: {
     type: 'object',
@@ -88,6 +92,7 @@ export const defaults: ConfigStore = {
   bearerToken: '',
   bearerTokenEncrypted: false,
   newToken: '',
+  newTokenEncrypted: false,
   userData: {} as User,
   mnemonic: '',
   backupsEnabled: false,
