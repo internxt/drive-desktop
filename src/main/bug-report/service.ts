@@ -4,7 +4,7 @@ import fs from 'fs/promises';
 import fetch from 'electron-fetch';
 import FormData from 'form-data';
 import path from 'path';
-import { getToken } from '../auth/service';
+import { obtainToken } from '../auth/service';
 import packageJson from '../../../package.json';
 import { ErrorDetails } from '../../workers/types';
 import { BugReportResult } from './BugReportResult';
@@ -35,7 +35,7 @@ export async function sendReport({
   const res = await fetch(process.env.BUG_REPORTING_URL, {
     method: 'POST',
     body: form,
-    headers: { Authorization: `Bearer ${getToken()}` },
+    headers: { Authorization: `Bearer ${obtainToken('bearerToken')}` },
   });
 
   if (res.ok) return { state: 'OK' };

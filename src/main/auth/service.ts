@@ -8,6 +8,7 @@ const TOKEN_ENCODING = 'latin1';
 
 const tokensKeys = ['bearerToken', 'newToken'] as const;
 type TokenKey = typeof tokensKeys[number];
+type EncryptedTokenKey = `${typeof tokensKeys[number]}Encrypted`;
 
 export function encryptToken() {
   const bearerTokenEncrypted = ConfigStore.get('bearerTokenEncrypted');
@@ -104,7 +105,7 @@ export function getHeaders(includeMnemonic = false): Record<string, string> {
 }
 
 export function getNewApiHeaders(): Record<string, string> {
-  const token = getNewToken();
+  const token = obtainToken('newToken');
 
   return {
     Authorization: `Bearer ${token}`,
@@ -121,7 +122,9 @@ export function getUser(): User | null {
 
 export function obtainToken(tokenName: TokenKey): string {
   const token = ConfigStore.get(tokenName);
-  const isEncrypted = ConfigStore.get(`${tokenName}Encrypted`);
+  const isEncrypted = ConfigStore.get<EncryptedTokenKey>(
+    `${tokenName}Encrypted`
+  );
 
   if (!isEncrypted) return token;
 
