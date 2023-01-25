@@ -28,6 +28,8 @@ jobs:
           echo "always-auth=true" >> .npmrc
         env:
           PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 1
+          RUDDERSTACK_KEY: '2G7EO1sNe5RTn8qjzSdBS6XJ8Wg'
+          RUDDERSTACK_DATA_PLANE_URL: 'https://cdp.internxt.com/v1/batch'
       - name: Install dependencies
         run: yarn
       - name: Create .env file
