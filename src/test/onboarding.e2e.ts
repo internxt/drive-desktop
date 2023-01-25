@@ -34,9 +34,7 @@ test.describe('onboarding', () => {
   test.describe('welcome slide', () => {
     test('onboarding windows starts with welcome message', async () => {
       const content = await page.innerHTML('h3');
-      expect(content).toBe(
-        `Welcome to Internxt, ${AccessResponseFixtures.user.name}!`
-      );
+      expect(content).toBe(`Welcome to Internxt!`);
     });
 
     test('welcome slide has lets go button', async () => {
