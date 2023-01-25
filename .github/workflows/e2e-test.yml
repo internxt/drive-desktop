@@ -28,8 +28,6 @@ jobs:
           echo "always-auth=true" >> .npmrc
         env:
           PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 1
-          RUDDERSTACK_KEY: '2G7EO1sNe5RTn8qjzSdBS6XJ8Wg'
-          RUDDERSTACK_DATA_PLANE_URL: 'https://cdp.internxt.com/v1/batch'
       - name: Install dependencies
         run: yarn
       - name: Create .env file
@@ -46,6 +44,9 @@ jobs:
           echo "BUG_REPORTING_URL=https://desktop-bug-reporting.inxt.workers.dev" >> .env
           echo "NOTIFICATIONS_URL=https://notifications.internxt.com" >> .env
           echo "LOCK_REFRESH_INTERVAL=20000" >> .env
+          echo "RUDDERSTACK_KEY=2G7EO1sNe5RTn8qjzSdBS6XJ8Wg" >> .env
+          echo "RUDDERSTACK_DATA_PLANE_URL=https://cdp.internxt.com/v1/batch" >> .env
+
       - name: Build app
         run: yarn build
       - run: xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" -- yarn test:e2e
