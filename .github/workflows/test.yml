@@ -24,7 +24,6 @@ jobs:
       - name: Install dependenciies
         run: |
           yarn --ignore-scripts
-          yarn run postinstall
       - name: Build main process
         run: yarn build
       - name: Run test
