@@ -1,4 +1,4 @@
-import { fileIsInFolder } from '../file-is-on-folder';
+import { itemIsInFolder } from '../file-is-on-folder';
 
 describe('file is on folder', () => {
   const deletedfolders = [
@@ -10,7 +10,7 @@ describe('file is on folder', () => {
   let SUT: (fileName: string) => boolean;
 
   beforeAll(() => {
-    SUT = fileIsInFolder(deletedfolders);
+    SUT = itemIsInFolder(deletedfolders);
   });
 
   const filesInFoldersPaths = [
@@ -71,7 +71,7 @@ describe('file is on folder', () => {
   });
 
   it('folders path is empty folder is not found', () => {
-    const filter = fileIsInFolder([]);
+    const filter = itemIsInFolder([]);
     const fileName = 'folder/file.txt';
 
     const result = filter(fileName);

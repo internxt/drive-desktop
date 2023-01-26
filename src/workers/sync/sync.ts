@@ -1,5 +1,5 @@
 import Logger from 'electron-log';
-import { fileIsInFolder } from '../utils/file-is-on-folder';
+import { itemIsInFolder } from '../utils/file-is-on-folder';
 import { EnqueuedSyncActions, FileSystem, Listing } from '../types';
 import Process, { ProcessEvents, ProcessResult } from '../process';
 
@@ -86,9 +86,9 @@ class Sync extends Process {
       this.local
     );
 
-    const fileIsInDeletedFolder = fileIsInFolder(foldersDeletedInLocal);
+    const itemIsInDeletedFolder = itemIsInFolder(foldersDeletedInLocal);
     const deleteInRemoteNotIncludedOnFolderDeletion = deleteInRemote.filter(
-      (fileName: string) => !fileIsInDeletedFolder(fileName)
+      (fileName: string) => !itemIsInDeletedFolder(fileName)
     );
 
     Logger.debug(
@@ -110,12 +110,16 @@ class Sync extends Process {
       this.remote
     );
 
+    const deletedRootFoldersInLocal = foldersDeletedInLocal.filter(
+      (folderName: string) => !itemIsInDeletedFolder(folderName)
+    );
+
     Logger.log('Folders deleted in local', foldersDeletedInLocal);
     Logger.log('Folders deleted in remote', foldersDeletedInRemote);
 
     await Promise.all([
       this.consumeDeleteFolderQueue(foldersDeletedInRemote, this.local),
-      this.consumeDeleteFolderQueue(foldersDeletedInLocal, this.remote),
+      this.consumeDeleteFolderQueue(deletedRootFoldersInLocal, this.remote),
     ]);
 
     return this.finalize();

@@ -1,4 +1,4 @@
-const fileIsOnFolder = (fileName: string): boolean => fileName.includes('/');
+const itemIsOnFolder = (pathLike: string): boolean => pathLike.includes('/');
 
 const extractFilePath = (fileName: string): string =>
   fileName.substring(0, fileName.lastIndexOf('/'));
@@ -6,7 +6,7 @@ const extractFilePath = (fileName: string): string =>
 const sanitazeRelativePath = (relativePath: string) =>
   relativePath.replaceAll('\\', '/');
 
-export function fileIsInFolder(
+export function itemIsInFolder(
   foldersName: Array<string>
 ): (fileName: string) => boolean {
   const sanitazedFolderPaths = foldersName.map((foldersPath: string) =>
@@ -15,7 +15,7 @@ export function fileIsInFolder(
 
   return (fileName: string) => {
     const sanitazedFilePath = sanitazeRelativePath(fileName);
-    if (!fileIsOnFolder(sanitazedFilePath)) return false;
+    if (!itemIsOnFolder(sanitazedFilePath)) return false;
 
     const filePath = extractFilePath(sanitazedFilePath);
 
