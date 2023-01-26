@@ -1,7 +1,7 @@
 import PhotosSubmodule from '@internxt/sdk/dist/photos/photos';
 import Logger from 'electron-log';
 import fetch, { HeadersInit } from 'electron-fetch';
-import { getHeaders, getNewToken } from '../auth/service';
+import { getHeaders, obtainToken } from '../auth/service';
 import { Usage } from './usage';
 
 const driveUrl = process.env.API_URL;
@@ -13,7 +13,7 @@ async function getPhotosUsage(): Promise<number> {
   }
 
   try {
-    const accessToken = getNewToken();
+    const accessToken = obtainToken('newToken');
 
     const photosSubmodule = new PhotosSubmodule({
       baseUrl: photosUrl,

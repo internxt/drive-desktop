@@ -17,6 +17,7 @@ import { clearSyncIssues, getSyncIssues } from './process-issues';
 import { ProcessResult } from '../../workers/process';
 import { clearPendingChanges, getThereArePendingChanges } from '../realtime';
 import eventBus from '../event-bus';
+import { LockError, LockErrorReason } from './lock-erros';
 
 const LOCK_ID = uuid.v4();
 
@@ -92,7 +93,10 @@ export async function startSyncProcess() {
 }
 
 export type SyncStoppedPayload =
-  | { reason: 'STOPPED_BY_USER' | 'COULD_NOT_ACQUIRE_LOCK' }
+  | {
+      reason: 'STOPPED_BY_USER';
+    }
+  | { reason: 'COULD_NOT_ACQUIRE_LOCK'; cause: LockErrorReason }
   | {
       reason: 'FATAL_ERROR';
       errorName: ProcessFatalErrorName;
@@ -128,7 +132,11 @@ function processSyncItem(item: SyncArgs, hasBeenStopped: { value: boolean }) {
 
     function onAcquireLockError(err: any) {
       Logger.log('Could not acquire lock', err);
-      if (!exited) onExit({ reason: 'COULD_NOT_ACQUIRE_LOCK' });
+
+      const cause =
+        err instanceof LockError ? err.reason : 'UNKNONW_LOCK_SERVICE_ERROR';
+
+      if (!exited) onExit({ reason: 'COULD_NOT_ACQUIRE_LOCK', cause });
     }
 
     try {
@@ -142,7 +150,7 @@ function processSyncItem(item: SyncArgs, hasBeenStopped: { value: boolean }) {
       onExitFuncs.push(() => clearInterval(lockRefreshInterval));
 
       onExitFuncs.push(() => locksService.releaseLock(item.folderId, LOCK_ID));
-    } catch (err) {
+    } catch (err: unknown) {
       return onAcquireLockError(err);
     }
 

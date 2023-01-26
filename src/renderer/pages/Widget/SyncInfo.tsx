@@ -185,7 +185,7 @@ function Item({
   else if (action === 'DELETED' && kind === 'LOCAL')
     description = 'Deleted from your computer';
   else if (action === 'DELETED' && kind === 'REMOTE')
-    description = 'Deleted from Internxt Drive';
+    description = 'Moved to trash on Internxt Drive';
   else if (errorName) description = shortMessages[errorName];
 
   const displayName = getBaseName(name);

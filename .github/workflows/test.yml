@@ -22,7 +22,7 @@ jobs:
           echo //npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN }} >> .npmrc
           echo "always-auth=true" >> .npmrc
       - name: Install dependenciies
-        run: yarn
+        run: yarn --ignore-scripts
       - name: Build main process
         run: yarn build
       - name: Run test

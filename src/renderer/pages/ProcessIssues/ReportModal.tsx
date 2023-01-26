@@ -5,6 +5,20 @@ import { longMessages, shortMessages } from '../../messages/process-error';
 import Spinner from '../../assets/spinner.svg';
 import { ProcessIssue } from '../../../workers/types';
 
+const posibleErrorStates = ['ERROR', 'TOO_MANY_REPORTS'] as const;
+type ErrorReportRequestState = typeof posibleErrorStates[number];
+type ReportRequestState = 'READY' | 'SENDING' | ErrorReportRequestState;
+
+const stateIsError = (maybe: unknown): maybe is ErrorReportRequestState =>
+  typeof maybe === 'string' &&
+  posibleErrorStates.includes(maybe as ErrorReportRequestState);
+
+const errorMessages: Record<ErrorReportRequestState, string> = {
+  ERROR:
+    'We could not send your request, make sure you are connected to the internet',
+  TOO_MANY_REPORTS: 'Reached reporting errors day limit',
+};
+
 export function ReportModal({
   data,
   onClose,
@@ -23,9 +37,8 @@ export function ReportModal({
   }, []);
 
   const [phase, setPhase] = useState<'INITIAL' | 'REPORTING'>('INITIAL');
-  const [requestState, setRequestState] = useState<
-    'READY' | 'SENDING' | 'ERROR'
-  >('READY');
+
+  const [requestState, setRequestState] = useState<ReportRequestState>('READY');
 
   const [includeLogs, setIncludeLogs] = useState(true);
   const [userComment, setUserComment] = useState('');
@@ -50,16 +63,23 @@ export function ReportModal({
 
   async function handleSubmit() {
     setRequestState('SENDING');
-    try {
-      await window.electron.sendReport({
-        errorDetails: data!.errorDetails,
-        userComment,
-        includeLogs,
-      });
+    const result = await window.electron.sendReport({
+      errorDetails: data!.errorDetails,
+      userComment,
+      includeLogs,
+    });
+
+    if (result.state === 'OK') {
       onClose();
-    } catch {
-      setRequestState('ERROR');
+      return;
     }
+
+    if (result.state === 'TOO_MANY_REPORTS') {
+      setRequestState('TOO_MANY_REPORTS');
+      return;
+    }
+
+    setRequestState('ERROR');
   }
 
   return (
@@ -102,7 +122,7 @@ export function ReportModal({
               variants={{
                 INITIAL: { height },
                 REPORTING: {
-                  height: requestState === 'ERROR' ? '305px' : '273px',
+                  height: stateIsError(requestState) ? '305px' : '273px',
                 },
               }}
               animate={phase}
@@ -139,10 +159,9 @@ export function ReportModal({
                         Include the logs of this sync process for debug purposes
                       </p>
                     </div>
-                    {requestState === 'ERROR' && (
+                    {stateIsError(requestState) && (
                       <p className="mt-4 text-xs text-red-60">
-                        We could not send your request, make sure you are
-                        connected to the internet
+                        {errorMessages[requestState]}
                       </p>
                     )}
                   </>

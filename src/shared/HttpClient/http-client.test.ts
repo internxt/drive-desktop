@@ -1,4 +1,4 @@
-import { AxiosInstance, HttpStatusCode } from 'axios';
+import { AxiosInstance } from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 import { AuthorizedHttpClient } from './HttpClient';
 
@@ -28,7 +28,7 @@ describe('Authorized Http Client', () => {
     };
     headerProvider.mockImplementationOnce(() => headers);
 
-    mock.onGet(URL, undefined, { ...headers }).reply(HttpStatusCode.ImATeapot);
+    mock.onGet(URL, undefined, { ...headers }).reply(100);
 
     await client.get(URL);
 
@@ -36,7 +36,7 @@ describe('Authorized Http Client', () => {
   });
 
   it('executes the unnauthorized callback when an unnauthorized response is returned', async () => {
-    mock.onGet(URL).reply(HttpStatusCode.Unauthorized);
+    mock.onGet(URL).reply(401);
 
     await client.get(URL);
     expect(unauthorizedNotifier).toHaveBeenCalled();
