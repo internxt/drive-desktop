@@ -1,15 +1,59 @@
 import Logger from 'electron-log';
 import { itemIsInFolder } from '../utils/file-is-on-folder';
-import { EnqueuedSyncActions, FileSystem, Listing } from '../types';
+import {
+  EnqueuedSyncActions,
+  FileSystem,
+  Listing,
+  ProcessError,
+  ProcessFatalError,
+} from '../types';
+import { FileSystem as SyncFileSystem } from '../filesystems/domain/FileSystem';
 import Process, { ProcessEvents, ProcessResult } from '../process';
+import { FileDeltas } from './domain/Delta';
+import { generateDeltas } from './application/GenerateDeltas';
+import { ListingStore } from './Listings/domain/ListingStore';
+import { LocalListing, RemoteListing } from './Listings/domain/Listing';
+import { createErrorDetails } from '../utils/reporting';
 
 class Sync extends Process {
   constructor(
-    protected readonly local: FileSystem,
-    protected readonly remote: FileSystem,
+    protected readonly local: SyncFileSystem<LocalListing>,
+    protected readonly remote: SyncFileSystem<RemoteListing>,
     private readonly listingStore: ListingStore
   ) {
     super(local, remote);
+  }
+
+  async getCurrentListings(options: { emitErrors: boolean }): Promise<{
+    currentLocal: LocalListing;
+    currentRemote: RemoteListing;
+  }> {
+    try {
+      const [localResult, remoteResult] = await Promise.all([
+        this.local.getCurrentListing(),
+        this.remote.getCurrentListing(),
+      ]);
+
+      if (options.emitErrors) {
+        this.emitReadingMetaErrors(localResult.readingMetaErrors, 'LOCAL');
+        this.emitReadingMetaErrors(remoteResult.readingMetaErrors, 'REMOTE');
+      }
+
+      return {
+        currentLocal: localResult.listing,
+        currentRemote: remoteResult.listing,
+      };
+    } catch (err) {
+      const syncError =
+        err instanceof ProcessError
+          ? new ProcessFatalError('CANNOT_GET_CURRENT_LISTINGS', err.details)
+          : new ProcessFatalError(
+              'CANNOT_GET_CURRENT_LISTINGS',
+              createErrorDetails(err, 'Getting current listings')
+            );
+
+      throw syncError;
+    }
   }
 
   async run(): Promise<ProcessResult> {
@@ -34,8 +78,8 @@ class Sync extends Process {
     Logger.debug('Current local before', currentLocal);
     Logger.debug('Current remote before', currentRemote);
 
-    const deltasLocal = this.generateDeltas(lastSavedListing, currentLocal);
-    const deltasRemote = this.generateDeltas(lastSavedListing, currentRemote);
+    const deltasLocal = generateDeltas(lastSavedListing, currentLocal);
+    const deltasRemote = generateDeltas(lastSavedListing, currentRemote);
 
     Logger.debug('Local deltas', deltasLocal);
     Logger.debug('Remote deltas', deltasRemote);
@@ -166,8 +210,8 @@ class Sync extends Process {
   }
 
   private generateActionQueues(
-    deltasLocal: Deltas,
-    deltasRemote: Deltas,
+    deltasLocal: FileDeltas,
+    deltasRemote: FileDeltas,
     currentLocalListing: Listing,
     currentRemoteListing: Listing
   ): {
@@ -277,32 +321,6 @@ class Sync extends Process {
     };
   }
 
-  private generateDeltas(saved: Listing, current: Listing): Deltas {
-    const deltas: Deltas = {};
-
-    for (const [name, { modtime: currentModTime }] of Object.entries(current)) {
-      const savedEntry = saved[name];
-
-      if (!savedEntry) {
-        deltas[name] = 'NEW';
-      } else if (savedEntry.modtime === currentModTime) {
-        deltas[name] = 'UNCHANGED';
-      } else if (savedEntry.modtime < currentModTime) {
-        deltas[name] = 'NEWER';
-      } else {
-        deltas[name] = 'OLDER';
-      }
-    }
-
-    for (const name of Object.keys(saved)) {
-      if (!(name in current)) {
-        deltas[name] = 'DELETED';
-      }
-    }
-
-    return deltas;
-  }
-
   private async listDeletedFolders(
     saved: Listing,
     current: Listing,
@@ -356,28 +374,6 @@ class Sync extends Process {
     }
   }
 }
-
-export type ListingStore = {
-  /**
-   * Returns the listing of the files
-   * saved the last time
-   * a sync was completed or null otherwise
-   */
-  getLastSavedListing(): Promise<Listing | null>;
-  /**
-   * Removes the last saved listing of files
-   */
-  removeSavedListing(): Promise<void>;
-  /**
-   * Saves a listing to be queried in
-   * consecutive runs
-   */
-  saveListing(listing: Listing): Promise<void>;
-};
-
-export type Deltas = Record<string, Delta>;
-
-type Delta = 'NEW' | 'NEWER' | 'DELETED' | 'OLDER' | 'UNCHANGED';
 
 interface SyncEvents extends ProcessEvents {
   /**

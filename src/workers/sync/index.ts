@@ -1,8 +1,7 @@
 import { ipcRenderer as electronIpcRenderer } from 'electron';
 import Logger from 'electron-log';
-import getListingStore from './listing-store';
-import { getLocalFilesystem } from '../filesystems/local-filesystem';
 import { getRemoteFilesystem } from '../filesystems/remote-filesystem';
+import { getLocalFilesystem } from '../filesystems/local-filesystem';
 import {
   EnqueuedSyncActions,
   ProcessFatalError,
@@ -14,6 +13,7 @@ import { ProcessResult } from '../process';
 import { getUser } from '../../main/auth/service';
 import configStore from '../../main/config';
 import { getClients } from '../../shared/HttpClient/backgroud-process-clients';
+import { ConfigFileListingStore } from './Listings/infrastructure/ConfigFileListingStore';
 
 export type SyncArgs = {
   localPath: string;
@@ -62,7 +62,7 @@ async function setUp() {
   });
   const local = getLocalFilesystem(localPath, tmpPath);
 
-  const listingStore = getListingStore();
+  const listingStore = new ConfigFileListingStore(configStore);
 
   const sync = new Sync(local, remote, listingStore);
 
