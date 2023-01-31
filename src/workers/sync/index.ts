@@ -1,7 +1,7 @@
 import { ipcRenderer as electronIpcRenderer } from 'electron';
 import Logger from 'electron-log';
-import { getRemoteFilesystem } from '../filesystems/remote-filesystem';
-import { getLocalFilesystem } from '../filesystems/local-filesystem';
+import { getRemoteFilesystem } from '../filesystems/infrastructure/SyncRemoteFileSystem';
+import { getLocalFilesystem } from '../filesystems/infrastructure/SyncLocalFileSystem';
 import {
   EnqueuedSyncActions,
   ProcessFatalError,

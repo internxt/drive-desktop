@@ -117,7 +117,7 @@ export function getLocalFilesystem(
         try {
           const metadata = await getLocalMeta(itemName);
 
-          if (metadata.isEmpty()) listing[relativeName] = metadata;
+          if (!metadata.isEmpty()) listing[relativeName] = metadata;
           else {
             const emptyFileError = {
               message: 'Internxt does not support empty files',

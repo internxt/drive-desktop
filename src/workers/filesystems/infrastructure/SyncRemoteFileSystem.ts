@@ -165,7 +165,7 @@ export function getRemoteFilesystem({
               file.modificationTime
             );
             listing[name] = RemoteItemMetaData.from({
-              modtime: parseInt(file.modificationTime, 10),
+              modtime: modificationTime,
               size: file.size,
               isFolder: false,
               id: file.fileId,

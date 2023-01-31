@@ -8,12 +8,30 @@ import {
   ProcessFatalError,
 } from '../types';
 import { FileSystem as SyncFileSystem } from '../filesystems/domain/FileSystem';
-import Process, { ProcessEvents, ProcessResult } from '../process';
-import { FileDeltas } from './domain/Delta';
-import { generateDeltas } from './application/GenerateDeltas';
+import Process, {
+  ProcessEvents,
+  ProcessResult,
+  SuccessfulProcessResult,
+} from '../process';
+import { generateDeltas } from './ItemState/application/GenerateDeltas';
 import { ListingStore } from './Listings/domain/ListingStore';
-import { LocalListing, RemoteListing } from './Listings/domain/Listing';
+import {
+  Listing as NewListing,
+  LocalListing,
+  RemoteListing,
+} from './Listings/domain/Listing';
 import { createErrorDetails } from '../utils/reporting';
+import { Nullable } from '../../shared/types/Nullable';
+import { ActionBuilder } from './Actions/domain/ActionBuilder';
+import { Action } from './Actions/domain/Action';
+import { PullActionBuilderCreator } from './Actions/application/ActionBuilders/PullActioBuilderCreator';
+import { FileDeltas } from './ItemState/domain/FileDelta';
+import { KeepMostRecentActionBuilderCreator } from './Actions/application/ActionBuilders/KeepMostRecentActionBuilderCreator';
+import { DeleteActionBuilderCreator } from './Actions/application/ActionBuilders/DeleteActionBuilderCreator';
+import { listingsAreInSync } from './Listings/application/ListingsAreInSync';
+import { joinPartialListings } from './Listings/application/JoinPartialListings';
+import { createSynchronizedItemMetaDataFromPartials } from './Listings/application/JoinPartialMetaData';
+import { convertActionsToQeues } from './Actions/application/ConvertActionsToQeues';
 
 class Sync extends Process {
   constructor(
@@ -84,14 +102,7 @@ class Sync extends Process {
     Logger.debug('Local deltas', deltasLocal);
     Logger.debug('Remote deltas', deltasRemote);
 
-    const {
-      renameInLocal,
-      renameInRemote,
-      pullFromLocal,
-      pullFromRemote,
-      deleteInLocal,
-      deleteInRemote,
-    } = this.generateActionQueues(
+    const actions = this.generateActionQueues(
       deltasLocal,
       deltasRemote,
       currentLocal,
@@ -99,6 +110,15 @@ class Sync extends Process {
     );
 
     await this.listingStore.removeSavedListing();
+
+    const {
+      renameInLocal,
+      renameInRemote,
+      pullFromLocal,
+      pullFromRemote,
+      deleteInLocal,
+      deleteInRemote,
+    } = convertActionsToQeues(actions);
 
     this.emit('ACTION_QUEUE_GENERATED', {
       renameInLocal,
@@ -212,113 +232,75 @@ class Sync extends Process {
   private generateActionQueues(
     deltasLocal: FileDeltas,
     deltasRemote: FileDeltas,
-    currentLocalListing: Listing,
-    currentRemoteListing: Listing
-  ): {
-    renameInLocal: [string, string][];
-    renameInRemote: [string, string][];
-    pullFromLocal: string[];
-    pullFromRemote: string[];
-    deleteInLocal: string[];
-    deleteInRemote: string[];
-  } {
-    const pullFromLocal: string[] = [];
-    const pullFromRemote: string[] = [];
-    const renameInLocal: [string, string][] = [];
-    const renameInRemote: [string, string][] = [];
-    const deleteInLocal: string[] = [];
-    const deleteInRemote: string[] = [];
+    currentLocalListing: LocalListing,
+    currentRemoteListing: RemoteListing
+  ): Array<Action> {
+    const actions: Array<Action> = [];
 
-    const keepMostRecent = (name: string) => {
-      const { modtime: modtimeInLocal } = currentLocalListing[name];
-      const { modtime: modtimeInRemote } = currentRemoteListing[name];
-
-      if (modtimeInLocal < modtimeInRemote) pullFromLocal.push(name);
-      else pullFromRemote.push(name);
+    const pushIfDefined = (
+      actionBuilder: Nullable<ActionBuilder>,
+      pathLike: string
+    ) => {
+      if (actionBuilder) actions.push(actionBuilder(pathLike));
     };
 
     for (const [name, deltaLocal] of Object.entries(deltasLocal)) {
       const deltaRemote = deltasRemote[name];
-      const doesntExistInRemote = deltaRemote === undefined;
-      const sameModTime =
-        currentLocalListing[name]?.modtime ===
-        currentRemoteListing[name]?.modtime;
+      const localListing = currentLocalListing[name];
+      const remoteListing = currentRemoteListing[name];
 
-      if (deltaLocal === 'NEW' && deltaRemote === 'NEW' && !sameModTime) {
-        keepMostRecent(name);
-      }
+      pushIfDefined(
+        new PullActionBuilderCreator(
+          { state: deltaLocal, listing: localListing },
+          { state: deltaRemote, listing: remoteListing },
+          'LOCAL'
+        ).create(),
+        name
+      );
 
-      if (deltaLocal === 'NEW' && doesntExistInRemote) {
-        pullFromRemote.push(name);
-      }
+      pushIfDefined(
+        new DeleteActionBuilderCreator(
+          { state: deltaLocal, listing: localListing },
+          { state: deltaRemote, listing: remoteListing },
+          'LOCAL'
+        ).create(),
+        name
+      );
 
-      if (deltaLocal === 'NEWER' && deltaRemote === 'NEWER' && !sameModTime) {
-        keepMostRecent(name);
-      }
-
-      if (
-        deltaLocal === 'NEWER' &&
-        (deltaRemote === 'DELETED' || deltaRemote === 'UNCHANGED')
-      ) {
-        pullFromRemote.push(name);
-      }
-
-      if (deltaLocal === 'NEWER' && deltaRemote === 'OLDER') {
-        pullFromRemote.push(name);
-      }
-
-      if (
-        deltaLocal === 'DELETED' &&
-        (deltaRemote === 'NEWER' || deltaRemote === 'OLDER')
-      ) {
-        pullFromLocal.push(name);
-      }
-
-      if (deltaLocal === 'DELETED' && deltaRemote === 'UNCHANGED') {
-        deleteInRemote.push(name);
-      }
-
-      if (deltaLocal === 'OLDER' && deltaRemote === 'NEWER') {
-        pullFromLocal.push(name);
-      }
-
-      if (
-        deltaLocal === 'OLDER' &&
-        (deltaRemote === 'DELETED' || deltaRemote === 'UNCHANGED')
-      ) {
-        pullFromRemote.push(name);
-      }
-
-      if (deltaLocal === 'OLDER' && deltaRemote === 'OLDER' && !sameModTime) {
-        keepMostRecent(name);
-      }
-
-      if (
-        deltaLocal === 'UNCHANGED' &&
-        (deltaRemote === 'NEWER' || deltaRemote === 'OLDER')
-      ) {
-        pullFromLocal.push(name);
-      }
-
-      if (deltaLocal === 'UNCHANGED' && deltaRemote === 'DELETED') {
-        deleteInLocal.push(name);
-      }
+      pushIfDefined(
+        new KeepMostRecentActionBuilderCreator(
+          { state: deltaLocal, listing: localListing },
+          { state: deltaRemote, listing: remoteListing }
+        ).create(),
+        name
+      );
     }
 
     for (const [name, deltaRemote] of Object.entries(deltasRemote)) {
-      if (deltaRemote === 'NEW' && !(name in deltasLocal)) {
-        pullFromLocal.push(name);
-      }
+      const deltaLocal = deltasLocal[name];
+      const localListing = currentLocalListing[name];
+      const remoteListing = currentRemoteListing[name];
+
+      pushIfDefined(
+        new PullActionBuilderCreator(
+          { state: deltaRemote, listing: remoteListing },
+          { state: deltaLocal, listing: localListing },
+          'REMOTE'
+        ).create(),
+        name
+      );
+
+      pushIfDefined(
+        new DeleteActionBuilderCreator(
+          { state: deltaRemote, listing: remoteListing },
+          { state: deltaLocal, listing: localListing },
+          'REMOTE'
+        ).create(),
+        name
+      );
     }
 
-    return {
-      pullFromLocal,
-      pullFromRemote,
-      renameInLocal,
-      renameInRemote,
-      deleteInLocal,
-      deleteInRemote,
-    };
+    return actions;
   }
 
   private async listDeletedFolders(
@@ -357,6 +339,84 @@ class Sync extends Process {
     }
 
     return toReturn;
+  }
+
+  async generateResult(): Promise<
+    | (SuccessfulProcessResult & { listing: NewListing })
+    | {
+        status: 'NOT_IN_SYNC';
+        diff: {
+          filesNotInLocal: string[];
+          filesNotInRemote: string[];
+          filesWithDifferentModtime: string[];
+          filesInSync: NewListing;
+        };
+      }
+  > {
+    const { currentLocal, currentRemote } = await this.getCurrentListings({
+      emitErrors: false,
+    });
+
+    if (listingsAreInSync(currentLocal, currentRemote)) {
+      const currentInBoth = currentLocal;
+      Logger.debug('Current in both:', currentInBoth);
+
+      const listing = joinPartialListings(currentLocal, currentRemote);
+
+      return { status: 'IN_SYNC', listing };
+    } else {
+      Logger.debug('Current local:', currentLocal);
+      Logger.debug('Current remote:', currentRemote);
+
+      const diff = this.getListingsDiff(currentLocal, currentRemote);
+
+      return { status: 'NOT_IN_SYNC', diff };
+    }
+  }
+
+  getListingsDiff(
+    local: LocalListing,
+    remote: RemoteListing
+  ): {
+    filesNotInLocal: string[];
+    filesNotInRemote: string[];
+    filesWithDifferentModtime: string[];
+    filesInSync: NewListing;
+  } {
+    const filesNotInLocal = [];
+    const filesNotInRemote = [];
+    const filesWithDifferentModtime = [];
+    const filesInSync: NewListing = {};
+
+    for (const [localName, { modtime: localModtime }] of Object.entries(
+      local
+    )) {
+      const entryInRemote = remote[localName];
+
+      if (!entryInRemote) {
+        filesNotInRemote.push(localName);
+      } else if (localModtime !== entryInRemote.modtime) {
+        filesWithDifferentModtime.push(localName);
+      } else {
+        filesInSync[localName] = createSynchronizedItemMetaDataFromPartials(
+          local[localName],
+          remote[localName]
+        );
+      }
+    }
+
+    for (const remoteName of Object.keys(remote)) {
+      if (!(remoteName in local)) {
+        filesNotInLocal.push(remoteName);
+      }
+    }
+
+    return {
+      filesNotInLocal,
+      filesNotInRemote,
+      filesWithDifferentModtime,
+      filesInSync,
+    };
   }
 
   private async finalize(): Promise<ProcessResult> {

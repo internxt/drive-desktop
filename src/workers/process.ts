@@ -391,11 +391,11 @@ export type ListingsDiff = {
 
 export type ProcessResult = SuccessfulProcessResult | UnsuccessfulProcessResult;
 
-type SuccessfulProcessResult = {
+export type SuccessfulProcessResult = {
   status: 'IN_SYNC';
 };
 
-type UnsuccessfulProcessResult = {
+export type UnsuccessfulProcessResult = {
   status: 'NOT_IN_SYNC';
   diff: ListingsDiff;
 };

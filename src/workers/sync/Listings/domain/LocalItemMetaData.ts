@@ -1,6 +1,6 @@
 import { ItemMetaData, ItemMetaDataAttributes } from './ItemMeataData';
 
-type LocalItemMetaDataAttributes = ItemMetaDataAttributes & {
+export type LocalItemMetaDataAttributes = ItemMetaDataAttributes & {
   ino: number;
   dev: number;
 };
@@ -28,5 +28,15 @@ export class LocalItemMetaData extends ItemMetaData<LocalItemMetaData> {
       attributes.ino,
       attributes.dev
     );
+  }
+
+  toJSON(): LocalItemMetaDataAttributes {
+    return {
+      modtime: this.modtime,
+      size: this.size,
+      isFolder: this.isFolder,
+      ino: this.ino,
+      dev: this.dev,
+    };
   }
 }

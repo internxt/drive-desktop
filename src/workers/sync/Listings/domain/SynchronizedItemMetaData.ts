@@ -1,4 +1,10 @@
-import { ItemMetaData } from './ItemMeataData';
+import { ItemMetaData, ItemMetaDataAttributes } from './ItemMeataData';
+import { LocalItemMetaDataAttributes } from './LocalItemMetaData';
+import { RemoteItemMetaDataAttributes } from './RemoteItemMetaData';
+
+export type SynchronizeMetaDataAttributes = ItemMetaDataAttributes &
+  RemoteItemMetaDataAttributes &
+  LocalItemMetaDataAttributes;
 
 export class SynchronizedItemMetaData extends ItemMetaData<SynchronizedItemMetaData> {
   constructor(
@@ -15,6 +21,19 @@ export class SynchronizedItemMetaData extends ItemMetaData<SynchronizedItemMetaD
   same(other: SynchronizedItemMetaData) {
     return (
       this.id === other.id && this.ino === other.ino && this.dev === other.dev
+    );
+  }
+
+  static from(
+    attributes: SynchronizeMetaDataAttributes
+  ): SynchronizedItemMetaData {
+    return new SynchronizedItemMetaData(
+      attributes.modtime,
+      attributes.size,
+      attributes.isFolder,
+      attributes.id,
+      attributes.ino,
+      attributes.dev
     );
   }
 }

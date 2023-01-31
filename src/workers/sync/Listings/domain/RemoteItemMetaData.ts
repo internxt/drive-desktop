@@ -1,6 +1,6 @@
 import { ItemMetaData, ItemMetaDataAttributes } from './ItemMeataData';
 
-type RemoteItemMetaDataAttributes = ItemMetaDataAttributes & {
+export type RemoteItemMetaDataAttributes = ItemMetaDataAttributes & {
   id: string;
 };
 
@@ -25,5 +25,14 @@ export class RemoteItemMetaData extends ItemMetaData<RemoteItemMetaData> {
       attributes.isFolder,
       attributes.id
     );
+  }
+
+  toJSON(): RemoteItemMetaDataAttributes {
+    return {
+      modtime: this.modtime,
+      size: this.size,
+      isFolder: this.isFolder,
+      id: this.id,
+    };
   }
 }
