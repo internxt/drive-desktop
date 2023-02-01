@@ -2,7 +2,6 @@ import { LocalListing, RemoteListing } from '../../Listings/domain/Listing';
 import { FileDeltas } from '../../ItemState/domain/FileDelta';
 import { Action } from '../domain/Action';
 import { Nullable } from '../../../../shared/types/Nullable';
-import { ActionBuilder } from '../domain/ActionBuilder';
 import { PullActionBuilderCreator } from './ActionBuilders/PullActioBuilderCreator';
 import { KeepMostRecentActionBuilderCreator } from './ActionBuilders/KeepMostRecentActionBuilderCreator';
 import { DeleteActionBuilderCreator } from './ActionBuilders/DeleteActionBuilderCreator';
@@ -15,11 +14,8 @@ export function generateActions(
 ) {
   const actions: Array<Action> = [];
 
-  const pushIfDefined = (
-    actionBuilder: Nullable<ActionBuilder>,
-    pathLike: string
-  ) => {
-    if (actionBuilder) actions.push(actionBuilder(pathLike));
+  const pushIfDefined = (action: Nullable<Action>) => {
+    if (action) actions.push(action);
   };
 
   for (const [name, deltaLocal] of Object.entries(deltasLocal)) {
@@ -32,8 +28,7 @@ export function generateActions(
         { state: deltaLocal, listing: localListing },
         { state: deltaRemote, listing: remoteListing },
         'REMOTE'
-      ).create(),
-      name
+      ).create(name)
     );
 
     pushIfDefined(
@@ -41,16 +36,14 @@ export function generateActions(
         { state: deltaLocal, listing: localListing },
         { state: deltaRemote, listing: remoteListing },
         'REMOTE'
-      ).create(),
-      name
+      ).create(name)
     );
 
     pushIfDefined(
       new KeepMostRecentActionBuilderCreator(
         { state: deltaLocal, listing: localListing },
         { state: deltaRemote, listing: remoteListing }
-      ).create(),
-      name
+      ).create(name)
     );
   }
 
@@ -64,8 +57,7 @@ export function generateActions(
         { state: deltaRemote, listing: remoteListing },
         { state: deltaLocal, listing: localListing },
         'LOCAL'
-      ).create(),
-      name
+      ).create(name)
     );
 
     pushIfDefined(
@@ -73,8 +65,7 @@ export function generateActions(
         { state: deltaRemote, listing: remoteListing },
         { state: deltaLocal, listing: localListing },
         'LOCAL'
-      ).create(),
-      name
+      ).create(name)
     );
   }
 

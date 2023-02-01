@@ -2,9 +2,9 @@ import { LocalItemMetaData } from '../../../../Listings/domain/LocalItemMetaData
 import { RemoteItemMetaData } from '../../../../Listings/domain/RemoteItemMetaData';
 import { DeleteActionBuilderCreator } from '../../../../Actions/application/ActionBuilders/DeleteActionBuilderCreator';
 import { ItemState } from '../../../../ItemState/domain/ItemState';
-import { ActionBuilder } from '../../../../Actions/domain/ActionBuilder';
 import { deltas } from '../../../../ItemState/domain/Delta';
 import { localFileMetaData, remoteFileMetaData } from './Fixtures';
+import { Action } from '../../../../Actions/domain/Action';
 
 describe('DeleteActionBuilderCreator', () => {
   describe('create remote remove actions on remote', () => {
@@ -28,11 +28,12 @@ describe('DeleteActionBuilderCreator', () => {
         'REMOTE'
       );
 
-      const builder = sut.create();
+      const result = sut.create('path');
 
-      expect(builder).toBeDefined();
+      expect(result).toBeDefined();
 
-      const action = (builder as ActionBuilder)('pathlik');
+      const action = result as Action;
+
       expect(action.fileSystem).toBe('REMOTE');
       expect(action.task).toBe('DELETE');
     });
@@ -67,9 +68,9 @@ describe('DeleteActionBuilderCreator', () => {
             'REMOTE'
           );
 
-          const builder = sut.create();
+          const result = sut.create('path');
 
-          expect(builder).not.toBeDefined();
+          expect(result).not.toBeDefined();
         }
       );
     });

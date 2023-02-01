@@ -1,32 +1,10 @@
-import {
-  LocalItemMetaData,
-  LocalItemMetaDataAttributes,
-} from '../../../../Listings/domain/LocalItemMetaData';
-import {
-  RemoteItemMetaData,
-  RemoteItemMetaDataAttributes,
-} from '../../../../Listings/domain/RemoteItemMetaData';
+import { LocalItemMetaData } from '../../../../Listings/domain/LocalItemMetaData';
+import { RemoteItemMetaData } from '../../../../Listings/domain/RemoteItemMetaData';
 import { PullActionBuilderCreator } from '../../../../Actions/application/ActionBuilders/PullActioBuilderCreator';
 import { Data } from '../../../../Actions/domain/ActionBuilderCreator';
 import { ItemState } from '../../../../ItemState/domain/ItemState';
-import { ActionBuilder } from '../../../../Actions/domain/ActionBuilder';
-
-const fileMetaData = {
-  modtime: 0,
-  size: 1,
-  isFolder: false,
-};
-
-const localFileMetaData: LocalItemMetaDataAttributes = {
-  ...fileMetaData,
-  ino: 1,
-  dev: 1,
-};
-
-const remoteFileMetaData: RemoteItemMetaDataAttributes = {
-  ...fileMetaData,
-  id: 'uuuid',
-};
+import { Action } from '../../../../Actions/domain/Action';
+import { localFileMetaData, remoteFileMetaData } from './Fixtures';
 
 describe('PullActionBuilderCreator', () => {
   describe('create remote pull actions', () => {
@@ -43,11 +21,12 @@ describe('PullActionBuilderCreator', () => {
 
       const sut = new PullActionBuilderCreator(localData, remoteData, 'REMOTE');
 
-      const builder = sut.create();
+      const result = sut.create('path');
 
-      expect(builder).toBeDefined();
+      expect(result).toBeDefined();
 
-      const action = (builder as ActionBuilder)('pathlik');
+      const action = result as Action;
+
       expect(action.fileSystem).toBe('REMOTE');
       expect(action.task).toBe('PULL');
     });
@@ -68,11 +47,12 @@ describe('PullActionBuilderCreator', () => {
 
       const sut = new PullActionBuilderCreator(localData, remoteData, 'REMOTE');
 
-      const builder = sut.create();
+      const result = sut.create('path');
 
-      expect(builder).toBeDefined();
+      expect(result).toBeDefined();
 
-      const action = (builder as ActionBuilder)('pathlik');
+      const action = result as Action;
+
       expect(action.fileSystem).toBe('REMOTE');
       expect(action.task).toBe('PULL');
     });
@@ -93,11 +73,12 @@ describe('PullActionBuilderCreator', () => {
 
       const sut = new PullActionBuilderCreator(localData, remoteData, 'REMOTE');
 
-      const builder = sut.create();
+      const result = sut.create('path');
 
-      expect(builder).toBeDefined();
+      expect(result).toBeDefined();
 
-      const action = (builder as ActionBuilder)('pathlik');
+      const action = result as Action;
+
       expect(action.fileSystem).toBe('REMOTE');
       expect(action.task).toBe('PULL');
     });
@@ -118,11 +99,12 @@ describe('PullActionBuilderCreator', () => {
 
       const sut = new PullActionBuilderCreator(localData, remoteData, 'REMOTE');
 
-      const builder = sut.create();
+      const result = sut.create('path');
 
-      expect(builder).toBeDefined();
+      expect(result).toBeDefined();
 
-      const action = (builder as ActionBuilder)('pathlik');
+      const action = result as Action;
+
       expect(action.fileSystem).toBe('REMOTE');
       expect(action.task).toBe('PULL');
     });
@@ -143,11 +125,12 @@ describe('PullActionBuilderCreator', () => {
 
       const sut = new PullActionBuilderCreator(localData, remoteData, 'REMOTE');
 
-      const builder = sut.create();
+      const result = sut.create('path');
 
-      expect(builder).toBeDefined();
+      expect(result).toBeDefined();
 
-      const action = (builder as ActionBuilder)('pathlik');
+      const action = result as Action;
+
       expect(action.fileSystem).toBe('REMOTE');
       expect(action.task).toBe('PULL');
     });
@@ -168,11 +151,12 @@ describe('PullActionBuilderCreator', () => {
 
       const sut = new PullActionBuilderCreator(localData, remoteData, 'REMOTE');
 
-      const builder = sut.create();
+      const result = sut.create('path');
 
-      expect(builder).toBeDefined();
+      expect(result).toBeDefined();
 
-      const action = (builder as ActionBuilder)('pathlik');
+      const action = result as Action;
+
       expect(action.fileSystem).toBe('REMOTE');
       expect(action.task).toBe('PULL');
     });
@@ -192,11 +176,12 @@ describe('PullActionBuilderCreator', () => {
 
       const sut = new PullActionBuilderCreator(remoteData, localData, 'LOCAL');
 
-      const builder = sut.create();
+      const result = sut.create('path');
 
-      expect(builder).toBeDefined();
+      expect(result).toBeDefined();
 
-      const action = (builder as ActionBuilder)('pathlik');
+      const action = result as Action;
+
       expect(action.fileSystem).toBe('LOCAL');
       expect(action.task).toBe('PULL');
     });
@@ -217,11 +202,12 @@ describe('PullActionBuilderCreator', () => {
 
       const sut = new PullActionBuilderCreator(remoteData, localData, 'LOCAL');
 
-      const builder = sut.create();
+      const result = sut.create('path');
 
-      expect(builder).toBeDefined();
+      expect(result).toBeDefined();
 
-      const action = (builder as ActionBuilder)('pathlik');
+      const action = result as Action;
+
       expect(action.fileSystem).toBe('LOCAL');
       expect(action.task).toBe('PULL');
     });

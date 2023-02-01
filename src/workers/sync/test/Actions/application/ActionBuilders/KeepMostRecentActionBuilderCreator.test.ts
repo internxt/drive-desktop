@@ -2,10 +2,10 @@ import { LocalItemMetaData } from '../../../../Listings/domain/LocalItemMetaData
 import { RemoteItemMetaData } from '../../../../Listings/domain/RemoteItemMetaData';
 import { KeepMostRecentActionBuilderCreator } from '../../../../Actions/application/ActionBuilders/KeepMostRecentActionBuilderCreator';
 import { ItemState } from '../../../../ItemState/domain/ItemState';
-import { ActionBuilder } from '../../../../Actions/domain/ActionBuilder';
 import { localFileMetaData, remoteFileMetaData } from './Fixtures';
 import { Delta } from '../../../../ItemState/domain/Delta';
 import { Data } from '../../../../Actions/domain/ActionBuilderCreator';
+import { Action } from '../../../../Actions/domain/Action';
 
 describe('KeepMostRecentActionBuilderCreator', () => {
   const posibleMatchingDeltas: Array<Delta> = ['NEW', 'NEWER', 'OLDER'];
@@ -35,11 +35,11 @@ describe('KeepMostRecentActionBuilderCreator', () => {
           remoteData
         );
 
-        const builder = SUT.create();
+        const result = SUT.create('path');
 
-        expect(builder).toBeDefined();
+        expect(result).toBeDefined();
 
-        const action = (builder as ActionBuilder)('path');
+        const action = result as Action;
 
         expect(action.fileSystem).toBe('REMOTE');
         expect(action.task).toBe('PULL');
@@ -72,11 +72,11 @@ describe('KeepMostRecentActionBuilderCreator', () => {
           remoteData
         );
 
-        const builder = SUT.create();
+        const result = SUT.create('path');
 
-        expect(builder).toBeDefined();
+        expect(result).toBeDefined();
 
-        const action = (builder as ActionBuilder)('path');
+        const action = result as Action;
 
         expect(action.fileSystem).toBe('LOCAL');
         expect(action.task).toBe('PULL');
@@ -101,9 +101,9 @@ describe('KeepMostRecentActionBuilderCreator', () => {
 
       const SUT = new KeepMostRecentActionBuilderCreator(localData, remoteData);
 
-      const builder = SUT.create();
+      const result = SUT.create('path');
 
-      expect(builder).not.toBeDefined();
+      expect(result).not.toBeDefined();
     });
   });
 });

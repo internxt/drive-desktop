@@ -1,10 +1,10 @@
 import { Nullable } from '../../../../../shared/types/Nullable';
 import { FileSystemKind } from '../../../../types';
-import { ActionBuilder } from '../../domain/ActionBuilder';
-import { ActionBuilderCreator, Data } from '../../domain/ActionBuilderCreator';
+import { ActionBuilder, Data } from '../../domain/ActionBuilderCreator';
 import { LocalItemMetaData } from '../../../Listings/domain/LocalItemMetaData';
 import { RemoteItemMetaData } from '../../../Listings/domain/RemoteItemMetaData';
 import { Delta } from '../../../ItemState/domain/Delta';
+import { Action } from '../../domain/Action';
 
 function mostRecentFileSystem(
   fileSystemData: Data<LocalItemMetaData | RemoteItemMetaData>,
@@ -15,7 +15,7 @@ function mostRecentFileSystem(
     : 'REMOTE';
 }
 
-export class KeepMostRecentActionBuilderCreator extends ActionBuilderCreator {
+export class KeepMostRecentActionBuilderCreator extends ActionBuilder {
   constructor(
     local: Data<LocalItemMetaData>,
     remote: Data<RemoteItemMetaData>
@@ -28,7 +28,7 @@ export class KeepMostRecentActionBuilderCreator extends ActionBuilderCreator {
     return this.actual.listing.modtime !== this.mirror.listing.modtime;
   }
 
-  create(): Nullable<ActionBuilder> {
+  create(path: string): Nullable<Action> {
     if (!this.canCompareWithMirror()) {
       return;
     }
@@ -41,7 +41,7 @@ export class KeepMostRecentActionBuilderCreator extends ActionBuilderCreator {
         this.mirror.state.is(delta) &&
         this.haveDeferentModTime()
       ) {
-        return this.createActionBuilder();
+        return this.build(path);
       }
     }
 
