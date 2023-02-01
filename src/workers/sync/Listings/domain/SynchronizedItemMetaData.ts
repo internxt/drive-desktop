@@ -2,12 +2,13 @@ import { ItemMetaData, ItemMetaDataAttributes } from './ItemMeataData';
 import { LocalItemMetaDataAttributes } from './LocalItemMetaData';
 import { RemoteItemMetaDataAttributes } from './RemoteItemMetaData';
 
-export type SynchronizeMetaDataAttributes = ItemMetaDataAttributes &
-  RemoteItemMetaDataAttributes &
-  LocalItemMetaDataAttributes;
+export interface SynchronizeMetaDataAttributes
+  extends ItemMetaDataAttributes,
+    RemoteItemMetaDataAttributes,
+    LocalItemMetaDataAttributes {}
 
-export class SynchronizedItemMetaData extends ItemMetaData<SynchronizedItemMetaData> {
-  constructor(
+export class SynchronizedItemMetaData extends ItemMetaData {
+  private constructor(
     public readonly modtime: number,
     public readonly size: number,
     public readonly isFolder: boolean,
@@ -22,6 +23,10 @@ export class SynchronizedItemMetaData extends ItemMetaData<SynchronizedItemMetaD
     return (
       this.id === other.id && this.ino === other.ino && this.dev === other.dev
     );
+  }
+
+  isLocal(local: LocalItemMetaDataAttributes) {
+    return this.ino === local.ino && this.dev === local.dev;
   }
 
   static from(

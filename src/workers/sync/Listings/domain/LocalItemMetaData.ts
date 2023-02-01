@@ -5,7 +5,7 @@ export type LocalItemMetaDataAttributes = ItemMetaDataAttributes & {
   dev: number;
 };
 
-export class LocalItemMetaData extends ItemMetaData<LocalItemMetaData> {
+export class LocalItemMetaData extends ItemMetaData {
   constructor(
     public readonly modtime: number,
     public readonly size: number,

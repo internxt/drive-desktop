@@ -4,7 +4,7 @@ export type RemoteItemMetaDataAttributes = ItemMetaDataAttributes & {
   id: string;
 };
 
-export class RemoteItemMetaData extends ItemMetaData<RemoteItemMetaData> {
+export class RemoteItemMetaData extends ItemMetaData {
   constructor(
     public readonly modtime: number,
     public readonly size: number,
