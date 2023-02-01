@@ -1,12 +1,12 @@
 import { LocalItemMetaData } from '../../../../Listings/domain/LocalItemMetaData';
 import { RemoteItemMetaData } from '../../../../Listings/domain/RemoteItemMetaData';
-import { PullActionBuilderCreator } from '../../../../Actions/application/ActionBuilders/PullActioBuilderCreator';
+import { PullActionBuilder } from '../../../../Actions/application/ActionBuilders/PullActioBuilder';
 import { Data } from '../../../../Actions/domain/ActionBuilderCreator';
 import { ItemState } from '../../../../ItemState/domain/ItemState';
 import { Action } from '../../../../Actions/domain/Action';
 import { localFileMetaData, remoteFileMetaData } from './Fixtures';
 
-describe('PullActionBuilderCreator', () => {
+describe('PullActionBuilder', () => {
   describe('create remote pull actions', () => {
     it('when a file has been created on local a pull task for remote is created', () => {
       const localData = {
@@ -19,7 +19,7 @@ describe('PullActionBuilderCreator', () => {
         listing: undefined,
       } as unknown as Data<RemoteItemMetaData>;
 
-      const sut = new PullActionBuilderCreator(localData, remoteData, 'REMOTE');
+      const sut = new PullActionBuilder(localData, remoteData, 'REMOTE');
 
       const result = sut.create('path');
 
@@ -45,7 +45,7 @@ describe('PullActionBuilderCreator', () => {
         listing: RemoteItemMetaData.from({ ...remoteFileMetaData }),
       };
 
-      const sut = new PullActionBuilderCreator(localData, remoteData, 'REMOTE');
+      const sut = new PullActionBuilder(localData, remoteData, 'REMOTE');
 
       const result = sut.create('path');
 
@@ -71,7 +71,7 @@ describe('PullActionBuilderCreator', () => {
         listing: RemoteItemMetaData.from({ ...remoteFileMetaData }),
       };
 
-      const sut = new PullActionBuilderCreator(localData, remoteData, 'REMOTE');
+      const sut = new PullActionBuilder(localData, remoteData, 'REMOTE');
 
       const result = sut.create('path');
 
@@ -97,7 +97,7 @@ describe('PullActionBuilderCreator', () => {
         listing: RemoteItemMetaData.from({ ...remoteFileMetaData }),
       };
 
-      const sut = new PullActionBuilderCreator(localData, remoteData, 'REMOTE');
+      const sut = new PullActionBuilder(localData, remoteData, 'REMOTE');
 
       const result = sut.create('path');
 
@@ -123,7 +123,7 @@ describe('PullActionBuilderCreator', () => {
         listing: RemoteItemMetaData.from({ ...remoteFileMetaData }),
       };
 
-      const sut = new PullActionBuilderCreator(localData, remoteData, 'REMOTE');
+      const sut = new PullActionBuilder(localData, remoteData, 'REMOTE');
 
       const result = sut.create('path');
 
@@ -149,7 +149,7 @@ describe('PullActionBuilderCreator', () => {
         listing: RemoteItemMetaData.from({ ...remoteFileMetaData }),
       };
 
-      const sut = new PullActionBuilderCreator(localData, remoteData, 'REMOTE');
+      const sut = new PullActionBuilder(localData, remoteData, 'REMOTE');
 
       const result = sut.create('path');
 
@@ -174,7 +174,7 @@ describe('PullActionBuilderCreator', () => {
         listing: undefined,
       } as unknown as Data<LocalItemMetaData>;
 
-      const sut = new PullActionBuilderCreator(remoteData, localData, 'LOCAL');
+      const sut = new PullActionBuilder(remoteData, localData, 'LOCAL');
 
       const result = sut.create('path');
 
@@ -200,7 +200,7 @@ describe('PullActionBuilderCreator', () => {
         listing: RemoteItemMetaData.from({ ...remoteFileMetaData }),
       };
 
-      const sut = new PullActionBuilderCreator(remoteData, localData, 'LOCAL');
+      const sut = new PullActionBuilder(remoteData, localData, 'LOCAL');
 
       const result = sut.create('path');
 

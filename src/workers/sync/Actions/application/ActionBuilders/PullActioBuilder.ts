@@ -9,7 +9,7 @@ import { NewerItem } from './StateComparators/NewerItem';
 import { StateComparator } from './StateComparators/StateComparator';
 import { Action } from '../../domain/Action';
 
-export class PullActionBuilderCreator extends ActionBuilder {
+export class PullActionBuilder extends ActionBuilder {
   private comparators: Array<StateComparator>;
 
   constructor(

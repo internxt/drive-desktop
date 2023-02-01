@@ -2,9 +2,9 @@ import { LocalListing, RemoteListing } from '../../Listings/domain/Listing';
 import { ItemDeltas } from '../../ItemState/domain/FileDelta';
 import { Action } from '../domain/Action';
 import { Nullable } from '../../../../shared/types/Nullable';
-import { PullActionBuilderCreator } from './ActionBuilders/PullActioBuilderCreator';
-import { KeepMostRecentActionBuilderCreator } from './ActionBuilders/KeepMostRecentActionBuilderCreator';
-import { DeleteActionBuilderCreator } from './ActionBuilders/DeleteActionBuilderCreator';
+import { PullActionBuilder } from './ActionBuilders/PullActioBuilder';
+import { KeepMostRecentActionBuilder } from './ActionBuilders/KeepMostRecentActionBuilder';
+import { DeleteActionBuilder } from './ActionBuilders/DeleteActionBuilder';
 
 export function generateActions(
   deltasLocal: ItemDeltas,
@@ -24,7 +24,7 @@ export function generateActions(
     const remoteListing = currentRemoteListing[name];
 
     pushIfDefined(
-      new PullActionBuilderCreator(
+      new PullActionBuilder(
         { state: deltaLocal, listing: localListing },
         { state: deltaRemote, listing: remoteListing },
         'REMOTE'
@@ -32,7 +32,7 @@ export function generateActions(
     );
 
     pushIfDefined(
-      new DeleteActionBuilderCreator(
+      new DeleteActionBuilder(
         { state: deltaLocal, listing: localListing },
         { state: deltaRemote, listing: remoteListing },
         'REMOTE'
@@ -40,7 +40,7 @@ export function generateActions(
     );
 
     pushIfDefined(
-      new KeepMostRecentActionBuilderCreator(
+      new KeepMostRecentActionBuilder(
         { state: deltaLocal, listing: localListing },
         { state: deltaRemote, listing: remoteListing }
       ).create(name)
@@ -53,7 +53,7 @@ export function generateActions(
     const remoteListing = currentRemoteListing[name];
 
     pushIfDefined(
-      new PullActionBuilderCreator(
+      new PullActionBuilder(
         { state: deltaRemote, listing: remoteListing },
         { state: deltaLocal, listing: localListing },
         'LOCAL'
@@ -61,7 +61,7 @@ export function generateActions(
     );
 
     pushIfDefined(
-      new DeleteActionBuilderCreator(
+      new DeleteActionBuilder(
         { state: deltaRemote, listing: remoteListing },
         { state: deltaLocal, listing: localListing },
         'LOCAL'

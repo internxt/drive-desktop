@@ -15,7 +15,7 @@ function mostRecentFileSystem(
     : 'REMOTE';
 }
 
-export class KeepMostRecentActionBuilderCreator extends ActionBuilder {
+export class KeepMostRecentActionBuilder extends ActionBuilder {
   constructor(
     local: Data<LocalItemMetaData>,
     remote: Data<RemoteItemMetaData>

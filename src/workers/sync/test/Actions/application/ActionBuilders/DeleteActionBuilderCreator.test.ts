@@ -1,6 +1,6 @@
 import { LocalItemMetaData } from '../../../../Listings/domain/LocalItemMetaData';
 import { RemoteItemMetaData } from '../../../../Listings/domain/RemoteItemMetaData';
-import { DeleteActionBuilderCreator } from '../../../../Actions/application/ActionBuilders/DeleteActionBuilderCreator';
+import { DeleteActionBuilder } from '../../../../Actions/application/ActionBuilders/DeleteActionBuilder';
 import { ItemState } from '../../../../ItemState/domain/ItemState';
 import { deltas } from '../../../../ItemState/domain/Delta';
 import { localFileMetaData, remoteFileMetaData } from './Fixtures';
@@ -22,11 +22,7 @@ describe('DeleteActionBuilderCreator', () => {
         listing: RemoteItemMetaData.from({ ...remoteFileMetaData }),
       };
 
-      const sut = new DeleteActionBuilderCreator(
-        localData,
-        remoteData,
-        'REMOTE'
-      );
+      const sut = new DeleteActionBuilder(localData, remoteData, 'REMOTE');
 
       const result = sut.create('path');
 
@@ -62,11 +58,7 @@ describe('DeleteActionBuilderCreator', () => {
             listing: RemoteItemMetaData.from({ ...remoteFileMetaData }),
           };
 
-          const sut = new DeleteActionBuilderCreator(
-            localData,
-            remoteData,
-            'REMOTE'
-          );
+          const sut = new DeleteActionBuilder(localData, remoteData, 'REMOTE');
 
           const result = sut.create('path');
 

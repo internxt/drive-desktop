@@ -5,7 +5,7 @@ import { LocalItemMetaData } from '../../../Listings/domain/LocalItemMetaData';
 import { RemoteItemMetaData } from '../../../Listings/domain/RemoteItemMetaData';
 import { Action } from '../../domain/Action';
 
-export class DeleteActionBuilderCreator extends ActionBuilder {
+export class DeleteActionBuilder extends ActionBuilder {
   constructor(
     fileSystemData: Data<LocalItemMetaData | RemoteItemMetaData>,
     mirrorFileSystemDate: Data<LocalItemMetaData | RemoteItemMetaData>,

@@ -1,6 +1,6 @@
 import { LocalItemMetaData } from '../../../../Listings/domain/LocalItemMetaData';
 import { RemoteItemMetaData } from '../../../../Listings/domain/RemoteItemMetaData';
-import { KeepMostRecentActionBuilderCreator } from '../../../../Actions/application/ActionBuilders/KeepMostRecentActionBuilderCreator';
+import { KeepMostRecentActionBuilder } from '../../../../Actions/application/ActionBuilders/KeepMostRecentActionBuilder';
 import { ItemState } from '../../../../ItemState/domain/ItemState';
 import { localFileMetaData, remoteFileMetaData } from './Fixtures';
 import { Delta } from '../../../../ItemState/domain/Delta';
@@ -30,10 +30,7 @@ describe('KeepMostRecentActionBuilderCreator', () => {
           }),
         };
 
-        const SUT = new KeepMostRecentActionBuilderCreator(
-          localData,
-          remoteData
-        );
+        const SUT = new KeepMostRecentActionBuilder(localData, remoteData);
 
         const result = SUT.create('path');
 
@@ -67,10 +64,7 @@ describe('KeepMostRecentActionBuilderCreator', () => {
           }),
         };
 
-        const SUT = new KeepMostRecentActionBuilderCreator(
-          localData,
-          remoteData
-        );
+        const SUT = new KeepMostRecentActionBuilder(localData, remoteData);
 
         const result = SUT.create('path');
 
@@ -99,7 +93,7 @@ describe('KeepMostRecentActionBuilderCreator', () => {
         listing: undefined,
       } as unknown as Data<RemoteItemMetaData>;
 
-      const SUT = new KeepMostRecentActionBuilderCreator(localData, remoteData);
+      const SUT = new KeepMostRecentActionBuilder(localData, remoteData);
 
       const result = SUT.create('path');
 

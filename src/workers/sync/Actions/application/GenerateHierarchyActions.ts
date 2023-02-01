@@ -2,10 +2,10 @@ import { LocalListing, RemoteListing } from '../../Listings/domain/Listing';
 import { ItemDeltas } from '../../ItemState/domain/FileDelta';
 import { Action } from '../domain/Action';
 import { Nullable } from '../../../../shared/types/Nullable';
-import { PullActionBuilderCreator } from './ActionBuilders/PullActioBuilderCreator';
-import { KeepMostRecentActionBuilderCreator } from './ActionBuilders/KeepMostRecentActionBuilderCreator';
-import { DeleteActionBuilderCreator } from './ActionBuilders/DeleteActionBuilderCreator';
+import { KeepMostRecentActionBuilder } from './ActionBuilders/KeepMostRecentActionBuilder';
+import { DeleteActionBuilder } from './ActionBuilders/DeleteActionBuilder';
 import { ActionBuilder } from '../domain/ActionBuilderCreator';
+import { PullActionBuilder } from './ActionBuilders/PullActioBuilder';
 
 function buildFirst(
   builders: Array<ActionBuilder>,
@@ -38,17 +38,17 @@ export function generateHierarchyActions(
     const remoteListing = currentRemoteListing[name];
 
     const builders = [
-      new PullActionBuilderCreator(
+      new PullActionBuilder(
         { state: deltaLocal, listing: localListing },
         { state: deltaRemote, listing: remoteListing },
         'REMOTE'
       ),
-      new DeleteActionBuilderCreator(
+      new DeleteActionBuilder(
         { state: deltaLocal, listing: localListing },
         { state: deltaRemote, listing: remoteListing },
         'REMOTE'
       ),
-      new KeepMostRecentActionBuilderCreator(
+      new KeepMostRecentActionBuilder(
         { state: deltaLocal, listing: localListing },
         { state: deltaRemote, listing: remoteListing }
       ),
@@ -65,12 +65,12 @@ export function generateHierarchyActions(
     const remoteListing = currentRemoteListing[name];
 
     const builders = [
-      new PullActionBuilderCreator(
+      new PullActionBuilder(
         { state: deltaRemote, listing: remoteListing },
         { state: deltaLocal, listing: localListing },
         'LOCAL'
       ),
-      new DeleteActionBuilderCreator(
+      new DeleteActionBuilder(
         { state: deltaRemote, listing: remoteListing },
         { state: deltaLocal, listing: localListing },
         'LOCAL'
