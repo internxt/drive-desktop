@@ -1,12 +1,12 @@
 import { Listing, PartialListing } from '../../Listings/domain/Listing';
-import { FileDeltas } from '../domain/FileDelta';
+import { ItemDeltas } from '../domain/FileDelta';
 import { ItemState } from '../domain/ItemState';
 
 export function generateDeltas(
   saved: Listing,
   current: PartialListing
-): FileDeltas {
-  const deltas: FileDeltas = {};
+): ItemDeltas {
+  const deltas: ItemDeltas = {};
 
   for (const [name, meta] of Object.entries(current)) {
     const savedEntry = saved[name];

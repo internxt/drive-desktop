@@ -1,7 +1,7 @@
 import { LocalItemMetaData } from '../../../Listings/domain/LocalItemMetaData';
 import { LocalListing, RemoteListing } from '../../../Listings/domain/Listing';
 import { RemoteItemMetaData } from '../../../Listings/domain/RemoteItemMetaData';
-import { FileDeltas } from '../../../ItemState/domain/FileDelta';
+import { ItemDeltas } from '../../../ItemState/domain/FileDelta';
 import { ItemState } from '../../../ItemState/domain/ItemState';
 import { generateActions } from '../../../Actions/application/GenerateActions';
 import { convertActionsToQeues } from '../../../Actions/application/ConvertActionsToQeues';
@@ -249,7 +249,7 @@ describe('actions generation', () => {
         }),
       };
 
-      const deltasLocal: FileDeltas = {
+      const deltasLocal: ItemDeltas = {
         a: new ItemState('NEW'),
         aa: new ItemState('NEW'),
         b: new ItemState('NEW'),
@@ -276,7 +276,7 @@ describe('actions generation', () => {
         r: new ItemState('UNCHANGED'),
       };
 
-      const deltasRemote: FileDeltas = {
+      const deltasRemote: ItemDeltas = {
         a: new ItemState('NEW'),
         aa: new ItemState('NEW'),
 

@@ -1,5 +1,5 @@
 import { LocalListing, RemoteListing } from '../../Listings/domain/Listing';
-import { FileDeltas } from '../../ItemState/domain/FileDelta';
+import { ItemDeltas } from '../../ItemState/domain/FileDelta';
 import { Action } from '../domain/Action';
 import { Nullable } from '../../../../shared/types/Nullable';
 import { PullActionBuilderCreator } from './ActionBuilders/PullActioBuilderCreator';
@@ -7,8 +7,8 @@ import { KeepMostRecentActionBuilderCreator } from './ActionBuilders/KeepMostRec
 import { DeleteActionBuilderCreator } from './ActionBuilders/DeleteActionBuilderCreator';
 
 export function generateActions(
-  deltasLocal: FileDeltas,
-  deltasRemote: FileDeltas,
+  deltasLocal: ItemDeltas,
+  deltasRemote: ItemDeltas,
   currentLocalListing: LocalListing,
   currentRemoteListing: RemoteListing
 ) {

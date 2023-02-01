@@ -21,17 +21,11 @@ import {
   RemoteListing,
 } from './Listings/domain/Listing';
 import { createErrorDetails } from '../utils/reporting';
-import { Nullable } from '../../shared/types/Nullable';
-import { ActionBuilder } from './Actions/domain/ActionBuilder';
-import { Action } from './Actions/domain/Action';
-import { PullActionBuilderCreator } from './Actions/application/ActionBuilders/PullActioBuilderCreator';
-import { FileDeltas } from './ItemState/domain/FileDelta';
-import { KeepMostRecentActionBuilderCreator } from './Actions/application/ActionBuilders/KeepMostRecentActionBuilderCreator';
-import { DeleteActionBuilderCreator } from './Actions/application/ActionBuilders/DeleteActionBuilderCreator';
 import { listingsAreInSync } from './Listings/application/ListingsAreInSync';
 import { joinPartialListings } from './Listings/application/JoinPartialListings';
 import { createSynchronizedItemMetaDataFromPartials } from './Listings/application/JoinPartialMetaData';
 import { convertActionsToQeues } from './Actions/application/ConvertActionsToQeues';
+import { generateActions } from './Actions/application/GenerateActions';
 
 class Sync extends Process {
   constructor(
@@ -102,7 +96,7 @@ class Sync extends Process {
     Logger.debug('Local deltas', deltasLocal);
     Logger.debug('Remote deltas', deltasRemote);
 
-    const actions = this.generateActionQueues(
+    const actions = generateActions(
       deltasLocal,
       deltasRemote,
       currentLocal,
@@ -227,80 +221,6 @@ class Sync extends Process {
     ]);
 
     return this.finalize();
-  }
-
-  private generateActionQueues(
-    deltasLocal: FileDeltas,
-    deltasRemote: FileDeltas,
-    currentLocalListing: LocalListing,
-    currentRemoteListing: RemoteListing
-  ): Array<Action> {
-    const actions: Array<Action> = [];
-
-    const pushIfDefined = (
-      actionBuilder: Nullable<ActionBuilder>,
-      pathLike: string
-    ) => {
-      if (actionBuilder) actions.push(actionBuilder(pathLike));
-    };
-
-    for (const [name, deltaLocal] of Object.entries(deltasLocal)) {
-      const deltaRemote = deltasRemote[name];
-      const localListing = currentLocalListing[name];
-      const remoteListing = currentRemoteListing[name];
-
-      pushIfDefined(
-        new PullActionBuilderCreator(
-          { state: deltaLocal, listing: localListing },
-          { state: deltaRemote, listing: remoteListing },
-          'LOCAL'
-        ).create(),
-        name
-      );
-
-      pushIfDefined(
-        new DeleteActionBuilderCreator(
-          { state: deltaLocal, listing: localListing },
-          { state: deltaRemote, listing: remoteListing },
-          'LOCAL'
-        ).create(),
-        name
-      );
-
-      pushIfDefined(
-        new KeepMostRecentActionBuilderCreator(
-          { state: deltaLocal, listing: localListing },
-          { state: deltaRemote, listing: remoteListing }
-        ).create(),
-        name
-      );
-    }
-
-    for (const [name, deltaRemote] of Object.entries(deltasRemote)) {
-      const deltaLocal = deltasLocal[name];
-      const localListing = currentLocalListing[name];
-      const remoteListing = currentRemoteListing[name];
-
-      pushIfDefined(
-        new PullActionBuilderCreator(
-          { state: deltaRemote, listing: remoteListing },
-          { state: deltaLocal, listing: localListing },
-          'REMOTE'
-        ).create(),
-        name
-      );
-
-      pushIfDefined(
-        new DeleteActionBuilderCreator(
-          { state: deltaRemote, listing: remoteListing },
-          { state: deltaLocal, listing: localListing },
-          'REMOTE'
-        ).create(),
-        name
-      );
-    }
-
-    return actions;
   }
 
   private async listDeletedFolders(

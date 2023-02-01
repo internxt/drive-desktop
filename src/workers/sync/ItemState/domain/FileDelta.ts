@@ -1,3 +1,3 @@
 import { ItemState } from './ItemState';
 
-export type FileDeltas = Record<string, ItemState>;
+export type ItemDeltas = Record<string, ItemState>;
