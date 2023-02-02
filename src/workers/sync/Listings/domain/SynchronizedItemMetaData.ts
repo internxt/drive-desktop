@@ -12,7 +12,7 @@ export class SynchronizedItemMetaData extends ItemMetaData {
     public readonly modtime: number,
     public readonly size: number,
     public readonly isFolder: boolean,
-    private readonly id: string,
+    private readonly id: number,
     private readonly ino: number,
     private readonly dev: number
   ) {

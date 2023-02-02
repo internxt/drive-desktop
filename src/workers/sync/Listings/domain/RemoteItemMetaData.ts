@@ -1,7 +1,7 @@
 import { ItemMetaData, ItemMetaDataAttributes } from './ItemMeataData';
 
 export type RemoteItemMetaDataAttributes = ItemMetaDataAttributes & {
-  id: string;
+  id: number;
 };
 
 export class RemoteItemMetaData extends ItemMetaData {
@@ -9,7 +9,7 @@ export class RemoteItemMetaData extends ItemMetaData {
     public readonly modtime: number,
     public readonly size: number,
     public readonly isFolder: boolean,
-    private readonly id: string
+    private readonly id: number
   ) {
     super(modtime, size, isFolder);
   }

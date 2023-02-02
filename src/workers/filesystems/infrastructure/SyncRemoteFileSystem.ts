@@ -168,7 +168,7 @@ export function getRemoteFilesystem({
               modtime: modificationTime,
               size: file.size,
               isFolder: false,
-              id: file.fileId,
+              id: file.id,
             });
             cache[name] = {
               id: file.id,
@@ -189,6 +189,12 @@ export function getRemoteFilesystem({
               (folder.parent_id as number).toString(),
               '03-aes'
             );
+          listing[name] = RemoteItemMetaData.from({
+            modtime: getSecondsFromDateString(folder.updated_at),
+            size: 0,
+            isFolder: true,
+            id: folder.id,
+          });
           cache[name] = {
             id: folder.id,
             parentId: folder.parent_id as number,
