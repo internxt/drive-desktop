@@ -28,7 +28,7 @@ describe('DeleteActionBuilderCreator', () => {
 
       expect(result).toBeDefined();
 
-      const action = result as Action;
+      const action = result as Action<'FILE'>;
 
       expect(action.fileSystem).toBe('REMOTE');
       expect(action.task).toBe('DELETE');

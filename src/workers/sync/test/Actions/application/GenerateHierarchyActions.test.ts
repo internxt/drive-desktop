@@ -4,7 +4,7 @@ import { RemoteItemMetaData } from '../../../Listings/domain/RemoteItemMetaData'
 import { ItemDeltas } from '../../../ItemState/domain/FileDelta';
 import { ItemState } from '../../../ItemState/domain/ItemState';
 import { generateHierarchyActions } from '../../../Actions/application/GenerateHierarchyActions';
-import { convertActionsToQeues } from '../../../Actions/application/ConvertActionsToQeues';
+import { convertActionsToQueues } from '../../../Actions/application/ConvertActionsToQueues';
 
 describe('actions generation', () => {
   describe('imported old tests', () => {
@@ -242,6 +242,13 @@ describe('actions generation', () => {
           isFolder: false,
           id: 4689,
         }),
+
+        s: RemoteItemMetaData.from({
+          modtime: 2,
+          size: 1,
+          isFolder: false,
+          id: 4689,
+        }),
       };
 
       const deltasLocal: ItemDeltas = {
@@ -308,7 +315,7 @@ describe('actions generation', () => {
       );
 
       const { pullFromLocal, pullFromRemote, deleteInLocal, deleteInRemote } =
-        convertActionsToQeues(actions);
+        convertActionsToQueues(actions).file;
 
       expect(pullFromLocal.sort()).toEqual(
         ['c', 'g', 'i', 'n', 'k', 'o', 'q', 's'].sort()
@@ -555,6 +562,13 @@ describe('actions generation', () => {
           isFolder: true,
           id: 4689,
         }),
+
+        s: RemoteItemMetaData.from({
+          modtime: 2,
+          size: 1,
+          isFolder: true,
+          id: 4689,
+        }),
       };
 
       const deltasLocal: ItemDeltas = {
@@ -620,8 +634,10 @@ describe('actions generation', () => {
         remoteListing
       );
 
+      const queues = convertActionsToQueues(actions);
+
       const { pullFromLocal, pullFromRemote, deleteInLocal, deleteInRemote } =
-        convertActionsToQeues(actions);
+        queues.folder;
 
       expect(pullFromLocal.sort()).toEqual(
         ['c', 'g', 'i', 'n', 'k', 'o', 'q', 's'].sort()

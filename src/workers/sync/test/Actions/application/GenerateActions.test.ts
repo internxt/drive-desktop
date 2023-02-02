@@ -4,7 +4,7 @@ import { RemoteItemMetaData } from '../../../Listings/domain/RemoteItemMetaData'
 import { ItemDeltas } from '../../../ItemState/domain/FileDelta';
 import { ItemState } from '../../../ItemState/domain/ItemState';
 import { generateActions } from '../../../Actions/application/GenerateActions';
-import { convertActionsToQeues } from '../../../Actions/application/ConvertActionsToQeues';
+import { convertActionsToQueues } from '../../../Actions/application/ConvertActionsToQueues';
 
 describe('actions generation', () => {
   describe('imported old tests', () => {
@@ -31,7 +31,6 @@ describe('actions generation', () => {
           ino: 379,
           dev: 8,
         }),
-
         c: LocalItemMetaData.from({
           modtime: 1,
           size: 1,
@@ -67,7 +66,6 @@ describe('actions generation', () => {
           ino: 367,
           dev: 8,
         }),
-
         k: LocalItemMetaData.from({
           modtime: 2,
           size: 1,
@@ -103,7 +101,6 @@ describe('actions generation', () => {
           ino: 284,
           dev: 8,
         }),
-
         o: LocalItemMetaData.from({
           modtime: 2,
           size: 1,
@@ -139,113 +136,117 @@ describe('actions generation', () => {
           modtime: 1,
           size: 1,
           isFolder: false,
-          id: '5807',
+          id: 5807,
         }),
         aa: RemoteItemMetaData.from({
           modtime: 2,
           size: 1,
           isFolder: false,
-          id: '7762',
+          id: 7762,
         }),
         b: RemoteItemMetaData.from({
           modtime: 2,
           size: 1,
           isFolder: false,
-          id: '7311',
+          id: 7311,
         }),
-
         c: RemoteItemMetaData.from({
           modtime: 2,
           size: 1,
           isFolder: false,
-          id: '9389',
+          id: 9389,
         }),
         cc: RemoteItemMetaData.from({
           modtime: 2,
           size: 1,
           isFolder: false,
-          id: '3379',
+          id: 3379,
         }),
         e: RemoteItemMetaData.from({
           modtime: 1,
           size: 1,
           isFolder: false,
-          id: '2168',
+          id: 2168,
         }),
         f: RemoteItemMetaData.from({
           modtime: 2,
           size: 1,
           isFolder: false,
-          id: '3752',
+          id: 3752,
         }),
 
         g: RemoteItemMetaData.from({
           modtime: 2,
           size: 1,
           isFolder: false,
-          id: '1595',
+          id: 1595,
         }),
         h: RemoteItemMetaData.from({
           modtime: 2,
           size: 1,
           isFolder: false,
-          id: '5232',
+          id: 5232,
         }),
         i: RemoteItemMetaData.from({
           modtime: 2,
           size: 1,
           isFolder: false,
-          id: '4932',
+          id: 4932,
         }),
         j: RemoteItemMetaData.from({
           modtime: 2,
           size: 1,
           isFolder: false,
-          id: '7723',
+          id: 7723,
         }),
-
         k: RemoteItemMetaData.from({
           modtime: 3,
           size: 1,
           isFolder: false,
-          id: '5094',
+          id: 5094,
         }),
         n: RemoteItemMetaData.from({
           modtime: 2,
           size: 1,
           isFolder: false,
-          id: '6632',
+          id: 6632,
         }),
         nn: RemoteItemMetaData.from({
           modtime: 2,
           size: 1,
           isFolder: false,
-          id: '2008',
+          id: 2008,
         }),
         l: RemoteItemMetaData.from({
           modtime: 2,
           size: 1,
           isFolder: false,
-          id: '1718',
+          id: 1718,
         }),
-
         o: RemoteItemMetaData.from({
           modtime: 2,
           size: 1,
           isFolder: false,
-          id: '8449',
+          id: 8449,
         }),
         q: RemoteItemMetaData.from({
           modtime: 2,
           size: 1,
           isFolder: false,
-          id: '4199',
+          id: 4199,
         }),
         r: RemoteItemMetaData.from({
           modtime: 2,
           size: 1,
           isFolder: false,
-          id: '4689',
+          id: 4689,
+        }),
+
+        s: RemoteItemMetaData.from({
+          modtime: 2,
+          size: 1,
+          isFolder: false,
+          id: 4689,
         }),
       };
 
@@ -313,7 +314,7 @@ describe('actions generation', () => {
       );
 
       const { pullFromLocal, pullFromRemote, deleteInLocal, deleteInRemote } =
-        convertActionsToQeues(actions);
+        convertActionsToQueues(actions).file;
 
       expect(pullFromLocal.sort()).toEqual(
         ['c', 'g', 'i', 'n', 'k', 'o', 'q', 's'].sort()

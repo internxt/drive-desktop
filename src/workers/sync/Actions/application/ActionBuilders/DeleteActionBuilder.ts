@@ -4,6 +4,7 @@ import { ActionBuilder, Data } from '../../domain/ActionBuilderCreator';
 import { LocalItemMetaData } from '../../../Listings/domain/LocalItemMetaData';
 import { RemoteItemMetaData } from '../../../Listings/domain/RemoteItemMetaData';
 import { Action } from '../../domain/Action';
+import { ItemKind } from '../../../../../shared/ItemKind';
 
 export class DeleteActionBuilder extends ActionBuilder {
   constructor(
@@ -14,8 +15,12 @@ export class DeleteActionBuilder extends ActionBuilder {
     super(fileSystemData, mirrorFileSystemDate, fileSystem, 'DELETE');
   }
 
-  create(path: string): Nullable<Action> {
-    if (!this.canCompareWithMirror()) {
+  protected getItemKind(): ItemKind {
+    return this.mirror.listing.isFolder ? 'FOLDER' : 'FILE';
+  }
+
+  create(path: string): Nullable<Action<ItemKind>> {
+    if (!this.mirror.state) {
       return;
     }
 

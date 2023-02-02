@@ -5,6 +5,7 @@ import { Nullable } from '../../../../shared/types/Nullable';
 import { PullActionBuilder } from './ActionBuilders/PullActioBuilder';
 import { KeepMostRecentActionBuilder } from './ActionBuilders/KeepMostRecentActionBuilder';
 import { DeleteActionBuilder } from './ActionBuilders/DeleteActionBuilder';
+import { ItemKind } from '../../../../shared/ItemKind';
 
 export function generateActions(
   deltasLocal: ItemDeltas,
@@ -12,9 +13,9 @@ export function generateActions(
   currentLocalListing: LocalListing,
   currentRemoteListing: RemoteListing
 ) {
-  const actions: Array<Action> = [];
+  const actions: Array<Action<ItemKind>> = [];
 
-  const pushIfDefined = (action: Nullable<Action>) => {
+  const pushIfDefined = (action: Nullable<Action<ItemKind>>) => {
     if (action) actions.push(action);
   };
 

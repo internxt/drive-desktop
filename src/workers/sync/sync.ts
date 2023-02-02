@@ -24,7 +24,7 @@ import { createErrorDetails } from '../utils/reporting';
 import { listingsAreInSync } from './Listings/application/ListingsAreInSync';
 import { joinPartialListings } from './Listings/application/JoinPartialListings';
 import { createSynchronizedItemMetaDataFromPartials } from './Listings/application/JoinPartialMetaData';
-import { convertActionsToQeues } from './Actions/application/ConvertActionsToQeues';
+import { convertActionsToQueues } from './Actions/application/ConvertActionsToQueues';
 import { generateActions } from './Actions/application/GenerateActions';
 
 class Sync extends Process {
@@ -112,7 +112,7 @@ class Sync extends Process {
       pullFromRemote,
       deleteInLocal,
       deleteInRemote,
-    } = convertActionsToQeues(actions);
+    } = convertActionsToQueues(actions).file;
 
     this.emit('ACTION_QUEUE_GENERATED', {
       renameInLocal,

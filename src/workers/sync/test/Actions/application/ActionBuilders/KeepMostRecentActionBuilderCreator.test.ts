@@ -36,7 +36,7 @@ describe('KeepMostRecentActionBuilderCreator', () => {
 
         expect(result).toBeDefined();
 
-        const action = result as Action;
+        const action = result as Action<'FILE'>;
 
         expect(action.fileSystem).toBe('REMOTE');
         expect(action.task).toBe('PULL');
@@ -70,7 +70,7 @@ describe('KeepMostRecentActionBuilderCreator', () => {
 
         expect(result).toBeDefined();
 
-        const action = result as Action;
+        const action = result as Action<'FILE'>;
 
         expect(action.fileSystem).toBe('LOCAL');
         expect(action.task).toBe('PULL');

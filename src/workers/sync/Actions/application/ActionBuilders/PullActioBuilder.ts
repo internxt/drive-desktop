@@ -8,6 +8,7 @@ import { ItemOutdated } from './StateComparators/ItemOutdated';
 import { NewerItem } from './StateComparators/NewerItem';
 import { StateComparator } from './StateComparators/StateComparator';
 import { Action } from '../../domain/Action';
+import { ItemKind } from '../../../../../shared/ItemKind';
 
 export class PullActionBuilder extends ActionBuilder {
   private comparators: Array<StateComparator>;
@@ -26,9 +27,13 @@ export class PullActionBuilder extends ActionBuilder {
     ];
   }
 
-  create(path: string): Nullable<Action> {
+  protected getItemKind(): ItemKind {
+    return this.actual.listing.isFolder ? 'FOLDER' : 'FILE';
+  }
+
+  create(path: string): Nullable<Action<ItemKind>> {
     for (const comparator of this.comparators) {
-      if (comparator.compare(this.mirror.state)) {
+      if (this.actual.listing && comparator.compare(this.mirror.state)) {
         return this.build(path);
       }
     }

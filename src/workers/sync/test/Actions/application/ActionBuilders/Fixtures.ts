@@ -15,5 +15,5 @@ export const localFileMetaData: LocalItemMetaDataAttributes = {
 
 export const remoteFileMetaData: RemoteItemMetaDataAttributes = {
   ...fileMetaData,
-  id: 'uuuid',
+  id: 2340958,
 };

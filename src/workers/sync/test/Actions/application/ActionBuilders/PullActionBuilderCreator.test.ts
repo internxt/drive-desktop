@@ -25,7 +25,7 @@ describe('PullActionBuilder', () => {
 
       expect(result).toBeDefined();
 
-      const action = result as Action;
+      const action = result as Action<'FILE'>;
 
       expect(action.fileSystem).toBe('REMOTE');
       expect(action.task).toBe('PULL');
@@ -51,7 +51,7 @@ describe('PullActionBuilder', () => {
 
       expect(result).toBeDefined();
 
-      const action = result as Action;
+      const action = result as Action<'FILE'>;
 
       expect(action.fileSystem).toBe('REMOTE');
       expect(action.task).toBe('PULL');
@@ -77,7 +77,7 @@ describe('PullActionBuilder', () => {
 
       expect(result).toBeDefined();
 
-      const action = result as Action;
+      const action = result as Action<'FILE'>;
 
       expect(action.fileSystem).toBe('REMOTE');
       expect(action.task).toBe('PULL');
@@ -103,7 +103,7 @@ describe('PullActionBuilder', () => {
 
       expect(result).toBeDefined();
 
-      const action = result as Action;
+      const action = result as Action<'FILE'>;
 
       expect(action.fileSystem).toBe('REMOTE');
       expect(action.task).toBe('PULL');
@@ -129,7 +129,7 @@ describe('PullActionBuilder', () => {
 
       expect(result).toBeDefined();
 
-      const action = result as Action;
+      const action = result as Action<'FILE'>;
 
       expect(action.fileSystem).toBe('REMOTE');
       expect(action.task).toBe('PULL');
@@ -155,10 +155,28 @@ describe('PullActionBuilder', () => {
 
       expect(result).toBeDefined();
 
-      const action = result as Action;
+      const action = result as Action<'FILE'>;
 
       expect(action.fileSystem).toBe('REMOTE');
       expect(action.task).toBe('PULL');
+    });
+
+    it('when the local delta is defined but there is no local listing a pull task should be created for remote', () => {
+      const localData = {
+        state: new ItemState('DELETED'),
+        listing: undefined as unknown as LocalItemMetaData,
+      };
+
+      const remoteData = {
+        state: new ItemState('NEWER'),
+        listing: RemoteItemMetaData.from(remoteFileMetaData),
+      };
+
+      const sut = new PullActionBuilder(localData, remoteData, 'REMOTE');
+
+      const result = sut.create('path');
+
+      expect(result).not.toBeDefined();
     });
   });
 
@@ -180,7 +198,7 @@ describe('PullActionBuilder', () => {
 
       expect(result).toBeDefined();
 
-      const action = result as Action;
+      const action = result as Action<'FILE'>;
 
       expect(action.fileSystem).toBe('LOCAL');
       expect(action.task).toBe('PULL');
@@ -197,7 +215,7 @@ describe('PullActionBuilder', () => {
 
       const localData = {
         state: new ItemState('UNCHANGED'),
-        listing: RemoteItemMetaData.from({ ...remoteFileMetaData }),
+        listing: LocalItemMetaData.from({ ...localFileMetaData }),
       };
 
       const sut = new PullActionBuilder(remoteData, localData, 'LOCAL');
@@ -206,10 +224,28 @@ describe('PullActionBuilder', () => {
 
       expect(result).toBeDefined();
 
-      const action = result as Action;
+      const action = result as Action<'FILE'>;
 
       expect(action.fileSystem).toBe('LOCAL');
       expect(action.task).toBe('PULL');
+    });
+
+    it('when the local delta is defined but there is no local listing a pull task should be created for remote', () => {
+      const localData = {
+        state: new ItemState('DELETED'),
+        listing: undefined as unknown as LocalItemMetaData,
+      };
+
+      const remoteData = {
+        state: new ItemState('NEWER'),
+        listing: RemoteItemMetaData.from(remoteFileMetaData),
+      };
+
+      const sut = new PullActionBuilder(remoteData, localData, 'LOCAL');
+
+      const result = sut.create('path');
+
+      expect(result).toBeDefined();
     });
   });
 });

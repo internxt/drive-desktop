@@ -6,11 +6,12 @@ import { KeepMostRecentActionBuilder } from './ActionBuilders/KeepMostRecentActi
 import { DeleteActionBuilder } from './ActionBuilders/DeleteActionBuilder';
 import { ActionBuilder } from '../domain/ActionBuilderCreator';
 import { PullActionBuilder } from './ActionBuilders/PullActioBuilder';
+import { ItemKind } from '../../../../shared/ItemKind';
 
 function buildFirst(
   builders: Array<ActionBuilder>,
   path: string
-): Nullable<Action> {
+): Nullable<Action<ItemKind>> {
   for (const builder of builders) {
     const action = builder.create(path);
 
@@ -25,10 +26,10 @@ export function generateHierarchyActions(
   deltasRemote: ItemDeltas,
   currentLocalListing: LocalListing,
   currentRemoteListing: RemoteListing
-): Array<Action> {
-  const actions: Array<Action> = [];
+): Array<Action<ItemKind>> {
+  const actions: Array<Action<ItemKind>> = [];
 
-  const pushIfDefined = (action: Nullable<Action>) => {
+  const pushIfDefined = (action: Nullable<Action<ItemKind>>) => {
     if (action) actions.push(action);
   };
 
