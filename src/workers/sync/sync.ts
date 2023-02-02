@@ -25,7 +25,7 @@ import { listingsAreInSync } from './Listings/application/ListingsAreInSync';
 import { joinPartialListings } from './Listings/application/JoinPartialListings';
 import { createSynchronizedItemMetaDataFromPartials } from './Listings/application/JoinPartialMetaData';
 import { convertActionsToQueues } from './Actions/application/ConvertActionsToQueues';
-import { generateActions } from './Actions/application/GenerateActions';
+import { generateHierarchyActions } from './Actions/application/GenerateHierarchyActions';
 
 class Sync extends Process {
   constructor(
@@ -96,7 +96,7 @@ class Sync extends Process {
     Logger.debug('Local deltas', deltasLocal);
     Logger.debug('Remote deltas', deltasRemote);
 
-    const actions = generateActions(
+    const actions = generateHierarchyActions(
       deltasLocal,
       deltasRemote,
       currentLocal,
