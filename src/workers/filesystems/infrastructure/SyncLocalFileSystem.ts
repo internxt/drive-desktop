@@ -86,7 +86,7 @@ export function getLocalFilesystem(
 
       const list = (
         await glob('**', {
-          filesOnly: true,
+          filesOnly: false,
           absolute: true,
           dot: true,
           cwd: localPath,
@@ -231,6 +231,13 @@ export function getLocalFilesystem(
           }
         });
       });
+    },
+
+    async pullFolder(name): Promise<void> {
+      const osSpecificRelative = name.replaceAll('/', path.sep);
+      const fullPath = path.join(localPath, osSpecificRelative);
+
+      await fs.mkdir(path.parse(fullPath).dir, { recursive: true });
     },
 
     renameFile(oldName: string, newName: string) {

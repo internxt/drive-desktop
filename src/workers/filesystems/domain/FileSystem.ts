@@ -50,6 +50,12 @@ export interface FileSystem<T extends PartialListing> {
   ): Promise<void>;
 
   /**
+   * Creates a folder into this FileSystem
+   * @param name
+   */
+  pullFolder(name: string): Promise<void>;
+
+  /**
    * Checks if a folder exists in the filesystem
    * @param name
    */

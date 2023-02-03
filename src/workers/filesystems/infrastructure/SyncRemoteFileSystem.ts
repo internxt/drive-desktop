@@ -481,6 +481,56 @@ export function getRemoteFilesystem({
       }
     },
 
+    async pullFolder(name: string): Promise<void> {
+      const route = name.split('/');
+
+      const n = route.at(-1);
+
+      const parentFolderRoute = route.slice(0, route.length - 1).join('/');
+
+      const folderInCache = cache[parentFolderRoute];
+
+      const lastParentId =
+        folderInCache !== undefined ? folderInCache.id : baseFolderId;
+
+      httpRequest(`${process.env.API_URL}/api/storage/folder`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          folderName: n,
+          parentFolderId: lastParentId,
+        }),
+      })
+        .then(async (res) => {
+          if (!res.ok) {
+            throw new ProcessError(
+              'BAD_RESPONSE',
+              createErrorDetails(
+                {},
+                'Creating folder in drive server',
+                `res: ${await serializeRes(
+                  res
+                )}, folderName: ${name}, parentFolderId: ${lastParentId}`
+              )
+            );
+          } else return res;
+        })
+        .then((res) => res.json())
+        .then((createdFolder: ServerFolder) => {
+          cache[parentFolderRoute] = {
+            id: createdFolder.id,
+            parentId: createdFolder.parent_id as number,
+            isFolder: true,
+            bucket: createdFolder.bucket,
+          };
+          createFolderQueue.emit(parentFolderRoute, createdFolder.id);
+        })
+        .catch(async (err) => {
+          Logger.error(JSON.stringify(err, null, 2));
+          createFolderQueue.emit(parentFolderRoute, err);
+        });
+    },
+
     async existsFolder(name: string): Promise<boolean> {
       return name in cache;
     },
