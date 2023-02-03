@@ -44,5 +44,76 @@ describe('Pull Folder Queue Consumer', () => {
       'folderC/subfolderA',
       'folderA/subfolderB/sub-subfolderA',
     ]);
+
+    fileSystem.assertFolderHasBeenPulledBeforeThan(
+      'folderA',
+      'folderA/subfolderA',
+      'folderA/subfolderB',
+      'folderC/subfolderA',
+      'folderA/subfolderB/sub-subfolderA'
+    );
+
+    fileSystem.assertFolderHasBeenPulledBeforeThan(
+      'folderC',
+      'folderC/subfolderA'
+    );
+  });
+
+  it('does not pull a folder from a more nested level if does not finish the previous', async () => {
+    const folders = [
+      'folderA/subfolderA',
+      'folderA/subfolderB/sub-subfolderA',
+      'folderA',
+    ];
+
+    fileSystem.mockPullFolder
+      .mockImplementationOnce(
+        () =>
+          new Promise((resolve) => {
+            setTimeout(resolve, 30);
+          })
+      )
+      .mockImplementationOnce(
+        () =>
+          new Promise((resolve) => {
+            setTimeout(resolve, 20);
+          })
+      )
+      .mockImplementation(() => Promise.resolve());
+
+    const consumer = new PullFolderQueueConsumer(fileSystem);
+
+    await consumer.consume(folders);
+
+    fileSystem.assertFolderHasBeenPulledBeforeThan(
+      'folderA',
+      'folderA/subfolderA',
+      'folderA/subfolderB/sub-subfolderA'
+    );
+
+    fileSystem.assertFolderHasBeenPulledBeforeThan(
+      'folderA/subfolderA',
+      'folderA/subfolderB/sub-subfolderA'
+    );
+  });
+
+  it('stops the queue when there has been an error on a previos level', async () => {
+    const folders = [
+      'folderA/subfolderA',
+      'folderA/subfolderB/sub-subfolderA',
+      'folderA',
+    ];
+
+    fileSystem.mockPullFolder
+      .mockImplementationOnce(() => Promise.resolve())
+      .mockImplementationOnce(() => Promise.reject())
+      .mockImplementation(() => Promise.resolve());
+
+    const consumer = new PullFolderQueueConsumer(fileSystem);
+
+    await consumer.consume(folders);
+
+    fileSystem.assertNumberOfFoldersPulled(2);
+    fileSystem.assertFolderWasNeverPulled('folderA/subfolderB/sub-subfolderA');
   });
 });

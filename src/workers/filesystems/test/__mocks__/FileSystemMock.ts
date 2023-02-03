@@ -16,7 +16,7 @@ export class FileSystemMock implements FileSystem<PartialListing> {
 
   private mockPullFile = jest.fn();
 
-  private mockPullFolder = jest.fn();
+  public mockPullFolder = jest.fn();
 
   private mockExistsFolder = jest.fn();
 
@@ -80,9 +80,28 @@ export class FileSystemMock implements FileSystem<PartialListing> {
   }
 
   assertOrderOfFoldersPulled(names: Array<string>) {
-    names.forEach((name: string, index: number) =>
+    names.forEach((name: string) =>
       // eslint-disable-next-line jest/no-standalone-expect
-      expect(this.mockPullFolder).toHaveBeenNthCalledWith(index + 1, name)
+      expect(this.mockPullFolder).toBeCalledWith(name)
     );
+  }
+
+  assertFolderWasNeverPulled(folder: string) {
+    // eslint-disable-next-line jest/no-standalone-expect
+    expect(this.mockPullFolder).not.toBeCalledWith(folder);
+  }
+
+  assertFolderHasBeenPulledBeforeThan(before: string, ...after: Array<string>) {
+    const calls = (
+      this.mockPullFolder.mock.calls as Array<Array<string>>
+    ).flat();
+
+    const expectedBeforeCall = calls.indexOf(before);
+    const expectedAfterCalls = after.map((a) => calls.indexOf(a));
+
+    expectedAfterCalls.forEach((expectedAfterCall) => {
+      // eslint-disable-next-line jest/no-standalone-expect
+      expect(expectedBeforeCall).toBeLessThan(expectedAfterCall);
+    });
   }
 }
