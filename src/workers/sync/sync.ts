@@ -26,6 +26,7 @@ import { joinPartialListings } from './Listings/application/JoinPartialListings'
 import { createSynchronizedItemMetaDataFromPartials } from './Listings/application/JoinPartialMetaData';
 import { convertActionsToQueues } from './Actions/application/ConvertActionsToQueues';
 import { generateHierarchyActions } from './Actions/application/GenerateHierarchyActions';
+import { PullFolderQueueConsumer } from '../filesystems/application/PullFolderQueueConsumer';
 
 class Sync extends Process {
   constructor(
@@ -105,6 +106,8 @@ class Sync extends Process {
 
     await this.listingStore.removeSavedListing();
 
+    const queues = convertActionsToQueues(actions);
+
     const {
       renameInLocal,
       renameInRemote,
@@ -112,7 +115,7 @@ class Sync extends Process {
       pullFromRemote,
       deleteInLocal,
       deleteInRemote,
-    } = convertActionsToQueues(actions).file;
+    } = queues.file;
 
     this.emit('ACTION_QUEUE_GENERATED', {
       renameInLocal,
@@ -122,6 +125,21 @@ class Sync extends Process {
       deleteInLocal,
       deleteInRemote,
     });
+
+    const {
+      pullFromRemote: pullFoldersFromRemote,
+      pullFromLocal: pullFoldersFromLocal,
+    } = queues.folder;
+
+    Logger.debug(
+      'PULL FOLDERS: ',
+      JSON.stringify(pullFoldersFromRemote, null, 2),
+      JSON.stringify(pullFoldersFromLocal, null, 2)
+    );
+
+    const consumer = new PullFolderQueueConsumer(this.remote);
+
+    consumer.consume(pullFoldersFromRemote);
 
     Logger.debug('Queue rename in local', renameInLocal);
     Logger.debug('Queue rename in remote', renameInRemote);
