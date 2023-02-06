@@ -139,7 +139,7 @@ class Sync extends Process {
 
     const consumer = new PullFolderQueueConsumer(this.remote, this);
 
-    consumer.consume(pullFoldersFromRemote);
+    await consumer.consume(pullFoldersFromRemote);
 
     Logger.debug('Queue rename in local', renameInLocal);
     Logger.debug('Queue rename in remote', renameInRemote);

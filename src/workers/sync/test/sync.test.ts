@@ -3,6 +3,7 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 import { Readable } from 'stream';
+import { toHaveBeenCalledBefore } from 'jest-extended';
 import Sync, { Deltas, ListingStore } from '../sync';
 import {
   ErrorDetails,
@@ -17,6 +18,8 @@ import { RemoteItemMetaData } from '../Listings/domain/RemoteItemMetaData';
 import { SynchronizedItemMetaData } from '../Listings/domain/SynchronizedItemMetaData';
 import { ItemState } from '../ItemState/domain/ItemState';
 import { convertActionsToQueues } from '../Actions/application/ConvertActionsToQueues';
+
+expect.extend({ toHaveBeenCalledBefore });
 
 describe('sync tests', () => {
   const mockBase: () => FileSystem = () => ({
@@ -57,6 +60,7 @@ describe('sync tests', () => {
     const renamedFileCB = jest.fn();
     const finalizingCB = jest.fn();
     const actionsGeneratedCB = jest.fn();
+    const folderPulledCB = jest.fn();
 
     sync.on('SMOKE_TESTING', smokeTestingCB);
     sync.on('CHECKING_LAST_RUN_OUTCOME', checkingLastRunCB);
@@ -72,6 +76,7 @@ describe('sync tests', () => {
     sync.on('FILE_RENAMED', renamedFileCB);
     sync.on('FINALIZING', finalizingCB);
     sync.on('ACTION_QUEUE_GENERATED', actionsGeneratedCB);
+    sync.on('FOLDER_PULLED', folderPulledCB);
 
     return {
       smokeTestingCB,
@@ -88,6 +93,7 @@ describe('sync tests', () => {
       renamedFileCB,
       finalizingCB,
       actionsGeneratedCB,
+      folderPulledCB,
     };
   }
 
@@ -1254,38 +1260,63 @@ describe('sync tests', () => {
     });
   });
 
-  // it('pulls the folders on remote before the files', () => {
-  //   const sync = new Sync(mockBase(), mockBase(), listingStore());
+  it('pulls the folders on remote before the files', async () => {
+    const local: FileSystem = {
+      ...mockBase(),
+      async getCurrentListing() {
+        return {
+          listing: {
+            folder: LocalItemMetaData.from({
+              modtime: 4,
+              size: 5,
+              isFolder: true,
+              dev: 1,
+              ino: 76,
+            }),
+            'folder/fileA': LocalItemMetaData.from({
+              modtime: 4,
+              size: 5,
+              isFolder: false,
+              dev: 1,
+              ino: 553,
+            }),
+            'folder/fileB': LocalItemMetaData.from({
+              modtime: 4,
+              size: 5,
+              isFolder: false,
+              dev: 1,
+              ino: 85,
+            }),
+          },
+          readingMetaErrors: [],
+        };
+      },
+    };
 
-  //   const local: Listing = {
-  //     folder: LocalItemMetaData.from({
-  //       modtime: 4,
-  //       size: 5,
-  //       isFolder: true,
-  //       dev: 1,
-  //       ino: 76,
-  //     }),
-  //     'folder/fileA': LocalItemMetaData.from({
-  //       modtime: 4,
-  //       size: 5,
-  //       isFolder: false,
-  //       dev: 1,
-  //       ino: 553,
-  //     }),
-  //     'folder/fileB': LocalItemMetaData.from({
-  //       modtime: 4,
-  //       size: 5,
-  //       isFolder: false,
-  //       dev: 1,
-  //       ino: 85,
-  //     }),
-  //   };
+    const remote: FileSystem = {
+      ...mockBase(),
+      async getCurrentListing() {
+        return {
+          readingMetaErrors: [],
+          listing: [],
+        };
+      },
+      pullFolder: jest.fn().mockResolvedValue(),
+    };
 
-  //   const remote: Listing = {};
+    const listingStoreMocked: ListingStore = {
+      ...listingStore(),
+      async getLastSavedListing() {
+        return {};
+      },
+    };
 
-  //   setupEventSpies(sync);
+    const sync = new Sync(local, remote, listingStoreMocked);
 
-  //   await sync.run();
+    const { folderPulledCB, pullingFileCB } = setupEventSpies(sync);
 
-  // });
+    await sync.run();
+
+    expect(folderPulledCB).toHaveBeenCalledBefore(pullingFileCB);
+  });
 });
