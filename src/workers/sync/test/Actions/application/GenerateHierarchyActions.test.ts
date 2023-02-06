@@ -1,7 +1,7 @@
 import { LocalItemMetaData } from '../../../Listings/domain/LocalItemMetaData';
 import { LocalListing, RemoteListing } from '../../../Listings/domain/Listing';
 import { RemoteItemMetaData } from '../../../Listings/domain/RemoteItemMetaData';
-import { ItemDeltas } from '../../../ItemState/domain/FileDelta';
+import { ItemDeltas } from '../../../ItemState/domain/ItemDelta';
 import { ItemState } from '../../../ItemState/domain/ItemState';
 import { generateHierarchyActions } from '../../../Actions/application/GenerateHierarchyActions';
 import { convertActionsToQueues } from '../../../Actions/application/ConvertActionsToQueues';

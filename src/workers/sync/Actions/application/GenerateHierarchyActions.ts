@@ -1,5 +1,5 @@
 import { LocalListing, RemoteListing } from '../../Listings/domain/Listing';
-import { ItemDeltas } from '../../ItemState/domain/FileDelta';
+import { ItemDeltas } from '../../ItemState/domain/ItemDelta';
 import { Action } from '../domain/Action';
 import { Nullable } from '../../../../shared/types/Nullable';
 import { KeepMostRecentActionBuilder } from './ActionBuilders/KeepMostRecentActionBuilder';

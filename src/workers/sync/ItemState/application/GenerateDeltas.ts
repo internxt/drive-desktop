@@ -1,5 +1,5 @@
 import { Listing, PartialListing } from '../../Listings/domain/Listing';
-import { ItemDeltas } from '../domain/FileDelta';
+import { ItemDeltas } from '../domain/ItemDelta';
 import { ItemState } from '../domain/ItemState';
 
 export function generateDeltas(
