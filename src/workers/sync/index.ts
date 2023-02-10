@@ -1,5 +1,6 @@
 import { ipcRenderer as electronIpcRenderer } from 'electron';
 import Logger from 'electron-log';
+import fs from 'fs';
 import getListingStore from './listing-store';
 import { getLocalFilesystem } from '../filesystems/local-filesystem';
 import { getRemoteFilesystem } from '../filesystems/remote-filesystem';
@@ -25,7 +26,7 @@ export interface SyncEvents {
   SYNC_FATAL_ERROR: (errorName: ProcessFatalErrorName) => void;
   SYNC_EXIT: (result: ProcessResult) => void;
   SYNC_ACTION_QUEUE_GENERATED: (actions: EnqueuedSyncActions) => void;
-  REMOTE_FILE_PULL_COMPLETED: (name: string, fileId: number) => void;
+  REMOTE_FILE_PULL_COMPLETED: (name: string, fileId: number) => number;
 }
 
 interface IpcRenderer {
@@ -35,6 +36,11 @@ interface IpcRenderer {
   ): void;
   invoke(channel: 'get-sync-details'): Promise<SyncArgs>;
   invoke(channel: 'get-headers'): Promise<HeadersInit>;
+  invoke(
+    chanel: 'REMOTE_FILE_PULL_COMPLETED',
+    name: string,
+    fileId: number
+  ): Promise<number | undefined>;
 }
 
 const ipcRenderer = electronIpcRenderer as IpcRenderer;
@@ -83,7 +89,7 @@ async function setUp() {
     });
   });
 
-  sync.on('FILE_PULLED', (name, kind, fileId) => {
+  sync.on('FILE_PULLED', async (name, kind, fileId) => {
     Logger.debug(`File ${name} pulled from ${kind}`);
     ipcRenderer.send('SYNC_INFO_UPDATE', {
       action: 'PULLED',
@@ -92,7 +98,25 @@ async function setUp() {
     });
 
     if (fileId && kind === 'REMOTE') {
-      ipcRenderer.send('REMOTE_FILE_PULL_COMPLETED', name, fileId);
+      const n = await ipcRenderer.invoke(
+        'REMOTE_FILE_PULL_COMPLETED',
+        name,
+        fileId
+      );
+
+      const s = fs.createReadStream(`./${n}`);
+
+      remote.pullFile(
+        `${n}`,
+        {
+          stream: s,
+          modTime: n as number,
+          size: 17_000,
+        },
+        () => {
+          Logger.debug('thumbnail progress');
+        }
+      );
     }
   });
 

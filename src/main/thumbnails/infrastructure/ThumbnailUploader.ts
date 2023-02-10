@@ -1,9 +1,12 @@
 import { Environment } from '@internxt/inxt-js';
 import { Readable } from 'stream';
 import { StorageTypes, Storage } from '@internxt/sdk/dist/drive';
-import { ThumbnailProperties } from '../ThumbnailProperties';
+import { ThumbnailProperties } from '../domain/ThumbnailProperties';
+import { ThumbnailUploader } from '../domain/ThumbnailUploader';
 
-export class ThumbnailUploader {
+export class EnvironmentAndStorageThumbnailUploader
+  implements ThumbnailUploader
+{
   constructor(
     private readonly environment: Environment,
     private readonly storage: Storage,
@@ -22,17 +25,17 @@ export class ThumbnailUploader {
       this.environment.upload(this.bucket, {
         progressCallback: () => {},
         finishedCallback: (err: unknown, id: string) => {
-          if (err) reject(err);
+          if (err && !id) reject(err);
 
           resolve(id);
         },
-        source: thumbnailStream,
         fileSize: thumbnail.byteLength,
+        source: thumbnailStream,
       });
     });
   }
 
-  async upload(fileId: number, thumbnailFile: Buffer) {
+  async upload(fileId: number, thumbnailFile: Buffer): Promise<void> {
     const fileIdOnEnvironment = await this.uploadThumbnail(thumbnailFile);
 
     const thumbnail: StorageTypes.ThumbnailEntry = {
@@ -46,6 +49,6 @@ export class ThumbnailUploader {
       encrypt_version: StorageTypes.EncryptionVersion.Aes03,
     };
 
-    return this.storage.createThumbnailEntry(thumbnail);
+    await this.storage.createThumbnailEntry(thumbnail);
   }
 }

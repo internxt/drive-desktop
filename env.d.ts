@@ -17,6 +17,7 @@ declare global {
       PHOTOS_URL: string;
       RUDDERSTACK_KEY: string;
       RUDDERSTACK_DATA_PLANE_URL: string;
+      DRIVE_API_URL: string;
     }
   }
 }
