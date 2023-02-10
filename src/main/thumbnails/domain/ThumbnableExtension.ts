@@ -1,6 +1,6 @@
 import fileExtensionGroups, {
   FileExtensionGroup,
-} from '../../shared/FileTypes/FileTypes';
+} from '../../../shared/FileTypes/FileTypes';
 
 const imageExtensions = fileExtensionGroups[FileExtensionGroup.Image];
 const pdfExtensions = fileExtensionGroups[FileExtensionGroup.Pdf];

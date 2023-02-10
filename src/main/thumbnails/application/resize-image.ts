@@ -1,6 +1,6 @@
 import sharp from 'sharp';
 import { Readable } from 'stream';
-import { ThumbnailProperties } from '../ThumbnailProperties';
+import { ThumbnailProperties } from '../domain/ThumbnailProperties';
 
 export async function reziseImage(file: Readable): Promise<Buffer> {
   const sharpStream = sharp({ failOn: 'error' });
@@ -10,7 +10,7 @@ export async function reziseImage(file: Readable): Promise<Buffer> {
     sharpStream
       .clone()
       .resize(ThumbnailProperties.dimensions, ThumbnailProperties.dimensions)
-      .png()
+      .png({ quality: 10, compressionLevel: 9 })
       .toBuffer()
   );
 
