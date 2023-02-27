@@ -47,7 +47,8 @@
     "beforeBuild": "./beforeBuild.js",
     "appId": "com.internxt.drive",
     "asar": true,
-    "asarUnpack": "**\\*.{node,dll}",
+    "asarUnpack": [
+      "**\\*.{node,dll}"    ],
     "files": [
       "dist",
       "node_modules",
