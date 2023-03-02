@@ -5,6 +5,7 @@ import * as uuid from 'uuid';
 import Logger from 'electron-log';
 import { constants, createReadStream, createWriteStream } from 'fs';
 import ignore from 'ignore';
+import { pipeline } from 'stream/promises';
 import { fileNameIsValid } from '../../utils/name-verification';
 import {
   Source,
@@ -167,18 +168,31 @@ export function getLocalFilesystem(
     },
 
     pullFile(name: string, source: Source) {
-      return new Promise((resolve, reject) => {
+      return new Promise(async (resolve, reject) => {
         const tmpFilePath = getTempFilePath();
 
-        const { stream, ...sourceWithoutStream } = source;
+        const { stream: sourceFile, ...sourceWithoutStream } = source;
 
         Logger.debug(`Downloading ${name} to temp location ${tmpFilePath}`);
 
-        const writeStream = createWriteStream(tmpFilePath);
+        const destination = createWriteStream(tmpFilePath);
 
-        stream.on('data', (chunk) => writeStream.write(chunk));
+        try {
+          await pipeline(sourceFile, destination);
 
-        stream.on('error', (err) => {
+          const actualPath = getActualPath(name);
+
+          await fs.mkdir(path.parse(actualPath).dir, {
+            recursive: true,
+          });
+
+          await saferRenameFile(tmpFilePath, actualPath);
+
+          const modTime = getDateFromSeconds(source.modTime);
+          fs.utimes(actualPath, modTime, modTime);
+
+          resolve();
+        } catch (err: unknown) {
           reject(
             new ProcessError(
               'UNKNOWN',
@@ -193,43 +207,7 @@ export function getLocalFilesystem(
               )
             )
           );
-        });
-
-        stream.on('end', async () => {
-          try {
-            writeStream.close();
-
-            const actualPath = getActualPath(name);
-
-            await fs.mkdir(path.parse(actualPath).dir, { recursive: true });
-
-            await saferRenameFile(tmpFilePath, actualPath);
-
-            const modTime = getDateFromSeconds(source.modTime);
-            fs.utimes(actualPath, modTime, modTime);
-
-            resolve();
-          } catch (err) {
-            if (err instanceof ProcessError) {
-              reject(err);
-            } else {
-              reject(
-                new ProcessError(
-                  'UNKNOWN',
-                  createErrorDetails(
-                    err,
-                    `Making local directory if needed and updating local modtime`,
-                    `Name: ${name}, source: ${JSON.stringify(
-                      sourceWithoutStream,
-                      null,
-                      2
-                    )}`
-                  )
-                )
-              );
-            }
-          }
-        });
+        }
       });
     },
 
