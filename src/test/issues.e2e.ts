@@ -1,6 +1,9 @@
 import { test, expect, ElectronApplication, Page } from '@playwright/test';
 import { _electron as electron } from 'playwright';
-import { ipcMainEmit } from 'electron-playwright-helpers';
+import {
+  ipcMainCallFirstListener,
+  ipcMainEmit,
+} from 'electron-playwright-helpers';
 import {
   longMessages,
   shortMessages,
@@ -53,7 +56,8 @@ test.describe('process issues', () => {
 
     await ipcMainEmit(electronApp, 'user-logged-in', AccessResponseFixtures);
 
-    await ipcMainEmit(electronApp, 'open-process-issues-window');
+    await ipcMainCallFirstListener(electronApp, 'open-process-issues-window');
+
     page = await electronApp.firstWindow();
   });
 
