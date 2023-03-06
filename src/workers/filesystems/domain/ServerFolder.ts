@@ -5,4 +5,5 @@ export type ServerFolder = {
   name: string;
   parent_id: null | number;
   updated_at: string;
+  plain_name: string | null;
 };

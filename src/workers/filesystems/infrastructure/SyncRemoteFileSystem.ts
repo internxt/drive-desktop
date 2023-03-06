@@ -181,14 +181,17 @@ export function getRemoteFilesystem({
             };
           });
 
-        foldersInThisFolder.forEach((folder) => {
-          const name =
-            currentName +
+        foldersInThisFolder.forEach((folder: ServerFolder) => {
+          const plainName =
+            folder.plain_name ||
             crypt.decryptName(
               folder.name,
               (folder.parent_id as number).toString(),
               '03-aes'
             );
+
+          const name = currentName + plainName;
+
           listing[name] = RemoteItemMetaData.from({
             modtime: getSecondsFromDateString(folder.updated_at),
             size: 0,
