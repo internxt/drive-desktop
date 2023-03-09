@@ -19,12 +19,21 @@ export function getSyncIssues() {
   return processIssues.filter((issue) => issue.process === 'SYNC');
 }
 
+export function getGeneralIssues() {
+  return processIssues.filter((issue) => issue.process === 'GENERAL');
+}
+
 export function clearSyncIssues() {
   processIssues = processIssues.filter((issue) => issue.process === 'BACKUPS');
   onProcessIssuesChanged();
 }
 export function clearBackupsIssues() {
   processIssues = processIssues.filter((issue) => issue.process === 'SYNC');
+  onProcessIssuesChanged();
+}
+
+export function clearGeneralIssues() {
+  processIssues = processIssues.filter((issue) => issue.process === 'GENERAL');
   onProcessIssuesChanged();
 }
 
@@ -53,9 +62,11 @@ ipcMain.on('BACKUP_ISSUE', (_, issue: ProcessIssue) => {
 eventBus.on('USER_LOGGED_OUT', () => {
   clearSyncIssues();
   clearBackupsIssues();
+  clearGeneralIssues();
 });
 
 eventBus.on('USER_WAS_UNAUTHORIZED', () => {
   clearSyncIssues();
   clearBackupsIssues();
+  clearGeneralIssues();
 });

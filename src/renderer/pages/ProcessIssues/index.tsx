@@ -7,7 +7,7 @@ import useProcessIssues from '../../hooks/ProcessIssues';
 import ProcessIssuesList from './List';
 import { ReportModal } from './ReportModal';
 
-type Section = 'SYNC' | 'BACKUPS';
+type Section = 'SYNC' | 'BACKUPS' | 'GENERAL';
 
 export default function ProcessIssues() {
   const processIssues = useProcessIssues();
@@ -46,6 +46,7 @@ export default function ProcessIssues() {
         <Tabs active={activeSection} onClick={setActiveSection} />
       </div>
       <ProcessIssuesList
+        selectedTab={activeSection}
         showBackupFatalErrors={activeSection === 'BACKUPS'}
         backupFatalErrors={backupFatalErrors}
         processIssues={processIssuesFilteredByActiveSection}
@@ -67,35 +68,49 @@ function Tabs({
   active: Section;
   onClick: (section: Section) => void;
 }) {
+  const tabWidth = (64 * 4) / 3;
   return (
-    <div className="non-draggable relative flex h-9 w-48 rounded-lg bg-l-neutral-30">
+    <div className="non-draggable relative flex h-9 w-64 rounded-lg bg-l-neutral-30">
       <motion.div
         variants={{
           SYNC: { left: 2, right: 'unset' },
-          BACKUPS: { right: 2, left: 'unset' },
+          BACKUPS: { left: tabWidth + 2, right: 'unset' },
+          GENERAL: { right: 2, left: 'unset' },
         }}
         animate={active}
         transition={{ ease: 'easeOut' }}
         className="absolute top-1/2 h-8 -translate-y-1/2 rounded-lg bg-white"
-        style={{ width: '6rem' }}
+        style={{ width: tabWidth }}
       />
       <button
         type="button"
+        style={{ width: tabWidth }}
         onClick={() => onClick('SYNC')}
-        className={`relative w-1/2 ${
-          active === 'SYNC' ? 'text-neutral-500' : 'text-m-neutral-300'
+        className={`relative ${
+          active === 'SYNC' ? 'text-neutral-500' : 'text-m-neutral-80'
         }`}
       >
         Sync
       </button>
       <button
         type="button"
+        style={{ width: tabWidth }}
         onClick={() => onClick('BACKUPS')}
-        className={`relative w-1/2 ${
+        className={`relative ${
           active === 'BACKUPS' ? 'text-neutral-500' : 'text-m-neutral-80'
         }`}
       >
         Backups
+      </button>
+      <button
+        type="button"
+        style={{ width: tabWidth }}
+        onClick={() => onClick('GENERAL')}
+        className={`relative ${
+          active === 'GENERAL' ? 'text-neutral-500' : 'text-m-neutral-80'
+        }`}
+      >
+        General
       </button>
     </div>
   );

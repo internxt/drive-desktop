@@ -142,7 +142,10 @@ export type ProcessErrorName =
   | 'EMPTY_FILE'
 
   // Unknown error
-  | 'UNKNOWN';
+  | 'UNKNOWN'
+
+  // Unknown device name
+  | 'UNKNOWN_DEVICE_NAME';
 
 export class ProcessError extends Error {
   details: ErrorDetails;
@@ -190,16 +193,19 @@ type ProcessInfoBase = {
   name: string;
 };
 
+export type GeneralProcessIssue = 'GET_DEVICE_NAME_ERROR';
 export type ProcessIssue = ProcessInfoBase & {
   action:
     | 'PULL_ERROR'
     | 'RENAME_ERROR'
     | 'RENAME_ERROR'
     | 'DELETE_ERROR'
-    | 'METADATA_READ_ERROR';
+    | 'METADATA_READ_ERROR'
+    | GeneralProcessIssue;
+
   errorName: ProcessErrorName;
   errorDetails: ErrorDetails;
-  process: 'SYNC' | 'BACKUPS';
+  process: 'SYNC' | 'BACKUPS' | 'GENERAL';
 };
 
 export type ProcessInfoUpdatePayload =

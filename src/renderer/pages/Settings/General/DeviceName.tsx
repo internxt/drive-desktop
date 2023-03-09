@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { DeviceContext } from '../../../context/DeviceContext';
 import Spinner from '../../../assets/spinner.svg';
 
+const DEFAULT_DEVICE_NAME = 'Your Device';
 export default function DeviceName() {
   const [deviceState, renameDevice] = useContext(DeviceContext);
 
@@ -25,8 +26,11 @@ export default function DeviceName() {
     deviceState.status === 'SUCCESS' ? deviceState.device.name : '';
 
   return deviceState.status === 'ERROR' ? (
-    <div className="text-sm text-red-50">
-      Error while loading your device&apos;s name
+    <div>
+      <p className="select-none text-xs text-neutral-500">Device name</p>
+      <div className="mt-1 flex h-9 items-center">
+        <p>{DEFAULT_DEVICE_NAME}</p>
+      </div>
     </div>
   ) : (
     <div>
