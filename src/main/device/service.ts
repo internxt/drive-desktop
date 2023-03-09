@@ -4,25 +4,22 @@ import fetch from 'electron-fetch';
 
 import os from 'os';
 import path from 'path';
-import { addProcessIssue } from '../background-processes/process-issues';
+import { addGeneralIssue } from '../background-processes/process-issues';
 import { getHeaders } from '../auth/service';
 import configStore from '../config';
 
 export type Device = { name: string; id: number; bucket: string };
 
 const addUnknownDeviceIssue = (error: Error) => {
-  addProcessIssue({
+  addGeneralIssue({
     errorName: 'UNKNOWN_DEVICE_NAME',
-    kind: 'LOCAL',
-    name: error.name,
     action: 'GET_DEVICE_NAME_ERROR',
+    process: 'GENERAL',
     errorDetails: {
-      action: '',
+      name: error.name,
       message: error.message,
-      code: '',
       stack: error.stack || '',
     },
-    process: 'GENERAL',
   });
 };
 
@@ -58,6 +55,7 @@ async function tryToCreateDeviceWithDifferentNames(): Promise<Device> {
   }
 }
 export async function getOrCreateDevice() {
+  addUnknownDeviceIssue(new Error());
   const savedDeviceId = configStore.get('deviceId');
 
   const deviceIsDefined = savedDeviceId !== -1;

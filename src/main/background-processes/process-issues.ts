@@ -1,14 +1,24 @@
 import { ipcMain } from 'electron';
-import { ProcessInfoUpdatePayload, ProcessIssue } from '../../workers/types';
+import {
+  GeneralIssue,
+  ProcessInfoUpdatePayload,
+  ProcessIssue,
+} from '../../workers/types';
 import eventBus from '../event-bus';
 import { broadcastToWindows } from '../windows';
 
 let processIssues: ProcessIssue[] = [];
+let generalIssues: GeneralIssue[] = [];
 
 ipcMain.handle('get-process-issues', getProcessIssues);
+ipcMain.handle('get-general-issues', getGeneralIssues);
 
 function onProcessIssuesChanged() {
   broadcastToWindows('process-issues-changed', processIssues);
+}
+
+function onGeneralIssuesChanged() {
+  broadcastToWindows('general-issues-changed', generalIssues);
 }
 
 function getProcessIssues() {
@@ -20,7 +30,7 @@ export function getSyncIssues() {
 }
 
 export function getGeneralIssues() {
-  return processIssues.filter((issue) => issue.process === 'GENERAL');
+  return generalIssues;
 }
 
 export function clearSyncIssues() {
@@ -33,13 +43,18 @@ export function clearBackupsIssues() {
 }
 
 export function clearGeneralIssues() {
-  processIssues = processIssues.filter((issue) => issue.process === 'GENERAL');
-  onProcessIssuesChanged();
+  generalIssues = [];
+  onGeneralIssuesChanged();
 }
 
 export function addProcessIssue(issue: ProcessIssue) {
   processIssues.push(issue);
   onProcessIssuesChanged();
+}
+
+export function addGeneralIssue(issue: GeneralIssue) {
+  generalIssues.push(issue);
+  onGeneralIssuesChanged();
 }
 
 ipcMain.on('SYNC_INFO_UPDATE', (_, payload: ProcessInfoUpdatePayload) => {

@@ -368,8 +368,8 @@ describe('sync tests', () => {
     expect(pullingFileCB).toBeCalledTimes(expectedPulls);
     expect(pulledFileCB).toBeCalledTimes(expectedPulls);
 
-    expect(deletingFileCB).toBeCalledTimes(2);
-    expect(deletedFileCB).toBeCalledTimes(2);
+    expect(deletingFileCB).toBeCalledTimes(1);
+    expect(deletedFileCB).toBeCalledTimes(1);
 
     expect(deletingFolderCB).toBeCalledTimes(1);
     expect(deletedFolderCB).toBeCalledTimes(1);

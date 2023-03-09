@@ -6,8 +6,12 @@ import ErrorIcon from '../../assets/error.svg';
 import FileIcon from '../../assets/file.svg';
 import Spinner from '../../assets/spinner.svg';
 import { longMessages, shortMessages } from '../../messages/process-error';
+import { generalErrors } from '../../messages/general-error';
+
 import { getBaseName } from '../../utils/path';
 import {
+  GeneralErrorName,
+  GeneralIssue,
   ProcessErrorName,
   ProcessFatalErrorName,
   ProcessIssue,
@@ -23,7 +27,9 @@ export default function ProcessIssuesList({
   backupFatalErrors,
   showBackupFatalErrors,
   onClickOnErrorInfo,
+  generalIssues,
 }: {
+  generalIssues: GeneralIssue[];
   processIssues: ProcessIssue[];
   backupFatalErrors: BackupFatalError[];
   showBackupFatalErrors: boolean;
@@ -37,8 +43,9 @@ export default function ProcessIssuesList({
     showBackupFatalErrors ? 'BACKUPS' : 'SYNC'
   );
 
-  const [selectedErrorName, setSelectedErrorName] =
-    useState<ProcessErrorName | null>(null);
+  const [selectedErrorName, setSelectedErrorName] = useState<
+    ProcessErrorName | GeneralErrorName | null
+  >(null);
 
   const errors = [...new Set(processIssues.map((issue) => issue.errorName))];
 
@@ -52,9 +59,10 @@ export default function ProcessIssuesList({
 
   const renderItems = () => {
     if (selectedTab === 'GENERAL') {
-      return errors.map((error) => {
+      return generalIssues.map((issue) => {
+        const error = issue.errorName;
         return (
-          <GeneralIssue
+          <GeneralIssueItem
             onClick={() =>
               selectedErrorName === error
                 ? setSelectedErrorName(null)
@@ -63,7 +71,7 @@ export default function ProcessIssuesList({
             key={error}
             errorName={error}
             isSelected={selectedErrorName === error}
-            issues={processIssues.filter((i) => i.errorName === error)}
+            issues={generalIssues.filter((i) => i.errorName === error)}
           />
         );
       });
@@ -91,6 +99,16 @@ export default function ProcessIssuesList({
       setIsLoading(false);
     };
 
+  const issuesIsEmpty = () => {
+    if (selectedTab === 'GENERAL' && generalIssues.length !== 0) return false;
+
+    if (errors.length === 0) return true;
+    if (backupFatalErrors.length === 0) return true;
+
+    if (!showBackupFatalErrors) return true;
+
+    return false;
+  };
   return (
     <div className="no-scrollbar relative m-4 min-h-0 flex-grow overflow-y-auto rounded-lg border border-l-neutral-30 bg-white">
       {showBackupFatalErrors &&
@@ -107,8 +125,7 @@ export default function ProcessIssuesList({
         ))}
       {renderItems()}
 
-      {errors.length === 0 &&
-        (backupFatalErrors.length === 0 || !showBackupFatalErrors) && <Empty />}
+      {issuesIsEmpty() ? <Empty /> : null}
       {isLoading && (
         <Spinner className="absolute top-1 right-1 h-3 w-3 animate-spin fill-neutral-700" />
       )}
@@ -124,14 +141,14 @@ function Empty() {
   );
 }
 
-function GeneralIssue({
+function GeneralIssueItem({
   issues,
   isSelected,
   errorName,
   onClick,
 }: {
-  errorName: ProcessErrorName;
-  issues: ProcessIssue[];
+  errorName: GeneralErrorName;
+  issues: GeneralIssue[];
   isSelected: boolean;
   onClick: () => void;
 }) {
@@ -150,7 +167,7 @@ function GeneralIssue({
             className="font-semibold text-gray-70"
             data-test="sync-issue-name"
           >
-            {shortMessages[errorName]}
+            {generalErrors.shortMessages[errorName]}
             &nbsp;
             <UilInfoCircle className="inline h-4 w-4 text-blue-60 hover:text-blue-50 active:text-blue-60" />
           </h1>
@@ -177,11 +194,11 @@ function GeneralIssue({
             {issues.map((issue) => (
               <div
                 className="mt-2 flex min-w-0 items-center overflow-hidden"
-                key={issue.name}
+                key={issue.errorDetails.name}
               >
                 <FileIcon className="h-5 w-5 flex-shrink-0" />
                 <p className="ml-2 flex-grow truncate text-gray-70">
-                  {longMessages[issue.errorName]}
+                  {generalErrors.longMessages[issue.errorName]}
                 </p>
               </div>
             ))}

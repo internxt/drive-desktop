@@ -56,6 +56,12 @@ declare interface Window {
       func: (value: import('../workers/types').ProcessIssue[]) => void
     ): () => void;
 
+    getGeneralIssues(): Promise<import('../workers/types').GeneralIssue[]>;
+
+    onGeneralIssuesChanged(
+      func: (value: import('../workers/types').GeneralIssue[]) => void
+    ): () => void;
+
     openProcessIssuesWindow(): void;
 
     openLogs(): void;

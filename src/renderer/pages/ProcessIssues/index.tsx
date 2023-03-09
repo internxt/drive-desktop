@@ -4,6 +4,7 @@ import { ProcessIssue } from '../../../workers/types';
 import WindowTopBar from '../../components/WindowTopBar';
 import useBackupFatalErrors from '../../hooks/BackupFatalErrors';
 import useProcessIssues from '../../hooks/ProcessIssues';
+import useGeneralIssues from '../../hooks/GeneralIssues';
 import ProcessIssuesList from './List';
 import { ReportModal } from './ReportModal';
 
@@ -11,6 +12,7 @@ type Section = 'SYNC' | 'BACKUPS' | 'GENERAL';
 
 export default function ProcessIssues() {
   const processIssues = useProcessIssues();
+  const generalIssues = useGeneralIssues();
   const backupFatalErrors = useBackupFatalErrors();
   const [reportData, setReportData] = useState<Pick<
     ProcessIssue,
@@ -49,6 +51,7 @@ export default function ProcessIssues() {
         selectedTab={activeSection}
         showBackupFatalErrors={activeSection === 'BACKUPS'}
         backupFatalErrors={backupFatalErrors}
+        generalIssues={generalIssues}
         processIssues={processIssuesFilteredByActiveSection}
         onClickOnErrorInfo={setReportData}
       />

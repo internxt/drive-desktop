@@ -8,13 +8,15 @@ import { User } from '../../../main/types';
 import useProcessIssues from '../../hooks/ProcessIssues';
 import useUsage from '../../hooks/Usage';
 import useBackupFatalErrors from '../../hooks/BackupFatalErrors';
+import useGeneralIssues from '../../hooks/GeneralIssues';
 
 export default function Header() {
   const processIssues = useProcessIssues();
+  const generalIssues = useGeneralIssues();
   const backupFatalErrors = useBackupFatalErrors();
 
   const numberOfIssues: number =
-    processIssues.length + backupFatalErrors.length;
+    processIssues.length + backupFatalErrors.length + generalIssues.length;
 
   const numberOfIssuesDisplay = numberOfIssues > 99 ? '99+' : numberOfIssues;
 
