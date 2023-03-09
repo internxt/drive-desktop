@@ -26,7 +26,7 @@ const addUnknownDeviceIssue = (error: Error) => {
   });
 };
 
-async function createDevice(deviceName: string) {
+function createDevice(deviceName: string) {
   return fetch(`${process.env.API_URL}/api/backup/deviceAsFolder`, {
     method: 'POST',
     headers: getHeaders(true),
