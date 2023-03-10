@@ -1030,6 +1030,13 @@ describe('sync tests', () => {
         isFolder: false,
         id: 7338,
       }),
+
+      s: RemoteItemMetaData.from({
+        modtime: 6,
+        size: 8,
+        isFolder: false,
+        id: 99
+      })
     };
 
     const deltasLocal: Deltas = {

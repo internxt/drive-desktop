@@ -1,5 +1,3 @@
-/* eslint-disable jest/expect-expect */
-/* eslint-disable jest/no-mocks-import */
 import EventEmitter from 'events';
 import { PullFolderQueueConsumer } from '../../application/PullFolderQueueConsumer';
 import { FileSystemMock } from '../__mocks__/FileSystemMock';
