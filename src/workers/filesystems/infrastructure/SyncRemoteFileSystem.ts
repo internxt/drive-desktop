@@ -244,7 +244,7 @@ export function getRemoteFilesystem({
           `${process.env.API_URL}/api/storage/file/${fileInCache.fileId}/meta`,
           {
             method: 'POST',
-            headers: { ...headers, 'internxt-mnemonic': mnemonic },
+            headers: headers,
             body: JSON.stringify({
               metadata: { itemName: newNameBase },
               bucketId: fileInCache.bucket,
@@ -297,66 +297,12 @@ export function getRemoteFilesystem({
       let lastParentId = baseFolderId;
 
       if (route.length > 0) {
-        for (const [i, folderName] of route.entries()) {
+        for (const [i] of route.entries()) {
           const routeToThisPoint = route.slice(0, i + 1).join('/');
 
           const folderInCache = cache[routeToThisPoint];
 
           if (folderInCache) lastParentId = folderInCache.id;
-          else {
-            if (createFolderQueue.listeners(routeToThisPoint).length === 0) {
-              httpRequest(`${process.env.API_URL}/api/storage/folder`, {
-                method: 'POST',
-                headers,
-                body: JSON.stringify({
-                  folderName,
-                  parentFolderId: lastParentId,
-                }),
-              })
-                .then(async (res) => {
-                  if (!res.ok) {
-                    throw new ProcessError(
-                      'BAD_RESPONSE',
-                      createErrorDetails(
-                        {},
-                        'Creating folder in drive server',
-                        `res: ${await serializeRes(
-                          res
-                        )}, folderName: ${folderName}, parentFolderId: ${lastParentId}`
-                      )
-                    );
-                  } else return res;
-                })
-                .then((res) => res.json())
-                .then((createdFolder: ServerFolder) => {
-                  cache[routeToThisPoint] = {
-                    id: createdFolder.id,
-                    parentId: createdFolder.parent_id as number,
-                    isFolder: true,
-                    bucket: createdFolder.bucket,
-                  };
-                  createFolderQueue.emit(routeToThisPoint, createdFolder.id);
-                })
-                .catch(async (err) => {
-                  createFolderQueue.emit(routeToThisPoint, err);
-                });
-            }
-
-            try {
-              lastParentId = await new Promise((resolve, reject) =>
-                createFolderQueue.once(routeToThisPoint, (value) => {
-                  if (value instanceof Error) reject(value);
-                  else resolve(value);
-                })
-              );
-            } catch (err) {
-              await handleFetchError(
-                err,
-                'Creating remote folder',
-                `name: ${name}, folderName: ${folderName}, lastParentId: ${lastParentId}`
-              );
-            }
-          }
         }
       }
 
