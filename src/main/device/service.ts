@@ -1,6 +1,7 @@
 import { aes } from '@internxt/lib';
 import { dialog } from 'electron';
 import fetch from 'electron-fetch';
+import logger from 'electron-log';
 
 import os from 'os';
 import path from 'path';
@@ -37,14 +38,17 @@ async function tryToCreateDeviceWithDifferentNames(): Promise<Device> {
   let i = 1;
 
   while (res.status === 409 && i <= 10) {
-    res = await createDevice(`${os.hostname()} (${i})`);
+    const deviceName = `${os.hostname()} (${i})`;
+    logger.info(`[DEVICE] Creating device with name "${deviceName}"`);
+    res = await createDevice(deviceName);
     i++;
   }
 
-  if (!res.ok)
-    res = await createDevice(
-      `${os.hostname()} (${new Date().valueOf() % 1000})`
-    );
+  if (!res.ok) {
+    const deviceName = `${new Date().valueOf() % 1000}`;
+    logger.info(`[DEVICE] Creating device with name "${deviceName}"`);
+    res = await createDevice(`${os.hostname()} (${deviceName})`);
+  }
 
   if (res.ok) {
     return res.json();
@@ -55,7 +59,6 @@ async function tryToCreateDeviceWithDifferentNames(): Promise<Device> {
   }
 }
 export async function getOrCreateDevice() {
-  addUnknownDeviceIssue(new Error());
   const savedDeviceId = configStore.get('deviceId');
 
   const deviceIsDefined = savedDeviceId !== -1;
@@ -81,8 +84,9 @@ export async function getOrCreateDevice() {
   if (newDevice) {
     configStore.set('deviceId', newDevice.id);
     configStore.set('backupList', {});
-
-    return decryptDeviceName(newDevice);
+    const device = decryptDeviceName(newDevice);
+    logger.info(`[DEVICE] Created device with name "${device.name}"`);
+    return device;
   } else {
     const error = new Error('Could not get or create device');
     addUnknownDeviceIssue(error);
