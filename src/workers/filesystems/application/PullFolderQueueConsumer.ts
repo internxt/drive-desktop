@@ -7,6 +7,8 @@ import { FileSystem } from '../domain/FileSystem';
 type QueueByNestLevel = Array<Array<string>>;
 
 export class PullFolderQueueConsumer {
+  private static readonly MAX_CALLS_PER_LEVEL = 10;
+
   constructor(
     private readonly fileSystem: FileSystem<PartialListing>,
     private readonly eventEmiter: EventEmitter
@@ -43,31 +45,23 @@ export class PullFolderQueueConsumer {
   async consume(queue: Array<string>): Promise<void> {
     const queuesByLevel = this.divideByLevel(queue);
 
+    const pullFolder = async (folderName: string): Promise<void> => {
+      this.eventEmiter.emit('PULLING_FOLDER', folderName, this.fileSystem.kind);
+
+      await this.fileSystem.pullFolder(folderName);
+
+      this.eventEmiter.emit('FOLDER_PULLED', folderName, this.fileSystem.kind);
+    };
+
     const tasks = queuesByLevel.map(
       (folders: Array<string>, level: number) => async (): Promise<void> => {
-        const results = await Promise.allSettled(
-          folders.map(async (folder) => {
-            this.eventEmiter.emit(
-              'PULLING_FOLDER',
-              folder,
-              this.fileSystem.kind
-            );
-
-            await this.fileSystem.pullFolder(folder);
-
-            this.eventEmiter.emit(
-              'FOLDER_PULLED',
-              folder,
-              this.fileSystem.kind
-            );
-          })
-        );
-
-        const rejected = results.filter(
-          (result) => result.status === 'rejected'
-        );
-
-        if (rejected.length > 0) {
+        try {
+          await async.mapLimit(
+            folders,
+            PullFolderQueueConsumer.MAX_CALLS_PER_LEVEL,
+            pullFolder
+          );
+        } catch (err: unknown) {
           return Promise.reject(
             new Error(
               `An error occured creating a folder of the level: ${level}`
