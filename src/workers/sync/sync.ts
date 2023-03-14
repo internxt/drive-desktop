@@ -1,4 +1,5 @@
 import Logger from 'electron-log';
+import { itemIsInFolder } from '../utils/file-is-on-folder';
 import { EnqueuedSyncActions, FileSystem, Listing } from '../types';
 import Process, { ProcessEvents, ProcessResult } from '../process';
 
@@ -69,7 +70,6 @@ class Sync extends Process {
     Logger.debug('Queue pull from local', pullFromLocal);
     Logger.debug('Queue pull from remote', pullFromRemote);
     Logger.debug('Queue delete from local', deleteInLocal);
-    Logger.debug('Queue delete from remote', deleteInRemote);
 
     await Promise.all([
       this.consumeRenameQueue(renameInLocal, this.local),
@@ -79,22 +79,47 @@ class Sync extends Process {
       this.consumePullQueue(pullFromLocal, this.local, this.remote),
       this.consumePullQueue(pullFromRemote, this.remote, this.local),
     ]);
+
+    const foldersDeletedInLocal = await this.listDeletedFolders(
+      lastSavedListing,
+      currentLocal,
+      this.local
+    );
+
+    const itemIsInDeletedFolder = itemIsInFolder(foldersDeletedInLocal);
+    const deleteInRemoteNotIncludedOnFolderDeletion = deleteInRemote.filter(
+      (fileName: string) => !itemIsInDeletedFolder(fileName)
+    );
+
+    Logger.debug(
+      'Queue delete from remote',
+      deleteInRemoteNotIncludedOnFolderDeletion
+    );
+
     await Promise.all([
       this.consumeDeleteQueue(deleteInLocal, this.local),
-      this.consumeDeleteQueue(deleteInRemote, this.remote),
+      this.consumeDeleteQueue(
+        deleteInRemoteNotIncludedOnFolderDeletion,
+        this.remote
+      ),
     ]);
 
-    const [foldersDeletedInLocal, foldersDeletedInRemote] = await Promise.all([
-      this.listDeletedFolders(lastSavedListing, currentLocal, this.local),
-      this.listDeletedFolders(lastSavedListing, currentRemote, this.remote),
-    ]);
+    const foldersDeletedInRemote = await this.listDeletedFolders(
+      lastSavedListing,
+      currentRemote,
+      this.remote
+    );
+
+    const deletedRootFoldersInLocal = foldersDeletedInLocal.filter(
+      (folderName: string) => !itemIsInDeletedFolder(folderName)
+    );
 
     Logger.log('Folders deleted in local', foldersDeletedInLocal);
     Logger.log('Folders deleted in remote', foldersDeletedInRemote);
 
     await Promise.all([
       this.consumeDeleteFolderQueue(foldersDeletedInRemote, this.local),
-      this.consumeDeleteFolderQueue(foldersDeletedInLocal, this.remote),
+      this.consumeDeleteFolderQueue(deletedRootFoldersInLocal, this.remote),
     ]);
 
     return this.finalize();

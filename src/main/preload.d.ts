@@ -123,12 +123,16 @@ declare interface Window {
     ): () => void;
 
     getBackupFatalErrors(): Promise<
-      import('../main/background-processes/backups').BackupFatalError[]
+      Array<
+        import('../main/background-processes/types/BackupFatalError').BackupFatalError
+      >
     >;
 
     onBackupFatalErrorsChanged(
       func: (
-        value: import('../main/background-processes/backups').BackupFatalError[]
+        value: Array<
+          import('../main/background-processes/types/BackupFatalError').BackupFatalError
+        >
       ) => void
     ): () => void;
 

@@ -1,14 +1,9 @@
 import { test, expect, ElectronApplication, Page } from '@playwright/test';
 import { _electron as electron } from 'playwright';
 import { ipcMainEmit } from 'electron-playwright-helpers';
+import { wait } from './utils';
 
 import AccessResponseFixtures from './fixtures/AccessResponse.json';
-
-const wait = async (ms: number): Promise<void> => {
-  return new Promise((resolve) => {
-    setTimeout(resolve, ms);
-  });
-};
 
 test.describe('onboarding', () => {
   let electronApp: ElectronApplication;
@@ -39,9 +34,7 @@ test.describe('onboarding', () => {
   test.describe('welcome slide', () => {
     test('onboarding windows starts with welcome message', async () => {
       const content = await page.innerHTML('h3');
-      expect(content).toBe(
-        `Welcome to Internxt, ${AccessResponseFixtures.user.name}!`
-      );
+      expect(content).toBe(`Welcome to Internxt!`);
     });
 
     test('welcome slide has lets go button', async () => {

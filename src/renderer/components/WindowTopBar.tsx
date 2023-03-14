@@ -14,7 +14,10 @@ export default function WindowTopBar({ title }: { title: string }) {
           <UilMultiply className="h-5 w-5" />
         </div>
       )}
-      <p className="absolute top-2 left-1/2 -translate-x-1/2 transform text-sm text-gray-80">
+      <p
+        className="absolute top-2 left-1/2 -translate-x-1/2 transform text-sm text-gray-80"
+        data-test="window-top-bar-title"
+      >
         {title}
       </p>
     </div>

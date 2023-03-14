@@ -14,6 +14,7 @@ import Sync from './sync';
 import { ProcessResult } from '../process';
 import { getUser } from '../../main/auth/service';
 import configStore from '../../main/config';
+import { getClients } from '../../shared/HttpClient/backgroud-process-clients';
 
 export type SyncArgs = {
   localPath: string;
@@ -56,12 +57,15 @@ async function setUp() {
     throw new Error('User has no bucket');
   }
 
+  const clients = getClients();
+
   const remote = getRemoteFilesystem({
     baseFolderId: folderId,
     headers,
     bucket: user?.bucket,
     mnemonic: configStore.get('mnemonic'),
     userInfo: user,
+    clients,
   });
   const local = getLocalFilesystem(localPath, tmpPath);
 

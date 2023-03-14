@@ -1,7 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Transition } from '@headlessui/react';
 import Button from '../../components/Button';
-import { User } from '../../../main/types';
 import widgedWidget from '../../assets/onboarding/widget.png';
 import macFinderWidgetAsset from '../../assets/onboarding/mac-finder-widget.png';
 import Logo from '../../assets/onboarding/logo.svg';
@@ -54,11 +53,6 @@ function SideTextAnimation({
 
 export default function Onboarding() {
   const [slide, setSlide] = useState<number>(0);
-  const [user, setUser] = useState<User | null>(null);
-
-  useEffect(() => {
-    window.electron.getUser().then(setUser);
-  }, []);
 
   const nextSlide = () => {
     setSlide(slide + 1);
@@ -100,7 +94,7 @@ export default function Onboarding() {
             <Logo />
             <div>
               <h3 className="mb-2 text-2xl font-semibold tracking-wide text-neutral-900">
-                Welcome to Internxt, {user?.name}!
+                Welcome to Internxt!
               </h3>
               <p>
                 Client-side encrypted, fragmented, simple, fast, secure and

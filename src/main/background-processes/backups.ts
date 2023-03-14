@@ -9,6 +9,7 @@ import { getBackupsFromDevice, getOrCreateDevice } from '../device/service';
 import eventBus from '../event-bus';
 import { broadcastToWindows } from '../windows';
 import { clearBackupsIssues } from './process-issues';
+import { BackupFatalError } from './types/BackupFatalError';
 
 ipcMain.handle('get-backups-interval', () => {
   return configStore.get('backupInterval');
@@ -183,7 +184,7 @@ function processBackupsItem(
     ipcMain.handleOnce('get-backups-details', () => item);
     onExitFuncs.push(() => ipcMain.removeHandler('get-backups-details'));
 
-    ipcMain.once('BACKUP_FATAL_ERROR', (_, errorName) =>
+    ipcMain.once('BACKUP_FATAL_ERROR', (_, _folderId, errorName) =>
       onExit({ reason: 'FATAL_ERROR', errorName })
     );
     onExitFuncs.push(() => ipcMain.removeAllListeners('BACKUP_FATAL_ERROR'));
@@ -229,15 +230,12 @@ function spawnBackupsWorker() {
   return worker;
 }
 
-export type BackupFatalError = {
-  path: string;
-  folderId: number;
-  errorName: ProcessFatalErrorName;
-};
-
 let fatalErrors: BackupFatalError[] = [];
 
 ipcMain.handle('get-backup-fatal-errors', () => fatalErrors);
+ipcMain.on('add-backup-fatal-errors', (_, errors: Array<BackupFatalError>) => {
+  errors.forEach(addBackupFatalError);
+});
 
 function onBackupFatalErrorsChanged() {
   broadcastToWindows('backup-fatal-errors-changed', fatalErrors);
