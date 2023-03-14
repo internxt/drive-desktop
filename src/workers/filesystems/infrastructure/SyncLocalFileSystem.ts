@@ -167,48 +167,42 @@ export function getLocalFilesystem(
       }
     },
 
-    pullFile(name: string, source: Source) {
-      return new Promise(async (resolve, reject) => {
-        const tmpFilePath = getTempFilePath();
+    async pullFile(name: string, source: Source): Promise<void> {
+      const tmpFilePath = getTempFilePath();
 
-        const { stream: sourceFile, ...sourceWithoutStream } = source;
+      const { stream: sourceFile, ...sourceWithoutStream } = source;
 
-        Logger.debug(`Downloading ${name} to temp location ${tmpFilePath}`);
+      Logger.debug(`Downloading ${name} to temp location ${tmpFilePath}`);
 
-        const destination = createWriteStream(tmpFilePath);
+      const destination = createWriteStream(tmpFilePath);
 
-        try {
-          await pipeline(sourceFile, destination);
+      try {
+        await pipeline(sourceFile, destination);
 
-          const actualPath = getActualPath(name);
+        const actualPath = getActualPath(name);
 
-          await fs.mkdir(path.parse(actualPath).dir, {
-            recursive: true,
-          });
+        await fs.mkdir(path.parse(actualPath).dir, {
+          recursive: true,
+        });
 
-          await saferRenameFile(tmpFilePath, actualPath);
+        await saferRenameFile(tmpFilePath, actualPath);
 
-          const modTime = getDateFromSeconds(source.modTime);
-          fs.utimes(actualPath, modTime, modTime);
-
-          resolve();
-        } catch (err: unknown) {
-          reject(
-            new ProcessError(
-              'UNKNOWN',
-              createErrorDetails(
-                err,
-                `Pulling file locally`,
-                `Name: ${name}, source: ${JSON.stringify(
-                  sourceWithoutStream,
-                  null,
-                  2
-                )}`
-              )
-            )
-          );
-        }
-      });
+        const modTime = getDateFromSeconds(source.modTime);
+        fs.utimes(actualPath, modTime, modTime);
+      } catch (err: unknown) {
+        throw new ProcessError(
+          'UNKNOWN',
+          createErrorDetails(
+            err,
+            `Pulling file locally`,
+            `Name: ${name}, source: ${JSON.stringify(
+              sourceWithoutStream,
+              null,
+              2
+            )}`
+          )
+        );
+      }
     },
 
     async pullFolder(name): Promise<void> {
