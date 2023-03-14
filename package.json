@@ -48,7 +48,9 @@
     "appId": "com.internxt.drive",
     "asar": true,
     "asarUnpack": [
-      "**\\*.{node,dll}"    ],
+      "**\\*.{node,dll}",
+    "**/node_modules/sharp/**"
+    ],
     "files": [
       "dist",
       "node_modules",
