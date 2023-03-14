@@ -98,25 +98,12 @@ async function setUp() {
     });
 
     if (fileId && kind === 'REMOTE') {
-      const n = await ipcRenderer.invoke(
+      await ipcRenderer.invoke(
         'REMOTE_FILE_PULL_COMPLETED',
         name,
         fileId
       );
 
-      const s = fs.createReadStream(`./${n}`);
-
-      remote.pullFile(
-        `${n}`,
-        {
-          stream: s,
-          modTime: n as number,
-          size: 17_000,
-        },
-        () => {
-          Logger.debug('thumbnail progress');
-        }
-      );
     }
   });
 
