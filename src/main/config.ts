@@ -14,7 +14,7 @@ export const fieldsToSave = [
   'backupList',
 ] as const;
 
-interface ConfigStore {
+export interface ConfigStore {
   bearerToken: string;
   bearerTokenEncrypted: boolean;
   newToken: string;

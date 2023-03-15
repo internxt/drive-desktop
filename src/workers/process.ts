@@ -331,6 +331,15 @@ export interface ProcessEvents {
   ) => void;
 
   /**
+   * Triggered when a folder is being created
+   */
+  PULLING_FOLDER: (name: string, fileSystemKind: FileSystemKind) => void;
+  /**
+   * Triggered when a folder has been created
+   */
+  FOLDER_PULLED: (name: string, fileSystemKind: FileSystemKind) => void;
+
+  /**
    * Triggered when a folder is being deleted
    */
   DELETING_FOLDER: (name: string, fileSystemKind: FileSystemKind) => void;
@@ -395,11 +404,11 @@ export type ListingsDiff = {
 
 export type ProcessResult = SuccessfulProcessResult | UnsuccessfulProcessResult;
 
-type SuccessfulProcessResult = {
+export type SuccessfulProcessResult = {
   status: 'IN_SYNC';
 };
 
-type UnsuccessfulProcessResult = {
+export type UnsuccessfulProcessResult = {
   status: 'NOT_IN_SYNC';
   diff: ListingsDiff;
 };

@@ -3,6 +3,7 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 import { Readable } from 'stream';
+import { toHaveBeenCalledBefore } from 'jest-extended';
 import Sync, { Deltas, ListingStore } from '../sync';
 import {
   ErrorDetails,
@@ -10,6 +11,15 @@ import {
   Listing,
   ProcessFatalError,
 } from '../../types';
+import { generateHierarchyActions } from '../Actions/application/GenerateHierarchyActions';
+import { generateDeltas } from '../ItemState/application/GenerateDeltas';
+import { LocalItemMetaData } from '../Listings/domain/LocalItemMetaData';
+import { RemoteItemMetaData } from '../Listings/domain/RemoteItemMetaData';
+import { SynchronizedItemMetaData } from '../Listings/domain/SynchronizedItemMetaData';
+import { ItemState } from '../ItemState/domain/ItemState';
+import { convertActionsToQueues } from '../Actions/application/ConvertActionsToQueues';
+
+expect.extend({ toHaveBeenCalledBefore });
 
 describe('sync tests', () => {
   const mockBase: () => FileSystem = () => ({
@@ -28,6 +38,7 @@ describe('sync tests', () => {
       return {
         modTime: 4,
         size: 4,
+        isFolder: false,
         stream: {} as Readable,
       };
     },
@@ -49,6 +60,7 @@ describe('sync tests', () => {
     const renamedFileCB = jest.fn();
     const finalizingCB = jest.fn();
     const actionsGeneratedCB = jest.fn();
+    const folderPulledCB = jest.fn();
 
     sync.on('SMOKE_TESTING', smokeTestingCB);
     sync.on('CHECKING_LAST_RUN_OUTCOME', checkingLastRunCB);
@@ -64,6 +76,7 @@ describe('sync tests', () => {
     sync.on('FILE_RENAMED', renamedFileCB);
     sync.on('FINALIZING', finalizingCB);
     sync.on('ACTION_QUEUE_GENERATED', actionsGeneratedCB);
+    sync.on('FOLDER_PULLED', folderPulledCB);
 
     return {
       smokeTestingCB,
@@ -80,6 +93,7 @@ describe('sync tests', () => {
       renamedFileCB,
       finalizingCB,
       actionsGeneratedCB,
+      folderPulledCB,
     };
   }
 
@@ -103,9 +117,27 @@ describe('sync tests', () => {
       async getCurrentListing() {
         return {
           listing: {
-            notExistInRemote: { modtime: 40, size: 1 },
-            existInBothButIsTheSame: { modtime: 30, size: 2 },
-            'folder/nested/existInBoth.txt': { modtime: 44, size: 3 },
+            notExistInRemote: LocalItemMetaData.from({
+              modtime: 40,
+              size: 1,
+              isFolder: false,
+              dev: 1,
+              ino: 6537,
+            }),
+            existInBothButIsTheSame: LocalItemMetaData.from({
+              modtime: 30,
+              size: 2,
+              isFolder: false,
+              dev: 1,
+              ino: 9941,
+            }),
+            'folder/nested/existInBoth.txt': LocalItemMetaData.from({
+              modtime: 44,
+              size: 3,
+              isFolder: false,
+              dev: 1,
+              ino: 8783,
+            }),
           },
           readingMetaErrors: [],
         };
@@ -117,9 +149,24 @@ describe('sync tests', () => {
       async getCurrentListing() {
         return {
           listing: {
-            notExistInLocal: { modtime: 40, size: 1 },
-            existInBothButIsTheSame: { modtime: 30, size: 2 },
-            'folder/nested/existInBoth.txt': { modtime: 55, size: 3 },
+            notExistInLocal: RemoteItemMetaData.from({
+              modtime: 40,
+              size: 1,
+              isFolder: false,
+              id: 304,
+            }),
+            existInBothButIsTheSame: RemoteItemMetaData.from({
+              modtime: 30,
+              size: 2,
+              isFolder: false,
+              id: 1345,
+            }),
+            'folder/nested/existInBoth.txt': RemoteItemMetaData.from({
+              modtime: 55,
+              size: 3,
+              isFolder: false,
+              id: 968,
+            }),
           },
           readingMetaErrors: [],
         };
@@ -185,24 +232,149 @@ describe('sync tests', () => {
       ...listingStore(),
       async getLastSavedListing() {
         return {
-          'newer/newer/different': { modtime: 4, size: 4 },
-          'newer/newer/same': { modtime: 4, size: 4 },
-          'newer/deleted': { modtime: 5, size: 4 },
-          'newer/older': { modtime: 5, size: 4 },
-          'newer/unchanged': { modtime: 4, size: 4 },
-          'deleted/newer': { modtime: 4, size: 4 },
-          'deleted/deleted': { modtime: 4, size: 4 },
-          'deleted/older': { modtime: 4, size: 4 },
-          'deleted/unchanged': { modtime: 4, size: 4 },
-          'older/newer': { modtime: 4, size: 4 },
-          'older/deleted': { modtime: 4, size: 4 },
-          'older/older/same': { modtime: 4, size: 4 },
-          'older/older/different': { modtime: 4, size: 4 },
-          'older/unchanged': { modtime: 4, size: 4 },
-          'unchanged/newer': { modtime: 4, size: 4 },
-          'unchanged/deleted': { modtime: 4, size: 4 },
-          'unchanged/older': { modtime: 4, size: 4 },
-          'unchanged/unchanged': { modtime: 4, size: 4 },
+          'newer/newer/different': SynchronizedItemMetaData.from({
+            modtime: 4,
+            size: 4,
+            isFolder: false,
+            dev: 1,
+            ino: 2842,
+            id: 1003,
+          }),
+          'newer/newer/same': SynchronizedItemMetaData.from({
+            modtime: 4,
+            size: 4,
+            isFolder: false,
+            dev: 1,
+            ino: 9677,
+            id: 6953,
+          }),
+          'newer/deleted': SynchronizedItemMetaData.from({
+            modtime: 5,
+            size: 4,
+            isFolder: false,
+            dev: 1,
+            ino: 5656,
+          }),
+          'newer/older': SynchronizedItemMetaData.from({
+            modtime: 5,
+            size: 4,
+            isFolder: false,
+            dev: 1,
+            ino: 2011,
+            id: 343,
+          }),
+          'newer/unchanged': SynchronizedItemMetaData.from({
+            modtime: 4,
+            size: 4,
+            isFolder: false,
+            dev: 1,
+            ino: 5172,
+            id: 7690,
+          }),
+          'deleted/newer': SynchronizedItemMetaData.from({
+            modtime: 4,
+            size: 4,
+            isFolder: false,
+            dev: 1,
+            ino: 6900,
+            id: 7339,
+          }),
+          'deleted/deleted': SynchronizedItemMetaData.from({
+            modtime: 4,
+            size: 4,
+            isFolder: false,
+            dev: 1,
+            ino: 41,
+            id: 6662,
+          }),
+          'deleted/older': SynchronizedItemMetaData.from({
+            modtime: 4,
+            size: 4,
+            isFolder: false,
+            dev: 1,
+            ino: 1889,
+            id: 2299,
+          }),
+          'deleted/unchanged': SynchronizedItemMetaData.from({
+            modtime: 4,
+            size: 4,
+            isFolder: false,
+            dev: 1,
+            ino: 397,
+            id: 3896,
+          }),
+          'older/newer': SynchronizedItemMetaData.from({
+            modtime: 4,
+            size: 4,
+            isFolder: false,
+            dev: 1,
+            ino: 5273,
+            id: 3010,
+          }),
+          'older/deleted': SynchronizedItemMetaData.from({
+            modtime: 4,
+            size: 4,
+            isFolder: false,
+            dev: 1,
+            ino: 5953,
+            id: 4618,
+          }),
+          'older/older/same': SynchronizedItemMetaData.from({
+            modtime: 4,
+            size: 4,
+            isFolder: false,
+            dev: 1,
+            ino: 6992,
+            id: 2148,
+          }),
+          'older/older/different': SynchronizedItemMetaData.from({
+            modtime: 4,
+            size: 4,
+            isFolder: false,
+            dev: 1,
+            ino: 9689,
+            id: 1238,
+          }),
+          'older/unchanged': SynchronizedItemMetaData.from({
+            modtime: 4,
+            size: 4,
+            isFolder: false,
+            dev: 1,
+            ino: 897,
+            id: 7430,
+          }),
+          'unchanged/newer': SynchronizedItemMetaData.from({
+            modtime: 4,
+            size: 4,
+            isFolder: false,
+            dev: 1,
+            ino: 511,
+            id: 3072,
+          }),
+          'unchanged/deleted': SynchronizedItemMetaData.from({
+            modtime: 4,
+            size: 4,
+            isFolder: false,
+            dev: 1,
+            ino: 4791,
+            id: 157,
+          }),
+          'unchanged/older': SynchronizedItemMetaData.from({
+            modtime: 4,
+            size: 4,
+            isFolder: false,
+            dev: 1,
+            ino: 4248,
+            id: 1483,
+          }),
+          'unchanged/unchanged': SynchronizedItemMetaData.from({
+            modtime: 4,
+            size: 4,
+            isFolder: false,
+            dev: 1,
+            ino: 8571,
+            id: 9277,
+          }),
         };
       },
     };
@@ -211,23 +383,125 @@ describe('sync tests', () => {
       async getCurrentListing() {
         return {
           listing: {
-            'new/new/different': { modtime: 4, size: 3 },
-            'new/new/same': { modtime: 4, size: 3 },
-            'new/noexist': { modtime: 43, size: 3 },
-            'newer/newer/different': { modtime: 6, size: 3 },
-            'newer/newer/same': { modtime: 5, size: 3 },
-            'newer/deleted': { modtime: 6, size: 3 },
-            'newer/older': { modtime: 6, size: 3 },
-            'newer/unchanged': { modtime: 5, size: 3 },
-            'older/newer': { modtime: 3, size: 3 },
-            'older/deleted': { modtime: 3, size: 3 },
-            'older/older/same': { modtime: 3, size: 3 },
-            'older/older/different': { modtime: 3, size: 3 },
-            'older/unchanged': { modtime: 3, size: 3 },
-            'unchanged/newer': { modtime: 4, size: 3 },
-            'unchanged/deleted': { modtime: 4, size: 3 },
-            'unchanged/older': { modtime: 4, size: 3 },
-            'unchanged/unchanged': { modtime: 4, size: 3 },
+            'new/new/different': LocalItemMetaData.from({
+              modtime: 4,
+              size: 3,
+              isFolder: false,
+              ino: 3641,
+              dev: 1,
+            }),
+            'new/new/same': LocalItemMetaData.from({
+              modtime: 4,
+              size: 3,
+              isFolder: false,
+              ino: 4648,
+              dev: 1,
+            }),
+            'new/noexist': LocalItemMetaData.from({
+              modtime: 43,
+              size: 3,
+              isFolder: false,
+              ino: 8399,
+              dev: 1,
+            }),
+            'newer/newer/different': LocalItemMetaData.from({
+              modtime: 6,
+              size: 3,
+              isFolder: false,
+              ino: 2842,
+              dev: 1,
+            }),
+            'newer/newer/same': LocalItemMetaData.from({
+              modtime: 5,
+              size: 3,
+              isFolder: false,
+              ino: 9677,
+              dev: 1,
+            }),
+            'newer/deleted': LocalItemMetaData.from({
+              modtime: 6,
+              size: 3,
+              isFolder: false,
+              ino: 5656,
+              dev: 1,
+            }),
+            'newer/older': LocalItemMetaData.from({
+              modtime: 6,
+              size: 3,
+              isFolder: false,
+              ino: 2011,
+              dev: 1,
+            }),
+            'newer/unchanged': LocalItemMetaData.from({
+              modtime: 5,
+              size: 3,
+              isFolder: false,
+              ino: 5172,
+              dev: 1,
+            }),
+            'older/newer': LocalItemMetaData.from({
+              modtime: 3,
+              size: 3,
+              isFolder: false,
+              ino: 5273,
+              dev: 1,
+            }),
+            'older/deleted': LocalItemMetaData.from({
+              modtime: 3,
+              size: 3,
+              isFolder: false,
+              ino: 5953,
+              dev: 1,
+            }),
+            'older/older/same': LocalItemMetaData.from({
+              modtime: 3,
+              size: 3,
+              isFolder: false,
+              ino: 6992,
+              dev: 1,
+            }),
+            'older/older/different': LocalItemMetaData.from({
+              modtime: 3,
+              size: 3,
+              isFolder: false,
+              ino: 9689,
+              dev: 1,
+            }),
+            'older/unchanged': LocalItemMetaData.from({
+              modtime: 3,
+              size: 3,
+              isFolder: false,
+              ino: 897,
+              dev: 1,
+            }),
+            'unchanged/newer': LocalItemMetaData.from({
+              modtime: 4,
+              size: 3,
+              isFolder: false,
+              ino: 511,
+              dev: 1,
+            }),
+            'unchanged/deleted': LocalItemMetaData.from({
+              modtime: 4,
+              size: 3,
+              isFolder: false,
+              ino: 4791,
+              dev: 1,
+            }),
+            'unchanged/older': LocalItemMetaData.from({
+              modtime: 4,
+              size: 3,
+              isFolder: false,
+              ino: 4248,
+              dev: 1,
+            }),
+            'unchanged/unchanged': LocalItemMetaData.from({
+              modtime: 4,
+              size: 3,
+              isFolder: false,
+              ino: 8571,
+              dev: 1,
+            }),
           },
           readingMetaErrors: [],
         };
@@ -239,23 +513,108 @@ describe('sync tests', () => {
       async getCurrentListing() {
         return {
           listing: {
-            'new/new/different': { modtime: 5, size: 1 },
-            'new/new/same': { modtime: 4, size: 1 },
-            'newer/newer/different': { modtime: 5, size: 1 },
-            'newer/newer/same': { modtime: 5, size: 1 },
-            'newer/older': { modtime: 4, size: 1 },
-            'newer/unchanged': { modtime: 4, size: 1 },
-            'deleted/newer': { modtime: 5, size: 1 },
-            'deleted/older': { modtime: 3, size: 1 },
-            'deleted/unchanged': { modtime: 4, size: 1 },
-            'older/newer': { modtime: 5, size: 1 },
-            'older/older/same': { modtime: 3, size: 1 },
-            'older/older/different': { modtime: 2, size: 1 },
-            'older/unchanged': { modtime: 4, size: 1 },
-            'unchanged/newer': { modtime: 5, size: 1 },
-            'unchanged/older': { modtime: 3, size: 1 },
-            'unchanged/unchanged': { modtime: 4, size: 1 },
-            'noexist/new': { modtime: 4, size: 1 },
+            'new/new/different': RemoteItemMetaData.from({
+              modtime: 5,
+              size: 1,
+              isFolder: false,
+              id: 8145,
+            }),
+            'new/new/same': RemoteItemMetaData.from({
+              modtime: 4,
+              size: 1,
+              isFolder: false,
+              id: 5134,
+            }),
+            'newer/newer/different': RemoteItemMetaData.from({
+              modtime: 5,
+              size: 1,
+              isFolder: false,
+              id: 1003,
+            }),
+            'newer/newer/same': RemoteItemMetaData.from({
+              modtime: 5,
+              size: 1,
+              isFolder: false,
+              id: 6953,
+            }),
+            'newer/older': RemoteItemMetaData.from({
+              modtime: 4,
+              size: 1,
+              isFolder: false,
+              id: 343,
+            }),
+            'newer/unchanged': RemoteItemMetaData.from({
+              modtime: 4,
+              size: 1,
+              isFolder: false,
+              id: 7690,
+            }),
+            'deleted/newer': RemoteItemMetaData.from({
+              modtime: 5,
+              size: 1,
+              isFolder: false,
+              id: 7339,
+            }),
+            'deleted/older': RemoteItemMetaData.from({
+              modtime: 3,
+              size: 1,
+              isFolder: false,
+              id: 2299,
+            }),
+            'deleted/unchanged': RemoteItemMetaData.from({
+              modtime: 4,
+              size: 1,
+              isFolder: false,
+              id: 3896,
+            }),
+            'older/newer': RemoteItemMetaData.from({
+              modtime: 5,
+              size: 1,
+              isFolder: false,
+              id: 3010,
+            }),
+            'older/older/same': RemoteItemMetaData.from({
+              modtime: 3,
+              size: 1,
+              isFolder: false,
+              id: 2148,
+            }),
+            'older/older/different': RemoteItemMetaData.from({
+              modtime: 2,
+              size: 1,
+              isFolder: false,
+              id: 1238,
+            }),
+            'older/unchanged': RemoteItemMetaData.from({
+              modtime: 4,
+              size: 1,
+              isFolder: false,
+              id: 7430,
+            }),
+            'unchanged/newer': RemoteItemMetaData.from({
+              modtime: 5,
+              size: 1,
+              isFolder: false,
+              id: 3072,
+            }),
+            'unchanged/older': RemoteItemMetaData.from({
+              modtime: 3,
+              size: 1,
+              isFolder: false,
+              id: 1483,
+            }),
+            'unchanged/unchanged': RemoteItemMetaData.from({
+              modtime: 4,
+              size: 1,
+              isFolder: false,
+              id: 9277,
+            }),
+            'noexist/new': RemoteItemMetaData.from({
+              modtime: 4,
+              size: 1,
+              isFolder: false,
+              id: 7681,
+            }),
           },
           readingMetaErrors: [],
         };
@@ -368,8 +727,8 @@ describe('sync tests', () => {
     expect(pullingFileCB).toBeCalledTimes(expectedPulls);
     expect(pulledFileCB).toBeCalledTimes(expectedPulls);
 
-    expect(deletingFileCB).toBeCalledTimes(2);
-    expect(deletedFileCB).toBeCalledTimes(2);
+    expect(deletingFileCB).toBeCalledTimes(1);
+    expect(deletedFileCB).toBeCalledTimes(1);
 
     expect(deletingFolderCB).toBeCalledTimes(1);
     expect(deletedFolderCB).toBeCalledTimes(1);
@@ -409,145 +768,342 @@ describe('sync tests', () => {
   });
 
   it('should generate deltas correctly', () => {
-    const sync = dummySync();
-
     const savedListing = {
-      unchanged: { modtime: 44, size: 1 },
-      newer: { modtime: 44, size: 1 },
-      older: { modtime: 44, size: 1 },
-      deleted: { modtime: 44, size: 1 },
+      unchanged: { modtime: 44, size: 1, isFolder: false },
+      newer: { modtime: 44, size: 1, isFolder: false },
+      older: { modtime: 44, size: 1, isFolder: false },
+      deleted: { modtime: 44, size: 1, isFolder: false },
     };
 
     const currentListing = {
-      unchanged: { modtime: 44, size: 1 },
-      newer: { modtime: 45, size: 1 },
-      older: { modtime: 43, size: 1 },
-      new: { modtime: 44, size: 1 },
+      unchanged: { modtime: 44, size: 1, isFolder: false },
+      newer: { modtime: 45, size: 1, isFolder: false },
+      older: { modtime: 43, size: 1, isFolder: false },
+      new: { modtime: 44, size: 1, isFolder: false },
     };
 
-    const deltas = sync.generateDeltas(savedListing, currentListing);
+    const deltas = generateDeltas(savedListing, currentListing);
 
-    expect(deltas.unchanged).toBe('UNCHANGED');
-    expect(deltas.newer).toBe('NEWER');
-    expect(deltas.older).toBe('OLDER');
-    expect(deltas.deleted).toBe('DELETED');
-    expect(deltas.new).toBe('NEW');
+    expect(deltas.unchanged.is('UNCHANGED')).toBe(true);
+    expect(deltas.newer.is('NEWER')).toBe(true);
+    expect(deltas.older.is('OLDER')).toBe(true);
+    expect(deltas.deleted.is('DELETED')).toBe(true);
+    expect(deltas.new.is('NEW')).toBe(true);
   });
 
   it('should generate action queues correctly', () => {
-    const sync = dummySync();
-
     const localListing: Listing = {
-      a: { modtime: 2, size: 1 },
-      aa: { modtime: 2, size: 1 },
-      b: { modtime: 2, size: 1 },
+      a: LocalItemMetaData.from({
+        modtime: 2,
+        size: 1,
+        isFolder: false,
+        ino: 137,
+        dev: 1,
+      }),
+      aa: LocalItemMetaData.from({
+        modtime: 2,
+        size: 1,
+        isFolder: false,
+        ino: 6488,
+        dev: 1,
+      }),
+      b: LocalItemMetaData.from({
+        modtime: 2,
+        size: 1,
+        isFolder: false,
+        ino: 4800,
+        dev: 1,
+      }),
 
-      c: { modtime: 1, size: 1 },
-      cc: { modtime: 2, size: 1 },
-      d: { modtime: 2, size: 1 },
-      e: { modtime: 2, size: 1 },
-      f: { modtime: 2, size: 1 },
+      c: LocalItemMetaData.from({
+        modtime: 1,
+        size: 1,
+        isFolder: false,
+        ino: 9250,
+        dev: 1,
+      }),
+      cc: LocalItemMetaData.from({
+        modtime: 2,
+        size: 1,
+        isFolder: false,
+        ino: 8005,
+        dev: 1,
+      }),
+      d: LocalItemMetaData.from({
+        modtime: 2,
+        size: 1,
+        isFolder: false,
+        ino: 6075,
+        dev: 1,
+      }),
+      e: LocalItemMetaData.from({
+        modtime: 2,
+        size: 1,
+        isFolder: false,
+        ino: 2364,
+        dev: 1,
+      }),
+      f: LocalItemMetaData.from({
+        modtime: 2,
+        size: 1,
+        isFolder: false,
+        ino: 1074,
+        dev: 1,
+      }),
 
-      k: { modtime: 2, size: 1 },
-      m: { modtime: 2, size: 1 },
-      n: { modtime: 1, size: 1 },
-      nn: { modtime: 2, size: 1 },
-      l: { modtime: 2, size: 1 },
+      k: LocalItemMetaData.from({
+        modtime: 2,
+        size: 1,
+        isFolder: false,
+        ino: 6903,
+        dev: 1,
+      }),
+      m: LocalItemMetaData.from({
+        modtime: 2,
+        size: 1,
+        isFolder: false,
+        ino: 9749,
+        dev: 1,
+      }),
+      n: LocalItemMetaData.from({
+        modtime: 1,
+        size: 1,
+        isFolder: false,
+        ino: 768,
+        dev: 1,
+      }),
+      nn: LocalItemMetaData.from({
+        modtime: 2,
+        size: 1,
+        isFolder: false,
+        ino: 735,
+        dev: 1,
+      }),
+      l: LocalItemMetaData.from({
+        modtime: 2,
+        size: 1,
+        isFolder: false,
+        ino: 8519,
+        dev: 1,
+      }),
 
-      o: { modtime: 2, size: 1 },
-      p: { modtime: 2, size: 1 },
-      q: { modtime: 2, size: 1 },
-      r: { modtime: 2, size: 1 },
+      o: LocalItemMetaData.from({
+        modtime: 2,
+        size: 1,
+        isFolder: false,
+        ino: 7390,
+        dev: 1,
+      }),
+      p: LocalItemMetaData.from({
+        modtime: 2,
+        size: 1,
+        isFolder: false,
+        ino: 1132,
+        dev: 1,
+      }),
+      q: LocalItemMetaData.from({
+        modtime: 2,
+        size: 1,
+        isFolder: false,
+        ino: 4851,
+        dev: 1,
+      }),
+      r: LocalItemMetaData.from({
+        modtime: 2,
+        size: 1,
+        isFolder: false,
+        ino: 4260,
+        dev: 1,
+      }),
     };
 
     const remoteListing: Listing = {
-      a: { modtime: 1, size: 1 },
-      aa: { modtime: 2, size: 1 },
-      b: { modtime: 2, size: 1 },
+      a: RemoteItemMetaData.from({
+        modtime: 1,
+        size: 1,
+        isFolder: false,
+        id: 637,
+      }),
+      aa: RemoteItemMetaData.from({
+        modtime: 2,
+        size: 1,
+        isFolder: false,
+        id: 4732,
+      }),
+      b: RemoteItemMetaData.from({
+        modtime: 2,
+        size: 1,
+        isFolder: false,
+        id: 3611,
+      }),
 
-      c: { modtime: 2, size: 1 },
-      cc: { modtime: 2, size: 1 },
-      e: { modtime: 1, size: 1 },
-      f: { modtime: 2, size: 1 },
+      c: RemoteItemMetaData.from({
+        modtime: 2,
+        size: 1,
+        isFolder: false,
+        id: 5178,
+      }),
+      cc: RemoteItemMetaData.from({
+        modtime: 2,
+        size: 1,
+        isFolder: false,
+        id: 3661,
+      }),
+      e: RemoteItemMetaData.from({
+        modtime: 1,
+        size: 1,
+        isFolder: false,
+        id: 5569,
+      }),
+      f: RemoteItemMetaData.from({
+        modtime: 2,
+        size: 1,
+        isFolder: false,
+        id: 4707,
+      }),
 
-      g: { modtime: 2, size: 1 },
-      h: { modtime: 2, size: 1 },
-      i: { modtime: 2, size: 1 },
-      j: { modtime: 2, size: 1 },
+      g: RemoteItemMetaData.from({
+        modtime: 2,
+        size: 1,
+        isFolder: false,
+        id: 1932,
+      }),
+      h: RemoteItemMetaData.from({
+        modtime: 2,
+        size: 1,
+        isFolder: false,
+        id: 6464,
+      }),
+      i: RemoteItemMetaData.from({
+        modtime: 2,
+        size: 1,
+        isFolder: false,
+        id: 5056,
+      }),
+      j: RemoteItemMetaData.from({
+        modtime: 2,
+        size: 1,
+        isFolder: false,
+        id: 4754,
+      }),
 
-      k: { modtime: 3, size: 1 },
-      n: { modtime: 2, size: 1 },
-      nn: { modtime: 2, size: 1 },
-      l: { modtime: 2, size: 1 },
+      k: RemoteItemMetaData.from({
+        modtime: 3,
+        size: 1,
+        isFolder: false,
+        id: 4021,
+      }),
+      n: RemoteItemMetaData.from({
+        modtime: 2,
+        size: 1,
+        isFolder: false,
+        id: 2032,
+      }),
+      nn: RemoteItemMetaData.from({
+        modtime: 2,
+        size: 1,
+        isFolder: false,
+        id: 6138,
+      }),
+      l: RemoteItemMetaData.from({
+        modtime: 2,
+        size: 1,
+        isFolder: false,
+        id: 9149,
+      }),
 
-      o: { modtime: 2, size: 1 },
-      q: { modtime: 2, size: 1 },
-      r: { modtime: 2, size: 1 },
+      o: RemoteItemMetaData.from({
+        modtime: 2,
+        size: 1,
+        isFolder: false,
+        id: 4038,
+      }),
+      q: RemoteItemMetaData.from({
+        modtime: 2,
+        size: 1,
+        isFolder: false,
+        id: 1892,
+      }),
+      r: RemoteItemMetaData.from({
+        modtime: 2,
+        size: 1,
+        isFolder: false,
+        id: 7338,
+      }),
+
+      s: RemoteItemMetaData.from({
+        modtime: 6,
+        size: 8,
+        isFolder: false,
+        id: 99
+      })
     };
 
     const deltasLocal: Deltas = {
-      a: 'NEW',
-      aa: 'NEW',
-      b: 'NEW',
+      a: new ItemState('NEW'),
+      aa: new ItemState('NEW'),
+      b: new ItemState('NEW'),
 
-      c: 'NEWER',
-      cc: 'NEWER',
-      d: 'NEWER',
-      e: 'NEWER',
-      f: 'NEWER',
+      c: new ItemState('NEWER'),
+      cc: new ItemState('NEWER'),
+      d: new ItemState('NEWER'),
+      e: new ItemState('NEWER'),
+      f: new ItemState('NEWER'),
 
-      g: 'DELETED',
-      i: 'DELETED',
-      j: 'DELETED',
+      g: new ItemState('DELETED'),
+      i: new ItemState('DELETED'),
+      j: new ItemState('DELETED'),
 
-      k: 'OLDER',
-      m: 'OLDER',
-      n: 'OLDER',
-      nn: 'OLDER',
-      l: 'OLDER',
+      k: new ItemState('OLDER'),
+      m: new ItemState('OLDER'),
+      n: new ItemState('OLDER'),
+      nn: new ItemState('OLDER'),
+      l: new ItemState('OLDER'),
 
-      o: 'UNCHANGED',
-      p: 'UNCHANGED',
-      q: 'UNCHANGED',
-      r: 'UNCHANGED',
+      o: new ItemState('UNCHANGED'),
+      p: new ItemState('UNCHANGED'),
+      q: new ItemState('UNCHANGED'),
+      r: new ItemState('UNCHANGED'),
     };
 
     const deltasRemote: Deltas = {
-      a: 'NEW',
-      aa: 'NEW',
+      a: new ItemState('NEW'),
+      aa: new ItemState('NEW'),
 
-      c: 'NEWER',
-      cc: 'NEWER',
-      d: 'DELETED',
-      e: 'OLDER',
-      f: 'UNCHANGED',
+      c: new ItemState('NEWER'),
+      cc: new ItemState('NEWER'),
+      d: new ItemState('DELETED'),
+      e: new ItemState('OLDER'),
+      f: new ItemState('UNCHANGED'),
 
-      g: 'NEWER',
-      h: 'DELETED',
-      i: 'OLDER',
-      j: 'UNCHANGED',
+      g: new ItemState('NEWER'),
+      h: new ItemState('DELETED'),
+      i: new ItemState('OLDER'),
+      j: new ItemState('UNCHANGED'),
 
-      k: 'NEWER',
-      m: 'DELETED',
-      n: 'OLDER',
-      nn: 'OLDER',
-      l: 'UNCHANGED',
+      k: new ItemState('NEWER'),
+      m: new ItemState('DELETED'),
+      n: new ItemState('OLDER'),
+      nn: new ItemState('OLDER'),
+      l: new ItemState('UNCHANGED'),
 
-      o: 'NEWER',
-      p: 'DELETED',
-      q: 'OLDER',
-      r: 'UNCHANGED',
+      o: new ItemState('NEWER'),
+      p: new ItemState('DELETED'),
+      q: new ItemState('OLDER'),
+      r: new ItemState('UNCHANGED'),
 
-      s: 'NEW',
+      s: new ItemState('NEW'),
     };
 
+    const actions = generateHierarchyActions(
+      deltasLocal,
+      deltasRemote,
+      localListing,
+      remoteListing
+    );
+
     const { pullFromLocal, pullFromRemote, deleteInLocal, deleteInRemote } =
-      sync.generateActionQueues(
-        deltasLocal,
-        deltasRemote,
-        localListing,
-        remoteListing
-      );
+      convertActionsToQueues(actions).file;
 
     expect(pullFromLocal.sort()).toEqual(
       ['c', 'g', 'i', 'n', 'k', 'o', 'q', 's'].sort()
@@ -564,29 +1120,29 @@ describe('sync tests', () => {
     const sync = dummySync();
 
     const savedListing: Listing = {
-      a: { modtime: 4, size: 1 },
-      b: { modtime: 4, size: 1 },
-      'c/d': { modtime: 5, size: 1 },
-      'c/e': { modtime: 6, size: 1 },
-      'c/f': { modtime: 7, size: 1 },
-      'd/a': { modtime: 2, size: 1 },
-      'd/b': { modtime: 2, size: 1 },
-      'e/a': { modtime: 1, size: 1 },
-      'e/b': { modtime: 2, size: 1 },
-      'nested/quite/a': { modtime: 1, size: 1 },
-      'nested/quite/b': { modtime: 1, size: 1 },
-      'nested/dontDisapear/a': { modtime: 1, size: 1 },
-      'nested/dontDisapear/b': { modtime: 1, size: 1 },
-      'disapear/but/returnfalse': { modtime: 2, size: 1 },
+      a: { modtime: 4, size: 1, isFolder: false },
+      b: { modtime: 4, size: 1, isFolder: false },
+      'c/d': { modtime: 5, size: 1, isFolder: false },
+      'c/e': { modtime: 6, size: 1, isFolder: false },
+      'c/f': { modtime: 7, size: 1, isFolder: false },
+      'd/a': { modtime: 2, size: 1, isFolder: false },
+      'd/b': { modtime: 2, size: 1, isFolder: false },
+      'e/a': { modtime: 1, size: 1, isFolder: false },
+      'e/b': { modtime: 2, size: 1, isFolder: false },
+      'nested/quite/a': { modtime: 1, size: 1, isFolder: false },
+      'nested/quite/b': { modtime: 1, size: 1, isFolder: false },
+      'nested/dontDisapear/a': { modtime: 1, size: 1, isFolder: false },
+      'nested/dontDisapear/b': { modtime: 1, size: 1, isFolder: false },
+      'disapear/but/returnfalse': { modtime: 2, size: 1, isFolder: false },
     };
 
     const currentListing: Listing = {
-      a: { modtime: 4, size: 1 },
-      'c/d': { modtime: 5, size: 1 },
-      'c/e': { modtime: 6, size: 1 },
-      'c/f': { modtime: 7, size: 1 },
-      'd/a': { modtime: 2, size: 1 },
-      'nested/dontDisapear/a': { modtime: 1, size: 1 },
+      a: { modtime: 4, size: 1, isFolder: false },
+      'c/d': { modtime: 5, size: 1, isFolder: false },
+      'c/e': { modtime: 6, size: 1, isFolder: false },
+      'c/f': { modtime: 7, size: 1, isFolder: false },
+      'd/a': { modtime: 2, size: 1, isFolder: false },
+      'nested/dontDisapear/a': { modtime: 1, size: 1, isFolder: false },
     };
 
     const fileSystem = {
@@ -642,15 +1198,48 @@ describe('sync tests', () => {
     const sync = new Sync(mockBase(), mockBase(), listingStore());
 
     const local: Listing = {
-      imsync: { modtime: 4, size: 5 },
-      imnotinremote: { modtime: 4, size: 5 },
-      imindiffmodtimes: { modtime: 4, size: 5 },
+      imsync: LocalItemMetaData.from({
+        modtime: 4,
+        size: 5,
+        isFolder: false,
+        ino: 0,
+        dev: 0,
+      }),
+      imnotinremote: LocalItemMetaData.from({
+        modtime: 4,
+        size: 5,
+        isFolder: false,
+        ino: 1,
+        dev: 1,
+      }),
+      imindiffmodtimes: LocalItemMetaData.from({
+        modtime: 4,
+        size: 5,
+        isFolder: false,
+        ino: 2,
+        dev: 2,
+      }),
     };
 
     const remote: Listing = {
-      imsync: { modtime: 4, size: 5 },
-      imnotinlocal: { modtime: 4, size: 5 },
-      imindiffmodtimes: { modtime: 8, size: 5 },
+      imsync: RemoteItemMetaData.from({
+        modtime: 4,
+        size: 5,
+        isFolder: false,
+        id: 0,
+      }),
+      imnotinlocal: RemoteItemMetaData.from({
+        modtime: 4,
+        size: 5,
+        isFolder: false,
+        id: 1,
+      }),
+      imindiffmodtimes: RemoteItemMetaData.from({
+        modtime: 8,
+        size: 5,
+        isFolder: false,
+        id: 2,
+      }),
     };
 
     const diff = sync.getListingsDiff(local, remote);
@@ -671,6 +1260,70 @@ describe('sync tests', () => {
     ).toBeDefined();
 
     expect(Object.entries(diff.filesInSync).length).toEqual(1);
-    expect(diff.filesInSync.imsync).toMatchObject({ modtime: 4, size: 5 });
+    expect(diff.filesInSync.imsync).toMatchObject({
+      modtime: 4,
+      size: 5,
+      isFolder: false,
+    });
+  });
+
+  it('pulls the folders on remote before the files', async () => {
+    const local: FileSystem = {
+      ...mockBase(),
+      async getCurrentListing() {
+        return {
+          listing: {
+            folder: LocalItemMetaData.from({
+              modtime: 4,
+              size: 5,
+              isFolder: true,
+              dev: 1,
+              ino: 76,
+            }),
+            'folder/fileA': LocalItemMetaData.from({
+              modtime: 4,
+              size: 5,
+              isFolder: false,
+              dev: 1,
+              ino: 553,
+            }),
+            'folder/fileB': LocalItemMetaData.from({
+              modtime: 4,
+              size: 5,
+              isFolder: false,
+              dev: 1,
+              ino: 85,
+            }),
+          },
+          readingMetaErrors: [],
+        };
+      },
+    };
+
+    const remote: FileSystem = {
+      ...mockBase(),
+      async getCurrentListing() {
+        return {
+          readingMetaErrors: [],
+          listing: [],
+        };
+      },
+      pullFolder: jest.fn().mockResolvedValue(),
+    };
+
+    const listingStoreMocked: ListingStore = {
+      ...listingStore(),
+      async getLastSavedListing() {
+        return {};
+      },
+    };
+
+    const sync = new Sync(local, remote, listingStoreMocked);
+
+    const { folderPulledCB, pullingFileCB } = setupEventSpies(sync);
+
+    await sync.run();
+
+    expect(folderPulledCB).toHaveBeenCalledBefore(pullingFileCB);
   });
 });
