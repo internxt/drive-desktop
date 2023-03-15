@@ -6,6 +6,10 @@ let processIssuesWindow: BrowserWindow | null = null;
 export const getProcessIssuesWindow = () => processIssuesWindow;
 
 ipcMain.on('open-process-issues-window', openProcessIssuesWindow);
+ipcMain.handle('open-process-issues-window', async () => {
+  await openProcessIssuesWindow();
+  return true;
+});
 
 async function openProcessIssuesWindow() {
   if (processIssuesWindow) {

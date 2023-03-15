@@ -11,7 +11,7 @@ export const DeviceContext = createContext<
   [DeviceState, (deviceName: string) => void]
 >([defaultState, () => undefined]);
 
-export const DeviceProvider = ({ children }: { children: ReactNode }) => {
+export function DeviceProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<DeviceState>(defaultState);
 
   useEffect(() => {
@@ -42,4 +42,4 @@ export const DeviceProvider = ({ children }: { children: ReactNode }) => {
       {children}
     </DeviceContext.Provider>
   );
-};
+}

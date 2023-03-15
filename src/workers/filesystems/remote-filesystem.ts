@@ -20,6 +20,7 @@ import httpRequest from '../utils/http-request';
 import isOnline from '../utils/is-online';
 import { getDateFromSeconds, getSecondsFromDateString } from '../utils/date';
 import { createErrorDetails, serializeRes } from '../utils/reporting';
+import { FileCreatedResponseDTO } from '../../shared/HttpClient/responses/file-created';
 import { AuthorizedClients } from '../../shared/HttpClient/Clients';
 
 /**
@@ -292,7 +293,7 @@ export function getRemoteFilesystem({
       name: string,
       source: Source,
       progressCallback: (progress: number) => void
-    ): Promise<void> {
+    ): Promise<number> {
       const { size, modTime: modTimeInSeconds } = source;
       const route = name.split('/');
 
@@ -482,6 +483,10 @@ export function getRemoteFilesystem({
             )
           );
         }
+
+        const fileCreated: FileCreatedResponseDTO = await res.json();
+
+        return fileCreated.id;
       } catch (err) {
         await handleFetchError(
           err,
@@ -489,6 +494,8 @@ export function getRemoteFilesystem({
           `encryptedName: ${encryptedName}, modificationTime: ${modificationTime}`
         );
       }
+
+      return Promise.reject();
     },
 
     async existsFolder(name: string): Promise<boolean> {

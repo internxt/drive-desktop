@@ -2,7 +2,7 @@ import { UilSetting, UilAt, UilHistory } from '@iconscout/react-unicons';
 import { motion } from 'framer-motion';
 
 const sectionValues = ['GENERAL', 'ACCOUNT', 'BACKUPS'] as const;
-export type Section = typeof sectionValues[number];
+export type Section = (typeof sectionValues)[number];
 
 export default function Header({
   onClick,
