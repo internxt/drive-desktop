@@ -1,5 +1,9 @@
 import { app } from 'electron';
 import Path from 'path';
+import {
+  desktopEntryIsPresent,
+  toggleDesktopEntry,
+} from './linux-desktop-entry';
 
 const appFolder = Path.dirname(process.execPath);
 const appExe = Path.resolve(appFolder, 'Internxt Drive.exe');
@@ -12,11 +16,15 @@ const args =
     : undefined;
 
 export function isAutoLaunchEnabled() {
-  const loginItem = app.getLoginItemSettings({ path, args });
-  return loginItem.openAtLogin;
+  if (process.platform !== 'linux') {
+    const loginItem = app.getLoginItemSettings({ path, args });
+    return loginItem.openAtLogin;
+  }
+
+  return desktopEntryIsPresent();
 }
 
-export function toggleAutoLaunch() {
+function toggleAppSettings() {
   const currentSetting = isAutoLaunchEnabled();
 
   app.setLoginItemSettings({
@@ -25,4 +33,9 @@ export function toggleAutoLaunch() {
     openAtLogin: !currentSetting,
     openAsHidden: true,
   });
+}
+
+export function toggleAutoLaunch() {
+  if (process.platform !== 'linux') toggleAppSettings();
+  else toggleDesktopEntry();
 }
