@@ -75,8 +75,8 @@ abstract class Process extends EventEmitter {
 
       try {
         const source = await srcFs.getSource(name, progressCallback);
-        await destFs.pullFile(name, source, progressCallback);
-        this.emit('FILE_PULLED', name, destFs.kind);
+        const id = await destFs.pullFile(name, source, progressCallback);
+        this.emit('FILE_PULLED', name, destFs.kind, id);
       } catch (err) {
         const syncError =
           err instanceof ProcessError
@@ -297,7 +297,11 @@ export interface ProcessEvents {
   /**
    * Triggered when a file has been pulled
    */
-  FILE_PULLED: (name: string, fileSystemKind: FileSystemKind) => void;
+  FILE_PULLED: (
+    name: string,
+    fileSystemKind: FileSystemKind,
+    fileId: number | undefined
+  ) => void;
   /**
    * Triggered when an error has occurred while pulling a file
    */

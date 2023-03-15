@@ -41,7 +41,7 @@ export interface FileSystem {
     name: string,
     source: Source,
     progressCallback: FileSystemProgressCallback
-  ): Promise<void>;
+  ): Promise<number | void>;
 
   /**
    * Checks if a folder exists in the filesystem

@@ -27,7 +27,10 @@ interface ConfigStore {
   syncRoot: string;
   lastSavedListing: string;
   lastSync: number;
-  savedConfigs: Record<string, Pick<ConfigStore, typeof fieldsToSave[number]>>;
+  savedConfigs: Record<
+    string,
+    Pick<ConfigStore, (typeof fieldsToSave)[number]>
+  >;
   lastOnboardingShown: string;
   deviceId: number;
   backupList: Record<string, { enabled: boolean; folderId: number }>;
