@@ -24,6 +24,7 @@ import { ServerFolder } from '../domain/ServerFolder';
 import { FileSystem } from '../domain/FileSystem';
 import { RemoteListing } from '../../sync/Listings/domain/Listing';
 import { RemoteItemMetaData } from '../../sync/Listings/domain/RemoteItemMetaData';
+import { FileCreatedResponseDTO } from '../../../shared/HttpClient/responses/file-created';
 
 /**
  * Server cannot find a file given its route,
@@ -285,7 +286,7 @@ export function getRemoteFilesystem({
       name: string,
       source: Source,
       progressCallback: (progress: number) => void
-    ): Promise<void> {
+    ): Promise<number> {
       const { size, modTime: modTimeInSeconds } = source;
       const route = name.split('/');
 
@@ -421,6 +422,11 @@ export function getRemoteFilesystem({
             )
           );
         }
+
+        const fileCreated: FileCreatedResponseDTO = await res.json();
+
+        return fileCreated.id;
+
       } catch (err) {
         await handleFetchError(
           err,
@@ -428,6 +434,8 @@ export function getRemoteFilesystem({
           `encryptedName: ${encryptedName}, modificationTime: ${modificationTime}`
         );
       }
+
+      return Promise.reject();
     },
 
     async pullFolder(name: string): Promise<void> {

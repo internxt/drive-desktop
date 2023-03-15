@@ -47,7 +47,7 @@ export interface FileSystem<T extends PartialListing> {
     name: string,
     source: Source,
     progressCallback: FileSystemProgressCallback
-  ): Promise<void>;
+  ): Promise<number | void>;
 
   /**
    * Creates a folder into this FileSystem
