@@ -1,6 +1,6 @@
 import { Environment } from '@internxt/inxt-js';
 import { Storage } from '@internxt/sdk/dist/drive';
-import { getToken, getUser } from '../../auth/service';
+import { obtainToken, getUser } from '../../auth/service';
 import { EnvironmentAndStorageThumbnailUploader } from './ThumbnailUploader';
 import { onUserUnauthorized } from '../../auth/handlers';
 import ConfigStore from '../../config';
@@ -17,7 +17,7 @@ export class ThumbnailUploaderFactory {
       process.env.DRIVE_API_URL,
       { clientName, clientVersion },
       {
-        token: getToken(),
+        token: obtainToken('bearerToken'),
         mnemonic: ConfigStore.get('mnemonic'),
         unauthorizedCallback: onUserUnauthorized,
       }
