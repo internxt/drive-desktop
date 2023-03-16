@@ -16,4 +16,8 @@ export abstract class ItemMetaData {
   isEmpty(): boolean {
     return this.size === 0;
   }
+
+  isEmptyFile(): boolean {
+    return this.size === 0 && !this.isFolder;
+  }
 }
