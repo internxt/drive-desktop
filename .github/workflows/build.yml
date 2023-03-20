@@ -1,0 +1,39 @@
+name: Execute Hello World
+
+#on:
+#  create:
+#    tags:
+#      - '*'
+on:
+  workflow_dispatch:
+
+jobs:
+  build-ubuntu:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Install graphicsmagick
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y graphicsmagick
+      - name: Install Start Run
+        run: |
+          npm install
+          npm start
+          npm run package
+          
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Install graphicsmagick
+        run: |
+          brew install graphicsmagick
+  
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
