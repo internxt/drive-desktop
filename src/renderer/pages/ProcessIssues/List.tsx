@@ -5,9 +5,13 @@ import WarnIcon from '../../assets/warn.svg';
 import ErrorIcon from '../../assets/error.svg';
 import FileIcon from '../../assets/file.svg';
 import Spinner from '../../assets/spinner.svg';
-import { shortMessages } from '../../messages/process-error';
+import { longMessages, shortMessages } from '../../messages/process-error';
+import { generalErrors } from '../../messages/general-error';
+
 import { getBaseName } from '../../utils/path';
 import {
+  GeneralErrorName,
+  GeneralIssue,
   ProcessErrorName,
   ProcessFatalErrorName,
   ProcessIssue,
@@ -18,14 +22,18 @@ import useFatalErrorActions from '../../hooks/FatalErrorActions';
 import { Action } from '../../actions/types';
 
 export default function ProcessIssuesList({
+  selectedTab,
   processIssues,
   backupFatalErrors,
   showBackupFatalErrors,
   onClickOnErrorInfo,
+  generalIssues,
 }: {
+  generalIssues: GeneralIssue[];
   processIssues: ProcessIssue[];
   backupFatalErrors: BackupFatalError[];
   showBackupFatalErrors: boolean;
+  selectedTab: 'SYNC' | 'BACKUPS' | 'GENERAL';
   onClickOnErrorInfo: (
     errorClicked: Pick<ProcessIssue, 'errorName' | 'errorDetails'>
   ) => void;
@@ -35,8 +43,9 @@ export default function ProcessIssuesList({
     showBackupFatalErrors ? 'BACKUPS' : 'SYNC'
   );
 
-  const [selectedErrorName, setSelectedErrorName] =
-    useState<ProcessErrorName | null>(null);
+  const [selectedErrorName, setSelectedErrorName] = useState<
+    ProcessErrorName | GeneralErrorName | null
+  >(null);
 
   const errors = [...new Set(processIssues.map((issue) => issue.errorName))];
 
@@ -48,6 +57,41 @@ export default function ProcessIssuesList({
     });
   }
 
+  const renderItems = () => {
+    if (selectedTab === 'GENERAL') {
+      return generalIssues.map((issue) => {
+        const error = issue.errorName;
+        return (
+          <GeneralIssueItem
+            onClick={() =>
+              selectedErrorName === error
+                ? setSelectedErrorName(null)
+                : setSelectedErrorName(error)
+            }
+            key={error}
+            errorName={error}
+            isSelected={selectedErrorName === error}
+            issues={generalIssues.filter((i) => i.errorName === error)}
+          />
+        );
+      });
+    }
+
+    return errors.map((error) => (
+      <Item
+        key={error}
+        onClick={() =>
+          selectedErrorName === error
+            ? setSelectedErrorName(null)
+            : setSelectedErrorName(error)
+        }
+        onInfoClick={() => onInfoClick(error)}
+        errorName={error}
+        issues={processIssues.filter((i) => i.errorName === error)}
+        isSelected={selectedErrorName === error}
+      />
+    ));
+  };
   const actionWrapper =
     (action: Action) => async (error: BackupFatalError | undefined) => {
       setIsLoading(true);
@@ -55,6 +99,16 @@ export default function ProcessIssuesList({
       setIsLoading(false);
     };
 
+  const issuesIsEmpty = () => {
+    if (selectedTab === 'GENERAL' && generalIssues.length !== 0) return false;
+
+    if (errors.length === 0) return true;
+    if (backupFatalErrors.length === 0) return true;
+
+    if (!showBackupFatalErrors) return true;
+
+    return false;
+  };
   return (
     <div className="no-scrollbar relative m-4 min-h-0 flex-grow overflow-y-auto rounded-lg border border-l-neutral-30 bg-white">
       {showBackupFatalErrors &&
@@ -69,22 +123,9 @@ export default function ProcessIssuesList({
             }
           />
         ))}
-      {errors.map((error) => (
-        <Item
-          key={error}
-          onClick={() =>
-            selectedErrorName === error
-              ? setSelectedErrorName(null)
-              : setSelectedErrorName(error)
-          }
-          onInfoClick={() => onInfoClick(error)}
-          errorName={error}
-          issues={processIssues.filter((i) => i.errorName === error)}
-          isSelected={selectedErrorName === error}
-        />
-      ))}
-      {errors.length === 0 &&
-        (backupFatalErrors.length === 0 || !showBackupFatalErrors) && <Empty />}
+      {renderItems()}
+
+      {issuesIsEmpty() ? <Empty /> : null}
       {isLoading && (
         <Spinner className="absolute top-1 right-1 h-3 w-3 animate-spin fill-neutral-700" />
       )}
@@ -100,6 +141,73 @@ function Empty() {
   );
 }
 
+function GeneralIssueItem({
+  issues,
+  isSelected,
+  errorName,
+  onClick,
+}: {
+  errorName: GeneralErrorName;
+  issues: GeneralIssue[];
+  isSelected: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <div
+      className="select-none p-2 hover:bg-l-neutral-10 active:bg-l-neutral-20"
+      role="button"
+      tabIndex={0}
+      onClick={onClick}
+      onKeyPress={onClick}
+    >
+      <div className="flex items-center">
+        <WarnIcon className="mr-3 h-7 w-7" />
+        <div className="flex-grow">
+          <h1
+            className="font-semibold text-gray-70"
+            data-test="sync-issue-name"
+          >
+            {generalErrors.shortMessages[errorName]}
+            &nbsp;
+            <UilInfoCircle className="inline h-4 w-4 text-blue-60 hover:text-blue-50 active:text-blue-60" />
+          </h1>
+        </div>
+        <UilAngleDown
+          className={`h-4 w-4 transform transition-all ${
+            isSelected ? 'rotate-180' : 'rotate-0'
+          }`}
+        />
+      </div>
+      <AnimatePresence>
+        {isSelected && (
+          <motion.div
+            initial="collapsed"
+            animate="open"
+            exit="collapsed"
+            variants={{
+              open: { height: 'auto' },
+              collapsed: { height: 0 },
+            }}
+            transition={{ ease: 'easeInOut' }}
+            className="overflow-hidden pl-10"
+          >
+            {issues.map((issue) => (
+              <div
+                className="mt-2 flex min-w-0 items-center overflow-hidden"
+                key={issue.errorDetails.name}
+              >
+                <FileIcon className="h-5 w-5 flex-shrink-0" />
+                <p className="ml-2 flex-grow truncate text-gray-70">
+                  {generalErrors.longMessages[issue.errorName]}
+                </p>
+              </div>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
 function Item({
   errorName,
   issues,

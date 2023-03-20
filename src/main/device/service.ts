@@ -1,45 +1,64 @@
 import { aes } from '@internxt/lib';
 import { dialog } from 'electron';
 import fetch from 'electron-fetch';
+import logger from 'electron-log';
+
 import os from 'os';
 import path from 'path';
-
+import { addGeneralIssue } from '../background-processes/process-issues';
 import { getHeaders } from '../auth/service';
 import configStore from '../config';
 
 export type Device = { name: string; id: number; bucket: string };
 
+export const addUnknownDeviceIssue = (error: Error) => {
+  addGeneralIssue({
+    errorName: 'UNKNOWN_DEVICE_NAME',
+    action: 'GET_DEVICE_NAME_ERROR',
+    process: 'GENERAL',
+    errorDetails: {
+      name: error.name,
+      message: error.message,
+      stack: error.stack || '',
+    },
+  });
+};
+
+function createDevice(deviceName: string) {
+  return fetch(`${process.env.API_URL}/api/backup/deviceAsFolder`, {
+    method: 'POST',
+    headers: getHeaders(true),
+    body: JSON.stringify({ deviceName }),
+  });
+}
+
+async function tryToCreateDeviceWithDifferentNames(): Promise<Device> {
+  let res = await createDevice(os.hostname());
+
+  let i = 1;
+
+  while (res.status === 409 && i <= 10) {
+    const deviceName = `${os.hostname()} (${i})`;
+    logger.info(`[DEVICE] Creating device with name "${deviceName}"`);
+    res = await createDevice(deviceName);
+    i++;
+  }
+
+  if (!res.ok) {
+    const deviceName = `${new Date().valueOf() % 1000}`;
+    logger.info(`[DEVICE] Creating device with name "${deviceName}"`);
+    res = await createDevice(`${os.hostname()} (${deviceName})`);
+  }
+
+  if (res.ok) {
+    return res.json();
+  } else {
+    const error = new Error('Could not create device trying different names');
+    addUnknownDeviceIssue(error);
+    throw error;
+  }
+}
 export async function getOrCreateDevice() {
-  async function createDevice(deviceName: string) {
-    return fetch(`${process.env.API_URL}/api/backup/deviceAsFolder`, {
-      method: 'POST',
-      headers: getHeaders(true),
-      body: JSON.stringify({ deviceName }),
-    });
-  }
-
-  async function tryToCreateDeviceWithDifferentNames(): Promise<Device> {
-    let res = await createDevice(os.hostname());
-
-    let i = 1;
-
-    while (res.status === 409 && i <= 10) {
-      res = await createDevice(`${os.hostname()} (${i})`);
-      i++;
-    }
-
-    if (!res.ok)
-      res = await createDevice(
-        `${os.hostname()} (${new Date().valueOf() % 1000})`
-      );
-
-    if (res.ok) {
-      return res.json();
-    } else {
-      throw new Error('Could not create device trying different names');
-    }
-  }
-
   const savedDeviceId = configStore.get('deviceId');
 
   const deviceIsDefined = savedDeviceId !== -1;
@@ -54,6 +73,7 @@ export async function getOrCreateDevice() {
         headers: getHeaders(),
       }
     );
+
     if (res.ok) return decryptDeviceName(await res.json());
     else if (res.status === 404)
       newDevice = await tryToCreateDeviceWithDifferentNames();
@@ -64,10 +84,13 @@ export async function getOrCreateDevice() {
   if (newDevice) {
     configStore.set('deviceId', newDevice.id);
     configStore.set('backupList', {});
-
-    return decryptDeviceName(newDevice);
+    const device = decryptDeviceName(newDevice);
+    logger.info(`[DEVICE] Created device with name "${device.name}"`);
+    return device;
   } else {
-    throw new Error('Could not get or create device');
+    const error = new Error('Could not get or create device');
+    addUnknownDeviceIssue(error);
+    throw error;
   }
 }
 

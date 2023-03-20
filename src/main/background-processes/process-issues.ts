@@ -1,14 +1,24 @@
 import { ipcMain } from 'electron';
-import { ProcessInfoUpdatePayload, ProcessIssue } from '../../workers/types';
+import {
+  GeneralIssue,
+  ProcessInfoUpdatePayload,
+  ProcessIssue,
+} from '../../workers/types';
 import eventBus from '../event-bus';
 import { broadcastToWindows } from '../windows';
 
 let processIssues: ProcessIssue[] = [];
+let generalIssues: GeneralIssue[] = [];
 
 ipcMain.handle('get-process-issues', getProcessIssues);
+ipcMain.handle('get-general-issues', getGeneralIssues);
 
 function onProcessIssuesChanged() {
   broadcastToWindows('process-issues-changed', processIssues);
+}
+
+function onGeneralIssuesChanged() {
+  broadcastToWindows('general-issues-changed', generalIssues);
 }
 
 function getProcessIssues() {
@@ -17,6 +27,10 @@ function getProcessIssues() {
 
 export function getSyncIssues() {
   return processIssues.filter((issue) => issue.process === 'SYNC');
+}
+
+export function getGeneralIssues() {
+  return generalIssues;
 }
 
 export function clearSyncIssues() {
@@ -28,9 +42,19 @@ export function clearBackupsIssues() {
   onProcessIssuesChanged();
 }
 
+export function clearGeneralIssues() {
+  generalIssues = [];
+  onGeneralIssuesChanged();
+}
+
 export function addProcessIssue(issue: ProcessIssue) {
   processIssues.push(issue);
   onProcessIssuesChanged();
+}
+
+export function addGeneralIssue(issue: GeneralIssue) {
+  generalIssues.push(issue);
+  onGeneralIssuesChanged();
 }
 
 ipcMain.on('SYNC_INFO_UPDATE', (_, payload: ProcessInfoUpdatePayload) => {
@@ -53,9 +77,11 @@ ipcMain.on('BACKUP_ISSUE', (_, issue: ProcessIssue) => {
 eventBus.on('USER_LOGGED_OUT', () => {
   clearSyncIssues();
   clearBackupsIssues();
+  clearGeneralIssues();
 });
 
 eventBus.on('USER_WAS_UNAUTHORIZED', () => {
   clearSyncIssues();
   clearBackupsIssues();
+  clearGeneralIssues();
 });

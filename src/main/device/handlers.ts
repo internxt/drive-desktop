@@ -1,6 +1,7 @@
 import { ipcMain } from 'electron';
 import {
   addBackup,
+  addUnknownDeviceIssue,
   changeBackupPath,
   deleteBackup,
   disableBackup,
@@ -22,3 +23,5 @@ ipcMain.handle('delete-backup', (_, v) => deleteBackup(v));
 ipcMain.handle('disable-backup', (_, v) => disableBackup(v));
 
 ipcMain.handle('change-backup-path', (_, v) => changeBackupPath(v));
+
+ipcMain.on('add-device-issue', (_, e) => addUnknownDeviceIssue(e));

@@ -122,6 +122,7 @@ export class ProcessFatalError extends Error {
   }
 }
 
+export type GeneralErrorName = 'UNKNOWN_DEVICE_NAME';
 export type ProcessErrorName =
   // File or folder does not exist
   | 'NOT_EXISTS'
@@ -190,6 +191,16 @@ type ProcessInfoBase = {
   name: string;
 };
 
+export type GeneralIssue = {
+  action: 'GET_DEVICE_NAME_ERROR';
+  errorName: GeneralErrorName;
+  process: 'GENERAL';
+  errorDetails: {
+    name: string;
+    message: string;
+    stack: string;
+  };
+};
 export type ProcessIssue = ProcessInfoBase & {
   action:
     | 'PULL_ERROR'
@@ -197,6 +208,7 @@ export type ProcessIssue = ProcessInfoBase & {
     | 'RENAME_ERROR'
     | 'DELETE_ERROR'
     | 'METADATA_READ_ERROR';
+
   errorName: ProcessErrorName;
   errorDetails: ErrorDetails;
   process: 'SYNC' | 'BACKUPS';

@@ -65,6 +65,15 @@ contextBridge.exposeInMainWorld('electron', {
     ipcRenderer.on(eventName, callback);
     return () => ipcRenderer.removeListener(eventName, callback);
   },
+  getGeneralIssues() {
+    return ipcRenderer.invoke('get-general-issues');
+  },
+  onGeneralIssuesChanged(func) {
+    const eventName = 'general-issues-changed';
+    const callback = (_, v) => func(v);
+    ipcRenderer.on(eventName, callback);
+    return () => ipcRenderer.removeListener(eventName, callback);
+  },
   getProcessIssues() {
     return ipcRenderer.invoke('get-process-issues');
   },
