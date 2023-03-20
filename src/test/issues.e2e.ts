@@ -8,9 +8,17 @@ import {
   longMessages,
   shortMessages,
 } from '../renderer/messages/process-error';
-import { getWindowTopBarTitle } from './selectors';
-import { createBackupFatalError, createSyncError } from './fixtures/errors';
-import { ProcessErrorName, ProcessFatalErrorName } from '../workers/types';
+import { getWindowTopBarTitle, screenshot } from './selectors';
+import {
+  createBackupFatalError,
+  createGeneralIssueFixture,
+  createSyncError,
+} from './fixtures/errors';
+import {
+  GeneralIssue,
+  ProcessErrorName,
+  ProcessFatalErrorName,
+} from '../workers/types';
 import { wait } from './utils';
 
 import AccessResponseFixtures from './fixtures/AccessResponse.json';
@@ -50,9 +58,19 @@ test.describe('process issues', () => {
     await ipcMainEmit(electronApp, 'add-backup-fatal-errors', errors);
   };
 
+  const addGeneralIssues = async (issues: Array<GeneralIssue>) => {
+    for (const issue of issues) {
+      await ipcMainEmit(electronApp, 'add-device-issue', issue);
+    }
+  };
+
   test.beforeEach(async () => {
     electronApp = await electron.launch({
       args: ['release/app/dist/main/main.js'],
+      env: {
+        ...process.env,
+        NODE_ENV: 'TEST'
+      }
     });
 
     await ipcMainEmit(electronApp, 'user-logged-in', AccessResponseFixtures);
@@ -149,6 +167,17 @@ test.describe('process issues', () => {
       expect(activeTab).toBe('Backups');
       expect(list).toBeDefined();
       expect(list).toBe('No issues found');
+    });
+  });
+
+  test.describe('general issues', () => {
+    test('tab selected is general when there is only general issues', async () => {
+      await addGeneralIssues([createGeneralIssueFixture('UNKNOWN_DEVICE_NAME')]);
+      await wait(300);
+
+      const activeTab = await page.innerHTML(activeTabSelector);
+
+      expect(activeTab).toBe('General');
     });
   });
 });

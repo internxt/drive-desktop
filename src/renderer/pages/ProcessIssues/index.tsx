@@ -26,7 +26,10 @@ export default function ProcessIssues() {
   );
 
   useEffect(() => {
-    if (
+    if (activeSection === 'SYNC' &&
+      processIssuesFilteredByActiveSection.length === 0 && generalIssues.length)
+      setActiveSection('GENERAL')
+    else if (
       activeSection === 'SYNC' &&
       processIssuesFilteredByActiveSection.length === 0 &&
       (backupFatalErrors.length || processIssues.length)
@@ -39,7 +42,7 @@ export default function ProcessIssues() {
       processIssues.length
     )
       setActiveSection('SYNC');
-  }, [processIssues, backupFatalErrors]);
+  }, [processIssues, backupFatalErrors, generalIssues]);
 
   return (
     <div className="flex h-screen flex-col overflow-hidden bg-l-neutral-10">

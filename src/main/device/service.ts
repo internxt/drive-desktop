@@ -11,7 +11,7 @@ import configStore from '../config';
 
 export type Device = { name: string; id: number; bucket: string };
 
-const addUnknownDeviceIssue = (error: Error) => {
+export const addUnknownDeviceIssue = (error: Error) => {
   addGeneralIssue({
     errorName: 'UNKNOWN_DEVICE_NAME',
     action: 'GET_DEVICE_NAME_ERROR',

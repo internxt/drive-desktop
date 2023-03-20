@@ -1,6 +1,6 @@
 import { Page } from 'playwright';
 
-const screenshot = async (page: Page, name: string): Promise<void> => {
+export const screenshot = async (page: Page, name: string): Promise<void> => {
   const opts = {
     fullPage: true,
     path: `./src/test/screenshots/${name}.png`,

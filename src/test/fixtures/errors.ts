@@ -1,5 +1,7 @@
 import { BackupFatalError } from '../../main/background-processes/types/BackupFatalError';
 import {
+  GeneralErrorName,
+  GeneralIssue,
   ProcessErrorName,
   ProcessFatalErrorName,
   ProcessIssue,
@@ -28,3 +30,16 @@ export const createSyncError = (
   },
   process: 'SYNC',
 });
+
+export const createGeneralIssueFixture = (
+  name: GeneralErrorName,
+): GeneralIssue => ({
+  action: 'GET_DEVICE_NAME_ERROR',
+  errorName: name,
+  process: 'GENERAL',
+  errorDetails: {
+    name: 'Device name could not be retrived',
+    message: 'Error retriving the device name',
+    stack: ''
+  }
+})
