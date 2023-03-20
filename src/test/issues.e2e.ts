@@ -16,7 +16,8 @@ import { wait } from './utils';
 import AccessResponseFixtures from './fixtures/AccessResponse.json';
 
 const activeTabSelector = 'button.text-neutral-500';
-const notActiveTabSelector = 'button.text-m-neutral-80';
+const tabSelector = (name: 'Sync' | 'Backups' | 'General') =>
+  `button.text-m-neutral-80:has-text("${name}")`;
 const emptyIssuesListSelector = 'p.text-xs.font-medium.text-m-neutral-60';
 const infoCircleSelector = '.inline.h-4.w-4.text-blue-60';
 
@@ -139,7 +140,7 @@ test.describe('process issues', () => {
     });
 
     test('does not display any backups issue is none is emited', async () => {
-      await page.locator(notActiveTabSelector).click();
+      await page.locator(tabSelector('Backups')).click();
       await wait(200);
 
       const activeTab = await page.innerHTML(activeTabSelector);
