@@ -40,7 +40,6 @@ jobs:
       - name: Install Start Run 
         run: |
           npm install
-          npm start
           npm run package
   
   build-windows:
@@ -66,5 +65,4 @@ jobs:
       - name: Install Start Run
         run: |          
           npm install
-          npm start
           npm run package
