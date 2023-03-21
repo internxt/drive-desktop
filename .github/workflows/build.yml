@@ -19,12 +19,7 @@ jobs:
           sudo apt-get install -y graphicsmagick
       - name: Install Start Run
         run: |
-          sudo apt-get install libatk1.0-0 -y
-          sudo apt-get install libatk-bridge2.0-0 -y
-          sudo apt-get install libgtk-3-0 -y
-          sudo apt-get install libgbm1 -y
-          npm install --force
-          npm start
+          npm install 
           npm run package
           ls release/build/
           
