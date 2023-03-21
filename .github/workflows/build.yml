@@ -19,9 +19,14 @@ jobs:
           sudo apt-get install -y graphicsmagick
       - name: Install Start Run
         run: |
-          npm install
+          sudo apt-get install libatk1.0-0 -y
+          sudo apt-get install libatk-bridge2.0-0 -y
+          sudo apt-get install libgtk-3-0 -y
+          sudo apt-get install libgbm1 -y
+          npm install --force
           npm start
           npm run package
+          ls release/build/
           
   build-macos:
     runs-on: macos-latest
@@ -31,6 +36,12 @@ jobs:
       - name: Install graphicsmagick
         run: |
           brew install graphicsmagick
+          /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+      - name: Install Start Run 
+        run: |
+          npm install
+          npm start
+          npm run package
   
   build-windows:
     runs-on: windows-latest
@@ -48,6 +59,12 @@ jobs:
       - name: Add GraphicsMagick path
         run: |
           $env:Path += ";C:\Program Files\GraphicsMagick-1.3.36-Q16"
-      - name: Verify
+      - name: Install node
         run: |
-          gm version
+          Invoke-WebRequest -Uri https://nodejs.org/dist/v16.14.0/node-v16.14.0-x64.msi -OutFile nodejs.msi
+          Start-Process msiexec.exe -Wait -ArgumentList '/I nodejs.msi /quiet /norestart'
+      - name: Install Start Run
+        run: |          
+          npm install
+          npm start
+          npm run package
