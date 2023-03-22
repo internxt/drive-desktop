@@ -1,6 +1,6 @@
 import { RemoteItemMetaData } from '../../../Listings/domain/RemoteItemMetaData';
 
-export class RemotelItemMetaDataMother {
+export class RemoteItemMetaDataMother {
   static file({ name, id }: { name: string; id: number }): RemoteItemMetaData {
     return RemoteItemMetaData.from({
       modtime: 90,
