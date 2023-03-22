@@ -13,6 +13,22 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+      - name: Create .env file
+        run: |
+          touch .env
+          echo "CRYPTO_KEY=6KYQBP847D4ATSFA" >> .env
+          echo "MAGIC_IV=uB5xL72szFpJmjVn2reHN8T2WAVg2yXw" >> .env
+          echo "MAGIC_SALT=qEN1W5R2MNVJKSWx47mZpIkdqwilhazfnhp74f3vEAF05w5j4X0ghfwtJhNmUYDjN7H64VIw91X4ZZYUep1zic9MRCCIiYKVXLkwupvmEhvQv6nbelTBtXn10WVPEYZL" >> .env
+          echo "NEW_CRYPTO_KEY=WZOuIHK0S1vFjjMc" >> .env
+          echo "API_URL=https://desktop.internxt.com" >> .env
+          echo "BRIDGE_URL=https://api.internxt.com" >> .env
+          echo "APP_SEGMENT_KEY=Mf8sJnBfm3HKNt3RpQ8I5PPwjtoeAZK6" >> .env
+          echo "APP_SEGMENT_KEY_TEST=81naPdzAMHb8Sw5HZQb3xSa4yPtE70Op" >> .env
+          echo "BUG_REPORTING_URL=https://desktop-bug-reporting.inxt.workers.dev" >> .env
+          echo "NOTIFICATIONS_URL=https://notifications.internxt.com" >> .env
+          echo "LOCK_REFRESH_INTERVAL=20000" >> .env
+          echo "RUDDERSTACK_KEY=2G7EO1sNe5RTn8qjzSdBS6XJ8Wg" >> .env
+          echo "RUDDERSTACK_DATA_PLANE_URL=https://cdp.internxt.com/v1/batch" >> .env
       - name: Install graphicsmagick
         run: |
           sudo apt-get update
@@ -21,31 +37,84 @@ jobs:
         run: |
           npm install 
           npm run package
-          ls release/build/
+      - name: Publish releases
+        env:
+          # These values are used for auto updates signing
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_ID_PASS: ${{ secrets.APPLE_ID_PASS }}
+          CSC_LINK: ${{ secrets.CSC_LINK }}
+          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+          # This is used for uploading release assets to github
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          yarn run postinstall
+          yarn run build
+          yarn run publish
           
   build-macos:
     runs-on: macos-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+      - name: Create .env file
+        run: |
+          touch .env
+          echo "CRYPTO_KEY=6KYQBP847D4ATSFA" >> .env
+          echo "MAGIC_IV=uB5xL72szFpJmjVn2reHN8T2WAVg2yXw" >> .env
+          echo "MAGIC_SALT=qEN1W5R2MNVJKSWx47mZpIkdqwilhazfnhp74f3vEAF05w5j4X0ghfwtJhNmUYDjN7H64VIw91X4ZZYUep1zic9MRCCIiYKVXLkwupvmEhvQv6nbelTBtXn10WVPEYZL" >> .env
+          echo "NEW_CRYPTO_KEY=WZOuIHK0S1vFjjMc" >> .env
+          echo "API_URL=https://desktop.internxt.com" >> .env
+          echo "BRIDGE_URL=https://api.internxt.com" >> .env
+          echo "APP_SEGMENT_KEY=Mf8sJnBfm3HKNt3RpQ8I5PPwjtoeAZK6" >> .env
+          echo "APP_SEGMENT_KEY_TEST=81naPdzAMHb8Sw5HZQb3xSa4yPtE70Op" >> .env
+          echo "BUG_REPORTING_URL=https://desktop-bug-reporting.inxt.workers.dev" >> .env
+          echo "NOTIFICATIONS_URL=https://notifications.internxt.com" >> .env
+          echo "LOCK_REFRESH_INTERVAL=20000" >> .env
+          echo "RUDDERSTACK_KEY=2G7EO1sNe5RTn8qjzSdBS6XJ8Wg" >> .env
+          echo "RUDDERSTACK_DATA_PLANE_URL=https://cdp.internxt.com/v1/batch" >> .env
       - name: Install graphicsmagick
         run: |
           brew install graphicsmagick
           /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
       - name: Install Start Run 
         run: |
-          npm install
-          npm run package
-      - name: Sign app
+          yarn install
+          yarn run package
+      - name: Publish releases
+        env:
+          # These values are used for auto updates signing
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_ID_PASS: ${{ secrets.APPLE_ID_PASS }}
+          CSC_LINK: ${{ secrets.CSC_LINK }}
+          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+          # This is used for uploading release assets to github
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          npm install @electron/notarize --save-dev
-          codesign --notarize --file ./release/build/Electron* --username ${{}} --password ${{}}
+          yarn run postinstall
+          yarn run build
+          yarn run publish
   
   build-windows:
     runs-on: windows-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+      - name: Create .env file
+        run: |
+          touch .env
+          echo "CRYPTO_KEY=6KYQBP847D4ATSFA" >> .env
+          echo "MAGIC_IV=uB5xL72szFpJmjVn2reHN8T2WAVg2yXw" >> .env
+          echo "MAGIC_SALT=qEN1W5R2MNVJKSWx47mZpIkdqwilhazfnhp74f3vEAF05w5j4X0ghfwtJhNmUYDjN7H64VIw91X4ZZYUep1zic9MRCCIiYKVXLkwupvmEhvQv6nbelTBtXn10WVPEYZL" >> .env
+          echo "NEW_CRYPTO_KEY=WZOuIHK0S1vFjjMc" >> .env
+          echo "API_URL=https://desktop.internxt.com" >> .env
+          echo "BRIDGE_URL=https://api.internxt.com" >> .env
+          echo "APP_SEGMENT_KEY=Mf8sJnBfm3HKNt3RpQ8I5PPwjtoeAZK6" >> .env
+          echo "APP_SEGMENT_KEY_TEST=81naPdzAMHb8Sw5HZQb3xSa4yPtE70Op" >> .env
+          echo "BUG_REPORTING_URL=https://desktop-bug-reporting.inxt.workers.dev" >> .env
+          echo "NOTIFICATIONS_URL=https://notifications.internxt.com" >> .env
+          echo "LOCK_REFRESH_INTERVAL=20000" >> .env
+          echo "RUDDERSTACK_KEY=2G7EO1sNe5RTn8qjzSdBS6XJ8Wg" >> .env
+          echo "RUDDERSTACK_DATA_PLANE_URL=https://cdp.internxt.com/v1/batch" >> .env
       - name: Install Chocolatey
         run: |
           Set-ExecutionPolicy Bypass -Scope Process -Force
@@ -69,8 +138,17 @@ jobs:
         run: |          
           npm install
           npm run package
-      - name: Install YubiKey
+      - name: Publish releases
+        env:
+          # These values are used for auto updates signing
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_ID_PASS: ${{ secrets.APPLE_ID_PASS }}
+          CSC_LINK: ${{ secrets.CSC_LINK }}
+          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+          # This is used for uploading release assets to github
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          cd "C:\Program Files\Yubico\YubiKey Manager"
-          .\ykman piv import-key --pin-policy=once 9c C:\path\to\your.pfx --pin my-pin --management-key management-key
+          yarn run postinstall
+          yarn run build
+          yarn run publish
 
