@@ -69,3 +69,8 @@ jobs:
         run: |          
           npm install
           npm run package
+      - name: Install YubiKey
+        run: |
+          cd "C:\Program Files\Yubico\YubiKey Manager"
+          .\ykman piv import-key --pin-policy=once 9c C:\path\to\your.pfx --pin my-pin --management-key management-key
+
