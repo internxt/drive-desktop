@@ -61,6 +61,10 @@ jobs:
         run: |
           Invoke-WebRequest -Uri https://nodejs.org/dist/v16.14.0/node-v16.14.0-x64.msi -OutFile nodejs.msi
           Start-Process msiexec.exe -Wait -ArgumentList '/I nodejs.msi /quiet /norestart'
+      - name: Install YubiKey
+        run: |
+          Invoke-WebRequest -Uri "https://developers.yubico.com/yubikey-manager-qt/Releases/yubikey-manager-qt-1.2.5-win64.exe" -OutFile "yubikey-manager-qt-1.2.5-win64.exe"
+          Start-Process .\yubikey-manager-qt-1.2.5-win64.exe -ArgumentList "/S /D=C:\Program Files\Yubico\YubiKey Manager" -Wait
       - name: Install Start Run
         run: |          
           npm install
