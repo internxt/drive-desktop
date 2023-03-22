@@ -7,6 +7,7 @@ import { DeleteActionBuilder } from './ActionBuilders/DeleteActionBuilder';
 import { ActionBuilder } from '../domain/ActionBuilderCreator';
 import { PullActionBuilder } from './ActionBuilders/PullActioBuilder';
 import { ItemKind } from '../../../../shared/ItemKind';
+import { RenameActionBuilder } from './ActionBuilders/RenameActionBuilder';
 
 function buildFirst(
   builders: Array<ActionBuilder>,
@@ -39,6 +40,10 @@ export function generateHierarchyActions(
     const remoteListing = currentRemoteListing[name];
 
     const builders = [
+      new RenameActionBuilder(
+        { state: deltaLocal, listing: localListing },
+        { state: deltaRemote, listing: remoteListing }
+      ),
       new PullActionBuilder(
         { state: deltaLocal, listing: localListing },
         { state: deltaRemote, listing: remoteListing },

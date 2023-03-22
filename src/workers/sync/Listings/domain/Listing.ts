@@ -8,4 +8,4 @@ export type LocalListing = Record<string, LocalItemMetaData>;
 
 export type RemoteListing = Record<string, RemoteItemMetaData>;
 
-export type PartialListing = LocalListing | RemoteListing;
+export type PartialListing = Record<string, LocalItemMetaData | RemoteItemMetaData>;

@@ -11,6 +11,7 @@ describe('actions generation', () => {
     it('should generate action queue correctly', () => {
       const localListing: LocalListing = {
         a: LocalItemMetaData.from({
+          name: 'a',
           modtime: 2,
           size: 1,
           isFolder: false,
@@ -18,6 +19,7 @@ describe('actions generation', () => {
           dev: 8,
         }),
         aa: LocalItemMetaData.from({
+          name: 'aa',
           modtime: 2,
           size: 1,
           isFolder: false,
@@ -25,6 +27,7 @@ describe('actions generation', () => {
           dev: 8,
         }),
         b: LocalItemMetaData.from({
+          name: 'b',
           modtime: 2,
           size: 1,
           isFolder: false,
@@ -32,6 +35,7 @@ describe('actions generation', () => {
           dev: 8,
         }),
         c: LocalItemMetaData.from({
+          name: 'c',
           modtime: 1,
           size: 1,
           isFolder: false,
@@ -39,6 +43,7 @@ describe('actions generation', () => {
           dev: 8,
         }),
         cc: LocalItemMetaData.from({
+          name: 'cc',
           modtime: 2,
           size: 1,
           isFolder: false,
@@ -46,6 +51,7 @@ describe('actions generation', () => {
           dev: 8,
         }),
         d: LocalItemMetaData.from({
+          name: 'd',
           modtime: 2,
           size: 1,
           isFolder: false,
@@ -53,6 +59,7 @@ describe('actions generation', () => {
           dev: 8,
         }),
         e: LocalItemMetaData.from({
+          name: 'e',
           modtime: 2,
           size: 1,
           isFolder: false,
@@ -60,6 +67,7 @@ describe('actions generation', () => {
           dev: 8,
         }),
         f: LocalItemMetaData.from({
+          name: 'f',
           modtime: 2,
           size: 1,
           isFolder: false,
@@ -67,6 +75,7 @@ describe('actions generation', () => {
           dev: 8,
         }),
         k: LocalItemMetaData.from({
+          name: 'k',
           modtime: 2,
           size: 1,
           isFolder: false,
@@ -74,6 +83,7 @@ describe('actions generation', () => {
           dev: 8,
         }),
         m: LocalItemMetaData.from({
+          name: 'm',
           modtime: 2,
           size: 1,
           isFolder: false,
@@ -81,6 +91,7 @@ describe('actions generation', () => {
           dev: 8,
         }),
         n: LocalItemMetaData.from({
+          name: 'n',
           modtime: 1,
           size: 1,
           isFolder: false,
@@ -88,6 +99,7 @@ describe('actions generation', () => {
           dev: 8,
         }),
         nn: LocalItemMetaData.from({
+          name: 'nn',
           modtime: 2,
           size: 1,
           isFolder: false,
@@ -95,6 +107,7 @@ describe('actions generation', () => {
           dev: 8,
         }),
         l: LocalItemMetaData.from({
+          name: 'l',
           modtime: 2,
           size: 1,
           isFolder: false,
@@ -102,6 +115,7 @@ describe('actions generation', () => {
           dev: 8,
         }),
         o: LocalItemMetaData.from({
+          name: 'o',
           modtime: 2,
           size: 1,
           isFolder: false,
@@ -109,6 +123,7 @@ describe('actions generation', () => {
           dev: 8,
         }),
         p: LocalItemMetaData.from({
+          name: 'p',
           modtime: 2,
           size: 1,
           isFolder: false,
@@ -116,6 +131,7 @@ describe('actions generation', () => {
           dev: 8,
         }),
         q: LocalItemMetaData.from({
+          name: 'q',
           modtime: 2,
           size: 1,
           isFolder: false,
@@ -123,6 +139,7 @@ describe('actions generation', () => {
           dev: 8,
         }),
         r: LocalItemMetaData.from({
+          name: 'r',
           modtime: 2,
           size: 1,
           isFolder: false,
@@ -133,66 +150,77 @@ describe('actions generation', () => {
 
       const remoteListing: RemoteListing = {
         a: RemoteItemMetaData.from({
+          name: 'a',
           modtime: 1,
           size: 1,
           isFolder: false,
           id: 5807,
         }),
         aa: RemoteItemMetaData.from({
+          name: 'aa',
           modtime: 2,
           size: 1,
           isFolder: false,
           id: 7762,
         }),
         b: RemoteItemMetaData.from({
+          name: 'b',
           modtime: 2,
           size: 1,
           isFolder: false,
           id: 7311,
         }),
         c: RemoteItemMetaData.from({
+          name: 'c',
           modtime: 2,
           size: 1,
           isFolder: false,
           id: 9389,
         }),
         cc: RemoteItemMetaData.from({
+          name: 'cc',
           modtime: 2,
           size: 1,
           isFolder: false,
           id: 3379,
         }),
         e: RemoteItemMetaData.from({
+          name: 'e',
           modtime: 1,
           size: 1,
           isFolder: false,
           id: 2168,
         }),
         f: RemoteItemMetaData.from({
+          name: 'f',
           modtime: 2,
           size: 1,
           isFolder: false,
           id: 3752,
         }),
         g: RemoteItemMetaData.from({
+          name: 'g',
           modtime: 2,
           size: 1,
           isFolder: false,
           id: 1595,
         }),
         h: RemoteItemMetaData.from({
+          name: 'h',
           modtime: 2,
           size: 1,
           isFolder: false,
           id: 5232,
         }),
         i: RemoteItemMetaData.from({
+          name: 'i',
           modtime: 2,
           size: 1,
           isFolder: false,
           id: 4932,
         }),
         j: RemoteItemMetaData.from({
+          name: 'j',
           modtime: 2,
           size: 1,
           isFolder: false,
@@ -200,24 +228,28 @@ describe('actions generation', () => {
         }),
 
         k: RemoteItemMetaData.from({
+          name: 'k',
           modtime: 3,
           size: 1,
           isFolder: false,
           id: 5094,
         }),
         n: RemoteItemMetaData.from({
+          name: 'n',
           modtime: 2,
           size: 1,
           isFolder: false,
           id: 6632,
         }),
         nn: RemoteItemMetaData.from({
+          name: 'nn',
           modtime: 2,
           size: 1,
           isFolder: false,
           id: 2008,
         }),
         l: RemoteItemMetaData.from({
+          name: 'l',
           modtime: 2,
           size: 1,
           isFolder: false,
@@ -225,18 +257,21 @@ describe('actions generation', () => {
         }),
 
         o: RemoteItemMetaData.from({
+          name: 'o',
           modtime: 2,
           size: 1,
           isFolder: false,
           id: 8449,
         }),
         q: RemoteItemMetaData.from({
+          name: 'q',
           modtime: 2,
           size: 1,
           isFolder: false,
           id: 4199,
         }),
         r: RemoteItemMetaData.from({
+          name: 'r',
           modtime: 2,
           size: 1,
           isFolder: false,
@@ -244,6 +279,7 @@ describe('actions generation', () => {
         }),
 
         s: RemoteItemMetaData.from({
+          name: 's',
           modtime: 2,
           size: 1,
           isFolder: false,
@@ -331,6 +367,7 @@ describe('actions generation', () => {
     it('should generate action queue correctly as folders', () => {
       const localListing: LocalListing = {
         a: LocalItemMetaData.from({
+          name: 'a',
           modtime: 2,
           size: 1,
           isFolder: true,
@@ -338,6 +375,7 @@ describe('actions generation', () => {
           dev: 8,
         }),
         aa: LocalItemMetaData.from({
+          name: 'aa',
           modtime: 2,
           size: 1,
           isFolder: true,
@@ -345,6 +383,7 @@ describe('actions generation', () => {
           dev: 8,
         }),
         b: LocalItemMetaData.from({
+          name: 'b',
           modtime: 2,
           size: 1,
           isFolder: true,
@@ -352,6 +391,7 @@ describe('actions generation', () => {
           dev: 8,
         }),
         c: LocalItemMetaData.from({
+          name: 'c',
           modtime: 1,
           size: 1,
           isFolder: true,
@@ -359,6 +399,7 @@ describe('actions generation', () => {
           dev: 8,
         }),
         cc: LocalItemMetaData.from({
+          name: 'cc',
           modtime: 2,
           size: 1,
           isFolder: true,
@@ -366,6 +407,7 @@ describe('actions generation', () => {
           dev: 8,
         }),
         d: LocalItemMetaData.from({
+          name: 'd',
           modtime: 2,
           size: 1,
           isFolder: true,
@@ -373,6 +415,7 @@ describe('actions generation', () => {
           dev: 8,
         }),
         e: LocalItemMetaData.from({
+          name: 'e',
           modtime: 2,
           size: 1,
           isFolder: true,
@@ -380,6 +423,7 @@ describe('actions generation', () => {
           dev: 8,
         }),
         f: LocalItemMetaData.from({
+          name: 'f',
           modtime: 2,
           size: 1,
           isFolder: true,
@@ -387,6 +431,7 @@ describe('actions generation', () => {
           dev: 8,
         }),
         k: LocalItemMetaData.from({
+          name: 'k',
           modtime: 2,
           size: 1,
           isFolder: true,
@@ -394,6 +439,7 @@ describe('actions generation', () => {
           dev: 8,
         }),
         m: LocalItemMetaData.from({
+          name: 'm',
           modtime: 2,
           size: 1,
           isFolder: true,
@@ -401,6 +447,7 @@ describe('actions generation', () => {
           dev: 8,
         }),
         n: LocalItemMetaData.from({
+          name: 'n',
           modtime: 1,
           size: 1,
           isFolder: true,
@@ -408,6 +455,7 @@ describe('actions generation', () => {
           dev: 8,
         }),
         nn: LocalItemMetaData.from({
+          name: 'nn',
           modtime: 2,
           size: 1,
           isFolder: true,
@@ -415,6 +463,7 @@ describe('actions generation', () => {
           dev: 8,
         }),
         l: LocalItemMetaData.from({
+          name: 'l',
           modtime: 2,
           size: 1,
           isFolder: true,
@@ -422,6 +471,7 @@ describe('actions generation', () => {
           dev: 8,
         }),
         o: LocalItemMetaData.from({
+          name: 'o',
           modtime: 2,
           size: 1,
           isFolder: true,
@@ -429,6 +479,7 @@ describe('actions generation', () => {
           dev: 8,
         }),
         p: LocalItemMetaData.from({
+          name: 'p',
           modtime: 2,
           size: 1,
           isFolder: true,
@@ -436,6 +487,7 @@ describe('actions generation', () => {
           dev: 8,
         }),
         q: LocalItemMetaData.from({
+          name: 'q',
           modtime: 2,
           size: 1,
           isFolder: true,
@@ -443,6 +495,7 @@ describe('actions generation', () => {
           dev: 8,
         }),
         r: LocalItemMetaData.from({
+          name: 'r',
           modtime: 2,
           size: 1,
           isFolder: true,
@@ -453,66 +506,77 @@ describe('actions generation', () => {
 
       const remoteListing: RemoteListing = {
         a: RemoteItemMetaData.from({
+          name: 'a',
           modtime: 1,
           size: 1,
           isFolder: true,
           id: 5807,
         }),
         aa: RemoteItemMetaData.from({
+          name: 'aa',
           modtime: 2,
           size: 1,
           isFolder: true,
           id: 7762,
         }),
         b: RemoteItemMetaData.from({
+          name: 'b',
           modtime: 2,
           size: 1,
           isFolder: true,
           id: 7311,
         }),
         c: RemoteItemMetaData.from({
+          name: 'c',
           modtime: 2,
           size: 1,
           isFolder: true,
           id: 9389,
         }),
         cc: RemoteItemMetaData.from({
+          name: 'cc',
           modtime: 2,
           size: 1,
           isFolder: true,
           id: 3379,
         }),
         e: RemoteItemMetaData.from({
+          name: 'e',
           modtime: 1,
           size: 1,
           isFolder: true,
           id: 2168,
         }),
         f: RemoteItemMetaData.from({
+          name: 'f',
           modtime: 2,
           size: 1,
           isFolder: true,
           id: 3752,
         }),
         g: RemoteItemMetaData.from({
+          name: 'g',
           modtime: 2,
           size: 1,
           isFolder: true,
           id: 1595,
         }),
         h: RemoteItemMetaData.from({
+          name: 'h',
           modtime: 2,
           size: 1,
           isFolder: true,
           id: 5232,
         }),
         i: RemoteItemMetaData.from({
+          name: 'i',
           modtime: 2,
           size: 1,
           isFolder: true,
           id: 4932,
         }),
         j: RemoteItemMetaData.from({
+          name: 'j',
           modtime: 2,
           size: 1,
           isFolder: true,
@@ -520,24 +584,28 @@ describe('actions generation', () => {
         }),
 
         k: RemoteItemMetaData.from({
+          name: 'k',
           modtime: 3,
           size: 1,
           isFolder: true,
           id: 5094,
         }),
         n: RemoteItemMetaData.from({
+          name: 'n',
           modtime: 2,
           size: 1,
           isFolder: true,
           id: 6632,
         }),
         nn: RemoteItemMetaData.from({
+          name: 'nn',
           modtime: 2,
           size: 1,
           isFolder: true,
           id: 2008,
         }),
         l: RemoteItemMetaData.from({
+          name: 'l',
           modtime: 2,
           size: 1,
           isFolder: true,
@@ -545,18 +613,21 @@ describe('actions generation', () => {
         }),
 
         o: RemoteItemMetaData.from({
+          name: 'o',
           modtime: 2,
           size: 1,
           isFolder: true,
           id: 8449,
         }),
         q: RemoteItemMetaData.from({
+          name: 'q',
           modtime: 2,
           size: 1,
           isFolder: true,
           id: 4199,
         }),
         r: RemoteItemMetaData.from({
+          name: 'r',
           modtime: 2,
           size: 1,
           isFolder: true,
@@ -564,6 +635,7 @@ describe('actions generation', () => {
         }),
 
         s: RemoteItemMetaData.from({
+          name: 's',
           modtime: 2,
           size: 1,
           isFolder: true,

@@ -4,6 +4,8 @@ export const deltas = [
   'DELETED',
   'OLDER',
   'UNCHANGED',
+  'RENAME_RESULT',
+  'RENAMED',
 ] as const;
 
 export type Delta = typeof deltas[number];

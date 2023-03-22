@@ -24,7 +24,7 @@ export abstract class ActionBuilder {
   protected abstract getItemKind(): ItemKind;
 
   protected canCompareWithMirror(): boolean {
-    return this.mirror.state !== undefined && this.mirror.listing !== undefined;
+    return this.actual.state !== undefined && this.mirror.listing !== undefined;
   }
 
   protected build(path: string): Action<ItemKind> {

@@ -10,10 +10,11 @@ export class LocalItemMetaData extends ItemMetaData {
     public readonly modtime: number,
     public readonly size: number,
     public readonly isFolder: boolean,
-    private readonly ino: number,
-    private readonly dev: number
+    public readonly name: string,
+    public readonly ino: number,
+    public readonly dev: number,
   ) {
-    super(modtime, size, isFolder);
+    super(modtime, size, isFolder, name);
   }
 
   same(other: LocalItemMetaData) {
@@ -25,6 +26,7 @@ export class LocalItemMetaData extends ItemMetaData {
       attributes.modtime,
       attributes.size,
       attributes.isFolder,
+      attributes.name,
       attributes.ino,
       attributes.dev
     );
@@ -35,6 +37,7 @@ export class LocalItemMetaData extends ItemMetaData {
       modtime: this.modtime,
       size: this.size,
       isFolder: this.isFolder,
+      name: this.name,
       ino: this.ino,
       dev: this.dev,
     };

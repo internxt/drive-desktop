@@ -11,9 +11,11 @@ export const localFileMetaData: LocalItemMetaDataAttributes = {
   ...fileMetaData,
   ino: 1,
   dev: 1,
+  name: Date.now().toLocaleString(),
 };
 
 export const remoteFileMetaData: RemoteItemMetaDataAttributes = {
   ...fileMetaData,
   id: 2340958,
+  name: Date.now().toLocaleString(),
 };

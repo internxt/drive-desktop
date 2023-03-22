@@ -12,11 +12,12 @@ export class SynchronizedItemMetaData extends ItemMetaData {
     public readonly modtime: number,
     public readonly size: number,
     public readonly isFolder: boolean,
+    public readonly name: string,
     private readonly id: number,
     private readonly ino: number,
     private readonly dev: number
   ) {
-    super(modtime, size, isFolder);
+    super(modtime, size, isFolder, name);
   }
 
   same(other: SynchronizedItemMetaData) {
@@ -29,6 +30,10 @@ export class SynchronizedItemMetaData extends ItemMetaData {
     return this.ino === local.ino && this.dev === local.dev;
   }
 
+  isRemote(remote: RemoteItemMetaDataAttributes) {
+    return this.id === remote.id;
+  }
+
   static from(
     attributes: SynchronizeMetaDataAttributes
   ): SynchronizedItemMetaData {
@@ -36,6 +41,7 @@ export class SynchronizedItemMetaData extends ItemMetaData {
       attributes.modtime,
       attributes.size,
       attributes.isFolder,
+      attributes.name,
       attributes.id,
       attributes.ino,
       attributes.dev

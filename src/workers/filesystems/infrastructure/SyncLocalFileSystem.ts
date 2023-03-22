@@ -77,6 +77,7 @@ export function getLocalFilesystem(
       ino: stat.ino,
       dev: stat.dev,
       isFolder: stat.isDirectory(),
+      name: pathname,
     });
   }
 

@@ -9,9 +9,10 @@ export class RemoteItemMetaData extends ItemMetaData {
     public readonly modtime: number,
     public readonly size: number,
     public readonly isFolder: boolean,
-    private readonly id: number
+    public readonly name: string,
+    public readonly id: number
   ) {
-    super(modtime, size, isFolder);
+    super(modtime, size, isFolder, name);
   }
 
   same(other: RemoteItemMetaData) {
@@ -23,6 +24,7 @@ export class RemoteItemMetaData extends ItemMetaData {
       attributes.modtime,
       attributes.size,
       attributes.isFolder,
+      attributes.name,
       attributes.id
     );
   }
@@ -32,6 +34,7 @@ export class RemoteItemMetaData extends ItemMetaData {
       modtime: this.modtime,
       size: this.size,
       isFolder: this.isFolder,
+      name: this.name,
       id: this.id,
     };
   }

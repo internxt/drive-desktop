@@ -170,6 +170,7 @@ export function getRemoteFilesystem({
               size: file.size,
               isFolder: false,
               id: file.id,
+              name,
             });
             cache[name] = {
               id: file.id,
@@ -198,6 +199,7 @@ export function getRemoteFilesystem({
             size: 0,
             isFolder: true,
             id: folder.id,
+            name
           });
           cache[name] = {
             id: folder.id,
