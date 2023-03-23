@@ -64,4 +64,5 @@ jobs:
         run: |
           yarn run postinstall
           yarn run build
-          yarn run publish
+          yarn run package
+          ls release/build/
