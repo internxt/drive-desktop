@@ -66,8 +66,9 @@ jobs:
         run: |
           Invoke-WebRequest -Uri "https://developers.yubico.com/yubikey-manager-qt/Releases/yubikey-manager-qt-1.2.5-win64.exe" -OutFile "yubikey-manager-qt-1.2.5-win64.exe"
           Start-Process .\yubikey-manager-qt-1.2.5-win64.exe -ArgumentList "/S /D=C:\Program Files\Yubico\YubiKey Manager" -Wait
-      - name: Install yarn adn requirements
+      - name: Install yarn and requirements
         run: |  
+          corepack enable
           npm install --global yarn
           npm install yarn --save-dev
           yarn install --network-timeout 1000000
