@@ -50,8 +50,8 @@ jobs:
           Start-Process .\yubikey-manager-qt-1.2.5-win64.exe -ArgumentList "/S /D=C:\Program Files\Yubico\YubiKey Manager" -Wait
       - name: Install Start Run
         run: |          
-          npm install
-          npm run package
+          yarn install
+          yarn run package
       - name: Publish releases
         env:
           # These values are used for auto updates signing
