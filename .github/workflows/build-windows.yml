@@ -37,6 +37,11 @@ jobs:
           echo "LOCK_REFRESH_INTERVAL=20000" >> .env
           echo "RUDDERSTACK_KEY=2G7EO1sNe5RTn8qjzSdBS6XJ8Wg" >> .env
           echo "RUDDERSTACK_DATA_PLANE_URL=https://cdp.internxt.com/v1/batch" >> .env
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node-version }}
+          registry-url: 'https://npm.pkg.github.com'
       - name: Install Chocolatey
         shell: pwsh
         run: |
