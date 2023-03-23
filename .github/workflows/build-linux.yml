@@ -41,10 +41,9 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y graphicsmagick
-      - name: Install Start Run
+      - name: Install dependencies
         run: |
           yarn install 
-          yarn run package
       - name: Publish releases
         env:
           # These values are used for auto updates signing
