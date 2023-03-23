@@ -64,6 +64,7 @@ jobs:
         run: |        
           yarn install --network-timeout 1000000
       - name: Publish releases
+        shell: pwsh
         env:
           # These values are used for auto updates signing
           APPLE_ID: ${{ secrets.APPLE_ID }}
@@ -75,4 +76,6 @@ jobs:
         run: |
           npm run postinstall
           npm run package
+      - name: Check file 
+        run: |
           ls release/build/
