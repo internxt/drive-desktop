@@ -56,6 +56,5 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           yarn run postinstall
-          yarn run build
           yarn run package
           ls release/build
