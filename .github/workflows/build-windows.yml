@@ -73,6 +73,6 @@ jobs:
           # This is used for uploading release assets to github
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          yarn run postinstall
-          yarn run package
+          npm run postinstall
+          npm run package
           ls release/build/
