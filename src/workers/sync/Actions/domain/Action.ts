@@ -8,4 +8,5 @@ export type Action<T extends ItemKind> = {
   name: string;
   task: SyncTask;
   kind: T;
+  ref?: string;
 };

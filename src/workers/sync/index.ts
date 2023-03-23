@@ -252,8 +252,7 @@ async function setUp() {
   try {
     Logger.debug('SYNC STARTING ');
     const result = await sync.run();
-    Logger.log('Sync done, result: ', result);
-    ipcRenderer.send('SYNC_EXIT', result);
+    ipcRenderer.send('SYNC_EXIT', JSON.parse(JSON.stringify(result)));
   } catch (err) {
     if (err instanceof ProcessFatalError) {
       Logger.error(
@@ -265,6 +264,7 @@ async function setUp() {
       );
       ipcRenderer.send('SYNC_FATAL_ERROR', err.name as ProcessFatalErrorName);
     } else {
+      Logger.error(err);
       Logger.error(
         'Completely unhandled sync fatal error',
         JSON.stringify(err, null, 2)

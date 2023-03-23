@@ -3,7 +3,7 @@ import { itemIsInFolder } from '../utils/file-is-on-folder';
 import {
   EnqueuedSyncActions,
   FileSystem,
-  Listing,
+  Listing as OldListing,
   ProcessError,
   ProcessFatalError,
 } from '../types';
@@ -16,9 +16,9 @@ import Process, {
 import { generateDeltas } from './ItemState/application/GenerateDeltas';
 import { ListingStore } from './Listings/domain/ListingStore';
 import {
-  Listing as NewListing,
   LocalListing,
   RemoteListing,
+  Listing,
 } from './Listings/domain/Listing';
 import { createErrorDetails } from '../utils/reporting';
 import { listingsAreInSync } from './Listings/application/ListingsAreInSync';
@@ -137,9 +137,11 @@ class Sync extends Process {
       JSON.stringify(pullFoldersFromLocal, null, 2)
     );
 
-    const consumer = new PullFolderQueueConsumer(this.remote, this);
+    const remoteConsumer = new PullFolderQueueConsumer(this.remote, this);
+    const localConsumer = new PullFolderQueueConsumer(this.local, this);
 
-    await consumer.consume(pullFoldersFromRemote);
+    await remoteConsumer.consume(pullFoldersFromRemote);
+    await localConsumer.consume(pullFoldersFromLocal);
 
     Logger.debug('Queue rename in local', renameInLocal);
     Logger.debug('Queue rename in remote', renameInRemote);
@@ -242,11 +244,11 @@ class Sync extends Process {
   }
 
   private async listDeletedFolders(
-    saved: Listing,
-    current: Listing,
+    saved: OldListing,
+    current: OldListing,
     filesystem: Pick<FileSystem, 'existsFolder'>
   ): Promise<string[]> {
-    function getFoldersInListing(listing: Listing): Set<string> {
+    function getFoldersInListing(listing: OldListing): Set<string> {
       const setOfFolders = new Set<string>();
       for (const fileName of Object.keys(listing)) {
         const names = fileName.split('/');
@@ -280,14 +282,14 @@ class Sync extends Process {
   }
 
   async generateResult(): Promise<
-    | (SuccessfulProcessResult & { listing: NewListing })
+    | (SuccessfulProcessResult & { listing: Listing })
     | {
         status: 'NOT_IN_SYNC';
         diff: {
           filesNotInLocal: string[];
           filesNotInRemote: string[];
           filesWithDifferentModtime: string[];
-          filesInSync: NewListing;
+          filesInSync: Listing;
         };
       }
   > {
@@ -319,12 +321,12 @@ class Sync extends Process {
     filesNotInLocal: string[];
     filesNotInRemote: string[];
     filesWithDifferentModtime: string[];
-    filesInSync: NewListing;
+    filesInSync: Listing;
   } {
     const filesNotInLocal = [];
     const filesNotInRemote = [];
     const filesWithDifferentModtime = [];
-    const filesInSync: NewListing = {};
+    const filesInSync: Listing = {};
 
     for (const [localName, { modtime: localModtime }] of Object.entries(
       local

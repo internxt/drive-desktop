@@ -6,33 +6,35 @@ import { Action } from '../../domain/Action';
 import { ActionBuilder, Data } from '../../domain/ActionBuilderCreator';
 import { ItemKind } from '../../../../../shared/ItemKind';
 
-function mostRecentFileSystem(
-  fileSystemData: Data<LocalItemMetaData | RemoteItemMetaData>,
-  mirrorFileSystemDate: Data<LocalItemMetaData | RemoteItemMetaData>
-): FileSystemKind {
-  return fileSystemData.listing?.modtime < mirrorFileSystemDate.listing?.modtime
-    ? 'LOCAL'
-    : 'REMOTE';
-}
-
 export class RenameActionBuilder extends ActionBuilder {
   constructor(
-    local: Data<LocalItemMetaData>,
-    remote: Data<RemoteItemMetaData>
+    local: Data<LocalItemMetaData | RemoteItemMetaData>,
+    remote: Data<LocalItemMetaData | RemoteItemMetaData>,
+    fileSystem: FileSystemKind
   ) {
-    const where = mostRecentFileSystem(local, remote);
-    super(local, remote, where, 'RENAME');
+    super(local, remote, fileSystem, 'RENAME');
   }
 
   create(path: string): Nullable<Action<ItemKind>> {
     if (
       this.actual.state.is('RENAME_RESULT') &&
+      this.actual.state.hasAssociateStateWithDelta('RENAMED') &&
       this.mirror.listing === undefined
     ) {
       return this.build(path);
     }
 
     return undefined;
+  }
+
+  protected build(path: string): Action<ItemKind> {
+    return {
+      kind: this.getItemKind(),
+      fileSystem: this.fileSystem,
+      task: this.task,
+      name: path,
+      ref: this.actual.state.associateItemName() as string,
+    };
   }
 
   protected getItemKind(): ItemKind {

@@ -45,7 +45,9 @@ export class PullFolderQueueConsumer {
   async consume(queue: Array<string>): Promise<void> {
     const queuesByLevel = this.divideByLevel(queue);
 
+
     const pullFolder = async (folderName: string): Promise<void> => {
+      Logger.debug(folderName);
       this.eventEmiter.emit('PULLING_FOLDER', folderName, this.fileSystem.kind);
 
       await this.fileSystem.pullFolder(folderName);

@@ -26,11 +26,11 @@ export class SynchronizedItemMetaData extends ItemMetaData {
     );
   }
 
-  isLocal(local: LocalItemMetaDataAttributes) {
+  isLocal = (local: LocalItemMetaDataAttributes) => {
     return this.ino === local.ino && this.dev === local.dev;
-  }
+  };
 
-  isRemote(remote: RemoteItemMetaDataAttributes) {
+  isRemote = (remote: RemoteItemMetaDataAttributes) => {
     return this.id === remote.id;
   }
 
@@ -46,5 +46,17 @@ export class SynchronizedItemMetaData extends ItemMetaData {
       attributes.ino,
       attributes.dev
     );
+  }
+
+  toJson(): SynchronizeMetaDataAttributes {
+    return {
+      modtime: this.modtime,
+      size: this.size,
+      isFolder: this.isFolder,
+      name: this.name,
+      id: this.id,
+      ino: this.ino,
+      dev: this.dev,
+    };
   }
 }

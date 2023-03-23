@@ -1,7 +1,11 @@
 import Store from 'electron-store';
 import { ListingStore } from '../domain/ListingStore';
 import { ConfigStore } from '../../../../main/config';
-import { Listing } from '../domain/Listing';
+import { Listing, SerializedListing } from '../domain/Listing';
+import {
+  SynchronizedItemMetaData,
+  SynchronizeMetaDataAttributes,
+} from '../domain/SynchronizedItemMetaData';
 
 export class ConfigFileListingStore implements ListingStore {
   private static readonly configKey = 'lastSavedListing';
@@ -37,7 +41,15 @@ export class ConfigFileListingStore implements ListingStore {
       return null;
     }
 
-    return listingParsed;
+    const atributes = Object.values(
+      listingParsed
+    ) as Array<SynchronizeMetaDataAttributes>;
+
+    return atributes.reduce((listing, raw: SynchronizeMetaDataAttributes) => {
+      listing[raw.name] = SynchronizedItemMetaData.from(raw);
+
+      return listing;
+    }, {} as Listing);
   }
 
   async removeSavedListing(): Promise<void> {
@@ -45,6 +57,13 @@ export class ConfigFileListingStore implements ListingStore {
   }
 
   async saveListing(listing: Listing): Promise<void> {
-    this.store.set(ConfigFileListingStore.configKey, JSON.stringify(listing));
+
+    const serilized = Object.values(listing).reduce((listing, current) => {
+      listing[current.name] = current.toJson();
+
+      return listing;
+    }, {} as SerializedListing);
+
+    this.store.set(ConfigFileListingStore.configKey, JSON.stringify(serilized));
   }
 }

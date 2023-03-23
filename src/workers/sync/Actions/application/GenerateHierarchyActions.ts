@@ -42,7 +42,8 @@ export function generateHierarchyActions(
     const builders = [
       new RenameActionBuilder(
         { state: deltaLocal, listing: localListing },
-        { state: deltaRemote, listing: remoteListing }
+        { state: deltaRemote, listing: remoteListing },
+        'REMOTE'
       ),
       new PullActionBuilder(
         { state: deltaLocal, listing: localListing },
@@ -71,6 +72,11 @@ export function generateHierarchyActions(
     const remoteListing = currentRemoteListing[name];
 
     const builders = [
+      new RenameActionBuilder(
+        { state: deltaRemote, listing: remoteListing },
+        { state: deltaLocal, listing: localListing },
+        'LOCAL'
+      ),
       new PullActionBuilder(
         { state: deltaRemote, listing: remoteListing },
         { state: deltaLocal, listing: localListing },

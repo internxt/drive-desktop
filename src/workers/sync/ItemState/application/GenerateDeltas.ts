@@ -10,7 +10,6 @@ export function generateDeltas(
   current: PartialListing
 ): ItemDeltas {
   const deltas: ItemDeltas = {};
-
   const savedMetaData = Object.values(saved);
 
   const searchSavedItem = (meta: LocalItemMetaData | RemoteItemMetaData) =>
@@ -45,13 +44,16 @@ export function generateDeltas(
     const savedEntry = saved[name];
 
     if (!savedEntry) {
-      const savedItem = searchSavedItem(meta);
+      const oldEntry = searchSavedItem(meta);
 
-      if (savedItem) {
-        if (savedItem.haveSameBaseName(name)) {
+      if (oldEntry) {
+        if (oldEntry.haveSameBaseName(name)) {
           deltas[name] = new ItemState('UNCHANGED');
         } else {
-          deltas[name] = new ItemState('RENAME_RESULT');
+          deltas[name] = new ItemState('RENAME_RESULT', {
+            name: oldEntry.name,
+            delta: 'RENAMED',
+          });
         }
       } else {
         deltas[name] = new ItemState('NEW');
@@ -67,12 +69,15 @@ export function generateDeltas(
 
   for (const [name, meta] of Object.entries(saved)) {
     if (!(name in current)) {
-      const savedItem = searchCurrentItem(meta);
-      if (savedItem) {
-        if (savedItem.haveSameBaseName(name)) {
+      const oldEntry = searchCurrentItem(meta);
+      if (oldEntry) {
+        if (oldEntry.haveSameBaseName(name)) {
           deltas[name] = new ItemState('UNCHANGED');
         } else {
-          deltas[name] = new ItemState('RENAMED');
+          deltas[name] = new ItemState('RENAMED', {
+            name: oldEntry.name,
+            delta: 'RENAME_RESULT',
+          });
         }
       } else {
         deltas[name] = new ItemState('DELETED');

@@ -40,6 +40,21 @@ const filterQueueForItemKind =
         action.fileSystem === 'REMOTE'
     ) as Array<Action<K>>;
 
+    const renameInLocal: Action<K>[] = actions.filter(
+      (action) =>
+        isItemKind(action) &&
+        action.task === 'RENAME' &&
+        action.fileSystem === 'LOCAL' &&
+        action.ref !== undefined
+    ) as Array<Action<K>>;;
+
+    const renameInRemote: Action<K>[] = actions.filter(
+      (action) =>
+        isItemKind(action) &&
+        action.task === 'RENAME' &&
+        action.fileSystem === 'REMOTE'
+    ) as Array<Action<K>>;;
+
     const deleteInLocal: Action<K>[] = actions.filter(
       (action) =>
         isItemKind(action) &&
@@ -56,8 +71,8 @@ const filterQueueForItemKind =
 
     return {
       kind,
-      renameInLocal: [],
-      renameInRemote: [],
+      renameInLocal,
+      renameInRemote,
       pullFromLocal,
       pullFromRemote,
       deleteInLocal,
@@ -74,8 +89,14 @@ function extractNamesFromActionsQueues(queue: ActionsQueue<ItemKind>): {
   deleteInRemote: Array<string>;
 } {
   return {
-    renameInLocal: [] as Array<[string, string]>,
-    renameInRemote: [] as Array<[string, string]>,
+    renameInLocal: queue.renameInLocal.map((action) => [
+      action.ref as string,
+      action.name,
+    ]),
+    renameInRemote: queue.renameInRemote.map((action) => [
+      action.ref as string,
+      action.name,
+    ]),
     pullFromLocal: queue.pullFromLocal.map((action) => action.name),
     pullFromRemote: queue.pullFromRemote.map((action) => action.name),
     deleteInLocal: queue.deleteInLocal.map((action) => action.name),

@@ -15,8 +15,8 @@ export abstract class ActionBuilder {
   constructor(
     protected readonly actual: Data<LocalItemMetaData | RemoteItemMetaData>,
     protected readonly mirror: Data<LocalItemMetaData | RemoteItemMetaData>,
-    private readonly fileSystem: FileSystemKind,
-    private readonly task: SyncTask
+    protected readonly fileSystem: FileSystemKind,
+    protected readonly task: SyncTask
   ) {}
 
   abstract create(path: string): Nullable<Action<ItemKind>>;
