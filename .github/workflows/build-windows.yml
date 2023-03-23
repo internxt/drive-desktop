@@ -65,11 +65,19 @@ jobs:
         run: |
           Invoke-WebRequest -Uri "https://developers.yubico.com/yubikey-manager-qt/Releases/yubikey-manager-qt-1.2.5-win64.exe" -OutFile "yubikey-manager-qt-1.2.5-win64.exe"
           Start-Process .\yubikey-manager-qt-1.2.5-win64.exe -ArgumentList "/S /D=C:\Program Files\Yubico\YubiKey Manager" -Wait
-      - name: Install Start Run
-        run: |        
+      - name: Install yarn adn requirements
+        run: |  
+          npm install --global yarn
+          npm install yarn --save-dev
           yarn install --network-timeout 1000000
-      - name: Publish releases
-        shell: pwsh
+      - name: run postinstall
+        run: |        
+          yarn run postinstall
+      - name: run package
+        run: |        
+          yarn run package
+#      - name: Publish releases
+#        shell: pwsh
 #        env:
 #          # These values are used for auto updates signing
 #          APPLE_ID: ${{ secrets.APPLE_ID }}
@@ -78,9 +86,9 @@ jobs:
 #          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
 #          # This is used for uploading release assets to github
 #          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          npm run postinstall
-          npm run package
+#        run: |
+#          yarn run postinstall
+#          yarn run package
       - name: Check file 
         run: |
           ls release/build/
