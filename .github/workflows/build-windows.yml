@@ -63,7 +63,6 @@ jobs:
       - name: Install Start Run
         run: |          
           yarn install
-          yarn run package
       - name: Publish releases
         env:
           # These values are used for auto updates signing
