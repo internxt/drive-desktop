@@ -54,6 +54,7 @@ jobs:
       - name: Add GraphicsMagick path
         shell: pwsh
         run: |
+          refreshenv
           $env:Path += ";C:\Program Files\GraphicsMagick-1.3.36-Q16"
       - name: Install node
         shell: pwsh
