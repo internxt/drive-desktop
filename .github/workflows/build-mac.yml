@@ -43,28 +43,13 @@ jobs:
           echo "RUDDERSTACK_DATA_PLANE_URL=https://cdp.internxt.com/v1/batch" >> .env
           echo "APPLE_ID: ${{ secrets.APPLE_ID }}" >> .env
           echo "APPLE_ID_PASS: ${{ secrets.APPLE_ID_PASS }}" >> .env
-          
       - name: Create certificate file
         run: |
           touch certificate.pem
           echo "${{ secrets.CERT_DEVELOPER_ID_APPLICATION }}" >> certificate.pem
           chmod 644 ./certificate.pem
-      - name: Create certificate file
-        run: |      
-          expect -c '
-          set timeout -1
-          spawn sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain ./certificate.pem
-          expect "Password:"
-          send "'${{ secrets.MACOS_PASSWORD }}'\r"
-          expect eof
-          '
-#      - name: Create certificate file
-#        run: |
-#          touch certificate.pem
-#          echo "${{ secrets.CERT_DEVELOPER_ID_APPLICATION }}" >> certificate.pem
-#          chmod 644 ./certificate.pem
-#          openssl x509 -in ./certificate.pem -noout -text
-#          echo "${{ secrets.MACOS_PASSWORD }}" |sudo -S security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain ./certificate.pem -p ${{ secrets.MACOS_PASSWORD }}
+          openssl x509 -in ./certificate.pem -noout -text
+          echo "${{ secrets.MACOS_PASSWORD }}" |sudo -S security import ./certificate.pem -k /Library/Keychains/System.keychain -P ${{ secrets.MACOS_PASSWORD }}
       - name: Install graphicsmagick
         run: |
           brew install graphicsmagick
