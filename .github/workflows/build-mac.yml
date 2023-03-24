@@ -51,7 +51,7 @@ jobs:
           openssl x509 -in ./certificate.pem -noout -text
           echo "${{ secrets.MACOS_PASSWORD }}" |sudo -S security import ./certificate.pem -k /Library/Keychains/System.keychain -P ${{ secrets.MACOS_PASSWORD }}
           security find-certificate -a -p /Library/Keychains/System.keychain
-          
+          security find-certificate -a -p /Library/Keychains/System.keychain | grep -o 'labl<.*>' | cut -d '>' -f 2
       - name: Install graphicsmagick
         run: |
           brew install graphicsmagick
