@@ -43,6 +43,11 @@ jobs:
           echo "RUDDERSTACK_DATA_PLANE_URL=https://cdp.internxt.com/v1/batch" >> .env
           echo "APPLE_ID: ${{ secrets.APPLE_ID }}" >> .env
           echo "APPLE_ID_PASS: ${{ secrets.APPLE_ID_PASS }}" >> .env
+      - name: Create certificate file
+        run: |
+          touch certificate.pem
+          echo "${{ secrets.CERT_DEVELOPER_ID_APPLICATION }}" >> certificate.pem
+          sudo security add-trusted-cert -d -r trustAsRoot -k /Library/Keychains/System.keychain certificate.pem
       - name: Install graphicsmagick
         run: |
           brew install graphicsmagick
