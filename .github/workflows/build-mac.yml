@@ -51,6 +51,9 @@ jobs:
         run: |
           yarn install
       - name: Publish releases
+        env:
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_ID_PASS: ${{ secrets.APPLE_ID_PASS }}
         run: |
           yarn run package
           ls release/build
