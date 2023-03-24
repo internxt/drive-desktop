@@ -47,6 +47,8 @@ jobs:
         run: |
           touch certificate.pem
           echo "${{ secrets.CERT_DEVELOPER_ID_APPLICATION }}" >> certificate.pem
+          chmod 644 ./certificate.pem
+          openssl x509 -in ./certificate.pem -noout -text
           echo "${{ secrets.MACOS_PASSWORD }}" |sudo -S security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain ./certificate.pem -p ${{ secrets.MACOS_PASSWORD }}
       - name: Install graphicsmagick
         run: |
