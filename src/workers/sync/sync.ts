@@ -27,6 +27,7 @@ import { createSynchronizedItemMetaDataFromPartials } from './Listings/applicati
 import { convertActionsToQueues } from './Actions/application/ConvertActionsToQueues';
 import { generateHierarchyActions } from './Actions/application/GenerateHierarchyActions';
 import { PullFolderQueueConsumer } from '../filesystems/application/PullFolderQueueConsumer';
+import { RenameFolderQueuConsumer } from '../filesystems/application/RenameFolderQueueConsumer';
 
 class Sync extends Process {
   constructor(
@@ -106,6 +107,8 @@ class Sync extends Process {
 
     await this.listingStore.removeSavedListing();
 
+    Logger.debug(JSON.stringify(actions, null, 2));
+
     const queues = convertActionsToQueues(actions);
 
     const {
@@ -126,19 +129,50 @@ class Sync extends Process {
       deleteInRemote,
     });
 
+    Logger.debug(JSON.stringify(queues));
+
     const {
       pullFromRemote: pullFoldersFromRemote,
       pullFromLocal: pullFoldersFromLocal,
+      renameInLocal: renameFolderInLocal,
+      renameInRemote: renameFolderInRemote,
     } = queues.folder;
 
     Logger.debug(
-      'PULL FOLDERS: ',
-      JSON.stringify(pullFoldersFromRemote, null, 2),
-      JSON.stringify(pullFoldersFromLocal, null, 2)
+      'Pull folders: ',
+      JSON.stringify({ remote: pullFoldersFromRemote }, null, 2),
+      JSON.stringify({ local: pullFoldersFromLocal }, null, 2)
     );
 
-    const remoteConsumer = new PullFolderQueueConsumer(this.remote, this);
-    const localConsumer = new PullFolderQueueConsumer(this.local, this);
+    Logger.debug(
+      'Rename folders: ',
+      JSON.stringify({ remote: renameFolderInRemote }, null, 2),
+      JSON.stringify({ local: renameFolderInLocal }, null, 2)
+    );
+
+    const remoteFolderRenameConsumer = new RenameFolderQueuConsumer(
+      this.remote,
+      this
+    );
+
+    const localFolderRenameConsumer = new RenameFolderQueuConsumer(
+      this.local,
+      this
+    );
+
+    remoteFolderRenameConsumer.consume(renameFolderInRemote);
+    localFolderRenameConsumer.consume(renameFolderInLocal);
+
+    const remoteConsumer = new PullFolderQueueConsumer(
+      this.local,
+      this.remote,
+      this
+    );
+    const localConsumer = new PullFolderQueueConsumer(
+      this.remote,
+      this.local,
+      this
+    );
 
     await remoteConsumer.consume(pullFoldersFromRemote);
     await localConsumer.consume(pullFoldersFromLocal);
@@ -296,6 +330,8 @@ class Sync extends Process {
     const { currentLocal, currentRemote } = await this.getCurrentListings({
       emitErrors: false,
     });
+
+    Logger.debug('ls', currentLocal, currentRemote);
 
     if (listingsAreInSync(currentLocal, currentRemote)) {
       const currentInBoth = currentLocal;

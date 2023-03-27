@@ -88,8 +88,14 @@ describe('Generate Hierarchy Actions', () => {
       };
 
       const deltasLocal: ItemDeltas = {
-        'folder a': new ItemState('RENAMED'),
-        'folder a but renamed': new ItemState('RENAME_RESULT'),
+        'folder a': new ItemState('RENAMED', {
+          name: 'folder a but renamed',
+          delta: 'RENAME_RESULT',
+        }),
+        'folder a but renamed': new ItemState('RENAME_RESULT', {
+          name: 'folder a',
+          delta: 'RENAMED',
+        }),
       };
 
       const deltaRemote: ItemDeltas = {
@@ -103,7 +109,6 @@ describe('Generate Hierarchy Actions', () => {
     });
 
     it('generates a single rename action for a folder but any for its conents', () => {
-
       const syncrhonized = {
         'folder a': SynchronizedItemMetaData.from({
           modtime: 2,

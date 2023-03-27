@@ -10,7 +10,8 @@ export class PullFolderQueueConsumer {
   private static readonly MAX_CALLS_PER_LEVEL = 10;
 
   constructor(
-    private readonly fileSystem: FileSystem<PartialListing>,
+    private readonly originFileSystem: FileSystem<PartialListing>,
+    private readonly destinationFileSystem: FileSystem<PartialListing>,
     private readonly eventEmiter: EventEmitter
   ) {}
 
@@ -45,34 +46,51 @@ export class PullFolderQueueConsumer {
   async consume(queue: Array<string>): Promise<void> {
     const queuesByLevel = this.divideByLevel(queue);
 
-
     const pullFolder = async (folderName: string): Promise<void> => {
-      Logger.debug(folderName);
-      this.eventEmiter.emit('PULLING_FOLDER', folderName, this.fileSystem.kind);
+      this.eventEmiter.emit(
+        'PULLING_FOLDER',
+        folderName,
+        this.destinationFileSystem.kind
+      );
 
-      await this.fileSystem.pullFolder(folderName);
+      Logger.debug('folderName', folderName);
 
-      this.eventEmiter.emit('FOLDER_PULLED', folderName, this.fileSystem.kind);
+      const folderMetaData = await this.originFileSystem.getFolderMetadata(
+        folderName
+      );
+
+      Logger.debug(folderMetaData);
+
+      await this.destinationFileSystem.pullFolder(folderMetaData);
+
+      this.eventEmiter.emit(
+        'FOLDER_PULLED',
+        folderName,
+        this.destinationFileSystem.kind
+      );
     };
-
-    const tasks = queuesByLevel.map(
-      (folders: Array<string>, level: number) => async (): Promise<void> => {
-        try {
-          await async.mapLimit(
-            folders,
-            PullFolderQueueConsumer.MAX_CALLS_PER_LEVEL,
-            pullFolder
-          );
-        } catch (err: unknown) {
-          return Promise.reject(
-            new Error(
-              `An error occured creating a folder of the level: ${level}`
-            )
-          );
+    try {
+      const tasks = queuesByLevel.map(
+        (folders: Array<string>, level: number) => async (): Promise<void> => {
+          try {
+            await async.mapLimit(
+              folders,
+              PullFolderQueueConsumer.MAX_CALLS_PER_LEVEL,
+              pullFolder
+            );
+          } catch (err: unknown) {
+            return Promise.reject(
+              new Error(
+                `An error occured creating a folder of the level: ${level}`
+              )
+            );
+          }
         }
-      }
-    );
+      );
 
-    await async.series<unknown, unknown, unknown>(tasks).catch(Logger.error);
+      await async.series<unknown, unknown, unknown>(tasks).catch(Logger.error);
+    } catch (err) {
+      Logger.error(err);
+    }
   }
 }

@@ -1,3 +1,5 @@
+import { LocalItemMetaData } from '../../sync/Listings/domain/LocalItemMetaData';
+import { RemoteItemMetaData } from '../../sync/Listings/domain/RemoteItemMetaData';
 import { PartialListing } from '../../sync/Listings/domain/Listing';
 import {
   FileSystemKind,
@@ -36,6 +38,8 @@ export interface FileSystem<T extends PartialListing> {
    */
   deleteFile(name: string): Promise<void>;
 
+  renameFolder(oldName: string, name: string): Promise<void>;
+
   /**
    * Pulls a file from other FileSystem into this FileSystem,
    * overwriting it if already exists
@@ -53,7 +57,7 @@ export interface FileSystem<T extends PartialListing> {
    * Creates a folder into this FileSystem
    * @param name
    */
-  pullFolder(name: string): Promise<void>;
+  pullFolder(folderMetaData: LocalItemMetaData | RemoteItemMetaData): Promise<void>;
 
   /**
    * Checks if a folder exists in the filesystem
@@ -79,6 +83,14 @@ export interface FileSystem<T extends PartialListing> {
     name: string,
     progressCallback: FileSystemProgressCallback
   ): Promise<Source>;
+
+  /**
+   * Returns the metada of a give foler
+   * @param name
+   */
+  getFolderMetadata(
+    name: string
+  ): Promise<LocalItemMetaData | RemoteItemMetaData>;
 
   /**
    * Check critical resources of this filesystem

@@ -19,6 +19,7 @@ import ignoredFiles from '../../../../ignored-files.json';
 import { FileSystem } from '../domain/FileSystem';
 import { LocalListing } from '../../sync/Listings/domain/Listing';
 import { LocalItemMetaData } from '../../sync/Listings/domain/LocalItemMetaData';
+import { RemoteItemMetaData } from '../../sync/Listings/domain/RemoteItemMetaData';
 
 export function getLocalFilesystem(
   localPath: string,
@@ -206,17 +207,25 @@ export function getLocalFilesystem(
       }
     },
 
-    async pullFolder(name): Promise<void> {
+    async pullFolder(folderMetaData: RemoteItemMetaData): Promise<void> {
+      const {name, modtime} = folderMetaData;
       const osSpecificRelative = name.replaceAll('/', path.sep);
       const fullPath = path.join(localPath, osSpecificRelative);
 
       await fs.mkdir(fullPath, { recursive: true });
+      await fs.utimes(fullPath, modtime, modtime);
     },
 
     renameFile(oldName: string, newName: string) {
       const oldActualPath = getActualPath(oldName);
       const newActualPath = getActualPath(newName);
       return saferRenameFile(oldActualPath, newActualPath);
+    },
+
+    renameFolder(oldName: string, newName: string) {
+     const oldActualPath = getActualPath(oldName);
+     const newActualPath = getActualPath(newName);
+     return saferRenameFile(oldActualPath, newActualPath);
     },
 
     async existsFolder(name: string): Promise<boolean> {
@@ -331,6 +340,12 @@ export function getLocalFilesystem(
           )
         );
       }
+    },
+
+    async getFolderMetadata(name: string): Promise<LocalItemMetaData> {
+      const completePath = path.join(localPath, name);
+
+      return getLocalMeta(completePath);
     },
   };
 }

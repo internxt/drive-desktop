@@ -34,6 +34,8 @@ import './analytics/handlers';
 import './platform/handlers';
 import './thumbnails/handlers';
 
+import './dev/handlers';
+
 Logger.log(`Running ${packageJson.version}`);
 
 function checkForUpdates() {

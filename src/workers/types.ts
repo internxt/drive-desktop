@@ -110,6 +110,7 @@ export type ProcessFatalErrorName =
   | 'INSUFICIENT_PERMISION_ACCESSING_BASE_DIRECTORY'
   | 'CANNOT_ACCESS_TMP_DIRECTORY'
   | 'CANNOT_GET_CURRENT_LISTINGS'
+  | 'MISSING_FOLER_INFO_ON_REMOTE_CACHE'
   | 'UNKNOWN';
 
 export class ProcessFatalError extends Error {

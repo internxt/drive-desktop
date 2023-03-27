@@ -25,6 +25,7 @@ import { FileSystem } from '../domain/FileSystem';
 import { RemoteListing } from '../../sync/Listings/domain/Listing';
 import { RemoteItemMetaData } from '../../sync/Listings/domain/RemoteItemMetaData';
 import { FileCreatedResponseDTO } from '../../../shared/HttpClient/responses/file-created';
+import { LocalItemMetaData } from 'workers/sync/Listings/domain/LocalItemMetaData';
 
 /**
  * Server cannot find a file given its route,
@@ -60,6 +61,7 @@ export function getRemoteFilesystem({
   clients: AuthorizedClients;
 }): FileSystem<RemoteListing> {
   const cache: RemoteCache = {};
+  const folderCache: Record<string, RemoteItemMetaData> = {};
   const createFolderQueue = new EventEmitter().setMaxListeners(0);
 
   async function getTree(): Promise<{
@@ -199,7 +201,7 @@ export function getRemoteFilesystem({
             size: 0,
             isFolder: true,
             id: folder.id,
-            name
+            name,
           });
           cache[name] = {
             id: folder.id,
@@ -210,6 +212,23 @@ export function getRemoteFilesystem({
           traverse(folder.id, `${name}/`);
         });
       }
+
+      tree.folders.forEach((folder: ServerFolder) => {
+        if (!folder.plain_name) return;
+
+        const modtime = getSecondsFromDateString(folder.updated_at);
+
+        const metada = RemoteItemMetaData.from({
+          modtime,
+          size: 0,
+          id: folder.id,
+          name: folder.plain_name,
+          isFolder: true,
+        });
+
+        listing[folder.plain_name] = metada;
+        folderCache[folder.plain_name] = metada;
+      });
 
       return { listing, readingMetaErrors };
     },
@@ -247,7 +266,7 @@ export function getRemoteFilesystem({
           `${process.env.API_URL}/api/storage/file/${fileInCache.fileId}/meta`,
           {
             method: 'POST',
-            headers: headers,
+            headers: { ...headers, 'internxt-mnemonic': mnemonic },
             body: JSON.stringify({
               metadata: { itemName: newNameBase },
               bucketId: fileInCache.bucket,
@@ -277,6 +296,52 @@ export function getRemoteFilesystem({
           'Renaming remote file',
           `oldName: ${oldName}, newName: ${newName}, fileInCache: ${JSON.stringify(
             fileInCache,
+            null,
+            2
+          )}`
+        );
+      }
+    },
+
+    async renameFolder(oldName: string, newName: string): Promise<void> {
+      const folderInCache = cache[oldName];
+      const newNameBase = path.parse(newName).name;
+
+      try {
+        const res = await httpRequest(
+          `${process.env.API_URL}/api/storage/folder/${folderInCache.id}/meta`,
+          {
+            method: 'POST',
+            headers: { ...headers, 'internxt-mnemonic': mnemonic },
+            body: JSON.stringify({
+              metadata: { itemName: newNameBase },
+              bucketId: folderInCache.bucket,
+              relativePath: uuid.v4(),
+            }),
+          }
+        );
+        if (!res.ok) {
+          throw new ProcessError(
+            'BAD_RESPONSE',
+            createErrorDetails(
+              {},
+              'Renaming remote folder',
+              `oldName: ${oldName}, newName: ${newName}, fileInCache: ${JSON.stringify(
+                folderInCache,
+                null,
+                2
+              )}, res: ${await serializeRes(res)}`
+            )
+          );
+        }
+        delete cache[oldName];
+        cache[newName] = folderInCache;
+      } catch (err) {
+        await handleFetchError(
+          err,
+          'Renaming remote folder',
+          `oldName: ${oldName}, newName: ${newName}, fileInCache: ${JSON.stringify(
+            folderInCache,
             null,
             2
           )}`
@@ -428,7 +493,6 @@ export function getRemoteFilesystem({
         const fileCreated: FileCreatedResponseDTO = await res.json();
 
         return fileCreated.id;
-
       } catch (err) {
         await handleFetchError(
           err,
@@ -440,7 +504,9 @@ export function getRemoteFilesystem({
       return Promise.reject();
     },
 
-    async pullFolder(name: string): Promise<void> {
+    async pullFolder(folderMetaData: LocalItemMetaData): Promise<void> {
+      const { name } = folderMetaData;
+
       const route = name.split('/');
 
       const n = route.at(-1);
@@ -620,6 +686,45 @@ export function getRemoteFilesystem({
           )
         );
       }
+    },
+
+    async getFolderMetadata(name): Promise<RemoteItemMetaData> {
+      const cachedFolder = folderCache[name];
+
+
+      Logger.debug('FOLDER IN CACHE:', cachedFolder);
+
+      if (!cachedFolder) {
+        const obtainFolderMetadata = async (searchName: string) => {
+          const res = await httpRequest(
+            `${process.env.API_URL}/api/storage/v2/folder/${baseFolderId}`,
+            { headers }
+          );
+
+          const body = await res.json();
+          return body.children.find((raw: any) => {
+            return raw.plain_name === searchName;
+          });
+        };
+
+        const serverFolder = await obtainFolderMetadata(name);
+
+        const modtime = getSecondsFromDateString(serverFolder.updatedAt);
+
+        const metada = RemoteItemMetaData.from({
+          modtime,
+          size: 0,
+          id: serverFolder.id,
+          name: serverFolder.plain_name as string,
+          isFolder: true,
+        });
+
+        folderCache[serverFolder.plain_name as string] = metada;
+
+        return metada;
+      }
+
+      return Promise.resolve(cachedFolder);
     },
   };
 }

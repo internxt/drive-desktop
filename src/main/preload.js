@@ -194,5 +194,8 @@ contextBridge.exposeInMainWorld('electron', {
   getPlatform() {
     return ipcRenderer.invoke('get-platform');
   },
+  clearSavedListing() {
+    return ipcRenderer.send('clear-saved-listing');
+  },
   path,
 });

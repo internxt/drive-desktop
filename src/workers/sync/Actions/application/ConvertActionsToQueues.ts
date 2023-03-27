@@ -44,8 +44,7 @@ const filterQueueForItemKind =
       (action) =>
         isItemKind(action) &&
         action.task === 'RENAME' &&
-        action.fileSystem === 'LOCAL' &&
-        action.ref !== undefined
+        action.fileSystem === 'LOCAL'
     ) as Array<Action<K>>;;
 
     const renameInRemote: Action<K>[] = actions.filter(

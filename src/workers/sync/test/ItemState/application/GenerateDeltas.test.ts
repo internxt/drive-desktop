@@ -1,3 +1,4 @@
+import { RemoteItemMetaData } from '../../../Listings/domain/RemoteItemMetaData';
 import { generateDeltas } from '../../../ItemState/application/GenerateDeltas';
 import { LocalItemMetaData } from '../../../Listings/domain/LocalItemMetaData';
 import { SynchronizedItemMetaData } from '../../../Listings/domain/SynchronizedItemMetaData';
@@ -6,7 +7,6 @@ import { SynchronizedItemMetaDataMother } from '../../Listings/domain/Synchroniz
 
 describe('Generate Deltas', () => {
   describe('create rename deltas', () => {
-
     it('when a current file cannot be found the mirror file system by name but can be found by its ids its flagged as the result of a rename', () => {
       const syncrhonized = {
         a: SynchronizedItemMetaData.from({
@@ -28,6 +28,35 @@ describe('Generate Deltas', () => {
           name: 'a but renamed',
           ino: 10,
           dev: 20,
+        }),
+      };
+
+      const deltas = generateDeltas(syncrhonized, current);
+
+      expect(deltas['a'].is('RENAMED')).toBe(true);
+      expect(deltas['a but renamed'].is('RENAME_RESULT')).toBe(true);
+    });
+
+    it('when a current file cannot be found the mirror file system by name but can be found by its ids its flagged as the result of a rename', () => {
+      const syncrhonized = {
+        a: SynchronizedItemMetaData.from({
+          modtime: 2,
+          size: 100,
+          isFolder: false,
+          name: 'a',
+          id: 76,
+          ino: 10,
+          dev: 20,
+        }),
+      };
+
+      const current = {
+        'a but renamed': RemoteItemMetaData.from({
+          modtime: 90,
+          size: 100,
+          isFolder: false,
+          name: 'a but renamed',
+          id: 76
         }),
       };
 
@@ -152,9 +181,9 @@ describe('Generate Deltas', () => {
       const deltas = generateDeltas(syncrhonized, current);
 
       expect(deltas['folder a/folder b/file.txt'].is('UNCHANGED')).toBe(true);
-      expect(deltas['folder a but renamed/folder b/file.txt'].is('UNCHANGED')).toBe(
-        true
-      );
+      expect(
+        deltas['folder a but renamed/folder b/file.txt'].is('UNCHANGED')
+      ).toBe(true);
     });
 
     it('when a folder with 2 levels of subfolders is renamed non of the sub-folders is flagged as renamed', () => {

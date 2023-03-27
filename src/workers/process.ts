@@ -385,6 +385,33 @@ export interface ProcessEvents {
   ) => void;
 
   /**
+   * Triggered when a folder is being renamed
+   */
+  RENAMING_FOLDER: (
+    oldFolderName: string,
+    newFolderName: string,
+    fileSystemKind: FileSystemKind
+  ) => void;
+  /**
+   * Triggered when a folder has been renamed
+   */
+  FOLDER_RENAMED: (
+    oldName: string,
+    newName: string,
+    fileSystemKind: FileSystemKind
+  ) => void;
+  /**
+   * Triggered when an error has occurred while renaming a folder
+   */
+  ERROR_RENAMING_FOLDER: (
+    oldName: string,
+    newName: string,
+    fileSystemKind: FileSystemKind,
+    errName: ProcessErrorName,
+    errDetails: ErrorDetails
+  ) => void;
+
+  /**
    * Triggered when an error has occurred while reading the metadata of a file
    */
   ERROR_READING_METADATA: (
