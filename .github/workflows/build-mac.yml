@@ -91,18 +91,8 @@ jobs:
           yarn install
       - name: Publish releases
         env:
-          BUILD_CERTIFICATE_BASE64: ${{ secrets.CERT_DEVELOPER_ID_APPLICATION }}
-          CSC_KEY_PASSWORD: ${{ secrets.P12_PASSWORD }}
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_ID_PASS: ${{ secrets.APPLE_ID_PASS }}
         run: |
-          # create variables
-          CERTIFICATE_PATH=$RUNNER_TEMP/build_certificate.p12
-          PP_PATH=$RUNNER_TEMP/build_pp.mobileprovision
-          KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
-
-          # import certificate and provisioning profile from secrets
-          echo -n "$CSC_LINK" | base64 --decode -o $CERTIFICATE_PATH
-          
           yarn run package
           ls release/build
