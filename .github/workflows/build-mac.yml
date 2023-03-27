@@ -94,5 +94,5 @@ jobs:
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_ID_PASS: ${{ secrets.APPLE_ID_PASS }}
         run: |
-          yarn run package
+          yarn run publish
           ls release/build
