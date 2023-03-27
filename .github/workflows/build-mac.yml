@@ -90,9 +90,6 @@ jobs:
         run: |
           yarn install
       - name: Publish releases
-        env:
-          APPLE_ID: ${{ secrets.BRIDGE_URL }}
-          APPLE_ID_PASS: ${{ secrets.APP_SEGMENT_KEY }}
         run: |
           yarn run package
           ls release/build
