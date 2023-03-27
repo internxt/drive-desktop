@@ -93,6 +93,7 @@ jobs:
         env:
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_ID_PASS: ${{ secrets.APPLE_ID_PASS }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
           yarn run prepublish
           yarn run publish
