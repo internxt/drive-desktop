@@ -1,9 +1,7 @@
 name: Build Mac
 
 on:
-  create:
-    tags:
-      - '*'
+  workflow_dispatch:
   
 jobs:
   create-release:
