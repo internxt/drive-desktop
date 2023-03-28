@@ -75,9 +75,16 @@ jobs:
         run: |
           choco install yubico-piv-tool -y
           [Environment]::SetEnvironmentVariable("Path", "$env:Path;C:\Program Files\Yubico\Yubico PIV Tool\bin", "Machine")
+      - name: Checks
+        run: |
+          dir "\Program Files\Yubico\Yubico PIV Tool\bin"
+          dir "\Program Files\"
+          dir "\Program Files (x86)\Yubico\Yubico PIV Tool\bin"
       - name: Import key
         shell: pwsh
         run: |
+          $env:Path.Split(';')
+          $env:PATH += ";C:\Program Files\Yubico\Yubico PIV Tool\bin"
           $env:Path.Split(';')
           choco list -l yubico-piv-tool
           yubico-piv-tool -h
