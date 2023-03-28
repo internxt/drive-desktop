@@ -53,13 +53,9 @@ export class PullFolderQueueConsumer {
         this.destinationFileSystem.kind
       );
 
-      Logger.debug('folderName', folderName);
-
       const folderMetaData = await this.originFileSystem.getFolderMetadata(
         folderName
       );
-
-      Logger.debug(folderMetaData);
 
       await this.destinationFileSystem.pullFolder(folderMetaData);
 

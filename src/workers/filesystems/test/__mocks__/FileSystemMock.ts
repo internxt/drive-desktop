@@ -6,6 +6,8 @@ import {
 } from '../../../types';
 import { PartialListing } from '../../../sync/Listings/domain/Listing';
 import { FileSystem } from '../../domain/FileSystem';
+import { LocalItemMetaData } from '../../../sync/Listings/domain/LocalItemMetaData';
+import { RemoteItemMetaData } from '../../../sync/Listings/domain/RemoteItemMetaData';
 
 export class FileSystemMock implements FileSystem<PartialListing> {
   private mockGetCurrentListing = jest.fn();
@@ -17,6 +19,10 @@ export class FileSystemMock implements FileSystem<PartialListing> {
   private mockPullFile = jest.fn();
 
   public mockPullFolder = jest.fn();
+
+  public mockRenameFolder = jest.fn();
+
+  public mockGetFolderMetadata = jest.fn();
 
   private mockExistsFolder = jest.fn();
 
@@ -51,8 +57,10 @@ export class FileSystemMock implements FileSystem<PartialListing> {
     return this.mockPullFile(name, source, progressCallback);
   }
 
-  pullFolder = (name: string): Promise<void> => {
-    return this.mockPullFolder(name);
+  pullFolder = (
+    metadata: LocalItemMetaData | RemoteItemMetaData
+  ): Promise<void> => {
+    return this.mockPullFolder(metadata.name);
   };
 
   existsFolder(name: string): Promise<boolean> {
@@ -63,6 +71,16 @@ export class FileSystemMock implements FileSystem<PartialListing> {
     return this.mockDeleteFolder(name);
   };
 
+  renameFolder(oldName: string, name: string): Promise<void> {
+    return this.mockRenameFolder(oldName, name);
+  }
+
+  getFolderMetadata(
+    name: string
+  ): Promise<LocalItemMetaData | RemoteItemMetaData> {
+    return this.mockGetFolderMetadata(name);
+  }
+
   getSource(
     name: string,
     progressCallback: FileSystemProgressCallback
@@ -72,6 +90,11 @@ export class FileSystemMock implements FileSystem<PartialListing> {
 
   smokeTest(): Promise<void> {
     return this.mockSmokeTest();
+  }
+
+  assertNumberOfCallsToGetFolderMetadata(n: number) {
+    // eslint-disable-next-line jest/no-standalone-expect
+    expect(this.mockGetFolderMetadata).toBeCalledTimes(n);
   }
 
   assertNumberOfFoldersPulled(n: number) {

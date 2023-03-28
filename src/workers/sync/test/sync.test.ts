@@ -1035,8 +1035,8 @@ describe('sync tests', () => {
         modtime: 6,
         size: 8,
         isFolder: false,
-        id: 99
-      })
+        id: 99,
+      }),
     };
 
     const deltasLocal: Deltas = {
@@ -1298,6 +1298,16 @@ describe('sync tests', () => {
           readingMetaErrors: [],
         };
       },
+      getFolderMetadata: jest.fn().mockImplementation((name: string) =>
+        LocalItemMetaData.from({
+          name,
+          modtime: 100,
+          size: 10,
+          isFolder: true,
+          ino: 10,
+          dev: 6,
+        })
+      ),
     };
 
     const remote: FileSystem = {
@@ -1309,6 +1319,16 @@ describe('sync tests', () => {
         };
       },
       pullFolder: jest.fn().mockResolvedValue(),
+      getFolderMetadata: jest.fn().mockImplementation((name: string) =>
+        LocalItemMetaData.from({
+          name,
+          modtime: 100,
+          size: 10,
+          isFolder: true,
+          ino: 10,
+          dev: 6,
+        })
+      ),
     };
 
     const listingStoreMocked: ListingStore = {

@@ -1,24 +1,46 @@
 import EventEmitter from 'events';
+import { LocalItemMetaData } from '../../../../workers/sync/Listings/domain/LocalItemMetaData';
 import { PullFolderQueueConsumer } from '../../application/PullFolderQueueConsumer';
 import { FileSystemMock } from '../__mocks__/FileSystemMock';
 
 describe('Pull Folder Queue Consumer', () => {
-  let fileSystem: FileSystemMock;
+  let originFileSystem: FileSystemMock;
+  let destinationFileSystem: FileSystemMock;
   let eventEmiter: EventEmitter;
 
   beforeEach(() => {
-    fileSystem = new FileSystemMock();
+    originFileSystem = new FileSystemMock();
+    originFileSystem.mockGetFolderMetadata.mockImplementation((name: string) =>
+      Promise.resolve(
+        LocalItemMetaData.from({
+          name,
+          modtime: 100,
+          size: 10,
+          isFolder: true,
+          ino: 10,
+          dev: 6,
+        })
+      )
+    );
+
+    destinationFileSystem = new FileSystemMock();
+
     eventEmiter = new EventEmitter();
   });
 
   it('creates all the folders that recives', async () => {
     const folders = ['folderA', 'folderB', 'folderC'];
 
-    const consumer = new PullFolderQueueConsumer(fileSystem, eventEmiter);
+    const consumer = new PullFolderQueueConsumer(
+      originFileSystem,
+      destinationFileSystem,
+      eventEmiter
+    );
 
     await consumer.consume(folders);
 
-    fileSystem.assertNumberOfFoldersPulled(folders.length);
+    originFileSystem.assertNumberOfCallsToGetFolderMetadata(folders.length);
+    destinationFileSystem.assertNumberOfFoldersPulled(folders.length);
   });
 
   it('pulls the folders in order from the more superficial to the most nested', async () => {
@@ -32,11 +54,15 @@ describe('Pull Folder Queue Consumer', () => {
       'folderC',
     ];
 
-    const consumer = new PullFolderQueueConsumer(fileSystem, eventEmiter);
+    const consumer = new PullFolderQueueConsumer(
+      originFileSystem,
+      destinationFileSystem,
+      eventEmiter
+    );
 
     await consumer.consume(folders);
 
-    fileSystem.assertOrderOfFoldersPulled([
+    destinationFileSystem.assertOrderOfFoldersPulled([
       'folderA',
       'folderB',
       'folderC',
@@ -46,7 +72,7 @@ describe('Pull Folder Queue Consumer', () => {
       'folderA/subfolderB/sub-subfolderA',
     ]);
 
-    fileSystem.assertFolderHasBeenPulledBeforeThan(
+    destinationFileSystem.assertFolderHasBeenPulledBeforeThan(
       'folderA',
       'folderA/subfolderA',
       'folderA/subfolderB',
@@ -54,7 +80,7 @@ describe('Pull Folder Queue Consumer', () => {
       'folderA/subfolderB/sub-subfolderA'
     );
 
-    fileSystem.assertFolderHasBeenPulledBeforeThan(
+    destinationFileSystem.assertFolderHasBeenPulledBeforeThan(
       'folderC',
       'folderC/subfolderA'
     );
@@ -67,7 +93,7 @@ describe('Pull Folder Queue Consumer', () => {
       'folderA',
     ];
 
-    fileSystem.mockPullFolder
+    originFileSystem.mockPullFolder
       .mockImplementationOnce(
         () =>
           new Promise((resolve) => {
@@ -82,17 +108,21 @@ describe('Pull Folder Queue Consumer', () => {
       )
       .mockImplementation(() => Promise.resolve());
 
-    const consumer = new PullFolderQueueConsumer(fileSystem, eventEmiter);
+    const consumer = new PullFolderQueueConsumer(
+      originFileSystem,
+      destinationFileSystem,
+      eventEmiter
+    );
 
     await consumer.consume(folders);
 
-    fileSystem.assertFolderHasBeenPulledBeforeThan(
+    destinationFileSystem.assertFolderHasBeenPulledBeforeThan(
       'folderA',
       'folderA/subfolderA',
       'folderA/subfolderB/sub-subfolderA'
     );
 
-    fileSystem.assertFolderHasBeenPulledBeforeThan(
+    destinationFileSystem.assertFolderHasBeenPulledBeforeThan(
       'folderA/subfolderA',
       'folderA/subfolderB/sub-subfolderA'
     );
@@ -105,17 +135,23 @@ describe('Pull Folder Queue Consumer', () => {
       'folderA',
     ];
 
-    fileSystem.mockPullFolder
+    destinationFileSystem.mockPullFolder
       .mockImplementationOnce(() => Promise.resolve())
       .mockImplementationOnce(() => Promise.reject())
       .mockImplementation(() => Promise.resolve());
 
-    const consumer = new PullFolderQueueConsumer(fileSystem, eventEmiter);
+    const consumer = new PullFolderQueueConsumer(
+      originFileSystem,
+      destinationFileSystem,
+      eventEmiter
+    );
 
     await consumer.consume(folders);
 
-    fileSystem.assertNumberOfFoldersPulled(2);
-    fileSystem.assertFolderWasNeverPulled('folderA/subfolderB/sub-subfolderA');
+    destinationFileSystem.assertNumberOfFoldersPulled(2);
+    destinationFileSystem.assertFolderWasNeverPulled(
+      'folderA/subfolderB/sub-subfolderA'
+    );
   });
 
   it('emits an event before and after the performing the action', async () => {
@@ -135,7 +171,11 @@ describe('Pull Folder Queue Consumer', () => {
     eventEmiter.addListener('PULLING_FOLDER', pullingFolder);
     eventEmiter.addListener('FOLDER_PULLED', folderPulled);
 
-    const consumer = new PullFolderQueueConsumer(fileSystem, eventEmiter);
+    const consumer = new PullFolderQueueConsumer(
+      originFileSystem,
+      destinationFileSystem,
+      eventEmiter
+    );
 
     await consumer.consume(folders);
 
