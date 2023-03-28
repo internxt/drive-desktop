@@ -100,9 +100,9 @@ jobs:
   #        npm install --global yarn
   #        npm install yarn --save-dev
   #        yarn install --network-timeout 1000000
-      - name: run postinstall
-        run: |        
-          yarn run postinstall
+  #    - name: run postinstall
+  #      run: |        
+  #        yarn run postinstall
       - name: run package
         run: |        
           yarn run package
