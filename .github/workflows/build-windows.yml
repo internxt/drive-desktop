@@ -78,13 +78,10 @@ jobs:
       - name: Checks
         run: |
           dir "C:\Program Files\Yubico\Yubico PIV Tool\bin"
-          dir "C:\Program Files\"
-          dir "C:\Program Files (x86)\Yubico\Yubico PIV Tool\bin"
+          echo "::add-path::C:\Program Files\Yubico\Yubico PIV Tool\bin"
       - name: Import key
         shell: pwsh
         run: |
-          $env:Path.Split(';')
-          $env:PATH += ";C:\Program Files\Yubico\Yubico PIV Tool\bin"
           $env:Path.Split(';')
           choco list -l yubico-piv-tool
           yubico-piv-tool -h
