@@ -1,15 +1,28 @@
 name: Build Mac
 
-#on:
-#  create:
-#    tags:
-#      - '*'
 on:
-  workflow_dispatch:
-
-jobs:          
+  create:
+    tags:
+      - '*'
+  
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1.0.6
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          draft: true
+          
   build-macos:
     runs-on: macos-latest
+    needs: create-release
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -71,17 +84,6 @@ jobs:
           # apply provisioning profile
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
           cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles
-#      - name: Test
-#        env:
-#          BUILD_CERTIFICATE_BASE64: ${{ secrets.CERT_DEVELOPER_ID_APPLICATION }}
-#        run: |
-#          #touch certificate.pem
-#          #echo "${{ secrets.CERT_DEVELOPER_ID_APPLICATION }}" >> certificate.pem
-#          #chmod 644 ./certificate.pem
-#          #openssl x509 -in ./certificate.pem -noout -text
-#          #echo "${{ secrets.MACOS_PASSWORD }}" |sudo -S security import ./certificate.pem -k /Library/Keychains/System.keychain -P ${{ secrets.MACOS_PASSWORD }}
-#          #security find-certificate -a -p /Library/Keychains/System.keychain
-#          #security find-certificate -a -p /Library/Keychains/System.keychain | grep -o 'labl<.*>' | cut -d '>' -f 2
       - name: Install graphicsmagick
         run: |
           brew install graphicsmagick
