@@ -78,7 +78,7 @@ jobs:
       - name: Checks
         run: |
           dir "C:\Program Files\Yubico\Yubico PIV Tool\bin"
-          echo "::add-path::C:\Program Files\Yubico\Yubico PIV Tool\bin"
+          echo "##[add-to-path]C:\Program Files\Yubico\Yubico PIV Tool\bin"
       - name: Import key
         shell: pwsh
         run: |
