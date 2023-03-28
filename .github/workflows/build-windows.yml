@@ -77,9 +77,9 @@ jobs:
           [Environment]::SetEnvironmentVariable("Path", "$env:Path;C:\Program Files\Yubico\Yubico PIV Tool\bin", "Machine")
       - name: Checks
         run: |
-          dir "\Program Files\Yubico\Yubico PIV Tool\bin"
-          dir "\Program Files\"
-          dir "\Program Files (x86)\Yubico\Yubico PIV Tool\bin"
+          dir "C:\Program Files\Yubico\Yubico PIV Tool\bin"
+          dir "C:\Program Files\"
+          dir "C:\Program Files (x86)\Yubico\Yubico PIV Tool\bin"
       - name: Import key
         shell: pwsh
         run: |
