@@ -28,6 +28,7 @@ import { convertActionsToQueues } from './Actions/application/ConvertActionsToQu
 import { generateHierarchyActions } from './Actions/application/GenerateHierarchyActions';
 import { PullFolderQueueConsumer } from '../filesystems/application/PullFolderQueueConsumer';
 import { RenameFolderQueuConsumer } from '../filesystems/application/RenameFolderQueueConsumer';
+import { DeleteFolderQueueConsumer } from '../filesystems/application/DeleteFolderQueueConsumer';
 
 class Sync extends Process {
   constructor(
@@ -129,53 +130,7 @@ class Sync extends Process {
       deleteInRemote,
     });
 
-    Logger.debug(JSON.stringify(queues));
-
-    const {
-      pullFromRemote: pullFoldersFromRemote,
-      pullFromLocal: pullFoldersFromLocal,
-      renameInLocal: renameFolderInLocal,
-      renameInRemote: renameFolderInRemote,
-    } = queues.folder;
-
-    Logger.debug(
-      'Pull folders: ',
-      JSON.stringify({ remote: pullFoldersFromRemote }, null, 2),
-      JSON.stringify({ local: pullFoldersFromLocal }, null, 2)
-    );
-
-    Logger.debug(
-      'Rename folders: ',
-      JSON.stringify({ remote: renameFolderInRemote }, null, 2),
-      JSON.stringify({ local: renameFolderInLocal }, null, 2)
-    );
-
-    const remoteFolderRenameConsumer = new RenameFolderQueuConsumer(
-      this.remote,
-      this
-    );
-
-    const localFolderRenameConsumer = new RenameFolderQueuConsumer(
-      this.local,
-      this
-    );
-
-    remoteFolderRenameConsumer.consume(renameFolderInRemote);
-    localFolderRenameConsumer.consume(renameFolderInLocal);
-
-    const remoteConsumer = new PullFolderQueueConsumer(
-      this.local,
-      this.remote,
-      this
-    );
-    const localConsumer = new PullFolderQueueConsumer(
-      this.remote,
-      this.local,
-      this
-    );
-
-    await remoteConsumer.consume(pullFoldersFromRemote);
-    await localConsumer.consume(pullFoldersFromLocal);
+    await this.consumeFolderQueues(queues.folder);
 
     Logger.debug('Queue rename in local', renameInLocal);
     Logger.debug('Queue rename in remote', renameInRemote);
@@ -235,6 +190,81 @@ class Sync extends Process {
     ]);
 
     return this.finalize();
+  }
+
+  async consumeFolderQueues(queues: {
+    renameInLocal: any;
+    renameInRemote: any;
+    pullFromLocal: any;
+    pullFromRemote: any;
+    deleteInLocal: any;
+    deleteInRemote: any;
+  }) {
+    const {
+      pullFromRemote: pullFoldersFromRemote,
+      pullFromLocal: pullFoldersFromLocal,
+      renameInLocal: renameFolderInLocal,
+      renameInRemote: renameFolderInRemote,
+      deleteInLocal: deleteFolderInLocal,
+      deleteInRemote: deleteFolderInRemote,
+    } = queues;
+
+    Logger.debug(
+      'Delete folders: ',
+      JSON.stringify({ remote: deleteFolderInRemote }, null, 2),
+      JSON.stringify({ local: deleteFolderInLocal }, null, 2)
+    );
+
+    Logger.debug(
+      'Pull folders: ',
+      JSON.stringify({ remote: pullFoldersFromRemote }, null, 2),
+      JSON.stringify({ local: pullFoldersFromLocal }, null, 2)
+    );
+
+    Logger.debug(
+      'Rename folders: ',
+      JSON.stringify({ remote: renameFolderInRemote }, null, 2),
+      JSON.stringify({ local: renameFolderInLocal }, null, 2)
+    );
+
+    const remoteFolderRenameConsumer = new RenameFolderQueuConsumer(
+      this.remote,
+      this
+    );
+
+    const localFolderRenameConsumer = new RenameFolderQueuConsumer(
+      this.local,
+      this
+    );
+
+    remoteFolderRenameConsumer.consume(renameFolderInRemote);
+    localFolderRenameConsumer.consume(renameFolderInLocal);
+
+    const remoteConsumer = new PullFolderQueueConsumer(
+      this.local,
+      this.remote,
+      this
+    );
+    const localConsumer = new PullFolderQueueConsumer(
+      this.remote,
+      this.local,
+      this
+    );
+
+    await remoteConsumer.consume(pullFoldersFromRemote);
+    await localConsumer.consume(pullFoldersFromLocal);
+
+    const remoteFolderDeleteConsumer = new DeleteFolderQueueConsumer(
+      this.remote,
+      this
+    );
+    const localFolderDeleteConsumer = new DeleteFolderQueueConsumer(
+      this.local,
+      this
+    );
+
+    remoteFolderDeleteConsumer.consume(deleteFolderInRemote);
+    localFolderDeleteConsumer.consume(deleteFolderInLocal);
   }
 
   private async resync(): Promise<ProcessResult> {
