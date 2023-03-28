@@ -94,15 +94,15 @@ jobs:
           [System.IO.File]::WriteAllBytes("cert.cer", $certBytes)
           Import-Certificate -FilePath "cert.cer" -CertStoreLocation "Cert:\LocalMachine\My"
 
-  #    - name: Install yarn and requirements
-  #      run: |  
-  #        corepack enable
-  #        npm install --global yarn
-  #        npm install yarn --save-dev
-  #        yarn install --network-timeout 1000000
-  #    - name: run postinstall
-  #      run: |        
-  #        yarn run postinstall
+      - name: Install yarn and requirements
+        run: |  
+          corepack enable
+          npm install --global yarn
+          npm install yarn --save-dev
+          yarn install --network-timeout 1000000
+      - name: run postinstall
+        run: |        
+          yarn run postinstall
       - name: run package
         run: |        
           yarn run package
