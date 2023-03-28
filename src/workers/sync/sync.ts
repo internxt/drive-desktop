@@ -231,14 +231,10 @@ class Sync extends Process {
       this.remote,
       this
     );
-
     const localFolderRenameConsumer = new RenameFolderQueuConsumer(
       this.local,
       this
     );
-
-    remoteFolderRenameConsumer.consume(renameFolderInRemote);
-    localFolderRenameConsumer.consume(renameFolderInLocal);
 
     const remoteConsumer = new PullFolderQueueConsumer(
       this.local,
@@ -251,9 +247,6 @@ class Sync extends Process {
       this
     );
 
-    await remoteConsumer.consume(pullFoldersFromRemote);
-    await localConsumer.consume(pullFoldersFromLocal);
-
     const remoteFolderDeleteConsumer = new DeleteFolderQueueConsumer(
       this.remote,
       this
@@ -263,8 +256,14 @@ class Sync extends Process {
       this
     );
 
-    remoteFolderDeleteConsumer.consume(deleteFolderInRemote);
-    localFolderDeleteConsumer.consume(deleteFolderInLocal);
+    await remoteFolderRenameConsumer.consume(renameFolderInRemote);
+    await localFolderRenameConsumer.consume(renameFolderInLocal);
+
+    await remoteConsumer.consume(pullFoldersFromRemote);
+    await localConsumer.consume(pullFoldersFromLocal);
+
+    await remoteFolderDeleteConsumer.consume(deleteFolderInRemote);
+    await localFolderDeleteConsumer.consume(deleteFolderInLocal);
   }
 
   private async resync(): Promise<ProcessResult> {
