@@ -79,14 +79,21 @@ jobs:
         run: |
           dir "C:\Program Files\Yubico\Yubico PIV Tool\bin"
           echo "##[add-to-path]C:\Program Files\Yubico\Yubico PIV Tool\bin"
-      - name: Import key
-        shell: pwsh
+#      - name: Import key
+#        shell: pwsh
+#        run: |
+#          $env:Path.Split(';')
+#          choco list -l yubico-piv-tool
+#          & "C:\Program Files\Yubico\Yubico PIV Tool\bin\yubico-piv-tool.exe" -s 9c -a import-certificate -i "$env:CERTIFICATE"
+#        env:
+#          CERTIFICATE: ${{ secrets.CERTIFICATE_WINDOWS }}
+
+      - name: Import certificate
         run: |
-          $env:Path.Split(';')
-          choco list -l yubico-piv-tool
-          & "C:\Program Files\Yubico\Yubico PIV Tool\bin\yubico-piv-tool.exe" -s 9c -a import-certificate -i "$env:CERTIFICATE"
-        env:
-          CERTIFICATE: ${{ secrets.CERTIFICATE_WINDOWS }}
+          $certBytes = [System.Convert]::FromBase64String(${{ secrets.CERTIFICATE_WINDOWS }})
+          [System.IO.File]::WriteAllBytes("cert.cer", $certBytes)
+          Import-Certificate -FilePath "cert.cer" -CertStoreLocation "Cert:\LocalMachine\My"
+
       - name: Install yarn and requirements
         run: |  
           corepack enable
