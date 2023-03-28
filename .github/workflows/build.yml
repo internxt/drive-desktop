@@ -1,18 +1,38 @@
-name: Build
+name: Build Linux Mac Windows
 
-#on:
-#  create:
-#    tags:
-#      - '*'
 on:
-  workflow_dispatch:
-
+  create:
+    tags:
+      - '*'
+  
 jobs:
-  build-ubuntu:
+  create-release:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1.0.6
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          draft: true
+
+  build-ubuntu:
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Create .npmrc file
+        run: |
+          echo "registry=https://registry.yarnpkg.com/" > .npmrc
+          echo "@internxt:registry=https://npm.pkg.github.com" >> .npmrc
+          # You cannot read packages from other private repos with GITHUB_TOKEN
+          # You have to use a PAT instead https://github.com/actions/setup-node/issues/49
+          echo //npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN }} >> .npmrc
+          echo "always-auth=true" >> .npmrc
       - name: Create .env file
         run: |
           touch .env
@@ -37,10 +57,9 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y graphicsmagick
-      - name: Install Start Run
+      - name: Install dependencies
         run: |
-          npm install 
-          npm run package
+          yarn install 
       - name: Publish releases
         env:
           # These values are used for auto updates signing
@@ -54,12 +73,22 @@ jobs:
           yarn run postinstall
           yarn run build
           yarn run publish
+          ls release/build
           
   build-macos:
     runs-on: macos-latest
+    needs: create-release
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+      - name: Create .npmrc file
+        run: |
+          echo "registry=https://registry.yarnpkg.com/" > .npmrc
+          echo "@internxt:registry=https://npm.pkg.github.com" >> .npmrc
+          # You cannot read packages from other private repos with GITHUB_TOKEN
+          # You have to use a PAT instead https://github.com/actions/setup-node/issues/49
+          echo //npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN }} >> .npmrc
+          echo "always-auth=true" >> .npmrc
       - name: Create .env file
         run: |
           touch .env
@@ -80,6 +109,36 @@ jobs:
           echo "DRIVE_API_URL=https://drive.internxt.com/api" >> .env
           echo "RUDDERSTACK_KEY=${{ secrets.RUDDERSTACK_KEY }}" >> .env
           echo "RUDDERSTACK_DATA_PLANE_URL=${{ secrets.RUDDERSTACK_DATA_PLANE_URL }}" >> .env
+          echo "APPLE_ID: ${{ secrets.APPLE_ID }}" >> .env
+          echo "APPLE_ID_PASS: ${{ secrets.APPLE_ID_PASS }}" >> .env
+      - name: Install the Apple certificate and provisioning profile
+        env:
+          BUILD_CERTIFICATE_BASE64: ${{ secrets.CERT_DEVELOPER_ID_APPLICATION }}
+          P12_PASSWORD: ${{ secrets.P12_PASSWORD }}
+          BUILD_PROVISION_PROFILE_BASE64: ${{ secrets.BUILD_PROVISION_PROFILE_BASE64 }}
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+        run: |
+          # create variables
+          CERTIFICATE_PATH=$RUNNER_TEMP/build_certificate.p12
+          PP_PATH=$RUNNER_TEMP/build_pp.mobileprovision
+          KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
+
+          # import certificate and provisioning profile from secrets
+          echo -n "$BUILD_CERTIFICATE_BASE64" | base64 --decode -o $CERTIFICATE_PATH
+          echo -n "$BUILD_PROVISION_PROFILE_BASE64" | base64 --decode -o $PP_PATH
+
+          # create temporary keychain
+          security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+          security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+
+          # import certificate to keychain
+          security import $CERTIFICATE_PATH -P "$P12_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
+          security list-keychain -d user -s $KEYCHAIN_PATH
+
+          # apply provisioning profile
+          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
+          cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles
       - name: Install graphicsmagick
         run: |
           brew install graphicsmagick
@@ -87,80 +146,13 @@ jobs:
       - name: Install Start Run 
         run: |
           yarn install
-          yarn run package
       - name: Publish releases
         env:
-          # These values are used for auto updates signing
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_ID_PASS: ${{ secrets.APPLE_ID_PASS }}
-          CSC_LINK: ${{ secrets.CSC_LINK }}
-          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
-          # This is used for uploading release assets to github
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
-          yarn run postinstall
-          yarn run build
+          yarn run prepublish
           yarn run publish
+          ls release/build
   
-  build-windows:
-    runs-on: windows-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-      - name: Create .env file
-        run: |
-          touch .env
-          echo "CRYPTO_KEY=${{ secrets.CRYPTO_KEY }}" >> .env
-          echo "MAGIC_IV=${{ secrets.MAGIC_IV }}" >> .env
-          echo "MAGIC_SALT=${{ secrets.MAGIC_SALT }}" >> .env
-          echo "NEW_CRYPTO_KEY=${{ secrets.NEW_CRYPTO_KEY }}" >> .env
-          echo "API_URL=https://desktop.internxt.com" >> .env
-          echo "NEW_DRIVE_URL=https://api.internxt.com" >> .env
-          echo "DRIVE_URL=https://drive.internxt.com" >> .env
-          echo "BRIDGE_URL=https://api.internxt.com" >> .env
-          echo "APP_SEGMENT_KEY=${{ secrets.APP_SEGMENT_KEY }}" >> .env
-          echo "APP_SEGMENT_KEY_TEST=${{ secrets.APP_SEGMENT_KEY_TEST }}" >> .env
-          echo "BUG_REPORTING_URL=https://desktop-bug-reporting.inxt.workers.dev" >> .env
-          echo "NOTIFICATIONS_URL=https://notifications.internxt.com" >> .env
-          echo "LOCK_REFRESH_INTERVAL=20000" >> .env
-          echo "PHOTOS_URL=https://photos.internxt.com/api" >> .env
-          echo "DRIVE_API_URL=https://drive.internxt.com/api" >> .env
-          echo "RUDDERSTACK_KEY=${{ secrets.RUDDERSTACK_KEY }}" >> .env
-          echo "RUDDERSTACK_DATA_PLANE_URL=${{ secrets.RUDDERSTACK_DATA_PLANE_URL }}" >> .env
-      - name: Install Chocolatey
-        run: |
-          Set-ExecutionPolicy Bypass -Scope Process -Force
-          [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
-          iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
-      - name: Install GraphicsMagick
-        run: |
-          choco install graphicsmagick
-      - name: Add GraphicsMagick path
-        run: |
-          $env:Path += ";C:\Program Files\GraphicsMagick-1.3.36-Q16"
-      - name: Install node
-        run: |
-          Invoke-WebRequest -Uri https://nodejs.org/dist/v16.14.0/node-v16.14.0-x64.msi -OutFile nodejs.msi
-          Start-Process msiexec.exe -Wait -ArgumentList '/I nodejs.msi /quiet /norestart'
-      - name: Install YubiKey
-        run: |
-          Invoke-WebRequest -Uri "https://developers.yubico.com/yubikey-manager-qt/Releases/yubikey-manager-qt-1.2.5-win64.exe" -OutFile "yubikey-manager-qt-1.2.5-win64.exe"
-          Start-Process .\yubikey-manager-qt-1.2.5-win64.exe -ArgumentList "/S /D=C:\Program Files\Yubico\YubiKey Manager" -Wait
-      - name: Install Start Run
-        run: |          
-          npm install
-          npm run package
-      - name: Publish releases
-        env:
-          # These values are used for auto updates signing
-          APPLE_ID: ${{ secrets.APPLE_ID }}
-          APPLE_ID_PASS: ${{ secrets.APPLE_ID_PASS }}
-          CSC_LINK: ${{ secrets.CSC_LINK }}
-          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
-          # This is used for uploading release assets to github
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          yarn run postinstall
-          yarn run build
-          yarn run publish
-
