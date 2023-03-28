@@ -90,7 +90,7 @@ jobs:
 
       - name: Import certificate
         run: |
-          $certBytes = [System.Convert]::FromBase64String(${{ secrets.CERTIFICATE_WINDOWS }})
+          $certBytes = [System.Convert]::FromBase64String("${{ secrets.CERTIFICATE_WINDOWS }}")
           [System.IO.File]::WriteAllBytes("cert.cer", $certBytes)
           Import-Certificate -FilePath "cert.cer" -CertStoreLocation "Cert:\LocalMachine\My"
 
