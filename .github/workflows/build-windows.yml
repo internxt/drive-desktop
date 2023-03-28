@@ -65,20 +65,20 @@ jobs:
         run: |
           Invoke-WebRequest -Uri https://nodejs.org/dist/v16.14.0/node-v16.14.0-x64.msi -OutFile nodejs.msi
           Start-Process msiexec.exe -Wait -ArgumentList '/I nodejs.msi /quiet /norestart'
-      - name: Install YubiKey
-        shell: pwsh
-        run: |
-          Invoke-WebRequest -Uri "https://developers.yubico.com/yubikey-manager-qt/Releases/yubikey-manager-qt-1.2.5-win64.exe" -OutFile "yubikey-manager-qt-1.2.5-win64.exe"
-          Start-Process .\yubikey-manager-qt-1.2.5-win64.exe -ArgumentList "/S /D=C:\Program Files\Yubico\YubiKey Manager" -Wait
-      - name: Install yubico-piv-tool
-        shell: pwsh
-        run: |
-          choco install yubico-piv-tool -y
-          [Environment]::SetEnvironmentVariable("Path", "$env:Path;C:\Program Files\Yubico\Yubico PIV Tool\bin", "Machine")
-      - name: Checks
-        run: |
-          dir "C:\Program Files\Yubico\Yubico PIV Tool\bin"
-          echo "##[add-to-path]C:\Program Files\Yubico\Yubico PIV Tool\bin"
+#      - name: Install YubiKey
+#        shell: pwsh
+#        run: |
+#          Invoke-WebRequest -Uri "https://developers.yubico.com/yubikey-manager-qt/Releases/yubikey-manager-qt-1.2.5-win64.exe" -OutFile "yubikey-manager-qt-1.2.5-win64.exe"
+#          Start-Process .\yubikey-manager-qt-1.2.5-win64.exe -ArgumentList "/S /D=C:\Program Files\Yubico\YubiKey Manager" -Wait
+#      - name: Install yubico-piv-tool
+#        shell: pwsh
+#        run: |
+#          choco install yubico-piv-tool -y
+#          [Environment]::SetEnvironmentVariable("Path", "$env:Path;C:\Program Files\Yubico\Yubico PIV Tool\bin", "Machine")
+#      - name: Checks
+#        run: |
+#          dir "C:\Program Files\Yubico\Yubico PIV Tool\bin"
+#          echo "##[add-to-path]C:\Program Files\Yubico\Yubico PIV Tool\bin"
 #      - name: Import key
 #        shell: pwsh
 #        run: |
@@ -92,7 +92,7 @@ jobs:
         run: |
           $certBytes = [System.Convert]::FromBase64String("${{ secrets.CERTIFICATE_WINDOWS }}")
           [System.IO.File]::WriteAllBytes("cert.cer", $certBytes)
-          Import-Certificate -FilePath "cert.cer" -CertStoreLocation "Cert:\LocalMachine\My"
+          Import-Certificate -FilePath "cert.cer" -CertStoreLocation "Cert:\LocalMachine\My" -CertFriendlyName "Internxt Universal Technologies SL"
 
       - name: Install yarn and requirements
         run: |  
