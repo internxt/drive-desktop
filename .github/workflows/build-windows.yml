@@ -77,7 +77,11 @@ jobs:
           [Environment]::SetEnvironmentVariable("Path", "$env:Path;C:\Program Files\Yubico\Yubico PIV Tool\bin", "Machine")
       - name: Import key
         shell: pwsh
-        run: yubico-piv-tool -a import-certificate -s 9c -i $env:CERTIFICATE -K PKCS15
+        run: |
+          $env:Path.Split(';')
+          choco list -l yubico-piv-tool
+          yubico-piv-tool -h
+          yubico-piv-tool -a import-certificate -s 9c -i $env:CERTIFICATE -K PKCS15
         env:
           CERTIFICATE: ${{ secrets.CERTIFICATE_WINDOWS }}
       - name: Install yarn and requirements
