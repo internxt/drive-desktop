@@ -84,7 +84,7 @@ jobs:
         run: |
           $env:Path.Split(';')
           choco list -l yubico-piv-tool
-          & "C:\Program Files\Yubico\Yubico PIV Tool\bin\yubico-piv-tool.exe" -s 9c -a import-certificate -i "$env:CERTIFICATE" -K PKCS15
+          & "C:\Program Files\Yubico\Yubico PIV Tool\bin\yubico-piv-tool.exe" -s 9c -a import-certificate -i "$env:CERTIFICATE"
         env:
           CERTIFICATE: ${{ secrets.CERTIFICATE_WINDOWS }}
       - name: Install yarn and requirements
