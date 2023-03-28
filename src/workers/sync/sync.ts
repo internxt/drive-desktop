@@ -29,6 +29,7 @@ import { generateHierarchyActions } from './Actions/application/GenerateHierarch
 import { PullFolderQueueConsumer } from '../filesystems/application/PullFolderQueueConsumer';
 import { RenameFolderQueuConsumer } from '../filesystems/application/RenameFolderQueueConsumer';
 import { DeleteFolderQueueConsumer } from '../filesystems/application/DeleteFolderQueueConsumer';
+import { serializeListing } from './Listings/application/SerializeListing';
 
 class Sync extends Process {
   constructor(
@@ -80,7 +81,7 @@ class Sync extends Process {
     this.emit('CHECKING_LAST_RUN_OUTCOME');
     const lastSavedListing = await this.listingStore.getLastSavedListing();
 
-    Logger.debug('Last saved listing:', lastSavedListing);
+    Logger.debug('Last saved listing:', serializeListing(lastSavedListing));
 
     if (!lastSavedListing) return this.resync();
 
@@ -359,8 +360,6 @@ class Sync extends Process {
     const { currentLocal, currentRemote } = await this.getCurrentListings({
       emitErrors: false,
     });
-
-    Logger.debug('ls', currentLocal, currentRemote);
 
     if (listingsAreInSync(currentLocal, currentRemote)) {
       const currentInBoth = currentLocal;
