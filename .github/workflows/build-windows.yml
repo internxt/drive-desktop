@@ -96,7 +96,6 @@ jobs:
 
       - name: Install yarn and requirements
         run: |  
-          corepack enable
           npm install --global yarn
           npm install yarn --save-dev
           yarn install --network-timeout 1000000
