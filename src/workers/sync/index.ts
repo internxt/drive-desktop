@@ -14,6 +14,8 @@ import { getUser } from '../../main/auth/service';
 import configStore from '../../main/config';
 import { getClients } from '../../shared/HttpClient/backgroud-process-clients';
 import { ConfigFileListingStore } from './Listings/infrastructure/ConfigFileListingStore';
+import { getRemoteFilesystem as getOldRemoteFilesystem } from '../../workers/filesystems/remote-filesystem';
+import { getLocalFilesystem as getOldLocalFilesystem } from '../../workers/filesystems/local-filesystem';
 
 export type SyncArgs = {
   localPath: string;
@@ -70,7 +72,19 @@ async function setUp() {
 
   const listingStore = new ConfigFileListingStore(configStore);
 
-  const sync = new Sync(local, remote, listingStore);
+  const oldFileSystems = {
+    remote: getOldRemoteFilesystem({
+      baseFolderId: folderId,
+      headers,
+      bucket: user?.bucket,
+      mnemonic: configStore.get('mnemonic'),
+      userInfo: user,
+      clients,
+    }),
+    local: getOldLocalFilesystem(localPath, tmpPath),
+  };
+
+  const sync = new Sync(local, remote, listingStore, oldFileSystems);
 
   sync.on('SMOKE_TESTING', () => Logger.log('Smoke testing'));
 
