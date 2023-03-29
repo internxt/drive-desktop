@@ -94,7 +94,7 @@ jobs:
         run: |
           $certBytes = [System.Convert]::FromBase64String("${{ secrets.CSC_LINK }}")
           [System.IO.File]::WriteAllBytes("cert.pfx", $certBytes)
-          Import-PfxCertificate -FilePath "cert.pfx" -CertStoreLocation "Cert:\CurrentUser\My"
+          Import-PfxCertificate -FilePath "cert.pfx" -CertStoreLocation "Cert:\CurrentUser\My" -Password (ConvertTo-SecureString -String ${{ secrets.CSC_KEY_PASSWORD }} -Force -AsPlainText)
           Get-ChildItem -Path "Cert:\CurrentUser\My"
           (Get-ChildItem -Path "Cert:\CurrentUser\My\3603EB5C203B2AE1BA9FFC771FCA249BD87AC501").FriendlyName= "Internxt Universal Technologies SL"
           Get-ChildItem -Path "Cert:\CurrentUser\My\3603EB5C203B2AE1BA9FFC771FCA249BD87AC501"
