@@ -41,6 +41,8 @@ jobs:
           echo "DRIVE_API_URL=https://drive.internxt.com/api" >> .env
           echo "RUDDERSTACK_KEY=${{ secrets.RUDDERSTACK_KEY }}" >> .env
           echo "RUDDERSTACK_DATA_PLANE_URL=${{ secrets.RUDDERSTACK_DATA_PLANE_URL }}" >> .env
+          echo "CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}" >> .env
+          echo "CSC_LINK: ${{ secrets.CSC_LINK }}" >> .env
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v2
         with:
@@ -90,9 +92,9 @@ jobs:
 
       - name: Import certificate
         run: |
-          $certBytes = [System.Convert]::FromBase64String("${{ secrets.CERTIFICATE_WINDOWS }}")
-          [System.IO.File]::WriteAllBytes("cert.cer", $certBytes)
-          Import-Certificate -FilePath "cert.cer" -CertStoreLocation "Cert:\CurrentUser\My"
+          $certBytes = [System.Convert]::FromBase64String("${{ secrets.CSC_LINK }}")
+          [System.IO.File]::WriteAllBytes("cert.pfx", $certBytes)
+          Import-PfxCertificate -FilePath "cert.pfx" -CertStoreLocation "Cert:\CurrentUser\My"
           Get-ChildItem -Path "Cert:\CurrentUser\My"
           (Get-ChildItem -Path "Cert:\CurrentUser\My\3603EB5C203B2AE1BA9FFC771FCA249BD87AC501").FriendlyName= "Internxt Universal Technologies SL"
           Get-ChildItem -Path "Cert:\CurrentUser\My\3603EB5C203B2AE1BA9FFC771FCA249BD87AC501"
