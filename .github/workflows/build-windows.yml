@@ -95,7 +95,7 @@ jobs:
           Import-Certificate -FilePath "cert.cer" -CertStoreLocation "Cert:\CurrentUser\My"
           Get-ChildItem -Path "Cert:\CurrentUser\My"
           (Get-ChildItem -Path "Cert:\CurrentUser\My\3603EB5C203B2AE1BA9FFC771FCA249BD87AC501").FriendlyName= "Internxt Universal Technologies SL"
-          Get-ChildItem -Path "Cert:\CurrentUser\My"
+          Get-ChildItem -Path "Cert:\CurrentUser\My\3603EB5C203B2AE1BA9FFC771FCA249BD87AC501"
       - name: Install yarn and requirements
         run: |  
           npm install --global yarn
