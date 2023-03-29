@@ -10,9 +10,6 @@ export class ConfigFileListingStore implements ListingStore {
 
   private isOldListingFormat(listing: Record<string, unknown>): boolean {
     const entries = Object.entries(listing);
-    const areObjects = entries.every((entry) => typeof entry[1] !== 'object');
-
-    if (!areObjects) return false;
 
     function objectHasValidItemMetaData(obj: unknown): boolean {
       return (
@@ -20,7 +17,8 @@ export class ConfigFileListingStore implements ListingStore {
         typeof obj === 'object' &&
         'id' in obj &&
         'dev' in obj &&
-        'ino' in obj
+        'ino' in obj &&
+        'isFolder' in obj
       );
     }
 
