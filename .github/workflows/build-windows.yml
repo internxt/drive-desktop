@@ -114,6 +114,9 @@ jobs:
         run: |        
           yarn run postinstall
       - name: run package
+        env:
+          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+          CSC_LINK: ${{ secrets.CSC_LINK }}
         run: |        
           yarn run package
       - name: Check file 
