@@ -112,7 +112,7 @@ jobs:
         run: |
           echo "${{ secrets.TEST_CERTIFICA_WINDOWS }}" >  cert.cer
           Import-Certificate -FilePath "cert.cer" -CertStoreLocation "Cert:\CurrentUser\My"
-          (Get-ChildItem -Path "Cert:\CurrentUser\My\3603EB5C203B2AE1BA9FFC771FCA249BD87AC501").FriendlyName= "Internxt Universal Technologies SL"
+          (Get-ChildItem -Path "Cert:\CurrentUser\My\54CB70CC22F8EE7B09E2225D967F5FF7C8A119B6").FriendlyName= "Internxt Universal Technologies SL"
       - name: Check1 certificate
         run: |
           Get-ChildItem -Path "Cert:\CurrentUser\My\3603EB5C203B2AE1BA9FFC771FCA249BD87AC501"
