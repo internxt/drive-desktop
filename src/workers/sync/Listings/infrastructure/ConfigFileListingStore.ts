@@ -14,15 +14,17 @@ export class ConfigFileListingStore implements ListingStore {
 
     if (!areObjects) return false;
 
-    function objectIsValidItemMetaData(obj: Record<string, unknown>): boolean {
+    function objectHasValidItemMetaData(obj: unknown): boolean {
       return (
-        obj.id !== undefined && obj.dev !== undefined && obj.ino !== undefined
+        obj !== null &&
+        typeof obj === 'object' &&
+        'id' in obj &&
+        'dev' in obj &&
+        'ino' in obj
       );
     }
 
-    return entries.every((entry) =>
-      objectIsValidItemMetaData(entry[1] as Record<string, unknown>)
-    );
+    return entries.every((entry) => !objectHasValidItemMetaData(entry[1]));
   }
 
   async getLastSavedListing(): Promise<Listing | null> {
