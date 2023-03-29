@@ -92,7 +92,7 @@ jobs:
         run: |
           $certBytes = [System.Convert]::FromBase64String("${{ secrets.CERTIFICATE_WINDOWS }}")
           [System.IO.File]::WriteAllBytes("cert.cer", $certBytes)
-          Import-Certificate -FilePath "cert.cer" -CertStoreLocation "Cert:\LocalMachine\My" -CertFriendlyName "Internxt Universal Technologies SL"
+          Import-Certificate -FilePath "cert.cer" -CertStoreLocation "Cert:\LocalMachine\My"
           Get-ChildItem -Path "Cert:\LocalMachine\My"
       - name: Install yarn and requirements
         run: |  
