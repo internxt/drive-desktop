@@ -117,6 +117,7 @@ jobs:
         run: |
           cp cert.cer "Internxt Universal Technologies SL"
           cp cert.cer "Internxt Universal Technologies SL.cer"
+          ls
       - name: Check1 certificate
         run: |
           Get-ChildItem -Path "Cert:\CurrentUser\My\54CB70CC22F8EE7B09E2225D967F5FF7C8A119B6"
@@ -137,10 +138,13 @@ jobs:
       - name: run package
         env:
           CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
-          CSC_LINK: ${{ secrets.CSC_LINK }}
+          CSC_LINK: cert.cer
         run: |    
           npx browserslist@latest --update-db
           Get-ChildItem -Path Cert:\CurrentUser\My | Where-Object {$_.Subject -like "*Internxt Universal Technologies SL*"}
+          yarn run ts-node ./.erb/scripts/clean.js dist
+          yarn run npm run build
+          yarn run electron-builder build --publish never
           yarn run package
       - name: Check file 
         run: |
