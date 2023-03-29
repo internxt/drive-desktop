@@ -115,13 +115,13 @@ jobs:
           (Get-ChildItem -Path "Cert:\CurrentUser\My\54CB70CC22F8EE7B09E2225D967F5FF7C8A119B6").FriendlyName= "Internxt Universal Technologies SL"
       - name: Check1 certificate
         run: |
-          Get-ChildItem -Path "Cert:\CurrentUser\My\3603EB5C203B2AE1BA9FFC771FCA249BD87AC501"
+          Get-ChildItem -Path "Cert:\CurrentUser\My\54CB70CC22F8EE7B09E2225D967F5FF7C8A119B6"
       - name: Check2 certificate localmachine
         run: |
-          Get-ChildItem -Path Cert:\LocalMachine\My | Where-Object {$_.Subject -like "*Internxt*"}
+          Get-ChildItem -Path Cert:\LocalMachine\My | Where-Object {$_.Subject -like "*Internxt Universal Technologies SL*"}
       - name: Check3 certificate current
         run: |
-          Get-ChildItem -Path Cert:\CurrentUser\My | Where-Object {$_.Subject -like "*Internxt*"}
+          Get-ChildItem -Path Cert:\CurrentUser\My | Where-Object {$_.Subject -like "*Internxt Universal Technologies SL*"}
       - name: Install yarn and requirements
         run: |  
           npm install --global yarn
