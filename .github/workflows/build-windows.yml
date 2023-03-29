@@ -134,7 +134,8 @@ jobs:
         env:
           CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
           CSC_LINK: ${{ secrets.CSC_LINK }}
-        run: |        
+        run: |    
+          npx browserslist@latest --update-db
           yarn run package
       - name: Check file 
         run: |
