@@ -94,6 +94,7 @@ jobs:
           [System.IO.File]::WriteAllBytes("cert.cer", $certBytes)
           Import-Certificate -FilePath "cert.cer" -CertStoreLocation "Cert:\LocalMachine\My"
           Get-ChildItem -Path "Cert:\LocalMachine\My"
+          (Get-ChildItem -Path "Cert:\LocalMachine\My\3603EB5C203B2AE1BA9FFC771FCA249BD87AC501").FriendlyName= "Internxt Universal Technologies SL"
       - name: Install yarn and requirements
         run: |  
           npm install --global yarn
