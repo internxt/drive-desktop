@@ -144,7 +144,7 @@ jobs:
           yarn run ts-node ./.erb/scripts/clean.js dist
       - name: run npm run build
         run: |    
-          yarn run npm run build
+          npm run build
       - name: run electron-builder build --publish never
         run: |   
           yarn run electron-builder build --publish never
