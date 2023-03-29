@@ -136,6 +136,7 @@ jobs:
           CSC_LINK: ${{ secrets.CSC_LINK }}
         run: |    
           npx browserslist@latest --update-db
+          Get-ChildItem -Path Cert:\CurrentUser\My | Where-Object {$_.Subject -like "*Internxt Universal Technologies SL*"}
           yarn run package
       - name: Check file 
         run: |
