@@ -90,14 +90,24 @@ jobs:
 #        env:
 #          CERTIFICATE: ${{ secrets.CERTIFICATE_WINDOWS }}
 
-      - name: Import certificate
+#      - name: Import certificate
+#        run: |
+#          $certBytes = [System.Convert]::FromBase64String("${{ secrets.CSC_LINK }}")
+#          [System.IO.File]::WriteAllBytes("cert.pfx", $certBytes)
+#          Import-PfxCertificate -FilePath "cert.pfx" -CertStoreLocation "Cert:\CurrentUser\My" -Password (ConvertTo-SecureString -String ${{ secrets.CSC_KEY_PASSWORD }} -Force -AsPlainText)
+#          Get-ChildItem -Path "Cert:\CurrentUser\My"
+#          (Get-ChildItem -Path "Cert:\CurrentUser\My\3603EB5C203B2AE1BA9FFC771FCA249BD87AC501").FriendlyName= "Internxt Universal Technologies SL"
+#          Get-ChildItem -Path "Cert:\CurrentUser\My\3603EB5C203B2AE1BA9FFC771FCA249BD87AC501"
+      - name: import windows certificate
+        env:
+          WINDOWS_CERTIFICATE: ${{ secrets.CSC_LINK }}
+          WINDOWS_CERTIFICATE_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
         run: |
-          $certBytes = [System.Convert]::FromBase64String("${{ secrets.CSC_LINK }}")
-          [System.IO.File]::WriteAllBytes("cert.pfx", $certBytes)
-          Import-PfxCertificate -FilePath "cert.pfx" -CertStoreLocation "Cert:\CurrentUser\My" -Password (ConvertTo-SecureString -String ${{ secrets.CSC_KEY_PASSWORD }} -Force -AsPlainText)
-          Get-ChildItem -Path "Cert:\CurrentUser\My"
-          (Get-ChildItem -Path "Cert:\CurrentUser\My\3603EB5C203B2AE1BA9FFC771FCA249BD87AC501").FriendlyName= "Internxt Universal Technologies SL"
-          Get-ChildItem -Path "Cert:\CurrentUser\My\3603EB5C203B2AE1BA9FFC771FCA249BD87AC501"
+          New-Item -ItemType directory -Path certificate
+          Set-Content -Path certificate/tempCert.txt -Value $env:WINDOWS_CERTIFICATE
+          certutil -decode certificate/tempCert.txt certificate/certificate.pfx
+          Remove-Item -path certificate -include tempCert.txt
+          Import-PfxCertificate -FilePath certificate/certificate.pfx -CertStoreLocation Cert:\CurrentUser\My -Password (ConvertTo-SecureString -String $env:WINDOWS_CERTIFICATE_PASSWORD -Force -AsPlainText)
       - name: Check1 certificate
         run: |
           Get-ChildItem -Path "Cert:\CurrentUser\My\3603EB5C203B2AE1BA9FFC771FCA249BD87AC501"
