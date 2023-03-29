@@ -90,7 +90,7 @@ export interface FileSystem<T extends PartialListing> {
    */
   getFolderMetadata(
     name: string
-  ): Promise<LocalItemMetaData | RemoteItemMetaData>;
+  ): Promise<LocalItemMetaData | RemoteItemMetaData | null>;
 
   /**
    * Check critical resources of this filesystem

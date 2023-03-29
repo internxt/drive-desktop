@@ -210,7 +210,7 @@ export function getLocalFilesystem(
     async pullFolder(folderMetaData: RemoteItemMetaData): Promise<void> {
       const {name, modtime} = folderMetaData;
       const osSpecificRelative = name.replaceAll('/', path.sep);
-      const fullPath = path.join(localPath, osSpecificRelative);
+      const fullPath = path.join(localPath, osSpecificRelative, folderMetaData.name);
 
       await fs.mkdir(fullPath, { recursive: true });
       await fs.utimes(fullPath, modtime, modtime);
@@ -342,10 +342,15 @@ export function getLocalFilesystem(
       }
     },
 
-    async getFolderMetadata(name: string): Promise<LocalItemMetaData> {
-      const completePath = path.join(localPath, name);
+    async getFolderMetadata(fullPath: string): Promise<LocalItemMetaData> {
+      const meta = await getLocalMeta(fullPath);
 
-      return getLocalMeta(completePath);
+      const metaWithoutFullPath = LocalItemMetaData.from({
+        ...meta.toJSON(),
+        name: fullPath.split(localPath)[0],
+      });
+
+      return metaWithoutFullPath;
     },
   };
 }

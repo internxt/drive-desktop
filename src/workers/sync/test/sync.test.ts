@@ -1244,14 +1244,14 @@ describe('sync tests', () => {
 
     const diff = sync.getListingsDiff(local, remote);
 
-    expect(diff.filesNotInLocal.length).toEqual(1);
+    expect(diff.itemsNotInLocal.length).toEqual(1);
     expect(
-      diff.filesNotInLocal.find((el) => el === 'imnotinlocal')
+      diff.itemsNotInLocal.find((el) => el === 'imnotinlocal')
     ).toBeDefined();
 
-    expect(diff.filesNotInRemote.length).toEqual(1);
+    expect(diff.itemsNotInRemote.length).toEqual(1);
     expect(
-      diff.filesNotInRemote.find((el) => el === 'imnotinremote')
+      diff.itemsNotInRemote.find((el) => el === 'imnotinremote')
     ).toBeDefined();
 
     expect(diff.filesWithDifferentModtime.length).toEqual(1);

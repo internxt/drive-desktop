@@ -26,6 +26,7 @@ import { RemoteListing } from '../../sync/Listings/domain/Listing';
 import { RemoteItemMetaData } from '../../sync/Listings/domain/RemoteItemMetaData';
 import { FileCreatedResponseDTO } from '../../../shared/HttpClient/responses/file-created';
 import { LocalItemMetaData } from 'workers/sync/Listings/domain/LocalItemMetaData';
+import { chain } from 'lodash';
 
 /**
  * Server cannot find a file given its route,
@@ -215,6 +216,16 @@ export function getRemoteFilesystem({
 
       tree.folders.forEach((folder: ServerFolder) => {
         if (!folder.plain_name) return;
+        if (!folder.parent_id) return;
+
+        const decryptName = () =>
+          crypt.decryptName(
+            folder.name,
+            (folder.parent_id as number).toString(),
+            '03-aes'
+          );
+
+        const plainName = folder.plain_name ?? decryptName();
 
         const modtime = getSecondsFromDateString(folder.updated_at);
 
@@ -222,12 +233,12 @@ export function getRemoteFilesystem({
           modtime,
           size: 0,
           id: folder.id,
-          name: folder.plain_name,
+          name: plainName,
           isFolder: true,
         });
 
-        listing[folder.plain_name] = metada;
-        folderCache[folder.plain_name] = metada;
+        listing[plainName] = metada;
+        folderCache[plainName] = metada;
       });
 
       return { listing, readingMetaErrors };
@@ -507,14 +518,18 @@ export function getRemoteFilesystem({
     async pullFolder(folderMetaData: LocalItemMetaData): Promise<void> {
       const { name } = folderMetaData;
 
+      Logger.debug('NAME:', name);
+
       const route = name.split('/');
 
       const n = route.at(-1);
 
       const parentFolderRoute = route.slice(0, route.length - 1).join('/');
 
-      const folderInCache = cache[parentFolderRoute];
+      Logger.debug('parentFolderRoute:', parentFolderRoute);
 
+      const folderInCache = folderCache[parentFolderRoute];
+      Logger.debug('folderInCache:', folderInCache);
       const lastParentId =
         folderInCache !== undefined ? folderInCache.id : baseFolderId;
 
@@ -548,6 +563,11 @@ export function getRemoteFilesystem({
             isFolder: true,
             bucket: createdFolder.bucket,
           };
+          Logger.debug('CACHE THEN:', JSON.stringify(cache));
+          Logger.debug(
+            'parentFolderRoute:',
+            JSON.stringify({ parentFolderRoute })
+          );
           createFolderQueue.emit(parentFolderRoute, createdFolder.id);
         })
         .catch(async (err) => {
@@ -688,43 +708,52 @@ export function getRemoteFilesystem({
       }
     },
 
-    async getFolderMetadata(name): Promise<RemoteItemMetaData> {
-      const cachedFolder = folderCache[name];
-
+    async getFolderMetadata(name): Promise<RemoteItemMetaData | null> {
+      const cachedFolder = cache[name];
 
       Logger.debug('FOLDER IN CACHE:', cachedFolder);
 
-      if (!cachedFolder) {
-        const obtainFolderMetadata = async (searchName: string) => {
-          const res = await httpRequest(
-            `${process.env.API_URL}/api/storage/v2/folder/${baseFolderId}`,
-            { headers }
-          );
+      if (!cachedFolder)
+        throw new Error('Could not obtain folder info in the cache');
 
-          const body = await res.json();
-          return body.children.find((raw: any) => {
-            return raw.plain_name === searchName;
-          });
-        };
+      const obtainFolderMetadata = async (parentId: number, id: number) => {
+        const res = await httpRequest(
+          `${process.env.API_URL}/api/storage/v2/folder/${parentId}`,
+          { headers }
+        );
 
-        const serverFolder = await obtainFolderMetadata(name);
+        const body = await res.json();
 
-        const modtime = getSecondsFromDateString(serverFolder.updatedAt);
+        Logger.debug('N FOLDERS: ', body.children.length);
 
-        const metada = RemoteItemMetaData.from({
-          modtime,
-          size: 0,
-          id: serverFolder.id,
-          name: serverFolder.plain_name as string,
-          isFolder: true,
+        return body.children.find((raw: any) => {
+          Logger.debug(JSON.stringify(raw), id);
+          return raw.id === id;
         });
+      };
 
-        folderCache[serverFolder.plain_name as string] = metada;
+      const serverFolder = await obtainFolderMetadata(
+        cachedFolder.parentId,
+        cachedFolder.id
+      );
 
-        return metada;
-      }
+      if (!serverFolder) return null;
 
-      return Promise.resolve(cachedFolder);
+      const modtime = getSecondsFromDateString(serverFolder.updatedAt);
+
+      const metada = RemoteItemMetaData.from({
+        modtime,
+        size: 0,
+        id: serverFolder.id,
+        name: serverFolder.plain_name as string,
+        isFolder: true,
+      });
+
+      Logger.debug('FOLDER METADATA: ', metada);
+
+      folderCache[serverFolder.plain_name as string] = metada;
+
+      return Promise.resolve(metada);
     },
   };
 }

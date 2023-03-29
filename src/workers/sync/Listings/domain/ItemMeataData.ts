@@ -12,7 +12,7 @@ export abstract class ItemMetaData {
     public readonly modtime: number,
     public readonly size: number,
     public readonly isFolder: boolean,
-    public readonly name: string,
+    public readonly name: string
   ) {}
 
   abstract same(other: ItemMetaData): boolean;
@@ -30,5 +30,9 @@ export abstract class ItemMetaData {
     const otherBaseName = path.basename(other);
 
     return itemBaseName === otherBaseName;
+  }
+
+  isMoreRecentThan(other: ItemMetaData) {
+    return this.modtime < other.modtime;
   }
 }

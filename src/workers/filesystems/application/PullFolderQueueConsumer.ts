@@ -57,6 +57,8 @@ export class PullFolderQueueConsumer {
         folderName
       );
 
+      if(!folderMetaData) return;
+
       await this.destinationFileSystem.pullFolder(folderMetaData);
 
       this.eventEmiter.emit(
@@ -75,11 +77,15 @@ export class PullFolderQueueConsumer {
               pullFolder
             );
           } catch (err: unknown) {
-            return Promise.reject(
-              new Error(
-                `An error occured creating a folder of the level: ${level}`
-              )
-            );
+
+            if (err && typeof err === 'object' && 'message' in err) {
+              return Promise.reject(
+                new Error(
+                  `The error ${err.message} occured creating a folder of the level: ${level}`
+                )
+              );
+            }
+
           }
         }
       );
