@@ -152,7 +152,7 @@ jobs:
           APPLE_ID_PASS: ${{ secrets.APPLE_ID_PASS }}
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
-          yarn run prepublish
+          yarn run del-cli ./node_modules/sharp && del-cli ./release/app/node_modules/sharp && cd ./release/app && platform=darwin arch=x64 yarn add sharp && npm rebuild --platform=darwin --arch=arm64 sharp
           yarn run publish
           ls release/build
   
