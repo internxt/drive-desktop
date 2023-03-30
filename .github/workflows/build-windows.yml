@@ -146,7 +146,12 @@ jobs:
           npm run build
       - name: run electron-builder build --publish never
         run: |   
-          yarn run electron-builder build --publish never
+          npm exec electron-builder -- --publish never --win
+#      - name: run electron-builder build --publish never
+#        run: |   
+#          yarn run electron-builder build --publish never
+#          npm exec electron-builder -- --publish always --win
+
 #      - name: run package
 #        run: |    
 #          npx browserslist@latest --update-db
@@ -155,6 +160,7 @@ jobs:
 #          yarn run npm run build
 #          yarn run electron-builder build --publish never
 #          yarn run package
+
       - name: Check file 
         run: |
           ls release/build/
