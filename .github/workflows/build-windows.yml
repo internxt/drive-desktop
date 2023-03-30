@@ -130,7 +130,10 @@ jobs:
           Get-ChildItem -Path Cert:\LocalMachine\My | Where-Object {$_.Subject -like "*Internxt Universal Technologies SL*"}
       - name: Check3 certificate current
         run: |
-          Get-ChildItem -Path Cert:\CurrentUser\My | Where-Object {$_.Subject -like "*Internxt Universal Technologies SL*"}
+          Get-ChildItem -Path Cert:\CurrentUser\My | Where-Object {$_.Subject -like "*Internxt Universal Technologies SL*"} 
+      - name: Check4 certificate current
+        run: |
+          Get-ChildItem -Path Cert:\CurrentUser\My\54CB70CC22F8EE7B09E2225D967F5FF7C8A119B6 | Select-Object Subject
       - name: Install yarn and requirements
         run: |  
           npm install --global yarn
