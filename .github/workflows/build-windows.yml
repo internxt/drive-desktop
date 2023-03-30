@@ -160,12 +160,13 @@ jobs:
           CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
           CSC_LINK: ./cert.cer
         run: |   
-          yarn run electron-builder build --win --publish never -c electron-builder.yml
+          yarn run electron-builder build --win --publish never
 #      - name: run electron-builder build --publish never
 #        env:
 #          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
 #          CSC_LINK: ./cert.cer
 #        run: |   
+#          yarn run electron-builder build --win --publish never -c electron-builder.yml
 #          yarn run electron-builder build --win-cert-file=cert.cer --win-cert-password=${{ secrets.CSC_KEY_PASSWORD }} --win-cert-subject-name="CN=*Internxt*" --publish never
 #      - name: run electron-builder build --publish never
 #        run: |   
