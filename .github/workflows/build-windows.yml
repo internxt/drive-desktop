@@ -127,9 +127,6 @@ jobs:
       - name: Check3 certificate current
         run: |
           Get-ChildItem -Path Cert:\CurrentUser\My | Where-Object {$_.Subject -like "*Internxt Universal Technologies SL*"}
-      - name: Check file 
-        run: |
-          ls release/build/
       - name: Install yarn and requirements
         run: |  
           npm install --global yarn
