@@ -137,8 +137,10 @@ jobs:
       - name: Install yarn and requirements
         run: |  
           npm install --global yarn
-          npm install yarn --save-dev --force
+          npm install yarn --save-dev
           yarn install --network-timeout 1000000
+      - name: Install electron-builder v20
+        run: npm install electron-builder@20
       - name: run postinstall
         run: |        
           yarn run postinstall
