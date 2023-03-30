@@ -42,7 +42,7 @@ jobs:
           echo "RUDDERSTACK_KEY=${{ secrets.RUDDERSTACK_KEY }}" >> .env
           echo "RUDDERSTACK_DATA_PLANE_URL=${{ secrets.RUDDERSTACK_DATA_PLANE_URL }}" >> .env
           echo "CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}" >> .env
-          echo "CSC_LINK: ${{ secrets.CSC_LINK }}" >> .env
+          echo "CSC_LINK: ./cert.cer" >> .env
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v2
         with:
