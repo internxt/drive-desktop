@@ -98,21 +98,20 @@ jobs:
 #          Get-ChildItem -Path "Cert:\CurrentUser\My"
 #          (Get-ChildItem -Path "Cert:\CurrentUser\My\3603EB5C203B2AE1BA9FFC771FCA249BD87AC501").FriendlyName= "Internxt Universal Technologies SL"
 #          Get-ChildItem -Path "Cert:\CurrentUser\My\3603EB5C203B2AE1BA9FFC771FCA249BD87AC501"
-      - name: import windows certificate
-        env:
-          WINDOWS_CERTIFICATE: ${{ secrets.CSC_LINK }}
-          WINDOWS_CERTIFICATE_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
-        run: |
-          New-Item -ItemType directory -Path certificate
-          Set-Content -Path certificate/tempCert.txt -Value $env:WINDOWS_CERTIFICATE
-          certutil -decode certificate/tempCert.txt certificate/certificate.pfx
-          Remove-Item -path certificate -include tempCert.txt
-          Import-PfxCertificate -FilePath certificate/certificate.pfx -CertStoreLocation Cert:\CurrentUser\My -Password (ConvertTo-SecureString -String $env:WINDOWS_CERTIFICATE_PASSWORD -Force -AsPlainText)
+#      - name: import windows certificate
+#        env:
+#          WINDOWS_CERTIFICATE: ${{ secrets.CSC_LINK }}
+#          WINDOWS_CERTIFICATE_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+#        run: |
+#          New-Item -ItemType directory -Path certificate
+#          Set-Content -Path certificate/tempCert.txt -Value $env:WINDOWS_CERTIFICATE
+#          certutil -decode certificate/tempCert.txt certificate/certificate.pfx
+#          Remove-Item -path certificate -include tempCert.txt
+#          Import-PfxCertificate -FilePath certificate/certificate.pfx -CertStoreLocation Cert:\CurrentUser\My -Password (ConvertTo-SecureString -String $env:WINDOWS_CERTIFICATE_PASSWORD -Force -AsPlainText)
       - name: import windows certificate
         run: |
           echo "${{ secrets.TEST_CERTIFICA_WINDOWS }}" >  cert.cer
           Import-Certificate -FilePath "cert.cer" -CertStoreLocation "Cert:\CurrentUser\My"
-          (Get-ChildItem -Path "Cert:\CurrentUser\My\54CB70CC22F8EE7B09E2225D967F5FF7C8A119B6").FriendlyName= "Internxt Universal Technologies SL"
           (Get-ChildItem -Path "Cert:\CurrentUser\My\54CB70CC22F8EE7B09E2225D967F5FF7C8A119B6").FriendlyName= "Internxt Universal Technologies SL"
       - name: import windows certificate
         run: |
