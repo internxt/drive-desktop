@@ -32,7 +32,11 @@ class Sync extends Process {
   constructor(
     protected readonly local: SyncFileSystem<LocalListing>,
     protected readonly remote: SyncFileSystem<RemoteListing>,
-    private readonly listingStore: ListingStore
+    private readonly listingStore: ListingStore,
+    private readonly oldFileSystems: {
+      remote: FileSystem;
+      local: FileSystem;
+    }
   ) {
     super(local, remote);
   }
@@ -137,9 +141,11 @@ class Sync extends Process {
       JSON.stringify(pullFoldersFromLocal, null, 2)
     );
 
-    const consumer = new PullFolderQueueConsumer(this.remote, this);
+    const remoteFolderPullConsumer = new PullFolderQueueConsumer(this.remote, this);
+    const localFolderPullConsumer = new PullFolderQueueConsumer(this.local, this);
 
-    await consumer.consume(pullFoldersFromRemote);
+    await remoteFolderPullConsumer.consume(pullFoldersFromRemote);
+    await localFolderPullConsumer.consume(pullFoldersFromLocal);
 
     Logger.debug('Queue rename in local', renameInLocal);
     Logger.debug('Queue rename in remote', renameInRemote);
@@ -215,7 +221,7 @@ class Sync extends Process {
       filesNotInLocal: pullFromLocal,
       filesNotInRemote: pullFromRemote,
       filesWithDifferentModtime,
-    } = this.getListingsDiff(currentLocal, currentRemote);
+    } = this.getFilesListingsDiff(currentLocal, currentRemote);
 
     for (const name of filesWithDifferentModtime) {
       const { modtime: modtimeInLocal } = currentLocal[name];
@@ -234,8 +240,16 @@ class Sync extends Process {
     });
 
     await Promise.all([
-      this.consumePullQueue(pullFromLocal, this.local, this.remote),
-      this.consumePullQueue(pullFromRemote, this.remote, this.local),
+      this.consumePullQueue(
+        pullFromLocal,
+        this.oldFileSystems.local,
+        this.remote
+      ),
+      this.consumePullQueue(
+        pullFromRemote,
+        this.oldFileSystems.remote,
+        this.local
+      ),
     ]);
 
     return this.finalize();
@@ -310,6 +324,53 @@ class Sync extends Process {
 
       return { status: 'NOT_IN_SYNC', diff };
     }
+  }
+
+  getFilesListingsDiff(
+    local: LocalListing,
+    remote: RemoteListing
+  ): {
+    filesNotInLocal: string[];
+    filesNotInRemote: string[];
+    filesWithDifferentModtime: string[];
+    filesInSync: NewListing;
+  } {
+    const filesNotInLocal = [];
+    const filesNotInRemote = [];
+    const filesWithDifferentModtime = [];
+    const filesInSync: NewListing = {};
+
+    for (const [localName, localMetadata] of Object.entries(local)) {
+      if (localMetadata.isFolder) continue;
+
+      const entryInRemote = remote[localName];
+
+      if (!entryInRemote) {
+        filesNotInRemote.push(localName);
+      } else if (localMetadata.modtime !== entryInRemote.modtime) {
+        filesWithDifferentModtime.push(localName);
+      } else {
+        filesInSync[localName] = createSynchronizedItemMetaDataFromPartials(
+          local[localName],
+          remote[localName]
+        );
+      }
+    }
+
+    for (const [remoteName, remoteMetadata] of Object.entries(remote)) {
+      if (remoteMetadata.isFolder) continue;
+
+      if (!(remoteName in local)) {
+        filesNotInLocal.push(remoteName);
+      }
+    }
+
+    return {
+      filesNotInLocal,
+      filesNotInRemote,
+      filesWithDifferentModtime,
+      filesInSync,
+    };
   }
 
   getListingsDiff(

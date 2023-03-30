@@ -209,7 +209,7 @@ export function getLocalFilesystem(
       const osSpecificRelative = name.replaceAll('/', path.sep);
       const fullPath = path.join(localPath, osSpecificRelative);
 
-      await fs.mkdir(path.parse(fullPath).dir, { recursive: true });
+      await fs.mkdir(fullPath);
     },
 
     renameFile(oldName: string, newName: string) {
