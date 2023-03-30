@@ -70,15 +70,41 @@ export function getLocalFilesystem(
     return path.join(tempDirectory, `${uuid.v4()}.tmp`);
   }
 
-  async function getLocalMeta(pathname: string): Promise<LocalItemMetaData> {
-    const stat = await fs.stat(pathname);
+  function getItemAbsolutePath(name: string): string {
+    const absolutePath = path.join(localPath, name);
+
+    if (!path.isAbsolute(absolutePath)) {
+      throw new Error(
+        `[LOCAL FS] Could not calculata the absolute path for item: ${name}`
+      );
+    }
+
+    return absolutePath;
+  }
+
+  async function getLocalMeta(
+    itemPath: string
+  ): Promise<LocalItemMetaData> {
+
+    const absolutePath = path.isAbsolute(itemPath) ? itemPath : getItemAbsolutePath(itemPath);
+
+    if (!path.isAbsolute(absolutePath)) {
+      throw new Error(
+        `[LOCAL FS] Obtaining local metadata. ${absolutePath} is not an absolute path`
+      );
+    }
+
+    const relativeName = path.relative(localPath, absolutePath);
+    const stat = await fs.stat(absolutePath);
+
     return LocalItemMetaData.from({
       modtime: Math.trunc(stat.mtimeMs / 1000),
       size: stat.size,
       ino: stat.ino,
       dev: stat.dev,
       isFolder: stat.isDirectory(),
-      name: pathname,
+      name: relativeName,
+      absolutePath: itemPath,
     });
   }
 
@@ -208,9 +234,13 @@ export function getLocalFilesystem(
     },
 
     async pullFolder(folderMetaData: RemoteItemMetaData): Promise<void> {
-      const {name, modtime} = folderMetaData;
+      const { name, modtime } = folderMetaData;
       const osSpecificRelative = name.replaceAll('/', path.sep);
-      const fullPath = path.join(localPath, osSpecificRelative, folderMetaData.name);
+      const fullPath = path.join(
+        localPath,
+        osSpecificRelative,
+        folderMetaData.name
+      );
 
       await fs.mkdir(fullPath, { recursive: true });
       await fs.utimes(fullPath, modtime, modtime);
@@ -223,9 +253,9 @@ export function getLocalFilesystem(
     },
 
     renameFolder(oldName: string, newName: string) {
-     const oldActualPath = getActualPath(oldName);
-     const newActualPath = getActualPath(newName);
-     return saferRenameFile(oldActualPath, newActualPath);
+      const oldActualPath = getActualPath(oldName);
+      const newActualPath = getActualPath(newName);
+      return saferRenameFile(oldActualPath, newActualPath);
     },
 
     async existsFolder(name: string): Promise<boolean> {
@@ -348,6 +378,7 @@ export function getLocalFilesystem(
       const metaWithoutFullPath = LocalItemMetaData.from({
         ...meta.toJSON(),
         name: fullPath.split(localPath)[0],
+        absolutePath: fullPath,
       });
 
       return metaWithoutFullPath;

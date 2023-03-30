@@ -4,6 +4,7 @@ import { ItemDeltas } from '../domain/ItemDelta';
 import { ItemState } from '../domain/ItemState';
 import { RemoteItemMetaData } from '../../Listings/domain/RemoteItemMetaData';
 import { SynchronizedItemMetaData } from 'workers/sync/Listings/domain/SynchronizedItemMetaData';
+import Logger from 'electron-log';
 
 export function generateDeltas(
   saved: Listing,
@@ -47,6 +48,7 @@ export function generateDeltas(
       const oldEntry = searchSavedItem(meta);
 
       if (oldEntry) {
+        Logger.debug(JSON.stringify(oldEntry, null, 2));
         if (oldEntry.haveSameBaseName(name)) {
           deltas[name] = new ItemState('UNCHANGED');
         } else {

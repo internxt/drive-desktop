@@ -3,6 +3,7 @@ import { ItemMetaData, ItemMetaDataAttributes } from './ItemMeataData';
 export type LocalItemMetaDataAttributes = ItemMetaDataAttributes & {
   ino: number;
   dev: number;
+  absolutePath: string;
 };
 
 export class LocalItemMetaData extends ItemMetaData {
@@ -13,6 +14,7 @@ export class LocalItemMetaData extends ItemMetaData {
     public readonly name: string,
     public readonly ino: number,
     public readonly dev: number,
+    public readonly absolutePath: string
   ) {
     super(modtime, size, isFolder, name);
   }
@@ -28,7 +30,8 @@ export class LocalItemMetaData extends ItemMetaData {
       attributes.isFolder,
       attributes.name,
       attributes.ino,
-      attributes.dev
+      attributes.dev,
+      attributes.absolutePath
     );
   }
 
@@ -40,6 +43,7 @@ export class LocalItemMetaData extends ItemMetaData {
       name: this.name,
       ino: this.ino,
       dev: this.dev,
+      absolutePath: this.absolutePath,
     };
   }
 }
