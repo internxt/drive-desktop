@@ -145,6 +145,9 @@ jobs:
         run: |    
           npm run build
       - name: run electron-builder build --publish never
+        env:
+          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+          CSC_LINK: ./cert.cer
         run: |   
           npm exec electron-builder -- --publish never --win
 #      - name: run electron-builder build --publish never
