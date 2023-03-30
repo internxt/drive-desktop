@@ -148,12 +148,27 @@ jobs:
       - name: run npm run build
         run: |    
           npm run build
+      - name: Create YAML file
+        run: |
+          echo 'win:
+            target: ["nsis", "msi"]
+            publisherName: "*Internxt*"
+            signingHashAlgorithms: ["sha256"]
+            certificateFile: "cert.cer"
+            certificatePassword: ${{ secrets.CERT_PASSWORD }}
+            overwrite: true' > electron-builder.yml
       - name: run electron-builder build --publish never
         env:
           CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
           CSC_LINK: ./cert.cer
         run: |   
-          yarn run electron-builder build --win-cert-file=cert.cer --win-cert-password=${{ secrets.CSC_KEY_PASSWORD }} --win-cert-subject-name="CN=*Internxt*" --publish never
+          yarn run electron-builder build --win --publish never -c electron-builder.yml
+#      - name: run electron-builder build --publish never
+#        env:
+#          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+#          CSC_LINK: ./cert.cer
+#        run: |   
+#          yarn run electron-builder build --win-cert-file=cert.cer --win-cert-password=${{ secrets.CSC_KEY_PASSWORD }} --win-cert-subject-name="CN=*Internxt*" --publish never
 #      - name: run electron-builder build --publish never
 #        run: |   
 #          yarn run electron-builder build --publish never
