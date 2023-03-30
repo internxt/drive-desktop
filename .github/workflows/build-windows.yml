@@ -162,8 +162,7 @@ jobs:
             certificateFile: "cert.cer"' > electron-builder.yml
       - name: run electron-builder build --publish never
         env:
-          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
-          CSC_LINK: ${{ secrets.CSC_LINK }}
+          CSC_LINK: ./cert.cer
         run: |   
           yarn run electron-builder build --win --publish never
 #      - name: run electron-builder build --publish never
