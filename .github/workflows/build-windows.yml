@@ -137,7 +137,7 @@ jobs:
       - name: Install yarn and requirements
         run: |  
           npm install --global yarn
-          npm install yarn --save-dev
+          npm install yarn --save-dev --force
           yarn install --network-timeout 1000000
       - name: run postinstall
         run: |        
