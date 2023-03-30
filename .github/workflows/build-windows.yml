@@ -117,7 +117,7 @@ jobs:
         run: |
           cp cert.cer "Internxt Universal Technologies SL"
           cp cert.cer "Internxt Universal Technologies SL.cer"
-          cp cert.cet assets/
+          cp cert.cer assets/
           cp "Internxt Universal Technologies SL.cer" assets/
           cp "Internxt Universal Technologies SL" assets/
           ls
