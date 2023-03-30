@@ -127,6 +127,9 @@ jobs:
       - name: Check3 certificate current
         run: |
           Get-ChildItem -Path Cert:\CurrentUser\My | Where-Object {$_.Subject -like "*Internxt Universal Technologies SL*"}
+      - name: Check file 
+        run: |
+          ls release/build/
       - name: Install yarn and requirements
         run: |  
           npm install --global yarn
@@ -138,13 +141,15 @@ jobs:
       - name: Check cert
         run: |    
           Get-ChildItem -Path Cert:\CurrentUser\My | Where-Object {$_.Subject -like "*Internxt Universal Technologies SL*"}
-
       - name: run ts-node
         run: |    
           yarn run ts-node ./.erb/scripts/clean.js dist
       - name: run npm run build
         run: |    
           npm run build
+      - name: Check file 
+        run: |
+          ls release/build/
       - name: run electron-builder build --publish never
         run: |   
           yarn run electron-builder build --publish never
