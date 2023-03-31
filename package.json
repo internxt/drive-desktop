@@ -262,6 +262,7 @@
     "jwt-decode": "^3.1.2",
     "lodash": "^4.17.21",
     "node-schedule": "^2.1.0",
+    "phosphor-react": "^1.4.1",
     "react": "^17.0.2",
     "react-auth-code-input": "^2.0.0",
     "react-dom": "^17.0.2",
