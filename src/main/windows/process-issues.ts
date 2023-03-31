@@ -23,6 +23,7 @@ async function openProcessIssuesWindow() {
     show: false,
     webPreferences: {
       preload: preloadPath,
+      nodeIntegration: true,
     },
     titleBarStyle: process.platform === 'darwin' ? 'hidden' : undefined,
     frame: process.platform !== 'darwin' ? false : undefined,

@@ -19,6 +19,7 @@ async function openSettingsWindow(section?: string) {
     show: false,
     webPreferences: {
       preload: preloadPath,
+      nodeIntegration: true,
     },
     titleBarStyle: process.platform === 'darwin' ? 'hidden' : undefined,
     frame: process.platform !== 'darwin' ? false : undefined,
