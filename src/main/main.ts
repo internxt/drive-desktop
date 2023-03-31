@@ -50,6 +50,7 @@ if (process.env.NODE_ENV === 'production') {
 
 if (process.env.NODE_ENV === 'development') {
   require('electron-debug')({ showDevTools: false });
+  require('./dev/handlers');
 }
 
 const installExtensions = async () => {
