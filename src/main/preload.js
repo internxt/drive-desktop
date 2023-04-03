@@ -2,6 +2,15 @@ const { contextBridge, ipcRenderer } = require('electron');
 const path = require('path');
 
 contextBridge.exposeInMainWorld('electron', {
+  query(query) {
+    return ipcRenderer.invoke('execute-app-query', query);
+  },
+  getConfigKey(key) {
+    return ipcRenderer.invoke('get-config-key', key);
+  },
+  setConfigKey(key, value) {
+    return ipcRenderer.send('set-config-key', {key, value});
+  },
   pathChanged(pathname) {
     ipcRenderer.send('path-changed', pathname);
   },

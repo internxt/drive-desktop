@@ -1,12 +1,12 @@
 import Store from 'electron-store';
 import { ListingStore } from '../domain/ListingStore';
-import { ConfigStore } from '../../../../main/config';
+import { AppStore } from '../../../../main/config';
 import { Listing } from '../domain/Listing';
 
 export class ConfigFileListingStore implements ListingStore {
   private static readonly configKey = 'lastSavedListing';
 
-  constructor(private readonly store: Store<ConfigStore>) {}
+  constructor(private readonly store: Store<AppStore>) {}
 
   private isOldListingFormat(listing: Record<string, unknown>): boolean {
     const entries = Object.entries(listing);

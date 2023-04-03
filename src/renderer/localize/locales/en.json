@@ -1,0 +1,33 @@
+{
+  "settings": {
+    "header": {
+      "section": {
+        "GENERAL": "general",
+        "ACCOUNT": "account",
+        "BACKUPS": "backups"
+      }
+    },
+    "general": {
+      "device" : {
+        "section": "Device name"
+      },
+      "auto-startup": "Start Internxt Drive on system startup",
+      "language": {
+        "section": "Language",
+        "avaliable": {
+          "es": "Spanish (Spain)",
+          "en": "English (United States)",
+          "fr": "French (France)"
+        }
+      },
+      "sync": {
+        "folder": "Internxt Drive Folder",
+        "change-folder": "Change folder"
+      },
+      "app-info": {
+        "open-logs": "Open logs",
+        "more": "Learn more about Internxt Drive"
+      }
+    }
+  }
+}

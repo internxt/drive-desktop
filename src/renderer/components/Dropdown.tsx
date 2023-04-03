@@ -2,10 +2,11 @@ import { Listbox, Transition } from '@headlessui/react';
 import { UilCheck } from '@iconscout/react-unicons';
 import { CaretDown } from 'phosphor-react';
 import { Fragment } from 'react';
+import { useTranslationContext } from '../context/LocalContext';
 
 export type DropdownElement<T> = {
   id: string,
-  display: string,
+  translationKey: string,
   value: T,
 }
 
@@ -19,13 +20,21 @@ export default function Dropdown<T>({
   options: Array<DropdownElement<T>>;
   defaultValue?: DropdownElement<T> ;
 }): JSX.Element {
+  const { translate } = useTranslationContext();
+
+  const changeWhenIsDifferent = (selectedOption: DropdownElement<T>) => {
+    if (selected.id === selectedOption.id) return;
+
+    onChange(selectedOption);
+  }
+
   return (
-    <Listbox value={selected} onChange={onChange}>
+    <Listbox value={selected} onChange={changeWhenIsDifferent}>
       {({ open }) => (
         <div className="relative mt-2">
           <Listbox.Button className="w-fit cursor-pointer rounded-md border border-l-neutral-40 bg-white py-1 px-2 text-left drop-shadow-sm">
             <span className="justify-betweenblock flex w-full flex-row truncate text-sm text-neutral-500">
-              {selected.display}
+              {translate(selected.translationKey)}
               <CaretDown size={20} className="ml-1" />
             </span>
           </Listbox.Button>
@@ -50,7 +59,9 @@ export default function Dropdown<T>({
                 >
                   {({ selected }) => (
                     <>
-                      <span className="block truncate">{opt.display}</span>
+                      <span className="block truncate">
+                        {translate(opt.translationKey)}
+                      </span>
                       {selected ? (
                         <span className="absolute inset-y-0 left-0 flex items-center pl-1">
                           <UilCheck className="h-4 w-4" aria-hidden="true" />

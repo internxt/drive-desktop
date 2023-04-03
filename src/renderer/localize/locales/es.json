@@ -1,0 +1,33 @@
+{
+  "settings": {
+    "header": {
+      "section": {
+        "GENERAL": "General",
+        "ACCOUNT": "Cuenta",
+        "BACKUPS": "Copia de seguridad"
+      }
+    },
+    "general": {
+      "device": {
+        "section": "Nombre del dispositivo"
+      },
+      "auto-startup": "Iniciar Internxt Drive al arrancar el sistema",
+      "language": {
+        "section": "Idioma",
+        "avaliable": {
+          "es": "Español (España)",
+          "en": "Inglés (Estados Unidos)",
+          "fr": "Frances (Francia)"
+        }
+      },
+      "sync": {
+        "folder": "Carpeta Internxt Drive",
+        "change-folder": "Cambiar carpeta"
+      },
+      "app-info": {
+        "open-logs": "Abrir registros",
+        "more": "Más información sobre Internxt Drive"
+      }
+    }
+  }
+}

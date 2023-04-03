@@ -14,7 +14,7 @@ export const fieldsToSave = [
   'backupList',
 ] as const;
 
-export interface ConfigStore {
+export interface AppStore {
   bearerToken: string;
   bearerTokenEncrypted: boolean;
   newToken: string;
@@ -27,17 +27,15 @@ export interface ConfigStore {
   syncRoot: string;
   lastSavedListing: string;
   lastSync: number;
-  savedConfigs: Record<
-    string,
-    Pick<ConfigStore, (typeof fieldsToSave)[number]>
-  >;
+  savedConfigs: Record<string, Pick<AppStore, (typeof fieldsToSave)[number]>>;
   lastOnboardingShown: string;
   deviceId: number;
   backupList: Record<string, { enabled: boolean; folderId: number }>;
   clientId: string;
+  preferedLanguage?: string;
 }
 
-const schema: Schema<ConfigStore> = {
+const schema: Schema<AppStore> = {
   bearerToken: {
     type: 'string',
   },
@@ -89,9 +87,12 @@ const schema: Schema<ConfigStore> = {
   clientId: {
     type: 'string',
   },
+  preferedLanguage: {
+    type: 'string',
+  }
 } as const;
 
-export const defaults: ConfigStore = {
+export const defaults: AppStore = {
   bearerToken: '',
   bearerTokenEncrypted: false,
   newToken: '',
@@ -109,6 +110,7 @@ export const defaults: ConfigStore = {
   deviceId: -1,
   backupList: {},
   clientId: uuid.v4(),
+  preferedLanguage: '',
 };
 
 const configStore = new Store({ schema, defaults });

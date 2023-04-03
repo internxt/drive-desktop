@@ -1,5 +1,16 @@
 declare interface Window {
   electron: {
+    query: typeof import('./app-info/service').executeQuery;
+
+    getConfigKey(
+      key: string
+    ): Promise<any>;
+    // getConfigKey<T extends import('./config/service').StoredValues>(
+    //   ...params: Parameters<typeof import('./config/service').getConfigKey<T>>
+    // ): Promise<ReturnType<typeof import('./config/service').getConfigKey<T>>>;
+
+    setConfigKey: typeof import('./config/service').setConfigKey;
+
     pathChanged(path: string): void;
 
     userIsUnauthorized(): void;
