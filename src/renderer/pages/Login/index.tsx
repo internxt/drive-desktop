@@ -9,11 +9,18 @@ import ErrorBanner from './ErrorBanner';
 import Input from './Input';
 import TwoFA from './TwoFA';
 import { accessRequest, hashPassword, loginRequest } from './service';
+import { useTranslationContext } from '../../context/LocalContext';
+import WarningBanner from './WarningBanner';
+import { LoginState } from './types';
+
+const TOWFA_ERROR_MESSAGE = 'Wrong 2-factor auth code';
 
 export default function Login() {
+  const { translate } = useTranslationContext();
+
   const [phase, setPhase] = useState<'credentials' | '2fa'>('credentials');
 
-  const [state, setState] = useState<'ready' | 'loading' | 'error'>('ready');
+  const [state, setState] = useState<LoginState>('ready');
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -23,6 +30,8 @@ export default function Login() {
   const sKey = useRef<string>('');
 
   const [errorDetails, setErrorDetails] = useState('');
+
+  const [warning, setWarning] = useState('');
 
   async function access() {
     setState('loading');
@@ -34,12 +43,14 @@ export default function Login() {
       window.electron.userLoggedIn(res);
     } catch (err) {
       const { message } = err as Error;
+
       const phaseToSet =
-        message === 'Wrong 2-factor auth code' ? '2fa' : 'credentials';
+        message === TOWFA_ERROR_MESSAGE ? '2fa' : 'credentials';
 
       setState('error');
       setPhase(phaseToSet);
-      setErrorDetails(message);
+      // TODO: adjust styles to acomodate longer error messages
+      setErrorDetails(translate('login.2fa.wrong-code'));
       window.electron.userLogginFailed(email);
     }
   }
@@ -47,9 +58,15 @@ export default function Login() {
   async function onSubmit() {
     setState('loading');
 
+    if (!window.navigator.onLine) {
+      setState('warning');
+      setWarning(translate('login.warning.no-internet'));
+      return;
+    }
+
     if (!email || !password) {
       setState('error');
-      setErrorDetails('Please enter email and password');
+      setErrorDetails(translate('login.error.empty-fields'));
       return;
     }
 
@@ -87,7 +104,7 @@ export default function Login() {
       <Input
         className="mt-2"
         state={state}
-        label="Email address"
+        label={translate('login.email.section')}
         onChange={setEmail}
         type="email"
         value={email}
@@ -96,10 +113,11 @@ export default function Login() {
       <Input
         className="mt-2"
         state={state}
-        label="Password"
+        label={translate('login.password.section')}
         onChange={setPassword}
         type="password"
         value={password}
+        placeholder={translate('login.password.placeholder')}
         tabIndex={2}
       />
       <a
@@ -113,7 +131,7 @@ export default function Login() {
             : 'text-blue-60'
         }`}
       >
-        Forgot your password?
+        {translate('login.password.forgotten')}
       </a>
       <Button
         tabIndex={4}
@@ -131,7 +149,7 @@ export default function Login() {
             : 'text-blue-60'
         }`}
       >
-        Create account
+        {translate('login.create-account')}
       </a>
     </form>
   );
@@ -143,6 +161,7 @@ export default function Login() {
   }, [twoFA]);
 
   const twoFAComponents = (
+    // TODO: move this to a React component, aling items properly
     <>
       <p
         className={`mt-3 text-xs font-medium ${
@@ -153,12 +172,11 @@ export default function Login() {
             : 'text-blue-50'
         }`}
       >
-        Authentication code
+        {translate('login.2fa.section')}
       </p>
       <TwoFA state={state} onChange={setTwoFA} />
       <p className="mt-4 text-xs text-m-neutral-60">
-        You have configured two factor authentication, please enter the 6 digit
-        code
+        {translate('login.2fa.description')}
       </p>
 
       <div
@@ -172,7 +190,7 @@ export default function Login() {
         role="button"
         tabIndex={0}
       >
-        Change account
+        {translate('login.2fa.change-account')}
       </div>
     </>
   );
@@ -204,11 +222,21 @@ export default function Login() {
           </h2>
         </div>
       </div>
-      <ErrorBanner
-        className={`${state === 'error' ? 'opacity-100' : 'opacity-0'}`}
-      >
-        {errorDetails}
-      </ErrorBanner>
+      { warning && state === 'warning' && (
+        <WarningBanner
+          icon={''}
+          className={`${state === 'warning' ? 'opacity-100' : 'opacity-0'}`}
+        >
+          {warning}
+        </WarningBanner>
+      )}
+      { errorDetails && state === 'error' && (
+        <ErrorBanner
+          className={`${state === 'error' ? 'opacity-100' : 'opacity-0'}`}
+        >
+          {errorDetails}
+        </ErrorBanner>
+      )}
       {phase === 'credentials' ? credentialsComponents : twoFAComponents}
     </div>
   );

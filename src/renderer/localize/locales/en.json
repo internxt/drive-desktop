@@ -1,4 +1,33 @@
 {
+  "login": {
+    "email": {
+      "section": "Email adress"
+    },
+    "password": {
+      "section": "Password",
+      "placeholder": "At least 6 characters",
+      "forgotten": "Forgot your password?",
+      "hide": "Hide",
+      "show": "Show"
+    },
+    "action": {
+      "login": "Login",
+      "is-loggin-in": "Loggin in..."
+    },
+    "create-account": "Create account",
+    "2fa": {
+      "section": "Authentication code",
+      "description": "You have configured two factor authentication, please enter the 6 digit code",
+      "change-account": "Change account",
+      "wrong-code": "Incorrect code, try again"
+    },
+    "error": {
+      "empty-fields": "Incorrect password or email"
+    },
+    "warning": {
+      "no-internet": "No internet connection"
+    }
+  },
   "settings": {
     "header": {
       "section": {

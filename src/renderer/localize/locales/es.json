@@ -1,4 +1,33 @@
 {
+  "login": {
+    "email": {
+      "section": "Correo electrónico"
+    },
+    "password": {
+      "section": "Contraseña",
+      "placeholder": "Al menos 6 caracteres",
+      "forgotten": "¿Has olvidado tu contraseña?",
+      "hide": "Ocultar",
+      "show": "Mostrar"
+    },
+    "action": {
+      "login": "Iniciar sesión",
+      "is-loggin-in": "Iniciando sesión"
+    },
+    "create-account": "Crear cuenta",
+    "2fa": {
+      "section": "Código de autenticación",
+      "description": "Has configurado la autenticación en dos pasos, por favor introduce el código de 6 dígitos",
+      "change-account": "Cambiar cuenta",
+      "wrong-code": "Código incorrecto, inténtalo de nuevo"
+    },
+    "error": {
+      "empty-fields": "Contraseña o correo electrónico incorrectos"
+    },
+    "warning": {
+      "no-internet": "Sin conexión a internet"
+    }
+  },
   "settings": {
     "header": {
       "section": {

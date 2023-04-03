@@ -1,7 +1,8 @@
 import AuthCode from 'react-auth-code-input';
+import { LoginState } from './types';
 
 type TwoFAProps = {
-  state: 'ready' | 'error' | 'loading';
+  state: LoginState;
   onChange: (value: string) => void;
 };
 
