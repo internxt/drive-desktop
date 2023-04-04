@@ -378,7 +378,7 @@ export function getRemoteFilesystem({
       });
 
       const uploadedFileId: string = await new Promise((resolve, reject) => {
-        const multipartUploadThreshold = 100 * 1024 * 1024;
+        const multipartUploadThreshold = 5 * 1024 * 1024 * 1024;
 
         if (source.size >= multipartUploadThreshold) {
           localUpload.uploadMultipartFile(bucket, {
