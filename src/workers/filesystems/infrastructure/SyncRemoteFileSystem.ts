@@ -317,36 +317,71 @@ export function getRemoteFilesystem({
       });
 
       const uploadedFileId: string = await new Promise((resolve, reject) => {
-        localUpload.upload(bucket, {
-          progressCallback,
-          finishedCallback: async (err: any, fileId: string) => {
-            if (err) {
-              // Don't include the stream in the details
-              const { stream, ...sourceWithoutStream } = source;
+        const multipartUploadThreshold = 100 * 1024 * 1024;
 
-              const details = createErrorDetails(
-                err,
-                'Uploading a file',
-                `bucket: ${bucket}, source: ${JSON.stringify(
-                  sourceWithoutStream,
-                  null,
-                  2
-                )}, name: ${name}, userInfo: ${JSON.stringify(
-                  userInfo,
-                  null,
-                  2
-                )}`
-              );
-              reject(
-                (await isOnline())
-                  ? new ProcessError('UNKNOWN', details)
-                  : new ProcessError('NO_INTERNET', details)
-              );
-            } else resolve(fileId);
-          },
-          fileSize: source.size,
-          source: source.stream,
-        });
+        if (source.size >= multipartUploadThreshold) {
+          localUpload.uploadMultipartFile(bucket, {
+            progressCallback,
+            finishedCallback: async (err: any, fileId: string | null) => {
+              if (err) {
+                // Don't include the stream in the details
+                const { stream, ...sourceWithoutStream } = source;
+
+                const details = createErrorDetails(
+                  err,
+                  'Uploading a file with multipart ',
+                  `bucket: ${bucket}, source: ${JSON.stringify(
+                    sourceWithoutStream,
+                    null,
+                    2
+                  )}, name: ${name}, userInfo: ${JSON.stringify(
+                    userInfo,
+                    null,
+                    2
+                  )}`
+                );
+                reject(
+                  (await isOnline())
+                    ? new ProcessError('UNKNOWN', details)
+                    : new ProcessError('NO_INTERNET', details)
+                );
+              } else resolve(fileId as string);
+            },
+            fileSize: source.size,
+            source: source.stream,
+          });
+        } else {
+          localUpload.upload(bucket, {
+            progressCallback,
+            finishedCallback: async (err: any, fileId: string) => {
+              if (err) {
+                // Don't include the stream in the details
+                const { stream, ...sourceWithoutStream } = source;
+
+                const details = createErrorDetails(
+                  err,
+                  'Uploading a file',
+                  `bucket: ${bucket}, source: ${JSON.stringify(
+                    sourceWithoutStream,
+                    null,
+                    2
+                  )}, name: ${name}, userInfo: ${JSON.stringify(
+                    userInfo,
+                    null,
+                    2
+                  )}`
+                );
+                reject(
+                  (await isOnline())
+                    ? new ProcessError('UNKNOWN', details)
+                    : new ProcessError('NO_INTERNET', details)
+                );
+              } else resolve(fileId);
+            },
+            fileSize: source.size,
+            source: source.stream,
+          });
+        }        
       });
 
       const oldFileInCache = cache[name];
