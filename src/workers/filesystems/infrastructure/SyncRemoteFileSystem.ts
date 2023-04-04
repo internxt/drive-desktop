@@ -25,6 +25,7 @@ import { FileSystem } from '../domain/FileSystem';
 import { RemoteListing } from '../../sync/Listings/domain/Listing';
 import { RemoteItemMetaData } from '../../sync/Listings/domain/RemoteItemMetaData';
 import { FileCreatedResponseDTO } from '../../../shared/HttpClient/responses/file-created';
+import { TransferLimits } from '../domain/Transfer';
 
 /**
  * Server cannot find a file given its route,
@@ -316,10 +317,19 @@ export function getRemoteFilesystem({
         encryptionKey: mnemonic,
       });
 
-      const uploadedFileId: string = await new Promise((resolve, reject) => {
-        const multipartUploadThreshold = 5 * 1024 * 1024 * 1024;
+      if (source.size > TransferLimits.UploadFileSize) {
+        throw new ProcessError(
+          'FILE_TOO_BIG',
+          createErrorDetails(
+            {},
+            'Uploading a file',
+            `name: ${name}, source: ${JSON.stringify(source, null, 2)}`
+          )
+        );
+      }
 
-        if (source.size >= multipartUploadThreshold) {
+      const uploadedFileId: string = await new Promise((resolve, reject) => {
+        if (source.size > TransferLimits.MultipartUploadThreshold) {
           localUpload.uploadMultipartFile(bucket, {
             progressCallback,
             finishedCallback: async (err: any, fileId: string | null) => {

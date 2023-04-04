@@ -142,6 +142,9 @@ export type ProcessErrorName =
   // The file has a size of 0 bytes
   | 'EMPTY_FILE'
 
+  // The file is bigger than the current upload limit 
+  | 'FILE_TOO_BIG'
+
   // Unknown error
   | 'UNKNOWN';
 
