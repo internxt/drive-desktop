@@ -5,7 +5,7 @@ import WarnIcon from '../../assets/warn.svg';
 import ErrorIcon from '../../assets/error.svg';
 import FileIcon from '../../assets/file.svg';
 import Spinner from '../../assets/spinner.svg';
-import { longMessages, shortMessages } from '../../messages/process-error';
+import { shortMessages } from '../../messages/process-error';
 import { generalErrors } from '../../messages/general-error';
 
 import { getBaseName } from '../../utils/path';
