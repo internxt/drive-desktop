@@ -1,11 +1,15 @@
 import Warn from '../../assets/warn.svg';
 import Error from '../../assets/error.svg';
-import FatalErrorMessages from '../../messages/process-fatal-error';
+import SyncFatalErrorMessages from '../../messages/process-fatal-error';
 import useSyncStatus from '../../hooks/SyncStatus';
 import useSyncStopped from '../../hooks/SyncStopped';
 import { SyncStatus } from '../../../main/background-processes/sync';
 import { ProcessFatalErrorName } from '../../../workers/types';
 import { LockErrorReason } from '../../../main/background-processes/lock-erros';
+
+function obtainErrorMessage(process: string, key: string) {
+
+}
 
 const fatalErrorActionMap: Record<
   ProcessFatalErrorName,
@@ -66,7 +70,7 @@ export default function SyncErrorBanner() {
   if (stopReason?.reason === 'COULD_NOT_ACQUIRE_LOCK')
     message = lockErrorMessages[stopReason?.cause];
   else if (stopReason?.reason === 'FATAL_ERROR')
-    message = FatalErrorMessages[stopReason.errorName];
+    message = SyncFatalErrorMessages[stopReason.errorName];
 
   let action;
 

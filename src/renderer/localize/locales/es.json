@@ -28,6 +28,59 @@
       "no-internet": "Sin conexión a internet"
     }
   },
+  "onboarding": {
+    "slides": {
+      "welcome": {
+        "title": "¡Bienvenido a Internxt!",
+        "description": "Cifrado del lado del cliente, sencillo, rápido, seguro y privado.",
+        "invitation": "Descubre las nuevas funciones de Drive Desktop",
+        "next-slide": "Comenzar"
+      },
+      "sync-folder": {
+        "title": "Carpeta de Sincronización",
+        "description-1": "Encontrarás una nueva carpeta en la que estarán accesibles todos tus archivos de la nube de Internxt",
+        "description-2": "Arrastra y suelta los elementos en esta carpeta y pulsa el botón de Play para subirlos",
+        "description-3": "Pulsa el botón de Play para mantener la carpeta sincronizada con otros dispositivos",
+        "description-4": "Elige la ubicación de la carpeta de sincronización en Ajustes",
+        "next-slide": "Siguiente"
+      },
+      "widget": {
+        "title": "Internxt Widget",
+        "description-1": "Acceso rápido a ",
+        "description-2": "Actualiza tu plan, el nombre del dispositivo o configura tus copias de seguridad desde el menú Ajustes",
+        "description-3": "Consulta el estado de tu transferencia de datos",
+        "description-4": "Comprueba el estado de tu proceso de sincronización y copias de seguridad",
+        "description-5": "Comienza o pausa el proceso de sincronización en cualquier momento",
+        "next-slide": "Comenzar a usar Internxt"
+      }
+    }
+  },
+  "widget": {
+    "header": {
+      "usage": {
+        "of": "de"
+      },
+      "dropdown": {
+        "preferences": "Preferencias",
+        "issues": "Lista de errores",
+        "support": "Ayuda",
+        "logout": "Cerrar sesión",
+        "quit": "Salir"
+      }
+    },
+    "body": {
+      "no-activity": {
+        "title": "No hay actividad reciente",
+        "description": "La información aparecerá aquí cuando hagas cambios, para sincronizar tu carpeta local con Internxt Drive"
+      }
+    },
+    "footer": {
+      "action-description": {
+        "syncing": "Sincronizando tus archivos",
+        "updated": "Actualizado hace un momento"
+      }
+    }
+  },
   "settings": {
     "header": {
       "section": {

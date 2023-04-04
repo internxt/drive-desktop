@@ -28,6 +28,59 @@
       "no-internet": "No internet connection"
     }
   },
+  "onboarding": {
+    "slides": {
+      "welcome": {
+        "title": "Welcome to Internxt!",
+        "description": "Client-side encrypted, simple, fast, secure and private.",
+        "invitation": "Discover the brand new features of Drive Desktop.",
+        "next-slide": "Let's go!"
+      },
+      "sync-folder": {
+        "title": "Sync Folder",
+        "description-1": "You'll find a new folder where all your data from the Internxt cloud will be accessible.",
+        "description-2": "Simply drag and drop items into this folder and press the play button to upload them.",
+        "description-3": "Press the play button to keep this folder synchronized with other devices.",
+        "description-4": "Choose sync folder location from settings.",
+        "next-slide": "Next"
+      },
+      "widget": {
+        "title": "Internxt Widget",
+        "description-1": "Quick access to ",
+        "description-2": "Update your plan, device name or configure backups from the settings menu.",
+        "description-3": "View the state of your data transfer.",
+        "description-4": "Check the status of your sync and backups processes.",
+        "description-5": "Start or stop your sync process anytime.",
+        "next-slide": "Finish"
+      }
+    }
+  },
+  "widget": {
+    "header": {
+      "usage": {
+        "of": "of"
+      },
+      "dropdown": {
+        "preferences": "Preferences",
+        "issues": "Issues",
+        "support": "Support",
+        "logout": "Log out",
+        "quit": "Quit"
+      }
+    },
+    "body": {
+      "no-activity": {
+        "title": "There is no recent activity",
+        "description": "Information will show up here when changes are made to sync your local folder with Internxt Drive"
+      }
+    },
+    "footer": {
+      "action-description": {
+        "syncing": "Syncing your files",
+        "updated": "Updated just now"
+      }
+    }
+  },
   "settings": {
     "header": {
       "section": {
@@ -37,7 +90,7 @@
       }
     },
     "general": {
-      "device" : {
+      "device": {
         "section": "Device name"
       },
       "auto-startup": "Start Internxt Drive on system startup",

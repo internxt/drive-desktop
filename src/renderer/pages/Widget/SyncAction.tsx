@@ -5,8 +5,11 @@ import Spinner from '../../assets/spinner.svg';
 import useSyncStatus from '../../hooks/SyncStatus';
 import useSyncStopped from '../../hooks/SyncStopped';
 import { SyncStatus } from '../../../main/background-processes/sync';
+import { useTranslationContext } from '../../context/LocalContext';
 
 export default function SyncAction() {
+  const {translate} = useTranslationContext();
+
   const [state, setState] = useState<SyncStatus | 'LOADING'>('STANDBY');
 
   const [showUpdatedJustNow, setShowUpdatedJustNow] = useState(false);
@@ -43,9 +46,9 @@ export default function SyncAction() {
     <div className="flex items-center justify-between border-t border-t-l-neutral-30 bg-white px-3 py-1">
       <p className="text-xs text-neutral-500">
         {state === 'RUNNING'
-          ? 'Syncing your files'
+          ? translate('widget.footer.action-description.syncing')
           : showUpdatedJustNow
-          ? 'Updated just now'
+          ? translate('widget.footer.action-description.updated')
           : ''}
       </p>
       <Button

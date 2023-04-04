@@ -49,8 +49,6 @@ export default function LanguagePicker(): JSX.Element {
         return lang.id === preferedLanguage;
       });
 
-      console.log('SELECT', select);
-
       if (!select) return;
 
       setSelectedLanguage(select);

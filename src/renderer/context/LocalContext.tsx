@@ -1,19 +1,26 @@
 import React, { createContext, useContext, useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useTranslation, getI18n } from 'react-i18next';
 
 interface LocalContextProps {
-  translate: (key: string) => string
+  translate: (key: string) => string;
+  language: string;
 }
 
-const LocalContext = createContext<LocalContextProps>({ translate: () => '' });
+const LocalContext = createContext<LocalContextProps>({ translate: () => '', language: 'es' });
 interface TranslationProviderProps {
   children: React.ReactNode;
 }
 
-export const TranslationProvider: React.FC<TranslationProviderProps> = ({ children }) => {
+export const TranslationProvider: React.FC<TranslationProviderProps> = ({
+  children,
+}) => {
   const { t } = useTranslation();
-  const value = useMemo(() => ({ translate: t }), [t]);
-  return <LocalContext.Provider value={value}>{children}</LocalContext.Provider>;
+  const { language } = getI18n();
+
+  const value = useMemo(() => ({ translate: t, language }), [t, language]);
+  return (
+    <LocalContext.Provider value={value}>{children}</LocalContext.Provider>
+  );
 };
 
 export const useTranslationContext = (): LocalContextProps => {

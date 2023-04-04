@@ -4,6 +4,7 @@ import Button from '../../components/Button';
 import widgedWidget from '../../assets/onboarding/widget.png';
 import macFinderWidgetAsset from '../../assets/onboarding/mac-finder-widget.png';
 import Logo from '../../assets/onboarding/logo.svg';
+import { useTranslationContext } from 'renderer/context/LocalContext';
 
 function SideImageAnimation({
   display,
@@ -52,6 +53,7 @@ function SideTextAnimation({
 }
 
 export default function Onboarding() {
+  const { translate, language } = useTranslationContext();
   const [slide, setSlide] = useState<number>(0);
 
   const nextSlide = () => {
@@ -94,13 +96,10 @@ export default function Onboarding() {
             <Logo />
             <div>
               <h3 className="mb-2 text-2xl font-semibold tracking-wide text-neutral-900">
-                Welcome to Internxt!
+                {translate('onboarding.slides.welcome.title')}
               </h3>
-              <p>
-                Client-side encrypted, fragmented, simple, fast, secure and
-                private.
-              </p>
-              <p>Discover the brand new features of Drive Desktop.</p>
+              <p>{translate('onboarding.slides.welcome.description')}</p>
+              <p>{translate('onboarding.slides.welcome.invitation')}</p>
             </div>
 
             <Button
@@ -108,37 +107,38 @@ export default function Onboarding() {
               variant="default"
               onClick={() => nextSlide()}
             >
-              Let&apos;s go!
+              {translate('onboarding.slides.welcome.next-slide')}
             </Button>
           </div>
         )}
         <SideTextAnimation display={slide === 1}>
           <div
             key="slide-1"
-            className="flex h-full w-96 flex-shrink-0 flex-col items-center justify-between space-y-6 py-8"
+            className={`flex h-full w-96 flex-shrink-0 flex-col items-center justify-between space-y-6 ${
+              language === 'en' ? 'py-8' : 'pb-8'
+            }`}
           >
             <div className="flex flex-col items-center space-y-6">
               <h3 className="w-full text-left text-2xl font-semibold tracking-wide text-neutral-900">
-                Sync Folder
+                {translate('onboarding.slides.sync-folder.title')}
               </h3>
 
               <ul className="items-left relative flex w-full max-w-xs list-disc flex-col space-y-3 pl-4 text-base text-neutral-500">
                 <li>
-                  You&apos;ll find a new folder where all your data from the
-                  Internxt cloud will be accessible.
+                  {translate('onboarding.slides.sync-folder.description-1')}
                 </li>
 
                 <li>
-                  Simply drag and drop items into this folder and press the play
-                  button to upload them.
+                  {translate('onboarding.slides.sync-folder.description-2')}
                 </li>
 
                 <li>
-                  Press the play button to keep this folder synchronized with
-                  other devices.
+                  {translate('onboarding.slides.sync-folder.description-3')}
                 </li>
 
-                <li>Choose sync folder location from settings.</li>
+                <li>
+                  {translate('onboarding.slides.sync-folder.description-4')}
+                </li>
               </ul>
             </div>
 
@@ -147,23 +147,25 @@ export default function Onboarding() {
               variant="default"
               onClick={() => nextSlide()}
             >
-              Next
+              {translate('onboarding.slides.sync-folder.next-slide')}
             </Button>
           </div>
         </SideTextAnimation>
         <SideTextAnimation display={slide === 2}>
           <div
             key="slide-2"
-            className="flex h-full w-96 flex-shrink-0 flex-col items-center justify-between space-y-6 py-8"
+            className={`flex h-full w-96 flex-shrink-0 flex-col items-center justify-between space-y-6 ${
+              language === 'en' ? 'py-8' : 'pb-8'
+            }`}
           >
             <div className="flex flex-col items-center space-y-6">
               <h3 className="w-full text-left text-2xl font-semibold tracking-wide text-neutral-900">
-                Internxt Widget
+                {translate('onboarding.slides.widget.title')}
               </h3>
 
               <ul className="items-left relative flex w-full max-w-xs list-disc flex-col space-y-3 pl-4 text-base text-neutral-500">
                 <li>
-                  Quick access to{' '}
+                  {translate('onboarding.slides.widget.description-1')}
                   <a
                     className="text-blue-600 cursor-pointer underline"
                     href="https://drive.internxt.com/app"
@@ -175,16 +177,13 @@ export default function Onboarding() {
                   .
                 </li>
 
-                <li>
-                  Update your plan, device name or configure backups from the
-                  settings menu.
-                </li>
+                <li>{translate('onboarding.slides.widget.description-2')}</li>
 
-                <li>View the state of your data transfer.</li>
+                <li>{translate('onboarding.slides.widget.description-3')}</li>
 
-                <li>Check the status of your sync and backups processes.</li>
+                <li>{translate('onboarding.slides.widget.description-4')}</li>
 
-                <li>Start or stop your sync process anytime.</li>
+                <li>{translate('onboarding.slides.widget.description-5')}</li>
               </ul>
             </div>
 
@@ -193,7 +192,7 @@ export default function Onboarding() {
               variant="default"
               onClick={() => finish()}
             >
-              Finish
+              {translate('onboarding.slides.widget.next-slide')}
             </Button>
           </div>
         </SideTextAnimation>

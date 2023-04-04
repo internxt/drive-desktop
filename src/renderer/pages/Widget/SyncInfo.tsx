@@ -25,6 +25,7 @@ import {
   BackupProgress,
 } from '../../../main/background-processes/backups';
 import { getPercentualProgress } from '../../utils/backups-progress';
+import { useTranslationContext } from '../../context/LocalContext';
 
 export default function SyncInfo() {
   const [items, setItems] = useState<ProcessInfoUpdatePayload[]>([]);
@@ -211,6 +212,9 @@ function Item({
 }
 
 function Empty() {
+
+  const { translate } = useTranslationContext();
+
   return (
     <AnimatePresence>
       <motion.div
@@ -229,11 +233,10 @@ function Empty() {
             </div>
           </div>
           <p className="mt-7 text-sm text-blue-100">
-            There is no recent activity
+            {translate('widget.body.no-activity.title')}
           </p>
           <p className="mt-1 px-4 text-xs text-m-neutral-100">
-            Information will show up here when changes are made to sync your
-            local folder with Internxt Drive
+            {translate('widget.body.no-activity.description')}
           </p>
         </div>
       </motion.div>
