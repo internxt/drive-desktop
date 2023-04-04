@@ -72,12 +72,24 @@
       "no-activity": {
         "title": "There is no recent activity",
         "description": "Information will show up here when changes are made to sync your local folder with Internxt Drive"
+      },
+      "errors": {
+        "sync": {},
+        "backups": {
+          "folder-not-found": {
+            "text": "Can't upload backup, missing folder",
+            "action": "View error"
+          }
+        }
       }
     },
     "footer": {
       "action-description": {
         "syncing": "Syncing your files",
         "updated": "Updated just now"
+      },
+      "errors": {
+        "lock": "Sync locked by other device"
       }
     }
   },

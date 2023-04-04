@@ -72,12 +72,24 @@
       "no-activity": {
         "title": "No hay actividad reciente",
         "description": "La información aparecerá aquí cuando hagas cambios, para sincronizar tu carpeta local con Internxt Drive"
+      },
+      "errors": {
+        "sync": {},
+        "backups": {
+          "folder-not-found": {
+            "text": "No se pudo realizar la copia, no se encuentra la carpeta",
+            "action": "Ver error"
+          }
+        }
       }
     },
     "footer": {
       "action-description": {
         "syncing": "Sincronizando tus archivos",
         "updated": "Actualizado hace un momento"
+      },
+      "errors": {
+        "lock": "Sincronización bloqueada por otro dispositivo"
       }
     }
   },
