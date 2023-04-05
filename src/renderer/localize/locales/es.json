@@ -134,6 +134,37 @@
           "in-use": "usado"
         }
       }
+    },
+    "backups": {
+      "activate": "Hacer copia de seguridad de tus carpetas",
+      "view-backups": "Ver copias de seguridad",
+      "select-folders": "Seleccionar carpetas",
+      "action": {
+        "start": "Hacer copia",
+        "stop": "Stop backup",
+        "last-run": "Última ejecución"
+      },
+      "frequency": {
+        "title": "Frecuencia de subida",
+        "options": {
+          "6h": "Cada 6 h",
+          "12h": "Cada 12 h",
+          "24h": "Cada día",
+          "manually": "Manualmente"
+        }
+      },
+      "folders": {
+        "explanation": "Carpetas a añadir en la siguiente copia de seguridad",
+        "no-folders": "No hay carpetas seleccionadas",
+        "done": "Hecho",
+        "stop-baking-up": {
+          "title": "¿Detener la copia de seguridad de ",
+          "explanation": "Los archivos nuevos que se añadan a esta carpeta ya no se copiarán en Internxt Drive. Los archivos originales permanecerán en tu ordenador",
+          "confirm": "Detener copia de seguridad",
+          "cancel": "Continuar copia de seguridad",
+          "dont-ask-again": "No volver a preguntar"
+        }
+      }
     }
   }
 }

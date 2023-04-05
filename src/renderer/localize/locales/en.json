@@ -124,7 +124,7 @@
       }
     },
     "account": {
-      "logout":"Log out",
+      "logout": "Log out",
       "usage": {
         "upgrade": "Upgrade",
         "plan": "Current plan",
@@ -132,6 +132,38 @@
           "used": "Used",
           "of": "of",
           "in-use": "in use"
+        }
+      }
+    },
+    "backups": {
+      "activate": "Back up your folders and files",
+      "view-backups": "View your backups",
+      "select-folders": "Select folders to backup",
+      "action": {
+        "start": "Backup now",
+        "stop": "Stop backup",
+        "last-run": "Last updated"
+      },
+      "frequency": {
+        "title": "Upload frequency",
+        "options": {
+          "6h": "Every 6h",
+          "12h": "Every 12h",
+          "24h": "Every day",
+          "manually": "Manually"
+        }
+      },
+      "folders": {
+        "explanation": "Folders you want to add to the next backup",
+        "no-folders": "No hay carpetas seleccionadas",
+        "done": "Done",
+        "stop-baking-up": {
+          "title-start": "Stop backing up \"",
+          "title-end": "\"?",
+          "explanation": "New files added to this folder will no longer backup in your Internxt Drive. Original files will remain on your computer",
+          "confirm": "Stop backing up this folder",
+          "cancel": "Keep backing up",
+          "dont-ask-again": "Don't ask me again"
         }
       }
     }
