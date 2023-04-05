@@ -25,6 +25,10 @@ export default function SyncAction() {
       syncStoppedReason?.reason === 'COULD_NOT_ACQUIRE_LOCK'
     ) {
       setShowLockError(true);
+      const timeout = setTimeout(() => setShowLockError(false), 1000 * 10);
+      return () => {
+        if (timeout) clearTimeout(timeout);
+      };
     }
     if (state === 'STANDBY' && syncStoppedReason?.reason === 'EXIT') {
       setShowUpdatedJustNow(true);
@@ -52,7 +56,9 @@ export default function SyncAction() {
   return (
     <div className="flex items-center justify-between border-t border-t-l-neutral-30 bg-white px-3 py-1">
       <p className="text-xs text-neutral-500">
-        {state === 'STANDBY' && true ? translate('widget.footer.errors.lock'): ''}
+        {state === 'STANDBY' && showLockError
+          ? translate('widget.footer.errors.lock')
+          : ''}
         {state === 'RUNNING'
           ? translate('widget.footer.action-description.syncing')
           : showUpdatedJustNow
