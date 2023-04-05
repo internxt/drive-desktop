@@ -2,7 +2,9 @@ import { useEffect, useState } from 'react';
 import i18next from 'i18next';
 import Dropdown, { DropdownElement } from '../../../components/Dropdown';
 import { useTranslationContext } from '../../../context/LocalContext';
-import { Language } from '../../../../shared/Language/Language';
+import { Language } from '../../../../shared/Locale/Language';
+import DayJsLocales from '../../../../shared/Locale/DayJsLocales';
+import dayjs from 'dayjs';
 
 const languages: Array<DropdownElement<Language>> = [
   {
@@ -29,6 +31,7 @@ export default function LanguagePicker(): JSX.Element {
 
   const updatePreferedLanguage = (lang: DropdownElement<Language>) => {
     i18next.changeLanguage(lang.id);
+    dayjs.locale(DayJsLocales[lang.value]);
     window.electron.setConfigKey('preferedLanguage', lang.value.toLowerCase());
     setSelectedLanguage(lang);
   };
@@ -38,12 +41,6 @@ export default function LanguagePicker(): JSX.Element {
       const preferedLanguage = await window.electron.getConfigKey(
         'preferedLanguage'
       ) as Language;
-
-      if (!preferedLanguage) {
-        console.log('NO PREFREED LANGUGE SAVsED!!!');
-      } else {
-        console.log('PREFREED LANGUGE:', preferedLanguage);
-      }
 
       const select = languages.find((lang: DropdownElement<Language>) => {
         return lang.id === preferedLanguage;

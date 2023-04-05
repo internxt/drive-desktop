@@ -5,7 +5,9 @@ import {
   DEFAULT_LANGUAGE,
   Language,
   isLanguage,
-} from '../../shared/Language/Language';
+} from '../../shared/Locale/Language';
+import dayjs from 'dayjs';
+import DayJsLocales from '../../shared/Locale/DayJsLocales';
 
 const languageDetection = (callback: (lang: Language | undefined) => void) => {
   const run = async () => {
@@ -21,8 +23,7 @@ const languageDetection = (callback: (lang: Language | undefined) => void) => {
 
     const preferedLangugeAvailable = parsed.find(isLanguage);
 
-    console.log('preferedLangugeAvailable is: ', preferedLangugeAvailable);
-
+    dayjs.locale(DayJsLocales[preferedLangugeAvailable || DEFAULT_LANGUAGE]);
     callback(preferedLangugeAvailable || DEFAULT_LANGUAGE);
   };
 
