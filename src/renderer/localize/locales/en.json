@@ -122,6 +122,18 @@
         "open-logs": "Open logs",
         "more": "Learn more about Internxt Drive"
       }
+    },
+    "account": {
+      "logout":"Log out",
+      "usage": {
+        "upgrade": "Upgrade",
+        "plan": "Current plan",
+        "current": {
+          "used": "Used",
+          "of": "of",
+          "in-use": "in use"
+        }
+      }
     }
   }
 }

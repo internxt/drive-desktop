@@ -122,6 +122,18 @@
         "open-logs": "Abrir registros",
         "more": "Más información sobre Internxt Drive"
       }
+    },
+    "account": {
+      "logout": "Cerrar sesión",
+      "usage": {
+        "upgrade": "Comprar espacio",
+        "plan": "Plan actual",
+        "current": {
+          "used": "usado",
+          "of": "de",
+          "in-use": "usado"
+        }
+      }
     }
   }
 }
