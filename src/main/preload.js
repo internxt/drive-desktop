@@ -9,7 +9,7 @@ contextBridge.exposeInMainWorld('electron', {
     return ipcRenderer.invoke('get-config-key', key);
   },
   setConfigKey(key, value) {
-    return ipcRenderer.send('set-config-key', {key, value});
+    return ipcRenderer.send('set-config-key', { key, value });
   },
   pathChanged(pathname) {
     ipcRenderer.send('path-changed', pathname);
@@ -205,6 +205,9 @@ contextBridge.exposeInMainWorld('electron', {
   },
   resizeWindow(dimensions) {
     return ipcRenderer.invoke('resize-focused-window', dimensions);
+  },
+  addFakeIssues(errorsName, process) {
+    return ipcRenderer.invoke('add-fake-sync-issues', { errorsName, process });
   },
   path,
 });

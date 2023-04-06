@@ -233,7 +233,10 @@ function spawnBackupsWorker() {
 let fatalErrors: BackupFatalError[] = [];
 
 ipcMain.handle('get-backup-fatal-errors', () => fatalErrors);
-ipcMain.on('add-backup-fatal-errors', (_, errors: Array<BackupFatalError>) => {
+ipcMain.on('add-backup-fatal-errors', (e, errors: Array<BackupFatalError>) => {
+  if (!errors) {
+    (e as unknown as Array<BackupFatalError>).forEach(addBackupFatalError);
+  }
   errors.forEach(addBackupFatalError);
 });
 

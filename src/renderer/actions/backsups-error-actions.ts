@@ -8,7 +8,7 @@ const findBackupFolder = async (error: { path: string }) => {
 
 export const backupsErrorActions: FatalErrorActionMap = {
   CANNOT_ACCESS_BASE_DIRECTORY: {
-    name: 'Find folder',
+    name: 'issues.actions.find-folder',
     func: findBackupFolder,
   },
   CANNOT_ACCESS_TMP_DIRECTORY: tryAgain,
@@ -16,7 +16,7 @@ export const backupsErrorActions: FatalErrorActionMap = {
   NO_INTERNET: tryAgain,
   NO_REMOTE_CONNECTION: tryAgain,
   BASE_DIRECTORY_DOES_NOT_EXIST: {
-    name: 'Find folder',
+    name: 'issues.actions.find-folder',
     func: findBackupFolder,
   },
   INSUFICIENT_PERMISION_ACCESSING_BASE_DIRECTORY: tryAgain,

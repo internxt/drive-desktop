@@ -167,5 +167,23 @@
         }
       }
     }
+  },
+  "issues": {
+    "no-issues": "No issues found",
+    "actions": {
+      "select-folder": "Seleccionar carpeta",
+      "find-folder": "Buscar la carpeta",
+      "try-again": "Volver a intentar"
+    },
+    "process-fatal-errors": {
+      "no-internet": "No estás conectado a Internet, lo intentaremos más tarde",
+      "no-remote-connection": "No hemos podido conectar con los servidores de Internxt, lo intentaremos más tarde",
+      "cannot-get-current-listings": "No pudimos obtener el estado de tus archivos actuales, lo intentaremos más tarde",
+      "base-directory-does-not-exist": "No se pudo encontrar su carpeta de sincronización",
+      "insuficient-permision-accessing-base-directory": "Internxt App no tiene permiso para acceder a su carpeta de sincronización",
+      "cannot-access-base-directory": "No hemos podido acceder a su carpeta local",
+      "cannot-access-tmp-directory": "No hemos podido acceder a su carpeta local",
+      "unknown": "Se ha producido un error desconocido al sincronizar tus archivos"
+    }
   }
 }

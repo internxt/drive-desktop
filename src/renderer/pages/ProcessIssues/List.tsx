@@ -20,6 +20,7 @@ import { BackupFatalError } from '../../../main/background-processes/types/Backu
 import messages from '../../messages/process-fatal-error';
 import useFatalErrorActions from '../../hooks/FatalErrorActions';
 import { Action } from '../../actions/types';
+import { useTranslationContext } from 'renderer/context/LocalContext';
 
 export default function ProcessIssuesList({
   selectedTab,
@@ -38,6 +39,7 @@ export default function ProcessIssuesList({
     errorClicked: Pick<ProcessIssue, 'errorName' | 'errorDetails'>
   ) => void;
 }) {
+  const { translate } = useTranslationContext();
   const [isLoading, setIsLoading] = useState(false);
   const fatalErrorActionMap = useFatalErrorActions(
     showBackupFatalErrors ? 'BACKUPS' : 'SYNC'
@@ -100,15 +102,18 @@ export default function ProcessIssuesList({
     };
 
   const issuesIsEmpty = () => {
-    if (selectedTab === 'GENERAL' && generalIssues.length !== 0) return false;
-
-    if (errors.length === 0) return true;
-    if (backupFatalErrors.length === 0) return true;
-
-    if (!showBackupFatalErrors) return true;
-
-    return false;
+    switch (selectedTab) {
+      case 'GENERAL':
+        return generalIssues.length === 0;
+      case 'SYNC':
+        return processIssues.length === 0;
+      case 'BACKUPS':
+        return backupFatalErrors.length === 0;
+      default:
+        return true;
+    }
   };
+
   return (
     <div className="no-scrollbar relative m-4 min-h-0 flex-grow overflow-y-auto rounded-lg border border-l-neutral-30 bg-white">
       {showBackupFatalErrors &&
@@ -117,7 +122,7 @@ export default function ProcessIssuesList({
             key={error.folderId}
             errorName={error.errorName}
             path={error.path}
-            actionName={fatalErrorActionMap[error.errorName].name}
+            actionName={translate(fatalErrorActionMap[error.errorName].name)}
             onActionClick={() =>
               actionWrapper(fatalErrorActionMap[error.errorName])(error)
             }
@@ -134,9 +139,12 @@ export default function ProcessIssuesList({
 }
 
 function Empty() {
+  const { translate } = useTranslationContext();
   return (
     <div className="flex h-full select-none items-center justify-center">
-      <p className="text-xs font-medium text-m-neutral-60">No issues found</p>
+      <p className="text-xs font-medium text-m-neutral-60">
+        {translate('issues.no-issues')}
+      </p>
     </div>
   );
 }
@@ -298,6 +306,8 @@ function FatalError({
   actionName: string;
   onActionClick: () => void;
 }) {
+  const { translate } = useTranslationContext();
+
   return (
     <div className="select-none p-2 hover:bg-l-neutral-10 active:bg-l-neutral-20">
       <div className="flex items-center">
@@ -307,7 +317,7 @@ function FatalError({
             {window.electron.path.basename(path)}
           </h1>
           <p className="text-gray-70">
-            {messages[errorName]}
+            {translate(messages[errorName])}
             <span
               onClick={onActionClick}
               role="button"
