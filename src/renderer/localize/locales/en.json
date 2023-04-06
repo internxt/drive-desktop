@@ -58,7 +58,8 @@
   "widget": {
     "header": {
       "usage": {
-        "of": "of"
+        "of": "of",
+        "upgrade": "Upgrade"
       },
       "dropdown": {
         "preferences": "Preferences",

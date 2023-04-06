@@ -219,7 +219,7 @@ function AccountSection() {
             rel="noreferrer noopener"
             className="ml-1 rounded-sm text-xs text-blue-60 outline-none hover:text-blue-70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-0 focus-visible:ring-offset-blue-60 active:text-blue-80"
           >
-            Upgrade
+            {translate('widget.header.usage.upgrade')}
           </a>
         )}
       </div>

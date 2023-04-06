@@ -58,7 +58,8 @@
   "widget": {
     "header": {
       "usage": {
-        "of": "de"
+        "of": "de",
+        "upgrade": "Comprar espacio ahora"
       },
       "dropdown": {
         "preferences": "Preferencias",
