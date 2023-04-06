@@ -1,7 +1,7 @@
 name: Build Linux Mac Windows
 
 on:
-  create:
+  push:
     tags:
       - '*'
   
