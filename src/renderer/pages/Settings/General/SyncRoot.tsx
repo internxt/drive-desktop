@@ -21,9 +21,9 @@ export default function SyncRoot({ className = '' }: { className?: string }) {
       return <span className='truncate text-neutral-700'>{currentSyncRoot}</span>;
     } else {
       return <p className='flex flex-row'>
-        <span className='truncate text-neutral-700 min-w-40'>{folders[0]}</span>
+        <span className='truncate text-neutral-700'>{folders[0]}</span>
         <span className='text-neutral-700 mr-1 min-w-min'>{folders.length === 2 ? '/' : '/... /'}</span>
-        <span className='truncate text-neutral-700 min-w-40'>{folders[folders.length - 1]}</span>
+        <span className='truncate text-neutral-700'>{folders[folders.length - 1]}</span>
       </p>;
     }
   };
