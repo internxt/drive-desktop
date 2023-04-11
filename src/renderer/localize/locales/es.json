@@ -169,7 +169,13 @@
     }
   },
   "issues": {
-    "no-issues": "No issues found",
+    "title": "Lista de errores",
+    "tabs": {
+      "sync": "Sincronización",
+      "backups": "Copias de seguridad",
+      "general": "General"
+    },
+    "no-issues": "No se han encontrado errores",
     "actions": {
       "select-folder": "Seleccionar carpeta",
       "find-folder": "Buscar la carpeta",

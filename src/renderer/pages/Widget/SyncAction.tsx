@@ -13,7 +13,7 @@ export default function SyncAction() {
   const [state, setState] = useState<SyncStatus | 'LOADING'>('STANDBY');
 
   const [showUpdatedJustNow, setShowUpdatedJustNow] = useState(false);
-  const [showLockError, setShowLockError] = useState(true);
+  const [showLockError, setShowLockError] = useState(false);
 
   useSyncStatus(setState);
 

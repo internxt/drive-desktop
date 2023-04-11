@@ -170,6 +170,12 @@
     }
   },
   "issues": {
+    "title": "Issues",
+    "tabs": {
+      "sync": "Sync",
+      "backups": "Backups",
+      "general": "General"
+    },
     "no-issues": "No issues found",
     "actions": {
       "select-folder": "Select folder",
