@@ -27,7 +27,9 @@ export function ReportModal({
   data: Pick<ProcessIssue, 'errorName' | 'errorDetails'> | null;
   onClose: () => void;
 }) {
-  const { translate } = useTranslationContext();
+  const { translate, language } = useTranslationContext();
+
+  const reportingPhaseHeight = language === 'en' ? '273px' : '289px';
 
   const [height, setHeight] = useState(0);
 
@@ -129,7 +131,9 @@ export function ReportModal({
               variants={{
                 INITIAL: { height },
                 REPORTING: {
-                  height: stateIsError(requestState) ? '305px' : '273px',
+                  height: stateIsError(requestState)
+                    ? '305px'
+                    : reportingPhaseHeight,
                 },
               }}
               animate={phase}
