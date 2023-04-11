@@ -22,7 +22,9 @@ export default function BackupsPanel({
   const [backupProgress, setBackupProgress] = useState<null | BackupProgress>(
     null
   );
-  const { translate } = useTranslationContext();
+  const { translate, language } = useTranslationContext();
+
+  dayjs.locale(language);
 
   const backupStatus = useBackupStatus();
 
