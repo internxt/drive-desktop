@@ -1,0 +1,219 @@
+{
+  "login": {
+    "email": {
+      "section": "Adresse électronique"
+    },
+    "password": {
+      "section": "Mot de passe",
+      "placeholder": "Au moins 6 caractères",
+      "forgotten": "Vous avez oublié votre mot de passe?",
+      "hide": "Ocultar",
+      "show": "Afficher"
+    },
+    "action": {
+      "login": "S'identifier",
+      "is-loggin-in": "Se connecter"
+    },
+    "create-account": "Créer un compte",
+    "2fa": {
+      "section": "Code d'authentification",
+      "description": "Vous avez configuré l'authentification en deux étapes (2FA), veuillez saisir le code à 6 chiffres",
+      "change-account": "Changer de compte",
+      "wrong-code": "Code incorrect, veuillez réessayer"
+    },
+    "error": {
+      "empty-fields": "Mot de passe ou courriel incorrect"
+    },
+    "warning": {
+      "no-internet": "Pas de connexion internet"
+    }
+  },
+  "onboarding": {
+    "slides": {
+      "welcome": {
+        "title": "Bienvenue chez Internxt!",
+        "description": "Chiffrement côté client, fragmenté, simple, rapide, sécurisé et privé.",
+        "invitation": "Découvrez les nouvelles fonctionnalités de Drive Desktop",
+        "next-slide": "Démarrer"
+      },
+      "sync-folder": {
+        "title": "Dossier de synchronisation",
+        "description-1": "Vous trouverez un nouveau dossier où tous vos fichiers Internxt cloud seront accessibles",
+        "description-2": "Glissez et déposez des éléments dans ce dossier et appuyez sur le bouton Play pour les télécharger",
+        "description-3": "Pressez sur le bouton Play pour synchroniser le dossier avec d'autres dispositifs",
+        "description-4": "Choisissez l'emplacement du dossier de synchronisation dans les paramètres",
+        "next-slide": "Suivant"
+      },
+      "widget": {
+        "title": "Widget Internxt",
+        "description-1": "Accès rapide à ",
+        "description-2": "Mettez à jour votre plan, le nom de votre dispositif ou configurez vos sauvegardes à partir du menu Paramètres",
+        "description-3": "Vérifiez l'état de votre transfert de données",
+        "description-4": "Vérifiez l'état de votre processus de synchronisation et de vos sauvegardes",
+        "description-5": "Lancez ou mettez en pause le processus de synchronisation à tout moment",
+        "next-slide": "Commencez à utiliser Internxt"
+      }
+    }
+  },
+  "widget": {
+    "header": {
+      "usage": {
+        "of": "de",
+        "upgrade": "Acheter de l'espace maintenant"
+      },
+      "dropdown": {
+        "preferences": "Préférences",
+        "issues": "Liste d'erreurs",
+        "support": "Aide",
+        "logout": "Déconnecter",
+        "quit": "Fermer"
+      }
+    },
+    "body": {
+      "no-activity": {
+        "title": "Aucune activité récente",
+        "description": "Les informations apparaîtront ici lorsque vous effectuerez des modifications, pour synchroniser votre dossier local avec Internxt Drive"
+      },
+      "errors": {
+        "sync": {},
+        "backups": {
+          "folder-not-found": {
+            "text": "Impossible de copier, dossier non trouvé",
+            "action": "Afficher l'erreur"
+          }
+        }
+      }
+    },
+    "footer": {
+      "action-description": {
+        "syncing": "Synchronisation de vos fichiers",
+        "updated": "Mis à jour il y a quelques instants"
+      },
+      "errors": {
+        "lock": "Synchronisation bloquée par un autre dispositif"
+      }
+    }
+  },
+  "settings": {
+    "header": {
+      "section": {
+        "GENERAL": "Général",
+        "ACCOUNT": "Cuenta",
+        "BACKUPS": "Sauvegardes"
+      }
+    },
+    "general": {
+      "device": {
+        "section": "Nom du dispositif"
+      },
+      "auto-startup": "Démarrer Internxt Drive au démarrage du système",
+      "language": {
+        "section": "Idioma",
+        "avaliable": {
+          "es": "Español (España)",
+          "en": "Inglés (Estados Unidos)",
+          "fr": "Frances (Francia)"
+        }
+      },
+      "sync": {
+        "folder": "Dossier Internxt Drive",
+        "change-folder": "Changer de dossier"
+      },
+      "app-info": {
+        "open-logs": "Ouvrir les registres",
+        "more": "Plus d'informations sur Internxt Drive"
+      }
+    },
+    "account": {
+      "logout": "Déconnecter",
+      "usage": {
+        "upgrade": "Acheter",
+        "plan": "Plan actuel",
+        "current": {
+          "used": "utilisés",
+          "of": "de",
+          "in-use": "utilisé"
+        }
+      }
+    },
+    "backups": {
+      "activate": "Sauvegarder vos dossiers",
+      "view-backups": "Voir les sauvegardes",
+      "select-folders": "Sélectionner des dossiers",
+      "action": {
+        "start": "Sauvegarde maintenant",
+        "stop": "Stop backup",
+        "last-run": "Last updated"
+      },
+      "frequency": { 
+        "title": "Fréquence de téléchargement",
+        "options": {
+          "6h": "Toutes les 6 heures",
+          "12h": "Toutes les 12 heures",
+          "24h": "Tous les jours",
+          "manually": "Manuellement"
+        }
+      },
+      "folders": {
+        "explanation": "Dossiers à ajouter lors de la prochaine sauvegarde",
+        "no-folders": "No hay carpetas seleccionadas",
+        "done": "Finaliser",
+        "stop-baking-up": {
+          "title": "Arrêter la sauvegarde de  ",
+          "explanation": "Les nouveaux fichiers ajoutés à ce dossier ne seront plus copiés sur Internxt Drive. Les fichiers originaux resteront sur votre ordinateur",
+          "confirm": "Arrêter la sauvegarde",
+          "cancel": "Continuer la sauvegarde",
+          "dont-ask-again": "Ne demandez plus"
+        }
+      }
+    }
+  },
+  "issues": {
+    "title": "Liste d'erreurs",
+    "tabs": {
+      "sync": "Synchronisation",
+      "backups": "Sauvegardes",
+      "general": "Général"
+    },
+    "no-issues": "Aucune erreur trouvée",
+    "actions": {
+      "select-folder": "Select folder",
+      "find-folder": "Find folder",
+      "try-again": "Try again"
+    },
+    "short-error-messages": {
+      "unknown": "Unknown error",
+      "empty-file": "File is empty",
+      "bad-response": "Bad response from Internxt servers",
+      "no-remote-connection": "Can't connect to Internxt servers",
+      "no-internet-connection": "No internet connection",
+      "no-permission": "Insufficient permissions",
+      "file-does-not-exist": "File doesn't exist"
+    },
+    "error-messages": {
+      "no-internet": "Looks like you are not connected to the internet, we'll try again later",
+      "no-remote-connection": "We could not connect to Internxt servers, we'll try again later",
+      "cannot-get-current-listings": "We could not get the status of your current files, we'll try again later",
+      "base-directory-does-not-exist": "Unable to find your sync folder",
+      "insuficient-permision-accessing-base-directory": "Internxt App does not have permission to access your sync folder",
+      "cannot-access-base-directory": "We could not access your local folder",
+      "cannot-access-tmp-directory": "We could not access your  local folder",
+      "unknown": "An unknown error ocurred while trying to sync your files",
+      "empty-file": "We don't support files with a size of 0 bytes because of our processes of sharding and encryption",
+      "bad-response": "We got a bad response from our servers while processing this file. Please, try starting the sync process again.",
+      "file-does-not-exist": "This file was present when we compared your local folder with your Internxt drive but dissapeared when we tried to access it. If you deleted this file, don't worry, this error should dissapear the next time the sync process starts."
+    },
+    "report-modal": {
+      "actions": {
+        "close": "Close",
+        "cancel": "Cancel",
+        "report": "Report",
+        "send": "Send"
+      },
+      "help-url": "To get help visit",
+      "report": "You can also send a report about this error.",
+      "user-comments": "Comments",
+      "include-logs": "Include the logs of this sync process for debug purposes"
+    }
+  }
+}
