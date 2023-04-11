@@ -22,6 +22,7 @@ import { getDateFromSeconds, getSecondsFromDateString } from '../utils/date';
 import { createErrorDetails, serializeRes } from '../utils/reporting';
 import { FileCreatedResponseDTO } from '../../shared/HttpClient/responses/file-created';
 import { AuthorizedClients } from '../../shared/HttpClient/Clients';
+import { TransferLimits } from './domain/Transfer';
 
 /**
  * Server cannot find a file given its route,
@@ -377,37 +378,81 @@ export function getRemoteFilesystem({
         encryptionKey: mnemonic,
       });
 
-      const uploadedFileId: string = await new Promise((resolve, reject) => {
-        localUpload.upload(bucket, {
-          progressCallback,
-          finishedCallback: async (err: any, fileId: string) => {
-            if (err) {
-              // Don't include the stream in the details
-              const { stream, ...sourceWithoutStream } = source;
+      if (source.size > TransferLimits.UploadFileSize) {
+        throw new ProcessError(
+          'FILE_TOO_BIG',
+          createErrorDetails(
+            {},
+            'Uploading a file',
+            `name: ${name}, source: ${JSON.stringify(source, null, 2)}`
+          )
+        );
+      }
 
-              const details = createErrorDetails(
-                err,
-                'Uploading a file',
-                `bucket: ${bucket}, source: ${JSON.stringify(
-                  sourceWithoutStream,
-                  null,
-                  2
-                )}, name: ${name}, userInfo: ${JSON.stringify(
-                  userInfo,
-                  null,
-                  2
-                )}`
-              );
-              reject(
-                (await isOnline())
-                  ? new ProcessError('UNKNOWN', details)
-                  : new ProcessError('NO_INTERNET', details)
-              );
-            } else resolve(fileId);
-          },
-          fileSize: source.size,
-          source: source.stream,
-        });
+      const uploadedFileId: string = await new Promise((resolve, reject) => {
+        if (source.size > TransferLimits.MultipartUploadThreshold) {
+          localUpload.uploadMultipartFile(bucket, {
+            progressCallback,
+            finishedCallback: async (err: any, fileId: string | null) => {
+              if (err) {
+                // Don't include the stream in the details
+                const { stream, ...sourceWithoutStream } = source;
+  
+                const details = createErrorDetails(
+                  err,
+                  'Uploading a file with multipart',
+                  `bucket: ${bucket}, source: ${JSON.stringify(
+                    sourceWithoutStream,
+                    null,
+                    2
+                  )}, name: ${name}, userInfo: ${JSON.stringify(
+                    userInfo,
+                    null,
+                    2
+                  )}`
+                );
+                reject(
+                  (await isOnline())
+                    ? new ProcessError('UNKNOWN', details)
+                    : new ProcessError('NO_INTERNET', details)
+                );
+              } else resolve(fileId as string);
+            },
+            fileSize: source.size,
+            source: source.stream,
+          });
+        } else {
+          localUpload.upload(bucket, {
+            progressCallback,
+            finishedCallback: async (err: any, fileId: string) => {
+              if (err) {
+                // Don't include the stream in the details
+                const { stream, ...sourceWithoutStream } = source;
+  
+                const details = createErrorDetails(
+                  err,
+                  'Uploading a file',
+                  `bucket: ${bucket}, source: ${JSON.stringify(
+                    sourceWithoutStream,
+                    null,
+                    2
+                  )}, name: ${name}, userInfo: ${JSON.stringify(
+                    userInfo,
+                    null,
+                    2
+                  )}`
+                );
+                reject(
+                  (await isOnline())
+                    ? new ProcessError('UNKNOWN', details)
+                    : new ProcessError('NO_INTERNET', details)
+                );
+              } else resolve(fileId);
+            },
+            fileSize: source.size,
+            source: source.stream,
+          });
+        }
       });
 
       const oldFileInCache = cache[name];
