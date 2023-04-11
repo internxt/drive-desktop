@@ -183,12 +183,12 @@
     },
     "short-error-messages": {
       "unknown": "Error desconocido",
-      "emtpy-file": "Archivo vacío",
-      "bad-response": "Bad response from Internxt servers",
-      "no-remote-connection": "Can't connect to Internxt servers",
-      "no-internet-connection": "No internet connection",
-      "no-permission": "Insufficient permissions",
-      "file-does-not-exist": "File doesn't exist"
+      "emtpy-file": "El archivo está vacío",
+      "bad-response": "Error de los servidores de Internxt",
+      "no-remote-connection": "No pudimos conectar con los servidores de Internxt",
+      "no-internet-connection": "No hay conexión a Internet",
+      "no-permission": "Permisos insuficientes",
+      "file-does-not-exist": "El archivo no existe"
     },
     "error-messages": {
       "no-internet": "No estás conectado a Internet, lo intentaremos más tarde",
@@ -198,7 +198,22 @@
       "insuficient-permision-accessing-base-directory": "Internxt App no tiene permiso para acceder a su carpeta de sincronización",
       "cannot-access-base-directory": "No hemos podido acceder a su carpeta local",
       "cannot-access-tmp-directory": "No hemos podido acceder a su carpeta local",
-      "unknown": "Se ha producido un error desconocido al sincronizar tus archivos"
+      "unknown": "Error desconocido al intentar sincronizar sus archivos",
+      "empty-file": "No admitimos archivos con un tamaño de 0 bytes debido a nuestros procesos de cifrado",
+      "bad-response": "Error de servidor al procesar este archivo. Por favor, intente iniciar de nuevo el proceso de sincronización",
+      "file-does-not-exist": "Este archivo estaba presente cuando comparamos su carpeta local con su unidad Internxt, pero desapareció cuando intentamos acceder a él. Si has eliminado este archivo, no te preocupes, este error debería desaparecer la próxima vez que se inicie el proceso de sincronización"
+    },
+    "report-modal": {
+      "actions": {
+        "close": "Cerrar",
+        "cancel": "Cancelar",
+        "report": "Informar",
+        "send": "Enviar"
+      },
+      "help-url": "Para obtener ayuda, visita",
+      "report": "También puedes enviar un informe sobre este error",
+      "user-comments": "Comentarios",
+      "include-logs": "Incluir los registros de este proceso de sincronización con fines de solucionar el error"
     }
   }
 }
