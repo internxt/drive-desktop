@@ -18,6 +18,7 @@ import { DeviceProvider } from './context/DeviceContext';
 
 import './localize/i18n.service';
 import { TranslationProvider } from './context/LocalContext';
+import useLanguageChangedListener from './hooks/useLanguage';
 
 function LocationWrapper({ children }: { children: JSX.Element }) {
   const { pathname } = useLocation();
@@ -53,6 +54,9 @@ function LoggedInWrapper({ children }: { children: JSX.Element }) {
 const Loader = () => <div>loading...</div>;
 
 export default function App() {
+
+  useLanguageChangedListener();
+
   return (
     <Router>
       <Suspense fallback={<Loader />}>

@@ -2,12 +2,12 @@ declare interface Window {
   electron: {
     query: typeof import('./app-info/service').executeQuery;
 
-    getConfigKey(
-      key: string
-    ): Promise<any>;
-    // getConfigKey<T extends import('./config/service').StoredValues>(
-    //   ...params: Parameters<typeof import('./config/service').getConfigKey<T>>
-    // ): Promise<ReturnType<typeof import('./config/service').getConfigKey<T>>>;
+    getConfigKey(key: import('./config/service').StoredValues): Promise<any>;
+
+    listenToConfigKeyChange<T>(
+      key: import('./config/service').StoredValues,
+      fn: (value: T) => void
+    ): () => void;
 
     setConfigKey: typeof import('./config/service').setConfigKey;
 

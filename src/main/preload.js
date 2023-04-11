@@ -11,6 +11,12 @@ contextBridge.exposeInMainWorld('electron', {
   setConfigKey(key, value) {
     return ipcRenderer.send('set-config-key', { key, value });
   },
+  listenToConfigKeyChange(key, fn) {
+    const eventName = `${key}-updated`;
+    const callback = (_, v) => fn(v);
+    ipcRenderer.on(eventName, (_, v) => fn(v));
+    return () => ipcRenderer.removeListener(eventName, callback);
+  },
   pathChanged(pathname) {
     ipcRenderer.send('path-changed', pathname);
   },

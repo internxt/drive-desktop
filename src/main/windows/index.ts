@@ -4,6 +4,7 @@ import { getProcessIssuesWindow } from './process-issues';
 import { getOnboardingWindow } from './onboarding';
 import { getWidget } from './widget';
 import eventBus from '../event-bus';
+import Logger from 'electron-log';
 
 function closeAuxWindows() {
   getProcessIssuesWindow()?.close();
@@ -21,6 +22,9 @@ export function broadcastToWindows(eventName: string, data: any) {
     getSettingsWindow(),
     getOnboardingWindow(),
   ];
+
+  Logger.debug('BROADCASTED EVENT: ', eventName);
+  Logger.debug('BROADCASTED DATA: ', data);
 
   renderers.forEach((r) => r?.webContents.send(eventName, data));
 }
