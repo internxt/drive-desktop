@@ -156,7 +156,7 @@
       },
       "folders": {
         "explanation": "Folders you want to add to the next backup",
-        "no-folders": "No hay carpetas seleccionadas",
+        "no-folders": "No backups yet",
         "done": "Done",
         "stop-baking-up": {
           "title-start": "Stop backing up \"",
