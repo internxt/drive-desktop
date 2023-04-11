@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import Button from '../../../components/Button';
 import FolderIcon from '../../../assets/folder.svg';
-import { getPathArray } from 'renderer/utils/path';
+import { getPathArray } from '../../../utils/path';
 
 export default function SyncRoot({ className = '' }: { className?: string }) {
   const [currentSyncRoot, setCurrentSyncRoot] = useState('');
