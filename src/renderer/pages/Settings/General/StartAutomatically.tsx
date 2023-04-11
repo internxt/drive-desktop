@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
 import Checkbox from '../../../components/Checkbox';
+import { useTranslationContext } from '../../../context/LocalContext';
 
 export default function StartAutomatically({
   className = '',
 }: {
   className: string;
 }) {
+  const { translate } = useTranslationContext();
   const [value, setValue] = useState(false);
 
   function refreshValue() {
@@ -24,7 +26,7 @@ export default function StartAutomatically({
   return (
     <Checkbox
       className={className}
-      label="Start Internxt Drive on system startup"
+      label={translate('settings.general.auto-startup')}
       value={value}
       onClick={onCheckboxClicked}
     />

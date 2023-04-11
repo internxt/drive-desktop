@@ -1,6 +1,6 @@
 import Store from 'electron-store';
 import { ConfigFileListingStore } from '../../../Listings/infrastructure/ConfigFileListingStore';
-import { ConfigStore } from '../../../../../main/config';
+import { AppStore } from '../../../../../main/config';
 import { Listing } from '../../../../../workers/sync/Listings/domain/Listing';
 
 describe('Config File Listing Store', () => {
@@ -17,7 +17,7 @@ describe('Config File Listing Store', () => {
         get: jest.fn().mockImplementation(() => {
           return JSON.stringify(oldListing);
         }),
-      } as unknown as Store<ConfigStore>;
+      } as unknown as Store<AppStore>;
 
       const store = new ConfigFileListingStore(electronStore);
 
@@ -42,7 +42,7 @@ describe('Config File Listing Store', () => {
         get: jest.fn().mockImplementation(() => {
           return JSON.stringify(newListing);
         }),
-      } as unknown as Store<ConfigStore>;
+      } as unknown as Store<AppStore>;
 
       const store = new ConfigFileListingStore(electronStore);
 

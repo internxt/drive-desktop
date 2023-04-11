@@ -33,6 +33,8 @@ import './tray';
 import './analytics/handlers';
 import './platform/handlers';
 import './thumbnails/handlers';
+import './config/handlers';
+import './app-info/handlers';
 
 Logger.log(`Running ${packageJson.version}`);
 
@@ -50,6 +52,7 @@ if (process.env.NODE_ENV === 'production') {
 
 if (process.env.NODE_ENV === 'development') {
   require('electron-debug')({ showDevTools: false });
+  require('./dev/handlers');
 }
 
 const installExtensions = async () => {

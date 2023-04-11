@@ -1,0 +1,220 @@
+{
+  "login": {
+    "email": {
+      "section": "Email adress"
+    },
+    "password": {
+      "section": "Password",
+      "placeholder": "At least 6 characters",
+      "forgotten": "Forgot your password?",
+      "hide": "Hide",
+      "show": "Show"
+    },
+    "action": {
+      "login": "Login",
+      "is-logging-in": "Loggin in..."
+    },
+    "create-account": "Create account",
+    "2fa": {
+      "section": "Authentication code",
+      "description": "You have configured two factor authentication, please enter the 6 digit code",
+      "change-account": "Change account",
+      "wrong-code": "Incorrect code, try again"
+    },
+    "error": {
+      "empty-fields": "Incorrect password or email"
+    },
+    "warning": {
+      "no-internet": "No internet connection"
+    }
+  },
+  "onboarding": {
+    "slides": {
+      "welcome": {
+        "title": "Welcome to Internxt!",
+        "description": "Client-side encrypted, simple, fast, secure and private.",
+        "invitation": "Discover the brand new features of Drive Desktop.",
+        "next-slide": "Let's go!"
+      },
+      "sync-folder": {
+        "title": "Sync Folder",
+        "description-1": "You'll find a new folder where all your data from the Internxt cloud will be accessible.",
+        "description-2": "Simply drag and drop items into this folder and press the play button to upload them.",
+        "description-3": "Press the play button to keep this folder synchronized with other devices.",
+        "description-4": "Choose sync folder location from settings.",
+        "next-slide": "Next"
+      },
+      "widget": {
+        "title": "Internxt Widget",
+        "description-1": "Quick access to ",
+        "description-2": "Update your plan, device name or configure backups from the settings menu.",
+        "description-3": "View the state of your data transfer.",
+        "description-4": "Check the status of your sync and backups processes.",
+        "description-5": "Start or stop your sync process anytime.",
+        "next-slide": "Finish"
+      }
+    }
+  },
+  "widget": {
+    "header": {
+      "usage": {
+        "of": "of",
+        "upgrade": "Upgrade"
+      },
+      "dropdown": {
+        "preferences": "Preferences",
+        "issues": "Issues",
+        "support": "Support",
+        "logout": "Log out",
+        "quit": "Quit"
+      }
+    },
+    "body": {
+      "no-activity": {
+        "title": "There is no recent activity",
+        "description": "Information will show up here when changes are made to sync your local folder with Internxt Drive"
+      },
+      "errors": {
+        "sync": {},
+        "backups": {
+          "folder-not-found": {
+            "text": "Can't upload backup, missing folder",
+            "action": "View error"
+          }
+        }
+      }
+    },
+    "footer": {
+      "action-description": {
+        "syncing": "Syncing your files",
+        "updated": "Updated just now"
+      },
+      "errors": {
+        "lock": "Sync locked by other device"
+      }
+    }
+  },
+  "settings": {
+    "header": {
+      "section": {
+        "GENERAL": "general",
+        "ACCOUNT": "account",
+        "BACKUPS": "backups"
+      }
+    },
+    "general": {
+      "device": {
+        "section": "Device name"
+      },
+      "auto-startup": "Start Internxt Drive on system startup",
+      "language": {
+        "section": "Language",
+        "avaliable": {
+          "es": "Spanish (Spain)",
+          "en": "English (United States)",
+          "fr": "French (France)"
+        }
+      },
+      "sync": {
+        "folder": "Internxt Drive Folder",
+        "change-folder": "Change folder"
+      },
+      "app-info": {
+        "open-logs": "Open logs",
+        "more": "Learn more about Internxt Drive"
+      }
+    },
+    "account": {
+      "logout": "Log out",
+      "usage": {
+        "upgrade": "Upgrade",
+        "plan": "Current plan",
+        "current": {
+          "used": "Used",
+          "of": "of",
+          "in-use": "in use"
+        }
+      }
+    },
+    "backups": {
+      "activate": "Back up your folders and files",
+      "view-backups": "View your backups",
+      "select-folders": "Select folders to backup",
+      "action": {
+        "start": "Backup now",
+        "stop": "Stop backup",
+        "last-run": "Last updated"
+      },
+      "frequency": {
+        "title": "Upload frequency",
+        "options": {
+          "6h": "Every 6h",
+          "12h": "Every 12h",
+          "24h": "Every day",
+          "manually": "Manually"
+        }
+      },
+      "folders": {
+        "explanation": "Folders you want to add to the next backup",
+        "no-folders": "No hay carpetas seleccionadas",
+        "done": "Done",
+        "stop-baking-up": {
+          "title-start": "Stop backing up \"",
+          "title-end": "\"?",
+          "explanation": "New files added to this folder will no longer backup in your Internxt Drive. Original files will remain on your computer",
+          "confirm": "Stop backing up this folder",
+          "cancel": "Keep backing up",
+          "dont-ask-again": "Don't ask me again"
+        }
+      }
+    }
+  },
+  "issues": {
+    "title": "Issues",
+    "tabs": {
+      "sync": "Sync",
+      "backups": "Backups",
+      "general": "General"
+    },
+    "no-issues": "No issues found",
+    "actions": {
+      "select-folder": "Select folder",
+      "find-folder": "Find folder",
+      "try-again": "Tray again"
+    },
+    "short-error-messages": {
+      "unknown": "Unknown error",
+      "empty-file": "File is empty",
+      "bad-response": "Bad response from Internxt servers",
+      "no-remote-connection": "Can't connect to Internxt servers",
+      "no-internet-connection": "No internet connection",
+      "no-permission": "Insufficient permissions",
+      "file-does-not-exist": "File doesn't exist"
+    },
+    "error-messages": {
+      "no-internet": "Looks like you are not connected to the internet, we'll try again later",
+      "no-remote-connection": "We could not connect to Internxt servers, we'll try again later",
+      "cannot-get-current-listings": "We could not get the status of your current files, we'll try again later",
+      "base-directory-does-not-exist": "Unable to find your sync folder",
+      "insuficient-permision-accessing-base-directory": "Internxt App does not have permission to access your sync folder",
+      "cannot-access-base-directory": "We could not access your local folder",
+      "cannot-access-tmp-directory": "We could not access your  local folder",
+      "unknown": "An unknown error ocurred while trying to sync your files",
+      "empty-file": "We don't support files with a size of 0 bytes because of our processes of sharding and encryption",
+      "bad-response": "We got a bad response from our servers while processing this file. Please, try starting the sync process again.",
+      "file-does-not-exist": "This file was present when we compared your local folder with your Internxt drive but dissapeared when we tried to access it. If you deleted this file, don't worry, this error should dissapear the next time the sync process starts."
+    },
+    "report-modal": {
+      "actions": {
+        "close": "Close",
+        "cancel": "Cancel",
+        "report": "Report",
+        "send": "Send"
+      },
+      "help-url": "To get help visit",
+      "report": "You can also send a report about this error.",
+      "user-comments": "Comments",
+      "include-logs": "Include the logs of this sync process for debug purposes"
+    }
+  }
+}

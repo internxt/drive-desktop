@@ -1,6 +1,7 @@
 import { Listbox, Transition } from '@headlessui/react';
 import { UilCheck, UilAngleDown } from '@iconscout/react-unicons';
 import { Fragment } from 'react';
+import { useTranslationContext } from 'renderer/context/LocalContext';
 
 export default function Dropdown({
   value,
@@ -11,11 +12,12 @@ export default function Dropdown({
   onChange: (value: number) => void;
   className?: string;
 }) {
+  const { translate } = useTranslationContext();
   const intervals = [
-    { value: 6 * 3600 * 1000, display: 'Every 6h' },
-    { value: 12 * 3600 * 1000, display: 'Every 12h' },
-    { value: 24 * 3600 * 1000, display: 'Every day' },
-    { value: -1, display: 'Manually' },
+    { value: 6 * 3600 * 1000, display: translate('settings.backups.frequency.options.6h')},
+    { value: 12 * 3600 * 1000, display: translate('settings.backups.frequency.options.12h')},
+    { value: 24 * 3600 * 1000, display: translate('settings.backups.frequency.options.24h')},
+    { value: -1, display: translate('settings.backups.frequency.options.manually')},
   ];
 
   const { display } = intervals.find((interval) => interval.value === value)!;

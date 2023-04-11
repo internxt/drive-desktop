@@ -1,6 +1,6 @@
 import { Action } from './types';
 
 export const tryAgain: Action = {
-  name: 'Try again',
+  name: 'issues.actions.try-again',
   func: window.electron.startBackupsProcess,
 };

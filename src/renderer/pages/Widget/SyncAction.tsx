@@ -5,17 +5,31 @@ import Spinner from '../../assets/spinner.svg';
 import useSyncStatus from '../../hooks/SyncStatus';
 import useSyncStopped from '../../hooks/SyncStopped';
 import { SyncStatus } from '../../../main/background-processes/sync';
+import { useTranslationContext } from '../../context/LocalContext';
 
 export default function SyncAction() {
+  const { translate } = useTranslationContext();
+
   const [state, setState] = useState<SyncStatus | 'LOADING'>('STANDBY');
 
   const [showUpdatedJustNow, setShowUpdatedJustNow] = useState(false);
+  const [showLockError, setShowLockError] = useState(false);
 
   useSyncStatus(setState);
 
   const [syncStoppedReason] = useSyncStopped();
 
   useEffect(() => {
+    if (
+      state === 'STANDBY' &&
+      syncStoppedReason?.reason === 'COULD_NOT_ACQUIRE_LOCK'
+    ) {
+      setShowLockError(true);
+      const timeout = setTimeout(() => setShowLockError(false), 1000 * 10);
+      return () => {
+        if (timeout) clearTimeout(timeout);
+      };
+    }
     if (state === 'STANDBY' && syncStoppedReason?.reason === 'EXIT') {
       setShowUpdatedJustNow(true);
       const timeout = setTimeout(() => setShowUpdatedJustNow(false), 1000 * 10);
@@ -42,10 +56,13 @@ export default function SyncAction() {
   return (
     <div className="flex items-center justify-between border-t border-t-l-neutral-30 bg-white px-3 py-1">
       <p className="text-xs text-neutral-500">
+        {state === 'STANDBY' && showLockError
+          ? translate('widget.footer.errors.lock')
+          : ''}
         {state === 'RUNNING'
-          ? 'Syncing your files'
+          ? translate('widget.footer.action-description.syncing')
           : showUpdatedJustNow
-          ? 'Updated just now'
+          ? translate('widget.footer.action-description.updated')
           : ''}
       </p>
       <Button

@@ -2,6 +2,21 @@ const { contextBridge, ipcRenderer } = require('electron');
 const path = require('path');
 
 contextBridge.exposeInMainWorld('electron', {
+  query(query) {
+    return ipcRenderer.invoke('execute-app-query', query);
+  },
+  getConfigKey(key) {
+    return ipcRenderer.invoke('get-config-key', key);
+  },
+  setConfigKey(key, value) {
+    return ipcRenderer.send('set-config-key', { key, value });
+  },
+  listenToConfigKeyChange(key, fn) {
+    const eventName = `${key}-updated`;
+    const callback = (_, v) => fn(v);
+    ipcRenderer.on(eventName, (_, v) => fn(v));
+    return () => ipcRenderer.removeListener(eventName, callback);
+  },
   pathChanged(pathname) {
     ipcRenderer.send('path-changed', pathname);
   },
@@ -193,6 +208,12 @@ contextBridge.exposeInMainWorld('electron', {
   },
   getPlatform() {
     return ipcRenderer.invoke('get-platform');
+  },
+  resizeWindow(dimensions) {
+    return ipcRenderer.invoke('resize-focused-window', dimensions);
+  },
+  addFakeIssues(errorsName, process) {
+    return ipcRenderer.invoke('add-fake-sync-issues', { errorsName, process });
   },
   path,
 });

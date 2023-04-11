@@ -1,3 +1,4 @@
+import BackupsFatalErrorBanner from './BackupsErrorBanner';
 import Header from './Header';
 import SyncAction from './SyncAction';
 import SyncErrorBanner from './SyncErrorBanner';
@@ -8,6 +9,7 @@ export default function Widget() {
     <div className="flex h-screen flex-col overflow-hidden">
       <Header />
       <SyncErrorBanner />
+      <BackupsFatalErrorBanner />
       <SyncInfo />
       <SyncAction />
     </div>

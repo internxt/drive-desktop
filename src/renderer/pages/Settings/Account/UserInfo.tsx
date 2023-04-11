@@ -1,3 +1,4 @@
+import { useTranslationContext } from '../../../context/LocalContext';
 import Button from '../../../components/Button';
 
 export default function UserInfo({
@@ -7,6 +8,7 @@ export default function UserInfo({
   name: string;
   email: string;
 }) {
+  const { translate } = useTranslationContext();
   function nameToInitials(fullName: string) {
     const namesArray = fullName.trim().split(' ');
     if (namesArray.length === 1) return `${namesArray[0].charAt(0)}`;
@@ -26,7 +28,7 @@ export default function UserInfo({
         <h1 className="font-semibold text-neutral-700">{name}</h1>
         <p className="text-sm text-m-neutral-100">{email}</p>
       </div>
-      <Button onClick={window.electron.logout}>Log out</Button>
+      <Button onClick={window.electron.logout}>{translate('settings.account.logout')}</Button>
     </div>
   );
 }
