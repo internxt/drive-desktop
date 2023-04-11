@@ -104,7 +104,7 @@ function Tabs({
 
   return (
     <div
-      className={`non-draggable relative flex h-9 w-64 rounded-lg bg-l-neutral-30 ${w}`}
+      className={`non-draggable relative flex h-9 rounded-lg bg-l-neutral-30 ${w}`}
     >
       <motion.div
         variants={{

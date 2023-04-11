@@ -160,6 +160,9 @@ function GeneralIssueItem({
   isSelected: boolean;
   onClick: () => void;
 }) {
+
+  const { translate } = useTranslationContext();
+
   return (
     <div
       className="select-none p-2 hover:bg-l-neutral-10 active:bg-l-neutral-20"
@@ -175,7 +178,7 @@ function GeneralIssueItem({
             className="font-semibold text-gray-70"
             data-test="sync-issue-name"
           >
-            {generalErrors.shortMessages[errorName]}
+            {translate(generalErrors.shortMessages[errorName])}
             &nbsp;
             <UilInfoCircle className="inline h-4 w-4 text-blue-60 hover:text-blue-50 active:text-blue-60" />
           </h1>
@@ -206,7 +209,7 @@ function GeneralIssueItem({
               >
                 <FileIcon className="h-5 w-5 flex-shrink-0" />
                 <p className="ml-2 flex-grow truncate text-gray-70">
-                  {generalErrors.longMessages[issue.errorName]}
+                  {translate(generalErrors.longMessages[issue.errorName])}
                 </p>
               </div>
             ))}
@@ -229,6 +232,7 @@ function Item({
   onClick: () => void;
   onInfoClick: () => void;
 }) {
+  const {translate} = useTranslationContext()
   return (
     <div
       onClick={onClick}
@@ -244,7 +248,7 @@ function Item({
             className="font-semibold text-gray-70"
             data-test="sync-issue-name"
           >
-            {shortMessages[errorName]}
+            {translate(shortMessages[errorName])}
             &nbsp;
             <UilInfoCircle
               className="inline h-4 w-4 text-blue-60 hover:text-blue-50 active:text-blue-60"

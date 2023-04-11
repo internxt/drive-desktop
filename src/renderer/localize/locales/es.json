@@ -181,7 +181,16 @@
       "find-folder": "Buscar la carpeta",
       "try-again": "Volver a intentar"
     },
-    "process-fatal-errors": {
+    "short-error-messages": {
+      "unknown": "Error desconocido",
+      "emtpy-file": "Archivo vacío",
+      "bad-response": "Bad response from Internxt servers",
+      "no-remote-connection": "Can't connect to Internxt servers",
+      "no-internet-connection": "No internet connection",
+      "no-permission": "Insufficient permissions",
+      "file-does-not-exist": "File doesn't exist"
+    },
+    "error-messages": {
       "no-internet": "No estás conectado a Internet, lo intentaremos más tarde",
       "no-remote-connection": "No hemos podido conectar con los servidores de Internxt, lo intentaremos más tarde",
       "cannot-get-current-listings": "No pudimos obtener el estado de tus archivos actuales, lo intentaremos más tarde",

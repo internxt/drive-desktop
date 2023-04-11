@@ -6,6 +6,7 @@ import {
 } from '../../workers/types';
 import eventBus from '../event-bus';
 import { broadcastToWindows } from '../windows';
+import Logger from 'electron-log';
 
 let processIssues: ProcessIssue[] = [];
 let generalIssues: GeneralIssue[] = [];
@@ -58,6 +59,7 @@ export function addGeneralIssue(issue: GeneralIssue) {
 }
 
 ipcMain.on('SYNC_INFO_UPDATE', (_, payload: ProcessInfoUpdatePayload) => {
+  Logger.debug('payload: ', payload, _);
   if (
     [
       'PULL_ERROR',

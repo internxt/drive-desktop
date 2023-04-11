@@ -182,7 +182,16 @@
       "find-folder": "Find folder",
       "try-again": "Tray again"
     },
-    "process-fatal-errors": {
+    "short-error-messages": {
+      "unknown": "Unknown error",
+      "empty-file": "File is empty",
+      "bad-response": "Bad response from Internxt servers",
+      "no-remote-connection": "Can't connect to Internxt servers",
+      "no-internet-connection": "No internet connection",
+      "no-permission": "Insufficient permissions",
+      "file-does-not-exist": "File doesn't exist"
+    },
+    "error-messages": {
       "no-internet": "Looks like you are not connected to the internet, we'll try again later",
       "no-remote-connection": "We could not connect to Internxt servers, we'll try again later",
       "cannot-get-current-listings": "We could not get the status of your current files, we'll try again later",
@@ -190,7 +199,22 @@
       "insuficient-permision-accessing-base-directory": "Internxt App does not have permission to access your sync folder",
       "cannot-access-base-directory": "We could not access your local folder",
       "cannot-access-tmp-directory": "We could not access your  local folder",
-      "unknown": "An unknown error ocurred while trying to sync your files"
+      "unknown": "An unknown error ocurred while trying to sync your files",
+      "empty-file": "We don't support files with a size of 0 bytes because of our processes of sharding and encryption",
+      "bad-response": "We got a bad response from our servers while processing this file. Please, try starting the sync process again.",
+      "file-does-not-exist": "This file was present when we compared your local folder with your Internxt drive but dissapeared when we tried to access it. If you deleted this file, don't worry, this error should dissapear the next time the sync process starts."
+    },
+    "report-modal": {
+      "actions": {
+        "close": "Close",
+        "cancel": "Cancel",
+        "report": "Report",
+        "send": "Send"
+      },
+      "help-url": "To get help visit",
+      "report": "You can also send a report about this error.",
+      "user-comments": "Comments",
+      "include-logs": "Include the logs of this sync process for debug purposes"
     }
   }
 }

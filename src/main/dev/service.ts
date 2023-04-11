@@ -1,8 +1,13 @@
-import { BrowserWindow, ipcMain } from 'electron';
+import { BrowserWindow, ipcMain, ipcRenderer } from 'electron';
 import Logger from 'electron-log';
-import { ProcessErrorName, ProcessFatalErrorName } from '../../workers/types';
+import {
+  ProcessErrorName,
+  ProcessFatalErrorName,
+  ProcessIssue,
+} from '../../workers/types';
 import { Process } from '../../shared/types/Process';
 import { BackupFatalError } from '../../main/background-processes/types/BackupFatalError';
+import { addProcessIssue } from '../../main/background-processes/process-issues';
 
 export const resizeCurrentWindow = ({
   width,
@@ -47,25 +52,27 @@ export const addFakeIssues = ({
         };
       }
     );
-      console.log(errrors);
     ipcMain.emit('add-backup-fatal-errors', errrors);
   }
 
   if (process === 'SYNC') {
-    errorsName
-      .map((errorsName) => ({
-        kind: 'LOCAL',
-        name: 'name',
-        action: 'PULL_ERROR',
-        errorName: errorsName,
-        errorDetails: {
-          action: 'a',
-          message: 'b',
-          code: 'lkañjsdlfk',
-          stack: 'dsasdf',
-        },
-        process: 'SYNC',
-      }))
-      .map((error) => ipcMain.emit('SYNC_INFO_UPDATE', error));
+    const names = errorsName as Array<ProcessErrorName>;
+    names
+      .map(
+        (errorsName): ProcessIssue => ({
+          kind: 'LOCAL',
+          name: 'name',
+          action: 'PULL_ERROR',
+          errorName: errorsName,
+          errorDetails: {
+            action: 'a',
+            message: 'b',
+            code: 'lkañjsdlfk',
+            stack: 'dsasdf',
+          },
+          process: 'SYNC',
+        })
+      )
+      .map((error) => addProcessIssue(error));
   }
 };
