@@ -5,6 +5,7 @@ import { useTranslationContext } from '../../../context/LocalContext';
 import { Language } from '../../../../shared/Locale/Language';
 import DayJsLocales from '../../../../shared/Locale/DayJsLocales';
 import dayjs from 'dayjs';
+import useConfig from '../../../hooks/useConfig';
 
 const languages: Array<DropdownElement<Language>> = [
   {
@@ -26,8 +27,10 @@ const languages: Array<DropdownElement<Language>> = [
 
 export default function LanguagePicker(): JSX.Element {
   const { translate } = useTranslationContext();
-  const [selectedLanguage, setSelectedLanguage] =
-    useState<DropdownElement<Language> | null>(null);
+  const lang = useConfig('preferedLanguage') as Language;
+  const [selectedLanguage, setSelectedLanguage] = useState<
+    DropdownElement<Language> | undefined
+  >(languages.find((l) => l.value === lang) || languages[0]);
 
   const updatePreferedLanguage = (lang: DropdownElement<Language>) => {
     i18next.changeLanguage(lang.id);
@@ -38,9 +41,9 @@ export default function LanguagePicker(): JSX.Element {
 
   useEffect(() => {
     const getPreferedLanguge = async () => {
-      const preferedLanguage = await window.electron.getConfigKey(
+      const preferedLanguage = (await window.electron.getConfigKey(
         'preferedLanguage'
-      ) as Language;
+      )) as Language;
 
       const select = languages.find((lang: DropdownElement<Language>) => {
         return lang.id === preferedLanguage;

@@ -159,8 +159,7 @@
         "no-folders": "No backups yet",
         "done": "Done",
         "stop-baking-up": {
-          "title-start": "Stop backing up \"",
-          "title-end": "\"?",
+          "title": "Stop backing up \"",
           "explanation": "New files added to this folder will no longer backup in your Internxt Drive. Original files will remain on your computer",
           "confirm": "Stop backing up this folder",
           "cancel": "Keep backing up",
