@@ -141,8 +141,8 @@ export async function getBackupsFromDevice(): Promise<
 
 export async function addBackup(): Promise<void> {
   async function createBackup(pathname: string): Promise<void> {
-    const { name } = path.parse(pathname);
-    const newBackup = await postBackup(name);
+    const { base } = path.parse(pathname);
+    const newBackup = await postBackup(base);
 
     const backupList = configStore.get('backupList');
 
