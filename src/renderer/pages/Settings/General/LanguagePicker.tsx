@@ -17,11 +17,11 @@ const languages: Array<DropdownElement<Language>> = [
     translationKey: 'settings.general.language.avaliable.es',
     value: 'es',
   },
-  // {
-  //   id: 'fr',
-  //   translationKey: 'settings.general.language.avaliable.fr',
-  //   value: 'fr',
-  // },
+  {
+    id: 'fr',
+    translationKey: 'settings.general.language.avaliable.fr',
+    value: 'fr',
+  }
 ];
 
 export default function LanguagePicker(): JSX.Element {

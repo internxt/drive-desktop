@@ -50,6 +50,9 @@ i18next
       es: {
         translation: require('./locales/es.json'),
       },
+      fr: {
+        translation: require('./locales/fr.json'),
+      },
     },
     debug: true,
     fallbackLng: DEFAULT_LANGUAGE,
