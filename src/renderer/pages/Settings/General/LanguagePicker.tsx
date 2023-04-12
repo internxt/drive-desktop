@@ -37,7 +37,7 @@ export default function LanguagePicker(): JSX.Element {
   };
 
   useEffect(() => {
-    const getPreferedLanguge = async () => {
+    const getPreferedLanguage = async () => {
       const preferedLanguage = await window.electron.getConfigKey(
         'preferedLanguage'
       ) as Language;
@@ -51,7 +51,7 @@ export default function LanguagePicker(): JSX.Element {
       setSelectedLanguage(select);
     };
 
-    getPreferedLanguge();
+    getPreferedLanguage();
   }, []);
 
   return (
