@@ -180,7 +180,7 @@
     "actions": {
       "select-folder": "Select folder",
       "find-folder": "Find folder",
-      "try-again": "Tray again"
+      "try-again": "Try again"
     },
     "short-error-messages": {
       "unknown": "Unknown error",
