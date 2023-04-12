@@ -108,11 +108,11 @@
       },
       "auto-startup": "Démarrer Internxt Drive au démarrage du système",
       "language": {
-        "section": "Idioma",
+        "section": "Langue",
         "avaliable": {
-          "es": "Español (España)",
-          "en": "Inglés (Estados Unidos)",
-          "fr": "Frances (Francia)"
+          "es": "Espagnol (Espagne)",
+          "en": "Anglais (US)",
+          "fr": "French (France)"
         }
       },
       "sync": {
@@ -141,11 +141,11 @@
       "view-backups": "Voir les sauvegardes",
       "select-folders": "Sélectionner des dossiers",
       "action": {
-        "start": "Sauvegarde maintenant",
-        "stop": "Stop backup",
-        "last-run": "Last updated"
+        "start": "Faire une copie ",
+        "stop": "Arrêter la sauvegarde",
+        "last-run": "Dernière exécution"
       },
-      "frequency": { 
+      "frequency": {
         "title": "Fréquence de téléchargement",
         "options": {
           "6h": "Toutes les 6 heures",
@@ -156,10 +156,10 @@
       },
       "folders": {
         "explanation": "Dossiers à ajouter lors de la prochaine sauvegarde",
-        "no-folders": "No hay carpetas seleccionadas",
+        "no-folders": "Pas encore de sauvegardes",
         "done": "Finaliser",
         "stop-baking-up": {
-          "title": "Arrêter la sauvegarde de  ",
+          "title": "Arrêter la sauvegarde de ",
           "explanation": "Les nouveaux fichiers ajoutés à ce dossier ne seront plus copiés sur Internxt Drive. Les fichiers originaux resteront sur votre ordinateur",
           "confirm": "Arrêter la sauvegarde",
           "cancel": "Continuer la sauvegarde",
@@ -177,43 +177,43 @@
     },
     "no-issues": "Aucune erreur trouvée",
     "actions": {
-      "select-folder": "Select folder",
-      "find-folder": "Find folder",
-      "try-again": "Try again"
+      "select-folder": "Sélectionner un dossier",
+      "find-folder": "Trouver un dossier",
+      "try-again": "Essayer à nouveau"
     },
     "short-error-messages": {
-      "unknown": "Unknown error",
-      "empty-file": "File is empty",
-      "bad-response": "Bad response from Internxt servers",
-      "no-remote-connection": "Can't connect to Internxt servers",
-      "no-internet-connection": "No internet connection",
-      "no-permission": "Insufficient permissions",
-      "file-does-not-exist": "File doesn't exist"
+      "unknown": "Erreur inconnue",
+      "empty-file": "Le fichier est vide",
+      "bad-response": "Mauvaise réponse des serveurs Internxt",
+      "no-remote-connection": "Impossible de se connecter aux serveurs Internxt",
+      "no-internet-connection": "Pas de connexion internet",
+      "no-permission": "Permissions insuffisantes",
+      "file-does-not-exist": "Le fichier n'existe pas"
     },
     "error-messages": {
-      "no-internet": "Looks like you are not connected to the internet, we'll try again later",
-      "no-remote-connection": "We could not connect to Internxt servers, we'll try again later",
-      "cannot-get-current-listings": "We could not get the status of your current files, we'll try again later",
-      "base-directory-does-not-exist": "Unable to find your sync folder",
-      "insuficient-permision-accessing-base-directory": "Internxt App does not have permission to access your sync folder",
-      "cannot-access-base-directory": "We could not access your local folder",
-      "cannot-access-tmp-directory": "We could not access your  local folder",
-      "unknown": "An unknown error ocurred while trying to sync your files",
-      "empty-file": "We don't support files with a size of 0 bytes because of our processes of sharding and encryption",
-      "bad-response": "We got a bad response from our servers while processing this file. Please, try starting the sync process again.",
-      "file-does-not-exist": "This file was present when we compared your local folder with your Internxt drive but dissapeared when we tried to access it. If you deleted this file, don't worry, this error should dissapear the next time the sync process starts."
+      "no-internet": "Il semble que vous ne soyez pas connecté à l'internet, nous réessayerons plus tard",
+      "no-remote-connection": "Nous n'avons pas pu nous connecter aux serveurs Internxt, nous réessayerons plus tard",
+      "cannot-get-current-listings": "Nous n'avons pas pu obtenir l'état de vos fichiers actuels, nous réessayerons plus tard",
+      "base-directory-does-not-exist": "Impossible de trouver votre dossier de synchronisation",
+      "insuficient-permision-accessing-base-directory": "Internxt App n'a pas la permission d'accéder à votre dossier de synchronisation",
+      "cannot-access-base-directory": "Nous n'avons pas pu accéder à votre dossier local",
+      "cannot-access-tmp-directory": "Nous n'avons pas pu accéder à votre dossier local",
+      "unknown": "Une erreur inconnue s'est produite lors de la synchronisation de vos fichiers",
+      "empty-file": "Nous ne prenons pas en charge les fichiers d'une taille de 0 octet en raison de nos processus de  chiffrement",
+      "bad-response": "Nous avons reçu une mauvaise réponse de nos serveurs lors du traitement de ce fichier. Veuillez essayer de relancer le processus de synchronisation.",
+      "file-does-not-exist": "Ce fichier était présent lorsque nous avons comparé votre dossier local avec votre disque interne, mais il a disparu lorsque nous avons essayé d'y accéder. Si vous avez supprimé ce fichier, ne vous inquiétez pas, cette erreur devrait disparaître au prochain démarrage du processus de synchronisation."
     },
     "report-modal": {
       "actions": {
-        "close": "Close",
-        "cancel": "Cancel",
-        "report": "Report",
-        "send": "Send"
+        "close": "Fermer",
+        "cancel": "Annuler",
+        "report": "Rapport",
+        "send": "Envoyer"
       },
-      "help-url": "To get help visit",
-      "report": "You can also send a report about this error.",
-      "user-comments": "Comments",
-      "include-logs": "Include the logs of this sync process for debug purposes"
+      "help-url": "Pour obtenir de l'aide, visitez",
+      "report": "Vous pouvez également envoyer un rapport sur cette erreur",
+      "user-comments": "Commentaires",
+      "include-logs": "Inclure les logs de ce processus de synchronisation à des fins de diagnostic"
     }
   }
 }
