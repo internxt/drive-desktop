@@ -23,9 +23,6 @@ export function broadcastToWindows(eventName: string, data: any) {
     getOnboardingWindow(),
   ];
 
-  Logger.debug('BROADCASTED EVENT: ', eventName);
-  Logger.debug('BROADCASTED DATA: ', data);
-
   renderers.forEach((r) => r?.webContents.send(eventName, data));
 }
 
