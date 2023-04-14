@@ -86,7 +86,7 @@ function Tabs({
     (64 * 4) / 3,
   ]);
 
-  const w = language === 'es' ? 'w-11/12' : 'w-64';
+  const w = (language === 'es' || language === 'fr')  ? 'w-11/12' : 'w-64';
 
   useEffect(() => {
     const fullWidth = language === 'en' ? 64 : 100;
@@ -97,7 +97,7 @@ function Tabs({
       setTabsWidth([eventTabsWith, eventTabsWith, eventTabsWith]);
     }
 
-    if (language === 'es') {
+    if (language === 'es' || language === 'fr') {
       setTabsWidth([eventTabsWith, eventTabsWith + 60, eventTabsWith]);
     }
   }, [language, active]);
