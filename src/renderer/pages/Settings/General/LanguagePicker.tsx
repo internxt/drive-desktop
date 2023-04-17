@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import i18next from 'i18next';
 import Dropdown, { DropdownElement } from '../../../components/Dropdown';
 import { useTranslationContext } from '../../../context/LocalContext';
-import { Language } from '../../../../shared/Locale/Language';
+import { DEFAULT_LANGUAGE, Language } from '../../../../shared/Locale/Language';
 import DayJsLocales from '../../../../shared/Locale/DayJsLocales';
 import dayjs from 'dayjs';
 import useConfig from '../../../hooks/useConfig';
@@ -18,11 +18,11 @@ const languages: Array<DropdownElement<Language>> = [
     translationKey: 'settings.general.language.avaliable.es',
     value: 'es',
   },
-  // {
-  //   id: 'fr',
-  //   translationKey: 'settings.general.language.avaliable.fr',
-  //   value: 'fr',
-  // },
+  {
+    id: 'fr',
+    translationKey: 'settings.general.language.avaliable.fr',
+    value: 'fr',
+  }
 ];
 
 export default function LanguagePicker(): JSX.Element {
@@ -40,10 +40,10 @@ export default function LanguagePicker(): JSX.Element {
   };
 
   useEffect(() => {
-    const getPreferedLanguge = async () => {
-      const preferedLanguage = (await window.electron.getConfigKey(
+    const getPreferedLanguage = async () => {
+      const preferedLanguage = await window.electron.getConfigKey(
         'preferedLanguage'
-      )) as Language;
+      ) as Language || DEFAULT_LANGUAGE;
 
       const select = languages.find((lang: DropdownElement<Language>) => {
         return lang.id === preferedLanguage;
@@ -54,7 +54,7 @@ export default function LanguagePicker(): JSX.Element {
       setSelectedLanguage(select);
     };
 
-    getPreferedLanguge();
+    getPreferedLanguage();
   }, []);
 
   return (

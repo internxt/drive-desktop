@@ -1,0 +1,219 @@
+{
+  "login": {
+    "email": {
+      "section": "Adresse électronique"
+    },
+    "password": {
+      "section": "Mot de passe",
+      "placeholder": "Au moins 6 caractères",
+      "forgotten": "Vous avez oublié votre mot de passe?",
+      "hide": "Cacher",
+      "show": "Afficher"
+    },
+    "action": {
+      "login": "S'identifier",
+      "is-loggin-in": "Se connecter"
+    },
+    "create-account": "Créer un compte",
+    "2fa": {
+      "section": "Code d'authentification",
+      "description": "Vous avez configuré l'authentification en deux étapes (2FA), veuillez saisir le code à 6 chiffres",
+      "change-account": "Changer de compte",
+      "wrong-code": "Code incorrect, veuillez réessayer"
+    },
+    "error": {
+      "empty-fields": "Mot de passe ou courriel incorrect"
+    },
+    "warning": {
+      "no-internet": "Pas de connexion internet"
+    }
+  },
+  "onboarding": {
+    "slides": {
+      "welcome": {
+        "title": "Bienvenue chez Internxt!",
+        "description": "Chiffrement côté client, fragmenté, simple, rapide, sécurisé et privé.",
+        "invitation": "Découvrez les nouvelles fonctionnalités de Drive Desktop",
+        "next-slide": "Démarrer"
+      },
+      "sync-folder": {
+        "title": "Dossier de synchronisation",
+        "description-1": "Vous trouverez un nouveau dossier où tous vos fichiers Internxt cloud seront accessibles",
+        "description-2": "Glissez et déposez des éléments dans ce dossier et appuyez sur le bouton Play pour les télécharger",
+        "description-3": "Pressez sur le bouton Play pour synchroniser le dossier avec d'autres dispositifs",
+        "description-4": "Choisissez l'emplacement du dossier de synchronisation dans les paramètres",
+        "next-slide": "Suivant"
+      },
+      "widget": {
+        "title": "Widget Internxt",
+        "description-1": "Accès rapide à ",
+        "description-2": "Mettez à jour votre plan, le nom de votre dispositif ou configurez vos sauvegardes à partir du menu Paramètres",
+        "description-3": "Vérifiez l'état de votre transfert de données",
+        "description-4": "Vérifiez l'état de votre processus de synchronisation et de vos sauvegardes",
+        "description-5": "Lancez ou mettez en pause le processus de synchronisation à tout moment",
+        "next-slide": "Commencez à utiliser Internxt"
+      }
+    }
+  },
+  "widget": {
+    "header": {
+      "usage": {
+        "of": "de",
+        "upgrade": "Acheter maintenant"
+      },
+      "dropdown": {
+        "preferences": "Préférences",
+        "issues": "Liste d'erreurs",
+        "support": "Aide",
+        "logout": "Déconnecter",
+        "quit": "Fermer"
+      }
+    },
+    "body": {
+      "no-activity": {
+        "title": "Aucune activité récente",
+        "description": "Les informations apparaîtront ici lorsque vous effectuerez des modifications, pour synchroniser votre dossier local avec Internxt Drive"
+      },
+      "errors": {
+        "sync": {},
+        "backups": {
+          "folder-not-found": {
+            "text": "Impossible de copier, dossier non trouvé",
+            "action": "Afficher l'erreur"
+          }
+        }
+      }
+    },
+    "footer": {
+      "action-description": {
+        "syncing": "Synchronisation de vos fichiers",
+        "updated": "Mis à jour il y a quelques instants"
+      },
+      "errors": {
+        "lock": "Synchronisation bloquée par un autre dispositif"
+      }
+    }
+  },
+  "settings": {
+    "header": {
+      "section": {
+        "GENERAL": "Général",
+        "ACCOUNT": "Compte",
+        "BACKUPS": "Sauvegardes"
+      }
+    },
+    "general": {
+      "device": {
+        "section": "Nom du dispositif"
+      },
+      "auto-startup": "Démarrer Internxt Drive au démarrage du système",
+      "language": {
+        "section": "Langue",
+        "avaliable": {
+          "es": "Espagnol (Espagne)",
+          "en": "Anglais (US)",
+          "fr": "French (France)"
+        }
+      },
+      "sync": {
+        "folder": "Dossier Internxt Drive",
+        "change-folder": "Changer de dossier"
+      },
+      "app-info": {
+        "open-logs": "Ouvrir les registres",
+        "more": "Plus d'informations sur Internxt Drive"
+      }
+    },
+    "account": {
+      "logout": "Déconnecter",
+      "usage": {
+        "upgrade": "Acheter",
+        "plan": "Plan actuel",
+        "current": {
+          "used": "utilisés",
+          "of": "de",
+          "in-use": "utilisé"
+        }
+      }
+    },
+    "backups": {
+      "activate": "Sauvegarder vos dossiers",
+      "view-backups": "Voir les sauvegardes",
+      "select-folders": "Sélectionner des dossiers",
+      "action": {
+        "start": "Faire une copie ",
+        "stop": "Arrêter la sauvegarde",
+        "last-run": "Dernière exécution"
+      },
+      "frequency": {
+        "title": "Fréquence de téléchargement",
+        "options": {
+          "6h": "Toutes les 6 heures",
+          "12h": "Toutes les 12 heures",
+          "24h": "Tous les jours",
+          "manually": "Manuellement"
+        }
+      },
+      "folders": {
+        "explanation": "Dossiers à ajouter lors de la prochaine sauvegarde",
+        "no-folders": "Pas encore de sauvegardes",
+        "done": "Finaliser",
+        "stop-baking-up": {
+          "title": "Arrêter la sauvegarde de ",
+          "explanation": "Les nouveaux fichiers ajoutés à ce dossier ne seront plus copiés sur Internxt Drive. Les fichiers originaux resteront sur votre ordinateur",
+          "confirm": "Arrêter la sauvegarde",
+          "cancel": "Continuer la sauvegarde",
+          "dont-ask-again": "Ne demandez plus"
+        }
+      }
+    }
+  },
+  "issues": {
+    "title": "Liste d'erreurs",
+    "tabs": {
+      "sync": "Synchronisation",
+      "backups": "Sauvegardes",
+      "general": "Général"
+    },
+    "no-issues": "Aucune erreur trouvée",
+    "actions": {
+      "select-folder": "Sélectionner un dossier",
+      "find-folder": "Trouver un dossier",
+      "try-again": "Essayer à nouveau"
+    },
+    "short-error-messages": {
+      "unknown": "Erreur inconnue",
+      "empty-file": "Le fichier est vide",
+      "bad-response": "Mauvaise réponse des serveurs Internxt",
+      "no-remote-connection": "Impossible de se connecter aux serveurs Internxt",
+      "no-internet-connection": "Pas de connexion internet",
+      "no-permission": "Permissions insuffisantes",
+      "file-does-not-exist": "Le fichier n'existe pas"
+    },
+    "error-messages": {
+      "no-internet": "Il semble que vous ne soyez pas connecté à l'internet, nous réessayerons plus tard",
+      "no-remote-connection": "Nous n'avons pas pu nous connecter aux serveurs Internxt, nous réessayerons plus tard",
+      "cannot-get-current-listings": "Nous n'avons pas pu obtenir l'état de vos fichiers actuels, nous réessayerons plus tard",
+      "base-directory-does-not-exist": "Impossible de trouver votre dossier de synchronisation",
+      "insuficient-permision-accessing-base-directory": "Internxt App n'a pas la permission d'accéder à votre dossier de synchronisation",
+      "cannot-access-base-directory": "Nous n'avons pas pu accéder à votre dossier local",
+      "cannot-access-tmp-directory": "Nous n'avons pas pu accéder à votre dossier local",
+      "unknown": "Une erreur inconnue s'est produite lors de la synchronisation de vos fichiers",
+      "empty-file": "Nous ne prenons pas en charge les fichiers d'une taille de 0 octet en raison de nos processus de  chiffrement",
+      "bad-response": "Nous avons reçu une mauvaise réponse de nos serveurs lors du traitement de ce fichier. Veuillez essayer de relancer le processus de synchronisation.",
+      "file-does-not-exist": "Ce fichier était présent lorsque nous avons comparé votre dossier local avec votre disque interne, mais il a disparu lorsque nous avons essayé d'y accéder. Si vous avez supprimé ce fichier, ne vous inquiétez pas, cette erreur devrait disparaître au prochain démarrage du processus de synchronisation."
+    },
+    "report-modal": {
+      "actions": {
+        "close": "Fermer",
+        "cancel": "Annuler",
+        "report": "Rapport",
+        "send": "Envoyer"
+      },
+      "help-url": "Pour obtenir de l'aide, visitez",
+      "report": "Vous pouvez également envoyer un rapport sur cette erreur",
+      "user-comments": "Commentaires",
+      "include-logs": "Inclure les logs de ce processus de synchronisation à des fins de diagnostic"
+    }
+  }
+}

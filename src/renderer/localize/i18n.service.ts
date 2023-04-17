@@ -21,10 +21,10 @@ const languageDetection = (callback: (lang: Language | undefined) => void) => {
     const systemLangs = await queryApp('getPreferredSystemLanguages');
     const parsed = systemLangs.map((l) => l.split('-')[0]);
 
-    const preferedLangugeAvailable = parsed.find(isLanguage);
+    const preferedLanguageAvailable = parsed.find(isLanguage);
 
-    dayjs.locale(DayJsLocales[preferedLangugeAvailable || DEFAULT_LANGUAGE]);
-    callback(preferedLangugeAvailable || DEFAULT_LANGUAGE);
+    dayjs.locale(DayJsLocales[preferedLanguageAvailable || DEFAULT_LANGUAGE]);
+    callback(preferedLanguageAvailable || DEFAULT_LANGUAGE);
   };
 
   run();
@@ -49,6 +49,9 @@ i18next
       },
       es: {
         translation: require('./locales/es.json'),
+      },
+      fr: {
+        translation: require('./locales/fr.json'),
       },
     },
     debug: true,
