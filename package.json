@@ -272,7 +272,8 @@
     "regenerator-runtime": "^0.13.9",
     "socket.io-client": "^4.4.1",
     "tiny-glob": "^0.2.9",
-    "uuid": "^8.3.2"
+    "uuid": "^8.3.2",
+    "webdav-server": "^2.6.2"
   },
   "devEngines": {
     "node": ">=14.x",
