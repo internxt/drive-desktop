@@ -3,7 +3,7 @@ import glob from 'tiny-glob';
 import path from 'path';
 import * as uuid from 'uuid';
 import Logger from 'electron-log';
-import { constants, createReadStream, createWriteStream } from 'fs';
+import { constants, createReadStream, createWriteStream, fstat } from 'fs';
 import ignore from 'ignore';
 import { pipeline } from 'stream/promises';
 import { fileNameIsValid } from '../../utils/name-verification';
@@ -77,6 +77,14 @@ export function getLocalFilesystem(
       ino: stat.ino,
       dev: stat.dev,
       isFolder: stat.isDirectory(),
+    });
+  }
+
+  async function exists(pathname: string): Promise<boolean> {
+    return new Promise(async (resolve) => {
+      await fs.stat(pathname).catch(() => resolve(false));
+
+      resolve(true);
     });
   }
 
@@ -205,11 +213,17 @@ export function getLocalFilesystem(
       }
     },
 
-    async pullFolder(name): Promise<void> {
+    async pullFolder(name, modtime): Promise<void> {
       const osSpecificRelative = name.replaceAll('/', path.sep);
       const fullPath = path.join(localPath, osSpecificRelative);
 
-      await fs.mkdir(fullPath);
+      const alreadyExists = await exists(fullPath);
+
+      if (!alreadyExists) {
+        await fs.mkdir(fullPath);
+      }
+
+      await fs.utimes(fullPath, modtime, modtime);
     },
 
     renameFile(oldName: string, newName: string) {
@@ -330,6 +344,16 @@ export function getLocalFilesystem(
           )
         );
       }
+    },
+
+    async getFolderData(folderName) {
+      const osSpecificRelative = folderName.replaceAll('/', path.sep);
+      const fullPath = path.join(localPath, osSpecificRelative);
+      const folderStats = await fs.stat(fullPath);
+
+      return {
+        modtime: Math.trunc(folderStats.mtimeMs / 1000),
+      };
     },
   };
 }

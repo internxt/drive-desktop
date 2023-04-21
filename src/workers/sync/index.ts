@@ -68,6 +68,7 @@ async function setUp() {
     userInfo: user,
     clients,
   });
+
   const local = getLocalFilesystem(localPath, tmpPath);
 
   const listingStore = new ConfigFileListingStore(configStore);
@@ -266,7 +267,7 @@ async function setUp() {
   try {
     Logger.debug('SYNC STARTING ');
     const result = await sync.run();
-    Logger.log('Sync done, result: ', result);
+    Logger.log('Sync done, result: ', JSON.stringify(result, null, 2));
     ipcRenderer.send('SYNC_EXIT', result);
   } catch (err) {
     if (err instanceof ProcessFatalError) {

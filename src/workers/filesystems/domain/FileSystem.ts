@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { PartialListing } from '../../sync/Listings/domain/Listing';
 import {
   FileSystemKind,
@@ -50,10 +51,11 @@ export interface FileSystem<T extends PartialListing> {
   ): Promise<number | void>;
 
   /**
-   * Creates a folder into this FileSystem
+   * Creates a folder into this FileSystem and updates its modtime
    * @param name
+   * @param modtime
    */
-  pullFolder(name: string): Promise<void>;
+  pullFolder(name: string, modtime: number): Promise<void>;
 
   /**
    * Checks if a folder exists in the filesystem
@@ -85,4 +87,6 @@ export interface FileSystem<T extends PartialListing> {
    * and throw an error if it's not operative
    */
   smokeTest(): Promise<void>;
+
+  getFolderData(folderFullPath: string): Promise<{ modtime: number }>;
 }

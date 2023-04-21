@@ -141,8 +141,16 @@ class Sync extends Process {
       JSON.stringify(pullFoldersFromLocal, null, 2)
     );
 
-    const remoteFolderPullConsumer = new PullFolderQueueConsumer(this.remote, this);
-    const localFolderPullConsumer = new PullFolderQueueConsumer(this.local, this);
+    const remoteFolderPullConsumer = new PullFolderQueueConsumer(
+      this.local,
+      this.remote,
+      this
+    );
+    const localFolderPullConsumer = new PullFolderQueueConsumer(
+      this.remote,
+      this.local,
+      this
+    );
 
     await remoteFolderPullConsumer.consume(pullFoldersFromRemote);
     await localFolderPullConsumer.consume(pullFoldersFromLocal);
