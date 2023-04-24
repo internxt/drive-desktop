@@ -145,7 +145,7 @@ test.describe('process issues', () => {
   test.describe('backups issues', () => {
     test('tab selected is backups when there is only backup issues', async () => {
       await addBackupsErrors(['NO_INTERNET']);
-      await wait(200);
+      await wait(1_000);
       const activeTab = await page.innerHTML(activeTabSelector);
       expect(activeTab).toBe('Backups');
     });

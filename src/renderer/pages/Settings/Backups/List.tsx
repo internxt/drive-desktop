@@ -6,12 +6,15 @@ import Button from '../../../components/Button';
 import { Backup } from '../../../../main/device/service';
 import Spinner from '../../../assets/spinner.svg';
 import Checkbox from '../../../components/Checkbox';
+import { useTranslationContext } from 'renderer/context/LocalContext';
 
 export default function BackupsList({
   onGoToPanel,
 }: {
   onGoToPanel: () => void;
 }) {
+  const { translate } = useTranslationContext();
+
   const [state, setState] = useState<
     { status: 'LOADING' | 'ERROR' } | { status: 'SUCCESS'; backups: Backup[] }
   >({ status: 'LOADING' });
@@ -19,6 +22,17 @@ export default function BackupsList({
   const [selected, setSelected] = useState<Backup | null>(null);
 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+
+  const del = () => {
+    const dontAskAgainOnDeleteBackup = localStorage.getItem(
+      'dont-ask-again-on-delete-backup'
+    );
+    if (dontAskAgainOnDeleteBackup === 'yes') {
+      handleOnCloseDeleteModal('DISABLE');
+    } else {
+      setShowDeleteModal(true);
+    }
+  };
 
   useEffect(fetchBackups, []);
 
@@ -46,10 +60,14 @@ export default function BackupsList({
   }
 
   async function handleOnCloseDeleteModal(
-    result: 'CANCEL' | 'DELETE' | 'DISABLE'
+    result: 'CANCEL' | 'DELETE' | 'DISABLE',
+    dontAksAgain?: boolean
   ) {
     setShowDeleteModal(false);
     if (result === 'CANCEL') return;
+
+    if (dontAksAgain)
+      localStorage.setItem('dont-ask-again-on-delete-backup', 'yes');
 
     setState({ status: 'LOADING' });
     try {
@@ -105,7 +123,9 @@ export default function BackupsList({
         ) : state.status === 'ERROR' ? (
           <p className="text-sm text-red-50">We could not load your backups</p>
         ) : (
-          <p className="text-sm text-l-neutral-50">No backups yet</p>
+          <p className="text-sm text-l-neutral-50">
+            {translate('settings.backupsfolders.no-folders')}
+          </p>
         )}
       </div>
     );
@@ -114,7 +134,7 @@ export default function BackupsList({
   return (
     <>
       <p className="text-sm text-neutral-500">
-        Folders you want to add to the next backup
+        {translate('settings.backups.folders.explanation')}
       </p>
       <div
         className="mt-4 h-44 overflow-y-auto rounded-lg border border-l-neutral-30 bg-white"
@@ -134,12 +154,14 @@ export default function BackupsList({
           <Button
             className="ml-1"
             disabled={selected === null}
-            onClick={() => setShowDeleteModal(true)}
+            onClick={() => del()}
           >
             <UilMinus size="17" />
           </Button>
         </div>
-        <Button onClick={onGoToPanel}>Done</Button>
+        <Button onClick={onGoToPanel}>
+          {translate('settings.backups.folders.done')}
+        </Button>
       </div>
 
       <Modal
@@ -158,9 +180,14 @@ function Modal({
 }: {
   nameOfBackup?: string;
   isOpen: boolean;
-  onClose: (result: 'CANCEL' | 'DISABLE' | 'DELETE') => void;
+  onClose: (
+    result: 'CANCEL' | 'DISABLE' | 'DELETE',
+    dontAksAgain: boolean
+  ) => void;
 }) {
+  const { translate } = useTranslationContext();
   const [checkbox, setCheckbox] = useState(false);
+  const [dontAksAgain, setDontAskAgain] = useState(false);
 
   useEffect(() => {
     if (isOpen) setCheckbox(false);
@@ -171,7 +198,7 @@ function Modal({
       <Dialog
         as="div"
         className="fixed inset-0 z-10 overflow-y-auto"
-        onClose={() => onClose('CANCEL')}
+        onClose={() => onClose('CANCEL', dontAksAgain)}
       >
         <div className="min-h-screen px-4 text-center">
           <Transition.Child
@@ -210,30 +237,49 @@ function Modal({
                 as="h3"
                 className="text-center text-lg font-medium leading-6 text-neutral-700"
               >
-                Stop backing up &quot;{nameOfBackup}&quot;?
+                {translate('settings.backups.folders.stop-baking-up.title')}
+                <span className="whitespace-nowrap">
+                  &quot;{nameOfBackup}&quot;?
+                </span>
               </Dialog.Title>
               <div className="mt-2">
                 <p className="text-center text-sm text-neutral-500/80">
-                  This folder will remain in your device.
+                  {translate(
+                    'settings.backups.folders.stop-baking-up.explanation'
+                  )}
                 </p>
               </div>
-              <Checkbox
+              {/* <Checkbox
                 label="Also delete this folder from the cloud"
                 className="mx-auto mt-6"
                 value={checkbox}
                 onClick={() => setCheckbox(!checkbox)}
+              /> */}
+
+              <Checkbox
+                label={translate(
+                  'settings.backups.folders.stop-baking-up.dont-ask-again'
+                )}
+                className="mx-auto mt-6"
+                value={dontAksAgain}
+                onClick={() => setDontAskAgain(!dontAksAgain)}
               />
 
-              <div className="mt-6 flex items-center justify-between">
-                <Button className="w-full" onClick={() => onClose('CANCEL')}>
-                  Cancel
+              <div className="mt-6 flex flex-col items-center">
+                <Button
+                  className="w-full"
+                  variant="primary"
+                  onClick={() =>
+                    onClose(checkbox ? 'DELETE' : 'DISABLE', dontAksAgain)
+                  }
+                >
+                  {translate('settings.backups.folders.stop-baking-up.confirm')}
                 </Button>
                 <Button
-                  className="ml-2 w-full"
-                  variant="primary"
-                  onClick={() => onClose(checkbox ? 'DELETE' : 'DISABLE')}
+                  className="mt-1 w-full"
+                  onClick={() => onClose('CANCEL', false)}
                 >
-                  Stop backup
+                  {translate('settings.backups.folders.stop-baking-up.cancel')}
                 </Button>
               </div>
             </div>

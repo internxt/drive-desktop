@@ -1,0 +1,219 @@
+{
+  "login": {
+    "email": {
+      "section": "Correo electrónico"
+    },
+    "password": {
+      "section": "Contraseña",
+      "placeholder": "Al menos 6 caracteres",
+      "forgotten": "¿Has olvidado tu contraseña?",
+      "hide": "Ocultar",
+      "show": "Mostrar"
+    },
+    "action": {
+      "login": "Iniciar sesión",
+      "is-loggin-in": "Iniciando sesión"
+    },
+    "create-account": "Crear cuenta",
+    "2fa": {
+      "section": "Código de autenticación",
+      "description": "Has configurado la autenticación en dos pasos, por favor introduce el código de 6 dígitos",
+      "change-account": "Cambiar cuenta",
+      "wrong-code": "Código incorrecto, inténtalo de nuevo"
+    },
+    "error": {
+      "empty-fields": "Contraseña o correo electrónico incorrectos"
+    },
+    "warning": {
+      "no-internet": "Sin conexión a internet"
+    }
+  },
+  "onboarding": {
+    "slides": {
+      "welcome": {
+        "title": "¡Bienvenido a Internxt!",
+        "description": "Cifrado del lado del cliente, sencillo, rápido, seguro y privado.",
+        "invitation": "Descubre las nuevas funciones de Drive Desktop",
+        "next-slide": "Comenzar"
+      },
+      "sync-folder": {
+        "title": "Carpeta de Sincronización",
+        "description-1": "Encontrarás una nueva carpeta en la que estarán accesibles todos tus archivos de la nube de Internxt",
+        "description-2": "Arrastra y suelta los elementos en esta carpeta y pulsa el botón de Play para subirlos",
+        "description-3": "Pulsa el botón de Play para mantener la carpeta sincronizada con otros dispositivos",
+        "description-4": "Elige la ubicación de la carpeta de sincronización en Ajustes",
+        "next-slide": "Siguiente"
+      },
+      "widget": {
+        "title": "Internxt Widget",
+        "description-1": "Acceso rápido a ",
+        "description-2": "Actualiza tu plan, el nombre del dispositivo o configura tus copias de seguridad desde el menú Ajustes",
+        "description-3": "Consulta el estado de tu transferencia de datos",
+        "description-4": "Comprueba el estado de tu proceso de sincronización y copias de seguridad",
+        "description-5": "Comienza o pausa el proceso de sincronización en cualquier momento",
+        "next-slide": "Comenzar a usar Internxt"
+      }
+    }
+  },
+  "widget": {
+    "header": {
+      "usage": {
+        "of": "de",
+        "upgrade": "Comprar espacio"
+      },
+      "dropdown": {
+        "preferences": "Preferencias",
+        "issues": "Lista de errores",
+        "support": "Ayuda",
+        "logout": "Cerrar sesión",
+        "quit": "Salir"
+      }
+    },
+    "body": {
+      "no-activity": {
+        "title": "No hay actividad reciente",
+        "description": "La información aparecerá aquí cuando hagas cambios, para sincronizar tu carpeta local con Internxt Drive"
+      },
+      "errors": {
+        "sync": {},
+        "backups": {
+          "folder-not-found": {
+            "text": "No se pudo realizar la copia, no se encuentra la carpeta",
+            "action": "Ver error"
+          }
+        }
+      }
+    },
+    "footer": {
+      "action-description": {
+        "syncing": "Sincronizando tus archivos",
+        "updated": "Actualizado hace un momento"
+      },
+      "errors": {
+        "lock": "Sincronización bloqueada por otro dispositivo"
+      }
+    }
+  },
+  "settings": {
+    "header": {
+      "section": {
+        "GENERAL": "General",
+        "ACCOUNT": "Cuenta",
+        "BACKUPS": "Copia de seguridad"
+      }
+    },
+    "general": {
+      "device": {
+        "section": "Nombre del dispositivo"
+      },
+      "auto-startup": "Iniciar Internxt Drive al arrancar el sistema",
+      "language": {
+        "section": "Idioma",
+        "avaliable": {
+          "es": "Español (España)",
+          "en": "Inglés (Estados Unidos)",
+          "fr": "Frances (Francia)"
+        }
+      },
+      "sync": {
+        "folder": "Carpeta Internxt Drive",
+        "change-folder": "Cambiar carpeta"
+      },
+      "app-info": {
+        "open-logs": "Abrir registros",
+        "more": "Más información sobre Internxt Drive"
+      }
+    },
+    "account": {
+      "logout": "Cerrar sesión",
+      "usage": {
+        "upgrade": "Comprar espacio",
+        "plan": "Plan actual",
+        "current": {
+          "used": "usado",
+          "of": "de",
+          "in-use": "usado"
+        }
+      }
+    },
+    "backups": {
+      "activate": "Hacer copia de seguridad de tus carpetas",
+      "view-backups": "Ver copias de seguridad",
+      "select-folders": "Seleccionar carpetas",
+      "action": {
+        "start": "Hacer copia",
+        "stop": "Stop backup",
+        "last-run": "Última ejecución"
+      },
+      "frequency": {
+        "title": "Frecuencia de subida",
+        "options": {
+          "6h": "Cada 6 h",
+          "12h": "Cada 12 h",
+          "24h": "Cada día",
+          "manually": "Manualmente"
+        }
+      },
+      "folders": {
+        "explanation": "Carpetas a añadir en la siguiente copia de seguridad",
+        "no-folders": "No hay carpetas seleccionadas",
+        "done": "Hecho",
+        "stop-baking-up": {
+          "title": "¿Detener la copia de seguridad de ",
+          "explanation": "Los archivos nuevos que se añadan a esta carpeta ya no se copiarán en Internxt Drive. Los archivos originales permanecerán en tu ordenador",
+          "confirm": "Detener copia de seguridad",
+          "cancel": "Continuar copia de seguridad",
+          "dont-ask-again": "No volver a preguntar"
+        }
+      }
+    }
+  },
+  "issues": {
+    "title": "Lista de errores",
+    "tabs": {
+      "sync": "Sincronización",
+      "backups": "Copias de seguridad",
+      "general": "General"
+    },
+    "no-issues": "No se han encontrado errores",
+    "actions": {
+      "select-folder": "Seleccionar carpeta",
+      "find-folder": "Buscar la carpeta",
+      "try-again": "Volver a intentar"
+    },
+    "short-error-messages": {
+      "unknown": "Error desconocido",
+      "emtpy-file": "El archivo está vacío",
+      "bad-response": "Error de los servidores de Internxt",
+      "no-remote-connection": "No pudimos conectar con los servidores de Internxt",
+      "no-internet-connection": "No hay conexión a Internet",
+      "no-permission": "Permisos insuficientes",
+      "file-does-not-exist": "El archivo no existe"
+    },
+    "error-messages": {
+      "no-internet": "No estás conectado a Internet, lo intentaremos más tarde",
+      "no-remote-connection": "No hemos podido conectar con los servidores de Internxt, lo intentaremos más tarde",
+      "cannot-get-current-listings": "No pudimos obtener el estado de tus archivos actuales, lo intentaremos más tarde",
+      "base-directory-does-not-exist": "No se pudo encontrar su carpeta de sincronización",
+      "insuficient-permision-accessing-base-directory": "Internxt App no tiene permiso para acceder a su carpeta de sincronización",
+      "cannot-access-base-directory": "No hemos podido acceder a su carpeta local",
+      "cannot-access-tmp-directory": "No hemos podido acceder a su carpeta local",
+      "unknown": "Error desconocido al intentar sincronizar sus archivos",
+      "empty-file": "No admitimos archivos con un tamaño de 0 bytes debido a nuestros procesos de cifrado",
+      "bad-response": "Error de servidor al procesar este archivo. Por favor, intente iniciar de nuevo el proceso de sincronización",
+      "file-does-not-exist": "Este archivo estaba presente cuando comparamos su carpeta local con su unidad Internxt, pero desapareció cuando intentamos acceder a él. Si has eliminado este archivo, no te preocupes, este error debería desaparecer la próxima vez que se inicie el proceso de sincronización"
+    },
+    "report-modal": {
+      "actions": {
+        "close": "Cerrar",
+        "cancel": "Cancelar",
+        "report": "Informar",
+        "send": "Enviar"
+      },
+      "help-url": "Para obtener ayuda, visita",
+      "report": "También puedes enviar un informe sobre este error",
+      "user-comments": "Comentarios",
+      "include-logs": "Incluir los registros de este proceso de sincronización con fines de solucionar el error"
+    }
+  }
+}

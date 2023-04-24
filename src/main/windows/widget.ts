@@ -15,6 +15,7 @@ export const createWidget = async () => {
     show: false,
     webPreferences: {
       preload: preloadPath,
+      nodeIntegration: true,
     },
     movable: false,
     frame: false,

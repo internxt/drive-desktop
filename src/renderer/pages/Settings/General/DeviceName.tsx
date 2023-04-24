@@ -3,9 +3,11 @@ import { UilCheck, UilMultiply, UilPen } from '@iconscout/react-unicons';
 import { motion } from 'framer-motion';
 import { DeviceContext } from '../../../context/DeviceContext';
 import Spinner from '../../../assets/spinner.svg';
+import { useTranslationContext } from '../../../context/LocalContext';
 
 const DEFAULT_DEVICE_NAME = 'Your Device';
 export default function DeviceName() {
+  const { translate } = useTranslationContext();
   const [deviceState, renameDevice] = useContext(DeviceContext);
 
   const [showEdit, setShowEdit] = useState(false);
@@ -27,14 +29,18 @@ export default function DeviceName() {
 
   return deviceState.status === 'ERROR' ? (
     <div>
-      <p className="select-none text-xs text-neutral-500">Device name</p>
+      <p className="select-none text-xs text-neutral-500">
+        {translate('settings.general.device.section')}
+      </p>
       <div className="mt-1 flex h-9 items-center">
         <p>{DEFAULT_DEVICE_NAME}</p>
       </div>
     </div>
   ) : (
     <div>
-      <p className="select-none text-xs text-neutral-500">Device name</p>
+      <p className="select-none text-xs text-neutral-500">
+        {translate('settings.general.device.section')}
+      </p>
       {deviceState.status === 'LOADING' ? (
         <>
           <Spinner className="mt-2 ml-5 h-6 w-6 animate-spin fill-neutral-500" />

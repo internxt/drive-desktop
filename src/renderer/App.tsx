@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { Suspense, useEffect, useRef } from 'react';
 import {
   HashRouter as Router,
   Routes,
@@ -15,6 +15,10 @@ import Onboarding from './pages/Onboarding';
 
 import './App.css';
 import { DeviceProvider } from './context/DeviceContext';
+
+import './localize/i18n.service';
+import { TranslationProvider } from './context/LocalContext';
+import useLanguageChangedListener from './hooks/useLanguage';
 
 function LocationWrapper({ children }: { children: JSX.Element }) {
   const { pathname } = useLocation();
@@ -47,27 +51,36 @@ function LoggedInWrapper({ children }: { children: JSX.Element }) {
   return children;
 }
 
+const Loader = () => <div>loading...</div>;
+
 export default function App() {
+
+  useLanguageChangedListener();
+
   return (
     <Router>
-      <LocationWrapper>
-        <LoggedInWrapper>
-          <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route path="/process-issues" element={<ProcessIssues />} />
-            <Route path="/onboarding" element={<Onboarding />} />
-            <Route
-              path="/settings"
-              element={
-                <DeviceProvider>
-                  <Settings />
-                </DeviceProvider>
-              }
-            />
-            <Route path="/" element={<Widget />} />
-          </Routes>
-        </LoggedInWrapper>
-      </LocationWrapper>
+      <Suspense fallback={<Loader />}>
+        <TranslationProvider>
+          <LocationWrapper>
+            <LoggedInWrapper>
+              <Routes>
+                <Route path="/login" element={<Login />} />
+                <Route path="/process-issues" element={<ProcessIssues />} />
+                <Route path="/onboarding" element={<Onboarding />} />
+                <Route
+                  path="/settings"
+                  element={
+                    <DeviceProvider>
+                      <Settings />
+                    </DeviceProvider>
+                  }
+                />
+                <Route path="/" element={<Widget />} />
+              </Routes>
+            </LoggedInWrapper>
+          </LocationWrapper>
+        </TranslationProvider>
+      </Suspense>
     </Router>
   );
 }

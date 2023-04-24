@@ -1,5 +1,16 @@
 declare interface Window {
   electron: {
+    query: typeof import('./app-info/service').executeQuery;
+
+    getConfigKey(key: import('./config/service').StoredValues): Promise<any>;
+
+    listenToConfigKeyChange<T>(
+      key: import('./config/service').StoredValues,
+      fn: (value: T) => void
+    ): () => void;
+
+    setConfigKey: typeof import('./config/service').setConfigKey;
+
     pathChanged(path: string): void;
 
     userIsUnauthorized(): void;
@@ -153,5 +164,9 @@ declare interface Window {
     >;
 
     userLogginFailed: (email: string) => void;
+
+    // DEV
+
+    resizeWindow: () => typeof import('../main/dev/service').resizeCurrentWindow;
   };
 }

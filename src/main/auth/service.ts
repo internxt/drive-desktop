@@ -7,8 +7,8 @@ import { User } from '../types';
 const TOKEN_ENCODING = 'latin1';
 
 const tokensKeys = ['bearerToken', 'newToken'] as const;
-type TokenKey = typeof tokensKeys[number];
-type EncryptedTokenKey = `${typeof tokensKeys[number]}Encrypted`;
+type TokenKey = (typeof tokensKeys)[number];
+type EncryptedTokenKey = `${(typeof tokensKeys)[number]}Encrypted`;
 
 export function encryptToken() {
   const bearerTokenEncrypted = ConfigStore.get('bearerTokenEncrypted');
@@ -197,8 +197,10 @@ function saveConfig() {
   });
 }
 
+const keepFields = ['preferedLanguage'];
+
 function resetConfig() {
   for (const field of fieldsToSave) {
-    ConfigStore.set(field, defaults[field]);
+    if (!keepFields.includes(field)) ConfigStore.set(field, defaults[field]);
   }
 }

@@ -1,6 +1,9 @@
+import { useTranslationContext } from '../../../context/LocalContext';
 import packageJson from '../../../../../package.json';
 
 export default function AppInfo({ className = '' }: { className: string }) {
+  const { translate } = useTranslationContext();
+
   return (
     <div className={`${className}`}>
       <p className="text-xs text-neutral-500">
@@ -11,7 +14,7 @@ export default function AppInfo({ className = '' }: { className: string }) {
         onClick={window.electron.openLogs}
         type="button"
       >
-        Open logs
+        {translate('settings.general.app-info.open-logs')}
       </button>
       <a
         className="block text-sm text-blue-60 hover:text-blue-70 active:text-blue-80"
@@ -19,7 +22,7 @@ export default function AppInfo({ className = '' }: { className: string }) {
         target="_blank"
         rel="noopener noreferrer"
       >
-        Learn more about Internxt Drive
+        {translate('settings.general.app-info.more')}
       </a>
     </div>
   );

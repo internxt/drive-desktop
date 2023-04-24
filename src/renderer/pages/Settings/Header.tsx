@@ -1,5 +1,6 @@
 import { UilSetting, UilAt, UilHistory } from '@iconscout/react-unicons';
 import { motion } from 'framer-motion';
+import { useTranslationContext } from '../../context/LocalContext';
 
 const sectionValues = ['GENERAL', 'ACCOUNT', 'BACKUPS'] as const;
 export type Section = (typeof sectionValues)[number];
@@ -11,6 +12,7 @@ export default function Header({
   onClick: (active: Section) => void;
   active: Section;
 }) {
+  const { translate } = useTranslationContext();
   const sections: {
     label: Section;
     icon: (props: { size: string }) => JSX.Element;
@@ -44,7 +46,7 @@ export default function Header({
           <Item
             key={section.label}
             Icon={section.icon}
-            title={section.label}
+            title={translate(`settings.header.section.${section.label}`)}
             onClick={() => onClick(section.label)}
             isActive={active === section.label}
           />

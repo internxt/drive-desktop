@@ -37,7 +37,11 @@ class Sync extends Process {
   constructor(
     protected readonly local: SyncFileSystem<LocalListing>,
     protected readonly remote: SyncFileSystem<RemoteListing>,
-    private readonly listingStore: ListingStore
+    private readonly listingStore: ListingStore,
+    private readonly oldFileSystems: {
+      remote: FileSystem;
+      local: FileSystem;
+    }
   ) {
     super(local, remote);
   }
@@ -134,6 +138,30 @@ class Sync extends Process {
     });
 
     await this.consumeFolderQueues(queues.folder);
+    const {
+      pullFromRemote: pullFoldersFromRemote,
+      pullFromLocal: pullFoldersFromLocal,
+    } = queues.folder;
+
+    Logger.debug(
+      'PULL FOLDERS: ',
+      JSON.stringify(pullFoldersFromRemote, null, 2),
+      JSON.stringify(pullFoldersFromLocal, null, 2)
+    );
+
+    const remoteFolderPullConsumer = new PullFolderQueueConsumer(
+      this.local,
+      this.remote,
+      this
+    );
+    const localFolderPullConsumer = new PullFolderQueueConsumer(
+      this.remote,
+      this.local,
+      this
+    );
+
+    await remoteFolderPullConsumer.consume(pullFoldersFromRemote);
+    await localFolderPullConsumer.consume(pullFoldersFromLocal);
 
     Logger.debug('Queue rename in local', renameInLocal);
     Logger.debug('Queue rename in remote', renameInRemote);
@@ -279,47 +307,45 @@ class Sync extends Process {
     Logger.debug('Current local before', currentLocal);
     Logger.debug('Current remote before', currentRemote);
 
-    const { itemsNotInLocal, itemsNotInRemote, filesWithDifferentModtime } =
-      this.getNewListingsDiff(currentLocal, currentRemote);
+    const {
+      filesNotInLocal: pullFromLocal,
+      filesNotInRemote: pullFromRemote,
+      filesWithDifferentModtime,
+    } = this.getListingsDiff(currentLocal, currentRemote);
 
     for (const name of filesWithDifferentModtime) {
       const localMetaData = currentLocal[name];
       const remoteMetadata = currentRemote[name];
 
-      if (remoteMetadata.isMoreRecentThan(localMetaData)){
-        if(remoteMetadata.isFolder) {
-          // UPDATE METADATA ???
-        } else {
-          itemsNotInLocal.push(remoteMetadata);
-        }
-      }
-      else {
-        if (localMetaData.isFolder) {
-          // UPDATE METADATA ???
-        } else {
-          itemsNotInRemote.push(localMetaData);
-        }
+      if (remoteMetadata.isMoreRecentThan(localMetaData)) {
+        // Local FS can update the modtime of a folder
+        pullFromRemote.push(name);
+      } else if (localMetaData.isFolder) {
+        // UPDATE METADATA
+        // Remote FS cannot update the modtime of a folder
+      } else {
+        pullFromLocal.push(name);
       }
     }
 
-    Logger.debug('Queue pull from local', itemsNotInRemote);
-    Logger.debug('Queue pull from remote', itemsNotInLocal);
+    Logger.debug('Queue pull from local', pullFromLocal);
+    Logger.debug('Queue pull from remote', pullFromRemote);
 
-    const pullFilesFromLocal = itemsNotInRemote
-      .filter((metadata: LocalItemMetaData) => !metadata.isFolder)
-      .map((metatada: LocalItemMetaData) => metatada.name);
+    // const pullFilesFromLocal = itemsNotInRemote
+    //   .filter((metadata: LocalItemMetaData) => !metadata.isFolder)
+    //   .map((metatada: LocalItemMetaData) => metatada.name);
 
-    const pullFilesFromRemote = itemsNotInLocal
-      .filter((metadata: RemoteItemMetaData) => !metadata.isFolder)
-      .map((metatada: RemoteItemMetaData) => metatada.name);
+    // const pullFilesFromRemote = itemsNotInLocal
+    //   .filter((metadata: RemoteItemMetaData) => !metadata.isFolder)
+    //   .map((metatada: RemoteItemMetaData) => metatada.name);
 
-    const pullFoldersFromLocal = itemsNotInRemote
-      .filter((metadata: LocalItemMetaData) => metadata.isFolder)
-      .map((metatada: LocalItemMetaData) => metatada.name);
+    // const pullFoldersFromLocal = itemsNotInRemote
+    //   .filter((metadata: LocalItemMetaData) => metadata.isFolder)
+    //   .map((metatada: LocalItemMetaData) => metatada.name);
 
-    const pullFoldersFromRemote = itemsNotInLocal
-      .filter((metadata: RemoteItemMetaData) => metadata.isFolder)
-      .map((metatada: RemoteItemMetaData) => metatada.name);
+    // const pullFoldersFromRemote = itemsNotInLocal
+    //   .filter((metadata: RemoteItemMetaData) => metadata.isFolder)
+    //   .map((metatada: RemoteItemMetaData) => metatada.name);
 
     const pullLocalFolderQueueConsumer = new PullFolderQueueConsumer(
       this.local,
@@ -340,6 +366,16 @@ class Sync extends Process {
     await Promise.all([
       this.consumePullQueue(pullFilesFromLocal, this.local, this.remote),
       this.consumePullQueue(pullFilesFromRemote, this.remote, this.local),
+      this.consumePullQueue(
+        pullFromLocal,
+        this.oldFileSystems.local,
+        this.remote
+      ),
+      this.consumePullQueue(
+        pullFromRemote,
+        this.oldFileSystems.remote,
+        this.local
+      ),
     ]);
 
     return this.finalize();
@@ -471,7 +507,7 @@ class Sync extends Process {
       return rest;
     } else {
       await this.listingStore.saveListing(result.diff.filesInSync);
-      return await this.generateResult();;
+      return await this.generateResult();
     }
   }
 }

@@ -8,7 +8,7 @@ const selectRootSyncFolder = async () => {
 
 export const syncErrorActions: FatalErrorActionMap = {
   CANNOT_ACCESS_BASE_DIRECTORY: {
-    name: 'Select folder',
+    name: 'issues.actions.select-folder',
     func: selectRootSyncFolder,
   },
   CANNOT_ACCESS_TMP_DIRECTORY: tryAgain,
@@ -16,7 +16,7 @@ export const syncErrorActions: FatalErrorActionMap = {
   NO_INTERNET: tryAgain,
   NO_REMOTE_CONNECTION: tryAgain,
   BASE_DIRECTORY_DOES_NOT_EXIST: {
-    name: 'Select folder',
+    name: 'issues.actions.select-folder',
     func: selectRootSyncFolder,
   },
   INSUFICIENT_PERMISION_ACCESSING_BASE_DIRECTORY: tryAgain,

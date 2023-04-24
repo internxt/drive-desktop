@@ -4,6 +4,7 @@ import { getProcessIssuesWindow } from './process-issues';
 import { getOnboardingWindow } from './onboarding';
 import { getWidget } from './widget';
 import eventBus from '../event-bus';
+import Logger from 'electron-log';
 
 function closeAuxWindows() {
   getProcessIssuesWindow()?.close();

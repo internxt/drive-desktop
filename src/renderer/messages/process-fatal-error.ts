@@ -1,18 +1,14 @@
 import { ProcessFatalErrorName } from '../../workers/types';
 
 const messages: Record<ProcessFatalErrorName, string> = {
-  NO_INTERNET:
-    "Looks like you are not connected to the internet, we'll try again later",
-  NO_REMOTE_CONNECTION:
-    "We could not connect to Internxt servers, we'll try again later",
-  CANNOT_GET_CURRENT_LISTINGS:
-    "We could not get the status of your current files, we'll try again later",
-  BASE_DIRECTORY_DOES_NOT_EXIST: 'Unable to find your sync folder',
-  INSUFICIENT_PERMISION_ACCESSING_BASE_DIRECTORY:
-    'Internxt App does not have permission to access your sync folder',
-  CANNOT_ACCESS_BASE_DIRECTORY: 'We could not access your local folder',
-  CANNOT_ACCESS_TMP_DIRECTORY: 'We could not access your  local folder',
-  UNKNOWN: 'An unknown error ocurred while trying to sync your files',
+  NO_INTERNET: "issues.error-messages.no-internet",
+  NO_REMOTE_CONNECTION: "issues.error-messages.no-remote-connection",
+  CANNOT_GET_CURRENT_LISTINGS: "issues.error-messages.cannot-get-current-listings",
+  BASE_DIRECTORY_DOES_NOT_EXIST: "issues.error-messages.base-directory-does-not-exist",
+  INSUFICIENT_PERMISION_ACCESSING_BASE_DIRECTORY: "issues.error-messages.insuficient-permision-accessing-base-directory",
+  CANNOT_ACCESS_BASE_DIRECTORY: "issues.error-messages.cannot-access-base-directory",
+  CANNOT_ACCESS_TMP_DIRECTORY: "issues.error-messages.cannot-access-tmp-directory",
+  UNKNOWN: "issues.error-messages.unknown",
 };
 
 export default messages;

@@ -33,6 +33,8 @@ import './tray';
 import './analytics/handlers';
 import './platform/handlers';
 import './thumbnails/handlers';
+import './config/handlers';
+import './app-info/handlers';
 
 Logger.log(`Running ${packageJson.version}`);
 

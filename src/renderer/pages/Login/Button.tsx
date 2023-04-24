@@ -1,3 +1,4 @@
+import { useTranslationContext } from '../../context/LocalContext';
 import Spinner from '../../assets/spinner.svg';
 
 type ButtonProps = {
@@ -11,6 +12,7 @@ export default function Button({
   className = '',
   tabIndex = 0,
 }: ButtonProps) {
+  const { translate } = useTranslationContext()
   let colors;
 
   switch (state) {
@@ -35,7 +37,7 @@ export default function Button({
       disabled={state !== 'ready'}
       tabIndex={tabIndex}
     >
-      {state === 'loading' ? 'Logging in...' : 'Login'}
+      {translate(state === 'loading' ? 'login.action.is-logging-in' : 'login.action.login')}
       {state === 'loading' && (
         <div className="absolute top-1/2 right-4 -translate-y-1/2 transform">
           <div className="animate-spin">

@@ -4,9 +4,10 @@ import { motion } from 'framer-motion';
 import { longMessages, shortMessages } from '../../messages/process-error';
 import Spinner from '../../assets/spinner.svg';
 import { ProcessIssue } from '../../../workers/types';
+import { useTranslationContext } from 'renderer/context/LocalContext';
 
 const posibleErrorStates = ['ERROR', 'TOO_MANY_REPORTS'] as const;
-type ErrorReportRequestState = typeof posibleErrorStates[number];
+type ErrorReportRequestState = (typeof posibleErrorStates)[number];
 type ReportRequestState = 'READY' | 'SENDING' | ErrorReportRequestState;
 
 const stateIsError = (maybe: unknown): maybe is ErrorReportRequestState =>
@@ -26,6 +27,10 @@ export function ReportModal({
   data: Pick<ProcessIssue, 'errorName' | 'errorDetails'> | null;
   onClose: () => void;
 }) {
+  const { translate, language } = useTranslationContext();
+
+  const reportingPhaseHeight = language === 'en' ? '273px' : '289px';
+
   const [height, setHeight] = useState(0);
 
   const measuredRef = useCallback((node) => {
@@ -43,12 +48,16 @@ export function ReportModal({
   const [includeLogs, setIncludeLogs] = useState(true);
   const [userComment, setUserComment] = useState('');
 
-  const dialogTitle = data ? shortMessages[data.errorName] : undefined;
-  const errorDescription = data ? longMessages[data.errorName] : undefined;
+  const dialogTitle = data
+    ? translate(shortMessages[data.errorName])
+    : undefined;
+  const errorDescription = data
+    ? translate(longMessages[data.errorName])
+    : undefined;
 
   const supportParagraph = (
     <>
-      To get help visit{' '}
+      {translate('issues.report-modal.help-url')}{' '}
       <a
         href="https://help.internxt.com"
         target="_blank"
@@ -57,7 +66,7 @@ export function ReportModal({
       >
         help.internxt.com
       </a>
-      .&nbsp; You can also send a report about this error.
+      .&nbsp; {translate('issues.report-modal.report')}
     </>
   );
 
@@ -122,7 +131,9 @@ export function ReportModal({
               variants={{
                 INITIAL: { height },
                 REPORTING: {
-                  height: stateIsError(requestState) ? '305px' : '273px',
+                  height: stateIsError(requestState)
+                    ? '305px'
+                    : reportingPhaseHeight,
                 },
               }}
               animate={phase}
@@ -143,7 +154,9 @@ export function ReportModal({
                 </div>
                 {phase === 'REPORTING' && (
                   <>
-                    <p className="mt-2 text-xs text-gray-50">Comments</p>
+                    <p className="mt-2 text-xs text-gray-50">
+                      {translate('issues.report-modal.user-comments')}
+                    </p>
                     <textarea
                       value={userComment}
                       onChange={(e) => setUserComment(e.target.value)}
@@ -156,7 +169,7 @@ export function ReportModal({
                         type="checkbox"
                       />
                       <p className="ml-1 text-xs text-gray-50">
-                        Include the logs of this sync process for debug purposes
+                        {translate('issues.report-modal.include-logs')}
                       </p>
                     </div>
                     {stateIsError(requestState) && (
@@ -175,7 +188,11 @@ export function ReportModal({
                     }
                     className="rounded-lg border border-l-neutral-30 px-4 py-1 text-sm text-gray-70 hover:bg-l-neutral-20 active:bg-l-neutral-30"
                   >
-                    {phase === 'INITIAL' ? 'Close' : 'Cancel'}
+                    {translate(
+                      phase === 'INITIAL'
+                        ? 'issues.report-modal.actions.close'
+                        : 'issues.report-modal.actions.cancel'
+                    )}
                   </button>
 
                   <button
@@ -189,7 +206,7 @@ export function ReportModal({
                     className="h-7 w-20 rounded-lg bg-blue-60 px-4 py-1 text-sm text-white hover:bg-blue-70 active:bg-blue-80 disabled:bg-blue-30"
                   >
                     {phase === 'INITIAL' ? (
-                      'Report'
+                      translate('issues.report-modal.actions.report')
                     ) : requestState === 'SENDING' ? (
                       <Spinner
                         className="mx-auto animate-spin fill-white"
@@ -197,7 +214,7 @@ export function ReportModal({
                         height="18"
                       />
                     ) : (
-                      'Send'
+                      translate('issues.report-modal.actions.send')
                     )}
                   </button>
                 </div>

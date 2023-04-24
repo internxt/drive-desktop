@@ -9,8 +9,10 @@ import useProcessIssues from '../../hooks/ProcessIssues';
 import useUsage from '../../hooks/Usage';
 import useBackupFatalErrors from '../../hooks/BackupFatalErrors';
 import useGeneralIssues from '../../hooks/GeneralIssues';
+import { useTranslationContext } from '../../context/LocalContext';
 
 export default function Header() {
+  const { translate } = useTranslationContext();
   const processIssues = useProcessIssues();
   const generalIssues = useGeneralIssues();
   const backupFatalErrors = useBackupFatalErrors();
@@ -22,7 +24,7 @@ export default function Header() {
 
   /* Electron on MacOS kept focusing the first focusable
   element on start so we had to create a dummy element
-  to get that focus, remove it and make itself 
+  to get that focus, remove it and make itself
   non-focusable */
   const dummyRef = useRef<HTMLDivElement>(null);
 
@@ -57,7 +59,7 @@ export default function Header() {
               onClick={() => window.electron.openSettingsWindow()}
             >
               <DropdownItem active={active}>
-                <span>Preferences</span>
+                <span>{translate('widget.header.dropdown.preferences')}</span>
               </DropdownItem>
             </div>
           )}
@@ -72,7 +74,7 @@ export default function Header() {
             >
               <DropdownItem active={active}>
                 <div className="flex items-baseline justify-between">
-                  <p>Issues</p>
+                  <p>{translate('widget.header.dropdown.issues')}</p>
                   {numberOfIssues > 0 && (
                     <p className="ml-4 text-xs font-semibold text-red-60">
                       {numberOfIssuesDisplay}
@@ -92,7 +94,7 @@ export default function Header() {
               rel="noopener noreferrer"
             >
               <DropdownItem active={active}>
-                <span>Support</span>
+                <span>{translate('widget.header.dropdown.support')}</span>
               </DropdownItem>
             </a>
           )}
@@ -106,7 +108,7 @@ export default function Header() {
               onClick={window.electron.logout}
             >
               <DropdownItem active={active}>
-                <span>Log out</span>
+                <span>{translate('widget.header.dropdown.logout')}</span>
               </DropdownItem>
             </div>
           )}
@@ -121,7 +123,7 @@ export default function Header() {
               className="border-t border-t-l-neutral-30"
             >
               <DropdownItem active={active}>
-                <span>Quit</span>
+                <span>{translate('widget.header.dropdown.quit')}</span>
               </DropdownItem>
             </div>
           )}
@@ -178,6 +180,7 @@ export default function Header() {
 }
 
 function AccountSection() {
+  const { translate } = useTranslationContext();
   const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
@@ -199,7 +202,7 @@ function AccountSection() {
     usageDisplayElement = (
       <p className="text-xs text-neutral-500">{`${bytes.format(
         rawUsage.usageInBytes
-      )} of ${
+      )} ${translate('widget.header.usage.of')} ${
         rawUsage.isInfinite ? '∞' : bytes.format(rawUsage.limitInBytes)
       }`}</p>
     );
@@ -216,7 +219,7 @@ function AccountSection() {
             rel="noreferrer noopener"
             className="ml-1 rounded-sm text-xs text-blue-60 outline-none hover:text-blue-70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-0 focus-visible:ring-offset-blue-60 active:text-blue-80"
           >
-            Upgrade
+            {translate('widget.header.usage.upgrade')}
           </a>
         )}
       </div>

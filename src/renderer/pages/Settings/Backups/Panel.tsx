@@ -7,6 +7,7 @@ import useBackupStatus from '../../../hooks/BackupStatus';
 import Dropdown from './Dropdown';
 import { BackupProgress } from '../../../../main/background-processes/backups';
 import { getPercentualProgress } from '../../../utils/backups-progress';
+import { useTranslationContext } from '../../../context/LocalContext';
 
 dayjs.extend(relativeTime);
 
@@ -21,6 +22,9 @@ export default function BackupsPanel({
   const [backupProgress, setBackupProgress] = useState<null | BackupProgress>(
     null
   );
+  const { translate, language } = useTranslationContext();
+
+  dayjs.locale(language);
 
   const backupStatus = useBackupStatus();
 
@@ -72,20 +76,20 @@ export default function BackupsPanel({
       <div className="flex items-baseline space-x-2">
         <Checkbox
           value={backupsEnabled}
-          label="Back up your folders and files"
+          label={translate('settings.backups.activate')}
           onClick={onBackupsEnabledClicked}
         />
         <a
-          className="text-xs font-medium text-blue-60 underline"
+          className="text-right text-xs font-medium text-blue-60 underline"
           href="https://drive.internxt.com/app/backups"
           target="_blank"
           rel="noopener noreferrer"
         >
-          View your backups
+          {translate('settings.backups.view-backups')}
         </a>
       </div>
       <Button className="mt-2" onClick={onGoToList}>
-        Select folders to backup
+        {translate('settings.backups.select-folders')}
       </Button>
       <div className="flex items-baseline">
         <Button
@@ -98,17 +102,25 @@ export default function BackupsPanel({
               : window.electron.stopBackupsProcess
           }
         >
-          {backupStatus === 'STANDBY' ? 'Backup now' : 'Stop backup'}
+          {translate(
+            `settings.backups.action.${
+              backupStatus === 'STANDBY' ? 'start' : 'stop'
+            }`
+          )}
         </Button>
         <p className="ml-3 text-xs text-m-neutral-100">
           {backupStatus === 'STANDBY'
             ? lastBackupTimestamp !== -1
-              ? `Last updated ${dayjs(lastBackupTimestamp).fromNow()}`
+              ? `${translate('settings.backups.action.last-run')} ${dayjs(
+                  lastBackupTimestamp
+                ).fromNow()}`
               : ''
             : `Backup in progress ${progressDisplay}`}
         </p>
       </div>
-      <p className="mt-6 text-xs text-neutral-500">Upload frequency</p>
+      <p className="mt-6 text-xs text-neutral-500">
+        {translate('settings.backups.frequency.title')}
+      </p>
       <Dropdown value={backupsInterval} onChange={onBackupsIntervalChanged} />
     </>
   );
