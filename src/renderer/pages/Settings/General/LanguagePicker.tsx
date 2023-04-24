@@ -10,19 +10,19 @@ import useConfig from '../../../hooks/useConfig';
 const languages: Array<DropdownElement<Language>> = [
   {
     id: 'en',
-    translationKey: 'settings.general.language.avaliable.en',
+    text: 'English (United States)',
     value: 'en',
   },
   {
     id: 'es',
-    translationKey: 'settings.general.language.avaliable.es',
+    text: 'Español (España)',
     value: 'es',
   },
   {
     id: 'fr',
-    translationKey: 'settings.general.language.avaliable.fr',
+    text: 'Français (France)',
     value: 'fr',
-  }
+  },
 ];
 
 export default function LanguagePicker(): JSX.Element {

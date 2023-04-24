@@ -6,7 +6,7 @@ import { useTranslationContext } from '../context/LocalContext';
 
 export type DropdownElement<T> = {
   id: string,
-  translationKey: string,
+  text: string,
   value: T,
 }
 
@@ -32,9 +32,9 @@ export default function Dropdown<T>({
     <Listbox value={selected} onChange={changeWhenIsDifferent}>
       {({ open }) => (
         <div className="relative mt-2">
-          <Listbox.Button className="w-fit cursor-pointer rounded-md border border-l-neutral-40 bg-white py-1 px-2 text-left drop-shadow-sm">
+          <Listbox.Button className="w-fit cursor-pointer rounded-md border border-l-neutral-40 bg-white px-2 py-1 text-left drop-shadow-sm">
             <span className="justify-betweenblock flex w-full flex-row truncate text-sm text-neutral-500">
-              {translate(selected.translationKey)}
+              {translate(selected.text)}
               <CaretDown size={20} className="ml-1" />
             </span>
           </Listbox.Button>
@@ -47,7 +47,10 @@ export default function Dropdown<T>({
             leaveTo="scale-95 opacity-0"
             unmount={false}
           >
-            <Listbox.Options className="absolute bottom-full max-h-60 w-fit transform overflow-auto rounded-md border border-l-neutral-40 bg-white p-1 text-sm shadow-lg transition duration-150 ease-in-out">
+            <Listbox.Options
+              static
+              className="absolute bottom-full max-h-60 w-fit transform overflow-auto rounded-md border border-l-neutral-40 bg-white p-1 text-sm shadow-lg transition duration-150 ease-in-out"
+            >
               {options.map((opt) => (
                 <Listbox.Option
                   key={opt.id}
@@ -60,7 +63,7 @@ export default function Dropdown<T>({
                   {({ selected }) => (
                     <>
                       <span className="block truncate">
-                        {translate(opt.translationKey)}
+                        {translate(opt.text)}
                       </span>
                       {selected ? (
                         <span className="absolute inset-y-0 left-0 flex items-center pl-1">
