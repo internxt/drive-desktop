@@ -5,6 +5,7 @@ import useSyncStatus from '../../hooks/SyncStatus';
 import useSyncStopped from '../../hooks/SyncStopped';
 import { SyncStatus } from '../../../main/background-processes/sync';
 import { ProcessFatalErrorName } from '../../../workers/types';
+import { useTranslationContext } from '../../context/LocalContext';
 
 const fatalErrorActionMap: Record<
   ProcessFatalErrorName,
@@ -34,6 +35,7 @@ const fatalErrorActionMap: Record<
 
 export default function SyncErrorBanner() {
   const [stopReason, setStopReason] = useSyncStopped();
+  const { translate } = useTranslationContext();
 
   function onSyncStatusChanged(value: SyncStatus) {
     if (value === 'RUNNING') setStopReason(null);
@@ -73,7 +75,7 @@ export default function SyncErrorBanner() {
       }`}
     >
       <Icon className="h-5 w-5" />
-      <p className="ml-2 mb-0">{message}</p>
+      <p className="mb-0 ml-2">{translate(message)}</p>
       {action && (
         <span
           onClick={action.func}
