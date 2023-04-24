@@ -59,7 +59,6 @@ export function addGeneralIssue(issue: GeneralIssue) {
 }
 
 ipcMain.on('SYNC_INFO_UPDATE', (_, payload: ProcessInfoUpdatePayload) => {
-  Logger.debug('payload: ', payload, _);
   if (
     [
       'PULL_ERROR',
