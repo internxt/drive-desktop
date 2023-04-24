@@ -14,8 +14,6 @@ import { getUser } from '../../main/auth/service';
 import configStore from '../../main/config';
 import { getClients } from '../../shared/HttpClient/backgroud-process-clients';
 import { ConfigFileListingStore } from './Listings/infrastructure/ConfigFileListingStore';
-import { getRemoteFilesystem as getOldRemoteFilesystem } from '../../workers/filesystems/remote-filesystem';
-import { getLocalFilesystem as getOldLocalFilesystem } from '../../workers/filesystems/local-filesystem';
 
 export type SyncArgs = {
   localPath: string;
@@ -68,6 +66,7 @@ async function setUp() {
     userInfo: user,
     clients,
   });
+
   const local = getLocalFilesystem(localPath, tmpPath);
 
   const listingStore = new ConfigFileListingStore(configStore);
@@ -115,12 +114,7 @@ async function setUp() {
     });
 
     if (fileId && kind === 'REMOTE') {
-      await ipcRenderer.invoke(
-        'REMOTE_FILE_PULL_COMPLETED',
-        name,
-        fileId
-      );
-
+      await ipcRenderer.invoke('REMOTE_FILE_PULL_COMPLETED', name, fileId);
     }
   });
 
@@ -266,7 +260,8 @@ async function setUp() {
   try {
     Logger.debug('SYNC STARTING ');
     const result = await sync.run();
-    ipcRenderer.send('SYNC_EXIT', JSON.parse(JSON.stringify(result)));
+    Logger.log('Sync done, result: ', JSON.stringify(result, null, 2));
+    ipcRenderer.send('SYNC_EXIT', result);
   } catch (err) {
     if (err instanceof ProcessFatalError) {
       Logger.error(

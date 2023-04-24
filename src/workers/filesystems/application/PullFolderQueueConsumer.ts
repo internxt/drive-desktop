@@ -10,8 +10,8 @@ export class PullFolderQueueConsumer {
   private static readonly MAX_CALLS_PER_LEVEL = 10;
 
   constructor(
-    private readonly originFileSystem: FileSystem<PartialListing>,
-    private readonly destinationFileSystem: FileSystem<PartialListing>,
+    private readonly origin: FileSystem<PartialListing>,
+    private readonly destination: FileSystem<PartialListing>,
     private readonly eventEmiter: EventEmitter
   ) {}
 
@@ -50,22 +50,14 @@ export class PullFolderQueueConsumer {
       this.eventEmiter.emit(
         'PULLING_FOLDER',
         folderName,
-        this.destinationFileSystem.kind
+        this.destination.kind
       );
 
-      const folderMetaData = await this.originFileSystem.getFolderMetadata(
-        folderName
-      );
+      const { modtime } = await this.origin.getFolderData(folderName);
 
-      if(!folderMetaData) return;
+      await this.destination.pullFolder(folderName, modtime);
 
-      await this.destinationFileSystem.pullFolder(folderMetaData);
-
-      this.eventEmiter.emit(
-        'FOLDER_PULLED',
-        folderName,
-        this.destinationFileSystem.kind
-      );
+      this.eventEmiter.emit('FOLDER_PULLED', folderName, this.destination.kind);
     };
     try {
       const tasks = queuesByLevel.map(
@@ -77,20 +69,17 @@ export class PullFolderQueueConsumer {
               pullFolder
             );
           } catch (err: unknown) {
-
-            if (err && typeof err === 'object' && 'message' in err) {
-              return Promise.reject(
-                new Error(
-                  `The error ${err.message} occured creating a folder of the level: ${level}`
-                )
-              );
-            }
-
+            Logger.error(err);
+            return Promise.reject(
+              new Error(
+                `An error occured creating a folder of the level: ${level}`
+              )
+            );
           }
         }
       );
 
-      await async.series<unknown, unknown, unknown>(tasks).catch(Logger.error);
+      await async.series<unknown, unknown>(tasks).catch(Logger.error);
     } catch (err) {
       Logger.error(err);
     }

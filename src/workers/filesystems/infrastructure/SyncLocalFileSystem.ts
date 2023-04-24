@@ -3,7 +3,7 @@ import glob from 'tiny-glob';
 import path from 'path';
 import * as uuid from 'uuid';
 import Logger from 'electron-log';
-import { constants, createReadStream, createWriteStream } from 'fs';
+import { constants, createReadStream, createWriteStream, fstat } from 'fs';
 import ignore from 'ignore';
 import { pipeline } from 'stream/promises';
 import { fileNameIsValid } from '../../utils/name-verification';
@@ -19,7 +19,6 @@ import ignoredFiles from '../../../../ignored-files.json';
 import { FileSystem } from '../domain/FileSystem';
 import { LocalListing } from '../../sync/Listings/domain/Listing';
 import { LocalItemMetaData } from '../../sync/Listings/domain/LocalItemMetaData';
-import { RemoteItemMetaData } from '../../sync/Listings/domain/RemoteItemMetaData';
 
 export function getLocalFilesystem(
   localPath: string,
@@ -82,11 +81,10 @@ export function getLocalFilesystem(
     return absolutePath;
   }
 
-  async function getLocalMeta(
-    itemPath: string
-  ): Promise<LocalItemMetaData> {
-
-    const absolutePath = path.isAbsolute(itemPath) ? itemPath : getItemAbsolutePath(itemPath);
+  async function getLocalMeta(itemPath: string): Promise<LocalItemMetaData> {
+    const absolutePath = path.isAbsolute(itemPath)
+      ? itemPath
+      : getItemAbsolutePath(itemPath);
 
     if (!path.isAbsolute(absolutePath)) {
       throw new Error(
@@ -105,6 +103,14 @@ export function getLocalFilesystem(
       isFolder: stat.isDirectory(),
       name: relativeName,
       absolutePath: itemPath,
+    });
+  }
+
+  async function exists(pathname: string): Promise<boolean> {
+    return new Promise(async (resolve) => {
+      await fs.stat(pathname).catch(() => resolve(false));
+
+      resolve(true);
     });
   }
 
@@ -233,16 +239,16 @@ export function getLocalFilesystem(
       }
     },
 
-    async pullFolder(folderMetaData: RemoteItemMetaData): Promise<void> {
-      const { name, modtime } = folderMetaData;
+    async pullFolder(name, modtime): Promise<void> {
       const osSpecificRelative = name.replaceAll('/', path.sep);
-      const fullPath = path.join(
-        localPath,
-        osSpecificRelative,
-        folderMetaData.name
-      );
+      const fullPath = path.join(localPath, osSpecificRelative);
 
-      await fs.mkdir(fullPath, { recursive: true });
+      const alreadyExists = await exists(fullPath);
+
+      if (!alreadyExists) {
+        await fs.mkdir(fullPath);
+      }
+
       await fs.utimes(fullPath, modtime, modtime);
     },
 
@@ -372,16 +378,14 @@ export function getLocalFilesystem(
       }
     },
 
-    async getFolderMetadata(fullPath: string): Promise<LocalItemMetaData> {
-      const meta = await getLocalMeta(fullPath);
+    async getFolderData(folderName) {
+      const osSpecificRelative = folderName.replaceAll('/', path.sep);
+      const fullPath = path.join(localPath, osSpecificRelative);
+      const folderStats = await fs.stat(fullPath);
 
-      const metaWithoutFullPath = LocalItemMetaData.from({
-        ...meta.toJSON(),
-        name: fullPath.split(localPath)[0],
-        absolutePath: fullPath,
-      });
-
-      return metaWithoutFullPath;
+      return {
+        modtime: Math.trunc(folderStats.mtimeMs / 1000),
+      };
     },
   };
 }

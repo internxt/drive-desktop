@@ -26,25 +26,23 @@ import { RemoteListing } from '../../sync/Listings/domain/Listing';
 import { RemoteItemMetaData } from '../../sync/Listings/domain/RemoteItemMetaData';
 import { FileCreatedResponseDTO } from '../../../shared/HttpClient/responses/file-created';
 import { TransferLimits } from '../domain/Transfer';
-import { LocalItemMetaData } from '../../sync/Listings/domain/LocalItemMetaData';
+
+type CacheData = {
+  id: number;
+  parentId: number;
+  isFolder: boolean;
+  bucket: string | null;
+  fileId?: string;
+  modificationTime?: number;
+  size?: number;
+};
 
 /**
  * Server cannot find a file given its route,
  * while we traverse the tree we also store in a cache
  * the info of every file by its route so we can operate with them
  */
-type RemoteCache = Record<
-  string,
-  {
-    id: number;
-    parentId: number;
-    isFolder: boolean;
-    bucket: string | null;
-    fileId?: string;
-    modificationTime?: number;
-    size?: number;
-  }
->;
+type RemoteCache = Record<string, CacheData>;
 
 export function getRemoteFilesystem({
   baseFolderId,
@@ -209,6 +207,7 @@ export function getRemoteFilesystem({
             parentId: folder.parent_id as number,
             isFolder: true,
             bucket: folder.bucket,
+            modificationTime: getSecondsFromDateString(folder.updated_at),
           };
           traverse(folder.id, `${name}/`);
         });
@@ -277,7 +276,7 @@ export function getRemoteFilesystem({
           `${process.env.API_URL}/api/storage/file/${fileInCache.fileId}/meta`,
           {
             method: 'POST',
-            headers: { ...headers, 'internxt-mnemonic': mnemonic },
+            headers,
             body: JSON.stringify({
               metadata: { itemName: newNameBase },
               bucketId: fileInCache.bucket,
@@ -559,11 +558,7 @@ export function getRemoteFilesystem({
       return Promise.reject();
     },
 
-    async pullFolder(folderMetaData: LocalItemMetaData): Promise<void> {
-      const { name } = folderMetaData;
-
-      Logger.debug('NAME:', name);
-
+    async pullFolder(name: string, _modtime: number): Promise<void> {
       const route = name.split('/');
 
       const n = route.at(-1);
@@ -577,7 +572,7 @@ export function getRemoteFilesystem({
       const lastParentId =
         folderInCache !== undefined ? folderInCache.id : baseFolderId;
 
-      httpRequest(`${process.env.API_URL}/api/storage/folder`, {
+      await httpRequest(`${process.env.API_URL}/api/storage/folder`, {
         method: 'POST',
         headers,
         body: JSON.stringify({
@@ -661,6 +656,27 @@ export function getRemoteFilesystem({
           `folderInCache: ${JSON.stringify(folderInCache, null, 2)}`
         );
       }
+    },
+
+    getFolderData(folderName: string) {
+      const folder = cache[folderName];
+
+      Logger.debug('CACHE: ', JSON.stringify(cache, null, 2));
+      Logger.debug('FOLDER: ', JSON.stringify(folder, null, 2));
+      Logger.debug('FOLDER name: ', folderName);
+
+      if (!folder.isFolder) {
+        throw new Error('[SYNC REMOTE FS] Item is not a folder');
+      }
+
+      if (!folder.modificationTime) {
+        // The end point for creating folders do not accept the modification time
+        // and the update metada endpoint only workd for changing the name
+        // so until the cache gets refreshed its undefined
+        throw new Error('[SYNC REMOTE FS] Folder has no modificationTime');
+      }
+
+      return Promise.resolve({ modtime: folder.modificationTime });
     },
 
     getSource(
@@ -750,54 +766,6 @@ export function getRemoteFilesystem({
           )
         );
       }
-    },
-
-    async getFolderMetadata(name): Promise<RemoteItemMetaData | null> {
-      const cachedFolder = cache[name];
-
-      Logger.debug('FOLDER IN CACHE:', cachedFolder);
-
-      if (!cachedFolder)
-        throw new Error('Could not obtain folder info in the cache');
-
-      const obtainFolderMetadata = async (parentId: number, id: number) => {
-        const res = await httpRequest(
-          `${process.env.API_URL}/api/storage/v2/folder/${parentId}`,
-          { headers }
-        );
-
-        const body = await res.json();
-
-        Logger.debug('N FOLDERS: ', body.children.length);
-
-        return body.children.find((raw: any) => {
-          Logger.debug(JSON.stringify(raw), id);
-          return raw.id === id;
-        });
-      };
-
-      const serverFolder = await obtainFolderMetadata(
-        cachedFolder.parentId,
-        cachedFolder.id
-      );
-
-      if (!serverFolder) return null;
-
-      const modtime = getSecondsFromDateString(serverFolder.updatedAt);
-
-      const metada = RemoteItemMetaData.from({
-        modtime,
-        size: 0,
-        id: serverFolder.id,
-        name: serverFolder.plain_name as string,
-        isFolder: true,
-      });
-
-      Logger.debug('FOLDER METADATA: ', metada);
-
-      folderCache[serverFolder.plain_name as string] = metada;
-
-      return Promise.resolve(metada);
     },
   };
 }
