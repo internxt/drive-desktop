@@ -26,7 +26,7 @@ import { RemoteListing } from '../../sync/Listings/domain/Listing';
 import { RemoteItemMetaData } from '../../sync/Listings/domain/RemoteItemMetaData';
 import { FileCreatedResponseDTO } from '../../../shared/HttpClient/responses/file-created';
 import { TransferLimits } from '../domain/Transfer';
-import { LocalItemMetaData } from 'workers/sync/Listings/domain/LocalItemMetaData';
+import { LocalItemMetaData } from '../../sync/Listings/domain/LocalItemMetaData';
 
 /**
  * Server cannot find a file given its route,

@@ -72,19 +72,19 @@ async function setUp() {
 
   const listingStore = new ConfigFileListingStore(configStore);
 
-  const oldFileSystems = {
-    remote: getOldRemoteFilesystem({
-      baseFolderId: folderId,
-      headers,
-      bucket: user?.bucket,
-      mnemonic: configStore.get('mnemonic'),
-      userInfo: user,
-      clients,
-    }),
-    local: getOldLocalFilesystem(localPath, tmpPath),
-  };
+  // const oldFileSystems = {
+  //   remote: getOldRemoteFilesystem({
+  //     baseFolderId: folderId,
+  //     headers,
+  //     bucket: user?.bucket,
+  //     mnemonic: configStore.get('mnemonic'),
+  //     userInfo: user,
+  //     clients,
+  //   }),
+  //   local: getOldLocalFilesystem(localPath, tmpPath),
+  // };
 
-  const sync = new Sync(local, remote, listingStore, oldFileSystems);
+  const sync = new Sync(local, remote, listingStore);
 
   sync.on('SMOKE_TESTING', () => Logger.log('Smoke testing'));
 
