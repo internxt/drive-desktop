@@ -38,6 +38,11 @@ export class KeepMostRecentActionBuilder extends ActionBuilder {
       return;
     }
 
+    if (this.actual.listing.isFolder || this.mirror.listing.isFolder) {
+      // Remote FS cannot update the modification time
+      return;
+    }
+
     const posibleDeltas: Array<Delta> = ['NEW', 'NEWER', 'OLDER'];
 
     for (const delta of posibleDeltas) {
