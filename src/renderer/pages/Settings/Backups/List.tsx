@@ -124,7 +124,7 @@ export default function BackupsList({
           <p className="text-sm text-red-50">We could not load your backups</p>
         ) : (
           <p className="text-sm text-l-neutral-50">
-            {translate('settings.backupsfolders.no-folders')}
+            {translate('settings.backups.folders.no-folders')}
           </p>
         )}
       </div>
