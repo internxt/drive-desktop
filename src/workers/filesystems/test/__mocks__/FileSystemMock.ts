@@ -24,6 +24,8 @@ export class FileSystemMock implements FileSystem<PartialListing> {
 
   private mockGetSource = jest.fn();
 
+  public mockGetFolderData = jest.fn();
+
   private mockSmokeTest = jest.fn();
 
   public kind: FileSystemKind = 'LOCAL';
@@ -68,6 +70,10 @@ export class FileSystemMock implements FileSystem<PartialListing> {
     progressCallback: FileSystemProgressCallback
   ): Promise<Source> {
     return this.mockGetSource(name, progressCallback);
+  }
+
+  getFolderData(folderFullPath: string): Promise<{ modtime: number; }> {
+    return this.mockGetFolderData(folderFullPath);
   }
 
   smokeTest(): Promise<void> {

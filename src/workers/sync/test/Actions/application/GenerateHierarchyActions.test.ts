@@ -640,10 +640,10 @@ describe('actions generation', () => {
         queues.folder;
 
       expect(pullFromLocal.sort()).toEqual(
-        ['c', 'g', 'i', 'n', 'k', 'o', 'q', 's'].sort()
+        ['g', 'i', 'k', 'o', 'q', 's'].sort()
       );
       expect(pullFromRemote.sort()).toEqual(
-        ['a', 'b', 'e', 'd', 'f', 'm', 'l'].sort()
+        ['b', 'e', 'd', 'f', 'm', 'l'].sort()
       );
 
       expect(deleteInLocal).toEqual(['p']);

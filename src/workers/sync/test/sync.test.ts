@@ -173,7 +173,7 @@ describe('sync tests', () => {
       },
     };
 
-    const sync = new Sync(local, remote, listingStore());
+    const sync = new Sync(local, remote, listingStore(), {remote, local});
 
     const {
       smokeTestingCB,
