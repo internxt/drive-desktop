@@ -38,7 +38,16 @@ export class KeepMostRecentActionBuilder extends ActionBuilder {
       return;
     }
 
-    if (this.actual.listing.isFolder || this.mirror.listing.isFolder) {
+
+
+    if(this.actual.listing === undefined) {
+      console.log(JSON.stringify(this.actual.listing));
+    }
+
+    if (
+      this.actual.listing !== undefined && this.actual?.listing.isFolder &&
+      this.mirror?.listing.isFolder
+    ) {
       // Remote FS cannot update the modification time
       return;
     }
