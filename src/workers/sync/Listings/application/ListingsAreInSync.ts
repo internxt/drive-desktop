@@ -9,9 +9,13 @@ export function listingsAreInSync(
 
     if (!remoteListing) return false;
 
+    if (localListing.isFolder) {
+      return true;
+    }
+
     return (
       localListing.isFolder === remoteListing.isFolder &&
-      localListing.size === remoteListing.size &&
+      localListing.size == remoteListing.size &&
       localListing.modtime === remoteListing.modtime
     );
   });
