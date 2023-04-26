@@ -122,9 +122,7 @@ function processSyncItem(item: SyncArgs, hasBeenStopped: { value: boolean }) {
           payload.reason === 'FATAL_ERROR' ? payload.errorName : ''
         } ${payload.reason === 'EXIT' ? payload.result.status : ''}`
       );
-      for (const func of onExitFuncs) {
-        await func();
-      }
+      Promise.allSettled(onExitFuncs.map(fn => fn()))
       broadcastToWindows('sync-stopped', payload);
 
       resolve();

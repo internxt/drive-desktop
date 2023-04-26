@@ -26,7 +26,8 @@ import { RemoteListing } from '../../sync/Listings/domain/Listing';
 import { RemoteItemMetaData } from '../../sync/Listings/domain/RemoteItemMetaData';
 import { FileCreatedResponseDTO } from '../../../shared/HttpClient/responses/file-created';
 import { TransferLimits } from '../domain/Transfer';
-import { abort } from 'process';
+import { ActionState } from '@internxt/inxt-js/build/api/ActionState';
+import { Events } from '@internxt/inxt-js/build/lib/core';
 
 type CacheData = {
   id: number;
@@ -367,7 +368,8 @@ export function getRemoteFilesystem({
 
           abortSignal.addEventListener('abort', () => {
             Logger.debug(`[SYNC REMOTE FS] Aborting upload for ${name}`);
-            localUpload.uploadCancel(state);
+            // localUpload.uploadCancel(state);
+            // state.emit(Events.Upload.Abort);
           });
 
         } else {

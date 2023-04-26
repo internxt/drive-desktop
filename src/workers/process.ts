@@ -74,10 +74,11 @@ abstract class Process extends EventEmitter {
     >,
     srcFs: Pick<FileSystem | NewFileSystem<PartialListing>, 'getSource'>
   ): Promise<void> {
-    const streams: Array<Readable> = [];
+    const controllers: Array<AbortController> = [];
 
     this.on('LOST_CONNECTION', () => {
-      // streams.forEach((stream) => stream.destroy(new Error('LOST_CONNECTION')));
+      Logger.log('[PROCESS] Aborting upload');
+      controllers.every((controller) => controller.abort('LOST_CONNECTION'));
     });
 
     for (const name of queue) {
@@ -88,14 +89,9 @@ abstract class Process extends EventEmitter {
       try {
         const source = await srcFs.getSource(name, progressCallback);
 
-        streams.push(source.stream);
-
         const abortController = new AbortController();
 
-        this.on('LOST_CONNECTION', () => {
-          Logger.log('[PROCESS] Aborting upload')
-          abortController.abort('LOST_CONNECTION');
-        });
+        controllers.push(abortController);
 
         const id = await destFs.pullFile(
           name,
