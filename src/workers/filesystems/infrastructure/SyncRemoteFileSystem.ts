@@ -26,6 +26,7 @@ import { RemoteListing } from '../../sync/Listings/domain/Listing';
 import { RemoteItemMetaData } from '../../sync/Listings/domain/RemoteItemMetaData';
 import { FileCreatedResponseDTO } from '../../../shared/HttpClient/responses/file-created';
 import { TransferLimits } from '../domain/Transfer';
+import { abort } from 'process';
 
 type CacheData = {
   id: number;
@@ -286,7 +287,8 @@ export function getRemoteFilesystem({
     async pullFile(
       name: string,
       source: Source,
-      progressCallback: (progress: number) => void
+      progressCallback: (progress: number) => void,
+      abortSignal: AbortSignal
     ): Promise<number> {
       const { size, modTime: modTimeInSeconds } = source;
       const route = name.split('/');
@@ -317,6 +319,7 @@ export function getRemoteFilesystem({
         encryptionKey: mnemonic,
       });
 
+
       if (source.size > TransferLimits.UploadFileSize) {
         throw new ProcessError(
           'FILE_TOO_BIG',
@@ -328,15 +331,10 @@ export function getRemoteFilesystem({
         );
       }
 
-      const abortController = new AbortController();
 
-      const abort = new Promise((_, reject) => {
-        abortController.signal.addEventListener('abort', reject);
-      })
-
-      const upload = await new Promise((resolve, reject) => {
+      const uploadedFileId: string = await new Promise((resolve, reject) => {
         if (source.size > TransferLimits.MultipartUploadThreshold) {
-          localUpload.uploadMultipartFile(bucket, {
+          const state = localUpload.uploadMultipartFile(bucket, {
             progressCallback,
             finishedCallback: async (err: any, fileId: string | null) => {
               if (err) {
@@ -366,6 +364,12 @@ export function getRemoteFilesystem({
             fileSize: source.size,
             source: source.stream,
           });
+
+          abortSignal.addEventListener('abort', () => {
+            Logger.debug(`[SYNC REMOTE FS] Aborting upload for ${name}`);
+            localUpload.uploadCancel(state);
+          });
+
         } else {
           localUpload.upload(bucket, {
             progressCallback,
@@ -399,11 +403,6 @@ export function getRemoteFilesystem({
           });
         }
       });
-
-      const uploadedFileId: string = Promise.race([
-        upload,
-        abort,
-      ]) as unknown as string;
 
       const oldFileInCache = cache[name];
 
