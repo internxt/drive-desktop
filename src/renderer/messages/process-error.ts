@@ -10,6 +10,7 @@ export const shortMessages: ProcessErrorMessages = {
   BAD_RESPONSE: 'issues.short-error-messages.bad-response',
   EMPTY_FILE: 'issues.short-error-messages.empty-file',
   UNKNOWN: 'issues.short-error-messages.unknown',
+  FILE_TOO_BIG: 'issues.short-error-messages.file-too-big',
 };
 
 export const longMessages: ProcessErrorMessages = {
@@ -21,4 +22,5 @@ export const longMessages: ProcessErrorMessages = {
   BAD_RESPONSE: 'issues.error-messages.bad-response',
   EMPTY_FILE: 'issues.error-messages.empty-file',
   UNKNOWN: 'issues.error-messages.unknown',
+  FILE_TOO_BIG: 'issues.error-messages.file-too-big'
 };
