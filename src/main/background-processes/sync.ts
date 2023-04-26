@@ -101,7 +101,7 @@ export type SyncStoppedPayload =
       reason: 'FATAL_ERROR';
       errorName: ProcessFatalErrorName;
     }
-  | { reason: 'EXIT'; result: ProcessResult };
+  | { reason: 'EXIT'; result: ProcessResult }
 
 function refreshLockEvery(): number {
   const interval = process.env.LOCK_REFRESH_INTERVAL;

@@ -5,7 +5,6 @@ import { Readable } from 'stream';
 import Logger from 'electron-log';
 import EventEmitter from 'events';
 import { ipcRenderer } from 'electron';
-import { partialRight } from 'lodash';
 import { fileNameIsValid } from '../../utils/name-verification';
 import crypt from '../../utils/crypt';
 import {
@@ -329,7 +328,13 @@ export function getRemoteFilesystem({
         );
       }
 
-      const uploadedFileId: string = await new Promise((resolve, reject) => {
+      const abortController = new AbortController();
+
+      const abort = new Promise((_, reject) => {
+        abortController.signal.addEventListener('abort', reject);
+      })
+
+      const upload = await new Promise((resolve, reject) => {
         if (source.size > TransferLimits.MultipartUploadThreshold) {
           localUpload.uploadMultipartFile(bucket, {
             progressCallback,
@@ -394,6 +399,11 @@ export function getRemoteFilesystem({
           });
         }
       });
+
+      const uploadedFileId: string = Promise.race([
+        upload,
+        abort,
+      ]) as unknown as string;
 
       const oldFileInCache = cache[name];
 

@@ -13,6 +13,7 @@ import {
   ReadingMetaErrorEntry,
 } from './types';
 import { createErrorDetails } from './utils/reporting';
+import { Readable } from 'stream';
 
 abstract class Process extends EventEmitter {
   constructor(
@@ -68,6 +69,13 @@ abstract class Process extends EventEmitter {
     destFs: Pick<FileSystem, 'pullFile' | 'kind'>,
     srcFs: Pick<FileSystem, 'getSource'>
   ): Promise<void> {
+
+    const streams: Array<Readable> = [];
+
+    this.on('LOST_CONNECTION', () => {
+      streams.forEach((stream) => stream.destroy(new Error('LOST_CONNECTION')));
+    });
+
     for (const name of queue) {
       const progressCallback = (progress: number) =>
         this.emit('PULLING_FILE', name, progress, destFs.kind);
@@ -75,6 +83,9 @@ abstract class Process extends EventEmitter {
 
       try {
         const source = await srcFs.getSource(name, progressCallback);
+
+        streams.push(source.stream);
+
         const id = await destFs.pullFile(name, source, progressCallback);
         this.emit('FILE_PULLED', name, destFs.kind, id);
       } catch (err) {

@@ -264,6 +264,10 @@ async function setUp() {
     Logger.log('Finalizing sync');
   });
 
+  sync.on('LOST_CONNECTION', () => {
+    ipcRenderer.send('SYNC_FATAL_ERROR', 'NO_INTERNET');
+  })
+
   try {
     Logger.debug('SYNC STARTING ');
     const result = await sync.run();
