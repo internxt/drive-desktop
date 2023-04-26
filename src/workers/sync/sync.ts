@@ -427,6 +427,8 @@ class Sync extends Process {
   }
 
   private async finalize(): Promise<ProcessResult> {
+    await new Promise(res => setTimeout(res, 1000));
+
     this.emit('FINALIZING');
 
     const result = await this.generateResult();
