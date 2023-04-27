@@ -322,6 +322,8 @@ export function getRemoteFilesystem({
 
 
       if (source.size > TransferLimits.UploadFileSize) {
+        source.stream.destroy(new Error('FILE TOO BIG'));
+
         throw new ProcessError(
           'FILE_TOO_BIG',
           createErrorDetails(
@@ -341,6 +343,8 @@ export function getRemoteFilesystem({
               if (err) {
                 // Don't include the stream in the details
                 const { stream, ...sourceWithoutStream } = source;
+
+                source.stream.destroy(new Error('MULTIPART UPLOAD FAILED'));
 
                 const details = createErrorDetails(
                   err,
@@ -379,6 +383,8 @@ export function getRemoteFilesystem({
               if (err) {
                 // Don't include the stream in the details
                 const { stream, ...sourceWithoutStream } = source;
+
+                stream.destroy(new Error('LOCAL UPLOADED FAILED'));
 
                 const details = createErrorDetails(
                   err,
