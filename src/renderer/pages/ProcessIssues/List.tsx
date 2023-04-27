@@ -250,13 +250,13 @@ function Item({
           >
             {translate(shortMessages[errorName])}
             &nbsp;
-            <UilInfoCircle
+            {/*<UilInfoCircle
               className="inline h-4 w-4 text-blue-60 hover:text-blue-50 active:text-blue-60"
               onClick={(e: MouseEvent) => {
                 e.stopPropagation();
                 onInfoClick();
               }}
-            />
+            />*/}
           </h1>
           <p className="text-gray-70" data-test="number-sync-issues">
             {issues.length} files
