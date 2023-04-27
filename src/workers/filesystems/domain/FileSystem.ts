@@ -47,7 +47,8 @@ export interface FileSystem<T extends PartialListing> {
   pullFile(
     name: string,
     source: Source,
-    progressCallback: FileSystemProgressCallback
+    progressCallback: FileSystemProgressCallback,
+    abortSignal?: AbortSignal
   ): Promise<number | void>;
 
   /**

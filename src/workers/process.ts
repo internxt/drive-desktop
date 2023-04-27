@@ -13,6 +13,9 @@ import {
   ReadingMetaErrorEntry,
 } from './types';
 import { createErrorDetails } from './utils/reporting';
+import { Readable } from 'stream';
+import {FileSystem as NewFileSystem} from '../workers/filesystems/domain/FileSystem';
+import { PartialListing } from '../workers/sync/Listings/domain/Listing';
 
 abstract class Process extends EventEmitter {
   constructor(
@@ -65,9 +68,19 @@ abstract class Process extends EventEmitter {
 
   protected async consumePullQueue(
     queue: string[],
-    destFs: Pick<FileSystem, 'pullFile' | 'kind'>,
-    srcFs: Pick<FileSystem, 'getSource'>
+    destFs: Pick<
+      FileSystem | NewFileSystem<PartialListing>,
+      'pullFile' | 'kind'
+    >,
+    srcFs: Pick<FileSystem | NewFileSystem<PartialListing>, 'getSource'>
   ): Promise<void> {
+    const controllers: Array<AbortController> = [];
+
+    this.on('LOST_CONNECTION', () => {
+      Logger.log('[PROCESS] Aborting upload');
+      controllers.every((controller) => controller.abort('LOST_CONNECTION'));
+    });
+
     for (const name of queue) {
       const progressCallback = (progress: number) =>
         this.emit('PULLING_FILE', name, progress, destFs.kind);
@@ -75,7 +88,17 @@ abstract class Process extends EventEmitter {
 
       try {
         const source = await srcFs.getSource(name, progressCallback);
-        const id = await destFs.pullFile(name, source, progressCallback);
+
+        const abortController = new AbortController();
+
+        controllers.push(abortController);
+
+        const id = await destFs.pullFile(
+          name,
+          source,
+          progressCallback,
+          abortController.signal
+        );
         this.emit('FILE_PULLED', name, destFs.kind, id);
       } catch (err) {
         const syncError =

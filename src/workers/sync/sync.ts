@@ -74,6 +74,12 @@ class Sync extends Process {
   }
 
   async run(): Promise<ProcessResult> {
+
+    window.addEventListener('offline', () => {
+      Logger.log('[SYNC] INTERNT CONNECTION LOST');
+      this.emit('LOST_CONNECTION');
+    });
+
     this.emit('SMOKE_TESTING');
 
     await this.local.smokeTest();
@@ -470,6 +476,12 @@ interface SyncEvents extends ProcessEvents {
    * filesystems are in sync
    */
   FINALIZING: () => void;
+
+  /**
+   * Treggered when the internet connection is lost during a
+   * sync process
+   */
+  LOST_CONNECTION: () => void;
 }
 
 /**

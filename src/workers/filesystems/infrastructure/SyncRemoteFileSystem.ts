@@ -5,7 +5,6 @@ import { Readable } from 'stream';
 import Logger from 'electron-log';
 import EventEmitter from 'events';
 import { ipcRenderer } from 'electron';
-import { partialRight } from 'lodash';
 import { fileNameIsValid } from '../../utils/name-verification';
 import crypt from '../../utils/crypt';
 import {
@@ -27,6 +26,8 @@ import { RemoteListing } from '../../sync/Listings/domain/Listing';
 import { RemoteItemMetaData } from '../../sync/Listings/domain/RemoteItemMetaData';
 import { FileCreatedResponseDTO } from '../../../shared/HttpClient/responses/file-created';
 import { TransferLimits } from '../domain/Transfer';
+import { ActionState } from '@internxt/inxt-js/build/api/ActionState';
+import { Events } from '@internxt/inxt-js/build/lib/core';
 
 type CacheData = {
   id: number;
@@ -287,7 +288,8 @@ export function getRemoteFilesystem({
     async pullFile(
       name: string,
       source: Source,
-      progressCallback: (progress: number) => void
+      progressCallback: (progress: number) => void,
+      abortSignal: AbortSignal
     ): Promise<number> {
       const { size, modTime: modTimeInSeconds } = source;
       const route = name.split('/');
@@ -318,6 +320,7 @@ export function getRemoteFilesystem({
         encryptionKey: mnemonic,
       });
 
+
       if (source.size > TransferLimits.UploadFileSize) {
         throw new ProcessError(
           'FILE_TOO_BIG',
@@ -329,9 +332,10 @@ export function getRemoteFilesystem({
         );
       }
 
+
       const uploadedFileId: string = await new Promise((resolve, reject) => {
         if (source.size > TransferLimits.MultipartUploadThreshold) {
-          localUpload.uploadMultipartFile(bucket, {
+          const state = localUpload.uploadMultipartFile(bucket, {
             progressCallback,
             finishedCallback: async (err: any, fileId: string | null) => {
               if (err) {
@@ -361,6 +365,13 @@ export function getRemoteFilesystem({
             fileSize: source.size,
             source: source.stream,
           });
+
+          abortSignal.addEventListener('abort', () => {
+            Logger.debug(`[SYNC REMOTE FS] Aborting upload for ${name}`);
+            // localUpload.uploadCancel(state);
+            // state.emit(Events.Upload.Abort);
+          });
+
         } else {
           localUpload.upload(bucket, {
             progressCallback,
