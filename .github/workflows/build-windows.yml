@@ -146,9 +146,9 @@ jobs:
 #      - name: Check cert
 #        run: |    
 #          Get-ChildItem -Path Cert:\CurrentUser\My | Where-Object {$_.Subject -like "*Internxt Universal Technologies SL*"}
-      - name: run ts-node
-        run: |    
-          yarn run ts-node ./.erb/scripts/clean.js dist
+#      - name: run ts-node
+#        run: |    
+#          yarn run ts-node ./.erb/scripts/clean.js dist
       - name: run npm run build
         run: |    
           npm run build
