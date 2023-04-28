@@ -15,26 +15,36 @@ import 'dotenv/config';
 
 // ***** APP BOOTSTRAPPING ****************************************************** //
 
-import './sync-root-folder/handlers';
-import './auto-launch/handlers';
-import './logger';
-import './bug-report/handlers';
-import './auth/handlers';
-import './windows/settings';
-import './windows/process-issues';
-import './windows';
-import './background-processes/backups';
-import './background-processes/sync';
-import './background-processes/process-issues';
-import './device/handlers';
-import './usage/handlers';
-import './realtime';
-import './tray';
-import './analytics/handlers';
-import './platform/handlers';
-import './thumbnails/handlers';
-import './config/handlers';
-import './app-info/handlers';
+const modules = [
+'./sync-root-folder/handlers',
+'./auto-launch/handlers',
+'./logger',
+'./bug-report/handlers',
+'./auth/handlers',
+'./windows/settings',
+'./windows/process-issues',
+'./windows',
+'./background-processes/backups',
+'./background-processes/sync',
+'./background-processes/process-issues',
+'./device/handlers',
+'./usage/handlers',
+'./realtime',
+'./tray',
+'./analytics/handlers',
+'./platform/handlers',
+'./thumbnails/handlers',
+'./config/handlers',
+'./app-info/handlers',
+];
+
+for(let module of modules) {
+  try {
+    require(module);
+  } catch (err) {
+    Logger.error(`[MAIN] Error loading module ${module} handlers. Error: `, JSON.stringify(err, null));
+  }
+}
 
 Logger.log(`Running ${packageJson.version}`);
 
