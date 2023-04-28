@@ -15,33 +15,41 @@ import 'dotenv/config';
 
 // ***** APP BOOTSTRAPPING ****************************************************** //
 
-const modules = [
-'./sync-root-folder/handlers',
-'./auto-launch/handlers',
-'./logger',
-'./bug-report/handlers',
-'./auth/handlers',
-'./windows/settings',
-'./windows/process-issues',
-'./windows',
-'./background-processes/backups',
-'./background-processes/sync',
-'./background-processes/process-issues',
-'./device/handlers',
-'./usage/handlers',
-'./realtime',
-'./tray',
-'./analytics/handlers',
-'./platform/handlers',
-'./thumbnails/handlers',
-'./config/handlers',
-'./app-info/handlers',
-'./faulty-module',
-];
+function loadModules() {
+  const modules = [
+    './sync-root-folder/handlers',
+    './auto-launch/handlers',
+    './logger',
+    './bug-report/handlers',
+    './auth/handlers',
+    './windows/settings',
+    './windows/process-issues',
+    './windows',
+    './background-processes/backups',
+    './background-processes/sync',
+    './background-processes/process-issues',
+    './device/handlers',
+    './usage/handlers',
+    './realtime',
+    './tray',
+    './analytics/handlers',
+    './platform/handlers',
+    './thumbnails/handlers',
+    './config/handlers',
+    './app-info/handlers',
+    './faulty-module',
+  ];
 
-for(let module of modules) {
-  require(module);
+  for (let module of modules) {
+    try {
+      require(module);
+    } catch (err) {
+      Logger.error('[MAIN] Error loading modules');
+    }
+  }
 }
+
+loadModules();
 
 process.on('uncaughtException', () => {
   Logger.error(`[MAIN] Uncaught Exception`);
