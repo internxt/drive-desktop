@@ -9,7 +9,7 @@ on:
 
 jobs:  
   build-windows:
-    runs-on: windows-latest
+    runs-on: self-hosted
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -43,30 +43,30 @@ jobs:
           echo "RUDDERSTACK_DATA_PLANE_URL=${{ secrets.RUDDERSTACK_DATA_PLANE_URL }}" >> .env
           echo "CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}" >> .env
           echo "CSC_LINK: ./cert.cer" >> .env
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v2
-        with:
-          node-version: ${{ matrix.node-version }}
-          registry-url: 'https://npm.pkg.github.com'
-      - name: Install Chocolatey
-        shell: pwsh
-        run: |
-          Set-ExecutionPolicy Bypass -Scope Process -Force
-          [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
-          iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
-      - name: Install GraphicsMagick
-        run: |
-          choco install graphicsmagick -y
-      - name: Add GraphicsMagick path
-        shell: pwsh
-        run: |
-          refreshenv
-          $env:Path += ";C:\Program Files\GraphicsMagick-1.3.36-Q16"
-      - name: Install node
-        shell: pwsh
-        run: |
-          Invoke-WebRequest -Uri https://nodejs.org/dist/v16.14.0/node-v16.14.0-x64.msi -OutFile nodejs.msi
-          Start-Process msiexec.exe -Wait -ArgumentList '/I nodejs.msi /quiet /norestart'
+#      - name: Use Node.js ${{ matrix.node-version }}
+#        uses: actions/setup-node@v2
+#        with:
+#          node-version: ${{ matrix.node-version }}
+#          registry-url: 'https://npm.pkg.github.com'
+#      - name: Install Chocolatey
+#        shell: pwsh
+#        run: |
+#          Set-ExecutionPolicy Bypass -Scope Process -Force
+#          [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
+#          iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
+#      - name: Install GraphicsMagick
+#        run: |
+#          choco install graphicsmagick -y
+#      - name: Add GraphicsMagick path
+#        shell: pwsh
+#        run: |
+#          refreshenv
+#          $env:Path += ";C:\Program Files\GraphicsMagick-1.3.36-Q16"
+#      - name: Install node
+#        shell: pwsh
+#        run: |
+#          Invoke-WebRequest -Uri https://nodejs.org/dist/v16.14.0/node-v16.14.0-x64.msi -OutFile nodejs.msi
+#          Start-Process msiexec.exe -Wait -ArgumentList '/I nodejs.msi /quiet /norestart'
 #      - name: Install YubiKey
 #        shell: pwsh
 #        run: |
@@ -108,58 +108,58 @@ jobs:
 #          certutil -decode certificate/tempCert.txt certificate/certificate.pfx
 #          Remove-Item -path certificate -include tempCert.txt
 #          Import-PfxCertificate -FilePath certificate/certificate.pfx -CertStoreLocation Cert:\CurrentUser\My -Password (ConvertTo-SecureString -String $env:WINDOWS_CERTIFICATE_PASSWORD -Force -AsPlainText)
-      - name: import windows certificate
-        run: |
-          echo "${{ secrets.TEST_CERTIFICA_WINDOWS }}" >  cert.cer
-          Import-Certificate -FilePath "cert.cer" -CertStoreLocation "Cert:\CurrentUser\My"
-          (Get-ChildItem -Path "Cert:\CurrentUser\My\54CB70CC22F8EE7B09E2225D967F5FF7C8A119B6").FriendlyName= "Internxt Universal Technologies SL"
-      - name: import windows certificate
-        run: |
-          cp cert.cer "Internxt Universal Technologies SL"
-          cp cert.cer "Internxt Universal Technologies SL.cer"
-          cp cert.cer assets/
-          cp "Internxt Universal Technologies SL.cer" assets/
-          cp "Internxt Universal Technologies SL" assets/
-          ls
-          ls assets
-      - name: Check1 certificate
-        run: |
-          Get-ChildItem -Path "Cert:\CurrentUser\My\54CB70CC22F8EE7B09E2225D967F5FF7C8A119B6"
-      - name: Check2 certificate localmachine
-        run: |
-          Get-ChildItem -Path Cert:\LocalMachine\My | Where-Object {$_.Subject -like "*Internxt Universal Technologies SL*"}
-      - name: Check3 certificate current
-        run: |
-          Get-ChildItem -Path Cert:\CurrentUser\My | Where-Object {$_.Subject -like "*Internxt Universal Technologies SL*"} 
-      - name: Check4 certificate current
-        run: |
-          Get-ChildItem -Path Cert:\CurrentUser\My\54CB70CC22F8EE7B09E2225D967F5FF7C8A119B6 | Select-Object Subject
-      - name: Install yarn and requirements
-        run: |  
-          npm install --global yarn
-          npm install yarn --save-dev
-          yarn install --network-timeout 1000000
-      - name: Install electron-builder v20
-        run: npm install electron-builder@20 --force
-      - name: run postinstall
-        run: |        
-          yarn run postinstall
-      - name: Check cert
-        run: |    
-          Get-ChildItem -Path Cert:\CurrentUser\My | Where-Object {$_.Subject -like "*Internxt Universal Technologies SL*"}
+#      - name: import windows certificate
+#        run: |
+#          echo "${{ secrets.TEST_CERTIFICA_WINDOWS }}" >  cert.cer
+#          Import-Certificate -FilePath "cert.cer" -CertStoreLocation "Cert:\CurrentUser\My"
+#          (Get-ChildItem -Path "Cert:\CurrentUser\My\54CB70CC22F8EE7B09E2225D967F5FF7C8A119B6").FriendlyName= "Internxt Universal Technologies SL"
+#      - name: import windows certificate
+#        run: |
+#          cp cert.cer "Internxt Universal Technologies SL"
+#          cp cert.cer "Internxt Universal Technologies SL.cer"
+#          cp cert.cer assets/
+#          cp "Internxt Universal Technologies SL.cer" assets/
+#          cp "Internxt Universal Technologies SL" assets/
+#          ls
+#          ls assets
+#      - name: Check1 certificate
+#        run: |
+#          Get-ChildItem -Path "Cert:\CurrentUser\My\54CB70CC22F8EE7B09E2225D967F5FF7C8A119B6"
+#      - name: Check2 certificate localmachine
+#        run: |
+#          Get-ChildItem -Path Cert:\LocalMachine\My | Where-Object {$_.Subject -like "*Internxt Universal Technologies SL*"}
+#      - name: Check3 certificate current
+#        run: |
+#          Get-ChildItem -Path Cert:\CurrentUser\My | Where-Object {$_.Subject -like "*Internxt Universal Technologies SL*"} 
+#      - name: Check4 certificate current
+#        run: |
+#          Get-ChildItem -Path Cert:\CurrentUser\My\54CB70CC22F8EE7B09E2225D967F5FF7C8A119B6 | Select-Object Subject
+#      - name: Install yarn and requirements
+#        run: |  
+#          npm install --global yarn
+#          npm install yarn --save-dev
+#          yarn install --network-timeout 1000000
+#      - name: Install electron-builder v20
+#        run: npm install electron-builder@20 --force
+#      - name: run postinstall
+#        run: |        
+#          yarn run postinstall
+#      - name: Check cert
+#        run: |    
+#          Get-ChildItem -Path Cert:\CurrentUser\My | Where-Object {$_.Subject -like "*Internxt Universal Technologies SL*"}
       - name: run ts-node
         run: |    
           yarn run ts-node ./.erb/scripts/clean.js dist
       - name: run npm run build
         run: |    
           npm run build
-      - name: Create YAML file
-        run: |
-          echo 'win:
-            target: ["nsis", "msi"]
-            publisherName: "*Internxt*"
-            signingHashAlgorithms: ["sha256"]
-            certificateFile: "cert.cer"' > electron-builder.yml
+#      - name: Create YAML file
+#        run: |
+#          echo 'win:
+#            target: ["nsis", "msi"]
+#            publisherName: "*Internxt*"
+#            signingHashAlgorithms: ["sha256"]
+#            certificateFile: "cert.cer"' > electron-builder.yml
       - name: run electron-builder build --publish never
         run: |   
           yarn run electron-builder build --win --publish never
