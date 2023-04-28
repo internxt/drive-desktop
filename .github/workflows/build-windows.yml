@@ -149,9 +149,9 @@ jobs:
 #      - name: run ts-node
 #        run: |    
 #          yarn run ts-node ./.erb/scripts/clean.js dist
-      - name: run npm run build
+      - name: run yarn run build
         run: |    
-          npm run build
+          yarn run build
 #      - name: Create YAML file
 #        run: |
 #          echo 'win:
