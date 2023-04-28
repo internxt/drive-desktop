@@ -13,40 +13,40 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-      - name: Create .npmrc file
-        run: |
-          echo "registry=https://registry.yarnpkg.com/" > .npmrc
-          echo "@internxt:registry=https://npm.pkg.github.com" >> .npmrc
-          # You cannot read packages from other private repos with GITHUB_TOKEN
-          # You have to use a PAT instead https://github.com/actions/setup-node/issues/49
-          echo //npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN }} >> .npmrc
-          echo "always-auth=true" >> .npmrc
-      - name: Create .env file
-        run: |
-          echo "CRYPTO_KEY=${{ secrets.CRYPTO_KEY }}" >> .env
-          echo "MAGIC_IV=${{ secrets.MAGIC_IV }}" >> .env
-          echo "MAGIC_SALT=${{ secrets.MAGIC_SALT }}" >> .env
-          echo "NEW_CRYPTO_KEY=${{ secrets.NEW_CRYPTO_KEY }}" >> .env
-          echo "API_URL=https://desktop.internxt.com" >> .env
-          echo "NEW_DRIVE_URL=https://api.internxt.com" >> .env
-          echo "DRIVE_URL=https://drive.internxt.com" >> .env
-          echo "BRIDGE_URL=https://api.internxt.com" >> .env
-          echo "APP_SEGMENT_KEY=${{ secrets.APP_SEGMENT_KEY }}" >> .env
-          echo "APP_SEGMENT_KEY_TEST=${{ secrets.APP_SEGMENT_KEY_TEST }}" >> .env
-          echo "BUG_REPORTING_URL=https://desktop-bug-reporting.inxt.workers.dev" >> .env
-          echo "NOTIFICATIONS_URL=https://notifications.internxt.com" >> .env
-          echo "LOCK_REFRESH_INTERVAL=20000" >> .env
-          echo "PHOTOS_URL=https://photos.internxt.com/api" >> .env
-          echo "DRIVE_API_URL=https://drive.internxt.com/api" >> .env
-          echo "RUDDERSTACK_KEY=${{ secrets.RUDDERSTACK_KEY }}" >> .env
-          echo "RUDDERSTACK_DATA_PLANE_URL=${{ secrets.RUDDERSTACK_DATA_PLANE_URL }}" >> .env
-          echo "CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}" >> .env
-          echo "CSC_LINK: ./cert.cer" >> .env
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v2
-        with:
-          node-version: ${{ matrix.node-version }}
-          registry-url: 'https://npm.pkg.github.com'
+#      - name: Create .npmrc file
+#        run: |
+#          echo "registry=https://registry.yarnpkg.com/" > .npmrc
+#          echo "@internxt:registry=https://npm.pkg.github.com" >> .npmrc
+#          # You cannot read packages from other private repos with GITHUB_TOKEN
+#          # You have to use a PAT instead https://github.com/actions/setup-node/issues/49
+#          echo //npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN }} >> .npmrc
+#          echo "always-auth=true" >> .npmrc
+#      - name: Create .env file
+#        run: |
+#          echo "CRYPTO_KEY=${{ secrets.CRYPTO_KEY }}" >> .env
+#          echo "MAGIC_IV=${{ secrets.MAGIC_IV }}" >> .env
+#          echo "MAGIC_SALT=${{ secrets.MAGIC_SALT }}" >> .env
+#          echo "NEW_CRYPTO_KEY=${{ secrets.NEW_CRYPTO_KEY }}" >> .env
+#          echo "API_URL=https://desktop.internxt.com" >> .env
+#          echo "NEW_DRIVE_URL=https://api.internxt.com" >> .env
+#          echo "DRIVE_URL=https://drive.internxt.com" >> .env
+#          echo "BRIDGE_URL=https://api.internxt.com" >> .env
+#          echo "APP_SEGMENT_KEY=${{ secrets.APP_SEGMENT_KEY }}" >> .env
+#          echo "APP_SEGMENT_KEY_TEST=${{ secrets.APP_SEGMENT_KEY_TEST }}" >> .env
+#          echo "BUG_REPORTING_URL=https://desktop-bug-reporting.inxt.workers.dev" >> .env
+#          echo "NOTIFICATIONS_URL=https://notifications.internxt.com" >> .env
+#          echo "LOCK_REFRESH_INTERVAL=20000" >> .env
+#          echo "PHOTOS_URL=https://photos.internxt.com/api" >> .env
+#          echo "DRIVE_API_URL=https://drive.internxt.com/api" >> .env
+#          echo "RUDDERSTACK_KEY=${{ secrets.RUDDERSTACK_KEY }}" >> .env
+#          echo "RUDDERSTACK_DATA_PLANE_URL=${{ secrets.RUDDERSTACK_DATA_PLANE_URL }}" >> .env
+#          echo "CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}" >> .env
+#          echo "CSC_LINK: ./cert.cer" >> .env
+#      - name: Use Node.js ${{ matrix.node-version }}
+#        uses: actions/setup-node@v2
+#        with:
+#          node-version: ${{ matrix.node-version }}
+#          registry-url: 'https://npm.pkg.github.com'
 #      - name: Install Chocolatey
 #        shell: pwsh
 #        run: |
@@ -61,11 +61,11 @@ jobs:
 #        run: |
 #          refreshenv
 #          $env:Path += ";C:\Program Files\GraphicsMagick-1.3.36-Q16"
-      - name: Install node
+#      - name: Install node
  #       shell: pwsh
-        run: |
-          Invoke-WebRequest -Uri https://nodejs.org/dist/v16.14.0/node-v16.14.0-x64.msi -OutFile nodejs.msi
-          Start-Process msiexec.exe -Wait -ArgumentList '/I nodejs.msi /quiet /norestart'
+#        run: |
+#          Invoke-WebRequest -Uri https://nodejs.org/dist/v16.14.0/node-v16.14.0-x64.msi -OutFile nodejs.msi
+#          Start-Process msiexec.exe -Wait -ArgumentList '/I nodejs.msi /quiet /norestart'
 #      - name: Install YubiKey
 #        shell: pwsh
 #        run: |
@@ -137,17 +137,18 @@ jobs:
         run: |  
           SET GH_TOKEN= ${{ secrets.GITHUB_TOKEN }}
           cd C:\Users\LENOVO\Desktop\Trabajo\drive-web-sign\drive-desktop
+          git pull
           npm install --global yarn
           npm install yarn --save-dev
           yarn install --network-timeout 1000000
-      - name: Install electron-builder v20
-        run: |
-          cd C:\Users\LENOVO\Desktop\Trabajo\drive-web-sign\drive-desktop
-          npm install electron-builder@20 --force
-      - name: run postinstall
-        run: |        
-          cd C:\Users\LENOVO\Desktop\Trabajo\drive-web-sign\drive-desktop
-          yarn run postinstall
+#      - name: Install electron-builder v20
+#        run: |
+#          cd C:\Users\LENOVO\Desktop\Trabajo\drive-web-sign\drive-desktop
+#          npm install electron-builder@20 --force
+#      - name: run postinstall
+#        run: |        
+#          cd C:\Users\LENOVO\Desktop\Trabajo\drive-web-sign\drive-desktop
+#          yarn run postinstall
 #      - name: Check cert
 #        run: |    
 #          Get-ChildItem -Path Cert:\CurrentUser\My | Where-Object {$_.Subject -like "*Internxt Universal Technologies SL*"}
