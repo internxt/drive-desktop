@@ -23,7 +23,6 @@ jobs:
           echo "always-auth=true" >> .npmrc
       - name: Create .env file
         run: |
-          touch .env
           echo "CRYPTO_KEY=${{ secrets.CRYPTO_KEY }}" >> .env
           echo "MAGIC_IV=${{ secrets.MAGIC_IV }}" >> .env
           echo "MAGIC_SALT=${{ secrets.MAGIC_SALT }}" >> .env
