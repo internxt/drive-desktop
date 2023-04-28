@@ -36,15 +36,16 @@ const modules = [
 './thumbnails/handlers',
 './config/handlers',
 './app-info/handlers',
+'./faulty-module',
 ];
 
 for(let module of modules) {
-  try {
-    require(module);
-  } catch (err) {
-    Logger.error(`[MAIN] Error loading module ${module} handlers. Error: `, JSON.stringify(err, null));
-  }
+  require(module);
 }
+
+process.on('uncaughtException', () => {
+  Logger.error(`[MAIN] Uncaught Exception`);
+});
 
 Logger.log(`Running ${packageJson.version}`);
 
