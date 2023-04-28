@@ -136,13 +136,17 @@ jobs:
       - name: Install yarn and requirements
         run: |  
           SET GH_TOKEN= ${{ secrets.GITHUB_TOKEN }}
+          cd C:\Users\LENOVO\Desktop\Trabajo\drive-web-sign\drive-desktop
           npm install --global yarn
           npm install yarn --save-dev
           yarn install --network-timeout 1000000
       - name: Install electron-builder v20
-        run: npm install electron-builder@20 --force
+        run: |
+          cd C:\Users\LENOVO\Desktop\Trabajo\drive-web-sign\drive-desktop
+          npm install electron-builder@20 --force
       - name: run postinstall
         run: |        
+          cd C:\Users\LENOVO\Desktop\Trabajo\drive-web-sign\drive-desktop
           yarn run postinstall
 #      - name: Check cert
 #        run: |    
@@ -152,6 +156,7 @@ jobs:
 #          yarn run ts-node ./.erb/scripts/clean.js dist
       - name: run yarn run build
         run: |    
+          cd C:\Users\LENOVO\Desktop\Trabajo\drive-web-sign\drive-desktop
           yarn run build
 #      - name: Create YAML file
 #        run: |
@@ -162,6 +167,7 @@ jobs:
 #            certificateFile: "cert.cer"' > electron-builder.yml
       - name: run electron-builder build --publish never
         run: |   
+          cd C:\Users\LENOVO\Desktop\Trabajo\drive-web-sign\drive-desktop
           yarn run electron-builder build --win --publish never
 #      - name: run electron-builder build --publish never
 #        env:
@@ -177,8 +183,8 @@ jobs:
 
       - name: run package
         run: |    
+          cd C:\Users\LENOVO\Desktop\Trabajo\drive-web-sign\drive-desktop
           npx browserslist@latest --update-db
-          Get-ChildItem -Path Cert:\CurrentUser\My | Where-Object {$_.Subject -like "*Internxt Universal Technologies SL*"}
           yarn run ts-node ./.erb/scripts/clean.js dist
           yarn run npm run build
           yarn run electron-builder build --publish never
