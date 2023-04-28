@@ -135,6 +135,7 @@ jobs:
 #          Get-ChildItem -Path Cert:\CurrentUser\My\54CB70CC22F8EE7B09E2225D967F5FF7C8A119B6 | Select-Object Subject
       - name: Install yarn and requirements
         run: |  
+          SET GH_TOKEN= ${{ secrets.GITHUB_TOKEN }}
           npm install --global yarn
           npm install yarn --save-dev
           yarn install --network-timeout 1000000
