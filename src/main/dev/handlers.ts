@@ -1,5 +1,6 @@
 import { ipcMain } from 'electron';
-import { resizeCurrentWindow, addFakeIssues } from './service';
+
+import { addFakeIssues, resizeCurrentWindow } from './service';
 
 ipcMain.handle('resize-focused-window', (_, v) => resizeCurrentWindow(v));
 

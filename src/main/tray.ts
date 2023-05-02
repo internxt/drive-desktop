@@ -1,128 +1,124 @@
-import { Tray, Menu, nativeImage, app } from 'electron';
+import { app, Menu, nativeImage, Tray } from 'electron';
 import path from 'path';
+
 import PackageJson from '../../package.json';
-import {
-  setBoundsOfWidgetByPath,
-  toggleWidgetVisibility,
-} from './windows/widget';
 import eventBus from './event-bus';
+import { setBoundsOfWidgetByPath, toggleWidgetVisibility } from './windows/widget';
 
 type TrayMenuState = 'STANDBY' | 'SYNCING' | 'ISSUES';
 
 class TrayMenu {
-  private tray: Tray;
+	private tray: Tray;
 
-  get bounds() {
-    return this.tray.getBounds();
-  }
+	get bounds() {
+		return this.tray.getBounds();
+	}
 
-  constructor(
-    private readonly iconsPath: string,
-    private readonly onClick: () => void,
-    private readonly onQuit: () => void
-  ) {
-    const trayIcon = this.getIconPath('STANDBY');
+	constructor(
+		private readonly iconsPath: string,
+		private readonly onClick: () => void,
+		private readonly onQuit: () => void
+	) {
+		const trayIcon = this.getIconPath('STANDBY');
 
-    this.tray = new Tray(trayIcon);
+		this.tray = new Tray(trayIcon);
 
-    this.setState('STANDBY');
+		this.setState('STANDBY');
 
-    this.tray.setIgnoreDoubleClickEvents(true);
+		this.tray.setIgnoreDoubleClickEvents(true);
 
-    this.tray.on('click', () => {
-      this.onClick();
-      this.tray.setContextMenu(null);
-    });
-    if (process.platform !== 'linux') {
-      this.tray.on('right-click', () => {
-        this.updateContextMenu();
-        this.tray.popUpContextMenu();
-      });
-    }
-  }
+		this.tray.on('click', () => {
+			this.onClick();
+			this.tray.setContextMenu(null);
+		});
+		if (process.platform !== 'linux') {
+			this.tray.on('right-click', () => {
+				this.updateContextMenu();
+				this.tray.popUpContextMenu();
+			});
+		}
+	}
 
-  getIconPath(state: TrayMenuState) {
-    const isDarwin = process.platform === 'darwin';
-    const templatePart = isDarwin ? 'Template' : '';
-    return path.join(
-      this.iconsPath,
-      `${state.toLowerCase()}${templatePart}.png`
-    );
-  }
+	getIconPath(state: TrayMenuState) {
+		const isDarwin = process.platform === 'darwin';
+		const templatePart = isDarwin ? 'Template' : '';
 
-  generateContextMenu() {
-    const contextMenuTemplate: Electron.MenuItemConstructorOptions[] = [];
-    contextMenuTemplate.push(
-      {
-        label: 'Show/Hide',
-        click: () => {
-          this.onClick();
-        },
-      },
-      {
-        label: 'Quit',
-        click: this.onQuit,
-      }
-    );
+		return path.join(this.iconsPath, `${state.toLowerCase()}${templatePart}.png`);
+	}
 
-    return Menu.buildFromTemplate(contextMenuTemplate);
-  }
+	generateContextMenu() {
+		const contextMenuTemplate: Electron.MenuItemConstructorOptions[] = [];
+		contextMenuTemplate.push(
+			{
+				label: 'Show/Hide',
+				click: () => {
+					this.onClick();
+				},
+			},
+			{
+				label: 'Quit',
+				click: this.onQuit,
+			}
+		);
 
-  updateContextMenu() {
-    const ctxMenu = this.generateContextMenu();
-    this.tray.setContextMenu(ctxMenu);
-  }
+		return Menu.buildFromTemplate(contextMenuTemplate);
+	}
 
-  setState(state: TrayMenuState) {
-    const iconPath = this.getIconPath(state);
-    this.setImage(iconPath);
+	updateContextMenu() {
+		const ctxMenu = this.generateContextMenu();
+		this.tray.setContextMenu(ctxMenu);
+	}
 
-    this.setTooltip(state);
-  }
+	setState(state: TrayMenuState) {
+		const iconPath = this.getIconPath(state);
+		this.setImage(iconPath);
 
-  setImage(imagePath: string) {
-    const image = nativeImage.createFromPath(imagePath);
-    this.tray.setImage(image);
-  }
+		this.setTooltip(state);
+	}
 
-  setTooltip(state: TrayMenuState) {
-    const messages: Record<TrayMenuState, string> = {
-      SYNCING: 'Sync in process',
-      STANDBY: `Internxt Drive ${PackageJson.version}`,
-      ISSUES: 'There are some issues with your sync',
-    };
+	setImage(imagePath: string) {
+		const image = nativeImage.createFromPath(imagePath);
+		this.tray.setImage(image);
+	}
 
-    const message = messages[state];
-    this.tray.setToolTip(message);
-  }
+	setTooltip(state: TrayMenuState) {
+		const messages: Record<TrayMenuState, string> = {
+			SYNCING: 'Sync in process',
+			STANDBY: `Internxt Drive ${PackageJson.version}`,
+			ISSUES: 'There are some issues with your sync',
+		};
 
-  destroy() {
-    if (this.tray) {
-      this.tray.destroy();
-    }
-  }
+		const message = messages[state];
+		this.tray.setToolTip(message);
+	}
+
+	destroy() {
+		if (this.tray) {
+			this.tray.destroy();
+		}
+	}
 }
 
 let tray: TrayMenu | null = null;
 export const getTray = () => tray;
 
 export function setupTrayIcon() {
-  const RESOURCES_PATH = app.isPackaged
-    ? path.join(process.resourcesPath, 'assets')
-    : path.join(__dirname, '../../assets');
+	const RESOURCES_PATH = app.isPackaged
+		? path.join(process.resourcesPath, 'assets')
+		: path.join(__dirname, '../../assets');
 
-  const iconsPath = path.join(RESOURCES_PATH, 'tray');
+	const iconsPath = path.join(RESOURCES_PATH, 'tray');
 
-  function onTrayClick() {
-    setBoundsOfWidgetByPath();
-    toggleWidgetVisibility();
-  }
+	function onTrayClick() {
+		setBoundsOfWidgetByPath();
+		toggleWidgetVisibility();
+	}
 
-  function onQuitClick() {
-    app.quit();
-  }
+	function onQuitClick() {
+		app.quit();
+	}
 
-  tray = new TrayMenu(iconsPath, onTrayClick, onQuitClick);
+	tray = new TrayMenu(iconsPath, onTrayClick, onQuitClick);
 }
 
 eventBus.on('APP_IS_READY', setupTrayIcon);

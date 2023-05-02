@@ -8,7 +8,7 @@ const desktopFilePath = `${os.homedir()}/.config/autostart`;
 const desktopFile = `${desktopFilePath}/${fileName}`;
 
 function createDesktopEntry() {
-  const fileContent = `[Desktop Entry]
+	const fileContent = `[Desktop Entry]
   Type=Application
   Version=${packageJson.version}
   Name=${packageJson.name}
@@ -18,25 +18,26 @@ function createDesktopEntry() {
   Terminal=false
   `;
 
-  if (!fs.existsSync(desktopFilePath)) {
-    fs.mkdirSync(desktopFilePath);
-  }
+	if (!fs.existsSync(desktopFilePath)) {
+		fs.mkdirSync(desktopFilePath);
+	}
 
-  fs.writeFileSync(desktopFile, fileContent);
+	fs.writeFileSync(desktopFile, fileContent);
 }
 
 function deleteDesktopEntry() {
-  fs.unlinkSync(desktopFile);
+	fs.unlinkSync(desktopFile);
 }
 
 export function desktopEntryIsPresent(): boolean {
-  return fs.existsSync(desktopFile);
+	return fs.existsSync(desktopFile);
 }
 
 export function toggleDesktopEntry() {
-  if (desktopEntryIsPresent()) {
-    deleteDesktopEntry();
-    return;
-  }
-  createDesktopEntry();
+	if (desktopEntryIsPresent()) {
+		deleteDesktopEntry();
+
+		return;
+	}
+	createDesktopEntry();
 }

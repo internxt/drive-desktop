@@ -1,5 +1,5 @@
 import { ipcMain } from 'electron';
 
 ipcMain.handle('get-platform', () => {
-  return process.platform;
+	return process.platform;
 });

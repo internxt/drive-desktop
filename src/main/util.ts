@@ -1,6 +1,5 @@
-/* eslint import/prefer-default-export: off, import/no-mutable-exports: off */
-import { URL } from 'url';
 import path from 'path';
+import { URL } from 'url';
 
 export let resolveHtmlPath: (pathname: string, query?: string) => string;
 const htmlFileName = 'index.html';
@@ -12,6 +11,7 @@ if (process.env.NODE_ENV === 'development') {
     url.pathname = htmlFileName;
     url.hash = `/${pathname}`;
     url.search = query;
+
     return url.href;
   };
 } else {

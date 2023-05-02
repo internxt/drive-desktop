@@ -1,8 +1,7 @@
-import { client } from './rudderstack-client';
-import ConfigStore from '../config';
 import packageJson from '../../../package.json';
-
-const os = require('os');
+import ConfigStore from '../config';
+import { client } from './rudderstack-client';
+import os from 'os';
 
 function platformShortName(platform: string) {
   switch (platform) {
@@ -130,7 +129,9 @@ export function syncBlocked(numberOfItems: number) {
 
   // Sync can be blocked beacuse the user is unauthorized
   // In that case we don't have user data to track
-  if (!userId) return;
+  if (!userId) {
+    return;
+  }
 
   client.track({
     userId,

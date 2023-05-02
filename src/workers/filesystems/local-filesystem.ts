@@ -1,354 +1,333 @@
-import * as fs from 'fs/promises';
-import glob from 'tiny-glob';
-import path from 'path';
-import * as uuid from 'uuid';
 import Logger from 'electron-log';
 import { constants, createReadStream, createWriteStream } from 'fs';
+import * as fs from 'fs/promises';
 import ignore from 'ignore';
-import { fileNameIsValid } from '../utils/name-verification';
+import path from 'path';
+import glob from 'tiny-glob';
+import * as uuid from 'uuid';
+
+import ignoredFiles from '../../../ignored-files.json';
 import {
-  FileSystem,
-  Listing,
-  Source,
-  ReadingMetaErrorEntry,
-  ProcessError,
-  ProcessFatalError,
+	FileSystem,
+	Listing,
+	ProcessError,
+	ProcessFatalError,
+	ReadingMetaErrorEntry,
+	Source,
 } from '../types';
 import { getDateFromSeconds } from '../utils/date';
+import { fileNameIsValid } from '../utils/name-verification';
 import { createErrorDetails } from '../utils/reporting';
-import ignoredFiles from '../../../ignored-files.json';
 
-export function getLocalFilesystem(
-  localPath: string,
-  tempDirectory: string
-): FileSystem {
-  /**
-   *
-   * @param actualPath OS Specific absolute path
-   * @returns Listing path relative to localPath with '/' as separator
-   */
-  function getListingPath(actualPath: string) {
-    return actualPath.split(localPath)[1].replaceAll(path.sep, '/');
-  }
+export function getLocalFilesystem(localPath: string, tempDirectory: string): FileSystem {
+	/**
+	 *
+	 * @param actualPath OS Specific absolute path
+	 * @returns Listing path relative to localPath with '/' as separator
+	 */
+	function getListingPath(actualPath: string) {
+		return actualPath.split(localPath)[1].replaceAll(path.sep, '/');
+	}
 
-  /**
-   *
-   * @param listingPath Relative to localPath with '/' as separator
-   * @returns OS Specific absolute path
-   */
-  function getActualPath(listingPath: string) {
-    const osSpecificRelative = listingPath.replaceAll('/', path.sep);
+	/**
+	 *
+	 * @param listingPath Relative to localPath with '/' as separator
+	 * @returns OS Specific absolute path
+	 */
+	function getActualPath(listingPath: string) {
+		const osSpecificRelative = listingPath.replaceAll('/', path.sep);
 
-    return path.join(localPath, osSpecificRelative);
-  }
+		return path.join(localPath, osSpecificRelative);
+	}
 
-  async function saferRenameFile(oldPath: string, newPath: string) {
-    try {
-      await fs.rename(oldPath, newPath);
-    } catch (e) {
-      const err = e as { code?: string };
-      if (err.code === 'EXDEV') {
-        await fs.copyFile(oldPath, newPath);
-        await fs.unlink(oldPath);
-      } else {
-        throw new ProcessError(
-          'UNKNOWN',
-          createErrorDetails(
-            err,
-            'Doing a safe rename',
-            `oldPath: ${oldPath}, newPath: ${newPath}`
-          )
-        );
-      }
-    }
-  }
+	async function saferRenameFile(oldPath: string, newPath: string) {
+		try {
+			await fs.rename(oldPath, newPath);
+		} catch (e) {
+			const err = e as { code?: string };
+			if (err.code === 'EXDEV') {
+				await fs.copyFile(oldPath, newPath);
+				await fs.unlink(oldPath);
+			} else {
+				throw new ProcessError(
+					'UNKNOWN',
+					createErrorDetails(err, 'Doing a safe rename', `oldPath: ${oldPath}, newPath: ${newPath}`)
+				);
+			}
+		}
+	}
 
-  function getTempFilePath() {
-    return path.join(tempDirectory, `${uuid.v4()}.tmp`);
-  }
+	function getTempFilePath() {
+		return path.join(tempDirectory, `${uuid.v4()}.tmp`);
+	}
 
-  async function getLocalMeta(
-    pathname: string
-  ): Promise<{ modTimeInSeconds: number; size: number }> {
-    const stat = await fs.stat(pathname);
-    return {
-      modTimeInSeconds: Math.trunc(stat.mtimeMs / 1000),
-      size: stat.size,
-    };
-  }
+	async function getLocalMeta(
+		pathname: string
+	): Promise<{ modTimeInSeconds: number; size: number }> {
+		const stat = await fs.stat(pathname);
 
-  return {
-    kind: 'LOCAL',
-    async getCurrentListing() {
-      const ig = ignore().add(ignoredFiles);
+		return {
+			modTimeInSeconds: Math.trunc(stat.mtimeMs / 1000),
+			size: stat.size,
+		};
+	}
 
-      const list = (
-        await glob('**', {
-          filesOnly: true,
-          absolute: true,
-          dot: true,
-          cwd: localPath,
-        })
-      ).filter((fileName) => {
-        const relativeFileName = path.relative(localPath, fileName);
+	return {
+		kind: 'LOCAL',
+		async getCurrentListing() {
+			const ig = ignore().add(ignoredFiles);
 
-        if (ig.ignores(relativeFileName)) {
-          return false;
-        }
+			const list = (
+				await glob('**', {
+					filesOnly: true,
+					absolute: true,
+					dot: true,
+					cwd: localPath,
+				})
+			).filter((fileName) => {
+				const relativeFileName = path.relative(localPath, fileName);
 
-        const isValid = fileNameIsValid(relativeFileName);
-        if (!isValid) {
-          Logger.warn(
-            `${this.kind} file with name ${relativeFileName} will be ignored due an invalid name`
-          );
-          return false;
-        }
+				if (ig.ignores(relativeFileName)) {
+					return false;
+				}
 
-        return true;
-      });
+				const isValid = fileNameIsValid(relativeFileName);
+				if (!isValid) {
+					Logger.warn(
+						`${this.kind} file with name ${relativeFileName} will be ignored due an invalid name`
+					);
 
-      const listing: Listing = {};
-      const readingMetaErrors: ReadingMetaErrorEntry[] = [];
+					return false;
+				}
 
-      for (const fileName of list) {
-        const relativeName = getListingPath(fileName);
-        try {
-          const { modTimeInSeconds, size } = await getLocalMeta(fileName);
+				return true;
+			});
 
-          if (size) listing[relativeName] = { modtime: modTimeInSeconds, size };
-          else {
-            const emptyFileError = {
-              message: 'Internxt does not support empty files',
-              code: '',
-              stack: '',
-            };
-            readingMetaErrors.push({
-              name: relativeName,
-              errorName: 'EMPTY_FILE',
-              errorDetails: createErrorDetails(
-                emptyFileError,
-                'Reading metadata of file',
-                `Size of file is ${size}`
-              ),
-            });
-          }
-        } catch (e) {
-          const err = e as { code?: string };
+			const listing: Listing = {};
+			const readingMetaErrors: ReadingMetaErrorEntry[] = [];
 
-          readingMetaErrors.push({
-            name: relativeName,
-            errorName: err.code === 'EPERM' ? 'NO_PERMISSION' : 'UNKNOWN',
-            errorDetails: createErrorDetails(
-              err,
-              'Reading metadata of file',
-              `File name is ${fileName}`
-            ),
-          });
-        }
-      }
-      return { listing, readingMetaErrors };
-    },
+			for (const fileName of list) {
+				const relativeName = getListingPath(fileName);
+				try {
+					const { modTimeInSeconds, size } = await getLocalMeta(fileName);
 
-    async deleteFile(name: string) {
-      const actualPath = getActualPath(name);
-      try {
-        await fs.unlink(actualPath);
-      } catch (e) {
-        const err = e as { code?: string };
+					if (size) {
+						listing[relativeName] = { modtime: modTimeInSeconds, size };
+					} else {
+						const emptyFileError = {
+							message: 'Internxt does not support empty files',
+							code: '',
+							stack: '',
+						};
+						readingMetaErrors.push({
+							name: relativeName,
+							errorName: 'EMPTY_FILE',
+							errorDetails: createErrorDetails(
+								emptyFileError,
+								'Reading metadata of file',
+								`Size of file is ${size}`
+							),
+						});
+					}
+				} catch (e) {
+					const err = e as { code?: string };
 
-        if (err.code !== 'ENOENT')
-          throw new ProcessError(
-            'UNKNOWN',
-            createErrorDetails(err, 'Deleting a file locally', `Name: ${name}`)
-          );
-      }
-    },
+					readingMetaErrors.push({
+						name: relativeName,
+						errorName: err.code === 'EPERM' ? 'NO_PERMISSION' : 'UNKNOWN',
+						errorDetails: createErrorDetails(
+							err,
+							'Reading metadata of file',
+							`File name is ${fileName}`
+						),
+					});
+				}
+			}
 
-    pullFile(name: string, source: Source) {
-      return new Promise((resolve, reject) => {
-        const tmpFilePath = getTempFilePath();
+			return { listing, readingMetaErrors };
+		},
 
-        const { stream, ...sourceWithoutStream } = source;
+		async deleteFile(name: string) {
+			const actualPath = getActualPath(name);
+			try {
+				await fs.unlink(actualPath);
+			} catch (e) {
+				const err = e as { code?: string };
 
-        Logger.debug(`Downloading ${name} to temp location ${tmpFilePath}`);
+				if (err.code !== 'ENOENT') {
+					throw new ProcessError(
+						'UNKNOWN',
+						createErrorDetails(err, 'Deleting a file locally', `Name: ${name}`)
+					);
+				}
+			}
+		},
 
-        const writeStream = createWriteStream(tmpFilePath);
+		pullFile(name: string, source: Source) {
+			return new Promise((resolve, reject) => {
+				const tmpFilePath = getTempFilePath();
 
-        stream.on('data', (chunk) => writeStream.write(chunk));
+				const { stream, ...sourceWithoutStream } = source;
 
-        stream.on('error', (err) => {
-          reject(
-            new ProcessError(
-              'UNKNOWN',
-              createErrorDetails(
-                err,
-                `Pulling file locally`,
-                `Name: ${name}, source: ${JSON.stringify(
-                  sourceWithoutStream,
-                  null,
-                  2
-                )}`
-              )
-            )
-          );
-        });
+				Logger.debug(`Downloading ${name} to temp location ${tmpFilePath}`);
 
-        stream.on('end', async () => {
-          try {
-            writeStream.close();
+				const writeStream = createWriteStream(tmpFilePath);
 
-            const actualPath = getActualPath(name);
+				stream.on('data', (chunk) => writeStream.write(chunk));
 
-            await fs.mkdir(path.parse(actualPath).dir, { recursive: true });
+				stream.on('error', (err) => {
+					reject(
+						new ProcessError(
+							'UNKNOWN',
+							createErrorDetails(
+								err,
+								'Pulling file locally',
+								`Name: ${name}, source: ${JSON.stringify(sourceWithoutStream, null, 2)}`
+							)
+						)
+					);
+				});
 
-            await saferRenameFile(tmpFilePath, actualPath);
+				stream.on('end', async () => {
+					try {
+						writeStream.close();
 
-            const modTime = getDateFromSeconds(source.modTime);
-            fs.utimes(actualPath, modTime, modTime);
+						const actualPath = getActualPath(name);
 
-            resolve();
-          } catch (err) {
-            if (err instanceof ProcessError) {
-              reject(err);
-            } else {
-              reject(
-                new ProcessError(
-                  'UNKNOWN',
-                  createErrorDetails(
-                    err,
-                    `Making local directory if needed and updating local modtime`,
-                    `Name: ${name}, source: ${JSON.stringify(
-                      sourceWithoutStream,
-                      null,
-                      2
-                    )}`
-                  )
-                )
-              );
-            }
-          }
-        });
-      });
-    },
+						await fs.mkdir(path.parse(actualPath).dir, { recursive: true });
 
-    renameFile(oldName: string, newName: string) {
-      const oldActualPath = getActualPath(oldName);
-      const newActualPath = getActualPath(newName);
-      return saferRenameFile(oldActualPath, newActualPath);
-    },
+						await saferRenameFile(tmpFilePath, actualPath);
 
-    async existsFolder(name: string): Promise<boolean> {
-      const actualPath = getActualPath(name);
-      try {
-        await fs.access(actualPath);
-        return true;
-      } catch {
-        return false;
-      }
-    },
+						const modTime = getDateFromSeconds(source.modTime);
+						fs.utimes(actualPath, modTime, modTime);
 
-    deleteFolder(name: string): Promise<void> {
-      const actualPath = getActualPath(name);
+						resolve();
+					} catch (err) {
+						if (err instanceof ProcessError) {
+							reject(err);
+						} else {
+							reject(
+								new ProcessError(
+									'UNKNOWN',
+									createErrorDetails(
+										err,
+										'Making local directory if needed and updating local modtime',
+										`Name: ${name}, source: ${JSON.stringify(sourceWithoutStream, null, 2)}`
+									)
+								)
+							);
+						}
+					}
+				});
+			});
+		},
 
-      return fs.rm(actualPath, { recursive: true, force: true });
-    },
+		renameFile(oldName: string, newName: string) {
+			const oldActualPath = getActualPath(oldName);
+			const newActualPath = getActualPath(newName);
 
-    async getSource(name: string): Promise<Source> {
-      const actualPath = getActualPath(name);
-      const tmpFilePath = getTempFilePath();
+			return saferRenameFile(oldActualPath, newActualPath);
+		},
 
-      let modTime: number | undefined;
-      let size: number | undefined;
+		async existsFolder(name: string): Promise<boolean> {
+			const actualPath = getActualPath(name);
+			try {
+				await fs.access(actualPath);
 
-      try {
-        const localMeta = await getLocalMeta(actualPath);
-        modTime = localMeta.modTimeInSeconds;
-        size = localMeta.size;
+				return true;
+			} catch {
+				return false;
+			}
+		},
 
-        await fs.copyFile(actualPath, tmpFilePath);
-      } catch (e) {
-        const err = e as { code?: string };
-        const action =
-          'Getting local meta and copying file to a temp directory';
-        const additional = `Actual path: ${actualPath}, temp path: ${tmpFilePath}, size: ${size}, modTime: ${modTime}`;
-        if (err.code === 'ENOENT') {
-          throw new ProcessError(
-            'NOT_EXISTS',
-            createErrorDetails(err, action, additional)
-          );
-        } else if (err.code === 'EACCES') {
-          throw new ProcessError(
-            'NO_PERMISSION',
-            createErrorDetails(err, action, additional)
-          );
-        } else {
-          throw new ProcessError(
-            'UNKNOWN',
-            createErrorDetails(err, action, additional)
-          );
-        }
-      }
+		deleteFolder(name: string): Promise<void> {
+			const actualPath = getActualPath(name);
 
-      const stream = createReadStream(tmpFilePath);
+			return fs.rm(actualPath, { recursive: true, force: true });
+		},
 
-      const onEndOrError = () => fs.unlink(tmpFilePath);
+		async getSource(name: string): Promise<Source> {
+			const actualPath = getActualPath(name);
+			const tmpFilePath = getTempFilePath();
 
-      stream.once('end', onEndOrError);
-      stream.once('error', onEndOrError);
+			let modTime: number | undefined;
+			let size: number | undefined;
 
-      Logger.debug(`Uploading ${name} from temp location ${tmpFilePath}`);
+			try {
+				const localMeta = await getLocalMeta(actualPath);
+				modTime = localMeta.modTimeInSeconds;
+				size = localMeta.size;
 
-      return { stream, modTime, size };
-    },
+				await fs.copyFile(actualPath, tmpFilePath);
+			} catch (e) {
+				const err = e as { code?: string };
+				const action = 'Getting local meta and copying file to a temp directory';
+				const additional = `Actual path: ${actualPath}, temp path: ${tmpFilePath}, size: ${size}, modTime: ${modTime}`;
+				if (err.code === 'ENOENT') {
+					throw new ProcessError('NOT_EXISTS', createErrorDetails(err, action, additional));
+				} else if (err.code === 'EACCES') {
+					throw new ProcessError('NO_PERMISSION', createErrorDetails(err, action, additional));
+				} else {
+					throw new ProcessError('UNKNOWN', createErrorDetails(err, action, additional));
+				}
+			}
 
-    async smokeTest() {
-      try {
-        await fs.access(localPath, constants.R_OK | constants.W_OK);
-        await fs.lstat(localPath);
-      } catch (err) {
-        const systemError = err as { code?: string };
-        if (systemError.code === 'ENOENT') {
-          throw new ProcessFatalError(
-            'BASE_DIRECTORY_DOES_NOT_EXIST',
-            createErrorDetails(
-              err,
-              'Error accessing local base directory',
-              `localPath: ${localPath}`
-            )
-          );
-        }
-        if (systemError.code === 'EACCES') {
-          throw new ProcessFatalError(
-            'INSUFICIENT_PERMISION_ACCESSING_BASE_DIRECTORY',
-            createErrorDetails(
-              err,
-              'Error accessing local base directory',
-              `localPath: ${localPath}`
-            )
-          );
-        }
-        throw new ProcessFatalError(
-          'CANNOT_ACCESS_BASE_DIRECTORY',
-          createErrorDetails(
-            err,
-            'Error accessing local base directory',
-            `localPath: ${localPath}`
-          )
-        );
-      }
+			const stream = createReadStream(tmpFilePath);
 
-      try {
-        await fs.access(tempDirectory, constants.R_OK | constants.W_OK);
-      } catch (err) {
-        throw new ProcessFatalError(
-          'CANNOT_ACCESS_TMP_DIRECTORY',
-          createErrorDetails(
-            err,
-            'Error accessing local temp directory',
-            `localPath: ${tempDirectory}`
-          )
-        );
-      }
-    },
-  };
+			const onEndOrError = () => fs.unlink(tmpFilePath);
+
+			stream.once('end', onEndOrError);
+			stream.once('error', onEndOrError);
+
+			Logger.debug(`Uploading ${name} from temp location ${tmpFilePath}`);
+
+			return { stream, modTime, size };
+		},
+
+		async smokeTest() {
+			try {
+				await fs.access(localPath, constants.R_OK | constants.W_OK);
+				await fs.lstat(localPath);
+			} catch (err) {
+				const systemError = err as { code?: string };
+				if (systemError.code === 'ENOENT') {
+					throw new ProcessFatalError(
+						'BASE_DIRECTORY_DOES_NOT_EXIST',
+						createErrorDetails(
+							err,
+							'Error accessing local base directory',
+							`localPath: ${localPath}`
+						)
+					);
+				}
+				if (systemError.code === 'EACCES') {
+					throw new ProcessFatalError(
+						'INSUFICIENT_PERMISION_ACCESSING_BASE_DIRECTORY',
+						createErrorDetails(
+							err,
+							'Error accessing local base directory',
+							`localPath: ${localPath}`
+						)
+					);
+				}
+				throw new ProcessFatalError(
+					'CANNOT_ACCESS_BASE_DIRECTORY',
+					createErrorDetails(err, 'Error accessing local base directory', `localPath: ${localPath}`)
+				);
+			}
+
+			try {
+				await fs.access(tempDirectory, constants.R_OK | constants.W_OK);
+			} catch (err) {
+				throw new ProcessFatalError(
+					'CANNOT_ACCESS_TMP_DIRECTORY',
+					createErrorDetails(
+						err,
+						'Error accessing local temp directory',
+						`localPath: ${tempDirectory}`
+					)
+				);
+			}
+		},
+	};
 }

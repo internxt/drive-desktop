@@ -1,71 +1,71 @@
+import Logger from 'electron-log';
 import jwtDecode, { JwtPayload } from 'jwt-decode';
 import nodeSchedule from 'node-schedule';
-import Logger from 'electron-log';
 
 const FIVE_SECONDS = 5 * 60;
 
 export class TokenScheduler {
-  private static MAX_TIME = 8640000000000000;
+	private static MAX_TIME = 8640000000000000;
 
-  constructor(
-    private daysBefore: number,
-    private tokens: Array<string>,
-    private unauthorized: () => void
-  ) {}
+	constructor(
+		private daysBefore: number,
+		private tokens: Array<string>,
+		private unauthorized: () => void
+	) {}
 
-  private getExpiration(token: string): number {
-    try {
-      const decoded = jwtDecode<JwtPayload>(token);
+	private getExpiration(token: string): number {
+		try {
+			const decoded = jwtDecode<JwtPayload>(token);
 
-      return decoded.exp || TokenScheduler.MAX_TIME;
-    } catch (err) {
-      Logger.error('[TOKEN] Token could be not decoded');
-      return TokenScheduler.MAX_TIME;
-    }
-  }
+			return decoded.exp || TokenScheduler.MAX_TIME;
+		} catch (err) {
+			Logger.error('[TOKEN] Token could be not decoded');
 
-  private nearestExpiration(): number {
-    const expirations = this.tokens.map(this.getExpiration);
+			return TokenScheduler.MAX_TIME;
+		}
+	}
 
-    return Math.min(...expirations);
-  }
+	private nearestExpiration(): number {
+		const expirations = this.tokens.map(this.getExpiration);
 
-  private calculateRenewDate(expiration: number): Date {
-    const renewSecondsBefore = this.daysBefore * 24 * 60 * 60;
+		return Math.min(...expirations);
+	}
 
-    const renewDateInSeconds = expiration - renewSecondsBefore;
+	private calculateRenewDate(expiration: number): Date {
+		const renewSecondsBefore = this.daysBefore * 24 * 60 * 60;
 
-    if (renewDateInSeconds >= Date.now()) {
-      return new Date(Date.now() + FIVE_SECONDS);
-    }
+		const renewDateInSeconds = expiration - renewSecondsBefore;
 
-    const date = new Date(0);
-    date.setUTCSeconds(renewDateInSeconds);
+		if (renewDateInSeconds >= Date.now()) {
+			return new Date(Date.now() + FIVE_SECONDS);
+		}
 
-    return date;
-  }
+		const date = new Date(0);
+		date.setUTCSeconds(renewDateInSeconds);
 
-  public schedule(fn: () => void) {
-    const expiration = this.nearestExpiration();
+		return date;
+	}
 
-    if (expiration === TokenScheduler.MAX_TIME) {
-      Logger.warn('[TOKEN] Refresh token schedule will not be set');
-      return;
-    }
+	public schedule(fn: () => void) {
+		const expiration = this.nearestExpiration();
 
-    if (expiration >= Date.now()) {
-      Logger.warn('[TOKEN] TOKEN IS EXPIRED');
-      this.unauthorized();
-      return;
-    }
+		if (expiration === TokenScheduler.MAX_TIME) {
+			Logger.warn('[TOKEN] Refresh token schedule will not be set');
 
-    const renewDate = this.calculateRenewDate(expiration);
+			return;
+		}
 
-    Logger.info(
-      '[TOKEN] Tokens will be refreshed on ',
-      renewDate.toLocaleDateString()
-    );
+		if (expiration >= Date.now()) {
+			Logger.warn('[TOKEN] TOKEN IS EXPIRED');
+			this.unauthorized();
 
-    return nodeSchedule.scheduleJob(renewDate, fn);
-  }
+			return;
+		}
+
+		const renewDate = this.calculateRenewDate(expiration);
+
+		Logger.info('[TOKEN] Tokens will be refreshed on ', renewDate.toLocaleDateString());
+
+		return nodeSchedule.scheduleJob(renewDate, fn);
+	}
 }

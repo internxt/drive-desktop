@@ -1,20 +1,21 @@
 // @ts-nocheck
-import { Readable } from 'stream';
 import { toHaveBeenCalledBefore } from 'jest-extended';
-import Sync from '../sync';
+import { Readable } from 'stream';
+
 import {
   ErrorDetails,
   FileSystem,
   Listing,
   ProcessFatalError,
 } from '../../types';
+import { convertActionsToQueues } from '../Actions/application/ConvertActionsToQueues';
 import { generateHierarchyActions } from '../Actions/application/GenerateHierarchyActions';
 import { generateDeltas } from '../ItemState/application/GenerateDeltas';
+import { ItemState } from '../ItemState/domain/ItemState';
 import { LocalItemMetaData } from '../Listings/domain/LocalItemMetaData';
 import { RemoteItemMetaData } from '../Listings/domain/RemoteItemMetaData';
 import { SynchronizedItemMetaData } from '../Listings/domain/SynchronizedItemMetaData';
-import { ItemState } from '../ItemState/domain/ItemState';
-import { convertActionsToQueues } from '../Actions/application/ConvertActionsToQueues';
+import Sync from '../sync';
 
 expect.extend({ toHaveBeenCalledBefore });
 
@@ -109,8 +110,12 @@ describe('sync tests', () => {
       async getLastSavedListing() {
         return null;
       },
-      async removeSavedListing() {},
-      async saveListing() {},
+      async removeSavedListing() {
+        // no op
+      },
+      async saveListing() {
+        // no op
+      },
     };
   }
 

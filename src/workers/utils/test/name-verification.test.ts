@@ -1,7 +1,7 @@
 import { fileNameIsValid } from '../name-verification';
-
 import sensibleFiles from './sensible-files.json';
 
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const path = require('path');
 
 describe('name verifiaction test', () => {

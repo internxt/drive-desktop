@@ -1,6 +1,6 @@
 export type Usage = {
-  usageInBytes: number;
-  limitInBytes: number;
-  isInfinite: boolean;
-  offerUpgrade: boolean;
+	usageInBytes: number;
+	limitInBytes: number;
+	isInfinite: boolean;
+	offerUpgrade: boolean;
 };
