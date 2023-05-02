@@ -3,7 +3,13 @@ import Button from '../../../components/Button';
 import { Usage as UsageType } from '../../../../main/usage/usage';
 import { useTranslationContext } from '../../../context/LocalContext';
 
-function UsageDetailLocalized({ inUse, limit }: { inUse: string; limit: string }) {
+function UsageDetailLocalized({
+  inUse,
+  limit,
+}: {
+  inUse: string;
+  limit: string;
+}) {
   const { translate, language } = useTranslationContext();
 
   const used = translate('settings.account.usage.current.used');
@@ -49,7 +55,9 @@ export default function Usage({
             target="_blank"
             rel="noopener noreferrer"
           >
-            <Button variant="primary">{translate('settings.account.usage.upgrade')}</Button>
+            <Button variant="primary">
+              {translate('settings.account.usage.upgrade')}
+            </Button>
           </a>
         )}
       </div>

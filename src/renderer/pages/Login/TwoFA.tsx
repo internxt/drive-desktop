@@ -9,7 +9,7 @@ type TwoFAProps = {
 export default function TwoFA({ onChange, state }: TwoFAProps) {
   return (
     <AuthCode
-      characters={6}
+      length={6}
       onChange={onChange}
       containerClassName="flex items-center justify-between mt-2"
       inputClassName={`h-10 w-8 text-center py-2 rounded-lg outline-none border ${

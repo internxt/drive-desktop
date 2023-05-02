@@ -3,7 +3,7 @@ import { AvaliableMethods } from './AvaliableAppQuery';
 
 type OverridedApp = Omit<App, 'getPreferredSystemLanguages'> & {
   getPreferredSystemLanguages: () => Array<string>;
-}
+};
 
 export type AppQuery<T extends AvaliableMethods> = {
   method: string;

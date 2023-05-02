@@ -89,7 +89,7 @@ const schema: Schema<AppStore> = {
   },
   preferedLanguage: {
     type: 'string',
-  }
+  },
 } as const;
 
 export const defaults: AppStore = {

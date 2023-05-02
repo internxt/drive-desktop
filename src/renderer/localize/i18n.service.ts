@@ -1,12 +1,12 @@
 import { initReactI18next } from 'react-i18next';
 import i18next from 'i18next';
 import { getConfigKey, queryApp } from 'renderer/utils/query';
+import dayjs from 'dayjs';
 import {
   DEFAULT_LANGUAGE,
   Language,
   isLanguage,
 } from '../../shared/Locale/Language';
-import dayjs from 'dayjs';
 import DayJsLocales from '../../shared/Locale/DayJsLocales';
 
 const languageDetection = (callback: (lang: Language | undefined) => void) => {
@@ -35,9 +35,9 @@ i18next
     type: 'languageDetector',
     name: 'Locale language detector',
     async: true,
-    init: function () {},
+    init() {},
     detect: languageDetection,
-    cacheUserLanguage: function (lng: string) {
+    cacheUserLanguage(lng: string) {
       return lng;
     },
   })

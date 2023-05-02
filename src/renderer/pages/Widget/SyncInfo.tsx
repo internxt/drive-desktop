@@ -98,7 +98,7 @@ export default function SyncInfo() {
 
   return (
     <div className="relative flex min-h-0 flex-grow flex-col border-t border-t-l-neutral-30 bg-l-neutral-10">
-      <div className="absolute top-0 left-0 flex w-full justify-end p-1">
+      <div className="absolute left-0 top-0 flex w-full justify-end p-1">
         <div className="rounded bg-l-neutral-10 px-2">
           <button
             tabIndex={0}
@@ -212,7 +212,6 @@ function Item({
 }
 
 function Empty() {
-
   const { translate } = useTranslationContext();
 
   return (
@@ -364,7 +363,7 @@ function BackupsBanner({
               e.stopPropagation();
               setHidden(true);
             }}
-            className={`absolute top-1/2 right-5 hidden h-5 w-5 -translate-y-1/2 cursor-pointer text-neutral-500/50 hover:text-neutral-500/70 active:text-neutral-500 ${
+            className={`absolute right-5 top-1/2 hidden h-5 w-5 -translate-y-1/2 cursor-pointer text-neutral-500/50 hover:text-neutral-500/70 active:text-neutral-500 ${
               status === 'STANDBY' ? 'group-hover:block' : ''
             }`}
           />

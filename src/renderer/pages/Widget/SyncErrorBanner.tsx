@@ -55,9 +55,7 @@ export default function SyncErrorBanner() {
   let message = '';
 
   if (stopReason?.reason === 'COULD_NOT_ACQUIRE_LOCK') {
-
-  }
-  else if (stopReason?.reason === 'FATAL_ERROR')
+  } else if (stopReason?.reason === 'FATAL_ERROR')
     message = SyncFatalErrorMessages[stopReason.errorName];
 
   let action;

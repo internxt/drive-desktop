@@ -222,15 +222,15 @@ export default function Login() {
           </h2>
         </div>
       </div>
-      { warning && state === 'warning' && (
+      {warning && state === 'warning' && (
         <WarningBanner
-          icon={''}
+          icon=""
           className={`${state === 'warning' ? 'opacity-100' : 'opacity-0'}`}
         >
           {warning}
         </WarningBanner>
       )}
-      { errorDetails && state === 'error' && (
+      {errorDetails && state === 'error' && (
         <ErrorBanner
           className={`${state === 'error' ? 'opacity-100' : 'opacity-0'}`}
         >

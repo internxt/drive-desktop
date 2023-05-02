@@ -72,7 +72,7 @@ export class FileSystemMock implements FileSystem<PartialListing> {
     return this.mockGetSource(name, progressCallback);
   }
 
-  getFolderData(folderFullPath: string): Promise<{ modtime: number; }> {
+  getFolderData(folderFullPath: string): Promise<{ modtime: number }> {
     return this.mockGetFolderData(folderFullPath);
   }
 

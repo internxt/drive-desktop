@@ -43,7 +43,7 @@ export default function DeviceName() {
       </p>
       {deviceState.status === 'LOADING' ? (
         <>
-          <Spinner className="mt-2 ml-5 h-6 w-6 animate-spin fill-neutral-500" />
+          <Spinner className="ml-5 mt-2 h-6 w-6 animate-spin fill-neutral-500" />
           <div className="h-2" />
         </>
       ) : showEdit ? (

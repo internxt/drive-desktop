@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { DEFAULT_LANGUAGE, Language } from '../../shared/Locale/Language';
 import i18next from 'i18next';
+import { DEFAULT_LANGUAGE, Language } from '../../shared/Locale/Language';
 
 export default function useLanguage() {
   const [lang, setLang] = useState<Language>(DEFAULT_LANGUAGE);

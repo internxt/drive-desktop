@@ -67,7 +67,7 @@ export default function Input({
       <div className="relative mt-1">
         <input
           tabIndex={tabIndex}
-          className={`h-10 w-full rounded-lg border bg-l-neutral-20 py-2 px-4 outline-none ${inputColors}`}
+          className={`h-10 w-full rounded-lg border bg-l-neutral-20 px-4 py-2 outline-none ${inputColors}`}
           type={type === 'password' && showPassword ? 'text' : type}
           disabled={state === 'loading'}
           onChange={(e) => onChange(e.target.value)}
@@ -84,7 +84,7 @@ export default function Input({
               e.preventDefault();
               setShowPassword(!showPassword);
             }}
-            className="absolute top-1/2 right-4 -translate-y-1/2 transform cursor-pointer bg-l-neutral-20 py-2 pl-2 text-sm font-semibold text-m-neutral-100"
+            className="absolute right-4 top-1/2 -translate-y-1/2 transform cursor-pointer bg-l-neutral-20 py-2 pl-2 text-sm font-semibold text-m-neutral-100"
           >
             {translate(
               showPassword ? 'login.password.hide' : 'login.password.show'

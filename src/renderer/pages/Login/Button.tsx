@@ -12,7 +12,7 @@ export default function Button({
   className = '',
   tabIndex = 0,
 }: ButtonProps) {
-  const { translate } = useTranslationContext()
+  const { translate } = useTranslationContext();
   let colors;
 
   switch (state) {
@@ -37,9 +37,13 @@ export default function Button({
       disabled={state !== 'ready'}
       tabIndex={tabIndex}
     >
-      {translate(state === 'loading' ? 'login.action.is-logging-in' : 'login.action.login')}
+      {translate(
+        state === 'loading'
+          ? 'login.action.is-logging-in'
+          : 'login.action.login'
+      )}
       {state === 'loading' && (
-        <div className="absolute top-1/2 right-4 -translate-y-1/2 transform">
+        <div className="absolute right-4 top-1/2 -translate-y-1/2 transform">
           <div className="animate-spin">
             <Spinner className="fill-white" width="18" height="18" />
           </div>

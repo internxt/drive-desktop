@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { Transition } from '@headlessui/react';
+import { useTranslationContext } from 'renderer/context/LocalContext';
 import Button from '../../components/Button';
 import widgedWidget from '../../assets/onboarding/widget.png';
 import macFinderWidgetAsset from '../../assets/onboarding/mac-finder-widget.png';
 import Logo from '../../assets/onboarding/logo.svg';
-import { useTranslationContext } from 'renderer/context/LocalContext';
 
 function SideImageAnimation({
   display,

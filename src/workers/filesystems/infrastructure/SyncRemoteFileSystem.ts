@@ -5,6 +5,8 @@ import { Readable } from 'stream';
 import Logger from 'electron-log';
 import EventEmitter from 'events';
 import { ipcRenderer } from 'electron';
+import { ActionState } from '@internxt/inxt-js/build/api/ActionState';
+import { Events } from '@internxt/inxt-js/build/lib/core';
 import { fileNameIsValid } from '../../utils/name-verification';
 import crypt from '../../utils/crypt';
 import {
@@ -26,8 +28,6 @@ import { RemoteListing } from '../../sync/Listings/domain/Listing';
 import { RemoteItemMetaData } from '../../sync/Listings/domain/RemoteItemMetaData';
 import { FileCreatedResponseDTO } from '../../../shared/HttpClient/responses/file-created';
 import { TransferLimits } from '../domain/Transfer';
-import { ActionState } from '@internxt/inxt-js/build/api/ActionState';
-import { Events } from '@internxt/inxt-js/build/lib/core';
 
 type CacheData = {
   id: number;
@@ -320,7 +320,6 @@ export function getRemoteFilesystem({
         encryptionKey: mnemonic,
       });
 
-
       if (source.size > TransferLimits.UploadFileSize) {
         source.stream.destroy(new Error('FILE TOO BIG'));
 
@@ -333,7 +332,6 @@ export function getRemoteFilesystem({
           )
         );
       }
-
 
       const uploadedFileId: string = await new Promise((resolve, reject) => {
         if (source.size > TransferLimits.MultipartUploadThreshold) {
@@ -375,7 +373,6 @@ export function getRemoteFilesystem({
             // localUpload.uploadCancel(state);
             // state.emit(Events.Upload.Abort);
           });
-
         } else {
           localUpload.upload(bucket, {
             progressCallback,

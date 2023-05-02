@@ -22,5 +22,5 @@ export const longMessages: ProcessErrorMessages = {
   BAD_RESPONSE: 'issues.error-messages.bad-response',
   EMPTY_FILE: 'issues.error-messages.empty-file',
   UNKNOWN: 'issues.error-messages.unknown',
-  FILE_TOO_BIG: 'issues.error-messages.file-too-big'
+  FILE_TOO_BIG: 'issues.error-messages.file-too-big',
 };

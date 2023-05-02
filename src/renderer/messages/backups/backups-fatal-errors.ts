@@ -1,10 +1,10 @@
-import { ProcessFatalErrorName } from "../../../workers/types";
+import { ProcessFatalErrorName } from '../../../workers/types';
 import processFatalErrors from '../process-fatal-error';
 
 const messages: Partial<Record<ProcessFatalErrorName, string>> = {
-  BASE_DIRECTORY_DOES_NOT_EXIST: 'widget.body.errors.backups.folder-not-found.text',
+  BASE_DIRECTORY_DOES_NOT_EXIST:
+    'widget.body.errors.backups.folder-not-found.text',
 };
-
 
 function obtainErrorMessage(errorName: ProcessFatalErrorName): string {
   const specificBackupErrorName = messages[errorName];

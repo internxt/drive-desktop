@@ -1,6 +1,7 @@
 import { MouseEvent, useState } from 'react';
 import { UilInfoCircle, UilAngleDown } from '@iconscout/react-unicons';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useTranslationContext } from 'renderer/context/LocalContext';
 import WarnIcon from '../../assets/warn.svg';
 import ErrorIcon from '../../assets/error.svg';
 import FileIcon from '../../assets/file.svg';
@@ -20,7 +21,6 @@ import { BackupFatalError } from '../../../main/background-processes/types/Backu
 import messages from '../../messages/process-fatal-error';
 import useFatalErrorActions from '../../hooks/FatalErrorActions';
 import { Action } from '../../actions/types';
-import { useTranslationContext } from 'renderer/context/LocalContext';
 
 export default function ProcessIssuesList({
   selectedTab,
@@ -132,7 +132,7 @@ export default function ProcessIssuesList({
 
       {issuesIsEmpty() ? <Empty /> : null}
       {isLoading && (
-        <Spinner className="absolute top-1 right-1 h-3 w-3 animate-spin fill-neutral-700" />
+        <Spinner className="absolute right-1 top-1 h-3 w-3 animate-spin fill-neutral-700" />
       )}
     </div>
   );
@@ -160,7 +160,6 @@ function GeneralIssueItem({
   isSelected: boolean;
   onClick: () => void;
 }) {
-
   const { translate } = useTranslationContext();
 
   return (
@@ -232,7 +231,7 @@ function Item({
   onClick: () => void;
   onInfoClick: () => void;
 }) {
-  const {translate} = useTranslationContext()
+  const { translate } = useTranslationContext();
   return (
     <div
       onClick={onClick}
@@ -250,13 +249,13 @@ function Item({
           >
             {translate(shortMessages[errorName])}
             &nbsp;
-            {/*<UilInfoCircle
+            {/* <UilInfoCircle
               className="inline h-4 w-4 text-blue-60 hover:text-blue-50 active:text-blue-60"
               onClick={(e: MouseEvent) => {
                 e.stopPropagation();
                 onInfoClick();
               }}
-            />*/}
+            /> */}
           </h1>
           <p className="text-gray-70" data-test="number-sync-issues">
             {issues.length} files

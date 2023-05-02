@@ -86,7 +86,7 @@ function Tabs({
     (64 * 4) / 3,
   ]);
 
-  const w = (language === 'es' || language === 'fr')  ? 'w-11/12' : 'w-64';
+  const w = language === 'es' || language === 'fr' ? 'w-11/12' : 'w-64';
 
   useEffect(() => {
     const fullWidth = language === 'en' ? 64 : 100;

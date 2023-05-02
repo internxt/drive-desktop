@@ -15,4 +15,4 @@ export async function queryApp(
 
 export async function getConfigKey(key: StoredValues) {
   return window.electron.getConfigKey(key);
-};
+}

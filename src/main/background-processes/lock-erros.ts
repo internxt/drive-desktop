@@ -5,7 +5,7 @@ const reasons = [
   'LOCK_UNAUTHORIZED',
 ] as const;
 
-export type LockErrorReason = typeof reasons[number];
+export type LockErrorReason = (typeof reasons)[number];
 
 export function isLockError(maybe: unknown): maybe is LockErrorReason {
   return (

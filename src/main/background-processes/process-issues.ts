@@ -1,4 +1,5 @@
 import { ipcMain } from 'electron';
+import Logger from 'electron-log';
 import {
   GeneralIssue,
   ProcessInfoUpdatePayload,
@@ -6,7 +7,6 @@ import {
 } from '../../workers/types';
 import eventBus from '../event-bus';
 import { broadcastToWindows } from '../windows';
-import Logger from 'electron-log';
 
 let processIssues: ProcessIssue[] = [];
 let generalIssues: GeneralIssue[] = [];

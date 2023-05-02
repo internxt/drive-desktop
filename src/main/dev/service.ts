@@ -6,8 +6,8 @@ import {
   ProcessIssue,
 } from '../../workers/types';
 import { Process } from '../../shared/types/Process';
-import { BackupFatalError } from '../../main/background-processes/types/BackupFatalError';
-import { addProcessIssue } from '../../main/background-processes/process-issues';
+import { BackupFatalError } from '../background-processes/types/BackupFatalError';
+import { addProcessIssue } from '../background-processes/process-issues';
 
 export const resizeCurrentWindow = ({
   width,

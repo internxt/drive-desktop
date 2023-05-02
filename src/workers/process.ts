@@ -2,6 +2,7 @@ import { EventEmitter } from 'events';
 import path from 'path';
 import _ from 'lodash';
 import Logger from 'electron-log';
+import { Readable } from 'stream';
 import {
   ErrorDetails,
   FileSystem,
@@ -13,9 +14,8 @@ import {
   ReadingMetaErrorEntry,
 } from './types';
 import { createErrorDetails } from './utils/reporting';
-import { Readable } from 'stream';
-import {FileSystem as NewFileSystem} from '../workers/filesystems/domain/FileSystem';
-import { PartialListing } from '../workers/sync/Listings/domain/Listing';
+import { FileSystem as NewFileSystem } from './filesystems/domain/FileSystem';
+import { PartialListing } from './sync/Listings/domain/Listing';
 
 abstract class Process extends EventEmitter {
   constructor(

@@ -69,8 +69,8 @@ test.describe('process issues', () => {
       args: ['release/app/dist/main/main.js'],
       env: {
         ...process.env,
-        NODE_ENV: 'TEST'
-      }
+        NODE_ENV: 'TEST',
+      },
     });
 
     await ipcMainEmit(electronApp, 'user-logged-in', AccessResponseFixtures);
@@ -172,7 +172,9 @@ test.describe('process issues', () => {
 
   test.describe('general issues', () => {
     test('tab selected is general when there is only general issues', async () => {
-      await addGeneralIssues([createGeneralIssueFixture('UNKNOWN_DEVICE_NAME')]);
+      await addGeneralIssues([
+        createGeneralIssueFixture('UNKNOWN_DEVICE_NAME'),
+      ]);
       await wait(300);
 
       const activeTab = await page.innerHTML(activeTabSelector);

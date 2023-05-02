@@ -1,12 +1,12 @@
 import { Fragment, ReactNode, useEffect, useState } from 'react';
 import { UilPlus, UilMinus } from '@iconscout/react-unicons';
 import { Dialog, Transition } from '@headlessui/react';
+import { useTranslationContext } from 'renderer/context/LocalContext';
 import FolderIcon from '../../../assets/folder.svg';
 import Button from '../../../components/Button';
 import { Backup } from '../../../../main/device/service';
 import Spinner from '../../../assets/spinner.svg';
 import Checkbox from '../../../components/Checkbox';
-import { useTranslationContext } from 'renderer/context/LocalContext';
 
 export default function BackupsList({
   onGoToPanel,

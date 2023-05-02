@@ -49,7 +49,7 @@ export default function Header() {
       leaveTo="transform scale-95 opacity-0"
       className="relative z-10"
     >
-      <Menu.Items className="absolute top-5 right-0 w-32 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+      <Menu.Items className="absolute right-0 top-5 w-32 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
         <Menu.Item>
           {({ active }) => (
             <div
@@ -238,7 +238,7 @@ function DropdownItem({
 }) {
   return (
     <div
-      className={`cursor-pointer py-1.5 px-4 text-sm text-neutral-500 hover:bg-l-neutral-20 active:bg-l-neutral-30 ${
+      className={`cursor-pointer px-4 py-1.5 text-sm text-neutral-500 hover:bg-l-neutral-20 active:bg-l-neutral-30 ${
         active && 'bg-l-neutral-20'
       }`}
       role="button"

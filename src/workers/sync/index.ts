@@ -14,8 +14,8 @@ import { getUser } from '../../main/auth/service';
 import configStore from '../../main/config';
 import { getClients } from '../../shared/HttpClient/backgroud-process-clients';
 import { ConfigFileListingStore } from './Listings/infrastructure/ConfigFileListingStore';
-import { getRemoteFilesystem as getOldRemoteFilesystem } from '../../workers/filesystems/remote-filesystem';
-import { getLocalFilesystem as getOldLocalFilesystem } from '../../workers/filesystems/local-filesystem';
+import { getRemoteFilesystem as getOldRemoteFilesystem } from '../filesystems/remote-filesystem';
+import { getLocalFilesystem as getOldLocalFilesystem } from '../filesystems/local-filesystem';
 
 export type SyncArgs = {
   localPath: string;
@@ -116,12 +116,7 @@ async function setUp() {
     });
 
     if (fileId && kind === 'REMOTE') {
-      await ipcRenderer.invoke(
-        'REMOTE_FILE_PULL_COMPLETED',
-        name,
-        fileId
-      );
-
+      await ipcRenderer.invoke('REMOTE_FILE_PULL_COMPLETED', name, fileId);
     }
   });
 
@@ -266,7 +261,7 @@ async function setUp() {
 
   sync.on('LOST_CONNECTION', () => {
     ipcRenderer.send('SYNC_FATAL_ERROR', 'NO_INTERNET');
-  })
+  });
 
   try {
     Logger.debug('SYNC STARTING ');

@@ -51,10 +51,11 @@ function LoggedInWrapper({ children }: { children: JSX.Element }) {
   return children;
 }
 
-const Loader = () => <div>loading...</div>;
+function Loader() {
+  return <div>loading...</div>;
+}
 
 export default function App() {
-
   useLanguageChangedListener();
 
   return (

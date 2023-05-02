@@ -32,7 +32,7 @@ export const createSyncError = (
 });
 
 export const createGeneralIssueFixture = (
-  name: GeneralErrorName,
+  name: GeneralErrorName
 ): GeneralIssue => ({
   action: 'GET_DEVICE_NAME_ERROR',
   errorName: name,
@@ -40,6 +40,6 @@ export const createGeneralIssueFixture = (
   errorDetails: {
     name: 'Device name could not be retrived',
     message: 'Error retriving the device name',
-    stack: ''
-  }
-})
+    stack: '',
+  },
+});

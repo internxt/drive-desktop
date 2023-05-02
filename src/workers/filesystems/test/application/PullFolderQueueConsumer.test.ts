@@ -137,7 +137,9 @@ describe('Pull Folder Queue Consumer', () => {
     await consumer.consume(folders);
 
     destinationFS.assertNumberOfFoldersPulled(2);
-    destinationFS.assertFolderWasNeverPulled('folderA/subfolderB/sub-subfolderA');
+    destinationFS.assertFolderWasNeverPulled(
+      'folderA/subfolderB/sub-subfolderA'
+    );
   });
 
   it('emits an event before and after the performing the action', async () => {

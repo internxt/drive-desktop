@@ -5,10 +5,10 @@ import { Fragment } from 'react';
 import { useTranslationContext } from '../context/LocalContext';
 
 export type DropdownElement<T> = {
-  id: string,
-  text: string,
-  value: T,
-}
+  id: string;
+  text: string;
+  value: T;
+};
 
 export default function Dropdown<T>({
   selected,
@@ -18,7 +18,7 @@ export default function Dropdown<T>({
   selected: DropdownElement<T>;
   onChange: (value: DropdownElement<T>) => void;
   options: Array<DropdownElement<T>>;
-  defaultValue?: DropdownElement<T> ;
+  defaultValue?: DropdownElement<T>;
 }): JSX.Element {
   const { translate } = useTranslationContext();
 
@@ -26,7 +26,7 @@ export default function Dropdown<T>({
     if (selected.id === selectedOption.id) return;
 
     onChange(selectedOption);
-  }
+  };
 
   return (
     <Listbox value={selected} onChange={changeWhenIsDifferent}>

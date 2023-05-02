@@ -20,13 +20,21 @@ export default function SyncRoot({ className = '' }: { className?: string }) {
   const getTruncatedSyncRootPath = (currentSyncRoot: string): JSX.Element => {
     const folders = getPathArray(currentSyncRoot);
     if (folders.length <= 1) {
-      return <span className='truncate text-neutral-700'>{currentSyncRoot}</span>;
+      return (
+        <span className="truncate text-neutral-700">{currentSyncRoot}</span>
+      );
     } else {
-      return <p className='flex flex-row'>
-        <span className='truncate text-neutral-700'>{folders[0]}</span>
-        <span className='text-neutral-700 mr-1 min-w-min'>{folders.length === 2 ? '/' : '/... /'}</span>
-        <span className='truncate text-neutral-700'>{folders[folders.length - 1]}</span>
-      </p>;
+      return (
+        <p className="flex flex-row">
+          <span className="truncate text-neutral-700">{folders[0]}</span>
+          <span className="mr-1 min-w-min text-neutral-700">
+            {folders.length === 2 ? '/' : '/... /'}
+          </span>
+          <span className="truncate text-neutral-700">
+            {folders[folders.length - 1]}
+          </span>
+        </p>
+      );
     }
   };
 

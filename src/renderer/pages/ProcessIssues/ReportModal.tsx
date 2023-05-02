@@ -1,10 +1,10 @@
 import { Dialog, Transition } from '@headlessui/react';
 import { Fragment, useCallback, useState } from 'react';
 import { motion } from 'framer-motion';
+import { useTranslationContext } from 'renderer/context/LocalContext';
 import { longMessages, shortMessages } from '../../messages/process-error';
 import Spinner from '../../assets/spinner.svg';
 import { ProcessIssue } from '../../../workers/types';
-import { useTranslationContext } from 'renderer/context/LocalContext';
 
 const posibleErrorStates = ['ERROR', 'TOO_MANY_REPORTS'] as const;
 type ErrorReportRequestState = (typeof posibleErrorStates)[number];

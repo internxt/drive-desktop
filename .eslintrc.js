@@ -14,6 +14,7 @@ module.exports = {
     'import/prefer-default-export': 'off',
     'class-methods-use-this': 'off',
     '@typescript-eslint/no-use-before-define': 'off',
+    'no-use-before-define': 'off',
     '@typescript-eslint/no-loop-func': 'off',
     'react-hooks/exhaustive-deps': 'off',
     'no-await-in-loop': 'off',
@@ -27,6 +28,12 @@ module.exports = {
     'no-async-promise-executor': 'off',
     'react/jsx-no-bind': 'off',
     'react/jsx-props-no-spreading': 'off',
+    'import/extensions': 'off',
+    'react/jsx-filename-extension': [
+      2,
+      { extensions: ['.js', '.jsx', '.ts', '.tsx'] },
+    ],
+    'no-unused-vars': 'off',
   },
   parserOptions: {
     ecmaVersion: 2020,

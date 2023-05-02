@@ -1,9 +1,9 @@
+import { useTranslationContext } from 'renderer/context/LocalContext';
 import { ProcessFatalErrorName } from '../../../workers/types';
 import Warn from '../../assets/warn.svg';
 import useBackupFatalErrors from '../../hooks/BackupFatalErrors';
 import obtainErrorMessage from '../../messages/backups/backups-fatal-errors';
 import obtainErrorAction from '../../messages/backups/backups-actions-map';
-import { useTranslationContext } from 'renderer/context/LocalContext';
 
 function ErrorBanner({ errorName }: { errorName: ProcessFatalErrorName }) {
   const { translate } = useTranslationContext();
@@ -13,9 +13,9 @@ function ErrorBanner({ errorName }: { errorName: ProcessFatalErrorName }) {
 
   return (
     <div className="flex items-center justify-between bg-yellow-10 px-3 py-2 text-xs text-yellow-60">
-      <span className='flex'>
+      <span className="flex">
         <Warn className="inline h-5 w-5" />
-        <p className="ml-2 mb-0 inline">{text}</p>
+        <p className="mb-0 ml-2 inline">{text}</p>
       </span>
       {action && (
         <span

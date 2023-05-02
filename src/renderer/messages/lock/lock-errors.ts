@@ -10,7 +10,6 @@ const lockErrorMessages: Record<LockErrorReason, string> = {
     'Your session has expired, if the app does not log out shortly please log out manually',
 };
 
-
 function obtainLockErrorMessage(reason: LockErrorReason): string {
   return lockErrorMessages[reason];
 }

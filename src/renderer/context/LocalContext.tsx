@@ -6,7 +6,10 @@ interface LocalContextProps {
   language: string;
 }
 
-const LocalContext = createContext<LocalContextProps>({ translate: () => '', language: 'es' });
+const LocalContext = createContext<LocalContextProps>({
+  translate: () => '',
+  language: 'es',
+});
 interface TranslationProviderProps {
   children: React.ReactNode;
 }

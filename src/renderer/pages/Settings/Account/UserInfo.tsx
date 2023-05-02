@@ -28,7 +28,9 @@ export default function UserInfo({
         <h1 className="font-semibold text-neutral-700">{name}</h1>
         <p className="text-sm text-m-neutral-100">{email}</p>
       </div>
-      <Button onClick={window.electron.logout}>{translate('settings.account.logout')}</Button>
+      <Button onClick={window.electron.logout}>
+        {translate('settings.account.logout')}
+      </Button>
     </div>
   );
 }

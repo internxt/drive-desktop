@@ -6,4 +6,4 @@ export const deltas = [
   'UNCHANGED',
 ] as const;
 
-export type Delta = typeof deltas[number];
+export type Delta = (typeof deltas)[number];

@@ -1,6 +1,9 @@
 import { test, expect, ElectronApplication, Page } from '@playwright/test';
 import { _electron as electron } from 'playwright';
-import { ipcMainCallFirstListener, ipcMainEmit } from 'electron-playwright-helpers';
+import {
+  ipcMainCallFirstListener,
+  ipcMainEmit,
+} from 'electron-playwright-helpers';
 
 import AccessResponseFixtures from './fixtures/AccessResponse.json';
 
@@ -22,5 +25,5 @@ test.describe('Language Picker', () => {
     const picker = await page.innerHTML('section#language-picker');
 
     expect(picker).toBeDefined();
-  })
+  });
 });

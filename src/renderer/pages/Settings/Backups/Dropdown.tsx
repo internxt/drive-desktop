@@ -14,10 +14,22 @@ export default function Dropdown({
 }) {
   const { translate } = useTranslationContext();
   const intervals = [
-    { value: 6 * 3600 * 1000, display: translate('settings.backups.frequency.options.6h')},
-    { value: 12 * 3600 * 1000, display: translate('settings.backups.frequency.options.12h')},
-    { value: 24 * 3600 * 1000, display: translate('settings.backups.frequency.options.24h')},
-    { value: -1, display: translate('settings.backups.frequency.options.manually')},
+    {
+      value: 6 * 3600 * 1000,
+      display: translate('settings.backups.frequency.options.6h'),
+    },
+    {
+      value: 12 * 3600 * 1000,
+      display: translate('settings.backups.frequency.options.12h'),
+    },
+    {
+      value: 24 * 3600 * 1000,
+      display: translate('settings.backups.frequency.options.24h'),
+    },
+    {
+      value: -1,
+      display: translate('settings.backups.frequency.options.manually'),
+    },
   ];
 
   const { display } = intervals.find((interval) => interval.value === value)!;

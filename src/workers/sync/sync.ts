@@ -74,7 +74,6 @@ class Sync extends Process {
   }
 
   async run(): Promise<ProcessResult> {
-
     window.addEventListener('offline', () => {
       Logger.log('[SYNC] INTERNT CONNECTION LOST');
       this.emit('LOST_CONNECTION');
@@ -433,7 +432,7 @@ class Sync extends Process {
   }
 
   private async finalize(): Promise<ProcessResult> {
-    await new Promise(res => setTimeout(res, 1000));
+    await new Promise((res) => setTimeout(res, 1000));
 
     this.emit('FINALIZING');
 
