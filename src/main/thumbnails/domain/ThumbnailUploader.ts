@@ -1,3 +1,3 @@
 export interface ThumbnailUploader {
-	upload: (fileId: number, thumbnailFile: Buffer) => Promise<void>;
+  upload: (fileId: number, thumbnailFile: Buffer) => Promise<void>;
 }

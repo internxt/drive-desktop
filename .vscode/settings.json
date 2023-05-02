@@ -4,11 +4,9 @@
     ".prettierrc": "jsonc",
     ".eslintignore": "ignore"
   },
-
   "javascript.validate.enable": false,
   "javascript.format.enable": false,
   "typescript.format.enable": false,
-
   "search.exclude": {
     ".git": true,
     ".eslintcache": true,
@@ -20,5 +18,8 @@
     "package-lock.json": true,
     "*.{css,sass,scss}.d.ts": true
   },
-  "typescript.tsdk": "node_modules/typescript/lib"
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "eslint.options": {
+    "overrideConfigFile": ".eslintrc.js"
+  }
 }
