@@ -212,16 +212,19 @@ describe('sync tests', () => {
     expect(spyRemotePull).toHaveBeenCalledWith(
       'notExistInRemote',
       expect.anything(),
+      expect.anything(),
       expect.anything()
     );
     expect(spyLocalPull).toHaveBeenCalledWith(
       'folder/nested/existInBoth.txt',
+      expect.anything(),
       expect.anything(),
       expect.anything()
     );
 
     expect(spyLocalPull).toHaveBeenCalledWith(
       'notExistInLocal',
+      expect.anything(),
       expect.anything(),
       expect.anything()
     );
@@ -696,12 +699,14 @@ describe('sync tests', () => {
       expect(spyRemotePull).toBeCalledWith(
         name,
         expect.anything(),
+        expect.anything(),
         expect.anything()
       )
     );
     expectPullLocal.forEach((name) =>
       expect(spyLocalPull).toBeCalledWith(
         name,
+        expect.anything(),
         expect.anything(),
         expect.anything()
       )
