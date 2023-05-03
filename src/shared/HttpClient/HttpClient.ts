@@ -3,7 +3,7 @@ import axios, {
   AxiosInstance,
   AxiosRequestConfig,
   AxiosResponse,
-} from '../../node_modules/axios';
+} from 'axios';
 import Logger from 'electron-log';
 
 export type HeadersProvider = () => Promise<Record<string, string>>;
