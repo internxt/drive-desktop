@@ -1,9 +1,3 @@
-export const deltas = [
-  'NEW',
-  'NEWER',
-  'DELETED',
-  'OLDER',
-  'UNCHANGED',
-] as const;
+export const deltas = ['NEW', 'NEWER', 'DELETED', 'OLDER', 'UNCHANGED'] as const;
 
-export type Delta = typeof deltas[number];
+export type Delta = (typeof deltas)[number];

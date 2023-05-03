@@ -1,23 +1,21 @@
-/* eslint-disable jest/no-conditional-expect */
-/* eslint-disable @typescript-eslint/no-empty-function */
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
-import { Readable } from 'stream';
 import { toHaveBeenCalledBefore } from 'jest-extended';
-import Sync, { Deltas, ListingStore } from '../sync';
+import { Readable } from 'stream';
+
 import {
   ErrorDetails,
   FileSystem,
   Listing,
   ProcessFatalError,
 } from '../../types';
+import { convertActionsToQueues } from '../Actions/application/ConvertActionsToQueues';
 import { generateHierarchyActions } from '../Actions/application/GenerateHierarchyActions';
 import { generateDeltas } from '../ItemState/application/GenerateDeltas';
+import { ItemState } from '../ItemState/domain/ItemState';
 import { LocalItemMetaData } from '../Listings/domain/LocalItemMetaData';
 import { RemoteItemMetaData } from '../Listings/domain/RemoteItemMetaData';
 import { SynchronizedItemMetaData } from '../Listings/domain/SynchronizedItemMetaData';
-import { ItemState } from '../ItemState/domain/ItemState';
-import { convertActionsToQueues } from '../Actions/application/ConvertActionsToQueues';
+import Sync from '../sync';
 
 expect.extend({ toHaveBeenCalledBefore });
 
@@ -27,13 +25,21 @@ describe('sync tests', () => {
     async getCurrentListing() {
       return { listing: {}, readingMetaErrors: [] };
     },
-    async deleteFile() {},
-    async pullFile() {},
-    async renameFile() {},
+    async deleteFile() {
+      // no-op
+    },
+    async pullFile() {
+      // no-op
+    },
+    async renameFile() {
+      // no-op
+    },
     async existsFolder() {
       return false;
     },
-    async deleteFolder() {},
+    async deleteFolder() {
+      // no-op
+    },
     async getSource() {
       return {
         modTime: 4,
@@ -42,7 +48,9 @@ describe('sync tests', () => {
         stream: {} as Readable,
       };
     },
-    async smokeTest() {},
+    async smokeTest() {
+      // no-op
+    },
   });
 
   function setupEventSpies(sync: Sync) {
@@ -102,8 +110,12 @@ describe('sync tests', () => {
       async getLastSavedListing() {
         return null;
       },
-      async removeSavedListing() {},
-      async saveListing() {},
+      async removeSavedListing() {
+        // no op
+      },
+      async saveListing() {
+        // no op
+      },
     };
   }
 
@@ -173,7 +185,7 @@ describe('sync tests', () => {
       },
     };
 
-    const sync = new Sync(local, remote, listingStore(), {remote, local});
+    const sync = new Sync(local, remote, listingStore(), { remote, local });
 
     const {
       smokeTestingCB,
@@ -1035,8 +1047,8 @@ describe('sync tests', () => {
         modtime: 6,
         size: 8,
         isFolder: false,
-        id: 99
-      })
+        id: 99,
+      }),
     };
 
     const deltasLocal: Deltas = {

@@ -1,6 +1,7 @@
 import async from 'async';
 import Logger from 'electron-log';
 import EventEmitter from 'events';
+
 import { PartialListing } from '../../sync/Listings/domain/Listing';
 import { FileSystem } from '../domain/FileSystem';
 
@@ -27,6 +28,7 @@ export class PullFolderQueueConsumer {
 
       if (!lastPathAdded) {
         nestedQueues.push([path]);
+
         return nestedQueues;
       }
 
@@ -70,6 +72,7 @@ export class PullFolderQueueConsumer {
           );
         } catch (err: unknown) {
           Logger.error(err);
+
           return Promise.reject(
             new Error(
               `An error occured creating a folder of the level: ${level}`
@@ -79,6 +82,6 @@ export class PullFolderQueueConsumer {
       }
     );
 
-    await async.series<unknown, unknown, unknown>(tasks).catch(Logger.error);
+    await async.series<unknown, unknown>(tasks).catch(Logger.error);
   }
 }

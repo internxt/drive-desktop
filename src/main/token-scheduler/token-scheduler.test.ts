@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
 import ms from 'ms';
+
 import { TokenScheduler } from './TokenScheduler';
 
 const dataSet = [
@@ -16,6 +17,7 @@ function calculateDayFromToday(t: string): Date {
 
 function createToken(expiresIn: string) {
   const email = 'test@inxternxt.com';
+
   return jwt.sign({ email }, 'JWT_SECRET', { expiresIn });
 }
 
@@ -30,7 +32,9 @@ describe('Token Scheduler', () => {
   const invalidToken =
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.am9hbnZpY2Vuc0Bwcm90b24ubWU.REeEpym9y3IoqMNjyuAGCnhWX7YHH9nA8DREqEqCU5Q';
 
-  const task = () => {};
+  const task = () => {
+    // no op
+  };
 
   it.each(dataSet)(
     'schedules the token refresh n days before fist token expiration',
@@ -38,7 +42,9 @@ describe('Token Scheduler', () => {
       const scheduler = new TokenScheduler(
         data.daysBefore,
         [jwtExpiresInThirtyDays, jwtExpiresInThirtyOneDays],
-        () => {}
+        () => {
+          // no op
+        }
       );
 
       const schedule = scheduler.schedule(task);
@@ -53,7 +59,9 @@ describe('Token Scheduler', () => {
     const scheduler = new TokenScheduler(
       4,
       [jwtWithoutExpiration, jwtExpiresInThirtyDays, jwtExpiresInThirtyOneDays],
-      () => {}
+      () => {
+        // no op
+      }
     );
 
     const expectedExpireDay = calculateDayFromToday('26 days');
@@ -70,7 +78,9 @@ describe('Token Scheduler', () => {
     const scheduler = new TokenScheduler(
       4,
       [invalidToken, jwtExpiresInThirtyDays, jwtExpiresInThirtyOneDays],
-      () => {}
+      () => {
+        // no op
+      }
     );
 
     const schedule = scheduler.schedule(task);
@@ -87,7 +97,9 @@ describe('Token Scheduler', () => {
         invalidToken,
         jwtExpiresInThirtyOneDays,
       ],
-      () => {}
+      () => {
+        // no op
+      }
     );
 
     const schedule = scheduler.schedule(task);
@@ -96,7 +108,9 @@ describe('Token Scheduler', () => {
   });
 
   it('does not schedule if any token expires', () => {
-    const scheduler = new TokenScheduler(7, [jwtWithoutExpiration], () => {});
+    const scheduler = new TokenScheduler(7, [jwtWithoutExpiration], () => {
+      // no op
+    });
 
     const schedule = scheduler.schedule(task);
 
@@ -104,7 +118,9 @@ describe('Token Scheduler', () => {
   });
 
   it('does not schedules if any token is valid', () => {
-    const scheduler = new TokenScheduler(7, [invalidToken], () => {});
+    const scheduler = new TokenScheduler(7, [invalidToken], () => {
+      // no op
+    });
 
     const schedule = scheduler.schedule(task);
 

@@ -1,4 +1,5 @@
 import EventEmitter from 'events';
+
 import { PullFolderQueueConsumer } from '../../application/PullFolderQueueConsumer';
 import { FileSystemMock } from '../__mocks__/FileSystemMock';
 
@@ -137,7 +138,9 @@ describe('Pull Folder Queue Consumer', () => {
     await consumer.consume(folders);
 
     destinationFS.assertNumberOfFoldersPulled(2);
-    destinationFS.assertFolderWasNeverPulled('folderA/subfolderB/sub-subfolderA');
+    destinationFS.assertFolderWasNeverPulled(
+      'folderA/subfolderB/sub-subfolderA'
+    );
   });
 
   it('emits an event before and after the performing the action', async () => {

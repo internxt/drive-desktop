@@ -1,40 +1,34 @@
 module.exports = {
-  extends: 'erb',
+  extends: ['@internxt/eslint-config-internxt'],
+  overrides: [
+    {
+      files: ['*.ts', '*.tsx'],
+      parserOptions: {
+        project: ['./tsconfig.json'],
+      },
+      env: {
+        jest: true,
+      },
+    },
+  ],
   rules: {
-    // A temporary hack related to IDE not resolving correct package.json
-    'import/no-extraneous-dependencies': 'off',
-    'import/no-unresolved': 'error',
-    // Since React 17 and typescript 4.1 you can safely disable the rule
-    'react/react-in-jsx-scope': 'off',
-    'global-require': 'off',
-    'react/require-default-props': 'off',
-    'no-nested-ternary': 'off',
-    'no-restricted-syntax': 'off',
-    'promise/catch-or-return': 'off',
-    'import/prefer-default-export': 'off',
-    'class-methods-use-this': 'off',
-    '@typescript-eslint/no-use-before-define': 'off',
-    '@typescript-eslint/no-loop-func': 'off',
-    'react-hooks/exhaustive-deps': 'off',
-    'no-await-in-loop': 'off',
-    'no-bitwise': 'off',
-    'max-classes-per-file': 'off',
-    'import/no-cycle': 'off',
-    'consistent-return': 'off',
-    'no-plusplus': 'off',
-    'promise/always-return': 'off',
-    'no-else-return': 'off',
-    'no-async-promise-executor': 'off',
-    'react/jsx-no-bind': 'off',
-    'react/jsx-props-no-spreading': 'off',
+    'no-await-in-loop': 'warn',
+    'no-use-before-define': 'warn',
+    'array-callback-return': 'warn',
+    'max-len': [
+      'error',
+      {
+        code: 120,
+        ignorePattern: '^it',
+        ignoreUrls: true,
+        ignoreStrings: true,
+        ignoreTemplateLiterals: true,
+      },
+    ],
+    '@typescript-eslint/ban-ts-comment': 'warn',
+    'no-async-promise-executor': 'warn',
   },
-  parserOptions: {
-    ecmaVersion: 2020,
-    sourceType: 'module',
-    project: './tsconfig.json',
-    tsconfigRootDir: __dirname,
-    createDefaultProgram: true,
-  },
+  parser: '@typescript-eslint/parser',
   settings: {
     'import/resolver': {
       // See https://github.com/benmosher/eslint-plugin-import/issues/1396#issuecomment-575727774 for line below

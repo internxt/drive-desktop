@@ -1,13 +1,14 @@
 import { ipcMain } from 'electron';
+
 import {
-  addBackup,
-  addUnknownDeviceIssue,
-  changeBackupPath,
-  deleteBackup,
-  disableBackup,
-  getBackupsFromDevice,
-  getOrCreateDevice,
-  renameDevice,
+	addBackup,
+	addUnknownDeviceIssue,
+	changeBackupPath,
+	deleteBackup,
+	disableBackup,
+	getBackupsFromDevice,
+	getOrCreateDevice,
+	renameDevice,
 } from './service';
 
 ipcMain.handle('get-or-create-device', getOrCreateDevice);

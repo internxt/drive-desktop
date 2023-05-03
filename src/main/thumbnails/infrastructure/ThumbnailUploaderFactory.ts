@@ -1,11 +1,11 @@
 import { Environment } from '@internxt/inxt-js';
 import { Storage } from '@internxt/sdk/dist/drive';
-import { obtainToken, getUser } from '../../auth/service';
-import { EnvironmentAndStorageThumbnailUploader } from './ThumbnailUploader';
-import { onUserUnauthorized } from '../../auth/handlers';
-import ConfigStore from '../../config';
+
 import { appInfo } from '../../app-info/app-info';
+import { onUserUnauthorized } from '../../auth/handlers';
+import { getUser, obtainToken } from '../../auth/service';
 import { ThumbnailUploader } from '../domain/ThumbnailUploader';
+import { EnvironmentAndStorageThumbnailUploader } from './EnvironmentAndStorageThumbnailUploader';
 
 export class ThumbnailUploaderFactory {
   private static instance: ThumbnailUploader | null;
@@ -18,22 +18,23 @@ export class ThumbnailUploaderFactory {
       { clientName, clientVersion },
       {
         token: obtainToken('bearerToken'),
-        mnemonic: ConfigStore.get('mnemonic'),
         unauthorizedCallback: onUserUnauthorized,
       }
     );
   }
 
   static build(): ThumbnailUploader {
-    if (ThumbnailUploaderFactory.instance)
+    if (ThumbnailUploaderFactory.instance) {
       return ThumbnailUploaderFactory.instance;
+    }
 
     const user = getUser();
 
-    if (!user)
+    if (!user) {
       throw new Error(
         '[THUMBNAIL] Thumbnail uploader could not be created: user missing'
       );
+    }
 
     const environment = new Environment({
       bridgeUrl: process.env.BRIDGE_URL,

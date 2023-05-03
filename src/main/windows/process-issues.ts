@@ -1,45 +1,48 @@
 import { BrowserWindow, ipcMain } from 'electron';
-import { setUpCommonWindowHandlers } from '.';
+
 import { preloadPath, resolveHtmlPath } from '../util';
+import { setUpCommonWindowHandlers } from '.';
 
 let processIssuesWindow: BrowserWindow | null = null;
 export const getProcessIssuesWindow = () => processIssuesWindow;
 
 ipcMain.on('open-process-issues-window', openProcessIssuesWindow);
 ipcMain.handle('open-process-issues-window', async () => {
-  await openProcessIssuesWindow();
-  return true;
+	await openProcessIssuesWindow();
+
+	return true;
 });
 
 async function openProcessIssuesWindow() {
-  if (processIssuesWindow) {
-    processIssuesWindow.focus();
-    return;
-  }
+	if (processIssuesWindow) {
+		processIssuesWindow.focus();
 
-  processIssuesWindow = new BrowserWindow({
-    width: 500,
-    height: 384,
-    show: false,
-    webPreferences: {
-      preload: preloadPath,
-      nodeIntegration: true,
-    },
-    titleBarStyle: process.platform === 'darwin' ? 'hidden' : undefined,
-    frame: process.platform !== 'darwin' ? false : undefined,
-    resizable: false,
-    maximizable: false,
-  });
+		return;
+	}
 
-  processIssuesWindow.loadURL(resolveHtmlPath('process-issues'));
+	processIssuesWindow = new BrowserWindow({
+		width: 500,
+		height: 384,
+		show: false,
+		webPreferences: {
+			preload: preloadPath,
+			nodeIntegration: true,
+		},
+		titleBarStyle: process.platform === 'darwin' ? 'hidden' : undefined,
+		frame: process.platform !== 'darwin' ? false : undefined,
+		resizable: false,
+		maximizable: false,
+	});
 
-  processIssuesWindow.on('ready-to-show', () => {
-    processIssuesWindow?.show();
-  });
+	processIssuesWindow.loadURL(resolveHtmlPath('process-issues'));
 
-  processIssuesWindow.on('close', () => {
-    processIssuesWindow = null;
-  });
+	processIssuesWindow.on('ready-to-show', () => {
+		processIssuesWindow?.show();
+	});
 
-  setUpCommonWindowHandlers(processIssuesWindow);
+	processIssuesWindow.on('close', () => {
+		processIssuesWindow = null;
+	});
+
+	setUpCommonWindowHandlers(processIssuesWindow);
 }
