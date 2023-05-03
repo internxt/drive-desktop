@@ -82,6 +82,10 @@ export class PullFolderQueueConsumer {
       }
     );
 
-    await async.series<unknown, unknown>(tasks).catch(Logger.error);
+    try {
+      await async.series(tasks);
+    } catch (err) {
+      Logger.error(err);
+    }
   }
 }

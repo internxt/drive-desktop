@@ -1,3 +1,4 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 import { toHaveBeenCalledBefore } from 'jest-extended';
 import { Readable } from 'stream';
@@ -1310,6 +1311,9 @@ describe('sync tests', () => {
           readingMetaErrors: [],
         };
       },
+      getFolderData: jest.fn().mockResolvedValue({
+        modtiem: 8642,
+      }),
     };
 
     const remote: FileSystem = {
@@ -1335,6 +1339,8 @@ describe('sync tests', () => {
     const { folderPulledCB, pullingFileCB } = setupEventSpies(sync);
 
     await sync.run();
+
+    expect(folderPulledCB).toHaveBeenCalled();
 
     expect(folderPulledCB).toHaveBeenCalledBefore(pullingFileCB);
   });
