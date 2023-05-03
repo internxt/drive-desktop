@@ -64,7 +64,7 @@ test.describe('process issues', () => {
       ipcMainEmit(electronApp, 'add-device-issue', issue)
     );
 
-    Promise.all(eventsEmited);
+    await Promise.all(eventsEmited);
   };
 
   test.beforeEach(async () => {

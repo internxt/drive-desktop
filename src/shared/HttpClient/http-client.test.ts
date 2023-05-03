@@ -1,4 +1,4 @@
-import { AxiosInstance } from '../../node_modules/axios';
+import { AxiosInstance } from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 
 import { AuthorizedHttpClient } from './HttpClient';
