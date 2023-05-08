@@ -33,7 +33,6 @@ import { autoUpdater } from 'electron-updater';
 import packageJson from '../../package.json';
 import eventBus from './event-bus';
 import * as Sentry from '@sentry/electron';
-import { reportError } from './bug-report/service';
 
 Logger.log(`Running ${packageJson.version}`);
 
