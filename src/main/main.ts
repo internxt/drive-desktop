@@ -9,7 +9,8 @@ import packageJson from '../../package.json';
 import eventBus from './event-bus';
 
 // Only effective during development
-// the variables are injected
+// the variables are injectedif (process.env.NODE_ENV === 'production') {
+
 // via webpack in prod
 import 'dotenv/config';
 
