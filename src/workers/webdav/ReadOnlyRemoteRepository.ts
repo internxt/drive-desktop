@@ -2,31 +2,36 @@ import { Axios } from 'axios';
 import Logger from 'electron-log';
 import { ServerFile } from '../filesystems/domain/ServerFile';
 import { ServerFolder } from '../filesystems/domain/ServerFolder';
-import { RemoteFilesTraverser } from './RemoteFilesTraverser';
-
-type Item = {
-  id: number;
-  parentId: number;
-  isFolder: boolean;
-  bucket: string | null;
-  fileId?: string;
-  folderId?: number;
-  modificationTime?: number;
-  size?: number;
-};
-
-type Items = Record<string, Item>;
+import { Traverser } from './application/Traverser';
+import crypt from '../utils/crypt';
+import { ItemsIndexedByPath } from './domain/ItemsIndexedByPath';
+import { Item } from './domain/Item';
+import { XPath } from './domain/XPath';
+import { XFolder } from './domain/Folder';
+import { Nullable } from '../../shared/types/Nullable';
 
 // TODO: ITEMS KEY SHOULD START WITH /
 // EXAMPLE: /screenshot.png
 
-export class ReadOnlyRemoteRepository {
-  private items: Items = {};
+export class ReadOnlyInMemoryRepository {
+  private items: ItemsIndexedByPath = {};
 
-  private readonly remoteFilesTraverser: RemoteFilesTraverser;
+  private readonly baseFolder: XFolder;
 
-  constructor(private readonly httpClient: Axios, baseFolderId: number) {
-    this.remoteFilesTraverser = new RemoteFilesTraverser(baseFolderId);
+  private readonly remoteFilesTraverser: Traverser;
+
+  constructor(
+    private readonly httpClient: Axios,
+    private readonly baseFolderId: number
+  ) {
+    this.remoteFilesTraverser = new Traverser(crypt, baseFolderId);
+    this.baseFolder = XFolder.from({
+      id: baseFolderId,
+      name: '/',
+      parentId: null,
+      updatedAt: new Date().toDateString(),
+      createdAt: new Date().toDateString(),
+    });
   }
 
   private async getTree(): Promise<{
@@ -73,38 +78,40 @@ export class ReadOnlyRemoteRepository {
     this.items = this.remoteFilesTraverser.run(raw);
   }
 
-  get(pathLike: string): Array<string> {
-    // Logger.debug(JSON.stringify(this.items, null, 2));
+  listContents(folderPath: string): Array<XPath> {
+    Logger.debug('LIST CONTENTS: ', folderPath);
 
-    const fix = pathLike.startsWith('/') ? pathLike.slice(1) : pathLike;
-
-    const item = this.items[fix];
-
-    if (pathLike === '/') {
-      // TODO: IMPROVE THIS CHECK
-      const names = Object.keys(this.items).filter(
-        (name: string) => !name.includes('/')
-      );
+    if (folderPath === '/') {
+      const names = Object.values(this.items)
+        .filter((i) => i.hasParent(this.baseFolderId))
+        .map((i) => i.name);
 
       return names;
     }
 
-    if (item.isFolder) {
-      const files = Object.entries(this.items)
-        .filter(([_, data]) => {
-          return data.parentId === item.id;
-        })
-        .map(([name, _]) => name);
+    const item = this.items[folderPath];
 
-      return files;
+    if (!item.isFolder()) {
+      throw new Error(`${folderPath} is not a folder`);
     }
 
-    return [];
+    const files = Object.values(this.items)
+      .filter((f) => {
+        return f.hasParent(item.id);
+      })
+      .map((f) => f.name);
+
+    return files;
   }
 
-  getMetadata(pathLike: string): Item {
-    // Logger.debug('ITEMS', JSON.stringify(this.items, null, 2));
-    const fix = pathLike.startsWith('/') ? pathLike.slice(1) : pathLike;
-    return this.items[fix];
+  getItem(pathLike: string): Nullable<Item> {
+    if (pathLike === '/') {
+      return this.baseFolder;
+    }
+    const item = this.items[pathLike];
+
+    Logger.debug('ITEM SEARCHED: ', pathLike, JSON.stringify(item, null, 2));
+
+    return item;
   }
 }

@@ -4,7 +4,7 @@ import Logger from 'electron-log';
 import { InternxtFileSystem } from './InternxtFileSystem';
 import { InternxtSerializer } from './InternxtSerializer';
 import { getClients } from '../../shared/HttpClient/backgroud-process-clients';
-import { ReadOnlyRemoteRepository } from './ReadOnlyRemoteRepository';
+import { ReadOnlyInMemoryRepository } from './ReadOnlyRemoteRepository';
 import { getUser } from '../../main/auth/service';
 
 interface WebDavServerEvents {
@@ -28,41 +28,49 @@ interface IpcRenderer {
 
 const ipcRenderer = electronIpcRenderer as IpcRenderer;
 
-function setUp() {
-  const server = new webdav.WebDAVServer({
-    hostname: 'localhost',
-  });
+async function setUp() {
+  try {
+    const server = new webdav.WebDAVServer({
+      hostname: 'localhost',
+    });
 
-  ipcRenderer.on('stop-webdav-server-process', () => {
-    server
-      .stopAsync()
-      .then(() => {
-        Logger.log('Server stopped succesfully');
-        ipcRenderer.send('WEBDAV_SERVER_STOP_SUCCESS');
-      })
-      .catch((err) => {
-        Logger.log('Server stopped with error', err);
-        ipcRenderer.send('WEBDAV_SERVER_STOP_ERROR', err);
-      });
-  });
+    ipcRenderer.on('stop-webdav-server-process', () => {
+      server
+        .stopAsync()
+        .then(() => {
+          Logger.log('Server stopped succesfully');
+          ipcRenderer.send('WEBDAV_SERVER_STOP_SUCCESS');
+        })
+        .catch((err) => {
+          Logger.log('Server stopped with error', err);
+          ipcRenderer.send('WEBDAV_SERVER_STOP_ERROR', err);
+        });
+    });
 
-  const clients = getClients();
-  const user = getUser();
+    const clients = getClients();
+    const user = getUser();
 
-  const repo = new ReadOnlyRemoteRepository(
-    clients.drive,
-    user?.root_folder_id as number
-  );
+    const repo = new ReadOnlyInMemoryRepository(
+      clients.drive,
+      user?.root_folder_id as number
+    );
 
-  server.setFileSystem(
-    '/',
-    new InternxtFileSystem(new InternxtSerializer(), repo),
-    (su) => {
-      Logger.debug('SUCCEDED: ', su);
-    }
-  );
+    await repo.init();
 
-  server.start((s) => Logger.log('Ready on port', s?.address()));
+    Logger.debug('ABOUT TO SET FILE SYSTEM');
+
+    server.setFileSystem(
+      '/',
+      new InternxtFileSystem(new InternxtSerializer(), repo),
+      (su) => {
+        Logger.debug('SUCCEDED: ', su);
+      }
+    );
+
+    server.start((s) => Logger.log('Ready on port', s?.address()));
+  } catch (err) {
+    Logger.error(`[WEBDAV] ERROR: ${JSON.stringify(err, null, 2)}`);
+  }
 
   // addRootFolderToWebDavServer(server, getSyncRoot())
   //   .then(() => {

@@ -1,66 +1,30 @@
 /* eslint-disable no-underscore-dangle */
 import { ResourceType, v2 as webdav } from 'webdav-server';
 import {
+  CreationDateInfo,
   FileSystemSerializer,
   ILockManager,
   IPropertyManager,
   LastModifiedDateInfo,
+  LocalLockManager,
+  LocalPropertyManager,
+  MimeTypeInfo,
   Path,
   ReadDirInfo,
   ReturnCallback,
+  SizeInfo,
   TypeInfo,
 } from 'webdav-server/lib/index.v2';
 import Logger from 'electron-log';
-import { ReadOnlyRemoteRepository } from './ReadOnlyRemoteRepository';
+import { ReadOnlyInMemoryRepository } from './ReadOnlyRemoteRepository';
+import { mimetypes } from './mimetypes';
 
 export class InternxtFileSystem extends webdav.FileSystem {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  protected resources: any;
-
-  protected useCache: boolean;
-
   constructor(
     serializer: FileSystemSerializer,
-    private readonly repository: ReadOnlyRemoteRepository
+    private readonly repository: ReadOnlyInMemoryRepository
   ) {
     super(serializer);
-
-    // TODO: MOVE IT TO SOMEWHERE WHERE CAN BE AWAITED
-    repository.init();
-
-    this.resources = {};
-    this.useCache = true;
-  }
-
-  getRemotePath(path: Path) {
-    const pathStr = path.toString(false);
-    if (pathStr === '/') return '';
-    else return pathStr;
-  }
-
-  getMetaData(
-    path: Path,
-    callback: ReturnCallback<{
-      '.tag': 'file' | 'folder';
-      name: string;
-      size: number;
-    }>
-  ) {
-    if (
-      this.useCache &&
-      this.resources[path.toString(false)] &&
-      this.resources[path.toString(false)].metadata
-    ) {
-      callback(undefined, this.resources[path.toString(false)].metadata);
-    } else if (path.isRoot()) {
-      callback(undefined, {
-        '.tag': 'folder',
-        name: '',
-        size: 0,
-      });
-    } else {
-      callback(undefined, { '.tag': 'file', name: 'test', size: 10 });
-    }
   }
 
   // _rename(pathFrom, newName, ctx, callback) {
@@ -156,35 +120,28 @@ export class InternxtFileSystem extends webdav.FileSystem {
   //       callback(webdav.Errors.ResourceNotFound);
   //     });
   // }
-  // _size(path, ctx, callback) {
-  //   this.getMetaData(path, (e, data) => {
-  //     if (e) return callback(webdav.Errors.ResourceNotFound);
 
-  //     if (!this.resources[path.toString(false)])
-  //       this.resources[path.toString(false)] = {};
-  //     this.resources[path.toString(false)].size = data.size;
-  //     callback(undefined, data.size);
-  //   });
-  // }
+  _size(path: Path, _ctx: SizeInfo, callback: ReturnCallback<number>) {
+    const pathLike = path.toString(false);
+    Logger.debug('SIZE: ', pathLike);
+
+    const item = this.repository.getItem(pathLike);
+
+    if (!item) {
+      callback(new Error(`Item ${pathLike} not found`));
+      return;
+    }
+
+    callback(undefined, item.size);
+  }
 
   _lockManager(
-    path: Path,
-    ctx: ReadDirInfo,
+    _path: Path,
+    _ctx: ReadDirInfo,
     callback: ReturnCallback<ILockManager>
   ) {
     Logger.debug('LOCK MANAGER');
-    this.getMetaData(path, (e) => {
-      if (e) {
-        return callback(webdav.Errors.ResourceNotFound);
-      }
-
-      if (!this.resources[path.toString(false)])
-        this.resources[path.toString(false)] = {};
-      if (!this.resources[path.toString(false)].locks)
-        this.resources[path.toString(false)].locks =
-          new webdav.LocalLockManager();
-      callback(undefined, this.resources[path.toString(false)].locks);
-    });
+    callback(undefined, new LocalLockManager());
   }
 
   _propertyManager(
@@ -192,17 +149,17 @@ export class InternxtFileSystem extends webdav.FileSystem {
     ctx: ReadDirInfo,
     callback: ReturnCallback<IPropertyManager>
   ) {
-    Logger.debug('PROPERTY MANAGER: ', path.toString(false));
-    this.getMetaData(path, (e) => {
-      if (e) return callback(webdav.Errors.ResourceNotFound);
+    const pathLike = path.toString(false);
+    Logger.debug('PROPERTY MANAGER: ', pathLike);
 
-      if (!this.resources[path.toString(false)])
-        this.resources[path.toString(false)] = {};
-      if (!this.resources[path.toString(false)].props)
-        this.resources[path.toString(false)].props =
-          new webdav.LocalPropertyManager({});
-      callback(undefined, this.resources[path.toString(false)].props);
-    });
+    const item = this.repository.getItem(pathLike);
+
+    if (!item) {
+      callback(new Error(`Item ${pathLike} not found`));
+      return;
+    }
+
+    callback(undefined, new LocalPropertyManager(item.toProps()));
   }
 
   _readDir(
@@ -214,48 +171,68 @@ export class InternxtFileSystem extends webdav.FileSystem {
     this.repository
       .init()
       .then(() => {
-        return this.repository.get(path.toString(false));
+        return this.repository.listContents(path.toString(false));
       })
       .then((names) => {
-        const paths = names.map((name) => new Path(name));
-        Logger.log(JSON.stringify(names, null, 2));
-        callback(undefined, names);
+        const paths = names.map((name) => new Path(name.value));
+        callback(undefined, paths);
       });
   }
-  // _creationDate(path, ctx, callback) {
-  //   this._lastModifiedDate(path, ctx, callback);
-  // }
+
+  _creationDate(
+    path: Path,
+    _ctx: CreationDateInfo,
+    callback: ReturnCallback<number>
+  ) {
+    const pathLike = path.toString(false);
+    Logger.debug('LAST MODIFIED DATE: ', pathLike);
+
+    const item = this.repository.getItem(pathLike);
+
+    if (!item) {
+      callback(new Error(`Item ${pathLike} not found`));
+      return;
+    }
+
+    callback(undefined, item.createdAt.getTime());
+  }
 
   _lastModifiedDate(
     path: Path,
-    ctx: LastModifiedDateInfo,
+    _ctx: LastModifiedDateInfo,
     callback: ReturnCallback<number>
   ) {
-    Logger.debug('LAST MODIFIED DATE: ', path.toString(false));
+    const pathLike = path.toString(false);
+    Logger.debug('LAST MODIFIED DATE: ', pathLike);
 
-    callback(undefined, Date.now());
+    const item = this.repository.getItem(pathLike);
+
+    if (!item) {
+      callback(new Error(`Item ${pathLike} not found`));
+      return;
+    }
+
+    callback(undefined, item.updatedAt.getTime());
   }
 
-  _type(path: Path, ctx: TypeInfo, callback: ReturnCallback<ResourceType>) {
-    const name = path.toString(false);
-    Logger.log('TYPE: ', name);
+  _type(path: Path, _ctx: TypeInfo, callback: ReturnCallback<ResourceType>) {
+    const pathLike = path.toString(false);
+    Logger.log('TYPE: ', pathLike);
 
-    if (name === '/') {
+    if (pathLike === '/') {
       const resource = new ResourceType(false, true);
       callback(undefined, resource);
       return;
     }
 
-    const meta = this.repository.getMetadata(name);
-    Logger.debug('META DATA ON TYPE', JSON.stringify(meta, null, 2));
-    const resource = new ResourceType(!meta.isFolder, meta.isFolder);
+    const item = this.repository.getItem(pathLike);
+
+    if (!item) {
+      callback(new Error(`Item ${pathLike} not found`));
+      return;
+    }
+
+    const resource = new ResourceType(!item.isFolder(), item.isFolder());
     callback(undefined, resource);
-
-    // if (path.toString(false) === '/') {
-    // }
-    // const meta = this.repository.getMetadata(path.toString(false));
-
-    // const resource = new ResourceType(!meta.isFolder, meta.isFolder);
-    // callback(undefined, resource);
   }
 }
