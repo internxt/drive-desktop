@@ -8,39 +8,39 @@ import {
   LastModifiedDateInfo,
   LocalLockManager,
   LocalPropertyManager,
-  MimeTypeInfo,
+  OpenReadStreamInfo,
   Path,
   ReadDirInfo,
+  RenameInfo,
   ReturnCallback,
   SizeInfo,
   TypeInfo,
 } from 'webdav-server/lib/index.v2';
 import Logger from 'electron-log';
-import { ReadOnlyInMemoryRepository } from './ReadOnlyRemoteRepository';
-import { mimetypes } from './mimetypes';
+import { Readable } from 'stream';
+import { InMemoryRepository } from './InMemoryRepository';
+import { MyLockManager } from './LockManager';
 
 export class InternxtFileSystem extends webdav.FileSystem {
+  private readonly lckMNG: ILockManager;
+
   constructor(
     serializer: FileSystemSerializer,
-    private readonly repository: ReadOnlyInMemoryRepository
+    private readonly repository: InMemoryRepository
   ) {
     super(serializer);
+
+    this.lckMNG = new MyLockManager();
   }
 
-  // _rename(pathFrom, newName, ctx, callback) {
-  //   this.dbx
-  //     .filesMoveV2({
-  //       from_path: this.getRemotePath(pathFrom),
-  //       to_path: this.getRemotePath(newName),
-  //       allow_ownership_transfer: true,
-  //       allow_shared_folder: true,
-  //     })
-  //     .then(() => {
-  //       callback(undefined, true);
-  //     })
-  //     .catch((e) => {
-  //       callback(webdav.Errors.InvalidOperation);
-  //     });
+  // _rename(
+  //   pathFrom: Path,
+  //   newName: string,
+  //   ctx: RenameInfo,
+  //   callback: ReturnCallback<boolean>
+  // ) {
+  //   Logger.debug('RENAME: ', pathFrom, newName, JSON.stringify(ctx, null, 2));
+  //   callback(new Error());
   // }
 
   // _create(path, ctx, callback) {
@@ -107,19 +107,23 @@ export class InternxtFileSystem extends webdav.FileSystem {
   //     callback(null, stream);
   //   });
   // }
-  // _openReadStream(path, ctx, callback) {
-  //   this.dbx
-  //     .filesDownload({
-  //       path: this.getRemotePath(path),
-  //     })
-  //     .then((r: any) => {
-  //       var stream = new webdav.VirtualFileReadable([r.fileBinary]);
-  //       callback(undefined, stream);
-  //     })
-  //     .catch((e) => {
-  //       callback(webdav.Errors.ResourceNotFound);
-  //     });
-  // }
+  _openReadStream(
+    path: Path,
+    ctx: OpenReadStreamInfo,
+    callback: ReturnCallback<Readable>
+  ) {
+    this.repository
+      .getReadable(path.toString(false))
+      .then((readable) => {
+        if (!readable) {
+          callback(new Error('EE'));
+          return;
+        }
+
+        callback(undefined, readable);
+      })
+      .catch(() => callback(new Error('AA')));
+  }
 
   _size(path: Path, _ctx: SizeInfo, callback: ReturnCallback<number>) {
     const pathLike = path.toString(false);
@@ -136,12 +140,12 @@ export class InternxtFileSystem extends webdav.FileSystem {
   }
 
   _lockManager(
-    _path: Path,
+    path: Path,
     _ctx: ReadDirInfo,
     callback: ReturnCallback<ILockManager>
   ) {
-    Logger.debug('LOCK MANAGER');
-    callback(undefined, new LocalLockManager());
+    Logger.debug('LOCK MANAGER: ', path);
+    callback(undefined, this.lckMNG);
   }
 
   _propertyManager(
@@ -185,7 +189,6 @@ export class InternxtFileSystem extends webdav.FileSystem {
     callback: ReturnCallback<number>
   ) {
     const pathLike = path.toString(false);
-    Logger.debug('LAST MODIFIED DATE: ', pathLike);
 
     const item = this.repository.getItem(pathLike);
 
@@ -203,7 +206,6 @@ export class InternxtFileSystem extends webdav.FileSystem {
     callback: ReturnCallback<number>
   ) {
     const pathLike = path.toString(false);
-    Logger.debug('LAST MODIFIED DATE: ', pathLike);
 
     const item = this.repository.getItem(pathLike);
 

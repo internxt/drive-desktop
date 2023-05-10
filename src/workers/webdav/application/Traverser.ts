@@ -70,6 +70,7 @@ export class Traverser {
           name,
           type: file.type,
           updatedAt: file.updatedAt,
+          bucket: file.bucket,
         });
       });
 

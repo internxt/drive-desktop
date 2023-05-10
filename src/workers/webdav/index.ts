@@ -1,11 +1,13 @@
 import { ipcRenderer as electronIpcRenderer } from 'electron';
 import { v2 as webdav } from 'webdav-server';
 import Logger from 'electron-log';
+import { Environment } from '@internxt/inxt-js';
 import { InternxtFileSystem } from './InternxtFileSystem';
 import { InternxtSerializer } from './InternxtSerializer';
 import { getClients } from '../../shared/HttpClient/backgroud-process-clients';
-import { ReadOnlyInMemoryRepository } from './ReadOnlyRemoteRepository';
+import { InMemoryRepository } from './InMemoryRepository';
 import { getUser } from '../../main/auth/service';
+import configStore from '../../main/config';
 
 interface WebDavServerEvents {
   WEBDAV_SERVER_START_SUCCESS: () => void;
@@ -49,9 +51,22 @@ async function setUp() {
 
     const clients = getClients();
     const user = getUser();
+    const mnemonic = configStore.get('mnemonic');
 
-    const repo = new ReadOnlyInMemoryRepository(
+    if (!user) {
+      return;
+    }
+
+    const environment = new Environment({
+      bridgeUrl: process.env.BRIDGE_URL,
+      bridgeUser: user.bridgeUser,
+      bridgePass: user.userId,
+      encryptionKey: mnemonic,
+    });
+
+    const repo = new InMemoryRepository(
       clients.drive,
+      environment,
       user?.root_folder_id as number
     );
 

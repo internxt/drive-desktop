@@ -1,5 +1,7 @@
 import { Axios } from 'axios';
 import Logger from 'electron-log';
+import { Readable } from 'stream';
+import { Environment } from '@internxt/inxt-js';
 import { ServerFile } from '../filesystems/domain/ServerFile';
 import { ServerFolder } from '../filesystems/domain/ServerFolder';
 import { Traverser } from './application/Traverser';
@@ -10,10 +12,7 @@ import { XPath } from './domain/XPath';
 import { XFolder } from './domain/Folder';
 import { Nullable } from '../../shared/types/Nullable';
 
-// TODO: ITEMS KEY SHOULD START WITH /
-// EXAMPLE: /screenshot.png
-
-export class ReadOnlyInMemoryRepository {
+export class InMemoryRepository {
   private items: ItemsIndexedByPath = {};
 
   private readonly baseFolder: XFolder;
@@ -22,6 +21,7 @@ export class ReadOnlyInMemoryRepository {
 
   constructor(
     private readonly httpClient: Axios,
+    private readonly environment: Environment,
     private readonly baseFolderId: number
   ) {
     this.remoteFilesTraverser = new Traverser(crypt, baseFolderId);
@@ -110,8 +110,43 @@ export class ReadOnlyInMemoryRepository {
     }
     const item = this.items[pathLike];
 
-    Logger.debug('ITEM SEARCHED: ', pathLike, JSON.stringify(item, null, 2));
-
     return item;
+  }
+
+  getReadable(filePath: string): Promise<Nullable<Readable>> {
+    const item = this.items[filePath];
+
+    if (!item) return Promise.resolve(undefined);
+
+    if (item.isFile()) {
+      return new Promise((resolve, reject) => {
+        this.environment.download(
+          item.bucket,
+          item.fileId,
+          {
+            progressCallback: (progess: number) => {
+              Logger.debug('[PROGESS] FILE: ', item.name, progess);
+            },
+            finishedCallback: async (err: any, stream: Readable) => {
+              if (err) {
+                Logger.debug('[REPO] ERR: ', err);
+                reject(err);
+              } else {
+                resolve(stream);
+              }
+            },
+          },
+          {
+            label: 'Dynamic',
+            params: {
+              useProxy: false,
+              concurrency: 10,
+            },
+          }
+        );
+      });
+    }
+
+    return Promise.resolve(undefined);
   }
 }
