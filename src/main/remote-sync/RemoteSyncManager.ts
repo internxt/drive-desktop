@@ -151,8 +151,7 @@ export class RemoteSyncManager {
           )
         ) {
           Logger.info(`Saving file updatedAt ${fileUpdatedAt}`);
-          // eslint-disable-next-line no-await-in-loop
-          await helpers.saveLastFilesSyncAt(fileUpdatedAt, SYNC_OFFSET_MS);
+          helpers.saveLastFilesSyncAt(fileUpdatedAt, SYNC_OFFSET_MS);
         }
       }
 
@@ -203,17 +202,17 @@ export class RemoteSyncManager {
       for (const remoteFolder of result) {
         // eslint-disable-next-line no-await-in-loop
         await this.createOrUpdateSyncedFolderEntry(remoteFolder);
-        const folderUpdatedAt = new Date(remoteFolder.updatedAt);
+        const foldersUpdatedAt = new Date(remoteFolder.updatedAt);
         if (
           !lastFoldersSyncAt ||
           helpers.lastSyncedAtIsNewer(
-            folderUpdatedAt,
+            foldersUpdatedAt,
             lastFoldersSyncAt,
             SYNC_OFFSET_MS
           )
         ) {
-          // eslint-disable-next-line no-await-in-loop
-          await helpers.saveLastFoldersSyncAt(folderUpdatedAt, SYNC_OFFSET_MS);
+          Logger.info(`Saving folders updatedAt ${foldersUpdatedAt}`);
+          helpers.saveLastFoldersSyncAt(foldersUpdatedAt, SYNC_OFFSET_MS);
         }
       }
 
