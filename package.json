@@ -27,9 +27,7 @@
     "test": "jest && playwright test --config=src/test",
     "test:unit": "jest --silent",
     "test:e2e": "playwright test --config=src/test",
-    "test:single": "jest src/main/remote-sync/RemoteSyncManager.test.ts",
-    "prepare": "husky install",
-    "rebuild:single": "electron-rebuild -f -w better-sqlite3"
+    "prepare": "husky install"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
