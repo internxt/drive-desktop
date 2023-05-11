@@ -113,6 +113,7 @@ describe('RemoteSyncManager', () => {
     (global.fetch as jest.Mock)
       .mockImplementationOnce(() => {
         return Promise.resolve({
+          ok: true,
           json: () =>
             Promise.resolve<RemoteSyncedFile[]>([
               createRemoteSyncedFileFixture({
@@ -126,6 +127,7 @@ describe('RemoteSyncManager', () => {
       })
       .mockImplementationOnce(() => {
         return Promise.resolve({
+          ok: true,
           json: () =>
             Promise.resolve<RemoteSyncedFile[]>([
               createRemoteSyncedFileFixture({
@@ -157,6 +159,7 @@ describe('RemoteSyncManager', () => {
     (global.fetch as jest.Mock)
       .mockImplementationOnce(() => {
         return Promise.resolve({
+          ok: true,
           json: () =>
             Promise.resolve<RemoteSyncedFolder[]>([
               createRemoteSyncedFolderFixture({
@@ -170,6 +173,7 @@ describe('RemoteSyncManager', () => {
       })
       .mockImplementationOnce(() => {
         return Promise.resolve({
+          ok: true,
           json: () =>
             Promise.resolve<RemoteSyncedFolder[]>([
               createRemoteSyncedFolderFixture({
@@ -183,6 +187,7 @@ describe('RemoteSyncManager', () => {
       })
       .mockImplementationOnce(() => {
         return Promise.resolve({
+          ok: true,
           json: () =>
             Promise.resolve<RemoteSyncedFolder[]>([
               createRemoteSyncedFolderFixture({
@@ -205,7 +210,7 @@ describe('RemoteSyncManager', () => {
 
     await sut.startRemoteSync();
 
-    await sleep(500);
+    await sleep(50);
     expect((global.fetch as jest.Mock).mock.calls.length).toBe(6);
     expect(sut.getSyncStatus()).toBe('SYNC_FAILED');
   });
@@ -229,7 +234,7 @@ describe('RemoteSyncManager', () => {
 
     await sut.startRemoteSync();
 
-    await sleep(500);
+    await sleep(200);
     expect((global.fetch as jest.Mock).mock.calls.length).toBe(6);
     expect(sut.getSyncStatus()).toBe('SYNC_FAILED');
   });
@@ -258,11 +263,13 @@ describe('RemoteSyncManager', () => {
     (global.fetch as jest.Mock)
       .mockImplementationOnce(() => {
         return Promise.resolve({
+          ok: true,
           json: () => Promise.resolve<RemoteSyncedFile[]>([file1, file2]),
         });
       })
       .mockImplementationOnce(() => {
         return Promise.resolve({
+          ok: true,
           json: () => Promise.resolve<RemoteSyncedFile[]>([]),
         });
       });
