@@ -2,6 +2,7 @@ import { Axios } from 'axios';
 import Logger from 'electron-log';
 import { Readable } from 'stream';
 import { Environment } from '@internxt/inxt-js';
+import path from 'path';
 import { ServerFile } from '../filesystems/domain/ServerFile';
 import { ServerFolder } from '../filesystems/domain/ServerFolder';
 import { Traverser } from './application/Traverser';
@@ -14,6 +15,10 @@ import { Nullable } from '../../shared/types/Nullable';
 
 export class InMemoryRepository {
   private items: ItemsIndexedByPath = {};
+
+  private temporalFiles: Record<string, TemporalItem> = {};
+
+  private temporalFolders: Record<string, TemporalItem> = {};
 
   private readonly baseFolder: XFolder;
 
@@ -149,4 +154,51 @@ export class InMemoryRepository {
 
     return Promise.resolve(undefined);
   }
+
+  createFile(filePath: string) {
+    this.temporalFiles[filePath] = new TemporalItem(filePath);
+  }
+
+  getParentFolder(itemPath: string): Nullable<number> {
+    const itemPaths = itemPath.split('/');
+    itemPaths.splice(itemPaths.length - 1, 1);
+    const parentFolderPath = itemPaths.join('/');
+
+    const item = this.items[parentFolderPath];
+
+    if (item.isFile()) {
+      throw new Error(`${itemPath} is not a folder`);
+    }
+
+    if (item.isFolder()) {
+      return item.id;
+    }
+
+    throw new Error(`Could not retrive the folder containing ${itemPath}`);
+  }
+
+  async createFolder(folderPath: string, parentFolderId: number) {
+    const plainName = folderPath.split('/').at(-1);
+    const response = await this.httpClient.post(
+      `${process.env.API_URL}/api/storage/folder`,
+      {
+        folderName: plainName,
+        parentFolderId,
+      }
+    );
+
+    const created = response.data as ServerFolder;
+
+    this.items[folderPath] = XFolder.from({
+      id: created.id,
+      name: folderPath,
+      parentId: created.parent_id,
+      updatedAt: created.updated_at,
+      createdAt: created.created_at,
+    });
+  }
+}
+
+class TemporalItem {
+  constructor(private readonly filePath: string) {}
 }

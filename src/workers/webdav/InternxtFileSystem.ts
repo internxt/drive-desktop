@@ -1,6 +1,7 @@
 /* eslint-disable no-underscore-dangle */
 import { ResourceType, v2 as webdav } from 'webdav-server';
 import {
+  CreateInfo,
   CreationDateInfo,
   FileSystemSerializer,
   ILockManager,
@@ -15,6 +16,7 @@ import {
   ReturnCallback,
   SizeInfo,
   TypeInfo,
+  SimpleCallback,
 } from 'webdav-server/lib/index.v2';
 import Logger from 'electron-log';
 import { Readable } from 'stream';
@@ -43,32 +45,34 @@ export class InternxtFileSystem extends webdav.FileSystem {
   //   callback(new Error());
   // }
 
-  // _create(path, ctx, callback) {
-  //   if (ctx.type.isFolder) {
-  //     this.dbx
-  //       .filesCreateFolderV2({
-  //         path: this.getRemotePath(path),
-  //       })
-  //       .then(() => {
-  //         callback();
-  //       })
-  //       .catch((e) => {
-  //         callback();
-  //       });
-  //   } else {
-  //     this.dbx
-  //       .filesUpload({
-  //         path: this.getRemotePath(path),
-  //         contents: 'empty',
-  //       })
-  //       .then(() => {
-  //         callback();
-  //       })
-  //       .catch((e) => {
-  //         callback();
-  //       });
-  //   }
-  // }
+  _create(path: Path, ctx: CreateInfo, callback: SimpleCallback) {
+    Logger.debug('[FS] CREATE');
+
+    const itemPath = path.toString(false);
+
+    try {
+      const parentFolderId = this.repository.getParentFolder(itemPath);
+
+      if (!parentFolderId) {
+        callback(new Error('Invalid path when creating a node'));
+        return;
+      }
+
+      if (ctx.type.isDirectory) {
+        Logger.debug('[FS] Creating folder');
+        this.repository
+          .createFolder(itemPath, parentFolderId)
+          .then(() => callback())
+          .catch((err) => Logger.error(err));
+      } else {
+        this.repository.createFile(path.toString(false));
+        callback();
+        Logger.debug('[FS] TMP FILE CREATED');
+      }
+    } catch (err) {
+      Logger.error('[FS] Error: ', JSON.stringify(err, null, 2));
+    }
+  }
 
   // _delete(path, ctx, callback) {
   //   this.dbx
