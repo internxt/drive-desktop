@@ -12,6 +12,7 @@ import { Item } from './domain/Item';
 import { XPath } from './domain/XPath';
 import { XFolder } from './domain/Folder';
 import { Nullable } from '../../shared/types/Nullable';
+import { XFile } from './domain/File';
 
 export class InMemoryRepository {
   private items: ItemsIndexedByPath = {};
@@ -26,6 +27,7 @@ export class InMemoryRepository {
 
   constructor(
     private readonly httpClient: Axios,
+    private readonly trashHttpClient: Axios,
     private readonly environment: Environment,
     private readonly baseFolderId: number
   ) {
@@ -196,6 +198,31 @@ export class InMemoryRepository {
       updatedAt: created.updated_at,
       createdAt: created.created_at,
     });
+  }
+
+  async deleteFolder(item: XFolder): Promise<void> {
+    const result = await this.trashHttpClient.post(
+      `${process.env.NEW_DRIVE_URL}/drive/storage/trash/add`,
+      {
+        items: [{ type: 'folder', id: item.id }],
+      }
+    );
+
+    if (result.status === 200) {
+      Logger.debug('[REPOSITORY] FOLDER DELETED');
+      delete this.items[item.name.value];
+      return;
+    }
+
+    Logger.error(
+      '[REPOSITORY] FOLDER DELETION FAILED WITH STATUS: ',
+      result.status,
+      result.statusText
+    );
+  }
+
+  async deleteFile(item: XFile): Promise<void> {
+    throw new Error('Method not implemented.');
   }
 }
 

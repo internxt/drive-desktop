@@ -66,6 +66,7 @@ async function setUp() {
 
     const repo = new InMemoryRepository(
       clients.drive,
+      clients.newDrive,
       environment,
       user?.root_folder_id as number
     );

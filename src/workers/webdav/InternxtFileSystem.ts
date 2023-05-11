@@ -17,6 +17,7 @@ import {
   SizeInfo,
   TypeInfo,
   SimpleCallback,
+  DeleteInfo,
 } from 'webdav-server/lib/index.v2';
 import Logger from 'electron-log';
 import { Readable } from 'stream';
@@ -74,19 +75,24 @@ export class InternxtFileSystem extends webdav.FileSystem {
     }
   }
 
-  // _delete(path, ctx, callback) {
-  //   this.dbx
-  //     .filesDelete({
-  //       path: this.getRemotePath(path),
-  //     })
-  //     .then(() => {
-  //       delete this.resources[path.toString(false)];
-  //       callback();
-  //     })
-  //     .catch((e) => {
-  //       callback();
-  //     });
-  // }
+  _delete(path: Path, ctx: DeleteInfo, callback: SimpleCallback) {
+    const pathLike = path.toString(false);
+    const item = this.repository.getItem(pathLike);
+
+    if (!item) {
+      callback(new Error(`Item ${pathLike} not found`));
+      return;
+    }
+
+    if (item.isFile()) {
+      this.repository.deleteFile(item).then(() => callback());
+    }
+
+    if (item.isFolder()) {
+      this.repository.deleteFolder(item).then(() => callback());
+    }
+  }
+
   // _openWriteStream(path, ctx, callback) {
   //   this.getMetaData(path, (e, data) => {
   //     if (e) {
