@@ -2,7 +2,6 @@ import { Axios } from 'axios';
 import Logger from 'electron-log';
 import { Readable } from 'stream';
 import { Environment } from '@internxt/inxt-js';
-import path from 'path';
 import { ServerFile } from '../filesystems/domain/ServerFile';
 import { ServerFolder } from '../filesystems/domain/ServerFolder';
 import { Traverser } from './application/Traverser';
@@ -13,13 +12,12 @@ import { XPath } from './domain/XPath';
 import { XFolder } from './domain/Folder';
 import { Nullable } from '../../shared/types/Nullable';
 import { XFile } from './domain/File';
+import { FileCreatedResponseDTO } from '../../shared/HttpClient/responses/file-created';
 
 export class InMemoryRepository {
   private items: ItemsIndexedByPath = {};
 
   private temporalFiles: Record<string, TemporalItem> = {};
-
-  private temporalFolders: Record<string, TemporalItem> = {};
 
   private readonly baseFolder: XFolder;
 
@@ -29,7 +27,8 @@ export class InMemoryRepository {
     private readonly httpClient: Axios,
     private readonly trashHttpClient: Axios,
     private readonly environment: Environment,
-    private readonly baseFolderId: number
+    private readonly baseFolderId: number,
+    private readonly bucket: string
   ) {
     this.remoteFilesTraverser = new Traverser(crypt, baseFolderId);
     this.baseFolder = XFolder.from({
@@ -128,7 +127,7 @@ export class InMemoryRepository {
     if (item.isFile()) {
       return new Promise((resolve, reject) => {
         this.environment.download(
-          item.bucket,
+          this.bucket,
           item.fileId,
           {
             progressCallback: (progess: number) => {
@@ -161,7 +160,7 @@ export class InMemoryRepository {
     this.temporalFiles[filePath] = new TemporalItem(filePath);
   }
 
-  getParentFolder(itemPath: string): Nullable<number> {
+  getParentFolder(itemPath: string): Nullable<XFolder> {
     const itemPaths = itemPath.split('/');
     itemPaths.splice(itemPaths.length - 1, 1);
     const parentFolderPath = itemPaths.join('/');
@@ -173,19 +172,19 @@ export class InMemoryRepository {
     }
 
     if (item.isFolder()) {
-      return item.id;
+      return item;
     }
 
     throw new Error(`Could not retrive the folder containing ${itemPath}`);
   }
 
-  async createFolder(folderPath: string, parentFolderId: number) {
+  async createFolder(folderPath: string, parentFolder: XFolder) {
     const plainName = folderPath.split('/').at(-1);
     const response = await this.httpClient.post(
       `${process.env.API_URL}/api/storage/folder`,
       {
         folderName: plainName,
-        parentFolderId,
+        parentFolderId: parentFolder.id,
       }
     );
 
@@ -223,6 +222,52 @@ export class InMemoryRepository {
 
   async deleteFile(item: XFile): Promise<void> {
     throw new Error('Method not implemented.');
+  }
+
+  async addFile(
+    filePath: string,
+    file: {
+      fileId: string;
+      folderId: number;
+      createdAt: Date;
+      name: string;
+      size: number;
+      type: string;
+      updatedAt: Date;
+    },
+    parentItem: XFolder
+  ): Promise<void> {
+    const encryptedName = crypt.encryptName(
+      file.name,
+      parentItem.id.toString()
+    );
+
+    // TODO: MAKE SURE ALL FIELDS ARE CORRECT
+    const result = await this.httpClient.post<FileCreatedResponseDTO>(
+      `${process.env.API_URL}/api/storage/file`,
+      {
+        file: {
+          bucket: this.bucket,
+          encrypt_version: '03-aes',
+          fileId: file.fileId,
+          file_id: file.fileId,
+          folder_id: parentItem.id,
+          name: encryptedName,
+          plain_name: file.name,
+          size: file.size,
+          type: file.type,
+          modificationTime: Date.now(),
+        },
+      }
+    );
+
+    const created = XFile.from({
+      ...result.data,
+      folderId: result.data.folder_id,
+      size: parseInt(result.data.size, 10),
+    });
+
+    this.items[filePath] = created;
   }
 }
 

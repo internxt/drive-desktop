@@ -12,7 +12,6 @@ type XFileAtributes = {
   size: number;
   type: string;
   updatedAt: string;
-  bucket: string;
 };
 
 export class XFile extends Item {
@@ -27,8 +26,7 @@ export class XFile extends Item {
     public readonly type: string,
     public readonly createdAt: Date,
     public readonly updatedAt: Date,
-    public readonly modificationTime: Date,
-    public readonly bucket: string
+    public readonly modificationTime: Date
   ) {
     super();
   }
@@ -43,8 +41,7 @@ export class XFile extends Item {
       attributes.type,
       new Date(attributes.createdAt),
       new Date(attributes.updatedAt),
-      new Date(attributes.modificationTime),
-      attributes.bucket
+      new Date(attributes.modificationTime)
     );
   }
 

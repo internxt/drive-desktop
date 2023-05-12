@@ -8,6 +8,7 @@ import { getClients } from '../../shared/HttpClient/backgroud-process-clients';
 import { InMemoryRepository } from './InMemoryRepository';
 import { getUser } from '../../main/auth/service';
 import configStore from '../../main/config';
+import { FileUploader } from './application/FileUploader';
 
 interface WebDavServerEvents {
   WEBDAV_SERVER_START_SUCCESS: () => void;
@@ -68,7 +69,8 @@ async function setUp() {
       clients.drive,
       clients.newDrive,
       environment,
-      user?.root_folder_id as number
+      user?.root_folder_id as number,
+      user.bucket
     );
 
     await repo.init();
@@ -77,7 +79,11 @@ async function setUp() {
 
     server.setFileSystem(
       '/',
-      new InternxtFileSystem(new InternxtSerializer(), repo),
+      new InternxtFileSystem(
+        new InternxtSerializer(),
+        repo,
+        new FileUploader(user.bucket, environment)
+      ),
       (su) => {
         Logger.debug('SUCCEDED: ', su);
       }

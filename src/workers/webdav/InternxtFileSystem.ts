@@ -18,33 +18,37 @@ import {
   TypeInfo,
   SimpleCallback,
   DeleteInfo,
+  OpenWriteStreamInfo,
 } from 'webdav-server/lib/index.v2';
 import Logger from 'electron-log';
-import { Readable } from 'stream';
+import { Readable, Writable } from 'stream';
+import * as p from 'path';
 import { InMemoryRepository } from './InMemoryRepository';
 import { MyLockManager } from './LockManager';
+import { FileUploader } from './application/FileUploader';
 
 export class InternxtFileSystem extends webdav.FileSystem {
   private readonly lckMNG: ILockManager;
 
   constructor(
     serializer: FileSystemSerializer,
-    private readonly repository: InMemoryRepository
+    private readonly repository: InMemoryRepository,
+    private readonly fileUploader: FileUploader
   ) {
     super(serializer);
 
     this.lckMNG = new MyLockManager();
   }
 
-  // _rename(
-  //   pathFrom: Path,
-  //   newName: string,
-  //   ctx: RenameInfo,
-  //   callback: ReturnCallback<boolean>
-  // ) {
-  //   Logger.debug('RENAME: ', pathFrom, newName, JSON.stringify(ctx, null, 2));
-  //   callback(new Error());
-  // }
+  _rename(
+    pathFrom: Path,
+    newName: string,
+    ctx: RenameInfo,
+    callback: ReturnCallback<boolean>
+  ) {
+    Logger.debug('RENAME: ', pathFrom, newName, JSON.stringify(ctx, null, 2));
+    callback(undefined, false);
+  }
 
   _create(path: Path, ctx: CreateInfo, callback: SimpleCallback) {
     Logger.debug('[FS] CREATE');
@@ -52,9 +56,9 @@ export class InternxtFileSystem extends webdav.FileSystem {
     const itemPath = path.toString(false);
 
     try {
-      const parentFolderId = this.repository.getParentFolder(itemPath);
+      const parent = this.repository.getParentFolder(itemPath);
 
-      if (!parentFolderId) {
+      if (!parent) {
         callback(new Error('Invalid path when creating a node'));
         return;
       }
@@ -62,7 +66,7 @@ export class InternxtFileSystem extends webdav.FileSystem {
       if (ctx.type.isDirectory) {
         Logger.debug('[FS] Creating folder');
         this.repository
-          .createFolder(itemPath, parentFolderId)
+          .createFolder(itemPath, parent)
           .then(() => callback())
           .catch((err) => Logger.error(err));
       } else {
@@ -85,7 +89,10 @@ export class InternxtFileSystem extends webdav.FileSystem {
     }
 
     if (item.isFile()) {
-      this.repository.deleteFile(item).then(() => callback());
+      Logger.debug('[FS] DELETING FILE');
+      callback();
+      return;
+      // this.repository.deleteFile(iStem).then(() => callback());
     }
 
     if (item.isFolder()) {
@@ -93,30 +100,53 @@ export class InternxtFileSystem extends webdav.FileSystem {
     }
   }
 
-  // _openWriteStream(path, ctx, callback) {
-  //   this.getMetaData(path, (e, data) => {
-  //     if (e) {
-  //       return callback(webdav.Errors.ResourceNotFound);
-  //     }
+  _openWriteStream(
+    path: Path,
+    ctx: OpenWriteStreamInfo,
+    callback: ReturnCallback<Writable>
+  ) {
+    Logger.debug('[FS] OPEN WRITE STREAM', path);
 
-  //     var content = [];
-  //     var stream = new webdav.VirtualFileWritable(content);
-  //     stream.on('finish', () => {
-  //       this.dbx
-  //         .filesUpload({
-  //           path: this.getRemotePath(path),
-  //           contents: content,
-  //           strict_conflict: false,
-  //           mode: {
-  //             '.tag': 'overwrite',
-  //           },
-  //         })
-  //         .then(() => {})
-  //         .catch((e) => {});
-  //     });
-  //     callback(null, stream);
-  //   });
-  // }
+    const parentItem = this.repository.getParentFolder(path.toString(false));
+
+    if (!parentItem) {
+      callback(new Error());
+      return;
+    }
+
+    const contents: Buffer[] = [];
+    const stream = new webdav.VirtualFileWritable(contents);
+
+    const makeThings = async () => {
+      const fileId = await this.fileUploader.upload({
+        size: ctx.estimatedSize,
+        contents,
+      });
+
+      const pathLike = path.toString(false);
+
+      const { name, ext } = p.parse(pathLike.split('/').pop() as string);
+
+      const file = {
+        fileId,
+        folderId: parentItem.id,
+        createdAt: new Date(),
+        name,
+        size: ctx.estimatedSize,
+        type: ext,
+        updatedAt: new Date(),
+      };
+
+      this.repository.addFile(pathLike, file, parentItem);
+    };
+
+    stream.on('finish', () => {
+      Logger.debug('[FS] FINISHED WRITING STREAM');
+      makeThings();
+    });
+    callback(undefined, stream);
+  }
+
   _openReadStream(
     path: Path,
     ctx: OpenReadStreamInfo,

@@ -391,7 +391,7 @@ export function getRemoteFilesystem({
             fileSize: source.size,
             source: source.stream,
           });
-        }        
+        }
       });
 
       const oldFileInCache = cache[name];
@@ -471,7 +471,6 @@ export function getRemoteFilesystem({
         const fileCreated: FileCreatedResponseDTO = await res.json();
 
         return fileCreated.id;
-
       } catch (err) {
         await handleFetchError(
           err,
