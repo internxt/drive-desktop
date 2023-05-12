@@ -9,7 +9,7 @@ import {
 } from './helpers';
 import { reportError } from '../bug-report/service';
 import { obtainToken } from '../auth/service';
-import { DatabaseAdapter } from '../database/adapters/base';
+import { DatabaseCollectionAdapter } from '../database/adapters/base';
 
 export class RemoteSyncManager {
   private foldersSyncStatus: RemoteSyncStatus = 'IDLE';
@@ -21,8 +21,8 @@ export class RemoteSyncManager {
     };
   constructor(
     private db: {
-      files: DatabaseAdapter<RemoteSyncedFile>;
-      folders: DatabaseAdapter<RemoteSyncedFolder>;
+      files: DatabaseCollectionAdapter<RemoteSyncedFile>;
+      folders: DatabaseCollectionAdapter<RemoteSyncedFolder>;
     },
     private config: {
       fetchFilesLimitPerRequest: number;
@@ -84,6 +84,9 @@ export class RemoteSyncManager {
 
   private changeStatus(newStatus: RemoteSyncStatus) {
     this.status = newStatus;
+    Logger.info(`Folders sync status is ${this.foldersSyncStatus}`);
+    Logger.info(`Files sync status is ${this.filesSyncStatus}`);
+    Logger.info(`RemoteSync status is ${this.status}`);
     this.onStatusChangeCallback(newStatus);
   }
 
@@ -95,6 +98,7 @@ export class RemoteSyncManager {
       this.filesSyncStatus === 'SYNCED'
     ) {
       this.changeStatus('SYNCED');
+      return;
     }
 
     // We only syncing folders
@@ -104,6 +108,7 @@ export class RemoteSyncManager {
       this.foldersSyncStatus === 'SYNCED'
     ) {
       this.changeStatus('SYNCED');
+      return;
     }
     // Files and folders are synced, RemoteSync is Synced
     if (
@@ -111,6 +116,7 @@ export class RemoteSyncManager {
       this.filesSyncStatus === 'SYNCED'
     ) {
       this.changeStatus('SYNCED');
+      return;
     }
 
     // Files OR Folders sync failed, RemoteSync Failed
@@ -119,11 +125,8 @@ export class RemoteSyncManager {
       this.filesSyncStatus === 'SYNC_FAILED'
     ) {
       this.changeStatus('SYNC_FAILED');
+      return;
     }
-
-    Logger.info(`Folders sync status is ${this.foldersSyncStatus}`);
-    Logger.info(`Files sync status is ${this.filesSyncStatus}`);
-    Logger.info(`RemoteSync status is ${this.status}`);
   }
 
   /**

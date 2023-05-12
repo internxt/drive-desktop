@@ -1,4 +1,4 @@
-export abstract class DatabaseAdapter<DatabaseItemType> {
+export abstract class DatabaseCollectionAdapter<DatabaseItemType> {
   /**
    * Used to initialize the database adapter
    */

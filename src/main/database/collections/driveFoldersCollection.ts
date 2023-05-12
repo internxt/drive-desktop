@@ -1,5 +1,5 @@
-import { DatabaseAdapter } from './adapters/base';
-import { RemoteSyncedFolder } from '../remote-sync/helpers';
+import { DatabaseCollectionAdapter } from '../adapters/base';
+import { RemoteSyncedFolder } from '../../remote-sync/helpers';
 import SQLite from 'better-sqlite3';
 
 export function generateCreateTableQuery(): string {
@@ -20,7 +20,9 @@ export function generateCreateTableQuery(): string {
   return query;
 }
 
-export class DriveFoldersDB implements DatabaseAdapter<RemoteSyncedFolder> {
+export class DriveFoldersCollection
+  implements DatabaseCollectionAdapter<RemoteSyncedFolder>
+{
   private _db?: SQLite.Database;
   async connect(): Promise<{ success: boolean }> {
     this._db = SQLite('drive_synced.db', {});
@@ -31,10 +33,10 @@ export class DriveFoldersDB implements DatabaseAdapter<RemoteSyncedFolder> {
     };
   }
 
-  async get(folderUuid: string) {
+  async get(uuid: RemoteSyncedFolder['uuid']) {
     const row = this.db
       .prepare('SELECT * FROM drive_folders WHERE uuid = ?')
-      .get(folderUuid);
+      .get(uuid);
 
     return {
       success: true,
@@ -42,8 +44,11 @@ export class DriveFoldersDB implements DatabaseAdapter<RemoteSyncedFolder> {
     };
   }
 
-  async update(folderUuid: string, updatePayload: Partial<RemoteSyncedFolder>) {
-    const { result } = await this.get(folderUuid);
+  async update(
+    uuid: RemoteSyncedFolder['uuid'],
+    updatePayload: Partial<RemoteSyncedFolder>
+  ) {
+    const { result } = await this.get(uuid);
 
     if (!result) return { success: false };
 
@@ -90,11 +95,11 @@ export class DriveFoldersDB implements DatabaseAdapter<RemoteSyncedFolder> {
     };
   }
 
-  async remove(folderUuid: string) {
-    const { result } = await this.get(folderUuid);
+  async remove(uuid: RemoteSyncedFolder['uuid']) {
+    const { result } = await this.get(uuid);
 
     if (!result) return { success: false };
-    this.db.prepare('DELETE FROM drive_folders WHERE uuid = ?').run(folderUuid);
+    this.db.prepare('DELETE FROM drive_folders WHERE uuid = ?').run(uuid);
     return {
       success: true,
     };

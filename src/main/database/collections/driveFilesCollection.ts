@@ -1,5 +1,5 @@
-import { DatabaseAdapter } from './adapters/base';
-import { RemoteSyncedFile } from '../remote-sync/helpers';
+import { DatabaseCollectionAdapter } from '../adapters/base';
+import { RemoteSyncedFile } from '../../remote-sync/helpers';
 import SQLite from 'better-sqlite3';
 
 export function generateCreateTableQuery(): string {
@@ -24,7 +24,9 @@ export function generateCreateTableQuery(): string {
   return query;
 }
 
-export class DriveFilesDB implements DatabaseAdapter<RemoteSyncedFile> {
+export class DriveFilesCollection
+  implements DatabaseCollectionAdapter<RemoteSyncedFile>
+{
   private _db?: SQLite.Database;
   async connect(): Promise<{ success: boolean }> {
     this._db = SQLite('drive_synced.db', {});
@@ -35,7 +37,7 @@ export class DriveFilesDB implements DatabaseAdapter<RemoteSyncedFile> {
     };
   }
 
-  async get(fileId: string) {
+  async get(fileId: RemoteSyncedFile['fileId']) {
     const row = this.db
       .prepare('SELECT * FROM drive_files WHERE fileId = ?')
       .get(fileId);
@@ -46,7 +48,10 @@ export class DriveFilesDB implements DatabaseAdapter<RemoteSyncedFile> {
     };
   }
 
-  async update(fileId: string, updatePayload: Partial<RemoteSyncedFile>) {
+  async update(
+    fileId: RemoteSyncedFile['fileId'],
+    updatePayload: Partial<RemoteSyncedFile>
+  ) {
     const { result } = await this.get(fileId);
 
     if (!result) return { success: false };
@@ -61,8 +66,8 @@ export class DriveFilesDB implements DatabaseAdapter<RemoteSyncedFile> {
 
   async create(creationPayload: RemoteSyncedFile) {
     const query = `
-                 INSERT INTO drive_files (id, uuid, fileId, type, size, bucket, folderId, folderUuid, encryptVersion, userId, modificationTime, createdAt, updatedAt, plainName)
-                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                 INSERT INTO drive_files (id, uuid, fileId, type, size, bucket, folderId, folderUuid, userId, modificationTime, createdAt, updatedAt, plainName)
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                  ON CONFLICT (fileId)
                  DO UPDATE SET
                  id = excluded.id,
@@ -72,7 +77,6 @@ export class DriveFilesDB implements DatabaseAdapter<RemoteSyncedFile> {
                  bucket = excluded.bucket,
                  folderId = excluded.folderId,
                  folderUuid = excluded.folderUuid,
-                 encryptVersion = excluded.encryptVersion,
                  userId = excluded.userId,
                  modificationTime = excluded.modificationTime,
                  createdAt = excluded.createdAt,
@@ -90,7 +94,6 @@ export class DriveFilesDB implements DatabaseAdapter<RemoteSyncedFile> {
       creationPayload.bucket,
       creationPayload.folderId,
       creationPayload.folderUuid,
-      creationPayload.encryptVersion,
       creationPayload.userId,
       creationPayload.modificationTime,
       creationPayload.createdAt,
@@ -104,7 +107,7 @@ export class DriveFilesDB implements DatabaseAdapter<RemoteSyncedFile> {
     };
   }
 
-  async remove(fileId: string) {
+  async remove(fileId: RemoteSyncedFile['fileId']) {
     const { result } = await this.get(fileId);
 
     if (!result) return { success: false };

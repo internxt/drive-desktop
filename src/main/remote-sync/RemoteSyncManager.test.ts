@@ -1,23 +1,25 @@
-import { DatabaseAdapter } from 'main/database/adapters/base';
+import { DatabaseCollectionAdapter } from 'main/database/adapters/base';
 import { RemoteSyncManager } from './RemoteSyncManager';
 import { RemoteSyncedFile, RemoteSyncedFolder } from './helpers';
-import { sleep } from '../util';
+import * as uuid from 'uuid';
 
-const inMemorySyncedFilesAdapter: DatabaseAdapter<RemoteSyncedFile> = {
-  get: jest.fn(),
-  connect: jest.fn(),
-  update: jest.fn(),
-  create: jest.fn(),
-  remove: jest.fn(),
-};
+const inMemorySyncedFilesCollection: DatabaseCollectionAdapter<RemoteSyncedFile> =
+  {
+    get: jest.fn(),
+    connect: jest.fn(),
+    update: jest.fn(),
+    create: jest.fn(),
+    remove: jest.fn(),
+  };
 
-const inMemorySyncedFoldersAdapter: DatabaseAdapter<RemoteSyncedFolder> = {
-  get: jest.fn(),
-  connect: jest.fn(),
-  update: jest.fn(),
-  create: jest.fn(),
-  remove: jest.fn(),
-};
+const inMemorySyncedFoldersCollection: DatabaseCollectionAdapter<RemoteSyncedFolder> =
+  {
+    get: jest.fn(),
+    connect: jest.fn(),
+    update: jest.fn(),
+    create: jest.fn(),
+    remove: jest.fn(),
+  };
 
 const createRemoteSyncedFileFixture = (
   payload: Partial<RemoteSyncedFile>
@@ -27,11 +29,10 @@ const createRemoteSyncedFileFixture = (
     id: Date.now(),
     fileId: Date.now().toString(),
     type: 'jpg',
-    size: '999',
+    size: 999,
     bucket: `bucket_${Date.now()}`,
     folderId: 555,
-    folderUuid: '',
-    encryptVersion: '03-aes',
+    folderUuid: uuid.v4(),
     userId: 567,
     modificationTime: new Date().toISOString(),
     createdAt: new Date().toISOString(),
@@ -54,7 +55,7 @@ const createRemoteSyncedFolderFixture = (
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     parentId: null,
-    uuid: `xxxxx-xxxxx-${Date.now()}`,
+    uuid: uuid.v4(),
     status: 'EXISTS',
     ...payload,
   };
@@ -71,8 +72,8 @@ global.fetch = jest.fn(() =>
 describe('RemoteSyncManager', () => {
   let sut: RemoteSyncManager = new RemoteSyncManager(
     {
-      folders: inMemorySyncedFoldersAdapter,
-      files: inMemorySyncedFilesAdapter,
+      folders: inMemorySyncedFoldersCollection,
+      files: inMemorySyncedFilesCollection,
     },
     {
       fetchFilesLimitPerRequest: 2,
@@ -84,8 +85,8 @@ describe('RemoteSyncManager', () => {
   beforeEach(() => {
     sut = new RemoteSyncManager(
       {
-        folders: inMemorySyncedFoldersAdapter,
-        files: inMemorySyncedFilesAdapter,
+        folders: inMemorySyncedFoldersCollection,
+        files: inMemorySyncedFilesCollection,
       },
       {
         fetchFilesLimitPerRequest: 2,
@@ -100,8 +101,8 @@ describe('RemoteSyncManager', () => {
   it('Should fetch 2 pages of remote files', async () => {
     const sut = new RemoteSyncManager(
       {
-        folders: inMemorySyncedFoldersAdapter,
-        files: inMemorySyncedFilesAdapter,
+        folders: inMemorySyncedFoldersCollection,
+        files: inMemorySyncedFilesCollection,
       },
       {
         fetchFilesLimitPerRequest: 2,
@@ -146,8 +147,8 @@ describe('RemoteSyncManager', () => {
   it('Should fetch 3 pages of remote folders', async () => {
     const sut = new RemoteSyncManager(
       {
-        folders: inMemorySyncedFoldersAdapter,
-        files: inMemorySyncedFilesAdapter,
+        folders: inMemorySyncedFoldersCollection,
+        files: inMemorySyncedFilesCollection,
       },
       {
         fetchFilesLimitPerRequest: 2,
@@ -210,7 +211,6 @@ describe('RemoteSyncManager', () => {
 
     await sut.startRemoteSync();
 
-    await sleep(50);
     expect((global.fetch as jest.Mock).mock.calls.length).toBe(6);
     expect(sut.getSyncStatus()).toBe('SYNC_FAILED');
   });
@@ -218,8 +218,8 @@ describe('RemoteSyncManager', () => {
   it('Should fail the sync if some files or folders cannot be retrieved', async () => {
     const sut = new RemoteSyncManager(
       {
-        folders: inMemorySyncedFoldersAdapter,
-        files: inMemorySyncedFilesAdapter,
+        folders: inMemorySyncedFoldersCollection,
+        files: inMemorySyncedFilesCollection,
       },
       {
         fetchFilesLimitPerRequest: 2,
@@ -234,7 +234,6 @@ describe('RemoteSyncManager', () => {
 
     await sut.startRemoteSync();
 
-    await sleep(200);
     expect((global.fetch as jest.Mock).mock.calls.length).toBe(6);
     expect(sut.getSyncStatus()).toBe('SYNC_FAILED');
   });
@@ -242,8 +241,8 @@ describe('RemoteSyncManager', () => {
   it('Should save the files in the database', async () => {
     const sut = new RemoteSyncManager(
       {
-        folders: inMemorySyncedFoldersAdapter,
-        files: inMemorySyncedFilesAdapter,
+        folders: inMemorySyncedFoldersCollection,
+        files: inMemorySyncedFilesCollection,
       },
       {
         fetchFilesLimitPerRequest: 2,
@@ -278,7 +277,7 @@ describe('RemoteSyncManager', () => {
 
     expect((global.fetch as jest.Mock).mock.calls.length).toBe(2);
     expect(sut.getSyncStatus()).toBe('SYNCED');
-    expect(inMemorySyncedFilesAdapter.create).toHaveBeenCalledWith(file1);
-    expect(inMemorySyncedFilesAdapter.create).toHaveBeenCalledWith(file2);
+    expect(inMemorySyncedFilesCollection.create).toHaveBeenCalledWith(file1);
+    expect(inMemorySyncedFilesCollection.create).toHaveBeenCalledWith(file2);
   });
 });
