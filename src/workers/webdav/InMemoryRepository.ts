@@ -17,8 +17,6 @@ import { FileCreatedResponseDTO } from '../../shared/HttpClient/responses/file-c
 export class InMemoryRepository {
   private items: ItemsIndexedByPath = {};
 
-  private temporalFiles: Record<string, TemporalItem> = {};
-
   private readonly baseFolder: XFolder;
 
   private readonly remoteFilesTraverser: Traverser;
@@ -156,10 +154,6 @@ export class InMemoryRepository {
     return Promise.resolve(undefined);
   }
 
-  createFile(filePath: string) {
-    this.temporalFiles[filePath] = new TemporalItem(filePath);
-  }
-
   getParentFolder(itemPath: string): Nullable<XFolder> {
     const itemPaths = itemPath.split('/');
     itemPaths.splice(itemPaths.length - 1, 1);
@@ -237,6 +231,7 @@ export class InMemoryRepository {
     },
     parentItem: XFolder
   ): Promise<void> {
+    Logger.debug('[REPOSIOTRY] ADD: ', JSON.stringify(file, null, 2));
     const encryptedName = crypt.encryptName(
       file.name,
       parentItem.id.toString()

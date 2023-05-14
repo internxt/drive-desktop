@@ -19,6 +19,7 @@ import {
   SimpleCallback,
   DeleteInfo,
   OpenWriteStreamInfo,
+  CopyInfo,
 } from 'webdav-server/lib/index.v2';
 import Logger from 'electron-log';
 import { Readable, Writable } from 'stream';
@@ -29,6 +30,8 @@ import { FileUploader } from './application/FileUploader';
 
 export class InternxtFileSystem extends webdav.FileSystem {
   private readonly lckMNG: ILockManager;
+
+  private temporalFiles: Array<string> = [];
 
   constructor(
     serializer: FileSystemSerializer,
@@ -47,6 +50,16 @@ export class InternxtFileSystem extends webdav.FileSystem {
     callback: ReturnCallback<boolean>
   ) {
     Logger.debug('RENAME: ', pathFrom, newName, JSON.stringify(ctx, null, 2));
+    callback(undefined, false);
+  }
+
+  _copy(
+    pathFrom: Path,
+    pathTo: Path,
+    ctx: CopyInfo,
+    callback: ReturnCallback<boolean>
+  ) {
+    Logger.debug('[FS] COPY');
     callback(undefined, false);
   }
 
@@ -70,7 +83,8 @@ export class InternxtFileSystem extends webdav.FileSystem {
           .then(() => callback())
           .catch((err) => Logger.error(err));
       } else {
-        this.repository.createFile(path.toString(false));
+        this.temporalFiles.push(path.toString(false));
+        // this.repository.createFile(path.toString(false));
         callback();
         Logger.debug('[FS] TMP FILE CREATED');
       }
@@ -80,6 +94,7 @@ export class InternxtFileSystem extends webdav.FileSystem {
   }
 
   _delete(path: Path, ctx: DeleteInfo, callback: SimpleCallback) {
+    Logger.debug('DELTE');
     const pathLike = path.toString(false);
     const item = this.repository.getItem(pathLike);
 
@@ -106,6 +121,8 @@ export class InternxtFileSystem extends webdav.FileSystem {
     callback: ReturnCallback<Writable>
   ) {
     Logger.debug('[FS] OPEN WRITE STREAM', path);
+    Logger.debug('[FS] PATH ', path.toString(false));
+    Logger.debug('[FS] TMP ', JSON.stringify(this.temporalFiles, null, 2));
 
     const parentItem = this.repository.getParentFolder(path.toString(false));
 
@@ -117,10 +134,10 @@ export class InternxtFileSystem extends webdav.FileSystem {
     const contents: Buffer[] = [];
     const stream = new webdav.VirtualFileWritable(contents);
 
-    const makeThings = async () => {
+    const uploadNewFile = async () => {
       const fileId = await this.fileUploader.upload({
         size: ctx.estimatedSize,
-        contents,
+        contents: Readable.from(contents),
       });
 
       const pathLike = path.toString(false);
@@ -133,18 +150,40 @@ export class InternxtFileSystem extends webdav.FileSystem {
         createdAt: new Date(),
         name,
         size: ctx.estimatedSize,
-        type: ext,
+        type: ext.slice(1),
         updatedAt: new Date(),
       };
 
       this.repository.addFile(pathLike, file, parentItem);
     };
 
+    const renameFile = async () => {
+      if (ctx.mode !== 'mustExist') {
+        return;
+      }
+      Logger.debug('[FS] RENAMING ');
+      Logger.debug('[FS] PATH ', path.toString(false));
+      Logger.debug('[FS] TMP ', JSON.stringify(this.temporalFiles, null, 2));
+    };
+
     stream.on('finish', () => {
+      stream.end();
       Logger.debug('[FS] FINISHED WRITING STREAM');
-      makeThings();
+
+      Logger.debug(
+        'rename: ',
+        this.temporalFiles.includes(path.toString(false))
+      );
+
+      if (this.temporalFiles.includes(path.toString(false))) {
+        renameFile();
+        callback(undefined, stream);
+        return;
+      }
+
+      uploadNewFile();
+      callback(undefined, stream);
     });
-    callback(undefined, stream);
   }
 
   _openReadStream(
@@ -152,6 +191,7 @@ export class InternxtFileSystem extends webdav.FileSystem {
     ctx: OpenReadStreamInfo,
     callback: ReturnCallback<Readable>
   ) {
+    Logger.debug('[OPEN READ STREAM]');
     this.repository
       .getReadable(path.toString(false))
       .then((readable) => {
@@ -167,7 +207,6 @@ export class InternxtFileSystem extends webdav.FileSystem {
 
   _size(path: Path, _ctx: SizeInfo, callback: ReturnCallback<number>) {
     const pathLike = path.toString(false);
-    Logger.debug('SIZE: ', pathLike);
 
     const item = this.repository.getItem(pathLike);
 
@@ -194,7 +233,6 @@ export class InternxtFileSystem extends webdav.FileSystem {
     callback: ReturnCallback<IPropertyManager>
   ) {
     const pathLike = path.toString(false);
-    Logger.debug('PROPERTY MANAGER: ', pathLike);
 
     const item = this.repository.getItem(pathLike);
 
@@ -259,7 +297,6 @@ export class InternxtFileSystem extends webdav.FileSystem {
 
   _type(path: Path, _ctx: TypeInfo, callback: ReturnCallback<ResourceType>) {
     const pathLike = path.toString(false);
-    Logger.log('TYPE: ', pathLike);
 
     if (pathLike === '/') {
       const resource = new ResourceType(false, true);

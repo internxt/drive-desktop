@@ -37,6 +37,7 @@ let subscription: watcher.AsyncSubscription | undefined;
 
 async function cleanAndStartLocalWatcher() {
   stopLocalWatcher();
+  return;
 
   const debouncedCallback = debounce(
     tryToStartSyncProcess,

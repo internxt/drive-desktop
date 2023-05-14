@@ -8,14 +8,7 @@ export class FileUploader {
     private readonly environment: Environment
   ) {}
 
-  upload(source: { size: number; contents: Buffer[] }): Promise<string> {
-    const readable = new Readable({
-      read() {
-        this.push(source.contents);
-        this.push(null);
-      },
-    });
-
+  upload(source: { size: number; contents: Readable }): Promise<string> {
     return new Promise((resolve, reject) => {
       this.environment.upload(this.bucket, {
         finishedCallback: async (err: unknown, fileId: string) => {
@@ -28,7 +21,7 @@ export class FileUploader {
           }
         },
         fileSize: source.size,
-        source: readable,
+        source: source.contents,
       });
     });
   }

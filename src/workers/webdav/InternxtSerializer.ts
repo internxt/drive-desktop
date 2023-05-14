@@ -1,5 +1,10 @@
 import { v2 as webdav } from 'webdav-server';
-import { ReturnCallback } from 'webdav-server/lib/index.v2';
+import {
+  ReturnCallback,
+  VirtualFileSystem,
+  FileSystem,
+} from 'webdav-server/lib/index.v2';
+import Logger from 'electron-log';
 import { InternxtFileSystem } from './InternxtFileSystem';
 
 export class InternxtSerializer implements webdav.FileSystemSerializer {
@@ -8,14 +13,13 @@ export class InternxtSerializer implements webdav.FileSystemSerializer {
   }
 
   serialize(fs: InternxtFileSystem, callback: ReturnCallback<any>) {
+    Logger.debug('[SLZ] SERIALIZE');
     callback(undefined, 'hola');
   }
 
-  unserialize(
-    serializedData: any,
-    callback: ReturnCallback<InternxtFileSystem>
-  ) {
-    const fs = new InternxtFileSystem();
+  unserialize(serializedData: any, callback: ReturnCallback<FileSystem>) {
+    Logger.debug('[SLZ] UNSERIALIZE');
+    const fs = new VirtualFileSystem();
 
     callback(undefined, fs);
   }

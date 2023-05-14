@@ -9,6 +9,7 @@ import { InMemoryRepository } from './InMemoryRepository';
 import { getUser } from '../../main/auth/service';
 import configStore from '../../main/config';
 import { FileUploader } from './application/FileUploader';
+import { PhysicalFileSystem } from 'webdav-server/lib/index.v2';
 
 interface WebDavServerEvents {
   WEBDAV_SERVER_START_SUCCESS: () => void;
@@ -88,6 +89,8 @@ async function setUp() {
         Logger.debug('SUCCEDED: ', su);
       }
     );
+
+    server.on('rename', () => Logger.debug('[SERVER ON RENAME'));
 
     server.start((s) => Logger.log('Ready on port', s?.address()));
   } catch (err) {
