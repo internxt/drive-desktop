@@ -2,19 +2,19 @@ import { Axios } from 'axios';
 import Logger from 'electron-log';
 import { Readable } from 'stream';
 import { Environment } from '@internxt/inxt-js';
+import * as uuid from 'uuid';
 import { ServerFile } from '../filesystems/domain/ServerFile';
 import { ServerFolder } from '../filesystems/domain/ServerFolder';
 import { Traverser } from './application/Traverser';
 import crypt from '../utils/crypt';
 import { ItemsIndexedByPath } from './domain/ItemsIndexedByPath';
-import { Item } from './domain/Item';
 import { XPath } from './domain/XPath';
 import { XFolder } from './domain/Folder';
 import { Nullable } from '../../shared/types/Nullable';
 import { XFile } from './domain/File';
 import { FileCreatedResponseDTO } from '../../shared/HttpClient/responses/file-created';
 
-export class InMemoryRepository {
+export class Repository {
   private items: ItemsIndexedByPath = {};
 
   private readonly baseFolder: XFolder;
@@ -32,6 +32,7 @@ export class InMemoryRepository {
     this.baseFolder = XFolder.from({
       id: baseFolderId,
       name: '/',
+      path: '/',
       parentId: null,
       updatedAt: new Date().toDateString(),
       createdAt: new Date().toDateString(),
@@ -86,11 +87,11 @@ export class InMemoryRepository {
     Logger.debug('LIST CONTENTS: ', folderPath);
 
     if (folderPath === '/') {
-      const names = Object.values(this.items)
+      const paths = Object.values(this.items)
         .filter((i) => i.hasParent(this.baseFolderId))
-        .map((i) => i.name);
+        .map((i) => i.path);
 
-      return names;
+      return paths;
     }
 
     const item = this.items[folderPath];
@@ -103,12 +104,12 @@ export class InMemoryRepository {
       .filter((f) => {
         return f.hasParent(item.id);
       })
-      .map((f) => f.name);
+      .map((f) => f.path);
 
     return files;
   }
 
-  getItem(pathLike: string): Nullable<Item> {
+  getItem(pathLike: string): Nullable<XFile | XFolder> {
     if (pathLike === '/') {
       return this.baseFolder;
     }
@@ -157,11 +158,19 @@ export class InMemoryRepository {
   getParentFolder(itemPath: string): Nullable<XFolder> {
     const itemPaths = itemPath.split('/');
     itemPaths.splice(itemPaths.length - 1, 1);
-    const parentFolderPath = itemPaths.join('/');
+    const parentFolderPath = itemPaths.join('/') || '/';
 
-    const item = this.items[parentFolderPath];
+    Logger.error('[Repository] path', parentFolderPath);
+    const item = this.getItem(parentFolderPath);
+
+    if (!item) {
+      return;
+    }
+
+    Logger.error('[Repository] item', JSON.stringify(item));
 
     if (item.isFile()) {
+      Logger.error('[Repository] XXX');
       throw new Error(`${itemPath} is not a folder`);
     }
 
@@ -169,11 +178,18 @@ export class InMemoryRepository {
       return item;
     }
 
+    Logger.error('[Repository] Folder not found');
+
     throw new Error(`Could not retrive the folder containing ${itemPath}`);
   }
 
   async createFolder(folderPath: string, parentFolder: XFolder) {
     const plainName = folderPath.split('/').at(-1);
+
+    if (!plainName) {
+      throw new Error('Bad folder name');
+    }
+
     const response = await this.httpClient.post(
       `${process.env.API_URL}/api/storage/folder`,
       {
@@ -182,15 +198,33 @@ export class InMemoryRepository {
       }
     );
 
-    const created = response.data as ServerFolder;
+    Logger.debug(JSON.stringify(response, null, 2));
+
+    Logger.debug(
+      'CREATED FOLDER STATUS: ',
+      response.status,
+      response.statusText
+    );
+
+    const created = response.data as ServerFolder | null;
+
+    if (!created) {
+      Logger.debug('[FOLDER CREATED] NULL');
+      throw new Error('Folder not created');
+    }
+
+    Logger.debug('CREATED FOLDER', JSON.stringify(created, null, 2));
 
     this.items[folderPath] = XFolder.from({
       id: created.id,
-      name: folderPath,
+      name: plainName,
       parentId: created.parent_id,
       updatedAt: created.updated_at,
       createdAt: created.created_at,
+      path: folderPath,
     });
+
+    Logger.debug('CREATE FOLDER FINISHED');
   }
 
   async deleteFolder(item: XFolder): Promise<void> {
@@ -201,9 +235,11 @@ export class InMemoryRepository {
       }
     );
 
+    Logger.debug(JSON.stringify(result));
+
     if (result.status === 200) {
       Logger.debug('[REPOSITORY] FOLDER DELETED');
-      delete this.items[item.name.value];
+      delete this.items[item.path.value];
       return;
     }
 
@@ -260,9 +296,55 @@ export class InMemoryRepository {
       ...result.data,
       folderId: result.data.folder_id,
       size: parseInt(result.data.size, 10),
+      path: filePath,
     });
 
     this.items[filePath] = created;
+  }
+
+  async updateName(item: XFile | XFolder): Promise<void> {
+    const url = item.isFile()
+      ? `${process.env.API_URL}/api/storage/file/${item.fileId}/meta`
+      : `${process.env.API_URL}/api/storage/folder/${item.id}/meta`;
+
+    const res = await this.httpClient.post(url, {
+      metadata: { itemName: item.name },
+      bucketId: this.bucket,
+      relativePath: uuid.v4(),
+    });
+
+    if (res.status !== 200) {
+      throw new Error(
+        `[REPOSITORY] Error updating item metadata: ${res.status}`
+      );
+    }
+
+    delete this.items[item.path.value];
+    this.items[item.path.value] = item;
+  }
+
+  async updateParentDir(item: XFile | XFolder): Promise<void> {
+    const request = item.isFile()
+      ? {
+          url: `${process.env.API_URL}/api/storage/move/file`,
+          body: { destination: item.folderId, fileId: item.fileId },
+        }
+      : {
+          url: `${process.env.API_URL}/api/storage/move/folder`,
+          body: { destination: item.parentId, folderId: item.id },
+        };
+
+    Logger.debug('MAKING THE CHANGE');
+
+    const res = await this.httpClient.post(request.url, request.body);
+
+    Logger.debug('CHANGE DONE', res.status, res.statusText);
+    if (res.status !== 200) {
+      throw new Error(`[REPOSITORY] Error moving item: ${res.status}`);
+    }
+
+    delete this.items[item.path.value];
+    this.items[item.path.value] = item;
   }
 }
 

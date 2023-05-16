@@ -2,26 +2,26 @@ import { XFolder } from './Folder';
 import { Item } from './Item';
 import { XPath } from './XPath';
 
-type XFileAtributes = {
-  id: number;
+export type XFileAtributes = {
   fileId: string;
   folderId: number;
   createdAt: string;
   modificationTime: string;
   name: string;
+  path: string;
   size: number;
   type: string;
   updatedAt: string;
 };
 
-export class XFile extends Item {
+export class XFile extends Item<XFile> {
   // private encryptVersion: string = '03-aes';
 
   private constructor(
-    public readonly id: number,
     public readonly fileId: string,
     public readonly folderId: number,
-    public readonly name: XPath,
+    public readonly name: string,
+    public readonly path: XPath,
     public readonly size: number,
     public readonly type: string,
     public readonly createdAt: Date,
@@ -33,15 +33,63 @@ export class XFile extends Item {
 
   static from(attributes: XFileAtributes): XFile {
     return new XFile(
-      attributes.id,
       attributes.fileId,
       attributes.folderId,
-      new XPath(attributes.name),
+      attributes.name,
+      new XPath(attributes.path),
       attributes.size,
       attributes.type,
       new Date(attributes.createdAt),
       new Date(attributes.updatedAt),
       new Date(attributes.modificationTime)
+    );
+  }
+
+  moveTo(folder: XFolder): XFile {
+    if (this.folderId === folder.id) {
+      throw new Error('Cannot move a file to its current folder');
+    }
+
+    const basePath = folder.path.dirname();
+
+    return new XFile(
+      this.fileId,
+      this.folderId,
+      this.name,
+      XPath.fromParts([basePath, this.name]),
+      this.size,
+      this.type,
+      this.createdAt,
+      this.updatedAt,
+      this.modificationTime
+    );
+  }
+
+  rename(newPath: XPath) {
+    if (!this.path.hasSameDirname(newPath)) {
+      throw new Error('A file rename should mantain the current estructure');
+    }
+
+    if (newPath.extension() !== this.type) {
+      throw new Error('A file reanme cannot change the extension');
+    }
+
+    if (this.path.hasSameName(newPath)) {
+      throw new Error('Cannot rename a file to the same name');
+    }
+
+    const newName = newPath.name();
+
+    return new XFile(
+      this.fileId,
+      this.folderId,
+      newName,
+      newPath,
+      this.size,
+      this.type,
+      this.createdAt,
+      this.updatedAt,
+      this.modificationTime
     );
   }
 
@@ -59,12 +107,11 @@ export class XFile extends Item {
 
   toProps() {
     return {
-      id: this.id,
       fileId: this.fileId,
       folderId: this.folderId,
       createdAt: this.createdAt.getDate(),
       modificationTime: this.modificationTime.getDate(),
-      name: this.name.value,
+      name: this.name,
       size: this.size,
       type: this.type,
       updatedAt: this.updatedAt.getDate(),

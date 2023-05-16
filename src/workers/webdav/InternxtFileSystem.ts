@@ -1,5 +1,5 @@
 /* eslint-disable no-underscore-dangle */
-import { ResourceType, v2 as webdav } from 'webdav-server';
+import { v2 as webdav } from 'webdav-server';
 import {
   CreateInfo,
   CreationDateInfo,
@@ -20,27 +20,60 @@ import {
   DeleteInfo,
   OpenWriteStreamInfo,
   CopyInfo,
+  MoveInfo,
+  Errors,
+  LockKind,
+  AvailableLocksInfo,
+  RequestContext,
+  ResourceType,
 } from 'webdav-server/lib/index.v2';
 import Logger from 'electron-log';
 import { Readable, Writable } from 'stream';
 import * as p from 'path';
-import { InMemoryRepository } from './InMemoryRepository';
+import { Repository } from './Repository';
 import { MyLockManager } from './LockManager';
 import { FileUploader } from './application/FileUploader';
+import { XPath } from './domain/XPath';
+import { XFile } from './domain/File';
+import { XFolder } from './domain/Folder';
 
 export class InternxtFileSystem extends webdav.FileSystem {
   private readonly lckMNG: ILockManager;
 
   private temporalFiles: Array<string> = [];
 
+  private locks: Record<string, ILockManager> = {};
+
   constructor(
     serializer: FileSystemSerializer,
-    private readonly repository: InMemoryRepository,
+    private readonly repository: Repository,
     private readonly fileUploader: FileUploader
   ) {
     super(serializer);
 
     this.lckMNG = new MyLockManager();
+  }
+
+  _availableLocks(
+    path: Path,
+    ctx: AvailableLocksInfo,
+    callback: ReturnCallback<LockKind[]>
+  ) {
+    Logger.debug('[FS AVAILABLE LOCKS]');
+  }
+
+  // Called when moving file
+  _fastExistCheck(
+    ctx: RequestContext,
+    path: Path,
+    callback: (exists: boolean) => void
+  ) {
+    // Logger.debug('[FS FAST EXIST CHECK');
+    const item = this.repository.getItem(path.toString(false));
+
+    if (!item) callback(false);
+
+    callback(true);
   }
 
   _rename(
@@ -51,6 +84,91 @@ export class InternxtFileSystem extends webdav.FileSystem {
   ) {
     Logger.debug('RENAME: ', pathFrom, newName, JSON.stringify(ctx, null, 2));
     callback(undefined, false);
+  }
+
+  private customRename(
+    item: XFile | XFolder,
+    pathTo: Path,
+    callback: ReturnCallback<boolean>
+  ) {
+    const newPath = new XPath(pathTo.toString(false));
+
+    const renamed = item.rename(newPath);
+
+    this.repository
+      .updateName(renamed)
+      .then(() => {
+        callback(undefined, true);
+      })
+      .catch((err) => {
+        Logger.debug('[FS MOVE] ERROR RENAMING', JSON.stringify(err));
+        callback(err);
+      });
+  }
+
+  private customMove(
+    item: XFile | XFolder,
+    pathTo: Path,
+    callback: ReturnCallback<boolean>
+  ) {
+    if (this.repository.getItem(pathTo.toString(false))) {
+      callback(Errors.InvalidOperation);
+      return;
+    }
+
+    const newPath = new XPath(pathTo.toString(false));
+
+    const folder = this.repository.getItem(newPath.dirname());
+
+    if (!folder) {
+      callback(Errors.ResourceNotFound);
+      return;
+    }
+
+    if (!folder.isFolder()) {
+      callback(Errors.InvalidOperation);
+      return;
+    }
+
+    Logger.debug('BEFORE ', JSON.stringify(item, null, 2));
+
+    const moved = item.moveTo(folder);
+    Logger.debug('AFTER ', JSON.stringify(moved, null, 2));
+
+    this.repository
+      .updateParentDir(moved)
+      .then(() => callback(undefined, true))
+      .catch((err) => {
+        Logger.debug('[FS MOVE] ERROR MOVING', JSON.stringify(err));
+        callback(err);
+      });
+  }
+
+  _move(
+    pathFrom: Path,
+    pathTo: Path,
+    _ctx: MoveInfo,
+    callback: ReturnCallback<boolean>
+  ) {
+    Logger.debug('[FS MOVE]');
+    const fromParent = pathFrom.getParent().toString(false);
+    const toParent = pathTo.getParent().toString(false);
+
+    const item = this.repository.getItem(pathFrom.toString(false));
+
+    if (!item) {
+      callback(Errors.ResourceNotFound);
+      return;
+    }
+
+    if (fromParent === toParent) {
+      Logger.debug('GOING TO RENAME');
+      this.customRename(item, pathTo, callback);
+      return;
+    }
+
+    Logger.debug('GOING TO MOVE', pathTo.toString(false));
+    this.customMove(item, pathTo, callback);
   }
 
   _copy(
@@ -68,20 +186,28 @@ export class InternxtFileSystem extends webdav.FileSystem {
 
     const itemPath = path.toString(false);
 
+    const createFolder = async (parent: XFolder) => {
+      try {
+        Logger.debug('[FS] CREATE B');
+        await this.repository.createFolder(itemPath, parent);
+        callback(undefined);
+        Logger.debug('[FS] CREATE A');
+      } catch (err) {
+        callback(Errors.InsufficientStorage);
+      }
+    };
+
     try {
       const parent = this.repository.getParentFolder(itemPath);
-
+      Logger.debug('[FS] CREATE PARENT: ', JSON.stringify(parent, null, 2));
       if (!parent) {
-        callback(new Error('Invalid path when creating a node'));
+        callback(Errors.InvalidOperation);
         return;
       }
 
       if (ctx.type.isDirectory) {
-        Logger.debug('[FS] Creating folder');
-        this.repository
-          .createFolder(itemPath, parent)
-          .then(() => callback())
-          .catch((err) => Logger.error(err));
+        createFolder(parent);
+        return;
       } else {
         this.temporalFiles.push(path.toString(false));
         // this.repository.createFile(path.toString(false));
@@ -126,15 +252,11 @@ export class InternxtFileSystem extends webdav.FileSystem {
 
     const parentItem = this.repository.getParentFolder(path.toString(false));
 
-    if (!parentItem) {
-      callback(new Error());
-      return;
-    }
-
-    const contents: Buffer[] = [];
-    const stream = new webdav.VirtualFileWritable(contents);
-
     const uploadNewFile = async () => {
+      if (!parentItem) {
+        callback(new Error());
+        return;
+      }
       const fileId = await this.fileUploader.upload({
         size: ctx.estimatedSize,
         contents: Readable.from(contents),
@@ -166,6 +288,16 @@ export class InternxtFileSystem extends webdav.FileSystem {
       Logger.debug('[FS] TMP ', JSON.stringify(this.temporalFiles, null, 2));
     };
 
+    const contents: Buffer[] = [];
+    const stream = new webdav.VirtualFileWritable(contents);
+
+    if (this.temporalFiles.includes(path.toString(false))) {
+      Logger.debug('RENAMING FILE');
+      renameFile();
+      callback(undefined, stream);
+      return;
+    }
+
     stream.on('finish', () => {
       stream.end();
       Logger.debug('[FS] FINISHED WRITING STREAM');
@@ -176,12 +308,12 @@ export class InternxtFileSystem extends webdav.FileSystem {
       );
 
       if (this.temporalFiles.includes(path.toString(false))) {
-        renameFile();
-        callback(undefined, stream);
         return;
+      } else {
+        Logger.debug('UPLOADING FILE');
+        uploadNewFile();
       }
 
-      uploadNewFile();
       callback(undefined, stream);
     });
   }
@@ -224,7 +356,19 @@ export class InternxtFileSystem extends webdav.FileSystem {
     callback: ReturnCallback<ILockManager>
   ) {
     Logger.debug('LOCK MANAGER: ', path);
-    callback(undefined, this.lckMNG);
+
+    const item = this.repository.getItem(path.toString(false));
+
+    if (!item) {
+      callback(Errors.ResourceNotFound);
+      return;
+    }
+
+    if (!this.locks[item.path.value]) {
+      this.locks[item.path.value] = new MyLockManager();
+    }
+
+    callback(undefined, this.locks[item.path.value]);
   }
 
   _propertyManager(

@@ -2,14 +2,15 @@ import { ipcRenderer as electronIpcRenderer } from 'electron';
 import { v2 as webdav } from 'webdav-server';
 import Logger from 'electron-log';
 import { Environment } from '@internxt/inxt-js';
+import { HTTPRequestContext } from 'webdav-server/lib/index.v2';
+import { RequestListener } from 'webdav-server/lib/server/v2/webDAVServer/BeforeAfter';
 import { InternxtFileSystem } from './InternxtFileSystem';
 import { InternxtSerializer } from './InternxtSerializer';
-import { getClients } from '../../shared/HttpClient/backgroud-process-clients';
-import { InMemoryRepository } from './InMemoryRepository';
+import { httpClient } from './httpClients';
+import { Repository } from './Repository';
 import { getUser } from '../../main/auth/service';
 import configStore from '../../main/config';
 import { FileUploader } from './application/FileUploader';
-import { PhysicalFileSystem } from 'webdav-server/lib/index.v2';
 
 interface WebDavServerEvents {
   WEBDAV_SERVER_START_SUCCESS: () => void;
@@ -51,7 +52,7 @@ async function setUp() {
         });
     });
 
-    const clients = getClients();
+    const clients = httpClient();
     const user = getUser();
     const mnemonic = configStore.get('mnemonic');
 
@@ -66,7 +67,7 @@ async function setUp() {
       encryptionKey: mnemonic,
     });
 
-    const repo = new InMemoryRepository(
+    const repo = new Repository(
       clients.drive,
       clients.newDrive,
       environment,
@@ -90,7 +91,30 @@ async function setUp() {
       }
     );
 
-    server.on('rename', () => Logger.debug('[SERVER ON RENAME'));
+    const middleware: RequestListener = (
+      ctx: HTTPRequestContext,
+      next: () => void
+    ) => {
+      Logger.debug(JSON.stringify(ctx, null, 2));
+      next();
+    };
+
+    // server.beforeRequest(middleware);
+
+    server.on('create', () => Logger.debug('create'));
+    server.on('delete', () => Logger.debug('delete'));
+    server.on('openReadStream', () => Logger.debug('openReadStream'));
+    server.on('openWriteStream', () => Logger.debug('openWriteStream'));
+    server.on('move', () => Logger.debug('move'));
+    server.on('copy', () => Logger.debug('copy'));
+    server.on('rename', () => Logger.debug('rename'));
+    server.on('before-create', () => Logger.debug('create'));
+    server.on('before-delete', () => Logger.debug('delete'));
+    server.on('before-openReadStream', () => Logger.debug('openReadStream'));
+    server.on('before-openWriteStream', () => Logger.debug('openWriteStream'));
+    server.on('before-move', () => Logger.debug('move'));
+    server.on('before-copy', () => Logger.debug('copy'));
+    server.on('before-rename', () => Logger.debug('rename'));
 
     server.start((s) => Logger.log('Ready on port', s?.address()));
   } catch (err) {

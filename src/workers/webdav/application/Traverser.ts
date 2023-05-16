@@ -61,15 +61,15 @@ export class Traverser {
         //   file.modificationTime
         // );
         this.cache[name] = XFile.from({
-          id: file.id,
           folderId: file.folderId,
           fileId: file.fileId,
           modificationTime: file.modificationTime,
           size: parseInt(file.size as string, 10),
           createdAt: file.createdAt,
-          name,
+          name: file.name,
           type: file.type,
           updatedAt: file.updatedAt,
+          path: name,
         });
       });
 
@@ -84,12 +84,15 @@ export class Traverser {
 
       const name = `${currentName}/${plainName}`;
 
+      if (!plainName) return;
+
       this.cache[name] = XFolder.from({
         id: folder.id,
         parentId: folder.parent_id as number,
         updatedAt: folder.updated_at,
         createdAt: folder.created_at,
-        name,
+        path: name,
+        name: plainName,
       });
       this.traverse(folder.id, `${name}`);
     });
