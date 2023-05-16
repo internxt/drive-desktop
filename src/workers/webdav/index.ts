@@ -2,6 +2,10 @@ import { ipcRenderer as electronIpcRenderer } from 'electron';
 import { v2 as webdav } from 'webdav-server';
 import Logger from 'electron-log';
 import { Environment } from '@internxt/inxt-js';
+import {
+  PhysicalFileSystem,
+  WebDAVServerOptions,
+} from 'webdav-server/lib/index.v2';
 import { InternxtFileSystem } from './InternxtFileSystem';
 import { InternxtSerializer } from './InternxtSerializer';
 import { getClients } from '../../shared/HttpClient/backgroud-process-clients';
@@ -9,7 +13,7 @@ import { InMemoryRepository } from './InMemoryRepository';
 import { getUser } from '../../main/auth/service';
 import configStore from '../../main/config';
 import { FileUploader } from './application/FileUploader';
-import { PhysicalFileSystem } from 'webdav-server/lib/index.v2';
+import { mountDrive, unmountDrive } from './VirtualDrive';
 
 interface WebDavServerEvents {
   WEBDAV_SERVER_START_SUCCESS: () => void;
@@ -32,13 +36,17 @@ interface IpcRenderer {
 
 const ipcRenderer = electronIpcRenderer as IpcRenderer;
 
+export const webdavOptions: WebDAVServerOptions = {
+  hostname: 'localhost',
+  port: 1900,
+};
+
 async function setUp() {
   try {
-    const server = new webdav.WebDAVServer({
-      hostname: 'localhost',
-    });
+    const server = new webdav.WebDAVServer(webdavOptions);
 
     ipcRenderer.on('stop-webdav-server-process', () => {
+      unmountDrive();
       server
         .stopAsync()
         .then(() => {
@@ -92,8 +100,13 @@ async function setUp() {
 
     server.on('rename', () => Logger.debug('[SERVER ON RENAME'));
 
-    server.start((s) => Logger.log('Ready on port', s?.address()));
+    server.start((s) => {
+      Logger.log('Ready on port', s?.address());
+      Logger.log('Mounting drive');
+      mountDrive();
+    });
   } catch (err) {
+    unmountDrive();
     Logger.error(`[WEBDAV] ERROR: ${JSON.stringify(err, null, 2)}`);
   }
 

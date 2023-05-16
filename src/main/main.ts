@@ -37,6 +37,7 @@ import './platform/handlers';
 import './thumbnails/handlers';
 import './config/handlers';
 import './app-info/handlers';
+import { unmountDrive } from '../workers/webdav/VirtualDrive';
 
 Logger.log(`Running ${packageJson.version}`);
 
@@ -72,6 +73,11 @@ const installExtensions = async () => {
 
 app.on('window-all-closed', () => {
   app.quit();
+});
+
+app.on('before-quit', () => {
+  Logger.log('Unmounting drive');
+  unmountDrive();
 });
 
 ipcMain.on('user-quit', () => {
