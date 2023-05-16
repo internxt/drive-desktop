@@ -48,6 +48,15 @@ export class DriveFilesCollection
     };
   }
 
+  async getAll() {
+    const row = this.db.prepare('SELECT * FROM drive_files').get();
+
+    return {
+      success: true,
+      result: row as RemoteSyncedFile[],
+    };
+  }
+
   async update(
     fileId: RemoteSyncedFile['fileId'],
     updatePayload: Partial<RemoteSyncedFile>

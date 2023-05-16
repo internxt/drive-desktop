@@ -1,5 +1,8 @@
 import { DatabaseCollectionAdapter } from '../adapters/base';
-import { RemoteSyncedFolder } from '../../remote-sync/helpers';
+import {
+  RemoteSyncedFile,
+  RemoteSyncedFolder,
+} from '../../remote-sync/helpers';
 import SQLite from 'better-sqlite3';
 
 export function generateCreateTableQuery(): string {
@@ -41,6 +44,15 @@ export class DriveFoldersCollection
     return {
       success: true,
       result: row as RemoteSyncedFolder,
+    };
+  }
+
+  async getAll() {
+    const row = this.db.prepare('SELECT * FROM drive_folders').get();
+
+    return {
+      success: true,
+      result: row as RemoteSyncedFolder[],
     };
   }
 
