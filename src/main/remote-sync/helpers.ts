@@ -44,7 +44,7 @@ export type RemoteSyncedFile = {
   fileId: string;
   type: string;
   size: number;
-  bucket: string | null;
+  bucket: string;
   folderId: number;
   folderUuid?: string;
   userId: number;

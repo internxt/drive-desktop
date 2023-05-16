@@ -9,7 +9,7 @@ export function generateCreateTableQuery(): string {
     fileId TEXT UNIQUE NOT NULL,    
     type TEXT NOT NULL,
     size INTEGER NOT NULL,
-    bucket TEXT,
+    bucket TEXT NOT NULL,
     folderId INTEGER NOT NULL,
     folderUuid TEXT,
     encryptVersion TEXT,
