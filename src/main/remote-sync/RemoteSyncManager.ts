@@ -41,7 +41,12 @@ export class RemoteSyncManager {
     return this.status;
   }
 
-  isSynced() {
+  /**
+   * Check if the RemoteSyncManager is in SYNCED status
+   *
+   * @returns True if local database is synced with remote files and folders
+   */
+  localIsSynced() {
     return this.status === 'SYNCED';
   }
 
@@ -348,12 +353,16 @@ export class RemoteSyncManager {
     // We will assume that we received an status
     let status: RemoteSyncedFolder['status'] = payload.status;
 
-    if (!status && payload.removed) {
-      status = 'DELETED';
-    }
-
     if (!status && !payload.removed) {
       status = 'EXISTS';
+    }
+
+    if (!status && payload.removed) {
+      status = 'REMOVED';
+    }
+
+    if (!status && payload.deleted) {
+      status = 'DELETED';
     }
 
     return {
