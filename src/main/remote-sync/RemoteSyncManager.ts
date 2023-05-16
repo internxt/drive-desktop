@@ -8,8 +8,9 @@ import {
   SYNC_OFFSET_MS,
 } from './helpers';
 import { reportError } from '../bug-report/service';
-import { obtainToken } from '../auth/service';
+
 import { DatabaseCollectionAdapter } from '../database/adapters/base';
+import { Axios } from 'axios';
 
 export class RemoteSyncManager {
   private foldersSyncStatus: RemoteSyncStatus = 'IDLE';
@@ -25,6 +26,7 @@ export class RemoteSyncManager {
       folders: DatabaseCollectionAdapter<RemoteSyncedFolder>;
     },
     private config: {
+      httpClient: Axios;
       fetchFilesLimitPerRequest: number;
       fetchFoldersLimitPerRequest: number;
       syncFiles: boolean;
@@ -56,6 +58,8 @@ export class RemoteSyncManager {
       );
     }
 
+    await this.smokeTest();
+
     await this.db.files.connect();
     await this.db.folders.connect();
 
@@ -82,6 +86,16 @@ export class RemoteSyncManager {
     }
   }
 
+  /**
+   * Run smoke tests before starting the RemoteSyncManager, otherwise fail
+   */
+  private smokeTest() {
+    if (this.status === 'SYNCING') {
+      throw new Error(
+        'RemoteSyncManager should not be in SYNCING status to start'
+      );
+    }
+  }
   private changeStatus(newStatus: RemoteSyncStatus) {
     this.status = newStatus;
     Logger.info(`Folders sync status is ${this.foldersSyncStatus}`);
@@ -260,36 +274,37 @@ export class RemoteSyncManager {
     hasMore: boolean;
     result: RemoteSyncedFile[];
   }> {
-    const token = obtainToken('newToken');
+    const response = await this.config.httpClient.get(
+      `${process.env.NEW_DRIVE_URL}/drive/files`,
+      {
+        params: {
+          limit: this.config.fetchFilesLimitPerRequest,
+          offset: 0,
+          status: 'ALL',
+          updatedAt: updatedAtCheckpoint
+            ? updatedAtCheckpoint.toISOString()
+            : undefined,
+        },
+      }
+    );
 
-    let query = `?limit=${this.config.fetchFilesLimitPerRequest}&offset=0&status=ALL`;
-
-    if (updatedAtCheckpoint) {
-      query += `&updatedAt=${updatedAtCheckpoint.toISOString()}`;
-    }
-
-    const path = `${process.env.NEW_DRIVE_URL}/drive/files${query}`;
-
-    const response = await fetch(path, {
-      method: 'GET',
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    const data = await response.json();
-    if (!response.ok) {
+    if (response.status > 299) {
       throw new Error(
-        `Fetch files response not ok with body ${JSON.stringify(data, null, 2)}`
+        `Fetch files response not ok with body ${JSON.stringify(
+          response.data,
+          null,
+          2
+        )}`
       );
     }
 
-    Logger.info(`Received fetched files ${JSON.stringify(data)}`);
-    const hasMore = data.length === this.config.fetchFilesLimitPerRequest;
+    Logger.info(`Received fetched files ${JSON.stringify(response.data)}`);
+    const hasMore =
+      response.data.length === this.config.fetchFilesLimitPerRequest;
 
     return {
       hasMore,
-      result: data,
+      result: response.data,
     };
   }
 
@@ -302,42 +317,56 @@ export class RemoteSyncManager {
     hasMore: boolean;
     result: RemoteSyncedFolder[];
   }> {
-    const token = obtainToken('newToken');
+    const response = await this.config.httpClient.get(
+      `${process.env.NEW_DRIVE_URL}/drive/folders`,
+      {
+        params: {
+          limit: this.config.fetchFilesLimitPerRequest,
+          offset: 0,
+          status: 'ALL',
+          updatedAt: updatedAtCheckpoint
+            ? updatedAtCheckpoint.toISOString()
+            : undefined,
+        },
+      }
+    );
 
-    let query = `?limit=${this.config.fetchFilesLimitPerRequest}&offset=0&status=ALL`;
-
-    if (updatedAtCheckpoint) {
-      query += `&updatedAt=${updatedAtCheckpoint.toISOString()}`;
-    }
-
-    const path = `${process.env.NEW_DRIVE_URL}/drive/folders${query}`;
-
-    const response = await fetch(path, {
-      method: 'GET',
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    const data = await response.json();
-    if (!response.ok) {
+    if (response.status > 299) {
       throw new Error(
-        `Fetch folders response not ok with body ${JSON.stringify(
-          data,
+        `Fetch files response not ok with body ${JSON.stringify(
+          response.data,
           null,
           2
         )}`
       );
     }
 
-    const hasMore = data.length === this.config.fetchFilesLimitPerRequest;
+    const hasMore =
+      response.data.length === this.config.fetchFilesLimitPerRequest;
 
     return {
       hasMore,
-      result: data,
+      result: response.data.map(this.patchDriveFolderResponseItem),
     };
   }
 
+  private patchDriveFolderResponseItem = (payload: any): RemoteSyncedFolder => {
+    // We will assume that we received an status
+    let status: RemoteSyncedFolder['status'] = payload.status;
+
+    if (!status && payload.removed) {
+      status = 'DELETED';
+    }
+
+    if (!status && !payload.removed) {
+      status = 'EXISTS';
+    }
+
+    return {
+      ...payload,
+      status,
+    };
+  };
   private async createOrUpdateSyncedFileEntry(remoteFile: RemoteSyncedFile) {
     await this.db.files.create(remoteFile);
   }

@@ -2,6 +2,11 @@ import { DatabaseCollectionAdapter } from 'main/database/adapters/base';
 import { RemoteSyncManager } from './RemoteSyncManager';
 import { RemoteSyncedFile, RemoteSyncedFolder } from './helpers';
 import * as uuid from 'uuid';
+import axios from 'axios';
+
+jest.mock('axios');
+jest.mock('electron-store');
+const mockedAxios = axios as jest.Mocked<typeof axios>;
 
 const inMemorySyncedFilesCollection: DatabaseCollectionAdapter<RemoteSyncedFile> =
   {
@@ -63,12 +68,6 @@ const createRemoteSyncedFolderFixture = (
   return result;
 };
 
-global.fetch = jest.fn(() =>
-  Promise.resolve({
-    json: () => Promise.resolve({}),
-  })
-) as jest.Mock;
-
 describe('RemoteSyncManager', () => {
   let sut: RemoteSyncManager = new RemoteSyncManager(
     {
@@ -76,6 +75,7 @@ describe('RemoteSyncManager', () => {
       files: inMemorySyncedFilesCollection,
     },
     {
+      httpClient: mockedAxios,
       fetchFilesLimitPerRequest: 2,
       fetchFoldersLimitPerRequest: 2,
       syncFiles: true,
@@ -89,13 +89,14 @@ describe('RemoteSyncManager', () => {
         files: inMemorySyncedFilesCollection,
       },
       {
+        httpClient: mockedAxios,
         fetchFilesLimitPerRequest: 2,
         fetchFoldersLimitPerRequest: 2,
         syncFiles: true,
         syncFolders: true,
       }
     );
-    (fetch as jest.Mock).mockClear();
+    mockedAxios.get.mockClear();
   });
 
   it('Should fetch 2 pages of remote files', async () => {
@@ -105,42 +106,36 @@ describe('RemoteSyncManager', () => {
         files: inMemorySyncedFilesCollection,
       },
       {
+        httpClient: mockedAxios,
         fetchFilesLimitPerRequest: 2,
         fetchFoldersLimitPerRequest: 2,
         syncFiles: true,
         syncFolders: false,
       }
     );
-    (global.fetch as jest.Mock)
-      .mockImplementationOnce(() => {
-        return Promise.resolve({
-          ok: true,
-          json: () =>
-            Promise.resolve<RemoteSyncedFile[]>([
-              createRemoteSyncedFileFixture({
-                plainName: 'file_1',
-              }),
-              createRemoteSyncedFileFixture({
-                plainName: 'file_2',
-              }),
-            ]),
-        });
+
+    mockedAxios.get
+      .mockResolvedValueOnce({
+        data: [
+          createRemoteSyncedFileFixture({
+            plainName: 'file_1',
+          }),
+          createRemoteSyncedFileFixture({
+            plainName: 'file_2',
+          }),
+        ],
       })
-      .mockImplementationOnce(() => {
-        return Promise.resolve({
-          ok: true,
-          json: () =>
-            Promise.resolve<RemoteSyncedFile[]>([
-              createRemoteSyncedFileFixture({
-                plainName: 'file_3',
-              }),
-            ]),
-        });
+      .mockResolvedValueOnce({
+        data: [
+          createRemoteSyncedFileFixture({
+            plainName: 'file_3',
+          }),
+        ],
       });
 
     await sut.startRemoteSync();
 
-    expect((global.fetch as jest.Mock).mock.calls.length).toBe(2);
+    expect(mockedAxios.get).toBeCalledTimes(2);
     expect(sut.getSyncStatus()).toBe('SYNCED');
   });
 
@@ -151,67 +146,55 @@ describe('RemoteSyncManager', () => {
         files: inMemorySyncedFilesCollection,
       },
       {
+        httpClient: mockedAxios,
         fetchFilesLimitPerRequest: 2,
         fetchFoldersLimitPerRequest: 2,
         syncFiles: false,
         syncFolders: true,
       }
     );
-    (global.fetch as jest.Mock)
-      .mockImplementationOnce(() => {
-        return Promise.resolve({
-          ok: true,
-          json: () =>
-            Promise.resolve<RemoteSyncedFolder[]>([
-              createRemoteSyncedFolderFixture({
-                plainName: 'folder_1',
-              }),
-              createRemoteSyncedFolderFixture({
-                plainName: 'folder_2',
-              }),
-            ]),
-        });
+
+    mockedAxios.get
+      .mockResolvedValueOnce({
+        data: [
+          createRemoteSyncedFolderFixture({
+            plainName: 'folder_1',
+          }),
+          createRemoteSyncedFolderFixture({
+            plainName: 'folder_2',
+          }),
+        ],
       })
-      .mockImplementationOnce(() => {
-        return Promise.resolve({
-          ok: true,
-          json: () =>
-            Promise.resolve<RemoteSyncedFolder[]>([
-              createRemoteSyncedFolderFixture({
-                plainName: 'folder_3',
-              }),
-              createRemoteSyncedFolderFixture({
-                plainName: 'folder_4',
-              }),
-            ]),
-        });
+      .mockResolvedValueOnce({
+        data: [
+          createRemoteSyncedFolderFixture({
+            plainName: 'folder_3',
+          }),
+          createRemoteSyncedFolderFixture({
+            plainName: 'folder_4',
+          }),
+        ],
       })
-      .mockImplementationOnce(() => {
-        return Promise.resolve({
-          ok: true,
-          json: () =>
-            Promise.resolve<RemoteSyncedFolder[]>([
-              createRemoteSyncedFolderFixture({
-                plainName: 'folder_5',
-              }),
-            ]),
-        });
+      .mockResolvedValueOnce({
+        data: [
+          createRemoteSyncedFolderFixture({
+            plainName: 'folder_5',
+          }),
+        ],
       });
 
     await sut.startRemoteSync();
 
-    expect((global.fetch as jest.Mock).mock.calls.length).toBe(3);
+    expect(mockedAxios.get).toBeCalledTimes(3);
     expect(sut.getSyncStatus()).toBe('SYNCED');
   });
 
   it('Should retry N times and then stop if sync does not succeed', async () => {
-    (global.fetch as jest.Mock).mockImplementation(() =>
-      Promise.reject('Fail on purpose')
-    );
+    mockedAxios.get.mockImplementation(() => Promise.reject('Fail on purpose'));
 
     await sut.startRemoteSync();
 
-    expect((global.fetch as jest.Mock).mock.calls.length).toBe(6);
+    expect(mockedAxios.get).toBeCalledTimes(6);
     expect(sut.getSyncStatus()).toBe('SYNC_FAILED');
   });
 
@@ -222,19 +205,19 @@ describe('RemoteSyncManager', () => {
         files: inMemorySyncedFilesCollection,
       },
       {
+        httpClient: mockedAxios,
         fetchFilesLimitPerRequest: 2,
         fetchFoldersLimitPerRequest: 2,
         syncFiles: true,
         syncFolders: true,
       }
     );
-    (global.fetch as jest.Mock).mockImplementationOnce(() =>
-      Promise.reject('Fail on purpose')
-    );
+
+    mockedAxios.get.mockRejectedValueOnce('Fail on purpose');
 
     await sut.startRemoteSync();
 
-    expect((global.fetch as jest.Mock).mock.calls.length).toBe(6);
+    expect(mockedAxios.get).toBeCalledTimes(6);
     expect(sut.getSyncStatus()).toBe('SYNC_FAILED');
   });
 
@@ -245,6 +228,7 @@ describe('RemoteSyncManager', () => {
         files: inMemorySyncedFilesCollection,
       },
       {
+        httpClient: mockedAxios,
         fetchFilesLimitPerRequest: 2,
         fetchFoldersLimitPerRequest: 2,
         syncFiles: true,
@@ -259,23 +243,13 @@ describe('RemoteSyncManager', () => {
       plainName: 'file_2',
     });
 
-    (global.fetch as jest.Mock)
-      .mockImplementationOnce(() => {
-        return Promise.resolve({
-          ok: true,
-          json: () => Promise.resolve<RemoteSyncedFile[]>([file1, file2]),
-        });
-      })
-      .mockImplementationOnce(() => {
-        return Promise.resolve({
-          ok: true,
-          json: () => Promise.resolve<RemoteSyncedFile[]>([]),
-        });
-      });
+    mockedAxios.get.mockResolvedValueOnce({ data: [file1, file2] });
+
+    mockedAxios.get.mockResolvedValueOnce({ data: [] });
 
     await sut.startRemoteSync();
 
-    expect((global.fetch as jest.Mock).mock.calls.length).toBe(2);
+    expect(mockedAxios.get).toBeCalledTimes(2);
     expect(sut.getSyncStatus()).toBe('SYNCED');
     expect(inMemorySyncedFilesCollection.create).toHaveBeenCalledWith(file1);
     expect(inMemorySyncedFilesCollection.create).toHaveBeenCalledWith(file2);

@@ -8,7 +8,7 @@ export function generateCreateTableQuery(): string {
     uuid TEXT,
     fileId TEXT UNIQUE NOT NULL,    
     type TEXT NOT NULL,
-    size TEXT,
+    size INTEGER NOT NULL,
     bucket TEXT,
     folderId INTEGER NOT NULL,
     folderUuid TEXT,

@@ -25,7 +25,7 @@ import './platform/handlers';
 import './thumbnails/handlers';
 import './config/handlers';
 import './app-info/handlers';
-
+import './remote-sync/handlers';
 import { app, ipcMain } from 'electron';
 import Logger from 'electron-log';
 import { autoUpdater } from 'electron-updater';
