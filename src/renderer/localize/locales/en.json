@@ -87,10 +87,11 @@
     "footer": {
       "action-description": {
         "syncing": "Syncing your files",
-        "updated": "Updated just now"
+        "updated": "Fully synced"
       },
       "errors": {
-        "lock": "Sync locked by other device"
+        "lock": "Sync locked by other device",
+        "offline": "Not connected to the internet"
       }
     }
   },
