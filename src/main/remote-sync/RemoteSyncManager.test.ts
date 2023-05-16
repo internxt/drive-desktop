@@ -32,6 +32,7 @@ const createRemoteSyncedFileFixture = (
   const result: RemoteSyncedFile = {
     plainName: `file_${Date.now()}`,
     id: Date.now(),
+    uuid: uuid.v4(),
     fileId: Date.now().toString(),
     type: 'jpg',
     size: 999,
