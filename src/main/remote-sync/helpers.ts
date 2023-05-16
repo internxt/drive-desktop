@@ -40,7 +40,7 @@ export function saveLastFoldersSyncAt(date: Date, offsetMs: number): Date {
 
 export type RemoteSyncedFile = {
   id: number;
-  uuid?: string;
+  uuid: string;
   fileId: string;
   type: string;
   size: number;

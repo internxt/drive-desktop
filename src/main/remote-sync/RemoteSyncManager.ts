@@ -52,12 +52,6 @@ export class RemoteSyncManager {
    * Throws an error if there's a sync in progress for this class instance
    */
   async startRemoteSync() {
-    if (this.status === 'SYNCING') {
-      throw new Error(
-        'RemoteSyncManager is already SYNCING, wait until the current sync finishes'
-      );
-    }
-
     await this.smokeTest();
 
     await this.db.files.connect();

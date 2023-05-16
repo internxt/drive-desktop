@@ -5,7 +5,7 @@ import SQLite from 'better-sqlite3';
 export function generateCreateTableQuery(): string {
   const query = `CREATE TABLE IF NOT EXISTS drive_files (
     id INTEGER NOT NULL,
-    uuid TEXT,
+    uuid TEXT NOT NULL,
     fileId TEXT UNIQUE NOT NULL,    
     type TEXT NOT NULL,
     size INTEGER NOT NULL,
