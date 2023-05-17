@@ -102,7 +102,6 @@ async function setUp() {
 
     server.start((s) => {
       Logger.log('Ready on port', s?.address());
-      Logger.log('Mounting drive');
       mountDrive();
     });
   } catch (err) {

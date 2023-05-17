@@ -76,7 +76,6 @@ app.on('window-all-closed', () => {
 });
 
 app.on('before-quit', () => {
-  Logger.log('Unmounting drive');
   unmountDrive();
 });
 
