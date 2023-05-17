@@ -5,15 +5,15 @@ import { AppDataSource } from '../data-source';
 
 @Entity()
 export class DriveFile {
-  @PrimaryColumn({
-    nullable: false,
-  })
+  @Column({ nullable: false })
   fileId!: string;
 
   @Column({ nullable: false })
   id!: number;
 
-  @Column({ nullable: false })
+  @PrimaryColumn({
+    nullable: false,
+  })
   uuid!: string;
 
   @Column({ nullable: false })
@@ -58,25 +58,25 @@ export class DriveFilesCollection
     };
   }
 
-  async get(fileId: DriveFile['fileId']) {
-    const match = await this.repository.findOneBy({ fileId });
+  async get(uuid: DriveFile['uuid']) {
+    const match = await this.repository.findOneBy({ uuid });
     return {
       success: true,
       result: match,
     };
   }
 
-  async update(fileId: DriveFile['fileId'], updatePayload: Partial<DriveFile>) {
+  async update(uuid: DriveFile['uuid'], updatePayload: Partial<DriveFile>) {
     const match = await this.repository.update(
       {
-        fileId,
+        uuid,
       },
       updatePayload
     );
 
     return {
       success: match.affected ? true : false,
-      result: (await this.get(fileId)).result,
+      result: (await this.get(uuid)).result,
     };
   }
 
@@ -89,8 +89,8 @@ export class DriveFilesCollection
     };
   }
 
-  async remove(fileId: DriveFile['fileId']) {
-    const result = await this.repository.delete({ fileId });
+  async remove(uuid: DriveFile['uuid']) {
+    const result = await this.repository.delete({ uuid });
 
     return {
       success: result.affected ? true : false,

@@ -396,8 +396,8 @@ export class RemoteSyncManager {
   ) {
     await this.db.folders.create({
       ...remoteFolder,
-      parentId: remoteFolder.parentId || undefined,
-      bucket: remoteFolder.bucket || undefined,
+      parentId: remoteFolder.parentId ?? undefined,
+      bucket: remoteFolder.bucket ?? undefined,
     });
   }
 }
