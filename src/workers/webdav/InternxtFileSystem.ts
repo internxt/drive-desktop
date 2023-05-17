@@ -7,7 +7,6 @@ import {
   ILockManager,
   IPropertyManager,
   LastModifiedDateInfo,
-  LocalLockManager,
   LocalPropertyManager,
   OpenReadStreamInfo,
   Path,
@@ -28,8 +27,9 @@ import {
   ResourceType,
 } from 'webdav-server/lib/index.v2';
 import Logger from 'electron-log';
-import { Readable, Writable } from 'stream';
+import { PassThrough, Readable, Writable } from 'stream';
 import * as p from 'path';
+import fs, { createWriteStream } from 'fs';
 import { Repository } from './Repository';
 import { MyLockManager } from './LockManager';
 import { FileUploader } from './application/FileUploader';
@@ -40,7 +40,7 @@ import { XFolder } from './domain/Folder';
 export class InternxtFileSystem extends webdav.FileSystem {
   private readonly lckMNG: ILockManager;
 
-  private temporalFiles: Array<string> = [];
+  private temporalFiles: Record<string, Writable | null> = {};
 
   private locks: Record<string, ILockManager> = {};
 
@@ -189,8 +189,8 @@ export class InternxtFileSystem extends webdav.FileSystem {
     const createFolder = async (parent: XFolder) => {
       try {
         Logger.debug('[FS] CREATE B');
-        await this.repository.createFolder(itemPath, parent);
         callback(undefined);
+        await this.repository.createFolder(itemPath, parent);
         Logger.debug('[FS] CREATE A');
       } catch (err) {
         callback(Errors.InsufficientStorage);
@@ -209,7 +209,7 @@ export class InternxtFileSystem extends webdav.FileSystem {
         createFolder(parent);
         return;
       } else {
-        this.temporalFiles.push(path.toString(false));
+        this.temporalFiles[path.toString(false)] = null;
         // this.repository.createFile(path.toString(false));
         callback();
         Logger.debug('[FS] TMP FILE CREATED');
@@ -247,19 +247,28 @@ export class InternxtFileSystem extends webdav.FileSystem {
     callback: ReturnCallback<Writable>
   ) {
     Logger.debug('[FS] OPEN WRITE STREAM', path);
-    Logger.debug('[FS] PATH ', path.toString(false));
-    Logger.debug('[FS] TMP ', JSON.stringify(this.temporalFiles, null, 2));
+
+    const temporalFileWrittable = this.temporalFiles[path.toString(false)];
+
+    if (temporalFileWrittable) {
+      Logger.debug('Already exist the stream');
+      callback(undefined, temporalFileWrittable);
+      return;
+    }
 
     const parentItem = this.repository.getParentFolder(path.toString(false));
 
-    const uploadNewFile = async () => {
-      if (!parentItem) {
-        callback(new Error());
-        return;
-      }
+    if (!parentItem) {
+      callback(Errors.IllegalArguments);
+      return;
+    }
+
+    const uploadNewFile = async (contents: Readable) => {
+      Logger.debug('[CONTENTS]');
+
       const fileId = await this.fileUploader.upload({
         size: ctx.estimatedSize,
-        contents: Readable.from(contents),
+        contents,
       });
 
       const pathLike = path.toString(false);
@@ -276,7 +285,7 @@ export class InternxtFileSystem extends webdav.FileSystem {
         updatedAt: new Date(),
       };
 
-      this.repository.addFile(pathLike, file, parentItem);
+      await this.repository.addFile(pathLike, file, parentItem);
     };
 
     const renameFile = async () => {
@@ -289,32 +298,39 @@ export class InternxtFileSystem extends webdav.FileSystem {
     };
 
     const contents: Buffer[] = [];
-    const stream = new webdav.VirtualFileWritable(contents);
+    // const stream = new webdav.VirtualFileWritable(contents);
+    // const passThrough = new PassThrough();
+    const stream = createWriteStream('/tmp');
+    this.temporalFiles[path.toString(false)] = stream;
 
-    if (this.temporalFiles.includes(path.toString(false))) {
-      Logger.debug('RENAMING FILE');
-      renameFile();
-      callback(undefined, stream);
-      return;
+    // const multiplexer = multipipe(readable, writable);
+
+    // multiplexer.on('error', (error) => {
+    //   Logger.error('Error in the multiplexor: ', error);
+    // });
+
+    // multiplexer.on('finish', () => {
+    //   Logger.debug('Multiplexor finished successfully.');
+    // });
+
+    this.temporalFiles[path.toString(false)] = stream;
+
+    if (ctx.mode === 'mustCreate') {
+      Logger.debug('UPLOADING FILE');
+      // multiplexer.resume();
+
+      // uploadNewFile(passThrough);
     }
 
-    stream.on('finish', () => {
-      stream.end();
+    callback(undefined, stream);
+
+    stream.once('finish', () => {
       Logger.debug('[FS] FINISHED WRITING STREAM');
 
-      Logger.debug(
-        'rename: ',
-        this.temporalFiles.includes(path.toString(false))
-      );
-
-      if (this.temporalFiles.includes(path.toString(false))) {
-        return;
-      } else {
-        Logger.debug('UPLOADING FILE');
-        uploadNewFile();
+      if (ctx.mode === 'mustExist') {
+        Logger.debug('RENAMING FILE');
+        renameFile();
       }
-
-      callback(undefined, stream);
     });
   }
 

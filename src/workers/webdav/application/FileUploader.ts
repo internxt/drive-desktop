@@ -13,10 +13,10 @@ export class FileUploader {
       this.environment.upload(this.bucket, {
         finishedCallback: async (err: unknown, fileId: string) => {
           if (!err) {
-            Logger.debug('[REPOSITORY] FILE UPLOADED: ', fileId);
+            Logger.debug('[FILE UPLOADER] FILE UPLOADED: ', fileId);
             resolve(fileId);
           } else {
-            Logger.error('[REPOSITORY] ERROR UPLOADING FILE: ', err);
+            Logger.error('[FILE UPLOADER] ERROR UPLOADING FILE: ', err);
             reject();
           }
         },

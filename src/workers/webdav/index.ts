@@ -108,13 +108,17 @@ async function setUp() {
     server.on('move', () => Logger.debug('move'));
     server.on('copy', () => Logger.debug('copy'));
     server.on('rename', () => Logger.debug('rename'));
-    server.on('before-create', () => Logger.debug('create'));
-    server.on('before-delete', () => Logger.debug('delete'));
-    server.on('before-openReadStream', () => Logger.debug('openReadStream'));
-    server.on('before-openWriteStream', () => Logger.debug('openWriteStream'));
-    server.on('before-move', () => Logger.debug('move'));
-    server.on('before-copy', () => Logger.debug('copy'));
-    server.on('before-rename', () => Logger.debug('rename'));
+    server.on('before-create', () => Logger.debug(' before create'));
+    server.on('before-delete', () => Logger.debug(' before delete'));
+    server.on('before-openReadStream', () =>
+      Logger.debug(' before openReadStream')
+    );
+    server.on('before-openWriteStream', () =>
+      Logger.debug(' before openWriteStream')
+    );
+    server.on('before-move', () => Logger.debug(' before move'));
+    server.on('before-copy', () => Logger.debug(' before copy'));
+    server.on('before-rename', () => Logger.debug(' before rename'));
 
     server.start((s) => Logger.log('Ready on port', s?.address()));
   } catch (err) {
