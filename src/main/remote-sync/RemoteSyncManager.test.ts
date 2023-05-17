@@ -1,4 +1,6 @@
 import { DatabaseCollectionAdapter } from 'main/database/adapters/base';
+import { DriveFile } from 'main/database/entities/DriveFile';
+import { DriveFolder } from 'main/database/entities/DriveFolder';
 import { RemoteSyncManager } from './RemoteSyncManager';
 import { RemoteSyncedFile, RemoteSyncedFolder } from './helpers';
 import * as uuid from 'uuid';
@@ -8,16 +10,15 @@ jest.mock('axios');
 jest.mock('electron-store');
 const mockedAxios = axios as jest.Mocked<typeof axios>;
 
-const inMemorySyncedFilesCollection: DatabaseCollectionAdapter<RemoteSyncedFile> =
-  {
-    get: jest.fn(),
-    connect: jest.fn(),
-    update: jest.fn(),
-    create: jest.fn(),
-    remove: jest.fn(),
-  };
+const inMemorySyncedFilesCollection: DatabaseCollectionAdapter<DriveFile> = {
+  get: jest.fn(),
+  connect: jest.fn(),
+  update: jest.fn(),
+  create: jest.fn(),
+  remove: jest.fn(),
+};
 
-const inMemorySyncedFoldersCollection: DatabaseCollectionAdapter<RemoteSyncedFolder> =
+const inMemorySyncedFoldersCollection: DatabaseCollectionAdapter<DriveFolder> =
   {
     get: jest.fn(),
     connect: jest.fn(),

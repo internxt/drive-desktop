@@ -1,7 +1,7 @@
 import eventBus from '../event-bus';
 import { RemoteSyncManager } from './RemoteSyncManager';
-import { DriveFilesCollection } from '../database/collections/driveFilesCollection';
-import { DriveFoldersCollection } from '../database/collections/driveFoldersCollection';
+import { DriveFilesCollection } from '../database/entities/DriveFile';
+import { DriveFoldersCollection } from '../database/entities/DriveFolder';
 import Logger from 'electron-log';
 import { clearRemoteSyncStore } from './helpers';
 import { getNewTokenClient } from '../../shared/HttpClient/main-process-client';

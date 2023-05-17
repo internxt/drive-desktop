@@ -11,19 +11,20 @@ import { reportError } from '../bug-report/service';
 
 import { DatabaseCollectionAdapter } from '../database/adapters/base';
 import { Axios } from 'axios';
+import { DriveFolder } from '../database/entities/DriveFolder';
+import { DriveFile } from '../database/entities/DriveFile';
 
 export class RemoteSyncManager {
   private foldersSyncStatus: RemoteSyncStatus = 'IDLE';
   private filesSyncStatus: RemoteSyncStatus = 'IDLE';
   private status: RemoteSyncStatus = 'IDLE';
-  private onStatusChangeCallback: (newStatus: RemoteSyncStatus) => void =
-    () => {
-      return;
-    };
+  private onStatusChangeCallbacks: Array<
+    (newStatus: RemoteSyncStatus) => void
+  > = [];
   constructor(
     private db: {
-      files: DatabaseCollectionAdapter<RemoteSyncedFile>;
-      folders: DatabaseCollectionAdapter<RemoteSyncedFolder>;
+      files: DatabaseCollectionAdapter<DriveFile>;
+      folders: DatabaseCollectionAdapter<DriveFolder>;
     },
     private config: {
       httpClient: Axios;
@@ -35,7 +36,8 @@ export class RemoteSyncManager {
   ) {}
 
   onStatusChange(callback: (newStatus: RemoteSyncStatus) => void) {
-    this.onStatusChangeCallback = callback;
+    if (typeof callback !== 'function') return;
+    this.onStatusChangeCallbacks.push(callback);
   }
   getSyncStatus(): RemoteSyncStatus {
     return this.status;
@@ -100,7 +102,10 @@ export class RemoteSyncManager {
     Logger.info(`Folders sync status is ${this.foldersSyncStatus}`);
     Logger.info(`Files sync status is ${this.filesSyncStatus}`);
     Logger.info(`RemoteSync status is ${this.status}`);
-    this.onStatusChangeCallback(newStatus);
+    this.onStatusChangeCallbacks.forEach((callback) => {
+      if (typeof callback !== 'function') return;
+      callback(newStatus);
+    });
   }
 
   private checkRemoteSyncStatus() {
@@ -211,6 +216,7 @@ export class RemoteSyncManager {
   private async syncRemoteFolders(syncConfig: SyncConfig) {
     const lastFoldersSyncAt = await helpers.getLastFoldersSyncAt();
     try {
+      Logger.info(`Syncing folders updated from ${lastFoldersSyncAt}`);
       const { hasMore, result } = await this.fetchFoldersFromRemote(
         lastFoldersSyncAt
       );
@@ -303,7 +309,7 @@ export class RemoteSyncManager {
 
     return {
       hasMore,
-      result: response.data,
+      result: response.data.map(this.patchDriveFileResponseItem),
     };
   }
 
@@ -340,6 +346,7 @@ export class RemoteSyncManager {
       );
     }
 
+    Logger.info(`Received fetched folders ${JSON.stringify(response.data)}`);
     const hasMore =
       response.data.length === this.config.fetchFilesLimitPerRequest;
 
@@ -370,6 +377,16 @@ export class RemoteSyncManager {
       status,
     };
   };
+
+  private patchDriveFileResponseItem = (payload: any): RemoteSyncedFile => {
+    return {
+      ...payload,
+      size:
+        typeof payload.size === 'string'
+          ? parseInt(payload.size)
+          : payload.size,
+    };
+  };
   private async createOrUpdateSyncedFileEntry(remoteFile: RemoteSyncedFile) {
     await this.db.files.create(remoteFile);
   }
@@ -377,6 +394,10 @@ export class RemoteSyncManager {
   private async createOrUpdateSyncedFolderEntry(
     remoteFolder: RemoteSyncedFolder
   ) {
-    await this.db.folders.create(remoteFolder);
+    await this.db.folders.create({
+      ...remoteFolder,
+      parentId: remoteFolder.parentId || undefined,
+      bucket: remoteFolder.bucket || undefined,
+    });
   }
 }

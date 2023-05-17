@@ -9,7 +9,7 @@ export abstract class DatabaseCollectionAdapter<DatabaseItemType> {
    */
   abstract get(
     itemId: string
-  ): Promise<{ success: boolean; result?: DatabaseItemType }>;
+  ): Promise<{ success: boolean; result: DatabaseItemType | null }>;
 
   /**
    * Updates an item in the database
@@ -19,7 +19,7 @@ export abstract class DatabaseCollectionAdapter<DatabaseItemType> {
     updatePayload: Partial<DatabaseItemType>
   ): Promise<{
     success: boolean;
-    result?: DatabaseItemType;
+    result: DatabaseItemType | null;
   }>;
 
   /**
@@ -27,7 +27,7 @@ export abstract class DatabaseCollectionAdapter<DatabaseItemType> {
    */
   abstract create(creationPayload: DatabaseItemType): Promise<{
     success: boolean;
-    result?: DatabaseItemType;
+    result: DatabaseItemType | null;
   }>;
 
   /**
