@@ -87,10 +87,11 @@
     "footer": {
       "action-description": {
         "syncing": "Sincronizando tus archivos",
-        "updated": "Actualizado hace un momento"
+        "updated": "Sincronizado"
       },
       "errors": {
-        "lock": "Sincronización bloqueada por otro dispositivo"
+        "lock": "Sincronización bloqueada por otro dispositivo",
+        "offline": "No hay conexión a internet"
       }
     }
   },
