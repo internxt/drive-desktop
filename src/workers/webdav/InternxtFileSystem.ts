@@ -25,6 +25,7 @@ import {
   AvailableLocksInfo,
   RequestContext,
   ResourceType,
+  LocalLockManager,
 } from 'webdav-server/lib/index.v2';
 import Logger from 'electron-log';
 import { PassThrough, Readable, Writable } from 'stream';
@@ -36,6 +37,7 @@ import { FileUploader } from './application/FileUploader';
 import { XPath } from './domain/XPath';
 import { XFile } from './domain/File';
 import { XFolder } from './domain/Folder';
+import { FileClonner } from './application/FileClonner';
 
 export class InternxtFileSystem extends webdav.FileSystem {
   private readonly lckMNG: ILockManager;
@@ -47,7 +49,8 @@ export class InternxtFileSystem extends webdav.FileSystem {
   constructor(
     serializer: FileSystemSerializer,
     private readonly repository: Repository,
-    private readonly fileUploader: FileUploader
+    private readonly fileUploader: FileUploader,
+    private readonly fileClonner: FileClonner
   ) {
     super(serializer);
 
@@ -178,7 +181,26 @@ export class InternxtFileSystem extends webdav.FileSystem {
     callback: ReturnCallback<boolean>
   ) {
     Logger.debug('[FS] COPY');
-    callback(undefined, false);
+
+    const item = this.repository.getItem(pathFrom.toString(false)) as XFile;
+
+    const fn = async () => {
+      const id = await this.fileClonner.clone(item.fileId);
+
+      const parent = this.repository.getParentFolder(item.path.value);
+
+      if (!parent) {
+        Logger.debug('[FS] COPY NO PARENT FOUND');
+        throw new Error();
+      }
+
+      const file = item.clone(id, new XPath(pathTo.toString()));
+      await this.repository.addFile(pathTo.toString(false), file, parent);
+    };
+
+    fn()
+      .then(() => callback(undefined, true))
+      .catch(() => callback(Errors.IllegalArguments));
   }
 
   _create(path: Path, ctx: CreateInfo, callback: SimpleCallback) {
@@ -381,7 +403,7 @@ export class InternxtFileSystem extends webdav.FileSystem {
     }
 
     if (!this.locks[item.path.value]) {
-      this.locks[item.path.value] = new MyLockManager();
+      this.locks[item.path.value] = new LocalLockManager();
     }
 
     callback(undefined, this.locks[item.path.value]);
@@ -417,6 +439,9 @@ export class InternxtFileSystem extends webdav.FileSystem {
       })
       .then((names) => {
         const paths = names.map((name) => new Path(name.value));
+        paths.forEach((ddd: Path) => {
+          this.locks[ddd.toString(false)] = new LocalLockManager();
+        });
         callback(undefined, paths);
       });
   }

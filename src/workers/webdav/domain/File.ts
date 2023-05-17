@@ -65,6 +65,30 @@ export class XFile extends Item<XFile> {
     );
   }
 
+  clone(fileId: string, newPath: XPath) {
+    if (!this.path.hasSameDirname(newPath)) {
+      throw new Error('A file rename should mantain the current estructure');
+    }
+
+    if (this.path.hasSameName(newPath)) {
+      throw new Error('Cannot rename a file to the same name');
+    }
+
+    const newName = newPath.name();
+
+    return new XFile(
+      fileId,
+      this.folderId,
+      newName,
+      newPath,
+      this.size,
+      this.type,
+      this.createdAt,
+      this.updatedAt,
+      this.modificationTime
+    );
+  }
+
   rename(newPath: XPath) {
     if (!this.path.hasSameDirname(newPath)) {
       throw new Error('A file rename should mantain the current estructure');
