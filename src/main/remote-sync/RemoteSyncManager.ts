@@ -59,7 +59,7 @@ export class RemoteSyncManager {
    * Throws an error if there's a sync in progress for this class instance
    */
   async startRemoteSync() {
-    await this.smokeTest();
+    this.smokeTest();
 
     await this.db.files.connect();
     await this.db.folders.connect();

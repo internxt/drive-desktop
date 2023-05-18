@@ -45,6 +45,9 @@ export class DriveFile {
 
   @Column({ nullable: true })
   plainName?: string;
+
+  @Column({ nullable: false })
+  status!: string;
 }
 
 export class DriveFilesCollection
