@@ -17,7 +17,7 @@ import { FileCreatedResponseDTO } from '../../shared/HttpClient/responses/file-c
 export class Repository {
   private items: ItemsIndexedByPath = {};
 
-  private readonly baseFolder: XFolder;
+  public readonly baseFolder: XFolder;
 
   private readonly remoteFilesTraverser: Traverser;
 
@@ -291,6 +291,8 @@ export class Repository {
         },
       }
     );
+
+    Logger.debug('RESULT', JSON.stringify(result, null, 2));
 
     const created = XFile.from({
       ...result.data,

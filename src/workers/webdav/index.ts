@@ -5,6 +5,7 @@ import { Environment } from '@internxt/inxt-js';
 import {
   HTTPRequestContext,
   PhysicalFileSystem,
+  VirtualFileSystem,
   WebDAVServerOptions,
 } from 'webdav-server/lib/index.v2';
 import { RequestListener } from 'webdav-server/lib/server/v2/webDAVServer/BeforeAfter';
@@ -17,6 +18,7 @@ import configStore from '../../main/config';
 import { FileUploader } from './application/FileUploader';
 import { mountDrive, unmountDrive } from './VirtualDrive';
 import { FileClonner } from './application/FileClonner';
+import { InxtPhysicalFileSystem } from './InxtPhysicalFileSystem';
 
 interface WebDavServerEvents {
   WEBDAV_SERVER_START_SUCCESS: () => void;
@@ -91,14 +93,11 @@ async function setUp() {
 
     const clonner = new FileClonner(user.bucket, environment);
 
+    const uploader = new FileUploader(user.bucket, environment);
+
     server.setFileSystem(
       '/',
-      new InternxtFileSystem(
-        new InternxtSerializer(),
-        repo,
-        new FileUploader(user.bucket, environment),
-        clonner
-      ),
+      new InxtPhysicalFileSystem('/home/jvalles/Downloads/', uploader, repo),
       (su) => {
         Logger.debug('SUCCEDED: ', su);
       }
