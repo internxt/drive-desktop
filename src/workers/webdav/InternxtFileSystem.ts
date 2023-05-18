@@ -7,7 +7,6 @@ import {
   ILockManager,
   IPropertyManager,
   LastModifiedDateInfo,
-  LocalPropertyManager,
   OpenReadStreamInfo,
   Path,
   ReadDirInfo,
@@ -38,6 +37,7 @@ import { XPath } from './domain/XPath';
 import { XFile } from './domain/File';
 import { XFolder } from './domain/Folder';
 import { FileClonner } from './application/FileClonner';
+import { DebugPropertyManager } from './DebugPropertyManager';
 
 export class InternxtFileSystem extends webdav.FileSystem {
   private readonly lckMNG: ILockManager;
@@ -423,7 +423,7 @@ export class InternxtFileSystem extends webdav.FileSystem {
       return;
     }
 
-    callback(undefined, new LocalPropertyManager(item.toProps()));
+    callback(undefined, new DebugPropertyManager(item.toProps()));
   }
 
   _readDir(

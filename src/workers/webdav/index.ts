@@ -16,6 +16,7 @@ import { getUser } from '../../main/auth/service';
 import configStore from '../../main/config';
 import { FileUploader } from './application/FileUploader';
 import { mountDrive, unmountDrive } from './VirtualDrive';
+import { FileClonner } from './application/FileClonner';
 
 interface WebDavServerEvents {
   WEBDAV_SERVER_START_SUCCESS: () => void;
@@ -88,12 +89,15 @@ async function setUp() {
 
     Logger.debug('ABOUT TO SET FILE SYSTEM');
 
+    const clonner = new FileClonner(user.bucket, environment);
+
     server.setFileSystem(
       '/',
       new InternxtFileSystem(
         new InternxtSerializer(),
         repo,
-        new FileUploader(user.bucket, environment)
+        new FileUploader(user.bucket, environment),
+        clonner
       ),
       (su) => {
         Logger.debug('SUCCEDED: ', su);
