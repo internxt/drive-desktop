@@ -32,7 +32,8 @@ const createRemoteSyncedFileFixture = (
 ): RemoteSyncedFile => {
   const result: RemoteSyncedFile = {
     status: 'EXISTS',
-    plainName: `file_${Date.now()}`,
+    name: `name_${uuid.v4()}`,
+    plainName: `plainname_${Date.now()}`,
     id: Date.now(),
     uuid: uuid.v4(),
     fileId: Date.now().toString(),
@@ -55,6 +56,7 @@ const createRemoteSyncedFolderFixture = (
   payload: Partial<RemoteSyncedFolder>
 ): RemoteSyncedFolder => {
   const result: RemoteSyncedFolder = {
+    name: `name_${uuid.v4()}`,
     plainName: `folder_${Date.now()}`,
     id: Date.now(),
     type: 'folder',
