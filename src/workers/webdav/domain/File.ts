@@ -17,7 +17,7 @@ export type XFileAtributes = {
 export class XFile extends Item<XFile> {
   // private encryptVersion: string = '03-aes';
 
-  private constructor(
+  constructor(
     public readonly fileId: string,
     public readonly folderId: number,
     public readonly name: string,

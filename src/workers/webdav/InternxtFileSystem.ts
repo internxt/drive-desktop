@@ -243,24 +243,6 @@ export class InternxtFileSystem extends webdav.FileSystem {
 
   _delete(path: Path, ctx: DeleteInfo, callback: SimpleCallback) {
     Logger.debug('DELTE');
-    const pathLike = path.toString(false);
-    const item = this.repository.getItem(pathLike);
-
-    if (!item) {
-      callback(new Error(`Item ${pathLike} not found`));
-      return;
-    }
-
-    if (item.isFile()) {
-      Logger.debug('[FS] DELETING FILE');
-      callback();
-      return;
-      // this.repository.deleteFile(iStem).then(() => callback());
-    }
-
-    if (item.isFolder()) {
-      this.repository.deleteFolder(item).then(() => callback());
-    }
   }
 
   _openWriteStream(

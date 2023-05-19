@@ -24,6 +24,7 @@ import {
   Path,
   Errors,
   PhysicalSerializer,
+  ETagInfo,
 } from 'webdav-server/lib/index.v2';
 import { PassThrough, Readable, Writable } from 'stream';
 import fs from 'fs';
@@ -32,6 +33,7 @@ import Logger from 'electron-log';
 import { FileUploader } from './application/FileUploader';
 import { Repository } from './Repository';
 import { XFile } from './domain/File';
+import { XPath } from './domain/XPath';
 
 export class PhysicalFileSystemResource {
   props: LocalPropertyManager;
@@ -57,12 +59,17 @@ export const PhysicalSerializerVersions = {
   instances: [new PhysicalSerializer()] as FileSystemSerializer[],
 };
 
+type Metadata = {
+  createdAt: Date;
+  updatedAt: Date;
+};
+
 export class InxtPhysicalFileSystem extends FileSystem {
   resources: {
     [path: string]: PhysicalFileSystemResource;
   };
 
-  emptyFiles: Array<string> = [];
+  filesToUpload: Record<string, Metadata> = {};
 
   constructor(
     public rootPath: string,
@@ -76,80 +83,60 @@ export class InxtPhysicalFileSystem extends FileSystem {
     };
   }
 
-  getRealPath(path: Path) {
-    const sPath = path.toString();
+  // getRealPath(path: Path) {
+  //   const sPath = path.toString();
 
-    return {
-      realPath: p.join(this.rootPath, sPath.substr(1)),
-      resource: this.resources[sPath],
-    };
-  }
+  //   return {
+  //     realPath: p.join(this.rootPath, sPath.substr(1)),
+  //     resource: this.resources[sPath],
+  //   };
+  // }
 
   _create(path: Path, ctx: CreateInfo, callback: SimpleCallback): void {
-    // const { realPath } = this.getRealPath(path);
+    Logger.debug('CREATE');
+    if (ctx.type.isDirectory) {
+      const folderPath = path.toString(false);
+      const parent = this.repository.getParentFolder(folderPath);
 
-    // const callback = (e: Error | undefined) => {
-    //   if (!e)
-    //     this.resources[path.toString()] = new PhysicalFileSystemResource();
-    //   else if (e) e = Errors.ResourceAlreadyExists;
+      if (!parent) return callback(Errors.InvalidOperation);
 
-    //   _callback(e);
-    // };
+      this.repository.createFolder(folderPath, parent).then(() => callback());
+      return;
+    }
 
-    // if (ctx.type.isDirectory) fs.mkdir(realPath, callback);
-    // node v6.* and higher
-    this.emptyFiles.push(path.toString());
-    callback();
-    // fs.open(realPath, fs.constants.O_CREAT, (e: any, fd: any) => {
-    //   if (e) return callback(e);
-    //   fs.close(fd, callback);
-    // });
+    if (ctx.type.isFile) {
+      this.filesToUpload[path.toString()] = {
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+      return callback();
+    }
+
+    callback(Errors.InvalidOperation);
   }
 
-  // _delete(
-  //   path: Path,
-  //   ctx: DeleteInfo,
-  //   _callback: SimpleCallback
-  // ): void {
-  //   const { realPath } = this.getRealPath(path);
+  _delete(path: Path, ctx: DeleteInfo, callback: SimpleCallback): void {
+    const pathLike = path.toString(false);
+    const item = this.repository.getItem(pathLike);
 
-  //   const callback = (e: Error | undefined) => {
-  //     if (!e) delete this.resources[path.toString()];
-  //     _callback(e);
-  //   };
+    if (!item) {
+      Logger.debug('SOMETING NOT FOUND ON DELTET', path.toString());
+      return callback(Errors.ResourceNotFound);
+    }
 
-  //   this.type(ctx.context, path, (e, type) => {
-  //     if (e) return callback(Errors.ResourceNotFound);
+    if (item.isFile()) {
+      Logger.debug('[FS] DELETING FILE');
+      this.repository
+        .deleteFile(item)
+        .then(() => callback())
+        .catch(() => callback(Errors.None));
+      return;
+    }
 
-  //     if (type.isDirectory) {
-  //       if (ctx.depth === 0) return fs.rmdir(realPath, callback);
-
-  //       this.readDir(ctx.context, path, (e, files) => {
-  //         let nb = files.length + 1;
-  //         const done = (e?: Error) => {
-  //           if (nb < 0) return;
-
-  //           if (e) {
-  //             nb = -1;
-  //             return callback(e);
-  //           }
-
-  //           if (--nb === 0) fs.rmdir(realPath, callback);
-  //         };
-
-  //         files.forEach((file) =>
-  //           this.delete(
-  //             ctx.context,
-  //             path.getChildPath(file),
-  //             ctx.depth === -1 ? -1 : ctx.depth - 1,
-  //             done
-  //           )
-  //         );
-  //         done();
-  //       });
-  //     } else fs.unlink(realPath, callback);
-  //   });
-  // }
+    if (item.isFolder()) {
+      this.repository.deleteFolder(item).then(() => callback());
+    }
+  }
 
   _openWriteStream(
     path: Path,
@@ -176,17 +163,19 @@ export class InxtPhysicalFileSystem extends FileSystem {
           return;
         }
 
-        const file = XFile.from({
+        const xPath = new XPath(path.toString(false));
+
+        const file = new XFile(
           fileId,
-          folderId: parent.id,
-          createdAt: Date.now().toLocaleString(),
-          modificationTime: Date.now().toLocaleString(),
-          name: 'test',
-          path: '/test',
-          size: ctx.estimatedSize,
-          type: 'pdf',
-          updatedAt: Date.now().toLocaleString(),
-        });
+          parent.id,
+          xPath.name(),
+          xPath,
+          ctx.estimatedSize,
+          xPath.extension(),
+          new Date(),
+          new Date(),
+          new Date()
+        );
         Logger.debug('FILE', JSON.stringify(file, null, 2));
         this.repository.addFile(
           path.toString(),
@@ -197,7 +186,6 @@ export class InxtPhysicalFileSystem extends FileSystem {
       .catch((err) => Logger.error(JSON.stringify(err, null, 2)));
 
     callback(undefined, stream);
-    // file: PathOrFileDescriptor, data: string | NodeJS.ArrayBufferView, options: WriteFileOptions, callback: NoParamCallback
   }
 
   _openReadStream(
@@ -205,13 +193,17 @@ export class InxtPhysicalFileSystem extends FileSystem {
     ctx: OpenReadStreamInfo,
     callback: ReturnCallback<Readable>
   ): void {
-    const { realPath } = this.getRealPath(path);
+    Logger.debug('[OPEN READ STREAM]');
+    this.repository
+      .getReadable(path.toString(false))
+      .then((readable) => {
+        if (!readable) {
+          return callback(Errors.UnrecognizedResource);
+        }
 
-    fs.open(realPath, 'r', (e: any, fd: any) => {
-      if (e) return callback(Errors.ResourceNotFound);
-
-      callback(undefined, fs.createReadStream(realPath, { fd }));
-    });
+        callback(undefined, readable);
+      })
+      .catch(() => callback(Errors.UnrecognizedResource));
   }
 
   // _move(
@@ -250,7 +242,18 @@ export class InxtPhysicalFileSystem extends FileSystem {
   // }
 
   _size(path: Path, ctx: SizeInfo, callback: ReturnCallback<number>): void {
-    this.getStatProperty(path, ctx, 'size', callback);
+    Logger.debug('[FS] SIZE');
+
+    const pathLike = path.toString(false);
+
+    const item = this.repository.getItem(pathLike);
+
+    if (!item) {
+      callback(Errors.BadAuthentication);
+      return;
+    }
+
+    callback(undefined, item.size);
   }
 
   /**
@@ -277,7 +280,11 @@ export class InxtPhysicalFileSystem extends FileSystem {
 
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
-    callback(undefined, resource[propertyName]);
+    const property = resource[propertyName];
+
+    Logger.debug('PRPERTIES', JSON.stringify(property, null, 2));
+
+    callback(undefined, property);
   }
 
   _lockManager(
@@ -285,6 +292,7 @@ export class InxtPhysicalFileSystem extends FileSystem {
     ctx: LockManagerInfo,
     callback: ReturnCallback<ILockManager>
   ): void {
+    Logger.debug('LOCK MANAGER ON :', path.toString());
     this.getPropertyFromResource(path, ctx, 'locks', callback);
   }
 
@@ -293,6 +301,7 @@ export class InxtPhysicalFileSystem extends FileSystem {
     ctx: PropertyManagerInfo,
     callback: ReturnCallback<IPropertyManager>
   ): void {
+    Logger.debug('PROPERTY MANAGER ON :', path.toString());
     this.getPropertyFromResource(path, ctx, 'props', callback);
   }
 
@@ -301,45 +310,57 @@ export class InxtPhysicalFileSystem extends FileSystem {
     ctx: ReadDirInfo,
     callback: ReturnCallback<string[] | Path[]>
   ): void {
-    const { realPath } = this.getRealPath(path);
-
-    fs.readdir(realPath, (e: any, files: string[] | Path[] | undefined) => {
-      callback(e ? Errors.ResourceNotFound : undefined, files);
+    this.repository.init().then(() => {
+      const contents = this.repository.listContents(path.toString(false));
+      const paths = contents.map((name) => new Path(name.value));
+      callback(undefined, paths);
     });
   }
 
-  getStatProperty(
-    path: Path,
-    ctx: any,
-    propertyName: string,
-    callback: ReturnCallback<any>
-  ): void {
-    const { realPath } = this.getRealPath(path);
+  // getStatProperty(
+  //   path: Path,
+  //   ctx: any,
+  //   propertyName: string,
+  //   callback: ReturnCallback<any>
+  // ): void {
+  //   const { realPath } = this.getRealPath(path);
 
-    fs.stat(realPath, (e: any, stat: { [x: string]: any }) => {
-      if (e) return callback(Errors.ResourceNotFound);
+  //   fs.stat(realPath, (e: any, stat: { [x: string]: any }) => {
+  //     if (e) return callback(Errors.ResourceNotFound);
 
-      callback(undefined, stat[propertyName]);
-    });
-  }
+  //     callback(undefined, stat[propertyName]);
+  //   });
+  // }
 
-  getStatDateProperty(
-    path: Path,
-    ctx: any,
-    propertyName: string,
-    callback: ReturnCallback<number>
-  ): void {
-    this.getStatProperty(path, ctx, propertyName, (e, value) =>
-      callback(e, value ? (value as Date).valueOf() : value)
-    );
-  }
+  // getStatDateProperty(
+  //   path: Path,
+  //   ctx: any,
+  //   propertyName: string,
+  //   callback: ReturnCallback<number>
+  // ): void {
+  //   this.getStatProperty(path, ctx, propertyName, (e, value) =>
+  //     callback(e, value ? (value as Date).valueOf() : value)
+  //   );
+  // }
 
   _creationDate(
     path: Path,
     ctx: CreationDateInfo,
     callback: ReturnCallback<number>
   ): void {
-    this.getStatDateProperty(path, ctx, 'birthtime', callback);
+    Logger.debug('[FS] CREATION DATE');
+
+    const pathLike = path.toString(false);
+
+    const item = this.repository.getItem(pathLike);
+
+    if (!item) {
+      Logger.debug('SOMETING NOT FOUND CREATION DATE', path.toString());
+      callback(Errors.ResourceNotFound);
+      return;
+    }
+
+    callback(undefined, item.createdAt.getTime());
   }
 
   _lastModifiedDate(
@@ -347,7 +368,17 @@ export class InxtPhysicalFileSystem extends FileSystem {
     ctx: LastModifiedDateInfo,
     callback: ReturnCallback<number>
   ): void {
-    this.getStatDateProperty(path, ctx, 'mtime', callback);
+    Logger.debug('[FS] LAST MODIFIED DATE');
+    const pathLike = path.toString(false);
+
+    const item = this.repository.getItem(pathLike);
+
+    if (!item) {
+      callback(Errors.InvalidOperation);
+      return;
+    }
+
+    callback(undefined, item.updatedAt.getTime());
   }
 
   _type(
@@ -355,15 +386,25 @@ export class InxtPhysicalFileSystem extends FileSystem {
     ctx: TypeInfo,
     callback: ReturnCallback<ResourceType>
   ): void {
-    const { realPath } = this.getRealPath(path);
+    Logger.debug('[FS] TYPE');
 
-    fs.stat(realPath, (e: any, stat: { isDirectory: () => any }) => {
-      if (e) return callback(Errors.ResourceNotFound);
+    const pathLike = path.toString(false);
 
-      callback(
-        undefined,
-        stat.isDirectory() ? ResourceType.Directory : ResourceType.File
-      );
-    });
+    if (pathLike === '/') {
+      const resource = new ResourceType(false, true);
+      callback(undefined, resource);
+      return;
+    }
+
+    const item = this.repository.getItem(pathLike);
+
+    if (!item) {
+      Logger.debug('SOMETING NOT FOUND ON TYPE', path.toString());
+      callback(Errors.ResourceNotFound);
+      return;
+    }
+
+    const resource = new ResourceType(!item.isFolder(), item.isFolder());
+    callback(undefined, resource);
   }
 }
