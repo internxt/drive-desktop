@@ -107,6 +107,7 @@ export class InxtPhysicalFileSystem extends FileSystem {
     }
 
     if (ctx.type.isFile) {
+      return callback(Errors.Forbidden);
       this.filesToUpload[path.toString()] = {
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -147,6 +148,8 @@ export class InxtPhysicalFileSystem extends FileSystem {
     ctx: OpenWriteStreamInfo,
     callback: ReturnCallback<Writable>
   ): void {
+    callback(Errors.Forbidden);
+    return;
     const resource = this.resources[path.toString()];
 
     if (!resource) {
