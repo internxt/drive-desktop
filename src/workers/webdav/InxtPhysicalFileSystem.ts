@@ -30,6 +30,7 @@ import { PassThrough, Readable, Writable } from 'stream';
 import fs from 'fs';
 import p from 'path';
 import Logger from 'electron-log';
+import { Job } from 'node-schedule';
 import { FileUploader } from './application/FileUploader';
 import { Repository } from './Repository';
 import { XFile } from './domain/File';
@@ -62,6 +63,7 @@ export const PhysicalSerializerVersions = {
 type Metadata = {
   createdAt: Date;
   updatedAt: Date;
+  type: ResourceType;
 };
 
 export class InxtPhysicalFileSystem extends FileSystem {
@@ -108,7 +110,9 @@ export class InxtPhysicalFileSystem extends FileSystem {
       this.filesToUpload[path.toString()] = {
         createdAt: new Date(),
         updatedAt: new Date(),
+        type: new ResourceType(true, false),
       };
+
       return callback();
     }
 
@@ -129,7 +133,7 @@ export class InxtPhysicalFileSystem extends FileSystem {
       this.repository
         .deleteFile(item)
         .then(() => callback())
-        .catch(() => callback(Errors.None));
+        .catch(() => callback(Errors.InvalidOperation));
       return;
     }
 
@@ -242,7 +246,7 @@ export class InxtPhysicalFileSystem extends FileSystem {
   // }
 
   _size(path: Path, ctx: SizeInfo, callback: ReturnCallback<number>): void {
-    Logger.debug('[FS] SIZE');
+    Logger.debug('[FS] SIZE', path.toString());
 
     const pathLike = path.toString(false);
 
@@ -355,9 +359,14 @@ export class InxtPhysicalFileSystem extends FileSystem {
     const item = this.repository.getItem(pathLike);
 
     if (!item) {
-      Logger.debug('SOMETING NOT FOUND CREATION DATE', path.toString());
-      callback(Errors.ResourceNotFound);
-      return;
+      const temporal = this.filesToUpload[path.toString()];
+      if (!temporal) {
+        Logger.debug('SOMETING NOT FOUND CREATION DATE', path.toString());
+        callback(Errors.ResourceNotFound);
+        return;
+      }
+
+      return callback(undefined, temporal.createdAt.getDate());
     }
 
     callback(undefined, item.createdAt.getTime());
@@ -368,14 +377,19 @@ export class InxtPhysicalFileSystem extends FileSystem {
     ctx: LastModifiedDateInfo,
     callback: ReturnCallback<number>
   ): void {
-    Logger.debug('[FS] LAST MODIFIED DATE');
     const pathLike = path.toString(false);
 
     const item = this.repository.getItem(pathLike);
 
     if (!item) {
-      callback(Errors.InvalidOperation);
-      return;
+      const temporal = this.filesToUpload[pathLike];
+
+      if (!temporal) {
+        callback(Errors.ResourceNotFound);
+        return;
+      }
+
+      return callback(undefined, temporal.updatedAt.getDate());
     }
 
     callback(undefined, item.updatedAt.getTime());
@@ -399,12 +413,17 @@ export class InxtPhysicalFileSystem extends FileSystem {
     const item = this.repository.getItem(pathLike);
 
     if (!item) {
-      Logger.debug('SOMETING NOT FOUND ON TYPE', path.toString());
-      callback(Errors.ResourceNotFound);
-      return;
+      const temporal = this.filesToUpload[path.toString(false)];
+
+      if (!temporal) {
+        callback(Errors.ResourceNotFound);
+        return;
+      }
+
+      return callback(undefined, temporal.type);
     }
 
-    const resource = new ResourceType(!item.isFolder(), item.isFolder());
+    const resource = new ResourceType(item.isFile(), item.isFolder());
     callback(undefined, resource);
   }
 }

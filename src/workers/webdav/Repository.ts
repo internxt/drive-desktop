@@ -235,8 +235,6 @@ export class Repository {
       }
     );
 
-    Logger.debug(JSON.stringify(result));
-
     if (result.status === 200) {
       Logger.debug('[REPOSITORY] FOLDER DELETED');
       delete this.items[item.path.value];
@@ -250,8 +248,23 @@ export class Repository {
     );
   }
 
-  async deleteFile(item: XFile): Promise<void> {
-    throw new Error('Method not implemented.');
+  async deleteFile(file: XFile): Promise<void> {
+    const result = await this.trashHttpClient.post(
+      `${process.env.NEW_DRIVE_URL}/drive/storage/trash/add`,
+      {
+        items: [
+          {
+            type: 'file',
+            id: file.fileId,
+          },
+        ],
+      }
+    );
+
+    if (result.status === 200) {
+      Logger.debug('[REPOSITORY] FILE DELETED');
+      delete this.items[file.path.value];
+    }
   }
 
   async addFile(
@@ -267,7 +280,6 @@ export class Repository {
     },
     parentItem: XFolder
   ): Promise<void> {
-    Logger.debug('[REPOSIOTRY] ADD: ', JSON.stringify(file, null, 2));
     const encryptedName = crypt.encryptName(
       file.name,
       parentItem.id.toString()
@@ -291,8 +303,6 @@ export class Repository {
         },
       }
     );
-
-    Logger.debug('RESULT', JSON.stringify(result, null, 2));
 
     const created = XFile.from({
       ...result.data,
