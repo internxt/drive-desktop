@@ -52,6 +52,7 @@ export type RemoteSyncedFile = {
   createdAt: string;
   updatedAt: string;
   plainName: string;
+  name: string;
   status: 'EXISTS' | 'TRASHED' | 'DELETED';
 };
 
@@ -65,6 +66,7 @@ export type RemoteSyncedFolder = {
   updatedAt: string;
   uuid: string;
   plainName: string;
+  name: string;
   status: string;
 };
 

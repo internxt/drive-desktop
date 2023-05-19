@@ -34,8 +34,8 @@ export class DriveFile {
   @Column({ nullable: false })
   userId!: number;
 
-  @Column({ nullable: true })
-  modificationTime?: string;
+  @Column({ nullable: false })
+  modificationTime!: string;
 
   @Column({ nullable: false })
   createdAt!: string;
@@ -45,6 +45,9 @@ export class DriveFile {
 
   @Column({ nullable: true })
   plainName?: string;
+
+  @Column({ nullable: false })
+  name!: string;
 
   @Column({ nullable: false })
   status!: string;
@@ -67,6 +70,21 @@ export class DriveFilesCollection
       success: true,
       result: match,
     };
+  }
+
+  async getAll() {
+    try {
+      const result = await this.repository.find();
+      return {
+        success: true,
+        result: result,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        result: [],
+      };
+    }
   }
 
   async update(uuid: DriveFile['uuid'], updatePayload: Partial<DriveFile>) {

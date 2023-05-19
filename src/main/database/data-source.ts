@@ -1,14 +1,18 @@
 import { app } from 'electron';
+import { reportError } from '../bug-report/service';
+import eventBus from '../event-bus';
 import { DataSource } from 'typeorm';
-import Logger from 'electron-log';
-Logger.info(
-  'DB',
-  app.getPath('appData') + '/internxt-drive/internxt_desktop.db'
-);
+
 export const AppDataSource = new DataSource({
   type: 'better-sqlite3',
   database: app.getPath('appData') + '/internxt-drive/internxt_desktop.db',
   logging: true,
   synchronize: true,
   entities: [__dirname + '/entities/*.ts'],
+});
+
+eventBus.on('USER_LOGGED_OUT', () => {
+  AppDataSource.dropDatabase().catch((error) => {
+    reportError(error);
+  });
 });

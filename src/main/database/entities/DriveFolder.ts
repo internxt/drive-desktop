@@ -34,6 +34,9 @@ export class DriveFolder {
   plainName?: string;
 
   @Column({ nullable: false })
+  name!: string;
+
+  @Column({ nullable: false })
   status!: string;
 }
 
@@ -53,6 +56,21 @@ export class DriveFoldersCollection
       success: true,
       result: match,
     };
+  }
+
+  async getAll() {
+    try {
+      const result = await this.repository.find();
+      return {
+        success: true,
+        result: result,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        result: [],
+      };
+    }
   }
 
   async update(uuid: DriveFolder['uuid'], updatePayload: Partial<DriveFolder>) {
