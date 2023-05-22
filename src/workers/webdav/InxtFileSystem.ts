@@ -237,16 +237,14 @@ export class InxtFileSystem extends FileSystem {
       return callback(Errors.IllegalArguments);
     }
 
-    if (originalItem.isFile()) {
-      if (originalItem.hasParent(destinationFolder.id)) {
-        const newPath = new XPath(pathTo.toString(false));
-        const res = originalItem.rename(newPath);
-        this.repository
-          .updateName(res)
-          .then(() => callback(undefined, true))
-          .catch(() => callback(Errors.InvalidOperation));
-        return;
-      }
+    if (originalItem.hasParent(destinationFolder.id)) {
+      const newPath = new XPath(pathTo.toString(false));
+      const res = originalItem.rename(newPath);
+      this.repository
+        .updateName(res)
+        .then(() => callback(undefined, true))
+        .catch(() => callback(Errors.InvalidOperation));
+      return;
     }
 
     const fileToOverride = this.repository.searchItem(pathTo.toString(false));
