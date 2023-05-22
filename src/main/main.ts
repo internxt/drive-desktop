@@ -37,6 +37,10 @@ import eventBus from './event-bus';
 import * as Sentry from '@sentry/electron';
 import { AppDataSource } from './database/data-source';
 
+process.on('uncaughtException', (error: unknown) => {
+  Logger.error('Uncaught exception: ', JSON.stringify(error, null, 2));
+});
+
 Logger.log(`Running ${packageJson.version}`);
 
 Logger.log('Initializing Sentry for main process');
