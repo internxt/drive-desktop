@@ -7,7 +7,7 @@ import { XFile } from '../domain/File';
 import { XFolder } from '../domain/Folder';
 
 export class Traverser {
-  private readonly cache: ItemsIndexedByPath = {};
+  private readonly collection: ItemsIndexedByPath = {};
 
   private rawTree: {
     files: Array<ServerFile>;
@@ -57,10 +57,7 @@ export class Traverser {
         return true;
       })
       .forEach(({ file, name }) => {
-        // const modificationTime = getSecondsFromDateString(
-        //   file.modificationTime
-        // );
-        this.cache[name] = XFile.from({
+        this.collection[name] = XFile.from({
           folderId: file.folderId,
           fileId: file.fileId,
           modificationTime: file.modificationTime,
@@ -86,7 +83,7 @@ export class Traverser {
 
       if (!plainName) return;
 
-      this.cache[name] = XFolder.from({
+      this.collection[name] = XFolder.from({
         id: folder.id,
         parentId: folder.parent_id as number,
         updatedAt: folder.updated_at,
@@ -103,8 +100,18 @@ export class Traverser {
     folders: Array<ServerFolder>;
   }) {
     this.rawTree = rawTree;
+
+    this.collection['/'] = XFolder.from({
+      id: this.baseFolderId,
+      parentId: null,
+      updatedAt: Date.now().toLocaleString(),
+      createdAt: Date.now().toLocaleString(),
+      path: '/',
+      name: 'internxt root folder',
+    });
+
     this.traverse(this.baseFolderId);
 
-    return this.cache;
+    return this.collection;
   }
 }

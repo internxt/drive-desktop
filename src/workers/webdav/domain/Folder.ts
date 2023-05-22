@@ -1,4 +1,3 @@
-import { Folder } from 'phosphor-react';
 import { XFile } from './File';
 import { Item } from './Item';
 import { XPath } from './XPath';

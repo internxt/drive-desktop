@@ -1,8 +1,24 @@
+/* eslint-disable no-underscore-dangle */
 import { ipcRenderer as electronIpcRenderer } from 'electron';
-import { v2 as webdav } from 'webdav-server';
+import {
+  BasicPrivilege,
+  IUser,
+  PrivilegeManagerCallback,
+  v2 as webdav,
+} from 'webdav-server';
 import Logger from 'electron-log';
 import { Environment } from '@internxt/inxt-js';
-import { WebDAVServerOptions } from 'webdav-server/lib/index.v2';
+import {
+  HTTPAuthentication,
+  WebDAVServerOptions,
+  Errors,
+  SimpleUserManager,
+  HTTPBasicAuthentication,
+  PrivilegeManager,
+  Path,
+  Resource,
+} from 'webdav-server/lib/index.v2';
+import { v4 } from 'uuid';
 import { httpClient } from './httpClients';
 import { Repository } from './Repository';
 import { getUser } from '../../main/auth/service';
@@ -11,6 +27,7 @@ import { FileUploader } from './application/FileUploader';
 import { mountDrive, unmountDrive } from './VirtualDrive';
 import { FileClonner } from './application/FileClonner';
 import { InxtFileSystem } from './InxtFileSystem';
+import { FileOverrider } from './application/FileOverrider';
 
 interface WebDavServerEvents {
   WEBDAV_SERVER_START_SUCCESS: () => void;
@@ -33,14 +50,68 @@ interface IpcRenderer {
 
 const ipcRenderer = electronIpcRenderer as IpcRenderer;
 
+class HttpAutenticator implements HTTPAuthentication {
+  askForAuthentication(ctx: webdav.HTTPRequestContext): {
+    [headeName: string]: string;
+  } {
+    return {};
+  }
+
+  getUser(
+    ctx: webdav.HTTPRequestContext,
+    callback: (error: Error, user?: webdav.IUser | undefined) => void
+  ): void {
+    callback(Errors.None, {
+      uid: v4(),
+      isAdministrator: true,
+      isDefaultUser: true,
+      username: 'username',
+      password: 'password',
+    });
+  }
+}
+
+class AllowAll extends PrivilegeManager {
+  _can(
+    fullPath: Path,
+    user: IUser,
+    resource: Resource,
+    privilege: BasicPrivilege | string,
+    callback: PrivilegeManagerCallback
+  ): void {
+    callback(Errors.None, true);
+  }
+}
+
+// User manager (tells who are the users)
+const userManager = new webdav.SimpleUserManager();
+// const WDuser = userManager.addUser('username', 'password', false);
+
+// Privilege manager (tells which users can access which files/folders)
+const privilegeManager = new AllowAll();
+
 export const webdavOptions: WebDAVServerOptions = {
   hostname: 'localhost',
   port: 1900,
+  requireAuthentification: false,
+  privilegeManager,
 };
 
 async function setUp() {
   try {
     const server = new webdav.WebDAVServer(webdavOptions);
+
+    server.afterRequest((arg, next) => {
+      Logger.debug(
+        '>>',
+        arg.request.method,
+        arg.request.url,
+        '>',
+        arg.response.statusCode,
+        arg.response.statusMessage
+      );
+      next();
+    });
 
     ipcRenderer.on('stop-webdav-server-process', () => {
       unmountDrive();
@@ -71,7 +142,7 @@ async function setUp() {
       encryptionKey: mnemonic,
     });
 
-    const repo = new Repository(
+    const repository = new Repository(
       clients.drive,
       clients.newDrive,
       environment,
@@ -79,7 +150,7 @@ async function setUp() {
       user.bucket
     );
 
-    await repo.init();
+    await repository.init();
 
     Logger.debug('[WEBDAB] ABOUT TO SET FILE SYSTEM');
 
@@ -87,9 +158,15 @@ async function setUp() {
 
     const uploader = new FileUploader(user.bucket, environment);
 
-    server.setFileSystem('/', new InxtFileSystem(uploader, repo), (su) => {
-      Logger.debug('SUCCEDED: ', su);
-    });
+    const overrider = new FileOverrider(user.bucket, environment, clonner);
+
+    server.setFileSystem(
+      '/',
+      new InxtFileSystem(uploader, overrider, repository),
+      (su) => {
+        Logger.debug('SUCCEDED: ', su);
+      }
+    );
 
     server.start((s) => {
       Logger.log('Ready on port', s?.address());

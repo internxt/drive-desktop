@@ -32,6 +32,12 @@ export class XPath extends ValueObject<string> {
     return name;
   }
 
+  nameWithExtension(): string {
+    const basename = path.basename(this.value);
+    const { base } = path.parse(basename);
+    return base;
+  }
+
   dirname(): string {
     return path.dirname(this.value);
   }

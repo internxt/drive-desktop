@@ -7,6 +7,7 @@ export type ServerFile = {
   id: number;
   modificationTime: string;
   name: string;
+  plain_name: string;
   size: number | string;
   type: string;
   updatedAt: string;

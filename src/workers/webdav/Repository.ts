@@ -17,8 +17,6 @@ import { FileCreatedResponseDTO } from '../../shared/HttpClient/responses/file-c
 export class Repository {
   private items: ItemsIndexedByPath = {};
 
-  public readonly baseFolder: XFolder;
-
   private readonly remoteFilesTraverser: Traverser;
 
   constructor(
@@ -29,14 +27,6 @@ export class Repository {
     private readonly bucket: string
   ) {
     this.remoteFilesTraverser = new Traverser(crypt, baseFolderId);
-    this.baseFolder = XFolder.from({
-      id: baseFolderId,
-      name: '/',
-      path: '/',
-      parentId: null,
-      updatedAt: new Date().toDateString(),
-      createdAt: new Date().toDateString(),
-    });
   }
 
   private async getTree(): Promise<{
@@ -109,10 +99,7 @@ export class Repository {
     return files;
   }
 
-  getItem(pathLike: string): Nullable<XFile | XFolder> {
-    if (pathLike === '/') {
-      return this.baseFolder;
-    }
+  searchItem(pathLike: string): Nullable<XFile | XFolder> {
     const item = this.items[pathLike];
 
     return item;
@@ -161,7 +148,7 @@ export class Repository {
     const parentFolderPath = itemPaths.join('/') || '/';
 
     Logger.error('[Repository] path', parentFolderPath);
-    const item = this.getItem(parentFolderPath);
+    const item = this.searchItem(parentFolderPath);
 
     if (!item) {
       return;
@@ -267,22 +254,10 @@ export class Repository {
     }
   }
 
-  async addFile(
-    filePath: string,
-    file: {
-      fileId: string;
-      folderId: number;
-      createdAt: Date;
-      name: string;
-      size: number;
-      type: string;
-      updatedAt: Date;
-    },
-    parentItem: XFolder
-  ): Promise<void> {
+  async addFile(file: XFile): Promise<void> {
     const encryptedName = crypt.encryptName(
       file.name,
-      parentItem.id.toString()
+      file.folderId.toString()
     );
 
     // TODO: MAKE SURE ALL FIELDS ARE CORRECT
@@ -294,7 +269,7 @@ export class Repository {
           encrypt_version: '03-aes',
           fileId: file.fileId,
           file_id: file.fileId,
-          folder_id: parentItem.id,
+          folder_id: file.folderId,
           name: encryptedName,
           plain_name: file.name,
           size: file.size,
@@ -308,10 +283,10 @@ export class Repository {
       ...result.data,
       folderId: result.data.folder_id,
       size: parseInt(result.data.size, 10),
-      path: filePath,
+      path: file.path.value,
     });
 
-    this.items[filePath] = created;
+    this.items[file.path.value] = created;
   }
 
   async updateName(item: XFile | XFolder): Promise<void> {
@@ -346,20 +321,13 @@ export class Repository {
           body: { destination: item.parentId, folderId: item.id },
         };
 
-    Logger.debug('MAKING THE CHANGE');
-
     const res = await this.httpClient.post(request.url, request.body);
 
-    Logger.debug('CHANGE DONE', res.status, res.statusText);
     if (res.status !== 200) {
       throw new Error(`[REPOSITORY] Error moving item: ${res.status}`);
     }
 
-    delete this.items[item.path.value];
-    this.items[item.path.value] = item;
+    this.items = [];
+    await this.init();
   }
-}
-
-class TemporalItem {
-  constructor(private readonly filePath: string) {}
 }

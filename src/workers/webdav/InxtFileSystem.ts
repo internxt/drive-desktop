@@ -19,23 +19,21 @@ import {
   DeleteInfo,
   FileSystem,
   SizeInfo,
-  MoveInfo,
   TypeInfo,
   Path,
   Errors,
   PhysicalSerializer,
-  ETagInfo,
+  DisplayNameInfo,
+  MoveInfo,
 } from 'webdav-server/lib/index.v2';
 import { PassThrough, Readable, Writable } from 'stream';
-import fs from 'fs';
-import p from 'path';
 import Logger from 'electron-log';
-import { Job } from 'node-schedule';
 import { FileUploader } from './application/FileUploader';
 import { Repository } from './Repository';
 import { XFile } from './domain/File';
 import { XPath } from './domain/XPath';
 import { DebugPhysicalSerializer } from './Serializer';
+import { FileOverrider } from './application/FileOverrider';
 
 export class PhysicalFileSystemResource {
   props: LocalPropertyManager;
@@ -76,6 +74,7 @@ export class InxtFileSystem extends FileSystem {
 
   constructor(
     private readonly fileUploader: FileUploader,
+    private readonly fileOverrider: FileOverrider,
     private readonly repository: Repository
   ) {
     super(new DebugPhysicalSerializer(fileUploader, repository));
@@ -98,7 +97,6 @@ export class InxtFileSystem extends FileSystem {
     }
 
     if (ctx.type.isFile) {
-      return callback(Errors.Forbidden);
       this.filesToUpload[path.toString()] = {
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -113,7 +111,7 @@ export class InxtFileSystem extends FileSystem {
 
   _delete(path: Path, ctx: DeleteInfo, callback: SimpleCallback): void {
     const pathLike = path.toString(false);
-    const item = this.repository.getItem(pathLike);
+    const item = this.repository.searchItem(pathLike);
 
     if (!item) {
       Logger.debug('SOMETING NOT FOUND ON DELTET', path.toString());
@@ -139,8 +137,6 @@ export class InxtFileSystem extends FileSystem {
     ctx: OpenWriteStreamInfo,
     callback: ReturnCallback<Writable>
   ): void {
-    callback(Errors.Forbidden);
-    return;
     const resource = this.resources[path.toString()];
 
     if (!resource) {
@@ -148,6 +144,8 @@ export class InxtFileSystem extends FileSystem {
     }
 
     const stream = new PassThrough();
+
+    Logger.debug('WRITE STEAM ON ', path.toString(false));
 
     this.fileUploader
       .upload({
@@ -175,11 +173,7 @@ export class InxtFileSystem extends FileSystem {
           new Date()
         );
         Logger.debug('FILE', JSON.stringify(file, null, 2));
-        this.repository.addFile(
-          path.toString(),
-          file,
-          this.repository.baseFolder
-        );
+        this.repository.addFile(file);
       })
       .catch((err) => Logger.error(JSON.stringify(err, null, 2)));
 
@@ -204,47 +198,126 @@ export class InxtFileSystem extends FileSystem {
       .catch(() => callback(Errors.UnrecognizedResource));
   }
 
-  // _move(
-  //   pathFrom: Path,
-  //   pathTo: Path,
-  //   ctx: MoveInfo,
-  //   callback: ReturnCallback<boolean>
-  // ): void {
-  //   const { realPath: realPathFrom } = this.getRealPath(pathFrom);
-  //   const { realPath: realPathTo } = this.getRealPath(pathTo);
+  _move(
+    pathFrom: Path,
+    pathTo: Path,
+    ctx: MoveInfo,
+    callback: ReturnCallback<boolean>
+  ): void {
+    const originalItem = this.repository.searchItem(pathFrom.toString(false));
 
-  //   const rename = (overwritten: boolean | undefined) => {
-  //     fs.rename(realPathFrom, realPathTo, (er: Error | undefined) => {
-  //       if (er) return callback(er);
+    if (!originalItem) {
+      return callback(Errors.ResourceNotFound);
+    }
 
-  //       this.resources[realPathTo] = this.resources[realPathFrom];
-  //       delete this.resources[realPathFrom];
-  //       callback(undefined, overwritten);
-  //     });
-  //   };
+    const destinationItem = this.repository.searchItem(pathTo.toString(false));
 
-  //   fs.access(realPathTo, (e: any) => {
-  //     if (e) {
-  //       // destination doesn't exist
-  //       rename(false);
-  //     } else {
-  //       // destination exists
-  //       if (!ctx.overwrite) return callback(Errors.ResourceAlreadyExists);
+    if (destinationItem && !ctx.overwrite) {
+      return callback(Errors.InvalidOperation);
+    }
 
-  //       this.delete(ctx.context, pathTo, (er) => {
-  //         if (er) return callback(er);
-  //         rename(true);
-  //       });
-  //     }
-  //   });
-  // }
+    const destinationFolder = this.repository.getParentFolder(
+      pathTo.toString(false)
+    );
+
+    if (!destinationFolder) {
+      return callback(Errors.IllegalArguments);
+    }
+
+    if (originalItem.isFile()) {
+      if (originalItem.hasParent(destinationFolder.id)) {
+        // Rename
+        return;
+      }
+    }
+
+    const fileToOverride = this.repository.searchItem(pathTo.toString(false));
+
+    if (fileToOverride) {
+      if (!ctx.overwrite) {
+        return callback(Errors.InvalidOperation);
+      }
+
+      if (fileToOverride.isFolder()) {
+        return callback(Errors.InvalidOperation);
+      }
+
+      const overrideFile = async () => {
+        const fileId = await this.fileOverrider.run(fileToOverride);
+        const path = new XPath(pathTo.toString(false));
+
+        // TODO: should the modification time change?
+        const file = new XFile(
+          fileId,
+          destinationFolder.id,
+          path.name(),
+          path,
+          originalItem.size,
+          path.extension(),
+          originalItem.createdAt,
+          new Date(),
+          new Date()
+        );
+
+        await this.repository.addFile(file);
+      };
+
+      overrideFile()
+        .then(() => {
+          callback(undefined, true);
+        })
+        .catch((err) => {
+          Logger.error('[FS] Error overriding a file: ', err);
+          callback(err);
+        });
+      return;
+    }
+
+    const resultItem = originalItem.moveTo(destinationFolder);
+
+    this.repository
+      .updateParentDir(resultItem)
+      .then(() => callback(undefined, false))
+      .catch((err) => {
+        Logger.error('[FS] Error moving a file', JSON.stringify(err, null, 2));
+        callback(err);
+      });
+
+    // const { realPath: realPathFrom } = this.getRealPath(pathFrom);
+    // const { realPath: realPathTo } = this.getRealPath(pathTo);
+
+    // const rename = (overwritten: boolean | undefined) => {
+    //   fs.rename(realPathFrom, realPathTo, (er: Error | undefined) => {
+    //     if (er) return callback(er);
+
+    //     this.resources[realPathTo] = this.resources[realPathFrom];
+    //     delete this.resources[realPathFrom];
+    //     callback(undefined, overwritten);
+    //   });
+    // };
+
+    // fs.access(realPathTo, (e: any) => {
+    //   if (e) {
+    //     // destination doesn't exist
+    //     rename(false);
+    //   } else {
+    //     // destination exists
+    //     if (!ctx.overwrite) return callback(Errors.ResourceAlreadyExists);
+
+    //     this.delete(ctx.context, pathTo, (er) => {
+    //       if (er) return callback(er);
+    //       rename(true);
+    //     });
+    //   }
+    // });
+  }
 
   _size(path: Path, ctx: SizeInfo, callback: ReturnCallback<number>): void {
     Logger.debug('[FS] SIZE', path.toString());
 
     const pathLike = path.toString(false);
 
-    const item = this.repository.getItem(pathLike);
+    const item = this.repository.searchItem(pathLike);
 
     if (!item) {
       callback(Errors.BadAuthentication);
@@ -341,6 +414,22 @@ export class InxtFileSystem extends FileSystem {
   //   );
   // }
 
+  _displayName(
+    path: Path,
+    _ctx: DisplayNameInfo,
+    callback: ReturnCallback<string>
+  ) {
+    Logger.debug('[FS DISPLAY NAME]', path.toString());
+
+    const item = this.repository.searchItem(path.toString(false));
+
+    if (!item) {
+      return callback(Errors.ResourceNotFound);
+    }
+
+    callback(undefined, item.path.nameWithExtension());
+  }
+
   _creationDate(
     path: Path,
     ctx: CreationDateInfo,
@@ -350,7 +439,7 @@ export class InxtFileSystem extends FileSystem {
 
     const pathLike = path.toString(false);
 
-    const item = this.repository.getItem(pathLike);
+    const item = this.repository.searchItem(pathLike);
 
     if (!item) {
       const temporal = this.filesToUpload[path.toString()];
@@ -373,7 +462,7 @@ export class InxtFileSystem extends FileSystem {
   ): void {
     const pathLike = path.toString(false);
 
-    const item = this.repository.getItem(pathLike);
+    const item = this.repository.searchItem(pathLike);
 
     if (!item) {
       const temporal = this.filesToUpload[pathLike];
@@ -404,7 +493,7 @@ export class InxtFileSystem extends FileSystem {
       return;
     }
 
-    const item = this.repository.getItem(pathLike);
+    const item = this.repository.searchItem(pathLike);
 
     if (!item) {
       const temporal = this.filesToUpload[path.toString(false)];

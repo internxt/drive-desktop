@@ -52,9 +52,9 @@ export class XFile extends Item<XFile> {
 
     const basePath = folder.path.dirname();
 
-    return new XFile(
+    const file = new XFile(
       this.fileId,
-      this.folderId,
+      folder.id,
       this.name,
       XPath.fromParts([basePath, this.name]),
       this.size,
@@ -63,6 +63,10 @@ export class XFile extends Item<XFile> {
       this.updatedAt,
       this.modificationTime
     );
+
+    folder.addFile(file);
+
+    return file;
   }
 
   clone(fileId: string, newPath: XPath) {

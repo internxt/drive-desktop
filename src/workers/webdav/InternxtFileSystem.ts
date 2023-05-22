@@ -72,7 +72,7 @@ export class InternxtFileSystem extends webdav.FileSystem {
     callback: (exists: boolean) => void
   ) {
     // Logger.debug('[FS FAST EXIST CHECK');
-    const item = this.repository.getItem(path.toString(false));
+    const item = this.repository.searchItem(path.toString(false));
 
     if (!item) callback(false);
 
@@ -114,14 +114,14 @@ export class InternxtFileSystem extends webdav.FileSystem {
     pathTo: Path,
     callback: ReturnCallback<boolean>
   ) {
-    if (this.repository.getItem(pathTo.toString(false))) {
+    if (this.repository.searchItem(pathTo.toString(false))) {
       callback(Errors.InvalidOperation);
       return;
     }
 
     const newPath = new XPath(pathTo.toString(false));
 
-    const folder = this.repository.getItem(newPath.dirname());
+    const folder = this.repository.searchItem(newPath.dirname());
 
     if (!folder) {
       callback(Errors.ResourceNotFound);
@@ -157,7 +157,7 @@ export class InternxtFileSystem extends webdav.FileSystem {
     const fromParent = pathFrom.getParent().toString(false);
     const toParent = pathTo.getParent().toString(false);
 
-    const item = this.repository.getItem(pathFrom.toString(false));
+    const item = this.repository.searchItem(pathFrom.toString(false));
 
     if (!item) {
       callback(Errors.ResourceNotFound);
@@ -182,7 +182,7 @@ export class InternxtFileSystem extends webdav.FileSystem {
   ) {
     Logger.debug('[FS] COPY');
 
-    const item = this.repository.getItem(pathFrom.toString(false)) as XFile;
+    const item = this.repository.searchItem(pathFrom.toString(false)) as XFile;
 
     const fn = async () => {
       const id = await this.fileClonner.clone(item.fileId);
@@ -195,7 +195,7 @@ export class InternxtFileSystem extends webdav.FileSystem {
       }
 
       const file = item.clone(id, new XPath(pathTo.toString()));
-      await this.repository.addFile(pathTo.toString(false), file, parent);
+      await this.repository.addFile(file);
     };
 
     fn()
@@ -289,7 +289,7 @@ export class InternxtFileSystem extends webdav.FileSystem {
         updatedAt: new Date(),
       };
 
-      await this.repository.addFile(pathLike, file, parentItem);
+      await this.repository.addFile(file);
     };
 
     const renameFile = async () => {
@@ -360,7 +360,7 @@ export class InternxtFileSystem extends webdav.FileSystem {
   _size(path: Path, _ctx: SizeInfo, callback: ReturnCallback<number>) {
     const pathLike = path.toString(false);
 
-    const item = this.repository.getItem(pathLike);
+    const item = this.repository.searchItem(pathLike);
 
     if (!item) {
       callback(new Error(`Item ${pathLike} not found`));
@@ -377,7 +377,7 @@ export class InternxtFileSystem extends webdav.FileSystem {
   ) {
     Logger.debug('LOCK MANAGER: ', path);
 
-    const item = this.repository.getItem(path.toString(false));
+    const item = this.repository.searchItem(path.toString(false));
 
     if (!item) {
       callback(Errors.ResourceNotFound);
@@ -398,7 +398,7 @@ export class InternxtFileSystem extends webdav.FileSystem {
   ) {
     const pathLike = path.toString(false);
 
-    const item = this.repository.getItem(pathLike);
+    const item = this.repository.searchItem(pathLike);
 
     if (!item) {
       callback(new Error(`Item ${pathLike} not found`));
@@ -435,7 +435,7 @@ export class InternxtFileSystem extends webdav.FileSystem {
   ) {
     const pathLike = path.toString(false);
 
-    const item = this.repository.getItem(pathLike);
+    const item = this.repository.searchItem(pathLike);
 
     if (!item) {
       callback(new Error(`Item ${pathLike} not found`));
@@ -452,7 +452,7 @@ export class InternxtFileSystem extends webdav.FileSystem {
   ) {
     const pathLike = path.toString(false);
 
-    const item = this.repository.getItem(pathLike);
+    const item = this.repository.searchItem(pathLike);
 
     if (!item) {
       callback(new Error(`Item ${pathLike} not found`));
@@ -471,7 +471,7 @@ export class InternxtFileSystem extends webdav.FileSystem {
       return;
     }
 
-    const item = this.repository.getItem(pathLike);
+    const item = this.repository.searchItem(pathLike);
 
     if (!item) {
       callback(new Error(`Item ${pathLike} not found`));
