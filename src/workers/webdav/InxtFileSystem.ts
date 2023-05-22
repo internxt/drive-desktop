@@ -25,6 +25,7 @@ import {
   PhysicalSerializer,
   DisplayNameInfo,
   MoveInfo,
+  RenameInfo,
 } from 'webdav-server/lib/index.v2';
 import { PassThrough, Readable, Writable } from 'stream';
 import Logger from 'electron-log';
@@ -198,12 +199,24 @@ export class InxtFileSystem extends FileSystem {
       .catch(() => callback(Errors.UnrecognizedResource));
   }
 
+  _rename(
+    pathFrom: Path,
+    newName: string,
+    ctx: RenameInfo,
+    callback: ReturnCallback<boolean>
+  ) {
+    Logger.debug('[FS] REANME');
+    callback(undefined, false);
+  }
+
   _move(
     pathFrom: Path,
     pathTo: Path,
     ctx: MoveInfo,
     callback: ReturnCallback<boolean>
   ): void {
+    Logger.debug('[FS] MOVE');
+
     const originalItem = this.repository.searchItem(pathFrom.toString(false));
 
     if (!originalItem) {
@@ -226,7 +239,12 @@ export class InxtFileSystem extends FileSystem {
 
     if (originalItem.isFile()) {
       if (originalItem.hasParent(destinationFolder.id)) {
-        // Rename
+        const newPath = new XPath(pathTo.toString(false));
+        const res = originalItem.rename(newPath);
+        this.repository
+          .updateName(res)
+          .then(() => callback(undefined, true))
+          .catch(() => callback(Errors.InvalidOperation));
         return;
       }
     }

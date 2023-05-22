@@ -95,6 +95,10 @@ export class Traverser {
     });
   }
 
+  public reset() {
+    Object.keys((k: string) => delete this.collection[k]);
+  }
+
   public run(rawTree: {
     files: Array<ServerFile>;
     folders: Array<ServerFolder>;

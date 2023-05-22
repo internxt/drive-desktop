@@ -70,6 +70,7 @@ export class Repository {
   public async init(): Promise<void> {
     const raw = await this.getTree();
 
+    this.remoteFilesTraverser.reset();
     this.items = this.remoteFilesTraverser.run(raw);
   }
 
