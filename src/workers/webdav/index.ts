@@ -2,15 +2,7 @@ import { ipcRenderer as electronIpcRenderer } from 'electron';
 import { v2 as webdav } from 'webdav-server';
 import Logger from 'electron-log';
 import { Environment } from '@internxt/inxt-js';
-import {
-  HTTPRequestContext,
-  PhysicalFileSystem,
-  VirtualFileSystem,
-  WebDAVServerOptions,
-} from 'webdav-server/lib/index.v2';
-import { RequestListener } from 'webdav-server/lib/server/v2/webDAVServer/BeforeAfter';
-import { InternxtFileSystem } from './InternxtFileSystem';
-import { InternxtSerializer } from './InternxtSerializer';
+import { WebDAVServerOptions } from 'webdav-server/lib/index.v2';
 import { httpClient } from './httpClients';
 import { Repository } from './Repository';
 import { getUser } from '../../main/auth/service';
@@ -18,7 +10,7 @@ import configStore from '../../main/config';
 import { FileUploader } from './application/FileUploader';
 import { mountDrive, unmountDrive } from './VirtualDrive';
 import { FileClonner } from './application/FileClonner';
-import { InxtPhysicalFileSystem } from './InxtPhysicalFileSystem';
+import { InxtFileSystem } from './InxtFileSystem';
 
 interface WebDavServerEvents {
   WEBDAV_SERVER_START_SUCCESS: () => void;
@@ -89,78 +81,45 @@ async function setUp() {
 
     await repo.init();
 
-    Logger.debug('ABOUT TO SET FILE SYSTEM');
+    Logger.debug('[WEBDAB] ABOUT TO SET FILE SYSTEM');
 
     const clonner = new FileClonner(user.bucket, environment);
 
     const uploader = new FileUploader(user.bucket, environment);
 
-    server.setFileSystem(
-      '/',
-      new InxtPhysicalFileSystem('/home/jvalles/Downloads/', uploader, repo),
-      (su) => {
-        Logger.debug('SUCCEDED: ', su);
-      }
-    );
-
-    const middleware: RequestListener = (
-      ctx: HTTPRequestContext,
-      next: () => void
-    ) => {
-      Logger.debug(JSON.stringify(ctx, null, 2));
-      next();
-    };
-
-    // server.beforeRequest(middleware);
-
-    server.on('create', () => Logger.debug('create'));
-    server.on('delete', () => Logger.debug('delete'));
-    server.on('openReadStream', () => Logger.debug('openReadStream'));
-    server.on('openWriteStream', () => Logger.debug('openWriteStream'));
-    server.on('move', () => Logger.debug('move'));
-    server.on('copy', () => Logger.debug('copy'));
-    server.on('rename', () => Logger.debug('rename'));
-    server.on('before-create', () => Logger.debug(' before create'));
-    server.on('before-delete', () => Logger.debug(' before delete'));
-    server.on('before-openReadStream', () =>
-      Logger.debug(' before openReadStream')
-    );
-    server.on('before-openWriteStream', () =>
-      Logger.debug(' before openWriteStream')
-    );
-    server.on('before-move', () => Logger.debug(' before move'));
-    server.on('before-copy', () => Logger.debug(' before copy'));
-    server.on('before-rename', () => Logger.debug(' before rename'));
+    server.setFileSystem('/', new InxtFileSystem(uploader, repo), (su) => {
+      Logger.debug('SUCCEDED: ', su);
+    });
 
     server.start((s) => {
       Logger.log('Ready on port', s?.address());
       mountDrive();
     });
+
+    if (process.env.NODE_ENV === 'development') {
+      server.on('create', () => Logger.debug('create'));
+      server.on('delete', () => Logger.debug('delete'));
+      server.on('openReadStream', () => Logger.debug('openReadStream'));
+      server.on('openWriteStream', () => Logger.debug('openWriteStream'));
+      server.on('move', () => Logger.debug('move'));
+      server.on('copy', () => Logger.debug('copy'));
+      server.on('rename', () => Logger.debug('rename'));
+      server.on('before-create', () => Logger.debug(' before create'));
+      server.on('before-delete', () => Logger.debug(' before delete'));
+      server.on('before-openReadStream', () =>
+        Logger.debug(' before openReadStream')
+      );
+      server.on('before-openWriteStream', () =>
+        Logger.debug(' before openWriteStream')
+      );
+      server.on('before-move', () => Logger.debug(' before move'));
+      server.on('before-copy', () => Logger.debug(' before copy'));
+      server.on('before-rename', () => Logger.debug(' before rename'));
+    }
   } catch (err) {
     unmountDrive();
     Logger.error(`[WEBDAV] ERROR: ${JSON.stringify(err, null, 2)}`);
   }
-
-  // addRootFolderToWebDavServer(server, getSyncRoot())
-  //   .then(() => {
-  //     // Start the server
-  //     server
-  //       .startAsync(3004)
-  //       .then(() => {
-  //         Logger.log('Server started succesfully');
-  //         ipcRenderer.send('WEBDAV_SERVER_START_SUCCESS');
-  //       })
-  //       .catch((err) => {
-  //         Logger.log('Server started with errorr', err);
-  //         ipcRenderer.send('WEBDAV_SERVER_START_ERROR', err);
-  //       });
-  //   })
-  //   .catch((err) => {
-  //     Logger.log('addRootFolderToWebDavServererrror', err);
-  //     ipcRenderer.send('WEBDAV_SERVER_ADDING_ROOT_FOLDER_ERROR', err);
-  //   });
 }
-
-Logger.debug('ejh mamon!');
 
 setUp();

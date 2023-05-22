@@ -35,6 +35,7 @@ import { FileUploader } from './application/FileUploader';
 import { Repository } from './Repository';
 import { XFile } from './domain/File';
 import { XPath } from './domain/XPath';
+import { DebugPhysicalSerializer } from './Serializer';
 
 export class PhysicalFileSystemResource {
   props: LocalPropertyManager;
@@ -66,7 +67,7 @@ type Metadata = {
   type: ResourceType;
 };
 
-export class InxtPhysicalFileSystem extends FileSystem {
+export class InxtFileSystem extends FileSystem {
   resources: {
     [path: string]: PhysicalFileSystemResource;
   };
@@ -74,25 +75,15 @@ export class InxtPhysicalFileSystem extends FileSystem {
   filesToUpload: Record<string, Metadata> = {};
 
   constructor(
-    public rootPath: string,
     private readonly fileUploader: FileUploader,
     private readonly repository: Repository
   ) {
-    super(new PhysicalSerializer());
+    super(new DebugPhysicalSerializer(fileUploader, repository));
 
     this.resources = {
       '/': new PhysicalFileSystemResource(),
     };
   }
-
-  // getRealPath(path: Path) {
-  //   const sPath = path.toString();
-
-  //   return {
-  //     realPath: p.join(this.rootPath, sPath.substr(1)),
-  //     resource: this.resources[sPath],
-  //   };
-  // }
 
   _create(path: Path, ctx: CreateInfo, callback: SimpleCallback): void {
     Logger.debug('CREATE');

@@ -3,11 +3,12 @@ import {
   ReturnCallback,
   FileSystem,
 } from 'webdav-server/lib/index.v2';
+import Logger from 'electron-log';
 import { FileUploader } from './application/FileUploader';
-import { InxtPhysicalFileSystem } from './InxtPhysicalFileSystem';
+import { InxtFileSystem } from './InxtFileSystem';
 import { Repository } from './Repository';
 
-export class PhysicalSerializer implements FileSystemSerializer {
+export class DebugPhysicalSerializer implements FileSystemSerializer {
   constructor(
     private readonly uploader: FileUploader,
     private readonly repository: Repository
@@ -17,21 +18,21 @@ export class PhysicalSerializer implements FileSystemSerializer {
     return 'PhysicalFSSerializer-1.0.0';
   }
 
-  serialize(fss: InxtPhysicalFileSystem, callback: ReturnCallback<any>): void {
+  serialize(fs: InxtFileSystem, callback: ReturnCallback<any>): void {
+    Logger.debug('SERIALIZER SERIALIZE');
+
     callback(undefined, {
-      resources: fss.resources,
-      rootPath: fss.rootPath,
+      fileSystem: fs,
     });
   }
 
   unserialize(serializedData: any, callback: ReturnCallback<FileSystem>): void {
-    // tslint:disable-next-line:no-use-before-declare
-    const fss = new InxtPhysicalFileSystem(
-      serializedData.rootPath,
-      this.uploader,
-      this.repository
+    Logger.debug(
+      'SERIALIZER UNSERIALIZE. DATA: ',
+      JSON.stringify(serializedData)
     );
-    fss.resources = serializedData.resources;
-    callback(undefined, fss);
+    const fs = new InxtFileSystem(this.uploader, this.repository);
+    fs.resources = serializedData.resources;
+    callback(undefined, fs);
   }
 }

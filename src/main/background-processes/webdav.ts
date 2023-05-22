@@ -15,12 +15,12 @@ function spawnWebdavServerWorker() {
 
   worker
     .loadFile(
-    process.env.NODE_ENV === 'development'
-      ? '../../release/app/dist/webdav/index.html'
-      : `${path.join(__dirname, '..', 'webdav')}/index.html`
+      process.env.NODE_ENV === 'development'
+        ? '../../release/app/dist/webdav/index.html'
+        : `${path.join(__dirname, '..', 'webdav')}/index.html`
     )
     .catch((err) => {
-      Logger.error('Error loading worjer', err);
+      Logger.error('Error loading worker', err);
     });
 
   return worker;
@@ -33,7 +33,7 @@ ipcMain.once('WEBDAV_SERVER_START_ERROR', (_, err: Error) => {
 ipcMain.once('WEBDAV_SERVER_ADDING_ROOT_FOLDER_ERROR', (_, err: Error) => {
   Logger.error('ERROR ADDING ROOT FOLDER TO WEBDAV SERVER', err);
 });
-  
+
 function stopWebDavServer() {
   ipcMain.once('WEBDAV_SERVER_STOP_ERROR', (_, err: Error) => {
     Logger.error('ERROR STOPING WEBDAV SERVER', err);
@@ -46,5 +46,4 @@ eventBus.on('USER_WAS_UNAUTHORIZED', stopWebDavServer);
 
 eventBus.on('WIDGET_IS_READY', () => {
   spawnWebdavServerWorker();
-
 });
