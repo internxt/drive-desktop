@@ -39,6 +39,8 @@ import { AppDataSource } from './database/data-source';
 
 process.on('uncaughtException', (error: unknown) => {
   Logger.error('Uncaught exception: ', error);
+  Logger.info('An unexpected error occurred. Closing the application.');
+  app.quit();
 });
 
 Logger.log(`Running ${packageJson.version}`);
