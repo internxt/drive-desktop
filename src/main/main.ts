@@ -37,11 +37,9 @@ import eventBus from './event-bus';
 import * as Sentry from '@sentry/electron/main';
 import { AppDataSource } from './database/data-source';
 
-if (process.env.NODE_ENV === 'production') {
-  process.on('uncaughtException', (error: unknown) => {
-    Logger.error('Uncaught exception: ', JSON.stringify(error, null, 2));
-  });
-}
+process.on('uncaughtException', (error: unknown) => {
+  Logger.error('Uncaught exception: ', JSON.stringify(error, null, 2));
+});
 
 Logger.log(`Running ${packageJson.version}`);
 
@@ -98,6 +96,8 @@ app.on('window-all-closed', () => {
 ipcMain.on('user-quit', () => {
   app.quit();
 });
+
+ipcMain.handle('app-is-ready', () => app.isReady());
 
 app
   .whenReady()
