@@ -38,7 +38,7 @@ import * as Sentry from '@sentry/electron/main';
 import { AppDataSource } from './database/data-source';
 
 process.on('uncaughtException', (error: unknown) => {
-  Logger.error('Uncaught exception: ', JSON.stringify(error, null, 2));
+  Logger.error('Uncaught exception: ', error);
 });
 
 Logger.log(`Running ${packageJson.version}`);
