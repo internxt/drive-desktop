@@ -123,9 +123,9 @@
     },
     "testURL": "http://localhost/",
     "transformIgnorePatterns": [
-      "node_modules/(?!axios)"
+      "node_modules/(?!(axios)|(@sentry))"
     ],
-    "testEnvironment": "jsdom",
+    "testEnvironment": "node",
     "transform": {
       "\\.(ts|tsx|js|jsx)$": "ts-jest"
     },
