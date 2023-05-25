@@ -26,6 +26,12 @@ export class XPath extends ValueObject<string> {
     return ext.slice(1);
   }
 
+  hasExtension(): boolean {
+    const extension = this.extension();
+
+    return extension !== '';
+  }
+
   name(): string {
     const base = path.basename(this.value);
     const { name } = path.parse(base);
