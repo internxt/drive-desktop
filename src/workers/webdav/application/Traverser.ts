@@ -61,7 +61,7 @@ export class Traverser {
           folderId: file.folderId,
           fileId: file.fileId,
           modificationTime: file.modificationTime,
-          size: parseInt(file.size as string, 10),
+          size: file.size,
           createdAt: file.createdAt,
           name: file.name,
           type: file.type,
