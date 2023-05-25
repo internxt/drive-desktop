@@ -64,8 +64,6 @@ export class XFile extends Item<XFile> {
       this.modificationTime
     );
 
-    folder.addFile(file);
-
     return file;
   }
 

@@ -12,14 +12,11 @@ import {
   HTTPAuthentication,
   WebDAVServerOptions,
   Errors,
-  SimpleUserManager,
-  HTTPBasicAuthentication,
   PrivilegeManager,
   Path,
   Resource,
 } from 'webdav-server/lib/index.v2';
 import { v4 } from 'uuid';
-import { httpClient } from './httpClients';
 import { TreeRepository } from './Repository';
 import { getUser } from '../../main/auth/service';
 import configStore from '../../main/config';
@@ -29,6 +26,7 @@ import { FileClonner } from './application/FileClonner';
 import { InxtFileSystem } from './InxtFileSystem';
 import { FileOverrider } from './application/FileOverrider';
 import { FileDownloader } from './application/FileDownloader';
+import { getClients } from '../../shared/HttpClient/backgroud-process-clients';
 
 interface WebDavServerEvents {
   WEBDAV_SERVER_START_SUCCESS: () => void;
@@ -95,7 +93,7 @@ export const webdavOptions: WebDAVServerOptions = {
   hostname: 'localhost',
   port: 1900,
   requireAuthentification: false,
-  privilegeManager,
+  // privilegeManager,
 };
 
 async function setUp() {
@@ -129,7 +127,7 @@ async function setUp() {
         });
     });
 
-    const clients = httpClient();
+    const clients = getClients();
     const user = getUser();
     const mnemonic = configStore.get('mnemonic');
 

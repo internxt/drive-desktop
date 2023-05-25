@@ -26,6 +26,8 @@ import {
   DisplayNameInfo,
   MoveInfo,
   RenameInfo,
+  CopyInfo,
+  MimeTypeInfo,
 } from 'webdav-server/lib/index.v2';
 import { PassThrough, Readable, Writable } from 'stream';
 import Logger from 'electron-log';
@@ -36,6 +38,8 @@ import { XPath } from './domain/XPath';
 import { DebugPhysicalSerializer } from './Serializer';
 import { FileOverrider } from './application/FileOverrider';
 import { FileDownloader } from './application/FileDownloader';
+
+import mimetypes from './domain/MimeTypesMap.json';
 
 export class PhysicalFileSystemResource {
   props: LocalPropertyManager;
@@ -62,9 +66,12 @@ export const PhysicalSerializerVersions = {
 };
 
 type Metadata = {
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: number;
+  updatedAt: number;
   type: ResourceType;
+  name: string;
+  size: number;
+  extension: string;
 };
 
 export class InxtFileSystem extends FileSystem {
@@ -87,8 +94,33 @@ export class InxtFileSystem extends FileSystem {
     };
   }
 
+  // _copy(
+  //   pathFrom: Path,
+  //   pathTo: Path,
+  //   ctx: CopyInfo,
+  //   callback: ReturnCallback<boolean>
+  // ) {
+  //   Logger.debug('COPY ', pathFrom.toString(false), pathTo.toString(false));
+
+  //   const resourceFrom = this.resources[pathFrom.toString(false)];
+  //   const resourceTo = this.resources[pathTo.toString(false)];
+
+  //   if (!resourceFrom) {
+  //     return callback(Errors.ResourceNotFound);
+  //   }
+
+  //   if (resourceTo) {
+  //     return callback(undefined, true);
+  //   }
+
+  //   this.resources[pathTo.toString(false)] = new PhysicalFileSystemResource(
+  //     resourceFrom
+  //   );
+
+  //   callback(undefined, false);
+  // }
+
   _create(path: Path, ctx: CreateInfo, callback: SimpleCallback): void {
-    Logger.debug('CREATE');
     if (ctx.type.isDirectory) {
       const folderPath = path.toString(false);
       const parent = this.repository.searchParentFolder(folderPath);
@@ -100,11 +132,7 @@ export class InxtFileSystem extends FileSystem {
     }
 
     if (ctx.type.isFile) {
-      this.filesToUpload[path.toString()] = {
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        type: new ResourceType(true, false),
-      };
+      this.resources[path.toString(false)] = new PhysicalFileSystemResource();
 
       return callback();
     }
@@ -140,10 +168,21 @@ export class InxtFileSystem extends FileSystem {
     ctx: OpenWriteStreamInfo,
     callback: ReturnCallback<Writable>
   ): void {
-    const resource = this.resources[path.toString()];
+    const resource = this.resources[path.toString(false)];
+
+    const newFilePaht = new XPath(path.toString(false));
+
+    this.filesToUpload[path.toString(false)] = {
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+      type: ResourceType.File,
+      name: newFilePaht.name(),
+      size: ctx.estimatedSize,
+      extension: newFilePaht.extension(),
+    };
 
     if (!resource) {
-      this.resources[path.toString()] = new PhysicalFileSystemResource();
+      this.resources[path.toString(false)] = new PhysicalFileSystemResource();
     }
 
     const stream = new PassThrough();
@@ -155,11 +194,11 @@ export class InxtFileSystem extends FileSystem {
         size: ctx.estimatedSize,
         contents: stream,
       })
-      .then((fileId: string) => {
+      .then(async (fileId: string) => {
         const parent = this.repository.searchParentFolder(path.toString(false));
 
         if (!parent) {
-          return;
+          throw new Error('A file need a folder parent to be created');
         }
 
         const xPath = new XPath(path.toString(false));
@@ -175,8 +214,13 @@ export class InxtFileSystem extends FileSystem {
           new Date(),
           new Date()
         );
-        Logger.debug('FILE', JSON.stringify(file, null, 2));
-        this.repository.addFile(file);
+
+        await this.repository.addFile(file);
+
+        return xPath.value;
+      })
+      .then((fileUploaded: string) => {
+        delete this.filesToUpload[fileUploaded];
       })
       .catch((err) => Logger.error(JSON.stringify(err, null, 2)));
 
@@ -249,6 +293,9 @@ export class InxtFileSystem extends FileSystem {
       return callback(Errors.IllegalArguments);
     }
 
+    Logger.debug('ORIGINAL ITEM PARENT: ', originalItem);
+    Logger.debug('DESTINATION ITEM PARENT: ', destinationFolder);
+
     if (originalItem.hasParent(destinationFolder.id)) {
       const newPath = new XPath(pathTo.toString(false));
       const res = originalItem.rename(newPath);
@@ -310,59 +357,8 @@ export class InxtFileSystem extends FileSystem {
         Logger.error('[FS] Error moving a file', JSON.stringify(err, null, 2));
         callback(err);
       });
-
-    // const { realPath: realPathFrom } = this.getRealPath(pathFrom);
-    // const { realPath: realPathTo } = this.getRealPath(pathTo);
-
-    // const rename = (overwritten: boolean | undefined) => {
-    //   fs.rename(realPathFrom, realPathTo, (er: Error | undefined) => {
-    //     if (er) return callback(er);
-
-    //     this.resources[realPathTo] = this.resources[realPathFrom];
-    //     delete this.resources[realPathFrom];
-    //     callback(undefined, overwritten);
-    //   });
-    // };
-
-    // fs.access(realPathTo, (e: any) => {
-    //   if (e) {
-    //     // destination doesn't exist
-    //     rename(false);
-    //   } else {
-    //     // destination exists
-    //     if (!ctx.overwrite) return callback(Errors.ResourceAlreadyExists);
-
-    //     this.delete(ctx.context, pathTo, (er) => {
-    //       if (er) return callback(er);
-    //       rename(true);
-    //     });
-    //   }
-    // });
   }
 
-  _size(path: Path, ctx: SizeInfo, callback: ReturnCallback<number>): void {
-    Logger.debug('[FS] SIZE', path.toString());
-
-    const pathLike = path.toString(false);
-
-    const item = this.repository.searchItem(pathLike);
-
-    if (!item) {
-      callback(Errors.BadAuthentication);
-      return;
-    }
-
-    callback(undefined, item.size);
-  }
-
-  /**
-   * Get a property of an existing resource (object property, not WebDAV property). If the resource doesn't exist, it is created.
-   *
-   * @param path Path of the resource
-   * @param ctx Context of the method
-   * @param propertyName Name of the property to get from the resource
-   * @param callback Callback returning the property object of the resource
-   */
   getPropertyFromResource(
     path: Path,
     ctx: any,
@@ -416,32 +412,6 @@ export class InxtFileSystem extends FileSystem {
     });
   }
 
-  // getStatProperty(
-  //   path: Path,
-  //   ctx: any,
-  //   propertyName: string,
-  //   callback: ReturnCallback<any>
-  // ): void {
-  //   const { realPath } = this.getRealPath(path);
-
-  //   fs.stat(realPath, (e: any, stat: { [x: string]: any }) => {
-  //     if (e) return callback(Errors.ResourceNotFound);
-
-  //     callback(undefined, stat[propertyName]);
-  //   });
-  // }
-
-  // getStatDateProperty(
-  //   path: Path,
-  //   ctx: any,
-  //   propertyName: string,
-  //   callback: ReturnCallback<number>
-  // ): void {
-  //   this.getStatProperty(path, ctx, propertyName, (e, value) =>
-  //     callback(e, value ? (value as Date).valueOf() : value)
-  //   );
-  // }
-
   _displayName(
     path: Path,
     _ctx: DisplayNameInfo,
@@ -452,7 +422,13 @@ export class InxtFileSystem extends FileSystem {
     const item = this.repository.searchItem(path.toString(false));
 
     if (!item) {
-      return callback(Errors.ResourceNotFound);
+      const file = this.filesToUpload[path.toString(false)];
+
+      if (!file) {
+        return callback(Errors.ResourceNotFound);
+      }
+
+      return callback(undefined, file.name);
     }
 
     callback(undefined, item.path.nameWithExtension());
@@ -470,17 +446,34 @@ export class InxtFileSystem extends FileSystem {
     const item = this.repository.searchItem(pathLike);
 
     if (!item) {
-      const temporal = this.filesToUpload[path.toString()];
-      if (!temporal) {
-        Logger.debug('SOMETING NOT FOUND CREATION DATE', path.toString());
-        callback(Errors.ResourceNotFound);
-        return;
+      const file = this.filesToUpload[path.toString(false)];
+
+      if (!file) {
+        return callback(Errors.ResourceNotFound);
       }
 
-      return callback(undefined, temporal.createdAt.getDate());
+      return callback(undefined, file.createdAt);
     }
 
     callback(undefined, item.createdAt.getTime());
+  }
+
+  _mimeType(path: Path, ctx: MimeTypeInfo, callback: ReturnCallback<string>) {
+    const pathValueObject = new XPath(path.toString(false));
+
+    if (!pathValueObject.hasExtension()) {
+      return callback(undefined, 'application/octet-stream');
+    }
+
+    const mimeType = (mimetypes as Record<string, string>)[
+      `.${pathValueObject.extension()}`
+    ];
+
+    if (!mimeType) {
+      return callback(Errors.UnrecognizedResource);
+    }
+
+    callback(undefined, mimeType);
   }
 
   _lastModifiedDate(
@@ -493,14 +486,13 @@ export class InxtFileSystem extends FileSystem {
     const item = this.repository.searchItem(pathLike);
 
     if (!item) {
-      const temporal = this.filesToUpload[pathLike];
+      const file = this.filesToUpload[path.toString(false)];
 
-      if (!temporal) {
-        callback(Errors.ResourceNotFound);
-        return;
+      if (!file) {
+        return callback(Errors.ResourceNotFound);
       }
 
-      return callback(undefined, temporal.updatedAt.getDate());
+      return callback(undefined, file.updatedAt);
     }
 
     callback(undefined, item.updatedAt.getTime());
@@ -511,30 +503,48 @@ export class InxtFileSystem extends FileSystem {
     ctx: TypeInfo,
     callback: ReturnCallback<ResourceType>
   ): void {
-    Logger.debug('[FS] TYPE');
+    Logger.debug('[FS] TYPE >> ', path.toString());
 
     const pathLike = path.toString(false);
 
     if (pathLike === '/') {
-      const resource = new ResourceType(false, true);
-      callback(undefined, resource);
+      callback(undefined, ResourceType.Directory);
       return;
     }
 
     const item = this.repository.searchItem(pathLike);
 
     if (!item) {
-      const temporal = this.filesToUpload[path.toString(false)];
+      const file = this.filesToUpload[path.toString(false)];
 
-      if (!temporal) {
-        callback(Errors.ResourceNotFound);
-        return;
+      if (!file) {
+        return callback(Errors.ResourceNotFound);
       }
 
-      return callback(undefined, temporal.type);
+      return callback(undefined, file.type);
     }
 
     const resource = new ResourceType(item.isFile(), item.isFolder());
     callback(undefined, resource);
+  }
+
+  _size(path: Path, ctx: SizeInfo, callback: ReturnCallback<number>): void {
+    Logger.debug('[FS] SIZE', path.toString());
+
+    const pathLike = path.toString(false);
+
+    const item = this.repository.searchItem(pathLike);
+
+    if (!item) {
+      const file = this.filesToUpload[path.toString(false)];
+
+      if (!file) {
+        return callback(Errors.ResourceNotFound);
+      }
+
+      return callback(undefined, file.size);
+    }
+
+    callback(undefined, item.size);
   }
 }
