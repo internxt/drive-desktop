@@ -75,6 +75,8 @@ type Metadata = {
 };
 
 export class InxtFileSystem extends FileSystem {
+  static DefaultMimeType = 'application/octet-stream';
+
   resources: {
     [path: string]: PhysicalFileSystemResource;
   };
@@ -467,7 +469,7 @@ export class InxtFileSystem extends FileSystem {
     const pathValueObject = new XPath(path.toString(false));
 
     if (!pathValueObject.hasExtension()) {
-      return callback(undefined, 'application/octet-stream');
+      return callback(undefined, InxtFileSystem.DefaultMimeType);
     }
 
     const mimeType = (mimetypes as Record<string, string>)[
