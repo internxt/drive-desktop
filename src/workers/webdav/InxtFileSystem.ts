@@ -293,16 +293,19 @@ export class InxtFileSystem extends FileSystem {
       return callback(Errors.IllegalArguments);
     }
 
-    Logger.debug('ORIGINAL ITEM PARENT: ', originalItem);
-    Logger.debug('DESTINATION ITEM PARENT: ', destinationFolder);
-
     if (originalItem.hasParent(destinationFolder.id)) {
-      const newPath = new XPath(pathTo.toString(false));
-      const res = originalItem.rename(newPath);
-      this.repository
-        .updateName(res)
-        .then(() => callback(undefined, true))
-        .catch(() => callback(Errors.InvalidOperation));
+      const move = async () => {
+        const newPath = new XPath(pathTo.toString(false));
+        const renamedItem = originalItem.rename(newPath);
+        try {
+          await this.repository.updateName(renamedItem);
+          this.repository.deleteCachedItem(originalItem);
+          callback(undefined, true);
+        } catch {
+          callback(Errors.InvalidOperation);
+        }
+      };
+      move();
       return;
     }
 
@@ -352,7 +355,13 @@ export class InxtFileSystem extends FileSystem {
 
     this.repository
       .updateParentDir(resultItem)
-      .then(() => callback(undefined, false))
+      .then(() => {
+        this.resources[pathTo.toString(false)] =
+          this.resources[pathFrom.toString(false)];
+        delete this.resources[pathFrom.toString(false)];
+        this.repository.deleteCachedItem(originalItem);
+        callback(undefined, false);
+      })
       .catch((err) => {
         Logger.error('[FS] Error moving a file', JSON.stringify(err, null, 2));
         callback(err);
@@ -371,13 +380,9 @@ export class InxtFileSystem extends FileSystem {
       this.resources[path.toString()] = resource;
     }
 
-    Logger.debug('PRPERTY NAME', propertyName);
-
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     const property = resource[propertyName];
-
-    Logger.debug('PRPERTIES', JSON.stringify(property, null, 2));
 
     callback(undefined, property);
   }

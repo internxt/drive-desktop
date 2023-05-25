@@ -296,7 +296,10 @@ export class TreeRepository implements ItemRepository {
       throw new Error(`[REPOSITORY] Error moving item: ${res.status}`);
     }
 
-    this.items = {};
-    await this.init();
+    this.items[item.path.value] = item;
+  }
+
+  deleteCachedItem(file: XFile | XFolder): void {
+    delete this.items[file.path.value];
   }
 }
