@@ -1,13 +1,14 @@
-import { initReactI18next } from 'react-i18next';
+import dayjs from 'dayjs';
 import i18next from 'i18next';
+import { initReactI18next } from 'react-i18next';
 import { getConfigKey, queryApp } from 'renderer/utils/query';
+
+import DayJsLocales from '../../shared/Locale/DayJsLocales';
 import {
   DEFAULT_LANGUAGE,
-  Language,
   isLanguage,
+  Language,
 } from '../../shared/Locale/Language';
-import dayjs from 'dayjs';
-import DayJsLocales from '../../shared/Locale/DayJsLocales';
 
 const languageDetection = (callback: (lang: Language | undefined) => void) => {
   const run = async () => {
@@ -15,16 +16,17 @@ const languageDetection = (callback: (lang: Language | undefined) => void) => {
 
     if (stored) {
       callback(stored);
+
       return;
     }
 
     const systemLangs = await queryApp('getPreferredSystemLanguages');
     const parsed = systemLangs.map((l) => l.split('-')[0]);
 
-    const preferedLangugeAvailable = parsed.find(isLanguage);
+    const preferedLanguageAvailable = parsed.find(isLanguage);
 
-    dayjs.locale(DayJsLocales[preferedLangugeAvailable || DEFAULT_LANGUAGE]);
-    callback(preferedLangugeAvailable || DEFAULT_LANGUAGE);
+    dayjs.locale(DayJsLocales[preferedLanguageAvailable || DEFAULT_LANGUAGE]);
+    callback(preferedLanguageAvailable || DEFAULT_LANGUAGE);
   };
 
   run();
@@ -35,9 +37,11 @@ i18next
     type: 'languageDetector',
     name: 'Locale language detector',
     async: true,
-    init: function () {},
+    init() {
+      //no op
+    },
     detect: languageDetection,
-    cacheUserLanguage: function (lng: string) {
+    cacheUserLanguage(lng: string) {
       return lng;
     },
   })
@@ -49,6 +53,9 @@ i18next
       },
       es: {
         translation: require('./locales/es.json'),
+      },
+      fr: {
+        translation: require('./locales/fr.json'),
       },
     },
     debug: true,

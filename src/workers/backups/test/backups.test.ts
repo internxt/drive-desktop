@@ -1,11 +1,10 @@
-/* eslint-disable jest/no-conditional-expect */
 /* eslint-disable @typescript-eslint/no-empty-function */
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 import { Readable } from 'stream';
+
 import { FileSystem } from '../../types';
 import Backups from '../backups';
-import { ProcessResult } from '../../process';
 
 describe('backups tests', () => {
   const mockBase: () => FileSystem = () => ({
@@ -119,13 +118,20 @@ describe('backups tests', () => {
 
     await backups.run();
 
-    expect(spyRemotePull).toHaveBeenCalledWith(
+    expect(spyRemotePull).toHaveBeenCalledTimes(2);
+
+    expect(spyRemotePull).toHaveBeenNthCalledWith(
+      1,
       'notExistInLocal',
+      expect.anything(),
       expect.anything(),
       expect.anything()
     );
-    expect(spyRemotePull).toHaveBeenCalledWith(
+
+    expect(spyRemotePull).toHaveBeenNthCalledWith(
+      2,
       'folder/nested/existInBoth.txt',
+      expect.anything(),
       expect.anything(),
       expect.anything()
     );

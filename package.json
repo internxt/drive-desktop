@@ -15,7 +15,8 @@
     "build:backups": "cross-env NODE_ENV=production TS_NODE_TRANSPILE_ONLY=true webpack --config ./.erb/configs/webpack.config.backups.ts",
     "build:webdav": "cross-env NODE_ENV=production TS_NODE_TRANSPILE_ONLY=true webpack --config ./.erb/configs/webpack.config.webdav.ts",
     "rebuild": "electron-rebuild --parallel --types prod,dev,optional --module-dir release/app",
-    "lint": "cross-env NODE_ENV=development eslint . --ext .js,.jsx,.ts,.tsx",
+    "lint": "cross-env NODE_ENV=development eslint . --ext .ts,.tsx",
+    "lint:fix": "yarn run lint --fix",
     "package": "ts-node ./.erb/scripts/clean.js dist && npm run build && electron-builder build --publish never",
     "publish": "ts-node ./.erb/scripts/clean.js dist && npm run build && electron-builder build --publish always",
     "postinstall": "ts-node .erb/scripts/check-native-dep.js && electron-builder install-app-deps && cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true webpack --config ./.erb/configs/webpack.config.renderer.dev.dll.ts && opencollective-postinstall",
@@ -117,6 +118,11 @@
     }
   },
   "jest": {
+    "globals": {
+      "ts-jest": {
+        "tsconfig": "tsconfig.test.json"
+      }
+    },
     "testURL": "http://localhost/",
     "transformIgnorePatterns": [
       "node_modules/(?!axios)"
@@ -148,13 +154,17 @@
     ]
   },
   "devDependencies": {
+    "@babel/eslint-parser": "^7.21.3",
+    "@internxt/eslint-config-internxt": "^1.0.9",
     "@playwright/test": "1.26.1",
     "@pmmmwh/react-refresh-webpack-plugin": "0.5.4",
+    "@sentry/webpack-plugin": "^1.20.1",
     "@svgr/webpack": "^6.1.2",
     "@teamsupercell/typings-for-css-modules-loader": "^2.5.1",
     "@testing-library/jest-dom": "^5.16.1",
     "@testing-library/react": "^12.1.2",
     "@types/async": "^3.2.16",
+    "@types/better-sqlite3": "^7.6.4",
     "@types/bytes": "^3.1.1",
     "@types/crypto-js": "^4.1.0",
     "@types/dotenv-webpack": "^7.0.3",
@@ -195,16 +205,19 @@
     "electron-rebuild": "^3.2.5",
     "eslint": "^8.5.0",
     "eslint-config-airbnb-base": "^15.0.0",
-    "eslint-config-erb": "^4.0.3",
+    "eslint-config-codely": "^2.1.3",
+    "eslint-config-erb": "^4.0.6",
     "eslint-import-resolver-typescript": "^2.5.0",
     "eslint-import-resolver-webpack": "^0.13.2",
     "eslint-plugin-compat": "^4.0.0",
-    "eslint-plugin-import": "^2.25.3",
+    "eslint-plugin-import": "^2.27.5",
     "eslint-plugin-jest": "^25.3.2",
     "eslint-plugin-jsx-a11y": "^6.5.1",
     "eslint-plugin-promise": "^6.0.0",
     "eslint-plugin-react": "^7.28.0",
     "eslint-plugin-react-hooks": "^4.3.0",
+    "eslint-plugin-simple-import-sort": "^10.0.0",
+    "eslint-plugin-unused-imports": "^2.0.0",
     "file-loader": "^6.2.0",
     "html-webpack-plugin": "^5.5.0",
     "husky": "^7.0.4",
@@ -244,9 +257,11 @@
   "dependencies": {
     "@headlessui/react": "^1.4.2",
     "@iconscout/react-unicons": "^1.1.6",
-    "@internxt/inxt-js": "^2.0.5",
+    "@internxt/inxt-js": "^2.0.7",
     "@internxt/lib": "^1.1.6",
     "@internxt/sdk": "^1.4.22",
+    "@sentry/electron": "^4.5.0",
+    "@sentry/react": "^7.51.0",
     "async": "^3.2.4",
     "axios": "^1.1.3",
     "bytes": "^3.1.1",
@@ -269,10 +284,11 @@
     "node-schedule": "^2.1.0",
     "phosphor-react": "^1.4.1",
     "react": "^17.0.2",
-    "react-auth-code-input": "^2.0.0",
+    "react-auth-code-input": "^3.2.0",
     "react-dom": "^17.0.2",
     "react-i18next": "^12.2.0",
     "react-router-dom": "^6.2.1",
+    "reflect-metadata": "^0.1.13",
     "regenerator-runtime": "^0.13.9",
     "socket.io-client": "^4.4.1",
     "tiny-glob": "^0.2.9",

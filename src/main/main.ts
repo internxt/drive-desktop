@@ -1,21 +1,13 @@
+import 'reflect-metadata';
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
-
-import { app, ipcMain } from 'electron';
-import { autoUpdater } from 'electron-updater';
-import Logger from 'electron-log';
-import packageJson from '../../package.json';
-
-import eventBus from './event-bus';
 
 // Only effective during development
 // the variables are injectedif (process.env.NODE_ENV === 'production') {
 
 // via webpack in prod
 import 'dotenv/config';
-
 // ***** APP BOOTSTRAPPING ****************************************************** //
-
 import './sync-root-folder/handlers';
 import './auto-launch/handlers';
 import './logger';
@@ -38,27 +30,52 @@ import './thumbnails/handlers';
 import './config/handlers';
 import './app-info/handlers';
 import { unmountDrive } from '../workers/webdav/VirtualDrive';
+import './remote-sync/handlers';
+import { app, ipcMain } from 'electron';
+import Logger from 'electron-log';
+import { autoUpdater } from 'electron-updater';
+
+import packageJson from '../../package.json';
+import eventBus from './event-bus';
+import * as Sentry from '@sentry/electron';
+import { AppDataSource } from './database/data-source';
 
 Logger.log(`Running ${packageJson.version}`);
+
+Logger.log('Initializing Sentry for main process');
+if (process.env.SENTRY_DSN) {
+  Sentry.init({
+    dsn: process.env.SENTRY_DSN,
+  });
+  Logger.log('Sentry is ready for main process');
+} else {
+  Logger.error('Sentry DSN not found, cannot initialize Sentry');
+}
 
 function checkForUpdates() {
   autoUpdater.logger = Logger;
   autoUpdater.checkForUpdatesAndNotify();
 }
 
-if (process.platform === 'darwin') app.dock.hide();
+if (process.platform === 'darwin') {
+  app.dock.hide();
+}
 
 if (process.env.NODE_ENV === 'production') {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
   const sourceMapSupport = require('source-map-support');
   sourceMapSupport.install();
 }
 
 if (process.env.NODE_ENV === 'development') {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
   require('electron-debug')({ showDevTools: false });
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
   require('./dev/handlers');
 }
 
 const installExtensions = async () => {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
   const installer = require('electron-devtools-installer');
   const forceDownload = !!process.env.UPGRADE_EXTENSIONS;
   const extensions = ['REACT_DEVELOPER_TOOLS'];
@@ -86,6 +103,7 @@ ipcMain.on('user-quit', () => {
 app
   .whenReady()
   .then(async () => {
+    await AppDataSource.initialize();
     eventBus.emit('APP_IS_READY');
 
     if (process.env.NODE_ENV === 'development') {

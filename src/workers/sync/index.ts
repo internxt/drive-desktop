@@ -1,21 +1,22 @@
 import { ipcRenderer as electronIpcRenderer } from 'electron';
 import Logger from 'electron-log';
-import { getRemoteFilesystem } from '../filesystems/infrastructure/SyncRemoteFileSystem';
+
+import { getUser } from '../../main/auth/service';
+import configStore from '../../main/config';
+import { getClients } from '../../shared/HttpClient/backgroud-process-clients';
 import { getLocalFilesystem } from '../filesystems/infrastructure/SyncLocalFileSystem';
+import { getRemoteFilesystem } from '../filesystems/infrastructure/SyncRemoteFileSystem';
+import { getLocalFilesystem as getOldLocalFilesystem } from '../filesystems/local-filesystem';
+import { getRemoteFilesystem as getOldRemoteFilesystem } from '../filesystems/remote-filesystem';
+import { ProcessResult } from '../process';
 import {
   EnqueuedSyncActions,
   ProcessFatalError,
   ProcessFatalErrorName,
   ProcessInfoUpdatePayload,
 } from '../types';
-import Sync from './sync';
-import { ProcessResult } from '../process';
-import { getUser } from '../../main/auth/service';
-import configStore from '../../main/config';
-import { getClients } from '../../shared/HttpClient/backgroud-process-clients';
 import { ConfigFileListingStore } from './Listings/infrastructure/ConfigFileListingStore';
-import { getRemoteFilesystem as getOldRemoteFilesystem } from '../../workers/filesystems/remote-filesystem';
-import { getLocalFilesystem as getOldLocalFilesystem } from '../../workers/filesystems/local-filesystem';
+import Sync from './sync';
 
 export type SyncArgs = {
   localPath: string;
@@ -68,6 +69,7 @@ async function setUp() {
     userInfo: user,
     clients,
   });
+
   const local = getLocalFilesystem(localPath, tmpPath);
 
   const listingStore = new ConfigFileListingStore(configStore);
@@ -258,11 +260,15 @@ async function setUp() {
     Logger.log('Finalizing sync');
   });
 
+  sync.on('LOST_CONNECTION', () => {
+    ipcRenderer.send('SYNC_FATAL_ERROR', 'NO_INTERNET');
+  });
+
   try {
-    // Logger.debug('SYNC STARTING ');
-    // const result = await sync.run();
-    // Logger.log('Sync done, result: ', result);
-    // ipcRenderer.send('SYNC_EXIT', result);
+    Logger.debug('SYNC STARTING ');
+    const result = await sync.run();
+    Logger.log('Sync done, result: ', JSON.stringify(result, null, 2));
+    ipcRenderer.send('SYNC_EXIT', result);
   } catch (err) {
     if (err instanceof ProcessFatalError) {
       Logger.error(

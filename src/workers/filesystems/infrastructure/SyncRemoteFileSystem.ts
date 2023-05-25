@@ -1,49 +1,53 @@
-import path from 'path';
 import { Environment } from '@internxt/inxt-js';
-import * as uuid from 'uuid';
-import { Readable } from 'stream';
+import { ipcRenderer } from 'electron';
 import Logger from 'electron-log';
 import EventEmitter from 'events';
-import { ipcRenderer } from 'electron';
-import { fileNameIsValid } from '../../utils/name-verification';
-import crypt from '../../utils/crypt';
+import path from 'path';
+import { Readable } from 'stream';
+import * as uuid from 'uuid';
+
+import { AuthorizedClients } from '../../../shared/HttpClient/Clients';
+import { FileCreatedResponseDTO } from '../../../shared/HttpClient/responses/file-created';
+import { RemoteListing } from '../../sync/Listings/domain/Listing';
+import { RemoteItemMetaData } from '../../sync/Listings/domain/RemoteItemMetaData';
 import {
   FileSystemProgressCallback,
-  Source,
   ProcessError,
   ProcessFatalError,
   ReadingMetaErrorEntry,
+  Source,
 } from '../../types';
+import crypt from '../../utils/crypt';
+import { getDateFromSeconds, getSecondsFromDateString } from '../../utils/date';
 import httpRequest from '../../utils/http-request';
 import isOnline from '../../utils/is-online';
-import { getDateFromSeconds, getSecondsFromDateString } from '../../utils/date';
+import { fileNameIsValid } from '../../utils/name-verification';
 import { createErrorDetails, serializeRes } from '../../utils/reporting';
-import { AuthorizedClients } from '../../../shared/HttpClient/Clients';
+import { FileSystem } from '../domain/FileSystem';
 import { ServerFile } from '../domain/ServerFile';
 import { ServerFolder } from '../domain/ServerFolder';
-import { FileSystem } from '../domain/FileSystem';
-import { RemoteListing } from '../../sync/Listings/domain/Listing';
-import { RemoteItemMetaData } from '../../sync/Listings/domain/RemoteItemMetaData';
-import { FileCreatedResponseDTO } from '../../../shared/HttpClient/responses/file-created';
 import { TransferLimits } from '../domain/Transfer';
+import { DriveFilesCollection } from 'main/database/entities/DriveFile';
+import { DriveFoldersCollection } from 'main/database/entities/DriveFolder';
+import { RemoteSyncManager } from 'main/remote-sync/RemoteSyncManager';
+import { getNewTokenClient } from 'shared/HttpClient/main-process-client';
+
+type CacheData = {
+  id: number;
+  parentId: number;
+  isFolder: boolean;
+  bucket: string | null;
+  fileId?: string;
+  modificationTime?: number;
+  size?: number;
+};
 
 /**
  * Server cannot find a file given its route,
  * while we traverse the tree we also store in a cache
  * the info of every file by its route so we can operate with them
  */
-type RemoteCache = Record<
-  string,
-  {
-    id: number;
-    parentId: number;
-    isFolder: boolean;
-    bucket: string | null;
-    fileId?: string;
-    modificationTime?: number;
-    size?: number;
-  }
->;
+type RemoteCache = Record<string, CacheData>;
 
 export function getRemoteFilesystem({
   baseFolderId,
@@ -63,10 +67,83 @@ export function getRemoteFilesystem({
   const cache: RemoteCache = {};
   const createFolderQueue = new EventEmitter().setMaxListeners(0);
 
-  async function getTree(): Promise<{
+  async function getTree(retrieveFrom: 'server' | 'local-db'): Promise<{
     files: ServerFile[];
     folders: ServerFolder[];
   }> {
+    if (retrieveFrom === 'local-db') {
+      Logger.info('Getting tree from local DB');
+      const driveFiles = new DriveFilesCollection();
+      const driveFolders = new DriveFoldersCollection();
+      const remoteSyncManager = new RemoteSyncManager(
+        {
+          files: driveFiles,
+          folders: driveFolders,
+        },
+        {
+          httpClient: getNewTokenClient(),
+          syncFiles: true,
+          syncFolders: true,
+          fetchFilesLimitPerRequest: 50,
+          fetchFoldersLimitPerRequest: 50,
+        }
+      );
+
+      Logger.info('Making sure remote is in sync with local db');
+      await remoteSyncManager.startRemoteSync();
+
+      Logger.info(
+        `Finished remote sync with status ${remoteSyncManager.getSyncStatus()}`
+      );
+      if (!remoteSyncManager.localIsSynced())
+        throw new Error(
+          '[RemoteSyncManager] local is not in sync with remote, tree cannot be generated from local-db'
+        );
+
+      Logger.info('Getting all the files from local DB...');
+      const { result: allDriveFiles } = await driveFiles.getAll();
+      Logger.info('Getting all the folders from local DB...');
+      const { result: allDriveFolders } = await driveFolders.getAll();
+      const serverFiles: ServerFile[] = allDriveFiles.map<ServerFile>(
+        (driveFile) => {
+          const serverFile: ServerFile = {
+            bucket: driveFile.bucket,
+            createdAt: driveFile.createdAt,
+            encrypt_version: '03-aes',
+            fileId: driveFile.fileId,
+            folderId: driveFile.folderId,
+            id: driveFile.id,
+            modificationTime: driveFile.modificationTime,
+            name: driveFile.name,
+            size: driveFile.size,
+            type: driveFile.type,
+            updatedAt: driveFile.updatedAt,
+            userId: driveFile.userId,
+          };
+          return serverFile;
+        }
+      );
+
+      const serverFolders: ServerFolder[] = allDriveFolders.map<ServerFolder>(
+        (driveFolder) => {
+          const serverFolder: ServerFolder = {
+            bucket: driveFolder.bucket ?? null,
+            created_at: driveFolder.createdAt,
+            id: driveFolder.id,
+            name: driveFolder.name,
+            parent_id: driveFolder.parentId ?? null,
+            updated_at: driveFolder.updatedAt,
+            plain_name: driveFolder.plainName ?? null,
+          };
+          return serverFolder;
+        }
+      );
+
+      return {
+        files: serverFiles,
+        folders: serverFolders,
+      };
+    }
     const PAGE_SIZE = 5000;
 
     let thereIsMore = true;
@@ -88,13 +165,19 @@ export function getRemoteFilesystem({
         // We can't use spread operator with big arrays
         // see: https://anchortagdev.com/range-error-maximum-call-stack-size-exceeded-error-using-spread-operator-in-node-js-javascript/
 
-        for (const file of batch.files) files.push(file);
+        for (const file of batch.files) {
+          files.push(file);
+        }
 
-        for (const folder of batch.folders) folders.push(folder);
+        for (const folder of batch.folders) {
+          folders.push(folder);
+        }
 
         thereIsMore = batch.folders.length === PAGE_SIZE;
 
-        if (thereIsMore) offset += PAGE_SIZE;
+        if (thereIsMore) {
+          offset += PAGE_SIZE;
+        }
       } catch (err) {
         await handleFetchError(err, 'Fetching tree', `offset: ${offset}`);
       }
@@ -108,7 +191,9 @@ export function getRemoteFilesystem({
     action: string,
     additionalInfo?: string
   ) {
-    if (err instanceof ProcessError) throw err;
+    if (err instanceof ProcessError) {
+      throw err;
+    }
 
     const details = createErrorDetails(err, action, additionalInfo);
 
@@ -123,7 +208,7 @@ export function getRemoteFilesystem({
     kind: 'REMOTE',
 
     async getCurrentListing() {
-      const tree = await getTree();
+      const tree = await getTree('local-db');
 
       const listing: RemoteListing = {};
       const readingMetaErrors: Array<ReadingMetaErrorEntry> = [];
@@ -157,6 +242,7 @@ export function getRemoteFilesystem({
               Logger.warn(
                 `REMOTE file with name ${name} will be ignored due an invalid name`
               );
+
               return false;
             }
 
@@ -205,6 +291,7 @@ export function getRemoteFilesystem({
             parentId: folder.parent_id as number,
             isFolder: true,
             bucket: folder.bucket,
+            modificationTime: getSecondsFromDateString(folder.updated_at),
           };
           traverse(folder.id, `${name}/`);
         });
@@ -246,7 +333,7 @@ export function getRemoteFilesystem({
           `${process.env.API_URL}/api/storage/file/${fileInCache.fileId}/meta`,
           {
             method: 'POST',
-            headers: headers,
+            headers,
             body: JSON.stringify({
               metadata: { itemName: newNameBase },
               bucketId: fileInCache.bucket,
@@ -286,7 +373,8 @@ export function getRemoteFilesystem({
     async pullFile(
       name: string,
       source: Source,
-      progressCallback: (progress: number) => void
+      progressCallback: (progress: number) => void,
+      abortSignal: AbortSignal
     ): Promise<number> {
       const { size, modTime: modTimeInSeconds } = source;
       const route = name.split('/');
@@ -304,7 +392,9 @@ export function getRemoteFilesystem({
 
           const folderInCache = cache[routeToThisPoint];
 
-          if (folderInCache) lastParentId = folderInCache.id;
+          if (folderInCache) {
+            lastParentId = folderInCache.id;
+          }
         }
       }
 
@@ -318,6 +408,8 @@ export function getRemoteFilesystem({
       });
 
       if (source.size > TransferLimits.UploadFileSize) {
+        source.stream.destroy(new Error('FILE TOO BIG'));
+
         throw new ProcessError(
           'FILE_TOO_BIG',
           createErrorDetails(
@@ -330,12 +422,14 @@ export function getRemoteFilesystem({
 
       const uploadedFileId: string = await new Promise((resolve, reject) => {
         if (source.size > TransferLimits.MultipartUploadThreshold) {
-          localUpload.uploadMultipartFile(bucket, {
+          const state = localUpload.uploadMultipartFile(bucket, {
             progressCallback,
             finishedCallback: async (err: any, fileId: string | null) => {
               if (err) {
                 // Don't include the stream in the details
                 const { stream, ...sourceWithoutStream } = source;
+
+                source.stream.destroy(new Error('MULTIPART UPLOAD FAILED'));
 
                 const details = createErrorDetails(
                   err,
@@ -355,10 +449,18 @@ export function getRemoteFilesystem({
                     ? new ProcessError('UNKNOWN', details)
                     : new ProcessError('NO_INTERNET', details)
                 );
-              } else resolve(fileId as string);
+              } else {
+                resolve(fileId as string);
+              }
             },
             fileSize: source.size,
             source: source.stream,
+          });
+
+          abortSignal.addEventListener('abort', () => {
+            Logger.debug(`[SYNC REMOTE FS] Aborting upload for ${name}`);
+            // localUpload.uploadCancel(state);
+            // state.emit(Events.Upload.Abort);
           });
         } else {
           localUpload.upload(bucket, {
@@ -367,6 +469,8 @@ export function getRemoteFilesystem({
               if (err) {
                 // Don't include the stream in the details
                 const { stream, ...sourceWithoutStream } = source;
+
+                stream.destroy(new Error('LOCAL UPLOADED FAILED'));
 
                 const details = createErrorDetails(
                   err,
@@ -386,7 +490,9 @@ export function getRemoteFilesystem({
                     ? new ProcessError('UNKNOWN', details)
                     : new ProcessError('NO_INTERNET', details)
                 );
-              } else resolve(fileId);
+              } else {
+                resolve(fileId);
+              }
             },
             fileSize: source.size,
             source: source.stream,
@@ -482,7 +588,7 @@ export function getRemoteFilesystem({
       return Promise.reject();
     },
 
-    async pullFolder(name: string): Promise<void> {
+    async pullFolder(name: string, _modtime: number): Promise<void> {
       const route = name.split('/');
 
       const n = route.at(-1);
@@ -494,7 +600,7 @@ export function getRemoteFilesystem({
       const lastParentId =
         folderInCache !== undefined ? folderInCache.id : baseFolderId;
 
-      httpRequest(`${process.env.API_URL}/api/storage/folder`, {
+      await httpRequest(`${process.env.API_URL}/api/storage/folder`, {
         method: 'POST',
         headers,
         body: JSON.stringify({
@@ -514,7 +620,9 @@ export function getRemoteFilesystem({
                 )}, folderName: ${name}, parentFolderId: ${lastParentId}`
               )
             );
-          } else return res;
+          } else {
+            return res;
+          }
         })
         .then((res) => res.json())
         .then((createdFolder: ServerFolder) => {
@@ -573,6 +681,27 @@ export function getRemoteFilesystem({
           `folderInCache: ${JSON.stringify(folderInCache, null, 2)}`
         );
       }
+    },
+
+    getFolderData(folderName: string) {
+      const folder = cache[folderName];
+
+      Logger.debug('CACHE: ', JSON.stringify(cache, null, 2));
+      Logger.debug('FOLDER: ', JSON.stringify(folder, null, 2));
+      Logger.debug('FOLDER name: ', folderName);
+
+      if (!folder.isFolder) {
+        throw new Error('[SYNC REMOTE FS] Item is not a folder');
+      }
+
+      if (!folder.modificationTime) {
+        // The end point for creating folders do not accept the modification time
+        // and the update metada endpoint only workd for changing the name
+        // so until the cache gets refreshed its undefined
+        throw new Error('[SYNC REMOTE FS] Folder has no modificationTime');
+      }
+
+      return Promise.resolve({ modtime: folder.modificationTime });
     },
 
     getSource(

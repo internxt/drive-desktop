@@ -1,7 +1,8 @@
 import Store from 'electron-store';
-import { ConfigFileListingStore } from '../../../Listings/infrastructure/ConfigFileListingStore';
+
 import { AppStore } from '../../../../../main/config';
 import { Listing } from '../../../Listings/domain/Listing';
+import { ConfigFileListingStore } from '../../../Listings/infrastructure/ConfigFileListingStore';
 
 describe('Config File Listing Store', () => {
   describe('obtain saved listings', () => {

@@ -1,16 +1,16 @@
 import watcher from '@parcel/watcher';
-import { debounce } from 'lodash';
 import logger from 'electron-log';
-import { io, Socket } from 'socket.io-client';
 import ignore from 'ignore';
-
+import { debounce } from 'lodash';
 import path from 'path';
+import { io, Socket } from 'socket.io-client';
+
+import ignoredFiles from '../../ignored-files.json';
+import { obtainToken } from './auth/service';
 import { getSyncStatus, startSyncProcess } from './background-processes/sync';
 import configStore from './config';
-import { obtainToken } from './auth/service';
-import { broadcastToWindows } from './windows';
 import eventBus from './event-bus';
-import ignoredFiles from '../../ignored-files.json';
+import { broadcastToWindows } from './windows';
 
 let thereArePendingChanges = false;
 
@@ -23,8 +23,11 @@ export function clearPendingChanges() {
 }
 
 function tryToStartSyncProcess() {
-  if (getSyncStatus() === 'STANDBY') startSyncProcess();
-  else thereArePendingChanges = true;
+  if (getSyncStatus() === 'STANDBY') {
+    startSyncProcess();
+  } else {
+    thereArePendingChanges = true;
+  }
 }
 
 eventBus.on('USER_LOGGED_OUT', clearPendingChanges);
@@ -37,7 +40,6 @@ let subscription: watcher.AsyncSubscription | undefined;
 
 async function cleanAndStartLocalWatcher() {
   stopLocalWatcher();
-  return;
 
   const debouncedCallback = debounce(
     tryToStartSyncProcess,
@@ -67,22 +69,25 @@ async function cleanAndStartLocalWatcher() {
         if (relativePath.length === 0) {
           if (event.type === 'delete') {
             logger.warn(
-              `The root folder was deleted, the synchronization will not work until a new one is selected`
+              'The root folder was deleted, the synchronization will not work until a new one is selected'
             );
           }
+
           return true;
         }
 
         return ig.ignores(relativePath);
       });
 
-      if (shouldBeIgnored)
+      if (shouldBeIgnored) {
         logger.log(
           'Local watcher is not triggering because they are ignored files'
         );
+      }
 
-      if (!shouldBeIgnored && getSyncStatus() === 'STANDBY')
+      if (!shouldBeIgnored && getSyncStatus() === 'STANDBY') {
         debouncedCallback();
+      }
     }
   );
 }
@@ -121,12 +126,13 @@ function cleanAndStartRemoteNotifications() {
         return;
       }
       cookieHeader.forEach((cookieString: string) => {
-        if (cookieString.includes(`INGRESSCOOKIE=`)) {
+        if (cookieString.includes('INGRESSCOOKIE=')) {
           const cookie = cookieString.split(';')[0];
-          if (socket)
+          if (socket) {
             socket.io.opts.extraHeaders = {
               cookie,
             };
+          }
         }
       });
     });
@@ -147,7 +153,9 @@ function cleanAndStartRemoteNotifications() {
   socket.on('event', (data) => {
     logger.log('Notification received: ', JSON.stringify(data, null, 2));
 
-    if (data.clientId !== configStore.get('clientId')) tryToStartSyncProcess();
+    if (data.clientId !== configStore.get('clientId')) {
+      tryToStartSyncProcess();
+    }
 
     broadcastToWindows('remote-changes', undefined);
   });

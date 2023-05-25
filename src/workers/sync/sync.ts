@@ -1,5 +1,12 @@
 import Logger from 'electron-log';
-import { itemIsInFolder } from '../utils/file-is-on-folder';
+
+import { PullFolderQueueConsumer } from '../filesystems/application/PullFolderQueueConsumer';
+import { FileSystem as SyncFileSystem } from '../filesystems/domain/FileSystem';
+import Process, {
+  ProcessEvents,
+  ProcessResult,
+  SuccessfulProcessResult,
+} from '../process';
 import {
   EnqueuedSyncActions,
   FileSystem,
@@ -7,26 +14,20 @@ import {
   ProcessError,
   ProcessFatalError,
 } from '../types';
-import { FileSystem as SyncFileSystem } from '../filesystems/domain/FileSystem';
-import Process, {
-  ProcessEvents,
-  ProcessResult,
-  SuccessfulProcessResult,
-} from '../process';
+import { itemIsInFolder } from '../utils/file-is-on-folder';
+import { createErrorDetails } from '../utils/reporting';
+import { convertActionsToQueues } from './Actions/application/ConvertActionsToQueues';
+import { generateHierarchyActions } from './Actions/application/GenerateHierarchyActions';
 import { generateDeltas } from './ItemState/application/GenerateDeltas';
-import { ListingStore } from './Listings/domain/ListingStore';
+import { joinPartialListings } from './Listings/application/JoinPartialListings';
+import { createSynchronizedItemMetaDataFromPartials } from './Listings/application/JoinPartialMetaData';
+import { listingsAreInSync } from './Listings/application/ListingsAreInSync';
 import {
   Listing as NewListing,
   LocalListing,
   RemoteListing,
 } from './Listings/domain/Listing';
-import { createErrorDetails } from '../utils/reporting';
-import { listingsAreInSync } from './Listings/application/ListingsAreInSync';
-import { joinPartialListings } from './Listings/application/JoinPartialListings';
-import { createSynchronizedItemMetaDataFromPartials } from './Listings/application/JoinPartialMetaData';
-import { convertActionsToQueues } from './Actions/application/ConvertActionsToQueues';
-import { generateHierarchyActions } from './Actions/application/GenerateHierarchyActions';
-import { PullFolderQueueConsumer } from '../filesystems/application/PullFolderQueueConsumer';
+import { ListingStore } from './Listings/domain/ListingStore';
 
 class Sync extends Process {
   constructor(
@@ -74,6 +75,11 @@ class Sync extends Process {
   }
 
   async run(): Promise<ProcessResult> {
+    // window.addEventListener('offline', () => {
+    // 	Logger.log('[SYNC] INTERNT CONNECTION LOST');
+    // 	this.emit('LOST_CONNECTION');
+    // });
+
     this.emit('SMOKE_TESTING');
 
     await this.local.smokeTest();
@@ -84,7 +90,9 @@ class Sync extends Process {
 
     Logger.debug('Last saved listing:', lastSavedListing);
 
-    if (!lastSavedListing) return this.resync();
+    if (!lastSavedListing) {
+      return this.resync();
+    }
 
     this.emit('GENERATING_ACTIONS_NEEDED_TO_SYNC');
 
@@ -141,8 +149,16 @@ class Sync extends Process {
       JSON.stringify(pullFoldersFromLocal, null, 2)
     );
 
-    const remoteFolderPullConsumer = new PullFolderQueueConsumer(this.remote, this);
-    const localFolderPullConsumer = new PullFolderQueueConsumer(this.local, this);
+    const remoteFolderPullConsumer = new PullFolderQueueConsumer(
+      this.local,
+      this.remote,
+      this
+    );
+    const localFolderPullConsumer = new PullFolderQueueConsumer(
+      this.remote,
+      this.local,
+      this
+    );
 
     await remoteFolderPullConsumer.consume(pullFoldersFromRemote);
     await localFolderPullConsumer.consume(pullFoldersFromLocal);
@@ -227,8 +243,11 @@ class Sync extends Process {
       const { modtime: modtimeInLocal } = currentLocal[name];
       const { modtime: modtimeInRemote } = currentRemote[name];
 
-      if (modtimeInLocal < modtimeInRemote) pullFromLocal.push(name);
-      else pullFromRemote.push(name);
+      if (modtimeInLocal < modtimeInRemote) {
+        pullFromLocal.push(name);
+      } else {
+        pullFromRemote.push(name);
+      }
     }
 
     Logger.debug('Queue pull from local', pullFromLocal);
@@ -272,6 +291,7 @@ class Sync extends Process {
           setOfFolders.add(routeToThisPoint);
         }
       }
+
       return setOfFolders;
     }
 
@@ -287,7 +307,9 @@ class Sync extends Process {
     for (const folder of difference) {
       const existsInFilesystem = await filesystem.existsFolder(folder);
 
-      if (!existsInFilesystem) toReturn.push(folder);
+      if (!existsInFilesystem) {
+        toReturn.push(folder);
+      }
     }
 
     return toReturn;
@@ -316,14 +338,13 @@ class Sync extends Process {
       const listing = joinPartialListings(currentLocal, currentRemote);
 
       return { status: 'IN_SYNC', listing };
-    } else {
-      Logger.debug('Current local:', currentLocal);
-      Logger.debug('Current remote:', currentRemote);
-
-      const diff = this.getListingsDiff(currentLocal, currentRemote);
-
-      return { status: 'NOT_IN_SYNC', diff };
     }
+    Logger.debug('Current local:', currentLocal);
+    Logger.debug('Current remote:', currentRemote);
+
+    const diff = this.getListingsDiff(currentLocal, currentRemote);
+
+    return { status: 'NOT_IN_SYNC', diff };
   }
 
   getFilesListingsDiff(
@@ -341,7 +362,9 @@ class Sync extends Process {
     const filesInSync: NewListing = {};
 
     for (const [localName, localMetadata] of Object.entries(local)) {
-      if (localMetadata.isFolder) continue;
+      if (localMetadata.isFolder) {
+        continue;
+      }
 
       const entryInRemote = remote[localName];
 
@@ -358,7 +381,9 @@ class Sync extends Process {
     }
 
     for (const [remoteName, remoteMetadata] of Object.entries(remote)) {
-      if (remoteMetadata.isFolder) continue;
+      if (remoteMetadata.isFolder) {
+        continue;
+      }
 
       if (!(remoteName in local)) {
         filesNotInLocal.push(remoteName);
@@ -419,6 +444,8 @@ class Sync extends Process {
   }
 
   private async finalize(): Promise<ProcessResult> {
+    await new Promise((res) => setTimeout(res, 1000));
+
     this.emit('FINALIZING');
 
     const result = await this.generateResult();
@@ -426,11 +453,12 @@ class Sync extends Process {
     if (result.status === 'IN_SYNC') {
       await this.listingStore.saveListing(result.listing);
       const { listing, ...rest } = result;
+
       return rest;
-    } else {
-      await this.listingStore.saveListing(result.diff.filesInSync);
-      return result;
     }
+    await this.listingStore.saveListing(result.diff.filesInSync);
+
+    return result;
   }
 }
 
@@ -460,6 +488,12 @@ interface SyncEvents extends ProcessEvents {
    * filesystems are in sync
    */
   FINALIZING: () => void;
+
+  /**
+   * Treggered when the internet connection is lost during a
+   * sync process
+   */
+  LOST_CONNECTION: () => void;
 }
 
 /**

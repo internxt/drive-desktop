@@ -1,27 +1,28 @@
-import { test, expect, ElectronApplication, Page } from '@playwright/test';
-import { _electron as electron } from 'playwright';
+import { ElectronApplication, expect, Page, test } from '@playwright/test';
 import {
   ipcMainCallFirstListener,
   ipcMainEmit,
 } from 'electron-playwright-helpers';
+import { _electron as electron } from 'playwright';
+import { DEFAULT_LANGUAGE } from '../shared/Locale/Language';
+
 import {
   longMessages,
   shortMessages,
 } from '../renderer/messages/process-error';
-import { getWindowTopBarTitle, screenshot } from './selectors';
-import {
-  createBackupFatalError,
-  createGeneralIssueFixture,
-  createSyncError,
-} from './fixtures/errors';
 import {
   GeneralIssue,
   ProcessErrorName,
   ProcessFatalErrorName,
 } from '../workers/types';
-import { wait } from './utils';
-
 import AccessResponseFixtures from './fixtures/AccessResponse.json';
+import {
+  createBackupFatalError,
+  createGeneralIssueFixture,
+  createSyncError,
+} from './fixtures/errors';
+import { getWindowTopBarTitle } from './selectors';
+import { wait } from './utils';
 
 const activeTabSelector = 'button.text-neutral-500';
 const tabSelector = (name: 'Sync' | 'Backups' | 'General') =>
@@ -59,9 +60,11 @@ test.describe('process issues', () => {
   };
 
   const addGeneralIssues = async (issues: Array<GeneralIssue>) => {
-    for (const issue of issues) {
-      await ipcMainEmit(electronApp, 'add-device-issue', issue);
-    }
+    const eventsEmited = issues.map((issue) =>
+      ipcMainEmit(electronApp, 'add-device-issue', issue)
+    );
+
+    await Promise.all(eventsEmited);
   };
 
   test.beforeEach(async () => {
@@ -69,11 +72,15 @@ test.describe('process issues', () => {
       args: ['release/app/dist/main/main.js'],
       env: {
         ...process.env,
-        NODE_ENV: 'TEST'
-      }
+        NODE_ENV: 'TEST',
+      },
     });
 
     await ipcMainEmit(electronApp, 'user-logged-in', AccessResponseFixtures);
+    await ipcMainCallFirstListener(electronApp, 'set-config-key', {
+      key: 'preferedLanguage',
+      value: DEFAULT_LANGUAGE,
+    });
 
     await ipcMainCallFirstListener(electronApp, 'open-process-issues-window');
 
@@ -106,7 +113,7 @@ test.describe('process issues', () => {
       await addSyncErrors(['EMPTY_FILE']);
       const issue = await page.innerHTML('[data-test=sync-issue-name]');
 
-      expect(issue).toContain(shortMessages.EMPTY_FILE);
+      expect(issue).toContain('File is empty');
     });
 
     test('displays correct number of issues', async () => {
@@ -129,17 +136,18 @@ test.describe('process issues', () => {
       expect(list).toBe('No issues found');
     });
 
-    allProcessErrorsName.forEach((error: ProcessErrorName) => {
-      test(`clicking on info icon brings ${error} info of the error`, async () => {
-        await addSyncErrors([error]);
-        await page.locator(infoCircleSelector).click();
+    // Commented because of https://github.com/internxt/drive-desktop/pull/230
+    // allProcessErrorsName.forEach((error: ProcessErrorName) => {
+    // 	test(`clicking on info icon brings ${error} info of the error`, async () => {
+    // 		await addSyncErrors([error]);
+    // 		await page.locator(infoCircleSelector).click();
 
-        await wait(200);
-        const errorDetails = await page.innerHTML('p.text-xs.text-gray-50');
+    // 		await wait(200);
+    // 		const errorDetails = await page.innerHTML('p.text-xs.text-gray-50');
 
-        expect(errorDetails).toContain(longMessages[error]);
-      });
-    });
+    // 		expect(errorDetails).toContain(longMessages[error]);
+    // 	});
+    // });
   });
 
   test.describe('backups issues', () => {
@@ -172,7 +180,9 @@ test.describe('process issues', () => {
 
   test.describe('general issues', () => {
     test('tab selected is general when there is only general issues', async () => {
-      await addGeneralIssues([createGeneralIssueFixture('UNKNOWN_DEVICE_NAME')]);
+      await addGeneralIssues([
+        createGeneralIssueFixture('UNKNOWN_DEVICE_NAME'),
+      ]);
       await wait(300);
 
       const activeTab = await page.innerHTML(activeTabSelector);

@@ -1,24 +1,25 @@
-import * as fs from 'fs/promises';
-import glob from 'tiny-glob';
-import path from 'path';
-import * as uuid from 'uuid';
 import Logger from 'electron-log';
 import { constants, createReadStream, createWriteStream } from 'fs';
+import * as fs from 'fs/promises';
 import ignore from 'ignore';
+import path from 'path';
 import { pipeline } from 'stream/promises';
-import { fileNameIsValid } from '../../utils/name-verification';
-import {
-  Source,
-  ReadingMetaErrorEntry,
-  ProcessError,
-  ProcessFatalError,
-} from '../../types';
-import { getDateFromSeconds } from '../../utils/date';
-import { createErrorDetails } from '../../utils/reporting';
+import glob from 'tiny-glob';
+import * as uuid from 'uuid';
+
 import ignoredFiles from '../../../../ignored-files.json';
-import { FileSystem } from '../domain/FileSystem';
 import { LocalListing } from '../../sync/Listings/domain/Listing';
 import { LocalItemMetaData } from '../../sync/Listings/domain/LocalItemMetaData';
+import {
+  ProcessError,
+  ProcessFatalError,
+  ReadingMetaErrorEntry,
+  Source,
+} from '../../types';
+import { getDateFromSeconds } from '../../utils/date';
+import { fileNameIsValid } from '../../utils/name-verification';
+import { createErrorDetails } from '../../utils/reporting';
+import { FileSystem } from '../domain/FileSystem';
 
 export function getLocalFilesystem(
   localPath: string,
@@ -71,12 +72,21 @@ export function getLocalFilesystem(
 
   async function getLocalMeta(pathname: string): Promise<LocalItemMetaData> {
     const stat = await fs.stat(pathname);
+
     return LocalItemMetaData.from({
       modtime: Math.trunc(stat.mtimeMs / 1000),
       size: stat.size,
       ino: stat.ino,
       dev: stat.dev,
       isFolder: stat.isDirectory(),
+    });
+  }
+
+  function exists(pathname: string): Promise<boolean> {
+    return new Promise((resolve) => {
+      fs.stat(pathname)
+        .then(() => resolve(true))
+        .catch(() => resolve(false));
     });
   }
 
@@ -104,6 +114,7 @@ export function getLocalFilesystem(
           Logger.warn(
             `${this.kind} file with name ${relativeItemName} will be ignored due an invalid name`
           );
+
           return false;
         }
 
@@ -118,8 +129,9 @@ export function getLocalFilesystem(
         try {
           const metadata = await getLocalMeta(itemName);
 
-          if (!metadata.isEmptyFile()) listing[relativeName] = metadata;
-          else {
+          if (!metadata.isEmptyFile()) {
+            listing[relativeName] = metadata;
+          } else {
             const emptyFileError = {
               message: 'Internxt does not support empty files',
               code: '',
@@ -149,6 +161,7 @@ export function getLocalFilesystem(
           });
         }
       }
+
       return { listing, readingMetaErrors };
     },
 
@@ -159,11 +172,12 @@ export function getLocalFilesystem(
       } catch (e) {
         const err = e as { code?: string };
 
-        if (err.code !== 'ENOENT')
+        if (err.code !== 'ENOENT') {
           throw new ProcessError(
             'UNKNOWN',
             createErrorDetails(err, 'Deleting a file locally', `Name: ${name}`)
           );
+        }
       }
     },
 
@@ -194,7 +208,7 @@ export function getLocalFilesystem(
           'UNKNOWN',
           createErrorDetails(
             err,
-            `Pulling file locally`,
+            'Pulling file locally',
             `Name: ${name}, source: ${JSON.stringify(
               sourceWithoutStream,
               null,
@@ -205,16 +219,23 @@ export function getLocalFilesystem(
       }
     },
 
-    async pullFolder(name): Promise<void> {
+    async pullFolder(name, modtime): Promise<void> {
       const osSpecificRelative = name.replaceAll('/', path.sep);
       const fullPath = path.join(localPath, osSpecificRelative);
 
-      await fs.mkdir(fullPath);
+      const alreadyExists = await exists(fullPath);
+
+      if (!alreadyExists) {
+        await fs.mkdir(fullPath);
+      }
+
+      await fs.utimes(fullPath, modtime, modtime);
     },
 
     renameFile(oldName: string, newName: string) {
       const oldActualPath = getActualPath(oldName);
       const newActualPath = getActualPath(newName);
+
       return saferRenameFile(oldActualPath, newActualPath);
     },
 
@@ -222,6 +243,7 @@ export function getLocalFilesystem(
       const actualPath = getActualPath(name);
       try {
         await fs.access(actualPath);
+
         return true;
       } catch {
         return false;
@@ -330,6 +352,16 @@ export function getLocalFilesystem(
           )
         );
       }
+    },
+
+    async getFolderData(folderName) {
+      const osSpecificRelative = folderName.replaceAll('/', path.sep);
+      const fullPath = path.join(localPath, osSpecificRelative);
+      const folderStats = await fs.stat(fullPath);
+
+      return {
+        modtime: Math.trunc(folderStats.mtimeMs / 1000),
+      };
     },
   };
 }

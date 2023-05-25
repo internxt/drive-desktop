@@ -3,31 +3,28 @@ import { EventEmitter } from 'events';
 class EventBus extends EventEmitter {}
 
 interface Events {
-  APP_IS_READY: () => void;
+	APP_IS_READY: () => void;
 
-  // Fired when the user either
-  // logs in or is already logged
-  // in on app start and the tokens are correct
-  USER_LOGGED_IN: () => void;
+	// Fired when the user either
+	// logs in or is already logged
+	// in on app start and the tokens are correct
+	USER_LOGGED_IN: () => void;
 
-  SYNC_ROOT_CHANGED: (newPath: string) => void;
+	SYNC_ROOT_CHANGED: (newPath: string) => void;
 
-  USER_LOGGED_OUT: () => void;
+	USER_LOGGED_OUT: () => void;
 
-  // Fired when a response to any internxt service
-  // has status 401 UNAUTHORIZED
-  USER_WAS_UNAUTHORIZED: () => void;
+	// Fired when a response to any internxt service
+	// has status 401 UNAUTHORIZED
+	USER_WAS_UNAUTHORIZED: () => void;
 
-  WIDGET_IS_READY: () => void;
+	WIDGET_IS_READY: () => void;
 }
 
 declare interface EventBus {
-  on<U extends keyof Events>(event: U, listener: Events[U]): this;
+	on<U extends keyof Events>(event: U, listener: Events[U]): this;
 
-  emit<U extends keyof Events>(
-    event: U,
-    ...args: Parameters<Events[U]>
-  ): boolean;
+	emit<U extends keyof Events>(event: U, ...args: Parameters<Events[U]>): boolean;
 }
 
 const eventBus = new EventBus();

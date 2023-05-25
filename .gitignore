@@ -32,3 +32,5 @@ npm-debug.log.*
 .env
 
 src/test/screenshots
+
+*.db

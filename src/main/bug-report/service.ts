@@ -1,13 +1,28 @@
+import fetch from 'electron-fetch';
 import log from 'electron-log';
+import FormData from 'form-data';
 import { createReadStream } from 'fs';
 import fs from 'fs/promises';
-import fetch from 'electron-fetch';
-import FormData from 'form-data';
 import path from 'path';
-import { obtainToken } from '../auth/service';
+
 import packageJson from '../../../package.json';
 import { ErrorDetails } from '../../workers/types';
+import { obtainToken } from '../auth/service';
 import { BugReportResult } from './BugReportResult';
+import * as Sentry from '@sentry/electron';
+
+/**
+ * Reports an error to Sentry from the main process
+ *
+ * @param error The error to be reported
+ * @param context The context to attach to the error such the userId, tags, boolean values...
+ */
+export const reportError = (
+  error: Error,
+  context: Record<string, string> = {}
+) => {
+  Sentry.captureException(error, context);
+};
 
 export async function sendReport({
   errorDetails,
@@ -38,7 +53,9 @@ export async function sendReport({
     headers: { Authorization: `Bearer ${obtainToken('bearerToken')}` },
   });
 
-  if (res.ok) return { state: 'OK' };
+  if (res.ok) {
+    return { state: 'OK' };
+  }
 
   log.error(`Report status: ${res.status}`);
 
@@ -49,6 +66,7 @@ export async function sendReport({
   log.error(
     `[BUG-REPORT] Request to report bug failed with status: ${res.status}`
   );
+
   return { state: 'ERROR' };
 }
 

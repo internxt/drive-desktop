@@ -1,6 +1,7 @@
 import { Environment } from '@internxt/inxt-js';
+import { Storage, StorageTypes } from '@internxt/sdk/dist/drive';
 import { Readable } from 'stream';
-import { StorageTypes, Storage } from '@internxt/sdk/dist/drive';
+
 import { ThumbnailProperties } from '../domain/ThumbnailProperties';
 import { ThumbnailUploader } from '../domain/ThumbnailUploader';
 
@@ -23,9 +24,13 @@ export class EnvironmentAndStorageThumbnailUploader
 
     return new Promise<string>((resolve, reject) => {
       this.environment.upload(this.bucket, {
-        progressCallback: () => {},
+        progressCallback: () => {
+          // no op
+        },
         finishedCallback: (err: unknown, id: string) => {
-          if (err && !id) reject(err);
+          if (err && !id) {
+            reject(err);
+          }
 
           resolve(id);
         },

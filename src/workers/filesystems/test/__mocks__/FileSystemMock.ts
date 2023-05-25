@@ -1,10 +1,10 @@
+import { PartialListing } from '../../../sync/Listings/domain/Listing';
 import {
   FileSystemKind,
+  FileSystemProgressCallback,
   ReadingMetaErrorEntry,
   Source,
-  FileSystemProgressCallback,
 } from '../../../types';
-import { PartialListing } from '../../../sync/Listings/domain/Listing';
 import { FileSystem } from '../../domain/FileSystem';
 
 export class FileSystemMock implements FileSystem<PartialListing> {
@@ -23,6 +23,8 @@ export class FileSystemMock implements FileSystem<PartialListing> {
   private mockDeleteFolder = jest.fn();
 
   private mockGetSource = jest.fn();
+
+  public mockGetFolderData = jest.fn();
 
   private mockSmokeTest = jest.fn();
 
@@ -70,24 +72,25 @@ export class FileSystemMock implements FileSystem<PartialListing> {
     return this.mockGetSource(name, progressCallback);
   }
 
+  getFolderData(folderFullPath: string): Promise<{ modtime: number }> {
+    return this.mockGetFolderData(folderFullPath);
+  }
+
   smokeTest(): Promise<void> {
     return this.mockSmokeTest();
   }
 
   assertNumberOfFoldersPulled(n: number) {
-    // eslint-disable-next-line jest/no-standalone-expect
     expect(this.mockPullFolder).toBeCalledTimes(n);
   }
 
   assertOrderOfFoldersPulled(names: Array<string>) {
     names.forEach((name: string) =>
-      // eslint-disable-next-line jest/no-standalone-expect
       expect(this.mockPullFolder).toBeCalledWith(name)
     );
   }
 
   assertFolderWasNeverPulled(folder: string) {
-    // eslint-disable-next-line jest/no-standalone-expect
     expect(this.mockPullFolder).not.toBeCalledWith(folder);
   }
 
@@ -100,7 +103,6 @@ export class FileSystemMock implements FileSystem<PartialListing> {
     const expectedAfterCalls = after.map((a) => calls.indexOf(a));
 
     expectedAfterCalls.forEach((expectedAfterCall) => {
-      // eslint-disable-next-line jest/no-standalone-expect
       expect(expectedBeforeCall).toBeLessThan(expectedAfterCall);
     });
   }

@@ -1,6 +1,7 @@
 import async from 'async';
 import Logger from 'electron-log';
 import EventEmitter from 'events';
+
 import { PartialListing } from '../../sync/Listings/domain/Listing';
 import { FileSystem } from '../domain/FileSystem';
 
@@ -10,7 +11,8 @@ export class PullFolderQueueConsumer {
   private static readonly MAX_CALLS_PER_LEVEL = 10;
 
   constructor(
-    private readonly fileSystem: FileSystem<PartialListing>,
+    private readonly origin: FileSystem<PartialListing>,
+    private readonly destination: FileSystem<PartialListing>,
     private readonly eventEmiter: EventEmitter
   ) {}
 
@@ -26,6 +28,7 @@ export class PullFolderQueueConsumer {
 
       if (!lastPathAdded) {
         nestedQueues.push([path]);
+
         return nestedQueues;
       }
 
@@ -46,11 +49,17 @@ export class PullFolderQueueConsumer {
     const queuesByLevel = this.divideByLevel(queue);
 
     const pullFolder = async (folderName: string): Promise<void> => {
-      this.eventEmiter.emit('PULLING_FOLDER', folderName, this.fileSystem.kind);
+      this.eventEmiter.emit(
+        'PULLING_FOLDER',
+        folderName,
+        this.destination.kind
+      );
 
-      await this.fileSystem.pullFolder(folderName);
+      const { modtime } = await this.origin.getFolderData(folderName);
 
-      this.eventEmiter.emit('FOLDER_PULLED', folderName, this.fileSystem.kind);
+      await this.destination.pullFolder(folderName, modtime);
+
+      this.eventEmiter.emit('FOLDER_PULLED', folderName, this.destination.kind);
     };
 
     const tasks = queuesByLevel.map(
@@ -62,6 +71,8 @@ export class PullFolderQueueConsumer {
             pullFolder
           );
         } catch (err: unknown) {
+          Logger.error(err);
+
           return Promise.reject(
             new Error(
               `An error occured creating a folder of the level: ${level}`
@@ -71,6 +82,10 @@ export class PullFolderQueueConsumer {
       }
     );
 
-    await async.series<unknown, unknown, unknown>(tasks).catch(Logger.error);
+    try {
+      await async.series(tasks);
+    } catch (err) {
+      Logger.error(err);
+    }
   }
 }
