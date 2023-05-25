@@ -1,3 +1,4 @@
-import { Item } from './Item';
+import { XFile } from './File';
+import { XFolder } from './Folder';
 
-export type ItemsIndexedByPath = Record<string, Item>;
+export type ItemsIndexedByPath = Record<string, XFolder | XFile>;

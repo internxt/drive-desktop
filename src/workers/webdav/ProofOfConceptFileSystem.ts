@@ -30,7 +30,7 @@ import Logger from 'electron-log';
 import { PassThrough, Readable, Writable } from 'stream';
 import * as p from 'path';
 import fs, { createWriteStream } from 'fs';
-import { Repository } from './Repository';
+import { TreeRepository } from './Repository';
 import { MyLockManager } from './LockManager';
 import { FileUploader } from './application/FileUploader';
 import { XPath } from './domain/XPath';
@@ -39,7 +39,7 @@ import { XFolder } from './domain/Folder';
 import { FileClonner } from './application/FileClonner';
 import { DebugPropertyManager } from './DebugPropertyManager';
 
-export class InternxtFileSystem extends webdav.FileSystem {
+export class ProofOfConceptFileSystem extends webdav.FileSystem {
   private readonly lckMNG: ILockManager;
 
   private temporalFiles: Record<string, Writable | null> = {};
@@ -48,7 +48,7 @@ export class InternxtFileSystem extends webdav.FileSystem {
 
   constructor(
     serializer: FileSystemSerializer,
-    private readonly repository: Repository,
+    private readonly repository: TreeRepository,
     private readonly fileUploader: FileUploader,
     private readonly fileClonner: FileClonner
   ) {
@@ -187,7 +187,7 @@ export class InternxtFileSystem extends webdav.FileSystem {
     const fn = async () => {
       const id = await this.fileClonner.clone(item.fileId);
 
-      const parent = this.repository.getParentFolder(item.path.value);
+      const parent = this.repository.searchParentFolder(item.path.value);
 
       if (!parent) {
         Logger.debug('[FS] COPY NO PARENT FOUND');
@@ -220,7 +220,7 @@ export class InternxtFileSystem extends webdav.FileSystem {
     };
 
     try {
-      const parent = this.repository.getParentFolder(itemPath);
+      const parent = this.repository.searchParentFolder(itemPath);
       Logger.debug('[FS] CREATE PARENT: ', JSON.stringify(parent, null, 2));
       if (!parent) {
         callback(Errors.InvalidOperation);
@@ -260,7 +260,7 @@ export class InternxtFileSystem extends webdav.FileSystem {
       return;
     }
 
-    const parentItem = this.repository.getParentFolder(path.toString(false));
+    const parentItem = this.repository.searchParentFolder(path.toString(false));
 
     if (!parentItem) {
       callback(Errors.IllegalArguments);

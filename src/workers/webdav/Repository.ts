@@ -1,7 +1,5 @@
 import { Axios } from 'axios';
 import Logger from 'electron-log';
-import { Readable } from 'stream';
-import { Environment } from '@internxt/inxt-js';
 import * as uuid from 'uuid';
 import { ServerFile } from '../filesystems/domain/ServerFile';
 import { ServerFolder } from '../filesystems/domain/ServerFolder';
@@ -13,8 +11,9 @@ import { XFolder } from './domain/Folder';
 import { Nullable } from '../../shared/types/Nullable';
 import { XFile } from './domain/File';
 import { FileCreatedResponseDTO } from '../../shared/HttpClient/responses/file-created';
+import { ItemRepository } from './domain/ItemRepository';
 
-export class Repository {
+export class TreeRepository implements ItemRepository {
   private items: ItemsIndexedByPath = {};
 
   private readonly remoteFilesTraverser: Traverser;
@@ -22,7 +21,6 @@ export class Repository {
   constructor(
     private readonly httpClient: Axios,
     private readonly trashHttpClient: Axios,
-    private readonly environment: Environment,
     private readonly baseFolderId: number,
     private readonly bucket: string
   ) {
@@ -70,6 +68,14 @@ export class Repository {
   public async init(): Promise<void> {
     const raw = await this.getTree();
 
+    Logger.info(
+      'Tree retrived with ',
+      raw.files.length,
+      ' files and ',
+      raw.folders.length,
+      ' folders'
+    );
+
     this.remoteFilesTraverser.reset();
     this.items = this.remoteFilesTraverser.run(raw);
   }
@@ -106,44 +112,7 @@ export class Repository {
     return item;
   }
 
-  getReadable(filePath: string): Promise<Nullable<Readable>> {
-    const item = this.items[filePath];
-
-    if (!item) return Promise.resolve(undefined);
-
-    if (item.isFile()) {
-      return new Promise((resolve, reject) => {
-        this.environment.download(
-          this.bucket,
-          item.fileId,
-          {
-            progressCallback: (progess: number) => {
-              Logger.debug('[PROGESS] FILE: ', item.name, progess);
-            },
-            finishedCallback: async (err: any, stream: Readable) => {
-              if (err) {
-                Logger.debug('[REPO] ERR: ', err);
-                reject(err);
-              } else {
-                resolve(stream);
-              }
-            },
-          },
-          {
-            label: 'Dynamic',
-            params: {
-              useProxy: false,
-              concurrency: 10,
-            },
-          }
-        );
-      });
-    }
-
-    return Promise.resolve(undefined);
-  }
-
-  getParentFolder(itemPath: string): Nullable<XFolder> {
+  searchParentFolder(itemPath: string): Nullable<XFolder> {
     const itemPaths = itemPath.split('/');
     itemPaths.splice(itemPaths.length - 1, 1);
     const parentFolderPath = itemPaths.join('/') || '/';
@@ -158,7 +127,6 @@ export class Repository {
     Logger.error('[Repository] item', JSON.stringify(item));
 
     if (item.isFile()) {
-      Logger.error('[Repository] XXX');
       throw new Error(`${itemPath} is not a folder`);
     }
 
@@ -328,7 +296,7 @@ export class Repository {
       throw new Error(`[REPOSITORY] Error moving item: ${res.status}`);
     }
 
-    this.items = [];
+    this.items = {};
     await this.init();
   }
 }

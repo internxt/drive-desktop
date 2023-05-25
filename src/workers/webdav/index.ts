@@ -20,7 +20,7 @@ import {
 } from 'webdav-server/lib/index.v2';
 import { v4 } from 'uuid';
 import { httpClient } from './httpClients';
-import { Repository } from './Repository';
+import { TreeRepository } from './Repository';
 import { getUser } from '../../main/auth/service';
 import configStore from '../../main/config';
 import { FileUploader } from './application/FileUploader';
@@ -28,6 +28,7 @@ import { mountDrive, unmountDrive } from './VirtualDrive';
 import { FileClonner } from './application/FileClonner';
 import { InxtFileSystem } from './InxtFileSystem';
 import { FileOverrider } from './application/FileOverrider';
+import { FileDownloader } from './application/FileDownloader';
 
 interface WebDavServerEvents {
   WEBDAV_SERVER_START_SUCCESS: () => void;
@@ -108,7 +109,8 @@ async function setUp() {
         arg.request.url,
         '>',
         arg.response.statusCode,
-        arg.response.statusMessage
+        arg.response.statusMessage,
+        arg.responseBody
       );
       next();
     });
@@ -142,10 +144,9 @@ async function setUp() {
       encryptionKey: mnemonic,
     });
 
-    const repository = new Repository(
+    const repository = new TreeRepository(
       clients.drive,
       clients.newDrive,
-      environment,
       user?.root_folder_id as number,
       user.bucket
     );
@@ -160,9 +161,11 @@ async function setUp() {
 
     const overrider = new FileOverrider(user.bucket, environment, clonner);
 
+    const downloader = new FileDownloader(user.bucket, environment);
+
     server.setFileSystem(
       '/',
-      new InxtFileSystem(uploader, overrider, repository),
+      new InxtFileSystem(uploader, overrider, downloader, repository),
       (su) => {
         Logger.debug('SUCCEDED: ', su);
       }

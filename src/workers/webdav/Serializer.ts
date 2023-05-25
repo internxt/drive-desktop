@@ -6,12 +6,12 @@ import {
 import Logger from 'electron-log';
 import { FileUploader } from './application/FileUploader';
 import { InxtFileSystem } from './InxtFileSystem';
-import { Repository } from './Repository';
+import { TreeRepository } from './Repository';
 
 export class DebugPhysicalSerializer implements FileSystemSerializer {
   constructor(
     private readonly uploader: FileUploader,
-    private readonly repository: Repository
+    private readonly repository: TreeRepository
   ) {}
 
   uid(): string {

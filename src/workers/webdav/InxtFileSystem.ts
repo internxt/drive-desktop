@@ -30,11 +30,12 @@ import {
 import { PassThrough, Readable, Writable } from 'stream';
 import Logger from 'electron-log';
 import { FileUploader } from './application/FileUploader';
-import { Repository } from './Repository';
+import { TreeRepository } from './Repository';
 import { XFile } from './domain/File';
 import { XPath } from './domain/XPath';
 import { DebugPhysicalSerializer } from './Serializer';
 import { FileOverrider } from './application/FileOverrider';
+import { FileDownloader } from './application/FileDownloader';
 
 export class PhysicalFileSystemResource {
   props: LocalPropertyManager;
@@ -76,7 +77,8 @@ export class InxtFileSystem extends FileSystem {
   constructor(
     private readonly fileUploader: FileUploader,
     private readonly fileOverrider: FileOverrider,
-    private readonly repository: Repository
+    private readonly fileDownloader: FileDownloader,
+    private readonly repository: TreeRepository
   ) {
     super(new DebugPhysicalSerializer(fileUploader, repository));
 
@@ -89,7 +91,7 @@ export class InxtFileSystem extends FileSystem {
     Logger.debug('CREATE');
     if (ctx.type.isDirectory) {
       const folderPath = path.toString(false);
-      const parent = this.repository.getParentFolder(folderPath);
+      const parent = this.repository.searchParentFolder(folderPath);
 
       if (!parent) return callback(Errors.InvalidOperation);
 
@@ -154,7 +156,7 @@ export class InxtFileSystem extends FileSystem {
         contents: stream,
       })
       .then((fileId: string) => {
-        const parent = this.repository.getParentFolder(path.toString(false));
+        const parent = this.repository.searchParentFolder(path.toString(false));
 
         if (!parent) {
           return;
@@ -187,8 +189,18 @@ export class InxtFileSystem extends FileSystem {
     callback: ReturnCallback<Readable>
   ): void {
     Logger.debug('[OPEN READ STREAM]');
-    this.repository
-      .getReadable(path.toString(false))
+    const item = this.repository.searchItem(path.toString(false));
+
+    if (!item) {
+      return callback(Errors.ResourceNotFound);
+    }
+
+    if (item.isFolder()) {
+      return callback(Errors.InvalidOperation);
+    }
+
+    this.fileDownloader
+      .download(item.fileId)
       .then((readable) => {
         if (!readable) {
           return callback(Errors.UnrecognizedResource);
@@ -229,7 +241,7 @@ export class InxtFileSystem extends FileSystem {
       return callback(Errors.InvalidOperation);
     }
 
-    const destinationFolder = this.repository.getParentFolder(
+    const destinationFolder = this.repository.searchParentFolder(
       pathTo.toString(false)
     );
 

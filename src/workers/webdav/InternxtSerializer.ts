@@ -5,14 +5,14 @@ import {
   FileSystem,
 } from 'webdav-server/lib/index.v2';
 import Logger from 'electron-log';
-import { InternxtFileSystem } from './InternxtFileSystem';
+import { ProofOfConceptFileSystem } from './ProofOfConceptFileSystem';
 
 export class InternxtSerializer implements webdav.FileSystemSerializer {
   uid() {
     return 'InternxtFSSerializer-1.0.0';
   }
 
-  serialize(fs: InternxtFileSystem, callback: ReturnCallback<any>) {
+  serialize(fs: ProofOfConceptFileSystem, callback: ReturnCallback<any>) {
     Logger.debug('[SLZ] SERIALIZE');
     callback(undefined, 'hola');
   }
