@@ -159,13 +159,11 @@ async function setUp() {
 
     const uploader = new FileUploader(user.bucket, environment);
 
-    const overrider = new FileOverrider(user.bucket, environment, clonner);
-
     const downloader = new FileDownloader(user.bucket, environment);
 
     server.setFileSystem(
       '/',
-      new InxtFileSystem(uploader, overrider, downloader, repository),
+      new InxtFileSystem(uploader, downloader, repository),
       (su) => {
         Logger.log('[WEBDAB] SUCCEDED: ', su);
       }

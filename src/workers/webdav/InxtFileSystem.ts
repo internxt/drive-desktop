@@ -87,7 +87,6 @@ export class InxtFileSystem extends FileSystem {
 
   constructor(
     private readonly fileUploader: FileUploader,
-    private readonly fileOverrider: FileOverrider,
     private readonly fileDownloader: FileDownloader,
     private readonly repository: TreeRepository
   ) {
@@ -149,7 +148,6 @@ export class InxtFileSystem extends FileSystem {
     const item = this.repository.searchItem(pathLike);
 
     if (!item) {
-      Logger.debug('SOMETING NOT FOUND ON DELTET', path.toString());
       return callback(Errors.ResourceNotFound);
     }
 
@@ -259,15 +257,13 @@ export class InxtFileSystem extends FileSystem {
       .catch(() => callback(Errors.UnrecognizedResource));
   }
 
-  _rename(
-    pathFrom: Path,
-    newName: string,
-    ctx: RenameInfo,
-    callback: ReturnCallback<boolean>
-  ) {
-    Logger.debug('[FS] REANME');
-    callback(undefined, false);
-  }
+  // The _rename method is not being called, instead the _move method is called
+  // _rename(
+  //   pathFrom: Path,
+  //   newName: string,
+  //   ctx: RenameInfo,
+  //   callback: ReturnCallback<boolean>
+  // ) {}
 
   private async renameFile(
     originalItem: XFile | XFolder,
