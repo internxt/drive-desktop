@@ -9,6 +9,7 @@ export class FileUploader {
   ) {}
 
   upload(source: { size: number; contents: Readable }): Promise<string> {
+    Logger.debug('[FILE UPLOADER] FILE SIZE TO UPLOAD: ', source.size);
     return new Promise((resolve, reject) => {
       this.environment.upload(this.bucket, {
         finishedCallback: async (err: unknown, fileId: string) => {

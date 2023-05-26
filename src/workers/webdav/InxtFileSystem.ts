@@ -32,12 +32,14 @@ import {
 import { PassThrough, Readable, Writable } from 'stream';
 import Logger from 'electron-log';
 import { FileUploader } from './application/FileUploader';
-import { TreeRepository } from './Repository';
+import { TreeRepository } from './TreeRepository';
 import { XFile } from './domain/File';
 import { XPath } from './domain/XPath';
 import { DebugPhysicalSerializer } from './Serializer';
 import { FileOverrider } from './application/FileOverrider';
 import { FileDownloader } from './application/FileDownloader';
+import { XFolder } from './domain/Folder';
+import { Nullable } from '../../shared/types/Nullable';
 
 import mimetypes from './domain/MimeTypesMap.json';
 
@@ -267,6 +269,90 @@ export class InxtFileSystem extends FileSystem {
     callback(undefined, false);
   }
 
+  private async renameFile(
+    originalItem: XFile | XFolder,
+    destinationPath: string,
+    callback: ReturnCallback<boolean>
+  ) {
+    const newPath = new XPath(destinationPath);
+    const renamedItem = originalItem.rename(newPath);
+    try {
+      await this.repository.updateName(renamedItem);
+      this.repository.deleteCachedItem(originalItem);
+      callback(undefined, true);
+    } catch {
+      callback(Errors.InvalidOperation);
+    }
+  }
+
+  private moveFile(
+    originalItem: XFile | XFolder,
+    destinationPath: string,
+    ctx: MoveInfo,
+    callback: ReturnCallback<boolean>
+  ) {
+    Logger.debug('[FS] MOVE 5');
+    const destinationItem = this.repository.searchItem(destinationPath);
+
+    const hasToBeOverriden = destinationItem !== undefined;
+    Logger.debug('[FS] MOVE 6');
+
+    if (hasToBeOverriden && !ctx.overwrite) {
+      return callback(Errors.InvalidOperation);
+    }
+
+    Logger.debug('[FS] MOVE 7');
+    const destinationFolder =
+      this.repository.searchParentFolder(destinationPath);
+    Logger.debug('DESTINATION FOLDER ', destinationFolder?.name);
+
+    Logger.debug('[FS] MOVE 8');
+    if (!destinationFolder) {
+      return callback(Errors.IllegalArguments);
+    }
+
+    if (originalItem.hasParent(destinationFolder.id)) {
+      Logger.debug('FILE RENAME');
+      this.renameFile(originalItem, destinationPath, callback);
+      return;
+    }
+
+    if (hasToBeOverriden) {
+      if (originalItem.isFile() && destinationItem?.isFile()) {
+        const override = async (callback: ReturnCallback<boolean>) => {
+          const newFile = originalItem.moveTo(destinationFolder);
+
+          await this.repository.deleteFile(destinationItem);
+          await this.repository.updateParentDir(newFile);
+
+          callback(undefined, true);
+        };
+
+        override(callback);
+        return;
+      }
+
+      return callback(Errors.InvalidOperation);
+    }
+
+    const simpleMove = async (callback: ReturnCallback<boolean>) => {
+      const resultItem = originalItem.moveTo(destinationFolder);
+      await this.repository.updateParentDir(resultItem).catch((err) => {
+        Logger.error('[FS] Error moving a file', JSON.stringify(err, null, 2));
+        callback(err);
+      });
+
+      this.resources[destinationPath] = this.resources[originalItem.path.value];
+      delete this.resources[originalItem.path.value];
+
+      this.repository.deleteCachedItem(originalItem);
+
+      callback(undefined, false);
+    };
+    Logger.debug('SIMPLE MOVE');
+    simpleMove(callback);
+  }
+
   _move(
     pathFrom: Path,
     pathTo: Path,
@@ -276,98 +362,20 @@ export class InxtFileSystem extends FileSystem {
     Logger.debug('[FS] MOVE');
 
     const originalItem = this.repository.searchItem(pathFrom.toString(false));
-
+    Logger.debug('[FS] MOVE 2');
     if (!originalItem) {
       return callback(Errors.ResourceNotFound);
     }
-
-    const destinationItem = this.repository.searchItem(pathTo.toString(false));
-
-    if (destinationItem && !ctx.overwrite) {
+    Logger.debug('[FS] MOVE 3');
+    if (originalItem.isFile()) {
+      Logger.debug('[FS] MOVE 4');
+      return this.moveFile(originalItem, pathTo.toString(false), ctx, callback);
+    }
+    if (originalItem.isFolder()) {
       return callback(Errors.InvalidOperation);
     }
 
-    const destinationFolder = this.repository.searchParentFolder(
-      pathTo.toString(false)
-    );
-
-    if (!destinationFolder) {
-      return callback(Errors.IllegalArguments);
-    }
-
-    if (originalItem.hasParent(destinationFolder.id)) {
-      const move = async () => {
-        const newPath = new XPath(pathTo.toString(false));
-        const renamedItem = originalItem.rename(newPath);
-        try {
-          await this.repository.updateName(renamedItem);
-          this.repository.deleteCachedItem(originalItem);
-          callback(undefined, true);
-        } catch {
-          callback(Errors.InvalidOperation);
-        }
-      };
-      move();
-      return;
-    }
-
-    const fileToOverride = this.repository.searchItem(pathTo.toString(false));
-
-    if (fileToOverride) {
-      if (!ctx.overwrite) {
-        return callback(Errors.InvalidOperation);
-      }
-
-      if (fileToOverride.isFolder()) {
-        return callback(Errors.InvalidOperation);
-      }
-
-      const overrideFile = async () => {
-        const fileId = await this.fileOverrider.run(fileToOverride);
-        const path = new XPath(pathTo.toString(false));
-
-        // TODO: should the modification time change?
-        const file = new XFile(
-          fileId,
-          destinationFolder.id,
-          path.name(),
-          path,
-          originalItem.size,
-          path.extension(),
-          originalItem.createdAt,
-          new Date(),
-          new Date()
-        );
-
-        await this.repository.addFile(file);
-      };
-
-      overrideFile()
-        .then(() => {
-          callback(undefined, true);
-        })
-        .catch((err) => {
-          Logger.error('[FS] Error overriding a file: ', err);
-          callback(err);
-        });
-      return;
-    }
-
-    const resultItem = originalItem.moveTo(destinationFolder);
-
-    this.repository
-      .updateParentDir(resultItem)
-      .then(() => {
-        this.resources[pathTo.toString(false)] =
-          this.resources[pathFrom.toString(false)];
-        delete this.resources[pathFrom.toString(false)];
-        this.repository.deleteCachedItem(originalItem);
-        callback(undefined, false);
-      })
-      .catch((err) => {
-        Logger.error('[FS] Error moving a file', JSON.stringify(err, null, 2));
-        callback(err);
-      });
+    callback(Errors.UnrecognizedResource);
   }
 
   getPropertyFromResource(

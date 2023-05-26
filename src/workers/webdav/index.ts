@@ -17,7 +17,7 @@ import {
   Resource,
 } from 'webdav-server/lib/index.v2';
 import { v4 } from 'uuid';
-import { TreeRepository } from './Repository';
+import { TreeRepository } from './TreeRepository';
 import { getUser } from '../../main/auth/service';
 import configStore from '../../main/config';
 import { FileUploader } from './application/FileUploader';

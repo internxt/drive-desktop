@@ -45,6 +45,10 @@ export class XFile extends Item<XFile> {
     );
   }
 
+  uuid(): string {
+    return this.fileId;
+  }
+
   moveTo(folder: XFolder): XFile {
     if (this.folderId === folder.id) {
       throw new Error('Cannot move a file to its current folder');
@@ -117,6 +121,34 @@ export class XFile extends Item<XFile> {
       this.updatedAt,
       this.modificationTime
     );
+  }
+
+  replaceWith(file: XFile) {
+    if (this.name !== file.name) {
+      throw new Error('Cannot replace file with diferent name');
+    }
+
+    if (!this.path.equals(file.path)) {
+      throw new Error('Cannot replace file with diferent pathnames');
+    }
+
+    if (this.type !== file.type) {
+      throw new Error('Cannot replace file with diferent types');
+    }
+
+    const replaced = new XFile(
+      file.fileId,
+      this.folderId,
+      this.name,
+      this.path,
+      file.size,
+      this.type,
+      file.createdAt,
+      new Date(),
+      new Date()
+    );
+
+    return replaced;
   }
 
   hasParent(id: number): boolean {

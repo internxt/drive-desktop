@@ -36,6 +36,10 @@ export class XFolder extends Item<XFolder> {
     );
   }
 
+  uuid() {
+    return this.id;
+  }
+
   moveTo(folder: XFolder): XFolder {
     if (!this.parentId) {
       throw new Error('Root folder cannot be moved');

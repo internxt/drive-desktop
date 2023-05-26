@@ -50,7 +50,8 @@ export class TreeRepository implements ItemRepository {
         // We can't use spread operator with big arrays
         // see: https://anchortagdev.com/range-error-maximum-call-stack-size-exceeded-error-using-spread-operator-in-node-js-javascript/
 
-        for (const file of batch.files) files.push(file);
+        for (const file of batch.files)
+          files.push({ ...file, size: parseInt(file.size, 10) });
 
         for (const folder of batch.folders) folders.push(folder);
 
@@ -104,6 +105,11 @@ export class TreeRepository implements ItemRepository {
       .map((f) => f.path);
 
     return files;
+  }
+
+  searchItemById(id: string): Nullable<XFile | XFolder> {
+    const items = Object.values(this.items);
+    return items.find((item) => item.uuid() === id);
   }
 
   searchItem(pathLike: string): Nullable<XFile | XFolder> {
