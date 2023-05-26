@@ -31,27 +31,57 @@
   "onboarding": {
     "slides": {
       "welcome": {
-        "title": "¡Bienvenido a Internxt!",
-        "description": "Cifrado del lado del cliente, sencillo, rápido, seguro y privado.",
-        "invitation": "Descubre las nuevas funciones de Drive Desktop",
-        "next-slide": "Comenzar"
+        "title": "¡Bienvenido a Internxt Drive!",
+        "description": "Empieza haciendo una copia de seguridad de todos tus archivos y carpetas importantes en la barra lateral del buscador.",
+        "take-tour": "Hacer recorrido"
       },
-      "sync-folder": {
-        "title": "Carpeta de Sincronización",
-        "description-1": "Encontrarás una nueva carpeta en la que estarán accesibles todos tus archivos de la nube de Internxt",
-        "description-2": "Arrastra y suelta los elementos en esta carpeta y pulsa el botón de Play para subirlos",
-        "description-3": "Pulsa el botón de Play para mantener la carpeta sincronizada con otros dispositivos",
-        "description-4": "Elige la ubicación de la carpeta de sincronización en Ajustes",
-        "next-slide": "Siguiente"
+      "files-organization": {
+        "title": "Accede y organiza todos tus archivos almacenados desde la barra lateral",
+        "description": "Tu carpeta personal de Internxt Drive se encuentra en tu barra lateral de {{platform_app}}."
       },
-      "widget": {
-        "title": "Internxt Widget",
-        "description-1": "Acceso rápido a ",
-        "description-2": "Actualiza tu plan, el nombre del dispositivo o configura tus copias de seguridad desde el menú Ajustes",
-        "description-3": "Consulta el estado de tu transferencia de datos",
-        "description-4": "Comprueba el estado de tu proceso de sincronización y copias de seguridad",
-        "description-5": "Comienza o pausa el proceso de sincronización en cualquier momento",
-        "next-slide": "Comenzar a usar Internxt"
+      "available-online": {
+        "title": "Ahorra espacio en tu dispositivo con la descarga inteligente",
+        "description": "Guarda los archivos no esenciales como solo online para ahorrar espacio en la unidad local.",
+        "description-2": "Al guardarlos de esta forma, los archivos se eliminan automáticamente de tu dispositivo y se suben a la nube."
+      },
+      "available-offline": {
+        "title": "Sincronización entre dispositivos y acceso a archivos sin conexión",
+        "description": "Almacena tus archivos esenciales como disponibles sin conexión para tenerlos siempre a mano.",
+        "description-2": "Al guardar como disponibles sin conexión, los archivos se almacenan localmente y se sincronizan automáticamente en todos tus dispositivos."
+      },
+      "context-menu": {
+        "title": "Organiza tus archivos con un solo clic",
+        "description": "Basta con hacer clic con el botón derecho en uno o varios archivos y seleccionar cómo deseas almacenarlos.",
+        "list-1": "Etiqueta los archivos disponibles sin conexión para acceder a ellos en cualquier momento, con o sin internet",
+        "list-2": "Etiqueta los archivos sólo en línea para ahorrar espacio físico en el disco duro"
+      },
+      "backups": {
+        "title": "Haz copias de seguridad y protege tus archivos con un par de clics",
+        "description": "Realiza copias de seguridad de tus archivos con solo seleccionar las carpetas que desea proteger.",
+        "description-2": "Programa tus copias de seguridad y mantén tus archivos seguros y actualizados en todos tus dispositivos.",
+        "setup-backups": "Configurar"
+      },
+      "onboarding-completed": {
+        "title": "Ya está todo listo, ¡disfruta de tu privacidad!",
+        "backups-completed": {
+          "title": "{{folders}} carpetas añadidas a las copias de seguridad",
+          "description": "Añade más carpetas y programa copias de seguridad automáticas en Configuración"
+        },
+        "desktop-ready": {
+          "title": "Internxt Drive está listo",
+          "description": "Accede a tus archivos almacenados desde la barra lateral de tu {{platform_phrase}}."
+        }
+      }
+    },
+    "common": {
+      "onboarding-progress": "{{current_slide}} de {{total_slides}}",
+      "continue": "Continuar",
+      "open-drive": "Abrir Internxt Drive",
+      "skip": "Saltar",
+      "platform-phrase": {
+        "windows": "explorador de archivos",
+        "linux": "buscador de archivos",
+        "macos": "Finder"
       }
     }
   },
@@ -218,5 +248,8 @@
       "user-comments": "Comentarios",
       "include-logs": "Incluir los registros de este proceso de sincronización con fines de solucionar el error"
     }
+  },
+  "common": {
+    "cancel": "Cancelar"
   }
 }

@@ -31,27 +31,57 @@
   "onboarding": {
     "slides": {
       "welcome": {
-        "title": "Bienvenue chez Internxt!",
-        "description": "Chiffrement côté client, fragmenté, simple, rapide, sécurisé et privé.",
-        "invitation": "Découvrez les nouvelles fonctionnalités de Drive Desktop",
-        "next-slide": "Démarrer"
+        "title": "Bienvenue dans Internxt Drive !",
+        "description": "Commençons par sauvegarder tous vos fichiers et dossiers importants dans la barre latérale de votre finder.",
+        "take-tour": "Visite guidée"
       },
-      "sync-folder": {
-        "title": "Dossier de synchronisation",
-        "description-1": "Vous trouverez un nouveau dossier où tous vos fichiers Internxt cloud seront accessibles",
-        "description-2": "Glissez et déposez des éléments dans ce dossier et appuyez sur le bouton Play pour les télécharger",
-        "description-3": "Pressez sur le bouton Play pour synchroniser le dossier avec d'autres dispositifs",
-        "description-4": "Choisissez l'emplacement du dossier de synchronisation dans les paramètres",
-        "next-slide": "Suivant"
+      "files-organization": {
+        "title": "Accédez à tous vos fichiers sauvegardés et organisez-les à partir de la barre latérale",
+        "description": "Votre dossier personnel Internxt Drive est situé dans votre barre latérale {{platform_app}}."
       },
-      "widget": {
-        "title": "Widget Internxt",
-        "description-1": "Accès rapide à ",
-        "description-2": "Mettez à jour votre plan, le nom de votre dispositif ou configurez vos sauvegardes à partir du menu Paramètres",
-        "description-3": "Vérifiez l'état de votre transfert de données",
-        "description-4": "Vérifiez l'état de votre processus de synchronisation et de vos sauvegardes",
-        "description-5": "Lancez ou mettez en pause le processus de synchronisation à tout moment",
-        "next-slide": "Commencez à utiliser Internxt"
+      "available-online": {
+        "title": "Économisez de l'espace sur votre appareil grâce au téléchargement intelligent",
+        "description": "Stockez les fichiers non essentiels comme uniquement en ligne pour économiser de l'espace sur le disque local.",
+        "description-2": "En enregistrant les fichiers uniquement en ligne, ils sont automatiquement supprimés de votre appareil et téléchargés sur le cloud."
+      },
+      "available-offline": {
+        "title": "Synchronisation entre appareils et accès aux fichiers hors ligne",
+        "description": "Stockez les fichiers essentiels en tant que disponibles hors ligne pour les avoir toujours à portée de main.",
+        "description-2": "En enregistrant les fichiers comme étant disponibles hors ligne, ils sont stockés localement et automatiquement synchronisés sur tous vos appareils."
+      },
+      "context-menu": {
+        "title": "Organisez vos fichiers en un seul clic",
+        "description": "Cliquez simplement avec le bouton droit sur un ou plusieurs fichiers et sélectionnez la manière dont vous souhaitez les stocker.",
+        "list-1": "Identifiez les fichiers disponibles hors ligne pour y accéder à tout moment, avec ou sans internet",
+        "list-2": "Étiqueter les fichiers uniquement en ligne pour économiser de l'espace sur le disque dur"
+      },
+      "backups": {
+        "title": "Sauvegardez et sécurisez vos fichiers en quelques clics",
+        "description": "Sauvegardez vos fichiers en sélectionnant simplement les dossiers que vous souhaitez protéger.",
+        "description-2": "Planifiez des sauvegardes et gardez vos fichiers en sécurité et à jour sur tous vos appareils.",
+        "setup-backups": "Configurer les sauvegardes"
+      },
+      "onboarding-completed": {
+        "title": "Vous êtes prêt, profitez de votre vie privée !",
+        "backups-completed": {
+          "title": "{{folders}} dossiers ajoutés aux sauvegardes",
+          "description": "Ajoutez d'autres dossiers et planifiez des sauvegardes automatiques dans les Paramètres"
+        },
+        "desktop-ready": {
+          "title": "Internxt Drive est prêt",
+          "description": "Accédez à vos fichiers stockés depuis la barre latérale de votre {{platform_phrase}}."
+        }
+      }
+    },
+    "common": {
+      "onboarding-progress": "{{current_slide}} de {{total_slides}}",
+      "open-drive": "Ouvrir Internxt Drive",
+      "continue": "Continuer",
+      "skip": "Sauter",
+      "platform-phrase": {
+        "windows": "navigateur de fichiers",
+        "linux": "navigateur de fichiers",
+        "macos": "Finder"
       }
     }
   },
@@ -217,5 +247,8 @@
       "user-comments": "Commentaires",
       "include-logs": "Inclure les logs de ce processus de synchronisation à des fins de diagnostic"
     }
+  },
+  "common": {
+    "cancel": "Annuler"
   }
 }

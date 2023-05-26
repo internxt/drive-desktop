@@ -31,27 +31,57 @@
   "onboarding": {
     "slides": {
       "welcome": {
-        "title": "Welcome to Internxt!",
-        "description": "Client-side encrypted, simple, fast, secure and private.",
-        "invitation": "Discover the brand new features of Drive Desktop.",
-        "next-slide": "Let's go!"
+        "title": "Welcome to Internxt Drive!",
+        "description": "Let's start by backing up all of your important files and folders in your finder's sidebar.",
+        "take-tour": "Take a tour"
       },
-      "sync-folder": {
-        "title": "Sync Folder",
-        "description-1": "You'll find a new folder where all your data from the Internxt cloud will be accessible.",
-        "description-2": "Simply drag and drop items into this folder and press the play button to upload them.",
-        "description-3": "Press the play button to keep this folder synchronized with other devices.",
-        "description-4": "Choose sync folder location from settings.",
-        "next-slide": "Next"
+      "files-organization": {
+        "title": "Access and organize all of your stored files from the sidebar",
+        "description": "Your personal Internxt Drive folder is located in your {{platform_app}} sidebar"
       },
-      "widget": {
-        "title": "Internxt Widget",
-        "description-1": "Quick access to ",
-        "description-2": "Update your plan, device name or configure backups from the settings menu.",
-        "description-3": "View the state of your data transfer.",
-        "description-4": "Check the status of your sync and backups processes.",
-        "description-5": "Start or stop your sync process anytime.",
-        "next-slide": "Finish"
+      "available-online": {
+        "title": "Save space on your device with smart download",
+        "description": "Store non-essential files as online only to save local drive space",
+        "description-2": "By saving as online only, files are automatically removed from your device and uploaded to the cloud"
+      },
+      "available-offline": {
+        "title": "Sync across devices and access files offline",
+        "description": "Store essential files as available offline to always have them on hand.",
+        "description-2": "By saving as available offline, files are stored locally and automatically sync across your devices."
+      },
+      "context-menu": {
+        "title": "Organize your files with just one click",
+        "description": "Simply right-click one or more files and select how you want them stored.",
+        "list-1": "Label files available offline to access them anytime, with or without internet",
+        "list-2": "Label files online only to save physical hard drive space"
+      },
+      "backups": {
+        "title": "Back up and secure your files with couple clicks",
+        "description": "Back up your files by simply selecting the folders you want to protect.",
+        "description-2": "Schedule backups and keep your files safe and up-to-date across your devices.",
+        "setup-backups": "Set up backups"
+      },
+      "onboarding-completed": {
+        "title": "You're all set, enjoy your privacy!",
+        "backups-completed": {
+          "title": "{{folders}} folders added to backups",
+          "description": "Add more folders and schedule automatic backups in Settings"
+        },
+        "desktop-ready": {
+          "title": "Internxt Drive is ready",
+          "description": "Access your stored files from your {{platform_phrase}}’s sidebar"
+        }
+      }
+    },
+    "common": {
+      "onboarding-progress": "{{current_slide}} of {{total_slides}}",
+      "continue": "Continue",
+      "skip": "Skip",
+      "open-drive": "Open Internxt Drive",
+      "platform-phrase": {
+        "windows": "file explorer",
+        "linux": "file browser",
+        "macos": "Finder"
       }
     }
   },
@@ -218,5 +248,8 @@
       "user-comments": "Comments",
       "include-logs": "Include the logs of this sync process for debug purposes"
     }
+  },
+  "common": {
+    "cancel": "Cancel"
   }
 }

@@ -75,12 +75,14 @@ module.exports = {
       },
     },
     colors: {
+      debug: 'green',
       black: '#000000',
       pink: {
         10: '#FCE7F3',
         60: '#DB2777',
       },
       gray: {
+        5: '#F3F3F8',
         10: '#f4f4f4',
         20: '#e0e0e0',
         30: '#c6c6c6',
@@ -90,7 +92,7 @@ module.exports = {
         70: '#525252',
         80: '#393939',
         90: '#161616',
-        100: '#161616',
+        100: '#18181B',
       },
       blue: {
         10: '#edf5ff',
@@ -177,6 +179,7 @@ module.exports = {
         800: '#172b4d',
         900: '#091e42',
       },
+      primary: '#0066FF',
     },
   },
   variants: {

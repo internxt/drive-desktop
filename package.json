@@ -277,6 +277,7 @@
     "ignore": "^5.2.0",
     "jwt-decode": "^3.1.2",
     "lodash": "^4.17.21",
+    "lottie-react": "^2.4.0",
     "node-schedule": "^2.1.0",
     "phosphor-react": "^1.4.1",
     "react": "^17.0.2",
