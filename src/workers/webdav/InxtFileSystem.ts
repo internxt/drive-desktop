@@ -291,22 +291,17 @@ export class InxtFileSystem extends FileSystem {
     ctx: MoveInfo,
     callback: ReturnCallback<boolean>
   ) {
-    Logger.debug('[FS] MOVE 5');
     const destinationItem = this.repository.searchItem(destinationPath);
 
     const hasToBeOverriden = destinationItem !== undefined;
-    Logger.debug('[FS] MOVE 6');
 
     if (hasToBeOverriden && !ctx.overwrite) {
       return callback(Errors.InvalidOperation);
     }
 
-    Logger.debug('[FS] MOVE 7');
     const destinationFolder =
       this.repository.searchParentFolder(destinationPath);
-    Logger.debug('DESTINATION FOLDER ', destinationFolder?.name);
 
-    Logger.debug('[FS] MOVE 8');
     if (!destinationFolder) {
       return callback(Errors.IllegalArguments);
     }
@@ -362,13 +357,10 @@ export class InxtFileSystem extends FileSystem {
     Logger.debug('[FS] MOVE');
 
     const originalItem = this.repository.searchItem(pathFrom.toString(false));
-    Logger.debug('[FS] MOVE 2');
     if (!originalItem) {
       return callback(Errors.ResourceNotFound);
     }
-    Logger.debug('[FS] MOVE 3');
     if (originalItem.isFile()) {
-      Logger.debug('[FS] MOVE 4');
       return this.moveFile(originalItem, pathTo.toString(false), ctx, callback);
     }
     if (originalItem.isFolder()) {
