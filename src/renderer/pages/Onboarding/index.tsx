@@ -6,6 +6,7 @@ export default function Onboarding() {
   const [slideIndex, setSlideIndex] = useState<number>(0);
   const [backupsModalOpen, setBackupsModalOpen] = useState(false);
   const finish = () => {
+    window.electron.openSyncFolder();
     window.electron.finishOnboarding();
   };
   const nextSlide = () => {

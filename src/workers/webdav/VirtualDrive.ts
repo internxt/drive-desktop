@@ -1,5 +1,6 @@
 import Logger from 'electron-log';
 import { exec } from 'child_process';
+import { app } from 'electron';
 
 export const mountDrive = (driveName = 'Internxt Drive', driveLetter = 'I') => {
   if (process.platform === 'win32') {
@@ -42,7 +43,9 @@ const mountWindowsDrive = (driveName: string, driveLetter: string) => {
         return;
       }
       exec(
-        `(New-Object -ComObject shell.application).NameSpace("${getVirtualDrivePath(driveLetter)}").self.name = "${driveName}"`,
+        `(New-Object -ComObject shell.application).NameSpace("${getVirtualDrivePath(
+          driveLetter
+        )}").self.name = "${driveName}"`,
         { shell: 'powershell.exe' },
         (errNaming, stdoutNaming) => {
           if (errNaming) {
@@ -50,11 +53,15 @@ const mountWindowsDrive = (driveName: string, driveLetter: string) => {
             return;
           }
 
-          Logger.log(`[VirtualDrive] Drive named successfully: ${stdoutNaming}`);
+          Logger.log(
+            `[VirtualDrive] Drive named successfully: ${stdoutNaming}`
+          );
         }
       );
 
-      Logger.log(`[VirtualDrive] Drive created and mounted successfully: ${stdoutMount}`);
+      Logger.log(
+        `[VirtualDrive] Drive created and mounted successfully: ${stdoutMount}`
+      );
     }
   );
 };
@@ -94,24 +101,32 @@ const mountMacOSDrive = (driveName: string) => {
             return;
           }
 
-          Logger.log(`[VirtualDrive] Drive mounted successfully: ${stdoutMount}`);
+          Logger.log(
+            `[VirtualDrive] Drive mounted successfully: ${stdoutMount}`
+          );
         }
       );
 
-      Logger.log(`[VirtualDrive] Drive folder created successfully: ${stdoutFolder}`);
+      Logger.log(
+        `[VirtualDrive] Drive folder created successfully: ${stdoutFolder}`
+      );
     }
   );
 };
 
 const unmountMacOSDrive = () => {
   Logger.log('[VirtualDrive] Unmounting drive');
-  exec(`umount ${getVirtualDrivePath()}`, { shell: '/bin/bash' }, (err, stdout) => {
-    if (err) {
-      Logger.log(`[VirtualDrive] Error unmounting drive: ${err}`);
-      return;
+  exec(
+    `umount ${getVirtualDrivePath()}`,
+    { shell: '/bin/bash' },
+    (err, stdout) => {
+      if (err) {
+        Logger.log(`[VirtualDrive] Error unmounting drive: ${err}`);
+        return;
+      }
+      Logger.log(`[VirtualDrive] Drive unmounted successfully: ${stdout}`);
     }
-    Logger.log(`[VirtualDrive] Drive unmounted successfully: ${stdout}`);
-  });
+  );
 };
 
 const mountLinuxDrive = () => {
@@ -144,11 +159,15 @@ const mountLinuxDrive = () => {
 
 const unmountLinuxDrive = () => {
   Logger.log('Unmounting drive');
-  exec(`umount ${getVirtualDrivePath()}`, { shell: '/bin/bash' }, (err, stdout) => {
-    if (err) {
-      Logger.error(`Error unmounting drive: ${err}`);
-      return;
+  exec(
+    `umount ${getVirtualDrivePath()}`,
+    { shell: '/bin/bash' },
+    (err, stdout) => {
+      if (err) {
+        Logger.error(`Error unmounting drive: ${err}`);
+        return;
+      }
+      Logger.log(`Drive unmounted successfully: ${stdout}`);
     }
-    Logger.log(`Drive unmounted successfully: ${stdout}`);
-  });
+  );
 };
