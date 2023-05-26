@@ -39,6 +39,7 @@ jobs:
           echo "RUDDERSTACK_DATA_PLANE_URL=${{ secrets.RUDDERSTACK_DATA_PLANE_URL }}" >> .env
           echo "APPLE_ID: ${{ secrets.APPLE_ID }}" >> .env
           echo "APPLE_ID_PASS: ${{ secrets.APPLE_ID_PASS }}" >> .env
+          echo "SENTRY_DSN: ${{ secrets.SENTRY_DSN }}" >> .env
       - name: Install the Apple certificate and provisioning profile
         env:
           BUILD_CERTIFICATE_BASE64: ${{ secrets.CERT_DEVELOPER_ID_APPLICATION }}
