@@ -13,7 +13,7 @@ export async function createAndUploadThumbnail(id: number, name: string) {
 		return;
 	}
 
-	const thumbnail = await reziseImage(image);
+  const thumbnail = reziseImage(image);
 
 	await uploader.upload(id, thumbnail).catch((err) => {
 		Logger.error('[THUMBNAIL] Error uploading thumbnail: ', err);

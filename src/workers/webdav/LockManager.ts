@@ -15,7 +15,7 @@ export class MyLockManager implements ILockManager {
   }
 
   setLock(lock: Lock, callback: SimpleCallback): void {
-    Logger.debug(`[LOCK MANAGER] SET LOCK: `, JSON.stringify(lock, null, 2));
+    Logger.debug('[LOCK MANAGER] SET LOCK: ', JSON.stringify(lock, null, 2));
     this.locks.push(lock);
     callback();
   }
