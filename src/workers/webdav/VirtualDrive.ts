@@ -21,6 +21,14 @@ export const unmountDrive = (driveLetter = 'I') => {
   }
 };
 
+export const getVirtualDrivePath = (driveLetter = 'I') => {
+  if (process.platform === 'win32') {
+    return driveLetter + ':\\';
+  } else {
+    return '~/InternxtDrive/';
+  }
+};
+
 const driveURL = 'http://localhost:1900';
 
 const mountWindowsDrive = (driveName: string, driveLetter: string) => {
@@ -34,7 +42,7 @@ const mountWindowsDrive = (driveName: string, driveLetter: string) => {
         return;
       }
       exec(
-        `(New-Object -ComObject shell.application).NameSpace("${driveLetter}:\\").self.name = "${driveName}"`,
+        `(New-Object -ComObject shell.application).NameSpace("${getVirtualDrivePath(driveLetter)}").self.name = "${driveName}"`,
         { shell: 'powershell.exe' },
         (errNaming, stdoutNaming) => {
           if (errNaming) {
@@ -70,7 +78,7 @@ const unmountWindowsDrive = (driveLetter: string) => {
 const mountMacOSDrive = (driveName: string) => {
   Logger.log('[VirtualDrive] Mounting drive');
   exec(
-    'mkdir -p ~/InternxtDrive',
+    `mkdir -p ${getVirtualDrivePath()}`,
     { shell: '/bin/bash' },
     (errFolder, stdoutFolder) => {
       if (errFolder) {
@@ -78,7 +86,7 @@ const mountMacOSDrive = (driveName: string) => {
         return;
       }
       exec(
-        `mount_webdav -S -v '${driveName}' ${driveURL} ~/InternxtDrive/`,
+        `mount_webdav -S -v '${driveName}' ${driveURL} ${getVirtualDrivePath()}`,
         { shell: '/bin/bash' },
         (errMount, stdoutMount) => {
           if (errMount) {
@@ -97,7 +105,7 @@ const mountMacOSDrive = (driveName: string) => {
 
 const unmountMacOSDrive = () => {
   Logger.log('[VirtualDrive] Unmounting drive');
-  exec('umount ~/InternxtDrive/', { shell: '/bin/bash' }, (err, stdout) => {
+  exec(`umount ${getVirtualDrivePath()}`, { shell: '/bin/bash' }, (err, stdout) => {
     if (err) {
       Logger.log(`[VirtualDrive] Error unmounting drive: ${err}`);
       return;
@@ -109,7 +117,7 @@ const unmountMacOSDrive = () => {
 const mountLinuxDrive = () => {
   Logger.log('Mounting drive');
   exec(
-    'mkdir -p ~/InternxtDrive',
+    `mkdir -p ${getVirtualDrivePath()}`,
     { shell: '/bin/bash' },
     (errFolder, stdoutFolder) => {
       if (errFolder) {
@@ -117,7 +125,7 @@ const mountLinuxDrive = () => {
         return;
       }
       exec(
-        `mount -t webdav ${driveURL} ~/InternxtDrive/`,
+        `mount -t webdav ${driveURL} ${getVirtualDrivePath()}`,
         { shell: '/bin/bash' },
         (errMount, stdoutMount) => {
           if (errMount) {
@@ -136,7 +144,7 @@ const mountLinuxDrive = () => {
 
 const unmountLinuxDrive = () => {
   Logger.log('Unmounting drive');
-  exec('umount ~/InternxtDrive/', { shell: '/bin/bash' }, (err, stdout) => {
+  exec(`umount ${getVirtualDrivePath()}`, { shell: '/bin/bash' }, (err, stdout) => {
     if (err) {
       Logger.error(`Error unmounting drive: ${err}`);
       return;
