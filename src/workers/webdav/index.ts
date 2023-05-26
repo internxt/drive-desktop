@@ -98,6 +98,7 @@ export const webdavOptions: WebDAVServerOptions = {
 
 async function setUp() {
   try {
+    Logger.log('[WEBDAB] Starting webdav Server...');
     const server = new webdav.WebDAVServer(webdavOptions);
 
     server.afterRequest((arg, next) => {
@@ -118,11 +119,11 @@ async function setUp() {
       server
         .stopAsync()
         .then(() => {
-          Logger.log('Server stopped succesfully');
+          Logger.log('[WEBDAB] Server stopped succesfully');
           ipcRenderer.send('WEBDAV_SERVER_STOP_SUCCESS');
         })
         .catch((err) => {
-          Logger.log('Server stopped with error', err);
+          Logger.log('[WEBDAB] Server stopped with error', err);
           ipcRenderer.send('WEBDAV_SERVER_STOP_ERROR', err);
         });
     });
@@ -132,6 +133,7 @@ async function setUp() {
     const mnemonic = configStore.get('mnemonic');
 
     if (!user) {
+      Logger.log('[WEBDAB] ERROR no user logged in');
       return;
     }
 
@@ -151,7 +153,7 @@ async function setUp() {
 
     await repository.init();
 
-    Logger.debug('[WEBDAB] ABOUT TO SET FILE SYSTEM');
+    Logger.log('[WEBDAB] ABOUT TO SET FILE SYSTEM');
 
     const clonner = new FileClonner(user.bucket, environment);
 
@@ -165,12 +167,12 @@ async function setUp() {
       '/',
       new InxtFileSystem(uploader, overrider, downloader, repository),
       (su) => {
-        Logger.debug('SUCCEDED: ', su);
+        Logger.log('[WEBDAB] SUCCEDED: ', su);
       }
     );
 
     server.start((s) => {
-      Logger.log('Ready on port', s?.address());
+      Logger.log('[WEBDAB] Ready on port', s?.address());
       mountDrive();
     });
 
@@ -196,7 +198,7 @@ async function setUp() {
     }
   } catch (err) {
     unmountDrive();
-    Logger.error(`[WEBDAV] ERROR: ${JSON.stringify(err, null, 2)}`);
+    Logger.log(`[WEBDAV] ERROR: ${JSON.stringify(err, null, 2)}`);
   }
 }
 
