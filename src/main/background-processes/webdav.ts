@@ -44,6 +44,6 @@ function stopWebDavServer() {
 eventBus.on('USER_LOGGED_OUT', stopWebDavServer);
 eventBus.on('USER_WAS_UNAUTHORIZED', stopWebDavServer);
 
-eventBus.on('WIDGET_IS_READY', () => {
+eventBus.on('USER_LOGGED_IN', () => {
   spawnWebdavServerWorker();
 });
