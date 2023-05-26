@@ -163,7 +163,7 @@ async function setUp() {
 
     server.setFileSystem(
       '/',
-      new InxtFileSystem(uploader, downloader, repository),
+      new InxtFileSystem(uploader, downloader, clonner, repository),
       (su) => {
         Logger.log('[WEBDAB] SUCCEDED: ', su);
       }

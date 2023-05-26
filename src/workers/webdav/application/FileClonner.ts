@@ -13,11 +13,11 @@ export class FileClonner {
       this.environment.upload(this.bucket, {
         finishedCallback: async (err: any, fileId: string) => {
           if (err) {
-            Logger.debug('ERROR UPLOADING FILE');
+            Logger.debug('ERROR CLONNING FILE');
             reject();
           }
 
-          Logger.debug('FILE UPLOADED');
+          Logger.debug('FILE CLONNED');
           resolve(fileId);
         },
         fileSize: size,

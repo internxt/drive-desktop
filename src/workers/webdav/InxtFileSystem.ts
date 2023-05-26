@@ -25,7 +25,6 @@ import {
   PhysicalSerializer,
   DisplayNameInfo,
   MoveInfo,
-  RenameInfo,
   CopyInfo,
   MimeTypeInfo,
 } from 'webdav-server/lib/index.v2';
@@ -36,10 +35,9 @@ import { TreeRepository } from './TreeRepository';
 import { XFile } from './domain/File';
 import { XPath } from './domain/XPath';
 import { DebugPhysicalSerializer } from './Serializer';
-import { FileOverrider } from './application/FileOverrider';
 import { FileDownloader } from './application/FileDownloader';
 import { XFolder } from './domain/Folder';
-import { Nullable } from '../../shared/types/Nullable';
+import { FileClonner } from './application/FileClonner';
 
 import mimetypes from './domain/MimeTypesMap.json';
 
@@ -74,6 +72,7 @@ type Metadata = {
   name: string;
   size: number;
   extension: string;
+  override: boolean;
 };
 
 export class InxtFileSystem extends FileSystem {
@@ -85,9 +84,12 @@ export class InxtFileSystem extends FileSystem {
 
   filesToUpload: Record<string, Metadata> = {};
 
+  filesToOverride: Array<string> = [];
+
   constructor(
     private readonly fileUploader: FileUploader,
     private readonly fileDownloader: FileDownloader,
+    private readonly fileClonner: FileClonner,
     private readonly repository: TreeRepository
   ) {
     super(new DebugPhysicalSerializer(fileUploader, repository));
@@ -97,31 +99,79 @@ export class InxtFileSystem extends FileSystem {
     };
   }
 
-  // _copy(
-  //   pathFrom: Path,
-  //   pathTo: Path,
-  //   ctx: CopyInfo,
-  //   callback: ReturnCallback<boolean>
-  // ) {
-  //   Logger.debug('COPY ', pathFrom.toString(false), pathTo.toString(false));
+  _copy(
+    pathFrom: Path,
+    pathTo: Path,
+    ctx: CopyInfo,
+    callback: ReturnCallback<boolean>
+  ) {
+    Logger.debug('COPY ', pathFrom.toString(false), pathTo.toString(false));
 
-  //   const resourceFrom = this.resources[pathFrom.toString(false)];
-  //   const resourceTo = this.resources[pathTo.toString(false)];
+    const sourceItem = this.repository.searchItem(pathFrom.toString(false));
 
-  //   if (!resourceFrom) {
-  //     return callback(Errors.ResourceNotFound);
-  //   }
+    if (!sourceItem) {
+      return callback(Errors.ResourceNotFound);
+    }
 
-  //   if (resourceTo) {
-  //     return callback(undefined, true);
-  //   }
+    const destinationItem = this.repository.searchItem(pathTo.toString(false));
 
-  //   this.resources[pathTo.toString(false)] = new PhysicalFileSystemResource(
-  //     resourceFrom
-  //   );
+    if (destinationItem && !ctx.overwrite) {
+      Logger.debug('[FS] ITEM ALREADY EXISTS');
+      return callback(Errors.ResourceAlreadyExists);
+    }
 
-  //   callback(undefined, false);
-  // }
+    if (destinationItem && sourceItem.isFile() && destinationItem.isFile()) {
+      const overrideFile = async () => {
+        const clonnedFileId = await this.fileClonner.clone(sourceItem.fileId);
+        const newFile = destinationItem.override(sourceItem, clonnedFileId);
+
+        await this.repository.deleteFile(destinationItem);
+        await this.repository.addFile(newFile);
+
+        callback(undefined, true);
+      };
+
+      Logger.debug('[FS] OVEWRITING THE FILE');
+      overrideFile();
+      return;
+    }
+
+    if (sourceItem.isFile()) {
+      const copyFile = async () => {
+        const clonnedFileId = await this.fileClonner.clone(sourceItem.fileId);
+
+        const destinationFolder = this.repository.searchParentFolder(
+          pathTo.toString(false)
+        );
+
+        if (!destinationFolder) {
+          return callback(Errors.IllegalArguments);
+        }
+
+        const path = new XPath(pathTo.toString(false));
+
+        const file = XFile.from({
+          fileId: clonnedFileId,
+          size: sourceItem.size,
+          type: sourceItem.type,
+          createdAt: sourceItem.createdAt.toISOString(),
+          updatedAt: sourceItem.updatedAt.toISOString(),
+          modificationTime: sourceItem.modificationTime.toISOString(),
+          folderId: destinationFolder.id,
+          name: path.name(),
+          path: path.value,
+        });
+
+        await this.repository.addFile(file);
+
+        callback(undefined, false);
+      };
+
+      Logger.debug('[FS] COPING THE FILE');
+      copyFile();
+      return;
+    }
+  }
 
   _create(path: Path, ctx: CreateInfo, callback: SimpleCallback): void {
     if (ctx.type.isDirectory) {
@@ -174,14 +224,17 @@ export class InxtFileSystem extends FileSystem {
 
     const newFilePaht = new XPath(path.toString(false));
 
-    this.filesToUpload[path.toString(false)] = {
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
-      type: ResourceType.File,
-      name: newFilePaht.name(),
-      size: ctx.estimatedSize,
-      extension: newFilePaht.extension(),
-    };
+    if (!this.filesToUpload[path.toString(false)]) {
+      this.filesToUpload[path.toString(false)] = {
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        type: ResourceType.File,
+        name: newFilePaht.name(),
+        size: ctx.estimatedSize,
+        extension: newFilePaht.extension(),
+        override: false,
+      };
+    }
 
     if (!resource) {
       this.resources[path.toString(false)] = new PhysicalFileSystemResource();
@@ -200,10 +253,13 @@ export class InxtFileSystem extends FileSystem {
         const parent = this.repository.searchParentFolder(path.toString(false));
 
         if (!parent) {
+          Logger.error('A file need a folder parent to be created');
           throw new Error('A file need a folder parent to be created');
         }
 
         const xPath = new XPath(path.toString(false));
+
+        Logger.debug('new path', xPath.value);
 
         const file = new XFile(
           fileId,
@@ -224,7 +280,7 @@ export class InxtFileSystem extends FileSystem {
       .then((fileUploaded: string) => {
         delete this.filesToUpload[fileUploaded];
       })
-      .catch((err) => Logger.error(JSON.stringify(err, null, 2)));
+      .catch((err) => Logger.error(err));
 
     callback(undefined, stream);
   }
@@ -282,7 +338,7 @@ export class InxtFileSystem extends FileSystem {
   }
 
   private moveFile(
-    originalItem: XFile | XFolder,
+    originalItem: XFile,
     destinationPath: string,
     ctx: MoveInfo,
     callback: ReturnCallback<boolean>
@@ -311,12 +367,16 @@ export class InxtFileSystem extends FileSystem {
     if (hasToBeOverriden) {
       if (originalItem.isFile() && destinationItem?.isFile()) {
         const override = async (callback: ReturnCallback<boolean>) => {
-          const newFile = originalItem.moveTo(destinationFolder);
+          try {
+            const newFile = originalItem.moveTo(destinationFolder);
 
-          await this.repository.deleteFile(destinationItem);
-          await this.repository.updateParentDir(newFile);
+            await this.repository.deleteFile(destinationItem);
+            await this.repository.updateParentDir(newFile);
 
-          callback(undefined, true);
+            callback(undefined, true);
+          } catch {
+            callback(Errors.UnrecognizedResource);
+          }
         };
 
         override(callback);
@@ -328,6 +388,23 @@ export class InxtFileSystem extends FileSystem {
 
     const simpleMove = async (callback: ReturnCallback<boolean>) => {
       const resultItem = originalItem.moveTo(destinationFolder);
+
+      Logger.debug(
+        'NEW PARENT FOLDER: ',
+        JSON.stringify(destinationFolder, null, 2)
+      );
+      Logger.debug('NEW FILE PATH: ', resultItem.path.value);
+
+      this.filesToUpload[resultItem.path.value] = {
+        createdAt: resultItem.createdAt.getTime(),
+        updatedAt: resultItem.updatedAt.getTime(),
+        type: ResourceType.File,
+        name: resultItem.name,
+        size: resultItem.size,
+        extension: resultItem.path.extension(),
+        override: false,
+      };
+
       await this.repository.updateParentDir(resultItem).catch((err) => {
         Logger.error('[FS] Error moving a file', JSON.stringify(err, null, 2));
         callback(err);
@@ -344,6 +421,56 @@ export class InxtFileSystem extends FileSystem {
     simpleMove(callback);
   }
 
+  private moveFolder(
+    originalFolder: XFolder,
+    destinationPath: string,
+    ctx: MoveInfo,
+    callback: ReturnCallback<boolean>
+  ) {
+    const destinationItem = this.repository.searchItem(destinationPath);
+
+    const hasToBeOverriden = destinationItem !== undefined;
+
+    if (hasToBeOverriden && !ctx.overwrite) {
+      return callback(Errors.InvalidOperation);
+    }
+
+    const destinationFolder =
+      this.repository.searchParentFolder(destinationPath);
+
+    if (!destinationFolder) {
+      return callback(Errors.IllegalArguments);
+    }
+
+    if (originalFolder.hasParent(destinationFolder.id)) {
+      Logger.debug('FOLDER RENAME');
+      this.renameFile(originalFolder, destinationPath, callback);
+      return;
+    }
+
+    if (hasToBeOverriden) {
+      return callback(Errors.Forbidden);
+    }
+
+    const simpleFolderMove = async (callback: ReturnCallback<boolean>) => {
+      const resultItem = originalFolder.moveTo(destinationFolder);
+      await this.repository.updateParentDir(resultItem).catch((err) => {
+        Logger.error('[FS] Error moving a file', JSON.stringify(err, null, 2));
+        callback(err);
+      });
+
+      this.resources[destinationPath] =
+        this.resources[originalFolder.path.value];
+      delete this.resources[originalFolder.path.value];
+
+      this.repository.deleteCachedItem(originalFolder);
+
+      callback(undefined, false);
+    };
+    Logger.debug('SIMPLE FOLDER MOVE');
+    simpleFolderMove(callback);
+  }
+
   _move(
     pathFrom: Path,
     pathTo: Path,
@@ -353,6 +480,7 @@ export class InxtFileSystem extends FileSystem {
     Logger.debug('[FS] MOVE');
 
     const originalItem = this.repository.searchItem(pathFrom.toString(false));
+
     if (!originalItem) {
       return callback(Errors.ResourceNotFound);
     }
@@ -360,7 +488,13 @@ export class InxtFileSystem extends FileSystem {
       return this.moveFile(originalItem, pathTo.toString(false), ctx, callback);
     }
     if (originalItem.isFolder()) {
-      return callback(Errors.InvalidOperation);
+      Logger.debug('[FS] MOVING FOLDER');
+      return this.moveFolder(
+        originalItem,
+        pathTo.toString(false),
+        ctx,
+        callback
+      );
     }
 
     callback(Errors.UnrecognizedResource);

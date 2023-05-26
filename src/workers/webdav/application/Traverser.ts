@@ -57,13 +57,19 @@ export class Traverser {
         return true;
       })
       .forEach(({ file, name }) => {
+        const plainName = this.decryptor.decryptName(
+          file.name,
+          file.folderId.toString(),
+          file.encrypt_version
+        ) as string;
+
         this.collection[name] = XFile.from({
           folderId: file.folderId,
           fileId: file.fileId,
           modificationTime: file.modificationTime,
           size: file.size,
           createdAt: file.createdAt,
-          name: file.name,
+          name: plainName,
           type: file.type,
           updatedAt: file.updatedAt,
           path: name,

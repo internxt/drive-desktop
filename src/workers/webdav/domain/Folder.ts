@@ -36,10 +36,6 @@ export class XFolder extends Item<XFolder> {
     );
   }
 
-  uuid() {
-    return this.id;
-  }
-
   moveTo(folder: XFolder): XFolder {
     if (!this.parentId) {
       throw new Error('Root folder cannot be moved');
@@ -55,9 +51,9 @@ export class XFolder extends Item<XFolder> {
       this.id,
       this.name,
       XPath.fromParts([basePath, this.name]),
-      this.parentId,
-      new Date(this.updatedAt),
-      new Date(this.createdAt)
+      folder.id,
+      new Date(this.createdAt),
+      new Date(this.updatedAt)
     );
   }
 

@@ -13,8 +13,6 @@ export abstract class Item<T> {
 
   abstract readonly size: number;
 
-  abstract uuid(): string;
-
   abstract rename(path: XPath): T;
   abstract moveTo(folder: XFolder): T;
 

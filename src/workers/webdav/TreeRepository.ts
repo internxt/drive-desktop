@@ -107,11 +107,6 @@ export class TreeRepository implements ItemRepository {
     return files;
   }
 
-  searchItemById(id: string): Nullable<XFile | XFolder> {
-    const items = Object.values(this.items);
-    return items.find((item) => item.uuid() === id);
-  }
-
   searchItem(pathLike: string): Nullable<XFile | XFolder> {
     const item = this.items[pathLike];
 
@@ -235,6 +230,8 @@ export class TreeRepository implements ItemRepository {
       file.folderId.toString()
     );
 
+    Logger.debug('[REPOSITORY]', JSON.stringify(file, null, 2));
+
     // TODO: MAKE SURE ALL FIELDS ARE CORRECT
     const result = await this.httpClient.post<FileCreatedResponseDTO>(
       `${process.env.API_URL}/api/storage/file`,
@@ -253,6 +250,12 @@ export class TreeRepository implements ItemRepository {
         },
       }
     );
+
+    if (result.status === 500) {
+      //rollback
+    }
+
+    Logger.debug(JSON.stringify(result));
 
     const created = XFile.from({
       ...result.data,
