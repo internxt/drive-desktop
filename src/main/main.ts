@@ -103,7 +103,7 @@ ipcMain.on('user-quit', () => {
 app
   .whenReady()
   .then(async () => {
-    await AppDataSource.initialize();
+    //await AppDataSource.initialize();
     eventBus.emit('APP_IS_READY');
 
     if (process.env.NODE_ENV === 'development') {

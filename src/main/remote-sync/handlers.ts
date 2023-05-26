@@ -19,7 +19,7 @@ const remoteSyncManager = new RemoteSyncManager(
     syncFolders: true,
   }
 );
-eventBus.on('USER_LOGGED_IN', () => {
+/* eventBus.on('USER_LOGGED_IN', () => {
   Logger.info('Received user logged in event, running RemoteSyncManager');
   remoteSyncManager.onStatusChange((newStatus) => {
     Logger.info(`RemoteSyncManager status: ${newStatus}`);
@@ -33,4 +33,4 @@ eventBus.on('USER_LOGGED_IN', () => {
 
 eventBus.on('USER_LOGGED_OUT', () => {
   clearRemoteSyncStore();
-});
+}); */
