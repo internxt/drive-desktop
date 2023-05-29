@@ -16,8 +16,8 @@ import {
   getOnlineImageSvg,
 } from './helpers';
 import Button from 'renderer/components/Button';
-import Lottie from 'lottie-react';
-import BackupsAnimation from '../../assets/onboarding/backups-animation.json';
+
+import BackupsSVG from '../../assets/onboarding/backups.svg';
 
 import ContextMenuSvg from '../../assets/onboarding/context-menu.svg';
 import { OnboardingCompletedSlide } from './slides/OnboardingCompletedSlide';
@@ -231,9 +231,7 @@ export const SLIDES: OnboardingSlide[] = [
       );
     },
   },
-
-  // Disabled for testing
-  /* {
+  {
     name: 'Backups Slide',
     component: (props) => {
       return (
@@ -273,21 +271,21 @@ export const SLIDES: OnboardingSlide[] = [
     },
     image: () => {
       return (
-        <div className="relative flex h-full w-full items-center justify-center ">
+        <div className="flex  h-full w-full items-center justify-center ">
           <SideImageAnimation display>
-            <Lottie autoPlay animationData={BackupsAnimation} />
+            <BackupsSVG />
           </SideImageAnimation>
         </div>
       );
     },
-  }, */
+  },
   {
     name: 'Onboarding Completed',
     component: (props) => {
       return (
         <div className="flex h-full w-full ">
           <SideTextAnimation display>
-            <OnboardingCompletedSlide backupsFoldersAdded={0} {...props} />
+            <OnboardingCompletedSlide {...props} />
           </SideTextAnimation>
         </div>
       );

@@ -13,12 +13,14 @@ import AvailableOfflineImageFrench from '../../assets/onboarding/folder-with-ove
 import MacOSFinderImage from '../../assets/onboarding/finder/macos.svg';
 import LinuxFinderImage from '../../assets/onboarding/finder/linux.svg';
 import WindowsFinderImage from '../../assets/onboarding/finder/windows.svg';
+import { BackupFolder } from 'renderer/components/Backups/BackupsFoldersSelector';
 
 export type OnboardingSlideProps = {
   onGoNextSlide: () => void;
   onSkipOnboarding: () => void;
   onSetupBackups: () => void;
   onFinish: () => void;
+  backupFolders: BackupFolder[];
   currentSlide: number;
   totalSlides: number;
 };
