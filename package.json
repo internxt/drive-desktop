@@ -27,7 +27,8 @@
     "test": "jest && playwright test --config=src/test",
     "test:unit": "jest --silent",
     "test:e2e": "playwright test --config=src/test",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "format-all": "prettier --write ."
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [

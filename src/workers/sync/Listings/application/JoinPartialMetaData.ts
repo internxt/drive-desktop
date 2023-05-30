@@ -1,18 +1,18 @@
 import { LocalItemMetaData } from '../domain/LocalItemMetaData';
 import { RemoteItemMetaData } from '../domain/RemoteItemMetaData';
 import {
-	SynchronizedItemMetaData,
-	SynchronizeMetaDataAttributes,
+  SynchronizedItemMetaData,
+  SynchronizeMetaDataAttributes,
 } from '../domain/SynchronizedItemMetaData';
 
 export function createSynchronizedItemMetaDataFromPartials(
-	local: LocalItemMetaData,
-	remote: RemoteItemMetaData
+  local: LocalItemMetaData,
+  remote: RemoteItemMetaData
 ): SynchronizedItemMetaData {
-	const attributes: SynchronizeMetaDataAttributes = {
-		...local.toJSON(),
-		...remote.toJSON(),
-	};
+  const attributes: SynchronizeMetaDataAttributes = {
+    ...local.toJSON(),
+    ...remote.toJSON(),
+  };
 
-	return SynchronizedItemMetaData.from(attributes);
+  return SynchronizedItemMetaData.from(attributes);
 }
