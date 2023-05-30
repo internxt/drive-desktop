@@ -11,4 +11,6 @@ export interface WebdavFileRepository {
   updateName(item: WebdavFile): Promise<void>;
 
   updateParentDir(item: WebdavFile): Promise<void>;
+
+  markForDeletion(file: WebdavFile): void;
 }

@@ -33,9 +33,7 @@ import Logger from 'electron-log';
 import { TreeRepository } from './TreeRepository';
 import { WebdavFile } from './files/domain/WebdavFile';
 import { DebugPhysicalSerializer } from './Serializer';
-import { WebdavFolder } from './folders/domain/WebdavFolder';
 import { FileUploader } from './files/infrastructure/FileUploader';
-import { FileClonner } from './files/infrastructure/FileClonner';
 import { FileDownloader } from './files/infrastructure/FileDownloader';
 
 import mimetypes from './domain/MimeTypesMap.json';
@@ -46,7 +44,7 @@ import { WebdavFolderFinder } from './folders/application/WebdavFolderFinder';
 import { WebdavFileRepository } from './files/domain/WebdavFileRepository';
 import { WebdavFolderRepository } from './folders/domain/WebdavFolderRepository';
 import { WebdavFolderMover } from './folders/application/WebdavFolderMover';
-import { WebdavFileClonner } from './files/application/WebdavFileClonner';
+import { InxtFileSystemDependencyContainer } from './InxtFileSystemDependencyContainer';
 
 export class PhysicalFileSystemResource {
   props: LocalPropertyManager;
@@ -102,8 +100,8 @@ export class InxtFileSystem extends FileSystem {
   constructor(
     private readonly fileUploader: FileUploader,
     private readonly fileDownloader: FileDownloader,
-    private readonly fileClonner: FileClonner,
-    private readonly repository: TreeRepository
+    private readonly repository: TreeRepository,
+    private readonly dependencyContainer: InxtFileSystemDependencyContainer
   ) {
     super(new DebugPhysicalSerializer(fileUploader, repository));
 
@@ -144,20 +142,14 @@ export class InxtFileSystem extends FileSystem {
     }
 
     if (sourceItem.isFile()) {
-      const clonner = new WebdavFileClonner(
-        this.fileRepository,
-        this.folderFinder,
-        this.fileClonner
-      );
-
       const filePath = new FilePath(pathTo.toString(false));
 
-      clonner
+      this.dependencyContainer.fileClonner
         .run(sourceItem, filePath, ctx.overwrite)
-        .then((haveBeenOverwritten) => {
+        .then((haveBeenOverwritten: boolean) => {
           callback(undefined, haveBeenOverwritten);
         })
-        .catch((err) => {
+        .catch((err: unknown) => {
           Logger.error('[FS] Error coping file ', err);
           callback(Errors.IllegalArguments);
         });
@@ -195,10 +187,12 @@ export class InxtFileSystem extends FileSystem {
     }
 
     if (item.isFile()) {
-      Logger.debug('[FS] DELETING FILE');
-      this.repository
-        .deleteFile(item)
-        .then(() => callback())
+      this.dependencyContainer.fileDeleter
+        .run(item)
+        .then(() => {
+          delete this.resources[item.path.value];
+          callback(undefined);
+        })
         .catch(() => callback(Errors.InvalidOperation));
       return;
     }

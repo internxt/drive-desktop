@@ -26,6 +26,7 @@ import { FileClonner } from './files/infrastructure/FileClonner';
 import { InxtFileSystem } from './InxtFileSystem';
 import { FileDownloader } from './files/infrastructure/FileDownloader';
 import { getClients } from '../../shared/HttpClient/backgroud-process-clients';
+import { buildContainer } from './dependencyInjection';
 
 interface WebDavServerEvents {
   WEBDAV_SERVER_START_SUCCESS: () => void;
@@ -154,15 +155,15 @@ async function setUp() {
 
     Logger.log('[WEBDAB] ABOUT TO SET FILE SYSTEM');
 
-    const clonner = new FileClonner(user.bucket, environment);
-
     const uploader = new FileUploader(user.bucket, environment);
 
     const downloader = new FileDownloader(user.bucket, environment);
 
+    const container = await buildContainer();
+
     server.setFileSystem(
       '/',
-      new InxtFileSystem(uploader, downloader, clonner, repository),
+      new InxtFileSystem(uploader, downloader, repository, container),
       (su) => {
         Logger.log('[WEBDAB] SUCCEDED: ', su);
       }
