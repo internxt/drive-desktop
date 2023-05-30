@@ -1,8 +1,8 @@
-import { XFolder } from './Folder';
-import { Item } from './Item';
-import { XPath } from './XPath';
+import { WebdavFolder } from '../../folders/domain/WebdavFolder';
+import { WebdavItem } from '../../shared/domain/WebdavItem';
+import { FilePath } from './FilePath';
 
-export type XFileAtributes = {
+export type WebdavFileAtributes = {
   fileId: string;
   folderId: number;
   createdAt: string;
@@ -14,14 +14,12 @@ export type XFileAtributes = {
   updatedAt: string;
 };
 
-export class XFile extends Item<XFile> {
-  // private encryptVersion: string = '03-aes';
-
+export class WebdavFile extends WebdavItem {
   constructor(
     public readonly fileId: string,
     public readonly folderId: number,
     public readonly name: string,
-    public readonly path: XPath,
+    public readonly path: FilePath,
     public readonly size: number,
     public readonly type: string,
     public readonly createdAt: Date,
@@ -31,12 +29,12 @@ export class XFile extends Item<XFile> {
     super();
   }
 
-  static from(attributes: XFileAtributes): XFile {
-    return new XFile(
+  static from(attributes: WebdavFileAtributes): WebdavFile {
+    return new WebdavFile(
       attributes.fileId,
       attributes.folderId,
       attributes.name,
-      new XPath(attributes.path),
+      new FilePath(attributes.path),
       attributes.size,
       attributes.type,
       new Date(attributes.createdAt),
@@ -44,7 +42,8 @@ export class XFile extends Item<XFile> {
       new Date(attributes.modificationTime)
     );
   }
-  moveTo(folder: XFolder): XFile {
+
+  moveTo(folder: WebdavFolder): WebdavFile {
     if (this.folderId === folder.id) {
       throw new Error('Cannot move a file to its current folder');
     }
@@ -53,11 +52,11 @@ export class XFile extends Item<XFile> {
 
     const name = this.type === '' ? this.name : `${this.name}.${this.type}`;
 
-    const file = new XFile(
+    const file = new WebdavFile(
       this.fileId,
       folder.id,
       this.name,
-      XPath.fromParts([basePath, name]),
+      FilePath.fromParts([basePath, name]),
       this.size,
       this.type,
       this.createdAt,
@@ -68,7 +67,7 @@ export class XFile extends Item<XFile> {
     return file;
   }
 
-  clone(fileId: string, newPath: XPath) {
+  clone(fileId: string, newPath: FilePath) {
     if (!this.path.hasSameDirname(newPath)) {
       throw new Error('A file rename should mantain the current estructure');
     }
@@ -79,7 +78,7 @@ export class XFile extends Item<XFile> {
 
     const newName = newPath.name();
 
-    return new XFile(
+    return new WebdavFile(
       fileId,
       this.folderId,
       newName,
@@ -92,7 +91,7 @@ export class XFile extends Item<XFile> {
     );
   }
 
-  rename(newPath: XPath) {
+  rename(newPath: FilePath) {
     if (!this.path.hasSameDirname(newPath)) {
       throw new Error('A file rename should mantain the current estructure');
     }
@@ -107,7 +106,7 @@ export class XFile extends Item<XFile> {
 
     const newName = newPath.name();
 
-    return new XFile(
+    return new WebdavFile(
       this.fileId,
       this.folderId,
       newName,
@@ -120,7 +119,7 @@ export class XFile extends Item<XFile> {
     );
   }
 
-  override(file: XFile, fileId: string) {
+  override(file: WebdavFile, fileId: string) {
     if (this.name !== file.name) {
       throw new Error('Cannot replace file with diferent name');
     }
@@ -133,7 +132,7 @@ export class XFile extends Item<XFile> {
       throw new Error('Cannot replace file with diferent types');
     }
 
-    const replaced = new XFile(
+    const replaced = new WebdavFile(
       fileId,
       this.folderId,
       this.name,
@@ -152,11 +151,11 @@ export class XFile extends Item<XFile> {
     return this.folderId === id;
   }
 
-  isFolder(): this is XFolder {
+  isFolder(): this is WebdavFolder {
     return false;
   }
 
-  isFile(): this is XFile {
+  isFile(): this is WebdavFile {
     return true;
   }
 

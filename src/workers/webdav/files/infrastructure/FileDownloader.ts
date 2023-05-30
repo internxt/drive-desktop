@@ -1,7 +1,6 @@
 import { Environment } from '@internxt/inxt-js';
 import { Readable } from 'stream';
 import Logger from 'electron-log';
-import { Nullable } from '../../../shared/types/Nullable';
 
 export class FileDownloader {
   constructor(
@@ -9,7 +8,7 @@ export class FileDownloader {
     private readonly environment: Environment
   ) {}
 
-  download(fileId: string): Promise<Nullable<Readable>> {
+  download(fileId: string): Promise<Readable | undefined> {
     return new Promise((resolve, reject) => {
       this.environment.download(
         this.bucket,

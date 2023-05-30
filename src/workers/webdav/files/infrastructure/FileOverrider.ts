@@ -1,7 +1,6 @@
 import { Environment } from '@internxt/inxt-js';
 import Logger from 'electron-log';
-import { Readable } from 'stream';
-import { XFile } from '../domain/File';
+import { WebdavFile } from '../domain/WebdavFile';
 import { FileClonner } from './FileClonner';
 
 export class FileOverrider {
@@ -11,7 +10,7 @@ export class FileOverrider {
     private readonly clonner: FileClonner
   ) {}
 
-  private delete(file: XFile): Promise<void> {
+  private delete(file: WebdavFile): Promise<void> {
     return new Promise<void>((resolve, reject) => {
       this.environment.deleteFile(
         this.bucket,
@@ -28,7 +27,7 @@ export class FileOverrider {
     });
   }
 
-  async run(file: XFile) {
+  async run(file: WebdavFile) {
     const createdId = await this.clonner.clone(file.fileId);
 
     await this.delete(file);

@@ -1,4 +1,4 @@
-import { XFile } from './File';
-import { XFolder } from './Folder';
+import { WebdavFile } from '../files/domain/WebdavFile';
+import { WebdavFolder } from '../folders/domain/WebdavFolder';
 
-export type ItemsIndexedByPath = Record<string, XFolder | XFile>;
+export type ItemsIndexedByPath = Record<string, WebdavFolder | WebdavFile>;

@@ -1,8 +1,8 @@
-import { XFile } from './File';
-import { Item } from './Item';
-import { XPath } from './XPath';
+import { WebdavFile } from '../../files/domain/WebdavFile';
+import { WebdavItem } from '../../shared/domain/WebdavItem';
+import { FolderPath } from './FolderPath';
 
-export type XFolderAttributes = {
+export type WebdavFolderAttributes = {
   id: number;
   name: string;
   path: string;
@@ -11,13 +11,13 @@ export type XFolderAttributes = {
   createdAt: string;
 };
 
-export class XFolder extends Item<XFolder> {
+export class WebdavFolder extends WebdavItem {
   public readonly size: number = 0;
 
   private constructor(
     public readonly id: number,
     public readonly name: string,
-    public readonly path: XPath,
+    public readonly path: FolderPath,
     public readonly parentId: null | number,
     public readonly createdAt: Date,
     public readonly updatedAt: Date
@@ -25,18 +25,18 @@ export class XFolder extends Item<XFolder> {
     super();
   }
 
-  static from(attributes: XFolderAttributes): XFolder {
-    return new XFolder(
+  static from(attributes: WebdavFolderAttributes): WebdavFolder {
+    return new WebdavFolder(
       attributes.id,
       attributes.name,
-      new XPath(attributes.path),
+      new FolderPath(attributes.path),
       attributes.parentId,
       new Date(attributes.updatedAt),
       new Date(attributes.createdAt)
     );
   }
 
-  moveTo(folder: XFolder): XFolder {
+  moveTo(folder: WebdavFolder): WebdavFolder {
     if (!this.parentId) {
       throw new Error('Root folder cannot be moved');
     }
@@ -47,28 +47,24 @@ export class XFolder extends Item<XFolder> {
 
     const basePath = folder.path.dirname();
 
-    return new XFolder(
+    return new WebdavFolder(
       this.id,
       this.name,
-      XPath.fromParts([basePath, this.name]),
+      FolderPath.fromParts([basePath, this.name]),
       folder.id,
       new Date(this.createdAt),
       new Date(this.updatedAt)
     );
   }
 
-  rename(newPath: XPath): XFolder {
-    if (!this.path.hasSameDirname(newPath)) {
-      throw new Error('A folder rename should mantain the current estructure');
-    }
-
+  rename(newPath: FolderPath): WebdavFolder {
     if (this.path.hasSameName(newPath)) {
       throw new Error('Cannot rename a folder to the same name');
     }
 
     const newName = newPath.name();
 
-    return new XFolder(
+    return new WebdavFolder(
       this.id,
       newName,
       newPath,
@@ -82,11 +78,11 @@ export class XFolder extends Item<XFolder> {
     return this.parentId === id;
   }
 
-  isFolder(): this is XFolder {
+  isFolder(): this is WebdavFolder {
     return true;
   }
 
-  isFile(): this is XFile {
+  isFile(): this is WebdavFile {
     return false;
   }
 

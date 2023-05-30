@@ -33,10 +33,10 @@ import fs, { createWriteStream } from 'fs';
 import { TreeRepository } from './TreeRepository';
 import { MyLockManager } from './LockManager';
 import { FileUploader } from './application/FileUploader';
-import { XPath } from './domain/XPath';
-import { XFile } from './domain/File';
-import { XFolder } from './domain/Folder';
-import { FileClonner } from './application/FileClonner';
+import { WebdavPath } from './shared/domain/WebdavPath';
+import { WebdavFile } from './files/domain/WebdavFile';
+import { WebdavFolder } from './folders/domain/WebdavFolder';
+import { FileClonner } from './files/infrastructure/FileClonner';
 import { DebugPropertyManager } from './DebugPropertyManager';
 
 export class ProofOfConceptFileSystem extends webdav.FileSystem {
@@ -90,11 +90,11 @@ export class ProofOfConceptFileSystem extends webdav.FileSystem {
   }
 
   private customRename(
-    item: XFile | XFolder,
+    item: WebdavFile | WebdavFolder,
     pathTo: Path,
     callback: ReturnCallback<boolean>
   ) {
-    const newPath = new XPath(pathTo.toString(false));
+    const newPath = new WebdavPath(pathTo.toString(false));
 
     const renamed = item.rename(newPath);
 
@@ -110,7 +110,7 @@ export class ProofOfConceptFileSystem extends webdav.FileSystem {
   }
 
   private customMove(
-    item: XFile | XFolder,
+    item: WebdavFile | WebdavFolder,
     pathTo: Path,
     callback: ReturnCallback<boolean>
   ) {
@@ -119,7 +119,7 @@ export class ProofOfConceptFileSystem extends webdav.FileSystem {
       return;
     }
 
-    const newPath = new XPath(pathTo.toString(false));
+    const newPath = new WebdavPath(pathTo.toString(false));
 
     const folder = this.repository.searchItem(newPath.dirname());
 
@@ -182,7 +182,9 @@ export class ProofOfConceptFileSystem extends webdav.FileSystem {
   ) {
     Logger.debug('[FS] COPY');
 
-    const item = this.repository.searchItem(pathFrom.toString(false)) as XFile;
+    const item = this.repository.searchItem(
+      pathFrom.toString(false)
+    ) as WebdavFile;
 
     const fn = async () => {
       const id = await this.fileClonner.clone(item.fileId);
@@ -194,7 +196,7 @@ export class ProofOfConceptFileSystem extends webdav.FileSystem {
         throw new Error();
       }
 
-      const file = item.clone(id, new XPath(pathTo.toString()));
+      const file = item.clone(id, new WebdavPath(pathTo.toString()));
       await this.repository.addFile(file);
     };
 
@@ -208,7 +210,7 @@ export class ProofOfConceptFileSystem extends webdav.FileSystem {
 
     const itemPath = path.toString(false);
 
-    const createFolder = async (parent: XFolder) => {
+    const createFolder = async (parent: WebdavFolder) => {
       try {
         Logger.debug('[FS] CREATE B');
         callback(undefined);

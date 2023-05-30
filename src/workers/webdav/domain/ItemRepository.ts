@@ -1,24 +1,24 @@
 import { Nullable } from '../../../shared/types/Nullable';
-import { XFile } from './File';
-import { XFolder } from './Folder';
-import { XPath } from './XPath';
+import { WebdavFile } from '../files/domain/WebdavFile';
+import { WebdavFolder } from '../folders/domain/WebdavFolder';
+import { WebdavPath } from '../shared/domain/WebdavPath';
 
 export interface ItemRepository {
-  listContents(folderPath: string): Array<XPath>;
+  listContents(folderPath: string): Array<WebdavPath>;
 
-  searchItem(pathLike: string): Nullable<XFile | XFolder>;
+  searchItem(pathLike: string): Nullable<WebdavFile | WebdavFolder>;
 
-  searchParentFolder(itemPath: string): Nullable<XFolder>;
+  searchParentFolder(itemPath: string): Nullable<WebdavFolder>;
 
-  createFolder(folderPath: string, parentFolder: XFolder): Promise<void>;
+  createFolder(folderPath: string, parentFolder: WebdavFolder): Promise<void>;
 
-  deleteFolder(item: XFolder): Promise<void>;
+  deleteFolder(item: WebdavFolder): Promise<void>;
 
-  deleteFile(file: XFile): Promise<void>;
+  deleteFile(file: WebdavFile): Promise<void>;
 
-  addFile(file: XFile): Promise<void>;
+  addFile(file: WebdavFile): Promise<void>;
 
-  updateName(item: XFile | XFolder): Promise<void>;
+  updateName(item: WebdavFile | WebdavFolder): Promise<void>;
 
-  updateParentDir(item: XFile | XFolder): Promise<void>;
+  updateParentDir(item: WebdavFile | WebdavFolder): Promise<void>;
 }

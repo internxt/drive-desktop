@@ -3,8 +3,8 @@ import { fileNameIsValid } from '../../utils/name-verification';
 import { ServerFile } from '../../filesystems/domain/ServerFile';
 import { ServerFolder } from '../../filesystems/domain/ServerFolder';
 import { ItemsIndexedByPath } from '../domain/ItemsIndexedByPath';
-import { XFile } from '../domain/File';
-import { XFolder } from '../domain/Folder';
+import { WebdavFile } from '../files/domain/WebdavFile';
+import { WebdavFolder } from '../folders/domain/WebdavFolder';
 
 export class Traverser {
   private readonly collection: ItemsIndexedByPath = {};
@@ -63,7 +63,7 @@ export class Traverser {
           file.encrypt_version
         ) as string;
 
-        this.collection[name] = XFile.from({
+        this.collection[name] = WebdavFile.from({
           folderId: file.folderId,
           fileId: file.fileId,
           modificationTime: file.modificationTime,
@@ -89,7 +89,7 @@ export class Traverser {
 
       if (!plainName) return;
 
-      this.collection[name] = XFolder.from({
+      this.collection[name] = WebdavFolder.from({
         id: folder.id,
         parentId: folder.parent_id as number,
         updatedAt: folder.updated_at,
@@ -111,7 +111,7 @@ export class Traverser {
   }) {
     this.rawTree = rawTree;
 
-    this.collection['/'] = XFolder.from({
+    this.collection['/'] = WebdavFolder.from({
       id: this.baseFolderId,
       parentId: null,
       updatedAt: Date.now().toLocaleString(),

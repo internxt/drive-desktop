@@ -6,10 +6,10 @@ import { ServerFolder } from '../filesystems/domain/ServerFolder';
 import { Traverser } from './application/Traverser';
 import crypt from '../utils/crypt';
 import { ItemsIndexedByPath } from './domain/ItemsIndexedByPath';
-import { XPath } from './domain/XPath';
-import { XFolder } from './domain/Folder';
+import { WebdavPath } from './shared/domain/WebdavPath';
+import { WebdavFolder } from './folders/domain/WebdavFolder';
 import { Nullable } from '../../shared/types/Nullable';
-import { XFile } from './domain/File';
+import { WebdavFile } from './files/domain/WebdavFile';
 import { FileCreatedResponseDTO } from '../../shared/HttpClient/responses/file-created';
 import { ItemRepository } from './domain/ItemRepository';
 
@@ -81,7 +81,7 @@ export class TreeRepository implements ItemRepository {
     this.items = this.remoteFilesTraverser.run(raw);
   }
 
-  listContents(folderPath: string): Array<XPath> {
+  listContents(folderPath: string): Array<WebdavPath> {
     Logger.debug('LIST CONTENTS: ', folderPath);
 
     if (folderPath === '/') {
@@ -107,13 +107,15 @@ export class TreeRepository implements ItemRepository {
     return files;
   }
 
-  searchItem(pathLike: string): Nullable<XFile | XFolder> {
+  searchItem(pathLike: string): Nullable<WebdavFile | WebdavFolder> {
+    Logger.debug('REPO SEARCHING ', pathLike);
+
     const item = this.items[pathLike];
 
     return item;
   }
 
-  searchParentFolder(itemPath: string): Nullable<XFolder> {
+  searchParentFolder(itemPath: string): Nullable<WebdavFolder> {
     const itemPaths = itemPath.split('/');
     itemPaths.splice(itemPaths.length - 1, 1);
     const parentFolderPath = itemPaths.join('/') || '/';
@@ -140,7 +142,7 @@ export class TreeRepository implements ItemRepository {
     throw new Error(`Could not retrive the folder containing ${itemPath}`);
   }
 
-  async createFolder(folderPath: string, parentFolder: XFolder) {
+  async createFolder(folderPath: string, parentFolder: WebdavFolder) {
     const plainName = folderPath.split('/').at(-1);
 
     if (!plainName) {
@@ -172,7 +174,7 @@ export class TreeRepository implements ItemRepository {
 
     Logger.debug('CREATED FOLDER', JSON.stringify(created, null, 2));
 
-    this.items[folderPath] = XFolder.from({
+    this.items[folderPath] = WebdavFolder.from({
       id: created.id,
       name: plainName,
       parentId: created.parent_id,
@@ -184,7 +186,7 @@ export class TreeRepository implements ItemRepository {
     Logger.debug('CREATE FOLDER FINISHED');
   }
 
-  async deleteFolder(item: XFolder): Promise<void> {
+  async deleteFolder(item: WebdavFolder): Promise<void> {
     const result = await this.trashHttpClient.post(
       `${process.env.NEW_DRIVE_URL}/drive/storage/trash/add`,
       {
@@ -205,7 +207,7 @@ export class TreeRepository implements ItemRepository {
     );
   }
 
-  async deleteFile(file: XFile): Promise<void> {
+  async deleteFile(file: WebdavFile): Promise<void> {
     const result = await this.trashHttpClient.post(
       `${process.env.NEW_DRIVE_URL}/drive/storage/trash/add`,
       {
@@ -224,7 +226,7 @@ export class TreeRepository implements ItemRepository {
     }
   }
 
-  async addFile(file: XFile): Promise<void> {
+  async addFile(file: WebdavFile): Promise<void> {
     const encryptedName = crypt.encryptName(
       file.name,
       file.folderId.toString()
@@ -257,7 +259,7 @@ export class TreeRepository implements ItemRepository {
 
     Logger.debug(JSON.stringify(result));
 
-    const created = XFile.from({
+    const created = WebdavFile.from({
       ...result.data,
       folderId: result.data.folder_id,
       size: parseInt(result.data.size, 10),
@@ -267,7 +269,7 @@ export class TreeRepository implements ItemRepository {
     this.items[file.path.value] = created;
   }
 
-  async updateName(item: XFile | XFolder): Promise<void> {
+  async updateName(item: WebdavFile | WebdavFolder): Promise<void> {
     const url = item.isFile()
       ? `${process.env.API_URL}/api/storage/file/${item.fileId}/meta`
       : `${process.env.API_URL}/api/storage/folder/${item.id}/meta`;
@@ -288,7 +290,7 @@ export class TreeRepository implements ItemRepository {
     this.items[item.path.value] = item;
   }
 
-  async updateParentDir(item: XFile | XFolder): Promise<void> {
+  async updateParentDir(item: WebdavFile | WebdavFolder): Promise<void> {
     const request = item.isFile()
       ? {
           url: `${process.env.API_URL}/api/storage/move/file`,
@@ -308,7 +310,7 @@ export class TreeRepository implements ItemRepository {
     this.items[item.path.value] = item;
   }
 
-  deleteCachedItem(file: XFile | XFolder): void {
+  deleteCachedItem(file: WebdavFile | WebdavFolder): void {
     delete this.items[file.path.value];
   }
 }

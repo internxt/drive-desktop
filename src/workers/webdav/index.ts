@@ -20,12 +20,11 @@ import { v4 } from 'uuid';
 import { TreeRepository } from './TreeRepository';
 import { getUser } from '../../main/auth/service';
 import configStore from '../../main/config';
-import { FileUploader } from './application/FileUploader';
+import { FileUploader } from './files/infrastructure/FileUploader';
 import { mountDrive, unmountDrive } from './VirtualDrive';
-import { FileClonner } from './application/FileClonner';
+import { FileClonner } from './files/infrastructure/FileClonner';
 import { InxtFileSystem } from './InxtFileSystem';
-import { FileOverrider } from './application/FileOverrider';
-import { FileDownloader } from './application/FileDownloader';
+import { FileDownloader } from './files/infrastructure/FileDownloader';
 import { getClients } from '../../shared/HttpClient/backgroud-process-clients';
 
 interface WebDavServerEvents {

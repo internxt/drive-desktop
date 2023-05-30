@@ -1,8 +1,8 @@
 import path from 'path';
-import { InvalidArgumentError } from '../../shared/domain/InvalidArgumentError';
-import { ValueObject } from '../../shared/domain/ValueObject';
+import { WebdavPath } from '../../shared/domain/WebdavPath';
+import { InvalidArgumentError } from '../../../shared/domain/InvalidArgumentError';
 
-export class XPath extends ValueObject<string> {
+export class FilePath extends WebdavPath {
   constructor(value: string) {
     super(value);
     this.startsWithSlash(value);
@@ -17,7 +17,7 @@ export class XPath extends ValueObject<string> {
   static fromParts(parts: Array<string>) {
     const full = path.join(...parts);
 
-    return new XPath(full);
+    return new FilePath(full);
   }
 
   extension(): string {
@@ -44,18 +44,7 @@ export class XPath extends ValueObject<string> {
     return base;
   }
 
-  dirname(): string {
-    return path.dirname(this.value);
-  }
-
-  hasSameName(other: XPath) {
-    const name = this.name();
-    const otherName = other.name();
-
-    return name === otherName;
-  }
-
-  hasSameDirname(other: XPath): boolean {
+  hasSameDirname(other: FilePath): boolean {
     const dirname = path.dirname(this.value);
     const otherDirname = path.dirname(other.value);
 

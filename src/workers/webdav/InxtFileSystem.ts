@@ -30,16 +30,21 @@ import {
 } from 'webdav-server/lib/index.v2';
 import { PassThrough, Readable, Writable } from 'stream';
 import Logger from 'electron-log';
-import { FileUploader } from './application/FileUploader';
 import { TreeRepository } from './TreeRepository';
-import { XFile } from './domain/File';
-import { XPath } from './domain/XPath';
+import { WebdavFile } from './files/domain/WebdavFile';
 import { DebugPhysicalSerializer } from './Serializer';
-import { FileDownloader } from './application/FileDownloader';
-import { XFolder } from './domain/Folder';
-import { FileClonner } from './application/FileClonner';
+import { WebdavFolder } from './folders/domain/WebdavFolder';
+import { FileUploader } from './files/infrastructure/FileUploader';
+import { FileClonner } from './files/infrastructure/FileClonner';
+import { FileDownloader } from './files/infrastructure/FileDownloader';
 
 import mimetypes from './domain/MimeTypesMap.json';
+import { FilePath } from './files/domain/FilePath';
+import { FolderPath } from './folders/domain/FolderPath';
+import { WebdavFileMover } from './files/application/WebdavFileMover';
+import { WebdavFolderFinder } from './folders/application/WebdavFolderFinder';
+import { WebdavFileRepository } from './files/domain/WebdavFileRepository';
+import { WebdavFolderRepository } from './folders/domain/WebdavFolderRepository';
 
 export class PhysicalFileSystemResource {
   props: LocalPropertyManager;
@@ -86,6 +91,12 @@ export class InxtFileSystem extends FileSystem {
 
   filesToOverride: Array<string> = [];
 
+  fileRepository: WebdavFileRepository;
+
+  folderRepository: WebdavFolderRepository;
+
+  folderFinder: WebdavFolderFinder;
+
   constructor(
     private readonly fileUploader: FileUploader,
     private readonly fileDownloader: FileDownloader,
@@ -93,6 +104,23 @@ export class InxtFileSystem extends FileSystem {
     private readonly repository: TreeRepository
   ) {
     super(new DebugPhysicalSerializer(fileUploader, repository));
+
+    this.fileRepository = {
+      search: this.repository.searchItem.bind(this.repository),
+      delete: this.repository.deleteFile.bind(this.repository),
+      add: this.repository.addFile.bind(this.repository),
+      updateName: this.repository.updateName.bind(this.repository),
+      updateParentDir: this.repository.updateParentDir.bind(this.repository),
+    } as unknown as WebdavFileRepository;
+
+    this.folderRepository = {
+      search: this.repository.searchItem.bind(this.repository),
+      delete: this.repository.deleteFile.bind(this.repository),
+      updateName: this.repository.updateName.bind(this.repository),
+      updateParentDir: this.repository.updateParentDir.bind(this.repository),
+    } as unknown as WebdavFolderRepository;
+
+    this.folderFinder = new WebdavFolderFinder(this.folderRepository);
 
     this.resources = {
       '/': new PhysicalFileSystemResource(),
@@ -148,9 +176,9 @@ export class InxtFileSystem extends FileSystem {
           return callback(Errors.IllegalArguments);
         }
 
-        const path = new XPath(pathTo.toString(false));
+        const path = new FilePath(pathTo.toString(false));
 
-        const file = XFile.from({
+        const file = WebdavFile.from({
           fileId: clonnedFileId,
           size: sourceItem.size,
           type: sourceItem.type,
@@ -222,7 +250,7 @@ export class InxtFileSystem extends FileSystem {
   ): void {
     const resource = this.resources[path.toString(false)];
 
-    const newFilePaht = new XPath(path.toString(false));
+    const newFilePaht = new FilePath(path.toString(false));
 
     if (!this.filesToUpload[path.toString(false)]) {
       this.filesToUpload[path.toString(false)] = {
@@ -257,17 +285,17 @@ export class InxtFileSystem extends FileSystem {
           throw new Error('A file need a folder parent to be created');
         }
 
-        const xPath = new XPath(path.toString(false));
+        const filePath = new FilePath(path.toString(false));
 
-        Logger.debug('new path', xPath.value);
+        Logger.debug('new path', filePath.value);
 
-        const file = new XFile(
+        const file = new WebdavFile(
           fileId,
           parent.id,
-          xPath.name(),
-          xPath,
+          filePath.name(),
+          filePath,
           ctx.estimatedSize,
-          xPath.extension(),
+          filePath.extension(),
           new Date(),
           new Date(),
           new Date()
@@ -275,7 +303,7 @@ export class InxtFileSystem extends FileSystem {
 
         await this.repository.addFile(file);
 
-        return xPath.value;
+        return filePath.value;
       })
       .then((fileUploaded: string) => {
         delete this.filesToUpload[fileUploaded];
@@ -321,108 +349,24 @@ export class InxtFileSystem extends FileSystem {
   //   callback: ReturnCallback<boolean>
   // ) {}
 
-  private async renameFile(
-    originalItem: XFile | XFolder,
-    destinationPath: string,
+  private async renameFolder(
+    folder: WebdavFolder,
+    destination: string,
     callback: ReturnCallback<boolean>
   ) {
-    const newPath = new XPath(destinationPath);
-    const renamedItem = originalItem.rename(newPath);
+    const newPath = new FolderPath(destination);
+    const renamedItem = folder.rename(newPath);
     try {
       await this.repository.updateName(renamedItem);
-      this.repository.deleteCachedItem(originalItem);
+      this.repository.deleteCachedItem(folder);
       callback(undefined, true);
     } catch {
       callback(Errors.InvalidOperation);
     }
   }
 
-  private moveFile(
-    originalItem: XFile,
-    destinationPath: string,
-    ctx: MoveInfo,
-    callback: ReturnCallback<boolean>
-  ) {
-    const destinationItem = this.repository.searchItem(destinationPath);
-
-    const hasToBeOverriden = destinationItem !== undefined;
-
-    if (hasToBeOverriden && !ctx.overwrite) {
-      return callback(Errors.InvalidOperation);
-    }
-
-    const destinationFolder =
-      this.repository.searchParentFolder(destinationPath);
-
-    if (!destinationFolder) {
-      return callback(Errors.IllegalArguments);
-    }
-
-    if (originalItem.hasParent(destinationFolder.id)) {
-      Logger.debug('FILE RENAME');
-      this.renameFile(originalItem, destinationPath, callback);
-      return;
-    }
-
-    if (hasToBeOverriden) {
-      if (originalItem.isFile() && destinationItem?.isFile()) {
-        const override = async (callback: ReturnCallback<boolean>) => {
-          try {
-            const newFile = originalItem.moveTo(destinationFolder);
-
-            await this.repository.deleteFile(destinationItem);
-            await this.repository.updateParentDir(newFile);
-
-            callback(undefined, true);
-          } catch {
-            callback(Errors.UnrecognizedResource);
-          }
-        };
-
-        override(callback);
-        return;
-      }
-
-      return callback(Errors.InvalidOperation);
-    }
-
-    const simpleMove = async (callback: ReturnCallback<boolean>) => {
-      const resultItem = originalItem.moveTo(destinationFolder);
-
-      Logger.debug(
-        'NEW PARENT FOLDER: ',
-        JSON.stringify(destinationFolder, null, 2)
-      );
-      Logger.debug('NEW FILE PATH: ', resultItem.path.value);
-
-      this.filesToUpload[resultItem.path.value] = {
-        createdAt: resultItem.createdAt.getTime(),
-        updatedAt: resultItem.updatedAt.getTime(),
-        type: ResourceType.File,
-        name: resultItem.name,
-        size: resultItem.size,
-        extension: resultItem.path.extension(),
-        override: false,
-      };
-
-      await this.repository.updateParentDir(resultItem).catch((err) => {
-        Logger.error('[FS] Error moving a file', JSON.stringify(err, null, 2));
-        callback(err);
-      });
-
-      this.resources[destinationPath] = this.resources[originalItem.path.value];
-      delete this.resources[originalItem.path.value];
-
-      this.repository.deleteCachedItem(originalItem);
-
-      callback(undefined, false);
-    };
-    Logger.debug('SIMPLE MOVE');
-    simpleMove(callback);
-  }
-
   private moveFolder(
-    originalFolder: XFolder,
+    originalFolder: WebdavFolder,
     destinationPath: string,
     ctx: MoveInfo,
     callback: ReturnCallback<boolean>
@@ -444,7 +388,7 @@ export class InxtFileSystem extends FileSystem {
 
     if (originalFolder.hasParent(destinationFolder.id)) {
       Logger.debug('FOLDER RENAME');
-      this.renameFile(originalFolder, destinationPath, callback);
+      this.renameFolder(originalFolder, destinationPath, callback);
       return;
     }
 
@@ -485,7 +429,19 @@ export class InxtFileSystem extends FileSystem {
       return callback(Errors.ResourceNotFound);
     }
     if (originalItem.isFile()) {
-      return this.moveFile(originalItem, pathTo.toString(false), ctx, callback);
+      const mover = new WebdavFileMover(this.fileRepository, this.folderFinder);
+      const filePath = new FilePath(pathTo.toString(false));
+      mover
+        .run(originalItem, filePath, ctx.overwrite)
+        .then((hasBeenOverriden) => {
+          callback(undefined, hasBeenOverriden);
+        })
+        .catch((err) => {
+          Logger.error(err);
+          callback(Errors.InvalidOperation);
+        });
+
+      return;
     }
     if (originalItem.isFolder()) {
       Logger.debug('[FS] MOVING FOLDER');
@@ -568,7 +524,15 @@ export class InxtFileSystem extends FileSystem {
       return callback(undefined, file.name);
     }
 
-    callback(undefined, item.path.nameWithExtension());
+    if (item.isFile()) {
+      return callback(undefined, item.path.nameWithExtension());
+    }
+
+    if (item.isFolder()) {
+      return callback(undefined, item.name);
+    }
+
+    callback(Errors.UnrecognizedResource);
   }
 
   _creationDate(
@@ -596,14 +560,14 @@ export class InxtFileSystem extends FileSystem {
   }
 
   _mimeType(path: Path, ctx: MimeTypeInfo, callback: ReturnCallback<string>) {
-    const pathValueObject = new XPath(path.toString(false));
+    const filePath = new FilePath(path.toString(false));
 
-    if (!pathValueObject.hasExtension()) {
+    if (!filePath.hasExtension()) {
       return callback(undefined, InxtFileSystem.DefaultMimeType);
     }
 
     const mimeType = (mimetypes as Record<string, string>)[
-      `.${pathValueObject.extension()}`
+      `.${filePath.extension()}`
     ];
 
     if (!mimeType) {
