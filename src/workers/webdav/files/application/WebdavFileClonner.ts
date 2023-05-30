@@ -14,7 +14,7 @@ export class WebdavFileClonner {
     private readonly fileClonner: FileClonner
   ) {}
 
-  private async override(file: WebdavFile, destinationFile: WebdavFile) {
+  private async overwrite(file: WebdavFile, destinationFile: WebdavFile) {
     const clonnedFileId = await this.fileClonner.clone(file.fileId);
     const newFile = destinationFile.override(file, clonnedFileId);
 
@@ -58,7 +58,7 @@ export class WebdavFileClonner {
     }
 
     if (destinationFile) {
-      await this.override(file, destinationFile);
+      await this.overwrite(file, destinationFile);
       return WebdavFileClonner.FILE_OVERRIDED;
     }
 

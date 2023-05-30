@@ -46,6 +46,7 @@ import { WebdavFolderFinder } from './folders/application/WebdavFolderFinder';
 import { WebdavFileRepository } from './files/domain/WebdavFileRepository';
 import { WebdavFolderRepository } from './folders/domain/WebdavFolderRepository';
 import { WebdavFolderMover } from './folders/application/WebdavFolderMover';
+import { WebdavFileClonner } from './files/application/WebdavFileClonner';
 
 export class PhysicalFileSystemResource {
   props: LocalPropertyManager;
@@ -142,62 +143,25 @@ export class InxtFileSystem extends FileSystem {
       return callback(Errors.ResourceNotFound);
     }
 
-    const destinationItem = this.repository.searchItem(pathTo.toString(false));
-
-    if (destinationItem && !ctx.overwrite) {
-      Logger.debug('[FS] ITEM ALREADY EXISTS');
-      return callback(Errors.ResourceAlreadyExists);
-    }
-
-    if (destinationItem && sourceItem.isFile() && destinationItem.isFile()) {
-      const overrideFile = async () => {
-        const clonnedFileId = await this.fileClonner.clone(sourceItem.fileId);
-        const newFile = destinationItem.override(sourceItem, clonnedFileId);
-
-        await this.repository.deleteFile(destinationItem);
-        await this.repository.addFile(newFile);
-
-        callback(undefined, true);
-      };
-
-      Logger.debug('[FS] OVEWRITING THE FILE');
-      overrideFile();
-      return;
-    }
-
     if (sourceItem.isFile()) {
-      const copyFile = async () => {
-        const clonnedFileId = await this.fileClonner.clone(sourceItem.fileId);
+      const clonner = new WebdavFileClonner(
+        this.fileRepository,
+        this.folderFinder,
+        this.fileClonner
+      );
 
-        const destinationFolder = this.repository.searchParentFolder(
-          pathTo.toString(false)
-        );
+      const filePath = new FilePath(pathTo.toString(false));
 
-        if (!destinationFolder) {
-          return callback(Errors.IllegalArguments);
-        }
-
-        const path = new FilePath(pathTo.toString(false));
-
-        const file = WebdavFile.from({
-          fileId: clonnedFileId,
-          size: sourceItem.size,
-          type: sourceItem.type,
-          createdAt: sourceItem.createdAt.toISOString(),
-          updatedAt: sourceItem.updatedAt.toISOString(),
-          modificationTime: sourceItem.modificationTime.toISOString(),
-          folderId: destinationFolder.id,
-          name: path.name(),
-          path: path.value,
+      clonner
+        .run(sourceItem, filePath, ctx.overwrite)
+        .then((haveBeenOverwritten) => {
+          callback(undefined, haveBeenOverwritten);
+        })
+        .catch((err) => {
+          Logger.error('[FS] Error coping file ', err);
+          callback(Errors.IllegalArguments);
         });
 
-        await this.repository.addFile(file);
-
-        callback(undefined, false);
-      };
-
-      Logger.debug('[FS] COPING THE FILE');
-      copyFile();
       return;
     }
   }
@@ -399,7 +363,7 @@ export class InxtFileSystem extends FileSystem {
         .run(originalItem, folderPath)
         .then(() => {
           changeResourceIndex();
-          callback(undefined, hasBeenOverriden);
+          callback(undefined, false);
         })
         .catch((err) => {
           Logger.error(err);
