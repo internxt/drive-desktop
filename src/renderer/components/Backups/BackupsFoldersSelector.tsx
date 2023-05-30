@@ -83,7 +83,12 @@ export const BackupsFoldersSelector: React.FC<BackupsFoldersSelectorProps> = (
       })
     );
   };
-  const handleOnCancel = props.onCancel;
+  const handleOnCancel = () => {
+    setSelectedBackupFolders([]);
+    setBackupFolders([]);
+    setIsLoading(false);
+    props.onCancel();
+  };
   const handleOnCompleted = () => props.onFinish(backupFolders);
 
   const getBackupFoldersCount = () => {

@@ -254,7 +254,7 @@ export const SLIDES: OnboardingSlide[] = [
             {translate('onboarding.slides.backups.setup-backups')}
           </Button>
           <Button
-            onClick={props.onSkipOnboarding}
+            onClick={props.onFinish}
             variant="default"
             className="h-10 px-5 font-medium"
           >

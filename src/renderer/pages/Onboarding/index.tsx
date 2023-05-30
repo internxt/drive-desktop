@@ -57,6 +57,7 @@ export default function Onboarding() {
 
   const handleCancelSettingBackups = () => {
     setBackupFolders([]);
+    setBackupsModalOpen(false);
   };
   const handleFinishSettingBackups = (backupFolders: BackupFolder[]) => {
     setBackupsModalOpen(false);
