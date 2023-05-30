@@ -495,7 +495,10 @@ function getDeviceId(): number {
 }
 
 export async function createBackupsFromLocalPaths(folderPaths: string[]) {
+  configStore.set('backupsEnabled', true);
+
   await getOrCreateDevice();
+
   const operations = folderPaths.map((folderPath) => createBackup(folderPath));
 
   await Promise.all(operations);

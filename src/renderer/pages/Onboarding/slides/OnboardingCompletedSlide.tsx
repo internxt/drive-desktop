@@ -21,11 +21,9 @@ export const OnboardingCompletedSlide: React.FC<
       {props.backupFolders.length ? (
         <>
           <div className="flex flex-row items-start">
-            <CheckCircle
-              weight="fill"
-              className="-mt-1 mr-2 text-primary"
-              size={32}
-            />
+            <div className="mr-2 w-4">
+              <CheckCircle weight="fill" className=" text-primary" size={20} />
+            </div>
             <div className="flex flex-col">
               <h3 className="font-regular mb-0.5 text-lg leading-[22px] text-gray-100">
                 {translate(
@@ -42,12 +40,10 @@ export const OnboardingCompletedSlide: React.FC<
           </div>
         </>
       ) : null}
-      <div className="flex flex-row items-start">
-        <CheckCircle
-          weight="fill"
-          className="-mt-1 mr-2 text-primary"
-          size={32}
-        />
+      <div className="mt-6 flex flex-row items-start">
+        <div className="mr-2 w-4">
+          <CheckCircle weight="fill" className=" text-primary" size={20} />
+        </div>
         <div className="flex flex-col">
           <h3 className="font-regular mb-0.5 text-lg leading-[22px] text-gray-100">
             {translate(
