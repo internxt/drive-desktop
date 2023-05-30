@@ -48,7 +48,7 @@ export const getPlatformName = () => {
   if (typeof process === 'undefined') return '';
   if (process.platform === 'win32') return 'Windows';
   if (process.platform === 'linux') return 'Linux';
-  if (process.platform === 'darwin') 'MacOS';
+  if (process.platform === 'darwin') return 'MacOS';
 
   return '';
 };
@@ -60,7 +60,8 @@ export const getPlatformPhraseTranslationKey = () => {
     return 'onboarding.common.platform-phrase.windows';
   if (process.platform === 'linux')
     return 'onboarding.common.platform-phrase.linux';
-  if (process.platform === 'darwin') 'onboarding.common.platform-phrase.macos';
+  if (process.platform === 'darwin')
+    return 'onboarding.common.platform-phrase.macos';
 
   return '';
 };

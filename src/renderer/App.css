@@ -38,7 +38,6 @@
 body,
 html {
   font-family: 'NeueEinstellung', sans-serif;
-  font-smooth: antialiased;
 }
 
 .no-scrollbar::-webkit-scrollbar {
