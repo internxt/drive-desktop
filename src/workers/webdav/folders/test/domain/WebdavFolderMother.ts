@@ -26,4 +26,28 @@ export class WebdavFolderMother {
       createdAt: new Date().toISOString(),
     });
   }
+
+  static in(folderId: number, path: string) {
+    const name = new FolderPath(path).name();
+
+    return WebdavFolder.from({
+      id: 20445,
+      name,
+      path,
+      parentId: folderId,
+      updatedAt: new Date().toISOString(),
+      createdAt: new Date().toISOString(),
+    });
+  }
+
+  static withId(folderId: number) {
+    return WebdavFolder.from({
+      id: folderId,
+      name: 'Zodseve',
+      path: '/Zodseve',
+      parentId: folderId,
+      updatedAt: new Date().toISOString(),
+      createdAt: new Date().toISOString(),
+    });
+  }
 }

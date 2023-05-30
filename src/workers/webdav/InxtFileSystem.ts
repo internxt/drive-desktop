@@ -45,6 +45,7 @@ import { WebdavFileMover } from './files/application/WebdavFileMover';
 import { WebdavFolderFinder } from './folders/application/WebdavFolderFinder';
 import { WebdavFileRepository } from './files/domain/WebdavFileRepository';
 import { WebdavFolderRepository } from './folders/domain/WebdavFolderRepository';
+import { WebdavFolderMover } from './folders/application/WebdavFolderMover';
 
 export class PhysicalFileSystemResource {
   props: LocalPropertyManager;
@@ -349,72 +350,6 @@ export class InxtFileSystem extends FileSystem {
   //   callback: ReturnCallback<boolean>
   // ) {}
 
-  private async renameFolder(
-    folder: WebdavFolder,
-    destination: string,
-    callback: ReturnCallback<boolean>
-  ) {
-    const newPath = new FolderPath(destination);
-    const renamedItem = folder.rename(newPath);
-    try {
-      await this.repository.updateName(renamedItem);
-      this.repository.deleteCachedItem(folder);
-      callback(undefined, true);
-    } catch {
-      callback(Errors.InvalidOperation);
-    }
-  }
-
-  private moveFolder(
-    originalFolder: WebdavFolder,
-    destinationPath: string,
-    ctx: MoveInfo,
-    callback: ReturnCallback<boolean>
-  ) {
-    const destinationItem = this.repository.searchItem(destinationPath);
-
-    const hasToBeOverriden = destinationItem !== undefined;
-
-    if (hasToBeOverriden && !ctx.overwrite) {
-      return callback(Errors.InvalidOperation);
-    }
-
-    const destinationFolder =
-      this.repository.searchParentFolder(destinationPath);
-
-    if (!destinationFolder) {
-      return callback(Errors.IllegalArguments);
-    }
-
-    if (originalFolder.hasParent(destinationFolder.id)) {
-      Logger.debug('FOLDER RENAME');
-      this.renameFolder(originalFolder, destinationPath, callback);
-      return;
-    }
-
-    if (hasToBeOverriden) {
-      return callback(Errors.Forbidden);
-    }
-
-    const simpleFolderMove = async (callback: ReturnCallback<boolean>) => {
-      const resultItem = originalFolder.moveTo(destinationFolder);
-      await this.repository.updateParentDir(resultItem).catch((err) => {
-        Logger.error('[FS] Error moving a file', JSON.stringify(err, null, 2));
-        callback(err);
-      });
-
-      this.resources[destinationPath] =
-        this.resources[originalFolder.path.value];
-      delete this.resources[originalFolder.path.value];
-
-      this.repository.deleteCachedItem(originalFolder);
-
-      callback(undefined, false);
-    };
-    Logger.debug('SIMPLE FOLDER MOVE');
-    simpleFolderMove(callback);
-  }
-
   _move(
     pathFrom: Path,
     pathTo: Path,
@@ -428,12 +363,22 @@ export class InxtFileSystem extends FileSystem {
     if (!originalItem) {
       return callback(Errors.ResourceNotFound);
     }
+
+    const changeResourceIndex = () => {
+      this.resources[pathTo.toString(false)] =
+        this.resources[originalItem.path.value];
+
+      delete this.resources[originalItem.path.value];
+      this.repository.deleteCachedItem(originalItem);
+    };
+
     if (originalItem.isFile()) {
       const mover = new WebdavFileMover(this.fileRepository, this.folderFinder);
       const filePath = new FilePath(pathTo.toString(false));
       mover
         .run(originalItem, filePath, ctx.overwrite)
         .then((hasBeenOverriden) => {
+          changeResourceIndex();
           callback(undefined, hasBeenOverriden);
         })
         .catch((err) => {
@@ -443,14 +388,24 @@ export class InxtFileSystem extends FileSystem {
 
       return;
     }
+
     if (originalItem.isFolder()) {
-      Logger.debug('[FS] MOVING FOLDER');
-      return this.moveFolder(
-        originalItem,
-        pathTo.toString(false),
-        ctx,
-        callback
+      const mover = new WebdavFolderMover(
+        this.folderRepository,
+        this.folderFinder
       );
+      const folderPath = new FolderPath(pathTo.toString(false));
+      mover
+        .run(originalItem, folderPath)
+        .then(() => {
+          changeResourceIndex();
+          callback(undefined, hasBeenOverriden);
+        })
+        .catch((err) => {
+          Logger.error(err);
+          callback(Errors.InvalidOperation);
+        });
+      return;
     }
 
     callback(Errors.UnrecognizedResource);

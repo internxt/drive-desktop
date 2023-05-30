@@ -10,7 +10,7 @@ export class FolderPath extends WebdavPath {
 
   private startsWithSlash(value: string) {
     if (!value.startsWith('/')) {
-      throw new InvalidArgumentError(`${value} is not a valid XPath`);
+      throw new InvalidArgumentError(`${value} is not a valid FolderPath`);
     }
   }
 
