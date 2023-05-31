@@ -202,9 +202,6 @@ export async function addBackup(): Promise<void> {
   if (!existingBackup) {
     return createBackup(chosenPath);
   }
-  if (!existingBackup) {
-    return createBackup(chosenPath);
-  }
 
   let folderStillExists;
   try {
@@ -214,12 +211,6 @@ export async function addBackup(): Promise<void> {
     folderStillExists = false;
   }
 
-  if (folderStillExists) {
-    backupList[chosenPath].enabled = true;
-    configStore.set('backupList', backupList);
-  } else {
-    return createBackup(chosenPath);
-  }
   if (folderStillExists) {
     backupList[chosenPath].enabled = true;
     configStore.set('backupList', backupList);
@@ -237,10 +228,6 @@ async function fetchFolder(folderId: number) {
     }
   );
 
-  if (res.ok) {
-    return res.json();
-  }
-  throw new Error('Unsuccesful request to fetch folder');
   if (res.ok) {
     return res.json();
   }
@@ -275,9 +262,7 @@ export async function disableBackup(backup: Backup): Promise<void> {
   const pathname = findBackupPathnameFromId(backup.id)!;
 
   backupsList[pathname].enabled = false;
-  backupsList[pathname].enabled = false;
 
-  configStore.set('backupList', backupsList);
   configStore.set('backupList', backupsList);
 }
 
@@ -285,9 +270,6 @@ export async function changeBackupPath(currentPath: string): Promise<boolean> {
   const backupsList = configStore.get('backupList');
   const existingBackup = backupsList[currentPath];
 
-  if (!existingBackup) {
-    throw new Error('Backup no longer exists');
-  }
   if (!existingBackup) {
     throw new Error('Backup no longer exists');
   }
@@ -317,14 +299,9 @@ export async function changeBackupPath(currentPath: string): Promise<boolean> {
   if (!res.ok) {
     throw new Error('Error in the request to rename a backup');
   }
-  if (!res.ok) {
-    throw new Error('Error in the request to rename a backup');
-  }
 
   delete backupsList[currentPath];
-  delete backupsList[currentPath];
 
-  backupsList[chosenPath] = existingBackup;
   backupsList[chosenPath] = existingBackup;
 
   configStore.set('backupList', backupsList);
