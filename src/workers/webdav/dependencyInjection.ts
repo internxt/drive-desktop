@@ -1,21 +1,31 @@
 import { InxtFileSystemDependencyContainer } from './InxtFileSystemDependencyContainer';
-import { TreeRepository } from './TreeRepository';
 import { getUser } from '../../main/auth/service';
 import configStore from '../../main/config';
 import { getClients } from '../../shared/HttpClient/backgroud-process-clients';
 import { Environment } from '@internxt/inxt-js';
-import { WebdavFileRepository } from './files/domain/WebdavFileRepository';
-import { WebdavFolderRepository } from './folders/domain/WebdavFolderRepository';
 import { WebdavFileClonner } from './files/application/WebdavFileClonner';
 import { FileClonner } from './files/infrastructure/FileClonner';
 import { FileDownloader } from './files/infrastructure/FileDownloader';
 import { FileUploader } from './files/infrastructure/FileUploader';
 import { WebdavFolderFinder } from './folders/application/WebdavFolderFinder';
-import { InMemoryWebdavFileDeletionQueue } from './files/infrastructure/InMemoryWebdavFileDeletionQueue';
 import { WebdavFileDeleter } from './files/application/WebdavFileDeleter';
 import { HttpWebdavFileRepository } from './files/infrastructure/HttpWebdavFileRepository';
+import { WebdavFolderCreator } from './folders/application/WebdavFolderCreator';
+import { HttpWebdavFolderRepository } from './folders/infrastructure/HttpWebdavFolderRepository';
+import crypt from '../utils/crypt';
+import { Traverser } from './application/Traverser';
+import { WebdavFileExists } from './files/application/WebdavFileExists';
+import { TreeRepository } from './TreeRepository';
+import { WebdavUnknownItemTypeSearcher } from './shared/application/WebdavUnknownItemTypeSearcher';
+import { WebdavFileMover } from './files/application/WebdavFileMover';
+import { WebdavFolderMover } from './folders/application/WebdavFolderMover';
+import { AllWebdavItemsNameLister } from './shared/application/AllWebdavItemsSearcher';
+
+let container: InxtFileSystemDependencyContainer | null = null;
 
 export async function buildContainer(): Promise<InxtFileSystemDependencyContainer> {
+  if (container) return container;
+
   const clients = getClients();
   const user = getUser();
   const mnemonic = configStore.get('mnemonic');
@@ -31,28 +41,31 @@ export async function buildContainer(): Promise<InxtFileSystemDependencyContaine
     encryptionKey: mnemonic,
   });
 
-  const repository = new TreeRepository(
-    clients.drive,
-    clients.newDrive,
-    user?.root_folder_id as number,
-    user.bucket
-  );
+  const traverser = new Traverser(crypt, user.root_folder_id);
 
-  const fileRepository = new HttpWebdavFileRepository(
+  const treeRepository = new TreeRepository(
     clients.drive,
     clients.newDrive,
     user.root_folder_id,
     user.bucket
   );
 
-  await fileRepository.init();
+  const fileRepository = new HttpWebdavFileRepository(
+    clients.drive,
+    clients.newDrive,
+    traverser,
+    user.bucket
+  );
 
-  const folderRepository = {
-    search: repository.searchItem.bind(repository),
-    delete: repository.deleteFile.bind(repository),
-    updateName: repository.updateName.bind(repository),
-    updateParentDir: repository.updateParentDir.bind(repository),
-  } as unknown as WebdavFolderRepository;
+  const folderRepository = new HttpWebdavFolderRepository(
+    clients.drive,
+    clients.newDrive,
+    traverser
+  );
+
+  await fileRepository.init();
+  await folderRepository.init();
+  await treeRepository.init();
 
   const clonner = new FileClonner(user.bucket, environment);
 
@@ -62,9 +75,28 @@ export async function buildContainer(): Promise<InxtFileSystemDependencyContaine
 
   const folderFinder = new WebdavFolderFinder(folderRepository);
 
-  return {
+  container = {
+    fileExists: new WebdavFileExists(fileRepository),
     fileClonner: new WebdavFileClonner(fileRepository, folderFinder, clonner),
     fileDeleter: new WebdavFileDeleter(fileRepository),
-    folderFinder: folderFinder,
+    fileMover: new WebdavFileMover(fileRepository, folderFinder),
+
+    folderFinder,
+    folderCreator: new WebdavFolderCreator(folderRepository, folderFinder),
+    folderMover: new WebdavFolderMover(folderRepository, folderFinder),
+
+    allItemsLister: new AllWebdavItemsNameLister(
+      fileRepository,
+      folderRepository,
+      folderFinder
+    ),
+    itemSearcher: new WebdavUnknownItemTypeSearcher(
+      fileRepository,
+      folderRepository
+    ),
+
+    reposiotry: treeRepository,
   };
+
+  return container;
 }

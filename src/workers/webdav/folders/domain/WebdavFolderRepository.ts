@@ -1,14 +1,20 @@
-import { WebdavFolder } from './WebdavFolder';
+import { WebdavFolder, WebdavFolderAttributes } from './WebdavFolder';
 import { Nullable } from '../../../../shared/types/Nullable';
+import { FolderPath } from './FolderPath';
 
 export interface WebdavFolderRepository {
   search(path: string): Nullable<WebdavFolder>;
 
-  delete(file: WebdavFolder): Promise<void>;
+  delete(folder: WebdavFolder): Promise<void>;
 
-  add(file: WebdavFolder): Promise<void>;
+  create(
+    name: FolderPath,
+    parentId: WebdavFolderAttributes['parentId']
+  ): Promise<WebdavFolder>;
 
-  updateName(item: WebdavFolder): Promise<void>;
+  updateName(folder: WebdavFolder): Promise<void>;
 
-  updateParentDir(item: WebdavFolder): Promise<void>;
+  updateParentDir(folder: WebdavFolder): Promise<void>;
+
+  searchOnFolder(folder: WebdavFolderAttributes['id']): Array<WebdavFolder>;
 }

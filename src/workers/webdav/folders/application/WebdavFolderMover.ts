@@ -21,7 +21,8 @@ export class WebdavFolderMover {
     await this.repository.updateParentDir(moved);
   }
 
-  async run(folder: WebdavFolder, destination: FolderPath): Promise<void> {
+  async run(folder: WebdavFolder, to: string): Promise<void> {
+    const destination = new FolderPath(to);
     const destinationFolder = this.repository.search(destination.value);
 
     const shouldBeMerge =

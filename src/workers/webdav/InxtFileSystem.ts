@@ -145,7 +145,7 @@ export class InxtFileSystem extends FileSystem {
       const filePath = new FilePath(pathTo.toString(false));
 
       this.dependencyContainer.fileClonner
-        .run(sourceItem, filePath, ctx.overwrite)
+        .run(filePath, filePath, ctx.overwrite)
         .then((haveBeenOverwritten: boolean) => {
           callback(undefined, haveBeenOverwritten);
         })
@@ -160,12 +160,17 @@ export class InxtFileSystem extends FileSystem {
 
   _create(path: Path, ctx: CreateInfo, callback: SimpleCallback): void {
     if (ctx.type.isDirectory) {
-      const folderPath = path.toString(false);
-      const parent = this.repository.searchParentFolder(folderPath);
-
-      if (!parent) return callback(Errors.InvalidOperation);
-
-      this.repository.createFolder(folderPath, parent).then(() => callback());
+      this.dependencyContainer.folderCreator
+        .run(path.toString(false))
+        .then(() => {
+          this.resources[path.toString(false)] =
+            new PhysicalFileSystemResource();
+          callback();
+        })
+        .catch((err) => {
+          Logger.error('ERROR CREATING FOLDER', err);
+          callback(Errors.InvalidOperation);
+        });
       return;
     }
 
@@ -180,15 +185,18 @@ export class InxtFileSystem extends FileSystem {
 
   _delete(path: Path, ctx: DeleteInfo, callback: SimpleCallback): void {
     const pathLike = path.toString(false);
-    const item = this.repository.searchItem(pathLike);
+    const item = this.dependencyContainer.itemSearcher.run(
+      path.toString(false)
+    );
 
     if (!item) {
       return callback(Errors.ResourceNotFound);
     }
 
     if (item.isFile()) {
+      const filePath = new FilePath(pathLike);
       this.dependencyContainer.fileDeleter
-        .run(item)
+        .run(filePath)
         .then(() => {
           delete this.resources[item.path.value];
           callback(undefined);
@@ -331,10 +339,8 @@ export class InxtFileSystem extends FileSystem {
     };
 
     if (originalItem.isFile()) {
-      const mover = new WebdavFileMover(this.fileRepository, this.folderFinder);
-      const filePath = new FilePath(pathTo.toString(false));
-      mover
-        .run(originalItem, filePath, ctx.overwrite)
+      this.dependencyContainer.fileMover
+        .run(originalItem, pathTo.toString(false), ctx.overwrite)
         .then((hasBeenOverriden) => {
           changeResourceIndex();
           callback(undefined, hasBeenOverriden);
@@ -348,13 +354,8 @@ export class InxtFileSystem extends FileSystem {
     }
 
     if (originalItem.isFolder()) {
-      const mover = new WebdavFolderMover(
-        this.folderRepository,
-        this.folderFinder
-      );
-      const folderPath = new FolderPath(pathTo.toString(false));
-      mover
-        .run(originalItem, folderPath)
+      this.dependencyContainer.folderMover
+        .run(originalItem, pathTo.toString(false))
         .then(() => {
           changeResourceIndex();
           callback(undefined, false);
@@ -411,11 +412,15 @@ export class InxtFileSystem extends FileSystem {
     ctx: ReadDirInfo,
     callback: ReturnCallback<string[] | Path[]>
   ): void {
-    this.repository.init().then(() => {
-      const contents = this.repository.listContents(path.toString(false));
-      const paths = contents.map((name) => new Path(name.value));
-      callback(undefined, paths);
-    });
+    try {
+      const names = this.dependencyContainer.allItemsLister.run(
+        path.toString(false)
+      );
+      callback(undefined, names);
+    } catch (err) {
+      Logger.error('[FS] Error reading directory: ', err);
+      callback(Errors.Forbidden);
+    }
   }
 
   _displayName(
@@ -425,7 +430,9 @@ export class InxtFileSystem extends FileSystem {
   ) {
     Logger.debug('[FS DISPLAY NAME]', path.toString());
 
-    const item = this.repository.searchItem(path.toString(false));
+    const item = this.dependencyContainer.itemSearcher.run(
+      path.toString(false)
+    );
 
     if (!item) {
       const file = this.filesToUpload[path.toString(false)];
@@ -454,10 +461,9 @@ export class InxtFileSystem extends FileSystem {
     callback: ReturnCallback<number>
   ): void {
     Logger.debug('[FS] CREATION DATE');
-
-    const pathLike = path.toString(false);
-
-    const item = this.repository.searchItem(pathLike);
+    const item = this.dependencyContainer.itemSearcher.run(
+      path.toString(false)
+    );
 
     if (!item) {
       const file = this.filesToUpload[path.toString(false)];
@@ -495,9 +501,9 @@ export class InxtFileSystem extends FileSystem {
     ctx: LastModifiedDateInfo,
     callback: ReturnCallback<number>
   ): void {
-    const pathLike = path.toString(false);
-
-    const item = this.repository.searchItem(pathLike);
+    const item = this.dependencyContainer.itemSearcher.run(
+      path.toString(false)
+    );
 
     if (!item) {
       const file = this.filesToUpload[path.toString(false)];
@@ -526,7 +532,9 @@ export class InxtFileSystem extends FileSystem {
       return;
     }
 
-    const item = this.repository.searchItem(pathLike);
+    const item = this.dependencyContainer.itemSearcher.run(
+      path.toString(false)
+    );
 
     if (!item) {
       const file = this.filesToUpload[path.toString(false)];
@@ -545,9 +553,9 @@ export class InxtFileSystem extends FileSystem {
   _size(path: Path, ctx: SizeInfo, callback: ReturnCallback<number>): void {
     Logger.debug('[FS] SIZE', path.toString());
 
-    const pathLike = path.toString(false);
-
-    const item = this.repository.searchItem(pathLike);
+    const item = this.dependencyContainer.itemSearcher.run(
+      path.toString(false)
+    );
 
     if (!item) {
       const file = this.filesToUpload[path.toString(false)];

@@ -33,9 +33,10 @@ export class WebdavFileMover {
 
   async run(
     file: WebdavFile,
-    destination: FilePath,
+    to: string,
     overwrite: boolean
   ): Promise<boolean> {
+    const destination = new FilePath(to);
     const destinationFile = this.repository.search(destination.value);
 
     const hasToBeOverriden =

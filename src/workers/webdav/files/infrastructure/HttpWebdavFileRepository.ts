@@ -11,18 +11,14 @@ import * as uuid from 'uuid';
 
 export class HttpWebdavFileRepository implements WebdavFileRepository {
   private items: Record<string, WebdavFile> = {};
-
-  private readonly remoteFilesTraverser: Traverser;
   private readonly filesMarkedForDeletion: Record<string, WebdavFile> = {};
 
   constructor(
     private readonly httpClient: Axios,
     private readonly trashHttpClient: Axios,
-    baseFolderId: number,
+    private readonly traverser: Traverser,
     private readonly bucket: string
-  ) {
-    this.remoteFilesTraverser = new Traverser(crypt, baseFolderId);
-  }
+  ) {}
 
   private async getTree(): Promise<{
     files: ServerFile[];
@@ -66,23 +62,17 @@ export class HttpWebdavFileRepository implements WebdavFileRepository {
   public async init(): Promise<void> {
     const raw = await this.getTree();
 
-    this.remoteFilesTraverser.reset();
-    const all = this.remoteFilesTraverser.run(raw);
+    this.traverser.reset();
+    const all = this.traverser.run(raw);
 
-    const files = Object.entries(all).filter(([_, item]) => {
-      item.isFile();
-    }) as Array<[string, WebdavFile]>;
+    const files = Object.entries(all).filter(([_key, value]) =>
+      value.isFile()
+    ) as Array<[string, WebdavFile]>;
 
-    files.reduce(
-      (
-        acc: Record<string, WebdavFile>,
-        [path, file]: [path: string, file: WebdavFile]
-      ) => {
-        acc[path] = file;
-        return acc;
-      },
-      {}
-    );
+    this.items = files.reduce((items, [key, value]) => {
+      items[key] = value;
+      return items;
+    }, {} as Record<string, WebdavFile>);
   }
 
   search(pathLike: string): Nullable<WebdavFile> {
@@ -190,5 +180,9 @@ export class HttpWebdavFileRepository implements WebdavFileRepository {
 
   deleteCachedItem(file: WebdavFile): void {
     delete this.items[file.path.value];
+  }
+
+  searchOnFolder(folderId: number): Array<WebdavFile> {
+    return Object.values(this.items).filter((file) => file.hasParent(folderId));
   }
 }

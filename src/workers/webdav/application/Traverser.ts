@@ -103,13 +103,6 @@ export class Traverser {
 
   public reset() {
     Object.keys((k: string) => delete this.collection[k]);
-  }
-
-  public run(rawTree: {
-    files: Array<ServerFile>;
-    folders: Array<ServerFolder>;
-  }) {
-    this.rawTree = rawTree;
 
     this.collection['/'] = WebdavFolder.from({
       id: this.baseFolderId,
@@ -119,8 +112,24 @@ export class Traverser {
       path: '/',
       name: 'internxt root folder',
     });
+  }
+
+  public run(rawTree: {
+    files: Array<ServerFile>;
+    folders: Array<ServerFolder>;
+  }) {
+    this.rawTree = rawTree;
 
     this.traverse(this.baseFolderId);
+
+    this.collection['/'] = WebdavFolder.from({
+      id: this.baseFolderId,
+      parentId: null,
+      updatedAt: Date.now().toLocaleString(),
+      createdAt: Date.now().toLocaleString(),
+      path: '/',
+      name: 'internxt root folder',
+    });
 
     return this.collection;
   }

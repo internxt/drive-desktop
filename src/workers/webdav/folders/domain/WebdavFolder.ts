@@ -36,6 +36,24 @@ export class WebdavFolder extends WebdavItem {
     );
   }
 
+  static create(attributes: {
+    id: number;
+    name: string;
+    parentId: number | null;
+    updatedAt: string;
+    createdAt: string;
+    path: string;
+  }) {
+    return new WebdavFolder(
+      attributes.id,
+      attributes.name,
+      new FolderPath(attributes.path),
+      attributes.parentId,
+      new Date(attributes.updatedAt),
+      new Date(attributes.createdAt)
+    );
+  }
+
   moveTo(folder: WebdavFolder): WebdavFolder {
     if (!this.parentId) {
       throw new Error('Root folder cannot be moved');

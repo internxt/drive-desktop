@@ -47,10 +47,16 @@ export class WebdavFileClonner {
   }
 
   async run(
-    file: WebdavFile,
+    origin: FilePath,
     destination: FilePath,
     overwrite: boolean
   ): Promise<boolean> {
+    const originFile = this.repository.search(origin.value);
+
+    if (!originFile) {
+      throw new Error('File not found');
+    }
+
     const destinationFile = this.repository.search(destination.toString());
 
     if (destinationFile && !overwrite) {
@@ -58,11 +64,11 @@ export class WebdavFileClonner {
     }
 
     if (destinationFile) {
-      await this.overwrite(file, destinationFile);
+      await this.overwrite(originFile, destinationFile);
       return WebdavFileClonner.FILE_OVERRIDED;
     }
 
-    await this.copy(file, destination);
+    await this.copy(originFile, destination);
     return WebdavFileClonner.FILE_NOT_OVERRIDED;
   }
 }
