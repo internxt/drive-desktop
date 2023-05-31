@@ -8,6 +8,7 @@ import { FilesOrganizationSlide } from './slides/FilesOrganizationSlide';
 
 import { useTranslationContext } from 'renderer/context/LocalContext';
 import {
+  BackupsSVG,
   OnboardingSlide,
   SideImageAnimation,
   SideTextAnimation,
@@ -16,8 +17,6 @@ import {
   getOnlineImageSvg,
 } from './helpers';
 import Button from 'renderer/components/Button';
-
-import BackupsSVG from '../../assets/onboarding/backups.svg';
 
 import ContextMenuSvg from '../../assets/onboarding/context-menu.svg';
 import { OnboardingCompletedSlide } from './slides/OnboardingCompletedSlide';
@@ -271,10 +270,8 @@ export const SLIDES: OnboardingSlide[] = [
     },
     image: () => {
       return (
-        <div className="flex  h-full w-full items-center justify-center ">
-          <SideImageAnimation display>
-            <BackupsSVG />
-          </SideImageAnimation>
+        <div className="flex h-full w-full items-center justify-center">
+          <BackupsSVG />
         </div>
       );
     },

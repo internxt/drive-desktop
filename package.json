@@ -125,7 +125,7 @@
     "transformIgnorePatterns": [
       "node_modules/(?!axios)"
     ],
-    "testEnvironment": "jsdom",
+    "testEnvironment": "node",
     "transform": {
       "\\.(ts|tsx|js|jsx)$": "ts-jest"
     },
