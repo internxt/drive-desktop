@@ -5,9 +5,9 @@ import fr from 'dayjs/locale/fr';
 import { Language } from './Language';
 
 const DayJsLocales: Record<Language, ILocale> = {
-	en,
-	es,
-	fr,
+  en,
+  es,
+  fr,
 } as const;
 
 export default DayJsLocales;

@@ -52,8 +52,8 @@ npm run package
 AGPL3
 
 ## Credits
-This project relies on Electron Boilerplate, which can be found [here](https://electron-react-boilerplate.js.org). 
 
+This project relies on Electron Boilerplate, which can be found [here](https://electron-react-boilerplate.js.org).
 
 [github-actions-status]: https://github.com/electron-react-boilerplate/electron-react-boilerplate/workflows/Test/badge.svg
 [github-actions-url]: https://github.com/electron-react-boilerplate/electron-react-boilerplate/actions
