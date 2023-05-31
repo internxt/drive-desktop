@@ -20,6 +20,7 @@ import { WebdavUnknownItemTypeSearcher } from './shared/application/WebdavUnknow
 import { WebdavFileMover } from './files/application/WebdavFileMover';
 import { WebdavFolderMover } from './folders/application/WebdavFolderMover';
 import { AllWebdavItemsNameLister } from './shared/application/AllWebdavItemsSearcher';
+import { WebdavFolderDeleter } from './folders/application/WebdavFolderDeleter';
 
 let container: InxtFileSystemDependencyContainer | null = null;
 
@@ -84,6 +85,7 @@ export async function buildContainer(): Promise<InxtFileSystemDependencyContaine
     folderFinder,
     folderCreator: new WebdavFolderCreator(folderRepository, folderFinder),
     folderMover: new WebdavFolderMover(folderRepository, folderFinder),
+    folderDeleter: new WebdavFolderDeleter(folderRepository),
 
     allItemsLister: new AllWebdavItemsNameLister(
       fileRepository,

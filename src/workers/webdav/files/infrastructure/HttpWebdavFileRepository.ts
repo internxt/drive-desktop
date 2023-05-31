@@ -161,8 +161,7 @@ export class HttpWebdavFileRepository implements WebdavFileRepository {
       );
     }
 
-    delete this.items[item.path.value];
-    this.items[item.path.value] = item;
+    await this.init();
   }
 
   async updateParentDir(item: WebdavFile): Promise<void> {
@@ -175,11 +174,7 @@ export class HttpWebdavFileRepository implements WebdavFileRepository {
       throw new Error(`[REPOSITORY] Error moving item: ${res.status}`);
     }
 
-    this.items[item.path.value] = item;
-  }
-
-  deleteCachedItem(file: WebdavFile): void {
-    delete this.items[file.path.value];
+    await this.init();
   }
 
   searchOnFolder(folderId: number): Array<WebdavFile> {

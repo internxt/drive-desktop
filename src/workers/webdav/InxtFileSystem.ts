@@ -38,12 +38,6 @@ import { FileDownloader } from './files/infrastructure/FileDownloader';
 
 import mimetypes from './domain/MimeTypesMap.json';
 import { FilePath } from './files/domain/FilePath';
-import { FolderPath } from './folders/domain/FolderPath';
-import { WebdavFileMover } from './files/application/WebdavFileMover';
-import { WebdavFolderFinder } from './folders/application/WebdavFolderFinder';
-import { WebdavFileRepository } from './files/domain/WebdavFileRepository';
-import { WebdavFolderRepository } from './folders/domain/WebdavFolderRepository';
-import { WebdavFolderMover } from './folders/application/WebdavFolderMover';
 import { InxtFileSystemDependencyContainer } from './InxtFileSystemDependencyContainer';
 
 export class PhysicalFileSystemResource {
@@ -91,12 +85,6 @@ export class InxtFileSystem extends FileSystem {
 
   filesToOverride: Array<string> = [];
 
-  fileRepository: WebdavFileRepository;
-
-  folderRepository: WebdavFolderRepository;
-
-  folderFinder: WebdavFolderFinder;
-
   constructor(
     private readonly fileUploader: FileUploader,
     private readonly fileDownloader: FileDownloader,
@@ -104,23 +92,6 @@ export class InxtFileSystem extends FileSystem {
     private readonly dependencyContainer: InxtFileSystemDependencyContainer
   ) {
     super(new DebugPhysicalSerializer(fileUploader, repository));
-
-    this.fileRepository = {
-      search: this.repository.searchItem.bind(this.repository),
-      delete: this.repository.deleteFile.bind(this.repository),
-      add: this.repository.addFile.bind(this.repository),
-      updateName: this.repository.updateName.bind(this.repository),
-      updateParentDir: this.repository.updateParentDir.bind(this.repository),
-    } as unknown as WebdavFileRepository;
-
-    this.folderRepository = {
-      search: this.repository.searchItem.bind(this.repository),
-      delete: this.repository.deleteFile.bind(this.repository),
-      updateName: this.repository.updateName.bind(this.repository),
-      updateParentDir: this.repository.updateParentDir.bind(this.repository),
-    } as unknown as WebdavFolderRepository;
-
-    this.folderFinder = new WebdavFolderFinder(this.folderRepository);
 
     this.resources = {
       '/': new PhysicalFileSystemResource(),
@@ -135,7 +106,9 @@ export class InxtFileSystem extends FileSystem {
   ) {
     Logger.debug('COPY ', pathFrom.toString(false), pathTo.toString(false));
 
-    const sourceItem = this.repository.searchItem(pathFrom.toString(false));
+    const sourceItem = this.dependencyContainer.itemSearcher.run(
+      pathFrom.toString(false)
+    );
 
     if (!sourceItem) {
       return callback(Errors.ResourceNotFound);
@@ -206,7 +179,13 @@ export class InxtFileSystem extends FileSystem {
     }
 
     if (item.isFolder()) {
-      this.repository.deleteFolder(item).then(() => callback());
+      this.repository
+        .deleteFolder(item)
+        .then(() => callback())
+        .catch((err) => {
+          Logger.error('[FS] Error trashing folder');
+          throw err;
+        });
     }
   }
 
@@ -286,7 +265,9 @@ export class InxtFileSystem extends FileSystem {
     callback: ReturnCallback<Readable>
   ): void {
     Logger.debug('[OPEN READ STREAM]');
-    const item = this.repository.searchItem(path.toString(false));
+    const item = this.dependencyContainer.itemSearcher.run(
+      path.toString(false)
+    );
 
     if (!item) {
       return callback(Errors.ResourceNotFound);
@@ -324,7 +305,9 @@ export class InxtFileSystem extends FileSystem {
   ): void {
     Logger.debug('[FS] MOVE');
 
-    const originalItem = this.repository.searchItem(pathFrom.toString(false));
+    const originalItem = this.dependencyContainer.itemSearcher.run(
+      pathFrom.toString(false)
+    );
 
     if (!originalItem) {
       return callback(Errors.ResourceNotFound);
@@ -335,7 +318,7 @@ export class InxtFileSystem extends FileSystem {
         this.resources[originalItem.path.value];
 
       delete this.resources[originalItem.path.value];
-      this.repository.deleteCachedItem(originalItem);
+      // this.repository.deleteCachedItem(originalItem);
     };
 
     if (originalItem.isFile()) {

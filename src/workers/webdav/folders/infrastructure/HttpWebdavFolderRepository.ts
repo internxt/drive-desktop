@@ -132,4 +132,24 @@ export class HttpWebdavFolderRepository implements WebdavFolderRepository {
       folder.hasParent(folderId)
     );
   }
+
+  async trash(folder: WebdavFolder): Promise<void> {
+    const result = await this.trashClient.post(
+      `${process.env.NEW_DRIVE_URL}/drive/storage/trash/add`,
+      {
+        items: [{ type: 'folder', id: folder.id }],
+      }
+    );
+
+    if (result.status === 200) {
+      delete this.items[folder.path.value];
+      return;
+    }
+
+    Logger.error(
+      '[FOLDER REPOSITORY] Folder deletion failed with status: ',
+      result.status,
+      result.statusText
+    );
+  }
 }
