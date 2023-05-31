@@ -22,6 +22,16 @@ export const addUnknownDeviceIssue = (error: Error) => {
       stack: error.stack || '',
     },
   });
+  addGeneralIssue({
+    errorName: 'UNKNOWN_DEVICE_NAME',
+    action: 'GET_DEVICE_NAME_ERROR',
+    process: 'GENERAL',
+    errorDetails: {
+      name: error.name,
+      message: error.message,
+      stack: error.stack || '',
+    },
+  });
 };
 
 function createDevice(deviceName: string) {
@@ -143,37 +153,48 @@ export async function getBackupsFromDevice(): Promise<
     }));
 }
 
+/**
+ * Posts a Backup to desktop server API
+ *
+ * @param name Name of the backup folder
+ * @returns
+ */
+async function postBackup(name: string): Promise<Backup> {
+  const deviceId = getDeviceId();
+
+  const res = await fetch(`${process.env.API_URL}/api/storage/folder`, {
+    method: 'POST',
+    headers: getHeaders(true),
+    body: JSON.stringify({ parentFolderId: deviceId, folderName: name }),
+  });
+  if (res.ok) {
+    return res.json();
+  }
+  throw new Error('Post backup request wasnt successful');
+}
+
+/**
+ * Creates a backup given a local folder path
+ * @param pathname Path to the local folder for the backup
+ */
+async function createBackup(pathname: string): Promise<void> {
+  const { base } = path.parse(pathname);
+  const newBackup = await postBackup(base);
+
+  const backupList = configStore.get('backupList');
+
+  backupList[pathname] = { enabled: true, folderId: newBackup.id };
+
+  configStore.set('backupList', backupList);
+}
+
 export async function addBackup(): Promise<void> {
-  async function createBackup(pathname: string): Promise<void> {
-    const { base } = path.parse(pathname);
-    const newBackup = await postBackup(base);
-
-    const backupList = configStore.get('backupList');
-
-    backupList[pathname] = { enabled: true, folderId: newBackup.id };
-
-    configStore.set('backupList', backupList);
-  }
-
-  async function postBackup(name: string): Promise<Backup> {
-    const deviceId = getDeviceId();
-
-    const res = await fetch(`${process.env.API_URL}/api/storage/folder`, {
-      method: 'POST',
-      headers: getHeaders(true),
-      body: JSON.stringify({ parentFolderId: deviceId, folderName: name }),
-    });
-    if (res.ok) {
-      return res.json();
-    }
-    throw new Error('Post backup request wasnt successful');
-  }
-
-  const chosenPath = await getPathFromDialog();
-  if (!chosenPath) {
+  const chosenItem = await getPathFromDialog();
+  if (!chosenItem || !chosenItem.path) {
     return;
   }
 
+  const chosenPath = chosenItem.path;
   const backupList = configStore.get('backupList');
 
   const existingBackup = backupList[chosenPath];
@@ -253,12 +274,13 @@ export async function changeBackupPath(currentPath: string): Promise<boolean> {
     throw new Error('Backup no longer exists');
   }
 
-  const chosenPath = await getPathFromDialog();
+  const chosen = await getPathFromDialog();
 
-  if (!chosenPath) {
+  if (!chosen || !chosen.path) {
     return false;
   }
 
+  const chosenPath = chosen.path;
   if (backupsList[chosenPath]) {
     throw new Error('A backup with this path already exists');
   }
@@ -306,7 +328,20 @@ function getDeviceId(): number {
   return deviceId;
 }
 
-async function getPathFromDialog(): Promise<string | null> {
+export async function createBackupsFromLocalPaths(folderPaths: string[]) {
+  configStore.set('backupsEnabled', true);
+
+  await getOrCreateDevice();
+
+  const operations = folderPaths.map((folderPath) => createBackup(folderPath));
+
+  await Promise.all(operations);
+}
+
+export async function getPathFromDialog(): Promise<{
+  path: string;
+  itemName: string;
+} | null> {
   const result = await dialog.showOpenDialog({
     properties: ['openDirectory'],
   });
@@ -317,8 +352,13 @@ async function getPathFromDialog(): Promise<string | null> {
 
   const chosenPath = result.filePaths[0];
 
-  return (
+  const itemPath =
     chosenPath +
-    (chosenPath[chosenPath.length - 1] === path.sep ? '' : path.sep)
-  );
+    (chosenPath[chosenPath.length - 1] === path.sep ? '' : path.sep);
+
+  const itemName = path.basename(itemPath);
+  return {
+    path: itemPath,
+    itemName,
+  };
 }

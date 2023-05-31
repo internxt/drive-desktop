@@ -2,7 +2,10 @@ import React, { createContext, useContext, useMemo } from 'react';
 import { getI18n, useTranslation } from 'react-i18next';
 
 interface LocalContextProps {
-  translate: (key: string) => string;
+  translate: (
+    key: string,
+    keysToReplace?: Record<string, string | number>
+  ) => string;
   language: string;
 }
 

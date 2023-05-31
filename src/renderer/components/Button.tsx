@@ -42,7 +42,7 @@ export default function Button({
       onClick={onClick}
       disabled={disabled}
       type="button"
-      className={`select-none rounded-md px-3 py-1 text-sm ${styles} ${className}`}
+      className={`non-draggable select-none rounded-md px-3 py-1 text-sm ${styles} ${className}`}
     >
       {children}
     </button>

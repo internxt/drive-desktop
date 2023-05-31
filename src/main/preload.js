@@ -15,9 +15,8 @@ contextBridge.exposeInMainWorld('electron', {
     const eventName = `${key}-updated`;
     const callback = (_, v) => fn(v);
     ipcRenderer.on(eventName, (_, v) => fn(v));
-
-    return () => ipcRenderer.removeListener(eventName, callback);
   },
+
   pathChanged(pathname) {
     ipcRenderer.send('path-changed', pathname);
   },
@@ -67,21 +66,18 @@ contextBridge.exposeInMainWorld('electron', {
     const eventName = 'sync-status-changed';
     const callback = (_, v) => func(v);
     ipcRenderer.on(eventName, callback);
-
     return () => ipcRenderer.removeListener(eventName, callback);
   },
   onSyncStopped(func) {
     const eventName = 'sync-stopped';
     const callback = (_, v) => func(v);
     ipcRenderer.on(eventName, callback);
-
     return () => ipcRenderer.removeListener(eventName, callback);
   },
   onSyncInfoUpdate(func) {
     const eventName = 'sync-info-update';
     const callback = (_, v) => func(v);
     ipcRenderer.on(eventName, callback);
-
     return () => ipcRenderer.removeListener(eventName, callback);
   },
   getGeneralIssues() {
@@ -91,7 +87,6 @@ contextBridge.exposeInMainWorld('electron', {
     const eventName = 'general-issues-changed';
     const callback = (_, v) => func(v);
     ipcRenderer.on(eventName, callback);
-
     return () => ipcRenderer.removeListener(eventName, callback);
   },
   getProcessIssues() {
@@ -101,7 +96,6 @@ contextBridge.exposeInMainWorld('electron', {
     const eventName = 'process-issues-changed';
     const callback = (_, v) => func(v);
     ipcRenderer.on(eventName, callback);
-
     return () => ipcRenderer.removeListener(eventName, callback);
   },
   openProcessIssuesWindow() {
@@ -147,7 +141,6 @@ contextBridge.exposeInMainWorld('electron', {
     const eventName = 'backups-status-changed';
     const callback = (_, v) => func(v);
     ipcRenderer.on(eventName, callback);
-
     return () => ipcRenderer.removeListener(eventName, callback);
   },
   getSyncRoot() {
@@ -167,6 +160,9 @@ contextBridge.exposeInMainWorld('electron', {
   },
   addBackup() {
     return ipcRenderer.invoke('add-backup');
+  },
+  addBackupsFromLocalPaths(localPaths) {
+    return ipcRenderer.invoke('add-multiple-backups', localPaths);
   },
   deleteBackup(backup) {
     return ipcRenderer.invoke('delete-backup', backup);
@@ -197,7 +193,6 @@ contextBridge.exposeInMainWorld('electron', {
     const eventName = 'backup-fatal-errors-changed';
     const callback = (_, v) => func(v);
     ipcRenderer.on(eventName, callback);
-
     return () => ipcRenderer.removeListener(eventName, callback);
   },
   getLastBackupExitReason() {
@@ -205,6 +200,9 @@ contextBridge.exposeInMainWorld('electron', {
   },
   changeBackupPath(currentPath) {
     return ipcRenderer.invoke('change-backup-path', currentPath);
+  },
+  getFolderPath() {
+    return ipcRenderer.invoke('get-folder-path');
   },
   onRemoteChanges(func) {
     const eventName = 'remote-changes';
