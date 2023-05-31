@@ -17,7 +17,6 @@ declare interface Window {
       ): () => void;
 
       setConfigKey: typeof import('./config/service').setConfigKey;
-      setConfigKey: typeof import('./config/service').setConfigKey;
 
       pathChanged(path: string): void;
       pathChanged(path: string): void;
@@ -136,7 +135,6 @@ declare interface Window {
       openLogs(): void;
 
       sendReport: typeof import('./bug-report/service').sendReport;
-      sendReport: typeof import('./bug-report/service').sendReport;
 
       openSettingsWindow(section?: 'BACKUPS' | 'GENERAL' | 'ACCOUNT'): void;
       openSettingsWindow(section?: 'BACKUPS' | 'GENERAL' | 'ACCOUNT'): void;
@@ -184,18 +182,13 @@ declare interface Window {
       getSyncRoot(): Promise<string>;
 
       chooseSyncRootWithDialog: typeof import('./sync-root-folder/service').chooseSyncRootWithDialog;
-      chooseSyncRootWithDialog: typeof import('./sync-root-folder/service').chooseSyncRootWithDialog;
 
-      path: typeof import('path');
       path: typeof import('path');
 
       getOrCreateDevice: typeof import('../main/device/service').getOrCreateDevice;
-      getOrCreateDevice: typeof import('../main/device/service').getOrCreateDevice;
 
       renameDevice: typeof import('../main/device/service').renameDevice;
-      renameDevice: typeof import('../main/device/service').renameDevice;
 
-      getBackups: typeof import('../main/device/service').getBackupsFromDevice;
       getBackups: typeof import('../main/device/service').getBackupsFromDevice;
 
       addBackup: typeof import('../main/device/service').addBackup;
@@ -203,20 +196,13 @@ declare interface Window {
       deleteBackup: typeof import('../main/device/service').deleteBackup;
 
       disableBackup: typeof import('../main/device/service').disableBackup;
-      disableBackup: typeof import('../main/device/service').disableBackup;
 
-      getBackupsEnabled: () => Promise<boolean>;
       getBackupsEnabled: () => Promise<boolean>;
 
       toggleBackupsEnabled: () => Promise<void>;
-      toggleBackupsEnabled: () => Promise<void>;
 
       getLastBackupTimestamp: () => Promise<number>;
-      getLastBackupTimestamp: () => Promise<number>;
 
-      getLastBackupExitReason: () => Promise<
-        import('../main/background-processes/backups').BackupExitReason | null
-      >;
       getLastBackupExitReason: () => Promise<
         import('../main/background-processes/backups').BackupExitReason | null
       >;
@@ -263,16 +249,11 @@ declare interface Window {
       onRemoteChanges(func: () => void): () => void;
 
       getUsage: () => Promise<import('../main/usage/usage').Usage>;
-      getUsage: () => Promise<import('../main/usage/usage').Usage>;
 
       getPlatform: () => Promise<
         import('../main/platform/DesktopPlatform').DesktopPlatform
       >;
-      getPlatform: () => Promise<
-        import('../main/platform/DesktopPlatform').DesktopPlatform
-      >;
 
-      userLogginFailed: (email: string) => void;
       userLogginFailed: (email: string) => void;
 
       // DEV

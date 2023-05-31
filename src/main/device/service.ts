@@ -49,9 +49,7 @@ function createDevice(deviceName: string) {
 
 async function tryToCreateDeviceWithDifferentNames(): Promise<Device> {
   let res = await createDevice(os.hostname());
-  let res = await createDevice(os.hostname());
 
-  let i = 1;
   let i = 1;
 
   while (res.status === 409 && i <= 10) {
@@ -78,12 +76,6 @@ async function tryToCreateDeviceWithDifferentNames(): Promise<Device> {
     res = await createDevice(`${os.hostname()} (${deviceName})`);
   }
 
-  if (res.ok) {
-    return res.json();
-  }
-  const error = new Error('Could not create device trying different names');
-  addUnknownDeviceIssue(error);
-  throw error;
   if (res.ok) {
     return res.json();
   }
@@ -93,12 +85,8 @@ async function tryToCreateDeviceWithDifferentNames(): Promise<Device> {
 }
 export async function getOrCreateDevice() {
   const savedDeviceId = configStore.get('deviceId');
-  const savedDeviceId = configStore.get('deviceId');
-
-  const deviceIsDefined = savedDeviceId !== -1;
   const deviceIsDefined = savedDeviceId !== -1;
 
-  let newDevice: Device | null = null;
   let newDevice: Device | null = null;
 
   if (deviceIsDefined) {
@@ -109,24 +97,24 @@ export async function getOrCreateDevice() {
         headers: getHeaders(),
       }
     );
-  if (deviceIsDefined) {
-    const res = await fetch(
-      `${process.env.API_URL}/api/backup/deviceAsFolder/${savedDeviceId}`,
-      {
-        method: 'GET',
-        headers: getHeaders(),
-      }
-    );
+    if (deviceIsDefined) {
+      const res = await fetch(
+        `${process.env.API_URL}/api/backup/deviceAsFolder/${savedDeviceId}`,
+        {
+          method: 'GET',
+          headers: getHeaders(),
+        }
+      );
 
-    if (res.ok) {
-      return decryptDeviceName(await res.json());
-    }
-    if (res.status === 404) {
+      if (res.ok) {
+        return decryptDeviceName(await res.json());
+      }
+      if (res.status === 404) {
+        newDevice = await tryToCreateDeviceWithDifferentNames();
+      }
+    } else {
       newDevice = await tryToCreateDeviceWithDifferentNames();
     }
-  } else {
-    newDevice = await tryToCreateDeviceWithDifferentNames();
-  }
     if (res.ok) {
       return decryptDeviceName(await res.json());
     }
@@ -142,17 +130,17 @@ export async function getOrCreateDevice() {
     configStore.set('backupList', {});
     const device = decryptDeviceName(newDevice);
     logger.info(`[DEVICE] Created device with name "${device.name}"`);
-  if (newDevice) {
-    configStore.set('deviceId', newDevice.id);
-    configStore.set('backupList', {});
-    const device = decryptDeviceName(newDevice);
-    logger.info(`[DEVICE] Created device with name "${device.name}"`);
+    if (newDevice) {
+      configStore.set('deviceId', newDevice.id);
+      configStore.set('backupList', {});
+      const device = decryptDeviceName(newDevice);
+      logger.info(`[DEVICE] Created device with name "${device.name}"`);
 
-    return device;
-  }
-  const error = new Error('Could not get or create device');
-  addUnknownDeviceIssue(error);
-  throw error;
+      return device;
+    }
+    const error = new Error('Could not get or create device');
+    addUnknownDeviceIssue(error);
+    throw error;
     return device;
   }
   const error = new Error('Could not get or create device');
@@ -162,20 +150,7 @@ export async function getOrCreateDevice() {
 
 export async function renameDevice(deviceName: string): Promise<Device> {
   const deviceId = getDeviceId();
-  const deviceId = getDeviceId();
 
-  const res = await fetch(
-    `${process.env.API_URL}/api/backup/deviceAsFolder/${deviceId}`,
-    {
-      method: 'PATCH',
-      headers: getHeaders(true),
-      body: JSON.stringify({ deviceName }),
-    }
-  );
-  if (res.ok) {
-    return decryptDeviceName(await res.json());
-  }
-  throw new Error('Error in the request to rename a device');
   const res = await fetch(
     `${process.env.API_URL}/api/backup/deviceAsFolder/${deviceId}`,
     {
@@ -195,10 +170,6 @@ function decryptDeviceName({ name, ...rest }: Device): Device {
     name: aes.decrypt(name, `${process.env.NEW_CRYPTO_KEY}-${rest.bucket}`),
     ...rest,
   };
-  return {
-    name: aes.decrypt(name, `${process.env.NEW_CRYPTO_KEY}-${rest.bucket}`),
-    ...rest,
-  };
 }
 
 export type Backup = { id: number; name: string };
@@ -207,30 +178,15 @@ export async function getBackupsFromDevice(): Promise<
   (Backup & { pathname: string })[]
 > {
   const deviceId = getDeviceId();
-export async function getBackupsFromDevice(): Promise<
-  (Backup & { pathname: string })[]
-> {
-  const deviceId = getDeviceId();
 
   const folder = await fetchFolder(deviceId);
-  const folder = await fetchFolder(deviceId);
 
-  const backupsList = configStore.get('backupList');
   const backupsList = configStore.get('backupList');
 
   return folder.children
     .filter((backup: Backup) => {
       const pathname = findBackupPathnameFromId(backup.id);
-  return folder.children
-    .filter((backup: Backup) => {
-      const pathname = findBackupPathnameFromId(backup.id);
 
-      return pathname && backupsList[pathname].enabled;
-    })
-    .map((backup: Backup) => ({
-      ...backup,
-      pathname: findBackupPathnameFromId(backup.id),
-    }));
       return pathname && backupsList[pathname].enabled;
     })
     .map((backup: Backup) => ({
@@ -284,7 +240,6 @@ export async function addBackup(): Promise<void> {
   const backupList = configStore.get('backupList');
 
   const existingBackup = backupList[chosenPath];
-  const existingBackup = backupList[chosenPath];
 
   if (!existingBackup) {
     return createBackup(chosenPath);
@@ -293,13 +248,6 @@ export async function addBackup(): Promise<void> {
     return createBackup(chosenPath);
   }
 
-  let folderStillExists;
-  try {
-    await fetchFolder(existingBackup.folderId);
-    folderStillExists = true;
-  } catch {
-    folderStillExists = false;
-  }
   let folderStillExists;
   try {
     await fetchFolder(existingBackup.folderId);
@@ -330,13 +278,6 @@ async function fetchFolder(folderId: number) {
       headers: getHeaders(true),
     }
   );
-  const res = await fetch(
-    `${process.env.API_URL}/api/storage/v2/folder/${folderId}`,
-    {
-      method: 'GET',
-      headers: getHeaders(true),
-    }
-  );
 
   if (res.ok) {
     return res.json();
@@ -359,37 +300,19 @@ export async function deleteBackup(backup: Backup): Promise<void> {
   if (!res.ok) {
     throw new Error('Request to delete backup wasnt succesful');
   }
-  const res = await fetch(
-    `${process.env.API_URL}/api/storage/folder/${backup.id}`,
-    {
-      method: 'DELETE',
-      headers: getHeaders(true),
-    }
-  );
-  if (!res.ok) {
-    throw new Error('Request to delete backup wasnt succesful');
-  }
 
-  const backupsList = configStore.get('backupList');
   const backupsList = configStore.get('backupList');
 
   const entriesFiltered = Object.entries(backupsList).filter(
     ([, b]) => b.folderId !== backup.id
   );
-  const entriesFiltered = Object.entries(backupsList).filter(
-    ([, b]) => b.folderId !== backup.id
-  );
 
   const backupListFiltered = Object.fromEntries(entriesFiltered);
-  const backupListFiltered = Object.fromEntries(entriesFiltered);
 
-  configStore.set('backupList', backupListFiltered);
   configStore.set('backupList', backupListFiltered);
 }
 
 export async function disableBackup(backup: Backup): Promise<void> {
-  const backupsList = configStore.get('backupList');
-  const pathname = findBackupPathnameFromId(backup.id)!;
   const backupsList = configStore.get('backupList');
   const pathname = findBackupPathnameFromId(backup.id)!;
 
@@ -401,8 +324,6 @@ export async function disableBackup(backup: Backup): Promise<void> {
 }
 
 export async function changeBackupPath(currentPath: string): Promise<boolean> {
-  const backupsList = configStore.get('backupList');
-  const existingBackup = backupsList[currentPath];
   const backupsList = configStore.get('backupList');
   const existingBackup = backupsList[currentPath];
 
@@ -424,16 +345,6 @@ export async function changeBackupPath(currentPath: string): Promise<boolean> {
     throw new Error('A backup with this path already exists');
   }
 
-  const res = await fetch(
-    `${process.env.API_URL}/api/storage/folder/${existingBackup.folderId}/meta`,
-    {
-      method: 'POST',
-      headers: getHeaders(true),
-      body: JSON.stringify({
-        metadata: { itemName: path.basename(chosenPath) },
-      }),
-    }
-  );
   const res = await fetch(
     `${process.env.API_URL}/api/storage/folder/${existingBackup.folderId}/meta`,
     {
@@ -470,27 +381,17 @@ function findBackupPathnameFromId(id: number): string | undefined {
   const entryfound = Object.entries(backupsList).find(
     ([, b]) => b.folderId === id
   );
-  const backupsList = configStore.get('backupList');
-  const entryfound = Object.entries(backupsList).find(
-    ([, b]) => b.folderId === id
-  );
 
-  return entryfound?.[0];
   return entryfound?.[0];
 }
 
 function getDeviceId(): number {
   const deviceId = configStore.get('deviceId');
-  const deviceId = configStore.get('deviceId');
 
   if (deviceId === -1) {
     throw new Error('deviceId is not defined');
   }
-  if (deviceId === -1) {
-    throw new Error('deviceId is not defined');
-  }
 
-  return deviceId;
   return deviceId;
 }
 
@@ -515,11 +416,7 @@ export async function getPathFromDialog(): Promise<{
   if (result.canceled) {
     return null;
   }
-  if (result.canceled) {
-    return null;
-  }
 
-  const chosenPath = result.filePaths[0];
   const chosenPath = result.filePaths[0];
 
   const itemPath =
