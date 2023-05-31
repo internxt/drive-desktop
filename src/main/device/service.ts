@@ -40,11 +40,6 @@ function createDevice(deviceName: string) {
     headers: getHeaders(true),
     body: JSON.stringify({ deviceName }),
   });
-  return fetch(`${process.env.API_URL}/api/backup/deviceAsFolder`, {
-    method: 'POST',
-    headers: getHeaders(true),
-    body: JSON.stringify({ deviceName }),
-  });
 }
 
 async function tryToCreateDeviceWithDifferentNames(): Promise<Device> {
@@ -58,18 +53,7 @@ async function tryToCreateDeviceWithDifferentNames(): Promise<Device> {
     res = await createDevice(deviceName);
     i++;
   }
-  while (res.status === 409 && i <= 10) {
-    const deviceName = `${os.hostname()} (${i})`;
-    logger.info(`[DEVICE] Creating device with name "${deviceName}"`);
-    res = await createDevice(deviceName);
-    i++;
-  }
 
-  if (!res.ok) {
-    const deviceName = `${new Date().valueOf() % 1000}`;
-    logger.info(`[DEVICE] Creating device with name "${deviceName}"`);
-    res = await createDevice(`${os.hostname()} (${deviceName})`);
-  }
   if (!res.ok) {
     const deviceName = `${new Date().valueOf() % 1000}`;
     logger.info(`[DEVICE] Creating device with name "${deviceName}"`);
@@ -85,6 +69,7 @@ async function tryToCreateDeviceWithDifferentNames(): Promise<Device> {
 }
 export async function getOrCreateDevice() {
   const savedDeviceId = configStore.get('deviceId');
+
   const deviceIsDefined = savedDeviceId !== -1;
 
   let newDevice: Device | null = null;
@@ -97,24 +82,7 @@ export async function getOrCreateDevice() {
         headers: getHeaders(),
       }
     );
-    if (deviceIsDefined) {
-      const res = await fetch(
-        `${process.env.API_URL}/api/backup/deviceAsFolder/${savedDeviceId}`,
-        {
-          method: 'GET',
-          headers: getHeaders(),
-        }
-      );
 
-      if (res.ok) {
-        return decryptDeviceName(await res.json());
-      }
-      if (res.status === 404) {
-        newDevice = await tryToCreateDeviceWithDifferentNames();
-      }
-    } else {
-      newDevice = await tryToCreateDeviceWithDifferentNames();
-    }
     if (res.ok) {
       return decryptDeviceName(await res.json());
     }
@@ -130,17 +98,7 @@ export async function getOrCreateDevice() {
     configStore.set('backupList', {});
     const device = decryptDeviceName(newDevice);
     logger.info(`[DEVICE] Created device with name "${device.name}"`);
-    if (newDevice) {
-      configStore.set('deviceId', newDevice.id);
-      configStore.set('backupList', {});
-      const device = decryptDeviceName(newDevice);
-      logger.info(`[DEVICE] Created device with name "${device.name}"`);
 
-      return device;
-    }
-    const error = new Error('Could not get or create device');
-    addUnknownDeviceIssue(error);
-    throw error;
     return device;
   }
   const error = new Error('Could not get or create device');
@@ -370,9 +328,7 @@ export async function changeBackupPath(currentPath: string): Promise<boolean> {
   backupsList[chosenPath] = existingBackup;
 
   configStore.set('backupList', backupsList);
-  configStore.set('backupList', backupsList);
 
-  return true;
   return true;
 }
 
