@@ -36,7 +36,7 @@ import { FileUploader } from './application/FileUploader';
 import { WebdavPath } from './shared/domain/WebdavPath';
 import { WebdavFile } from './files/domain/WebdavFile';
 import { WebdavFolder } from './folders/domain/WebdavFolder';
-import { FileClonner } from './files/infrastructure/FileClonner';
+import { FileClonner } from './files/infrastructure/storage/FileClonner';
 import { DebugPropertyManager } from './DebugPropertyManager';
 
 export class ProofOfConceptFileSystem extends webdav.FileSystem {

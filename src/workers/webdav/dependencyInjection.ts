@@ -4,12 +4,9 @@ import configStore from '../../main/config';
 import { getClients } from '../../shared/HttpClient/backgroud-process-clients';
 import { Environment } from '@internxt/inxt-js';
 import { WebdavFileClonner } from './files/application/WebdavFileClonner';
-import { FileClonner } from './files/infrastructure/FileClonner';
-import { FileDownloader } from './files/infrastructure/FileDownloader';
-import { FileUploader } from './files/infrastructure/FileUploader';
 import { WebdavFolderFinder } from './folders/application/WebdavFolderFinder';
 import { WebdavFileDeleter } from './files/application/WebdavFileDeleter';
-import { HttpWebdavFileRepository } from './files/infrastructure/HttpWebdavFileRepository';
+import { HttpWebdavFileRepository } from './files/infrastructure/persistance/HttpWebdavFileRepository';
 import { WebdavFolderCreator } from './folders/application/WebdavFolderCreator';
 import { HttpWebdavFolderRepository } from './folders/infrastructure/HttpWebdavFolderRepository';
 import crypt from '../utils/crypt';
@@ -21,12 +18,13 @@ import { WebdavFileMover } from './files/application/WebdavFileMover';
 import { WebdavFolderMover } from './folders/application/WebdavFolderMover';
 import { AllWebdavItemsNameLister } from './shared/application/AllWebdavItemsSearcher';
 import { WebdavFolderDeleter } from './folders/application/WebdavFolderDeleter';
-
-let container: InxtFileSystemDependencyContainer | null = null;
+import { InMemoryTemporalFileMetadataCollection } from './files/infrastructure/persistance/InMemoryTemporalFileMetadataCollection';
+import { EnvironmentFileContentRepository } from './files/infrastructure/storage/EnvironmentFileContentRepository';
+import { WebdavFileCreator } from './files/application/WebdavFileCreator';
+import { WebdavFileDownloader } from './files/application/WebdavFileDownloader';
+import { WebdavUnkownItemMetadataDealer } from './shared/application/WebdavUnkownItemMetadataDealer';
 
 export async function buildContainer(): Promise<InxtFileSystemDependencyContainer> {
-  if (container) return container;
-
   const clients = getClients();
   const user = getUser();
   const mnemonic = configStore.get('mnemonic');
@@ -68,37 +66,57 @@ export async function buildContainer(): Promise<InxtFileSystemDependencyContaine
   await folderRepository.init();
   await treeRepository.init();
 
-  const clonner = new FileClonner(user.bucket, environment);
-
-  const uploader = new FileUploader(user.bucket, environment);
-
-  const downloader = new FileDownloader(user.bucket, environment);
+  const fileContentRepository = new EnvironmentFileContentRepository(
+    environment,
+    user.bucket
+  );
 
   const folderFinder = new WebdavFolderFinder(folderRepository);
 
-  container = {
-    fileExists: new WebdavFileExists(fileRepository),
-    fileClonner: new WebdavFileClonner(fileRepository, folderFinder, clonner),
-    fileDeleter: new WebdavFileDeleter(fileRepository),
-    fileMover: new WebdavFileMover(fileRepository, folderFinder),
+  const temporalFileCollection = new InMemoryTemporalFileMetadataCollection();
 
-    folderFinder,
-    folderCreator: new WebdavFolderCreator(folderRepository, folderFinder),
-    folderMover: new WebdavFolderMover(folderRepository, folderFinder),
-    folderDeleter: new WebdavFolderDeleter(folderRepository),
-
-    allItemsLister: new AllWebdavItemsNameLister(
-      fileRepository,
-      folderRepository,
-      folderFinder
-    ),
-    itemSearcher: new WebdavUnknownItemTypeSearcher(
+  const unknownItemSearcher = new WebdavUnknownItemTypeSearcher(
       fileRepository,
       folderRepository
     ),
+    container = {
+      fileExists: new WebdavFileExists(fileRepository),
+      fileClonner: new WebdavFileClonner(
+        fileRepository,
+        folderFinder,
+        fileContentRepository
+      ),
+      fileDeleter: new WebdavFileDeleter(fileRepository),
+      fileMover: new WebdavFileMover(fileRepository, folderFinder),
+      fileCreator: new WebdavFileCreator(
+        fileRepository,
+        folderFinder,
+        fileContentRepository,
+        temporalFileCollection
+      ),
+      fileDonwloader: new WebdavFileDownloader(
+        fileRepository,
+        fileContentRepository
+      ),
 
-    reposiotry: treeRepository,
-  };
+      folderFinder,
+      folderCreator: new WebdavFolderCreator(folderRepository, folderFinder),
+      folderMover: new WebdavFolderMover(folderRepository, folderFinder),
+      folderDeleter: new WebdavFolderDeleter(folderRepository),
+
+      itemMetadataDealer: new WebdavUnkownItemMetadataDealer(
+        unknownItemSearcher,
+        temporalFileCollection
+      ),
+      allItemsLister: new AllWebdavItemsNameLister(
+        fileRepository,
+        folderRepository,
+        folderFinder
+      ),
+      itemSearcher: unknownItemSearcher,
+
+      reposiotry: treeRepository,
+    };
 
   return container;
 }

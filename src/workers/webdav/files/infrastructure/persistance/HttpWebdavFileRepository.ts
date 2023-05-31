@@ -5,8 +5,8 @@ import { ServerFile } from 'workers/filesystems/domain/ServerFile';
 import { ServerFolder } from 'workers/filesystems/domain/ServerFolder';
 import crypt from 'workers/utils/crypt';
 import { Traverser } from 'workers/webdav/application/Traverser';
-import { WebdavFile } from '../domain/WebdavFile';
-import { WebdavFileRepository } from '../domain/WebdavFileRepository';
+import { WebdavFile } from '../../domain/WebdavFile';
+import { WebdavFileRepository } from '../../domain/WebdavFileRepository';
 import * as uuid from 'uuid';
 
 export class HttpWebdavFileRepository implements WebdavFileRepository {

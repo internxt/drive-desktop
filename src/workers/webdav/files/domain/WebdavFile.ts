@@ -43,6 +43,25 @@ export class WebdavFile extends WebdavItem {
     );
   }
 
+  static create(
+    fileId: string,
+    folder: WebdavFolder,
+    size: number,
+    path: FilePath
+  ) {
+    return new WebdavFile(
+      fileId,
+      folder.id,
+      path.name(),
+      path,
+      size,
+      path.extension(),
+      new Date(),
+      new Date(),
+      new Date()
+    );
+  }
+
   moveTo(folder: WebdavFolder): WebdavFile {
     if (this.folderId === folder.id) {
       throw new Error('Cannot move a file to its current folder');

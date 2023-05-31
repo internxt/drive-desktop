@@ -1,6 +1,6 @@
 import { Environment } from '@internxt/inxt-js';
 import Logger from 'electron-log';
-import { WebdavFile } from '../domain/WebdavFile';
+import { WebdavFile } from '../../domain/WebdavFile';
 import { FileClonner } from './FileClonner';
 
 export class FileOverrider {

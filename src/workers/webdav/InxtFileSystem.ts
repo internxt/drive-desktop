@@ -28,13 +28,10 @@ import {
   CopyInfo,
   MimeTypeInfo,
 } from 'webdav-server/lib/index.v2';
-import { PassThrough, Readable, Writable } from 'stream';
+import { Readable, Writable } from 'stream';
 import Logger from 'electron-log';
 import { TreeRepository } from './TreeRepository';
-import { WebdavFile } from './files/domain/WebdavFile';
 import { DebugPhysicalSerializer } from './Serializer';
-import { FileUploader } from './files/infrastructure/FileUploader';
-import { FileDownloader } from './files/infrastructure/FileDownloader';
 
 import mimetypes from './domain/MimeTypesMap.json';
 import { FilePath } from './files/domain/FilePath';
@@ -81,17 +78,11 @@ export class InxtFileSystem extends FileSystem {
     [path: string]: PhysicalFileSystemResource;
   };
 
-  filesToUpload: Record<string, Metadata> = {};
-
-  filesToOverride: Array<string> = [];
-
   constructor(
-    private readonly fileUploader: FileUploader,
-    private readonly fileDownloader: FileDownloader,
     private readonly repository: TreeRepository,
     private readonly dependencyContainer: InxtFileSystemDependencyContainer
   ) {
-    super(new DebugPhysicalSerializer(fileUploader, repository));
+    super(new DebugPhysicalSerializer(repository, dependencyContainer));
 
     this.resources = {
       '/': new PhysicalFileSystemResource(),
@@ -115,10 +106,11 @@ export class InxtFileSystem extends FileSystem {
     }
 
     if (sourceItem.isFile()) {
-      const filePath = new FilePath(pathTo.toString(false));
+      const from = new FilePath(pathFrom.toString(false));
+      const to = new FilePath(pathTo.toString(false));
 
       this.dependencyContainer.fileClonner
-        .run(filePath, filePath, ctx.overwrite)
+        .run(from, to, ctx.overwrite)
         .then((haveBeenOverwritten: boolean) => {
           callback(undefined, haveBeenOverwritten);
         })
@@ -196,67 +188,21 @@ export class InxtFileSystem extends FileSystem {
   ): void {
     const resource = this.resources[path.toString(false)];
 
-    const newFilePaht = new FilePath(path.toString(false));
-
-    if (!this.filesToUpload[path.toString(false)]) {
-      this.filesToUpload[path.toString(false)] = {
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-        type: ResourceType.File,
-        name: newFilePaht.name(),
-        size: ctx.estimatedSize,
-        extension: newFilePaht.extension(),
-        override: false,
-      };
-    }
-
     if (!resource) {
       this.resources[path.toString(false)] = new PhysicalFileSystemResource();
     }
 
-    const stream = new PassThrough();
-
     Logger.debug('WRITE STEAM ON ', path.toString(false));
 
-    this.fileUploader
-      .upload({
-        size: ctx.estimatedSize,
-        contents: stream,
+    this.dependencyContainer.fileCreator
+      .run(path.toString(false), ctx.estimatedSize)
+      .then((writable) => {
+        callback(undefined, writable);
       })
-      .then(async (fileId: string) => {
-        const parent = this.repository.searchParentFolder(path.toString(false));
-
-        if (!parent) {
-          Logger.error('A file need a folder parent to be created');
-          throw new Error('A file need a folder parent to be created');
-        }
-
-        const filePath = new FilePath(path.toString(false));
-
-        Logger.debug('new path', filePath.value);
-
-        const file = new WebdavFile(
-          fileId,
-          parent.id,
-          filePath.name(),
-          filePath,
-          ctx.estimatedSize,
-          filePath.extension(),
-          new Date(),
-          new Date(),
-          new Date()
-        );
-
-        await this.repository.addFile(file);
-
-        return filePath.value;
-      })
-      .then((fileUploaded: string) => {
-        delete this.filesToUpload[fileUploaded];
-      })
-      .catch((err) => Logger.error(err));
-
-    callback(undefined, stream);
+      .catch((err) => {
+        Logger.error('[FS] Error on open write steam ', err);
+        throw err;
+      });
   }
 
   _openReadStream(
@@ -265,28 +211,16 @@ export class InxtFileSystem extends FileSystem {
     callback: ReturnCallback<Readable>
   ): void {
     Logger.debug('[OPEN READ STREAM]');
-    const item = this.dependencyContainer.itemSearcher.run(
-      path.toString(false)
-    );
 
-    if (!item) {
-      return callback(Errors.ResourceNotFound);
-    }
-
-    if (item.isFolder()) {
-      return callback(Errors.InvalidOperation);
-    }
-
-    this.fileDownloader
-      .download(item.fileId)
-      .then((readable) => {
-        if (!readable) {
-          return callback(Errors.UnrecognizedResource);
-        }
-
+    this.dependencyContainer.fileDonwloader
+      .run(path.toString(false))
+      .then((readable: Readable) => {
         callback(undefined, readable);
       })
-      .catch(() => callback(Errors.UnrecognizedResource));
+      .catch((err) => {
+        Logger.error('[FS] Error downloading a file ', err);
+        throw err;
+      });
   }
 
   // The _rename method is not being called, instead the _move method is called
@@ -359,10 +293,10 @@ export class InxtFileSystem extends FileSystem {
     propertyName: string,
     callback: ReturnCallback<any>
   ): void {
-    let resource = this.resources[path.toString()];
+    let resource = this.resources[path.toString(false)];
     if (!resource) {
       resource = new PhysicalFileSystemResource();
-      this.resources[path.toString()] = resource;
+      this.resources[path.toString(false)] = resource;
     }
 
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -411,31 +345,15 @@ export class InxtFileSystem extends FileSystem {
     _ctx: DisplayNameInfo,
     callback: ReturnCallback<string>
   ) {
-    Logger.debug('[FS DISPLAY NAME]', path.toString());
-
-    const item = this.dependencyContainer.itemSearcher.run(
-      path.toString(false)
+    const data = this.dependencyContainer.itemMetadataDealer.run(
+      path.toString(false),
+      'name'
     );
 
-    if (!item) {
-      const file = this.filesToUpload[path.toString(false)];
-
-      if (!file) {
-        return callback(Errors.ResourceNotFound);
-      }
-
-      return callback(undefined, file.name);
+    if (!data) {
+      return callback(Errors.ResourceNotFound);
     }
-
-    if (item.isFile()) {
-      return callback(undefined, item.path.nameWithExtension());
-    }
-
-    if (item.isFolder()) {
-      return callback(undefined, item.name);
-    }
-
-    callback(Errors.UnrecognizedResource);
+    return callback(undefined, data);
   }
 
   _creationDate(
@@ -443,22 +361,16 @@ export class InxtFileSystem extends FileSystem {
     ctx: CreationDateInfo,
     callback: ReturnCallback<number>
   ): void {
-    Logger.debug('[FS] CREATION DATE');
-    const item = this.dependencyContainer.itemSearcher.run(
-      path.toString(false)
+    const data = this.dependencyContainer.itemMetadataDealer.run(
+      path.toString(false),
+      'createdAt'
     );
 
-    if (!item) {
-      const file = this.filesToUpload[path.toString(false)];
-
-      if (!file) {
-        return callback(Errors.ResourceNotFound);
-      }
-
-      return callback(undefined, file.createdAt);
+    if (!data) {
+      return callback(Errors.ResourceNotFound);
     }
 
-    callback(undefined, item.createdAt.getTime());
+    return callback(undefined, data);
   }
 
   _mimeType(path: Path, ctx: MimeTypeInfo, callback: ReturnCallback<string>) {
@@ -484,21 +396,16 @@ export class InxtFileSystem extends FileSystem {
     ctx: LastModifiedDateInfo,
     callback: ReturnCallback<number>
   ): void {
-    const item = this.dependencyContainer.itemSearcher.run(
-      path.toString(false)
+    const data = this.dependencyContainer.itemMetadataDealer.run(
+      path.toString(false),
+      'updatedAt'
     );
 
-    if (!item) {
-      const file = this.filesToUpload[path.toString(false)];
-
-      if (!file) {
-        return callback(Errors.ResourceNotFound);
-      }
-
-      return callback(undefined, file.updatedAt);
+    if (!data) {
+      return callback(Errors.ResourceNotFound);
     }
 
-    callback(undefined, item.updatedAt.getTime());
+    return callback(undefined, data);
   }
 
   _type(
@@ -506,50 +413,29 @@ export class InxtFileSystem extends FileSystem {
     ctx: TypeInfo,
     callback: ReturnCallback<ResourceType>
   ): void {
-    Logger.debug('[FS] TYPE >> ', path.toString());
-
-    const pathLike = path.toString(false);
-
-    if (pathLike === '/') {
-      callback(undefined, ResourceType.Directory);
-      return;
-    }
-
-    const item = this.dependencyContainer.itemSearcher.run(
-      path.toString(false)
+    const data = this.dependencyContainer.itemMetadataDealer.run(
+      path.toString(false),
+      'type'
     );
 
-    if (!item) {
-      const file = this.filesToUpload[path.toString(false)];
-
-      if (!file) {
-        return callback(Errors.ResourceNotFound);
-      }
-
-      return callback(undefined, file.type);
+    if (!data) {
+      return callback(Errors.ResourceNotFound);
     }
 
-    const resource = new ResourceType(item.isFile(), item.isFolder());
-    callback(undefined, resource);
+    const type = data === 'FILE' ? ResourceType.File : ResourceType.Directory;
+    return callback(undefined, type);
   }
 
   _size(path: Path, ctx: SizeInfo, callback: ReturnCallback<number>): void {
-    Logger.debug('[FS] SIZE', path.toString());
-
-    const item = this.dependencyContainer.itemSearcher.run(
-      path.toString(false)
+    const data = this.dependencyContainer.itemMetadataDealer.run(
+      path.toString(false),
+      'size'
     );
 
-    if (!item) {
-      const file = this.filesToUpload[path.toString(false)];
-
-      if (!file) {
-        return callback(Errors.ResourceNotFound);
-      }
-
-      return callback(undefined, file.size);
+    if (data === undefined) {
+      return callback(Errors.ResourceNotFound);
     }
 
-    callback(undefined, item.size);
+    return callback(undefined, data);
   }
 }

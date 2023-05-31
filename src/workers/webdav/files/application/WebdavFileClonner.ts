@@ -1,8 +1,8 @@
 import { WebdavFolderFinder } from '../../folders/application/WebdavFolderFinder';
 import { FilePath } from '../domain/FilePath';
+import { FileContentRepository } from '../domain/storage/FileContentRepository';
 import { WebdavFile } from '../domain/WebdavFile';
 import { WebdavFileRepository } from '../domain/WebdavFileRepository';
-import { FileClonner } from '../infrastructure/FileClonner';
 
 export class WebdavFileClonner {
   private static FILE_OVERRIDED = true;
@@ -11,11 +11,11 @@ export class WebdavFileClonner {
   constructor(
     private readonly repository: WebdavFileRepository,
     private readonly folderFinder: WebdavFolderFinder,
-    private readonly fileClonner: FileClonner
+    private readonly contentRepository: FileContentRepository
   ) {}
 
   private async overwrite(file: WebdavFile, destinationFile: WebdavFile) {
-    const clonnedFileId = await this.fileClonner.clone(file.fileId);
+    const clonnedFileId = await this.contentRepository.clone(file);
     const newFile = destinationFile.override(file, clonnedFileId);
 
     await this.repository.delete(destinationFile);
@@ -23,13 +23,13 @@ export class WebdavFileClonner {
   }
 
   private async copy(file: WebdavFile, path: FilePath) {
-    const clonnedFileId = await this.fileClonner.clone(file.fileId);
-
     const destinationFolder = this.folderFinder.run(path.dirname());
 
     if (!destinationFolder) {
       throw new Error('Folder not found');
     }
+
+    const clonnedFileId = await this.contentRepository.clone(file);
 
     const newFile = WebdavFile.from({
       fileId: clonnedFileId,
