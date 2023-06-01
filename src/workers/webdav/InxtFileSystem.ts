@@ -29,8 +29,6 @@ import {
 import { Readable, Writable } from 'stream';
 import Logger from 'electron-log';
 import { DebugPhysicalSerializer } from './Serializer';
-
-import mimetypes from './domain/MimeTypesMap.json';
 import { FilePath } from './files/domain/FilePath';
 import { InxtFileSystemDependencyContainer } from './InxtFileSystemDependencyContainer';
 
@@ -52,8 +50,6 @@ export class PhysicalFileSystemResource {
 }
 
 export class InxtFileSystem extends FileSystem {
-  static DefaultMimeType = 'application/octet-stream';
-
   resources: {
     [path: string]: PhysicalFileSystemResource;
   };
@@ -353,15 +349,9 @@ export class InxtFileSystem extends FileSystem {
   }
 
   _mimeType(path: Path, ctx: MimeTypeInfo, callback: ReturnCallback<string>) {
-    const filePath = new FilePath(path.toString(false));
-
-    if (!filePath.hasExtension()) {
-      return callback(undefined, InxtFileSystem.DefaultMimeType);
-    }
-
-    const mimeType = (mimetypes as Record<string, string>)[
-      `.${filePath.extension()}`
-    ];
+    const mimeType = this.dependencyContainer.fileMimeTypeResolver.run(
+      path.toString()
+    );
 
     if (!mimeType) {
       return callback(Errors.UnrecognizedResource);

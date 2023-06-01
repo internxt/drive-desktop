@@ -3,6 +3,7 @@ import { WebdavFileCreator } from './files/application/WebdavFileCreator';
 import { WebdavFileDeleter } from './files/application/WebdavFileDeleter';
 import { WebdavFileDownloader } from './files/application/WebdavFileDownloader';
 import { WebdavFileExists } from './files/application/WebdavFileExists';
+import { WebdavFileMimeTypeResolver } from './files/application/WebdavFileMimeTypeResolver';
 import { WebdavFileMover } from './files/application/WebdavFileMover';
 import { WebdavFolderCreator } from './folders/application/WebdavFolderCreator';
 import { WebdavFolderDeleter } from './folders/application/WebdavFolderDeleter';
@@ -20,6 +21,7 @@ export type InxtFileSystemDependencyContainer = {
   fileMover: WebdavFileMover;
   fileCreator: WebdavFileCreator;
   fileDonwloader: WebdavFileDownloader;
+  fileMimeTypeResolver: WebdavFileMimeTypeResolver;
 
   folderCreator: WebdavFolderCreator;
 

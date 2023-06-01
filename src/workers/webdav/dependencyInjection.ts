@@ -23,6 +23,7 @@ import { EnvironmentFileContentRepository } from './files/infrastructure/storage
 import { WebdavFileCreator } from './files/application/WebdavFileCreator';
 import { WebdavFileDownloader } from './files/application/WebdavFileDownloader';
 import { WebdavUnkownItemMetadataDealer } from './shared/application/WebdavUnkownItemMetadataDealer';
+import { WebdavFileMimeTypeResolver } from './files/application/WebdavFileMimeTypeResolver';
 
 export async function buildContainer(): Promise<InxtFileSystemDependencyContainer> {
   const clients = getClients();
@@ -98,6 +99,7 @@ export async function buildContainer(): Promise<InxtFileSystemDependencyContaine
         fileRepository,
         fileContentRepository
       ),
+      fileMimeTypeResolver: new WebdavFileMimeTypeResolver(),
 
       folderFinder,
       folderCreator: new WebdavFolderCreator(folderRepository, folderFinder),
