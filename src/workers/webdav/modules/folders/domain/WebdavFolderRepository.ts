@@ -5,8 +5,6 @@ import { FolderPath } from './FolderPath';
 export interface WebdavFolderRepository {
   search(path: string): Nullable<WebdavFolder>;
 
-  delete(folder: WebdavFolder): Promise<void>;
-
   create(
     name: FolderPath,
     parentId: WebdavFolderAttributes['parentId']

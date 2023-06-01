@@ -7,6 +7,7 @@ import { FolderPath } from '../domain/FolderPath';
 import { WebdavFolder, WebdavFolderAttributes } from '../domain/WebdavFolder';
 import { WebdavFolderRepository } from '../domain/WebdavFolderRepository';
 import Logger from 'electron-log';
+import * as uuid from 'uuid';
 
 export class HttpWebdavFolderRepository implements WebdavFolderRepository {
   private items: Record<string, WebdavFolder> = {};
@@ -80,10 +81,6 @@ export class HttpWebdavFolderRepository implements WebdavFolderRepository {
     return this.items[path];
   }
 
-  delete(folder: WebdavFolder): Promise<void> {
-    throw new Error('Method not implemented.');
-  }
-
   async create(path: FolderPath, parentId: number): Promise<WebdavFolder> {
     const plainName = path.name();
 
@@ -123,12 +120,36 @@ export class HttpWebdavFolderRepository implements WebdavFolderRepository {
     return folder;
   }
 
-  updateName(folder: WebdavFolder): Promise<void> {
-    throw new Error('Method not implemented.');
+  async updateName(folder: WebdavFolder): Promise<void> {
+    const url = `${process.env.API_URL}/api/storage/folder/${folder.id}/meta`;
+
+    const res = await this.driveClient.post(url, {
+      metadata: { itemName: folder.name },
+      relativePath: uuid.v4(),
+    });
+
+    if (res.status !== 200) {
+      throw new Error(
+        `[REPOSITORY] Error updating item metadata: ${res.status}`
+      );
+    }
+
+    delete this.items[folder.path.value];
+    this.items[folder.path.value] = folder;
   }
 
-  updateParentDir(folder: WebdavFolder): Promise<void> {
-    throw new Error('Method not implemented.');
+  async updateParentDir(folder: WebdavFolder): Promise<void> {
+    const url = `${process.env.API_URL}/api/storage/move/folder`;
+
+    const body = { destination: folder.parentId, folderId: folder.id };
+
+    const res = await this.driveClient.post(url, body);
+
+    if (res.status !== 200) {
+      throw new Error(`[REPOSITORY] Error moving item: ${res.status}`);
+    }
+
+    this.items[folder.path.value] = folder;
   }
 
   searchOnFolder(folderId: WebdavFolderAttributes['id']): Array<WebdavFolder> {

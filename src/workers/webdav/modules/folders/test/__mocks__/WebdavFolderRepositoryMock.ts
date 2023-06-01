@@ -5,7 +5,6 @@ import { WebdavFolderRepository } from '../../domain/WebdavFolderRepository';
 
 export class WebdavFolderRepositoryMock implements WebdavFolderRepository {
   public mockSearch = jest.fn();
-  public mockDelete = jest.fn();
   public mockAdd = jest.fn();
   public mockUpdateName = jest.fn();
   public mockUpdateParentDir = jest.fn();
@@ -15,10 +14,6 @@ export class WebdavFolderRepositoryMock implements WebdavFolderRepository {
 
   search(pathLike: string): Nullable<WebdavFolder> {
     return this.mockSearch(pathLike);
-  }
-
-  delete(file: WebdavFolder): Promise<void> {
-    return this.mockDelete(file);
   }
 
   add(file: WebdavFolder): Promise<void> {
