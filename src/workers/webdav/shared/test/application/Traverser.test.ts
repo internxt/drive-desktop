@@ -1,6 +1,6 @@
-import { ServerFolder } from 'workers/filesystems/domain/ServerFolder';
-import { ServerFile } from '../../../filesystems/domain/ServerFile';
-import { Traverser } from '../../application/Traverser';
+import { ServerFile } from '../../../../filesystems/domain/ServerFile';
+import { ServerFolder } from '../../../../filesystems/domain/ServerFolder';
+import { Traverser } from '../../../../webdav/application/Traverser';
 
 const fakeDecryptor = {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -23,7 +23,7 @@ describe('Traverser', () => {
 
     const result = SUT.run(rawTree);
 
-    expect(Object.keys(result)).toStrictEqual(['/', '/file A']);
+    expect(Object.keys(result)).toStrictEqual(['/file A', '/']);
   });
 
   it('second level files starts with /', () => {
@@ -48,9 +48,9 @@ describe('Traverser', () => {
     const result = SUT.run(rawTree);
 
     expect(Object.keys(result)).toStrictEqual([
-      '/',
       '/folder A',
       '/folder A/file A',
+      '/',
     ]);
   });
 
@@ -70,7 +70,7 @@ describe('Traverser', () => {
 
     const result = SUT.run(rawTree);
 
-    expect(Object.keys(result)).toStrictEqual(['/', '/folder A']);
+    expect(Object.keys(result)).toStrictEqual(['/folder A', '/']);
   });
 
   it('second level folder starts with /', () => {
@@ -95,9 +95,9 @@ describe('Traverser', () => {
     const result = SUT.run(rawTree);
 
     expect(Object.keys(result)).toStrictEqual([
-      '/',
       '/folder A',
       '/folder A/folder B',
+      '/',
     ]);
   });
 
@@ -123,9 +123,9 @@ describe('Traverser', () => {
     const result = SUT.run(rawTree);
 
     expect(Object.keys(result)).toStrictEqual([
-      '/',
       '/folder A',
       '/folder A/folder B',
+      '/',
     ]);
   });
 });

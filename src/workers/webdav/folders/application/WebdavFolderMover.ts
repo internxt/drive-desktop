@@ -25,8 +25,7 @@ export class WebdavFolderMover {
     const destination = new FolderPath(to);
     const destinationFolder = this.repository.search(destination.value);
 
-    const shouldBeMerge =
-      destinationFolder !== undefined || destinationFolder !== null;
+    const shouldBeMerge = destinationFolder !== undefined;
 
     if (shouldBeMerge) {
       throw new Error('Folders cannot be ovewriden');
@@ -35,11 +34,8 @@ export class WebdavFolderMover {
     const parentFolder = this.folderFinder.run(destination.dirname());
 
     if (folder.hasParent(parentFolder.id)) {
-      if (shouldBeMerge) {
-        throw new Error('Cannot rename a folder to an existing folder name');
-      }
-
       await this.rename(folder, destination);
+      return;
     }
 
     await this.move(folder, parentFolder);

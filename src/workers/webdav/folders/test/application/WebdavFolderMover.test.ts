@@ -43,9 +43,7 @@ describe('Folder Mover', () => {
         .mockReturnValueOnce(undefined)
         .mockReturnValueOnce(folderC);
 
-      const hasBeenOverriden = await SUT.run(folder, destination);
-
-      expect(hasBeenOverriden).toBe(false);
+      await SUT.run(folder, destination);
 
       expect(repository.mockUpdateParentDir).toHaveBeenCalled();
       expect(repository.mockUpdateName).not.toHaveBeenCalled();
@@ -62,9 +60,8 @@ describe('Folder Mover', () => {
         .mockReturnValueOnce(undefined)
         .mockReturnValueOnce(WebdavFolderMother.withId(folderAId));
 
-      const hasBeenOverriden = await SUT.run(folder, destination);
+      await SUT.run(folder, destination);
 
-      expect(hasBeenOverriden).toBe(false);
       expect(repository.mockUpdateName).toHaveBeenCalled();
       expect(repository.mockUpdateParentDir).not.toHaveBeenCalled();
     });
