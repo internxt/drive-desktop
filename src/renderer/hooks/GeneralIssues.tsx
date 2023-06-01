@@ -3,14 +3,15 @@ import { useEffect, useState } from 'react';
 import { GeneralIssue } from '../../workers/types';
 
 export default function useGeneralIssues() {
-	const [generalIssues, setGeneralIssues] = useState<GeneralIssue[]>([]);
+  const [generalIssues, setGeneralIssues] = useState<GeneralIssue[]>([]);
 
-	useEffect(() => {
-		window.electron.getGeneralIssues().then(setGeneralIssues);
-		const removeListener = window.electron.onGeneralIssuesChanged(setGeneralIssues);
+  useEffect(() => {
+    window.electron.getGeneralIssues().then(setGeneralIssues);
+    const removeListener =
+      window.electron.onGeneralIssuesChanged(setGeneralIssues);
 
-		return removeListener;
-	}, []);
+    return removeListener;
+  }, []);
 
-	return generalIssues;
+  return generalIssues;
 }

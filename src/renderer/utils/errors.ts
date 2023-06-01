@@ -7,7 +7,7 @@ import * as Sentry from '@sentry/electron/renderer';
  * @param context The context to attach to the error such the userId, tags, boolean values...
  */
 export const reportError = (
-  error: Error,
+  error: unknown,
   context: Record<string, string> = {}
 ) => {
   Sentry.captureException(error, context);
