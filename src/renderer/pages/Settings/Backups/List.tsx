@@ -11,10 +11,8 @@ import Checkbox from '../../../components/Checkbox';
 
 export default function BackupsList({
   onGoToPanel,
-  onCancel,
 }: {
   onGoToPanel: () => void;
-  onCancel?: () => void;
 }) {
   const { translate } = useTranslationContext();
 
@@ -104,7 +102,7 @@ export default function BackupsList({
             onKeyDown={() => setSelected(folder)}
             tabIndex={0}
             key={folder.id}
-            className={`non-draggable flex w-full items-center overflow-hidden p-2 transition-colors duration-75 ${
+            className={`flex w-full items-center overflow-hidden p-2 transition-colors duration-75 ${
               selected?.id === folder.id
                 ? 'bg-blue-60 text-white'
                 : i % 2 !== 0
@@ -145,7 +143,7 @@ export default function BackupsList({
         {translate('settings.backups.folders.explanation')}
       </p>
       <div
-        className="mt-4 h-44 overflow-y-auto rounded-lg border border-l-neutral-30  bg-white"
+        className="mt-4 h-44 overflow-y-auto rounded-lg border border-l-neutral-30 bg-white"
         onClick={() => setSelected(null)}
         role="none"
       >
@@ -167,16 +165,9 @@ export default function BackupsList({
             <UilMinus size="17" />
           </Button>
         </div>
-        <div>
-          {onCancel ? (
-            <Button className="mr-2" onClick={onGoToPanel}>
-              {translate('common.cancel')}
-            </Button>
-          ) : null}
-          <Button onClick={onGoToPanel} variant="primary">
-            {translate('settings.backups.folders.done')}
-          </Button>
-        </div>
+        <Button onClick={onGoToPanel}>
+          {translate('settings.backups.folders.done')}
+        </Button>
       </div>
 
       <Modal

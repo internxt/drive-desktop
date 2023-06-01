@@ -50,7 +50,8 @@ export class TreeRepository implements ItemRepository {
         // We can't use spread operator with big arrays
         // see: https://anchortagdev.com/range-error-maximum-call-stack-size-exceeded-error-using-spread-operator-in-node-js-javascript/
 
-        for (const file of batch.files) files.push(file);
+        for (const file of batch.files)
+          files.push({ ...file, size: parseInt(file.size, 10) });
 
         for (const folder of batch.folders) folders.push(folder);
 
@@ -229,6 +230,8 @@ export class TreeRepository implements ItemRepository {
       file.folderId.toString()
     );
 
+    Logger.debug('[REPOSITORY]', JSON.stringify(file, null, 2));
+
     // TODO: MAKE SURE ALL FIELDS ARE CORRECT
     const result = await this.httpClient.post<FileCreatedResponseDTO>(
       `${process.env.API_URL}/api/storage/file`,
@@ -247,6 +250,12 @@ export class TreeRepository implements ItemRepository {
         },
       }
     );
+
+    if (result.status === 500) {
+      //rollback
+    }
+
+    Logger.debug(JSON.stringify(result));
 
     const created = XFile.from({
       ...result.data,

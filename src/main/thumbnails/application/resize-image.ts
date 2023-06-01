@@ -20,5 +20,8 @@ export function reziseImage(file: Readable): Buffer {
 
   //file.pipe(sharpStream);
 
-  return (gm(file).resize(ThumbnailProperties.dimensions, ThumbnailProperties.dimensions).stream()).read() as Buffer;
+  return gm(file)
+    .resize(ThumbnailProperties.dimensions, ThumbnailProperties.dimensions)
+    .stream()
+    .read() as Buffer;
 }

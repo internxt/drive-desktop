@@ -8,6 +8,7 @@ import axios from 'axios';
 
 jest.mock('axios');
 jest.mock('electron-store');
+
 const mockedAxios = axios as jest.Mocked<typeof axios>;
 
 const inMemorySyncedFilesCollection: DatabaseCollectionAdapter<DriveFile> = {

@@ -167,6 +167,9 @@
       }
     },
     "backups": {
+      "add-folders": "Cliquez sur + pour sélectionner les dossiers que vous souhaitez sauvegarder",
+      "selected-folder": "{{count}} dossier",
+      "selected-folders": "{{count}} dossiers",
       "activate": "Sauvegarder vos dossiers",
       "view-backups": "Voir les sauvegardes",
       "select-folders": "Sélectionner des dossiers",

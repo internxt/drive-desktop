@@ -17,7 +17,7 @@ import {
   Resource,
 } from 'webdav-server/lib/index.v2';
 import { v4 } from 'uuid';
-import { TreeRepository } from './Repository';
+import { TreeRepository } from './TreeRepository';
 import { getUser } from '../../main/auth/service';
 import configStore from '../../main/config';
 import { FileUploader } from './application/FileUploader';
@@ -159,13 +159,11 @@ async function setUp() {
 
     const uploader = new FileUploader(user.bucket, environment);
 
-    const overrider = new FileOverrider(user.bucket, environment, clonner);
-
     const downloader = new FileDownloader(user.bucket, environment);
 
     server.setFileSystem(
       '/',
-      new InxtFileSystem(uploader, overrider, downloader, repository),
+      new InxtFileSystem(uploader, downloader, clonner, repository),
       (su) => {
         Logger.log('[WEBDAB] SUCCEDED: ', su);
       }

@@ -30,7 +30,7 @@ import Logger from 'electron-log';
 import { PassThrough, Readable, Writable } from 'stream';
 import * as p from 'path';
 import fs, { createWriteStream } from 'fs';
-import { TreeRepository } from './Repository';
+import { TreeRepository } from './TreeRepository';
 import { MyLockManager } from './LockManager';
 import { FileUploader } from './application/FileUploader';
 import { XPath } from './domain/XPath';

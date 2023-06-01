@@ -168,6 +168,9 @@
       }
     },
     "backups": {
+      "add-folders": "Haz clic en + para hacer una copia de seguridad de tus carpetas",
+      "selected-folder": "{{count}} carpeta",
+      "selected-folders": "{{count}} carpetas",
       "activate": "Hacer copia de seguridad de tus carpetas",
       "view-backups": "Ver copias de seguridad",
       "select-folders": "Seleccionar carpetas",

@@ -51,9 +51,9 @@ export class XFolder extends Item<XFolder> {
       this.id,
       this.name,
       XPath.fromParts([basePath, this.name]),
-      this.parentId,
-      new Date(this.updatedAt),
-      new Date(this.createdAt)
+      folder.id,
+      new Date(this.createdAt),
+      new Date(this.updatedAt)
     );
   }
 

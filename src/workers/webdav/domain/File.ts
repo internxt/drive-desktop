@@ -44,19 +44,20 @@ export class XFile extends Item<XFile> {
       new Date(attributes.modificationTime)
     );
   }
-
   moveTo(folder: XFolder): XFile {
     if (this.folderId === folder.id) {
       throw new Error('Cannot move a file to its current folder');
     }
 
-    const basePath = folder.path.dirname();
+    const basePath = folder.path.value;
+
+    const name = this.type === '' ? this.name : `${this.name}.${this.type}`;
 
     const file = new XFile(
       this.fileId,
       folder.id,
       this.name,
-      XPath.fromParts([basePath, this.name]),
+      XPath.fromParts([basePath, name]),
       this.size,
       this.type,
       this.createdAt,
@@ -117,6 +118,34 @@ export class XFile extends Item<XFile> {
       this.updatedAt,
       this.modificationTime
     );
+  }
+
+  override(file: XFile, fileId: string) {
+    if (this.name !== file.name) {
+      throw new Error('Cannot replace file with diferent name');
+    }
+
+    if (!this.path.equals(file.path)) {
+      throw new Error('Cannot replace file with diferent pathnames');
+    }
+
+    if (this.type !== file.type) {
+      throw new Error('Cannot replace file with diferent types');
+    }
+
+    const replaced = new XFile(
+      fileId,
+      this.folderId,
+      this.name,
+      this.path,
+      file.size,
+      this.type,
+      file.createdAt,
+      new Date(),
+      new Date()
+    );
+
+    return replaced;
   }
 
   hasParent(id: number): boolean {

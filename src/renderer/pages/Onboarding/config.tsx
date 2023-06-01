@@ -8,6 +8,7 @@ import { FilesOrganizationSlide } from './slides/FilesOrganizationSlide';
 
 import { useTranslationContext } from 'renderer/context/LocalContext';
 import {
+  BackupsSVG,
   OnboardingSlide,
   SideImageAnimation,
   SideTextAnimation,
@@ -16,8 +17,6 @@ import {
   getOnlineImageSvg,
 } from './helpers';
 import Button from 'renderer/components/Button';
-import Lottie from 'lottie-react';
-import BackupsAnimation from '../../assets/onboarding/backups-animation.json';
 
 import ContextMenuSvg from '../../assets/onboarding/context-menu.svg';
 import { OnboardingCompletedSlide } from './slides/OnboardingCompletedSlide';
@@ -231,9 +230,7 @@ export const SLIDES: OnboardingSlide[] = [
       );
     },
   },
-
-  // Disabled for testing
-  /* {
+  {
     name: 'Backups Slide',
     component: (props) => {
       return (
@@ -256,7 +253,7 @@ export const SLIDES: OnboardingSlide[] = [
             {translate('onboarding.slides.backups.setup-backups')}
           </Button>
           <Button
-            onClick={props.onSkipOnboarding}
+            onClick={props.onFinish}
             variant="default"
             className="h-10 px-5 font-medium"
           >
@@ -273,21 +270,19 @@ export const SLIDES: OnboardingSlide[] = [
     },
     image: () => {
       return (
-        <div className="relative flex h-full w-full items-center justify-center ">
-          <SideImageAnimation display>
-            <Lottie autoPlay animationData={BackupsAnimation} />
-          </SideImageAnimation>
+        <div className="flex h-full w-full items-center justify-center">
+          <BackupsSVG />
         </div>
       );
     },
-  }, */
+  },
   {
     name: 'Onboarding Completed',
     component: (props) => {
       return (
         <div className="flex h-full w-full ">
           <SideTextAnimation display>
-            <OnboardingCompletedSlide backupsFoldersAdded={0} {...props} />
+            <OnboardingCompletedSlide {...props} />
           </SideTextAnimation>
         </div>
       );

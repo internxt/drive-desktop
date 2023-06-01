@@ -12,99 +12,108 @@ export const getWidget = () => widget;
 let currentWidgetPath = '/';
 
 export const createWidget = async () => {
-	widget = new BrowserWindow({
-		show: false,
-		webPreferences: {
-			preload: preloadPath,
-			nodeIntegration: true,
-		},
-		movable: false,
-		frame: false,
-		resizable: false,
-		maximizable: false,
-		skipTaskbar: true,
-	});
+  widget = new BrowserWindow({
+    show: false,
+    webPreferences: {
+      preload: preloadPath,
+      nodeIntegration: true,
+    },
+    movable: false,
+    frame: false,
+    resizable: false,
+    maximizable: false,
+    skipTaskbar: true,
+  });
 
-	const widgedLoaded = widget.loadURL(resolveHtmlPath(''));
+  const widgedLoaded = widget.loadURL(resolveHtmlPath(''));
 
-	widget.on('ready-to-show', () => {
-		if (isAutoLaunchEnabled()) {
-			return;
-		}
-		widget?.show();
-	});
+  widget.on('ready-to-show', () => {
+    if (isAutoLaunchEnabled()) {
+      return;
+    }
+    widget?.show();
+  });
 
-	widget.on('blur', () => {
-		widget?.hide();
-	});
+  widget.on('blur', () => {
+    widget?.hide();
+  });
 
-	setUpCommonWindowHandlers(widget);
+  setUpCommonWindowHandlers(widget);
 
-	widget.webContents.on('ipc-message', (_, channel, payload) => {
-		// Current widget pathname
-		if (channel === 'path-changed') {
-			console.log('Renderer navigated to ', payload);
+  widget.webContents.on('ipc-message', (_, channel, payload) => {
+    // Current widget pathname
+    if (channel === 'path-changed') {
+      console.log('Renderer navigated to ', payload);
 
-			currentWidgetPath = payload;
+      currentWidgetPath = payload;
 
-			setBoundsOfWidgetByPath(payload);
-		}
-	});
+      setBoundsOfWidgetByPath(payload);
+    }
+  });
 
-	await widgedLoaded;
+  await widgedLoaded;
 };
 
 export function toggleWidgetVisibility() {
-	if (!widget) {
-		return;
-	}
+  if (!widget) {
+    return;
+  }
 
-	if (widget.isVisible()) {
-		widget.hide();
-	} else {
-		widget.show();
-	}
+  if (widget.isVisible()) {
+    widget.hide();
+  } else {
+    widget.show();
+  }
 }
 
-const dimentions: Record<string, { width: number; height: number; placeUnderTray: boolean }> = {
-	'/': { width: 330, height: 392, placeUnderTray: true },
-	'/login': { width: 300, height: 474, placeUnderTray: false },
+const dimentions: Record<
+  string,
+  { width: number; height: number; placeUnderTray: boolean }
+> = {
+  '/': { width: 330, height: 392, placeUnderTray: true },
+  '/login': { width: 300, height: 474, placeUnderTray: false },
 };
 
 export function setBoundsOfWidgetByPath(pathname = currentWidgetPath) {
-	const { placeUnderTray, ...size } = dimentions[pathname];
+  const { placeUnderTray, ...size } = dimentions[pathname];
 
-	const bounds = getTray()?.bounds;
+  const bounds = getTray()?.bounds;
 
-	if (placeUnderTray && bounds) {
-		const location = getLocationUnderTray(size, bounds);
-		widget?.setBounds({ ...size, ...location });
-	} else {
-		widget?.center();
-		widget?.setBounds(size);
-	}
+  if (placeUnderTray && bounds) {
+    const location = getLocationUnderTray(size, bounds);
+    widget?.setBounds({ ...size, ...location });
+  } else {
+    widget?.center();
+    widget?.setBounds(size);
+  }
 }
 
 function getLocationUnderTray(
-	{ width, height }: { width: number; height: number },
-	bounds: Electron.Rectangle
+  { width, height }: { width: number; height: number },
+  bounds: Electron.Rectangle
 ): { x: number; y: number } {
-	const display = screen.getDisplayMatching(bounds);
-	let x = Math.min(bounds.x - display.workArea.x - width / 2, display.workArea.width - width);
-	x += display.workArea.x;
-	x = Math.max(display.workArea.x, x);
-	let y = Math.min(bounds.y - display.workArea.y - height / 2, display.workArea.height - height);
-	y += display.workArea.y;
-	y = Math.max(display.workArea.y, y);
+  const display = screen.getDisplayMatching(bounds);
+  let x = Math.min(
+    bounds.x - display.workArea.x - width / 2,
+    display.workArea.width - width
+  );
+  x += display.workArea.x;
+  x = Math.max(display.workArea.x, x);
+  let y = Math.min(
+    bounds.y - display.workArea.y - height / 2,
+    display.workArea.height - height
+  );
+  y += display.workArea.y;
+  y = Math.max(display.workArea.y, y);
 
-	return {
-		x,
-		y,
-	};
+  return {
+    x,
+    y,
+  };
 }
 
 eventBus.on('APP_IS_READY', async () => {
-	await createWidget();
+  await createWidget();
 
-	eventBus.emit('WIDGET_IS_READY');
+  eventBus.emit('WIDGET_IS_READY');
 });

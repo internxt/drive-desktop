@@ -6,7 +6,7 @@ import {
 import Logger from 'electron-log';
 import { FileUploader } from './application/FileUploader';
 import { InxtFileSystem } from './InxtFileSystem';
-import { TreeRepository } from './Repository';
+import { TreeRepository } from './TreeRepository';
 
 export class DebugPhysicalSerializer implements FileSystemSerializer {
   constructor(
