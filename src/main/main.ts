@@ -89,6 +89,7 @@ const installExtensions = async () => {
 };
 
 app.on('window-all-closed', () => {
+  unmountDrive();
   app.quit();
 });
 
