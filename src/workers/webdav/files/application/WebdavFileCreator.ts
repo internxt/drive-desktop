@@ -6,6 +6,7 @@ import { ItemMetadata } from '../../shared/domain/ItemMetadata';
 import { FileMetadataCollection } from '../domain/FileMetadataCollection';
 import { WebdavFile } from '../domain/WebdavFile';
 import { WebdavFileRepository } from '../domain/WebdavFileRepository';
+import { WebdavFolder } from 'workers/webdav/folders/domain/WebdavFolder';
 
 export class WebdavFileCreator {
   constructor(
@@ -14,6 +15,21 @@ export class WebdavFileCreator {
     private readonly contentsRepository: FileContentRepository,
     private readonly temporalFileCollection: FileMetadataCollection
   ) {}
+
+  private async createFileEntry(
+    fileId: string,
+    folder: WebdavFolder,
+    size: number,
+    filePath: FilePath
+  ): Promise<WebdavFile> {
+    const file = WebdavFile.create(fileId, folder, size, filePath);
+
+    await this.repository.add(file);
+
+    this.temporalFileCollection.remove(filePath.value);
+
+    return file;
+  }
 
   async run(path: string, size: number): Promise<Writable> {
     const filePath = new FilePath(path);
@@ -26,7 +42,7 @@ export class WebdavFileCreator {
         name: filePath.name(),
         size,
         extension: filePath.extension(),
-        override: false,
+        type: 'FILE',
       })
     );
 
@@ -36,13 +52,13 @@ export class WebdavFileCreator {
 
     const upload = this.contentsRepository.upload(size, stream);
 
-    upload.then(async (fileId) => {
-      const file = WebdavFile.create(fileId, folder, size, filePath);
-
-      await this.repository.add(file);
-
-      this.temporalFileCollection.remove(filePath.value);
-    });
+    upload
+      .then(async (fileId) => {
+        return this.createFileEntry(fileId, folder, size, filePath);
+      })
+      .catch(() => {
+        // TODO: comunicate somehow this error happened
+      });
 
     return stream;
   }
