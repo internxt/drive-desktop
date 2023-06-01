@@ -28,6 +28,13 @@ export class WebdavFileRepositoryMock implements WebdavFileRepository {
     return this.mockUpdateParentDir(item);
   }
 
+  markForDeletion(file: WebdavFile): void {
+    throw new Error('Method not implemented.');
+  }
+  searchOnFolder(folderId: number): WebdavFile[] {
+    throw new Error('Method not implemented.');
+  }
+
   clearMocks() {
     jest.clearAllMocks();
   }

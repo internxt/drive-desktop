@@ -11,7 +11,6 @@ import * as uuid from 'uuid';
 
 export class HttpWebdavFileRepository implements WebdavFileRepository {
   private items: Record<string, WebdavFile> = {};
-  private readonly filesMarkedForDeletion: Record<string, WebdavFile> = {};
 
   constructor(
     private readonly httpClient: Axios,
@@ -78,15 +77,7 @@ export class HttpWebdavFileRepository implements WebdavFileRepository {
   search(pathLike: string): Nullable<WebdavFile> {
     const item = this.items[pathLike];
 
-    if (item && this.filesMarkedForDeletion[item.fileId]) {
-      return undefined;
-    }
-
     return item;
-  }
-
-  markForDeletion(file: WebdavFile): void {
-    this.filesMarkedForDeletion[file.fileId] = file;
   }
 
   async delete(file: WebdavFile): Promise<void> {

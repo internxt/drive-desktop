@@ -13,7 +13,5 @@ export interface WebdavFileRepository {
 
   updateParentDir(item: WebdavFile): Promise<void>;
 
-  markForDeletion(file: WebdavFile): void;
-
   searchOnFolder(folderId: WebdavFolderAttributes['id']): Array<WebdavFile>;
 }
