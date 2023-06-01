@@ -8,6 +8,7 @@ import { WebdavFile } from '../../domain/WebdavFile';
 import { WebdavFileRepository } from '../../domain/WebdavFileRepository';
 import * as uuid from 'uuid';
 import { Traverser } from '../../../../modules/items/application/Traverser';
+import Logger from 'electron-log';
 
 export class HttpWebdavFileRepository implements WebdavFileRepository {
   private items: Record<string, WebdavFile> = {};
@@ -116,7 +117,7 @@ export class HttpWebdavFileRepository implements WebdavFileRepository {
           folder_id: file.folderId,
           name: encryptedName,
           plain_name: file.name,
-          size: file.size,
+          size: file.size.value,
           type: file.type,
           modificationTime: Date.now(),
         },
@@ -126,6 +127,8 @@ export class HttpWebdavFileRepository implements WebdavFileRepository {
     if (result.status === 500) {
       //rollback
     }
+
+    Logger.debug(result);
 
     const created = WebdavFile.from({
       ...result.data,

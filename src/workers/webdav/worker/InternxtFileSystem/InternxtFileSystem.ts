@@ -29,7 +29,6 @@ import {
 import { Readable, Writable } from 'stream';
 import Logger from 'electron-log';
 import { DebugPhysicalSerializer } from './Serializer';
-import { FilePath } from '../../modules/files/domain/FilePath';
 import { InternxtFileSystemDependencyContainer } from './dependencyInjection/InxtFileSystemDependencyContainer';
 
 export class PhysicalFileSystemResource {

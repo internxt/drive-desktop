@@ -31,9 +31,10 @@ export class WebdavFileClonner {
 
     const clonnedFileId = await this.contentRepository.clone(file);
 
+    // TODO: check if when coping a file the createdAt/updatedAt should changes
     const newFile = WebdavFile.from({
       fileId: clonnedFileId,
-      size: file.size,
+      size: file.size.value,
       type: file.type,
       createdAt: file.createdAt.toISOString(),
       updatedAt: file.updatedAt.toISOString(),

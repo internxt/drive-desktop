@@ -7,6 +7,8 @@ import { FileMetadataCollection } from '../domain/FileMetadataCollection';
 import { WebdavFile } from '../domain/WebdavFile';
 import { WebdavFileRepository } from '../domain/WebdavFileRepository';
 import { WebdavFolder } from '../../folders/domain/WebdavFolder';
+import { TransferLimits } from '../domain/storage/TransferLimits';
+import { FileSize } from '../domain/FileSize';
 
 export class WebdavFileCreator {
   constructor(
@@ -32,6 +34,7 @@ export class WebdavFileCreator {
   }
 
   async run(path: string, size: number): Promise<Writable> {
+    const fileSize = new FileSize(size);
     const filePath = new FilePath(path);
 
     this.temporalFileCollection.add(
@@ -50,7 +53,7 @@ export class WebdavFileCreator {
 
     const stream = new PassThrough();
 
-    const upload = this.contentsRepository.upload(size, stream);
+    const upload = this.contentsRepository.upload(fileSize, stream);
 
     upload
       .then(async (fileId) => {

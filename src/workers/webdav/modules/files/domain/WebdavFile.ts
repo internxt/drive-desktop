@@ -1,6 +1,6 @@
 import { WebdavFolder } from '../../folders/domain/WebdavFolder';
-import { WebdavItem } from '../../shared/domain/WebdavItem';
 import { FilePath } from './FilePath';
+import { FileSize } from './FileSize';
 
 export type WebdavFileAtributes = {
   fileId: string;
@@ -14,20 +14,18 @@ export type WebdavFileAtributes = {
   updatedAt: string;
 };
 
-export class WebdavFile extends WebdavItem {
-  constructor(
+export class WebdavFile {
+  private constructor(
     public readonly fileId: string,
     public readonly folderId: number,
     public readonly name: string,
     public readonly path: FilePath,
-    public readonly size: number,
+    public readonly size: FileSize,
     public readonly type: string,
     public readonly createdAt: Date,
     public readonly updatedAt: Date,
     public readonly modificationTime: Date
-  ) {
-    super();
-  }
+  ) {}
 
   static from(attributes: WebdavFileAtributes): WebdavFile {
     return new WebdavFile(
@@ -35,7 +33,7 @@ export class WebdavFile extends WebdavItem {
       attributes.folderId,
       attributes.name,
       new FilePath(attributes.path),
-      attributes.size,
+      new FileSize(attributes.size),
       attributes.type,
       new Date(attributes.createdAt),
       new Date(attributes.updatedAt),
@@ -54,7 +52,7 @@ export class WebdavFile extends WebdavItem {
       folder.id,
       path.name(),
       path,
-      size,
+      new FileSize(size),
       path.extension(),
       new Date(),
       new Date(),
