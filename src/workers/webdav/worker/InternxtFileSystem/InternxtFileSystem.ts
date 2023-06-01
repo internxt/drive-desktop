@@ -82,11 +82,8 @@ export class InternxtFileSystem extends FileSystem {
     }
 
     if (sourceItem.isFile()) {
-      const from = new FilePath(pathFrom.toString(false));
-      const to = new FilePath(pathTo.toString(false));
-
       this.dependencyContainer.fileClonner
-        .run(from, to, ctx.overwrite)
+        .run(pathFrom.toString(false), pathTo.toString(false), ctx.overwrite)
         .then((haveBeenOverwritten: boolean) => {
           callback(undefined, haveBeenOverwritten);
         })
