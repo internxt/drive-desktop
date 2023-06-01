@@ -9,6 +9,9 @@ import { WebdavFileRepository } from '../../domain/WebdavFileRepository';
 import * as uuid from 'uuid';
 import { Traverser } from '../../../../modules/items/application/Traverser';
 import Logger from 'electron-log';
+import { AddFileDTO } from './dtos/AddFileDTO';
+import { UpdateFileParentDirDTO } from './dtos/UpdateFileParentDirDTO';
+import { UpdateFileNameDTO } from './dtos/UpdateFileNameDTO';
 
 export class HttpWebdavFileRepository implements WebdavFileRepository {
   private items: Record<string, WebdavFile> = {};
@@ -105,23 +108,29 @@ export class HttpWebdavFileRepository implements WebdavFileRepository {
       file.folderId.toString()
     );
 
+    if (!encryptedName) {
+      throw new Error('Failed to encrypt name');
+    }
+
+    const body: AddFileDTO = {
+      file: {
+        bucket: this.bucket,
+        encrypt_version: '03-aes',
+        fileId: file.fileId,
+        file_id: file.fileId,
+        folder_id: file.folderId,
+        name: encryptedName,
+        plain_name: file.name,
+        size: file.size.value,
+        type: file.type,
+        modificationTime: Date.now(),
+      },
+    };
+
     // TODO: MAKE SURE ALL FIELDS ARE CORRECT
     const result = await this.httpClient.post<FileCreatedResponseDTO>(
       `${process.env.API_URL}/api/storage/file`,
-      {
-        file: {
-          bucket: this.bucket,
-          encrypt_version: '03-aes',
-          fileId: file.fileId,
-          file_id: file.fileId,
-          folder_id: file.folderId,
-          name: encryptedName,
-          plain_name: file.name,
-          size: file.size.value,
-          type: file.type,
-          modificationTime: Date.now(),
-        },
-      }
+      body
     );
 
     if (result.status === 500) {
@@ -143,11 +152,13 @@ export class HttpWebdavFileRepository implements WebdavFileRepository {
   async updateName(item: WebdavFile): Promise<void> {
     const url = `${process.env.API_URL}/api/storage/file/${item.fileId}/meta`;
 
-    const res = await this.httpClient.post(url, {
+    const body: UpdateFileNameDTO = {
       metadata: { itemName: item.name },
       bucketId: this.bucket,
       relativePath: uuid.v4(),
-    });
+    };
+
+    const res = await this.httpClient.post(url, body);
 
     if (res.status !== 200) {
       throw new Error(
@@ -160,7 +171,10 @@ export class HttpWebdavFileRepository implements WebdavFileRepository {
 
   async updateParentDir(item: WebdavFile): Promise<void> {
     const url = `${process.env.API_URL}/api/storage/move/file`;
-    const body = { destination: item.folderId, fileId: item.fileId };
+    const body: UpdateFileParentDirDTO = {
+      destination: item.folderId,
+      fileId: item.fileId,
+    };
 
     const res = await this.httpClient.post(url, body);
 
