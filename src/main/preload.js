@@ -15,6 +15,8 @@ contextBridge.exposeInMainWorld('electron', {
     const eventName = `${key}-updated`;
     const callback = (_, v) => fn(v);
     ipcRenderer.on(eventName, (_, v) => fn(v));
+
+    return () => ipcRenderer.removeListener(eventName, callback);
   },
 
   pathChanged(pathname) {

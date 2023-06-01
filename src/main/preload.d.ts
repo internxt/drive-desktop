@@ -1,266 +1,170 @@
 declare interface Window {
   electron: {
     query: typeof import('./app-info/service').executeQuery;
-    electron: {
-      query: typeof import('./app-info/service').executeQuery;
+    getConfigKey(key: import('./config/service').StoredValues): Promise<any>;
+    listenToConfigKeyChange<T>(
+      key: import('./config/service').StoredValues,
+      fn: (value: T) => void
+    ): () => void;
+    setConfigKey: typeof import('./config/service').setConfigKey;
+    pathChanged(path: string): void;
+    userIsUnauthorized(): void;
+    userLoggedIn(
+      data: import('../renderer/pages/Login/service').AccessResponse
+    ): void;
 
-      getConfigKey(key: import('./config/service').StoredValues): Promise<any>;
-      getConfigKey(key: import('./config/service').StoredValues): Promise<any>;
+    isUserLoggedIn(): Promise<boolean>;
 
-      listenToConfigKeyChange<T>(
-        key: import('./config/service').StoredValues,
-        fn: (value: T) => void
-      ): () => void;
-      listenToConfigKeyChange<T>(
-        key: import('./config/service').StoredValues,
-        fn: (value: T) => void
-      ): () => void;
+    onUserLoggedInChanged(func: (value: boolean) => void): void;
 
-      setConfigKey: typeof import('./config/service').setConfigKey;
+    logout(): void;
 
-      pathChanged(path: string): void;
-      pathChanged(path: string): void;
+    closeWindow(): void;
 
-      userIsUnauthorized(): void;
-      userIsUnauthorized(): void;
+    openSyncFolder(): Promise<void>;
 
-      userLoggedIn(
-        data: import('../renderer/pages/Login/service').AccessResponse
-      ): void;
-      userLoggedIn(
-        data: import('../renderer/pages/Login/service').AccessResponse
-      ): void;
+    finishOnboarding(): void;
 
-      isUserLoggedIn(): Promise<boolean>;
-      isUserLoggedIn(): Promise<boolean>;
+    quit(): void;
 
-      onUserLoggedInChanged(func: (value: boolean) => void): void;
-      onUserLoggedInChanged(func: (value: boolean) => void): void;
+    getUser(): Promise<ReturnType<typeof import('./auth/service').getUser>>;
 
-      logout(): void;
-      logout(): void;
+    getHeaders(
+      includeMnemonic?: boolean
+    ): Promise<ReturnType<typeof import('./auth/service').getHeaders>>;
 
-      closeWindow(): void;
-      closeWindow(): void;
+    startSyncProcess(): void;
 
-      openSyncFolder(): Promise<void>;
-      openSyncFolder(): Promise<void>;
+    stopSyncProcess(): void;
 
-      finishOnboarding(): void;
-      finishOnboarding(): void;
+    getSyncStatus(): Promise<
+      import('main/background-processes/sync').SyncStatus
+    >;
 
-      quit(): void;
-      quit(): void;
+    onSyncStatusChanged(
+      func: (value: import('main/background-processes/sync').SyncStatus) => void
+    ): () => void;
 
-      getUser(): Promise<ReturnType<typeof import('./auth/service').getUser>>;
-      getUser(): Promise<ReturnType<typeof import('./auth/service').getUser>>;
+    onSyncStopped(
+      func: (
+        value: import('main/background-processes/sync').SyncStoppedPayload
+      ) => void
+    ): () => void;
 
-      getHeaders(
-        includeMnemonic?: boolean
-      ): Promise<ReturnType<typeof import('./auth/service').getHeaders>>;
-      getHeaders(
-        includeMnemonic?: boolean
-      ): Promise<ReturnType<typeof import('./auth/service').getHeaders>>;
+    onSyncInfoUpdate(
+      func: (value: import('../workers/types').ProcessInfoUpdatePayload) => void
+    ): () => void;
 
-      startSyncProcess(): void;
-      startSyncProcess(): void;
+    getProcessIssues(): Promise<import('../workers/types').ProcessIssue[]>;
 
-      stopSyncProcess(): void;
-      stopSyncProcess(): void;
+    onProcessIssuesChanged(
+      func: (value: import('../workers/types').ProcessIssue[]) => void
+    ): () => void;
 
-      getSyncStatus(): Promise<
-        import('main/background-processes/sync').SyncStatus
-      >;
-      getSyncStatus(): Promise<
-        import('main/background-processes/sync').SyncStatus
-      >;
+    getGeneralIssues(): Promise<import('../workers/types').GeneralIssue[]>;
 
-      onSyncStatusChanged(
-        func: (
-          value: import('main/background-processes/sync').SyncStatus
-        ) => void
-      ): () => void;
-      onSyncStatusChanged(
-        func: (
-          value: import('main/background-processes/sync').SyncStatus
-        ) => void
-      ): () => void;
+    onGeneralIssuesChanged(
+      func: (value: import('../workers/types').GeneralIssue[]) => void
+    ): () => void;
 
-      onSyncStopped(
-        func: (
-          value: import('main/background-processes/sync').SyncStoppedPayload
-        ) => void
-      ): () => void;
-      onSyncStopped(
-        func: (
-          value: import('main/background-processes/sync').SyncStoppedPayload
-        ) => void
-      ): () => void;
+    openProcessIssuesWindow(): void;
 
-      onSyncInfoUpdate(
-        func: (
-          value: import('../workers/types').ProcessInfoUpdatePayload
-        ) => void
-      ): () => void;
-      onSyncInfoUpdate(
-        func: (
-          value: import('../workers/types').ProcessInfoUpdatePayload
-        ) => void
-      ): () => void;
+    openLogs(): void;
 
-      getProcessIssues(): Promise<import('../workers/types').ProcessIssue[]>;
-      getProcessIssues(): Promise<import('../workers/types').ProcessIssue[]>;
+    sendReport: typeof import('./bug-report/service').sendReport;
 
-      onProcessIssuesChanged(
-        func: (value: import('../workers/types').ProcessIssue[]) => void
-      ): () => void;
-      onProcessIssuesChanged(
-        func: (value: import('../workers/types').ProcessIssue[]) => void
-      ): () => void;
+    openSettingsWindow(section?: 'BACKUPS' | 'GENERAL' | 'ACCOUNT'): void;
 
-      getGeneralIssues(): Promise<import('../workers/types').GeneralIssue[]>;
-      getGeneralIssues(): Promise<import('../workers/types').GeneralIssue[]>;
+    settingsWindowResized(payload: { width: number; height: number }): void;
 
-      onGeneralIssuesChanged(
-        func: (value: import('../workers/types').GeneralIssue[]) => void
-      ): () => void;
-      onGeneralIssuesChanged(
-        func: (value: import('../workers/types').GeneralIssue[]) => void
-      ): () => void;
+    isAutoLaunchEnabled(): Promise<boolean>;
 
-      openProcessIssuesWindow(): void;
-      openProcessIssuesWindow(): void;
+    toggleAutoLaunch(): Promise<void>;
 
-      openLogs(): void;
-      openLogs(): void;
+    getBackupsInterval(): Promise<number>;
 
-      sendReport: typeof import('./bug-report/service').sendReport;
+    setBackupsInterval(value: number): Promise<void>;
 
-      openSettingsWindow(section?: 'BACKUPS' | 'GENERAL' | 'ACCOUNT'): void;
-      openSettingsWindow(section?: 'BACKUPS' | 'GENERAL' | 'ACCOUNT'): void;
+    startBackupsProcess(): void;
 
-      settingsWindowResized(payload: { width: number; height: number }): void;
-      settingsWindowResized(payload: { width: number; height: number }): void;
+    stopBackupsProcess(): void;
 
-      isAutoLaunchEnabled(): Promise<boolean>;
-      isAutoLaunchEnabled(): Promise<boolean>;
+    getBackupsStatus(): Promise<
+      import('main/background-processes/backups').BackupsStatus
+    >;
 
-      toggleAutoLaunch(): Promise<void>;
-      toggleAutoLaunch(): Promise<void>;
+    onBackupsStatusChanged(
+      func: (
+        value: import('main/background-processes/backups').BackupsStatus
+      ) => void
+    ): () => void;
 
-      getBackupsInterval(): Promise<number>;
-      getBackupsInterval(): Promise<number>;
+    getSyncRoot(): Promise<string>;
 
-      setBackupsInterval(value: number): Promise<void>;
-      setBackupsInterval(value: number): Promise<void>;
+    chooseSyncRootWithDialog: typeof import('./sync-root-folder/service').chooseSyncRootWithDialog;
 
-      startBackupsProcess(): void;
-      startBackupsProcess(): void;
+    path: typeof import('path');
 
-      stopBackupsProcess(): void;
-      stopBackupsProcess(): void;
+    getOrCreateDevice: typeof import('../main/device/service').getOrCreateDevice;
 
-      getBackupsStatus(): Promise<
-        import('main/background-processes/backups').BackupsStatus
-      >;
-      getBackupsStatus(): Promise<
-        import('main/background-processes/backups').BackupsStatus
-      >;
+    renameDevice: typeof import('../main/device/service').renameDevice;
 
-      onBackupsStatusChanged(
-        func: (
-          value: import('main/background-processes/backups').BackupsStatus
-        ) => void
-      ): () => void;
-      onBackupsStatusChanged(
-        func: (
-          value: import('main/background-processes/backups').BackupsStatus
-        ) => void
-      ): () => void;
+    getBackups: typeof import('../main/device/service').getBackupsFromDevice;
 
-      getSyncRoot(): Promise<string>;
-      getSyncRoot(): Promise<string>;
+    addBackup: typeof import('../main/device/service').addBackup;
+    addBackupsFromLocalPaths: typeof import('../main/device/service').createBackupsFromLocalPaths;
+    deleteBackup: typeof import('../main/device/service').deleteBackup;
 
-      chooseSyncRootWithDialog: typeof import('./sync-root-folder/service').chooseSyncRootWithDialog;
+    disableBackup: typeof import('../main/device/service').disableBackup;
 
-      path: typeof import('path');
+    getBackupsEnabled: () => Promise<boolean>;
 
-      getOrCreateDevice: typeof import('../main/device/service').getOrCreateDevice;
+    toggleBackupsEnabled: () => Promise<void>;
 
-      renameDevice: typeof import('../main/device/service').renameDevice;
+    getLastBackupTimestamp: () => Promise<number>;
 
-      getBackups: typeof import('../main/device/service').getBackupsFromDevice;
+    getLastBackupExitReason: () => Promise<
+      import('../main/background-processes/backups').BackupExitReason | null
+    >;
 
-      addBackup: typeof import('../main/device/service').addBackup;
-      addBackupsFromLocalPaths: typeof import('../main/device/service').createBackupsFromLocalPaths;
-      deleteBackup: typeof import('../main/device/service').deleteBackup;
+    onBackupProgress(
+      func: (
+        value: import('main/background-processes/backups').BackupProgress
+      ) => void
+    ): () => void;
+    onBackupProgress(
+      func: (
+        value: import('main/background-processes/backups').BackupProgress
+      ) => void
+    ): () => void;
 
-      disableBackup: typeof import('../main/device/service').disableBackup;
+    getBackupFatalErrors(): Promise<
+      Array<
+        import('../main/background-processes/types/BackupFatalError').BackupFatalError
+      >
+    >;
 
-      getBackupsEnabled: () => Promise<boolean>;
-
-      toggleBackupsEnabled: () => Promise<void>;
-
-      getLastBackupTimestamp: () => Promise<number>;
-
-      getLastBackupExitReason: () => Promise<
-        import('../main/background-processes/backups').BackupExitReason | null
-      >;
-
-      onBackupProgress(
-        func: (
-          value: import('main/background-processes/backups').BackupProgress
-        ) => void
-      ): () => void;
-      onBackupProgress(
-        func: (
-          value: import('main/background-processes/backups').BackupProgress
-        ) => void
-      ): () => void;
-
-      getBackupFatalErrors(): Promise<
-        Array<
+    onBackupFatalErrorsChanged(
+      func: (
+        value: Array<
           import('../main/background-processes/types/BackupFatalError').BackupFatalError
         >
-      >;
-      getBackupFatalErrors(): Promise<
-        Array<
-          import('../main/background-processes/types/BackupFatalError').BackupFatalError
-        >
-      >;
+      ) => void
+    ): () => void;
 
-      onBackupFatalErrorsChanged(
-        func: (
-          value: Array<
-            import('../main/background-processes/types/BackupFatalError').BackupFatalError
-          >
-        ) => void
-      ): () => void;
-      onBackupFatalErrorsChanged(
-        func: (
-          value: Array<
-            import('../main/background-processes/types/BackupFatalError').BackupFatalError
-          >
-        ) => void
-      ): () => void;
+    changeBackupPath: typeof import('../main/device/service').changeBackupPath;
+    getFolderPath: typeof import('../main/device/service').getPathFromDialog;
+    onRemoteChanges(func: () => void): () => void;
 
-      changeBackupPath: typeof import('../main/device/service').changeBackupPath;
-      getFolderPath: typeof import('../main/device/service').getPathFromDialog;
-      onRemoteChanges(func: () => void): () => void;
+    getUsage: () => Promise<import('../main/usage/usage').Usage>;
 
-      getUsage: () => Promise<import('../main/usage/usage').Usage>;
+    getPlatform: () => Promise<
+      import('../main/platform/DesktopPlatform').DesktopPlatform
+    >;
 
-      getPlatform: () => Promise<
-        import('../main/platform/DesktopPlatform').DesktopPlatform
-      >;
+    userLogginFailed: (email: string) => void;
 
-      userLogginFailed: (email: string) => void;
-
-      // DEV
-      // DEV
-
-      resizeWindow: () => typeof import('../main/dev/service').resizeCurrentWindow;
-    };
+    // DEV
     resizeWindow: () => typeof import('../main/dev/service').resizeCurrentWindow;
   };
 }
