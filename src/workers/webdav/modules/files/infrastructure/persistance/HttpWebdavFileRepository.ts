@@ -1,9 +1,9 @@
 import { Axios } from 'axios';
 import { FileCreatedResponseDTO } from 'shared/HttpClient/responses/file-created';
 import { Nullable } from 'shared/types/Nullable';
-import { ServerFile } from 'workers/filesystems/domain/ServerFile';
-import { ServerFolder } from 'workers/filesystems/domain/ServerFolder';
-import crypt from 'workers/utils/crypt';
+import { ServerFile } from '../../../../../filesystems/domain/ServerFile';
+import { ServerFolder } from '../../../../../filesystems/domain/ServerFolder';
+import crypt from '../../../../../utils/crypt';
 import { WebdavFile } from '../../domain/WebdavFile';
 import { WebdavFileRepository } from '../../domain/WebdavFileRepository';
 import * as uuid from 'uuid';

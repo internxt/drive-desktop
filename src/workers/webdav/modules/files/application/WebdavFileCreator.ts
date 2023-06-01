@@ -1,12 +1,12 @@
 import { PassThrough, Writable } from 'stream';
-import { WebdavFolderFinder } from 'workers/webdav/folders/application/WebdavFolderFinder';
+import { WebdavFolderFinder } from '../../folders/application/WebdavFolderFinder';
 import { FilePath } from '../domain/FilePath';
 import { FileContentRepository } from '../domain/storage/FileContentRepository';
 import { ItemMetadata } from '../../shared/domain/ItemMetadata';
 import { FileMetadataCollection } from '../domain/FileMetadataCollection';
 import { WebdavFile } from '../domain/WebdavFile';
 import { WebdavFileRepository } from '../domain/WebdavFileRepository';
-import { WebdavFolder } from 'workers/webdav/folders/domain/WebdavFolder';
+import { WebdavFolder } from '../../folders/domain/WebdavFolder';
 
 export class WebdavFileCreator {
   constructor(

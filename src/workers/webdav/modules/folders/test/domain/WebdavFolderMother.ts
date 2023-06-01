@@ -1,4 +1,4 @@
-import { WebdavFile } from 'workers/webdav/files/domain/WebdavFile';
+import { WebdavFile } from '../../../files/domain/WebdavFile';
 import { FolderPath } from '../../domain/FolderPath';
 import { WebdavFolder } from '../../domain/WebdavFolder';
 

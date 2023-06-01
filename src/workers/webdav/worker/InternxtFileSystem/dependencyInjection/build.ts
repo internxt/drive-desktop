@@ -2,7 +2,7 @@ import { Environment } from '@internxt/inxt-js';
 import { getUser } from 'main/auth/service';
 import configStore from 'main/config';
 import { getClients } from 'shared/HttpClient/backgroud-process-clients';
-import crypt from 'workers/utils/crypt';
+import crypt from '../../../../utils/crypt';
 import { WebdavFileClonner } from '../../../modules/files/application/WebdavFileClonner';
 import { WebdavFileCreator } from '../../../modules/files/application/WebdavFileCreator';
 import { WebdavFileDeleter } from '../../../modules/files/application/WebdavFileDeleter';
