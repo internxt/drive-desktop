@@ -8,7 +8,6 @@ import { WebdavFile } from '../../domain/WebdavFile';
 import { WebdavFileRepository } from '../../domain/WebdavFileRepository';
 import * as uuid from 'uuid';
 import { Traverser } from '../../../../modules/items/application/Traverser';
-import Logger from 'electron-log';
 
 export class HttpWebdavFileRepository implements WebdavFileRepository {
   private items: Record<string, WebdavFile> = {};
@@ -73,8 +72,6 @@ export class HttpWebdavFileRepository implements WebdavFileRepository {
       items[key] = value;
       return items;
     }, {} as Record<string, WebdavFile>);
-
-    Logger.debug('FILES', this.items.length);
   }
 
   search(pathLike: string): Nullable<WebdavFile> {

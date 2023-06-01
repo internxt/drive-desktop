@@ -1,7 +1,6 @@
-import { WebdavFileRepository } from 'workers/webdav/files/domain/WebdavFileRepository';
-import { WebdavFolderFinder } from 'workers/webdav/folders/application/WebdavFolderFinder';
-import { WebdavFolderRepository } from 'workers/webdav/folders/domain/WebdavFolderRepository';
-import Logger from 'electron-log';
+import { WebdavFileRepository } from '../../files/domain/WebdavFileRepository';
+import { WebdavFolderFinder } from '../../folders/application/WebdavFolderFinder';
+import { WebdavFolderRepository } from '../../folders/domain/WebdavFolderRepository';
 
 export class AllWebdavItemsNameLister {
   constructor(
@@ -22,8 +21,6 @@ export class AllWebdavItemsNameLister {
     this.folderRepository
       .searchOnFolder(folder.id)
       .forEach((folder) => names.push(folder.name));
-
-    Logger.debug('LISTED NAMES ', names);
 
     return names;
   }

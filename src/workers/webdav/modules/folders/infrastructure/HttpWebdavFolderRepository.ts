@@ -117,6 +117,8 @@ export class HttpWebdavFolderRepository implements WebdavFolderRepository {
 
     this.items[path.value] = folder;
 
+    await this.init();
+
     return folder;
   }
 
