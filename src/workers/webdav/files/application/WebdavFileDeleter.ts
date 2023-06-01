@@ -1,16 +1,10 @@
-import { FilePath } from '../domain/FilePath';
+import { WebdavFile } from '../domain/WebdavFile';
 import { WebdavFileRepository } from '../domain/WebdavFileRepository';
 
 export class WebdavFileDeleter {
   constructor(private readonly repository: WebdavFileRepository) {}
 
-  async run(path: FilePath): Promise<void> {
-    const file = this.repository.search(path.value);
-
-    if (!file) {
-      throw new Error('[File deleter] File not found');
-    }
-
+  async run(file: WebdavFile): Promise<void> {
     await this.repository.delete(file);
   }
 }

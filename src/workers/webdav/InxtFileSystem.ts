@@ -124,7 +124,6 @@ export class InxtFileSystem extends FileSystem {
   }
 
   _delete(path: Path, ctx: DeleteInfo, callback: SimpleCallback): void {
-    const pathLike = path.toString(false);
     const item = this.dependencyContainer.itemSearcher.run(
       path.toString(false)
     );
@@ -134,9 +133,8 @@ export class InxtFileSystem extends FileSystem {
     }
 
     if (item.isFile()) {
-      const filePath = new FilePath(pathLike);
       this.dependencyContainer.fileDeleter
-        .run(filePath)
+        .run(item)
         .then(() => {
           delete this.resources[item.path.value];
           callback(undefined);
