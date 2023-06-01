@@ -5,12 +5,10 @@ import {
 } from 'webdav-server/lib/index.v2';
 import Logger from 'electron-log';
 import { InxtFileSystem } from './InxtFileSystem';
-import { TreeRepository } from './TreeRepository';
 import { InxtFileSystemDependencyContainer } from './InxtFileSystemDependencyContainer';
 
 export class DebugPhysicalSerializer implements FileSystemSerializer {
   constructor(
-    private readonly repository: TreeRepository,
     private readonly dependencyContainer: InxtFileSystemDependencyContainer
   ) {}
 
@@ -31,7 +29,7 @@ export class DebugPhysicalSerializer implements FileSystemSerializer {
       'SERIALIZER UNSERIALIZE. DATA: ',
       JSON.stringify(serializedData)
     );
-    const fs = new InxtFileSystem(this.repository, this.dependencyContainer);
+    const fs = new InxtFileSystem(this.dependencyContainer);
     fs.resources = serializedData.resources;
     callback(undefined, fs);
   }

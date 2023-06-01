@@ -2,7 +2,6 @@
 import {
   LocalPropertyManager,
   LastModifiedDateInfo,
-  FileSystemSerializer,
   OpenWriteStreamInfo,
   PropertyManagerInfo,
   OpenReadStreamInfo,
@@ -22,7 +21,6 @@ import {
   TypeInfo,
   Path,
   Errors,
-  PhysicalSerializer,
   DisplayNameInfo,
   MoveInfo,
   CopyInfo,
@@ -30,7 +28,6 @@ import {
 } from 'webdav-server/lib/index.v2';
 import { Readable, Writable } from 'stream';
 import Logger from 'electron-log';
-import { TreeRepository } from './TreeRepository';
 import { DebugPhysicalSerializer } from './Serializer';
 
 import mimetypes from './domain/MimeTypesMap.json';
@@ -54,23 +51,6 @@ export class PhysicalFileSystemResource {
   }
 }
 
-export const PhysicalSerializerVersions = {
-  versions: {
-    '1.0.0': PhysicalSerializer,
-  },
-  instances: [new PhysicalSerializer()] as FileSystemSerializer[],
-};
-
-type Metadata = {
-  createdAt: number;
-  updatedAt: number;
-  type: ResourceType;
-  name: string;
-  size: number;
-  extension: string;
-  override: boolean;
-};
-
 export class InxtFileSystem extends FileSystem {
   static DefaultMimeType = 'application/octet-stream';
 
@@ -79,10 +59,9 @@ export class InxtFileSystem extends FileSystem {
   };
 
   constructor(
-    private readonly repository: TreeRepository,
     private readonly dependencyContainer: InxtFileSystemDependencyContainer
   ) {
-    super(new DebugPhysicalSerializer(repository, dependencyContainer));
+    super(new DebugPhysicalSerializer(dependencyContainer));
 
     this.resources = {
       '/': new PhysicalFileSystemResource(),
@@ -171,8 +150,8 @@ export class InxtFileSystem extends FileSystem {
     }
 
     if (item.isFolder()) {
-      this.repository
-        .deleteFolder(item)
+      this.dependencyContainer.folderDeleter
+        .run(item)
         .then(() => callback())
         .catch((err) => {
           Logger.error('[FS] Error trashing folder');
@@ -287,7 +266,7 @@ export class InxtFileSystem extends FileSystem {
     callback(Errors.UnrecognizedResource);
   }
 
-  getPropertyFromResource(
+  private getPropertyFromResource(
     path: Path,
     ctx: any,
     propertyName: string,
