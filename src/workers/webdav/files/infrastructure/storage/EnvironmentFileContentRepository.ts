@@ -14,6 +14,7 @@ export class EnvironmentFileContentRepository implements FileContentRepository {
 
     return this.upload(file.size, contents);
   }
+
   download(fileId: string): Promise<Readable> {
     return new Promise((resolve, reject) => {
       this.environment.download(
@@ -38,6 +39,7 @@ export class EnvironmentFileContentRepository implements FileContentRepository {
       );
     });
   }
+
   upload(size: number, contents: Readable): Promise<string> {
     return new Promise((resolve, reject) => {
       this.environment.upload(this.bucket, {

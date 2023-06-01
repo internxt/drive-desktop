@@ -26,7 +26,7 @@ export class WebdavFolderMover {
     const destinationFolder = this.repository.search(destination.value);
 
     const shouldBeMerge =
-      destinationFolder !== undefined && destinationFolder !== null;
+      destinationFolder !== undefined || destinationFolder !== null;
 
     if (shouldBeMerge) {
       throw new Error('Folders cannot be ovewriden');

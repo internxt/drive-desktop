@@ -1,6 +1,5 @@
 import { WebdavFolderFinder } from '../../application/WebdavFolderFinder';
 import { WebdavFolderMover } from '../../application/WebdavFolderMover';
-import { FolderPath } from '../../domain/FolderPath';
 import { WebdavFolderMother } from '../domain/WebdavFolderMother';
 import { WebdavFolderRepositoryMock } from '../__mocks__/WebdavFolderRepositoryMock';
 
@@ -8,9 +7,6 @@ describe('Folder Mover', () => {
   let repository: WebdavFolderRepositoryMock;
   let folderFinder: WebdavFolderFinder;
   let SUT: WebdavFolderMover;
-
-  const OVERRIDE = true;
-  const DO_NOT_OVERRIDE = false;
 
   beforeEach(() => {
     repository = new WebdavFolderRepositoryMock();
@@ -20,14 +16,14 @@ describe('Folder Mover', () => {
 
   it('Folders cannot be ovewrited', async () => {
     const folder = WebdavFolderMother.in(1, '/folderA/folderB');
-    const destination = new FolderPath('/folderC/folderB');
+    const destination = '/folderC/folderB';
 
     repository.mockSearch.mockImplementation(() =>
-      WebdavFolderMother.in(2, destination.value)
+      WebdavFolderMother.in(2, destination)
     );
 
     try {
-      const hasBeenOverriden = await SUT.run(folder, destination, OVERRIDE);
+      const hasBeenOverriden = await SUT.run(folder, destination);
       expect(hasBeenOverriden).not.toBeDefined();
     } catch (err) {
       expect(err).toBeDefined();
@@ -40,18 +36,14 @@ describe('Folder Mover', () => {
   describe('Move', () => {
     it('moves a folder when the destination folder does not contain a folder with the same folder', async () => {
       const folder = WebdavFolderMother.in(1, '/folderA/folderB');
-      const destination = new FolderPath('/folderC/folderB');
+      const destination = '/folderC/folderB';
       const folderC = WebdavFolderMother.in(2, '/folderC');
 
       repository.mockSearch
         .mockReturnValueOnce(undefined)
         .mockReturnValueOnce(folderC);
 
-      const hasBeenOverriden = await SUT.run(
-        folder,
-        destination,
-        DO_NOT_OVERRIDE
-      );
+      const hasBeenOverriden = await SUT.run(folder, destination);
 
       expect(hasBeenOverriden).toBe(false);
 
@@ -64,17 +56,13 @@ describe('Folder Mover', () => {
     it('when a folder is moved to same folder its renamed', async () => {
       const folderAId = 30010278;
       const folder = WebdavFolderMother.in(folderAId, '/folderA/folderB');
-      const destination = new FolderPath('/folderA/folderC');
+      const destination = '/folderA/folderC';
 
       repository.mockSearch
         .mockReturnValueOnce(undefined)
         .mockReturnValueOnce(WebdavFolderMother.withId(folderAId));
 
-      const hasBeenOverriden = await SUT.run(
-        folder,
-        destination,
-        DO_NOT_OVERRIDE
-      );
+      const hasBeenOverriden = await SUT.run(folder, destination);
 
       expect(hasBeenOverriden).toBe(false);
       expect(repository.mockUpdateName).toHaveBeenCalled();

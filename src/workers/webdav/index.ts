@@ -154,13 +154,9 @@ async function setUp() {
 
     const container = await buildContainer();
 
-    server.setFileSystem(
-      '/',
-      new InxtFileSystem(repository, container),
-      (su) => {
-        Logger.log('[WEBDAB] SUCCEDED: ', su);
-      }
-    );
+    server.setFileSystem('/', new InxtFileSystem(container), (su) => {
+      Logger.log('[WEBDAB] SUCCEDED: ', su);
+    });
 
     server.start((s) => {
       Logger.log('[WEBDAB] Ready on port', s?.address());
