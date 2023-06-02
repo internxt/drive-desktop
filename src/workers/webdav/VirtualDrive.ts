@@ -31,7 +31,7 @@ export const mountDrive = async (): Promise<boolean> => {
 
 export const unmountDrive = async () => {
   if (process.platform === 'win32') {
-    return unmountWindowsDrive(configStore.get('virtualdriveWindowsLetter'));
+    return unmountWindowsDrive(getSavedLetter());
   } else if (process.platform === 'darwin' || process.platform === 'linux') {
     return unmountUnixDrive();
   }
@@ -40,11 +40,15 @@ export const unmountDrive = async () => {
 
 export const getVirtualDrivePath = () => {
   if (process.platform === 'win32') {
-    return configStore.get('virtualdriveWindowsLetter') + ':\\';
+    return getSavedLetter() + ':\\';
   } else {
     return '~/InternxtDrive/';
   }
 };
+
+const getSavedLetter = () => {
+  return configStore.get('virtualdriveWindowsLetter') || 'I';
+}
 
 const getUsedLetterDrives = (): Promise<string[]> => {
   Logger.log('[VirtualDrive] Getting used drive letters');
@@ -66,7 +70,7 @@ const getUsedLetterDrives = (): Promise<string[]> => {
 };
 
 const getLetterDrive = async (): Promise<string | false> => {
-  const savedLetter = configStore.get('virtualdriveWindowsLetter');
+  const savedLetter = getSavedLetter() || 'I';
   const usedLetters = await getUsedLetterDrives();
   const windowsAllowedDriveLetters = 'IXTABCDEFGHJKLMNOPQRSUVWYZ'.split('');
   const allowedLetters = windowsAllowedDriveLetters.filter(l => !usedLetters.includes(l));
