@@ -5,6 +5,6 @@
     "noUnusedParameters": false,
     "noImplicitReturns": true,
     "noImplicitAny": true,
-    "noImplicitThis": true,
-  },
+    "noImplicitThis": true
+  }
 }

@@ -7,90 +7,90 @@ import Logger from 'electron-log';
 const CRYPTO_KEY = process.env.NEW_CRYPTO_KEY;
 
 if (!CRYPTO_KEY) {
-	Logger.error('No encryption key provided');
-	throw Error('No encryption key provided');
+  Logger.error('No encryption key provided');
+  throw Error('No encryption key provided');
 }
 
 function deterministicDecryption(cipherText: string, salt: string) {
-	try {
-		const key = CryptoJS.enc.Hex.parse(CRYPTO_KEY);
-		const iv = salt ? CryptoJS.enc.Hex.parse(salt.toString()) : key;
+  try {
+    const key = CryptoJS.enc.Hex.parse(CRYPTO_KEY);
+    const iv = salt ? CryptoJS.enc.Hex.parse(salt.toString()) : key;
 
-		const reb64 = CryptoJS.enc.Hex.parse(cipherText);
-		const bytes = reb64.toString(CryptoJS.enc.Base64);
-		const decrypt = CryptoJS.AES.decrypt(bytes, key, { iv });
-		const plain = decrypt.toString(CryptoJS.enc.Utf8);
+    const reb64 = CryptoJS.enc.Hex.parse(cipherText);
+    const bytes = reb64.toString(CryptoJS.enc.Base64);
+    const decrypt = CryptoJS.AES.decrypt(bytes, key, { iv });
+    const plain = decrypt.toString(CryptoJS.enc.Utf8);
 
-		return plain;
-	} catch (e) {
-		return null;
-	}
+    return plain;
+  } catch (e) {
+    return null;
+  }
 }
 
 function decryptName(cipherText: string, salt: string, encryptVersion: string) {
-	if (!salt) {
-		// If no salt, something is trying to use legacy decryption
-		return probabilisticDecryption(cipherText);
-	}
-	try {
-		const possibleAesResult = aes.decrypt(cipherText, `${CRYPTO_KEY}-${salt}`);
+  if (!salt) {
+    // If no salt, something is trying to use legacy decryption
+    return probabilisticDecryption(cipherText);
+  }
+  try {
+    const possibleAesResult = aes.decrypt(cipherText, `${CRYPTO_KEY}-${salt}`);
 
-		return possibleAesResult;
-	} catch (e) {
-		Logger.warn(
-			`AES Decrypt failed cipher: ${cipherText}, salt: ${salt}, message: ${
-				(e as Error).message
-			}, encryptVersion: ${encryptVersion}`
-		);
-		Logger.warn((e as Error).stack);
-	}
-	const decrypted = deterministicDecryption(cipherText, salt);
+    return possibleAesResult;
+  } catch (e) {
+    Logger.warn(
+      `AES Decrypt failed cipher: ${cipherText}, salt: ${salt}, message: ${
+        (e as Error).message
+      }, encryptVersion: ${encryptVersion}`
+    );
+    Logger.warn((e as Error).stack);
+  }
+  const decrypted = deterministicDecryption(cipherText, salt);
 
-	if (!decrypted) {
-		Logger.warn('Error decrypting on a deterministic way');
+  if (!decrypted) {
+    Logger.warn('Error decrypting on a deterministic way');
 
-		return probabilisticDecryption(cipherText);
-	}
+    return probabilisticDecryption(cipherText);
+  }
 
-	return decrypted;
+  return decrypted;
 }
 
 function probabilisticDecryption(cipherText: string) {
-	try {
-		const reb64 = CryptoJS.enc.Hex.parse(cipherText);
-		const bytes = reb64.toString(CryptoJS.enc.Base64);
-		const decrypt = CryptoJS.AES.decrypt(bytes, CRYPTO_KEY);
-		const plain = decrypt.toString(CryptoJS.enc.Utf8);
+  try {
+    const reb64 = CryptoJS.enc.Hex.parse(cipherText);
+    const bytes = reb64.toString(CryptoJS.enc.Base64);
+    const decrypt = CryptoJS.AES.decrypt(bytes, CRYPTO_KEY);
+    const plain = decrypt.toString(CryptoJS.enc.Utf8);
 
-		return plain;
-	} catch (error) {
-		return null;
-	}
+    return plain;
+  } catch (error) {
+    return null;
+  }
 }
 
 function probabilisticEncryption(content: string) {
-	try {
-		const b64 = CryptoJS.AES.encrypt(content, CRYPTO_KEY).toString();
-		const e64 = CryptoJS.enc.Base64.parse(b64);
-		const eHex = e64.toString(CryptoJS.enc.Hex);
+  try {
+    const b64 = CryptoJS.AES.encrypt(content, CRYPTO_KEY).toString();
+    const e64 = CryptoJS.enc.Base64.parse(b64);
+    const eHex = e64.toString(CryptoJS.enc.Hex);
 
-		return eHex;
-	} catch (error) {
-		return null;
-	}
+    return eHex;
+  } catch (error) {
+    return null;
+  }
 }
 
 function encryptName(name: string, salt: string) {
-	if (!salt) {
-		// If no salt, somewhere is trying to use legacy encryption
-		return probabilisticEncryption(name);
-	}
+  if (!salt) {
+    // If no salt, somewhere is trying to use legacy encryption
+    return probabilisticEncryption(name);
+  }
 
-	// If salt is provided, use new deterministic encryption
-	return aes.encrypt(name, `${CRYPTO_KEY}-${salt}`);
+  // If salt is provided, use new deterministic encryption
+  return aes.encrypt(name, `${CRYPTO_KEY}-${salt}`);
 }
 
 export default {
-	decryptName,
-	encryptName,
+  decryptName,
+  encryptName,
 };

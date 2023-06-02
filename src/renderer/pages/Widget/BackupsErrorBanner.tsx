@@ -7,40 +7,40 @@ import obtainErrorAction from '../../messages/backups/backups-actions-map';
 import obtainErrorMessage from '../../messages/backups/backups-fatal-errors';
 
 function ErrorBanner({ errorName }: { errorName: ProcessFatalErrorName }) {
-	const { translate } = useTranslationContext();
+  const { translate } = useTranslationContext();
 
-	const text = translate(obtainErrorMessage(errorName));
-	const action = obtainErrorAction(errorName);
+  const text = translate(obtainErrorMessage(errorName));
+  const action = obtainErrorAction(errorName);
 
-	return (
-		<div className="flex items-center justify-between bg-yellow-10 px-3 py-2 text-xs text-yellow-60">
-			<span className="flex">
-				<Warn className="inline h-5 w-5" />
-				<p className="mb-0 ml-2 inline">{text}</p>
-			</span>
-			{action && (
-				<span
-					onClick={action.fn}
-					role="button"
-					tabIndex={0}
-					onKeyDown={action.fn}
-					className="mr-2 cursor-pointer whitespace-nowrap text-xs text-yellow-70 underline"
-				>
-					{action.name}
-				</span>
-			)}
-		</div>
-	);
+  return (
+    <div className="flex items-center justify-between bg-yellow-10 px-3 py-2 text-xs text-yellow-60">
+      <span className="flex">
+        <Warn className="inline h-5 w-5" />
+        <p className="mb-0 ml-2 inline">{text}</p>
+      </span>
+      {action && (
+        <span
+          onClick={action.fn}
+          role="button"
+          tabIndex={0}
+          onKeyDown={action.fn}
+          className="mr-2 cursor-pointer whitespace-nowrap text-xs text-yellow-70 underline"
+        >
+          {action.name}
+        </span>
+      )}
+    </div>
+  );
 }
 
 export default function BackupsFatalErrorBanner() {
-	const fatalErrors = useBackupFatalErrors();
+  const fatalErrors = useBackupFatalErrors();
 
-	return (
-		<>
-			{fatalErrors.map(({ errorName }) => (
-				<ErrorBanner errorName={errorName} />
-			))}
-		</>
-	);
+  return (
+    <>
+      {fatalErrors.map(({ errorName }) => (
+        <ErrorBanner errorName={errorName} />
+      ))}
+    </>
+  );
 }
