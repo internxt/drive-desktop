@@ -92,6 +92,11 @@ app.on('will-quit', () => {
   unmountDrive();
 });
 
+app.on('window-all-closed', () => {
+  unmountDrive();
+  app.quit();
+});
+
 ipcMain.on('user-quit', () => {
   app.quit();
 });
