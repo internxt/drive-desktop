@@ -32,6 +32,10 @@ function setSyncRoot(pathname: string): void {
   configStore.set('lastSavedListing', '');
 }
 
+export function getSyncRoot(): string {
+  return configStore.get('syncRoot');
+}
+
 export async function setupRootFolder(n = 0): Promise<void> {
   const folderName = ROOT_FOLDER_NAME;
 

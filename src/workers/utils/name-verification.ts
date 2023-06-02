@@ -6,7 +6,8 @@ const containsNullCharacter = /\0/g;
 const validations = [
   (name: string) => name.includes('../'),
   (name: string) => name.includes('..'),
-  (name: string) => name.startsWith('/'),
+  // TODO: when adding a physical fs this needs to be added to it
+  // (name: string) => name.startsWith('/'),
   (name: string) => isWindowsRootDirectory.test(name),
   (name: string) => containsNullCharacter.test(name),
 ];

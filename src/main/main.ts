@@ -3,7 +3,8 @@ import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 
 // Only effective during development
-// the variables are injected
+// the variables are injectedif (process.env.NODE_ENV === 'production') {
+
 // via webpack in prod
 import 'dotenv/config';
 // ***** APP BOOTSTRAPPING ****************************************************** //
@@ -17,6 +18,7 @@ import './windows/process-issues';
 import './windows';
 import './background-processes/backups';
 import './background-processes/sync';
+import './background-processes/webdav';
 import './background-processes/process-issues';
 import './device/handlers';
 import './usage/handlers';
@@ -27,6 +29,7 @@ import './platform/handlers';
 import './thumbnails/handlers';
 import './config/handlers';
 import './app-info/handlers';
+import { unmountDrive } from '../workers/webdav/VirtualDrive';
 import './remote-sync/handlers';
 import { app, ipcMain } from 'electron';
 import Logger from 'electron-log';
@@ -85,7 +88,12 @@ const installExtensions = async () => {
     .catch(console.log);
 };
 
+app.on('will-quit', () => {
+  unmountDrive();
+});
+
 app.on('window-all-closed', () => {
+  unmountDrive();
   app.quit();
 });
 
