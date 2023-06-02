@@ -29,7 +29,7 @@ import {
 import { Readable, Writable } from 'stream';
 import Logger from 'electron-log';
 import { DebugPhysicalSerializer } from './Serializer';
-import { InternxtFileSystemDependencyContainer } from './dependencyInjection/InxtFileSystemDependencyContainer';
+import { InternxtFileSystemDependencyContainer } from './InternxtFileSystemDependencyContainer';
 
 export class PhysicalFileSystemResource {
   props: LocalPropertyManager;

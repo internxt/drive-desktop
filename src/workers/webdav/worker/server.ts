@@ -2,6 +2,7 @@ import {
   WebDAVServer,
   WebDAVServerStartCallback,
   FileSystem,
+  IStorageManager,
 } from 'webdav-server/lib/index.v2';
 import { v2 as webdav } from 'webdav-server';
 import Logger from 'electron-log';
@@ -9,11 +10,12 @@ import Logger from 'electron-log';
 export class InternxtWebdavServer {
   readonly server: WebDAVServer;
 
-  constructor(port: number) {
+  constructor(port: number, storageManager?: IStorageManager) {
     this.server = new webdav.WebDAVServer({
       hostname: 'localhost',
       port,
       requireAuthentification: false,
+      storageManager: storageManager,
     });
   }
 

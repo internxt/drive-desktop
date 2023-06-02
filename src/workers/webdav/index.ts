@@ -2,6 +2,7 @@ import { ipcRenderer as electronIpcRenderer } from 'electron';
 import Logger from 'electron-log';
 import { mountDrive, unmountDrive } from './VirtualDrive';
 import { InternxtFileSystemFactory } from './worker/InternxtFileSystem/InternxtFileSystemFactory';
+import { InternxtStorageManagerFactory } from './worker/InternxtStorageManager/InternxtSotrageManagerFactory';
 import { InternxtWebdavServer } from './worker/server';
 
 interface WebDavServerEvents {
@@ -29,27 +30,10 @@ const PORT = 1900;
 
 async function setUp() {
   const fileSystem = await InternxtFileSystemFactory.build();
-  const fileSystem2 = await InternxtFileSystemFactory.build();
 
-  const server = new InternxtWebdavServer(PORT);
-  server.server.on('create', () => Logger.debug('create'));
-  server.server.on('delete', () => Logger.debug('delete'));
-  server.server.on('openReadStream', () => Logger.debug('openReadStream'));
-  server.server.on('openWriteStream', () => Logger.debug('openWriteStream'));
-  server.server.on('move', () => Logger.debug('move'));
-  server.server.on('copy', () => Logger.debug('copy'));
-  server.server.on('rename', () => Logger.debug('rename'));
-  server.server.on('before-create', () => Logger.debug(' before create'));
-  server.server.on('before-delete', () => Logger.debug(' before delete'));
-  server.server.on('before-openReadStream', () =>
-    Logger.debug(' before openReadStream')
-  );
-  server.server.on('before-openWriteStream', () =>
-    Logger.debug(' before openWriteStream')
-  );
-  server.server.on('before-move', () => Logger.debug(' before move'));
-  server.server.on('before-copy', () => Logger.debug(' before copy'));
-  server.server.on('before-rename', () => Logger.debug(' before rename'));
+  const storageManager = await InternxtStorageManagerFactory.build();
+
+  const server = new InternxtWebdavServer(PORT, storageManager);
 
   await server.start([{ path: '/', fs: fileSystem }], { debug: true });
 

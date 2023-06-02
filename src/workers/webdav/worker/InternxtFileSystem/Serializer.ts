@@ -5,7 +5,7 @@ import {
 } from 'webdav-server/lib/index.v2';
 import Logger from 'electron-log';
 import { InternxtFileSystem } from './InternxtFileSystem';
-import { InternxtFileSystemDependencyContainer } from './dependencyInjection/InxtFileSystemDependencyContainer';
+import { InternxtFileSystemDependencyContainer } from './InternxtFileSystemDependencyContainer';
 
 export class DebugPhysicalSerializer implements FileSystemSerializer {
   constructor(
