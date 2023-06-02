@@ -52,7 +52,7 @@ async function setUp() {
 
   await server.start(true);
 
-  //mountDrive();
+  mountDrive();
 
   ipcRenderer.on('stop-webdav-server-process', () => {
     unmountDrive();

@@ -132,8 +132,6 @@ export class Traverser {
       name: 'internxt root folder',
     });
 
-    Logger.debug('TRAVERS', JSON.stringify(this.collection, null, 2));
-
     return this.collection;
   }
 }

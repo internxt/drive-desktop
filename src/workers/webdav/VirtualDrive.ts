@@ -48,7 +48,7 @@ export const getVirtualDrivePath = () => {
 
 const getSavedLetter = () => {
   return configStore.get('virtualdriveWindowsLetter') || 'I';
-}
+};
 
 const getUsedLetterDrives = (): Promise<string[]> => {
   Logger.log('[VirtualDrive] Getting used drive letters');
