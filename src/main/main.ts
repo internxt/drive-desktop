@@ -37,7 +37,7 @@ import { autoUpdater } from 'electron-updater';
 
 import packageJson from '../../package.json';
 import eventBus from './event-bus';
-import * as Sentry from '@sentry/electron';
+import * as Sentry from '@sentry/electron/main';
 import { AppDataSource } from './database/data-source';
 
 Logger.log(`Running ${packageJson.version}`);
@@ -104,7 +104,7 @@ ipcMain.on('user-quit', () => {
 app
   .whenReady()
   .then(async () => {
-    await AppDataSource.initialize();
+    // await AppDataSource.initialize();
     eventBus.emit('APP_IS_READY');
 
     if (process.env.NODE_ENV === 'development') {
