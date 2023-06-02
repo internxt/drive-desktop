@@ -51,7 +51,7 @@ async function setUp() {
   server.server.on('before-copy', () => Logger.debug(' before copy'));
   server.server.on('before-rename', () => Logger.debug(' before rename'));
 
-  await server.start([{ path: '/drive', fs: fileSystem }], { debug: true });
+  await server.start([{ path: '/', fs: fileSystem }], { debug: true });
 
   mountDrive();
 
