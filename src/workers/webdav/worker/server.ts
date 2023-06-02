@@ -1,15 +1,15 @@
 import {
   WebDAVServer,
   WebDAVServerStartCallback,
+  FileSystem,
 } from 'webdav-server/lib/index.v2';
-import { InternxtFileSystem } from './InternxtFileSystem/InternxtFileSystem';
 import { v2 as webdav } from 'webdav-server';
 import Logger from 'electron-log';
 
 export class InternxtWebdavServer {
   readonly server: WebDAVServer;
 
-  constructor(port: number, private readonly fileSystem: InternxtFileSystem) {
+  constructor(port: number) {
     this.server = new webdav.WebDAVServer({
       hostname: 'localhost',
       port,
@@ -17,21 +17,28 @@ export class InternxtWebdavServer {
     });
   }
 
-  async start(debug: boolean): Promise<void> {
-    const mounted = new Promise<void>((resolve, reject) => {
-      this.server.setFileSystem('/', this.fileSystem, (success) => {
-        if (success) {
-          Logger.info('[WEBDAB SERVER] INTERNXT FS MOUNTED');
-          return resolve();
-        }
+  async start(
+    fileSystems: { path: string; fs: FileSystem }[],
+    options: { debug: boolean }
+  ): Promise<void> {
+    const fileSystemsMounted = fileSystems.map(
+      (params: { path: string; fs: FileSystem }) => {
+        return new Promise<void>((resolve, reject) => {
+          this.server.setFileSystem(params.path, params.fs, (success) => {
+            if (success) {
+              Logger.info('[WEBDAB SERVER] INTERNXT FS MOUNTED');
+              return resolve();
+            }
 
-        reject();
-      });
-    });
+            reject();
+          });
+        });
+      }
+    );
 
-    await mounted;
+    await Promise.allSettled(fileSystemsMounted);
 
-    if (debug) {
+    if (options.debug) {
       this.server.afterRequest((arg, next) => {
         Logger.debug(
           '>>',

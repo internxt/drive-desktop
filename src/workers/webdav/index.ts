@@ -29,8 +29,9 @@ const PORT = 1900;
 
 async function setUp() {
   const fileSystem = await InternxtFileSystemFactory.build();
+  const fileSystem2 = await InternxtFileSystemFactory.build();
 
-  const server = new InternxtWebdavServer(PORT, fileSystem);
+  const server = new InternxtWebdavServer(PORT);
   server.server.on('create', () => Logger.debug('create'));
   server.server.on('delete', () => Logger.debug('delete'));
   server.server.on('openReadStream', () => Logger.debug('openReadStream'));
@@ -50,7 +51,7 @@ async function setUp() {
   server.server.on('before-copy', () => Logger.debug(' before copy'));
   server.server.on('before-rename', () => Logger.debug(' before rename'));
 
-  await server.start(true);
+  await server.start([{ path: '/drive', fs: fileSystem }], { debug: true });
 
   mountDrive();
 
