@@ -2,6 +2,7 @@ import { Environment } from '@internxt/inxt-js';
 import { getUser } from 'main/auth/service';
 import configStore from 'main/config';
 import { getClients } from 'shared/HttpClient/backgroud-process-clients';
+import { InterProcessEventEmitter } from 'workers/webdav/modules/shared/infrastructure/InterProcessEventEmitter';
 import crypt from '../../../../utils/crypt';
 import { WebdavFileClonner } from '../../../modules/files/application/WebdavFileClonner';
 import { WebdavFileCreator } from '../../../modules/files/application/WebdavFileCreator';
@@ -65,6 +66,8 @@ export async function buildContainer(): Promise<InternxtFileSystemDependencyCont
 
   const folderFinder = new WebdavFolderFinder(folderRepository);
 
+  const eventEmitter = new InterProcessEventEmitter();
+
   const temporalFileCollection = new InMemoryTemporalFileMetadataCollection();
 
   const unknownItemSearcher = new WebdavUnknownItemTypeSearcher(
@@ -76,19 +79,22 @@ export async function buildContainer(): Promise<InternxtFileSystemDependencyCont
       fileClonner: new WebdavFileClonner(
         fileRepository,
         folderFinder,
-        fileContentRepository
+        fileContentRepository,
+        eventEmitter
       ),
-      fileDeleter: new WebdavFileDeleter(fileRepository),
+      fileDeleter: new WebdavFileDeleter(fileRepository, eventEmitter),
       fileMover: new WebdavFileMover(fileRepository, folderFinder),
       fileCreator: new WebdavFileCreator(
         fileRepository,
         folderFinder,
         fileContentRepository,
-        temporalFileCollection
+        temporalFileCollection,
+        eventEmitter
       ),
       fileDonwloader: new WebdavFileDownloader(
         fileRepository,
-        fileContentRepository
+        fileContentRepository,
+        eventEmitter
       ),
       fileMimeTypeResolver: new WebdavFileMimeTypeResolver(),
 

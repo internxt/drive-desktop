@@ -1,6 +1,8 @@
+import { AggregateRoot } from '../../shared/domain/AggregateRoot';
 import { WebdavFolder } from '../../folders/domain/WebdavFolder';
 import { FilePath } from './FilePath';
 import { FileSize } from './FileSize';
+import { FileCreatedDomainEvent } from './FileCreatedDomainEvent';
 
 export type WebdavFileAtributes = {
   fileId: string;
@@ -14,7 +16,7 @@ export type WebdavFileAtributes = {
   updatedAt: string;
 };
 
-export class WebdavFile {
+export class WebdavFile extends AggregateRoot {
   private constructor(
     public readonly fileId: string,
     public readonly folderId: number,
@@ -25,7 +27,9 @@ export class WebdavFile {
     public readonly createdAt: Date,
     public readonly updatedAt: Date,
     public readonly modificationTime: Date
-  ) {}
+  ) {
+    super();
+  }
 
   static from(attributes: WebdavFileAtributes): WebdavFile {
     return new WebdavFile(
@@ -46,8 +50,8 @@ export class WebdavFile {
     folder: WebdavFolder,
     size: number,
     path: FilePath
-  ) {
-    return new WebdavFile(
+  ): WebdavFile {
+    const file = new WebdavFile(
       fileId,
       folder.id,
       path.name(),
@@ -58,6 +62,16 @@ export class WebdavFile {
       new Date(),
       new Date()
     );
+
+    file.record(
+      new FileCreatedDomainEvent({
+        aggregateId: fileId,
+        size,
+        type: path.extension(),
+      })
+    );
+
+    return file;
   }
 
   moveTo(folder: WebdavFolder): WebdavFile {
@@ -84,7 +98,7 @@ export class WebdavFile {
     return file;
   }
 
-  clone(fileId: string, newPath: FilePath) {
+  clone(fileId: string, folderId: number, newPath: FilePath) {
     if (!this.path.hasSameDirname(newPath)) {
       throw new Error('A file rename should mantain the current estructure');
     }
@@ -95,17 +109,27 @@ export class WebdavFile {
 
     const newName = newPath.name();
 
-    return new WebdavFile(
+    const file = new WebdavFile(
       fileId,
-      this.folderId,
+      folderId,
       newName,
       newPath,
       this.size,
       this.type,
       this.createdAt,
-      this.updatedAt,
-      this.modificationTime
+      new Date(),
+      new Date()
     );
+
+    file.record(
+      new FileCreatedDomainEvent({
+        aggregateId: fileId,
+        size: this.size.value,
+        type: this.type,
+      })
+    );
+
+    return file;
   }
 
   rename(newPath: FilePath) {
@@ -176,14 +200,14 @@ export class WebdavFile {
     return true;
   }
 
-  toProps() {
+  toPrimitives() {
     return {
       fileId: this.fileId,
       folderId: this.folderId,
       createdAt: this.createdAt.getDate(),
       modificationTime: this.modificationTime.getDate(),
       name: this.name,
-      size: this.size,
+      size: this.size.value,
       type: this.type,
       updatedAt: this.updatedAt.getDate(),
     };

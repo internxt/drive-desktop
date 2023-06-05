@@ -1,10 +1,13 @@
 import { Environment } from '@internxt/inxt-js';
 import { Readable } from 'stream';
 import { FileSize } from '../../domain/FileSize';
-import { FileContentRepository } from '../../domain/storage/FileContentRepository';
+import { RemoteFileContentsRepository } from '../../domain/FileContentRepository';
 import { WebdavFile } from '../../domain/WebdavFile';
+import { RemoteFileContents } from '../../domain/RemoteFileContent';
 
-export class EnvironmentFileContentRepository implements FileContentRepository {
+export class EnvironmentFileContentRepository
+  implements RemoteFileContentsRepository
+{
   private static MULTIPART_UPLOADE_SIZE_THRESHOLD = 5 * 1024 * 1024 * 1024;
 
   constructor(
@@ -54,22 +57,23 @@ export class EnvironmentFileContentRepository implements FileContentRepository {
   }
 
   async clone(file: WebdavFile): Promise<string> {
-    const contents = await this.download(file.fileId);
+    const remoteFileContents = await this.download(file);
 
-    return this.upload(file.size, contents);
+    return this.upload(file.size, remoteFileContents.contents);
   }
 
-  download(fileId: string): Promise<Readable> {
+  download(file: WebdavFile): Promise<RemoteFileContents> {
     return new Promise((resolve, reject) => {
       this.environment.download(
         this.bucket,
-        fileId,
+        file.fileId,
         {
           finishedCallback: async (err: unknown, stream: Readable) => {
             if (err) {
               reject(err);
             } else {
-              resolve(stream);
+              const remoteContents = RemoteFileContents.retrive(file, stream);
+              resolve(remoteContents);
             }
           },
         },

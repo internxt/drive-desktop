@@ -1,8 +1,8 @@
 import { Readable } from 'stream';
-import { FileContentRepository } from '../../domain/storage/FileContentRepository';
+import { RemoteFileContentsRepository } from '../../domain/FileContentRepository';
 import { WebdavFile } from '../../domain/WebdavFile';
 
-export class FileContentRepositoryMock implements FileContentRepository {
+export class FileContentRepositoryMock implements RemoteFileContentsRepository {
   public mockClone = jest.fn();
   public mockDownload = jest.fn();
   public mockUpload = jest.fn();
