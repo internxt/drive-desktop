@@ -11,7 +11,6 @@ ipcMain.handle('get-sync-root', () => {
 ipcMain.handle('choose-sync-root-with-dialog', chooseSyncRootWithDialog);
 
 ipcMain.handle('open-sync-folder', () => {
-  //const syncFolderPath = configStore.get('syncRoot');
   const syncFolderPath = getVirtualDrivePath();
 
   return shell.openPath(syncFolderPath);
