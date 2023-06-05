@@ -1,21 +1,37 @@
 import { ipcMain, IpcMainEvent } from 'electron';
 import Logger from 'electron-log';
+import { ipcWebdav } from '../ipcs/webdav';
 
-function subscribeTo(
-  eventName: string,
-  listener: (event: IpcMainEvent, ...args: any[]) => void
-) {
-  ipcMain.on(`webdav.${eventName}`, listener);
+function subscribeToDomainEvents() {
+  function subscribeTo(
+    eventName: string,
+    listener: (event: IpcMainEvent, ...args: any[]) => void
+  ) {
+    ipcMain.on(`webdav.${eventName}`, listener);
+  }
+
+  subscribeTo('file.created', (event, args) => {
+    Logger.info('event listened', 'file.created');
+  });
+
+  subscribeTo('file.downloaded', (event, args) => {
+    Logger.info('event listened', 'file.downloaded');
+  });
+
+  subscribeTo('file.deleted', (event, args) => {
+    Logger.info('event listened', 'file.deleted');
+  });
 }
 
-subscribeTo('file.created', (event, args) => {
-  Logger.info('event listened', 'file.created');
-});
+function subscribeToServerEvents() {
+  ipcWebdav.on('WEBDAV_VIRTUAL_DRIVE_MOUNTED_SUCCESSFULLY', () => {
+    Logger.info('WEBDAV_VIRTUAL_DRIVE_MOUNTED_SUCCESSFULLY');
+  });
 
-subscribeTo('file.downloaded', (event, args) => {
-  Logger.info('event listened', 'file.downloaded');
-});
+  ipcWebdav.on('WEBDAV_VIRTUAL_DRIVE_MOUNT_ERROR', (_, err: Error) => {
+    Logger.info('WEBDAV_VIRTUAL_DRIVE_MOUNT_ERROR', err.message);
+  });
+}
 
-subscribeTo('file.deleted', (event, args) => {
-  Logger.info('event listened', 'file.deleted');
-});
+subscribeToDomainEvents();
+subscribeToServerEvents();
