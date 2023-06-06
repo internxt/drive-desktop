@@ -2,6 +2,7 @@ import { Environment } from '@internxt/inxt-js';
 import { getUser } from 'main/auth/service';
 import configStore from 'main/config';
 import { getClients } from 'shared/HttpClient/backgroud-process-clients';
+import { ipc } from '../../../ipc';
 import { InterProcessEventEmitter } from 'workers/webdav/modules/shared/infrastructure/InterProcessEventEmitter';
 import crypt from '../../../../utils/crypt';
 import { WebdavFileClonner } from '../../../modules/files/application/WebdavFileClonner';
@@ -113,6 +114,8 @@ export async function buildContainer(): Promise<InternxtFileSystemDependencyCont
         folderFinder
       ),
       itemSearcher: unknownItemSearcher,
+
+      ipc,
     };
 
   return container;

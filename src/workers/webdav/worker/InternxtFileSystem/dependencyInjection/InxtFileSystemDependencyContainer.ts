@@ -1,3 +1,8 @@
+import {
+  WebDavProcessEvents,
+  WebdavMainEvents,
+} from '../../../../../shared/IPC/events/webdav';
+import { CustomIpc } from '../../../../../shared/IPC/IPCs';
 import { WebdavFileClonner } from '../../../modules/files/application/WebdavFileClonner';
 import { WebdavFileCreator } from '../../../modules/files/application/WebdavFileCreator';
 import { WebdavFileDeleter } from '../../../modules/files/application/WebdavFileDeleter';
@@ -23,7 +28,6 @@ export type InternxtFileSystemDependencyContainer = {
   fileMimeTypeResolver: WebdavFileMimeTypeResolver;
 
   folderCreator: WebdavFolderCreator;
-
   folderMover: WebdavFolderMover;
   folderFinder: WebdavFolderFinder;
   folderDeleter: WebdavFolderDeleter;
@@ -31,4 +35,6 @@ export type InternxtFileSystemDependencyContainer = {
   itemMetadataDealer: WebdavUnkownItemMetadataDealer;
   itemSearcher: WebdavUnknownItemTypeSearcher;
   allItemsLister: AllWebdavItemsNameLister;
+
+  ipc: CustomIpc<WebDavProcessEvents, WebdavMainEvents>;
 };

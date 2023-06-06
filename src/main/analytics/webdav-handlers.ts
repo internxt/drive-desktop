@@ -1,11 +1,12 @@
 import { ipcMain, IpcMainEvent } from 'electron';
 import Logger from 'electron-log';
+import { WebdavDomainEvent } from '../../workers/webdav/modules/shared/domain/WebdavDomainEvent';
 import { ipcWebdav } from '../ipcs/webdav';
 
 function subscribeToDomainEvents() {
   function subscribeTo(
     eventName: string,
-    listener: (event: IpcMainEvent, ...args: any[]) => void
+    listener: (event: IpcMainEvent, domainEvent: WebdavDomainEvent) => void
   ) {
     ipcMain.on(`webdav.${eventName}`, listener);
   }

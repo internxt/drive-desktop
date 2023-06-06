@@ -27,10 +27,6 @@ export class WebdavFileClonner {
   private async copy(file: WebdavFile, path: FilePath) {
     const destinationFolder = this.folderFinder.run(path.dirname());
 
-    if (!destinationFolder) {
-      throw new Error('Folder not found');
-    }
-
     const clonnedFileId = await this.contentRepository.clone(file);
 
     const clonned = file.clone(clonnedFileId, destinationFolder.id, path);
