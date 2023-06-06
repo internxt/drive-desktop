@@ -25,11 +25,13 @@ import {
   MoveInfo,
   CopyInfo,
   MimeTypeInfo,
+  RequestContext,
 } from 'webdav-server/lib/index.v2';
 import { Readable, Writable } from 'stream';
 import Logger from 'electron-log';
 import { DebugPhysicalSerializer } from './Serializer';
-import { InternxtFileSystemDependencyContainer } from './InternxtFileSystemDependencyContainer';
+import { InternxtFileSystemDependencyContainer } from './dependencyInjection/InxtFileSystemDependencyContainer';
+import { handleFileSystemError } from '../error-handling';
 
 export class PhysicalFileSystemResource {
   props: LocalPropertyManager;
@@ -54,9 +56,9 @@ export class InternxtFileSystem extends FileSystem {
   };
 
   constructor(
-    private readonly dependencyContainer: InternxtFileSystemDependencyContainer
+    private readonly container: InternxtFileSystemDependencyContainer
   ) {
-    super(new DebugPhysicalSerializer(dependencyContainer));
+    super(new DebugPhysicalSerializer(container));
 
     this.resources = {
       '/': new PhysicalFileSystemResource(),
@@ -70,9 +72,7 @@ export class InternxtFileSystem extends FileSystem {
     ctx: CopyInfo,
     callback: ReturnCallback<boolean>
   ) {
-    Logger.debug('COPY ', pathFrom.toString(false), pathTo.toString(false));
-
-    const sourceItem = this.dependencyContainer.itemSearcher.run(
+    const sourceItem = this.container.itemSearcher.run(
       pathFrom.toString(false)
     );
 
@@ -81,32 +81,34 @@ export class InternxtFileSystem extends FileSystem {
     }
 
     if (sourceItem.isFile()) {
-      this.dependencyContainer.fileClonner
+      this.container.fileClonner
         .run(pathFrom.toString(false), pathTo.toString(false), ctx.overwrite)
         .then((haveBeenOverwritten: boolean) => {
           callback(undefined, haveBeenOverwritten);
         })
-        .catch((err: unknown) => {
-          Logger.error('[FS] Error coping file ', err);
-          callback(Errors.IllegalArguments);
+        .catch((error: Error) => {
+          handleFileSystemError(error, 'copy file', ctx);
+          callback(error);
         });
 
       return;
     }
+
+    return callback(Errors.InvalidOperation);
   }
 
   _create(path: Path, ctx: CreateInfo, callback: SimpleCallback): void {
     if (ctx.type.isDirectory) {
-      this.dependencyContainer.folderCreator
+      this.container.folderCreator
         .run(path.toString(false))
         .then(() => {
           this.resources[path.toString(false)] =
             new PhysicalFileSystemResource();
           callback();
         })
-        .catch((err: unknown) => {
-          Logger.error('ERROR CREATING FOLDER', err);
-          callback(Errors.InvalidOperation);
+        .catch((error: Error) => {
+          handleFileSystemError(error, 'create file', ctx);
+          callback(error);
         });
       return;
     }
@@ -121,32 +123,33 @@ export class InternxtFileSystem extends FileSystem {
   }
 
   _delete(path: Path, ctx: DeleteInfo, callback: SimpleCallback): void {
-    const item = this.dependencyContainer.itemSearcher.run(
-      path.toString(false)
-    );
+    const item = this.container.itemSearcher.run(path.toString(false));
 
     if (!item) {
       return callback(Errors.ResourceNotFound);
     }
 
     if (item.isFile()) {
-      this.dependencyContainer.fileDeleter
+      this.container.fileDeleter
         .run(item)
         .then(() => {
           delete this.resources[item.path.value];
           callback(undefined);
         })
-        .catch(() => callback(Errors.InvalidOperation));
+        .catch((error: Error) => {
+          handleFileSystemError(error, 'create file', ctx);
+          callback(error);
+        });
       return;
     }
 
     if (item.isFolder()) {
-      this.dependencyContainer.folderDeleter
+      this.container.folderDeleter
         .run(item)
         .then(() => callback())
-        .catch((err: unknown) => {
-          Logger.error('[FS] Error trashing folder');
-          throw err;
+        .catch((error: Error) => {
+          handleFileSystemError(error, 'create file', ctx);
+          callback(error);
         });
     }
   }
@@ -164,14 +167,14 @@ export class InternxtFileSystem extends FileSystem {
 
     Logger.debug('WRITE STEAM ON ', path.toString(false));
 
-    this.dependencyContainer.fileCreator
+    this.container.fileCreator
       .run(path.toString(false), ctx.estimatedSize)
       .then((writable: Writable) => {
         callback(undefined, writable);
       })
-      .catch((err: unknown) => {
-        Logger.error('[FS] Error on open write steam ', err);
-        throw err;
+      .catch((error: Error) => {
+        handleFileSystemError(error, 'create file', ctx);
+        callback(error);
       });
   }
 
@@ -182,13 +185,12 @@ export class InternxtFileSystem extends FileSystem {
   ): void {
     Logger.debug('[OPEN READ STREAM]');
 
-    this.dependencyContainer.fileDonwloader
+    this.container.fileDonwloader
       .run(path.toString(false))
       .then((readable: Readable) => {
         callback(undefined, readable);
       })
       .catch((err: unknown) => {
-        Logger.error('[FS] Error downloading a file ', err);
         throw err;
       });
   }
@@ -209,7 +211,7 @@ export class InternxtFileSystem extends FileSystem {
   ): void {
     Logger.debug('[FS] MOVE');
 
-    const originalItem = this.dependencyContainer.itemSearcher.run(
+    const originalItem = this.container.itemSearcher.run(
       pathFrom.toString(false)
     );
 
@@ -226,30 +228,30 @@ export class InternxtFileSystem extends FileSystem {
     };
 
     if (originalItem.isFile()) {
-      this.dependencyContainer.fileMover
+      this.container.fileMover
         .run(originalItem, pathTo.toString(false), ctx.overwrite)
         .then((hasBeenOverriden: boolean) => {
           changeResourceIndex();
           callback(undefined, hasBeenOverriden);
         })
-        .catch((err: unknown) => {
-          Logger.error(err);
-          callback(Errors.InvalidOperation);
+        .catch((error: Error) => {
+          handleFileSystemError(error, 'create file', ctx);
+          callback(error);
         });
 
       return;
     }
 
     if (originalItem.isFolder()) {
-      this.dependencyContainer.folderMover
+      this.container.folderMover
         .run(originalItem, pathTo.toString(false))
         .then(() => {
           changeResourceIndex();
           callback(undefined, false);
         })
-        .catch((err: unknown) => {
-          Logger.error(err);
-          callback(Errors.InvalidOperation);
+        .catch((error: Error) => {
+          handleFileSystemError(error, 'create file', ctx);
+          callback(error);
         });
       return;
     }
@@ -301,13 +303,14 @@ export class InternxtFileSystem extends FileSystem {
   ): void {
     Logger.debug('READ');
     try {
-      const names = this.dependencyContainer.allItemsLister.run(
-        path.toString(false)
-      );
+      const names = this.container.allItemsLister.run(path.toString(false));
       callback(undefined, names);
-    } catch (err: unknown) {
-      Logger.error('[FS] Error reading directory: ', err);
-      callback(Errors.Forbidden);
+    } catch (error: unknown) {
+      const e =
+        error instanceof Error ? error : new Error('Error reading directory');
+
+      handleFileSystemError(e, 'create file', ctx);
+      callback(e);
     }
   }
 
@@ -316,7 +319,7 @@ export class InternxtFileSystem extends FileSystem {
     _ctx: DisplayNameInfo,
     callback: ReturnCallback<string>
   ) {
-    const data = this.dependencyContainer.itemMetadataDealer.run(
+    const data = this.container.itemMetadataDealer.run(
       path.toString(false),
       'name'
     );
@@ -332,7 +335,7 @@ export class InternxtFileSystem extends FileSystem {
     ctx: CreationDateInfo,
     callback: ReturnCallback<number>
   ): void {
-    const data = this.dependencyContainer.itemMetadataDealer.run(
+    const data = this.container.itemMetadataDealer.run(
       path.toString(false),
       'createdAt'
     );
@@ -345,9 +348,7 @@ export class InternxtFileSystem extends FileSystem {
   }
 
   _mimeType(path: Path, ctx: MimeTypeInfo, callback: ReturnCallback<string>) {
-    const mimeType = this.dependencyContainer.fileMimeTypeResolver.run(
-      path.toString()
-    );
+    const mimeType = this.container.fileMimeTypeResolver.run(path.toString());
 
     if (!mimeType) {
       return callback(Errors.UnrecognizedResource);
@@ -361,7 +362,7 @@ export class InternxtFileSystem extends FileSystem {
     ctx: LastModifiedDateInfo,
     callback: ReturnCallback<number>
   ): void {
-    const data = this.dependencyContainer.itemMetadataDealer.run(
+    const data = this.container.itemMetadataDealer.run(
       path.toString(false),
       'updatedAt'
     );
@@ -378,7 +379,7 @@ export class InternxtFileSystem extends FileSystem {
     ctx: TypeInfo,
     callback: ReturnCallback<ResourceType>
   ): void {
-    const data = this.dependencyContainer.itemMetadataDealer.run(
+    const data = this.container.itemMetadataDealer.run(
       path.toString(false),
       'type'
     );
@@ -392,7 +393,7 @@ export class InternxtFileSystem extends FileSystem {
   }
 
   _size(path: Path, ctx: SizeInfo, callback: ReturnCallback<number>): void {
-    const data = this.dependencyContainer.itemMetadataDealer.run(
+    const data = this.container.itemMetadataDealer.run(
       path.toString(false),
       'size'
     );

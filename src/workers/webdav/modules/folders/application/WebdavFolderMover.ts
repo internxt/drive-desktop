@@ -1,3 +1,4 @@
+import { ActionNotPermitedError } from '../domain/errors/ActionNotPermitedError';
 import { FolderPath } from '../domain/FolderPath';
 import { WebdavFolder } from '../domain/WebdavFolder';
 import { WebdavFolderRepository } from '../domain/WebdavFolderRepository';
@@ -28,7 +29,7 @@ export class WebdavFolderMover {
     const shouldBeMerge = destinationFolder !== undefined;
 
     if (shouldBeMerge) {
-      throw new Error('Folders cannot be ovewriden');
+      throw new ActionNotPermitedError('overwrite');
     }
 
     const parentFolder = this.folderFinder.run(destination.dirname());

@@ -31,9 +31,9 @@ describe('Webdav File Mover', () => {
       repository.mockSearch.mockImplementation(() => undefined);
       repository.mockUpdateName.mockImplementation(() => Promise.resolve());
 
-      const hasBeenOverriden = await SUT.run(file, destination, override);
+      const hasBeenOverwritten = await SUT.run(file, destination, override);
 
-      expect(hasBeenOverriden).toBe(false);
+      expect(hasBeenOverwritten).toBe(false);
       expect(folderRepository.mockSearch).toHaveBeenCalledWith(
         file.path.dirname()
       );
@@ -49,8 +49,8 @@ describe('Webdav File Mover', () => {
       repository.mockSearch.mockImplementation(() => file);
 
       try {
-        const hasBeenOverriden = await SUT.run(file, destination, override);
-        expect(hasBeenOverriden).not.toBeDefined();
+        const hasBeenOverwritten = await SUT.run(file, destination, override);
+        expect(hasBeenOverwritten).not.toBeDefined();
       } catch (err) {
         expect(err).toBeDefined();
         expect((err as Error).message).toBe('File already exists');
@@ -73,8 +73,8 @@ describe('Webdav File Mover', () => {
         WebdavFolderMother.containing(existing)
       );
 
-      const hasBeenOverriden = await SUT.run(file, destination, override);
-      expect(hasBeenOverriden).toBe(true);
+      const hasBeenOverwritten = await SUT.run(file, destination, override);
+      expect(hasBeenOverwritten).toBe(true);
 
       expect(folderRepository.mockSearch).toHaveBeenCalled();
       expect(repository.mockSearch).toHaveBeenCalledWith(destination);
@@ -96,9 +96,9 @@ describe('Webdav File Mover', () => {
       repository.mockSearch.mockImplementation(() => undefined);
       repository.mockUpdateName.mockImplementation(() => Promise.resolve());
 
-      const hasBeenOverriden = await SUT.run(file, destination, override);
+      const hasBeenOverwritten = await SUT.run(file, destination, override);
 
-      expect(hasBeenOverriden).toBe(false);
+      expect(hasBeenOverwritten).toBe(false);
       expect(folderRepository.mockSearch).toHaveBeenCalledWith(
         file.path.dirname()
       );
@@ -117,8 +117,8 @@ describe('Webdav File Mover', () => {
       repository.mockSearch.mockImplementation(() => WebdavFileMother.any());
 
       try {
-        const hasBeenOverriden = await SUT.run(file, destination, override);
-        expect(hasBeenOverriden).not.toBeDefined();
+        const hasBeenOverwritten = await SUT.run(file, destination, override);
+        expect(hasBeenOverwritten).not.toBeDefined();
       } catch (err) {
         expect(err).toBeDefined();
       }

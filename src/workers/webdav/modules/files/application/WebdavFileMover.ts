@@ -3,6 +3,9 @@ import { WebdavFolderFinder } from '../../folders/application/WebdavFolderFinder
 import { FilePath } from '../domain/FilePath';
 import { WebdavFile } from '../domain/WebdavFile';
 import { WebdavFileRepository } from '../domain/WebdavFileRepository';
+import { FileAlreadyExistsError } from '../domain/errors/FileAlreadyExistsError';
+import { UnknownFileActionError } from '../domain/errors/UnknownFileActionError';
+import { ActionNotPermitedError } from '../domain/errors/ActionNotPermitedError';
 
 export class WebdavFileMover {
   constructor(
@@ -31,6 +34,10 @@ export class WebdavFileMover {
     await this.repository.updateParentDir(moved);
   }
 
+  private noMoreActionsLeft(overwite: never) {
+    if (overwite) throw new UnknownFileActionError('WebdavFileMover');
+  }
+
   async run(
     file: WebdavFile,
     to: string,
@@ -39,34 +46,35 @@ export class WebdavFileMover {
     const destination = new FilePath(to);
     const destinationFile = this.repository.search(destination.value);
 
-    const hasToBeOverriden =
+    const hasToBeOverwritten =
       destinationFile !== undefined && destinationFile !== null;
 
-    if (hasToBeOverriden && !overwrite) {
-      throw new Error('File already exists');
+    if (hasToBeOverwritten && !overwrite) {
+      throw new FileAlreadyExistsError(to);
     }
 
     const destinationFolder = this.folderFinder.run(destination.dirname());
 
     if (file.hasParent(destinationFolder.id)) {
-      if (hasToBeOverriden) {
-        throw new Error('Cannot rename a file to an existing file name');
+      if (hasToBeOverwritten) {
+        throw new ActionNotPermitedError('overwrite');
       }
 
       await this.rename(file, destination);
       return false;
     }
 
-    if (!hasToBeOverriden) {
+    if (!hasToBeOverwritten) {
       await this.move(file, destinationFolder);
       return false;
     }
 
-    if (hasToBeOverriden) {
+    if (hasToBeOverwritten) {
       await this.overwite(file, destinationFile, destinationFolder);
       return true;
     }
 
-    throw new Error('Could not complete file move');
+    this.noMoreActionsLeft(hasToBeOverwritten);
+    return false;
   }
 }

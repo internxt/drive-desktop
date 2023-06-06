@@ -1,8 +1,11 @@
 import { WebdavFolderFinder } from '../../folders/application/WebdavFolderFinder';
 import { FilePath } from '../domain/FilePath';
-import { FileContentRepository } from '../domain/storage/FileContentRepository';
+import { RemoteFileContentsRepository } from '../domain/FileContentRepository';
 import { WebdavFile } from '../domain/WebdavFile';
 import { WebdavFileRepository } from '../domain/WebdavFileRepository';
+import { WebdavServerEventBus } from '../../shared/domain/WebdavServerEventBus';
+import { FileNotFoundError } from '../domain/errors/FileNotFoundError';
+import { FileAlreadyExistsError } from '../domain/errors/FileAlreadyExistsError';
 
 export class WebdavFileClonner {
   private static FILE_OVERRIDED = true;
@@ -11,7 +14,8 @@ export class WebdavFileClonner {
   constructor(
     private readonly repository: WebdavFileRepository,
     private readonly folderFinder: WebdavFolderFinder,
-    private readonly contentRepository: FileContentRepository
+    private readonly contentRepository: RemoteFileContentsRepository,
+    private readonly eventBus: WebdavServerEventBus
   ) {}
 
   private async overwrite(file: WebdavFile, destinationFile: WebdavFile) {
@@ -25,26 +29,13 @@ export class WebdavFileClonner {
   private async copy(file: WebdavFile, path: FilePath) {
     const destinationFolder = this.folderFinder.run(path.dirname());
 
-    if (!destinationFolder) {
-      throw new Error('Folder not found');
-    }
-
     const clonnedFileId = await this.contentRepository.clone(file);
 
-    // TODO: check if when coping a file the createdAt/updatedAt should changes
-    const newFile = WebdavFile.from({
-      fileId: clonnedFileId,
-      size: file.size.value,
-      type: file.type,
-      createdAt: file.createdAt.toISOString(),
-      updatedAt: file.updatedAt.toISOString(),
-      modificationTime: file.modificationTime.toISOString(),
-      folderId: destinationFolder.id,
-      name: path.name(),
-      path: path.value,
-    });
+    const clonned = file.clone(clonnedFileId, destinationFolder.id, path);
 
-    await this.repository.add(newFile);
+    await this.repository.add(clonned);
+
+    this.eventBus.publish(clonned.pullDomainEvents());
   }
 
   async run(
@@ -55,13 +46,13 @@ export class WebdavFileClonner {
     const originFile = this.repository.search(origin);
 
     if (!originFile) {
-      throw new Error('File not found');
+      throw new FileNotFoundError(origin);
     }
 
     const destinationFile = this.repository.search(destination);
 
     if (destinationFile && !overwrite) {
-      throw new Error('File already exists');
+      throw new FileAlreadyExistsError(destination);
     }
 
     if (destinationFile) {
