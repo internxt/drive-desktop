@@ -1,4 +1,4 @@
-export class FileAlreadyExists extends Error {
+export class FileAlreadyExistsError extends Error {
   constructor(path: string) {
     super(`File ${path} already exists`);
   }

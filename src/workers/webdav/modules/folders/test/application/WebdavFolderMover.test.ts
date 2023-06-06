@@ -23,8 +23,8 @@ describe('Folder Mover', () => {
     );
 
     try {
-      const hasBeenOverriden = await SUT.run(folder, destination);
-      expect(hasBeenOverriden).not.toBeDefined();
+      const hasBeenOverwritten = await SUT.run(folder, destination);
+      expect(hasBeenOverwritten).not.toBeDefined();
     } catch (err) {
       expect(err).toBeDefined();
     }

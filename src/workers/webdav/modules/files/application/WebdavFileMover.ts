@@ -3,9 +3,9 @@ import { WebdavFolderFinder } from '../../folders/application/WebdavFolderFinder
 import { FilePath } from '../domain/FilePath';
 import { WebdavFile } from '../domain/WebdavFile';
 import { WebdavFileRepository } from '../domain/WebdavFileRepository';
-import { FileAlreadyExists } from '../domain/errors/FileAlreadyExists';
-import { UnknownFileAction } from '../domain/errors/UnknownFileAction';
-import { ActionCannotOverwriteFile } from '../domain/errors/ActionCannotOverwriteFile';
+import { FileAlreadyExistsError } from '../domain/errors/FileAlreadyExistsError';
+import { UnknownFileActionError } from '../domain/errors/UnknownFileActionError';
+import { ActionNotPermitedError } from '../domain/errors/ActionNotPermitedError';
 
 export class WebdavFileMover {
   constructor(
@@ -35,7 +35,7 @@ export class WebdavFileMover {
   }
 
   private noMoreActionsLeft(overwite: never) {
-    if (overwite) throw new UnknownFileAction('WebdavFileMover');
+    if (overwite) throw new UnknownFileActionError('WebdavFileMover');
   }
 
   async run(
@@ -46,35 +46,35 @@ export class WebdavFileMover {
     const destination = new FilePath(to);
     const destinationFile = this.repository.search(destination.value);
 
-    const hasToBeOverriden =
+    const hasToBeOverwritten =
       destinationFile !== undefined && destinationFile !== null;
 
-    if (hasToBeOverriden && !overwrite) {
-      throw new FileAlreadyExists(to);
+    if (hasToBeOverwritten && !overwrite) {
+      throw new FileAlreadyExistsError(to);
     }
 
     const destinationFolder = this.folderFinder.run(destination.dirname());
 
     if (file.hasParent(destinationFolder.id)) {
-      if (hasToBeOverriden) {
-        throw new ActionCannotOverwriteFile('rename');
+      if (hasToBeOverwritten) {
+        throw new ActionNotPermitedError('overwrite');
       }
 
       await this.rename(file, destination);
       return false;
     }
 
-    if (!hasToBeOverriden) {
+    if (!hasToBeOverwritten) {
       await this.move(file, destinationFolder);
       return false;
     }
 
-    if (hasToBeOverriden) {
+    if (hasToBeOverwritten) {
       await this.overwite(file, destinationFile, destinationFolder);
       return true;
     }
 
-    this.noMoreActionsLeft(hasToBeOverriden);
+    this.noMoreActionsLeft(hasToBeOverwritten);
     return false;
   }
 }

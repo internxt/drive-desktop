@@ -5,7 +5,7 @@ import { WebdavFile } from '../domain/WebdavFile';
 import { WebdavFileRepository } from '../domain/WebdavFileRepository';
 import { WebdavServerEventBus } from '../../shared/domain/WebdavServerEventBus';
 import { FileNotFoundError } from '../domain/errors/FileNotFoundError';
-import { FileAlreadyExists } from '../domain/errors/FileAlreadyExists';
+import { FileAlreadyExistsError } from '../domain/errors/FileAlreadyExistsError';
 
 export class WebdavFileClonner {
   private static FILE_OVERRIDED = true;
@@ -52,7 +52,7 @@ export class WebdavFileClonner {
     const destinationFile = this.repository.search(destination);
 
     if (destinationFile && !overwrite) {
-      throw new FileAlreadyExists(destination);
+      throw new FileAlreadyExistsError(destination);
     }
 
     if (destinationFile) {
