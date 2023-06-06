@@ -1,10 +1,12 @@
 import PhotosSubmodule from '@internxt/sdk/dist/photos/photos';
 import { Axios } from 'axios';
-import { UserUsage } from '../domain/UserUsage';
-import { UserUsageRepository } from '../domain/UserUsageRepository';
+import { WebdavUserUsage } from '../domain/WebdavUserUsage';
+import { WebdavUserUsageRepository } from '../domain/WebdavUserUsageRepository';
 import { UserUsageLimitDTO } from './dtos/UserUsageLimitDTO';
 
-export class HttpUserUsageRepository implements UserUsageRepository {
+export class HttpUserUsageRepository implements WebdavUserUsageRepository {
+  private cahdedUserUsage: WebdavUserUsage | undefined;
+
   constructor(
     private readonly driveClient: Axios,
     private readonly photosSubmodule: PhotosSubmodule
@@ -34,15 +36,25 @@ export class HttpUserUsageRepository implements UserUsageRepository {
     return response.data.maxSpaceBytes as number;
   }
 
-  async getUsage(): Promise<UserUsage> {
+  async getUsage(): Promise<WebdavUserUsage> {
+    if (this.cahdedUserUsage) return this.cahdedUserUsage;
+
     const drive = await this.getDriveUsage();
     const { usage: photos } = await this.photosSubmodule.getUsage();
     const limit = await this.getLimit();
 
-    return UserUsage.from({
+    const usage = WebdavUserUsage.from({
       drive,
       photos,
       limit,
     });
+
+    this.cahdedUserUsage = usage;
+
+    return usage;
+  }
+
+  async save(usage: WebdavUserUsage) {
+    this.cahdedUserUsage = usage;
   }
 }
