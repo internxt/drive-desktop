@@ -14,6 +14,7 @@ export class WebdavFileDeleter {
 
     const fileDeletedEvent = new FileDeletedDomainEvent({
       aggregateId: file.fileId,
+      size: file.size.value,
     });
 
     this.eventBus.publish([fileDeletedEvent]);

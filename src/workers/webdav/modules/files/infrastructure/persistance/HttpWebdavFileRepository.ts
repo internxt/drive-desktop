@@ -137,8 +137,6 @@ export class HttpWebdavFileRepository implements WebdavFileRepository {
       //rollback
     }
 
-    Logger.debug(result);
-
     const created = WebdavFile.from({
       ...result.data,
       folderId: result.data.folder_id,

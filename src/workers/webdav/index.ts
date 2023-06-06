@@ -1,4 +1,5 @@
 import Logger from 'electron-log';
+import { DependencyContainerFactory } from './dependencyInjection/DependencyContainerFactory';
 import { ipc } from './ipc';
 import { mountDrive, unmountDrive } from './VirtualDrive';
 import { InternxtFileSystemFactory } from './worker/InternxtFileSystem/InternxtFileSystemFactory';
@@ -8,13 +9,15 @@ import { InternxtWebdavServer } from './worker/server';
 const PORT = 1900;
 
 async function setUp() {
-  const fileSystem = await InternxtFileSystemFactory.build();
+  const containerFactory = new DependencyContainerFactory();
+  const container = await containerFactory.build();
 
-  const storageManager = await InternxtStorageManagerFactory.build();
+  const fileSystem = await InternxtFileSystemFactory.build(container);
+  const storageManager = await InternxtStorageManagerFactory.build(container);
 
-  const server = new InternxtWebdavServer(PORT, storageManager);
+  const server = new InternxtWebdavServer(PORT, container, storageManager);
 
-  await server.start([{ path: '/', fs: fileSystem }], { debug: true });
+  await server.start([{ path: '/', fs: fileSystem }], { debug: false });
 
   mountDrive()
     .then(() => {

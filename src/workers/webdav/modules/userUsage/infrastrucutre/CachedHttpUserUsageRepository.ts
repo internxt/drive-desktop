@@ -4,7 +4,9 @@ import { WebdavUserUsage } from '../domain/WebdavUserUsage';
 import { WebdavUserUsageRepository } from '../domain/WebdavUserUsageRepository';
 import { UserUsageLimitDTO } from './dtos/UserUsageLimitDTO';
 
-export class HttpUserUsageRepository implements WebdavUserUsageRepository {
+export class CachedHttpUserUsageRepository
+  implements WebdavUserUsageRepository
+{
   private cahdedUserUsage: WebdavUserUsage | undefined;
 
   constructor(

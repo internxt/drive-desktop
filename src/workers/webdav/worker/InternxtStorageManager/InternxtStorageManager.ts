@@ -8,13 +8,11 @@ import {
   ResourcePropertyValue,
   ResourceType,
 } from 'webdav-server/lib/index.v2';
-import { InternxtStorageManagerDepencyContainer } from './InternxtStorageManagerDepencyContainer';
 import Logger from 'electron-log';
+import { DependencyContainer } from '../../dependencyInjection/DependencyContainer';
 
 export class InternxtStorageManager implements IStorageManager {
-  constructor(
-    private readonly container: InternxtStorageManagerDepencyContainer
-  ) {}
+  constructor(private readonly container: DependencyContainer) {}
 
   reserve(
     _ctx: RequestContext,

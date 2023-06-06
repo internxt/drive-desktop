@@ -25,13 +25,12 @@ import {
   MoveInfo,
   CopyInfo,
   MimeTypeInfo,
-  RequestContext,
 } from 'webdav-server/lib/index.v2';
 import { Readable, Writable } from 'stream';
 import Logger from 'electron-log';
 import { DebugPhysicalSerializer } from './Serializer';
-import { InternxtFileSystemDependencyContainer } from './dependencyInjection/InxtFileSystemDependencyContainer';
 import { handleFileSystemError } from '../error-handling';
+import { DependencyContainer } from '../../dependencyInjection/DependencyContainer';
 
 export class PhysicalFileSystemResource {
   props: LocalPropertyManager;
@@ -55,15 +54,12 @@ export class InternxtFileSystem extends FileSystem {
     [path: string]: PhysicalFileSystemResource;
   };
 
-  constructor(
-    private readonly container: InternxtFileSystemDependencyContainer
-  ) {
+  constructor(private readonly container: DependencyContainer) {
     super(new DebugPhysicalSerializer(container));
 
     this.resources = {
       '/': new PhysicalFileSystemResource(),
     };
-    Logger.debug('CREATED');
   }
 
   _copy(
@@ -183,8 +179,6 @@ export class InternxtFileSystem extends FileSystem {
     ctx: OpenReadStreamInfo,
     callback: ReturnCallback<Readable>
   ): void {
-    Logger.debug('[OPEN READ STREAM]');
-
     this.container.fileDonwloader
       .run(path.toString(false))
       .then((readable: Readable) => {
@@ -209,8 +203,6 @@ export class InternxtFileSystem extends FileSystem {
     ctx: MoveInfo,
     callback: ReturnCallback<boolean>
   ): void {
-    Logger.debug('[FS] MOVE');
-
     const originalItem = this.container.itemSearcher.run(
       pathFrom.toString(false)
     );
@@ -283,7 +275,6 @@ export class InternxtFileSystem extends FileSystem {
     ctx: LockManagerInfo,
     callback: ReturnCallback<ILockManager>
   ): void {
-    Logger.debug('LOCK MANAGER ON :', path.toString());
     this.getPropertyFromResource(path, ctx, 'locks', callback);
   }
 
@@ -292,7 +283,6 @@ export class InternxtFileSystem extends FileSystem {
     ctx: PropertyManagerInfo,
     callback: ReturnCallback<IPropertyManager>
   ): void {
-    Logger.debug('PROPERTY MANAGER ON :', path.toString());
     this.getPropertyFromResource(path, ctx, 'props', callback);
   }
 
@@ -301,7 +291,6 @@ export class InternxtFileSystem extends FileSystem {
     ctx: ReadDirInfo,
     callback: ReturnCallback<string[] | Path[]>
   ): void {
-    Logger.debug('READ');
     try {
       const names = this.container.allItemsLister.run(path.toString(false));
       callback(undefined, names);
