@@ -13,7 +13,7 @@ import Logger from 'electron-log';
 
 export class InternxtStorageManager implements IStorageManager {
   constructor(
-    private readonly dependencies: InternxtStorageManagerDepencyContainer
+    private readonly container: InternxtStorageManagerDepencyContainer
   ) {}
 
   reserve(
@@ -58,7 +58,7 @@ export class InternxtStorageManager implements IStorageManager {
     _fs: FileSystem,
     callback: (available: number) => void
   ): void {
-    this.dependencies.freeUsageCalculator
+    this.container.freeUsageCalculator
       .run()
       .then((space) => {
         callback(space);
@@ -73,10 +73,10 @@ export class InternxtStorageManager implements IStorageManager {
     _fs: FileSystem,
     callback: (reserved: number) => void
   ): void {
-    this.dependencies.userUsageRepository
-      .getUsage()
+    this.container.usedSpaceCalculator
+      .run()
       .then((usage) => {
-        callback(usage.totalInUse());
+        callback(usage);
       })
       .catch(() => {
         Logger.error('Error getting used space');

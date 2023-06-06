@@ -1,24 +1,20 @@
 import { UserUsageRepository } from '../domain/UserUsageRepository';
 import { BytesInBinaryToInternacionalSystem } from './BytesInBinaryToInternacionalSystem';
 
-export class FreeSpacePerEnvironmentCalculator {
+export class UsedSpaceCalculator {
   constructor(private readonly repository: UserUsageRepository) {}
 
   async run(): Promise<number> {
     const usage = await this.repository.getUsage();
 
-    if (usage.isInfinite()) {
-      return -1;
-    }
-
-    const freeSpace = usage.free();
+    const used = usage.totalInUse();
 
     if (process.platform === 'linux')
-      return BytesInBinaryToInternacionalSystem.run(freeSpace);
+      return BytesInBinaryToInternacionalSystem.run(used);
 
     if (process.platform === 'darwin')
-      return BytesInBinaryToInternacionalSystem.run(freeSpace);
+      return BytesInBinaryToInternacionalSystem.run(used);
 
-    return freeSpace;
+    return used;
   }
 }

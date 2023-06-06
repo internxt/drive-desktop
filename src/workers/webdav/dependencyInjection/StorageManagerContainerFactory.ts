@@ -1,6 +1,7 @@
 import PhotosSubmodule from '@internxt/sdk/dist/photos/photos';
 import { ipcRenderer } from 'electron';
 import { FreeSpacePerEnvironmentCalculator } from '../modules/userUsage/application/FreeSpacePerEnvironmentCalculator';
+import { UsedSpaceCalculator } from '../modules/userUsage/application/UsedSpaceCalculator';
 import { HttpUserUsageRepository } from '../modules/userUsage/infrastrucutre/HttpUserUsageRepository';
 import { InternxtStorageManagerDepencyContainer } from '../worker/InternxtStorageManager/InternxtStorageManagerDepencyContainer';
 import { DependencyContainerFactory } from './DependencyContainerFactory';
@@ -27,6 +28,7 @@ class StorageManagerContainerFactory extends DependencyContainerFactory<Internxt
       freeUsageCalculator: new FreeSpacePerEnvironmentCalculator(
         userUsageRepository
       ),
+      usedSpaceCalculator: new UsedSpaceCalculator(userUsageRepository),
     };
   }
 }
