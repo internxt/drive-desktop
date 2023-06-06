@@ -3,6 +3,9 @@ import { WebdavFolderFinder } from '../../folders/application/WebdavFolderFinder
 import { FilePath } from '../domain/FilePath';
 import { WebdavFile } from '../domain/WebdavFile';
 import { WebdavFileRepository } from '../domain/WebdavFileRepository';
+import { FileAlreadyExists } from '../domain/errors/FileAlreadyExists';
+import { UnknownFileAction } from '../domain/errors/UnknownFileAction';
+import { ActionCannotOverwriteFile } from '../domain/errors/ActionCannotOverwriteFile';
 
 export class WebdavFileMover {
   constructor(
@@ -31,6 +34,10 @@ export class WebdavFileMover {
     await this.repository.updateParentDir(moved);
   }
 
+  private noMoreActionsLeft(overwite: never) {
+    if (overwite) throw new UnknownFileAction('WebdavFileMover');
+  }
+
   async run(
     file: WebdavFile,
     to: string,
@@ -43,14 +50,14 @@ export class WebdavFileMover {
       destinationFile !== undefined && destinationFile !== null;
 
     if (hasToBeOverriden && !overwrite) {
-      throw new Error('File already exists');
+      throw new FileAlreadyExists(to);
     }
 
     const destinationFolder = this.folderFinder.run(destination.dirname());
 
     if (file.hasParent(destinationFolder.id)) {
       if (hasToBeOverriden) {
-        throw new Error('Cannot rename a file to an existing file name');
+        throw new ActionCannotOverwriteFile('rename');
       }
 
       await this.rename(file, destination);
@@ -67,6 +74,7 @@ export class WebdavFileMover {
       return true;
     }
 
-    throw new Error('Could not complete file move');
+    this.noMoreActionsLeft(hasToBeOverriden);
+    return false;
   }
 }
