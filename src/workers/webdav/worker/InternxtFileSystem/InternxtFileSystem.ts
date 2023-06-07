@@ -82,7 +82,7 @@ export class InternxtFileSystem extends FileSystem {
 
     if (sourceItem.isFile()) {
       this.container.fileClonner
-        .run(pathFrom.toString(false), pathTo.toString(false), ctx.overwrite)
+        .run(sourceItem, pathTo.toString(false), ctx.overwrite)
         .then((haveBeenOverwritten: boolean) => {
           callback(undefined, haveBeenOverwritten);
         })

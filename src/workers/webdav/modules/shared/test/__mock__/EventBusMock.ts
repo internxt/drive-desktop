@@ -3,10 +3,10 @@ import { WebdavServerEventBus } from '../../domain/WebdavServerEventBus';
 import { DomainEventSubscribers } from '../../infrastructure/DomainEventSubscribers';
 
 export class EventBusMock implements WebdavServerEventBus {
-  private publishSpy = jest.fn();
+  public publishMock = jest.fn();
 
   async publish(events: WebdavDomainEvent[]) {
-    this.publishSpy(events);
+    this.publishMock(events);
   }
 
   addSubscribers(subscribers: DomainEventSubscribers): void {
@@ -14,7 +14,7 @@ export class EventBusMock implements WebdavServerEventBus {
   }
 
   assertLastPublishedEventIs(expectedEvent: WebdavDomainEvent) {
-    const publishSpyCalls = this.publishSpy.mock.calls;
+    const publishSpyCalls = this.publishMock.mock.calls;
 
     expect(publishSpyCalls.length).toBeGreaterThan(0);
 

@@ -4,7 +4,6 @@ import { RemoteFileContentsRepository } from '../domain/FileContentRepository';
 import { WebdavFile } from '../domain/WebdavFile';
 import { WebdavFileRepository } from '../domain/WebdavFileRepository';
 import { WebdavServerEventBus } from '../../shared/domain/WebdavServerEventBus';
-import { FileNotFoundError } from '../domain/errors/FileNotFoundError';
 import { FileAlreadyExistsError } from '../domain/errors/FileAlreadyExistsError';
 
 export class WebdavFileClonner {
@@ -24,6 +23,8 @@ export class WebdavFileClonner {
 
     await this.repository.delete(destinationFile);
     await this.repository.add(newFile);
+
+    await this.eventBus.publish(newFile.pullDomainEvents());
   }
 
   private async copy(file: WebdavFile, path: FilePath) {
@@ -35,20 +36,14 @@ export class WebdavFileClonner {
 
     await this.repository.add(clonned);
 
-    this.eventBus.publish(clonned.pullDomainEvents());
+    await this.eventBus.publish(clonned.pullDomainEvents());
   }
 
   async run(
-    origin: string,
+    originFile: WebdavFile,
     destination: string,
     overwrite: boolean
   ): Promise<boolean> {
-    const originFile = this.repository.search(origin);
-
-    if (!originFile) {
-      throw new FileNotFoundError(origin);
-    }
-
     const destinationFile = this.repository.search(destination);
 
     if (destinationFile && !overwrite) {

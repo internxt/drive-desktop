@@ -190,6 +190,22 @@ export class WebdavFile extends AggregateRoot {
       new Date()
     );
 
+    replaced.record(
+      new FileCreatedDomainEvent({
+        aggregateId: fileId,
+        size: file.size.value,
+        type: file.type,
+      })
+    );
+
+    replaced.record(
+      new FileCreatedDomainEvent({
+        aggregateId: this.fileId,
+        size: this.size.value,
+        type: this.type,
+      })
+    );
+
     return replaced;
   }
 
