@@ -2,6 +2,7 @@ import { WebdavFolderFinder } from '../../../folders/application/WebdavFolderFin
 import { WebdavFolderMother } from '../../../folders/test/domain/WebdavFolderMother';
 import { WebdavFolderRepositoryMock } from '../../../folders/test/__mocks__/WebdavFolderRepositoryMock';
 import { WebdavFileMover } from '../../application/WebdavFileMover';
+import { FileAlreadyExistsError } from '../../domain/errors/FileAlreadyExistsError';
 import { WebdavFileMother } from '../domain/WebdavFileMother';
 import { WebdavFileRepositoryMock } from '../__mocks__/WebdavFileRepositoyMock';
 
@@ -53,7 +54,7 @@ describe('Webdav File Mover', () => {
         expect(hasBeenOverwritten).not.toBeDefined();
       } catch (err) {
         expect(err).toBeDefined();
-        expect((err as Error).message).toBe('File already exists');
+        expect(err instanceof FileAlreadyExistsError).toBe(true);
       }
 
       expect(folderRepository.mockSearch).not.toHaveBeenCalled();

@@ -6,7 +6,7 @@ import { WebdavFile } from './WebdavFile';
 export interface RemoteFileContentsRepository {
   clone(file: WebdavFile): Promise<WebdavFile['fileId']>;
 
-  download(fileId: WebdavFile): Promise<RemoteFileContents>;
+  download(file: WebdavFile): Promise<RemoteFileContents>;
 
   upload(size: FileSize, contents: Readable): Promise<WebdavFile['fileId']>;
 }

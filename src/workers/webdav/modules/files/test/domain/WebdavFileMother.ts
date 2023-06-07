@@ -9,7 +9,7 @@ export class WebdavFileMother {
       modificationTime: new Date().toISOString(),
       name: 'Dilbusege',
       path: `/${path}/Dilbusege.png`,
-      size: 89392497343943580,
+      size: 8939,
       type: 'png',
       updatedAt: new Date().toISOString(),
     });
@@ -23,7 +23,7 @@ export class WebdavFileMother {
       modificationTime: new Date().toISOString(),
       name: 'Dilbusege',
       path: '/Vakwogfud/Dilbusege.png',
-      size: 89392497343943580,
+      size: 893924973,
       type: 'png',
       updatedAt: new Date().toISOString(),
     });

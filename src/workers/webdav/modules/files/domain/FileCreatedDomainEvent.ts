@@ -1,6 +1,6 @@
 import { WebdavDomainEvent } from '../../shared/domain/WebdavDomainEvent';
 
-type CreateWebdavFileDomainEventAttributes = {
+export type CreatedWebdavFileDomainEventAttributes = {
   readonly size: number;
   readonly type: string;
 };
@@ -31,7 +31,7 @@ export class FileCreatedDomainEvent extends WebdavDomainEvent {
     this.type = type;
   }
 
-  toPrimitives(): CreateWebdavFileDomainEventAttributes {
+  toPrimitives(): CreatedWebdavFileDomainEventAttributes {
     const { size, type } = this;
 
     return { size, type };

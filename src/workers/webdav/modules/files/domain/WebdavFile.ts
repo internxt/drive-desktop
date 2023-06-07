@@ -3,6 +3,11 @@ import { WebdavFolder } from '../../folders/domain/WebdavFolder';
 import { FilePath } from './FilePath';
 import { FileSize } from './FileSize';
 import { FileCreatedDomainEvent } from './FileCreatedDomainEvent';
+import { FileCannotBeMovedToTheOriginalFolderError } from './errors/FileCannotBeMovedToTheOriginalFolderError';
+import { FileActionOnlyCanAffectOneLevelError } from './errors/FileActionOnlyCanAffectOneLevelError';
+import { FileNameShouldDifferFromOriginalError } from './errors/FileNameShouldDifferFromOriginalError';
+import { FileActionCannotModifyExtension } from './errors/FileActionCannotModifyExtension';
+import { FileNameShouldBeEqualToOriginalError } from './errors/FileNameShouldBeEqualToOriginalError';
 
 export type WebdavFileAtributes = {
   fileId: string;
@@ -76,7 +81,7 @@ export class WebdavFile extends AggregateRoot {
 
   moveTo(folder: WebdavFolder): WebdavFile {
     if (this.folderId === folder.id) {
-      throw new Error('Cannot move a file to its current folder');
+      throw new FileCannotBeMovedToTheOriginalFolderError(this.path.value);
     }
 
     const basePath = folder.path.value;
@@ -100,11 +105,11 @@ export class WebdavFile extends AggregateRoot {
 
   clone(fileId: string, folderId: number, newPath: FilePath) {
     if (!this.path.hasSameDirname(newPath)) {
-      throw new Error('A file rename should mantain the current estructure');
+      throw new FileActionOnlyCanAffectOneLevelError('clone');
     }
 
     if (this.path.hasSameName(newPath)) {
-      throw new Error('Cannot rename a file to the same name');
+      throw new FileNameShouldDifferFromOriginalError('clone');
     }
 
     const newName = newPath.name();
@@ -134,15 +139,15 @@ export class WebdavFile extends AggregateRoot {
 
   rename(newPath: FilePath) {
     if (!this.path.hasSameDirname(newPath)) {
-      throw new Error('A file rename should mantain the current estructure');
+      throw new FileActionOnlyCanAffectOneLevelError('rename');
     }
 
     if (newPath.extension() !== this.type) {
-      throw new Error('A file reanme cannot change the extension');
+      throw new FileActionCannotModifyExtension('rename');
     }
 
     if (this.path.hasSameName(newPath)) {
-      throw new Error('Cannot rename a file to the same name');
+      throw new FileNameShouldDifferFromOriginalError('rename');
     }
 
     const newName = newPath.name();
@@ -160,17 +165,17 @@ export class WebdavFile extends AggregateRoot {
     );
   }
 
-  override(file: WebdavFile, fileId: string) {
+  overwrite(file: WebdavFile, fileId: string) {
     if (this.name !== file.name) {
-      throw new Error('Cannot replace file with diferent name');
+      throw new FileNameShouldBeEqualToOriginalError('overwrite');
     }
 
     if (!this.path.equals(file.path)) {
-      throw new Error('Cannot replace file with diferent pathnames');
+      throw new FileActionOnlyCanAffectOneLevelError('overwrite');
     }
 
     if (this.type !== file.type) {
-      throw new Error('Cannot replace file with diferent types');
+      throw new FileActionCannotModifyExtension('overwrite');
     }
 
     const replaced = new WebdavFile(

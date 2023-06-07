@@ -31,6 +31,10 @@ import Logger from 'electron-log';
 import { DebugPhysicalSerializer } from './Serializer';
 import { handleFileSystemError } from '../error-handling';
 import { DependencyContainer } from '../../dependencyInjection/DependencyContainer';
+import { FileActionCannotModifyExtension } from '../../modules/files/domain/errors/FileActionCannotModifyExtension';
+import { FileActionOnlyCanAffectOneLevelError } from '../../modules/files/domain/errors/FileActionOnlyCanAffectOneLevelError';
+import { FileNameShouldDifferFromOriginalError } from '../../modules/files/domain/errors/FileNameShouldDifferFromOriginalError';
+import { FileCannotBeMovedToTheOriginalFolderError } from '../../modules/files/domain/errors/FileCannotBeMovedToTheOriginalFolderError';
 
 export class PhysicalFileSystemResource {
   props: LocalPropertyManager;
@@ -216,7 +220,6 @@ export class InternxtFileSystem extends FileSystem {
         this.resources[originalItem.path.value];
 
       delete this.resources[originalItem.path.value];
-      // this.repository.deleteCachedItem(originalItem);
     };
 
     if (originalItem.isFile()) {
@@ -227,7 +230,24 @@ export class InternxtFileSystem extends FileSystem {
           callback(undefined, hasBeenOverriden);
         })
         .catch((error: Error) => {
-          handleFileSystemError(error, 'create file', ctx);
+          handleFileSystemError(error, 'move file', ctx);
+
+          if (error instanceof FileCannotBeMovedToTheOriginalFolderError) {
+            return callback(Errors.IllegalArguments);
+          }
+
+          if (error instanceof FileActionCannotModifyExtension) {
+            return callback(Errors.InvalidOperation);
+          }
+
+          if (error instanceof FileActionOnlyCanAffectOneLevelError) {
+            return callback(Errors.InvalidOperation);
+          }
+
+          if (error instanceof FileNameShouldDifferFromOriginalError) {
+            return callback(Errors.IllegalArguments);
+          }
+
           callback(error);
         });
 
@@ -242,7 +262,7 @@ export class InternxtFileSystem extends FileSystem {
           callback(undefined, false);
         })
         .catch((error: Error) => {
-          handleFileSystemError(error, 'create file', ctx);
+          handleFileSystemError(error, 'move folder', ctx);
           callback(error);
         });
       return;

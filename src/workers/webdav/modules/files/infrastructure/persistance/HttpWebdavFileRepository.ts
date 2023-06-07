@@ -164,7 +164,15 @@ export class HttpWebdavFileRepository implements WebdavFileRepository {
       );
     }
 
-    await this.init();
+    const oldFile = Object.values(this.items).filter(
+      (file) => file.fileId === item.fileId
+    )[0];
+
+    if (oldFile) {
+      delete this.items[oldFile.path.value];
+    }
+
+    this.items[item.path.value] = item;
   }
 
   async updateParentDir(item: WebdavFile): Promise<void> {

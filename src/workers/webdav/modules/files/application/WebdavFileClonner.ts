@@ -20,7 +20,7 @@ export class WebdavFileClonner {
 
   private async overwrite(file: WebdavFile, destinationFile: WebdavFile) {
     const clonnedFileId = await this.contentRepository.clone(file);
-    const newFile = destinationFile.override(file, clonnedFileId);
+    const newFile = destinationFile.overwrite(file, clonnedFileId);
 
     await this.repository.delete(destinationFile);
     await this.repository.add(newFile);
