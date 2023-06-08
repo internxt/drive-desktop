@@ -1,7 +1,7 @@
 import { PassThrough, Writable } from 'stream';
 import { WebdavFolderFinder } from '../../folders/application/WebdavFolderFinder';
 import { FilePath } from '../domain/FilePath';
-import { RemoteFileContentsRepository } from '../domain/FileContentRepository';
+import { RemoteFileContentsRepository } from '../domain/RemoteFileContentsRepository';
 import { ItemMetadata } from '../../shared/domain/ItemMetadata';
 import { FileMetadataCollection } from '../domain/FileMetadataCollection';
 import { WebdavFile } from '../domain/WebdavFile';
@@ -36,7 +36,13 @@ export class WebdavFileCreator {
     return file;
   }
 
-  async run(path: string, size: number): Promise<Writable> {
+  async run(
+    path: string,
+    size: number
+  ): Promise<{
+    stream: Writable;
+    upload: Promise<WebdavFile['fileId']>;
+  }> {
     const fileSize = new FileSize(size);
     const filePath = new FilePath(path);
 
@@ -66,6 +72,9 @@ export class WebdavFileCreator {
         // TODO: comunicate somehow this error happened
       });
 
-    return stream;
+    return {
+      stream,
+      upload,
+    };
   }
 }

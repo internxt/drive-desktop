@@ -15,7 +15,7 @@ describe('Webdav File Creator', () => {
   let folderRepository: WebdavFolderRepositoryMock;
   let contentsRepository: FileContentRepositoryMock;
   let temporalFileCollection: FileMetadataCollection;
-  let eventBus: WebdavServerEventBus;
+  let eventBus: EventBusMock;
 
   let SUT: WebdavFileCreator;
 
@@ -59,6 +59,31 @@ describe('Webdav File Creator', () => {
     expect(fileReposiotry.mockAdd.mock.calls[0][0].folderId).toBe(folder.id);
   });
 
+  it('once the file entry is created the creation event should have been emitted', async () => {
+    const path = '/cat.png';
+    const size = 9715019333;
+    const createdFileId = 'd37800fc-43c8-529a-b02b-d41059921a15';
+
+    const folder = WebdavFolderMother.any();
+
+    folderRepository.mockSearch.mockReturnValueOnce(folder);
+    contentsRepository.mockUpload.mockResolvedValueOnce(createdFileId);
+    fileReposiotry.mockAdd.mockImplementationOnce(() => {
+      // returns Promise<void>
+    });
+
+    const { upload } = await SUT.run(path, size);
+
+    await upload;
+
+    expect(eventBus.publishMock.mock.calls[0][0][0].eventName).toBe(
+      'webdav.file.created'
+    );
+    expect(eventBus.publishMock.mock.calls[0][0][0].aggregateId).toBe(
+      'webdav.file.created'
+    );
+  });
+
   it('returns a writable stream when the file folder where is going to be created exists', async () => {
     const path = '/cat.png';
     const size = 9715019333;
@@ -68,7 +93,7 @@ describe('Webdav File Creator', () => {
     folderRepository.mockSearch.mockReturnValueOnce(folder);
     contentsRepository.mockUpload.mockResolvedValueOnce('');
 
-    const stream = await SUT.run(path, size);
+    const { stream } = await SUT.run(path, size);
 
     expect(stream.writable).toBe(true);
   });

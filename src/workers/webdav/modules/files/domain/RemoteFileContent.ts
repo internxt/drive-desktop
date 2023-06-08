@@ -8,12 +8,12 @@ export class RemoteFileContents extends AggregateRoot {
     public readonly id: string,
     public readonly size: number,
     public readonly type: string,
-    public readonly contents: Readable
+    public readonly stream: Readable
   ) {
     super();
   }
 
-  static retrive(file: WebdavFile, contents: Readable): RemoteFileContents {
+  static preview(file: WebdavFile, contents: Readable): RemoteFileContents {
     const remoteContents = new RemoteFileContents(
       file.fileId,
       file.size.value,

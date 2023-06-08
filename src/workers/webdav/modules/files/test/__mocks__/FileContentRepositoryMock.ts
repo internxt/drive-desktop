@@ -1,7 +1,6 @@
 import { Readable } from 'stream';
-import { RemoteFileContentsRepository } from '../../domain/FileContentRepository';
+import { RemoteFileContentsRepository } from '../../domain/RemoteFileContentsRepository';
 import { FileSize } from '../../domain/FileSize';
-import { RemoteFileContents } from '../../domain/RemoteFileContent';
 import { WebdavFile } from '../../domain/WebdavFile';
 
 export class FileContentRepositoryMock implements RemoteFileContentsRepository {
@@ -13,7 +12,7 @@ export class FileContentRepositoryMock implements RemoteFileContentsRepository {
     return this.mockClone(file);
   }
 
-  download(file: WebdavFile): Promise<RemoteFileContents> {
+  download(file: WebdavFile): Promise<Readable> {
     return this.mockDownload(file);
   }
 

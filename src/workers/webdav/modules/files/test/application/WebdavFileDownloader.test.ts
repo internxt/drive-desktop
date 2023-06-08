@@ -5,7 +5,6 @@ import { WebdavFileDownloader } from '../../application/WebdavFileDownloader';
 import { WebdavFileMother } from '../domain/WebdavFileMother';
 import { FileContentRepositoryMock } from '../__mocks__/FileContentRepositoryMock';
 import { WebdavFileRepositoryMock } from '../__mocks__/WebdavFileRepositoyMock';
-import { RemoteFileContents } from '../../domain/RemoteFileContent';
 
 describe('Webdav File Downloader', () => {
   let repository: WebdavFileRepositoryMock;
@@ -24,10 +23,8 @@ describe('Webdav File Downloader', () => {
     const folderPath = 'Omuseha/Ufbihtot/Wukwige';
     const file = WebdavFileMother.onFolderName(folderPath);
 
-    const remoteContents = RemoteFileContents.retrive(file, new Readable());
-
     repository.mockSearch.mockReturnValueOnce(file);
-    contentsRepository.mockDownload.mockResolvedValueOnce(remoteContents);
+    contentsRepository.mockDownload.mockResolvedValueOnce(new Readable());
 
     const readable = await SUT.run(file.path.value);
 

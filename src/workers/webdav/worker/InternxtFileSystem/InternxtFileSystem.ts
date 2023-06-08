@@ -35,6 +35,7 @@ import { FileActionCannotModifyExtension } from '../../modules/files/domain/erro
 import { FileActionOnlyCanAffectOneLevelError } from '../../modules/files/domain/errors/FileActionOnlyCanAffectOneLevelError';
 import { FileNameShouldDifferFromOriginalError } from '../../modules/files/domain/errors/FileNameShouldDifferFromOriginalError';
 import { FileCannotBeMovedToTheOriginalFolderError } from '../../modules/files/domain/errors/FileCannotBeMovedToTheOriginalFolderError';
+import { RemoteFileContents } from '../../modules/files/domain/RemoteFileContent';
 
 export class PhysicalFileSystemResource {
   props: LocalPropertyManager;
@@ -169,8 +170,8 @@ export class InternxtFileSystem extends FileSystem {
 
     this.container.fileCreator
       .run(path.toString(false), ctx.estimatedSize)
-      .then((writable: Writable) => {
-        callback(undefined, writable);
+      .then(({ stream }: { stream: Writable }) => {
+        callback(undefined, stream);
       })
       .catch((error: Error) => {
         handleFileSystemError(error, 'create file', ctx);
@@ -185,8 +186,8 @@ export class InternxtFileSystem extends FileSystem {
   ): void {
     this.container.fileDonwloader
       .run(path.toString(false))
-      .then((readable: Readable) => {
-        callback(undefined, readable);
+      .then((remoteFileContents: RemoteFileContents) => {
+        callback(undefined, remoteFileContents.stream);
       })
       .catch((err: unknown) => {
         throw err;

@@ -1,6 +1,6 @@
 import { WebdavFolderFinder } from '../../folders/application/WebdavFolderFinder';
 import { FilePath } from '../domain/FilePath';
-import { RemoteFileContentsRepository } from '../domain/FileContentRepository';
+import { RemoteFileContentsRepository } from '../domain/RemoteFileContentsRepository';
 import { WebdavFile } from '../domain/WebdavFile';
 import { WebdavFileRepository } from '../domain/WebdavFileRepository';
 import { WebdavServerEventBus } from '../../shared/domain/WebdavServerEventBus';
