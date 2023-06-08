@@ -8,7 +8,6 @@ import { WebdavFile } from '../../domain/WebdavFile';
 import { WebdavFileRepository } from '../../domain/WebdavFileRepository';
 import * as uuid from 'uuid';
 import { Traverser } from '../../../../modules/items/application/Traverser';
-import Logger from 'electron-log';
 import { AddFileDTO } from './dtos/AddFileDTO';
 import { UpdateFileParentDirDTO } from './dtos/UpdateFileParentDirDTO';
 import { UpdateFileNameDTO } from './dtos/UpdateFileNameDTO';
@@ -104,7 +103,7 @@ export class HttpWebdavFileRepository implements WebdavFileRepository {
 
   async add(file: WebdavFile): Promise<void> {
     const encryptedName = crypt.encryptName(
-      file.name,
+      file.path.name(),
       file.folderId.toString()
     );
 
@@ -120,7 +119,7 @@ export class HttpWebdavFileRepository implements WebdavFileRepository {
         file_id: file.fileId,
         folder_id: file.folderId,
         name: encryptedName,
-        plain_name: file.name,
+        plain_name: file.path.name(),
         size: file.size.value,
         type: file.type,
         modificationTime: Date.now(),
@@ -151,7 +150,7 @@ export class HttpWebdavFileRepository implements WebdavFileRepository {
     const url = `${process.env.API_URL}/api/storage/file/${item.fileId}/meta`;
 
     const body: UpdateFileNameDTO = {
-      metadata: { itemName: item.name },
+      metadata: { itemName: item.path.name() },
       bucketId: this.bucket,
       relativePath: uuid.v4(),
     };
