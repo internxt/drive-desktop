@@ -27,6 +27,7 @@ import {
   MimeTypeInfo,
 } from 'webdav-server/lib/index.v2';
 import { Readable, Writable } from 'stream';
+import { ipcRenderer } from 'electron';
 import Logger from 'electron-log';
 import { DebugPhysicalSerializer } from './Serializer';
 import { InternxtFileSystemDependencyContainer } from './dependencyInjection/InxtFileSystemDependencyContainer';
@@ -157,7 +158,7 @@ export class InternxtFileSystem extends FileSystem {
             errorDetails: err,
             process: 'SYNC',
           });
-          callback(Errors.InvalidOperation)
+          callback(Errors.InvalidOperation);
         });
       return;
     }
@@ -223,13 +224,55 @@ export class InternxtFileSystem extends FileSystem {
   ): void {
     Logger.debug('[OPEN READ STREAM]');
 
+    ipcRenderer.send('SYNC_INFO_UPDATE', {
+      action: 'PULL',
+      kind: 'LOCAL',
+      name: path.fileName(),
+    });
+
     this.dependencyContainer.fileDonwloader
       .run(path.toString(false))
       .then((readable: Readable) => {
+        const totalLength = ctx.estimatedSize;
+        let uploadedSize = 0;
+        readable.on('data', (chunk) => {
+          uploadedSize += chunk.length || 0;
+          ipcRenderer.send('SYNC_INFO_UPDATE', {
+            action: 'PULL',
+            kind: 'LOCAL',
+            progress: (uploadedSize / totalLength),
+            name: path.fileName(),
+          });
+        });
+        readable.on('end', () => {
+          ipcRenderer.send('SYNC_INFO_UPDATE', {
+            action: 'PULLED',
+            kind: 'LOCAL',
+            name: path.fileName(),
+          });
+        });
+        readable.on('error', (err) => {
+          ipcRenderer.send('SYNC_INFO_UPDATE', {
+            action: 'PULL_ERROR',
+            kind: 'LOCAL',
+            name: path.fileName(),
+            errorName: err.name,
+            errorDetails: err.message,
+            process: 'SYNC',
+          });
+        });
         callback(undefined, readable);
       })
       .catch((err: unknown) => {
         Logger.error('[FS] Error downloading a file ', err);
+        ipcRenderer.send('SYNC_INFO_UPDATE', {
+          action: 'PULL_ERROR',
+          kind: 'LOCAL',
+          name: path.fileName(),
+          errorName: 'Pull Error',
+          errorDetails: err,
+          process: 'SYNC',
+        });
         throw err;
       });
   }
