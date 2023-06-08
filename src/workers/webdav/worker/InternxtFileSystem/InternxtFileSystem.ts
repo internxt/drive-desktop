@@ -88,7 +88,7 @@ export class InternxtFileSystem extends FileSystem {
           callback(undefined, haveBeenOverwritten);
         })
         .catch((error: Error) => {
-          handleFileSystemError(error, 'copy file', ctx);
+          handleFileSystemError(error, 'Upload', 'File', ctx);
           callback(error);
         });
 
@@ -108,7 +108,7 @@ export class InternxtFileSystem extends FileSystem {
           callback();
         })
         .catch((error: Error) => {
-          handleFileSystemError(error, 'create file', ctx);
+          handleFileSystemError(error, 'Upload', 'Folder', ctx);
           callback(error);
         });
       return;
@@ -138,7 +138,7 @@ export class InternxtFileSystem extends FileSystem {
           callback(undefined);
         })
         .catch((error: Error) => {
-          handleFileSystemError(error, 'create file', ctx);
+          handleFileSystemError(error, 'Delete', 'File', ctx);
           callback(error);
         });
       return;
@@ -149,7 +149,7 @@ export class InternxtFileSystem extends FileSystem {
         .run(item)
         .then(() => callback())
         .catch((error: Error) => {
-          handleFileSystemError(error, 'create file', ctx);
+          handleFileSystemError(error, 'Delete', 'Folder', ctx);
           callback(error);
         });
     }
@@ -166,15 +166,13 @@ export class InternxtFileSystem extends FileSystem {
       this.resources[path.toString(false)] = new PhysicalFileSystemResource();
     }
 
-    Logger.debug('WRITE STEAM ON ', path.toString(false));
-
     this.container.fileCreator
       .run(path.toString(false), ctx.estimatedSize)
       .then(({ stream }: { stream: Writable }) => {
         callback(undefined, stream);
       })
       .catch((error: Error) => {
-        handleFileSystemError(error, 'create file', ctx);
+        handleFileSystemError(error, 'Upload', 'File', ctx);
         callback(error);
       });
   }
@@ -189,18 +187,10 @@ export class InternxtFileSystem extends FileSystem {
       .then((remoteFileContents: RemoteFileContents) => {
         callback(undefined, remoteFileContents.stream);
       })
-      .catch((err: unknown) => {
-        throw err;
+      .catch((error: Error) => {
+        handleFileSystemError(error, 'Download', 'File', ctx);
       });
   }
-
-  // The _rename method is not being called, instead the _move method is called
-  // _rename(
-  //   pathFrom: Path,
-  //   newName: string,
-  //   ctx: RenameInfo,
-  //   callback: ReturnCallback<boolean>
-  // ) {}
 
   _move(
     pathFrom: Path,
@@ -231,7 +221,7 @@ export class InternxtFileSystem extends FileSystem {
           callback(undefined, hasBeenOverriden);
         })
         .catch((error: Error) => {
-          handleFileSystemError(error, 'move file', ctx);
+          handleFileSystemError(error, 'Move', 'File', ctx);
 
           if (error instanceof FileCannotBeMovedToTheOriginalFolderError) {
             return callback(Errors.IllegalArguments);
@@ -263,7 +253,7 @@ export class InternxtFileSystem extends FileSystem {
           callback(undefined, false);
         })
         .catch((error: Error) => {
-          handleFileSystemError(error, 'move folder', ctx);
+          handleFileSystemError(error, 'Move', 'Folder', ctx);
           callback(error);
         });
       return;
@@ -319,7 +309,7 @@ export class InternxtFileSystem extends FileSystem {
       const e =
         error instanceof Error ? error : new Error('Error reading directory');
 
-      handleFileSystemError(e, 'create file', ctx);
+      handleFileSystemError(e, 'Download', 'Folder', ctx);
       callback(e);
     }
   }

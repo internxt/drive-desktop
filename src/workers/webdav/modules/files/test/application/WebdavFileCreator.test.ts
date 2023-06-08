@@ -80,7 +80,7 @@ describe('Webdav File Creator', () => {
       'webdav.file.created'
     );
     expect(eventBus.publishMock.mock.calls[0][0][0].aggregateId).toBe(
-      'webdav.file.created'
+      createdFileId
     );
   });
 

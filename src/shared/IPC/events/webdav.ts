@@ -1,14 +1,20 @@
-export type TrackedWebdavServerSuccefullEvents =
-  | 'Delete'
-  | 'Upload'
-  | 'Download'
-  | 'Preview';
+const trackedEvents = [
+  'delete',
+  'upload',
+  'download',
+  'preview',
+  'move',
+] as const;
+export type TrackedWebdavServerEvents = Capitalize<
+  (typeof trackedEvents)[number]
+>;
 
 export type TrackedWebdavServerErrorEvents =
-  `${TrackedWebdavServerSuccefullEvents} Error`;
+  `${TrackedWebdavServerEvents} Error`;
 
 export type WebdavErrorContext = {
-  action: TrackedWebdavServerSuccefullEvents;
+  action: TrackedWebdavServerEvents;
+  itemType: 'File' | 'Folder';
   from: string;
   root: string;
 };

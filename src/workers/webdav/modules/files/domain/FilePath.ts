@@ -50,4 +50,11 @@ export class FilePath extends WebdavPath {
 
     return dirname === otherDirname;
   }
+
+  equals(other: FilePath): boolean {
+    return (
+      other.constructor.name === this.constructor.name &&
+      other.value === this.value
+    );
+  }
 }

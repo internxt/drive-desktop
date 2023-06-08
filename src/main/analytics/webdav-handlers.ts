@@ -49,7 +49,7 @@ function subscribeToServerEvents() {
     'WEBDAV_ACTION_ERROR',
     (_, error: Error, ctx: WebdavErrorContext) => {
       const errorName = `${ctx.action} Error` as const;
-      trackWebdavError(errorName, error, ctx.from);
+      trackWebdavError(errorName, error, ctx);
     }
   );
 }

@@ -59,7 +59,7 @@ describe('Webdav File Clonner', () => {
       expect(fileReposiotry.mockAdd.mock.calls[0][0].fileId).toBe(
         clonnedFileId
       );
-      expect(fileReposiotry.mockAdd.mock.calls[0][0].path).toStrictEqual(
+      expect(fileReposiotry.mockAdd.mock.calls[0][0].path).toEqual(
         destinationPath
       );
       expect(eventBus.publishMock).toBeCalled();

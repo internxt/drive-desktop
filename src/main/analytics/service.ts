@@ -5,7 +5,8 @@ import os from 'os';
 import Logger from 'electron-log';
 import {
   TrackedWebdavServerErrorEvents,
-  TrackedWebdavServerSuccefullEvents,
+  TrackedWebdavServerEvents,
+  WebdavErrorContext,
 } from '../../shared/IPC/events/webdav';
 
 function platformShortName(platform: string) {
@@ -253,7 +254,7 @@ export function backupError(
 }
 
 export function trackWebdavEvent(
-  event: TrackedWebdavServerSuccefullEvents,
+  event: TrackedWebdavServerEvents,
   properties: Record<string, any>
 ) {
   const { uuid: userId } = ConfigStore.get('userData');
@@ -275,26 +276,15 @@ export function trackWebdavEvent(
 export function trackWebdavError(
   event: TrackedWebdavServerErrorEvents,
   error: Error,
-  itemPath?: string
+  context: WebdavErrorContext
 ) {
   const { uuid: userId } = ConfigStore.get('userData');
 
-  const properties =
-    itemPath !== undefined
-      ? {
-          item: itemPath,
-          error: error.message,
-        }
-      : {
-          error: error.message,
-        };
-
-  Logger.debug('Tracked error', {
-    userId,
-    event: event,
-    properties,
-    context: deviceContext,
-  });
+  const properties = {
+    item: context.from,
+    type: context.itemType,
+    error: error.message,
+  };
 
   client.track({
     userId,
