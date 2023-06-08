@@ -59,7 +59,7 @@ describe('Webdav File Clonner', () => {
         destinationPath
       );
       expect(eventBus.publishMock).toBeCalled();
-      expect(eventBus.publishMock.mock.calls[0][0].length).toBe(2);
+      expect(eventBus.publishMock).toBeCalledTimes(2);
     });
 
     it('fails when the destination path already exists and overwrite flag is not set', async () => {

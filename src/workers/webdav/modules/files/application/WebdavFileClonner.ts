@@ -17,14 +17,27 @@ export class WebdavFileClonner {
     private readonly eventBus: WebdavServerEventBus
   ) {}
 
-  private async overwrite(file: WebdavFile, destinationFile: WebdavFile) {
-    const clonnedFileId = await this.contentRepository.clone(file);
-    const newFile = destinationFile.overwrite(file, clonnedFileId);
+  private async overwrite(
+    file: WebdavFile,
+    fileOverwritted: WebdavFile,
+    destinationPath: FilePath
+  ) {
+    const destinationFolder = this.folderFinder.run(fileOverwritted.dirname);
 
-    await this.repository.delete(destinationFile);
+    const clonnedFileId = await this.contentRepository.clone(file);
+    const newFile = file.overwrite(
+      clonnedFileId,
+      destinationFolder.id,
+      destinationPath
+    );
+
+    fileOverwritted.trash();
+
+    await this.repository.delete(fileOverwritted);
     await this.repository.add(newFile);
 
     await this.eventBus.publish(newFile.pullDomainEvents());
+    await this.eventBus.publish(fileOverwritted.pullDomainEvents());
   }
 
   private async copy(file: WebdavFile, path: FilePath) {
@@ -44,18 +57,18 @@ export class WebdavFileClonner {
     destination: string,
     overwrite: boolean
   ): Promise<boolean> {
-    const destinationFile = this.repository.search(destination);
+    const destinationPath = new FilePath(destination);
+
+    const destinationFile = this.repository.search(destinationPath);
 
     if (destinationFile && !overwrite) {
       throw new FileAlreadyExistsError(destination);
     }
 
     if (destinationFile) {
-      await this.overwrite(originFile, destinationFile);
+      await this.overwrite(originFile, destinationFile, destinationPath);
       return WebdavFileClonner.FILE_OVERRIDED;
     }
-
-    const destinationPath = new FilePath(destination);
 
     await this.copy(originFile, destinationPath);
     return WebdavFileClonner.FILE_NOT_OVERRIDED;

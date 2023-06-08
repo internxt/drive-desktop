@@ -5,6 +5,7 @@ import { WebdavFileDownloader } from '../../application/WebdavFileDownloader';
 import { WebdavFileMother } from '../domain/WebdavFileMother';
 import { FileContentRepositoryMock } from '../__mocks__/FileContentRepositoryMock';
 import { WebdavFileRepositoryMock } from '../__mocks__/WebdavFileRepositoyMock';
+import { FilePath } from '../../domain/FilePath';
 
 describe('Webdav File Downloader', () => {
   let repository: WebdavFileRepositoryMock;
@@ -30,7 +31,7 @@ describe('Webdav File Downloader', () => {
 
     expect(readable).toBeDefined();
 
-    expect(repository.mockSearch).toHaveBeenCalledWith(file.path);
+    expect(repository.mockSearch).toHaveBeenCalledWith(new FilePath(file.path));
     expect(contentsRepository.mockDownload).toHaveBeenCalledWith(file);
   });
 

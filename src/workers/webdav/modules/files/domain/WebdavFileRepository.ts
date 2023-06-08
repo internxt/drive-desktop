@@ -1,9 +1,10 @@
 import { WebdavFile } from './WebdavFile';
 import { Nullable } from '../../../../../shared/types/Nullable';
 import { WebdavFolderAttributes } from '../../folders/domain/WebdavFolder';
+import { FilePath } from './FilePath';
 
 export interface WebdavFileRepository {
-  search(pathLike: string): Nullable<WebdavFile>;
+  search(pathLike: FilePath): Nullable<WebdavFile>;
 
   delete(file: WebdavFile): Promise<void>;
 

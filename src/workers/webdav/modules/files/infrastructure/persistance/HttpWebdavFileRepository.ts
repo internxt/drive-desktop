@@ -11,6 +11,7 @@ import { Traverser } from '../../../../modules/items/application/Traverser';
 import { AddFileDTO } from './dtos/AddFileDTO';
 import { UpdateFileParentDirDTO } from './dtos/UpdateFileParentDirDTO';
 import { UpdateFileNameDTO } from './dtos/UpdateFileNameDTO';
+import { FilePath } from '../../domain/FilePath';
 
 export class HttpWebdavFileRepository implements WebdavFileRepository {
   private files: Record<string, WebdavFile> = {};
@@ -77,8 +78,8 @@ export class HttpWebdavFileRepository implements WebdavFileRepository {
     }, {} as Record<string, WebdavFile>);
   }
 
-  search(pathLike: string): Nullable<WebdavFile> {
-    const item = this.files[pathLike];
+  search(path: FilePath): Nullable<WebdavFile> {
+    const item = this.files[path.value];
 
     return item;
   }

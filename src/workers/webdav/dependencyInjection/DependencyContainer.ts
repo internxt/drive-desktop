@@ -3,7 +3,6 @@ import { WebdavFileClonner } from '../modules/files/application/WebdavFileClonne
 import { WebdavFileCreator } from '../modules/files/application/WebdavFileCreator';
 import { WebdavFileDeleter } from '../modules/files/application/WebdavFileDeleter';
 import { WebdavFileDownloader } from '../modules/files/application/WebdavFileDownloader';
-import { WebdavFileExists } from '../modules/files/application/WebdavFileExists';
 import { WebdavFileMimeTypeResolver } from '../modules/files/application/WebdavFileMimeTypeResolver';
 import { WebdavFileMover } from '../modules/files/application/WebdavFileMover';
 import { WebdavFolderCreator } from '../modules/folders/application/WebdavFolderCreator';
@@ -32,7 +31,6 @@ export interface DependencyContainer {
   userUsageDecrementer: UserUsageDecrementer;
   incrementDriveUsageOnFileCreated: IncrementDriveUsageOnFileCreated;
 
-  fileExists: WebdavFileExists;
   fileClonner: WebdavFileClonner;
   fileDeleter: WebdavFileDeleter;
   fileMover: WebdavFileMover;

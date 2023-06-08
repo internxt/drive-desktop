@@ -7,6 +7,7 @@ import { FileCannotBeMovedToTheOriginalFolderError } from './errors/FileCannotBe
 import { FileActionOnlyCanAffectOneLevelError } from './errors/FileActionOnlyCanAffectOneLevelError';
 import { FileNameShouldDifferFromOriginalError } from './errors/FileNameShouldDifferFromOriginalError';
 import { FileActionCannotModifyExtension } from './errors/FileActionCannotModifyExtension';
+import { FileDeletedDomainEvent } from './FileDeletedDomainEvent';
 
 export type WebdavFileAtributes = {
   fileId: string;
@@ -21,13 +22,17 @@ export type WebdavFileAtributes = {
 export class WebdavFile extends AggregateRoot {
   private constructor(
     public readonly fileId: string,
-    public readonly folderId: number,
-    private readonly _path: FilePath,
+    private _folderId: number,
+    private _path: FilePath,
     public readonly size: FileSize,
     public readonly createdAt: Date,
     public readonly updatedAt: Date
   ) {
     super();
+  }
+
+  public get folderId() {
+    return this._folderId;
   }
 
   public get path() {
@@ -87,21 +92,25 @@ export class WebdavFile extends AggregateRoot {
     return file;
   }
 
-  moveTo(folder: WebdavFolder): WebdavFile {
+  trash() {
+    // TODO: update state when implemented
+    this.record(
+      new FileDeletedDomainEvent({
+        aggregateId: this.fileId,
+        size: this.size.value,
+      })
+    );
+  }
+
+  moveTo(folder: WebdavFolder): void {
     if (this.folderId === folder.id) {
-      throw new FileCannotBeMovedToTheOriginalFolderError(this._path.value);
+      throw new FileCannotBeMovedToTheOriginalFolderError(this.path);
     }
 
-    const file = new WebdavFile(
-      this.fileId,
-      folder.id,
-      FilePath.fromParts([folder.path, this._path.nameWithExtension()]),
-      this.size,
-      this.createdAt,
-      this.updatedAt
-    );
+    this._folderId = folder.id;
+    this._path = this._path.changeFolder(folder.path);
 
-    return file;
+    //TODO: record file moved event
   }
 
   clone(fileId: string, folderId: number, newPath: FilePath) {
@@ -113,6 +122,27 @@ export class WebdavFile extends AggregateRoot {
       throw new FileNameShouldDifferFromOriginalError('clone');
     }
 
+    const file = new WebdavFile(
+      fileId,
+      folderId,
+      newPath,
+      this.size,
+      this.createdAt,
+      new Date()
+    );
+
+    file.record(
+      new FileCreatedDomainEvent({
+        aggregateId: fileId,
+        size: this.size.value,
+        type: this._path.extension(),
+      })
+    );
+
+    return file;
+  }
+
+  overwrite(fileId: string, folderId: number, newPath: FilePath) {
     const file = new WebdavFile(
       fileId,
       folderId,
@@ -146,52 +176,39 @@ export class WebdavFile extends AggregateRoot {
       throw new FileNameShouldDifferFromOriginalError('rename');
     }
 
-    return new WebdavFile(
-      this.fileId,
-      this.folderId,
-      newPath,
-      this.size,
-      this.createdAt,
-      this.updatedAt
-    );
+    this._path = this._path.updateName(newPath.name());
+
+    // TODO: record rename event
   }
 
-  overwrite(file: WebdavFile, fileId: string) {
-    if (!this._path.equals(file._path)) {
-      throw new FileActionOnlyCanAffectOneLevelError('overwrite');
-    }
+  // overwrite(file: WebdavFile, fileId: string): WebdavFile {
+  //   if (!this._path.equals(file._path)) {
+  //     throw new FileActionOnlyCanAffectOneLevelError('overwrite');
+  //   }
 
-    if (!this._path.hasSameExtension(file._path)) {
-      throw new FileActionCannotModifyExtension('overwrite');
-    }
+  //   if (!this._path.hasSameExtension(file._path)) {
+  //     throw new FileActionCannotModifyExtension('overwrite');
+  //   }
 
-    const replaced = new WebdavFile(
-      fileId,
-      this.folderId,
-      this._path,
-      file.size,
-      file.createdAt,
-      new Date()
-    );
+  //   const newFileThatReplaces = new WebdavFile(
+  //     fileId,
+  //     this.folderId,
+  //     this._path,
+  //     file.size,
+  //     file.createdAt,
+  //     new Date()
+  //   );
 
-    replaced.record(
-      new FileCreatedDomainEvent({
-        aggregateId: fileId,
-        size: file.size.value,
-        type: file._path.extension(),
-      })
-    );
+  //   newFileThatReplaces.record(
+  //     new FileCreatedDomainEvent({
+  //       aggregateId: fileId,
+  //       size: file.size.value,
+  //       type: file._path.extension(),
+  //     })
+  //   );
 
-    replaced.record(
-      new FileCreatedDomainEvent({
-        aggregateId: this.fileId,
-        size: this.size.value,
-        type: this._path.extension(),
-      })
-    );
-
-    return replaced;
-  }
+  //   return newFileThatReplaces;
+  // }
 
   hasParent(id: number): boolean {
     return this.folderId === id;

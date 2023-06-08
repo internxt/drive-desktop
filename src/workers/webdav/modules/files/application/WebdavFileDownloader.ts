@@ -3,6 +3,7 @@ import { FileNotFoundError } from '../domain/errors/FileNotFoundError';
 import { RemoteFileContentsRepository } from '../domain/RemoteFileContentsRepository';
 import { RemoteFileContents } from '../domain/RemoteFileContent';
 import { WebdavFileRepository } from '../domain/WebdavFileRepository';
+import { FilePath } from '../domain/FilePath';
 
 export class WebdavFileDownloader {
   constructor(
@@ -12,7 +13,8 @@ export class WebdavFileDownloader {
   ) {}
 
   async run(path: string): Promise<RemoteFileContents> {
-    const file = this.repository.search(path);
+    const filePath = new FilePath(path);
+    const file = this.repository.search(filePath);
 
     if (!file) {
       throw new FileNotFoundError(path);

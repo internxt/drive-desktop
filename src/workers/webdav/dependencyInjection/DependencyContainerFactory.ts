@@ -9,7 +9,6 @@ import { WebdavFileClonner } from '../modules/files/application/WebdavFileClonne
 import { WebdavFileCreator } from '../modules/files/application/WebdavFileCreator';
 import { WebdavFileDeleter } from '../modules/files/application/WebdavFileDeleter';
 import { WebdavFileDownloader } from '../modules/files/application/WebdavFileDownloader';
-import { WebdavFileExists } from '../modules/files/application/WebdavFileExists';
 import { WebdavFileMimeTypeResolver } from '../modules/files/application/WebdavFileMimeTypeResolver';
 import { WebdavFileMover } from '../modules/files/application/WebdavFileMover';
 import { HttpWebdavFileRepository } from '../modules/files/infrastructure/persistance/HttpWebdavFileRepository';
@@ -137,7 +136,6 @@ export class DependencyContainerFactory {
         userUsageIncrementer
       ),
 
-      fileExists: new WebdavFileExists(fileRepository),
       fileClonner: new WebdavFileClonner(
         fileRepository,
         folderFinder,
@@ -145,7 +143,7 @@ export class DependencyContainerFactory {
         eventBus
       ),
       fileDeleter: new WebdavFileDeleter(fileRepository, eventBus),
-      fileMover: new WebdavFileMover(fileRepository, folderFinder),
+      fileMover: new WebdavFileMover(fileRepository, folderFinder, eventBus),
       fileCreator: new WebdavFileCreator(
         fileRepository,
         folderFinder,

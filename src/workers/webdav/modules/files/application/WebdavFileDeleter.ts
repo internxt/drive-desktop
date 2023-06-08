@@ -1,5 +1,4 @@
 import { WebdavServerEventBus } from '../../shared/domain/WebdavServerEventBus';
-import { FileDeletedDomainEvent } from '../domain/FileDeletedDomainEvent';
 import { WebdavFile } from '../domain/WebdavFile';
 import { WebdavFileRepository } from '../domain/WebdavFileRepository';
 
@@ -10,13 +9,10 @@ export class WebdavFileDeleter {
   ) {}
 
   async run(file: WebdavFile): Promise<void> {
+    file.trash();
+
     await this.repository.delete(file);
 
-    const fileDeletedEvent = new FileDeletedDomainEvent({
-      aggregateId: file.fileId,
-      size: file.size.value,
-    });
-
-    this.eventBus.publish([fileDeletedEvent]);
+    await this.eventBus.publish(file.pullDomainEvents());
   }
 }
