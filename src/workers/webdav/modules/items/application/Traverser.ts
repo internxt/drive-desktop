@@ -70,7 +70,6 @@ export class Traverser {
           modificationTime: file.modificationTime,
           size: file.size,
           createdAt: file.createdAt,
-          type: file.type,
           updatedAt: file.updatedAt,
           path: name,
         });
