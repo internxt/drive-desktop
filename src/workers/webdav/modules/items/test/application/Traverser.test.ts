@@ -15,6 +15,7 @@ describe('Traverser', () => {
         {
           name: 'file A',
           folderId: baseFolderId,
+          size: 67,
         } as ServerFile,
       ],
       folders: [],
@@ -33,6 +34,7 @@ describe('Traverser', () => {
         {
           name: 'file A',
           folderId: 22491,
+          size: 200,
         } as ServerFile,
       ],
       folders: [
