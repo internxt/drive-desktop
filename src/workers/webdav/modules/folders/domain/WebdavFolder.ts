@@ -16,8 +16,8 @@ export class WebdavFolder extends AggregateRoot {
 
   private constructor(
     public readonly id: number,
-    private readonly _path: FolderPath,
-    public readonly parentId: null | number,
+    private _path: FolderPath,
+    private _parentId: null | number,
     public readonly createdAt: Date,
     public readonly updatedAt: Date
   ) {
@@ -34,6 +34,10 @@ export class WebdavFolder extends AggregateRoot {
 
   public get dirname() {
     return this._path.dirname();
+  }
+
+  public get parentId() {
+    return this._parentId;
   }
 
   static from(attributes: WebdavFolderAttributes): WebdavFolder {
@@ -63,40 +67,37 @@ export class WebdavFolder extends AggregateRoot {
     );
   }
 
-  moveTo(folder: WebdavFolder): WebdavFolder {
-    if (!this.parentId) {
+  moveTo(folder: WebdavFolder) {
+    if (!this._parentId) {
       throw new Error('Root folder cannot be moved');
     }
 
-    if (this.parentId === folder.id) {
-      throw new Error('Cannot move a folder to its current parent folder');
+    if (this._parentId === folder.id) {
+      throw new Error('Cannot move a folder to its current folder');
     }
 
-    return new WebdavFolder(
-      this.id,
-      FolderPath.fromParts([folder.dirname, this.name]),
-      folder.id,
-      new Date(this.createdAt),
-      new Date(this.updatedAt)
-    );
+    this._path = this._path.changeFolder(folder.path);
+    this._parentId = folder.id;
+
+    //TODO: record moved event
   }
 
-  rename(newPath: FolderPath): WebdavFolder {
+  rename(newPath: FolderPath) {
     if (this._path.hasSameName(newPath)) {
       throw new Error('Cannot rename a folder to the same name');
     }
 
-    return new WebdavFolder(
-      this.id,
-      newPath,
-      this.parentId,
-      new Date(this.updatedAt),
-      new Date(this.createdAt)
-    );
+    this._path = this._path.updateName(newPath.name());
+
+    //TODO: record rename event
+  }
+
+  trash() {
+    // TODO: recored trashed event
   }
 
   isIn(folder: WebdavFolder): boolean {
-    return this.parentId === folder.id;
+    return this._parentId === folder.id;
   }
 
   isFolder(): this is WebdavFolder {
@@ -110,7 +111,7 @@ export class WebdavFolder extends AggregateRoot {
   toPrimitives(): Record<string, Primitives> {
     return {
       id: this.id,
-      parentId: this.parentId || 0,
+      parentId: this._parentId || 0,
       updatedAt: this.updatedAt.getTime(),
       createdAt: this.createdAt.getTime(),
     };

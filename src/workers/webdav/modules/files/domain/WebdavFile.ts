@@ -181,35 +181,6 @@ export class WebdavFile extends AggregateRoot {
     // TODO: record rename event
   }
 
-  // overwrite(file: WebdavFile, fileId: string): WebdavFile {
-  //   if (!this._path.equals(file._path)) {
-  //     throw new FileActionOnlyCanAffectOneLevelError('overwrite');
-  //   }
-
-  //   if (!this._path.hasSameExtension(file._path)) {
-  //     throw new FileActionCannotModifyExtension('overwrite');
-  //   }
-
-  //   const newFileThatReplaces = new WebdavFile(
-  //     fileId,
-  //     this.folderId,
-  //     this._path,
-  //     file.size,
-  //     file.createdAt,
-  //     new Date()
-  //   );
-
-  //   newFileThatReplaces.record(
-  //     new FileCreatedDomainEvent({
-  //       aggregateId: fileId,
-  //       size: file.size.value,
-  //       type: file._path.extension(),
-  //     })
-  //   );
-
-  //   return newFileThatReplaces;
-  // }
-
   hasParent(id: number): boolean {
     return this.folderId === id;
   }

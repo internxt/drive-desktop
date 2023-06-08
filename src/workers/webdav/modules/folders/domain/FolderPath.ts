@@ -27,4 +27,12 @@ export class FolderPath extends WebdavPath {
 
     return super.name();
   }
+
+  updateName(name: string): FolderPath {
+    return FolderPath.fromParts([this.dirname(), name]);
+  }
+
+  changeFolder(folder: string): FolderPath {
+    return FolderPath.fromParts([folder, this.name()]);
+  }
 }

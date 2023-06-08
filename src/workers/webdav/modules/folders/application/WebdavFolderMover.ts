@@ -11,15 +11,15 @@ export class WebdavFolderMover {
   ) {}
 
   private async rename(folder: WebdavFolder, path: FolderPath) {
-    const renamedItem = folder.rename(path);
+    folder.rename(path);
 
-    await this.repository.updateName(renamedItem);
+    await this.repository.updateName(folder);
   }
 
   private async move(folder: WebdavFolder, parentFolder: WebdavFolder) {
-    const moved = folder.moveTo(parentFolder);
+    folder.moveTo(parentFolder);
 
-    await this.repository.updateParentDir(moved);
+    await this.repository.updateParentDir(folder);
   }
 
   async run(folder: WebdavFolder, to: string): Promise<void> {
