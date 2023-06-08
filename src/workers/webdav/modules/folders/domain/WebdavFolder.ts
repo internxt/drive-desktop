@@ -16,12 +16,24 @@ export class WebdavFolder extends AggregateRoot {
 
   private constructor(
     public readonly id: number,
-    public readonly path: FolderPath,
+    private readonly _path: FolderPath,
     public readonly parentId: null | number,
     public readonly createdAt: Date,
     public readonly updatedAt: Date
   ) {
     super();
+  }
+
+  public get path() {
+    return this._path.value;
+  }
+
+  public get name() {
+    return this._path.name();
+  }
+
+  public get dirname() {
+    return this._path.dirname();
   }
 
   static from(attributes: WebdavFolderAttributes): WebdavFolder {
@@ -60,11 +72,9 @@ export class WebdavFolder extends AggregateRoot {
       throw new Error('Cannot move a folder to its current parent folder');
     }
 
-    const basePath = folder.path.dirname();
-
     return new WebdavFolder(
       this.id,
-      FolderPath.fromParts([basePath, this.path.name()]),
+      FolderPath.fromParts([folder.dirname, this.name]),
       folder.id,
       new Date(this.createdAt),
       new Date(this.updatedAt)
@@ -72,7 +82,7 @@ export class WebdavFolder extends AggregateRoot {
   }
 
   rename(newPath: FolderPath): WebdavFolder {
-    if (this.path.hasSameName(newPath)) {
+    if (this._path.hasSameName(newPath)) {
       throw new Error('Cannot rename a folder to the same name');
     }
 

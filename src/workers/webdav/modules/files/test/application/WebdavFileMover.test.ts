@@ -22,7 +22,7 @@ describe('Webdav File Mover', () => {
   describe('Move', () => {
     it('moves a file when the destination folder does not contain a file with the same path', async () => {
       const file = WebdavFileMother.any();
-      const destination = `${file.path.dirname()}/_${file.path.nameWithExtension()}`;
+      const destination = `${file.dirname}/_${file.nameWithExtension}`;
       const override = false;
 
       folderRepository.mockSearch.mockImplementation(() =>
@@ -35,16 +35,14 @@ describe('Webdav File Mover', () => {
       const hasBeenOverwritten = await SUT.run(file, destination, override);
 
       expect(hasBeenOverwritten).toBe(false);
-      expect(folderRepository.mockSearch).toHaveBeenCalledWith(
-        file.path.dirname()
-      );
+      expect(folderRepository.mockSearch).toHaveBeenCalledWith(file.dirname);
       expect(repository.mockSearch).toHaveBeenCalledWith(destination);
       expect(repository.mockUpdateParentDir).toHaveBeenCalled();
     });
 
     it('when a file on the destination already exists but the overwite flag is not set to true the move fails', async () => {
       const file = WebdavFileMother.any();
-      const destination = `${file.path.dirname()}/_${file.path.nameWithExtension()}`;
+      const destination = `${file.dirname}/_${file.nameWithExtension}`;
       const override = false;
 
       repository.mockSearch.mockImplementation(() => file);
@@ -65,7 +63,7 @@ describe('Webdav File Mover', () => {
     it('when a file on the destination already exists and the overwite flag is set to true the old file gets trashed', async () => {
       const file = WebdavFileMother.any();
       const existing = WebdavFileMother.onFolderName('Ubuwevzuj');
-      const destination = `${existing.path.dirname()}/_${file.path.nameWithExtension()}`;
+      const destination = `${existing.dirname}/_${file.nameWithExtension}`;
 
       const override = true;
 
@@ -87,7 +85,7 @@ describe('Webdav File Mover', () => {
   describe('Rename', () => {
     it('when a file is moved to the same folder its renamed', async () => {
       const file = WebdavFileMother.any();
-      const destination = `${file.path.dirname()}/_${file.path.nameWithExtension()}`;
+      const destination = `${file.dirname}/_${file.nameWithExtension}`;
       const override = false;
 
       folderRepository.mockSearch.mockImplementation(() =>
@@ -100,16 +98,14 @@ describe('Webdav File Mover', () => {
       const hasBeenOverwritten = await SUT.run(file, destination, override);
 
       expect(hasBeenOverwritten).toBe(false);
-      expect(folderRepository.mockSearch).toHaveBeenCalledWith(
-        file.path.dirname()
-      );
+      expect(folderRepository.mockSearch).toHaveBeenCalledWith(file.dirname);
       expect(repository.mockSearch).toHaveBeenCalledWith(destination);
       expect(repository.mockUpdateName).toHaveBeenCalled();
     });
 
     it('a file cannot be renamed even with the overwite flag', async () => {
       const file = WebdavFileMother.any();
-      const destination = `${file.path.dirname()}/_${file.path.nameWithExtension()}`;
+      const destination = `${file.dirname}/_${file.nameWithExtension}`;
       const override = true;
 
       folderRepository.mockSearch.mockImplementation(() =>

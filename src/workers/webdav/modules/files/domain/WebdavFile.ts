@@ -22,12 +22,32 @@ export class WebdavFile extends AggregateRoot {
   private constructor(
     public readonly fileId: string,
     public readonly folderId: number,
-    public readonly path: FilePath,
+    private readonly _path: FilePath,
     public readonly size: FileSize,
     public readonly createdAt: Date,
     public readonly updatedAt: Date
   ) {
     super();
+  }
+
+  public get path() {
+    return this._path.value;
+  }
+
+  public get type() {
+    return this._path.extension();
+  }
+
+  public get name() {
+    return this._path.name();
+  }
+
+  public get nameWithExtension() {
+    return this._path.nameWithExtension();
+  }
+
+  public get dirname() {
+    return this._path.dirname();
   }
 
   static from(attributes: WebdavFileAtributes): WebdavFile {
@@ -69,15 +89,13 @@ export class WebdavFile extends AggregateRoot {
 
   moveTo(folder: WebdavFolder): WebdavFile {
     if (this.folderId === folder.id) {
-      throw new FileCannotBeMovedToTheOriginalFolderError(this.path.value);
+      throw new FileCannotBeMovedToTheOriginalFolderError(this._path.value);
     }
-
-    const basePath = folder.path.value;
 
     const file = new WebdavFile(
       this.fileId,
       folder.id,
-      FilePath.fromParts([basePath, this.path.nameWithExtension()]),
+      FilePath.fromParts([folder.path, this._path.nameWithExtension()]),
       this.size,
       this.createdAt,
       this.updatedAt
@@ -87,11 +105,11 @@ export class WebdavFile extends AggregateRoot {
   }
 
   clone(fileId: string, folderId: number, newPath: FilePath) {
-    if (!this.path.hasSameDirname(newPath)) {
+    if (!this._path.hasSameDirname(newPath)) {
       throw new FileActionOnlyCanAffectOneLevelError('clone');
     }
 
-    if (this.path.hasSameName(newPath)) {
+    if (this._path.hasSameName(newPath)) {
       throw new FileNameShouldDifferFromOriginalError('clone');
     }
 
@@ -108,7 +126,7 @@ export class WebdavFile extends AggregateRoot {
       new FileCreatedDomainEvent({
         aggregateId: fileId,
         size: this.size.value,
-        type: this.path.extension(),
+        type: this._path.extension(),
       })
     );
 
@@ -116,15 +134,15 @@ export class WebdavFile extends AggregateRoot {
   }
 
   rename(newPath: FilePath) {
-    if (!this.path.hasSameDirname(newPath)) {
+    if (!this._path.hasSameDirname(newPath)) {
       throw new FileActionOnlyCanAffectOneLevelError('rename');
     }
 
-    if (!newPath.hasSameExtension(this.path)) {
+    if (!newPath.hasSameExtension(this._path)) {
       throw new FileActionCannotModifyExtension('rename');
     }
 
-    if (this.path.hasSameName(newPath)) {
+    if (this._path.hasSameName(newPath)) {
       throw new FileNameShouldDifferFromOriginalError('rename');
     }
 
@@ -139,18 +157,18 @@ export class WebdavFile extends AggregateRoot {
   }
 
   overwrite(file: WebdavFile, fileId: string) {
-    if (!this.path.equals(file.path)) {
+    if (!this._path.equals(file._path)) {
       throw new FileActionOnlyCanAffectOneLevelError('overwrite');
     }
 
-    if (!this.path.hasSameExtension(file.path)) {
+    if (!this._path.hasSameExtension(file._path)) {
       throw new FileActionCannotModifyExtension('overwrite');
     }
 
     const replaced = new WebdavFile(
       fileId,
       this.folderId,
-      this.path,
+      this._path,
       file.size,
       file.createdAt,
       new Date()
@@ -160,7 +178,7 @@ export class WebdavFile extends AggregateRoot {
       new FileCreatedDomainEvent({
         aggregateId: fileId,
         size: file.size.value,
-        type: file.path.extension(),
+        type: file._path.extension(),
       })
     );
 
@@ -168,7 +186,7 @@ export class WebdavFile extends AggregateRoot {
       new FileCreatedDomainEvent({
         aggregateId: this.fileId,
         size: this.size.value,
-        type: this.path.extension(),
+        type: this._path.extension(),
       })
     );
 
@@ -192,7 +210,7 @@ export class WebdavFile extends AggregateRoot {
       fileId: this.fileId,
       folderId: this.folderId,
       createdAt: this.createdAt.getDate(),
-      path: this.path.value,
+      path: this._path.value,
       size: this.size.value,
       updatedAt: this.updatedAt.getDate(),
     };

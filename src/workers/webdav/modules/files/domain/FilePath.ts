@@ -54,11 +54,4 @@ export class FilePath extends WebdavPath {
   hasSameExtension(other: FilePath): boolean {
     return this.extension() === other.extension();
   }
-
-  equals(other: FilePath): boolean {
-    return (
-      other.constructor.name === this.constructor.name &&
-      other.value === this.value
-    );
-  }
 }

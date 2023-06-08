@@ -14,13 +14,13 @@ export class WebdavFileMother {
     });
   }
 
-  static fromPath(path: FilePath) {
+  static fromPath(path: string) {
     return WebdavFile.from({
       fileId: '97e83f0d-fde7-5d2b-8158-1df5ffe8abc1',
       folderId: 3972960,
       createdAt: new Date().toISOString(),
       modificationTime: new Date().toISOString(),
-      path: path.value,
+      path: path,
       size: 893924973,
       updatedAt: new Date().toISOString(),
     });

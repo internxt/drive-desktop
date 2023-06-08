@@ -13,7 +13,7 @@ import { UpdateFileParentDirDTO } from './dtos/UpdateFileParentDirDTO';
 import { UpdateFileNameDTO } from './dtos/UpdateFileNameDTO';
 
 export class HttpWebdavFileRepository implements WebdavFileRepository {
-  private items: Record<string, WebdavFile> = {};
+  private files: Record<string, WebdavFile> = {};
 
   constructor(
     private readonly httpClient: Axios,
@@ -71,14 +71,14 @@ export class HttpWebdavFileRepository implements WebdavFileRepository {
       value.isFile()
     ) as Array<[string, WebdavFile]>;
 
-    this.items = files.reduce((items, [key, value]) => {
+    this.files = files.reduce((items, [key, value]) => {
       items[key] = value;
       return items;
     }, {} as Record<string, WebdavFile>);
   }
 
   search(pathLike: string): Nullable<WebdavFile> {
-    const item = this.items[pathLike];
+    const item = this.files[pathLike];
 
     return item;
   }
@@ -97,13 +97,13 @@ export class HttpWebdavFileRepository implements WebdavFileRepository {
     );
 
     if (result.status === 200) {
-      delete this.items[file.path.value];
+      delete this.files[file.path];
     }
   }
 
   async add(file: WebdavFile): Promise<void> {
     const encryptedName = crypt.encryptName(
-      file.path.name(),
+      file.name,
       file.folderId.toString()
     );
 
@@ -119,7 +119,7 @@ export class HttpWebdavFileRepository implements WebdavFileRepository {
         file_id: file.fileId,
         folder_id: file.folderId,
         name: encryptedName,
-        plain_name: file.path.name(),
+        plain_name: file.name,
         size: file.size.value,
         type: file.type,
         modificationTime: Date.now(),
@@ -140,17 +140,17 @@ export class HttpWebdavFileRepository implements WebdavFileRepository {
       ...result.data,
       folderId: result.data.folder_id,
       size: parseInt(result.data.size, 10),
-      path: file.path.value,
+      path: file.path,
     });
 
-    this.items[file.path.value] = created;
+    this.files[file.path] = created;
   }
 
-  async updateName(item: WebdavFile): Promise<void> {
-    const url = `${process.env.API_URL}/api/storage/file/${item.fileId}/meta`;
+  async updateName(file: WebdavFile): Promise<void> {
+    const url = `${process.env.API_URL}/api/storage/file/${file.fileId}/meta`;
 
     const body: UpdateFileNameDTO = {
-      metadata: { itemName: item.path.name() },
+      metadata: { itemName: file.name },
       bucketId: this.bucket,
       relativePath: uuid.v4(),
     };
@@ -163,15 +163,15 @@ export class HttpWebdavFileRepository implements WebdavFileRepository {
       );
     }
 
-    const oldFile = Object.values(this.items).filter(
-      (file) => file.fileId === item.fileId
+    const oldFile = Object.values(this.files).filter(
+      (file) => file.fileId === file.fileId
     )[0];
 
     if (oldFile) {
-      delete this.items[oldFile.path.value];
+      delete this.files[oldFile.path];
     }
 
-    this.items[item.path.value] = item;
+    this.files[file.path] = file;
   }
 
   async updateParentDir(item: WebdavFile): Promise<void> {
@@ -191,6 +191,6 @@ export class HttpWebdavFileRepository implements WebdavFileRepository {
   }
 
   searchOnFolder(folderId: number): Array<WebdavFile> {
-    return Object.values(this.items).filter((file) => file.hasParent(folderId));
+    return Object.values(this.files).filter((file) => file.hasParent(folderId));
   }
 }

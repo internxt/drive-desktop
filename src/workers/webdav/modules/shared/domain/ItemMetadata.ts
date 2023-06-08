@@ -35,9 +35,9 @@ export class ItemMetadata {
     return new ItemMetadata(
       file.createdAt.getTime(),
       file.updatedAt.getTime(),
-      file.path.nameWithExtension(),
+      file.nameWithExtension,
       file.size.value,
-      file.path.extension(),
+      file.type,
       'FILE'
     );
   }
@@ -46,7 +46,7 @@ export class ItemMetadata {
     return new ItemMetadata(
       Math.abs(folder.createdAt.getTime() | Date.now()),
       Math.abs(folder.updatedAt.getTime() | Date.now()),
-      folder.path.name(),
+      folder.name,
       folder.size,
       '',
       'FOLDER'

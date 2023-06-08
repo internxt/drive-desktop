@@ -17,7 +17,7 @@ export class RemoteFileContents extends AggregateRoot {
     const remoteContents = new RemoteFileContents(
       file.fileId,
       file.size.value,
-      file.path.extension(),
+      file.type,
       contents
     );
 

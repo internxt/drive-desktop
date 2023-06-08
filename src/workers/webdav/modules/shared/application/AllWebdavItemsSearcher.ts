@@ -16,11 +16,11 @@ export class AllWebdavItemsNameLister {
 
     this.filesRepository
       .searchOnFolder(folder.id)
-      .forEach((file) => names.push(file.path.nameWithExtension()));
+      .forEach((file) => names.push(file.nameWithExtension()));
 
     this.folderRepository
       .searchOn(folder)
-      .forEach((folder) => names.push(folder.path.name()));
+      .forEach((folder) => names.push(folder.name()));
 
     return names;
   }

@@ -49,11 +49,7 @@ describe('Webdav File Clonner', () => {
         //
       });
 
-      const hasBeenOverwritten = await SUT.run(
-        file,
-        file.path.value,
-        OVERWRITE
-      );
+      const hasBeenOverwritten = await SUT.run(file, file.path, OVERWRITE);
 
       expect(hasBeenOverwritten).toBe(true);
       expect(fileReposiotry.mockAdd.mock.calls[0][0].fileId).toBe(
@@ -81,7 +77,7 @@ describe('Webdav File Clonner', () => {
     it('duplicates a file given to the given path', async () => {
       const file = WebdavFileMother.any();
       const folder = WebdavFolderMother.containing(file);
-      const destination = `${file.path.dirname()}/${file.path.name()} (copy).${file.path.extension()}`;
+      const destination = `${file.dirname}/${file.name} (copy).${file.type}`;
       const clonnedFileId = '63bd1432-61a6-59e0-b6c1-9ee681b936e9';
 
       fileReposiotry.mockSearch.mockReturnValueOnce(undefined);
@@ -101,9 +97,7 @@ describe('Webdav File Clonner', () => {
       expect(fileReposiotry.mockAdd.mock.calls[0][0].fileId).toBe(
         clonnedFileId
       );
-      expect(fileReposiotry.mockAdd.mock.calls[0][0].path.value).toBe(
-        destination
-      );
+      expect(fileReposiotry.mockAdd.mock.calls[0][0].path).toBe(destination);
       expect(eventBus.publishMock).toBeCalled();
     });
   });

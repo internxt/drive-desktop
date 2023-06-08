@@ -4,7 +4,7 @@ import { ServerFile } from '../../../../filesystems/domain/ServerFile';
 import { ServerFolder } from '../../../../filesystems/domain/ServerFolder';
 import { Traverser } from '../../items/application/Traverser';
 import { FolderPath } from '../domain/FolderPath';
-import { WebdavFolder, WebdavFolderAttributes } from '../domain/WebdavFolder';
+import { WebdavFolder } from '../domain/WebdavFolder';
 import { WebdavFolderRepository } from '../domain/WebdavFolderRepository';
 import Logger from 'electron-log';
 import * as uuid from 'uuid';
@@ -127,7 +127,7 @@ export class HttpWebdavFolderRepository implements WebdavFolderRepository {
     const url = `${process.env.API_URL}/api/storage/folder/${folder.id}/meta`;
 
     const body: UpdateFolderNameDTO = {
-      metadata: { itemName: folder.path.name() },
+      metadata: { itemName: folder.name },
       relativePath: uuid.v4(),
     };
 
@@ -139,8 +139,8 @@ export class HttpWebdavFolderRepository implements WebdavFolderRepository {
       );
     }
 
-    delete this.folders[folder.path.value];
-    this.folders[folder.path.value] = folder;
+    delete this.folders[folder.path];
+    this.folders[folder.path] = folder;
   }
 
   async updateParentDir(folder: WebdavFolder): Promise<void> {
@@ -154,7 +154,7 @@ export class HttpWebdavFolderRepository implements WebdavFolderRepository {
       throw new Error(`[REPOSITORY] Error moving item: ${res.status}`);
     }
 
-    this.folders[folder.path.value] = folder;
+    this.folders[folder.path] = folder;
   }
 
   searchOn(folder: WebdavFolder): Array<WebdavFolder> {
@@ -170,7 +170,7 @@ export class HttpWebdavFolderRepository implements WebdavFolderRepository {
     );
 
     if (result.status === 200) {
-      delete this.folders[folder.path.value];
+      delete this.folders[folder.path];
       return;
     }
 

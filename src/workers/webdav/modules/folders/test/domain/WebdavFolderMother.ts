@@ -5,7 +5,7 @@ export class WebdavFolderMother {
   static containing(file: WebdavFile) {
     return WebdavFolder.from({
       id: file.folderId,
-      path: file.path.dirname(),
+      path: file.dirname,
       parentId: 58601041,
       updatedAt: new Date().toISOString(),
       createdAt: new Date().toISOString(),
