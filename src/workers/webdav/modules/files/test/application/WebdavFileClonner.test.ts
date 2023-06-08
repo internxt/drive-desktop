@@ -51,7 +51,7 @@ describe('Webdav File Clonner', () => {
 
       const hasBeenOverwritten = await SUT.run(
         file,
-        destinationPath.value,
+        file.path.value,
         OVERWRITE
       );
 
@@ -81,7 +81,7 @@ describe('Webdav File Clonner', () => {
     it('duplicates a file given to the given path', async () => {
       const file = WebdavFileMother.any();
       const folder = WebdavFolderMother.containing(file);
-      const destination = `${file.path.dirname()}/${file.name} (copy).${
+      const destination = `${file.path.dirname()}/${file.path.name()} (copy).${
         file.type
       }`;
       const clonnedFileId = '63bd1432-61a6-59e0-b6c1-9ee681b936e9';

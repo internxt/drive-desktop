@@ -46,7 +46,7 @@ export class ItemMetadata {
     return new ItemMetadata(
       Math.abs(folder.createdAt.getTime() | Date.now()),
       Math.abs(folder.updatedAt.getTime() | Date.now()),
-      folder.name,
+      folder.path.name(),
       folder.size,
       '',
       'FOLDER'

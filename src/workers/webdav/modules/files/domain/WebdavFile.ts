@@ -153,10 +153,6 @@ export class WebdavFile extends AggregateRoot {
   }
 
   overwrite(file: WebdavFile, fileId: string) {
-    if (this.path.equals(file.path)) {
-      throw new FileNameShouldBeEqualToOriginalError('overwrite');
-    }
-
     if (!this.path.equals(file.path)) {
       throw new FileActionOnlyCanAffectOneLevelError('overwrite');
     }

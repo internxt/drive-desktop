@@ -87,7 +87,7 @@ export class TreeRepository implements ItemRepository {
 
     if (folderPath === '/') {
       const paths = Object.values(this.items)
-        .filter((i) => i.hasParent(this.baseFolderId))
+        .filter((i) => i.isIn(this.baseFolderId))
         .map((i) => i.path);
 
       return paths;
@@ -101,7 +101,7 @@ export class TreeRepository implements ItemRepository {
 
     const files = Object.values(this.items)
       .filter((f) => {
-        return f.hasParent(item.id);
+        return f.isIn(item.id);
       })
       .map((f) => f.path);
 

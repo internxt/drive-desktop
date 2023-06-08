@@ -70,7 +70,6 @@ export class Traverser {
           modificationTime: file.modificationTime,
           size: file.size,
           createdAt: file.createdAt,
-          name: plainName,
           type: file.type,
           updatedAt: file.updatedAt,
           path: name,
@@ -96,7 +95,6 @@ export class Traverser {
         updatedAt: folder.updated_at,
         createdAt: folder.created_at,
         path: name,
-        name: plainName,
       });
       this.traverse(folder.id, `${name}`);
     });
@@ -111,7 +109,6 @@ export class Traverser {
       updatedAt: Date.now().toLocaleString(),
       createdAt: Date.now().toLocaleString(),
       path: '/',
-      name: 'internxt root folder',
     });
   }
 
@@ -129,7 +126,6 @@ export class Traverser {
       updatedAt: Date.now().toLocaleString(),
       createdAt: Date.now().toLocaleString(),
       path: '/',
-      name: 'internxt root folder',
     });
 
     return this.collection;

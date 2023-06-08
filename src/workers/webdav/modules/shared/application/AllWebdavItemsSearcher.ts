@@ -19,8 +19,8 @@ export class AllWebdavItemsNameLister {
       .forEach((file) => names.push(file.path.nameWithExtension()));
 
     this.folderRepository
-      .searchOnFolder(folder.id)
-      .forEach((folder) => names.push(folder.name));
+      .searchOn(folder)
+      .forEach((folder) => names.push(folder.path.name()));
 
     return names;
   }

@@ -1,22 +1,21 @@
+import { Primitives } from 'shared/types/Primitives';
 import { WebdavFile } from '../../files/domain/WebdavFile';
-import { WebdavItem } from '../../shared/domain/WebdavItem';
+import { AggregateRoot } from '../../shared/domain/AggregateRoot';
 import { FolderPath } from './FolderPath';
 
 export type WebdavFolderAttributes = {
   id: number;
-  name: string;
   path: string;
   parentId: null | number;
   updatedAt: string;
   createdAt: string;
 };
 
-export class WebdavFolder extends WebdavItem {
+export class WebdavFolder extends AggregateRoot {
   public readonly size: number = 0;
 
   private constructor(
     public readonly id: number,
-    public readonly name: string,
     public readonly path: FolderPath,
     public readonly parentId: null | number,
     public readonly createdAt: Date,
@@ -28,7 +27,6 @@ export class WebdavFolder extends WebdavItem {
   static from(attributes: WebdavFolderAttributes): WebdavFolder {
     return new WebdavFolder(
       attributes.id,
-      attributes.name,
       new FolderPath(attributes.path),
       attributes.parentId,
       new Date(attributes.updatedAt),
@@ -46,7 +44,6 @@ export class WebdavFolder extends WebdavItem {
   }) {
     return new WebdavFolder(
       attributes.id,
-      attributes.name,
       new FolderPath(attributes.path),
       attributes.parentId,
       new Date(attributes.updatedAt),
@@ -67,8 +64,7 @@ export class WebdavFolder extends WebdavItem {
 
     return new WebdavFolder(
       this.id,
-      this.name,
-      FolderPath.fromParts([basePath, this.name]),
+      FolderPath.fromParts([basePath, this.path.name()]),
       folder.id,
       new Date(this.createdAt),
       new Date(this.updatedAt)
@@ -80,11 +76,8 @@ export class WebdavFolder extends WebdavItem {
       throw new Error('Cannot rename a folder to the same name');
     }
 
-    const newName = newPath.name();
-
     return new WebdavFolder(
       this.id,
-      newName,
       newPath,
       this.parentId,
       new Date(this.updatedAt),
@@ -92,8 +85,8 @@ export class WebdavFolder extends WebdavItem {
     );
   }
 
-  hasParent(id: number): boolean {
-    return this.parentId === id;
+  isIn(folder: WebdavFolder): boolean {
+    return this.parentId === folder.id;
   }
 
   isFolder(): this is WebdavFolder {
@@ -104,10 +97,9 @@ export class WebdavFolder extends WebdavItem {
     return false;
   }
 
-  toProps(): Record<string, string | number> {
+  toPrimitives(): Record<string, Primitives> {
     return {
       id: this.id,
-      name: this.name,
       parentId: this.parentId || 0,
       updatedAt: this.updatedAt.getTime(),
       createdAt: this.createdAt.getTime(),
