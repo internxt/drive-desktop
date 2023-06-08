@@ -130,13 +130,35 @@ export class InternxtFileSystem extends FileSystem {
     }
 
     if (item.isFile()) {
+      Logger.debug('[Deleting File]: ' + item.name + item.type);
+      ipcRenderer.send('SYNC_INFO_UPDATE', {
+        action: 'DELETE',
+        kind: 'LOCAL',
+        progress: 0,
+        name: path.fileName(),
+      });
       this.dependencyContainer.fileDeleter
         .run(item)
         .then(() => {
           delete this.resources[item.path.value];
+          ipcRenderer.send('SYNC_INFO_UPDATE', {
+            action: 'DELETED',
+            kind: 'LOCAL',
+            name: path.fileName(),
+          });
           callback(undefined);
         })
-        .catch(() => callback(Errors.InvalidOperation));
+        .catch((err: unknown) => {
+          ipcRenderer.send('SYNC_INFO_UPDATE', {
+            action: 'DELETE_ERROR',
+            kind: 'LOCAL',
+            name: path.fileName(),
+            errorName: 'Deletion Error',
+            errorDetails: err,
+            process: 'SYNC',
+          });
+          callback(Errors.InvalidOperation)
+        });
       return;
     }
 
