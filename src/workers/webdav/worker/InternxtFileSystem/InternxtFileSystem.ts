@@ -186,13 +186,32 @@ export class InternxtFileSystem extends FileSystem {
 
     Logger.debug('WRITE STEAM ON ', path.toString(false));
 
+    ipcRenderer.send('SYNC_INFO_UPDATE', {
+      action: 'PULL',
+      kind: 'REMOTE',
+      name: path.fileName(),
+    });
+
     this.dependencyContainer.fileCreator
       .run(path.toString(false), ctx.estimatedSize)
       .then((writable: Writable) => {
         callback(undefined, writable);
+        ipcRenderer.send('SYNC_INFO_UPDATE', {
+          action: 'PULLED',
+          kind: 'REMOTE',
+          name: path.fileName(),
+        });
       })
       .catch((err: unknown) => {
         Logger.error('[FS] Error on open write steam ', err);
+        ipcRenderer.send('SYNC_INFO_UPDATE', {
+          action: 'PULL_ERROR',
+          kind: 'REMOTE',
+          name: path.fileName(),
+          errorName: 'Push Error',
+          errorDetails: err,
+          process: 'SYNC',
+        });
         throw err;
       });
   }
