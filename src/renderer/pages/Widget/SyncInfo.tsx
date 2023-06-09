@@ -64,12 +64,8 @@ export default function SyncInfo() {
         'METADATA_READ_ERROR',
       ].includes(item.action);
 
-      const itemIsLocalDelete =
-        (item.action === 'DELETE' || item.action === 'DELETED') &&
-        item.kind === 'LOCAL';
-
       const newItems =
-        itemIsAnError || itemIsLocalDelete
+        itemIsAnError
           ? itemsWithoutGivenItem
           : [item, ...itemsWithoutGivenItem].slice(0, MAX_ITEMS);
 
@@ -197,11 +193,11 @@ function Item({
   } else if (action === 'PULLED' && kind === 'REMOTE') {
     description = 'Uploaded';
   } else if (action === 'DELETE' && kind === 'LOCAL') {
-    description = 'Deleting from your computer';
+    description = 'Deleting';
   } else if (action === 'DELETE' && kind === 'REMOTE') {
-    description = 'Deleting from Internxt Drive';
+    description = 'Deleting';
   } else if (action === 'DELETED' && kind === 'LOCAL') {
-    description = 'Deleted from your computer';
+    description = 'Deleted';
   } else if (action === 'DELETED' && kind === 'REMOTE') {
     description = 'Moved to trash on Internxt Drive';
   } else if (errorName) {

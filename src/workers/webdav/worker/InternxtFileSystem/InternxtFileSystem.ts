@@ -27,6 +27,8 @@ import {
   MimeTypeInfo,
 } from 'webdav-server/lib/index.v2';
 import { Readable, Writable } from 'stream';
+import { ipcRenderer } from 'electron';
+import Logger from 'electron-log';
 import { DebugPhysicalSerializer } from './Serializer';
 import { handleFileSystemError } from '../error-handling';
 import { DependencyContainer } from '../../dependencyInjection/DependencyContainer';
@@ -130,13 +132,33 @@ export class InternxtFileSystem extends FileSystem {
     }
 
     if (item.isFile()) {
+      Logger.debug('[Deleting File]: ' + item.name + item.type);
+      ipcRenderer.send('SYNC_INFO_UPDATE', {
+        action: 'DELETE',
+        kind: 'LOCAL',
+        progress: 0,
+        name: path.fileName(),
+      });
       this.container.fileDeleter
         .run(item)
         .then(() => {
           delete this.resources[item.path];
+          ipcRenderer.send('SYNC_INFO_UPDATE', {
+            action: 'DELETED',
+            kind: 'LOCAL',
+            name: path.fileName(),
+          });
           callback(undefined);
         })
         .catch((error: Error) => {
+          ipcRenderer.send('SYNC_INFO_UPDATE', {
+            action: 'DELETE_ERROR',
+            kind: 'LOCAL',
+            name: path.fileName(),
+            errorName: error.name,
+            errorDetails: error.message,
+            process: 'SYNC',
+          });
           handleFileSystemError(error, 'Delete', 'File', ctx);
           callback(error);
         });
@@ -165,12 +187,31 @@ export class InternxtFileSystem extends FileSystem {
       this.resources[path.toString(false)] = new PhysicalFileSystemResource();
     }
 
+    ipcRenderer.send('SYNC_INFO_UPDATE', {
+      action: 'PULL',
+      kind: 'REMOTE',
+      name: path.fileName(),
+    });
+
     this.container.fileCreator
       .run(path.toString(false), ctx.estimatedSize)
-      .then(({ stream }: { stream: Writable }) => {
+      .then(({ stream }: { stream: Writable; upload: Promise<string> }) => {
         callback(undefined, stream);
+        ipcRenderer.send('SYNC_INFO_UPDATE', {
+          action: 'PULLED',
+          kind: 'REMOTE',
+          name: path.fileName(),
+        });
       })
       .catch((error: Error) => {
+        ipcRenderer.send('SYNC_INFO_UPDATE', {
+          action: 'PULL_ERROR',
+          kind: 'REMOTE',
+          name: path.fileName(),
+          errorName: error.name,
+          errorDetails: error.message,
+          process: 'SYNC',
+        });
         handleFileSystemError(error, 'Upload', 'File', ctx);
         callback(error);
       });
@@ -181,12 +222,54 @@ export class InternxtFileSystem extends FileSystem {
     ctx: OpenReadStreamInfo,
     callback: ReturnCallback<Readable>
   ): void {
+    ipcRenderer.send('SYNC_INFO_UPDATE', {
+      action: 'PULL',
+      kind: 'LOCAL',
+      name: path.fileName(),
+    });
+
     this.container.fileDonwloader
       .run(path.toString(false))
       .then((remoteFileContents: RemoteFileContents) => {
+        const totalLength = ctx.estimatedSize;
+        let uploadedSize = 0;
+        remoteFileContents.stream.on('data', (chunk) => {
+          uploadedSize += chunk.length || 0;
+          ipcRenderer.send('SYNC_INFO_UPDATE', {
+            action: 'PULL',
+            kind: 'LOCAL',
+            progress: (uploadedSize / totalLength),
+            name: path.fileName(),
+          });
+        });
+        remoteFileContents.stream.on('end', () => {
+          ipcRenderer.send('SYNC_INFO_UPDATE', {
+            action: 'PULLED',
+            kind: 'LOCAL',
+            name: path.fileName(),
+          });
+        });
+        remoteFileContents.stream.on('error', (err) => {
+          ipcRenderer.send('SYNC_INFO_UPDATE', {
+            action: 'PULL_ERROR',
+            kind: 'LOCAL',
+            name: path.fileName(),
+            errorName: err.name,
+            errorDetails: err.message,
+            process: 'SYNC',
+          });
+        });
         callback(undefined, remoteFileContents.stream);
       })
       .catch((error: Error) => {
+        ipcRenderer.send('SYNC_INFO_UPDATE', {
+          action: 'PULL_ERROR',
+          kind: 'LOCAL',
+          name: path.fileName(),
+          errorName: error.name,
+          errorDetails: error.message,
+          process: 'SYNC',
+        });
         handleFileSystemError(error, 'Download', 'File', ctx);
       });
   }
