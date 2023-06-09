@@ -1,6 +1,7 @@
 import Logger from 'electron-log';
 import { exec } from 'child_process';
 import configStore from '../../main/config';
+import { homedir } from 'os';
 
 const driveObject = {
   host: 'localhost',
@@ -47,7 +48,7 @@ export const getVirtualDrivePath = () => {
   if (process.platform === 'win32') {
     return getSavedLetter() + ':\\';
   } else {
-    return '~/InternxtDrive/';
+    return homedir() + '/InternxtDrive/';
   }
 };
 
