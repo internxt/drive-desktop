@@ -1,3 +1,4 @@
+import { FolderNotFoundError } from '../domain/errors/FolderNotFoundError';
 import { WebdavFolder } from '../domain/WebdavFolder';
 import { WebdavFolderRepository } from '../domain/WebdavFolderRepository';
 
@@ -8,7 +9,7 @@ export class WebdavFolderFinder {
     const folder = this.repository.search(path);
 
     if (!folder) {
-      throw new Error(`Folder ${path} not found`);
+      throw new FolderNotFoundError(path);
     }
 
     return folder;

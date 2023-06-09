@@ -2,25 +2,43 @@ import {
   WebDAVServer,
   WebDAVServerStartCallback,
   FileSystem,
+  IStorageManager,
 } from 'webdav-server/lib/index.v2';
 import { v2 as webdav } from 'webdav-server';
 import Logger from 'electron-log';
+import { DependencyContainer } from '../dependencyInjection/DependencyContainer';
+import { DomainEventSubscribers } from '../modules/shared/infrastructure/DomainEventSubscribers';
 
 export class InternxtWebdavServer {
+  private readonly container: DependencyContainer;
   readonly server: WebDAVServer;
 
-  constructor(port: number) {
+  constructor(
+    port: number,
+    container: DependencyContainer,
+    storageManager?: IStorageManager
+  ) {
     this.server = new webdav.WebDAVServer({
       hostname: 'localhost',
       port,
       requireAuthentification: false,
+      storageManager: storageManager,
     });
+    this.container = container;
+  }
+
+  private configureEventBus() {
+    this.container.eventBus.addSubscribers(
+      DomainEventSubscribers.from(this.container)
+    );
   }
 
   async start(
     fileSystems: { path: string; fs: FileSystem }[],
     options: { debug: boolean }
   ): Promise<void> {
+    this.configureEventBus();
+
     const fileSystemsMounted = fileSystems.map(
       (params: { path: string; fs: FileSystem }) => {
         return new Promise<void>((resolve, reject) => {
