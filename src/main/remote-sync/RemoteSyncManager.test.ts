@@ -5,13 +5,10 @@ import { RemoteSyncManager } from './RemoteSyncManager';
 import { RemoteSyncedFile, RemoteSyncedFolder } from './helpers';
 import * as uuid from 'uuid';
 import axios from 'axios';
-import Store from 'electron-store';
 
 jest.mock('axios');
-jest.mock('electron-store');
 
 const mockedAxios = axios as jest.Mocked<typeof axios>;
-const store = new Store() as jest.Mocked<Store>;
 
 const inMemorySyncedFilesCollection: DatabaseCollectionAdapter<DriveFile> = {
   get: jest.fn(),
@@ -104,8 +101,6 @@ describe('RemoteSyncManager', () => {
         syncFolders: true,
       }
     );
-    store.get.mockReturnValue(undefined);
-    store.set.mockReturnValue(undefined);
     mockedAxios.get.mockClear();
   });
 
