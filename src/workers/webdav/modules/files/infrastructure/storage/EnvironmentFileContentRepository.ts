@@ -57,9 +57,9 @@ export class EnvironmentFileContentRepository
   }
 
   async clone(file: WebdavFile): Promise<string> {
-    const stream = await this.download(file);
+    const remoteFileContents = await this.download(file);
 
-    return this.upload(file.size, stream);
+    return this.upload(file.size, remoteFileContents);
   }
 
   download(file: WebdavFile): Promise<Readable> {
@@ -72,7 +72,8 @@ export class EnvironmentFileContentRepository
             if (err) {
               reject(err);
             } else {
-              resolve(stream);
+              const remoteContents = RemoteFileContents.preview(file, stream);
+              resolve(remoteContents.stream);
             }
           },
         },
