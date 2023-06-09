@@ -27,7 +27,6 @@ import {
   MimeTypeInfo,
 } from 'webdav-server/lib/index.v2';
 import { Readable, Writable } from 'stream';
-import Logger from 'electron-log';
 import { DebugPhysicalSerializer } from './Serializer';
 import { handleFileSystemError } from '../error-handling';
 import { DependencyContainer } from '../../dependencyInjection/DependencyContainer';
@@ -134,7 +133,7 @@ export class InternxtFileSystem extends FileSystem {
       this.container.fileDeleter
         .run(item)
         .then(() => {
-          delete this.resources[item.value];
+          delete this.resources[item.path];
           callback(undefined);
         })
         .catch((error: Error) => {
@@ -208,9 +207,9 @@ export class InternxtFileSystem extends FileSystem {
 
     const changeResourceIndex = () => {
       this.resources[pathTo.toString(false)] =
-        this.resources[originalItem.value];
+        this.resources[originalItem.path];
 
-      delete this.resources[originalItem.value];
+      delete this.resources[originalItem.path];
     };
 
     if (originalItem.isFile()) {
@@ -302,16 +301,13 @@ export class InternxtFileSystem extends FileSystem {
     ctx: ReadDirInfo,
     callback: ReturnCallback<string[] | Path[]>
   ): void {
-    try {
-      const names = this.container.allItemsLister.run(path.toString(false));
-      callback(undefined, names);
-    } catch (error: unknown) {
-      const e =
-        error instanceof Error ? error : new Error('Error reading directory');
-
-      handleFileSystemError(e, 'Download', 'Folder', ctx);
-      callback(e);
-    }
+    this.container.allItemsLister
+      .run(path.toString(false))
+      .then((names) => callback(undefined, names))
+      .catch((error: Error) => {
+        handleFileSystemError(error, 'Download', 'Folder', ctx);
+        callback(error);
+      });
   }
 
   _displayName(
@@ -323,7 +319,6 @@ export class InternxtFileSystem extends FileSystem {
       path.toString(false),
       'name'
     );
-
     if (!data) {
       return callback(Errors.ResourceNotFound);
     }

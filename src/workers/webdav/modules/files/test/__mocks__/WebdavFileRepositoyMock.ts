@@ -30,7 +30,7 @@ export class WebdavFileRepositoryMock implements WebdavFileRepository {
     return this.mockUpdateParentDir(item);
   }
 
-  searchOnFolder(folderId: number): WebdavFile[] {
+  searchOnFolder(folderId: number): Promise<Array<WebdavFile>> {
     return this.mockSearchOnFolder(folderId);
   }
 

@@ -1,4 +1,4 @@
-import { Nullable } from '../../../../shared/types/Nullable';
+import { FilePath } from '../../files/domain/FilePath';
 import { WebdavFile } from '../../files/domain/WebdavFile';
 import { WebdavFileRepository } from '../../files/domain/WebdavFileRepository';
 import { WebdavFolder } from '../../folders/domain/WebdavFolder';
@@ -10,8 +10,8 @@ export class WebdavUnknownItemTypeSearcher {
     private readonly folderRepository: WebdavFolderRepository
   ) {}
 
-  run(path: string): Nullable<WebdavFile | WebdavFolder> {
-    const file = this.filesRepository.search(path);
+  run(path: string): WebdavFile | WebdavFolder | undefined {
+    const file = this.filesRepository.search(new FilePath(path));
 
     if (file) return file;
 

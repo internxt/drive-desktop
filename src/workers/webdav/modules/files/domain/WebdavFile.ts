@@ -114,13 +114,13 @@ export class WebdavFile extends AggregateRoot {
   }
 
   clone(fileId: string, folderId: number, newPath: FilePath) {
-    if (!this._path.hasSameDirname(newPath)) {
-      throw new FileActionOnlyCanAffectOneLevelError('clone');
-    }
+    // if (!this._path.hasSameDirname(newPath)) {
+    //   throw new FileActionOnlyCanAffectOneLevelError('clone');
+    // }
 
-    if (this._path.hasSameName(newPath)) {
-      throw new FileNameShouldDifferFromOriginalError('clone');
-    }
+    // if (this._path.hasSameName(newPath)) {
+    //   throw new FileNameShouldDifferFromOriginalError('clone');
+    // }
 
     const file = new WebdavFile(
       fileId,

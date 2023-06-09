@@ -14,7 +14,7 @@ export interface WebdavFolderRepository {
 
   updateParentDir(folder: WebdavFolder): Promise<void>;
 
-  searchOn(folder: WebdavFolder): Array<WebdavFolder>;
+  searchOn(folder: WebdavFolder): Promise<Array<WebdavFolder>>;
 
   trash(folder: WebdavFolder): Promise<void>;
 }

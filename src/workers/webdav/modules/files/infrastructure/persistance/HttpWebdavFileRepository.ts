@@ -191,7 +191,8 @@ export class HttpWebdavFileRepository implements WebdavFileRepository {
     await this.init();
   }
 
-  searchOnFolder(folderId: number): Array<WebdavFile> {
+  async searchOnFolder(folderId: number): Promise<Array<WebdavFile>> {
+    await this.init();
     return Object.values(this.files).filter((file) => file.hasParent(folderId));
   }
 }

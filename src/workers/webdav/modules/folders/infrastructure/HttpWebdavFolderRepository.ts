@@ -118,8 +118,6 @@ export class HttpWebdavFolderRepository implements WebdavFolderRepository {
 
     this.folders[path.value] = folder;
 
-    await this.init();
-
     return folder;
   }
 
@@ -154,10 +152,11 @@ export class HttpWebdavFolderRepository implements WebdavFolderRepository {
       throw new Error(`[REPOSITORY] Error moving item: ${res.status}`);
     }
 
-    this.folders[folder.path] = folder;
+    await this.init();
   }
 
-  searchOn(folder: WebdavFolder): Array<WebdavFolder> {
+  async searchOn(folder: WebdavFolder): Promise<Array<WebdavFolder>> {
+    await this.init();
     return Object.values(this.folders).filter((f) => f.isIn(folder));
   }
 
