@@ -24,7 +24,7 @@ export class WebdavFileDownloader {
 
     const remoteContents = RemoteFileContents.preview(file, readable);
 
-    this.eventBus.publish(remoteContents.pullDomainEvents());
+    await this.eventBus.publish(remoteContents.pullDomainEvents());
 
     return remoteContents;
   }

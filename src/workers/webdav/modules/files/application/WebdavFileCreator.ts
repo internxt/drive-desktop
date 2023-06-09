@@ -31,7 +31,7 @@ export class WebdavFileCreator {
 
     this.temporalFileCollection.remove(filePath.value);
 
-    this.eventBus.publish(file.pullDomainEvents());
+    await this.eventBus.publish(file.pullDomainEvents());
 
     return file;
   }

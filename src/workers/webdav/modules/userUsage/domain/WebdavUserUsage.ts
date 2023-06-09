@@ -24,7 +24,7 @@ export class WebdavUserUsage {
   }
 
   incrementDriveUsage(usage: number) {
-    this._drive + usage;
+    this._drive += usage;
   }
 
   totalInUse(): number {
