@@ -1,3 +1,7 @@
+jest.mock('@sentry/electron/main', () => ({
+  init: () => jest.fn(),
+  captureException: () => jest.fn(),
+}));
 import { DatabaseCollectionAdapter } from 'main/database/adapters/base';
 import { DriveFile } from 'main/database/entities/DriveFile';
 import { DriveFolder } from 'main/database/entities/DriveFolder';
