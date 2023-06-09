@@ -1,34 +1,48 @@
+import { Primitives } from 'shared/types/Primitives';
 import { WebdavFile } from '../../files/domain/WebdavFile';
-import { WebdavItem } from '../../shared/domain/WebdavItem';
+import { AggregateRoot } from '../../shared/domain/AggregateRoot';
 import { FolderPath } from './FolderPath';
 
 export type WebdavFolderAttributes = {
   id: number;
-  name: string;
   path: string;
   parentId: null | number;
   updatedAt: string;
   createdAt: string;
 };
 
-export class WebdavFolder extends WebdavItem {
+export class WebdavFolder extends AggregateRoot {
   public readonly size: number = 0;
 
   private constructor(
     public readonly id: number,
-    public readonly name: string,
-    public readonly path: FolderPath,
-    public readonly parentId: null | number,
+    private _path: FolderPath,
+    private _parentId: null | number,
     public readonly createdAt: Date,
     public readonly updatedAt: Date
   ) {
     super();
   }
 
+  public get path() {
+    return this._path.value;
+  }
+
+  public get name() {
+    return this._path.name();
+  }
+
+  public get dirname() {
+    return this._path.dirname();
+  }
+
+  public get parentId() {
+    return this._parentId;
+  }
+
   static from(attributes: WebdavFolderAttributes): WebdavFolder {
     return new WebdavFolder(
       attributes.id,
-      attributes.name,
       new FolderPath(attributes.path),
       attributes.parentId,
       new Date(attributes.updatedAt),
@@ -46,7 +60,6 @@ export class WebdavFolder extends WebdavItem {
   }) {
     return new WebdavFolder(
       attributes.id,
-      attributes.name,
       new FolderPath(attributes.path),
       attributes.parentId,
       new Date(attributes.updatedAt),
@@ -54,46 +67,37 @@ export class WebdavFolder extends WebdavItem {
     );
   }
 
-  moveTo(folder: WebdavFolder): WebdavFolder {
-    if (!this.parentId) {
+  moveTo(folder: WebdavFolder) {
+    if (!this._parentId) {
       throw new Error('Root folder cannot be moved');
     }
 
-    if (this.parentId === folder.id) {
-      throw new Error('Cannot move a folder to its current parent folder');
+    if (this._parentId === folder.id) {
+      throw new Error('Cannot move a folder to its current folder');
     }
 
-    const basePath = folder.path.dirname();
+    this._path = this._path.changeFolder(folder.path);
+    this._parentId = folder.id;
 
-    return new WebdavFolder(
-      this.id,
-      this.name,
-      FolderPath.fromParts([basePath, this.name]),
-      folder.id,
-      new Date(this.createdAt),
-      new Date(this.updatedAt)
-    );
+    //TODO: record moved event
   }
 
-  rename(newPath: FolderPath): WebdavFolder {
-    if (this.path.hasSameName(newPath)) {
+  rename(newPath: FolderPath) {
+    if (this._path.hasSameName(newPath)) {
       throw new Error('Cannot rename a folder to the same name');
     }
 
-    const newName = newPath.name();
+    this._path = this._path.updateName(newPath.name());
 
-    return new WebdavFolder(
-      this.id,
-      newName,
-      newPath,
-      this.parentId,
-      new Date(this.updatedAt),
-      new Date(this.createdAt)
-    );
+    //TODO: record rename event
   }
 
-  hasParent(id: number): boolean {
-    return this.parentId === id;
+  trash() {
+    // TODO: recored trashed event
+  }
+
+  isIn(folder: WebdavFolder): boolean {
+    return this._parentId === folder.id;
   }
 
   isFolder(): this is WebdavFolder {
@@ -104,11 +108,10 @@ export class WebdavFolder extends WebdavItem {
     return false;
   }
 
-  toProps(): Record<string, string | number> {
+  toPrimitives(): Record<string, Primitives> {
     return {
       id: this.id,
-      name: this.name,
-      parentId: this.parentId || 0,
+      parentId: this._parentId || 0,
       updatedAt: this.updatedAt.getTime(),
       createdAt: this.createdAt.getTime(),
     };

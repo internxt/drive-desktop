@@ -2,6 +2,12 @@ import packageJson from '../../../package.json';
 import ConfigStore from '../config';
 import { client } from './rudderstack-client';
 import os from 'os';
+import Logger from 'electron-log';
+import {
+  TrackedWebdavServerErrorEvents,
+  TrackedWebdavServerEvents,
+  WebdavErrorContext,
+} from '../../shared/IPC/events/webdav';
 
 function platformShortName(platform: string) {
   switch (platform) {
@@ -243,6 +249,47 @@ export function backupError(
       number_of_items: numberOfItems,
       message: issues,
     },
+    context: deviceContext,
+  });
+}
+
+export function trackWebdavEvent(
+  event: TrackedWebdavServerEvents,
+  properties: Record<string, any>
+) {
+  const { uuid: userId } = ConfigStore.get('userData');
+  Logger.debug('Tracked event', {
+    userId,
+    event: event,
+    properties,
+    context: deviceContext,
+  });
+
+  client.track({
+    userId,
+    event: event,
+    properties,
+    context: deviceContext,
+  });
+}
+
+export function trackWebdavError(
+  event: TrackedWebdavServerErrorEvents,
+  error: Error,
+  context: WebdavErrorContext
+) {
+  const { uuid: userId } = ConfigStore.get('userData');
+
+  const properties = {
+    item: context.from,
+    type: context.itemType,
+    error: error.message,
+  };
+
+  client.track({
+    userId,
+    event: event,
+    properties,
     context: deviceContext,
   });
 }

@@ -1,9 +1,7 @@
-import { TextEncoder, TextDecoder } from 'util';
-Object.assign(global, { TextDecoder, TextEncoder });
-
 import { Environment } from '@internxt/inxt-js';
 import { Readable } from 'stream';
 import { EnvironmentFileContentRepository } from '../../../../files/infrastructure/storage/EnvironmentFileContentRepository';
+import { WebdavFileMother } from '../../domain/WebdavFileMother';
 
 describe.skip('Environment File Content Repository', () => {
   const environment = new Environment({
@@ -36,15 +34,15 @@ describe.skip('Environment File Content Repository', () => {
 
   describe('download', () => {
     it('returns a readable with the file contents', async () => {
-      const fileId = '81d76827-0f85-5e17-a847-ddcfcfb924a4';
+      const file = WebdavFileMother.any();
 
       mockDownload.mockImplementationOnce((_bucket, _fileId, cbs) => {
         cbs.finishedCallback(undefined, new Readable());
       });
 
-      const readable = await reposiotry.download(fileId);
+      const stream = await reposiotry.download(file);
 
-      expect(readable.readable).toBe(true);
+      expect(stream.readable).toBe(true);
     });
   });
 });

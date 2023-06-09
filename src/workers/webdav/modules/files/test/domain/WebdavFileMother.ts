@@ -1,3 +1,4 @@
+import { FilePath } from '../../domain/FilePath';
 import { WebdavFile } from '../../domain/WebdavFile';
 
 export class WebdavFileMother {
@@ -7,10 +8,20 @@ export class WebdavFileMother {
       folderId: 3972,
       createdAt: new Date().toISOString(),
       modificationTime: new Date().toISOString(),
-      name: 'Dilbusege',
       path: `/${path}/Dilbusege.png`,
-      size: 89392497343943580,
-      type: 'png',
+      size: 8939,
+      updatedAt: new Date().toISOString(),
+    });
+  }
+
+  static fromPath(path: string) {
+    return WebdavFile.from({
+      fileId: '97e83f0d-fde7-5d2b-8158-1df5ffe8abc1',
+      folderId: 3972960,
+      createdAt: new Date().toISOString(),
+      modificationTime: new Date().toISOString(),
+      path: path,
+      size: 893924973,
       updatedAt: new Date().toISOString(),
     });
   }
@@ -21,10 +32,8 @@ export class WebdavFileMother {
       folderId: 3972960,
       createdAt: new Date().toISOString(),
       modificationTime: new Date().toISOString(),
-      name: 'Dilbusege',
       path: '/Vakwogfud/Dilbusege.png',
-      size: 89392497343943580,
-      type: 'png',
+      size: 893924973,
       updatedAt: new Date().toISOString(),
     });
   }

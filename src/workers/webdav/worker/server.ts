@@ -1,37 +1,62 @@
 import {
   WebDAVServer,
   WebDAVServerStartCallback,
+  FileSystem,
+  IStorageManager,
 } from 'webdav-server/lib/index.v2';
-import { InternxtFileSystem } from './InternxtFileSystem/InternxtFileSystem';
 import { v2 as webdav } from 'webdav-server';
 import Logger from 'electron-log';
+import { DependencyContainer } from '../dependencyInjection/DependencyContainer';
+import { DomainEventSubscribers } from '../modules/shared/infrastructure/DomainEventSubscribers';
 
 export class InternxtWebdavServer {
+  private readonly container: DependencyContainer;
   readonly server: WebDAVServer;
 
-  constructor(port: number, private readonly fileSystem: InternxtFileSystem) {
+  constructor(
+    port: number,
+    container: DependencyContainer,
+    storageManager?: IStorageManager
+  ) {
     this.server = new webdav.WebDAVServer({
       hostname: 'localhost',
       port,
       requireAuthentification: false,
+      storageManager: storageManager,
     });
+    this.container = container;
   }
 
-  async start(debug: boolean): Promise<void> {
-    const mounted = new Promise<void>((resolve, reject) => {
-      this.server.setFileSystem('/', this.fileSystem, (success) => {
-        if (success) {
-          Logger.info('[WEBDAB SERVER] INTERNXT FS MOUNTED');
-          return resolve();
-        }
+  private configureEventBus() {
+    this.container.eventBus.addSubscribers(
+      DomainEventSubscribers.from(this.container)
+    );
+  }
 
-        reject();
-      });
-    });
+  async start(
+    fileSystems: { path: string; fs: FileSystem }[],
+    options: { debug: boolean }
+  ): Promise<void> {
+    this.configureEventBus();
 
-    await mounted;
+    const fileSystemsMounted = fileSystems.map(
+      (params: { path: string; fs: FileSystem }) => {
+        return new Promise<void>((resolve, reject) => {
+          this.server.setFileSystem(params.path, params.fs, (success) => {
+            if (success) {
+              Logger.info('[WEBDAB SERVER] INTERNXT FS MOUNTED');
+              return resolve();
+            }
 
-    if (debug) {
+            reject();
+          });
+        });
+      }
+    );
+
+    await Promise.allSettled(fileSystemsMounted);
+
+    if (options.debug) {
       this.server.afterRequest((arg, next) => {
         Logger.debug(
           '>>',

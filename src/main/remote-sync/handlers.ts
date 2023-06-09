@@ -19,17 +19,17 @@ const remoteSyncManager = new RemoteSyncManager(
     syncFolders: true,
   }
 );
-eventBus.on('USER_LOGGED_IN', () => {
-  Logger.info('Received user logged in event, running RemoteSyncManager');
-  remoteSyncManager.onStatusChange((newStatus) => {
-    Logger.info(`RemoteSyncManager status: ${newStatus}`);
-  });
+// eventBus.on('USER_LOGGED_IN', () => {
+//   Logger.info('Received user logged in event, running RemoteSyncManager');
+//   remoteSyncManager.onStatusChange((newStatus) => {
+//     Logger.info(`RemoteSyncManager status: ${newStatus}`);
+//   });
 
-  remoteSyncManager.startRemoteSync().catch((error) => {
-    Logger.error('Error starting remote sync manager', error);
-    reportError(error);
-  });
-});
+//   remoteSyncManager.startRemoteSync().catch((error) => {
+//     Logger.error('Error starting remote sync manager', error);
+//     reportError(error);
+//   });
+// });
 
 eventBus.on('USER_LOGGED_OUT', () => {
   clearRemoteSyncStore();

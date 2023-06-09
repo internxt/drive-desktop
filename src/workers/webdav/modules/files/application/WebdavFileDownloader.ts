@@ -1,20 +1,31 @@
-import { Readable } from 'stream';
-import { FileContentRepository } from '../domain/storage/FileContentRepository';
+import { WebdavServerEventBus } from '../../shared/domain/WebdavServerEventBus';
+import { FileNotFoundError } from '../domain/errors/FileNotFoundError';
+import { RemoteFileContentsRepository } from '../domain/RemoteFileContentsRepository';
+import { RemoteFileContents } from '../domain/RemoteFileContent';
 import { WebdavFileRepository } from '../domain/WebdavFileRepository';
+import { FilePath } from '../domain/FilePath';
 
 export class WebdavFileDownloader {
   constructor(
     private readonly repository: WebdavFileRepository,
-    private readonly contents: FileContentRepository
+    private readonly contents: RemoteFileContentsRepository,
+    private readonly eventBus: WebdavServerEventBus
   ) {}
 
-  async run(path: string): Promise<Readable> {
-    const file = this.repository.search(path);
+  async run(path: string): Promise<RemoteFileContents> {
+    const filePath = new FilePath(path);
+    const file = this.repository.search(filePath);
 
     if (!file) {
-      throw new Error('File not found');
+      throw new FileNotFoundError(path);
     }
 
-    return this.contents.download(file.fileId);
+    const readable = await this.contents.download(file);
+
+    const remoteContents = RemoteFileContents.preview(file, readable);
+
+    this.eventBus.publish(remoteContents.pullDomainEvents());
+
+    return remoteContents;
   }
 }

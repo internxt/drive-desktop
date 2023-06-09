@@ -7,7 +7,7 @@ import {
   SyncConfig,
   SYNC_OFFSET_MS,
 } from './helpers';
-import { reportError } from '../bug-report/service';
+// import { reportError } from '../bug-report/service';
 
 import { DatabaseCollectionAdapter } from '../database/adapters/base';
 import { Axios } from 'axios';
@@ -189,11 +189,11 @@ export class RemoteSyncManager {
       });
     } catch (error) {
       Logger.error('Remote files sync failed ', error);
-      reportError(error as Error, {
-        lastFilesSyncAt: lastFilesSyncAt
-          ? lastFilesSyncAt.toISOString()
-          : 'INITIAL_FILES_SYNC',
-      });
+      // reportError(error as Error, {
+      //   lastFilesSyncAt: lastFilesSyncAt
+      //     ? lastFilesSyncAt.toISOString()
+      //     : 'INITIAL_FILES_SYNC',
+      // });
       if (syncConfig.retry >= syncConfig.maxRetries) {
         // No more retries allowed,
         this.filesSyncStatus = 'SYNC_FAILED';
@@ -251,11 +251,11 @@ export class RemoteSyncManager {
       });
     } catch (error) {
       Logger.error('Remote folders sync failed ', error);
-      reportError(error as Error, {
-        lastFoldersSyncAt: lastFoldersSyncAt
-          ? lastFoldersSyncAt.toISOString()
-          : 'INITIAL_FOLDERS_SYNC',
-      });
+      // reportError(error as Error, {
+      //   lastFoldersSyncAt: lastFoldersSyncAt
+      //     ? lastFoldersSyncAt.toISOString()
+      //     : 'INITIAL_FOLDERS_SYNC',
+      // });
       if (syncConfig.retry >= syncConfig.maxRetries) {
         // No more retries allowed,
         this.foldersSyncStatus = 'SYNC_FAILED';

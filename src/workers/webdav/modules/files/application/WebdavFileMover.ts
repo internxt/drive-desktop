@@ -3,21 +3,32 @@ import { WebdavFolderFinder } from '../../folders/application/WebdavFolderFinder
 import { FilePath } from '../domain/FilePath';
 import { WebdavFile } from '../domain/WebdavFile';
 import { WebdavFileRepository } from '../domain/WebdavFileRepository';
+import { FileAlreadyExistsError } from '../domain/errors/FileAlreadyExistsError';
+import { UnknownFileActionError } from '../domain/errors/UnknownFileActionError';
+import { ActionNotPermitedError } from '../domain/errors/ActionNotPermitedError';
+import { WebdavServerEventBus } from '../../shared/domain/WebdavServerEventBus';
 
 export class WebdavFileMover {
   constructor(
     private readonly repository: WebdavFileRepository,
-    private readonly folderFinder: WebdavFolderFinder
+    private readonly folderFinder: WebdavFolderFinder,
+    private readonly eventBus: WebdavServerEventBus
   ) {}
 
   private async rename(file: WebdavFile, path: FilePath) {
-    const renamed = file.rename(path);
-    return await this.repository.updateName(renamed);
+    file.rename(path);
+
+    await this.repository.updateName(file);
+
+    await this.eventBus.publish(file.pullDomainEvents());
   }
 
   private async move(file: WebdavFile, folder: WebdavFolder) {
-    const moved = file.moveTo(folder);
-    await this.repository.updateParentDir(moved);
+    file.moveTo(folder);
+
+    await this.repository.updateParentDir(file);
+
+    await this.eventBus.publish(file.pullDomainEvents());
   }
 
   private async overwite(
@@ -25,10 +36,18 @@ export class WebdavFileMover {
     destinationFile: WebdavFile,
     folder: WebdavFolder
   ) {
-    const moved = file.moveTo(folder);
+    file.moveTo(folder);
+    destinationFile.trash();
 
     await this.repository.delete(destinationFile);
-    await this.repository.updateParentDir(moved);
+    await this.repository.updateParentDir(file);
+
+    await this.eventBus.publish(file.pullDomainEvents());
+    await this.eventBus.publish(destinationFile.pullDomainEvents());
+  }
+
+  private noMoreActionsLeft(action: never) {
+    if (action) throw new UnknownFileActionError('WebdavFileMover');
   }
 
   async run(
@@ -36,37 +55,38 @@ export class WebdavFileMover {
     to: string,
     overwrite: boolean
   ): Promise<boolean> {
-    const destination = new FilePath(to);
-    const destinationFile = this.repository.search(destination.value);
+    const desiredPath = new FilePath(to);
+    const destinationFile = this.repository.search(desiredPath);
 
-    const hasToBeOverriden =
+    const hasToBeOverwritten =
       destinationFile !== undefined && destinationFile !== null;
 
-    if (hasToBeOverriden && !overwrite) {
-      throw new Error('File already exists');
+    if (hasToBeOverwritten && !overwrite) {
+      throw new FileAlreadyExistsError(to);
     }
 
-    const destinationFolder = this.folderFinder.run(destination.dirname());
+    const destinationFolder = this.folderFinder.run(desiredPath.dirname());
 
     if (file.hasParent(destinationFolder.id)) {
-      if (hasToBeOverriden) {
-        throw new Error('Cannot rename a file to an existing file name');
+      if (hasToBeOverwritten) {
+        throw new ActionNotPermitedError('overwrite');
       }
 
-      await this.rename(file, destination);
+      await this.rename(file, desiredPath);
       return false;
     }
 
-    if (!hasToBeOverriden) {
+    if (!hasToBeOverwritten) {
       await this.move(file, destinationFolder);
       return false;
     }
 
-    if (hasToBeOverriden) {
+    if (hasToBeOverwritten) {
       await this.overwite(file, destinationFile, destinationFolder);
       return true;
     }
 
-    throw new Error('Could not complete file move');
+    this.noMoreActionsLeft(hasToBeOverwritten);
+    return false;
   }
 }
