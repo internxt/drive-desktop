@@ -1,14 +1,17 @@
+import { Storage } from '@internxt/sdk/dist/drive';
 import PhotosSubmodule from '@internxt/sdk/dist/photos/photos';
 import Logger from 'electron-log';
-import { getClient } from '../../shared/HttpClient/main-process-client';
-
+import { appInfo } from '../app-info/app-info';
+import { onUserUnauthorized } from '../auth/handlers';
 import { obtainToken } from '../auth/service';
 import { Usage } from './usage';
-
 const driveUrl = process.env.API_URL;
 const photosUrl = process.env.PHOTOS_URL;
 
-const httpClient = getClient();
+const INFINITE_SPACE_TRHESHOLD = 108851651149824 as const;
+const OFFER_UPGRADE_TRHESHOLD = 2199023255552 as const;
+
+const { name: clientName, version: clientVersion } = appInfo;
 
 async function getPhotosUsage(): Promise<number> {
   if (!photosUrl) {
@@ -36,29 +39,31 @@ async function getPhotosUsage(): Promise<number> {
 }
 
 async function getDriveUsage(): Promise<number> {
-  const r = await httpClient.get(`${driveUrl}/api/usage`);
+  const storage = Storage.client(
+    driveUrl,
+    { clientName, clientVersion },
+    {
+      token: obtainToken('bearerToken'),
+      unauthorizedCallback: onUserUnauthorized,
+    }
+  );
+  const usage = await storage.spaceUsage();
 
-  if (r.status !== 200) {
-    Logger.error('Drive usage request failed');
-    throw new Error(
-      `Drive usage request failed with ${r.status} ${r.statusText}`
-    );
-  }
-
-  return r.data.total || 0;
+  return usage.total;
 }
 
 async function getLimit(): Promise<number> {
-  const response = await httpClient.get(`${driveUrl}/api/limit`);
+  const storage = Storage.client(
+    driveUrl,
+    { clientName, clientVersion },
+    {
+      token: obtainToken('bearerToken'),
+      unauthorizedCallback: onUserUnauthorized,
+    }
+  );
+  const { maxSpaceBytes } = await storage.spaceLimit();
 
-  if (response.status !== 200) {
-    Logger.error('Limit request failed');
-    throw new Error(
-      `Limit request failed with ${response.status} ${response.statusText}`
-    );
-  }
-
-  return response.data.maxSpaceBytes as number;
+  return maxSpaceBytes;
 }
 
 export async function calculateUsage(): Promise<Usage> {
@@ -71,7 +76,7 @@ export async function calculateUsage(): Promise<Usage> {
   return {
     usageInBytes: driveUsage + photosUsage,
     limitInBytes,
-    isInfinite: limitInBytes >= 108851651149824,
-    offerUpgrade: limitInBytes < 2199023255552,
+    isInfinite: limitInBytes >= INFINITE_SPACE_TRHESHOLD,
+    offerUpgrade: limitInBytes < OFFER_UPGRADE_TRHESHOLD,
   };
 }

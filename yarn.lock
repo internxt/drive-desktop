@@ -1338,10 +1338,19 @@
   resolved "https://npm.pkg.github.com/download/@internxt/lib/1.2.0/172d7929abb3dc34fda044ad9977875791f7a471"
   integrity sha512-14byNxSU0S0KSc3g+BWiJb7/fcHUfqxkHQRz9fwJhAHNmgOo+Bhx13xXk07KKUzeNX1JymSGEZkVCk0AOQiM+Q==
 
-"@internxt/sdk@^1.4.22", "@internxt/sdk@^1.4.27":
+"@internxt/sdk@^1.4.27":
   version "1.4.30"
   resolved "https://npm.pkg.github.com/download/@internxt/sdk/1.4.30/ff86b1ad1e6272c8303a97576a3dab50642025a3"
   integrity sha512-ipzVnnwtVb9aEewrHC6997OAgrusVmHq5vvNOtLtoiRz3zWieM1pY2BK223junf3CXAiSbNhA89iiICatpbJ2w==
+  dependencies:
+    axios "^0.24.0"
+    query-string "^7.1.0"
+    uuid "^8.3.2"
+
+"@internxt/sdk@^1.4.33":
+  version "1.4.33"
+  resolved "https://npm.pkg.github.com/download/@internxt/sdk/1.4.33/f4ebf3103bdf888b07ac93f60f9df106ea20a117#f4ebf3103bdf888b07ac93f60f9df106ea20a117"
+  integrity sha512-x6zCwljmKg6sXg+wFzQ581ZeWLPQd5LSuobaYX7eEG2ITHxxhWYeOBLeyogUK/DJvysn//glBasR+zlfmw74Kg==
   dependencies:
     axios "^0.24.0"
     query-string "^7.1.0"
