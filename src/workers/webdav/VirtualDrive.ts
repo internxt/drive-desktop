@@ -22,7 +22,7 @@ export const mountDrive = async (): Promise<void> => {
     }
   } else if (process.platform === 'darwin') {
     await mountMacOSDrive(driveName);
-  } else if (process.platform === 'android') {
+  } else if (process.platform === 'linux') {
     await mountLinuxDrive();
   }
   return Promise.reject(
