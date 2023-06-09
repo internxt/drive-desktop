@@ -1,3 +1,24 @@
+const trackedEvents = [
+  'delete',
+  'upload',
+  'download',
+  'preview',
+  'move',
+] as const;
+export type TrackedWebdavServerEvents = Capitalize<
+  (typeof trackedEvents)[number]
+>;
+
+export type TrackedWebdavServerErrorEvents =
+  `${TrackedWebdavServerEvents} Error`;
+
+export type WebdavErrorContext = {
+  action: TrackedWebdavServerEvents;
+  itemType: 'File' | 'Folder';
+  from: string;
+  root: string;
+};
+
 export type WebDavProcessEvents = {
   WEBDAV_SERVER_START_SUCCESS: () => void;
   WEBDAV_SERVER_START_ERROR: (err: Error) => void;
@@ -6,7 +27,7 @@ export type WebDavProcessEvents = {
   WEBDAV_SERVER_ADDING_ROOT_FOLDER_ERROR: (err: Error) => void;
   WEBDAV_VIRTUAL_DRIVE_MOUNTED_SUCCESSFULLY: () => void;
   WEBDAV_VIRTUAL_DRIVE_MOUNT_ERROR: (err: Error) => void;
-  WEBDAV_ACTION_ERROR: (err: Error) => void;
+  WEBDAV_ACTION_ERROR: (err: Error, ctx: WebdavErrorContext) => void;
 };
 
 export type WebdavMainEvents = {

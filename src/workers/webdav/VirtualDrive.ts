@@ -20,11 +20,15 @@ export const mountDrive = async (): Promise<void> => {
         await renameWindowsDrive();
       }
     }
+    return;
   } else if (process.platform === 'darwin') {
     await mountMacOSDrive(driveName);
-  } else if (process.platform === 'android') {
+    return;
+  } else if (process.platform === 'linux') {
     await mountLinuxDrive();
+    return;
   }
+
   return Promise.reject(
     new Error(`Platform ${process.platform} not supported`)
   );

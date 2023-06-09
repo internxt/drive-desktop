@@ -19,4 +19,20 @@ export class FolderPath extends WebdavPath {
 
     return new FolderPath(full);
   }
+
+  name(): string {
+    if (this.value === '/') {
+      return 'Internxt Drive';
+    }
+
+    return super.name();
+  }
+
+  updateName(name: string): FolderPath {
+    return FolderPath.fromParts([this.dirname(), name]);
+  }
+
+  changeFolder(folder: string): FolderPath {
+    return FolderPath.fromParts([folder, this.name()]);
+  }
 }

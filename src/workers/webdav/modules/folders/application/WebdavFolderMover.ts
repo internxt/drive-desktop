@@ -11,34 +11,34 @@ export class WebdavFolderMover {
   ) {}
 
   private async rename(folder: WebdavFolder, path: FolderPath) {
-    const renamedItem = folder.rename(path);
+    folder.rename(path);
 
-    await this.repository.updateName(renamedItem);
+    await this.repository.updateName(folder);
   }
 
   private async move(folder: WebdavFolder, parentFolder: WebdavFolder) {
-    const moved = folder.moveTo(parentFolder);
+    folder.moveTo(parentFolder);
 
-    await this.repository.updateParentDir(moved);
+    await this.repository.updateParentDir(folder);
   }
 
   async run(folder: WebdavFolder, to: string): Promise<void> {
     const destination = new FolderPath(to);
-    const destinationFolder = this.repository.search(destination.value);
+    const resultFolder = this.repository.search(destination.value);
 
-    const shouldBeMerge = destinationFolder !== undefined;
+    const shouldBeMerge = resultFolder !== undefined;
 
     if (shouldBeMerge) {
       throw new ActionNotPermitedError('overwrite');
     }
 
-    const parentFolder = this.folderFinder.run(destination.dirname());
+    const destinationFolder = this.folderFinder.run(destination.dirname());
 
-    if (folder.hasParent(parentFolder.id)) {
+    if (folder.isIn(destinationFolder)) {
       await this.rename(folder, destination);
       return;
     }
 
-    await this.move(folder, parentFolder);
+    await this.move(folder, destinationFolder);
   }
 }

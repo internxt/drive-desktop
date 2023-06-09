@@ -8,13 +8,13 @@ import { WebdavFile } from '../../domain/WebdavFile';
 import { WebdavFileRepository } from '../../domain/WebdavFileRepository';
 import * as uuid from 'uuid';
 import { Traverser } from '../../../../modules/items/application/Traverser';
-import Logger from 'electron-log';
 import { AddFileDTO } from './dtos/AddFileDTO';
 import { UpdateFileParentDirDTO } from './dtos/UpdateFileParentDirDTO';
 import { UpdateFileNameDTO } from './dtos/UpdateFileNameDTO';
+import { FilePath } from '../../domain/FilePath';
 
 export class HttpWebdavFileRepository implements WebdavFileRepository {
-  private items: Record<string, WebdavFile> = {};
+  private files: Record<string, WebdavFile> = {};
 
   constructor(
     private readonly httpClient: Axios,
@@ -72,14 +72,14 @@ export class HttpWebdavFileRepository implements WebdavFileRepository {
       value.isFile()
     ) as Array<[string, WebdavFile]>;
 
-    this.items = files.reduce((items, [key, value]) => {
+    this.files = files.reduce((items, [key, value]) => {
       items[key] = value;
       return items;
     }, {} as Record<string, WebdavFile>);
   }
 
-  search(pathLike: string): Nullable<WebdavFile> {
-    const item = this.items[pathLike];
+  search(path: FilePath): Nullable<WebdavFile> {
+    const item = this.files[path.value];
 
     return item;
   }
@@ -98,7 +98,7 @@ export class HttpWebdavFileRepository implements WebdavFileRepository {
     );
 
     if (result.status === 200) {
-      delete this.items[file.path.value];
+      delete this.files[file.path];
     }
   }
 
@@ -141,17 +141,17 @@ export class HttpWebdavFileRepository implements WebdavFileRepository {
       ...result.data,
       folderId: result.data.folder_id,
       size: parseInt(result.data.size, 10),
-      path: file.path.value,
+      path: file.path,
     });
 
-    this.items[file.path.value] = created;
+    this.files[file.path] = created;
   }
 
-  async updateName(item: WebdavFile): Promise<void> {
-    const url = `${process.env.API_URL}/api/storage/file/${item.fileId}/meta`;
+  async updateName(file: WebdavFile): Promise<void> {
+    const url = `${process.env.API_URL}/api/storage/file/${file.fileId}/meta`;
 
     const body: UpdateFileNameDTO = {
-      metadata: { itemName: item.name },
+      metadata: { itemName: file.name },
       bucketId: this.bucket,
       relativePath: uuid.v4(),
     };
@@ -164,7 +164,15 @@ export class HttpWebdavFileRepository implements WebdavFileRepository {
       );
     }
 
-    await this.init();
+    const oldFile = Object.values(this.files).filter(
+      (file) => file.fileId === file.fileId
+    )[0];
+
+    if (oldFile) {
+      delete this.files[oldFile.path];
+    }
+
+    this.files[file.path] = file;
   }
 
   async updateParentDir(item: WebdavFile): Promise<void> {
@@ -183,7 +191,8 @@ export class HttpWebdavFileRepository implements WebdavFileRepository {
     await this.init();
   }
 
-  searchOnFolder(folderId: number): Array<WebdavFile> {
-    return Object.values(this.items).filter((file) => file.hasParent(folderId));
+  async searchOnFolder(folderId: number): Promise<Array<WebdavFile>> {
+    await this.init();
+    return Object.values(this.files).filter((file) => file.hasParent(folderId));
   }
 }

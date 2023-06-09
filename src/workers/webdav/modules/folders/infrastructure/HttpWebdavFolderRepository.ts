@@ -4,13 +4,14 @@ import { ServerFile } from '../../../../filesystems/domain/ServerFile';
 import { ServerFolder } from '../../../../filesystems/domain/ServerFolder';
 import { Traverser } from '../../items/application/Traverser';
 import { FolderPath } from '../domain/FolderPath';
-import { WebdavFolder, WebdavFolderAttributes } from '../domain/WebdavFolder';
+import { WebdavFolder } from '../domain/WebdavFolder';
 import { WebdavFolderRepository } from '../domain/WebdavFolderRepository';
 import Logger from 'electron-log';
 import * as uuid from 'uuid';
+import { UpdateFolderNameDTO } from './dtos/UpdateFolderNameDTO';
 
 export class HttpWebdavFolderRepository implements WebdavFolderRepository {
-  private items: Record<string, WebdavFolder> = {};
+  private folders: Record<string, WebdavFolder> = {};
 
   constructor(
     private readonly driveClient: Axios,
@@ -68,7 +69,7 @@ export class HttpWebdavFolderRepository implements WebdavFolderRepository {
         value.isFolder()
       ) as Array<[string, WebdavFolder]>;
 
-      this.items = folders.reduce((items, [key, value]) => {
+      this.folders = folders.reduce((items, [key, value]) => {
         items[key] = value;
         return items;
       }, {} as Record<string, WebdavFolder>);
@@ -78,7 +79,7 @@ export class HttpWebdavFolderRepository implements WebdavFolderRepository {
   }
 
   search(path: string): Nullable<WebdavFolder> {
-    return this.items[path];
+    return this.folders[path];
   }
 
   async create(path: FolderPath, parentId: number): Promise<WebdavFolder> {
@@ -115,9 +116,7 @@ export class HttpWebdavFolderRepository implements WebdavFolderRepository {
       path: path.value,
     });
 
-    this.items[path.value] = folder;
-
-    await this.init();
+    this.folders[path.value] = folder;
 
     return folder;
   }
@@ -125,10 +124,12 @@ export class HttpWebdavFolderRepository implements WebdavFolderRepository {
   async updateName(folder: WebdavFolder): Promise<void> {
     const url = `${process.env.API_URL}/api/storage/folder/${folder.id}/meta`;
 
-    const res = await this.driveClient.post(url, {
+    const body: UpdateFolderNameDTO = {
       metadata: { itemName: folder.name },
       relativePath: uuid.v4(),
-    });
+    };
+
+    const res = await this.driveClient.post(url, body);
 
     if (res.status !== 200) {
       throw new Error(
@@ -136,8 +137,8 @@ export class HttpWebdavFolderRepository implements WebdavFolderRepository {
       );
     }
 
-    delete this.items[folder.path.value];
-    this.items[folder.path.value] = folder;
+    delete this.folders[folder.path];
+    this.folders[folder.path] = folder;
   }
 
   async updateParentDir(folder: WebdavFolder): Promise<void> {
@@ -151,13 +152,12 @@ export class HttpWebdavFolderRepository implements WebdavFolderRepository {
       throw new Error(`[REPOSITORY] Error moving item: ${res.status}`);
     }
 
-    this.items[folder.path.value] = folder;
+    await this.init();
   }
 
-  searchOnFolder(folderId: WebdavFolderAttributes['id']): Array<WebdavFolder> {
-    return Object.values(this.items).filter((folder) =>
-      folder.hasParent(folderId)
-    );
+  async searchOn(folder: WebdavFolder): Promise<Array<WebdavFolder>> {
+    await this.init();
+    return Object.values(this.folders).filter((f) => f.isIn(folder));
   }
 
   async trash(folder: WebdavFolder): Promise<void> {
@@ -169,7 +169,7 @@ export class HttpWebdavFolderRepository implements WebdavFolderRepository {
     );
 
     if (result.status === 200) {
-      delete this.items[folder.path.value];
+      delete this.folders[folder.path];
       return;
     }
 

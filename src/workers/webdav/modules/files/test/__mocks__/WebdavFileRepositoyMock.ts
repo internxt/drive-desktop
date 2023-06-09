@@ -1,4 +1,5 @@
 import { Nullable } from 'shared/types/Nullable';
+import { FilePath } from '../../domain/FilePath';
 import { WebdavFile } from '../../domain/WebdavFile';
 import { WebdavFileRepository } from '../../domain/WebdavFileRepository';
 
@@ -8,8 +9,9 @@ export class WebdavFileRepositoryMock implements WebdavFileRepository {
   public mockAdd = jest.fn();
   public mockUpdateName = jest.fn();
   public mockUpdateParentDir = jest.fn();
+  public mockSearchOnFolder = jest.fn();
 
-  search(pathLike: string): Nullable<WebdavFile> {
+  search(pathLike: FilePath): Nullable<WebdavFile> {
     return this.mockSearch(pathLike);
   }
   delete(file: WebdavFile): Promise<void> {
@@ -28,11 +30,8 @@ export class WebdavFileRepositoryMock implements WebdavFileRepository {
     return this.mockUpdateParentDir(item);
   }
 
-  markForDeletion(file: WebdavFile): void {
-    throw new Error('Method not implemented.');
-  }
-  searchOnFolder(folderId: number): WebdavFile[] {
-    throw new Error('Method not implemented.');
+  searchOnFolder(folderId: number): Promise<Array<WebdavFile>> {
+    return this.mockSearchOnFolder(folderId);
   }
 
   clearMocks() {

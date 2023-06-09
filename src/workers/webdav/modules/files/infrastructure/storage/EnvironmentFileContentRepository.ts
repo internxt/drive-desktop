@@ -1,7 +1,7 @@
 import { Environment } from '@internxt/inxt-js';
 import { Readable } from 'stream';
 import { FileSize } from '../../domain/FileSize';
-import { RemoteFileContentsRepository } from '../../domain/FileContentRepository';
+import { RemoteFileContentsRepository } from '../../domain/RemoteFileContentsRepository';
 import { WebdavFile } from '../../domain/WebdavFile';
 import { RemoteFileContents } from '../../domain/RemoteFileContent';
 
@@ -59,10 +59,10 @@ export class EnvironmentFileContentRepository
   async clone(file: WebdavFile): Promise<string> {
     const remoteFileContents = await this.download(file);
 
-    return this.upload(file.size, remoteFileContents.contents);
+    return this.upload(file.size, remoteFileContents);
   }
 
-  download(file: WebdavFile): Promise<RemoteFileContents> {
+  download(file: WebdavFile): Promise<Readable> {
     return new Promise((resolve, reject) => {
       this.environment.download(
         this.bucket,
@@ -72,8 +72,8 @@ export class EnvironmentFileContentRepository
             if (err) {
               reject(err);
             } else {
-              const remoteContents = RemoteFileContents.retrive(file, stream);
-              resolve(remoteContents);
+              const remoteContents = RemoteFileContents.preview(file, stream);
+              resolve(remoteContents.stream);
             }
           },
         },

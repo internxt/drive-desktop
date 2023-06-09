@@ -1,6 +1,5 @@
+import { Primitives } from '../../../../../shared/types/Primitives';
 import { WebdavDomainEvent } from './WebdavDomainEvent';
-
-type Primitives = string | number | boolean;
 
 export abstract class AggregateRoot {
   private domainEvents: Array<WebdavDomainEvent>;

@@ -5,6 +5,7 @@ export class WebdavFolderDeleter {
   constructor(private readonly repository: WebdavFolderRepository) {}
 
   async run(folder: WebdavFolder): Promise<void> {
+    folder.trash();
     await this.repository.trash(folder);
   }
 }

@@ -9,18 +9,18 @@ export class AllWebdavItemsNameLister {
     private readonly folderfinder: WebdavFolderFinder
   ) {}
 
-  run(path: string): Array<string> {
+  async run(path: string): Promise<Array<string>> {
     const folder = this.folderfinder.run(path);
 
     const names: Array<string> = [];
 
-    this.filesRepository
-      .searchOnFolder(folder.id)
-      .forEach((file) => names.push(file.path.nameWithExtension()));
+    const files = await this.filesRepository.searchOnFolder(folder.id);
 
-    this.folderRepository
-      .searchOnFolder(folder.id)
-      .forEach((folder) => names.push(folder.name));
+    files.forEach((file) => names.push(file.nameWithExtension));
+
+    const folders = await this.folderRepository.searchOn(folder);
+
+    folders.forEach((folder) => names.push(folder.name));
 
     return names;
   }
