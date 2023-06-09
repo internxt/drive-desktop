@@ -23,7 +23,7 @@ jobs:
           echo "always-auth=true" >> .npmrc
       - name: Install dependenciies
         run: yarn --ignore-scripts
-      - name: Build main process
-        run: yarn build:main
+      - name: Build process
+        run: yarn build
       - name: Run test
         run: yarn test:unit
