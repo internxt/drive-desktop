@@ -23,6 +23,7 @@ export type OnboardingSlideProps = {
   backupFolders: BackupFolder[];
   currentSlide: number;
   totalSlides: number;
+  platform: string;
 };
 
 export const getOnlineImageSvg = (language: string) => {
@@ -37,39 +38,32 @@ export const getOfflineImageSvg = (language: string) => {
   return AvailableOfflineImageEnglish;
 };
 
-export const getFinderImage = () => {
-  if (typeof process === 'undefined') return MacOSFinderImage;
-  if (process.platform === 'win32') return WindowsFinderImage;
-  if (process.platform === 'linux') return LinuxFinderImage;
+export const getFinderImage = (platform: string) => {
+  if (platform === 'win32') return WindowsFinderImage;
+  if (platform === 'linux') return LinuxFinderImage;
   return MacOSFinderImage;
 };
 
-export const getPlatformName = () => {
-  if (typeof process === 'undefined') return '';
-  if (process.platform === 'win32') return 'Windows';
-  if (process.platform === 'linux') return 'Linux';
-  if (process.platform === 'darwin') return 'MacOS';
+export const getPlatformName = (platform: string) => {
+  if (platform === 'win32') return 'Windows';
+  if (platform === 'linux') return 'Linux';
+  if (platform === 'darwin') return 'MacOS';
 
   return '';
 };
 
-export const getPlatformPhraseTranslationKey = () => {
-  if (typeof process === 'undefined')
-    return 'onboarding.common.platform-phrase.macos';
-  if (process.platform === 'win32')
-    return 'onboarding.common.platform-phrase.windows';
-  if (process.platform === 'linux')
-    return 'onboarding.common.platform-phrase.linux';
-  if (process.platform === 'darwin')
-    return 'onboarding.common.platform-phrase.macos';
+export const getPlatformPhraseTranslationKey = (platform: string) => {
+  if (platform === 'win32') return 'onboarding.common.platform-phrase.windows';
+  if (platform === 'linux') return 'onboarding.common.platform-phrase.linux';
+  if (platform === 'darwin') return 'onboarding.common.platform-phrase.macos';
 
-  return '';
+  return 'onboarding.common.platform-phrase.macos';
 };
 
 export type OnboardingSlide = {
   name: string;
   component: React.FC<OnboardingSlideProps>;
-  image: () => React.ReactElement;
+  image: React.FC<OnboardingSlideProps>;
   footer: React.FC<OnboardingSlideProps>;
 };
 

@@ -90,7 +90,9 @@
       "welcome": {
         "title": "Internxt’s new desktop app is ready to go!",
         "features": {
-          "title": "Fresh updates:"
+          "title": "Fresh updates:",
+          "feature-1": "Select what you want to download and save hard drive space.",
+          "feature-2": "Native OS look and feel for managing your files and folders."
         }
       },
       "migration": {

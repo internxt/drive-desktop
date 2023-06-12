@@ -142,6 +142,12 @@ contextBridge.exposeInMainWorld('electron', {
   getBackupsStatus() {
     return ipcRenderer.invoke('get-backups-status');
   },
+  openVirtualDrive() {
+    return ipcRenderer.invoke('open-virtual-drive');
+  },
+  moveSyncFolderToDesktop() {
+    return ipcRenderer.invoke('move-sync-folder-to-desktop');
+  },
   onBackupsStatusChanged(func) {
     const eventName = 'backups-status-changed';
     const callback = (_, v) => func(v);

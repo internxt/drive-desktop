@@ -23,7 +23,7 @@ export const DeleteOldDriveFolderSlide: React.FC<
                 'migration.slides.delete-old-drive-folder.message',
                 {
                   platform_app: props.translate(
-                    getPlatformPhraseTranslationKey()
+                    getPlatformPhraseTranslationKey(props.platform)
                   ),
                 }
               )}

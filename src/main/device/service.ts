@@ -1,5 +1,5 @@
 import { aes } from '@internxt/lib';
-import { dialog } from 'electron';
+import { dialog, shell } from 'electron';
 import fetch from 'electron-fetch';
 import logger from 'electron-log';
 import os from 'os';
@@ -8,6 +8,7 @@ import path from 'path';
 import { getHeaders } from '../auth/service';
 import { addGeneralIssue } from '../background-processes/process-issues';
 import configStore from '../config';
+import { getVirtualDrivePath } from 'workers/webdav/VirtualDrive';
 
 export type Device = { name: string; id: number; bucket: string };
 

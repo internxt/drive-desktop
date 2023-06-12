@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { SLIDES } from './config';
 import {
   BackupFolder,
@@ -13,6 +13,11 @@ export default function Onboarding() {
   const [backupFolders, setBackupFolders] = useState<BackupFolder[]>([]);
   const [slideIndex, setSlideIndex] = useState<number>(0);
   const [backupsModalOpen, setBackupsModalOpen] = useState(false);
+  const [platform, setPlatform] = useState<string>('');
+  useEffect(() => {
+    window.electron.getPlatform().then(setPlatform);
+  }, []);
+
   const finish = () => {
     if (backupFolders?.length) {
       /**
@@ -72,6 +77,7 @@ export default function Onboarding() {
     <div className="draggable relative flex h-screen w-full select-none flex-row">
       <div className="flex w-1/2 flex-col px-6 pb-6 pt-16">
         <SlideContent
+          platform={platform}
           onFinish={finish}
           backupFolders={backupFolders}
           onSetupBackups={setupBackups}
@@ -82,6 +88,7 @@ export default function Onboarding() {
         />
         <div className="mt-auto">
           <SlideContentFooter
+            platform={platform}
             onFinish={finish}
             backupFolders={backupFolders}
             onSetupBackups={setupBackups}
@@ -94,7 +101,16 @@ export default function Onboarding() {
       </div>
 
       <div className="flex w-1/2 border-l border-gray-10 bg-gray-5">
-        <SlideImage />
+        <SlideImage
+          platform={platform}
+          onFinish={finish}
+          backupFolders={backupFolders}
+          onSetupBackups={setupBackups}
+          onGoNextSlide={nextSlide}
+          onSkipOnboarding={finish}
+          currentSlide={slideIndex}
+          totalSlides={totalSlides}
+        />
       </div>
       <div
         className={`backups-modal-overlay w- absolute h-full w-full py-11 transition-all duration-300 ease-in-out ${

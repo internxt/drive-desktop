@@ -85,6 +85,43 @@
       }
     }
   },
+  "migration": {
+    "slides": {
+      "welcome": {
+        "title": "Nueva actualización de la aplicación de escritorio de Internxt!",
+        "features": {
+          "title": "Novedades en esta versión:",
+          "feature-1": "Selecciona lo que desees descargar y ahorra espacio en el disco duro.",
+          "feature-2": "Apariencia y sensación nativa del sistema operativo para gestionar tus archivos y carpetas."
+        }
+      },
+      "migration": {
+        "title": "Nos aseguramos de que todos tus archivos están a salvo",
+        "in-progress": "Subiendo archivos pendientes",
+        "item-progress": "{{processed_items}} de {{total_items}} archivos subidos"
+      },
+      "migration-failed": {
+        "title": "Nos aseguramos de que todos tus archivos están a salvo",
+        "message": "No se han podido cargar algunos archivos",
+        "description": "Hemos movido esos archivos a tu escritorio, arrástralos y suéltalos en tu Internxt Drive",
+        "show-files": "Mostrar archivos"
+      },
+      "delete-old-drive-folder": {
+        "title": "Tu Internxt Drive de siempre, en una nueva ubicación",
+        "message": "Tu carpeta personal de Internxt Drive se encuentra en la barra lateral {{platform_app}}."
+      },
+      "new-widget": {
+        "title": "Sé más productivo con nuestro widget rediseñado",
+        "message": "Hemos rediseñado y reconstruido nuestro widget para aumentar la productividad, la comodidad y la velocidad.",
+        "message-2": "Todos los cambios se actualizan en tiempo real."
+      }
+    },
+    "common": {
+      "continue": "Continuar",
+      "cancel": "Cancelar",
+      "open-drive": "Abrir Internxt Drive"
+    }
+  },
   "widget": {
     "header": {
       "usage": {

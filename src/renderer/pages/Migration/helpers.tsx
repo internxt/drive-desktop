@@ -3,7 +3,10 @@ import { LocalContextProps } from 'renderer/context/LocalContext';
 export type MigrationSlideProps = {
   onGoNextSlide: () => void;
   onFinish: () => void;
+  onStartMigration: () => void;
   onCancelMigration: () => void;
+  onShowFailedItems: () => void;
+  platform: string;
   currentSlide: number;
   totalSlides: number;
   translate: LocalContextProps['translate'];
@@ -17,7 +20,7 @@ export type MigrationSlideProps = {
 export type MigrationSlide = {
   name: string;
   component: React.FC<MigrationSlideProps>;
-  image: () => React.ReactElement;
+  image: React.FC<MigrationSlideProps>;
   footer: React.FC<MigrationSlideProps>;
 };
 

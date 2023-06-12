@@ -9,6 +9,8 @@ import {
   getOnlineImageSvg,
 } from '../Onboarding/helpers';
 import Spinner from '../../assets/spinner.svg';
+import WidgetSvg from '../../assets/migration/widget.svg';
+
 import { MigrationFailedSlide } from './slides/MigrationFailedSlide';
 import UploadErrorSvg from '../../assets/migration/upload-error.svg';
 import ContextMenuSvg from '../../assets/onboarding/context-menu.svg';
@@ -31,6 +33,18 @@ export const SLIDES: MigrationSlide[] = [
               <h3 className="leading text-lg font-semibold leading-[22px] text-gray-100">
                 {props.translate('migration.slides.welcome.features.title')}
               </h3>
+              <ul className="mt-2.5 list-disc pl-6">
+                <li className="font-regular mb-2.5 text-lg leading-[22px] text-gray-100">
+                  {props.translate(
+                    'migration.slides.welcome.features.feature-1'
+                  )}
+                </li>
+                <li className="font-regular mb-2.5 text-lg leading-[22px] text-gray-100">
+                  {props.translate(
+                    'migration.slides.welcome.features.feature-2'
+                  )}
+                </li>
+              </ul>
             </div>
           </SideTextAnimation>
         </div>
@@ -41,7 +55,7 @@ export const SLIDES: MigrationSlide[] = [
       return (
         <div className="flex w-full flex-1 items-end ">
           <Button
-            onClick={props.onGoNextSlide}
+            onClick={props.onStartMigration}
             variant="primary"
             className="mr-2 h-10 cursor-pointer px-5 font-medium"
           >
@@ -50,8 +64,8 @@ export const SLIDES: MigrationSlide[] = [
         </div>
       );
     },
-    image: () => {
-      const FinderImage = getFinderImage();
+    image: (props) => {
+      const FinderImage = getFinderImage(props.platform);
       return (
         <div className="relative ml-20 mt-20">
           <SideImageAnimation display>
@@ -184,8 +198,8 @@ export const SLIDES: MigrationSlide[] = [
         </div>
       );
     },
-    image: () => {
-      const FinderImage = getFinderImage();
+    image: (props) => {
+      const FinderImage = getFinderImage(props.platform);
       return (
         <div className="relative ml-20 mt-20">
           <SideImageAnimation display>
@@ -230,7 +244,7 @@ export const SLIDES: MigrationSlide[] = [
       return (
         <div className="relative flex h-full w-full items-center justify-center">
           <SideImageAnimation display>
-            <OnlineImage />
+            <OnlineImage className="mt-10" />
           </SideImageAnimation>
         </div>
       );
@@ -271,7 +285,7 @@ export const SLIDES: MigrationSlide[] = [
       return (
         <div className="relative flex h-full w-full items-center justify-center">
           <SideImageAnimation display>
-            <OfflineImage />
+            <OfflineImage className="mt-10" />
           </SideImageAnimation>
         </div>
       );
@@ -310,7 +324,7 @@ export const SLIDES: MigrationSlide[] = [
       return (
         <div className="relative flex h-full w-full items-center justify-center">
           <SideImageAnimation display>
-            <ContextMenuSvg />
+            <ContextMenuSvg className="mt-10" />
           </SideImageAnimation>
         </div>
       );
@@ -357,9 +371,9 @@ export const SLIDES: MigrationSlide[] = [
     },
     image: () => {
       return (
-        <div className="relative flex h-full w-full items-center justify-center">
+        <div className="flex h-full w-full items-center justify-center pt-8">
           <SideImageAnimation display>
-            <ContextMenuSvg />
+            <WidgetSvg />
           </SideImageAnimation>
         </div>
       );

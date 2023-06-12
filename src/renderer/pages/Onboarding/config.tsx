@@ -53,8 +53,8 @@ export const SLIDES: OnboardingSlide[] = [
         </div>
       );
     },
-    image: () => {
-      const FinderImage = getFinderImage();
+    image: (props) => {
+      const FinderImage = getFinderImage(props.platform);
       return (
         <div className="relative ml-20 mt-20">
           <FinderImage />
@@ -93,8 +93,8 @@ export const SLIDES: OnboardingSlide[] = [
         </div>
       );
     },
-    image: () => {
-      const FinderImage = getFinderImage();
+    image: (props) => {
+      const FinderImage = getFinderImage(props.platform);
       return (
         <div className="relative ml-20 mt-20">
           <FinderImage />
@@ -301,8 +301,8 @@ export const SLIDES: OnboardingSlide[] = [
         </div>
       );
     },
-    image: () => {
-      const Image = getFinderImage();
+    image: (props) => {
+      const Image = getFinderImage(props.platform);
       return (
         <div className="relative ml-20 mt-20 ">
           <SideImageAnimation display>

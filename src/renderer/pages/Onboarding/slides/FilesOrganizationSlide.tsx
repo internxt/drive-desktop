@@ -4,9 +4,9 @@ import { OnboardingSlideProps, getPlatformName } from '../helpers';
 
 export type FilesOrganizationSlideProps = OnboardingSlideProps;
 
-export const FilesOrganizationSlide: React.FC<
-  FilesOrganizationSlideProps
-> = () => {
+export const FilesOrganizationSlide: React.FC<FilesOrganizationSlideProps> = (
+  props
+) => {
   const { translate } = useTranslationContext();
 
   return (
@@ -16,7 +16,7 @@ export const FilesOrganizationSlide: React.FC<
       </h1>
       <h3 className="font-regular mb-2.5 text-lg leading-[22px] text-gray-100">
         {translate('onboarding.slides.files-organization.description', {
-          platform_app: getPlatformName(),
+          platform_app: getPlatformName(props.platform),
         })}
       </h3>
     </div>
