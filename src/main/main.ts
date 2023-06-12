@@ -39,7 +39,7 @@ import packageJson from '../../package.json';
 import eventBus from './event-bus';
 import * as Sentry from '@sentry/electron/main';
 import { AppDataSource } from './database/data-source';
-
+import { openMigrationWindow } from './windows/migration';
 Logger.log(`Running ${packageJson.version}`);
 
 Logger.log('Initializing Sentry for main process');
@@ -106,7 +106,7 @@ app
   .then(async () => {
     // await AppDataSource.initialize();
     eventBus.emit('APP_IS_READY');
-
+    openMigrationWindow();
     if (process.env.NODE_ENV === 'development') {
       await installExtensions();
     }

@@ -1,8 +1,8 @@
 import React from 'react';
-import { OnboardingSlideProps } from '../helpers';
+
 import { useTranslationContext } from 'renderer/context/LocalContext';
 
-export type AvailableOnlineSlideProps = OnboardingSlideProps;
+export type AvailableOnlineSlideProps = object;
 
 export const AvailableOnlineSlide: React.FC<AvailableOnlineSlideProps> = () => {
   const { translate } = useTranslationContext();

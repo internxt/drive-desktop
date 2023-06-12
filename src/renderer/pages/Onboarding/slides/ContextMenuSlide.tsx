@@ -1,8 +1,8 @@
 import React from 'react';
-import { OnboardingSlideProps } from '../helpers';
+
 import { useTranslationContext } from 'renderer/context/LocalContext';
 
-export type ContextMenuSlideProps = OnboardingSlideProps;
+export type ContextMenuSlideProps = object;
 
 export const ContextMenuSlide: React.FC<ContextMenuSlideProps> = () => {
   const { translate } = useTranslationContext();

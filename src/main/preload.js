@@ -118,6 +118,9 @@ contextBridge.exposeInMainWorld('electron', {
   finishOnboarding() {
     return ipcRenderer.send('user-finished-onboarding');
   },
+  finishMigration() {
+    return ipcRenderer.send('user-finished-migration');
+  },
   isAutoLaunchEnabled() {
     return ipcRenderer.invoke('is-auto-launch-enabled');
   },

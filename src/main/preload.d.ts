@@ -25,6 +25,8 @@ declare interface Window {
 
     finishOnboarding(): void;
 
+    finishMigration(): void;
+
     quit(): void;
 
     getUser(): Promise<ReturnType<typeof import('./auth/service').getUser>>;

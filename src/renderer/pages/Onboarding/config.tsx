@@ -313,3 +313,7 @@ export const SLIDES: OnboardingSlide[] = [
     },
   },
 ];
+
+export const getOnboardingSlideByName = (name: string) => {
+  return SLIDES.find((slide) => slide.name === name);
+};

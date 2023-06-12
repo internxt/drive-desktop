@@ -219,3 +219,266 @@ body {
     opacity: 0;
   }
 }
+
+/** Upload success animation SVG **/
+
+#e3D4vWITAh74_to {
+  animation: e3D4vWITAh74_to__to 4000ms linear infinite normal forwards;
+}
+@keyframes e3D4vWITAh74_to__to {
+  0% {
+    transform: translate(-15.467793px, 112.5325px);
+  }
+  87.5% {
+    transform: translate(-15.467793px, 112.5325px);
+    animation-timing-function: cubic-bezier(0.645, 0.045, 0.355, 1);
+  }
+  100% {
+    transform: translate(85.532207px, 112.5325px);
+  }
+}
+#e3D4vWITAh74 {
+  animation: e3D4vWITAh74_c_o 4000ms linear infinite normal forwards;
+}
+@keyframes e3D4vWITAh74_c_o {
+  0% {
+    opacity: 0;
+  }
+  87.5% {
+    opacity: 0;
+    animation-timing-function: cubic-bezier(0.645, 0.045, 0.355, 1);
+  }
+  100% {
+    opacity: 1;
+  }
+}
+#e3D4vWITAh713_to {
+  animation: e3D4vWITAh713_to__to 4000ms linear infinite normal forwards;
+}
+@keyframes e3D4vWITAh713_to__to {
+  0% {
+    transform: translate(85.532207px, 112.5325px);
+  }
+  87.5% {
+    transform: translate(85.532207px, 112.5325px);
+    animation-timing-function: cubic-bezier(0.645, 0.045, 0.355, 1);
+  }
+  100% {
+    transform: translate(197.042207px, 112.5325px);
+  }
+}
+#e3D4vWITAh713_ts {
+  animation: e3D4vWITAh713_ts__ts 4000ms linear infinite normal forwards;
+}
+@keyframes e3D4vWITAh713_ts__ts {
+  0% {
+    transform: scale(0.71, 0.71);
+  }
+  87.5% {
+    transform: scale(0.71, 0.71);
+    animation-timing-function: cubic-bezier(0.645, 0.045, 0.355, 1);
+  }
+  100% {
+    transform: scale(1, 1);
+  }
+}
+#e3D4vWITAh722_to {
+  animation: e3D4vWITAh722_to__to 4000ms linear infinite normal forwards;
+}
+@keyframes e3D4vWITAh722_to__to {
+  0% {
+    transform: translate(197.042207px, 112.75px);
+  }
+  87.5% {
+    transform: translate(197.042207px, 112.75px);
+    animation-timing-function: cubic-bezier(0.645, 0.045, 0.355, 1);
+  }
+  100% {
+    transform: translate(310px, 112.5325px);
+  }
+}
+#e3D4vWITAh722_ts {
+  animation: e3D4vWITAh722_ts__ts 4000ms linear infinite normal forwards;
+}
+@keyframes e3D4vWITAh722_ts__ts {
+  0% {
+    transform: scale(1, 1);
+  }
+  87.5% {
+    transform: scale(1, 1);
+    animation-timing-function: cubic-bezier(0.645, 0.045, 0.355, 1);
+  }
+  100% {
+    transform: scale(0.71, 0.71);
+  }
+}
+#e3D4vWITAh731_ts {
+  animation: e3D4vWITAh731_ts__ts 4000ms linear infinite normal forwards;
+}
+@keyframes e3D4vWITAh731_ts__ts {
+  0% {
+    transform: translate(199.5px, 119.999985px) scale(0.5, 0.5);
+  }
+  5% {
+    transform: translate(199.5px, 119.999985px) scale(0.5, 0.5);
+    animation-timing-function: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  12.5% {
+    transform: translate(199.5px, 119.999985px) scale(1, 1);
+  }
+  55% {
+    transform: translate(199.5px, 119.999985px) scale(1, 1);
+    animation-timing-function: cubic-bezier(0.6, -0.28, 0.735, 0.045);
+  }
+  60% {
+    transform: translate(199.5px, 119.999985px) scale(0.5, 0.5);
+  }
+  100% {
+    transform: translate(199.5px, 119.999985px) scale(0.5, 0.5);
+  }
+}
+#e3D4vWITAh731 {
+  animation: e3D4vWITAh731_c_o 4000ms linear infinite normal forwards;
+}
+@keyframes e3D4vWITAh731_c_o {
+  0% {
+    opacity: 0;
+  }
+  5% {
+    opacity: 0;
+    animation-timing-function: cubic-bezier(0.39, 0.575, 0.565, 1);
+  }
+  12.5% {
+    opacity: 1;
+  }
+  55% {
+    opacity: 1;
+    animation-timing-function: cubic-bezier(0.47, 0, 0.745, 0.715);
+  }
+  60% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+#e3D4vWITAh734_tr {
+  animation: e3D4vWITAh734_tr__tr 4000ms linear infinite normal forwards;
+}
+@keyframes e3D4vWITAh734_tr__tr {
+  0% {
+    transform: translate(200.000002px, 119.999985px) rotate(-90deg);
+  }
+  7.5% {
+    transform: translate(200.000002px, 119.999985px) rotate(-90deg);
+    animation-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
+  }
+  52.5% {
+    transform: translate(200.000002px, 119.999985px) rotate(0deg);
+  }
+  100% {
+    transform: translate(200.000002px, 119.999985px) rotate(0deg);
+  }
+}
+#e3D4vWITAh735_tr {
+  animation: e3D4vWITAh735_tr__tr 4000ms linear infinite normal forwards;
+}
+@keyframes e3D4vWITAh735_tr__tr {
+  0% {
+    transform: translate(200.000002px, 119.999985px) rotate(-90deg);
+  }
+  7.5% {
+    transform: translate(200.000002px, 119.999985px) rotate(-90deg);
+    animation-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
+  }
+  52.5% {
+    transform: translate(200.000002px, 119.999985px) rotate(90deg);
+  }
+  100% {
+    transform: translate(200.000002px, 119.999985px) rotate(90deg);
+  }
+}
+#e3D4vWITAh736_tr {
+  animation: e3D4vWITAh736_tr__tr 4000ms linear infinite normal forwards;
+}
+@keyframes e3D4vWITAh736_tr__tr {
+  0% {
+    transform: translate(200.000002px, 119.999985px) rotate(-90deg);
+  }
+  7.5% {
+    transform: translate(200.000002px, 119.999985px) rotate(-90deg);
+    animation-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
+  }
+  52.5% {
+    transform: translate(200.000002px, 119.999985px) rotate(180deg);
+  }
+  100% {
+    transform: translate(200.000002px, 119.999985px) rotate(180deg);
+  }
+}
+#e3D4vWITAh737_ts {
+  animation: e3D4vWITAh737_ts__ts 4000ms linear infinite normal forwards;
+}
+@keyframes e3D4vWITAh737_ts__ts {
+  0% {
+    transform: translate(199.499999px, 119.999985px) scale(0.9, 0.9);
+  }
+  62.5% {
+    transform: translate(199.499999px, 119.999985px) scale(0.9, 0.9);
+    animation-timing-function: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  70% {
+    transform: translate(199.499999px, 119.999985px) scale(1.292307, 1.292307);
+  }
+  100% {
+    transform: translate(199.499999px, 119.999985px) scale(1.292307, 1.292307);
+  }
+}
+#e3D4vWITAh737 {
+  animation: e3D4vWITAh737_c_o 4000ms linear infinite normal forwards;
+}
+@keyframes e3D4vWITAh737_c_o {
+  0% {
+    opacity: 0;
+  }
+  62.5% {
+    opacity: 0;
+    animation-timing-function: cubic-bezier(0.39, 0.575, 0.565, 1);
+  }
+  70% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+#e3D4vWITAh741_to {
+  animation: e3D4vWITAh741_to__to 4000ms linear infinite normal forwards;
+}
+@keyframes e3D4vWITAh741_to__to {
+  0% {
+    transform: translate(310px, 112.5325px);
+  }
+  87.5% {
+    transform: translate(310px, 112.5325px);
+    animation-timing-function: cubic-bezier(0.645, 0.045, 0.355, 1);
+  }
+  100% {
+    transform: translate(406.002207px, 112.5325px);
+  }
+}
+#e3D4vWITAh741 {
+  animation: e3D4vWITAh741_c_o 4000ms linear infinite normal forwards;
+}
+@keyframes e3D4vWITAh741_c_o {
+  0% {
+    opacity: 1;
+  }
+  87.5% {
+    opacity: 1;
+    animation-timing-function: cubic-bezier(0.645, 0.045, 0.355, 1);
+  }
+  100% {
+    opacity: 0;
+  }
+}
