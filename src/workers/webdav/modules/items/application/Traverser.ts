@@ -105,8 +105,8 @@ export class Traverser {
     this.collection['/'] = WebdavFolder.from({
       id: this.baseFolderId,
       parentId: null,
-      updatedAt: Date.now().toLocaleString(),
-      createdAt: Date.now().toLocaleString(),
+      updatedAt: new Date().toISOString(),
+      createdAt: new Date().toISOString(),
       path: '/',
     });
   }
@@ -122,8 +122,8 @@ export class Traverser {
     this.collection['/'] = WebdavFolder.from({
       id: this.baseFolderId,
       parentId: null,
-      updatedAt: Date.now().toLocaleString(),
-      createdAt: Date.now().toLocaleString(),
+      updatedAt: new Date().toISOString(),
+      createdAt: new Date().toISOString(),
       path: '/',
     });
 

@@ -44,8 +44,8 @@ export class ItemMetadata {
 
   static extractFromFolder(folder: WebdavFolder): ItemMetadata {
     return new ItemMetadata(
-      Math.abs(folder.createdAt.getTime() | Date.now()),
-      Math.abs(folder.updatedAt.getTime() | Date.now()),
+      folder.createdAt.getTime(),
+      folder.updatedAt.getTime(),
       folder.name,
       folder.size,
       '',
