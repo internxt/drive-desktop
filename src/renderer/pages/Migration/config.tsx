@@ -292,7 +292,7 @@ export const SLIDES: MigrationSlide[] = [
     },
   },
   {
-    name: 'Organize your files with context menu',
+    name: 'Organize your files with the context menu',
     component: (props) => {
       return (
         <SideTextAnimation display>
