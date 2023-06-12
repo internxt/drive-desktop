@@ -3,7 +3,8 @@ import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 
 // Only effective during development
-// the variables are injected
+// the variables are injectedif (process.env.NODE_ENV === 'production') {
+
 // via webpack in prod
 import 'dotenv/config';
 // ***** APP BOOTSTRAPPING ****************************************************** //
@@ -17,6 +18,7 @@ import './windows/process-issues';
 import './windows';
 import './background-processes/backups';
 import './background-processes/sync';
+import './background-processes/webdav';
 import './background-processes/process-issues';
 import './device/handlers';
 import './usage/handlers';
@@ -27,6 +29,7 @@ import './platform/handlers';
 import './thumbnails/handlers';
 import './config/handlers';
 import './app-info/handlers';
+import { unmountDrive } from '../workers/webdav/VirtualDrive';
 import './remote-sync/handlers';
 import { app, ipcMain } from 'electron';
 import Logger from 'electron-log';
@@ -34,7 +37,7 @@ import { autoUpdater } from 'electron-updater';
 
 import packageJson from '../../package.json';
 import eventBus from './event-bus';
-import * as Sentry from '@sentry/electron';
+import * as Sentry from '@sentry/electron/main';
 import { AppDataSource } from './database/data-source';
 
 Logger.log(`Running ${packageJson.version}`);
@@ -85,7 +88,12 @@ const installExtensions = async () => {
     .catch(console.log);
 };
 
+app.on('will-quit', () => {
+  unmountDrive();
+});
+
 app.on('window-all-closed', () => {
+  unmountDrive();
   app.quit();
 });
 
@@ -96,7 +104,7 @@ ipcMain.on('user-quit', () => {
 app
   .whenReady()
   .then(async () => {
-    await AppDataSource.initialize();
+    // await AppDataSource.initialize();
     eventBus.emit('APP_IS_READY');
 
     if (process.env.NODE_ENV === 'development') {

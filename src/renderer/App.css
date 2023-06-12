@@ -35,7 +35,8 @@
   src: url(./assets/fonts/NeueEinstellung-Bold.ttf) format('truetype');
 }
 
-* {
+body,
+html {
   font-family: 'NeueEinstellung', sans-serif;
 }
 
@@ -63,4 +64,158 @@ body {
 
 :not(input):focus-visible {
   outline: auto;
+}
+
+.backups-modal-overlay {
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+.backups-modal-shadow {
+  box-shadow: 0px 1px 2px -1px rgba(0, 0, 0, 0.1),
+    0px 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+#eDsPAmXJYBu3_to {
+  animation: eDsPAmXJYBu3_to__to 7000ms linear infinite normal forwards;
+}
+@keyframes eDsPAmXJYBu3_to__to {
+  0% {
+    transform: translate(112px, 112px);
+  }
+  7.142857% {
+    transform: translate(112px, 112px);
+    animation-timing-function: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  14.285714% {
+    transform: translate(112px, 101px);
+  }
+  94.285714% {
+    transform: translate(112px, 101px);
+    animation-timing-function: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  100% {
+    transform: translate(112px, 112px);
+  }
+}
+#eDsPAmXJYBu5_to {
+  animation: eDsPAmXJYBu5_to__to 7000ms linear infinite normal forwards;
+}
+@keyframes eDsPAmXJYBu5_to__to {
+  0% {
+    transform: translate(112px, 112px);
+  }
+  7.142857% {
+    transform: translate(112px, 112px);
+    animation-timing-function: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  14.285714% {
+    transform: translate(112px, 123px);
+  }
+  94.285714% {
+    transform: translate(112px, 123px);
+    animation-timing-function: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  100% {
+    transform: translate(112px, 112px);
+  }
+}
+#eDsPAmXJYBu6_tr {
+  animation: eDsPAmXJYBu6_tr__tr 7000ms linear infinite normal forwards;
+}
+@keyframes eDsPAmXJYBu6_tr__tr {
+  0% {
+    transform: translate(110.500683px, 123.000042px) rotate(120deg);
+  }
+  14.285714% {
+    transform: translate(110.500683px, 123.000042px) rotate(120deg);
+    animation-timing-function: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  20% {
+    transform: translate(110.500683px, 123.000042px) rotate(0deg);
+  }
+  88.571429% {
+    transform: translate(110.500683px, 123.000042px) rotate(0deg);
+    animation-timing-function: cubic-bezier(0.6, -0.28, 0.735, 0.045);
+  }
+  94.285714% {
+    transform: translate(110.500683px, 123.000042px) rotate(-120deg);
+  }
+  100% {
+    transform: translate(110.500683px, 123.000042px) rotate(-120deg);
+  }
+}
+#eDsPAmXJYBu6 {
+  animation: eDsPAmXJYBu6_c_o 7000ms linear infinite normal forwards;
+}
+@keyframes eDsPAmXJYBu6_c_o {
+  0% {
+    opacity: 0;
+  }
+  12.857143% {
+    opacity: 0;
+    animation-timing-function: cubic-bezier(0.39, 0.575, 0.565, 1);
+  }
+  20% {
+    opacity: 1;
+  }
+  87.142857% {
+    opacity: 1;
+    animation-timing-function: cubic-bezier(0.47, 0, 0.745, 0.715);
+  }
+  94.285714% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+#eDsPAmXJYBu7_ts {
+  animation: eDsPAmXJYBu7_ts__ts 7000ms linear infinite normal forwards;
+}
+@keyframes eDsPAmXJYBu7_ts__ts {
+  0% {
+    transform: translate(119.50119px, 118.50119px) scale(0.75, 0.75);
+  }
+  18.571429% {
+    transform: translate(119.50119px, 118.50119px) scale(0.75, 0.75);
+    animation-timing-function: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  22.857143% {
+    transform: translate(119.50119px, 118.50119px) scale(1, 1);
+  }
+  87.142857% {
+    transform: translate(119.50119px, 118.50119px) scale(1, 1);
+    animation-timing-function: cubic-bezier(0.6, -0.28, 0.735, 0.045);
+  }
+  91.428571% {
+    transform: translate(119.50119px, 118.50119px) scale(0.75, 0.75);
+  }
+  100% {
+    transform: translate(119.50119px, 118.50119px) scale(0.75, 0.75);
+  }
+}
+#eDsPAmXJYBu7 {
+  animation: eDsPAmXJYBu7_c_o 7000ms linear infinite normal forwards;
+}
+@keyframes eDsPAmXJYBu7_c_o {
+  0% {
+    opacity: 0;
+  }
+  18.571429% {
+    opacity: 0;
+    animation-timing-function: cubic-bezier(0.39, 0.575, 0.565, 1);
+  }
+  22.857143% {
+    opacity: 1;
+  }
+  87.142857% {
+    opacity: 1;
+    animation-timing-function: cubic-bezier(0.47, 0, 0.745, 0.715);
+  }
+  91.428571% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+  }
 }

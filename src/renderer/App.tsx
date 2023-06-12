@@ -2,7 +2,13 @@ import './App.css';
 import './localize/i18n.service';
 
 import { Suspense, useEffect, useRef } from 'react';
-import { HashRouter as Router, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
+import {
+  HashRouter as Router,
+  Route,
+  Routes,
+  useLocation,
+  useNavigate,
+} from 'react-router-dom';
 
 import { DeviceProvider } from './context/DeviceContext';
 import { TranslationProvider } from './context/LocalContext';
@@ -14,67 +20,67 @@ import Settings from './pages/Settings';
 import Widget from './pages/Widget';
 
 function LocationWrapper({ children }: { children: JSX.Element }) {
-	const { pathname } = useLocation();
-	useEffect(() => {
-		window.electron.pathChanged(pathname);
-	}, [pathname]);
+  const { pathname } = useLocation();
+  useEffect(() => {
+    window.electron.pathChanged(pathname);
+  }, [pathname]);
 
-	return children;
+  return children;
 }
 
 function LoggedInWrapper({ children }: { children: JSX.Element }) {
-	const navigate = useNavigate();
-	const { pathname } = useLocation();
-	const intendedRoute = useRef<null | string>(null);
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
+  const intendedRoute = useRef<null | string>(null);
 
-	function onUserLoggedInChanged(isLoggedIn: boolean) {
-		if (!isLoggedIn) {
-			intendedRoute.current = pathname;
-			navigate('/login');
-		} else if (intendedRoute.current) {
-			navigate(intendedRoute.current);
-			intendedRoute.current = null;
-		}
-	}
-	useEffect(() => {
-		window.electron.onUserLoggedInChanged(onUserLoggedInChanged);
-		window.electron.isUserLoggedIn().then(onUserLoggedInChanged);
-	}, []);
+  function onUserLoggedInChanged(isLoggedIn: boolean) {
+    if (!isLoggedIn) {
+      intendedRoute.current = pathname;
+      navigate('/login');
+    } else if (intendedRoute.current) {
+      navigate(intendedRoute.current);
+      intendedRoute.current = null;
+    }
+  }
+  useEffect(() => {
+    window.electron.onUserLoggedInChanged(onUserLoggedInChanged);
+    window.electron.isUserLoggedIn().then(onUserLoggedInChanged);
+  }, []);
 
-	return children;
+  return children;
 }
 
 function Loader() {
-	return <div>loading...</div>;
+  return <div>loading...</div>;
 }
 
 export default function App() {
-	useLanguageChangedListener();
+  useLanguageChangedListener();
 
-	return (
-		<Router>
-			<Suspense fallback={<Loader />}>
-				<TranslationProvider>
-					<LocationWrapper>
-						<LoggedInWrapper>
-							<Routes>
-								<Route path="/login" element={<Login />} />
-								<Route path="/process-issues" element={<ProcessIssues />} />
-								<Route path="/onboarding" element={<Onboarding />} />
-								<Route
-									path="/settings"
-									element={
-										<DeviceProvider>
-											<Settings />
-										</DeviceProvider>
-									}
-								/>
-								<Route path="/" element={<Widget />} />
-							</Routes>
-						</LoggedInWrapper>
-					</LocationWrapper>
-				</TranslationProvider>
-			</Suspense>
-		</Router>
-	);
+  return (
+    <Router>
+      <Suspense fallback={<Loader />}>
+        <TranslationProvider>
+          <LocationWrapper>
+            <LoggedInWrapper>
+              <Routes>
+                <Route path="/login" element={<Login />} />
+                <Route path="/process-issues" element={<ProcessIssues />} />
+                <Route path="/onboarding" element={<Onboarding />} />
+                <Route
+                  path="/settings"
+                  element={
+                    <DeviceProvider>
+                      <Settings />
+                    </DeviceProvider>
+                  }
+                />
+                <Route path="/" element={<Widget />} />
+              </Routes>
+            </LoggedInWrapper>
+          </LocationWrapper>
+        </TranslationProvider>
+      </Suspense>
+    </Router>
+  );
 }
