@@ -228,7 +228,7 @@ export class InternxtFileSystem extends FileSystem {
       name: path.fileName(),
     });
 
-    this.container.fileDonwloader
+    this.container.fileDownloader
       .run(path.toString(false))
       .then((remoteFileContents: RemoteFileContents) => {
         const totalLength = ctx.estimatedSize;

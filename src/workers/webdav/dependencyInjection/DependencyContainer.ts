@@ -35,7 +35,7 @@ export interface DependencyContainer {
   fileDeleter: WebdavFileDeleter;
   fileMover: WebdavFileMover;
   fileCreator: WebdavFileCreator;
-  fileDonwloader: WebdavFileDownloader;
+  fileDownloader: WebdavFileDownloader;
   fileMimeTypeResolver: WebdavFileMimeTypeResolver;
 
   folderCreator: WebdavFolderCreator;

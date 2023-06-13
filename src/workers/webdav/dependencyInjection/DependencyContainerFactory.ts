@@ -151,7 +151,7 @@ export class DependencyContainerFactory {
         temporalFileCollection,
         eventBus
       ),
-      fileDonwloader: new WebdavFileDownloader(
+      fileDownloader: new WebdavFileDownloader(
         fileRepository,
         fileContentRepository,
         eventBus
