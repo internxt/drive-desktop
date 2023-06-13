@@ -9,15 +9,52 @@ import { WebdavFileRepository } from '../domain/WebdavFileRepository';
 import { WebdavFolder } from '../../folders/domain/WebdavFolder';
 import { FileSize } from '../domain/FileSize';
 import { WebdavServerEventBus } from '../../shared/domain/WebdavServerEventBus';
+import { ContentFileUploader } from '../domain/ContentFileUploader';
+import { WebdavIpc } from '../../../ipc';
+import { performance } from 'perf_hooks';
+import { Stopwatch } from '../../../../../shared/types/Stopwatch';
 
 export class WebdavFileCreator {
+  private readonly stopwatch: Stopwatch;
+
   constructor(
     private readonly repository: WebdavFileRepository,
     private readonly folderFinder: WebdavFolderFinder,
     private readonly contentsRepository: RemoteFileContentsRepository,
     private readonly temporalFileCollection: FileMetadataCollection,
-    private readonly eventBus: WebdavServerEventBus
-  ) {}
+    private readonly eventBus: WebdavServerEventBus,
+    private readonly ipc: WebdavIpc
+  ) {
+    this.stopwatch = {};
+  }
+
+  private registerEvents(path: FilePath, uploader: ContentFileUploader) {
+    uploader.on('start', () => {
+      this.stopwatch.start = performance.now();
+
+      this.ipc.send('WEBDAV_FILE_UPLOAD_PROGRESS', {
+        name: path.nameWithExtension(),
+        progess: 0,
+        uploadInfo: { stopwatch: this.stopwatch },
+      });
+    });
+
+    uploader.on('progress', (progess: number) => {
+      this.ipc.send('WEBDAV_FILE_UPLOAD_PROGRESS', {
+        name: path.nameWithExtension(),
+        progess,
+        uploadInfo: { stopwatch: this.stopwatch },
+      });
+    });
+
+    uploader.on('finish', () => {
+      this.stopwatch.finish = performance.now();
+    });
+
+    uploader.on('error', () => {
+      //
+    });
+  }
 
   private async createFileEntry(
     fileId: string,
@@ -32,6 +69,11 @@ export class WebdavFileCreator {
     this.temporalFileCollection.remove(filePath.value);
 
     await this.eventBus.publish(file.pullDomainEvents());
+
+    this.ipc.send('WEBDAV_FILE_UPLOADED', {
+      name: filePath.nameWithExtension(),
+      uploadInfo: { stopwatch: this.stopwatch },
+    });
 
     return file;
   }
@@ -62,7 +104,11 @@ export class WebdavFileCreator {
 
     const stream = new PassThrough();
 
-    const upload = this.contentsRepository.upload(fileSize, stream);
+    const uploader = this.contentsRepository.uploader(fileSize, stream);
+
+    this.registerEvents(filePath, uploader);
+
+    const upload = uploader.upload();
 
     upload
       .then(async (fileId) => {

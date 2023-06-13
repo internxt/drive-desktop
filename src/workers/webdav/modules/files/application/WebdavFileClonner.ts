@@ -24,7 +24,8 @@ export class WebdavFileClonner {
   ) {
     const destinationFolder = this.folderFinder.run(fileOverwritted.dirname);
 
-    const clonnedFileId = await this.contentRepository.clone(file);
+    const clonnedFileId = await this.contentRepository.clonner(file).upload();
+
     const newFile = file.overwrite(
       clonnedFileId,
       destinationFolder.id,
@@ -43,7 +44,7 @@ export class WebdavFileClonner {
   private async copy(file: WebdavFile, path: FilePath) {
     const destinationFolder = this.folderFinder.run(path.dirname());
 
-    const clonnedFileId = await this.contentRepository.clone(file);
+    const clonnedFileId = await this.contentRepository.clonner(file).upload();
 
     const clonned = file.clone(clonnedFileId, destinationFolder.id, path);
 

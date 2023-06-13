@@ -5,7 +5,7 @@ import { EventBusMock } from '../../../shared/test/__mock__/EventBusMock';
 import { WebdavFileClonner } from '../../application/WebdavFileClonner';
 import { FileAlreadyExistsError } from '../../domain/errors/FileAlreadyExistsError';
 import { WebdavFileMother } from '../domain/WebdavFileMother';
-import { FileContentRepositoryMock } from '../__mocks__/FileContentRepositoryMock';
+import { FileContentRepositoryMock } from '../__mocks__/FileContentRepositoryMock.mock';
 import { WebdavFileRepositoryMock } from '../__mocks__/WebdavFileRepositoyMock';
 
 describe('Webdav File Clonner', () => {
@@ -44,7 +44,9 @@ describe('Webdav File Clonner', () => {
 
       fileReposiotry.mockSearch.mockReturnValueOnce(fileToOverride);
       folderRepository.mockSearch.mockReturnValueOnce(folder);
-      contentsRepository.mockClone.mockReturnValueOnce(clonnedFileId);
+      contentsRepository.mockClone.uploadMock.mockReturnValueOnce(
+        clonnedFileId
+      );
       fileReposiotry.mockAdd.mockImplementationOnce(() => {
         //
       });
@@ -82,7 +84,9 @@ describe('Webdav File Clonner', () => {
 
       fileReposiotry.mockSearch.mockReturnValueOnce(undefined);
       folderRepository.mockSearch.mockReturnValueOnce(folder);
-      contentsRepository.mockClone.mockReturnValueOnce(clonnedFileId);
+      contentsRepository.mockClone.uploadMock.mockReturnValueOnce(
+        clonnedFileId
+      );
       fileReposiotry.mockAdd.mockImplementationOnce(() => {
         //
       });

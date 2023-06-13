@@ -6,6 +6,7 @@ import { WebdavFile } from '../../domain/WebdavFile';
 import { RemoteFileContents } from '../../domain/RemoteFileContent';
 import Logger from 'electron-log';
 import { ipcRenderer } from 'electron';
+import { EnvironmentContentFileUpoader } from './EnvironmentContentFileUpoader';
 
 export class EnvironmentFileContentRepository
   implements RemoteFileContentsRepository
@@ -17,97 +18,21 @@ export class EnvironmentFileContentRepository
     private readonly bucket: string
   ) {}
 
-  private simpleUpload(name: string, size: FileSize, contents: Readable): Promise<string> {
-    Logger.log('download!!', { name });
-    return new Promise((resolve, reject) => {
-      this.environment.upload(this.bucket, {
-        progressCallback: (progress: number) => {
-          ipcRenderer.send('SYNC_INFO_UPDATE', {
-            action: 'PULL',
-            kind: 'REMOTE',
-            progress,
-            name,
-          });
-        },
-        finishedCallback: async (err: Error, fileId: string) => {
-          if (!err) {
-            ipcRenderer.send('SYNC_INFO_UPDATE', {
-              action: 'PULLED',
-              kind: 'REMOTE',
-              name,
-            });
-            resolve(fileId);
-          } else {
-            ipcRenderer.send('SYNC_INFO_UPDATE', {
-              action: 'PULL_ERROR',
-              kind: 'REMOTE',
-              name,
-              errorName: err.name,
-              errorDetails: err.message,
-              process: 'SYNC',
-            });
-            reject();
-          }
-        },
-        fileSize: size.value,
-        source: contents,
-      });
-    });
-  }
+  clonner(file: WebdavFile): EnvironmentContentFileUpoader {
+    const remoteFileContents = this.download(file);
 
-  private multipartUpload(name: string, size: FileSize, contents: Readable): Promise<string> {
-    Logger.log('download!!', { name });
-    return new Promise((resolve, reject) => {
-      this.environment.uploadMultipartFile(this.bucket, {
-        progressCallback: (progress: number) => {
-          ipcRenderer.send('SYNC_INFO_UPDATE', {
-            action: 'PULL',
-            kind: 'REMOTE',
-            progress,
-            name,
-          });
-        },
-        finishedCallback: async (err: Error | null, fileId: string | null) => {
-          if (err) {
-            contents.destroy(new Error('MULTIPART UPLOAD FAILED'));
-            ipcRenderer.send('SYNC_INFO_UPDATE', {
-              action: 'PULL_ERROR',
-              kind: 'REMOTE',
-              name,
-              errorName: err.name,
-              errorDetails: err.message,
-              process: 'SYNC',
-            });
-            reject();
-          } else if (!fileId) {
-            ipcRenderer.send('SYNC_INFO_UPDATE', {
-              action: 'PULL_ERROR',
-              kind: 'REMOTE',
-              name,
-              errorName: 'No fileId',
-              errorDetails: 'No fileId on multipart upload',
-              process: 'SYNC',
-            });
-            reject();
-          } else {
-            ipcRenderer.send('SYNC_INFO_UPDATE', {
-              action: 'PULLED',
-              kind: 'REMOTE',
-              name,
-            });
-            resolve(fileId);
-          }
-        },
-        fileSize: size.value,
-        source: contents,
-      });
-    });
-  }
+    const fn =
+      file.size >
+      EnvironmentFileContentRepository.MULTIPART_UPLOADE_SIZE_THRESHOLD
+        ? this.environment.uploadMultipartFile
+        : this.environment.upload;
 
-  async clone(file: WebdavFile): Promise<string> {
-    const remoteFileContents = await this.download(file);
-
-    return this.upload(file.nameWithExtension, file.size, remoteFileContents);
+    return new EnvironmentContentFileUpoader(
+      fn,
+      this.bucket,
+      file.size,
+      remoteFileContents
+    );
   }
 
   download(file: WebdavFile): Promise<Readable> {
@@ -158,10 +83,18 @@ export class EnvironmentFileContentRepository
     });
   }
 
-  upload(name: string, size: FileSize, contents: Readable): Promise<string> {
-    return size.value >
+  uploader(size: FileSize, contents: Readable): EnvironmentContentFileUpoader {
+    const fn =
+      size.value >
       EnvironmentFileContentRepository.MULTIPART_UPLOADE_SIZE_THRESHOLD
-      ? this.multipartUpload(name, size, contents)
-      : this.simpleUpload(name, size, contents);
+        ? this.environment.uploadMultipartFile
+        : this.environment.upload;
+
+    return new EnvironmentContentFileUpoader(
+      fn,
+      this.bucket,
+      size.value,
+      Promise.resolve(contents)
+    );
   }
 }

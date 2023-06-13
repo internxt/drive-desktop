@@ -31,6 +31,7 @@ import { UserUsageDecrementer } from '../modules/userUsage/application/UserUsage
 import { UserUsageIncrementer } from '../modules/userUsage/application/UserUsageIncrementer';
 import { CachedHttpUserUsageRepository } from '../modules/userUsage/infrastrucutre/CachedHttpUserUsageRepository';
 import { DependencyContainer } from './DependencyContainer';
+import { ipc } from '../ipc';
 
 export class DependencyContainerFactory {
   private _container: DependencyContainer | undefined;
@@ -149,7 +150,8 @@ export class DependencyContainerFactory {
         folderFinder,
         fileContentRepository,
         temporalFileCollection,
-        eventBus
+        eventBus,
+        ipc
       ),
       fileDownloader: new WebdavFileDownloader(
         fileRepository,

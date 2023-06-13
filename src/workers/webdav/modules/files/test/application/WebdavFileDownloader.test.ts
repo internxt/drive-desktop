@@ -3,7 +3,7 @@ import { EventBusMock } from '../../../shared/test/__mock__/EventBusMock';
 import { WebdavServerEventBus } from '../../../shared/domain/WebdavServerEventBus';
 import { WebdavFileDownloader } from '../../application/WebdavFileDownloader';
 import { WebdavFileMother } from '../domain/WebdavFileMother';
-import { FileContentRepositoryMock } from '../__mocks__/FileContentRepositoryMock';
+import { FileContentRepositoryMock } from '../__mocks__/FileContentRepositoryMock.mock';
 import { WebdavFileRepositoryMock } from '../__mocks__/WebdavFileRepositoyMock';
 import { FilePath } from '../../domain/FilePath';
 
