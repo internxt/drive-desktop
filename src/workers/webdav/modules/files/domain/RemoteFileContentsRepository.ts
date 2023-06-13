@@ -7,5 +7,5 @@ export interface RemoteFileContentsRepository {
 
   download(file: WebdavFile): Promise<Readable>;
 
-  upload(size: FileSize, contents: Readable): Promise<WebdavFile['fileId']>;
+  upload(name: string, size: FileSize, contents: Readable): Promise<WebdavFile['fileId']>;
 }
