@@ -7,7 +7,7 @@ import {
   SyncConfig,
   SYNC_OFFSET_MS,
 } from './helpers';
-// import { reportError } from '../bug-report/service';
+import { reportError } from '../bug-report/service';
 
 import { DatabaseCollectionAdapter } from '../database/adapters/base';
 import { Axios } from 'axios';
