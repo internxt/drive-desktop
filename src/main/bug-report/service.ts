@@ -9,7 +9,7 @@ import packageJson from '../../../package.json';
 import { ErrorDetails } from '../../workers/types';
 import { obtainToken } from '../auth/service';
 import { BugReportResult } from './BugReportResult';
-import * as Sentry from '@sentry/electron';
+import * as Sentry from '@sentry/electron/main';
 
 /**
  * Reports an error to Sentry from the main process
