@@ -50,4 +50,16 @@ export class FilePath extends WebdavPath {
 
     return dirname === otherDirname;
   }
+
+  hasSameExtension(other: FilePath): boolean {
+    return this.extension() === other.extension();
+  }
+
+  changeFolder(folder: string): FilePath {
+    return FilePath.fromParts([folder, this.name()]);
+  }
+
+  updateName(name: string): FilePath {
+    return FilePath.fromParts([this.dirname(), name]);
+  }
 }

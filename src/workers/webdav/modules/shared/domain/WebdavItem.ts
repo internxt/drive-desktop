@@ -3,8 +3,6 @@ import { WebdavFolder } from '../../folders/domain/WebdavFolder';
 import { WebdavPath } from './WebdavPath';
 
 export abstract class WebdavItem {
-  abstract readonly name: string;
-
   abstract readonly path: WebdavPath;
 
   abstract readonly createdAt: Date;

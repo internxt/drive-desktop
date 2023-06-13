@@ -71,4 +71,10 @@ export class TokenScheduler {
 
     return nodeSchedule.scheduleJob(renewDate, fn);
   }
+
+  public cancelAll(): void {
+    Object.keys(nodeSchedule.scheduledJobs).forEach((jobName: string) =>
+      nodeSchedule.cancelJob(jobName)
+    );
+  }
 }

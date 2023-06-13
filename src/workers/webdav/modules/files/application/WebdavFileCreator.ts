@@ -1,21 +1,22 @@
 import { PassThrough, Writable } from 'stream';
 import { WebdavFolderFinder } from '../../folders/application/WebdavFolderFinder';
 import { FilePath } from '../domain/FilePath';
-import { FileContentRepository } from '../domain/storage/FileContentRepository';
+import { RemoteFileContentsRepository } from '../domain/RemoteFileContentsRepository';
 import { ItemMetadata } from '../../shared/domain/ItemMetadata';
 import { FileMetadataCollection } from '../domain/FileMetadataCollection';
 import { WebdavFile } from '../domain/WebdavFile';
 import { WebdavFileRepository } from '../domain/WebdavFileRepository';
 import { WebdavFolder } from '../../folders/domain/WebdavFolder';
-import { TransferLimits } from '../domain/storage/TransferLimits';
 import { FileSize } from '../domain/FileSize';
+import { WebdavServerEventBus } from '../../shared/domain/WebdavServerEventBus';
 
 export class WebdavFileCreator {
   constructor(
     private readonly repository: WebdavFileRepository,
     private readonly folderFinder: WebdavFolderFinder,
-    private readonly contentsRepository: FileContentRepository,
-    private readonly temporalFileCollection: FileMetadataCollection
+    private readonly contentsRepository: RemoteFileContentsRepository,
+    private readonly temporalFileCollection: FileMetadataCollection,
+    private readonly eventBus: WebdavServerEventBus
   ) {}
 
   private async createFileEntry(
@@ -30,10 +31,18 @@ export class WebdavFileCreator {
 
     this.temporalFileCollection.remove(filePath.value);
 
+    await this.eventBus.publish(file.pullDomainEvents());
+
     return file;
   }
 
-  async run(path: string, size: number): Promise<Writable> {
+  async run(
+    path: string,
+    size: number
+  ): Promise<{
+    stream: Writable;
+    upload: Promise<WebdavFile['fileId']>;
+  }> {
     const fileSize = new FileSize(size);
     const filePath = new FilePath(path);
 
@@ -63,6 +72,9 @@ export class WebdavFileCreator {
         // TODO: comunicate somehow this error happened
       });
 
-    return stream;
+    return {
+      stream,
+      upload,
+    };
   }
 }

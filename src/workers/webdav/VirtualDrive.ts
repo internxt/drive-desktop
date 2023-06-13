@@ -1,15 +1,16 @@
 import Logger from 'electron-log';
 import { exec } from 'child_process';
 import configStore from '../../main/config';
+import { homedir } from 'os';
 
 const driveObject = {
   host: 'localhost',
-  port: '1900'
+  port: '1900',
 };
 const driveURL = `http://${driveObject.host}:${driveObject.port}`;
 const driveName = 'Internxt Drive';
 
-export const mountDrive = async (): Promise<boolean> => {
+export const mountDrive = async (): Promise<void> => {
   if (process.platform === 'win32') {
     const driveLetter = await getLetterDrive();
     Logger.log(`[VirtualDrive] Drive letter available: ${driveLetter}`);
@@ -19,21 +20,28 @@ export const mountDrive = async (): Promise<boolean> => {
       if (mounted) {
         await renameWindowsDrive();
       }
-      return mounted;
     }
+    return;
   } else if (process.platform === 'darwin') {
-    return await mountMacOSDrive(driveName);
+    await mountMacOSDrive(driveName);
+    return;
   } else if (process.platform === 'linux') {
-    return await mountLinuxDrive();
+    await mountLinuxDrive();
+    return;
   }
-  return false;
+
+  return Promise.reject(
+    new Error(`Platform ${process.platform} not supported`)
+  );
 };
 
 export const unmountDrive = async () => {
   if (process.platform === 'win32') {
     return unmountWindowsDrive(getSavedLetter());
-  } else if (process.platform === 'darwin' || process.platform === 'linux') {
-    return unmountUnixDrive();
+  } else if (process.platform === 'darwin') {
+    return unmountMacOSDrive();
+  } else if (process.platform === 'linux') {
+    return unmountLinuxDrive();
   }
   return false;
 };
@@ -42,7 +50,7 @@ export const getVirtualDrivePath = () => {
   if (process.platform === 'win32') {
     return getSavedLetter() + ':\\';
   } else {
-    return '~/InternxtDrive/';
+    return homedir() + '/InternxtDrive';
   }
 };
 
@@ -53,15 +61,23 @@ const getSavedLetter = () => {
 const getUsedLetterDrives = (): Promise<string[]> => {
   Logger.log('[VirtualDrive] Getting used drive letters');
   return new Promise(function (resolve, reject) {
-    exec('(Get-PSDrive -PSProvider FileSystem).Name', { shell: 'powershell.exe' },
+    exec(
+      '(Get-PSDrive -PSProvider FileSystem).Name',
+      { shell: 'powershell.exe' },
       (errList, stdoutList) => {
         if (errList) {
-          Logger.log(`[VirtualDrive] Error getting used drive letters: ${errList}`);
+          Logger.log(
+            `[VirtualDrive] Error getting used drive letters: ${errList}`
+          );
           reject(`[VirtualDrive] Error getting used drive letters: ${errList}`);
         } else {
-          const arrayUsedLetterDrive = stdoutList.split(/\r?\n/).filter(l => l && l.length === 1);
+          const arrayUsedLetterDrive = stdoutList
+            .split(/\r?\n/)
+            .filter((l) => l && l.length === 1);
 
-          Logger.log(`[VirtualDrive] Used drive letters: ${arrayUsedLetterDrive.toString()}`);
+          Logger.log(
+            `[VirtualDrive] Used drive letters: ${arrayUsedLetterDrive.toString()}`
+          );
           resolve(arrayUsedLetterDrive);
         }
       }
@@ -73,8 +89,14 @@ const getLetterDrive = async (): Promise<string | false> => {
   const savedLetter = getSavedLetter() || 'I';
   const usedLetters = await getUsedLetterDrives();
   const windowsAllowedDriveLetters = 'IXTABCDEFGHJKLMNOPQRSUVWYZ'.split('');
-  const allowedLetters = windowsAllowedDriveLetters.filter(l => !usedLetters.includes(l));
-  Logger.log('[VirtualDrive] Getting drive letter', { savedLetter, usedLetters, allowedLetters });
+  const allowedLetters = windowsAllowedDriveLetters.filter(
+    (l) => !usedLetters.includes(l)
+  );
+  Logger.log('[VirtualDrive] Getting drive letter', {
+    savedLetter,
+    usedLetters,
+    allowedLetters,
+  });
 
   if (usedLetters.includes(savedLetter)) {
     // current saved drive letter is in use
@@ -99,7 +121,9 @@ const mountWindowsDrive = (driveLetter: string): Promise<boolean> => {
           Logger.log(`[VirtualDrive] Error creating drive: ${errMount}`);
           reject(`[VirtualDrive] Error creating drive: ${errMount}`);
         } else {
-          Logger.log(`[VirtualDrive] Drive created and mounted successfully: ${stdoutMount}`);
+          Logger.log(
+            `[VirtualDrive] Drive created and mounted successfully: ${stdoutMount}`
+          );
           resolve(true);
         }
       }
@@ -118,7 +142,9 @@ const renameWindowsDrive = (): Promise<boolean> => {
           Logger.log(`[VirtualDrive] Error renaming drive: ${errNaming}`);
           reject(`[VirtualDrive] Error renaming drive: ${errNaming}`);
         } else {
-          Logger.log(`[VirtualDrive] Drive renamed successfully: ${stdoutNaming}`);
+          Logger.log(
+            `[VirtualDrive] Drive renamed successfully: ${stdoutNaming}`
+          );
           resolve(true);
         }
       }
@@ -154,8 +180,12 @@ const cleanWindowsDrives = () => {
       if (err) {
         Logger.log(`[VirtualDrive] Error getting drives: ${err}`);
       } else {
-        const currentWebdavMountedDrives = stdout.split(/\r?\n/).filter(l => l && l.length === 2);
-        Logger.log('[VirtualDrive] Current webdav mounted drives:', { currentWebdavMountedDrives });
+        const currentWebdavMountedDrives = stdout
+          .split(/\r?\n/)
+          .filter((l) => l && l.length === 2);
+        Logger.log('[VirtualDrive] Current webdav mounted drives:', {
+          currentWebdavMountedDrives,
+        });
         currentWebdavMountedDrives.forEach((driveLetter) => {
           unmountWindowsDrive(driveLetter);
         });
@@ -172,7 +202,9 @@ const createUnixFolder = (): Promise<boolean> => {
       { shell: '/bin/bash' },
       (errFolder, stdoutFolder) => {
         if (errFolder) {
-          Logger.log(`[VirtualDrive] Error creating drive folder: ${errFolder}`);
+          Logger.log(
+            `[VirtualDrive] Error creating drive folder: ${errFolder}`
+          );
           reject(`[VirtualDrive] Error creating drive folder: ${errFolder}`);
         } else {
           Logger.log(
@@ -188,29 +220,31 @@ const createUnixFolder = (): Promise<boolean> => {
 const mountMacOSDrive = (driveName: string): Promise<boolean> => {
   Logger.log('[VirtualDrive] Mounting drive');
   return new Promise(function (resolve, reject) {
-    createUnixFolder().then(() => {
-      exec(
-        `mount_webdav -S -v '${driveName}' ${driveURL} ${getVirtualDrivePath()}`,
-        { shell: '/bin/bash' },
-        (errMount, stdoutMount) => {
-          if (errMount) {
-            Logger.log(`[VirtualDrive] Error mounting drive: ${errMount}`);
-            reject(`[VirtualDrive] Error mounting drive: ${errMount}`);
-          } else {
-            Logger.log(
-              `[VirtualDrive] Drive mounted successfully: ${stdoutMount}`
-            );
-            resolve(true);
+    createUnixFolder()
+      .then(() => {
+        exec(
+          `mount_webdav -S -v '${driveName}' ${driveURL} ${getVirtualDrivePath()}`,
+          { shell: '/bin/bash' },
+          (errMount, stdoutMount) => {
+            if (errMount) {
+              Logger.log(`[VirtualDrive] Error mounting drive: ${errMount}`);
+              reject(`[VirtualDrive] Error mounting drive: ${errMount}`);
+            } else {
+              Logger.log(
+                `[VirtualDrive] Drive mounted successfully: ${stdoutMount}`
+              );
+              resolve(true);
+            }
           }
-        }
-      );
-    }).catch((err) => {
-      reject(err);
-    });
+        );
+      })
+      .catch((err) => {
+        reject(err);
+      });
   });
 };
 
-const unmountUnixDrive = (): Promise<boolean> => {
+const unmountMacOSDrive = (): Promise<boolean> => {
   Logger.log('[VirtualDrive] Unmounting drive');
   return new Promise(function (resolve, reject) {
     exec(
@@ -229,27 +263,88 @@ const unmountUnixDrive = (): Promise<boolean> => {
   });
 };
 
-const mountLinuxDrive = (): Promise<boolean> => {
-  Logger.log('[VirtualDrive] Mounting drive');
-  return new Promise(function (resolve, reject) {
-    createUnixFolder().then(() => {
+const mountLinuxDrive = async (): Promise<boolean> => {
+  const mount = (uri: string) => {
+    return new Promise<void>((resolve, reject) => {
+      exec(`gio mount ${uri}`, { shell: '/bin/bash' }, (errMount) => {
+        if (errMount) {
+          reject(errMount);
+        } else {
+          resolve();
+        }
+      });
+    });
+  };
+
+  const createdSimlink = (uri: string) => {
+    return new Promise<void>((resolve, reject) => {
       exec(
-        `mount -t webdav ${driveURL} ${getVirtualDrivePath()}`,
+        `gio info ${uri} | awk -F': ' '/^local path: /{print $2}' | xargs -I_ ln -s _  ${getVirtualDrivePath()}`,
         { shell: '/bin/bash' },
-        (errMount, stdoutMount) => {
+        (errMount) => {
           if (errMount) {
-            Logger.log(`[VirtualDrive] Error mounting drive: ${errMount}`);
-            reject(`[VirtualDrive] Error mounting drive: ${errMount}`);
+            reject(errMount);
           } else {
-            Logger.log(
-              `[VirtualDrive] Drive mounted successfully: ${stdoutMount}`
-            );
-            resolve(true);
+            resolve();
           }
         }
       );
-    }).catch((err) => {
-      reject(err);
     });
-  });
+  };
+
+  try {
+    Logger.log('[VirtualDrive] Mounting drive');
+    const davUri = `dav://${driveObject.host}:${driveObject.port}`;
+
+    await mount(davUri);
+
+    await createdSimlink(davUri);
+
+    Logger.log('[VirtualDrive] Drive mounted successfully');
+    return true;
+  } catch (err: unknown) {
+    Logger.log(
+      `[VirtualDrive] Error mounting drive: ${(err as Error).message}`
+    );
+    return false;
+  }
 };
+
+async function unmountLinuxDrive(): Promise<boolean> {
+  Logger.log('[VirtualDrive] Unmounting drive');
+  const unlink = new Promise<boolean>(function (resolve, reject) {
+    exec(
+      `rm ${getVirtualDrivePath()}`,
+      { shell: '/bin/bash' },
+      (err, stdout) => {
+        if (err) {
+          Logger.log(`[VirtualDrive] Error unmounting drive: ${err}`);
+          reject(`[VirtualDrive] Error unmounting drive: ${err}`);
+        } else {
+          Logger.log(`[VirtualDrive] Drive unmounted successfully: ${stdout}`);
+          resolve(true);
+        }
+      }
+    );
+  });
+
+  const unmont = new Promise<boolean>(function (resolve, reject) {
+    exec(
+      `gio mount -u dav://${driveObject.host}:${driveObject.port}`,
+      { shell: '/bin/bash' },
+      (err, stdout) => {
+        if (err) {
+          Logger.log(`[VirtualDrive] Error unmounting drive: ${err}`);
+          reject(`[VirtualDrive] Error unmounting drive: ${err}`);
+        } else {
+          Logger.log(`[VirtualDrive] Drive unmounted successfully: ${stdout}`);
+          resolve(true);
+        }
+      }
+    );
+  });
+
+  const settled = await Promise.allSettled([unlink, unmont]);
+
+  return settled.every((promise) => promise.status === 'fulfilled');
+}

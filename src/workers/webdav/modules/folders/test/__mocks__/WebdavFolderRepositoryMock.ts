@@ -32,7 +32,7 @@ export class WebdavFolderRepositoryMock implements WebdavFolderRepository {
     return this.mockCreate(name, parentId);
   }
 
-  searchOnFolder(folder: number): WebdavFolder[] {
+  searchOn(folder: WebdavFolder): Promise<WebdavFolder[]> {
     return this.mockSearchOnFolder(folder);
   }
 

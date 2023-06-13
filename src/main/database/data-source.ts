@@ -8,7 +8,7 @@ export const AppDataSource = new DataSource({
   database: app.getPath('appData') + '/internxt-drive/internxt_desktop.db',
   logging: true,
   synchronize: true,
-  entities: [__dirname + '/entities/*.ts'],
+  entities: ['/entities/*.ts'],
 });
 
 eventBus.on('USER_LOGGED_OUT', () => {
