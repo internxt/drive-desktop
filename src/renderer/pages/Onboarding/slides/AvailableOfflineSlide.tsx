@@ -1,11 +1,7 @@
 import React from 'react';
 import { useTranslationContext } from 'renderer/context/LocalContext';
 
-export type AvailableOfflineSlideProps = object;
-
-export const AvailableOfflineSlide: React.FC<
-  AvailableOfflineSlideProps
-> = () => {
+export const AvailableOfflineSlide: React.FC = () => {
   const { translate } = useTranslationContext();
 
   return (

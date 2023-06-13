@@ -13,7 +13,6 @@ import {
   createBackupsFromLocalPaths,
 } from './service';
 import { getVirtualDrivePath } from '../../workers/webdav/VirtualDrive';
-import Logger from 'electron-log';
 ipcMain.handle('get-or-create-device', getOrCreateDevice);
 
 ipcMain.handle('rename-device', (_, v) => renameDevice(v));

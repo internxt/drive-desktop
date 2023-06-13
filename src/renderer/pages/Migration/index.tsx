@@ -1,9 +1,10 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { SLIDES } from './config';
 
 import { useTranslationContext } from 'renderer/context/LocalContext';
 import { MigrationSlideProps } from './helpers';
 import { reportError } from 'renderer/utils/errors';
+import useClientPlatform from 'renderer/hooks/ClientPlatform';
 
 const totalSlides = SLIDES.length - 3;
 
@@ -17,10 +18,7 @@ export default function Migration() {
   });
   const { translate } = useTranslationContext();
   const [slideIndex, setSlideIndex] = useState<number>(0);
-  const [platform, setPlatform] = useState<string>('');
-  useEffect(() => {
-    window.electron.getPlatform().then(setPlatform);
-  }, []);
+  const desktopPlatform = useClientPlatform();
 
   const finish = () => {
     window.electron.openVirtualDrive();
@@ -88,20 +86,21 @@ export default function Migration() {
         migratedItems: 100,
       });
 
-      finishMigrationSuccess();
-      goToSlideIndex(3);
+      finishMigrationSuccess()
+        .then(() => {
+          goToSlideIndex(3);
+        })
+        .catch((error) => {
+          console.error('Error moving sync folder to desktop: ', error);
+          reportError(error, {
+            description: 'Failed to move sync folder to desktop location',
+          });
+        });
     }, 4000);
   };
 
   const finishMigrationSuccess = async () => {
-    try {
-      await window.electron.moveSyncFolderToDesktop();
-    } catch (error) {
-      console.error('Error moving sync folder to desktop: ', error);
-      reportError(error, {
-        description: 'Failed to move sync folder to desktop location',
-      });
-    }
+    await window.electron.moveSyncFolderToDesktop();
   };
   const goToSlideIndex = (slideIndex: number) => {
     setSlideIndex(slideIndex);
@@ -127,11 +126,13 @@ export default function Migration() {
   }, [slideIndex]);
 
   const currentSlide = slideIndex - 2;
+
+  if (!desktopPlatform) return <></>;
   return (
     <div className="draggable relative flex h-screen w-full select-none flex-row">
       <div className="flex w-1/2 flex-col px-6 pb-6 pt-16">
         <SlideContent
-          platform={platform}
+          platform={desktopPlatform}
           onStartMigration={handleStartMigration}
           onShowFailedItems={handleShowFailedItems}
           onCancelMigration={handleCancelMigration}
@@ -144,7 +145,7 @@ export default function Migration() {
         />
         <div className="mt-auto">
           <SlideContentFooter
-            platform={platform}
+            platform={desktopPlatform}
             onStartMigration={handleStartMigration}
             onShowFailedItems={handleShowFailedItems}
             onCancelMigration={handleCancelMigration}
@@ -160,7 +161,7 @@ export default function Migration() {
 
       <div className="flex w-1/2 border-l border-gray-10 bg-gray-5">
         <SlideImage
-          platform={platform}
+          platform={desktopPlatform}
           onStartMigration={handleStartMigration}
           onShowFailedItems={handleShowFailedItems}
           onCancelMigration={handleCancelMigration}

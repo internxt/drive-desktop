@@ -2,9 +2,7 @@ import React from 'react';
 
 import { useTranslationContext } from 'renderer/context/LocalContext';
 
-export type AvailableOnlineSlideProps = object;
-
-export const AvailableOnlineSlide: React.FC<AvailableOnlineSlideProps> = () => {
+export const AvailableOnlineSlide: React.FC = () => {
   const { translate } = useTranslationContext();
 
   return (

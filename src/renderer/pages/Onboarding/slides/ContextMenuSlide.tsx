@@ -2,9 +2,7 @@ import React from 'react';
 
 import { useTranslationContext } from 'renderer/context/LocalContext';
 
-export type ContextMenuSlideProps = object;
-
-export const ContextMenuSlide: React.FC<ContextMenuSlideProps> = () => {
+export const ContextMenuSlide: React.FC = () => {
   const { translate } = useTranslationContext();
 
   return (

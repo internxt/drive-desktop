@@ -59,7 +59,9 @@ declare interface Window {
       func: (value: import('../workers/types').ProcessInfoUpdatePayload) => void
     ): () => void;
 
-    moveSyncFolderToDesktop(): typeof import('../main/migration/service').moveSyncFolderToDesktop;
+    moveSyncFolderToDesktop(): Promise<
+      typeof import('../main/migration/service').moveSyncFolderToDesktop
+    >;
     getProcessIssues(): Promise<import('../workers/types').ProcessIssue[]>;
 
     onProcessIssuesChanged(
