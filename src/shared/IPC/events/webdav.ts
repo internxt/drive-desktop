@@ -42,6 +42,8 @@ type UploadInfo = {
 type WebdavFlowEvents = {
   WEBDAV_FILE_UPLOADED: (payload: {
     name: string;
+    size: number;
+    type: string;
     uploadInfo: UploadInfo;
   }) => void;
   WEBDAV_FILE_UPLOAD_PROGRESS: (payload: {

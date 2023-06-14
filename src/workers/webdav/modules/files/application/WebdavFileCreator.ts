@@ -71,7 +71,9 @@ export class WebdavFileCreator {
     await this.eventBus.publish(file.pullDomainEvents());
 
     this.ipc.send('WEBDAV_FILE_UPLOADED', {
-      name: filePath.nameWithExtension(),
+      name: file.name,
+      type: file.type,
+      size: file.size,
       uploadInfo: { stopwatch: this.stopwatch },
     });
 

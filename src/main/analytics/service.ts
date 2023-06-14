@@ -258,6 +258,7 @@ export function trackWebdavEvent(
   properties: Record<string, any>
 ) {
   const { uuid: userId } = ConfigStore.get('userData');
+
   Logger.debug('Tracked event', {
     userId,
     event: event,
