@@ -104,7 +104,6 @@ app
   .whenReady()
   .then(async () => {
     await AppDataSource.initialize();
-    Logger.info('DataSource initialized: ', AppDataSource.entityMetadatas);
     eventBus.emit('APP_IS_READY');
     if (process.env.NODE_ENV === 'development') {
       await installExtensions();

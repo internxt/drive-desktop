@@ -49,8 +49,7 @@ export default function SyncErrorBanner() {
 
   useSyncStatus(onSyncStatusChanged);
 
-  const severity =
-    stopReason?.reason === 'COULD_NOT_ACQUIRE_LOCK' ? 'WARN' : 'FATAL';
+  const severity: 'FATAL' | 'WARN' = 'FATAL' as 'FATAL' | 'WARN';
   const show =
     stopReason !== null &&
     stopReason?.reason !== 'EXIT' &&
@@ -60,9 +59,7 @@ export default function SyncErrorBanner() {
 
   let message = '';
 
-  if (stopReason?.reason === 'COULD_NOT_ACQUIRE_LOCK') {
-    // no op
-  } else if (stopReason?.reason === 'FATAL_ERROR') {
+  if (stopReason?.reason === 'FATAL_ERROR') {
     message = SyncFatalErrorMessages[stopReason.errorName];
   }
 
