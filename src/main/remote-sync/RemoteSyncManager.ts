@@ -13,6 +13,7 @@ import { DatabaseCollectionAdapter } from '../database/adapters/base';
 import { Axios } from 'axios';
 import { DriveFolder } from '../database/entities/DriveFolder';
 import { DriveFile } from '../database/entities/DriveFile';
+import { isArray } from 'lodash';
 
 export class RemoteSyncManager {
   private foldersSyncStatus: RemoteSyncStatus = 'IDLE';
@@ -92,9 +93,11 @@ export class RemoteSyncManager {
    */
   private smokeTest() {
     if (this.status === 'SYNCING') {
-      throw new Error(
-        'RemoteSyncManager should not be in SYNCING status to start'
+      Logger.warn(
+        'RemoteSyncManager should not be in SYNCING status to start, not starting again'
       );
+
+      return;
     }
   }
   private changeStatus(newStatus: RemoteSyncStatus) {
@@ -189,11 +192,11 @@ export class RemoteSyncManager {
       });
     } catch (error) {
       Logger.error('Remote files sync failed ', error);
-      // reportError(error as Error, {
-      //   lastFilesSyncAt: lastFilesSyncAt
-      //     ? lastFilesSyncAt.toISOString()
-      //     : 'INITIAL_FILES_SYNC',
-      // });
+      reportError(error as Error, {
+        lastFilesSyncAt: lastFilesSyncAt
+          ? lastFilesSyncAt.toISOString()
+          : 'INITIAL_FILES_SYNC',
+      });
       if (syncConfig.retry >= syncConfig.maxRetries) {
         // No more retries allowed,
         this.filesSyncStatus = 'SYNC_FAILED';
@@ -251,11 +254,11 @@ export class RemoteSyncManager {
       });
     } catch (error) {
       Logger.error('Remote folders sync failed ', error);
-      // reportError(error as Error, {
-      //   lastFoldersSyncAt: lastFoldersSyncAt
-      //     ? lastFoldersSyncAt.toISOString()
-      //     : 'INITIAL_FOLDERS_SYNC',
-      // });
+      reportError(error as Error, {
+        lastFoldersSyncAt: lastFoldersSyncAt
+          ? lastFoldersSyncAt.toISOString()
+          : 'INITIAL_FOLDERS_SYNC',
+      });
       if (syncConfig.retry >= syncConfig.maxRetries) {
         // No more retries allowed,
         this.foldersSyncStatus = 'SYNC_FAILED';
@@ -299,11 +302,13 @@ export class RemoteSyncManager {
           response.data,
           null,
           2
-        )}`
+        )} and status ${response.status}`
       );
     }
 
-    Logger.info(`Received fetched files ${JSON.stringify(response.data)}`);
+    Logger.info(
+      `Received ${isArray(response.data) && response.data.length} fetched files`
+    );
     const hasMore =
       response.data.length === this.config.fetchFilesLimitPerRequest;
 
@@ -342,11 +347,15 @@ export class RemoteSyncManager {
           response.data,
           null,
           2
-        )}`
+        )} and status ${response.status}`
       );
     }
 
-    Logger.info(`Received fetched folders ${JSON.stringify(response.data)}`);
+    Logger.info(
+      `Received ${
+        isArray(response.data) && response.data.length
+      } fetched folders`
+    );
     const hasMore =
       response.data.length === this.config.fetchFilesLimitPerRequest;
 

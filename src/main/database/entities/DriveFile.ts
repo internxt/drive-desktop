@@ -13,8 +13,8 @@ export class DriveFile {
   })
   uuid!: string;
 
-  @Column({ nullable: false })
-  type!: string;
+  @Column({ nullable: true })
+  type?: string;
 
   @Column({ nullable: false })
   size!: number;
@@ -22,8 +22,8 @@ export class DriveFile {
   @Column({ nullable: false })
   bucket!: string;
 
-  @Column({ nullable: false })
-  folderId!: number;
+  @Column({ nullable: true })
+  folderId?: number;
 
   @Column({ nullable: true })
   folderUuid?: string;

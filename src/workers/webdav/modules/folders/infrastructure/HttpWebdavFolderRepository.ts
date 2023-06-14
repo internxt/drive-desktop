@@ -9,6 +9,7 @@ import { WebdavFolderRepository } from '../domain/WebdavFolderRepository';
 import Logger from 'electron-log';
 import * as uuid from 'uuid';
 import { UpdateFolderNameDTO } from './dtos/UpdateFolderNameDTO';
+import { ipc } from '../../../ipc';
 
 export class HttpWebdavFolderRepository implements WebdavFolderRepository {
   private folders: Record<string, WebdavFolder> = {};
@@ -23,37 +24,38 @@ export class HttpWebdavFolderRepository implements WebdavFolderRepository {
     files: ServerFile[];
     folders: ServerFolder[];
   }> {
-    const PAGE_SIZE = 5000;
+    const updatedRemoteItems = await ipc.invoke('GET_UPDATED_REMOTE_ITEMS');
 
-    let thereIsMore = true;
-    let offset = 0;
+    const files = updatedRemoteItems.files.map<ServerFile>((updatedFile) => {
+      return {
+        bucket: updatedFile.bucket,
+        createdAt: updatedFile.createdAt,
+        encrypt_version: '',
+        fileId: updatedFile.fileId,
+        folderId: updatedFile.folderId,
+        id: updatedFile.id,
+        modificationTime: updatedFile.modificationTime,
+        name: updatedFile.name,
+        size: updatedFile.size,
+        type: updatedFile.type,
+        updatedAt: updatedFile.updatedAt,
+        userId: updatedFile.userId,
+      };
+    });
 
-    const files: ServerFile[] = [];
-    const folders: ServerFolder[] = [];
-
-    while (thereIsMore) {
-      try {
-        const response = await this.driveClient.get(
-          `${process.env.API_URL}/api/desktop/list/${offset}`
-        );
-
-        const batch = response.data;
-
-        // We can't use spread operator with big arrays
-        // see: https://anchortagdev.com/range-error-maximum-call-stack-size-exceeded-error-using-spread-operator-in-node-js-javascript/
-
-        for (const file of batch.files)
-          files.push({ ...file, size: parseInt(file.size, 10) });
-
-        for (const folder of batch.folders) folders.push(folder);
-
-        thereIsMore = batch.folders.length === PAGE_SIZE;
-
-        if (thereIsMore) offset += PAGE_SIZE;
-      } catch (err) {
-        // no empty
+    const folders = updatedRemoteItems.folders.map<ServerFolder>(
+      (updatedFolder) => {
+        return {
+          bucket: updatedFolder.bucket ?? null,
+          created_at: updatedFolder.createdAt,
+          id: updatedFolder.id,
+          name: updatedFolder.name,
+          parent_id: updatedFolder.parentId ?? null,
+          updated_at: updatedFolder.updatedAt,
+          plain_name: updatedFolder.plainName ?? null,
+        };
       }
-    }
+    );
 
     return { files, folders };
   }

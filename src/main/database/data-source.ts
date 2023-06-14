@@ -8,7 +8,7 @@ import { DriveFolder } from './entities/DriveFolder';
 export const AppDataSource = new DataSource({
   type: 'better-sqlite3',
   database: app.getPath('appData') + '/internxt-drive/internxt_desktop.db',
-  logging: true,
+  logging: false,
   synchronize: true,
   entities: [DriveFile, DriveFolder],
 });
