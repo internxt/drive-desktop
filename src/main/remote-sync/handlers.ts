@@ -26,6 +26,13 @@ const remoteSyncManager = new RemoteSyncManager(
 
 ipcMain.handle('GET_UPDATED_REMOTE_ITEMS', async () => {
   try {
+    await remoteSyncManager.startRemoteSync();
+
+    if (remoteSyncManager.getSyncStatus() !== 'SYNCED') {
+      throw new Error(
+        'The RemoteSyncManager is out of sync, you should not retrieve files and folders since they could be not up to date with the remote ones'
+      );
+    }
     const [allDriveFiles, allDriveFolders] = await Promise.all([
       driveFilesCollection.getAll(),
       driveFoldersCollection.getAll(),
