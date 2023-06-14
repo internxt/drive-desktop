@@ -11,7 +11,7 @@
     "build": "concurrently \"npm run build:main\" \"npm run build:renderer\" \"npm run build:sync\" \"npm run build:backups\" \"npm run build:webdav\"",
     "build:main": "cross-env NODE_ENV=production TS_NODE_TRANSPILE_ONLY=true webpack --config ./.erb/configs/webpack.config.main.prod.ts",
     "build:renderer": "cross-env NODE_ENV=production TS_NODE_TRANSPILE_ONLY=true webpack --config ./.erb/configs/webpack.config.renderer.prod.ts",
-    "build:sync": "cross-env NODE_ENV=production TS_NODE_TRANSPILE_ONLY=true webpack --config ./.erb/configs/webpack.config.sync.ts",
+    "build:sync": "echo '-- WARNING --: Sync worker has been removed, skipping build'",
     "build:backups": "cross-env NODE_ENV=production TS_NODE_TRANSPILE_ONLY=true webpack --config ./.erb/configs/webpack.config.backups.ts",
     "build:webdav": "cross-env NODE_ENV=production TS_NODE_TRANSPILE_ONLY=true webpack --config ./.erb/configs/webpack.config.webdav.ts",
     "rebuild": "electron-rebuild --parallel --types prod,dev,optional --module-dir release/app",
