@@ -51,7 +51,7 @@ function LoggedInWrapper({ children }: { children: JSX.Element }) {
 }
 
 function Loader() {
-  return <div>loading...</div>;
+  return <></>;
 }
 
 export default function App() {
