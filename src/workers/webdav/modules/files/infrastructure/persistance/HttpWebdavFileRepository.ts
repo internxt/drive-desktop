@@ -34,14 +34,14 @@ export class HttpWebdavFileRepository implements WebdavFileRepository {
       return {
         bucket: updatedFile.bucket,
         createdAt: updatedFile.createdAt,
-        encrypt_version: '',
+        encrypt_version: '03-aes',
         fileId: updatedFile.fileId,
         folderId: updatedFile.folderId,
         id: updatedFile.id,
         modificationTime: updatedFile.modificationTime,
         name: updatedFile.name,
         size: updatedFile.size,
-        type: updatedFile.type,
+        type: updatedFile.type ?? null,
         updatedAt: updatedFile.updatedAt,
         userId: updatedFile.userId,
       };
@@ -101,6 +101,7 @@ export class HttpWebdavFileRepository implements WebdavFileRepository {
 
     if (result.status === 200) {
       delete this.files[file.path];
+      await ipc.invoke('START_REMOTE_SYNC');
     }
   }
 
@@ -147,6 +148,8 @@ export class HttpWebdavFileRepository implements WebdavFileRepository {
     });
 
     this.files[file.path] = created;
+
+    await ipc.invoke('START_REMOTE_SYNC');
   }
 
   async updateName(file: WebdavFile): Promise<void> {
@@ -175,6 +178,8 @@ export class HttpWebdavFileRepository implements WebdavFileRepository {
     }
 
     this.files[file.path] = file;
+
+    await ipc.invoke('START_REMOTE_SYNC');
   }
 
   async updateParentDir(item: WebdavFile): Promise<void> {
@@ -191,6 +196,8 @@ export class HttpWebdavFileRepository implements WebdavFileRepository {
     }
 
     await this.init();
+
+    await ipc.invoke('START_REMOTE_SYNC');
   }
 
   async searchOnFolder(folderId: number): Promise<Array<WebdavFile>> {

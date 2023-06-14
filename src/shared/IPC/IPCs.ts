@@ -17,7 +17,7 @@ export interface CustomIpc<
   emit(event: keyof EmitedEvents): void;
 
   invoke<Event extends keyof InvokableFunctions>(
-    event: keyof InvokableFunctions
+    event: Event
   ): InvokableFunctions[Event];
 
   on<Event extends keyof ListenedEvents>(

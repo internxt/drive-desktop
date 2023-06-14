@@ -26,13 +26,6 @@ const remoteSyncManager = new RemoteSyncManager(
 
 ipcMain.handle('GET_UPDATED_REMOTE_ITEMS', async () => {
   try {
-    await remoteSyncManager.startRemoteSync();
-
-    if (remoteSyncManager.getSyncStatus() !== 'SYNCED') {
-      throw new Error(
-        'The RemoteSyncManager is out of sync, you should not retrieve files and folders since they could be not up to date with the remote ones'
-      );
-    }
     const [allDriveFiles, allDriveFolders] = await Promise.all([
       driveFilesCollection.getAll(),
       driveFoldersCollection.getAll(),
@@ -55,11 +48,13 @@ ipcMain.handle('GET_UPDATED_REMOTE_ITEMS', async () => {
     throw error;
   }
 });
+
+ipcMain.handle('START_REMOTE_SYNC', async () => {
+  await remoteSyncManager.startRemoteSync();
+});
+
 eventBus.on('USER_LOGGED_IN', () => {
-  Logger.info('Received user logged in event, running RemoteSyncManager');
-  remoteSyncManager.onStatusChange((newStatus) => {
-    Logger.info(`RemoteSyncManager status: ${newStatus}`);
-  });
+  Logger.info('Received user logged in event');
 
   remoteSyncManager.startRemoteSync().catch((error) => {
     Logger.error('Error starting remote sync manager', error);

@@ -60,8 +60,11 @@ export class RemoteSyncManager {
    * Throws an error if there's a sync in progress for this class instance
    */
   async startRemoteSync() {
-    this.smokeTest();
+    const testPassed = this.smokeTest();
 
+    if (!testPassed) {
+      return;
+    }
     await this.db.files.connect();
     await this.db.folders.connect();
 
@@ -97,14 +100,15 @@ export class RemoteSyncManager {
         'RemoteSyncManager should not be in SYNCING status to start, not starting again'
       );
 
-      return;
+      return false;
     }
+
+    return true;
   }
   private changeStatus(newStatus: RemoteSyncStatus) {
+    if (newStatus === this.status) return;
+    Logger.info(`RemoteSyncManager ${this.status} -> ${newStatus}`);
     this.status = newStatus;
-    Logger.info(`Folders sync status is ${this.foldersSyncStatus}`);
-    Logger.info(`Files sync status is ${this.filesSyncStatus}`);
-    Logger.info(`RemoteSync status is ${this.status}`);
     this.onStatusChangeCallbacks.forEach((callback) => {
       if (typeof callback !== 'function') return;
       callback(newStatus);

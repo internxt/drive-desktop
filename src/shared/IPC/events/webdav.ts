@@ -38,6 +38,7 @@ export type WebdavInvokableFunctions = {
     files: DriveFile[];
     folders: DriveFolder[];
   }>;
+  START_REMOTE_SYNC: Promise<void>;
 };
 
 export type WebdavMainEvents = {
