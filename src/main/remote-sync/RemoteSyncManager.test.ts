@@ -2,6 +2,10 @@ jest.mock('@sentry/electron/main', () => ({
   init: () => jest.fn(),
   captureException: () => jest.fn(),
 }));
+
+jest.mock('electron');
+jest.mock('electron-store');
+jest.mock('axios');
 import { DatabaseCollectionAdapter } from 'main/database/adapters/base';
 import { DriveFile } from 'main/database/entities/DriveFile';
 import { DriveFolder } from 'main/database/entities/DriveFolder';
@@ -9,9 +13,6 @@ import { RemoteSyncManager } from './RemoteSyncManager';
 import { RemoteSyncedFile, RemoteSyncedFolder } from './helpers';
 import * as uuid from 'uuid';
 import axios from 'axios';
-
-jest.mock('axios');
-jest.mock('electron-store');
 
 const mockedAxios = axios as jest.Mocked<typeof axios>;
 

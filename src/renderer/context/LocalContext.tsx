@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useMemo } from 'react';
 import { getI18n, useTranslation } from 'react-i18next';
 
-interface LocalContextProps {
+export interface LocalContextProps {
   translate: (
     key: string,
     keysToReplace?: Record<string, string | number>

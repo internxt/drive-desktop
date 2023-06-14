@@ -85,6 +85,43 @@
       }
     }
   },
+  "migration": {
+    "slides": {
+      "welcome": {
+        "title": "Internxt’s new desktop app is ready to go!",
+        "features": {
+          "title": "Fresh updates:",
+          "feature-1": "Select what you want to download and save hard drive space.",
+          "feature-2": "Native OS look and feel for managing your files and folders."
+        }
+      },
+      "migration": {
+        "title": "Let's make sure all your files are safe",
+        "in-progress": "Uploading pending files",
+        "item-progress": "{{processed_items}} of {{total_items}} items uploaded"
+      },
+      "migration-failed": {
+        "title": "Let's make sure all your files are safe",
+        "message": "Some files could not be uploaded",
+        "description": "We’ve moved these files to your desktop, drag and drop them to your Internxt Drive",
+        "show-files": "Show files"
+      },
+      "delete-old-drive-folder": {
+        "title": "Same Internxt Drive, new location",
+        "message": "Your personal Internxt Drive folder is located in your {{platform_app}} sidebar"
+      },
+      "new-widget": {
+        "title": "Be more productive with our redesigned widget",
+        "message": "We've reimagined and rebuilt our widget to reduce clutter, add convenience, and boost speed.",
+        "message-2": "All changes now update in real time."
+      }
+    },
+    "common": {
+      "continue": "Continue",
+      "cancel": "Cancel",
+      "open-drive": "Open Internxt Drive"
+    }
+  },
   "widget": {
     "header": {
       "usage": {

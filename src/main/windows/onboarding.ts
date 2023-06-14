@@ -27,7 +27,7 @@ const openOnboardingWindow = () => {
   }
 
   onboardingWindow = new BrowserWindow({
-    width: 732,
+    width: 800,
     height: 470,
     show: false,
     webPreferences: {
