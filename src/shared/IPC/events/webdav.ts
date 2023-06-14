@@ -1,5 +1,3 @@
-import { Stopwatch } from '../../types/Stopwatch';
-
 const trackedEvents = [
   'delete',
   'upload',
