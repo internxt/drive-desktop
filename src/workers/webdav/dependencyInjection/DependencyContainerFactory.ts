@@ -144,7 +144,7 @@ export class DependencyContainerFactory {
         eventBus,
         ipc
       ),
-      fileDeleter: new WebdavFileDeleter(fileRepository, eventBus),
+      fileDeleter: new WebdavFileDeleter(fileRepository, eventBus, ipc),
       fileMover: new WebdavFileMover(fileRepository, folderFinder, eventBus),
       fileCreator: new WebdavFileCreator(
         fileRepository,

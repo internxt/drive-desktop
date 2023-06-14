@@ -57,6 +57,14 @@ type WebdavFlowEvents = {
     type: string;
     uploadInfo: UploadInfo;
   }) => void;
+  WEBDAV_FILE_DELETED: (payload: {
+    name: string;
+    size: number;
+    type: string;
+  }) => void;
+  WEBDAV_FILE_RENAMED: (payload: { name: string; oldName: string }) => void;
+  WEBDAV_FILE_MOVED: (payload: { name: string; folerName: string }) => void;
+  WEBDAV_FILE_OVERWRITED: (payload: { name: string }) => void;
 };
 
 export type WebDavProcessEvents = WebdavServerEvents &
