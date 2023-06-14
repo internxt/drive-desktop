@@ -23,7 +23,7 @@ import { Traverser } from '../modules/items/application/Traverser';
 import { AllWebdavItemsNameLister } from '../modules/shared/application/AllWebdavItemsSearcher';
 import { WebdavUnknownItemTypeSearcher } from '../modules/shared/application/WebdavUnknownItemTypeSearcher';
 import { WebdavUnkownItemMetadataDealer } from '../modules/shared/application/WebdavUnkownItemMetadataDealer';
-import { NodeJsEventBus } from '../modules/shared/infrastructure/NodeJsEventBus';
+import { NodeJsEventBus } from '../modules/shared/infrastructure/DuplexEventBus';
 import { FreeSpacePerEnvironmentCalculator } from '../modules/userUsage/application/FreeSpacePerEnvironmentCalculator';
 import { IncrementDriveUsageOnFileCreated } from '../modules/userUsage/application/IncrementDriveUsageOnFileCreated';
 import { UsedSpaceCalculator } from '../modules/userUsage/application/UsedSpaceCalculator';
@@ -141,7 +141,8 @@ export class DependencyContainerFactory {
         fileRepository,
         folderFinder,
         fileContentRepository,
-        eventBus
+        eventBus,
+        ipc
       ),
       fileDeleter: new WebdavFileDeleter(fileRepository, eventBus),
       fileMover: new WebdavFileMover(fileRepository, folderFinder, eventBus),
@@ -156,7 +157,8 @@ export class DependencyContainerFactory {
       fileDownloader: new WebdavFileDownloader(
         fileRepository,
         fileContentRepository,
-        eventBus
+        eventBus,
+        ipc
       ),
       fileMimeTypeResolver: new WebdavFileMimeTypeResolver(),
 

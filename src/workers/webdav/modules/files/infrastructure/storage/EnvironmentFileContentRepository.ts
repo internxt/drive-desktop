@@ -3,10 +3,13 @@ import { Readable } from 'stream';
 import { FileSize } from '../../domain/FileSize';
 import { RemoteFileContentsRepository } from '../../domain/RemoteFileContentsRepository';
 import { WebdavFile } from '../../domain/WebdavFile';
-import { RemoteFileContents } from '../../domain/RemoteFileContent';
 import Logger from 'electron-log';
-import { ipcRenderer } from 'electron';
 import { EnvironmentContentFileUpoader } from './EnvironmentContentFileUpoader';
+import { EnvironmentContentFileDownloader } from './EnvironmentContnetFileDownloader';
+import { ContentFileDownloader } from '../../domain/ContentFileDownloader';
+import { ContentFileUploader } from '../../domain/ContentFileUploader';
+import { EnvironmentContentFileClonner } from './EnvironmentContentFileClonner';
+import { ContentFileClonner } from '../../domain/ContentFileClonner';
 
 export class EnvironmentFileContentRepository
   implements RemoteFileContentsRepository
@@ -18,72 +21,34 @@ export class EnvironmentFileContentRepository
     private readonly bucket: string
   ) {}
 
-  clonner(file: WebdavFile): EnvironmentContentFileUpoader {
-    const remoteFileContents = this.downloader(file);
-
-    const fn =
+  clonner(file: WebdavFile): ContentFileClonner {
+    const uploadFunciton =
       file.size >
       EnvironmentFileContentRepository.MULTIPART_UPLOADE_SIZE_THRESHOLD
         ? this.environment.uploadMultipartFile
         : this.environment.upload;
 
-    return new EnvironmentContentFileUpoader(
-      fn,
+    const clonner = new EnvironmentContentFileClonner(
+      uploadFunciton,
+      this.environment.download,
       this.bucket,
-      file.size,
-      remoteFileContents
+      file
+    );
+
+    return clonner;
+  }
+
+  downloader(file: WebdavFile): ContentFileDownloader {
+    Logger.log('download!!', { name: file.nameWithExtension });
+
+    return new EnvironmentContentFileDownloader(
+      this.environment.download,
+      this.bucket,
+      file
     );
   }
 
-  downloader(file: WebdavFile): Promise<Readable> {
-    Logger.log('download!!', { name: file.nameWithExtension });
-    return new Promise((resolve, reject) => {
-      this.environment.download(
-        this.bucket,
-        file.fileId,
-        {
-          progressCallback: (progress: number) => {
-            ipcRenderer.send('SYNC_INFO_UPDATE', {
-              action: 'PULL',
-              kind: 'LOCAL',
-              progress,
-              name: file.nameWithExtension,
-            });
-          },
-          finishedCallback: async (err: Error, stream: Readable) => {
-            if (err) {
-              ipcRenderer.send('SYNC_INFO_UPDATE', {
-                action: 'PULL_ERROR',
-                kind: 'LOCAL',
-                name: file.nameWithExtension,
-                errorName: err.name,
-                errorDetails: err.message,
-                process: 'SYNC',
-              });
-              reject(err);
-            } else {
-              ipcRenderer.send('SYNC_INFO_UPDATE', {
-                action: 'PULLED',
-                kind: 'LOCAL',
-                name: file.nameWithExtension,
-              });
-              const remoteContents = RemoteFileContents.preview(file, stream);
-              resolve(remoteContents.stream);
-            }
-          },
-        },
-        {
-          label: 'Dynamic',
-          params: {
-            useProxy: false,
-            concurrency: 10,
-          },
-        }
-      );
-    });
-  }
-
-  uploader(size: FileSize, contents: Readable): EnvironmentContentFileUpoader {
+  uploader(size: FileSize, contents: Readable): ContentFileUploader {
     const fn =
       size.value >
       EnvironmentFileContentRepository.MULTIPART_UPLOADE_SIZE_THRESHOLD

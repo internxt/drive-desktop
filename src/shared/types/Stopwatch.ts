@@ -26,4 +26,8 @@ export class Stopwatch {
 
     return this._start - this._finish;
   }
+
+  reset() {
+    this._start = this._finish = undefined;
+  }
 }

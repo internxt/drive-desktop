@@ -13,6 +13,6 @@ export interface ContentFileDownloader {
 
   on(
     event: keyof FileDownloadEvents,
-    fn: FileDownloadEvents[keyof FileDownloadEvents]
+    handler: FileDownloadEvents[keyof FileDownloadEvents]
   ): void;
 }
