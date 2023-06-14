@@ -23,7 +23,7 @@ import { Traverser } from '../modules/items/application/Traverser';
 import { AllWebdavItemsNameLister } from '../modules/shared/application/AllWebdavItemsSearcher';
 import { WebdavUnknownItemTypeSearcher } from '../modules/shared/application/WebdavUnknownItemTypeSearcher';
 import { WebdavUnkownItemMetadataDealer } from '../modules/shared/application/WebdavUnkownItemMetadataDealer';
-import { DuplexEventBus } from '../modules/shared/infrastructure/DuplexEventBus';
+import { NodeJsEventBus } from '../modules/shared/infrastructure/NodeJsEventBus';
 import { FreeSpacePerEnvironmentCalculator } from '../modules/userUsage/application/FreeSpacePerEnvironmentCalculator';
 import { IncrementDriveUsageOnFileCreated } from '../modules/userUsage/application/IncrementDriveUsageOnFileCreated';
 import { UsedSpaceCalculator } from '../modules/userUsage/application/UsedSpaceCalculator';
@@ -119,7 +119,7 @@ export class DependencyContainerFactory {
 
     const userUsageIncrementer = new UserUsageIncrementer(userUsageRepository);
 
-    const eventBus = new DuplexEventBus();
+    const eventBus = new NodeJsEventBus();
 
     const container = {
       drive: clients.drive,
