@@ -8,6 +8,7 @@ export type FileCloneEvents = {
   'upload-progress': (progress: number) => void;
   'download-finished': (fileId: WebdavFileAtributes['fileId']) => void;
   'upload-finished': (fileId: WebdavFileAtributes['fileId']) => void;
+  finish: (fileId: WebdavFileAtributes['fileId']) => void;
   error: (error: Error) => void;
 };
 

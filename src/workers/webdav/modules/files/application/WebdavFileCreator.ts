@@ -14,8 +14,6 @@ import { WebdavIpc } from '../../../ipc';
 import { Stopwatch } from '../../../../../shared/types/Stopwatch';
 
 export class WebdavFileCreator {
-  private readonly stopwatch: Stopwatch;
-
   constructor(
     private readonly repository: WebdavFileRepository,
     private readonly folderFinder: WebdavFolderFinder,
@@ -23,31 +21,41 @@ export class WebdavFileCreator {
     private readonly temporalFileCollection: FileMetadataCollection,
     private readonly eventBus: WebdavServerEventBus,
     private readonly ipc: WebdavIpc
-  ) {
-    this.stopwatch = new Stopwatch();
-  }
+  ) {}
 
-  private registerEvents(path: FilePath, uploader: ContentFileUploader) {
+  private registerEvents(
+    uploader: ContentFileUploader,
+    metadata: ItemMetadata
+  ) {
+    const stopwatch = new Stopwatch();
+
     uploader.on('start', () => {
-      this.stopwatch.start();
+      stopwatch.start();
 
       this.ipc.send('WEBDAV_FILE_UPLOAD_PROGRESS', {
-        name: path.nameWithExtension(),
+        name: metadata.name,
         progess: 0,
-        uploadInfo: { elapsedTime: this.stopwatch.elapsedTime() },
+        uploadInfo: { elapsedTime: stopwatch.elapsedTime() },
       });
     });
 
     uploader.on('progress', (progess: number) => {
       this.ipc.send('WEBDAV_FILE_UPLOAD_PROGRESS', {
-        name: path.nameWithExtension(),
+        name: metadata.name,
         progess,
-        uploadInfo: { elapsedTime: this.stopwatch.elapsedTime() },
+        uploadInfo: { elapsedTime: stopwatch.elapsedTime() },
       });
     });
 
     uploader.on('finish', () => {
-      this.stopwatch.finish();
+      stopwatch.finish();
+
+      this.ipc.send('WEBDAV_FILE_UPLOADED', {
+        name: metadata.name,
+        type: metadata.type,
+        size: metadata.size,
+        uploadInfo: { elapsedTime: stopwatch.elapsedTime() },
+      });
     });
 
     uploader.on('error', () => {
@@ -69,13 +77,6 @@ export class WebdavFileCreator {
 
     await this.eventBus.publish(file.pullDomainEvents());
 
-    this.ipc.send('WEBDAV_FILE_UPLOADED', {
-      name: file.name,
-      type: file.type,
-      size: file.size,
-      uploadInfo: { elapsedTime: this.stopwatch.elapsedTime() },
-    });
-
     return file;
   }
 
@@ -89,17 +90,16 @@ export class WebdavFileCreator {
     const fileSize = new FileSize(size);
     const filePath = new FilePath(path);
 
-    this.temporalFileCollection.add(
-      filePath.value,
-      ItemMetadata.from({
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-        name: filePath.name(),
-        size,
-        extension: filePath.extension(),
-        type: 'FILE',
-      })
-    );
+    const metadata = ItemMetadata.from({
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+      name: filePath.name(),
+      size,
+      extension: filePath.extension(),
+      type: 'FILE',
+    });
+
+    this.temporalFileCollection.add(filePath.value, metadata);
 
     const folder = this.folderFinder.run(filePath.dirname());
 
@@ -107,7 +107,7 @@ export class WebdavFileCreator {
 
     const uploader = this.contentsRepository.uploader(fileSize, stream);
 
-    this.registerEvents(filePath, uploader);
+    this.registerEvents(uploader, metadata);
 
     const upload = uploader.upload();
 

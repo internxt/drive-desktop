@@ -10,30 +10,28 @@ import { ContentFileDownloader } from '../domain/ContentFileDownloader';
 import { WebdavFile } from '../domain/WebdavFile';
 
 export class WebdavFileDownloader {
-  private stopwatch: Stopwatch;
-
   constructor(
     private readonly repository: WebdavFileRepository,
     private readonly contents: RemoteFileContentsRepository,
     private readonly eventBus: WebdavServerEventBus,
     private readonly ipc: WebdavIpc
-  ) {
-    this.stopwatch = new Stopwatch();
-  }
+  ) {}
 
   private registerEvents(downloader: ContentFileDownloader, file: WebdavFile) {
+    const stopwatch = new Stopwatch();
+
     downloader.on('start', () => {
-      this.stopwatch.start();
+      stopwatch.start();
     });
 
     downloader.on('finish', () => {
-      this.stopwatch.finish();
+      stopwatch.finish();
 
       this.ipc.send('WEBDAV_FILE_DOWNLOADED', {
         name: file.name,
         size: file.size,
         type: file.type,
-        uploadInfo: { elapsedTime: this.stopwatch.elapsedTime() },
+        uploadInfo: { elapsedTime: stopwatch.elapsedTime() },
       });
     });
   }

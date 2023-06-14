@@ -13,33 +13,31 @@ export class WebdavFileClonner {
   private static FILE_OVERRIDED = true;
   private static FILE_NOT_OVERRIDED = false;
 
-  private stopWatch: Stopwatch;
-
   constructor(
     private readonly repository: WebdavFileRepository,
     private readonly folderFinder: WebdavFolderFinder,
     private readonly contentRepository: RemoteFileContentsRepository,
     private readonly eventBus: WebdavServerEventBus,
     private readonly ipc: WebdavIpc
-  ) {
-    this.stopWatch = new Stopwatch();
-  }
+  ) {}
 
   private registerEvents(clonner: ContentFileClonner, file: WebdavFile) {
+    const stopwatch = new Stopwatch();
+
     clonner.on('start', () => {
-      this.stopWatch.start();
-    });
-  }
-
-  private notifyFileHasBeenUploaded(file: WebdavFile) {
-    this.ipc.send('WEBDAV_FILE_UPLOADED', {
-      name: file.name,
-      type: file.type,
-      size: file.size,
-      uploadInfo: { elapsedTime: this.stopWatch.elapsedTime() },
+      stopwatch.start();
     });
 
-    this.stopWatch.reset();
+    clonner.on('finish', () => {
+      stopwatch.finish();
+
+      this.ipc.send('WEBDAV_FILE_UPLOADED', {
+        name: file.name,
+        type: file.type,
+        size: file.size,
+        uploadInfo: { elapsedTime: stopwatch.elapsedTime() },
+      });
+    });
   }
 
   private async overwrite(
@@ -66,12 +64,8 @@ export class WebdavFileClonner {
     await this.repository.delete(fileOverwritted);
     await this.repository.add(newFile);
 
-    this.stopWatch.finish();
-
     await this.eventBus.publish(newFile.pullDomainEvents());
     await this.eventBus.publish(fileOverwritted.pullDomainEvents());
-
-    this.notifyFileHasBeenUploaded(newFile);
   }
 
   private async copy(file: WebdavFile, path: FilePath) {
@@ -87,11 +81,7 @@ export class WebdavFileClonner {
 
     await this.repository.add(clonned);
 
-    this.stopWatch.finish();
-
     await this.eventBus.publish(clonned.pullDomainEvents());
-
-    this.notifyFileHasBeenUploaded(clonned);
   }
 
   async run(
