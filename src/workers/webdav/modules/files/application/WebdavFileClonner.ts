@@ -38,6 +38,13 @@ export class WebdavFileClonner {
         uploadInfo: { elapsedTime: stopwatch.elapsedTime() },
       });
     });
+
+    clonner.on('error', (error: Error) => {
+      this.ipc.send('WEBDAV_FILE_UPLOADED_ERROR', {
+        name: file.name,
+        error: error.message,
+      });
+    });
   }
 
   private async overwrite(
@@ -61,11 +68,22 @@ export class WebdavFileClonner {
 
     fileOverwritted.trash();
 
-    await this.repository.delete(fileOverwritted);
-    await this.repository.add(newFile);
+    try {
+      await this.repository.delete(fileOverwritted);
+      await this.repository.add(newFile);
 
-    await this.eventBus.publish(newFile.pullDomainEvents());
-    await this.eventBus.publish(fileOverwritted.pullDomainEvents());
+      await this.eventBus.publish(newFile.pullDomainEvents());
+      await this.eventBus.publish(fileOverwritted.pullDomainEvents());
+    } catch (err: unknown) {
+      if (!(err instanceof Error)) {
+        throw new Error(`${err} was thrown`);
+      }
+
+      this.ipc.send('WEBDAV_FILE_CLONNED_ERROR', {
+        name: destinationPath.name(),
+        error: err.message,
+      });
+    }
   }
 
   private async copy(file: WebdavFile, path: FilePath) {

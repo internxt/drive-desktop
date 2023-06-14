@@ -58,8 +58,11 @@ export class WebdavFileCreator {
       });
     });
 
-    uploader.on('error', () => {
-      //
+    uploader.on('error', (error: Error) => {
+      this.ipc.send('WEBDAV_FILE_UPLOADED_ERROR', {
+        name: metadata.name,
+        error: error.message,
+      });
     });
   }
 
@@ -115,8 +118,11 @@ export class WebdavFileCreator {
       .then(async (fileId) => {
         return this.createFileEntry(fileId, folder, size, filePath);
       })
-      .catch(() => {
-        // TODO: comunicate somehow this error happened
+      .catch((error: Error) => {
+        this.ipc.send('WEBDAV_FILE_UPLOADED_ERROR', {
+          name: metadata.name,
+          error: error.message,
+        });
       });
 
     return {

@@ -65,11 +65,24 @@ type WebdavFlowEvents = {
   WEBDAV_FILE_RENAMED: (payload: { name: string; oldName: string }) => void;
   WEBDAV_FILE_MOVED: (payload: { name: string; folerName: string }) => void;
   WEBDAV_FILE_OVERWRITED: (payload: { name: string }) => void;
+  WEBDAV_FILE_CLONNED: (payload: {
+    name: string;
+    size: number;
+    type: string;
+  }) => void;
+};
+
+type WebdavFlowEventsErrors = {
+  [Property in keyof WebdavFlowEvents as `${Property}_ERROR`]: (payload: {
+    name: string;
+    error: string;
+  }) => void;
 };
 
 export type WebDavProcessEvents = WebdavServerEvents &
   WebdavVirtualDriveEvents &
-  WebdavFlowEvents;
+  WebdavFlowEvents &
+  WebdavFlowEventsErrors;
 
 export type WebdavMainEvents = {
   STOP_WEBDAV_SERVER_PROCESS: () => void;

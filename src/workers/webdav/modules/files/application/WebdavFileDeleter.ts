@@ -11,16 +11,27 @@ export class WebdavFileDeleter {
   ) {}
 
   async run(file: WebdavFile): Promise<void> {
-    file.trash();
+    try {
+      file.trash();
 
-    await this.repository.delete(file);
+      await this.repository.delete(file);
 
-    await this.eventBus.publish(file.pullDomainEvents());
+      await this.eventBus.publish(file.pullDomainEvents());
 
-    this.ipc.send('WEBDAV_FILE_DELETED', {
-      name: file.name,
-      type: file.type,
-      size: file.size,
-    });
+      this.ipc.send('WEBDAV_FILE_DELETED', {
+        name: file.name,
+        type: file.type,
+        size: file.size,
+      });
+    } catch (err: unknown) {
+      if (!(err instanceof Error)) {
+        throw new Error(`${err} was thrown`);
+      }
+
+      this.ipc.send('WEBDAV_FILE_DELETED_ERROR', {
+        name: file.name,
+        error: err.message,
+      });
+    }
   }
 }
