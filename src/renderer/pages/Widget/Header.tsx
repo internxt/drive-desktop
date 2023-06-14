@@ -149,8 +149,6 @@ export default function Header() {
       <div
         role="button"
         tabIndex={0}
-        onClick={window.electron.openSyncFolder}
-        onKeyPress={window.electron.openSyncFolder}
         className="rounded-lg outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-blue-60"
       >
         <HeaderItemWrapper>
