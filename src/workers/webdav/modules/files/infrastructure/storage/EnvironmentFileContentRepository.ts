@@ -19,7 +19,7 @@ export class EnvironmentFileContentRepository
   ) {}
 
   clonner(file: WebdavFile): EnvironmentContentFileUpoader {
-    const remoteFileContents = this.download(file);
+    const remoteFileContents = this.downloader(file);
 
     const fn =
       file.size >
@@ -35,7 +35,7 @@ export class EnvironmentFileContentRepository
     );
   }
 
-  download(file: WebdavFile): Promise<Readable> {
+  downloader(file: WebdavFile): Promise<Readable> {
     Logger.log('download!!', { name: file.nameWithExtension });
     return new Promise((resolve, reject) => {
       this.environment.download(

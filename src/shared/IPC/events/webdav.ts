@@ -36,7 +36,7 @@ type WebdavVirtualDriveEvents = {
 };
 
 type UploadInfo = {
-  stopwatch: Stopwatch;
+  elapsedTime: number | undefined;
 };
 
 type WebdavFlowEvents = {
@@ -49,6 +49,12 @@ type WebdavFlowEvents = {
   WEBDAV_FILE_UPLOAD_PROGRESS: (payload: {
     name: string;
     progess: number;
+    uploadInfo: UploadInfo;
+  }) => void;
+  WEBDAV_FILE_DOWNLOADED: (payload: {
+    name: string;
+    size: number;
+    type: string;
     uploadInfo: UploadInfo;
   }) => void;
 };

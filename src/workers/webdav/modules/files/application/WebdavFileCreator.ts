@@ -11,7 +11,6 @@ import { FileSize } from '../domain/FileSize';
 import { WebdavServerEventBus } from '../../shared/domain/WebdavServerEventBus';
 import { ContentFileUploader } from '../domain/ContentFileUploader';
 import { WebdavIpc } from '../../../ipc';
-import { performance } from 'perf_hooks';
 import { Stopwatch } from '../../../../../shared/types/Stopwatch';
 
 export class WebdavFileCreator {
@@ -25,17 +24,17 @@ export class WebdavFileCreator {
     private readonly eventBus: WebdavServerEventBus,
     private readonly ipc: WebdavIpc
   ) {
-    this.stopwatch = {};
+    this.stopwatch = new Stopwatch();
   }
 
   private registerEvents(path: FilePath, uploader: ContentFileUploader) {
     uploader.on('start', () => {
-      this.stopwatch.start = performance.now();
+      this.stopwatch.start();
 
       this.ipc.send('WEBDAV_FILE_UPLOAD_PROGRESS', {
         name: path.nameWithExtension(),
         progess: 0,
-        uploadInfo: { stopwatch: this.stopwatch },
+        uploadInfo: { elapsedTime: this.stopwatch.elapsedTime() },
       });
     });
 
@@ -43,12 +42,12 @@ export class WebdavFileCreator {
       this.ipc.send('WEBDAV_FILE_UPLOAD_PROGRESS', {
         name: path.nameWithExtension(),
         progess,
-        uploadInfo: { stopwatch: this.stopwatch },
+        uploadInfo: { elapsedTime: this.stopwatch.elapsedTime() },
       });
     });
 
     uploader.on('finish', () => {
-      this.stopwatch.finish = performance.now();
+      this.stopwatch.finish();
     });
 
     uploader.on('error', () => {
@@ -74,7 +73,7 @@ export class WebdavFileCreator {
       name: file.name,
       type: file.type,
       size: file.size,
-      uploadInfo: { stopwatch: this.stopwatch },
+      uploadInfo: { elapsedTime: this.stopwatch.elapsedTime() },
     });
 
     return file;

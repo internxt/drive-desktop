@@ -30,21 +30,16 @@ function subscribeToDomainEvents() {
   });
 }
 
-function calculateTaskElapsedTime(stopwatch: Stopwatch) {
-  if (!stopwatch.start || !stopwatch.finish) {
-    return undefined;
-  }
-
-  return stopwatch.start - stopwatch.finish;
-}
-
 function subscribeToServerEvents() {
   ipcWebdav.on('WEBDAV_FILE_UPLOADED', (_, payload) => {
     const { name, type, size, uploadInfo } = payload;
 
-    const taskElapsedTime = calculateTaskElapsedTime(uploadInfo.stopwatch);
-
-    trackWebdavEvent('Upload', { name, type, size, taskElapsedTime });
+    trackWebdavEvent('Upload', {
+      name,
+      type,
+      size,
+      elapsedTime: uploadInfo.elapsedTime,
+    });
   });
 
   ipcWebdav.on('WEBDAV_VIRTUAL_DRIVE_MOUNTED_SUCCESSFULLY', () => {
