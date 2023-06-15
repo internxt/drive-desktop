@@ -4,7 +4,6 @@ import { FileSize } from '../../domain/FileSize';
 import { RemoteFileContentsRepository } from '../../domain/RemoteFileContentsRepository';
 import { WebdavFile } from '../../domain/WebdavFile';
 import { RemoteFileContents } from '../../domain/RemoteFileContent';
-import Logger from 'electron-log';
 import { ipcRenderer } from 'electron';
 
 export class EnvironmentFileContentRepository
@@ -18,7 +17,6 @@ export class EnvironmentFileContentRepository
   ) {}
 
   private simpleUpload(name: string, size: FileSize, contents: Readable): Promise<string> {
-    Logger.log('download!!', { name });
     return new Promise((resolve, reject) => {
       this.environment.upload(this.bucket, {
         progressCallback: (progress: number) => {
@@ -56,7 +54,6 @@ export class EnvironmentFileContentRepository
   }
 
   private multipartUpload(name: string, size: FileSize, contents: Readable): Promise<string> {
-    Logger.log('download!!', { name });
     return new Promise((resolve, reject) => {
       this.environment.uploadMultipartFile(this.bucket, {
         progressCallback: (progress: number) => {
@@ -111,7 +108,6 @@ export class EnvironmentFileContentRepository
   }
 
   download(file: WebdavFile): Promise<Readable> {
-    Logger.log('download!!', { name: file.nameWithExtension });
     return new Promise((resolve, reject) => {
       this.environment.download(
         this.bucket,
