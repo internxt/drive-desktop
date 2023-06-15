@@ -9,6 +9,7 @@ export class WebdavIpcMock implements WebdavIpc {
   emitMock = jest.fn();
   onMock = jest.fn();
   onceMock = jest.fn();
+  handleMock = jest.fn();
 
   send(event: string, ...args: Array<any>) {
     return this.sendMock(event, ...args);
@@ -22,5 +23,22 @@ export class WebdavIpcMock implements WebdavIpc {
   }
   once<Event extends keyof WebdavMainEvents>(event: Event): void {
     this.onceMock(event);
+  }
+
+  invoke<Event extends never>(
+    event: Event,
+    ...args: never
+  ): Promise<ReturnType<WebDavProcessEvents[Event]>> {
+    throw new Error('Method not implemented.');
+  }
+
+  handle<Event extends never>(
+    event: Event,
+    listener: (
+      event: Electron.IpcMainEvent,
+      ...args: Parameters<WebDavProcessEvents[Event]>
+    ) => void
+  ): Promise<ReturnType<WebdavMainEvents[Event]>> {
+    return this.handleMock(event, listener);
   }
 }

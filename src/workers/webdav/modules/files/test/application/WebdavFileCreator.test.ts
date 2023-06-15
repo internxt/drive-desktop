@@ -4,10 +4,9 @@ import { WebdavFolderFinder } from '../../../folders/application/WebdavFolderFin
 import { WebdavFileCreator } from '../../application/WebdavFileCreator';
 import { FileMetadataCollection } from '../../domain/FileMetadataCollection';
 import { InMemoryTemporalFileMetadataCollection } from '../../infrastructure/persistance/InMemoryTemporalFileMetadataCollection';
-import { FileContentRepositoryMock } from '../__mocks__/FileContentRepositoryMock.mock';
+import { FileContentRepositoryMock } from '../__mocks__/FileContentRepositoryMock';
 import { WebdavFileRepositoryMock } from '../__mocks__/WebdavFileRepositoyMock';
 import { EventBusMock } from '../../../shared/test/__mock__/EventBusMock';
-import { FileSize } from '../../domain/FileSize';
 import { WebdavIpcMock } from '../../../shared/infrastructure/__mock__/WebdavIPC';
 
 describe('Webdav File Creator', () => {
