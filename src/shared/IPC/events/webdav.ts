@@ -1,3 +1,6 @@
+import { DriveFile } from 'main/database/entities/DriveFile';
+import { DriveFolder } from 'main/database/entities/DriveFolder';
+
 const trackedEvents = [
   'delete',
   'upload',
@@ -28,6 +31,14 @@ export type WebDavProcessEvents = {
   WEBDAV_VIRTUAL_DRIVE_MOUNTED_SUCCESSFULLY: () => void;
   WEBDAV_VIRTUAL_DRIVE_MOUNT_ERROR: (err: Error) => void;
   WEBDAV_ACTION_ERROR: (err: Error, ctx: WebdavErrorContext) => void;
+};
+
+export type WebdavInvokableFunctions = {
+  GET_UPDATED_REMOTE_ITEMS: Promise<{
+    files: DriveFile[];
+    folders: DriveFolder[];
+  }>;
+  START_REMOTE_SYNC: Promise<void>;
 };
 
 export type WebdavMainEvents = {

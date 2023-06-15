@@ -18,6 +18,9 @@ export class EnvironmentFileContentRepository
   private simpleUpload(size: FileSize, contents: Readable): Promise<string> {
     return new Promise((resolve, reject) => {
       this.environment.upload(this.bucket, {
+        progressCallback: () => {
+          // Noop
+        },
         finishedCallback: async (err: unknown, fileId: string) => {
           if (!err) {
             resolve(fileId);
@@ -35,7 +38,7 @@ export class EnvironmentFileContentRepository
     return new Promise((resolve, reject) => {
       this.environment.uploadMultipartFile(this.bucket, {
         progressCallback: (_progress: number) => {
-          //
+          // Noop
         },
         finishedCallback: async (err: unknown, fileId: string | null) => {
           if (err) {
@@ -68,6 +71,9 @@ export class EnvironmentFileContentRepository
         this.bucket,
         file.fileId,
         {
+          progressCallback: () => {
+            // Noop
+          },
           finishedCallback: async (err: unknown, stream: Readable) => {
             if (err) {
               reject(err);

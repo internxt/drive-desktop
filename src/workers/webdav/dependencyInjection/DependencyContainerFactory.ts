@@ -31,6 +31,7 @@ import { UserUsageDecrementer } from '../modules/userUsage/application/UserUsage
 import { UserUsageIncrementer } from '../modules/userUsage/application/UserUsageIncrementer';
 import { CachedHttpUserUsageRepository } from '../modules/userUsage/infrastrucutre/CachedHttpUserUsageRepository';
 import { DependencyContainer } from './DependencyContainer';
+import { ipc } from '../ipc';
 
 export class DependencyContainerFactory {
   private _container: DependencyContainer | undefined;
@@ -90,13 +91,15 @@ export class DependencyContainerFactory {
       clients.drive,
       clients.newDrive,
       traverser,
-      user.bucket
+      user.bucket,
+      ipc
     );
 
     const folderRepository = new HttpWebdavFolderRepository(
       clients.drive,
       clients.newDrive,
-      traverser
+      traverser,
+      ipc
     );
 
     await fileRepository.init();

@@ -19,6 +19,10 @@ interface Events {
   USER_WAS_UNAUTHORIZED: () => void;
 
   WIDGET_IS_READY: () => void;
+
+  // Fired when we receive some changes
+  // via websocket
+  RECEIVED_REMOTE_CHANGES: () => void;
 }
 
 declare interface EventBus {

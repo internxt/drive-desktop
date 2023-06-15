@@ -13,6 +13,7 @@ import { DatabaseCollectionAdapter } from '../database/adapters/base';
 import { Axios } from 'axios';
 import { DriveFolder } from '../database/entities/DriveFolder';
 import { DriveFile } from '../database/entities/DriveFile';
+import { isArray } from 'lodash';
 
 export class RemoteSyncManager {
   private foldersSyncStatus: RemoteSyncStatus = 'IDLE';
@@ -59,8 +60,11 @@ export class RemoteSyncManager {
    * Throws an error if there's a sync in progress for this class instance
    */
   async startRemoteSync() {
-    this.smokeTest();
+    const testPassed = this.smokeTest();
 
+    if (!testPassed) {
+      return;
+    }
     await this.db.files.connect();
     await this.db.folders.connect();
 
@@ -92,16 +96,19 @@ export class RemoteSyncManager {
    */
   private smokeTest() {
     if (this.status === 'SYNCING') {
-      throw new Error(
-        'RemoteSyncManager should not be in SYNCING status to start'
+      Logger.warn(
+        'RemoteSyncManager should not be in SYNCING status to start, not starting again'
       );
+
+      return false;
     }
+
+    return true;
   }
   private changeStatus(newStatus: RemoteSyncStatus) {
+    if (newStatus === this.status) return;
+    Logger.info(`RemoteSyncManager ${this.status} -> ${newStatus}`);
     this.status = newStatus;
-    Logger.info(`Folders sync status is ${this.foldersSyncStatus}`);
-    Logger.info(`Files sync status is ${this.filesSyncStatus}`);
-    Logger.info(`RemoteSync status is ${this.status}`);
     this.onStatusChangeCallbacks.forEach((callback) => {
       if (typeof callback !== 'function') return;
       callback(newStatus);
@@ -163,17 +170,9 @@ export class RemoteSyncManager {
         // eslint-disable-next-line no-await-in-loop
         await this.createOrUpdateSyncedFileEntry(remoteFile);
         const fileUpdatedAt = new Date(remoteFile.updatedAt);
-        if (
-          !lastFilesSyncAt ||
-          helpers.lastSyncedAtIsNewer(
-            fileUpdatedAt,
-            lastFilesSyncAt,
-            SYNC_OFFSET_MS
-          )
-        ) {
-          Logger.info(`Saving file updatedAt ${fileUpdatedAt}`);
-          helpers.saveLastFilesSyncAt(fileUpdatedAt, SYNC_OFFSET_MS);
-        }
+
+        Logger.info(`Saving file updatedAt ${fileUpdatedAt}`);
+        helpers.saveLastFilesSyncAt(fileUpdatedAt, SYNC_OFFSET_MS);
       }
 
       if (!hasMore) {
@@ -189,11 +188,11 @@ export class RemoteSyncManager {
       });
     } catch (error) {
       Logger.error('Remote files sync failed ', error);
-      // reportError(error as Error, {
-      //   lastFilesSyncAt: lastFilesSyncAt
-      //     ? lastFilesSyncAt.toISOString()
-      //     : 'INITIAL_FILES_SYNC',
-      // });
+      reportError(error as Error, {
+        lastFilesSyncAt: lastFilesSyncAt
+          ? lastFilesSyncAt.toISOString()
+          : 'INITIAL_FILES_SYNC',
+      });
       if (syncConfig.retry >= syncConfig.maxRetries) {
         // No more retries allowed,
         this.filesSyncStatus = 'SYNC_FAILED';
@@ -225,17 +224,9 @@ export class RemoteSyncManager {
         // eslint-disable-next-line no-await-in-loop
         await this.createOrUpdateSyncedFolderEntry(remoteFolder);
         const foldersUpdatedAt = new Date(remoteFolder.updatedAt);
-        if (
-          !lastFoldersSyncAt ||
-          helpers.lastSyncedAtIsNewer(
-            foldersUpdatedAt,
-            lastFoldersSyncAt,
-            SYNC_OFFSET_MS
-          )
-        ) {
-          Logger.info(`Saving folders updatedAt ${foldersUpdatedAt}`);
-          helpers.saveLastFoldersSyncAt(foldersUpdatedAt, SYNC_OFFSET_MS);
-        }
+
+        Logger.info(`Saving folders updatedAt ${foldersUpdatedAt}`);
+        helpers.saveLastFoldersSyncAt(foldersUpdatedAt, SYNC_OFFSET_MS);
       }
 
       if (!hasMore) {
@@ -251,11 +242,11 @@ export class RemoteSyncManager {
       });
     } catch (error) {
       Logger.error('Remote folders sync failed ', error);
-      // reportError(error as Error, {
-      //   lastFoldersSyncAt: lastFoldersSyncAt
-      //     ? lastFoldersSyncAt.toISOString()
-      //     : 'INITIAL_FOLDERS_SYNC',
-      // });
+      reportError(error as Error, {
+        lastFoldersSyncAt: lastFoldersSyncAt
+          ? lastFoldersSyncAt.toISOString()
+          : 'INITIAL_FOLDERS_SYNC',
+      });
       if (syncConfig.retry >= syncConfig.maxRetries) {
         // No more retries allowed,
         this.foldersSyncStatus = 'SYNC_FAILED';
@@ -299,11 +290,13 @@ export class RemoteSyncManager {
           response.data,
           null,
           2
-        )}`
+        )} and status ${response.status}`
       );
     }
 
-    Logger.info(`Received fetched files ${JSON.stringify(response.data)}`);
+    Logger.info(
+      `Received ${isArray(response.data) && response.data.length} fetched files`
+    );
     const hasMore =
       response.data.length === this.config.fetchFilesLimitPerRequest;
 
@@ -342,11 +335,15 @@ export class RemoteSyncManager {
           response.data,
           null,
           2
-        )}`
+        )} and status ${response.status}`
       );
     }
 
-    Logger.info(`Received fetched folders ${JSON.stringify(response.data)}`);
+    Logger.info(
+      `Received ${
+        isArray(response.data) && response.data.length
+      } fetched folders`
+    );
     const hasMore =
       response.data.length === this.config.fetchFilesLimitPerRequest;
 

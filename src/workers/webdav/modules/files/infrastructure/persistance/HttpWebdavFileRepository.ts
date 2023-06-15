@@ -12,6 +12,8 @@ import { AddFileDTO } from './dtos/AddFileDTO';
 import { UpdateFileParentDirDTO } from './dtos/UpdateFileParentDirDTO';
 import { UpdateFileNameDTO } from './dtos/UpdateFileNameDTO';
 import { FilePath } from '../../domain/FilePath';
+import { WebdavCustomIpc } from '../../../../ipc';
+import { RemoteItemsGenerator } from 'workers/webdav/modules/items/application/RemoteItemsGenerator';
 
 export class HttpWebdavFileRepository implements WebdavFileRepository {
   private files: Record<string, WebdavFile> = {};
@@ -20,46 +22,16 @@ export class HttpWebdavFileRepository implements WebdavFileRepository {
     private readonly httpClient: Axios,
     private readonly trashHttpClient: Axios,
     private readonly traverser: Traverser,
-    private readonly bucket: string
+    private readonly bucket: string,
+    private readonly ipc: WebdavCustomIpc
   ) {}
 
   private async getTree(): Promise<{
     files: ServerFile[];
     folders: ServerFolder[];
   }> {
-    const PAGE_SIZE = 5000;
-
-    let thereIsMore = true;
-    let offset = 0;
-
-    const files: ServerFile[] = [];
-    const folders: ServerFolder[] = [];
-
-    while (thereIsMore) {
-      try {
-        const response = await this.httpClient.get(
-          `${process.env.API_URL}/api/desktop/list/${offset}`
-        );
-
-        const batch = response.data;
-
-        // We can't use spread operator with big arrays
-        // see: https://anchortagdev.com/range-error-maximum-call-stack-size-exceeded-error-using-spread-operator-in-node-js-javascript/
-
-        for (const file of batch.files)
-          files.push({ ...file, size: parseInt(file.size, 10) });
-
-        for (const folder of batch.folders) folders.push(folder);
-
-        thereIsMore = batch.folders.length === PAGE_SIZE;
-
-        if (thereIsMore) offset += PAGE_SIZE;
-      } catch (err) {
-        // no empty
-      }
-    }
-
-    return { files, folders };
+    const remoteItemsGenerator = new RemoteItemsGenerator(this.ipc);
+    return remoteItemsGenerator.getAll();
   }
 
   public async init(): Promise<void> {
@@ -99,6 +71,7 @@ export class HttpWebdavFileRepository implements WebdavFileRepository {
 
     if (result.status === 200) {
       delete this.files[file.path];
+      await this.ipc.invoke('START_REMOTE_SYNC');
     }
   }
 
@@ -145,6 +118,8 @@ export class HttpWebdavFileRepository implements WebdavFileRepository {
     });
 
     this.files[file.path] = created;
+
+    await this.ipc.invoke('START_REMOTE_SYNC');
   }
 
   async updateName(file: WebdavFile): Promise<void> {
@@ -173,6 +148,8 @@ export class HttpWebdavFileRepository implements WebdavFileRepository {
     }
 
     this.files[file.path] = file;
+
+    await this.ipc.invoke('START_REMOTE_SYNC');
   }
 
   async updateParentDir(item: WebdavFile): Promise<void> {
@@ -189,6 +166,8 @@ export class HttpWebdavFileRepository implements WebdavFileRepository {
     }
 
     await this.init();
+
+    await this.ipc.invoke('START_REMOTE_SYNC');
   }
 
   async searchOnFolder(folderId: number): Promise<Array<WebdavFile>> {
