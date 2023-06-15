@@ -88,8 +88,7 @@ export type SyncConfig = {
   maxRetries: number;
 };
 
-// 1 day in MS
-export const SYNC_OFFSET_MS = 60 * 1000 * 60 * 24;
+export const SYNC_OFFSET_MS = 0;
 
 export const lastSyncedAtIsNewer = (
   itemUpdatedAt: Date,
