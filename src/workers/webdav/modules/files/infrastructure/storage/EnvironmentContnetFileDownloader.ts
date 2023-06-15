@@ -19,6 +19,7 @@ export class EnvironmentContentFileDownloader implements ContentFileDownloader {
   }
 
   download(): Promise<Readable> {
+    this.eventEmitter.emit('start');
     return new Promise((resolve, reject) => {
       this.fn(
         this.bucket,
