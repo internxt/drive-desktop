@@ -23,7 +23,7 @@ import { Traverser } from '../modules/items/application/Traverser';
 import { AllWebdavItemsNameLister } from '../modules/shared/application/AllWebdavItemsSearcher';
 import { WebdavUnknownItemTypeSearcher } from '../modules/shared/application/WebdavUnknownItemTypeSearcher';
 import { WebdavUnkownItemMetadataDealer } from '../modules/shared/application/WebdavUnkownItemMetadataDealer';
-import { DuplexEventBus } from '../modules/shared/infrastructure/DuplexEventBus';
+import { NodeJsEventBus } from '../modules/shared/infrastructure/DuplexEventBus';
 import { FreeSpacePerEnvironmentCalculator } from '../modules/userUsage/application/FreeSpacePerEnvironmentCalculator';
 import { IncrementDriveUsageOnFileCreated } from '../modules/userUsage/application/IncrementDriveUsageOnFileCreated';
 import { UsedSpaceCalculator } from '../modules/userUsage/application/UsedSpaceCalculator';
@@ -31,6 +31,7 @@ import { UserUsageDecrementer } from '../modules/userUsage/application/UserUsage
 import { UserUsageIncrementer } from '../modules/userUsage/application/UserUsageIncrementer';
 import { CachedHttpUserUsageRepository } from '../modules/userUsage/infrastrucutre/CachedHttpUserUsageRepository';
 import { DependencyContainer } from './DependencyContainer';
+import { ipc } from '../ipc';
 
 export class DependencyContainerFactory {
   private _container: DependencyContainer | undefined;
@@ -118,7 +119,7 @@ export class DependencyContainerFactory {
 
     const userUsageIncrementer = new UserUsageIncrementer(userUsageRepository);
 
-    const eventBus = new DuplexEventBus();
+    const eventBus = new NodeJsEventBus();
 
     const container = {
       drive: clients.drive,
@@ -140,21 +141,24 @@ export class DependencyContainerFactory {
         fileRepository,
         folderFinder,
         fileContentRepository,
-        eventBus
+        eventBus,
+        ipc
       ),
-      fileDeleter: new WebdavFileDeleter(fileRepository, eventBus),
+      fileDeleter: new WebdavFileDeleter(fileRepository, eventBus, ipc),
       fileMover: new WebdavFileMover(fileRepository, folderFinder, eventBus),
       fileCreator: new WebdavFileCreator(
         fileRepository,
         folderFinder,
         fileContentRepository,
         temporalFileCollection,
-        eventBus
+        eventBus,
+        ipc
       ),
       fileDownloader: new WebdavFileDownloader(
         fileRepository,
         fileContentRepository,
-        eventBus
+        eventBus,
+        ipc
       ),
       fileMimeTypeResolver: new WebdavFileMimeTypeResolver(),
 

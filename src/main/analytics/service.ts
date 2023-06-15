@@ -258,6 +258,7 @@ export function trackWebdavEvent(
   properties: Record<string, any>
 ) {
   const { uuid: userId } = ConfigStore.get('userData');
+
   Logger.debug('Tracked event', {
     userId,
     event: event,
@@ -274,6 +275,19 @@ export function trackWebdavEvent(
 }
 
 export function trackWebdavError(
+  event: TrackedWebdavServerErrorEvents,
+  properties: Record<string, any>
+) {
+  const { uuid: userId } = ConfigStore.get('userData');
+  client.track({
+    userId,
+    event,
+    properties,
+    context: deviceContext,
+  });
+}
+
+export function trackHandledWebdavError(
   event: TrackedWebdavServerErrorEvents,
   error: Error,
   context: WebdavErrorContext

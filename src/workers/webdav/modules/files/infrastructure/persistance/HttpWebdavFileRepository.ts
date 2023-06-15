@@ -121,7 +121,7 @@ export class HttpWebdavFileRepository implements WebdavFileRepository {
         folder_id: file.folderId,
         name: encryptedName,
         plain_name: file.name,
-        size: file.size.value,
+        size: file.size,
         type: file.type,
         modificationTime: Date.now(),
       },

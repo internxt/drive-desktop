@@ -1,26 +1,35 @@
-import { WebdavFolder } from '../../folders/domain/WebdavFolder';
+import { WebdavIpc } from 'workers/webdav/ipc';
 import { WebdavFolderFinder } from '../../folders/application/WebdavFolderFinder';
+import { WebdavFolder } from '../../folders/domain/WebdavFolder';
+import { WebdavServerEventBus } from '../../shared/domain/WebdavServerEventBus';
+import { ActionNotPermitedError } from '../domain/errors/ActionNotPermitedError';
+import { FileAlreadyExistsError } from '../domain/errors/FileAlreadyExistsError';
+import { UnknownFileActionError } from '../domain/errors/UnknownFileActionError';
 import { FilePath } from '../domain/FilePath';
 import { WebdavFile } from '../domain/WebdavFile';
 import { WebdavFileRepository } from '../domain/WebdavFileRepository';
-import { FileAlreadyExistsError } from '../domain/errors/FileAlreadyExistsError';
-import { UnknownFileActionError } from '../domain/errors/UnknownFileActionError';
-import { ActionNotPermitedError } from '../domain/errors/ActionNotPermitedError';
-import { WebdavServerEventBus } from '../../shared/domain/WebdavServerEventBus';
 
 export class WebdavFileMover {
   constructor(
     private readonly repository: WebdavFileRepository,
     private readonly folderFinder: WebdavFolderFinder,
-    private readonly eventBus: WebdavServerEventBus
+    private readonly eventBus: WebdavServerEventBus,
+    private readonly ipc: WebdavIpc
   ) {}
 
   private async rename(file: WebdavFile, path: FilePath) {
+    const oldName = file.nameWithExtension;
+
     file.rename(path);
 
     await this.repository.updateName(file);
 
     await this.eventBus.publish(file.pullDomainEvents());
+
+    this.ipc.send('WEBDAV_FILE_RENAMED', {
+      name: file.nameWithExtension,
+      oldName,
+    });
   }
 
   private async move(file: WebdavFile, folder: WebdavFolder) {
@@ -29,6 +38,11 @@ export class WebdavFileMover {
     await this.repository.updateParentDir(file);
 
     await this.eventBus.publish(file.pullDomainEvents());
+
+    this.ipc.send('WEBDAV_FILE_MOVED', {
+      name: file.nameWithExtension,
+      folderName: file.dirname,
+    });
   }
 
   private async overwite(
@@ -44,6 +58,10 @@ export class WebdavFileMover {
 
     await this.eventBus.publish(file.pullDomainEvents());
     await this.eventBus.publish(destinationFile.pullDomainEvents());
+
+    this.ipc.send('WEBDAV_FILE_OVERWRITED', {
+      name: file.nameWithExtension,
+    });
   }
 
   private noMoreActionsLeft(action: never) {

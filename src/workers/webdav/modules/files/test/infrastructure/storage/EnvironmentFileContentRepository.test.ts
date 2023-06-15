@@ -40,7 +40,7 @@ describe.skip('Environment File Content Repository', () => {
         cbs.finishedCallback(undefined, new Readable());
       });
 
-      const stream = await reposiotry.download(file);
+      const stream = await reposiotry.downloader(file);
 
       expect(stream.readable).toBe(true);
     });
