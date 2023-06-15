@@ -15,6 +15,7 @@ jobs:
         uses: actions/checkout@v2
       - name: Install yarn and requirements
         run: |
+          set +e
           SET GH_TOKEN= ${{ secrets.GITHUB_TOKEN }}
           cd C:\Users\LENOVO\Desktop\Trabajo\drive-web-sign\drive-desktop
           git pull
