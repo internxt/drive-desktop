@@ -6,5 +6,8 @@
     "noImplicitReturns": true,
     "noImplicitAny": true,
     "noImplicitThis": true
-  }
+  },
+  "exclude": [
+    "__mock__"
+  ]
 }
