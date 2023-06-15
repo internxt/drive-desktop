@@ -13,7 +13,7 @@ export class DriveFile {
   })
   uuid!: string;
 
-  @Column({ nullable: true, default: '' })
+  @Column({ nullable: false, default: '' })
   type!: string;
 
   @Column({ nullable: false })
