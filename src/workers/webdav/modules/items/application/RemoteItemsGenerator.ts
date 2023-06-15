@@ -1,10 +1,13 @@
 import { ServerFile } from 'workers/filesystems/domain/ServerFile';
 import { ServerFolder } from '../../../../filesystems/domain/ServerFolder';
-import { ipc } from 'workers/webdav/ipc';
+import { WebdavCustomIpc } from 'workers/webdav/ipc';
 
 export class RemoteItemsGenerator {
+  constructor(private readonly ipc: WebdavCustomIpc) {}
   async getAll(): Promise<{ files: ServerFile[]; folders: ServerFolder[] }> {
-    const updatedRemoteItems = await ipc.invoke('GET_UPDATED_REMOTE_ITEMS');
+    const updatedRemoteItems = await this.ipc.invoke(
+      'GET_UPDATED_REMOTE_ITEMS'
+    );
 
     const files = updatedRemoteItems.files.map<ServerFile>((updatedFile) => {
       return {

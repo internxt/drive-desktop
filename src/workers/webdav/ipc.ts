@@ -6,8 +6,10 @@ import {
 } from '../../shared/IPC/events/webdav';
 import { CustomIpc } from '../../shared/IPC/IPCs';
 
-export const ipc = ipcRenderer as unknown as CustomIpc<
+export type WebdavCustomIpc = CustomIpc<
   WebDavProcessEvents,
   WebdavMainEvents,
   WebdavInvokableFunctions
 >;
+
+export const ipc = ipcRenderer as unknown as WebdavCustomIpc;

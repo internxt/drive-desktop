@@ -54,6 +54,7 @@ function cleanAndStartRemoteNotifications() {
     logger.log('Notification received: ', JSON.stringify(data, null, 2));
 
     broadcastToWindows('remote-changes', undefined);
+    eventBus.emit('RECEIVED_REMOTE_CHANGES');
   });
 }
 

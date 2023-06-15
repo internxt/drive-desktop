@@ -53,6 +53,9 @@ ipcMain.handle('START_REMOTE_SYNC', async () => {
   await remoteSyncManager.startRemoteSync();
 });
 
+eventBus.on('RECEIVED_REMOTE_CHANGES', async () => {
+  await remoteSyncManager.startRemoteSync();
+});
 eventBus.on('USER_LOGGED_IN', () => {
   Logger.info('Received user logged in event');
 

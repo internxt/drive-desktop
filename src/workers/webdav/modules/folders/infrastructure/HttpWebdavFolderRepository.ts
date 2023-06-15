@@ -9,7 +9,7 @@ import { WebdavFolderRepository } from '../domain/WebdavFolderRepository';
 import Logger from 'electron-log';
 import * as uuid from 'uuid';
 import { UpdateFolderNameDTO } from './dtos/UpdateFolderNameDTO';
-import { ipc } from '../../../ipc';
+import { WebdavCustomIpc } from '../../../ipc';
 import { RemoteItemsGenerator } from '../../items/application/RemoteItemsGenerator';
 
 export class HttpWebdavFolderRepository implements WebdavFolderRepository {
@@ -18,14 +18,15 @@ export class HttpWebdavFolderRepository implements WebdavFolderRepository {
   constructor(
     private readonly driveClient: Axios,
     private readonly trashClient: Axios,
-    private readonly traverser: Traverser
+    private readonly traverser: Traverser,
+    private readonly ipc: WebdavCustomIpc
   ) {}
 
   private async getTree(): Promise<{
     files: ServerFile[];
     folders: ServerFolder[];
   }> {
-    const remoteItemsGenerator = new RemoteItemsGenerator();
+    const remoteItemsGenerator = new RemoteItemsGenerator(this.ipc);
     return remoteItemsGenerator.getAll();
   }
 
@@ -88,7 +89,7 @@ export class HttpWebdavFolderRepository implements WebdavFolderRepository {
     });
 
     this.folders[path.value] = folder;
-    await ipc.invoke('START_REMOTE_SYNC');
+    await this.ipc.invoke('START_REMOTE_SYNC');
 
     return folder;
   }
@@ -111,7 +112,7 @@ export class HttpWebdavFolderRepository implements WebdavFolderRepository {
 
     delete this.folders[folder.path];
     this.folders[folder.path] = folder;
-    await ipc.invoke('START_REMOTE_SYNC');
+    await this.ipc.invoke('START_REMOTE_SYNC');
   }
 
   async updateParentDir(folder: WebdavFolder): Promise<void> {
@@ -152,6 +153,6 @@ export class HttpWebdavFolderRepository implements WebdavFolderRepository {
       result.statusText
     );
 
-    await ipc.invoke('START_REMOTE_SYNC');
+    await this.ipc.invoke('START_REMOTE_SYNC');
   }
 }

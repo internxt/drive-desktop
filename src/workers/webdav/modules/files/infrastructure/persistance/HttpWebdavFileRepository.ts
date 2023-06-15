@@ -12,7 +12,7 @@ import { AddFileDTO } from './dtos/AddFileDTO';
 import { UpdateFileParentDirDTO } from './dtos/UpdateFileParentDirDTO';
 import { UpdateFileNameDTO } from './dtos/UpdateFileNameDTO';
 import { FilePath } from '../../domain/FilePath';
-import { ipc } from '../../../../ipc';
+import { WebdavCustomIpc } from '../../../../ipc';
 import { RemoteItemsGenerator } from 'workers/webdav/modules/items/application/RemoteItemsGenerator';
 
 export class HttpWebdavFileRepository implements WebdavFileRepository {
@@ -22,14 +22,15 @@ export class HttpWebdavFileRepository implements WebdavFileRepository {
     private readonly httpClient: Axios,
     private readonly trashHttpClient: Axios,
     private readonly traverser: Traverser,
-    private readonly bucket: string
+    private readonly bucket: string,
+    private readonly ipc: WebdavCustomIpc
   ) {}
 
   private async getTree(): Promise<{
     files: ServerFile[];
     folders: ServerFolder[];
   }> {
-    const remoteItemsGenerator = new RemoteItemsGenerator();
+    const remoteItemsGenerator = new RemoteItemsGenerator(this.ipc);
     return remoteItemsGenerator.getAll();
   }
 
@@ -70,7 +71,7 @@ export class HttpWebdavFileRepository implements WebdavFileRepository {
 
     if (result.status === 200) {
       delete this.files[file.path];
-      await ipc.invoke('START_REMOTE_SYNC');
+      await this.ipc.invoke('START_REMOTE_SYNC');
     }
   }
 
@@ -118,7 +119,7 @@ export class HttpWebdavFileRepository implements WebdavFileRepository {
 
     this.files[file.path] = created;
 
-    await ipc.invoke('START_REMOTE_SYNC');
+    await this.ipc.invoke('START_REMOTE_SYNC');
   }
 
   async updateName(file: WebdavFile): Promise<void> {
@@ -148,7 +149,7 @@ export class HttpWebdavFileRepository implements WebdavFileRepository {
 
     this.files[file.path] = file;
 
-    await ipc.invoke('START_REMOTE_SYNC');
+    await this.ipc.invoke('START_REMOTE_SYNC');
   }
 
   async updateParentDir(item: WebdavFile): Promise<void> {
@@ -166,7 +167,7 @@ export class HttpWebdavFileRepository implements WebdavFileRepository {
 
     await this.init();
 
-    await ipc.invoke('START_REMOTE_SYNC');
+    await this.ipc.invoke('START_REMOTE_SYNC');
   }
 
   async searchOnFolder(folderId: number): Promise<Array<WebdavFile>> {
