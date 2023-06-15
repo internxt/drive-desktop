@@ -39,35 +39,22 @@ export class WebdavFileDownloader {
   async run(path: string): Promise<RemoteFileContents> {
     const filePath = new FilePath(path);
 
-    try {
-      const file = this.repository.search(filePath);
+    const file = this.repository.search(filePath);
 
-      if (!file) {
-        throw new FileNotFoundError(path);
-      }
-
-      const downloader = this.contents.downloader(file);
-
-      this.registerEvents(downloader, file);
-
-      const readable = await downloader.download();
-
-      const remoteContents = RemoteFileContents.preview(file, readable);
-
-      await this.eventBus.publish(remoteContents.pullDomainEvents());
-
-      return remoteContents;
-    } catch (err: unknown) {
-      if (!(err instanceof Error)) {
-        throw new Error(`${err} as thrown`);
-      }
-
-      this.ipc.send('WEBDAV_FILE_DOWNLOADED_ERROR', {
-        name: filePath.name(),
-        error: err.message,
-      });
-
-      return Promise.reject();
+    if (!file) {
+      throw new FileNotFoundError(path);
     }
+
+    const downloader = this.contents.downloader(file);
+
+    this.registerEvents(downloader, file);
+
+    const readable = await downloader.download();
+
+    const remoteContents = RemoteFileContents.preview(file, readable);
+
+    await this.eventBus.publish(remoteContents.pullDomainEvents());
+
+    return remoteContents;
   }
 }

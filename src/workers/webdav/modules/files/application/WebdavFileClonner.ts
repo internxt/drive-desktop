@@ -31,18 +31,11 @@ export class WebdavFileClonner {
     clonner.on('finish', () => {
       stopwatch.finish();
 
-      this.ipc.send('WEBDAV_FILE_UPLOADED', {
+      this.ipc.send('WEBDAV_FILE_CLONNED', {
         name: file.name,
         type: file.type,
         size: file.size,
         uploadInfo: { elapsedTime: stopwatch.elapsedTime() },
-      });
-    });
-
-    clonner.on('error', (error: Error) => {
-      this.ipc.send('WEBDAV_FILE_UPLOADED_ERROR', {
-        name: file.name,
-        error: error.message,
       });
     });
   }
@@ -78,11 +71,6 @@ export class WebdavFileClonner {
       if (!(err instanceof Error)) {
         throw new Error(`${err} was thrown`);
       }
-
-      this.ipc.send('WEBDAV_FILE_CLONNED_ERROR', {
-        name: destinationPath.name(),
-        error: err.message,
-      });
     }
   }
 

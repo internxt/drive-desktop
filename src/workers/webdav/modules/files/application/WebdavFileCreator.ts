@@ -57,13 +57,6 @@ export class WebdavFileCreator {
         uploadInfo: { elapsedTime: stopwatch.elapsedTime() },
       });
     });
-
-    uploader.on('error', (error: Error) => {
-      this.ipc.send('WEBDAV_FILE_UPLOADED_ERROR', {
-        name: metadata.name,
-        error: error.message,
-      });
-    });
   }
 
   private async createFileEntry(

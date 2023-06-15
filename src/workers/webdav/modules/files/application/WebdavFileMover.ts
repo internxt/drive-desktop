@@ -20,27 +20,16 @@ export class WebdavFileMover {
   private async rename(file: WebdavFile, path: FilePath) {
     const oldName = file.nameWithExtension;
 
-    try {
-      file.rename(path);
+    file.rename(path);
 
-      await this.repository.updateName(file);
+    await this.repository.updateName(file);
 
-      await this.eventBus.publish(file.pullDomainEvents());
+    await this.eventBus.publish(file.pullDomainEvents());
 
-      this.ipc.send('WEBDAV_FILE_RENAMED', {
-        name: file.nameWithExtension,
-        oldName,
-      });
-    } catch (err: unknown) {
-      if (!(err instanceof Error)) {
-        throw new Error(`${err} has ben thrown`);
-      }
-
-      this.ipc.send('WEBDAV_FILE_RENAMED_ERROR', {
-        name: file.nameWithExtension,
-        error: err.message,
-      });
-    }
+    this.ipc.send('WEBDAV_FILE_RENAMED', {
+      name: file.nameWithExtension,
+      oldName,
+    });
   }
 
   private async move(file: WebdavFile, folder: WebdavFolder) {
@@ -52,7 +41,7 @@ export class WebdavFileMover {
 
     this.ipc.send('WEBDAV_FILE_MOVED', {
       name: file.nameWithExtension,
-      folerName: file.dirname,
+      folderName: file.dirname,
     });
   }
 
