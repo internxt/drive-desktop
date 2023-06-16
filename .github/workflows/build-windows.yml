@@ -17,6 +17,7 @@ jobs:
         run: |
           SET GH_TOKEN= ${{ secrets.GITHUB_TOKEN }}
           cd C:\Users\LENOVO\Desktop\Trabajo\drive-web-sign\drive-desktop
+          git stash
           git pull
           npm install --global yarn
           npm install yarn --save-dev
@@ -24,7 +25,6 @@ jobs:
           yarn run build
           cd ..
           python check-sign.py
-        shell: bash
       - name: Check file
         run: |
           cd C:\Users\LENOVO\Desktop\Trabajo\drive-web-sign\drive-desktop
