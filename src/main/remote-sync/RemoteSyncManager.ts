@@ -298,11 +298,15 @@ export class RemoteSyncManager {
       `Received ${isArray(response.data) && response.data.length} fetched files`
     );
     const hasMore =
+      isArray(response.data) &&
       response.data.length === this.config.fetchFilesLimitPerRequest;
 
     return {
       hasMore,
-      result: response.data.map(this.patchDriveFileResponseItem),
+      result:
+        response.data && isArray(response.data)
+          ? response.data.map(this.patchDriveFileResponseItem)
+          : [],
     };
   }
 
@@ -349,7 +353,10 @@ export class RemoteSyncManager {
 
     return {
       hasMore,
-      result: response.data.map(this.patchDriveFolderResponseItem),
+      result:
+        response.data && isArray(response.data)
+          ? response.data.map(this.patchDriveFolderResponseItem)
+          : [],
     };
   }
 

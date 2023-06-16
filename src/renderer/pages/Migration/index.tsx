@@ -27,9 +27,9 @@ export default function Migration() {
 
   const handleShowFailedItems = async () => {
     try {
-      await window.electron.openSyncFolder();
+      await window.electron.openMigrationFailedFolder();
     } catch (error) {
-      console.error('Error opening sync folder: ', error);
+      console.error('Error opening migration failed folder: ', error);
       reportError(error, {
         description: 'Open folder with items that we failed to move',
       });
@@ -37,6 +37,21 @@ export default function Migration() {
   };
   const handleCancelMigration = () => {
     setSlideIndex(2);
+  };
+
+  const finishMigrationSuccess = async () => {
+    await window.electron.moveSyncFolderToDesktop();
+  };
+  const goToSlideIndex = (slideIndex: number) => {
+    setSlideIndex(slideIndex);
+  };
+
+  const nextSlide = () => {
+    const nextSlide = slideIndex + 1;
+
+    if (SLIDES.length === slideIndex + 1) return finish();
+
+    setSlideIndex(nextSlide);
   };
 
   const handleStartMigration = () => {
@@ -87,30 +102,16 @@ export default function Migration() {
       });
 
       finishMigrationSuccess()
-        .then(() => {
-          goToSlideIndex(3);
-        })
         .catch((error) => {
           console.error('Error moving sync folder to desktop: ', error);
           reportError(error, {
             description: 'Failed to move sync folder to desktop location',
           });
+        })
+        .finally(() => {
+          goToSlideIndex(2);
         });
     }, 4000);
-  };
-
-  const finishMigrationSuccess = async () => {
-    await window.electron.moveSyncFolderToDesktop();
-  };
-  const goToSlideIndex = (slideIndex: number) => {
-    setSlideIndex(slideIndex);
-  };
-  const nextSlide = () => {
-    const nextSlide = slideIndex + 1;
-
-    if (SLIDES.length === slideIndex + 1) return finish();
-
-    setSlideIndex(nextSlide);
   };
 
   const SlideContent = useMemo(() => {

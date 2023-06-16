@@ -171,6 +171,9 @@ declare interface Window {
 
     userLogginFailed: (email: string) => void;
 
+    startMigration: () => Promise<void>;
+    openMigrationFailedFolder: () => Promise<void>;
+
     // DEV
     resizeWindow: () => typeof import('../main/dev/service').resizeCurrentWindow;
   };

@@ -29,6 +29,9 @@ export const openMigrationWindow = () => {
 
   migrationWindow.loadURL(resolveHtmlPath('migration'));
 
+  migrationWindow.on('close', () => {
+    migrationWindow = null;
+  });
   migrationWindow.on('ready-to-show', () => {
     migrationWindow?.show();
   });
@@ -36,4 +39,6 @@ export const openMigrationWindow = () => {
   setUpCommonWindowHandlers(migrationWindow);
 };
 
-ipcMain.on('open-migration-window', () => openMigrationWindow());
+ipcMain.handle('open-migration-window', () => {
+  openMigrationWindow();
+});
