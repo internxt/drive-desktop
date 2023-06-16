@@ -189,6 +189,7 @@
       },
       "app-info": {
         "open-logs": "Open logs",
+        "open-migration": "Start migration",
         "more": "Learn more about Internxt Drive"
       }
     },

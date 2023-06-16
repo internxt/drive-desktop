@@ -39,6 +39,21 @@ export default function Migration() {
     setSlideIndex(2);
   };
 
+  const finishMigrationSuccess = async () => {
+    await window.electron.moveSyncFolderToDesktop();
+  };
+  const goToSlideIndex = (slideIndex: number) => {
+    setSlideIndex(slideIndex);
+  };
+
+  const nextSlide = () => {
+    const nextSlide = slideIndex + 1;
+
+    if (SLIDES.length === slideIndex + 1) return finish();
+
+    setSlideIndex(nextSlide);
+  };
+
   const handleStartMigration = () => {
     nextSlide();
     /**
@@ -87,30 +102,16 @@ export default function Migration() {
       });
 
       finishMigrationSuccess()
-        .then(() => {
-          goToSlideIndex(3);
-        })
         .catch((error) => {
           console.error('Error moving sync folder to desktop: ', error);
           reportError(error, {
             description: 'Failed to move sync folder to desktop location',
           });
+        })
+        .finally(() => {
+          goToSlideIndex(3);
         });
     }, 4000);
-  };
-
-  const finishMigrationSuccess = async () => {
-    await window.electron.moveSyncFolderToDesktop();
-  };
-  const goToSlideIndex = (slideIndex: number) => {
-    setSlideIndex(slideIndex);
-  };
-  const nextSlide = () => {
-    const nextSlide = slideIndex + 1;
-
-    if (SLIDES.length === slideIndex + 1) return finish();
-
-    setSlideIndex(nextSlide);
   };
 
   const SlideContent = useMemo(() => {

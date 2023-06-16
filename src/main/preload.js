@@ -222,6 +222,9 @@ contextBridge.exposeInMainWorld('electron', {
 
     return () => ipcRenderer.removeListener(eventName, callback);
   },
+  startMigration() {
+    return ipcRenderer.invoke('open-migration-window');
+  },
   getUsage() {
     return ipcRenderer.invoke('get-usage');
   },
