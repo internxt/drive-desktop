@@ -148,6 +148,11 @@ contextBridge.exposeInMainWorld('electron', {
   moveSyncFolderToDesktop() {
     return ipcRenderer.invoke('move-sync-folder-to-desktop');
   },
+  // Open the folder where we store the items
+  // that we failed to migrate
+  openMigrationFailedFolder() {
+    return ipcRenderer.invoke('open-migration-failed-folder');
+  },
   onBackupsStatusChanged(func) {
     const eventName = 'backups-status-changed';
     const callback = (_, v) => func(v);

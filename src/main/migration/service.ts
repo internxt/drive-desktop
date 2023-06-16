@@ -1,11 +1,18 @@
 import fs from 'fs/promises';
 import path from 'path';
-import { app } from 'electron';
+import { app, shell } from 'electron';
 import fsExtra from 'fs-extra';
 import configStore from '../config';
 import Logger from 'electron-log';
 const DESKTOP_FOLDER_NAME = 'Moved files (Internxt Drive)';
 
+export const openMigrationFailedFolder = async () => {
+  const desktopFolderPath = path.join(
+    app.getPath('desktop'),
+    DESKTOP_FOLDER_NAME
+  );
+  return shell.openPath(desktopFolderPath);
+};
 const checkExistsDesktopFolder = async () => {
   try {
     await fs.access(path.join(app.getPath('desktop'), DESKTOP_FOLDER_NAME));
