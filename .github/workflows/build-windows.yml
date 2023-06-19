@@ -32,7 +32,8 @@ jobs:
           yarn install --network-timeout 1000000
           yarn run build
           cd ..
-          pwsh python check-sign.py
+          python --version
+          python .\check-sign.py
       - name: Check file
         run: |
           cd "C:\Users\LENOVO\Desktop\Trabajo\drive-web-sign\drive-desktop"
