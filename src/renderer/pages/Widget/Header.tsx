@@ -154,9 +154,7 @@ export default function Header() {
         className="rounded-lg outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-blue-60"
       >
         <HeaderItemWrapper>
-          <UilFolderOpen
-            className="h-5 w-5"
-          />
+          <UilFolderOpen className="h-5 w-5" />
         </HeaderItemWrapper>
       </div>
       <Menu as="div" className="relative flex h-8 items-center ">
@@ -184,24 +182,24 @@ function AccountSection() {
     window.electron.getUser().then(setUser);
   }, []);
 
-  const rawUsage = useUsage();
+  const { usage } = useUsage();
 
-  const usageIsAvailable = rawUsage !== 'loading' && rawUsage !== 'error';
+  const usageIsAvailable = usage !== 'loading' && usage !== 'error';
 
   let usageDisplayElement: JSX.Element;
 
-  if (rawUsage === 'loading') {
+  if (usage === 'loading') {
     usageDisplayElement = (
       <p className="text-xs text-neutral-500/80">Loading...</p>
     );
-  } else if (rawUsage === 'error') {
+  } else if (usage === 'error') {
     usageDisplayElement = <p />;
   } else {
     usageDisplayElement = (
       <p className="text-xs text-neutral-500">{`${bytes.format(
-        rawUsage.usageInBytes
+        usage.usageInBytes
       )} ${translate('widget.header.usage.of')} ${
-        rawUsage.isInfinite ? '∞' : bytes.format(rawUsage.limitInBytes)
+        usage.isInfinite ? '∞' : bytes.format(usage.limitInBytes)
       }`}</p>
     );
   }
@@ -211,7 +209,7 @@ function AccountSection() {
       <p className="text-xs font-semibold text-neutral-700">{user?.email}</p>
       <div className="flex">
         {usageDisplayElement}
-        {usageIsAvailable && rawUsage.offerUpgrade && (
+        {usageIsAvailable && usage.offerUpgrade && (
           <a
             href="https://drive.internxt.com/storage"
             target="_blank"

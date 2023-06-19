@@ -3,9 +3,8 @@ import { useEffect, useState } from 'react';
 import { Usage } from '../../main/usage/usage';
 
 export default function useUsage() {
-  const [rawUsage, setRawUsage] = useState<Usage | 'loading' | 'error'>(
-    'loading'
-  );
+  const [usage, setUsage] = useState<Usage | 'loading' | 'error'>('loading');
+  const [refresh, setRefresh] = useState<number>(0);
 
   async function updateUsage() {
     if (!(await window.electron.isUserLoggedIn())) {
@@ -14,20 +13,23 @@ export default function useUsage() {
 
     try {
       const usage = await window.electron.getUsage();
-      setRawUsage(usage);
+      setUsage(usage);
     } catch (err) {
       console.error(err);
-      setRawUsage('error');
+      setUsage('error');
     }
   }
 
   useEffect(() => {
-    setRawUsage('loading');
+    setUsage('loading');
     updateUsage();
     const listener = window.electron.onRemoteChanges(updateUsage);
-
     return listener;
-  }, []);
+  }, [refresh]);
 
-  return rawUsage;
+  const refreshUsage = () => {
+    setRefresh(Date.now());
+  };
+
+  return { usage, refreshUsage };
 }
