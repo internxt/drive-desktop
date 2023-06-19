@@ -2,6 +2,7 @@ import { BrowserWindow, shell } from 'electron';
 
 import eventBus from '../event-bus';
 import { getOnboardingWindow } from './onboarding';
+import { getMigrationWindow } from './migration';
 import { getProcessIssuesWindow } from './process-issues';
 import { getSettingsWindow } from './settings';
 import { getWidget } from './widget';
@@ -10,6 +11,7 @@ function closeAuxWindows() {
   getProcessIssuesWindow()?.close();
   getSettingsWindow()?.close();
   getOnboardingWindow()?.close();
+  getMigrationWindow()?.close();
 }
 
 eventBus.on('USER_LOGGED_OUT', closeAuxWindows);
@@ -21,6 +23,7 @@ export function broadcastToWindows(eventName: string, data: any) {
     getProcessIssuesWindow(),
     getSettingsWindow(),
     getOnboardingWindow(),
+    getMigrationWindow(),
   ];
 
   renderers.forEach((r) => r?.webContents.send(eventName, data));
@@ -38,6 +41,10 @@ export function setUpCommonWindowHandlers(window: BrowserWindow) {
       window?.close();
     }
     if (channel === 'user-finished-onboarding') {
+      window?.close();
+    }
+
+    if (channel === 'user-finished-migration') {
       window?.close();
     }
   });

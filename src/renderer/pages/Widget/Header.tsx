@@ -148,15 +148,13 @@ export default function Header() {
       </a>
       <div
         role="button"
-        tabIndex={0}
         onClick={window.electron.openSyncFolder}
         onKeyPress={window.electron.openSyncFolder}
+        tabIndex={0}
         className="rounded-lg outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-blue-60"
       >
         <HeaderItemWrapper>
           <UilFolderOpen
-            onClick={window.electron.openSyncFolder}
-            onKeyPress={window.electron.openSyncFolder}
             className="h-5 w-5"
           />
         </HeaderItemWrapper>

@@ -10,8 +10,10 @@ ipcMain.handle('get-sync-root', () => {
 
 ipcMain.handle('choose-sync-root-with-dialog', chooseSyncRootWithDialog);
 
-ipcMain.handle('open-sync-folder', () => {
+ipcMain.handle('open-sync-folder', async () => {
   const syncFolderPath = getVirtualDrivePath();
 
-  return shell.openPath(syncFolderPath);
+  const errorMessage = await shell.openPath(syncFolderPath);
+
+  if (errorMessage) throw new Error(errorMessage);
 });

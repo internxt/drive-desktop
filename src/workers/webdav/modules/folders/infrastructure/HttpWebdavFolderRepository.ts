@@ -9,6 +9,8 @@ import { WebdavFolderRepository } from '../domain/WebdavFolderRepository';
 import Logger from 'electron-log';
 import * as uuid from 'uuid';
 import { UpdateFolderNameDTO } from './dtos/UpdateFolderNameDTO';
+import { WebdavCustomIpc } from '../../../ipc';
+import { RemoteItemsGenerator } from '../../items/application/RemoteItemsGenerator';
 
 export class HttpWebdavFolderRepository implements WebdavFolderRepository {
   private folders: Record<string, WebdavFolder> = {};
@@ -16,46 +18,16 @@ export class HttpWebdavFolderRepository implements WebdavFolderRepository {
   constructor(
     private readonly driveClient: Axios,
     private readonly trashClient: Axios,
-    private readonly traverser: Traverser
+    private readonly traverser: Traverser,
+    private readonly ipc: WebdavCustomIpc
   ) {}
 
   private async getTree(): Promise<{
     files: ServerFile[];
     folders: ServerFolder[];
   }> {
-    const PAGE_SIZE = 5000;
-
-    let thereIsMore = true;
-    let offset = 0;
-
-    const files: ServerFile[] = [];
-    const folders: ServerFolder[] = [];
-
-    while (thereIsMore) {
-      try {
-        const response = await this.driveClient.get(
-          `${process.env.API_URL}/api/desktop/list/${offset}`
-        );
-
-        const batch = response.data;
-
-        // We can't use spread operator with big arrays
-        // see: https://anchortagdev.com/range-error-maximum-call-stack-size-exceeded-error-using-spread-operator-in-node-js-javascript/
-
-        for (const file of batch.files)
-          files.push({ ...file, size: parseInt(file.size, 10) });
-
-        for (const folder of batch.folders) folders.push(folder);
-
-        thereIsMore = batch.folders.length === PAGE_SIZE;
-
-        if (thereIsMore) offset += PAGE_SIZE;
-      } catch (err) {
-        // no empty
-      }
-    }
-
-    return { files, folders };
+    const remoteItemsGenerator = new RemoteItemsGenerator(this.ipc);
+    return remoteItemsGenerator.getAll();
   }
 
   public async init(): Promise<void> {
@@ -117,6 +89,7 @@ export class HttpWebdavFolderRepository implements WebdavFolderRepository {
     });
 
     this.folders[path.value] = folder;
+    await this.ipc.invoke('START_REMOTE_SYNC');
 
     return folder;
   }
@@ -139,6 +112,7 @@ export class HttpWebdavFolderRepository implements WebdavFolderRepository {
 
     delete this.folders[folder.path];
     this.folders[folder.path] = folder;
+    await this.ipc.invoke('START_REMOTE_SYNC');
   }
 
   async updateParentDir(folder: WebdavFolder): Promise<void> {
@@ -178,5 +152,7 @@ export class HttpWebdavFolderRepository implements WebdavFolderRepository {
       result.status,
       result.statusText
     );
+
+    await this.ipc.invoke('START_REMOTE_SYNC');
   }
 }
