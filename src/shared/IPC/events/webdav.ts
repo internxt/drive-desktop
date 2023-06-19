@@ -83,11 +83,11 @@ export type WebdavFlowEventsErrors = {
 };
 
 export type WebdavInvokableFunctions = {
-  GET_UPDATED_REMOTE_ITEMS: Promise<{
+  GET_UPDATED_REMOTE_ITEMS: () => Promise<{
     files: DriveFile[];
     folders: DriveFolder[];
   }>;
-  START_REMOTE_SYNC: Promise<void>;
+  START_REMOTE_SYNC: () => Promise<void>;
 };
 
 export type WebDavProcessEvents = WebdavServerEvents &
