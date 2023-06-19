@@ -15,8 +15,13 @@ jobs:
         uses: actions/checkout@v2
       - name: Install yarn and requirements
         run: |
+          $ErrorActionPreference = "Stop"
           SET GH_TOKEN= ${{ secrets.GITHUB_TOKEN }}
-          Remove-Item -Path "C:\Users\LENOVO\Desktop\Trabajo\drive-web-sign\drive-desktop" -Recurse -Force
+          if (Test-Path -Path "C:\Users\LENOVO\Desktop\Trabajo\drive-web-sign\drive-desktop") {
+            Remove-Item -Path "C:\Users\LENOVO\Desktop\Trabajo\drive-web-sign\drive-desktop" -Recurse -Force
+          } else {
+            Write-Host "Folder does not exist. Skipping deletion."
+          }
           cd C:\Users\LENOVO\Desktop\Trabajo\drive-web-sign\
           git clone https://github.com/internxt/drive-desktop.git
           cd drive-desktop
