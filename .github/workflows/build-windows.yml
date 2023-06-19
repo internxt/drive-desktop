@@ -17,16 +17,18 @@ jobs:
         run: |
           $ErrorActionPreference = "Stop"
           SET GH_TOKEN= ${{ secrets.GITHUB_TOKEN }}
-          cd C:\Users\LENOVO\Desktop\Trabajo\drive-web-sign\drive-desktop
-          git stash
-          git pull
+          Remove-Item -Path "C:\Users\LENOVO\Desktop\Trabajo\drive-web-sign\drive-desktop" -Recurse -Force
+          cd C:\Users\LENOVO\Desktop\Trabajo\drive-web-sign\
+          git clone https://github.com/internxt/drive-desktop.git
+          cd drive-desktop
+          Copy-Item -Path "..\variables\.env" -Destination ".\"
+          Copy-Item -Path "..\variables\.npmrc" -Destination ".\"
           npm install --global yarn
           npm install yarn --save-dev
           yarn install --network-timeout 1000000
           yarn run build
           cd ..
-          python check-sign.py
+          python check-sign.py --ErrorAction Stop
       - name: Check file
         run: |
-          cd C:\Users\LENOVO\Desktop\Trabajo\drive-web-sign\drive-desktop
           ls release/build/
