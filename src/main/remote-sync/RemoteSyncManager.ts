@@ -163,7 +163,7 @@ export class RemoteSyncManager {
     try {
       Logger.info(
         `Syncing files updated from ${
-          lastFilesSyncAt || '(no last date provided)'
+          lastFilesSyncAt ?? '(no last date provided)'
         }`
       );
       const { hasMore, result } = await this.fetchFilesFromRemote(
@@ -222,7 +222,7 @@ export class RemoteSyncManager {
     try {
       Logger.info(
         `Syncing folders updated from ${
-          lastFoldersSyncAt || '(no last date provided)'
+          lastFoldersSyncAt ?? '(no last date provided)'
         }`
       );
       const { hasMore, result } = await this.fetchFoldersFromRemote(

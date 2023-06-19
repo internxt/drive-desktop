@@ -19,7 +19,7 @@ export class AuthorizedHttpClient {
     }
 
     // Prevent the token from being displayed in the logs
-    if (error.config.headers && error.config.headers['Authorization']) {
+    if (error.config.headers?.Authorization) {
       error.config.headers['Authorization'] = 'Bearer ****************';
     }
     return Promise.reject(error);
