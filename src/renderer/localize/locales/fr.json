@@ -85,6 +85,43 @@
       }
     }
   },
+  "migration": {
+    "slides": {
+      "welcome": {
+        "title": "Nouvelle mise à jour de l'application de bureau d’Internxt !",
+        "features": {
+          "title": "Nouvelles mises à jour:",
+          "feature-1": "Sélectionnez ce que vous voulez télécharger et économisez de l'espace sur votre disque dur.",
+          "feature-2": "Un système d'exploitation natif disponible pour gérer vos fichiers et dossiers."
+        }
+      },
+      "migration": {
+        "title": "Nous nous assurons que tous vos fichiers sont en sécurité",
+        "in-progress": "Téléchargement de fichiers en attente",
+        "item-progress": "{{processed_items}} sur {{total_items}} éléments téléchargés"
+      },
+      "migration-failed": {
+        "title": "Nous nous assurons que tous vos fichiers sont en sécurité",
+        "message": "Certains fichiers n'ont pas pu être téléchargés",
+        "description": "Nous avons déplacé ces fichiers sur votre bureau, faites-les glisser et déposez-les sur votre disque interne.",
+        "show-files": "Afficher les fichiers"
+      },
+      "delete-old-drive-folder": {
+        "title": "Même Internxt Drive, nouvel emplacement",
+        "message": "Votre dossier personnel Internxt Drive est situé dans le barre latérale {{platform_app}}."
+      },
+      "new-widget": {
+        "title": "Soyez plus productif grâce à notre widget redessiné",
+        "message": "Nous avons repensé et reconstruit notre widget afin d'accroître la productivité, la commodité et la rapidité.",
+        "message-2": "Tous les changements sont désormais mis à jour en temps réel."
+      }
+    },
+    "common": {
+      "continue": "Continuer",
+      "cancel": "Annuler",
+      "open-drive": "Ouvrir Internxt Drive"
+    }
+  },
   "widget": {
     "header": {
       "usage": {

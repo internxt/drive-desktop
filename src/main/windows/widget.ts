@@ -5,6 +5,7 @@ import eventBus from '../event-bus';
 import { getTray } from '../tray';
 import { preloadPath, resolveHtmlPath } from '../util';
 import { setUpCommonWindowHandlers } from '.';
+import { getIsLoggedIn } from '../auth/handlers';
 
 let widget: BrowserWindow | null = null;
 export const getWidget = () => widget;
@@ -35,6 +36,12 @@ export const createWidget = async () => {
   });
 
   widget.on('blur', () => {
+    const isLoggedIn = getIsLoggedIn();
+
+    if (!isLoggedIn) {
+      return;
+    }
+
     widget?.hide();
   });
 

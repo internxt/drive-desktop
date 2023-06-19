@@ -13,7 +13,7 @@ async function setUp() {
   const container = await containerFactory.build();
 
   const fileSystem = await InternxtFileSystemFactory.build(container);
-  const storageManager = await InternxtStorageManagerFactory.build(container);
+  const storageManager = process.platform !== 'win32' ? await InternxtStorageManagerFactory.build(container) : undefined;
 
   const server = new InternxtWebdavServer(PORT, container, storageManager);
 

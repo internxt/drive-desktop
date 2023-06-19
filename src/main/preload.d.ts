@@ -25,6 +25,10 @@ declare interface Window {
 
     finishOnboarding(): void;
 
+    finishMigration(): void;
+
+    openVirtualDrive(): void;
+
     quit(): void;
 
     getUser(): Promise<ReturnType<typeof import('./auth/service').getUser>>;
@@ -55,6 +59,9 @@ declare interface Window {
       func: (value: import('../workers/types').ProcessInfoUpdatePayload) => void
     ): () => void;
 
+    moveSyncFolderToDesktop(): Promise<
+      typeof import('../main/migration/service').moveSyncFolderToDesktop
+    >;
     getProcessIssues(): Promise<import('../workers/types').ProcessIssue[]>;
 
     onProcessIssuesChanged(
@@ -163,6 +170,9 @@ declare interface Window {
     >;
 
     userLogginFailed: (email: string) => void;
+
+    startMigration: () => Promise<void>;
+    openMigrationFailedFolder: () => Promise<void>;
 
     // DEV
     resizeWindow: () => typeof import('../main/dev/service').resizeCurrentWindow;

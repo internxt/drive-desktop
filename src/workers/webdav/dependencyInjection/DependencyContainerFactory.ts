@@ -91,13 +91,15 @@ export class DependencyContainerFactory {
       clients.drive,
       clients.newDrive,
       traverser,
-      user.bucket
+      user.bucket,
+      ipc
     );
 
     const folderRepository = new HttpWebdavFolderRepository(
       clients.drive,
       clients.newDrive,
-      traverser
+      traverser,
+      ipc
     );
 
     await fileRepository.init();

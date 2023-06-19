@@ -122,7 +122,7 @@ export function getNewApiHeaders(): Record<string, string> {
 export function getUser(): User | null {
   const user = ConfigStore.get('userData');
 
-  return Object.keys(user).length ? user : null;
+  return user && Object.keys(user).length ? user : null;
 }
 
 export function obtainToken(tokenName: TokenKey): string {
@@ -179,6 +179,7 @@ export function canHisConfigBeRestored(uuid: string) {
 }
 
 export function logout() {
+  Logger.info('Loggin out');
   saveConfig();
   resetConfig();
   resetCredentials();

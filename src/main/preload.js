@@ -118,6 +118,9 @@ contextBridge.exposeInMainWorld('electron', {
   finishOnboarding() {
     return ipcRenderer.send('user-finished-onboarding');
   },
+  finishMigration() {
+    return ipcRenderer.send('user-finished-migration');
+  },
   isAutoLaunchEnabled() {
     return ipcRenderer.invoke('is-auto-launch-enabled');
   },
@@ -138,6 +141,17 @@ contextBridge.exposeInMainWorld('electron', {
   },
   getBackupsStatus() {
     return ipcRenderer.invoke('get-backups-status');
+  },
+  openVirtualDrive() {
+    return ipcRenderer.invoke('open-virtual-drive');
+  },
+  moveSyncFolderToDesktop() {
+    return ipcRenderer.invoke('move-sync-folder-to-desktop');
+  },
+  // Open the folder where we store the items
+  // that we failed to migrate
+  openMigrationFailedFolder() {
+    return ipcRenderer.invoke('open-migration-failed-folder');
   },
   onBackupsStatusChanged(func) {
     const eventName = 'backups-status-changed';
@@ -212,6 +226,9 @@ contextBridge.exposeInMainWorld('electron', {
     ipcRenderer.on(eventName, callback);
 
     return () => ipcRenderer.removeListener(eventName, callback);
+  },
+  startMigration() {
+    return ipcRenderer.invoke('open-migration-window');
   },
   getUsage() {
     return ipcRenderer.invoke('get-usage');

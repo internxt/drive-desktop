@@ -18,6 +18,7 @@ import Onboarding from './pages/Onboarding';
 import ProcessIssues from './pages/ProcessIssues';
 import Settings from './pages/Settings';
 import Widget from './pages/Widget';
+import Migration from './pages/Migration';
 
 function LocationWrapper({ children }: { children: JSX.Element }) {
   const { pathname } = useLocation();
@@ -51,7 +52,7 @@ function LoggedInWrapper({ children }: { children: JSX.Element }) {
 }
 
 function Loader() {
-  return <div>loading...</div>;
+  return <></>;
 }
 
 export default function App() {
@@ -67,6 +68,7 @@ export default function App() {
                 <Route path="/login" element={<Login />} />
                 <Route path="/process-issues" element={<ProcessIssues />} />
                 <Route path="/onboarding" element={<Onboarding />} />
+                <Route path="/migration" element={<Migration />} />
                 <Route
                   path="/settings"
                   element={

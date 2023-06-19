@@ -54,7 +54,9 @@ export const OnboardingCompletedSlide: React.FC<
             {translate(
               'onboarding.slides.onboarding-completed.desktop-ready.description',
               {
-                platform_phrase: translate(getPlatformPhraseTranslationKey()),
+                platform_phrase: translate(
+                  getPlatformPhraseTranslationKey(props.platform)
+                ),
               }
             )}
           </h4>
