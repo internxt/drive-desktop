@@ -13,7 +13,6 @@ import { DatabaseCollectionAdapter } from '../database/adapters/base';
 import { Axios } from 'axios';
 import { DriveFolder } from '../database/entities/DriveFolder';
 import { DriveFile } from '../database/entities/DriveFile';
-import { isArray } from 'lodash';
 
 export class RemoteSyncManager {
   private foldersSyncStatus: RemoteSyncStatus = 'IDLE';
@@ -162,6 +161,11 @@ export class RemoteSyncManager {
   private async syncRemoteFiles(syncConfig: SyncConfig) {
     const lastFilesSyncAt = await helpers.getLastFilesSyncAt();
     try {
+      Logger.info(
+        `Syncing files updated from ${
+          lastFilesSyncAt || '(no last date provided)'
+        }`
+      );
       const { hasMore, result } = await this.fetchFilesFromRemote(
         lastFilesSyncAt
       );
@@ -187,7 +191,8 @@ export class RemoteSyncManager {
         maxRetries: syncConfig.maxRetries,
       });
     } catch (error) {
-      Logger.error('Remote files sync failed ', error);
+      Logger.error('Remote files sync failed with error: ', error);
+
       reportError(error as Error, {
         lastFilesSyncAt: lastFilesSyncAt
           ? lastFilesSyncAt.toISOString()
@@ -215,7 +220,11 @@ export class RemoteSyncManager {
   private async syncRemoteFolders(syncConfig: SyncConfig) {
     const lastFoldersSyncAt = await helpers.getLastFoldersSyncAt();
     try {
-      Logger.info(`Syncing folders updated from ${lastFoldersSyncAt}`);
+      Logger.info(
+        `Syncing folders updated from ${
+          lastFoldersSyncAt || '(no last date provided)'
+        }`
+      );
       const { hasMore, result } = await this.fetchFoldersFromRemote(
         lastFoldersSyncAt
       );
@@ -241,7 +250,7 @@ export class RemoteSyncManager {
         maxRetries: syncConfig.maxRetries,
       });
     } catch (error) {
-      Logger.error('Remote folders sync failed ', error);
+      Logger.error('Remote folders sync failed with error: ', error);
       reportError(error as Error, {
         lastFoldersSyncAt: lastFoldersSyncAt
           ? lastFoldersSyncAt.toISOString()
@@ -270,17 +279,22 @@ export class RemoteSyncManager {
     hasMore: boolean;
     result: RemoteSyncedFile[];
   }> {
+    const params = {
+      limit: this.config.fetchFilesLimitPerRequest,
+      offset: 0,
+      status: 'ALL',
+      updatedAt: updatedAtCheckpoint
+        ? updatedAtCheckpoint.toISOString()
+        : undefined,
+    };
+
+    Logger.info(
+      `Requesting files with params ${JSON.stringify(params, null, 2)}`
+    );
     const response = await this.config.httpClient.get(
       `${process.env.NEW_DRIVE_URL}/drive/files`,
       {
-        params: {
-          limit: this.config.fetchFilesLimitPerRequest,
-          offset: 0,
-          status: 'ALL',
-          updatedAt: updatedAtCheckpoint
-            ? updatedAtCheckpoint.toISOString()
-            : undefined,
-        },
+        params,
       }
     );
 
@@ -294,17 +308,28 @@ export class RemoteSyncManager {
       );
     }
 
-    Logger.info(
-      `Received ${isArray(response.data) && response.data.length} fetched files`
-    );
+    if (Array.isArray(response.data)) {
+      Logger.info(`Received ${response.data.length} fetched files`);
+    } else {
+      Logger.info(
+        `Expected to receive an array of files, but instead received ${JSON.stringify(
+          response,
+          null,
+          2
+        )}`
+      );
+
+      throw new Error('Did not receive an array of files');
+    }
+
     const hasMore =
-      isArray(response.data) &&
+      Array.isArray(response.data) &&
       response.data.length === this.config.fetchFilesLimitPerRequest;
 
     return {
       hasMore,
       result:
-        response.data && isArray(response.data)
+        response.data && Array.isArray(response.data)
           ? response.data.map(this.patchDriveFileResponseItem)
           : [],
     };
@@ -319,17 +344,21 @@ export class RemoteSyncManager {
     hasMore: boolean;
     result: RemoteSyncedFolder[];
   }> {
+    const params = {
+      limit: this.config.fetchFilesLimitPerRequest,
+      offset: 0,
+      status: 'ALL',
+      updatedAt: updatedAtCheckpoint
+        ? updatedAtCheckpoint.toISOString()
+        : undefined,
+    };
+    Logger.info(
+      `Requesting folders with params ${JSON.stringify(params, null, 2)}`
+    );
     const response = await this.config.httpClient.get(
       `${process.env.NEW_DRIVE_URL}/drive/folders`,
       {
-        params: {
-          limit: this.config.fetchFilesLimitPerRequest,
-          offset: 0,
-          status: 'ALL',
-          updatedAt: updatedAtCheckpoint
-            ? updatedAtCheckpoint.toISOString()
-            : undefined,
-        },
+        params,
       }
     );
 
@@ -343,18 +372,27 @@ export class RemoteSyncManager {
       );
     }
 
-    Logger.info(
-      `Received ${
-        isArray(response.data) && response.data.length
-      } fetched folders`
-    );
+    if (Array.isArray(response.data)) {
+      Logger.info(`Received ${response.data.length} fetched folders`);
+    } else {
+      Logger.info(
+        `Expected to receive an array of folders, but instead received ${JSON.stringify(
+          response,
+          null,
+          2
+        )}`
+      );
+
+      throw new Error('Did not receive an array of folders');
+    }
+
     const hasMore =
       response.data.length === this.config.fetchFilesLimitPerRequest;
 
     return {
       hasMore,
       result:
-        response.data && isArray(response.data)
+        response.data && Array.isArray(response.data)
           ? response.data.map(this.patchDriveFolderResponseItem)
           : [],
     };

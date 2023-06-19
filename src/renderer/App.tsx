@@ -19,7 +19,7 @@ import ProcessIssues from './pages/ProcessIssues';
 import Settings from './pages/Settings';
 import Widget from './pages/Widget';
 import Migration from './pages/Migration';
-
+import Feedback from './pages/Feedback';
 function LocationWrapper({ children }: { children: JSX.Element }) {
   const { pathname } = useLocation();
   useEffect(() => {
@@ -69,6 +69,7 @@ export default function App() {
                 <Route path="/process-issues" element={<ProcessIssues />} />
                 <Route path="/onboarding" element={<Onboarding />} />
                 <Route path="/migration" element={<Migration />} />
+                <Route path="/feedback" element={<Feedback />} />
                 <Route
                   path="/settings"
                   element={
