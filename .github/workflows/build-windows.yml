@@ -15,7 +15,6 @@ jobs:
         uses: actions/checkout@v2
       - name: Install yarn and requirements
         run: |
-          $ErrorActionPreference = "Stop"
           SET GH_TOKEN= ${{ secrets.GITHUB_TOKEN }}
           Remove-Item -Path "C:\Users\LENOVO\Desktop\Trabajo\drive-web-sign\drive-desktop" -Recurse -Force
           cd C:\Users\LENOVO\Desktop\Trabajo\drive-web-sign\
