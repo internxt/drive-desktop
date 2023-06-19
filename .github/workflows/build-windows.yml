@@ -14,7 +14,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
       - name: Install yarn and requirements
-        shell: pwsh
         run: |
           $ErrorActionPreference = "Stop"
           SET GH_TOKEN= ${{ secrets.GITHUB_TOKEN }}
@@ -33,7 +32,7 @@ jobs:
           yarn install --network-timeout 1000000
           yarn run build
           cd ..
-          python check-sign.py
+          pwsh python check-sign.py
       - name: Check file
         run: |
           cd "C:\Users\LENOVO\Desktop\Trabajo\drive-web-sign\drive-desktop"
