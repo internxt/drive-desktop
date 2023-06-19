@@ -119,6 +119,8 @@ declare interface Window {
 
     addBackup: typeof import('../main/device/service').addBackup;
 
+    addBackupsFromLocalPaths: typeof import('../main/device/service').createBackupsFromLocalPaths;
+
     deleteBackup: typeof import('../main/device/service').deleteBackup;
 
     disableBackup: typeof import('../main/device/service').disableBackup;
@@ -154,6 +156,8 @@ declare interface Window {
     ): () => void;
 
     changeBackupPath: typeof import('../main/device/service').changeBackupPath;
+
+    getFolderPath: typeof import('../main/device/service').getPathFromDialog;
 
     onRemoteChanges(func: () => void): () => void;
 
