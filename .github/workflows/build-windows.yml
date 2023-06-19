@@ -24,23 +24,8 @@ jobs:
           npm install yarn --save-dev
           yarn install --network-timeout 1000000
           yarn run build
-      # cd ..
-      # python check-sign.py
-      - uses: actions/setup-python@v4
-        with:
-          python-version: '3.9.2'
-      - uses: jannekem/run-python-script-action@v1
-        with:
-          script: |
-            import subprocess
-            os.chdir('C:\Users\LENOVO\Desktop\Trabajo\drive-web-sign')
-            process = subprocess.Popen(['python', 'sign.py'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            command0 = ['cmd', '/c', 'set GH_TOKEN=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']
-            result0 = subprocess.run(command0, capture_output=True, text=True, cwd='./drive-desktop')
-            command = ['cmd', '/c', 'yarn run publish']
-            result = subprocess.run(command, capture_output=True, text=True, cwd='./drive-desktop')
-            print(result)
-            process.terminate()
+          cd ..
+          python check-sign.py -ErrorAction Stop
       - name: Check file
         run: |
           cd C:\Users\LENOVO\Desktop\Trabajo\drive-web-sign\drive-desktop
