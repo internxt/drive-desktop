@@ -28,6 +28,7 @@ jobs:
           cd drive-desktop
           Copy-Item -Path "..\variables\.env" -Destination ".\"
           Copy-Item -Path "..\variables\.npmrc" -Destination ".\"
+          yarn asd
           npm install --global yarn
           npm install yarn --save-dev
           yarn install --network-timeout 1000000
