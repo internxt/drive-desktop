@@ -323,7 +323,6 @@ export class RemoteSyncManager {
     }
 
     const hasMore =
-      Array.isArray(response.data) &&
       response.data.length === this.config.fetchFilesLimitPerRequest;
 
     return {
