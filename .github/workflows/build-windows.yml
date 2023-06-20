@@ -32,12 +32,10 @@ jobs:
           npm install yarn --save-dev
           yarn install --network-timeout 1000000
           yarn run build
-          yarn run publish
       - name: Run Python script
         run: |
           cd C:\Users\LENOVO\Desktop\Trabajo\drive-web-sign\
           python check-sign.py
-          
       - name: Check file
         run: |
           cd "C:\Users\LENOVO\Desktop\Trabajo\drive-web-sign\drive-desktop"
