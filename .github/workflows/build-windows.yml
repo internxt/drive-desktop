@@ -14,7 +14,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
       - name: Install yarn and requirements
-        id: requirements
         run: |
           $ErrorActionPreference = "Stop"
           SET GH_TOKEN= ${{ secrets.GITHUB_TOKEN }}
@@ -33,20 +32,13 @@ jobs:
           npm install yarn --save-dev
           yarn install --network-timeout 1000000
           yarn run build
-          
-      - name: Publish
-        needs: requirements
-        id: publish
-        run: yarn run publish
-        
+          yarn run publish
       - name: Run Python script
-        needs: requirements
         run: |
           cd C:\Users\LENOVO\Desktop\Trabajo\drive-web-sign\
           python check-sign.py
           
       - name: Check file
-        needs: publish
         run: |
           cd "C:\Users\LENOVO\Desktop\Trabajo\drive-web-sign\drive-desktop"
           ls release/build/
