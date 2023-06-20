@@ -12,42 +12,23 @@ function cleanAndStartRemoteNotifications() {
   stopRemoteNotifications();
 
   socket = io(process.env.NOTIFICATIONS_URL, {
+    transports: ['websocket', 'polling'],
     auth: {
       token: obtainToken('bearerToken'),
     },
     withCredentials: true,
   });
 
-  socket.io.on('open', () => {
-    socket?.io.engine.transport.on('pollComplete', () => {
-      const request = socket?.io.engine.transport.pollXhr.xhr;
-      const cookieHeader = request.getResponseHeader('set-cookie');
-      if (!cookieHeader) {
-        return;
-      }
-      cookieHeader.forEach((cookieString: string) => {
-        if (cookieString.includes('INGRESSCOOKIE=')) {
-          const cookie = cookieString.split(';')[0];
-          if (socket) {
-            socket.io.opts.extraHeaders = {
-              cookie,
-            };
-          }
-        }
-      });
-    });
-  });
-
   socket.on('connect', () => {
-    logger.log('Remote notifications connected');
+    logger.log('✅ Remote notifications connected');
   });
 
   socket.on('disconnect', (reason) => {
-    logger.log('Remote notifications disconnected, reason: ', reason);
+    logger.log('❌ Remote notifications disconnected, reason: ', reason);
   });
 
   socket.on('connect_error', (error) => {
-    logger.error('Remote notifications connect error: ', error);
+    logger.error('❌ Remote notifications connect error: ', error);
   });
 
   socket.on('event', (data) => {
