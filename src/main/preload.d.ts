@@ -173,6 +173,8 @@ declare interface Window {
 
     startMigration: () => Promise<void>;
     openMigrationFailedFolder: () => Promise<void>;
+    sendFeedback: (feedback: string) => Promise<void>;
+    openFeedbackWindow(): void;
 
     // DEV
     resizeWindow: () => typeof import('../main/dev/service').resizeCurrentWindow;

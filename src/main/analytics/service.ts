@@ -293,3 +293,17 @@ export function trackWebdavError(
     context: deviceContext,
   });
 }
+
+export function sendFeedback(feedback: string) {
+  const { uuid: userId } = ConfigStore.get('userData');
+
+  client.track({
+    event: 'Feedback Sent',
+    userId,
+    properties: {
+      feature_flag: 'desktop',
+      feedback: feedback,
+    },
+    context: deviceContext,
+  });
+}

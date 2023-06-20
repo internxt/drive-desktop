@@ -131,6 +131,7 @@
       "dropdown": {
         "preferences": "Preferences",
         "issues": "Issues",
+        "send-feedback": "Send feedback",
         "support": "Support",
         "logout": "Log out",
         "quit": "Quit"
@@ -290,6 +291,16 @@
       "user-comments": "Comments",
       "include-logs": "Include the logs of this sync process for debug purposes"
     }
+  },
+  "feedback": {
+    "window-title": "Internxt Desktop feedback",
+    "title": "Share feedback with Internxt",
+    "description": "Your feedback makes Internxt improve and helps us to create better product experiences",
+    "placeholder": "Let us know what’s in your mind, what you’d like to improve or describe the bug or issue",
+    "characters-count": "{{character_count}}/{{character_limit}}",
+    "send-feedback": "Send feedback",
+    "sent-title": "Thank you for sharing your feedback",
+    "sent-message": "We really appreciate your time and effort to help us improve our services."
   },
   "common": {
     "cancel": "Cancel"

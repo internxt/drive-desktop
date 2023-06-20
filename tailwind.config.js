@@ -12,6 +12,9 @@ module.exports = {
         0.3: '0.3rem',
         0.4: '0.4rem',
       },
+      lineHeight: {
+        base: '120%',
+      },
       transitionProperty: {
         width: 'width',
       },
