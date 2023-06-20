@@ -19,6 +19,7 @@ jobs:
           SET GH_TOKEN= ${{ secrets.GITHUB_TOKEN }}
           if (Test-Path -Path "C:\Users\LENOVO\Desktop\Trabajo\drive-web-sign\drive-desktop") {
             Remove-Item -Path "C:\Users\LENOVO\Desktop\Trabajo\drive-web-sign\drive-desktop" -Recurse -Force
+            Write-Host "Folder deleted"
           } else {
             Write-Host "Folder does not exist. Skipping deletion."
           }
