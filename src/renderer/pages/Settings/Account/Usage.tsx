@@ -1,6 +1,6 @@
 import bytes from 'bytes';
 
-import { Usage as UsageType } from '../../../../main/usage/usage';
+import { Usage as UsageType } from '../../../../main/usage/Usage';
 import Button from '../../../components/Button';
 import { useTranslationContext } from '../../../context/LocalContext';
 

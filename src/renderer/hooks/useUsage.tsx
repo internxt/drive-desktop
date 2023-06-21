@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-
 import { Usage } from '../../main/usage/usage';
 
 export default function useUsage() {
