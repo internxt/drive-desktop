@@ -48,7 +48,7 @@ export default function Header() {
       leaveTo="transform scale-95 opacity-0"
       className="relative z-10"
     >
-      <Menu.Items className="absolute right-0 top-5 w-32 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+      <Menu.Items className="absolute right-0 top-5  max-w-[288px] origin-top-right  whitespace-nowrap rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
         <Menu.Item>
           {({ active }) => (
             <div
@@ -59,6 +59,20 @@ export default function Header() {
             >
               <DropdownItem active={active}>
                 <span>{translate('widget.header.dropdown.preferences')}</span>
+              </DropdownItem>
+            </div>
+          )}
+        </Menu.Item>
+        <Menu.Item>
+          {({ active }) => (
+            <div
+              role="button"
+              tabIndex={0}
+              aria-hidden="true"
+              onClick={() => window.electron.openFeedbackWindow()}
+            >
+              <DropdownItem active={active}>
+                <span>{translate('widget.header.dropdown.send-feedback')}</span>
               </DropdownItem>
             </div>
           )}
@@ -154,9 +168,7 @@ export default function Header() {
         className="rounded-lg outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-blue-60"
       >
         <HeaderItemWrapper>
-          <UilFolderOpen
-            className="h-5 w-5"
-          />
+          <UilFolderOpen className="h-5 w-5" />
         </HeaderItemWrapper>
       </div>
       <Menu as="div" className="relative flex h-8 items-center ">

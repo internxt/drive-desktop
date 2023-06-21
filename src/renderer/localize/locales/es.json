@@ -131,6 +131,7 @@
       "dropdown": {
         "preferences": "Preferencias",
         "issues": "Lista de errores",
+        "send-feedback": "Enviar feedback",
         "support": "Ayuda",
         "logout": "Cerrar sesión",
         "quit": "Salir"
