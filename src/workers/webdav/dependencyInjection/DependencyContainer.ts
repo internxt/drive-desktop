@@ -5,10 +5,12 @@ import { WebdavFileDeleter } from '../modules/files/application/WebdavFileDelete
 import { WebdavFileDownloader } from '../modules/files/application/WebdavFileDownloader';
 import { WebdavFileMimeTypeResolver } from '../modules/files/application/WebdavFileMimeTypeResolver';
 import { WebdavFileMover } from '../modules/files/application/WebdavFileMover';
+import { WebdavFileRenamer } from '../modules/files/application/WebdavFileRenamer';
 import { WebdavFolderCreator } from '../modules/folders/application/WebdavFolderCreator';
 import { WebdavFolderDeleter } from '../modules/folders/application/WebdavFolderDeleter';
 import { WebdavFolderFinder } from '../modules/folders/application/WebdavFolderFinder';
 import { WebdavFolderMover } from '../modules/folders/application/WebdavFolderMover';
+import { WebdavFolderRenamer } from '../modules/folders/application/WebdavFolderRenamer';
 import { AllWebdavItemsNameLister } from '../modules/shared/application/AllWebdavItemsSearcher';
 import { WebdavUnknownItemTypeSearcher } from '../modules/shared/application/WebdavUnknownItemTypeSearcher';
 import { WebdavUnkownItemMetadataDealer } from '../modules/shared/application/WebdavUnkownItemMetadataDealer';
@@ -37,12 +39,14 @@ export interface DependencyContainer {
   fileCreator: WebdavFileCreator;
   fileDonwloader: WebdavFileDownloader;
   fileMimeTypeResolver: WebdavFileMimeTypeResolver;
+  fileRenamer: WebdavFileRenamer;
 
   folderCreator: WebdavFolderCreator;
 
   folderMover: WebdavFolderMover;
   folderFinder: WebdavFolderFinder;
   folderDeleter: WebdavFolderDeleter;
+  folderRenamer: WebdavFolderRenamer;
 
   itemMetadataDealer: WebdavUnkownItemMetadataDealer;
   itemSearcher: WebdavUnknownItemTypeSearcher;

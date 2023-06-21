@@ -3,11 +3,13 @@ import { FolderPath } from '../domain/FolderPath';
 import { WebdavFolder } from '../domain/WebdavFolder';
 import { WebdavFolderRepository } from '../domain/WebdavFolderRepository';
 import { WebdavFolderFinder } from './WebdavFolderFinder';
+import { WebdavFolderRenamer } from './WebdavFolderRenamer';
 
 export class WebdavFolderMover {
   constructor(
     private readonly repository: WebdavFolderRepository,
-    private readonly folderFinder: WebdavFolderFinder
+    private readonly folderFinder: WebdavFolderFinder,
+    private readonly folderRenamer: WebdavFolderRenamer
   ) {}
 
   private async rename(folder: WebdavFolder, path: FolderPath) {
@@ -35,7 +37,8 @@ export class WebdavFolderMover {
     const destinationFolder = this.folderFinder.run(destination.dirname());
 
     if (folder.isIn(destinationFolder)) {
-      await this.rename(folder, destination);
+      await this.folderRenamer.run(folder, to);
+      // await this.rename(folder, destination);
       return;
     }
 

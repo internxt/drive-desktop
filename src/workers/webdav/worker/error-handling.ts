@@ -8,7 +8,7 @@ import {
 } from '../../../shared/IPC/events/webdav';
 
 function handleError(error: Error, context: WebdavErrorContext): void {
-  Logger.error('[FS] Error coping file ', error);
+  Logger.error('[FS] Error: ', error);
   ipc.send('WEBDAV_ACTION_ERROR', error, context);
   // Sentry.captureException(error, context);
 }
