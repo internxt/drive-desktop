@@ -58,12 +58,6 @@ export class Traverser {
         return true;
       })
       .forEach(({ file, name }) => {
-        const plainName = this.decryptor.decryptName(
-          file.name,
-          file.folderId.toString(),
-          file.encrypt_version
-        ) as string;
-
         this.collection[name] = WebdavFile.from({
           folderId: file.folderId,
           fileId: file.fileId,
@@ -72,6 +66,7 @@ export class Traverser {
           createdAt: file.createdAt,
           updatedAt: file.updatedAt,
           path: name,
+          status: file.status,
         });
       });
 
