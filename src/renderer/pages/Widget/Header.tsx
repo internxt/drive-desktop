@@ -8,7 +8,7 @@ import { useTranslationContext } from '../../context/LocalContext';
 import useBackupFatalErrors from '../../hooks/BackupFatalErrors';
 import useGeneralIssues from '../../hooks/GeneralIssues';
 import useProcessIssues from '../../hooks/ProcessIssues';
-import useUsage from '../../hooks/Usage';
+import useUsage from '../../hooks/useUsage';
 
 export default function Header() {
   const { translate } = useTranslationContext();
