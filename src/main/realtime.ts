@@ -4,6 +4,9 @@ import { obtainToken } from './auth/service';
 import eventBus from './event-bus';
 import { broadcastToWindows } from './windows';
 
+type XHRRequest = {
+  getResponseHeader: (headerName: string) => string[] | null;
+};
 // REMOTE TRIGGER
 
 let socket: Socket | undefined;
@@ -14,11 +17,35 @@ function cleanAndStartRemoteNotifications() {
   socket = io(process.env.NOTIFICATIONS_URL, {
     transports: ['websocket', 'polling'],
     auth: {
-      token: obtainToken('bearerToken'),
+      token: obtainToken('newToken'),
     },
     withCredentials: true,
   });
 
+  socket.on('open', () => {
+    socket?.io.engine.transport.on('pollComplete', () => {
+      const xhr = (
+        socket?.io.engine.transport as unknown as {
+          pollXhr: { xhr: XHRRequest };
+        }
+      ).pollXhr.xhr;
+
+      const cookieHeader = xhr.getResponseHeader('set-cookie');
+      if (!cookieHeader) {
+        return;
+      }
+      cookieHeader.forEach((cookieString: string) => {
+        if (cookieString.includes('INGRESSCOOKIE=')) {
+          const cookie = cookieString.split(';')[0];
+          if (socket) {
+            socket.io.opts.extraHeaders = {
+              cookie,
+            };
+          }
+        }
+      });
+    });
+  });
   socket.on('connect', () => {
     logger.log('✅ Remote notifications connected');
   });
