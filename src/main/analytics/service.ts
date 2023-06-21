@@ -258,10 +258,11 @@ export function trackWebdavEvent(
   properties: Record<string, any>
 ) {
   const userData = ConfigStore.get('userData');
+  const clientId = ConfigStore.get('clientId');
 
   const payload = {
     userId: userData ? userData.uuid : undefined,
-    anonymousId: userData ? undefined : uuid.v4(),
+    anonymousId: userData ? undefined : clientId,
     event: event,
     properties,
     context: deviceContext,
@@ -277,6 +278,7 @@ export function trackWebdavError(
   context: WebdavErrorContext
 ) {
   const userData = ConfigStore.get('userData');
+  const clientId = ConfigStore.get('clientId');
 
   const properties = {
     item: context.from,
@@ -286,7 +288,7 @@ export function trackWebdavError(
 
   const payload = {
     userId: userData ? userData.uuid : undefined,
-    anonymousId: userData ? undefined : uuid.v4(),
+    anonymousId: userData ? undefined : clientId,
     event: event,
     properties,
     context: deviceContext,
