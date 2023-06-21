@@ -12,12 +12,6 @@ export class WebdavFolderMover {
     private readonly folderRenamer: WebdavFolderRenamer
   ) {}
 
-  private async rename(folder: WebdavFolder, path: FolderPath) {
-    folder.rename(path);
-
-    await this.repository.updateName(folder);
-  }
-
   private async move(folder: WebdavFolder, parentFolder: WebdavFolder) {
     folder.moveTo(parentFolder);
 
@@ -38,7 +32,6 @@ export class WebdavFolderMover {
 
     if (folder.isIn(destinationFolder)) {
       await this.folderRenamer.run(folder, to);
-      // await this.rename(folder, destination);
       return;
     }
 
