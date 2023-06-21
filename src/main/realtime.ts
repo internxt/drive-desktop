@@ -17,7 +17,7 @@ function cleanAndStartRemoteNotifications() {
   socket = io(process.env.NOTIFICATIONS_URL, {
     transports: ['websocket', 'polling'],
     auth: {
-      token: obtainToken('newToken'),
+      token: obtainToken('bearerToken'),
     },
     withCredentials: true,
   });
