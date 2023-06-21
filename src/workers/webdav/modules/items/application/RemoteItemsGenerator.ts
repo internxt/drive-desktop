@@ -1,5 +1,11 @@
-import { ServerFile } from 'workers/filesystems/domain/ServerFile';
-import { ServerFolder } from '../../../../filesystems/domain/ServerFolder';
+import {
+  ServerFile,
+  ServerFileStatus,
+} from '../../../../filesystems/domain/ServerFile';
+import {
+  ServerFolder,
+  ServerFolderStatus,
+} from '../../../../filesystems/domain/ServerFolder';
 import { WebdavCustomIpc } from 'workers/webdav/ipc';
 
 export class RemoteItemsGenerator {
@@ -23,6 +29,7 @@ export class RemoteItemsGenerator {
         type: updatedFile.type ?? null,
         updatedAt: updatedFile.updatedAt,
         userId: updatedFile.userId,
+        status: updatedFile.status as ServerFileStatus,
       };
     });
 
@@ -36,6 +43,7 @@ export class RemoteItemsGenerator {
           parent_id: updatedFolder.parentId ?? null,
           updated_at: updatedFolder.updatedAt,
           plain_name: updatedFolder.plainName ?? null,
+          status: updatedFolder.status as ServerFolderStatus,
         };
       }
     );

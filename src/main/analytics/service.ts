@@ -8,7 +8,7 @@ import {
   TrackedWebdavServerEvents,
   WebdavErrorContext,
 } from '../../shared/IPC/events/webdav';
-
+import uuid from 'uuid';
 function platformShortName(platform: string) {
   switch (platform) {
     case 'darwin':
@@ -257,20 +257,19 @@ export function trackWebdavEvent(
   event: TrackedWebdavServerEvents,
   properties: Record<string, any>
 ) {
-  const { uuid: userId } = ConfigStore.get('userData');
-  Logger.debug('Tracked event', {
-    userId,
-    event: event,
-    properties,
-    context: deviceContext,
-  });
+  const userData = ConfigStore.get('userData');
+  const clientId = ConfigStore.get('clientId');
 
-  client.track({
-    userId,
+  const payload = {
+    userId: userData ? userData.uuid : undefined,
+    anonymousId: userData ? undefined : clientId,
     event: event,
     properties,
     context: deviceContext,
-  });
+  };
+  Logger.debug('Tracked event', payload);
+
+  client.track(payload);
 }
 
 export function trackWebdavError(
@@ -278,7 +277,8 @@ export function trackWebdavError(
   error: Error,
   context: WebdavErrorContext
 ) {
-  const { uuid: userId } = ConfigStore.get('userData');
+  const userData = ConfigStore.get('userData');
+  const clientId = ConfigStore.get('clientId');
 
   const properties = {
     item: context.from,
@@ -286,12 +286,15 @@ export function trackWebdavError(
     error: error.message,
   };
 
-  client.track({
-    userId,
+  const payload = {
+    userId: userData ? userData.uuid : undefined,
+    anonymousId: userData ? undefined : clientId,
     event: event,
     properties,
     context: deviceContext,
-  });
+  };
+
+  client.track(payload);
 }
 
 export function sendFeedback(feedback: string) {
