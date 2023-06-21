@@ -104,7 +104,6 @@ ipcMain.on('user-quit', () => {
 app
   .whenReady()
   .then(async () => {
-    await AppDataSource.initialize();
     eventBus.emit('APP_IS_READY');
     if (process.env.NODE_ENV === 'development') {
       await installExtensions();
@@ -112,3 +111,11 @@ app
     checkForUpdates();
   })
   .catch(Logger.error);
+
+eventBus.on('USER_LOGGED_IN', async () => {
+  await AppDataSource.initialize();
+});
+
+eventBus.on('USER_LOGGED_OUT', async () => {
+  await AppDataSource.destroy();
+});
