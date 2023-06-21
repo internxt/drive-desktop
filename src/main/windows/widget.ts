@@ -82,6 +82,8 @@ const dimentions: Record<
 };
 
 export function setBoundsOfWidgetByPath(pathname = currentWidgetPath) {
+  const pathExists = dimentions[pathname];
+  if (!pathExists) return;
   const { placeUnderTray, ...size } = dimentions[pathname];
 
   const bounds = getTray()?.bounds;
