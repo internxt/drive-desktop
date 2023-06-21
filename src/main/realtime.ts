@@ -15,7 +15,7 @@ function cleanAndStartRemoteNotifications() {
   stopRemoteNotifications();
 
   socket = io(process.env.NOTIFICATIONS_URL, {
-    transports: ['websocket', 'polling'],
+    transports: ['websocket'],
     auth: {
       token: obtainToken('bearerToken'),
     },
@@ -46,6 +46,7 @@ function cleanAndStartRemoteNotifications() {
       });
     });
   });
+
   socket.on('connect', () => {
     logger.log('✅ Remote notifications connected');
   });
