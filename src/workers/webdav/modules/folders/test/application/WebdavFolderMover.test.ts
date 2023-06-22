@@ -1,17 +1,20 @@
 import { WebdavFolderFinder } from '../../application/WebdavFolderFinder';
 import { WebdavFolderMover } from '../../application/WebdavFolderMover';
+import { WebdavFolderRenamer } from '../../application/WebdavFolderRenamer';
 import { WebdavFolderMother } from '../domain/WebdavFolderMother';
 import { WebdavFolderRepositoryMock } from '../__mocks__/WebdavFolderRepositoryMock';
 
 describe('Folder Mover', () => {
   let repository: WebdavFolderRepositoryMock;
   let folderFinder: WebdavFolderFinder;
+  let folderRenamer: WebdavFolderRenamer;
   let SUT: WebdavFolderMover;
 
   beforeEach(() => {
     repository = new WebdavFolderRepositoryMock();
     folderFinder = new WebdavFolderFinder(repository);
-    SUT = new WebdavFolderMover(repository, folderFinder);
+    folderRenamer = new WebdavFolderRenamer(repository);
+    SUT = new WebdavFolderMover(repository, folderFinder, folderRenamer);
   });
 
   it('Folders cannot be ovewrited', async () => {

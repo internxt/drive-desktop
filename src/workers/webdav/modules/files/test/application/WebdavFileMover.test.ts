@@ -7,11 +7,13 @@ import { FileAlreadyExistsError } from '../../domain/errors/FileAlreadyExistsErr
 import { WebdavFileMother } from '../domain/WebdavFileMother';
 import { WebdavFileRepositoryMock } from '../__mocks__/WebdavFileRepositoyMock';
 import { FilePath } from '../../domain/FilePath';
+import { WebdavFileRenamer } from '../../application/WebdavFileRenamer';
 
 describe('Webdav File Mover', () => {
   let repository: WebdavFileRepositoryMock;
   let folderRepository: WebdavFolderRepositoryMock;
   let folderFinder: WebdavFolderFinder;
+  let fileRenamer: WebdavFileRenamer;
   let eventBus: EventBusMock;
 
   let SUT: WebdavFileMover;
@@ -20,8 +22,9 @@ describe('Webdav File Mover', () => {
     repository = new WebdavFileRepositoryMock();
     folderRepository = new WebdavFolderRepositoryMock();
     folderFinder = new WebdavFolderFinder(folderRepository);
+    fileRenamer = new WebdavFileRenamer(repository, eventBus);
     eventBus = new EventBusMock();
-    SUT = new WebdavFileMover(repository, folderFinder, eventBus);
+    SUT = new WebdavFileMover(repository, folderFinder, fileRenamer, eventBus);
   });
 
   describe('Move', () => {
