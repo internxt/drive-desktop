@@ -1,4 +1,4 @@
-import { FilePath } from '../../domain/FilePath';
+import { FileStatuses } from '../../domain/FileStatus';
 import { WebdavFile } from '../../domain/WebdavFile';
 
 export class WebdavFileMother {
@@ -11,6 +11,7 @@ export class WebdavFileMother {
       path: `/${path}/Dilbusege.png`,
       size: 8939,
       updatedAt: new Date().toISOString(),
+      status: FileStatuses.EXISTS,
     });
   }
 
@@ -23,6 +24,7 @@ export class WebdavFileMother {
       path: path,
       size: 893924973,
       updatedAt: new Date().toISOString(),
+      status: FileStatuses.EXISTS,
     });
   }
 
@@ -35,6 +37,7 @@ export class WebdavFileMother {
       path: '/Vakwogfud/Dilbusege.png',
       size: 893924973,
       updatedAt: new Date().toISOString(),
+      status: FileStatuses.EXISTS,
     });
   }
 }

@@ -16,6 +16,7 @@ describe('Traverser', () => {
           name: 'file A',
           folderId: baseFolderId,
           size: 67,
+          status: 'EXISTS',
         } as ServerFile,
       ],
       folders: [],
@@ -35,6 +36,7 @@ describe('Traverser', () => {
           name: 'file A',
           folderId: 22491,
           size: 200,
+          status: 'EXISTS',
         } as ServerFile,
       ],
       folders: [
@@ -42,6 +44,7 @@ describe('Traverser', () => {
           id: 22491,
           parent_id: baseFolderId,
           plain_name: 'folder A',
+          status: 'EXISTS',
         } as ServerFolder,
       ],
     };
@@ -65,6 +68,7 @@ describe('Traverser', () => {
           id: 22491,
           parent_id: baseFolderId,
           plain_name: 'folder A',
+          status: 'EXISTS',
         } as ServerFolder,
       ],
     };
@@ -84,11 +88,13 @@ describe('Traverser', () => {
           id: 22491,
           parent_id: baseFolderId,
           plain_name: 'folder A',
+          status: 'EXISTS',
         } as ServerFolder,
         {
           id: 89181879209463,
           parent_id: 22491,
           plain_name: 'folder B',
+          status: 'EXISTS',
         } as ServerFolder,
       ],
     };
@@ -112,11 +118,13 @@ describe('Traverser', () => {
           id: 22491,
           parent_id: baseFolderId,
           plain_name: 'folder A',
+          status: 'EXISTS',
         } as ServerFolder,
         {
           id: 89181879209463,
           parent_id: 22491,
           plain_name: 'folder B',
+          status: 'EXISTS',
         } as ServerFolder,
       ],
     };
