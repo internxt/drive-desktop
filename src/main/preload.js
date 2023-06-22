@@ -242,5 +242,11 @@ contextBridge.exposeInMainWorld('electron', {
   addFakeIssues(errorsName, process) {
     return ipcRenderer.invoke('add-fake-sync-issues', { errorsName, process });
   },
+  sendFeedback(feedback) {
+    return ipcRenderer.invoke('send-feedback', feedback);
+  },
+  openFeedbackWindow() {
+    return ipcRenderer.invoke('open-feedback-window');
+  },
   path,
 });

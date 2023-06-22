@@ -9,7 +9,12 @@ export const getRemoteSyncStore = () => {
     store = new Store<{
       lastFilesSyncAt?: string;
       lastFoldersSyncAt?: string;
-    }>();
+    }>({
+      defaults: {
+        lastFilesSyncAt: undefined,
+        lastFoldersSyncAt: undefined,
+      },
+    });
 
     return store;
   }

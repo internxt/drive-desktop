@@ -257,21 +257,19 @@ export function trackWebdavEvent(
   event: TrackedWebdavServerEvents,
   properties: Record<string, any>
 ) {
-  const { uuid: userId } = ConfigStore.get('userData');
+  const userData = ConfigStore.get('userData');
+  const clientId = ConfigStore.get('clientId');
 
-  Logger.debug('Tracked event', {
-    userId,
+  const payload = {
+    userId: userData ? userData.uuid : undefined,
+    anonymousId: userData ? undefined : clientId,
     event: event,
     properties,
     context: deviceContext,
-  });
+  };
+  Logger.debug('Tracked event', payload);
 
-  client.track({
-    userId,
-    event: event,
-    properties,
-    context: deviceContext,
-  });
+  client.track(payload);
 }
 
 export function trackWebdavError(
@@ -292,7 +290,8 @@ export function trackHandledWebdavError(
   error: Error,
   context: WebdavErrorContext
 ) {
-  const { uuid: userId } = ConfigStore.get('userData');
+  const userData = ConfigStore.get('userData');
+  const clientId = ConfigStore.get('clientId');
 
   const properties = {
     item: context.from,
@@ -300,10 +299,27 @@ export function trackHandledWebdavError(
     error: error.message,
   };
 
-  client.track({
-    userId,
+  const payload = {
+    userId: userData ? userData.uuid : undefined,
+    anonymousId: userData ? undefined : clientId,
     event: event,
     properties,
+    context: deviceContext,
+  };
+
+  client.track(payload);
+}
+
+export function sendFeedback(feedback: string) {
+  const { uuid: userId } = ConfigStore.get('userData');
+
+  client.track({
+    event: 'Feedback Sent',
+    userId,
+    properties: {
+      feature_flag: 'desktop',
+      feedback: feedback,
+    },
     context: deviceContext,
   });
 }
