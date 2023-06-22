@@ -188,7 +188,7 @@ export class WebdavFile extends AggregateRoot {
       throw new FileNameShouldDifferFromOriginalError('rename');
     }
 
-    this._path = this._path.updateName(newPath.name());
+    this._path = this._path.updateName(newPath.nameWithExtension());
 
     // TODO: record rename event
   }

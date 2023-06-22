@@ -5,23 +5,16 @@ import { WebdavFile } from '../domain/WebdavFile';
 import { WebdavFileRepository } from '../domain/WebdavFileRepository';
 import { FileAlreadyExistsError } from '../domain/errors/FileAlreadyExistsError';
 import { UnknownFileActionError } from '../domain/errors/UnknownFileActionError';
-import { ActionNotPermitedError } from '../domain/errors/ActionNotPermitedError';
 import { WebdavServerEventBus } from '../../shared/domain/WebdavServerEventBus';
+import { WebdavFileRenamer } from './WebdavFileRenamer';
 
 export class WebdavFileMover {
   constructor(
     private readonly repository: WebdavFileRepository,
     private readonly folderFinder: WebdavFolderFinder,
+    private readonly fileRenamer: WebdavFileRenamer,
     private readonly eventBus: WebdavServerEventBus
   ) {}
-
-  private async rename(file: WebdavFile, path: FilePath) {
-    file.rename(path);
-
-    await this.repository.updateName(file);
-
-    await this.eventBus.publish(file.pullDomainEvents());
-  }
 
   private async move(file: WebdavFile, folder: WebdavFolder) {
     file.moveTo(folder);
@@ -68,11 +61,7 @@ export class WebdavFileMover {
     const destinationFolder = this.folderFinder.run(desiredPath.dirname());
 
     if (file.hasParent(destinationFolder.id)) {
-      if (hasToBeOverwritten) {
-        throw new ActionNotPermitedError('overwrite');
-      }
-
-      await this.rename(file, desiredPath);
+      await this.fileRenamer.run(file, to);
       return false;
     }
 

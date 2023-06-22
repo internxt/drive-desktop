@@ -32,6 +32,8 @@ import { UserUsageIncrementer } from '../modules/userUsage/application/UserUsage
 import { CachedHttpUserUsageRepository } from '../modules/userUsage/infrastrucutre/CachedHttpUserUsageRepository';
 import { DependencyContainer } from './DependencyContainer';
 import { ipc } from '../ipc';
+import { WebdavFolderRenamer } from '../modules/folders/application/WebdavFolderRenamer';
+import { WebdavFileRenamer } from '../modules/files/application/WebdavFileRenamer';
 
 export class DependencyContainerFactory {
   private _container: DependencyContainer | undefined;
@@ -110,7 +112,12 @@ export class DependencyContainerFactory {
       user.bucket
     );
 
+    const eventBus = new DuplexEventBus();
+
+    const fileRenamer = new WebdavFileRenamer(fileRepository, eventBus);
+
     const folderFinder = new WebdavFolderFinder(folderRepository);
+    const folderRenamer = new WebdavFolderRenamer(folderRepository);
 
     const temporalFileCollection = new InMemoryTemporalFileMetadataCollection();
 
@@ -120,8 +127,6 @@ export class DependencyContainerFactory {
     );
 
     const userUsageIncrementer = new UserUsageIncrementer(userUsageRepository);
-
-    const eventBus = new DuplexEventBus();
 
     const container = {
       drive: clients.drive,
@@ -146,7 +151,12 @@ export class DependencyContainerFactory {
         eventBus
       ),
       fileDeleter: new WebdavFileDeleter(fileRepository, eventBus),
-      fileMover: new WebdavFileMover(fileRepository, folderFinder, eventBus),
+      fileMover: new WebdavFileMover(
+        fileRepository,
+        folderFinder,
+        fileRenamer,
+        eventBus
+      ),
       fileCreator: new WebdavFileCreator(
         fileRepository,
         folderFinder,
@@ -159,11 +169,17 @@ export class DependencyContainerFactory {
         fileContentRepository,
         eventBus
       ),
+      fileRenamer,
       fileMimeTypeResolver: new WebdavFileMimeTypeResolver(),
 
       folderFinder,
+      folderRenamer,
       folderCreator: new WebdavFolderCreator(folderRepository, folderFinder),
-      folderMover: new WebdavFolderMover(folderRepository, folderFinder),
+      folderMover: new WebdavFolderMover(
+        folderRepository,
+        folderFinder,
+        folderRenamer
+      ),
       folderDeleter: new WebdavFolderDeleter(folderRepository),
 
       itemMetadataDealer: new WebdavUnkownItemMetadataDealer(
