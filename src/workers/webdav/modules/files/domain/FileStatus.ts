@@ -23,6 +23,7 @@ export class FileStatus extends EnumValueObject<FileStatuses> {
   }
 
   static Exists = new FileStatus(FileStatuses.EXISTS);
+  static Trashed = new FileStatus(FileStatuses.TRASHED);
 
   changeTo(status: FileStatuses): FileStatus {
     if (this.value === 'TRASHED') {
