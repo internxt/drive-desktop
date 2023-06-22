@@ -3,6 +3,7 @@ import { ServerFile } from '../../../../filesystems/domain/ServerFile';
 import { ServerFolder } from '../../../../filesystems/domain/ServerFolder';
 import { fileNameIsValid } from '../../../../utils/name-verification';
 import { WebdavFile } from '../../files/domain/WebdavFile';
+import { FolderStatus } from '../../folders/domain/FolderStatus';
 import { WebdavFolder } from '../../folders/domain/WebdavFolder';
 import { ItemsIndexedByPath } from '../domain/ItemsIndexedByPath';
 
@@ -58,12 +59,6 @@ export class Traverser {
         return true;
       })
       .forEach(({ file, name }) => {
-        const plainName = this.decryptor.decryptName(
-          file.name,
-          file.folderId.toString(),
-          file.encrypt_version
-        ) as string;
-
         this.collection[name] = WebdavFile.from({
           folderId: file.folderId,
           fileId: file.fileId,
@@ -72,6 +67,7 @@ export class Traverser {
           createdAt: file.createdAt,
           updatedAt: file.updatedAt,
           path: name,
+          status: file.status,
         });
       });
 
@@ -94,6 +90,7 @@ export class Traverser {
         updatedAt: folder.updated_at,
         createdAt: folder.created_at,
         path: name,
+        status: folder.status,
       });
       this.traverse(folder.id, `${name}`);
     });
@@ -108,6 +105,7 @@ export class Traverser {
       updatedAt: new Date().toISOString(),
       createdAt: new Date().toISOString(),
       path: '/',
+      status: FolderStatus.Exists.value,
     });
   }
 
@@ -125,6 +123,7 @@ export class Traverser {
       updatedAt: new Date().toISOString(),
       createdAt: new Date().toISOString(),
       path: '/',
+      status: FolderStatus.Exists.value,
     });
 
     return this.collection;

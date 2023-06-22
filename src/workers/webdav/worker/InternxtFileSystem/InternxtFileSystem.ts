@@ -25,6 +25,7 @@ import {
   MoveInfo,
   CopyInfo,
   MimeTypeInfo,
+  RenameInfo,
 } from 'webdav-server/lib/index.v2';
 import { Readable, Writable } from 'stream';
 import { ipcRenderer } from 'electron';
@@ -229,16 +230,38 @@ export class InternxtFileSystem extends FileSystem {
         callback(undefined, remoteFileContents.stream);
       })
       .catch((error: Error) => {
-        ipcRenderer.send('SYNC_INFO_UPDATE', {
-          action: 'PULL_ERROR',
-          kind: 'LOCAL',
-          name: path.fileName(),
-          errorName: error.name,
-          errorDetails: error.message,
-          process: 'SYNC',
-        });
         handleFileSystemError(error, 'Download', 'File', ctx);
       });
+  }
+
+  _rename(
+    pathFrom: Path,
+    _newName: string,
+    ctx: RenameInfo,
+    callback: ReturnCallback<boolean>
+  ) {
+    Logger.debug('RENAME');
+    const originalItem = this.container.itemSearcher.run(
+      pathFrom.toString(false)
+    );
+
+    if (!originalItem) {
+      return callback(Errors.ResourceNotFound);
+    }
+
+    if (originalItem.isFile()) {
+      this.container.fileRenamer.run(
+        originalItem,
+        ctx.destinationPath.toString(false)
+      );
+    }
+
+    if (originalItem.isFolder()) {
+      this.container.folderRenamer.run(
+        originalItem,
+        ctx.destinationPath.toString(false)
+      );
+    }
   }
 
   _move(
@@ -353,7 +376,10 @@ export class InternxtFileSystem extends FileSystem {
   ): void {
     this.container.allItemsLister
       .run(path.toString(false))
-      .then((names) => callback(undefined, names))
+      .then((names) => {
+        Logger.debug(names);
+        callback(undefined, names);
+      })
       .catch((error: Error) => {
         handleFileSystemError(error, 'Download', 'Folder', ctx);
         callback(error);

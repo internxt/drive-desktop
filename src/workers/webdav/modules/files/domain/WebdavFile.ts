@@ -8,6 +8,7 @@ import { FileActionOnlyCanAffectOneLevelError } from './errors/FileActionOnlyCan
 import { FileNameShouldDifferFromOriginalError } from './errors/FileNameShouldDifferFromOriginalError';
 import { FileActionCannotModifyExtension } from './errors/FileActionCannotModifyExtension';
 import { FileDeletedDomainEvent } from './FileDeletedDomainEvent';
+import { FileStatus, FileStatuses } from './FileStatus';
 
 export type WebdavFileAtributes = {
   fileId: string;
@@ -17,6 +18,7 @@ export type WebdavFileAtributes = {
   path: string;
   size: number;
   updatedAt: string;
+  status: string;
 };
 
 export class WebdavFile extends AggregateRoot {
@@ -26,7 +28,8 @@ export class WebdavFile extends AggregateRoot {
     private _path: FilePath,
     private readonly _size: FileSize,
     public readonly createdAt: Date,
-    public readonly updatedAt: Date
+    public readonly updatedAt: Date,
+    private _status: FileStatus
   ) {
     super();
   }
@@ -59,6 +62,10 @@ export class WebdavFile extends AggregateRoot {
     return this._size.value;
   }
 
+  public get status() {
+    return this._status;
+  }
+
   static from(attributes: WebdavFileAtributes): WebdavFile {
     return new WebdavFile(
       attributes.fileId,
@@ -66,7 +73,8 @@ export class WebdavFile extends AggregateRoot {
       new FilePath(attributes.path),
       new FileSize(attributes.size),
       new Date(attributes.createdAt),
-      new Date(attributes.updatedAt)
+      new Date(attributes.updatedAt),
+      FileStatus.fromValue(attributes.status)
     );
   }
 
@@ -82,7 +90,8 @@ export class WebdavFile extends AggregateRoot {
       path,
       new FileSize(size),
       new Date(),
-      new Date()
+      new Date(),
+      FileStatus.Exists
     );
 
     file.record(
@@ -97,7 +106,8 @@ export class WebdavFile extends AggregateRoot {
   }
 
   trash() {
-    // TODO: update state when implemented
+    this._status = this._status.changeTo(FileStatuses.TRASHED);
+
     this.record(
       new FileDeletedDomainEvent({
         aggregateId: this.fileId,
@@ -132,7 +142,8 @@ export class WebdavFile extends AggregateRoot {
       newPath,
       this._size,
       this.createdAt,
-      new Date()
+      new Date(),
+      FileStatus.Exists
     );
 
     file.record(
@@ -153,7 +164,8 @@ export class WebdavFile extends AggregateRoot {
       newPath,
       this._size,
       this.createdAt,
-      new Date()
+      new Date(),
+      FileStatus.Exists
     );
 
     file.record(
@@ -180,7 +192,7 @@ export class WebdavFile extends AggregateRoot {
       throw new FileNameShouldDifferFromOriginalError('rename');
     }
 
-    this._path = this._path.updateName(newPath.name());
+    this._path = this._path.updateName(newPath.nameWithExtension());
 
     // TODO: record rename event
   }
@@ -195,6 +207,10 @@ export class WebdavFile extends AggregateRoot {
 
   isFile(): this is WebdavFile {
     return true;
+  }
+
+  hasStatus(status: FileStatuses): boolean {
+    return this._status.is(status);
   }
 
   toPrimitives() {

@@ -2,6 +2,7 @@ import { Primitives } from 'shared/types/Primitives';
 import { WebdavFile } from '../../files/domain/WebdavFile';
 import { AggregateRoot } from '../../shared/domain/AggregateRoot';
 import { FolderPath } from './FolderPath';
+import { FolderStatus, FolderStatuses } from './FolderStatus';
 
 export type WebdavFolderAttributes = {
   id: number;
@@ -9,6 +10,7 @@ export type WebdavFolderAttributes = {
   parentId: null | number;
   updatedAt: string;
   createdAt: string;
+  status: string;
 };
 
 export class WebdavFolder extends AggregateRoot {
@@ -19,7 +21,8 @@ export class WebdavFolder extends AggregateRoot {
     private _path: FolderPath,
     private _parentId: null | number,
     public readonly createdAt: Date,
-    public readonly updatedAt: Date
+    public readonly updatedAt: Date,
+    private _status: FolderStatus
   ) {
     super();
   }
@@ -40,13 +43,18 @@ export class WebdavFolder extends AggregateRoot {
     return this._parentId;
   }
 
+  public get status() {
+    return this._status;
+  }
+
   static from(attributes: WebdavFolderAttributes): WebdavFolder {
     return new WebdavFolder(
       attributes.id,
       new FolderPath(attributes.path),
       attributes.parentId,
       new Date(attributes.updatedAt),
-      new Date(attributes.createdAt)
+      new Date(attributes.createdAt),
+      FolderStatus.fromValue(attributes.status)
     );
   }
 
@@ -63,7 +71,8 @@ export class WebdavFolder extends AggregateRoot {
       new FolderPath(attributes.path),
       attributes.parentId,
       new Date(attributes.updatedAt),
-      new Date(attributes.createdAt)
+      new Date(attributes.createdAt),
+      FolderStatus.Exists
     );
   }
 
@@ -93,6 +102,8 @@ export class WebdavFolder extends AggregateRoot {
   }
 
   trash() {
+    this._status = this._status.changeTo(FolderStatuses.TRASHED);
+
     // TODO: recored trashed event
   }
 
@@ -106,6 +117,10 @@ export class WebdavFolder extends AggregateRoot {
 
   isFile(): this is WebdavFile {
     return false;
+  }
+
+  hasStatus(status: FolderStatuses): boolean {
+    return this._status.value === status;
   }
 
   toPrimitives(): Record<string, Primitives> {
