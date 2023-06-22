@@ -205,6 +205,10 @@ export class WebdavFile extends AggregateRoot {
     return true;
   }
 
+  hasStatus(status: FileStatuses): boolean {
+    return this._status.is(status);
+  }
+
   toPrimitives() {
     return {
       fileId: this.fileId,

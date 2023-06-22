@@ -119,6 +119,10 @@ export class WebdavFolder extends AggregateRoot {
     return false;
   }
 
+  hasStatus(status: FolderStatuses): boolean {
+    return this._status.value === status;
+  }
+
   toPrimitives(): Record<string, Primitives> {
     return {
       id: this.id,

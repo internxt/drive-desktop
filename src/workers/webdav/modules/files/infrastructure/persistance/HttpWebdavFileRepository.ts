@@ -41,8 +41,8 @@ export class HttpWebdavFileRepository implements WebdavFileRepository {
     this.traverser.reset();
     const all = this.traverser.run(raw);
 
-    const files = Object.entries(all).filter(([_key, value]) =>
-      value.isFile()
+    const files = Object.entries(all).filter(
+      ([_key, value]) => value.isFile() && value.hasStatus(FileStatuses.EXISTS)
     ) as Array<[string, WebdavFile]>;
 
     this.files = files.reduce((items, [key, value]) => {

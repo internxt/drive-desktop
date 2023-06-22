@@ -11,6 +11,7 @@ import * as uuid from 'uuid';
 import { UpdateFolderNameDTO } from './dtos/UpdateFolderNameDTO';
 import { WebdavCustomIpc } from '../../../ipc';
 import { RemoteItemsGenerator } from '../../items/application/RemoteItemsGenerator';
+import { FolderStatuses } from '../domain/FolderStatus';
 
 export class HttpWebdavFolderRepository implements WebdavFolderRepository {
   private folders: Record<string, WebdavFolder> = {};
@@ -37,8 +38,9 @@ export class HttpWebdavFolderRepository implements WebdavFolderRepository {
       this.traverser.reset();
       const all = this.traverser.run(raw);
 
-      const folders = Object.entries(all).filter(([_key, value]) =>
-        value.isFolder()
+      const folders = Object.entries(all).filter(
+        ([_key, value]) =>
+          value.isFolder() && value.hasStatus(FolderStatuses.EXISTS)
       ) as Array<[string, WebdavFolder]>;
 
       this.folders = folders.reduce((items, [key, value]) => {

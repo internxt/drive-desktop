@@ -32,6 +32,10 @@ export class FileStatus extends EnumValueObject<FileStatuses> {
     return new FileStatus(FileStatuses[status]);
   }
 
+  is(status: FileStatuses): boolean {
+    return this.value === FileStatuses[status];
+  }
+
   protected throwErrorForInvalidValue(value: FileStatuses): void {
     throw new InvalidArgumentError(`File status ${value} is invalid`);
   }

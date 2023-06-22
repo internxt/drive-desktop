@@ -33,6 +33,10 @@ export class FolderStatus extends EnumValueObject<FolderStatuses> {
     return new FolderStatus(FolderStatuses[status]);
   }
 
+  is(status: FolderStatuses): boolean {
+    return this.value === FolderStatuses[status];
+  }
+
   protected throwErrorForInvalidValue(value: FolderStatuses): void {
     throw new InvalidArgumentError(`Folder status ${value} is invalid`);
   }
