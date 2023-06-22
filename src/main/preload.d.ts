@@ -1,14 +1,20 @@
 declare interface Window {
   electron: {
     query: typeof import('./app-info/service').executeQuery;
+
     getConfigKey(key: import('./config/service').StoredValues): Promise<any>;
+
     listenToConfigKeyChange<T>(
       key: import('./config/service').StoredValues,
       fn: (value: T) => void
     ): () => void;
+
     setConfigKey: typeof import('./config/service').setConfigKey;
+
     pathChanged(path: string): void;
+
     userIsUnauthorized(): void;
+
     userLoggedIn(
       data: import('../renderer/pages/Login/service').AccessResponse
     ): void;
@@ -119,7 +125,9 @@ declare interface Window {
     getBackups: typeof import('../main/device/service').getBackupsFromDevice;
 
     addBackup: typeof import('../main/device/service').addBackup;
+
     addBackupsFromLocalPaths: typeof import('../main/device/service').createBackupsFromLocalPaths;
+
     deleteBackup: typeof import('../main/device/service').deleteBackup;
 
     disableBackup: typeof import('../main/device/service').disableBackup;
@@ -134,11 +142,6 @@ declare interface Window {
       import('../main/background-processes/backups').BackupExitReason | null
     >;
 
-    onBackupProgress(
-      func: (
-        value: import('main/background-processes/backups').BackupProgress
-      ) => void
-    ): () => void;
     onBackupProgress(
       func: (
         value: import('main/background-processes/backups').BackupProgress
@@ -160,10 +163,12 @@ declare interface Window {
     ): () => void;
 
     changeBackupPath: typeof import('../main/device/service').changeBackupPath;
+
     getFolderPath: typeof import('../main/device/service').getPathFromDialog;
+
     onRemoteChanges(func: () => void): () => void;
 
-    getUsage: () => Promise<import('../main/usage/usage').Usage>;
+    getUsage: () => Promise<import('./usage/Usage').Usage>;
 
     getPlatform: () => Promise<
       import('../main/platform/DesktopPlatform').DesktopPlatform
@@ -177,6 +182,7 @@ declare interface Window {
     openFeedbackWindow(): void;
 
     // DEV
+
     resizeWindow: () => typeof import('../main/dev/service').resizeCurrentWindow;
   };
 }

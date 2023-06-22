@@ -14,6 +14,7 @@ import { UpdateFileNameDTO } from './dtos/UpdateFileNameDTO';
 import { FilePath } from '../../domain/FilePath';
 import { WebdavCustomIpc } from '../../../../ipc';
 import { RemoteItemsGenerator } from 'workers/webdav/modules/items/application/RemoteItemsGenerator';
+import { FileStatuses } from '../../domain/FileStatus';
 
 export class HttpWebdavFileRepository implements WebdavFileRepository {
   private files: Record<string, WebdavFile> = {};
@@ -40,8 +41,8 @@ export class HttpWebdavFileRepository implements WebdavFileRepository {
     this.traverser.reset();
     const all = this.traverser.run(raw);
 
-    const files = Object.entries(all).filter(([_key, value]) =>
-      value.isFile()
+    const files = Object.entries(all).filter(
+      ([_key, value]) => value.isFile() && value.hasStatus(FileStatuses.EXISTS)
     ) as Array<[string, WebdavFile]>;
 
     this.files = files.reduce((items, [key, value]) => {
@@ -115,6 +116,7 @@ export class HttpWebdavFileRepository implements WebdavFileRepository {
       folderId: result.data.folder_id,
       size: parseInt(result.data.size, 10),
       path: file.path,
+      status: FileStatuses.EXISTS,
     });
 
     this.files[file.path] = created;

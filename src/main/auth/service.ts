@@ -165,6 +165,7 @@ function resetCredentials() {
 export function canHisConfigBeRestored(uuid: string) {
   const savedConfigs = ConfigStore.get('savedConfigs');
 
+  if (!savedConfigs) return;
   const savedConfig = savedConfigs[uuid];
 
   if (!savedConfig) {

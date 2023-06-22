@@ -1,3 +1,9 @@
+export enum ServerFileStatus {
+  EXISTS = 'EXISTS',
+  TRASHED = 'TRASHED',
+  REMOVED = 'REMOVED',
+}
+
 export type ServerFile = {
   bucket: string;
   createdAt: string;
@@ -11,4 +17,5 @@ export type ServerFile = {
   type: string;
   updatedAt: string;
   userId: number;
+  status: ServerFileStatus;
 };

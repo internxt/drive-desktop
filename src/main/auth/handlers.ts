@@ -66,9 +66,9 @@ ipcMain.on('user-logged-in', async (_, data: AccessResponse) => {
 ipcMain.on('user-logged-out', () => {
   eventBus.emit('USER_LOGGED_OUT');
 
-  logout();
-
   setIsLoggedIn(false);
+
+  logout();
 });
 
 eventBus.on('APP_IS_READY', async () => {
