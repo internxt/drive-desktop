@@ -155,12 +155,18 @@
     "footer": {
       "action-description": {
         "syncing": "Syncing your files",
-        "updated": "Fully synced"
+        "updated": "Fully synced",
+        "failed": "Sync failed"
       },
       "errors": {
         "lock": "Sync locked by other device",
         "offline": "Not connected to the internet"
       }
+    },
+    "sync-error": {
+      "title": "Can't get remote content",
+      "message": "We are having issues retrieving your content from the cloud, please try again",
+      "button": "Try again"
     }
   },
   "settings": {

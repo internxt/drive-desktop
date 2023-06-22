@@ -85,6 +85,7 @@ module.exports = {
         60: '#DB2777',
       },
       gray: {
+        1: '#F9F9FC',
         5: '#F3F3F8',
         10: '#f4f4f4',
         20: '#e0e0e0',

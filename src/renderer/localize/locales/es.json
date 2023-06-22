@@ -155,12 +155,18 @@
     "footer": {
       "action-description": {
         "syncing": "Sincronizando tus archivos",
-        "updated": "Sincronizado"
+        "updated": "Sincronizado",
+        "failed": "Sincronización fallida"
       },
       "errors": {
         "lock": "Sincronización bloqueada por otro dispositivo",
         "offline": "No hay conexión a internet"
       }
+    },
+    "sync-error": {
+      "title": "No se puede acceder al contenido",
+      "message": "Parece que hay problemas para obtener el contenido de la nube, por favor inténtalo de nuevo",
+      "button": "Reintentar"
     }
   },
   "settings": {

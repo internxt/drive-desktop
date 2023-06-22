@@ -6,10 +6,35 @@ export default function useSyncStatus(
   onSyncStatusChanged: (value: SyncStatus) => void
 ) {
   useEffect(() => {
-    window.electron.getSyncStatus().then(onSyncStatusChanged);
+    window.electron.getRemoteSyncStatus().then((status) => {
+      if (status === 'SYNCING') {
+        onSyncStatusChanged('RUNNING');
+      }
 
-    const removeListener =
-      window.electron.onSyncStatusChanged(onSyncStatusChanged);
+      if (status === 'IDLE' || status === 'SYNCED') {
+        onSyncStatusChanged('STANDBY');
+      }
+
+      if (status === 'SYNC_FAILED') {
+        onSyncStatusChanged('FAILED');
+      }
+    });
+
+    const removeListener = window.electron.onRemoteSyncStatusChange(
+      (newStatus) => {
+        if (newStatus === 'SYNCING') {
+          onSyncStatusChanged('RUNNING');
+        }
+
+        if (newStatus === 'IDLE' || newStatus === 'SYNCED') {
+          onSyncStatusChanged('STANDBY');
+        }
+
+        if (newStatus === 'SYNC_FAILED') {
+          onSyncStatusChanged('FAILED');
+        }
+      }
+    );
 
     return removeListener;
   }, []);

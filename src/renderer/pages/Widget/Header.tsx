@@ -181,7 +181,7 @@ export default function Header() {
   );
 
   return (
-    <div className="flex items-center justify-between p-3">
+    <div className="flex items-center justify-between border-b border-b-gray-10 bg-gray-1 p-3">
       <AccountSection />
       {itemsSection}
     </div>

@@ -159,6 +159,11 @@
       "errors": {
         "lock": "Synchronisation bloquée par un autre dispositif"
       }
+    },
+    "sync-error": {
+      "title": "Impossible d'obtenir le contenu à distance",
+      "message": "Nous avons des problèmes pour récupérer votre contenu depuis le nuage, veuillez réessayer ",
+      "button": "Essayez à nouveau "
     }
   },
   "settings": {
