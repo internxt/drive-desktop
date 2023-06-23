@@ -259,7 +259,7 @@
     "@iconscout/react-unicons": "^1.1.6",
     "@internxt/inxt-js": "^2.0.7",
     "@internxt/lib": "^1.1.6",
-    "@internxt/sdk": "^1.4.22",
+    "@internxt/sdk": "^1.4.33",
     "@sentry/electron": "^4.5.0",
     "@sentry/react": "^7.51.0",
     "async": "^3.2.4",

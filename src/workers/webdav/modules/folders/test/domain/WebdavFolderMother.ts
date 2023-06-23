@@ -1,4 +1,5 @@
 import { WebdavFile } from '../../../files/domain/WebdavFile';
+import { FolderStatuses } from '../../domain/FolderStatus';
 import { WebdavFolder } from '../../domain/WebdavFolder';
 
 export class WebdavFolderMother {
@@ -9,6 +10,7 @@ export class WebdavFolderMother {
       parentId: 58601041,
       updatedAt: new Date().toISOString(),
       createdAt: new Date().toISOString(),
+      status: FolderStatuses.EXISTS,
     });
   }
 
@@ -19,6 +21,7 @@ export class WebdavFolderMother {
       parentId: null,
       updatedAt: new Date().toISOString(),
       createdAt: new Date().toISOString(),
+      status: FolderStatuses.EXISTS,
     });
   }
 
@@ -29,6 +32,7 @@ export class WebdavFolderMother {
       parentId: folderId,
       updatedAt: new Date().toISOString(),
       createdAt: new Date().toISOString(),
+      status: FolderStatuses.EXISTS,
     });
   }
 
@@ -39,6 +43,29 @@ export class WebdavFolderMother {
       parentId: 437296692845,
       updatedAt: new Date().toISOString(),
       createdAt: new Date().toISOString(),
+      status: FolderStatuses.EXISTS,
+    });
+  }
+
+  static exists() {
+    return WebdavFolder.from({
+      id: 2048,
+      path: '/Zodseve',
+      parentId: null,
+      updatedAt: new Date().toISOString(),
+      createdAt: new Date().toISOString(),
+      status: FolderStatuses.EXISTS,
+    });
+  }
+
+  static trashed() {
+    return WebdavFolder.from({
+      id: 2048,
+      path: '/Zodseve',
+      parentId: null,
+      updatedAt: new Date().toISOString(),
+      createdAt: new Date().toISOString(),
+      status: FolderStatuses.TRASHED,
     });
   }
 }

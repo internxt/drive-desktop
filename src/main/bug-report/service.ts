@@ -10,6 +10,7 @@ import { ErrorDetails } from '../../workers/types';
 import { obtainToken } from '../auth/service';
 import { BugReportResult } from './BugReportResult';
 import * as Sentry from '@sentry/electron/main';
+import { User } from '../types';
 
 /**
  * Reports an error to Sentry from the main process
@@ -22,6 +23,17 @@ export const reportError = (
   context: Record<string, string> = {}
 ) => {
   Sentry.captureException(error, context);
+};
+
+export const identifyUserForErrorReporting = (user: User | null) => {
+  if (!user) {
+    Sentry.setUser(null);
+    return;
+  }
+  Sentry.setUser({
+    email: user.email,
+    id: user.uuid,
+  });
 };
 
 export async function sendReport({

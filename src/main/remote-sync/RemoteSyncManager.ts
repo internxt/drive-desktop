@@ -52,6 +52,11 @@ export class RemoteSyncManager {
     return this.status === 'SYNCED';
   }
 
+  resetRemoteSync() {
+    this.changeStatus('IDLE');
+    this.filesSyncStatus = 'IDLE';
+    this.foldersSyncStatus = 'IDLE';
+  }
   /**
    * Triggers a remote sync so we can populate the localDB, this sync
    * is global and starts pulling all the files the user has in remote.

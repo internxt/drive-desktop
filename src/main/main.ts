@@ -45,6 +45,8 @@ Logger.log(`Running ${packageJson.version}`);
 Logger.log('Initializing Sentry for main process');
 if (process.env.SENTRY_DSN) {
   Sentry.init({
+    // Enable Sentry only when app is packaged
+    enabled: app.isPackaged,
     dsn: process.env.SENTRY_DSN,
   });
   Logger.log('Sentry is ready for main process');
@@ -104,7 +106,6 @@ ipcMain.on('user-quit', () => {
 app
   .whenReady()
   .then(async () => {
-    await AppDataSource.initialize();
     eventBus.emit('APP_IS_READY');
     if (process.env.NODE_ENV === 'development') {
       await installExtensions();
@@ -112,3 +113,11 @@ app
     checkForUpdates();
   })
   .catch(Logger.error);
+
+eventBus.on('USER_LOGGED_IN', async () => {
+  await AppDataSource.initialize();
+});
+
+eventBus.on('USER_LOGGED_OUT', async () => {
+  await AppDataSource.destroy();
+});
