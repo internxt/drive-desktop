@@ -7,6 +7,7 @@ import { getNewTokenClient } from '../../shared/HttpClient/main-process-client';
 import Logger from 'electron-log';
 import { ipcMain } from 'electron';
 import { reportError } from '../bug-report/service';
+import { sleep } from '../util';
 import { broadcastToWindows } from '../windows';
 
 const driveFilesCollection = new DriveFilesCollection();
@@ -63,6 +64,10 @@ ipcMain.handle('get-remote-sync-status', () =>
 );
 
 eventBus.on('RECEIVED_REMOTE_CHANGES', async () => {
+  // Wait before checking for updates, could be possible
+  // that we received the notification, but if we check
+  // for new data we don't receive it
+  await sleep(500);
   await remoteSyncManager.startRemoteSync();
 });
 eventBus.on('USER_LOGGED_IN', () => {
