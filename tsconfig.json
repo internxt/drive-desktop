@@ -2,7 +2,10 @@
   "compilerOptions": {
     "target": "ESNext",
     "module": "commonjs",
-    "lib": ["dom", "esnext"],
+    "lib": [
+      "dom",
+      "esnext"
+    ],
     "declaration": true,
     "declarationMap": true,
     "jsx": "react-jsx",
@@ -27,5 +30,11 @@
     "allowJs": true,
     "outDir": "release/app/dist"
   },
-  "exclude": ["test", "release/build", "release/app/dist", ".erb/dll"]
+  "exclude": [
+    "test",
+    "release/build",
+    "release/app/dist",
+    ".erb/dll",
+    "__mock__"
+  ]
 }

@@ -9,6 +9,9 @@ import { WebdavFileRepository } from '../domain/WebdavFileRepository';
 import { WebdavFolder } from '../../folders/domain/WebdavFolder';
 import { FileSize } from '../domain/FileSize';
 import { WebdavServerEventBus } from '../../shared/domain/WebdavServerEventBus';
+import { ContentFileUploader } from '../domain/ContentFileUploader';
+import { WebdavIpc } from '../../../ipc';
+import { Stopwatch } from '../../../../../shared/types/Stopwatch';
 
 export class WebdavFileCreator {
   constructor(
@@ -16,8 +19,45 @@ export class WebdavFileCreator {
     private readonly folderFinder: WebdavFolderFinder,
     private readonly contentsRepository: RemoteFileContentsRepository,
     private readonly temporalFileCollection: FileMetadataCollection,
-    private readonly eventBus: WebdavServerEventBus
+    private readonly eventBus: WebdavServerEventBus,
+    private readonly ipc: WebdavIpc
   ) {}
+
+  private registerEvents(
+    uploader: ContentFileUploader,
+    metadata: ItemMetadata
+  ) {
+    const stopwatch = new Stopwatch();
+
+    uploader.on('start', () => {
+      stopwatch.start();
+
+      this.ipc.send('WEBDAV_FILE_UPLOAD_PROGRESS', {
+        name: metadata.name,
+        progess: 0,
+        uploadInfo: { elapsedTime: stopwatch.elapsedTime() },
+      });
+    });
+
+    uploader.on('progress', (progess: number) => {
+      this.ipc.send('WEBDAV_FILE_UPLOAD_PROGRESS', {
+        name: metadata.name,
+        progess,
+        uploadInfo: { elapsedTime: stopwatch.elapsedTime() },
+      });
+    });
+
+    uploader.on('finish', () => {
+      stopwatch.finish();
+
+      this.ipc.send('WEBDAV_FILE_UPLOADED', {
+        name: metadata.name,
+        type: metadata.type,
+        size: metadata.size,
+        uploadInfo: { elapsedTime: stopwatch.elapsedTime() },
+      });
+    });
+  }
 
   private async createFileEntry(
     fileId: string,
@@ -46,30 +86,36 @@ export class WebdavFileCreator {
     const fileSize = new FileSize(size);
     const filePath = new FilePath(path);
 
-    this.temporalFileCollection.add(
-      filePath.value,
-      ItemMetadata.from({
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-        name: filePath.name(),
-        size,
-        extension: filePath.extension(),
-        type: 'FILE',
-      })
-    );
+    const metadata = ItemMetadata.from({
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+      name: filePath.name(),
+      size,
+      extension: filePath.extension(),
+      type: 'FILE',
+    });
+
+    this.temporalFileCollection.add(filePath.value, metadata);
 
     const folder = this.folderFinder.run(filePath.dirname());
 
     const stream = new PassThrough();
 
-    const upload = this.contentsRepository.upload(fileSize, stream);
+    const uploader = this.contentsRepository.uploader(fileSize, stream);
+
+    this.registerEvents(uploader, metadata);
+
+    const upload = uploader.upload();
 
     upload
       .then(async (fileId) => {
         return this.createFileEntry(fileId, folder, size, filePath);
       })
-      .catch(() => {
-        // TODO: comunicate somehow this error happened
+      .catch((error: Error) => {
+        this.ipc.send('WEBDAV_FILE_UPLOADED_ERROR', {
+          name: metadata.name,
+          error: error.message,
+        });
       });
 
     return {

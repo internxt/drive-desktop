@@ -9,7 +9,7 @@ import { WebdavFolderRepository } from '../domain/WebdavFolderRepository';
 import Logger from 'electron-log';
 import * as uuid from 'uuid';
 import { UpdateFolderNameDTO } from './dtos/UpdateFolderNameDTO';
-import { WebdavCustomIpc } from '../../../ipc';
+import { WebdavIpc } from '../../../ipc';
 import { RemoteItemsGenerator } from '../../items/application/RemoteItemsGenerator';
 import { FolderStatuses } from '../domain/FolderStatus';
 
@@ -20,7 +20,7 @@ export class HttpWebdavFolderRepository implements WebdavFolderRepository {
     private readonly driveClient: Axios,
     private readonly trashClient: Axios,
     private readonly traverser: Traverser,
-    private readonly ipc: WebdavCustomIpc
+    private readonly ipc: WebdavIpc
   ) {}
 
   private async getTree(): Promise<{

@@ -12,7 +12,7 @@ import { AddFileDTO } from './dtos/AddFileDTO';
 import { UpdateFileParentDirDTO } from './dtos/UpdateFileParentDirDTO';
 import { UpdateFileNameDTO } from './dtos/UpdateFileNameDTO';
 import { FilePath } from '../../domain/FilePath';
-import { WebdavCustomIpc } from '../../../../ipc';
+import { WebdavIpc } from '../../../../ipc';
 import { RemoteItemsGenerator } from 'workers/webdav/modules/items/application/RemoteItemsGenerator';
 import { FileStatuses } from '../../domain/FileStatus';
 
@@ -24,7 +24,7 @@ export class HttpWebdavFileRepository implements WebdavFileRepository {
     private readonly trashHttpClient: Axios,
     private readonly traverser: Traverser,
     private readonly bucket: string,
-    private readonly ipc: WebdavCustomIpc
+    private readonly ipc: WebdavIpc
   ) {}
 
   private async getTree(): Promise<{
@@ -95,7 +95,7 @@ export class HttpWebdavFileRepository implements WebdavFileRepository {
         folder_id: file.folderId,
         name: encryptedName,
         plain_name: file.name,
-        size: file.size.value,
+        size: file.size,
         type: file.type,
         modificationTime: Date.now(),
       },

@@ -8,7 +8,7 @@ import {
   TrackedWebdavServerEvents,
   WebdavErrorContext,
 } from '../../shared/IPC/events/webdav';
-import uuid from 'uuid';
+
 function platformShortName(platform: string) {
   switch (platform) {
     case 'darwin':

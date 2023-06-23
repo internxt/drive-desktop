@@ -36,7 +36,7 @@ export class ItemMetadata {
       file.createdAt.getTime(),
       file.updatedAt.getTime(),
       file.nameWithExtension,
-      file.size.value,
+      file.size,
       file.type,
       'FILE'
     );
