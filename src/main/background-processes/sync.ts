@@ -12,7 +12,7 @@ import { broadcastToWindows } from '../windows';
 
 import { getSyncIssues } from './process-issues';
 
-export type SyncStatus = 'STANDBY' | 'RUNNING';
+export type SyncStatus = 'STANDBY' | 'RUNNING' | 'FAILED';
 
 let syncStatus: SyncStatus = 'STANDBY';
 

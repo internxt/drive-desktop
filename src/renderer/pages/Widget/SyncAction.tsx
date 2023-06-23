@@ -1,55 +1,44 @@
 import { useEffect, useState } from 'react';
 
-import { SyncStatus } from '../../../main/background-processes/sync';
 import { useTranslationContext } from '../../context/LocalContext';
-import useSyncStatus from '../../hooks/SyncStatus';
-import useSyncStopped from '../../hooks/SyncStopped';
+import { CheckCircle, XCircle } from 'phosphor-react';
+import Spinner from '../../assets/spinner.svg';
+import { SyncStatus } from '../../../main/background-processes/sync';
 
-export default function SyncAction() {
+export default function SyncAction(props: { syncStatus: SyncStatus }) {
   const { translate } = useTranslationContext();
 
-  const [state, setState] = useState<SyncStatus | 'LOADING'>('STANDBY');
-
-  const [showLockError, setShowLockError] = useState(false);
   const [isOnLine, setIsOnLine] = useState(true);
-
-  useSyncStatus(setState);
-
-  const [syncStoppedReason] = useSyncStopped();
 
   useEffect(() => {
     setIsOnLine(navigator.onLine);
   });
 
-  useEffect(() => {
-    if (
-      state === 'STANDBY' &&
-      syncStoppedReason?.reason === 'COULD_NOT_ACQUIRE_LOCK'
-    ) {
-      setShowLockError(true);
-      const timeout = setTimeout(() => setShowLockError(false), 1000 * 10);
-
-      return () => {
-        if (timeout) {
-          clearTimeout(timeout);
-        }
-      };
-    }
-  }, [state]);
-
   return (
-    <div className="flex items-center justify-between border-t border-t-l-neutral-30 bg-white px-3 py-1">
-      <p className="text-xs text-neutral-500">
-        {state === 'RUNNING' &&
-          isOnLine &&
-          translate('widget.footer.action-description.syncing')}
-        {state === 'STANDBY' &&
-          isOnLine &&
-          translate('widget.footer.action-description.updated')}
-        {state === 'STANDBY' &&
-          showLockError &&
-          isOnLine &&
-          translate('widget.footer.errors.lock')}
+    <div className="h- flex h-11 items-center justify-between border-t border-t-l-neutral-30 bg-white px-2.5">
+      <p className="w-full text-sm font-medium text-gray-100">
+        {props.syncStatus === 'RUNNING' && isOnLine && (
+          <span className="flex w-full flex-row items-center ">
+            <Spinner className="mr-1 h-4 w-4 animate-spin fill-primary" />
+            {translate('widget.footer.action-description.syncing')}
+          </span>
+        )}
+        {props.syncStatus === 'STANDBY' && isOnLine && (
+          <span className="flex flex-row items-center">
+            <CheckCircle
+              className="mr-1 text-primary"
+              size={20}
+              weight="fill"
+            />
+            {translate('widget.footer.action-description.updated')}
+          </span>
+        )}
+        {props.syncStatus === 'FAILED' && isOnLine && (
+          <span className="flex flex-row items-center">
+            <XCircle className="mr-1 text-red-50" size={20} weight="fill" />
+            {translate('widget.footer.action-description.failed')}
+          </span>
+        )}
         {!isOnLine && translate('widget.footer.errors.offline')}
       </p>
     </div>

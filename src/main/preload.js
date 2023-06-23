@@ -248,5 +248,20 @@ contextBridge.exposeInMainWorld('electron', {
   openFeedbackWindow() {
     return ipcRenderer.invoke('open-feedback-window');
   },
+  onRemoteSyncStatusChange(callback) {
+    const eventName = 'remote-sync-status-change';
+    const callbackWrapper = (_, v) => {
+      callback(v);
+    };
+    ipcRenderer.on(eventName, callbackWrapper);
+
+    return () => ipcRenderer.removeListener(eventName, callbackWrapper);
+  },
+  getRemoteSyncStatus() {
+    return ipcRenderer.invoke('get-remote-sync-status');
+  },
+  startRemoteSync() {
+    return ipcRenderer.invoke('START_REMOTE_SYNC');
+  },
   path,
 });

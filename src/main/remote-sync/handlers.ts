@@ -7,6 +7,7 @@ import { getNewTokenClient } from '../../shared/HttpClient/main-process-client';
 import Logger from 'electron-log';
 import { ipcMain } from 'electron';
 import { reportError } from '../bug-report/service';
+import { broadcastToWindows } from '../windows';
 
 const driveFilesCollection = new DriveFilesCollection();
 const driveFoldersCollection = new DriveFoldersCollection();
@@ -53,6 +54,14 @@ ipcMain.handle('START_REMOTE_SYNC', async () => {
   await remoteSyncManager.startRemoteSync();
 });
 
+remoteSyncManager.onStatusChange((newStatus) => {
+  broadcastToWindows('remote-sync-status-change', newStatus);
+});
+
+ipcMain.handle('get-remote-sync-status', () =>
+  remoteSyncManager.getSyncStatus()
+);
+
 eventBus.on('RECEIVED_REMOTE_CHANGES', async () => {
   await remoteSyncManager.startRemoteSync();
 });
@@ -66,5 +75,6 @@ eventBus.on('USER_LOGGED_IN', () => {
 });
 
 eventBus.on('USER_LOGGED_OUT', () => {
+  remoteSyncManager.resetRemoteSync();
   clearRemoteSyncStore();
 });
