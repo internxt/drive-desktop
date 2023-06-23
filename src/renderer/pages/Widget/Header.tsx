@@ -196,19 +196,19 @@ function AccountSection() {
     window.electron.getUser().then(setUser);
   }, []);
 
-  const { usage } = useUsage();
+  const { usage, status } = useUsage();
 
-  const usageIsAvailable = usage !== 'loading' && usage !== 'error';
+  const usageIsAvailable = usage && status === 'ready';
 
   let usageDisplayElement: JSX.Element;
 
-  if (usage === 'loading') {
+  if (status === 'loading') {
     usageDisplayElement = (
       <p className="text-xs text-neutral-500/80">Loading...</p>
     );
-  } else if (usage === 'error') {
+  } else if (status === 'error') {
     usageDisplayElement = <p />;
-  } else {
+  } else if (usage) {
     usageDisplayElement = (
       <p className="text-xs text-neutral-500">{`${bytes.format(
         usage.usageInBytes
@@ -216,6 +216,8 @@ function AccountSection() {
         usage.isInfinite ? '∞' : bytes.format(usage.limitInBytes)
       }`}</p>
     );
+  } else {
+    usageDisplayElement = <p />;
   }
 
   return (
@@ -223,7 +225,7 @@ function AccountSection() {
       <p className="text-xs font-semibold text-neutral-700">{user?.email}</p>
       <div className="flex">
         {usageDisplayElement}
-        {usageIsAvailable && usage.offerUpgrade && (
+        {usageIsAvailable && usage && usage.offerUpgrade && (
           <a
             href="https://drive.internxt.com/storage"
             target="_blank"

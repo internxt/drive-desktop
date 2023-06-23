@@ -2,28 +2,33 @@ import { useEffect, useState } from 'react';
 import { Usage } from '../../main/usage/usage';
 
 export default function useUsage() {
-  const [usage, setUsage] = useState<Usage | 'loading' | 'error'>('loading');
-
+  const [usage, setUsage] = useState<Usage>();
+  const [status, setStatus] = useState<'loading' | 'error' | 'ready'>(
+    'loading'
+  );
   async function updateUsage() {
-    if (!(await window.electron.isUserLoggedIn())) {
-      return;
-    }
-
     try {
+      const userIsLoggedIn = await window.electron.isUserLoggedIn();
+
+      if (!userIsLoggedIn) {
+        return;
+      }
       const usage = await window.electron.getUsage();
+
       setUsage(usage);
+      setStatus('ready');
     } catch (err) {
       console.error(err);
-      setUsage('error');
+      setStatus('error');
     }
   }
 
   useEffect(() => {
-    setUsage('loading');
+    setStatus('loading');
     updateUsage();
     const listener = window.electron.onRemoteChanges(updateUsage);
     return listener;
   }, []);
 
-  return { usage, refreshUsage: updateUsage };
+  return { usage, refreshUsage: updateUsage, status };
 }
