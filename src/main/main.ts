@@ -91,11 +91,11 @@ const installExtensions = async () => {
 };
 
 app.on('will-quit', () => {
-  unmountDrive();
+  unmountDrive().catch(Logger.error);
 });
 
 app.on('window-all-closed', () => {
-  unmountDrive();
+  unmountDrive().catch(Logger.error);
   app.quit();
 });
 

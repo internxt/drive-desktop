@@ -98,6 +98,10 @@ function subscribeToServerEvents() {
   ipcWebdav.on('WEBDAV_VIRTUAL_DRIVE_MOUNT_ERROR', (_, err: Error) => {
     Logger.info('WEBDAV_VIRTUAL_DRIVE_MOUNT_ERROR', err.message);
   });
+
+  ipcWebdav.on('WEBDAV_VIRTUAL_DRIVE_UNMOUNT_ERROR', (_, err: Error) => {
+    Logger.info('WEBDAV_VIRTUAL_DRIVE_UNMOUNT_ERROR', err.message);
+  });
 }
 
 subscribeToFlowEvents(ipcWebdav);
