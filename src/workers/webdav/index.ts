@@ -28,7 +28,9 @@ async function setUp() {
     });
 
   ipc.on('STOP_WEBDAV_SERVER_PROCESS', () => {
-    unmountDrive();
+    unmountDrive().catch((reason: Error) => {
+      ipc.send('WEBDAV_VIRTUAL_DRIVE_UNMOUNT_ERROR', reason);
+    });
     server
       .stop()
       .then(() => {
