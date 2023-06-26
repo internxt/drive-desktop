@@ -40,6 +40,8 @@ import packageJson from '../../package.json';
 import eventBus from './event-bus';
 import * as Sentry from '@sentry/electron/main';
 import { AppDataSource } from './database/data-source';
+import { reportError } from './bug-report/service';
+
 Logger.log(`Running ${packageJson.version}`);
 
 Logger.log('Initializing Sentry for main process');
@@ -91,11 +93,17 @@ const installExtensions = async () => {
 };
 
 app.on('will-quit', () => {
-  unmountDrive().catch(Logger.error);
+  unmountDrive().catch((error) => {
+    Logger.error(error);
+    reportError(error);
+  });
 });
 
 app.on('window-all-closed', () => {
-  unmountDrive().catch(Logger.error);
+  unmountDrive().catch((error) => {
+    Logger.error(error);
+    reportError(error);
+  });
   app.quit();
 });
 
