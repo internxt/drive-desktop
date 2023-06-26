@@ -64,6 +64,7 @@ export const createWidget = async () => {
 };
 
 export function toggleWidgetVisibility() {
+  const widget = getWidget();
   if (!widget) {
     return;
   }

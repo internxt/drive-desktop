@@ -129,7 +129,9 @@ export function setupTrayIcon() {
       setBoundsOfWidgetByPath(widgetWindow, tray);
     }
 
-    toggleWidgetVisibility();
+    if (widgetWindow) {
+      toggleWidgetVisibility();
+    }
   }
 
   function onQuitClick() {
