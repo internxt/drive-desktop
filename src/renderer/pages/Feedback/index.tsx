@@ -4,6 +4,7 @@ import { useTranslationContext } from '../../context/LocalContext';
 import { reportError } from 'renderer/utils/errors';
 import { Transition } from '@headlessui/react';
 import { ChatsCircle } from 'phosphor-react';
+import WindowTopBar from 'renderer/components/WindowTopBar';
 
 const CHARACTERS_LIMIT = 1000;
 export default function Feedback() {
@@ -64,11 +65,10 @@ export default function Feedback() {
   };
   return (
     <main className="flex h-[320px] w-full flex-1 flex-col">
-      <div className="flex h-8 items-center justify-center border-b border-gray-5">
-        <h1 className=" w-full text-center  text-gray-100">
-          {translate('feedback.window-title')}
-        </h1>
-      </div>
+      <WindowTopBar
+        className="h-8"
+        title={translate('feedback.window-title')}
+      />
       <div className="flex flex-1 flex-col px-5 py-5">
         {feedbackSent ? (
           <div className="flex h-full items-center">{renderFeedbackSent()}</div>
