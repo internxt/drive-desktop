@@ -25,6 +25,7 @@ export const openFeedbackWindow = () => {
     frame: process.platform !== 'darwin' ? false : undefined,
     resizable: false,
     maximizable: false,
+    closable: true,
   });
 
   feedbackWindow.loadURL(resolveHtmlPath('feedback'));
