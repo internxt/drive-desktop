@@ -24,7 +24,8 @@ export const openFeedbackWindow = () => {
     titleBarStyle: process.platform === 'darwin' ? 'hidden' : undefined,
     resizable: false,
     maximizable: false,
-    closable: true,
+    frame: false,
+    skipTaskbar: true,
   });
 
   feedbackWindow.loadURL(resolveHtmlPath('feedback'));
