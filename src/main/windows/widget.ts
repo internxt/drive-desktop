@@ -31,13 +31,6 @@ export const createWidget = async () => {
 
   const widgetLoaded = widget.loadURL(resolveHtmlPath(''));
 
-  widget.on('ready-to-show', () => {
-    if (isAutoLaunchEnabled()) {
-      return;
-    }
-    widget?.show();
-  });
-
   widget.on('blur', () => {
     const isLoggedIn = getIsLoggedIn();
 

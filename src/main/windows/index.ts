@@ -47,6 +47,7 @@ export function setUpCommonWindowHandlers(window: BrowserWindow) {
     }
     if (channel === 'user-finished-onboarding') {
       window?.close();
+      getWidget()?.show();
     }
 
     if (channel === 'user-finished-migration') {

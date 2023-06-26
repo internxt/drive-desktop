@@ -61,7 +61,3 @@ export function toggleAuthVisibility() {
     authWindow.show();
   }
 }
-
-eventBus.on('APP_IS_READY', async () => {
-  await createAuthWindow();
-});
