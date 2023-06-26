@@ -4,7 +4,8 @@ import { preloadPath, resolveHtmlPath } from '../util';
 import { setUpCommonWindowHandlers } from '.';
 
 let migrationWindow: BrowserWindow | null = null;
-export const getMigrationWindow = () => migrationWindow;
+export const getMigrationWindow = () =>
+  migrationWindow?.isDestroyed() ? null : migrationWindow;
 
 export const openMigrationWindow = () => {
   if (migrationWindow) {
@@ -29,7 +30,7 @@ export const openMigrationWindow = () => {
 
   migrationWindow.loadURL(resolveHtmlPath('migration'));
 
-  migrationWindow.on('close', () => {
+  migrationWindow.on('closed', () => {
     migrationWindow = null;
   });
   migrationWindow.on('ready-to-show', () => {

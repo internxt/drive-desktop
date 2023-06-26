@@ -2,18 +2,20 @@ import { BrowserWindow, screen } from 'electron';
 
 import { isAutoLaunchEnabled } from '../auto-launch/service';
 import eventBus from '../event-bus';
-import { getTray } from '../tray';
+import { TrayMenu } from '../tray';
 import { preloadPath, resolveHtmlPath } from '../util';
 import { setUpCommonWindowHandlers } from '.';
 import { getIsLoggedIn } from '../auth/handlers';
 
+const widgetConfig: { width: number; height: number; placeUnderTray: boolean } =
+  { width: 330, height: 392, placeUnderTray: true };
 let widget: BrowserWindow | null = null;
-export const getWidget = () => widget;
-
-let currentWidgetPath = '/';
+export const getWidget = () => (widget?.isDestroyed() ? null : widget);
 
 export const createWidget = async () => {
   widget = new BrowserWindow({
+    width: widgetConfig.width,
+    height: widgetConfig.height,
     show: false,
     webPreferences: {
       preload: preloadPath,
@@ -26,7 +28,7 @@ export const createWidget = async () => {
     skipTaskbar: true,
   });
 
-  const widgedLoaded = widget.loadURL(resolveHtmlPath(''));
+  const widgetLoaded = widget.loadURL(resolveHtmlPath(''));
 
   widget.on('ready-to-show', () => {
     if (isAutoLaunchEnabled()) {
@@ -47,18 +49,18 @@ export const createWidget = async () => {
 
   setUpCommonWindowHandlers(widget);
 
+  widget.on('closed', () => {
+    widget = null;
+  });
   widget.webContents.on('ipc-message', (_, channel, payload) => {
     // Current widget pathname
     if (channel === 'path-changed') {
       console.log('Renderer navigated to ', payload);
-
-      currentWidgetPath = payload;
-
-      setBoundsOfWidgetByPath(payload);
     }
   });
 
-  await widgedLoaded;
+  await widgetLoaded;
+  eventBus.emit('WIDGET_IS_READY');
 };
 
 export function toggleWidgetVisibility() {
@@ -70,30 +72,6 @@ export function toggleWidgetVisibility() {
     widget.hide();
   } else {
     widget.show();
-  }
-}
-
-const dimentions: Record<
-  string,
-  { width: number; height: number; placeUnderTray: boolean }
-> = {
-  '/': { width: 330, height: 392, placeUnderTray: true },
-  '/login': { width: 300, height: 474, placeUnderTray: false },
-};
-
-export function setBoundsOfWidgetByPath(pathname = currentWidgetPath) {
-  const pathExists = dimentions[pathname];
-  if (!pathExists) return;
-  const { placeUnderTray, ...size } = dimentions[pathname];
-
-  const bounds = getTray()?.bounds;
-
-  if (placeUnderTray && bounds) {
-    const location = getLocationUnderTray(size, bounds);
-    widget?.setBounds({ ...size, ...location });
-  } else {
-    widget?.center();
-    widget?.setBounds(size);
   }
 }
 
@@ -121,8 +99,19 @@ function getLocationUnderTray(
   };
 }
 
-eventBus.on('APP_IS_READY', async () => {
-  await createWidget();
+export function setBoundsOfWidgetByPath(
+  widgetWindow: BrowserWindow,
+  tray: TrayMenu
+) {
+  const { placeUnderTray, ...size } = widgetConfig;
 
-  eventBus.emit('WIDGET_IS_READY');
-});
+  const bounds = tray.bounds;
+
+  if (placeUnderTray && bounds) {
+    const location = getLocationUnderTray(size, bounds);
+    widgetWindow.setBounds({ ...size, ...location });
+  } else {
+    widgetWindow.center();
+    widgetWindow.setBounds(size);
+  }
+}

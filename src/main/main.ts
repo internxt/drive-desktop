@@ -40,6 +40,16 @@ import packageJson from '../../package.json';
 import eventBus from './event-bus';
 import * as Sentry from '@sentry/electron/main';
 import { AppDataSource } from './database/data-source';
+import { getIsLoggedIn } from './auth/handlers';
+import {
+  createWidget,
+  getWidget,
+  setBoundsOfWidgetByPath,
+} from './windows/widget';
+import { createAuthWindow, getAuthWindow } from './windows/auth';
+import configStore from './config';
+import { getTray } from './tray';
+import { openOnboardingWindow } from './windows/onboarding';
 Logger.log(`Running ${packageJson.version}`);
 
 Logger.log('Initializing Sentry for main process');
@@ -106,7 +116,15 @@ ipcMain.on('user-quit', () => {
 app
   .whenReady()
   .then(async () => {
+    if (!AppDataSource.isInitialized) {
+      await AppDataSource.initialize();
+    }
     eventBus.emit('APP_IS_READY');
+    const isLoggedIn = getIsLoggedIn();
+
+    if (!isLoggedIn) {
+      await createAuthWindow();
+    }
     if (process.env.NODE_ENV === 'development') {
       await installExtensions();
     }
@@ -115,9 +133,35 @@ app
   .catch(Logger.error);
 
 eventBus.on('USER_LOGGED_IN', async () => {
-  await AppDataSource.initialize();
+  if (!AppDataSource.isInitialized) {
+    await AppDataSource.initialize();
+  }
+  getAuthWindow()?.destroy();
+  await createWidget();
+  const widget = getWidget();
+  const tray = getTray();
+  if (widget && tray) {
+    setBoundsOfWidgetByPath(widget, tray);
+  }
+
+  const lastOnboardingShown = configStore.get('lastOnboardingShown');
+
+  if (!lastOnboardingShown) {
+    openOnboardingWindow();
+  } else if (widget) {
+    widget.show();
+  }
 });
 
 eventBus.on('USER_LOGGED_OUT', async () => {
-  await AppDataSource.destroy();
+  const widget = getWidget();
+  if (widget) {
+    widget.hide();
+    widget.destroy();
+  }
+
+  await createAuthWindow();
+  if (AppDataSource.isInitialized) {
+    await AppDataSource.destroy();
+  }
 });

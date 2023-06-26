@@ -4,7 +4,8 @@ import { preloadPath, resolveHtmlPath } from '../util';
 import { setUpCommonWindowHandlers } from '.';
 
 let feedbackWindow: BrowserWindow | null = null;
-export const getFeedbackWindow = () => feedbackWindow;
+export const getFeedbackWindow = () =>
+  feedbackWindow?.isDestroyed() ? null : feedbackWindow;
 
 export const openFeedbackWindow = () => {
   if (feedbackWindow) {
@@ -29,7 +30,7 @@ export const openFeedbackWindow = () => {
 
   feedbackWindow.loadURL(resolveHtmlPath('feedback'));
 
-  feedbackWindow.on('close', () => {
+  feedbackWindow.on('closed', () => {
     feedbackWindow = null;
   });
   feedbackWindow.on('ready-to-show', () => {

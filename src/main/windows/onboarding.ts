@@ -5,21 +5,12 @@ import { preloadPath, resolveHtmlPath } from '../util';
 import { setUpCommonWindowHandlers } from '.';
 
 let onboardingWindow: BrowserWindow | null = null;
-export const getOnboardingWindow = () => onboardingWindow;
-
-ipcMain.on('user-logged-in', () => {
-  const lastOnboardingShown = configStore.get('lastOnboardingShown');
-
-  if (lastOnboardingShown) {
-    return;
-  }
-
-  openOnboardingWindow();
-});
+export const getOnboardingWindow = () =>
+  onboardingWindow?.isDestroyed() ? null : onboardingWindow;
 
 ipcMain.on('open-onboarding-window', () => openOnboardingWindow());
 
-const openOnboardingWindow = () => {
+export const openOnboardingWindow = () => {
   if (onboardingWindow) {
     onboardingWindow.focus();
 
@@ -46,7 +37,7 @@ const openOnboardingWindow = () => {
     onboardingWindow?.show();
   });
 
-  onboardingWindow.on('close', () => {
+  onboardingWindow.on('closed', () => {
     configStore.set('lastOnboardingShown', Date.now().toLocaleString());
     onboardingWindow = null;
   });

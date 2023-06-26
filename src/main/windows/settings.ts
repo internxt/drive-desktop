@@ -4,7 +4,8 @@ import { preloadPath, resolveHtmlPath } from '../util';
 import { setUpCommonWindowHandlers } from '.';
 
 let settingsWindow: BrowserWindow | null = null;
-export const getSettingsWindow = () => settingsWindow;
+export const getSettingsWindow = () =>
+  settingsWindow?.isDestroyed() ? null : settingsWindow;
 
 ipcMain.on('open-settings-window', (_, section) => openSettingsWindow(section));
 
@@ -35,7 +36,7 @@ async function openSettingsWindow(section?: string) {
     settingsWindow?.show();
   });
 
-  settingsWindow.on('close', () => {
+  settingsWindow.on('closed', () => {
     settingsWindow = null;
   });
 

@@ -4,13 +4,16 @@ import path from 'path';
 import PackageJson from '../../package.json';
 import eventBus from './event-bus';
 import {
+  getWidget,
   setBoundsOfWidgetByPath,
   toggleWidgetVisibility,
 } from './windows/widget';
+import { getIsLoggedIn } from './auth/handlers';
+import { getAuthWindow } from './windows/auth';
 
 type TrayMenuState = 'STANDBY' | 'SYNCING' | 'ISSUES';
 
-class TrayMenu {
+export class TrayMenu {
   private tray: Tray;
 
   get bounds() {
@@ -116,7 +119,16 @@ export function setupTrayIcon() {
   const iconsPath = path.join(RESOURCES_PATH, 'tray');
 
   function onTrayClick() {
-    setBoundsOfWidgetByPath();
+    const isLoggedIn = getIsLoggedIn();
+    if (!isLoggedIn) {
+      getAuthWindow()?.show();
+    }
+
+    const widgetWindow = getWidget();
+    if (tray && widgetWindow) {
+      setBoundsOfWidgetByPath(widgetWindow, tray);
+    }
+
     toggleWidgetVisibility();
   }
 
@@ -128,3 +140,6 @@ export function setupTrayIcon() {
 }
 
 eventBus.on('APP_IS_READY', setupTrayIcon);
+app.on('will-quit', () => {
+  getTray()?.destroy();
+});
