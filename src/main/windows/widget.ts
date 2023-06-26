@@ -9,6 +9,7 @@ import { getIsLoggedIn } from '../auth/handlers';
 
 const widgetConfig: { width: number; height: number; placeUnderTray: boolean } =
   { width: 330, height: 392, placeUnderTray: true };
+
 let widget: BrowserWindow | null = null;
 export const getWidget = () => (widget?.isDestroyed() ? null : widget);
 
@@ -104,15 +105,12 @@ export function setBoundsOfWidgetByPath(
   widgetWindow: BrowserWindow,
   tray: TrayMenu
 ) {
-  const { placeUnderTray, ...size } = widgetConfig;
+  const { ...size } = widgetConfig;
 
   const bounds = tray.bounds;
 
-  if (placeUnderTray && bounds) {
+  if (bounds) {
     const location = getLocationUnderTray(size, bounds);
     widgetWindow.setBounds({ ...size, ...location });
-  } else {
-    widgetWindow.center();
-    widgetWindow.setBounds(size);
   }
 }
