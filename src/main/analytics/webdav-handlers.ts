@@ -77,9 +77,13 @@ function subscribeToFlowEvents(ipc: IpcWebdavFlow) {
 function subscribeToFlowErrors(ipc: IpcWebdavFlowErrors) {
   ipc.on('WEBDAV_FILE_UPLOADED_ERROR', (_, payload) => {
     const { name, error } = payload;
-    const errorObj = new Error(error);
-    errorObj.name = name;
-    trackWebdavError('Upload Error', errorObj);
+
+    trackWebdavError('Upload Error', new Error(error), {
+      itemType: 'File',
+      root: '',
+      from: name,
+      action: 'Upload',
+    });
   });
 
   ipc.on('WEBDAV_ACTION_ERROR', (_, error: Error, ctx: WebdavErrorContext) => {
