@@ -281,5 +281,8 @@ contextBridge.exposeInMainWorld('electron', {
 
     return () => ipcRenderer.removeListener(eventName, callbackWrapper);
   },
+  openUrl: (url) => {
+    ipcRenderer.invoke('open-url', url);
+  },
   path,
 });
