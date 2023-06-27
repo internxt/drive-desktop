@@ -114,7 +114,11 @@ export class DependencyContainerFactory {
 
     const eventBus = new DuplexEventBus();
 
-    const fileRenamer = new WebdavFileRenamer(fileRepository, eventBus);
+    const fileRenamer = new WebdavFileRenamer(
+      fileRepository,
+      fileContentRepository,
+      eventBus
+    );
 
     const folderFinder = new WebdavFolderFinder(folderRepository);
     const folderRenamer = new WebdavFolderRenamer(folderRepository);
