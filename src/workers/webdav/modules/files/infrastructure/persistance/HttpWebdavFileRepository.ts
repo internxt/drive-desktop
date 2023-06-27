@@ -141,12 +141,12 @@ export class HttpWebdavFileRepository implements WebdavFileRepository {
       );
     }
 
-    const oldFile = Object.values(this.files).filter(
-      (f) => f.fileId === file.fileId
+    const oldFileEntry = Object.entries(this.files).filter(
+      ([_, f]) => f.fileId === file.fileId
     )[0];
 
-    if (oldFile) {
-      delete this.files[oldFile.path];
+    if (oldFileEntry) {
+      delete this.files[oldFileEntry[0]];
     }
 
     this.files[file.path] = file;

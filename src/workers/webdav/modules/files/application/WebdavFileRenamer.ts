@@ -22,7 +22,9 @@ export class WebdavFileRenamer {
   }
 
   private async reupload(file: WebdavFile, path: FilePath) {
-    const clonnedFileId = await this.contentsRepository.clone(file);
+    const clonner = this.contentsRepository.clonner(file);
+
+    const clonnedFileId = await clonner.clone();
 
     const uploaded = file.overwrite(clonnedFileId, file.folderId, path);
 

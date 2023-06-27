@@ -5,6 +5,7 @@ import { ActionNotPermitedError } from './errors/ActionNotPermitedError';
 export enum FileStatuses {
   EXISTS = 'EXISTS',
   TRASHED = 'TRASHED',
+  DELETED = 'DELETED',
 }
 
 export class FileStatus extends EnumValueObject<FileStatuses> {
@@ -28,6 +29,9 @@ export class FileStatus extends EnumValueObject<FileStatuses> {
   changeTo(status: FileStatuses): FileStatus {
     if (this.value === 'TRASHED') {
       throw new ActionNotPermitedError('restore from trash');
+    }
+    if (this.value === 'DELETED') {
+      throw new ActionNotPermitedError('any action on deleted files');
     }
 
     return new FileStatus(FileStatuses[status]);
