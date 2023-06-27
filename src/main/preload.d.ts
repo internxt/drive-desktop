@@ -27,6 +27,8 @@ declare interface Window {
 
     closeWindow(): void;
 
+    minimizeWindow(): void;
+
     openSyncFolder(): Promise<void>;
 
     finishOnboarding(): void;
