@@ -1,8 +1,18 @@
 import { UilMultiply } from '@iconscout/react-unicons';
 
-export default function WindowTopBar({ title }: { title: string }) {
+export default function WindowTopBar({
+  title,
+  className,
+}: {
+  title: string;
+  className?: string;
+}) {
   return (
-    <div className="draggable relative h-10 flex-shrink-0 flex-grow-0 px-1">
+    <div
+      className={`draggable relative h-10 flex-shrink-0 flex-grow-0 px-1 ${
+        className ?? ''
+      }`}
+    >
       {process.env.platform !== 'darwin' && (
         <div
           role="button"
@@ -15,7 +25,7 @@ export default function WindowTopBar({ title }: { title: string }) {
         </div>
       )}
       <p
-        className="absolute left-1/2 top-2 -translate-x-1/2 transform text-sm text-gray-80"
+        className="absolute left-1/2 flex h-full -translate-x-1/2 transform items-center text-sm text-gray-80"
         data-test="window-top-bar-title"
       >
         {title}
