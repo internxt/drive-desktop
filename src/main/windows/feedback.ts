@@ -23,9 +23,10 @@ export const openFeedbackWindow = () => {
       nodeIntegration: true,
     },
     titleBarStyle: process.platform === 'darwin' ? 'hidden' : undefined,
-    frame: process.platform !== 'darwin' ? false : undefined,
     resizable: false,
     maximizable: false,
+    frame: false,
+    skipTaskbar: true,
   });
 
   feedbackWindow.loadURL(resolveHtmlPath('feedback'));

@@ -34,6 +34,7 @@ type WebdavServerEvents = {
 type WebdavVirtualDriveEvents = {
   WEBDAV_VIRTUAL_DRIVE_MOUNTED_SUCCESSFULLY: () => void;
   WEBDAV_VIRTUAL_DRIVE_MOUNT_ERROR: (err: Error) => void;
+  WEBDAV_VIRTUAL_DRIVE_UNMOUNT_ERROR: (err: Error) => void;
 };
 
 type UploadInfo = {

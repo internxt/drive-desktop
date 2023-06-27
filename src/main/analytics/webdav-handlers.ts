@@ -1,10 +1,6 @@
 import Logger from 'electron-log';
 import { ipcWebdav, IpcWebdavFlow, IpcWebdavFlowErrors } from '../ipcs/webdav';
-import {
-  trackHandledWebdavError,
-  trackWebdavError,
-  trackWebdavEvent,
-} from './service';
+import { trackWebdavError, trackWebdavEvent } from './service';
 import { WebdavErrorContext } from '../../shared/IPC/events/webdav';
 
 function subscribeToFlowEvents(ipc: IpcWebdavFlow) {
@@ -81,12 +77,18 @@ function subscribeToFlowEvents(ipc: IpcWebdavFlow) {
 function subscribeToFlowErrors(ipc: IpcWebdavFlowErrors) {
   ipc.on('WEBDAV_FILE_UPLOADED_ERROR', (_, payload) => {
     const { name, error } = payload;
-    trackWebdavError('Upload Error', { name, error });
+
+    trackWebdavError('Upload Error', new Error(error), {
+      itemType: 'File',
+      root: '',
+      from: name,
+      action: 'Upload',
+    });
   });
 
   ipc.on('WEBDAV_ACTION_ERROR', (_, error: Error, ctx: WebdavErrorContext) => {
     const errorName = `${ctx.action} Error` as const;
-    trackHandledWebdavError(errorName, error, ctx);
+    trackWebdavError(errorName, error, ctx);
   });
 }
 
@@ -97,6 +99,10 @@ function subscribeToServerEvents() {
 
   ipcWebdav.on('WEBDAV_VIRTUAL_DRIVE_MOUNT_ERROR', (_, err: Error) => {
     Logger.info('WEBDAV_VIRTUAL_DRIVE_MOUNT_ERROR', err.message);
+  });
+
+  ipcWebdav.on('WEBDAV_VIRTUAL_DRIVE_UNMOUNT_ERROR', (_, err: Error) => {
+    Logger.info('WEBDAV_VIRTUAL_DRIVE_UNMOUNT_ERROR', err.message);
   });
 }
 

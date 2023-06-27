@@ -50,6 +50,9 @@ import { createAuthWindow, getAuthWindow } from './windows/auth';
 import configStore from './config';
 import { getTray } from './tray';
 import { openOnboardingWindow } from './windows/onboarding';
+import { reportError } from './bug-report/service';
+
+
 Logger.log(`Running ${packageJson.version}`);
 
 Logger.log('Initializing Sentry for main process');
@@ -101,11 +104,17 @@ const installExtensions = async () => {
 };
 
 app.on('will-quit', () => {
-  unmountDrive();
+  unmountDrive().catch((error) => {
+    Logger.error(error);
+    reportError(error);
+  });
 });
 
 app.on('window-all-closed', () => {
-  unmountDrive();
+  unmountDrive().catch((error) => {
+    Logger.error(error);
+    reportError(error);
+  });
   app.quit();
 });
 
