@@ -19,7 +19,7 @@ export const createAuthWindow = async () => {
       preload: preloadPath,
       nodeIntegration: true,
     },
-    movable: true,
+    movable: false,
     frame: false,
     resizable: false,
     maximizable: false,
