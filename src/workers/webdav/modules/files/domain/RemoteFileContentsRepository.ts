@@ -1,11 +1,14 @@
 import { Readable } from 'stream';
+import { ContentFileClonner } from './ContentFileClonner';
+import { ContentFileDownloader } from './ContentFileDownloader';
+import { ContentFileUploader } from './ContentFileUploader';
 import { FileSize } from './FileSize';
 import { WebdavFile } from './WebdavFile';
 
 export interface RemoteFileContentsRepository {
-  clone(file: WebdavFile): Promise<WebdavFile['fileId']>;
+  downloader(file: WebdavFile): ContentFileDownloader;
 
-  download(file: WebdavFile): Promise<Readable>;
+  uploader(size: FileSize, contents: Readable): ContentFileUploader;
 
-  upload(size: FileSize, contents: Readable): Promise<WebdavFile['fileId']>;
+  clonner(file: WebdavFile): ContentFileClonner;
 }

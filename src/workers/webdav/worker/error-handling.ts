@@ -1,6 +1,5 @@
 import { RequestContext } from 'webdav-server/lib/index.v2';
-// import * as Sentry from '@sentry/electron/renderer';
-import Logger from 'electron-log';
+import * as Sentry from '@sentry/electron/renderer';
 import { ipc } from '../ipc';
 import {
   TrackedWebdavServerEvents,
@@ -8,9 +7,8 @@ import {
 } from '../../../shared/IPC/events/webdav';
 
 function handleError(error: Error, context: WebdavErrorContext): void {
-  Logger.error('[FS] Error: ', error);
   ipc.send('WEBDAV_ACTION_ERROR', error, context);
-  // Sentry.captureException(error, context);
+  Sentry.captureException(error);
 }
 
 export function handleFileSystemError(

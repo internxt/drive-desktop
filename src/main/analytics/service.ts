@@ -8,7 +8,7 @@ import {
   TrackedWebdavServerEvents,
   WebdavErrorContext,
 } from '../../shared/IPC/events/webdav';
-import uuid from 'uuid';
+
 function platformShortName(platform: string) {
   switch (platform) {
     case 'darwin':
@@ -275,14 +275,14 @@ export function trackWebdavEvent(
 export function trackWebdavError(
   event: TrackedWebdavServerErrorEvents,
   error: Error,
-  context: WebdavErrorContext
+  context?: WebdavErrorContext
 ) {
   const userData = ConfigStore.get('userData');
   const clientId = ConfigStore.get('clientId');
 
   const properties = {
-    item: context.from,
-    type: context.itemType,
+    item: context?.from ?? 'NO_ITEM_IN_CONTEXT',
+    type: context?.itemType ?? 'NO_ITEM_TYPE_IN_CONTEXT',
     error: error.message,
   };
 

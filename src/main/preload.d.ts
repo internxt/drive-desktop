@@ -180,9 +180,16 @@ declare interface Window {
     openMigrationFailedFolder: () => Promise<void>;
     sendFeedback: (feedback: string) => Promise<void>;
     openFeedbackWindow(): void;
-
+    onRemoteSyncStatusChange(
+      callback: (
+        status: import('./remote-sync/helpers').RemoteSyncStatus
+      ) => void
+    ): void;
+    getRemoteSyncStatus(): Promise<
+      import('./remote-sync/helpers').RemoteSyncStatus
+    >;
+    startRemoteSync: () => Promise<void>;
     // DEV
-
     resizeWindow: () => typeof import('../main/dev/service').resizeCurrentWindow;
   };
 }

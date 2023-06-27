@@ -6,18 +6,26 @@ import { WebdavFileMother } from '../domain/WebdavFileMother';
 import { FileContentRepositoryMock } from '../__mocks__/FileContentRepositoryMock';
 import { WebdavFileRepositoryMock } from '../__mocks__/WebdavFileRepositoyMock';
 import { FilePath } from '../../domain/FilePath';
-
+import { WebdavIpcMock } from '../../../shared/infrastructure/__mock__/WebdavIPC';
 describe('Webdav File Downloader', () => {
   let repository: WebdavFileRepositoryMock;
   let contentsRepository: FileContentRepositoryMock;
   let eventBus: WebdavServerEventBus;
   let SUT: WebdavFileDownloader;
+  let ipc: WebdavIpcMock;
 
   beforeEach(() => {
     repository = new WebdavFileRepositoryMock();
     contentsRepository = new FileContentRepositoryMock();
     eventBus = new EventBusMock();
-    SUT = new WebdavFileDownloader(repository, contentsRepository, eventBus);
+    ipc = new WebdavIpcMock();
+
+    SUT = new WebdavFileDownloader(
+      repository,
+      contentsRepository,
+      eventBus,
+      ipc
+    );
   });
 
   it('Gets the a readable stream when the path is founded', async () => {
@@ -25,14 +33,14 @@ describe('Webdav File Downloader', () => {
     const file = WebdavFileMother.onFolderName(folderPath);
 
     repository.mockSearch.mockReturnValueOnce(file);
-    contentsRepository.mockDownload.mockResolvedValueOnce(new Readable());
+    contentsRepository.mockDownload.mock.mockResolvedValueOnce(new Readable());
 
     const readable = await SUT.run(file.path);
 
     expect(readable).toBeDefined();
 
     expect(repository.mockSearch).toHaveBeenCalledWith(new FilePath(file.path));
-    expect(contentsRepository.mockDownload).toHaveBeenCalledWith(file);
+    expect(contentsRepository.mockDownload.mock).toHaveBeenCalled();
   });
 
   it('Throws an exception if the path is not founded', async () => {

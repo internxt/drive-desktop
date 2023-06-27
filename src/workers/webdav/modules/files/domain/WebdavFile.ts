@@ -26,7 +26,7 @@ export class WebdavFile extends AggregateRoot {
     public readonly fileId: string,
     private _folderId: number,
     private _path: FilePath,
-    public readonly size: FileSize,
+    private readonly _size: FileSize,
     public readonly createdAt: Date,
     public readonly updatedAt: Date,
     private _status: FileStatus
@@ -56,6 +56,10 @@ export class WebdavFile extends AggregateRoot {
 
   public get dirname() {
     return this._path.dirname();
+  }
+
+  public get size(): number {
+    return this._size.value;
   }
 
   public get status() {
@@ -107,7 +111,7 @@ export class WebdavFile extends AggregateRoot {
     this.record(
       new FileDeletedDomainEvent({
         aggregateId: this.fileId,
-        size: this.size.value,
+        size: this._size.value,
       })
     );
   }
@@ -136,7 +140,7 @@ export class WebdavFile extends AggregateRoot {
       fileId,
       folderId,
       newPath,
-      this.size,
+      this._size,
       this.createdAt,
       new Date(),
       FileStatus.Exists
@@ -145,7 +149,7 @@ export class WebdavFile extends AggregateRoot {
     file.record(
       new FileCreatedDomainEvent({
         aggregateId: fileId,
-        size: this.size.value,
+        size: this._size.value,
         type: this._path.extension(),
       })
     );
@@ -158,7 +162,7 @@ export class WebdavFile extends AggregateRoot {
       fileId,
       folderId,
       newPath,
-      this.size,
+      this._size,
       this.createdAt,
       new Date(),
       FileStatus.Exists
@@ -167,7 +171,7 @@ export class WebdavFile extends AggregateRoot {
     file.record(
       new FileCreatedDomainEvent({
         aggregateId: fileId,
-        size: this.size.value,
+        size: this._size.value,
         type: this._path.extension(),
       })
     );
@@ -215,7 +219,7 @@ export class WebdavFile extends AggregateRoot {
       folderId: this.folderId,
       createdAt: this.createdAt.getDate(),
       path: this._path.value,
-      size: this.size.value,
+      size: this._size.value,
       updatedAt: this.updatedAt.getDate(),
     };
   }

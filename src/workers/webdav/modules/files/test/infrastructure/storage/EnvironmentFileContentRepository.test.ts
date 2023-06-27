@@ -13,12 +13,12 @@ describe.skip('Environment File Content Repository', () => {
   });
   const bucket = '34a3023d-aaed-5b85-9abc-3c6b22076670';
 
-  let reposiotry: EnvironmentFileContentRepository;
+  let repository: EnvironmentFileContentRepository;
   let mockDownload: jest.Mock;
   let mockUpload: jest.Mock;
 
   beforeEach(() => {
-    reposiotry = new EnvironmentFileContentRepository(environment, bucket);
+    repository = new EnvironmentFileContentRepository(environment, bucket);
 
     mockDownload = jest.fn();
     mockUpload = jest.fn();
@@ -40,7 +40,7 @@ describe.skip('Environment File Content Repository', () => {
         cbs.finishedCallback(undefined, new Readable());
       });
 
-      const stream = await reposiotry.download(file);
+      const stream = await repository.downloader(file).download();
 
       expect(stream.readable).toBe(true);
     });

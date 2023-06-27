@@ -1,15 +1,10 @@
 import { ipcRenderer } from 'electron';
 import {
-  WebdavInvokableFunctions,
   WebdavMainEvents,
   WebDavProcessEvents,
 } from '../../shared/IPC/events/webdav';
 import { CustomIpc } from '../../shared/IPC/IPCs';
 
-export type WebdavCustomIpc = CustomIpc<
-  WebDavProcessEvents,
-  WebdavMainEvents,
-  WebdavInvokableFunctions
->;
+export type WebdavIpc = CustomIpc<WebDavProcessEvents, WebdavMainEvents>;
 
-export const ipc = ipcRenderer as unknown as WebdavCustomIpc;
+export const ipc = ipcRenderer as unknown as WebdavIpc;

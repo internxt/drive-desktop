@@ -1,11 +1,13 @@
-import { WebdavFolder } from '../../folders/domain/WebdavFolder';
+import { WebdavIpc } from 'workers/webdav/ipc';
 import { WebdavFolderFinder } from '../../folders/application/WebdavFolderFinder';
+import { WebdavFolder } from '../../folders/domain/WebdavFolder';
+import { WebdavServerEventBus } from '../../shared/domain/WebdavServerEventBus';
+import { FileAlreadyExistsError } from '../domain/errors/FileAlreadyExistsError';
+import { UnknownFileActionError } from '../domain/errors/UnknownFileActionError';
 import { FilePath } from '../domain/FilePath';
 import { WebdavFile } from '../domain/WebdavFile';
 import { WebdavFileRepository } from '../domain/WebdavFileRepository';
-import { FileAlreadyExistsError } from '../domain/errors/FileAlreadyExistsError';
-import { UnknownFileActionError } from '../domain/errors/UnknownFileActionError';
-import { WebdavServerEventBus } from '../../shared/domain/WebdavServerEventBus';
+
 import { WebdavFileRenamer } from './WebdavFileRenamer';
 
 export class WebdavFileMover {
@@ -13,7 +15,8 @@ export class WebdavFileMover {
     private readonly repository: WebdavFileRepository,
     private readonly folderFinder: WebdavFolderFinder,
     private readonly fileRenamer: WebdavFileRenamer,
-    private readonly eventBus: WebdavServerEventBus
+    private readonly eventBus: WebdavServerEventBus,
+    private readonly ipc: WebdavIpc
   ) {}
 
   private async move(file: WebdavFile, folder: WebdavFolder) {
@@ -22,6 +25,11 @@ export class WebdavFileMover {
     await this.repository.updateParentDir(file);
 
     await this.eventBus.publish(file.pullDomainEvents());
+
+    this.ipc.send('WEBDAV_FILE_MOVED', {
+      name: file.nameWithExtension,
+      folderName: file.dirname,
+    });
   }
 
   private async overwite(
@@ -37,6 +45,10 @@ export class WebdavFileMover {
 
     await this.eventBus.publish(file.pullDomainEvents());
     await this.eventBus.publish(destinationFile.pullDomainEvents());
+
+    this.ipc.send('WEBDAV_FILE_OVERWRITED', {
+      name: file.nameWithExtension,
+    });
   }
 
   private noMoreActionsLeft(action: never) {

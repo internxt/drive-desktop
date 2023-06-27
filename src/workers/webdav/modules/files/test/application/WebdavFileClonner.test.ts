@@ -1,3 +1,4 @@
+import { WebdavIpcMock } from '../../../shared/infrastructure/__mock__/WebdavIPC';
 import { WebdavFolderFinder } from '../../../folders/application/WebdavFolderFinder';
 import { WebdavFolderMother } from '../../../folders/test/domain/WebdavFolderMother';
 import { WebdavFolderRepositoryMock } from '../../../folders/test/__mocks__/WebdavFolderRepositoryMock';
@@ -16,6 +17,7 @@ describe('Webdav File Clonner', () => {
   let folderRepository: WebdavFolderRepositoryMock;
   let contentsRepository: FileContentRepositoryMock;
   let eventBus: EventBusMock;
+  let ipc: WebdavIpcMock;
 
   let SUT: WebdavFileClonner;
 
@@ -25,12 +27,14 @@ describe('Webdav File Clonner', () => {
     const folderFinder = new WebdavFolderFinder(folderRepository);
     contentsRepository = new FileContentRepositoryMock();
     eventBus = new EventBusMock();
+    ipc = new WebdavIpcMock();
 
     SUT = new WebdavFileClonner(
       fileReposiotry,
       folderFinder,
       contentsRepository,
-      eventBus
+      eventBus,
+      ipc
     );
   });
 
@@ -44,7 +48,7 @@ describe('Webdav File Clonner', () => {
 
       fileReposiotry.mockSearch.mockReturnValueOnce(fileToOverride);
       folderRepository.mockSearch.mockReturnValueOnce(folder);
-      contentsRepository.mockClone.mockReturnValueOnce(clonnedFileId);
+      contentsRepository.mockClone.mock.mockReturnValueOnce(clonnedFileId);
       fileReposiotry.mockAdd.mockImplementationOnce(() => {
         //
       });
@@ -82,7 +86,7 @@ describe('Webdav File Clonner', () => {
 
       fileReposiotry.mockSearch.mockReturnValueOnce(undefined);
       folderRepository.mockSearch.mockReturnValueOnce(folder);
-      contentsRepository.mockClone.mockReturnValueOnce(clonnedFileId);
+      contentsRepository.mockClone.mock.mockReturnValueOnce(clonnedFileId);
       fileReposiotry.mockAdd.mockImplementationOnce(() => {
         //
       });
