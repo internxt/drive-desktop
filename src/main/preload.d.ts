@@ -186,10 +186,15 @@ declare interface Window {
       callback: (
         status: import('./remote-sync/helpers').RemoteSyncStatus
       ) => void
-    ): void;
+    ): () => void;
     getRemoteSyncStatus(): Promise<
       import('./remote-sync/helpers').RemoteSyncStatus
     >;
+    getVirtualDriveStatus(): Promise<string>;
+    onVirtualDriveStatusChange(
+      callback: (event: { status: string }) => void
+    ): () => void;
+    retryVirtualDriveMount(): void;
     startRemoteSync: () => Promise<void>;
     // DEV
     resizeWindow: () => typeof import('../main/dev/service').resizeCurrentWindow;

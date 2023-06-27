@@ -266,5 +266,20 @@ contextBridge.exposeInMainWorld('electron', {
   startRemoteSync() {
     return ipcRenderer.invoke('START_REMOTE_SYNC');
   },
+  getVirtualDriveStatus() {
+    return ipcRenderer.invoke('get-virtual-drive-status');
+  },
+  retryVirtualDriveMount() {
+    return ipcRenderer.invoke('retry-virtual-drive-mount');
+  },
+  onVirtualDriveStatusChange(callback) {
+    const eventName = 'virtual-drive-status-change';
+    const callbackWrapper = (_, v) => {
+      callback(v);
+    };
+    ipcRenderer.on(eventName, callbackWrapper);
+
+    return () => ipcRenderer.removeListener(eventName, callbackWrapper);
+  },
   path,
 });
