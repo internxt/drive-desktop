@@ -12,7 +12,7 @@ function subscribeToFlowEvents(ipc: IpcWebdavFlow) {
 
     broadcastToWindows('sync-info-update', {
       action: 'DELETED',
-      name: name + type,
+      name: name + '.' + type,
     });
 
     trackWebdavEvent('Delete', {
@@ -27,7 +27,7 @@ function subscribeToFlowEvents(ipc: IpcWebdavFlow) {
 
     broadcastToWindows('sync-info-update', {
       action: 'DOWNLOADING',
-      name: name + type,
+      name: name + '.' + type,
       progress,
     });
   });
@@ -37,7 +37,7 @@ function subscribeToFlowEvents(ipc: IpcWebdavFlow) {
 
     broadcastToWindows('sync-info-update', {
       action: 'DOWNLOADED',
-      name: name + type,
+      name: name + '.' + type,
     });
 
     trackWebdavEvent('Upload', {
