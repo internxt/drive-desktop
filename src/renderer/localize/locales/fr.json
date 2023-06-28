@@ -164,6 +164,11 @@
       "title": "Impossible d'obtenir le contenu à distance",
       "message": "Nous avons des problèmes pour récupérer votre contenu depuis le nuage, veuillez réessayer ",
       "button": "Essayez à nouveau "
+    },
+    "virtual-drive-error": {
+      "title": "Impossible de créer le lecteur",
+      "message": "Nous avons des problèmes pour créer votre Internxt Drive, ",
+      "button": "Veuillez réessayer"
     }
   },
   "settings": {

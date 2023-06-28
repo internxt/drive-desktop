@@ -32,6 +32,8 @@ type WebdavServerEvents = {
 };
 
 type WebdavVirtualDriveEvents = {
+  WEBDAV_VIRTUAL_DRIVE_RETRYING_MOUNT: () => void;
+  WEBDAV_VIRTUAL_DRIVE_STARTING: () => void;
   WEBDAV_VIRTUAL_DRIVE_MOUNTED_SUCCESSFULLY: () => void;
   WEBDAV_VIRTUAL_DRIVE_MOUNT_ERROR: (err: Error) => void;
   WEBDAV_VIRTUAL_DRIVE_UNMOUNT_ERROR: (err: Error) => void;
@@ -99,4 +101,5 @@ export type WebDavProcessEvents = WebdavServerEvents &
 
 export type WebdavMainEvents = {
   STOP_WEBDAV_SERVER_PROCESS: () => void;
+  RETRY_VIRTUAL_DRIVE_MOUNT: () => void;
 };

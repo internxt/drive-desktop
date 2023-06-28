@@ -1,20 +1,24 @@
-import { BrowserWindow } from 'electron';
+import { BrowserWindow, ipcMain } from 'electron';
 import { ipcWebdav } from '../ipcs/webdav';
 import path from 'path';
 import Logger from 'electron-log';
 import eventBus from '../event-bus';
 
+let webdavWorker: BrowserWindow | null = null;
+export const getWebdavWorkerWindow = () =>
+  webdavWorker?.isDestroyed() ? null : webdavWorker;
 function spawnWebdavServerWorker() {
   Logger.log('Spawning webdav server!');
-  const worker = new BrowserWindow({
+
+  webdavWorker = new BrowserWindow({
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
+      backgroundThrottling: false,
     },
     show: false,
   });
-
-  worker
+  webdavWorker
     .loadFile(
       process.env.NODE_ENV === 'development'
         ? '../../release/app/dist/webdav/index.html'
@@ -24,7 +28,7 @@ function spawnWebdavServerWorker() {
       Logger.error('Error loading worker', err);
     });
 
-  return worker;
+  return webdavWorker;
 }
 
 ipcWebdav.once('WEBDAV_SERVER_START_ERROR', (_, err: Error) => {
@@ -47,4 +51,8 @@ eventBus.on('USER_WAS_UNAUTHORIZED', stopWebDavServer);
 
 eventBus.on('USER_LOGGED_IN', () => {
   spawnWebdavServerWorker();
+});
+
+ipcMain.handle('retry-virtual-drive-mount', () => {
+  webdavWorker?.webContents.send('RETRY_VIRTUAL_DRIVE_MOUNT', '');
 });

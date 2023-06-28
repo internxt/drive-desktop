@@ -9,9 +9,12 @@ import useBackupFatalErrors from '../../hooks/BackupFatalErrors';
 import useGeneralIssues from '../../hooks/GeneralIssues';
 import useProcessIssues from '../../hooks/ProcessIssues';
 import useUsage from '../../hooks/useUsage';
+import useVirtualDriveStatus from '../../hooks/VirtualDriveStatus';
+import { reportError } from '../../utils/errors';
 
 export default function Header() {
   const { translate } = useTranslationContext();
+  const { status: virtualDriveStatus } = useVirtualDriveStatus();
   const processIssues = useProcessIssues();
   const generalIssues = useGeneralIssues();
   const backupFatalErrors = useBackupFatalErrors();
@@ -38,6 +41,13 @@ export default function Header() {
     }
   }, []);
 
+  const handleOpenDriveWeb = async () => {
+    try {
+      await window.electron.openUrl('https://drive.internxt.com');
+    } catch (error) {
+      reportError(error);
+    }
+  };
   const dropdown = (
     <Transition
       enter="transition duration-100 ease-out"
@@ -151,9 +161,7 @@ export default function Header() {
         <div className="h-0 w-0" tabIndex={0} ref={dummyRef} />
       )}
       <a
-        href="https://drive.internxt.com"
-        target="_blank"
-        rel="noopener noreferrer"
+        onClick={handleOpenDriveWeb}
         className="rounded-lg outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-blue-60"
       >
         <HeaderItemWrapper>
@@ -165,7 +173,11 @@ export default function Header() {
         onClick={window.electron.openSyncFolder}
         onKeyPress={window.electron.openSyncFolder}
         tabIndex={0}
-        className="rounded-lg outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-blue-60"
+        className={`rounded-lg outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-blue-60 ${
+          virtualDriveStatus === 'MOUNTED'
+            ? ''
+            : 'pointer-events-none opacity-50'
+        }`}
       >
         <HeaderItemWrapper>
           <UilFolderOpen className="h-5 w-5" />

@@ -3,6 +3,11 @@ import { exec } from 'child_process';
 import configStore from '../../main/config';
 import { homedir } from 'os';
 
+export enum VirtualDriveStatus {
+  MOUNTING = 'MOUNTING',
+  MOUNTED = 'MOUNTED',
+  FAILED_TO_MOUNT = 'FAILED_TO_MOUNT',
+}
 const driveObject = {
   host: 'localhost',
   port: '1900',
@@ -52,6 +57,15 @@ export const getVirtualDrivePath = () => {
   } else {
     return homedir() + '/InternxtDrive';
   }
+};
+
+/**
+ * Retry the virtual drive mounting by trying to unmount it first,
+ * and mount it again
+ */
+export const retryVirtualDriveMount = async () => {
+  await unmountDrive();
+  await mountDrive();
 };
 
 const getSavedLetter = () => {
