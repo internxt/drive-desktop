@@ -4,7 +4,7 @@ import { RemoteFileContentsRepository } from '../domain/RemoteFileContentsReposi
 import { RemoteFileContents } from '../domain/RemoteFileContent';
 import { WebdavFileRepository } from '../domain/WebdavFileRepository';
 import { FilePath } from '../domain/FilePath';
-import { WebdavIpc } from 'workers/webdav/ipc';
+import { WebdavIpc } from '../../../ipc';
 import { Stopwatch } from '../../../../../shared/types/Stopwatch';
 import { ContentFileDownloader } from '../domain/ContentFileDownloader';
 import { WebdavFile } from '../domain/WebdavFile';
@@ -22,6 +22,29 @@ export class WebdavFileDownloader {
 
     downloader.on('start', () => {
       stopwatch.start();
+      this.ipc.send('WEBDAV_FILE_DOWNLOADING', {
+        name: file.name,
+        size: file.size,
+        type: file.type,
+        processInfo: { elapsedTime: stopwatch.elapsedTime() },
+      });
+    });
+
+    downloader.on('progress', (progress: number) => {
+      this.ipc.send('WEBDAV_FILE_DOWNLOADING', {
+        name: file.name,
+        size: file.size,
+        type: file.type,
+        processInfo: { elapsedTime: stopwatch.elapsedTime() },
+        progress,
+      });
+    });
+
+    downloader.on('error', (error: Error) => {
+      this.ipc.send('WEBDAV_FILE_DOWNLOAD_ERROR', {
+        name: file.name,
+        error: error.message,
+      });
     });
 
     downloader.on('finish', () => {
@@ -31,7 +54,7 @@ export class WebdavFileDownloader {
         name: file.name,
         size: file.size,
         type: file.type,
-        uploadInfo: { elapsedTime: stopwatch.elapsedTime() },
+        processInfo: { elapsedTime: stopwatch.elapsedTime() },
       });
     });
   }

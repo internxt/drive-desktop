@@ -39,33 +39,43 @@ type WebdavVirtualDriveEvents = {
   WEBDAV_VIRTUAL_DRIVE_UNMOUNT_ERROR: (err: Error) => void;
 };
 
-type UploadInfo = {
+type ProcessInfo = {
   elapsedTime: number | undefined;
 };
 
 export type WebdavFlowEvents = {
+  WEBDAV_FILE_UPLOADING: (payload: {
+    name: string;
+    size: number;
+    type: string;
+    processInfo: ProcessInfo;
+    progress?: number;
+  }) => void;
   WEBDAV_FILE_UPLOADED: (payload: {
     name: string;
     size: number;
     type: string;
-    uploadInfo: UploadInfo;
+    processInfo: ProcessInfo;
   }) => void;
-  WEBDAV_FILE_UPLOAD_PROGRESS: (payload: {
+  WEBDAV_FILE_DOWNLOADING: (payload: {
     name: string;
-    progess: number;
-    uploadInfo: UploadInfo;
+    size: number;
+    type: string;
+    processInfo: ProcessInfo;
+    progress?: number;
   }) => void;
   WEBDAV_FILE_DOWNLOADED: (payload: {
     name: string;
     size: number;
     type: string;
-    uploadInfo: UploadInfo;
+    processInfo: ProcessInfo;
   }) => void;
   WEBDAV_FILE_DELETED: (payload: {
     name: string;
     size: number;
     type: string;
   }) => void;
+  WEBDAV_FILE_RENAMING: (payload: { name: string; oldName: string }) => void;
   WEBDAV_FILE_RENAMED: (payload: { name: string; oldName: string }) => void;
   WEBDAV_FILE_MOVED: (payload: { name: string; folderName: string }) => void;
   WEBDAV_FILE_OVERWRITED: (payload: { name: string }) => void;
@@ -73,12 +83,24 @@ export type WebdavFlowEvents = {
     name: string;
     size: number;
     type: string;
-    uploadInfo: UploadInfo;
+    processInfo: ProcessInfo;
   }) => void;
 };
 
 export type WebdavFlowEventsErrors = {
-  WEBDAV_FILE_UPLOADED_ERROR: (payload: {
+  WEBDAV_FILE_UPLOAD_ERROR: (payload: {
+    name: string;
+    error: string;
+  }) => void;
+  WEBDAV_FILE_DOWNLOAD_ERROR: (payload: {
+    name: string;
+    error: string;
+  }) => void;
+  WEBDAV_FILE_DELETE_ERROR: (payload: {
+    name: string;
+    error: string;
+  }) => void;
+  WEBDAV_FILE_RENAME_ERROR: (payload: {
     name: string;
     error: string;
   }) => void;

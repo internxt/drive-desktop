@@ -10,6 +10,11 @@ function subscribeToFlowEvents(ipc: IpcWebdavFlow) {
   ipc.on('WEBDAV_FILE_DELETED', (_, payload) => {
     const { name, type, size } = payload;
 
+    broadcastToWindows('sync-info-update', {
+      action: 'DELETED',
+      name: name + type,
+    });
+
     trackWebdavEvent('Delete', {
       name,
       type,
@@ -17,19 +22,39 @@ function subscribeToFlowEvents(ipc: IpcWebdavFlow) {
     });
   });
 
+  ipc.on('WEBDAV_FILE_DOWNLOADING', (_, payload) => {
+    const { name, type, progress } = payload;
+
+    broadcastToWindows('sync-info-update', {
+      action: 'DOWNLOADING',
+      name: name + type,
+      progress,
+    });
+  });
+
   ipc.on('WEBDAV_FILE_DOWNLOADED', (_, payload) => {
-    const { name, type, size, uploadInfo } = payload;
+    const { name, type, size, processInfo } = payload;
+
+    broadcastToWindows('sync-info-update', {
+      action: 'DOWNLOADED',
+      name: name + type,
+    });
 
     trackWebdavEvent('Upload', {
       name,
       type,
       size,
-      elapsedTime: uploadInfo.elapsedTime,
+      elapsedTime: processInfo?.elapsedTime,
     });
   });
 
   ipc.on('WEBDAV_FILE_MOVED', (_, payload) => {
     const { name, folderName } = payload;
+
+    broadcastToWindows('sync-info-update', {
+      action: 'MOVED',
+      name,
+    });
 
     trackWebdavEvent('Move', {
       name,
@@ -48,44 +73,112 @@ function subscribeToFlowEvents(ipc: IpcWebdavFlow) {
   ipc.on('WEBDAV_FILE_RENAMED', (_, payload) => {
     const { name } = payload;
 
+    broadcastToWindows('sync-info-update', {
+      action: 'RENAMED',
+      name,
+    });
+
     trackWebdavEvent('Rename', {
       name,
     });
   });
 
   ipc.on('WEBDAV_FILE_CLONNED', (_, payload) => {
-    const { name, type, size, uploadInfo } = payload;
+    const { name, type, size, processInfo } = payload;
+
+    broadcastToWindows('sync-info-update', {
+      action: 'UPLOADED',
+      name,
+    });
 
     trackWebdavEvent('Upload', {
       name,
       type,
       size,
       clonned: true,
-      elapsedTime: uploadInfo.elapsedTime,
+      elapsedTime: processInfo?.elapsedTime,
     });
   });
 
   ipc.on('WEBDAV_FILE_UPLOADED', (_, payload) => {
-    const { name, type, size, uploadInfo } = payload;
+    const { name, type, size, processInfo } = payload;
+
+    broadcastToWindows('sync-info-update', {
+      action: 'UPLOADED',
+      name,
+    });
 
     trackWebdavEvent('Upload', {
       name,
       type,
       size,
-      elapsedTime: uploadInfo.elapsedTime,
+      elapsedTime: processInfo?.elapsedTime,
     });
   });
 }
 
 function subscribeToFlowErrors(ipc: IpcWebdavFlowErrors) {
-  ipc.on('WEBDAV_FILE_UPLOADED_ERROR', (_, payload) => {
+  ipc.on('WEBDAV_FILE_UPLOAD_ERROR', (_, payload) => {
     const { name, error } = payload;
+
+    broadcastToWindows('sync-info-update', {
+      action: 'UPLOAD_ERROR',
+      name,
+    });
 
     trackWebdavError('Upload Error', new Error(error), {
       itemType: 'File',
       root: '',
       from: name,
       action: 'Upload',
+    });
+  });
+
+  ipc.on('WEBDAV_FILE_DOWNLOAD_ERROR', (_, payload) => {
+    const { name, error } = payload;
+
+    broadcastToWindows('sync-info-update', {
+      action: 'DOWNLOAD_ERROR',
+      name,
+    });
+
+    trackWebdavError('Download Error', new Error(error), {
+      itemType: 'File',
+      root: '',
+      from: name,
+      action: 'Download',
+    });
+  });
+
+  ipc.on('WEBDAV_FILE_RENAME_ERROR', (_, payload) => {
+    const { name, error } = payload;
+
+    broadcastToWindows('sync-info-update', {
+      action: 'RENAME_ERROR',
+      name,
+    });
+
+    trackWebdavError('Rename Error', new Error(error), {
+      itemType: 'File',
+      root: '',
+      from: name,
+      action: 'Rename',
+    });
+  });
+
+  ipc.on('WEBDAV_FILE_DELETE_ERROR', (_, payload) => {
+    const { name, error } = payload;
+
+    broadcastToWindows('sync-info-update', {
+      action: 'DELETE_ERROR',
+      name,
+    });
+
+    trackWebdavError('Delete Error', new Error(error), {
+      itemType: 'File',
+      root: '',
+      from: name,
+      action: 'Delete',
     });
   });
 

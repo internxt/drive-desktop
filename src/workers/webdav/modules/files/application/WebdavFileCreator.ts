@@ -32,18 +32,28 @@ export class WebdavFileCreator {
     uploader.on('start', () => {
       stopwatch.start();
 
-      this.ipc.send('WEBDAV_FILE_UPLOAD_PROGRESS', {
+      this.ipc.send('WEBDAV_FILE_UPLOADING', {
         name: metadata.name,
-        progess: 0,
-        uploadInfo: { elapsedTime: stopwatch.elapsedTime() },
+        size: metadata.size,
+        type: metadata.type,
+        processInfo: { elapsedTime: stopwatch.elapsedTime() },
       });
     });
 
-    uploader.on('progress', (progess: number) => {
-      this.ipc.send('WEBDAV_FILE_UPLOAD_PROGRESS', {
+    uploader.on('progress', (progress: number) => {
+      this.ipc.send('WEBDAV_FILE_UPLOADING', {
         name: metadata.name,
-        progess,
-        uploadInfo: { elapsedTime: stopwatch.elapsedTime() },
+        size: metadata.size,
+        type: metadata.type,
+        progress,
+        processInfo: { elapsedTime: stopwatch.elapsedTime() },
+      });
+    });
+
+    uploader.on('error', (error: Error) => {
+      this.ipc.send('WEBDAV_FILE_UPLOAD_ERROR', {
+        name: metadata.name,
+        error: error.message,
       });
     });
 
@@ -54,7 +64,7 @@ export class WebdavFileCreator {
         name: metadata.name,
         type: metadata.type,
         size: metadata.size,
-        uploadInfo: { elapsedTime: stopwatch.elapsedTime() },
+        processInfo: { elapsedTime: stopwatch.elapsedTime() },
       });
     });
   }
@@ -112,7 +122,7 @@ export class WebdavFileCreator {
         return this.createFileEntry(fileId, folder, size, filePath);
       })
       .catch((error: Error) => {
-        this.ipc.send('WEBDAV_FILE_UPLOADED_ERROR', {
+        this.ipc.send('WEBDAV_FILE_UPLOAD_ERROR', {
           name: metadata.name,
           error: error.message,
         });
