@@ -17,14 +17,19 @@ const driveName = 'Internxt Drive';
 
 export const mountDrive = async (): Promise<void> => {
   if (process.platform === 'win32') {
-    const driveLetter = await getLetterDrive();
-    Logger.log(`[VirtualDrive] Drive letter available: ${driveLetter}`);
-    if (driveLetter) {
-      configStore.set('virtualdriveWindowsLetter', driveLetter);
-      const mounted = await mountWindowsDrive(driveLetter);
-      if (mounted) {
-        await renameWindowsDrive();
+    const currentMountedDrives = await getCurrentMountedDrives();
+    if (currentMountedDrives.length === 0) {
+      const driveLetter = await getLetterDrive();
+      Logger.log(`[VirtualDrive] Drive letter available: ${driveLetter}`);
+      if (driveLetter) {
+        configStore.set('virtualdriveWindowsLetter', driveLetter);
+        const mounted = await mountWindowsDrive(driveLetter);
+        if (mounted) {
+          await renameWindowsDrive();
+        }
       }
+    } else {
+      Logger.log(`[VirtualDrive] Drive already mounted on: ${currentMountedDrives.toString()}`);
     }
     return;
   } else if (process.platform === 'darwin') {
@@ -185,27 +190,28 @@ const unmountWindowsDrive = (driveLetter: string): Promise<boolean> => {
   });
 };
 
-const cleanWindowsDrives = () => {
-  Logger.log('[VirtualDrive] Cleaning drives');
-  exec(
-    `((Get-CimInstance -Class Win32_NetworkConnection) | Where-Object {$_.remotename -match '\\\\${driveObject.host}@${driveObject.port}\\DavWWWRoot'}).LocalName`,
-    { shell: 'powershell.exe' },
-    (err, stdout) => {
-      if (err) {
-        Logger.log(`[VirtualDrive] Error getting drives: ${err}`);
-      } else {
-        const currentWebdavMountedDrives = stdout
-          .split(/\r?\n/)
-          .filter((l) => l && l.length === 2);
-        Logger.log('[VirtualDrive] Current webdav mounted drives:', {
-          currentWebdavMountedDrives,
-        });
-        currentWebdavMountedDrives.forEach((driveLetter) => {
-          unmountWindowsDrive(driveLetter);
-        });
+const getCurrentMountedDrives = (): Promise<string[]> => {
+  Logger.log('[VirtualDrive] Getting CurrentMountedDrives');
+  return new Promise(function (resolve, reject) {
+    exec(
+      `(Get-PSDrive -PSProvider FileSystem | Where-Object {$_.DisplayRoot -match '\\\\\\\\${driveObject.host}@${driveObject.port}\\\\DavWWWRoot'}).Name`,
+      { shell: 'powershell.exe' },
+      (err, stdout) => {
+        if (err) {
+          Logger.log(`[VirtualDrive] Error getting drives: ${err}`);
+          reject(`[VirtualDrive] Error getting drives: ${err}`);
+        } else {
+          const currentWebdavMountedDrives = stdout
+            .split(/\r?\n/)
+            .filter((l) => l && l.length === 1);
+          Logger.log('[VirtualDrive] Current webdav mounted drives:', {
+            currentWebdavMountedDrives,
+          });
+          resolve(currentWebdavMountedDrives);
+        }
       }
-    }
-  );
+    );
+  });
 };
 
 const createUnixFolder = (): Promise<boolean> => {
