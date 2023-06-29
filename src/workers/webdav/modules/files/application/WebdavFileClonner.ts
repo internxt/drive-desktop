@@ -35,7 +35,7 @@ export class WebdavFileClonner {
         name: file.name,
         type: file.type,
         size: file.size,
-        uploadInfo: { elapsedTime: stopwatch.elapsedTime() },
+        processInfo: { elapsedTime: stopwatch.elapsedTime() },
       });
     });
   }
