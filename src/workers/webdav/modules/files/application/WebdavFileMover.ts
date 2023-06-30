@@ -27,7 +27,7 @@ export class WebdavFileMover {
     await this.eventBus.publish(file.pullDomainEvents());
 
     this.ipc.send('WEBDAV_FILE_MOVED', {
-      name: file.nameWithExtension,
+      nameWithExtension: file.nameWithExtension,
       folderName: file.dirname,
     });
   }
@@ -47,7 +47,7 @@ export class WebdavFileMover {
     await this.eventBus.publish(destinationFile.pullDomainEvents());
 
     this.ipc.send('WEBDAV_FILE_OVERWRITED', {
-      name: file.nameWithExtension,
+      nameWithExtension: file.nameWithExtension,
     });
   }
 

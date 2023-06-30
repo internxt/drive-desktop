@@ -1,8 +1,8 @@
-import { UilArrowDown, UilArrowUp, UilTrash } from '@iconscout/react-unicons';
+import { UilArrowDown, UilArrowUp, UilTrash, UilPen } from '@iconscout/react-unicons';
 
 import FileIcon from '../assets/file.svg';
 
-export type Operation = 'download' | 'upload' | 'delete';
+export type Operation = 'download' | 'upload' | 'delete' | 'rename';
 
 export default function FileWithOperation({
   operation,
@@ -17,6 +17,7 @@ export default function FileWithOperation({
     download: UilArrowDown,
     upload: UilArrowUp,
     delete: UilTrash,
+    rename: UilPen,
   };
 
   const AuxIcon = operation ? iconMap[operation] : null;

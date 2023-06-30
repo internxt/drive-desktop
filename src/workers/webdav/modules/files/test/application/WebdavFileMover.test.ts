@@ -24,7 +24,7 @@ describe('Webdav File Mover', () => {
     repository = new WebdavFileRepositoryMock();
     folderRepository = new WebdavFolderRepositoryMock();
     folderFinder = new WebdavFolderFinder(folderRepository);
-    fileRenamer = new WebdavFileRenamer(repository, eventBus);
+    fileRenamer = new WebdavFileRenamer(repository, eventBus, ipc);
     eventBus = new EventBusMock();
     ipc = new WebdavIpcMock();
 
