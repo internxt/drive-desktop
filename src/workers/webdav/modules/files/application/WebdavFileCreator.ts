@@ -34,8 +34,9 @@ export class WebdavFileCreator {
 
       this.ipc.send('WEBDAV_FILE_UPLOADING', {
         name: metadata.name,
+        extension: metadata.extension,
+        nameWithExtension: metadata.name + (metadata.extension.length >= 0 ? '.' + metadata.extension : ''),
         size: metadata.size,
-        type: metadata.type,
         processInfo: { elapsedTime: stopwatch.elapsedTime() },
       });
     });
@@ -43,8 +44,9 @@ export class WebdavFileCreator {
     uploader.on('progress', (progress: number) => {
       this.ipc.send('WEBDAV_FILE_UPLOADING', {
         name: metadata.name,
+        extension: metadata.extension,
+        nameWithExtension: metadata.name + (metadata.extension.length >= 0 ? '.' + metadata.extension : ''),
         size: metadata.size,
-        type: metadata.type,
         progress,
         processInfo: { elapsedTime: stopwatch.elapsedTime() },
       });
@@ -53,6 +55,8 @@ export class WebdavFileCreator {
     uploader.on('error', (error: Error) => {
       this.ipc.send('WEBDAV_FILE_UPLOAD_ERROR', {
         name: metadata.name,
+        extension: metadata.extension,
+        nameWithExtension: metadata.name + (metadata.extension.length >= 0 ? '.' + metadata.extension : ''),
         error: error.message,
       });
     });
@@ -62,7 +66,8 @@ export class WebdavFileCreator {
 
       this.ipc.send('WEBDAV_FILE_UPLOADED', {
         name: metadata.name,
-        type: metadata.type,
+        extension: metadata.extension,
+        nameWithExtension: metadata.name + (metadata.extension.length >= 0 ? '.' + metadata.extension : ''),
         size: metadata.size,
         processInfo: { elapsedTime: stopwatch.elapsedTime() },
       });
@@ -124,6 +129,8 @@ export class WebdavFileCreator {
       .catch((error: Error) => {
         this.ipc.send('WEBDAV_FILE_UPLOAD_ERROR', {
           name: metadata.name,
+          extension: metadata.extension,
+          nameWithExtension: metadata.name + (metadata.extension.length >= 0 ? '.' + metadata.extension : ''),
           error: error.message,
         });
       });

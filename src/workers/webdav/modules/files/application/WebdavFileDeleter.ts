@@ -19,7 +19,8 @@ export class WebdavFileDeleter {
 
     this.ipc.send('WEBDAV_FILE_DELETED', {
       name: file.name,
-      type: file.type,
+      extension: file.type,
+      nameWithExtension: file.nameWithExtension,
       size: file.size,
     });
   }

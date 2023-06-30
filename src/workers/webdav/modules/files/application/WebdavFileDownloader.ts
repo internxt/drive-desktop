@@ -24,8 +24,9 @@ export class WebdavFileDownloader {
       stopwatch.start();
       this.ipc.send('WEBDAV_FILE_DOWNLOADING', {
         name: file.name,
+        extension: file.type,
+        nameWithExtension: file.nameWithExtension,
         size: file.size,
-        type: file.type,
         processInfo: { elapsedTime: stopwatch.elapsedTime() },
       });
     });
@@ -33,8 +34,9 @@ export class WebdavFileDownloader {
     downloader.on('progress', (progress: number) => {
       this.ipc.send('WEBDAV_FILE_DOWNLOADING', {
         name: file.name,
+        extension: file.type,
+        nameWithExtension: file.nameWithExtension,
         size: file.size,
-        type: file.type,
         processInfo: { elapsedTime: stopwatch.elapsedTime() },
         progress,
       });
@@ -43,6 +45,8 @@ export class WebdavFileDownloader {
     downloader.on('error', (error: Error) => {
       this.ipc.send('WEBDAV_FILE_DOWNLOAD_ERROR', {
         name: file.name,
+        extension: file.type,
+        nameWithExtension: file.nameWithExtension,
         error: error.message,
       });
     });
@@ -52,8 +56,9 @@ export class WebdavFileDownloader {
 
       this.ipc.send('WEBDAV_FILE_DOWNLOADED', {
         name: file.name,
+        extension: file.type,
+        nameWithExtension: file.nameWithExtension,
         size: file.size,
-        type: file.type,
         processInfo: { elapsedTime: stopwatch.elapsedTime() },
       });
     });

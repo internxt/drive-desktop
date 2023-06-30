@@ -33,7 +33,8 @@ export class WebdavFileClonner {
 
       this.ipc.send('WEBDAV_FILE_CLONNED', {
         name: file.name,
-        type: file.type,
+        extension: file.type,
+        nameWithExtension: file.nameWithExtension,
         size: file.size,
         processInfo: { elapsedTime: stopwatch.elapsedTime() },
       });

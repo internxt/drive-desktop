@@ -17,12 +17,14 @@ export class WebdavFileRenamer {
     const path = new FilePath(destination);
     this.ipc.send('WEBDAV_FILE_RENAMING', {
       oldName: file.name,
-      name: path.nameWithExtension()
+      nameWithExtension: path.nameWithExtension()
     });
 
     if (file.dirname !== path.dirname()) {
       this.ipc.send('WEBDAV_FILE_RENAME_ERROR', {
         name: file.name,
+        extension: file.type,
+        nameWithExtension: file.nameWithExtension,
         error: 'Renaming error: rename and change folder'
       });
       throw new ActionNotPermitedError('rename and change folder');
@@ -33,6 +35,8 @@ export class WebdavFileRenamer {
     if (destinationFile) {
       this.ipc.send('WEBDAV_FILE_RENAME_ERROR', {
         name: file.name,
+        extension: file.type,
+        nameWithExtension: file.nameWithExtension,
         error: 'Renaming error: file already exists'
       });
       throw new FileAlreadyExistsError(destination);
@@ -47,11 +51,13 @@ export class WebdavFileRenamer {
 
       this.ipc.send('WEBDAV_FILE_RENAMED', {
         oldName: file.name,
-        name: path.nameWithExtension()
+        nameWithExtension: path.nameWithExtension()
       });
     } catch (err) {
       this.ipc.send('WEBDAV_FILE_RENAME_ERROR', {
         name: file.name,
+        extension: file.type,
+        nameWithExtension: file.nameWithExtension,
         error: 'Renaming error: ' + err
       });
     }
