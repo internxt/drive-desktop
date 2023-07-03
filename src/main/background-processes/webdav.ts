@@ -43,7 +43,7 @@ function stopWebDavServer() {
   ipcWebdav.once('WEBDAV_SERVER_STOP_ERROR', (_, err: Error) => {
     Logger.error('ERROR STOPING WEBDAV SERVER', err);
   });
-  ipcWebdav.emit('STOP_WEBDAV_SERVER_PROCESS');
+  webdavWorker?.webContents.send('STOP_WEBDAV_SERVER_PROCESS');
 }
 
 eventBus.on('USER_LOGGED_OUT', stopWebDavServer);
@@ -54,5 +54,5 @@ eventBus.on('USER_LOGGED_IN', () => {
 });
 
 ipcMain.handle('retry-virtual-drive-mount', () => {
-  webdavWorker?.webContents.send('RETRY_VIRTUAL_DRIVE_MOUNT', '');
+  webdavWorker?.webContents.send('RETRY_VIRTUAL_DRIVE_MOUNT');
 });

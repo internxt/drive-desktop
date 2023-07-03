@@ -65,7 +65,9 @@ async function setUp() {
   });
 
   ipc.on('STOP_WEBDAV_SERVER_PROCESS', () => {
-    unmountDrive();
+    unmountDrive().catch((err) => {
+      Logger.error('Failed to unmount the Virtual Drive ', err);
+    });
     server
       .stop()
       .then(() => {
