@@ -37,6 +37,7 @@ import { FileActionOnlyCanAffectOneLevelError } from '../../modules/files/domain
 import { FileNameShouldDifferFromOriginalError } from '../../modules/files/domain/errors/FileNameShouldDifferFromOriginalError';
 import { FileCannotBeMovedToTheOriginalFolderError } from '../../modules/files/domain/errors/FileCannotBeMovedToTheOriginalFolderError';
 import { RemoteFileContents } from '../../modules/files/domain/RemoteFileContent';
+import { WebdavFileValidator } from 'workers/webdav/modules/files/application/WebdavFileValidator';
 
 export class PhysicalFileSystemResource {
   props: LocalPropertyManager;
@@ -60,6 +61,7 @@ export class InternxtFileSystem extends FileSystem {
     [path: string]: PhysicalFileSystemResource;
   };
 
+  private fileValidator = new WebdavFileValidator();
   constructor(private readonly container: DependencyContainer) {
     super(new DebugPhysicalSerializer(container));
 
@@ -116,6 +118,9 @@ export class InternxtFileSystem extends FileSystem {
     }
 
     if (ctx.type.isFile) {
+      const isValidName = this.fileValidator.validateName(path);
+      if (!isValidName) return callback(Errors.UnrecognizedResource);
+
       this.resources[path.toString(false)] = new PhysicalFileSystemResource();
 
       return callback();
@@ -132,6 +137,9 @@ export class InternxtFileSystem extends FileSystem {
     }
 
     if (item.isFile()) {
+      const isValidName = this.fileValidator.validateName(path);
+      if (!isValidName) return callback(Errors.UnrecognizedResource);
+
       Logger.debug('[Deleting File]: ' + item.name + item.type);
       this.container.fileDeleter
         .run(item)
@@ -210,6 +218,8 @@ export class InternxtFileSystem extends FileSystem {
     }
 
     if (originalItem.isFile()) {
+      const isValidName = this.fileValidator.validateName(pathFrom);
+      if (!isValidName) return callback(Errors.UnrecognizedResource);
       this.container.fileRenamer.run(
         originalItem,
         ctx.destinationPath.toString(false)
@@ -246,6 +256,8 @@ export class InternxtFileSystem extends FileSystem {
     };
 
     if (originalItem.isFile()) {
+      const isValidName = this.fileValidator.validateName(pathFrom);
+      if (!isValidName) return callback(Errors.UnrecognizedResource);
       this.container.fileMover
         .run(originalItem, pathTo.toString(false), ctx.overwrite)
         .then((hasBeenOverriden: boolean) => {
