@@ -47,8 +47,7 @@ export class WebdavFileCreator {
         extension: metadata.extension,
         nameWithExtension: metadata.name + (metadata.extension.length >= 0 ? '.' + metadata.extension : ''),
         size: metadata.size,
-        progress,
-        processInfo: { elapsedTime: stopwatch.elapsedTime() },
+        processInfo: { elapsedTime: stopwatch.elapsedTime(), progress },
       });
     });
 

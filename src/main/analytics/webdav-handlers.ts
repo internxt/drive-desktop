@@ -1,6 +1,6 @@
 import Logger from 'electron-log';
 import { ipcWebdav, IpcWebdavFlow, IpcWebdavFlowErrors } from '../ipcs/webdav';
-import { trackWebdavError, trackWebdavEvent } from './service';
+import { getTrackBandwith, trackWebdavError, trackWebdavEvent } from './service';
 import { WebdavErrorContext } from '../../shared/IPC/events/webdav';
 import { broadcastToWindows } from '../windows';
 import { VirtualDriveStatus } from '../../workers/webdav/VirtualDrive';
@@ -15,21 +15,31 @@ function subscribeToFlowEvents(ipc: IpcWebdavFlow) {
       name: nameWithExtension,
     });
 
-    trackWebdavEvent('Delete', {
-      name,
-      extension,
-      size,
+    trackWebdavEvent('Delete Completed', {
+      file_name: name,
+      file_extension: extension,
+      file_size: size,
     });
   });
 
   ipc.on('WEBDAV_FILE_DOWNLOADING', (_, payload) => {
-    const { nameWithExtension, progress } = payload;
+    const { name, nameWithExtension, size, extension, processInfo } = payload;
 
     broadcastToWindows('sync-info-update', {
       action: 'DOWNLOADING',
       name: nameWithExtension,
-      progress,
+      progress: processInfo.progress,
     });
+
+    if (!processInfo.progress) {
+      trackWebdavEvent('Download Started', {
+        file_name: name,
+        file_extension: extension,
+        file_size: size,
+        elapsedTimeMs: processInfo.elapsedTime,
+        bandwith: getTrackBandwith(size / 8, processInfo.elapsedTime / 1000),
+      });
+    }
   });
 
   ipc.on('WEBDAV_FILE_DOWNLOADED', (_, payload) => {
@@ -40,32 +50,29 @@ function subscribeToFlowEvents(ipc: IpcWebdavFlow) {
       name: nameWithExtension,
     });
 
-    trackWebdavEvent('Upload', {
-      name,
-      extension,
-      size,
-      elapsedTime: processInfo?.elapsedTime,
+    trackWebdavEvent('Download Completed', {
+      file_name: name,
+      file_extension: extension,
+      file_size: size,
+      elapsedTimeMs: processInfo.elapsedTime,
+      bandwith: getTrackBandwith(size / 8, processInfo.elapsedTime / 1000),
     });
   });
 
   ipc.on('WEBDAV_FILE_MOVED', (_, payload) => {
-    const { nameWithExtension, folderName } = payload;
+    const { nameWithExtension } = payload;
 
     broadcastToWindows('sync-info-update', {
       action: 'MOVED',
       name: nameWithExtension,
-    });
-
-    trackWebdavEvent('Move', {
-      name: nameWithExtension,
-      folderName,
     });
   });
 
   ipc.on('WEBDAV_FILE_OVERWRITED', (_, payload) => {
     const { nameWithExtension } = payload;
 
-    trackWebdavEvent('Move', {
+    broadcastToWindows('sync-info-update', {
+      action: 'MOVED',
       name: nameWithExtension,
     });
   });
@@ -75,10 +82,6 @@ function subscribeToFlowEvents(ipc: IpcWebdavFlow) {
 
     broadcastToWindows('sync-info-update', {
       action: 'RENAMED',
-      name: nameWithExtension,
-    });
-
-    trackWebdavEvent('Rename', {
       name: nameWithExtension,
     });
   });
@@ -91,13 +94,34 @@ function subscribeToFlowEvents(ipc: IpcWebdavFlow) {
       name: nameWithExtension,
     });
 
-    trackWebdavEvent('Upload', {
-      name,
-      extension,
-      size,
-      clonned: true,
-      elapsedTime: processInfo?.elapsedTime,
+    trackWebdavEvent('Upload Completed', {
+      file_name: name,
+      file_extension: extension,
+      file_size: size,
+      cloned: true,
+      elapsedTimeMs: processInfo.elapsedTime,
+      bandwith: getTrackBandwith(size / 8, processInfo.elapsedTime / 1000),
     });
+  });
+
+  ipc.on('WEBDAV_FILE_UPLOADING', (_, payload) => {
+    const { name, nameWithExtension, size, extension, processInfo } = payload;
+
+    broadcastToWindows('sync-info-update', {
+      action: 'UPLOADING',
+      name: nameWithExtension,
+      progress: processInfo.progress,
+    });
+
+    if (!processInfo.progress) {
+      trackWebdavEvent('Upload Started', {
+        file_name: name,
+        file_extension: extension,
+        file_size: size,
+        elapsedTimeMs: processInfo.elapsedTime,
+        bandwith: getTrackBandwith(size / 8, processInfo.elapsedTime / 1000),
+      });
+    }
   });
 
   ipc.on('WEBDAV_FILE_UPLOADED', (_, payload) => {
@@ -108,11 +132,12 @@ function subscribeToFlowEvents(ipc: IpcWebdavFlow) {
       name: nameWithExtension,
     });
 
-    trackWebdavEvent('Upload', {
-      name,
-      extension,
-      size,
-      elapsedTime: processInfo?.elapsedTime,
+    trackWebdavEvent('Upload Completed', {
+      file_name: name,
+      file_extension: extension,
+      file_size: size,
+      elapsedTimeMs: processInfo.elapsedTime,
+      bandwith: getTrackBandwith(size / 8, processInfo.elapsedTime / 1000),
     });
   });
 }

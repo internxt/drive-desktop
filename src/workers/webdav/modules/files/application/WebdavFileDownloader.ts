@@ -37,8 +37,7 @@ export class WebdavFileDownloader {
         extension: file.type,
         nameWithExtension: file.nameWithExtension,
         size: file.size,
-        processInfo: { elapsedTime: stopwatch.elapsedTime() },
-        progress,
+        processInfo: { elapsedTime: stopwatch.elapsedTime(), progress },
       });
     });
 
