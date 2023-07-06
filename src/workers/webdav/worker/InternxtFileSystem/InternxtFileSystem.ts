@@ -118,7 +118,7 @@ export class InternxtFileSystem extends FileSystem {
     }
 
     if (ctx.type.isFile) {
-      const isValidName = this.fileValidator.validateName(path);
+      const isValidName = this.fileValidator.validatePath(path);
       if (!isValidName) return callback(Errors.UnrecognizedResource);
 
       this.resources[path.toString(false)] = new PhysicalFileSystemResource();
@@ -137,7 +137,7 @@ export class InternxtFileSystem extends FileSystem {
     }
 
     if (item.isFile()) {
-      const isValidName = this.fileValidator.validateName(path);
+      const isValidName = this.fileValidator.validatePath(path);
       if (!isValidName) return callback(Errors.UnrecognizedResource);
 
       Logger.debug('[Deleting File]: ' + item.name + item.type);
@@ -218,7 +218,7 @@ export class InternxtFileSystem extends FileSystem {
     }
 
     if (originalItem.isFile()) {
-      const isValidName = this.fileValidator.validateName(pathFrom);
+      const isValidName = this.fileValidator.validatePath(pathFrom);
       if (!isValidName) return callback(Errors.UnrecognizedResource);
       this.container.fileRenamer.run(
         originalItem,
@@ -256,7 +256,7 @@ export class InternxtFileSystem extends FileSystem {
     };
 
     if (originalItem.isFile()) {
-      const isValidName = this.fileValidator.validateName(pathFrom);
+      const isValidName = this.fileValidator.validatePath(pathFrom);
       if (!isValidName) return callback(Errors.UnrecognizedResource);
       this.container.fileMover
         .run(originalItem, pathTo.toString(false), ctx.overwrite)
