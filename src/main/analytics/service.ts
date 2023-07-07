@@ -296,13 +296,6 @@ export function trackWebdavError(
   client.track(payload);
 }
 
-export function getTrackBandwith(size?: number, elapsedTimeSeconds?: number): number | undefined {
-  if (size && elapsedTimeSeconds) {
-    return size / elapsedTimeSeconds;
-  }
-  return;
-}
-
 export function sendFeedback(feedback: string) {
   const { uuid: userId } = ConfigStore.get('userData');
 

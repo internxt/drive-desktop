@@ -1,6 +1,6 @@
 import Logger from 'electron-log';
 import { ipcWebdav, IpcWebdavFlow, IpcWebdavFlowErrors } from '../ipcs/webdav';
-import { getTrackBandwith, trackWebdavError, trackWebdavEvent } from './service';
+import { trackWebdavError, trackWebdavEvent } from './service';
 import { WebdavErrorContext } from '../../shared/IPC/events/webdav';
 import { broadcastToWindows } from '../windows';
 import { VirtualDriveStatus } from '../../workers/webdav/VirtualDrive';
@@ -37,7 +37,6 @@ function subscribeToFlowEvents(ipc: IpcWebdavFlow) {
         file_extension: extension,
         file_size: size,
         elapsedTimeMs: processInfo.elapsedTime,
-        bandwith: getTrackBandwith(size / 8, processInfo.elapsedTime / 1000),
       });
     }
   });
@@ -55,7 +54,6 @@ function subscribeToFlowEvents(ipc: IpcWebdavFlow) {
       file_extension: extension,
       file_size: size,
       elapsedTimeMs: processInfo.elapsedTime,
-      bandwith: getTrackBandwith(size / 8, processInfo.elapsedTime / 1000),
     });
   });
 
@@ -100,7 +98,6 @@ function subscribeToFlowEvents(ipc: IpcWebdavFlow) {
       file_size: size,
       cloned: true,
       elapsedTimeMs: processInfo.elapsedTime,
-      bandwith: getTrackBandwith(size / 8, processInfo.elapsedTime / 1000),
     });
   });
 
@@ -119,7 +116,6 @@ function subscribeToFlowEvents(ipc: IpcWebdavFlow) {
         file_extension: extension,
         file_size: size,
         elapsedTimeMs: processInfo.elapsedTime,
-        bandwith: getTrackBandwith(size / 8, processInfo.elapsedTime / 1000),
       });
     }
   });
@@ -137,7 +133,6 @@ function subscribeToFlowEvents(ipc: IpcWebdavFlow) {
       file_extension: extension,
       file_size: size,
       elapsedTimeMs: processInfo.elapsedTime,
-      bandwith: getTrackBandwith(size / 8, processInfo.elapsedTime / 1000),
     });
   });
 }
