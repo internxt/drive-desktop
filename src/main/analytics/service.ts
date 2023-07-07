@@ -4,8 +4,7 @@ import { client } from './rudderstack-client';
 import os from 'os';
 import Logger from 'electron-log';
 import {
-  TrackedWebdavServerErrorEvents,
-  TrackedWebdavServerEvents,
+  TrackedWebdavServerEventsActions,
   WebdavErrorContext,
 } from '../../shared/IPC/events/webdav';
 
@@ -254,7 +253,7 @@ export function backupError(
 }
 
 export function trackWebdavEvent(
-  event: TrackedWebdavServerEvents,
+  event: TrackedWebdavServerEventsActions,
   properties: Record<string, any>
 ) {
   const userData = ConfigStore.get('userData');
@@ -273,7 +272,7 @@ export function trackWebdavEvent(
 }
 
 export function trackWebdavError(
-  event: TrackedWebdavServerErrorEvents,
+  event: TrackedWebdavServerEventsActions,
   error: Error,
   context?: WebdavErrorContext
 ) {

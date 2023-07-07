@@ -13,8 +13,17 @@ export type TrackedWebdavServerEvents = Capitalize<
   (typeof trackedEvents)[number]
 >;
 
-export type TrackedWebdavServerErrorEvents =
-  `${TrackedWebdavServerEvents} Error`;
+const trackedEventsActions = [
+  'started',
+  'completed',
+  'aborted',
+  'error',
+] as const;
+type TrackedWebdavServerActions = Capitalize<
+  (typeof trackedEventsActions)[number]
+>;
+
+export type TrackedWebdavServerEventsActions = `${TrackedWebdavServerEvents} ${TrackedWebdavServerActions}`;
 
 export type WebdavErrorContext = {
   action: TrackedWebdavServerEvents;
@@ -40,7 +49,8 @@ type WebdavVirtualDriveEvents = {
 };
 
 type ProcessInfo = {
-  elapsedTime: number | undefined;
+  elapsedTime: number;
+  progress?: number;
 };
 
 export type WebdavFlowEvents = {
@@ -50,7 +60,6 @@ export type WebdavFlowEvents = {
     nameWithExtension: string;
     size: number;
     processInfo: ProcessInfo;
-    progress?: number;
   }) => void;
   WEBDAV_FILE_UPLOADED: (payload: {
     name: string;
@@ -65,7 +74,6 @@ export type WebdavFlowEvents = {
     nameWithExtension: string;
     size: number;
     processInfo: ProcessInfo;
-    progress?: number;
   }) => void;
   WEBDAV_FILE_DOWNLOADED: (payload: {
     name: string;
