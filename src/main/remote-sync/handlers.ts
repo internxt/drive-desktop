@@ -10,6 +10,7 @@ import { reportError } from '../bug-report/service';
 import { sleep } from '../util';
 import { broadcastToWindows } from '../windows';
 
+let initialSyncReady = false;
 const driveFilesCollection = new DriveFilesCollection();
 const driveFoldersCollection = new DriveFoldersCollection();
 const remoteSyncManager = new RemoteSyncManager(
@@ -56,6 +57,10 @@ ipcMain.handle('START_REMOTE_SYNC', async () => {
 });
 
 remoteSyncManager.onStatusChange((newStatus) => {
+  if (!initialSyncReady && newStatus === 'SYNCED') {
+    initialSyncReady = true;
+    eventBus.emit('INITIAL_SYNC_READY');
+  }
   broadcastToWindows('remote-sync-status-change', newStatus);
 });
 
@@ -80,6 +85,7 @@ eventBus.on('USER_LOGGED_IN', () => {
 });
 
 eventBus.on('USER_LOGGED_OUT', () => {
+  initialSyncReady = false;
   remoteSyncManager.resetRemoteSync();
   clearRemoteSyncStore();
 });

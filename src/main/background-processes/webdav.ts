@@ -4,6 +4,13 @@ import path from 'path';
 import Logger from 'electron-log';
 import eventBus from '../event-bus';
 
+enum SpawnWebdavServerMode {
+  OnAppStart = 'APP_START',
+  OnInitialSyncReady = 'INITIAL_SYNC_READY',
+}
+const SPAWN_WEBDAV_SERVER_ON: SpawnWebdavServerMode =
+  SpawnWebdavServerMode.OnInitialSyncReady as SpawnWebdavServerMode;
+
 let webdavWorker: BrowserWindow | null = null;
 export const getWebdavWorkerWindow = () =>
   webdavWorker?.isDestroyed() ? null : webdavWorker;
@@ -49,9 +56,17 @@ function stopWebDavServer() {
 eventBus.on('USER_LOGGED_OUT', stopWebDavServer);
 eventBus.on('USER_WAS_UNAUTHORIZED', stopWebDavServer);
 
-eventBus.on('USER_LOGGED_IN', () => {
-  spawnWebdavServerWorker();
-});
+if (SPAWN_WEBDAV_SERVER_ON === SpawnWebdavServerMode.OnInitialSyncReady) {
+  eventBus.on('INITIAL_SYNC_READY', () => {
+    spawnWebdavServerWorker();
+  });
+}
+
+if (SPAWN_WEBDAV_SERVER_ON === SpawnWebdavServerMode.OnAppStart) {
+  eventBus.on('USER_LOGGED_IN', () => {
+    spawnWebdavServerWorker();
+  });
+}
 
 ipcMain.handle('retry-virtual-drive-mount', () => {
   webdavWorker?.webContents.send('RETRY_VIRTUAL_DRIVE_MOUNT');

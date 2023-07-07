@@ -206,6 +206,13 @@ function subscribeToServerEvents() {
     });
   });
 
+  ipcWebdav.on('WEBDAV_SERVER_STOP_SUCCESS', () => {
+    lastVirtualDriveStatus = VirtualDriveStatus.UNMOUNTED;
+    broadcastToWindows('virtual-drive-status-change', {
+      status: VirtualDriveStatus.UNMOUNTED,
+    });
+  });
+
   ipcWebdav.on('WEBDAV_VIRTUAL_DRIVE_MOUNT_ERROR', (_, err: Error) => {
     Logger.info('WEBDAV_VIRTUAL_DRIVE_MOUNT_ERROR', err.message);
     lastVirtualDriveStatus = VirtualDriveStatus.FAILED_TO_MOUNT;

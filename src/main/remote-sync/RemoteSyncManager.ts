@@ -21,6 +21,8 @@ export class RemoteSyncManager {
   private onStatusChangeCallbacks: Array<
     (newStatus: RemoteSyncStatus) => void
   > = [];
+  private totalFilesSynced = 0;
+  private totalFoldersSynced = 0;
   constructor(
     private db: {
       files: DatabaseCollectionAdapter<DriveFile>;
@@ -56,6 +58,8 @@ export class RemoteSyncManager {
     this.changeStatus('IDLE');
     this.filesSyncStatus = 'IDLE';
     this.foldersSyncStatus = 'IDLE';
+    this.totalFilesSynced = 0;
+    this.totalFoldersSynced = 0;
   }
   /**
    * Triggers a remote sync so we can populate the localDB, this sync
@@ -64,11 +68,16 @@ export class RemoteSyncManager {
    * Throws an error if there's a sync in progress for this class instance
    */
   async startRemoteSync() {
+    const start = Date.now();
+    Logger.info('Starting remote to local sync');
+
     const testPassed = this.smokeTest();
 
     if (!testPassed) {
       return;
     }
+    this.totalFilesSynced = 0;
+    this.totalFoldersSynced = 0;
     await this.db.files.connect();
     await this.db.folders.connect();
 
@@ -92,6 +101,27 @@ export class RemoteSyncManager {
     } catch (error) {
       this.changeStatus('SYNC_FAILED');
       reportError(error as Error);
+    } finally {
+      const totalDuration = Date.now() - start;
+
+      Logger.info('-----------------');
+      Logger.info('REMOTE SYNC STATS\n');
+      Logger.info('Total synced files: ', this.totalFilesSynced);
+
+      Logger.info(
+        `Files sync speed: ${
+          this.totalFilesSynced / (totalDuration / 1000)
+        } files/second`
+      );
+
+      Logger.info('Total synced folders: ', this.totalFoldersSynced);
+      Logger.info(
+        `Folders sync speed: ${
+          this.totalFoldersSynced / (totalDuration / 1000)
+        } folders/second`
+      );
+      Logger.info(`Total remote to local sync time: ${totalDuration}ms`);
+      Logger.info('-----------------');
     }
   }
 
@@ -180,8 +210,8 @@ export class RemoteSyncManager {
         await this.createOrUpdateSyncedFileEntry(remoteFile);
         const fileUpdatedAt = new Date(remoteFile.updatedAt);
 
-        Logger.info(`Saving file updatedAt ${fileUpdatedAt}`);
         helpers.saveLastFilesSyncAt(fileUpdatedAt, SYNC_OFFSET_MS);
+        this.totalFilesSynced++;
       }
 
       if (!hasMore) {
@@ -241,6 +271,7 @@ export class RemoteSyncManager {
 
         Logger.info(`Saving folders updatedAt ${foldersUpdatedAt}`);
         helpers.saveLastFoldersSyncAt(foldersUpdatedAt, SYNC_OFFSET_MS);
+        this.totalFoldersSynced++;
       }
 
       if (!hasMore) {

@@ -80,9 +80,18 @@ export type WebdavFlowEvents = {
     nameWithExtension: string;
     size: number;
   }) => void;
-  WEBDAV_FILE_RENAMING: (payload: { nameWithExtension: string; oldName: string }) => void;
-  WEBDAV_FILE_RENAMED: (payload: { nameWithExtension: string; oldName: string }) => void;
-  WEBDAV_FILE_MOVED: (payload: { nameWithExtension: string; folderName: string }) => void;
+  WEBDAV_FILE_RENAMING: (payload: {
+    nameWithExtension: string;
+    oldName: string;
+  }) => void;
+  WEBDAV_FILE_RENAMED: (payload: {
+    nameWithExtension: string;
+    oldName: string;
+  }) => void;
+  WEBDAV_FILE_MOVED: (payload: {
+    nameWithExtension: string;
+    folderName: string;
+  }) => void;
   WEBDAV_FILE_OVERWRITED: (payload: { nameWithExtension: string }) => void;
   WEBDAV_FILE_CLONNED: (payload: {
     name: string;
