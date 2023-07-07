@@ -97,7 +97,9 @@ export class Traverser {
   }
 
   public reset() {
-    Object.keys((k: string) => delete this.collection[k]);
+    Object.keys(this.collection).forEach(
+      (k: string) => delete this.collection[k]
+    );
 
     this.collection['/'] = WebdavFolder.from({
       id: this.baseFolderId,
