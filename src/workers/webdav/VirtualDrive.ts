@@ -7,6 +7,7 @@ export enum VirtualDriveStatus {
   MOUNTING = 'MOUNTING',
   MOUNTED = 'MOUNTED',
   FAILED_TO_MOUNT = 'FAILED_TO_MOUNT',
+  UNMOUNTED = 'UNMOUNTED',
 }
 const driveObject = {
   host: 'localhost',
@@ -29,7 +30,9 @@ export const mountDrive = async (): Promise<void> => {
         }
       }
     } else {
-      Logger.log(`[VirtualDrive] Drive already mounted on: ${currentMountedDrives.toString()}`);
+      Logger.log(
+        `[VirtualDrive] Drive already mounted on: ${currentMountedDrives.toString()}`
+      );
     }
     return;
   } else if (process.platform === 'darwin') {
