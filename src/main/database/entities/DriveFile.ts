@@ -2,7 +2,7 @@ import { Column, Entity, PrimaryColumn } from 'typeorm';
 
 @Entity('drive_file')
 export class DriveFile {
-  @Column({ nullable: false })
+  @Column({ nullable: false, unique: true })
   fileId!: string;
 
   @Column({ nullable: false })
@@ -10,6 +10,7 @@ export class DriveFile {
 
   @PrimaryColumn({
     nullable: false,
+    unique: true,
   })
   uuid!: string;
 
