@@ -52,7 +52,6 @@ import { getTray } from './tray';
 import { openOnboardingWindow } from './windows/onboarding';
 import { reportError } from './bug-report/service';
 
-
 Logger.log(`Running ${packageJson.version}`);
 
 Logger.log('Initializing Sentry for main process');
@@ -142,23 +141,27 @@ app
   .catch(Logger.error);
 
 eventBus.on('USER_LOGGED_IN', async () => {
-  if (!AppDataSource.isInitialized) {
-    await AppDataSource.initialize();
-  }
-  getAuthWindow()?.destroy();
-  await createWidget();
-  const widget = getWidget();
-  const tray = getTray();
-  if (widget && tray) {
-    setBoundsOfWidgetByPath(widget, tray);
-  }
+  try {
+    if (!AppDataSource.isInitialized) {
+      await AppDataSource.initialize();
+    }
+    getAuthWindow()?.destroy();
+    await createWidget();
+    const widget = getWidget();
+    const tray = getTray();
+    if (widget && tray) {
+      setBoundsOfWidgetByPath(widget, tray);
+    }
 
-  const lastOnboardingShown = configStore.get('lastOnboardingShown');
+    const lastOnboardingShown = configStore.get('lastOnboardingShown');
 
-  if (!lastOnboardingShown) {
-    openOnboardingWindow();
-  } else if (widget) {
-    widget.show();
+    if (!lastOnboardingShown) {
+      openOnboardingWindow();
+    } else if (widget) {
+      widget.show();
+    }
+  } catch (error) {
+    reportError(error as Error);
   }
 });
 
