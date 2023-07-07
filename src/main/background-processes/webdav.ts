@@ -58,12 +58,14 @@ eventBus.on('USER_WAS_UNAUTHORIZED', stopWebDavServer);
 
 if (SPAWN_WEBDAV_SERVER_ON === SpawnWebdavServerMode.OnInitialSyncReady) {
   eventBus.on('INITIAL_SYNC_READY', () => {
+    if (getWebdavWorkerWindow()) return;
     spawnWebdavServerWorker();
   });
 }
 
 if (SPAWN_WEBDAV_SERVER_ON === SpawnWebdavServerMode.OnAppStart) {
   eventBus.on('USER_LOGGED_IN', () => {
+    if (getWebdavWorkerWindow()) return;
     spawnWebdavServerWorker();
   });
 }
