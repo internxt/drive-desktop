@@ -13,7 +13,7 @@ import { UpdateFileParentDirDTO } from './dtos/UpdateFileParentDirDTO';
 import { UpdateFileNameDTO } from './dtos/UpdateFileNameDTO';
 import { FilePath } from '../../domain/FilePath';
 import { WebdavIpc } from '../../../../ipc';
-import { RemoteItemsGenerator } from 'workers/webdav/modules/items/application/RemoteItemsGenerator';
+import { RemoteItemsGenerator } from '../../../items/application/RemoteItemsGenerator';
 import { FileStatuses } from '../../domain/FileStatus';
 
 export class HttpWebdavFileRepository implements WebdavFileRepository {
@@ -54,7 +54,9 @@ export class HttpWebdavFileRepository implements WebdavFileRepository {
   search(path: FilePath): Nullable<WebdavFile> {
     const item = this.files[path.value];
 
-    return item;
+    if (!item) return;
+
+    return WebdavFile.from(item.attributes());
   }
 
   async delete(file: WebdavFile): Promise<void> {
@@ -142,14 +144,14 @@ export class HttpWebdavFileRepository implements WebdavFileRepository {
     }
 
     const oldFileEntry = Object.entries(this.files).filter(
-      ([_, f]) => f.fileId === file.fileId
+      ([_, f]) => f.fileId === file.fileId && f.name !== file.name
     )[0];
 
     if (oldFileEntry) {
       delete this.files[oldFileEntry[0]];
     }
 
-    this.files[file.path] = file;
+    this.files[file.path] = WebdavFile.from(file.attributes());
 
     await this.ipc.invoke('START_REMOTE_SYNC');
   }

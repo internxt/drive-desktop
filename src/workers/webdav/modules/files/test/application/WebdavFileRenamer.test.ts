@@ -5,7 +5,7 @@ import { FileStatus } from '../../domain/FileStatus';
 import { WebdavFileMother } from '../domain/WebdavFileMother';
 import { FileContentRepositoryMock } from '../__mocks__/FileContentRepositoryMock';
 import { WebdavFileRepositoryMock } from '../__mocks__/WebdavFileRepositoyMock';
-import { WebdavIpcMock } from '../../../shared/infrastructure/__mock__/WebdavIPC';
+import { WebdavIpcMock } from '../../../shared/test/__mock__/WebdavIPC';
 
 describe('File Rename', () => {
   let repository: WebdavFileRepositoryMock;

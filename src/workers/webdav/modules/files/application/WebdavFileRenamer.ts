@@ -40,6 +40,7 @@ export class WebdavFileRenamer {
 
   async run(file: WebdavFile, destination: string) {
     const path = new FilePath(destination);
+
     this.ipc.send('WEBDAV_FILE_RENAMING', {
       oldName: file.name,
       nameWithExtension: path.nameWithExtension(),
@@ -69,6 +70,7 @@ export class WebdavFileRenamer {
 
     if (path.extensionMatch(file.type)) {
       await this.rename(file, path);
+      return;
     }
 
     await this.reupload(file, path);

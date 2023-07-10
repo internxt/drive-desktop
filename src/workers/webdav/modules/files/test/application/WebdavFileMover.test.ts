@@ -7,7 +7,7 @@ import { FileAlreadyExistsError } from '../../domain/errors/FileAlreadyExistsErr
 import { WebdavFileMother } from '../domain/WebdavFileMother';
 import { WebdavFileRepositoryMock } from '../__mocks__/WebdavFileRepositoyMock';
 import { FilePath } from '../../domain/FilePath';
-import { WebdavIpcMock } from '../../../shared/infrastructure/__mock__/WebdavIPC';
+import { WebdavIpcMock } from '../../../shared/test/__mock__/WebdavIPC';
 import { WebdavFileRenamer } from '../../application/WebdavFileRenamer';
 import { FileContentRepositoryMock } from '../__mocks__/FileContentRepositoryMock';
 

@@ -1,4 +1,4 @@
-import { WebdavIpcMock } from '../../../shared/infrastructure/__mock__/WebdavIPC';
+import { WebdavIpcMock } from '../../../shared/test/__mock__/WebdavIPC';
 import { WebdavFolderFinder } from '../../../folders/application/WebdavFolderFinder';
 import { WebdavFolderMother } from '../../../folders/test/domain/WebdavFolderMother';
 import { WebdavFolderRepositoryMock } from '../../../folders/test/__mocks__/WebdavFolderRepositoryMock';

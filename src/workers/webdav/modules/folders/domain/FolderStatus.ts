@@ -5,6 +5,7 @@ import { ActionNotPermitedError } from './errors/ActionNotPermitedError';
 export enum FolderStatuses {
   EXISTS = 'EXISTS',
   TRASHED = 'TRASHED',
+  DELETED = 'DELETED',
 }
 
 export class FolderStatus extends EnumValueObject<FolderStatuses> {
@@ -19,7 +20,7 @@ export class FolderStatus extends EnumValueObject<FolderStatuses> {
       }
     }
 
-    throw new InvalidArgumentError(`The file status ${value} is invalid`);
+    throw new InvalidArgumentError(`The folder status ${value} is invalid`);
   }
 
   static Exists = new FolderStatus(FolderStatuses.EXISTS);
