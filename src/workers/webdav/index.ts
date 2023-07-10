@@ -46,7 +46,7 @@ async function setUp() {
 
   const server = new InternxtWebdavServer(PORT, container, storageManager);
 
-  await server.start([{ path: '/', fs: fileSystem }], { debug: true });
+  await server.start([{ path: '/', fs: fileSystem }], { debug: false });
 
   mountDrive()
     .then(() => {
