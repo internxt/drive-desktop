@@ -46,7 +46,7 @@ describe('File Rename', () => {
       //no-op
     });
 
-    contentsRepository.mockClone.mockResolvedValueOnce(cloneedFileId);
+    contentsRepository.mockClone.mock.mockResolvedValueOnce(cloneedFileId);
 
     const file = WebdavFileMother.any();
 
