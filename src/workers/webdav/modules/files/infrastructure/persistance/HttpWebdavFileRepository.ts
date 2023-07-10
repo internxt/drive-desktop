@@ -3,7 +3,6 @@ import { FileCreatedResponseDTO } from 'shared/HttpClient/responses/file-created
 import { Nullable } from 'shared/types/Nullable';
 import { ServerFile } from '../../../../../filesystems/domain/ServerFile';
 import { ServerFolder } from '../../../../../filesystems/domain/ServerFolder';
-import crypt from '../../../../../utils/crypt';
 import { WebdavFile } from '../../domain/WebdavFile';
 import { WebdavFileRepository } from '../../domain/WebdavFileRepository';
 import * as uuid from 'uuid';
@@ -15,11 +14,13 @@ import { FilePath } from '../../domain/FilePath';
 import { WebdavIpc } from '../../../../ipc';
 import { RemoteItemsGenerator } from '../../../items/application/RemoteItemsGenerator';
 import { FileStatuses } from '../../domain/FileStatus';
+import { Crypt } from '../../../shared/domain/Crypt';
 
 export class HttpWebdavFileRepository implements WebdavFileRepository {
   private files: Record<string, WebdavFile> = {};
 
   constructor(
+    private readonly crypt: Crypt,
     private readonly httpClient: Axios,
     private readonly trashHttpClient: Axios,
     private readonly traverser: Traverser,
@@ -79,7 +80,7 @@ export class HttpWebdavFileRepository implements WebdavFileRepository {
   }
 
   async add(file: WebdavFile): Promise<void> {
-    const encryptedName = crypt.encryptName(
+    const encryptedName = this.crypt.encryptName(
       file.name,
       file.folderId.toString()
     );

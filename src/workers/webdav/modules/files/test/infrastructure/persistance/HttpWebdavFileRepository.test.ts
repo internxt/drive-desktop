@@ -6,13 +6,9 @@ import { FilePath } from '../../../domain/FilePath';
 import { ServerFileMother } from './ServerFileMother';
 import { ServerFolderMother } from '../../../../items/test/persistance/ServerFolderMother';
 import { WebdavFile } from '../../../domain/WebdavFile';
+import { fakeDecryptor } from '../../../../shared/test/domain/FakeCrypt';
 
 jest.mock('axios');
-
-const fakeDecryptor = {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  decryptName: (name: string, _a: string, _b: string) => name,
-};
 
 const rootFolderId = 31420;
 
@@ -31,7 +27,14 @@ describe('Http File Repository', () => {
 
     ipc = new WebdavIpcMock();
 
-    SUT = new HttpWebdavFileRepository(axios, axios, traverser, 'bucket', ipc);
+    SUT = new HttpWebdavFileRepository(
+      fakeDecryptor,
+      axios,
+      axios,
+      traverser,
+      'bucket',
+      ipc
+    );
   });
 
   describe('Rename', () => {

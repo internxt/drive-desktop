@@ -90,6 +90,7 @@ export class DependencyContainerFactory {
     const traverser = new Traverser(crypt, user.root_folder_id);
 
     const fileRepository = new HttpWebdavFileRepository(
+      crypt,
       clients.drive,
       clients.newDrive,
       traverser,

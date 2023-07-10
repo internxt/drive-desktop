@@ -42,6 +42,22 @@ describe('File Rename', () => {
     );
   });
 
+  it('when the extension does not changes it does not reupload the file', async () => {
+    repository.mockSearch.mockImplementationOnce(() => {
+      //no-op
+    });
+
+    const file = WebdavFileMother.any();
+
+    const destination = new FilePath(
+      `${file.dirname}/_${file.nameWithExtension}`
+    );
+
+    await SUT.run(file, destination.value);
+
+    expect(contentsRepository.mockClone.mock).not.toBeCalled();
+  });
+
   it('when the extension changes reupload the file', async () => {
     const cloneedFileId = '88db6888-586b-52d5-9af0-6b6397b4f35f';
 
