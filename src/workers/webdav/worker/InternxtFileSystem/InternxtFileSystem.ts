@@ -28,7 +28,6 @@ import {
   RenameInfo,
 } from 'webdav-server/lib/index.v2';
 import { Readable, Writable } from 'stream';
-import { ipcRenderer } from 'electron';
 import Logger from 'electron-log';
 import { DebugPhysicalSerializer } from './Serializer';
 import { handleFileSystemError } from '../error-handling';
@@ -38,6 +37,7 @@ import { FileActionOnlyCanAffectOneLevelError } from '../../modules/files/domain
 import { FileNameShouldDifferFromOriginalError } from '../../modules/files/domain/errors/FileNameShouldDifferFromOriginalError';
 import { FileCannotBeMovedToTheOriginalFolderError } from '../../modules/files/domain/errors/FileCannotBeMovedToTheOriginalFolderError';
 import { RemoteFileContents } from '../../modules/files/domain/RemoteFileContent';
+import { WebdavFileValidator } from 'workers/webdav/modules/files/application/WebdavFileValidator';
 
 export class PhysicalFileSystemResource {
   props: LocalPropertyManager;
@@ -61,6 +61,7 @@ export class InternxtFileSystem extends FileSystem {
     [path: string]: PhysicalFileSystemResource;
   };
 
+  private fileValidator = new WebdavFileValidator();
   constructor(private readonly container: DependencyContainer) {
     super(new DebugPhysicalSerializer(container));
 
@@ -117,6 +118,9 @@ export class InternxtFileSystem extends FileSystem {
     }
 
     if (ctx.type.isFile) {
+      const isValidName = this.fileValidator.validatePath(path);
+      if (!isValidName) return callback(Errors.UnrecognizedResource);
+
       this.resources[path.toString(false)] = new PhysicalFileSystemResource();
 
       return callback();
@@ -133,33 +137,17 @@ export class InternxtFileSystem extends FileSystem {
     }
 
     if (item.isFile()) {
+      const isValidName = this.fileValidator.validatePath(path);
+      if (!isValidName) return callback(Errors.UnrecognizedResource);
+
       Logger.debug('[Deleting File]: ' + item.name + item.type);
-      ipcRenderer.send('SYNC_INFO_UPDATE', {
-        action: 'DELETE',
-        kind: 'LOCAL',
-        progress: 0,
-        name: path.fileName(),
-      });
       this.container.fileDeleter
         .run(item)
         .then(() => {
           delete this.resources[item.path];
-          ipcRenderer.send('SYNC_INFO_UPDATE', {
-            action: 'DELETED',
-            kind: 'LOCAL',
-            name: path.fileName(),
-          });
           callback(undefined);
         })
         .catch((error: Error) => {
-          ipcRenderer.send('SYNC_INFO_UPDATE', {
-            action: 'DELETE_ERROR',
-            kind: 'LOCAL',
-            name: path.fileName(),
-            errorName: error.name,
-            errorDetails: error.message,
-            process: 'SYNC',
-          });
           handleFileSystemError(error, 'Delete', 'File', ctx);
           callback(error);
         });
@@ -188,26 +176,12 @@ export class InternxtFileSystem extends FileSystem {
       this.resources[path.toString(false)] = new PhysicalFileSystemResource();
     }
 
-    ipcRenderer.send('SYNC_INFO_UPDATE', {
-      action: 'PULL',
-      kind: 'REMOTE',
-      name: path.fileName(),
-    });
-
     this.container.fileCreator
       .run(path.toString(false), ctx.estimatedSize)
       .then(({ stream }: { stream: Writable; upload: Promise<string> }) => {
         callback(undefined, stream);
       })
       .catch((error: Error) => {
-        ipcRenderer.send('SYNC_INFO_UPDATE', {
-          action: 'PULL_ERROR',
-          kind: 'REMOTE',
-          name: path.fileName(),
-          errorName: error.name,
-          errorDetails: error.message,
-          process: 'SYNC',
-        });
         handleFileSystemError(error, 'Upload', 'File', ctx);
         callback(error);
       });
@@ -218,12 +192,6 @@ export class InternxtFileSystem extends FileSystem {
     ctx: OpenReadStreamInfo,
     callback: ReturnCallback<Readable>
   ): void {
-    ipcRenderer.send('SYNC_INFO_UPDATE', {
-      action: 'PULL',
-      kind: 'LOCAL',
-      name: path.fileName(),
-    });
-
     this.container.fileDownloader
       .run(path.toString(false))
       .then((remoteFileContents: RemoteFileContents) => {
@@ -250,6 +218,8 @@ export class InternxtFileSystem extends FileSystem {
     }
 
     if (originalItem.isFile()) {
+      const isValidName = this.fileValidator.validatePath(pathFrom);
+      if (!isValidName) return callback(Errors.UnrecognizedResource);
       this.container.fileRenamer.run(
         originalItem,
         ctx.destinationPath.toString(false)
@@ -286,6 +256,8 @@ export class InternxtFileSystem extends FileSystem {
     };
 
     if (originalItem.isFile()) {
+      const isValidName = this.fileValidator.validatePath(pathFrom);
+      if (!isValidName) return callback(Errors.UnrecognizedResource);
       this.container.fileMover
         .run(originalItem, pathTo.toString(false), ctx.overwrite)
         .then((hasBeenOverriden: boolean) => {
@@ -336,7 +308,7 @@ export class InternxtFileSystem extends FileSystem {
 
   private getPropertyFromResource(
     path: Path,
-    ctx: any,
+    _ctx: any,
     propertyName: string,
     callback: ReturnCallback<any>
   ): void {
@@ -400,7 +372,7 @@ export class InternxtFileSystem extends FileSystem {
 
   _creationDate(
     path: Path,
-    ctx: CreationDateInfo,
+    _ctx: CreationDateInfo,
     callback: ReturnCallback<number>
   ): void {
     const data = this.container.itemMetadataDealer.run(
@@ -415,7 +387,7 @@ export class InternxtFileSystem extends FileSystem {
     return callback(undefined, data);
   }
 
-  _mimeType(path: Path, ctx: MimeTypeInfo, callback: ReturnCallback<string>) {
+  _mimeType(path: Path, _ctx: MimeTypeInfo, callback: ReturnCallback<string>) {
     const mimeType = this.container.fileMimeTypeResolver.run(path.toString());
 
     if (!mimeType) {
@@ -428,7 +400,7 @@ export class InternxtFileSystem extends FileSystem {
 
   _lastModifiedDate(
     path: Path,
-    ctx: LastModifiedDateInfo,
+    _ctx: LastModifiedDateInfo,
     callback: ReturnCallback<number>
   ): void {
     const data = this.container.itemMetadataDealer.run(
@@ -445,7 +417,7 @@ export class InternxtFileSystem extends FileSystem {
 
   _type(
     path: Path,
-    ctx: TypeInfo,
+    _ctx: TypeInfo,
     callback: ReturnCallback<ResourceType>
   ): void {
     const data = this.container.itemMetadataDealer.run(
@@ -461,7 +433,7 @@ export class InternxtFileSystem extends FileSystem {
     return callback(undefined, type);
   }
 
-  _size(path: Path, ctx: SizeInfo, callback: ReturnCallback<number>): void {
+  _size(path: Path, _ctx: SizeInfo, callback: ReturnCallback<number>): void {
     const data = this.container.itemMetadataDealer.run(
       path.toString(false),
       'size'

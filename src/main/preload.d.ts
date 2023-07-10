@@ -27,6 +27,8 @@ declare interface Window {
 
     closeWindow(): void;
 
+    minimizeWindow(): void;
+
     openSyncFolder(): Promise<void>;
 
     finishOnboarding(): void;
@@ -184,11 +186,17 @@ declare interface Window {
       callback: (
         status: import('./remote-sync/helpers').RemoteSyncStatus
       ) => void
-    ): void;
+    ): () => void;
     getRemoteSyncStatus(): Promise<
       import('./remote-sync/helpers').RemoteSyncStatus
     >;
+    getVirtualDriveStatus(): Promise<string>;
+    onVirtualDriveStatusChange(
+      callback: (event: { status: string }) => void
+    ): () => void;
+    retryVirtualDriveMount(): void;
     startRemoteSync: () => Promise<void>;
+    openUrl: (url: string) => Promise<void>;
     // DEV
     resizeWindow: () => typeof import('../main/dev/service').resizeCurrentWindow;
   };

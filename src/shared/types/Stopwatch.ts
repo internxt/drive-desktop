@@ -19,12 +19,12 @@ export class Stopwatch {
     this._finish = performance.now();
   }
 
-  elapsedTime(): number | undefined {
+  elapsedTime(): number {
     if (!this._start || !this._finish) {
-      return undefined;
+      return -1;
     }
 
-    return this._start - this._finish;
+    return Math.abs(this._finish - this._start);
   }
 
   reset() {

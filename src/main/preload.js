@@ -43,6 +43,9 @@ contextBridge.exposeInMainWorld('electron', {
   closeWindow() {
     return ipcRenderer.send('user-closed-window');
   },
+  minimizeWindow() {
+    return ipcRenderer.send('user-minimized-window');
+  },
   openSyncFolder() {
     return ipcRenderer.invoke('open-sync-folder');
   },
@@ -262,6 +265,24 @@ contextBridge.exposeInMainWorld('electron', {
   },
   startRemoteSync() {
     return ipcRenderer.invoke('START_REMOTE_SYNC');
+  },
+  getVirtualDriveStatus() {
+    return ipcRenderer.invoke('get-virtual-drive-status');
+  },
+  retryVirtualDriveMount() {
+    return ipcRenderer.invoke('retry-virtual-drive-mount');
+  },
+  onVirtualDriveStatusChange(callback) {
+    const eventName = 'virtual-drive-status-change';
+    const callbackWrapper = (_, v) => {
+      callback(v);
+    };
+    ipcRenderer.on(eventName, callbackWrapper);
+
+    return () => ipcRenderer.removeListener(eventName, callbackWrapper);
+  },
+  openUrl: (url) => {
+    ipcRenderer.invoke('open-url', url);
   },
   path,
 });

@@ -117,7 +117,8 @@ export class DependencyContainerFactory {
     const fileRenamer = new WebdavFileRenamer(
       fileRepository,
       fileContentRepository,
-      eventBus
+      eventBus,
+      ipc
     );
 
     const folderFinder = new WebdavFolderFinder(folderRepository);

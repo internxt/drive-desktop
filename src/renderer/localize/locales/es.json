@@ -167,6 +167,12 @@
       "title": "No se puede acceder al contenido",
       "message": "Parece que hay problemas para obtener el contenido de la nube, por favor inténtalo de nuevo",
       "button": "Reintentar"
+    },
+    "virtual-drive-error": {
+      "title": "No se puede montar tu Drive",
+      "message": "Estamos teniendo problemas para montar tu Internxt Drive, por favor inténtalo de nuevo",
+      "mounting": "Montando..",
+      "button": "Reintentar"
     }
   },
   "settings": {

@@ -58,7 +58,8 @@ export default function SyncInfo() {
       );
 
       const itemIsAnError = [
-        'PULL_ERROR',
+        'UPLOAD_ERROR',
+        'DOWNLOAD_ERROR',
         'RENAME_ERROR',
         'DELETE_ERROR',
         'METADATA_READ_ERROR',
@@ -76,7 +77,7 @@ export default function SyncInfo() {
   function clearItems() {
     setItems((current) =>
       current.filter((item) =>
-        ['PULL', 'RENAME', 'DELETE'].includes(item.action)
+        ['UPLOADING', 'DOWNLOADING', 'RENAMING', 'DELETING'].includes(item.action)
       )
     );
   }
@@ -85,9 +86,10 @@ export default function SyncInfo() {
     setItems((currentItems) => {
       return currentItems.filter(
         (item) =>
-          item.action !== 'DELETE' &&
-          item.action !== 'PULL' &&
-          item.action !== 'RENAME'
+          item.action !== 'UPLOADING' &&
+          item.action !== 'DOWNLOADING' &&
+          item.action !== 'RENAMING' &&
+          item.action !== 'DELETING'
       );
     });
   }
@@ -105,9 +107,7 @@ export default function SyncInfo() {
           <button
             tabIndex={0}
             type="button"
-            className={`select-none text-xs font-medium text-blue-60 hover:text-blue-70 active:text-blue-80 ${
-              items.length === 0 ? 'opacity-0' : ''
-            }`}
+            className={`select-none text-xs font-medium text-blue-60 hover:text-blue-70 active:text-blue-80 ${items.length === 0 ? 'opacity-0' : ''}`}
             onClick={clearItems}
             disabled={items.length === 0}
           >
@@ -158,7 +158,6 @@ function AnimationWrapper({
 function Item({
   name,
   action,
-  kind,
   progress,
   errorName,
 }: ProcessInfoUpdatePayload & {
@@ -169,37 +168,49 @@ function Item({
 
   let operation: Operation | undefined;
   if (
-    action === 'DELETE' ||
+    action === 'DELETING' ||
     action === 'DELETED' ||
     action === 'DELETE_ERROR'
   ) {
     operation = 'delete';
   } else if (
-    action === 'PULL' ||
-    action === 'PULLED' ||
-    action === 'PULL_ERROR'
+    action === 'DOWNLOADING' ||
+    action === 'DOWNLOADED' ||
+    action === 'DOWNLOAD_ERROR'
   ) {
-    operation = kind === 'LOCAL' ? 'download' : 'upload';
+    operation = 'download';
+  } else if (
+    action === 'UPLOADING' ||
+    action === 'UPLOADED' ||
+    action === 'UPLOAD_ERROR'
+  ) {
+    operation = 'upload';
+  } else if (
+    action === 'RENAMING' ||
+    action === 'RENAMED' ||
+    action === 'RENAME_ERROR'
+  ) {
+    operation = 'rename';
   }
 
   let description = '';
 
-  if (action === 'PULL' && kind === 'LOCAL') {
+  if (action === 'DOWNLOADING') {
     description = progress ? 'Downloading' : 'Decrypting';
-  } else if (action === 'PULL' && kind === 'REMOTE') {
+  } else if (action === 'UPLOADING') {
     description = progress ? 'Uploading' : 'Encrypting';
-  } else if (action === 'PULLED' && kind === 'LOCAL') {
+  } else if (action === 'DOWNLOADED') {
     description = 'Downloaded';
-  } else if (action === 'PULLED' && kind === 'REMOTE') {
+  } else if (action === 'UPLOADED') {
     description = 'Uploaded';
-  } else if (action === 'DELETE' && kind === 'LOCAL') {
+  } else if (action === 'DELETING') {
     description = 'Deleting';
-  } else if (action === 'DELETE' && kind === 'REMOTE') {
-    description = 'Deleting';
-  } else if (action === 'DELETED' && kind === 'LOCAL') {
+  } else if (action === 'DELETED') {
     description = 'Deleted';
-  } else if (action === 'DELETED' && kind === 'REMOTE') {
-    description = 'Moved to trash on Internxt Drive';
+  } else if (action === 'RENAMING') {
+    description = 'Renaming';
+  }  else if (action === 'RENAMED') {
+    description = 'Renamed';
   } else if (errorName) {
     description = shortMessages[errorName];
   }
@@ -300,9 +311,8 @@ function BackupsBanner({
   if (status === 'RUNNING' && backupProgress) {
     body =
       backupProgress.totalFolders > 1
-        ? `Backed up ${backupProgress.currentFolder - 1} out of ${
-            backupProgress.totalFolders
-          } folders`
+        ? `Backed up ${backupProgress.currentFolder - 1} out of ${backupProgress.totalFolders
+        } folders`
         : 'Backing up your folder';
 
     const percentualProgress = getPercentualProgress(backupProgress);
@@ -385,9 +395,8 @@ function BackupsBanner({
               e.stopPropagation();
               setHidden(true);
             }}
-            className={`absolute right-5 top-1/2 hidden h-5 w-5 -translate-y-1/2 cursor-pointer text-neutral-500/50 hover:text-neutral-500/70 active:text-neutral-500 ${
-              status === 'STANDBY' ? 'group-hover:block' : ''
-            }`}
+            className={`absolute right-5 top-1/2 hidden h-5 w-5 -translate-y-1/2 cursor-pointer text-neutral-500/50 hover:text-neutral-500/70 active:text-neutral-500 ${status === 'STANDBY' ? 'group-hover:block' : ''
+              }`}
           />
         </motion.div>
       )}

@@ -5,12 +5,14 @@ import { FilePath } from '../domain/FilePath';
 import { RemoteFileContentsRepository } from '../domain/RemoteFileContentsRepository';
 import { WebdavFile } from '../domain/WebdavFile';
 import { WebdavFileRepository } from '../domain/WebdavFileRepository';
+import { WebdavIpc } from '../../../ipc';
 
 export class WebdavFileRenamer {
   constructor(
     private readonly repository: WebdavFileRepository,
     private readonly contentsRepository: RemoteFileContentsRepository,
-    private readonly eventBus: WebdavServerEventBus
+    private readonly eventBus: WebdavServerEventBus,
+    private readonly ipc: WebdavIpc
   ) {}
 
   private async rename(file: WebdavFile, path: FilePath) {
@@ -38,14 +40,30 @@ export class WebdavFileRenamer {
 
   async run(file: WebdavFile, destination: string) {
     const path = new FilePath(destination);
+    this.ipc.send('WEBDAV_FILE_RENAMING', {
+      oldName: file.name,
+      nameWithExtension: path.nameWithExtension(),
+    });
 
     if (file.dirname !== path.dirname()) {
+      this.ipc.send('WEBDAV_FILE_RENAME_ERROR', {
+        name: file.name,
+        extension: file.type,
+        nameWithExtension: file.nameWithExtension,
+        error: 'Renaming error: rename and change folder',
+      });
       throw new ActionNotPermitedError('rename and change folder');
     }
 
     const destinationFile = this.repository.search(path);
 
     if (destinationFile) {
+      this.ipc.send('WEBDAV_FILE_RENAME_ERROR', {
+        name: file.name,
+        extension: file.type,
+        nameWithExtension: file.nameWithExtension,
+        error: 'Renaming error: file already exists',
+      });
       throw new FileAlreadyExistsError(destination);
     }
 

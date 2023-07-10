@@ -11,7 +11,7 @@ import { obtainToken } from '../auth/service';
 import { BugReportResult } from './BugReportResult';
 import * as Sentry from '@sentry/electron/main';
 import { User } from '../types';
-
+import Logger from 'electron-log';
 /**
  * Reports an error to Sentry from the main process
  *
@@ -22,6 +22,7 @@ export const reportError = (
   error: Error,
   context: Record<string, string> = {}
 ) => {
+  Logger.error('[SENTRY_CAPTURED]: ', error);
   Sentry.captureException(error, context);
 };
 

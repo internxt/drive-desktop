@@ -1,11 +1,19 @@
 import path from 'path';
 import { WebdavPath } from '../../shared/domain/WebdavPath';
 import { InvalidArgumentError } from '../../../../shared/domain/InvalidArgumentError';
+import { WebdavFileValidator } from '../application/WebdavFileValidator';
 
 export class FilePath extends WebdavPath {
+  private fileValidator = new WebdavFileValidator();
   constructor(value: string) {
     super(value);
     this.startsWithSlash(value);
+
+    const isValid = this.fileValidator.validateName(value);
+
+    if (!isValid) {
+      throw new Error(`"${value}" is not a valid filename`);
+    }
   }
 
   private startsWithSlash(value: string) {

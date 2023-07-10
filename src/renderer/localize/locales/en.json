@@ -167,6 +167,12 @@
       "title": "Can't get remote content",
       "message": "We are having issues retrieving your content from the cloud, please try again",
       "button": "Try again"
+    },
+    "virtual-drive-error": {
+      "title": "Can't mount your drive",
+      "message": "We are having issues mounting your Internxt Drive, please try again",
+      "mounting": "Mounting...",
+      "button": "Try again"
     }
   },
   "settings": {

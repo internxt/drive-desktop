@@ -208,7 +208,7 @@ export default function Login() {
             ? e.preventDefault()
             : undefined
         }
-        onClick={window.electron.closeWindow}
+        onClick={window.electron.minimizeWindow}
       >
         <UilMultiply className="h-5 w-5" />
       </div>

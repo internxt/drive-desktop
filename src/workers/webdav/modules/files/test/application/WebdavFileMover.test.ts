@@ -27,13 +27,15 @@ describe('Webdav File Mover', () => {
     folderRepository = new WebdavFolderRepositoryMock();
     folderFinder = new WebdavFolderFinder(folderRepository);
     contentsRepository = new FileContentRepositoryMock();
+    eventBus = new EventBusMock();
+    ipc = new WebdavIpcMock();
+
     fileRenamer = new WebdavFileRenamer(
       repository,
       contentsRepository,
-      eventBus
+      eventBus,
+      ipc
     );
-    eventBus = new EventBusMock();
-    ipc = new WebdavIpcMock();
 
     SUT = new WebdavFileMover(
       repository,
