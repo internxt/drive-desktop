@@ -39,8 +39,6 @@ export class EnvironmentFileContentRepository
   }
 
   downloader(file: WebdavFile): ContentFileDownloader {
-    Logger.log('download!!', { name: file.nameWithExtension });
-
     return new EnvironmentContentFileDownloader(
       this.environment.download,
       this.bucket,
