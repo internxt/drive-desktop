@@ -30,9 +30,6 @@ export class FileStatus extends EnumValueObject<FileStatuses> {
     if (this.value === 'TRASHED') {
       throw new ActionNotPermitedError('restore from trash');
     }
-    if (this.value === 'DELETED') {
-      throw new ActionNotPermitedError('any action on deleted files');
-    }
 
     if (this.value === 'DELETED') {
       throw new ActionNotPermitedError('restore, file is deleted');
