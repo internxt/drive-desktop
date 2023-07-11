@@ -41,7 +41,7 @@ jobs:
           echo "DRIVE_API_URL=https://drive.internxt.com/api" >> .env
           echo "RUDDERSTACK_KEY=${{ secrets.RUDDERSTACK_KEY }}" >> .env
           echo "RUDDERSTACK_DATA_PLANE_URL=${{ secrets.RUDDERSTACK_DATA_PLANE_URL }}" >> .env
-          echo "SENTRY_DSN: ${{ secrets.SENTRY_DSN }}" >> .env
+          echo "SENTRY_DSN=${{ secrets.SENTRY_DSN }}" >> .env
       - name: Install graphicsmagick
         run: |
           sudo apt-get update
