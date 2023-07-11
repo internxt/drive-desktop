@@ -18,7 +18,7 @@ const driveName = 'Internxt Drive';
 
 export const mountDrive = async (): Promise<void> => {
   if (process.platform === 'win32') {
-    const currentMountedDrives = await getCurrentMountedDrives();
+    const currentMountedDrives = await getCurrentWindowsMountedDrives();
     if (currentMountedDrives.length === 0) {
       const driveLetter = await getLetterDrive();
       Logger.log(`[VirtualDrive] Drive letter available: ${driveLetter}`);
@@ -36,6 +36,7 @@ export const mountDrive = async (): Promise<void> => {
     }
     return;
   } else if (process.platform === 'darwin') {
+    ejectMacOSInstallerDisks();
     await mountMacOSDrive(driveName);
     return;
   } else if (process.platform === 'linux') {
@@ -193,7 +194,7 @@ const unmountWindowsDrive = (driveLetter: string): Promise<boolean> => {
   });
 };
 
-const getCurrentMountedDrives = (): Promise<string[]> => {
+const getCurrentWindowsMountedDrives = (): Promise<string[]> => {
   Logger.log('[VirtualDrive] Getting CurrentMountedDrives');
   return new Promise(function (resolve, reject) {
     exec(
@@ -283,6 +284,54 @@ const unmountMacOSDrive = (): Promise<boolean> => {
         }
       }
     );
+  });
+};
+
+const ejectMacOSDisk = (disk: string): Promise<boolean> => {
+  Logger.log('[VirtualDrive] Ejecting disk');
+  return new Promise(function (resolve, reject) {
+    exec(`diskutil eject "${disk}"`,
+      { shell: '/bin/bash' },
+      (err, stdout) => {
+        if (err) {
+          Logger.log(`[VirtualDrive] Error ejecting disk: ${err}`);
+          reject(`[VirtualDrive] Error ejecting disk: ${err}`);
+        } else {
+          Logger.log(`[VirtualDrive] Disk ejected successfully: ${stdout}`);
+          resolve(true);
+        }
+      }
+    );
+  });
+};
+
+const getMacOSMountedInstallerDisks = (): Promise<string[]> => {
+  Logger.log('[VirtualDrive] Getting Current Mounted Installer Disks');
+  return new Promise(function (resolve, reject) {
+    exec('find /Volumes -type d -name \'Internxt Drive *\' -maxdepth 1',
+      { shell: '/bin/bash' },
+      (err, stdout) => {
+        if (err) {
+          Logger.log(`[VirtualDrive] Error installer disks: ${err}`);
+          reject(`[VirtualDrive] Error installer disks: ${err}`);
+        } else {
+          const currentMountedInstallerDisks = stdout
+            .split(/\r?\n/)
+            .filter((l) => l && l.length > 0 && l.startsWith('/Volumes/Internxt Drive '));
+          Logger.log('[VirtualDrive] Current mounted installer disks:', {
+            currentMountedInstallerDisks,
+          });
+          resolve(currentMountedInstallerDisks);
+        }
+      }
+    );
+  });
+};
+
+const ejectMacOSInstallerDisks = async (): Promise<void> => {
+  const installerDisks = await getMacOSMountedInstallerDisks();
+  installerDisks.forEach((installerDisk) => {
+    ejectMacOSDisk(installerDisk);
   });
 };
 
