@@ -37,11 +37,11 @@ export class RemoteItemsGenerator {
       (updatedFolder) => {
         return {
           bucket: updatedFolder.bucket ?? null,
-          created_at: updatedFolder.createdAt,
+          createdAt: updatedFolder.createdAt,
           id: updatedFolder.id,
           name: updatedFolder.name,
           parent_id: updatedFolder.parentId ?? null,
-          updated_at: updatedFolder.updatedAt,
+          updatedAt: updatedFolder.updatedAt,
           plain_name: updatedFolder.plainName ?? null,
           status: updatedFolder.status as ServerFolderStatus,
         };

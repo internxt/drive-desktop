@@ -85,8 +85,8 @@ export class HttpWebdavFolderRepository implements WebdavFolderRepository {
       id: serverFolder.id,
       name: plainName,
       parentId: serverFolder.parent_id,
-      updatedAt: serverFolder.updated_at,
-      createdAt: serverFolder.created_at,
+      updatedAt: serverFolder.updatedAt,
+      createdAt: serverFolder.createdAt,
       path: path.value,
     });
 

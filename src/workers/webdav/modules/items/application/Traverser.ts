@@ -1,6 +1,12 @@
 import Logger from 'electron-log';
-import { ServerFile } from '../../../../filesystems/domain/ServerFile';
-import { ServerFolder } from '../../../../filesystems/domain/ServerFolder';
+import {
+  ServerFile,
+  ServerFileStatus,
+} from '../../../../filesystems/domain/ServerFile';
+import {
+  ServerFolder,
+  ServerFolderStatus,
+} from '../../../../filesystems/domain/ServerFolder';
 import { fileNameIsValid } from '../../../../utils/name-verification';
 import { WebdavFile } from '../../files/domain/WebdavFile';
 import { FolderStatus } from '../../folders/domain/FolderStatus';
@@ -59,16 +65,18 @@ export class Traverser {
         return true;
       })
       .forEach(({ file, name }) => {
-        this.collection[name] = WebdavFile.from({
-          folderId: file.folderId,
-          fileId: file.fileId,
-          modificationTime: file.modificationTime,
-          size: file.size,
-          createdAt: file.createdAt,
-          updatedAt: file.updatedAt,
-          path: name,
-          status: file.status,
-        });
+        if (file.status === ServerFileStatus.EXISTS) {
+          this.collection[name] = WebdavFile.from({
+            folderId: file.folderId,
+            fileId: file.fileId,
+            modificationTime: file.modificationTime,
+            size: file.size,
+            createdAt: file.createdAt,
+            updatedAt: file.updatedAt,
+            path: name,
+            status: file.status,
+          });
+        }
       });
 
     foldersInThisFolder.forEach((folder: ServerFolder) => {
@@ -84,11 +92,13 @@ export class Traverser {
 
       if (!plainName) return;
 
+      if (folder.status !== ServerFolderStatus.EXISTS) return;
+
       this.collection[name] = WebdavFolder.from({
         id: folder.id,
         parentId: folder.parent_id as number,
-        updatedAt: folder.updated_at,
-        createdAt: folder.created_at,
+        updatedAt: folder.updatedAt,
+        createdAt: folder.createdAt,
         path: name,
         status: folder.status,
       });
