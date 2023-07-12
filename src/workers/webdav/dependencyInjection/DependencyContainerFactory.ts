@@ -90,6 +90,7 @@ export class DependencyContainerFactory {
     const traverser = new Traverser(crypt, user.root_folder_id);
 
     const fileRepository = new HttpWebdavFileRepository(
+      crypt,
       clients.drive,
       clients.newDrive,
       traverser,
@@ -114,7 +115,12 @@ export class DependencyContainerFactory {
 
     const eventBus = new NodeJsEventBus();
 
-    const fileRenamer = new WebdavFileRenamer(fileRepository, eventBus, ipc);
+    const fileRenamer = new WebdavFileRenamer(
+      fileRepository,
+      fileContentRepository,
+      eventBus,
+      ipc
+    );
 
     const folderFinder = new WebdavFolderFinder(folderRepository);
     const folderRenamer = new WebdavFolderRenamer(folderRepository);

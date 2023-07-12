@@ -348,10 +348,7 @@ export class InternxtFileSystem extends FileSystem {
   ): void {
     this.container.allItemsLister
       .run(path.toString(false))
-      .then((names) => {
-        Logger.debug(names);
-        callback(undefined, names);
-      })
+      .then((names) => callback(undefined, names))
       .catch((error: Error) => {
         handleFileSystemError(error, 'Download', 'Folder', ctx);
         callback(error);
@@ -394,6 +391,7 @@ export class InternxtFileSystem extends FileSystem {
     const mimeType = this.container.fileMimeTypeResolver.run(path.toString());
 
     if (!mimeType) {
+      Logger.debug('NO MIME TYPE');
       return callback(Errors.UnrecognizedResource);
     }
 

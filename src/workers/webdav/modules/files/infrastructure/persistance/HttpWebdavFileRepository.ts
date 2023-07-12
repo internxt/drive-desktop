@@ -3,7 +3,6 @@ import { FileCreatedResponseDTO } from 'shared/HttpClient/responses/file-created
 import { Nullable } from 'shared/types/Nullable';
 import { ServerFile } from '../../../../../filesystems/domain/ServerFile';
 import { ServerFolder } from '../../../../../filesystems/domain/ServerFolder';
-import crypt from '../../../../../utils/crypt';
 import { WebdavFile } from '../../domain/WebdavFile';
 import { WebdavFileRepository } from '../../domain/WebdavFileRepository';
 import * as uuid from 'uuid';
@@ -13,13 +12,15 @@ import { UpdateFileParentDirDTO } from './dtos/UpdateFileParentDirDTO';
 import { UpdateFileNameDTO } from './dtos/UpdateFileNameDTO';
 import { FilePath } from '../../domain/FilePath';
 import { WebdavIpc } from '../../../../ipc';
-import { RemoteItemsGenerator } from 'workers/webdav/modules/items/application/RemoteItemsGenerator';
+import { RemoteItemsGenerator } from '../../../items/application/RemoteItemsGenerator';
 import { FileStatuses } from '../../domain/FileStatus';
+import { Crypt } from '../../../shared/domain/Crypt';
 
 export class HttpWebdavFileRepository implements WebdavFileRepository {
   private files: Record<string, WebdavFile> = {};
 
   constructor(
+    private readonly crypt: Crypt,
     private readonly httpClient: Axios,
     private readonly trashHttpClient: Axios,
     private readonly traverser: Traverser,
@@ -54,7 +55,9 @@ export class HttpWebdavFileRepository implements WebdavFileRepository {
   search(path: FilePath): Nullable<WebdavFile> {
     const item = this.files[path.value];
 
-    return item;
+    if (!item) return;
+
+    return WebdavFile.from(item.attributes());
   }
 
   async delete(file: WebdavFile): Promise<void> {
@@ -77,7 +80,7 @@ export class HttpWebdavFileRepository implements WebdavFileRepository {
   }
 
   async add(file: WebdavFile): Promise<void> {
-    const encryptedName = crypt.encryptName(
+    const encryptedName = this.crypt.encryptName(
       file.name,
       file.folderId.toString()
     );
@@ -141,15 +144,15 @@ export class HttpWebdavFileRepository implements WebdavFileRepository {
       );
     }
 
-    const oldFile = Object.values(this.files).filter(
-      (f) => f.fileId === file.fileId
+    const oldFileEntry = Object.entries(this.files).filter(
+      ([_, f]) => f.fileId === file.fileId && f.name !== file.name
     )[0];
 
-    if (oldFile) {
-      delete this.files[oldFile.path];
+    if (oldFileEntry) {
+      delete this.files[oldFileEntry[0]];
     }
 
-    this.files[file.path] = file;
+    this.files[file.path] = WebdavFile.from(file.attributes());
 
     await this.ipc.invoke('START_REMOTE_SYNC');
   }

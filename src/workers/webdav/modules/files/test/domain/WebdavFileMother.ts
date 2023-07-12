@@ -1,5 +1,5 @@
 import { FileStatuses } from '../../domain/FileStatus';
-import { WebdavFile } from '../../domain/WebdavFile';
+import { WebdavFile, WebdavFileAtributes } from '../../domain/WebdavFile';
 
 export class WebdavFileMother {
   static onFolderName(path: string) {
@@ -38,6 +38,20 @@ export class WebdavFileMother {
       size: 893924973,
       updatedAt: new Date().toISOString(),
       status: FileStatuses.EXISTS,
+    });
+  }
+
+  static fromPartial(partial: Partial<WebdavFileAtributes>) {
+    return WebdavFile.from({
+      fileId: 'bc874b5f-5942-53b4-b21a-1c8de84c984d',
+      folderId: 3972960,
+      createdAt: new Date().toISOString(),
+      modificationTime: new Date().toISOString(),
+      path: '/Vakwogfud/Dilbusege.png',
+      size: 893924973,
+      updatedAt: new Date().toISOString(),
+      status: FileStatuses.EXISTS,
+      ...partial,
     });
   }
 }

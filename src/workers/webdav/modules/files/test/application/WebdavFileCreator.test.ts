@@ -7,7 +7,7 @@ import { InMemoryTemporalFileMetadataCollection } from '../../infrastructure/per
 import { FileContentRepositoryMock } from '../__mocks__/FileContentRepositoryMock';
 import { WebdavFileRepositoryMock } from '../__mocks__/WebdavFileRepositoyMock';
 import { EventBusMock } from '../../../shared/test/__mock__/EventBusMock';
-import { WebdavIpcMock } from '../../../shared/infrastructure/__mock__/WebdavIPC';
+import { WebdavIpcMock } from '../../../shared/test/__mock__/WebdavIPC';
 
 describe('Webdav File Creator', () => {
   let fileReposiotry: WebdavFileRepositoryMock;

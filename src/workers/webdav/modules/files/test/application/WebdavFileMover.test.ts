@@ -7,14 +7,16 @@ import { FileAlreadyExistsError } from '../../domain/errors/FileAlreadyExistsErr
 import { WebdavFileMother } from '../domain/WebdavFileMother';
 import { WebdavFileRepositoryMock } from '../__mocks__/WebdavFileRepositoyMock';
 import { FilePath } from '../../domain/FilePath';
-import { WebdavIpcMock } from '../../../shared/infrastructure/__mock__/WebdavIPC';
+import { WebdavIpcMock } from '../../../shared/test/__mock__/WebdavIPC';
 import { WebdavFileRenamer } from '../../application/WebdavFileRenamer';
+import { FileContentRepositoryMock } from '../__mocks__/FileContentRepositoryMock';
 
 describe('Webdav File Mover', () => {
   let repository: WebdavFileRepositoryMock;
   let folderRepository: WebdavFolderRepositoryMock;
   let folderFinder: WebdavFolderFinder;
   let fileRenamer: WebdavFileRenamer;
+  let contentsRepository: FileContentRepositoryMock;
   let eventBus: EventBusMock;
   let ipc: WebdavIpcMock;
 
@@ -24,9 +26,16 @@ describe('Webdav File Mover', () => {
     repository = new WebdavFileRepositoryMock();
     folderRepository = new WebdavFolderRepositoryMock();
     folderFinder = new WebdavFolderFinder(folderRepository);
-    fileRenamer = new WebdavFileRenamer(repository, eventBus, ipc);
+    contentsRepository = new FileContentRepositoryMock();
     eventBus = new EventBusMock();
     ipc = new WebdavIpcMock();
+
+    fileRenamer = new WebdavFileRenamer(
+      repository,
+      contentsRepository,
+      eventBus,
+      ipc
+    );
 
     SUT = new WebdavFileMover(
       repository,

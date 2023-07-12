@@ -223,4 +223,17 @@ export class WebdavFile extends AggregateRoot {
       updatedAt: this.updatedAt.getDate(),
     };
   }
+
+  attributes(): WebdavFileAtributes {
+    return {
+      fileId: this.fileId,
+      folderId: this.folderId,
+      createdAt: this.createdAt.toISOString(),
+      path: this._path.value,
+      size: this._size.value,
+      updatedAt: this.updatedAt.toISOString(),
+      status: this.status.value,
+      modificationTime: this.updatedAt.toISOString(),
+    };
+  }
 }

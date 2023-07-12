@@ -59,6 +59,10 @@ export class FilePath extends WebdavPath {
     return dirname === otherDirname;
   }
 
+  extensionMatch(extension: string): boolean {
+    return this.extension() === extension;
+  }
+
   hasSameExtension(other: FilePath): boolean {
     return this.extension() === other.extension();
   }

@@ -15,6 +15,10 @@ export class WebdavFileMimeTypeResolver {
       return WebdavFileMimeTypeResolver.DefaultMimeType;
     }
 
-    return MimeTypesMap[`.${filePath.extension()}`];
+    const resolvedMimeType = MimeTypesMap[`.${filePath.extension()}`];
+
+    if (resolvedMimeType) return resolvedMimeType;
+
+    return WebdavFileMimeTypeResolver.DefaultMimeType;
   }
 }
