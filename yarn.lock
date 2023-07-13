@@ -1260,6 +1260,14 @@
     query-string "^7.1.0"
     uuid "^8.3.2"
 
+"@internxt/webdav-server@^1.0.0":
+  version "1.0.0"
+  resolved "https://npm.pkg.github.com/download/@internxt/webdav-server/1.0.0/902e2042c38ec87be32481d8de888ed851ddc796#902e2042c38ec87be32481d8de888ed851ddc796"
+  integrity sha512-qtxDnLkFB6mEWE7zE5F2+2ruZAAMUM6IpplEiZi5v4WxoMiPIZUi3yXAr6wfnRVBrJN5SyvmDvqm5miCjOBguQ==
+  dependencies:
+    mime-types "^2.1.18"
+    xml-js-builder "^1.0.3"
+
 "@isaacs/cliui@^8.0.2":
   version "8.0.2"
   resolved "https://registry.yarnpkg.com/@isaacs/cliui/-/cliui-8.0.2.tgz#b37667b7bc181c168782259bab42474fbf52b550"
@@ -11226,14 +11234,6 @@ wcwidth@^1.0.1:
   integrity sha512-XHPEwS0q6TaxcvG85+8EYkbiCux2XtWG2mkc47Ng2A77BQu9+DqIOJldST4HgPkuea7dvKSj5VgX3P1d4rW8Tg==
   dependencies:
     defaults "^1.0.3"
-
-webdav-server@^2.6.2:
-  version "2.6.2"
-  resolved "https://registry.yarnpkg.com/webdav-server/-/webdav-server-2.6.2.tgz#5ea39b269aa34a1512c150e29c1b7e27d3a68908"
-  integrity sha512-0iHdrOzlKGFD96bTvPF8IIEfxw9Q7jB5LqWqhjyBYsofD6T6mOYqWtAvR88VY9Mq0xeg8bCRHC2Vifc9iuTYuw==
-  dependencies:
-    mime-types "^2.1.18"
-    xml-js-builder "^1.0.3"
 
 webidl-conversions@^3.0.0:
   version "3.0.1"

@@ -26,7 +26,7 @@ import {
   CopyInfo,
   MimeTypeInfo,
   RenameInfo,
-} from 'webdav-server/lib/index.v2';
+} from '@internxt/webdav-server';
 import { Readable, Writable } from 'stream';
 import Logger from 'electron-log';
 import { DebugPhysicalSerializer } from './Serializer';
