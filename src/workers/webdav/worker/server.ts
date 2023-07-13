@@ -3,8 +3,8 @@ import {
   WebDAVServerStartCallback,
   FileSystem,
   IStorageManager,
-} from 'webdav-server/lib/index.v2';
-import { v2 as webdav } from 'webdav-server';
+} from '@internxt/webdav-server';
+
 import Logger from 'electron-log';
 import { DependencyContainer } from '../dependencyInjection/DependencyContainer';
 import { DomainEventSubscribers } from '../modules/shared/infrastructure/DomainEventSubscribers';
@@ -18,7 +18,7 @@ export class InternxtWebdavServer {
     container: DependencyContainer,
     storageManager?: IStorageManager
   ) {
-    this.server = new webdav.WebDAVServer({
+    this.server = new WebDAVServer({
       hostname: 'localhost',
       port,
       requireAuthentification: false,

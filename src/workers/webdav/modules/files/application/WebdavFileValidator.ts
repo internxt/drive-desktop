@@ -1,4 +1,4 @@
-import { Path } from 'webdav-server/lib/index.v2';
+import { Path } from '@internxt/webdav-server';
 
 export class WebdavFileValidator {
   validateName(filename: string): boolean {

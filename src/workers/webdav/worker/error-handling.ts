@@ -1,4 +1,4 @@
-import { RequestContext } from 'webdav-server/lib/index.v2';
+import { RequestContext } from '@internxt/webdav-server';
 import * as Sentry from '@sentry/electron/renderer';
 import { ipc } from '../ipc';
 import {

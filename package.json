@@ -260,6 +260,7 @@
     "@internxt/inxt-js": "^2.0.7",
     "@internxt/lib": "^1.1.6",
     "@internxt/sdk": "^1.4.33",
+    "@internxt/webdav-server": "^1.0.0",
     "@sentry/electron": "^4.5.0",
     "@sentry/react": "^7.51.0",
     "async": "^3.2.4",
@@ -280,8 +281,8 @@
     "ignore": "^5.2.0",
     "jwt-decode": "^3.1.2",
     "lodash": "^4.17.21",
-    "multipipe": "^4.0.0",
     "lottie-react": "^2.4.0",
+    "multipipe": "^4.0.0",
     "node-schedule": "^2.1.0",
     "phosphor-react": "^1.4.1",
     "react": "^17.0.2",
@@ -293,8 +294,7 @@
     "regenerator-runtime": "^0.13.9",
     "socket.io-client": "^4.4.1",
     "tiny-glob": "^0.2.9",
-    "uuid": "^8.3.2",
-    "webdav-server": "^2.6.2"
+    "uuid": "^8.3.2"
   },
   "devEngines": {
     "node": ">=14.x",

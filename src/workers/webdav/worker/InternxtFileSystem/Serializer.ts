@@ -2,15 +2,14 @@ import {
   FileSystemSerializer,
   ReturnCallback,
   FileSystem,
-} from 'webdav-server/lib/index.v2';
+} from '@internxt/webdav-server';
 import Logger from 'electron-log';
 import { InternxtFileSystem } from './InternxtFileSystem';
-import { InternxtFileSystemDependencyContainer } from './InternxtFileSystemDependencyContainer';
+
+import { DependencyContainer } from '../../dependencyInjection/DependencyContainer';
 
 export class DebugPhysicalSerializer implements FileSystemSerializer {
-  constructor(
-    private readonly dependencyContainer: InternxtFileSystemDependencyContainer
-  ) {}
+  constructor(private readonly dependencyContainer: DependencyContainer) {}
 
   uid(): string {
     return 'PhysicalFSSerializer-1.0.0';
