@@ -35,11 +35,13 @@ describe('Webdav File Downloader', () => {
     repository.mockSearch.mockReturnValueOnce(file);
     contentsRepository.mockDownload.mock.mockResolvedValueOnce(new Readable());
 
-    const readable = await SUT.run(file.path);
+    const readable = await SUT.run(file.path.value);
 
     expect(readable).toBeDefined();
 
-    expect(repository.mockSearch).toHaveBeenCalledWith(new FilePath(file.path));
+    expect(repository.mockSearch).toHaveBeenCalledWith(
+      new FilePath(file.path.value)
+    );
     expect(contentsRepository.mockDownload.mock).toHaveBeenCalled();
   });
 
