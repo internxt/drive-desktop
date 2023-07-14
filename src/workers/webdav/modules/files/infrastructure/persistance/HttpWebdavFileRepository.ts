@@ -99,21 +99,17 @@ export class HttpWebdavFileRepository implements WebdavFileRepository {
   }
 
   search(path: FilePath): Nullable<WebdavFile> {
-    const item = this.files[path.value] || this.optimisticFiles[path.value];
+    const item = this.optimisticFiles[path.value] || this.files[path.value];
 
     if (!item) return;
 
+    if (!item.hasStatus(FileStatuses.EXISTS)) return;
     return WebdavFile.from(item.attributes());
   }
 
   async delete(file: WebdavFile): Promise<void> {
     try {
-      const currentFile =
-        this.files[file.path.value] || this.optimisticFiles[file.path.value];
-
-      this.optimisticFiles[file.path.value] = currentFile.update({
-        status: FileStatuses.TRASHED,
-      });
+      this.optimisticFiles[file.path.value] = file;
       const result = await this.trashHttpClient.post(
         `${process.env.NEW_DRIVE_URL}/drive/storage/trash/add`,
         {
@@ -261,8 +257,6 @@ export class HttpWebdavFileRepository implements WebdavFileRepository {
 
   async searchOnFolder(folderId: number): Promise<Array<WebdavFile>> {
     await this.init();
-    return Object.values({ ...this.files, ...this.optimisticFiles }).filter(
-      (file) => file.hasParent(folderId)
-    );
+    return Object.values(this.files).filter((file) => file.hasParent(folderId));
   }
 }

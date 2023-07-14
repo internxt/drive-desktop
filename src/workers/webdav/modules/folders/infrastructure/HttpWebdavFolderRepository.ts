@@ -106,7 +106,11 @@ export class HttpWebdavFolderRepository implements WebdavFolderRepository {
   }
 
   search(path: string): Nullable<WebdavFolder> {
-    return this.folders[path];
+    const folder = this.optimisticFolders[path] || this.folders[path];
+    if (!folder) return;
+
+    if (!folder.hasStatus(FolderStatuses.EXISTS)) return;
+    return folder;
   }
 
   async create(path: FolderPath, parentId: number): Promise<WebdavFolder> {
@@ -157,7 +161,6 @@ export class HttpWebdavFolderRepository implements WebdavFolderRepository {
 
       return folder;
     } catch (error) {
-      console.log('Error creating', error);
       delete this.optimisticFolders[path.value];
 
       throw error;
@@ -218,13 +221,7 @@ export class HttpWebdavFolderRepository implements WebdavFolderRepository {
 
   async trash(folder: WebdavFolder): Promise<void> {
     try {
-      const currentFolder =
-        this.folders[folder.path.value] ||
-        this.optimisticFolders[folder.path.value];
-
-      this.optimisticFolders[folder.path.value] = currentFolder.update({
-        status: FolderStatuses.TRASHED,
-      });
+      this.optimisticFolders[folder.path.value] = folder;
 
       const result = await this.trashClient.post(
         `${process.env.NEW_DRIVE_URL}/drive/storage/trash/add`,
