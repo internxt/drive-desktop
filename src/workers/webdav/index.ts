@@ -10,6 +10,7 @@ import { InternxtFileSystemFactory } from './worker/InternxtFileSystem/InternxtF
 import { InternxtStorageManagerFactory } from './worker/InternxtStorageManager/InternxtSotrageManagerFactory';
 import { InternxtWebdavServer } from './worker/server';
 import { ipcRenderer } from 'electron';
+import { InternxtFileSystem } from './worker/InternxtFileSystem/InternxtFileSystem';
 
 const PORT = 1900;
 
@@ -65,14 +66,22 @@ async function setUp() {
           ipc.send('WEBDAV_SERVER_STOP_ERROR', err);
         });
     });
-    await server.start([{ path: '/', fs: fileSystem }], { debug: false });
 
-    await mountDrive();
-    ipc.send('WEBDAV_VIRTUAL_DRIVE_MOUNTED_SUCCESSFULLY');
+    ipc.on('START_WEBDAV_SERVER_PROCESS', () => {
+      startWebdavServer(server, fileSystem);
+    });
+
+    await startWebdavServer(server, fileSystem);
   } catch (error) {
     ipc.send('WEBDAV_VIRTUAL_DRIVE_MOUNT_ERROR', error as Error);
   }
 }
+
+const startWebdavServer = async (server: InternxtWebdavServer, fileSystem: InternxtFileSystem) => {
+  await server.start([{ path: '/', fs: fileSystem }], { debug: false });
+  await mountDrive();
+  ipc.send('WEBDAV_VIRTUAL_DRIVE_MOUNTED_SUCCESSFULLY');
+};
 
 setUp().catch((err) => {
   Logger.error(err);
