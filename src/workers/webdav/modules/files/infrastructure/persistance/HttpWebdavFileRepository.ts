@@ -66,8 +66,8 @@ export class HttpWebdavFileRepository implements WebdavFileRepository {
     this.traverser.reset();
     const all = this.traverser.run(raw);
 
-    const files = Object.entries(all).filter(([_key, value]) => {
-      if (!value.isFile()) return;
+    const files = Object.entries(all).filter(([_, value]) => {
+      if (!value.isFile()) return false;
       this.cleanOptimisticFiles(value);
       return (
         value.hasStatus(FileStatuses.EXISTS) &&
@@ -96,16 +96,10 @@ export class HttpWebdavFileRepository implements WebdavFileRepository {
       ...serverFiles,
       ...filteredOptimisticFiles,
     };
-
-    Logger.info(
-      'Optimistic files',
-      JSON.stringify(filteredOptimisticFiles, null, 2)
-    );
-    Logger.info('Generated files', JSON.stringify(this.files, null, 2));
   }
 
   search(path: FilePath): Nullable<WebdavFile> {
-    const item = this.files[path.value];
+    const item = this.files[path.value] || this.optimisticFiles[path.value];
 
     if (!item) return;
 
@@ -197,14 +191,19 @@ export class HttpWebdavFileRepository implements WebdavFileRepository {
   }
 
   async updateName(file: WebdavFile): Promise<void> {
+    if (!file.lastPath)
+      throw new Error('Cannot rename without knowing last file path');
+    const previous = this.files[file.lastPath.value];
     try {
-      if (!file.lastPath)
-        throw new Error('Cannot rename without knowing last file path');
-
       Logger.info(
         'Right now optimistic files: ',
         JSON.stringify(this.optimisticFiles, null, 2)
       );
+
+      if (previous) {
+        delete this.files[file.lastPath.value];
+      }
+
       if (this.optimisticFiles[file.lastPath.value]) {
         delete this.optimisticFiles[file.lastPath.value];
       }
@@ -227,6 +226,10 @@ export class HttpWebdavFileRepository implements WebdavFileRepository {
 
       await this.ipc.invoke('START_REMOTE_SYNC');
     } catch (error) {
+      if (file.lastPath) {
+        this.files[file.lastPath.value] = previous;
+      }
+
       delete this.optimisticFiles[file.path.value];
       throw error;
     }
@@ -258,6 +261,8 @@ export class HttpWebdavFileRepository implements WebdavFileRepository {
 
   async searchOnFolder(folderId: number): Promise<Array<WebdavFile>> {
     await this.init();
-    return Object.values(this.files).filter((file) => file.hasParent(folderId));
+    return Object.values({ ...this.files, ...this.optimisticFiles }).filter(
+      (file) => file.hasParent(folderId)
+    );
   }
 }

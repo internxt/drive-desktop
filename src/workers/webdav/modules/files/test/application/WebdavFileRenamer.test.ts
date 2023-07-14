@@ -36,9 +36,7 @@ describe('File Rename', () => {
     await SUT.run(file, destination.value);
 
     expect(repository.mockUpdateName).toBeCalledWith(
-      expect.objectContaining({
-        path: destination.value,
-      })
+      expect.objectContaining(file)
     );
   });
 
@@ -95,7 +93,7 @@ describe('File Rename', () => {
 
     repository.mockSearch.mockResolvedValueOnce(fileOnDestination);
 
-    await SUT.run(WebdavFileMother.any(), fileOnDestination.path).catch(
+    await SUT.run(WebdavFileMother.any(), fileOnDestination.path.value).catch(
       (error) => {
         expect(error).toBeDefined();
       }

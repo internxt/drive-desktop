@@ -11,7 +11,7 @@ import * as uuid from 'uuid';
 import { UpdateFolderNameDTO } from './dtos/UpdateFolderNameDTO';
 import { WebdavIpc } from '../../../ipc';
 import { RemoteItemsGenerator } from '../../items/application/RemoteItemsGenerator';
-import { FolderStatus, FolderStatuses } from '../domain/FolderStatus';
+import { FolderStatuses } from '../domain/FolderStatus';
 
 export class HttpWebdavFolderRepository implements WebdavFolderRepository {
   private folders: Record<string, WebdavFolder> = {};
@@ -66,7 +66,7 @@ export class HttpWebdavFolderRepository implements WebdavFolderRepository {
       this.traverser.reset();
       const all = this.traverser.run(raw);
 
-      const folders = Object.entries(all).filter(([_key, value]) => {
+      const folders = Object.entries(all).filter(([_, value]) => {
         if (!value.isFolder()) return false;
 
         this.cleanOptimisticFolders(value);
@@ -126,7 +126,6 @@ export class HttpWebdavFolderRepository implements WebdavFolderRepository {
     });
 
     this.optimisticFolders[path.value] = optimisticFolder;
-
     try {
       const response = await this.driveClient.post(
         `${process.env.API_URL}/api/storage/folder`,
@@ -146,8 +145,6 @@ export class HttpWebdavFolderRepository implements WebdavFolderRepository {
         throw new Error('Folder creation failded, no data returned');
       }
 
-      Logger.info('Updated from server', serverFolder);
-
       const folder = optimisticFolder.update({
         id: serverFolder.id,
         parentId: serverFolder.parentId,
@@ -156,12 +153,11 @@ export class HttpWebdavFolderRepository implements WebdavFolderRepository {
         path: path.value,
       });
 
-      Logger.info('Updated optimistic', folder);
-
       this.optimisticFolders[path.value] = folder;
 
       return folder;
     } catch (error) {
+      console.log('Error creating', error);
       delete this.optimisticFolders[path.value];
 
       throw error;
