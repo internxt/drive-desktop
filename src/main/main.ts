@@ -110,6 +110,11 @@ app.on('will-quit', () => {
 });
 
 app.on('window-all-closed', () => {
+  // On windows we need to unmount here, since will-quit won't work
+  unmountDrive().catch((error) => {
+    Logger.error(error);
+    reportError(error);
+  });
   app.quit();
 });
 
