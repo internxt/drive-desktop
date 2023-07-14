@@ -9,7 +9,7 @@ enum SpawnWebdavServerMode {
   OnInitialSyncReady = 'INITIAL_SYNC_READY',
 }
 const SPAWN_WEBDAV_SERVER_ON: SpawnWebdavServerMode =
-  SpawnWebdavServerMode.OnInitialSyncReady as SpawnWebdavServerMode;
+  SpawnWebdavServerMode.OnAppStart as SpawnWebdavServerMode;
 
 let webdavWorker: BrowserWindow | null = null;
 export const getWebdavWorkerWindow = () =>

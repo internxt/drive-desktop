@@ -15,20 +15,24 @@ export type WebdavFolderAttributes = {
 
 export class WebdavFolder extends AggregateRoot {
   public readonly size: number = 0;
-
+  private _lastPath: FolderPath | null = null;
   private constructor(
-    public readonly id: number,
+    public id: number,
     private _path: FolderPath,
     private _parentId: null | number,
-    public readonly createdAt: Date,
-    public readonly updatedAt: Date,
+    public createdAt: Date,
+    public updatedAt: Date,
     private _status: FolderStatus
   ) {
     super();
   }
 
   public get path() {
-    return this._path.value;
+    return this._path;
+  }
+
+  public get lastPath() {
+    return this._lastPath;
   }
 
   public get name() {
@@ -47,6 +51,34 @@ export class WebdavFolder extends AggregateRoot {
     return this._status;
   }
 
+  public update(attributes: Partial<WebdavFolderAttributes>) {
+    if (attributes.path) {
+      this._path = new FolderPath(attributes.path);
+    }
+
+    if (attributes.createdAt) {
+      this.createdAt = new Date(attributes.createdAt);
+    }
+
+    if (attributes.updatedAt) {
+      this.updatedAt = new Date(attributes.updatedAt);
+    }
+
+    if (attributes.id) {
+      this.id = attributes.id;
+    }
+
+    if (attributes.parentId) {
+      this._parentId = attributes.parentId;
+    }
+
+    if (attributes.status) {
+      this._status = FolderStatus.fromValue(attributes.status);
+    }
+
+    return this;
+  }
+
   static from(attributes: WebdavFolderAttributes): WebdavFolder {
     return new WebdavFolder(
       attributes.id,
@@ -58,14 +90,7 @@ export class WebdavFolder extends AggregateRoot {
     );
   }
 
-  static create(attributes: {
-    id: number;
-    name: string;
-    parentId: number | null;
-    updatedAt: string;
-    createdAt: string;
-    path: string;
-  }) {
+  static create(attributes: WebdavFolderAttributes) {
     return new WebdavFolder(
       attributes.id,
       new FolderPath(attributes.path),
@@ -85,7 +110,7 @@ export class WebdavFolder extends AggregateRoot {
       throw new Error('Cannot move a folder to its current folder');
     }
 
-    this._path = this._path.changeFolder(folder.path);
+    this._path = this._path.changeFolder(folder.path.value);
     this._parentId = folder.id;
 
     //TODO: record moved event
@@ -95,6 +120,8 @@ export class WebdavFolder extends AggregateRoot {
     if (this._path.hasSameName(newPath)) {
       throw new Error('Cannot rename a folder to the same name');
     }
+
+    this._lastPath = this._path;
 
     this._path = this._path.updateName(newPath.name());
 

@@ -15,6 +15,7 @@ import { FolderStatuses } from '../domain/FolderStatus';
 
 export class HttpWebdavFolderRepository implements WebdavFolderRepository {
   private folders: Record<string, WebdavFolder> = {};
+  private optimisticFolders: Record<string, WebdavFolder> = {};
 
   constructor(
     private readonly driveClient: Axios,
@@ -31,6 +32,33 @@ export class HttpWebdavFolderRepository implements WebdavFolderRepository {
     return remoteItemsGenerator.getAll();
   }
 
+  oldFolderIsBeingUpdated(newFolder: WebdavFolder) {
+    const oldFolders = Object.values(this.optimisticFolders);
+
+    return oldFolders.find((oldPolder) => oldPolder.id === newFolder.id)
+      ? true
+      : false;
+  }
+
+  cleanOptimisticFolders(newFolder: WebdavFolder) {
+    const optimisticFolders = Object.values(this.optimisticFolders);
+
+    const oldFolder = optimisticFolders.find(
+      (folder) => folder.id === newFolder.id
+    );
+
+    if (
+      oldFolder &&
+      newFolder.updatedAt.getTime() > oldFolder?.updatedAt.getTime()
+    ) {
+      Logger.info('Cleaning optimistic folder', oldFolder);
+      delete this.optimisticFolders[oldFolder.path.value];
+      if (oldFolder.lastPath?.value) {
+        delete this.optimisticFolders[oldFolder.lastPath?.value];
+      }
+    }
+  }
+
   public async init(): Promise<void> {
     try {
       const raw = await this.getTree();
@@ -38,17 +66,42 @@ export class HttpWebdavFolderRepository implements WebdavFolderRepository {
       this.traverser.reset();
       const all = this.traverser.run(raw);
 
-      const folders = Object.entries(all).filter(
-        ([_key, value]) =>
-          value.isFolder() && value.hasStatus(FolderStatuses.EXISTS)
-      ) as Array<[string, WebdavFolder]>;
+      const folders = Object.entries(all).filter(([_, value]) => {
+        if (!value.isFolder()) return false;
 
-      this.folders = folders.reduce((items, [key, value]) => {
+        this.cleanOptimisticFolders(value);
+        return (
+          value.isFolder() &&
+          value.hasStatus(FolderStatuses.EXISTS) &&
+          !this.oldFolderIsBeingUpdated(value)
+        );
+      }) as Array<[string, WebdavFolder]>;
+
+      const serverFolders = folders.reduce((items, [key, value]) => {
         items[key] = value;
+
         return items;
       }, {} as Record<string, WebdavFolder>);
+
+      const filteredOptimisticFolders: Record<string, WebdavFolder> = {};
+
+      Object.keys(this.optimisticFolders).forEach((optimisticFolderPath) => {
+        if (
+          this.optimisticFolders[optimisticFolderPath].hasStatus(
+            FolderStatuses.EXISTS
+          )
+        ) {
+          filteredOptimisticFolders[optimisticFolderPath] =
+            this.optimisticFolders[optimisticFolderPath];
+        }
+      });
+
+      this.folders = {
+        ...serverFolders,
+        ...filteredOptimisticFolders,
+      };
     } catch (err) {
-      Logger.error('FOLDER ERRS', err);
+      Logger.info('FOLDER ERRS', err);
     }
   }
 
@@ -63,72 +116,99 @@ export class HttpWebdavFolderRepository implements WebdavFolderRepository {
       throw new Error('Bad folder name');
     }
 
-    const response = await this.driveClient.post(
-      `${process.env.API_URL}/api/storage/folder`,
-      {
-        folderName: plainName,
-        parentFolderId: parentId,
-      }
-    );
-
-    if (response.status !== 201) {
-      throw new Error('Folder creation failded');
-    }
-
-    const serverFolder = response.data as ServerFolder | null;
-
-    if (!serverFolder) {
-      throw new Error('Folder creation failded, no data returned');
-    }
-
-    const folder = WebdavFolder.create({
-      id: serverFolder.id,
-      name: plainName,
-      parentId: serverFolder.parent_id,
-      updatedAt: serverFolder.updatedAt,
-      createdAt: serverFolder.createdAt,
+    const optimisticFolder = WebdavFolder.create({
+      id: -1,
+      status: FolderStatuses.EXISTS,
+      parentId: -1,
+      updatedAt: new Date().toISOString(),
+      createdAt: new Date().toISOString(),
       path: path.value,
     });
 
-    this.folders[path.value] = folder;
-    await this.ipc.invoke('START_REMOTE_SYNC');
+    this.optimisticFolders[path.value] = optimisticFolder;
+    try {
+      const response = await this.driveClient.post(
+        `${process.env.API_URL}/api/storage/folder`,
+        {
+          folderName: plainName,
+          parentFolderId: parentId,
+        }
+      );
 
-    return folder;
+      if (response.status !== 201) {
+        throw new Error('Folder creation failded');
+      }
+
+      const serverFolder = response.data as ServerFolder | null;
+
+      if (!serverFolder) {
+        throw new Error('Folder creation failded, no data returned');
+      }
+
+      const folder = optimisticFolder.update({
+        id: serverFolder.id,
+        parentId: serverFolder.parentId,
+        updatedAt: serverFolder.updatedAt,
+        createdAt: serverFolder.createdAt,
+        path: path.value,
+      });
+
+      this.optimisticFolders[path.value] = folder;
+
+      return folder;
+    } catch (error) {
+      console.log('Error creating', error);
+      delete this.optimisticFolders[path.value];
+
+      throw error;
+    }
   }
 
   async updateName(folder: WebdavFolder): Promise<void> {
-    const url = `${process.env.API_URL}/api/storage/folder/${folder.id}/meta`;
+    try {
+      if (!folder.lastPath)
+        throw new Error('Cannot rename without knowing last folder path');
 
-    const body: UpdateFolderNameDTO = {
-      metadata: { itemName: folder.name },
-      relativePath: uuid.v4(),
-    };
+      this.optimisticFolders[folder.path.value] = folder;
 
-    const res = await this.driveClient.post(url, body);
+      const url = `${process.env.API_URL}/api/storage/folder/${folder.id}/meta`;
 
-    if (res.status !== 200) {
-      throw new Error(
-        `[REPOSITORY] Error updating item metadata: ${res.status}`
-      );
+      const body: UpdateFolderNameDTO = {
+        metadata: { itemName: folder.name },
+        relativePath: uuid.v4(),
+      };
+
+      const res = await this.driveClient.post(url, body);
+
+      if (res.status !== 200) {
+        throw new Error(
+          `[REPOSITORY] Error updating item metadata: ${res.status}`
+        );
+      }
+    } catch (error) {
+      delete this.optimisticFolders[folder.path.value];
+
+      throw error;
     }
-
-    delete this.folders[folder.path];
-    this.folders[folder.path] = folder;
-    await this.ipc.invoke('START_REMOTE_SYNC');
   }
 
   async updateParentDir(folder: WebdavFolder): Promise<void> {
-    const url = `${process.env.API_URL}/api/storage/move/folder`;
+    try {
+      this.optimisticFolders[folder.path.value] = folder;
+      const url = `${process.env.API_URL}/api/storage/move/folder`;
 
-    const body = { destination: folder.parentId, folderId: folder.id };
+      const body = { destination: folder.parentId, folderId: folder.id };
 
-    const res = await this.driveClient.post(url, body);
+      const res = await this.driveClient.post(url, body);
 
-    if (res.status !== 200) {
-      throw new Error(`[REPOSITORY] Error moving item: ${res.status}`);
+      if (res.status !== 200) {
+        throw new Error(`[REPOSITORY] Error moving item: ${res.status}`);
+      }
+
+      await this.init();
+    } catch (error) {
+      delete this.optimisticFolders[folder.path.value];
     }
-
-    await this.init();
   }
 
   async searchOn(folder: WebdavFolder): Promise<Array<WebdavFolder>> {
@@ -137,24 +217,35 @@ export class HttpWebdavFolderRepository implements WebdavFolderRepository {
   }
 
   async trash(folder: WebdavFolder): Promise<void> {
-    const result = await this.trashClient.post(
-      `${process.env.NEW_DRIVE_URL}/drive/storage/trash/add`,
-      {
-        items: [{ type: 'folder', id: folder.id }],
+    try {
+      const currentFolder =
+        this.folders[folder.path.value] ||
+        this.optimisticFolders[folder.path.value];
+
+      this.optimisticFolders[folder.path.value] = currentFolder.update({
+        status: FolderStatuses.TRASHED,
+      });
+
+      const result = await this.trashClient.post(
+        `${process.env.NEW_DRIVE_URL}/drive/storage/trash/add`,
+        {
+          items: [{ type: 'folder', id: folder.id }],
+        }
+      );
+
+      if (result.status === 200) {
+        return;
       }
-    );
 
-    if (result.status === 200) {
-      delete this.folders[folder.path];
-      return;
+      Logger.error(
+        '[FOLDER REPOSITORY] Folder deletion failed with status: ',
+        result.status,
+        result.statusText
+      );
+
+      await this.ipc.invoke('START_REMOTE_SYNC');
+    } catch (error) {
+      delete this.optimisticFolders[folder.path.value];
     }
-
-    Logger.error(
-      '[FOLDER REPOSITORY] Folder deletion failed with status: ',
-      result.status,
-      result.statusText
-    );
-
-    await this.ipc.invoke('START_REMOTE_SYNC');
   }
 }

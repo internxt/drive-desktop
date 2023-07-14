@@ -13,7 +13,7 @@ jest.mock('axios');
 const rootFolderId = 31420;
 
 const rootFolder = ServerFolderMother.fromPartial({
-  parent_id: null,
+  parentId: null,
   id: rootFolderId,
 });
 

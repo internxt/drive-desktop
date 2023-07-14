@@ -39,9 +39,10 @@ export class Traverser {
     const filesInThisFolder = this.rawTree.files.filter(
       (file) => file.folderId === currentId
     );
-    const foldersInThisFolder = this.rawTree.folders.filter(
-      (folder) => folder.parent_id === currentId
-    );
+
+    const foldersInThisFolder = this.rawTree.folders.filter((folder) => {
+      return folder.parentId === currentId;
+    });
 
     filesInThisFolder
       .map((file) => ({
@@ -84,24 +85,24 @@ export class Traverser {
         folder.plain_name ||
         this.decryptor.decryptName(
           folder.name,
-          (folder.parent_id as number).toString(),
+          (folder.parentId as number).toString(),
           '03-aes'
-        );
+        ) ||
+        folder.name;
 
       const name = `${currentName}/${plainName}`;
-
-      if (!plainName) return;
 
       if (folder.status !== ServerFolderStatus.EXISTS) return;
 
       this.collection[name] = WebdavFolder.from({
         id: folder.id,
-        parentId: folder.parent_id as number,
+        parentId: folder.parentId as number,
         updatedAt: folder.updatedAt,
         createdAt: folder.createdAt,
         path: name,
         status: folder.status,
       });
+
       this.traverse(folder.id, `${name}`);
     });
   }

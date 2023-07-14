@@ -40,17 +40,9 @@ export class InternxtWebdavServer {
     this.configureEventBus();
 
     const fileSystemsMounted = fileSystems.map(
-      (params: { path: string; fs: FileSystem }) => {
-        return new Promise<void>((resolve, reject) => {
-          this.server.setFileSystem(params.path, params.fs, (success) => {
-            if (success) {
-              Logger.info('[WEBDAB SERVER] INTERNXT FS MOUNTED');
-              return resolve();
-            }
-
-            reject();
-          });
-        });
+      async (params: { path: string; fs: FileSystem }) => {
+        await this.server.setFileSystemAsync(params.path, params.fs, true);
+        Logger.info('Internxt Filesystem mounted');
       }
     );
 

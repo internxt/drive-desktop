@@ -22,13 +22,14 @@ export type WebdavFileAtributes = {
 };
 
 export class WebdavFile extends AggregateRoot {
+  private _lastPath: FilePath | null = null;
   private constructor(
-    public readonly fileId: string,
+    public fileId: string,
     private _folderId: number,
     private _path: FilePath,
     private readonly _size: FileSize,
-    public readonly createdAt: Date,
-    public readonly updatedAt: Date,
+    public createdAt: Date,
+    public updatedAt: Date,
     private _status: FileStatus
   ) {
     super();
@@ -39,7 +40,11 @@ export class WebdavFile extends AggregateRoot {
   }
 
   public get path() {
-    return this._path.value;
+    return this._path;
+  }
+
+  public get lastPath() {
+    return this._lastPath;
   }
 
   public get type() {
@@ -118,11 +123,12 @@ export class WebdavFile extends AggregateRoot {
 
   moveTo(folder: WebdavFolder): void {
     if (this.folderId === folder.id) {
-      throw new FileCannotBeMovedToTheOriginalFolderError(this.path);
+      throw new FileCannotBeMovedToTheOriginalFolderError(this.path.value);
     }
 
     this._folderId = folder.id;
-    this._path = this._path.changeFolder(folder.path);
+    this._lastPath = this._path;
+    this._path = this._path.changeFolder(folder.path.value);
 
     //TODO: record file moved event
   }
@@ -192,6 +198,7 @@ export class WebdavFile extends AggregateRoot {
       throw new FileNameShouldDifferFromOriginalError('rename');
     }
 
+    this._lastPath = this._path;
     this._path = this._path.updateName(newPath.nameWithExtension());
 
     // TODO: record rename event
@@ -211,6 +218,41 @@ export class WebdavFile extends AggregateRoot {
 
   hasStatus(status: FileStatuses): boolean {
     return this._status.is(status);
+  }
+
+  update(
+    attributes: Partial<
+      Pick<
+        WebdavFileAtributes,
+        'path' | 'createdAt' | 'updatedAt' | 'fileId' | 'folderId' | 'status'
+      >
+    >
+  ) {
+    if (attributes.path) {
+      this._path = new FilePath(attributes.path);
+    }
+
+    if (attributes.createdAt) {
+      this.createdAt = new Date(attributes.createdAt);
+    }
+
+    if (attributes.updatedAt) {
+      this.updatedAt = new Date(attributes.updatedAt);
+    }
+
+    if (attributes.fileId) {
+      this.fileId = attributes.fileId;
+    }
+
+    if (attributes.folderId) {
+      this._folderId = attributes.folderId;
+    }
+
+    if (attributes.status) {
+      this._status = FileStatus.fromValue(attributes.status);
+    }
+
+    return this;
   }
 
   toPrimitives() {
