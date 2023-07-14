@@ -9,7 +9,7 @@ export type ServerFolder = {
   createdAt: string;
   id: number;
   name: string;
-  parent_id: null | number;
+  parentId: null | number;
   updatedAt: string;
   plain_name: string | null;
   status: ServerFolderStatus;

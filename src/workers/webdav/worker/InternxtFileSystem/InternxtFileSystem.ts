@@ -144,7 +144,7 @@ export class InternxtFileSystem extends FileSystem {
       this.container.fileDeleter
         .run(item)
         .then(() => {
-          delete this.resources[item.path];
+          delete this.resources[item.path.value];
           callback(undefined);
         })
         .catch((error: Error) => {
@@ -250,9 +250,9 @@ export class InternxtFileSystem extends FileSystem {
 
     const changeResourceIndex = () => {
       this.resources[pathTo.toString(false)] =
-        this.resources[originalItem.path];
+        this.resources[originalItem.path.value];
 
-      delete this.resources[originalItem.path];
+      delete this.resources[originalItem.path.value];
     };
 
     if (originalItem.isFile()) {

@@ -40,7 +40,7 @@ export class RemoteItemsGenerator {
           createdAt: updatedFolder.createdAt,
           id: updatedFolder.id,
           name: updatedFolder.name,
-          parent_id: updatedFolder.parentId ?? null,
+          parentId: updatedFolder.parentId ?? null,
           updatedAt: updatedFolder.updatedAt,
           plain_name: updatedFolder.plainName ?? null,
           status: updatedFolder.status as ServerFolderStatus,

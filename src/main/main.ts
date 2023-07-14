@@ -110,10 +110,6 @@ app.on('will-quit', () => {
 });
 
 app.on('window-all-closed', () => {
-  unmountDrive().catch((error) => {
-    Logger.error(error);
-    reportError(error);
-  });
   app.quit();
 });
 
