@@ -4,16 +4,9 @@ import path from 'path';
 import Logger from 'electron-log';
 import eventBus from '../event-bus';
 
-enum SpawnWebdavServerMode {
-  OnAppStart = 'APP_START',
-  OnInitialSyncReady = 'INITIAL_SYNC_READY',
-}
-const SPAWN_WEBDAV_SERVER_ON: SpawnWebdavServerMode =
-  SpawnWebdavServerMode.OnAppStart as SpawnWebdavServerMode;
 
 let webdavWorker: BrowserWindow | null = null;
-export const getWebdavWorkerWindow = () =>
-  webdavWorker?.isDestroyed() ? null : webdavWorker;
+
 function spawnWebdavServerWorker() {
   Logger.log('Spawning webdav server!');
 
@@ -53,22 +46,19 @@ function stopWebDavServer() {
   webdavWorker?.webContents.send('STOP_WEBDAV_SERVER_PROCESS');
 }
 
+function startWebDavServer() {
+  webdavWorker?.webContents.send('START_WEBDAV_SERVER_PROCESS');
+}
+
 eventBus.on('USER_LOGGED_OUT', stopWebDavServer);
 eventBus.on('USER_WAS_UNAUTHORIZED', stopWebDavServer);
-
-if (SPAWN_WEBDAV_SERVER_ON === SpawnWebdavServerMode.OnInitialSyncReady) {
-  eventBus.on('INITIAL_SYNC_READY', () => {
-    if (getWebdavWorkerWindow()) return;
+eventBus.on('USER_LOGGED_IN', () => {
+  if (webdavWorker === null) {
     spawnWebdavServerWorker();
-  });
-}
-
-if (SPAWN_WEBDAV_SERVER_ON === SpawnWebdavServerMode.OnAppStart) {
-  eventBus.on('USER_LOGGED_IN', () => {
-    if (getWebdavWorkerWindow()) return;
-    spawnWebdavServerWorker();
-  });
-}
+  } else {
+    startWebDavServer();
+  }
+});
 
 ipcMain.handle('retry-virtual-drive-mount', () => {
   webdavWorker?.webContents.send('RETRY_VIRTUAL_DRIVE_MOUNT');

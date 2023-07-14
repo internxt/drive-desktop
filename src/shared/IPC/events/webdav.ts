@@ -153,6 +153,7 @@ export type WebDavProcessEvents = WebdavServerEvents &
   WebdavInvokableFunctions;
 
 export type WebdavMainEvents = {
+  START_WEBDAV_SERVER_PROCESS: () => void;
   STOP_WEBDAV_SERVER_PROCESS: () => void;
   RETRY_VIRTUAL_DRIVE_MOUNT: () => void;
 };
