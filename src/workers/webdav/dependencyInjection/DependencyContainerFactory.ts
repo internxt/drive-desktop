@@ -88,6 +88,8 @@ export class DependencyContainerFactory {
     });
 
     const traverser = new Traverser(crypt, user.root_folder_id);
+    const temporalItemsCollection =
+      new InMemoryTemporalFileMetadataCollection();
 
     const fileRepository = new HttpWebdavFileRepository(
       crypt,
@@ -95,14 +97,16 @@ export class DependencyContainerFactory {
       clients.newDrive,
       traverser,
       user.bucket,
-      ipc
+      ipc,
+      temporalItemsCollection
     );
 
     const folderRepository = new HttpWebdavFolderRepository(
       clients.drive,
       clients.newDrive,
       traverser,
-      ipc
+      ipc,
+      temporalItemsCollection
     );
 
     await fileRepository.init();
@@ -119,13 +123,15 @@ export class DependencyContainerFactory {
       fileRepository,
       fileContentRepository,
       eventBus,
-      ipc
+      ipc,
+      temporalItemsCollection
     );
 
     const folderFinder = new WebdavFolderFinder(folderRepository);
-    const folderRenamer = new WebdavFolderRenamer(folderRepository);
-
-    const temporalFileCollection = new InMemoryTemporalFileMetadataCollection();
+    const folderRenamer = new WebdavFolderRenamer(
+      folderRepository,
+      temporalItemsCollection
+    );
 
     const unknownItemSearcher = new WebdavUnknownItemTypeSearcher(
       fileRepository,
@@ -157,7 +163,12 @@ export class DependencyContainerFactory {
         eventBus,
         ipc
       ),
-      fileDeleter: new WebdavFileDeleter(fileRepository, eventBus, ipc),
+      fileDeleter: new WebdavFileDeleter(
+        fileRepository,
+        eventBus,
+        ipc,
+        temporalItemsCollection
+      ),
       fileMover: new WebdavFileMover(
         fileRepository,
         folderFinder,
@@ -169,10 +180,11 @@ export class DependencyContainerFactory {
         fileRepository,
         folderFinder,
         fileContentRepository,
-        temporalFileCollection,
+        temporalItemsCollection,
         eventBus,
         ipc
       ),
+      fileRepository,
       fileDownloader: new WebdavFileDownloader(
         fileRepository,
         fileContentRepository,
@@ -184,17 +196,24 @@ export class DependencyContainerFactory {
 
       folderFinder,
       folderRenamer,
-      folderCreator: new WebdavFolderCreator(folderRepository, folderFinder),
+      folderCreator: new WebdavFolderCreator(
+        folderRepository,
+        folderFinder,
+        temporalItemsCollection
+      ),
       folderMover: new WebdavFolderMover(
         folderRepository,
         folderFinder,
         folderRenamer
       ),
-      folderDeleter: new WebdavFolderDeleter(folderRepository),
+      folderDeleter: new WebdavFolderDeleter(
+        folderRepository,
+        temporalItemsCollection
+      ),
 
       itemMetadataDealer: new WebdavUnkownItemMetadataDealer(
         unknownItemSearcher,
-        temporalFileCollection
+        temporalItemsCollection
       ),
       allItemsLister: new AllWebdavItemsNameLister(
         fileRepository,
@@ -202,6 +221,7 @@ export class DependencyContainerFactory {
         folderFinder
       ),
       itemSearcher: unknownItemSearcher,
+      inMemoryFiles: temporalItemsCollection,
       eventBus,
     };
 

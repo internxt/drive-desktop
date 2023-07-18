@@ -103,25 +103,9 @@ export class RemoteSyncManager {
       reportError(error as Error);
     } finally {
       const totalDuration = Date.now() - start;
-
-      Logger.info('-----------------');
-      Logger.info('REMOTE SYNC STATS\n');
       Logger.info('Total synced files: ', this.totalFilesSynced);
-
-      Logger.info(
-        `Files sync speed: ${
-          this.totalFilesSynced / (totalDuration / 1000)
-        } files/second`
-      );
-
       Logger.info('Total synced folders: ', this.totalFoldersSynced);
-      Logger.info(
-        `Folders sync speed: ${
-          this.totalFoldersSynced / (totalDuration / 1000)
-        } folders/second`
-      );
       Logger.info(`Total remote to local sync time: ${totalDuration}ms`);
-      Logger.info('-----------------');
     }
   }
 

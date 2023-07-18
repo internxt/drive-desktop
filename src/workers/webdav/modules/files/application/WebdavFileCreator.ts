@@ -12,7 +12,7 @@ import { WebdavServerEventBus } from '../../shared/domain/WebdavServerEventBus';
 import { ContentFileUploader } from '../domain/ContentFileUploader';
 import { WebdavIpc } from '../../../ipc';
 import { Stopwatch } from '../../../../../shared/types/Stopwatch';
-
+import Logger from 'electron-log';
 export class WebdavFileCreator {
   constructor(
     private readonly repository: WebdavFileRepository,
@@ -35,7 +35,9 @@ export class WebdavFileCreator {
       this.ipc.send('WEBDAV_FILE_UPLOADING', {
         name: metadata.name,
         extension: metadata.extension,
-        nameWithExtension: metadata.name + (metadata.extension.length >= 0 ? '.' + metadata.extension : ''),
+        nameWithExtension:
+          metadata.name +
+          (metadata.extension.length >= 0 ? '.' + metadata.extension : ''),
         size: metadata.size,
         processInfo: { elapsedTime: stopwatch.elapsedTime() },
       });
@@ -45,7 +47,9 @@ export class WebdavFileCreator {
       this.ipc.send('WEBDAV_FILE_UPLOADING', {
         name: metadata.name,
         extension: metadata.extension,
-        nameWithExtension: metadata.name + (metadata.extension.length >= 0 ? '.' + metadata.extension : ''),
+        nameWithExtension:
+          metadata.name +
+          (metadata.extension.length >= 0 ? '.' + metadata.extension : ''),
         size: metadata.size,
         processInfo: { elapsedTime: stopwatch.elapsedTime(), progress },
       });
@@ -55,7 +59,9 @@ export class WebdavFileCreator {
       this.ipc.send('WEBDAV_FILE_UPLOAD_ERROR', {
         name: metadata.name,
         extension: metadata.extension,
-        nameWithExtension: metadata.name + (metadata.extension.length >= 0 ? '.' + metadata.extension : ''),
+        nameWithExtension:
+          metadata.name +
+          (metadata.extension.length >= 0 ? '.' + metadata.extension : ''),
         error: error.message,
       });
     });
@@ -66,7 +72,9 @@ export class WebdavFileCreator {
       this.ipc.send('WEBDAV_FILE_UPLOADED', {
         name: metadata.name,
         extension: metadata.extension,
-        nameWithExtension: metadata.name + (metadata.extension.length >= 0 ? '.' + metadata.extension : ''),
+        nameWithExtension:
+          metadata.name +
+          (metadata.extension.length >= 0 ? '.' + metadata.extension : ''),
         size: metadata.size,
         processInfo: { elapsedTime: stopwatch.elapsedTime() },
       });
@@ -83,11 +91,28 @@ export class WebdavFileCreator {
 
     await this.repository.add(file);
 
-    this.temporalFileCollection.remove(filePath.value);
-
     await this.eventBus.publish(file.pullDomainEvents());
 
     return file;
+  }
+
+  async createInMemoryTemporaryFile(path: string, size: number) {
+    const filePath = new FilePath(path);
+    const folder = this.folderFinder.run(filePath.dirname());
+    const metadata = ItemMetadata.from({
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+      name: filePath.name(),
+      size,
+      extension: filePath.extension(),
+      type: 'FILE',
+      visible: true,
+      externalMetadata: {
+        folderId: folder.id,
+      },
+    });
+
+    this.temporalFileCollection.add(filePath.value, metadata);
   }
 
   async run(
@@ -100,6 +125,7 @@ export class WebdavFileCreator {
     const fileSize = new FileSize(size);
     const filePath = new FilePath(path);
 
+    const folder = this.folderFinder.run(filePath.dirname());
     const metadata = ItemMetadata.from({
       createdAt: Date.now(),
       updatedAt: Date.now(),
@@ -107,11 +133,11 @@ export class WebdavFileCreator {
       size,
       extension: filePath.extension(),
       type: 'FILE',
+      visible: true,
+      externalMetadata: {
+        folderId: folder.id,
+      },
     });
-
-    this.temporalFileCollection.add(filePath.value, metadata);
-
-    const folder = this.folderFinder.run(filePath.dirname());
 
     const stream = new PassThrough();
 
@@ -122,14 +148,18 @@ export class WebdavFileCreator {
     const upload = uploader.upload();
 
     upload
-      .then(async (fileId) => {
+      .then((fileId) => {
         return this.createFileEntry(fileId, folder, size, filePath);
       })
       .catch((error: Error) => {
+        this.temporalFileCollection.remove(filePath.value);
+
         this.ipc.send('WEBDAV_FILE_UPLOAD_ERROR', {
           name: metadata.name,
           extension: metadata.extension,
-          nameWithExtension: metadata.name + (metadata.extension.length >= 0 ? '.' + metadata.extension : ''),
+          nameWithExtension:
+            metadata.name +
+            (metadata.extension.length >= 0 ? '.' + metadata.extension : ''),
           error: error.message,
         });
       });

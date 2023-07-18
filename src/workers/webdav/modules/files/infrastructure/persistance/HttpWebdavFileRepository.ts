@@ -15,10 +15,10 @@ import { WebdavIpc } from '../../../../ipc';
 import { RemoteItemsGenerator } from '../../../items/application/RemoteItemsGenerator';
 import { FileStatuses } from '../../domain/FileStatus';
 import { Crypt } from '../../../shared/domain/Crypt';
+import { InMemoryTemporalFileMetadataCollection } from './InMemoryTemporalFileMetadataCollection';
 import Logger from 'electron-log';
 export class HttpWebdavFileRepository implements WebdavFileRepository {
   private files: Record<string, WebdavFile> = {};
-  private optimisticFiles: Record<string, WebdavFile> = {};
 
   constructor(
     private readonly crypt: Crypt,
@@ -26,29 +26,29 @@ export class HttpWebdavFileRepository implements WebdavFileRepository {
     private readonly trashHttpClient: Axios,
     private readonly traverser: Traverser,
     private readonly bucket: string,
-    private readonly ipc: WebdavIpc
+    private readonly ipc: WebdavIpc,
+    private readonly inMemoryItems: InMemoryTemporalFileMetadataCollection
   ) {}
 
-  oldFileIsBeingUpdated(newFile: WebdavFile) {
-    const oldFiles = Object.values(this.optimisticFiles);
+  private async cleanInMemoryFileIfNeeded(
+    path: string,
+    serverFile: WebdavFile
+  ) {
+    const inMemoryFile = this.inMemoryItems.get(path);
 
-    return oldFiles.find((oldFile) => oldFile.fileId === newFile.fileId)
-      ? true
-      : false;
-  }
+    const keepInMemoryItem = inMemoryFile?.visible === false;
 
-  cleanOptimisticFiles(newFile: WebdavFile) {
-    const optimisticFiles = Object.values(this.optimisticFiles);
-
-    const oldFile = optimisticFiles.find(
-      (files) => files.fileId === newFile.fileId
-    );
-
-    if (oldFile && newFile.updatedAt.getTime() > oldFile?.updatedAt.getTime()) {
-      delete this.optimisticFiles[oldFile.path.value];
-      if (oldFile.lastPath?.value) {
-        delete this.optimisticFiles[oldFile.lastPath?.value];
-      }
+    if (
+      !keepInMemoryItem &&
+      inMemoryFile &&
+      inMemoryFile.updatedAt <= serverFile.updatedAt.getTime()
+    ) {
+      Logger.info(
+        `Removing in memory file with a server file at ${path}, InMemory updated at ${new Date(
+          inMemoryFile.updatedAt
+        ).toISOString()}, server updated at ${serverFile.updatedAt.toISOString()} `
+      );
+      this.inMemoryItems.remove(path);
     }
   }
 
@@ -68,38 +68,50 @@ export class HttpWebdavFileRepository implements WebdavFileRepository {
 
     const files = Object.entries(all).filter(([_, value]) => {
       if (!value.isFile()) return false;
-      this.cleanOptimisticFiles(value);
-      return (
-        value.hasStatus(FileStatuses.EXISTS) &&
-        !this.oldFileIsBeingUpdated(value)
-      );
+      return value.hasStatus(FileStatuses.EXISTS);
     }) as Array<[string, WebdavFile]>;
 
-    const serverFiles = files.reduce((items, [key, value]) => {
-      items[key] = value;
+    const serverFiles = files.reduce((items, [path, value]) => {
+      this.cleanInMemoryFileIfNeeded(path, value);
+      const existsInMemory = this.inMemoryItems.exists(path);
+
+      if (existsInMemory) {
+        return items;
+      }
+      items[path] = value;
       return items;
     }, {} as Record<string, WebdavFile>);
 
-    const filteredOptimisticFiles: Record<string, WebdavFile> = {};
+    const inMemoryFiles = this.inMemoryItems.getAllByType('FILE');
 
-    Object.keys(this.optimisticFiles).forEach((optimisticFolderPath) => {
-      if (
-        this.optimisticFiles[optimisticFolderPath].hasStatus(
-          FileStatuses.EXISTS
-        )
-      ) {
-        filteredOptimisticFiles[optimisticFolderPath] =
-          this.optimisticFiles[optimisticFolderPath];
-      }
+    const filteredInMemoryFiles: Record<string, WebdavFile> = {};
+
+    Object.keys(inMemoryFiles).forEach((path) => {
+      const inMemoryFile = inMemoryFiles[path];
+
+      if (!inMemoryFile.visible) return;
+
+      filteredInMemoryFiles[path] = WebdavFile.from({
+        // temporary_file means this file is being created and doesn't exist yet in the server
+        fileId: inMemoryFile.externalMetadata?.fileId || 'temporary_file',
+        folderId: inMemoryFile.externalMetadata?.folderId || -1,
+        createdAt: new Date(inMemoryFile.createdAt).toISOString(),
+        modificationTime: new Date(inMemoryFile.updatedAt).toISOString(),
+        path,
+        size: inMemoryFile.size,
+        updatedAt: new Date(inMemoryFile.updatedAt).toISOString(),
+        status: FileStatuses.EXISTS,
+      });
     });
+
     this.files = {
       ...serverFiles,
-      ...filteredOptimisticFiles,
+      ...filteredInMemoryFiles,
     };
   }
 
   search(path: FilePath): Nullable<WebdavFile> {
-    const item = this.files[path.value] || this.optimisticFiles[path.value];
+    const item = this.files[path.value];
 
     if (!item) return;
 
@@ -107,162 +119,94 @@ export class HttpWebdavFileRepository implements WebdavFileRepository {
   }
 
   async delete(file: WebdavFile): Promise<void> {
-    try {
-      const currentFile =
-        this.files[file.path.value] || this.optimisticFiles[file.path.value];
-
-      this.optimisticFiles[file.path.value] = currentFile.update({
-        status: FileStatuses.TRASHED,
-      });
-      const result = await this.trashHttpClient.post(
-        `${process.env.NEW_DRIVE_URL}/drive/storage/trash/add`,
-        {
-          items: [
-            {
-              type: 'file',
-              id: file.fileId,
-            },
-          ],
-        }
-      );
-
-      if (result.status === 200) {
-        await this.ipc.invoke('START_REMOTE_SYNC');
+    await this.trashHttpClient.post(
+      `${process.env.NEW_DRIVE_URL}/drive/storage/trash/add`,
+      {
+        items: [
+          {
+            type: 'file',
+            id: file.fileId,
+          },
+        ],
       }
-    } catch (error) {
-      delete this.optimisticFiles[file.path.value];
-      throw error;
-    }
+    );
   }
 
   async add(file: WebdavFile): Promise<void> {
-    try {
-      this.optimisticFiles[file.path.value] = file;
-      const encryptedName = this.crypt.encryptName(
-        file.name,
-        file.folderId.toString()
-      );
+    const encryptedName = this.crypt.encryptName(
+      file.name,
+      file.folderId.toString()
+    );
 
-      if (!encryptedName) {
-        throw new Error('Failed to encrypt name');
-      }
+    if (!encryptedName) {
+      throw new Error('Failed to encrypt name');
+    }
 
-      const body: AddFileDTO = {
-        file: {
-          bucket: this.bucket,
-          encrypt_version: '03-aes',
-          fileId: file.fileId,
-          file_id: file.fileId,
-          folder_id: file.folderId,
-          name: encryptedName,
-          plain_name: file.name,
-          size: file.size,
-          type: file.type,
-          modificationTime: Date.now(),
-        },
-      };
+    const body: AddFileDTO = {
+      file: {
+        bucket: this.bucket,
+        encrypt_version: '03-aes',
+        fileId: file.fileId,
+        file_id: file.fileId,
+        folder_id: file.folderId,
+        name: encryptedName,
+        plain_name: file.name,
+        size: file.size,
+        type: file.type,
+        modificationTime: Date.now(),
+      },
+    };
 
-      // TODO: MAKE SURE ALL FIELDS ARE CORRECT
-      const result = await this.httpClient.post<FileCreatedResponseDTO>(
-        `${process.env.API_URL}/api/storage/file`,
-        body
-      );
+    // TODO: MAKE SURE ALL FIELDS ARE CORRECT
+    const result = await this.httpClient.post<FileCreatedResponseDTO>(
+      `${process.env.API_URL}/api/storage/file`,
+      body
+    );
 
-      if (result.status === 500) {
-        throw new Error('Invalid response creating file');
-      }
-
-      const created = WebdavFile.from({
-        ...result.data,
-        folderId: result.data.folder_id,
-        size: parseInt(result.data.size, 10),
-        path: file.path.value,
-        status: FileStatuses.EXISTS,
-      });
-
-      this.optimisticFiles[file.path.value] = created;
-
-      await this.ipc.invoke('START_REMOTE_SYNC');
-    } catch (error) {
-      delete this.optimisticFiles[file.path.value];
-
-      throw error;
+    if (result.status === 500) {
+      throw new Error('Invalid response creating file');
     }
   }
 
   async updateName(file: WebdavFile): Promise<void> {
     if (!file.lastPath)
       throw new Error('Cannot rename without knowing last file path');
-    const previous = this.files[file.lastPath.value];
-    try {
-      Logger.info(
-        'Right now optimistic files: ',
-        JSON.stringify(this.optimisticFiles, null, 2)
+
+    const url = `${process.env.API_URL}/api/storage/file/${file.fileId}/meta`;
+
+    const body: UpdateFileNameDTO = {
+      metadata: { itemName: file.name },
+      bucketId: this.bucket,
+      relativePath: uuid.v4(),
+    };
+
+    const res = await this.httpClient.post(url, body);
+
+    if (res.status !== 200) {
+      throw new Error(
+        `[REPOSITORY] Error updating item metadata: ${res.status}`
       );
-
-      if (previous) {
-        delete this.files[file.lastPath.value];
-      }
-
-      if (this.optimisticFiles[file.lastPath.value]) {
-        delete this.optimisticFiles[file.lastPath.value];
-      }
-      this.optimisticFiles[file.path.value] = file;
-      const url = `${process.env.API_URL}/api/storage/file/${file.fileId}/meta`;
-
-      const body: UpdateFileNameDTO = {
-        metadata: { itemName: file.name },
-        bucketId: this.bucket,
-        relativePath: uuid.v4(),
-      };
-
-      const res = await this.httpClient.post(url, body);
-
-      if (res.status !== 200) {
-        throw new Error(
-          `[REPOSITORY] Error updating item metadata: ${res.status}`
-        );
-      }
-
-      await this.ipc.invoke('START_REMOTE_SYNC');
-    } catch (error) {
-      if (file.lastPath) {
-        this.files[file.lastPath.value] = previous;
-      }
-
-      delete this.optimisticFiles[file.path.value];
-      throw error;
     }
   }
 
   async updateParentDir(item: WebdavFile): Promise<void> {
-    try {
-      this.optimisticFiles[item.path.value] = item;
-      const url = `${process.env.API_URL}/api/storage/move/file`;
-      const body: UpdateFileParentDirDTO = {
-        destination: item.folderId,
-        fileId: item.fileId,
-      };
+    const url = `${process.env.API_URL}/api/storage/move/file`;
+    const body: UpdateFileParentDirDTO = {
+      destination: item.folderId,
+      fileId: item.fileId,
+    };
 
-      const res = await this.httpClient.post(url, body);
+    const res = await this.httpClient.post(url, body);
 
-      if (res.status !== 200) {
-        throw new Error(`[REPOSITORY] Error moving item: ${res.status}`);
-      }
-
-      await this.init();
-
-      await this.ipc.invoke('START_REMOTE_SYNC');
-    } catch (error) {
-      delete this.optimisticFiles[item.path.value];
-      throw error;
+    if (res.status !== 200) {
+      throw new Error(`[REPOSITORY] Error moving item: ${res.status}`);
     }
+
+    await this.init();
   }
 
   async searchOnFolder(folderId: number): Promise<Array<WebdavFile>> {
     await this.init();
-    return Object.values({ ...this.files, ...this.optimisticFiles }).filter(
-      (file) => file.hasParent(folderId)
-    );
+    return Object.values(this.files).filter((file) => file.hasParent(folderId));
   }
 }

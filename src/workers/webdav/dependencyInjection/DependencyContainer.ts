@@ -21,6 +21,8 @@ import { UsedSpaceCalculator } from '../modules/userUsage/application/UsedSpaceC
 import { UserUsageDecrementer } from '../modules/userUsage/application/UserUsageDecrementer';
 import { UserUsageIncrementer } from '../modules/userUsage/application/UserUsageIncrementer';
 import { WebdavUserUsageRepository } from '../modules/userUsage/domain/WebdavUserUsageRepository';
+import { WebdavFileRepository } from '../modules/files/domain/WebdavFileRepository';
+import { InMemoryTemporalFileMetadataCollection } from '../modules/files/infrastructure/persistance/InMemoryTemporalFileMetadataCollection';
 
 export interface DependencyContainer {
   drive: Axios;
@@ -33,6 +35,7 @@ export interface DependencyContainer {
   userUsageDecrementer: UserUsageDecrementer;
   incrementDriveUsageOnFileCreated: IncrementDriveUsageOnFileCreated;
 
+  fileRepository: WebdavFileRepository;
   fileClonner: WebdavFileClonner;
   fileDeleter: WebdavFileDeleter;
   fileMover: WebdavFileMover;
@@ -51,6 +54,6 @@ export interface DependencyContainer {
   itemMetadataDealer: WebdavUnkownItemMetadataDealer;
   itemSearcher: WebdavUnknownItemTypeSearcher;
   allItemsLister: AllWebdavItemsNameLister;
-
+  inMemoryFiles: InMemoryTemporalFileMetadataCollection;
   eventBus: WebdavServerEventBus;
 }

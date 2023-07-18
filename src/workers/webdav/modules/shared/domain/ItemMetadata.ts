@@ -8,6 +8,14 @@ export type ItemMetadataAtributes = {
   size: number;
   extension: string;
   type: 'FILE' | 'FOLDER';
+  visible: boolean;
+  lastPath?: string;
+  externalMetadata: Partial<{
+    id: number;
+    parentId: number | null;
+    folderId: number;
+    fileId: string;
+  }>;
 };
 
 export class ItemMetadata {
@@ -17,7 +25,10 @@ export class ItemMetadata {
     readonly name: string,
     readonly size: number,
     readonly extension: string,
-    readonly type: 'FILE' | 'FOLDER'
+    readonly type: 'FILE' | 'FOLDER',
+    readonly visible: boolean,
+    readonly lastPath?: string,
+    readonly externalMetadata?: ItemMetadataAtributes['externalMetadata']
   ) {}
 
   static from(atributes: ItemMetadataAtributes): ItemMetadata {
@@ -27,7 +38,10 @@ export class ItemMetadata {
       atributes.name,
       atributes.size,
       atributes.extension,
-      atributes.type
+      atributes.type,
+      atributes.visible,
+      atributes.lastPath,
+      atributes.externalMetadata
     );
   }
 
@@ -38,7 +52,13 @@ export class ItemMetadata {
       file.nameWithExtension,
       file.size,
       file.type,
-      'FILE'
+      'FILE',
+      true,
+      file.lastPath?.value ?? undefined,
+      {
+        fileId: file.fileId,
+        folderId: file.folderId,
+      }
     );
   }
 
@@ -49,7 +69,13 @@ export class ItemMetadata {
       folder.name,
       folder.size,
       '',
-      'FOLDER'
+      'FOLDER',
+      true,
+      folder.lastPath?.value ?? undefined,
+      {
+        id: folder.id,
+        parentId: folder.parentId,
+      }
     );
   }
 }

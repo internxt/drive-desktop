@@ -38,6 +38,7 @@ import { FileNameShouldDifferFromOriginalError } from '../../modules/files/domai
 import { FileCannotBeMovedToTheOriginalFolderError } from '../../modules/files/domain/errors/FileCannotBeMovedToTheOriginalFolderError';
 import { RemoteFileContents } from '../../modules/files/domain/RemoteFileContent';
 import { WebdavFileValidator } from 'workers/webdav/modules/files/application/WebdavFileValidator';
+import { FilePath } from 'workers/webdav/modules/files/domain/FilePath';
 
 export class PhysicalFileSystemResource {
   props: LocalPropertyManager;
@@ -120,9 +121,9 @@ export class InternxtFileSystem extends FileSystem {
     if (ctx.type.isFile) {
       const isValidName = this.fileValidator.validatePath(path);
       if (!isValidName) return callback(Errors.UnrecognizedResource);
+      const filePath = new FilePath(path.toString(true));
 
-      this.resources[path.toString(false)] = new PhysicalFileSystemResource();
-
+      this.container.fileCreator.createInMemoryTemporaryFile(filePath.value, 0);
       return callback();
     }
 
@@ -182,6 +183,7 @@ export class InternxtFileSystem extends FileSystem {
         callback(undefined, stream);
       })
       .catch((error: Error) => {
+        this.container.inMemoryFiles.remove(path.toString(false));
         handleFileSystemError(error, 'Upload', 'File', ctx);
         callback(error);
       });
@@ -348,8 +350,11 @@ export class InternxtFileSystem extends FileSystem {
   ): void {
     this.container.allItemsLister
       .run(path.toString(false))
-      .then((names) => callback(undefined, names))
+      .then((names) => {
+        callback(undefined, names);
+      })
       .catch((error: Error) => {
+        Logger.error(`Error reading dir ${path}: `, error);
         handleFileSystemError(error, 'Download', 'Folder', ctx);
         callback(error);
       });
