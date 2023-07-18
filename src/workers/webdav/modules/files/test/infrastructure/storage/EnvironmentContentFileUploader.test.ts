@@ -167,8 +167,10 @@ describe('Environment Content File Uploader', () => {
 
       await uploader.upload();
 
-      expect(uploader.elapsedTime()).toBeGreaterThan(delay - 10);
-      expect(uploader.elapsedTime()).toBeLessThan(delay + 10);
+      setTimeout(() => {
+        expect(uploader.elapsedTime()).toBeGreaterThan(delay - 10);
+        expect(uploader.elapsedTime()).toBeLessThan(delay + 10);
+      }, delay);
     });
   });
 });

@@ -5,7 +5,6 @@ import { WebdavFile } from '../domain/WebdavFile';
 import { WebdavFileRepository } from '../domain/WebdavFileRepository';
 import { WebdavServerEventBus } from '../../shared/domain/WebdavServerEventBus';
 import { FileAlreadyExistsError } from '../domain/errors/FileAlreadyExistsError';
-import { Stopwatch } from '../../../../../shared/types/Stopwatch';
 import { WebdavIpc } from '../../../ipc';
 import { ContentFileClonner } from '../domain/ContentFileClonner';
 
@@ -22,21 +21,13 @@ export class WebdavFileClonner {
   ) {}
 
   private registerEvents(clonner: ContentFileClonner, file: WebdavFile) {
-    const stopwatch = new Stopwatch();
-
-    clonner.on('start', () => {
-      stopwatch.start();
-    });
-
     clonner.on('finish', () => {
-      stopwatch.finish();
-
       this.ipc.send('WEBDAV_FILE_CLONNED', {
         name: file.name,
         extension: file.type,
         nameWithExtension: file.nameWithExtension,
         size: file.size,
-        processInfo: { elapsedTime: stopwatch.elapsedTime() },
+        processInfo: { elapsedTime: clonner.elapsedTime() },
       });
     });
   }
