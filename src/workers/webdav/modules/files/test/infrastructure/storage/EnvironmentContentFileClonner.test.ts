@@ -2,7 +2,7 @@ import { Readable } from 'stream';
 import { EnvironmentContentFileClonner } from '../../../infrastructure/storage/EnvironmentContentFileClonner';
 import { WebdavFileMother } from '../../domain/WebdavFileMother';
 import { createDownloadStrategy } from '../../__mocks__/environment/DownloadStratgeyFunctionMock';
-import { createUploadStrategy } from '../../__mocks__/UploadStrategyFunciontMock';
+import { createUploadStrategy } from '../../__mocks__/environment/UploadStrategyFunciontMock';
 
 describe('Environment Content File Clonner', () => {
   const bucket = 'b1d067f9-d0a9-5e24-96f5-81c116f7f254';

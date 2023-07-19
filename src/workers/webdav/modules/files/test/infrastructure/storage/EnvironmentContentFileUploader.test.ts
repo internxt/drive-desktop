@@ -1,6 +1,6 @@
 import { Readable } from 'stream';
 import { EnvironmentContentFileUpoader } from '../../../infrastructure/storage/EnvironmentContentFileUpoader';
-import { createUploadStrategy } from '../../__mocks__/UploadStrategyFunciontMock';
+import { createUploadStrategy } from '../../__mocks__/environment/UploadStrategyFunciontMock';
 
 describe('Environment Content File Uploader', () => {
   const valildFileSize = 1926506743;
