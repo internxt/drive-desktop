@@ -63,8 +63,22 @@ export class InMemoryTemporalFileMetadataCollection
     return exists;
   }
 
-  get(path: string): ItemMetadata | undefined {
-    return this.collection[path];
+  get(pathToCheck: string): ItemMetadata | undefined {
+    let match: ItemMetadata | undefined = undefined;
+    Object.keys(this.collection).forEach((path) => {
+      if (match) return;
+      const item = this.collection[path];
+
+      if (pathToCheck === path) {
+        match = item;
+      }
+
+      if (item.lastPath && item.lastPath === pathToCheck) {
+        match = item;
+      }
+    });
+
+    return match;
   }
 
   getAll() {
