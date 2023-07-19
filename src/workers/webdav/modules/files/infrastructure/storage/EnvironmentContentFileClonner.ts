@@ -36,6 +36,7 @@ export class EnvironmentContentFileClonner implements ContentFileClonner {
           },
           finishedCallback: async (err: Error, stream: Readable) => {
             if (err) {
+              this.stopwatch.finish();
               this.eventEmitter.emit('error', err);
               return reject(err);
             }
@@ -61,11 +62,11 @@ export class EnvironmentContentFileClonner implements ContentFileClonner {
         source,
         fileSize: file.size,
         finishedCallback: (err: Error | null, fileId: string) => {
+          this.stopwatch.finish();
           if (err) {
             this.eventEmitter.emit('error', err);
             return reject(err);
           }
-          this.stopwatch.finish();
           this.eventEmitter.emit('upload-finished', fileId);
           resolve(fileId);
         },
@@ -82,7 +83,7 @@ export class EnvironmentContentFileClonner implements ContentFileClonner {
     const file = await this.downloadFile();
     const fileId = await this.uploadFile(file, this.file);
 
-    this.eventEmitter.emit('finish');
+    this.eventEmitter.emit('finish', fileId);
 
     return fileId;
   }
