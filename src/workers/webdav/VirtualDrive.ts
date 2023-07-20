@@ -330,7 +330,7 @@ const getMacOSMountedInstallerDisks = (): Promise<string[]> => {
 export const ejectMacOSInstallerDisks = async (): Promise<void> => {
   const installerDisks = await getMacOSMountedInstallerDisks();
   installerDisks.forEach((installerDisk) => {
-    ejectMacOSDisk(installerDisk);
+    ejectMacOSDisk(installerDisk).catch();
   });
 };
 
