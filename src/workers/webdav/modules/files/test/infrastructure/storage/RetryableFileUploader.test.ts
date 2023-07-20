@@ -58,4 +58,36 @@ describe('Retryable File Uploader', () => {
       expect(result).toBe(resultFileId);
     });
   });
+
+  describe('event emitter', () => {
+    it('should call the underlying upload "on" when calling "on" method on RetryableFileUploader', () => {
+      const mockContentFileUploader = new ContentFileUploaderMock();
+      const retryableUploader = new RetryableFileUploader(
+        mockContentFileUploader
+      );
+
+      const event = 'progress';
+      const listener = jest.fn();
+
+      retryableUploader.on(event, listener);
+
+      expect(mockContentFileUploader.onMock).toHaveBeenCalledWith(
+        event,
+        listener
+      );
+    });
+  });
+
+  describe('time watcher', () => {
+    it('should call the underlying upload "elapsedTime" when calling "elapsedTime" method on RetryableFileUploader', () => {
+      const mockContentFileUploader = new ContentFileUploaderMock();
+      const retryableUploader = new RetryableFileUploader(
+        mockContentFileUploader
+      );
+
+      retryableUploader.elapsedTime();
+
+      expect(mockContentFileUploader.elapsedTimeMock).toHaveBeenCalled();
+    });
+  });
 });

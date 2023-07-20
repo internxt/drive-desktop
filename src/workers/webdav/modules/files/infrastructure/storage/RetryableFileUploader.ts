@@ -12,8 +12,13 @@ export class RetryableFileUploader
   static readonly MAX_RETRIES: number = 3;
   static readonly DELAY_BETWEEN_RETRIES: number = 500;
 
+  elapsedTime: () => number;
+
   constructor(private readonly contentFildeUploader: ContentFileUploader) {
     super();
+    this.on = contentFildeUploader.on.bind(contentFildeUploader);
+    this.elapsedTime =
+      contentFildeUploader.elapsedTime.bind(contentFildeUploader);
   }
 
   private async retryWithDelay(
@@ -43,16 +48,10 @@ export class RetryableFileUploader
   }
 
   async upload(size: number, source: Readable): Promise<string> {
-    this.contentFildeUploader.on = this.on.bind(this);
-
     return this.retryWithDelay(
       RetryableFileUploader.MAX_RETRIES,
       RetryableFileUploader.DELAY_BETWEEN_RETRIES,
       () => this.contentFildeUploader.upload(size, source)
     );
-  }
-
-  elapsedTime(): number {
-    return this.contentFildeUploader.elapsedTime();
   }
 }
