@@ -18,8 +18,8 @@ export class Traverser {
   private readonly collection: ItemsIndexedByPath = {};
 
   private rawTree: {
-    files: Array<ServerFile>;
-    folders: Array<ServerFolder>;
+    files: Set<ServerFile>;
+    folders: Set<ServerFolder>;
   } | null = null;
 
   constructor(
@@ -36,51 +36,50 @@ export class Traverser {
   private traverse(currentId: number, currentName = '') {
     if (!this.rawTree) return;
 
-    const filesInThisFolder = this.rawTree.files.filter(
-      (file) => file.folderId === currentId
-    );
+    this.rawTree.files.forEach((file: ServerFile) => {
+      if (file.folderId !== currentId) {
+        // The file is not on the current folder
+        return;
+      }
 
-    const foldersInThisFolder = this.rawTree.folders.filter((folder) => {
-      return folder.parentId === currentId;
-    });
+      const rawPath = `${currentName}/${this.decryptor.decryptName(
+        file.name,
+        file.folderId.toString(),
+        file.encrypt_version
+      )}${file.type ? `.${file.type}` : ''}`;
 
-    filesInThisFolder
-      .map((file) => ({
-        name: `${currentName}/${this.decryptor.decryptName(
-          file.name,
-          file.folderId.toString(),
-          file.encrypt_version
-        )}${file.type ? `.${file.type}` : ''}`,
-        file,
-      }))
-      .filter(({ name }) => {
-        const isValid = fileNameIsValid(name);
+      const validRawPath = fileNameIsValid(rawPath);
 
-        if (!isValid) {
-          Logger.warn(
-            `REMOTE file with name ${name} will be ignored due an invalid name`
-          );
-          return false;
-        }
+      if (!validRawPath) {
+        Logger.warn(
+          `REMOTE file with name ${validRawPath} will be ignored due an invalid name`
+        );
+        return;
+      }
 
-        return true;
-      })
-      .forEach(({ file, name }) => {
-        if (file.status === ServerFileStatus.EXISTS) {
-          this.collection[name] = WebdavFile.from({
-            folderId: file.folderId,
-            fileId: file.fileId,
-            modificationTime: file.modificationTime,
-            size: file.size,
-            createdAt: file.createdAt,
-            updatedAt: file.updatedAt,
-            path: name,
-            status: file.status,
-          });
-        }
+      if (file.status !== ServerFileStatus.EXISTS) {
+        return;
+      }
+
+      this.collection[rawPath] = WebdavFile.from({
+        folderId: file.folderId,
+        fileId: file.fileId,
+        modificationTime: file.modificationTime,
+        size: file.size,
+        createdAt: file.createdAt,
+        updatedAt: file.updatedAt,
+        path: rawPath,
+        status: file.status,
       });
 
-    foldersInThisFolder.forEach((folder: ServerFolder) => {
+      this.rawTree?.files.delete(file);
+    });
+
+    this.rawTree.folders.forEach((folder) => {
+      if (folder.parentId !== currentId) {
+        return;
+      }
+
       const plainName =
         folder.plain_name ||
         this.decryptor.decryptName(
@@ -90,20 +89,24 @@ export class Traverser {
         ) ||
         folder.name;
 
-      const name = `${currentName}/${plainName}`;
+      const rawPath = `${currentName}/${plainName}`;
 
-      if (folder.status !== ServerFolderStatus.EXISTS) return;
+      if (folder.status !== ServerFolderStatus.EXISTS) {
+        return;
+      }
 
-      this.collection[name] = WebdavFolder.from({
+      this.collection[rawPath] = WebdavFolder.from({
         id: folder.id,
         parentId: folder.parentId as number,
         updatedAt: folder.updatedAt,
         createdAt: folder.createdAt,
-        path: name,
+        path: rawPath,
         status: folder.status,
       });
 
-      this.traverse(folder.id, `${name}`);
+      this.rawTree?.folders.delete(folder);
+
+      this.traverse(folder.id, rawPath);
     });
   }
 
@@ -126,7 +129,10 @@ export class Traverser {
     files: Array<ServerFile>;
     folders: Array<ServerFolder>;
   }) {
-    this.rawTree = rawTree;
+    this.rawTree = {
+      files: new Set(rawTree.files),
+      folders: new Set(rawTree.folders),
+    };
 
     this.traverse(this.baseFolderId);
 
