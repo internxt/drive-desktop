@@ -129,9 +129,24 @@ export class Traverser {
     files: Array<ServerFile>;
     folders: Array<ServerFolder>;
   }) {
+    const filesSet = new Set<ServerFile>();
+    const foldersSet = new Set<ServerFolder>();
+
+    // inserting the items with a precached length
+    // improves the performance
+    const filesLength = rawTree.files.length;
+    for (let i = 0; i < filesLength; i++) {
+      filesSet.add(rawTree.files[i]);
+    }
+
+    const foldersLength = rawTree.folders.length;
+    for (let i = 0; i < foldersLength; i++) {
+      foldersSet.add(rawTree.folders[i]);
+    }
+
     this.rawTree = {
-      files: new Set(rawTree.files),
-      folders: new Set(rawTree.folders),
+      files: filesSet,
+      folders: foldersSet,
     };
 
     this.traverse(this.baseFolderId);
