@@ -22,7 +22,7 @@ export class FileContentRepositoryMock implements RemoteFileContentsRepository {
     return this.mockDownload;
   }
 
-  uploader(_size: FileSize, _contents: Readable): ContentFileUploader {
+  uploader(_size: FileSize): ContentFileUploader {
     return this.mockUpload;
   }
 }

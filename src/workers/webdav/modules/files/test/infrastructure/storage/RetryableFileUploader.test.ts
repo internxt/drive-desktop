@@ -7,9 +7,13 @@ describe('Retryable File Uploader', () => {
     it('does not retry the upload if the upload succeeds the firts time', async () => {
       const resultFileId = 'f20cbe9b-a585-59de-ba86-b74078515bf1';
       const underlyingUpload = new ContentFileUploaderMock();
+
       const uploader = new RetryableFileUploader(underlyingUpload);
+
       underlyingUpload.uploadMock.mockResolvedValueOnce(resultFileId);
+
       await uploader.upload(2734663740, Readable.from(''));
+
       expect(underlyingUpload.uploadMock).toBeCalledTimes(1);
     });
     it('retries the upload if the upload fails', async () => {

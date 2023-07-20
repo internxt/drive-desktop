@@ -1,3 +1,4 @@
+import { Readable } from 'stream';
 import {
   ContentFileUploader,
   FileUploadEvents,
@@ -8,7 +9,7 @@ export class ContentFileUploaderMock implements ContentFileUploader {
   onMock = jest.fn();
   elapsedTimeMock = jest.fn();
 
-  upload(): Promise<string> {
+  upload(size: number, source: Readable): Promise<string> {
     return this.uploadMock();
   }
   on(

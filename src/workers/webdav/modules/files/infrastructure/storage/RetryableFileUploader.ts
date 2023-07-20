@@ -51,4 +51,8 @@ export class RetryableFileUploader
       () => this.contentFildeUploader.upload(size, source)
     );
   }
+
+  elapsedTime(): number {
+    return this.contentFildeUploader.elapsedTime();
+  }
 }

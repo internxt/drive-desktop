@@ -88,7 +88,7 @@ export class EnvironmentContentFileClonner
     const file = await this.downloadFile();
     const fileId = await this.uploadFile(file, this.file);
 
-    this.emit('finish');
+    this.emit('finish', fileId);
 
     return fileId;
   }
