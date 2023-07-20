@@ -9,6 +9,8 @@ import { WebdavFile } from '../domain/WebdavFile';
 import { WebdavFileRepository } from '../domain/WebdavFileRepository';
 
 import { WebdavFileRenamer } from './WebdavFileRenamer';
+import { InMemoryTemporalFileMetadataCollection } from '../infrastructure/persistance/InMemoryTemporalFileMetadataCollection';
+import { ItemMetadata } from '../../shared/domain/ItemMetadata';
 
 export class WebdavFileMover {
   constructor(
@@ -16,7 +18,8 @@ export class WebdavFileMover {
     private readonly folderFinder: WebdavFolderFinder,
     private readonly fileRenamer: WebdavFileRenamer,
     private readonly eventBus: WebdavServerEventBus,
-    private readonly ipc: WebdavIpc
+    private readonly ipc: WebdavIpc,
+    private readonly inMemoryItems: InMemoryTemporalFileMetadataCollection
   ) {}
 
   private async move(file: WebdavFile, folder: WebdavFolder) {
@@ -61,33 +64,42 @@ export class WebdavFileMover {
     overwrite: boolean
   ): Promise<boolean> {
     const desiredPath = new FilePath(to);
-    const destinationFile = this.repository.search(desiredPath);
+    try {
+      this.inMemoryItems.add(
+        desiredPath.value,
+        ItemMetadata.extractFromFile(file)
+      );
+      const destinationFile = this.repository.search(desiredPath);
 
-    const hasToBeOverwritten =
-      destinationFile !== undefined && destinationFile !== null;
+      const hasToBeOverwritten =
+        destinationFile !== undefined && destinationFile !== null;
 
-    if (hasToBeOverwritten && !overwrite) {
-      throw new FileAlreadyExistsError(to);
-    }
+      if (hasToBeOverwritten && !overwrite) {
+        throw new FileAlreadyExistsError(to);
+      }
 
-    const destinationFolder = this.folderFinder.run(desiredPath.dirname());
+      const destinationFolder = this.folderFinder.run(desiredPath.dirname());
 
-    if (file.hasParent(destinationFolder.id)) {
-      await this.fileRenamer.run(file, to);
+      if (file.hasParent(destinationFolder.id)) {
+        await this.fileRenamer.run(file, to);
+        return false;
+      }
+
+      if (!hasToBeOverwritten) {
+        await this.move(file, destinationFolder);
+        return false;
+      }
+
+      if (hasToBeOverwritten) {
+        await this.overwite(file, destinationFile, destinationFolder);
+        return true;
+      }
+
+      this.noMoreActionsLeft(hasToBeOverwritten);
       return false;
+    } catch (error) {
+      this.inMemoryItems.remove(desiredPath.value);
+      throw error;
     }
-
-    if (!hasToBeOverwritten) {
-      await this.move(file, destinationFolder);
-      return false;
-    }
-
-    if (hasToBeOverwritten) {
-      await this.overwite(file, destinationFile, destinationFolder);
-      return true;
-    }
-
-    this.noMoreActionsLeft(hasToBeOverwritten);
-    return false;
   }
 }

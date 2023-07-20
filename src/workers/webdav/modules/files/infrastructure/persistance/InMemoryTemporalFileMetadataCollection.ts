@@ -47,6 +47,10 @@ export class InMemoryTemporalFileMetadataCollection
   }
 
   exists(pathToCheck: string): boolean {
+    return this.get(pathToCheck) ? true : false;
+  }
+
+  existsByLastPath(pathToCheck: string): boolean {
     let exists = false;
     Object.keys(this.collection).forEach((path) => {
       if (exists) return;
@@ -63,15 +67,11 @@ export class InMemoryTemporalFileMetadataCollection
     return exists;
   }
 
-  get(pathToCheck: string): ItemMetadata | undefined {
+  getByLastPath(pathToCheck: string): ItemMetadata | undefined {
     let match: ItemMetadata | undefined = undefined;
     Object.keys(this.collection).forEach((path) => {
       if (match) return;
       const item = this.collection[path];
-
-      if (pathToCheck === path) {
-        match = item;
-      }
 
       if (item.lastPath && item.lastPath === pathToCheck) {
         match = item;
@@ -79,6 +79,10 @@ export class InMemoryTemporalFileMetadataCollection
     });
 
     return match;
+  }
+
+  get(pathToCheck: string): ItemMetadata | undefined {
+    return this.collection[pathToCheck];
   }
 
   getAll() {

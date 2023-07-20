@@ -174,7 +174,8 @@ export class DependencyContainerFactory {
         folderFinder,
         fileRenamer,
         eventBus,
-        ipc
+        ipc,
+        temporalItemsCollection
       ),
       fileCreator: new WebdavFileCreator(
         fileRepository,

@@ -37,7 +37,8 @@ export class HttpWebdavFolderRepository implements WebdavFolderRepository {
     path: string,
     serverFolder: WebdavFolder
   ) {
-    const inMemoryFolder = this.inMemoryItems.get(path);
+    const inMemoryFolder =
+      this.inMemoryItems.get(path) || this.inMemoryItems.getByLastPath(path);
 
     const keepInMemoryItem = inMemoryFolder?.visible === false;
 
@@ -70,7 +71,9 @@ export class HttpWebdavFolderRepository implements WebdavFolderRepository {
 
       const serverFolders = folders.reduce((items, [path, value]) => {
         this.cleanInMemoryFolderIfNeeded(path, value);
-        const existsInMemory = this.inMemoryItems.exists(path);
+        const existsInMemory =
+          this.inMemoryItems.exists(path) ||
+          this.inMemoryItems.existsByLastPath(path);
         if (existsInMemory) {
           return items;
         }
