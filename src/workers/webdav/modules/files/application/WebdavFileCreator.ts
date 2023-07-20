@@ -35,7 +35,9 @@ export class WebdavFileCreator {
       this.ipc.send('WEBDAV_FILE_UPLOADING', {
         name: metadata.name,
         extension: metadata.extension,
-        nameWithExtension: metadata.name + (metadata.extension.length >= 0 ? '.' + metadata.extension : ''),
+        nameWithExtension:
+          metadata.name +
+          (metadata.extension.length >= 0 ? '.' + metadata.extension : ''),
         size: metadata.size,
         processInfo: { elapsedTime: stopwatch.elapsedTime() },
       });
@@ -45,7 +47,9 @@ export class WebdavFileCreator {
       this.ipc.send('WEBDAV_FILE_UPLOADING', {
         name: metadata.name,
         extension: metadata.extension,
-        nameWithExtension: metadata.name + (metadata.extension.length >= 0 ? '.' + metadata.extension : ''),
+        nameWithExtension:
+          metadata.name +
+          (metadata.extension.length >= 0 ? '.' + metadata.extension : ''),
         size: metadata.size,
         processInfo: { elapsedTime: stopwatch.elapsedTime(), progress },
       });
@@ -55,7 +59,9 @@ export class WebdavFileCreator {
       this.ipc.send('WEBDAV_FILE_UPLOAD_ERROR', {
         name: metadata.name,
         extension: metadata.extension,
-        nameWithExtension: metadata.name + (metadata.extension.length >= 0 ? '.' + metadata.extension : ''),
+        nameWithExtension:
+          metadata.name +
+          (metadata.extension.length >= 0 ? '.' + metadata.extension : ''),
         error: error.message,
       });
     });
@@ -66,7 +72,9 @@ export class WebdavFileCreator {
       this.ipc.send('WEBDAV_FILE_UPLOADED', {
         name: metadata.name,
         extension: metadata.extension,
-        nameWithExtension: metadata.name + (metadata.extension.length >= 0 ? '.' + metadata.extension : ''),
+        nameWithExtension:
+          metadata.name +
+          (metadata.extension.length >= 0 ? '.' + metadata.extension : ''),
         size: metadata.size,
         processInfo: { elapsedTime: stopwatch.elapsedTime() },
       });
@@ -115,11 +123,11 @@ export class WebdavFileCreator {
 
     const stream = new PassThrough();
 
-    const uploader = this.contentsRepository.uploader(fileSize, stream);
+    const uploader = this.contentsRepository.uploader(fileSize);
 
     this.registerEvents(uploader, metadata);
 
-    const upload = uploader.upload();
+    const upload = uploader.upload(fileSize.value, stream);
 
     upload
       .then(async (fileId) => {
@@ -129,7 +137,9 @@ export class WebdavFileCreator {
         this.ipc.send('WEBDAV_FILE_UPLOAD_ERROR', {
           name: metadata.name,
           extension: metadata.extension,
-          nameWithExtension: metadata.name + (metadata.extension.length >= 0 ? '.' + metadata.extension : ''),
+          nameWithExtension:
+            metadata.name +
+            (metadata.extension.length >= 0 ? '.' + metadata.extension : ''),
           error: error.message,
         });
       });

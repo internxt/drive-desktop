@@ -1,15 +1,14 @@
 import { Environment } from '@internxt/inxt-js';
-import { Readable } from 'stream';
 import { FileSize } from '../../domain/FileSize';
 import { RemoteFileContentsRepository } from '../../domain/RemoteFileContentsRepository';
 import { WebdavFile } from '../../domain/WebdavFile';
-import Logger from 'electron-log';
 import { EnvironmentContentFileUpoader } from './EnvironmentContentFileUpoader';
 import { EnvironmentContentFileDownloader } from './EnvironmentContnetFileDownloader';
 import { ContentFileDownloader } from '../../domain/ContentFileDownloader';
 import { ContentFileUploader } from '../../domain/ContentFileUploader';
 import { EnvironmentContentFileClonner } from './EnvironmentContentFileClonner';
 import { ContentFileClonner } from '../../domain/ContentFileClonner';
+import { RetryableFileUploader } from './RetryableFileUploader';
 
 export class EnvironmentFileContentRepository
   implements RemoteFileContentsRepository
@@ -46,18 +45,15 @@ export class EnvironmentFileContentRepository
     );
   }
 
-  uploader(size: FileSize, contents: Readable): ContentFileUploader {
-    const fn =
+  uploader(size: FileSize): ContentFileUploader {
+    const strategy =
       size.value >
       EnvironmentFileContentRepository.MULTIPART_UPLOADE_SIZE_THRESHOLD
         ? this.environment.uploadMultipartFile
         : this.environment.upload;
 
-    return new EnvironmentContentFileUpoader(
-      fn,
-      this.bucket,
-      size.value,
-      Promise.resolve(contents)
-    );
+    const uploader = new EnvironmentContentFileUpoader(strategy, this.bucket);
+
+    return new RetryableFileUploader(uploader);
   }
 }
