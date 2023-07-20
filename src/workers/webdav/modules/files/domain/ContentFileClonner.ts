@@ -19,4 +19,6 @@ export interface ContentFileClonner {
     event: keyof FileCloneEvents,
     handler: FileCloneEvents[keyof FileCloneEvents]
   ): void;
+
+  elapsedTime(): number;
 }

@@ -20,8 +20,12 @@ export class Stopwatch {
   }
 
   elapsedTime(): number {
-    if (!this._start || !this._finish) {
+    if (!this._start) {
       return -1;
+    }
+
+    if (!this._finish) {
+      return Math.abs(performance.now() - this._start);
     }
 
     return Math.abs(this._finish - this._start);

@@ -6,22 +6,29 @@ import {
 } from '../../domain/ContentFileDownloader';
 import { RemoteFileContents } from '../../domain/RemoteFileContent';
 import { WebdavFile } from '../../domain/WebdavFile';
+import { Stopwatch } from '../../../../../../shared/types/Stopwatch';
 import { FileActionEventEmitter } from './FileActionEventEmitter';
 
 export class EnvironmentContentFileDownloader
   extends FileActionEventEmitter<FileDownloadEvents>
   implements ContentFileDownloader
 {
+  private stopwatch: Stopwatch;
+
   constructor(
     private readonly fn: DownloadStrategyFunction<unknown>,
     private readonly bucket: string,
     private readonly file: WebdavFile
   ) {
     super();
+    this.stopwatch = new Stopwatch();
   }
 
   download(): Promise<Readable> {
+    this.stopwatch.start();
+
     this.emit('start');
+
     return new Promise((resolve, reject) => {
       this.fn(
         this.bucket,
@@ -31,6 +38,8 @@ export class EnvironmentContentFileDownloader
             this.emit('progress', progress);
           },
           finishedCallback: async (err: Error, stream: Readable) => {
+            this.stopwatch.finish();
+
             if (err) {
               this.emit('error', err);
               return reject(err);
@@ -52,5 +61,9 @@ export class EnvironmentContentFileDownloader
         }
       );
     });
+  }
+
+  elapsedTime(): number {
+    return this.stopwatch.elapsedTime();
   }
 }

@@ -7,6 +7,7 @@ import {
 export class ContentFileDownloaderMock implements ContentFileDownloader {
   mock = jest.fn();
   onMock = jest.fn();
+  elapsedTimeMock = jest.fn();
 
   download(): Promise<Readable> {
     return this.mock();
@@ -21,5 +22,9 @@ export class ContentFileDownloaderMock implements ContentFileDownloader {
       | ((error: Error) => void)
   ): void {
     return this.onMock(event, fn);
+  }
+
+  elapsedTime(): number {
+    return this.elapsedTimeMock();
   }
 }

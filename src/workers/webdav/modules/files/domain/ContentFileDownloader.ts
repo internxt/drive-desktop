@@ -15,4 +15,6 @@ export interface ContentFileDownloader {
     event: keyof FileDownloadEvents,
     handler: FileDownloadEvents[keyof FileDownloadEvents]
   ): void;
+
+  elapsedTime(): number;
 }
