@@ -158,7 +158,10 @@ export class InternxtFileSystem extends FileSystem {
     if (item.isFolder()) {
       this.container.folderDeleter
         .run(item)
-        .then(() => callback())
+        .then(() => {
+          delete this.resources[item.path.value];
+          callback();
+        })
         .catch((error: Error) => {
           handleFileSystemError(error, 'Delete', 'Folder', ctx);
           callback(error);
