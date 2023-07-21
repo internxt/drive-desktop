@@ -71,6 +71,7 @@ export class HttpWebdavFolderRepository implements WebdavFolderRepository {
 
       const serverFolders = folders.reduce((items, [path, value]) => {
         this.cleanInMemoryFolderIfNeeded(path, value);
+
         const existsInMemory =
           this.inMemoryItems.exists(path) ||
           this.inMemoryItems.existsByLastPath(path);

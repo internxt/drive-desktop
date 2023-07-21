@@ -115,7 +115,6 @@ export class HttpWebdavFileRepository implements WebdavFileRepository {
 
   search(path: FilePath): Nullable<WebdavFile> {
     const item = this.files[path.value];
-    Logger.info('ITEMS', this.files);
     if (!item) return;
 
     return WebdavFile.from(item.attributes());
