@@ -3,6 +3,7 @@ import { ipcWebdav } from '../ipcs/webdav';
 import path from 'path';
 import Logger from 'electron-log';
 import eventBus from '../event-bus';
+import { ejectMacOSInstallerDisks } from '../../workers/webdav/VirtualDrive';
 
 
 let webdavWorker: BrowserWindow | null = null;
@@ -59,6 +60,10 @@ eventBus.on('USER_LOGGED_IN', () => {
     startWebDavServer();
   }
 });
+
+if (process.platform === 'darwin') {
+  eventBus.on('APP_IS_READY', ejectMacOSInstallerDisks);
+}
 
 ipcMain.handle('retry-virtual-drive-mount', () => {
   webdavWorker?.webContents.send('RETRY_VIRTUAL_DRIVE_MOUNT');

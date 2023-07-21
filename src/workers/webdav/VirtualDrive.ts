@@ -36,7 +36,6 @@ export const mountDrive = async (): Promise<void> => {
     }
     return;
   } else if (process.platform === 'darwin') {
-    ejectMacOSInstallerDisks();
     await mountMacOSDrive(driveName);
     return;
   } else if (process.platform === 'linux') {
@@ -328,10 +327,10 @@ const getMacOSMountedInstallerDisks = (): Promise<string[]> => {
   });
 };
 
-const ejectMacOSInstallerDisks = async (): Promise<void> => {
+export const ejectMacOSInstallerDisks = async (): Promise<void> => {
   const installerDisks = await getMacOSMountedInstallerDisks();
   installerDisks.forEach((installerDisk) => {
-    ejectMacOSDisk(installerDisk);
+    ejectMacOSDisk(installerDisk).catch();
   });
 };
 
