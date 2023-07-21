@@ -14,4 +14,6 @@ export interface ContentFileUploader {
     event: keyof FileUploadEvents,
     fn: FileUploadEvents[keyof FileUploadEvents]
   ): void;
+
+  elapsedTime(): number;
 }

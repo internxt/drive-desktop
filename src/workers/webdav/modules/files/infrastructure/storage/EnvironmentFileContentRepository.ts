@@ -3,7 +3,6 @@ import { Readable } from 'stream';
 import { FileSize } from '../../domain/FileSize';
 import { RemoteFileContentsRepository } from '../../domain/RemoteFileContentsRepository';
 import { WebdavFile } from '../../domain/WebdavFile';
-import Logger from 'electron-log';
 import { EnvironmentContentFileUpoader } from './EnvironmentContentFileUpoader';
 import { EnvironmentContentFileDownloader } from './EnvironmentContnetFileDownloader';
 import { ContentFileDownloader } from '../../domain/ContentFileDownloader';

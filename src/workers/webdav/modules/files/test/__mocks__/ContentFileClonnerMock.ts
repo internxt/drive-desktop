@@ -6,6 +6,7 @@ import {
 export class ContentFileClonnerMock implements ContentFileClonner {
   mock = jest.fn();
   onMock = jest.fn();
+  elapsedTimeMock = jest.fn();
 
   clone(): Promise<string> {
     return this.mock();
@@ -20,5 +21,9 @@ export class ContentFileClonnerMock implements ContentFileClonner {
       | ((error: Error) => void)
   ): void {
     return this.onMock(event, fn);
+  }
+
+  elapsedTime(): number {
+    return this.elapsedTimeMock();
   }
 }

@@ -6,6 +6,7 @@ import {
 export class ContentFileUploaderMock implements ContentFileUploader {
   uploadMock = jest.fn();
   onMock = jest.fn();
+  elapsedTimeMock = jest.fn();
 
   upload(): Promise<string> {
     return this.uploadMock();
@@ -19,5 +20,9 @@ export class ContentFileUploaderMock implements ContentFileUploader {
       | ((error: Error) => void)
   ): void {
     return this.onMock(event, fn);
+  }
+
+  elapsedTime(): number {
+    return this.elapsedTimeMock();
   }
 }
