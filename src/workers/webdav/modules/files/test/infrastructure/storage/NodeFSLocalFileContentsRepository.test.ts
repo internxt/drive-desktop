@@ -56,22 +56,37 @@ describe('Node FS local file contents repository', () => {
   });
 
   describe('write', () => {
-    it('saves a file with the given name and override it if exists', () => {
-      (<jest.Mock>fs.writeFile).mockResolvedValue(Promise.resolve);
+    it('saves a file with the given name and override it if exists', async () => {
+      (<jest.Mock>fs.writeFile).mockResolvedValue(Promise.resolve());
 
       const repository = new NodeFSLocalFileContentsRepository(directory);
 
-      const result = repository.write(
+      await repository.write(
         '544b943d-c663-5fe3-bd89-6a52bb80880e',
         Readable.from('')
       );
 
-      expect(result).toBe(false);
       expect((<jest.Mock>fs.writeFile).mock.calls[0]).toBe([
         '/Getziujo/Turfiri/Ipfugiri/544b943d-c663-5fe3-bd89-6a52bb80880e',
         Readable.from(''),
         { flag: 'w' },
       ]);
+    });
+  });
+
+  describe('delete', () => {
+    it('deletes a file from the cahce', () => {
+      it('creates a readable for file given an existing file name', async () => {
+        (<jest.Mock>fs.unlink).mockResolvedValue(Promise.resolve());
+
+        const repository = new NodeFSLocalFileContentsRepository(directory);
+
+        await repository.delete('544b943d-c663-5fe3-bd89-6a52bb80880e');
+
+        expect((<jest.Mock>fs.unlink).mock.calls[0][0]).toBe(
+          '/Getziujo/Turfiri/Ipfugiri/544b943d-c663-5fe3-bd89-6a52bb80880e'
+        );
+      });
     });
   });
 });

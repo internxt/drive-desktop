@@ -32,4 +32,8 @@ export class NodeFSLocalFileContentsRepository
   write(fileId: string, content: Readable): Promise<void> {
     return fs.writeFile(this.assemblePath(fileId), content, { flag: 'w' });
   }
+
+  delete(fileId: string): Promise<void> {
+    return fs.unlink(this.assemblePath(fileId));
+  }
 }
