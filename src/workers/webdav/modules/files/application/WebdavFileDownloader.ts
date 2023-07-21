@@ -66,11 +66,11 @@ export class WebdavFileDownloader {
       throw new FileNotFoundError(path);
     }
 
-    const downloader = this.contents.downloader(file);
+    const downloader = this.contents.downloader();
 
     this.registerEvents(downloader, file);
 
-    const readable = await downloader.download();
+    const readable = await downloader.download(file);
 
     const remoteContents = RemoteFileContents.preview(file, readable);
 

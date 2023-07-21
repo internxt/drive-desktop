@@ -18,7 +18,7 @@ export class FileContentRepositoryMock implements RemoteFileContentsRepository {
     return this.mockClone;
   }
 
-  downloader(_file: WebdavFile): ContentFileDownloader {
+  downloader(): ContentFileDownloader {
     return this.mockDownload;
   }
 

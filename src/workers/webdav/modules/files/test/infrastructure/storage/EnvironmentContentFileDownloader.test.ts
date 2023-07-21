@@ -13,17 +13,13 @@ describe('Environment Content File Downloader', () => {
         callbacks.finishedCallback(null as unknown as Error, Readable.from(''));
       });
 
-      const downloader = new EnvironmentContentFileDownloader(
-        strategy,
-        bucket,
-        file
-      );
+      const downloader = new EnvironmentContentFileDownloader(strategy, bucket);
 
       const handler = jest.fn();
 
       downloader.on('start', handler);
 
-      await downloader.download();
+      await downloader.download(file);
 
       expect(handler).toBeCalled();
     });
@@ -33,17 +29,13 @@ describe('Environment Content File Downloader', () => {
         callbacks.finishedCallback(null as unknown as Error, Readable.from(''));
       });
 
-      const downloader = new EnvironmentContentFileDownloader(
-        strategy,
-        bucket,
-        file
-      );
+      const downloader = new EnvironmentContentFileDownloader(strategy, bucket);
 
       const handler = jest.fn();
 
       downloader.on('finish', handler);
 
-      await downloader.download();
+      await downloader.download(file);
 
       expect(handler).toBeCalled();
     });
@@ -56,17 +48,13 @@ describe('Environment Content File Downloader', () => {
         callbacks.finishedCallback(null as unknown as Error, Readable.from(''));
       });
 
-      const downloader = new EnvironmentContentFileDownloader(
-        strategy,
-        bucket,
-        file
-      );
+      const downloader = new EnvironmentContentFileDownloader(strategy, bucket);
 
       const handler = jest.fn();
 
       downloader.on('progress', handler);
 
-      await downloader.download();
+      await downloader.download(file);
 
       expect(handler.mock.calls).toEqual([[25], [50], [75]]);
     });
@@ -80,17 +68,13 @@ describe('Environment Content File Downloader', () => {
         );
       });
 
-      const downloader = new EnvironmentContentFileDownloader(
-        strategy,
-        bucket,
-        file
-      );
+      const downloader = new EnvironmentContentFileDownloader(strategy, bucket);
 
       downloader.on('error', (error: Error) => {
         expect(error.message).toBe(errorMsg);
       });
 
-      await downloader.download().catch(() => {
+      await downloader.download(file).catch(() => {
         // no-op
       });
     });
@@ -103,11 +87,7 @@ describe('Environment Content File Downloader', () => {
         callbacks.finishedCallback(null as unknown as Error, Readable.from(''));
       });
 
-      const downloader = new EnvironmentContentFileDownloader(
-        strategy,
-        bucket,
-        file
-      );
+      const downloader = new EnvironmentContentFileDownloader(strategy, bucket);
 
       downloader.on('progress', () => {
         expect(downloader.elapsedTime()).toBeGreaterThan(-1);
@@ -115,7 +95,7 @@ describe('Environment Content File Downloader', () => {
 
       expect(downloader.elapsedTime()).toBe(-1);
 
-      await downloader.download();
+      await downloader.download(file);
     });
 
     it('stops the timer when the file is not downloaded', async () => {
@@ -130,13 +110,9 @@ describe('Environment Content File Downloader', () => {
         }, delay);
       });
 
-      const downloader = new EnvironmentContentFileDownloader(
-        strategy,
-        bucket,
-        file
-      );
+      const downloader = new EnvironmentContentFileDownloader(strategy, bucket);
 
-      await downloader.download();
+      await downloader.download(file);
 
       setTimeout(() => {
         expect(downloader.elapsedTime()).toBeGreaterThan(delay - 10);

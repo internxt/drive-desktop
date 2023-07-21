@@ -14,14 +14,13 @@ export class EnvironmentContentFileDownloader implements ContentFileDownloader {
 
   constructor(
     private readonly fn: DownloadStrategyFunction<unknown>,
-    private readonly bucket: string,
-    private readonly file: WebdavFile
+    private readonly bucket: string
   ) {
     this.eventEmitter = new EventEmitter();
     this.stopwatch = new Stopwatch();
   }
 
-  download(): Promise<Readable> {
+  download(file: WebdavFile): Promise<Readable> {
     this.stopwatch.start();
 
     this.eventEmitter.emit('start');
@@ -29,7 +28,7 @@ export class EnvironmentContentFileDownloader implements ContentFileDownloader {
     return new Promise((resolve, reject) => {
       this.fn(
         this.bucket,
-        this.file.fileId,
+        file.fileId,
         {
           progressCallback: (progress: number) => {
             this.eventEmitter.emit('progress', progress);
@@ -42,10 +41,7 @@ export class EnvironmentContentFileDownloader implements ContentFileDownloader {
               return reject(err);
             }
             this.eventEmitter.emit('finish');
-            const remoteContents = RemoteFileContents.preview(
-              this.file,
-              stream
-            );
+            const remoteContents = RemoteFileContents.preview(file, stream);
             resolve(remoteContents.stream);
           },
         },

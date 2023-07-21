@@ -37,11 +37,10 @@ export class EnvironmentFileContentRepository
     return clonner;
   }
 
-  downloader(file: WebdavFile): ContentFileDownloader {
+  downloader(): ContentFileDownloader {
     return new EnvironmentContentFileDownloader(
       this.environment.download,
-      this.bucket,
-      file
+      this.bucket
     );
   }
 
