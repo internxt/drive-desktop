@@ -17,4 +17,6 @@ export interface WebdavFileRepository {
   searchOnFolder(
     folderId: WebdavFolderAttributes['id']
   ): Promise<Array<WebdavFile>>;
+
+  runRemoteSync(): Promise<void>;
 }

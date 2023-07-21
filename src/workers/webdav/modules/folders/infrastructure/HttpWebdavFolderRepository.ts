@@ -12,7 +12,7 @@ import { UpdateFolderNameDTO } from './dtos/UpdateFolderNameDTO';
 import { WebdavIpc } from '../../../ipc';
 import { RemoteItemsGenerator } from '../../items/application/RemoteItemsGenerator';
 import { FolderStatuses } from '../domain/FolderStatus';
-import { InMemoryTemporalFileMetadataCollection } from '../../files/infrastructure/persistance/InMemoryTemporalFileMetadataCollection';
+import { FileMetadataCollection } from '../../files/domain/FileMetadataCollection';
 
 export class HttpWebdavFolderRepository implements WebdavFolderRepository {
   private folders: Record<string, WebdavFolder> = {};
@@ -22,7 +22,7 @@ export class HttpWebdavFolderRepository implements WebdavFolderRepository {
     private readonly trashClient: Axios,
     private readonly traverser: Traverser,
     private readonly ipc: WebdavIpc,
-    private readonly inMemoryItems: InMemoryTemporalFileMetadataCollection
+    private readonly inMemoryItems: FileMetadataCollection
   ) {}
 
   private async getTree(): Promise<{
@@ -207,5 +207,9 @@ export class HttpWebdavFolderRepository implements WebdavFolderRepository {
       result.status,
       result.statusText
     );
+  }
+
+  async runRemoteSync() {
+    await this.ipc.invoke('START_REMOTE_SYNC');
   }
 }

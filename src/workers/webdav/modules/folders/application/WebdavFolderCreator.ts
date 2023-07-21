@@ -3,7 +3,7 @@ import { ItemMetadata } from '../../shared/domain/ItemMetadata';
 import { FolderPath } from '../domain/FolderPath';
 import { WebdavFolderRepository } from '../domain/WebdavFolderRepository';
 import { WebdavFolderFinder } from './WebdavFolderFinder';
-
+import Logger from 'electron-log';
 export class WebdavFolderCreator {
   constructor(
     private readonly repository: WebdavFolderRepository,
@@ -40,7 +40,10 @@ export class WebdavFolderCreator {
           parentId: folder.parentId,
         },
       });
+
+      await this.repository.runRemoteSync();
     } catch (error) {
+      Logger.error('Error creating folder: ', error);
       this.inMemoryItems.remove(folderPath.value);
       throw error;
     }

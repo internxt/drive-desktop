@@ -9,8 +9,8 @@ import { WebdavFile } from '../domain/WebdavFile';
 import { WebdavFileRepository } from '../domain/WebdavFileRepository';
 
 import { WebdavFileRenamer } from './WebdavFileRenamer';
-import { InMemoryTemporalFileMetadataCollection } from '../infrastructure/persistance/InMemoryTemporalFileMetadataCollection';
 import { ItemMetadata } from '../../shared/domain/ItemMetadata';
+import { FileMetadataCollection } from '../domain/FileMetadataCollection';
 
 export class WebdavFileMover {
   constructor(
@@ -19,12 +19,13 @@ export class WebdavFileMover {
     private readonly fileRenamer: WebdavFileRenamer,
     private readonly eventBus: WebdavServerEventBus,
     private readonly ipc: WebdavIpc,
-    private readonly inMemoryItems: InMemoryTemporalFileMetadataCollection
+    private readonly inMemoryItems: FileMetadataCollection
   ) {}
 
   private async move(file: WebdavFile, folder: WebdavFolder) {
     file.moveTo(folder);
 
+    await this.repository.runRemoteSync();
     await this.repository.updateParentDir(file);
 
     await this.eventBus.publish(file.pullDomainEvents());
@@ -67,7 +68,20 @@ export class WebdavFileMover {
     try {
       this.inMemoryItems.add(
         desiredPath.value,
-        ItemMetadata.extractFromFile(file)
+        ItemMetadata.from({
+          createdAt: file.createdAt.getTime(),
+          updatedAt: file.createdAt.getTime(),
+          name: file.name,
+          size: file.size,
+          extension: file.type,
+          type: 'FILE',
+          visible: true,
+          lastPath: file.path.value,
+          externalMetadata: {
+            fileId: file.fileId,
+            folderId: file.folderId,
+          },
+        })
       );
       const destinationFile = this.repository.search(desiredPath);
 
@@ -80,6 +94,23 @@ export class WebdavFileMover {
 
       const destinationFolder = this.folderFinder.run(desiredPath.dirname());
 
+      this.inMemoryItems.add(
+        desiredPath.value,
+        ItemMetadata.from({
+          createdAt: file.createdAt.getTime(),
+          updatedAt: file.updatedAt.getTime(),
+          name: file.name,
+          size: file.size,
+          extension: file.type,
+          type: 'FILE',
+          visible: true,
+          lastPath: file.path.value,
+          externalMetadata: {
+            fileId: file.fileId,
+            folderId: destinationFolder.id,
+          },
+        })
+      );
       if (file.hasParent(destinationFolder.id)) {
         await this.fileRenamer.run(file, to);
         return false;

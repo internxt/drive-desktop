@@ -7,7 +7,7 @@ import {
   RequestContext,
   ResourcePropertyValue,
   ResourceType,
-} from 'webdav-server/lib/index.v2';
+} from '@internxt/webdav-server';
 import Logger from 'electron-log';
 import { DependencyContainer } from '../../dependencyInjection/DependencyContainer';
 
@@ -61,8 +61,8 @@ export class InternxtStorageManager implements IStorageManager {
       .then((space) => {
         callback(space);
       })
-      .catch(() => {
-        Logger.error('Error getting avaliable space');
+      .catch((error) => {
+        Logger.error('Error getting avaliable space: ', error);
         callback(0);
       });
   }

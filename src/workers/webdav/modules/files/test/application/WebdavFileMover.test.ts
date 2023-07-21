@@ -10,6 +10,7 @@ import { FilePath } from '../../domain/FilePath';
 import { WebdavIpcMock } from '../../../shared/test/__mock__/WebdavIPC';
 import { WebdavFileRenamer } from '../../application/WebdavFileRenamer';
 import { FileContentRepositoryMock } from '../__mocks__/FileContentRepositoryMock';
+import { InMemoryItemsMock } from '../../../items/test/__mocks__/InMemoryItemsMock';
 
 describe('Webdav File Mover', () => {
   let repository: WebdavFileRepositoryMock;
@@ -19,7 +20,7 @@ describe('Webdav File Mover', () => {
   let contentsRepository: FileContentRepositoryMock;
   let eventBus: EventBusMock;
   let ipc: WebdavIpcMock;
-
+  let inMemoryItems: InMemoryItemsMock;
   let SUT: WebdavFileMover;
 
   beforeEach(() => {
@@ -29,12 +30,13 @@ describe('Webdav File Mover', () => {
     contentsRepository = new FileContentRepositoryMock();
     eventBus = new EventBusMock();
     ipc = new WebdavIpcMock();
-
+    inMemoryItems = new InMemoryItemsMock();
     fileRenamer = new WebdavFileRenamer(
       repository,
       contentsRepository,
       eventBus,
-      ipc
+      ipc,
+      inMemoryItems
     );
 
     SUT = new WebdavFileMover(
@@ -42,7 +44,8 @@ describe('Webdav File Mover', () => {
       folderFinder,
       fileRenamer,
       eventBus,
-      ipc
+      ipc,
+      inMemoryItems
     );
   });
 

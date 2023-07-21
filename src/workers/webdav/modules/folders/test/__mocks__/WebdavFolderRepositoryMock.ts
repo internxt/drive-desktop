@@ -11,6 +11,7 @@ export class WebdavFolderRepositoryMock implements WebdavFolderRepository {
   public mockCreate = jest.fn();
   public mockSearchOnFolder = jest.fn();
   public mockTrash = jest.fn();
+  public mockRunRemoteSync = jest.fn();
 
   search(pathLike: string): Nullable<WebdavFolder> {
     return this.mockSearch(pathLike);
@@ -38,6 +39,10 @@ export class WebdavFolderRepositoryMock implements WebdavFolderRepository {
 
   trash(folder: WebdavFolder): Promise<void> {
     return this.mockTrash(folder);
+  }
+
+  async runRemoteSync(): Promise<void> {
+    return this.mockRunRemoteSync();
   }
 
   clearMocks() {

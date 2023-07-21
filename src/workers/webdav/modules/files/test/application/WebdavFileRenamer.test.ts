@@ -6,11 +6,13 @@ import { WebdavFileMother } from '../domain/WebdavFileMother';
 import { FileContentRepositoryMock } from '../__mocks__/FileContentRepositoryMock';
 import { WebdavFileRepositoryMock } from '../__mocks__/WebdavFileRepositoyMock';
 import { WebdavIpcMock } from '../../../shared/test/__mock__/WebdavIPC';
+import { InMemoryItemsMock } from '../../../items/test/__mocks__/InMemoryItemsMock';
 
 describe('File Rename', () => {
   let repository: WebdavFileRepositoryMock;
   let contentsRepository: FileContentRepositoryMock;
   let eventBus: EventBusMock;
+  let inMemoryItems: InMemoryItemsMock;
   let ipc: WebdavIpcMock;
   let SUT: WebdavFileRenamer;
 
@@ -19,7 +21,14 @@ describe('File Rename', () => {
     contentsRepository = new FileContentRepositoryMock();
     eventBus = new EventBusMock();
     ipc = new WebdavIpcMock();
-    SUT = new WebdavFileRenamer(repository, contentsRepository, eventBus, ipc);
+    inMemoryItems = new InMemoryItemsMock();
+    SUT = new WebdavFileRenamer(
+      repository,
+      contentsRepository,
+      eventBus,
+      ipc,
+      inMemoryItems
+    );
   });
 
   it('when the extension does not changes it updates the name of the file', async () => {

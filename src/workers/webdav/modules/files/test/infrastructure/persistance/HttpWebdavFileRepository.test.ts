@@ -7,7 +7,8 @@ import { ServerFileMother } from './ServerFileMother';
 import { ServerFolderMother } from '../../../../items/test/persistance/ServerFolderMother';
 import { WebdavFile } from '../../../domain/WebdavFile';
 import { fakeDecryptor } from '../../../../shared/test/domain/FakeCrypt';
-
+import { InMemoryItemsMock } from '../../../../items/test/__mocks__/InMemoryItemsMock';
+import Logger from 'electron-log';
 jest.mock('axios');
 
 const rootFolderId = 31420;
@@ -20,11 +21,12 @@ const rootFolder = ServerFolderMother.fromPartial({
 describe('Http File Repository', () => {
   let traverser: Traverser;
   let ipc: WebdavIpcMock;
+  let inMemoryItems: InMemoryItemsMock;
   let SUT: HttpWebdavFileRepository;
 
   beforeEach(() => {
     traverser = new Traverser(fakeDecryptor, rootFolderId);
-
+    inMemoryItems = new InMemoryItemsMock();
     ipc = new WebdavIpcMock();
 
     SUT = new HttpWebdavFileRepository(
@@ -33,7 +35,8 @@ describe('Http File Repository', () => {
       axios,
       traverser,
       'bucket',
-      ipc
+      ipc,
+      inMemoryItems
     );
   });
 
@@ -63,11 +66,11 @@ describe('Http File Repository', () => {
 
       fileSearchedBeforeRename.rename(new FilePath('/aa'));
 
+      Logger.info('File after', fileSearchedBeforeRename);
       await SUT.updateName(fileSearchedBeforeRename);
 
-      const fileSearchedAfterRename = SUT.search(new FilePath('/a'));
-
-      expect(fileSearchedAfterRename).not.toBeDefined();
+      expect(fileSearchedBeforeRename.lastPath?.value).toBe('/a');
+      expect(fileSearchedBeforeRename.path.value).toBe('/aa');
     });
   });
 });

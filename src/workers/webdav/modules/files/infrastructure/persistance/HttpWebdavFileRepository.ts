@@ -15,8 +15,8 @@ import { WebdavIpc } from '../../../../ipc';
 import { RemoteItemsGenerator } from '../../../items/application/RemoteItemsGenerator';
 import { FileStatuses } from '../../domain/FileStatus';
 import { Crypt } from '../../../shared/domain/Crypt';
-import { InMemoryTemporalFileMetadataCollection } from './InMemoryTemporalFileMetadataCollection';
 import Logger from 'electron-log';
+import { FileMetadataCollection } from '../../domain/FileMetadataCollection';
 export class HttpWebdavFileRepository implements WebdavFileRepository {
   private files: Record<string, WebdavFile> = {};
 
@@ -27,7 +27,7 @@ export class HttpWebdavFileRepository implements WebdavFileRepository {
     private readonly traverser: Traverser,
     private readonly bucket: string,
     private readonly ipc: WebdavIpc,
-    private readonly inMemoryItems: InMemoryTemporalFileMetadataCollection
+    private readonly inMemoryItems: FileMetadataCollection
   ) {}
 
   private async cleanInMemoryFileIfNeeded(
@@ -115,7 +115,7 @@ export class HttpWebdavFileRepository implements WebdavFileRepository {
 
   search(path: FilePath): Nullable<WebdavFile> {
     const item = this.files[path.value];
-
+    Logger.info('ITEMS', this.files);
     if (!item) return;
 
     return WebdavFile.from(item.attributes());
@@ -166,6 +166,7 @@ export class HttpWebdavFileRepository implements WebdavFileRepository {
       body
     );
 
+    Logger.info('File creation status:', result);
     if (result.status === 500) {
       throw new Error('Invalid response creating file');
     }
@@ -211,5 +212,9 @@ export class HttpWebdavFileRepository implements WebdavFileRepository {
   async searchOnFolder(folderId: number): Promise<Array<WebdavFile>> {
     await this.init();
     return Object.values(this.files).filter((file) => file.hasParent(folderId));
+  }
+
+  async runRemoteSync() {
+    await this.ipc.invoke('START_REMOTE_SYNC');
   }
 }

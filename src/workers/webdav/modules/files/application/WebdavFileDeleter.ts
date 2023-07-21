@@ -27,6 +27,7 @@ export class WebdavFileDeleter {
 
       await this.eventBus.publish(file.pullDomainEvents());
 
+      this.repository.runRemoteSync();
       this.ipc.send('WEBDAV_FILE_DELETED', {
         name: file.name,
         extension: file.type,

@@ -10,7 +10,7 @@ export class WebdavFileRepositoryMock implements WebdavFileRepository {
   public mockUpdateName = jest.fn();
   public mockUpdateParentDir = jest.fn();
   public mockSearchOnFolder = jest.fn();
-
+  public mockRunRemoteSync = jest.fn();
   search(pathLike: FilePath): Nullable<WebdavFile> {
     return this.mockSearch(pathLike);
   }
@@ -32,6 +32,10 @@ export class WebdavFileRepositoryMock implements WebdavFileRepository {
 
   searchOnFolder(folderId: number): Promise<Array<WebdavFile>> {
     return this.mockSearchOnFolder(folderId);
+  }
+
+  async runRemoteSync(): Promise<void> {
+    return this.mockRunRemoteSync();
   }
 
   clearMocks() {

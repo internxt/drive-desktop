@@ -17,4 +17,6 @@ export interface WebdavFolderRepository {
   searchOn(folder: WebdavFolder): Promise<Array<WebdavFolder>>;
 
   trash(folder: WebdavFolder): Promise<void>;
+
+  runRemoteSync(): Promise<void>;
 }

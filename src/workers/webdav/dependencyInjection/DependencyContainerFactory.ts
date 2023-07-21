@@ -205,7 +205,8 @@ export class DependencyContainerFactory {
       folderMover: new WebdavFolderMover(
         folderRepository,
         folderFinder,
-        folderRenamer
+        folderRenamer,
+        temporalItemsCollection
       ),
       folderDeleter: new WebdavFolderDeleter(
         folderRepository,

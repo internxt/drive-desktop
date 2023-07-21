@@ -6,8 +6,8 @@ import { RemoteFileContentsRepository } from '../domain/RemoteFileContentsReposi
 import { WebdavFile } from '../domain/WebdavFile';
 import { WebdavFileRepository } from '../domain/WebdavFileRepository';
 import { WebdavIpc } from '../../../ipc';
-import { InMemoryTemporalFileMetadataCollection } from '../infrastructure/persistance/InMemoryTemporalFileMetadataCollection';
 import { ItemMetadata } from '../../shared/domain/ItemMetadata';
+import { FileMetadataCollection } from '../domain/FileMetadataCollection';
 
 export class WebdavFileRenamer {
   constructor(
@@ -15,15 +15,16 @@ export class WebdavFileRenamer {
     private readonly contentsRepository: RemoteFileContentsRepository,
     private readonly eventBus: WebdavServerEventBus,
     private readonly ipc: WebdavIpc,
-    private readonly inMemoryItems: InMemoryTemporalFileMetadataCollection
+    private readonly inMemoryItems: FileMetadataCollection
   ) {}
 
   private async rename(file: WebdavFile, path: FilePath) {
     file.rename(path);
 
     this.inMemoryItems.add(path.value, ItemMetadata.extractFromFile(file));
-    await this.repository.updateName(file);
 
+    await this.repository.updateName(file);
+    await this.repository.runRemoteSync();
     await this.eventBus.publish(file.pullDomainEvents());
   }
 
