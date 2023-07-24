@@ -13,6 +13,10 @@ export class NodeFSLocalFileContentsRepository
     return path.join(this.directory, fileId);
   }
 
+  async initialize(): Promise<void> {
+    return fs.mkdir(this.directory);
+  }
+
   async exists(fileId: string): Promise<boolean> {
     try {
       await fs.access(

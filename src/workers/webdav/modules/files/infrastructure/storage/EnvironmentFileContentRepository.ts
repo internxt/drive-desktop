@@ -9,6 +9,11 @@ import { ContentFileDownloader } from '../../domain/ContentFileDownloader';
 import { ContentFileUploader } from '../../domain/ContentFileUploader';
 import { EnvironmentContentFileClonner } from './EnvironmentContentFileClonner';
 import { ContentFileClonner } from '../../domain/ContentFileClonner';
+import { LocalFileSystemCacheFileDownloader } from './LocalFileSystemCacheFileDownloader';
+import { NodeFSLocalFileContentsRepository } from './NodeFSLocalFileContentsRepository';
+import { app } from 'electron';
+
+const TWO_GIGABYTE = 2 * 1024 * 1024 * 1024;
 
 export class EnvironmentFileContentRepository
   implements RemoteFileContentsRepository
@@ -38,9 +43,23 @@ export class EnvironmentFileContentRepository
   }
 
   downloader(): ContentFileDownloader {
-    return new EnvironmentContentFileDownloader(
+    const environmentDownloader = new EnvironmentContentFileDownloader(
       this.environment.download,
       this.bucket
+    );
+
+    const cacheFolder = app.getPath('userData');
+
+    const localFileSystemRepository = new NodeFSLocalFileContentsRepository(
+      cacheFolder
+    );
+
+    localFileSystemRepository.initialize();
+
+    return new LocalFileSystemCacheFileDownloader(
+      environmentDownloader,
+      localFileSystemRepository,
+      TWO_GIGABYTE
     );
   }
 
