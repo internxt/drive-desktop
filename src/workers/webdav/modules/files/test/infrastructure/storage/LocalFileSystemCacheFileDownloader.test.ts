@@ -43,7 +43,8 @@ describe('Local File System Cache File Downloader', () => {
     const localFileContentsRepository = new LocalFileConentsRepositoryMock();
     const cachedDownloader = new LocalFileSystemCacheFileDownloader(
       downloader,
-      localFileContentsRepository
+      localFileContentsRepository,
+      1
     );
 
     localFileContentsRepository.existsMock.mockResolvedValueOnce(true);
@@ -65,7 +66,8 @@ describe('Local File System Cache File Downloader', () => {
     const localFileContentsRepository = new LocalFileConentsRepositoryMock();
     const cachedDownloader = new LocalFileSystemCacheFileDownloader(
       downloader,
-      localFileContentsRepository
+      localFileContentsRepository,
+      1
     );
 
     localFileContentsRepository.existsMock.mockResolvedValueOnce(true);
@@ -85,7 +87,8 @@ describe('Local File System Cache File Downloader', () => {
     const localFileContentsRepository = new LocalFileConentsRepositoryMock();
     const cachedDownloader = new LocalFileSystemCacheFileDownloader(
       downloader,
-      localFileContentsRepository
+      localFileContentsRepository,
+      1
     );
 
     localFileContentsRepository.existsMock.mockResolvedValueOnce(false);
@@ -101,13 +104,16 @@ describe('Local File System Cache File Downloader', () => {
   });
 
   it('stores the file if the file was not cached', async () => {
-    const file = WebdavFileMother.any();
+    const file = WebdavFileMother.fromPartial({
+      size: 500,
+    });
 
     const downloader = new ContentFileDownloaderMock();
     const localFileContentsRepository = new LocalFileConentsRepositoryMock();
     const cachedDownloader = new LocalFileSystemCacheFileDownloader(
       downloader,
-      localFileContentsRepository
+      localFileContentsRepository,
+      1024
     );
 
     localFileContentsRepository.existsMock.mockResolvedValueOnce(false);
@@ -122,13 +128,16 @@ describe('Local File System Cache File Downloader', () => {
   });
 
   it('does not fail if an error occurs during the caching of the file', async () => {
-    const file = WebdavFileMother.any();
+    const file = WebdavFileMother.fromPartial({
+      size: 500,
+    });
 
     const downloader = new ContentFileDownloaderMock();
     const localFileContentsRepository = new LocalFileConentsRepositoryMock();
     const cachedDownloader = new LocalFileSystemCacheFileDownloader(
       downloader,
-      localFileContentsRepository
+      localFileContentsRepository,
+      1024
     );
 
     localFileContentsRepository.existsMock.mockResolvedValueOnce(false);
@@ -143,5 +152,75 @@ describe('Local File System Cache File Downloader', () => {
 
     expect(result).toBeDefined();
     expect(localFileContentsRepository.writeMock).toBeCalled();
+  });
+
+  describe('storage usage', () => {
+    it('deletes the least recent accessed file when the maximum storage usage has been reached', async () => {
+      const localFileContentsRepository = new LocalFileConentsRepositoryMock();
+      const cachedDownloader = new LocalFileSystemCacheFileDownloader(
+        new ContentFileDownloaderMock(),
+        localFileContentsRepository,
+        30
+      );
+
+      localFileContentsRepository.existsMock.mockResolvedValue(false);
+      localFileContentsRepository.usageMock
+        .mockResolvedValueOnce(0)
+        .mockResolvedValueOnce(20)
+        .mockResolvedValueOnce(20);
+      localFileContentsRepository.writeMock.mockReturnValue(Promise.resolve());
+
+      await cachedDownloader
+        .download(
+          WebdavFileMother.fromPartial({
+            fileId: '190f5ea6-252d-5a79-8e04-6eb58623ed3f',
+            size: 20,
+          })
+        )
+        .catch((err) => {
+          expect(err).not.toBeDefined();
+        });
+      await cachedDownloader
+        .download(
+          WebdavFileMother.fromPartial({
+            fileId: 'c86327a6-6cdc-581e-97e3-67267cd088c3',
+            size: 20,
+          })
+        )
+        .catch((err) => {
+          expect(err).not.toBeDefined();
+        });
+
+      expect(localFileContentsRepository.deleteMock).toHaveBeenCalled();
+    });
+
+    it('does not store the file if it is larger than the size of the cache', async () => {
+      const cacheSize = 50;
+      const containerDownloader = new ContentFileDownloaderMock();
+      const localFileContentsRepository = new LocalFileConentsRepositoryMock();
+      const cachedDownloader = new LocalFileSystemCacheFileDownloader(
+        containerDownloader,
+        localFileContentsRepository,
+        cacheSize
+      );
+
+      containerDownloader.mock.mockResolvedValue(Readable.from(''));
+
+      localFileContentsRepository.existsMock.mockResolvedValue(false);
+      localFileContentsRepository.usageMock.mockResolvedValue(cacheSize);
+
+      await cachedDownloader
+        .download(
+          WebdavFileMother.fromPartial({
+            fileId: '190f5ea6-252d-5a79-8e04-6eb58623ed3f',
+            size: cacheSize + 1,
+          })
+        )
+        .catch((err) => {
+          expect(err).not.toBeDefined();
+        });
+
+      expect(localFileContentsRepository.writeMock).not.toBeCalled();
+    });
   });
 });

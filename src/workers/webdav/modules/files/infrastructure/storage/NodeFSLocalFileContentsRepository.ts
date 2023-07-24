@@ -36,4 +36,10 @@ export class NodeFSLocalFileContentsRepository
   delete(fileId: string): Promise<void> {
     return fs.unlink(this.assemblePath(fileId));
   }
+
+  async usage(): Promise<number> {
+    const stats = await fs.stat(this.directory);
+
+    return stats.size;
+  }
 }

@@ -8,4 +8,6 @@ export interface LocalFileConentsRepository {
   write(fileId: string, content: Readable): Promise<void>;
 
   delete(fileId: string): Promise<void>;
+
+  usage(): Promise<number>;
 }

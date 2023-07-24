@@ -8,6 +8,7 @@ export class LocalFileConentsRepositoryMock
   readMock = jest.fn();
   writeMock = jest.fn();
   deleteMock = jest.fn();
+  usageMock = jest.fn();
 
   exists(fileId: string): Promise<boolean> {
     return this.existsMock(fileId);
@@ -20,5 +21,8 @@ export class LocalFileConentsRepositoryMock
   }
   delete(fileId: string): Promise<void> {
     return this.deleteMock(fileId);
+  }
+  usage(): Promise<number> {
+    return this.usageMock();
   }
 }
