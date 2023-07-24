@@ -1,6 +1,6 @@
 import { WebdavServerEventBus } from '../../shared/domain/WebdavServerEventBus';
 import { FileNotFoundError } from '../domain/errors/FileNotFoundError';
-import { RemoteFileContentsRepository } from '../domain/RemoteFileContentsRepository';
+import { RemoteFileContentsManagersFactory } from '../domain/RemoteFileContentsManagersFactory';
 import { RemoteFileContents } from '../domain/RemoteFileContent';
 import { WebdavFileRepository } from '../domain/WebdavFileRepository';
 import { FilePath } from '../domain/FilePath';
@@ -11,7 +11,7 @@ import { WebdavFile } from '../domain/WebdavFile';
 export class WebdavFileDownloader {
   constructor(
     private readonly repository: WebdavFileRepository,
-    private readonly contents: RemoteFileContentsRepository,
+    private readonly contents: RemoteFileContentsManagersFactory,
     private readonly eventBus: WebdavServerEventBus,
     private readonly ipc: WebdavIpc
   ) {}

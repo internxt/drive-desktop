@@ -1,7 +1,7 @@
 import { Environment } from '@internxt/inxt-js';
 import { Readable } from 'stream';
 import { FileSize } from '../../domain/FileSize';
-import { RemoteFileContentsRepository } from '../../domain/RemoteFileContentsRepository';
+import { RemoteFileContentsManagersFactory } from '../../domain/RemoteFileContentsManagersFactory';
 import { WebdavFile } from '../../domain/WebdavFile';
 import { EnvironmentContentFileUpoader } from './EnvironmentContentFileUpoader';
 import { EnvironmentContentFileDownloader } from './EnvironmentContnetFileDownloader';
@@ -9,14 +9,9 @@ import { ContentFileDownloader } from '../../domain/ContentFileDownloader';
 import { ContentFileUploader } from '../../domain/ContentFileUploader';
 import { EnvironmentContentFileClonner } from './EnvironmentContentFileClonner';
 import { ContentFileClonner } from '../../domain/ContentFileClonner';
-import { LocalFileSystemCacheFileDownloader } from './LocalFileSystemCacheFileDownloader';
-import { NodeFSLocalFileContentsRepository } from './NodeFSLocalFileContentsRepository';
-import { app } from 'electron';
 
-const TWO_GIGABYTE = 2 * 1024 * 1024 * 1024;
-
-export class EnvironmentFileContentRepository
-  implements RemoteFileContentsRepository
+export class EnvironmentRemoteFileContentManagersFactory
+  implements RemoteFileContentsManagersFactory
 {
   private static MULTIPART_UPLOADE_SIZE_THRESHOLD = 5 * 1024 * 1024 * 1024;
 
@@ -28,7 +23,7 @@ export class EnvironmentFileContentRepository
   clonner(file: WebdavFile): ContentFileClonner {
     const uploadFunciton =
       file.size >
-      EnvironmentFileContentRepository.MULTIPART_UPLOADE_SIZE_THRESHOLD
+      EnvironmentRemoteFileContentManagersFactory.MULTIPART_UPLOADE_SIZE_THRESHOLD
         ? this.environment.uploadMultipartFile
         : this.environment.upload;
 
@@ -43,30 +38,16 @@ export class EnvironmentFileContentRepository
   }
 
   downloader(): ContentFileDownloader {
-    const environmentDownloader = new EnvironmentContentFileDownloader(
+    return new EnvironmentContentFileDownloader(
       this.environment.download,
       this.bucket
-    );
-
-    const cacheFolder = app.getPath('userData');
-
-    const localFileSystemRepository = new NodeFSLocalFileContentsRepository(
-      cacheFolder
-    );
-
-    localFileSystemRepository.initialize();
-
-    return new LocalFileSystemCacheFileDownloader(
-      environmentDownloader,
-      localFileSystemRepository,
-      TWO_GIGABYTE
     );
   }
 
   uploader(size: FileSize, contents: Readable): ContentFileUploader {
     const fn =
       size.value >
-      EnvironmentFileContentRepository.MULTIPART_UPLOADE_SIZE_THRESHOLD
+      EnvironmentRemoteFileContentManagersFactory.MULTIPART_UPLOADE_SIZE_THRESHOLD
         ? this.environment.uploadMultipartFile
         : this.environment.upload;
 

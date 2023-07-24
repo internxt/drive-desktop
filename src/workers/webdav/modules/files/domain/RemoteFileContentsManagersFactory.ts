@@ -5,7 +5,7 @@ import { ContentFileUploader } from './ContentFileUploader';
 import { FileSize } from './FileSize';
 import { WebdavFile } from './WebdavFile';
 
-export interface RemoteFileContentsRepository {
+export interface RemoteFileContentsManagersFactory {
   downloader(): ContentFileDownloader;
 
   uploader(size: FileSize, contents: Readable): ContentFileUploader;

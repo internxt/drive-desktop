@@ -10,7 +10,7 @@ import Logger from 'electron-log';
 export class LocalFileSystemCacheFileDownloader
   implements ContentFileDownloader
 {
-  private readonly filesAccesTime: Record<string, number> = {};
+  private readonly filesAccesTime = new Map<string, number>();
 
   elapsedTime: () => number;
   on: (
@@ -35,19 +35,16 @@ export class LocalFileSystemCacheFileDownloader
     }
 
     let oldestTimestamp: number | null = null;
-    let oldestKey: string | null = null;
+    let oldestId: string | null = null;
 
-    for (const key in this.filesAccesTime) {
-      if (
-        oldestTimestamp === null ||
-        this.filesAccesTime[key] < oldestTimestamp
-      ) {
-        oldestTimestamp = this.filesAccesTime[key];
-        oldestKey = key;
+    for (const [id, accessed] of this.filesAccesTime) {
+      if (oldestTimestamp === null || accessed < oldestTimestamp) {
+        oldestTimestamp = accessed;
+        oldestId = id;
       }
     }
 
-    return oldestKey || undefined;
+    return oldestId || undefined;
   }
 
   private async cacheFile(file: WebdavFile, contents: Readable): Promise<void> {
@@ -68,14 +65,14 @@ export class LocalFileSystemCacheFileDownloader
         // eslint-disable-next-line no-await-in-loop
         await this.localFileContentsRepository.delete(oldestAccessed);
 
-        delete this.filesAccesTime[oldestAccessed];
+        this.filesAccesTime.delete(oldestAccessed);
       }
 
       // eslint-disable-next-line no-await-in-loop
       usage = await this.localFileContentsRepository.usage();
     }
 
-    this.filesAccesTime[file.path.value] = Date.now();
+    this.filesAccesTime.set(file.path.value, Date.now());
 
     this.localFileContentsRepository
       .write(file.fileId, contents)
@@ -88,6 +85,9 @@ export class LocalFileSystemCacheFileDownloader
     const isCached = await this.localFileContentsRepository.exists(file.fileId);
 
     if (isCached) {
+      Logger.info(
+        `File with id ${file.fileId} is cached. Skiping downloading it.`
+      );
       return this.localFileContentsRepository.read(file.fileId);
     }
 

@@ -9,14 +9,14 @@ import { WebdavFileRepositoryMock } from '../__mocks__/WebdavFileRepositoyMock';
 import { FilePath } from '../../domain/FilePath';
 import { WebdavIpcMock } from '../../../shared/test/__mock__/WebdavIPC';
 import { WebdavFileRenamer } from '../../application/WebdavFileRenamer';
-import { FileContentRepositoryMock } from '../__mocks__/FileContentRepositoryMock';
+import { RemoteFileContentsManagersFactoryMock } from '../__mocks__/RemoteFileContentsManagersFactoryMock';
 
 describe('Webdav File Mover', () => {
   let repository: WebdavFileRepositoryMock;
   let folderRepository: WebdavFolderRepositoryMock;
   let folderFinder: WebdavFolderFinder;
   let fileRenamer: WebdavFileRenamer;
-  let contentsRepository: FileContentRepositoryMock;
+  let contentsRepository: RemoteFileContentsManagersFactoryMock;
   let eventBus: EventBusMock;
   let ipc: WebdavIpcMock;
 
@@ -26,7 +26,7 @@ describe('Webdav File Mover', () => {
     repository = new WebdavFileRepositoryMock();
     folderRepository = new WebdavFolderRepositoryMock();
     folderFinder = new WebdavFolderFinder(folderRepository);
-    contentsRepository = new FileContentRepositoryMock();
+    contentsRepository = new RemoteFileContentsManagersFactoryMock();
     eventBus = new EventBusMock();
     ipc = new WebdavIpcMock();
 

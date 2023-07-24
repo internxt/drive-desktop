@@ -4,7 +4,7 @@ import { WebdavFolderFinder } from '../../../folders/application/WebdavFolderFin
 import { WebdavFileCreator } from '../../application/WebdavFileCreator';
 import { FileMetadataCollection } from '../../domain/FileMetadataCollection';
 import { InMemoryTemporalFileMetadataCollection } from '../../infrastructure/persistance/InMemoryTemporalFileMetadataCollection';
-import { FileContentRepositoryMock } from '../__mocks__/FileContentRepositoryMock';
+import { RemoteFileContentsManagersFactoryMock } from '../__mocks__/RemoteFileContentsManagersFactoryMock';
 import { WebdavFileRepositoryMock } from '../__mocks__/WebdavFileRepositoyMock';
 import { EventBusMock } from '../../../shared/test/__mock__/EventBusMock';
 import { WebdavIpcMock } from '../../../shared/test/__mock__/WebdavIPC';
@@ -12,7 +12,7 @@ import { WebdavIpcMock } from '../../../shared/test/__mock__/WebdavIPC';
 describe('Webdav File Creator', () => {
   let fileReposiotry: WebdavFileRepositoryMock;
   let folderRepository: WebdavFolderRepositoryMock;
-  let contentsRepository: FileContentRepositoryMock;
+  let contentsRepository: RemoteFileContentsManagersFactoryMock;
   let temporalFileCollection: FileMetadataCollection;
   let eventBus: EventBusMock;
   let ipc: WebdavIpcMock;
@@ -23,7 +23,7 @@ describe('Webdav File Creator', () => {
     fileReposiotry = new WebdavFileRepositoryMock();
     folderRepository = new WebdavFolderRepositoryMock();
     const folderFinder = new WebdavFolderFinder(folderRepository);
-    contentsRepository = new FileContentRepositoryMock();
+    contentsRepository = new RemoteFileContentsManagersFactoryMock();
     temporalFileCollection = new InMemoryTemporalFileMetadataCollection();
     eventBus = new EventBusMock();
     ipc = new WebdavIpcMock();

@@ -6,7 +6,7 @@ import { EventBusMock } from '../../../shared/test/__mock__/EventBusMock';
 import { WebdavFileClonner } from '../../application/WebdavFileClonner';
 import { FileAlreadyExistsError } from '../../domain/errors/FileAlreadyExistsError';
 import { WebdavFileMother } from '../domain/WebdavFileMother';
-import { FileContentRepositoryMock } from '../__mocks__/FileContentRepositoryMock';
+import { RemoteFileContentsManagersFactoryMock } from '../__mocks__/RemoteFileContentsManagersFactoryMock';
 import { WebdavFileRepositoryMock } from '../__mocks__/WebdavFileRepositoyMock';
 
 describe('Webdav File Clonner', () => {
@@ -15,7 +15,7 @@ describe('Webdav File Clonner', () => {
 
   let fileReposiotry: WebdavFileRepositoryMock;
   let folderRepository: WebdavFolderRepositoryMock;
-  let contentsRepository: FileContentRepositoryMock;
+  let contentsRepository: RemoteFileContentsManagersFactoryMock;
   let eventBus: EventBusMock;
   let ipc: WebdavIpcMock;
 
@@ -25,7 +25,7 @@ describe('Webdav File Clonner', () => {
     fileReposiotry = new WebdavFileRepositoryMock();
     folderRepository = new WebdavFolderRepositoryMock();
     const folderFinder = new WebdavFolderFinder(folderRepository);
-    contentsRepository = new FileContentRepositoryMock();
+    contentsRepository = new RemoteFileContentsManagersFactoryMock();
     eventBus = new EventBusMock();
     ipc = new WebdavIpcMock();
 

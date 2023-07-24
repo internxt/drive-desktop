@@ -13,7 +13,7 @@ import { WebdavFileMimeTypeResolver } from '../modules/files/application/WebdavF
 import { WebdavFileMover } from '../modules/files/application/WebdavFileMover';
 import { HttpWebdavFileRepository } from '../modules/files/infrastructure/persistance/HttpWebdavFileRepository';
 import { InMemoryTemporalFileMetadataCollection } from '../modules/files/infrastructure/persistance/InMemoryTemporalFileMetadataCollection';
-import { EnvironmentFileContentRepository } from '../modules/files/infrastructure/storage/EnvironmentFileContentRepository';
+import { EnvironmentRemoteFileContentManagersFactory } from '../modules/files/infrastructure/storage/EnvironmentRemoteFileContentManagersFactory';
 import { WebdavFolderCreator } from '../modules/folders/application/WebdavFolderCreator';
 import { WebdavFolderDeleter } from '../modules/folders/application/WebdavFolderDeleter';
 import { WebdavFolderFinder } from '../modules/folders/application/WebdavFolderFinder';
@@ -34,6 +34,9 @@ import { DependencyContainer } from './DependencyContainer';
 import { ipc } from '../ipc';
 import { WebdavFolderRenamer } from '../modules/folders/application/WebdavFolderRenamer';
 import { WebdavFileRenamer } from '../modules/files/application/WebdavFileRenamer';
+import { CachedRemoteFileContentsManagersFactory } from '../modules/files/infrastructure/storage/CachedRemoteFileContentsManagersFactory';
+import { NodeFSLocalFileContentsRepository } from '../modules/files/infrastructure/storage/NodeFSLocalFileContentsRepository';
+import Logger from 'electron-log';
 
 export class DependencyContainerFactory {
   private _container: DependencyContainer | undefined;
@@ -108,9 +111,17 @@ export class DependencyContainerFactory {
     await fileRepository.init();
     await folderRepository.init();
 
-    const fileContentRepository = new EnvironmentFileContentRepository(
-      environment,
-      user.bucket
+    const cachePath = await ipcRenderer.invoke('get-path', 'userData');
+
+    const localFileConentsRepository = new NodeFSLocalFileContentsRepository(
+      cachePath
+    );
+
+    await localFileConentsRepository.initialize();
+
+    const fileContentRepository = new CachedRemoteFileContentsManagersFactory(
+      localFileConentsRepository,
+      new EnvironmentRemoteFileContentManagersFactory(environment, user.bucket)
     );
 
     const eventBus = new NodeJsEventBus();

@@ -3,18 +3,28 @@ import { LocalFileConentsRepository } from '../../domain/LocalFileContentsReposi
 import fs from 'fs/promises';
 import { constants, createReadStream } from 'fs';
 import path from 'path';
+import Logger from 'electron-log';
 
 export class NodeFSLocalFileContentsRepository
   implements LocalFileConentsRepository
 {
+  private static readonly directory = 'File Cache';
+
   constructor(private readonly directory: string) {}
 
   private assemblePath(fileId: string) {
-    return path.join(this.directory, fileId);
+    return path.join(
+      this.directory,
+      NodeFSLocalFileContentsRepository.directory,
+      fileId
+    );
   }
 
   async initialize(): Promise<void> {
-    return fs.mkdir(this.directory);
+    Logger.info('Initializing, file cache...');
+    fs.mkdir(
+      path.join(this.directory, NodeFSLocalFileContentsRepository.directory)
+    );
   }
 
   async exists(fileId: string): Promise<boolean> {

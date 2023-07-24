@@ -3,20 +3,20 @@ import { EventBusMock } from '../../../shared/test/__mock__/EventBusMock';
 import { WebdavServerEventBus } from '../../../shared/domain/WebdavServerEventBus';
 import { WebdavFileDownloader } from '../../application/WebdavFileDownloader';
 import { WebdavFileMother } from '../domain/WebdavFileMother';
-import { FileContentRepositoryMock } from '../__mocks__/FileContentRepositoryMock';
+import { RemoteFileContentsManagersFactoryMock } from '../__mocks__/RemoteFileContentsManagersFactoryMock';
 import { WebdavFileRepositoryMock } from '../__mocks__/WebdavFileRepositoyMock';
 import { FilePath } from '../../domain/FilePath';
 import { WebdavIpcMock } from '../../../shared/test/__mock__/WebdavIPC';
 describe('Webdav File Downloader', () => {
   let repository: WebdavFileRepositoryMock;
-  let contentsRepository: FileContentRepositoryMock;
+  let contentsRepository: RemoteFileContentsManagersFactoryMock;
   let eventBus: WebdavServerEventBus;
   let SUT: WebdavFileDownloader;
   let ipc: WebdavIpcMock;
 
   beforeEach(() => {
     repository = new WebdavFileRepositoryMock();
-    contentsRepository = new FileContentRepositoryMock();
+    contentsRepository = new RemoteFileContentsManagersFactoryMock();
     eventBus = new EventBusMock();
     ipc = new WebdavIpcMock();
 
