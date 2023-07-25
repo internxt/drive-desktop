@@ -36,7 +36,6 @@ import { WebdavFolderRenamer } from '../modules/folders/application/WebdavFolder
 import { WebdavFileRenamer } from '../modules/files/application/WebdavFileRenamer';
 import { CachedRemoteFileContentsManagersFactory } from '../modules/files/infrastructure/storage/CachedRemoteFileContentsManagersFactory';
 import { NodeLocalFileContentsRepository } from '../modules/files/infrastructure/storage/NodeLocalFileContentsRepository';
-import Logger from 'electron-log';
 
 export class DependencyContainerFactory {
   private _container: DependencyContainer | undefined;
