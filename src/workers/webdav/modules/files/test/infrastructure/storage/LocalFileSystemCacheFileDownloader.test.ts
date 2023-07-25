@@ -37,20 +37,25 @@ function readAll(readable: Readable): Promise<string> {
 
 describe('Local File System Cache File Downloader', () => {
   it('returns a readable with the file contents cached', async () => {
-    const file = WebdavFileMother.any();
+    const file = WebdavFileMother.fromPartial({
+      size: 10,
+    });
 
     const downloader = new ContentFileDownloaderMock();
     const localFileContentsRepository = new LocalFileConentsRepositoryMock();
     const cachedDownloader = new LocalFileSystemCacheFileDownloader(
       downloader,
       localFileContentsRepository,
-      1
+      100
     );
 
-    localFileContentsRepository.existsMock.mockResolvedValueOnce(true);
     localFileContentsRepository.readMock.mockReturnValue(
       Readable.from(fileContents)
     );
+    localFileContentsRepository.usageMock.mockResolvedValue(0);
+    localFileContentsRepository.writeMock.mockReturnValue(Promise.resolve());
+
+    await cachedDownloader.download(file);
 
     const contents = await cachedDownloader.download(file);
 
@@ -60,20 +65,30 @@ describe('Local File System Cache File Downloader', () => {
   });
 
   it('does not download the file if its cached', async () => {
-    const file = WebdavFileMother.any();
+    const file = WebdavFileMother.fromPartial({
+      size: 10,
+    });
 
     const downloader = new ContentFileDownloaderMock();
     const localFileContentsRepository = new LocalFileConentsRepositoryMock();
     const cachedDownloader = new LocalFileSystemCacheFileDownloader(
       downloader,
       localFileContentsRepository,
-      1
+      100
     );
 
-    localFileContentsRepository.existsMock.mockResolvedValueOnce(true);
-    localFileContentsRepository.readMock.mockReturnValue(
+    localFileContentsRepository.usageMock.mockResolvedValue(10);
+    downloader.mock.mockResolvedValueOnce(Readable.from(fileContents));
+    localFileContentsRepository.readMock.mockResolvedValue(
       Readable.from(fileContents)
     );
+    localFileContentsRepository.writeMock.mockReturnValue(Promise.resolve());
+
+    expect(await localFileContentsRepository.usage()).toBe(10);
+
+    await cachedDownloader.download(file);
+
+    downloader.mock.mockReset();
 
     await cachedDownloader.download(file);
 
@@ -88,10 +103,9 @@ describe('Local File System Cache File Downloader', () => {
     const cachedDownloader = new LocalFileSystemCacheFileDownloader(
       downloader,
       localFileContentsRepository,
-      1
+      100
     );
 
-    localFileContentsRepository.existsMock.mockResolvedValueOnce(false);
     localFileContentsRepository.writeMock.mockReturnValueOnce(
       Promise.resolve()
     );
@@ -116,7 +130,6 @@ describe('Local File System Cache File Downloader', () => {
       1024
     );
 
-    localFileContentsRepository.existsMock.mockResolvedValueOnce(false);
     localFileContentsRepository.writeMock.mockReturnValueOnce(
       Promise.resolve()
     );
@@ -140,7 +153,6 @@ describe('Local File System Cache File Downloader', () => {
       1024
     );
 
-    localFileContentsRepository.existsMock.mockResolvedValueOnce(false);
     localFileContentsRepository.writeMock.mockRejectedValueOnce(
       new Error('ERROR')
     );
@@ -163,7 +175,6 @@ describe('Local File System Cache File Downloader', () => {
         30
       );
 
-      localFileContentsRepository.existsMock.mockResolvedValue(false);
       localFileContentsRepository.usageMock
         .mockResolvedValueOnce(0)
         .mockResolvedValueOnce(20)
@@ -206,7 +217,6 @@ describe('Local File System Cache File Downloader', () => {
 
       containerDownloader.mock.mockResolvedValue(Readable.from(''));
 
-      localFileContentsRepository.existsMock.mockResolvedValue(false);
       localFileContentsRepository.usageMock.mockResolvedValue(cacheSize);
 
       await cachedDownloader

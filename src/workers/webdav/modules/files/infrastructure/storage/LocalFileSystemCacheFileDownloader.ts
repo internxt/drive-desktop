@@ -10,7 +10,7 @@ import Logger from 'electron-log';
 export class LocalFileSystemCacheFileDownloader
   implements ContentFileDownloader
 {
-  private readonly filesAccesTime = new Map<string, number>();
+  private readonly cachedFilesAccessTime = new Map<string, number>();
 
   elapsedTime: () => number;
   on: (
@@ -28,14 +28,14 @@ export class LocalFileSystemCacheFileDownloader
   }
 
   private getOldestAccessedFile(): WebdavFileAtributes['fileId'] | undefined {
-    if (this.filesAccesTime.size === 0) {
+    if (this.cachedFilesAccessTime.size === 0) {
       return undefined;
     }
 
     let oldestTimestamp: number | null = null;
     let oldestId: string | null = null;
 
-    for (const [id, accessed] of this.filesAccesTime) {
+    for (const [id, accessed] of this.cachedFilesAccessTime) {
       if (oldestTimestamp === null || accessed < oldestTimestamp) {
         oldestTimestamp = accessed;
         oldestId = id;
@@ -55,7 +55,7 @@ export class LocalFileSystemCacheFileDownloader
 
     while (
       usage + file.size >= this.maxCacheSize &&
-      this.filesAccesTime.size > 0
+      this.cachedFilesAccessTime.size > 0
     ) {
       const oldestAccessed = this.getOldestAccessedFile();
 
@@ -63,14 +63,14 @@ export class LocalFileSystemCacheFileDownloader
         // eslint-disable-next-line no-await-in-loop
         await this.localFileContentsRepository.delete(oldestAccessed);
 
-        this.filesAccesTime.delete(oldestAccessed);
+        this.cachedFilesAccessTime.delete(oldestAccessed);
       }
 
       // eslint-disable-next-line no-await-in-loop
       usage = await this.localFileContentsRepository.usage();
     }
 
-    this.filesAccesTime.set(file.path.value, Date.now());
+    this.cachedFilesAccessTime.set(file.fileId, Date.now());
 
     this.localFileContentsRepository
       .write(file.fileId, contents)
@@ -80,7 +80,7 @@ export class LocalFileSystemCacheFileDownloader
   }
 
   async download(file: WebdavFile): Promise<Readable> {
-    const isCached = await this.localFileContentsRepository.exists(file.fileId);
+    const isCached = this.cachedFilesAccessTime.has(file.fileId);
 
     if (isCached) {
       Logger.info(
