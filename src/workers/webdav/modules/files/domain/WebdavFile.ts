@@ -7,7 +7,7 @@ import { FileCannotBeMovedToTheOriginalFolderError } from './errors/FileCannotBe
 import { FileActionOnlyCanAffectOneLevelError } from './errors/FileActionOnlyCanAffectOneLevelError';
 import { FileNameShouldDifferFromOriginalError } from './errors/FileNameShouldDifferFromOriginalError';
 import { FileActionCannotModifyExtension } from './errors/FileActionCannotModifyExtension';
-import { FileDeletedDomainEvent } from './FileDeletedDomainEvent';
+import { FileTrashedDomainEvent } from './FileTrashedDomainEvent';
 import { FileStatus, FileStatuses } from './FileStatus';
 
 export type WebdavFileAtributes = {
@@ -114,7 +114,7 @@ export class WebdavFile extends AggregateRoot {
     this._status = this._status.changeTo(FileStatuses.TRASHED);
 
     this.record(
-      new FileDeletedDomainEvent({
+      new FileTrashedDomainEvent({
         aggregateId: this.fileId,
         size: this._size.value,
       })

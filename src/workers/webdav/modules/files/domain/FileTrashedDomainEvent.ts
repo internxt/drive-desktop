@@ -4,7 +4,7 @@ type DeleteWebdavFileDomainEventAttributes = {
   readonly size: number;
 };
 
-export class FileDeletedDomainEvent extends WebdavDomainEvent {
+export class FileTrashedDomainEvent extends WebdavDomainEvent {
   static readonly EVENT_NAME = 'file.deleted';
 
   readonly size: number;
@@ -19,7 +19,7 @@ export class FileDeletedDomainEvent extends WebdavDomainEvent {
     size: number;
   }) {
     super({
-      eventName: FileDeletedDomainEvent.EVENT_NAME,
+      eventName: FileTrashedDomainEvent.EVENT_NAME,
       aggregateId,
       eventId,
     });

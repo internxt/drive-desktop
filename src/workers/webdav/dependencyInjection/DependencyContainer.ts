@@ -1,4 +1,5 @@
 import { Axios } from 'axios';
+import { DeleteCachedFileOnFileTrashed } from '../modules/files/application/delete/DeleteCachedFileOnFileTrashed';
 import { WebdavFileClonner } from '../modules/files/application/WebdavFileClonner';
 import { WebdavFileCreator } from '../modules/files/application/WebdavFileCreator';
 import { WebdavFileDeleter } from '../modules/files/application/WebdavFileDeleter';
@@ -40,6 +41,8 @@ export interface DependencyContainer {
   fileDownloader: WebdavFileDownloader;
   fileMimeTypeResolver: WebdavFileMimeTypeResolver;
   fileRenamer: WebdavFileRenamer;
+
+  deleteCachedFileOnFileTrashed: DeleteCachedFileOnFileTrashed;
 
   folderCreator: WebdavFolderCreator;
 
