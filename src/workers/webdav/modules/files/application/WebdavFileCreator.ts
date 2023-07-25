@@ -82,7 +82,13 @@ export class WebdavFileCreator {
   ): Promise<WebdavFile> {
     const file = WebdavFile.create(fileId, folder, size, filePath);
 
-    await this.repository.add(file);
+    const autoincrementId = await this.repository.add(file);
+
+    this.ipc.send('FILE_INSERTED', {
+      name: file.name,
+      id: autoincrementId,
+      extension: file.type,
+    });
 
     this.temporalFileCollection.remove(filePath.value);
 

@@ -1,5 +1,6 @@
 import { DriveFile } from 'main/database/entities/DriveFile';
 import { DriveFolder } from 'main/database/entities/DriveFolder';
+import { WebdavFileInsertedPayload } from './file/WebdavFileCreatedPayload';
 
 const trackedEvents = [
   'delete',
@@ -23,7 +24,8 @@ type TrackedWebdavServerActions = Capitalize<
   (typeof trackedEventsActions)[number]
 >;
 
-export type TrackedWebdavServerEventsActions = `${TrackedWebdavServerEvents} ${TrackedWebdavServerActions}`;
+export type TrackedWebdavServerEventsActions =
+  `${TrackedWebdavServerEvents} ${TrackedWebdavServerActions}`;
 
 export type WebdavErrorContext = {
   action: TrackedWebdavServerEvents;
@@ -108,6 +110,7 @@ export type WebdavFlowEvents = {
     size: number;
     processInfo: ProcessInfo;
   }) => void;
+  FILE_INSERTED: (payload: WebdavFileInsertedPayload) => void;
 };
 
 export type WebdavFlowEventsErrors = {

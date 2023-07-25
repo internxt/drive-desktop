@@ -135,7 +135,7 @@ export class HttpWebdavFileRepository implements WebdavFileRepository {
     }
   }
 
-  async add(file: WebdavFile): Promise<void> {
+  async add(file: WebdavFile): Promise<number> {
     try {
       this.optimisticFiles[file.path.value] = file;
       const encryptedName = this.crypt.encryptName(
@@ -162,7 +162,6 @@ export class HttpWebdavFileRepository implements WebdavFileRepository {
         },
       };
 
-      // TODO: MAKE SURE ALL FIELDS ARE CORRECT
       const result = await this.httpClient.post<FileCreatedResponseDTO>(
         `${process.env.API_URL}/api/storage/file`,
         body
@@ -183,6 +182,8 @@ export class HttpWebdavFileRepository implements WebdavFileRepository {
       this.optimisticFiles[file.path.value] = created;
 
       await this.ipc.invoke('START_REMOTE_SYNC');
+
+      return result.data.id;
     } catch (error) {
       delete this.optimisticFiles[file.path.value];
 

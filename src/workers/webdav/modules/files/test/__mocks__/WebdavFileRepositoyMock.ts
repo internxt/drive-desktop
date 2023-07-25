@@ -18,7 +18,7 @@ export class WebdavFileRepositoryMock implements WebdavFileRepository {
     return this.mockDelete(file);
   }
 
-  add(file: WebdavFile): Promise<void> {
+  add(file: WebdavFile): Promise<number> {
     return this.mockAdd(file);
   }
 

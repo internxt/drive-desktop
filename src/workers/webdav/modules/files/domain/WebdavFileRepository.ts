@@ -8,7 +8,9 @@ export interface WebdavFileRepository {
 
   delete(file: WebdavFile): Promise<void>;
 
-  add(file: WebdavFile): Promise<void>;
+  /** TODO: Change back promise to resolve void
+   * once we can create thumbnails with the uuid id */
+  add(file: WebdavFile): Promise<number>;
 
   updateName(item: WebdavFile): Promise<void>;
 

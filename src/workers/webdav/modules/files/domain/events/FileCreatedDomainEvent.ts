@@ -1,4 +1,4 @@
-import { WebdavDomainEvent } from '../../shared/domain/WebdavDomainEvent';
+import { WebdavDomainEvent } from '../../../shared/domain/WebdavDomainEvent';
 
 export type CreatedWebdavFileDomainEventAttributes = {
   readonly size: number;
@@ -10,7 +10,6 @@ export class FileCreatedDomainEvent extends WebdavDomainEvent {
 
   readonly size: number;
   readonly type: string;
-
   constructor({
     aggregateId,
     eventId,

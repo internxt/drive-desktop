@@ -2,7 +2,7 @@ import { AggregateRoot } from '../../shared/domain/AggregateRoot';
 import { WebdavFolder } from '../../folders/domain/WebdavFolder';
 import { FilePath } from './FilePath';
 import { FileSize } from './FileSize';
-import { FileCreatedDomainEvent } from './FileCreatedDomainEvent';
+import { FileCreatedDomainEvent } from './events/FileCreatedDomainEvent';
 import { FileCannotBeMovedToTheOriginalFolderError } from './errors/FileCannotBeMovedToTheOriginalFolderError';
 import { FileActionOnlyCanAffectOneLevelError } from './errors/FileActionOnlyCanAffectOneLevelError';
 import { FileNameShouldDifferFromOriginalError } from './errors/FileNameShouldDifferFromOriginalError';
