@@ -35,7 +35,7 @@ import { ipc } from '../ipc';
 import { WebdavFolderRenamer } from '../modules/folders/application/WebdavFolderRenamer';
 import { WebdavFileRenamer } from '../modules/files/application/WebdavFileRenamer';
 import { CachedRemoteFileContentsManagersFactory } from '../modules/files/infrastructure/storage/CachedRemoteFileContentsManagersFactory';
-import { NodeFSLocalFileContentsRepository } from '../modules/files/infrastructure/storage/NodeFSLocalFileContentsRepository';
+import { NodeLocalFileContentsRepository } from '../modules/files/infrastructure/storage/NodeLocalFileContentsRepository';
 import Logger from 'electron-log';
 
 export class DependencyContainerFactory {
@@ -113,7 +113,7 @@ export class DependencyContainerFactory {
 
     const cachePath = await ipcRenderer.invoke('get-path', 'userData');
 
-    const localFileConentsRepository = new NodeFSLocalFileContentsRepository(
+    const localFileConentsRepository = new NodeLocalFileContentsRepository(
       cachePath
     );
 

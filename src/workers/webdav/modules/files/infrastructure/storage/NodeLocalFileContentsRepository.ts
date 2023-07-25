@@ -5,26 +5,26 @@ import { constants, createReadStream } from 'fs';
 import path from 'path';
 import Logger from 'electron-log';
 
-export class NodeFSLocalFileContentsRepository
+export class NodeLocalFileContentsRepository
   implements LocalFileConentsRepository
 {
-  private static readonly directory = 'File Cache';
+  private static readonly directoryName = 'File Cache';
+  private readonly directory: string;
 
-  constructor(private readonly directory: string) {}
+  constructor(where: string) {
+    this.directory = path.join(
+      where,
+      NodeLocalFileContentsRepository.directoryName
+    );
+  }
 
   private assemblePath(fileId: string) {
-    return path.join(
-      this.directory,
-      NodeFSLocalFileContentsRepository.directory,
-      fileId
-    );
+    return path.join(this.directory, fileId);
   }
 
   async initialize(): Promise<void> {
     Logger.info('Initializing, file cache...');
-    fs.mkdir(
-      path.join(this.directory, NodeFSLocalFileContentsRepository.directory)
-    );
+    fs.mkdir(this.directory);
   }
 
   async exists(fileId: string): Promise<boolean> {

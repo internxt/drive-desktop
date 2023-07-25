@@ -28,9 +28,7 @@ export class LocalFileSystemCacheFileDownloader
   }
 
   private getOldestAccessedFile(): WebdavFileAtributes['fileId'] | undefined {
-    const ids = Object.keys(this.filesAccesTime);
-
-    if (ids.length === 0) {
+    if (this.filesAccesTime.size === 0) {
       return undefined;
     }
 
@@ -57,7 +55,7 @@ export class LocalFileSystemCacheFileDownloader
 
     while (
       usage + file.size >= this.maxCacheSize &&
-      Object.keys(this.filesAccesTime).length > 0
+      this.filesAccesTime.size > 0
     ) {
       const oldestAccessed = this.getOldestAccessedFile();
 
