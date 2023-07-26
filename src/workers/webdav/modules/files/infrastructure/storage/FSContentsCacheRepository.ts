@@ -1,7 +1,7 @@
 import { Readable } from 'stream';
 import { ContentsCacheRepository } from '../../domain/ContentsCacheRepository';
 import fs from 'fs/promises';
-import { constants, createReadStream } from 'fs';
+import { createReadStream } from 'fs';
 import path from 'path';
 import Logger from 'electron-log';
 import glob from 'tiny-glob';
@@ -38,6 +38,10 @@ export class FSContentsCacheRepository implements ContentsCacheRepository {
   }
 
   private async ensureFileCacheContained(size: number): Promise<void> {
+    if (size >= this.maxCacheSize) {
+      return Promise.reject('File is too large to be cached');
+    }
+
     let current = await this.usage();
 
     while (
@@ -83,21 +87,16 @@ export class FSContentsCacheRepository implements ContentsCacheRepository {
     await Promise.all(populate);
   }
 
-  async exists(fileId: string): Promise<boolean> {
-    try {
-      await fs.access(
-        this.assemblePath(fileId),
-        constants.R_OK | constants.W_OK
-      );
-      return true;
-    } catch {
-      return false;
-    }
+  exists(fileId: string): boolean {
+    return this.cachedFilesAccessTime.has(fileId);
   }
 
   read(fileId: string): Readable {
+    const stream = createReadStream(this.assemblePath(fileId));
+
     this.cachedFilesAccessTime.set(fileId, Date.now());
-    return createReadStream(this.assemblePath(fileId));
+
+    return stream;
   }
 
   async write(fileId: string, content: Readable, size: number): Promise<void> {

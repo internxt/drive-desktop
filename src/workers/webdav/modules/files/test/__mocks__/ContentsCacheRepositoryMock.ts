@@ -8,7 +8,7 @@ export class ContentsCacheRepositoryMock implements ContentsCacheRepository {
   deleteMock = jest.fn();
   usageMock = jest.fn();
 
-  exists(fileId: string): Promise<boolean> {
+  exists(fileId: string): boolean {
     return this.existsMock(fileId);
   }
   read(fileId: string): Readable {

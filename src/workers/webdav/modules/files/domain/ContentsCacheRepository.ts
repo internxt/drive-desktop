@@ -1,7 +1,7 @@
 import { Readable } from 'stream';
 
 export interface ContentsCacheRepository {
-  exists(fileId: string): Promise<boolean>;
+  exists(fileId: string): boolean;
 
   read(fileId: string): Readable;
 
