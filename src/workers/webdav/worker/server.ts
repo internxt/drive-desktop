@@ -19,7 +19,7 @@ export class InternxtWebdavServer {
     storageManager?: IStorageManager
   ) {
     this.server = new WebDAVServer({
-      hostname: 'localhost',
+      hostname: 'virtual.drive.internxt.com',
       port,
       requireAuthentification: false,
       storageManager: storageManager,
