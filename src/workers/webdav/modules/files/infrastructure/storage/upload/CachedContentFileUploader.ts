@@ -4,6 +4,7 @@ import {
   FileUploadEvents,
 } from '../../../domain/ContentFileUploader';
 import { ContentsCacheRepository } from '../../../domain/ContentsCacheRepository';
+import Logger from 'electron-log';
 
 export class CachedContentFileUploader implements ContentFileUploader {
   elapsedTime: () => number;
@@ -14,8 +15,7 @@ export class CachedContentFileUploader implements ContentFileUploader {
 
   constructor(
     private readonly uploader: ContentFileUploader,
-    private readonly localFileContentsRepository: ContentsCacheRepository,
-    private readonly maxCacheSize: number
+    private readonly localFileContentsRepository: ContentsCacheRepository
   ) {
     this.on = uploader.on.bind(uploader);
     this.elapsedTime = uploader.elapsedTime.bind(uploader);
@@ -24,11 +24,11 @@ export class CachedContentFileUploader implements ContentFileUploader {
   async upload(contents: Readable, size: number): Promise<string> {
     const id = await this.uploader.upload(contents, size);
 
-    if (size > this.maxCacheSize) {
-      return id;
-    }
-
-    await this.localFileContentsRepository.write(id, contents, size);
+    this.localFileContentsRepository
+      .write(id, contents, size)
+      .catch((error) => {
+        Logger.error('Error caching file: ', id, error);
+      });
 
     return id;
   }

@@ -6,6 +6,7 @@ import { RemoteFileContentsManagersFactory } from '../../domain/RemoteFileConten
 import { WebdavFile } from '../../domain/WebdavFile';
 import { ContentsCacheRepository } from '../../domain/ContentsCacheRepository';
 import { CachedContentFileDownloader } from './download/CachedContentFileDownloader';
+import { CachedContentFileUploader } from './upload/CachedContentFileUploader';
 
 export class CachedRemoteFileContentsManagersFactory
   implements RemoteFileContentsManagersFactory
@@ -23,7 +24,10 @@ export class CachedRemoteFileContentsManagersFactory
   }
 
   uploader(size: FileSize): ContentFileUploader {
-    return this.factory.uploader(size);
+    return new CachedContentFileUploader(
+      this.factory.uploader(size),
+      this.repository
+    );
   }
 
   clonner(file: WebdavFile): ContentFileClonner {
