@@ -1,10 +1,9 @@
 import { Environment } from '@internxt/inxt-js';
-import { Readable } from 'stream';
 import { FileSize } from '../../domain/FileSize';
 import { RemoteFileContentsManagersFactory } from '../../domain/RemoteFileContentsManagersFactory';
 import { WebdavFile } from '../../domain/WebdavFile';
-import { EnvironmentContentFileUpoader } from './EnvironmentContentFileUpoader';
-import { EnvironmentContentFileDownloader } from './EnvironmentContnetFileDownloader';
+import { EnvironmentContentFileUpoader } from './upload/EnvironmentContentFileUpoader';
+import { EnvironmentContentFileDownloader } from './download/EnvironmentContnetFileDownloader';
 import { ContentFileDownloader } from '../../domain/ContentFileDownloader';
 import { ContentFileUploader } from '../../domain/ContentFileUploader';
 import { EnvironmentContentFileClonner } from './EnvironmentContentFileClonner';
@@ -44,18 +43,13 @@ export class EnvironmentRemoteFileContentManagersFactory
     );
   }
 
-  uploader(size: FileSize, contents: Readable): ContentFileUploader {
+  uploader(size: FileSize): ContentFileUploader {
     const fn =
       size.value >
       EnvironmentRemoteFileContentManagersFactory.MULTIPART_UPLOADE_SIZE_THRESHOLD
         ? this.environment.uploadMultipartFile
         : this.environment.upload;
 
-    return new EnvironmentContentFileUpoader(
-      fn,
-      this.bucket,
-      size.value,
-      Promise.resolve(contents)
-    );
+    return new EnvironmentContentFileUpoader(fn, this.bucket);
   }
 }

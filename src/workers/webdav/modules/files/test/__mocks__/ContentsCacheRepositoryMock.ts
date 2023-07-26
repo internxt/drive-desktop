@@ -1,9 +1,7 @@
 import { Readable } from 'stream';
-import { LocalFileConentsRepository } from '../../domain/LocalFileContentsRepository';
+import { ContentsCacheRepository } from '../../domain/ContentsCacheRepository';
 
-export class LocalFileConentsRepositoryMock
-  implements LocalFileConentsRepository
-{
+export class ContentsCacheRepositoryMock implements ContentsCacheRepository {
   existsMock = jest.fn();
   readMock = jest.fn();
   writeMock = jest.fn();
@@ -16,8 +14,8 @@ export class LocalFileConentsRepositoryMock
   read(fileId: string): Readable {
     return this.readMock(fileId);
   }
-  write(fileId: string, content: Readable): Promise<void> {
-    return this.writeMock(fileId, content);
+  write(fileId: string, content: Readable, size: number): Promise<void> {
+    return this.writeMock(fileId, content, size);
   }
   delete(fileId: string): Promise<void> {
     return this.deleteMock(fileId);

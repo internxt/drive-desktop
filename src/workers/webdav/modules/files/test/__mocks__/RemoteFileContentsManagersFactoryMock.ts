@@ -24,7 +24,7 @@ export class RemoteFileContentsManagersFactoryMock
     return this.mockDownload;
   }
 
-  uploader(_size: FileSize, _contents: Readable): ContentFileUploader {
+  uploader(_size: FileSize): ContentFileUploader {
     return this.mockUpload;
   }
 }

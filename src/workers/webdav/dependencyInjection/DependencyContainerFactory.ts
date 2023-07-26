@@ -35,7 +35,7 @@ import { ipc } from '../ipc';
 import { WebdavFolderRenamer } from '../modules/folders/application/WebdavFolderRenamer';
 import { WebdavFileRenamer } from '../modules/files/application/WebdavFileRenamer';
 import { CachedRemoteFileContentsManagersFactory } from '../modules/files/infrastructure/storage/CachedRemoteFileContentsManagersFactory';
-import { NodeLocalFileContentsRepository } from '../modules/files/infrastructure/storage/NodeLocalFileContentsRepository';
+import { FSContentsCacheRepository } from '../modules/files/infrastructure/storage/FSContentsCacheRepository';
 
 export class DependencyContainerFactory {
   private _container: DependencyContainer | undefined;
@@ -112,22 +112,24 @@ export class DependencyContainerFactory {
 
     const cachePath = await ipcRenderer.invoke('get-path', 'userData');
 
-    const localFileConentsRepository = new NodeLocalFileContentsRepository(
-      cachePath
-    );
+    const localFileConentsRepository = new FSContentsCacheRepository(cachePath);
 
     await localFileConentsRepository.initialize();
 
-    const fileContentRepository = new CachedRemoteFileContentsManagersFactory(
-      localFileConentsRepository,
-      new EnvironmentRemoteFileContentManagersFactory(environment, user.bucket)
-    );
+    const cachedContentsManagerFactory =
+      new CachedRemoteFileContentsManagersFactory(
+        localFileConentsRepository,
+        new EnvironmentRemoteFileContentManagersFactory(
+          environment,
+          user.bucket
+        )
+      );
 
     const eventBus = new NodeJsEventBus();
 
     const fileRenamer = new WebdavFileRenamer(
       fileRepository,
-      fileContentRepository,
+      cachedContentsManagerFactory,
       eventBus,
       ipc
     );
@@ -163,7 +165,7 @@ export class DependencyContainerFactory {
       fileClonner: new WebdavFileClonner(
         fileRepository,
         folderFinder,
-        fileContentRepository,
+        cachedContentsManagerFactory,
         eventBus,
         ipc
       ),
@@ -178,14 +180,14 @@ export class DependencyContainerFactory {
       fileCreator: new WebdavFileCreator(
         fileRepository,
         folderFinder,
-        fileContentRepository,
+        cachedContentsManagerFactory,
         temporalFileCollection,
         eventBus,
         ipc
       ),
       fileDownloader: new WebdavFileDownloader(
         fileRepository,
-        fileContentRepository,
+        cachedContentsManagerFactory,
         eventBus,
         ipc
       ),

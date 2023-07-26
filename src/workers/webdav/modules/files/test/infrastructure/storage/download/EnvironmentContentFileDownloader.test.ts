@@ -1,7 +1,7 @@
 import { Readable } from 'stream';
-import { EnvironmentContentFileDownloader } from '../../../infrastructure/storage/EnvironmentContnetFileDownloader';
-import { WebdavFileMother } from '../../domain/WebdavFileMother';
-import { createDownloadStrategy } from '../../__mocks__/environment/DownloadStratgeyFunctionMock';
+import { EnvironmentContentFileDownloader } from '../../../../infrastructure/storage/download/EnvironmentContnetFileDownloader';
+import { WebdavFileMother } from '../../../domain/WebdavFileMother';
+import { createDownloadStrategy } from '../../../__mocks__/environment/DownloadStratgeyFunctionMock';
 
 describe('Environment Content File Downloader', () => {
   const bucket = 'b51fd6af-cdac-51ec-b41c-21958aa4c2ae';

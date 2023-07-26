@@ -1,18 +1,18 @@
 import fs from 'fs/promises';
 import { createReadStream } from 'fs';
 import { Readable } from 'stream';
-import { NodeLocalFileContentsRepository } from '../../../infrastructure/storage/NodeLocalFileContentsRepository';
+import { FSContentsCacheRepository } from '../../../infrastructure/storage/FSContentsCacheRepository';
 jest.mock('fs/promises');
 jest.mock('fs');
 
 const whereToCreateIt = '/Getziujo/Turfiri/Ipfugiri';
 
-describe('Node FS local file contents repository', () => {
+describe('fs contents cache repository', () => {
   describe('exists', () => {
     it('returns true when the file exists', async () => {
       (<jest.Mock>fs.access).mockResolvedValue(Promise.resolve());
 
-      const repository = new NodeLocalFileContentsRepository(whereToCreateIt);
+      const repository = new FSContentsCacheRepository(whereToCreateIt);
 
       const result = await repository.exists(
         '544b943d-c663-5fe3-bd89-6a52bb80880e'
@@ -27,7 +27,7 @@ describe('Node FS local file contents repository', () => {
     it('returns false when the file does not exist', async () => {
       (<jest.Mock>fs.access).mockResolvedValue(Promise.reject());
 
-      const repository = new NodeLocalFileContentsRepository(whereToCreateIt);
+      const repository = new FSContentsCacheRepository(whereToCreateIt);
 
       const result = await repository.exists(
         '544b943d-c663-5fe3-bd89-6a52bb80880e'
@@ -44,7 +44,7 @@ describe('Node FS local file contents repository', () => {
     it('creates a readable for file given an existing file name', async () => {
       (<jest.Mock>createReadStream).mockResolvedValue(Readable.from(''));
 
-      const repository = new NodeLocalFileContentsRepository(whereToCreateIt);
+      const repository = new FSContentsCacheRepository(whereToCreateIt);
 
       repository.read('544b943d-c663-5fe3-bd89-6a52bb80880e');
 
@@ -58,11 +58,12 @@ describe('Node FS local file contents repository', () => {
     it('saves a file with the given name and override it if exists', async () => {
       (<jest.Mock>fs.writeFile).mockResolvedValue(Promise.resolve());
 
-      const repository = new NodeLocalFileContentsRepository(whereToCreateIt);
+      const repository = new FSContentsCacheRepository(whereToCreateIt);
 
       await repository.write(
         '544b943d-c663-5fe3-bd89-6a52bb80880e',
-        Readable.from('')
+        Readable.from(''),
+        10
       );
 
       expect((<jest.Mock>fs.writeFile).mock.calls[0][0]).toBe(
@@ -76,7 +77,7 @@ describe('Node FS local file contents repository', () => {
     it('deletes a file from the cahce', async () => {
       (<jest.Mock>fs.unlink).mockResolvedValue(Promise.resolve());
 
-      const repository = new NodeLocalFileContentsRepository(whereToCreateIt);
+      const repository = new FSContentsCacheRepository(whereToCreateIt);
 
       await repository.delete('544b943d-c663-5fe3-bd89-6a52bb80880e');
 
@@ -92,7 +93,7 @@ describe('Node FS local file contents repository', () => {
       (<jest.Mock>fs.stat).mockResolvedValue(
         Promise.resolve({ size: expectedSize })
       );
-      const repository = new NodeLocalFileContentsRepository(whereToCreateIt);
+      const repository = new FSContentsCacheRepository(whereToCreateIt);
 
       const result = await repository.usage();
 
@@ -103,7 +104,7 @@ describe('Node FS local file contents repository', () => {
       (<jest.Mock>fs.stat).mockResolvedValue(
         Promise.resolve({ size: 1244487453 })
       );
-      const repository = new NodeLocalFileContentsRepository(whereToCreateIt);
+      const repository = new FSContentsCacheRepository(whereToCreateIt);
 
       await repository.usage();
 
