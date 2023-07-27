@@ -22,6 +22,7 @@ import { UserUsageDecrementer } from '../modules/userUsage/application/UserUsage
 import { UserUsageIncrementer } from '../modules/userUsage/application/UserUsageIncrementer';
 import { WebdavUserUsageRepository } from '../modules/userUsage/domain/WebdavUserUsageRepository';
 import { WebdavEmptyFileCreator } from '../modules/files/application/WebdavEmptyFileCreator';
+import { DeleteTemporalFileMetadataOnFileCreated } from '../modules/files/application/temporalMetadata/DeleteTemporalFileMetadataOnFileCreated';
 
 export interface DependencyContainer {
   drive: Axios;
@@ -33,6 +34,7 @@ export interface DependencyContainer {
   userUsageIncrementer: UserUsageIncrementer;
   userUsageDecrementer: UserUsageDecrementer;
   incrementDriveUsageOnFileCreated: IncrementDriveUsageOnFileCreated;
+  deleteTemporalFileMetadataOnFileCreated: DeleteTemporalFileMetadataOnFileCreated;
 
   fileClonner: WebdavFileClonner;
   fileDeleter: WebdavFileDeleter;

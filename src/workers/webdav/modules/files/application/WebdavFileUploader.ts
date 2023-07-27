@@ -84,8 +84,6 @@ export class WebdavFileUploader {
 
     await this.repository.add(file);
 
-    this.temporalFileCollection.remove(filePath.value);
-
     await this.eventBus.publish(file.pullDomainEvents());
 
     return file;
