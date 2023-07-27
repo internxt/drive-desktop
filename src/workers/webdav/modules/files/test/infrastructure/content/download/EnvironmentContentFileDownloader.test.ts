@@ -1,5 +1,5 @@
 import { Readable } from 'stream';
-import { EnvironmentContentFileDownloader } from '../../../../infrastructure/storage/download/EnvironmentContnetFileDownloader';
+import { EnvironmentContentFileDownloader } from '../../../../infrastructure/content/download/EnvironmentContnetFileDownloader';
 import { WebdavFileMother } from '../../../domain/WebdavFileMother';
 import { createDownloadStrategy } from '../../../__mocks__/environment/DownloadStratgeyFunctionMock';
 

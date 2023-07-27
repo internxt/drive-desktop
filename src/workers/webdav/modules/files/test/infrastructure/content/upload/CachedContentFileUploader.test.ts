@@ -1,4 +1,4 @@
-import { CachedContentFileUploader } from '../../../../infrastructure/storage/upload/CachedContentFileUploader';
+import { CachedContentFileUploader } from '../../../../infrastructure/content/upload/CachedContentFileUploader';
 import { ContentFileUploaderMock } from '../../../__mocks__/ContentFileUploaderMock';
 import { ContentsCacheRepositoryMock } from '../../../__mocks__/ContentsCacheRepositoryMock';
 import { Readable } from 'stream';

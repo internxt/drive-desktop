@@ -9,7 +9,7 @@ import { ContentFileUploader } from '../../domain/ContentFileUploader';
 import { EnvironmentContentFileClonner } from './EnvironmentContentFileClonner';
 import { ContentFileClonner } from '../../domain/ContentFileClonner';
 
-export class EnvironmentRemoteFileContentManagersFactory
+export class EnvironmentRemoteFileContentsManagersFactory
   implements RemoteFileContentsManagersFactory
 {
   private static MULTIPART_UPLOADE_SIZE_THRESHOLD = 5 * 1024 * 1024 * 1024;
@@ -22,7 +22,7 @@ export class EnvironmentRemoteFileContentManagersFactory
   clonner(file: WebdavFile): ContentFileClonner {
     const uploadFunciton =
       file.size >
-      EnvironmentRemoteFileContentManagersFactory.MULTIPART_UPLOADE_SIZE_THRESHOLD
+      EnvironmentRemoteFileContentsManagersFactory.MULTIPART_UPLOADE_SIZE_THRESHOLD
         ? this.environment.uploadMultipartFile
         : this.environment.upload;
 
@@ -46,7 +46,7 @@ export class EnvironmentRemoteFileContentManagersFactory
   uploader(size: FileSize): ContentFileUploader {
     const fn =
       size.value >
-      EnvironmentRemoteFileContentManagersFactory.MULTIPART_UPLOADE_SIZE_THRESHOLD
+      EnvironmentRemoteFileContentsManagersFactory.MULTIPART_UPLOADE_SIZE_THRESHOLD
         ? this.environment.uploadMultipartFile
         : this.environment.upload;
 

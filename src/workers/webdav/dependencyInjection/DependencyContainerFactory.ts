@@ -13,7 +13,7 @@ import { WebdavFileMimeTypeResolver } from '../modules/files/application/WebdavF
 import { WebdavFileMover } from '../modules/files/application/WebdavFileMover';
 import { HttpWebdavFileRepository } from '../modules/files/infrastructure/persistance/HttpWebdavFileRepository';
 import { InMemoryTemporalFileMetadataCollection } from '../modules/files/infrastructure/persistance/InMemoryTemporalFileMetadataCollection';
-import { EnvironmentRemoteFileContentManagersFactory } from '../modules/files/infrastructure/storage/EnvironmentRemoteFileContentManagersFactory';
+import { EnvironmentRemoteFileContentsManagersFactory } from '../modules/files/infrastructure/content/EnvironmentRemoteFileContentsManagersFactory';
 import { WebdavFolderCreator } from '../modules/folders/application/WebdavFolderCreator';
 import { WebdavFolderDeleter } from '../modules/folders/application/WebdavFolderDeleter';
 import { WebdavFolderFinder } from '../modules/folders/application/WebdavFolderFinder';
@@ -34,8 +34,8 @@ import { DependencyContainer } from './DependencyContainer';
 import { ipc } from '../ipc';
 import { WebdavFolderRenamer } from '../modules/folders/application/WebdavFolderRenamer';
 import { WebdavFileRenamer } from '../modules/files/application/WebdavFileRenamer';
-import { CachedRemoteFileContentsManagersFactory } from '../modules/files/infrastructure/storage/CachedRemoteFileContentsManagersFactory';
-import { FSContentsCacheRepository } from '../modules/files/infrastructure/storage/FSContentsCacheRepository';
+import { CachedRemoteFileContentsManagersFactory } from '../modules/files/infrastructure/content/CachedRemoteFileContentsManagersFactory';
+import { FSContentsCacheRepository } from '../modules/files/infrastructure/content/FSContentsCacheRepository';
 
 export class DependencyContainerFactory {
   private _container: DependencyContainer | undefined;
@@ -119,7 +119,7 @@ export class DependencyContainerFactory {
     const cachedContentsManagerFactory =
       new CachedRemoteFileContentsManagersFactory(
         localFileConentsRepository,
-        new EnvironmentRemoteFileContentManagersFactory(
+        new EnvironmentRemoteFileContentsManagersFactory(
           environment,
           user.bucket
         )

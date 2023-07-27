@@ -1,5 +1,5 @@
 import { Readable } from 'stream';
-import { EnvironmentContentFileClonner } from '../../../infrastructure/storage/EnvironmentContentFileClonner';
+import { EnvironmentContentFileClonner } from '../../../infrastructure/content/EnvironmentContentFileClonner';
 import { WebdavFileMother } from '../../domain/WebdavFileMother';
 import { createDownloadStrategy } from '../../__mocks__/environment/DownloadStratgeyFunctionMock';
 import { createUploadStrategy } from '../../__mocks__/environment/UploadStrategyFunciontMock';

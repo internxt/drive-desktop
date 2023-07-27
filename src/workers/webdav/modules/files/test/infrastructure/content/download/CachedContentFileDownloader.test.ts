@@ -1,5 +1,5 @@
 import { Readable } from 'stream';
-import { CachedContentFileDownloader } from '../../../../infrastructure/storage/download/CachedContentFileDownloader';
+import { CachedContentFileDownloader } from '../../../../infrastructure/content/download/CachedContentFileDownloader';
 import { WebdavFileMother } from '../../../domain/WebdavFileMother';
 import { ContentFileDownloaderMock } from '../../../__mocks__/ContentFileDownloaderMock';
 import { ContentsCacheRepositoryMock } from '../../../__mocks__/ContentsCacheRepositoryMock';

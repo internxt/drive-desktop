@@ -1,5 +1,5 @@
 import { Readable } from 'stream';
-import { EnvironmentContentFileUpoader } from '../../../../infrastructure/storage/upload/EnvironmentContentFileUpoader';
+import { EnvironmentContentFileUpoader } from '../../../../infrastructure/content/upload/EnvironmentContentFileUpoader';
 import { createUploadStrategy } from '../../../__mocks__/environment/UploadStrategyFunciontMock';
 
 describe('Environment Content File Uploader', () => {
