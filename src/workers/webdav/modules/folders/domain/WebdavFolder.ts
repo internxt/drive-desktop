@@ -154,8 +154,10 @@ export class WebdavFolder extends AggregateRoot {
     return {
       id: this.id,
       parentId: this._parentId || 0,
-      updatedAt: this.updatedAt.getTime(),
-      createdAt: this.createdAt.getTime(),
+      updatedAt: this.updatedAt.toISOString(),
+      createdAt: this.createdAt.toISOString(),
+      status: this._status.value,
+      path: this._path.value,
     };
   }
 }

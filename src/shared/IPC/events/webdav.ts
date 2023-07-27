@@ -23,7 +23,8 @@ type TrackedWebdavServerActions = Capitalize<
   (typeof trackedEventsActions)[number]
 >;
 
-export type TrackedWebdavServerEventsActions = `${TrackedWebdavServerEvents} ${TrackedWebdavServerActions}`;
+export type TrackedWebdavServerEventsActions =
+  `${TrackedWebdavServerEvents} ${TrackedWebdavServerActions}`;
 
 export type WebdavErrorContext = {
   action: TrackedWebdavServerEvents;
@@ -107,6 +108,12 @@ export type WebdavFlowEvents = {
     nameWithExtension: string;
     size: number;
     processInfo: ProcessInfo;
+  }) => void;
+  WEBDAV_FILE_CREATED: (payload: {
+    name: string;
+    extension: string;
+    nameWithExtension: string;
+    size: number;
   }) => void;
 };
 

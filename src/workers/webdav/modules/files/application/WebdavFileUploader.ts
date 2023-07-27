@@ -12,7 +12,7 @@ import { WebdavServerEventBus } from '../../shared/domain/WebdavServerEventBus';
 import { ContentFileUploader } from '../domain/ContentFileUploader';
 import { WebdavIpc } from '../../../ipc';
 
-export class WebdavFileCreator {
+export class WebdavFileUploader {
   constructor(
     private readonly repository: WebdavFileRepository,
     private readonly folderFinder: WebdavFolderFinder,
@@ -91,13 +91,7 @@ export class WebdavFileCreator {
     return file;
   }
 
-  async run(
-    path: string,
-    size: number
-  ): Promise<{
-    stream: Writable;
-    upload: Promise<WebdavFile['fileId']>;
-  }> {
+  async run(path: string, size: number): Promise<Writable> {
     const fileSize = new FileSize(size);
     const filePath = new FilePath(path);
 
@@ -137,9 +131,6 @@ export class WebdavFileCreator {
         });
       });
 
-    return {
-      stream,
-      upload,
-    };
+    return stream;
   }
 }

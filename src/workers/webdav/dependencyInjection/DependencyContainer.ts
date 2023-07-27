@@ -1,6 +1,6 @@
 import { Axios } from 'axios';
 import { WebdavFileClonner } from '../modules/files/application/WebdavFileClonner';
-import { WebdavFileCreator } from '../modules/files/application/WebdavFileCreator';
+import { WebdavFileUploader } from '../modules/files/application/WebdavFileUploader';
 import { WebdavFileDeleter } from '../modules/files/application/WebdavFileDeleter';
 import { WebdavFileDownloader } from '../modules/files/application/WebdavFileDownloader';
 import { WebdavFileMimeTypeResolver } from '../modules/files/application/WebdavFileMimeTypeResolver';
@@ -36,7 +36,7 @@ export interface DependencyContainer {
   fileClonner: WebdavFileClonner;
   fileDeleter: WebdavFileDeleter;
   fileMover: WebdavFileMover;
-  fileCreator: WebdavFileCreator;
+  fileCreator: WebdavFileUploader;
   fileDownloader: WebdavFileDownloader;
   fileMimeTypeResolver: WebdavFileMimeTypeResolver;
   fileRenamer: WebdavFileRenamer;
