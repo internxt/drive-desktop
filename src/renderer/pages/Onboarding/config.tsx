@@ -230,6 +230,7 @@ export const SLIDES: OnboardingSlide[] = [
       );
     },
   },
+  /* [BACKUPS] onboarding backups slide disabled while beta developing
   {
     name: 'Backups Slide',
     component: (props) => {
@@ -275,7 +276,7 @@ export const SLIDES: OnboardingSlide[] = [
         </div>
       );
     },
-  },
+  },*/
   {
     name: 'Onboarding Completed',
     component: (props) => {
