@@ -23,7 +23,8 @@ type TrackedWebdavServerActions = Capitalize<
   (typeof trackedEventsActions)[number]
 >;
 
-export type TrackedWebdavServerEventsActions = `${TrackedWebdavServerEvents} ${TrackedWebdavServerActions}`;
+export type TrackedWebdavServerEventsActions =
+  `${TrackedWebdavServerEvents} ${TrackedWebdavServerActions}`;
 
 export type WebdavErrorContext = {
   action: TrackedWebdavServerEvents;
@@ -54,6 +55,16 @@ type ProcessInfo = {
 };
 
 export type WebdavFlowEvents = {
+  WEBDAV_FOLDER_CREATING: (payload: { name: string }) => void;
+  WEBDAV_FOLDER_CREATED: (payload: { name: string }) => void;
+  WEBDAV_FOLDER_RENAMING: (payload: {
+    oldName: string;
+    newName: string;
+  }) => void;
+  WEBDAV_FOLDER_RENAMED: (payload: {
+    oldName: string;
+    newName: string;
+  }) => void;
   WEBDAV_FILE_UPLOADING: (payload: {
     name: string;
     extension: string;
@@ -83,6 +94,12 @@ export type WebdavFlowEvents = {
     processInfo: ProcessInfo;
   }) => void;
   WEBDAV_FILE_DELETED: (payload: {
+    name: string;
+    extension: string;
+    nameWithExtension: string;
+    size: number;
+  }) => void;
+  WEBDAV_FILE_DELETING: (payload: {
     name: string;
     extension: string;
     nameWithExtension: string;

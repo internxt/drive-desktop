@@ -123,7 +123,7 @@ export class DependencyContainerFactory {
     );
 
     const folderFinder = new WebdavFolderFinder(folderRepository);
-    const folderRenamer = new WebdavFolderRenamer(folderRepository);
+    const folderRenamer = new WebdavFolderRenamer(folderRepository, ipc);
 
     const temporalFileCollection = new InMemoryTemporalFileMetadataCollection();
 
@@ -184,7 +184,11 @@ export class DependencyContainerFactory {
 
       folderFinder,
       folderRenamer,
-      folderCreator: new WebdavFolderCreator(folderRepository, folderFinder),
+      folderCreator: new WebdavFolderCreator(
+        folderRepository,
+        folderFinder,
+        ipc
+      ),
       folderMover: new WebdavFolderMover(
         folderRepository,
         folderFinder,

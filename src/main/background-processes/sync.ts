@@ -7,10 +7,8 @@ import {
 } from '../../workers/types';
 
 import eventBus from '../event-bus';
-import { getTray } from '../tray';
+import { setTrayStatus } from '../tray';
 import { broadcastToWindows } from '../windows';
-
-import { getSyncIssues } from './process-issues';
 
 export type SyncStatus = 'STANDBY' | 'RUNNING' | 'FAILED';
 
@@ -22,25 +20,9 @@ export function getSyncStatus() {
 
 ipcMain.handle('get-sync-status', getSyncStatus);
 
-export function setTraySyncStatus(newStatus: SyncStatus) {
-  const tray = getTray();
-  if (newStatus === 'RUNNING') {
-    tray?.setState('SYNCING');
-  } else if (getSyncIssues().length !== 0) {
-    tray?.setState('ISSUES');
-  } else {
-    tray?.setState('STANDBY');
-  }
-}
-
-/**
- * TODO Should listen to RemoteSyncManager status changes
- *
- */
-function changeSyncStatus(newStatus: SyncStatus) {
+export function changeSyncStatus(newStatus: SyncStatus) {
   syncStatus = newStatus;
   broadcastToWindows('sync-status-changed', newStatus);
-  setTraySyncStatus(newStatus);
 }
 
 export type SyncStoppedPayload =
@@ -59,10 +41,10 @@ ipcMain.on('SYNC_INFO_UPDATE', (_, payload: ProcessInfoUpdatePayload) => {
 
 eventBus.on('USER_LOGGED_OUT', () => {
   ipcMain.emit('stop-sync-process');
-  setTraySyncStatus('STANDBY');
+  setTrayStatus('STANDBY');
 });
 
 eventBus.on('USER_WAS_UNAUTHORIZED', () => {
   ipcMain.emit('stop-sync-process');
-  setTraySyncStatus('STANDBY');
+  setTrayStatus('STANDBY');
 });
