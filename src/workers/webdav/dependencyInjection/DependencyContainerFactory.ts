@@ -34,6 +34,7 @@ import { DependencyContainer } from './DependencyContainer';
 import { ipc } from '../ipc';
 import { WebdavFolderRenamer } from '../modules/folders/application/WebdavFolderRenamer';
 import { WebdavFileRenamer } from '../modules/files/application/WebdavFileRenamer';
+import { WebdavEmptyFileCreator } from '../modules/files/application/WebdavEmptyFileCreator';
 
 export class DependencyContainerFactory {
   private _container: DependencyContainer | undefined;
@@ -165,11 +166,17 @@ export class DependencyContainerFactory {
         eventBus,
         ipc
       ),
-      fileCreator: new WebdavFileUploader(
+      fileUploader: new WebdavFileUploader(
         fileRepository,
         folderFinder,
         fileContentRepository,
         temporalFileCollection,
+        eventBus,
+        ipc
+      ),
+      emptyFileCreator: new WebdavEmptyFileCreator(
+        fileRepository,
+        folderFinder,
         eventBus,
         ipc
       ),

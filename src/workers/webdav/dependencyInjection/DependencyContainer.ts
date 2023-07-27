@@ -21,6 +21,7 @@ import { UsedSpaceCalculator } from '../modules/userUsage/application/UsedSpaceC
 import { UserUsageDecrementer } from '../modules/userUsage/application/UserUsageDecrementer';
 import { UserUsageIncrementer } from '../modules/userUsage/application/UserUsageIncrementer';
 import { WebdavUserUsageRepository } from '../modules/userUsage/domain/WebdavUserUsageRepository';
+import { WebdavEmptyFileCreator } from '../modules/files/application/WebdavEmptyFileCreator';
 
 export interface DependencyContainer {
   drive: Axios;
@@ -36,7 +37,8 @@ export interface DependencyContainer {
   fileClonner: WebdavFileClonner;
   fileDeleter: WebdavFileDeleter;
   fileMover: WebdavFileMover;
-  fileCreator: WebdavFileUploader;
+  fileUploader: WebdavFileUploader;
+  emptyFileCreator: WebdavEmptyFileCreator;
   fileDownloader: WebdavFileDownloader;
   fileMimeTypeResolver: WebdavFileMimeTypeResolver;
   fileRenamer: WebdavFileRenamer;

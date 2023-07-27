@@ -27,7 +27,7 @@ import {
   MimeTypeInfo,
   RenameInfo,
 } from '@internxt/webdav-server';
-import { Readable, Writable } from 'stream';
+import { Readable, Stream, Writable } from 'stream';
 import Logger from 'electron-log';
 import { DebugPhysicalSerializer } from './Serializer';
 import { handleFileSystemError } from '../error-handling';
@@ -176,7 +176,21 @@ export class InternxtFileSystem extends FileSystem {
       this.resources[path.toString(false)] = new PhysicalFileSystemResource();
     }
 
-    this.container.fileCreator
+    if (ctx.estimatedSize === -1) {
+      this.container.emptyFileCreator
+        .run(path.toString(false))
+        .then((stream: Writable) => {
+          callback(undefined, stream);
+        })
+        .catch((error: Error) => {
+          handleFileSystemError(error, 'Upload', 'File', ctx);
+          callback(error);
+        });
+
+      return;
+    }
+
+    this.container.fileUploader
       .run(path.toString(false), ctx.estimatedSize)
       .then((stream: Writable) => {
         callback(undefined, stream);
