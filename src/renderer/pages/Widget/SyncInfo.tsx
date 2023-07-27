@@ -115,10 +115,13 @@ export default function SyncInfo() {
           </button>
         </div>
       </div>
-      <BackupsBanner
-        onVisibilityChanged={setBackupsBannerVisible}
-        className={items.length > 0 ? 'mt-8' : ''}
-      />
+      {
+        /* [BACKUPS] widget info disabled while beta developing
+        <BackupsBanner
+          onVisibilityChanged={setBackupsBannerVisible}
+          className={items.length > 0 ? 'mt-8' : ''}
+        />*/
+      }
       {items.length === 0 && !backupsBannerVisible && <Empty />}
       <div className="scroll no-scrollbar h-full overflow-y-auto">
         <AnimatePresence>
@@ -209,7 +212,7 @@ function Item({
     description = 'Deleted';
   } else if (action === 'RENAMING') {
     description = 'Renaming';
-  }  else if (action === 'RENAMED') {
+  } else if (action === 'RENAMED') {
     description = 'Renamed';
   } else if (errorName) {
     description = shortMessages[errorName];
