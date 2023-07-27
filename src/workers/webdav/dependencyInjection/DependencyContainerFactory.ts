@@ -6,7 +6,7 @@ import configStore from 'main/config';
 import { getClients } from '../../../shared/HttpClient/backgroud-process-clients';
 import crypt from '../../utils/crypt';
 import { WebdavFileClonner } from '../modules/files/application/WebdavFileClonner';
-import { WebdavFileCreator } from '../modules/files/application/WebdavFileCreator';
+import { WebdavFileUploader } from '../modules/files/application/WebdavFileUploader';
 import { WebdavFileDeleter } from '../modules/files/application/WebdavFileDeleter';
 import { WebdavFileDownloader } from '../modules/files/application/WebdavFileDownloader';
 import { WebdavFileMimeTypeResolver } from '../modules/files/application/WebdavFileMimeTypeResolver';
@@ -34,12 +34,16 @@ import { DependencyContainer } from './DependencyContainer';
 import { ipc } from '../ipc';
 import { WebdavFolderRenamer } from '../modules/folders/application/WebdavFolderRenamer';
 import { WebdavFileRenamer } from '../modules/files/application/WebdavFileRenamer';
+import { WebdavEmptyFileCreator } from '../modules/files/application/WebdavEmptyFileCreator';
+import { DeleteTemporalFileMetadataOnFileCreated } from '../modules/files/application/temporalMetadata/DeleteTemporalFileMetadataOnFileCreated';
+import { TemporalFileMetadataDeleter } from '../modules/files/application/temporalMetadata/TemporalFileMetadataDeleter';
 
 export class DependencyContainerFactory {
   private _container: DependencyContainer | undefined;
 
   static readonly subscriptors: Array<keyof DependencyContainer> = [
     'incrementDriveUsageOnFileCreated',
+    'deleteTemporalFileMetadataOnFileCreated',
   ];
 
   eventSubscriptors(
@@ -134,6 +138,10 @@ export class DependencyContainerFactory {
 
     const userUsageIncrementer = new UserUsageIncrementer(userUsageRepository);
 
+    const temporalFileMetadataDeleter = new TemporalFileMetadataDeleter(
+      temporalFileCollection
+    );
+
     const container = {
       drive: clients.drive,
       newDrive: clients.newDrive,
@@ -149,6 +157,10 @@ export class DependencyContainerFactory {
       incrementDriveUsageOnFileCreated: new IncrementDriveUsageOnFileCreated(
         userUsageIncrementer
       ),
+      deleteTemporalFileMetadataOnFileCreated:
+        new DeleteTemporalFileMetadataOnFileCreated(
+          temporalFileMetadataDeleter
+        ),
 
       fileClonner: new WebdavFileClonner(
         fileRepository,
@@ -165,11 +177,17 @@ export class DependencyContainerFactory {
         eventBus,
         ipc
       ),
-      fileCreator: new WebdavFileCreator(
+      fileUploader: new WebdavFileUploader(
         fileRepository,
         folderFinder,
         fileContentRepository,
         temporalFileCollection,
+        eventBus,
+        ipc
+      ),
+      emptyFileCreator: new WebdavEmptyFileCreator(
+        fileRepository,
+        folderFinder,
         eventBus,
         ipc
       ),

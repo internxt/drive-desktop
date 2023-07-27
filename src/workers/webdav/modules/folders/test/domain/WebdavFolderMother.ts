@@ -1,6 +1,9 @@
 import { WebdavFile } from '../../../files/domain/WebdavFile';
 import { FolderStatuses } from '../../domain/FolderStatus';
-import { WebdavFolder } from '../../domain/WebdavFolder';
+import {
+  WebdavFolder,
+  WebdavFolderAttributes,
+} from '../../domain/WebdavFolder';
 
 export class WebdavFolderMother {
   static containing(file: WebdavFile) {
@@ -23,6 +26,15 @@ export class WebdavFolderMother {
       createdAt: new Date().toISOString(),
       status: FolderStatuses.EXISTS,
     });
+  }
+
+  static fromPartials(partial: Partial<WebdavFolderAttributes>) {
+    const folder = WebdavFolderMother.any();
+
+    return {
+      ...folder.toPrimitives(),
+      ...partial,
+    };
   }
 
   static in(folderId: number, path: string) {

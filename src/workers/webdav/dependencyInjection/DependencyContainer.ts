@@ -1,6 +1,6 @@
 import { Axios } from 'axios';
 import { WebdavFileClonner } from '../modules/files/application/WebdavFileClonner';
-import { WebdavFileCreator } from '../modules/files/application/WebdavFileCreator';
+import { WebdavFileUploader } from '../modules/files/application/WebdavFileUploader';
 import { WebdavFileDeleter } from '../modules/files/application/WebdavFileDeleter';
 import { WebdavFileDownloader } from '../modules/files/application/WebdavFileDownloader';
 import { WebdavFileMimeTypeResolver } from '../modules/files/application/WebdavFileMimeTypeResolver';
@@ -21,6 +21,8 @@ import { UsedSpaceCalculator } from '../modules/userUsage/application/UsedSpaceC
 import { UserUsageDecrementer } from '../modules/userUsage/application/UserUsageDecrementer';
 import { UserUsageIncrementer } from '../modules/userUsage/application/UserUsageIncrementer';
 import { WebdavUserUsageRepository } from '../modules/userUsage/domain/WebdavUserUsageRepository';
+import { WebdavEmptyFileCreator } from '../modules/files/application/WebdavEmptyFileCreator';
+import { DeleteTemporalFileMetadataOnFileCreated } from '../modules/files/application/temporalMetadata/DeleteTemporalFileMetadataOnFileCreated';
 
 export interface DependencyContainer {
   drive: Axios;
@@ -32,11 +34,13 @@ export interface DependencyContainer {
   userUsageIncrementer: UserUsageIncrementer;
   userUsageDecrementer: UserUsageDecrementer;
   incrementDriveUsageOnFileCreated: IncrementDriveUsageOnFileCreated;
+  deleteTemporalFileMetadataOnFileCreated: DeleteTemporalFileMetadataOnFileCreated;
 
   fileClonner: WebdavFileClonner;
   fileDeleter: WebdavFileDeleter;
   fileMover: WebdavFileMover;
-  fileCreator: WebdavFileCreator;
+  fileUploader: WebdavFileUploader;
+  emptyFileCreator: WebdavEmptyFileCreator;
   fileDownloader: WebdavFileDownloader;
   fileMimeTypeResolver: WebdavFileMimeTypeResolver;
   fileRenamer: WebdavFileRenamer;

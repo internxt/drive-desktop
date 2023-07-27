@@ -3,6 +3,7 @@ import { WebdavDomainEvent } from '../../shared/domain/WebdavDomainEvent';
 export type CreatedWebdavFileDomainEventAttributes = {
   readonly size: number;
   readonly type: string;
+  readonly path: string;
 };
 
 export class FileCreatedDomainEvent extends WebdavDomainEvent {
@@ -10,17 +11,20 @@ export class FileCreatedDomainEvent extends WebdavDomainEvent {
 
   readonly size: number;
   readonly type: string;
+  readonly path: string;
 
   constructor({
     aggregateId,
     eventId,
     size,
     type,
+    path,
   }: {
     aggregateId: string;
     eventId?: string;
     size: number;
     type: string;
+    path: string;
   }) {
     super({
       eventName: FileCreatedDomainEvent.EVENT_NAME,
@@ -29,11 +33,12 @@ export class FileCreatedDomainEvent extends WebdavDomainEvent {
     });
     this.size = size;
     this.type = type;
+    this.path = path;
   }
 
   toPrimitives(): CreatedWebdavFileDomainEventAttributes {
-    const { size, type } = this;
+    const { size, type, path } = this;
 
-    return { size, type };
+    return { size, type, path };
   }
 }

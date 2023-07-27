@@ -1,7 +1,7 @@
 import { WebdavFolderMother } from '../../../folders/test/domain/WebdavFolderMother';
 import { WebdavFolderRepositoryMock } from '../../../folders/test/__mocks__/WebdavFolderRepositoryMock';
 import { WebdavFolderFinder } from '../../../folders/application/WebdavFolderFinder';
-import { WebdavFileCreator } from '../../application/WebdavFileCreator';
+import { WebdavFileUploader } from '../../application/WebdavFileUploader';
 import { FileMetadataCollection } from '../../domain/FileMetadataCollection';
 import { InMemoryTemporalFileMetadataCollection } from '../../infrastructure/persistance/InMemoryTemporalFileMetadataCollection';
 import { FileContentRepositoryMock } from '../__mocks__/FileContentRepositoryMock';
@@ -17,7 +17,7 @@ describe('Webdav File Creator', () => {
   let eventBus: EventBusMock;
   let ipc: WebdavIpcMock;
 
-  let SUT: WebdavFileCreator;
+  let SUT: WebdavFileUploader;
 
   beforeEach(() => {
     fileReposiotry = new WebdavFileRepositoryMock();
@@ -28,7 +28,7 @@ describe('Webdav File Creator', () => {
     eventBus = new EventBusMock();
     ipc = new WebdavIpcMock();
 
-    SUT = new WebdavFileCreator(
+    SUT = new WebdavFileUploader(
       fileReposiotry,
       folderFinder,
       contentsRepository,
@@ -72,13 +72,15 @@ describe('Webdav File Creator', () => {
     contentsRepository.mockUpload.uploadMock.mockResolvedValueOnce(
       createdFileId
     );
-    fileReposiotry.mockAdd.mockImplementationOnce(() => {
-      // returns Promise<void>
+    const inserted = new Promise<void>((resolve) => {
+      fileReposiotry.mockAdd.mockImplementationOnce(() => {
+        resolve();
+      });
     });
 
-    const { upload } = await SUT.run(path, size);
+    await SUT.run(path, size);
 
-    await upload;
+    await inserted;
 
     expect(eventBus.publishMock.mock.calls[0][0][0].eventName).toBe(
       'webdav.file.created'
@@ -97,7 +99,7 @@ describe('Webdav File Creator', () => {
     folderRepository.mockSearch.mockReturnValueOnce(folder);
     contentsRepository.mockUpload.uploadMock.mockResolvedValueOnce('');
 
-    const { stream } = await SUT.run(path, size);
+    const stream = await SUT.run(path, size);
 
     expect(stream.writable).toBe(true);
   });
