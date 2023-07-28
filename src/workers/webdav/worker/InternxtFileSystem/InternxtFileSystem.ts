@@ -177,8 +177,8 @@ export class InternxtFileSystem extends FileSystem {
     }
 
     this.container.fileCreator
-      .run(path.toString(false), ctx.estimatedSize)
-      .then(({ stream }: { stream: Writable; upload: Promise<string> }) => {
+      .run(path.toString(false))
+      .then(({ stream }: { stream: Writable }) => {
         callback(undefined, stream);
       })
       .catch((error: Error) => {
