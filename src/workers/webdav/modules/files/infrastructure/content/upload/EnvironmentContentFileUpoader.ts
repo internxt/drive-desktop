@@ -3,8 +3,8 @@ import { EventEmitter, Readable } from 'stream';
 import {
   ContentFileUploader,
   FileUploadEvents,
-} from '../../domain/ContentFileUploader';
-import { Stopwatch } from '../../../../../../shared/types/Stopwatch';
+} from '../../../domain/ContentFileUploader';
+import { Stopwatch } from '../../../../../../../shared/types/Stopwatch';
 
 export class EnvironmentContentFileUpoader implements ContentFileUploader {
   private eventEmitter: EventEmitter;
@@ -12,24 +12,20 @@ export class EnvironmentContentFileUpoader implements ContentFileUploader {
 
   constructor(
     private readonly fn: UploadStrategyFunction,
-    private readonly bucket: string,
-    private readonly size: number,
-    private readonly file: Promise<Readable>
+    private readonly bucket: string
   ) {
     this.eventEmitter = new EventEmitter();
     this.stopwatch = new Stopwatch();
   }
 
-  async upload(): Promise<string> {
-    const source = await this.file;
-
+  async upload(contents: Readable, size: number): Promise<string> {
     this.eventEmitter.emit('start');
     this.stopwatch.start();
 
     return new Promise((resolve, reject) => {
       this.fn(this.bucket, {
-        source,
-        fileSize: this.size,
+        contents,
+        fileSize: size,
         finishedCallback: (err: Error | null, fileId: string) => {
           this.stopwatch.finish();
 

@@ -1,17 +1,16 @@
 import { Environment } from '@internxt/inxt-js';
-import { Readable } from 'stream';
 import { FileSize } from '../../domain/FileSize';
-import { RemoteFileContentsRepository } from '../../domain/RemoteFileContentsRepository';
+import { RemoteFileContentsManagersFactory } from '../../domain/RemoteFileContentsManagersFactory';
 import { WebdavFile } from '../../domain/WebdavFile';
-import { EnvironmentContentFileUpoader } from './EnvironmentContentFileUpoader';
-import { EnvironmentContentFileDownloader } from './EnvironmentContnetFileDownloader';
+import { EnvironmentContentFileUpoader } from './upload/EnvironmentContentFileUpoader';
+import { EnvironmentContentFileDownloader } from './download/EnvironmentContnetFileDownloader';
 import { ContentFileDownloader } from '../../domain/ContentFileDownloader';
 import { ContentFileUploader } from '../../domain/ContentFileUploader';
 import { EnvironmentContentFileClonner } from './EnvironmentContentFileClonner';
 import { ContentFileClonner } from '../../domain/ContentFileClonner';
 
-export class EnvironmentFileContentRepository
-  implements RemoteFileContentsRepository
+export class EnvironmentRemoteFileContentsManagersFactory
+  implements RemoteFileContentsManagersFactory
 {
   private static MULTIPART_UPLOADE_SIZE_THRESHOLD = 5 * 1024 * 1024 * 1024;
 
@@ -23,7 +22,7 @@ export class EnvironmentFileContentRepository
   clonner(file: WebdavFile): ContentFileClonner {
     const uploadFunciton =
       file.size >
-      EnvironmentFileContentRepository.MULTIPART_UPLOADE_SIZE_THRESHOLD
+      EnvironmentRemoteFileContentsManagersFactory.MULTIPART_UPLOADE_SIZE_THRESHOLD
         ? this.environment.uploadMultipartFile
         : this.environment.upload;
 
@@ -37,26 +36,20 @@ export class EnvironmentFileContentRepository
     return clonner;
   }
 
-  downloader(file: WebdavFile): ContentFileDownloader {
+  downloader(): ContentFileDownloader {
     return new EnvironmentContentFileDownloader(
       this.environment.download,
-      this.bucket,
-      file
+      this.bucket
     );
   }
 
-  uploader(size: FileSize, contents: Readable): ContentFileUploader {
+  uploader(size: FileSize): ContentFileUploader {
     const fn =
       size.value >
-      EnvironmentFileContentRepository.MULTIPART_UPLOADE_SIZE_THRESHOLD
+      EnvironmentRemoteFileContentsManagersFactory.MULTIPART_UPLOADE_SIZE_THRESHOLD
         ? this.environment.uploadMultipartFile
         : this.environment.upload;
 
-    return new EnvironmentContentFileUpoader(
-      fn,
-      this.bucket,
-      size.value,
-      Promise.resolve(contents)
-    );
+    return new EnvironmentContentFileUpoader(fn, this.bucket);
   }
 }

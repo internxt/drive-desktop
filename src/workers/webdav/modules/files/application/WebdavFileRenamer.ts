@@ -2,7 +2,7 @@ import { WebdavServerEventBus } from '../../shared/domain/WebdavServerEventBus';
 import { ActionNotPermitedError } from '../domain/errors/ActionNotPermitedError';
 import { FileAlreadyExistsError } from '../domain/errors/FileAlreadyExistsError';
 import { FilePath } from '../domain/FilePath';
-import { RemoteFileContentsRepository } from '../domain/RemoteFileContentsRepository';
+import { RemoteFileContentsManagersFactory } from '../domain/RemoteFileContentsManagersFactory';
 import { WebdavFile } from '../domain/WebdavFile';
 import { WebdavFileRepository } from '../domain/WebdavFileRepository';
 import { WebdavIpc } from '../../../ipc';
@@ -10,7 +10,7 @@ import { WebdavIpc } from '../../../ipc';
 export class WebdavFileRenamer {
   constructor(
     private readonly repository: WebdavFileRepository,
-    private readonly contentsRepository: RemoteFileContentsRepository,
+    private readonly contentsRepository: RemoteFileContentsManagersFactory,
     private readonly eventBus: WebdavServerEventBus,
     private readonly ipc: WebdavIpc
   ) {}

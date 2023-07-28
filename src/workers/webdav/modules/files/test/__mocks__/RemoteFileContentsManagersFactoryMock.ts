@@ -1,5 +1,5 @@
 import { Readable } from 'stream';
-import { RemoteFileContentsRepository } from '../../domain/RemoteFileContentsRepository';
+import { RemoteFileContentsManagersFactory } from '../../domain/RemoteFileContentsManagersFactory';
 import { FileSize } from '../../domain/FileSize';
 import { WebdavFile } from '../../domain/WebdavFile';
 import { ContentFileUploader } from '../../domain/ContentFileUploader';
@@ -9,7 +9,9 @@ import { ContentFileClonnerMock } from './ContentFileClonnerMock';
 import { ContentFileDownloaderMock } from './ContentFileDownloaderMock';
 import { ContentFileDownloader } from '../../domain/ContentFileDownloader';
 
-export class FileContentRepositoryMock implements RemoteFileContentsRepository {
+export class RemoteFileContentsManagersFactoryMock
+  implements RemoteFileContentsManagersFactory
+{
   public mockClone = new ContentFileClonnerMock();
   public mockDownload = new ContentFileDownloaderMock();
   public mockUpload = new ContentFileUploaderMock();
@@ -18,11 +20,11 @@ export class FileContentRepositoryMock implements RemoteFileContentsRepository {
     return this.mockClone;
   }
 
-  downloader(_file: WebdavFile): ContentFileDownloader {
+  downloader(): ContentFileDownloader {
     return this.mockDownload;
   }
 
-  uploader(_size: FileSize, _contents: Readable): ContentFileUploader {
+  uploader(_size: FileSize): ContentFileUploader {
     return this.mockUpload;
   }
 }

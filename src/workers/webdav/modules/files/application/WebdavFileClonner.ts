@@ -1,6 +1,6 @@
 import { WebdavFolderFinder } from '../../folders/application/WebdavFolderFinder';
 import { FilePath } from '../domain/FilePath';
-import { RemoteFileContentsRepository } from '../domain/RemoteFileContentsRepository';
+import { RemoteFileContentsManagersFactory } from '../domain/RemoteFileContentsManagersFactory';
 import { WebdavFile } from '../domain/WebdavFile';
 import { WebdavFileRepository } from '../domain/WebdavFileRepository';
 import { WebdavServerEventBus } from '../../shared/domain/WebdavServerEventBus';
@@ -15,7 +15,7 @@ export class WebdavFileClonner {
   constructor(
     private readonly repository: WebdavFileRepository,
     private readonly folderFinder: WebdavFolderFinder,
-    private readonly contentRepository: RemoteFileContentsRepository,
+    private readonly contentRepository: RemoteFileContentsManagersFactory,
     private readonly eventBus: WebdavServerEventBus,
     private readonly ipc: WebdavIpc
   ) {}

@@ -3,20 +3,20 @@ import { WebdavFileRenamer } from '../../application/WebdavFileRenamer';
 import { FilePath } from '../../domain/FilePath';
 import { FileStatus } from '../../domain/FileStatus';
 import { WebdavFileMother } from '../domain/WebdavFileMother';
-import { FileContentRepositoryMock } from '../__mocks__/FileContentRepositoryMock';
+import { RemoteFileContentsManagersFactoryMock } from '../__mocks__/RemoteFileContentsManagersFactoryMock';
 import { WebdavFileRepositoryMock } from '../__mocks__/WebdavFileRepositoyMock';
 import { WebdavIpcMock } from '../../../shared/test/__mock__/WebdavIPC';
 
 describe('File Rename', () => {
   let repository: WebdavFileRepositoryMock;
-  let contentsRepository: FileContentRepositoryMock;
+  let contentsRepository: RemoteFileContentsManagersFactoryMock;
   let eventBus: EventBusMock;
   let ipc: WebdavIpcMock;
   let SUT: WebdavFileRenamer;
 
   beforeEach(() => {
     repository = new WebdavFileRepositoryMock();
-    contentsRepository = new FileContentRepositoryMock();
+    contentsRepository = new RemoteFileContentsManagersFactoryMock();
     eventBus = new EventBusMock();
     ipc = new WebdavIpcMock();
     SUT = new WebdavFileRenamer(repository, contentsRepository, eventBus, ipc);

@@ -1,7 +1,7 @@
 import { PassThrough, Writable } from 'stream';
 import { WebdavFolderFinder } from '../../folders/application/WebdavFolderFinder';
 import { FilePath } from '../domain/FilePath';
-import { RemoteFileContentsRepository } from '../domain/RemoteFileContentsRepository';
+import { RemoteFileContentsManagersFactory } from '../domain/RemoteFileContentsManagersFactory';
 import { ItemMetadata } from '../../shared/domain/ItemMetadata';
 import { FileMetadataCollection } from '../domain/FileMetadataCollection';
 import { WebdavFile } from '../domain/WebdavFile';
@@ -16,7 +16,7 @@ export class WebdavFileCreator {
   constructor(
     private readonly repository: WebdavFileRepository,
     private readonly folderFinder: WebdavFolderFinder,
-    private readonly contentsRepository: RemoteFileContentsRepository,
+    private readonly remoteContentsManagersFactory: RemoteFileContentsManagersFactory,
     private readonly temporalFileCollection: FileMetadataCollection,
     private readonly eventBus: WebdavServerEventBus,
     private readonly ipc: WebdavIpc
@@ -116,11 +116,11 @@ export class WebdavFileCreator {
 
     const stream = new PassThrough();
 
-    const uploader = this.contentsRepository.uploader(fileSize, stream);
+    const uploader = this.remoteContentsManagersFactory.uploader(fileSize);
 
     this.registerEvents(uploader, metadata);
 
-    const upload = uploader.upload();
+    const upload = uploader.upload(stream, fileSize.value);
 
     upload
       .then(async (fileId) => {

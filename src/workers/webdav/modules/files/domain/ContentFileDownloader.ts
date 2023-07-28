@@ -1,5 +1,5 @@
 import { Readable } from 'stream';
-import { WebdavFileAtributes } from './WebdavFile';
+import { WebdavFile, WebdavFileAtributes } from './WebdavFile';
 
 export type FileDownloadEvents = {
   start: () => void;
@@ -9,7 +9,7 @@ export type FileDownloadEvents = {
 };
 
 export interface ContentFileDownloader {
-  download(): Promise<Readable>;
+  download(file: WebdavFile): Promise<Readable>;
 
   on(
     event: keyof FileDownloadEvents,

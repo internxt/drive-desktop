@@ -1,6 +1,6 @@
 import { Readable } from 'stream';
-import { EnvironmentContentFileUpoader } from '../../../infrastructure/storage/EnvironmentContentFileUpoader';
-import { createUploadStrategy } from '../../__mocks__/environment/UploadStrategyFunciontMock';
+import { EnvironmentContentFileUpoader } from '../../../../infrastructure/content/upload/EnvironmentContentFileUpoader';
+import { createUploadStrategy } from '../../../__mocks__/environment/UploadStrategyFunciontMock';
 
 describe('Environment Content File Uploader', () => {
   const valildFileSize = 1926506743;
@@ -12,18 +12,13 @@ describe('Environment Content File Uploader', () => {
         opts.finishedCallback(null, '3ebe8efe-c361-5269-b12d-c8a75c4cfcdd');
       });
 
-      const uploader = new EnvironmentContentFileUpoader(
-        strategy,
-        bucket,
-        valildFileSize,
-        Promise.resolve(Readable.from(''))
-      );
+      const uploader = new EnvironmentContentFileUpoader(strategy, bucket);
 
       const handler = jest.fn();
 
       uploader.on('start', handler);
 
-      await uploader.upload();
+      await uploader.upload(Readable.from(''), valildFileSize);
 
       expect(handler).toBeCalled();
     });
@@ -34,18 +29,13 @@ describe('Environment Content File Uploader', () => {
         opts.finishedCallback(null, uploadedFileId);
       });
 
-      const uploader = new EnvironmentContentFileUpoader(
-        strategy,
-        bucket,
-        valildFileSize,
-        Promise.resolve(Readable.from(''))
-      );
+      const uploader = new EnvironmentContentFileUpoader(strategy, bucket);
 
       uploader.on('finish', (fileId: string) => {
         expect(fileId).toBe(uploadedFileId);
       });
 
-      await uploader.upload();
+      await uploader.upload(Readable.from(''), valildFileSize);
     });
 
     it('emits an event when there is a progress update', async () => {
@@ -56,18 +46,13 @@ describe('Environment Content File Uploader', () => {
         opts.finishedCallback(null, 'baff69d3-379b-564f-9b1c-da657376b830');
       });
 
-      const uploader = new EnvironmentContentFileUpoader(
-        strategy,
-        bucket,
-        valildFileSize,
-        Promise.resolve(Readable.from(''))
-      );
+      const uploader = new EnvironmentContentFileUpoader(strategy, bucket);
 
       const handler = jest.fn();
 
       uploader.on('progress', handler);
 
-      await uploader.upload();
+      await uploader.upload(Readable.from(''), valildFileSize);
 
       expect(handler.mock.calls).toEqual([[25], [50], [75]]);
     });
@@ -78,12 +63,7 @@ describe('Environment Content File Uploader', () => {
         opts.finishedCallback(null, 'baff69d3-379b-564f-9b1c-da657376b830');
       });
 
-      const uploader = new EnvironmentContentFileUpoader(
-        strategy,
-        bucket,
-        valildFileSize,
-        Promise.resolve(Readable.from(''))
-      );
+      const uploader = new EnvironmentContentFileUpoader(strategy, bucket);
 
       const progressHandler = jest.fn();
       const finishHandler = jest.fn();
@@ -92,7 +72,7 @@ describe('Environment Content File Uploader', () => {
 
       uploader.on('finish', finishHandler);
 
-      await uploader.upload();
+      await uploader.upload(Readable.from(''), valildFileSize);
 
       expect(progressHandler).toBeCalledWith(50);
       expect(finishHandler).toBeCalled();
@@ -104,18 +84,13 @@ describe('Environment Content File Uploader', () => {
         opts.finishedCallback({ message: errorMsg } as unknown as Error, null);
       });
 
-      const uploader = new EnvironmentContentFileUpoader(
-        strategy,
-        bucket,
-        valildFileSize,
-        Promise.resolve(Readable.from(''))
-      );
+      const uploader = new EnvironmentContentFileUpoader(strategy, bucket);
 
       uploader.on('error', (error: Error) => {
         expect(error.message).toBe(errorMsg);
       });
 
-      await uploader.upload().catch(() => {
+      await uploader.upload(Readable.from(''), valildFileSize).catch(() => {
         // no-op
       });
     });
@@ -132,12 +107,7 @@ describe('Environment Content File Uploader', () => {
         );
       });
 
-      const uploader = new EnvironmentContentFileUpoader(
-        strategy,
-        bucket,
-        valildFileSize,
-        Promise.resolve(Readable.from(''))
-      );
+      const uploader = new EnvironmentContentFileUpoader(strategy, bucket);
 
       uploader.on('progress', () => {
         expect(uploader.elapsedTime()).toBeGreaterThan(-1);
@@ -145,7 +115,7 @@ describe('Environment Content File Uploader', () => {
 
       expect(uploader.elapsedTime()).toBe(-1);
 
-      await uploader.upload();
+      await uploader.upload(Readable.from(''), valildFileSize);
     });
 
     it('stops the timer when the file is uploaded', async () => {
@@ -158,14 +128,9 @@ describe('Environment Content File Uploader', () => {
         );
       });
 
-      const uploader = new EnvironmentContentFileUpoader(
-        strategy,
-        bucket,
-        valildFileSize,
-        Promise.resolve(Readable.from(''))
-      );
+      const uploader = new EnvironmentContentFileUpoader(strategy, bucket);
 
-      await uploader.upload();
+      await uploader.upload(Readable.from(''), valildFileSize);
 
       setTimeout(() => {
         expect(uploader.elapsedTime()).toBeGreaterThan(delay - 10);
