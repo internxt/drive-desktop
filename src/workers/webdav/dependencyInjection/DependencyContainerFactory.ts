@@ -116,20 +116,25 @@ export class DependencyContainerFactory {
 
     await localFileConentsRepository.initialize();
 
-    const cachedContentsManagerFactory =
-      new CachedRemoteFileContentsManagersFactory(
-        localFileConentsRepository,
-        new EnvironmentRemoteFileContentsManagersFactory(
-          environment,
-          user.bucket
-        )
+    // const cachedContentsManagerFactory =
+    //   new CachedRemoteFileContentsManagersFactory(
+    //     localFileConentsRepository,
+    //     new EnvironmentRemoteFileContentsManagersFactory(
+    //       environment,
+    //       user.bucket
+    //     )
+    //   );
+    const contentsManagerFactory =
+      new EnvironmentRemoteFileContentsManagersFactory(
+        environment,
+        user.bucket
       );
 
     const eventBus = new NodeJsEventBus();
 
     const fileRenamer = new WebdavFileRenamer(
       fileRepository,
-      cachedContentsManagerFactory,
+      contentsManagerFactory,
       eventBus,
       ipc
     );
@@ -165,7 +170,7 @@ export class DependencyContainerFactory {
       fileClonner: new WebdavFileClonner(
         fileRepository,
         folderFinder,
-        cachedContentsManagerFactory,
+        contentsManagerFactory,
         eventBus,
         ipc
       ),
@@ -180,14 +185,14 @@ export class DependencyContainerFactory {
       fileCreator: new WebdavFileCreator(
         fileRepository,
         folderFinder,
-        cachedContentsManagerFactory,
+        contentsManagerFactory,
         temporalFileCollection,
         eventBus,
         ipc
       ),
       fileDownloader: new WebdavFileDownloader(
         fileRepository,
-        cachedContentsManagerFactory,
+        contentsManagerFactory,
         eventBus,
         ipc
       ),
