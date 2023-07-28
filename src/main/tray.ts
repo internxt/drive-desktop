@@ -11,7 +11,7 @@ import {
 import { getIsLoggedIn } from './auth/handlers';
 import { getAuthWindow } from './windows/auth';
 
-type TrayMenuState = 'STANDBY' | 'SYNCING' | 'ISSUES';
+type TrayMenuState = 'STANDBY' | 'SYNCING' | 'ALERT' | 'LOADING';
 
 export class TrayMenu {
   private tray: Tray;
@@ -25,11 +25,11 @@ export class TrayMenu {
     private readonly onClick: () => void,
     private readonly onQuit: () => void
   ) {
-    const trayIcon = this.getIconPath('STANDBY');
+    const trayIcon = this.getIconPath('LOADING');
 
     this.tray = new Tray(trayIcon);
 
-    this.setState('STANDBY');
+    this.setState('LOADING');
 
     this.tray.setIgnoreDoubleClickEvents(true);
 
@@ -94,7 +94,8 @@ export class TrayMenu {
     const messages: Record<TrayMenuState, string> = {
       SYNCING: 'Sync in process',
       STANDBY: `Internxt Drive ${PackageJson.version}`,
-      ISSUES: 'There are some issues with your sync',
+      ALERT: 'There are some issues with your sync',
+      LOADING: 'Loading Internxt Drive...',
     };
 
     const message = messages[state];
@@ -110,6 +111,10 @@ export class TrayMenu {
 
 let tray: TrayMenu | null = null;
 export const getTray = () => tray;
+
+export const setTrayStatus = (status: TrayMenuState) => {
+  tray?.setState(status);
+};
 
 export function setupTrayIcon() {
   const RESOURCES_PATH = app.isPackaged

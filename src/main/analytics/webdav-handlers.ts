@@ -5,11 +5,32 @@ import { WebdavErrorContext } from '../../shared/IPC/events/webdav';
 import { broadcastToWindows } from '../windows';
 import { VirtualDriveStatus } from '../../workers/webdav/VirtualDrive';
 import { ipcMain } from 'electron';
+import { setTrayStatus } from '../tray';
 
 function subscribeToFlowEvents(ipc: IpcWebdavFlow) {
+  ipc.on('WEBDAV_FOLDER_CREATING', () => {
+    setTrayStatus('SYNCING');
+  });
+
+  ipc.on('WEBDAV_FOLDER_CREATED', () => {
+    setTrayStatus('STANDBY');
+  });
+
+  ipc.on('WEBDAV_FOLDER_RENAMING', () => {
+    setTrayStatus('SYNCING');
+  });
+
+  ipc.on('WEBDAV_FOLDER_RENAMED', () => {
+    setTrayStatus('STANDBY');
+  });
+
+  ipc.on('WEBDAV_FILE_DELETING', () => {
+    setTrayStatus('SYNCING');
+  });
   ipc.on('WEBDAV_FILE_DELETED', (_, payload) => {
     const { name, extension, nameWithExtension, size } = payload;
 
+    setTrayStatus('STANDBY');
     broadcastToWindows('sync-info-update', {
       action: 'DELETED',
       name: nameWithExtension,
@@ -24,7 +45,7 @@ function subscribeToFlowEvents(ipc: IpcWebdavFlow) {
 
   ipc.on('WEBDAV_FILE_DOWNLOADING', (_, payload) => {
     const { name, nameWithExtension, size, extension, processInfo } = payload;
-
+    setTrayStatus('SYNCING');
     broadcastToWindows('sync-info-update', {
       action: 'DOWNLOADING',
       name: nameWithExtension,
@@ -59,7 +80,7 @@ function subscribeToFlowEvents(ipc: IpcWebdavFlow) {
 
   ipc.on('WEBDAV_FILE_MOVED', (_, payload) => {
     const { nameWithExtension } = payload;
-
+    setTrayStatus('STANDBY');
     broadcastToWindows('sync-info-update', {
       action: 'MOVED',
       name: nameWithExtension,
@@ -68,16 +89,20 @@ function subscribeToFlowEvents(ipc: IpcWebdavFlow) {
 
   ipc.on('WEBDAV_FILE_OVERWRITED', (_, payload) => {
     const { nameWithExtension } = payload;
-
+    setTrayStatus('STANDBY');
     broadcastToWindows('sync-info-update', {
       action: 'MOVED',
       name: nameWithExtension,
     });
   });
 
+  ipc.on('WEBDAV_FILE_RENAMING', () => {
+    setTrayStatus('SYNCING');
+  });
+
   ipc.on('WEBDAV_FILE_RENAMED', (_, payload) => {
     const { nameWithExtension } = payload;
-
+    setTrayStatus('LOADING');
     broadcastToWindows('sync-info-update', {
       action: 'RENAMED',
       name: nameWithExtension,
@@ -86,7 +111,7 @@ function subscribeToFlowEvents(ipc: IpcWebdavFlow) {
 
   ipc.on('WEBDAV_FILE_CLONNED', (_, payload) => {
     const { name, extension, nameWithExtension, size, processInfo } = payload;
-
+    setTrayStatus('STANDBY');
     broadcastToWindows('sync-info-update', {
       action: 'UPLOADED',
       name: nameWithExtension,
@@ -103,7 +128,7 @@ function subscribeToFlowEvents(ipc: IpcWebdavFlow) {
 
   ipc.on('WEBDAV_FILE_UPLOADING', (_, payload) => {
     const { name, nameWithExtension, size, extension, processInfo } = payload;
-
+    setTrayStatus('SYNCING');
     broadcastToWindows('sync-info-update', {
       action: 'UPLOADING',
       name: nameWithExtension,
@@ -122,7 +147,7 @@ function subscribeToFlowEvents(ipc: IpcWebdavFlow) {
 
   ipc.on('WEBDAV_FILE_UPLOADED', (_, payload) => {
     const { name, extension, nameWithExtension, size, processInfo } = payload;
-
+    setTrayStatus('STANDBY');
     broadcastToWindows('sync-info-update', {
       action: 'UPLOADED',
       name: nameWithExtension,
@@ -140,7 +165,7 @@ function subscribeToFlowEvents(ipc: IpcWebdavFlow) {
 function subscribeToFlowErrors(ipc: IpcWebdavFlowErrors) {
   ipc.on('WEBDAV_FILE_UPLOAD_ERROR', (_, payload) => {
     const { name, nameWithExtension, error } = payload;
-
+    setTrayStatus('ALERT');
     broadcastToWindows('sync-info-update', {
       action: 'UPLOAD_ERROR',
       name: nameWithExtension,
@@ -156,7 +181,7 @@ function subscribeToFlowErrors(ipc: IpcWebdavFlowErrors) {
 
   ipc.on('WEBDAV_FILE_DOWNLOAD_ERROR', (_, payload) => {
     const { name, nameWithExtension, error } = payload;
-
+    setTrayStatus('ALERT');
     broadcastToWindows('sync-info-update', {
       action: 'DOWNLOAD_ERROR',
       name: nameWithExtension,
@@ -172,7 +197,7 @@ function subscribeToFlowErrors(ipc: IpcWebdavFlowErrors) {
 
   ipc.on('WEBDAV_FILE_RENAME_ERROR', (_, payload) => {
     const { name, nameWithExtension, error } = payload;
-
+    setTrayStatus('ALERT');
     broadcastToWindows('sync-info-update', {
       action: 'RENAME_ERROR',
       name: nameWithExtension,
@@ -188,7 +213,7 @@ function subscribeToFlowErrors(ipc: IpcWebdavFlowErrors) {
 
   ipc.on('WEBDAV_FILE_DELETE_ERROR', (_, payload) => {
     const { name, nameWithExtension, error } = payload;
-
+    setTrayStatus('ALERT');
     broadcastToWindows('sync-info-update', {
       action: 'DELETE_ERROR',
       name: nameWithExtension,
@@ -214,6 +239,7 @@ function subscribeToServerEvents() {
   ipcWebdav.on('WEBDAV_VIRTUAL_DRIVE_STARTING', () => {
     lastVirtualDriveStatus = VirtualDriveStatus.MOUNTING;
     Logger.info('WEBDAV_VIRTUAL_DRIVE_STARTING');
+    setTrayStatus('LOADING');
     broadcastToWindows('virtual-drive-status-change', {
       status: VirtualDriveStatus.MOUNTING,
     });
@@ -221,6 +247,7 @@ function subscribeToServerEvents() {
   ipcWebdav.on('WEBDAV_VIRTUAL_DRIVE_MOUNTED_SUCCESSFULLY', () => {
     lastVirtualDriveStatus = VirtualDriveStatus.MOUNTED;
     Logger.info('WEBDAV_VIRTUAL_DRIVE_MOUNTED_SUCCESSFULLY');
+    setTrayStatus('STANDBY');
     broadcastToWindows('virtual-drive-status-change', {
       status: VirtualDriveStatus.MOUNTED,
     });
@@ -236,6 +263,7 @@ function subscribeToServerEvents() {
   ipcWebdav.on('WEBDAV_VIRTUAL_DRIVE_MOUNT_ERROR', (_, err: Error) => {
     Logger.info('WEBDAV_VIRTUAL_DRIVE_MOUNT_ERROR', err.message);
     lastVirtualDriveStatus = VirtualDriveStatus.FAILED_TO_MOUNT;
+    setTrayStatus('ALERT');
     broadcastToWindows('virtual-drive-status-change', {
       status: VirtualDriveStatus.FAILED_TO_MOUNT,
     });
