@@ -3,10 +3,10 @@ import { EventEmitter, Readable } from 'stream';
 import {
   ContentFileDownloader,
   FileDownloadEvents,
-} from '../../domain/ContentFileDownloader';
-import { RemoteFileContents } from '../../domain/RemoteFileContent';
-import { WebdavFile } from '../../domain/WebdavFile';
-import { Stopwatch } from '../../../../../../shared/types/Stopwatch';
+} from '../../../domain/ContentFileDownloader';
+import { RemoteFileContents } from '../../../domain/RemoteFileContent';
+import { WebdavFile } from '../../../domain/WebdavFile';
+import { Stopwatch } from '../../../../../../../shared/types/Stopwatch';
 
 export class EnvironmentContentFileDownloader implements ContentFileDownloader {
   private eventEmitter: EventEmitter;

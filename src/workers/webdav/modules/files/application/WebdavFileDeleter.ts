@@ -11,6 +11,12 @@ export class WebdavFileDeleter {
   ) {}
 
   async run(file: WebdavFile): Promise<void> {
+    this.ipc.send('WEBDAV_FILE_DELETING', {
+      name: file.name,
+      extension: file.type,
+      nameWithExtension: file.nameWithExtension,
+      size: file.size,
+    });
     file.trash();
 
     await this.repository.delete(file);

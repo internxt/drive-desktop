@@ -1,3 +1,5 @@
+import { Readable } from 'stream';
+
 type FileId = string;
 
 export type FileUploadEvents = {
@@ -8,7 +10,7 @@ export type FileUploadEvents = {
 };
 
 export interface ContentFileUploader {
-  upload(): Promise<FileId>;
+  upload(contents: Readable, size: number): Promise<FileId>;
 
   on(
     event: keyof FileUploadEvents,

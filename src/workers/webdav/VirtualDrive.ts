@@ -10,7 +10,7 @@ export enum VirtualDriveStatus {
   UNMOUNTED = 'UNMOUNTED',
 }
 const driveObject = {
-  host: 'localhost',
+  host: 'Virtual.Drive.Internxt.com',
   port: '1900',
 };
 const driveURL = `http://${driveObject.host}:${driveObject.port}`;
