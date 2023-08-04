@@ -104,7 +104,7 @@ export default function SyncInfo() {
 
   return (
     <div className="relative flex flex-1 flex-col">
-      <div className="absolute left-0 top-0 flex w-full justify-end p-1">
+      {/* <div className="absolute left-0 top-0 flex w-full justify-end p-1">
         <button
           tabIndex={0}
           type="button"
@@ -116,7 +116,7 @@ export default function SyncInfo() {
         >
           Clear
         </button>
-      </div>
+      </div> */}
       {/* [BACKUPS] widget info disabled while beta developing
         <BackupsBanner
           onVisibilityChanged={setBackupsBannerVisible}
