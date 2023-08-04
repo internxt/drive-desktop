@@ -97,17 +97,22 @@ export default function Header() {
   const HeaderItemWrapper = ({
     children,
     active = false,
+    onClick,
+    disabled,
   }: {
     children: JSX.Element;
     active?: boolean;
+    onClick?: any;
+    disabled?: boolean;
   }) => {
     return (
       <div
-        className={`relative flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg hover:bg-surface hover:shadow hover:ring-1 hover:ring-gray-20 dark:hover:bg-gray-10 ${
+        className={`relative flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg before:absolute before:-inset-px hover:bg-surface hover:shadow hover:ring-1 hover:ring-gray-20 dark:hover:bg-gray-10 ${
           active
             ? 'bg-surface shadow ring-1 ring-gray-20 dark:bg-gray-10'
             : undefined
-        }`}
+        } ${disabled ? 'pointer-events-none text-gray-40' : undefined}`}
+        onClick={onClick}
       >
         {children}
       </div>
@@ -138,28 +143,22 @@ export default function Header() {
   };
 
   const ItemsSection = () => (
-    <div className="flex shrink-0 items-center text-gray-80">
+    <div className="flex shrink-0 items-center space-x-0.5 text-gray-80">
       {process.env.platform === 'darwin' && (
         <div className="h-0 w-0" tabIndex={0} ref={dummyRef} />
       )}
-      <a onClick={() => handleOpenURL('https://drive.internxt.com')}>
-        <HeaderItemWrapper>
-          <Globe size={22} />
-        </HeaderItemWrapper>
-      </a>
-
-      <div
-        onClick={window.electron.openSyncFolder}
-        className={
-          virtualDriveStatus !== 'MOUNTED'
-            ? 'pointer-events-none text-gray-40'
-            : undefined
-        }
+      <HeaderItemWrapper
+        onClick={() => handleOpenURL('https://drive.internxt.com')}
       >
-        <HeaderItemWrapper>
-          <FolderSimple size={22} />
-        </HeaderItemWrapper>
-      </div>
+        <Globe size={22} />
+      </HeaderItemWrapper>
+
+      <HeaderItemWrapper
+        disabled={virtualDriveStatus !== 'MOUNTED'}
+        onClick={window.electron.openSyncFolder}
+      >
+        <FolderSimple size={22} />
+      </HeaderItemWrapper>
 
       <Menu as="div" className="relative flex h-8 items-end">
         {({ open }) => (

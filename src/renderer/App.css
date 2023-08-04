@@ -119,13 +119,7 @@ body {
   overflow: hidden;
 }
 
-*:focus {
-  outline: none;
-}
-
-:not(input):focus-visible {
-  outline: auto;
-}
+/** Backups animation **/
 
 .backups-modal-overlay {
   background-color: rgba(0, 0, 0, 0.4);
