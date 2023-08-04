@@ -45,7 +45,7 @@ export const SLIDES: OnboardingSlide[] = [
           </Button>
           <Button
             onClick={props.onSkipOnboarding}
-            variant="default"
+            variant="secondary"
             className="h-10 px-5 font-medium"
           >
             {translate('onboarding.common.skip')}
@@ -255,7 +255,7 @@ export const SLIDES: OnboardingSlide[] = [
           </Button>
           <Button
             onClick={props.onFinish}
-            variant="default"
+            variant="secondary"
             className="h-10 px-5 font-medium"
           >
             {translate('onboarding.common.skip')}

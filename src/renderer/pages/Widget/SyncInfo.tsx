@@ -12,7 +12,8 @@ import {
   ProcessInfoUpdatePayload,
 } from '../../../workers/types';
 import Error from '../../assets/error.svg';
-import FileIcon from '../../assets/file.svg';
+import syncedStackLight from '../../assets/illustrations/syncedStack-light.png';
+import syncedStackDark from '../../assets/illustrations/syncedStack-dark.png';
 import Success from '../../assets/success.svg';
 import Warn from '../../assets/warn.svg';
 import FileWithOperation, {
@@ -65,10 +66,9 @@ export default function SyncInfo() {
         'METADATA_READ_ERROR',
       ].includes(item.action);
 
-      const newItems =
-        itemIsAnError
-          ? itemsWithoutGivenItem
-          : [item, ...itemsWithoutGivenItem].slice(0, MAX_ITEMS);
+      const newItems = itemIsAnError
+        ? itemsWithoutGivenItem
+        : [item, ...itemsWithoutGivenItem].slice(0, MAX_ITEMS);
 
       return newItems;
     });
@@ -77,7 +77,9 @@ export default function SyncInfo() {
   function clearItems() {
     setItems((current) =>
       current.filter((item) =>
-        ['UPLOADING', 'DOWNLOADING', 'RENAMING', 'DELETING'].includes(item.action)
+        ['UPLOADING', 'DOWNLOADING', 'RENAMING', 'DELETING'].includes(
+          item.action
+        )
       )
     );
   }
@@ -101,27 +103,25 @@ export default function SyncInfo() {
   }, [syncStopped]);
 
   return (
-    <div className="relative flex min-h-0 flex-grow flex-col border-t border-t-l-neutral-30 bg-l-neutral-10">
+    <div className="relative flex flex-1 flex-col">
       <div className="absolute left-0 top-0 flex w-full justify-end p-1">
-        <div className="rounded bg-l-neutral-10 px-2">
-          <button
-            tabIndex={0}
-            type="button"
-            className={`select-none text-xs font-medium text-blue-60 hover:text-blue-70 active:text-blue-80 ${items.length === 0 ? 'opacity-0' : ''}`}
-            onClick={clearItems}
-            disabled={items.length === 0}
-          >
-            Clear
-          </button>
-        </div>
+        <button
+          tabIndex={0}
+          type="button"
+          className={`select-none rounded bg-gray-5 px-2 text-xs font-medium text-gray-50 hover:text-gray-80 ${
+            items.length === 0 ? 'opacity-0' : ''
+          }`}
+          onClick={clearItems}
+          disabled={items.length === 0}
+        >
+          Clear
+        </button>
       </div>
-      {
-        /* [BACKUPS] widget info disabled while beta developing
+      {/* [BACKUPS] widget info disabled while beta developing
         <BackupsBanner
           onVisibilityChanged={setBackupsBannerVisible}
           className={items.length > 0 ? 'mt-8' : ''}
-        />*/
-      }
+        />*/}
       {items.length === 0 && !backupsBannerVisible && <Empty />}
       <div className="scroll no-scrollbar h-full overflow-y-auto">
         <AnimatePresence>
@@ -251,21 +251,30 @@ function Empty() {
         exit={{ opacity: 0 }}
         transition={{ duration: 0.5, ease: 'easeInOut' }}
       >
-        <div className="trasform absolute left-1/2 top-1/2 w-full -translate-x-1/2 -translate-y-1/2 select-none text-center">
-          <div className="relative h-16">
-            <div className="absolute left-1/2 -translate-x-6 rotate-12 transform opacity-60">
-              <FileIcon className="h-16 w-16" />
-            </div>
-            <div className="absolute left-1/2 -translate-x-10 -rotate-12 transform">
-              <FileIcon className="h-16 w-16" />
-            </div>
+        <div className="trasform absolute left-1/2 top-1/2 flex w-full -translate-x-1/2 -translate-y-1/2 flex-col items-center space-y-6 text-center">
+          <div>
+            <img
+              src={syncedStackLight}
+              className="dark:hidden"
+              width={128}
+              draggable={false}
+            />
+            <img
+              src={syncedStackDark}
+              className="hidden dark:flex"
+              width={128}
+              draggable={false}
+            />
           </div>
-          <p className="mt-7 text-sm text-blue-100">
-            {translate('widget.body.no-activity.title')}
-          </p>
-          <p className="mt-1 px-4 text-xs text-m-neutral-100">
-            {translate('widget.body.no-activity.description')}
-          </p>
+
+          <div className="flex flex-col">
+            <p className="text-base font-medium text-gray-100">
+              {translate('widget.body.upToDate.title')}
+            </p>
+            <p className="text-sm text-gray-60">
+              {translate('widget.body.upToDate.subtitle')}
+            </p>
+          </div>
         </div>
       </motion.div>
     </AnimatePresence>

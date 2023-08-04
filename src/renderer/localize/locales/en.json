@@ -142,6 +142,10 @@
         "title": "There is no recent activity",
         "description": "Information will show up here when changes are made to sync your local folder with Internxt Drive"
       },
+      "upToDate": {
+        "title": "Your files are up to date",
+        "subtitle": "Sync activity will show up here"
+      },
       "errors": {
         "sync": {},
         "backups": {

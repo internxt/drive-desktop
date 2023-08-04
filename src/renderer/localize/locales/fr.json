@@ -141,6 +141,10 @@
         "title": "Aucune activité récente",
         "description": "Les informations apparaîtront ici lorsque vous effectuerez des modifications, pour synchroniser votre dossier local avec Internxt Drive"
       },
+      "upToDate": {
+        "title": "Vos fichiers sont à jour",
+        "subtitle": "L'activité de synchronisation s'affichera ici"
+      },
       "errors": {
         "sync": {},
         "backups": {
