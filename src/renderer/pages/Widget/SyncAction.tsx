@@ -37,7 +37,7 @@ export default function SyncAction(props: { syncStatus: SyncStatus }) {
   });
 
   return (
-    <div className="flex h-11 shrink-0 items-center space-x-2.5 border-t border-gray-10 bg-surface px-2.5 text-sm font-medium text-gray-100 dark:border-gray-5 dark:bg-gray-1">
+    <div className="flex h-11 shrink-0 items-center space-x-2.5 border-t border-gray-10 px-2.5 text-sm font-medium text-gray-100 dark:border-gray-5">
       <div className="flex flex-1 items-center space-x-2.5 px-1.5">
         {isOnLine ? (
           isSyncStopped ? (
