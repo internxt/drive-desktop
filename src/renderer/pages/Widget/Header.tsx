@@ -41,9 +41,9 @@ export default function Header() {
     }
   }, []);
 
-  const handleOpenDriveWeb = async () => {
+  const handleOpenURL = async (URL: string) => {
     try {
-      await window.electron.openUrl('https://drive.internxt.com');
+      await window.electron.openUrl(URL);
     } catch (error) {
       reportError(error);
     }
@@ -142,7 +142,7 @@ export default function Header() {
       {process.env.platform === 'darwin' && (
         <div className="h-0 w-0" tabIndex={0} ref={dummyRef} />
       )}
-      <a onClick={handleOpenDriveWeb}>
+      <a onClick={() => handleOpenURL('https://drive.internxt.com')}>
         <HeaderItemWrapper>
           <Globe size={22} />
         </HeaderItemWrapper>
@@ -182,13 +182,11 @@ export default function Header() {
               <Menu.Items className="absolute right-0 top-1 max-w-[288px] origin-top-right whitespace-nowrap rounded-md bg-surface py-1 shadow-xl ring-1 ring-gray-20 focus:outline-none dark:bg-gray-1">
                 <Menu.Item>
                   {({ active }) => (
-                    <div
-                      role="button"
-                      tabIndex={0}
-                      aria-hidden="true"
-                      onClick={() => window.electron.openSettingsWindow()}
-                    >
-                      <DropdownItem active={active}>
+                    <div>
+                      <DropdownItem
+                        active={active}
+                        onClick={() => window.electron.openSettingsWindow()}
+                      >
                         <span>
                           {translate('widget.header.dropdown.preferences')}
                         </span>
@@ -198,13 +196,11 @@ export default function Header() {
                 </Menu.Item>
                 <Menu.Item>
                   {({ active }) => (
-                    <div
-                      role="button"
-                      tabIndex={0}
-                      aria-hidden="true"
-                      onClick={() => window.electron.openFeedbackWindow()}
-                    >
-                      <DropdownItem active={active}>
+                    <div>
+                      <DropdownItem
+                        active={active}
+                        onClick={() => window.electron.openFeedbackWindow()}
+                      >
                         <span>
                           {translate('widget.header.dropdown.send-feedback')}
                         </span>
@@ -214,13 +210,11 @@ export default function Header() {
                 </Menu.Item>
                 <Menu.Item>
                   {({ active }) => (
-                    <div
-                      role="button"
-                      tabIndex={0}
-                      aria-hidden="true"
-                      onClick={window.electron.openProcessIssuesWindow}
-                    >
-                      <DropdownItem active={active}>
+                    <div>
+                      <DropdownItem
+                        active={active}
+                        onClick={window.electron.openProcessIssuesWindow}
+                      >
                         <div className="flex items-baseline justify-between">
                           <p>{translate('widget.header.dropdown.issues')}</p>
                           {numberOfIssues > 0 && (
@@ -235,29 +229,27 @@ export default function Header() {
                 </Menu.Item>
                 <Menu.Item>
                   {({ active }) => (
-                    <a
-                      className="block w-full"
-                      href="https://help.internxt.com"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <DropdownItem active={active}>
+                    <div>
+                      <DropdownItem
+                        active={active}
+                        onClick={() =>
+                          handleOpenURL('https://help.internxt.com')
+                        }
+                      >
                         <span>
                           {translate('widget.header.dropdown.support')}
                         </span>
                       </DropdownItem>
-                    </a>
+                    </div>
                   )}
                 </Menu.Item>
                 <Menu.Item>
                   {({ active }) => (
-                    <div
-                      role="button"
-                      tabIndex={0}
-                      aria-hidden="true"
-                      onClick={window.electron.logout}
-                    >
-                      <DropdownItem active={active}>
+                    <div>
+                      <DropdownItem
+                        active={active}
+                        onClick={window.electron.logout}
+                      >
                         <span>
                           {translate('widget.header.dropdown.logout')}
                         </span>
@@ -267,14 +259,11 @@ export default function Header() {
                 </Menu.Item>
                 <Menu.Item>
                   {({ active }) => (
-                    <div
-                      role="button"
-                      tabIndex={0}
-                      aria-hidden="true"
-                      onClick={window.electron.quit}
-                      className="border-t border-t-gray-10"
-                    >
-                      <DropdownItem active={active}>
+                    <div className="border-t border-t-gray-10">
+                      <DropdownItem
+                        active={active}
+                        onClick={window.electron.quit}
+                      >
                         <span>{translate('widget.header.dropdown.quit')}</span>
                       </DropdownItem>
                     </div>
