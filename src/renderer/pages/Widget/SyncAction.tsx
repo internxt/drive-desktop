@@ -47,7 +47,7 @@ export default function SyncAction(props: { syncStatus: SyncStatus }) {
               {isOnLine && props.syncStatus === 'FAILED' && (
                 <>
                   {/* SYNC FAILED */}
-                  <div className="flex w-5 justify-center text-red-dark">
+                  <div className="relative z-0 flex w-5 items-center justify-center text-red before:absolute before:-z-1 before:h-3 before:w-3 before:bg-white">
                     <XCircle className="shrink-0" size={22} weight="fill" />
                   </div>
                   <span>
@@ -69,7 +69,7 @@ export default function SyncAction(props: { syncStatus: SyncStatus }) {
               {isOnLine && props.syncStatus === 'STANDBY' && (
                 <>
                   {/* UP TO DATE */}
-                  <div className="flex w-5 justify-center text-primary">
+                  <div className="relative z-0 flex w-5 items-center justify-center text-primary before:absolute before:-z-1 before:h-3 before:w-3 before:bg-white">
                     <CheckCircle className="shrink-0" size={22} weight="fill" />
                   </div>
                   <span>
