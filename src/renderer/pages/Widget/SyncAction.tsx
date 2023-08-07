@@ -19,7 +19,9 @@ export default function SyncAction(props: { syncStatus: SyncStatus }) {
   useSyncStatus(setSyncStatus);
 
   const isSyncStopped =
-    (virtualDriveStatus && virtualDriveStatus === 'FAILED_TO_MOUNT') ||
+    (virtualDriveStatus &&
+      (virtualDriveStatus === 'FAILED_TO_MOUNT' ||
+        virtualDriveStatus === 'MOUNTING')) ||
     (syncStatus && syncStatus === 'FAILED');
 
   const handleOpenUpgrade = async () => {
@@ -38,7 +40,7 @@ export default function SyncAction(props: { syncStatus: SyncStatus }) {
 
   return (
     <div className="flex h-11 shrink-0 items-center space-x-2.5 border-t border-gray-10 px-2.5 text-sm font-medium text-gray-100 dark:border-gray-5">
-      <div className="flex flex-1 items-center space-x-2.5 px-1.5">
+      <div className="flex flex-1 items-center space-x-2.5 truncate px-1.5">
         {isOnLine ? (
           isSyncStopped ? (
             <>{/* SYNC IS STOPPED */}</>
@@ -50,7 +52,7 @@ export default function SyncAction(props: { syncStatus: SyncStatus }) {
                   <div className="relative z-0 flex w-5 items-center justify-center text-red before:absolute before:-z-1 before:h-3 before:w-3 before:bg-white">
                     <XCircle className="shrink-0" size={22} weight="fill" />
                   </div>
-                  <span>
+                  <span className="truncate">
                     {translate('widget.footer.action-description.failed')}
                   </span>
                 </>
@@ -61,7 +63,7 @@ export default function SyncAction(props: { syncStatus: SyncStatus }) {
                   <div className="flex w-5 justify-center text-primary">
                     <Spinner className="h-5 w-5 shrink-0 animate-spin" />
                   </div>
-                  <span>
+                  <span className="truncate">
                     {translate('widget.footer.action-description.syncing')}
                   </span>
                 </>
@@ -72,7 +74,7 @@ export default function SyncAction(props: { syncStatus: SyncStatus }) {
                   <div className="relative z-0 flex w-5 items-center justify-center text-primary before:absolute before:-z-1 before:h-3 before:w-3 before:bg-white">
                     <CheckCircle className="shrink-0" size={22} weight="fill" />
                   </div>
-                  <span>
+                  <span className="truncate">
                     {translate('widget.footer.action-description.updated')}
                   </span>
                 </>
@@ -82,7 +84,9 @@ export default function SyncAction(props: { syncStatus: SyncStatus }) {
         ) : (
           <>
             {/* OFFLINE */}
-            <span>{translate('widget.footer.errors.offline')}</span>
+            <span className="truncate">
+              {translate('widget.footer.errors.offline')}
+            </span>
           </>
         )}
       </div>
