@@ -203,7 +203,12 @@
     },
     "general": {
       "device": {
-        "section": "Nombre del dispositivo"
+        "section": "Nombre del dispositivo",
+        "action": {
+          "edit": "Editar",
+          "cancel": "Cancelar",
+          "save": "Guardar"
+        }
       },
       "auto-startup": "Iniciar Internxt Drive al arrancar el sistema",
       "language": {

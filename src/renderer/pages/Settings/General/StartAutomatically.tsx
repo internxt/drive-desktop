@@ -3,11 +3,7 @@ import { useEffect, useState } from 'react';
 import Checkbox from '../../../components/Checkbox';
 import { useTranslationContext } from '../../../context/LocalContext';
 
-export default function StartAutomatically({
-  className = '',
-}: {
-  className: string;
-}) {
+export default function StartAutomatically({ className = '' }: { className?: string }) {
   const { translate } = useTranslationContext();
   const [value, setValue] = useState(false);
 

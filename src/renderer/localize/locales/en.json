@@ -203,7 +203,12 @@
     },
     "general": {
       "device": {
-        "section": "Device name"
+        "section": "Device name",
+        "action": {
+          "edit": "Edit",
+          "cancel": "Cancel",
+          "save": "Save"
+        }
       },
       "auto-startup": "Start Internxt Drive on system startup",
       "language": {

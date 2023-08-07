@@ -1,11 +1,11 @@
 import packageJson from '../../../../../package.json';
 import { useTranslationContext } from '../../../context/LocalContext';
 
-export default function AppInfo({ className = '' }: { className: string }) {
+export default function AppInfo() {
   const { translate } = useTranslationContext();
 
   return (
-    <div className={`${className}`}>
+    <div>
       <p className="text-xs text-neutral-500">
         Internxt Drive v{packageJson.version}
       </p>
