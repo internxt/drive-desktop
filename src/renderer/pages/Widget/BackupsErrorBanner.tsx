@@ -13,7 +13,7 @@ function ErrorBanner({ errorName }: { errorName: ProcessFatalErrorName }) {
   const action = obtainErrorAction(errorName);
 
   return (
-    <div className="flex items-center justify-between bg-yellow-10 px-3 py-2 text-xs text-yellow-60">
+    <div className="flex items-center justify-between bg-yellow/10 px-3 py-2 text-xs text-yellow-dark">
       <span className="flex">
         <Warn className="inline h-5 w-5" />
         <p className="mb-0 ml-2 inline">{text}</p>
@@ -24,7 +24,7 @@ function ErrorBanner({ errorName }: { errorName: ProcessFatalErrorName }) {
           role="button"
           tabIndex={0}
           onKeyDown={action.fn}
-          className="mr-2 cursor-pointer whitespace-nowrap text-xs text-yellow-70 underline"
+          className="mr-2 cursor-pointer whitespace-nowrap text-xs text-yellow-dark underline"
         >
           {action.name}
         </span>

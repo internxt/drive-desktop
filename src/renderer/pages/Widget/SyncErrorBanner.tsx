@@ -72,9 +72,7 @@ export default function SyncErrorBanner() {
   return show ? (
     <div
       className={`flex items-center px-3 py-2 text-xs ${
-        severity === 'WARN'
-          ? 'bg-yellow-10 text-yellow-60'
-          : 'bg-red-10 text-red-60'
+        severity === 'WARN' ? 'bg-yellow/10 text-yellow' : 'bg-red/10 text-red'
       }`}
     >
       <Icon className="h-5 w-5" />
@@ -85,7 +83,7 @@ export default function SyncErrorBanner() {
           role="button"
           tabIndex={0}
           onKeyDown={action.func}
-          className="ml-2 cursor-pointer text-sm text-blue-60 underline"
+          className="ml-2 cursor-pointer text-sm text-primary underline"
         >
           {action.name}
         </span>
