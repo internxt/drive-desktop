@@ -6,12 +6,6 @@
 	--color-white: 255 255 255;
 	--color-black: 0 0 0;
 
-  --color-primary: 0 102 255;
-  --color-primary-dark: 0 88 219;
-
-  --color-red: 255 13 0;
-  --color-red-dark: 230 11 0;
-
   --color-orange: 255 149 0;
   --color-orange-dark: 230 134 0;
 
@@ -39,6 +33,12 @@
     --color-gray-80: 58 58 59;
     --color-gray-90: 44 44 48;
     --color-gray-100: 24 24 27;
+
+    --color-primary: 0 102 255;
+    --color-primary-dark: 0 88 219;
+
+    --color-red: 255 13 0;
+    --color-red-dark: 230 11 0;
   }
 }
 
@@ -59,6 +59,12 @@
     --color-gray-80: 229 229 235;
     --color-gray-90: 243 243 248;
     --color-gray-100: 249 249 252;
+
+    --color-primary: 20 114 255;
+    --color-primary-dark: 0 96 240;
+
+    --color-red: 255 61 51;
+    --color-red-dark: 255 36 26;
   }
 }
 
