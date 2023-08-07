@@ -1,7 +1,7 @@
 import React from 'react';
 import Button from '../../components/Button';
 import { useTranslationContext } from '../../context/LocalContext';
-import { Download } from 'phosphor-react';
+import { Download } from '@phosphor-icons/react';
 
 export interface VirtualDriveErrorProps {
   status: string;
