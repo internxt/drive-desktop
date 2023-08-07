@@ -4,20 +4,20 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'danger' | 'secondary';
   size?: 'sm' | 'md' | 'lg' | 'xl' | '2xl';
   children: ReactNode;
-  className?: string;
+  customClassName?: string;
   disabled?: boolean;
 }
 
 export default function Button(props: ButtonProps) {
   const variants = {
     primary: props.disabled
-      ? 'bg-gray-30 text-white'
+      ? 'bg-gray-30 dark:bg-gray-5 text-white dark:text-gray-30'
       : 'bg-primary active:bg-primary-dark text-white',
     secondary: props.disabled
-      ? 'bg-surface text-highlight border border-gray-5 dark:bg-gray-5 dark:text-gray-40'
+      ? 'bg-surface text-gray-40 border border-gray-5 dark:bg-gray-5 dark:text-gray-40'
       : 'bg-surface active:bg-gray-1 text-highlight border border-gray-20 dark:bg-gray-5 dark:active:bg-gray-10 dark:active:border-gray-30',
     danger: props.disabled
-      ? 'bg-gray-30 text-white'
+      ? 'bg-gray-30 dark:bg-gray-5 text-white dark:text-gray-30'
       : 'bg-red active:bg-red-dark text-white',
   };
 
@@ -31,11 +31,11 @@ export default function Button(props: ButtonProps) {
 
   return (
     <button
-      type="button"
+      type={props.type ?? 'button'}
       disabled={props.disabled ?? false}
-      className={`shadow-sm outline-none focus-visible:outline-none ${
+      className={`shadow-sm outline-none transition-all duration-75 ease-in-out focus-visible:outline-none ${
         variants[props.variant ?? 'primary']
-      } ${sizes[props.size ?? 'md']} ${props.className ?? ''}`}
+      } ${sizes[props.size ?? 'md']} ${props.customClassName ?? ''}`}
       {...props}
     >
       {props.children}
