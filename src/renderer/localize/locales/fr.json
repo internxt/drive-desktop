@@ -137,6 +137,20 @@
       }
     },
     "body": {
+      "activity": {
+        "operation": {
+          "downloading": "Téléchargement",
+          "decrypting": "Décryptage",
+          "uploading": "téléchargement",
+          "encrypting": "Encryptage",
+          "downloaded": "Téléchargé",
+          "uploaded": "Téléchargé",
+          "deleting": "Déplacement vers les poubelles",
+          "deleted": "Déplacé vers la poubelle",
+          "renaming": "Renommer",
+          "renamed": "Renommé"
+        }
+      },
       "no-activity": {
         "title": "Aucune activité récente",
         "description": "Les informations apparaîtront ici lorsque vous effectuerez des modifications, pour synchroniser votre dossier local avec Internxt Drive"

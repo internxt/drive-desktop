@@ -138,6 +138,20 @@
       }
     },
     "body": {
+      "activity": {
+        "operation": {
+          "downloading": "Descargando",
+          "decrypting": "Desencriptando",
+          "uploading": "Subiendo",
+          "encrypting": "Encriptando",
+          "downloaded": "Descargado",
+          "uploaded": "Subido",
+          "deleting": "Moviendo a la papelera",
+          "deleted": "Movido a la papelera",
+          "renaming": "Renombrando",
+          "renamed": "Renombrado"
+        }
+      },
       "no-activity": {
         "title": "No hay actividad reciente",
         "description": "La información aparecerá aquí cuando hagas cambios, para sincronizar tu carpeta local con Internxt Drive"

@@ -159,6 +159,7 @@ function Item({
   progress?: number;
   errorName?: ProcessErrorName;
 }) {
+  const { translate } = useTranslationContext();
   const progressDisplay = progress ? `${Math.ceil(progress * 100)}%` : '';
 
   let operation: Operation | undefined;
@@ -191,21 +192,25 @@ function Item({
   let description = '';
 
   if (action === 'DOWNLOADING') {
-    description = progress ? 'Downloading' : 'Decrypting';
+    description = progress
+      ? translate('widget.body.activity.operation.downloading')
+      : translate('widget.body.activity.operation.decrypting');
   } else if (action === 'UPLOADING') {
-    description = progress ? 'Uploading' : 'Encrypting';
+    description = progress
+      ? translate('widget.body.activity.operation.uploading')
+      : translate('widget.body.activity.operation.encrypting');
   } else if (action === 'DOWNLOADED') {
-    description = 'Downloaded';
+    description = translate('widget.body.activity.operation.downloaded');
   } else if (action === 'UPLOADED') {
-    description = 'Uploaded';
+    description = translate('widget.body.activity.operation.uploaded');
   } else if (action === 'DELETING') {
-    description = 'Deleting';
+    description = translate('widget.body.activity.operation.deleting');
   } else if (action === 'DELETED') {
-    description = 'Deleted';
+    description = translate('widget.body.activity.operation.deleted');
   } else if (action === 'RENAMING') {
-    description = 'Renaming';
+    description = translate('widget.body.activity.operation.renaming');
   } else if (action === 'RENAMED') {
-    description = 'Renamed';
+    description = translate('widget.body.activity.operation.renamed');
   } else if (errorName) {
     description = shortMessages[errorName];
   }

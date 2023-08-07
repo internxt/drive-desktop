@@ -138,6 +138,20 @@
       }
     },
     "body": {
+      "activity": {
+        "operation": {
+          "downloading": "Downloading",
+          "decrypting": "Decrypting",
+          "uploading": "Uploading",
+          "encrypting": "Encrypting",
+          "downloaded": "Downloaded",
+          "uploaded": "Uploaded",
+          "deleting": "Moving to trash",
+          "deleted": "Moved to trash",
+          "renaming": "Renaming",
+          "renamed": "Renamed"
+        }
+      },
       "no-activity": {
         "title": "There is no recent activity",
         "description": "Information will show up here when changes are made to sync your local folder with Internxt Drive"
