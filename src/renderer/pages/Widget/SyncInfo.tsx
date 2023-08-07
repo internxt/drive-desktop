@@ -16,9 +16,7 @@ import syncedStackLight from '../../assets/illustrations/syncedStack-light.png';
 import syncedStackDark from '../../assets/illustrations/syncedStack-dark.png';
 import Success from '../../assets/success.svg';
 import Warn from '../../assets/warn.svg';
-import FileWithOperation, {
-  Operation,
-} from '../../components/FileWithOperation';
+import { Operation } from '../../components/FileWithOperation';
 import { useTranslationContext } from '../../context/LocalContext';
 import useBackupFatalErrors from '../../hooks/BackupFatalErrors';
 import useBackupStatus from '../../hooks/BackupStatus';
@@ -27,7 +25,10 @@ import useSyncStatus from '../../hooks/SyncStatus';
 import useSyncStopped from '../../hooks/SyncStopped';
 import { shortMessages } from '../../messages/process-error';
 import { getPercentualProgress } from '../../utils/backups-progress';
-import { getBaseName } from '../../utils/path';
+import { getBaseName, getExtension } from '../../utils/path';
+import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
+import { Check, WarningCircle } from '@phosphor-icons/react';
+import { fileIcon } from 'renderer/assets/icons/getIcon';
 
 export default function SyncInfo() {
   const [items, setItems] = useState<ProcessInfoUpdatePayload[]>([]);
@@ -103,7 +104,7 @@ export default function SyncInfo() {
   }, [syncStopped]);
 
   return (
-    <div className="relative flex flex-1 flex-col">
+    <div className="no-scrollbar relative flex flex-1 flex-col overflow-y-auto">
       {/* <div className="absolute left-0 top-0 flex w-full justify-end p-1">
         <button
           tabIndex={0}
@@ -123,7 +124,7 @@ export default function SyncInfo() {
           className={items.length > 0 ? 'mt-8' : ''}
         />*/}
       {items.length === 0 && !backupsBannerVisible && <Empty />}
-      <div className="scroll no-scrollbar h-full overflow-y-auto">
+      <div className="flex-1">
         <AnimatePresence>
           {items.map((item, i) => (
             <AnimationWrapper key={item.name} i={i}>
@@ -136,18 +137,9 @@ export default function SyncInfo() {
   );
 }
 
-function AnimationWrapper({
-  children,
-  key,
-  i,
-}: {
-  children: ReactNode;
-  key: string;
-  i: number;
-}) {
+function AnimationWrapper({ children, i }: { children: ReactNode; i: number }) {
   return (
     <motion.div
-      key={key}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0, transition: { delay: i * 0.03 } }}
@@ -218,23 +210,86 @@ function Item({
     description = shortMessages[errorName];
   }
 
-  const displayName = getBaseName(name);
-
   return (
-    <div className="my-4 flex h-10 w-full select-none items-center overflow-hidden px-3">
-      <FileWithOperation
-        operation={operation}
-        className="flex-shrink-0"
-        width={24}
-      />
-      <div className="ml-4 overflow-hidden">
-        <h2 className="truncate text-sm font-medium text-neutral-700">
-          {displayName}
-        </h2>
-        <p className="text-xs text-neutral-500">
-          {description}
-          <span>&nbsp;{progressDisplay}</span>
-        </p>
+    <div className="flex h-14 w-full px-3">
+      <div className="flex h-full flex-1 items-center space-x-3 truncate border-b border-gray-5">
+        <div className="flex h-8 w-8 items-center justify-center drop-shadow-sm">
+          {fileIcon(getExtension(name))}
+        </div>
+
+        <div className="flex flex-1 flex-col justify-center space-y-px truncate pr-[14px]">
+          <p
+            className="truncate text-sm text-gray-100"
+            title={getBaseName(name)}
+          >
+            {getBaseName(name)}
+          </p>
+          <p
+            className={`truncate text-xs text-gray-50 ${
+              action &&
+              (action === 'DELETE_ERROR' ||
+                action === 'DOWNLOAD_ERROR' ||
+                action === 'UPLOAD_ERROR' ||
+                action === 'RENAME_ERROR' ||
+                action === 'METADATA_READ_ERROR')
+                ? 'text-red'
+                : undefined
+            }`}
+            title={
+              action &&
+              (action === 'DELETE_ERROR' ||
+                action === 'DOWNLOAD_ERROR' ||
+                action === 'UPLOAD_ERROR' ||
+                action === 'RENAME_ERROR' ||
+                action === 'METADATA_READ_ERROR')
+                ? description
+                : undefined
+            }
+          >
+            {`${description} ${progressDisplay}`}
+          </p>
+        </div>
+
+        <div className="flex w-7 items-center justify-center">
+          {/* PROGRESS */}
+          {action &&
+            (action === 'UPLOADING' ||
+              action === 'DOWNLOADING' ||
+              action === 'RENAMING' ||
+              action === 'DELETING') && (
+              <CircularProgressbar
+                value={progress ?? 0}
+                minValue={0}
+                maxValue={1}
+                strokeWidth={16}
+                styles={buildStyles({
+                  pathTransitionDuration: 0.25,
+                  pathColor: 'rgb(var(--color-primary) / 1)',
+                  strokeLinecap: 'round',
+                })}
+                className="aspect-square w-6 rounded-full ring-4 ring-inset ring-primary/15 dark:ring-gray-10"
+              />
+            )}
+
+          {/* DONE */}
+          {action &&
+            (action === 'DELETED' ||
+              action === 'DOWNLOADED' ||
+              action === 'UPLOADED' ||
+              action === 'RENAMED') && (
+              <Check size={24} className="text-green" weight="bold" />
+            )}
+
+          {/* ERROR */}
+          {action &&
+            (action === 'DELETE_ERROR' ||
+              action === 'DOWNLOAD_ERROR' ||
+              action === 'UPLOAD_ERROR' ||
+              action === 'RENAME_ERROR' ||
+              action === 'METADATA_READ_ERROR') && (
+              <WarningCircle size={24} className="text-red" weight="regular" />
+            )}
+        </div>
       </div>
     </div>
   );
