@@ -14,25 +14,22 @@ const driveObject = {
   port: '1900',
 };
 const driveURL = `http://${driveObject.host}:${driveObject.port}`;
-const driveName = 'Internxt Drive';
+const driveName = 'Inxt Drive';
 
 export const mountDrive = async (): Promise<void> => {
   if (process.platform === 'win32') {
-    const currentMountedDrives = await getCurrentWindowsMountedDrives();
-    if (currentMountedDrives.length === 0) {
-      const driveLetter = await getLetterDrive();
-      Logger.log(`[VirtualDrive] Drive letter available: ${driveLetter}`);
-      if (driveLetter) {
-        configStore.set('virtualdriveWindowsLetter', driveLetter);
-        const mounted = await mountWindowsDrive(driveLetter);
-        if (mounted) {
-          await renameWindowsDrive();
-        }
+    ejectVHDDrive(getSavedLetter()).catch();
+    removeVHDDrive().catch();
+
+
+    const driveLetter = await getLetterDrive();
+    Logger.log(`[VirtualDrive] Drive letter available: ${driveLetter}`);
+    if (driveLetter) {
+      configStore.set('virtualdriveWindowsLetter', driveLetter);
+      const mounted = await mountVHDWindowsDrive(driveLetter);
+      if (mounted) {
+        await renameWindowsDrive();
       }
-    } else {
-      Logger.log(
-        `[VirtualDrive] Drive already mounted on: ${currentMountedDrives.toString()}`
-      );
     }
     return;
   } else if (process.platform === 'darwin') {
@@ -132,7 +129,7 @@ const getLetterDrive = async (): Promise<string | false> => {
   }
 };
 
-const mountWindowsDrive = (driveLetter: string): Promise<boolean> => {
+const mountWebdavWindowsDrive = (driveLetter: string): Promise<boolean> => {
   Logger.log('[VirtualDrive] Mounting drive: ' + driveLetter);
   return new Promise(function (resolve, reject) {
     exec(
@@ -145,6 +142,48 @@ const mountWindowsDrive = (driveLetter: string): Promise<boolean> => {
         } else {
           Logger.log(
             `[VirtualDrive] Drive created and mounted successfully: ${stdoutMount}`
+          );
+          resolve(true);
+        }
+      }
+    );
+  });
+};
+
+const mountVHDWindowsDrive = (driveLetter: string): Promise<boolean> => {
+  Logger.log('[VirtualDrive] Mounting VHD drive: ' + driveLetter);
+  return new Promise(function (resolve, reject) {
+    exec(
+      `New-VHD -Path .\\Internxt.vhdx -Dynamic -SizeBytes 10GB |Mount-VHD -Passthru |Initialize-Disk -Passthru |
+      New-Partition -DriveLetter ${driveLetter} -UseMaximumSize |Format-Volume -FileSystem NTFS -Confirm:$false -Force`,
+      { shell: 'powershell.exe' },
+      (errMount, stdoutMount) => {
+        if (errMount) {
+          Logger.log(`[VirtualDrive] Error creating VHD drive: ${errMount}`);
+          reject(`[VirtualDrive] Error creating VHD drive: ${errMount}`);
+        } else {
+          Logger.log(
+            `[VirtualDrive] VHD Drive created and mounted successfully: ${stdoutMount}`
+          );
+          resolve(true);
+        }
+      }
+    );
+  });
+};
+
+const removeVHDDrive = (): Promise<boolean> => {
+  Logger.log('[VirtualDrive] Removing VHD drive');
+  return new Promise(function (resolve, reject) {
+    exec('Remove-Item .\\Internxt.vhdx',
+      { shell: 'powershell.exe' },
+      (errMount, stdoutMount) => {
+        if (errMount) {
+          Logger.log(`[VirtualDrive] Error removing VHD drive: ${errMount}`);
+          reject(`[VirtualDrive] Error removing VHD drive: ${errMount}`);
+        } else {
+          Logger.log(
+            `[VirtualDrive] VHD Drive removed successfully: ${stdoutMount}`
           );
           resolve(true);
         }
@@ -186,6 +225,25 @@ const unmountWindowsDrive = (driveLetter: string): Promise<boolean> => {
           reject(`[VirtualDrive] Error unmounting drive: ${err}`);
         } else {
           Logger.log(`[VirtualDrive] Drive unmounted successfully: ${stdout}`);
+          resolve(true);
+        }
+      }
+    );
+  });
+};
+
+const ejectVHDDrive = (driveLetter: string): Promise<boolean> => {
+  Logger.log('[VirtualDrive] eject VHD drive: ' + driveLetter);
+  return new Promise(function (resolve, reject) {
+    exec(
+      `(New-Object -comObject Shell.Application).NameSpace(17).ParseName("${driveLetter}:").InvokeVerb("Eject")`,
+      { shell: 'powershell.exe' },
+      (err, stdout) => {
+        if (err) {
+          Logger.log(`[VirtualDrive] Error ejecting drive: ${err}`);
+          reject(`[VirtualDrive] Error ejecting drive: ${err}`);
+        } else {
+          Logger.log(`[VirtualDrive] Drive ejected successfully: ${stdout}`);
           resolve(true);
         }
       }
