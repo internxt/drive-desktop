@@ -57,7 +57,7 @@ export default function DeviceName({
             {DEFAULT_DEVICE_NAME}
           </p>
         ) : deviceState.status === 'LOADING' ? (
-          <Spinner className="h-6 w-6 animate-spin" />
+          <Spinner className="h-5 w-5 animate-spin" />
         ) : showEdit ? (
           <TextInput
             autoFocus={showEdit}
