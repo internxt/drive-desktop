@@ -1,10 +1,10 @@
 import { WebdavFile } from '../../../files/domain/WebdavFile';
 import { FolderStatuses } from '../../domain/FolderStatus';
-import { WebdavFolder } from '../../domain/WebdavFolder';
+import { Folder } from '../../domain/Folder';
 
-export class WebdavFolderMother {
+export class FolderMother {
   static containing(file: WebdavFile) {
-    return WebdavFolder.from({
+    return Folder.from({
       id: file.folderId,
       path: file.dirname,
       parentId: 58601041,
@@ -15,7 +15,7 @@ export class WebdavFolderMother {
   }
 
   static any() {
-    return WebdavFolder.from({
+    return Folder.from({
       id: 2048,
       path: '/Zodseve',
       parentId: null,
@@ -26,7 +26,7 @@ export class WebdavFolderMother {
   }
 
   static in(folderId: number, path: string) {
-    return WebdavFolder.from({
+    return Folder.from({
       id: 20445,
       path,
       parentId: folderId,
@@ -37,7 +37,7 @@ export class WebdavFolderMother {
   }
 
   static withId(folderId: number) {
-    return WebdavFolder.from({
+    return Folder.from({
       id: folderId,
       path: '/Zodseve',
       parentId: 437296692845,
@@ -48,7 +48,7 @@ export class WebdavFolderMother {
   }
 
   static exists() {
-    return WebdavFolder.from({
+    return Folder.from({
       id: 2048,
       path: '/Zodseve',
       parentId: null,
@@ -59,7 +59,7 @@ export class WebdavFolderMother {
   }
 
   static trashed() {
-    return WebdavFolder.from({
+    return Folder.from({
       id: 2048,
       path: '/Zodseve',
       parentId: null,

@@ -1,24 +1,24 @@
 import { ActionNotPermitedError } from '../domain/errors/ActionNotPermitedError';
 import { FolderPath } from '../domain/FolderPath';
-import { WebdavFolder } from '../domain/WebdavFolder';
-import { WebdavFolderRepository } from '../domain/WebdavFolderRepository';
+import { Folder } from '../domain/Folder';
+import { FolderRepository } from '../domain/FolderRepository';
 import { WebdavFolderFinder } from './WebdavFolderFinder';
 import { WebdavFolderRenamer } from './WebdavFolderRenamer';
 
 export class WebdavFolderMover {
   constructor(
-    private readonly repository: WebdavFolderRepository,
+    private readonly repository: FolderRepository,
     private readonly folderFinder: WebdavFolderFinder,
     private readonly folderRenamer: WebdavFolderRenamer
   ) {}
 
-  private async move(folder: WebdavFolder, parentFolder: WebdavFolder) {
+  private async move(folder: Folder, parentFolder: Folder) {
     folder.moveTo(parentFolder);
 
     await this.repository.updateParentDir(folder);
   }
 
-  async run(folder: WebdavFolder, to: string): Promise<void> {
+  async run(folder: Folder, to: string): Promise<void> {
     const destination = new FolderPath(to);
     const resultFolder = this.repository.search(destination.value);
 

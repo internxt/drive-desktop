@@ -6,7 +6,7 @@ import { ItemMetadata } from '../../shared/domain/ItemMetadata';
 import { FileMetadataCollection } from '../domain/FileMetadataCollection';
 import { WebdavFile } from '../domain/WebdavFile';
 import { WebdavFileRepository } from '../domain/WebdavFileRepository';
-import { WebdavFolder } from '../../folders/domain/WebdavFolder';
+import { Folder } from '../../folders/domain/Folder';
 import { FileSize } from '../domain/FileSize';
 import { WebdavServerEventBus } from '../../shared/domain/WebdavServerEventBus';
 import { ContentFileUploader } from '../domain/ContentFileUploader';
@@ -76,7 +76,7 @@ export class WebdavFileCreator {
 
   private async createFileEntry(
     fileId: string,
-    folder: WebdavFolder,
+    folder: Folder,
     size: number,
     filePath: FilePath
   ): Promise<WebdavFile> {

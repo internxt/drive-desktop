@@ -1,4 +1,4 @@
-import { WebdavFolder } from '../../folders/domain/WebdavFolder';
+import { Folder } from '../../folders/domain/Folder';
 import { WebdavFile } from '../../files/domain/WebdavFile';
 
 export type ItemMetadataAtributes = {
@@ -42,7 +42,7 @@ export class ItemMetadata {
     );
   }
 
-  static extractFromFolder(folder: WebdavFolder): ItemMetadata {
+  static extractFromFolder(folder: Folder): ItemMetadata {
     return new ItemMetadata(
       folder.createdAt.getTime(),
       folder.updatedAt.getTime(),

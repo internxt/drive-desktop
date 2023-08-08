@@ -1,6 +1,6 @@
 import { WebdavFile } from './WebdavFile';
 import { Nullable } from '../../../../../shared/types/Nullable';
-import { WebdavFolderAttributes } from '../../folders/domain/WebdavFolder';
+import { FolderAttributes } from '../../folders/domain/Folder';
 import { FilePath } from './FilePath';
 
 export interface WebdavFileRepository {
@@ -14,7 +14,5 @@ export interface WebdavFileRepository {
 
   updateParentDir(item: WebdavFile): Promise<void>;
 
-  searchOnFolder(
-    folderId: WebdavFolderAttributes['id']
-  ): Promise<Array<WebdavFile>>;
+  searchOnFolder(folderId: FolderAttributes['id']): Promise<Array<WebdavFile>>;
 }
