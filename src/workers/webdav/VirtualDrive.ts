@@ -18,8 +18,7 @@ const driveName = 'Internxt Drive';
 
 export const mountDrive = async (): Promise<void> => {
   if (process.platform === 'win32') {
-    ejectVHDDrive(getSavedLetter()).catch();
-    removeVHDDrive().catch();
+    unmountVHDDrive(getSavedLetter()).catch();
 
 
     const driveLetter = await getLetterDrive();
@@ -47,7 +46,7 @@ export const mountDrive = async (): Promise<void> => {
 
 export const unmountDrive = async () => {
   if (process.platform === 'win32') {
-    return unmountWindowsDrive(getSavedLetter());
+    return unmountVHDDrive(getSavedLetter());
   } else if (process.platform === 'darwin') {
     return unmountMacOSDrive();
   } else if (process.platform === 'linux') {
@@ -230,6 +229,16 @@ const unmountWindowsDrive = (driveLetter: string): Promise<boolean> => {
       }
     );
   });
+};
+
+const unmountVHDDrive = async (driveLetter: string): Promise<boolean> => {
+  Logger.log('[VirtualDrive] Unmounting VHD drive: ' + driveLetter);
+  try {
+    await ejectVHDDrive(driveLetter);
+  } catch (err) { 
+    Logger.log('[VirtualDrive] Ignoring eject VHD drive error: ' + driveLetter);
+  }
+  return removeVHDDrive();
 };
 
 const ejectVHDDrive = (driveLetter: string): Promise<boolean> => {
