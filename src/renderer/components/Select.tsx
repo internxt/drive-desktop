@@ -1,4 +1,4 @@
-import { CaretDown, Check } from '@phosphor-icons/react';
+import { CaretDown, CaretUp, Check } from '@phosphor-icons/react';
 import * as RadixSelect from '@radix-ui/react-select';
 import React from 'react';
 
@@ -10,6 +10,7 @@ interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
   onValueChange: (value: string) => void;
   placeholder?: string;
   ariaLabel?: string;
+  container?: HTMLElement | null;
 }
 
 export default function Select(props: SelectProps) {
@@ -52,10 +53,13 @@ export default function Select(props: SelectProps) {
         </RadixSelect.Icon>
       </RadixSelect.Trigger>
 
-      <RadixSelect.Portal>
-        <RadixSelect.Content className="rounded-lg border border-gray-20 bg-surface/75 p-1.5 shadow-2xl backdrop-blur-3xl dark:bg-gray-5/75">
-          <RadixSelect.ScrollUpButton className="SelectScrollButton">
-            up
+      <RadixSelect.Portal
+        container={(props.container as HTMLElement) ?? document.body}
+        className="non-draggable"
+      >
+        <RadixSelect.Content className="z-50 rounded-lg border border-gray-20 bg-surface/75 p-1.5 shadow-2xl backdrop-blur-3xl dark:bg-gray-5/75">
+          <RadixSelect.ScrollUpButton className="flex h-7 items-center justify-center">
+            <CaretUp size={16} weight="bold" />
           </RadixSelect.ScrollUpButton>
 
           <RadixSelect.Viewport className="SelectViewport">
@@ -66,8 +70,8 @@ export default function Select(props: SelectProps) {
             </RadixSelect.Group>
           </RadixSelect.Viewport>
 
-          <RadixSelect.ScrollDownButton className="SelectScrollButton">
-            down
+          <RadixSelect.ScrollDownButton className="flex h-7 items-center justify-center">
+            <CaretDown size={16} weight="bold" />
           </RadixSelect.ScrollDownButton>
         </RadixSelect.Content>
       </RadixSelect.Portal>
