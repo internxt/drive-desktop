@@ -11,7 +11,7 @@ import { FileDeletedDomainEvent } from './FileDeletedDomainEvent';
 import { FileStatus, FileStatuses } from './FileStatus';
 
 export type FileAtributes = {
-  fileId: string;
+  contentsId: string;
   folderId: number;
   createdAt: string;
   modificationTime: string;
@@ -23,7 +23,7 @@ export type FileAtributes = {
 
 export class File extends AggregateRoot {
   private constructor(
-    public fileId: string,
+    public contentsId: string,
     private _folderId: number,
     private _path: FilePath,
     private readonly _size: FileSize,
@@ -68,7 +68,7 @@ export class File extends AggregateRoot {
 
   static from(attributes: FileAtributes): File {
     return new File(
-      attributes.fileId,
+      attributes.contentsId,
       attributes.folderId,
       new FilePath(attributes.path),
       new FileSize(attributes.size),
@@ -79,13 +79,13 @@ export class File extends AggregateRoot {
   }
 
   static create(
-    fileId: string,
+    contentsId: string,
     folder: Folder,
     size: number,
     path: FilePath
   ): File {
     const file = new File(
-      fileId,
+      contentsId,
       folder.id,
       path,
       new FileSize(size),
@@ -96,7 +96,7 @@ export class File extends AggregateRoot {
 
     file.record(
       new FileCreatedDomainEvent({
-        aggregateId: fileId,
+        aggregateId: contentsId,
         size,
         type: path.extension(),
       })
@@ -110,7 +110,7 @@ export class File extends AggregateRoot {
 
     this.record(
       new FileDeletedDomainEvent({
-        aggregateId: this.fileId,
+        aggregateId: this.contentsId,
         size: this._size.value,
       })
     );
@@ -127,17 +127,9 @@ export class File extends AggregateRoot {
     //TODO: record file moved event
   }
 
-  clone(fileId: string, folderId: number, newPath: FilePath) {
-    // if (!this._path.hasSameDirname(newPath)) {
-    //   throw new FileActionOnlyCanAffectOneLevelError('clone');
-    // }
-
-    // if (this._path.hasSameName(newPath)) {
-    //   throw new FileNameShouldDifferFromOriginalError('clone');
-    // }
-
+  clone(contentsId: string, folderId: number, newPath: FilePath) {
     const file = new File(
-      fileId,
+      contentsId,
       folderId,
       newPath,
       this._size,
@@ -148,7 +140,7 @@ export class File extends AggregateRoot {
 
     file.record(
       new FileCreatedDomainEvent({
-        aggregateId: fileId,
+        aggregateId: contentsId,
         size: this._size.value,
         type: this._path.extension(),
       })
@@ -157,9 +149,9 @@ export class File extends AggregateRoot {
     return file;
   }
 
-  overwrite(fileId: string, folderId: number, newPath: FilePath) {
+  overwrite(contentsId: string, folderId: number, newPath: FilePath) {
     const file = new File(
-      fileId,
+      contentsId,
       folderId,
       newPath,
       this._size,
@@ -170,7 +162,7 @@ export class File extends AggregateRoot {
 
     file.record(
       new FileCreatedDomainEvent({
-        aggregateId: fileId,
+        aggregateId: contentsId,
         size: this._size.value,
         type: this._path.extension(),
       })
@@ -217,7 +209,12 @@ export class File extends AggregateRoot {
     attributes: Partial<
       Pick<
         FileAtributes,
-        'path' | 'createdAt' | 'updatedAt' | 'fileId' | 'folderId' | 'status'
+        | 'path'
+        | 'createdAt'
+        | 'updatedAt'
+        | 'contentsId'
+        | 'folderId'
+        | 'status'
       >
     >
   ) {
@@ -233,8 +230,8 @@ export class File extends AggregateRoot {
       this.updatedAt = new Date(attributes.updatedAt);
     }
 
-    if (attributes.fileId) {
-      this.fileId = attributes.fileId;
+    if (attributes.contentsId) {
+      this.contentsId = attributes.contentsId;
     }
 
     if (attributes.folderId) {
@@ -248,20 +245,21 @@ export class File extends AggregateRoot {
     return this;
   }
 
-  toPrimitives() {
+  toPrimitives(): Omit<FileAtributes, 'modificationTime'> {
     return {
-      fileId: this.fileId,
+      contentsId: this.contentsId,
       folderId: this.folderId,
-      createdAt: this.createdAt.getDate(),
       path: this._path.value,
       size: this._size.value,
-      updatedAt: this.updatedAt.getDate(),
+      createdAt: this.createdAt.toISOString(),
+      updatedAt: this.updatedAt.toISOString(),
+      status: this.status.value,
     };
   }
 
   attributes(): FileAtributes {
     return {
-      fileId: this.fileId,
+      contentsId: this.contentsId,
       folderId: this.folderId,
       createdAt: this.createdAt.toISOString(),
       path: this._path.value,

@@ -29,7 +29,7 @@ export class EnvironmentContentFileClonner implements ContentFileClonner {
     return new Promise((resolve, reject) => {
       this.download(
         this.bucket,
-        this.file.fileId,
+        this.file.contentsId,
         {
           progressCallback: (progress: number) => {
             this.eventEmitter.emit('download-progress', progress);

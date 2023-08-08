@@ -15,7 +15,7 @@ export class RemoteFileContents extends AggregateRoot {
 
   static preview(file: File, contents: Readable): RemoteFileContents {
     const remoteContents = new RemoteFileContents(
-      file.fileId,
+      file.contentsId,
       file.size,
       file.type,
       contents

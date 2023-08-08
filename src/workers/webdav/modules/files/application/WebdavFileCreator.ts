@@ -96,7 +96,7 @@ export class WebdavFileCreator {
     size: number
   ): Promise<{
     stream: Writable;
-    upload: Promise<File['fileId']>;
+    upload: Promise<File['contentsId']>;
   }> {
     const fileSize = new FileSize(size);
     const filePath = new FilePath(path);

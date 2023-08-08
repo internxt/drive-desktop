@@ -68,7 +68,7 @@ export class HttpFileRepository implements FileRepository {
         items: [
           {
             type: 'file',
-            id: file.fileId,
+            id: file.contentsId,
           },
         ],
       }
@@ -93,8 +93,8 @@ export class HttpFileRepository implements FileRepository {
       file: {
         bucket: this.bucket,
         encrypt_version: '03-aes',
-        fileId: file.fileId,
-        file_id: file.fileId,
+        fileId: file.contentsId,
+        file_id: file.contentsId,
         folder_id: file.folderId,
         name: encryptedName,
         plain_name: file.name,
@@ -127,7 +127,7 @@ export class HttpFileRepository implements FileRepository {
   }
 
   async updateName(file: File): Promise<void> {
-    const url = `${process.env.API_URL}/api/storage/file/${file.fileId}/meta`;
+    const url = `${process.env.API_URL}/api/storage/file/${file.contentsId}/meta`;
 
     const body: UpdateFileNameDTO = {
       metadata: { itemName: file.name },
@@ -144,7 +144,7 @@ export class HttpFileRepository implements FileRepository {
     }
 
     const oldFileEntry = Object.entries(this.files).find(
-      ([_, f]) => f.fileId === file.fileId && f.name !== file.name
+      ([_, f]) => f.contentsId === file.contentsId && f.name !== file.name
     );
 
     if (oldFileEntry) {
@@ -160,7 +160,7 @@ export class HttpFileRepository implements FileRepository {
     const url = `${process.env.API_URL}/api/storage/move/file`;
     const body: UpdateFileParentDirDTO = {
       destination: item.folderId,
-      fileId: item.fileId,
+      fileId: item.contentsId,
     };
 
     const res = await this.httpClient.post(url, body);

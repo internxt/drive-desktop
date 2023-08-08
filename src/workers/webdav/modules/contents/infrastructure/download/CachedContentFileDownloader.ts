@@ -23,21 +23,21 @@ export class CachedContentFileDownloader implements ContentFileDownloader {
   }
 
   async download(file: File): Promise<Readable> {
-    const isCached = await this.cachedRepository.exists(file.fileId);
+    const isCached = await this.cachedRepository.exists(file.contentsId);
 
     if (isCached) {
       Logger.info(
-        `File with id ${file.fileId} is cached. Skiping downloading it.`
+        `File with id ${file.contentsId} is cached. Skiping downloading it.`
       );
-      return this.cachedRepository.read(file.fileId);
+      return this.cachedRepository.read(file.contentsId);
     }
 
     const contents = await this.fileDownloader.download(file);
 
     this.cachedRepository
-      .write(file.fileId, contents, file.size)
+      .write(file.contentsId, contents, file.size)
       .catch((error) => {
-        Logger.error('Error caching file: ', file.fileId, error);
+        Logger.error('Error caching file: ', file.contentsId, error);
       });
 
     return contents;

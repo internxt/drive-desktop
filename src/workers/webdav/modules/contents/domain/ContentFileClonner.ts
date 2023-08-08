@@ -6,14 +6,14 @@ export type FileCloneEvents = {
   'start-upload': () => void;
   'download-progress': (progress: number) => void;
   'upload-progress': (progress: number) => void;
-  'download-finished': (fileId: FileAtributes['fileId']) => void;
-  'upload-finished': (fileId: FileAtributes['fileId']) => void;
-  finish: (fileId: FileAtributes['fileId']) => void;
+  'download-finished': (fileId: FileAtributes['contentsId']) => void;
+  'upload-finished': (fileId: FileAtributes['contentsId']) => void;
+  finish: (fileId: FileAtributes['contentsId']) => void;
   error: (error: Error) => void;
 };
 
 export interface ContentFileClonner {
-  clone(): Promise<FileAtributes['fileId']>;
+  clone(): Promise<FileAtributes['contentsId']>;
 
   on(
     event: keyof FileCloneEvents,

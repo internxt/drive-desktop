@@ -4,7 +4,7 @@ import { File, FileAtributes } from '../../files/domain/File';
 export type FileDownloadEvents = {
   start: () => void;
   progress: (progress: number) => void;
-  finish: (fileId: FileAtributes['fileId']) => void;
+  finish: (fileId: FileAtributes['contentsId']) => void;
   error: (error: Error) => void;
 };
 

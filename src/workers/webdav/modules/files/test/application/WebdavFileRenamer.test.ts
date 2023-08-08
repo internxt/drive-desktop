@@ -82,7 +82,7 @@ describe('File Rename', () => {
     );
     expect(repository.mockDelete).toHaveBeenCalledWith(
       expect.objectContaining({
-        fileId: file.fileId,
+        fileId: file.contentsId,
         status: FileStatus.Trashed,
       })
     );
