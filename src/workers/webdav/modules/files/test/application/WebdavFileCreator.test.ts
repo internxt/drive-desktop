@@ -8,7 +8,7 @@ import { RemoteFileContentsManagersFactoryMock } from '../../../contents/test/__
 import { FileRepositoryMock } from '../__mocks__/FileRepositoryMock';
 import { EventBusMock } from '../../../shared/test/__mock__/EventBusMock';
 import { WebdavIpcMock } from '../../../shared/test/__mock__/WebdavIPC';
-import { ContentsIdMother } from '../domain/ContentsIdMother';
+import { ContentsIdMother } from '../../../contents/test/domain/ContentsIdMother';
 
 describe('Webdav File Creator', () => {
   let fileReposiotry: FileRepositoryMock;

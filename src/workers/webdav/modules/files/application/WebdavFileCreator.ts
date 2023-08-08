@@ -1,7 +1,7 @@
 import { PassThrough, Writable } from 'stream';
 import { WebdavFolderFinder } from '../../folders/application/WebdavFolderFinder';
 import { FilePath } from '../domain/FilePath';
-import { RemoteFileContentsManagersFactory } from '../../contents/domain/RemoteFileContentsManagersFactory';
+import { ContentsManagersFactory } from '../../contents/domain/ContentsManagersFactory';
 import { ItemMetadata } from '../../shared/domain/ItemMetadata';
 import { FileMetadataCollection } from '../domain/FileMetadataCollection';
 import { File } from '../domain/File';
@@ -16,7 +16,7 @@ export class WebdavFileCreator {
   constructor(
     private readonly repository: FileRepository,
     private readonly folderFinder: WebdavFolderFinder,
-    private readonly remoteContentsManagersFactory: RemoteFileContentsManagersFactory,
+    private readonly remoteContentsManagersFactory: ContentsManagersFactory,
     private readonly temporalFileCollection: FileMetadataCollection,
     private readonly eventBus: WebdavServerEventBus,
     private readonly ipc: WebdavIpc

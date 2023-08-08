@@ -1,6 +1,6 @@
 import { FileStatuses } from '../../domain/FileStatus';
 import { File, FileAtributes } from '../../domain/File';
-import { ContentsIdMother } from './ContentsIdMother';
+import { ContentsIdMother } from '../../../contents/test/domain/ContentsIdMother';
 
 export class FileMother {
   static onFolderName(path: string) {

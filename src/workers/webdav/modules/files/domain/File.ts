@@ -9,7 +9,7 @@ import { FileNameShouldDifferFromOriginalError } from './errors/FileNameShouldDi
 import { FileActionCannotModifyExtension } from './errors/FileActionCannotModifyExtension';
 import { FileDeletedDomainEvent } from './FileDeletedDomainEvent';
 import { FileStatus, FileStatuses } from './FileStatus';
-import { ContentsId } from './ContentsId';
+import { ContentsId } from '../../contents/domain/ContentsId';
 
 export type FileAtributes = {
   contentsId: string;

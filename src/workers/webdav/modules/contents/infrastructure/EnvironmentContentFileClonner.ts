@@ -8,6 +8,7 @@ import {
   FileCloneEvents,
 } from '../domain/ContentFileClonner';
 import { File } from '../../files/domain/File';
+import { ContentsId } from '../domain/ContentsId';
 
 export class EnvironmentContentFileClonner implements ContentFileClonner {
   private readonly eventEmitter: EventEmitter;
@@ -80,12 +81,14 @@ export class EnvironmentContentFileClonner implements ContentFileClonner {
   async clone() {
     this.eventEmitter.emit('start');
 
-    const file = await this.downloadFile();
-    const fileId = await this.uploadFile(file, this.file);
+    const stream = await this.downloadFile();
+    const id = await this.uploadFile(stream, this.file);
 
-    this.eventEmitter.emit('finish', fileId);
+    const contentsId = new ContentsId(id);
 
-    return fileId;
+    this.eventEmitter.emit('finish', contentsId);
+
+    return contentsId;
   }
 
   on(

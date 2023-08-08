@@ -1,4 +1,4 @@
-import { ContentsIdMother } from '../../../files/test/domain/ContentsIdMother';
+import { ContentsIdMother } from '../../../contents/test/domain/ContentsIdMother';
 import { ServerFile } from '../../../../../filesystems/domain/ServerFile';
 import { ServerFolder } from '../../../../../filesystems/domain/ServerFolder';
 import { Traverser } from '../../../items/application/Traverser';

@@ -6,7 +6,7 @@ import { FileMother } from '../domain/FileMother';
 import { RemoteFileContentsManagersFactoryMock } from '../../../contents/test/__mocks__/RemoteFileContentsManagersFactoryMock';
 import { FileRepositoryMock } from '../__mocks__/FileRepositoryMock';
 import { WebdavIpcMock } from '../../../shared/test/__mock__/WebdavIPC';
-import { ContentsIdMother } from '../domain/ContentsIdMother';
+import { ContentsIdMother } from '../../../contents/test/domain/ContentsIdMother';
 
 describe('File Rename', () => {
   let repository: FileRepositoryMock;
@@ -58,7 +58,7 @@ describe('File Rename', () => {
   });
 
   it('when the extension changes reupload the file', async () => {
-    const cloneedContentsId = ContentsIdMother.raw();
+    const cloneedContentsId = ContentsIdMother.random();
 
     repository.mockSearch.mockImplementationOnce(() => {
       //no-op
@@ -77,7 +77,7 @@ describe('File Rename', () => {
     expect(repository.mockUpdateName).not.toBeCalled();
     expect(repository.mockAdd).toHaveBeenCalledWith(
       expect.objectContaining({
-        contentsId: cloneedContentsId,
+        contentsId: cloneedContentsId.value,
         status: FileStatus.Exists,
       })
     );

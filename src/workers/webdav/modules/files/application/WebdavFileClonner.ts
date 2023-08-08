@@ -1,6 +1,6 @@
 import { WebdavFolderFinder } from '../../folders/application/WebdavFolderFinder';
 import { FilePath } from '../domain/FilePath';
-import { RemoteFileContentsManagersFactory } from '../../contents/domain/RemoteFileContentsManagersFactory';
+import { ContentsManagersFactory } from '../../contents/domain/ContentsManagersFactory';
 import { File } from '../domain/File';
 import { FileRepository } from '../domain/FileRepository';
 import { WebdavServerEventBus } from '../../shared/domain/WebdavServerEventBus';
@@ -15,7 +15,7 @@ export class WebdavFileClonner {
   constructor(
     private readonly repository: FileRepository,
     private readonly folderFinder: WebdavFolderFinder,
-    private readonly contentRepository: RemoteFileContentsManagersFactory,
+    private readonly contentRepository: ContentsManagersFactory,
     private readonly eventBus: WebdavServerEventBus,
     private readonly ipc: WebdavIpc
   ) {}
@@ -46,7 +46,7 @@ export class WebdavFileClonner {
     const clonnedFileId = await clonner.clone();
 
     const newFile = file.overwrite(
-      clonnedFileId,
+      clonnedFileId.value,
       destinationFolder.id,
       destinationPath
     );
@@ -75,7 +75,7 @@ export class WebdavFileClonner {
 
     const clonnedFileId = await clonner.clone();
 
-    const clonned = file.clone(clonnedFileId, destinationFolder.id, path);
+    const clonned = file.clone(clonnedFileId.value, destinationFolder.id, path);
 
     await this.repository.add(clonned);
 

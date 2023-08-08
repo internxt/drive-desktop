@@ -2,7 +2,7 @@ import { WebdavServerEventBus } from '../../shared/domain/WebdavServerEventBus';
 import { ActionNotPermitedError } from '../domain/errors/ActionNotPermitedError';
 import { FileAlreadyExistsError } from '../domain/errors/FileAlreadyExistsError';
 import { FilePath } from '../domain/FilePath';
-import { RemoteFileContentsManagersFactory } from '../../contents/domain/RemoteFileContentsManagersFactory';
+import { ContentsManagersFactory } from '../../contents/domain/ContentsManagersFactory';
 import { File } from '../domain/File';
 import { FileRepository } from '../domain/FileRepository';
 import { WebdavIpc } from '../../../ipc';
@@ -10,7 +10,7 @@ import { WebdavIpc } from '../../../ipc';
 export class WebdavFileRenamer {
   constructor(
     private readonly repository: FileRepository,
-    private readonly contentsRepository: RemoteFileContentsManagersFactory,
+    private readonly contentsRepository: ContentsManagersFactory,
     private readonly eventBus: WebdavServerEventBus,
     private readonly ipc: WebdavIpc
   ) {}
@@ -28,7 +28,7 @@ export class WebdavFileRenamer {
 
     const clonnedFileId = await clonner.clone();
 
-    const uploaded = file.overwrite(clonnedFileId, file.folderId, path);
+    const uploaded = file.overwrite(clonnedFileId.value, file.folderId, path);
 
     file.trash();
     await this.repository.add(uploaded);

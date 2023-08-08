@@ -1,4 +1,4 @@
-import { RemoteFileContentsManagersFactory } from '../../domain/RemoteFileContentsManagersFactory';
+import { ContentsManagersFactory } from '../../domain/ContentsManagersFactory';
 import { FileSize } from '../../../files/domain/FileSize';
 import { File } from '../../../files/domain/File';
 import { ContentFileUploader } from '../../domain/ContentFileUploader';
@@ -9,7 +9,7 @@ import { ContentFileDownloaderMock } from './ContentFileDownloaderMock';
 import { ContentFileDownloader } from '../../domain/ContentFileDownloader';
 
 export class RemoteFileContentsManagersFactoryMock
-  implements RemoteFileContentsManagersFactory
+  implements ContentsManagersFactory
 {
   public mockClone = new ContentFileClonnerMock();
   public mockDownload = new ContentFileDownloaderMock();

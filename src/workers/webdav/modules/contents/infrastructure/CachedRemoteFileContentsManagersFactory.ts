@@ -3,17 +3,17 @@ import { ContentFileClonner } from '../domain/ContentFileClonner';
 import { ContentFileDownloader } from '../domain/ContentFileDownloader';
 import { ContentFileUploader } from '../domain/ContentFileUploader';
 import { ContentsCacheRepository } from '../domain/ContentsCacheRepository';
-import { RemoteFileContentsManagersFactory } from '../domain/RemoteFileContentsManagersFactory';
+import { ContentsManagersFactory } from '../domain/ContentsManagersFactory';
 import { CachedContentFileDownloader } from './download/CachedContentFileDownloader';
 import { CachedContentFileUploader } from './upload/CachedContentFileUploader';
 import { File } from '../../files/domain/File';
 
 export class CachedRemoteFileContentsManagersFactory
-  implements RemoteFileContentsManagersFactory
+  implements ContentsManagersFactory
 {
   constructor(
     private readonly repository: ContentsCacheRepository,
-    private readonly factory: RemoteFileContentsManagersFactory
+    private readonly factory: ContentsManagersFactory
   ) {}
 
   downloader(): ContentFileDownloader {

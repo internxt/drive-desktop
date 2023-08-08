@@ -8,7 +8,7 @@ import { FileAlreadyExistsError } from '../../domain/errors/FileAlreadyExistsErr
 import { FileMother } from '../domain/FileMother';
 import { RemoteFileContentsManagersFactoryMock } from '../../../contents/test/__mocks__/RemoteFileContentsManagersFactoryMock';
 import { FileRepositoryMock } from '../__mocks__/FileRepositoryMock';
-import { ContentsIdMother } from '../domain/ContentsIdMother';
+import { ContentsIdMother } from '../../../contents/test/domain/ContentsIdMother';
 
 describe('Webdav File Clonner', () => {
   const OVERWRITE = true;
@@ -45,7 +45,7 @@ describe('Webdav File Clonner', () => {
       const folder = FolderMother.containing(file);
       const destinationPath = file.path;
       const fileToOverride = FileMother.fromPath(destinationPath.value);
-      const clonnedContentsId = ContentsIdMother.raw();
+      const clonnedContentsId = ContentsIdMother.random();
 
       fileReposiotry.mockSearch.mockReturnValueOnce(fileToOverride);
       folderRepository.mockSearch.mockReturnValueOnce(folder);
@@ -62,7 +62,7 @@ describe('Webdav File Clonner', () => {
 
       expect(hasBeenOverwritten).toBe(true);
       expect(fileReposiotry.mockAdd.mock.calls[0][0].contentsId).toBe(
-        clonnedContentsId
+        clonnedContentsId.value
       );
       expect(fileReposiotry.mockAdd.mock.calls[0][0].path).toEqual(
         destinationPath
@@ -87,7 +87,7 @@ describe('Webdav File Clonner', () => {
       const file = FileMother.any();
       const folder = FolderMother.containing(file);
       const destination = `${file.dirname}/${file.name} (copy).${file.type}`;
-      const clonnedContentsId = ContentsIdMother.random().value;
+      const clonnedContentsId = ContentsIdMother.random();
 
       fileReposiotry.mockSearch.mockReturnValueOnce(undefined);
       folderRepository.mockSearch.mockReturnValueOnce(folder);
@@ -104,7 +104,7 @@ describe('Webdav File Clonner', () => {
 
       expect(hasBeenOverwritten).toBe(false);
       expect(fileReposiotry.mockAdd.mock.calls[0][0].contentsId).toBe(
-        clonnedContentsId
+        clonnedContentsId.value
       );
       expect(fileReposiotry.mockAdd.mock.calls[0][0].path.value).toBe(
         destination

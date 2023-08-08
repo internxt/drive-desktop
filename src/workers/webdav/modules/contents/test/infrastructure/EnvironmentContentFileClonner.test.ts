@@ -1,6 +1,7 @@
 import { Readable } from 'stream';
 import { FileMother } from '../../../files/test/domain/FileMother';
 import { EnvironmentContentFileClonner } from '../../infrastructure/EnvironmentContentFileClonner';
+import { ContentsIdMother } from '../domain/ContentsIdMother';
 import { createDownloadStrategy } from '../__mocks__/environment/DownloadStratgeyFunctionMock';
 import { createUploadStrategy } from '../__mocks__/environment/UploadStrategyFunciontMock';
 
@@ -14,10 +15,7 @@ describe('Environment Content File Clonner', () => {
         callbacks.finishedCallback(null as unknown as Error, Readable.from(''));
       });
       const uploadStrategy = createUploadStrategy((callbacks) => {
-        callbacks.finishedCallback(
-          null,
-          '3ebe8efe-c361-5269-b12d-c8a75c4cfcdd'
-        );
+        callbacks.finishedCallback(null, ContentsIdMother.raw());
       });
 
       const clonner = new EnvironmentContentFileClonner(
@@ -37,13 +35,13 @@ describe('Environment Content File Clonner', () => {
     });
 
     it('emits an event with a file id when a file is cloned', async () => {
-      const uploadedFileId = 'e8a24566-38da-5011-8d5c-46f478f9ddd0';
+      const uploadedFileId = ContentsIdMother.random();
 
       const downloadStragegy = createDownloadStrategy((callbacks) => {
         callbacks.finishedCallback(null as unknown as Error, Readable.from(''));
       });
       const uploadStrategy = createUploadStrategy((callbacks) => {
-        callbacks.finishedCallback(null, uploadedFileId);
+        callbacks.finishedCallback(null, uploadedFileId.value);
       });
 
       const clonner = new EnvironmentContentFileClonner(
@@ -67,10 +65,7 @@ describe('Environment Content File Clonner', () => {
         callbacks.finishedCallback(null as unknown as Error, Readable.from(''));
       });
       const uploadStrategy = createUploadStrategy((callbacks) => {
-        callbacks.finishedCallback(
-          null,
-          '4c3f80fb-5eb7-5d3b-8b00-15328a1c4f5f'
-        );
+        callbacks.finishedCallback(null, ContentsIdMother.raw());
       });
 
       const clonner = new EnvironmentContentFileClonner(
@@ -97,10 +92,7 @@ describe('Environment Content File Clonner', () => {
         callbacks.finishedCallback(null as unknown as Error, Readable.from(''));
       });
       const uploadStrategy = createUploadStrategy((callbacks) => {
-        callbacks.finishedCallback(
-          null,
-          '4c3f80fb-5eb7-5d3b-8b00-15328a1c4f5f'
-        );
+        callbacks.finishedCallback(null, ContentsIdMother.raw());
       });
 
       const clonner = new EnvironmentContentFileClonner(
@@ -124,10 +116,7 @@ describe('Environment Content File Clonner', () => {
         callbacks.finishedCallback(null as unknown as Error, Readable.from(''));
       });
       const uploadStrategy = createUploadStrategy((callbacks) => {
-        callbacks.finishedCallback(
-          null,
-          '4c3f80fb-5eb7-5d3b-8b00-15328a1c4f5f'
-        );
+        callbacks.finishedCallback(null, ContentsIdMother.raw());
       });
 
       const clonner = new EnvironmentContentFileClonner(
@@ -151,10 +140,7 @@ describe('Environment Content File Clonner', () => {
         callbacks.finishedCallback(null as unknown as Error, Readable.from(''));
       });
       const uploadStrategy = createUploadStrategy((callbacks) => {
-        callbacks.finishedCallback(
-          null,
-          '4c3f80fb-5eb7-5d3b-8b00-15328a1c4f5f'
-        );
+        callbacks.finishedCallback(null, ContentsIdMother.raw());
       });
 
       const clonner = new EnvironmentContentFileClonner(
@@ -181,10 +167,7 @@ describe('Environment Content File Clonner', () => {
         callbacks.progressCallback(25, 1, 4);
         callbacks.progressCallback(50, 2, 4);
         callbacks.progressCallback(75, 3, 4);
-        callbacks.finishedCallback(
-          null,
-          '4c3f80fb-5eb7-5d3b-8b00-15328a1c4f5f'
-        );
+        callbacks.finishedCallback(null, ContentsIdMother.raw());
       });
 
       const clonner = new EnvironmentContentFileClonner(
@@ -208,10 +191,7 @@ describe('Environment Content File Clonner', () => {
         callbacks.finishedCallback(null as unknown as Error, Readable.from(''));
       });
       const uploadStrategy = createUploadStrategy((callbacks) => {
-        callbacks.finishedCallback(
-          null,
-          '4c3f80fb-5eb7-5d3b-8b00-15328a1c4f5f'
-        );
+        callbacks.finishedCallback(null, ContentsIdMother.raw());
       });
 
       const clonner = new EnvironmentContentFileClonner(
@@ -235,10 +215,7 @@ describe('Environment Content File Clonner', () => {
         callbacks.finishedCallback(null as unknown as Error, Readable.from(''));
       });
       const uploadStrategy = createUploadStrategy((callbacks) => {
-        callbacks.finishedCallback(
-          null,
-          '4c3f80fb-5eb7-5d3b-8b00-15328a1c4f5f'
-        );
+        callbacks.finishedCallback(null, ContentsIdMother.raw());
       });
 
       const clonner = new EnvironmentContentFileClonner(
@@ -348,10 +325,7 @@ describe('Environment Content File Clonner', () => {
         );
       });
       const uploadStrategy = createUploadStrategy((callbacks) => {
-        callbacks.finishedCallback(
-          null,
-          '3ebe8efe-c361-5269-b12d-c8a75c4cfcdd'
-        );
+        callbacks.finishedCallback(null, ContentsIdMother.raw());
       });
 
       const clonner = new EnvironmentContentFileClonner(
@@ -378,11 +352,7 @@ describe('Environment Content File Clonner', () => {
       });
       const uploadStrategy = createUploadStrategy((callbacks) => {
         setTimeout(
-          () =>
-            callbacks.finishedCallback(
-              null,
-              '3ebe8efe-c361-5269-b12d-c8a75c4cfcdd'
-            ),
+          () => callbacks.finishedCallback(null, ContentsIdMother.raw()),
           delay
         );
       });
@@ -419,11 +389,7 @@ describe('Environment Content File Clonner', () => {
       });
       const uploadStrategy = createUploadStrategy((callbacks) => {
         setTimeout(
-          () =>
-            callbacks.finishedCallback(
-              null,
-              '3ebe8efe-c361-5269-b12d-c8a75c4cfcdd'
-            ),
+          () => callbacks.finishedCallback(null, ContentsIdMother.raw()),
           delay
         );
       });

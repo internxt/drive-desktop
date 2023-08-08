@@ -1,17 +1,18 @@
 import { WebdavServerEventBus } from '../../shared/domain/WebdavServerEventBus';
 import { FileNotFoundError } from '../domain/errors/FileNotFoundError';
-import { RemoteFileContentsManagersFactory } from '../../contents/domain/RemoteFileContentsManagersFactory';
-import { RemoteFileContents } from '../../contents/domain/RemoteFileContent';
+import { ContentsManagersFactory } from '../../contents/domain/ContentsManagersFactory';
+import { Contents } from '../../contents/domain/Contents';
 import { FileRepository } from '../domain/FileRepository';
 import { FilePath } from '../domain/FilePath';
 import { WebdavIpc } from '../../../ipc';
 import { ContentFileDownloader } from '../../contents/domain/ContentFileDownloader';
 import { File } from '../domain/File';
+import { ContentsId } from '../../contents/domain/ContentsId';
 
 export class WebdavFileDownloader {
   constructor(
     private readonly repository: FileRepository,
-    private readonly contents: RemoteFileContentsManagersFactory,
+    private readonly contents: ContentsManagersFactory,
     private readonly eventBus: WebdavServerEventBus,
     private readonly ipc: WebdavIpc
   ) {}
@@ -57,7 +58,7 @@ export class WebdavFileDownloader {
     });
   }
 
-  async run(path: string): Promise<RemoteFileContents> {
+  async run(path: string): Promise<Contents> {
     const filePath = new FilePath(path);
 
     const file = this.repository.search(filePath);
@@ -72,7 +73,8 @@ export class WebdavFileDownloader {
 
     const readable = await downloader.download(file);
 
-    const remoteContents = RemoteFileContents.preview(file, readable);
+    const contentsId = new ContentsId(file.contentsId);
+    const remoteContents = Contents.from(contentsId, readable);
 
     await this.eventBus.publish(remoteContents.pullDomainEvents());
 

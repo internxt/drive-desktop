@@ -4,7 +4,7 @@ import { ContentFileUploader } from './ContentFileUploader';
 import { FileSize } from '../../files/domain/FileSize';
 import { File } from '../../files/domain/File';
 
-export interface RemoteFileContentsManagersFactory {
+export interface ContentsManagersFactory {
   downloader(): ContentFileDownloader;
 
   uploader(size: FileSize): ContentFileUploader;

@@ -3,14 +3,14 @@ import { FileSize } from '../../files/domain/FileSize';
 import { ContentFileClonner } from '../domain/ContentFileClonner';
 import { ContentFileDownloader } from '../domain/ContentFileDownloader';
 import { ContentFileUploader } from '../domain/ContentFileUploader';
-import { RemoteFileContentsManagersFactory } from '../domain/RemoteFileContentsManagersFactory';
+import { ContentsManagersFactory } from '../domain/ContentsManagersFactory';
 import { EnvironmentContentFileDownloader } from './download/EnvironmentContnetFileDownloader';
 import { EnvironmentContentFileClonner } from './EnvironmentContentFileClonner';
 import { EnvironmentContentFileUpoader } from './upload/EnvironmentContentFileUpoader';
 import { File } from '../../files/domain/File';
 
 export class EnvironmentRemoteFileContentsManagersFactory
-  implements RemoteFileContentsManagersFactory
+  implements ContentsManagersFactory
 {
   private static MULTIPART_UPLOADE_SIZE_THRESHOLD = 5 * 1024 * 1024 * 1024;
 

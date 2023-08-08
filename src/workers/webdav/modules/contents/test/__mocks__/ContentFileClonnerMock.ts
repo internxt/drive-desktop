@@ -1,14 +1,15 @@
 import {
   ContentFileClonner,
   FileCloneEvents,
-} from '../../../contents/domain/ContentFileClonner';
+} from '../../domain/ContentFileClonner';
+import { ContentsId } from '../../domain/ContentsId';
 
 export class ContentFileClonnerMock implements ContentFileClonner {
   mock = jest.fn();
   onMock = jest.fn();
   elapsedTimeMock = jest.fn();
 
-  clone(): Promise<string> {
+  clone(): Promise<ContentsId> {
     return this.mock();
   }
 
@@ -17,7 +18,7 @@ export class ContentFileClonnerMock implements ContentFileClonner {
     fn:
       | (() => void)
       | ((progress: number) => void)
-      | ((fileId: string) => void)
+      | ((fileId: ContentsId) => void)
       | ((error: Error) => void)
   ): void {
     return this.onMock(event, fn);

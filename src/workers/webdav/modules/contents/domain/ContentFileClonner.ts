@@ -1,4 +1,4 @@
-import { FileAtributes } from '../../files/domain/File';
+import { ContentsId } from './ContentsId';
 
 export type FileCloneEvents = {
   start: () => void;
@@ -6,14 +6,14 @@ export type FileCloneEvents = {
   'start-upload': () => void;
   'download-progress': (progress: number) => void;
   'upload-progress': (progress: number) => void;
-  'download-finished': (fileId: FileAtributes['contentsId']) => void;
-  'upload-finished': (fileId: FileAtributes['contentsId']) => void;
-  finish: (fileId: FileAtributes['contentsId']) => void;
+  'download-finished': (fileId: ContentsId) => void;
+  'upload-finished': (fileId: ContentsId) => void;
+  finish: (fileId: ContentsId) => void;
   error: (error: Error) => void;
 };
 
 export interface ContentFileClonner {
-  clone(): Promise<FileAtributes['contentsId']>;
+  clone(): Promise<ContentsId>;
 
   on(
     event: keyof FileCloneEvents,
