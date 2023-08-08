@@ -1,7 +1,7 @@
 import { Environment } from '@internxt/inxt-js';
 import { FileSize } from '../../domain/FileSize';
 import { RemoteFileContentsManagersFactory } from '../../domain/RemoteFileContentsManagersFactory';
-import { WebdavFile } from '../../domain/WebdavFile';
+import { File } from '../../domain/File';
 import { EnvironmentContentFileUpoader } from './upload/EnvironmentContentFileUpoader';
 import { EnvironmentContentFileDownloader } from './download/EnvironmentContnetFileDownloader';
 import { ContentFileDownloader } from '../../domain/ContentFileDownloader';
@@ -19,7 +19,7 @@ export class EnvironmentRemoteFileContentsManagersFactory
     private readonly bucket: string
   ) {}
 
-  clonner(file: WebdavFile): ContentFileClonner {
+  clonner(file: File): ContentFileClonner {
     const uploadFunciton =
       file.size >
       EnvironmentRemoteFileContentsManagersFactory.MULTIPART_UPLOADE_SIZE_THRESHOLD

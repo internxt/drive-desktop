@@ -1,5 +1,5 @@
 import { Primitives } from 'shared/types/Primitives';
-import { WebdavFile } from '../../files/domain/WebdavFile';
+import { File } from '../../files/domain/File';
 import { AggregateRoot } from '../../shared/domain/AggregateRoot';
 import { FolderPath } from './FolderPath';
 import { FolderStatus, FolderStatuses } from './FolderStatus';
@@ -142,7 +142,7 @@ export class WebdavFolder extends AggregateRoot {
     return true;
   }
 
-  isFile(): this is WebdavFile {
+  isFile(): this is File {
     return false;
   }
 

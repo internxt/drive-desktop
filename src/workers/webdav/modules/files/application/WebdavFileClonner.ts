@@ -1,8 +1,8 @@
 import { WebdavFolderFinder } from '../../folders/application/WebdavFolderFinder';
 import { FilePath } from '../domain/FilePath';
 import { RemoteFileContentsManagersFactory } from '../domain/RemoteFileContentsManagersFactory';
-import { WebdavFile } from '../domain/WebdavFile';
-import { WebdavFileRepository } from '../domain/WebdavFileRepository';
+import { File } from '../domain/File';
+import { FileRepository } from '../domain/FileRepository';
 import { WebdavServerEventBus } from '../../shared/domain/WebdavServerEventBus';
 import { FileAlreadyExistsError } from '../domain/errors/FileAlreadyExistsError';
 import { WebdavIpc } from '../../../ipc';
@@ -13,14 +13,14 @@ export class WebdavFileClonner {
   private static FILE_NOT_OVERRIDED = false;
 
   constructor(
-    private readonly repository: WebdavFileRepository,
+    private readonly repository: FileRepository,
     private readonly folderFinder: WebdavFolderFinder,
     private readonly contentRepository: RemoteFileContentsManagersFactory,
     private readonly eventBus: WebdavServerEventBus,
     private readonly ipc: WebdavIpc
   ) {}
 
-  private registerEvents(clonner: ContentFileClonner, file: WebdavFile) {
+  private registerEvents(clonner: ContentFileClonner, file: File) {
     clonner.on('finish', () => {
       this.ipc.send('WEBDAV_FILE_CLONNED', {
         name: file.name,
@@ -33,8 +33,8 @@ export class WebdavFileClonner {
   }
 
   private async overwrite(
-    file: WebdavFile,
-    fileOverwritted: WebdavFile,
+    file: File,
+    fileOverwritted: File,
     destinationPath: FilePath
   ) {
     const destinationFolder = this.folderFinder.run(fileOverwritted.dirname);
@@ -66,7 +66,7 @@ export class WebdavFileClonner {
     }
   }
 
-  private async copy(file: WebdavFile, path: FilePath) {
+  private async copy(file: File, path: FilePath) {
     const destinationFolder = this.folderFinder.run(path.dirname());
 
     const clonner = this.contentRepository.clonner(file);
@@ -83,7 +83,7 @@ export class WebdavFileClonner {
   }
 
   async run(
-    originFile: WebdavFile,
+    originFile: File,
     destination: string,
     overwrite: boolean
   ): Promise<boolean> {

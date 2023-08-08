@@ -1,7 +1,7 @@
 import { Readable } from 'stream';
 import { AggregateRoot } from '../../shared/domain/AggregateRoot';
 import { FileDownloadedDomainEvent } from './FileDownloadedDomainEvent';
-import { WebdavFile } from './WebdavFile';
+import { File } from './File';
 
 export class RemoteFileContents extends AggregateRoot {
   private constructor(
@@ -13,7 +13,7 @@ export class RemoteFileContents extends AggregateRoot {
     super();
   }
 
-  static preview(file: WebdavFile, contents: Readable): RemoteFileContents {
+  static preview(file: File, contents: Readable): RemoteFileContents {
     const remoteContents = new RemoteFileContents(
       file.fileId,
       file.size,

@@ -1,9 +1,9 @@
-import { WebdavFile } from '../../../files/domain/WebdavFile';
+import { File } from '../../../files/domain/File';
 import { FolderStatuses } from '../../domain/FolderStatus';
 import { WebdavFolder } from '../../domain/WebdavFolder';
 
 export class WebdavFolderMother {
-  static containing(file: WebdavFile) {
+  static containing(file: File) {
     return WebdavFolder.from({
       id: file.folderId,
       path: file.dirname,

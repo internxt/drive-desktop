@@ -5,12 +5,12 @@ import { WebdavFileCreator } from '../../application/WebdavFileCreator';
 import { FileMetadataCollection } from '../../domain/FileMetadataCollection';
 import { InMemoryTemporalFileMetadataCollection } from '../../infrastructure/persistance/InMemoryTemporalFileMetadataCollection';
 import { RemoteFileContentsManagersFactoryMock } from '../__mocks__/RemoteFileContentsManagersFactoryMock';
-import { WebdavFileRepositoryMock } from '../__mocks__/WebdavFileRepositoyMock';
+import { FileRepositoryMock } from '../__mocks__/FileRepositoryMock';
 import { EventBusMock } from '../../../shared/test/__mock__/EventBusMock';
 import { WebdavIpcMock } from '../../../shared/test/__mock__/WebdavIPC';
 
 describe('Webdav File Creator', () => {
-  let fileReposiotry: WebdavFileRepositoryMock;
+  let fileReposiotry: FileRepositoryMock;
   let folderRepository: WebdavFolderRepositoryMock;
   let contentsRepository: RemoteFileContentsManagersFactoryMock;
   let temporalFileCollection: FileMetadataCollection;
@@ -20,7 +20,7 @@ describe('Webdav File Creator', () => {
   let SUT: WebdavFileCreator;
 
   beforeEach(() => {
-    fileReposiotry = new WebdavFileRepositoryMock();
+    fileReposiotry = new FileRepositoryMock();
     folderRepository = new WebdavFolderRepositoryMock();
     const folderFinder = new WebdavFolderFinder(folderRepository);
     contentsRepository = new RemoteFileContentsManagersFactoryMock();

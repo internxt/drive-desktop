@@ -4,7 +4,7 @@ import {
   FileDownloadEvents,
 } from '../../../domain/ContentFileDownloader';
 import { ContentsCacheRepository } from '../../../domain/ContentsCacheRepository';
-import { WebdavFile } from '../../../domain/WebdavFile';
+import { File } from '../../../domain/File';
 import Logger from 'electron-log';
 
 export class CachedContentFileDownloader implements ContentFileDownloader {
@@ -22,7 +22,7 @@ export class CachedContentFileDownloader implements ContentFileDownloader {
     this.elapsedTime = fileDownloader.elapsedTime.bind(fileDownloader);
   }
 
-  async download(file: WebdavFile): Promise<Readable> {
+  async download(file: File): Promise<Readable> {
     const isCached = await this.cachedRepository.exists(file.fileId);
 
     if (isCached) {

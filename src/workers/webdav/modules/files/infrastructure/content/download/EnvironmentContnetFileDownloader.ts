@@ -5,7 +5,7 @@ import {
   FileDownloadEvents,
 } from '../../../domain/ContentFileDownloader';
 import { RemoteFileContents } from '../../../domain/RemoteFileContent';
-import { WebdavFile } from '../../../domain/WebdavFile';
+import { File } from '../../../domain/File';
 import { Stopwatch } from '../../../../../../../shared/types/Stopwatch';
 
 export class EnvironmentContentFileDownloader implements ContentFileDownloader {
@@ -20,7 +20,7 @@ export class EnvironmentContentFileDownloader implements ContentFileDownloader {
     this.stopwatch = new Stopwatch();
   }
 
-  download(file: WebdavFile): Promise<Readable> {
+  download(file: File): Promise<Readable> {
     this.stopwatch.start();
 
     this.eventEmitter.emit('start');

@@ -1,11 +1,11 @@
 import axios from 'axios';
 import { Traverser } from '../../../../items/application/Traverser';
-import { HttpWebdavFileRepository } from '../../../infrastructure/persistance/HttpWebdavFileRepository';
+import { HttpFileRepository } from '../../../infrastructure/persistance/HttpFileRepository';
 import { WebdavIpcMock } from '../../../../shared/test/__mock__/WebdavIPC';
 import { FilePath } from '../../../domain/FilePath';
 import { ServerFileMother } from './ServerFileMother';
 import { ServerFolderMother } from '../../../../items/test/persistance/ServerFolderMother';
-import { WebdavFile } from '../../../domain/WebdavFile';
+import { File } from '../../../domain/File';
 import { fakeDecryptor } from '../../../../shared/test/domain/FakeCrypt';
 
 jest.mock('axios');
@@ -20,14 +20,14 @@ const rootFolder = ServerFolderMother.fromPartial({
 describe('Http File Repository', () => {
   let traverser: Traverser;
   let ipc: WebdavIpcMock;
-  let SUT: HttpWebdavFileRepository;
+  let SUT: HttpFileRepository;
 
   beforeEach(() => {
     traverser = new Traverser(fakeDecryptor, rootFolderId);
 
     ipc = new WebdavIpcMock();
 
-    SUT = new HttpWebdavFileRepository(
+    SUT = new HttpFileRepository(
       fakeDecryptor,
       axios,
       axios,
@@ -57,9 +57,7 @@ describe('Http File Repository', () => {
 
       await SUT.init();
 
-      const fileSearchedBeforeRename = SUT.search(
-        new FilePath('/a')
-      ) as WebdavFile;
+      const fileSearchedBeforeRename = SUT.search(new FilePath('/a')) as File;
 
       fileSearchedBeforeRename.rename(new FilePath('/aa'));
 

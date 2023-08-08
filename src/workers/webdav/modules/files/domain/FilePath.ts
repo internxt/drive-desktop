@@ -1,9 +1,9 @@
 import path from 'path';
-import { WebdavPath } from '../../shared/domain/WebdavPath';
+import { Path } from '../../shared/domain/Path';
 import { InvalidArgumentError } from '../../../../shared/domain/InvalidArgumentError';
 import { WebdavFileValidator } from '../application/WebdavFileValidator';
 
-export class FilePath extends WebdavPath {
+export class FilePath extends Path {
   private fileValidator = new WebdavFileValidator();
   constructor(value: string) {
     super(value);

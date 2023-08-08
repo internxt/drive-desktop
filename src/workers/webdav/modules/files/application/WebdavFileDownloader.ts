@@ -2,21 +2,21 @@ import { WebdavServerEventBus } from '../../shared/domain/WebdavServerEventBus';
 import { FileNotFoundError } from '../domain/errors/FileNotFoundError';
 import { RemoteFileContentsManagersFactory } from '../domain/RemoteFileContentsManagersFactory';
 import { RemoteFileContents } from '../domain/RemoteFileContent';
-import { WebdavFileRepository } from '../domain/WebdavFileRepository';
+import { FileRepository } from '../domain/FileRepository';
 import { FilePath } from '../domain/FilePath';
 import { WebdavIpc } from '../../../ipc';
 import { ContentFileDownloader } from '../domain/ContentFileDownloader';
-import { WebdavFile } from '../domain/WebdavFile';
+import { File } from '../domain/File';
 
 export class WebdavFileDownloader {
   constructor(
-    private readonly repository: WebdavFileRepository,
+    private readonly repository: FileRepository,
     private readonly contents: RemoteFileContentsManagersFactory,
     private readonly eventBus: WebdavServerEventBus,
     private readonly ipc: WebdavIpc
   ) {}
 
-  private registerEvents(downloader: ContentFileDownloader, file: WebdavFile) {
+  private registerEvents(downloader: ContentFileDownloader, file: File) {
     downloader.on('start', () => {
       this.ipc.send('WEBDAV_FILE_DOWNLOADING', {
         name: file.name,

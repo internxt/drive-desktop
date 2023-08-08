@@ -3,7 +3,7 @@ import { ContentFileDownloader } from '../../domain/ContentFileDownloader';
 import { ContentFileUploader } from '../../domain/ContentFileUploader';
 import { FileSize } from '../../domain/FileSize';
 import { RemoteFileContentsManagersFactory } from '../../domain/RemoteFileContentsManagersFactory';
-import { WebdavFile } from '../../domain/WebdavFile';
+import { File } from '../../domain/File';
 import { ContentsCacheRepository } from '../../domain/ContentsCacheRepository';
 import { CachedContentFileDownloader } from './download/CachedContentFileDownloader';
 import { CachedContentFileUploader } from './upload/CachedContentFileUploader';
@@ -30,7 +30,7 @@ export class CachedRemoteFileContentsManagersFactory
     );
   }
 
-  clonner(file: WebdavFile): ContentFileClonner {
+  clonner(file: File): ContentFileClonner {
     return this.clonner(file);
   }
 }

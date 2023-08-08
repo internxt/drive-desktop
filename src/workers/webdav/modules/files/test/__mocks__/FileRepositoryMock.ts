@@ -1,9 +1,9 @@
 import { Nullable } from 'shared/types/Nullable';
 import { FilePath } from '../../domain/FilePath';
-import { WebdavFile } from '../../domain/WebdavFile';
-import { WebdavFileRepository } from '../../domain/WebdavFileRepository';
+import { File } from '../../domain/File';
+import { FileRepository } from '../../domain/FileRepository';
 
-export class WebdavFileRepositoryMock implements WebdavFileRepository {
+export class FileRepositoryMock implements FileRepository {
   public mockSearch = jest.fn();
   public mockDelete = jest.fn();
   public mockAdd = jest.fn();
@@ -11,26 +11,26 @@ export class WebdavFileRepositoryMock implements WebdavFileRepository {
   public mockUpdateParentDir = jest.fn();
   public mockSearchOnFolder = jest.fn();
 
-  search(pathLike: FilePath): Nullable<WebdavFile> {
+  search(pathLike: FilePath): Nullable<File> {
     return this.mockSearch(pathLike);
   }
-  delete(file: WebdavFile): Promise<void> {
+  delete(file: File): Promise<void> {
     return this.mockDelete(file);
   }
 
-  add(file: WebdavFile): Promise<void> {
+  add(file: File): Promise<void> {
     return this.mockAdd(file);
   }
 
-  updateName(item: WebdavFile): Promise<void> {
+  updateName(item: File): Promise<void> {
     return this.mockUpdateName(item);
   }
 
-  updateParentDir(item: WebdavFile): Promise<void> {
+  updateParentDir(item: File): Promise<void> {
     return this.mockUpdateParentDir(item);
   }
 
-  searchOnFolder(folderId: number): Promise<Array<WebdavFile>> {
+  searchOnFolder(folderId: number): Promise<Array<File>> {
     return this.mockSearchOnFolder(folderId);
   }
 

@@ -4,8 +4,8 @@ import { FilePath } from '../domain/FilePath';
 import { RemoteFileContentsManagersFactory } from '../domain/RemoteFileContentsManagersFactory';
 import { ItemMetadata } from '../../shared/domain/ItemMetadata';
 import { FileMetadataCollection } from '../domain/FileMetadataCollection';
-import { WebdavFile } from '../domain/WebdavFile';
-import { WebdavFileRepository } from '../domain/WebdavFileRepository';
+import { File } from '../domain/File';
+import { FileRepository } from '../domain/FileRepository';
 import { WebdavFolder } from '../../folders/domain/WebdavFolder';
 import { FileSize } from '../domain/FileSize';
 import { WebdavServerEventBus } from '../../shared/domain/WebdavServerEventBus';
@@ -14,7 +14,7 @@ import { WebdavIpc } from '../../../ipc';
 
 export class WebdavFileCreator {
   constructor(
-    private readonly repository: WebdavFileRepository,
+    private readonly repository: FileRepository,
     private readonly folderFinder: WebdavFolderFinder,
     private readonly remoteContentsManagersFactory: RemoteFileContentsManagersFactory,
     private readonly temporalFileCollection: FileMetadataCollection,
@@ -79,8 +79,8 @@ export class WebdavFileCreator {
     folder: WebdavFolder,
     size: number,
     filePath: FilePath
-  ): Promise<WebdavFile> {
-    const file = WebdavFile.create(fileId, folder, size, filePath);
+  ): Promise<File> {
+    const file = File.create(fileId, folder, size, filePath);
 
     await this.repository.add(file);
 
@@ -96,7 +96,7 @@ export class WebdavFileCreator {
     size: number
   ): Promise<{
     stream: Writable;
-    upload: Promise<WebdavFile['fileId']>;
+    upload: Promise<File['fileId']>;
   }> {
     const fileSize = new FileSize(size);
     const filePath = new FilePath(path);

@@ -11,7 +11,7 @@ import { WebdavFileDeleter } from '../modules/files/application/WebdavFileDelete
 import { WebdavFileDownloader } from '../modules/files/application/WebdavFileDownloader';
 import { WebdavFileMimeTypeResolver } from '../modules/files/application/WebdavFileMimeTypeResolver';
 import { WebdavFileMover } from '../modules/files/application/WebdavFileMover';
-import { HttpWebdavFileRepository } from '../modules/files/infrastructure/persistance/HttpWebdavFileRepository';
+import { HttpFileRepository } from '../modules/files/infrastructure/persistance/HttpFileRepository';
 import { InMemoryTemporalFileMetadataCollection } from '../modules/files/infrastructure/persistance/InMemoryTemporalFileMetadataCollection';
 import { EnvironmentRemoteFileContentsManagersFactory } from '../modules/files/infrastructure/content/EnvironmentRemoteFileContentsManagersFactory';
 import { WebdavFolderCreator } from '../modules/folders/application/WebdavFolderCreator';
@@ -91,7 +91,7 @@ export class DependencyContainerFactory {
 
     const traverser = new Traverser(crypt, user.root_folder_id);
 
-    const fileRepository = new HttpWebdavFileRepository(
+    const fileRepository = new HttpFileRepository(
       crypt,
       clients.drive,
       clients.newDrive,

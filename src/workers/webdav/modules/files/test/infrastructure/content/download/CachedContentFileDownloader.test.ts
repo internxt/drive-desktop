@@ -1,6 +1,6 @@
 import { Readable } from 'stream';
 import { CachedContentFileDownloader } from '../../../../infrastructure/content/download/CachedContentFileDownloader';
-import { WebdavFileMother } from '../../../domain/WebdavFileMother';
+import { FileMother } from '../../../domain/FileMother';
 import { ContentFileDownloaderMock } from '../../../__mocks__/ContentFileDownloaderMock';
 import { ContentsCacheRepositoryMock } from '../../../__mocks__/ContentsCacheRepositoryMock';
 
@@ -52,7 +52,7 @@ describe('cached content file downloader', () => {
   });
 
   it('returns a readable with the cached file contents', async () => {
-    const file = WebdavFileMother.any();
+    const file = FileMother.any();
 
     cacheRepository.existsMock.mockResolvedValueOnce(true);
     cacheRepository.readMock.mockReturnValue(contents);
@@ -65,7 +65,7 @@ describe('cached content file downloader', () => {
   });
 
   it('does not download the file if its cached', async () => {
-    const file = WebdavFileMother.any();
+    const file = FileMother.any();
 
     cacheRepository.existsMock.mockResolvedValueOnce(true);
     cacheRepository.readMock.mockResolvedValue(contents);
@@ -76,7 +76,7 @@ describe('cached content file downloader', () => {
   });
 
   it('downloads the file if the file is not cached', async () => {
-    const file = WebdavFileMother.any();
+    const file = FileMother.any();
 
     cacheRepository.writeMock.mockReturnValueOnce(Promise.resolve());
     downloader.mock.mockResolvedValueOnce(contents);
@@ -88,7 +88,7 @@ describe('cached content file downloader', () => {
   });
 
   it('caches the file if the file was not cached', async () => {
-    const file = WebdavFileMother.any();
+    const file = FileMother.any();
 
     cacheRepository.writeMock.mockReturnValueOnce(Promise.resolve());
     downloader.mock.mockResolvedValueOnce(contents);
@@ -99,7 +99,7 @@ describe('cached content file downloader', () => {
   });
 
   it('does not fail if an error occurs during the caching of the file', async () => {
-    const file = WebdavFileMother.any();
+    const file = FileMother.any();
 
     cacheRepository.writeMock.mockRejectedValueOnce(new Error('ERROR'));
     downloader.mock.mockResolvedValueOnce(contents);

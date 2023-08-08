@@ -2,20 +2,20 @@ import { EventBusMock } from '../../../shared/test/__mock__/EventBusMock';
 import { WebdavFileRenamer } from '../../application/WebdavFileRenamer';
 import { FilePath } from '../../domain/FilePath';
 import { FileStatus } from '../../domain/FileStatus';
-import { WebdavFileMother } from '../domain/WebdavFileMother';
+import { FileMother } from '../domain/FileMother';
 import { RemoteFileContentsManagersFactoryMock } from '../__mocks__/RemoteFileContentsManagersFactoryMock';
-import { WebdavFileRepositoryMock } from '../__mocks__/WebdavFileRepositoyMock';
+import { FileRepositoryMock } from '../__mocks__/FileRepositoryMock';
 import { WebdavIpcMock } from '../../../shared/test/__mock__/WebdavIPC';
 
 describe('File Rename', () => {
-  let repository: WebdavFileRepositoryMock;
+  let repository: FileRepositoryMock;
   let contentsRepository: RemoteFileContentsManagersFactoryMock;
   let eventBus: EventBusMock;
   let ipc: WebdavIpcMock;
   let SUT: WebdavFileRenamer;
 
   beforeEach(() => {
-    repository = new WebdavFileRepositoryMock();
+    repository = new FileRepositoryMock();
     contentsRepository = new RemoteFileContentsManagersFactoryMock();
     eventBus = new EventBusMock();
     ipc = new WebdavIpcMock();
@@ -27,7 +27,7 @@ describe('File Rename', () => {
       //no-op
     });
 
-    const file = WebdavFileMother.any();
+    const file = FileMother.any();
 
     const destination = new FilePath(
       `${file.dirname}/_${file.nameWithExtension}`
@@ -45,7 +45,7 @@ describe('File Rename', () => {
       //no-op
     });
 
-    const file = WebdavFileMother.any();
+    const file = FileMother.any();
 
     const destination = new FilePath(
       `${file.dirname}/_${file.nameWithExtension}`
@@ -65,7 +65,7 @@ describe('File Rename', () => {
 
     contentsRepository.mockClone.mock.mockResolvedValueOnce(cloneedFileId);
 
-    const file = WebdavFileMother.any();
+    const file = FileMother.any();
 
     const destination = new FilePath(
       `${file.dirname}/_${file.name}.${file.type}n`
@@ -89,11 +89,11 @@ describe('File Rename', () => {
   });
 
   it('when the already exists a file on the destination it fails', async () => {
-    const fileOnDestination = WebdavFileMother.any();
+    const fileOnDestination = FileMother.any();
 
     repository.mockSearch.mockResolvedValueOnce(fileOnDestination);
 
-    await SUT.run(WebdavFileMother.any(), fileOnDestination.path.value).catch(
+    await SUT.run(FileMother.any(), fileOnDestination.path.value).catch(
       (error) => {
         expect(error).toBeDefined();
       }

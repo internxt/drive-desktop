@@ -1,4 +1,4 @@
-import { WebdavFileAtributes } from './WebdavFile';
+import { FileAtributes } from './File';
 
 export type FileCloneEvents = {
   start: () => void;
@@ -6,14 +6,14 @@ export type FileCloneEvents = {
   'start-upload': () => void;
   'download-progress': (progress: number) => void;
   'upload-progress': (progress: number) => void;
-  'download-finished': (fileId: WebdavFileAtributes['fileId']) => void;
-  'upload-finished': (fileId: WebdavFileAtributes['fileId']) => void;
-  finish: (fileId: WebdavFileAtributes['fileId']) => void;
+  'download-finished': (fileId: FileAtributes['fileId']) => void;
+  'upload-finished': (fileId: FileAtributes['fileId']) => void;
+  finish: (fileId: FileAtributes['fileId']) => void;
   error: (error: Error) => void;
 };
 
 export interface ContentFileClonner {
-  clone(): Promise<WebdavFileAtributes['fileId']>;
+  clone(): Promise<FileAtributes['fileId']>;
 
   on(
     event: keyof FileCloneEvents,

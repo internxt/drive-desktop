@@ -7,7 +7,7 @@ import {
   ContentFileClonner,
   FileCloneEvents,
 } from '../../domain/ContentFileClonner';
-import { WebdavFile } from '../../domain/WebdavFile';
+import { File } from '../../domain/File';
 
 export class EnvironmentContentFileClonner implements ContentFileClonner {
   private readonly eventEmitter: EventEmitter;
@@ -17,7 +17,7 @@ export class EnvironmentContentFileClonner implements ContentFileClonner {
     private readonly upload: UploadStrategyFunction,
     private readonly download: DownloadStrategyFunction<unknown>,
     private readonly bucket: string,
-    private readonly file: WebdavFile
+    private readonly file: File
   ) {
     this.eventEmitter = new EventEmitter();
     this.stopwatch = new Stopwatch();
@@ -55,7 +55,7 @@ export class EnvironmentContentFileClonner implements ContentFileClonner {
     });
   }
 
-  private uploadFile(source: Readable, file: WebdavFile): Promise<string> {
+  private uploadFile(source: Readable, file: File): Promise<string> {
     this.eventEmitter.emit('start-upload');
     return new Promise((resolve, reject) => {
       this.upload(this.bucket, {

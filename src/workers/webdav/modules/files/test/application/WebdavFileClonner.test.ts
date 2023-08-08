@@ -5,15 +5,15 @@ import { WebdavFolderRepositoryMock } from '../../../folders/test/__mocks__/Webd
 import { EventBusMock } from '../../../shared/test/__mock__/EventBusMock';
 import { WebdavFileClonner } from '../../application/WebdavFileClonner';
 import { FileAlreadyExistsError } from '../../domain/errors/FileAlreadyExistsError';
-import { WebdavFileMother } from '../domain/WebdavFileMother';
+import { FileMother } from '../domain/FileMother';
 import { RemoteFileContentsManagersFactoryMock } from '../__mocks__/RemoteFileContentsManagersFactoryMock';
-import { WebdavFileRepositoryMock } from '../__mocks__/WebdavFileRepositoyMock';
+import { FileRepositoryMock } from '../__mocks__/FileRepositoryMock';
 
 describe('Webdav File Clonner', () => {
   const OVERWRITE = true;
   const NOT_OVERWRITE = false;
 
-  let fileReposiotry: WebdavFileRepositoryMock;
+  let fileReposiotry: FileRepositoryMock;
   let folderRepository: WebdavFolderRepositoryMock;
   let contentsRepository: RemoteFileContentsManagersFactoryMock;
   let eventBus: EventBusMock;
@@ -22,7 +22,7 @@ describe('Webdav File Clonner', () => {
   let SUT: WebdavFileClonner;
 
   beforeEach(() => {
-    fileReposiotry = new WebdavFileRepositoryMock();
+    fileReposiotry = new FileRepositoryMock();
     folderRepository = new WebdavFolderRepositoryMock();
     const folderFinder = new WebdavFolderFinder(folderRepository);
     contentsRepository = new RemoteFileContentsManagersFactoryMock();
@@ -40,10 +40,10 @@ describe('Webdav File Clonner', () => {
 
   describe('destination path already exists', () => {
     it('duplicates a file and overwrites an exisiting one if already exist and overwrite flag is set', async () => {
-      const file = WebdavFileMother.any();
+      const file = FileMother.any();
       const folder = WebdavFolderMother.containing(file);
       const destinationPath = file.path;
-      const fileToOverride = WebdavFileMother.fromPath(destinationPath.value);
+      const fileToOverride = FileMother.fromPath(destinationPath.value);
       const clonnedFileId = '63bd1432-61a6-59e0-b6c1-9ee681b936e9';
 
       fileReposiotry.mockSearch.mockReturnValueOnce(fileToOverride);
@@ -71,9 +71,9 @@ describe('Webdav File Clonner', () => {
     });
 
     it('fails when the destination path already exists and overwrite flag is not set', async () => {
-      const file = WebdavFileMother.any();
+      const file = FileMother.any();
 
-      fileReposiotry.mockSearch.mockReturnValueOnce(WebdavFileMother.any());
+      fileReposiotry.mockSearch.mockReturnValueOnce(FileMother.any());
 
       expect(async () => {
         await SUT.run(file, '/destination/file', NOT_OVERWRITE);
@@ -83,7 +83,7 @@ describe('Webdav File Clonner', () => {
 
   describe('destination path does not exist', () => {
     it('duplicates a file given to the given path', async () => {
-      const file = WebdavFileMother.any();
+      const file = FileMother.any();
       const folder = WebdavFolderMother.containing(file);
       const destination = `${file.dirname}/${file.name} (copy).${file.type}`;
       const clonnedFileId = '63bd1432-61a6-59e0-b6c1-9ee681b936e9';
