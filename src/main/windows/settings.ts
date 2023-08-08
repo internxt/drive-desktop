@@ -17,7 +17,7 @@ async function openSettingsWindow(section?: string) {
   }
 
   settingsWindow = new BrowserWindow({
-    width: 500,
+    width: 440,
     height: 505,
     show: false,
     webPreferences: {
@@ -49,7 +49,12 @@ ipcMain.on(
     if (settingsWindow) {
       // Not truncating the height makes this function throw
       // in windows
-      settingsWindow.setBounds({ height: Math.trunc(height) });
+      settingsWindow.setBounds(
+        {
+          height: Math.trunc(height),
+        },
+        true
+      );
     }
   }
 );
