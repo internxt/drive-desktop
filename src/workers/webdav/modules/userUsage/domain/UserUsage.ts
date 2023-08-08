@@ -1,4 +1,4 @@
-export class WebdavUserUsage {
+export class UserUsage {
   private static MAX_USAGE_LIMIT = 108851651149824;
 
   private constructor(
@@ -15,12 +15,8 @@ export class WebdavUserUsage {
     drive: number;
     photos: number;
     limit: number;
-  }): WebdavUserUsage {
-    return new WebdavUserUsage(
-      atributes.drive,
-      atributes.photos,
-      atributes.limit
-    );
+  }): UserUsage {
+    return new UserUsage(atributes.drive, atributes.photos, atributes.limit);
   }
 
   incrementDriveUsage(usage: number) {
@@ -36,6 +32,6 @@ export class WebdavUserUsage {
   }
 
   isInfinite(): boolean {
-    return this.limit >= WebdavUserUsage.MAX_USAGE_LIMIT;
+    return this.limit >= UserUsage.MAX_USAGE_LIMIT;
   }
 }
