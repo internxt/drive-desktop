@@ -1,19 +1,19 @@
 import { WebdavFolderDeleter } from '../../application/WebdavFolderDeleter';
 import { FolderStatus } from '../../domain/FolderStatus';
-import { WebdavFolderMother } from '../domain/WebdavFolderMother';
-import { WebdavFolderRepositoryMock } from '../__mocks__/WebdavFolderRepositoryMock';
+import { FolderMother } from '../domain/FolderMother';
+import { FolderRepositoryMock } from '../__mocks__/FolderRepositoryMock';
 
 describe('Folder deleter', () => {
-  let repository: WebdavFolderRepositoryMock;
+  let repository: FolderRepositoryMock;
   let SUT: WebdavFolderDeleter;
 
   beforeEach(() => {
-    repository = new WebdavFolderRepositoryMock();
+    repository = new FolderRepositoryMock();
     SUT = new WebdavFolderDeleter(repository);
   });
 
   it('trashes an existing folder', () => {
-    const folder = WebdavFolderMother.exists();
+    const folder = FolderMother.exists();
 
     SUT.run(folder);
 
@@ -25,7 +25,7 @@ describe('Folder deleter', () => {
   });
 
   it('throws an error when trashing a folder already trashed', () => {
-    const folder = WebdavFolderMother.trashed();
+    const folder = FolderMother.trashed();
 
     SUT.run(folder).catch((err) => {
       expect(err).toBeDefined();

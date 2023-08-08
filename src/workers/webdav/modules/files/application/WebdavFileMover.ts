@@ -1,14 +1,13 @@
-import { WebdavIpc } from 'workers/webdav/ipc';
 import { WebdavFolderFinder } from '../../folders/application/WebdavFolderFinder';
-import { WebdavFolder } from '../../folders/domain/WebdavFolder';
+import { Folder } from '../../folders/domain/Folder';
 import { WebdavServerEventBus } from '../../shared/domain/WebdavServerEventBus';
 import { FileAlreadyExistsError } from '../domain/errors/FileAlreadyExistsError';
 import { UnknownFileActionError } from '../domain/errors/UnknownFileActionError';
 import { FilePath } from '../domain/FilePath';
 import { File } from '../domain/File';
 import { FileRepository } from '../domain/FileRepository';
-
 import { WebdavFileRenamer } from './WebdavFileRenamer';
+import { WebdavIpc } from '../../../ipc';
 
 export class WebdavFileMover {
   constructor(
@@ -19,7 +18,7 @@ export class WebdavFileMover {
     private readonly ipc: WebdavIpc
   ) {}
 
-  private async move(file: File, folder: WebdavFolder) {
+  private async move(file: File, folder: Folder) {
     file.moveTo(folder);
 
     await this.repository.updateParentDir(file);
@@ -32,11 +31,7 @@ export class WebdavFileMover {
     });
   }
 
-  private async overwite(
-    file: File,
-    destinationFile: File,
-    folder: WebdavFolder
-  ) {
+  private async overwite(file: File, destinationFile: File, folder: Folder) {
     file.moveTo(folder);
     destinationFile.trash();
 

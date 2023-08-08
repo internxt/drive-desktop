@@ -1,15 +1,15 @@
 import { WebdavIpc } from '../../../ipc';
 import { FolderPath } from '../domain/FolderPath';
-import { WebdavFolder } from '../domain/WebdavFolder';
-import { WebdavFolderRepository } from '../domain/WebdavFolderRepository';
+import { Folder } from '../domain/Folder';
+import { FolderRepository } from '../domain/FolderRepository';
 
 export class WebdavFolderRenamer {
   constructor(
-    private readonly repository: WebdavFolderRepository,
+    private readonly repository: FolderRepository,
     private readonly ipc: WebdavIpc
   ) {}
 
-  async run(folder: WebdavFolder, destination: string) {
+  async run(folder: Folder, destination: string) {
     const path = new FolderPath(destination);
 
     this.ipc.send('WEBDAV_FOLDER_RENAMING', {

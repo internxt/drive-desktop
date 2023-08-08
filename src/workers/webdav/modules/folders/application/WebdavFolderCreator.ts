@@ -1,11 +1,11 @@
 import { WebdavIpc } from '../../../ipc';
 import { FolderPath } from '../domain/FolderPath';
-import { WebdavFolderRepository } from '../domain/WebdavFolderRepository';
+import { FolderRepository } from '../domain/FolderRepository';
 import { WebdavFolderFinder } from './WebdavFolderFinder';
 
 export class WebdavFolderCreator {
   constructor(
-    private readonly repository: WebdavFolderRepository,
+    private readonly repository: FolderRepository,
     private readonly folderFinder: WebdavFolderFinder,
     private readonly ipc: WebdavIpc
   ) {}

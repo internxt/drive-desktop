@@ -1,5 +1,5 @@
 import { File } from '../../files/domain/File';
-import { WebdavFolder } from '../../folders/domain/WebdavFolder';
+import { Folder } from '../../folders/domain/Folder';
 import { Path } from './Path';
 
 export abstract class WebdavItem {
@@ -12,9 +12,9 @@ export abstract class WebdavItem {
   abstract readonly size: number;
 
   abstract rename(path: Path): WebdavItem;
-  abstract moveTo(folder: WebdavFolder): WebdavItem;
+  abstract moveTo(folder: Folder): WebdavItem;
 
-  abstract isFolder(): this is WebdavFolder;
+  abstract isFolder(): this is Folder;
   abstract isFile(): this is File;
   abstract hasParent(id: number): boolean;
   abstract toProps(): Record<string, string | number>;
