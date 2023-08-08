@@ -1,5 +1,5 @@
 import { WebdavFile } from '../../files/domain/WebdavFile';
-import { WebdavFolder } from '../../folders/domain/WebdavFolder';
+import { Folder } from '../../folders/domain/Folder';
 
 /** @deprecated */
-export type ItemsIndexedByPath = Record<string, WebdavFolder | WebdavFile>;
+export type ItemsIndexedByPath = Record<string, Folder | WebdavFile>;

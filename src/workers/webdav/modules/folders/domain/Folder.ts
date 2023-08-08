@@ -1,21 +1,18 @@
 import { Primitives } from 'shared/types/Primitives';
-import { WebdavFile } from '../../files/domain/WebdavFile';
 import { AggregateRoot } from '../../shared/domain/AggregateRoot';
 import { FolderPath } from './FolderPath';
 import { FolderStatus, FolderStatuses } from './FolderStatus';
 
-export type WebdavFolderAttributes = {
+export type FolderAttributes = {
   id: number;
-  path: string;
   parentId: null | number;
+  path: string;
   updatedAt: string;
   createdAt: string;
   status: string;
 };
 
-export class WebdavFolder extends AggregateRoot {
-  public readonly size: number = 0;
-  private _lastPath: FolderPath | null = null;
+export class Folder extends AggregateRoot {
   private constructor(
     public id: number,
     private _path: FolderPath,
@@ -29,10 +26,6 @@ export class WebdavFolder extends AggregateRoot {
 
   public get path() {
     return this._path;
-  }
-
-  public get lastPath() {
-    return this._lastPath;
   }
 
   public get name() {
@@ -51,7 +44,12 @@ export class WebdavFolder extends AggregateRoot {
     return this._status;
   }
 
-  public update(attributes: Partial<WebdavFolderAttributes>) {
+  public get size() {
+    // Currently we cannot acquire the folder size.
+    return 0;
+  }
+
+  public update(attributes: Partial<FolderAttributes>) {
     if (attributes.path) {
       this._path = new FolderPath(attributes.path);
     }
@@ -79,8 +77,8 @@ export class WebdavFolder extends AggregateRoot {
     return this;
   }
 
-  static from(attributes: WebdavFolderAttributes): WebdavFolder {
-    return new WebdavFolder(
+  static from(attributes: FolderAttributes): Folder {
+    return new Folder(
       attributes.id,
       new FolderPath(attributes.path),
       attributes.parentId,
@@ -90,8 +88,8 @@ export class WebdavFolder extends AggregateRoot {
     );
   }
 
-  static create(attributes: WebdavFolderAttributes) {
-    return new WebdavFolder(
+  static create(attributes: FolderAttributes) {
+    return new Folder(
       attributes.id,
       new FolderPath(attributes.path),
       attributes.parentId,
@@ -101,7 +99,7 @@ export class WebdavFolder extends AggregateRoot {
     );
   }
 
-  moveTo(folder: WebdavFolder) {
+  moveTo(folder: Folder) {
     if (!this._parentId) {
       throw new Error('Root folder cannot be moved');
     }
@@ -121,8 +119,6 @@ export class WebdavFolder extends AggregateRoot {
       throw new Error('Cannot rename a folder to the same name');
     }
 
-    this._lastPath = this._path;
-
     this._path = this._path.updateName(newPath.name());
 
     //TODO: record rename event
@@ -134,28 +130,32 @@ export class WebdavFolder extends AggregateRoot {
     // TODO: recored trashed event
   }
 
-  isIn(folder: WebdavFolder): boolean {
+  isIn(folder: Folder): boolean {
     return this._parentId === folder.id;
-  }
-
-  isFolder(): this is WebdavFolder {
-    return true;
-  }
-
-  isFile(): this is WebdavFile {
-    return false;
   }
 
   hasStatus(status: FolderStatuses): boolean {
     return this._status.value === status;
   }
 
+  isFile(): boolean {
+    return false;
+  }
+
+  isFolder(): boolean {
+    return true;
+  }
+
   toPrimitives(): Record<string, Primitives> {
-    return {
+    const attributes: FolderAttributes = {
       id: this.id,
       parentId: this._parentId || 0,
-      updatedAt: this.updatedAt.getTime(),
-      createdAt: this.createdAt.getTime(),
+      path: this._path.value,
+      updatedAt: this.updatedAt.toISOString(),
+      createdAt: this.createdAt.toISOString(),
+      status: this.status.value,
     };
+
+    return attributes;
   }
 }

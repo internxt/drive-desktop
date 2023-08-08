@@ -1,5 +1,5 @@
 import { AggregateRoot } from '../../shared/domain/AggregateRoot';
-import { WebdavFolder } from '../../folders/domain/WebdavFolder';
+import { Folder } from '../../folders/domain/Folder';
 import { FilePath } from './FilePath';
 import { FileSize } from './FileSize';
 import { FileCreatedDomainEvent } from './FileCreatedDomainEvent';
@@ -85,7 +85,7 @@ export class WebdavFile extends AggregateRoot {
 
   static create(
     fileId: string,
-    folder: WebdavFolder,
+    folder: Folder,
     size: number,
     path: FilePath
   ): WebdavFile {
@@ -121,7 +121,7 @@ export class WebdavFile extends AggregateRoot {
     );
   }
 
-  moveTo(folder: WebdavFolder): void {
+  moveTo(folder: Folder): void {
     if (this.folderId === folder.id) {
       throw new FileCannotBeMovedToTheOriginalFolderError(this.path.value);
     }
@@ -208,7 +208,7 @@ export class WebdavFile extends AggregateRoot {
     return this.folderId === id;
   }
 
-  isFolder(): this is WebdavFolder {
+  isFolder(): this is Folder {
     return false;
   }
 

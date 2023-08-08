@@ -1,9 +1,9 @@
 import { Nullable } from 'shared/types/Nullable';
 import { FolderPath } from '../../domain/FolderPath';
-import { WebdavFolder } from '../../domain/WebdavFolder';
-import { WebdavFolderRepository } from '../../domain/WebdavFolderRepository';
+import { Folder } from '../../domain/Folder';
+import { FolderRepository } from '../../domain/FolderRepository';
 
-export class WebdavFolderRepositoryMock implements WebdavFolderRepository {
+export class FolderRepositoryMock implements FolderRepository {
   public mockSearch = jest.fn();
   public mockAdd = jest.fn();
   public mockUpdateName = jest.fn();
@@ -12,31 +12,31 @@ export class WebdavFolderRepositoryMock implements WebdavFolderRepository {
   public mockSearchOnFolder = jest.fn();
   public mockTrash = jest.fn();
 
-  search(pathLike: string): Nullable<WebdavFolder> {
+  search(pathLike: string): Nullable<Folder> {
     return this.mockSearch(pathLike);
   }
 
-  add(file: WebdavFolder): Promise<void> {
+  add(file: Folder): Promise<void> {
     return this.mockAdd(file);
   }
 
-  updateName(item: WebdavFolder): Promise<void> {
+  updateName(item: Folder): Promise<void> {
     return this.mockUpdateName(item);
   }
 
-  updateParentDir(item: WebdavFolder): Promise<void> {
+  updateParentDir(item: Folder): Promise<void> {
     return this.mockUpdateParentDir(item);
   }
 
-  create(name: FolderPath, parentId: number | null): Promise<WebdavFolder> {
+  create(name: FolderPath, parentId: number | null): Promise<Folder> {
     return this.mockCreate(name, parentId);
   }
 
-  searchOn(folder: WebdavFolder): Promise<WebdavFolder[]> {
+  searchOn(folder: Folder): Promise<Folder[]> {
     return this.mockSearchOnFolder(folder);
   }
 
-  trash(folder: WebdavFolder): Promise<void> {
+  trash(folder: Folder): Promise<void> {
     return this.mockTrash(folder);
   }
 
