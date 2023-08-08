@@ -1,10 +1,10 @@
 import { Readable } from 'stream';
-import { ContentsCacheRepository } from '../../domain/ContentsCacheRepository';
 import fs from 'fs/promises';
 import { createReadStream } from 'fs';
 import path from 'path';
 import Logger from 'electron-log';
 import glob from 'tiny-glob';
+import { ContentsCacheRepository } from '../domain/ContentsCacheRepository';
 
 export class FSContentsCacheRepository implements ContentsCacheRepository {
   private static readonly TWO_GB = 2 * 1024 * 1024 * 1024;

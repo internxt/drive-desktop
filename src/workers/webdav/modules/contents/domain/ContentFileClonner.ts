@@ -1,4 +1,4 @@
-import { FileAtributes } from './File';
+import { FileAtributes } from '../../files/domain/File';
 
 export type FileCloneEvents = {
   start: () => void;

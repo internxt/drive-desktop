@@ -1,21 +1,21 @@
 import { Primitives } from '../../../../../shared/types/Primitives';
-import { WebdavDomainEvent } from './WebdavDomainEvent';
+import { DomainEvent } from './DomainEvent';
 
 export abstract class AggregateRoot {
-  private domainEvents: Array<WebdavDomainEvent>;
+  private domainEvents: Array<DomainEvent>;
 
   constructor() {
     this.domainEvents = [];
   }
 
-  pullDomainEvents(): Array<WebdavDomainEvent> {
+  pullDomainEvents(): Array<DomainEvent> {
     const domainEvents = this.domainEvents.slice();
     this.domainEvents = [];
 
     return domainEvents;
   }
 
-  record(event: WebdavDomainEvent): void {
+  record(event: DomainEvent): void {
     this.domainEvents.push(event);
   }
 

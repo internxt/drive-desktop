@@ -1,8 +1,8 @@
 import { Readable } from 'stream';
-import { CachedContentFileDownloader } from '../../../../infrastructure/content/download/CachedContentFileDownloader';
-import { FileMother } from '../../../domain/FileMother';
-import { ContentFileDownloaderMock } from '../../../__mocks__/ContentFileDownloaderMock';
-import { ContentsCacheRepositoryMock } from '../../../__mocks__/ContentsCacheRepositoryMock';
+import { CachedContentFileDownloader } from 'workers/webdav/modules/contents/infrastructure/download/CachedContentFileDownloader';
+import { FileMother } from '../../../../files/test/domain/FileMother';
+import { ContentFileDownloaderMock } from '../../../../files/test/__mocks__/ContentFileDownloaderMock';
+import { ContentsCacheRepositoryMock } from '../../../../files/test/__mocks__/ContentsCacheRepositoryMock';
 
 const fileContents = `
 Commodo cillum nulla sit est nulla quis incididunt laboris in ex.

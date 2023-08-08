@@ -1,8 +1,8 @@
 import { ContentFileClonner } from './ContentFileClonner';
 import { ContentFileDownloader } from './ContentFileDownloader';
 import { ContentFileUploader } from './ContentFileUploader';
-import { FileSize } from './FileSize';
-import { File } from './File';
+import { FileSize } from '../../files/domain/FileSize';
+import { File } from '../../files/domain/File';
 
 export interface RemoteFileContentsManagersFactory {
   downloader(): ContentFileDownloader;

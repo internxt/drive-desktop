@@ -1,12 +1,12 @@
 import { DownloadStrategyFunction } from '@internxt/inxt-js/build/lib/core/download/strategy';
+import { Stopwatch } from '../../../../../../shared/types/Stopwatch';
 import { EventEmitter, Readable } from 'stream';
 import {
   ContentFileDownloader,
   FileDownloadEvents,
-} from '../../../domain/ContentFileDownloader';
-import { RemoteFileContents } from '../../../domain/RemoteFileContent';
-import { File } from '../../../domain/File';
-import { Stopwatch } from '../../../../../../../shared/types/Stopwatch';
+} from '../../domain/ContentFileDownloader';
+import { RemoteFileContents } from '../../domain/RemoteFileContent';
+import { File } from '../../../files/domain/File';
 
 export class EnvironmentContentFileDownloader implements ContentFileDownloader {
   private eventEmitter: EventEmitter;

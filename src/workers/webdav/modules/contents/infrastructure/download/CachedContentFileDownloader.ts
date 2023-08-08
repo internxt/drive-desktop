@@ -1,11 +1,11 @@
 import { Readable } from 'stream';
+import { File } from '../../../files/domain/File';
+import Logger from 'electron-log';
 import {
   ContentFileDownloader,
   FileDownloadEvents,
-} from '../../../domain/ContentFileDownloader';
-import { ContentsCacheRepository } from '../../../domain/ContentsCacheRepository';
-import { File } from '../../../domain/File';
-import Logger from 'electron-log';
+} from '../../domain/ContentFileDownloader';
+import { ContentsCacheRepository } from '../../domain/ContentsCacheRepository';
 
 export class CachedContentFileDownloader implements ContentFileDownloader {
   elapsedTime: () => number;

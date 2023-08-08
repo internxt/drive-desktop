@@ -3,8 +3,8 @@ import { EventEmitter, Readable } from 'stream';
 import {
   ContentFileUploader,
   FileUploadEvents,
-} from '../../../domain/ContentFileUploader';
-import { Stopwatch } from '../../../../../../../shared/types/Stopwatch';
+} from '../../domain/ContentFileUploader';
+import { Stopwatch } from '../../../../../../shared/types/Stopwatch';
 
 export class EnvironmentContentFileUpoader implements ContentFileUploader {
   private eventEmitter: EventEmitter;

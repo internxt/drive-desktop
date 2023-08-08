@@ -2,7 +2,7 @@ import * as uuid from 'uuid';
 
 type DomainEventAttributes = any;
 
-export abstract class WebdavDomainEvent {
+export abstract class DomainEvent {
   static EVENT_NAME: string;
 
   static fromPrimitives: (params: {
@@ -10,7 +10,7 @@ export abstract class WebdavDomainEvent {
     eventId: string;
     occurredOn: Date;
     attributes: DomainEventAttributes;
-  }) => WebdavDomainEvent;
+  }) => DomainEvent;
 
   readonly aggregateId: string;
   readonly eventId: string;
@@ -38,5 +38,5 @@ export type DomainEventClass = {
     eventId: string;
     occurredOn: Date;
     attributes: DomainEventAttributes;
-  }): WebdavDomainEvent;
+  }): DomainEvent;
 };

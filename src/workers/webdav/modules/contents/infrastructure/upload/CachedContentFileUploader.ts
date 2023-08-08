@@ -1,10 +1,10 @@
 import { Readable } from 'stream';
+import Logger from 'electron-log';
 import {
   ContentFileUploader,
   FileUploadEvents,
-} from '../../../domain/ContentFileUploader';
-import { ContentsCacheRepository } from '../../../domain/ContentsCacheRepository';
-import Logger from 'electron-log';
+} from '../../domain/ContentFileUploader';
+import { ContentsCacheRepository } from '../../domain/ContentsCacheRepository';
 
 export class CachedContentFileUploader implements ContentFileUploader {
   elapsedTime: () => number;

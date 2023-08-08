@@ -1,7 +1,7 @@
 import { WebdavServerEventBus } from '../../shared/domain/WebdavServerEventBus';
 import { FileNotFoundError } from '../domain/errors/FileNotFoundError';
-import { RemoteFileContentsManagersFactory } from '../domain/RemoteFileContentsManagersFactory';
-import { RemoteFileContents } from '../domain/RemoteFileContent';
+import { RemoteFileContentsManagersFactory } from '../../contents/domain/RemoteFileContentsManagersFactory';
+import { RemoteFileContents } from '../../contents/domain/RemoteFileContent';
 import { FileRepository } from '../domain/FileRepository';
 import { FilePath } from '../domain/FilePath';
 import { WebdavIpc } from '../../../ipc';

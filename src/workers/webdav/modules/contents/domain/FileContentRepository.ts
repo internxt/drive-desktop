@@ -1,7 +1,7 @@
 import { Readable } from 'stream';
-import { FileSize } from './FileSize';
+import { FileSize } from '../../files/domain/FileSize';
 import { RemoteFileContents } from './RemoteFileContent';
-import { File } from './File';
+import { File } from '../../files/domain/File';
 
 export interface RemoteFileContentsRepository {
   clone(file: File): Promise<File['fileId']>;

@@ -1,11 +1,11 @@
-import { WebdavDomainEvent } from '../../domain/WebdavDomainEvent';
+import { DomainEvent } from '../../domain/DomainEvent';
 import { WebdavServerEventBus } from '../../domain/WebdavServerEventBus';
 import { DomainEventSubscribers } from '../../infrastructure/DomainEventSubscribers';
 
 export class EventBusMock implements WebdavServerEventBus {
   public publishMock = jest.fn();
 
-  async publish(events: WebdavDomainEvent[]) {
+  async publish(events: DomainEvent[]) {
     this.publishMock(events);
   }
 
@@ -13,7 +13,7 @@ export class EventBusMock implements WebdavServerEventBus {
     //
   }
 
-  assertLastPublishedEventIs(expectedEvent: WebdavDomainEvent) {
+  assertLastPublishedEventIs(expectedEvent: DomainEvent) {
     const publishSpyCalls = this.publishMock.mock.calls;
 
     expect(publishSpyCalls.length).toBeGreaterThan(0);
@@ -27,7 +27,7 @@ export class EventBusMock implements WebdavServerEventBus {
     expect(expected).toMatchObject(published);
   }
 
-  private getDataFromDomainEvent(event: WebdavDomainEvent) {
+  private getDataFromDomainEvent(event: DomainEvent) {
     const { eventId, ...attributes } = event;
 
     return attributes;

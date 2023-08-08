@@ -2,7 +2,8 @@ import glob from 'tiny-glob';
 import fs from 'fs/promises';
 import { createReadStream } from 'fs';
 import { Readable } from 'stream';
-import { FSContentsCacheRepository } from '../../../infrastructure/content/FSContentsCacheRepository';
+import { FSContentsCacheRepository } from '../../infrastructure/FSContentsCacheRepository';
+
 jest.mock('tiny-glob', () => jest.fn());
 jest.mock('fs/promises');
 jest.mock('fs');

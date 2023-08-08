@@ -1,7 +1,7 @@
 import { DomainEventSubscribers } from '../infrastructure/DomainEventSubscribers';
-import { WebdavDomainEvent } from './WebdavDomainEvent';
+import { DomainEvent } from './DomainEvent';
 
 export interface WebdavServerEventBus {
-  publish(events: Array<WebdavDomainEvent>): Promise<void>;
+  publish(events: Array<DomainEvent>): Promise<void>;
   addSubscribers(subscribers: DomainEventSubscribers): void;
 }

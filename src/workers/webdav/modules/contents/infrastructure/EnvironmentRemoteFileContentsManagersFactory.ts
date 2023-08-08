@@ -1,13 +1,13 @@
 import { Environment } from '@internxt/inxt-js';
-import { FileSize } from '../../domain/FileSize';
-import { RemoteFileContentsManagersFactory } from '../../domain/RemoteFileContentsManagersFactory';
-import { File } from '../../domain/File';
-import { EnvironmentContentFileUpoader } from './upload/EnvironmentContentFileUpoader';
+import { FileSize } from '../../files/domain/FileSize';
+import { ContentFileClonner } from '../domain/ContentFileClonner';
+import { ContentFileDownloader } from '../domain/ContentFileDownloader';
+import { ContentFileUploader } from '../domain/ContentFileUploader';
+import { RemoteFileContentsManagersFactory } from '../domain/RemoteFileContentsManagersFactory';
 import { EnvironmentContentFileDownloader } from './download/EnvironmentContnetFileDownloader';
-import { ContentFileDownloader } from '../../domain/ContentFileDownloader';
-import { ContentFileUploader } from '../../domain/ContentFileUploader';
 import { EnvironmentContentFileClonner } from './EnvironmentContentFileClonner';
-import { ContentFileClonner } from '../../domain/ContentFileClonner';
+import { EnvironmentContentFileUpoader } from './upload/EnvironmentContentFileUpoader';
+import { File } from '../../files/domain/File';
 
 export class EnvironmentRemoteFileContentsManagersFactory
   implements RemoteFileContentsManagersFactory

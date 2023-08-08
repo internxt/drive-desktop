@@ -1,13 +1,13 @@
 import { DownloadStrategyFunction } from '@internxt/inxt-js/build/lib/core';
 import { UploadStrategyFunction } from '@internxt/inxt-js/build/lib/core/upload/strategy';
 import EventEmitter from 'events';
-import { Stopwatch } from '../../../../../../shared/types/Stopwatch';
 import { Readable } from 'stream';
+import { Stopwatch } from 'shared/types/Stopwatch';
 import {
   ContentFileClonner,
   FileCloneEvents,
-} from '../../domain/ContentFileClonner';
-import { File } from '../../domain/File';
+} from '../domain/ContentFileClonner';
+import { File } from '../../files/domain/File';
 
 export class EnvironmentContentFileClonner implements ContentFileClonner {
   private readonly eventEmitter: EventEmitter;

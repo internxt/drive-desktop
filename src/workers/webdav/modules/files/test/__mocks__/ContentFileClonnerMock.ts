@@ -1,7 +1,7 @@
 import {
   ContentFileClonner,
   FileCloneEvents,
-} from '../../domain/ContentFileClonner';
+} from '../../../contents/domain/ContentFileClonner';
 
 export class ContentFileClonnerMock implements ContentFileClonner {
   mock = jest.fn();

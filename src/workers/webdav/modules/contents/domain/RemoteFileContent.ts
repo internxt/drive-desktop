@@ -1,7 +1,7 @@
 import { Readable } from 'stream';
 import { AggregateRoot } from '../../shared/domain/AggregateRoot';
 import { FileDownloadedDomainEvent } from './FileDownloadedDomainEvent';
-import { File } from './File';
+import { File } from '../../files/domain/File';
 
 export class RemoteFileContents extends AggregateRoot {
   private constructor(

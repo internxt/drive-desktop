@@ -36,7 +36,7 @@ import { FileActionCannotModifyExtension } from '../../modules/files/domain/erro
 import { FileActionOnlyCanAffectOneLevelError } from '../../modules/files/domain/errors/FileActionOnlyCanAffectOneLevelError';
 import { FileNameShouldDifferFromOriginalError } from '../../modules/files/domain/errors/FileNameShouldDifferFromOriginalError';
 import { FileCannotBeMovedToTheOriginalFolderError } from '../../modules/files/domain/errors/FileCannotBeMovedToTheOriginalFolderError';
-import { RemoteFileContents } from '../../modules/files/domain/RemoteFileContent';
+import { RemoteFileContents } from '../../modules/contents/domain/RemoteFileContent';
 import { WebdavFileValidator } from 'workers/webdav/modules/files/application/WebdavFileValidator';
 
 export class PhysicalFileSystemResource {

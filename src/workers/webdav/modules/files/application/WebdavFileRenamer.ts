@@ -2,7 +2,7 @@ import { WebdavServerEventBus } from '../../shared/domain/WebdavServerEventBus';
 import { ActionNotPermitedError } from '../domain/errors/ActionNotPermitedError';
 import { FileAlreadyExistsError } from '../domain/errors/FileAlreadyExistsError';
 import { FilePath } from '../domain/FilePath';
-import { RemoteFileContentsManagersFactory } from '../domain/RemoteFileContentsManagersFactory';
+import { RemoteFileContentsManagersFactory } from '../../contents/domain/RemoteFileContentsManagersFactory';
 import { File } from '../domain/File';
 import { FileRepository } from '../domain/FileRepository';
 import { WebdavIpc } from '../../../ipc';

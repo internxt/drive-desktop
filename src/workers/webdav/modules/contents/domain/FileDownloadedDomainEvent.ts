@@ -1,10 +1,10 @@
-import { WebdavDomainEvent } from '../../shared/domain/WebdavDomainEvent';
+import { DomainEvent } from '../../shared/domain/DomainEvent';
 type DownloadWebdavFileDomainEventAttributes = {
   readonly size: number;
   readonly type: string;
 };
 
-export class FileDownloadedDomainEvent extends WebdavDomainEvent {
+export class FileDownloadedDomainEvent extends DomainEvent {
   static readonly EVENT_NAME: 'file.downloaded';
 
   readonly size: number;

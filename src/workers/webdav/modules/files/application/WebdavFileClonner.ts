@@ -1,12 +1,12 @@
 import { WebdavFolderFinder } from '../../folders/application/WebdavFolderFinder';
 import { FilePath } from '../domain/FilePath';
-import { RemoteFileContentsManagersFactory } from '../domain/RemoteFileContentsManagersFactory';
+import { RemoteFileContentsManagersFactory } from '../../contents/domain/RemoteFileContentsManagersFactory';
 import { File } from '../domain/File';
 import { FileRepository } from '../domain/FileRepository';
 import { WebdavServerEventBus } from '../../shared/domain/WebdavServerEventBus';
 import { FileAlreadyExistsError } from '../domain/errors/FileAlreadyExistsError';
 import { WebdavIpc } from '../../../ipc';
-import { ContentFileClonner } from '../domain/ContentFileClonner';
+import { ContentFileClonner } from '../../contents/domain/ContentFileClonner';
 
 export class WebdavFileClonner {
   private static FILE_OVERRIDED = true;
