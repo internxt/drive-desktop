@@ -78,7 +78,7 @@ export default function BackupsPanel({
     <>
       <div className="flex items-baseline space-x-2">
         <Checkbox
-          value={backupsEnabled}
+          checked={backupsEnabled}
           label={translate('settings.backups.activate')}
           onClick={onBackupsEnabledClicked}
         />

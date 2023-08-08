@@ -269,7 +269,7 @@ function Modal({
                   'settings.backups.folders.stop-baking-up.dont-ask-again'
                 )}
                 className="mx-auto mt-6"
-                value={dontAksAgain}
+                checked={dontAksAgain}
                 onClick={() => setDontAskAgain(!dontAksAgain)}
               />
 
