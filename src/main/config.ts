@@ -34,6 +34,7 @@ export interface AppStore {
   backupList: Record<string, { enabled: boolean; folderId: number }>;
   clientId: string;
   preferedLanguage?: string;
+  preferedTheme?: string;
   virtualdriveWindowsLetter: string;
 }
 
@@ -92,6 +93,9 @@ const schema: Schema<AppStore> = {
   preferedLanguage: {
     type: 'string',
   },
+  preferedTheme: {
+    type: 'string',
+  },
   virtualdriveWindowsLetter: {
     type: 'string',
   },
@@ -116,6 +120,7 @@ export const defaults: AppStore = {
   backupList: {},
   clientId: uuid.v4(),
   preferedLanguage: '',
+  preferedTheme: '',
   virtualdriveWindowsLetter: 'I',
 };
 
