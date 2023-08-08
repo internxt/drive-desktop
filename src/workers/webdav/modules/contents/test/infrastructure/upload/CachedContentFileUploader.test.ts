@@ -1,7 +1,7 @@
-import { CachedContentFileUploader } from '../../../../infrastructure/content/upload/CachedContentFileUploader';
-import { ContentFileUploaderMock } from '../../../__mocks__/ContentFileUploaderMock';
-import { ContentsCacheRepositoryMock } from '../../../__mocks__/ContentsCacheRepositoryMock';
 import { Readable } from 'stream';
+import { CachedContentFileUploader } from '../../../infrastructure/upload/CachedContentFileUploader';
+import { ContentFileUploaderMock } from '../../__mocks__/ContentFileUploaderMock';
+import { ContentsCacheRepositoryMock } from '../../__mocks__/ContentsCacheRepositoryMock';
 
 describe('cached content file uploader', () => {
   const contents = Readable.from('FILE CONTENTS');

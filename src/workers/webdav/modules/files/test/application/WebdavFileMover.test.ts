@@ -9,7 +9,7 @@ import { FileRepositoryMock } from '../__mocks__/FileRepositoryMock';
 import { FilePath } from '../../domain/FilePath';
 import { WebdavIpcMock } from '../../../shared/test/__mock__/WebdavIPC';
 import { WebdavFileRenamer } from '../../application/WebdavFileRenamer';
-import { RemoteFileContentsManagersFactoryMock } from '../__mocks__/RemoteFileContentsManagersFactoryMock';
+import { RemoteFileContentsManagersFactoryMock } from '../../../contents/test/__mocks__/RemoteFileContentsManagersFactoryMock';
 
 describe('Webdav File Mover', () => {
   let repository: FileRepositoryMock;

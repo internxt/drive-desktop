@@ -3,7 +3,7 @@ import { EventBusMock } from '../../../shared/test/__mock__/EventBusMock';
 import { WebdavServerEventBus } from '../../../shared/domain/WebdavServerEventBus';
 import { WebdavFileDownloader } from '../../application/WebdavFileDownloader';
 import { FileMother } from '../domain/FileMother';
-import { RemoteFileContentsManagersFactoryMock } from '../__mocks__/RemoteFileContentsManagersFactoryMock';
+import { RemoteFileContentsManagersFactoryMock } from '../../../contents/test/__mocks__/RemoteFileContentsManagersFactoryMock';
 import { FileRepositoryMock } from '../__mocks__/FileRepositoryMock';
 import { FilePath } from '../../domain/FilePath';
 import { WebdavIpcMock } from '../../../shared/test/__mock__/WebdavIPC';

@@ -1,8 +1,8 @@
 import { Readable } from 'stream';
-import { EnvironmentContentFileClonner } from '../../../infrastructure/content/EnvironmentContentFileClonner';
-import { FileMother } from '../../domain/FileMother';
-import { createDownloadStrategy } from '../../__mocks__/environment/DownloadStratgeyFunctionMock';
-import { createUploadStrategy } from '../../__mocks__/environment/UploadStrategyFunciontMock';
+import { FileMother } from '../../../files/test/domain/FileMother';
+import { EnvironmentContentFileClonner } from '../../infrastructure/EnvironmentContentFileClonner';
+import { createDownloadStrategy } from '../__mocks__/environment/DownloadStratgeyFunctionMock';
+import { createUploadStrategy } from '../__mocks__/environment/UploadStrategyFunciontMock';
 
 describe('Environment Content File Clonner', () => {
   const bucket = 'b1d067f9-d0a9-5e24-96f5-81c116f7f254';

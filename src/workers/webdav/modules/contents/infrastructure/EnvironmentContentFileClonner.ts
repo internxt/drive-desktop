@@ -2,7 +2,7 @@ import { DownloadStrategyFunction } from '@internxt/inxt-js/build/lib/core';
 import { UploadStrategyFunction } from '@internxt/inxt-js/build/lib/core/upload/strategy';
 import EventEmitter from 'events';
 import { Readable } from 'stream';
-import { Stopwatch } from 'shared/types/Stopwatch';
+import { Stopwatch } from '../../../../../shared/types/Stopwatch';
 import {
   ContentFileClonner,
   FileCloneEvents,

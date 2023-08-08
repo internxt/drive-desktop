@@ -4,7 +4,7 @@ import { WebdavFolderFinder } from '../../../folders/application/WebdavFolderFin
 import { WebdavFileCreator } from '../../application/WebdavFileCreator';
 import { FileMetadataCollection } from '../../domain/FileMetadataCollection';
 import { InMemoryTemporalFileMetadataCollection } from '../../infrastructure/persistance/InMemoryTemporalFileMetadataCollection';
-import { RemoteFileContentsManagersFactoryMock } from '../__mocks__/RemoteFileContentsManagersFactoryMock';
+import { RemoteFileContentsManagersFactoryMock } from '../../../contents/test/__mocks__/RemoteFileContentsManagersFactoryMock';
 import { FileRepositoryMock } from '../__mocks__/FileRepositoryMock';
 import { EventBusMock } from '../../../shared/test/__mock__/EventBusMock';
 import { WebdavIpcMock } from '../../../shared/test/__mock__/WebdavIPC';

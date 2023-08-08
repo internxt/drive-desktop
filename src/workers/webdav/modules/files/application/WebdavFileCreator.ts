@@ -9,7 +9,7 @@ import { FileRepository } from '../domain/FileRepository';
 import { Folder } from '../../folders/domain/Folder';
 import { FileSize } from '../domain/FileSize';
 import { WebdavServerEventBus } from '../../shared/domain/WebdavServerEventBus';
-import { ContentFileUploader } from '../domain/ContentFileUploader';
+import { ContentFileUploader } from '../../contents/domain/ContentFileUploader';
 import { WebdavIpc } from '../../../ipc';
 
 export class WebdavFileCreator {

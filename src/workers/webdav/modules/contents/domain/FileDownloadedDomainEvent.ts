@@ -1,4 +1,5 @@
 import { DomainEvent } from '../../shared/domain/DomainEvent';
+
 type DownloadWebdavFileDomainEventAttributes = {
   readonly size: number;
   readonly type: string;

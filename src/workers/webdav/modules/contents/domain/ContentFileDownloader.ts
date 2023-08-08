@@ -1,5 +1,5 @@
 import { Readable } from 'stream';
-import { File, FileAtributes } from './File';
+import { File, FileAtributes } from '../../files/domain/File';
 
 export type FileDownloadEvents = {
   start: () => void;

@@ -6,7 +6,7 @@ import { EventBusMock } from '../../../shared/test/__mock__/EventBusMock';
 import { WebdavFileClonner } from '../../application/WebdavFileClonner';
 import { FileAlreadyExistsError } from '../../domain/errors/FileAlreadyExistsError';
 import { FileMother } from '../domain/FileMother';
-import { RemoteFileContentsManagersFactoryMock } from '../__mocks__/RemoteFileContentsManagersFactoryMock';
+import { RemoteFileContentsManagersFactoryMock } from '../../../contents/test/__mocks__/RemoteFileContentsManagersFactoryMock';
 import { FileRepositoryMock } from '../__mocks__/FileRepositoryMock';
 
 describe('Webdav File Clonner', () => {

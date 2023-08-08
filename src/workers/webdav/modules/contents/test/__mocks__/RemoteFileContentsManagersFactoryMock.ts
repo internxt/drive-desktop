@@ -1,9 +1,8 @@
-import { Readable } from 'stream';
-import { RemoteFileContentsManagersFactory } from '../../../contents/domain/RemoteFileContentsManagersFactory';
-import { FileSize } from '../../domain/FileSize';
-import { File } from '../../domain/File';
+import { RemoteFileContentsManagersFactory } from '../../domain/RemoteFileContentsManagersFactory';
+import { FileSize } from '../../../files/domain/FileSize';
+import { File } from '../../../files/domain/File';
 import { ContentFileUploader } from '../../domain/ContentFileUploader';
-import { ContentFileClonner } from '../../../contents/domain/ContentFileClonner';
+import { ContentFileClonner } from '../../domain/ContentFileClonner';
 import { ContentFileUploaderMock } from './ContentFileUploaderMock';
 import { ContentFileClonnerMock } from './ContentFileClonnerMock';
 import { ContentFileDownloaderMock } from './ContentFileDownloaderMock';

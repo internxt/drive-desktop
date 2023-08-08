@@ -5,7 +5,7 @@ import { RemoteFileContents } from '../../contents/domain/RemoteFileContent';
 import { FileRepository } from '../domain/FileRepository';
 import { FilePath } from '../domain/FilePath';
 import { WebdavIpc } from '../../../ipc';
-import { ContentFileDownloader } from '../domain/ContentFileDownloader';
+import { ContentFileDownloader } from '../../contents/domain/ContentFileDownloader';
 import { File } from '../domain/File';
 
 export class WebdavFileDownloader {
