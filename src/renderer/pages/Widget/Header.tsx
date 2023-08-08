@@ -75,10 +75,8 @@ export default function Header() {
 
     return (
       <div className="flex flex-1 space-x-2.5 truncate">
-        <div className="relative z-0 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-surface text-lg font-semibold uppercase text-primary before:absolute before:inset-0 before:-z-1 before:rounded-full before:bg-primary/20 dark:text-white dark:before:bg-primary/75">
-          {user?.name === 'My' && user?.lastname === 'Internxt'
-            ? user?.email.charAt(0)
-            : `${user?.name.charAt(0) ?? ''}${user?.lastname.charAt(0) ?? ''}`}
+        <div className="relative z-0 flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-surface text-base font-semibold uppercase text-primary before:absolute before:inset-0 before:-z-1 before:rounded-full before:bg-primary/20 dark:text-white dark:before:bg-primary/75">
+          {`${user?.name.charAt(0) ?? ''}${user?.lastname.charAt(0) ?? ''}`}
         </div>
 
         <div className="flex flex-1 flex-col truncate">
