@@ -43,7 +43,7 @@ export default function DeviceName({
       onSubmitCapture={setDeviceName}
       className="flex flex-col items-center space-y-1.5 truncate"
     >
-      <p className="truncate text-sm font-medium text-gray-80">
+      <p className="truncate text-sm font-medium leading-4 text-gray-80">
         {translate('settings.general.device.section')}
       </p>
 
@@ -74,7 +74,7 @@ export default function DeviceName({
                 setNewName(e.currentTarget.value);
               }
             }}
-            customClassName="h-9 w-80 text-center font-medium"
+            customClassName="h-9 w-80 text-center font-medium mb-px"
             placeholder={currentDeviceName}
             maxLength={30}
           />
