@@ -9,6 +9,7 @@ import { FileNameShouldDifferFromOriginalError } from './errors/FileNameShouldDi
 import { FileActionCannotModifyExtension } from './errors/FileActionCannotModifyExtension';
 import { FileDeletedDomainEvent } from './FileDeletedDomainEvent';
 import { FileStatus, FileStatuses } from './FileStatus';
+import { ContentsId } from './ContentsId';
 
 export type FileAtributes = {
   contentsId: string;
@@ -23,7 +24,7 @@ export type FileAtributes = {
 
 export class File extends AggregateRoot {
   private constructor(
-    public contentsId: string,
+    private _contentsId: ContentsId,
     private _folderId: number,
     private _path: FilePath,
     private readonly _size: FileSize,
@@ -32,6 +33,10 @@ export class File extends AggregateRoot {
     private _status: FileStatus
   ) {
     super();
+  }
+
+  public get contentsId() {
+    return this._contentsId.value;
   }
 
   public get folderId() {
@@ -68,7 +73,7 @@ export class File extends AggregateRoot {
 
   static from(attributes: FileAtributes): File {
     return new File(
-      attributes.contentsId,
+      new ContentsId(attributes.contentsId),
       attributes.folderId,
       new FilePath(attributes.path),
       new FileSize(attributes.size),
@@ -85,7 +90,7 @@ export class File extends AggregateRoot {
     path: FilePath
   ): File {
     const file = new File(
-      contentsId,
+      new ContentsId(contentsId),
       folder.id,
       path,
       new FileSize(size),
@@ -129,7 +134,7 @@ export class File extends AggregateRoot {
 
   clone(contentsId: string, folderId: number, newPath: FilePath) {
     const file = new File(
-      contentsId,
+      new ContentsId(contentsId),
       folderId,
       newPath,
       this._size,
@@ -151,7 +156,7 @@ export class File extends AggregateRoot {
 
   overwrite(contentsId: string, folderId: number, newPath: FilePath) {
     const file = new File(
-      contentsId,
+      new ContentsId(contentsId),
       folderId,
       newPath,
       this._size,
@@ -231,7 +236,7 @@ export class File extends AggregateRoot {
     }
 
     if (attributes.contentsId) {
-      this.contentsId = attributes.contentsId;
+      this._contentsId = new ContentsId(attributes.contentsId);
     }
 
     if (attributes.folderId) {

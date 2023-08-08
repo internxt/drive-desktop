@@ -6,6 +6,7 @@ import { FileMother } from '../domain/FileMother';
 import { RemoteFileContentsManagersFactoryMock } from '../../../contents/test/__mocks__/RemoteFileContentsManagersFactoryMock';
 import { FileRepositoryMock } from '../__mocks__/FileRepositoryMock';
 import { WebdavIpcMock } from '../../../shared/test/__mock__/WebdavIPC';
+import { ContentsIdMother } from '../domain/ContentsIdMother';
 
 describe('File Rename', () => {
   let repository: FileRepositoryMock;
@@ -57,13 +58,13 @@ describe('File Rename', () => {
   });
 
   it('when the extension changes reupload the file', async () => {
-    const cloneedFileId = '88db6888-586b-52d5-9af0-6b6397b4f35f';
+    const cloneedContentsId = ContentsIdMother.raw();
 
     repository.mockSearch.mockImplementationOnce(() => {
       //no-op
     });
 
-    contentsRepository.mockClone.mock.mockResolvedValueOnce(cloneedFileId);
+    contentsRepository.mockClone.mock.mockResolvedValueOnce(cloneedContentsId);
 
     const file = FileMother.any();
 
@@ -76,13 +77,13 @@ describe('File Rename', () => {
     expect(repository.mockUpdateName).not.toBeCalled();
     expect(repository.mockAdd).toHaveBeenCalledWith(
       expect.objectContaining({
-        fileId: cloneedFileId,
+        contentsId: cloneedContentsId,
         status: FileStatus.Exists,
       })
     );
     expect(repository.mockDelete).toHaveBeenCalledWith(
       expect.objectContaining({
-        fileId: file.contentsId,
+        contentsId: file.contentsId,
         status: FileStatus.Trashed,
       })
     );

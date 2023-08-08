@@ -1,10 +1,11 @@
 import { FileStatuses } from '../../domain/FileStatus';
 import { File, FileAtributes } from '../../domain/File';
+import { ContentsIdMother } from './ContentsIdMother';
 
 export class FileMother {
   static onFolderName(path: string) {
     return File.from({
-      contentsId: 'bc874b5f-5942-53b4-b21a-1c8de84c984d',
+      contentsId: ContentsIdMother.random().value,
       folderId: 3972,
       createdAt: new Date().toISOString(),
       modificationTime: new Date().toISOString(),
@@ -17,7 +18,7 @@ export class FileMother {
 
   static fromPath(path: string) {
     return File.from({
-      contentsId: '97e83f0d-fde7-5d2b-8158-1df5ffe8abc1',
+      contentsId: ContentsIdMother.random().value,
       folderId: 3972960,
       createdAt: new Date().toISOString(),
       modificationTime: new Date().toISOString(),
@@ -30,7 +31,7 @@ export class FileMother {
 
   static any() {
     return File.from({
-      contentsId: 'bc874b5f-5942-53b4-b21a-1c8de84c984d',
+      contentsId: ContentsIdMother.random().value,
       folderId: 3972960,
       createdAt: new Date().toISOString(),
       modificationTime: new Date().toISOString(),
@@ -43,7 +44,7 @@ export class FileMother {
 
   static fromPartial(partial: Partial<FileAtributes>) {
     return File.from({
-      contentsId: 'bc874b5f-5942-53b4-b21a-1c8de84c984d',
+      contentsId: ContentsIdMother.random().value,
       folderId: 3972960,
       createdAt: new Date().toISOString(),
       modificationTime: new Date().toISOString(),

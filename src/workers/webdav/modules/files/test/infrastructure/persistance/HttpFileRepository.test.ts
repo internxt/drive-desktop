@@ -7,6 +7,8 @@ import { ServerFileMother } from './ServerFileMother';
 import { ServerFolderMother } from '../../../../items/test/persistance/ServerFolderMother';
 import { File } from '../../../domain/File';
 import { fakeDecryptor } from '../../../../shared/test/domain/FakeCrypt';
+import Chance from 'chance';
+const chance = new Chance();
 
 jest.mock('axios');
 
@@ -43,7 +45,7 @@ describe('Http File Repository', () => {
         ServerFileMother.fromPartial({
           name: char,
           folderId: rootFolderId,
-          fileId: char,
+          fileId: chance.string({ length: 24 }),
           type: '',
         })
       );

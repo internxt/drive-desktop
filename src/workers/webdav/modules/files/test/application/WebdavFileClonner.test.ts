@@ -8,6 +8,7 @@ import { FileAlreadyExistsError } from '../../domain/errors/FileAlreadyExistsErr
 import { FileMother } from '../domain/FileMother';
 import { RemoteFileContentsManagersFactoryMock } from '../../../contents/test/__mocks__/RemoteFileContentsManagersFactoryMock';
 import { FileRepositoryMock } from '../__mocks__/FileRepositoryMock';
+import { ContentsIdMother } from '../domain/ContentsIdMother';
 
 describe('Webdav File Clonner', () => {
   const OVERWRITE = true;
@@ -44,11 +45,11 @@ describe('Webdav File Clonner', () => {
       const folder = FolderMother.containing(file);
       const destinationPath = file.path;
       const fileToOverride = FileMother.fromPath(destinationPath.value);
-      const clonnedFileId = '63bd1432-61a6-59e0-b6c1-9ee681b936e9';
+      const clonnedContentsId = ContentsIdMother.raw();
 
       fileReposiotry.mockSearch.mockReturnValueOnce(fileToOverride);
       folderRepository.mockSearch.mockReturnValueOnce(folder);
-      contentsRepository.mockClone.mock.mockReturnValueOnce(clonnedFileId);
+      contentsRepository.mockClone.mock.mockReturnValueOnce(clonnedContentsId);
       fileReposiotry.mockAdd.mockImplementationOnce(() => {
         //
       });
@@ -60,8 +61,8 @@ describe('Webdav File Clonner', () => {
       );
 
       expect(hasBeenOverwritten).toBe(true);
-      expect(fileReposiotry.mockAdd.mock.calls[0][0].fileId).toBe(
-        clonnedFileId
+      expect(fileReposiotry.mockAdd.mock.calls[0][0].contentsId).toBe(
+        clonnedContentsId
       );
       expect(fileReposiotry.mockAdd.mock.calls[0][0].path).toEqual(
         destinationPath
@@ -86,11 +87,11 @@ describe('Webdav File Clonner', () => {
       const file = FileMother.any();
       const folder = FolderMother.containing(file);
       const destination = `${file.dirname}/${file.name} (copy).${file.type}`;
-      const clonnedFileId = '63bd1432-61a6-59e0-b6c1-9ee681b936e9';
+      const clonnedContentsId = ContentsIdMother.random().value;
 
       fileReposiotry.mockSearch.mockReturnValueOnce(undefined);
       folderRepository.mockSearch.mockReturnValueOnce(folder);
-      contentsRepository.mockClone.mock.mockReturnValueOnce(clonnedFileId);
+      contentsRepository.mockClone.mock.mockReturnValueOnce(clonnedContentsId);
       fileReposiotry.mockAdd.mockImplementationOnce(() => {
         //
       });
@@ -102,8 +103,8 @@ describe('Webdav File Clonner', () => {
       );
 
       expect(hasBeenOverwritten).toBe(false);
-      expect(fileReposiotry.mockAdd.mock.calls[0][0].fileId).toBe(
-        clonnedFileId
+      expect(fileReposiotry.mockAdd.mock.calls[0][0].contentsId).toBe(
+        clonnedContentsId
       );
       expect(fileReposiotry.mockAdd.mock.calls[0][0].path.value).toBe(
         destination
