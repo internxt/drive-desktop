@@ -1,4 +1,4 @@
-import { BrowserWindow, ipcMain } from 'electron';
+import { BrowserWindow, ipcMain, nativeTheme } from 'electron';
 
 import { preloadPath, resolveHtmlPath } from '../util';
 import { setUpCommonWindowHandlers } from '.';
@@ -58,3 +58,13 @@ ipcMain.on(
     }
   }
 );
+
+ipcMain.handle('dark-mode:light', () => {
+  nativeTheme.themeSource = 'light';
+});
+ipcMain.handle('dark-mode:dark', () => {
+  nativeTheme.themeSource = 'dark';
+});
+ipcMain.handle('dark-mode:system', () => {
+  nativeTheme.themeSource = 'system';
+});
