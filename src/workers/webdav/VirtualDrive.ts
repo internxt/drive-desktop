@@ -14,7 +14,7 @@ const driveObject = {
   port: '1900',
 };
 const driveURL = `http://${driveObject.host}:${driveObject.port}`;
-const driveName = 'Inxt Drive';
+const driveName = 'Internxt Drive';
 
 export const mountDrive = async (): Promise<void> => {
   if (process.platform === 'win32') {
