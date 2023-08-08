@@ -22,7 +22,7 @@ test.describe('Language Picker', () => {
   });
 
   test('Settings window contains the language picker', async () => {
-    const picker = await page.innerHTML('section#language-picker');
+    const picker = await page.innerHTML('div#language-picker');
 
     expect(picker).toBeDefined();
   });

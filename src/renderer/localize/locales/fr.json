@@ -208,11 +208,19 @@
       },
       "auto-startup": "Démarrer Internxt Drive au démarrage du système",
       "language": {
-        "section": "Langue",
-        "avaliable": {
-          "es": "Espagnol (Espagne)",
-          "en": "Anglais (US)",
-          "fr": "French (France)"
+        "label": "Langue",
+        "options": {
+          "es": "Español (Espagnole)",
+          "en": "English (Anglaise)",
+          "fr": "Français (Français)"
+        }
+      },
+      "theme": {
+        "label": "Apparence",
+        "options": {
+          "system": "Système",
+          "light": "Lumière",
+          "dark": "Sombre"
         }
       },
       "sync": {

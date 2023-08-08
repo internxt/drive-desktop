@@ -212,11 +212,19 @@
       },
       "auto-startup": "Start Internxt Drive on system startup",
       "language": {
-        "section": "Language",
-        "avaliable": {
-          "es": "Spanish (Spain)",
-          "en": "English (United States)",
-          "fr": "French (France)"
+        "label": "Language",
+        "options": {
+          "es": "Español (Spanish)",
+          "en": "English (English)",
+          "fr": "Français (French)"
+        }
+      },
+      "theme": {
+        "label": "Appearance",
+        "options": {
+          "system": "System",
+          "light": "Light",
+          "dark": "Dark"
         }
       },
       "sync": {

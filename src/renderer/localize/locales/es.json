@@ -198,7 +198,7 @@
       "section": {
         "GENERAL": "General",
         "ACCOUNT": "Cuenta",
-        "BACKUPS": "Copia de seguridad"
+        "BACKUPS": "Backups"
       }
     },
     "general": {
@@ -212,11 +212,19 @@
       },
       "auto-startup": "Iniciar Internxt Drive al arrancar el sistema",
       "language": {
-        "section": "Idioma",
-        "avaliable": {
-          "es": "Español (España)",
-          "en": "Inglés (Estados Unidos)",
-          "fr": "Frances (Francia)"
+        "label": "Idioma",
+        "options": {
+          "es": "Español (Español)",
+          "en": "English (Inglés)",
+          "fr": "Français (Francés)"
+        }
+      },
+      "theme": {
+        "label": "Apariencia",
+        "options": {
+          "system": "Sistema",
+          "light": "Claro",
+          "dark": "Oscuro"
         }
       },
       "sync": {
