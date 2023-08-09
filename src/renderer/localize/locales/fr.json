@@ -265,6 +265,7 @@
       "action": {
         "start": "Faire une copie ",
         "stop": "Arrêter la sauvegarde",
+        "running": "Sauvegarde en cours {{progress}}",
         "last-run": "Dernière exécution"
       },
       "frequency": {

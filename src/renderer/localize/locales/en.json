@@ -271,6 +271,7 @@
       "action": {
         "start": "Backup now",
         "stop": "Stop backup",
+        "running": "Backup in progress {{progress}}",
         "last-run": "Last updated"
       },
       "frequency": {

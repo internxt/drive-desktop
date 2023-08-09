@@ -9,15 +9,17 @@ import obtainErrorMessage from '../../messages/backups/backups-fatal-errors';
 function ErrorBanner({ errorName }: { errorName: ProcessFatalErrorName }) {
   const { translate } = useTranslationContext();
 
-  const text = translate(obtainErrorMessage(errorName));
   const action = obtainErrorAction(errorName);
 
   return (
-    <div className="flex items-center justify-between bg-yellow/10 px-3 py-2 text-xs text-yellow-dark">
-      <span className="flex">
-        <Warn className="inline h-5 w-5" />
-        <p className="mb-0 ml-2 inline">{text}</p>
-      </span>
+    <div className="flex items-center truncate border-b border-yellow-dark/20 bg-yellow/10 px-3 py-3 text-xs text-yellow-dark">
+      <Warn className="h-5 w-5" />
+      <p
+        className="ml-2 inline flex-1 truncate"
+        title={translate(obtainErrorMessage(errorName))}
+      >
+        {translate(obtainErrorMessage(errorName))}
+      </p>
       {action && (
         <span
           onClick={action.fn}

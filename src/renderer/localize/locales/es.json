@@ -270,6 +270,7 @@
       "action": {
         "start": "Hacer copia",
         "stop": "Stop backup",
+        "running": "Subiendo backup {{progress}}",
         "last-run": "Última ejecución"
       },
       "frequency": {

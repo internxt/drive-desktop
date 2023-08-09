@@ -109,7 +109,7 @@ export const defaults: AppStore = {
   userData: {} as User,
   mnemonic: '',
   backupsEnabled: false,
-  backupInterval: 24 * 3600 * 1000,
+  backupInterval: 86_400_000, // 24h
   lastBackup: -1,
   syncRoot: '',
   lastSavedListing: '',
