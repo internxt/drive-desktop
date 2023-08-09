@@ -33,7 +33,11 @@ export default function Checkbox(props: CheckboxProps) {
           type="checkbox"
           tabIndex={-1}
           checked={props.checked}
-          className="h-5 w-5 shrink-0 cursor-pointer appearance-none rounded-md border border-gray-30 bg-surface shadow-sm transition-all duration-75 ease-in-out checked:border-primary-dark checked:bg-primary group-active:bg-gray-1 checked:group-active:border-primary-dark checked:group-active:bg-primary-dark dark:bg-gray-5"
+          className={`h-5 w-5 shrink-0 cursor-pointer appearance-none rounded-md border border-gray-30 shadow-sm transition-all duration-75 ease-in-out ${
+            props.checked
+              ? 'border-primary-dark bg-primary group-active:bg-primary-dark'
+              : 'bg-surface group-active:bg-gray-1 dark:bg-gray-5'
+          }`}
           onClick={(e) => {
             e.preventDefault();
             props.onClick();
