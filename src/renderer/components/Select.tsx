@@ -8,6 +8,7 @@ interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
   options: SelectOptionsType[];
   value: string;
   onValueChange: (value: string) => void;
+  disabled?: boolean;
   placeholder?: string;
   ariaLabel?: string;
   container?: HTMLElement | null;
@@ -41,9 +42,14 @@ export default function Select(props: SelectProps) {
     <RadixSelect.Root
       onValueChange={props.onValueChange}
       defaultValue={props.value}
+      disabled={props.disabled}
     >
       <RadixSelect.Trigger
-        className="flex h-8 items-center space-x-1.5 truncate rounded-lg border border-gray-20 bg-surface pl-3 pr-1.5 text-highlight shadow-sm outline-none transition-all duration-75 ease-in-out active:bg-gray-1 dark:bg-gray-5 dark:active:border-gray-30 dark:active:bg-gray-10"
+        className={`flex h-8 items-center space-x-1.5 truncate rounded-lg border bg-surface pl-3 pr-1.5 shadow-sm outline-none transition-all duration-75 ease-in-out active:bg-gray-1 dark:bg-gray-5 dark:active:border-gray-30 dark:active:bg-gray-10 ${
+          props.disabled
+            ? 'pointer-events-none border-gray-5 text-gray-40'
+            : 'border-gray-20 text-highlight'
+        }`}
         aria-label={props.ariaLabel ?? undefined}
       >
         <RadixSelect.Value placeholder={props.placeholder ?? undefined} />
