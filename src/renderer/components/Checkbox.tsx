@@ -29,6 +29,7 @@ export default function Checkbox(props: CheckboxProps) {
     >
       <div className="relative h-5 w-5">
         <input
+          readOnly
           type="checkbox"
           tabIndex={-1}
           checked={props.checked}

@@ -65,7 +65,11 @@ export default function Select(props: SelectProps) {
           <RadixSelect.Viewport className="SelectViewport">
             <RadixSelect.Group>
               {props.options.map((option) => (
-                <SelectItem value={option.value} name={option.name} />
+                <SelectItem
+                  key={option.value}
+                  value={option.value}
+                  name={option.name}
+                />
               ))}
             </RadixSelect.Group>
           </RadixSelect.Viewport>
