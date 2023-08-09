@@ -3,23 +3,17 @@ import { exec } from 'child_process';
 import configStore from '../../main/config';
 import { homedir } from 'os';
 
-export enum VirtualDriveStatus {
-  MOUNTING = 'MOUNTING',
-  MOUNTED = 'MOUNTED',
-  FAILED_TO_MOUNT = 'FAILED_TO_MOUNT',
-  UNMOUNTED = 'UNMOUNTED',
-}
 const driveObject = {
   host: 'Virtual.Drive.Internxt.com',
   port: '1900',
 };
+
 const driveURL = `http://${driveObject.host}:${driveObject.port}`;
 const driveName = 'Internxt Drive';
 
 export const mountDrive = async (): Promise<void> => {
   if (process.platform === 'win32') {
     unmountVHDDrive(getSavedLetter()).catch();
-
 
     const driveLetter = await getLetterDrive();
     Logger.log(`[VirtualDrive] Drive letter available: ${driveLetter}`);
@@ -174,7 +168,8 @@ const mountVHDWindowsDrive = (driveLetter: string): Promise<boolean> => {
 const removeVHDDrive = (): Promise<boolean> => {
   Logger.log('[VirtualDrive] Removing VHD drive');
   return new Promise(function (resolve, reject) {
-    exec('Remove-Item .\\Internxt.vhdx',
+    exec(
+      'Remove-Item .\\Internxt.vhdx',
       { shell: 'powershell.exe' },
       (errMount, stdoutMount) => {
         if (errMount) {
@@ -235,7 +230,7 @@ const unmountVHDDrive = async (driveLetter: string): Promise<boolean> => {
   Logger.log('[VirtualDrive] Unmounting VHD drive: ' + driveLetter);
   try {
     await ejectVHDDrive(driveLetter);
-  } catch (err) { 
+  } catch (err) {
     Logger.log('[VirtualDrive] Ignoring eject VHD drive error: ' + driveLetter);
   }
   return removeVHDDrive();
@@ -356,25 +351,23 @@ const unmountMacOSDrive = (): Promise<boolean> => {
 const ejectMacOSDisk = (disk: string): Promise<boolean> => {
   Logger.log('[VirtualDrive] Ejecting disk');
   return new Promise(function (resolve, reject) {
-    exec(`diskutil eject "${disk}"`,
-      { shell: '/bin/bash' },
-      (err, stdout) => {
-        if (err) {
-          Logger.log(`[VirtualDrive] Error ejecting disk: ${err}`);
-          reject(`[VirtualDrive] Error ejecting disk: ${err}`);
-        } else {
-          Logger.log(`[VirtualDrive] Disk ejected successfully: ${stdout}`);
-          resolve(true);
-        }
+    exec(`diskutil eject "${disk}"`, { shell: '/bin/bash' }, (err, stdout) => {
+      if (err) {
+        Logger.log(`[VirtualDrive] Error ejecting disk: ${err}`);
+        reject(`[VirtualDrive] Error ejecting disk: ${err}`);
+      } else {
+        Logger.log(`[VirtualDrive] Disk ejected successfully: ${stdout}`);
+        resolve(true);
       }
-    );
+    });
   });
 };
 
 const getMacOSMountedInstallerDisks = (): Promise<string[]> => {
   Logger.log('[VirtualDrive] Getting Current Mounted Installer Disks');
   return new Promise(function (resolve, reject) {
-    exec('find /Volumes -type d -name \'Internxt Drive *\' -maxdepth 1',
+    exec(
+      "find /Volumes -type d -name 'Internxt Drive *' -maxdepth 1",
       { shell: '/bin/bash' },
       (err, stdout) => {
         if (err) {
@@ -383,7 +376,10 @@ const getMacOSMountedInstallerDisks = (): Promise<string[]> => {
         } else {
           const currentMountedInstallerDisks = stdout
             .split(/\r?\n/)
-            .filter((l) => l && l.length > 0 && l.startsWith('/Volumes/Internxt Drive '));
+            .filter(
+              (l) =>
+                l && l.length > 0 && l.startsWith('/Volumes/Internxt Drive ')
+            );
           Logger.log('[VirtualDrive] Current mounted installer disks:', {
             currentMountedInstallerDisks,
           });

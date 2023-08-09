@@ -1,15 +1,16 @@
 import { app, Menu, nativeImage, Tray } from 'electron';
 import path from 'path';
 
-import PackageJson from '../../package.json';
-import eventBus from './event-bus';
+import PackageJson from '../../../package.json';
+import eventBus from '../event-bus';
 import {
   getWidget,
   setBoundsOfWidgetByPath,
   toggleWidgetVisibility,
-} from './windows/widget';
-import { getIsLoggedIn } from './auth/handlers';
-import { getAuthWindow } from './windows/auth';
+} from '../windows/widget';
+import { getIsLoggedIn } from '../auth/handlers';
+import { getAuthWindow } from '../windows/auth';
+import './handlers';
 
 type TrayMenuState = 'STANDBY' | 'SYNCING' | 'ALERT' | 'LOADING';
 

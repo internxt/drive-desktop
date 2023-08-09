@@ -68,7 +68,7 @@ type MoveEvents = {
 };
 
 type CloneEvents = {
-  FILE_CLONNED: (payload: FileInfo) => void;
+  FILE_CLONNED: (payload: FileProgressInfo) => void;
 };
 
 type FileEvents = UploadEvents &

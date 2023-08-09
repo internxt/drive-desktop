@@ -23,7 +23,9 @@ import './background-processes/process-issues';
 import './device/handlers';
 import './usage/handlers';
 import './realtime';
-import './tray';
+import './tray/tray';
+import './fordwardToWindows';
+import './virtual-drive/handlers';
 import './analytics/handlers';
 import './platform/handlers';
 import './thumbnails/handlers';
@@ -48,7 +50,7 @@ import {
 } from './windows/widget';
 import { createAuthWindow, getAuthWindow } from './windows/auth';
 import configStore from './config';
-import { getTray } from './tray';
+import { getTray } from './tray/tray';
 import { openOnboardingWindow } from './windows/onboarding';
 import { reportError } from './bug-report/service';
 

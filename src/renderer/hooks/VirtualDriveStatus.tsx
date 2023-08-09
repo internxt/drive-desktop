@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { reportError } from 'renderer/utils/errors';
+import { VirtualDriveStatus } from '../../shared/types/VirtualDriveStatus';
 
 export default function useVirtualDriveStatus() {
-  const [status, setStatus] = useState<string>();
+  const [status, setStatus] = useState<VirtualDriveStatus>();
   useEffect(() => {
     window.electron
       .getVirtualDriveStatus()
