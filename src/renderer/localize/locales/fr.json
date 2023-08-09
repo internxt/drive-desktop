@@ -235,12 +235,23 @@
     "account": {
       "logout": "Déconnecter",
       "usage": {
+        "display": "Utilisé {{used}} sur {{total}}",
         "upgrade": "Acheter",
+        "change": "Changement",
         "plan": "Plan actuel",
+        "free": "Gratuit",
+        "loadError": {
+          "title": "Impossible d'obtenir les détails de votre utilisation",
+          "action": "Réessayer"
+        },
         "current": {
           "used": "utilisés",
           "of": "de",
           "in-use": "utilisé"
+        },
+        "full": {
+          "title": "Votre espace de stockage est plein",
+          "subtitle": "Vous ne pouvez pas télécharger, synchroniser ou sauvegarder des fichiers. Mettez votre forfait à niveau ou supprimez des fichiers pour économiser de l'espace."
         }
       }
     },

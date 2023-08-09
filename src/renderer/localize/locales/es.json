@@ -240,12 +240,23 @@
     "account": {
       "logout": "Cerrar sesión",
       "usage": {
+        "display": "Usado {{used}} de {{total}}",
         "upgrade": "Comprar espacio",
+        "change": "Cambiar",
         "plan": "Plan actual",
+        "free": "Gratis",
+        "loadError": {
+          "title": "No se han podido obtener tus datos de uso",
+          "action": "Reintentar"
+        },
         "current": {
           "used": "usado",
           "of": "de",
           "in-use": "usado"
+        },
+        "full": {
+          "title": "Tu almacenamiento está lleno",
+          "subtitle": "No puedes subir, sincronizar ni hacer copias de seguridad de archivos. Amplía ahora tu plan o elimina archivos para ahorrar espacio."
         }
       }
     },

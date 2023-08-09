@@ -240,12 +240,23 @@
     "account": {
       "logout": "Log out",
       "usage": {
+        "display": "Used {{used}} of {{total}}",
         "upgrade": "Upgrade",
+        "change": "Change",
         "plan": "Current plan",
+        "free": "Free",
+        "loadError": {
+          "title": "Couldn't fetch your usage details",
+          "action": "Retry"
+        },
         "current": {
           "used": "Used",
           "of": "of",
           "in-use": "in use"
+        },
+        "full": {
+          "title": "Your storage is full",
+          "subtitle": "You can't upload, sync, or backup files. Upgrade now your plan or remove files to save up space."
         }
       }
     },
