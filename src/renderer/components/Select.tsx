@@ -2,10 +2,10 @@ import { CaretDown, CaretUp, Check } from '@phosphor-icons/react';
 import * as RadixSelect from '@radix-ui/react-select';
 import React from 'react';
 
-export type SelectOptionsType = { value: string; name: string }[];
+export type SelectOptionsType = { value: string; name: string };
 
 interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
-  options: SelectOptionsType;
+  options: SelectOptionsType[];
   value: string;
   onValueChange: (value: string) => void;
   placeholder?: string;

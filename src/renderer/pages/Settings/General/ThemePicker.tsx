@@ -10,7 +10,7 @@ export default function ThemePicker(): JSX.Element {
     (useConfig('preferedTheme') as Theme) || DEFAULT_THEME
   );
 
-  const themes: SelectOptionsType = [
+  const themes: SelectOptionsType[] = [
     {
       value: 'system',
       name: translate('settings.general.theme.options.system'),

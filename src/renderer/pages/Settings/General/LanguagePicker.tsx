@@ -13,7 +13,7 @@ export default function LanguagePicker(): JSX.Element {
     (useConfig('preferedLanguage') as Language) || DEFAULT_LANGUAGE
   );
 
-  const languages: SelectOptionsType = [
+  const languages: SelectOptionsType[] = [
     {
       value: 'en',
       name: translate('settings.general.language.options.en'),
