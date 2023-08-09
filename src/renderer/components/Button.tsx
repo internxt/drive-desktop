@@ -33,7 +33,7 @@ export default function Button(props: ButtonProps) {
     <button
       type={props.type ?? 'button'}
       disabled={props.disabled ?? false}
-      className={`shadow-sm outline-none transition-all duration-75 ease-in-out focus-visible:outline-none ${
+      className={`whitespace-nowrap shadow-sm outline-none transition-all duration-75 ease-in-out focus-visible:outline-none ${
         variants[props.variant ?? 'primary']
       } ${sizes[props.size ?? 'md']} ${props.customClassName ?? ''}`}
       {...props}
