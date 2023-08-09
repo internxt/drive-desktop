@@ -1,10 +1,12 @@
 import { FileStatuses } from '../../domain/FileStatus';
 import { File, FileAtributes } from '../../domain/File';
 import { ContentsIdMother } from '../../../contents/test/domain/ContentsIdMother';
+import { FileId } from '../../domain/FileId';
 
 export class FileMother {
   static onFolderName(path: string) {
     return File.from({
+      id: FileId.random().value,
       contentsId: ContentsIdMother.random().value,
       folderId: 3972,
       createdAt: new Date().toISOString(),
@@ -18,6 +20,7 @@ export class FileMother {
 
   static fromPath(path: string) {
     return File.from({
+      id: FileId.random().value,
       contentsId: ContentsIdMother.random().value,
       folderId: 3972960,
       createdAt: new Date().toISOString(),
@@ -31,6 +34,7 @@ export class FileMother {
 
   static any() {
     return File.from({
+      id: FileId.random().value,
       contentsId: ContentsIdMother.random().value,
       folderId: 3972960,
       createdAt: new Date().toISOString(),
@@ -44,6 +48,7 @@ export class FileMother {
 
   static fromPartial(partial: Partial<FileAtributes>) {
     return File.from({
+      id: FileId.random().value,
       contentsId: ContentsIdMother.random().value,
       folderId: 3972960,
       createdAt: new Date().toISOString(),

@@ -16,4 +16,5 @@ export type FileCreatedResponseDTO = {
   createdAt: string;
   deletedAt: string | null;
   folderId: string;
+  uuid: string;
 };

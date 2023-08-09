@@ -15,6 +15,7 @@ describe('Traverser', () => {
       files: [
         {
           name: 'file A',
+          uuid: '1cf226b8-1bc0-5be1-978e-d8ce23a86eea',
           fileId: ContentsIdMother.raw(),
           folderId: baseFolderId,
           size: 67,
@@ -35,6 +36,7 @@ describe('Traverser', () => {
     const rawTree = {
       files: [
         {
+          uuid: '1804e537-ed1c-5780-9eb0-7c61985edda4',
           name: 'file A',
           fileId: ContentsIdMother.raw(),
           folderId: 22491,

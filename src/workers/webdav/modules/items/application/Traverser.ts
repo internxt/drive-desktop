@@ -67,7 +67,9 @@ export class Traverser {
       })
       .forEach(({ file, name }) => {
         if (file.status === ServerFileStatus.EXISTS) {
+          Logger.debug('uuid', file.uuid);
           this.collection[name] = File.from({
+            id: file.uuid,
             folderId: file.folderId,
             contentsId: file.fileId,
             modificationTime: file.modificationTime,

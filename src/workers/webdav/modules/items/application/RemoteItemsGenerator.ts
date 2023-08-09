@@ -17,6 +17,7 @@ export class RemoteItemsGenerator {
 
     const files = updatedRemoteItems.files.map<ServerFile>((updatedFile) => {
       return {
+        uuid: updatedFile.uuid,
         bucket: updatedFile.bucket,
         createdAt: updatedFile.createdAt,
         encrypt_version: '03-aes',

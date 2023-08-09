@@ -3,10 +3,12 @@ import {
   ServerFileStatus,
 } from '../../../../../../filesystems/domain/ServerFile';
 import { ContentsIdMother } from '../../../../contents/test/domain/ContentsIdMother';
+import { FileId } from '../../../domain/FileId';
 
 export class ServerFileMother {
   static fromPartial(partial: Partial<ServerFile>): ServerFile {
     return {
+      uuid: FileId.random().value,
       bucket: '55c229cf-d40b-5f66-b8d6-10fbe9dafc1f',
       createdAt: new Date().toISOString(),
       encrypt_version: 'aes-3',

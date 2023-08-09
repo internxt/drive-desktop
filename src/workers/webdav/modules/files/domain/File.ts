@@ -10,8 +10,10 @@ import { FileActionCannotModifyExtension } from './errors/FileActionCannotModify
 import { FileDeletedDomainEvent } from './FileDeletedDomainEvent';
 import { FileStatus, FileStatuses } from './FileStatus';
 import { ContentsId } from '../../contents/domain/ContentsId';
+import { FileId } from './FileId';
 
 export type FileAtributes = {
+  id: string;
   contentsId: string;
   folderId: number;
   createdAt: string;
@@ -24,6 +26,7 @@ export type FileAtributes = {
 
 export class File extends AggregateRoot {
   private constructor(
+    private readonly _id: FileId,
     private _contentsId: ContentsId,
     private _folderId: number,
     private _path: FilePath,
@@ -33,6 +36,10 @@ export class File extends AggregateRoot {
     private _status: FileStatus
   ) {
     super();
+  }
+
+  public get id() {
+    return this._id.value;
   }
 
   public get contentsId() {
@@ -73,6 +80,7 @@ export class File extends AggregateRoot {
 
   static from(attributes: FileAtributes): File {
     return new File(
+      new FileId(attributes.id),
       new ContentsId(attributes.contentsId),
       attributes.folderId,
       new FilePath(attributes.path),
@@ -90,6 +98,7 @@ export class File extends AggregateRoot {
     path: FilePath
   ): File {
     const file = new File(
+      FileId.random(),
       new ContentsId(contentsId),
       folder.id,
       path,
@@ -134,6 +143,7 @@ export class File extends AggregateRoot {
 
   clone(contentsId: string, folderId: number, newPath: FilePath) {
     const file = new File(
+      FileId.random(),
       new ContentsId(contentsId),
       folderId,
       newPath,
@@ -156,6 +166,7 @@ export class File extends AggregateRoot {
 
   overwrite(contentsId: string, folderId: number, newPath: FilePath) {
     const file = new File(
+      FileId.random(),
       new ContentsId(contentsId),
       folderId,
       newPath,
@@ -252,6 +263,7 @@ export class File extends AggregateRoot {
 
   toPrimitives(): Omit<FileAtributes, 'modificationTime'> {
     return {
+      id: this.id,
       contentsId: this.contentsId,
       folderId: this.folderId,
       path: this._path.value,
@@ -264,6 +276,7 @@ export class File extends AggregateRoot {
 
   attributes(): FileAtributes {
     return {
+      id: this.id,
       contentsId: this.contentsId,
       folderId: this.folderId,
       createdAt: this.createdAt.toISOString(),

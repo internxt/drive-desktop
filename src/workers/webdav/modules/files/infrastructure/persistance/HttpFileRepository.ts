@@ -115,6 +115,7 @@ export class HttpFileRepository implements FileRepository {
 
     const created = File.from({
       ...result.data,
+      id: result.data.uuid,
       contentsId: result.data.fileId,
       folderId: result.data.folder_id,
       size: parseInt(result.data.size, 10),
