@@ -367,6 +367,7 @@ const getMacOSMountedInstallerDisks = (): Promise<string[]> => {
   Logger.log('[VirtualDrive] Getting Current Mounted Installer Disks');
   return new Promise(function (resolve, reject) {
     exec(
+      // eslint-disable-next-line quotes
       "find /Volumes -type d -name 'Internxt Drive *' -maxdepth 1",
       { shell: '/bin/bash' },
       (err, stdout) => {
