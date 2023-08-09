@@ -25,6 +25,12 @@ export const mountDrive = async (): Promise<void> => {
     Logger.log(`[VirtualDrive] Drive letter available: ${driveLetter}`);
     if (driveLetter) {
       configStore.set('virtualdriveWindowsLetter', driveLetter);
+
+      const isHyperVenabled = await getWindowsHyperVEnabled();
+      if (!isHyperVenabled) {
+        await enableWindowsHyperV();
+      }
+
       const mounted = await mountVHDWindowsDrive(driveLetter);
       if (mounted) {
         await renameWindowsDrive();
@@ -235,7 +241,7 @@ const unmountVHDDrive = async (driveLetter: string): Promise<boolean> => {
   Logger.log('[VirtualDrive] Unmounting VHD drive: ' + driveLetter);
   try {
     await ejectVHDDrive(driveLetter);
-  } catch (err) { 
+  } catch (err) {
     Logger.log('[VirtualDrive] Ignoring eject VHD drive error: ' + driveLetter);
   }
   return removeVHDDrive();
@@ -253,6 +259,43 @@ const ejectVHDDrive = (driveLetter: string): Promise<boolean> => {
           reject(`[VirtualDrive] Error ejecting drive: ${err}`);
         } else {
           Logger.log(`[VirtualDrive] Drive ejected successfully: ${stdout}`);
+          resolve(true);
+        }
+      }
+    );
+  });
+};
+
+const getWindowsHyperVEnabled = (): Promise<boolean> => {
+  Logger.log('[VirtualDrive] Getting Windows HyperV is enabled');
+  return new Promise(function (resolve, reject) {
+    exec('(Get-WindowsOptionalFeature -FeatureName Microsoft-Hyper-V-All -Online).State',
+      { shell: 'powershell.exe' },
+      (err, stdout) => {
+        if (err) {
+          Logger.log(`[VirtualDrive] Error getting Windows HyperV: ${err}`);
+          reject(`[VirtualDrive] Error getting Windows HyperV: ${err}`);
+        } else {
+          const stateHyperV = stdout.trim().toLowerCase();
+          Logger.log('[VirtualDrive] Is Windows HyperV enabled:', { stateHyperV });
+          resolve(stateHyperV === 'enabled');
+        }
+      }
+    );
+  });
+};
+
+const enableWindowsHyperV = (): Promise<boolean> => {
+  Logger.log('[VirtualDrive] Enabling HyperV');
+  return new Promise(function (resolve, reject) {
+    exec('Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V -All',
+      { shell: 'powershell.exe' },
+      (err, stdout) => {
+        if (err) {
+          Logger.log(`[VirtualDrive] Error enabling HyperV: ${err}`);
+          reject(`[VirtualDrive] Error enabling HyperV: ${err}`);
+        } else {
+          Logger.log(`[VirtualDrive] Enabled HyperV successfully: ${stdout}`);
           resolve(true);
         }
       }
