@@ -1,8 +1,8 @@
-import { WebdavUserUsageRepository } from '../domain/WebdavUserUsageRepository';
+import { UserUsageRepository } from '../domain/UserUsageRepository';
 import { BytesInBinaryToInternacionalSystem } from './BytesInBinaryToInternacionalSystem';
 
 export class FreeSpacePerEnvironmentCalculator {
-  constructor(private readonly repository: WebdavUserUsageRepository) {}
+  constructor(private readonly repository: UserUsageRepository) {}
 
   async run(): Promise<number> {
     const usage = await this.repository.getUsage();

@@ -20,13 +20,13 @@ import { IncrementDriveUsageOnFileCreated } from '../modules/userUsage/applicati
 import { UsedSpaceCalculator } from '../modules/userUsage/application/UsedSpaceCalculator';
 import { UserUsageDecrementer } from '../modules/userUsage/application/UserUsageDecrementer';
 import { UserUsageIncrementer } from '../modules/userUsage/application/UserUsageIncrementer';
-import { WebdavUserUsageRepository } from '../modules/userUsage/domain/WebdavUserUsageRepository';
+import { UserUsageRepository } from '../modules/userUsage/domain/UserUsageRepository';
 
 export interface DependencyContainer {
   drive: Axios;
   newDrive: Axios;
 
-  userUsageRepository: WebdavUserUsageRepository;
+  userUsageRepository: UserUsageRepository;
   freeUsageCalculator: FreeSpacePerEnvironmentCalculator;
   usedSpaceCalculator: UsedSpaceCalculator;
   userUsageIncrementer: UserUsageIncrementer;
