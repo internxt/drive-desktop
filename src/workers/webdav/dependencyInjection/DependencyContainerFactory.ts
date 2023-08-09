@@ -13,7 +13,6 @@ import { WebdavFileMimeTypeResolver } from '../modules/files/application/WebdavF
 import { WebdavFileMover } from '../modules/files/application/WebdavFileMover';
 import { HttpFileRepository } from '../modules/files/infrastructure/persistance/HttpFileRepository';
 import { InMemoryTemporalFileMetadataCollection } from '../modules/files/infrastructure/persistance/InMemoryTemporalFileMetadataCollection';
-import { EnvironmentRemoteFileContentsManagersFactory } from '../modules/files/infrastructure/content/EnvironmentRemoteFileContentsManagersFactory';
 import { WebdavFolderCreator } from '../modules/folders/application/WebdavFolderCreator';
 import { WebdavFolderDeleter } from '../modules/folders/application/WebdavFolderDeleter';
 import { WebdavFolderFinder } from '../modules/folders/application/WebdavFolderFinder';
@@ -34,8 +33,8 @@ import { DependencyContainer } from './DependencyContainer';
 import { ipc } from '../ipc';
 import { WebdavFolderRenamer } from '../modules/folders/application/WebdavFolderRenamer';
 import { WebdavFileRenamer } from '../modules/files/application/WebdavFileRenamer';
-import { CachedRemoteFileContentsManagersFactory } from '../modules/files/infrastructure/content/CachedRemoteFileContentsManagersFactory';
-import { FSContentsCacheRepository } from '../modules/files/infrastructure/content/FSContentsCacheRepository';
+import { EnvironmentRemoteFileContentsManagersFactory } from '../modules/contents/infrastructure/EnvironmentRemoteFileContentsManagersFactory';
+import { FSContentsCacheRepository } from '../modules/contents/infrastructure/FSContentsCacheRepository';
 
 export class DependencyContainerFactory {
   private _container: DependencyContainer | undefined;
