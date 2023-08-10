@@ -27,7 +27,7 @@ export default function BackupsPreferences({
 
   const DEFAULT_INTERVAL = '24h';
   const [backupsInterval, setBackupsInterval] =
-    useState<BackupIntervalType>(DEFAULT_INTERVAL);
+    useState<BackupIntervalType | null>(null);
   const [backupsEnabled, setBackupsEnabled] = useState(false);
   const [lastBackupTimestamp, setLastBackupTimestamp] = useState(-1);
   const [backupProgress, setBackupProgress] = useState<null | BackupProgress>(
@@ -175,12 +175,14 @@ export default function BackupsPreferences({
             {translate('settings.backups.frequency.title')}
           </p>
 
-          <Select
-            disabled={!backupsEnabled}
-            options={BackupsIntervals}
-            value={backupsInterval}
-            onValueChange={onBackupsIntervalChanged}
-          />
+          {backupsInterval && (
+            <Select
+              disabled={!backupsEnabled}
+              options={BackupsIntervals}
+              value={backupsInterval}
+              onValueChange={onBackupsIntervalChanged}
+            />
+          )}
         </div>
 
         <Button
