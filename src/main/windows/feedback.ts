@@ -16,7 +16,7 @@ export const openFeedbackWindow = () => {
 
   feedbackWindow = new BrowserWindow({
     width: 380,
-    height: 320,
+    height: 352,
     show: false,
     webPreferences: {
       preload: preloadPath,

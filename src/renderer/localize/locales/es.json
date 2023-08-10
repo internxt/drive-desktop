@@ -346,6 +346,17 @@
       "include-logs": "Incluir los registros de este proceso de sincronización con fines de solucionar el error"
     }
   },
+  "feedback": {
+    "window-title": "Enviar comentatios",
+    "title": "Compartir comentatios con Internxt",
+    "description": "Tus comentarios hacen que Internxt mejore y nos ayudan a crear mejores experiencias de producto",
+    "placeholder": "Haznos saber lo que tienes en mente, lo que te gustaría mejorar o describe el error o problema",
+    "characters-count": "{{character_count}}/{{character_limit}}",
+    "send-feedback": "Enviar comentatios",
+    "sent-title": "Gracias por compartir tu opinión",
+    "sent-message": "Realmente apreciamos tu tiempo y esfuerzo para ayudarnos a mejorar nuestros servicios.",
+    "close": "Cerrar"
+  },
   "common": {
     "cancel": "Cancelar"
   }
