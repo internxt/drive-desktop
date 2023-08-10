@@ -95,7 +95,7 @@ export default function BackupsFolderList({
           setSelected(folder);
         }}
         key={folder.id}
-        className={`flex h-8 w-full items-center space-x-2 overflow-hidden truncate px-3 outline-none ${
+        className={`flex h-8 w-full items-center space-x-2 truncate px-3 outline-none ${
           selected?.id === folder.id
             ? 'bg-primary text-white'
             : 'bg-surface even:bg-gray-5'
@@ -104,7 +104,7 @@ export default function BackupsFolderList({
       >
         <FolderIcon className="h-5 w-5 flex-shrink-0" />
 
-        <p className="truncate leading-none">{folder.name}</p>
+        <p className="truncate">{folder.name}</p>
       </li>
     ));
   } else {
@@ -224,7 +224,7 @@ function Modal({
               <div className="flex flex-col space-y-2">
                 <Dialog.Title
                   as="h3"
-                  className="line-clamp-3 text-base font-medium leading-6 text-gray-100"
+                  className="line-clamp-3 text-lg font-medium leading-6 text-gray-100"
                 >
                   {translate('settings.backups.folders.stop-baking-up.title')}
                   &quot;<span>{nameOfBackup}</span>&quot;?
