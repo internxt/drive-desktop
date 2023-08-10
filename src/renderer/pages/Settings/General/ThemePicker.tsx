@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Theme } from '../../../../shared/types/Theme';
+import { DEFAULT_THEME, Theme } from '../../../../shared/types/Theme';
 import Select, { SelectOptionsType } from 'renderer/components/Select';
 import { useTranslationContext } from '../../../context/LocalContext';
 import useConfig from '../../../hooks/useConfig';
@@ -27,7 +27,11 @@ export default function ThemePicker(): JSX.Element {
 
   const refreshPreferedTheme = async () => {
     const theme = await window.electron.getConfigKey('preferedTheme');
-    setSelectedTheme(theme as Theme);
+    if (theme === '' || theme === null) {
+      setSelectedTheme(DEFAULT_THEME);
+    } else {
+      setSelectedTheme(theme as Theme);
+    }
   };
 
   const updatePreferedTheme = (theme: string) => {

@@ -2,7 +2,7 @@ import dayjs from 'dayjs';
 import i18next from 'i18next';
 import { useEffect, useState } from 'react';
 import DayJsLocales from '../../../../shared/Locale/DayJsLocales';
-import { Language } from '../../../../shared/Locale/Language';
+import { DEFAULT_LANGUAGE, Language } from '../../../../shared/Locale/Language';
 import Select, { SelectOptionsType } from 'renderer/components/Select';
 import { useTranslationContext } from '../../../context/LocalContext';
 import useConfig from '../../../hooks/useConfig';
@@ -30,7 +30,11 @@ export default function LanguagePicker(): JSX.Element {
 
   const refreshPreferedLanguage = async () => {
     const lang = await window.electron.getConfigKey('preferedLanguage');
-    setSelectedLanguage(lang);
+    if (lang === '' || lang === null) {
+      setSelectedLanguage(DEFAULT_LANGUAGE);
+    } else {
+      setSelectedLanguage(lang);
+    }
   };
 
   const updatePreferedLanguage = (lang: string) => {
