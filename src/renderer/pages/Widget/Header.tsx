@@ -212,10 +212,10 @@ export default function Header() {
                         active={active}
                         onClick={window.electron.openProcessIssuesWindow}
                       >
-                        <div className="flex items-baseline justify-between">
+                        <div className="flex items-center justify-between">
                           <p>{translate('widget.header.dropdown.issues')}</p>
                           {numberOfIssues > 0 && (
-                            <p className="ml-4 text-xs font-semibold text-red-60">
+                            <p className="text-sm font-medium text-red">
                               {numberOfIssuesDisplay}
                             </p>
                           )}

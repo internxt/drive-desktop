@@ -52,11 +52,13 @@ export default function ProcessIssues() {
   }, [processIssues, backupFatalErrors, generalIssues]);
 
   return (
-    <div className="flex h-screen flex-col overflow-hidden bg-l-neutral-10">
+    <div className="flex h-screen flex-col overflow-hidden">
       <WindowTopBar title={translate('issues.title')} />
-      <div className="draggable flex flex-shrink-0 flex-grow-0 items-center justify-center pt-4">
-        <Tabs active={activeSection} onClick={setActiveSection} />
+
+      <div className="draggable flex items-center justify-center py-2">
+        <Tabs active={activeSection} onChangeTab={setActiveSection} />
       </div>
+
       <ProcessIssuesList
         selectedTab={activeSection}
         showBackupFatalErrors={activeSection === 'BACKUPS'}
@@ -65,6 +67,7 @@ export default function ProcessIssues() {
         processIssues={processIssuesFilteredByActiveSection}
         onClickOnErrorInfo={setReportData}
       />
+
       <ReportModal
         key={reportData?.errorName}
         data={reportData}
@@ -76,87 +79,78 @@ export default function ProcessIssues() {
 
 function Tabs({
   active,
-  onClick,
+  onChangeTab,
 }: {
   active: Section;
-  onClick: (section: Section) => void;
+  onChangeTab: (section: Section) => void;
 }) {
   const { translate, language } = useTranslationContext();
-  const [tabsWidth, setTabsWidth] = useState<Array<number>>([
-    (64 * 4) / 3,
-    (64 * 4) / 3,
-    (64 * 4) / 3,
+  const [tabsWidth, setTabsWidth] = useState<[number, number, number]>([
+    0, 0, 0,
   ]);
 
-  const w = language === 'es' || language === 'fr' ? 'w-11/12' : 'w-64';
-
   useEffect(() => {
-    const fullWidth = language === 'en' ? 64 : 100;
-
-    const eventTabsWith = (fullWidth * 4) / 3;
-
-    if (language === 'en') {
-      setTabsWidth([eventTabsWith, eventTabsWith, eventTabsWith]);
-    }
-
-    if (language === 'es' || language === 'fr') {
-      setTabsWidth([eventTabsWith, eventTabsWith + 60, eventTabsWith]);
-    }
+    setTabsWidth([
+      (document.querySelector('#tab-SYNC') as HTMLElement).offsetWidth,
+      (document.querySelector('#tab-BACKUPS') as HTMLElement).offsetWidth,
+      (document.querySelector('#tab-GENERAL') as HTMLElement).offsetWidth,
+    ]);
   }, [language, active]);
 
-  return (
-    <div
-      className={`non-draggable relative flex h-9 rounded-lg bg-l-neutral-30 ${w}`}
+  const tabs: { value: Section; name: string }[] = [
+    {
+      value: 'SYNC',
+      name: translate('issues.tabs.sync'),
+    },
+    {
+      value: 'BACKUPS',
+      name: translate('issues.tabs.backups'),
+    },
+    {
+      value: 'GENERAL',
+      name: translate('issues.tabs.general'),
+    },
+  ];
+
+  const Tab = ({ value, name }: { value: Section; name: string }) => (
+    <li
+      id={`tab-${value}`}
+      onClick={() => onChangeTab(value)}
+      className={`relative flex cursor-pointer items-center px-4 transition-colors duration-200 ease-out ${
+        active === value ? 'text-gray-100' : 'text-gray-60'
+      }`}
     >
-      <motion.div
-        variants={{
-          SYNC: { left: 2, right: 'unset', width: tabsWidth[0] },
-          BACKUPS: {
-            left: tabsWidth[0] + 2,
-            right: 'unset',
-            width: tabsWidth[1],
-          },
-          GENERAL: {
-            left: tabsWidth[0] + tabsWidth[1] - 4,
-            right: 'unset',
-            width: tabsWidth[2],
-          },
-        }}
-        animate={active}
-        transition={{ ease: 'easeOut' }}
-        className="absolute top-1/2 h-8 -translate-y-1/2 rounded-lg bg-white"
-        style={{ width: tabsWidth[0] }}
-      />
-      <button
-        type="button"
-        style={{ width: tabsWidth[0] }}
-        onClick={() => onClick('SYNC')}
-        className={`relative ${
-          active === 'SYNC' ? 'text-neutral-500' : 'text-m-neutral-80'
-        }`}
-      >
-        {translate('issues.tabs.sync')}
-      </button>
-      <button
-        type="button"
-        style={{ width: tabsWidth[1] }}
-        onClick={() => onClick('BACKUPS')}
-        className={`relative ${
-          active === 'BACKUPS' ? 'text-neutral-500' : 'text-m-neutral-80'
-        }`}
-      >
-        {translate('issues.tabs.backups')}
-      </button>
-      <button
-        type="button"
-        style={{ width: tabsWidth[2] }}
-        onClick={() => onClick('GENERAL')}
-        className={`relative ${
-          active === 'GENERAL' ? 'text-neutral-500' : 'text-m-neutral-80'
-        }`}
-      >
-        {translate('issues.tabs.general')}
-      </button>
+      {name}
+    </li>
+  );
+
+  return (
+    <div className="non-draggable flex h-10 items-stretch rounded-xl bg-gray-5 p-1">
+      <div className="relative flex items-stretch">
+        <motion.div
+          variants={{
+            SYNC: { left: 0, right: 'unset', width: tabsWidth[0] },
+            BACKUPS: {
+              left: tabsWidth[0],
+              right: 'unset',
+              width: tabsWidth[1],
+            },
+            GENERAL: {
+              left: tabsWidth[0] + tabsWidth[1],
+              right: 'unset',
+              width: tabsWidth[2],
+            },
+          }}
+          animate={active}
+          transition={{ ease: 'easeOut', duration: 0.2 }}
+          className="absolute h-full rounded-lg bg-surface shadow dark:bg-gray-20"
+          style={{ width: tabsWidth[0] }}
+        />
+
+        {tabs.map((tab) => (
+          <Tab {...tab} />
+        ))}
+      </div>
     </div>
   );
 }
