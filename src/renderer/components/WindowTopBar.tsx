@@ -9,7 +9,7 @@ export default function WindowTopBar({
 }) {
   return (
     <div
-      className={`draggable relative flex-shrink-0 flex-grow-0 px-1 ${
+      className={`draggable relative flex-shrink-0 flex-grow-0 truncate px-1 ${
         process.env.platform !== 'darwin' ? 'h-10' : 'h-8'
       } ${className ?? ''}`}
     >
@@ -24,7 +24,7 @@ export default function WindowTopBar({
         </div>
       )}
       <p
-        className="absolute left-1/2 flex h-full -translate-x-1/2 transform items-center text-sm text-gray-80"
+        className="absolute left-1/2 flex h-full -translate-x-1/2 transform items-center truncate text-sm text-gray-80"
         data-test="window-top-bar-title"
       >
         {title}
