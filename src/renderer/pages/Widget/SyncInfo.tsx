@@ -1,6 +1,5 @@
-import { UilHistory, UilMultiply } from '@iconscout/react-unicons';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ReactNode, useEffect, useState } from 'react';
+import { ReactNode, useContext, useEffect, useState } from 'react';
 
 import {
   BackupExitReason,
@@ -27,8 +26,14 @@ import { shortMessages } from '../../messages/process-error';
 import { getPercentualProgress } from '../../utils/backups-progress';
 import { getBaseName, getExtension } from '../../utils/path';
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
-import { Check, WarningCircle } from '@phosphor-icons/react';
+import {
+  Check,
+  ClockCounterClockwise,
+  WarningCircle,
+  X,
+} from '@phosphor-icons/react';
 import { fileIcon } from 'renderer/assets/icons/getIcon';
+import { DeviceContext } from 'renderer/context/DeviceContext';
 
 export default function SyncInfo() {
   const [items, setItems] = useState<ProcessInfoUpdatePayload[]>([]);
@@ -118,11 +123,11 @@ export default function SyncInfo() {
           Clear
         </button>
       </div> */}
-      {/* [BACKUPS] widget info disabled while beta developing
-        <BackupsBanner
-          onVisibilityChanged={setBackupsBannerVisible}
-          className={items.length > 0 ? 'mt-8' : ''}
-        />*/}
+      {/* [BACKUPS] widget info disabled while beta developing */}
+      {/* <BackupsBanner
+        onVisibilityChanged={setBackupsBannerVisible}
+        className={items.length > 0 ? 'mt-8' : ''}
+      /> */}
       {items.length === 0 && !backupsBannerVisible && <Empty />}
       <div className="flex-1">
         <AnimatePresence>
@@ -348,6 +353,7 @@ function BackupsBanner({
   className?: string;
   onVisibilityChanged: (value: boolean) => void;
 }) {
+  const [deviceState] = useContext(DeviceContext);
   const status = useBackupStatus();
   const fatalErrors = useBackupFatalErrors();
   const issues = useProcessIssues().filter(
@@ -383,8 +389,9 @@ function BackupsBanner({
   if (status === 'RUNNING' && backupProgress) {
     body =
       backupProgress.totalFolders > 1
-        ? `Backed up ${backupProgress.currentFolder - 1} out of ${backupProgress.totalFolders
-        } folders`
+        ? `Backed up ${backupProgress.currentFolder - 1} out of ${
+            backupProgress.totalFolders
+          } folders`
         : 'Backing up your folder';
 
     const percentualProgress = getPercentualProgress(backupProgress);
@@ -441,6 +448,34 @@ function BackupsBanner({
     }
   }
 
+  const BackupsIcon = ({
+    variant,
+  }: {
+    variant?: 'SUCCESS' | 'WARNING' | 'ERROR';
+  }) => {
+    return (
+      <div className="relative">
+        <ClockCounterClockwise
+          size={28}
+          weight="light"
+          className="text-gray-100"
+        />
+        {variant === 'SUCCESS' && (
+          <>
+            <div className="absolute bottom-0 right-0 h-3.5 w-3.5 rounded-full bg-white" />
+            <Success className="absolute bottom-0 right-0 h-3.5 w-3.5" />
+          </>
+        )}
+        {variant === 'WARNING' && (
+          <Warn className="absolute bottom-0 right-0 h-3.5 w-3.5" />
+        )}
+        {variant === 'ERROR' && (
+          <Error className="absolute bottom-0 right-0 h-3.5 w-3.5" />
+        )}
+      </div>
+    );
+  };
+
   return (
     <AnimatePresence>
       {show && (
@@ -448,54 +483,43 @@ function BackupsBanner({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.25, ease: 'easeInOut' }}
-          className={`group relative flex h-14 w-full flex-shrink-0 cursor-pointer select-none items-center bg-blue-10 px-3 ${className}`}
+          transition={{ duration: 0.2, ease: 'easeInOut' }}
+          className={`group/backupsBanner relative flex px-3 pt-3 ${className}`}
           role="none"
           onClick={onClick}
         >
-          <BackupsIcon variant={iconVariant} />
-          <div className="ml-3">
-            <h1 className="text-sm font-medium text-neutral-700">Backup</h1>
-            <p className="text-xs font-medium text-neutral-500">
-              {body}
-              <span className="ml-1 text-neutral-500/50">{percentage}</span>
-              <span className="ml-1 text-blue-60 underline">{action}</span>
-            </p>
+          <div className="flex h-16 flex-1 items-center space-x-2.5 truncate rounded-lg border border-gray-10 bg-gray-1 px-3 shadow-sm dark:bg-gray-5">
+            <BackupsIcon variant={iconVariant} />
+
+            <div className="flex flex-1 flex-col -space-y-0.5 truncate">
+              <div className="flex h-5 max-h-5 min-h-[20px] flex-1 items-start space-x-4 truncate">
+                <h1 className="flex-1 truncate text-sm font-medium leading-4 text-gray-100">
+                  {deviceState.status === 'SUCCESS'
+                    ? deviceState.device.name
+                    : 'Backup'}
+                </h1>
+
+                <X
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setHidden(true);
+                  }}
+                  size={20}
+                  className={`hidden shrink-0 cursor-pointer text-gray-60 hover:text-gray-80 active:text-gray-60 ${
+                    status === 'STANDBY' ? 'group-hover/backupsBanner:flex' : ''
+                  }`}
+                />
+              </div>
+
+              <p className="truncate text-xs font-medium text-gray-60">
+                {body}
+                <span className="ml-1">{percentage}</span>
+                <span className="ml-1 text-primary">{action}</span>
+              </p>
+            </div>
           </div>
-          <UilMultiply
-            onClick={(e: MouseEvent) => {
-              e.stopPropagation();
-              setHidden(true);
-            }}
-            className={`absolute right-5 top-1/2 hidden h-5 w-5 -translate-y-1/2 cursor-pointer text-neutral-500/50 hover:text-neutral-500/70 active:text-neutral-500 ${status === 'STANDBY' ? 'group-hover:block' : ''
-              }`}
-          />
         </motion.div>
       )}
     </AnimatePresence>
-  );
-}
-
-function BackupsIcon({
-  variant,
-}: {
-  variant?: 'SUCCESS' | 'WARNING' | 'ERROR';
-}) {
-  return (
-    <div className="relative">
-      <UilHistory className="h-6 w-6 text-blue-60" />
-      {variant === 'SUCCESS' && (
-        <>
-          <div className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-white" />
-          <Success className="absolute bottom-0 right-0 h-3 w-3 " />
-        </>
-      )}
-      {variant === 'WARNING' && (
-        <Warn className="absolute bottom-0 right-0 h-3 w-3 " />
-      )}
-      {variant === 'ERROR' && (
-        <Error className="absolute bottom-0 right-0 h-3 w-3 " />
-      )}
-    </div>
   );
 }
