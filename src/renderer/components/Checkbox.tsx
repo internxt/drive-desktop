@@ -23,7 +23,7 @@ export default function Checkbox(props: CheckboxProps) {
 
   return (
     <label
-      className={`group flex items-start space-x-2 ${
+      className={`group flex items-start space-x-2 text-base leading-5 text-gray-100 ${
         props.customClassName ?? undefined
       }`}
     >
@@ -51,7 +51,8 @@ export default function Checkbox(props: CheckboxProps) {
           <Check />
         </div>
       </div>
-      <p className="text-base leading-5 text-gray-100">{props.label}</p>
+
+      <p>{props.label}</p>
     </label>
   );
 }
