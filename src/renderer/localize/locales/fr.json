@@ -5,7 +5,7 @@
     },
     "password": {
       "section": "Mot de passe",
-      "placeholder": "Au moins 6 caractères",
+      "placeholder": "Mot de passe",
       "forgotten": "Vous avez oublié votre mot de passe?",
       "hide": "Cacher",
       "show": "Afficher"
