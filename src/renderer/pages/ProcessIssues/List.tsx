@@ -1,4 +1,4 @@
-import { UilAngleDown, UilInfoCircle } from '@iconscout/react-unicons';
+import { CaretDown } from '@phosphor-icons/react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useState } from 'react';
 import { useTranslationContext } from 'renderer/context/LocalContext';
@@ -21,6 +21,7 @@ import { generalErrors } from '../../messages/general-error';
 import { shortMessages } from '../../messages/process-error';
 import messages from '../../messages/process-fatal-error';
 import { getBaseName } from '../../utils/path';
+import Button from 'renderer/components/Button';
 
 export default function ProcessIssuesList({
   selectedTab,
@@ -95,6 +96,7 @@ export default function ProcessIssuesList({
       />
     ));
   };
+
   const actionWrapper =
     (action: Action) => async (error: BackupFatalError | undefined) => {
       setIsLoading(true);
@@ -116,7 +118,7 @@ export default function ProcessIssuesList({
   };
 
   return (
-    <div className="no-scrollbar relative m-4 min-h-0 flex-grow overflow-y-auto rounded-lg border border-l-neutral-30 bg-white">
+    <ul className="relative m-5 mt-2 flex flex-1 flex-col divide-y divide-gray-5 overflow-y-auto rounded-lg border border-gray-20 bg-surface shadow-sm">
       {showBackupFatalErrors &&
         backupFatalErrors.map((error) => (
           <FatalError
@@ -133,9 +135,11 @@ export default function ProcessIssuesList({
 
       {issuesIsEmpty() ? <Empty /> : null}
       {isLoading && (
-        <Spinner className="absolute right-1 top-1 h-3 w-3 animate-spin fill-neutral-700" />
+        <div className="absolute flex h-full w-full items-center justify-center bg-surface/75">
+          <Spinner className="h-5 w-5 animate-spin text-gray-100" />
+        </div>
       )}
-    </div>
+    </ul>
   );
 }
 
@@ -143,8 +147,8 @@ function Empty() {
   const { translate } = useTranslationContext();
 
   return (
-    <div className="flex h-full select-none items-center justify-center">
-      <p className="text-xs font-medium text-m-neutral-60">
+    <div className="flex flex-1 items-center justify-center">
+      <p className="text-sm font-medium text-gray-100">
         {translate('issues.no-issues')}
       </p>
     </div>
@@ -165,31 +169,28 @@ function GeneralIssueItem({
   const { translate } = useTranslationContext();
 
   return (
-    <div
-      className="select-none p-2 hover:bg-l-neutral-10 active:bg-l-neutral-20"
-      role="button"
-      tabIndex={0}
+    <li
+      className="flex flex-col space-y-2.5 p-3 hover:bg-gray-5"
       onClick={onClick}
-      onKeyPress={onClick}
     >
-      <div className="flex items-center">
-        <WarnIcon className="mr-3 h-7 w-7" />
-        <div className="flex-grow">
-          <h1
-            className="font-semibold text-gray-70"
-            data-test="sync-issue-name"
-          >
-            {translate(generalErrors.shortMessages[errorName])}
-            &nbsp;
-            <UilInfoCircle className="inline h-4 w-4 text-blue-60 hover:text-blue-50 active:text-blue-60" />
-          </h1>
-        </div>
-        <UilAngleDown
-          className={`h-4 w-4 transform transition-all ${
+      <div className="flex space-x-2.5">
+        <WarnIcon className="h-5 w-5" />
+
+        <h1
+          className="flex flex-1 flex-col truncate text-base font-medium leading-5 text-gray-100"
+          data-test="sync-issue-name"
+        >
+          {translate(generalErrors.shortMessages[errorName])}
+        </h1>
+
+        <CaretDown
+          className={`transform transition-all duration-200 ${
             isSelected ? 'rotate-180' : 'rotate-0'
           }`}
+          size={20}
         />
       </div>
+
       <AnimatePresence>
         {isSelected && (
           <motion.div
@@ -201,15 +202,15 @@ function GeneralIssueItem({
               collapsed: { height: 0 },
             }}
             transition={{ ease: 'easeInOut' }}
-            className="overflow-hidden pl-10"
+            className="space-y-2 overflow-hidden rounded-lg border-gray-20 bg-surface p-3"
           >
             {issues.map((issue) => (
               <div
-                className="mt-2 flex min-w-0 items-center overflow-hidden"
+                className="flex min-w-0 items-center space-x-2.5 overflow-hidden"
                 key={issue.errorDetails.name}
               >
-                <FileIcon className="h-5 w-5 flex-shrink-0" />
-                <p className="ml-2 flex-grow truncate text-gray-70">
+                <FileIcon className="h-5 w-5 shrink-0" />
+                <p className="flex flex-1 text-gray-60">
                   {translate(generalErrors.longMessages[issue.errorName])}
                 </p>
               </div>
@@ -217,7 +218,7 @@ function GeneralIssueItem({
           </motion.div>
         )}
       </AnimatePresence>
-    </div>
+    </li>
   );
 }
 function Item({
@@ -236,40 +237,40 @@ function Item({
   const { translate } = useTranslationContext();
 
   return (
-    <div
+    <li
       onClick={onClick}
-      className="select-none p-2 hover:bg-l-neutral-10 active:bg-l-neutral-20"
-      role="button"
-      onKeyPress={onClick}
-      tabIndex={0}
+      className="flex flex-col space-y-2.5 p-3 hover:bg-gray-5"
     >
-      <div className="flex items-center">
-        <WarnIcon className="mr-3 h-7 w-7" />
-        <div className="flex-grow">
+      <div className="flex space-x-2.5">
+        <WarnIcon className="h-5 w-5" />
+
+        <div className="flex flex-col space-y-1">
           <h1
-            className="font-semibold text-gray-70"
+            className="flex flex-1 flex-col truncate text-base font-medium leading-5 text-gray-100"
             data-test="sync-issue-name"
           >
             {translate(shortMessages[errorName])}
-            &nbsp;
-            {/* <UilInfoCircle
-              className="inline h-4 w-4 text-blue-60 hover:text-blue-50 active:text-blue-60"
-              onClick={(e: MouseEvent) => {
-                e.stopPropagation();
-                onInfoClick();
-              }}
-            /> */}
           </h1>
-          <p className="text-gray-70" data-test="number-sync-issues">
+
+          <p className="text-gray-60" data-test="number-sync-issues">
             {issues.length} files
           </p>
         </div>
-        <UilAngleDown
-          className={`h-4 w-4 transform transition-all ${
-            isSelected ? 'rotate-180' : 'rotate-0'
-          }`}
-        />
+
+        <div className="flex items-center space-x-2">
+          <Button variant="secondary" size="sm" onClick={onInfoClick}>
+            Report
+          </Button>
+
+          <CaretDown
+            className={`transform transition-all duration-200 ${
+              isSelected ? 'rotate-180' : 'rotate-0'
+            }`}
+            size={20}
+          />
+        </div>
       </div>
+
       <AnimatePresence>
         {isSelected && (
           <motion.div
@@ -281,15 +282,15 @@ function Item({
               collapsed: { height: 0 },
             }}
             transition={{ ease: 'easeInOut' }}
-            className="overflow-hidden pl-10"
+            className="space-y-2 overflow-hidden rounded-lg border-gray-20 bg-surface p-3"
           >
             {issues.map((issue) => (
               <div
-                className="mt-2 flex min-w-0 items-center overflow-hidden"
+                className="flex min-w-0 items-center space-x-2.5 overflow-hidden"
                 key={issue.name}
               >
-                <FileIcon className="h-5 w-5 flex-shrink-0" />
-                <p className="ml-2 flex-grow truncate text-gray-70">
+                <FileIcon className="h-5 w-5 shrink-0" />
+                <p className="flex flex-1 text-gray-60">
                   {getBaseName(issue.name)}
                 </p>
               </div>
@@ -297,7 +298,7 @@ function Item({
           </motion.div>
         )}
       </AnimatePresence>
-    </div>
+    </li>
   );
 }
 
@@ -315,27 +316,24 @@ function FatalError({
   const { translate } = useTranslationContext();
 
   return (
-    <div className="select-none p-2 hover:bg-l-neutral-10 active:bg-l-neutral-20">
-      <div className="flex items-center">
-        <ErrorIcon className="mr-3 h-7 w-7" />
-        <div className="flex-grow">
-          <h1 className="font-semibold text-gray-70">
-            {window.electron.path.basename(path)}
-          </h1>
-          <p className="text-gray-70">
-            {translate(messages[errorName])}
-            <span
-              onClick={onActionClick}
-              role="button"
-              tabIndex={0}
-              onKeyDown={onActionClick}
-              className="ml-2 cursor-pointer text-sm text-blue-60 underline"
-            >
-              {actionName}
-            </span>
-          </p>
-        </div>
+    <li className="flex space-x-2.5 p-3 hover:bg-gray-5">
+      <ErrorIcon className="h-5 w-5" />
+
+      <div className="flex flex-1 flex-col truncate">
+        <h1 className="truncate text-base font-medium leading-5 text-gray-100">
+          {translate(messages[errorName])}
+        </h1>
+
+        <p className="truncate text-sm leading-4 text-gray-50">
+          {window.electron.path.basename(path)}
+        </p>
       </div>
-    </div>
+
+      <div className="flex items-center self-stretch">
+        <Button variant="secondary" size="sm" onClick={onActionClick}>
+          {actionName}
+        </Button>
+      </div>
+    </li>
   );
 }

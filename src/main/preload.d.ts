@@ -96,6 +96,8 @@ declare interface Window {
 
     toggleAutoLaunch(): Promise<void>;
 
+    toggleDarkMode(mode: 'system' | 'light' | 'dark'): Promise<void>;
+
     getBackupsInterval(): Promise<number>;
 
     setBackupsInterval(value: number): Promise<void>;

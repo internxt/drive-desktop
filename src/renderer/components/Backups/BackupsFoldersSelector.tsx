@@ -122,12 +122,12 @@ export const BackupsFoldersSelector: React.FC<BackupsFoldersSelectorProps> = (
           }
           tabIndex={0}
           key={backupFolder.path}
-          className={`non-draggable flex h-9 w-full shrink-0 items-center px-2.5 transition-colors duration-75	 ${
+          className={`non-draggable flex h-9 w-full shrink-0 items-center px-2.5 transition-colors duration-75 ${
             isSelected
-              ? 'bg-blue-60 text-white'
+              ? 'bg-primary text-white'
               : index % 2 !== 0
-              ? 'bg-white text-neutral-700'
-              : 'bg-l-neutral-10 text-neutral-700'
+              ? 'bg-white text-gray-100'
+              : 'bg-gray-10 text-gray-100'
           }`}
         >
           <FolderIcon className="mr-2 h-[19px] w-[22px] " />
@@ -147,7 +147,7 @@ export const BackupsFoldersSelector: React.FC<BackupsFoldersSelectorProps> = (
           </h1>
           <h4 className="text-gray-50">{getBackupFoldersCount()}</h4>
         </div>
-        <div className="my-3 flex w-full flex-1 overflow-hidden rounded-lg border border-l-neutral-30">
+        <div className="my-3 flex w-full flex-1 overflow-hidden rounded-lg border border-gray-30">
           {backupFolders.length === 0 ? (
             <div className="flex flex-1 items-center justify-center px-10">
               <h3 className="font-regular text-center text-base text-gray-50">

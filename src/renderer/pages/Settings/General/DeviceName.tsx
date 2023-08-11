@@ -1,113 +1,126 @@
-import { UilCheck, UilMultiply, UilPen } from '@iconscout/react-unicons';
-import { motion } from 'framer-motion';
-import { useContext, useEffect, useRef, useState } from 'react';
-
+import { useContext, useEffect, useState } from 'react';
+import Button from 'renderer/components/Button';
+import TextInput from 'renderer/components/TextInput';
 import Spinner from '../../../assets/spinner.svg';
 import { DeviceContext } from '../../../context/DeviceContext';
 import { useTranslationContext } from '../../../context/LocalContext';
 
-const DEFAULT_DEVICE_NAME = 'Your Device';
-export default function DeviceName() {
+export default function DeviceName({
+  onChangeView,
+}: {
+  onChangeView: boolean;
+}) {
   const { translate } = useTranslationContext();
   const [deviceState, renameDevice] = useContext(DeviceContext);
-
   const [showEdit, setShowEdit] = useState(false);
+  const [newName, setNewName] = useState<string | undefined>(undefined);
+  const DEFAULT_DEVICE_NAME = 'Your Device';
 
-  function handleOnBlur(value: string) {
+  useEffect(() => {
     setShowEdit(false);
-    const valueIsValid = value.length > 0 && value.length < 30;
-    if (
-      deviceState.status === 'SUCCESS' &&
-      deviceState.device.name !== value &&
-      valueIsValid
-    ) {
-      renameDevice(value);
+    setNewName(undefined);
+  }, [onChangeView]);
+
+  const validateName = (name: string) =>
+    deviceState.status === 'SUCCESS' &&
+    deviceState.device.name !== newName &&
+    name.replace(/\s/g, '').length > 0;
+
+  const setDeviceName = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (newName && validateName(newName)) {
+      renameDevice(newName);
     }
-  }
+    setShowEdit(false);
+    setNewName(undefined);
+  };
 
   const currentDeviceName =
     deviceState.status === 'SUCCESS' ? deviceState.device.name : '';
 
-  return deviceState.status === 'ERROR' ? (
-    <div>
-      <p className="select-none text-xs text-neutral-500">
+  return (
+    <form
+      onSubmitCapture={setDeviceName}
+      className="flex flex-col items-center space-y-1.5 truncate"
+    >
+      <p className="truncate text-sm font-medium leading-4 text-gray-80">
         {translate('settings.general.device.section')}
       </p>
-      <div className="mt-1 flex h-9 items-center">
-        <p>{DEFAULT_DEVICE_NAME}</p>
+
+      <div
+        className={`flex h-9 items-center justify-center ${
+          !showEdit ? 'truncate' : undefined
+        }`}
+      >
+        {deviceState.status === 'ERROR' ? (
+          <p className="truncate text-lg font-medium text-gray-100">
+            {DEFAULT_DEVICE_NAME}
+          </p>
+        ) : deviceState.status === 'LOADING' ? (
+          <Spinner className="h-5 w-5 animate-spin" />
+        ) : showEdit ? (
+          <TextInput
+            autoFocus={showEdit}
+            onFocusCapture={(e) => {
+              if (newName === undefined) {
+                e.currentTarget.value = currentDeviceName;
+              }
+            }}
+            onKeyUp={(e) => {
+              if (e.key === 'Escape') {
+                setShowEdit(false);
+                setNewName(undefined);
+              } else if (e.currentTarget.value.length > 0) {
+                setNewName(e.currentTarget.value);
+              }
+            }}
+            customClassName="h-9 w-80 text-center font-medium mb-px"
+            placeholder={currentDeviceName}
+            maxLength={30}
+          />
+        ) : (
+          <p className="truncate text-lg font-medium text-gray-100">
+            {currentDeviceName}
+          </p>
+        )}
       </div>
-    </div>
-  ) : (
-    <div>
-      <p className="select-none text-xs text-neutral-500">
-        {translate('settings.general.device.section')}
-      </p>
-      {deviceState.status === 'LOADING' ? (
-        <>
-          <Spinner className="ml-5 mt-2 h-6 w-6 animate-spin fill-neutral-500" />
-          <div className="h-2" />
-        </>
-      ) : showEdit ? (
-        <Input onBlur={handleOnBlur} value={currentDeviceName} />
-      ) : (
-        <div className="mt-1 flex h-9 items-center">
-          <p>{currentDeviceName}</p>
-          <button
-            type="button"
-            className="ml-2 block text-m-neutral-60 hover:text-m-neutral-70 active:text-m-neutral-80 peer-focus:hidden"
+
+      <div className="flex items-center space-x-2">
+        {showEdit ? (
+          <>
+            <Button
+              variant="secondary"
+              size="md"
+              onClick={() => {
+                setShowEdit(false);
+                setNewName(undefined);
+              }}
+            >
+              {translate('settings.general.device.action.cancel')}
+            </Button>
+
+            <Button
+              type="submit"
+              variant="primary"
+              size="md"
+              disabled={!validateName(newName ?? '')}
+            >
+              {translate('settings.general.device.action.save')}
+            </Button>
+          </>
+        ) : (
+          <Button
+            variant="secondary"
+            size="md"
+            disabled={
+              deviceState.status === 'ERROR' || deviceState.status === 'LOADING'
+            }
             onClick={() => setShowEdit(true)}
           >
-            <UilPen size="16px" />
-          </button>
-        </div>
-      )}
-    </div>
-  );
-}
-
-function Input({
-  value,
-  onBlur,
-}: {
-  value: string;
-  onBlur: (value: string) => void;
-}) {
-  const [name, setName] = useState(value);
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    inputRef.current?.focus();
-  }, []);
-
-  return (
-    <div className="flex items-center">
-      <motion.input
-        className="peer mt-1 block h-9 rounded-md bg-l-neutral-10 outline-none focus:border focus:border-blue-60 focus:px-2 focus:ring-2 focus:ring-blue-20"
-        initial={{ width: `${name.length}ch` }}
-        transition={{ ease: 'easeInOut', delay: 0.2 }}
-        animate={{ width: '100%' }}
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        ref={inputRef}
-        onBlur={() => onBlur('')}
-        onKeyDown={(key) => key.code === 'Enter' && onBlur(name)}
-      />
-      <button
-        type="button"
-        className="ml-1 hidden h-8 w-9 rounded-md bg-blue-60 text-white peer-focus:block"
-        onMouseDown={(e) => {
-          e.stopPropagation();
-          onBlur(name);
-        }}
-      >
-        <UilCheck size="24px" className="mx-auto" />
-      </button>
-      <button
-        type="button"
-        className="ml-1 hidden h-8 w-9 rounded-md bg-l-neutral-40 text-m-neutral-100 peer-focus:block"
-      >
-        <UilMultiply size="20px" className="mx-auto" />
-      </button>
-    </div>
+            {translate('settings.general.device.action.edit')}
+          </Button>
+        )}
+      </div>
+    </form>
   );
 }

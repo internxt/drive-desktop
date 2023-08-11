@@ -34,6 +34,7 @@ export interface AppStore {
   backupList: Record<string, { enabled: boolean; folderId: number }>;
   clientId: string;
   preferedLanguage?: string;
+  preferedTheme?: string;
   virtualdriveWindowsLetter: string;
 }
 
@@ -92,6 +93,9 @@ const schema: Schema<AppStore> = {
   preferedLanguage: {
     type: 'string',
   },
+  preferedTheme: {
+    type: 'string',
+  },
   virtualdriveWindowsLetter: {
     type: 'string',
   },
@@ -105,7 +109,7 @@ export const defaults: AppStore = {
   userData: {} as User,
   mnemonic: '',
   backupsEnabled: false,
-  backupInterval: 24 * 3600 * 1000,
+  backupInterval: 86_400_000, // 24h
   lastBackup: -1,
   syncRoot: '',
   lastSavedListing: '',
@@ -116,6 +120,7 @@ export const defaults: AppStore = {
   backupList: {},
   clientId: uuid.v4(),
   preferedLanguage: '',
+  preferedTheme: 'system',
   virtualdriveWindowsLetter: 'I',
 };
 

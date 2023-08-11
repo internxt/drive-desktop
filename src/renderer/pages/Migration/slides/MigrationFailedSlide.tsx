@@ -30,7 +30,7 @@ export const MigrationFailedSlide: React.FC<MigrationFailedSlideProps> = (
                 )}
               </h4>
               <Button
-                variant="default"
+                variant="secondary"
                 onClick={props.onShowFailedItems}
                 className="mt-3 h-10"
               >

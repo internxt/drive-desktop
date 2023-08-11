@@ -138,9 +138,27 @@
       }
     },
     "body": {
+      "activity": {
+        "operation": {
+          "downloading": "Descargando",
+          "decrypting": "Desencriptando",
+          "uploading": "Subiendo",
+          "encrypting": "Encriptando",
+          "downloaded": "Descargado",
+          "uploaded": "Subido",
+          "deleting": "Moviendo a la papelera",
+          "deleted": "Movido a la papelera",
+          "renaming": "Renombrando",
+          "renamed": "Renombrado"
+        }
+      },
       "no-activity": {
         "title": "No hay actividad reciente",
         "description": "La información aparecerá aquí cuando hagas cambios, para sincronizar tu carpeta local con Internxt Drive"
+      },
+      "upToDate": {
+        "title": "Tus archivos están actualizados",
+        "subtitle": "La actividad de sincronización se mostrará aquí"
       },
       "errors": {
         "sync": {},
@@ -180,20 +198,33 @@
       "section": {
         "GENERAL": "General",
         "ACCOUNT": "Cuenta",
-        "BACKUPS": "Copia de seguridad"
+        "BACKUPS": "Backups"
       }
     },
     "general": {
       "device": {
-        "section": "Nombre del dispositivo"
+        "section": "Nombre del dispositivo",
+        "action": {
+          "edit": "Editar",
+          "cancel": "Cancelar",
+          "save": "Guardar"
+        }
       },
       "auto-startup": "Iniciar Internxt Drive al arrancar el sistema",
       "language": {
-        "section": "Idioma",
-        "avaliable": {
-          "es": "Español (España)",
-          "en": "Inglés (Estados Unidos)",
-          "fr": "Frances (Francia)"
+        "label": "Idioma",
+        "options": {
+          "es": "Español (Español)",
+          "en": "English (Inglés)",
+          "fr": "Français (Francés)"
+        }
+      },
+      "theme": {
+        "label": "Apariencia",
+        "options": {
+          "system": "Sistema",
+          "light": "Claro",
+          "dark": "Oscuro"
         }
       },
       "sync": {
@@ -209,12 +240,23 @@
     "account": {
       "logout": "Cerrar sesión",
       "usage": {
+        "display": "Usado {{used}} de {{total}}",
         "upgrade": "Comprar espacio",
+        "change": "Cambiar",
         "plan": "Plan actual",
+        "free": "Gratis",
+        "loadError": {
+          "title": "No se han podido obtener tus datos de uso",
+          "action": "Reintentar"
+        },
         "current": {
           "used": "usado",
           "of": "de",
           "in-use": "usado"
+        },
+        "full": {
+          "title": "Tu almacenamiento está lleno",
+          "subtitle": "No puedes subir, sincronizar ni hacer copias de seguridad de archivos. Amplía ahora tu plan o elimina archivos para ahorrar espacio."
         }
       }
     },
@@ -228,6 +270,7 @@
       "action": {
         "start": "Hacer copia",
         "stop": "Stop backup",
+        "running": "Subiendo backup {{progress}}",
         "last-run": "Última ejecución"
       },
       "frequency": {
@@ -302,6 +345,17 @@
       "user-comments": "Comentarios",
       "include-logs": "Incluir los registros de este proceso de sincronización con fines de solucionar el error"
     }
+  },
+  "feedback": {
+    "window-title": "Enviar comentatios",
+    "title": "Compartir comentatios con Internxt",
+    "description": "Tus comentarios hacen que Internxt mejore y nos ayudan a crear mejores experiencias de producto",
+    "placeholder": "Haznos saber lo que tienes en mente, lo que te gustaría mejorar o describe el error o problema",
+    "characters-count": "{{character_count}}/{{character_limit}}",
+    "send-feedback": "Enviar comentatios",
+    "sent-title": "Gracias por compartir tu opinión",
+    "sent-message": "Realmente apreciamos tu tiempo y esfuerzo para ayudarnos a mejorar nuestros servicios.",
+    "close": "Cerrar"
   },
   "common": {
     "cancel": "Cancelar"
