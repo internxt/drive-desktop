@@ -4,6 +4,7 @@ on: [pull_request]
 
 jobs:
   test:
+    name: 🧪 Lint and test
     runs-on: ubuntu-latest
 
     steps:
@@ -23,6 +24,8 @@ jobs:
           echo "always-auth=true" >> .npmrc
       - name: Install dependenciies
         run: yarn --ignore-scripts
+      - name: Lint
+        run: yarn run lint
       - name: Build process
         run: yarn build
       - name: Run test
