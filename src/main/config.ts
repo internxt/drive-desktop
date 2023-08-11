@@ -120,7 +120,7 @@ export const defaults: AppStore = {
   backupList: {},
   clientId: uuid.v4(),
   preferedLanguage: '',
-  preferedTheme: '',
+  preferedTheme: 'system',
   virtualdriveWindowsLetter: 'I',
 };
 
