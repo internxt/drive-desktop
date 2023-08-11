@@ -132,11 +132,11 @@ contextBridge.exposeInMainWorld('electron', {
   },
   toggleDarkMode(mode) {
     if (mode === 'light') {
-      ipcRenderer.invoke('dark-mode:light');
+      return ipcRenderer.invoke('dark-mode:light');
     } else if (mode === 'dark') {
-      ipcRenderer.invoke('dark-mode:dark');
+      return ipcRenderer.invoke('dark-mode:dark');
     } else if (mode === 'system') {
-      ipcRenderer.invoke('dark-mode:system');
+      return ipcRenderer.invoke('dark-mode:system');
     }
   },
   getBackupsInterval() {
