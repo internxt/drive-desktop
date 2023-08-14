@@ -12,11 +12,11 @@ export default function TwoFA({ onChange, state }: TwoFAProps) {
     <AuthCode
       length={6}
       onChange={onChange}
-      containerClassName="flex items-center justify-between mt-2"
-      inputClassName={`h-10 w-8 text-center py-2 rounded-lg outline-none border ${
+      containerClassName="flex items-center justify-between space-x-0.5"
+      inputClassName={`h-11 w-[38px] flex text-center appearance-none rounded-lg border border-gray-40 bg-surface px-3 text-lg shadow-sm outline-none transition-all duration-75 ease-in-out focus:outline-none focus:ring-3 dark:border-gray-30 ${
         state === 'error'
-          ? 'border-red-60 focus:ring-2 ring-red-20'
-          : 'border-l-neutral-40 bg-l-neutral-20 focus:border-blue-50 focus:ring-2 focus:ring-blue-20'
+          ? 'focus:border-red focus:ring-red/10 dark:focus:ring-red/25'
+          : 'focus:border-primary focus:ring-primary/10 dark:focus:ring-primary/25'
       }`}
     />
   );

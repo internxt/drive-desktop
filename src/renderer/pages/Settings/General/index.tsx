@@ -1,18 +1,24 @@
 import AppInfo from './AppInfo';
 import DeviceName from './DeviceName';
 import LanguagePicker from './LanguagePicker';
+import ThemePicker from './ThemePicker';
 import StartAutomatically from './StartAutomatically';
-import SyncRoot from './SyncRoot';
 
 export default function GeneralSection({ active }: { active: boolean }) {
   return (
     <div className={active ? 'block' : 'hidden'}>
-      <DeviceName />
-      <StartAutomatically className="mt-7" />
-      <LanguagePicker />
-      <SyncRoot className="mt-4" />
-      <div className="mt-4 border-t border-t-l-neutral-20" />
-      <AppInfo className="mt-4" />
+      <DeviceName onChangeView={active} />
+      <div className="relative flex h-12 before:absolute before:inset-x-0 before:top-1/2 before:h-px before:-translate-y-1/2 before:bg-gray-10" />
+      <div className="flex flex-col space-y-5">
+        <StartAutomatically />
+
+        <div className="flex space-x-5">
+          <LanguagePicker />
+          <ThemePicker />
+        </div>
+      </div>
+      <div className="relative flex h-12 before:absolute before:inset-x-0 before:top-1/2 before:h-px before:-translate-y-1/2 before:bg-gray-10" />
+      <AppInfo />
     </div>
   );
 }

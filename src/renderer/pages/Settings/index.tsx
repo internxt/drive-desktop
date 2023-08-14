@@ -32,9 +32,12 @@ export default function Settings() {
 
   return (
     <div ref={rootRef}>
-      <WindowTopBar title="Internxt Drive" />
+      <WindowTopBar
+        title="Internxt Drive"
+        className="bg-surface dark:bg-gray-5"
+      />
       <Header active={activeSection} onClick={setActiveSection} />
-      <div className="border-t border-t-l-neutral-30 bg-l-neutral-10 p-8">
+      <div className="bg-gray-1 p-5">
         <GeneralSection active={activeSection === 'GENERAL'} />
         <AccountSection active={activeSection === 'ACCOUNT'} />
         <BackupsSection active={activeSection === 'BACKUPS'} />

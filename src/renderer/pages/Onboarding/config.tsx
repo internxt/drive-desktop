@@ -35,18 +35,14 @@ export const SLIDES: OnboardingSlide[] = [
     footer: (props) => {
       const { translate } = useTranslationContext();
       return (
-        <div className="flex w-full flex-1 items-end ">
-          <Button
-            onClick={props.onGoNextSlide}
-            variant="primary"
-            className="mr-2 h-10 cursor-pointer px-5 font-medium"
-          >
+        <div className="flex w-full flex-1 items-end space-x-2">
+          <Button onClick={props.onGoNextSlide} variant="primary" size="lg">
             {translate('onboarding.slides.welcome.take-tour')}
           </Button>
           <Button
             onClick={props.onSkipOnboarding}
-            variant="default"
-            className="h-10 px-5 font-medium"
+            variant="secondary"
+            size="lg"
           >
             {translate('onboarding.common.skip')}
           </Button>
@@ -77,11 +73,7 @@ export const SLIDES: OnboardingSlide[] = [
       const { translate } = useTranslationContext();
       return (
         <div className="flex w-full flex-1 items-end justify-center">
-          <Button
-            onClick={props.onGoNextSlide}
-            variant="primary"
-            className="mr-2 h-10 cursor-pointer px-5 font-medium"
-          >
+          <Button onClick={props.onGoNextSlide} variant="primary" size="lg">
             {translate('onboarding.common.continue')}
           </Button>
           <span className="ml-auto text-gray-50">
@@ -117,11 +109,7 @@ export const SLIDES: OnboardingSlide[] = [
       const { translate } = useTranslationContext();
       return (
         <div className="flex w-full flex-1 items-end justify-center">
-          <Button
-            onClick={props.onGoNextSlide}
-            variant="primary"
-            className="mr-2 h-10 cursor-pointer px-5 font-medium"
-          >
+          <Button onClick={props.onGoNextSlide} variant="primary" size="lg">
             {translate('onboarding.common.continue')}
           </Button>
           <span className="ml-auto text-gray-50">
@@ -160,11 +148,7 @@ export const SLIDES: OnboardingSlide[] = [
       const { translate } = useTranslationContext();
       return (
         <div className="flex w-full flex-1 items-end justify-center">
-          <Button
-            onClick={props.onGoNextSlide}
-            variant="primary"
-            className="mr-2 h-10 cursor-pointer px-5 font-medium"
-          >
+          <Button onClick={props.onGoNextSlide} variant="primary" size="lg">
             {translate('onboarding.common.continue')}
           </Button>
           <span className="ml-auto text-gray-50">
@@ -204,11 +188,7 @@ export const SLIDES: OnboardingSlide[] = [
       const { translate } = useTranslationContext();
       return (
         <div className="flex w-full flex-1 items-end justify-center">
-          <Button
-            onClick={props.onGoNextSlide}
-            variant="primary"
-            className="mr-2 h-10 cursor-pointer px-5 font-medium"
-          >
+          <Button onClick={props.onGoNextSlide} variant="primary" size="lg">
             {translate('onboarding.common.continue')}
           </Button>
           <span className="ml-auto text-gray-50">
@@ -249,14 +229,14 @@ export const SLIDES: OnboardingSlide[] = [
           <Button
             onClick={props.onSetupBackups}
             variant="primary"
-            className="mr-2 h-10 cursor-pointer px-5 font-medium"
+            size="lg"
           >
             {translate('onboarding.slides.backups.setup-backups')}
           </Button>
           <Button
             onClick={props.onFinish}
-            variant="default"
-            className="h-10 px-5 font-medium"
+            variant="secondary"
+            size="lg"
           >
             {translate('onboarding.common.skip')}
           </Button>
@@ -292,11 +272,7 @@ export const SLIDES: OnboardingSlide[] = [
       const { translate } = useTranslationContext();
       return (
         <div className="flex w-full flex-1 items-end">
-          <Button
-            onClick={props.onFinish}
-            variant="primary"
-            className="mr-2 h-10 cursor-pointer px-5 font-medium"
-          >
+          <Button onClick={props.onFinish} variant="primary" size="lg">
             {translate('onboarding.common.open-drive')}
           </Button>
         </div>

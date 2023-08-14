@@ -31,7 +31,7 @@ import './migration/handlers';
 import './config/handlers';
 import './app-info/handlers';
 import './remote-sync/handlers';
-import { app, ipcMain } from 'electron';
+import { app, ipcMain, nativeTheme } from 'electron';
 import Logger from 'electron-log';
 import { autoUpdater } from 'electron-updater';
 import packageJson from '../../package.json';
@@ -49,6 +49,7 @@ import configStore from './config';
 import { getTray } from './tray';
 import { openOnboardingWindow } from './windows/onboarding';
 import { reportError } from './bug-report/service';
+import { Theme } from 'shared/types/Theme';
 
 Logger.log(`Running ${packageJson.version}`);
 
@@ -129,6 +130,7 @@ eventBus.on('USER_LOGGED_IN', async () => {
       await AppDataSource.initialize();
     }
     getAuthWindow()?.destroy();
+    nativeTheme.themeSource = configStore.get('preferedTheme') as Theme;
     await createWidget();
     const widget = getWidget();
     const tray = getTray();
