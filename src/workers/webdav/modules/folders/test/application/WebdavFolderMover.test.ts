@@ -1,19 +1,19 @@
 import { WebdavFolderFinder } from '../../application/WebdavFolderFinder';
 import { WebdavFolderMover } from '../../application/WebdavFolderMover';
 import { WebdavFolderRenamer } from '../../application/WebdavFolderRenamer';
-import { WebdavFolderMother } from '../domain/WebdavFolderMother';
-import { WebdavFolderRepositoryMock } from '../__mocks__/WebdavFolderRepositoryMock';
+import { FolderMother } from '../domain/FolderMother';
+import { FolderRepositoryMock } from '../__mocks__/FolderRepositoryMock';
 import { WebdavIpcMock } from '../../../shared/test/__mock__/WebdavIPC';
 
 describe('Folder Mover', () => {
-  let repository: WebdavFolderRepositoryMock;
+  let repository: FolderRepositoryMock;
   let folderFinder: WebdavFolderFinder;
   let folderRenamer: WebdavFolderRenamer;
   let ipc: WebdavIpcMock;
   let SUT: WebdavFolderMover;
 
   beforeEach(() => {
-    repository = new WebdavFolderRepositoryMock();
+    repository = new FolderRepositoryMock();
     folderFinder = new WebdavFolderFinder(repository);
     ipc = new WebdavIpcMock();
     folderRenamer = new WebdavFolderRenamer(repository, ipc);
@@ -22,11 +22,11 @@ describe('Folder Mover', () => {
   });
 
   it('Folders cannot be ovewrited', async () => {
-    const folder = WebdavFolderMother.in(1, '/folderA/folderB');
+    const folder = FolderMother.in(1, '/folderA/folderB');
     const destination = '/folderC/folderB';
 
     repository.mockSearch.mockImplementation(() =>
-      WebdavFolderMother.in(2, destination)
+      FolderMother.in(2, destination)
     );
 
     try {
@@ -42,9 +42,9 @@ describe('Folder Mover', () => {
 
   describe('Move', () => {
     it('moves a folder when the destination folder does not contain a folder with the same folder', async () => {
-      const folder = WebdavFolderMother.in(1, '/folderA/folderB');
+      const folder = FolderMother.in(1, '/folderA/folderB');
       const destination = '/folderC/folderB';
-      const folderC = WebdavFolderMother.in(2, '/folderC');
+      const folderC = FolderMother.in(2, '/folderC');
 
       repository.mockSearch
         .mockReturnValueOnce(undefined)
@@ -60,12 +60,12 @@ describe('Folder Mover', () => {
   describe('Rename', () => {
     it('when a folder is moved to same folder its renamed', async () => {
       const folderAId = 30010278;
-      const folder = WebdavFolderMother.in(folderAId, '/folderA/folderB');
+      const folder = FolderMother.in(folderAId, '/folderA/folderB');
       const destination = '/folderA/folderC';
 
       repository.mockSearch
         .mockReturnValueOnce(undefined)
-        .mockReturnValueOnce(WebdavFolderMother.withId(folderAId));
+        .mockReturnValueOnce(FolderMother.withId(folderAId));
 
       await SUT.run(folder, destination);
 

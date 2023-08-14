@@ -1,7 +1,7 @@
 import { EventBusMock } from '../../../shared/test/__mock__/EventBusMock';
 import { WebdavFolderFinder } from '../../../folders/application/WebdavFolderFinder';
-import { WebdavFolderMother } from '../../../folders/test/domain/WebdavFolderMother';
-import { WebdavFolderRepositoryMock } from '../../../folders/test/__mocks__/WebdavFolderRepositoryMock';
+import { FolderMother } from '../../../folders/test/domain/FolderMother';
+import { FolderRepositoryMock } from '../../../folders/test/__mocks__/FolderRepositoryMock';
 import { WebdavFileMover } from '../../application/WebdavFileMover';
 import { FileAlreadyExistsError } from '../../domain/errors/FileAlreadyExistsError';
 import { WebdavFileMother } from '../domain/WebdavFileMother';
@@ -13,7 +13,7 @@ import { RemoteFileContentsManagersFactoryMock } from '../__mocks__/RemoteFileCo
 
 describe('Webdav File Mover', () => {
   let repository: WebdavFileRepositoryMock;
-  let folderRepository: WebdavFolderRepositoryMock;
+  let folderRepository: FolderRepositoryMock;
   let folderFinder: WebdavFolderFinder;
   let fileRenamer: WebdavFileRenamer;
   let contentsRepository: RemoteFileContentsManagersFactoryMock;
@@ -24,7 +24,7 @@ describe('Webdav File Mover', () => {
 
   beforeEach(() => {
     repository = new WebdavFileRepositoryMock();
-    folderRepository = new WebdavFolderRepositoryMock();
+    folderRepository = new FolderRepositoryMock();
     folderFinder = new WebdavFolderFinder(folderRepository);
     contentsRepository = new RemoteFileContentsManagersFactoryMock();
     eventBus = new EventBusMock();
@@ -54,9 +54,7 @@ describe('Webdav File Mover', () => {
       );
       const override = false;
 
-      folderRepository.mockSearch.mockImplementation(() =>
-        WebdavFolderMother.any()
-      );
+      folderRepository.mockSearch.mockImplementation(() => FolderMother.any());
 
       repository.mockSearch.mockImplementation(() => undefined);
       repository.mockUpdateName.mockImplementation(() => Promise.resolve());
@@ -112,7 +110,7 @@ describe('Webdav File Mover', () => {
 
       repository.mockSearch.mockImplementation(() => existing);
       folderRepository.mockSearch.mockImplementation(() =>
-        WebdavFolderMother.containing(existing)
+        FolderMother.containing(existing)
       );
 
       const hasBeenOverwritten = await SUT.run(
@@ -138,7 +136,7 @@ describe('Webdav File Mover', () => {
       const override = false;
 
       folderRepository.mockSearch.mockImplementation(() =>
-        WebdavFolderMother.containing(file)
+        FolderMother.containing(file)
       );
 
       repository.mockSearch.mockImplementation(() => undefined);
@@ -164,7 +162,7 @@ describe('Webdav File Mover', () => {
       const override = true;
 
       folderRepository.mockSearch.mockImplementation(() =>
-        WebdavFolderMother.containing(file)
+        FolderMother.containing(file)
       );
       repository.mockSearch.mockImplementation(() => WebdavFileMother.any());
 

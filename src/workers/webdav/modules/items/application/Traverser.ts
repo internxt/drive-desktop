@@ -10,7 +10,7 @@ import {
 import { fileNameIsValid } from '../../../../utils/name-verification';
 import { WebdavFile } from '../../files/domain/WebdavFile';
 import { FolderStatus } from '../../folders/domain/FolderStatus';
-import { WebdavFolder } from '../../folders/domain/WebdavFolder';
+import { Folder } from '../../folders/domain/Folder';
 import { ItemsIndexedByPath } from '../domain/ItemsIndexedByPath';
 
 /** @deprecated */
@@ -94,7 +94,7 @@ export class Traverser {
 
       if (folder.status !== ServerFolderStatus.EXISTS) return;
 
-      this.collection[name] = WebdavFolder.from({
+      this.collection[name] = Folder.from({
         id: folder.id,
         parentId: folder.parentId as number,
         updatedAt: folder.updatedAt,
@@ -112,7 +112,7 @@ export class Traverser {
       (k: string) => delete this.collection[k]
     );
 
-    this.collection['/'] = WebdavFolder.from({
+    this.collection['/'] = Folder.from({
       id: this.baseFolderId,
       parentId: null,
       updatedAt: new Date().toISOString(),
@@ -130,7 +130,7 @@ export class Traverser {
 
     this.traverse(this.baseFolderId);
 
-    this.collection['/'] = WebdavFolder.from({
+    this.collection['/'] = Folder.from({
       id: this.baseFolderId,
       parentId: null,
       updatedAt: new Date().toISOString(),

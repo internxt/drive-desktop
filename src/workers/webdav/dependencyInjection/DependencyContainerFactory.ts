@@ -18,7 +18,7 @@ import { WebdavFolderCreator } from '../modules/folders/application/WebdavFolder
 import { WebdavFolderDeleter } from '../modules/folders/application/WebdavFolderDeleter';
 import { WebdavFolderFinder } from '../modules/folders/application/WebdavFolderFinder';
 import { WebdavFolderMover } from '../modules/folders/application/WebdavFolderMover';
-import { HttpWebdavFolderRepository } from '../modules/folders/infrastructure/HttpWebdavFolderRepository';
+import { HttpFolderRepository } from '../modules/folders/infrastructure/HttpFolderRepository';
 import { Traverser } from '../modules/items/application/Traverser';
 import { AllWebdavItemsNameLister } from '../modules/shared/application/AllWebdavItemsSearcher';
 import { WebdavUnknownItemTypeSearcher } from '../modules/shared/application/WebdavUnknownItemTypeSearcher';
@@ -100,7 +100,7 @@ export class DependencyContainerFactory {
       ipc
     );
 
-    const folderRepository = new HttpWebdavFolderRepository(
+    const folderRepository = new HttpFolderRepository(
       clients.drive,
       clients.newDrive,
       traverser,

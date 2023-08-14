@@ -18,21 +18,23 @@ const driveName = 'Internxt Drive';
 
 export const mountDrive = async (): Promise<void> => {
   if (process.platform === 'win32') {
-    const currentMountedDrives = await getCurrentWindowsMountedDrives();
-    if (currentMountedDrives.length === 0) {
-      const driveLetter = await getLetterDrive();
-      Logger.log(`[VirtualDrive] Drive letter available: ${driveLetter}`);
-      if (driveLetter) {
-        configStore.set('virtualdriveWindowsLetter', driveLetter);
-        const mounted = await mountWindowsDrive(driveLetter);
-        if (mounted) {
-          await renameWindowsDrive();
-        }
+    unmountVHDDrive(getSavedLetter()).catch();
+
+
+    const driveLetter = await getLetterDrive();
+    Logger.log(`[VirtualDrive] Drive letter available: ${driveLetter}`);
+    if (driveLetter) {
+      configStore.set('virtualdriveWindowsLetter', driveLetter);
+
+      const isHyperVenabled = await getWindowsHyperVEnabled();
+      if (!isHyperVenabled) {
+        await enableWindowsHyperV();
       }
-    } else {
-      Logger.log(
-        `[VirtualDrive] Drive already mounted on: ${currentMountedDrives.toString()}`
-      );
+
+      const mounted = await mountVHDWindowsDrive(driveLetter);
+      if (mounted) {
+        await renameWindowsDrive();
+      }
     }
     return;
   } else if (process.platform === 'darwin') {
@@ -50,7 +52,7 @@ export const mountDrive = async (): Promise<void> => {
 
 export const unmountDrive = async () => {
   if (process.platform === 'win32') {
-    return unmountWindowsDrive(getSavedLetter());
+    return unmountVHDDrive(getSavedLetter());
   } else if (process.platform === 'darwin') {
     return unmountMacOSDrive();
   } else if (process.platform === 'linux') {
@@ -132,7 +134,7 @@ const getLetterDrive = async (): Promise<string | false> => {
   }
 };
 
-const mountWindowsDrive = (driveLetter: string): Promise<boolean> => {
+const mountWebdavWindowsDrive = (driveLetter: string): Promise<boolean> => {
   Logger.log('[VirtualDrive] Mounting drive: ' + driveLetter);
   return new Promise(function (resolve, reject) {
     exec(
@@ -145,6 +147,48 @@ const mountWindowsDrive = (driveLetter: string): Promise<boolean> => {
         } else {
           Logger.log(
             `[VirtualDrive] Drive created and mounted successfully: ${stdoutMount}`
+          );
+          resolve(true);
+        }
+      }
+    );
+  });
+};
+
+const mountVHDWindowsDrive = (driveLetter: string): Promise<boolean> => {
+  Logger.log('[VirtualDrive] Mounting VHD drive: ' + driveLetter);
+  return new Promise(function (resolve, reject) {
+    exec(
+      `New-VHD -Path .\\Internxt.vhdx -Dynamic -SizeBytes 10GB |Mount-VHD -Passthru |Initialize-Disk -Passthru |
+      New-Partition -DriveLetter ${driveLetter} -UseMaximumSize |Format-Volume -FileSystem NTFS -Confirm:$false -Force`,
+      { shell: 'powershell.exe' },
+      (errMount, stdoutMount) => {
+        if (errMount) {
+          Logger.log(`[VirtualDrive] Error creating VHD drive: ${errMount}`);
+          reject(`[VirtualDrive] Error creating VHD drive: ${errMount}`);
+        } else {
+          Logger.log(
+            `[VirtualDrive] VHD Drive created and mounted successfully: ${stdoutMount}`
+          );
+          resolve(true);
+        }
+      }
+    );
+  });
+};
+
+const removeVHDDrive = (): Promise<boolean> => {
+  Logger.log('[VirtualDrive] Removing VHD drive');
+  return new Promise(function (resolve, reject) {
+    exec('Remove-Item .\\Internxt.vhdx',
+      { shell: 'powershell.exe' },
+      (errMount, stdoutMount) => {
+        if (errMount) {
+          Logger.log(`[VirtualDrive] Error removing VHD drive: ${errMount}`);
+          reject(`[VirtualDrive] Error removing VHD drive: ${errMount}`);
+        } else {
+          Logger.log(
+            `[VirtualDrive] VHD Drive removed successfully: ${stdoutMount}`
           );
           resolve(true);
         }
@@ -186,6 +230,72 @@ const unmountWindowsDrive = (driveLetter: string): Promise<boolean> => {
           reject(`[VirtualDrive] Error unmounting drive: ${err}`);
         } else {
           Logger.log(`[VirtualDrive] Drive unmounted successfully: ${stdout}`);
+          resolve(true);
+        }
+      }
+    );
+  });
+};
+
+const unmountVHDDrive = async (driveLetter: string): Promise<boolean> => {
+  Logger.log('[VirtualDrive] Unmounting VHD drive: ' + driveLetter);
+  try {
+    await ejectVHDDrive(driveLetter);
+  } catch (err) {
+    Logger.log('[VirtualDrive] Ignoring eject VHD drive error: ' + driveLetter);
+  }
+  return removeVHDDrive();
+};
+
+const ejectVHDDrive = (driveLetter: string): Promise<boolean> => {
+  Logger.log('[VirtualDrive] eject VHD drive: ' + driveLetter);
+  return new Promise(function (resolve, reject) {
+    exec(
+      `(New-Object -comObject Shell.Application).NameSpace(17).ParseName("${driveLetter}:").InvokeVerb("Eject")`,
+      { shell: 'powershell.exe' },
+      (err, stdout) => {
+        if (err) {
+          Logger.log(`[VirtualDrive] Error ejecting drive: ${err}`);
+          reject(`[VirtualDrive] Error ejecting drive: ${err}`);
+        } else {
+          Logger.log(`[VirtualDrive] Drive ejected successfully: ${stdout}`);
+          resolve(true);
+        }
+      }
+    );
+  });
+};
+
+const getWindowsHyperVEnabled = (): Promise<boolean> => {
+  Logger.log('[VirtualDrive] Getting Windows HyperV is enabled');
+  return new Promise(function (resolve, reject) {
+    exec('(Get-WindowsOptionalFeature -FeatureName Microsoft-Hyper-V-All -Online).State',
+      { shell: 'powershell.exe' },
+      (err, stdout) => {
+        if (err) {
+          Logger.log(`[VirtualDrive] Error getting Windows HyperV: ${err}`);
+          reject(`[VirtualDrive] Error getting Windows HyperV: ${err}`);
+        } else {
+          const stateHyperV = stdout.trim().toLowerCase();
+          Logger.log('[VirtualDrive] Is Windows HyperV enabled:', { stateHyperV });
+          resolve(stateHyperV === 'enabled');
+        }
+      }
+    );
+  });
+};
+
+const enableWindowsHyperV = (): Promise<boolean> => {
+  Logger.log('[VirtualDrive] Enabling HyperV');
+  return new Promise(function (resolve, reject) {
+    exec('Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V -All',
+      { shell: 'powershell.exe' },
+      (err, stdout) => {
+        if (err) {
+          Logger.log(`[VirtualDrive] Error enabling HyperV: ${err}`);
+          reject(`[VirtualDrive] Error enabling HyperV: ${err}`);
+        } else {
+          Logger.log(`[VirtualDrive] Enabled HyperV successfully: ${stdout}`);
           resolve(true);
         }
       }
