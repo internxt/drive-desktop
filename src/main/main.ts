@@ -30,6 +30,7 @@ import './thumbnails/handlers';
 import './migration/handlers';
 import './config/handlers';
 import './app-info/handlers';
+import './virtual-drive';
 import { unmountDrive } from '../workers/webdav/VirtualDrive';
 import './remote-sync/handlers';
 import { app, ipcMain } from 'electron';

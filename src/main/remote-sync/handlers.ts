@@ -11,9 +11,9 @@ import { sleep } from '../util';
 import { broadcastToWindows } from '../windows';
 
 let initialSyncReady = false;
-const driveFilesCollection = new DriveFilesCollection();
-const driveFoldersCollection = new DriveFoldersCollection();
-const remoteSyncManager = new RemoteSyncManager(
+export const driveFilesCollection = new DriveFilesCollection();
+export const driveFoldersCollection = new DriveFoldersCollection();
+export const remoteSyncManager = new RemoteSyncManager(
   {
     files: driveFilesCollection,
     folders: driveFoldersCollection,
