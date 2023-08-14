@@ -106,6 +106,18 @@ export class HttpWebdavFileRepository implements WebdavFileRepository {
     return WebdavFile.from(item.attributes());
   }
 
+  find(contentsId: string): WebdavFile {
+    const result = Object.values(this.files).find(
+      (file) => file.fileId === contentsId
+    );
+
+    if (!result) {
+      throw new Error('File not found');
+    }
+
+    return result;
+  }
+
   async delete(file: WebdavFile): Promise<void> {
     try {
       const currentFile =

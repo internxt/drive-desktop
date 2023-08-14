@@ -6,6 +6,8 @@ import { FilePath } from './FilePath';
 export interface WebdavFileRepository {
   search(pathLike: FilePath): Nullable<WebdavFile>;
 
+  find(contentsId: string): WebdavFile;
+
   delete(file: WebdavFile): Promise<void>;
 
   add(file: WebdavFile): Promise<void>;

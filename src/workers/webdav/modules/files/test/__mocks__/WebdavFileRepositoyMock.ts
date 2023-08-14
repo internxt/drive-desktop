@@ -7,6 +7,7 @@ export class WebdavFileRepositoryMock implements WebdavFileRepository {
   public mockSearch = jest.fn();
   public mockDelete = jest.fn();
   public mockAdd = jest.fn();
+  public mockFind = jest.fn();
   public mockUpdateName = jest.fn();
   public mockUpdateParentDir = jest.fn();
   public mockSearchOnFolder = jest.fn();
@@ -14,6 +15,11 @@ export class WebdavFileRepositoryMock implements WebdavFileRepository {
   search(pathLike: FilePath): Nullable<WebdavFile> {
     return this.mockSearch(pathLike);
   }
+
+  find(contentsId: string): WebdavFile {
+    return this.mockFind(contentsId);
+  }
+
   delete(file: WebdavFile): Promise<void> {
     return this.mockDelete(file);
   }
