@@ -122,7 +122,7 @@ async function createPlaceHolders(): Promise<void> {
   });
 }
 
-eventBus.on('RECEIVED_REMOTE_CHANGES', async () => {
+eventBus.on('RECEIVED_REMOTE_CHANGES', () => {
   debounce(createPlaceHolders, 500);
 });
 
