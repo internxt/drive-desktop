@@ -272,6 +272,9 @@ contextBridge.exposeInMainWorld('electron', {
   retryVirtualDriveMount() {
     return ipcRenderer.invoke('retry-virtual-drive-mount');
   },
+  unmountVirtualDriveAndQuit() {
+    return ipcRenderer.invoke('unmount-virtual-drive-and-quit');
+  },
   onVirtualDriveStatusChange(callback) {
     const eventName = 'virtual-drive-status-change';
     const callbackWrapper = (_, v) => {

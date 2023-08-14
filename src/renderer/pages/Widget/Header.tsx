@@ -2,7 +2,6 @@ import { Menu, Transition } from '@headlessui/react';
 import { UilFolderOpen, UilGlobe, UilSetting } from '@iconscout/react-unicons';
 import bytes from 'bytes';
 import { ReactNode, useEffect, useRef, useState } from 'react';
-
 import { User } from '../../../main/types';
 import { useTranslationContext } from '../../context/LocalContext';
 import useBackupFatalErrors from '../../hooks/BackupFatalErrors';
@@ -41,6 +40,10 @@ export default function Header() {
     }
   }, []);
 
+  function onQuitClick() {
+    window.electron.unmountVirtualDriveAndQuit();
+  }
+
   const handleOpenDriveWeb = async () => {
     try {
       await window.electron.openUrl('https://drive.internxt.com');
@@ -48,6 +51,7 @@ export default function Header() {
       reportError(error);
     }
   };
+
   const dropdown = (
     <Transition
       enter="transition duration-100 ease-out"
@@ -142,7 +146,7 @@ export default function Header() {
               role="button"
               tabIndex={0}
               aria-hidden="true"
-              onClick={window.electron.quit}
+              onClick={onQuitClick}
               className="border-t border-t-l-neutral-30"
             >
               <DropdownItem active={active}>
