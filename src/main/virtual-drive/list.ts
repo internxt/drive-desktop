@@ -108,17 +108,19 @@ async function createPlaceHolders(): Promise<void> {
       return;
     }
 
-    createPlaceHolderFile({
-      nameWithExtension: item.nameWithExtension,
-      id: item.fileId,
-      size: item.size,
-      combinedAttributes: null,
-      creationTime: item.createdAt.toISOString(),
-      lastWriteTime: item.updatedAt.toISOString(),
-      lastAccesTime: item.updatedAt.toISOString(),
-      // This shoulb be hte last access time but we don't store the last accessed time
-      absolutePath: path.join(syncPath, relativePath),
-    });
+    if (item.isOnRootFolder()) {
+      createPlaceHolderFile({
+        nameWithExtension: item.nameWithExtension,
+        id: item.fileId,
+        size: item.size,
+        combinedAttributes: null,
+        creationTime: item.createdAt.toISOString(),
+        lastWriteTime: item.updatedAt.toISOString(),
+        lastAccesTime: item.updatedAt.toISOString(),
+        // This should be the last access time but we don't store the last accessed time
+        absolutePath: path.join(syncPath, relativePath),
+      });
+    }
   });
 }
 

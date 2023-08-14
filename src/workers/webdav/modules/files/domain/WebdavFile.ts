@@ -216,6 +216,10 @@ export class WebdavFile extends AggregateRoot {
     return true;
   }
 
+  isOnRootFolder(): boolean {
+    return this.path.value === '/';
+  }
+
   hasStatus(status: FileStatuses): boolean {
     return this._status.is(status);
   }
