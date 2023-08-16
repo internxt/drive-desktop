@@ -7,7 +7,7 @@ import {
 } from '../../workers/types';
 
 import eventBus from '../event-bus';
-import { setTrayStatus } from '../tray';
+import { setTrayStatus } from '../tray/tray';
 import { broadcastToWindows } from '../windows';
 
 export type SyncStatus = 'STANDBY' | 'RUNNING' | 'FAILED';

@@ -1,8 +1,7 @@
 import { BrowserWindow, screen } from 'electron';
 
-import { isAutoLaunchEnabled } from '../auto-launch/service';
 import eventBus from '../event-bus';
-import { TrayMenu } from '../tray';
+import { TrayMenu } from '../tray/tray';
 import { preloadPath, resolveHtmlPath } from '../util';
 import { setUpCommonWindowHandlers } from '.';
 import { getIsLoggedIn } from '../auth/handlers';

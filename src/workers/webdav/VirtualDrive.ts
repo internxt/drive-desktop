@@ -3,16 +3,11 @@ import { exec } from 'child_process';
 import configStore from '../../main/config';
 import { homedir } from 'os';
 
-export enum VirtualDriveStatus {
-  MOUNTING = 'MOUNTING',
-  MOUNTED = 'MOUNTED',
-  FAILED_TO_MOUNT = 'FAILED_TO_MOUNT',
-  UNMOUNTED = 'UNMOUNTED',
-}
 const driveObject = {
   host: 'Virtual.Drive.Internxt.com',
   port: '1900',
 };
+
 const driveURL = `http://${driveObject.host}:${driveObject.port}`;
 const driveName = 'Internxt Drive';
 
@@ -20,8 +15,9 @@ export const mountDrive = async (): Promise<void> => {
   if (process.platform === 'win32') {
     try {
       await unmountDrive();
-    } catch (err) { Logger.error('Ignoring error on unmount', { err }); };
-
+    } catch (err) {
+      Logger.error('Ignoring error on unmount', { err });
+    }
 
     const driveLetter = await getLetterDrive();
     Logger.log(`[VirtualDrive] Drive letter available: ${driveLetter}`);
@@ -183,7 +179,8 @@ const mountVHDWindowsDrive = (driveLetter: string): Promise<boolean> => {
 const removeVHDDrive = (): Promise<boolean> => {
   Logger.log('[VirtualDrive] Removing VHD drive');
   return new Promise(function (resolve, reject) {
-    exec('Remove-Item .\\Internxt.vhdx',
+    exec(
+      'Remove-Item .\\Internxt.vhdx',
       { shell: 'powershell.exe' },
       (errMount, stdoutMount) => {
         if (errMount) {
@@ -269,7 +266,8 @@ const ejectMountedVHDDrives = async () => {
 const getWindowsHyperVEnabled = (): Promise<boolean> => {
   Logger.log('[VirtualDrive] Getting Windows HyperV is enabled');
   return new Promise(function (resolve, reject) {
-    exec('(Get-WindowsOptionalFeature -FeatureName Microsoft-Hyper-V-All -Online).State',
+    exec(
+      '(Get-WindowsOptionalFeature -FeatureName Microsoft-Hyper-V-All -Online).State',
       { shell: 'powershell.exe' },
       (err, stdout) => {
         if (err) {
@@ -277,7 +275,9 @@ const getWindowsHyperVEnabled = (): Promise<boolean> => {
           reject(`[VirtualDrive] Error getting Windows HyperV: ${err}`);
         } else {
           const stateHyperV = stdout.trim().toLowerCase();
-          Logger.log('[VirtualDrive] Is Windows HyperV enabled:', { stateHyperV });
+          Logger.log('[VirtualDrive] Is Windows HyperV enabled:', {
+            stateHyperV,
+          });
           resolve(stateHyperV === 'enabled');
         }
       }
@@ -288,7 +288,8 @@ const getWindowsHyperVEnabled = (): Promise<boolean> => {
 const enableWindowsHyperV = (): Promise<boolean> => {
   Logger.log('[VirtualDrive] Enabling HyperV');
   return new Promise(function (resolve, reject) {
-    exec('Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V -All',
+    exec(
+      'Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V -All',
       { shell: 'powershell.exe' },
       (err, stdout) => {
         if (err) {
@@ -306,7 +307,8 @@ const enableWindowsHyperV = (): Promise<boolean> => {
 const getCurrentWindowsMountedVHDs = (): Promise<string[]> => {
   Logger.log('[VirtualDrive] Getting CurrentMountedVHD');
   return new Promise(function (resolve, _) {
-    exec('(Get-Volume | Where-Object {$_.FileSystemLabel -eq "Internxt Drive"}).DriveLetter',
+    exec(
+      '(Get-Volume | Where-Object {$_.FileSystemLabel -eq "Internxt Drive"}).DriveLetter',
       { shell: 'powershell.exe' },
       (err, stdout) => {
         if (err) {
@@ -422,25 +424,24 @@ const unmountMacOSDrive = (): Promise<boolean> => {
 const ejectMacOSDisk = (disk: string): Promise<boolean> => {
   Logger.log('[VirtualDrive] Ejecting disk');
   return new Promise(function (resolve, reject) {
-    exec(`diskutil eject "${disk}"`,
-      { shell: '/bin/bash' },
-      (err, stdout) => {
-        if (err) {
-          Logger.log(`[VirtualDrive] Error ejecting disk: ${err}`);
-          reject(`[VirtualDrive] Error ejecting disk: ${err}`);
-        } else {
-          Logger.log(`[VirtualDrive] Disk ejected successfully: ${stdout}`);
-          resolve(true);
-        }
+    exec(`diskutil eject "${disk}"`, { shell: '/bin/bash' }, (err, stdout) => {
+      if (err) {
+        Logger.log(`[VirtualDrive] Error ejecting disk: ${err}`);
+        reject(`[VirtualDrive] Error ejecting disk: ${err}`);
+      } else {
+        Logger.log(`[VirtualDrive] Disk ejected successfully: ${stdout}`);
+        resolve(true);
       }
-    );
+    });
   });
 };
 
 const getMacOSMountedInstallerDisks = (): Promise<string[]> => {
   Logger.log('[VirtualDrive] Getting Current Mounted Installer Disks');
   return new Promise(function (resolve, reject) {
-    exec('find /Volumes -type d -name \'Internxt Drive *\' -maxdepth 1',
+    exec(
+      // eslint-disable-next-line quotes
+      "find /Volumes -type d -name 'Internxt Drive *' -maxdepth 1",
       { shell: '/bin/bash' },
       (err, stdout) => {
         if (err) {
@@ -449,7 +450,10 @@ const getMacOSMountedInstallerDisks = (): Promise<string[]> => {
         } else {
           const currentMountedInstallerDisks = stdout
             .split(/\r?\n/)
-            .filter((l) => l && l.length > 0 && l.startsWith('/Volumes/Internxt Drive '));
+            .filter(
+              (l) =>
+                l && l.length > 0 && l.startsWith('/Volumes/Internxt Drive ')
+            );
           Logger.log('[VirtualDrive] Current mounted installer disks:', {
             currentMountedInstallerDisks,
           });

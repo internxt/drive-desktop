@@ -1,16 +1,16 @@
 import { app, Menu, nativeImage, Tray } from 'electron';
 import Logger from 'electron-log';
 import path from 'path';
-import PackageJson from '../../package.json';
-import eventBus from './event-bus';
+import PackageJson from '../../../package.json';
+import eventBus from '../event-bus';
 import {
   getWidget,
   setBoundsOfWidgetByPath,
   toggleWidgetVisibility,
-} from './windows/widget';
-import { getIsLoggedIn } from './auth/handlers';
-import { getAuthWindow } from './windows/auth';
-import { unmountDrive } from '../workers/webdav/VirtualDrive';
+} from '../windows/widget';
+import { getIsLoggedIn } from '../auth/handlers';
+import { getAuthWindow } from '../windows/auth';
+import { unmountDrive } from '../../workers/webdav/VirtualDrive';
 
 type TrayMenuState = 'STANDBY' | 'SYNCING' | 'ALERT' | 'LOADING';
 
@@ -143,7 +143,9 @@ export function setupTrayIcon() {
   async function onQuitClick() {
     try {
       await unmountDrive();
-    } catch (onTrayQuitClickError) { Logger.error({ onTrayQuitClickError }); };
+    } catch (onTrayQuitClickError) {
+      Logger.error({ onTrayQuitClickError });
+    }
     app.quit();
   }
 

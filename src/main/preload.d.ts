@@ -192,9 +192,13 @@ declare interface Window {
     getRemoteSyncStatus(): Promise<
       import('./remote-sync/helpers').RemoteSyncStatus
     >;
-    getVirtualDriveStatus(): Promise<string>;
+    getVirtualDriveStatus(): Promise<
+      import('../shared/types/VirtualDriveStatus').VirtualDriveStatus
+    >;
     onVirtualDriveStatusChange(
-      callback: (event: { status: string }) => void
+      callback: (event: {
+        status: import('../shared/types/VirtualDriveStatus').VirtualDriveStatus;
+      }) => void
     ): () => void;
     retryVirtualDriveMount(): void;
     unmountVirtualDriveAndQuit: () => Promise<boolean>;
