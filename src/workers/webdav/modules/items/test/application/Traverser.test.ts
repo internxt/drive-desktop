@@ -1,3 +1,4 @@
+import { ContentsIdMother } from '../../../contents/test/domain/ContentsIdMother';
 import { ServerFile } from '../../../../../filesystems/domain/ServerFile';
 import { ServerFolder } from '../../../../../filesystems/domain/ServerFolder';
 import { Traverser } from '../../../items/application/Traverser';
@@ -14,6 +15,7 @@ describe('Traverser', () => {
       files: [
         {
           name: 'file A',
+          fileId: ContentsIdMother.raw(),
           folderId: baseFolderId,
           size: 67,
           status: 'EXISTS',
@@ -34,6 +36,7 @@ describe('Traverser', () => {
       files: [
         {
           name: 'file A',
+          fileId: ContentsIdMother.raw(),
           folderId: 22491,
           size: 200,
           status: 'EXISTS',

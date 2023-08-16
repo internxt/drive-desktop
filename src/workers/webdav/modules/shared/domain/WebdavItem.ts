@@ -1,9 +1,9 @@
-import { WebdavFile } from '../../files/domain/WebdavFile';
+import { File } from '../../files/domain/File';
 import { Folder } from '../../folders/domain/Folder';
-import { WebdavPath } from './WebdavPath';
+import { Path } from './Path';
 
-export abstract class WebdavItem {
-  abstract readonly path: WebdavPath;
+export abstract class Item {
+  abstract readonly path: Path;
 
   abstract readonly createdAt: Date;
 
@@ -11,11 +11,11 @@ export abstract class WebdavItem {
 
   abstract readonly size: number;
 
-  abstract rename(path: WebdavPath): WebdavItem;
-  abstract moveTo(folder: Folder): WebdavItem;
+  abstract rename(path: Path): Item;
+  abstract moveTo(folder: Folder): Item;
 
   abstract isFolder(): this is Folder;
-  abstract isFile(): this is WebdavFile;
+  abstract isFile(): this is File;
   abstract hasParent(id: number): boolean;
   abstract toProps(): Record<string, string | number>;
 }

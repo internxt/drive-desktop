@@ -8,7 +8,7 @@ import {
   ServerFolderStatus,
 } from '../../../../filesystems/domain/ServerFolder';
 import { fileNameIsValid } from '../../../../utils/name-verification';
-import { WebdavFile } from '../../files/domain/WebdavFile';
+import { File } from '../../files/domain/File';
 import { FolderStatus } from '../../folders/domain/FolderStatus';
 import { Folder } from '../../folders/domain/Folder';
 import { ItemsIndexedByPath } from '../domain/ItemsIndexedByPath';
@@ -67,9 +67,9 @@ export class Traverser {
       })
       .forEach(({ file, name }) => {
         if (file.status === ServerFileStatus.EXISTS) {
-          this.collection[name] = WebdavFile.from({
+          this.collection[name] = File.from({
             folderId: file.folderId,
-            fileId: file.fileId,
+            contentsId: file.fileId,
             modificationTime: file.modificationTime,
             size: file.size,
             createdAt: file.createdAt,

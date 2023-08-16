@@ -4,15 +4,15 @@ import { FolderMother } from '../../../folders/test/domain/FolderMother';
 import { FolderRepositoryMock } from '../../../folders/test/__mocks__/FolderRepositoryMock';
 import { WebdavFileMover } from '../../application/WebdavFileMover';
 import { FileAlreadyExistsError } from '../../domain/errors/FileAlreadyExistsError';
-import { WebdavFileMother } from '../domain/WebdavFileMother';
-import { WebdavFileRepositoryMock } from '../__mocks__/WebdavFileRepositoyMock';
+import { FileMother } from '../domain/FileMother';
+import { FileRepositoryMock } from '../__mocks__/FileRepositoryMock';
 import { FilePath } from '../../domain/FilePath';
 import { WebdavIpcMock } from '../../../shared/test/__mock__/WebdavIPC';
 import { WebdavFileRenamer } from '../../application/WebdavFileRenamer';
-import { RemoteFileContentsManagersFactoryMock } from '../__mocks__/RemoteFileContentsManagersFactoryMock';
+import { RemoteFileContentsManagersFactoryMock } from '../../../contents/test/__mocks__/RemoteFileContentsManagersFactoryMock';
 
 describe('Webdav File Mover', () => {
-  let repository: WebdavFileRepositoryMock;
+  let repository: FileRepositoryMock;
   let folderRepository: FolderRepositoryMock;
   let folderFinder: WebdavFolderFinder;
   let fileRenamer: WebdavFileRenamer;
@@ -23,7 +23,7 @@ describe('Webdav File Mover', () => {
   let SUT: WebdavFileMover;
 
   beforeEach(() => {
-    repository = new WebdavFileRepositoryMock();
+    repository = new FileRepositoryMock();
     folderRepository = new FolderRepositoryMock();
     folderFinder = new WebdavFolderFinder(folderRepository);
     contentsRepository = new RemoteFileContentsManagersFactoryMock();
@@ -48,7 +48,7 @@ describe('Webdav File Mover', () => {
 
   describe('Move', () => {
     it('moves a file when does not exists a file with the desired path', async () => {
-      const file = WebdavFileMother.any();
+      const file = FileMother.any();
       const desiredPath = new FilePath(
         `${file.dirname}/_${file.nameWithExtension}`
       );
@@ -74,7 +74,7 @@ describe('Webdav File Mover', () => {
     });
 
     it('when a file on the destination already exists but the overwite flag is not set to true the move fails', async () => {
-      const file = WebdavFileMother.any();
+      const file = FileMother.any();
       const destination = new FilePath(
         `${file.dirname}/_${file.nameWithExtension}`
       );
@@ -100,8 +100,8 @@ describe('Webdav File Mover', () => {
     });
 
     it('when a file on the destination already exists and the overwite flag is set to true the old file gets trashed', async () => {
-      const file = WebdavFileMother.any();
-      const existing = WebdavFileMother.onFolderName('Ubuwevzuj');
+      const file = FileMother.any();
+      const existing = FileMother.onFolderName('Ubuwevzuj');
       const destination = new FilePath(
         `${existing.dirname}/_${file.nameWithExtension}`
       );
@@ -129,7 +129,7 @@ describe('Webdav File Mover', () => {
 
   describe('Rename', () => {
     it('when a file is moved to the same folder its renamed', async () => {
-      const file = WebdavFileMother.any();
+      const file = FileMother.any();
       const destination = new FilePath(
         `${file.dirname}/_${file.nameWithExtension}`
       );
@@ -155,7 +155,7 @@ describe('Webdav File Mover', () => {
     });
 
     it('a file cannot be renamed even with the overwite flag', async () => {
-      const file = WebdavFileMother.any();
+      const file = FileMother.any();
       const destination = new FilePath(
         `${file.dirname}/_${file.nameWithExtension}`
       );
@@ -164,7 +164,7 @@ describe('Webdav File Mover', () => {
       folderRepository.mockSearch.mockImplementation(() =>
         FolderMother.containing(file)
       );
-      repository.mockSearch.mockImplementation(() => WebdavFileMother.any());
+      repository.mockSearch.mockImplementation(() => FileMother.any());
 
       try {
         const hasBeenOverwritten = await SUT.run(

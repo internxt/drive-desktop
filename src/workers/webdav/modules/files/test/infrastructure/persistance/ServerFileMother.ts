@@ -2,6 +2,7 @@ import {
   ServerFile,
   ServerFileStatus,
 } from '../../../../../../filesystems/domain/ServerFile';
+import { ContentsIdMother } from '../../../../contents/test/domain/ContentsIdMother';
 
 export class ServerFileMother {
   static fromPartial(partial: Partial<ServerFile>): ServerFile {
@@ -9,7 +10,7 @@ export class ServerFileMother {
       bucket: '55c229cf-d40b-5f66-b8d6-10fbe9dafc1f',
       createdAt: new Date().toISOString(),
       encrypt_version: 'aes-3',
-      fileId: 'be2faaf9-9a11-574a-89d4-2213a20a39d4',
+      fileId: ContentsIdMother.raw(),
       folderId: 4017,
       id: 2785074,
       modificationTime: new Date().toISOString(),

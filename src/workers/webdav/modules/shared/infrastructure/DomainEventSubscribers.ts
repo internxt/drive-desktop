@@ -1,19 +1,17 @@
 import { DependencyContainerFactory } from 'workers/webdav/dependencyInjection/DependencyContainerFactory';
 import { DependencyContainer } from 'workers/webdav/dependencyInjection/DependencyContainer';
 import { WebdavDomainEventSubscriber } from '../domain/WebdavDomainEventSubscriber';
-import { WebdavDomainEvent } from '../domain/WebdavDomainEvent';
+import { DomainEvent } from '../domain/DomainEvent';
 
 export class DomainEventSubscribers {
-  constructor(
-    public items: Array<WebdavDomainEventSubscriber<WebdavDomainEvent>>
-  ) {}
+  constructor(public items: Array<WebdavDomainEventSubscriber<DomainEvent>>) {}
 
   static from(container: DependencyContainer): DomainEventSubscribers {
     const subscribers = DependencyContainerFactory.subscriptors.map(
       (subscriber) => {
         return container[subscriber];
       }
-    ) as unknown as Array<WebdavDomainEventSubscriber<WebdavDomainEvent>>;
+    ) as unknown as Array<WebdavDomainEventSubscriber<DomainEvent>>;
 
     return new DomainEventSubscribers(subscribers);
   }

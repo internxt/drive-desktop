@@ -1,6 +1,6 @@
-import { DomainEventClass, WebdavDomainEvent } from './WebdavDomainEvent';
+import { DomainEventClass, DomainEvent } from './DomainEvent';
 
-export interface WebdavDomainEventSubscriber<T extends WebdavDomainEvent> {
+export interface WebdavDomainEventSubscriber<T extends DomainEvent> {
   subscribedTo(): Array<DomainEventClass>;
   on(domainEvent: T): Promise<void>;
 }

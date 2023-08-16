@@ -36,7 +36,7 @@ import { FileActionCannotModifyExtension } from '../../modules/files/domain/erro
 import { FileActionOnlyCanAffectOneLevelError } from '../../modules/files/domain/errors/FileActionOnlyCanAffectOneLevelError';
 import { FileNameShouldDifferFromOriginalError } from '../../modules/files/domain/errors/FileNameShouldDifferFromOriginalError';
 import { FileCannotBeMovedToTheOriginalFolderError } from '../../modules/files/domain/errors/FileCannotBeMovedToTheOriginalFolderError';
-import { RemoteFileContents } from '../../modules/files/domain/RemoteFileContent';
+import { Contents } from '../../modules/contents/domain/Contents';
 import { WebdavFileValidator } from 'workers/webdav/modules/files/application/WebdavFileValidator';
 
 export class PhysicalFileSystemResource {
@@ -194,7 +194,7 @@ export class InternxtFileSystem extends FileSystem {
   ): void {
     this.container.fileDownloader
       .run(path.toString(false))
-      .then((remoteFileContents: RemoteFileContents) => {
+      .then((remoteFileContents: Contents) => {
         callback(undefined, remoteFileContents.stream);
       })
       .catch((error: Error) => {

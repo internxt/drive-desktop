@@ -1,25 +1,24 @@
-import { WebdavIpc } from 'workers/webdav/ipc';
 import { WebdavFolderFinder } from '../../folders/application/WebdavFolderFinder';
 import { Folder } from '../../folders/domain/Folder';
 import { WebdavServerEventBus } from '../../shared/domain/WebdavServerEventBus';
 import { FileAlreadyExistsError } from '../domain/errors/FileAlreadyExistsError';
 import { UnknownFileActionError } from '../domain/errors/UnknownFileActionError';
 import { FilePath } from '../domain/FilePath';
-import { WebdavFile } from '../domain/WebdavFile';
-import { WebdavFileRepository } from '../domain/WebdavFileRepository';
-
+import { File } from '../domain/File';
+import { FileRepository } from '../domain/FileRepository';
 import { WebdavFileRenamer } from './WebdavFileRenamer';
+import { WebdavIpc } from '../../../ipc';
 
 export class WebdavFileMover {
   constructor(
-    private readonly repository: WebdavFileRepository,
+    private readonly repository: FileRepository,
     private readonly folderFinder: WebdavFolderFinder,
     private readonly fileRenamer: WebdavFileRenamer,
     private readonly eventBus: WebdavServerEventBus,
     private readonly ipc: WebdavIpc
   ) {}
 
-  private async move(file: WebdavFile, folder: Folder) {
+  private async move(file: File, folder: Folder) {
     file.moveTo(folder);
 
     await this.repository.updateParentDir(file);
@@ -32,11 +31,7 @@ export class WebdavFileMover {
     });
   }
 
-  private async overwite(
-    file: WebdavFile,
-    destinationFile: WebdavFile,
-    folder: Folder
-  ) {
+  private async overwite(file: File, destinationFile: File, folder: Folder) {
     file.moveTo(folder);
     destinationFile.trash();
 
@@ -55,11 +50,7 @@ export class WebdavFileMover {
     if (action) throw new UnknownFileActionError('WebdavFileMover');
   }
 
-  async run(
-    file: WebdavFile,
-    to: string,
-    overwrite: boolean
-  ): Promise<boolean> {
+  async run(file: File, to: string, overwrite: boolean): Promise<boolean> {
     const desiredPath = new FilePath(to);
     const destinationFile = this.repository.search(desiredPath);
 

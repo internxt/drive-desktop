@@ -11,9 +11,8 @@ import { WebdavFileDeleter } from '../modules/files/application/WebdavFileDelete
 import { WebdavFileDownloader } from '../modules/files/application/WebdavFileDownloader';
 import { WebdavFileMimeTypeResolver } from '../modules/files/application/WebdavFileMimeTypeResolver';
 import { WebdavFileMover } from '../modules/files/application/WebdavFileMover';
-import { HttpWebdavFileRepository } from '../modules/files/infrastructure/persistance/HttpWebdavFileRepository';
+import { HttpFileRepository } from '../modules/files/infrastructure/persistance/HttpFileRepository';
 import { InMemoryTemporalFileMetadataCollection } from '../modules/files/infrastructure/persistance/InMemoryTemporalFileMetadataCollection';
-import { EnvironmentRemoteFileContentsManagersFactory } from '../modules/files/infrastructure/content/EnvironmentRemoteFileContentsManagersFactory';
 import { WebdavFolderCreator } from '../modules/folders/application/WebdavFolderCreator';
 import { WebdavFolderDeleter } from '../modules/folders/application/WebdavFolderDeleter';
 import { WebdavFolderFinder } from '../modules/folders/application/WebdavFolderFinder';
@@ -34,8 +33,8 @@ import { DependencyContainer } from './DependencyContainer';
 import { ipc } from '../ipc';
 import { WebdavFolderRenamer } from '../modules/folders/application/WebdavFolderRenamer';
 import { WebdavFileRenamer } from '../modules/files/application/WebdavFileRenamer';
-import { CachedRemoteFileContentsManagersFactory } from '../modules/files/infrastructure/content/CachedRemoteFileContentsManagersFactory';
-import { FSContentsCacheRepository } from '../modules/files/infrastructure/content/FSContentsCacheRepository';
+import { EnvironmentRemoteFileContentsManagersFactory } from '../modules/contents/infrastructure/EnvironmentRemoteFileContentsManagersFactory';
+import { FSContentsCacheRepository } from '../modules/contents/infrastructure/FSContentsCacheRepository';
 
 export class DependencyContainerFactory {
   private _container: DependencyContainer | undefined;
@@ -91,7 +90,7 @@ export class DependencyContainerFactory {
 
     const traverser = new Traverser(crypt, user.root_folder_id);
 
-    const fileRepository = new HttpWebdavFileRepository(
+    const fileRepository = new HttpFileRepository(
       crypt,
       clients.drive,
       clients.newDrive,

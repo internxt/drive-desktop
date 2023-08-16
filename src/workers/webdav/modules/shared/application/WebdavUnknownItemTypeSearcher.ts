@@ -1,16 +1,16 @@
 import { FilePath } from '../../files/domain/FilePath';
-import { WebdavFile } from '../../files/domain/WebdavFile';
-import { WebdavFileRepository } from '../../files/domain/WebdavFileRepository';
+import { File } from '../../files/domain/File';
+import { FileRepository } from '../../files/domain/FileRepository';
 import { Folder } from '../../folders/domain/Folder';
 import { FolderRepository } from '../../folders/domain/FolderRepository';
 
 export class WebdavUnknownItemTypeSearcher {
   constructor(
-    private readonly filesRepository: WebdavFileRepository,
+    private readonly filesRepository: FileRepository,
     private readonly folderRepository: FolderRepository
   ) {}
 
-  run(path: string): WebdavFile | Folder | undefined {
+  run(path: string): File | Folder | undefined {
     const file = this.filesRepository.search(new FilePath(path));
 
     if (file) return file;

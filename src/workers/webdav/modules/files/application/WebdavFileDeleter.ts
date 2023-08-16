@@ -1,16 +1,16 @@
 import { WebdavIpc } from '../../../ipc';
 import { WebdavServerEventBus } from '../../shared/domain/WebdavServerEventBus';
-import { WebdavFile } from '../domain/WebdavFile';
-import { WebdavFileRepository } from '../domain/WebdavFileRepository';
+import { File } from '../domain/File';
+import { FileRepository } from '../domain/FileRepository';
 
 export class WebdavFileDeleter {
   constructor(
-    private readonly repository: WebdavFileRepository,
+    private readonly repository: FileRepository,
     private readonly eventBus: WebdavServerEventBus,
     private readonly ipc: WebdavIpc
   ) {}
 
-  async run(file: WebdavFile): Promise<void> {
+  async run(file: File): Promise<void> {
     this.ipc.send('WEBDAV_FILE_DELETING', {
       name: file.name,
       extension: file.type,

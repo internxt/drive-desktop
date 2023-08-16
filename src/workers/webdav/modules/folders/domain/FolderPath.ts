@@ -1,8 +1,8 @@
 import path from 'path';
 import { InvalidArgumentError } from '../../../../shared/domain/InvalidArgumentError';
-import { WebdavPath } from '../../shared/domain/WebdavPath';
+import { Path } from '../../shared/domain/Path';
 
-export class FolderPath extends WebdavPath {
+export class FolderPath extends Path {
   constructor(value: string) {
     super(value);
     this.startsWithSlash(value);

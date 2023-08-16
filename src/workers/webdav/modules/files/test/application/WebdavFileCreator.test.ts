@@ -4,13 +4,14 @@ import { WebdavFolderFinder } from '../../../folders/application/WebdavFolderFin
 import { WebdavFileCreator } from '../../application/WebdavFileCreator';
 import { FileMetadataCollection } from '../../domain/FileMetadataCollection';
 import { InMemoryTemporalFileMetadataCollection } from '../../infrastructure/persistance/InMemoryTemporalFileMetadataCollection';
-import { RemoteFileContentsManagersFactoryMock } from '../__mocks__/RemoteFileContentsManagersFactoryMock';
-import { WebdavFileRepositoryMock } from '../__mocks__/WebdavFileRepositoyMock';
+import { RemoteFileContentsManagersFactoryMock } from '../../../contents/test/__mocks__/RemoteFileContentsManagersFactoryMock';
+import { FileRepositoryMock } from '../__mocks__/FileRepositoryMock';
 import { EventBusMock } from '../../../shared/test/__mock__/EventBusMock';
 import { WebdavIpcMock } from '../../../shared/test/__mock__/WebdavIPC';
+import { ContentsIdMother } from '../../../contents/test/domain/ContentsIdMother';
 
 describe('Webdav File Creator', () => {
-  let fileReposiotry: WebdavFileRepositoryMock;
+  let fileReposiotry: FileRepositoryMock;
   let folderRepository: FolderRepositoryMock;
   let contentsRepository: RemoteFileContentsManagersFactoryMock;
   let temporalFileCollection: FileMetadataCollection;
@@ -20,7 +21,7 @@ describe('Webdav File Creator', () => {
   let SUT: WebdavFileCreator;
 
   beforeEach(() => {
-    fileReposiotry = new WebdavFileRepositoryMock();
+    fileReposiotry = new FileRepositoryMock();
     folderRepository = new FolderRepositoryMock();
     const folderFinder = new WebdavFolderFinder(folderRepository);
     contentsRepository = new RemoteFileContentsManagersFactoryMock();
@@ -41,7 +42,7 @@ describe('Webdav File Creator', () => {
   it('uploads the file contents to the uploader and then creates the file on the drive server', async () => {
     const path = '/cat.png';
     const size = 9715019333;
-    const createdFileId = 'd37800fc-43c8-529a-b02b-d41059921a15';
+    const createdFileId = ContentsIdMother.raw();
 
     const folder = FolderMother.any();
 
@@ -56,7 +57,9 @@ describe('Webdav File Creator', () => {
     await SUT.run(path, size);
 
     expect(contentsRepository.mockUpload.uploadMock).toBeCalledTimes(1);
-    expect(fileReposiotry.mockAdd.mock.calls[0][0].fileId).toBe(createdFileId);
+    expect(fileReposiotry.mockAdd.mock.calls[0][0].contentsId).toBe(
+      createdFileId
+    );
     expect(fileReposiotry.mockAdd.mock.calls[0][0].size).toStrictEqual(size);
     expect(fileReposiotry.mockAdd.mock.calls[0][0].folderId).toBe(folder.id);
   });
@@ -64,7 +67,7 @@ describe('Webdav File Creator', () => {
   it('once the file entry is created the creation event should have been emitted', async () => {
     const path = '/cat.png';
     const size = 9715019333;
-    const createdFileId = 'd37800fc-43c8-529a-b02b-d41059921a15';
+    const createdFileId = ContentsIdMother.raw();
 
     const folder = FolderMother.any();
 
