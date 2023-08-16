@@ -17,7 +17,7 @@ import { FileStatuses } from '../../domain/FileStatus';
 import { Crypt } from '../../../shared/domain/Crypt';
 
 export class HttpFileRepository implements FileRepository {
-  private files: Record<string, File> = {};
+  public files: Record<string, File> = {};
 
   constructor(
     private readonly crypt: Crypt,

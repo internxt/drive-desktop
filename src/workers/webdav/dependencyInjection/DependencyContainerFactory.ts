@@ -35,6 +35,8 @@ import { WebdavFolderRenamer } from '../modules/folders/application/WebdavFolder
 import { WebdavFileRenamer } from '../modules/files/application/WebdavFileRenamer';
 import { EnvironmentRemoteFileContentsManagersFactory } from '../modules/contents/infrastructure/EnvironmentRemoteFileContentsManagersFactory';
 import { FSContentsCacheRepository } from '../modules/contents/infrastructure/FSContentsCacheRepository';
+import { FileSearcher } from '../modules/files/application/FileSearcher';
+import { FolderSearcher } from '../modules/folders/application/FolderSearcher';
 
 export class DependencyContainerFactory {
   private _container: DependencyContainer | undefined;
@@ -197,7 +199,9 @@ export class DependencyContainerFactory {
       ),
       fileRenamer,
       fileMimeTypeResolver: new WebdavFileMimeTypeResolver(),
+      fileSearcher: new FileSearcher(fileRepository),
 
+      folderSearcher: new FolderSearcher(folderRepository),
       folderFinder,
       folderRenamer,
       folderCreator: new WebdavFolderCreator(

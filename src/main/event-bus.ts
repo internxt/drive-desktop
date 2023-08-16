@@ -39,4 +39,6 @@ declare interface EventBus {
 
 const eventBus = new EventBus();
 
+eventBus.setMaxListeners(20);
+
 export default eventBus;

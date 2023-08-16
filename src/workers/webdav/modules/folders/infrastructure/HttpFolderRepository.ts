@@ -14,7 +14,7 @@ import { RemoteItemsGenerator } from '../../items/application/RemoteItemsGenerat
 import { FolderStatuses } from '../domain/FolderStatus';
 
 export class HttpFolderRepository implements FolderRepository {
-  private folders: Record<string, Folder> = {};
+  public folders: Record<string, Folder> = {};
 
   constructor(
     private readonly driveClient: Axios,

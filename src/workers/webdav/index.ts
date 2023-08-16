@@ -2,17 +2,15 @@ import Logger from 'electron-log';
 import { DependencyContainerFactory } from './dependencyInjection/DependencyContainerFactory';
 import { ipc } from './ipc';
 import {
-  mountDrive,
+  getVirtualDrivePath,
   retryVirtualDriveMount,
   unmountDrive,
 } from './VirtualDrive';
-import { InternxtFileSystemFactory } from './worker/InternxtFileSystem/InternxtFileSystemFactory';
-import { InternxtStorageManagerFactory } from './worker/InternxtStorageManager/InternxtSotrageManagerFactory';
-import { InternxtWebdavServer } from './worker/server';
 import { ipcRenderer } from 'electron';
-import { InternxtFileSystem } from './worker/InternxtFileSystem/InternxtFileSystem';
-
-const PORT = 1900;
+import { DomainEventSubscribers } from './modules/shared/infrastructure/DomainEventSubscribers';
+import { BindingsManager } from './BindingManager';
+import PackageJson from '../../../package.json';
+import { DumbVirtualDrive } from './Addon';
 
 /**
  * Tries to mount the Virtual Drive again by
@@ -38,13 +36,17 @@ async function setUp() {
     const containerFactory = new DependencyContainerFactory();
     const container = await containerFactory.build();
 
-    const fileSystem = await InternxtFileSystemFactory.build(container);
-    const storageManager =
-      process.platform !== 'win32'
-        ? await InternxtStorageManagerFactory.build(container)
-        : undefined;
+    container.eventBus.addSubscribers(DomainEventSubscribers.from(container));
 
-    const server = new InternxtWebdavServer(PORT, container, storageManager);
+    const drive = new DumbVirtualDrive();
+    const virtuaDrivePath = getVirtualDrivePath();
+    const bindingsManager = new BindingsManager(
+      drive,
+      container,
+      virtuaDrivePath
+    );
+
+    Logger.debug();
 
     ipcRenderer.on('RETRY_VIRTUAL_DRIVE_MOUNT', () => {
       Logger.info('Retrying virtual drive mount');
@@ -55,36 +57,22 @@ async function setUp() {
       unmountDrive().catch((err) => {
         Logger.error('Failed to unmount the Virtual Drive ', err);
       });
-      server
-        .stop()
-        .then(() => {
-          Logger.log('[WEBDAB] Server stopped succesfully');
-          ipc.send('WEBDAV_SERVER_STOP_SUCCESS');
-        })
-        .catch((err) => {
-          Logger.log('[WEBDAB] Server stopped with error', err);
-          ipc.send('WEBDAV_SERVER_STOP_ERROR', err);
-        });
+      bindingsManager.down();
     });
 
     ipc.on('START_WEBDAV_SERVER_PROCESS', () => {
-      startWebdavServer(server, fileSystem);
+      Logger.info('skipping on START_WEBDAV_SERVER_PROCESS');
     });
 
-    await startWebdavServer(server, fileSystem);
+    bindingsManager.up(
+      '796f071e-2b87-5271-8809-8769e7dba627', //???
+      PackageJson.version
+    );
   } catch (error) {
+    Logger.debug('ERROR ON SETTING UP', error);
     ipc.send('WEBDAV_VIRTUAL_DRIVE_MOUNT_ERROR', error as Error);
   }
 }
-
-const startWebdavServer = async (
-  server: InternxtWebdavServer,
-  fileSystem: InternxtFileSystem
-) => {
-  await server.start([{ path: '/', fs: fileSystem }], { debug: false });
-  await mountDrive();
-  ipc.send('WEBDAV_VIRTUAL_DRIVE_MOUNTED_SUCCESSFULLY');
-};
 
 setUp().catch((err) => {
   Logger.error(err);

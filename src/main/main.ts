@@ -86,7 +86,6 @@ if (process.env.NODE_ENV === 'development') {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   require('electron-debug')({ showDevTools: false });
   // eslint-disable-next-line @typescript-eslint/no-var-requires
-  require('./dev/handlers');
 }
 
 const installExtensions = async () => {
