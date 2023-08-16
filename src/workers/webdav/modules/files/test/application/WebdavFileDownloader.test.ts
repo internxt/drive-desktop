@@ -2,20 +2,20 @@ import { Readable } from 'stream';
 import { EventBusMock } from '../../../shared/test/__mock__/EventBusMock';
 import { WebdavServerEventBus } from '../../../shared/domain/WebdavServerEventBus';
 import { WebdavFileDownloader } from '../../application/WebdavFileDownloader';
-import { WebdavFileMother } from '../domain/WebdavFileMother';
-import { RemoteFileContentsManagersFactoryMock } from '../__mocks__/RemoteFileContentsManagersFactoryMock';
-import { WebdavFileRepositoryMock } from '../__mocks__/WebdavFileRepositoyMock';
+import { FileMother } from '../domain/FileMother';
+import { RemoteFileContentsManagersFactoryMock } from '../../../contents/test/__mocks__/RemoteFileContentsManagersFactoryMock';
+import { FileRepositoryMock } from '../__mocks__/FileRepositoryMock';
 import { FilePath } from '../../domain/FilePath';
 import { WebdavIpcMock } from '../../../shared/test/__mock__/WebdavIPC';
 describe('Webdav File Downloader', () => {
-  let repository: WebdavFileRepositoryMock;
+  let repository: FileRepositoryMock;
   let contentsRepository: RemoteFileContentsManagersFactoryMock;
   let eventBus: WebdavServerEventBus;
   let SUT: WebdavFileDownloader;
   let ipc: WebdavIpcMock;
 
   beforeEach(() => {
-    repository = new WebdavFileRepositoryMock();
+    repository = new FileRepositoryMock();
     contentsRepository = new RemoteFileContentsManagersFactoryMock();
     eventBus = new EventBusMock();
     ipc = new WebdavIpcMock();
@@ -30,7 +30,7 @@ describe('Webdav File Downloader', () => {
 
   it('Gets the a readable stream when the path is founded', async () => {
     const folderPath = 'Omuseha/Ufbihtot/Wukwige';
-    const file = WebdavFileMother.onFolderName(folderPath);
+    const file = FileMother.onFolderName(folderPath);
 
     repository.mockSearch.mockReturnValueOnce(file);
     contentsRepository.mockDownload.mock.mockResolvedValueOnce(new Readable());

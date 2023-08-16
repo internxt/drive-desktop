@@ -2,20 +2,20 @@ import { WebdavServerEventBus } from '../../shared/domain/WebdavServerEventBus';
 import { ActionNotPermitedError } from '../domain/errors/ActionNotPermitedError';
 import { FileAlreadyExistsError } from '../domain/errors/FileAlreadyExistsError';
 import { FilePath } from '../domain/FilePath';
-import { RemoteFileContentsManagersFactory } from '../domain/RemoteFileContentsManagersFactory';
-import { WebdavFile } from '../domain/WebdavFile';
-import { WebdavFileRepository } from '../domain/WebdavFileRepository';
+import { ContentsManagersFactory } from '../../contents/domain/ContentsManagersFactory';
+import { File } from '../domain/File';
+import { FileRepository } from '../domain/FileRepository';
 import { WebdavIpc } from '../../../ipc';
 
 export class WebdavFileRenamer {
   constructor(
-    private readonly repository: WebdavFileRepository,
-    private readonly contentsRepository: RemoteFileContentsManagersFactory,
+    private readonly repository: FileRepository,
+    private readonly contentsRepository: ContentsManagersFactory,
     private readonly eventBus: WebdavServerEventBus,
     private readonly ipc: WebdavIpc
   ) {}
 
-  private async rename(file: WebdavFile, path: FilePath) {
+  private async rename(file: File, path: FilePath) {
     file.rename(path);
 
     await this.repository.updateName(file);
@@ -23,12 +23,12 @@ export class WebdavFileRenamer {
     await this.eventBus.publish(file.pullDomainEvents());
   }
 
-  private async reupload(file: WebdavFile, path: FilePath) {
+  private async reupload(file: File, path: FilePath) {
     const clonner = this.contentsRepository.clonner(file);
 
     const clonnedFileId = await clonner.clone();
 
-    const uploaded = file.overwrite(clonnedFileId, file.folderId, path);
+    const uploaded = file.overwrite(clonnedFileId.value, file.folderId, path);
 
     file.trash();
     await this.repository.add(uploaded);
@@ -38,7 +38,7 @@ export class WebdavFileRenamer {
     await this.eventBus.publish(file.pullDomainEvents());
   }
 
-  async run(file: WebdavFile, destination: string) {
+  async run(file: File, destination: string) {
     const path = new FilePath(destination);
 
     this.ipc.send('WEBDAV_FILE_RENAMING', {

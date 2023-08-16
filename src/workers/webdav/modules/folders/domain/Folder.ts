@@ -134,16 +134,16 @@ export class Folder extends AggregateRoot {
     return this._parentId === folder.id;
   }
 
-  hasStatus(status: FolderStatuses): boolean {
-    return this._status.value === status;
+  isFolder(): this is Folder {
+    return true;
   }
 
-  isFile(): boolean {
+  isFile(): this is File {
     return false;
   }
 
-  isFolder(): boolean {
-    return true;
+  hasStatus(status: FolderStatuses): boolean {
+    return this._status.value === status;
   }
 
   toPrimitives(): Record<string, Primitives> {

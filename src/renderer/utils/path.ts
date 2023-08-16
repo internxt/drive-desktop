@@ -4,6 +4,10 @@ export function getBaseName(pathname: string): string {
   return path.parse(pathname).base;
 }
 
+export function getExtension(pathname: string): string {
+  return path.parse(pathname).ext.replace(/^./, '');
+}
+
 export function getParentDir(pathname: string): string {
   return path.parse(pathname).dir;
 }

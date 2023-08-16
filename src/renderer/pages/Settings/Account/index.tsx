@@ -1,14 +1,16 @@
 import { useEffect, useState } from 'react';
-
+import Button from 'renderer/components/Button';
 import { User } from '../../../../main/types';
 import Spinner from '../../../assets/spinner.svg';
 import useUsage from '../../../hooks/useUsage';
 import Usage from './Usage';
 import UserInfo from './UserInfo';
+import { useTranslationContext } from 'renderer/context/LocalContext';
 
 export default function AccountSection({ active }: { active: boolean }) {
+  const { translate } = useTranslationContext();
   const [user, setUser] = useState<User | null>(null);
-  const { usage, refreshUsage } = useUsage();
+  const { usage, status, refreshUsage } = useUsage();
 
   useEffect(() => {
     window.electron.getUser().then(setUser);
@@ -19,25 +21,25 @@ export default function AccountSection({ active }: { active: boolean }) {
   }, [active]);
 
   return (
-    <div className={active ? 'block' : 'hidden'}>
-      {user !== null && (
-        <UserInfo name={`${user.name} ${user.lastname}`} email={user.email} />
-      )}
-      <div className="mt-8">
-        <div
-          className="flex h-full w-full items-center justify-center rounded-lg bg-l-neutral-20 p-6"
-          style={{ height: '136px' }}
-        >
-          {usage === 'loading' ? (
-            <Spinner className="h-8 w-8 animate-spin fill-neutral-500" />
-          ) : usage === 'error' ? (
-            <p className="text-sm text-red-60">
-              We could not fetch your usage details
+    <div className={`flex flex-col space-y-8 ${active ? 'block' : 'hidden'}`}>
+      {user !== null && <UserInfo user={user} />}
+
+      <div className="flex items-center justify-center rounded-lg border border-gray-10 bg-surface p-4 shadow-sm dark:bg-gray-5">
+        {status === 'loading' ? (
+          <Spinner className="my-[57px] h-5 w-5 animate-spin" />
+        ) : status === 'error' ? (
+          <div className="my-4 flex flex-col items-center space-y-2.5">
+            <p className="font-medium">
+              {translate('settings.account.usage.loadError.title')}
             </p>
-          ) : (
-            <Usage {...usage} />
-          )}
-        </div>
+
+            <Button variant="secondary" onClick={() => refreshUsage()}>
+              {translate('settings.account.usage.loadError.action')}
+            </Button>
+          </div>
+        ) : (
+          usage && <Usage {...usage} />
+        )}
       </div>
     </div>
   );

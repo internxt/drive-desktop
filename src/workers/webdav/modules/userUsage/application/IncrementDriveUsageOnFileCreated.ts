@@ -1,5 +1,5 @@
 import { FileCreatedDomainEvent } from '../../files/domain/FileCreatedDomainEvent';
-import { DomainEventClass } from '../../shared/domain/WebdavDomainEvent';
+import { DomainEventClass } from '../../shared/domain/DomainEvent';
 import { WebdavDomainEventSubscriber } from '../../shared/domain/WebdavDomainEventSubscriber';
 import { UserUsageIncrementer } from './UserUsageIncrementer';
 

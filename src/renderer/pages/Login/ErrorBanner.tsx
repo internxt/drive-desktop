@@ -7,7 +7,7 @@ export default function ErrorBanner({
 }) {
   return (
     <div
-      className={`flex h-9 items-center justify-center rounded-lg bg-red-10 px-4 py-2 text-sm font-medium text-red-60 ${className}`}
+      className={`flex h-9 items-center justify-center rounded-lg bg-red/10 px-3 py-2 text-sm font-medium text-red ${className}`}
     >
       <p>{children}</p>
     </div>

@@ -5,7 +5,7 @@
     },
     "password": {
       "section": "Mot de passe",
-      "placeholder": "Au moins 6 caractères",
+      "placeholder": "Mot de passe",
       "forgotten": "Vous avez oublié votre mot de passe?",
       "hide": "Cacher",
       "show": "Afficher"
@@ -137,9 +137,27 @@
       }
     },
     "body": {
+      "activity": {
+        "operation": {
+          "downloading": "Téléchargement",
+          "decrypting": "Décryptage",
+          "uploading": "téléchargement",
+          "encrypting": "Encryptage",
+          "downloaded": "Téléchargé",
+          "uploaded": "Téléchargé",
+          "deleting": "Déplacement vers les poubelles",
+          "deleted": "Déplacé vers la poubelle",
+          "renaming": "Renommer",
+          "renamed": "Renommé"
+        }
+      },
       "no-activity": {
         "title": "Aucune activité récente",
         "description": "Les informations apparaîtront ici lorsque vous effectuerez des modifications, pour synchroniser votre dossier local avec Internxt Drive"
+      },
+      "upToDate": {
+        "title": "Vos fichiers sont à jour",
+        "subtitle": "L'activité de synchronisation s'affichera ici"
       },
       "errors": {
         "sync": {},
@@ -181,15 +199,28 @@
     },
     "general": {
       "device": {
-        "section": "Nom du dispositif"
+        "section": "Nom du dispositif",
+        "action": {
+          "edit": "Editer",
+          "cancel": "Annuler",
+          "save": "Enregistrer"
+        }
       },
       "auto-startup": "Démarrer Internxt Drive au démarrage du système",
       "language": {
-        "section": "Langue",
-        "avaliable": {
-          "es": "Espagnol (Espagne)",
-          "en": "Anglais (US)",
-          "fr": "French (France)"
+        "label": "Langue",
+        "options": {
+          "es": "Español (Espagnole)",
+          "en": "English (Anglaise)",
+          "fr": "Français (Français)"
+        }
+      },
+      "theme": {
+        "label": "Apparence",
+        "options": {
+          "system": "Système",
+          "light": "Lumière",
+          "dark": "Sombre"
         }
       },
       "sync": {
@@ -204,12 +235,23 @@
     "account": {
       "logout": "Déconnecter",
       "usage": {
+        "display": "Utilisé {{used}} sur {{total}}",
         "upgrade": "Acheter",
+        "change": "Changement",
         "plan": "Plan actuel",
+        "free": "Gratuit",
+        "loadError": {
+          "title": "Impossible d'obtenir les détails de votre utilisation",
+          "action": "Réessayer"
+        },
         "current": {
           "used": "utilisés",
           "of": "de",
           "in-use": "utilisé"
+        },
+        "full": {
+          "title": "Votre espace de stockage est plein",
+          "subtitle": "Vous ne pouvez pas télécharger, synchroniser ou sauvegarder des fichiers. Mettez votre forfait à niveau ou supprimez des fichiers pour économiser de l'espace."
         }
       }
     },
@@ -223,6 +265,7 @@
       "action": {
         "start": "Faire une copie ",
         "stop": "Arrêter la sauvegarde",
+        "running": "Sauvegarde en cours {{progress}}",
         "last-run": "Dernière exécution"
       },
       "frequency": {
@@ -297,6 +340,17 @@
       "user-comments": "Commentaires",
       "include-logs": "Inclure les logs de ce processus de synchronisation à des fins de diagnostic"
     }
+  },
+  "feedback": {
+    "window-title": "Envoyer les commentaires",
+    "title": "Partager un retour d'expérience avec Internxt",
+    "description": "Vos commentaires permettent à Internxt de s'améliorer et nous aident à créer de meilleures expériences de produits",
+    "placeholder": "Laissez-nous savoir ce qui vous préoccupe, ce que vous aimeriez améliorer ou décrivez l'erreur ou le problème.",
+    "characters-count": "{{character_count}}/{{character_limit}}",
+    "send-feedback": "Envoyer les commentaire",
+    "sent-title": "Merci de nous avoir fait part de vos commentaires",
+    "sent-message": "Nous apprécions vraiment le temps et les efforts que vous consacrez à l'amélioration de nos services.",
+    "close": "Fermer"
   },
   "common": {
     "cancel": "Annuler"
