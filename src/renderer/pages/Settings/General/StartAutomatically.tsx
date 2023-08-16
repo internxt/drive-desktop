@@ -3,33 +3,28 @@ import { useEffect, useState } from 'react';
 import Checkbox from '../../../components/Checkbox';
 import { useTranslationContext } from '../../../context/LocalContext';
 
-export default function StartAutomatically({
-  className = '',
-}: {
-  className: string;
-}) {
+export default function StartAutomatically() {
   const { translate } = useTranslationContext();
-  const [value, setValue] = useState(false);
+  const [checked, setChecked] = useState<boolean>(false);
 
   function refreshValue() {
-    window.electron.isAutoLaunchEnabled().then(setValue);
+    window.electron.isAutoLaunchEnabled().then(setChecked);
   }
 
   useEffect(() => {
     refreshValue();
   }, []);
 
-  const onCheckboxClicked = async () => {
+  const setAutoLaunch = async () => {
     await window.electron.toggleAutoLaunch();
     refreshValue();
   };
 
   return (
     <Checkbox
-      className={className}
       label={translate('settings.general.auto-startup')}
-      value={value}
-      onClick={onCheckboxClicked}
+      checked={checked}
+      onClick={setAutoLaunch}
     />
   );
 }

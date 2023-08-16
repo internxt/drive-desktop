@@ -1,11 +1,12 @@
 import { Dialog, Transition } from '@headlessui/react';
-import { motion } from 'framer-motion';
-import { Fragment, useCallback, useState } from 'react';
+import { Fragment, useState } from 'react';
 import { useTranslationContext } from 'renderer/context/LocalContext';
 
 import { ProcessIssue } from '../../../workers/types';
-import Spinner from '../../assets/spinner.svg';
 import { longMessages, shortMessages } from '../../messages/process-error';
+import Button from 'renderer/components/Button';
+import TextArea from 'renderer/components/TextArea';
+import Checkbox from 'renderer/components/Checkbox';
 
 const posibleErrorStates = ['ERROR', 'TOO_MANY_REPORTS'] as const;
 type ErrorReportRequestState = (typeof posibleErrorStates)[number];
@@ -28,19 +29,7 @@ export function ReportModal({
   data: Pick<ProcessIssue, 'errorName' | 'errorDetails'> | null;
   onClose: () => void;
 }) {
-  const { translate, language } = useTranslationContext();
-
-  const reportingPhaseHeight = language === 'en' ? '273px' : '289px';
-
-  const [height, setHeight] = useState(0);
-
-  const measuredRef = useCallback((node) => {
-    setTimeout(() => {
-      if (node !== null) {
-        setHeight(node.scrollHeight);
-      }
-    }, 0);
-  }, []);
+  const { translate } = useTranslationContext();
 
   const [phase, setPhase] = useState<'INITIAL' | 'REPORTING'>('INITIAL');
 
@@ -56,17 +45,23 @@ export function ReportModal({
     ? translate(longMessages[data.errorName])
     : undefined;
 
+  const handleOpenURL = async (URL: string) => {
+    try {
+      await window.electron.openUrl(URL);
+    } catch (error) {
+      reportError(error);
+    }
+  };
+
   const supportParagraph = (
     <>
       {translate('issues.report-modal.help-url')}{' '}
-      <a
-        href="https://help.internxt.com"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="text-blue-50 underline"
+      <span
+        className="cursor-pointer text-primary"
+        onClick={() => handleOpenURL('https://help.internxt.com')}
       >
         help.internxt.com
-      </a>
+      </span>
       .&nbsp; {translate('issues.report-modal.report')}
     </>
   );
@@ -111,7 +106,7 @@ export function ReportModal({
             leaveFrom="opacity-100"
             leaveTo="opacity-0"
           >
-            <Dialog.Overlay className="fixed inset-0 bg-black opacity-30" />
+            <Dialog.Overlay className="fixed inset-0 bg-black/40 dark:bg-gray-50/40" />
           </Transition.Child>
 
           {/* This element is to trick the browser into centering the modal contents. */}
@@ -130,99 +125,78 @@ export function ReportModal({
             leaveFrom="opacity-100 scale-100"
             leaveTo="opacity-0 scale-95"
           >
-            <motion.div
-              variants={{
-                INITIAL: { height },
-                REPORTING: {
-                  height: stateIsError(requestState)
-                    ? '305px'
-                    : reportingPhaseHeight,
-                },
-              }}
-              animate={phase}
-              transition={{ duration: 0.08, type: 'spring' }}
-              className="my-6 inline-block w-full max-w-md transform overflow-hidden rounded-lg bg-white text-left align-middle shadow-xl transition-all"
-            >
-              <div className="p-5" ref={measuredRef}>
+            <div className="my-6 inline-block w-full max-w-md transform overflow-hidden rounded-xl bg-surface p-5 text-left align-middle shadow-xl transition-all dark:bg-gray-1">
+              <div className="flex flex-col space-y-2">
                 <Dialog.Title
                   as="h3"
-                  className="font-medium leading-6 text-gray-90"
+                  className="font-medium leading-6 text-gray-100"
                 >
                   {dialogTitle}
                 </Dialog.Title>
-                <div className="mt-2">
-                  <p className="text-xs text-gray-50">
-                    {phase === 'INITIAL' ? errorDescription : supportParagraph}
-                  </p>
-                </div>
+
+                <p className="text-sm text-gray-60">
+                  {phase === 'INITIAL' ? errorDescription : supportParagraph}
+                </p>
+
                 {phase === 'REPORTING' && (
-                  <>
-                    <p className="mt-2 text-xs text-gray-50">
+                  <div className="flex h-40 flex-col space-y-1.5">
+                    <p className="text-sm font-medium text-gray-100">
                       {translate('issues.report-modal.user-comments')}
                     </p>
-                    <textarea
+
+                    <TextArea
                       value={userComment}
                       onChange={(e) => setUserComment(e.target.value)}
-                      className="mt-1 h-16 w-full resize-none rounded-md border border-l-neutral-40 p-1 text-xs text-gray-80 caret-gray-60 outline-none"
+                      customClassName="flex-1"
+                      resize="none"
                     />
-                    <div className="mt-2 flex items-center">
-                      <input
-                        checked={includeLogs}
-                        onChange={(e) => setIncludeLogs(e.target.checked)}
-                        type="checkbox"
-                      />
-                      <p className="ml-1 text-xs text-gray-50">
-                        {translate('issues.report-modal.include-logs')}
-                      </p>
-                    </div>
+
                     {stateIsError(requestState) && (
-                      <p className="mt-4 text-xs text-red-60">
+                      <p className="text-sm text-red">
                         {errorMessages[requestState]}
                       </p>
                     )}
-                  </>
+
+                    <Checkbox
+                      checked={includeLogs}
+                      onClick={() => setIncludeLogs(!includeLogs)}
+                      label={translate('issues.report-modal.include-logs')}
+                    />
+                  </div>
                 )}
 
-                <div className="mt-4 flex items-center justify-end space-x-2">
-                  <button
-                    type="button"
+                <div className="flex shrink-0 items-center justify-end space-x-2">
+                  <Button
+                    variant="secondary"
+                    size="sm"
                     onClick={() =>
                       phase === 'INITIAL' ? onClose() : setPhase('INITIAL')
                     }
-                    className="rounded-lg border border-l-neutral-30 px-4 py-1 text-sm text-gray-70 hover:bg-l-neutral-20 active:bg-l-neutral-30"
                   >
                     {translate(
                       phase === 'INITIAL'
                         ? 'issues.report-modal.actions.close'
                         : 'issues.report-modal.actions.cancel'
                     )}
-                  </button>
+                  </Button>
 
-                  <button
+                  <Button
                     disabled={requestState === 'SENDING'}
-                    type="button"
+                    variant="primary"
+                    size="sm"
                     onClick={() =>
                       phase === 'INITIAL'
                         ? setPhase('REPORTING')
                         : handleSubmit()
                     }
-                    className="h-7 w-20 rounded-lg bg-blue-60 px-4 py-1 text-sm text-white hover:bg-blue-70 active:bg-blue-80 disabled:bg-blue-30"
                   >
-                    {phase === 'INITIAL' ? (
-                      translate('issues.report-modal.actions.report')
-                    ) : requestState === 'SENDING' ? (
-                      <Spinner
-                        className="mx-auto animate-spin fill-white"
-                        width="18"
-                        height="18"
-                      />
-                    ) : (
-                      translate('issues.report-modal.actions.send')
-                    )}
-                  </button>
+                    {phase === 'INITIAL'
+                      ? translate('issues.report-modal.actions.report')
+                      : translate('issues.report-modal.actions.send')}
+                  </Button>
                 </div>
               </div>
-            </motion.div>
+            </div>
           </Transition.Child>
         </div>
       </Dialog>

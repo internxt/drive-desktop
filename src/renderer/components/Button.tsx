@@ -1,50 +1,44 @@
 import { ReactNode } from 'react';
 
-export default function Button({
-  variant = 'default',
-  children,
-  className = '',
-  disabled = false,
-  onClick = () => undefined,
-}: {
-  variant?: 'default' | 'primary' | 'danger' | 'secondary';
+interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  variant?: 'primary' | 'danger' | 'secondary';
+  size?: 'sm' | 'md' | 'lg' | 'xl' | '2xl';
   children: ReactNode;
-  className?: string;
+  customClassName?: string;
   disabled?: boolean;
-  onClick?: () => void;
-}) {
-  let styles = '';
+}
 
-  if (variant === 'default' && !disabled) {
-    styles =
-      'bg-white active:bg-l-neutral-20 text-neutral-500 border border-l-neutral-40 drop-shadow-sm';
-  } else if (variant === 'default' && disabled) {
-    styles =
-      'bg-white text-l-neutral-40 border border-l-neutral-40 drop-shadow-sm';
-  } else if (variant === 'primary' && !disabled) {
-    styles = 'bg-blue-60 active:bg-blue-70 text-white';
-  } else if (variant === 'primary' && disabled) {
-    styles = 'bg-blue-30 text-blue-10';
-  } else if (variant === 'danger' && !disabled) {
-    styles = 'bg-red-60 active:bg-red-70 text-white';
-  } else if (variant === 'danger' && disabled) {
-    styles = 'bg-red-30 text-red-10';
-  } else if (variant === 'secondary' && !disabled) {
-    styles =
-      'bg-l-neutral-20 active:bg-l-neutral-30 text-neutral-500 drop-shadow-sm';
-  } else if (variant === 'secondary' && disabled) {
-    styles =
-      'bg-l-neutral-20 active:bg-l-neutral-30 text-l-neutral-50 drop-shadow-sm';
-  }
+export default function Button(props: ButtonProps) {
+  const variants = {
+    primary: props.disabled
+      ? 'bg-gray-30 dark:bg-gray-5 text-white dark:text-gray-30'
+      : 'bg-primary active:bg-primary-dark text-white',
+    secondary: props.disabled
+      ? 'bg-surface text-gray-40 border border-gray-5 dark:bg-gray-5 dark:text-gray-40'
+      : 'bg-surface active:bg-gray-1 text-highlight border border-gray-20 dark:bg-gray-5 dark:active:bg-gray-10 dark:active:border-gray-30',
+    danger: props.disabled
+      ? 'bg-gray-30 dark:bg-gray-5 text-white dark:text-gray-30'
+      : 'bg-red active:bg-red-dark text-white',
+  };
+
+  const sizes = {
+    sm: 'h-7 px-3 rounded-md text-sm',
+    md: 'h-8 px-[14px] rounded-lg text-base',
+    lg: 'h-10 px-5 rounded-lg text-base',
+    xl: 'h-11 px-5 rounded-lg text-base',
+    '2xl': 'h-12 px-5 rounded-lg text-lg',
+  };
 
   return (
     <button
-      onClick={onClick}
-      disabled={disabled}
-      type="button"
-      className={`non-draggable select-none rounded-md px-3 py-1 text-sm ${styles} ${className}`}
+      type={props.type ?? 'button'}
+      disabled={props.disabled ?? false}
+      className={`whitespace-nowrap shadow-sm outline-none transition-all duration-75 ease-in-out focus-visible:outline-none ${
+        variants[props.variant ?? 'primary']
+      } ${sizes[props.size ?? 'md']} ${props.customClassName ?? ''}`}
+      {...props}
     >
-      {children}
+      {props.children}
     </button>
   );
 }

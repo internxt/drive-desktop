@@ -117,7 +117,7 @@ export const SLIDES: MigrationSlide[] = [
         <div className="flex w-full flex-1 items-end ">
           <Button
             onClick={props.onCancelMigration}
-            variant="default"
+            variant="secondary"
             className="mr-2 h-10 cursor-pointer px-5 font-medium"
           >
             {translate('migration.common.cancel')}

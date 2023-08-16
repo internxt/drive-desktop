@@ -2,9 +2,9 @@ import { useState } from 'react';
 import Button from '../../components/Button';
 import { useTranslationContext } from '../../context/LocalContext';
 import { reportError } from 'renderer/utils/errors';
-import { Transition } from '@headlessui/react';
 import { ChatsCircle } from 'phosphor-react';
 import WindowTopBar from 'renderer/components/WindowTopBar';
+import TextArea from 'renderer/components/TextArea';
 
 const CHARACTERS_LIMIT = 1000;
 export default function Feedback() {
@@ -32,56 +32,52 @@ export default function Feedback() {
 
   const tooMuchCharacters = feedbackText.length > CHARACTERS_LIMIT;
 
-  const renderFeedbackSent = () => {
-    return (
-      <Transition
-        enter="transition-all duration-700"
-        enterFrom="transform opacity-0 translate-y-3"
-        enterTo="transform opacity-100 translate-y-0"
-        leave="transition-all ease-out duration-500"
-        leaveFrom="transform opacity-100 translate-y-0"
-        leaveTo="transform opacity-0 translate-y-3"
-        show={feedbackSent}
-        appear={feedbackSent}
-      >
-        <div className="mb-4 flex flex-1 flex-col items-center   ">
-          <div className="mb-5">
-            <ChatsCircle
-              weight="thin"
-              size={96}
-              className="fill-primary"
-              color="#0066FF"
-            />
-          </div>
-          <h1 className="text-center text-lg font-medium leading-base text-gray-100">
-            {translate('feedback.sent-title')}
-          </h1>
-          <h1 className="mt-1 text-center leading-base text-gray-60">
-            {translate('feedback.sent-message')}
-          </h1>
-        </div>
-      </Transition>
-    );
-  };
-  return (
-    <main className="flex h-[320px] w-full flex-1 flex-col">
-      <WindowTopBar
-        className="h-8"
-        title={translate('feedback.window-title')}
+  const FeedbackSent = () => (
+    <div className="flex flex-1 flex-col items-center justify-center space-y-5 text-center">
+      <ChatsCircle
+        weight="thin"
+        size={96}
+        className="fill-primary"
+        color="#0066FF"
       />
-      <div className="flex flex-1 flex-col px-5 py-5">
+
+      <div className="flex flex-col space-y-1">
+        <h1 className="text-lg font-medium leading-6 text-gray-100">
+          {translate('feedback.sent-title')}
+        </h1>
+        <p className="leading-base text-gray-60">
+          {translate('feedback.sent-message')}
+        </p>
+      </div>
+
+      <Button variant="secondary" onClick={() => window.close()}>
+        {translate('feedback.close')}
+      </Button>
+    </div>
+  );
+  return (
+    <main className="flex w-full flex-1 flex-col">
+      <WindowTopBar
+        title={translate('feedback.window-title')}
+        className="border-b border-gray-5"
+      />
+
+      <div className="flex h-[320px] flex-col p-5">
         {feedbackSent ? (
-          <div className="flex h-full items-center">{renderFeedbackSent()}</div>
+          <FeedbackSent />
         ) : (
-          <>
-            <h1 className="text-lg font-medium leading-base">
-              {translate('feedback.title')}
-            </h1>
-            <h3 className="mt-1 leading-base text-gray-80">
-              {translate('feedback.description')}
-            </h3>
-            <div className="mt-5 flex flex-1 ">
-              <textarea
+          <div className="flex flex-1 flex-col space-y-5">
+            <div className="flex flex-col space-y-1">
+              <h1 className="text-lg font-medium leading-base">
+                {translate('feedback.title')}
+              </h1>
+              <h3 className="leading-base text-gray-80">
+                {translate('feedback.description')}
+              </h3>
+            </div>
+
+            <div className="flex flex-1 flex-col space-y-2">
+              <TextArea
                 disabled={loading}
                 spellCheck={false}
                 onChange={(event) => {
@@ -89,32 +85,34 @@ export default function Feedback() {
                   handleUpdateFeedbackText(event.target.value);
                 }}
                 placeholder={translate('feedback.placeholder')}
-                className="w-full resize-none rounded-lg border border-gray-40 px-3 py-2.5 leading-base text-gray-100 outline-none placeholder:text-gray-30 focus:border-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-20 disabled:opacity-50"
+                resize="none"
+                customClassName="flex-1"
               />
+
+              <div className="flex shrink-0 items-center justify-between">
+                <span
+                  className={`text-sm ${
+                    tooMuchCharacters ? 'text-red' : 'text-gray-80'
+                  }`}
+                >
+                  {translate('feedback.characters-count', {
+                    character_count: feedbackText.length,
+                    character_limit: CHARACTERS_LIMIT,
+                  })}
+                </span>
+
+                <Button
+                  onClick={handleSubmit}
+                  disabled={
+                    feedbackText.length === 0 || tooMuchCharacters || loading
+                  }
+                  variant="primary"
+                >
+                  {translate('feedback.send-feedback')}
+                </Button>
+              </div>
             </div>
-            <div className="mt-2 flex items-center justify-between">
-              <span
-                className={`text-sm ${
-                  tooMuchCharacters ? 'text-red-50' : 'text-gray-80'
-                }`}
-              >
-                {translate('feedback.characters-count', {
-                  character_count: feedbackText.length,
-                  character_limit: CHARACTERS_LIMIT,
-                })}
-              </span>
-              <Button
-                onClick={handleSubmit}
-                disabled={
-                  feedbackText.length === 0 || tooMuchCharacters || loading
-                }
-                variant="primary"
-                className="px-3.5 py-1.5 text-[16px]"
-              >
-                {translate('feedback.send-feedback')}
-              </Button>
-            </div>
-          </>
+          </div>
         )}
       </div>
     </main>
