@@ -30,12 +30,10 @@ import './thumbnails/handlers';
 import './migration/handlers';
 import './config/handlers';
 import './app-info/handlers';
-import { unmountDrive } from '../workers/webdav/VirtualDrive';
 import './remote-sync/handlers';
 import { app, ipcMain, nativeTheme } from 'electron';
 import Logger from 'electron-log';
 import { autoUpdater } from 'electron-updater';
-
 import packageJson from '../../package.json';
 import eventBus from './event-bus';
 import * as Sentry from '@sentry/electron/main';
@@ -102,22 +100,6 @@ const installExtensions = async () => {
     )
     .catch(console.log);
 };
-
-app.on('will-quit', () => {
-  unmountDrive().catch((error) => {
-    Logger.error(error);
-    reportError(error);
-  });
-});
-
-app.on('window-all-closed', () => {
-  // On windows we need to unmount here, since will-quit won't work
-  unmountDrive().catch((error) => {
-    Logger.error(error);
-    reportError(error);
-  });
-  app.quit();
-});
 
 ipcMain.on('user-quit', () => {
   app.quit();

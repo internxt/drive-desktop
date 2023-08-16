@@ -41,6 +41,10 @@ export default function Header() {
     }
   }, []);
 
+  function onQuitClick() {
+    window.electron.unmountVirtualDriveAndQuit();
+  }
+
   const handleOpenURL = async (URL: string) => {
     try {
       await window.electron.openUrl(URL);
@@ -259,7 +263,7 @@ export default function Header() {
                     <div className="border-t border-t-gray-10">
                       <DropdownItem
                         active={active}
-                        onClick={window.electron.quit}
+                        onClick={onQuitClick}
                       >
                         <span>{translate('widget.header.dropdown.quit')}</span>
                       </DropdownItem>
