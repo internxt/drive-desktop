@@ -3,6 +3,7 @@ import { DependencyContainerFactory } from './dependencyInjection/DependencyCont
 import { ipc } from './ipc';
 import {
   getVirtualDrivePath,
+  mountDrive,
   retryVirtualDriveMount,
   unmountDrive,
 } from './VirtualDrive';
@@ -10,7 +11,8 @@ import { ipcRenderer } from 'electron';
 import { DomainEventSubscribers } from './modules/shared/infrastructure/DomainEventSubscribers';
 import { BindingsManager } from './BindingManager';
 import PackageJson from '../../../package.json';
-import { DumbVirtualDrive } from './Addon';
+import { VirtualDrive } from 'virtual-drive/dist';
+import fs from 'fs/promises';
 
 /**
  * Tries to mount the Virtual Drive again by
@@ -20,7 +22,7 @@ const retryVirtualDriveMountAndSendEvents = () => {
   Logger.info('RETRYING VIRTUAL DRIVE MOUNT FROM WORKER');
   ipc.send('WEBDAV_VIRTUAL_DRIVE_RETRYING_MOUNT');
   ipc.send('WEBDAV_VIRTUAL_DRIVE_STARTING');
-  retryVirtualDriveMount()
+  return retryVirtualDriveMount()
     .then(() => {
       ipc.send('WEBDAV_VIRTUAL_DRIVE_MOUNTED_SUCCESSFULLY');
     })
@@ -38,26 +40,27 @@ async function setUp() {
 
     container.eventBus.addSubscribers(DomainEventSubscribers.from(container));
 
-    const drive = new DumbVirtualDrive();
     const virtuaDrivePath = getVirtualDrivePath();
+
+    void fs.mkdir(virtuaDrivePath);
+
+    const drive = new VirtualDrive(virtuaDrivePath);
+
     const bindingsManager = new BindingsManager(
       drive,
       container,
-      virtuaDrivePath
     );
 
-    Logger.debug();
+    // ipcRenderer.on("RETRY_VIRTUAL_DRIVE_MOUNT", () => {
+    //   Logger.info("Retrying virtual drive mount");
+    //   retryVirtualDriveMountAndSendEvents();
+    // });
 
-    ipcRenderer.on('RETRY_VIRTUAL_DRIVE_MOUNT', () => {
-      Logger.info('Retrying virtual drive mount');
-      retryVirtualDriveMountAndSendEvents();
-    });
-
-    ipc.on('STOP_WEBDAV_SERVER_PROCESS', () => {
-      unmountDrive().catch((err) => {
-        Logger.error('Failed to unmount the Virtual Drive ', err);
-      });
-      bindingsManager.down();
+    ipc.on('STOP_WEBDAV_SERVER_PROCESS', async () => {
+      // unmountDrive().catch((err) => {
+      //   Logger.error("Failed to unmount the Virtual Drive ", err);
+      // });
+      await bindingsManager.down();
     });
 
     ipc.on('START_WEBDAV_SERVER_PROCESS', () => {
@@ -65,8 +68,8 @@ async function setUp() {
     });
 
     bindingsManager.up(
-      '796f071e-2b87-5271-8809-8769e7dba627', //???
-      PackageJson.version
+      PackageJson.version,
+      '{12345678-1234-1234-1234-123456789012}'
     );
   } catch (error) {
     Logger.debug('ERROR ON SETTING UP', error);

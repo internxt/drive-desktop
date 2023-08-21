@@ -3,8 +3,10 @@ import { ipcWebdav } from '../ipcs/webdav';
 import path from 'path';
 import Logger from 'electron-log';
 import eventBus from '../event-bus';
-import { ejectMacOSInstallerDisks, unmountDrive } from '../../workers/webdav/VirtualDrive';
-
+import {
+  ejectMacOSInstallerDisks,
+  unmountDrive,
+} from '../../workers/webdav/VirtualDrive';
 
 let webdavWorker: BrowserWindow | null = null;
 
@@ -71,7 +73,9 @@ ipcMain.handle('retry-virtual-drive-mount', () => {
 
 ipcMain.handle('unmount-virtual-drive-and-quit', async () => {
   try {
-    await unmountDrive();
-  } catch (onMenuQuitClickError) { Logger.error({ onMenuQuitClickError }); };
+    // await unmountDrive();
+  } catch (onMenuQuitClickError) {
+    Logger.error({ onMenuQuitClickError });
+  }
   await app.quit();
 });

@@ -61,6 +61,7 @@ export const unmountDrive = async (): Promise<boolean> => {
 };
 
 export const getVirtualDrivePath = () => {
+  return homedir() + '\\InternxtDrive';
   if (process.platform === 'win32') {
     return getSavedLetter() + ':\\';
   } else {

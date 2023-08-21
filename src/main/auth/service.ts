@@ -8,8 +8,8 @@ import { User } from '../types';
 const TOKEN_ENCODING = 'latin1';
 
 const tokensKeys = ['bearerToken', 'newToken'] as const;
-type TokenKey = (typeof tokensKeys)[number];
-type EncryptedTokenKey = `${(typeof tokensKeys)[number]}Encrypted`;
+type TokenKey = typeof tokensKeys[number];
+type EncryptedTokenKey = `${typeof tokensKeys[number]}Encrypted`;
 
 export function encryptToken() {
   const bearerTokenEncrypted = ConfigStore.get('bearerTokenEncrypted');
