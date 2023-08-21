@@ -8,7 +8,7 @@ export class BindingsManager {
 
   constructor(
     private readonly drive: VirtualDrive,
-    private readonly container: DependencyContainer,
+    private readonly container: DependencyContainer
   ) {}
 
   private listFiles() {
@@ -30,7 +30,7 @@ export class BindingsManager {
     });
   }
 
-  async up(version: string, providerId: string) {
+  async start(version: string, providerId: string) {
     await this.drive.registerSyncRoot(
       BindingsManager.PROVIDER_NAME,
       version,
@@ -44,42 +44,42 @@ export class BindingsManager {
       fetchDataCallback: () => {
         Logger.debug('fetchDataCallback');
       },
-    validateDataCallback: () => {
-      Logger.debug('validateDataCallback');
-    },
-    cancelFetchDataCallback: () => {
-      Logger.debug('cancelFetchDataCallback');
-    },
-    fetchPlaceholdersCallback: () => {
-      Logger.debug('fetchPlaceholdersCallback');
-    },
-    cancelFetchPlaceholdersCallback: () => {
-      Logger.debug('cancelFetchPlaceholdersCallback');
-    },
-    notifyFileOpenCompletionCallback: () => {
-      Logger.debug('notifyFileOpenCompletionCallback');
-    },
-    notifyFileCloseCompletionCallback: () => {
-      Logger.debug('notifyFileCloseCompletionCallback');
-    },
-    notifyDehydrateCallback: () => {
-      Logger.debug('notifyDehydrateCallback');
-    },
-    notifyDehydrateCompletionCallback: () => {
-      Logger.debug('notifyDehydrateCompletionCallback');
-    },
-    notifyDeleteCallback: () => {
-      Logger.debug('notifyDeleteCallback');
-    },
-    notifyRenameCallback: () => {
-      Logger.debug('notifyRenameCallback');
-    },
-    notifyRenameCompletionCallback: () => {
-      Logger.debug('notifyRenameCompletionCallback');
-    },
-    noneCallback: () => {
-      Logger.debug('noneCallback');
-    }
+      validateDataCallback: () => {
+        Logger.debug('validateDataCallback');
+      },
+      cancelFetchDataCallback: () => {
+        Logger.debug('cancelFetchDataCallback');
+      },
+      fetchPlaceholdersCallback: () => {
+        Logger.debug('fetchPlaceholdersCallback');
+      },
+      cancelFetchPlaceholdersCallback: () => {
+        Logger.debug('cancelFetchPlaceholdersCallback');
+      },
+      notifyFileOpenCompletionCallback: () => {
+        Logger.debug('notifyFileOpenCompletionCallback');
+      },
+      notifyFileCloseCompletionCallback: () => {
+        Logger.debug('notifyFileCloseCompletionCallback');
+      },
+      notifyDehydrateCallback: () => {
+        Logger.debug('notifyDehydrateCallback');
+      },
+      notifyDehydrateCompletionCallback: () => {
+        Logger.debug('notifyDehydrateCompletionCallback');
+      },
+      notifyDeleteCallback: () => {
+        Logger.debug('notifyDeleteCallback');
+      },
+      notifyRenameCallback: () => {
+        Logger.debug('notifyRenameCallback');
+      },
+      notifyRenameCompletionCallback: () => {
+        Logger.debug('notifyRenameCompletionCallback');
+      },
+      noneCallback: () => {
+        Logger.debug('noneCallback');
+      },
     });
 
     this.listFiles();
@@ -87,8 +87,7 @@ export class BindingsManager {
     // this.drive.watchAndWait(this.drivePath);
   }
 
-  async down() {
-    Logger.debug('GOING DOWN');
+  async stop() {
     await this.drive.unregisterSyncRoot();
   }
 }

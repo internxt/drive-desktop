@@ -1,4 +1,4 @@
-import { WebdavIpc } from '../../../ipc';
+import { VirtualDriveIpc } from '../../../ipc';
 import { FolderPath } from '../domain/FolderPath';
 import { FolderRepository } from '../domain/FolderRepository';
 import { WebdavFolderFinder } from './WebdavFolderFinder';
@@ -7,7 +7,7 @@ export class WebdavFolderCreator {
   constructor(
     private readonly repository: FolderRepository,
     private readonly folderFinder: WebdavFolderFinder,
-    private readonly ipc: WebdavIpc
+    private readonly ipc: VirtualDriveIpc
   ) {}
 
   async run(path: string): Promise<void> {

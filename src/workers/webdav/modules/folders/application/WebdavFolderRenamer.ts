@@ -1,4 +1,4 @@
-import { WebdavIpc } from '../../../ipc';
+import { VirtualDriveIpc } from '../../../ipc';
 import { FolderPath } from '../domain/FolderPath';
 import { Folder } from '../domain/Folder';
 import { FolderRepository } from '../domain/FolderRepository';
@@ -6,7 +6,7 @@ import { FolderRepository } from '../domain/FolderRepository';
 export class WebdavFolderRenamer {
   constructor(
     private readonly repository: FolderRepository,
-    private readonly ipc: WebdavIpc
+    private readonly ipc: VirtualDriveIpc
   ) {}
 
   async run(folder: Folder, destination: string) {

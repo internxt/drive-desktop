@@ -44,7 +44,6 @@ ipcWebdav.once('WEBDAV_SERVER_ADDING_ROOT_FOLDER_ERROR', (_, err: Error) => {
 });
 
 export async function stopVirtualDrive() {
-
   const stp = new Promise<void>((resolve, reject) => {
     ipcWebdav.once('WEBDAV_SERVER_STOP_ERROR', (_, err: Error) => {
       Logger.error('ERROR STOPING WEBDAV SERVER', err);
@@ -53,17 +52,16 @@ export async function stopVirtualDrive() {
 
     ipcWebdav.once('WEBDAV_SERVER_STOP_SUCCESS', () => {
       resolve();
-    } );
-
+    });
   });
 
-  webdavWorker?.webContents.send('STOP_WEBDAV_SERVER_PROCESS');
+  webdavWorker?.webContents.send('STOP_VIRTUAL_DRIVE_PROCESS');
 
   await stp;
 }
 
 function startWebDavServer() {
-  webdavWorker?.webContents.send('START_WEBDAV_SERVER_PROCESS');
+  webdavWorker?.webContents.send('START_VIRTUAL_DRIVE_PROCESS');
 }
 
 eventBus.on('USER_LOGGED_OUT', stopVirtualDrive);
@@ -83,4 +81,3 @@ if (process.platform === 'darwin') {
 ipcMain.handle('retry-virtual-drive-mount', () => {
   webdavWorker?.webContents.send('RETRY_VIRTUAL_DRIVE_MOUNT');
 });
-

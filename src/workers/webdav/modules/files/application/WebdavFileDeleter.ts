@@ -1,4 +1,4 @@
-import { WebdavIpc } from '../../../ipc';
+import { VirtualDriveIpc } from '../../../ipc';
 import { WebdavServerEventBus } from '../../shared/domain/WebdavServerEventBus';
 import { File } from '../domain/File';
 import { FileRepository } from '../domain/FileRepository';
@@ -7,7 +7,7 @@ export class WebdavFileDeleter {
   constructor(
     private readonly repository: FileRepository,
     private readonly eventBus: WebdavServerEventBus,
-    private readonly ipc: WebdavIpc
+    private readonly ipc: VirtualDriveIpc
   ) {}
 
   async run(file: File): Promise<void> {

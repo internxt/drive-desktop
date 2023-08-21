@@ -5,14 +5,14 @@ import { FilePath } from '../domain/FilePath';
 import { ContentsManagersFactory } from '../../contents/domain/ContentsManagersFactory';
 import { File } from '../domain/File';
 import { FileRepository } from '../domain/FileRepository';
-import { WebdavIpc } from '../../../ipc';
+import { VirtualDriveIpc } from '../../../ipc';
 
 export class WebdavFileRenamer {
   constructor(
     private readonly repository: FileRepository,
     private readonly contentsRepository: ContentsManagersFactory,
     private readonly eventBus: WebdavServerEventBus,
-    private readonly ipc: WebdavIpc
+    private readonly ipc: VirtualDriveIpc
   ) {}
 
   private async rename(file: File, path: FilePath) {

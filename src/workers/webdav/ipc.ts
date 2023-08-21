@@ -1,10 +1,13 @@
 import { ipcRenderer } from 'electron';
 import {
-  WebdavMainEvents,
-  WebDavProcessEvents,
+  VirtualDriveListenedEvents,
+  MainProcessListenedEvents,
 } from '../../shared/IPC/events/webdav';
 import { CustomIpc } from '../../shared/IPC/IPCs';
 
-export type WebdavIpc = CustomIpc<WebDavProcessEvents, WebdavMainEvents>;
+export type VirtualDriveIpc = CustomIpc<
+  MainProcessListenedEvents,
+  VirtualDriveListenedEvents
+>;
 
-export const ipc = ipcRenderer as unknown as WebdavIpc;
+export const ipc = ipcRenderer as unknown as VirtualDriveIpc;

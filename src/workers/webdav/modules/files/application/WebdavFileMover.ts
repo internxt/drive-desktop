@@ -7,7 +7,7 @@ import { FilePath } from '../domain/FilePath';
 import { File } from '../domain/File';
 import { FileRepository } from '../domain/FileRepository';
 import { WebdavFileRenamer } from './WebdavFileRenamer';
-import { WebdavIpc } from '../../../ipc';
+import { VirtualDriveIpc } from '../../../ipc';
 
 export class WebdavFileMover {
   constructor(
@@ -15,7 +15,7 @@ export class WebdavFileMover {
     private readonly folderFinder: WebdavFolderFinder,
     private readonly fileRenamer: WebdavFileRenamer,
     private readonly eventBus: WebdavServerEventBus,
-    private readonly ipc: WebdavIpc
+    private readonly ipc: VirtualDriveIpc
   ) {}
 
   private async move(file: File, folder: Folder) {

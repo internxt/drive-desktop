@@ -4,7 +4,7 @@ import { ContentsManagersFactory } from '../../contents/domain/ContentsManagersF
 import { Contents } from '../../contents/domain/Contents';
 import { FileRepository } from '../domain/FileRepository';
 import { FilePath } from '../domain/FilePath';
-import { WebdavIpc } from '../../../ipc';
+import { VirtualDriveIpc } from '../../../ipc';
 import { ContentFileDownloader } from '../../contents/domain/ContentFileDownloader';
 import { File } from '../domain/File';
 import { ContentsId } from '../../contents/domain/ContentsId';
@@ -14,7 +14,7 @@ export class WebdavFileDownloader {
     private readonly repository: FileRepository,
     private readonly contents: ContentsManagersFactory,
     private readonly eventBus: WebdavServerEventBus,
-    private readonly ipc: WebdavIpc
+    private readonly ipc: VirtualDriveIpc
   ) {}
 
   private registerEvents(downloader: ContentFileDownloader, file: File) {
