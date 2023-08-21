@@ -8,6 +8,13 @@ import PackageJson from '../../../package.json';
 import { VirtualDrive } from 'virtual-drive/dist';
 import fs from 'fs/promises';
 
+function getOrCreateRootFolder() {
+  const virtuaDrivePath = getVirtualDrivePath();
+  void fs.mkdir(virtuaDrivePath);
+
+  return virtuaDrivePath;
+}
+
 async function setUp() {
   try {
     const containerFactory = new DependencyContainerFactory();
@@ -16,8 +23,7 @@ async function setUp() {
     container.eventBus.addSubscribers(DomainEventSubscribers.from(container));
 
     // TODO: move setup root folder to main menu
-    const virtuaDrivePath = getVirtualDrivePath();
-    void fs.mkdir(virtuaDrivePath);
+    const virtuaDrivePath = getOrCreateRootFolder();
 
     const virtualDrive = new VirtualDrive(virtuaDrivePath);
 
@@ -36,6 +42,10 @@ async function setUp() {
     Logger.debug('ERROR ON SETTING UP', error);
   }
 }
+
+ipc.on('RETRY_VIRTUAL_DRIVE_MOUNT', () => {
+  getOrCreateRootFolder();
+});
 
 ipc.on('START_VIRTUAL_DRIVE_PROCESS', () => {
   setUp();

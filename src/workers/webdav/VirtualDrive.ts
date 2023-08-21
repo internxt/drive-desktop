@@ -465,13 +465,6 @@ const getMacOSMountedInstallerDisks = (): Promise<string[]> => {
   });
 };
 
-export const ejectMacOSInstallerDisks = async (): Promise<void> => {
-  const installerDisks = await getMacOSMountedInstallerDisks();
-  installerDisks.forEach((installerDisk) => {
-    ejectMacOSDisk(installerDisk).catch();
-  });
-};
-
 const mountLinuxDrive = async (): Promise<boolean> => {
   const mount = (uri: string) => {
     return new Promise<void>((resolve, reject) => {

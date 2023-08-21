@@ -74,10 +74,6 @@ eventBus.on('USER_LOGGED_IN', () => {
   }
 });
 
-if (process.platform === 'darwin') {
-  eventBus.on('APP_IS_READY', ejectMacOSInstallerDisks);
-}
-
 ipcMain.handle('retry-virtual-drive-mount', () => {
   webdavWorker?.webContents.send('RETRY_VIRTUAL_DRIVE_MOUNT');
 });

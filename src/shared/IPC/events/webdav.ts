@@ -171,4 +171,5 @@ export type MainProcessListenedEvents = WebdavServerEvents &
 export type VirtualDriveListenedEvents = {
   START_VIRTUAL_DRIVE_PROCESS: () => void;
   STOP_VIRTUAL_DRIVE_PROCESS: () => void;
+  RETRY_VIRTUAL_DRIVE_MOUNT: () => void;
 };
