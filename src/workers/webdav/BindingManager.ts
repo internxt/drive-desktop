@@ -88,6 +88,7 @@ export class BindingsManager {
   }
 
   async down() {
+    Logger.debug('GOING DOWN');
     await this.drive.unregisterSyncRoot();
   }
 }

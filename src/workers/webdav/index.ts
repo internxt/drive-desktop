@@ -34,7 +34,6 @@ const retryVirtualDriveMountAndSendEvents = () => {
 
 async function setUp() {
   try {
-    ipc.send('WEBDAV_VIRTUAL_DRIVE_STARTING');
     const containerFactory = new DependencyContainerFactory();
     const container = await containerFactory.build();
 
@@ -56,11 +55,9 @@ async function setUp() {
     //   retryVirtualDriveMountAndSendEvents();
     // });
 
-    ipc.on('STOP_WEBDAV_SERVER_PROCESS', async () => {
-      // unmountDrive().catch((err) => {
-      //   Logger.error("Failed to unmount the Virtual Drive ", err);
-      // });
+    ipc.on('STOP_WEBDAV_SERVER_PROCESS', async (event) => {
       await bindingsManager.down();
+      event.sender.send('WEBDAV_SERVER_STOP_SUCCESS');
     });
 
     ipc.on('START_WEBDAV_SERVER_PROCESS', () => {

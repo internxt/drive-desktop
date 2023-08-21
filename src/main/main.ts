@@ -52,6 +52,8 @@ import { getTray } from './tray/tray';
 import { openOnboardingWindow } from './windows/onboarding';
 import { reportError } from './bug-report/service';
 import { Theme } from 'shared/types/Theme';
+import { broadcastToWindows } from './windows';
+import { stopVirtualDrive } from './background-processes/webdav';
 
 Logger.log(`Running ${packageJson.version}`);
 
@@ -102,9 +104,7 @@ const installExtensions = async () => {
     .catch(console.log);
 };
 
-ipcMain.on('user-quit', () => {
-  app.quit();
-});
+
 
 app
   .whenReady()

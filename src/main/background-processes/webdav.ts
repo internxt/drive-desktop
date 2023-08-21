@@ -1,12 +1,13 @@
 import { BrowserWindow, ipcMain, app } from 'electron';
 import { ipcWebdav } from '../ipcs/webdav';
-import path from 'path';
+import path, { resolve } from 'path';
 import Logger from 'electron-log';
 import eventBus from '../event-bus';
 import {
   ejectMacOSInstallerDisks,
   unmountDrive,
 } from '../../workers/webdav/VirtualDrive';
+import { reject } from 'lodash';
 
 let webdavWorker: BrowserWindow | null = null;
 
@@ -42,19 +43,31 @@ ipcWebdav.once('WEBDAV_SERVER_ADDING_ROOT_FOLDER_ERROR', (_, err: Error) => {
   Logger.error('ERROR ADDING ROOT FOLDER TO WEBDAV SERVER', err);
 });
 
-function stopWebDavServer() {
-  ipcWebdav.once('WEBDAV_SERVER_STOP_ERROR', (_, err: Error) => {
-    Logger.error('ERROR STOPING WEBDAV SERVER', err);
+export async function stopVirtualDrive() {
+
+  const stp = new Promise<void>((resolve, reject) => {
+    ipcWebdav.once('WEBDAV_SERVER_STOP_ERROR', (_, err: Error) => {
+      Logger.error('ERROR STOPING WEBDAV SERVER', err);
+      reject();
+    });
+
+    ipcWebdav.once('WEBDAV_SERVER_STOP_SUCCESS', () => {
+      resolve();
+    } );
+
   });
+
   webdavWorker?.webContents.send('STOP_WEBDAV_SERVER_PROCESS');
+
+  await stp;
 }
 
 function startWebDavServer() {
   webdavWorker?.webContents.send('START_WEBDAV_SERVER_PROCESS');
 }
 
-eventBus.on('USER_LOGGED_OUT', stopWebDavServer);
-eventBus.on('USER_WAS_UNAUTHORIZED', stopWebDavServer);
+eventBus.on('USER_LOGGED_OUT', stopVirtualDrive);
+eventBus.on('USER_WAS_UNAUTHORIZED', stopVirtualDrive);
 eventBus.on('USER_LOGGED_IN', () => {
   if (webdavWorker === null) {
     spawnWebdavServerWorker();
@@ -71,11 +84,3 @@ ipcMain.handle('retry-virtual-drive-mount', () => {
   webdavWorker?.webContents.send('RETRY_VIRTUAL_DRIVE_MOUNT');
 });
 
-ipcMain.handle('unmount-virtual-drive-and-quit', async () => {
-  try {
-    // await unmountDrive();
-  } catch (onMenuQuitClickError) {
-    Logger.error({ onMenuQuitClickError });
-  }
-  await app.quit();
-});

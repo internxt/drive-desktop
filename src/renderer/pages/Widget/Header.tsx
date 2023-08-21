@@ -42,7 +42,7 @@ export default function Header() {
   }, []);
 
   function onQuitClick() {
-    window.electron.unmountVirtualDriveAndQuit();
+    window.electron.quit();
   }
 
   const handleOpenURL = async (URL: string) => {

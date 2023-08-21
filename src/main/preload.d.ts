@@ -201,7 +201,6 @@ declare interface Window {
       }) => void
     ): () => void;
     retryVirtualDriveMount(): void;
-    unmountVirtualDriveAndQuit: () => Promise<boolean>;
     startRemoteSync: () => Promise<void>;
     openUrl: (url: string) => Promise<void>;
     // DEV
