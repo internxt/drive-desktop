@@ -268,6 +268,8 @@
       "activate": "Back up your folders and files",
       "view-backups": "View your backups",
       "select-folders": "Select folders to backup",
+      "last-backup-had-issues": "Last backup had some issues",
+      "see-issues": "See issues",
       "action": {
         "start": "Backup now",
         "stop": "Stop backup",

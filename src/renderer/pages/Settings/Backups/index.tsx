@@ -4,6 +4,7 @@ import Spinner from '../../../assets/spinner.svg';
 import { DeviceContext } from '../../../context/DeviceContext';
 import BackupsFolderList from './BackupsFolderList';
 import BackupsPreferences from './BackupsPreferences';
+import useBackupFatalErrors from '../../../hooks/BackupFatalErrors';
 
 export default function BackupsSection({ active }: { active: boolean }) {
   const [showFolderList, setShowFolderList] = useState<boolean>(false);

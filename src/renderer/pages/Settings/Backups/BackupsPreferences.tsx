@@ -8,6 +8,8 @@ import Checkbox from '../../../components/Checkbox';
 import { useTranslationContext } from '../../../context/LocalContext';
 import useBackupStatus from '../../../hooks/BackupStatus';
 import { getPercentualProgress } from '../../../utils/backups-progress';
+import useBackupFatalErrors from '../../../hooks/BackupFatalErrors';
+import { WarningCircle } from '@phosphor-icons/react';
 
 dayjs.extend(relativeTime);
 
@@ -17,11 +19,13 @@ interface BackupsIntervalType extends SelectOptionsType {
 
 type BackupIntervalType = '6h' | '12h' | '24h' | 'manual';
 
+export interface BackupsPreferencesProps {
+  showFolderList: () => void;
+}
+
 export default function BackupsPreferences({
   showFolderList,
-}: {
-  showFolderList: () => void;
-}) {
+}: BackupsPreferencesProps) {
   const { translate } = useTranslationContext();
   const backupStatus = useBackupStatus();
 
@@ -33,6 +37,8 @@ export default function BackupsPreferences({
   const [backupProgress, setBackupProgress] = useState<null | BackupProgress>(
     null
   );
+
+  const { thereAreErrors } = useBackupFatalErrors();
 
   const BackupsIntervals: BackupsIntervalType[] = [
     {
@@ -126,6 +132,21 @@ export default function BackupsPreferences({
         label={translate('settings.backups.activate')}
         onClick={onBackupsEnabledClicked}
       />
+
+      {thereAreErrors() && (
+        <section className="flex items-center space-x-2 rounded-lg  border border-red/50 bg-red/5 p-3 font-normal text-red shadow-sm dark:bg-red/5">
+          <WarningCircle size={24} className="mr-3" />
+          {translate('settings.backups.last-backup-had-issues')}
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => window.electron.openProcessIssuesWindow()}
+            customClassName="ml-auto"
+          >
+            {translate('settings.backups.see-issues')}
+          </Button>
+        </section>
+      )}
 
       <div className="flex flex-col space-y-1.5">
         <div className="flex items-center space-x-2">

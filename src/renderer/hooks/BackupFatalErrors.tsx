@@ -13,5 +13,9 @@ export default function useBackupFatalErrors() {
     return removeListener;
   }, []);
 
-  return errors;
+  function thereAreErrors() {
+    return errors.length > 0;
+  }
+
+  return { backupFatalErrors: errors, thereAreErrors };
 }

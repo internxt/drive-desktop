@@ -36,11 +36,11 @@ function ErrorBanner({ errorName }: { errorName: ProcessFatalErrorName }) {
 }
 
 export default function BackupsFatalErrorBanner() {
-  const fatalErrors = useBackupFatalErrors();
+  const { backupFatalErrors } = useBackupFatalErrors();
 
   return (
     <>
-      {fatalErrors.map(({ errorName }) => (
+      {backupFatalErrors.map(({ errorName }) => (
         <ErrorBanner errorName={errorName} />
       ))}
     </>

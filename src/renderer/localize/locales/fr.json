@@ -262,6 +262,8 @@
       "activate": "Sauvegarder vos dossiers",
       "view-backups": "Voir les sauvegardes",
       "select-folders": "Sélectionner des dossiers",
+      "last-backup-had-issues": "La dernière sauvegarde a rencontré quelques problèmes",
+      "see-issues": "Voir des problèmes",
       "action": {
         "start": "Faire une copie ",
         "stop": "Arrêter la sauvegarde",
