@@ -123,6 +123,7 @@ export default function ProcessIssuesList({
             key={error.folderId}
             errorName={error.errorName}
             path={error.path}
+            showIcon={true}
             actionName={translate(fatalErrorActionMap[error.errorName].name)}
             onActionClick={() =>
               actionWrapper(fatalErrorActionMap[error.errorName])(error)
