@@ -29,6 +29,7 @@
     "test": "jest && playwright test --config=src/test",
     "test:unit": "jest --silent",
     "test:e2e": "playwright test --config=src/test",
+    "test:benchmarks": "jest --testMatch=\"**/?(*.)+(benchmark).[jt]s?(x)\" ",
     "prepare": "husky install"
   },
   "lint-staged": {
