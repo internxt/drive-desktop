@@ -1,4 +1,5 @@
 import { FolderPath } from '../../domain/FolderPath';
+import { PlatformPathConverter } from '../../../shared/test/helpers/PlatformPathConverter';
 
 describe('Path', () => {
   describe('path instanciation', () => {
@@ -7,10 +8,12 @@ describe('Path', () => {
 
       const path = FolderPath.fromParts(parts);
 
-      expect(path.value).toBe('/Family');
+      expect(path.value).toBe(
+        PlatformPathConverter.convertAnyToCurrent('/Family')
+      );
     });
 
-    it('works', () => {
+    it('extracts the parent folder path', () => {
       const folderPath = new FolderPath('/Family');
 
       const basePath = folderPath.dirname();

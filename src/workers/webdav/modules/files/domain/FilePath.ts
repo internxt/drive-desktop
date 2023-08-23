@@ -7,18 +7,15 @@ export class FilePath extends Path {
   private fileValidator = new WebdavFileValidator();
   constructor(value: string) {
     super(value);
-    this.startsWithSlash(value);
 
+    this.ensureIsValid(value);
+  }
+
+  private ensureIsValid(value: string) {
     const isValid = this.fileValidator.validateName(value);
 
     if (!isValid) {
-      throw new Error(`"${value}" is not a valid filename`);
-    }
-  }
-
-  private startsWithSlash(value: string) {
-    if (!value.startsWith('/')) {
-      throw new InvalidArgumentError(`${value} is not a valid XPath`);
+      throw new InvalidArgumentError(`"${value}" is not a valid filename`);
     }
   }
 

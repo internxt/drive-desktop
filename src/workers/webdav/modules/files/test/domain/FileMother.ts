@@ -1,6 +1,7 @@
 import { FileStatuses } from '../../domain/FileStatus';
 import { File, FileAtributes } from '../../domain/File';
 import { ContentsIdMother } from '../../../contents/test/domain/ContentsIdMother';
+import { FilePathMother } from './FilePathMother';
 
 export class FileMother {
   static onFolderName(path: string) {
@@ -35,7 +36,7 @@ export class FileMother {
       folderId: 3972960,
       createdAt: new Date().toISOString(),
       modificationTime: new Date().toISOString(),
-      path: '/Vakwogfud/Dilbusege.png',
+      path: FilePathMother.random(2).value,
       size: 893924973,
       updatedAt: new Date().toISOString(),
       status: FileStatuses.EXISTS,
@@ -48,7 +49,7 @@ export class FileMother {
       folderId: 3972960,
       createdAt: new Date().toISOString(),
       modificationTime: new Date().toISOString(),
-      path: '/Vakwogfud/Dilbusege.png',
+      path: FilePathMother.random().value,
       size: 893924973,
       updatedAt: new Date().toISOString(),
       status: FileStatuses.EXISTS,
