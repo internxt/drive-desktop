@@ -134,9 +134,16 @@ export default function BackupsPreferences({
       />
 
       {thereAreErrors() && (
-        <section className="flex items-center space-x-2 rounded-lg  border border-red/50 bg-red/5 p-3 font-normal text-red shadow-sm dark:bg-red/5">
-          <WarningCircle size={24} className="mr-3" />
-          {translate('settings.backups.last-backup-had-issues')}
+        <section className="relative z-0 flex items-center space-x-2 overflow-hidden rounded-lg border border-red bg-surface p-3 font-normal text-red shadow-sm ring-3 ring-red/10 before:absolute before:inset-0 before:-z-1 before:bg-red/5 dark:ring-red/35 dark:before:bg-red/10">
+          <div className="relative z-0 flex w-6 items-center justify-center text-red before:absolute before:-z-1 before:h-3 before:w-3 before:bg-white">
+            <WarningCircle size={24} weight="fill" />
+          </div>
+          <span
+            className="flex-1 truncate"
+            title={translate('settings.backups.last-backup-had-issues')}
+          >
+            {translate('settings.backups.last-backup-had-issues')}
+          </span>
           <Button
             variant="secondary"
             size="sm"
