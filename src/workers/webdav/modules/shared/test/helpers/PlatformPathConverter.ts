@@ -1,13 +1,13 @@
 import path from 'path';
 
 export class PlatformPathConverter {
-  static convertAnyToCurrent(anyPlatformPath: string) {
-    const isPosix = anyPlatformPath.includes(path.posix.sep);
+  static convertAnyToCurrent(anyPlatformPath: string): string {
+    const fromPlatform = anyPlatformPath.includes(path.posix.sep)
+      ? path.posix
+      : path.win32;
 
-    if (isPosix) {
-      return anyPlatformPath.split(path.posix.sep).join(path.win32.sep);
-    }
+    const toPlatform = path.sep === path.posix.sep ? path.posix : path.win32;
 
-    return anyPlatformPath.split(path.win32.sep).join(path.posix.sep);
+    return anyPlatformPath.split(fromPlatform.sep).join(toPlatform.sep);
   }
 }
