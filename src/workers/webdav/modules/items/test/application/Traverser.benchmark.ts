@@ -53,7 +53,7 @@ function shuffle<T>(array: Array<T>): Array<T> {
 type ResultData = Record<string, number>;
 
 describe('Traverser Benchmark', () => {
-  const setOfFiles = [0, 10, 100, 1_000, 10_000, 100_000];
+  const setOfFiles = [0, 10, 100, 1_000, 10_000, 100_000, 1_000_000];
   const rootFolderId = 1970049743;
   const traverser = new Traverser(
     {
