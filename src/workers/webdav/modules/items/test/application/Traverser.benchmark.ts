@@ -2,6 +2,8 @@ import { ServerFolder } from '../../../../../filesystems/domain/ServerFolder';
 import { Stopwatch } from '../../../../../../shared/types/Stopwatch';
 import { ServerFileMother } from '../../../files/test/infrastructure/persistance/ServerFileMother';
 import { Traverser } from '../../application/Traverser';
+import Chance from 'chance';
+const change = new Chance();
 
 function initializeArrayWith<T>(n: number, fn: () => T): Array<T> {
   const array = new Array<T>();
@@ -21,6 +23,16 @@ function createFilesOnfolder(folderId: number, numberOfFiles: number) {
   );
 }
 
+function createFolder(folderId: number, parentId: number) {
+  const name = change.word();
+  return {
+    id: folderId,
+    parentId,
+    plain_name: name,
+    status: 'EXISTS',
+  } as ServerFolder;
+}
+
 function shuffle<T>(array: Array<T>): Array<T> {
   let currentIndex = array.length,
     randomIndex;
@@ -38,15 +50,19 @@ function shuffle<T>(array: Array<T>): Array<T> {
   return array;
 }
 
-const fakeDecryptor = {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  decryptName: (name: string, _a: string, _b: string) => name,
-};
-
 type ResultData = Record<string, number>;
 
 describe('Traverser Benchmark', () => {
+  const setOfFiles = [0, 10, 100, 1_000, 10_000, 100_000];
   const rootFolderId = 1970049743;
+  const traverser = new Traverser(
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      decryptName: (name: string, _a: string, _b: string) => name,
+    },
+    rootFolderId
+  );
+
   const stopwatch = new Stopwatch();
 
   beforeEach(() => {
@@ -60,28 +76,23 @@ describe('Traverser Benchmark', () => {
       console.log('Tree with all files in the root level', resultData);
     });
 
-    it.each([0, 100, 1_000, 10_000, 100_000])(
-      'tree with %p files',
-      (numberOfFiles) => {
-        const files = initializeArrayWith(numberOfFiles, () =>
-          ServerFileMother.fromPartial({
-            folderId: rootFolderId,
-          })
-        );
+    it.each(setOfFiles)('tree with %p files', (numberOfFiles) => {
+      const files = initializeArrayWith(numberOfFiles, () =>
+        ServerFileMother.fromPartial({
+          folderId: rootFolderId,
+        })
+      );
 
-        const tree = { files, folders: [] as Array<ServerFolder> };
+      const tree = { files, folders: [] as Array<ServerFolder> };
 
-        const traverser = new Traverser(fakeDecryptor, rootFolderId);
+      stopwatch.start();
 
-        stopwatch.start();
+      traverser.run(tree);
 
-        traverser.run(tree);
+      stopwatch.finish();
 
-        stopwatch.finish();
-
-        resultData[`with ${numberOfFiles} files`] = stopwatch.elapsedTime();
-      }
-    );
+      resultData[`with ${numberOfFiles} files`] = stopwatch.elapsedTime();
+    });
   });
 
   describe('Tree with all files in the firts nested level', () => {
@@ -91,39 +102,23 @@ describe('Traverser Benchmark', () => {
       console.log('Tree with all files in the firts nested level', resultData);
     });
 
-    it.each([0, 100, 1_000, 10_000, 100_000])(
-      'tree with %p files',
-      (numberOfFiles) => {
-        const folderId = 3654437010;
-        const files = initializeArrayWith(numberOfFiles, () =>
-          ServerFileMother.fromPartial({
-            folderId: folderId,
-          })
-        );
+    it.each(setOfFiles)('tree with %p files', (numberOfFiles) => {
+      const folderId = 3654437010;
+      const files = createFilesOnfolder(folderId, numberOfFiles);
 
-        const tree = {
-          files,
-          folders: [
-            {
-              id: folderId,
-              parentId: rootFolderId,
-              plain_name: 'folder A',
-              status: 'EXISTS',
-            } as ServerFolder,
-          ],
-        };
+      const tree = {
+        files,
+        folders: [createFolder(folderId, rootFolderId)],
+      };
 
-        const traverser = new Traverser(fakeDecryptor, rootFolderId);
+      stopwatch.start();
 
-        stopwatch.start();
+      traverser.run(tree);
 
-        traverser.run(tree);
+      stopwatch.finish();
 
-        stopwatch.finish();
-
-        resultData[`with ${numberOfFiles} files`] = stopwatch.elapsedTime();
-      }
-    );
+      resultData[`with ${numberOfFiles} files`] = stopwatch.elapsedTime();
+    });
   });
 
   describe('Tree with half files in the root level and half on the firts', () => {
@@ -136,44 +131,25 @@ describe('Traverser Benchmark', () => {
       );
     });
 
-    it.each([0, 100, 1_000, 10_000, 100_000])(
-      'tree with %p files',
-      (numberOfFiles) => {
-        const folderId = 3654437010;
-        const filesOnRoot = initializeArrayWith(numberOfFiles / 2, () =>
-          ServerFileMother.fromPartial({
-            folderId: rootFolderId,
-          })
-        );
-        const filesOnFirtLevel = initializeArrayWith(numberOfFiles / 2, () =>
-          ServerFileMother.fromPartial({
-            folderId: folderId,
-          })
-        );
+    it.each(setOfFiles)('tree with %p files', (numberOfFiles) => {
+      const folderId = 3654437010;
 
-        const tree = {
-          files: shuffle([...filesOnRoot, ...filesOnFirtLevel]),
-          folders: [
-            {
-              id: folderId,
-              parentId: rootFolderId,
-              plain_name: 'folder A',
-              status: 'EXISTS',
-            } as ServerFolder,
-          ],
-        };
+      const filesOnRoot = createFilesOnfolder(rootFolderId, numberOfFiles / 2);
+      const filesOnFirtLevel = createFilesOnfolder(folderId, numberOfFiles / 2);
 
-        const traverser = new Traverser(fakeDecryptor, rootFolderId);
+      const tree = {
+        files: shuffle([...filesOnRoot, ...filesOnFirtLevel]),
+        folders: [createFolder(folderId, rootFolderId)],
+      };
 
-        stopwatch.start();
+      stopwatch.start();
 
-        traverser.run(tree);
+      traverser.run(tree);
 
-        stopwatch.finish();
+      stopwatch.finish();
 
-        resultData[`with ${numberOfFiles} files`] = stopwatch.elapsedTime();
-      }
-    );
+      resultData[`with ${numberOfFiles} files`] = stopwatch.elapsedTime();
+    });
   });
 
   describe('Tree with files in 2 first level folders', () => {
@@ -183,51 +159,30 @@ describe('Traverser Benchmark', () => {
       console.log('Tree with files in 2 first level folders', resultData);
     });
 
-    it.each([0, 100, 1_000, 10_000, 100_000])(
-      'tree with %p files',
-      (numberOfFiles) => {
-        const folderA = 3654437010;
-        const folderB = 1601444569;
-        const filesOnRoot = initializeArrayWith(numberOfFiles / 2, () =>
-          ServerFileMother.fromPartial({
-            folderId: folderA,
-          })
-        );
-        const filesOnFirtLevel = initializeArrayWith(numberOfFiles / 2, () =>
-          ServerFileMother.fromPartial({
-            folderId: folderB,
-          })
-        );
+    it.each(setOfFiles)('tree with %p files', (numberOfFiles) => {
+      const folderA = 3654437010;
+      const folderB = 1601444569;
 
-        const tree = {
-          files: shuffle([...filesOnRoot, ...filesOnFirtLevel]),
-          folders: [
-            {
-              id: folderA,
-              parentId: rootFolderId,
-              plain_name: 'folder A',
-              status: 'EXISTS',
-            } as ServerFolder,
-            {
-              id: folderB,
-              parentId: rootFolderId,
-              plain_name: 'folder B',
-              status: 'EXISTS',
-            } as ServerFolder,
-          ],
-        };
+      const filesOnRoot = createFilesOnfolder(folderA, numberOfFiles / 2);
+      const filesOnFirtLevel = createFilesOnfolder(folderB, numberOfFiles / 2);
 
-        const traverser = new Traverser(fakeDecryptor, rootFolderId);
+      const tree = {
+        files: shuffle([...filesOnRoot, ...filesOnFirtLevel]),
+        folders: [
+          createFolder(folderA, rootFolderId),
 
-        stopwatch.start();
+          createFolder(folderB, rootFolderId),
+        ],
+      };
 
-        traverser.run(tree);
+      stopwatch.start();
 
-        stopwatch.finish();
+      traverser.run(tree);
 
-        resultData[`with ${numberOfFiles} files`] = stopwatch.elapsedTime();
-      }
-    );
+      stopwatch.finish();
+
+      resultData[`with ${numberOfFiles} files`] = stopwatch.elapsedTime();
+    });
   });
 
   describe('Complex trees', () => {
@@ -243,67 +198,36 @@ describe('Traverser Benchmark', () => {
         console.log('Complex tree #1', resultData);
       });
 
-      it.each([0, 100, 1_000, 10_000, 100_000])(
-        'tree with %p files',
-        (numberOfFiles) => {
-          const folderA = 3654437010;
-          const folderB = 1601444569;
-          const folderC = 2201372660;
-          const filesOnFolderA = initializeArrayWith(numberOfFiles / 3, () =>
-            ServerFileMother.fromPartial({
-              folderId: folderA,
-            })
-          );
-          const filesOnFolderB = initializeArrayWith(numberOfFiles / 3, () =>
-            ServerFileMother.fromPartial({
-              folderId: folderB,
-            })
-          );
-          const filesOnFolderC = initializeArrayWith(numberOfFiles / 3, () =>
-            ServerFileMother.fromPartial({
-              folderId: folderC,
-            })
-          );
+      it.each(setOfFiles)('tree with %p files', (numberOfFiles) => {
+        const folderA = 3654437010;
+        const folderB = 1601444569;
+        const folderC = 2201372660;
 
-          const tree = {
-            files: shuffle([
-              ...filesOnFolderA,
-              ...filesOnFolderB,
-              ...filesOnFolderC,
-            ]),
-            folders: [
-              {
-                id: folderA,
-                parentId: rootFolderId,
-                plain_name: 'folder A',
-                status: 'EXISTS',
-              } as ServerFolder,
-              {
-                id: folderB,
-                parentId: rootFolderId,
-                plain_name: 'folder B',
-                status: 'EXISTS',
-              } as ServerFolder,
-              {
-                id: folderC,
-                parentId: folderB,
-                plain_name: 'folder C',
-                status: 'EXISTS',
-              } as ServerFolder,
-            ],
-          };
+        const filesOnFolderA = createFilesOnfolder(folderA, numberOfFiles / 3);
+        const filesOnFolderB = createFilesOnfolder(folderB, numberOfFiles / 3);
+        const filesOnFolderC = createFilesOnfolder(folderC, numberOfFiles / 3);
 
-          const traverser = new Traverser(fakeDecryptor, rootFolderId);
+        const tree = {
+          files: shuffle([
+            ...filesOnFolderA,
+            ...filesOnFolderB,
+            ...filesOnFolderC,
+          ]),
+          folders: [
+            createFolder(folderA, rootFolderId),
+            createFolder(folderB, rootFolderId),
+            createFolder(folderC, folderB),
+          ],
+        };
 
-          stopwatch.start();
+        stopwatch.start();
 
-          traverser.run(tree);
+        traverser.run(tree);
 
-          stopwatch.finish();
+        stopwatch.finish();
 
-          resultData[`with ${numberOfFiles} files`] = stopwatch.elapsedTime();
-        }
-      );
+        resultData[`with ${numberOfFiles} files`] = stopwatch.elapsedTime();
+      });
     });
 
     describe(`
@@ -322,101 +246,48 @@ describe('Traverser Benchmark', () => {
         console.log('Complex tree #2', resultData);
       });
 
-      it.each([0, 100, 1_000, 10_000, 100_000])(
-        'tree with %p files',
-        (numberOfFiles) => {
-          const folderA = 3654437010;
-          const folderB = 1601444569;
-          const folderC = 2201372660;
-          const folderD = 3714235330;
-          const folderE = 23456392;
-          const folderF = 854120130;
+      it.each(setOfFiles)('tree with %p files', (numberOfFiles) => {
+        const folderA = 3654437010;
+        const folderB = 1601444569;
+        const folderC = 2201372660;
+        const folderD = 3714235330;
+        const folderE = 23456392;
+        const folderF = 854120130;
 
-          const filesOnFolderA = createFilesOnfolder(
-            folderA,
-            numberOfFiles / 6
-          );
-          const filesOnFolderB = createFilesOnfolder(
-            folderB,
-            numberOfFiles / 6
-          );
-          const filesOnFolderC = createFilesOnfolder(
-            folderC,
-            numberOfFiles / 6
-          );
-          const filesOnFolderD = createFilesOnfolder(
-            folderD,
-            numberOfFiles / 6
-          );
-          const filesOnFolderE = createFilesOnfolder(
-            folderE,
-            numberOfFiles / 6
-          );
-          const filesOnFolderF = createFilesOnfolder(
-            folderF,
-            numberOfFiles / 6
-          );
+        const filesOnFolderA = createFilesOnfolder(folderA, numberOfFiles / 6);
+        const filesOnFolderB = createFilesOnfolder(folderB, numberOfFiles / 6);
+        const filesOnFolderC = createFilesOnfolder(folderC, numberOfFiles / 6);
+        const filesOnFolderD = createFilesOnfolder(folderD, numberOfFiles / 6);
+        const filesOnFolderE = createFilesOnfolder(folderE, numberOfFiles / 6);
+        const filesOnFolderF = createFilesOnfolder(folderF, numberOfFiles / 6);
 
-          const tree = {
-            files: shuffle([
-              ...filesOnFolderA,
-              ...filesOnFolderB,
-              ...filesOnFolderC,
-              ...filesOnFolderD,
-              ...filesOnFolderE,
-              ...filesOnFolderF,
-            ]),
-            folders: [
-              {
-                id: folderA,
-                parentId: rootFolderId,
-                plain_name: 'folder A',
-                status: 'EXISTS',
-              } as ServerFolder,
-              {
-                id: folderB,
-                parentId: folderA,
-                plain_name: 'folder B',
-                status: 'EXISTS',
-              } as ServerFolder,
-              {
-                id: folderC,
-                parentId: folderB,
-                plain_name: 'folder C',
-                status: 'EXISTS',
-              } as ServerFolder,
-              {
-                id: folderD,
-                parentId: rootFolderId,
-                plain_name: 'folder D',
-                status: 'EXISTS',
-              } as ServerFolder,
-              {
-                id: folderE,
-                parentId: folderD,
-                plain_name: 'folder E',
-                status: 'EXISTS',
-              } as ServerFolder,
-              {
-                id: folderF,
-                parentId: folderE,
-                plain_name: 'folder F',
-                status: 'EXISTS',
-              } as ServerFolder,
-            ],
-          };
+        const tree = {
+          files: shuffle([
+            ...filesOnFolderA,
+            ...filesOnFolderB,
+            ...filesOnFolderC,
+            ...filesOnFolderD,
+            ...filesOnFolderE,
+            ...filesOnFolderF,
+          ]),
+          folders: [
+            createFolder(folderA, rootFolderId),
+            createFolder(folderB, folderA),
+            createFolder(folderC, folderB),
+            createFolder(folderD, rootFolderId),
+            createFolder(folderE, folderD),
+            createFolder(folderF, folderE),
+          ],
+        };
 
-          const traverser = new Traverser(fakeDecryptor, rootFolderId);
+        stopwatch.start();
 
-          stopwatch.start();
+        traverser.run(tree);
 
-          traverser.run(tree);
+        stopwatch.finish();
 
-          stopwatch.finish();
-
-          resultData[`with ${numberOfFiles} files`] = stopwatch.elapsedTime();
-        }
-      );
+        resultData[`with ${numberOfFiles} files`] = stopwatch.elapsedTime();
+      });
     });
 
     describe(`
@@ -435,101 +306,48 @@ describe('Traverser Benchmark', () => {
         console.log('Complex tree #3', resultData);
       });
 
-      it.each([0, 100, 1_000, 10_000, 100_000])(
-        'tree with %p files',
-        (numberOfFiles) => {
-          const folderA = 3654437010;
-          const folderB = 1601444569;
-          const folderC = 2201372660;
-          const folderD = 3714235330;
-          const folderE = 23456392;
-          const folderF = 854120130;
+      it.each(setOfFiles)('tree with %p files', (numberOfFiles) => {
+        const folderA = 3654437010;
+        const folderB = 1601444569;
+        const folderC = 2201372660;
+        const folderD = 3714235330;
+        const folderE = 23456392;
+        const folderF = 854120130;
 
-          const filesOnFolderA = createFilesOnfolder(
-            folderA,
-            numberOfFiles / 6
-          );
-          const filesOnFolderB = createFilesOnfolder(
-            folderB,
-            numberOfFiles / 6
-          );
-          const filesOnFolderC = createFilesOnfolder(
-            folderC,
-            numberOfFiles / 6
-          );
-          const filesOnFolderD = createFilesOnfolder(
-            folderD,
-            numberOfFiles / 6
-          );
-          const filesOnFolderE = createFilesOnfolder(
-            folderE,
-            numberOfFiles / 6
-          );
-          const filesOnFolderF = createFilesOnfolder(
-            folderF,
-            numberOfFiles / 6
-          );
+        const filesOnFolderA = createFilesOnfolder(folderA, numberOfFiles / 6);
+        const filesOnFolderB = createFilesOnfolder(folderB, numberOfFiles / 6);
+        const filesOnFolderC = createFilesOnfolder(folderC, numberOfFiles / 6);
+        const filesOnFolderD = createFilesOnfolder(folderD, numberOfFiles / 6);
+        const filesOnFolderE = createFilesOnfolder(folderE, numberOfFiles / 6);
+        const filesOnFolderF = createFilesOnfolder(folderF, numberOfFiles / 6);
 
-          const tree = {
-            files: shuffle([
-              ...filesOnFolderA,
-              ...filesOnFolderB,
-              ...filesOnFolderC,
-              ...filesOnFolderD,
-              ...filesOnFolderE,
-              ...filesOnFolderF,
-            ]),
-            folders: [
-              {
-                id: folderA,
-                parentId: rootFolderId,
-                plain_name: 'folder A',
-                status: 'EXISTS',
-              } as ServerFolder,
-              {
-                id: folderB,
-                parentId: rootFolderId,
-                plain_name: 'folder B',
-                status: 'EXISTS',
-              } as ServerFolder,
-              {
-                id: folderC,
-                parentId: rootFolderId,
-                plain_name: 'folder C',
-                status: 'EXISTS',
-              } as ServerFolder,
-              {
-                id: folderD,
-                parentId: rootFolderId,
-                plain_name: 'folder D',
-                status: 'EXISTS',
-              } as ServerFolder,
-              {
-                id: folderE,
-                parentId: rootFolderId,
-                plain_name: 'folder E',
-                status: 'EXISTS',
-              } as ServerFolder,
-              {
-                id: folderF,
-                parentId: rootFolderId,
-                plain_name: 'folder F',
-                status: 'EXISTS',
-              } as ServerFolder,
-            ],
-          };
+        const tree = {
+          files: shuffle([
+            ...filesOnFolderA,
+            ...filesOnFolderB,
+            ...filesOnFolderC,
+            ...filesOnFolderD,
+            ...filesOnFolderE,
+            ...filesOnFolderF,
+          ]),
+          folders: [
+            createFolder(folderA, rootFolderId),
+            createFolder(folderB, rootFolderId),
+            createFolder(folderC, rootFolderId),
+            createFolder(folderD, rootFolderId),
+            createFolder(folderE, rootFolderId),
+            createFolder(folderF, rootFolderId),
+          ],
+        };
 
-          const traverser = new Traverser(fakeDecryptor, rootFolderId);
+        stopwatch.start();
 
-          stopwatch.start();
+        traverser.run(tree);
 
-          traverser.run(tree);
+        stopwatch.finish();
 
-          stopwatch.finish();
-
-          resultData[`with ${numberOfFiles} files`] = stopwatch.elapsedTime();
-        }
-      );
+        resultData[`with ${numberOfFiles} files`] = stopwatch.elapsedTime();
+      });
     });
     describe(`
       root
@@ -547,101 +365,48 @@ describe('Traverser Benchmark', () => {
         console.log('Complex tree #4', resultData);
       });
 
-      it.each([0, 100, 1_000, 10_000, 100_000])(
-        'tree with %p files',
-        (numberOfFiles) => {
-          const folderA = 3654437010;
-          const folderB = 1601444569;
-          const folderC = 2201372660;
-          const folderD = 3714235330;
-          const folderE = 23456392;
-          const folderF = 854120130;
+      it.each(setOfFiles)('tree with %p files', (numberOfFiles) => {
+        const folderA = 3654437010;
+        const folderB = 1601444569;
+        const folderC = 2201372660;
+        const folderD = 3714235330;
+        const folderE = 23456392;
+        const folderF = 854120130;
 
-          const filesOnFolderA = createFilesOnfolder(
-            folderA,
-            numberOfFiles / 6
-          );
-          const filesOnFolderB = createFilesOnfolder(
-            folderB,
-            numberOfFiles / 6
-          );
-          const filesOnFolderC = createFilesOnfolder(
-            folderC,
-            numberOfFiles / 6
-          );
-          const filesOnFolderD = createFilesOnfolder(
-            folderD,
-            numberOfFiles / 6
-          );
-          const filesOnFolderE = createFilesOnfolder(
-            folderE,
-            numberOfFiles / 6
-          );
-          const filesOnFolderF = createFilesOnfolder(
-            folderF,
-            numberOfFiles / 6
-          );
+        const filesOnFolderA = createFilesOnfolder(folderA, numberOfFiles / 6);
+        const filesOnFolderB = createFilesOnfolder(folderB, numberOfFiles / 6);
+        const filesOnFolderC = createFilesOnfolder(folderC, numberOfFiles / 6);
+        const filesOnFolderD = createFilesOnfolder(folderD, numberOfFiles / 6);
+        const filesOnFolderE = createFilesOnfolder(folderE, numberOfFiles / 6);
+        const filesOnFolderF = createFilesOnfolder(folderF, numberOfFiles / 6);
 
-          const tree = {
-            files: shuffle([
-              ...filesOnFolderA,
-              ...filesOnFolderB,
-              ...filesOnFolderC,
-              ...filesOnFolderD,
-              ...filesOnFolderE,
-              ...filesOnFolderF,
-            ]),
-            folders: [
-              {
-                id: folderA,
-                parentId: rootFolderId,
-                plain_name: 'folder A',
-                status: 'EXISTS',
-              } as ServerFolder,
-              {
-                id: folderB,
-                parentId: folderA,
-                plain_name: 'folder B',
-                status: 'EXISTS',
-              } as ServerFolder,
-              {
-                id: folderC,
-                parentId: folderB,
-                plain_name: 'folder C',
-                status: 'EXISTS',
-              } as ServerFolder,
-              {
-                id: folderD,
-                parentId: folderC,
-                plain_name: 'folder D',
-                status: 'EXISTS',
-              } as ServerFolder,
-              {
-                id: folderE,
-                parentId: folderD,
-                plain_name: 'folder E',
-                status: 'EXISTS',
-              } as ServerFolder,
-              {
-                id: folderF,
-                parentId: folderF,
-                plain_name: 'folder F',
-                status: 'EXISTS',
-              } as ServerFolder,
-            ],
-          };
+        const tree = {
+          files: shuffle([
+            ...filesOnFolderA,
+            ...filesOnFolderB,
+            ...filesOnFolderC,
+            ...filesOnFolderD,
+            ...filesOnFolderE,
+            ...filesOnFolderF,
+          ]),
+          folders: [
+            createFolder(folderA, rootFolderId),
+            createFolder(folderB, folderA),
+            createFolder(folderC, folderB),
+            createFolder(folderD, folderC),
+            createFolder(folderE, folderD),
+            createFolder(folderF, folderF),
+          ],
+        };
 
-          const traverser = new Traverser(fakeDecryptor, rootFolderId);
+        stopwatch.start();
 
-          stopwatch.start();
+        traverser.run(tree);
 
-          traverser.run(tree);
+        stopwatch.finish();
 
-          stopwatch.finish();
-
-          resultData[`with ${numberOfFiles} files`] = stopwatch.elapsedTime();
-        }
-      );
+        resultData[`with ${numberOfFiles} files`] = stopwatch.elapsedTime();
+      });
     });
   });
 });
