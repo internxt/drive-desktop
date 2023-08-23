@@ -13,14 +13,14 @@ export const getAuthWindow = () => {
 export const createAuthWindow = async () => {
   authWindow = new BrowserWindow({
     width: 300,
-    height: 474,
+    height: 450,
     show: false,
     webPreferences: {
       preload: preloadPath,
       nodeIntegration: true,
     },
-    movable: false,
-    frame: false,
+    titleBarStyle: process.platform === 'darwin' ? 'hidden' : undefined,
+    frame: process.platform !== 'darwin' ? false : undefined,
     resizable: false,
     maximizable: false,
     skipTaskbar: true,

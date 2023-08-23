@@ -1,8 +1,9 @@
-import { BrowserWindow, ipcMain } from 'electron';
+import { BrowserWindow, ipcMain, app } from 'electron';
 import { ipcWebdav } from '../ipcs/webdav';
 import path from 'path';
 import Logger from 'electron-log';
 import eventBus from '../event-bus';
+import { ejectMacOSInstallerDisks, unmountDrive } from '../../workers/webdav/VirtualDrive';
 
 
 let webdavWorker: BrowserWindow | null = null;
@@ -60,6 +61,17 @@ eventBus.on('USER_LOGGED_IN', () => {
   }
 });
 
+if (process.platform === 'darwin') {
+  eventBus.on('APP_IS_READY', ejectMacOSInstallerDisks);
+}
+
 ipcMain.handle('retry-virtual-drive-mount', () => {
   webdavWorker?.webContents.send('RETRY_VIRTUAL_DRIVE_MOUNT');
+});
+
+ipcMain.handle('unmount-virtual-drive-and-quit', async () => {
+  try {
+    await unmountDrive();
+  } catch (onMenuQuitClickError) { Logger.error({ onMenuQuitClickError }); };
+  await app.quit();
 });

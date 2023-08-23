@@ -1,41 +1,39 @@
-import { ReactNode, useContext, useState } from 'react';
+import { ReactNode, useContext, useState, useEffect } from 'react';
 
 import Spinner from '../../../assets/spinner.svg';
 import { DeviceContext } from '../../../context/DeviceContext';
-import BackupsList from './List';
-import BackupsPanel from './Panel';
+import BackupsFolderList from './BackupsFolderList';
+import BackupsPreferences from './BackupsPreferences';
 
 export default function BackupsSection({ active }: { active: boolean }) {
-  const [subsection, setSubsection] = useState<'panel' | 'list'>('panel');
-
+  const [showFolderList, setShowFolderList] = useState<boolean>(false);
   const [deviceState] = useContext(DeviceContext);
+
+  useEffect(() => {
+    if (!active) {
+      setShowFolderList(false);
+    }
+  }, [active]);
 
   let content: ReactNode;
 
   if (deviceState.status === 'LOADING') {
     content = (
       <div className="flex h-32 items-center justify-center">
-        <Spinner className=" h-9 w-9 animate-spin fill-neutral-500" />
+        <Spinner className="h-5 w-5 animate-spin text-gray-100" />
       </div>
     );
   } else if (deviceState.status === 'ERROR') {
     content = (
       <div className="flex h-32 items-center justify-center">
-        <p className="text-sm text-red-60">
-          There was an error loading your backups
-        </p>
+        <p className="font-medium">There was an error loading your backups</p>
       </div>
     );
   } else {
-    content = (
-      <>
-        {subsection === 'panel' && (
-          <BackupsPanel onGoToList={() => setSubsection('list')} />
-        )}
-        {subsection === 'list' && (
-          <BackupsList onGoToPanel={() => setSubsection('panel')} />
-        )}
-      </>
+    content = showFolderList ? (
+      <BackupsFolderList onGoToPanel={() => setShowFolderList(false)} />
+    ) : (
+      <BackupsPreferences showFolderList={() => setShowFolderList(true)} />
     );
   }
 

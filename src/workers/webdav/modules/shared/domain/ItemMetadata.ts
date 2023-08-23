@@ -1,5 +1,5 @@
-import { WebdavFolder } from '../../folders/domain/WebdavFolder';
-import { WebdavFile } from '../../files/domain/WebdavFile';
+import { Folder } from '../../folders/domain/Folder';
+import { File } from '../../files/domain/File';
 
 export type ItemMetadataAtributes = {
   createdAt: number;
@@ -31,7 +31,7 @@ export class ItemMetadata {
     );
   }
 
-  static extractFromFile(file: WebdavFile): ItemMetadata {
+  static extractFromFile(file: File): ItemMetadata {
     return new ItemMetadata(
       file.createdAt.getTime(),
       file.updatedAt.getTime(),
@@ -42,7 +42,7 @@ export class ItemMetadata {
     );
   }
 
-  static extractFromFolder(folder: WebdavFolder): ItemMetadata {
+  static extractFromFolder(folder: Folder): ItemMetadata {
     return new ItemMetadata(
       folder.createdAt.getTime(),
       folder.updatedAt.getTime(),

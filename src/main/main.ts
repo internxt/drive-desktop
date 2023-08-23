@@ -23,19 +23,19 @@ import './background-processes/process-issues';
 import './device/handlers';
 import './usage/handlers';
 import './realtime';
-import './tray';
+import './tray/tray';
+import './fordwardToWindows';
+import './virtual-drive/handlers';
 import './analytics/handlers';
 import './platform/handlers';
 import './thumbnails/handlers';
 import './migration/handlers';
 import './config/handlers';
 import './app-info/handlers';
-import { unmountDrive } from '../workers/webdav/VirtualDrive';
 import './remote-sync/handlers';
-import { app, ipcMain } from 'electron';
+import { app, ipcMain, nativeTheme } from 'electron';
 import Logger from 'electron-log';
 import { autoUpdater } from 'electron-updater';
-
 import packageJson from '../../package.json';
 import eventBus from './event-bus';
 import * as Sentry from '@sentry/electron/main';
@@ -48,9 +48,10 @@ import {
 } from './windows/widget';
 import { createAuthWindow, getAuthWindow } from './windows/auth';
 import configStore from './config';
-import { getTray } from './tray';
+import { getTray } from './tray/tray';
 import { openOnboardingWindow } from './windows/onboarding';
 import { reportError } from './bug-report/service';
+import { Theme } from 'shared/types/Theme';
 
 Logger.log(`Running ${packageJson.version}`);
 
@@ -102,22 +103,6 @@ const installExtensions = async () => {
     .catch(console.log);
 };
 
-app.on('will-quit', () => {
-  unmountDrive().catch((error) => {
-    Logger.error(error);
-    reportError(error);
-  });
-});
-
-app.on('window-all-closed', () => {
-  // On windows we need to unmount here, since will-quit won't work
-  unmountDrive().catch((error) => {
-    Logger.error(error);
-    reportError(error);
-  });
-  app.quit();
-});
-
 ipcMain.on('user-quit', () => {
   app.quit();
 });
@@ -147,6 +132,7 @@ eventBus.on('USER_LOGGED_IN', async () => {
       await AppDataSource.initialize();
     }
     getAuthWindow()?.destroy();
+    nativeTheme.themeSource = configStore.get('preferedTheme') as Theme;
     await createWidget();
     const widget = getWidget();
     const tray = getTray();

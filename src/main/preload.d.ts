@@ -96,6 +96,8 @@ declare interface Window {
 
     toggleAutoLaunch(): Promise<void>;
 
+    toggleDarkMode(mode: 'system' | 'light' | 'dark'): Promise<void>;
+
     getBackupsInterval(): Promise<number>;
 
     setBackupsInterval(value: number): Promise<void>;
@@ -190,11 +192,16 @@ declare interface Window {
     getRemoteSyncStatus(): Promise<
       import('./remote-sync/helpers').RemoteSyncStatus
     >;
-    getVirtualDriveStatus(): Promise<string>;
+    getVirtualDriveStatus(): Promise<
+      import('../shared/types/VirtualDriveStatus').VirtualDriveStatus
+    >;
     onVirtualDriveStatusChange(
-      callback: (event: { status: string }) => void
+      callback: (event: {
+        status: import('../shared/types/VirtualDriveStatus').VirtualDriveStatus;
+      }) => void
     ): () => void;
     retryVirtualDriveMount(): void;
+    unmountVirtualDriveAndQuit: () => Promise<boolean>;
     startRemoteSync: () => Promise<void>;
     openUrl: (url: string) => Promise<void>;
     // DEV

@@ -45,7 +45,11 @@ export async function accessRequest(
   try {
     accessRes = await fetch(`${process.env.API_URL}/api/access`, {
       method: 'POST',
-      body: JSON.stringify({ email, password: hashedPassword, tfa }),
+      body: JSON.stringify({
+        email: email.toLowerCase(),
+        password: hashedPassword,
+        tfa,
+      }),
       headers: {
         'content-type': 'application/json',
         'internxt-client': 'drive-desktop',

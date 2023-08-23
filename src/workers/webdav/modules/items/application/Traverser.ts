@@ -8,9 +8,9 @@ import {
   ServerFolderStatus,
 } from '../../../../filesystems/domain/ServerFolder';
 import { fileNameIsValid } from '../../../../utils/name-verification';
-import { WebdavFile } from '../../files/domain/WebdavFile';
+import { File } from '../../files/domain/File';
 import { FolderStatus } from '../../folders/domain/FolderStatus';
-import { WebdavFolder } from '../../folders/domain/WebdavFolder';
+import { Folder } from '../../folders/domain/Folder';
 import { ItemsIndexedByPath } from '../domain/ItemsIndexedByPath';
 
 /** @deprecated */
@@ -57,20 +57,18 @@ export class Traverser {
         return;
       }
 
-      if (file.status !== ServerFileStatus.EXISTS) {
-        return;
+      if (file.status === ServerFileStatus.EXISTS) {
+        this.collection[rawPath] = File.from({
+          folderId: file.folderId,
+          contentsId: file.fileId,
+          modificationTime: file.modificationTime,
+          size: file.size,
+          createdAt: file.createdAt,
+          updatedAt: file.updatedAt,
+          path: rawPath,
+          status: file.status,
+        });
       }
-
-      this.collection[rawPath] = WebdavFile.from({
-        folderId: file.folderId,
-        fileId: file.fileId,
-        modificationTime: file.modificationTime,
-        size: file.size,
-        createdAt: file.createdAt,
-        updatedAt: file.updatedAt,
-        path: rawPath,
-        status: file.status,
-      });
 
       this.rawTree?.files.delete(file);
     });
@@ -95,7 +93,7 @@ export class Traverser {
         return;
       }
 
-      this.collection[rawPath] = WebdavFolder.from({
+      this.collection[rawPath] = Folder.from({
         id: folder.id,
         parentId: folder.parentId as number,
         updatedAt: folder.updatedAt,
@@ -115,7 +113,7 @@ export class Traverser {
       (k: string) => delete this.collection[k]
     );
 
-    this.collection['/'] = WebdavFolder.from({
+    this.collection['/'] = Folder.from({
       id: this.baseFolderId,
       parentId: null,
       updatedAt: new Date().toISOString(),
@@ -151,7 +149,7 @@ export class Traverser {
 
     this.traverse(this.baseFolderId);
 
-    this.collection['/'] = WebdavFolder.from({
+    this.collection['/'] = Folder.from({
       id: this.baseFolderId,
       parentId: null,
       updatedAt: new Date().toISOString(),

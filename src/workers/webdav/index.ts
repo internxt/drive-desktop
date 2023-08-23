@@ -77,7 +77,10 @@ async function setUp() {
   }
 }
 
-const startWebdavServer = async (server: InternxtWebdavServer, fileSystem: InternxtFileSystem) => {
+const startWebdavServer = async (
+  server: InternxtWebdavServer,
+  fileSystem: InternxtFileSystem
+) => {
   await server.start([{ path: '/', fs: fileSystem }], { debug: false });
   await mountDrive();
   ipc.send('WEBDAV_VIRTUAL_DRIVE_MOUNTED_SUCCESSFULLY');

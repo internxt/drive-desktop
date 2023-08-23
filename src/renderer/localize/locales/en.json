@@ -5,7 +5,7 @@
     },
     "password": {
       "section": "Password",
-      "placeholder": "At least 6 characters",
+      "placeholder": "Password",
       "forgotten": "Forgot your password?",
       "hide": "Hide",
       "show": "Show"
@@ -138,9 +138,27 @@
       }
     },
     "body": {
+      "activity": {
+        "operation": {
+          "downloading": "Downloading",
+          "decrypting": "Decrypting",
+          "uploading": "Uploading",
+          "encrypting": "Encrypting",
+          "downloaded": "Downloaded",
+          "uploaded": "Uploaded",
+          "deleting": "Moving to trash",
+          "deleted": "Moved to trash",
+          "renaming": "Renaming",
+          "renamed": "Renamed"
+        }
+      },
       "no-activity": {
         "title": "There is no recent activity",
         "description": "Information will show up here when changes are made to sync your local folder with Internxt Drive"
+      },
+      "upToDate": {
+        "title": "Your files are up to date",
+        "subtitle": "Sync activity will show up here"
       },
       "errors": {
         "sync": {},
@@ -185,15 +203,28 @@
     },
     "general": {
       "device": {
-        "section": "Device name"
+        "section": "Device name",
+        "action": {
+          "edit": "Edit",
+          "cancel": "Cancel",
+          "save": "Save"
+        }
       },
       "auto-startup": "Start Internxt Drive on system startup",
       "language": {
-        "section": "Language",
-        "avaliable": {
-          "es": "Spanish (Spain)",
-          "en": "English (United States)",
-          "fr": "French (France)"
+        "label": "Language",
+        "options": {
+          "es": "Español (Spanish)",
+          "en": "English (English)",
+          "fr": "Français (French)"
+        }
+      },
+      "theme": {
+        "label": "Appearance",
+        "options": {
+          "system": "System",
+          "light": "Light",
+          "dark": "Dark"
         }
       },
       "sync": {
@@ -209,12 +240,23 @@
     "account": {
       "logout": "Log out",
       "usage": {
+        "display": "Used {{used}} of {{total}}",
         "upgrade": "Upgrade",
+        "change": "Change",
         "plan": "Current plan",
+        "free": "Free",
+        "loadError": {
+          "title": "Couldn't fetch your usage details",
+          "action": "Retry"
+        },
         "current": {
           "used": "Used",
           "of": "of",
           "in-use": "in use"
+        },
+        "full": {
+          "title": "Your storage is full",
+          "subtitle": "You can't upload, sync, or backup files. Upgrade now your plan or remove files to save up space."
         }
       }
     },
@@ -229,6 +271,7 @@
       "action": {
         "start": "Backup now",
         "stop": "Stop backup",
+        "running": "Backup in progress {{progress}}",
         "last-run": "Last updated"
       },
       "frequency": {
@@ -308,11 +351,12 @@
     "window-title": "Internxt Desktop feedback",
     "title": "Share feedback with Internxt",
     "description": "Your feedback makes Internxt improve and helps us to create better product experiences",
-    "placeholder": "Let us know what’s in your mind, what you’d like to improve or describe the bug or issue",
+    "placeholder": "Let us know what's in your mind, what you'd like to improve or describe the bug or issue",
     "characters-count": "{{character_count}}/{{character_limit}}",
     "send-feedback": "Send feedback",
     "sent-title": "Thank you for sharing your feedback",
-    "sent-message": "We really appreciate your time and effort to help us improve our services."
+    "sent-message": "We really appreciate your time and effort to help us improve our services.",
+    "close": "Close"
   },
   "common": {
     "cancel": "Cancel"

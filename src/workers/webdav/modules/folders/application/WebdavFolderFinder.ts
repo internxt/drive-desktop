@@ -1,11 +1,11 @@
 import { FolderNotFoundError } from '../domain/errors/FolderNotFoundError';
-import { WebdavFolder } from '../domain/WebdavFolder';
-import { WebdavFolderRepository } from '../domain/WebdavFolderRepository';
+import { Folder } from '../domain/Folder';
+import { FolderRepository } from '../domain/FolderRepository';
 
 export class WebdavFolderFinder {
-  constructor(private readonly repository: WebdavFolderRepository) {}
+  constructor(private readonly repository: FolderRepository) {}
 
-  run(path: string): WebdavFolder {
+  run(path: string): Folder {
     const folder = this.repository.search(path);
 
     if (!folder) {

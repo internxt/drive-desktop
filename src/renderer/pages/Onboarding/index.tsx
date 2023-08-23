@@ -74,7 +74,7 @@ export default function Onboarding() {
 
   if (!desktopPlatform) return <></>;
   return (
-    <div className="draggable relative flex h-screen w-full select-none flex-row">
+    <div className="relative flex h-screen w-full select-none flex-row">
       <div className="flex w-1/2 flex-col px-6 pb-6 pt-16">
         <SlideContent
           platform={desktopPlatform}

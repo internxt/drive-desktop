@@ -1,4 +1,4 @@
-import { UilAt, UilHistory, UilSetting } from '@iconscout/react-unicons';
+import { At, ClockCounterClockwise, Gear, Icon } from '@phosphor-icons/react';
 import { motion } from 'framer-motion';
 
 import { useTranslationContext } from '../../context/LocalContext';
@@ -16,11 +16,11 @@ export default function Header({
   const { translate } = useTranslationContext();
   const sections: {
     label: Section;
-    icon: (props: { size: string }) => JSX.Element;
+    icon: Icon;
   }[] = [
-    { label: 'GENERAL', icon: UilSetting },
-    { label: 'ACCOUNT', icon: UilAt },
-    { label: 'BACKUPS', icon: UilHistory },
+    { label: 'GENERAL', icon: Gear },
+    { label: 'ACCOUNT', icon: At },
+    { label: 'BACKUPS', icon: ClockCounterClockwise },
   ];
 
   const animationVariants: Record<Section, { left: string }> =
@@ -35,13 +35,13 @@ export default function Header({
     );
 
   return (
-    <div className="draggable pb-1">
+    <div className="draggable border-b border-gray-10 bg-surface pb-1.5 dark:bg-gray-5">
       <div className="non-draggable relative mx-auto flex w-max">
         <motion.div
           animate={active}
           variants={animationVariants}
-          transition={{ ease: 'easeOut' }}
-          className="absolute min-h-full w-1/3 rounded-xl bg-blue-10"
+          transition={{ ease: 'easeOut', duration: 0.2 }}
+          className="absolute min-h-full w-20 rounded-lg bg-gray-5 dark:bg-gray-10"
         />
         {sections.map((section) => (
           <Item
@@ -63,7 +63,7 @@ function Item({
   onClick,
   isActive,
 }: {
-  Icon: (props: { size: string }) => JSX.Element;
+  Icon: Icon;
   title: string;
   onClick: () => void;
   isActive: boolean;
@@ -72,14 +72,14 @@ function Item({
     <button
       onClick={onClick}
       type="button"
-      className={`relative flex w-20 cursor-pointer flex-col items-center rounded-xl px-3 py-2 tracking-wider ${
+      className={`relative flex w-20 cursor-pointer flex-col items-center rounded-lg px-4 py-1.5 outline-none transition-colors duration-100 ease-in-out ${
         isActive
-          ? 'text-blue-60'
-          : 'text-m-neutral-80 hover:text-m-neutral-100 active:text-m-neutral-300'
+          ? 'text-gray-100'
+          : 'text-gray-50 hover:text-gray-60 active:text-gray-80'
       }`}
     >
-      <Icon size="27px" />
-      <p className="text-xs capitalize">{title.toLowerCase()}</p>
+      <Icon size={28} />
+      <p className="text-xs font-medium capitalize">{title.toLowerCase()}</p>
     </button>
   );
 }

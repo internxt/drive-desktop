@@ -1,18 +1,19 @@
-import { WebdavFolderMother } from '../../../folders/test/domain/WebdavFolderMother';
-import { WebdavFolderRepositoryMock } from '../../../folders/test/__mocks__/WebdavFolderRepositoryMock';
+import { FolderMother } from '../../../folders/test/domain/FolderMother';
+import { FolderRepositoryMock } from '../../../folders/test/__mocks__/FolderRepositoryMock';
 import { WebdavFolderFinder } from '../../../folders/application/WebdavFolderFinder';
 import { WebdavFileCreator } from '../../application/WebdavFileCreator';
 import { FileMetadataCollection } from '../../domain/FileMetadataCollection';
 import { InMemoryTemporalFileMetadataCollection } from '../../infrastructure/persistance/InMemoryTemporalFileMetadataCollection';
-import { FileContentRepositoryMock } from '../__mocks__/FileContentRepositoryMock';
-import { WebdavFileRepositoryMock } from '../__mocks__/WebdavFileRepositoyMock';
+import { RemoteFileContentsManagersFactoryMock } from '../../../contents/test/__mocks__/RemoteFileContentsManagersFactoryMock';
+import { FileRepositoryMock } from '../__mocks__/FileRepositoryMock';
 import { EventBusMock } from '../../../shared/test/__mock__/EventBusMock';
 import { WebdavIpcMock } from '../../../shared/test/__mock__/WebdavIPC';
+import { ContentsIdMother } from '../../../contents/test/domain/ContentsIdMother';
 
 describe('Webdav File Creator', () => {
-  let fileReposiotry: WebdavFileRepositoryMock;
-  let folderRepository: WebdavFolderRepositoryMock;
-  let contentsRepository: FileContentRepositoryMock;
+  let fileReposiotry: FileRepositoryMock;
+  let folderRepository: FolderRepositoryMock;
+  let contentsRepository: RemoteFileContentsManagersFactoryMock;
   let temporalFileCollection: FileMetadataCollection;
   let eventBus: EventBusMock;
   let ipc: WebdavIpcMock;
@@ -20,10 +21,10 @@ describe('Webdav File Creator', () => {
   let SUT: WebdavFileCreator;
 
   beforeEach(() => {
-    fileReposiotry = new WebdavFileRepositoryMock();
-    folderRepository = new WebdavFolderRepositoryMock();
+    fileReposiotry = new FileRepositoryMock();
+    folderRepository = new FolderRepositoryMock();
     const folderFinder = new WebdavFolderFinder(folderRepository);
-    contentsRepository = new FileContentRepositoryMock();
+    contentsRepository = new RemoteFileContentsManagersFactoryMock();
     temporalFileCollection = new InMemoryTemporalFileMetadataCollection();
     eventBus = new EventBusMock();
     ipc = new WebdavIpcMock();
@@ -41,9 +42,9 @@ describe('Webdav File Creator', () => {
   it('uploads the file contents to the uploader and then creates the file on the drive server', async () => {
     const path = '/cat.png';
     const size = 9715019333;
-    const createdFileId = 'd37800fc-43c8-529a-b02b-d41059921a15';
+    const createdFileId = ContentsIdMother.raw();
 
-    const folder = WebdavFolderMother.any();
+    const folder = FolderMother.any();
 
     folderRepository.mockSearch.mockReturnValueOnce(folder);
     contentsRepository.mockUpload.uploadMock.mockResolvedValueOnce(
@@ -56,7 +57,9 @@ describe('Webdav File Creator', () => {
     await SUT.run(path, size);
 
     expect(contentsRepository.mockUpload.uploadMock).toBeCalledTimes(1);
-    expect(fileReposiotry.mockAdd.mock.calls[0][0].fileId).toBe(createdFileId);
+    expect(fileReposiotry.mockAdd.mock.calls[0][0].contentsId).toBe(
+      createdFileId
+    );
     expect(fileReposiotry.mockAdd.mock.calls[0][0].size).toStrictEqual(size);
     expect(fileReposiotry.mockAdd.mock.calls[0][0].folderId).toBe(folder.id);
   });
@@ -64,9 +67,9 @@ describe('Webdav File Creator', () => {
   it('once the file entry is created the creation event should have been emitted', async () => {
     const path = '/cat.png';
     const size = 9715019333;
-    const createdFileId = 'd37800fc-43c8-529a-b02b-d41059921a15';
+    const createdFileId = ContentsIdMother.raw();
 
-    const folder = WebdavFolderMother.any();
+    const folder = FolderMother.any();
 
     folderRepository.mockSearch.mockReturnValueOnce(folder);
     contentsRepository.mockUpload.uploadMock.mockResolvedValueOnce(
@@ -92,7 +95,7 @@ describe('Webdav File Creator', () => {
     const path = '/cat.png';
     const size = 9715019333;
 
-    const folder = WebdavFolderMother.any();
+    const folder = FolderMother.any();
 
     folderRepository.mockSearch.mockReturnValueOnce(folder);
     contentsRepository.mockUpload.uploadMock.mockResolvedValueOnce('');
@@ -106,7 +109,7 @@ describe('Webdav File Creator', () => {
     const path = '/cat.png';
     const size = 9715019333;
 
-    const folder = WebdavFolderMother.any();
+    const folder = FolderMother.any();
 
     folderRepository.mockSearch.mockReturnValueOnce(folder);
     contentsRepository.mockUpload.uploadMock.mockRejectedValueOnce(

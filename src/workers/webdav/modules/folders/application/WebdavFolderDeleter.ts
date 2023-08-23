@@ -1,10 +1,10 @@
-import { WebdavFolder } from '../domain/WebdavFolder';
-import { WebdavFolderRepository } from '../domain/WebdavFolderRepository';
+import { Folder } from '../domain/Folder';
+import { FolderRepository } from '../domain/FolderRepository';
 
 export class WebdavFolderDeleter {
-  constructor(private readonly repository: WebdavFolderRepository) {}
+  constructor(private readonly repository: FolderRepository) {}
 
-  async run(folder: WebdavFolder): Promise<void> {
+  async run(folder: Folder): Promise<void> {
     folder.trash();
     await this.repository.trash(folder);
   }

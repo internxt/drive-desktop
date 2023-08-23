@@ -11,14 +11,13 @@ import { WebdavFileDeleter } from '../modules/files/application/WebdavFileDelete
 import { WebdavFileDownloader } from '../modules/files/application/WebdavFileDownloader';
 import { WebdavFileMimeTypeResolver } from '../modules/files/application/WebdavFileMimeTypeResolver';
 import { WebdavFileMover } from '../modules/files/application/WebdavFileMover';
-import { HttpWebdavFileRepository } from '../modules/files/infrastructure/persistance/HttpWebdavFileRepository';
+import { HttpFileRepository } from '../modules/files/infrastructure/persistance/HttpFileRepository';
 import { InMemoryTemporalFileMetadataCollection } from '../modules/files/infrastructure/persistance/InMemoryTemporalFileMetadataCollection';
-import { EnvironmentFileContentRepository } from '../modules/files/infrastructure/storage/EnvironmentFileContentRepository';
 import { WebdavFolderCreator } from '../modules/folders/application/WebdavFolderCreator';
 import { WebdavFolderDeleter } from '../modules/folders/application/WebdavFolderDeleter';
 import { WebdavFolderFinder } from '../modules/folders/application/WebdavFolderFinder';
 import { WebdavFolderMover } from '../modules/folders/application/WebdavFolderMover';
-import { HttpWebdavFolderRepository } from '../modules/folders/infrastructure/HttpWebdavFolderRepository';
+import { HttpFolderRepository } from '../modules/folders/infrastructure/HttpFolderRepository';
 import { Traverser } from '../modules/items/application/Traverser';
 import { AllWebdavItemsNameLister } from '../modules/shared/application/AllWebdavItemsSearcher';
 import { WebdavUnknownItemTypeSearcher } from '../modules/shared/application/WebdavUnknownItemTypeSearcher';
@@ -34,6 +33,8 @@ import { DependencyContainer } from './DependencyContainer';
 import { ipc } from '../ipc';
 import { WebdavFolderRenamer } from '../modules/folders/application/WebdavFolderRenamer';
 import { WebdavFileRenamer } from '../modules/files/application/WebdavFileRenamer';
+import { EnvironmentRemoteFileContentsManagersFactory } from '../modules/contents/infrastructure/EnvironmentRemoteFileContentsManagersFactory';
+import { FSContentsCacheRepository } from '../modules/contents/infrastructure/FSContentsCacheRepository';
 
 export class DependencyContainerFactory {
   private _container: DependencyContainer | undefined;
@@ -89,7 +90,7 @@ export class DependencyContainerFactory {
 
     const traverser = new Traverser(crypt, user.root_folder_id);
 
-    const fileRepository = new HttpWebdavFileRepository(
+    const fileRepository = new HttpFileRepository(
       crypt,
       clients.drive,
       clients.newDrive,
@@ -98,7 +99,7 @@ export class DependencyContainerFactory {
       ipc
     );
 
-    const folderRepository = new HttpWebdavFolderRepository(
+    const folderRepository = new HttpFolderRepository(
       clients.drive,
       clients.newDrive,
       traverser,
@@ -108,22 +109,37 @@ export class DependencyContainerFactory {
     await fileRepository.init();
     await folderRepository.init();
 
-    const fileContentRepository = new EnvironmentFileContentRepository(
-      environment,
-      user.bucket
-    );
+    const cachePath = await ipcRenderer.invoke('get-path', 'userData');
+
+    const localFileConentsRepository = new FSContentsCacheRepository(cachePath);
+
+    await localFileConentsRepository.initialize();
+
+    // const cachedContentsManagerFactory =
+    //   new CachedRemoteFileContentsManagersFactory(
+    //     localFileConentsRepository,
+    //     new EnvironmentRemoteFileContentsManagersFactory(
+    //       environment,
+    //       user.bucket
+    //     )
+    //   );
+    const contentsManagerFactory =
+      new EnvironmentRemoteFileContentsManagersFactory(
+        environment,
+        user.bucket
+      );
 
     const eventBus = new NodeJsEventBus();
 
     const fileRenamer = new WebdavFileRenamer(
       fileRepository,
-      fileContentRepository,
+      contentsManagerFactory,
       eventBus,
       ipc
     );
 
     const folderFinder = new WebdavFolderFinder(folderRepository);
-    const folderRenamer = new WebdavFolderRenamer(folderRepository);
+    const folderRenamer = new WebdavFolderRenamer(folderRepository, ipc);
 
     const temporalFileCollection = new InMemoryTemporalFileMetadataCollection();
 
@@ -153,7 +169,7 @@ export class DependencyContainerFactory {
       fileClonner: new WebdavFileClonner(
         fileRepository,
         folderFinder,
-        fileContentRepository,
+        contentsManagerFactory,
         eventBus,
         ipc
       ),
@@ -168,14 +184,14 @@ export class DependencyContainerFactory {
       fileCreator: new WebdavFileCreator(
         fileRepository,
         folderFinder,
-        fileContentRepository,
+        contentsManagerFactory,
         temporalFileCollection,
         eventBus,
         ipc
       ),
       fileDownloader: new WebdavFileDownloader(
         fileRepository,
-        fileContentRepository,
+        contentsManagerFactory,
         eventBus,
         ipc
       ),
@@ -184,7 +200,11 @@ export class DependencyContainerFactory {
 
       folderFinder,
       folderRenamer,
-      folderCreator: new WebdavFolderCreator(folderRepository, folderFinder),
+      folderCreator: new WebdavFolderCreator(
+        folderRepository,
+        folderFinder,
+        ipc
+      ),
       folderMover: new WebdavFolderMover(
         folderRepository,
         folderFinder,

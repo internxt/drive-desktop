@@ -1,15 +1,15 @@
-import { UilMultiply } from '@iconscout/react-unicons';
 import { useEffect, useRef, useState } from 'react';
-
 import packageJson from '../../../../package.json';
 import { useTranslationContext } from '../../context/LocalContext';
-import Button from './Button';
 import ErrorBanner from './ErrorBanner';
-import Input from './Input';
 import { accessRequest, hashPassword, loginRequest } from './service';
 import TwoFA from './TwoFA';
 import { LoginState } from './types';
 import WarningBanner from './WarningBanner';
+import TextInput from 'renderer/components/TextInput';
+import PasswordInput from 'renderer/components/PasswordInput';
+import WindowTopBar from 'renderer/components/WindowTopBar';
+import Button from 'renderer/components/Button';
 
 const TOWFA_ERROR_MESSAGE = 'Wrong 2-factor auth code';
 
@@ -94,63 +94,92 @@ export default function Login() {
     sKey.current = '';
   }
 
+  const handleOpenURL = async (URL: string) => {
+    try {
+      await window.electron.openUrl(URL);
+    } catch (error) {
+      reportError(error);
+    }
+  };
+
   const credentialsComponents = (
     <form
+      className="flex flex-1 flex-col space-y-2"
       onSubmit={(e) => {
         e.preventDefault();
         onSubmit();
       }}
     >
-      <Input
-        className="mt-2"
-        state={state}
-        label={translate('login.email.section')}
-        onChange={setEmail}
-        type="email"
-        value={email}
-        tabIndex={1}
-      />
-      <Input
-        className="mt-2"
-        state={state}
-        label={translate('login.password.section')}
-        onChange={setPassword}
-        type="password"
-        value={password}
-        placeholder={translate('login.password.placeholder')}
-        tabIndex={2}
-      />
-      <a
-        href="https://drive.internxt.com/remove"
-        target="_blank"
+      <label className="flex flex-col items-start space-y-2">
+        <p className="text-sm font-medium leading-4 text-gray-80">
+          {translate('login.email.section')}
+        </p>
+
+        <TextInput
+          required
+          disabled={state === 'loading'}
+          variant="email"
+          value={email}
+          onChange={(e) => setEmail(e.currentTarget.value.toLowerCase())}
+          customClassName="w-full"
+          tabIndex={1}
+        />
+      </label>
+
+      <label className="flex flex-col items-start space-y-2">
+        <p className="text-sm font-medium leading-4 text-gray-80">
+          {translate('login.password.section')}
+        </p>
+
+        <PasswordInput
+          required
+          disabled={state === 'loading'}
+          value={password}
+          onChange={(e) => setPassword(e.currentTarget.value)}
+          customClassName="w-full"
+          tabIndex={2}
+        />
+      </label>
+
+      <button
+        type="button"
+        disabled={state === 'loading'}
+        onClick={() =>
+          handleOpenURL('https://drive.internxt.com/recovery-link')
+        }
         tabIndex={3}
-        rel="noreferrer noopener"
-        className={`mx-auto mt-2 block w-max text-sm font-medium ${
-          state === 'loading'
-            ? 'pointer-events-none cursor-default text-m-neutral-80'
-            : 'text-blue-60'
+        className={`text-sm font-medium outline-none ${
+          state === 'loading' ? 'text-gray-30' : 'text-primary'
         }`}
       >
         {translate('login.password.forgotten')}
-      </a>
+      </button>
+
       <Button
+        type="submit"
+        variant="primary"
+        size="lg"
+        disabled={state === 'loading'}
         tabIndex={4}
-        className="mt-4"
-        state={state !== 'loading' ? 'ready' : 'loading'}
-      />
-      <a
-        tabIndex={5}
-        href="https://drive.internxt.com/new"
-        target="_blank"
-        rel="noreferrer noopener"
-        className={`mx-auto mt-5 block w-max text-sm font-medium ${
+      >
+        {translate(
           state === 'loading'
-            ? 'pointer-events-none cursor-default text-m-neutral-80'
-            : 'text-blue-60'
+            ? 'login.action.is-logging-in'
+            : 'login.action.login'
+        )}
+      </Button>
+
+      <button
+        type="button"
+        disabled={state === 'loading'}
+        onClick={() => handleOpenURL('https://drive.internxt.com/new')}
+        tabIndex={5}
+        className={`text-sm font-medium outline-none ${
+          state === 'loading' ? 'text-gray-30' : 'text-primary'
         }`}
       >
         {translate('login.create-account')}
-      </a>
+      </button>
     </form>
   );
 
@@ -166,24 +195,24 @@ export default function Login() {
       <p
         className={`mt-3 text-xs font-medium ${
           state === 'error'
-            ? 'text-red-60'
+            ? 'text-red'
             : state === 'loading'
-            ? 'text-l-neutral-50'
-            : 'text-blue-50'
+            ? 'text-gray-50'
+            : 'text-primary'
         }`}
       >
         {translate('login.2fa.section')}
       </p>
       <TwoFA state={state} onChange={setTwoFA} />
-      <p className="mt-4 text-xs text-m-neutral-60">
+      <p className="mt-4 text-xs text-gray-60">
         {translate('login.2fa.description')}
       </p>
 
       <div
         className={`mx-auto mt-5 block w-max text-sm font-medium ${
           state === 'loading'
-            ? 'pointer-events-none cursor-default text-m-neutral-80'
-            : 'cursor-pointer text-blue-60'
+            ? 'pointer-events-none cursor-default text-gray-100'
+            : 'cursor-pointer text-primary'
         }`}
         onClick={resetForm}
         onKeyDown={resetForm}
@@ -196,48 +225,37 @@ export default function Login() {
   );
 
   return (
-    <div className="relative h-screen overflow-hidden bg-l-neutral-10 p-6">
-      <div
-        className="absolute right-2 top-2 cursor-pointer"
-        role="button"
-        tabIndex={0}
-        onKeyDown={(e) =>
-          e.key === ' '
-            ? window.electron.closeWindow()
-            : e.key !== 'Tab'
-            ? e.preventDefault()
-            : undefined
-        }
-        onClick={window.electron.minimizeWindow}
-      >
-        <UilMultiply className="h-5 w-5" />
+    <div className="relative flex h-screen flex-col overflow-hidden bg-surface dark:bg-gray-1">
+      <WindowTopBar
+        title="Internxt Drive"
+        className="bg-surface dark:bg-gray-5"
+      />
+
+      <div className="flex h-32 flex-col items-center justify-center">
+        <h1 className="text-xl font-semibold text-gray-100">Internxt Drive</h1>
+        <h2 className="text-supporting-1 font-semibold text-gray-60">
+          v{packageJson.version}
+        </h2>
       </div>
-      <div className="h-28">
-        <div className="flex flex-col items-center">
-          <h1 className="mt-12 text-xl font-semibold text-neutral-700">
-            Internxt Drive
-          </h1>
-          <h2 className="text-supporting-1 font-semibold text-m-neutral-60">
-            v{packageJson.version}
-          </h2>
-        </div>
+
+      <div className="flex flex-1 flex-col space-y-2 p-6 pt-0">
+        {warning && state === 'warning' && (
+          <WarningBanner
+            icon=""
+            className={`${state === 'warning' ? 'opacity-100' : 'opacity-0'}`}
+          >
+            {warning}
+          </WarningBanner>
+        )}
+        {errorDetails && state === 'error' && (
+          <ErrorBanner
+            className={`${state === 'error' ? 'opacity-100' : 'opacity-0'}`}
+          >
+            {errorDetails}
+          </ErrorBanner>
+        )}
+        {phase === 'credentials' ? credentialsComponents : twoFAComponents}
       </div>
-      {warning && state === 'warning' && (
-        <WarningBanner
-          icon=""
-          className={`${state === 'warning' ? 'opacity-100' : 'opacity-0'}`}
-        >
-          {warning}
-        </WarningBanner>
-      )}
-      {errorDetails && state === 'error' && (
-        <ErrorBanner
-          className={`${state === 'error' ? 'opacity-100' : 'opacity-0'}`}
-        >
-          {errorDetails}
-        </ErrorBanner>
-      )}
-      {phase === 'credentials' ? credentialsComponents : twoFAComponents}
     </div>
   );
 }

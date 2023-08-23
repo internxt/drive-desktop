@@ -27,6 +27,7 @@ export default function Widget() {
   const displayErrorInWidget =
     (virtualDriveStatus && virtualDriveStatus === 'FAILED_TO_MOUNT') ||
     (syncStatus && syncStatus === 'FAILED');
+
   const renderWidgetError = () => {
     if (
       virtualDriveStatus === 'FAILED_TO_MOUNT' ||
@@ -45,6 +46,7 @@ export default function Widget() {
     }
     return <></>;
   };
+
   return (
     <div className="flex h-screen flex-col overflow-hidden">
       <Header />

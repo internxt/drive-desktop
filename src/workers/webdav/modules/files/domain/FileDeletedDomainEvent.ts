@@ -1,10 +1,10 @@
-import { WebdavDomainEvent } from '../../shared/domain/WebdavDomainEvent';
+import { DomainEvent } from '../../shared/domain/DomainEvent';
 
 type DeleteWebdavFileDomainEventAttributes = {
   readonly size: number;
 };
 
-export class FileDeletedDomainEvent extends WebdavDomainEvent {
+export class FileDeletedDomainEvent extends DomainEvent {
   static readonly EVENT_NAME = 'file.deleted';
 
   readonly size: number;

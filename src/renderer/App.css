@@ -2,6 +2,83 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  color-scheme: light dark;
+  
+	--color-white: 255 255 255;
+	--color-black: 0 0 0;
+}
+
+@media (prefers-color-scheme: light) {
+	:root {
+    --color-highlight: 17 17 17;
+	  --color-surface: 255 255 255;
+
+    --color-gray-1: 249 249 252;
+    --color-gray-5: 243 243 248;
+    --color-gray-10: 229 229 235;
+    --color-gray-20: 209 209 215;
+    --color-gray-30: 199 199 205;
+    --color-gray-40: 174 174 179;
+    --color-gray-50: 142 142 148;
+    --color-gray-60: 99 99 103;
+    --color-gray-70: 72 72 75;
+    --color-gray-80: 58 58 59;
+    --color-gray-90: 44 44 48;
+    --color-gray-100: 24 24 27;
+
+    --color-primary: 0 102 255;
+    --color-primary-dark: 0 88 219;
+
+    --color-red: 255 13 0;
+    --color-red-dark: 230 11 0;
+
+    --color-orange: 255 149 0;
+    --color-orange-dark: 230 134 0;
+
+    --color-yellow: 255 204 0;
+    --color-yellow-dark: 230 184 0;
+
+    --color-green: 50 195 86;
+    --color-green-dark: 46 173 78;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+	:root {
+    --color-highlight: 255 255 255;
+    --color-surface: 17 17 17;
+
+    --color-gray-1: 24 24 27;
+    --color-gray-5: 44 44 48;
+    --color-gray-10: 58 58 59;
+    --color-gray-20: 72 72 75;
+    --color-gray-30: 99 99 103;
+    --color-gray-40: 142 142 148;
+    --color-gray-50: 174 174 179;
+    --color-gray-60: 199 199 205;
+    --color-gray-70: 209 209 215;
+    --color-gray-80: 229 229 235;
+    --color-gray-90: 243 243 248;
+    --color-gray-100: 249 249 252;
+
+    --color-primary: 20 114 255;
+    --color-primary-dark: 0 96 240;
+
+    --color-red: 255 61 51;
+    --color-red-dark: 255 36 26;
+
+    --color-orange: 255 164 36;
+    --color-orange-dark: 255 153 10;
+
+    --color-yellow: 255 214 51;
+    --color-yellow-dark: 255 209 26;
+
+    --color-green: 72 208 106;
+    --color-green-dark: 52 203 90;
+  }
+}
+
 /* TEXT */
 @font-face {
   font-family: 'NeueEinstellung';
@@ -38,6 +115,7 @@
 body,
 html {
   font-family: 'NeueEinstellung', sans-serif;
+  @apply text-highlight bg-surface dark:bg-gray-1 select-none;
 }
 
 .no-scrollbar::-webkit-scrollbar {
@@ -58,13 +136,7 @@ body {
   overflow: hidden;
 }
 
-*:focus {
-  outline: none;
-}
-
-:not(input):focus-visible {
-  outline: auto;
-}
+/** Backups animation **/
 
 .backups-modal-overlay {
   background-color: rgba(0, 0, 0, 0.4);

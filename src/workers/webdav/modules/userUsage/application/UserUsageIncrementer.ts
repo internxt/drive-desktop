@@ -1,7 +1,7 @@
-import { WebdavUserUsageRepository } from '../domain/WebdavUserUsageRepository';
+import { UserUsageRepository } from '../domain/UserUsageRepository';
 
 export class UserUsageIncrementer {
-  constructor(private readonly repository: WebdavUserUsageRepository) {}
+  constructor(private readonly repository: UserUsageRepository) {}
 
   async run(weight: number) {
     const usage = await this.repository.getUsage();
