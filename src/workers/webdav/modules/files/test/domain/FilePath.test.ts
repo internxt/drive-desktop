@@ -1,5 +1,5 @@
 import { FilePath } from '../../domain/FilePath';
-
+import { PlatformPathConverter } from '../../../shared/test/helpers/PlatformPathConverter';
 describe('Path', () => {
   describe('path instanciation', () => {
     it('path from parts creates expected result', () => {
@@ -7,7 +7,9 @@ describe('Path', () => {
 
       const path = FilePath.fromParts(parts);
 
-      expect(path.value).toBe('/Family');
+      expect(path.value).toBe(
+        PlatformPathConverter.convertAnyToCurrent('/Family')
+      );
     });
 
     it('works', () => {

@@ -1,17 +1,9 @@
 import path from 'path';
-import { InvalidArgumentError } from '../../../../shared/domain/InvalidArgumentError';
 import { Path } from '../../shared/domain/Path';
 
 export class FolderPath extends Path {
   constructor(value: string) {
     super(value);
-    this.startsWithSlash(value);
-  }
-
-  private startsWithSlash(value: string) {
-    if (!value.startsWith('/')) {
-      throw new InvalidArgumentError(`${value} is not a valid FolderPath`);
-    }
   }
 
   static fromParts(parts: Array<string>) {
@@ -21,7 +13,7 @@ export class FolderPath extends Path {
   }
 
   name(): string {
-    if (this.value === '/') {
+    if (this.value === path.sep) {
       return 'Internxt Drive';
     }
 

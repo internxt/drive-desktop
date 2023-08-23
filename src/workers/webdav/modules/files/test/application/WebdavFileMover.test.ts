@@ -10,6 +10,7 @@ import { FilePath } from '../../domain/FilePath';
 import { WebdavIpcMock } from '../../../shared/test/__mock__/WebdavIPC';
 import { WebdavFileRenamer } from '../../application/WebdavFileRenamer';
 import { RemoteFileContentsManagersFactoryMock } from '../../../contents/test/__mocks__/RemoteFileContentsManagersFactoryMock';
+import path from 'path';
 
 describe('Webdav File Mover', () => {
   let repository: FileRepositoryMock;
@@ -50,7 +51,7 @@ describe('Webdav File Mover', () => {
     it('moves a file when does not exists a file with the desired path', async () => {
       const file = FileMother.any();
       const desiredPath = new FilePath(
-        `${file.dirname}/_${file.nameWithExtension}`
+        path.join(file.dirname, `_${file.nameWithExtension}`)
       );
       const override = false;
 
@@ -76,7 +77,7 @@ describe('Webdav File Mover', () => {
     it('when a file on the destination already exists but the overwite flag is not set to true the move fails', async () => {
       const file = FileMother.any();
       const destination = new FilePath(
-        `${file.dirname}/_${file.nameWithExtension}`
+        path.join(file.dirname, `_${file.nameWithExtension}`)
       );
       const override = false;
 
@@ -103,7 +104,7 @@ describe('Webdav File Mover', () => {
       const file = FileMother.any();
       const existing = FileMother.onFolderName('Ubuwevzuj');
       const destination = new FilePath(
-        `${existing.dirname}/_${file.nameWithExtension}`
+        path.join(existing.dirname, `_${file.nameWithExtension}`)
       );
 
       const override = true;
@@ -131,7 +132,7 @@ describe('Webdav File Mover', () => {
     it('when a file is moved to the same folder its renamed', async () => {
       const file = FileMother.any();
       const destination = new FilePath(
-        `${file.dirname}/_${file.nameWithExtension}`
+        path.join(file.dirname, `_${file.nameWithExtension}`)
       );
       const override = false;
 
@@ -157,7 +158,7 @@ describe('Webdav File Mover', () => {
     it('a file cannot be renamed even with the overwite flag', async () => {
       const file = FileMother.any();
       const destination = new FilePath(
-        `${file.dirname}/_${file.nameWithExtension}`
+        path.join(file.dirname, `_${file.nameWithExtension}`)
       );
       const override = true;
 
