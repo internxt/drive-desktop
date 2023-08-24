@@ -27,7 +27,11 @@ async function setUp() {
 
     const virtualDrive = new VirtualDrive(virtuaDrivePath);
 
-    const bindingsManager = new BindingsManager(virtualDrive, container);
+    const bindingsManager = new BindingsManager(
+      virtualDrive,
+      container,
+      virtuaDrivePath
+    );
 
     ipc.on('STOP_VIRTUAL_DRIVE_PROCESS', async (event) => {
       await bindingsManager.stop();

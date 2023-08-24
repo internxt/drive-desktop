@@ -1,13 +1,8 @@
-import { BrowserWindow, ipcMain, app } from 'electron';
+import { BrowserWindow, ipcMain } from 'electron';
 import { ipcWebdav } from '../ipcs/webdav';
-import path, { resolve } from 'path';
+import path from 'path';
 import Logger from 'electron-log';
 import eventBus from '../event-bus';
-import {
-  ejectMacOSInstallerDisks,
-  unmountDrive,
-} from '../../workers/webdav/VirtualDrive';
-import { reject } from 'lodash';
 
 let webdavWorker: BrowserWindow | null = null;
 
@@ -55,7 +50,12 @@ export async function stopVirtualDrive() {
     });
   });
 
-  webdavWorker?.webContents.send('STOP_VIRTUAL_DRIVE_PROCESS');
+  try {
+    webdavWorker?.webContents.send('STOP_VIRTUAL_DRIVE_PROCESS');
+  } catch (err) {
+    // TODO: handle error
+    // no op
+  }
 
   await stp;
 }
