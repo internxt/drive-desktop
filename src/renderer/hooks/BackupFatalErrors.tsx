@@ -17,5 +17,9 @@ export default function useBackupFatalErrors() {
     return errors.length > 0;
   }
 
-  return { backupFatalErrors: errors, thereAreErrors };
+  function deleteError(folderId: number) {
+    window.electron.deleteBackupError(folderId);
+  }
+
+  return { backupFatalErrors: errors, thereAreErrors, deleteError };
 }

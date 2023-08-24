@@ -4,6 +4,7 @@ import { Fragment, ReactNode, useEffect, useState } from 'react';
 import { useTranslationContext } from 'renderer/context/LocalContext';
 import { useBackups } from '../../../hooks/useBackups';
 import { BackupFatalError } from '../../../../main/background-processes/types/BackupFatalError';
+import useBackupFatalErrors from '../../../hooks/BackupFatalErrors';
 
 import { Backup } from '../../../../main/device/service';
 import FolderIcon from '../../../assets/folder.svg';
@@ -24,6 +25,8 @@ export default function BackupsFolderList({
 
   const [selected, setSelected] = useState<Backup | null>(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+
+  const { deleteError } = useBackupFatalErrors();
 
   async function handleAddBackup() {
     await addBackup();
@@ -46,6 +49,10 @@ export default function BackupsFolderList({
       await disableBackup(selected as Backup);
     } else {
       await deleteBackup(selected as Backup);
+    }
+
+    if (selected) {
+      deleteError(selected.id);
     }
   }
 
