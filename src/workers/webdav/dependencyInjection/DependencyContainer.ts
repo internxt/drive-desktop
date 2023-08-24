@@ -2,7 +2,7 @@ import { Axios } from 'axios';
 import { FileSearcher } from '../modules/files/application/FileSearcher';
 import { WebdavFileClonner } from '../modules/files/application/WebdavFileClonner';
 import { WebdavFileCreator } from '../modules/files/application/WebdavFileCreator';
-import { WebdavFileDeleter } from '../modules/files/application/WebdavFileDeleter';
+import { FileDeleter } from '../modules/files/application/FileDeleter';
 import { WebdavFileDownloader } from '../modules/files/application/WebdavFileDownloader';
 import { WebdavFileMimeTypeResolver } from '../modules/files/application/WebdavFileMimeTypeResolver';
 import { WebdavFileMover } from '../modules/files/application/WebdavFileMover';
@@ -36,7 +36,7 @@ export interface DependencyContainer {
   incrementDriveUsageOnFileCreated: IncrementDriveUsageOnFileCreated;
 
   fileClonner: WebdavFileClonner;
-  fileDeleter: WebdavFileDeleter;
+  fileDeleter: FileDeleter;
   fileMover: WebdavFileMover;
   fileCreator: WebdavFileCreator;
   fileDownloader: WebdavFileDownloader;

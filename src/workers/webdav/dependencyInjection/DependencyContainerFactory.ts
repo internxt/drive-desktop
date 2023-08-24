@@ -7,7 +7,7 @@ import { getClients } from '../../../shared/HttpClient/backgroud-process-clients
 import crypt from '../../utils/crypt';
 import { WebdavFileClonner } from '../modules/files/application/WebdavFileClonner';
 import { WebdavFileCreator } from '../modules/files/application/WebdavFileCreator';
-import { WebdavFileDeleter } from '../modules/files/application/WebdavFileDeleter';
+import { FileDeleter } from '../modules/files/application/FileDeleter';
 import { WebdavFileDownloader } from '../modules/files/application/WebdavFileDownloader';
 import { WebdavFileMimeTypeResolver } from '../modules/files/application/WebdavFileMimeTypeResolver';
 import { WebdavFileMover } from '../modules/files/application/WebdavFileMover';
@@ -175,7 +175,7 @@ export class DependencyContainerFactory {
         eventBus,
         ipc
       ),
-      fileDeleter: new WebdavFileDeleter(fileRepository, eventBus, ipc),
+      fileDeleter: new FileDeleter(fileRepository, eventBus, ipc),
       fileMover: new WebdavFileMover(
         fileRepository,
         folderFinder,

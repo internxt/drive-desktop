@@ -3,7 +3,7 @@ import { WebdavServerEventBus } from '../../shared/domain/WebdavServerEventBus';
 import { File } from '../domain/File';
 import { FileRepository } from '../domain/FileRepository';
 
-export class WebdavFileDeleter {
+export class FileDeleter {
   constructor(
     private readonly repository: FileRepository,
     private readonly eventBus: WebdavServerEventBus,

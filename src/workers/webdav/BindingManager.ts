@@ -1,14 +1,16 @@
 import { DependencyContainer } from './dependencyInjection/DependencyContainer';
 import { File } from './modules/files/domain/File';
-import { VirtualDrive } from 'virtual-drive/dist';
+import { VirtualDrive } from 'virtual-drive';
 import Logger from 'electron-log';
+import { promisify } from 'util';
 
 export class BindingsManager {
   private static readonly PROVIDER_NAME = 'Internxt';
 
   constructor(
     private readonly drive: VirtualDrive,
-    private readonly container: DependencyContainer
+    private readonly container: DependencyContainer,
+    private readonly drivePath: string
   ) {}
 
   private listFiles() {
@@ -37,9 +39,30 @@ export class BindingsManager {
       providerId
     );
 
+    const files = this.container.fileSearcher.run();
+
     await this.drive.connectSyncRoot({
-      notifyDeleteCompletionCallback: () => {
-        Logger.debug('Delete completed');
+      notifyDeleteCompletionCallback: async (...params) => {
+        const file = files.find((file) => {
+          return file.contentsId.includes(params[0]);
+        });
+
+        if (file) {
+          Logger.debug('FILE TO BE DELTED', file.attributes());
+          this.container.fileDeleter
+            .run(file)
+            .then(() => {
+              Logger.debug('FILE DELTED');
+            })
+            .catch((err) => {
+              Logger.debug('error deleting', err);
+            });
+        } else {
+          Logger.debug('FILE NOT FOUND');
+        }
+      },
+      notifyDeleteCallback: (...parms) => {
+        Logger.debug('notifyDeleteCallback', parms);
       },
       fetchDataCallback: () => {
         Logger.debug('fetchDataCallback');
@@ -68,9 +91,6 @@ export class BindingsManager {
       notifyDehydrateCompletionCallback: () => {
         Logger.debug('notifyDehydrateCompletionCallback');
       },
-      notifyDeleteCallback: () => {
-        Logger.debug('notifyDeleteCallback');
-      },
       notifyRenameCallback: () => {
         Logger.debug('notifyRenameCallback');
       },
@@ -84,7 +104,7 @@ export class BindingsManager {
 
     this.listFiles();
 
-    // this.drive.watchAndWait(this.drivePath);
+    promisify(() => this.drive.watchAndWait(this.drivePath));
   }
 
   async stop() {
