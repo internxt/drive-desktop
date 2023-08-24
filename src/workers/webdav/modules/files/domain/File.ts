@@ -10,7 +10,6 @@ import { FileActionCannotModifyExtension } from './errors/FileActionCannotModify
 import { FileDeletedDomainEvent } from './FileDeletedDomainEvent';
 import { FileStatus, FileStatuses } from './FileStatus';
 import { ContentsId } from '../../contents/domain/ContentsId';
-import { ThumbnailContentId } from '../../thumbnails/domain/ThumbanailContentId';
 
 export type FileAtributes = {
   contentsId: string;
@@ -21,7 +20,6 @@ export type FileAtributes = {
   size: number;
   updatedAt: string;
   status: string;
-  thumbnailContentsId: string | undefined;
 };
 
 export class File extends AggregateRoot {
@@ -32,18 +30,13 @@ export class File extends AggregateRoot {
     private readonly _size: FileSize,
     public createdAt: Date,
     public updatedAt: Date,
-    private _status: FileStatus,
-    private _thumbnailContentsId?: ThumbnailContentId
+    private _status: FileStatus
   ) {
     super();
   }
 
   public get contentsId() {
     return this._contentsId.value;
-  }
-
-  public get thumbnailContentsId(): string | undefined {
-    return this._thumbnailContentsId?.value;
   }
 
   public get folderId() {
@@ -86,10 +79,7 @@ export class File extends AggregateRoot {
       new FileSize(attributes.size),
       new Date(attributes.createdAt),
       new Date(attributes.updatedAt),
-      FileStatus.fromValue(attributes.status),
-      attributes.thumbnailContentsId
-        ? new ThumbnailContentId(attributes.thumbnailContentsId)
-        : undefined
+      FileStatus.fromValue(attributes.status)
     );
   }
 
@@ -269,7 +259,6 @@ export class File extends AggregateRoot {
       createdAt: this.createdAt.toISOString(),
       updatedAt: this.updatedAt.toISOString(),
       status: this.status.value,
-      thumbnailContentsId: this.thumbnailContentsId,
     };
   }
 
@@ -283,7 +272,6 @@ export class File extends AggregateRoot {
       updatedAt: this.updatedAt.toISOString(),
       status: this.status.value,
       modificationTime: this.updatedAt.toISOString(),
-      thumbnailContentsId: this.thumbnailContentsId,
     };
   }
 }
