@@ -22,7 +22,7 @@ import './background-processes/webdav';
 import './background-processes/process-issues';
 import './device/handlers';
 import './usage/handlers';
-import './realtime';
+// import './realtime';
 import './tray/tray';
 import './fordwardToWindows';
 import './virtual-drive/handlers';
@@ -33,6 +33,7 @@ import './migration/handlers';
 import './config/handlers';
 import './app-info/handlers';
 import './remote-sync/handlers';
+
 import { app, ipcMain, nativeTheme } from 'electron';
 import Logger from 'electron-log';
 import { autoUpdater } from 'electron-updater';
@@ -52,8 +53,11 @@ import { getTray } from './tray/tray';
 import { openOnboardingWindow } from './windows/onboarding';
 import { reportError } from './bug-report/service';
 import { Theme } from 'shared/types/Theme';
+import { setUp } from './virtual-drive-bindings';
 import { broadcastToWindows } from './windows';
 import { stopVirtualDrive } from './background-processes/webdav';
+import { setCleanUpFunction } from './quit';
+import { startRemoteSync } from './remote-sync/handlers';
 
 Logger.log(`Running ${packageJson.version}`);
 
@@ -104,14 +108,33 @@ const installExtensions = async () => {
     .catch(console.log);
 };
 
-
-
 app
   .whenReady()
   .then(async () => {
     if (!AppDataSource.isInitialized) {
       await AppDataSource.initialize();
     }
+
+    await startRemoteSync();
+
+    const manager = await setUp();
+
+    if (manager) {
+      setCleanUpFunction(() => {
+        return manager.stop();
+      });
+
+      await manager.stop();
+
+      await manager?.start(
+        packageJson.version,
+        '{ab30945f-264d-59e1-a748-bf806c72c2a4}'
+      );
+    }
+    {
+      Logger.debug('Virtual drive has not started');
+    }
+
     eventBus.emit('APP_IS_READY');
     const isLoggedIn = getIsLoggedIn();
 

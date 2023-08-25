@@ -27,7 +27,7 @@ export class HttpFolderRepository implements FolderRepository {
     files: ServerFile[];
     folders: ServerFolder[];
   }> {
-    const remoteItemsGenerator = new RemoteItemsGenerator(this.ipc);
+    const remoteItemsGenerator = new RemoteItemsGenerator();
     return remoteItemsGenerator.getAll();
   }
 

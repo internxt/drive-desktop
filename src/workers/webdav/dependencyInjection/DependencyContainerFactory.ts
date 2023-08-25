@@ -1,9 +1,9 @@
 import { Environment } from '@internxt/inxt-js';
 import PhotosSubmodule from '@internxt/sdk/dist/photos/photos';
-import { ipcRenderer } from 'electron';
-import { getUser } from 'main/auth/service';
-import configStore from 'main/config';
-import { getClients } from '../../../shared/HttpClient/backgroud-process-clients';
+// import { ipcRenderer } from 'electron';
+import { getUser, obtainToken } from '../../../main/auth/service';
+import configStore from '../../../main/config';
+import { getClients } from '../../../shared/HttpClient/main-process-client';
 import crypt from '../../utils/crypt';
 import { WebdavFileClonner } from '../modules/files/application/WebdavFileClonner';
 import { WebdavFileCreator } from '../modules/files/application/WebdavFileCreator';
@@ -37,6 +37,7 @@ import { EnvironmentRemoteFileContentsManagersFactory } from '../modules/content
 import { FSContentsCacheRepository } from '../modules/contents/infrastructure/FSContentsCacheRepository';
 import { FileSearcher } from '../modules/files/application/FileSearcher';
 import { FolderSearcher } from '../modules/folders/application/FolderSearcher';
+import { app } from 'electron';
 
 export class DependencyContainerFactory {
   private _container: DependencyContainer | undefined;
@@ -71,7 +72,8 @@ export class DependencyContainerFactory {
 
     const mnemonic = configStore.get('mnemonic');
 
-    const token = await ipcRenderer.invoke('get-new-token');
+    // const token = await ipcRenderer.invoke('get-new-token');
+    const token = obtainToken('newToken');
 
     const photosSubmodule = new PhotosSubmodule({
       baseUrl: process.env.PHOTOS_URL,
@@ -97,8 +99,7 @@ export class DependencyContainerFactory {
       clients.drive,
       clients.newDrive,
       traverser,
-      user.bucket,
-      ipc
+      user.bucket
     );
 
     const folderRepository = new HttpFolderRepository(
@@ -111,7 +112,7 @@ export class DependencyContainerFactory {
     await fileRepository.init();
     await folderRepository.init();
 
-    const cachePath = await ipcRenderer.invoke('get-path', 'userData');
+    const cachePath = app.getPath('userData');
 
     const localFileConentsRepository = new FSContentsCacheRepository(cachePath);
 

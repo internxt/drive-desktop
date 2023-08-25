@@ -5,9 +5,11 @@ import { HttpFileRepository } from '../infrastructure/persistance/HttpFileReposi
 export class FileSearcher {
   constructor(private readonly repository: FileRepository) {}
 
-  run(): Array<File> {
+  async run(): Promise<Array<File>> {
     // TODO: avoid the cast
     const repository = this.repository as HttpFileRepository;
+
+    // await repository.init();
 
     return Object.values(repository.files);
   }

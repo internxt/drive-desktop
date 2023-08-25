@@ -1,8 +1,18 @@
 import { app, ipcMain } from 'electron';
-import { stopVirtualDrive } from './background-processes/webdav';
+// import { stopVirtualDrive } from './background-processes/webdav';
+
+let cleanUpFunction: () => Promise<void>;
+
+export function setCleanUpFunction(fn: () => Promise<void>) {
+  cleanUpFunction = fn;
+}
 
 export async function quitApp() {
-  await stopVirtualDrive();
+  // await stopVirtualDrive();
+
+  if (cleanUpFunction) {
+    await cleanUpFunction();
+  }
 
   app.quit();
 }

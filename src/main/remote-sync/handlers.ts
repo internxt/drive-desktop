@@ -27,7 +27,7 @@ const remoteSyncManager = new RemoteSyncManager(
   }
 );
 
-ipcMain.handle('GET_UPDATED_REMOTE_ITEMS', async () => {
+export async function getUpdtaedRemoteItems() {
   try {
     const [allDriveFiles, allDriveFolders] = await Promise.all([
       driveFilesCollection.getAll(),
@@ -50,10 +50,17 @@ ipcMain.handle('GET_UPDATED_REMOTE_ITEMS', async () => {
     });
     throw error;
   }
+}
+
+ipcMain.handle('GET_UPDATED_REMOTE_ITEMS', async () => {
+  return getUpdtaedRemoteItems();
 });
 
+export function startRemoteSync(): Promise<void> {
+  return remoteSyncManager.startRemoteSync();
+}
 ipcMain.handle('START_REMOTE_SYNC', async () => {
-  await remoteSyncManager.startRemoteSync();
+  await startRemoteSync();
 });
 
 remoteSyncManager.onStatusChange((newStatus) => {

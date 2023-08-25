@@ -2,6 +2,7 @@ import { Axios } from 'axios';
 
 import { onUserUnauthorized } from '../../main/auth/handlers';
 import { getHeaders, getNewApiHeaders } from '../../main/auth/service';
+import { AuthorizedClients } from './Clients';
 import { AuthorizedHttpClient } from './HttpClient';
 
 const headersProvider = () => Promise.resolve(getHeaders(false));
@@ -27,4 +28,11 @@ export function getNewTokenClient(): Axios {
   }
 
   return newClient.client;
+}
+
+export function getClients(): AuthorizedClients {
+  return {
+    drive: getClient(),
+    newDrive: getNewTokenClient(),
+  };
 }

@@ -11,10 +11,10 @@ import { AddFileDTO } from './dtos/AddFileDTO';
 import { UpdateFileParentDirDTO } from './dtos/UpdateFileParentDirDTO';
 import { UpdateFileNameDTO } from './dtos/UpdateFileNameDTO';
 import { FilePath } from '../../domain/FilePath';
-import { VirtualDriveIpc } from '../../../../ipc';
 import { RemoteItemsGenerator } from '../../../items/application/RemoteItemsGenerator';
 import { FileStatuses } from '../../domain/FileStatus';
 import { Crypt } from '../../../shared/domain/Crypt';
+import { startRemoteSync } from '../../../../../../main/remote-sync/handlers';
 
 export class HttpFileRepository implements FileRepository {
   public files: Record<string, File> = {};
@@ -24,15 +24,14 @@ export class HttpFileRepository implements FileRepository {
     private readonly httpClient: Axios,
     private readonly trashHttpClient: Axios,
     private readonly traverser: Traverser,
-    private readonly bucket: string,
-    private readonly ipc: VirtualDriveIpc
+    private readonly bucket: string
   ) {}
 
   private async getTree(): Promise<{
     files: ServerFile[];
     folders: ServerFolder[];
   }> {
-    const remoteItemsGenerator = new RemoteItemsGenerator(this.ipc);
+    const remoteItemsGenerator = new RemoteItemsGenerator();
     return remoteItemsGenerator.getAll();
   }
 
@@ -75,7 +74,7 @@ export class HttpFileRepository implements FileRepository {
     );
 
     if (result.status === 200) {
-      await this.ipc.invoke('START_REMOTE_SYNC');
+      // await startRemoteSync();
     }
   }
 
@@ -124,7 +123,7 @@ export class HttpFileRepository implements FileRepository {
 
     this.files[file.path.value] = created;
 
-    await this.ipc.invoke('START_REMOTE_SYNC');
+    await startRemoteSync();
   }
 
   async updateName(file: File): Promise<void> {
@@ -154,7 +153,7 @@ export class HttpFileRepository implements FileRepository {
 
     this.files[file.path.value] = File.from(file.attributes());
 
-    await this.ipc.invoke('START_REMOTE_SYNC');
+    await startRemoteSync();
   }
 
   async updateParentDir(item: File): Promise<void> {
@@ -172,7 +171,7 @@ export class HttpFileRepository implements FileRepository {
 
     await this.init();
 
-    await this.ipc.invoke('START_REMOTE_SYNC');
+    await startRemoteSync();
   }
 
   async searchOnFolder(folderId: number): Promise<Array<File>> {

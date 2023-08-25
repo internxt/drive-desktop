@@ -66,13 +66,13 @@ function startWebDavServer() {
 
 eventBus.on('USER_LOGGED_OUT', stopVirtualDrive);
 eventBus.on('USER_WAS_UNAUTHORIZED', stopVirtualDrive);
-eventBus.on('USER_LOGGED_IN', () => {
-  if (webdavWorker === null) {
-    spawnWebdavServerWorker();
-  } else {
-    startWebDavServer();
-  }
-});
+// eventBus.on('USER_LOGGED_IN', () => {
+//   if (webdavWorker === null) {
+//     spawnWebdavServerWorker();
+//   } else {
+//     startWebDavServer();
+//   }
+// });
 
 ipcMain.handle('retry-virtual-drive-mount', () => {
   webdavWorker?.webContents.send('RETRY_VIRTUAL_DRIVE_MOUNT');
