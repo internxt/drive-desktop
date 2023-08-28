@@ -1,5 +1,4 @@
 import { app, ipcMain } from 'electron';
-// import { stopVirtualDrive } from './background-processes/webdav';
 
 let cleanUpFunction: () => Promise<void>;
 

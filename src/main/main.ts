@@ -18,7 +18,6 @@ import './windows/process-issues';
 import './windows';
 import './background-processes/backups';
 import './background-processes/sync';
-import './background-processes/webdav';
 import './background-processes/process-issues';
 import './device/handlers';
 import './usage/handlers';
@@ -55,7 +54,6 @@ import { reportError } from './bug-report/service';
 import { Theme } from 'shared/types/Theme';
 import { setUp } from './virtual-drive-bindings';
 import { broadcastToWindows } from './windows';
-import { stopVirtualDrive } from './background-processes/webdav';
 import { setCleanUpFunction } from './quit';
 import { startRemoteSync } from './remote-sync/handlers';
 
