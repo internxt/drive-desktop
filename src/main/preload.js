@@ -217,6 +217,9 @@ contextBridge.exposeInMainWorld('electron', {
   getBackupFatalErrors() {
     return ipcRenderer.invoke('get-backup-fatal-errors');
   },
+  deleteBackupError(folderId) {
+    return ipcRenderer.invoke('delete-backup-error', folderId);
+  },
   onBackupFatalErrorsChanged(func) {
     const eventName = 'backup-fatal-errors-changed';
     const callback = (_, v) => func(v);

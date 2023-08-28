@@ -17,7 +17,7 @@ export default function Header() {
   const { status: virtualDriveStatus } = useVirtualDriveStatus();
   const processIssues = useProcessIssues();
   const generalIssues = useGeneralIssues();
-  const backupFatalErrors = useBackupFatalErrors();
+  const { backupFatalErrors } = useBackupFatalErrors();
 
   const numberOfIssues: number =
     processIssues.length + backupFatalErrors.length + generalIssues.length;
@@ -261,10 +261,7 @@ export default function Header() {
                 <Menu.Item>
                   {({ active }) => (
                     <div className="border-t border-t-gray-10">
-                      <DropdownItem
-                        active={active}
-                        onClick={onQuitClick}
-                      >
+                      <DropdownItem active={active} onClick={onQuitClick}>
                         <span>{translate('widget.header.dropdown.quit')}</span>
                       </DropdownItem>
                     </div>

@@ -355,7 +355,7 @@ function BackupsBanner({
 }) {
   const [deviceState] = useContext(DeviceContext);
   const status = useBackupStatus();
-  const fatalErrors = useBackupFatalErrors();
+  const { backupFatalErrors } = useBackupFatalErrors();
   const issues = useProcessIssues().filter(
     (issue) => issue.process === 'BACKUPS'
   );
@@ -397,7 +397,7 @@ function BackupsBanner({
     const percentualProgress = getPercentualProgress(backupProgress);
 
     percentage = `${percentualProgress.toFixed(0)}%`;
-  } else if (fatalErrors.length) {
+  } else if (backupFatalErrors.length) {
     body = 'At least one of your backups failed';
     action = 'See more';
   } else if (issues.length) {
@@ -418,11 +418,11 @@ function BackupsBanner({
   if (
     status === 'STANDBY' &&
     issues.length === 0 &&
-    fatalErrors.length === 0 &&
+    backupFatalErrors.length === 0 &&
     lastExit === 'PROCESS_FINISHED'
   ) {
     iconVariant = 'SUCCESS';
-  } else if (fatalErrors.length) {
+  } else if (backupFatalErrors.length) {
     iconVariant = 'ERROR';
   } else if (issues.length) {
     iconVariant = 'WARNING';
@@ -435,7 +435,7 @@ function BackupsBanner({
   }, [status, backupProgress, hidden]);
 
   function onClick() {
-    if (issues.length || fatalErrors.length) {
+    if (issues.length || backupFatalErrors.length) {
       window.electron.openProcessIssuesWindow();
     } else if (lastExit === 'FORCED_BY_USER') {
       window.electron.startBackupsProcess();

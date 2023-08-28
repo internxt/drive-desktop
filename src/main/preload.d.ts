@@ -158,6 +158,8 @@ declare interface Window {
       >
     >;
 
+    deleteBackupError(folderId: number): Promise<void>;
+
     onBackupFatalErrorsChanged(
       func: (
         value: Array<

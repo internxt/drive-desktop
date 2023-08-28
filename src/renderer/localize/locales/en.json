@@ -267,7 +267,9 @@
       "add-folders": "Click + to select the folders\n you want to back up",
       "activate": "Back up your folders and files",
       "view-backups": "View your backups",
-      "select-folders": "Select folders to backup",
+      "select-folders": "Select folders to back up",
+      "last-backup-had-issues": "Last backup had some issues",
+      "see-issues": "See issues",
       "action": {
         "start": "Backup now",
         "stop": "Stop backup",

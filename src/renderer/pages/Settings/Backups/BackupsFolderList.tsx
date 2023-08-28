@@ -2,6 +2,9 @@ import { Dialog, Transition } from '@headlessui/react';
 import { Minus, Plus } from '@phosphor-icons/react';
 import { Fragment, ReactNode, useEffect, useState } from 'react';
 import { useTranslationContext } from 'renderer/context/LocalContext';
+import { useBackups } from '../../../hooks/useBackups';
+import { BackupFatalError } from '../../../../main/background-processes/types/BackupFatalError';
+import useBackupFatalErrors from '../../../hooks/BackupFatalErrors';
 
 import { Backup } from '../../../../main/device/service';
 import FolderIcon from '../../../assets/folder.svg';
@@ -9,40 +12,24 @@ import Spinner from '../../../assets/spinner.svg';
 import Button from '../../../components/Button';
 import Checkbox from '../../../components/Checkbox';
 
+export interface BackupFolderListProps {
+  onGoToPanel: () => void;
+}
+
 export default function BackupsFolderList({
   onGoToPanel,
-}: {
-  onGoToPanel: () => void;
-}) {
+}: BackupFolderListProps) {
   const { translate } = useTranslationContext();
 
-  const [state, setState] = useState<
-    { status: 'LOADING' | 'ERROR' } | { status: 'SUCCESS'; backups: Backup[] }
-  >({ status: 'LOADING' });
+  const { backups, addBackup, disableBackup, deleteBackup } = useBackups();
+
   const [selected, setSelected] = useState<Backup | null>(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
-  function fetchBackups() {
-    setState({ status: 'LOADING' });
-    window.electron
-      .getBackups()
-      .then((backups) => {
-        setState({ status: 'SUCCESS', backups });
-        setSelected(null);
-      })
-      .catch(() => {
-        setState({ status: 'ERROR' });
-      });
-  }
+  const { deleteError } = useBackupFatalErrors();
 
   async function handleAddBackup() {
-    setState({ status: 'LOADING' });
-    try {
-      await window.electron.addBackup();
-      fetchBackups();
-    } catch {
-      setState({ status: 'ERROR' });
-    }
+    await addBackup();
   }
 
   async function handleOnCloseDeleteModal(
@@ -58,17 +45,14 @@ export default function BackupsFolderList({
       localStorage.setItem('dont-ask-again-on-delete-backup', 'yes');
     }
 
-    setState({ status: 'LOADING' });
-    try {
-      if (result === 'DISABLE') {
-        await window.electron.disableBackup(selected as Backup);
-      } else {
-        await window.electron.deleteBackup(selected as Backup);
-      }
-      fetchBackups();
-    } catch (err) {
-      console.log(err);
-      setState({ status: 'ERROR' });
+    if (result === 'DISABLE') {
+      await disableBackup(selected as Backup);
+    } else {
+      await deleteBackup(selected as Backup);
+    }
+
+    if (selected) {
+      deleteError(selected.id);
     }
   }
 
@@ -83,12 +67,10 @@ export default function BackupsFolderList({
     }
   };
 
-  useEffect(fetchBackups, []);
-
   let content: ReactNode;
 
-  if (state.status === 'SUCCESS' && state.backups.length) {
-    content = state.backups.map((folder) => (
+  if (backups.status === 'SUCCESS' && backups.backups.length) {
+    content = backups.backups.map((folder) => (
       <li
         onClick={(e) => {
           e.stopPropagation();
@@ -110,9 +92,9 @@ export default function BackupsFolderList({
   } else {
     content = (
       <div className="flex h-full items-center justify-center">
-        {state.status === 'LOADING' ? (
+        {backups.status === 'LOADING' ? (
           <Spinner className="h-5 w-5 animate-spin text-gray-100" />
-        ) : state.status === 'ERROR' ? (
+        ) : backups.status === 'ERROR' ? (
           <p className="text-sm font-medium">We could not load your backups</p>
         ) : (
           <p className="text-sm text-gray-50">
@@ -141,7 +123,7 @@ export default function BackupsFolderList({
         <div className="flex items-center space-x-1">
           <Button
             variant="secondary"
-            disabled={state.status === 'LOADING'}
+            disabled={backups.status === 'LOADING'}
             onClick={handleAddBackup}
           >
             <Plus size={16} />

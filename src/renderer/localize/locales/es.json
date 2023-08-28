@@ -267,6 +267,8 @@
       "activate": "Hacer copia de seguridad de tus carpetas",
       "view-backups": "Ver copias de seguridad",
       "select-folders": "Seleccionar carpetas",
+      "last-backup-had-issues": "La última copia de seguridad tuvo algunos problemas",
+      "see-issues": "Ver problemas",
       "action": {
         "start": "Hacer copia",
         "stop": "Stop backup",

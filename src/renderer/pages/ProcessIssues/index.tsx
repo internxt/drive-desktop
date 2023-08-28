@@ -16,7 +16,7 @@ export default function ProcessIssues() {
   const { translate } = useTranslationContext();
   const processIssues = useProcessIssues();
   const generalIssues = useGeneralIssues();
-  const backupFatalErrors = useBackupFatalErrors();
+  const { backupFatalErrors } = useBackupFatalErrors();
   const [reportData, setReportData] = useState<Pick<
     ProcessIssue,
     'errorName' | 'errorDetails'

@@ -13,5 +13,13 @@ export default function useBackupFatalErrors() {
     return removeListener;
   }, []);
 
-  return errors;
+  function thereAreErrors() {
+    return errors.length > 0;
+  }
+
+  function deleteError(folderId: number) {
+    window.electron.deleteBackupError(folderId);
+  }
+
+  return { backupFatalErrors: errors, thereAreErrors, deleteError };
 }
