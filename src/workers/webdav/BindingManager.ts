@@ -2,19 +2,14 @@ import { DependencyContainer } from './dependencyInjection/DependencyContainer';
 import { File } from './modules/files/domain/File';
 import { VirtualDrive } from 'virtual-drive';
 import Logger from 'electron-log';
-import { promisify } from 'util';
-import { EventEmitter } from 'stream';
 
 export class BindingsManager {
   private static readonly PROVIDER_NAME = 'Internxt';
-  private readonly eventEmiter;
+
   constructor(
     private readonly drive: VirtualDrive,
-    private readonly container: DependencyContainer,
-    private readonly drivePath: string
-  ) {
-    this.eventEmiter = new EventEmitter();
-  }
+    private readonly container: DependencyContainer
+  ) {}
 
   public async listFiles() {
     const files = await this.container.fileSearcher.run();
@@ -42,30 +37,26 @@ export class BindingsManager {
       providerId
     );
 
-    this.eventEmiter.on('delete-file', async (id) => {
-      const files = await this.container.fileSearcher.run();
-      const file = files.find((file) => {
-        return file.contentsId === id;
-      });
-
-      if (file) {
-        Logger.debug('FILE TO BE DELTED', file.attributes());
-        this.container.fileDeleter
-          .run(file)
-          .then(() => {
-            Logger.debug('FILE DELETED: ', file.nameWithExtension);
-          })
-          .catch((err) => {
-            Logger.debug('error deleting', err);
-          });
-      } else {
-        Logger.debug('FILE NOT FOUND');
-      }
-    });
-
     await this.drive.connectSyncRoot({
       notifyDeleteCompletionCallback: async (contentsId: string) => {
-        this.eventEmiter.emit('delete-file', contentsId);
+        const files = await this.container.fileSearcher.run();
+        const file = files.find((file) => {
+          return file.contentsId === contentsId;
+        });
+
+        if (file) {
+          Logger.debug('FILE TO BE DELTED', file.attributes());
+          this.container.fileDeleter
+            .run(file)
+            .then(() => {
+              Logger.debug('FILE DELETED: ', file.nameWithExtension);
+            })
+            .catch((err) => {
+              Logger.debug('error deleting', err);
+            });
+        } else {
+          Logger.debug('FILE NOT FOUND');
+        }
       },
       notifyDeleteCallback: (...parms) => {
         Logger.debug('notifyDeleteCallback', parms);
@@ -97,8 +88,8 @@ export class BindingsManager {
       notifyDehydrateCompletionCallback: () => {
         Logger.debug('notifyDehydrateCompletionCallback');
       },
-      notifyRenameCallback: () => {
-        Logger.debug('notifyRenameCallback');
+      notifyRenameCallback: (...params) => {
+        Logger.debug('notifyRenameCallback', params);
       },
       notifyRenameCompletionCallback: () => {
         Logger.debug('notifyRenameCompletionCallback');
@@ -109,8 +100,6 @@ export class BindingsManager {
     });
 
     await this.listFiles();
-
-    promisify(() => this.drive.watchAndWait(this.drivePath));
   }
 
   async stop() {

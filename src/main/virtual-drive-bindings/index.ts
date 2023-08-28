@@ -3,10 +3,11 @@ import fs from 'fs/promises';
 import { existsSync } from 'fs';
 import { DependencyContainerFactory } from '../../workers/webdav/dependencyInjection/DependencyContainerFactory';
 import { BindingsManager } from '../../workers/webdav/BindingManager';
-import PackageJson from '../../../package.json';
 import { VirtualDrive } from 'virtual-drive/dist';
 import eventBus from '../event-bus';
 import { startRemoteSync } from '../remote-sync/handlers';
+import { spawnSyncEngineWorker } from '../background-processes/sync-engine';
+import Logger from 'electron-log';
 
 function getVirtualDrivePath() {
   return homedir() + '\\InternxtDrive';
@@ -25,18 +26,12 @@ export async function setUp() {
   const containerFactory = new DependencyContainerFactory();
   const container = await containerFactory.build();
 
-  // container.eventBus.addSubscribers(DomainEventSubscribers.from(container));
-
   // TODO: move setup root folder to main menu
   const virtuaDrivePath = getOrCreateRootFolder();
 
   const virtualDrive = new VirtualDrive(virtuaDrivePath);
 
-  const bindingsManager = new BindingsManager(
-    virtualDrive,
-    container,
-    virtuaDrivePath
-  );
+  const bindingsManager = new BindingsManager(virtualDrive, container);
 
   eventBus.on('RECEIVED_REMOTE_CHANGES', () => {
     startRemoteSync();
@@ -55,11 +50,3 @@ export async function setUp() {
 
   return bindingsManager;
 }
-
-// ipc.on('RETRY_VIRTUAL_DRIVE_MOUNT', () => {
-//   getOrCreateRootFolder();
-// });
-
-// ipc.on('START_VIRTUAL_DRIVE_PROCESS', () => {
-//   setUp();
-// });

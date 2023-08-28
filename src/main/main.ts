@@ -56,6 +56,7 @@ import { setUp } from './virtual-drive-bindings';
 import { broadcastToWindows } from './windows';
 import { setCleanUpFunction } from './quit';
 import { startRemoteSync } from './remote-sync/handlers';
+import { spawnSyncEngineWorker } from './background-processes/sync-engine';
 
 Logger.log(`Running ${packageJson.version}`);
 
@@ -127,8 +128,14 @@ app
         packageJson.version,
         '{ab30945f-264d-59e1-a748-bf806c72c2a4}'
       );
-    }
-    {
+
+      try {
+        Logger.info('LAUNCHING SYNC ENGINE WORKER');
+        spawnSyncEngineWorker();
+      } catch (err) {
+        Logger.error('ERROR SPAWINGIN WORKER:: ', err);
+      }
+    } else {
       Logger.debug('Virtual drive has not started');
     }
 
