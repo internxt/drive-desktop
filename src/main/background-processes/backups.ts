@@ -241,6 +241,10 @@ function spawnBackupsWorker() {
 
 let fatalErrors: BackupFatalError[] = [];
 
+function onBackupFatalErrorsChanged() {
+  broadcastToWindows('backup-fatal-errors-changed', fatalErrors);
+}
+
 ipcMain.handle('get-backup-fatal-errors', () => fatalErrors);
 ipcMain.on('add-backup-fatal-errors', (e, errors: Array<BackupFatalError>) => {
   if (!errors) {
@@ -249,9 +253,10 @@ ipcMain.on('add-backup-fatal-errors', (e, errors: Array<BackupFatalError>) => {
   errors.forEach(addBackupFatalError);
 });
 
-function onBackupFatalErrorsChanged() {
-  broadcastToWindows('backup-fatal-errors-changed', fatalErrors);
-}
+ipcMain.handle('delete-backup-error', (_event, folderId: number) => {
+  fatalErrors = fatalErrors.filter((error) => error.folderId !== folderId);
+  onBackupFatalErrorsChanged();
+});
 
 function clearBackupFatalErrors() {
   fatalErrors = [];

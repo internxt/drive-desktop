@@ -8,6 +8,8 @@ import Checkbox from '../../../components/Checkbox';
 import { useTranslationContext } from '../../../context/LocalContext';
 import useBackupStatus from '../../../hooks/BackupStatus';
 import { getPercentualProgress } from '../../../utils/backups-progress';
+import useBackupFatalErrors from '../../../hooks/BackupFatalErrors';
+import { WarningCircle } from '@phosphor-icons/react';
 
 dayjs.extend(relativeTime);
 
@@ -17,11 +19,13 @@ interface BackupsIntervalType extends SelectOptionsType {
 
 type BackupIntervalType = '6h' | '12h' | '24h' | 'manual';
 
+export interface BackupsPreferencesProps {
+  showFolderList: () => void;
+}
+
 export default function BackupsPreferences({
   showFolderList,
-}: {
-  showFolderList: () => void;
-}) {
+}: BackupsPreferencesProps) {
   const { translate } = useTranslationContext();
   const backupStatus = useBackupStatus();
 
@@ -33,6 +37,8 @@ export default function BackupsPreferences({
   const [backupProgress, setBackupProgress] = useState<null | BackupProgress>(
     null
   );
+
+  const { thereAreErrors } = useBackupFatalErrors();
 
   const BackupsIntervals: BackupsIntervalType[] = [
     {
@@ -126,6 +132,28 @@ export default function BackupsPreferences({
         label={translate('settings.backups.activate')}
         onClick={onBackupsEnabledClicked}
       />
+
+      {thereAreErrors() && (
+        <section className="relative z-0 flex items-center space-x-2 overflow-hidden rounded-lg border border-red bg-surface p-3 font-normal text-red shadow-sm ring-3 ring-red/10 before:absolute before:inset-0 before:-z-1 before:bg-red/5 dark:ring-red/35 dark:before:bg-red/10">
+          <div className="relative z-0 flex w-6 items-center justify-center text-red before:absolute before:-z-1 before:h-3 before:w-3 before:bg-white">
+            <WarningCircle size={24} weight="fill" />
+          </div>
+          <span
+            className="flex-1 truncate"
+            title={translate('settings.backups.last-backup-had-issues')}
+          >
+            {translate('settings.backups.last-backup-had-issues')}
+          </span>
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => window.electron.openProcessIssuesWindow()}
+            customClassName="ml-auto"
+          >
+            {translate('settings.backups.see-issues')}
+          </Button>
+        </section>
+      )}
 
       <div className="flex flex-col space-y-1.5">
         <div className="flex items-center space-x-2">

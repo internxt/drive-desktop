@@ -8,20 +8,18 @@ import {
   GeneralErrorName,
   GeneralIssue,
   ProcessErrorName,
-  ProcessFatalErrorName,
   ProcessIssue,
 } from '../../../workers/types';
 import { Action } from '../../actions/types';
-import ErrorIcon from '../../assets/error.svg';
 import FileIcon from '../../assets/file.svg';
 import Spinner from '../../assets/spinner.svg';
 import WarnIcon from '../../assets/warn.svg';
 import useFatalErrorActions from '../../hooks/FatalErrorActions';
 import { generalErrors } from '../../messages/general-error';
 import { shortMessages } from '../../messages/process-error';
-import messages from '../../messages/process-fatal-error';
 import { getBaseName } from '../../utils/path';
 import Button from 'renderer/components/Button';
+import { FatalError } from '../../components/Backups/FatalError';
 
 export default function ProcessIssuesList({
   selectedTab,
@@ -125,6 +123,7 @@ export default function ProcessIssuesList({
             key={error.folderId}
             errorName={error.errorName}
             path={error.path}
+            showIcon={true}
             actionName={translate(fatalErrorActionMap[error.errorName].name)}
             onActionClick={() =>
               actionWrapper(fatalErrorActionMap[error.errorName])(error)
@@ -298,42 +297,6 @@ function Item({
           </motion.div>
         )}
       </AnimatePresence>
-    </li>
-  );
-}
-
-function FatalError({
-  errorName,
-  path,
-  onActionClick,
-  actionName,
-}: {
-  errorName: ProcessFatalErrorName;
-  path: string;
-  actionName: string;
-  onActionClick: () => void;
-}) {
-  const { translate } = useTranslationContext();
-
-  return (
-    <li className="flex space-x-2.5 p-3 hover:bg-gray-5">
-      <ErrorIcon className="h-5 w-5" />
-
-      <div className="flex flex-1 flex-col truncate">
-        <h1 className="truncate text-base font-medium leading-5 text-gray-100">
-          {translate(messages[errorName])}
-        </h1>
-
-        <p className="truncate text-sm leading-4 text-gray-50">
-          {window.electron.path.basename(path)}
-        </p>
-      </div>
-
-      <div className="flex items-center self-stretch">
-        <Button variant="secondary" size="sm" onClick={onActionClick}>
-          {actionName}
-        </Button>
-      </div>
     </li>
   );
 }
