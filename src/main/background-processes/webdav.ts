@@ -54,6 +54,7 @@ export async function stopVirtualDrive() {
     webdavWorker?.webContents.send('STOP_VIRTUAL_DRIVE_PROCESS');
   } catch (err) {
     // TODO: handle error
+    Logger.error(err);
     // no op
   }
 

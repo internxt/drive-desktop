@@ -46,8 +46,8 @@ contextBridge.exposeInMainWorld('electron', {
   minimizeWindow() {
     return ipcRenderer.send('user-minimized-window');
   },
-  openSyncFolder() {
-    return ipcRenderer.invoke('open-sync-folder');
+  openVirtualDriveFolder() {
+    return ipcRenderer.invoke('open-virtual-drive-folder');
   },
   quit() {
     return ipcRenderer.send('user-quit');
@@ -171,8 +171,8 @@ contextBridge.exposeInMainWorld('electron', {
     ipcRenderer.on(eventName, callback);
     return () => ipcRenderer.removeListener(eventName, callback);
   },
-  getSyncRoot() {
-    return ipcRenderer.invoke('get-sync-root');
+  getVirtualDriveRoot() {
+    return ipcRenderer.invoke('get-virtual-drive-root');
   },
   chooseSyncRootWithDialog() {
     return ipcRenderer.invoke('choose-sync-root-with-dialog');

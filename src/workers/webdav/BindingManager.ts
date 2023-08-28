@@ -31,7 +31,7 @@ export class BindingsManager {
       //   file.updatedAt.getUTCMilliseconds(),
       //   // This should be the last access time but we don't store the last accessed time
       //   path.join(this.drivePath, file.path.value);
-      // );
+      // );ray
     });
   }
 

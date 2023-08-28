@@ -1,19 +1,11 @@
 import Logger from 'electron-log';
 import { DependencyContainerFactory } from './dependencyInjection/DependencyContainerFactory';
 import { ipc } from './ipc';
-import { getVirtualDrivePath } from './VirtualDrive';
+import { ipcRenderer } from 'electron';
 import { DomainEventSubscribers } from './modules/shared/infrastructure/DomainEventSubscribers';
 import { BindingsManager } from './BindingManager';
 import PackageJson from '../../../package.json';
 import { VirtualDrive } from 'virtual-drive/dist';
-import fs from 'fs/promises';
-
-function getOrCreateRootFolder() {
-  const virtuaDrivePath = getVirtualDrivePath();
-  void fs.mkdir(virtuaDrivePath);
-
-  return virtuaDrivePath;
-}
 
 async function setUp() {
   try {
@@ -22,16 +14,11 @@ async function setUp() {
 
     container.eventBus.addSubscribers(DomainEventSubscribers.from(container));
 
-    // TODO: move setup root folder to main menu
-    const virtuaDrivePath = getOrCreateRootFolder();
+    const virtuaDrivePath = await ipcRenderer.invoke('get-virtual-drive-root');
 
     const virtualDrive = new VirtualDrive(virtuaDrivePath);
 
-    const bindingsManager = new BindingsManager(
-      virtualDrive,
-      container,
-      virtuaDrivePath
-    );
+    const bindingsManager = new BindingsManager(virtualDrive, container);
 
     ipc.on('STOP_VIRTUAL_DRIVE_PROCESS', async (event) => {
       await bindingsManager.stop();
@@ -46,10 +33,6 @@ async function setUp() {
     Logger.debug('ERROR ON SETTING UP', error);
   }
 }
-
-ipc.on('RETRY_VIRTUAL_DRIVE_MOUNT', () => {
-  getOrCreateRootFolder();
-});
 
 ipc.on('START_VIRTUAL_DRIVE_PROCESS', () => {
   setUp();

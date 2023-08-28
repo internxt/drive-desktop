@@ -8,7 +8,7 @@ import 'regenerator-runtime/runtime';
 // via webpack in prod
 import 'dotenv/config';
 // ***** APP BOOTSTRAPPING ****************************************************** //
-import './sync-root-folder/handlers';
+import './virutal-root-folder/handlers';
 import './auto-launch/handlers';
 import './logger';
 import './bug-report/handlers';
