@@ -110,7 +110,7 @@ export class BindingsManager {
 
     await this.listFiles();
 
-    promisify(() => this.drive.watchAndWait(this.drivePath));
+    this.drive.watchAndWait2(this.drivePath);
   }
 
   async stop() {
