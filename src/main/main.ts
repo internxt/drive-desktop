@@ -112,35 +112,13 @@ app
       await AppDataSource.initialize();
     }
 
-    await startRemoteSync();
-
-    const manager = await setUp();
-
-    if (manager) {
-      setCleanUpFunction(() => {
-        return manager.stop();
-      });
-
-      await manager.stop();
-
-      await manager?.start(
-        packageJson.version,
-        '{ab30945f-264d-59e1-a748-bf806c72c2a4}'
-      );
-    }
-    {
-      Logger.debug('Virtual drive has not started');
-    }
-
     eventBus.emit('APP_IS_READY');
     const isLoggedIn = getIsLoggedIn();
 
     if (!isLoggedIn) {
       await createAuthWindow();
     }
-    if (process.env.NODE_ENV === 'development') {
-      await installExtensions();
-    }
+
     checkForUpdates();
   })
   .catch(Logger.error);
@@ -166,20 +144,44 @@ eventBus.on('USER_LOGGED_IN', async () => {
     } else if (widget) {
       widget.show();
     }
+
+    await startRemoteSync();
+
+    const manager = await setUp();
+
+    if (manager) {
+      setCleanUpFunction(() => {
+        return manager.stop();
+      });
+
+      await manager.stop();
+
+      await manager?.start(
+        packageJson.version,
+        '{ab30945f-264d-59e1-a748-bf806c72c2a4}'
+      );
+    } else {
+      Logger.debug('Virtual drive has not started');
+    }
   } catch (error) {
+    Logger.error(error);
     reportError(error as Error);
   }
 });
 
 eventBus.on('USER_LOGGED_OUT', async () => {
-  const widget = getWidget();
-  if (widget) {
-    widget.hide();
-    widget.destroy();
-  }
+  try {
+    const widget = getWidget();
+    if (widget) {
+      widget.hide();
+      widget.destroy();
+    }
 
-  await createAuthWindow();
-  if (AppDataSource.isInitialized) {
-    await AppDataSource.destroy();
+    await createAuthWindow();
+    if (AppDataSource.isInitialized) {
+      await AppDataSource.destroy();
+    }
+  } catch (error) {
+    Logger.error(error);
   }
 });

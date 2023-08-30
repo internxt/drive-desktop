@@ -15,6 +15,8 @@ import { RemoteItemsGenerator } from '../../../items/application/RemoteItemsGene
 import { FileStatuses } from '../../domain/FileStatus';
 import { Crypt } from '../../../shared/domain/Crypt';
 import { startRemoteSync } from '../../../../../../main/remote-sync/handlers';
+import { Storage } from '@internxt/sdk/dist/drive';
+import Logger from 'electron-log';
 
 export class HttpFileRepository implements FileRepository {
   public files: Record<string, File> = {};
@@ -24,7 +26,8 @@ export class HttpFileRepository implements FileRepository {
     private readonly httpClient: Axios,
     private readonly trashHttpClient: Axios,
     private readonly traverser: Traverser,
-    private readonly bucket: string
+    private readonly bucket: string,
+    private readonly sdk: Storage
   ) {}
 
   private async getTree(): Promise<{
@@ -157,17 +160,23 @@ export class HttpFileRepository implements FileRepository {
   }
 
   async updateParentDir(item: File): Promise<void> {
-    const url = `${process.env.API_URL}/api/storage/move/file`;
-    const body: UpdateFileParentDirDTO = {
-      destination: item.folderId,
+    await this.sdk.moveFile({
       fileId: item.contentsId,
-    };
+      destination: item.folderId,
+      destinationPath: uuid.v4(),
+      bucketId: this.bucket,
+    });
+    // const url = `${process.env.API_URL}/api/storage/move/file`;
+    // const body: UpdateFileParentDirDTO = {
+    //   destination: item.folderId,
+    //   fileId: item.contentsId,
+    // };
 
-    const res = await this.httpClient.post(url, body);
+    // const res = await this.httpClient.post(url, body);
 
-    if (res.status !== 200) {
-      throw new Error(`[REPOSITORY] Error moving item: ${res.status}`);
-    }
+    // if (res.status !== 200) {
+    //   throw new Error(`[REPOSITORY] Error moving item: ${res.status}`);
+    // }
 
     await this.init();
 

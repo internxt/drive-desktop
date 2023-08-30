@@ -23,6 +23,7 @@ import { UsedSpaceCalculator } from '../modules/userUsage/application/UsedSpaceC
 import { UserUsageDecrementer } from '../modules/userUsage/application/UserUsageDecrementer';
 import { UserUsageIncrementer } from '../modules/userUsage/application/UserUsageIncrementer';
 import { UserUsageRepository } from '../modules/userUsage/domain/UserUsageRepository';
+import { FilePathFromAbsolutePathConverter } from '../modules/files/application/FilePathFromAbsolutePathConverter';
 
 export interface DependencyContainer {
   drive: Axios;
@@ -43,6 +44,7 @@ export interface DependencyContainer {
   fileMimeTypeResolver: WebdavFileMimeTypeResolver;
   fileRenamer: WebdavFileRenamer;
   fileSearcher: FileSearcher;
+  filePathFromAbsolutePathConverter: FilePathFromAbsolutePathConverter;
 
   folderCreator: WebdavFolderCreator;
 

@@ -2,7 +2,6 @@ import { DependencyContainer } from './dependencyInjection/DependencyContainer';
 import { File } from './modules/files/domain/File';
 import { VirtualDrive } from 'virtual-drive';
 import Logger from 'electron-log';
-import { promisify } from 'util';
 import { EventEmitter } from 'stream';
 
 export class BindingsManager {
@@ -63,13 +62,48 @@ export class BindingsManager {
       }
     });
 
+    function findStringDifferences(str1: string, str2: string): string[] {
+      const differences: string[] = [];
+
+      const maxLength = Math.max(str1.length, str2.length);
+
+      for (let i = 0; i < maxLength; i++) {
+        if (str1[i] !== str2[i]) {
+          differences.push(`${str1[i]} - ${str2[i]}`);
+        }
+      }
+
+      return differences;
+    }
+
     await this.drive.connectSyncRoot({
       notifyDeleteCompletionCallback: async (contentsId: string) => {
-        // eslint-disable-next-line no-control-regex
-        this.eventEmiter.emit('delete-file', contentsId.replace(/[\x00-\x1F\x7F-\x9F]/g, ''));
+        this.eventEmiter.emit(
+          'delete-file',
+          // eslint-disable-next-line no-control-regex
+          contentsId.replace(/[\x00-\x1F\x7F-\x9F]/g, '')
+        );
       },
       notifyDeleteCallback: (...parms) => {
         Logger.debug('notifyDeleteCallback', parms);
+      },
+      notifyRenameCallback: async (
+        absolutePath: string,
+        contentsId: string
+      ) => {
+        // eslint-disable-next-line no-control-regex
+        const id = contentsId.replace(/[\x00-\x1F\x7F-\x9F]/g, '');
+        const files = await this.container.fileSearcher.run();
+        const file = files.find((file) => file.contentsId === id);
+
+        if (!file) {
+          throw new Error('File not found');
+        }
+
+        const relative =
+          this.container.filePathFromAbsolutePathConverter.run(absolutePath);
+
+        await this.container.fileRenamer.run(file, relative);
       },
       fetchDataCallback: () => {
         Logger.debug('fetchDataCallback');
@@ -97,10 +131,6 @@ export class BindingsManager {
       },
       notifyDehydrateCompletionCallback: () => {
         Logger.debug('notifyDehydrateCompletionCallback');
-      },
-      notifyRenameCallback: ( newPath: string,contentsId:string) => {
-        Logger.debug('fileid', contentsId);
-        Logger.debug('new path', newPath);
       },
       notifyRenameCompletionCallback: () => {
         Logger.debug('notifyRenameCompletionCallback');

@@ -3,7 +3,10 @@ import PhotosSubmodule from '@internxt/sdk/dist/photos/photos';
 // import { ipcRenderer } from 'electron';
 import { getUser, obtainToken } from '../../../main/auth/service';
 import configStore from '../../../main/config';
-import { getClients } from '../../../shared/HttpClient/main-process-client';
+import {
+  getClients,
+  getStorageSdk,
+} from '../../../shared/HttpClient/main-process-client';
 import crypt from '../../utils/crypt';
 import { WebdavFileClonner } from '../modules/files/application/WebdavFileClonner';
 import { WebdavFileCreator } from '../modules/files/application/WebdavFileCreator';
@@ -38,6 +41,7 @@ import { FSContentsCacheRepository } from '../modules/contents/infrastructure/FS
 import { FileSearcher } from '../modules/files/application/FileSearcher';
 import { FolderSearcher } from '../modules/folders/application/FolderSearcher';
 import { app } from 'electron';
+import { FilePathFromAbsolutePathConverter } from '../modules/files/application/FilePathFromAbsolutePathConverter';
 
 export class DependencyContainerFactory {
   private _container: DependencyContainer | undefined;
@@ -71,6 +75,7 @@ export class DependencyContainerFactory {
     const clients = getClients();
 
     const mnemonic = configStore.get('mnemonic');
+    const rootFolderProvider = () => configStore.get('syncRoot');
 
     // const token = await ipcRenderer.invoke('get-new-token');
     const token = obtainToken('newToken');
@@ -94,12 +99,15 @@ export class DependencyContainerFactory {
 
     const traverser = new Traverser(crypt, user.root_folder_id);
 
+    const sdk = getStorageSdk();
+
     const fileRepository = new HttpFileRepository(
       crypt,
       clients.drive,
       clients.newDrive,
       traverser,
-      user.bucket
+      user.bucket,
+      sdk
     );
 
     const folderRepository = new HttpFolderRepository(
@@ -134,18 +142,16 @@ export class DependencyContainerFactory {
 
     const eventBus = new NodeJsEventBus();
 
-    const fileRenamer = new WebdavFileRenamer(
-      fileRepository,
-      contentsManagerFactory,
-      eventBus,
-      ipc
-    );
-
     const folderFinder = new WebdavFolderFinder(folderRepository);
     const folderRenamer = new WebdavFolderRenamer(folderRepository, ipc);
 
     const temporalFileCollection = new InMemoryTemporalFileMetadataCollection();
 
+    const fileRenamer = new WebdavFileRenamer(
+      fileRepository,
+      contentsManagerFactory,
+      folderFinder
+    );
     const unknownItemSearcher = new WebdavUnknownItemTypeSearcher(
       fileRepository,
       folderRepository
@@ -201,6 +207,9 @@ export class DependencyContainerFactory {
       fileRenamer,
       fileMimeTypeResolver: new WebdavFileMimeTypeResolver(),
       fileSearcher: new FileSearcher(fileRepository),
+      filePathFromAbsolutePathConverter: new FilePathFromAbsolutePathConverter(
+        rootFolderProvider
+      ),
 
       folderSearcher: new FolderSearcher(folderRepository),
       folderFinder,
