@@ -13,8 +13,8 @@
     "@parcel/watcher": "^2.0.5",
     "@rudderstack/rudder-sdk-node": "^1.1.4",
     "better-sqlite3": "^8.3.0",
-    "virtual-drive": "C:\\Users\\gcarl\\source\\repos\\node-win",
-    "typeorm": "^0.3.16"
+    "typeorm": "^0.3.16",
+    "virtual-drive": "file:../../../node-win"
   },
   "license": "MIT"
 }

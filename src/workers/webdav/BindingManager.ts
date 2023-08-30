@@ -65,7 +65,8 @@ export class BindingsManager {
 
     await this.drive.connectSyncRoot({
       notifyDeleteCompletionCallback: async (contentsId: string) => {
-        this.eventEmiter.emit('delete-file', contentsId);
+        // eslint-disable-next-line no-control-regex
+        this.eventEmiter.emit('delete-file', contentsId.replace(/[\x00-\x1F\x7F-\x9F]/g, ''));
       },
       notifyDeleteCallback: (...parms) => {
         Logger.debug('notifyDeleteCallback', parms);
@@ -97,8 +98,9 @@ export class BindingsManager {
       notifyDehydrateCompletionCallback: () => {
         Logger.debug('notifyDehydrateCompletionCallback');
       },
-      notifyRenameCallback: () => {
-        Logger.debug('notifyRenameCallback');
+      notifyRenameCallback: ( newPath: string,contentsId:string) => {
+        Logger.debug('fileid', contentsId);
+        Logger.debug('new path', newPath);
       },
       notifyRenameCompletionCallback: () => {
         Logger.debug('notifyRenameCompletionCallback');
