@@ -1,18 +1,16 @@
-import { WebdavServerEventBus } from '../../shared/domain/WebdavServerEventBus';
+// import { WebdavServerEventBus } from '../../shared/domain/WebdavServerEventBus';
 import { ActionNotPermitedError } from '../domain/errors/ActionNotPermitedError';
 import { FileAlreadyExistsError } from '../domain/errors/FileAlreadyExistsError';
 import { FilePath } from '../domain/FilePath';
 import { ContentsManagersFactory } from '../../contents/domain/ContentsManagersFactory';
 import { File } from '../domain/File';
 import { FileRepository } from '../domain/FileRepository';
-import { VirtualDriveIpc } from '../../../ipc';
+// import { VirtualDriveIpc } from '../../../ipc';
 
 export class WebdavFileRenamer {
   constructor(
     private readonly repository: FileRepository,
-    private readonly contentsRepository: ContentsManagersFactory,
-    private readonly eventBus: WebdavServerEventBus,
-    private readonly ipc: VirtualDriveIpc
+    private readonly contentsRepository: ContentsManagersFactory
   ) {}
 
   private async rename(file: File, path: FilePath) {

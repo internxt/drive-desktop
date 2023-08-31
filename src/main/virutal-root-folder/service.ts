@@ -39,6 +39,8 @@ export function getRootVirtualDrive(): string {
 }
 
 export async function setupRootFolder(n = 0): Promise<void> {
+  setSyncRoot(path.join(HOME_FOLDER_PATH, ROOT_FOLDER_NAME));
+  return;
   const folderName = ROOT_FOLDER_NAME;
 
   const rootFolderName = folderName + (n ? ` (${n})` : '');

@@ -28,6 +28,11 @@ function spawnSyncEngineWorker() {
     .catch((err) => {
       Logger.error('[MAIN] ERROR LOADING SYNC ENGINE WORKER', err);
     });
+
+  worker.on('close', () => {
+    Logger.debug('[MAIN] SYNC ENGINE WORKER CLOSED');
+    worker?.destroy();
+  });
 }
 
 export async function stopSyncEngineWatcher() {
@@ -35,25 +40,26 @@ export async function stopSyncEngineWatcher() {
 
   const stopPromise = new Promise<void>((resolve, reject) => {
     ipcMain.once('SYNC_ENGINE_STOP_ERROR', (_, err: Error) => {
-      Logger.error('[MAIN] ERROR STOPINGSYNC ENGINE WORKER', err);
+      Logger.error('[MAIN] ERROR STOPING SYNC ENGINE WORKER', err);
       reject();
     });
 
     ipcMain.once('SYNC_ENGINE_STOP_SUCCESS', () => {
       resolve();
-      Logger.info('[MAIN] SYNC ENGINE WORKER STOPED');
+      Logger.info('[MAIN] SYNC ENGINE STOPPED');
     });
   });
 
   try {
     worker?.webContents.send('STOP_SYNC_ENGINE_PROCESS');
+
+    await stopPromise;
   } catch (err) {
     // TODO: handle error
     Logger.error(err);
+    worker?.destroy();
     // no op
   }
-
-  await stopPromise;
 }
 
 eventBus.on('USER_LOGGED_OUT', stopSyncEngineWatcher);

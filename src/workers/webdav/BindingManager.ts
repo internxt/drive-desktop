@@ -8,7 +8,8 @@ export class BindingsManager {
 
   constructor(
     private readonly drive: VirtualDrive,
-    private readonly container: DependencyContainer
+    private readonly container: DependencyContainer,
+    private readonly rootFolder: string
   ) {}
 
   public async listFiles() {
@@ -31,6 +32,8 @@ export class BindingsManager {
   }
 
   async start(version: string, providerId: string) {
+    await this.drive.unregisterSyncRoot();
+
     await this.drive.registerSyncRoot(
       BindingsManager.PROVIDER_NAME,
       version,
@@ -39,10 +42,25 @@ export class BindingsManager {
 
     await this.drive.connectSyncRoot({
       notifyDeleteCompletionCallback: async (contentsId: string) => {
+        // eslint-disable-next-line no-control-regex
+        const sanitazedId = contentsId.replace(/[\x00-\x1F\x7F-\x9F]/g, '');
+
+        Logger.debug('SANITAZED ID');
         const files = await this.container.fileSearcher.run();
-        const file = files.find((file) => {
-          return file.contentsId === contentsId;
+        let file = files.find((file) => {
+          return file.contentsId === sanitazedId;
         });
+
+        if (!file) {
+          const founded = files.find((file) => {
+            return sanitazedId.includes(file.contentsId);
+          });
+
+          if (founded) {
+            Logger.debug('Founded with include!!!!');
+            file = founded;
+          }
+        }
 
         if (file) {
           Logger.debug('FILE TO BE DELTED', file.attributes());
@@ -57,6 +75,24 @@ export class BindingsManager {
         } else {
           Logger.debug('FILE NOT FOUND');
         }
+      },
+      notifyRenameCallback: async (
+        absolutePath: string,
+        contentsId: string
+      ) => {
+        // eslint-disable-next-line no-control-regex
+        const id = contentsId.replace(/[\x00-\x1F\x7F-\x9F]/g, '');
+        const files = await this.container.fileSearcher.run();
+        const file = files.find((file) => file.contentsId === id);
+
+        if (!file) {
+          throw new Error('File not found');
+        }
+
+        const relative =
+          this.container.filePathFromAbsolutePathConverter.run(absolutePath);
+
+        await this.container.fileRenamer.run(file, relative);
       },
       notifyDeleteCallback: (...parms) => {
         Logger.debug('notifyDeleteCallback', parms);
@@ -88,9 +124,6 @@ export class BindingsManager {
       notifyDehydrateCompletionCallback: () => {
         Logger.debug('notifyDehydrateCompletionCallback');
       },
-      notifyRenameCallback: (...params) => {
-        Logger.debug('notifyRenameCallback', params);
-      },
       notifyRenameCompletionCallback: () => {
         Logger.debug('notifyRenameCompletionCallback');
       },
@@ -100,6 +133,8 @@ export class BindingsManager {
     });
 
     await this.listFiles();
+
+    this.drive.watchAndWait2(this.rootFolder);
   }
 
   async stop() {

@@ -10,7 +10,7 @@ export async function quitApp() {
   // await stopVirtualDrive();
 
   if (cleanUpFunction) {
-    await cleanUpFunction();
+    await Promise.allSettled([cleanUpFunction()]);
   }
 
   app.quit();

@@ -14,7 +14,7 @@ import { FilePath } from '../../domain/FilePath';
 import { RemoteItemsGenerator } from '../../../items/application/RemoteItemsGenerator';
 import { FileStatuses } from '../../domain/FileStatus';
 import { Crypt } from '../../../shared/domain/Crypt';
-import { startRemoteSync } from '../../../../../../main/remote-sync/handlers';
+import { VirtualDriveIpc } from '../../../../ipc';
 
 export class HttpFileRepository implements FileRepository {
   public files: Record<string, File> = {};
@@ -24,14 +24,15 @@ export class HttpFileRepository implements FileRepository {
     private readonly httpClient: Axios,
     private readonly trashHttpClient: Axios,
     private readonly traverser: Traverser,
-    private readonly bucket: string
+    private readonly bucket: string,
+    private readonly ipc: VirtualDriveIpc
   ) {}
 
   private async getTree(): Promise<{
     files: ServerFile[];
     folders: ServerFolder[];
   }> {
-    const remoteItemsGenerator = new RemoteItemsGenerator();
+    const remoteItemsGenerator = new RemoteItemsGenerator(this.ipc);
     return remoteItemsGenerator.getAll();
   }
 
@@ -74,7 +75,7 @@ export class HttpFileRepository implements FileRepository {
     );
 
     if (result.status === 200) {
-      // await startRemoteSync();
+      await this.ipc.invoke('START_REMOTE_SYNC');
     }
   }
 
@@ -123,7 +124,7 @@ export class HttpFileRepository implements FileRepository {
 
     this.files[file.path.value] = created;
 
-    await startRemoteSync();
+    await this.ipc.invoke('START_REMOTE_SYNC');
   }
 
   async updateName(file: File): Promise<void> {
@@ -153,7 +154,7 @@ export class HttpFileRepository implements FileRepository {
 
     this.files[file.path.value] = File.from(file.attributes());
 
-    await startRemoteSync();
+    await this.ipc.invoke('START_REMOTE_SYNC');
   }
 
   async updateParentDir(item: File): Promise<void> {
@@ -171,7 +172,7 @@ export class HttpFileRepository implements FileRepository {
 
     await this.init();
 
-    await startRemoteSync();
+    await this.ipc.invoke('START_REMOTE_SYNC');
   }
 
   async searchOnFolder(folderId: number): Promise<Array<File>> {
