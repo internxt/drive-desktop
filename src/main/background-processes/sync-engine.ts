@@ -5,8 +5,8 @@ import eventBus from '../event-bus';
 
 let worker: BrowserWindow | null = null;
 
-export function spawnSyncEngineWorker() {
-  Logger.info('Spawning sync engine server!');
+function spawnSyncEngineWorker() {
+  Logger.info('[MAIN] LOADING SYNC ENGINE WORKER...');
 
   worker = new BrowserWindow({
     webPreferences: {
@@ -22,20 +22,26 @@ export function spawnSyncEngineWorker() {
         ? '../../release/app/dist/webdav/index.html'
         : `${path.join(__dirname, '..', 'webdav')}/index.html`
     )
+    .then(() => {
+      Logger.info('[MAIN] SYNC ENGINE WORKER LOADED');
+    })
     .catch((err) => {
-      Logger.error('Error loading worker', err);
+      Logger.error('[MAIN] ERROR LOADING SYNC ENGINE WORKER', err);
     });
 }
 
 export async function stopSyncEngineWatcher() {
-  const stp = new Promise<void>((resolve, reject) => {
+  Logger.info('[MAIN] STOPING SYNC ENGINE WORKER...');
+
+  const stopPromise = new Promise<void>((resolve, reject) => {
     ipcMain.once('SYNC_ENGINE_STOP_ERROR', (_, err: Error) => {
-      Logger.error('ERROR STOPING WEBDAV SERVER', err);
+      Logger.error('[MAIN] ERROR STOPINGSYNC ENGINE WORKER', err);
       reject();
     });
 
     ipcMain.once('SYNC_ENGINE_STOP_SUCCESS', () => {
       resolve();
+      Logger.info('[MAIN] SYNC ENGINE WORKER STOPED');
     });
   });
 
@@ -47,16 +53,9 @@ export async function stopSyncEngineWatcher() {
     // no op
   }
 
-  await stp;
+  await stopPromise;
 }
-
-ipcMain.once('SYNC_ENGINE_START_ERROR', (_, err: Error) => {
-  Logger.error('ERROR STARTING WEBDAV SERVER', err);
-});
-
-ipcMain.once('SYNC_ENGINE_ADDING_ROOT_FOLDER_ERROR', (_, err: Error) => {
-  Logger.error('ERROR ADDING ROOT FOLDER TO WEBDAV SERVER', err);
-});
 
 eventBus.on('USER_LOGGED_OUT', stopSyncEngineWatcher);
 eventBus.on('USER_WAS_UNAUTHORIZED', stopSyncEngineWatcher);
+eventBus.on('USER_LOGGED_IN', spawnSyncEngineWorker);

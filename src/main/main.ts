@@ -17,7 +17,7 @@ import './windows/settings';
 import './windows/process-issues';
 import './windows';
 import './background-processes/backups';
-import './background-processes/sync';
+import './background-processes/sync-engine';
 import './background-processes/process-issues';
 import './device/handlers';
 import './usage/handlers';
@@ -33,7 +33,7 @@ import './config/handlers';
 import './app-info/handlers';
 import './remote-sync/handlers';
 
-import { app, ipcMain, nativeTheme } from 'electron';
+import { app, nativeTheme } from 'electron';
 import Logger from 'electron-log';
 import { autoUpdater } from 'electron-updater';
 import packageJson from '../../package.json';
@@ -52,11 +52,8 @@ import { getTray } from './tray/tray';
 import { openOnboardingWindow } from './windows/onboarding';
 import { reportError } from './bug-report/service';
 import { Theme } from 'shared/types/Theme';
-import { setUp } from './virtual-drive-bindings';
-import { broadcastToWindows } from './windows';
 import { setCleanUpFunction } from './quit';
-import { startRemoteSync } from './remote-sync/handlers';
-import { spawnSyncEngineWorker } from './background-processes/sync-engine';
+import { stopSyncEngineWatcher } from './background-processes/sync-engine';
 
 Logger.log(`Running ${packageJson.version}`);
 
@@ -92,20 +89,6 @@ if (process.env.NODE_ENV === 'development') {
   require('electron-debug')({ showDevTools: false });
 }
 
-const installExtensions = async () => {
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const installer = require('electron-devtools-installer');
-  const forceDownload = !!process.env.UPGRADE_EXTENSIONS;
-  const extensions = ['REACT_DEVELOPER_TOOLS'];
-
-  return installer
-    .default(
-      extensions.map((name) => installer[name]),
-      forceDownload
-    )
-    .catch(console.log);
-};
-
 app
   .whenReady()
   .then(async () => {
@@ -113,40 +96,11 @@ app
       await AppDataSource.initialize();
     }
 
-    await startRemoteSync();
-
-    const manager = await setUp();
-
-    if (manager) {
-      setCleanUpFunction(() => {
-        return manager.stop();
-      });
-
-      await manager.stop();
-
-      await manager?.start(
-        packageJson.version,
-        '{ab30945f-264d-59e1-a748-bf806c72c2a4}'
-      );
-
-      try {
-        Logger.info('LAUNCHING SYNC ENGINE WORKER');
-        spawnSyncEngineWorker();
-      } catch (err) {
-        Logger.error('ERROR SPAWINGIN WORKER:: ', err);
-      }
-    } else {
-      Logger.debug('Virtual drive has not started');
-    }
-
     eventBus.emit('APP_IS_READY');
     const isLoggedIn = getIsLoggedIn();
 
     if (!isLoggedIn) {
       await createAuthWindow();
-    }
-    if (process.env.NODE_ENV === 'development') {
-      await installExtensions();
     }
     checkForUpdates();
   })
@@ -173,6 +127,8 @@ eventBus.on('USER_LOGGED_IN', async () => {
     } else if (widget) {
       widget.show();
     }
+
+    setCleanUpFunction(stopSyncEngineWatcher);
   } catch (error) {
     reportError(error as Error);
   }

@@ -6,8 +6,6 @@ import { BindingsManager } from '../../workers/webdav/BindingManager';
 import { VirtualDrive } from 'virtual-drive/dist';
 import eventBus from '../event-bus';
 import { startRemoteSync } from '../remote-sync/handlers';
-import { spawnSyncEngineWorker } from '../background-processes/sync-engine';
-import Logger from 'electron-log';
 
 function getVirtualDrivePath() {
   return homedir() + '\\InternxtDrive';
@@ -32,6 +30,8 @@ export async function setUp() {
   const virtualDrive = new VirtualDrive(virtuaDrivePath);
 
   const bindingsManager = new BindingsManager(virtualDrive, container);
+
+  await bindingsManager.listFiles();
 
   eventBus.on('RECEIVED_REMOTE_CHANGES', () => {
     startRemoteSync();

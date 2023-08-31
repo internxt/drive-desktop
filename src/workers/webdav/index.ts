@@ -4,7 +4,7 @@ import { VirtualDrive } from 'virtual-drive/dist';
 
 async function setUp() {
   try {
-    Logger.debug('STARTING WATHCER PROCESS');
+    Logger.debug('STARTING SYNC ENGINE PROCESS');
 
     const virtualDrivePath = await ipcRenderer.invoke('get-virtual-drive-root');
 
@@ -12,7 +12,11 @@ async function setUp() {
 
     const virtualDrive = new VirtualDrive(virtualDrivePath);
 
-    virtualDrive.watchAndWait2(virtualDrivePath);
+    ipcRenderer.on('STOP_SYNC_ENGINE_PROCESS', async (event) => {
+      await virtualDrive.unregisterSyncRoot();
+
+      event.sender.send('SYNC_ENGINE_STOP_SUCCESS');
+    });
   } catch (error) {
     Logger.debug('ERROR ON SETTING UP', error);
   }
