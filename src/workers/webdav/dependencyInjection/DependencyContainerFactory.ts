@@ -15,6 +15,7 @@ import { WebdavFileRenamer } from '../modules/files/application/WebdavFileRename
 import { EnvironmentRemoteFileContentsManagersFactory } from '../modules/contents/infrastructure/EnvironmentRemoteFileContentsManagersFactory';
 import { FileSearcher } from '../modules/files/application/FileSearcher';
 import { FolderSearcher } from '../modules/folders/application/FolderSearcher';
+import { FilePathFromAbsolutePathCreator } from '../modules/files/application/FilePathFromAbsolutePathCreator';
 
 export class DependencyContainerFactory {
   private _container: DependencyContainer | undefined;
@@ -48,6 +49,7 @@ export class DependencyContainerFactory {
     const clients = getClients();
 
     const mnemonic = configStore.get('mnemonic');
+    const localRootFolderPath = configStore.get('syncRoot');
 
     // const token = await ipcRenderer.invoke('get-new-token');
     // const token = obtainToken('newToken');
@@ -112,12 +114,13 @@ export class DependencyContainerFactory {
 
     // const eventBus = new NodeJsEventBus();
 
+    const folderFinder = new WebdavFolderFinder(folderRepository);
+
     const fileRenamer = new WebdavFileRenamer(
       fileRepository,
-      contentsManagerFactory
+      contentsManagerFactory,
+      folderFinder
     );
-
-    const folderFinder = new WebdavFolderFinder(folderRepository);
     // const folderRenamer = new WebdavFolderRenamer(folderRepository, ipc);
 
     // const temporalFileCollection = new InMemoryTemporalFileMetadataCollection();
@@ -177,6 +180,9 @@ export class DependencyContainerFactory {
       fileRenamer,
       // fileMimeTypeResolver: new WebdavFileMimeTypeResolver(),
       fileSearcher: new FileSearcher(fileRepository),
+      filePathFromAbsolutePathCreator: new FilePathFromAbsolutePathCreator(
+        localRootFolderPath
+      ),
 
       folderSearcher: new FolderSearcher(folderRepository),
       folderFinder,

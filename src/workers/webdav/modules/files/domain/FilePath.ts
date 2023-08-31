@@ -1,24 +1,17 @@
 import path from 'path';
 import { Path } from '../../shared/domain/Path';
-import { InvalidArgumentError } from '../../../../shared/domain/InvalidArgumentError';
 import { WebdavFileValidator } from '../application/WebdavFileValidator';
 
 export class FilePath extends Path {
   private fileValidator = new WebdavFileValidator();
+
   constructor(value: string) {
     super(value);
-    this.startsWithSlash(value);
 
     const isValid = this.fileValidator.validateName(value);
 
     if (!isValid) {
       throw new Error(`"${value}" is not a valid filename`);
-    }
-  }
-
-  private startsWithSlash(value: string) {
-    if (!value.startsWith('/')) {
-      throw new InvalidArgumentError(`${value} is not a valid XPath`);
     }
   }
 
@@ -53,10 +46,7 @@ export class FilePath extends Path {
   }
 
   hasSameDirname(other: FilePath): boolean {
-    const dirname = path.dirname(this.value);
-    const otherDirname = path.dirname(other.value);
-
-    return dirname === otherDirname;
+    return this.dirname() === other.dirname();
   }
 
   extensionMatch(extension: string): boolean {

@@ -9,6 +9,7 @@ import { FileDeleter } from '../modules/files/application/FileDeleter';
 // import { WebdavFileMover } from '../modules/files/application/WebdavFileMover';
 import { WebdavFileRenamer } from '../modules/files/application/WebdavFileRenamer';
 import { FolderSearcher } from '../modules/folders/application/FolderSearcher';
+import { FilePathFromAbsolutePathCreator } from '../modules/files/application/FilePathFromAbsolutePathCreator';
 // import { WebdavFolderCreator } from '../modules/folders/application/WebdavFolderCreator';
 // import { WebdavFolderDeleter } from '../modules/folders/application/WebdavFolderDeleter';
 // import { WebdavFolderFinder } from '../modules/folders/application/WebdavFolderFinder';
@@ -44,6 +45,7 @@ export interface DependencyContainer {
   // fileMimeTypeResolver: WebdavFileMimeTypeResolver;
   fileRenamer: WebdavFileRenamer;
   fileSearcher: FileSearcher;
+  filePathFromAbsolutePathCreator: FilePathFromAbsolutePathCreator;
 
   // folderCreator: WebdavFolderCreator;
 

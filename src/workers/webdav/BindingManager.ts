@@ -45,22 +45,10 @@ export class BindingsManager {
         // eslint-disable-next-line no-control-regex
         const sanitazedId = contentsId.replace(/[\x00-\x1F\x7F-\x9F]/g, '');
 
-        Logger.debug('SANITAZED ID');
         const files = await this.container.fileSearcher.run();
-        let file = files.find((file) => {
+        const file = files.find((file) => {
           return file.contentsId === sanitazedId;
         });
-
-        if (!file) {
-          const founded = files.find((file) => {
-            return sanitazedId.includes(file.contentsId);
-          });
-
-          if (founded) {
-            Logger.debug('Founded with include!!!!');
-            file = founded;
-          }
-        }
 
         if (file) {
           Logger.debug('FILE TO BE DELTED', file.attributes());
@@ -80,19 +68,29 @@ export class BindingsManager {
         absolutePath: string,
         contentsId: string
       ) => {
-        // eslint-disable-next-line no-control-regex
-        const id = contentsId.replace(/[\x00-\x1F\x7F-\x9F]/g, '');
+        const sanitazedContentsId = contentsId.replace(
+          // eslint-disable-next-line no-control-regex
+          /[\x00-\x1F\x7F-\x9F]/g,
+          ''
+        );
         const files = await this.container.fileSearcher.run();
-        const file = files.find((file) => file.contentsId === id);
+        const file = files.find(
+          (file) => file.contentsId === sanitazedContentsId
+        );
 
         if (!file) {
           throw new Error('File not found');
         }
 
         const relative =
-          this.container.filePathFromAbsolutePathConverter.run(absolutePath);
+          this.container.filePathFromAbsolutePathCreator.run(absolutePath);
 
-        await this.container.fileRenamer.run(file, relative);
+        Logger.debug('NEW PATH', relative.value);
+
+        await this.container.fileRenamer
+          .run(file, relative)
+          .then(() => Logger.debug('FILE RENAMED / MOVED SUCCESFULLY'))
+          .catch((err) => Logger.error(err));
       },
       notifyDeleteCallback: (...parms) => {
         Logger.debug('notifyDeleteCallback', parms);
