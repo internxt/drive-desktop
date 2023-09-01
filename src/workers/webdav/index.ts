@@ -1,9 +1,19 @@
 import Logger from 'electron-log';
 import { ipcRenderer } from 'electron';
-import { BindingsManager } from './BindingManager';
 import { DependencyContainerFactory } from './dependencyInjection/DependencyContainerFactory';
 import { VirtualDrive } from 'virtual-drive/dist';
 import packageJson from '../../../package.json';
+import { BindingsManager } from './BindingManager';
+import fs from 'fs/promises';
+
+async function ensureTheFolderExist(path: string) {
+  try {
+    await fs.access(path);
+  } catch {
+    Logger.info('ROOT FOLDER ', path, 'NOT FOUND, CREATING IT...');
+    await fs.mkdir(path);
+  }
+}
 
 async function setUp() {
   try {
@@ -12,6 +22,8 @@ async function setUp() {
     const virtualDrivePath = await ipcRenderer.invoke('get-virtual-drive-root');
 
     Logger.info('WATCHING ON PATH: ', virtualDrivePath);
+
+    await ensureTheFolderExist(virtualDrivePath);
 
     const virtualDrive = new VirtualDrive(virtualDrivePath);
 
