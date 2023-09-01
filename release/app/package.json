@@ -10,11 +10,10 @@
     "postinstall": "npm run electron-rebuild --sequential && npm run link-modules"
   },
   "dependencies": {
-    "@parcel/watcher": "^2.0.5",
     "@rudderstack/rudder-sdk-node": "^1.1.4",
     "better-sqlite3": "^8.3.0",
-    "node-win": "^1.1.0",
-    "typeorm": "^0.3.16"
+    "typeorm": "^0.3.16",
+    "virtual-drive": "../../../node-win"
   },
   "license": "MIT"
 }
