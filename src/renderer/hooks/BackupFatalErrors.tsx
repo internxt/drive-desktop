@@ -1,25 +1,13 @@
-import { useEffect, useState } from 'react';
-
-import { BackupFatalError } from '../../main/background-processes/types/BackupFatalError';
-
 export default function useBackupFatalErrors() {
-  const [errors, setErrors] = useState<BackupFatalError[]>([]);
-
-  useEffect(() => {
-    window.electron.getBackupFatalErrors().then(setErrors);
-    const removeListener =
-      window.electron.onBackupFatalErrorsChanged(setErrors);
-
-    return removeListener;
-  }, []);
+  // const [errors, setErrors] = useState<BackupFatalError[]>([]);
 
   function thereAreErrors() {
-    return errors.length > 0;
+    return [].length > 0;
   }
 
-  function deleteError(folderId: number) {
-    window.electron.deleteBackupError(folderId);
+  function deleteError(_folderId: number) {
+    // no-op
   }
 
-  return { backupFatalErrors: errors, thereAreErrors, deleteError };
+  return { backupFatalErrors: [], thereAreErrors, deleteError };
 }

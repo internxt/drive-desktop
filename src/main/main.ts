@@ -16,7 +16,6 @@ import './auth/handlers';
 import './windows/settings';
 import './windows/process-issues';
 import './windows';
-import './background-processes/backups';
 import './background-processes/sync-engine';
 import './background-processes/process-issues';
 import './device/handlers';

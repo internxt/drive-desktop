@@ -10,7 +10,7 @@ import useProcessIssues from '../../hooks/ProcessIssues';
 import ProcessIssuesList from './List';
 import { ReportModal } from './ReportModal';
 
-type Section = 'SYNC' | 'BACKUPS' | 'GENERAL';
+type Section = 'SYNC' | 'GENERAL';
 
 export default function ProcessIssues() {
   const { translate } = useTranslationContext();
@@ -36,13 +36,6 @@ export default function ProcessIssues() {
     ) {
       setActiveSection('GENERAL');
     } else if (
-      activeSection === 'SYNC' &&
-      processIssuesFilteredByActiveSection.length === 0 &&
-      (backupFatalErrors.length || processIssues.length)
-    ) {
-      setActiveSection('BACKUPS');
-    } else if (
-      activeSection === 'BACKUPS' &&
       processIssuesFilteredByActiveSection.length === 0 &&
       backupFatalErrors.length === 0 &&
       processIssues.length
@@ -61,7 +54,7 @@ export default function ProcessIssues() {
 
       <ProcessIssuesList
         selectedTab={activeSection}
-        showBackupFatalErrors={activeSection === 'BACKUPS'}
+        showBackupFatalErrors={false}
         backupFatalErrors={backupFatalErrors}
         generalIssues={generalIssues}
         processIssues={processIssuesFilteredByActiveSection}
@@ -85,14 +78,11 @@ function Tabs({
   onChangeTab: (section: Section) => void;
 }) {
   const { translate, language } = useTranslationContext();
-  const [tabsWidth, setTabsWidth] = useState<[number, number, number]>([
-    0, 0, 0,
-  ]);
+  const [tabsWidth, setTabsWidth] = useState<[number, number]>([0, 0]);
 
   useEffect(() => {
     setTabsWidth([
       (document.querySelector('#tab-SYNC') as HTMLElement).offsetWidth,
-      (document.querySelector('#tab-BACKUPS') as HTMLElement).offsetWidth,
       (document.querySelector('#tab-GENERAL') as HTMLElement).offsetWidth,
     ]);
   }, [language, active]);
@@ -101,10 +91,6 @@ function Tabs({
     {
       value: 'SYNC',
       name: translate('issues.tabs.sync'),
-    },
-    {
-      value: 'BACKUPS',
-      name: translate('issues.tabs.backups'),
     },
     {
       value: 'GENERAL',
@@ -130,15 +116,10 @@ function Tabs({
         <motion.div
           variants={{
             SYNC: { left: 0, right: 'unset', width: tabsWidth[0] },
-            BACKUPS: {
+            GENERAL: {
               left: tabsWidth[0],
               right: 'unset',
               width: tabsWidth[1],
-            },
-            GENERAL: {
-              left: tabsWidth[0] + tabsWidth[1],
-              right: 'unset',
-              width: tabsWidth[2],
             },
           }}
           animate={active}

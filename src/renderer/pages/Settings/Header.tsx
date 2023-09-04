@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 
 import { useTranslationContext } from '../../context/LocalContext';
 
-const sectionValues = ['GENERAL', 'ACCOUNT', 'BACKUPS'] as const;
+const sectionValues = ['GENERAL', 'ACCOUNT'] as const;
 export type Section = (typeof sectionValues)[number];
 
 export default function Header({
@@ -20,7 +20,6 @@ export default function Header({
   }[] = [
     { label: 'GENERAL', icon: Gear },
     { label: 'ACCOUNT', icon: At },
-    { label: 'BACKUPS', icon: ClockCounterClockwise },
   ];
 
   const animationVariants: Record<Section, { left: string }> =
