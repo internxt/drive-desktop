@@ -3,7 +3,7 @@ import path from 'path';
 import PackageJson from '../../../package.json';
 import eventBus from '../event-bus';
 import {
-  getWidget,
+  getOrCreateWidged,
   setBoundsOfWidgetByPath,
   toggleWidgetVisibility,
 } from '../windows/widget';
@@ -22,7 +22,7 @@ export class TrayMenu {
 
   constructor(
     private readonly iconsPath: string,
-    private readonly onClick: () => void,
+    private readonly onClick: () => Promise<void>,
     private readonly onQuit: () => void
   ) {
     const trayIcon = this.getIconPath('LOADING');
@@ -33,8 +33,8 @@ export class TrayMenu {
 
     this.tray.setIgnoreDoubleClickEvents(true);
 
-    this.tray.on('click', () => {
-      this.onClick();
+    this.tray.on('click', async () => {
+      await this.onClick();
       this.tray.setContextMenu(null);
     });
     if (process.platform !== 'linux') {
@@ -123,13 +123,14 @@ export function setupTrayIcon() {
 
   const iconsPath = path.join(RESOURCES_PATH, 'tray');
 
-  function onTrayClick() {
+  async function onTrayClick() {
     const isLoggedIn = getIsLoggedIn();
     if (!isLoggedIn) {
       getAuthWindow()?.show();
+      return;
     }
 
-    const widgetWindow = getWidget();
+    const widgetWindow = await getOrCreateWidged();
     if (tray && widgetWindow) {
       setBoundsOfWidgetByPath(widgetWindow, tray);
     }

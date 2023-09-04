@@ -12,7 +12,7 @@ const widgetConfig: { width: number; height: number; placeUnderTray: boolean } =
 let widget: BrowserWindow | null = null;
 export const getWidget = () => (widget?.isDestroyed() ? null : widget);
 
-export const createWidget = async (callback: () => void) => {
+export const createWidget = async () => {
   widget = new BrowserWindow({
     width: widgetConfig.width,
     height: widgetConfig.height,
@@ -53,9 +53,16 @@ export const createWidget = async (callback: () => void) => {
   });
 
   await widgetLoaded;
-  callback();
   eventBus.emit('WIDGET_IS_READY');
 };
+
+export async function getOrCreateWidged(): Promise<BrowserWindow | null> {
+  if (widget) return widget;
+
+  await createWidget();
+
+  return getWidget();
+}
 
 export function toggleWidgetVisibility() {
   const widget = getWidget();

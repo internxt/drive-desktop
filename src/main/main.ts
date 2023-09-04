@@ -115,9 +115,8 @@ eventBus.on('USER_LOGGED_IN', async () => {
 
     nativeTheme.themeSource = configStore.get('preferedTheme') as Theme;
 
-    await createWidget(() => {
-      setTrayStatus('STANDBY');
-    });
+    await createWidget();
+    setTrayStatus('STANDBY');
     const widget = getWidget();
     const tray = getTray();
     if (widget && tray) {
