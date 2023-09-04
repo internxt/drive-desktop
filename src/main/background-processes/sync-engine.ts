@@ -6,8 +6,6 @@ import eventBus from '../event-bus';
 let worker: BrowserWindow | null = null;
 
 function spawnSyncEngineWorker() {
-  Logger.info('[MAIN] LOADING SYNC ENGINE WORKER...');
-
   worker = new BrowserWindow({
     webPreferences: {
       nodeIntegration: true,
@@ -64,4 +62,4 @@ export async function stopSyncEngineWatcher() {
 
 eventBus.on('USER_LOGGED_OUT', stopSyncEngineWatcher);
 eventBus.on('USER_WAS_UNAUTHORIZED', stopSyncEngineWatcher);
-eventBus.on('USER_LOGGED_IN', spawnSyncEngineWorker);
+eventBus.on('INITIAL_SYNC_READY', spawnSyncEngineWorker);

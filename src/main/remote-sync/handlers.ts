@@ -82,10 +82,10 @@ eventBus.on('RECEIVED_REMOTE_CHANGES', async () => {
   await sleep(500);
   await remoteSyncManager.startRemoteSync();
 });
-eventBus.on('USER_LOGGED_IN', () => {
+eventBus.on('USER_LOGGED_IN', async () => {
   Logger.info('Received user logged in event');
 
-  remoteSyncManager.startRemoteSync().catch((error) => {
+  await remoteSyncManager.startRemoteSync().catch((error) => {
     Logger.error('Error starting remote sync manager', error);
     reportError(error);
   });
