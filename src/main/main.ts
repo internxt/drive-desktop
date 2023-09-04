@@ -48,7 +48,7 @@ import {
 } from './windows/widget';
 import { createAuthWindow, getAuthWindow } from './windows/auth';
 import configStore from './config';
-import { getTray } from './tray/tray';
+import { getTray, setTrayStatus } from './tray/tray';
 import { openOnboardingWindow } from './windows/onboarding';
 import { reportError } from './bug-report/service';
 import { Theme } from 'shared/types/Theme';
@@ -101,6 +101,7 @@ app
 
     if (!isLoggedIn) {
       await createAuthWindow();
+      setTrayStatus('STANDBY');
     }
     checkForUpdates();
   })
@@ -112,8 +113,12 @@ eventBus.on('USER_LOGGED_IN', async () => {
       await AppDataSource.initialize();
     }
     getAuthWindow()?.destroy();
+
     nativeTheme.themeSource = configStore.get('preferedTheme') as Theme;
-    await createWidget();
+
+    await createWidget(() => {
+      setTrayStatus('STANDBY');
+    });
     const widget = getWidget();
     const tray = getTray();
     if (widget && tray) {
@@ -135,6 +140,7 @@ eventBus.on('USER_LOGGED_IN', async () => {
 });
 
 eventBus.on('USER_LOGGED_OUT', async () => {
+  setTrayStatus('STANDBY');
   const widget = getWidget();
   if (widget) {
     widget.hide();

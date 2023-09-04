@@ -1,5 +1,4 @@
 import { app, Menu, nativeImage, Tray } from 'electron';
-import Logger from 'electron-log';
 import path from 'path';
 import PackageJson from '../../../package.json';
 import eventBus from '../event-bus';
@@ -10,7 +9,6 @@ import {
 } from '../windows/widget';
 import { getIsLoggedIn } from '../auth/handlers';
 import { getAuthWindow } from '../windows/auth';
-import { unmountDrive } from '../../workers/webdav/VirtualDrive';
 import { quitApp } from '../quit';
 
 type TrayMenuState = 'STANDBY' | 'SYNCING' | 'ALERT' | 'LOADING';

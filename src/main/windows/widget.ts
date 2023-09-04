@@ -12,7 +12,7 @@ const widgetConfig: { width: number; height: number; placeUnderTray: boolean } =
 let widget: BrowserWindow | null = null;
 export const getWidget = () => (widget?.isDestroyed() ? null : widget);
 
-export const createWidget = async () => {
+export const createWidget = async (callback: () => void) => {
   widget = new BrowserWindow({
     width: widgetConfig.width,
     height: widgetConfig.height,
@@ -53,6 +53,7 @@ export const createWidget = async () => {
   });
 
   await widgetLoaded;
+  callback();
   eventBus.emit('WIDGET_IS_READY');
 };
 

@@ -15,19 +15,11 @@ export class BindingsManager {
   public async listFiles() {
     const files = await this.container.fileSearcher.run();
 
+    Logger.info(`Creating placehodlers for ${files.length} files`);
+
     files.forEach((file: File) => {
+      Logger.info(`Creating placeholder for ${file.path.value}`);
       this.drive.createItemByPath(file.path.value, file.contentsId);
-      // this.drive.createPlaceholderFile(
-      // file.nameWithExtension,
-      //   file.contentsId,
-      //   file.size,
-      //   this.drive.PLACEHOLDER_ATTRIBUTES.FILE_ATTRIBUTE_READONLY,
-      //   file.createdAt.getUTCMilliseconds(),
-      //   file.updatedAt.getUTCMilliseconds(),
-      //   file.updatedAt.getUTCMilliseconds(),
-      //   // This should be the last access time but we don't store the last accessed time
-      //   path.join(this.drivePath, file.path.value);
-      // );ray
     });
   }
 
