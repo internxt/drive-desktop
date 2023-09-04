@@ -4,6 +4,20 @@ export enum ServerFileStatus {
   REMOVED = 'REMOVED',
 }
 
+type ServerThumbnail = {
+  id: number;
+  fileId: number;
+  type: string;
+  size: string;
+  bucketId: string;
+  bucketFile: string;
+  encryptVersion: '03-aes';
+  createdAt: string;
+  updatedAt: string;
+  maxWidth: number;
+  maxHeight: number;
+};
+
 export type ServerFile = {
   bucket: string;
   createdAt: string;

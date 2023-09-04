@@ -3,23 +3,21 @@ import { reportError } from 'renderer/utils/errors';
 import { VirtualDriveStatus } from '../../shared/types/VirtualDriveStatus';
 
 export default function useVirtualDriveStatus() {
-  const [status, setStatus] = useState<VirtualDriveStatus>();
+  const [virtualDriveStatus, setVirtualDriveStatus] =
+    useState<VirtualDriveStatus>();
+
   useEffect(() => {
     window.electron
-      .getVirtualDriveStatus()
-      .then(setStatus)
+      .getVirtualDriveRoot()
+      .then(() => setVirtualDriveStatus(VirtualDriveStatus.READY))
       .catch((err) => {
         reportError(err);
       });
-
-    const removeListener = window.electron.onVirtualDriveStatusChange(
-      ({ status }) => {
-        setStatus(status);
-      }
-    );
-
-    return removeListener;
   }, []);
 
-  return { status };
+  function virtualDriveCanBeOpened() {
+    return virtualDriveStatus !== VirtualDriveStatus.NOT_FOUND;
+  }
+
+  return { virtualDriveStatus, virtualDriveCanBeOpened };
 }

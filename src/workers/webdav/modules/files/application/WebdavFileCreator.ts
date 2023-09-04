@@ -10,7 +10,7 @@ import { Folder } from '../../folders/domain/Folder';
 import { FileSize } from '../domain/FileSize';
 import { WebdavServerEventBus } from '../../shared/domain/WebdavServerEventBus';
 import { ContentFileUploader } from '../../contents/domain/ContentFileUploader';
-import { WebdavIpc } from '../../../ipc';
+import { VirtualDriveIpc } from '../../../ipc';
 
 export class WebdavFileCreator {
   constructor(
@@ -19,7 +19,7 @@ export class WebdavFileCreator {
     private readonly remoteContentsManagersFactory: ContentsManagersFactory,
     private readonly temporalFileCollection: FileMetadataCollection,
     private readonly eventBus: WebdavServerEventBus,
-    private readonly ipc: WebdavIpc
+    private readonly ipc: VirtualDriveIpc
   ) {}
 
   private registerEvents(

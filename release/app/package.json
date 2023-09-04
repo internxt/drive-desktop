@@ -1,6 +1,6 @@
 {
   "name": "internxt-drive",
-  "version": "2.0.11",
+  "version": "2.0.0-a02",
   "description": "Internxt Drive client UI",
   "main": "./dist/main/main.js",
   "author": "Internxt <hello@internxt.com>",
@@ -10,10 +10,10 @@
     "postinstall": "npm run electron-rebuild --sequential && npm run link-modules"
   },
   "dependencies": {
-    "@parcel/watcher": "^2.0.5",
     "@rudderstack/rudder-sdk-node": "^1.1.4",
     "better-sqlite3": "^8.3.0",
-    "typeorm": "^0.3.16"
+    "typeorm": "^0.3.16",
+    "virtual-drive": "../../../node-win"
   },
   "license": "MIT"
 }

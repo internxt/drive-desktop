@@ -124,7 +124,7 @@ ipcMainDrive.on('FILE_DELETE_ERROR', (_, payload) => {
 
 ipcMainVirtualDrive.on('VIRTUAL_DRIVE_STARTING', () => {
   broadcastToWindows('virtual-drive-status-change', {
-    status: VirtualDriveStatus.MOUNTING,
+    status: VirtualDriveStatus.READY,
   });
 });
 

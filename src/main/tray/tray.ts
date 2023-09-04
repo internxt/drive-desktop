@@ -11,6 +11,7 @@ import {
 import { getIsLoggedIn } from '../auth/handlers';
 import { getAuthWindow } from '../windows/auth';
 import { unmountDrive } from '../../workers/webdav/VirtualDrive';
+import { quitApp } from '../quit';
 
 type TrayMenuState = 'STANDBY' | 'SYNCING' | 'ALERT' | 'LOADING';
 
@@ -141,12 +142,7 @@ export function setupTrayIcon() {
   }
 
   async function onQuitClick() {
-    try {
-      await unmountDrive();
-    } catch (onTrayQuitClickError) {
-      Logger.error({ onTrayQuitClickError });
-    }
-    app.quit();
+    quitApp();
   }
 
   tray = new TrayMenu(iconsPath, onTrayClick, onQuitClick);

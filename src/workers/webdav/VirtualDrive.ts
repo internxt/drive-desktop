@@ -60,14 +60,6 @@ export const unmountDrive = async (): Promise<boolean> => {
   return false;
 };
 
-export const getVirtualDrivePath = () => {
-  if (process.platform === 'win32') {
-    return getSavedLetter() + ':\\';
-  } else {
-    return homedir() + '/InternxtDrive';
-  }
-};
-
 /**
  * Retry the virtual drive mounting by trying to unmount it first,
  * and mount it again
@@ -461,13 +453,6 @@ const getMacOSMountedInstallerDisks = (): Promise<string[]> => {
         }
       }
     );
-  });
-};
-
-export const ejectMacOSInstallerDisks = async (): Promise<void> => {
-  const installerDisks = await getMacOSMountedInstallerDisks();
-  installerDisks.forEach((installerDisk) => {
-    ejectMacOSDisk(installerDisk).catch();
   });
 };
 

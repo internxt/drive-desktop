@@ -6,10 +6,10 @@ import {
   ServerFolder,
   ServerFolderStatus,
 } from '../../../../filesystems/domain/ServerFolder';
-import { WebdavIpc } from 'workers/webdav/ipc';
+import { VirtualDriveIpc } from '../../../ipc';
 
 export class RemoteItemsGenerator {
-  constructor(private readonly ipc: WebdavIpc) {}
+  constructor(private readonly ipc: VirtualDriveIpc) {}
   async getAll(): Promise<{ files: ServerFile[]; folders: ServerFolder[] }> {
     const updatedRemoteItems = await this.ipc.invoke(
       'GET_UPDATED_REMOTE_ITEMS'

@@ -2,32 +2,36 @@
  * Build config for electron renderer process
  */
 
-import path from 'path';
-import webpack from 'webpack';
-import HtmlWebpackPlugin from 'html-webpack-plugin';
-import { merge } from 'webpack-merge';
-import TerserPlugin from 'terser-webpack-plugin';
-import baseConfig from './webpack.config.base';
-import webpackPaths from './webpack.paths';
-import Dotenv from 'dotenv-webpack';
+import path from "path";
+import webpack from "webpack";
+import HtmlWebpackPlugin from "html-webpack-plugin";
+import { merge } from "webpack-merge";
+import TerserPlugin from "terser-webpack-plugin";
+import baseConfig from "./webpack.config.base";
+import webpackPaths from "./webpack.paths";
+import Dotenv from "dotenv-webpack";
 
 const configuration: webpack.Configuration = {
   mode: process.env.NODE_ENV,
 
-  target: 'electron-renderer',
+  target: "electron-renderer",
+
+  module: {
+    rules: [{ test: /\.node$/, loader: "node-loader" }],
+  },
 
   entry: [
-    'core-js',
-    'regenerator-runtime/runtime',
-    path.join(webpackPaths.srcWebdavPath, 'index.ts'),
+    "core-js",
+    "regenerator-runtime/runtime",
+    path.join(webpackPaths.srcWebdavPath, "index.ts"),
   ],
 
   output: {
     path: webpackPaths.distWebdavPath,
-    publicPath: './',
-    filename: 'renderer.js',
+    publicPath: "./",
+    filename: "renderer.js",
     library: {
-      type: 'umd',
+      type: "umd",
     },
   },
 
@@ -44,14 +48,14 @@ const configuration: webpack.Configuration = {
     new Dotenv({ ignoreStub: true }),
 
     new HtmlWebpackPlugin({
-      filename: 'index.html',
+      filename: "index.html",
       minify: {
         collapseWhitespace: true,
         removeAttributeQuotes: true,
         removeComments: true,
       },
       isBrowser: false,
-      isDevelopment: process.env.NODE_ENV !== 'production',
+      isDevelopment: process.env.NODE_ENV !== "production",
     }),
   ],
 };

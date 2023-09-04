@@ -5,7 +5,7 @@ import { File } from '../domain/File';
 import { FileRepository } from '../domain/FileRepository';
 import { WebdavServerEventBus } from '../../shared/domain/WebdavServerEventBus';
 import { FileAlreadyExistsError } from '../domain/errors/FileAlreadyExistsError';
-import { WebdavIpc } from '../../../ipc';
+import { VirtualDriveIpc } from '../../../ipc';
 import { ContentFileClonner } from '../../contents/domain/ContentFileClonner';
 
 export class WebdavFileClonner {
@@ -17,7 +17,7 @@ export class WebdavFileClonner {
     private readonly folderFinder: WebdavFolderFinder,
     private readonly contentRepository: ContentsManagersFactory,
     private readonly eventBus: WebdavServerEventBus,
-    private readonly ipc: WebdavIpc
+    private readonly ipc: VirtualDriveIpc
   ) {}
 
   private registerEvents(clonner: ContentFileClonner, file: File) {

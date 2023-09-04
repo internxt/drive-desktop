@@ -14,7 +14,8 @@ import { reportError } from '../../utils/errors';
 
 export default function Header() {
   const { translate } = useTranslationContext();
-  const { status: virtualDriveStatus } = useVirtualDriveStatus();
+  const { virtualDriveStatus, virtualDriveCanBeOpened } =
+    useVirtualDriveStatus();
   const processIssues = useProcessIssues();
   const generalIssues = useGeneralIssues();
   const { backupFatalErrors } = useBackupFatalErrors();
@@ -42,7 +43,7 @@ export default function Header() {
   }, []);
 
   function onQuitClick() {
-    window.electron.unmountVirtualDriveAndQuit();
+    window.electron.quit();
   }
 
   const handleOpenURL = async (URL: string) => {
@@ -156,8 +157,8 @@ export default function Header() {
       </HeaderItemWrapper>
 
       <HeaderItemWrapper
-        disabled={virtualDriveStatus !== 'MOUNTED'}
-        onClick={window.electron.openSyncFolder}
+        disabled={!virtualDriveCanBeOpened()}
+        onClick={window.electron.openVirtualDriveFolder}
       >
         <FolderSimple size={22} />
       </HeaderItemWrapper>

@@ -29,7 +29,7 @@ declare interface Window {
 
     minimizeWindow(): void;
 
-    openSyncFolder(): Promise<void>;
+    openVirtualDriveFolder(): Promise<void>;
 
     finishOnboarding(): void;
 
@@ -116,9 +116,9 @@ declare interface Window {
       ) => void
     ): () => void;
 
-    getSyncRoot(): Promise<string>;
+    getVirtualDriveRoot(): Promise<string>;
 
-    chooseSyncRootWithDialog: typeof import('./sync-root-folder/service').chooseSyncRootWithDialog;
+    chooseSyncRootWithDialog: typeof import('./virutal-root-folder/service').chooseSyncRootWithDialog;
 
     path: typeof import('path');
 
@@ -203,7 +203,6 @@ declare interface Window {
       }) => void
     ): () => void;
     retryVirtualDriveMount(): void;
-    unmountVirtualDriveAndQuit: () => Promise<boolean>;
     startRemoteSync: () => Promise<void>;
     openUrl: (url: string) => Promise<void>;
     // DEV

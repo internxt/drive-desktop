@@ -2,14 +2,14 @@ import { ipcMain } from 'electron';
 import {
   WebdavFlowEvents,
   WebdavFlowEventsErrors,
-  WebdavMainEvents,
-  WebDavProcessEvents,
+  VirtualDriveListenedEvents,
+  MainProcessListenedEvents,
 } from '../../shared/IPC/events/webdav';
 import { CustomIpc } from '../../shared/IPC/IPCs';
 
 export const ipcWebdav = ipcMain as unknown as CustomIpc<
-  WebdavMainEvents,
-  WebDavProcessEvents
+  VirtualDriveListenedEvents,
+  MainProcessListenedEvents
 >;
 
 type NoEvents = Record<string, (...args: Array<any>) => any>;

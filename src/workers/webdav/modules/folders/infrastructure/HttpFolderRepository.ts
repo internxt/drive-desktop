@@ -9,18 +9,18 @@ import { FolderRepository } from '../domain/FolderRepository';
 import Logger from 'electron-log';
 import * as uuid from 'uuid';
 import { UpdateFolderNameDTO } from './dtos/UpdateFolderNameDTO';
-import { WebdavIpc } from '../../../ipc';
+import { VirtualDriveIpc } from '../../../ipc';
 import { RemoteItemsGenerator } from '../../items/application/RemoteItemsGenerator';
 import { FolderStatuses } from '../domain/FolderStatus';
 
 export class HttpFolderRepository implements FolderRepository {
-  private folders: Record<string, Folder> = {};
+  public folders: Record<string, Folder> = {};
 
   constructor(
     private readonly driveClient: Axios,
     private readonly trashClient: Axios,
     private readonly traverser: Traverser,
-    private readonly ipc: WebdavIpc
+    private readonly ipc: VirtualDriveIpc
   ) {}
 
   private async getTree(): Promise<{

@@ -1,12 +1,14 @@
-import { app, dialog } from 'electron';
+import { logger } from '@sentry/utils';
+import { app, dialog, shell } from 'electron';
 import fs from 'fs/promises';
 import path from 'path';
 
 import configStore from '../config';
 import eventBus from '../event-bus';
 
-const ROOT_FOLDER_NAME = 'Internxt';
+const ROOT_FOLDER_NAME = 'InternxtDrive';
 const HOME_FOLDER_PATH = app.getPath('home');
+const DESKTOP_FOLDER_PATH = app.getPath('desktop');
 
 async function existsFolder(pathname: string): Promise<boolean> {
   try {
@@ -32,11 +34,13 @@ function setSyncRoot(pathname: string): void {
   configStore.set('lastSavedListing', '');
 }
 
-export function getSyncRoot(): string {
+export function getRootVirtualDrive(): string {
   return configStore.get('syncRoot');
 }
 
 export async function setupRootFolder(n = 0): Promise<void> {
+  setSyncRoot(path.join(HOME_FOLDER_PATH, ROOT_FOLDER_NAME));
+  return;
   const folderName = ROOT_FOLDER_NAME;
 
   const rootFolderName = folderName + (n ? ` (${n})` : '');
@@ -66,4 +70,12 @@ export async function chooseSyncRootWithDialog(): Promise<string | null> {
   }
 
   return null;
+}
+
+export async function openVirtualDriveRootFolder() {
+  const syncFolderPath = getRootVirtualDrive();
+
+  const errorMessage = await shell.openPath(syncFolderPath);
+
+  if (errorMessage) throw new Error(errorMessage);
 }

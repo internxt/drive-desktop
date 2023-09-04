@@ -1,47 +1,28 @@
 import { Environment } from '@internxt/inxt-js';
-import PhotosSubmodule from '@internxt/sdk/dist/photos/photos';
-import { ipcRenderer } from 'electron';
 import { getUser } from 'main/auth/service';
 import configStore from 'main/config';
 import { getClients } from '../../../shared/HttpClient/backgroud-process-clients';
 import crypt from '../../utils/crypt';
-import { WebdavFileClonner } from '../modules/files/application/WebdavFileClonner';
-import { WebdavFileCreator } from '../modules/files/application/WebdavFileCreator';
-import { WebdavFileDeleter } from '../modules/files/application/WebdavFileDeleter';
-import { WebdavFileDownloader } from '../modules/files/application/WebdavFileDownloader';
-import { WebdavFileMimeTypeResolver } from '../modules/files/application/WebdavFileMimeTypeResolver';
-import { WebdavFileMover } from '../modules/files/application/WebdavFileMover';
+import { FileDeleter } from '../modules/files/application/FileDeleter';
 import { HttpFileRepository } from '../modules/files/infrastructure/persistance/HttpFileRepository';
-import { InMemoryTemporalFileMetadataCollection } from '../modules/files/infrastructure/persistance/InMemoryTemporalFileMetadataCollection';
-import { WebdavFolderCreator } from '../modules/folders/application/WebdavFolderCreator';
 import { WebdavFolderDeleter } from '../modules/folders/application/WebdavFolderDeleter';
 import { WebdavFolderFinder } from '../modules/folders/application/WebdavFolderFinder';
-import { WebdavFolderMover } from '../modules/folders/application/WebdavFolderMover';
 import { HttpFolderRepository } from '../modules/folders/infrastructure/HttpFolderRepository';
 import { Traverser } from '../modules/items/application/Traverser';
-import { AllWebdavItemsNameLister } from '../modules/shared/application/AllWebdavItemsSearcher';
-import { WebdavUnknownItemTypeSearcher } from '../modules/shared/application/WebdavUnknownItemTypeSearcher';
-import { WebdavUnkownItemMetadataDealer } from '../modules/shared/application/WebdavUnkownItemMetadataDealer';
-import { NodeJsEventBus } from '../modules/shared/infrastructure/DuplexEventBus';
-import { FreeSpacePerEnvironmentCalculator } from '../modules/userUsage/application/FreeSpacePerEnvironmentCalculator';
-import { IncrementDriveUsageOnFileCreated } from '../modules/userUsage/application/IncrementDriveUsageOnFileCreated';
-import { UsedSpaceCalculator } from '../modules/userUsage/application/UsedSpaceCalculator';
-import { UserUsageDecrementer } from '../modules/userUsage/application/UserUsageDecrementer';
-import { UserUsageIncrementer } from '../modules/userUsage/application/UserUsageIncrementer';
-import { CachedHttpUserUsageRepository } from '../modules/userUsage/infrastrucutre/CachedHttpUserUsageRepository';
 import { DependencyContainer } from './DependencyContainer';
 import { ipc } from '../ipc';
-import { WebdavFolderRenamer } from '../modules/folders/application/WebdavFolderRenamer';
 import { WebdavFileRenamer } from '../modules/files/application/WebdavFileRenamer';
 import { EnvironmentRemoteFileContentsManagersFactory } from '../modules/contents/infrastructure/EnvironmentRemoteFileContentsManagersFactory';
-import { FSContentsCacheRepository } from '../modules/contents/infrastructure/FSContentsCacheRepository';
+import { FileSearcher } from '../modules/files/application/FileSearcher';
+import { FolderSearcher } from '../modules/folders/application/FolderSearcher';
+import { FilePathFromAbsolutePathCreator } from '../modules/files/application/FilePathFromAbsolutePathCreator';
 
 export class DependencyContainerFactory {
   private _container: DependencyContainer | undefined;
 
-  static readonly subscriptors: Array<keyof DependencyContainer> = [
-    'incrementDriveUsageOnFileCreated',
-  ];
+  // static readonly subscriptors: Array<keyof DependencyContainer> = [
+  //   'incrementDriveUsageOnFileCreated',
+  // ];
 
   eventSubscriptors(
     key: keyof DependencyContainer
@@ -68,18 +49,20 @@ export class DependencyContainerFactory {
     const clients = getClients();
 
     const mnemonic = configStore.get('mnemonic');
+    const localRootFolderPath = configStore.get('syncRoot');
 
-    const token = await ipcRenderer.invoke('get-new-token');
+    // const token = await ipcRenderer.invoke('get-new-token');
+    // const token = obtainToken('newToken');
 
-    const photosSubmodule = new PhotosSubmodule({
-      baseUrl: process.env.PHOTOS_URL,
-      accessToken: token,
-    });
+    // const photosSubmodule = new PhotosSubmodule({
+    //   baseUrl: process.env.PHOTOS_URL,
+    //   accessToken: token,
+    // });
 
-    const userUsageRepository = new CachedHttpUserUsageRepository(
-      clients.drive,
-      photosSubmodule
-    );
+    // const userUsageRepository = new CachedHttpUserUsageRepository(
+    //   clients.drive,
+    //   photosSubmodule
+    // );
 
     const environment = new Environment({
       bridgeUrl: process.env.BRIDGE_URL,
@@ -109,11 +92,11 @@ export class DependencyContainerFactory {
     await fileRepository.init();
     await folderRepository.init();
 
-    const cachePath = await ipcRenderer.invoke('get-path', 'userData');
+    // const cachePath = await ipcRenderer.invoke('get-path', 'userData');
 
-    const localFileConentsRepository = new FSContentsCacheRepository(cachePath);
+    // const localFileConentsRepository = new FSContentsCacheRepository(cachePath);
 
-    await localFileConentsRepository.initialize();
+    // await localFileConentsRepository.initialize();
 
     // const cachedContentsManagerFactory =
     //   new CachedRemoteFileContentsManagersFactory(
@@ -129,100 +112,104 @@ export class DependencyContainerFactory {
         user.bucket
       );
 
-    const eventBus = new NodeJsEventBus();
+    // const eventBus = new NodeJsEventBus();
+
+    const folderFinder = new WebdavFolderFinder(folderRepository);
 
     const fileRenamer = new WebdavFileRenamer(
       fileRepository,
       contentsManagerFactory,
-      eventBus,
-      ipc
+      folderFinder
     );
+    // const folderRenamer = new WebdavFolderRenamer(folderRepository, ipc);
 
-    const folderFinder = new WebdavFolderFinder(folderRepository);
-    const folderRenamer = new WebdavFolderRenamer(folderRepository, ipc);
+    // const temporalFileCollection = new InMemoryTemporalFileMetadataCollection();
 
-    const temporalFileCollection = new InMemoryTemporalFileMetadataCollection();
+    // const unknownItemSearcher = new WebdavUnknownItemTypeSearcher(
+    //   fileRepository,
+    //   folderRepository
+    // );
 
-    const unknownItemSearcher = new WebdavUnknownItemTypeSearcher(
-      fileRepository,
-      folderRepository
-    );
-
-    const userUsageIncrementer = new UserUsageIncrementer(userUsageRepository);
+    // const userUsageIncrementer = new UserUsageIncrementer(userUsageRepository);
 
     const container = {
       drive: clients.drive,
       newDrive: clients.newDrive,
 
-      userUsageRepository,
-      freeUsageCalculator: new FreeSpacePerEnvironmentCalculator(
-        userUsageRepository
-      ),
-      usedSpaceCalculator: new UsedSpaceCalculator(userUsageRepository),
+      // userUsageRepository,
+      // freeUsageCalculator: new FreeSpacePerEnvironmentCalculator(
+      //   userUsageRepository
+      // ),
+      // usedSpaceCalculator: new UsedSpaceCalculator(userUsageRepository),
 
-      userUsageDecrementer: new UserUsageDecrementer(userUsageRepository),
-      userUsageIncrementer,
-      incrementDriveUsageOnFileCreated: new IncrementDriveUsageOnFileCreated(
-        userUsageIncrementer
-      ),
+      // userUsageDecrementer: new UserUsageDecrementer(userUsageRepository),
+      // userUsageIncrementer,
+      // incrementDriveUsageOnFileCreated: new IncrementDriveUsageOnFileCreated(
+      //   userUsageIncrementer
+      // ),
 
-      fileClonner: new WebdavFileClonner(
-        fileRepository,
-        folderFinder,
-        contentsManagerFactory,
-        eventBus,
-        ipc
-      ),
-      fileDeleter: new WebdavFileDeleter(fileRepository, eventBus, ipc),
-      fileMover: new WebdavFileMover(
-        fileRepository,
-        folderFinder,
-        fileRenamer,
-        eventBus,
-        ipc
-      ),
-      fileCreator: new WebdavFileCreator(
-        fileRepository,
-        folderFinder,
-        contentsManagerFactory,
-        temporalFileCollection,
-        eventBus,
-        ipc
-      ),
-      fileDownloader: new WebdavFileDownloader(
-        fileRepository,
-        contentsManagerFactory,
-        eventBus,
-        ipc
-      ),
+      // fileClonner: new WebdavFileClonner(
+      //   fileRepository,
+      //   folderFinder,
+      //   contentsManagerFactory,
+      //   eventBus,
+      //   ipc
+      // ),
+      fileDeleter: new FileDeleter(fileRepository),
+      // fileMover: new WebdavFileMover(
+      //   fileRepository,
+      //   folderFinder,
+      //   fileRenamer,
+      //   eventBus,
+      //   ipc
+      // ),
+      // fileCreator: new WebdavFileCreator(
+      //   fileRepository,
+      //   folderFinder,
+      //   contentsManagerFactory,
+      //   temporalFileCollection,
+      //   eventBus,
+      //   ipc
+      // ),
+      // fileDownloader: new WebdavFileDownloader(
+      //   fileRepository,
+      //   contentsManagerFactory,
+      //   eventBus,
+      //   ipc
+      // ),
       fileRenamer,
-      fileMimeTypeResolver: new WebdavFileMimeTypeResolver(),
+      // fileMimeTypeResolver: new WebdavFileMimeTypeResolver(),
+      fileSearcher: new FileSearcher(fileRepository),
+      filePathFromAbsolutePathCreator: new FilePathFromAbsolutePathCreator(
+        localRootFolderPath
+      ),
 
+      folderSearcher: new FolderSearcher(folderRepository),
       folderFinder,
-      folderRenamer,
-      folderCreator: new WebdavFolderCreator(
-        folderRepository,
-        folderFinder,
-        ipc
-      ),
-      folderMover: new WebdavFolderMover(
-        folderRepository,
-        folderFinder,
-        folderRenamer
-      ),
+      // folderRenamer,
+      // folderCreator: new WebdavFolderCreator(
+      //   folderRepository,
+      //   folderFinder,
+      //   ipc
+      // ),
+      // folderMover: new WebdavFolderMover(
+      //   folderRepository,
+      //   folderFinder,
+      //   folderRenamer
+      // ),
       folderDeleter: new WebdavFolderDeleter(folderRepository),
 
-      itemMetadataDealer: new WebdavUnkownItemMetadataDealer(
-        unknownItemSearcher,
-        temporalFileCollection
-      ),
-      allItemsLister: new AllWebdavItemsNameLister(
-        fileRepository,
-        folderRepository,
-        folderFinder
-      ),
-      itemSearcher: unknownItemSearcher,
-      eventBus,
+      // itemMetadataDealer: new WebdavUnkownItemMetadataDealer(
+      //   unknownItemSearcher,
+      //   temporalFileCollection
+      // ),
+      //   allItemsLister: new AllWebdavItemsNameLister(
+      //     fileRepository,
+      //     folderRepository,
+      //     folderFinder
+      //   ),
+      //   itemSearcher: unknownItemSearcher,
+      //   eventBus,
     };
 
     this._container = container;

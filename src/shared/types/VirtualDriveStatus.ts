@@ -1,6 +1,4 @@
 export enum VirtualDriveStatus {
-  MOUNTING = 'MOUNTING',
-  MOUNTED = 'MOUNTED',
-  FAILED_TO_MOUNT = 'FAILED_TO_MOUNT',
-  UNMOUNTED = 'UNMOUNTED',
+  READY = 'READY',
+  NOT_FOUND = 'NOT_FOUND',
 }

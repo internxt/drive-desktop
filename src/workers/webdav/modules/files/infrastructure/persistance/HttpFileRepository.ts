@@ -11,13 +11,13 @@ import { AddFileDTO } from './dtos/AddFileDTO';
 import { UpdateFileParentDirDTO } from './dtos/UpdateFileParentDirDTO';
 import { UpdateFileNameDTO } from './dtos/UpdateFileNameDTO';
 import { FilePath } from '../../domain/FilePath';
-import { WebdavIpc } from '../../../../ipc';
 import { RemoteItemsGenerator } from '../../../items/application/RemoteItemsGenerator';
 import { FileStatuses } from '../../domain/FileStatus';
 import { Crypt } from '../../../shared/domain/Crypt';
+import { VirtualDriveIpc } from '../../../../ipc';
 
 export class HttpFileRepository implements FileRepository {
-  private files: Record<string, File> = {};
+  public files: Record<string, File> = {};
 
   constructor(
     private readonly crypt: Crypt,
@@ -25,7 +25,7 @@ export class HttpFileRepository implements FileRepository {
     private readonly trashHttpClient: Axios,
     private readonly traverser: Traverser,
     private readonly bucket: string,
-    private readonly ipc: WebdavIpc
+    private readonly ipc: VirtualDriveIpc
   ) {}
 
   private async getTree(): Promise<{

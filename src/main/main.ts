@@ -8,7 +8,7 @@ import 'regenerator-runtime/runtime';
 // via webpack in prod
 import 'dotenv/config';
 // ***** APP BOOTSTRAPPING ****************************************************** //
-import './sync-root-folder/handlers';
+import './virutal-root-folder/handlers';
 import './auto-launch/handlers';
 import './logger';
 import './bug-report/handlers';
@@ -17,12 +17,11 @@ import './windows/settings';
 import './windows/process-issues';
 import './windows';
 import './background-processes/backups';
-import './background-processes/sync';
-import './background-processes/webdav';
+import './background-processes/sync-engine';
 import './background-processes/process-issues';
 import './device/handlers';
 import './usage/handlers';
-import './realtime';
+// import './realtime';
 import './tray/tray';
 import './fordwardToWindows';
 import './virtual-drive/handlers';
@@ -33,7 +32,8 @@ import './migration/handlers';
 import './config/handlers';
 import './app-info/handlers';
 import './remote-sync/handlers';
-import { app, ipcMain, nativeTheme } from 'electron';
+
+import { app, nativeTheme } from 'electron';
 import Logger from 'electron-log';
 import { autoUpdater } from 'electron-updater';
 import packageJson from '../../package.json';
@@ -52,6 +52,8 @@ import { getTray } from './tray/tray';
 import { openOnboardingWindow } from './windows/onboarding';
 import { reportError } from './bug-report/service';
 import { Theme } from 'shared/types/Theme';
+import { setCleanUpFunction } from './quit';
+import { stopSyncEngineWatcher } from './background-processes/sync-engine';
 
 Logger.log(`Running ${packageJson.version}`);
 
@@ -87,38 +89,18 @@ if (process.env.NODE_ENV === 'development') {
   require('electron-debug')({ showDevTools: false });
 }
 
-const installExtensions = async () => {
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const installer = require('electron-devtools-installer');
-  const forceDownload = !!process.env.UPGRADE_EXTENSIONS;
-  const extensions = ['REACT_DEVELOPER_TOOLS'];
-
-  return installer
-    .default(
-      extensions.map((name) => installer[name]),
-      forceDownload
-    )
-    .catch(console.log);
-};
-
-ipcMain.on('user-quit', () => {
-  app.quit();
-});
-
 app
   .whenReady()
   .then(async () => {
     if (!AppDataSource.isInitialized) {
       await AppDataSource.initialize();
     }
+
     eventBus.emit('APP_IS_READY');
     const isLoggedIn = getIsLoggedIn();
 
     if (!isLoggedIn) {
       await createAuthWindow();
-    }
-    if (process.env.NODE_ENV === 'development') {
-      await installExtensions();
     }
     checkForUpdates();
   })
@@ -145,6 +127,8 @@ eventBus.on('USER_LOGGED_IN', async () => {
     } else if (widget) {
       widget.show();
     }
+
+    setCleanUpFunction(stopSyncEngineWatcher);
   } catch (error) {
     reportError(error as Error);
   }
