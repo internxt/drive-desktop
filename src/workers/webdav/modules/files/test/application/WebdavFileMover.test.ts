@@ -34,8 +34,7 @@ describe('Webdav File Mover', () => {
     fileRenamer = new WebdavFileRenamer(
       repository,
       contentsRepository,
-      eventBus,
-      ipc
+      folderFinder
     );
 
     SUT = new WebdavFileMover(
