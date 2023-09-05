@@ -3,6 +3,7 @@ import fs from 'fs/promises';
 import { createReadStream } from 'fs';
 import { Readable } from 'stream';
 import { FSContentsCacheRepository } from '../../infrastructure/FSContentsCacheRepository';
+import { PlatformPathConverter } from '../../../shared/test/helpers/PlatformPathConverter';
 
 jest.mock('tiny-glob', () => jest.fn());
 jest.mock('fs/promises');
@@ -58,7 +59,9 @@ describe('fs contents cache repository', () => {
       repository.read('544b943d-c663-5fe3-bd89-6a52bb80880e');
 
       expect(mocked.createReadStream.mock.calls[0][0]).toEqual(
-        '/Getziujo/Turfiri/Ipfugiri/File Cache/544b943d-c663-5fe3-bd89-6a52bb80880e'
+        PlatformPathConverter.convertAnyToCurrent(
+          '/Getziujo/Turfiri/Ipfugiri/File Cache/544b943d-c663-5fe3-bd89-6a52bb80880e'
+        )
       );
     });
   });
@@ -81,7 +84,9 @@ describe('fs contents cache repository', () => {
       );
 
       expect(mocked.writeFile).toBeCalledWith(
-        '/Getziujo/Turfiri/Ipfugiri/File Cache/544b943d-c663-5fe3-bd89-6a52bb80880e',
+        PlatformPathConverter.convertAnyToCurrent(
+          '/Getziujo/Turfiri/Ipfugiri/File Cache/544b943d-c663-5fe3-bd89-6a52bb80880e'
+        ),
         contents,
         { flag: 'w' }
       );
@@ -147,7 +152,9 @@ describe('fs contents cache repository', () => {
       await repository.delete('544b943d-c663-5fe3-bd89-6a52bb80880e');
 
       expect(mocked.unlink.mock.calls[0][0]).toBe(
-        '/Getziujo/Turfiri/Ipfugiri/File Cache/544b943d-c663-5fe3-bd89-6a52bb80880e'
+        PlatformPathConverter.convertAnyToCurrent(
+          '/Getziujo/Turfiri/Ipfugiri/File Cache/544b943d-c663-5fe3-bd89-6a52bb80880e'
+        )
       );
     });
   });
@@ -169,7 +176,11 @@ describe('fs contents cache repository', () => {
 
       await repository.usage();
 
-      expect(mocked.stat).toBeCalledWith(`${whereToCreateIt}/File Cache`);
+      expect(mocked.stat).toBeCalledWith(
+        PlatformPathConverter.convertAnyToCurrent(
+          `${whereToCreateIt}/File Cache`
+        )
+      );
     });
   });
 

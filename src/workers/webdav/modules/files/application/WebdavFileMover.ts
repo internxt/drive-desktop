@@ -64,7 +64,7 @@ export class WebdavFileMover {
     const destinationFolder = this.folderFinder.run(desiredPath.dirname());
 
     if (file.hasParent(destinationFolder.id)) {
-      await this.fileRenamer.run(file, to);
+      await this.fileRenamer.run(file, new FilePath(to));
       return false;
     }
 

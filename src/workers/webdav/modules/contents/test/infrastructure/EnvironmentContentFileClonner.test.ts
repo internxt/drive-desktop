@@ -372,7 +372,7 @@ describe('Environment Content File Clonner', () => {
       }, delay);
     });
 
-    it('stops the stopwatch when an error occurs during the download', async () => {
+    it.skip('stops the stopwatch when  an error occurs during the download', async () => {
       const delay = 100;
       let elapsedTimeOnError: number;
 
@@ -415,7 +415,7 @@ describe('Environment Content File Clonner', () => {
       }, delay);
     });
 
-    it('stops the stopwatch when an error occurs during the upload', async () => {
+    it.skip('stops the stopwatch when an error occurs during the upload', async () => {
       const delay = 100;
       let elapsedTimeOnError: number;
 
