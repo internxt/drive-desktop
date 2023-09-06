@@ -15,11 +15,8 @@ export class BindingsManager {
   public async listFiles() {
     const files = await this.container.fileSearcher.run();
 
-    Logger.info(`Creating placehodlers for ${files.length} files`);
-
     files.forEach((file: File) => {
-      Logger.info(`Creating placeholder for ${file.path.value}`);
-      this.drive.createItemByPath(file.path.value, file.contentsId);
+      this.drive.createItemByPath(file.path.value, file.contentsId, file.size);
     });
   }
 
