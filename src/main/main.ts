@@ -41,7 +41,7 @@ import * as Sentry from '@sentry/electron/main';
 import { AppDataSource } from './database/data-source';
 import { getIsLoggedIn } from './auth/handlers';
 import {
-  createWidget,
+  getOrCreateWidged,
   getWidget,
   setBoundsOfWidgetByPath,
 } from './windows/widget';
@@ -115,9 +115,8 @@ eventBus.on('USER_LOGGED_IN', async () => {
 
     nativeTheme.themeSource = configStore.get('preferedTheme') as Theme;
 
-    await createWidget();
     setTrayStatus('STANDBY');
-    const widget = getWidget();
+    const widget = await getOrCreateWidged();
     const tray = getTray();
     if (widget && tray) {
       setBoundsOfWidgetByPath(widget, tray);
@@ -133,6 +132,7 @@ eventBus.on('USER_LOGGED_IN', async () => {
 
     setCleanUpFunction(stopSyncEngineWatcher);
   } catch (error) {
+    Logger.error(error);
     reportError(error as Error);
   }
 });
