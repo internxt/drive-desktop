@@ -13,7 +13,7 @@ export class BindingsManager {
   ) {}
 
   public async listFiles() {
-    const files = await this.container.fileSearcher.run();
+    const files = await this.container.allFilesLister.run();
 
     files.forEach((file: File) => {
       this.drive.createItemByPath(file.path.value, file.contentsId, file.size);

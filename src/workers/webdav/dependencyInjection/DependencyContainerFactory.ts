@@ -16,6 +16,8 @@ import { EnvironmentRemoteFileContentsManagersFactory } from '../modules/content
 import { FileSearcher } from '../modules/files/application/FileSearcher';
 import { FolderSearcher } from '../modules/folders/application/FolderSearcher';
 import { FilePathFromAbsolutePathCreator } from '../modules/files/application/FilePathFromAbsolutePathCreator';
+import { AllFilesLister } from '../modules/files/application/AllFilesLister';
+import { RemoteItemsGenerator } from '../modules/items/application/RemoteItemsGenerator';
 
 export class DependencyContainerFactory {
   private _container: DependencyContainer | undefined;
@@ -121,6 +123,8 @@ export class DependencyContainerFactory {
       contentsManagerFactory,
       folderFinder
     );
+
+    const remoteItemsGenerator = new RemoteItemsGenerator(ipc);
     // const folderRenamer = new WebdavFolderRenamer(folderRepository, ipc);
 
     // const temporalFileCollection = new InMemoryTemporalFileMetadataCollection();
@@ -183,6 +187,7 @@ export class DependencyContainerFactory {
       filePathFromAbsolutePathCreator: new FilePathFromAbsolutePathCreator(
         localRootFolderPath
       ),
+      allFilesLister: new AllFilesLister(remoteItemsGenerator, traverser),
 
       folderSearcher: new FolderSearcher(folderRepository),
       folderFinder,
