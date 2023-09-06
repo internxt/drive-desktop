@@ -61,6 +61,20 @@ export class HttpFileRepository implements FileRepository {
     return File.from(item.attributes());
   }
 
+  searchByPartial(partial: Partial<File>): Nullable<File> {
+    const file = Object.values(this.files).find((file) => {
+      const keys = Object.keys(partial) as Array<keyof Partial<File>>;
+
+      return keys.every((key) => file[key] === partial[key]);
+    });
+
+    if (file) {
+      return File.from(file.attributes());
+    }
+
+    return undefined;
+  }
+
   async delete(file: File): Promise<void> {
     const result = await this.trashHttpClient.post(
       `${process.env.NEW_DRIVE_URL}/drive/storage/trash/add`,
