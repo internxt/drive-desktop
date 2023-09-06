@@ -26,7 +26,9 @@ jobs:
         run: yarn --ignore-scripts
       - name: Lint
         run: yarn run lint
-      - name: Build process
+      - name: Build main process
         run: yarn build:main
+      - name: Build main process
+        run: yarn build:renderer
       - name: Run test
         run: yarn test:unit
