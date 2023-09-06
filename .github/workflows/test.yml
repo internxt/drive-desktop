@@ -5,7 +5,7 @@ on: [pull_request]
 jobs:
   test:
     name: 🧪 Lint and test
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
 
     steps:
       - name: Check out Git repository
@@ -26,9 +26,7 @@ jobs:
         run: yarn --ignore-scripts
       - name: Lint
         run: yarn run lint
-      - name: Build main process
-        run: yarn build:main
-      - name: Build main process
-        run: yarn build:renderer
+      - name: Build processes
+        run: yarn build:main && yarn build:renderer
       - name: Run test
         run: yarn test:unit
