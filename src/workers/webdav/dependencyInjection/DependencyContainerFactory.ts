@@ -16,7 +16,7 @@ import { EnvironmentRemoteFileContentsManagersFactory } from '../modules/content
 import { FileSearcher } from '../modules/files/application/FileSearcher';
 import { FolderSearcher } from '../modules/folders/application/FolderSearcher';
 import { FilePathFromAbsolutePathCreator } from '../modules/files/application/FilePathFromAbsolutePathCreator';
-import { FileFinder } from '../modules/files/application/FileFinder';
+import { FileFinderByContentsId } from '../modules/files/application/FileFinderByContentsId';
 
 export class DependencyContainerFactory {
   private _container: DependencyContainer | undefined;
@@ -117,7 +117,7 @@ export class DependencyContainerFactory {
 
     const folderFinder = new WebdavFolderFinder(folderRepository);
 
-    const fileFinder = new FileFinder(fileRepository);
+    const fileFinder = new FileFinderByContentsId(fileRepository);
 
     const fileRenamer = new WebdavFileRenamer(
       fileRepository,

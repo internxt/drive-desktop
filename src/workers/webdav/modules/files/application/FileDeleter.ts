@@ -1,11 +1,11 @@
 import { FileRepository } from '../domain/FileRepository';
 import Logger from 'electron-log';
-import { FileFinder } from './FileFinder';
+import { FileFinderByContentsId } from './FileFinderByContentsId';
 
 export class FileDeleter {
   constructor(
     private readonly repository: FileRepository,
-    private readonly fileFinder: FileFinder
+    private readonly fileFinder: FileFinderByContentsId
   ) {}
 
   async run(constentsId: string): Promise<void> {

@@ -2,7 +2,7 @@ import { FileRepository } from '../domain/FileRepository';
 import { FileNotFoundError } from '../domain/errors/FileNotFoundError';
 import { File } from '../domain/File';
 
-export class FileFinder {
+export class FileFinderByContentsId {
   constructor(private readonly repository: FileRepository) {}
 
   run(contentsId: string): File {
