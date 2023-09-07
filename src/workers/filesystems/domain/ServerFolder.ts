@@ -13,4 +13,5 @@ export type ServerFolder = {
   updatedAt: string;
   plain_name: string | null;
   status: ServerFolderStatus;
+  uuid: string;
 };

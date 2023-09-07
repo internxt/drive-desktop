@@ -2,9 +2,11 @@ import { Primitives } from 'shared/types/Primitives';
 import { AggregateRoot } from '../../shared/domain/AggregateRoot';
 import { FolderPath } from './FolderPath';
 import { FolderStatus, FolderStatuses } from './FolderStatus';
+import { FolderUuid } from './FolderUuid';
 
 export type FolderAttributes = {
   id: number;
+  uuid: string;
   parentId: null | number;
   path: string;
   updatedAt: string;
@@ -15,6 +17,7 @@ export type FolderAttributes = {
 export class Folder extends AggregateRoot {
   private constructor(
     public id: number,
+    private _uuid: FolderUuid,
     private _path: FolderPath,
     private _parentId: null | number,
     public createdAt: Date,
@@ -22,6 +25,10 @@ export class Folder extends AggregateRoot {
     private _status: FolderStatus
   ) {
     super();
+  }
+
+  public get uuid(): string {
+    return this._uuid.value;
   }
 
   public get path() {
@@ -80,6 +87,7 @@ export class Folder extends AggregateRoot {
   static from(attributes: FolderAttributes): Folder {
     return new Folder(
       attributes.id,
+      new FolderUuid(attributes.uuid),
       new FolderPath(attributes.path),
       attributes.parentId,
       new Date(attributes.updatedAt),
@@ -91,6 +99,7 @@ export class Folder extends AggregateRoot {
   static create(attributes: FolderAttributes) {
     return new Folder(
       attributes.id,
+      new FolderUuid(attributes.uuid),
       new FolderPath(attributes.path),
       attributes.parentId,
       new Date(attributes.updatedAt),
@@ -149,6 +158,7 @@ export class Folder extends AggregateRoot {
   toPrimitives(): Record<string, Primitives> {
     const attributes: FolderAttributes = {
       id: this.id,
+      uuid: this.uuid,
       parentId: this._parentId || 0,
       path: this._path.value,
       updatedAt: this.updatedAt.toISOString(),

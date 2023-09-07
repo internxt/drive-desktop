@@ -44,6 +44,7 @@ export class RemoteItemsGenerator {
           updatedAt: updatedFolder.updatedAt,
           plain_name: updatedFolder.plainName ?? null,
           status: updatedFolder.status as ServerFolderStatus,
+          uuid: updatedFolder.uuid,
         };
       }
     );
