@@ -1,64 +1,40 @@
 import { Axios } from 'axios';
 import { FileCreatedResponseDTO } from 'shared/HttpClient/responses/file-created';
 import { Nullable } from 'shared/types/Nullable';
-import { ServerFile } from '../../../../../filesystems/domain/ServerFile';
-import { ServerFolder } from '../../../../../filesystems/domain/ServerFolder';
 import { File } from '../../domain/File';
 import { FileRepository } from '../../domain/FileRepository';
 import * as uuid from 'uuid';
-import { Traverser } from '../../../items/application/Traverser';
 import { AddFileDTO } from './dtos/AddFileDTO';
 import { UpdateFileParentDirDTO } from './dtos/UpdateFileParentDirDTO';
 import { UpdateFileNameDTO } from './dtos/UpdateFileNameDTO';
-import { FilePath } from '../../domain/FilePath';
-import { RemoteItemsGenerator } from '../../../items/application/RemoteItemsGenerator';
-import { FileStatuses } from '../../domain/FileStatus';
 import { Crypt } from '../../../shared/domain/Crypt';
 import { VirtualDriveIpc } from '../../../../ipc';
 
 export class HttpFileRepository implements FileRepository {
-  public files: Record<string, File> = {};
-
   constructor(
     private readonly crypt: Crypt,
     private readonly httpClient: Axios,
     private readonly trashHttpClient: Axios,
-    private readonly traverser: Traverser,
     private readonly bucket: string,
     private readonly ipc: VirtualDriveIpc
   ) {}
 
-  private async getTree(): Promise<{
-    files: ServerFile[];
-    folders: ServerFolder[];
-  }> {
-    const remoteItemsGenerator = new RemoteItemsGenerator(this.ipc);
-    return remoteItemsGenerator.getAll();
-  }
+  async searchByUuid(uuid: string): Promise<Nullable<File>> {
+    const driveFile = await this.ipc.invoke('GET_FILE_BY_UUID', uuid);
 
-  public async init(): Promise<void> {
-    const raw = await this.getTree();
+    if (!driveFile) return;
 
-    this.traverser.reset();
-    const all = this.traverser.run(raw);
-
-    const files = Object.entries(all).filter(
-      ([_, value]) =>
-        value instanceof File && value.hasStatus(FileStatuses.EXISTS)
-    ) as Array<[string, File]>;
-
-    this.files = files.reduce((items, [key, value]) => {
-      items[key] = value;
-      return items;
-    }, {} as Record<string, File>);
-  }
-
-  search(path: FilePath): Nullable<File> {
-    const item = this.files[path.value];
-
-    if (!item) return;
-
-    return File.from(item.attributes());
+    return File.from({
+      contentsId: driveFile.fileId,
+      name: driveFile.name,
+      type: driveFile.type,
+      folderId: driveFile.folderId,
+      createdAt: driveFile.createdAt,
+      modificationTime: driveFile.modificationTime,
+      size: driveFile.size,
+      updatedAt: driveFile.updatedAt,
+      status: driveFile.status,
+    });
   }
 
   async delete(file: File): Promise<void> {
@@ -99,7 +75,7 @@ export class HttpFileRepository implements FileRepository {
         name: encryptedName,
         plain_name: file.name,
         size: file.size,
-        type: file.type,
+        type: file.extension,
         modificationTime: Date.now(),
       },
     };
@@ -112,17 +88,6 @@ export class HttpFileRepository implements FileRepository {
     if (result.status === 500) {
       throw new Error('Invalid response creating file');
     }
-
-    const created = File.from({
-      ...result.data,
-      contentsId: result.data.fileId,
-      folderId: result.data.folder_id,
-      size: parseInt(result.data.size, 10),
-      path: file.path.value,
-      status: FileStatuses.EXISTS,
-    });
-
-    this.files[file.path.value] = created;
 
     await this.ipc.invoke('START_REMOTE_SYNC');
   }
@@ -144,16 +109,6 @@ export class HttpFileRepository implements FileRepository {
       );
     }
 
-    const oldFileEntry = Object.entries(this.files).find(
-      ([_, f]) => f.contentsId === file.contentsId && f.name !== file.name
-    );
-
-    if (oldFileEntry) {
-      delete this.files[oldFileEntry[0]];
-    }
-
-    this.files[file.path.value] = File.from(file.attributes());
-
     await this.ipc.invoke('START_REMOTE_SYNC');
   }
 
@@ -170,13 +125,6 @@ export class HttpFileRepository implements FileRepository {
       throw new Error(`[REPOSITORY] Error moving item: ${res.status}`);
     }
 
-    await this.init();
-
     await this.ipc.invoke('START_REMOTE_SYNC');
-  }
-
-  async searchOnFolder(folderId: number): Promise<Array<File>> {
-    await this.init();
-    return Object.values(this.files).filter((file) => file.hasParent(folderId));
   }
 }

@@ -4,7 +4,6 @@ import { FilePath } from './FilePath';
 import { FileSize } from './FileSize';
 import { FileCreatedDomainEvent } from './FileCreatedDomainEvent';
 import { FileCannotBeMovedToTheOriginalFolderError } from './errors/FileCannotBeMovedToTheOriginalFolderError';
-import { FileActionOnlyCanAffectOneLevelError } from './errors/FileActionOnlyCanAffectOneLevelError';
 import { FileNameShouldDifferFromOriginalError } from './errors/FileNameShouldDifferFromOriginalError';
 import { FileActionCannotModifyExtension } from './errors/FileActionCannotModifyExtension';
 import { FileDeletedDomainEvent } from './FileDeletedDomainEvent';
@@ -12,11 +11,12 @@ import { FileStatus, FileStatuses } from './FileStatus';
 import { ContentsId } from '../../contents/domain/ContentsId';
 
 export type FileAtributes = {
+  name: string;
+  type: string;
   contentsId: string;
   folderId: number;
   createdAt: string;
   modificationTime: string;
-  path: string;
   size: number;
   updatedAt: string;
   status: string;
@@ -25,8 +25,9 @@ export type FileAtributes = {
 export class File extends AggregateRoot {
   private constructor(
     private _contentsId: ContentsId,
+    private _name: string,
+    private _type: string,
     private _folderId: number,
-    private _path: FilePath,
     private readonly _size: FileSize,
     public createdAt: Date,
     public updatedAt: Date,
@@ -43,24 +44,16 @@ export class File extends AggregateRoot {
     return this._folderId;
   }
 
-  public get path() {
-    return this._path;
+  public get name(): FileAtributes['name'] {
+    return this._name;
   }
 
-  public get type() {
-    return this._path.extension();
+  public get extension(): FileAtributes['type'] {
+    return this._type;
   }
 
-  public get name() {
-    return this._path.name();
-  }
-
-  public get nameWithExtension() {
-    return this._path.nameWithExtension();
-  }
-
-  public get dirname() {
-    return this._path.dirname();
+  public get nameWithExtension(): string {
+    return `${this.name}.${this.extension}`;
   }
 
   public get size(): number {
@@ -74,8 +67,9 @@ export class File extends AggregateRoot {
   static from(attributes: FileAtributes): File {
     return new File(
       new ContentsId(attributes.contentsId),
+      attributes.name,
+      attributes.type,
       attributes.folderId,
-      new FilePath(attributes.path),
       new FileSize(attributes.size),
       new Date(attributes.createdAt),
       new Date(attributes.updatedAt),
@@ -91,8 +85,9 @@ export class File extends AggregateRoot {
   ): File {
     const file = new File(
       new ContentsId(contentsId),
+      path.name(),
+      path.extension(),
       folder.id,
-      path,
       new FileSize(size),
       new Date(),
       new Date(),
@@ -103,7 +98,7 @@ export class File extends AggregateRoot {
       new FileCreatedDomainEvent({
         aggregateId: contentsId,
         size,
-        type: path.extension(),
+        type: file.extension,
       })
     );
 
@@ -123,20 +118,22 @@ export class File extends AggregateRoot {
 
   moveTo(folder: Folder): void {
     if (this.folderId === folder.id) {
-      throw new FileCannotBeMovedToTheOriginalFolderError(this.path.value);
+      throw new FileCannotBeMovedToTheOriginalFolderError(
+        this.nameWithExtension
+      );
     }
 
     this._folderId = folder.id;
-    this._path = this._path.changeFolder(folder.path.value);
 
     //TODO: record file moved event
   }
 
-  clone(contentsId: string, folderId: number, newPath: FilePath) {
+  clone(contentsId: string, folderId: number) {
     const file = new File(
       new ContentsId(contentsId),
+      this.name,
+      this.extension,
       folderId,
-      newPath,
       this._size,
       this.createdAt,
       new Date(),
@@ -147,18 +144,19 @@ export class File extends AggregateRoot {
       new FileCreatedDomainEvent({
         aggregateId: contentsId,
         size: this._size.value,
-        type: this._path.extension(),
+        type: this.extension,
       })
     );
 
     return file;
   }
 
-  overwrite(contentsId: string, folderId: number, newPath: FilePath) {
+  overwrite(contentsId: string, folderId: number) {
     const file = new File(
       new ContentsId(contentsId),
+      this.name,
+      this.extension,
       folderId,
-      newPath,
       this._size,
       this.createdAt,
       new Date(),
@@ -169,27 +167,23 @@ export class File extends AggregateRoot {
       new FileCreatedDomainEvent({
         aggregateId: contentsId,
         size: this._size.value,
-        type: this._path.extension(),
+        type: this.extension,
       })
     );
 
     return file;
   }
 
-  rename(newPath: FilePath) {
-    if (!this._path.hasSameDirname(newPath)) {
-      throw new FileActionOnlyCanAffectOneLevelError('rename');
-    }
-
-    if (!newPath.hasSameExtension(this._path)) {
+  rename(to: FilePath) {
+    if (to.extension() !== this.extension) {
       throw new FileActionCannotModifyExtension('rename');
     }
 
-    if (this._path.hasSameName(newPath)) {
+    if (to.name() === this.name) {
       throw new FileNameShouldDifferFromOriginalError('rename');
     }
 
-    this._path = this._path.updateName(newPath.nameWithExtension());
+    this._name = to.name();
 
     // TODO: record rename event
   }
@@ -210,51 +204,12 @@ export class File extends AggregateRoot {
     return this._status.is(status);
   }
 
-  update(
-    attributes: Partial<
-      Pick<
-        FileAtributes,
-        | 'path'
-        | 'createdAt'
-        | 'updatedAt'
-        | 'contentsId'
-        | 'folderId'
-        | 'status'
-      >
-    >
-  ) {
-    if (attributes.path) {
-      this._path = new FilePath(attributes.path);
-    }
-
-    if (attributes.createdAt) {
-      this.createdAt = new Date(attributes.createdAt);
-    }
-
-    if (attributes.updatedAt) {
-      this.updatedAt = new Date(attributes.updatedAt);
-    }
-
-    if (attributes.contentsId) {
-      this._contentsId = new ContentsId(attributes.contentsId);
-    }
-
-    if (attributes.folderId) {
-      this._folderId = attributes.folderId;
-    }
-
-    if (attributes.status) {
-      this._status = FileStatus.fromValue(attributes.status);
-    }
-
-    return this;
-  }
-
   toPrimitives(): Omit<FileAtributes, 'modificationTime'> {
     return {
       contentsId: this.contentsId,
+      name: this.name,
+      type: this.extension,
       folderId: this.folderId,
-      path: this._path.value,
       size: this._size.value,
       createdAt: this.createdAt.toISOString(),
       updatedAt: this.updatedAt.toISOString(),
@@ -265,9 +220,10 @@ export class File extends AggregateRoot {
   attributes(): FileAtributes {
     return {
       contentsId: this.contentsId,
+      name: this.name,
+      type: this.extension,
       folderId: this.folderId,
       createdAt: this.createdAt.toISOString(),
-      path: this._path.value,
       size: this._size.value,
       updatedAt: this.updatedAt.toISOString(),
       status: this.status.value,

@@ -1,5 +1,6 @@
 import { DriveFile } from 'main/database/entities/DriveFile';
 import { DriveFolder } from 'main/database/entities/DriveFolder';
+import { Nullable } from 'shared/types/Nullable';
 
 const trackedEvents = [
   'delete',
@@ -162,11 +163,17 @@ export type WebdavInvokableFunctions = {
   START_REMOTE_SYNC: () => Promise<void>;
 };
 
+type SyncManagerMessages = {
+  GET_FILE_BY_UUID: (uuid: string) => Promise<Nullable<DriveFile>>;
+  GET_FOLDER_BY_UUID: (uuid: string) => Promise<Nullable<DriveFolder>>;
+};
+
 export type MainProcessListenedEvents = WebdavServerEvents &
   WebdavVirtualDriveEvents &
   WebdavFlowEvents &
   WebdavFlowEventsErrors &
-  WebdavInvokableFunctions;
+  WebdavInvokableFunctions &
+  SyncManagerMessages;
 
 export type VirtualDriveListenedEvents = {
   START_VIRTUAL_DRIVE_PROCESS: () => void;

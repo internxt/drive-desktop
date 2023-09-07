@@ -52,6 +52,14 @@ export async function getUpdtaedRemoteItems() {
   }
 }
 
+ipcMain.handle('GET_FILE_BY_UUID', (_, uuid: string) => {
+  return driveFilesCollection.get(uuid);
+});
+
+ipcMain.handle('GET_FOLDER_BY_UUID', (_, uuid: string) => {
+  return driveFilesCollection.get(uuid);
+});
+
 ipcMain.handle('GET_UPDATED_REMOTE_ITEMS', async () => {
   return getUpdtaedRemoteItems();
 });

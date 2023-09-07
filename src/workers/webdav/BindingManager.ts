@@ -12,17 +12,6 @@ export class BindingsManager {
     private readonly rootFolder: string
   ) {}
 
-  public async listFiles() {
-    const files = await this.container.fileSearcher.run();
-
-    Logger.info(`Creating placehodlers for ${files.length} files`);
-
-    files.forEach((file: File) => {
-      Logger.info(`Creating placeholder for ${file.path.value}`);
-      this.drive.createItemByPath(file.path.value, file.contentsId);
-    });
-  }
-
   async start(version: string, providerId: string) {
     await this.drive.unregisterSyncRoot();
 
@@ -121,8 +110,6 @@ export class BindingsManager {
         Logger.debug('noneCallback');
       },
     });
-
-    await this.listFiles();
 
     this.drive.watchAndWait2(this.rootFolder);
   }
