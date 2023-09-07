@@ -1,7 +1,9 @@
 import { DependencyContainer } from './dependencyInjection/DependencyContainer';
 import { File } from './modules/files/domain/File';
 import { VirtualDrive } from 'virtual-drive';
+import path from 'path';
 import Logger from 'electron-log';
+import { Folder } from './modules/folders/domain/Folder';
 
 export class BindingsManager {
   private static readonly PROVIDER_NAME = 'Internxt';
@@ -12,14 +14,23 @@ export class BindingsManager {
     private readonly rootFolder: string
   ) {}
 
-  public async listFiles() {
-    const files = await this.container.fileSearcher.run();
+  private createFolderPlaceholder(folder: Folder) {
+    // In order to create a folder placeholder it's path must en with /
+    const folderPath = `${folder.path.value}/`;
 
-    Logger.info(`Creating placehodlers for ${files.length} files`);
+    this.drive.createItemByPath(folderPath, folder.uuid);
+  }
 
-    files.forEach((file: File) => {
-      Logger.info(`Creating placeholder for ${file.path.value}`);
-      this.drive.createItemByPath(file.path.value, file.contentsId);
+  public async createPlaceHolders() {
+    const items = await this.container.treeBuilder.run();
+
+    items.forEach((item) => {
+      if (item.isFile()) {
+        this.drive.createItemByPath(item.path.value, item.contentsId);
+        return;
+      }
+
+      this.createFolderPlaceholder(item);
     });
   }
 
@@ -122,7 +133,7 @@ export class BindingsManager {
       },
     });
 
-    await this.listFiles();
+    await this.createPlaceHolders();
 
     this.drive.watchAndWait2(this.rootFolder);
   }
