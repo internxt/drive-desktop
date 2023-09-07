@@ -1,7 +1,5 @@
 import { DependencyContainer } from './dependencyInjection/DependencyContainer';
-import { File } from './modules/files/domain/File';
 import { VirtualDrive } from 'virtual-drive';
-import path from 'path';
 import Logger from 'electron-log';
 import { Folder } from './modules/folders/domain/Folder';
 
