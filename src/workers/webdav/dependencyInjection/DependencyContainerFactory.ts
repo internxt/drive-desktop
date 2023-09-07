@@ -16,7 +16,6 @@ import { EnvironmentRemoteFileContentsManagersFactory } from '../modules/content
 import { FileSearcher } from '../modules/files/application/FileSearcher';
 import { FolderSearcher } from '../modules/folders/application/FolderSearcher';
 import { FilePathFromAbsolutePathCreator } from '../modules/files/application/FilePathFromAbsolutePathCreator';
-import { AllFilesLister } from '../modules/files/application/AllFilesLister';
 import { RemoteItemsGenerator } from '../modules/items/application/RemoteItemsGenerator';
 import { build } from './items/builder';
 
@@ -190,7 +189,6 @@ export class DependencyContainerFactory {
       filePathFromAbsolutePathCreator: new FilePathFromAbsolutePathCreator(
         localRootFolderPath
       ),
-      allFilesLister: new AllFilesLister(remoteItemsGenerator, traverser),
 
       folderSearcher: new FolderSearcher(folderRepository),
       folderFinder,

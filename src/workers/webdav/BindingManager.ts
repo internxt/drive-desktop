@@ -2,6 +2,7 @@ import { DependencyContainer } from './dependencyInjection/DependencyContainer';
 import { File } from './modules/files/domain/File';
 import { VirtualDrive } from 'virtual-drive';
 import Logger from 'electron-log';
+import { Folder } from './modules/folders/domain/Folder';
 
 export class BindingsManager {
   private static readonly PROVIDER_NAME = 'Internxt';
@@ -13,10 +14,14 @@ export class BindingsManager {
   ) {}
 
   public async listFiles() {
-    const files = await this.container.allFilesLister.run();
+    const tree = await this.container.treeBuilder.run();
 
-    files.forEach((file: File) => {
-      this.drive.createItemByPath(file.path.value, file.contentsId, file.size);
+    tree.forEach((item: File | Folder) => {
+      if (item.isFolder()) {
+        return;
+      }
+
+      this.drive.createItemByPath(item.path.value, item.contentsId, item.size);
     });
   }
 
