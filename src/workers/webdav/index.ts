@@ -1,7 +1,6 @@
 import Logger from 'electron-log';
 import { ipcRenderer } from 'electron';
 import { DependencyContainerFactory } from './dependencyInjection/DependencyContainerFactory';
-import { VirtualDrive } from 'virtual-drive/dist';
 import packageJson from '../../../package.json';
 import { BindingsManager } from './BindingManager';
 import fs from 'fs/promises';
@@ -16,41 +15,45 @@ async function ensureTheFolderExist(path: string) {
 }
 
 async function setUp() {
-  try {
-    Logger.debug('STARTING SYNC ENGINE PROCESS');
+  Logger.debug('STARTING SYNC ENGINE PROCESS');
 
-    const virtualDrivePath = await ipcRenderer.invoke('get-virtual-drive-root');
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const { VirtualDrive } = require('virtual-drive/dist');
 
-    Logger.info('WATCHING ON PATH: ', virtualDrivePath);
+  const virtualDrivePath = await ipcRenderer.invoke('get-virtual-drive-root');
 
-    await ensureTheFolderExist(virtualDrivePath);
+  Logger.info('WATCHING ON PATH: ', virtualDrivePath);
 
-    const virtualDrive = new VirtualDrive(virtualDrivePath);
+  await ensureTheFolderExist(virtualDrivePath);
 
-    ipcRenderer.on('STOP_SYNC_ENGINE_PROCESS', async (event) => {
-      await virtualDrive.unregisterSyncRoot();
+  const virtualDrive = new VirtualDrive(virtualDrivePath);
 
-      event.sender.send('SYNC_ENGINE_STOP_SUCCESS');
-    });
+  ipcRenderer.on('STOP_SYNC_ENGINE_PROCESS', async (event) => {
+    await virtualDrive.unregisterSyncRoot();
 
-    const factory = new DependencyContainerFactory();
-    const container = await factory.build();
+    event.sender.send('SYNC_ENGINE_STOP_SUCCESS');
+  });
 
-    const bindings = new BindingsManager(
-      virtualDrive,
-      container,
-      virtualDrivePath
-    );
+  const factory = new DependencyContainerFactory();
+  const container = await factory.build();
 
-    await bindings.start(
-      packageJson.version,
-      '{12345678-1234-1234-1234-123456789012}'
-    );
-  } catch (error) {
-    Logger.debug('ERROR ON SETTING UP', error);
-  }
+  const bindings = new BindingsManager(
+    virtualDrive,
+    container,
+    virtualDrivePath
+  );
+
+  await bindings.start(
+    packageJson.version,
+    '{12345678-1234-1234-1234-123456789012}'
+  );
 }
 
-setUp().catch((err) => {
-  Logger.error(err);
-});
+setUp()
+  .then(() => {
+    ipcRenderer.emit('SYNC_ENGINE_PROCESS_SETUP_SUCCESSFUL');
+  })
+  .catch((error) => {
+    Logger.error('[SYNC ENGINE] Error setting up', error);
+    ipcRenderer.emit('SYNC_ENGINE_PROCESS_SETUP_FAILED');
+  });
