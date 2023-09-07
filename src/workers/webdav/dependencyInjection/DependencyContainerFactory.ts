@@ -18,6 +18,7 @@ import { FolderSearcher } from '../modules/folders/application/FolderSearcher';
 import { FilePathFromAbsolutePathCreator } from '../modules/files/application/FilePathFromAbsolutePathCreator';
 import { AllFilesLister } from '../modules/files/application/AllFilesLister';
 import { RemoteItemsGenerator } from '../modules/items/application/RemoteItemsGenerator';
+import { build } from './items/builder';
 
 export class DependencyContainerFactory {
   private _container: DependencyContainer | undefined;
@@ -93,6 +94,8 @@ export class DependencyContainerFactory {
 
     await fileRepository.init();
     await folderRepository.init();
+
+    const itemsContainer = build();
 
     // const cachePath = await ipcRenderer.invoke('get-path', 'userData');
 
@@ -215,6 +218,7 @@ export class DependencyContainerFactory {
       //   ),
       //   itemSearcher: unknownItemSearcher,
       //   eventBus,
+      ...itemsContainer,
     };
 
     this._container = container;
