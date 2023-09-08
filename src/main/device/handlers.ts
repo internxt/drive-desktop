@@ -1,4 +1,4 @@
-import { ipcMain, shell } from 'electron';
+import { ipcMain } from 'electron';
 
 import {
   addBackup,
@@ -12,7 +12,6 @@ import {
   renameDevice,
   createBackupsFromLocalPaths,
 } from './service';
-import { getVirtualDrivePath } from '../../workers/webdav/VirtualDrive';
 ipcMain.handle('get-or-create-device', getOrCreateDevice);
 
 ipcMain.handle('rename-device', (_, v) => renameDevice(v));
@@ -33,6 +32,3 @@ ipcMain.handle('change-backup-path', (_, v) => changeBackupPath(v));
 ipcMain.on('add-device-issue', (_, e) => addUnknownDeviceIssue(e));
 
 ipcMain.handle('get-folder-path', () => getPathFromDialog());
-ipcMain.handle('open-virtual-drive', () => {
-  return shell.openPath(getVirtualDrivePath());
-});

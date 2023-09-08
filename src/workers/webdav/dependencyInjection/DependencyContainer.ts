@@ -10,7 +10,6 @@ import { FileDeleter } from '../modules/files/application/FileDeleter';
 import { WebdavFileRenamer } from '../modules/files/application/WebdavFileRenamer';
 import { FolderSearcher } from '../modules/folders/application/FolderSearcher';
 import { FilePathFromAbsolutePathCreator } from '../modules/files/application/FilePathFromAbsolutePathCreator';
-import { extend } from 'lodash';
 import { ItemsContainer } from './items/ItemsContainer';
 // import { WebdavFolderCreator } from '../modules/folders/application/WebdavFolderCreator';
 // import { WebdavFolderDeleter } from '../modules/folders/application/WebdavFolderDeleter';
