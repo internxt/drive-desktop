@@ -24,7 +24,7 @@ export class EnvironmentContentFileUpoader implements ContentFileUploader {
 
     return new Promise((resolve, reject) => {
       this.fn(this.bucket, {
-        contents,
+        source: contents,
         fileSize: size,
         finishedCallback: (err: Error | null, fileId: string) => {
           this.stopwatch.finish();

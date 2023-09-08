@@ -2,6 +2,7 @@ import { DependencyContainer } from './dependencyInjection/DependencyContainer';
 import { VirtualDrive } from 'virtual-drive';
 import Logger from 'electron-log';
 import { Folder } from './modules/folders/domain/Folder';
+import fs from 'fs';
 
 export class BindingsManager {
   private static readonly PROVIDER_NAME = 'Internxt';
@@ -107,8 +108,35 @@ export class BindingsManager {
             callback(false);
           });
       },
-      notifyFileAddedCallback: async (filePath: string) => {
-        Logger.debug('File added', filePath);
+      notifyFileAddedCallback: async (absolutePath: string) => {
+        try {
+          Logger.debug('File going to be added: ', absolutePath);
+
+          const { size } = fs.statSync(absolutePath);
+
+          const relative =
+            this.container.filePathFromAbsolutePathCreator.run(absolutePath);
+
+          Logger.debug('File going to uploaded: ', relative.value, size);
+
+          const stream = fs.createReadStream(absolutePath);
+
+          const contentsId = await this.container.fileCreator.run(
+            stream,
+            relative.value,
+            size
+          );
+
+          Logger.debug('File going to uploaded');
+
+          const unixLikePath = relative.value.replace(/\\/g, '/');
+
+          fs.unlinkSync(absolutePath);
+
+          this.drive.createItemByPath(unixLikePath, contentsId, size);
+        } catch (err) {
+          Logger.error(err);
+        }
       },
       fetchDataCallback: () => {
         Logger.debug('fetchDataCallback');

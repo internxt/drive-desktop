@@ -19,6 +19,9 @@ import { FilePathFromAbsolutePathCreator } from '../modules/files/application/Fi
 import { FileFinderByContentsId } from '../modules/files/application/FileFinderByContentsId';
 import { RemoteItemsGenerator } from '../modules/items/application/RemoteItemsGenerator';
 import { build } from './items/builder';
+import { InMemoryTemporalFileMetadataCollection } from '../modules/files/infrastructure/persistance/InMemoryTemporalFileMetadataCollection';
+import { NodeJsEventBus } from '../modules/shared/infrastructure/DuplexEventBus';
+import { WebdavFileCreator } from '../modules/files/application/WebdavFileCreator';
 
 export class DependencyContainerFactory {
   private _container: DependencyContainer | undefined;
@@ -117,7 +120,7 @@ export class DependencyContainerFactory {
         user.bucket
       );
 
-    // const eventBus = new NodeJsEventBus();
+    const eventBus = new NodeJsEventBus();
 
     const folderFinder = new WebdavFolderFinder(folderRepository);
 
@@ -132,7 +135,7 @@ export class DependencyContainerFactory {
     const remoteItemsGenerator = new RemoteItemsGenerator(ipc);
     // const folderRenamer = new WebdavFolderRenamer(folderRepository, ipc);
 
-    // const temporalFileCollection = new InMemoryTemporalFileMetadataCollection();
+    const temporalFileCollection = new InMemoryTemporalFileMetadataCollection();
 
     // const unknownItemSearcher = new WebdavUnknownItemTypeSearcher(
     //   fileRepository,
@@ -172,14 +175,14 @@ export class DependencyContainerFactory {
       //   eventBus,
       //   ipc
       // ),
-      // fileCreator: new WebdavFileCreator(
-      //   fileRepository,
-      //   folderFinder,
-      //   contentsManagerFactory,
-      //   temporalFileCollection,
-      //   eventBus,
-      //   ipc
-      // ),
+      fileCreator: new WebdavFileCreator(
+        fileRepository,
+        folderFinder,
+        contentsManagerFactory,
+        temporalFileCollection,
+        eventBus,
+        ipc
+      ),
       // fileDownloader: new WebdavFileDownloader(
       //   fileRepository,
       //   contentsManagerFactory,

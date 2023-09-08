@@ -1,4 +1,4 @@
-import { PassThrough, Writable } from 'stream';
+import { Readable } from 'stream';
 import { WebdavFolderFinder } from '../../folders/application/WebdavFolderFinder';
 import { FilePath } from '../domain/FilePath';
 import { ContentsManagersFactory } from '../../contents/domain/ContentsManagersFactory';
@@ -92,12 +92,10 @@ export class WebdavFileCreator {
   }
 
   async run(
+    stream: Readable,
     path: string,
     size: number
-  ): Promise<{
-    stream: Writable;
-    upload: Promise<File['contentsId']>;
-  }> {
+  ): Promise<Promise<File['contentsId']>> {
     const fileSize = new FileSize(size);
     const filePath = new FilePath(path);
 
@@ -112,9 +110,9 @@ export class WebdavFileCreator {
 
     this.temporalFileCollection.add(filePath.value, metadata);
 
-    const folder = this.folderFinder.run(filePath.dirname());
-
-    const stream = new PassThrough();
+    const folder = this.folderFinder.run(
+      filePath.dirname().replace(/\\/g, '/')
+    );
 
     const uploader = this.remoteContentsManagersFactory.uploader(fileSize);
 
@@ -137,9 +135,6 @@ export class WebdavFileCreator {
         });
       });
 
-    return {
-      stream,
-      upload,
-    };
+    return upload;
   }
 }

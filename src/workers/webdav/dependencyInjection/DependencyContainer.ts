@@ -2,7 +2,7 @@
 // import { Axios } from 'axios';
 import { FileSearcher } from '../modules/files/application/FileSearcher';
 // import { WebdavFileClonner } from '../modules/files/application/WebdavFileClonner';
-// import { WebdavFileCreator } from '../modules/files/application/WebdavFileCreator';
+import { WebdavFileCreator } from '../modules/files/application/WebdavFileCreator';
 import { FileDeleter } from '../modules/files/application/FileDeleter';
 // import { WebdavFileDownloader } from '../modules/files/application/WebdavFileDownloader';
 // import { WebdavFileMimeTypeResolver } from '../modules/files/application/WebdavFileMimeTypeResolver';
@@ -41,7 +41,7 @@ export interface DependencyContainer extends ItemsContainer {
   // fileClonner: WebdavFileClonner;
   fileDeleter: FileDeleter;
   // fileMover: WebdavFileMover;
-  // fileCreator: WebdavFileCreator;
+  fileCreator: WebdavFileCreator;
   // fileDownloader: WebdavFileDownloader;
   // fileMimeTypeResolver: WebdavFileMimeTypeResolver;
   fileRenamer: WebdavFileRenamer;
