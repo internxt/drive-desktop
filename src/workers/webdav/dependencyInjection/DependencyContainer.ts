@@ -10,6 +10,7 @@ import { FileDeleter } from '../modules/files/application/FileDeleter';
 import { WebdavFileRenamer } from '../modules/files/application/WebdavFileRenamer';
 import { FolderSearcher } from '../modules/folders/application/FolderSearcher';
 import { FilePathFromAbsolutePathCreator } from '../modules/files/application/FilePathFromAbsolutePathCreator';
+import { ItemsContainer } from './items/ItemsContainer';
 // import { WebdavFolderCreator } from '../modules/folders/application/WebdavFolderCreator';
 // import { WebdavFolderDeleter } from '../modules/folders/application/WebdavFolderDeleter';
 // import { WebdavFolderFinder } from '../modules/folders/application/WebdavFolderFinder';
@@ -26,7 +27,7 @@ import { FilePathFromAbsolutePathCreator } from '../modules/files/application/Fi
 // import { UserUsageIncrementer } from '../modules/userUsage/application/UserUsageIncrementer';
 // import { UserUsageRepository } from '../modules/userUsage/domain/UserUsageRepository';
 
-export interface DependencyContainer {
+export interface DependencyContainer extends ItemsContainer {
   // drive: Axios;
   // newDrive: Axios;
 
