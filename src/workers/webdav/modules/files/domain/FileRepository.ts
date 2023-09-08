@@ -6,6 +6,8 @@ import { FilePath } from './FilePath';
 export interface FileRepository {
   search(pathLike: FilePath): Nullable<File>;
 
+  searchByPartial(partial: Partial<File>): Nullable<File>;
+
   delete(file: File): Promise<void>;
 
   add(file: File): Promise<void>;

@@ -44,24 +44,14 @@ export class BindingsManager {
         const sanitazedId = contentsId.replace(/[\x00-\x1F\x7F-\x9F]/g, '');
 
         const deleteFn = async () => {
-          const files = await this.container.fileSearcher.run();
-          const file = files.find((file) => {
-            return file.contentsId === sanitazedId;
-          });
-
-          if (file) {
-            Logger.debug('FILE TO BE DELTED', file.attributes());
-            this.container.fileDeleter
-              .run(file)
-              .then(() => {
-                Logger.debug('FILE DELETED: ', file.nameWithExtension);
-              })
-              .catch((err) => {
-                Logger.debug('error deleting', err);
-              });
-          } else {
-            Logger.debug('FILE NOT FOUND');
-          }
+          this.container.fileDeleter
+            .run(sanitazedId)
+            .then(() => {
+              Logger.debug('FILE DELETED: ', sanitazedId);
+            })
+            .catch((err) => {
+              Logger.debug('error deleting', err);
+            });
         };
 
         deleteFn()

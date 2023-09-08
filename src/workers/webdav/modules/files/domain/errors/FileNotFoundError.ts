@@ -1,5 +1,5 @@
 export class FileNotFoundError extends Error {
-  constructor(path: string) {
-    super(`File ${path} not found`);
+  constructor(id: string) {
+    super(`File ${id} not found`);
   }
 }
