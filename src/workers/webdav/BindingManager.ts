@@ -1,5 +1,4 @@
 import { DependencyContainer } from './dependencyInjection/DependencyContainer';
-import { File } from './modules/files/domain/File';
 import { VirtualDrive } from 'virtual-drive';
 import Logger from 'electron-log';
 import { Folder } from './modules/folders/domain/Folder';
@@ -13,15 +12,23 @@ export class BindingsManager {
     private readonly rootFolder: string
   ) {}
 
-  public async listFiles() {
-    const tree = await this.container.treeBuilder.run();
+  private createFolderPlaceholder(folder: Folder) {
+    // In order to create a folder placeholder it's path must en with /
+    const folderPath = `${folder.path.value}/`;
 
-    tree.forEach((item: File | Folder) => {
-      if (item.isFolder()) {
+    this.drive.createItemByPath(folderPath, folder.uuid);
+  }
+
+  public async createPlaceHolders() {
+    const items = await this.container.treeBuilder.run();
+
+    items.forEach((item) => {
+      if (item.isFile()) {
+        this.drive.createItemByPath(item.path.value, item.contentsId);
         return;
       }
 
-      this.drive.createItemByPath(item.path.value, item.contentsId, item.size);
+      this.createFolderPlaceholder(item);
     });
   }
 
@@ -124,7 +131,7 @@ export class BindingsManager {
       },
     });
 
-    await this.listFiles();
+    await this.createPlaceHolders();
 
     this.drive.watchAndWait2(this.rootFolder);
   }
