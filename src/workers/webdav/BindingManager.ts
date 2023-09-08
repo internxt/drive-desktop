@@ -42,28 +42,20 @@ export class BindingsManager {
     );
 
     await this.drive.connectSyncRoot({
-      notifyDeleteCompletionCallback: async (contentsId: string) => {
+      notifyDeleteCallback: async (contentsId: string) => {
         // eslint-disable-next-line no-control-regex
         const sanitazedId = contentsId.replace(/[\x00-\x1F\x7F-\x9F]/g, '');
 
-        const files = await this.container.fileSearcher.run();
-        const file = files.find((file) => {
-          return file.contentsId === sanitazedId;
-        });
-
-        if (file) {
-          Logger.debug('FILE TO BE DELTED', file.attributes());
-          this.container.fileDeleter
-            .run(file)
-            .then(() => {
-              Logger.debug('FILE DELETED: ', file.nameWithExtension);
-            })
-            .catch((err) => {
-              Logger.debug('error deleting', err);
-            });
-        } else {
-          Logger.debug('FILE NOT FOUND');
+        try {
+          await this.container.fileDeleter.run(sanitazedId);
+          return true;
+        } catch (error) {
+          Logger.error(`Error deleting file ${contentsId}`);
+          return false;
         }
+      },
+      notifyDeleteCompletionCallback: (...params) => {
+        Logger.debug('notifyDeleteCallback', params);
       },
       notifyRenameCallback: async (
         absolutePath: string,
@@ -92,9 +84,6 @@ export class BindingsManager {
           .run(file, relative)
           .then(() => Logger.debug('FILE RENAMED / MOVED SUCCESFULLY'))
           .catch((err) => Logger.error(err));
-      },
-      notifyDeleteCallback: (...parms) => {
-        Logger.debug('notifyDeleteCallback', parms);
       },
       fetchDataCallback: () => {
         Logger.debug('fetchDataCallback');

@@ -5,6 +5,7 @@ import { FileRepository } from '../../domain/FileRepository';
 
 export class FileRepositoryMock implements FileRepository {
   public mockSearch = jest.fn();
+  public mockSearchByCriteria = jest.fn();
   public mockDelete = jest.fn();
   public mockAdd = jest.fn();
   public mockUpdateName = jest.fn();
@@ -14,6 +15,11 @@ export class FileRepositoryMock implements FileRepository {
   search(pathLike: FilePath): Nullable<File> {
     return this.mockSearch(pathLike);
   }
+
+  searchByPartial(partial: Partial<File>): Nullable<File> {
+    return this.mockSearchByCriteria(partial);
+  }
+
   delete(file: File): Promise<void> {
     return this.mockDelete(file);
   }
