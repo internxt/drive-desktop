@@ -80,6 +80,7 @@ export class HttpFolderRepository implements FolderRepository {
 
     const folder = Folder.create({
       id: serverFolder.id,
+      uuid: serverFolder.uuid,
       parentId: serverFolder.parentId,
       updatedAt: serverFolder.updatedAt,
       createdAt: serverFolder.createdAt,

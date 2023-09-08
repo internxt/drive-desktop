@@ -16,6 +16,8 @@ import { ItemsIndexedByPath } from '../domain/ItemsIndexedByPath';
 /** @deprecated */
 export class Traverser {
   private readonly collection: ItemsIndexedByPath = {};
+  private static readonly ROOT_FOLDER_UUID =
+    '43711926-15c2-5ebf-8c24-5099fa9af3c3';
 
   private rawTree: {
     files: Array<ServerFile>;
@@ -96,6 +98,7 @@ export class Traverser {
 
       this.collection[name] = Folder.from({
         id: folder.id,
+        uuid: folder.uuid,
         parentId: folder.parentId as number,
         updatedAt: folder.updatedAt,
         createdAt: folder.createdAt,
@@ -114,6 +117,7 @@ export class Traverser {
 
     this.collection['/'] = Folder.from({
       id: this.baseFolderId,
+      uuid: Traverser.ROOT_FOLDER_UUID,
       parentId: null,
       updatedAt: new Date().toISOString(),
       createdAt: new Date().toISOString(),
@@ -132,6 +136,7 @@ export class Traverser {
 
     this.collection['/'] = Folder.from({
       id: this.baseFolderId,
+      uuid: Traverser.ROOT_FOLDER_UUID,
       parentId: null,
       updatedAt: new Date().toISOString(),
       createdAt: new Date().toISOString(),
