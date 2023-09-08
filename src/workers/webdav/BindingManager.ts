@@ -35,66 +35,90 @@ export class BindingsManager {
   async start(version: string, providerId: string) {
     await this.drive.unregisterSyncRoot();
 
-    await this.drive.registerSyncRoot(
-      BindingsManager.PROVIDER_NAME,
-      version,
-      providerId
-    );
-
-    await this.drive.connectSyncRoot({
-      notifyDeleteCompletionCallback: async (contentsId: string) => {
+    const callbacks = {
+      notifyDeleteCallback: (
+        contentsId: string,
+        callback: (response: boolean) => void
+      ) => {
         // eslint-disable-next-line no-control-regex
         const sanitazedId = contentsId.replace(/[\x00-\x1F\x7F-\x9F]/g, '');
 
-        const files = await this.container.fileSearcher.run();
-        const file = files.find((file) => {
-          return file.contentsId === sanitazedId;
-        });
+        const deleteFn = async () => {
+          const files = await this.container.fileSearcher.run();
+          const file = files.find((file) => {
+            return file.contentsId === sanitazedId;
+          });
 
-        if (file) {
-          Logger.debug('FILE TO BE DELTED', file.attributes());
-          this.container.fileDeleter
-            .run(file)
-            .then(() => {
-              Logger.debug('FILE DELETED: ', file.nameWithExtension);
-            })
-            .catch((err) => {
-              Logger.debug('error deleting', err);
-            });
-        } else {
-          Logger.debug('FILE NOT FOUND');
-        }
+          if (file) {
+            Logger.debug('FILE TO BE DELTED', file.attributes());
+            this.container.fileDeleter
+              .run(file)
+              .then(() => {
+                Logger.debug('FILE DELETED: ', file.nameWithExtension);
+              })
+              .catch((err) => {
+                Logger.debug('error deleting', err);
+              });
+          } else {
+            Logger.debug('FILE NOT FOUND');
+          }
+        };
+
+        deleteFn()
+          .then(() => {
+            callback(true);
+          })
+          .catch((error) => {
+            Logger.error(error);
+            callback(false);
+          });
       },
-      notifyRenameCallback: async (
+      notifyDeleteCompletionCallback: () => {
+        Logger.info('Deletion completed');
+      },
+      notifyRenameCallback: (
         absolutePath: string,
-        contentsId: string
+        contentsId: string,
+        callback: (response: boolean) => void
       ) => {
         const sanitazedContentsId = contentsId.replace(
           // eslint-disable-next-line no-control-regex
           /[\x00-\x1F\x7F-\x9F]/g,
           ''
         );
-        const files = await this.container.fileSearcher.run();
-        const file = files.find(
-          (file) => file.contentsId === sanitazedContentsId
-        );
 
-        if (!file) {
-          throw new Error('File not found');
-        }
+        const renameFn = async () => {
+          const files = await this.container.fileSearcher.run();
+          const file = files.find(
+            (file) => file.contentsId === sanitazedContentsId
+          );
 
-        const relative =
-          this.container.filePathFromAbsolutePathCreator.run(absolutePath);
+          if (!file) {
+            throw new Error('File not found');
+          }
 
-        Logger.debug('NEW PATH', relative.value);
+          const relative =
+            this.container.filePathFromAbsolutePathCreator.run(absolutePath);
 
-        await this.container.fileRenamer
-          .run(file, relative)
-          .then(() => Logger.debug('FILE RENAMED / MOVED SUCCESFULLY'))
-          .catch((err) => Logger.error(err));
+          Logger.debug('NEW PATH', relative.value);
+
+          await this.container.fileRenamer
+            .run(file, relative)
+            .then(() => Logger.debug('FILE RENAMED / MOVED SUCCESFULLY'))
+            .catch((err) => Logger.error(err));
+        };
+
+        renameFn()
+          .then(() => {
+            callback(true);
+          })
+          .catch((error) => {
+            Logger.error(error);
+            callback(false);
+          });
       },
-      notifyDeleteCallback: (...parms) => {
-        Logger.debug('notifyDeleteCallback', parms);
+      notifyFileAddedCallback: async (filePath: string) => {
+        Logger.debug('File added', filePath);
       },
       fetchDataCallback: () => {
         Logger.debug('fetchDataCallback');
@@ -129,11 +153,20 @@ export class BindingsManager {
       noneCallback: () => {
         Logger.debug('noneCallback');
       },
-    });
+    };
+
+    await this.drive.registerSyncRoot(
+      BindingsManager.PROVIDER_NAME,
+      version,
+      providerId,
+      callbacks
+    );
+
+    await this.drive.connectSyncRoot();
 
     await this.createPlaceHolders();
 
-    this.drive.watchAndWait2(this.rootFolder);
+    this.drive.watchAndWait(this.rootFolder);
   }
 
   async stop() {
