@@ -1,21 +1,18 @@
-import { DependencyContainer } from './dependencyInjection/DependencyContainer';
 import { VirtualDrive } from 'virtual-drive';
 import Logger from 'electron-log';
 import { Folder } from './modules/folders/domain/Folder';
+import { File } from './modules/files/domain/File';
 import { buildControllers } from './app/buildControllers';
 import fs from 'fs';
 
 export class BindingsManager {
   private static readonly PROVIDER_NAME = 'Internxt';
-  private readonly controllers: ReturnType<typeof buildControllers>;
 
   constructor(
     private readonly drive: VirtualDrive,
-    private readonly container: DependencyContainer,
+    private readonly controllers: ReturnType<typeof buildControllers>,
     private readonly rootFolder: string
-  ) {
-    this.controllers = buildControllers(container);
-  }
+  ) {}
 
   private createFolderPlaceholder(folder: Folder) {
     // In order to create a folder placeholder it's path must en with /
@@ -24,9 +21,7 @@ export class BindingsManager {
     this.drive.createItemByPath(folderPath, folder.uuid);
   }
 
-  public async createPlaceHolders() {
-    const items = await this.container.treeBuilder.run();
-
+  public createPlaceHolders(items: Array<File | Folder>) {
     items.forEach((item) => {
       if (item.isFile()) {
         this.drive.createItemByPath(
@@ -135,9 +130,9 @@ export class BindingsManager {
     );
 
     await this.drive.connectSyncRoot();
+  }
 
-    await this.createPlaceHolders();
-
+  watch() {
     this.drive.watchAndWait(this.rootFolder);
   }
 
