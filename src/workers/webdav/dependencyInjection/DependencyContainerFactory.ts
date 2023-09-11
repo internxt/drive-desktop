@@ -1,10 +1,8 @@
-import { Environment } from '@internxt/inxt-js';
 import { getUser } from 'main/auth/service';
 import configStore from 'main/config';
 import { getClients } from '../../../shared/HttpClient/backgroud-process-clients';
 import crypt from '../../utils/crypt';
 import { ipc } from '../ipc';
-import { EnvironmentRemoteFileContentsManagersFactory } from '../modules/contents/infrastructure/EnvironmentRemoteFileContentsManagersFactory';
 import { FileCreator } from '../modules/files/application/FileCreator';
 import { FileDeleter } from '../modules/files/application/FileDeleter';
 import { FileFinderByContentsId } from '../modules/files/application/FileFinderByContentsId';
@@ -53,15 +51,7 @@ export class DependencyContainerFactory {
 
     const clients = getClients();
 
-    const mnemonic = configStore.get('mnemonic');
     const localRootFolderPath = configStore.get('syncRoot');
-
-    const environment = new Environment({
-      bridgeUrl: process.env.BRIDGE_URL,
-      bridgeUser: user.bridgeUser,
-      bridgePass: user.userId,
-      encryptionKey: mnemonic,
-    });
 
     const traverser = new Traverser(crypt, user.root_folder_id);
 
