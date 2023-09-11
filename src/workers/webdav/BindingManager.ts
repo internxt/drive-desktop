@@ -2,20 +2,19 @@ import { DependencyContainer } from './dependencyInjection/DependencyContainer';
 import { VirtualDrive } from 'virtual-drive';
 import Logger from 'electron-log';
 import { Folder } from './modules/folders/domain/Folder';
-import { buildCallbacks } from './app/buildCallbacks';
+import { buildControllers } from './app/buildControllers';
 import fs from 'fs';
-import { TextHSix } from 'phosphor-react';
 
 export class BindingsManager {
   private static readonly PROVIDER_NAME = 'Internxt';
-  private readonly callbacks: ReturnType<typeof buildCallbacks>;
+  private readonly controllers: ReturnType<typeof buildControllers>;
 
   constructor(
     private readonly drive: VirtualDrive,
     private readonly container: DependencyContainer,
     private readonly rootFolder: string
   ) {
-    this.callbacks = buildCallbacks(container);
+    this.controllers = buildControllers(container);
   }
 
   private createFolderPlaceholder(folder: Folder) {
@@ -50,7 +49,7 @@ export class BindingsManager {
         contentsId: string,
         callback: (response: boolean) => void
       ) => {
-        this.callbacks.deleteFile
+        this.controllers.deleteFile
           .execute(contentsId)
           .then(() => {
             callback(true);
@@ -68,7 +67,7 @@ export class BindingsManager {
         contentsId: string,
         callback: (response: boolean) => void
       ) => {
-        this.callbacks.renameOrMoveFile
+        this.controllers.renameOrMoveFile
           .execute(absolutePath, contentsId)
           .then(() => {
             callback(true);
@@ -79,12 +78,19 @@ export class BindingsManager {
           });
       },
       notifyFileAddedCallback: (absolutePath: string) => {
-        const done = (id: string, relative: string, size: number) => {
+        const dehydratateAndCreatePlaceholder = (
+          id: string,
+          relative: string,
+          size: number
+        ) => {
           fs.unlinkSync(absolutePath);
           this.drive.createItemByPath(relative, id, size);
         };
 
-        this.callbacks.addFile.execute(absolutePath, done);
+        this.controllers.addFile.execute(
+          absolutePath,
+          dehydratateAndCreatePlaceholder
+        );
       },
       fetchDataCallback: () => {
         Logger.debug('fetchDataCallback');

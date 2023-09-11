@@ -2,7 +2,6 @@ import Logger from 'electron-log';
 import { ContentsUploader } from '../../modules/contents/application/ContentsUploader';
 import { FileCreator } from '../../modules/files/application/FileCreator';
 import { FilePathFromAbsolutePathCreator } from '../../modules/files/application/FilePathFromAbsolutePathCreator';
-import { SyncEngineCallback } from './SyncEngineCallback';
 
 export type DehydratateAndCreatePlaceholder = (
   id: string,
@@ -10,7 +9,7 @@ export type DehydratateAndCreatePlaceholder = (
   size: number
 ) => void;
 
-export class AddFileCallback implements SyncEngineCallback {
+export class AddFileController {
   constructor(
     private readonly contentsUploader: ContentsUploader,
     private readonly filePathFromAbsolutePathCreator: FilePathFromAbsolutePathCreator,

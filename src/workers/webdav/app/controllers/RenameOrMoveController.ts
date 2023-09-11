@@ -1,7 +1,7 @@
 import { FilePathFromAbsolutePathCreator } from '../../modules/files/application/FilePathFromAbsolutePathCreator';
 import { WebdavFileRenamer } from '../../modules/files/application/WebdavFileRenamer';
 
-export class RenameOrMoveCallback {
+export class RenameOrMoveController {
   constructor(
     private readonly filePathFromAbsolutePathCreator: FilePathFromAbsolutePathCreator,
     private readonly fileRenamer: WebdavFileRenamer

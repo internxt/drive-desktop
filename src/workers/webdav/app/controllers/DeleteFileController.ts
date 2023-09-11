@@ -1,6 +1,6 @@
 import { FileDeleter } from '../../modules/files/application/FileDeleter';
 
-export class DeleteFileCallback {
+export class DeleteFileController {
   constructor(private readonly deleter: FileDeleter) {}
 
   async execute(contentsId: string) {
