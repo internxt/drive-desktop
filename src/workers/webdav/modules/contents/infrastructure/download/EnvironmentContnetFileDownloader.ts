@@ -4,11 +4,9 @@ import { EventEmitter, Readable } from 'stream';
 import {
   ContentFileDownloader,
   FileDownloadEvents,
-} from '../../domain/ContentFileDownloader';
-import { Contents } from '../../domain/Contents';
+} from '../../domain/contentHandlers/ContentFileDownloader';
+import { LocalFileContents } from '../../domain/LocalFileContents';
 import { File } from '../../../files/domain/File';
-import { ContentsId } from '../../domain/ContentsId';
-import { ContentsSize } from '../../domain/ContentsSize';
 
 export class EnvironmentContentFileDownloader implements ContentFileDownloader {
   private eventEmitter: EventEmitter;
@@ -43,12 +41,14 @@ export class EnvironmentContentFileDownloader implements ContentFileDownloader {
               return reject(err);
             }
             this.eventEmitter.emit('finish');
-            const id = new ContentsId(file.contentsId);
-            const remoteContents = Contents.from(
-              new ContentsSize(file.size),
-              stream,
-              id
-            );
+            const remoteContents = LocalFileContents.from({
+              name: file.name,
+              extension: file.type,
+              size: file.size,
+              birthTime: file.createdAt.getUTCMilliseconds(),
+              modifiedTime: file.updatedAt.getUTCMilliseconds(),
+              contents: stream,
+            });
             resolve(remoteContents.stream);
           },
         },

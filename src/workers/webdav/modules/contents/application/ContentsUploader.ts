@@ -1,11 +1,9 @@
 import { VirtualDriveIpc } from 'workers/webdav/ipc';
-import { ItemMetadata } from '../../shared/domain/ItemMetadata';
-import { ContentFileUploader } from '../domain/ContentFileUploader';
+import { ContentFileUploader } from '../domain/contentHandlers/ContentFileUploader';
 import { ContentsManagersFactory } from '../domain/ContentsManagersFactory';
 import { LocalContentsProvider } from '../domain/LocalFileProvider';
-import { ContentsId } from '../domain/ContentsId';
-import { Contents } from '../domain/Contents';
-import { FileContents } from '../domain/FileContents';
+import { RemoteFileContents } from '../domain/RemoteFileContents';
+import { LocalFileContents } from '../domain/LocalFileContents';
 
 export class ContentsUploader {
   constructor(
@@ -16,58 +14,50 @@ export class ContentsUploader {
 
   private registerEvents(
     uploader: ContentFileUploader,
-    metadata: ItemMetadata
+    localFileContents: LocalFileContents
   ) {
     uploader.on('start', () => {
       this.ipc.send('WEBDAV_FILE_UPLOADING', {
-        name: metadata.name,
-        extension: metadata.extension,
-        nameWithExtension:
-          metadata.name +
-          (metadata.extension.length >= 0 ? '.' + metadata.extension : ''),
-        size: metadata.size,
+        name: localFileContents.name,
+        extension: localFileContents.extension,
+        nameWithExtension: localFileContents.nameWithExtension,
+        size: localFileContents.size,
         processInfo: { elapsedTime: uploader.elapsedTime() },
       });
     });
 
     uploader.on('progress', (progress: number) => {
       this.ipc.send('WEBDAV_FILE_UPLOADING', {
-        name: metadata.name,
-        extension: metadata.extension,
-        nameWithExtension:
-          metadata.name +
-          (metadata.extension.length >= 0 ? '.' + metadata.extension : ''),
-        size: metadata.size,
+        name: localFileContents.name,
+        extension: localFileContents.extension,
+        nameWithExtension: localFileContents.nameWithExtension,
+        size: localFileContents.size,
         processInfo: { elapsedTime: uploader.elapsedTime(), progress },
       });
     });
 
     uploader.on('error', (error: Error) => {
       this.ipc.send('WEBDAV_FILE_UPLOAD_ERROR', {
-        name: metadata.name,
-        extension: metadata.extension,
-        nameWithExtension:
-          metadata.name +
-          (metadata.extension.length >= 0 ? '.' + metadata.extension : ''),
+        name: localFileContents.name,
+        extension: localFileContents.extension,
+        nameWithExtension: localFileContents.nameWithExtension,
         error: error.message,
       });
     });
 
     uploader.on('finish', () => {
       this.ipc.send('WEBDAV_FILE_UPLOADED', {
-        name: metadata.name,
-        extension: metadata.extension,
-        nameWithExtension:
-          metadata.name +
-          (metadata.extension.length >= 0 ? '.' + metadata.extension : ''),
-        size: metadata.size,
+        name: localFileContents.name,
+        extension: localFileContents.extension,
+        nameWithExtension: localFileContents.nameWithExtension,
+        size: localFileContents.size,
         processInfo: { elapsedTime: uploader.elapsedTime() },
       });
     });
   }
 
-  async run(absolutePath: string): Promise<FileContents> {
-    const { contents, abortSignal, metadata } =
+  async run(absolutePath: string): Promise<RemoteFileContents> {
+    const { contents, abortSignal } =
       this.contentProvider.provide(absolutePath);
 
     const uploader = this.remoteContentsManagersFactory.uploader(
@@ -75,11 +65,11 @@ export class ContentsUploader {
       abortSignal
     );
 
-    this.registerEvents(uploader, metadata);
+    this.registerEvents(uploader, contents);
 
     const contentsId = await uploader.upload(contents.stream, contents.size);
 
-    const fileContents = FileContents.create(contentsId, contents.size);
+    const fileContents = RemoteFileContents.create(contentsId, contents.size);
 
     return fileContents;
   }

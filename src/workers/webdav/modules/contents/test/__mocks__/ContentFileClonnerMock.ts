@@ -1,7 +1,7 @@
 import {
   ContentFileClonner,
   FileCloneEvents,
-} from '../../domain/ContentFileClonner';
+} from '../../domain/contentHandlers/ContentFileClonner';
 import { ContentsId } from '../../domain/ContentsId';
 
 export class ContentFileClonnerMock implements ContentFileClonner {

@@ -3,7 +3,7 @@ import { EventEmitter, Readable } from 'stream';
 import {
   ContentFileUploader,
   FileUploadEvents,
-} from '../../domain/ContentFileUploader';
+} from '../../domain/contentHandlers/ContentFileUploader';
 import { Stopwatch } from '../../../../../../shared/types/Stopwatch';
 import { ContentsId } from '../../domain/ContentsId';
 

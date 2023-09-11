@@ -1,13 +1,16 @@
-import { ContentFileClonner } from './ContentFileClonner';
-import { ContentFileDownloader } from './ContentFileDownloader';
-import { ContentFileUploader } from './ContentFileUploader';
+import { ContentFileClonner } from './contentHandlers/ContentFileClonner';
+import { ContentFileDownloader } from './contentHandlers/ContentFileDownloader';
+import { ContentFileUploader } from './contentHandlers/ContentFileUploader';
 import { File } from '../../files/domain/File';
-import { Contents } from './Contents';
+import { LocalFileContents } from './LocalFileContents';
 
 export interface ContentsManagersFactory {
   downloader(): ContentFileDownloader;
 
-  uploader(contents: Contents, abortSignal?: AbortSignal): ContentFileUploader;
+  uploader(
+    contents: LocalFileContents,
+    abortSignal?: AbortSignal
+  ): ContentFileUploader;
 
   clonner(file: File): ContentFileClonner;
 }

@@ -3,7 +3,7 @@ import Logger from 'electron-log';
 import {
   ContentFileUploader,
   FileUploadEvents,
-} from '../../domain/ContentFileUploader';
+} from '../../domain/contentHandlers/ContentFileUploader';
 import { ContentsCacheRepository } from '../../domain/ContentsCacheRepository';
 import { ContentsId } from '../../domain/ContentsId';
 

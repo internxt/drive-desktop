@@ -3,7 +3,12 @@ import { AggregateRoot } from '../../shared/domain/AggregateRoot';
 import { ContentsId } from './ContentsId';
 import { ContentsSize } from './ContentsSize';
 
-export class FileContents extends AggregateRoot {
+export type RemoteFileContentsAttributes = {
+  id: string;
+  size: number;
+};
+
+export class RemoteFileContents extends AggregateRoot {
   private constructor(
     private readonly _id: ContentsId,
     private readonly _size: ContentsSize
@@ -19,12 +24,15 @@ export class FileContents extends AggregateRoot {
     return this._size.value;
   }
 
-  static create(id: ContentsId, size: number): FileContents {
-    return new FileContents(id, new ContentsSize(size));
+  static create(id: ContentsId, size: number): RemoteFileContents {
+    return new RemoteFileContents(id, new ContentsSize(size));
   }
 
-  static from(id: ContentsId, size: ContentsSize): FileContents {
-    return new FileContents(id, size);
+  static from(attributes: RemoteFileContentsAttributes): RemoteFileContents {
+    return new RemoteFileContents(
+      new ContentsId(attributes.id),
+      new ContentsSize(attributes.size)
+    );
   }
 
   toPrimitives(): Record<string, Primitives> {

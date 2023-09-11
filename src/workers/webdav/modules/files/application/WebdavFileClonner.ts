@@ -6,7 +6,7 @@ import { FileRepository } from '../domain/FileRepository';
 import { WebdavServerEventBus } from '../../shared/domain/WebdavServerEventBus';
 import { FileAlreadyExistsError } from '../domain/errors/FileAlreadyExistsError';
 import { VirtualDriveIpc } from '../../../ipc';
-import { ContentFileClonner } from '../../contents/domain/ContentFileClonner';
+import { ContentFileClonner } from '../../contents/domain/contentHandlers/ContentFileClonner';
 
 export class WebdavFileClonner {
   private static FILE_OVERRIDED = true;

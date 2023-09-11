@@ -4,7 +4,7 @@ import Logger from 'electron-log';
 import {
   ContentFileDownloader,
   FileDownloadEvents,
-} from '../../domain/ContentFileDownloader';
+} from '../../domain/contentHandlers/ContentFileDownloader';
 import { ContentsCacheRepository } from '../../domain/ContentsCacheRepository';
 
 export class CachedContentFileDownloader implements ContentFileDownloader {
