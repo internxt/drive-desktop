@@ -2,16 +2,20 @@ import { DependencyContainer } from './dependencyInjection/DependencyContainer';
 import { VirtualDrive } from 'virtual-drive';
 import Logger from 'electron-log';
 import { Folder } from './modules/folders/domain/Folder';
+import { buildCallbacks } from './app/buildCallbacks';
 import fs from 'fs';
 
 export class BindingsManager {
   private static readonly PROVIDER_NAME = 'Internxt';
+  private readonly callbacks: ReturnType<typeof buildCallbacks>;
 
   constructor(
     private readonly drive: VirtualDrive,
     private readonly container: DependencyContainer,
     private readonly rootFolder: string
-  ) {}
+  ) {
+    this.callbacks = buildCallbacks(container);
+  }
 
   private createFolderPlaceholder(folder: Folder) {
     // In order to create a folder placeholder it's path must en with /
@@ -108,35 +112,13 @@ export class BindingsManager {
             callback(false);
           });
       },
-      notifyFileAddedCallback: async (absolutePath: string) => {
-        try {
-          Logger.debug('File going to be added: ', absolutePath);
-
-          const { size } = fs.statSync(absolutePath);
-
-          const relative =
-            this.container.filePathFromAbsolutePathCreator.run(absolutePath);
-
-          Logger.debug('File going to uploaded: ', relative.value, size);
-
-          const stream = fs.createReadStream(absolutePath);
-
-          const contentsId = await this.container.fileCreator.run(
-            stream,
-            relative.value,
-            size
-          );
-
-          Logger.debug('File going to uploaded');
-
-          const unixLikePath = relative.value.replace(/\\/g, '/');
-
+      notifyFileAddedCallback: (absolutePath: string) => {
+        const done = (id: string, relative: string, size: number) => {
           fs.unlinkSync(absolutePath);
+          this.drive.createItemByPath(relative, id, size);
+        };
 
-          this.drive.createItemByPath(unixLikePath, contentsId, size);
-        } catch (err) {
-          Logger.error(err);
-        }
+        this.callbacks.addFile.execute(absolutePath, done);
       },
       fetchDataCallback: () => {
         Logger.debug('fetchDataCallback');

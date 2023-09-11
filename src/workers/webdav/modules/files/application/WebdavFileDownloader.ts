@@ -74,7 +74,10 @@ export class WebdavFileDownloader {
     const readable = await downloader.download(file);
 
     const contentsId = new ContentsId(file.contentsId);
-    const remoteContents = Contents.from(contentsId, readable);
+    const remoteContents = Contents.from({
+      id: contentsId,
+      contents: readable,
+    });
 
     await this.eventBus.publish(remoteContents.pullDomainEvents());
 

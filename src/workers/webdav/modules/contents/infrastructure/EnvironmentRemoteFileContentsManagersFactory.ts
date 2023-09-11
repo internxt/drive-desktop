@@ -1,5 +1,4 @@
 import { Environment } from '@internxt/inxt-js';
-import { FileSize } from '../../files/domain/FileSize';
 import { ContentFileClonner } from '../domain/ContentFileClonner';
 import { ContentFileDownloader } from '../domain/ContentFileDownloader';
 import { ContentFileUploader } from '../domain/ContentFileUploader';
@@ -8,6 +7,7 @@ import { EnvironmentContentFileDownloader } from './download/EnvironmentContnetF
 import { EnvironmentContentFileClonner } from './EnvironmentContentFileClonner';
 import { EnvironmentContentFileUpoader } from './upload/EnvironmentContentFileUpoader';
 import { File } from '../../files/domain/File';
+import { Contents } from '../domain/Contents';
 
 export class EnvironmentRemoteFileContentsManagersFactory
   implements ContentsManagersFactory
@@ -43,13 +43,14 @@ export class EnvironmentRemoteFileContentsManagersFactory
     );
   }
 
-  uploader(size: FileSize): ContentFileUploader {
+  uploader(contents: Contents, abortSignal?: AbortSignal): ContentFileUploader {
+    contents.size;
     const fn =
-      size.value >
+      contents.size >
       EnvironmentRemoteFileContentsManagersFactory.MULTIPART_UPLOADE_SIZE_THRESHOLD
         ? this.environment.uploadMultipartFile
         : this.environment.upload;
 
-    return new EnvironmentContentFileUpoader(fn, this.bucket);
+    return new EnvironmentContentFileUpoader(fn, this.bucket, abortSignal);
   }
 }

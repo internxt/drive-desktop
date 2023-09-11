@@ -6,7 +6,7 @@ import { Traverser } from 'workers/webdav/modules/items/application/Traverser';
 import { getUser } from '../../../../main/auth/service';
 import crypt from '../../../utils/crypt';
 
-export function build(): ItemsContainer {
+export function buildItemsContainer(): ItemsContainer {
   const user = getUser();
 
   if (!user) {

@@ -5,6 +5,7 @@ import {
   FileUploadEvents,
 } from '../../domain/ContentFileUploader';
 import { Stopwatch } from '../../../../../../shared/types/Stopwatch';
+import { ContentsId } from '../../domain/ContentsId';
 
 export class EnvironmentContentFileUpoader implements ContentFileUploader {
   private eventEmitter: EventEmitter;
@@ -12,34 +13,41 @@ export class EnvironmentContentFileUpoader implements ContentFileUploader {
 
   constructor(
     private readonly fn: UploadStrategyFunction,
-    private readonly bucket: string
+    private readonly bucket: string,
+    private readonly abortSignal?: AbortSignal
   ) {
     this.eventEmitter = new EventEmitter();
     this.stopwatch = new Stopwatch();
   }
 
-  async upload(contents: Readable, size: number): Promise<string> {
+  async upload(contents: Readable, size: number): Promise<ContentsId> {
     this.eventEmitter.emit('start');
     this.stopwatch.start();
 
     return new Promise((resolve, reject) => {
-      this.fn(this.bucket, {
+      const state = this.fn(this.bucket, {
         source: contents,
         fileSize: size,
-        finishedCallback: (err: Error | null, fileId: string) => {
+        finishedCallback: (err: Error | null, contentsId: string) => {
           this.stopwatch.finish();
 
           if (err) {
             this.eventEmitter.emit('error', err);
             return reject(err);
           }
-          this.eventEmitter.emit('finish', fileId);
-          resolve(fileId);
+          this.eventEmitter.emit('finish', contentsId);
+          resolve(new ContentsId(contentsId));
         },
         progressCallback: (progress: number) => {
           this.eventEmitter.emit('progress', progress);
         },
       });
+
+      if (this.abortSignal) {
+        this.abortSignal.addEventListener('abort', () => {
+          state.stop();
+        });
+      }
     });
   }
 

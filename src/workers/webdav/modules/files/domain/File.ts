@@ -86,14 +86,14 @@ export class File extends AggregateRoot {
   static create(
     contentsId: string,
     folder: Folder,
-    size: number,
+    size: FileSize,
     path: FilePath
   ): File {
     const file = new File(
       new ContentsId(contentsId),
       folder.id,
       path,
-      new FileSize(size),
+      size,
       new Date(),
       new Date(),
       FileStatus.Exists

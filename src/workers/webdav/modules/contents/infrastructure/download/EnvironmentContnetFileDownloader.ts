@@ -43,7 +43,7 @@ export class EnvironmentContentFileDownloader implements ContentFileDownloader {
             }
             this.eventEmitter.emit('finish');
             const id = new ContentsId(file.contentsId);
-            const remoteContents = Contents.from(id, stream);
+            const remoteContents = Contents.from({ id, contents: stream });
             resolve(remoteContents.stream);
           },
         },

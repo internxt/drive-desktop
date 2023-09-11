@@ -1,34 +1,23 @@
-import { FilePath } from '../domain/FilePath';
-import { ContentsManagersFactory } from '../../contents/domain/ContentsManagersFactory';
+import { VirtualDriveIpc } from 'workers/webdav/ipc';
 import { ItemMetadata } from '../../shared/domain/ItemMetadata';
-import { File } from '../domain/File';
-import { FileSize } from '../domain/FileSize';
-import { ContentFileUploader } from '../../contents/domain/ContentFileUploader';
-import { VirtualDriveIpc } from '../../../ipc';
-import { FilePathFromAbsolutePathCreator } from './FilePathFromAbsolutePathCreator';
-import { LocalContentsProvider } from '../../contents/domain/LocalFileProvider';
+import { ContentFileUploader } from '../domain/ContentFileUploader';
+import { ContentsManagersFactory } from '../domain/ContentsManagersFactory';
+import { LocalContentsProvider } from '../domain/LocalFileProvider';
+import { ContentsId } from '../domain/ContentsId';
+import { Contents } from '../domain/Contents';
+import { FileContents } from '../domain/FileContents';
 
-export class WebdavFileCreator {
+export class ContentsUploader {
   constructor(
     private readonly remoteContentsManagersFactory: ContentsManagersFactory,
-    private readonly ipc: VirtualDriveIpc,
-    private readonly relativePathCreator: FilePathFromAbsolutePathCreator,
-    private readonly fileProvider: LocalContentsProvider
+    private readonly contentProvider: LocalContentsProvider,
+    private readonly ipc: VirtualDriveIpc
   ) {}
 
   private registerEvents(
     uploader: ContentFileUploader,
-    filePath: FilePath,
-    size: FileSize
+    metadata: ItemMetadata
   ) {
-    const metadata = ItemMetadata.from({
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
-      name: filePath.name(),
-      size: size.value,
-      extension: filePath.extension(),
-      type: 'FILE',
-    });
     uploader.on('start', () => {
       this.ipc.send('WEBDAV_FILE_UPLOADING', {
         name: metadata.name,
@@ -77,19 +66,21 @@ export class WebdavFileCreator {
     });
   }
 
-  async run(absolutePath: string): Promise<Promise<File['contentsId']>> {
-    const filePath = this.relativePathCreator.run(absolutePath);
+  async run(absolutePath: string): Promise<FileContents> {
+    const { contents, abortSignal, metadata } =
+      this.contentProvider.provide(absolutePath);
 
-    const { stream, size } = this.fileProvider.provide(absolutePath);
+    const uploader = this.remoteContentsManagersFactory.uploader(
+      contents,
+      abortSignal
+    );
 
-    const uploader = this.remoteContentsManagersFactory.uploader(size);
+    this.registerEvents(uploader, metadata);
 
-    this.registerEvents(uploader, filePath, size);
+    const contentsId = await uploader.upload(contents.stream, contents.size);
 
-    const contentsId = await uploader.upload(stream, size);
+    const fileContents = FileContents.create(contentsId, contents.size);
 
-    this.createFileEntry(contentsId, size, filePath);
-
-    return contentsId;
+    return fileContents;
   }
 }
