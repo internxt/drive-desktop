@@ -102,7 +102,7 @@ export class File extends AggregateRoot {
     file.record(
       new FileCreatedDomainEvent({
         aggregateId: contentsId,
-        size,
+        size: file.size,
         type: path.extension(),
       })
     );

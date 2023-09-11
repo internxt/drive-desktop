@@ -7,6 +7,7 @@ import { ContentFileUploaderMock } from './ContentFileUploaderMock';
 import { ContentFileClonnerMock } from './ContentFileClonnerMock';
 import { ContentFileDownloaderMock } from './ContentFileDownloaderMock';
 import { ContentFileDownloader } from '../../domain/ContentFileDownloader';
+import { Contents } from '../../domain/Contents';
 
 export class RemoteFileContentsManagersFactoryMock
   implements ContentsManagersFactory
@@ -23,7 +24,10 @@ export class RemoteFileContentsManagersFactoryMock
     return this.mockDownload;
   }
 
-  uploader(_size: FileSize): ContentFileUploader {
+  uploader(
+    _contents: Contents,
+    _abortSignal?: AbortSignal | undefined
+  ): ContentFileUploader {
     return this.mockUpload;
   }
 }
