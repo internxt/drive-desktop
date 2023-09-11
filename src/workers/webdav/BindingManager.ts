@@ -4,6 +4,7 @@ import Logger from 'electron-log';
 import { Folder } from './modules/folders/domain/Folder';
 import { buildCallbacks } from './app/buildCallbacks';
 import fs from 'fs';
+import { TextHSix } from 'phosphor-react';
 
 export class BindingsManager {
   private static readonly PROVIDER_NAME = 'Internxt';
@@ -29,7 +30,11 @@ export class BindingsManager {
 
     items.forEach((item) => {
       if (item.isFile()) {
-        this.drive.createItemByPath(item.path.value, item.contentsId);
+        this.drive.createItemByPath(
+          item.path.value,
+          item.contentsId,
+          item.size
+        );
         return;
       }
 
@@ -76,34 +81,8 @@ export class BindingsManager {
         contentsId: string,
         callback: (response: boolean) => void
       ) => {
-        const sanitazedContentsId = contentsId.replace(
-          // eslint-disable-next-line no-control-regex
-          /[\x00-\x1F\x7F-\x9F]/g,
-          ''
-        );
-
-        const renameFn = async () => {
-          const files = await this.container.fileSearcher.run();
-          const file = files.find(
-            (file) => file.contentsId === sanitazedContentsId
-          );
-
-          if (!file) {
-            throw new Error('File not found');
-          }
-
-          const relative =
-            this.container.filePathFromAbsolutePathCreator.run(absolutePath);
-
-          Logger.debug('NEW PATH', relative.value);
-
-          await this.container.fileRenamer
-            .run(file, relative)
-            .then(() => Logger.debug('FILE RENAMED / MOVED SUCCESFULLY'))
-            .catch((err) => Logger.error(err));
-        };
-
-        renameFn()
+        this.callbacks.renameOrMoveFile
+          .execute(absolutePath, contentsId)
           .then(() => {
             callback(true);
           })
