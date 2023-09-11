@@ -11,7 +11,7 @@ import { FileFinderByContentsId } from '../modules/files/application/FileFinderB
 import { FilePathFromAbsolutePathCreator } from '../modules/files/application/FilePathFromAbsolutePathCreator';
 import { FileSearcher } from '../modules/files/application/FileSearcher';
 import { FilePathUpdater } from '../modules/files/application/FilePathUpdater';
-import { HttpFileRepository } from '../modules/files/infrastructure/persistance/HttpFileRepository';
+import { HttpFileRepository } from '../modules/files/infrastructure/HttpFileRepository';
 import { FolderSearcher } from '../modules/folders/application/FolderSearcher';
 import { WebdavFolderDeleter } from '../modules/folders/application/WebdavFolderDeleter';
 import { WebdavFolderFinder } from '../modules/folders/application/WebdavFolderFinder';

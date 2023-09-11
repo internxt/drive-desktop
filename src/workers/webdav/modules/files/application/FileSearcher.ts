@@ -1,6 +1,6 @@
 import { FileRepository } from '../domain/FileRepository';
 import { File } from '../domain/File';
-import { HttpFileRepository } from '../infrastructure/persistance/HttpFileRepository';
+import { HttpFileRepository } from '../infrastructure/HttpFileRepository';
 
 export class FileSearcher {
   constructor(private readonly repository: FileRepository) {}
