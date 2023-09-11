@@ -2,13 +2,8 @@ import { FolderMother } from '../../../folders/test/domain/FolderMother';
 import { FolderRepositoryMock } from '../../../folders/test/__mocks__/FolderRepositoryMock';
 import { WebdavFolderFinder } from '../../../folders/application/WebdavFolderFinder';
 import { FileCreator } from '../../application/FileCreator';
-import { FileMetadataCollection } from '../../domain/FileMetadataCollection';
-import { InMemoryTemporalFileMetadataCollection } from '../../infrastructure/persistance/InMemoryTemporalFileMetadataCollection';
-import { RemoteFileContentsManagersFactoryMock } from '../../../contents/test/__mocks__/RemoteFileContentsManagersFactoryMock';
 import { FileRepositoryMock } from '../__mocks__/FileRepositoryMock';
 import { EventBusMock } from '../../../shared/test/__mock__/EventBusMock';
-import { WebdavIpcMock } from '../../../shared/test/__mock__/WebdavIPC';
-import { ContentsIdMother } from '../../../contents/test/domain/ContentsIdMother';
 import { FilePath } from '../../domain/FilePath';
 import { FileContentsMother } from '../../../contents/test/domain/FileContentsMother';
 
@@ -28,7 +23,7 @@ describe('File Creator', () => {
     SUT = new FileCreator(fileReposiotry, folderFinder, eventBus);
   });
 
-  it('uploads the file contents to the uploader and then creates the file on the drive server', async () => {
+  it('creates the file on the drive server', async () => {
     const path = new FilePath('/cat.png');
     const contents = FileContentsMother.random();
 
