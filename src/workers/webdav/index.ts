@@ -4,6 +4,7 @@ import { DependencyContainerFactory } from './dependencyInjection/DependencyCont
 import packageJson from '../../../package.json';
 import { BindingsManager } from './BindingManager';
 import fs from 'fs/promises';
+import { buildControllers } from './app/buildControllers';
 
 async function ensureTheFolderExist(path: string) {
   try {
@@ -37,9 +38,11 @@ async function setUp() {
   const factory = new DependencyContainerFactory();
   const container = await factory.build();
 
+  const controllers = buildControllers(container);
+
   const bindings = new BindingsManager(
     virtualDrive,
-    container,
+    controllers,
     virtualDrivePath
   );
 
@@ -47,6 +50,12 @@ async function setUp() {
     packageJson.version,
     '{12345678-1234-1234-1234-123456789012}'
   );
+
+  const tree = await container.treeBuilder.run();
+
+  bindings.createPlaceHolders(tree);
+
+  bindings.watch();
 }
 
 setUp()

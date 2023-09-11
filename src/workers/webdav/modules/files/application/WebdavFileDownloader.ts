@@ -8,6 +8,7 @@ import { VirtualDriveIpc } from '../../../ipc';
 import { ContentFileDownloader } from '../../contents/domain/ContentFileDownloader';
 import { File } from '../domain/File';
 import { ContentsId } from '../../contents/domain/ContentsId';
+import { ContentsSize } from '../../contents/domain/ContentsSize';
 
 export class WebdavFileDownloader {
   constructor(
@@ -74,7 +75,11 @@ export class WebdavFileDownloader {
     const readable = await downloader.download(file);
 
     const contentsId = new ContentsId(file.contentsId);
-    const remoteContents = Contents.from(contentsId, readable);
+    const remoteContents = Contents.from(
+      new ContentsSize(file.size),
+      readable,
+      contentsId
+    );
 
     await this.eventBus.publish(remoteContents.pullDomainEvents());
 

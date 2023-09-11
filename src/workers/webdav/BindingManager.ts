@@ -1,7 +1,8 @@
-import { DependencyContainer } from './dependencyInjection/DependencyContainer';
 import { VirtualDrive } from 'virtual-drive';
 import Logger from 'electron-log';
 import { Folder } from './modules/folders/domain/Folder';
+import { File } from './modules/files/domain/File';
+import { buildControllers } from './app/buildControllers';
 import fs from 'fs';
 
 export class BindingsManager {
@@ -9,7 +10,7 @@ export class BindingsManager {
 
   constructor(
     private readonly drive: VirtualDrive,
-    private readonly container: DependencyContainer,
+    private readonly controllers: ReturnType<typeof buildControllers>,
     private readonly rootFolder: string
   ) {}
 
@@ -20,12 +21,14 @@ export class BindingsManager {
     this.drive.createItemByPath(folderPath, folder.uuid);
   }
 
-  public async createPlaceHolders() {
-    const items = await this.container.treeBuilder.run();
-
+  public createPlaceHolders(items: Array<File | Folder>) {
     items.forEach((item) => {
       if (item.isFile()) {
-        this.drive.createItemByPath(item.path.value, item.contentsId);
+        this.drive.createItemByPath(
+          item.path.value,
+          item.contentsId,
+          item.size
+        );
         return;
       }
 
@@ -41,21 +44,8 @@ export class BindingsManager {
         contentsId: string,
         callback: (response: boolean) => void
       ) => {
-        // eslint-disable-next-line no-control-regex
-        const sanitazedId = contentsId.replace(/[\x00-\x1F\x7F-\x9F]/g, '');
-
-        const deleteFn = async () => {
-          this.container.fileDeleter
-            .run(sanitazedId)
-            .then(() => {
-              Logger.debug('FILE DELETED: ', sanitazedId);
-            })
-            .catch((err) => {
-              Logger.debug('error deleting', err);
-            });
-        };
-
-        deleteFn()
+        this.controllers.deleteFile
+          .execute(contentsId)
           .then(() => {
             callback(true);
           })
@@ -72,34 +62,8 @@ export class BindingsManager {
         contentsId: string,
         callback: (response: boolean) => void
       ) => {
-        const sanitazedContentsId = contentsId.replace(
-          // eslint-disable-next-line no-control-regex
-          /[\x00-\x1F\x7F-\x9F]/g,
-          ''
-        );
-
-        const renameFn = async () => {
-          const files = await this.container.fileSearcher.run();
-          const file = files.find(
-            (file) => file.contentsId === sanitazedContentsId
-          );
-
-          if (!file) {
-            throw new Error('File not found');
-          }
-
-          const relative =
-            this.container.filePathFromAbsolutePathCreator.run(absolutePath);
-
-          Logger.debug('NEW PATH', relative.value);
-
-          await this.container.fileRenamer
-            .run(file, relative)
-            .then(() => Logger.debug('FILE RENAMED / MOVED SUCCESFULLY'))
-            .catch((err) => Logger.error(err));
-        };
-
-        renameFn()
+        this.controllers.renameOrMoveFile
+          .execute(absolutePath, contentsId)
           .then(() => {
             callback(true);
           })
@@ -108,35 +72,20 @@ export class BindingsManager {
             callback(false);
           });
       },
-      notifyFileAddedCallback: async (absolutePath: string) => {
-        try {
-          Logger.debug('File going to be added: ', absolutePath);
-
-          const { size } = fs.statSync(absolutePath);
-
-          const relative =
-            this.container.filePathFromAbsolutePathCreator.run(absolutePath);
-
-          Logger.debug('File going to uploaded: ', relative.value, size);
-
-          const stream = fs.createReadStream(absolutePath);
-
-          const contentsId = await this.container.fileCreator.run(
-            stream,
-            relative.value,
-            size
-          );
-
-          Logger.debug('File going to uploaded');
-
-          const unixLikePath = relative.value.replace(/\\/g, '/');
-
+      notifyFileAddedCallback: (absolutePath: string) => {
+        const dehydratateAndCreatePlaceholder = (
+          id: string,
+          relative: string,
+          size: number
+        ) => {
           fs.unlinkSync(absolutePath);
+          this.drive.createItemByPath(relative, id, size);
+        };
 
-          this.drive.createItemByPath(unixLikePath, contentsId, size);
-        } catch (err) {
-          Logger.error(err);
-        }
+        this.controllers.addFile.execute(
+          absolutePath,
+          dehydratateAndCreatePlaceholder
+        );
       },
       fetchDataCallback: () => {
         Logger.debug('fetchDataCallback');
@@ -181,9 +130,9 @@ export class BindingsManager {
     );
 
     await this.drive.connectSyncRoot();
+  }
 
-    await this.createPlaceHolders();
-
+  watch() {
     this.drive.watchAndWait(this.rootFolder);
   }
 

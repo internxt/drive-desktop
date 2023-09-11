@@ -1,35 +1,39 @@
 import { Readable } from 'stream';
 import { AggregateRoot } from '../../shared/domain/AggregateRoot';
-import { ContentsDownloadedDomainEvent } from './events/FileDownloadedDomainEvent';
 import { ContentsId } from './ContentsId';
+import { ContentsSize } from './ContentsSize';
 
 export class Contents extends AggregateRoot {
   private constructor(
-    private readonly _id: ContentsId,
+    private readonly _id: ContentsId | undefined,
+    private readonly _size: ContentsSize,
     public readonly stream: Readable
   ) {
     super();
   }
 
-  public get id() {
-    return this._id.value;
+  public get id(): string | undefined {
+    return this._id?.value;
   }
 
-  static from(id: ContentsId, contents: Readable): Contents {
-    const remoteContents = new Contents(id, contents);
+  public get size(): number {
+    return this._size.value;
+  }
 
-    const event = new ContentsDownloadedDomainEvent({
-      aggregateId: id.value,
-    });
-
-    remoteContents.record(event);
+  static from(
+    size: ContentsSize,
+    contents: Readable,
+    id?: ContentsId
+  ): Contents {
+    const remoteContents = new Contents(id, size, contents);
 
     return remoteContents;
   }
 
-  toPrimitives(): Record<string, string | number | boolean> {
+  toPrimitives(): Record<string, string | number | boolean | undefined> {
     return {
-      id: this._id.value,
+      id: this.id,
+      size: this.size,
     };
   }
 }

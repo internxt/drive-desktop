@@ -3,16 +3,16 @@ import {
   ContentFileUploader,
   FileUploadEvents,
 } from '../../domain/ContentFileUploader';
+import { ContentsId } from '../../domain/ContentsId';
 
 export class ContentFileUploaderMock implements ContentFileUploader {
   uploadMock = jest.fn();
   onMock = jest.fn();
   elapsedTimeMock = jest.fn();
 
-  upload(contents: Readable, size: number): Promise<string> {
+  upload(contents: Readable, size: number): Promise<ContentsId> {
     return this.uploadMock(contents, size);
   }
-
   on(
     event: keyof FileUploadEvents,
     fn:

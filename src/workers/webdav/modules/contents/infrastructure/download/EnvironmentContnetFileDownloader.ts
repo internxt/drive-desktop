@@ -8,6 +8,7 @@ import {
 import { Contents } from '../../domain/Contents';
 import { File } from '../../../files/domain/File';
 import { ContentsId } from '../../domain/ContentsId';
+import { ContentsSize } from '../../domain/ContentsSize';
 
 export class EnvironmentContentFileDownloader implements ContentFileDownloader {
   private eventEmitter: EventEmitter;
@@ -43,7 +44,11 @@ export class EnvironmentContentFileDownloader implements ContentFileDownloader {
             }
             this.eventEmitter.emit('finish');
             const id = new ContentsId(file.contentsId);
-            const remoteContents = Contents.from(id, stream);
+            const remoteContents = Contents.from(
+              new ContentsSize(file.size),
+              stream,
+              id
+            );
             resolve(remoteContents.stream);
           },
         },

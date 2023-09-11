@@ -23,7 +23,9 @@ jobs:
           echo //npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN }} >> .npmrc
           echo "always-auth=true" >> .npmrc
       - name: Install dependencies
-        run: yarn --ignore-scripts
+        uses: bahmutov/npm-install@v1
+        with:
+          install-command: yarn --ignore-scripts --frozen-lockfile
       - name: Lint
         run: yarn run lint
       - name: Build processes
