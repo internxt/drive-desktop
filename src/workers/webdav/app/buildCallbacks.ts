@@ -1,5 +1,6 @@
 import { DependencyContainer } from '../dependencyInjection/DependencyContainer';
 import { AddFileCallback } from './callbacks/AddFileCallback';
+import { DeleteFileCallback } from './callbacks/DeleteFileCallback';
 import { RenameOrMoveCallback } from './callbacks/RenameOrMoveCallback';
 
 export function buildCallbacks(container: DependencyContainer) {
@@ -14,8 +15,11 @@ export function buildCallbacks(container: DependencyContainer) {
     container.fileRenamer
   );
 
+  const deleteFileCallback = new DeleteFileCallback(container.fileDeleter);
+
   return {
     addFile: addFileCallback,
     renameOrMoveFile: renameOrMoveFileCallback,
+    deleteFile: deleteFileCallback,
   } as const;
 }

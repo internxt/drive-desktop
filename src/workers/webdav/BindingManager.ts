@@ -50,21 +50,8 @@ export class BindingsManager {
         contentsId: string,
         callback: (response: boolean) => void
       ) => {
-        // eslint-disable-next-line no-control-regex
-        const sanitazedId = contentsId.replace(/[\x00-\x1F\x7F-\x9F]/g, '');
-
-        const deleteFn = async () => {
-          this.container.fileDeleter
-            .run(sanitazedId)
-            .then(() => {
-              Logger.debug('FILE DELETED: ', sanitazedId);
-            })
-            .catch((err) => {
-              Logger.debug('error deleting', err);
-            });
-        };
-
-        deleteFn()
+        this.callbacks.deleteFile
+          .execute(contentsId)
           .then(() => {
             callback(true);
           })
