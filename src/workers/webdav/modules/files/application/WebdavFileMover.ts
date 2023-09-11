@@ -6,14 +6,14 @@ import { UnknownFileActionError } from '../domain/errors/UnknownFileActionError'
 import { FilePath } from '../domain/FilePath';
 import { File } from '../domain/File';
 import { FileRepository } from '../domain/FileRepository';
-import { WebdavFileRenamer } from './WebdavFileRenamer';
+import { FilePathUpdater } from './FilePathUpdater';
 import { VirtualDriveIpc } from '../../../ipc';
 
 export class WebdavFileMover {
   constructor(
     private readonly repository: FileRepository,
     private readonly folderFinder: WebdavFolderFinder,
-    private readonly fileRenamer: WebdavFileRenamer,
+    private readonly fileRenamer: FilePathUpdater,
     private readonly eventBus: WebdavServerEventBus,
     private readonly ipc: VirtualDriveIpc
   ) {}

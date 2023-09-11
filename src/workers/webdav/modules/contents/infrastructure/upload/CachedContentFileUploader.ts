@@ -5,6 +5,7 @@ import {
   FileUploadEvents,
 } from '../../domain/ContentFileUploader';
 import { ContentsCacheRepository } from '../../domain/ContentsCacheRepository';
+import { ContentsId } from '../../domain/ContentsId';
 
 export class CachedContentFileUploader implements ContentFileUploader {
   elapsedTime: () => number;
@@ -21,11 +22,11 @@ export class CachedContentFileUploader implements ContentFileUploader {
     this.elapsedTime = uploader.elapsedTime.bind(uploader);
   }
 
-  async upload(contents: Readable, size: number): Promise<string> {
+  async upload(contents: Readable, size: number): Promise<ContentsId> {
     const id = await this.uploader.upload(contents, size);
 
     this.localFileContentsRepository
-      .write(id, contents, size)
+      .write(id.value, contents, size)
       .catch((error) => {
         Logger.error('Error caching file: ', id, error);
       });

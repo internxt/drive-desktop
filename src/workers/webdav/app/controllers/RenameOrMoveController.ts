@@ -1,10 +1,10 @@
 import { FilePathFromAbsolutePathCreator } from '../../modules/files/application/FilePathFromAbsolutePathCreator';
-import { WebdavFileRenamer } from '../../modules/files/application/WebdavFileRenamer';
+import { FilePathUpdater } from '../../modules/files/application/FilePathUpdater';
 
 export class RenameOrMoveController {
   constructor(
     private readonly filePathFromAbsolutePathCreator: FilePathFromAbsolutePathCreator,
-    private readonly fileRenamer: WebdavFileRenamer
+    private readonly filePathUpdater: FilePathUpdater
   ) {}
 
   async execute(absolutePath: string, contentsId: string) {
@@ -15,6 +15,6 @@ export class RenameOrMoveController {
     );
     const relative = this.filePathFromAbsolutePathCreator.run(absolutePath);
 
-    await this.fileRenamer.run(sanitazedContentsId, relative);
+    await this.filePathUpdater.run(sanitazedContentsId, relative);
   }
 }

@@ -10,7 +10,7 @@ import { FileDeleter } from '../modules/files/application/FileDeleter';
 import { FileFinderByContentsId } from '../modules/files/application/FileFinderByContentsId';
 import { FilePathFromAbsolutePathCreator } from '../modules/files/application/FilePathFromAbsolutePathCreator';
 import { FileSearcher } from '../modules/files/application/FileSearcher';
-import { WebdavFileRenamer } from '../modules/files/application/WebdavFileRenamer';
+import { FilePathUpdater } from '../modules/files/application/FilePathUpdater';
 import { HttpFileRepository } from '../modules/files/infrastructure/persistance/HttpFileRepository';
 import { FolderSearcher } from '../modules/folders/application/FolderSearcher';
 import { WebdavFolderDeleter } from '../modules/folders/application/WebdavFolderDeleter';
@@ -87,22 +87,15 @@ export class DependencyContainerFactory {
     const itemsContainer = buildItemsContainer();
     const contentsContaner = buildContentsContainer();
 
-    const contentsManagerFactory =
-      new EnvironmentRemoteFileContentsManagersFactory(
-        environment,
-        user.bucket
-      );
-
     const eventBus = new NodeJsEventBus();
 
     const folderFinder = new WebdavFolderFinder(folderRepository);
 
     const fileFinder = new FileFinderByContentsId(fileRepository);
 
-    const fileRenamer = new WebdavFileRenamer(
+    const filePathUpdater = new FilePathUpdater(
       fileRepository,
       fileFinder,
-      contentsManagerFactory,
       folderFinder
     );
 
@@ -113,7 +106,7 @@ export class DependencyContainerFactory {
       fileDeleter: new FileDeleter(fileRepository, fileFinder),
       fileCreator: new FileCreator(fileRepository, folderFinder, eventBus),
 
-      fileRenamer,
+      filePathUpdater,
       fileSearcher: new FileSearcher(fileRepository),
       filePathFromAbsolutePathCreator: new FilePathFromAbsolutePathCreator(
         localRootFolderPath

@@ -23,6 +23,10 @@ export class FileContents extends AggregateRoot {
     return new FileContents(id, new ContentsSize(size));
   }
 
+  static from(id: ContentsId, size: ContentsSize): FileContents {
+    return new FileContents(id, size);
+  }
+
   toPrimitives(): Record<string, Primitives> {
     return {
       contentsId: this.id,

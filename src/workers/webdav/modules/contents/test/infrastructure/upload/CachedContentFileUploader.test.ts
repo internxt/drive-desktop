@@ -2,6 +2,8 @@ import { Readable } from 'stream';
 import { CachedContentFileUploader } from '../../../infrastructure/upload/CachedContentFileUploader';
 import { ContentFileUploaderMock } from '../../__mocks__/ContentFileUploaderMock';
 import { ContentsCacheRepositoryMock } from '../../__mocks__/ContentsCacheRepositoryMock';
+import { ContentsId } from '../../../domain/ContentsId';
+import { ContentsIdMother } from '../../domain/ContentsIdMother';
 
 describe('cached content file uploader', () => {
   const contents = Readable.from('FILE CONTENTS');
@@ -31,7 +33,7 @@ describe('cached content file uploader', () => {
 
   it('stores the file locally if there is enough space', async () => {
     const size = 544940296;
-    const id = '50af27f8-9e48-592c-8414-00d1cb64cb43';
+    const id = ContentsIdMother.random();
 
     uploader.uploadMock.mockResolvedValueOnce(id);
     localContentsRepository.writeMock.mockReturnValueOnce(Promise.resolve());
@@ -39,7 +41,7 @@ describe('cached content file uploader', () => {
     await SUT.upload(contents, size);
 
     expect(localContentsRepository.writeMock).toHaveBeenCalledWith(
-      id,
+      id.value,
       contents,
       size
     );

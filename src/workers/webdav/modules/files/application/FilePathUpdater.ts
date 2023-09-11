@@ -1,17 +1,15 @@
 import { ActionNotPermitedError } from '../domain/errors/ActionNotPermitedError';
 import { FileAlreadyExistsError } from '../domain/errors/FileAlreadyExistsError';
 import { FilePath } from '../domain/FilePath';
-import { ContentsManagersFactory } from '../../contents/domain/ContentsManagersFactory';
 import { File } from '../domain/File';
 import { FileRepository } from '../domain/FileRepository';
 import { WebdavFolderFinder } from '../../folders/application/WebdavFolderFinder';
 import { FileFinderByContentsId } from './FileFinderByContentsId';
 
-export class WebdavFileRenamer {
+export class FilePathUpdater {
   constructor(
     private readonly repository: FileRepository,
     private readonly fileFinderByContentsId: FileFinderByContentsId,
-    private readonly contentsRepository: ContentsManagersFactory,
     private readonly folderFinder: WebdavFolderFinder
   ) {}
 
@@ -20,21 +18,6 @@ export class WebdavFileRenamer {
 
     await this.repository.updateName(file);
 
-    // await this.eventBus.publish(file.pullDomainEvents());
-  }
-
-  private async reupload(file: File, path: FilePath) {
-    const clonner = this.contentsRepository.clonner(file);
-
-    const clonnedFileId = await clonner.clone();
-
-    const uploaded = file.overwrite(clonnedFileId.value, file.folderId, path);
-
-    file.trash();
-    await this.repository.add(uploaded);
-    await this.repository.delete(file);
-
-    // await this.eventBus.publish(uploaded.pullDomainEvents());
     // await this.eventBus.publish(file.pullDomainEvents());
   }
 
@@ -78,7 +61,5 @@ export class WebdavFileRenamer {
     }
 
     throw new Error('Cannot reupload files atm');
-
-    await this.reupload(file, destination);
   }
 }

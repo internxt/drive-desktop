@@ -1,7 +1,7 @@
 import { ValueObject } from '../../../../shared/domain/ValueObject';
 
 export class ContentsSize extends ValueObject<number> {
-  private static MAX_SIZE = 20 * 1024 * 1024 * 1024;
+  public static MAX_SIZE = 20 * 1024 * 1024 * 1024;
 
   constructor(value: number) {
     super(value);
