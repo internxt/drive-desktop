@@ -1,20 +1,16 @@
-import { WebdavServerEventBus } from '../../shared/domain/WebdavServerEventBus';
-import { FileNotFoundError } from '../domain/errors/FileNotFoundError';
-import { ContentsManagersFactory } from '../../contents/domain/ContentsManagersFactory';
-import { Contents } from '../../contents/domain/Contents';
-import { FileRepository } from '../domain/FileRepository';
-import { FilePath } from '../domain/FilePath';
+import { FileNotFoundError } from '../../files/domain/errors/FileNotFoundError';
+import { ContentsManagersFactory } from '../domain/ContentsManagersFactory';
+import { FileRepository } from '../../files/domain/FileRepository';
+import { FilePath } from '../../files/domain/FilePath';
 import { VirtualDriveIpc } from '../../../ipc';
-import { ContentFileDownloader } from '../../contents/domain/ContentFileDownloader';
-import { File } from '../domain/File';
-import { ContentsId } from '../../contents/domain/ContentsId';
-import { ContentsSize } from '../../contents/domain/ContentsSize';
+import { ContentFileDownloader } from '../domain/contentHandlers/ContentFileDownloader';
+import { File } from '../../files/domain/File';
+import { LocalFileContents } from '../domain/LocalFileContents';
 
-export class WebdavFileDownloader {
+export class ContentsDownloader {
   constructor(
     private readonly repository: FileRepository,
     private readonly contents: ContentsManagersFactory,
-    private readonly eventBus: WebdavServerEventBus,
     private readonly ipc: VirtualDriveIpc
   ) {}
 
@@ -59,7 +55,7 @@ export class WebdavFileDownloader {
     });
   }
 
-  async run(path: string): Promise<Contents> {
+  async run(path: string): Promise<LocalFileContents> {
     const filePath = new FilePath(path);
 
     const file = this.repository.search(filePath);
@@ -74,14 +70,14 @@ export class WebdavFileDownloader {
 
     const readable = await downloader.download(file);
 
-    const contentsId = new ContentsId(file.contentsId);
-    const remoteContents = Contents.from(
-      new ContentsSize(file.size),
-      readable,
-      contentsId
-    );
-
-    await this.eventBus.publish(remoteContents.pullDomainEvents());
+    const remoteContents = LocalFileContents.from({
+      name: file.name,
+      extension: file.type,
+      size: file.size,
+      birthTime: file.createdAt.getUTCMilliseconds(),
+      modifiedTime: file.updatedAt.getUTCMilliseconds(),
+      contents: readable,
+    });
 
     return remoteContents;
   }

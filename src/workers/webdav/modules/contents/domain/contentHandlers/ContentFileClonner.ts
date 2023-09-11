@@ -1,4 +1,4 @@
-import { ContentsId } from './ContentsId';
+import { ContentsId } from '../ContentsId';
 
 export type FileCloneEvents = {
   start: () => void;

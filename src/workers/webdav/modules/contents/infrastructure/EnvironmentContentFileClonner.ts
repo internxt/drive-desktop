@@ -6,7 +6,7 @@ import { Stopwatch } from '../../../../../shared/types/Stopwatch';
 import {
   ContentFileClonner,
   FileCloneEvents,
-} from '../domain/ContentFileClonner';
+} from '../domain/contentHandlers/ContentFileClonner';
 import { File } from '../../files/domain/File';
 import { ContentsId } from '../domain/ContentsId';
 

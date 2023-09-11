@@ -1,13 +1,12 @@
 import { ContentsManagersFactory } from '../../domain/ContentsManagersFactory';
-import { FileSize } from '../../../files/domain/FileSize';
 import { File } from '../../../files/domain/File';
-import { ContentFileUploader } from '../../domain/ContentFileUploader';
-import { ContentFileClonner } from '../../domain/ContentFileClonner';
+import { ContentFileUploader } from '../../domain/contentHandlers/ContentFileUploader';
+import { ContentFileClonner } from '../../domain/contentHandlers/ContentFileClonner';
 import { ContentFileUploaderMock } from './ContentFileUploaderMock';
 import { ContentFileClonnerMock } from './ContentFileClonnerMock';
 import { ContentFileDownloaderMock } from './ContentFileDownloaderMock';
-import { ContentFileDownloader } from '../../domain/ContentFileDownloader';
-import { Contents } from '../../domain/Contents';
+import { ContentFileDownloader } from '../../domain/contentHandlers/ContentFileDownloader';
+import { LocalFileContents } from '../../domain/LocalFileContents';
 
 export class RemoteFileContentsManagersFactoryMock
   implements ContentsManagersFactory
@@ -25,7 +24,7 @@ export class RemoteFileContentsManagersFactoryMock
   }
 
   uploader(
-    _contents: Contents,
+    _contents: LocalFileContents,
     _abortSignal?: AbortSignal | undefined
   ): ContentFileUploader {
     return this.mockUpload;

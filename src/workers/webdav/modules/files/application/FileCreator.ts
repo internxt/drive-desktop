@@ -4,7 +4,7 @@ import { File } from '../domain/File';
 import { FileRepository } from '../domain/FileRepository';
 import { FileSize } from '../domain/FileSize';
 import { WebdavServerEventBus } from '../../shared/domain/WebdavServerEventBus';
-import { FileContents } from '../../contents/domain/FileContents';
+import { RemoteFileContents } from '../../contents/domain/RemoteFileContents';
 
 export class FileCreator {
   constructor(
@@ -13,7 +13,10 @@ export class FileCreator {
     private readonly eventBus: WebdavServerEventBus
   ) {}
 
-  async run(filePath: FilePath, fileContents: FileContents): Promise<File> {
+  async run(
+    filePath: FilePath,
+    fileContents: RemoteFileContents
+  ): Promise<File> {
     const contentsId = fileContents.id;
     const size = new FileSize(fileContents.size);
 

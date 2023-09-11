@@ -2,7 +2,7 @@ import { Readable } from 'stream';
 import {
   ContentFileDownloader,
   FileDownloadEvents,
-} from '../../domain/ContentFileDownloader';
+} from '../../domain/contentHandlers/ContentFileDownloader';
 
 export class ContentFileDownloaderMock implements ContentFileDownloader {
   mock = jest.fn();

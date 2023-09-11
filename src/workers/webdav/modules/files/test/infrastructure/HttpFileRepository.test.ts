@@ -1,12 +1,12 @@
 import axios from 'axios';
-import { Traverser } from '../../../../items/application/Traverser';
-import { HttpFileRepository } from '../../../infrastructure/persistance/HttpFileRepository';
-import { WebdavIpcMock } from '../../../../shared/test/__mock__/WebdavIPC';
-import { FilePath } from '../../../domain/FilePath';
+import { Traverser } from '../../../items/application/Traverser';
+import { HttpFileRepository } from '../../infrastructure/HttpFileRepository';
+import { WebdavIpcMock } from '../../../shared/test/__mock__/WebdavIPC';
+import { FilePath } from '../../domain/FilePath';
 import { ServerFileMother } from './ServerFileMother';
-import { ServerFolderMother } from '../../../../items/test/persistance/ServerFolderMother';
-import { File } from '../../../domain/File';
-import { fakeDecryptor } from '../../../../shared/test/domain/FakeCrypt';
+import { ServerFolderMother } from '../../../items/test/persistance/ServerFolderMother';
+import { File } from '../../domain/File';
+import { fakeDecryptor } from '../../../shared/test/domain/FakeCrypt';
 import Chance from 'chance';
 const chance = new Chance();
 

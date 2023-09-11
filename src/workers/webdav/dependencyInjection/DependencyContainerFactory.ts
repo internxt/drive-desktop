@@ -1,17 +1,15 @@
-import { Environment } from '@internxt/inxt-js';
 import { getUser } from 'main/auth/service';
 import configStore from 'main/config';
 import { getClients } from '../../../shared/HttpClient/backgroud-process-clients';
 import crypt from '../../utils/crypt';
 import { ipc } from '../ipc';
-import { EnvironmentRemoteFileContentsManagersFactory } from '../modules/contents/infrastructure/EnvironmentRemoteFileContentsManagersFactory';
 import { FileCreator } from '../modules/files/application/FileCreator';
 import { FileDeleter } from '../modules/files/application/FileDeleter';
 import { FileFinderByContentsId } from '../modules/files/application/FileFinderByContentsId';
 import { FilePathFromAbsolutePathCreator } from '../modules/files/application/FilePathFromAbsolutePathCreator';
 import { FileSearcher } from '../modules/files/application/FileSearcher';
 import { FilePathUpdater } from '../modules/files/application/FilePathUpdater';
-import { HttpFileRepository } from '../modules/files/infrastructure/persistance/HttpFileRepository';
+import { HttpFileRepository } from '../modules/files/infrastructure/HttpFileRepository';
 import { FolderSearcher } from '../modules/folders/application/FolderSearcher';
 import { WebdavFolderDeleter } from '../modules/folders/application/WebdavFolderDeleter';
 import { WebdavFolderFinder } from '../modules/folders/application/WebdavFolderFinder';
@@ -53,15 +51,7 @@ export class DependencyContainerFactory {
 
     const clients = getClients();
 
-    const mnemonic = configStore.get('mnemonic');
     const localRootFolderPath = configStore.get('syncRoot');
-
-    const environment = new Environment({
-      bridgeUrl: process.env.BRIDGE_URL,
-      bridgeUser: user.bridgeUser,
-      bridgePass: user.userId,
-      encryptionKey: mnemonic,
-    });
 
     const traverser = new Traverser(crypt, user.root_folder_id);
 

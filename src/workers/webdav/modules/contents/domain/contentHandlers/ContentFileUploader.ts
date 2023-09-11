@@ -1,5 +1,5 @@
 import { Readable } from 'stream';
-import { ContentsId } from './ContentsId';
+import { ContentsId } from '../ContentsId';
 
 type ConenentsId = string;
 

@@ -1,8 +1,8 @@
 import {
   ServerFile,
   ServerFileStatus,
-} from '../../../../../../filesystems/domain/ServerFile';
-import { ContentsIdMother } from '../../../../contents/test/domain/ContentsIdMother';
+} from '../../../../../filesystems/domain/ServerFile';
+import { ContentsIdMother } from '../../../contents/test/domain/ContentsIdMother';
 
 export class ServerFileMother {
   static fromPartial(partial: Partial<ServerFile>): ServerFile {

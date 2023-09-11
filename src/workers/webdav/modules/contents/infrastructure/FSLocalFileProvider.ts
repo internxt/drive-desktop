@@ -1,18 +1,24 @@
 import { LocalContentsProvider } from '../domain/LocalFileProvider';
 import fs from 'fs';
 import path from 'path';
-import { Contents } from '../domain/Contents';
-import { ContentsSize } from '../domain/ContentsSize';
-import { ItemMetadata } from '../../shared/domain/ItemMetadata';
+import { LocalFileContents } from '../domain/LocalFileContents';
+
+function extractNameAndExtension(nameWithExtension: string): [string, string] {
+  if (nameWithExtension.startsWith('.')) {
+    return [nameWithExtension, ''];
+  }
+
+  const [name, extension] = nameWithExtension.split('.');
+
+  return [name, extension];
+}
 
 export class FSLocalFileProvider implements LocalContentsProvider {
   provide(absoluteFilePath: string) {
     const controller = new AbortController();
 
     const stream = fs.createReadStream(absoluteFilePath);
-    const stats = fs.statSync(absoluteFilePath);
-
-    const size = new ContentsSize(stats.size);
+    const { size, mtimeMs, birthtimeMs } = fs.statSync(absoluteFilePath);
 
     const absoluteFolderPath = path.dirname(absoluteFilePath);
     const nameWithExtension = path.basename(absoluteFilePath);
@@ -27,20 +33,19 @@ export class FSLocalFileProvider implements LocalContentsProvider {
 
     stream.on('end', () => watcher.close());
 
-    const contents = Contents.from(size, stream);
+    const [name, extension] = extractNameAndExtension(nameWithExtension);
 
-    const metadata = ItemMetadata.from({
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
-      name: nameWithExtension.split('.')[0],
-      size: size.value,
-      extension: nameWithExtension.split('.')[1],
-      type: 'FILE',
+    const contents = LocalFileContents.from({
+      name,
+      extension,
+      size,
+      modifiedTime: mtimeMs,
+      birthTime: birthtimeMs,
+      contents: stream,
     });
 
     return {
       contents,
-      metadata,
       abortSignal: controller.signal,
     };
   }

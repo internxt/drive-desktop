@@ -1,13 +1,13 @@
 import { Environment } from '@internxt/inxt-js';
-import { ContentFileClonner } from '../domain/ContentFileClonner';
-import { ContentFileDownloader } from '../domain/ContentFileDownloader';
-import { ContentFileUploader } from '../domain/ContentFileUploader';
+import { ContentFileClonner } from '../domain/contentHandlers/ContentFileClonner';
+import { ContentFileDownloader } from '../domain/contentHandlers/ContentFileDownloader';
+import { ContentFileUploader } from '../domain/contentHandlers/ContentFileUploader';
 import { ContentsManagersFactory } from '../domain/ContentsManagersFactory';
 import { EnvironmentContentFileDownloader } from './download/EnvironmentContnetFileDownloader';
 import { EnvironmentContentFileClonner } from './EnvironmentContentFileClonner';
 import { EnvironmentContentFileUpoader } from './upload/EnvironmentContentFileUpoader';
 import { File } from '../../files/domain/File';
-import { Contents } from '../domain/Contents';
+import { LocalFileContents } from '../domain/LocalFileContents';
 
 export class EnvironmentRemoteFileContentsManagersFactory
   implements ContentsManagersFactory
@@ -43,7 +43,10 @@ export class EnvironmentRemoteFileContentsManagersFactory
     );
   }
 
-  uploader(contents: Contents, abortSignal?: AbortSignal): ContentFileUploader {
+  uploader(
+    contents: LocalFileContents,
+    abortSignal?: AbortSignal
+  ): ContentFileUploader {
     contents.size;
     const fn =
       contents.size >
