@@ -148,6 +148,3 @@ export function setupTrayIcon() {
 }
 
 eventBus.on('APP_IS_READY', setupTrayIcon);
-app.on('will-quit', () => {
-  getTray()?.destroy();
-});
