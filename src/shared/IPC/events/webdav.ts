@@ -1,5 +1,6 @@
 import { DriveFile } from 'main/database/entities/DriveFile';
 import { DriveFolder } from 'main/database/entities/DriveFolder';
+import { DriveThumbnail } from 'main/database/entities/DriveThumbnail';
 
 const trackedEvents = [
   'delete',
@@ -158,6 +159,7 @@ export type WebdavInvokableFunctions = {
   GET_UPDATED_REMOTE_ITEMS: () => Promise<{
     files: DriveFile[];
     folders: DriveFolder[];
+    thumbnails: DriveThumbnail[];
   }>;
   START_REMOTE_SYNC: () => Promise<void>;
 };

@@ -1,3 +1,4 @@
+import { DriveThumbnail } from 'main/database/entities/DriveThumbnail';
 import {
   ServerFile,
   ServerFileStatus,
@@ -10,7 +11,11 @@ import { VirtualDriveIpc } from '../../../ipc';
 
 export class RemoteItemsGenerator {
   constructor(private readonly ipc: VirtualDriveIpc) {}
-  async getAll(): Promise<{ files: ServerFile[]; folders: ServerFolder[] }> {
+  async getAll(): Promise<{
+    files: ServerFile[];
+    folders: ServerFolder[];
+    thumbnails: DriveThumbnail[];
+  }> {
     const updatedRemoteItems = await this.ipc.invoke(
       'GET_UPDATED_REMOTE_ITEMS'
     );
@@ -30,6 +35,7 @@ export class RemoteItemsGenerator {
         updatedAt: updatedFile.updatedAt,
         userId: updatedFile.userId,
         status: updatedFile.status as ServerFileStatus,
+        thumbnails: [],
       };
     });
 
@@ -49,6 +55,6 @@ export class RemoteItemsGenerator {
       }
     );
 
-    return { files, folders };
+    return { files, folders, thumbnails: updatedRemoteItems.thumbnails || [] };
   }
 }

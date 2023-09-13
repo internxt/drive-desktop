@@ -12,6 +12,7 @@ import { File } from '../../files/domain/File';
 import { FolderStatus } from '../../folders/domain/FolderStatus';
 import { Folder } from '../../folders/domain/Folder';
 import { ItemsIndexedByPath } from '../domain/ItemsIndexedByPath';
+import { DriveThumbnail } from '../../../../../main/database/entities/DriveThumbnail';
 
 /** @deprecated */
 export class Traverser {
@@ -22,6 +23,7 @@ export class Traverser {
   private rawTree: {
     files: Array<ServerFile>;
     folders: Array<ServerFolder>;
+    thumbnails: Array<DriveThumbnail>;
   } | null = null;
 
   constructor(
@@ -68,6 +70,12 @@ export class Traverser {
         return true;
       })
       .forEach(({ file, name }) => {
+        const thumbnailContentsId = this.rawTree
+          ? this.rawTree.thumbnails
+              .filter((thumbnail) => thumbnail.fileId === file.id)
+              .map((thumbnail) => thumbnail.bucketFile)
+          : [];
+
         if (file.status === ServerFileStatus.EXISTS) {
           this.collection[name] = File.from({
             folderId: file.folderId,
@@ -78,6 +86,7 @@ export class Traverser {
             updatedAt: file.updatedAt,
             path: name,
             status: file.status,
+            thumbnailContentsIds: thumbnailContentsId || [],
           });
         }
       });
@@ -129,6 +138,7 @@ export class Traverser {
   public run(rawTree: {
     files: Array<ServerFile>;
     folders: Array<ServerFolder>;
+    thumbnails: Array<DriveThumbnail>;
   }) {
     this.rawTree = rawTree;
 

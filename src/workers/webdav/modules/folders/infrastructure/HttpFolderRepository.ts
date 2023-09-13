@@ -12,6 +12,7 @@ import { UpdateFolderNameDTO } from './dtos/UpdateFolderNameDTO';
 import { VirtualDriveIpc } from '../../../ipc';
 import { RemoteItemsGenerator } from '../../items/application/RemoteItemsGenerator';
 import { FolderStatuses } from '../domain/FolderStatus';
+import { DriveThumbnail } from 'main/database/entities/DriveThumbnail';
 
 export class HttpFolderRepository implements FolderRepository {
   public folders: Record<string, Folder> = {};
@@ -26,6 +27,7 @@ export class HttpFolderRepository implements FolderRepository {
   private async getTree(): Promise<{
     files: ServerFile[];
     folders: ServerFolder[];
+    thumbnails: DriveThumbnail[];
   }> {
     const remoteItemsGenerator = new RemoteItemsGenerator(this.ipc);
     return remoteItemsGenerator.getAll();

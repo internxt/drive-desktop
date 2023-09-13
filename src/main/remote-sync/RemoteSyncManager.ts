@@ -13,6 +13,7 @@ import { DatabaseCollectionAdapter } from '../database/adapters/base';
 import { Axios } from 'axios';
 import { DriveFolder } from '../database/entities/DriveFolder';
 import { DriveFile } from '../database/entities/DriveFile';
+import { DriveThumbnail } from 'main/database/entities/DriveThumbnail';
 
 export class RemoteSyncManager {
   private foldersSyncStatus: RemoteSyncStatus = 'IDLE';
@@ -27,6 +28,7 @@ export class RemoteSyncManager {
     private db: {
       files: DatabaseCollectionAdapter<DriveFile>;
       folders: DatabaseCollectionAdapter<DriveFolder>;
+      thumbnails: DatabaseCollectionAdapter<DriveThumbnail>;
     },
     private config: {
       httpClient: Axios;
@@ -80,6 +82,7 @@ export class RemoteSyncManager {
     this.totalFoldersSynced = 0;
     await this.db.files.connect();
     await this.db.folders.connect();
+    await this.db.thumbnails.connect();
 
     Logger.info('Starting RemoteSyncManager');
     this.changeStatus('SYNCING');
@@ -208,6 +211,9 @@ export class RemoteSyncManager {
       for (const remoteFile of result) {
         // eslint-disable-next-line no-await-in-loop
         await this.createOrUpdateSyncedFileEntry(remoteFile);
+        // eslint-disable-next-line no-await-in-loop
+        await this.createOrUpdateSyncedFileThumbnail(remoteFile);
+
         const fileUpdatedAt = new Date(remoteFile.updatedAt);
 
         helpers.saveLastFilesSyncAt(fileUpdatedAt, SYNC_OFFSET_MS);
@@ -466,6 +472,26 @@ export class RemoteSyncManager {
   };
   private async createOrUpdateSyncedFileEntry(remoteFile: RemoteSyncedFile) {
     await this.db.files.create(remoteFile);
+  }
+
+  private async createOrUpdateSyncedFileThumbnail(
+    remoteFile: RemoteSyncedFile
+  ) {
+    const thumbnails = remoteFile.thumbnails || [];
+    const thumbnailInsertertions = thumbnails
+      .map((thumbnail) => {
+        Logger.debug('THUMBNAIL: ', thumbnail);
+        return {
+          ...thumbnail,
+          size:
+            typeof thumbnail.size === 'string'
+              ? parseInt(thumbnail.size)
+              : thumbnail.size,
+        };
+      })
+      .map((thumbnail) => this.db.thumbnails.create(thumbnail));
+
+    await Promise.all(thumbnailInsertertions);
   }
 
   private async createOrUpdateSyncedFolderEntry(

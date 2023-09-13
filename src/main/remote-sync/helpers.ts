@@ -71,6 +71,18 @@ export type RemoteSyncedFile = {
   plainName: string;
   name: string;
   status: 'EXISTS' | 'TRASHED' | 'DELETED';
+  thumbnails: Array<{
+    id: number;
+    fileId: number;
+    type: string;
+    size: string;
+    bucketId: string;
+    bucketFile: string;
+    createdAt: string;
+    updatedAt: string;
+    maxWidth: number;
+    maxHeight: number;
+  }>;
 };
 
 export type RemoteSyncedFolder = {

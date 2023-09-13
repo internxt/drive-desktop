@@ -2,6 +2,7 @@ import eventBus from '../event-bus';
 import { RemoteSyncManager } from './RemoteSyncManager';
 import { DriveFilesCollection } from '../database/collections/DriveFileCollection';
 import { DriveFoldersCollection } from '../database/collections/DriveFolderCollection';
+import { DriveThumbnailsCollection } from '../database/collections/DriveThumbnailsCollection';
 import { clearRemoteSyncStore } from './helpers';
 import { getNewTokenClient } from '../../shared/HttpClient/main-process-client';
 import Logger from 'electron-log';
@@ -13,10 +14,13 @@ import { broadcastToWindows } from '../windows';
 let initialSyncReady = false;
 const driveFilesCollection = new DriveFilesCollection();
 const driveFoldersCollection = new DriveFoldersCollection();
+const driveThumbnailsCollection = new DriveThumbnailsCollection();
+
 const remoteSyncManager = new RemoteSyncManager(
   {
     files: driveFilesCollection,
     folders: driveFoldersCollection,
+    thumbnails: driveThumbnailsCollection,
   },
   {
     httpClient: getNewTokenClient(),
@@ -29,19 +33,28 @@ const remoteSyncManager = new RemoteSyncManager(
 
 export async function getUpdtaedRemoteItems() {
   try {
-    const [allDriveFiles, allDriveFolders] = await Promise.all([
-      driveFilesCollection.getAll(),
-      driveFoldersCollection.getAll(),
-    ]);
+    const [allDriveFiles, allDriveFolders, allDriveThumbnails] =
+      await Promise.all([
+        driveFilesCollection.getAll(),
+        driveFoldersCollection.getAll(),
+        driveThumbnailsCollection.getAll(),
+      ]);
 
     if (!allDriveFiles.success)
       throw new Error('Failed to retrieve all the drive files from local db');
 
     if (!allDriveFolders.success)
       throw new Error('Failed to retrieve all the drive folders from local db');
+
+    if (!allDriveThumbnails)
+      throw new Error(
+        'Failed to retrieve all the drive thumbnails from local db'
+      );
+
     return {
       files: allDriveFiles.result,
       folders: allDriveFolders.result,
+      thumbnails: allDriveThumbnails.result,
     };
   } catch (error) {
     reportError(error as Error, {

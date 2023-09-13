@@ -1,15 +1,16 @@
-import { AggregateRoot } from '../../shared/domain/AggregateRoot';
+import { ContentsId } from '../../contents/domain/ContentsId';
 import { Folder } from '../../folders/domain/Folder';
+import { AggregateRoot } from '../../shared/domain/AggregateRoot';
+import { ThumbnailContentId } from '../../thumbnails/domain/ThumbanailContentId';
+import { FileCreatedDomainEvent } from './FileCreatedDomainEvent';
+import { FileDeletedDomainEvent } from './FileDeletedDomainEvent';
 import { FilePath } from './FilePath';
 import { FileSize } from './FileSize';
-import { FileCreatedDomainEvent } from './FileCreatedDomainEvent';
-import { FileCannotBeMovedToTheOriginalFolderError } from './errors/FileCannotBeMovedToTheOriginalFolderError';
-import { FileActionOnlyCanAffectOneLevelError } from './errors/FileActionOnlyCanAffectOneLevelError';
-import { FileNameShouldDifferFromOriginalError } from './errors/FileNameShouldDifferFromOriginalError';
-import { FileActionCannotModifyExtension } from './errors/FileActionCannotModifyExtension';
-import { FileDeletedDomainEvent } from './FileDeletedDomainEvent';
 import { FileStatus, FileStatuses } from './FileStatus';
-import { ContentsId } from '../../contents/domain/ContentsId';
+import { FileActionCannotModifyExtension } from './errors/FileActionCannotModifyExtension';
+import { FileActionOnlyCanAffectOneLevelError } from './errors/FileActionOnlyCanAffectOneLevelError';
+import { FileCannotBeMovedToTheOriginalFolderError } from './errors/FileCannotBeMovedToTheOriginalFolderError';
+import { FileNameShouldDifferFromOriginalError } from './errors/FileNameShouldDifferFromOriginalError';
 
 export type FileAtributes = {
   contentsId: string;
@@ -20,6 +21,7 @@ export type FileAtributes = {
   size: number;
   updatedAt: string;
   status: string;
+  thumbnailContentsIds: Array<string>;
 };
 
 export class File extends AggregateRoot {
@@ -30,7 +32,8 @@ export class File extends AggregateRoot {
     private readonly _size: FileSize,
     public createdAt: Date,
     public updatedAt: Date,
-    private _status: FileStatus
+    private _status: FileStatus,
+    private _thumbnailContentsIds: Array<ThumbnailContentId>
   ) {
     super();
   }
@@ -71,6 +74,10 @@ export class File extends AggregateRoot {
     return this._status;
   }
 
+  public get thumbnailContentsIds(): Array<string> {
+    return this._thumbnailContentsIds.map((vo) => vo.value);
+  }
+
   static from(attributes: FileAtributes): File {
     return new File(
       new ContentsId(attributes.contentsId),
@@ -79,7 +86,10 @@ export class File extends AggregateRoot {
       new FileSize(attributes.size),
       new Date(attributes.createdAt),
       new Date(attributes.updatedAt),
-      FileStatus.fromValue(attributes.status)
+      FileStatus.fromValue(attributes.status),
+      attributes.thumbnailContentsIds.map(
+        (value) => new ThumbnailContentId(value)
+      )
     );
   }
 
@@ -96,7 +106,8 @@ export class File extends AggregateRoot {
       size,
       new Date(),
       new Date(),
-      FileStatus.Exists
+      FileStatus.Exists,
+      []
     );
 
     file.record(
@@ -140,7 +151,8 @@ export class File extends AggregateRoot {
       this._size,
       this.createdAt,
       new Date(),
-      FileStatus.Exists
+      FileStatus.Exists,
+      []
     );
 
     file.record(
@@ -162,7 +174,8 @@ export class File extends AggregateRoot {
       this._size,
       this.createdAt,
       new Date(),
-      FileStatus.Exists
+      FileStatus.Exists,
+      []
     );
 
     file.record(
@@ -259,6 +272,7 @@ export class File extends AggregateRoot {
       createdAt: this.createdAt.toISOString(),
       updatedAt: this.updatedAt.toISOString(),
       status: this.status.value,
+      thumbnailContentsIds: this.thumbnailContentsIds,
     };
   }
 
@@ -272,6 +286,7 @@ export class File extends AggregateRoot {
       updatedAt: this.updatedAt.toISOString(),
       status: this.status.value,
       modificationTime: this.updatedAt.toISOString(),
+      thumbnailContentsIds: this.thumbnailContentsIds,
     };
   }
 }

@@ -15,6 +15,7 @@ import { RemoteItemsGenerator } from '../../items/application/RemoteItemsGenerat
 import { FileStatuses } from '../domain/FileStatus';
 import { Crypt } from '../../shared/domain/Crypt';
 import { VirtualDriveIpc } from '../../../ipc';
+import { DriveThumbnail } from 'main/database/entities/DriveThumbnail';
 
 export class HttpFileRepository implements FileRepository {
   public files: Record<string, File> = {};
@@ -31,6 +32,7 @@ export class HttpFileRepository implements FileRepository {
   private async getTree(): Promise<{
     files: ServerFile[];
     folders: ServerFolder[];
+    thumbnails: DriveThumbnail[];
   }> {
     const remoteItemsGenerator = new RemoteItemsGenerator(this.ipc);
     return remoteItemsGenerator.getAll();
@@ -134,6 +136,7 @@ export class HttpFileRepository implements FileRepository {
       size: parseInt(result.data.size, 10),
       path: file.path.value,
       status: FileStatuses.EXISTS,
+      thumbnailContentsIds: [],
     });
 
     this.files[file.path.value] = created;

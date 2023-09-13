@@ -32,4 +32,5 @@ export type ServerFile = {
   updatedAt: string;
   userId: number;
   status: ServerFileStatus;
+  thumbnails: Array<ServerThumbnail>;
 };

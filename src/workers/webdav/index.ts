@@ -5,12 +5,13 @@ import packageJson from '../../../package.json';
 import { BindingsManager } from './BindingManager';
 import fs from 'fs/promises';
 import { buildControllers } from './app/buildControllers';
+import { DOWNLOADED_THUMBNAILS_FOLDER } from './thumbnails';
 
-async function ensureTheFolderExist(path: string) {
+async function ensureTheFolderExist(name: string, path: string) {
   try {
     await fs.access(path);
   } catch {
-    Logger.info('ROOT FOLDER ', path, 'NOT FOUND, CREATING IT...');
+    Logger.warn(`${name} not found, creating it...`);
     await fs.mkdir(path);
   }
 }
@@ -25,7 +26,11 @@ async function setUp() {
 
   Logger.info('WATCHING ON PATH: ', virtualDrivePath);
 
-  await ensureTheFolderExist(virtualDrivePath);
+  await ensureTheFolderExist('Root sync folder', virtualDrivePath);
+  await ensureTheFolderExist(
+    'Thumbnails download folder',
+    DOWNLOADED_THUMBNAILS_FOLDER
+  );
 
   const virtualDrive = new VirtualDrive(virtualDrivePath);
 
