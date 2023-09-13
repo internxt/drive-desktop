@@ -5,7 +5,6 @@ import packageJson from '../../../package.json';
 import { BindingsManager } from './BindingManager';
 import fs from 'fs/promises';
 import { buildControllers } from './app/buildControllers';
-import { DOWNLOADED_THUMBNAILS_FOLDER } from './thumbnails';
 
 async function ensureTheFolderExist(name: string, path: string) {
   try {
@@ -23,14 +22,13 @@ async function setUp() {
   const { VirtualDrive } = require('virtual-drive/dist');
 
   const virtualDrivePath = await ipcRenderer.invoke('get-virtual-drive-root');
+  const downloadedThumbnailsFolder = await ipcRenderer.invoke(
+    'GET_LOCAL_THUMBNAIL_FOLDER'
+  );
 
   Logger.info('WATCHING ON PATH: ', virtualDrivePath);
 
   await ensureTheFolderExist('Root sync folder', virtualDrivePath);
-  await ensureTheFolderExist(
-    'Thumbnails download folder',
-    DOWNLOADED_THUMBNAILS_FOLDER
-  );
 
   const virtualDrive = new VirtualDrive(virtualDrivePath);
 
@@ -45,11 +43,10 @@ async function setUp() {
 
   const controllers = buildControllers(container);
 
-  const bindings = new BindingsManager(
-    virtualDrive,
-    controllers,
-    virtualDrivePath
-  );
+  const bindings = new BindingsManager(virtualDrive, controllers, {
+    root: virtualDrivePath,
+    thumbnails: downloadedThumbnailsFolder,
+  });
 
   await bindings.start(
     packageJson.version,

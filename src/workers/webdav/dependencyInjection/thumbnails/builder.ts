@@ -1,14 +1,17 @@
 import { Environment } from '@internxt/inxt-js';
 import { ThumbnailsDownloader } from '../../modules/thumbnails/application/ThumbnailsDownloader';
 import { EnvironmentThumbnailDownloader } from '../../modules/thumbnails/infrastructrue/EnvironmentThumbnailDownloader';
-import { DOWNLOADED_THUMBNAILS_FOLDER } from '../../thumbnails';
 import { DepenedencyInjectionMnemonicProvider } from '../common/mnemonic';
 import { DepenedencyInjectionUserProvider } from '../common/user';
 import { ThumbnailsContainer } from './ThumbnailsContainer';
+import { ipcRenderer } from 'electron';
 
-export function buildThumbnailsContainer(): ThumbnailsContainer {
+export async function buildThumbnailsContainer(): Promise<ThumbnailsContainer> {
   const user = DepenedencyInjectionUserProvider.get();
   const mnemonic = DepenedencyInjectionMnemonicProvider.get();
+  const downloadedThumbnailsFolder = await ipcRenderer.invoke(
+    'GET_LOCAL_THUMBNAIL_FOLDER'
+  );
 
   const environment = new Environment({
     bridgeUrl: process.env.BRIDGE_URL,
@@ -22,7 +25,7 @@ export function buildThumbnailsContainer(): ThumbnailsContainer {
     user.bucket
   );
   const downloader = new ThumbnailsDownloader(
-    DOWNLOADED_THUMBNAILS_FOLDER,
+    downloadedThumbnailsFolder,
     environmentThumbnailDownloader
   );
 

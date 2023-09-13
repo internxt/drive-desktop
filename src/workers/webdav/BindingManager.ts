@@ -4,6 +4,7 @@ import { Folder } from './modules/folders/domain/Folder';
 import { File } from './modules/files/domain/File';
 import { buildControllers } from './app/buildControllers';
 import fs from 'fs';
+import path from 'path';
 
 export class BindingsManager {
   private static readonly PROVIDER_NAME = 'Internxt';
@@ -11,7 +12,10 @@ export class BindingsManager {
   constructor(
     private readonly drive: VirtualDrive,
     private readonly controllers: ReturnType<typeof buildControllers>,
-    private readonly rootFolder: string
+    private readonly paths: {
+      root: string;
+      thumbnails: string;
+    }
   ) {}
 
   private createFolderPlaceholder(folder: Folder) {
@@ -24,10 +28,13 @@ export class BindingsManager {
   public createPlaceHolders(items: Array<File | Folder>) {
     items.forEach((item) => {
       if (item.isFile()) {
+        const thumbnailPath = path.join(this.paths.thumbnails, 'thumbnail.png');
+
         this.drive.createItemByPath(
           item.path.value,
           item.contentsId,
-          item.size
+          item.size,
+          thumbnailPath
         );
         return;
       }
@@ -133,7 +140,7 @@ export class BindingsManager {
   }
 
   watch() {
-    this.drive.watchAndWait(this.rootFolder);
+    this.drive.watchAndWait(this.paths.root);
   }
 
   async stop() {
