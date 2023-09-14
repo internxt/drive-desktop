@@ -5,6 +5,7 @@ import packageJson from '../../../package.json';
 import { BindingsManager } from './BindingManager';
 import fs from 'fs/promises';
 import { buildControllers } from './app/buildControllers';
+import { iconPath } from 'workers/utils/icon';
 
 async function ensureTheFolderExist(path: string) {
   try {
@@ -40,11 +41,10 @@ async function setUp() {
 
   const controllers = buildControllers(container);
 
-  const bindings = new BindingsManager(
-    virtualDrive,
-    controllers,
-    virtualDrivePath
-  );
+  const bindings = new BindingsManager(virtualDrive, controllers, {
+    root: virtualDrivePath,
+    icon: iconPath,
+  });
 
   await bindings.start(
     packageJson.version,
