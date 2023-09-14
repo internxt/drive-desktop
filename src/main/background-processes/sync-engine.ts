@@ -29,25 +29,29 @@ function spawnSyncEngineWorker() {
     });
 
   worker.on('close', () => {
-    Logger.debug('[MAIN] SYNC ENGINE WORKER CLOSED');
     worker?.destroy();
   });
 
-  ipcMain.once('SYNC_ENGINE_PROCESS_SETUP_SUCCESSFUL', () => {
+  ipcMain.on('SYNC_ENGINE_PROCESS_SETUP_SUCCESSFUL', () => {
+    Logger.debug('[MAIN] SYNC ENGINE RUNNIG');
     workerIsRunning = true;
   });
 
-  ipcMain.once('SYNC_ENGINE_PROCESS_SETUP_FAILED', () => {
+  ipcMain.on('SYNC_ENGINE_PROCESS_SETUP_FAILED', () => {
+    Logger.debug('[MAIN] SYNC ENGINE NOT RUNNIG');
     workerIsRunning = false;
   });
 }
 
 export async function stopSyncEngineWatcher() {
+  Logger.info('[MAIN] STOPING SYNC ENGINE WORKER...');
+
   if (!workerIsRunning) {
+    Logger.info('[MAIN] WORKER WAS NOT RUNNIG');
+    worker?.destroy();
+    worker = null;
     return;
   }
-
-  Logger.info('[MAIN] STOPING SYNC ENGINE WORKER...');
 
   const stopPromise = new Promise<void>((resolve, reject) => {
     ipcMain.once('SYNC_ENGINE_STOP_ERROR', (_, err: Error) => {
@@ -68,8 +72,10 @@ export async function stopSyncEngineWatcher() {
   } catch (err) {
     // TODO: handle error
     Logger.error(err);
+  } finally {
     worker?.destroy();
-    // no op
+    workerIsRunning = false;
+    worker = null;
   }
 }
 
