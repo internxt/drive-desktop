@@ -15,6 +15,7 @@ import { RemoteItemsGenerator } from '../../items/application/RemoteItemsGenerat
 import { FileStatuses } from '../domain/FileStatus';
 import { Crypt } from '../../shared/domain/Crypt';
 import { VirtualDriveIpc } from '../../../ipc';
+import Logger from 'electron-log';
 
 export class HttpFileRepository implements FileRepository {
   public files: Record<string, File> = {};
@@ -62,11 +63,11 @@ export class HttpFileRepository implements FileRepository {
   }
 
   searchByPartial(partial: Partial<File>): Nullable<File> {
-    const file = Object.values(this.files).find((file) => {
-      const keys = Object.keys(partial) as Array<keyof Partial<File>>;
+    const keys = Object.keys(partial) as Array<keyof Partial<File>>;
 
-      return keys.every((key) => file[key] === partial[key]);
-    });
+    const file = Object.values(this.files).find((file) =>
+      keys.every((key) => file[key] === partial[key])
+    );
 
     if (file) {
       return File.from(file.attributes());

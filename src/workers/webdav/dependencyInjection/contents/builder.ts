@@ -1,11 +1,12 @@
-import { EnvironmentRemoteFileContentsManagersFactory } from '../../modules/contents/infrastructure/EnvironmentRemoteFileContentsManagersFactory';
-import { ContentsUploader } from '../../modules/contents/application/ContentsUploader';
-import { ContentsContainer } from './ContentsContainer';
-import { DepenedencyInjectionUserProvider } from '../common/user';
-import { DepenedencyInjectionMnemonicProvider } from '../common/mnemonic';
 import { Environment } from '@internxt/inxt-js';
-import { FSLocalFileProvider } from 'workers/webdav/modules/contents/infrastructure/FSLocalFileProvider';
+import { ContentsDownloader } from '../../modules/contents/application/ContentsDownloader';
+import { FSLocalFileProvider } from '../../modules/contents/infrastructure/FSLocalFileProvider';
 import { ipc } from '../../ipc';
+import { ContentsUploader } from '../../modules/contents/application/ContentsUploader';
+import { EnvironmentRemoteFileContentsManagersFactory } from '../../modules/contents/infrastructure/EnvironmentRemoteFileContentsManagersFactory';
+import { DepenedencyInjectionMnemonicProvider } from '../common/mnemonic';
+import { DepenedencyInjectionUserProvider } from '../common/user';
+import { ContentsContainer } from './ContentsContainer';
 
 export function buildContentsContainer(): ContentsContainer {
   const user = DepenedencyInjectionUserProvider.get();
@@ -28,7 +29,13 @@ export function buildContentsContainer(): ContentsContainer {
     ipc
   );
 
+  const contentsDownloader = new ContentsDownloader(
+    contentsManagerFactory,
+    ipc
+  );
+
   return {
     contentsUploader,
+    contentsDownloader,
   };
 }

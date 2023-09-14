@@ -87,8 +87,19 @@ export class BindingsManager {
           dehydratateAndCreatePlaceholder
         );
       },
-      fetchDataCallback: () => {
-        Logger.debug('fetchDataCallback');
+      fetchDataCallback: (
+        contentsId: string,
+        callback: (buffer: Buffer) => void
+      ) => {
+        this.controllers.downloadFile
+          .execute(contentsId)
+          .then((buffer) => {
+            callback(buffer);
+          })
+          .catch((error) => {
+            Logger.error('Fetch Data Callback:', error);
+            callback(null);
+          });
       },
       validateDataCallback: () => {
         Logger.debug('validateDataCallback');

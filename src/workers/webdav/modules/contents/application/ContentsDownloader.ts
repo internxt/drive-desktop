@@ -1,7 +1,4 @@
-import { FileNotFoundError } from '../../files/domain/errors/FileNotFoundError';
 import { ContentsManagersFactory } from '../domain/ContentsManagersFactory';
-import { FileRepository } from '../../files/domain/FileRepository';
-import { FilePath } from '../../files/domain/FilePath';
 import { VirtualDriveIpc } from '../../../ipc';
 import { ContentFileDownloader } from '../domain/contentHandlers/ContentFileDownloader';
 import { File } from '../../files/domain/File';
@@ -9,7 +6,6 @@ import { LocalFileContents } from '../domain/LocalFileContents';
 
 export class ContentsDownloader {
   constructor(
-    private readonly repository: FileRepository,
     private readonly contents: ContentsManagersFactory,
     private readonly ipc: VirtualDriveIpc
   ) {}
@@ -55,15 +51,7 @@ export class ContentsDownloader {
     });
   }
 
-  async run(path: string): Promise<LocalFileContents> {
-    const filePath = new FilePath(path);
-
-    const file = this.repository.search(filePath);
-
-    if (!file) {
-      throw new FileNotFoundError(path);
-    }
-
+  async run(file: File): Promise<LocalFileContents> {
     const downloader = this.contents.downloader();
 
     this.registerEvents(downloader, file);

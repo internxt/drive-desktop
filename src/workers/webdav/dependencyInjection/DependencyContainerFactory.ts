@@ -19,6 +19,7 @@ import { NodeJsEventBus } from '../modules/shared/infrastructure/DuplexEventBus'
 import { DependencyContainer } from './DependencyContainer';
 import { buildContentsContainer } from './contents/builder';
 import { buildItemsContainer } from './items/builder';
+import { buildFilesContainer } from './files/builder';
 
 export class DependencyContainerFactory {
   private static _container: DependencyContainer | undefined;
@@ -76,6 +77,7 @@ export class DependencyContainerFactory {
 
     const itemsContainer = buildItemsContainer();
     const contentsContaner = buildContentsContainer();
+    const filesContainer = await buildFilesContainer();
 
     const eventBus = new NodeJsEventBus();
 
@@ -109,6 +111,7 @@ export class DependencyContainerFactory {
 
       ...itemsContainer,
       ...contentsContaner,
+      ...filesContainer,
     };
 
     DependencyContainerFactory._container = container;
