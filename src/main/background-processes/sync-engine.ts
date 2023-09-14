@@ -22,10 +22,10 @@ function spawnSyncEngineWorker() {
         : `${path.join(__dirname, '..', 'webdav')}/index.html`
     )
     .then(() => {
-      Logger.info('[MAIN] SYNC ENGINE WORKER LOADED');
+      Logger.info('[MAIN] Sync engine worker loaded');
     })
     .catch((err) => {
-      Logger.error('[MAIN] ERROR LOADING SYNC ENGINE WORKER', err);
+      Logger.error('[MAIN] Error loading sync engine worker', err);
     });
 
   worker.on('close', () => {
@@ -54,15 +54,25 @@ export async function stopSyncEngineWatcher() {
   }
 
   const stopPromise = new Promise<void>((resolve, reject) => {
-    ipcMain.once('SYNC_ENGINE_STOP_ERROR', (_, err: Error) => {
-      Logger.error('[MAIN] ERROR STOPING SYNC ENGINE WORKER', err);
-      reject();
+    ipcMain.once('SYNC_ENGINE_STOP_ERROR', (_, error: Error) => {
+      Logger.error('[MAIN] Error stoping sync engine worker', error);
+      reject(error);
     });
 
     ipcMain.once('SYNC_ENGINE_STOP_SUCCESS', () => {
       resolve();
-      Logger.info('[MAIN] SYNC ENGINE STOPPED');
+      Logger.info('[MAIN] Sync engine stopped');
     });
+
+    const millisecndsToWait = 10_000;
+
+    setTimeout(() => {
+      reject(
+        new Error(
+          `Timeout waiting for sync engien to stop after ${millisecndsToWait} milliseconds`
+        )
+      );
+    }, millisecndsToWait);
   });
 
   try {
