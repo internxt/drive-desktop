@@ -112,6 +112,8 @@ eventBus.on('USER_LOGGED_IN', async () => {
       await AppDataSource.initialize();
     }
 
+    getAuthWindow()?.hide();
+
     nativeTheme.themeSource = configStore.get('preferedTheme') as Theme;
 
     setTrayStatus('STANDBY');
