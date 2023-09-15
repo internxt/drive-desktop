@@ -111,7 +111,8 @@ eventBus.on('USER_LOGGED_IN', async () => {
     if (!AppDataSource.isInitialized) {
       await AppDataSource.initialize();
     }
-    getAuthWindow()?.destroy();
+
+    getAuthWindow()?.hide();
 
     nativeTheme.themeSource = configStore.get('preferedTheme') as Theme;
 
@@ -121,6 +122,8 @@ eventBus.on('USER_LOGGED_IN', async () => {
     if (widget && tray) {
       setBoundsOfWidgetByPath(widget, tray);
     }
+
+    getAuthWindow()?.destroy();
 
     const lastOnboardingShown = configStore.get('lastOnboardingShown');
 

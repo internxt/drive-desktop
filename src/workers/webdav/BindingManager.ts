@@ -40,7 +40,7 @@ export class BindingsManager {
   }
 
   async start(version: string, providerId: string) {
-    await this.drive.unregisterSyncRoot();
+    await this.stop();
 
     const callbacks = {
       notifyDeleteCallback: (
@@ -141,6 +141,7 @@ export class BindingsManager {
   }
 
   async stop() {
+    await this.drive.disconnectSyncRoot();
     await this.drive.unregisterSyncRoot();
   }
 }
