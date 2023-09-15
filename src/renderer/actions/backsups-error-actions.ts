@@ -1,7 +1,13 @@
+import { BackupFatalError } from '../../main/background-processes/types/BackupFatalError';
 import { tryAgain } from './shared-actions';
 import { FatalErrorActionMap } from './types';
 
-const findBackupFolder = async (error: { path: string }) => {
+const findBackupFolder = async (
+  error: BackupFatalError | undefined
+): Promise<void> => {
+  if (!error) {
+    return;
+  }
   const result = await window.electron.changeBackupPath(error.path);
   if (result) {
     window.electron.startBackupsProcess();

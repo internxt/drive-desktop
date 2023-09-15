@@ -7,22 +7,18 @@ import { SyncStatus } from '../../../main/background-processes/sync';
 import useUsage from 'renderer/hooks/useUsage';
 import Button from 'renderer/components/Button';
 import useVirtualDriveStatus from 'renderer/hooks/VirtualDriveStatus';
-import useSyncStatus from 'renderer/hooks/SyncStatus';
+import useSyncStatus from 'renderer/hooks/useSyncStatus';
 
 export default function SyncAction(props: { syncStatus: SyncStatus }) {
   const { translate } = useTranslationContext();
 
   const [isOnLine, setIsOnLine] = useState(true);
   const { usage, status } = useUsage();
-  const { status: virtualDriveStatus } = useVirtualDriveStatus();
-  const [syncStatus, setSyncStatus] = useState<SyncStatus | null>(null);
-  useSyncStatus(setSyncStatus);
+  const { virtualDriveStatus } = useVirtualDriveStatus();
+  const { syncStatus } = useSyncStatus();
 
   const isSyncStopped =
-    (virtualDriveStatus &&
-      (virtualDriveStatus === 'FAILED_TO_MOUNT' ||
-        virtualDriveStatus === 'MOUNTING')) ||
-    (syncStatus && syncStatus === 'FAILED');
+    virtualDriveStatus && syncStatus && syncStatus === 'FAILED';
 
   const handleOpenUpgrade = async () => {
     try {

@@ -119,7 +119,7 @@ async function setUp() {
       )}`
     );
     ipcRenderer.send('BACKUP_ISSUE', {
-      action: 'PULL_ERROR',
+      action: 'DELETE_ERROR',
       kind,
       name,
       errorName,

@@ -2,13 +2,13 @@
 import { AvailableOnlineSlide } from './slides/AvailableOnlineSlide';
 import { AvailableOfflineSlide } from './slides/AvailableOfflineSlide';
 import { ContextMenuSlide } from './slides/ContextMenuSlide';
-import { BackupsSlide } from './slides/BackupsSlide';
+// import { BackupsSlide } from './slides/BackupsSlide';
 import { WelcomeSlide } from './slides/WelcomeSlide';
 import { FilesOrganizationSlide } from './slides/FilesOrganizationSlide';
 
 import { useTranslationContext } from 'renderer/context/LocalContext';
 import {
-  BackupsSVG,
+  // BackupsSVG,
   OnboardingSlide,
   SideImageAnimation,
   SideTextAnimation,

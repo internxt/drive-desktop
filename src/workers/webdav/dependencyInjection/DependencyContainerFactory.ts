@@ -23,9 +23,7 @@ import { buildItemsContainer } from './items/builder';
 export class DependencyContainerFactory {
   private static _container: DependencyContainer | undefined;
 
-  // static readonly subscriptors: Array<keyof DependencyContainer> = [
-  //   'incrementDriveUsageOnFileCreated',
-  // ];
+  static readonly subscriptors: Array<keyof DependencyContainer> = [];
 
   eventSubscriptors(
     key: keyof DependencyContainer

@@ -14,8 +14,7 @@ import { reportError } from '../../utils/errors';
 
 export default function Header() {
   const { translate } = useTranslationContext();
-  const { virtualDriveStatus, virtualDriveCanBeOpened } =
-    useVirtualDriveStatus();
+  const { virtualDriveCanBeOpened } = useVirtualDriveStatus();
   const processIssues = useProcessIssues();
   const generalIssues = useGeneralIssues();
   const { backupFatalErrors } = useBackupFatalErrors();

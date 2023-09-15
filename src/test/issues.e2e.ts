@@ -7,10 +7,6 @@ import { _electron as electron } from 'playwright';
 import { DEFAULT_LANGUAGE } from '../shared/Locale/Language';
 
 import {
-  longMessages,
-  shortMessages,
-} from '../renderer/messages/process-error';
-import {
   GeneralIssue,
   ProcessErrorName,
   ProcessFatalErrorName,

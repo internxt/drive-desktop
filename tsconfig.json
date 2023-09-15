@@ -35,6 +35,10 @@
     "release/build",
     "release/app/dist",
     ".erb/dll",
-    "__mock__"
+    "__mock__",
+    "src/workers/backups/process.ts",
+    "src/workers/backups",
+    "src/workers/filesystems",
+    "src/test",
   ]
 }

@@ -1,6 +1,4 @@
-import { VirtualDriveStatus } from '../shared/types/VirtualDriveStatus';
 import { ipcMainDrive } from './ipcs/mainDrive';
-import { ipcMainVirtualDrive } from './ipcs/mainVirtualDrive';
 import { broadcastToWindows } from './windows';
 
 ipcMainDrive.on('FILE_DELETED', (_, payload) => {
@@ -119,23 +117,5 @@ ipcMainDrive.on('FILE_DELETE_ERROR', (_, payload) => {
   broadcastToWindows('sync-info-update', {
     action: 'DELETE_ERROR',
     name: nameWithExtension,
-  });
-});
-
-ipcMainVirtualDrive.on('VIRTUAL_DRIVE_STARTING', () => {
-  broadcastToWindows('virtual-drive-status-change', {
-    status: VirtualDriveStatus.READY,
-  });
-});
-
-ipcMainVirtualDrive.on('VIRTUAL_DRIVE_MOUNTED_SUCCESSFULLY', () => {
-  broadcastToWindows('virtual-drive-status-change', {
-    status: VirtualDriveStatus.MOUNTED,
-  });
-});
-
-ipcMainVirtualDrive.on('VIRTUAL_DRIVE_MOUNT_ERROR', () => {
-  broadcastToWindows('virtual-drive-status-change', {
-    status: VirtualDriveStatus.FAILED_TO_MOUNT,
   });
 });

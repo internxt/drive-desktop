@@ -1,7 +1,7 @@
 import Logger from 'electron-log';
 import _ from 'lodash';
 
-import Process, { ProcessEvents, ProcessResult } from '../process';
+import Process, { ProcessEvents, ProcessResult } from './process';
 
 class Backups extends Process {
   private static NUMBER_OF_PARALLEL_QUEUES_FOR_SMALL_FILES = 16;
