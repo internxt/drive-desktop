@@ -1,10 +1,8 @@
 export default function WarningBanner({
   children,
-  icon,
   className,
 }: {
   children: string;
-  icon: string;
   className: string;
 }) {
   return (

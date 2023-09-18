@@ -7,7 +7,7 @@ import {
 export function createUploadStrategy(
   fn: (opts: UploadOptions) => void
 ): UploadStrategyFunction {
-  return (bucketId: string, opts: UploadOptions) => {
+  return (_bucketId: string, opts: UploadOptions) => {
     fn(opts);
 
     return new ActionState(ActionTypes.Upload);

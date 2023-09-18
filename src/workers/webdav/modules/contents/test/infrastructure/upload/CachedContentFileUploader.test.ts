@@ -2,7 +2,6 @@ import { Readable } from 'stream';
 import { CachedContentFileUploader } from '../../../infrastructure/upload/CachedContentFileUploader';
 import { ContentFileUploaderMock } from '../../__mocks__/ContentFileUploaderMock';
 import { ContentsCacheRepositoryMock } from '../../__mocks__/ContentsCacheRepositoryMock';
-import { ContentsId } from '../../../domain/ContentsId';
 import { ContentsIdMother } from '../../domain/ContentsIdMother';
 
 describe('cached content file uploader', () => {

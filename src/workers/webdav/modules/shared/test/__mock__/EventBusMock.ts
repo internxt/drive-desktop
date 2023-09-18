@@ -9,7 +9,7 @@ export class EventBusMock implements WebdavServerEventBus {
     this.publishMock(events);
   }
 
-  addSubscribers(subscribers: DomainEventSubscribers): void {
+  addSubscribers(_subscribers: DomainEventSubscribers): void {
     //
   }
 

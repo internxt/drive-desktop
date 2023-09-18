@@ -1,4 +1,3 @@
-import { logger } from '@sentry/utils';
 import { app, dialog, shell } from 'electron';
 import fs from 'fs/promises';
 import path from 'path';
@@ -8,7 +7,6 @@ import eventBus from '../event-bus';
 
 const ROOT_FOLDER_NAME = 'InternxtDrive';
 const HOME_FOLDER_PATH = app.getPath('home');
-const DESKTOP_FOLDER_PATH = app.getPath('desktop');
 
 async function existsFolder(pathname: string): Promise<boolean> {
   try {

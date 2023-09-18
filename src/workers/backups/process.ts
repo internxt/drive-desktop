@@ -3,8 +3,7 @@ import { EventEmitter } from 'events';
 import _ from 'lodash';
 import path from 'path';
 
-import { FileSystem as NewFileSystem } from './filesystems/domain/FileSystem';
-import { PartialListing } from './sync/Listings/domain/Listing';
+import { FileSystem as NewFileSystem } from '../filesystems/domain/FileSystem';
 import {
   ErrorDetails,
   FileSystem,
@@ -14,8 +13,8 @@ import {
   ProcessErrorName,
   ProcessFatalError,
   ReadingMetaErrorEntry,
-} from './types';
-import { createErrorDetails } from './utils/reporting';
+} from '../types';
+import { createErrorDetails } from '../utils/reporting';
 
 abstract class Process extends EventEmitter {
   constructor(
@@ -68,11 +67,8 @@ abstract class Process extends EventEmitter {
 
   protected async consumePullQueue(
     queue: string[],
-    destFs: Pick<
-      FileSystem | NewFileSystem<PartialListing>,
-      'pullFile' | 'kind'
-    >,
-    srcFs: Pick<FileSystem | NewFileSystem<PartialListing>, 'getSource'>
+    destFs: Pick<FileSystem | NewFileSystem<any>, 'pullFile' | 'kind'>,
+    srcFs: Pick<FileSystem | NewFileSystem<any>, 'getSource'>
   ): Promise<void> {
     const controllers: Array<AbortController> = [];
 

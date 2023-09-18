@@ -1,6 +1,6 @@
 import { ipcMain } from 'electron';
 
-import { ProcessResult } from '../../workers/process';
+import { ProcessResult } from '../../workers/backups/process';
 import {
   ProcessFatalErrorName,
   ProcessInfoUpdatePayload,

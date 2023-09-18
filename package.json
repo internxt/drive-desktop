@@ -28,6 +28,7 @@
     "test": "jest && playwright test --config=src/test",
     "test:unit": "jest --silent",
     "test:e2e": "playwright test --config=src/test",
+    "type-check": "tsc --noEmit --pretty --skipLibCheck",
     "prepare": "husky install"
   },
   "lint-staged": {
