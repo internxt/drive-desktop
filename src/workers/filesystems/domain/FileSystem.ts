@@ -1,5 +1,4 @@
 /* eslint-disable no-unused-vars */
-import { PartialListing } from '../../sync/Listings/domain/Listing';
 import {
   FileSystemKind,
   FileSystemProgressCallback,
@@ -7,7 +6,7 @@ import {
   Source,
 } from '../../types';
 
-export interface FileSystem<T extends PartialListing> {
+export interface FileSystem<T> {
   /**
    * The kind of filesystem, it's emitted
    * in some fs events

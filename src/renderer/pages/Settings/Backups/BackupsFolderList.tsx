@@ -3,7 +3,6 @@ import { Minus, Plus } from '@phosphor-icons/react';
 import { Fragment, ReactNode, useEffect, useState } from 'react';
 import { useTranslationContext } from 'renderer/context/LocalContext';
 import { useBackups } from '../../../hooks/useBackups';
-import { BackupFatalError } from '../../../../main/background-processes/types/BackupFatalError';
 import useBackupFatalErrors from '../../../hooks/BackupFatalErrors';
 
 import { Backup } from '../../../../main/device/service';

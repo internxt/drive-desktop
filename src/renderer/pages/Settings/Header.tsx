@@ -1,10 +1,37 @@
-import { At, ClockCounterClockwise, Gear, Icon } from '@phosphor-icons/react';
+import { At, Gear, Icon } from '@phosphor-icons/react';
 import { motion } from 'framer-motion';
 
 import { useTranslationContext } from '../../context/LocalContext';
 
 const sectionValues = ['GENERAL', 'ACCOUNT'] as const;
 export type Section = (typeof sectionValues)[number];
+
+function Item({
+  Icon,
+  title,
+  onClick,
+  isActive,
+}: {
+  Icon: Icon;
+  title: string;
+  onClick: () => void;
+  isActive: boolean;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      type="button"
+      className={`relative flex w-20 cursor-pointer flex-col items-center rounded-lg px-4 py-1.5 outline-none transition-colors duration-100 ease-in-out ${
+        isActive
+          ? 'text-gray-100'
+          : 'text-gray-50 hover:text-gray-60 active:text-gray-80'
+      }`}
+    >
+      <Icon size={28} />
+      <p className="text-xs font-medium capitalize">{title.toLowerCase()}</p>
+    </button>
+  );
+}
 
 export default function Header({
   onClick,
@@ -53,32 +80,5 @@ export default function Header({
         ))}
       </div>
     </div>
-  );
-}
-
-function Item({
-  Icon,
-  title,
-  onClick,
-  isActive,
-}: {
-  Icon: Icon;
-  title: string;
-  onClick: () => void;
-  isActive: boolean;
-}) {
-  return (
-    <button
-      onClick={onClick}
-      type="button"
-      className={`relative flex w-20 cursor-pointer flex-col items-center rounded-lg px-4 py-1.5 outline-none transition-colors duration-100 ease-in-out ${
-        isActive
-          ? 'text-gray-100'
-          : 'text-gray-50 hover:text-gray-60 active:text-gray-80'
-      }`}
-    >
-      <Icon size={28} />
-      <p className="text-xs font-medium capitalize">{title.toLowerCase()}</p>
-    </button>
   );
 }

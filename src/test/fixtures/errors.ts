@@ -20,7 +20,7 @@ export const createSyncError = (
 ): ProcessIssue => ({
   kind: 'LOCAL',
   name: 'name',
-  action: 'PULL_ERROR',
+  action: 'DELETE_ERROR',
   errorName: processErrorName,
   errorDetails: {
     action: 'a',

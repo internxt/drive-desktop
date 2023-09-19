@@ -2,6 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
+@import url('./assets/fonts/InstrumentSans/font.css');
+
 :root {
   color-scheme: light dark;
   
@@ -79,42 +81,9 @@
   }
 }
 
-/* TEXT */
-@font-face {
-  font-family: 'NeueEinstellung';
-  font-weight: 400;
-  font-style: normal;
-  font-display: auto;
-  src: url(./assets/fonts/NeueEinstellung-Regular.ttf) format('truetype');
-}
-
-@font-face {
-  font-family: 'NeueEinstellung';
-  font-weight: 500;
-  font-style: normal;
-  font-display: auto;
-  src: url(./assets/fonts/NeueEinstellung-Medium.ttf) format('truetype');
-}
-
-@font-face {
-  font-family: 'NeueEinstellung';
-  font-weight: 600;
-  font-style: normal;
-  font-display: auto;
-  src: url(./assets/fonts/NeueEinstellung-Semibold.ttf) format('truetype');
-}
-
-@font-face {
-  font-family: 'NeueEinstellung';
-  font-weight: 700;
-  font-style: normal;
-  font-display: auto;
-  src: url(./assets/fonts/NeueEinstellung-Bold.ttf) format('truetype');
-}
-
 body,
 html {
-  font-family: 'NeueEinstellung', sans-serif;
+  font-family: 'Instrument Sans', sans-serif;
   @apply text-highlight bg-surface dark:bg-gray-1 select-none;
 }
 

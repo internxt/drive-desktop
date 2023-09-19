@@ -3,8 +3,8 @@ import { ProcessFatalErrorName } from '../../../workers/types';
 import Error from '../../assets/error.svg';
 import Warn from '../../assets/warn.svg';
 import { useTranslationContext } from '../../context/LocalContext';
-import useSyncStatus from '../../hooks/SyncStatus';
-import useSyncStopped from '../../hooks/SyncStopped';
+import useSyncStatus from '../../hooks/useSyncStatus';
+import useSyncStopped from '../../hooks/useSyncStopped';
 import SyncFatalErrorMessages from '../../messages/process-fatal-error';
 
 const fatalErrorActionMap: Record<
