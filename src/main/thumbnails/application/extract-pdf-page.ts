@@ -1,26 +1,13 @@
-import Logger from 'electron-log';
-import fs from 'fs';
-import gm from 'gm';
 import { Readable } from 'stream';
 
 export async function extractFirstPageAsReadablePNG(
   pdfPath: string
-): Promise<Readable | undefined> {
-  return new Promise((resolve, reject) => {
-    const pdf = fs.createReadStream(pdfPath);
+): Promise<Readable> {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const gm = require('gm').subClass({ imageMagick: true });
 
-    gm(pdf)
-      .selectFrame(0)
-      .stream('png', (err: Error | null, stream: Readable) => {
-        if (err) {
-          Logger.error(
-            '[THUMBNAIL] Error generating thumbnail for a pdf: ',
-            err
-          );
-          reject(err);
-        }
-
-        resolve(stream);
-      });
-  });
+  return gm(pdfPath + '[0]')
+    .density(300, 300)
+    .quality(100)
+    .stream('png');
 }
