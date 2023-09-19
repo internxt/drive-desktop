@@ -73,7 +73,7 @@ export class BindingsManager {
           });
       },
       notifyFileAddedCallback: (absolutePath: string) => {
-        const dehydratateAndCreatePlaceholder = (
+        const dehydrateAndCreatePlaceholder = (
           id: string,
           relative: string,
           size: number
@@ -84,21 +84,21 @@ export class BindingsManager {
 
         this.controllers.addFile.execute(
           absolutePath,
-          dehydratateAndCreatePlaceholder
+          dehydrateAndCreatePlaceholder
         );
       },
       fetchDataCallback: (
         contentsId: string,
-        callback: (buffer: Buffer) => void
+        callback: (success: boolean, path?: string) => void
       ) => {
         this.controllers.downloadFile
           .execute(contentsId)
-          .then((buffer) => {
-            callback(buffer);
+          .then((path) => {
+            callback(true, path);
           })
           .catch((error) => {
             Logger.error('Fetch Data Callback:', error);
-            callback(null);
+            callback(false);
           });
       },
       validateDataCallback: () => {

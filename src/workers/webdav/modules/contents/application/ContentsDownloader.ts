@@ -3,10 +3,12 @@ import { VirtualDriveIpc } from '../../../ipc';
 import { ContentFileDownloader } from '../domain/contentHandlers/ContentFileDownloader';
 import { File } from '../../files/domain/File';
 import { LocalFileContents } from '../domain/LocalFileContents';
+import { LocalFileWriter } from '../domain/LocalFileWriter';
 
 export class ContentsDownloader {
   constructor(
     private readonly contents: ContentsManagersFactory,
+    private readonly localWriter: LocalFileWriter,
     private readonly ipc: VirtualDriveIpc
   ) {}
 
@@ -51,14 +53,14 @@ export class ContentsDownloader {
     });
   }
 
-  async run(file: File): Promise<LocalFileContents> {
+  async run(file: File): Promise<string> {
     const downloader = this.contents.downloader();
 
     this.registerEvents(downloader, file);
 
     const readable = await downloader.download(file);
 
-    const remoteContents = LocalFileContents.from({
+    const localContents = LocalFileContents.from({
       name: file.name,
       extension: file.type,
       size: file.size,
@@ -67,6 +69,6 @@ export class ContentsDownloader {
       contents: readable,
     });
 
-    return remoteContents;
+    return await this.localWriter.write(localContents);
   }
 }

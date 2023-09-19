@@ -1,5 +1,4 @@
 import { ContentsDownloader } from '../../modules/contents/application/ContentsDownloader';
-import { ReadLocalFileContentsToBuffer } from '../../modules/contents/application/ReadLocalFileContentsToBuffer';
 import { FileFinderByContentsId } from '../../modules/files/application/FileFinderByContentsId';
 
 export class DownloadFileController {
@@ -8,14 +7,12 @@ export class DownloadFileController {
     private readonly downloader: ContentsDownloader
   ) {}
 
-  async execute(contentsId: string): Promise<Buffer> {
+  async execute(contentsId: string): Promise<string> {
     // eslint-disable-next-line no-control-regex
-    const trimedId = contentsId.replace(/[\x00-\x1F\x7F-\x9F]/g, '');
+    const trimmedId = contentsId.replace(/[\x00-\x1F\x7F-\x9F]/g, '');
 
-    const file = this.fileFinder.run(trimedId);
+    const file = this.fileFinder.run(trimmedId);
 
-    const contents = await this.downloader.run(file);
-
-    return await ReadLocalFileContentsToBuffer.run(contents);
+    return await this.downloader.run(file);
   }
 }
