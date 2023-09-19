@@ -1,6 +1,5 @@
 import { BrowserWindow } from 'electron';
 
-import eventBus from '../event-bus';
 import { preloadPath, resolveHtmlPath } from '../util';
 import { setUpCommonWindowHandlers } from '.';
 import { getIsLoggedIn } from '../auth/handlers';

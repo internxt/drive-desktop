@@ -241,7 +241,6 @@ export default function Login() {
       <div className="flex flex-1 flex-col space-y-2 p-6 pt-0">
         {warning && state === 'warning' && (
           <WarningBanner
-            icon=""
             className={`${state === 'warning' ? 'opacity-100' : 'opacity-0'}`}
           >
             {warning}

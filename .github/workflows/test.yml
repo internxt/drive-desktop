@@ -28,6 +28,8 @@ jobs:
           install-command: yarn --ignore-scripts --frozen-lockfile
       - name: Lint
         run: yarn run lint
+      - name: Typescript check
+        run: yarn run type-check
       - name: Build processes
         run: yarn build:main && yarn build:renderer
       - name: Run test

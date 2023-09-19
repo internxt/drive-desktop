@@ -12,7 +12,7 @@ export function buildControllers(container: DependencyContainer) {
 
   const renameOrMoveFileCallback = new RenameOrMoveController(
     container.filePathFromAbsolutePathCreator,
-    container.fileRenamer
+    container.filePathUpdater
   );
 
   const deleteFileCallback = new DeleteFileController(container.fileDeleter);
