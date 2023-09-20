@@ -11,7 +11,10 @@ export class BindingsManager {
   constructor(
     private readonly drive: VirtualDrive,
     private readonly controllers: ReturnType<typeof buildControllers>,
-    private readonly rootFolder: string
+    private readonly paths: {
+      root: string;
+      icon: string;
+    }
   ) {}
 
   private createFolderPlaceholder(folder: Folder) {
@@ -137,14 +140,15 @@ export class BindingsManager {
       BindingsManager.PROVIDER_NAME,
       version,
       providerId,
-      callbacks
+      callbacks,
+      this.paths.icon
     );
 
     await this.drive.connectSyncRoot();
   }
 
   watch() {
-    this.drive.watchAndWait(this.rootFolder);
+    this.drive.watchAndWait(this.paths.root);
   }
 
   async stop() {
