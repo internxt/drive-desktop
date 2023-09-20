@@ -2,7 +2,7 @@ import { getUser } from 'main/auth/service';
 import configStore from 'main/config';
 import { getClients } from '../../../shared/HttpClient/backgroud-process-clients';
 import crypt from '../../utils/crypt';
-import { ipc } from '../ipc';
+import { ipcRendererSyncEngine } from '../ipcRendererSyncEngine';
 import { FileCreator } from '../modules/files/application/FileCreator';
 import { FileDeleter } from '../modules/files/application/FileDeleter';
 import { FileFinderByContentsId } from '../modules/files/application/FileFinderByContentsId';
@@ -60,14 +60,14 @@ export class DependencyContainerFactory {
       clients.newDrive,
       traverser,
       user.bucket,
-      ipc
+      ipcRendererSyncEngine
     );
 
     const folderRepository = new HttpFolderRepository(
       clients.drive,
       clients.newDrive,
       traverser,
-      ipc
+      ipcRendererSyncEngine
     );
 
     await fileRepository.init();

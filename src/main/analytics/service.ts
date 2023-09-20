@@ -6,7 +6,7 @@ import Logger from 'electron-log';
 import {
   TrackedWebdavServerEventsActions,
   WebdavErrorContext,
-} from '../../shared/IPC/events/webdav';
+} from '../../shared/IPC/events/sync-engine';
 
 function platformShortName(platform: string) {
   switch (platform) {

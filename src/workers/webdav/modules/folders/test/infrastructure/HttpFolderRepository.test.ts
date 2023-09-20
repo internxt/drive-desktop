@@ -3,7 +3,7 @@ import { Traverser } from '../../../items/application/Traverser';
 import { FolderPath } from '../../domain/FolderPath';
 import { HttpFolderRepository } from '../../infrastructure/HttpFolderRepository';
 import { fakeDecryptor } from '../../../shared/test/domain/FakeCrypt';
-import { WebdavIpcMock } from '../../../shared/test/__mock__/WebdavIPC';
+import { IpcRendererSyncEngineMock } from '../../../shared/test/__mock__/IpcRendererSyncEngineMock';
 import { ServerFolderMother } from '../../../items/test/persistance/ServerFolderMother';
 
 jest.mock('axios');
@@ -11,14 +11,14 @@ jest.mock('axios');
 const rootFolderId = 4206870830;
 
 describe('Http Folder Repository', () => {
-  let ipc: WebdavIpcMock;
+  let ipc: IpcRendererSyncEngineMock;
   let SUT: HttpFolderRepository;
 
   describe('save', () => {
     beforeEach(() => {
       const traverser = new Traverser(fakeDecryptor, rootFolderId);
 
-      ipc = new WebdavIpcMock();
+      ipc = new IpcRendererSyncEngineMock();
 
       SUT = new HttpFolderRepository(axios, axios, traverser, ipc);
     });

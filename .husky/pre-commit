@@ -1,17 +1,5 @@
 #!/bin/sh
 . "$(dirname "$0")/_/husky.sh"
 
-staged_files=$(git diff --cached --name-only)
-
-# Run ESLint on staged files
-if [ -n "$staged_files" ]; then
-  yarn run lint:fix $staged_files
-  if [ $? -ne 0 ]; then
-    echo "ESLint found issues in the staged files. Please fix them before committing."
-    exit 1
-  fi
-fi
-
-exit 0
-
+npx yarn run lint
 npx yarn run type-check

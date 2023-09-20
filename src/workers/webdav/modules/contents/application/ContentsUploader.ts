@@ -1,4 +1,4 @@
-import { VirtualDriveIpc } from 'workers/webdav/ipc';
+import { SyncEngineIpc } from 'workers/webdav/ipcRendererSyncEngine';
 import { ContentFileUploader } from '../domain/contentHandlers/ContentFileUploader';
 import { ContentsManagersFactory } from '../domain/ContentsManagersFactory';
 import { LocalContentsProvider } from '../domain/LocalFileProvider';
@@ -9,7 +9,7 @@ export class ContentsUploader {
   constructor(
     private readonly remoteContentsManagersFactory: ContentsManagersFactory,
     private readonly contentProvider: LocalContentsProvider,
-    private readonly ipc: VirtualDriveIpc
+    private readonly ipc: SyncEngineIpc
   ) {}
 
   private registerEvents(
@@ -17,7 +17,7 @@ export class ContentsUploader {
     localFileContents: LocalFileContents
   ) {
     uploader.on('start', () => {
-      this.ipc.send('WEBDAV_FILE_UPLOADING', {
+      this.ipc.send('UPLOADING_FILE', {
         name: localFileContents.name,
         extension: localFileContents.extension,
         nameWithExtension: localFileContents.nameWithExtension,
@@ -27,7 +27,7 @@ export class ContentsUploader {
     });
 
     uploader.on('progress', (progress: number) => {
-      this.ipc.send('WEBDAV_FILE_UPLOADING', {
+      this.ipc.send('UPLOADING_FILE', {
         name: localFileContents.name,
         extension: localFileContents.extension,
         nameWithExtension: localFileContents.nameWithExtension,
@@ -37,7 +37,7 @@ export class ContentsUploader {
     });
 
     uploader.on('error', (error: Error) => {
-      this.ipc.send('WEBDAV_FILE_UPLOAD_ERROR', {
+      this.ipc.send('FILE_UPLOAD_ERROR', {
         name: localFileContents.name,
         extension: localFileContents.extension,
         nameWithExtension: localFileContents.nameWithExtension,
@@ -46,7 +46,7 @@ export class ContentsUploader {
     });
 
     uploader.on('finish', () => {
-      this.ipc.send('WEBDAV_FILE_UPLOADED', {
+      this.ipc.send('FILE_UPLOADED', {
         name: localFileContents.name,
         extension: localFileContents.extension,
         nameWithExtension: localFileContents.nameWithExtension,

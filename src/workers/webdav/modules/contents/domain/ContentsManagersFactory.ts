@@ -1,4 +1,4 @@
-import { ContentFileClonner } from './contentHandlers/ContentFileClonner';
+import { ContentFileCloner } from './contentHandlers/ContentFileCloner';
 import { ContentFileDownloader } from './contentHandlers/ContentFileDownloader';
 import { ContentFileUploader } from './contentHandlers/ContentFileUploader';
 import { File } from '../../files/domain/File';
@@ -12,5 +12,5 @@ export interface ContentsManagersFactory {
     abortSignal?: AbortSignal
   ): ContentFileUploader;
 
-  clonner(file: File): ContentFileClonner;
+  cloner(file: File): ContentFileCloner;
 }

@@ -3,7 +3,6 @@ import { AddFileController } from './controllers/AddFileController';
 import { DeleteFileController } from './controllers/DeleteFileController';
 import { DownloadFileController } from './controllers/DownloadFileController';
 import { RenameOrMoveController } from './controllers/RenameOrMoveController';
-import { ipc } from '../ipc';
 
 export function buildControllers(container: DependencyContainer) {
   const addFileController = new AddFileController(

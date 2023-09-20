@@ -3,19 +3,19 @@ import { WebdavFolderMover } from '../../application/WebdavFolderMover';
 import { WebdavFolderRenamer } from '../../application/WebdavFolderRenamer';
 import { FolderMother } from '../domain/FolderMother';
 import { FolderRepositoryMock } from '../__mocks__/FolderRepositoryMock';
-import { WebdavIpcMock } from '../../../shared/test/__mock__/WebdavIPC';
+import { IpcRendererSyncEngineMock } from '../../../shared/test/__mock__/IpcRendererSyncEngineMock';
 
 describe('Folder Mover', () => {
   let repository: FolderRepositoryMock;
   let folderFinder: WebdavFolderFinder;
   let folderRenamer: WebdavFolderRenamer;
-  let ipc: WebdavIpcMock;
+  let ipc: IpcRendererSyncEngineMock;
   let SUT: WebdavFolderMover;
 
   beforeEach(() => {
     repository = new FolderRepositoryMock();
     folderFinder = new WebdavFolderFinder(repository);
-    ipc = new WebdavIpcMock();
+    ipc = new IpcRendererSyncEngineMock();
     folderRenamer = new WebdavFolderRenamer(repository, ipc);
 
     SUT = new WebdavFolderMover(repository, folderFinder, folderRenamer);

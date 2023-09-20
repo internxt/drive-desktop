@@ -4,13 +4,13 @@ import EventEmitter from 'events';
 import { Readable } from 'stream';
 import { Stopwatch } from '../../../../../shared/types/Stopwatch';
 import {
-  ContentFileClonner,
+  ContentFileCloner,
   FileCloneEvents,
-} from '../domain/contentHandlers/ContentFileClonner';
+} from '../domain/contentHandlers/ContentFileCloner';
 import { File } from '../../files/domain/File';
 import { ContentsId } from '../domain/ContentsId';
 
-export class EnvironmentContentFileClonner implements ContentFileClonner {
+export class EnvironmentContentFileCloner implements ContentFileCloner {
   private readonly eventEmitter: EventEmitter;
   private stopwatch: Stopwatch;
 

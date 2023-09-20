@@ -1,9 +1,9 @@
-import { VirtualDriveIpc } from '../../../ipc';
+import { SyncEngineIpc } from '../../../ipcRendererSyncEngine';
 import { HttpFileRepository } from '../infrastructure/HttpFileRepository';
 
 export class LocalRepositoryRepositoryRefresher {
   constructor(
-    private readonly ipc: VirtualDriveIpc,
+    private readonly ipc: SyncEngineIpc,
     private readonly repository: HttpFileRepository
   ) {}
 

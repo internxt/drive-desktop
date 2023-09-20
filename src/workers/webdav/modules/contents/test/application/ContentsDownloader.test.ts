@@ -1,7 +1,7 @@
 import { ContentsDownloader } from '../../application/ContentsDownloader';
 import { FileMother } from '../../../files/test/domain/FileMother';
 import { RemoteFileContentsManagersFactoryMock } from '../__mocks__/RemoteFileContentsManagersFactoryMock';
-import { WebdavIpcMock } from '../../../shared/test/__mock__/WebdavIPC';
+import { IpcRendererSyncEngineMock } from '../../../shared/test/__mock__/IpcRendererSyncEngineMock';
 import { FileDownloadEvents } from '../../domain/contentHandlers/ContentFileDownloader';
 import { ReadableHelloWorld } from '../__mocks__/ReadableHelloWorld';
 import { LocalFileWriterMock } from '../__mocks__/LocalFileWriterMock';
@@ -9,14 +9,14 @@ import { LocalFileWriterMock } from '../__mocks__/LocalFileWriterMock';
 describe('Contents Downloader', () => {
   let localWriter: LocalFileWriterMock;
   let factory: RemoteFileContentsManagersFactoryMock;
-  let ipc: WebdavIpcMock;
+  let ipc: IpcRendererSyncEngineMock;
 
   let SUT: ContentsDownloader;
 
   beforeEach(() => {
     factory = new RemoteFileContentsManagersFactoryMock();
     localWriter = new LocalFileWriterMock();
-    ipc = new WebdavIpcMock();
+    ipc = new IpcRendererSyncEngineMock();
 
     SUT = new ContentsDownloader(factory, localWriter, ipc);
   });

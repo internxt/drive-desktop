@@ -23,20 +23,20 @@ type VoidParamsHandler<T extends CustomIPCEvents> = {
 };
 
 export interface CustomIpc<
-  EmitedEvents extends CustomIPCEvents,
+  EmittedEvents extends CustomIPCEvents,
   ListenedEvents extends CustomIPCEvents
 > {
-  emit(event: keyof VoidParamsHandler<EmitedEvents>): void;
+  emit(event: keyof VoidParamsHandler<EmittedEvents>): void;
 
-  send<Event extends keyof VoidReturnHandler<EmitedEvents>>(
+  send<Event extends keyof VoidReturnHandler<EmittedEvents>>(
     event: Event,
-    ...args: Parameters<VoidReturnHandler<EmitedEvents>[Event]>
+    ...args: Parameters<VoidReturnHandler<EmittedEvents>[Event]>
   ): void;
 
-  invoke<Event extends keyof NonVoidReturnHandler<EmitedEvents>>(
+  invoke<Event extends keyof NonVoidReturnHandler<EmittedEvents>>(
     event: Event,
-    ...args: Parameters<NonVoidReturnHandler<EmitedEvents>[Event]>
-  ): Promise<ReturnType<EmitedEvents[Event]>>;
+    ...args: Parameters<NonVoidReturnHandler<EmittedEvents>[Event]>
+  ): Promise<ReturnType<EmittedEvents[Event]>>;
 
   on<Event extends keyof VoidReturnHandler<ListenedEvents>>(
     event: Event,

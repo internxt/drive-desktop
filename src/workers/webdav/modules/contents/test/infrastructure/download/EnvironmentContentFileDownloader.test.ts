@@ -1,7 +1,7 @@
 import { Readable } from 'stream';
 import { FileMother } from '../../../../files/test/domain/FileMother';
-import { createDownloadStrategy } from '../../__mocks__/environment/DownloadStratgeyFunctionMock';
-import { EnvironmentContentFileDownloader } from '../../../infrastructure/download/EnvironmentContnetFileDownloader';
+import { createDownloadStrategy } from '../../__mocks__/environment/DownloadStrategyFunctionMock';
+import { EnvironmentContentFileDownloader } from '../../../infrastructure/download/EnvironmentContentFileDownloader';
 
 describe('Environment Content File Downloader', () => {
   const bucket = 'b51fd6af-cdac-51ec-b41c-21958aa4c2ae';

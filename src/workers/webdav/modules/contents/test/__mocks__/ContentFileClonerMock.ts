@@ -1,10 +1,10 @@
 import {
-  ContentFileClonner,
+  ContentFileCloner,
   FileCloneEvents,
-} from '../../domain/contentHandlers/ContentFileClonner';
+} from '../../domain/contentHandlers/ContentFileCloner';
 import { ContentsId } from '../../domain/ContentsId';
 
-export class ContentFileClonnerMock implements ContentFileClonner {
+export class ContentFileClonerMock implements ContentFileCloner {
   mock = jest.fn();
   onMock = jest.fn();
   elapsedTimeMock = jest.fn();

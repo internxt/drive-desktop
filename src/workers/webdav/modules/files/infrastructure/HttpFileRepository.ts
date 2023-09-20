@@ -14,7 +14,7 @@ import { FilePath } from '../domain/FilePath';
 import { RemoteItemsGenerator } from '../../items/application/RemoteItemsGenerator';
 import { FileStatuses } from '../domain/FileStatus';
 import { Crypt } from '../../shared/domain/Crypt';
-import { VirtualDriveIpc } from '../../../ipc';
+import { SyncEngineIpc } from '../../../ipcRendererSyncEngine';
 
 export class HttpFileRepository implements FileRepository {
   public files: Record<string, File> = {};
@@ -25,7 +25,7 @@ export class HttpFileRepository implements FileRepository {
     private readonly trashHttpClient: Axios,
     private readonly traverser: Traverser,
     private readonly bucket: string,
-    private readonly ipc: VirtualDriveIpc
+    private readonly ipc: SyncEngineIpc
   ) {}
 
   private async getTree(): Promise<{
@@ -54,7 +54,6 @@ export class HttpFileRepository implements FileRepository {
   }
 
   private async reload(): Promise<void> {
-    await this.ipc.invoke('START_REMOTE_SYNC');
     await this.init();
   }
 
@@ -94,7 +93,6 @@ export class HttpFileRepository implements FileRepository {
     );
 
     if (result.status === 200) {
-      await this.ipc.invoke('START_REMOTE_SYNC');
       await this.init();
     }
   }

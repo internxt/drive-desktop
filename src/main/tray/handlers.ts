@@ -68,6 +68,6 @@ ipcMainDrive.on('FILE_RENAME_ERROR', () => {
   setTrayStatus('ALERT');
 });
 
-ipcMainDrive.on('FILE_DELETE_ERROR', () => {
+ipcMainDrive.on('FILE_DELETION_ERROR', () => {
   setTrayStatus('ALERT');
 });

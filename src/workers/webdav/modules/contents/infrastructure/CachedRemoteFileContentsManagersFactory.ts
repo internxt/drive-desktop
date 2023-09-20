@@ -1,4 +1,4 @@
-import { ContentFileClonner } from '../domain/contentHandlers/ContentFileClonner';
+import { ContentFileCloner } from '../domain/contentHandlers/ContentFileCloner';
 import { ContentFileDownloader } from '../domain/contentHandlers/ContentFileDownloader';
 import { ContentFileUploader } from '../domain/contentHandlers/ContentFileUploader';
 import { ContentsCacheRepository } from '../domain/ContentsCacheRepository';
@@ -33,7 +33,7 @@ export class CachedRemoteFileContentsManagersFactory
     );
   }
 
-  clonner(file: File): ContentFileClonner {
-    return this.clonner(file);
+  cloner(file: File): ContentFileCloner {
+    return this.cloner(file);
   }
 }

@@ -7,7 +7,7 @@ import {
 import { Stopwatch } from '../../../../../../shared/types/Stopwatch';
 import { ContentsId } from '../../domain/ContentsId';
 
-export class EnvironmentContentFileUpoader implements ContentFileUploader {
+export class EnvironmentContentFileUploader implements ContentFileUploader {
   private eventEmitter: EventEmitter;
   private stopwatch: Stopwatch;
 

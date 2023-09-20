@@ -4,7 +4,7 @@ import { HttpFileRepository } from 'workers/webdav/modules/files/infrastructure/
 import crypt from '../../../utils/crypt';
 import { DependencyInjectionHttpClientsProvider } from '../common/clients';
 import { DependencyInjectionUserProvider } from '../common/user';
-import { ipc } from '../../ipc';
+import { ipcRendererSyncEngine } from '../../ipcRendererSyncEngine';
 import { DependencyInjectionTraverserProvider } from '../common/traverser';
 import { LocalRepositoryRepositoryRefresher } from 'workers/webdav/modules/files/application/LocalRepositoryRepositoryRefresher';
 
@@ -19,7 +19,7 @@ export async function buildFilesContainer(): Promise<FilesContainer> {
     clients.newDrive,
     traverser,
     user.bucket,
-    ipc
+    ipcRendererSyncEngine
   );
 
   await fileRepository.init();
@@ -27,7 +27,7 @@ export async function buildFilesContainer(): Promise<FilesContainer> {
   const fileFinderByContentsId = new FileFinderByContentsId(fileRepository);
 
   const localRepositoryRefresher = new LocalRepositoryRepositoryRefresher(
-    ipc,
+    ipcRendererSyncEngine,
     fileRepository
   );
 

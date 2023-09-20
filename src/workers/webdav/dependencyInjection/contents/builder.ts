@@ -1,7 +1,7 @@
 import { Environment } from '@internxt/inxt-js';
 import { ContentsDownloader } from '../../modules/contents/application/ContentsDownloader';
 import { FSLocalFileProvider } from '../../modules/contents/infrastructure/FSLocalFileProvider';
-import { ipc } from '../../ipc';
+import { ipcRendererSyncEngine } from '../../ipcRendererSyncEngine';
 import { ipcRenderer } from 'electron';
 import { ContentsUploader } from '../../modules/contents/application/ContentsUploader';
 import { EnvironmentRemoteFileContentsManagersFactory } from '../../modules/contents/infrastructure/EnvironmentRemoteFileContentsManagersFactory';
@@ -28,7 +28,7 @@ export async function buildContentsContainer(): Promise<ContentsContainer> {
   const contentsUploader = new ContentsUploader(
     contentsManagerFactory,
     contentsProvider,
-    ipc
+    ipcRendererSyncEngine
   );
 
   const temporalFolderProvider = async (): Promise<string> => {
@@ -48,7 +48,7 @@ export async function buildContentsContainer(): Promise<ContentsContainer> {
   const contentsDownloader = new ContentsDownloader(
     contentsManagerFactory,
     localWriter,
-    ipc
+    ipcRendererSyncEngine
   );
 
   return {

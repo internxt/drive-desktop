@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { Traverser } from '../../../items/application/Traverser';
 import { HttpFileRepository } from '../../infrastructure/HttpFileRepository';
-import { WebdavIpcMock } from '../../../shared/test/__mock__/WebdavIPC';
+import { IpcRendererSyncEngineMock } from '../../../shared/test/__mock__/IpcRendererSyncEngineMock';
 import { FilePath } from '../../domain/FilePath';
 import { ServerFileMother } from './ServerFileMother';
 import { ServerFolderMother } from '../../../items/test/persistance/ServerFolderMother';
@@ -21,13 +21,13 @@ const rootFolder = ServerFolderMother.fromPartial({
 
 describe('Http File Repository', () => {
   let traverser: Traverser;
-  let ipc: WebdavIpcMock;
+  let ipc: IpcRendererSyncEngineMock;
   let SUT: HttpFileRepository;
 
   beforeEach(() => {
     traverser = new Traverser(fakeDecryptor, rootFolderId);
 
-    ipc = new WebdavIpcMock();
+    ipc = new IpcRendererSyncEngineMock();
 
     SUT = new HttpFileRepository(
       fakeDecryptor,

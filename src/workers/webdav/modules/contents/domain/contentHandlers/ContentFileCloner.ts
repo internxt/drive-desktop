@@ -12,7 +12,7 @@ export type FileCloneEvents = {
   error: (error: Error) => void;
 };
 
-export interface ContentFileClonner {
+export interface ContentFileCloner {
   clone(): Promise<ContentsId>;
 
   on(

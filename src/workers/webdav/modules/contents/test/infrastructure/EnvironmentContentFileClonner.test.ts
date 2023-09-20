@@ -1,35 +1,35 @@
 import { Readable } from 'stream';
 import { FileMother } from '../../../files/test/domain/FileMother';
-import { EnvironmentContentFileClonner } from '../../infrastructure/EnvironmentContentFileClonner';
+import { EnvironmentContentFileCloner } from '../../infrastructure/EnvironmentContentFileCloner';
 import { ContentsIdMother } from '../domain/ContentsIdMother';
-import { createDownloadStrategy } from '../__mocks__/environment/DownloadStratgeyFunctionMock';
-import { createUploadStrategy } from '../__mocks__/environment/UploadStrategyFunciontMock';
+import { createDownloadStrategy } from '../__mocks__/environment/DownloadStrategyFunctionMock';
+import { createUploadStrategy } from '../__mocks__/environment/UploadStrategyFunctionMock';
 
-describe('Environment Content File Clonner', () => {
+describe('Environment Content File Cloner', () => {
   const bucket = 'b1d067f9-d0a9-5e24-96f5-81c116f7f254';
   const file = FileMother.any();
 
   describe('event emitter', () => {
     it('emits an event when a file is cloned', async () => {
-      const downloadStragegy = createDownloadStrategy((callbacks) => {
+      const downloadStrategy = createDownloadStrategy((callbacks) => {
         callbacks.finishedCallback(null as unknown as Error, Readable.from(''));
       });
       const uploadStrategy = createUploadStrategy((callbacks) => {
         callbacks.finishedCallback(null, ContentsIdMother.raw());
       });
 
-      const clonner = new EnvironmentContentFileClonner(
+      const cloner = new EnvironmentContentFileCloner(
         uploadStrategy,
-        downloadStragegy,
+        downloadStrategy,
         bucket,
         file
       );
 
       const handler = jest.fn();
 
-      clonner.on('start', handler);
+      cloner.on('start', handler);
 
-      await clonner.clone();
+      await cloner.clone();
 
       expect(handler).toBeCalled();
     });
@@ -37,55 +37,55 @@ describe('Environment Content File Clonner', () => {
     it('emits an event with a file id when a file is cloned', async () => {
       const uploadedFileId = ContentsIdMother.random();
 
-      const downloadStragegy = createDownloadStrategy((callbacks) => {
+      const downloadStrategy = createDownloadStrategy((callbacks) => {
         callbacks.finishedCallback(null as unknown as Error, Readable.from(''));
       });
       const uploadStrategy = createUploadStrategy((callbacks) => {
         callbacks.finishedCallback(null, uploadedFileId.value);
       });
 
-      const clonner = new EnvironmentContentFileClonner(
+      const cloner = new EnvironmentContentFileCloner(
         uploadStrategy,
-        downloadStragegy,
+        downloadStrategy,
         bucket,
         file
       );
 
       const handler = jest.fn();
 
-      clonner.on('finish', handler);
+      cloner.on('finish', handler);
 
-      await clonner.clone();
+      await cloner.clone();
 
       expect(handler).toBeCalledWith(uploadedFileId);
     });
 
     it('emits an event when the file is being downloaded', async () => {
-      const downloadStragegy = createDownloadStrategy((callbacks) => {
+      const downloadStrategy = createDownloadStrategy((callbacks) => {
         callbacks.finishedCallback(null as unknown as Error, Readable.from(''));
       });
       const uploadStrategy = createUploadStrategy((callbacks) => {
         callbacks.finishedCallback(null, ContentsIdMother.raw());
       });
 
-      const clonner = new EnvironmentContentFileClonner(
+      const cloner = new EnvironmentContentFileCloner(
         uploadStrategy,
-        downloadStragegy,
+        downloadStrategy,
         bucket,
         file
       );
 
       const handler = jest.fn();
 
-      clonner.on('start-download', handler);
+      cloner.on('start-download', handler);
 
-      await clonner.clone();
+      await cloner.clone();
 
       expect(handler).toBeCalled();
     });
 
     it('emits an event when there is a progress update on download', async () => {
-      const downloadStragegy = createDownloadStrategy((callbacks) => {
+      const downloadStrategy = createDownloadStrategy((callbacks) => {
         callbacks.progressCallback(25);
         callbacks.progressCallback(50);
         callbacks.progressCallback(75);
@@ -95,72 +95,72 @@ describe('Environment Content File Clonner', () => {
         callbacks.finishedCallback(null, ContentsIdMother.raw());
       });
 
-      const clonner = new EnvironmentContentFileClonner(
+      const cloner = new EnvironmentContentFileCloner(
         uploadStrategy,
-        downloadStragegy,
+        downloadStrategy,
         bucket,
         file
       );
 
       const handler = jest.fn();
 
-      clonner.on('download-progress', handler);
+      cloner.on('download-progress', handler);
 
-      await clonner.clone();
+      await cloner.clone();
 
       expect(handler.mock.calls).toEqual([[25], [50], [75]]);
     });
 
     it('emits an event when the file has been downloaded', async () => {
-      const downloadStragegy = createDownloadStrategy((callbacks) => {
+      const downloadStrategy = createDownloadStrategy((callbacks) => {
         callbacks.finishedCallback(null as unknown as Error, Readable.from(''));
       });
       const uploadStrategy = createUploadStrategy((callbacks) => {
         callbacks.finishedCallback(null, ContentsIdMother.raw());
       });
 
-      const clonner = new EnvironmentContentFileClonner(
+      const cloner = new EnvironmentContentFileCloner(
         uploadStrategy,
-        downloadStragegy,
+        downloadStrategy,
         bucket,
         file
       );
 
       const handler = jest.fn();
 
-      clonner.on('download-finished', handler);
+      cloner.on('download-finished', handler);
 
-      await clonner.clone();
+      await cloner.clone();
 
       expect(handler).toHaveBeenCalled();
     });
 
     it('emits an event when the upload starts', async () => {
-      const downloadStragegy = createDownloadStrategy((callbacks) => {
+      const downloadStrategy = createDownloadStrategy((callbacks) => {
         callbacks.finishedCallback(null as unknown as Error, Readable.from(''));
       });
       const uploadStrategy = createUploadStrategy((callbacks) => {
         callbacks.finishedCallback(null, ContentsIdMother.raw());
       });
 
-      const clonner = new EnvironmentContentFileClonner(
+      const cloner = new EnvironmentContentFileCloner(
         uploadStrategy,
-        downloadStragegy,
+        downloadStrategy,
         bucket,
         file
       );
 
       const handler = jest.fn();
 
-      clonner.on('start-upload', handler);
+      cloner.on('start-upload', handler);
 
-      await clonner.clone();
+      await cloner.clone();
 
       expect(handler).toHaveBeenCalled();
     });
 
     it('emits an event when the is an upload progress update', async () => {
-      const downloadStragegy = createDownloadStrategy((callbacks) => {
+      const downloadStrategy = createDownloadStrategy((callbacks) => {
         callbacks.finishedCallback(null as unknown as Error, Readable.from(''));
       });
       const uploadStrategy = createUploadStrategy((callbacks) => {
@@ -170,66 +170,66 @@ describe('Environment Content File Clonner', () => {
         callbacks.finishedCallback(null, ContentsIdMother.raw());
       });
 
-      const clonner = new EnvironmentContentFileClonner(
+      const cloner = new EnvironmentContentFileCloner(
         uploadStrategy,
-        downloadStragegy,
+        downloadStrategy,
         bucket,
         file
       );
 
       const handler = jest.fn();
 
-      clonner.on('upload-progress', handler);
+      cloner.on('upload-progress', handler);
 
-      await clonner.clone();
+      await cloner.clone();
 
       expect(handler).toHaveBeenCalled();
     });
 
     it('emits an event when the file has been uploaded', async () => {
-      const downloadStragegy = createDownloadStrategy((callbacks) => {
+      const downloadStrategy = createDownloadStrategy((callbacks) => {
         callbacks.finishedCallback(null as unknown as Error, Readable.from(''));
       });
       const uploadStrategy = createUploadStrategy((callbacks) => {
         callbacks.finishedCallback(null, ContentsIdMother.raw());
       });
 
-      const clonner = new EnvironmentContentFileClonner(
+      const cloner = new EnvironmentContentFileCloner(
         uploadStrategy,
-        downloadStragegy,
+        downloadStrategy,
         bucket,
         file
       );
 
       const handler = jest.fn();
 
-      clonner.on('upload-finished', handler);
+      cloner.on('upload-finished', handler);
 
-      await clonner.clone();
+      await cloner.clone();
 
       expect(handler).toHaveBeenCalled();
     });
 
     it('emits an event when a file has been cloned', async () => {
-      const downloadStragegy = createDownloadStrategy((callbacks) => {
+      const downloadStrategy = createDownloadStrategy((callbacks) => {
         callbacks.finishedCallback(null as unknown as Error, Readable.from(''));
       });
       const uploadStrategy = createUploadStrategy((callbacks) => {
         callbacks.finishedCallback(null, ContentsIdMother.raw());
       });
 
-      const clonner = new EnvironmentContentFileClonner(
+      const cloner = new EnvironmentContentFileCloner(
         uploadStrategy,
-        downloadStragegy,
+        downloadStrategy,
         bucket,
         file
       );
 
       const handler = jest.fn();
 
-      clonner.on('finish', handler);
+      cloner.on('finish', handler);
 
-      await clonner.clone();
+      await cloner.clone();
 
       expect(handler).toHaveBeenCalled();
     });
@@ -237,7 +237,7 @@ describe('Environment Content File Clonner', () => {
     it('does not emit finish events or start upload when an error event has been emitted on download', async () => {
       const message = 'error downloading';
 
-      const downloadStragegy = createDownloadStrategy((callbacks) => {
+      const downloadStrategy = createDownloadStrategy((callbacks) => {
         callbacks.finishedCallback(
           { message } as unknown as Error,
           null as unknown as Readable
@@ -248,9 +248,9 @@ describe('Environment Content File Clonner', () => {
 
       const uploadStrategy = createUploadStrategy(uploadFunction);
 
-      const clonner = new EnvironmentContentFileClonner(
+      const cloner = new EnvironmentContentFileCloner(
         uploadStrategy,
-        downloadStragegy,
+        downloadStrategy,
         bucket,
         file
       );
@@ -259,11 +259,11 @@ describe('Environment Content File Clonner', () => {
       const startUploadHandler = jest.fn();
       const errorHandler = jest.fn();
 
-      clonner.on('error', errorHandler);
-      clonner.on('finish', finishHandler);
-      clonner.on('start-upload', finishHandler);
+      cloner.on('error', errorHandler);
+      cloner.on('finish', finishHandler);
+      cloner.on('start-upload', finishHandler);
 
-      await clonner.clone().catch(() => {
+      await cloner.clone().catch(() => {
         // no-op
       });
 
@@ -275,7 +275,7 @@ describe('Environment Content File Clonner', () => {
     it('does not emit finish events when an error event has been emitted on upload', async () => {
       const message = 'error uploading';
 
-      const downloadStragegy = createDownloadStrategy((callbacks) => {
+      const downloadStrategy = createDownloadStrategy((callbacks) => {
         callbacks.finishedCallback(null as unknown as Error, Readable.from(''));
       });
 
@@ -286,9 +286,9 @@ describe('Environment Content File Clonner', () => {
         );
       });
 
-      const clonner = new EnvironmentContentFileClonner(
+      const cloner = new EnvironmentContentFileCloner(
         uploadStrategy,
-        downloadStragegy,
+        downloadStrategy,
         bucket,
         file
       );
@@ -297,11 +297,11 @@ describe('Environment Content File Clonner', () => {
       const startUploadHandler = jest.fn();
       const finishHandler = jest.fn();
 
-      clonner.on('error', errorHandler);
-      clonner.on('finish', finishHandler);
-      clonner.on('start-upload', startUploadHandler);
+      cloner.on('error', errorHandler);
+      cloner.on('finish', finishHandler);
+      cloner.on('start-upload', startUploadHandler);
 
-      await clonner.clone().catch(() => {
+      await cloner.clone().catch(() => {
         // no-op
       });
 
@@ -313,7 +313,7 @@ describe('Environment Content File Clonner', () => {
 
   describe('time watcher', () => {
     it('starts the timer when the file is being downloaded', async () => {
-      const downloadStragegy = createDownloadStrategy((callbacks) => {
+      const downloadStrategy = createDownloadStrategy((callbacks) => {
         setTimeout(() => callbacks.progressCallback(50), 20);
         setTimeout(
           () =>
@@ -328,26 +328,26 @@ describe('Environment Content File Clonner', () => {
         callbacks.finishedCallback(null, ContentsIdMother.raw());
       });
 
-      const clonner = new EnvironmentContentFileClonner(
+      const cloner = new EnvironmentContentFileCloner(
         uploadStrategy,
-        downloadStragegy,
+        downloadStrategy,
         bucket,
         file
       );
 
-      clonner.on('download-progress', () => {
-        expect(clonner.elapsedTime()).toBeGreaterThan(-1);
+      cloner.on('download-progress', () => {
+        expect(cloner.elapsedTime()).toBeGreaterThan(-1);
       });
 
-      expect(clonner.elapsedTime()).toBe(-1);
+      expect(cloner.elapsedTime()).toBe(-1);
 
-      await clonner.clone();
+      await cloner.clone();
     });
 
     it('stops the stopwatch when the file has been uploaded', async () => {
       const delay = 100;
 
-      const downloadStragegy = createDownloadStrategy((callbacks) => {
+      const downloadStrategy = createDownloadStrategy((callbacks) => {
         callbacks.finishedCallback(null as unknown as Error, Readable.from(''));
       });
       const uploadStrategy = createUploadStrategy((callbacks) => {
@@ -357,18 +357,18 @@ describe('Environment Content File Clonner', () => {
         );
       });
 
-      const clonner = new EnvironmentContentFileClonner(
+      const cloner = new EnvironmentContentFileCloner(
         uploadStrategy,
-        downloadStragegy,
+        downloadStrategy,
         bucket,
         file
       );
 
-      await clonner.clone();
+      await cloner.clone();
 
       setTimeout(() => {
-        expect(clonner.elapsedTime()).toBeGreaterThan(delay - 10);
-        expect(clonner.elapsedTime()).toBeLessThan(delay + 10);
+        expect(cloner.elapsedTime()).toBeGreaterThan(delay - 10);
+        expect(cloner.elapsedTime()).toBeLessThan(delay + 10);
       }, delay);
     });
 
@@ -376,7 +376,7 @@ describe('Environment Content File Clonner', () => {
       const delay = 100;
       let elapsedTimeOnError: number;
 
-      const downloadStragegy = createDownloadStrategy((callbacks) => {
+      const downloadStrategy = createDownloadStrategy((callbacks) => {
         setTimeout(() => callbacks.progressCallback(50), 20);
         setTimeout(
           () =>
@@ -394,24 +394,24 @@ describe('Environment Content File Clonner', () => {
         );
       });
 
-      const clonner = new EnvironmentContentFileClonner(
+      const cloner = new EnvironmentContentFileCloner(
         uploadStrategy,
-        downloadStragegy,
+        downloadStrategy,
         bucket,
         file
       );
 
-      clonner.on('error', () => {
-        elapsedTimeOnError = clonner.elapsedTime();
+      cloner.on('error', () => {
+        elapsedTimeOnError = cloner.elapsedTime();
       });
 
-      await clonner.clone().catch(() => {
+      await cloner.clone().catch(() => {
         // no-op
       });
 
       setTimeout(() => {
-        expect(clonner.elapsedTime()).toBeGreaterThan(elapsedTimeOnError - 5);
-        expect(clonner.elapsedTime()).toBeLessThan(elapsedTimeOnError + 5);
+        expect(cloner.elapsedTime()).toBeGreaterThan(elapsedTimeOnError - 5);
+        expect(cloner.elapsedTime()).toBeLessThan(elapsedTimeOnError + 5);
       }, delay);
     });
 
@@ -419,7 +419,7 @@ describe('Environment Content File Clonner', () => {
       const delay = 100;
       let elapsedTimeOnError: number;
 
-      const downloadStragegy = createDownloadStrategy((callbacks) => {
+      const downloadStrategy = createDownloadStrategy((callbacks) => {
         setTimeout(
           () =>
             callbacks.finishedCallback(
@@ -440,24 +440,24 @@ describe('Environment Content File Clonner', () => {
         );
       });
 
-      const clonner = new EnvironmentContentFileClonner(
+      const cloner = new EnvironmentContentFileCloner(
         uploadStrategy,
-        downloadStragegy,
+        downloadStrategy,
         bucket,
         file
       );
 
-      clonner.on('error', () => {
-        elapsedTimeOnError = clonner.elapsedTime();
+      cloner.on('error', () => {
+        elapsedTimeOnError = cloner.elapsedTime();
       });
 
-      await clonner.clone().catch(() => {
+      await cloner.clone().catch(() => {
         // no-op
       });
 
       setTimeout(() => {
-        expect(clonner.elapsedTime()).toBeGreaterThan(elapsedTimeOnError - 5);
-        expect(clonner.elapsedTime()).toBeLessThan(elapsedTimeOnError + 5);
+        expect(cloner.elapsedTime()).toBeGreaterThan(elapsedTimeOnError - 5);
+        expect(cloner.elapsedTime()).toBeLessThan(elapsedTimeOnError + 5);
       }, delay);
     });
   });

@@ -1,6 +1,6 @@
 import { TreeBuilder } from '../../modules/items/application/TreeBuilder';
 import { ItemsContainer } from './ItemsContainer';
-import { ipc } from '../../ipc';
+import { ipcRendererSyncEngine } from '../../ipcRendererSyncEngine';
 import { RemoteItemsGenerator } from '../../modules/items/application/RemoteItemsGenerator';
 import { Traverser } from 'workers/webdav/modules/items/application/Traverser';
 import { getUser } from '../../../../main/auth/service';
@@ -13,7 +13,7 @@ export function buildItemsContainer(): ItemsContainer {
     throw new Error('Could not get user when building Items dependencies');
   }
 
-  const remoteItemsGenerator = new RemoteItemsGenerator(ipc);
+  const remoteItemsGenerator = new RemoteItemsGenerator(ipcRendererSyncEngine);
 
   const traverser = new Traverser(crypt, user.root_folder_id);
 

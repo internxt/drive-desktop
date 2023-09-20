@@ -1,10 +1,7 @@
-import {
-  VirtualDriveListenedEvents,
-  MainProcessListenedEvents,
-} from 'shared/IPC/events/webdav';
-import { VirtualDriveIpc } from '../../../../ipc';
+import { FromMain, FromProcess } from 'shared/IPC/events/sync-engine';
+import { SyncEngineIpc } from '../../../../ipcRendererSyncEngine';
 
-export class WebdavIpcMock implements VirtualDriveIpc {
+export class IpcRendererSyncEngineMock implements SyncEngineIpc {
   sendMock = jest.fn();
   emitMock = jest.fn();
   onMock = jest.fn();
@@ -16,20 +13,20 @@ export class WebdavIpcMock implements VirtualDriveIpc {
     return this.sendMock(event, ...args);
   }
 
-  emit(event: keyof MainProcessListenedEvents): void {
+  emit(event: keyof FromProcess): void {
     return this.emitMock(event);
   }
-  on<Event extends keyof VirtualDriveListenedEvents>(event: Event): void {
+  on(event: string | number): void {
     this.onMock(event);
   }
-  once<Event extends keyof VirtualDriveListenedEvents>(event: Event): void {
+  once(event: string | number): void {
     this.onceMock(event);
   }
 
   invoke<Event extends never>(
     event: Event,
     ...args: never
-  ): Promise<ReturnType<MainProcessListenedEvents[Event]>> {
+  ): Promise<ReturnType<FromProcess[Event]>> {
     return this.onInvokeMock(event, args);
   }
 
@@ -37,9 +34,9 @@ export class WebdavIpcMock implements VirtualDriveIpc {
     event: Event,
     listener: (
       event: Electron.IpcMainEvent,
-      ...args: Parameters<MainProcessListenedEvents[Event]>
+      ...args: Parameters<FromProcess[Event]>
     ) => void
-  ): Promise<ReturnType<VirtualDriveListenedEvents[Event]>> {
+  ): Promise<ReturnType<FromMain[Event]>> {
     return this.handleMock(event, listener);
   }
 }

@@ -1,9 +1,9 @@
 import { ContentsManagersFactory } from '../../domain/ContentsManagersFactory';
 import { File } from '../../../files/domain/File';
 import { ContentFileUploader } from '../../domain/contentHandlers/ContentFileUploader';
-import { ContentFileClonner } from '../../domain/contentHandlers/ContentFileClonner';
+import { ContentFileCloner } from '../../domain/contentHandlers/ContentFileCloner';
 import { ContentFileUploaderMock } from './ContentFileUploaderMock';
-import { ContentFileClonnerMock } from './ContentFileClonnerMock';
+import { ContentFileClonerMock } from './ContentFileClonerMock';
 import { ContentFileDownloaderMock } from './ContentFileDownloaderMock';
 import { ContentFileDownloader } from '../../domain/contentHandlers/ContentFileDownloader';
 import { LocalFileContents } from '../../domain/LocalFileContents';
@@ -11,11 +11,11 @@ import { LocalFileContents } from '../../domain/LocalFileContents';
 export class RemoteFileContentsManagersFactoryMock
   implements ContentsManagersFactory
 {
-  public mockClone = new ContentFileClonnerMock();
+  public mockClone = new ContentFileClonerMock();
   public mockDownloader = new ContentFileDownloaderMock();
   public mockUpload = new ContentFileUploaderMock();
 
-  clonner(_file: File): ContentFileClonner {
+  cloner(_file: File): ContentFileCloner {
     return this.mockClone;
   }
 
