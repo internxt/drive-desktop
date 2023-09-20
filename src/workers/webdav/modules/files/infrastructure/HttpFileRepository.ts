@@ -53,6 +53,11 @@ export class HttpFileRepository implements FileRepository {
     }, {} as Record<string, File>);
   }
 
+  private async reload(): Promise<void> {
+    await this.ipc.invoke('START_REMOTE_SYNC');
+    await this.init();
+  }
+
   search(path: FilePath): Nullable<File> {
     const item = this.files[path.value];
 
@@ -90,6 +95,7 @@ export class HttpFileRepository implements FileRepository {
 
     if (result.status === 200) {
       await this.ipc.invoke('START_REMOTE_SYNC');
+      await this.init();
     }
   }
 
@@ -138,7 +144,7 @@ export class HttpFileRepository implements FileRepository {
 
     this.files[file.path.value] = created;
 
-    await this.ipc.invoke('START_REMOTE_SYNC');
+    await this.reload();
   }
 
   async updateName(file: File): Promise<void> {
@@ -168,7 +174,7 @@ export class HttpFileRepository implements FileRepository {
 
     this.files[file.path.value] = File.from(file.attributes());
 
-    await this.ipc.invoke('START_REMOTE_SYNC');
+    await this.reload();
   }
 
   async updateParentDir(item: File): Promise<void> {
@@ -184,9 +190,7 @@ export class HttpFileRepository implements FileRepository {
       throw new Error(`[REPOSITORY] Error moving item: ${res.status}`);
     }
 
-    await this.init();
-
-    await this.ipc.invoke('START_REMOTE_SYNC');
+    await this.reload();
   }
 
   async searchOnFolder(folderId: number): Promise<Array<File>> {

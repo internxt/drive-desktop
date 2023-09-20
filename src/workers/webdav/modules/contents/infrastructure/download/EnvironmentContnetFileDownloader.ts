@@ -5,7 +5,6 @@ import {
   ContentFileDownloader,
   FileDownloadEvents,
 } from '../../domain/contentHandlers/ContentFileDownloader';
-import { LocalFileContents } from '../../domain/LocalFileContents';
 import { File } from '../../../files/domain/File';
 
 export class EnvironmentContentFileDownloader implements ContentFileDownloader {
@@ -41,15 +40,8 @@ export class EnvironmentContentFileDownloader implements ContentFileDownloader {
               return reject(err);
             }
             this.eventEmitter.emit('finish');
-            const remoteContents = LocalFileContents.from({
-              name: file.name,
-              extension: file.type,
-              size: file.size,
-              birthTime: file.createdAt.getUTCMilliseconds(),
-              modifiedTime: file.updatedAt.getUTCMilliseconds(),
-              contents: stream,
-            });
-            resolve(remoteContents.stream);
+
+            resolve(stream);
           },
         },
         {

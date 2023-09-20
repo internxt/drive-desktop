@@ -11,7 +11,7 @@ async function ensureTheFolderExist(path: string) {
   try {
     await fs.access(path);
   } catch {
-    Logger.info(`Folder <${path}> does not exists, goint to  create it`);
+    Logger.info(`Folder <${path}> does not exists, going to  create it`);
     await fs.mkdir(path);
   }
 }
@@ -44,11 +44,11 @@ async function setUp() {
   });
 
   ipcRenderer.on('STOP_SYNC_ENGINE_PROCESS', async (event) => {
-    Logger.info('[SYNC ENGINE] Stoping sync engine');
+    Logger.info('[SYNC ENGINE] Stopping sync engine');
 
     await bindings.stop();
 
-    Logger.info('[SYNC ENGINE] sync engine stopped succesfully');
+    Logger.info('[SYNC ENGINE] sync engine stopped successfully');
 
     event.sender.send('SYNC_ENGINE_STOP_SUCCESS');
   });
@@ -67,7 +67,7 @@ async function setUp() {
 
 setUp()
   .then(() => {
-    Logger.info('[SYNC ENGINE] Sync engine has succesfully started');
+    Logger.info('[SYNC ENGINE] Sync engine has successfully started');
     ipcRenderer.send('SYNC_ENGINE_PROCESS_SETUP_SUCCESSFUL');
   })
   .catch((error) => {

@@ -6,6 +6,7 @@ import { DependencyInjectionHttpClientsProvider } from '../common/clients';
 import { DependencyInjectionUserProvider } from '../common/user';
 import { ipc } from '../../ipc';
 import { DependencyInjectionTraverserProvider } from '../common/traverser';
+import { LocalRepositoryRepositoryRefresher } from 'workers/webdav/modules/files/application/LocalRepositoryRepositoryRefresher';
 
 export async function buildFilesContainer(): Promise<FilesContainer> {
   const clients = DependencyInjectionHttpClientsProvider.get();
@@ -25,7 +26,15 @@ export async function buildFilesContainer(): Promise<FilesContainer> {
 
   const fileFinderByContentsId = new FileFinderByContentsId(fileRepository);
 
-  return {
+  const localRepositoryRefresher = new LocalRepositoryRepositoryRefresher(
+    ipc,
+    fileRepository
+  );
+
+  const container: FilesContainer = {
     fileFinderByContentsId,
+    localRepositoryRefresher: localRepositoryRefresher,
   };
+
+  return container;
 }
