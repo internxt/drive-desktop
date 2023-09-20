@@ -9,9 +9,7 @@ const trackedEvents = [
   'move',
   'rename',
 ] as const;
-export type TrackedWebdavServerEvents = Capitalize<
-  (typeof trackedEvents)[number]
->;
+export type TrackedEvents = Capitalize<(typeof trackedEvents)[number]>;
 
 const trackedEventsActions = [
   'started',
@@ -19,15 +17,12 @@ const trackedEventsActions = [
   'aborted',
   'error',
 ] as const;
-type TrackedWebdavServerActions = Capitalize<
-  (typeof trackedEventsActions)[number]
->;
+type TrackedProviderActions = Capitalize<(typeof trackedEventsActions)[number]>;
 
-export type TrackedWebdavServerEventsActions =
-  `${TrackedWebdavServerEvents} ${TrackedWebdavServerActions}`;
+export type TrackedActions = `${TrackedEvents} ${TrackedProviderActions}`;
 
-export type WebdavErrorContext = {
-  action: TrackedWebdavServerEvents;
+export type ErrorContext = {
+  action: TrackedEvents;
   itemType: 'File' | 'Folder';
   from: string;
   root: string;
@@ -47,16 +42,11 @@ type FileUpdatePayload = {
 };
 
 export type FolderEvents = {
-  WEBDAV_FOLDER_CREATING: (payload: { name: string }) => void;
-  WEBDAV_FOLDER_CREATED: (payload: { name: string }) => void;
-  WEBDAV_FOLDER_RENAMING: (payload: {
-    oldName: string;
-    newName: string;
-  }) => void;
-  WEBDAV_FOLDER_RENAMED: (payload: {
-    oldName: string;
-    newName: string;
-  }) => void;
+  CREATING_FOLDER: (payload: { name: string }) => void;
+  FOLDER_CREATED: (payload: { name: string }) => void;
+
+  RENAMING_FOLDER: (payload: { oldName: string; newName: string }) => void;
+  FOLDER_RENAMED: (payload: { oldName: string; newName: string }) => void;
 };
 
 export type FilesEvents = {
@@ -121,7 +111,7 @@ export type FilesEvents = {
   FILE_CLONED: (payload: FileUpdatePayload) => void;
 };
 
-export type WebdavInvocableFunctions = {
+export type SyncEngineInvocableFunctions = {
   GET_UPDATED_REMOTE_ITEMS: () => Promise<{
     files: DriveFile[];
     folders: DriveFolder[];
@@ -129,7 +119,9 @@ export type WebdavInvocableFunctions = {
   START_REMOTE_SYNC: () => Promise<void>;
 };
 
-export type FromProcess = FilesEvents & FolderEvents & WebdavInvocableFunctions;
+export type FromProcess = FilesEvents &
+  FolderEvents &
+  SyncEngineInvocableFunctions;
 export type FromMain = {
   [key: string]: (...args: Array<any>) => any;
 };

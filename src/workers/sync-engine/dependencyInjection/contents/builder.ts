@@ -8,7 +8,7 @@ import { EnvironmentRemoteFileContentsManagersFactory } from '../../modules/cont
 import { DependencyInjectionMnemonicProvider } from '../common/mnemonic';
 import { DependencyInjectionUserProvider } from '../common/user';
 import { ContentsContainer } from './ContentsContainer';
-import { FSLocalFileWriter } from 'workers/webdav/modules/contents/infrastructure/FSLocalFileWriter';
+import { FSLocalFileWriter } from 'workers/sync-engine/modules/contents/infrastructure/FSLocalFileWriter';
 
 export async function buildContentsContainer(): Promise<ContentsContainer> {
   const user = DependencyInjectionUserProvider.get();

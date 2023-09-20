@@ -9,7 +9,7 @@ const srcMainPath = path.join(srcPath, 'main');
 const srcRendererPath = path.join(srcPath, 'renderer');
 const srcSyncPath = path.join(srcPath, 'workers', 'sync');
 const srcBackupsPath = path.join(srcPath, 'workers', 'backups');
-const srcWebdavPath = path.join(srcPath, 'workers', 'webdav');
+const srcSyncEnginePath = path.join(srcPath, 'workers', 'sync-engine');
 
 const releasePath = path.join(rootPath, 'release');
 const appPath = path.join(releasePath, 'app');
@@ -22,7 +22,7 @@ const distMainPath = path.join(distPath, 'main');
 const distRendererPath = path.join(distPath, 'renderer');
 const distSyncPath = path.join(distPath, 'sync');
 const distBackupsPath = path.join(distPath, 'backups');
-const distWebdavPath = path.join(distPath, 'webdav');
+const distSyncEnginePath = path.join(distPath, 'sync-engine');
 
 const buildPath = path.join(releasePath, 'build');
 
@@ -45,6 +45,6 @@ export default {
   distSyncPath,
   srcBackupsPath,
   distBackupsPath,
-  srcWebdavPath,
-  distWebdavPath,
+  srcSyncEnginePath,
+  distSyncEnginePath,
 };

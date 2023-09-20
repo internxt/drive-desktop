@@ -1,12 +1,12 @@
-import { FileFinderByContentsId } from 'workers/webdav/modules/files/application/FileFinderByContentsId';
+import { FileFinderByContentsId } from 'workers/sync-engine/modules/files/application/FileFinderByContentsId';
 import { FilesContainer } from './FilesContainer';
-import { HttpFileRepository } from 'workers/webdav/modules/files/infrastructure/HttpFileRepository';
+import { HttpFileRepository } from 'workers/sync-engine/modules/files/infrastructure/HttpFileRepository';
 import crypt from '../../../utils/crypt';
 import { DependencyInjectionHttpClientsProvider } from '../common/clients';
 import { DependencyInjectionUserProvider } from '../common/user';
 import { ipcRendererSyncEngine } from '../../ipcRendererSyncEngine';
 import { DependencyInjectionTraverserProvider } from '../common/traverser';
-import { LocalRepositoryRepositoryRefresher } from 'workers/webdav/modules/files/application/LocalRepositoryRepositoryRefresher';
+import { LocalRepositoryRepositoryRefresher } from 'workers/sync-engine/modules/files/application/LocalRepositoryRepositoryRefresher';
 
 export async function buildFilesContainer(): Promise<FilesContainer> {
   const clients = DependencyInjectionHttpClientsProvider.get();

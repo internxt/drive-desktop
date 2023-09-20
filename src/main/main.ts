@@ -23,7 +23,6 @@ import './usage/handlers';
 // import './realtime';
 import './tray/tray';
 import './fordwardToWindows';
-import './virtual-drive/handlers';
 import './analytics/handlers';
 import './platform/handlers';
 import './thumbnails/handlers';

@@ -1,4 +1,4 @@
-import { SyncEngineIpc } from 'workers/webdav/ipcRendererSyncEngine';
+import { SyncEngineIpc } from 'workers/sync-engine/ipcRendererSyncEngine';
 import { ContentFileUploader } from '../domain/contentHandlers/ContentFileUploader';
 import { ContentsManagersFactory } from '../domain/ContentsManagersFactory';
 import { LocalContentsProvider } from '../domain/LocalFileProvider';

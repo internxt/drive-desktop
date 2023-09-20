@@ -1,5 +1,5 @@
-import { DependencyContainerFactory } from 'workers/webdav/dependencyInjection/DependencyContainerFactory';
-import { DependencyContainer } from 'workers/webdav/dependencyInjection/DependencyContainer';
+import { DependencyContainerFactory } from 'workers/sync-engine/dependencyInjection/DependencyContainerFactory';
+import { DependencyContainer } from 'workers/sync-engine/dependencyInjection/DependencyContainer';
 import { WebdavDomainEventSubscriber } from '../domain/WebdavDomainEventSubscriber';
 import { DomainEvent } from '../domain/DomainEvent';
 

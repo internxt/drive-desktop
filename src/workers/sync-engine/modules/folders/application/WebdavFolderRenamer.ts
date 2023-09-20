@@ -12,7 +12,7 @@ export class WebdavFolderRenamer {
   async run(folder: Folder, destination: string) {
     const path = new FolderPath(destination);
 
-    this.ipc.send('WEBDAV_FOLDER_RENAMING', {
+    this.ipc.send('RENAMING_FOLDER', {
       oldName: folder.name,
       newName: path.name(),
     });
@@ -21,7 +21,7 @@ export class WebdavFolderRenamer {
 
     await this.repository.updateName(folder);
 
-    this.ipc.send('WEBDAV_FOLDER_RENAMED', {
+    this.ipc.send('FOLDER_RENAMED', {
       oldName: folder.name,
       newName: path.name(),
     });

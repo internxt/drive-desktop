@@ -5,7 +5,7 @@ import { unlinkSync, writeFileSync } from 'fs';
 import { ReadStreamToBuffer } from '../../../shared/fs/ReadStreamToBuffer';
 import * as uuid from 'uuid';
 
-describe('Extract Firts PDF page', () => {
+describe('Extract First PDF page', () => {
   const filesToClean: Array<string> = [];
 
   function useTemporalPNGFile() {
@@ -15,7 +15,7 @@ describe('Extract Firts PDF page', () => {
     return name;
   }
 
-  afterEach(() => {
+  afterAll(() => {
     filesToClean.forEach(unlinkSync);
   });
 

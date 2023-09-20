@@ -2,9 +2,9 @@ import { TreeBuilder } from '../../modules/items/application/TreeBuilder';
 import { ItemsContainer } from './ItemsContainer';
 import { ipcRendererSyncEngine } from '../../ipcRendererSyncEngine';
 import { RemoteItemsGenerator } from '../../modules/items/application/RemoteItemsGenerator';
-import { Traverser } from 'workers/webdav/modules/items/application/Traverser';
 import { getUser } from '../../../../main/auth/service';
 import crypt from '../../../utils/crypt';
+import { Traverser } from 'workers/sync-engine/modules/items/application/Traverser';
 
 export function buildItemsContainer(): ItemsContainer {
   const user = getUser();

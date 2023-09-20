@@ -1,4 +1,4 @@
-import { Traverser } from 'workers/webdav/modules/items/application/Traverser';
+import { Traverser } from 'workers/sync-engine/modules/items/application/Traverser';
 import crypt from '../../../utils/crypt';
 import { DependencyInjectionUserProvider } from './user';
 
