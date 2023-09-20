@@ -7,8 +7,12 @@ import { FilePathFromAbsolutePathCreator } from '../modules/files/application/Fi
 import { ItemsContainer } from './items/ItemsContainer';
 import { ContentsContainer } from './contents/ContentsContainer';
 import { FileCreator } from '../modules/files/application/FileCreator';
+import { FilesContainer } from './files/FilesContainer';
 
-export interface DependencyContainer extends ItemsContainer, ContentsContainer {
+export interface DependencyContainer
+  extends ItemsContainer,
+    ContentsContainer,
+    FilesContainer {
   fileDeleter: FileDeleter;
   fileCreator: FileCreator;
   filePathUpdater: FilePathUpdater;

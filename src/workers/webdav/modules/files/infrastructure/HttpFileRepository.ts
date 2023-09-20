@@ -62,11 +62,11 @@ export class HttpFileRepository implements FileRepository {
   }
 
   searchByPartial(partial: Partial<File>): Nullable<File> {
-    const file = Object.values(this.files).find((file) => {
-      const keys = Object.keys(partial) as Array<keyof Partial<File>>;
+    const keys = Object.keys(partial) as Array<keyof Partial<File>>;
 
-      return keys.every((key) => file[key] === partial[key]);
-    });
+    const file = Object.values(this.files).find((file) =>
+      keys.every((key) => file[key] === partial[key])
+    );
 
     if (file) {
       return File.from(file.attributes());

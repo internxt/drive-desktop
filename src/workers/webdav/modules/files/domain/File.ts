@@ -11,7 +11,7 @@ import { FileDeletedDomainEvent } from './FileDeletedDomainEvent';
 import { FileStatus, FileStatuses } from './FileStatus';
 import { ContentsId } from '../../contents/domain/ContentsId';
 
-export type FileAtributes = {
+export type FileAttributes = {
   contentsId: string;
   folderId: number;
   createdAt: string;
@@ -71,7 +71,7 @@ export class File extends AggregateRoot {
     return this._status;
   }
 
-  static from(attributes: FileAtributes): File {
+  static from(attributes: FileAttributes): File {
     return new File(
       new ContentsId(attributes.contentsId),
       attributes.folderId,
@@ -213,7 +213,7 @@ export class File extends AggregateRoot {
   update(
     attributes: Partial<
       Pick<
-        FileAtributes,
+        FileAttributes,
         | 'path'
         | 'createdAt'
         | 'updatedAt'
@@ -250,7 +250,7 @@ export class File extends AggregateRoot {
     return this;
   }
 
-  toPrimitives(): Omit<FileAtributes, 'modificationTime'> {
+  toPrimitives(): Omit<FileAttributes, 'modificationTime'> {
     return {
       contentsId: this.contentsId,
       folderId: this.folderId,
@@ -262,7 +262,7 @@ export class File extends AggregateRoot {
     };
   }
 
-  attributes(): FileAtributes {
+  attributes(): FileAttributes {
     return {
       contentsId: this.contentsId,
       folderId: this.folderId,

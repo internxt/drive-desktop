@@ -1,15 +1,18 @@
-import { EnvironmentRemoteFileContentsManagersFactory } from '../../modules/contents/infrastructure/EnvironmentRemoteFileContentsManagersFactory';
-import { ContentsUploader } from '../../modules/contents/application/ContentsUploader';
-import { ContentsContainer } from './ContentsContainer';
-import { DepenedencyInjectionUserProvider } from '../common/user';
-import { DepenedencyInjectionMnemonicProvider } from '../common/mnemonic';
 import { Environment } from '@internxt/inxt-js';
-import { FSLocalFileProvider } from 'workers/webdav/modules/contents/infrastructure/FSLocalFileProvider';
+import { ContentsDownloader } from '../../modules/contents/application/ContentsDownloader';
+import { FSLocalFileProvider } from '../../modules/contents/infrastructure/FSLocalFileProvider';
 import { ipc } from '../../ipc';
+import { ipcRenderer } from 'electron';
+import { ContentsUploader } from '../../modules/contents/application/ContentsUploader';
+import { EnvironmentRemoteFileContentsManagersFactory } from '../../modules/contents/infrastructure/EnvironmentRemoteFileContentsManagersFactory';
+import { DependencyInjectionMnemonicProvider } from '../common/mnemonic';
+import { DependencyInjectionUserProvider } from '../common/user';
+import { ContentsContainer } from './ContentsContainer';
+import { FSLocalFileWriter } from 'workers/webdav/modules/contents/infrastructure/FSLocalFileWriter';
 
-export function buildContentsContainer(): ContentsContainer {
-  const user = DepenedencyInjectionUserProvider.get();
-  const mnemonic = DepenedencyInjectionMnemonicProvider.get();
+export async function buildContentsContainer(): Promise<ContentsContainer> {
+  const user = DependencyInjectionUserProvider.get();
+  const mnemonic = DependencyInjectionMnemonicProvider.get();
 
   const environment = new Environment({
     bridgeUrl: process.env.BRIDGE_URL,
@@ -28,7 +31,28 @@ export function buildContentsContainer(): ContentsContainer {
     ipc
   );
 
+  const temporalFolderProvider = async (): Promise<string> => {
+    const temporalFilesFolder = await ipcRenderer.invoke(
+      'APP:TEMPORAL_FILES_FOLDER'
+    );
+
+    if (typeof temporalFilesFolder !== 'string') {
+      throw new Error('Temporal folder path is not a string ');
+    }
+
+    return temporalFilesFolder;
+  };
+
+  const localWriter = new FSLocalFileWriter(temporalFolderProvider);
+
+  const contentsDownloader = new ContentsDownloader(
+    contentsManagerFactory,
+    localWriter,
+    ipc
+  );
+
   return {
     contentsUploader,
+    contentsDownloader,
   };
 }

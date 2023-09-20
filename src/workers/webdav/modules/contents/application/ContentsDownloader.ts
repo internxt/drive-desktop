@@ -1,16 +1,14 @@
-import { FileNotFoundError } from '../../files/domain/errors/FileNotFoundError';
 import { ContentsManagersFactory } from '../domain/ContentsManagersFactory';
-import { FileRepository } from '../../files/domain/FileRepository';
-import { FilePath } from '../../files/domain/FilePath';
 import { VirtualDriveIpc } from '../../../ipc';
 import { ContentFileDownloader } from '../domain/contentHandlers/ContentFileDownloader';
 import { File } from '../../files/domain/File';
 import { LocalFileContents } from '../domain/LocalFileContents';
+import { LocalFileWriter } from '../domain/LocalFileWriter';
 
 export class ContentsDownloader {
   constructor(
-    private readonly repository: FileRepository,
-    private readonly contents: ContentsManagersFactory,
+    private readonly managerFactory: ContentsManagersFactory,
+    private readonly localWriter: LocalFileWriter,
     private readonly ipc: VirtualDriveIpc
   ) {}
 
@@ -55,22 +53,14 @@ export class ContentsDownloader {
     });
   }
 
-  async run(path: string): Promise<LocalFileContents> {
-    const filePath = new FilePath(path);
-
-    const file = this.repository.search(filePath);
-
-    if (!file) {
-      throw new FileNotFoundError(path);
-    }
-
-    const downloader = this.contents.downloader();
+  async run(file: File): Promise<string> {
+    const downloader = this.managerFactory.downloader();
 
     this.registerEvents(downloader, file);
 
     const readable = await downloader.download(file);
 
-    const remoteContents = LocalFileContents.from({
+    const localContents = LocalFileContents.from({
       name: file.name,
       extension: file.type,
       size: file.size,
@@ -79,6 +69,6 @@ export class ContentsDownloader {
       contents: readable,
     });
 
-    return remoteContents;
+    return await this.localWriter.write(localContents);
   }
 }

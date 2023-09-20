@@ -13,7 +13,6 @@ import { FolderStatus } from '../../folders/domain/FolderStatus';
 import { Folder } from '../../folders/domain/Folder';
 import { ItemsIndexedByPath } from '../domain/ItemsIndexedByPath';
 
-/** @deprecated */
 export class Traverser {
   private readonly collection: ItemsIndexedByPath = {};
   private static readonly ROOT_FOLDER_UUID =

@@ -11,7 +11,10 @@ export class BindingsManager {
   constructor(
     private readonly drive: VirtualDrive,
     private readonly controllers: ReturnType<typeof buildControllers>,
-    private readonly rootFolder: string
+    private readonly paths: {
+      root: string;
+      icon: string;
+    }
   ) {}
 
   private createFolderPlaceholder(folder: Folder) {
@@ -37,7 +40,7 @@ export class BindingsManager {
   }
 
   async start(version: string, providerId: string) {
-    await this.drive.unregisterSyncRoot();
+    await this.stop();
 
     const callbacks = {
       notifyDeleteCallback: (
@@ -73,7 +76,7 @@ export class BindingsManager {
           });
       },
       notifyFileAddedCallback: (absolutePath: string) => {
-        const dehydratateAndCreatePlaceholder = (
+        const dehydrateAndCreatePlaceholder = (
           id: string,
           relative: string,
           size: number
@@ -84,11 +87,22 @@ export class BindingsManager {
 
         this.controllers.addFile.execute(
           absolutePath,
-          dehydratateAndCreatePlaceholder
+          dehydrateAndCreatePlaceholder
         );
       },
-      fetchDataCallback: () => {
-        Logger.debug('fetchDataCallback');
+      fetchDataCallback: (
+        contentsId: string,
+        callback: (success: boolean, path: string) => void
+      ) => {
+        this.controllers.downloadFile
+          .execute(contentsId)
+          .then((path) => {
+            callback(true, path);
+          })
+          .catch((error) => {
+            Logger.error('Fetch Data Callback:', error);
+            callback(false, '');
+          });
       },
       validateDataCallback: () => {
         Logger.debug('validateDataCallback');
@@ -126,17 +140,19 @@ export class BindingsManager {
       BindingsManager.PROVIDER_NAME,
       version,
       providerId,
-      callbacks
+      callbacks,
+      this.paths.icon
     );
 
     await this.drive.connectSyncRoot();
   }
 
   watch() {
-    this.drive.watchAndWait(this.rootFolder);
+    this.drive.watchAndWait(this.paths.root);
   }
 
   async stop() {
+    await this.drive.disconnectSyncRoot();
     await this.drive.unregisterSyncRoot();
   }
 }

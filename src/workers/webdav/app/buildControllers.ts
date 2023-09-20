@@ -1,25 +1,32 @@
 import { DependencyContainer } from '../dependencyInjection/DependencyContainer';
 import { AddFileController } from './controllers/AddFileController';
 import { DeleteFileController } from './controllers/DeleteFileController';
+import { DownloadFileController } from './controllers/DownloadFileController';
 import { RenameOrMoveController } from './controllers/RenameOrMoveController';
 
 export function buildControllers(container: DependencyContainer) {
-  const addFileCallback = new AddFileController(
+  const addFileController = new AddFileController(
     container.contentsUploader,
     container.filePathFromAbsolutePathCreator,
     container.fileCreator
   );
 
-  const renameOrMoveFileCallback = new RenameOrMoveController(
+  const renameOrMoveFileController = new RenameOrMoveController(
     container.filePathFromAbsolutePathCreator,
     container.filePathUpdater
   );
 
-  const deleteFileCallback = new DeleteFileController(container.fileDeleter);
+  const deleteFileController = new DeleteFileController(container.fileDeleter);
+
+  const downloadFileController = new DownloadFileController(
+    container.fileFinderByContentsId,
+    container.contentsDownloader
+  );
 
   return {
-    addFile: addFileCallback,
-    renameOrMoveFile: renameOrMoveFileCallback,
-    deleteFile: deleteFileCallback,
+    addFile: addFileController,
+    renameOrMoveFile: renameOrMoveFileController,
+    deleteFile: deleteFileController,
+    downloadFile: downloadFileController,
   } as const;
 }

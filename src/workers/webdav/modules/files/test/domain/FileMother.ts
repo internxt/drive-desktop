@@ -1,5 +1,5 @@
 import { FileStatuses } from '../../domain/FileStatus';
-import { File, FileAtributes } from '../../domain/File';
+import { File, FileAttributes } from '../../domain/File';
 import { ContentsIdMother } from '../../../contents/test/domain/ContentsIdMother';
 import { FilePathMother } from './FilePathMother';
 
@@ -43,7 +43,7 @@ export class FileMother {
     });
   }
 
-  static fromPartial(partial: Partial<FileAtributes>) {
+  static fromPartial(partial: Partial<FileAttributes>) {
     return File.from({
       contentsId: ContentsIdMother.random().value,
       folderId: 3972960,

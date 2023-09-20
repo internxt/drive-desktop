@@ -1,17 +1,17 @@
 import { User } from '../../../../main/types';
 import { getUser } from '../../../../main/auth/service';
 
-export class DepenedencyInjectionUserProvider {
+export class DependencyInjectionUserProvider {
   private static _user: User;
 
   static get() {
-    if (DepenedencyInjectionUserProvider._user)
-      return DepenedencyInjectionUserProvider._user;
+    if (DependencyInjectionUserProvider._user)
+      return DependencyInjectionUserProvider._user;
 
     const user = getUser();
 
     if (user) {
-      DepenedencyInjectionUserProvider._user = user;
+      DependencyInjectionUserProvider._user = user;
       return user;
     }
 
