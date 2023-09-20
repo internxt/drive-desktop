@@ -74,7 +74,7 @@ export class DependencyContainerFactory {
     await folderRepository.init();
 
     const itemsContainer = buildItemsContainer();
-    const contentsContaner = buildContentsContainer();
+    const contentsContainer = await buildContentsContainer();
     const filesContainer = await buildFilesContainer();
 
     const eventBus = new NodeJsEventBus();
@@ -108,7 +108,7 @@ export class DependencyContainerFactory {
       folderDeleter: new WebdavFolderDeleter(folderRepository),
 
       ...itemsContainer,
-      ...contentsContaner,
+      ...contentsContainer,
       ...filesContainer,
     };
 

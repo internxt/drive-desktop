@@ -1,6 +1,6 @@
 import { Traverser } from 'workers/webdav/modules/items/application/Traverser';
 import crypt from '../../../utils/crypt';
-import { DepenedencyInjectionUserProvider } from './user';
+import { DependencyInjectionUserProvider } from './user';
 
 export class DependencyInjectionTraverserProvider {
   private static traverser: Traverser;
@@ -10,7 +10,7 @@ export class DependencyInjectionTraverserProvider {
       return DependencyInjectionTraverserProvider.traverser;
     }
 
-    const user = DepenedencyInjectionUserProvider.get();
+    const user = DependencyInjectionUserProvider.get();
 
     const traverser = new Traverser(crypt, user.root_folder_id);
 

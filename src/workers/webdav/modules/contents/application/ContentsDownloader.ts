@@ -7,7 +7,7 @@ import { LocalFileWriter } from '../domain/LocalFileWriter';
 
 export class ContentsDownloader {
   constructor(
-    private readonly contents: ContentsManagersFactory,
+    private readonly managerFactory: ContentsManagersFactory,
     private readonly localWriter: LocalFileWriter,
     private readonly ipc: VirtualDriveIpc
   ) {}
@@ -54,7 +54,7 @@ export class ContentsDownloader {
   }
 
   async run(file: File): Promise<string> {
-    const downloader = this.contents.downloader();
+    const downloader = this.managerFactory.downloader();
 
     this.registerEvents(downloader, file);
 

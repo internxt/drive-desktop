@@ -3,14 +3,14 @@ import { FilesContainer } from './FilesContainer';
 import { HttpFileRepository } from 'workers/webdav/modules/files/infrastructure/HttpFileRepository';
 import crypt from '../../../utils/crypt';
 import { DependencyInjectionHttpClientsProvider } from '../common/clients';
-import { DepenedencyInjectionUserProvider } from '../common/user';
+import { DependencyInjectionUserProvider } from '../common/user';
 import { ipc } from '../../ipc';
 import { DependencyInjectionTraverserProvider } from '../common/traverser';
 
 export async function buildFilesContainer(): Promise<FilesContainer> {
   const clients = DependencyInjectionHttpClientsProvider.get();
   const traverser = DependencyInjectionTraverserProvider.get();
-  const user = DepenedencyInjectionUserProvider.get();
+  const user = DependencyInjectionUserProvider.get();
 
   const fileRepository = new HttpFileRepository(
     crypt,

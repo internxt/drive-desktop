@@ -12,7 +12,7 @@ export class RemoteFileContentsManagersFactoryMock
   implements ContentsManagersFactory
 {
   public mockClone = new ContentFileClonnerMock();
-  public mockDownload = new ContentFileDownloaderMock();
+  public mockDownloader = new ContentFileDownloaderMock();
   public mockUpload = new ContentFileUploaderMock();
 
   clonner(_file: File): ContentFileClonner {
@@ -20,7 +20,7 @@ export class RemoteFileContentsManagersFactoryMock
   }
 
   downloader(): ContentFileDownloader {
-    return this.mockDownload;
+    return this.mockDownloader;
   }
 
   uploader(
