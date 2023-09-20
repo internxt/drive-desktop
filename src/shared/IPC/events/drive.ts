@@ -41,7 +41,7 @@ type DownloadEvents = {
 type TrashEvents = {
   FILE_DELETED: (payload: FileInfo) => void;
   FILE_DELETING: (payload: FileInfo) => void;
-  FILE_DELETE_ERROR: (payload: FileErrorInfo) => void;
+  FILE_DELETION_ERROR: (payload: FileErrorInfo) => void;
 };
 
 type RenameEvents = {

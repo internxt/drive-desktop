@@ -1,10 +1,10 @@
 import { ipcMainDrive } from '../ipcs/mainDrive';
-import { trackWebdavError, trackWebdavEvent } from './service';
+import { trackError, trackEvent } from './service';
 
 ipcMainDrive.on('FILE_DELETED', (_, payload) => {
   const { name, extension, size } = payload;
 
-  trackWebdavEvent('Delete Completed', {
+  trackEvent('Delete Completed', {
     file_name: name,
     file_extension: extension,
     file_size: size,
@@ -15,7 +15,7 @@ ipcMainDrive.on('FILE_DOWNLOADING', (_, payload) => {
   const { name, size, extension, processInfo } = payload;
 
   if (!processInfo.progress) {
-    trackWebdavEvent('Download Started', {
+    trackEvent('Download Started', {
       file_name: name,
       file_extension: extension,
       file_size: size,
@@ -27,7 +27,7 @@ ipcMainDrive.on('FILE_DOWNLOADING', (_, payload) => {
 ipcMainDrive.on('FILE_DOWNLOADED', (_, payload) => {
   const { name, extension, size, processInfo } = payload;
 
-  trackWebdavEvent('Download Completed', {
+  trackEvent('Download Completed', {
     file_name: name,
     file_extension: extension,
     file_size: size,
@@ -38,7 +38,7 @@ ipcMainDrive.on('FILE_DOWNLOADED', (_, payload) => {
 ipcMainDrive.on('FILE_CLONNED', (_, payload) => {
   const { name, extension, size, processInfo } = payload;
 
-  trackWebdavEvent('Upload Completed', {
+  trackEvent('Upload Completed', {
     file_name: name,
     file_extension: extension,
     file_size: size,
@@ -51,7 +51,7 @@ ipcMainDrive.on('FILE_UPLOADING', (_, payload) => {
   const { name, size, extension, processInfo } = payload;
 
   if (!processInfo.progress) {
-    trackWebdavEvent('Upload Started', {
+    trackEvent('Upload Started', {
       file_name: name,
       file_extension: extension,
       file_size: size,
@@ -63,7 +63,7 @@ ipcMainDrive.on('FILE_UPLOADING', (_, payload) => {
 ipcMainDrive.on('FILE_UPLOADED', (_, payload) => {
   const { name, extension, size, processInfo } = payload;
 
-  trackWebdavEvent('Upload Completed', {
+  trackEvent('Upload Completed', {
     file_name: name,
     file_extension: extension,
     file_size: size,
@@ -74,7 +74,7 @@ ipcMainDrive.on('FILE_UPLOADED', (_, payload) => {
 ipcMainDrive.on('FILE_UPLOAD_ERROR', (_, payload) => {
   const { name, error } = payload;
 
-  trackWebdavError('Upload Error', new Error(error), {
+  trackError('Upload Error', new Error(error), {
     itemType: 'File',
     root: '',
     from: name,
@@ -85,7 +85,7 @@ ipcMainDrive.on('FILE_UPLOAD_ERROR', (_, payload) => {
 ipcMainDrive.on('FILE_DOWNLOAD_ERROR', (_, payload) => {
   const { name, error } = payload;
 
-  trackWebdavError('Download Error', new Error(error), {
+  trackError('Download Error', new Error(error), {
     itemType: 'File',
     root: '',
     from: name,
@@ -96,7 +96,7 @@ ipcMainDrive.on('FILE_DOWNLOAD_ERROR', (_, payload) => {
 ipcMainDrive.on('FILE_RENAME_ERROR', (_, payload) => {
   const { name, error } = payload;
 
-  trackWebdavError('Rename Error', new Error(error), {
+  trackError('Rename Error', new Error(error), {
     itemType: 'File',
     root: '',
     from: name,
@@ -104,10 +104,10 @@ ipcMainDrive.on('FILE_RENAME_ERROR', (_, payload) => {
   });
 });
 
-ipcMainDrive.on('FILE_DELETE_ERROR', (_, payload) => {
+ipcMainDrive.on('FILE_DELETION_ERROR', (_, payload) => {
   const { name, error } = payload;
 
-  trackWebdavError('Delete Error', new Error(error), {
+  trackError('Delete Error', new Error(error), {
     itemType: 'File',
     root: '',
     from: name,

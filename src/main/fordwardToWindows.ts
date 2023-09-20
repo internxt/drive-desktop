@@ -111,7 +111,7 @@ ipcMainDrive.on('FILE_RENAME_ERROR', (_, payload) => {
   });
 });
 
-ipcMainDrive.on('FILE_DELETE_ERROR', (_, payload) => {
+ipcMainDrive.on('FILE_DELETION_ERROR', (_, payload) => {
   const { nameWithExtension } = payload;
 
   broadcastToWindows('sync-info-update', {

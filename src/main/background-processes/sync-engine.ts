@@ -18,8 +18,8 @@ function spawnSyncEngineWorker() {
   worker
     .loadFile(
       process.env.NODE_ENV === 'development'
-        ? '../../release/app/dist/webdav/index.html'
-        : `${path.join(__dirname, '..', 'webdav')}/index.html`
+        ? '../../release/app/dist/sync-engine/index.html'
+        : `${path.join(__dirname, '..', 'sync-engine')}/index.html`
     )
     .then(() => {
       Logger.info('[MAIN] Sync engine worker loaded');
