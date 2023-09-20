@@ -22,43 +22,57 @@ function spawnSyncEngineWorker() {
         : `${path.join(__dirname, '..', 'webdav')}/index.html`
     )
     .then(() => {
-      Logger.info('[MAIN] SYNC ENGINE WORKER LOADED');
+      Logger.info('[MAIN] Sync engine worker loaded');
     })
     .catch((err) => {
-      Logger.error('[MAIN] ERROR LOADING SYNC ENGINE WORKER', err);
+      Logger.error('[MAIN] Error loading sync engine worker', err);
     });
 
   worker.on('close', () => {
-    Logger.debug('[MAIN] SYNC ENGINE WORKER CLOSED');
     worker?.destroy();
   });
 
-  ipcMain.once('SYNC_ENGINE_PROCESS_SETUP_SUCCESSFUL', () => {
+  ipcMain.on('SYNC_ENGINE_PROCESS_SETUP_SUCCESSFUL', () => {
+    Logger.debug('[MAIN] SYNC ENGINE RUNNIG');
     workerIsRunning = true;
   });
 
-  ipcMain.once('SYNC_ENGINE_PROCESS_SETUP_FAILED', () => {
+  ipcMain.on('SYNC_ENGINE_PROCESS_SETUP_FAILED', () => {
+    Logger.debug('[MAIN] SYNC ENGINE NOT RUNNIG');
     workerIsRunning = false;
   });
 }
 
 export async function stopSyncEngineWatcher() {
+  Logger.info('[MAIN] STOPING SYNC ENGINE WORKER...');
+
   if (!workerIsRunning) {
+    Logger.info('[MAIN] WORKER WAS NOT RUNNIG');
+    worker?.destroy();
+    worker = null;
     return;
   }
 
-  Logger.info('[MAIN] STOPING SYNC ENGINE WORKER...');
-
   const stopPromise = new Promise<void>((resolve, reject) => {
-    ipcMain.once('SYNC_ENGINE_STOP_ERROR', (_, err: Error) => {
-      Logger.error('[MAIN] ERROR STOPING SYNC ENGINE WORKER', err);
-      reject();
+    ipcMain.once('SYNC_ENGINE_STOP_ERROR', (_, error: Error) => {
+      Logger.error('[MAIN] Error stoping sync engine worker', error);
+      reject(error);
     });
 
     ipcMain.once('SYNC_ENGINE_STOP_SUCCESS', () => {
       resolve();
-      Logger.info('[MAIN] SYNC ENGINE STOPPED');
+      Logger.info('[MAIN] Sync engine stopped');
     });
+
+    const millisecndsToWait = 10_000;
+
+    setTimeout(() => {
+      reject(
+        new Error(
+          `Timeout waiting for sync engien to stop after ${millisecndsToWait} milliseconds`
+        )
+      );
+    }, millisecndsToWait);
   });
 
   try {
@@ -68,8 +82,10 @@ export async function stopSyncEngineWatcher() {
   } catch (err) {
     // TODO: handle error
     Logger.error(err);
+  } finally {
     worker?.destroy();
-    // no op
+    workerIsRunning = false;
+    worker = null;
   }
 }
 
