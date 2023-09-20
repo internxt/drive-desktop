@@ -1,7 +1,7 @@
 import { Readable } from 'stream';
 
 export class ReadableHelloWorld extends Readable {
-  private index: number = 0;
+  private index = 0;
   private content = 'Hello World';
 
   constructor() {

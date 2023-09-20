@@ -1,5 +1,5 @@
-import { Readable, Writable, pipeline } from "stream";
-import { promisify } from "util";
+import { Readable, Writable, pipeline } from 'stream';
+import { promisify } from 'util';
 const promisifiedPipeline = promisify(pipeline);
 
 export class ReadStreamToBuffer {
