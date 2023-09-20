@@ -48,10 +48,10 @@ export const MacOSVersionAvailableBanner: React.FC = () => {
       .catch(reportError);
   }, []);
 
-  const handleDownloadMacOSNative = () => {
+  const handleDownloadMacOSNative = async () => {
     try {
       if (!downloadURL) return;
-      window.electron.openUrl(downloadURL);
+      await window.electron.openUrl(downloadURL);
     } catch (error) {
       reportError(error);
     }
