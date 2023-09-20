@@ -92,7 +92,7 @@ export class BindingsManager {
       },
       fetchDataCallback: (
         contentsId: string,
-        callback: (success: boolean, path?: string) => void
+        callback: (success: boolean, path: string) => void
       ) => {
         this.controllers.downloadFile
           .execute(contentsId)
@@ -101,7 +101,7 @@ export class BindingsManager {
           })
           .catch((error) => {
             Logger.error('Fetch Data Callback:', error);
-            callback(false);
+            callback(false, '');
           });
       },
       validateDataCallback: () => {
