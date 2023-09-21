@@ -3,49 +3,16 @@ import React, { useEffect, useState } from 'react';
 import { useTranslationContext } from '../../context/LocalContext';
 import { reportError } from '../../utils/errors';
 
-interface AssetInfo {
-  browser_download_url: string;
-}
+const getDownloadUrl = async () => {
+  const { platforms } = await window.electron.getDownloadUrls();
 
-interface LatestReleaseInfo {
-  id: number;
-  name: string;
-  published_at: Date;
-  assets: AssetInfo[];
-}
-
-export async function getLatestReleaseInfo(
-  user: string,
-  repo: string
-): Promise<string | undefined> {
-  const fetchUrl = `https://api.github.com/repos/${user}/${repo}/releases/latest`;
-  const res = await fetch(fetchUrl);
-
-  if (res.status !== 200) {
-    throw Error('Release not found');
-  }
-
-  const info: LatestReleaseInfo = await res.json();
-
-  let url: string | undefined = undefined;
-  info.assets.forEach((asset) => {
-    const match = asset.browser_download_url.match(/\.(\w+)$/);
-
-    if (match && match[1]) {
-      url = asset.browser_download_url;
-    }
-  });
-
-  return url;
-}
-
+  return platforms['MacOS'];
+};
 export const MacOSVersionAvailableBanner: React.FC = () => {
   const { translate } = useTranslationContext();
   const [downloadURL, setDownloadURL] = useState<string>();
   useEffect(() => {
-    getLatestReleaseInfo('internxt', 'drive-desktop-macos')
-      .then(setDownloadURL)
-      .catch(reportError);
+    getDownloadUrl().then(setDownloadURL).catch(reportError);
   }, []);
 
   const handleDownloadMacOSNative = async () => {
