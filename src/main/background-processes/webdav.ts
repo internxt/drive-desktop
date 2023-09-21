@@ -3,8 +3,10 @@ import { ipcWebdav } from '../ipcs/webdav';
 import path from 'path';
 import Logger from 'electron-log';
 import eventBus from '../event-bus';
-import { ejectMacOSInstallerDisks, unmountDrive } from '../../workers/webdav/VirtualDrive';
-
+import {
+  ejectMacOSInstallerDisks,
+  unmountDrive,
+} from '../../workers/webdav/VirtualDrive';
 
 let webdavWorker: BrowserWindow | null = null;
 
@@ -47,19 +49,8 @@ function stopWebDavServer() {
   webdavWorker?.webContents.send('STOP_WEBDAV_SERVER_PROCESS');
 }
 
-function startWebDavServer() {
-  webdavWorker?.webContents.send('START_WEBDAV_SERVER_PROCESS');
-}
-
 eventBus.on('USER_LOGGED_OUT', stopWebDavServer);
 eventBus.on('USER_WAS_UNAUTHORIZED', stopWebDavServer);
-eventBus.on('USER_LOGGED_IN', () => {
-  if (webdavWorker === null) {
-    spawnWebdavServerWorker();
-  } else {
-    startWebDavServer();
-  }
-});
 
 if (process.platform === 'darwin') {
   eventBus.on('APP_IS_READY', ejectMacOSInstallerDisks);
@@ -72,6 +63,8 @@ ipcMain.handle('retry-virtual-drive-mount', () => {
 ipcMain.handle('unmount-virtual-drive-and-quit', async () => {
   try {
     await unmountDrive();
-  } catch (onMenuQuitClickError) { Logger.error({ onMenuQuitClickError }); };
+  } catch (onMenuQuitClickError) {
+    Logger.error({ onMenuQuitClickError });
+  }
   await app.quit();
 });

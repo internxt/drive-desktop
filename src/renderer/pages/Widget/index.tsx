@@ -9,10 +9,15 @@ import { SyncStatus } from '../../../main/background-processes/sync';
 import { SyncFailed } from './SyncFailed';
 import useVirtualDriveStatus from 'renderer/hooks/VirtualDriveStatus';
 import { VirtualDriveError } from './VirtualDriveError';
+import { MacOSVersionAvailableBanner } from './MacOSVersionAvailableBanner';
+import useClientPlatform from '../../hooks/ClientPlatform';
 
 export default function Widget() {
   const [syncStatus, setSyncStatus] = useState<SyncStatus>('RUNNING');
   useSyncStatus(setSyncStatus);
+
+  const platform = useClientPlatform();
+
   const { status: virtualDriveStatus } = useVirtualDriveStatus();
   const handleRetrySync = () => {
     window.electron.startRemoteSync().catch((err) => {
@@ -50,6 +55,7 @@ export default function Widget() {
   return (
     <div className="flex h-screen flex-col overflow-hidden">
       <Header />
+      {platform === 'darwin' ? <MacOSVersionAvailableBanner /> : null}
       <SyncErrorBanner />
       <BackupsFatalErrorBanner />
       {displayErrorInWidget ? renderWidgetError() : <SyncInfo />}

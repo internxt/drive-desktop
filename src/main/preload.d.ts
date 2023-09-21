@@ -205,6 +205,7 @@ declare interface Window {
     retryVirtualDriveMount(): void;
     unmountVirtualDriveAndQuit: () => Promise<boolean>;
     startRemoteSync: () => Promise<void>;
+    getDownloadUrls: () => Promise<{ platforms: Record<string, string> }>;
     openUrl: (url: string) => Promise<void>;
     // DEV
     resizeWindow: () => typeof import('../main/dev/service').resizeCurrentWindow;

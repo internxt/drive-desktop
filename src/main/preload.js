@@ -287,6 +287,9 @@ contextBridge.exposeInMainWorld('electron', {
   unmountVirtualDriveAndQuit() {
     return ipcRenderer.invoke('unmount-virtual-drive-and-quit');
   },
+  getDownloadUrls() {
+    return ipcRenderer.invoke('get-download-urls');
+  },
   onVirtualDriveStatusChange(callback) {
     const eventName = 'virtual-drive-status-change';
     const callbackWrapper = (_, v) => {
