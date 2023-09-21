@@ -1,13 +1,16 @@
 import { ContentsDownloader } from '../../modules/contents/application/ContentsDownloader';
 import { FileFinderByContentsId } from '../../modules/files/application/FileFinderByContentsId';
 import { LocalRepositoryRepositoryRefresher } from '../../modules/files/application/LocalRepositoryRepositoryRefresher';
+import { CallbackController } from './CallbackController';
 
-export class DownloadFileController {
+export class DownloadFileController extends CallbackController {
   constructor(
     private readonly fileFinder: FileFinderByContentsId,
     private readonly downloader: ContentsDownloader,
     private readonly localRepositoryRefresher: LocalRepositoryRepositoryRefresher
-  ) {}
+  ) {
+    super();
+  }
 
   private async action(id: string) {
     const file = this.fileFinder.run(id);
@@ -16,8 +19,7 @@ export class DownloadFileController {
   }
 
   async execute(contentsId: string): Promise<string> {
-    // eslint-disable-next-line no-control-regex
-    const trimmedId = contentsId.replace(/[\x00-\x1F\x7F-\x9F]/g, '');
+    const trimmedId = this.trim(contentsId);
 
     try {
       return await this.action(trimmedId);

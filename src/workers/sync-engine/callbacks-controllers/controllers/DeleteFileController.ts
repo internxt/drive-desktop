@@ -1,12 +1,14 @@
 import { FileDeleter } from '../../modules/files/application/FileDeleter';
+import { CallbackController } from './CallbackController';
 
-export class DeleteFileController {
-  constructor(private readonly deleter: FileDeleter) {}
+export class DeleteFileController extends CallbackController {
+  constructor(private readonly deleter: FileDeleter) {
+    super();
+  }
 
   async execute(contentsId: string) {
-    // eslint-disable-next-line no-control-regex
-    const sanitazedId = contentsId.replace(/[\x00-\x1F\x7F-\x9F]/g, '');
+    const trimmedId = this.trim(contentsId);
 
-    await this.deleter.run(sanitazedId);
+    await this.deleter.run(trimmedId);
   }
 }

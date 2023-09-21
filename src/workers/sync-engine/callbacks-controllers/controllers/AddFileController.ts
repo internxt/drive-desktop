@@ -2,23 +2,26 @@ import Logger from 'electron-log';
 import { ContentsUploader } from '../../modules/contents/application/ContentsUploader';
 import { FileCreator } from '../../modules/files/application/FileCreator';
 import { FilePathFromAbsolutePathCreator } from '../../modules/files/application/FilePathFromAbsolutePathCreator';
+import { CallbackController } from './CallbackController';
 
-export type DehydratateAndCreatePlaceholder = (
+export type DehydrateAndCreatePlaceholder = (
   id: string,
   relativePath: string,
   size: number
 ) => void;
 
-export class AddFileController {
+export class AddFileController extends CallbackController {
   constructor(
     private readonly contentsUploader: ContentsUploader,
     private readonly filePathFromAbsolutePathCreator: FilePathFromAbsolutePathCreator,
     private readonly fileCreator: FileCreator
-  ) {}
+  ) {
+    super();
+  }
 
   private async runAsync(
     absolutePath: string,
-    done: DehydratateAndCreatePlaceholder
+    done: DehydrateAndCreatePlaceholder
   ) {
     const fileContents = await this.contentsUploader.run(absolutePath);
 
@@ -31,10 +34,10 @@ export class AddFileController {
 
   execute(
     absolutePath: string,
-    dehydratateAndCreatePlaceholder: DehydratateAndCreatePlaceholder
+    dehydrateAndCreatePlaceholder: DehydrateAndCreatePlaceholder
   ) {
-    this.runAsync(absolutePath, dehydratateAndCreatePlaceholder)
-      .then(() => Logger.info('File added successfull'))
+    this.runAsync(absolutePath, dehydrateAndCreatePlaceholder)
+      .then(() => Logger.info('File added successfully'))
       .catch((err) => Logger.error('Error when adding a file: ', err));
   }
 }
