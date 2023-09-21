@@ -29,15 +29,18 @@ export class AddFileController extends CallbackController {
 
     const file = await this.fileCreator.run(path, fileContents);
 
+    Logger.info('File added successfully');
+
     done(file.contentsId, file.path.value, file.size);
+    Logger.info('File added successfully');
   }
 
   execute(
     absolutePath: string,
     dehydrateAndCreatePlaceholder: DehydrateAndCreatePlaceholder
   ) {
-    this.runAsync(absolutePath, dehydrateAndCreatePlaceholder)
-      .then(() => Logger.info('File added successfully'))
-      .catch((err) => Logger.error('Error when adding a file: ', err));
+    this.runAsync(absolutePath, dehydrateAndCreatePlaceholder).catch((err) =>
+      Logger.error('Error when adding a file: ', err)
+    );
   }
 }

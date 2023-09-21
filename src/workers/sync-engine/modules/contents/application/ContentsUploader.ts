@@ -57,8 +57,9 @@ export class ContentsUploader {
   }
 
   async run(absolutePath: string): Promise<RemoteFileContents> {
-    const { contents, abortSignal } =
-      this.contentProvider.provide(absolutePath);
+    const { contents, abortSignal } = await this.contentProvider.provide(
+      absolutePath
+    );
 
     const uploader = this.remoteContentsManagersFactory.uploader(
       contents,

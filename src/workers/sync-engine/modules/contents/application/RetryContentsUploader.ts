@@ -1,11 +1,10 @@
 import { RemoteFileContents } from '../domain/RemoteFileContents';
 import { ContentsUploader } from './ContentsUploader';
 import Logger from 'electron-log';
-import { promisify } from 'util';
 
 export class RetryContentsUploader {
   private static NUMBER_OF_RETRIES = 1;
-  private static MILLISECOND_BETWEEN_TRIES = 1;
+  private static MILLISECOND_BETWEEN_TRIES = 1_000;
 
   constructor(private readonly uploader: ContentsUploader) {}
 
@@ -25,9 +24,11 @@ export class RetryContentsUploader {
             `Upload attempt ${retryCount + 1} failed with an unknown error.`
           );
         }
-        await promisify(setTimeout)(
-          RetryContentsUploader.MILLISECOND_BETWEEN_TRIES
-        );
+
+        await new Promise((resolve) => {
+          setTimeout(resolve, RetryContentsUploader.MILLISECOND_BETWEEN_TRIES);
+        });
+
         retryCount++;
       }
     }
