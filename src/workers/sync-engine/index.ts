@@ -1,10 +1,10 @@
 import Logger from 'electron-log';
 import { ipcRenderer } from 'electron';
-import { DependencyContainerFactory } from './dependencyInjection/DependencyContainerFactory';
+import { DependencyContainerFactory } from './dependency-injection/DependencyContainerFactory';
 import packageJson from '../../../package.json';
 import { BindingsManager } from './BindingManager';
 import fs from 'fs/promises';
-import { buildControllers } from './app/buildControllers';
+import { buildControllers } from './callbacks-controllers/buildControllers';
 import { iconPath } from 'workers/utils/icon';
 
 async function ensureTheFolderExist(path: string) {

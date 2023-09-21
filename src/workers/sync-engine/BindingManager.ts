@@ -2,7 +2,7 @@ import { VirtualDrive } from 'virtual-drive';
 import Logger from 'electron-log';
 import { Folder } from './modules/folders/domain/Folder';
 import { File } from './modules/files/domain/File';
-import { buildControllers } from './app/buildControllers';
+import { buildControllers } from './callbacks-controllers/buildControllers';
 import fs from 'fs';
 
 export class BindingsManager {
@@ -52,7 +52,7 @@ export class BindingsManager {
           .then(() => {
             callback(true);
           })
-          .catch((error) => {
+          .catch((error: Error) => {
             Logger.error(error);
             callback(false);
           });
@@ -70,7 +70,7 @@ export class BindingsManager {
           .then(() => {
             callback(true);
           })
-          .catch((error) => {
+          .catch((error: Error) => {
             Logger.error(error);
             callback(false);
           });
@@ -96,10 +96,10 @@ export class BindingsManager {
       ) => {
         this.controllers.downloadFile
           .execute(contentsId)
-          .then((path) => {
+          .then((path: string) => {
             callback(true, path);
           })
-          .catch((error) => {
+          .catch((error: Error) => {
             Logger.error('Fetch Data Callback:', error);
             callback(false, '');
           });

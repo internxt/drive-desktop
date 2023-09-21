@@ -1,4 +1,4 @@
-import { DependencyContainer } from '../dependencyInjection/DependencyContainer';
+import { DependencyContainer } from '../dependency-injection/DependencyContainer';
 import { AddFileController } from './controllers/AddFileController';
 import { DeleteFileController } from './controllers/DeleteFileController';
 import { DownloadFileController } from './controllers/DownloadFileController';
