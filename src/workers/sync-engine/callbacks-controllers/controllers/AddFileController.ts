@@ -1,8 +1,8 @@
 import Logger from 'electron-log';
-import { ContentsUploader } from '../../modules/contents/application/ContentsUploader';
 import { FileCreator } from '../../modules/files/application/FileCreator';
 import { FilePathFromAbsolutePathCreator } from '../../modules/files/application/FilePathFromAbsolutePathCreator';
 import { CallbackController } from './CallbackController';
+import { RetryContentsUploader } from 'workers/sync-engine/modules/contents/application/RetryContentsUploader';
 
 export type DehydrateAndCreatePlaceholder = (
   id: string,
@@ -12,7 +12,7 @@ export type DehydrateAndCreatePlaceholder = (
 
 export class AddFileController extends CallbackController {
   constructor(
-    private readonly contentsUploader: ContentsUploader,
+    private readonly contentsUploader: RetryContentsUploader,
     private readonly filePathFromAbsolutePathCreator: FilePathFromAbsolutePathCreator,
     private readonly fileCreator: FileCreator
   ) {
