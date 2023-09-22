@@ -99,7 +99,7 @@ app
 
     if (!isLoggedIn) {
       await createAuthWindow();
-      setTrayStatus('STANDBY');
+      setTrayStatus('IDLE');
     }
     checkForUpdates();
   })
@@ -115,7 +115,7 @@ eventBus.on('USER_LOGGED_IN', async () => {
 
     nativeTheme.themeSource = configStore.get('preferedTheme') as Theme;
 
-    setTrayStatus('STANDBY');
+    setTrayStatus('IDLE');
     const widget = await getOrCreateWidged();
     const tray = getTray();
     if (widget && tray) {
@@ -140,7 +140,7 @@ eventBus.on('USER_LOGGED_IN', async () => {
 });
 
 eventBus.on('USER_LOGGED_OUT', async () => {
-  setTrayStatus('STANDBY');
+  setTrayStatus('IDLE');
   const widget = getWidget();
   if (widget) {
     widget.hide();

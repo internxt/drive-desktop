@@ -41,10 +41,10 @@ ipcMain.on('SYNC_INFO_UPDATE', (_, payload: ProcessInfoUpdatePayload) => {
 
 eventBus.on('USER_LOGGED_OUT', () => {
   ipcMain.emit('stop-sync-process');
-  setTrayStatus('STANDBY');
+  setTrayStatus('IDLE');
 });
 
 eventBus.on('USER_WAS_UNAUTHORIZED', () => {
   ipcMain.emit('stop-sync-process');
-  setTrayStatus('STANDBY');
+  setTrayStatus('IDLE');
 });

@@ -31,6 +31,8 @@ export class FileDeleter {
 
     await this.repository.delete(file);
 
+    Logger.debug('FILE DELETED, ', file.nameWithExtension);
+
     // await this.eventBus.publish(file.pullDomainEvents());
 
     // this.ipc.send('WEBDAV_FILE_DELETED', {
