@@ -9,6 +9,7 @@ import { DependencyInjectionMnemonicProvider } from '../common/mnemonic';
 import { DependencyInjectionUserProvider } from '../common/user';
 import { ContentsContainer } from './ContentsContainer';
 import { FSLocalFileWriter } from 'workers/sync-engine/modules/contents/infrastructure/FSLocalFileWriter';
+import { RetryContentsUploader } from 'workers/sync-engine/modules/contents/application/RetryContentsUploader';
 
 export async function buildContentsContainer(): Promise<ContentsContainer> {
   const user = DependencyInjectionUserProvider.get();
@@ -31,6 +32,8 @@ export async function buildContentsContainer(): Promise<ContentsContainer> {
     ipcRendererSyncEngine
   );
 
+  const retryContentsUploader = new RetryContentsUploader(contentsUploader);
+
   const temporalFolderProvider = async (): Promise<string> => {
     const temporalFilesFolder = await ipcRenderer.invoke(
       'APP:TEMPORAL_FILES_FOLDER'
@@ -52,7 +55,7 @@ export async function buildContentsContainer(): Promise<ContentsContainer> {
   );
 
   return {
-    contentsUploader,
+    contentsUploader: retryContentsUploader,
     contentsDownloader,
   };
 }

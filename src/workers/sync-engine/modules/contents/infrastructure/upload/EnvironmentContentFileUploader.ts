@@ -46,6 +46,7 @@ export class EnvironmentContentFileUploader implements ContentFileUploader {
       if (this.abortSignal) {
         this.abortSignal.addEventListener('abort', () => {
           state.stop();
+          contents.destroy();
         });
       }
     });

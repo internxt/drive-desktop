@@ -3,7 +3,6 @@ import Logger from 'electron-log';
 import { Folder } from './modules/folders/domain/Folder';
 import { File } from './modules/files/domain/File';
 import { buildControllers } from './callbacks-controllers/buildControllers';
-import fs from 'fs';
 
 export class BindingsManager {
   private static readonly PROVIDER_NAME = 'Internxt';
@@ -41,7 +40,6 @@ export class BindingsManager {
 
   async start(version: string, providerId: string) {
     await this.stop();
-
     const callbacks = {
       notifyDeleteCallback: (
         contentsId: string,
@@ -65,30 +63,17 @@ export class BindingsManager {
         contentsId: string,
         callback: (response: boolean) => void
       ) => {
-        this.controllers.renameOrMoveFile
-          .execute(absolutePath, contentsId)
-          .then(() => {
-            callback(true);
-          })
-          .catch((error: Error) => {
-            Logger.error(error);
-            callback(false);
-          });
-      },
-      notifyFileAddedCallback: (absolutePath: string) => {
-        const dehydrateAndCreatePlaceholder = (
-          id: string,
-          relative: string,
-          size: number
-        ) => {
-          fs.unlinkSync(absolutePath);
-          this.drive.createItemByPath(relative, id, size);
-        };
-
-        this.controllers.addFile.execute(
+        this.controllers.renameOrMoveFile.execute(
           absolutePath,
-          dehydrateAndCreatePlaceholder
+          contentsId,
+          callback
         );
+      },
+      notifyFileAddedCallback: (
+        absolutePath: string,
+        callback: (acknowledge: boolean, id: string) => void
+      ) => {
+        this.controllers.addFile.execute(absolutePath, callback);
       },
       fetchDataCallback: (
         contentsId: string,
@@ -153,6 +138,5 @@ export class BindingsManager {
 
   async stop() {
     await this.drive.disconnectSyncRoot();
-    await this.drive.unregisterSyncRoot();
   }
 }

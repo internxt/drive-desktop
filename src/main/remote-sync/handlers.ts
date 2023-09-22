@@ -53,6 +53,7 @@ export async function getUpdtaedRemoteItems() {
 }
 
 ipcMain.handle('GET_UPDATED_REMOTE_ITEMS', async () => {
+  Logger.debug('[MAIN] Getting updated remote items');
   return getUpdtaedRemoteItems();
 });
 

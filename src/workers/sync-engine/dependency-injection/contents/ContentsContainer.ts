@@ -1,7 +1,7 @@
+import { RetryContentsUploader } from '../../modules/contents/application/RetryContentsUploader';
 import { ContentsDownloader } from '../../modules/contents/application/ContentsDownloader';
-import { ContentsUploader } from '../../modules/contents/application/ContentsUploader';
 
 export interface ContentsContainer {
-  contentsUploader: ContentsUploader;
+  contentsUploader: RetryContentsUploader;
   contentsDownloader: ContentsDownloader;
 }
