@@ -7,7 +7,6 @@ import {
   ServerFolderStatus,
 } from '../../../../filesystems/domain/ServerFolder';
 import { SyncEngineIpc } from '../../../ipcRendererSyncEngine';
-import Logger from 'electron-log';
 
 export class RemoteItemsGenerator {
   constructor(private readonly ipc: SyncEngineIpc) {}
