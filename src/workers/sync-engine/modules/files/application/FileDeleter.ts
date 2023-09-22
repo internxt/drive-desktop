@@ -2,11 +2,13 @@ import { FileRepository } from '../domain/FileRepository';
 import Logger from 'electron-log';
 import { FileFinderByContentsId } from './FileFinderByContentsId';
 import { FileStatuses } from '../domain/FileStatus';
+import { SyncEngineIpc } from '../../../ipcRendererSyncEngine';
 
 export class FileDeleter {
   constructor(
     private readonly repository: FileRepository,
-    private readonly fileFinder: FileFinderByContentsId
+    private readonly fileFinder: FileFinderByContentsId,
+    private readonly ipc: SyncEngineIpc
   ) {}
 
   async run(contentsId: string): Promise<void> {
@@ -20,24 +22,24 @@ export class FileDeleter {
       return;
     }
 
-    // this.ipc.send('WEBDAV_FILE_DELETING', {
-    //   name: file.name,
-    //   extension: file.type,
-    //   nameWithExtension: file.nameWithExtension,
-    //   size: file.size,
-    // });
+    this.ipc.send('DELETING_FILE', {
+      name: file.name,
+      extension: file.type,
+      nameWithExtension: file.nameWithExtension,
+      size: file.size,
+    });
 
     file.trash();
 
     await this.repository.delete(file);
 
-    // await this.eventBus.publish(file.pullDomainEvents());
+    Logger.debug('FILE TO BE DELETED, ', file.nameWithExtension);
 
-    // this.ipc.send('WEBDAV_FILE_DELETED', {
-    //   name: file.name,
-    //   extension: file.type,
-    //   nameWithExtension: file.nameWithExtension,
-    //   size: file.size,
-    // });
+    this.ipc.send('FILE_DELETED', {
+      name: file.name,
+      extension: file.type,
+      nameWithExtension: file.nameWithExtension,
+      size: file.size,
+    });
   }
 }

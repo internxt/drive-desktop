@@ -4,7 +4,6 @@ import { getClients } from '../../../shared/HttpClient/backgroud-process-clients
 import crypt from '../../utils/crypt';
 import { ipcRendererSyncEngine } from '../ipcRendererSyncEngine';
 import { FileCreator } from '../modules/files/application/FileCreator';
-import { FileDeleter } from '../modules/files/application/FileDeleter';
 import { FileFinderByContentsId } from '../modules/files/application/FileFinderByContentsId';
 import { FilePathFromAbsolutePathCreator } from '../modules/files/application/FilePathFromAbsolutePathCreator';
 import { FileSearcher } from '../modules/files/application/FileSearcher';
@@ -93,7 +92,6 @@ export class DependencyContainerFactory {
       drive: clients.drive,
       newDrive: clients.newDrive,
 
-      fileDeleter: new FileDeleter(fileRepository, fileFinder),
       fileCreator: new FileCreator(fileRepository, folderFinder, eventBus),
 
       filePathUpdater,

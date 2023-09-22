@@ -1,6 +1,5 @@
 /* eslint-disable max-len */
 import { FileSearcher } from '../modules/files/application/FileSearcher';
-import { FileDeleter } from '../modules/files/application/FileDeleter';
 import { FilePathUpdater } from '../modules/files/application/FilePathUpdater';
 import { FolderSearcher } from '../modules/folders/application/FolderSearcher';
 import { FilePathFromAbsolutePathCreator } from '../modules/files/application/FilePathFromAbsolutePathCreator';
@@ -13,7 +12,6 @@ export interface DependencyContainer
   extends ItemsContainer,
     ContentsContainer,
     FilesContainer {
-  fileDeleter: FileDeleter;
   fileCreator: FileCreator;
   filePathUpdater: FilePathUpdater;
   fileSearcher: FileSearcher;
