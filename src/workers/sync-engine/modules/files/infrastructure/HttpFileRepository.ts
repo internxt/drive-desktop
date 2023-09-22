@@ -15,6 +15,7 @@ import { RemoteItemsGenerator } from '../../items/application/RemoteItemsGenerat
 import { FileStatuses } from '../domain/FileStatus';
 import { Crypt } from '../../shared/domain/Crypt';
 import { SyncEngineIpc } from '../../../ipcRendererSyncEngine';
+import Logger from 'electron-log';
 
 export class HttpFileRepository implements FileRepository {
   public files: Record<string, File> = {};
@@ -48,9 +49,14 @@ export class HttpFileRepository implements FileRepository {
     ) as Array<[string, File]>;
 
     this.files = files.reduce((items, [key, value]) => {
-      items[key] = value;
+      if (items[key] === undefined) {
+        items[key] = value;
+      } else if (value.updatedAt > items[key].updatedAt) {
+        items[key] = value;
+      }
+
       return items;
-    }, {} as Record<string, File>);
+    }, this.files);
   }
 
   private async reload(): Promise<void> {
@@ -68,9 +74,10 @@ export class HttpFileRepository implements FileRepository {
   searchByPartial(partial: Partial<File>): Nullable<File> {
     const keys = Object.keys(partial) as Array<keyof Partial<File>>;
 
-    const file = Object.values(this.files).find((file) =>
-      keys.every((key) => file[key] === partial[key])
-    );
+    const file = Object.values(this.files).find((file) => {
+      Logger.debug(file[keys[0]], partial[keys[0]]);
+      return keys.every((key) => file[key] === partial[key]);
+    });
 
     if (file) {
       return File.from(file.attributes());
@@ -93,6 +100,7 @@ export class HttpFileRepository implements FileRepository {
     );
 
     if (result.status === 200) {
+      this.files[file.path.value] = file;
       await this.init();
     }
   }

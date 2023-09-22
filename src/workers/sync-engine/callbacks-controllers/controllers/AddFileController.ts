@@ -3,6 +3,7 @@ import { FileCreator } from '../../modules/files/application/FileCreator';
 import { FilePathFromAbsolutePathCreator } from '../../modules/files/application/FilePathFromAbsolutePathCreator';
 import { CallbackController } from './CallbackController';
 import { RetryContentsUploader } from 'workers/sync-engine/modules/contents/application/RetryContentsUploader';
+import { File } from '../../modules/files/domain/File';
 
 export type DehydrateAndCreatePlaceholder = (
   id: string,
@@ -19,28 +20,26 @@ export class AddFileController extends CallbackController {
     super();
   }
 
-  private async runAsync(
-    absolutePath: string,
-    done: DehydrateAndCreatePlaceholder
-  ) {
+  private async runAsync(absolutePath: string) {
     const fileContents = await this.contentsUploader.run(absolutePath);
 
     const path = this.filePathFromAbsolutePathCreator.run(absolutePath);
 
-    const file = await this.fileCreator.run(path, fileContents);
-
-    Logger.info('File added successfully');
-
-    done(file.contentsId, file.path.value, file.size);
-    Logger.info('File added successfully');
+    return this.fileCreator.run(path, fileContents);
   }
 
   execute(
     absolutePath: string,
-    dehydrateAndCreatePlaceholder: DehydrateAndCreatePlaceholder
+    callback: (acknowledge: boolean, id: string) => void
   ) {
-    this.runAsync(absolutePath, dehydrateAndCreatePlaceholder).catch((err) =>
-      Logger.error('Error when adding a file: ', err)
-    );
+    this.runAsync(absolutePath)
+      .then((file: File) => {
+        Logger.info('File added successfully');
+        callback(true, file.contentsId);
+      })
+      .catch((err) => {
+        callback(false, '');
+        Logger.error('Error when adding a file: ', err);
+      });
   }
 }

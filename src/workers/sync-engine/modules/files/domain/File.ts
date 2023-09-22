@@ -112,6 +112,7 @@ export class File extends AggregateRoot {
 
   trash() {
     this._status = this._status.changeTo(FileStatuses.TRASHED);
+    this.updatedAt = new Date();
 
     this.record(
       new FileDeletedDomainEvent({
