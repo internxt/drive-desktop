@@ -11,7 +11,7 @@ import { getIsLoggedIn } from '../auth/handlers';
 import { getAuthWindow } from '../windows/auth';
 import { quitApp } from '../quit';
 
-type TrayMenuState = 'STANDBY' | 'SYNCING' | 'ALERT' | 'LOADING';
+type TrayMenuState = 'IDLE' | 'SYNCING' | 'ALERT' | 'LOADING';
 
 export class TrayMenu {
   private tray: Tray;
@@ -93,7 +93,7 @@ export class TrayMenu {
   setTooltip(state: TrayMenuState) {
     const messages: Record<TrayMenuState, string> = {
       SYNCING: 'Sync in process',
-      STANDBY: `Internxt Drive ${PackageJson.version}`,
+      IDLE: `Internxt Drive ${PackageJson.version}`,
       ALERT: 'There are some issues with your sync',
       LOADING: 'Loading Internxt Drive...',
     };

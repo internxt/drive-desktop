@@ -33,7 +33,7 @@ export class FileDeleter {
 
     await this.repository.delete(file);
 
-    Logger.debug('FILE TO BE DELETED, ', file.nameWithExtension);
+    Logger.debug('FILE DELETED, ', file.nameWithExtension);
 
     this.ipc.send('FILE_DELETED', {
       name: file.name,

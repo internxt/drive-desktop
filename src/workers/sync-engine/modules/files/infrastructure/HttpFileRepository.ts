@@ -15,7 +15,6 @@ import { RemoteItemsGenerator } from '../../items/application/RemoteItemsGenerat
 import { FileStatuses } from '../domain/FileStatus';
 import { Crypt } from '../../shared/domain/Crypt';
 import { SyncEngineIpc } from '../../../ipcRendererSyncEngine';
-import Logger from 'electron-log';
 
 export class HttpFileRepository implements FileRepository {
   public files: Record<string, File> = {};
@@ -75,7 +74,6 @@ export class HttpFileRepository implements FileRepository {
     const keys = Object.keys(partial) as Array<keyof Partial<File>>;
 
     const file = Object.values(this.files).find((file) => {
-      Logger.debug(file[keys[0]], partial[keys[0]]);
       return keys.every((key) => file[key] === partial[key]);
     });
 

@@ -6,7 +6,7 @@ ipcMainDrive.on('FOLDER_CREATING', () => {
 });
 
 ipcMainDrive.on('FOLDER_CREATED', () => {
-  setTrayStatus('STANDBY');
+  setTrayStatus('IDLE');
 });
 
 ipcMainDrive.on('FOLDER_RENAMING', () => {
@@ -14,14 +14,14 @@ ipcMainDrive.on('FOLDER_RENAMING', () => {
 });
 
 ipcMainDrive.on('FOLDER_RENAMED', () => {
-  setTrayStatus('STANDBY');
+  setTrayStatus('IDLE');
 });
 
 ipcMainDrive.on('FILE_DELETING', () => {
   setTrayStatus('SYNCING');
 });
 ipcMainDrive.on('FILE_DELETED', () => {
-  setTrayStatus('STANDBY');
+  setTrayStatus('IDLE');
 });
 
 ipcMainDrive.on('FILE_DOWNLOADING', () => {
@@ -29,11 +29,11 @@ ipcMainDrive.on('FILE_DOWNLOADING', () => {
 });
 
 ipcMainDrive.on('FILE_MOVED', () => {
-  setTrayStatus('STANDBY');
+  setTrayStatus('IDLE');
 });
 
 ipcMainDrive.on('FILE_OVERWRITED', () => {
-  setTrayStatus('STANDBY');
+  setTrayStatus('IDLE');
 });
 
 ipcMainDrive.on('FILE_RENAMING', () => {
@@ -45,7 +45,7 @@ ipcMainDrive.on('FILE_RENAMED', () => {
 });
 
 ipcMainDrive.on('FILE_CLONNED', () => {
-  setTrayStatus('STANDBY');
+  setTrayStatus('IDLE');
 });
 
 ipcMainDrive.on('FILE_UPLOADING', () => {
@@ -53,7 +53,7 @@ ipcMainDrive.on('FILE_UPLOADING', () => {
 });
 
 ipcMainDrive.on('FILE_UPLOADED', () => {
-  setTrayStatus('STANDBY');
+  setTrayStatus('IDLE');
 });
 
 ipcMainDrive.on('FILE_UPLOAD_ERROR', () => {
