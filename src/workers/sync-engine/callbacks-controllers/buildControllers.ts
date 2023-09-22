@@ -8,7 +8,9 @@ export function buildControllers(container: DependencyContainer) {
   const addFileController = new AddFileController(
     container.contentsUploader,
     container.filePathFromAbsolutePathCreator,
-    container.fileCreator
+    container.fileCreator,
+    container.fileDeleter,
+    container.fileByPartialSearcher
   );
 
   const renameOrMoveFileController = new RenameOrMoveController(
