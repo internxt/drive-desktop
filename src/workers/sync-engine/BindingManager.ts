@@ -20,7 +20,13 @@ export class BindingsManager {
     // In order to create a folder placeholder it's path must en with /
     const folderPath = `${folder.path.value}/`;
 
-    this.drive.createItemByPath(folderPath, folder.uuid);
+    this.drive.createItemByPath(
+      folderPath,
+      folder.uuid,
+      0,
+      item.createdAt.getTime(),
+      item.updatedAt.getTime()
+    );
   }
 
   public createPlaceHolders(items: Array<File | Folder>) {
@@ -29,7 +35,9 @@ export class BindingsManager {
         this.drive.createItemByPath(
           item.path.value,
           item.contentsId,
-          item.size
+          item.size,
+          item.createdAt.getTime(),
+          item.updatedAt.getTime()
         );
         return;
       }
