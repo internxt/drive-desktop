@@ -3,7 +3,7 @@ import { ServerFile } from '../../../../../filesystems/domain/ServerFile';
 import { ServerFolder } from '../../../../../filesystems/domain/ServerFolder';
 import { Traverser } from '../../../items/application/Traverser';
 
-const fakeDecryptor = {
+const fakeDecrypt = {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   decryptName: (name: string, _a: string, _b: string) => name,
 };
@@ -23,7 +23,7 @@ describe('Traverser', () => {
       ],
       folders: [],
     };
-    const SUT = new Traverser(fakeDecryptor, baseFolderId);
+    const SUT = new Traverser(fakeDecrypt, baseFolderId);
 
     const result = SUT.run(rawTree);
 
@@ -52,7 +52,7 @@ describe('Traverser', () => {
         } as ServerFolder,
       ],
     };
-    const SUT = new Traverser(fakeDecryptor, baseFolderId);
+    const SUT = new Traverser(fakeDecrypt, baseFolderId);
 
     const result = SUT.run(rawTree);
 
@@ -77,7 +77,7 @@ describe('Traverser', () => {
         } as ServerFolder,
       ],
     };
-    const SUT = new Traverser(fakeDecryptor, baseFolderId);
+    const SUT = new Traverser(fakeDecrypt, baseFolderId);
 
     const result = SUT.run(rawTree);
 
@@ -105,7 +105,7 @@ describe('Traverser', () => {
         } as ServerFolder,
       ],
     };
-    const SUT = new Traverser(fakeDecryptor, baseFolderId);
+    const SUT = new Traverser(fakeDecrypt, baseFolderId);
 
     const result = SUT.run(rawTree);
 
@@ -137,7 +137,7 @@ describe('Traverser', () => {
         } as ServerFolder,
       ],
     };
-    const SUT = new Traverser(fakeDecryptor, baseFolderId);
+    const SUT = new Traverser(fakeDecrypt, baseFolderId);
 
     const result = SUT.run(rawTree);
 
@@ -146,5 +146,62 @@ describe('Traverser', () => {
       '/folder A/folder B',
       '/',
     ]);
+  });
+
+  it('when a file data is invalid ignore it and continue', () => {
+    const baseFolderId = 6;
+    const rawTree = {
+      files: [
+        {
+          name: 'invalid file',
+          fileId: 'Some response',
+          folderId: baseFolderId,
+          size: 67,
+          status: 'EXISTS',
+        } as ServerFile,
+        {
+          name: 'valid_name',
+          fileId: ContentsIdMother.raw(),
+          folderId: baseFolderId,
+          size: 67,
+          status: 'EXISTS',
+        } as ServerFile,
+        {
+          name: 'valid_name_2',
+          fileId: ContentsIdMother.raw(),
+          folderId: baseFolderId,
+          size: 67,
+          status: 'INVALID_STATUS',
+        } as unknown as ServerFile,
+      ],
+      folders: [],
+    };
+    const SUT = new Traverser(fakeDecrypt, baseFolderId);
+
+    const result = SUT.run(rawTree);
+
+    expect(Object.keys(result)).toStrictEqual(['/valid_name', '/']);
+  });
+
+  it('when a folder data is invalid ignore it and continue', () => {
+    const baseFolderId = 6;
+    const rawTree = {
+      files: [],
+      folders: [
+        {
+          id: 22491,
+          parentId: baseFolderId,
+          plain_name: 'folder A',
+          status: 'EXISTS',
+          uuid: 'fc790269-92ac-5990-b9e0-a08d6552bf0b',
+        } as ServerFolder,
+        {} as ServerFolder,
+      ],
+    };
+    const SUT = new Traverser(fakeDecrypt, baseFolderId);
+
+    const result = SUT.run(rawTree);
+
+    expect(Object.keys(result)).toStrictEqual(['/folder A', '/']);
   });
 });
