@@ -55,7 +55,7 @@ async function setUp() {
 
   await bindings.start(
     packageJson.version,
-    '{12345678-1234-1234-1234-123456789012}'
+    '{E9D7EB38-B229-5DC5-9396-017C449D59CD}'
   );
 
   const tree = await container.treeBuilder.run();
