@@ -49,8 +49,8 @@ export class AddFileController extends CallbackController {
 
       return callback(true, newFile.contentsId);
     } catch (error: unknown) {
-      callback(false, '');
       Logger.error('Error when adding a file: ', error);
+      callback(false, '');
     }
   }
 }
