@@ -4,6 +4,8 @@ import { ContentFileDownloader } from '../domain/contentHandlers/ContentFileDown
 import { File } from '../../files/domain/File';
 import { LocalFileContents } from '../domain/LocalFileContents';
 import { LocalFileWriter } from '../domain/LocalFileWriter';
+import { Stopwatch } from 'shared/types/Stopwatch';
+import Logger from 'electron-log';
 
 export class ContentsDownloader {
   constructor(
@@ -58,8 +60,12 @@ export class ContentsDownloader {
 
     this.registerEvents(downloader, file);
 
-    const readable = await downloader.download(file);
+    const stopwatch = new Stopwatch();
 
+    Logger.debug('Start download');
+    stopwatch.start();
+    const readable = await downloader.download(file);
+    Logger.debug('Download finished with: ', stopwatch.elapsedTime());
     const localContents = LocalFileContents.from({
       name: file.name,
       extension: file.type,
@@ -68,7 +74,12 @@ export class ContentsDownloader {
       modifiedTime: file.updatedAt.getUTCMilliseconds(),
       contents: readable,
     });
+    Logger.debug('Start write ');
+    stopwatch.reset();
+    stopwatch.start();
+    const write = await this.localWriter.write(localContents);
+    Logger.debug('End write with', stopwatch.elapsedTime);
 
-    return await this.localWriter.write(localContents);
+    return write;
   }
 }

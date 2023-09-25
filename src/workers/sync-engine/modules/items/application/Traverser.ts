@@ -12,6 +12,20 @@ import { File } from '../../files/domain/File';
 import { FolderStatus } from '../../folders/domain/FolderStatus';
 import { Folder } from '../../folders/domain/Folder';
 import { ItemsIndexedByPath } from '../domain/ItemsIndexedByPath';
+import { EitherTransformer } from '../../shared/application/EitherTransformer';
+
+function fileFromServerFile(relativePath: string, server: ServerFile): File {
+  return File.from({
+    folderId: server.folderId,
+    contentsId: server.fileId,
+    modificationTime: server.modificationTime,
+    size: server.size,
+    createdAt: server.createdAt,
+    updatedAt: server.updatedAt,
+    path: relativePath,
+    status: server.status,
+  });
+}
 
 export class Traverser {
   private readonly collection: ItemsIndexedByPath = {};
@@ -24,7 +38,7 @@ export class Traverser {
   } | null = null;
 
   constructor(
-    private readonly decryptor: {
+    private readonly decrypt: {
       decryptName: (
         name: string,
         folderId: string,
@@ -47,7 +61,7 @@ export class Traverser {
 
     filesInThisFolder
       .map((file) => ({
-        name: `${currentName}/${this.decryptor.decryptName(
+        name: `${currentName}/${this.decrypt.decryptName(
           file.name,
           file.folderId.toString(),
           file.encrypt_version
@@ -67,24 +81,28 @@ export class Traverser {
         return true;
       })
       .forEach(({ file, name }) => {
-        if (file.status === ServerFileStatus.EXISTS) {
-          this.collection[name] = File.from({
-            folderId: file.folderId,
-            contentsId: file.fileId,
-            modificationTime: file.modificationTime,
-            size: file.size,
-            createdAt: file.createdAt,
-            updatedAt: file.updatedAt,
-            path: name,
-            status: file.status,
-          });
+        if (file.status !== ServerFileStatus.EXISTS) {
+          return;
         }
+        EitherTransformer.handleWithEither(() =>
+          fileFromServerFile(name, file)
+        ).fold(
+          (error) => {
+            Logger.warn(
+              `[Traverser] File with path ${name} could not be created: `,
+              error
+            );
+          },
+          (file) => {
+            this.collection[name] = file;
+          }
+        );
       });
 
     foldersInThisFolder.forEach((folder: ServerFolder) => {
       const plainName =
         folder.plain_name ||
-        this.decryptor.decryptName(
+        this.decrypt.decryptName(
           folder.name,
           (folder.parentId as number).toString(),
           '03-aes'
