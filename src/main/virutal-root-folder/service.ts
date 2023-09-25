@@ -8,6 +8,8 @@ import eventBus from '../event-bus';
 const ROOT_FOLDER_NAME = 'InternxtDrive';
 const HOME_FOLDER_PATH = app.getPath('home');
 
+const VIRTUAL_DRIVE_FOLDER = path.join(HOME_FOLDER_PATH, ROOT_FOLDER_NAME);
+
 async function existsFolder(pathname: string): Promise<boolean> {
   try {
     await fs.access(pathname);
@@ -33,11 +35,16 @@ function setSyncRoot(pathname: string): void {
 }
 
 export function getRootVirtualDrive(): string {
+  const current = configStore.get('syncRoot');
+  if (current !== VIRTUAL_DRIVE_FOLDER) {
+    setupRootFolder();
+  }
+
   return configStore.get('syncRoot');
 }
 
 export async function setupRootFolder(n = 0): Promise<void> {
-  setSyncRoot(path.join(HOME_FOLDER_PATH, ROOT_FOLDER_NAME));
+  setSyncRoot(VIRTUAL_DRIVE_FOLDER);
   return;
   const folderName = ROOT_FOLDER_NAME;
 
