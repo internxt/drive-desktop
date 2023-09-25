@@ -2,8 +2,10 @@ import Logger from 'electron-log';
 import { FileCreator } from '../../modules/files/application/FileCreator';
 import { FilePathFromAbsolutePathCreator } from '../../modules/files/application/FilePathFromAbsolutePathCreator';
 import { CallbackController } from './CallbackController';
-import { RetryContentsUploader } from 'workers/sync-engine/modules/contents/application/RetryContentsUploader';
-import { File } from '../../modules/files/domain/File';
+import { RetryContentsUploader } from '../../modules/contents/application/RetryContentsUploader';
+import { FileDeleter } from '../../modules/files/application/FileDeleter';
+import { FileByPartialSearcher } from '../../modules/files/application/FileByPartialSearcher';
+import { PlatformPathConverter } from '../../modules/shared/test/helpers/PlatformPathConverter';
 
 export type DehydrateAndCreatePlaceholder = (
   id: string,
@@ -15,31 +17,40 @@ export class AddFileController extends CallbackController {
   constructor(
     private readonly contentsUploader: RetryContentsUploader,
     private readonly filePathFromAbsolutePathCreator: FilePathFromAbsolutePathCreator,
-    private readonly fileCreator: FileCreator
+    private readonly fileCreator: FileCreator,
+    private readonly fileDeleter: FileDeleter,
+    private readonly searchByPartial: FileByPartialSearcher
   ) {
     super();
   }
 
-  private async runAsync(absolutePath: string) {
-    const fileContents = await this.contentsUploader.run(absolutePath);
-
-    const path = this.filePathFromAbsolutePathCreator.run(absolutePath);
-
-    return this.fileCreator.run(path, fileContents);
-  }
-
-  execute(
+  async execute(
     absolutePath: string,
     callback: (acknowledge: boolean, id: string) => void
-  ) {
-    this.runAsync(absolutePath)
-      .then((file: File) => {
-        Logger.info('File added successfully');
-        callback(true, file.contentsId);
-      })
-      .catch((err) => {
-        callback(false, '');
-        Logger.error('Error when adding a file: ', err);
+  ): Promise<void> {
+    try {
+      const path = this.filePathFromAbsolutePathCreator.run(absolutePath);
+      const file = this.searchByPartial.run({
+        path: PlatformPathConverter.winToPosix(path.value),
       });
+
+      const fileContents = await this.contentsUploader.run(absolutePath);
+
+      if (file) {
+        Logger.info('File already exists, deleting previous one');
+        await this.fileDeleter.run(file.contentsId);
+        Logger.info('Previous file deleted');
+      }
+
+      Logger.info('Creating new file');
+
+      const newFile = await this.fileCreator.run(path, fileContents);
+      Logger.info('File added successfully');
+
+      return callback(true, newFile.contentsId);
+    } catch (error: unknown) {
+      Logger.error('Error when adding a file: ', error);
+      callback(false, '');
+    }
   }
 }

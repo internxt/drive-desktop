@@ -1,6 +1,6 @@
 import { Nullable } from 'shared/types/Nullable';
 import { FilePath } from '../../domain/FilePath';
-import { File } from '../../domain/File';
+import { File, FileAttributes } from '../../domain/File';
 import { FileRepository } from '../../domain/FileRepository';
 
 export class FileRepositoryMock implements FileRepository {
@@ -16,7 +16,7 @@ export class FileRepositoryMock implements FileRepository {
     return this.mockSearch(pathLike);
   }
 
-  searchByPartial(partial: Partial<File>): Nullable<File> {
+  searchByPartial(partial: Partial<FileAttributes>): Nullable<File> {
     return this.mockSearchByCriteria(partial);
   }
 

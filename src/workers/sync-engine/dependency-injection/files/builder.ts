@@ -1,13 +1,14 @@
-import { FileFinderByContentsId } from '../../modules/files/application/FileFinderByContentsId';
-import { FilesContainer } from './FilesContainer';
-import { HttpFileRepository } from '../../modules/files/infrastructure/HttpFileRepository';
 import crypt from '../../../utils/crypt';
-import { DependencyInjectionHttpClientsProvider } from '../common/clients';
-import { DependencyInjectionUserProvider } from '../common/user';
 import { ipcRendererSyncEngine } from '../../ipcRendererSyncEngine';
-import { DependencyInjectionTraverserProvider } from '../common/traverser';
-import { LocalRepositoryRepositoryRefresher } from '../../modules/files/application/LocalRepositoryRepositoryRefresher';
+import { FileByPartialSearcher } from '../../modules/files/application/FileByPartialSearcher';
 import { FileDeleter } from '../../modules/files/application/FileDeleter';
+import { FileFinderByContentsId } from '../../modules/files/application/FileFinderByContentsId';
+import { LocalRepositoryRepositoryRefresher } from '../../modules/files/application/LocalRepositoryRepositoryRefresher';
+import { HttpFileRepository } from '../../modules/files/infrastructure/HttpFileRepository';
+import { DependencyInjectionHttpClientsProvider } from '../common/clients';
+import { DependencyInjectionTraverserProvider } from '../common/traverser';
+import { DependencyInjectionUserProvider } from '../common/user';
+import { FilesContainer } from './FilesContainer';
 
 export async function buildFilesContainer(): Promise<FilesContainer> {
   const clients = DependencyInjectionHttpClientsProvider.get();
@@ -38,10 +39,13 @@ export async function buildFilesContainer(): Promise<FilesContainer> {
     ipcRendererSyncEngine
   );
 
+  const fileByPartialSearcher = new FileByPartialSearcher(fileRepository);
+
   const container: FilesContainer = {
     fileFinderByContentsId,
     localRepositoryRefresher: localRepositoryRefresher,
     fileDeleter,
+    fileByPartialSearcher,
   };
 
   return container;

@@ -3,7 +3,7 @@ import { FileCreatedResponseDTO } from 'shared/HttpClient/responses/file-created
 import { Nullable } from 'shared/types/Nullable';
 import { ServerFile } from '../../../../filesystems/domain/ServerFile';
 import { ServerFolder } from '../../../../filesystems/domain/ServerFolder';
-import { File } from '../domain/File';
+import { File, FileAttributes } from '../domain/File';
 import { FileRepository } from '../domain/FileRepository';
 import * as uuid from 'uuid';
 import { Traverser } from '../../items/application/Traverser';
@@ -15,6 +15,7 @@ import { RemoteItemsGenerator } from '../../items/application/RemoteItemsGenerat
 import { FileStatuses } from '../domain/FileStatus';
 import { Crypt } from '../../shared/domain/Crypt';
 import { SyncEngineIpc } from '../../../ipcRendererSyncEngine';
+import Logger from 'electron-log';
 
 export class HttpFileRepository implements FileRepository {
   public files: Record<string, File> = {};
@@ -70,11 +71,12 @@ export class HttpFileRepository implements FileRepository {
     return File.from(item.attributes());
   }
 
-  searchByPartial(partial: Partial<File>): Nullable<File> {
-    const keys = Object.keys(partial) as Array<keyof Partial<File>>;
+  searchByPartial(partial: Partial<FileAttributes>): Nullable<File> {
+    const keys = Object.keys(partial) as Array<keyof Partial<FileAttributes>>;
 
     const file = Object.values(this.files).find((file) => {
-      return keys.every((key) => file[key] === partial[key]);
+      Logger.debug(file.attributes()[keys[0]], partial[keys[0]]);
+      return keys.every((key) => file.attributes()[key] === partial[key]);
     });
 
     if (file) {

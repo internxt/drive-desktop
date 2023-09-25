@@ -10,4 +10,8 @@ export class PlatformPathConverter {
 
     return anyPlatformPath.split(fromPlatform.sep).join(toPlatform.sep);
   }
+
+  static winToPosix(win: string): string {
+    return win.split(path.win32.sep).join(path.posix.sep);
+  }
 }
