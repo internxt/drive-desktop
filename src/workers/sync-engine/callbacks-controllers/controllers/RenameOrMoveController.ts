@@ -2,12 +2,13 @@ import { FileDeleter } from 'workers/sync-engine/modules/files/application/FileD
 import { FilePathFromAbsolutePathCreator } from '../../modules/files/application/FilePathFromAbsolutePathCreator';
 import { FilePathUpdater } from '../../modules/files/application/FilePathUpdater';
 import { CallbackController } from './CallbackController';
+import { DeleteController } from './DeleteController';
 
 export class RenameOrMoveController extends CallbackController {
   constructor(
     private readonly filePathFromAbsolutePathCreator: FilePathFromAbsolutePathCreator,
     private readonly filePathUpdater: FilePathUpdater,
-    private readonly fileDeleter: FileDeleter
+    private readonly deleteController: DeleteController
   ) {
     super();
   }
@@ -21,7 +22,7 @@ export class RenameOrMoveController extends CallbackController {
 
     try {
       if (absolutePath.startsWith('\\$Recycle.Bin')) {
-        await this.fileDeleter.run(trimmedId);
+        await this.deleteController.execute(trimmedId);
         callback(true);
         return;
       }

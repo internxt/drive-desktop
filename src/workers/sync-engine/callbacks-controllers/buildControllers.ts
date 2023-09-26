@@ -15,15 +15,15 @@ export function buildControllers(container: DependencyContainer) {
     container.folderFinder
   );
 
-  const renameOrMoveFileController = new RenameOrMoveController(
-    container.filePathFromAbsolutePathCreator,
-    container.filePathUpdater,
-    container.fileDeleter
-  );
-
   const deleteController = new DeleteController(
     container.fileDeleter,
     container.folderDeleter
+  );
+
+  const renameOrMoveFileController = new RenameOrMoveController(
+    container.filePathFromAbsolutePathCreator,
+    container.filePathUpdater,
+    deleteController
   );
 
   const downloadFileController = new DownloadFileController(
