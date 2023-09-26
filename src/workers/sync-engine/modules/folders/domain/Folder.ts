@@ -135,6 +135,7 @@ export class Folder extends AggregateRoot {
 
   trash() {
     this._status = this._status.changeTo(FolderStatuses.TRASHED);
+    this.updatedAt = new Date();
 
     // TODO: recored trashed event
   }
