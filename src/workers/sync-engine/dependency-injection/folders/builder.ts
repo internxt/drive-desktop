@@ -7,6 +7,8 @@ import { ipcRendererSyncEngine } from '../../ipcRendererSyncEngine';
 import { FolderFinder } from 'workers/sync-engine/modules/folders/application/FolderFinder';
 import { FolderPathFromAbsolutePathCreator } from 'workers/sync-engine/modules/folders/application/FolderPathFromAbsolutePathCreator';
 import { DependencyInjectionLocalRootFolderPath } from '../common/localRootFolderPath';
+import { FolderSearcher } from 'workers/sync-engine/modules/folders/application/FolderSearcher';
+import { WebdavFolderDeleter } from 'workers/sync-engine/modules/folders/application/WebdavFolderDeleter';
 
 export async function buildFoldersContainer(): Promise<FoldersContainer> {
   const clients = DependencyInjectionHttpClientsProvider.get();
@@ -26,6 +28,10 @@ export async function buildFoldersContainer(): Promise<FoldersContainer> {
 
   const folderFinder = new FolderFinder(repository);
 
+  const folderSearcher = new FolderSearcher(repository);
+
+  const folderDeleter = new WebdavFolderDeleter(repository);
+
   const folderCreator = new FolderCreator(
     folderPathFromAbsolutePathCreator,
     repository,
@@ -37,5 +43,7 @@ export async function buildFoldersContainer(): Promise<FoldersContainer> {
     folderCreator,
     folderFinder,
     folderPathFromAbsolutePathCreator,
+    folderSearcher,
+    folderDeleter,
   };
 }

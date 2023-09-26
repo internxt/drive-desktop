@@ -9,10 +9,6 @@ import { FilePathFromAbsolutePathCreator } from '../modules/files/application/Fi
 import { FileSearcher } from '../modules/files/application/FileSearcher';
 import { FilePathUpdater } from '../modules/files/application/FilePathUpdater';
 import { HttpFileRepository } from '../modules/files/infrastructure/HttpFileRepository';
-import { FolderSearcher } from '../modules/folders/application/FolderSearcher';
-import { WebdavFolderDeleter } from '../modules/folders/application/WebdavFolderDeleter';
-import { FolderFinder } from '../modules/folders/application/FolderFinder';
-import { HttpFolderRepository } from '../modules/folders/infrastructure/HttpFolderRepository';
 import { Traverser } from '../modules/items/application/Traverser';
 import { NodeJsEventBus } from '../modules/shared/infrastructure/DuplexEventBus';
 import { DependencyContainer } from './DependencyContainer';
@@ -63,15 +59,7 @@ export class DependencyContainerFactory {
       ipcRendererSyncEngine
     );
 
-    const folderRepository = new HttpFolderRepository(
-      clients.drive,
-      clients.newDrive,
-      traverser,
-      ipcRendererSyncEngine
-    );
-
     await fileRepository.init();
-    await folderRepository.init();
 
     const itemsContainer = buildItemsContainer();
     const contentsContainer = await buildContentsContainer();
@@ -80,31 +68,29 @@ export class DependencyContainerFactory {
 
     const eventBus = new NodeJsEventBus();
 
-    const folderFinder = new FolderFinder(folderRepository);
-
     const fileFinder = new FileFinderByContentsId(fileRepository);
 
     const filePathUpdater = new FilePathUpdater(
       fileRepository,
       fileFinder,
-      folderFinder
+      foldersContainer.folderFinder
     );
 
     const container = {
       drive: clients.drive,
       newDrive: clients.newDrive,
 
-      fileCreator: new FileCreator(fileRepository, folderFinder, eventBus),
+      fileCreator: new FileCreator(
+        fileRepository,
+        foldersContainer.folderFinder,
+        eventBus
+      ),
 
       filePathUpdater,
       fileSearcher: new FileSearcher(fileRepository),
       filePathFromAbsolutePathCreator: new FilePathFromAbsolutePathCreator(
         localRootFolderPath
       ),
-
-      folderSearcher: new FolderSearcher(folderRepository),
-
-      folderDeleter: new WebdavFolderDeleter(folderRepository),
 
       ...itemsContainer,
       ...contentsContainer,

@@ -14,7 +14,9 @@ export class FolderCreator {
   ) {}
 
   async run(absolutePath: string): Promise<Folder['id']> {
-    const folderPath = this.folderPathFromAbsolutePathCreator.run(absolutePath);
+    const folderPath = this.folderPathFromAbsolutePathCreator.run(
+      PlatformPathConverter.winToPosix(absolutePath)
+    );
     this.ipc.send('CREATING_FOLDER', {
       name: folderPath.name(),
     });

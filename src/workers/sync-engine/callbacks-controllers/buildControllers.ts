@@ -11,7 +11,8 @@ export function buildControllers(container: DependencyContainer) {
     container.fileCreator,
     container.fileDeleter,
     container.fileByPartialSearcher,
-    container.folderCreator
+    container.folderCreator,
+    container.folderFinder
   );
 
   const renameOrMoveFileController = new RenameOrMoveController(

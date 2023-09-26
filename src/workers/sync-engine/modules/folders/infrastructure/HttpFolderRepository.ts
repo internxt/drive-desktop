@@ -43,13 +43,18 @@ export class HttpFolderRepository implements FolderRepository {
     ) as Array<[string, Folder]>;
 
     this.folders = folders.reduce((items, [key, value]) => {
-      items[key] = value;
+      if (items[key] === undefined) {
+        items[key] = value;
+      } else if (value.updatedAt > items[key].updatedAt) {
+        items[key] = value;
+      }
 
       return items;
-    }, {} as Record<string, Folder>);
+    }, this.folders);
   }
 
   search(path: string): Nullable<Folder> {
+    Logger.debug(Object.keys(this.folders));
     return this.folders[path];
   }
 
@@ -69,13 +74,13 @@ export class HttpFolderRepository implements FolderRepository {
     );
 
     if (response.status !== 201) {
-      throw new Error('Folder creation failded');
+      throw new Error('Folder creation failed');
     }
 
     const serverFolder = response.data as ServerFolder | null;
 
     if (!serverFolder) {
-      throw new Error('Folder creation failded, no data returned');
+      throw new Error('Folder creation failed, no data returned');
     }
 
     const folder = Folder.create({
@@ -87,6 +92,10 @@ export class HttpFolderRepository implements FolderRepository {
       path: path.value,
       status: FolderStatuses.EXISTS,
     });
+
+    const p = folder.path.value.replace('\\', '/');
+
+    this.folders[p] = folder;
 
     return folder;
   }

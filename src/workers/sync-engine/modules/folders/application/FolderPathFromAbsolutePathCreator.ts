@@ -13,10 +13,10 @@ export class FolderPathFromAbsolutePathCreator {
   }
 
   run(absolutePath: string): FolderPath {
-    const relative = this.calculateRelativePath(this.baseFolder, absolutePath);
+    const sanitized = absolutePath.replace('\\\\', '\\');
+    const relative = this.calculateRelativePath(this.baseFolder, sanitized);
 
     const withSlash = path.sep + relative;
-
     return new FolderPath(withSlash);
   }
 }

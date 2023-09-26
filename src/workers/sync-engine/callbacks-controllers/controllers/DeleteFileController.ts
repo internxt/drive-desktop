@@ -9,6 +9,8 @@ export class DeleteFileController extends CallbackController {
   async execute(contentsId: string) {
     const trimmedId = this.trim(contentsId);
 
+    if()
+
     await this.deleter.run(trimmedId);
   }
 }
