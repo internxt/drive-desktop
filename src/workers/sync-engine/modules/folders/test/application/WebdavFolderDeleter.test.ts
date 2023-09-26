@@ -1,15 +1,15 @@
-import { WebdavFolderDeleter } from '../../application/WebdavFolderDeleter';
+import { FolderDeleter } from '../../application/FolderDeleter';
 import { FolderStatus } from '../../domain/FolderStatus';
 import { FolderMother } from '../domain/FolderMother';
 import { FolderRepositoryMock } from '../__mocks__/FolderRepositoryMock';
 
 describe('Folder deleter', () => {
   let repository: FolderRepositoryMock;
-  let SUT: WebdavFolderDeleter;
+  let SUT: FolderDeleter;
 
   beforeEach(() => {
     repository = new FolderRepositoryMock();
-    SUT = new WebdavFolderDeleter(repository);
+    SUT = new FolderDeleter(repository);
   });
 
   it('trashes an existing folder', () => {

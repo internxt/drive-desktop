@@ -13,7 +13,7 @@ export class FolderCreator {
     private readonly ipc: SyncEngineIpc
   ) {}
 
-  async run(absolutePath: string): Promise<Folder['id']> {
+  async run(absolutePath: string): Promise<Folder> {
     const folderPath = this.folderPathFromAbsolutePathCreator.run(
       PlatformPathConverter.winToPosix(absolutePath)
     );
@@ -31,6 +31,6 @@ export class FolderCreator {
       name: folderPath.name(),
     });
 
-    return folder.id;
+    return folder;
   }
 }

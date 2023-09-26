@@ -1,16 +1,5 @@
 import { getUser } from 'main/auth/service';
-import configStore from 'main/config';
 import { getClients } from '../../../shared/HttpClient/backgroud-process-clients';
-import crypt from '../../utils/crypt';
-import { ipcRendererSyncEngine } from '../ipcRendererSyncEngine';
-import { FileCreator } from '../modules/files/application/FileCreator';
-import { FileFinderByContentsId } from '../modules/files/application/FileFinderByContentsId';
-import { FilePathFromAbsolutePathCreator } from '../modules/files/application/FilePathFromAbsolutePathCreator';
-import { FileSearcher } from '../modules/files/application/FileSearcher';
-import { FilePathUpdater } from '../modules/files/application/FilePathUpdater';
-import { HttpFileRepository } from '../modules/files/infrastructure/HttpFileRepository';
-import { Traverser } from '../modules/items/application/Traverser';
-import { NodeJsEventBus } from '../modules/shared/infrastructure/DuplexEventBus';
 import { DependencyContainer } from './DependencyContainer';
 import { buildContentsContainer } from './contents/builder';
 import { buildItemsContainer } from './items/builder';
@@ -46,51 +35,14 @@ export class DependencyContainerFactory {
 
     const clients = getClients();
 
-    const localRootFolderPath = configStore.get('syncRoot');
-
-    const traverser = new Traverser(crypt, user.root_folder_id);
-
-    const fileRepository = new HttpFileRepository(
-      crypt,
-      clients.drive,
-      clients.newDrive,
-      traverser,
-      user.bucket,
-      ipcRendererSyncEngine
-    );
-
-    await fileRepository.init();
-
     const itemsContainer = buildItemsContainer();
     const contentsContainer = await buildContentsContainer();
-    const filesContainer = await buildFilesContainer();
     const foldersContainer = await buildFoldersContainer();
-
-    const eventBus = new NodeJsEventBus();
-
-    const fileFinder = new FileFinderByContentsId(fileRepository);
-
-    const filePathUpdater = new FilePathUpdater(
-      fileRepository,
-      fileFinder,
-      foldersContainer.folderFinder
-    );
+    const filesContainer = await buildFilesContainer(foldersContainer);
 
     const container = {
       drive: clients.drive,
       newDrive: clients.newDrive,
-
-      fileCreator: new FileCreator(
-        fileRepository,
-        foldersContainer.folderFinder,
-        eventBus
-      ),
-
-      filePathUpdater,
-      fileSearcher: new FileSearcher(fileRepository),
-      filePathFromAbsolutePathCreator: new FilePathFromAbsolutePathCreator(
-        localRootFolderPath
-      ),
 
       ...itemsContainer,
       ...contentsContainer,

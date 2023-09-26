@@ -74,8 +74,8 @@ export class AddFileController extends CallbackController {
   ) => {
     Logger.info('Creating folder', absolutePath);
     try {
-      const id = await this.folderCreator.run(absolutePath);
-      callback(true, id.toString());
+      const folder = await this.folderCreator.run(absolutePath);
+      callback(true, folder.uuid);
     } catch (error: unknown) {
       Logger.error('Error creating a folder: ', error);
       callback(false, '');

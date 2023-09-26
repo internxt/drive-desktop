@@ -48,9 +48,11 @@ export class BindingsManager {
         this.controllers.deleteFile
           .execute(contentsId)
           .then(() => {
+            Logger.debug('DELETE RESPONSE SUCCESSFUL');
             callback(true);
           })
           .catch((error: Error) => {
+            Logger.debug('DELETE RESPONSE NOT SUCCESSFUL');
             Logger.error(error);
             callback(false);
           });

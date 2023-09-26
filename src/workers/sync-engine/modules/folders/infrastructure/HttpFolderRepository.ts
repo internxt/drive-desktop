@@ -4,7 +4,7 @@ import { ServerFile } from '../../../../filesystems/domain/ServerFile';
 import { ServerFolder } from '../../../../filesystems/domain/ServerFolder';
 import { Traverser } from '../../items/application/Traverser';
 import { FolderPath } from '../domain/FolderPath';
-import { Folder } from '../domain/Folder';
+import { Folder, FolderAttributes } from '../domain/Folder';
 import { FolderRepository } from '../domain/FolderRepository';
 import Logger from 'electron-log';
 import * as uuid from 'uuid';
@@ -56,6 +56,21 @@ export class HttpFolderRepository implements FolderRepository {
   search(path: string): Nullable<Folder> {
     Logger.debug(Object.keys(this.folders));
     return this.folders[path];
+  }
+
+  searchByPartial(partial: Partial<FolderAttributes>): Nullable<Folder> {
+    const keys = Object.keys(partial) as Array<keyof Partial<FolderAttributes>>;
+
+    const folder = Object.values(this.folders).find((folder) => {
+      // Logger.debug(folder.attributes()[keys[0]], partial[keys[0]]);
+      return keys.every((key) => folder.attributes()[key] === partial[key]);
+    });
+
+    if (folder) {
+      return Folder.from(folder.attributes());
+    }
+
+    return undefined;
   }
 
   async create(path: FolderPath, parentId: number): Promise<Folder> {

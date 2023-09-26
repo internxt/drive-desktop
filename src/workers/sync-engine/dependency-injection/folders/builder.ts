@@ -8,7 +8,7 @@ import { FolderFinder } from 'workers/sync-engine/modules/folders/application/Fo
 import { FolderPathFromAbsolutePathCreator } from 'workers/sync-engine/modules/folders/application/FolderPathFromAbsolutePathCreator';
 import { DependencyInjectionLocalRootFolderPath } from '../common/localRootFolderPath';
 import { FolderSearcher } from 'workers/sync-engine/modules/folders/application/FolderSearcher';
-import { WebdavFolderDeleter } from 'workers/sync-engine/modules/folders/application/WebdavFolderDeleter';
+import { FolderDeleter } from 'workers/sync-engine/modules/folders/application/FolderDeleter';
 
 export async function buildFoldersContainer(): Promise<FoldersContainer> {
   const clients = DependencyInjectionHttpClientsProvider.get();
@@ -30,7 +30,7 @@ export async function buildFoldersContainer(): Promise<FoldersContainer> {
 
   const folderSearcher = new FolderSearcher(repository);
 
-  const folderDeleter = new WebdavFolderDeleter(repository);
+  const folderDeleter = new FolderDeleter(repository);
 
   const folderCreator = new FolderCreator(
     folderPathFromAbsolutePathCreator,

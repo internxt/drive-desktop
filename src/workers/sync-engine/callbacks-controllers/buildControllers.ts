@@ -21,7 +21,10 @@ export function buildControllers(container: DependencyContainer) {
     container.fileDeleter
   );
 
-  const deleteFileController = new DeleteFileController(container.fileDeleter);
+  const deleteFileController = new DeleteFileController(
+    container.fileDeleter,
+    container.folderDeleter
+  );
 
   const downloadFileController = new DownloadFileController(
     container.fileFinderByContentsId,
