@@ -6,6 +6,8 @@ import { RetryContentsUploader } from '../../modules/contents/application/RetryC
 import { FileDeleter } from '../../modules/files/application/FileDeleter';
 import { FileByPartialSearcher } from '../../modules/files/application/FileByPartialSearcher';
 import { PlatformPathConverter } from '../../modules/shared/test/helpers/PlatformPathConverter';
+import { rawPathIsFolder } from '../helpers/rawPathIsFolder';
+import { FolderCreator } from '../../modules/folders/application/FolderCreator';
 
 export type DehydrateAndCreatePlaceholder = (
   id: string,
@@ -19,7 +21,8 @@ export class AddFileController extends CallbackController {
     private readonly filePathFromAbsolutePathCreator: FilePathFromAbsolutePathCreator,
     private readonly fileCreator: FileCreator,
     private readonly fileDeleter: FileDeleter,
-    private readonly searchByPartial: FileByPartialSearcher
+    private readonly searchByPartial: FileByPartialSearcher,
+    private readonly folderCreator: FolderCreator
   ) {
     super();
   }
@@ -28,6 +31,17 @@ export class AddFileController extends CallbackController {
     absolutePath: string,
     callback: (acknowledge: boolean, id: string) => void
   ): Promise<void> {
+    if (rawPathIsFolder(absolutePath)) {
+      Logger.info('Crating folder', absolutePath);
+      try {
+        const id = await this.folderCreator.run(absolutePath);
+        return callback(true, id.toString());
+      } catch (error: unknown) {
+        Logger.error('Error creating a folder: ', error);
+        return callback(false, '');
+      }
+    }
+
     try {
       const path = this.filePathFromAbsolutePathCreator.run(absolutePath);
       const file = this.searchByPartial.run({

@@ -2,13 +2,13 @@ import { ActionNotPermitedError } from '../domain/errors/ActionNotPermitedError'
 import { FolderPath } from '../domain/FolderPath';
 import { Folder } from '../domain/Folder';
 import { FolderRepository } from '../domain/FolderRepository';
-import { WebdavFolderFinder } from './WebdavFolderFinder';
+import { FolderFinder } from './FolderFinder';
 import { WebdavFolderRenamer } from './WebdavFolderRenamer';
 
 export class WebdavFolderMover {
   constructor(
     private readonly repository: FolderRepository,
-    private readonly folderFinder: WebdavFolderFinder,
+    private readonly folderFinder: FolderFinder,
     private readonly folderRenamer: WebdavFolderRenamer
   ) {}
 

@@ -7,11 +7,13 @@ import { ItemsContainer } from './items/ItemsContainer';
 import { ContentsContainer } from './contents/ContentsContainer';
 import { FileCreator } from '../modules/files/application/FileCreator';
 import { FilesContainer } from './files/FilesContainer';
+import { FoldersContainer } from './folders/FoldersContainer';
 
 export interface DependencyContainer
   extends ItemsContainer,
     ContentsContainer,
-    FilesContainer {
+    FilesContainer,
+    FoldersContainer {
   fileCreator: FileCreator;
   filePathUpdater: FilePathUpdater;
   fileSearcher: FileSearcher;

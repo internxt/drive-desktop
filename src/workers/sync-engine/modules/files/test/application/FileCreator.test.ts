@@ -1,6 +1,6 @@
 import { FolderMother } from '../../../folders/test/domain/FolderMother';
 import { FolderRepositoryMock } from '../../../folders/test/__mocks__/FolderRepositoryMock';
-import { WebdavFolderFinder } from '../../../folders/application/WebdavFolderFinder';
+import { FolderFinder } from '../../../folders/application/FolderFinder';
 import { FileCreator } from '../../application/FileCreator';
 import { FileRepositoryMock } from '../__mocks__/FileRepositoryMock';
 import { EventBusMock } from '../../../shared/test/__mock__/EventBusMock';
@@ -17,7 +17,7 @@ describe('File Creator', () => {
   beforeEach(() => {
     fileReposiotry = new FileRepositoryMock();
     folderRepository = new FolderRepositoryMock();
-    const folderFinder = new WebdavFolderFinder(folderRepository);
+    const folderFinder = new FolderFinder(folderRepository);
     eventBus = new EventBusMock();
 
     SUT = new FileCreator(fileReposiotry, folderFinder, eventBus);

@@ -11,7 +11,7 @@ import { FilePathUpdater } from '../modules/files/application/FilePathUpdater';
 import { HttpFileRepository } from '../modules/files/infrastructure/HttpFileRepository';
 import { FolderSearcher } from '../modules/folders/application/FolderSearcher';
 import { WebdavFolderDeleter } from '../modules/folders/application/WebdavFolderDeleter';
-import { WebdavFolderFinder } from '../modules/folders/application/WebdavFolderFinder';
+import { FolderFinder } from '../modules/folders/application/FolderFinder';
 import { HttpFolderRepository } from '../modules/folders/infrastructure/HttpFolderRepository';
 import { Traverser } from '../modules/items/application/Traverser';
 import { NodeJsEventBus } from '../modules/shared/infrastructure/DuplexEventBus';
@@ -19,6 +19,7 @@ import { DependencyContainer } from './DependencyContainer';
 import { buildContentsContainer } from './contents/builder';
 import { buildItemsContainer } from './items/builder';
 import { buildFilesContainer } from './files/builder';
+import { buildFoldersContainer } from './folders/builder';
 
 export class DependencyContainerFactory {
   private static _container: DependencyContainer | undefined;
@@ -75,10 +76,11 @@ export class DependencyContainerFactory {
     const itemsContainer = buildItemsContainer();
     const contentsContainer = await buildContentsContainer();
     const filesContainer = await buildFilesContainer();
+    const foldersContainer = await buildFoldersContainer();
 
     const eventBus = new NodeJsEventBus();
 
-    const folderFinder = new WebdavFolderFinder(folderRepository);
+    const folderFinder = new FolderFinder(folderRepository);
 
     const fileFinder = new FileFinderByContentsId(fileRepository);
 
@@ -101,13 +103,13 @@ export class DependencyContainerFactory {
       ),
 
       folderSearcher: new FolderSearcher(folderRepository),
-      folderFinder,
 
       folderDeleter: new WebdavFolderDeleter(folderRepository),
 
       ...itemsContainer,
       ...contentsContainer,
       ...filesContainer,
+      ...foldersContainer,
     };
 
     DependencyContainerFactory._container = container;

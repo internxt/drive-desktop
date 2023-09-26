@@ -1,4 +1,4 @@
-import { WebdavFolderFinder } from '../../folders/application/WebdavFolderFinder';
+import { FolderFinder } from '../../folders/application/FolderFinder';
 import { FilePath } from '../domain/FilePath';
 import { File } from '../domain/File';
 import { FileRepository } from '../domain/FileRepository';
@@ -9,7 +9,7 @@ import { RemoteFileContents } from '../../contents/domain/RemoteFileContents';
 export class FileCreator {
   constructor(
     private readonly repository: FileRepository,
-    private readonly folderFinder: WebdavFolderFinder,
+    private readonly folderFinder: FolderFinder,
     private readonly eventBus: WebdavServerEventBus
   ) {}
 

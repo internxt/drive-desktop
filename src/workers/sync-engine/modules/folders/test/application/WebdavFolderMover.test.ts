@@ -1,4 +1,4 @@
-import { WebdavFolderFinder } from '../../application/WebdavFolderFinder';
+import { FolderFinder } from '../../application/FolderFinder';
 import { WebdavFolderMover } from '../../application/WebdavFolderMover';
 import { WebdavFolderRenamer } from '../../application/WebdavFolderRenamer';
 import { FolderMother } from '../domain/FolderMother';
@@ -7,14 +7,14 @@ import { IpcRendererSyncEngineMock } from '../../../shared/test/__mock__/IpcRend
 
 describe('Folder Mover', () => {
   let repository: FolderRepositoryMock;
-  let folderFinder: WebdavFolderFinder;
+  let folderFinder: FolderFinder;
   let folderRenamer: WebdavFolderRenamer;
   let ipc: IpcRendererSyncEngineMock;
   let SUT: WebdavFolderMover;
 
   beforeEach(() => {
     repository = new FolderRepositoryMock();
-    folderFinder = new WebdavFolderFinder(repository);
+    folderFinder = new FolderFinder(repository);
     ipc = new IpcRendererSyncEngineMock();
     folderRenamer = new WebdavFolderRenamer(repository, ipc);
 
