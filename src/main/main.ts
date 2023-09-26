@@ -22,6 +22,7 @@ import './device/handlers';
 import './usage/handlers';
 import './realtime';
 import './tray/tray';
+import './tray/handlers';
 import './fordwardToWindows';
 import './analytics/handlers';
 import './platform/handlers';
