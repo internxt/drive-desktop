@@ -89,6 +89,15 @@ export async function stopSyncEngineWatcher() {
   }
 }
 
+export function updateSyncEngine() {
+  try {
+    worker?.webContents.send('UPDATE_SYNC_ENGINE_PROCESS');
+  } catch (err) {
+    // TODO: handle error
+    Logger.error(err);
+  }
+}
+
 eventBus.on('USER_LOGGED_OUT', stopSyncEngineWatcher);
 eventBus.on('USER_WAS_UNAUTHORIZED', stopSyncEngineWatcher);
 eventBus.on('INITIAL_SYNC_READY', spawnSyncEngineWorker);

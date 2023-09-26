@@ -139,4 +139,8 @@ export class BindingsManager {
   async stop() {
     await this.drive.disconnectSyncRoot();
   }
+
+  cleanUp() {
+    VirtualDrive.unregisterSyncRoot(this.paths.root);
+  }
 }

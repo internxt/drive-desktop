@@ -9,6 +9,7 @@ import { ipcMain } from 'electron';
 import { reportError } from '../bug-report/service';
 import { sleep } from '../util';
 import { broadcastToWindows } from '../windows';
+import { updateSyncEngine } from '../background-processes/sync-engine';
 
 let initialSyncReady = false;
 const driveFilesCollection = new DriveFilesCollection();
@@ -27,7 +28,7 @@ const remoteSyncManager = new RemoteSyncManager(
   }
 );
 
-export async function getUpdtaedRemoteItems() {
+export async function getUpdatedRemoteItems() {
   try {
     const [allDriveFiles, allDriveFolders] = await Promise.all([
       driveFilesCollection.getAll(),
@@ -54,7 +55,7 @@ export async function getUpdtaedRemoteItems() {
 
 ipcMain.handle('GET_UPDATED_REMOTE_ITEMS', async () => {
   Logger.debug('[MAIN] Getting updated remote items');
-  return getUpdtaedRemoteItems();
+  return getUpdatedRemoteItems();
 });
 
 export function startRemoteSync(): Promise<void> {
@@ -81,8 +82,11 @@ eventBus.on('RECEIVED_REMOTE_CHANGES', async () => {
   // that we received the notification, but if we check
   // for new data we don't receive it
   await sleep(500);
+  
   await remoteSyncManager.startRemoteSync();
+  updateSyncEngine();
 });
+
 eventBus.on('USER_LOGGED_IN', async () => {
   Logger.info('Received user logged in event');
 

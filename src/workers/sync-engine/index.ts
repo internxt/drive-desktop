@@ -53,6 +53,24 @@ async function setUp() {
     event.sender.send('SYNC_ENGINE_STOP_SUCCESS');
   });
 
+  ipcRenderer.on('UPDATE_SYNC_ENGINE_PROCESS', async () => {
+    Logger.info('[SYNC ENGINE] Updating sync engine');
+
+    await bindings.stop();
+    bindings.cleanUp();
+
+    await bindings.start(
+      packageJson.version,
+      '{E9D7EB38-B229-5DC5-9396-017C449D59CD}'
+    );
+
+    const tree = await container.treeBuilder.run();
+
+    bindings.createPlaceHolders(tree);
+
+    Logger.info('[SYNC ENGINE] sync engine updated successfully');
+  });
+
   await bindings.start(
     packageJson.version,
     '{E9D7EB38-B229-5DC5-9396-017C449D59CD}'
