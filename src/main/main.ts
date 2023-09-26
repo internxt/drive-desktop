@@ -20,7 +20,7 @@ import './background-processes/sync-engine';
 import './background-processes/process-issues';
 import './device/handlers';
 import './usage/handlers';
-// import './realtime';
+import './realtime';
 import './tray/tray';
 import './fordwardToWindows';
 import './analytics/handlers';
