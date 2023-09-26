@@ -87,7 +87,7 @@ export type FilesEvents = {
     error: string;
   }) => void;
 
-  RENAMING_FILE: (payload: {
+  FILE_RENAMING: (payload: {
     nameWithExtension: string;
     oldName: string;
   }) => void;

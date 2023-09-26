@@ -85,7 +85,8 @@ export class DependencyContainerFactory {
     const filePathUpdater = new FilePathUpdater(
       fileRepository,
       fileFinder,
-      folderFinder
+      folderFinder,
+      ipcRendererSyncEngine,
     );
 
     const container = {
