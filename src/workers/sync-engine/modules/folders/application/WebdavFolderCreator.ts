@@ -12,7 +12,7 @@ export class WebdavFolderCreator {
 
   async run(path: string): Promise<void> {
     const folderPath = new FolderPath(path);
-    this.ipc.send('CREATING_FOLDER', {
+    this.ipc.send('FOLDER_CREATING', {
       name: folderPath.name(),
     });
 

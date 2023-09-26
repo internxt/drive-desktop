@@ -16,7 +16,7 @@ export class ContentsDownloader {
 
   private registerEvents(downloader: ContentFileDownloader, file: File) {
     downloader.on('start', () => {
-      this.ipc.send('DOWNLOADING_FILE', {
+      this.ipc.send('FILE_DOWNLOADING', {
         name: file.name,
         extension: file.type,
         nameWithExtension: file.nameWithExtension,
@@ -26,7 +26,7 @@ export class ContentsDownloader {
     });
 
     downloader.on('progress', (progress: number) => {
-      this.ipc.send('DOWNLOADING_FILE', {
+      this.ipc.send('FILE_DOWNLOADING', {
         name: file.name,
         extension: file.type,
         nameWithExtension: file.nameWithExtension,

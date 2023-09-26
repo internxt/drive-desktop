@@ -22,7 +22,7 @@ export class FileDeleter {
       return;
     }
 
-    this.ipc.send('DELETING_FILE', {
+    this.ipc.send('FILE_DELETING', {
       name: file.name,
       extension: file.type,
       nameWithExtension: file.nameWithExtension,
