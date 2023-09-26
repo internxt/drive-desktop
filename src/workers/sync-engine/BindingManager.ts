@@ -45,7 +45,7 @@ export class BindingsManager {
         contentsId: string,
         callback: (response: boolean) => void
       ) => {
-        this.controllers.deleteFile
+        this.controllers.delete
           .execute(contentsId)
           .then(() => {
             Logger.debug('DELETE RESPONSE SUCCESSFUL');

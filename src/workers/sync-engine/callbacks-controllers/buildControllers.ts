@@ -1,6 +1,6 @@
 import { DependencyContainer } from '../dependency-injection/DependencyContainer';
 import { AddFileController } from './controllers/AddFileController';
-import { DeleteFileController } from './controllers/DeleteFileController';
+import { DeleteController } from './controllers/DeleteController';
 import { DownloadFileController } from './controllers/DownloadFileController';
 import { RenameOrMoveController } from './controllers/RenameOrMoveController';
 
@@ -21,7 +21,7 @@ export function buildControllers(container: DependencyContainer) {
     container.fileDeleter
   );
 
-  const deleteFileController = new DeleteFileController(
+  const deleteController = new DeleteController(
     container.fileDeleter,
     container.folderDeleter
   );
@@ -35,7 +35,7 @@ export function buildControllers(container: DependencyContainer) {
   return {
     addFile: addFileController,
     renameOrMoveFile: renameOrMoveFileController,
-    deleteFile: deleteFileController,
+    delete: deleteController,
     downloadFile: downloadFileController,
   } as const;
 }

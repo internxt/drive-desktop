@@ -3,7 +3,7 @@ import { FileDeleter } from '../../modules/files/application/FileDeleter';
 import { CallbackController } from './CallbackController';
 import Logger from 'electron-log';
 
-export class DeleteFileController extends CallbackController {
+export class DeleteController extends CallbackController {
   constructor(
     private readonly fileDeleter: FileDeleter,
     private readonly folderDeleter: FolderDeleter
