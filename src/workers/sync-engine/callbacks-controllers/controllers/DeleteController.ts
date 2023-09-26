@@ -6,6 +6,7 @@ import { DelayQueue } from 'workers/sync-engine/modules/shared/domain/DelayQueue
 
 export class DeleteController extends CallbackController {
   private readonly filesQueue: DelayQueue;
+  private readonly foldersQueue: Map<string, void>;
 
   constructor(
     private readonly fileDeleter: FileDeleter,
@@ -13,13 +14,19 @@ export class DeleteController extends CallbackController {
   ) {
     super();
 
+    this.foldersQueue = new Map();
+
     const deleteAllFiles = async (files: Array<string>) => {
       Logger.debug('Deleting queued files');
       await Promise.all(files.map((f) => this.fileDeleter.run(f)));
       Logger.debug('Queued files deleted');
     };
 
-    this.filesQueue = new DelayQueue(deleteAllFiles);
+    const canDelete = () => {
+      return this.foldersQueue.size === 0;
+    };
+
+    this.filesQueue = new DelayQueue(deleteAllFiles, canDelete);
   }
 
   private async deleteFolder(uuid: string) {
@@ -36,7 +43,9 @@ export class DeleteController extends CallbackController {
       return;
     }
 
+    this.foldersQueue.set(trimmedId);
     await this.deleteFolder(trimmedId);
+    this.foldersQueue.delete(trimmedId);
     return;
   }
 }
