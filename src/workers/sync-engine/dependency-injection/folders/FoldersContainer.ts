@@ -1,3 +1,4 @@
+import { FolderPlaceholderCreator } from '../../modules/folders/infrastructure/FolderPlaceholderCreator';
 import { FolderCreator } from '../../modules/folders/application/FolderCreator';
 import { FolderDeleter } from '../../modules/folders/application/FolderDeleter';
 import { FolderFinder } from '../../modules/folders/application/FolderFinder';
@@ -12,4 +13,5 @@ export interface FoldersContainer {
   folderSearcher: FolderSearcher;
   folderDeleter: FolderDeleter;
   parentFoldersExistForDeletion: ParentFoldersExistForDeletion;
+  folderPlaceholderCreator: FolderPlaceholderCreator;
 }

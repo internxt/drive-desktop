@@ -1,13 +1,13 @@
 import { getUser } from 'main/auth/service';
 import { getClients } from '../../../shared/HttpClient/backgroud-process-clients';
+import { DomainEventSubscribers } from '../modules/shared/infrastructure/DomainEventSubscribers';
 import { DependencyContainer } from './DependencyContainer';
+import { DependencyInjectionEventBus } from './common/eventBus';
 import { buildContentsContainer } from './contents/builder';
-import { buildItemsContainer } from './items/builder';
 import { buildFilesContainer } from './files/builder';
 import { buildFoldersContainer } from './folders/builder';
-import { VirtualDrive } from 'virtual-drive/dist';
-import { DependencyInjectionEventBus } from './common/eventBus';
-import { DomainEventSubscribers } from '../modules/shared/infrastructure/DomainEventSubscribers';
+import { buildItemsContainer } from './items/builder';
+import { DependencyInjectionVirtualDrive } from './common/virtualDrive';
 
 export class DependencyContainerFactory {
   private static _container: DependencyContainer | undefined;
@@ -24,7 +24,7 @@ export class DependencyContainerFactory {
     return DependencyContainerFactory._container[key];
   }
 
-  async build(drive: VirtualDrive): Promise<DependencyContainer> {
+  async build(): Promise<DependencyContainer> {
     if (DependencyContainerFactory._container !== undefined) {
       return DependencyContainerFactory._container;
     }
@@ -37,13 +37,13 @@ export class DependencyContainerFactory {
     const clients = getClients();
 
     const { bus } = DependencyInjectionEventBus;
+    const { virtualDrive } = DependencyInjectionVirtualDrive;
 
     const itemsContainer = buildItemsContainer();
     const contentsContainer = await buildContentsContainer();
     const foldersContainer = await buildFoldersContainer();
     const { container: filesContainer } = await buildFilesContainer(
-      foldersContainer,
-      drive
+      foldersContainer
     );
 
     const container = {
@@ -54,6 +54,8 @@ export class DependencyContainerFactory {
       ...contentsContainer,
       ...filesContainer,
       ...foldersContainer,
+
+      virtualDrive,
     };
 
     bus.addSubscribers(DomainEventSubscribers.from(container));

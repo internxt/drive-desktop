@@ -1,20 +1,23 @@
 import { FolderCreator } from 'workers/sync-engine/modules/folders/application/FolderCreator';
-import { FoldersContainer } from './FoldersContainer';
-import { HttpFolderRepository } from 'workers/sync-engine/modules/folders/infrastructure/HttpFolderRepository';
-import { DependencyInjectionHttpClientsProvider } from '../common/clients';
-import { DependencyInjectionTraverserProvider } from '../common/traverser';
-import { ipcRendererSyncEngine } from '../../ipcRendererSyncEngine';
+import { FolderDeleter } from 'workers/sync-engine/modules/folders/application/FolderDeleter';
 import { FolderFinder } from 'workers/sync-engine/modules/folders/application/FolderFinder';
 import { FolderPathFromAbsolutePathCreator } from 'workers/sync-engine/modules/folders/application/FolderPathFromAbsolutePathCreator';
-import { DependencyInjectionLocalRootFolderPath } from '../common/localRootFolderPath';
 import { FolderSearcher } from 'workers/sync-engine/modules/folders/application/FolderSearcher';
-import { FolderDeleter } from 'workers/sync-engine/modules/folders/application/FolderDeleter';
 import { ParentFoldersExistForDeletion } from 'workers/sync-engine/modules/folders/application/ParentFoldersExistForDeletion';
+import { FolderPlaceholderCreator } from 'workers/sync-engine/modules/folders/infrastructure/FolderPlaceholderCreator';
+import { HttpFolderRepository } from 'workers/sync-engine/modules/folders/infrastructure/HttpFolderRepository';
+import { ipcRendererSyncEngine } from '../../ipcRendererSyncEngine';
+import { DependencyInjectionHttpClientsProvider } from '../common/clients';
+import { DependencyInjectionLocalRootFolderPath } from '../common/localRootFolderPath';
+import { DependencyInjectionTraverserProvider } from '../common/traverser';
+import { FoldersContainer } from './FoldersContainer';
+import { DependencyInjectionVirtualDrive } from '../common/virtualDrive';
 
 export async function buildFoldersContainer(): Promise<FoldersContainer> {
   const clients = DependencyInjectionHttpClientsProvider.get();
   const traverser = DependencyInjectionTraverserProvider.get();
   const rootFolderPath = DependencyInjectionLocalRootFolderPath.get();
+  const { virtualDrive } = DependencyInjectionVirtualDrive;
 
   const repository = new HttpFolderRepository(
     clients.drive,
@@ -35,9 +38,12 @@ export async function buildFoldersContainer(): Promise<FoldersContainer> {
     repository
   );
 
+  const folderPlaceholderCreator = new FolderPlaceholderCreator(virtualDrive);
+
   const folderDeleter = new FolderDeleter(
     repository,
-    parentFoldersExistForDeletion
+    parentFoldersExistForDeletion,
+    folderPlaceholderCreator
   );
 
   const folderCreator = new FolderCreator(
@@ -54,5 +60,6 @@ export async function buildFoldersContainer(): Promise<FoldersContainer> {
     folderSearcher,
     folderDeleter,
     parentFoldersExistForDeletion,
+    folderPlaceholderCreator,
   };
 }

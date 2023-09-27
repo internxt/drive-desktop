@@ -17,14 +17,13 @@ import { DependencyInjectionTraverserProvider } from '../common/traverser';
 import { DependencyInjectionUserProvider } from '../common/user';
 import { FoldersContainer } from '../folders/FoldersContainer';
 import { FilesContainer } from './FilesContainer';
-import { VirtualDrive } from 'virtual-drive/dist';
 import { FilePlaceholderCreatorFromContentsId } from 'workers/sync-engine/modules/files/application/FilePlaceholderCreatorFromContentsId';
 import { FilePlaceholderCreator } from 'workers/sync-engine/modules/files/infrastructure/FilePlaceholderCreator';
 import { CreateFilePlaceholderOnDeletionFailed } from 'workers/sync-engine/modules/files/application/CreateFilePlaceholderOnDeletionFailed';
+import { DependencyInjectionVirtualDrive } from '../common/virtualDrive';
 
 export async function buildFilesContainer(
-  folderContainer: FoldersContainer,
-  virtualDrive: VirtualDrive
+  folderContainer: FoldersContainer
 ): Promise<{
   container: FilesContainer;
   subscribers: any;
@@ -34,6 +33,7 @@ export async function buildFilesContainer(
   const user = DependencyInjectionUserProvider.get();
   const localRootFolderPath = DependencyInjectionLocalRootFolderPath.get();
   const { bus: eventBus } = DependencyInjectionEventBus;
+  const { virtualDrive } = DependencyInjectionVirtualDrive;
 
   const fileRepository = new HttpFileRepository(
     crypt,

@@ -19,24 +19,16 @@ async function ensureTheFolderExist(path: string) {
 async function setUp() {
   Logger.info('[SYNC ENGINE] Starting sync engine process');
 
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const { VirtualDrive } = require('virtual-drive/dist');
-
   const virtualDrivePath = await ipcRenderer.invoke('get-virtual-drive-root');
 
   Logger.info('[SYNC ENGINE] Going to use root folder: ', virtualDrivePath);
 
   await ensureTheFolderExist(virtualDrivePath);
 
-  const virtualDrive = new VirtualDrive(virtualDrivePath);
-
   const factory = new DependencyContainerFactory();
+  const container = await factory.build();
 
-  const container = await factory.build(virtualDrive);
-
-  const controllers = buildControllers(container);
-
-  const bindings = new BindingsManager(virtualDrive, controllers, {
+  const bindings = new BindingsManager(container, {
     root: virtualDrivePath,
     icon: iconPath,
   });
