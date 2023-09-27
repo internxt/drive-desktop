@@ -1,7 +1,6 @@
 import { FolderDeleter } from 'workers/sync-engine/modules/folders/application/FolderDeleter';
 import { FileDeleter } from '../../modules/files/application/FileDeleter';
 import { CallbackController } from './CallbackController';
-import Logger from 'electron-log';
 import { DelayQueue } from 'workers/sync-engine/modules/shared/domain/DelayQueue';
 
 export class DeleteController extends CallbackController {
@@ -15,15 +14,11 @@ export class DeleteController extends CallbackController {
     super();
 
     const deleteFile = async (file: string) => {
-      Logger.debug('Deleting queued files');
-      this.fileDeleter.run(file);
-      Logger.debug('Queued files deleted');
+      await this.fileDeleter.run(file);
     };
 
     const deleteFolder = async (folder: string) => {
-      Logger.debug('Deleting queued folders');
-      this.folderDeleter.run(folder);
-      Logger.debug('Queued folders deleted');
+      await this.folderDeleter.run(folder);
     };
 
     const canDeleteFolders = () => {

@@ -9,19 +9,17 @@ import { FilePathUpdater } from '../../modules/files/application/FilePathUpdater
 import { FileSearcher } from '../../modules/files/application/FileSearcher';
 import { LocalRepositoryRepositoryRefresher } from '../../modules/files/application/LocalRepositoryRepositoryRefresher';
 import { HttpFileRepository } from '../../modules/files/infrastructure/HttpFileRepository';
-import { FolderFinder } from '../../modules/folders/application/FolderFinder';
 import { NodeJsEventBus } from '../../modules/shared/infrastructure/DuplexEventBus';
 import { DependencyInjectionHttpClientsProvider } from '../common/clients';
 import { DependencyInjectionLocalRootFolderPath } from '../common/localRootFolderPath';
 import { DependencyInjectionTraverserProvider } from '../common/traverser';
 import { DependencyInjectionUserProvider } from '../common/user';
+import { FoldersContainer } from '../folders/FoldersContainer';
 import { FilesContainer } from './FilesContainer';
 
-export async function buildFilesContainer({
-  folderFinder,
-}: {
-  folderFinder: FolderFinder;
-}): Promise<FilesContainer> {
+export async function buildFilesContainer(
+  folderContainer: FoldersContainer
+): Promise<FilesContainer> {
   const clients = DependencyInjectionHttpClientsProvider.get();
   const traverser = DependencyInjectionTraverserProvider.get();
   const user = DependencyInjectionUserProvider.get();
@@ -48,6 +46,7 @@ export async function buildFilesContainer({
   const fileDeleter = new FileDeleter(
     fileRepository,
     fileFinderByContentsId,
+    folderContainer.parentFoldersExistForDeletion,
     ipcRendererSyncEngine
   );
 
@@ -56,12 +55,12 @@ export async function buildFilesContainer({
   const filePathUpdater = new FilePathUpdater(
     fileRepository,
     fileFinderByContentsId,
-    folderFinder
+    folderContainer.folderFinder
   );
 
   const fileCreator = new FileCreator(
     fileRepository,
-    folderFinder,
+    folderContainer.folderFinder,
     new NodeJsEventBus()
   );
 

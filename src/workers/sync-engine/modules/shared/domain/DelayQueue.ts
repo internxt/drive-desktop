@@ -27,14 +27,12 @@ export class DelayQueue {
       if (this.canLoop()) {
         Logger.debug('Running delay queue for: ', this.name);
 
-        const reversedItems = Array.from(this.queue.keys()).reverse();
+        const reversedItems = Array.from(this.queue.entries()).reverse();
 
-        const promises = reversedItems.map(async (item) => {
+        for (const [item] of reversedItems) {
           await this.fn(item);
           this.queue.delete(item);
-        });
-
-        await Promise.all(promises);
+        }
 
         return;
       }

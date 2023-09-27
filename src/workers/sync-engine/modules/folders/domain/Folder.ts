@@ -137,7 +137,7 @@ export class Folder extends AggregateRoot {
     this._status = this._status.changeTo(FolderStatuses.TRASHED);
     this.updatedAt = new Date();
 
-    // TODO: recored trashed event
+    // TODO: record trashed event
   }
 
   isIn(folder: Folder): boolean {

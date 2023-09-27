@@ -56,7 +56,7 @@ export class HttpFolderRepository implements FolderRepository {
   }
 
   search(path: string): Nullable<Folder> {
-    Logger.debug(Object.keys(this.folders));
+    // Logger.debug(Object.keys(this.folders));
     return this.folders[path];
   }
 
@@ -110,9 +110,9 @@ export class HttpFolderRepository implements FolderRepository {
       status: FolderStatuses.EXISTS,
     });
 
-    const c = nodePath.normalize(folder.path.value);
-    const p = PlatformPathConverter.winToPosix(c);
-    this.folders[p] = folder;
+    const normalized = nodePath.normalize(folder.path.value);
+    const posix = PlatformPathConverter.winToPosix(normalized);
+    this.folders[posix] = folder;
 
     return folder;
   }
@@ -161,16 +161,17 @@ export class HttpFolderRepository implements FolderRepository {
       }
     );
 
-    if (result.status === 200) {
+    if (result.status !== 200) {
+      Logger.error(
+        '[FOLDER REPOSITORY] Folder deletion failed with status: ',
+        result.status,
+        result.statusText
+      );
       return;
     }
 
-    Logger.error(
-      '[FOLDER REPOSITORY] Folder deletion failed with status: ',
-      result.status,
-      result.statusText
-    );
-
-    await this.ipc.invoke('START_REMOTE_SYNC');
+    const normalized = nodePath.normalize(folder.path.value);
+    const posix = PlatformPathConverter.winToPosix(normalized);
+    this.folders[posix] = folder;
   }
 }

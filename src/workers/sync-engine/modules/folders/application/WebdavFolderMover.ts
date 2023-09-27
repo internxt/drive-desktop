@@ -1,4 +1,4 @@
-import { ActionNotPermitedError } from '../domain/errors/ActionNotPermitedError';
+import { ActionNotPermittedError } from '../domain/errors/ActionNotPermittedError';
 import { FolderPath } from '../domain/FolderPath';
 import { Folder } from '../domain/Folder';
 import { FolderRepository } from '../domain/FolderRepository';
@@ -25,7 +25,7 @@ export class WebdavFolderMover {
     const shouldBeMerge = resultFolder !== undefined;
 
     if (shouldBeMerge) {
-      throw new ActionNotPermitedError('overwrite');
+      throw new ActionNotPermittedError('overwrite');
     }
 
     const destinationFolder = this.folderFinder.run(destination.dirname());

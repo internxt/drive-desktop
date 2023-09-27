@@ -1,10 +1,15 @@
+import Logger from 'electron-log';
 import { Folder } from '../domain/Folder';
 import { FolderRepository } from '../domain/FolderRepository';
+import { ActionNotPermittedError } from '../domain/errors/ActionNotPermittedError';
 import { FolderNotFoundError } from '../domain/errors/FolderNotFoundError';
-import Logger from 'electron-log';
+import { ParentFoldersExistForDeletion } from './ParentFoldersExistForDeletion';
 
 export class FolderDeleter {
-  constructor(private readonly repository: FolderRepository) {}
+  constructor(
+    private readonly repository: FolderRepository,
+    private readonly parentFoldersExistForDeletion: ParentFoldersExistForDeletion
+  ) {}
 
   async run(uuid: Folder['uuid']): Promise<void> {
     const folder = this.repository.searchByPartial({ uuid });
@@ -13,9 +18,23 @@ export class FolderDeleter {
       throw new FolderNotFoundError(uuid);
     }
 
+    if (!folder.parentId) {
+      throw new ActionNotPermittedError('Trash root folder');
+    }
+
+    const allParentsExists = this.parentFoldersExistForDeletion.run(
+      // TODO: Create a new aggregate root for root folder so the rest have the parent Id as number
+      folder.parentId as number
+    );
+
+    if (!allParentsExists) {
+      Logger.warn(
+        `Skipped folder deletion for ${folder.path.value}. A folder in a higher level is already marked as trashed`
+      );
+      return;
+    }
+
     folder.trash();
     await this.repository.trash(folder);
-
-    Logger.debug('Folder deleted: ', folder.name);
   }
 }

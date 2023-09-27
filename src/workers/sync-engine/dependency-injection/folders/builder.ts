@@ -9,6 +9,7 @@ import { FolderPathFromAbsolutePathCreator } from 'workers/sync-engine/modules/f
 import { DependencyInjectionLocalRootFolderPath } from '../common/localRootFolderPath';
 import { FolderSearcher } from 'workers/sync-engine/modules/folders/application/FolderSearcher';
 import { FolderDeleter } from 'workers/sync-engine/modules/folders/application/FolderDeleter';
+import { ParentFoldersExistForDeletion } from 'workers/sync-engine/modules/folders/application/ParentFoldersExistForDeletion';
 
 export async function buildFoldersContainer(): Promise<FoldersContainer> {
   const clients = DependencyInjectionHttpClientsProvider.get();
@@ -30,7 +31,14 @@ export async function buildFoldersContainer(): Promise<FoldersContainer> {
 
   const folderSearcher = new FolderSearcher(repository);
 
-  const folderDeleter = new FolderDeleter(repository);
+  const parentFoldersExistForDeletion = new ParentFoldersExistForDeletion(
+    repository
+  );
+
+  const folderDeleter = new FolderDeleter(
+    repository,
+    parentFoldersExistForDeletion
+  );
 
   const folderCreator = new FolderCreator(
     folderPathFromAbsolutePathCreator,
@@ -45,5 +53,6 @@ export async function buildFoldersContainer(): Promise<FoldersContainer> {
     folderPathFromAbsolutePathCreator,
     folderSearcher,
     folderDeleter,
+    parentFoldersExistForDeletion,
   };
 }
