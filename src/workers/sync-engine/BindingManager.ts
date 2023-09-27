@@ -16,22 +16,20 @@ export class BindingsManager {
     }
   ) {}
 
-  private createFolderPlaceholder(folder: Folder) {
+  public createFolderPlaceholder(folder: Folder) {
     // In order to create a folder placeholder it's path must en with /
     const folderPath = `${folder.path.value}/`;
 
     this.drive.createItemByPath(folderPath, folder.uuid);
   }
+  public createFilePlaceholder(file: File) {
+    this.drive.createItemByPath(file.path.value, file.contentsId, file.size);
+  }
 
   public createPlaceHolders(items: Array<File | Folder>) {
     items.forEach((item) => {
       if (item.isFile()) {
-        this.drive.createItemByPath(
-          item.path.value,
-          item.contentsId,
-          item.size
-        );
-        return;
+        return this.createFilePlaceholder(item);
       }
 
       this.createFolderPlaceholder(item);

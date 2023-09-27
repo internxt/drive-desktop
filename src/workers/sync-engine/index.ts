@@ -24,17 +24,15 @@ async function setUp() {
 
   const virtualDrivePath = await ipcRenderer.invoke('get-virtual-drive-root');
 
-  Logger.info(
-    '[SYNC ENGINE] Going to create root sync folder on: ',
-    virtualDrivePath
-  );
+  Logger.info('[SYNC ENGINE] Going to use root folder: ', virtualDrivePath);
 
   await ensureTheFolderExist(virtualDrivePath);
 
   const virtualDrive = new VirtualDrive(virtualDrivePath);
 
   const factory = new DependencyContainerFactory();
-  const container = await factory.build();
+
+  const container = await factory.build(virtualDrive);
 
   const controllers = buildControllers(container);
 

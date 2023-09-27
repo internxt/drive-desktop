@@ -5,13 +5,18 @@ import { buildContentsContainer } from './contents/builder';
 import { buildItemsContainer } from './items/builder';
 import { buildFilesContainer } from './files/builder';
 import { buildFoldersContainer } from './folders/builder';
+import { VirtualDrive } from 'virtual-drive/dist';
+import { DependencyInjectionEventBus } from './common/eventBus';
+import { DomainEventSubscribers } from '../modules/shared/infrastructure/DomainEventSubscribers';
 
 export class DependencyContainerFactory {
   private static _container: DependencyContainer | undefined;
 
-  static readonly subscriptors: Array<keyof DependencyContainer> = [];
+  static readonly subscribers: Array<keyof DependencyContainer> = [
+    'createFilePlaceholderOnDeletionFailed',
+  ];
 
-  eventSubscriptors(
+  eventSubscribers(
     key: keyof DependencyContainer
   ): DependencyContainer[keyof DependencyContainer] | undefined {
     if (!DependencyContainerFactory._container) return undefined;
@@ -19,11 +24,7 @@ export class DependencyContainerFactory {
     return DependencyContainerFactory._container[key];
   }
 
-  public get containter() {
-    return DependencyContainerFactory._container;
-  }
-
-  async build(): Promise<DependencyContainer> {
+  async build(drive: VirtualDrive): Promise<DependencyContainer> {
     if (DependencyContainerFactory._container !== undefined) {
       return DependencyContainerFactory._container;
     }
@@ -35,10 +36,15 @@ export class DependencyContainerFactory {
 
     const clients = getClients();
 
+    const { bus } = DependencyInjectionEventBus;
+
     const itemsContainer = buildItemsContainer();
     const contentsContainer = await buildContentsContainer();
     const foldersContainer = await buildFoldersContainer();
-    const filesContainer = await buildFilesContainer(foldersContainer);
+    const { container: filesContainer } = await buildFilesContainer(
+      foldersContainer,
+      drive
+    );
 
     const container = {
       drive: clients.drive,
@@ -50,6 +56,7 @@ export class DependencyContainerFactory {
       ...foldersContainer,
     };
 
+    bus.addSubscribers(DomainEventSubscribers.from(container));
     DependencyContainerFactory._container = container;
 
     return container;

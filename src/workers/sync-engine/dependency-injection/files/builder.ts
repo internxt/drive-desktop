@@ -1,3 +1,4 @@
+import { CreateFilePlaceholderEmitter } from 'workers/sync-engine/modules/files/application/CreateFilePlaceholderEmitter';
 import crypt from '../../../utils/crypt';
 import { ipcRendererSyncEngine } from '../../ipcRendererSyncEngine';
 import { FileByPartialSearcher } from '../../modules/files/application/FileByPartialSearcher';
@@ -9,21 +10,30 @@ import { FilePathUpdater } from '../../modules/files/application/FilePathUpdater
 import { FileSearcher } from '../../modules/files/application/FileSearcher';
 import { LocalRepositoryRepositoryRefresher } from '../../modules/files/application/LocalRepositoryRepositoryRefresher';
 import { HttpFileRepository } from '../../modules/files/infrastructure/HttpFileRepository';
-import { NodeJsEventBus } from '../../modules/shared/infrastructure/DuplexEventBus';
 import { DependencyInjectionHttpClientsProvider } from '../common/clients';
+import { DependencyInjectionEventBus } from '../common/eventBus';
 import { DependencyInjectionLocalRootFolderPath } from '../common/localRootFolderPath';
 import { DependencyInjectionTraverserProvider } from '../common/traverser';
 import { DependencyInjectionUserProvider } from '../common/user';
 import { FoldersContainer } from '../folders/FoldersContainer';
 import { FilesContainer } from './FilesContainer';
+import { VirtualDrive } from 'virtual-drive/dist';
+import { FilePlaceholderCreatorFromContentsId } from 'workers/sync-engine/modules/files/application/FilePlaceholderCreatorFromContentsId';
+import { FilePlaceholderCreator } from 'workers/sync-engine/modules/files/infrastructure/FilePlaceholderCreator';
+import { CreateFilePlaceholderOnDeletionFailed } from 'workers/sync-engine/modules/files/application/CreateFilePlaceholderOnDeletionFailed';
 
 export async function buildFilesContainer(
-  folderContainer: FoldersContainer
-): Promise<FilesContainer> {
+  folderContainer: FoldersContainer,
+  virtualDrive: VirtualDrive
+): Promise<{
+  container: FilesContainer;
+  subscribers: any;
+}> {
   const clients = DependencyInjectionHttpClientsProvider.get();
   const traverser = DependencyInjectionTraverserProvider.get();
   const user = DependencyInjectionUserProvider.get();
   const localRootFolderPath = DependencyInjectionLocalRootFolderPath.get();
+  const { bus: eventBus } = DependencyInjectionEventBus;
 
   const fileRepository = new HttpFileRepository(
     crypt,
@@ -43,10 +53,13 @@ export async function buildFilesContainer(
     fileRepository
   );
 
+  const placeholderCreator = new FilePlaceholderCreator(virtualDrive);
+
   const fileDeleter = new FileDeleter(
     fileRepository,
     fileFinderByContentsId,
     folderContainer.parentFoldersExistForDeletion,
+    placeholderCreator,
     ipcRendererSyncEngine
   );
 
@@ -61,7 +74,7 @@ export async function buildFilesContainer(
   const fileCreator = new FileCreator(
     fileRepository,
     folderContainer.folderFinder,
-    new NodeJsEventBus()
+    eventBus
   );
 
   const filePathFromAbsolutePathCreator = new FilePathFromAbsolutePathCreator(
@@ -69,6 +82,21 @@ export async function buildFilesContainer(
   );
 
   const fileSearcher = new FileSearcher(fileRepository);
+
+  const createFilePlaceholderEmitter = new CreateFilePlaceholderEmitter(
+    eventBus
+  );
+
+  const filePlaceholderCreatorFromContentsId =
+    new FilePlaceholderCreatorFromContentsId(
+      fileFinderByContentsId,
+      placeholderCreator
+    );
+
+  const createFilePlaceholderOnDeletionFailed =
+    new CreateFilePlaceholderOnDeletionFailed(
+      filePlaceholderCreatorFromContentsId
+    );
 
   const container: FilesContainer = {
     fileFinderByContentsId,
@@ -79,7 +107,11 @@ export async function buildFilesContainer(
     fileCreator,
     filePathFromAbsolutePathCreator,
     fileSearcher,
+    createFilePlaceholderEmitter: createFilePlaceholderEmitter,
+    filePlaceholderCreatorFromContentsId: filePlaceholderCreatorFromContentsId,
+    createFilePlaceholderOnDeletionFailed:
+      createFilePlaceholderOnDeletionFailed,
   };
 
-  return container;
+  return { container, subscribers: [] };
 }

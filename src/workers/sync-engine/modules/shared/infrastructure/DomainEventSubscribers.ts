@@ -7,7 +7,7 @@ export class DomainEventSubscribers {
   constructor(public items: Array<WebdavDomainEventSubscriber<DomainEvent>>) {}
 
   static from(container: DependencyContainer): DomainEventSubscribers {
-    const subscribers = DependencyContainerFactory.subscriptors.map(
+    const subscribers = DependencyContainerFactory.subscribers.map(
       (subscriber) => {
         return container[subscriber];
       }

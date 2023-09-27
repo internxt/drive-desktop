@@ -1,12 +1,9 @@
 import EventEmitter from 'events';
 import { DomainEvent } from '../domain/DomainEvent';
-import { WebdavServerEventBus } from '../domain/WebdavServerEventBus';
+import { EventBus } from '../domain/WebdavServerEventBus';
 import { DomainEventSubscribers } from './DomainEventSubscribers';
 
-export class NodeJsEventBus
-  extends EventEmitter
-  implements WebdavServerEventBus
-{
+export class NodeJsEventBus extends EventEmitter implements EventBus {
   async publish(events: Array<DomainEvent>): Promise<void> {
     events.forEach((event) => {
       this.emit(event.eventName, event);
