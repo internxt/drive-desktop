@@ -1,6 +1,7 @@
 import { Folder } from '../domain/Folder';
 import { FolderRepository } from '../domain/FolderRepository';
 import { FolderNotFoundError } from '../domain/errors/FolderNotFoundError';
+import Logger from 'electron-log';
 
 export class FolderDeleter {
   constructor(private readonly repository: FolderRepository) {}
@@ -14,5 +15,7 @@ export class FolderDeleter {
 
     folder.trash();
     await this.repository.trash(folder);
+
+    Logger.debug('Folder deleted: ', folder.name);
   }
 }

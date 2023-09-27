@@ -2,35 +2,15 @@ import Logger from 'electron-log';
 
 export class DelayQueue {
   private static readonly DELAY = 3_000;
-  private queue: Array<string>;
+  private queue: Map<string, void>;
   private timeout: NodeJS.Timeout | null = null;
 
   constructor(
-    private readonly loopQueue: (queue: Array<string>) => Promise<void>,
+    private readonly name: string,
+    private readonly fn: (item: string) => Promise<void>,
     private readonly canLoop: () => boolean
   ) {
-    this.queue = [];
-  }
-
-  push(value: string) {
-    this.setTimeout();
-
-    this.queue.push(value);
-  }
-
-  private setTimeout() {
-    this.clearTimeout();
-    this.timeout = setTimeout(async () => {
-      Logger.debug('WILL TRY TO RUN DELAY QUEUE');
-      if (this.canLoop()) {
-        Logger.debug('RUNNING DELAY QUEUE');
-        await this.loopQueue(this.queue);
-        return;
-      }
-
-      Logger.debug('LOOP BLOCKED');
-      this.setTimeout();
-    }, DelayQueue.DELAY);
+    this.queue = new Map();
   }
 
   private clearTimeout() {
@@ -40,8 +20,42 @@ export class DelayQueue {
     }
   }
 
+  private setTimeout() {
+    this.clearTimeout();
+    this.timeout = setTimeout(async () => {
+      Logger.debug('Will try to run delay queue for: ', this.name);
+      if (this.canLoop()) {
+        Logger.debug('Running delay queue for: ', this.name);
+
+        const reversedItems = Array.from(this.queue.keys()).reverse();
+
+        const promises = reversedItems.map(async (item) => {
+          await this.fn(item);
+          this.queue.delete(item);
+        });
+
+        await Promise.all(promises);
+
+        return;
+      }
+
+      Logger.debug(this.name, ' loop blocked');
+      this.setTimeout();
+    }, DelayQueue.DELAY);
+  }
+
+  push(value: string) {
+    this.setTimeout();
+
+    this.queue.set(value);
+  }
+
+  get size(): number {
+    return this.queue.size;
+  }
+
   clear() {
     this.clearTimeout();
-    this.queue = [];
+    this.queue.clear();
   }
 }
