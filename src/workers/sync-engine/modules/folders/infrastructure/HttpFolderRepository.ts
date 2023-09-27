@@ -12,6 +12,8 @@ import { UpdateFolderNameDTO } from './dtos/UpdateFolderNameDTO';
 import { SyncEngineIpc } from '../../../ipcRendererSyncEngine';
 import { RemoteItemsGenerator } from '../../items/application/RemoteItemsGenerator';
 import { FolderStatuses } from '../domain/FolderStatus';
+import nodePath from 'path';
+import { PlatformPathConverter } from '../../shared/test/helpers/PlatformPathConverter';
 
 export class HttpFolderRepository implements FolderRepository {
   public folders: Record<string, Folder> = {};
@@ -108,8 +110,8 @@ export class HttpFolderRepository implements FolderRepository {
       status: FolderStatuses.EXISTS,
     });
 
-    const p = folder.path.value.replace('\\', '/');
-
+    const c = nodePath.normalize(folder.path.value);
+    const p = PlatformPathConverter.winToPosix(c);
     this.folders[p] = folder;
 
     return folder;
