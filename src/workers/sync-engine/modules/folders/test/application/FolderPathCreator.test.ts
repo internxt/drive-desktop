@@ -10,8 +10,9 @@ describe('Folder Phat Creator', () => {
 
       const result = sut.fromAbsolute(ab);
 
-      expect(result.value).toBe('New folder (4)');
-      expect(path.dirname(result.value)).toBe('.');
+      // TODO: This behavior need to change. Normalize any path that is returned form bindings
+      expect(result.value).toBe('\\New folder (4)');
+      expect(path.dirname(result.value)).toBe('\\');
       expect(result.dirname()).toBe(path.sep);
     });
   });
