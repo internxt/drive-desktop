@@ -64,7 +64,8 @@ export async function buildFilesContainer(
   const filePathUpdater = new FilePathUpdater(
     fileRepository,
     fileFinderByContentsId,
-    folderContainer.folderFinder
+    folderContainer.folderFinder,
+    ipcRendererSyncEngine
   );
 
   const fileCreator = new FileCreator(

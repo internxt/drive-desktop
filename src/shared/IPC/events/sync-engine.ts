@@ -42,15 +42,15 @@ type FileUpdatePayload = {
 };
 
 export type FolderEvents = {
-  CREATING_FOLDER: (payload: { name: string }) => void;
+  FOLDER_CREATING: (payload: { name: string }) => void;
   FOLDER_CREATED: (payload: { name: string }) => void;
 
-  RENAMING_FOLDER: (payload: { oldName: string; newName: string }) => void;
+  FOLDER_RENAMING: (payload: { oldName: string; newName: string }) => void;
   FOLDER_RENAMED: (payload: { oldName: string; newName: string }) => void;
 };
 
 export type FilesEvents = {
-  UPLOADING_FILE: (payload: FileUpdatePayload) => void;
+  FILE_UPLOADING: (payload: FileUpdatePayload) => void;
   FILE_UPLOADED: (payload: FileUpdatePayload) => void;
   FILE_DOWNLOAD_ERROR: (payload: {
     name: string;
@@ -59,7 +59,7 @@ export type FilesEvents = {
     error: string;
   }) => void;
 
-  DOWNLOADING_FILE: (payload: FileUpdatePayload) => void;
+  FILE_DOWNLOADING: (payload: FileUpdatePayload) => void;
   FILE_DOWNLOADED: (payload: FileUpdatePayload) => void;
   FILE_UPLOAD_ERROR: (payload: {
     name: string;
@@ -68,7 +68,7 @@ export type FilesEvents = {
     error: string;
   }) => void;
 
-  DELETING_FILE: (payload: {
+  FILE_DELETING: (payload: {
     name: string;
     extension: string;
     nameWithExtension: string;
@@ -87,7 +87,7 @@ export type FilesEvents = {
     error: string;
   }) => void;
 
-  RENAMING_FILE: (payload: {
+  FILE_RENAMING: (payload: {
     nameWithExtension: string;
     oldName: string;
   }) => void;

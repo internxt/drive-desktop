@@ -5,12 +5,14 @@ import { File } from '../domain/File';
 import { FileRepository } from '../domain/FileRepository';
 import { FolderFinder } from '../../folders/application/FolderFinder';
 import { FileFinderByContentsId } from './FileFinderByContentsId';
+import { SyncEngineIpc } from '../../../ipcRendererSyncEngine';
 
 export class FilePathUpdater {
   constructor(
     private readonly repository: FileRepository,
     private readonly fileFinderByContentsId: FileFinderByContentsId,
-    private readonly folderFinder: FolderFinder
+    private readonly folderFinder: FolderFinder,
+    private readonly ipc: SyncEngineIpc
   ) {}
 
   private async rename(file: File, path: FilePath) {
@@ -22,12 +24,12 @@ export class FilePathUpdater {
   }
 
   async run(contentsId: string, destination: FilePath) {
-    // this.ipc.send('WEBDAV_FILE_RENAMING', {
-    //   oldName: file.name,
-    //   nameWithExtension: destination.nameWithExtension(),
-    // });
-
     const file = this.fileFinderByContentsId.run(contentsId);
+
+    this.ipc.send('FILE_RENAMING', {
+      oldName: file.name,
+      nameWithExtension: destination.nameWithExtension(),
+    });
 
     if (file.dirname !== destination.dirname()) {
       if (file.nameWithExtension !== destination.nameWithExtension()) {
@@ -46,17 +48,21 @@ export class FilePathUpdater {
     const destinationFile = this.repository.search(destination);
 
     if (destinationFile) {
-      // this.ipc.send('WEBDAV_FILE_RENAME_ERROR', {
-      //   name: file.name,
-      //   extension: file.type,
-      //   nameWithExtension: file.nameWithExtension,
-      //   error: 'Renaming error: file already exists',
-      // });
+      this.ipc.send('FILE_RENAME_ERROR', {
+        name: file.name,
+        extension: file.type,
+        nameWithExtension: file.nameWithExtension,
+        error: 'Renaming error: file already exists',
+      });
       throw new FileAlreadyExistsError(destination.name());
     }
 
     if (destination.extensionMatch(file.type)) {
       await this.rename(file, destination);
+      this.ipc.send('FILE_RENAMED', {
+        oldName: file.name,
+        nameWithExtension: destination.nameWithExtension(),
+      });
       return;
     }
 

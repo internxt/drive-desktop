@@ -10,7 +10,7 @@ export class FolderRenamer {
   ) {}
 
   async run(folder: Folder, destination: FolderPath) {
-    this.ipc.send('RENAMING_FOLDER', {
+    this.ipc.send('FOLDER_RENAMING', {
       oldName: folder.name,
       newName: destination.name(),
     });

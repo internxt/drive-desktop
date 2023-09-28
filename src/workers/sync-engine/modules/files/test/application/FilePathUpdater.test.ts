@@ -5,22 +5,26 @@ import { FileRepositoryMock } from '../__mocks__/FileRepositoryMock';
 import { FolderFinder } from '../../../folders/application/FolderFinder';
 import { FolderFinderMock } from '../../../folders/test/__mocks__/FolderFinderMock';
 import { FileFinderByContentsId } from '../../application/FileFinderByContentsId';
+import { IpcRendererSyncEngineMock } from '../../../shared/test/__mock__/IpcRendererSyncEngineMock';
 
 describe('File path updater', () => {
   let repository: FileRepositoryMock;
   let fileFinderByContentsId: FileFinderByContentsId;
   let folderFinder: FolderFinderMock;
   let SUT: FilePathUpdater;
+  let ipcRendererMock: IpcRendererSyncEngineMock;
 
   beforeEach(() => {
     repository = new FileRepositoryMock();
     folderFinder = new FolderFinderMock();
     fileFinderByContentsId = new FileFinderByContentsId(repository);
+    ipcRendererMock = new IpcRendererSyncEngineMock();
 
     SUT = new FilePathUpdater(
       repository,
       fileFinderByContentsId,
-      folderFinder as unknown as FolderFinder
+      folderFinder as unknown as FolderFinder,
+      ipcRendererMock
     );
   });
 
