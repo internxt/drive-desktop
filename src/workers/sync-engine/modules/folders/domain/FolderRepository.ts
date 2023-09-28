@@ -5,6 +5,8 @@ import { FolderPath } from './FolderPath';
 export interface FolderRepository {
   search(path: string): Nullable<Folder>;
 
+  searchByPartial(partial: Partial<FolderAttributes>): Nullable<Folder>;
+
   create(
     name: FolderPath,
     parentId: FolderAttributes['parentId']

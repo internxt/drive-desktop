@@ -20,7 +20,7 @@ import './background-processes/sync-engine';
 import './background-processes/process-issues';
 import './device/handlers';
 import './usage/handlers';
-// import './realtime';
+import './realtime';
 import './tray/tray';
 import './fordwardToWindows';
 import './analytics/handlers';
@@ -113,7 +113,8 @@ eventBus.on('USER_LOGGED_IN', async () => {
 
     getAuthWindow()?.hide();
 
-    nativeTheme.themeSource = configStore.get('preferedTheme') as Theme;
+    nativeTheme.themeSource = (configStore.get('preferedTheme') ||
+      'system') as Theme;
 
     setTrayStatus('IDLE');
     const widget = await getOrCreateWidged();
