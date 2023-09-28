@@ -13,6 +13,12 @@ export class VirtualDrivePlaceholderCreator implements PlaceholderCreator {
   }
 
   file(file: File): void {
-    this.drive.createItemByPath(file.path.value, file.contentsId, file.size);
+    this.drive.createItemByPath(
+      file.path.value,
+      file.contentsId,
+      file.size,
+      file.createdAt.getTime(),
+      file.updatedAt.getTime()
+    );
   }
 }
