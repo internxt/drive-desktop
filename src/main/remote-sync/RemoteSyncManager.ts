@@ -114,14 +114,14 @@ export class RemoteSyncManager {
         } files/second`
       );
 
-      Logger.info('Total synced folders: ', this.totalFoldersSynced);
-      Logger.info(
-        `Folders sync speed: ${
-          this.totalFoldersSynced / (totalDuration / 1000)
-        } folders/second`
-      );
-      Logger.info(`Total remote to local sync time: ${totalDuration}ms`);
-      Logger.info('-----------------');
+      // Logger.info('Total synced folders: ', this.totalFoldersSynced);
+      // Logger.info(
+      //   `Folders sync speed: ${
+      //     this.totalFoldersSynced / (totalDuration / 1000)
+      //   } folders/second`
+      // );
+      // Logger.info(`Total remote to local sync time: ${totalDuration}ms`);
+      // Logger.info('-----------------');
     }
   }
 
@@ -387,9 +387,9 @@ export class RemoteSyncManager {
         ? updatedAtCheckpoint.toISOString()
         : undefined,
     };
-    Logger.info(
-      `Requesting folders with params ${JSON.stringify(params, null, 2)}`
-    );
+    // Logger.info(
+    //   `Requesting folders with params ${JSON.stringify(params, null, 2)}`
+    // );
     const response = await this.config.httpClient.get(
       `${process.env.NEW_DRIVE_URL}/drive/folders`,
       {
