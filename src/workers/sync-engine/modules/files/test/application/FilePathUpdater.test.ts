@@ -2,7 +2,7 @@ import { FilePathUpdater } from '../../application/FilePathUpdater';
 import { FilePath } from '../../domain/FilePath';
 import { FileMother } from '../domain/FileMother';
 import { FileRepositoryMock } from '../__mocks__/FileRepositoryMock';
-import { WebdavFolderFinder } from '../../../folders/application/WebdavFolderFinder';
+import { FolderFinder } from '../../../folders/application/FolderFinder';
 import { FolderFinderMock } from '../../../folders/test/__mocks__/FolderFinderMock';
 import { FileFinderByContentsId } from '../../application/FileFinderByContentsId';
 import { IpcRendererSyncEngineMock } from '../../../shared/test/__mock__/IpcRendererSyncEngineMock';
@@ -23,8 +23,8 @@ describe('File path updater', () => {
     SUT = new FilePathUpdater(
       repository,
       fileFinderByContentsId,
-      folderFinder as unknown as WebdavFolderFinder,
-      ipcRendererMock,
+      folderFinder as unknown as FolderFinder,
+      ipcRendererMock
     );
   });
 

@@ -135,8 +135,9 @@ export class Folder extends AggregateRoot {
 
   trash() {
     this._status = this._status.changeTo(FolderStatuses.TRASHED);
+    this.updatedAt = new Date();
 
-    // TODO: recored trashed event
+    // TODO: record trashed event
   }
 
   isIn(folder: Folder): boolean {
@@ -156,6 +157,20 @@ export class Folder extends AggregateRoot {
   }
 
   toPrimitives(): Record<string, Primitives> {
+    const attributes: FolderAttributes = {
+      id: this.id,
+      uuid: this.uuid,
+      parentId: this._parentId || 0,
+      path: this._path.value,
+      updatedAt: this.updatedAt.toISOString(),
+      createdAt: this.createdAt.toISOString(),
+      status: this.status.value,
+    };
+
+    return attributes;
+  }
+
+  attributes(): FolderAttributes {
     const attributes: FolderAttributes = {
       id: this.id,
       uuid: this.uuid,

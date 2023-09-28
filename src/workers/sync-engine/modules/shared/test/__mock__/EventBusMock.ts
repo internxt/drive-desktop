@@ -1,8 +1,8 @@
 import { DomainEvent } from '../../domain/DomainEvent';
-import { WebdavServerEventBus } from '../../domain/WebdavServerEventBus';
+import { EventBus } from '../../domain/WebdavServerEventBus';
 import { DomainEventSubscribers } from '../../infrastructure/DomainEventSubscribers';
 
-export class EventBusMock implements WebdavServerEventBus {
+export class EventBusMock implements EventBus {
   public publishMock = jest.fn();
 
   async publish(events: DomainEvent[]) {

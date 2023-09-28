@@ -3,7 +3,7 @@ import { FileAlreadyExistsError } from '../domain/errors/FileAlreadyExistsError'
 import { FilePath } from '../domain/FilePath';
 import { File } from '../domain/File';
 import { FileRepository } from '../domain/FileRepository';
-import { WebdavFolderFinder } from '../../folders/application/WebdavFolderFinder';
+import { FolderFinder } from '../../folders/application/FolderFinder';
 import { FileFinderByContentsId } from './FileFinderByContentsId';
 import { SyncEngineIpc } from '../../../ipcRendererSyncEngine';
 
@@ -11,8 +11,8 @@ export class FilePathUpdater {
   constructor(
     private readonly repository: FileRepository,
     private readonly fileFinderByContentsId: FileFinderByContentsId,
-    private readonly folderFinder: WebdavFolderFinder,
-    private readonly ipc: SyncEngineIpc,
+    private readonly folderFinder: FolderFinder,
+    private readonly ipc: SyncEngineIpc
   ) {}
 
   private async rename(file: File, path: FilePath) {
@@ -30,7 +30,6 @@ export class FilePathUpdater {
       oldName: file.name,
       nameWithExtension: destination.nameWithExtension(),
     });
-
 
     if (file.dirname !== destination.dirname()) {
       if (file.nameWithExtension !== destination.nameWithExtension()) {

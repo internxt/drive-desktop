@@ -41,7 +41,7 @@ describe('Http File Repository', () => {
 
   describe('Rename', () => {
     it('after a file is renamed cannot be found ', async () => {
-      const files = ['a', 'b', 'c', 'd'].map((char: string) =>
+      const originalFiles = ['a', 'b', 'c', 'd'].map((char: string) =>
         ServerFileMother.fromPartial({
           name: char,
           folderId: rootFolderId,
@@ -50,10 +50,24 @@ describe('Http File Repository', () => {
         })
       );
 
-      ipc.onInvokeMock.mockResolvedValueOnce({
-        folders: [rootFolder],
-        files: files,
-      });
+      const resultFiles = ['aa', 'b', 'c', 'd'].map((char: string) =>
+        ServerFileMother.fromPartial({
+          name: char,
+          folderId: rootFolderId,
+          fileId: chance.string({ length: 24 }),
+          type: '',
+        })
+      );
+
+      ipc.onInvokeMock
+        .mockResolvedValueOnce({
+          folders: [rootFolder],
+          files: originalFiles,
+        })
+        .mockResolvedValueOnce({
+          folders: [rootFolder],
+          files: resultFiles,
+        });
 
       axios.post = jest.fn().mockResolvedValueOnce({ status: 200, data: {} });
 

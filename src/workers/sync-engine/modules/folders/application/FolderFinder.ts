@@ -3,7 +3,7 @@ import { FolderNotFoundError } from '../domain/errors/FolderNotFoundError';
 import { Folder } from '../domain/Folder';
 import { FolderRepository } from '../domain/FolderRepository';
 
-export class WebdavFolderFinder {
+export class FolderFinder {
   constructor(private readonly repository: FolderRepository) {}
 
   run(path: string): Folder {

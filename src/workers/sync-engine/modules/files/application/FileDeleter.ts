@@ -1,24 +1,44 @@
-import { FileRepository } from '../domain/FileRepository';
 import Logger from 'electron-log';
-import { FileFinderByContentsId } from './FileFinderByContentsId';
-import { FileStatuses } from '../domain/FileStatus';
 import { SyncEngineIpc } from '../../../ipcRendererSyncEngine';
+import { AllParentFoldersStatusIsExists } from '../../folders/application/AllParentFoldersStatusIsExists';
+import { FileRepository } from '../domain/FileRepository';
+import { FileStatuses } from '../domain/FileStatus';
+import { PlaceholderCreator } from '../../placeholders/domain/PlaceholderCreator';
+import { FileNotFoundError } from '../domain/errors/FileNotFoundError';
+import { File } from '../domain/File';
 
 export class FileDeleter {
   constructor(
     private readonly repository: FileRepository,
-    private readonly fileFinder: FileFinderByContentsId,
+    private readonly allParentFoldersStatusIsExists: AllParentFoldersStatusIsExists,
+    private readonly placeholderCreator: PlaceholderCreator,
     private readonly ipc: SyncEngineIpc
   ) {}
 
   async run(contentsId: string): Promise<void> {
-    const file = this.fileFinder.run(contentsId);
+    const file = this.repository.searchByPartial({ contentsId });
 
-    Logger.debug('FILE TO BE DELETED, ', file.nameWithExtension);
+    if (!file) {
+      throw new FileNotFoundError(contentsId);
+    }
 
+    await this.act(file);
+  }
+
+  async act(file: File) {
     if (file.status.is(FileStatuses.TRASHED)) {
-      // TODO: Solve file deleter being called twice
       Logger.warn(`File ${file.path.value} is already trashed. Will ignore...`);
+      return;
+    }
+
+    const allParentsExists = this.allParentFoldersStatusIsExists.run(
+      file.folderId
+    );
+
+    if (!allParentsExists) {
+      Logger.warn(
+        `Skipped file deletion for ${file.path.value}. A folder in a higher level is already marked as trashed`
+      );
       return;
     }
 
@@ -29,17 +49,33 @@ export class FileDeleter {
       size: file.size,
     });
 
-    file.trash();
+    try {
+      file.trash();
 
-    await this.repository.delete(file);
+      await this.repository.delete(file);
 
-    Logger.debug('FILE DELETED, ', file.nameWithExtension);
+      this.ipc.send('FILE_DELETED', {
+        name: file.name,
+        extension: file.type,
+        nameWithExtension: file.nameWithExtension,
+        size: file.size,
+      });
+    } catch (error: unknown) {
+      Logger.error(
+        `Error deleting the file ${file.nameWithExtension}: `,
+        error
+      );
 
-    this.ipc.send('FILE_DELETED', {
-      name: file.name,
-      extension: file.type,
-      nameWithExtension: file.nameWithExtension,
-      size: file.size,
-    });
+      const message = error instanceof Error ? error.message : 'Unknown error';
+
+      this.ipc.send('FILE_DELETION_ERROR', {
+        name: file.name,
+        extension: file.type,
+        nameWithExtension: file.nameWithExtension,
+        error: message,
+      });
+
+      this.placeholderCreator.file(file);
+    }
   }
 }
