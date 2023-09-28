@@ -1,7 +1,7 @@
 import path from 'path';
 import { FolderPath } from '../domain/FolderPath';
 
-export class FolderPathFromAbsolutePathCreator {
+export class FolderPathCreator {
   constructor(private readonly baseFolder: string) {}
 
   private calculateRelativePath(basePath: string, folderPath: string): string {
@@ -12,7 +12,8 @@ export class FolderPathFromAbsolutePathCreator {
     return path.join(relativeFolders, fileName);
   }
 
-  run(absolutePath: string): FolderPath {
+  fromAbsolute(absolutePath: string): FolderPath {
+    // TODO: path.normalize can be better fit
     const sanitized = absolutePath.replace('\\\\', '\\');
     const relative = this.calculateRelativePath(this.baseFolder, sanitized);
 

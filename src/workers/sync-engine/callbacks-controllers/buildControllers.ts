@@ -23,6 +23,7 @@ export function buildControllers(container: DependencyContainer) {
   const renameOrMoveFileController = new RenameOrMoveController(
     container.filePathFromAbsolutePathCreator,
     container.filePathUpdater,
+    container.folderPathUpdater,
     deleteController
   );
 

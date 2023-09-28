@@ -3,18 +3,18 @@ import { PlatformPathConverter } from '../../shared/test/helpers/PlatformPathCon
 import { Folder } from '../domain/Folder';
 import { FolderRepository } from '../domain/FolderRepository';
 import { FolderFinder } from './FolderFinder';
-import { FolderPathFromAbsolutePathCreator } from './FolderPathFromAbsolutePathCreator';
+import { FolderPathCreator } from './FolderPathCreator';
 
 export class FolderCreator {
   constructor(
-    private readonly folderPathFromAbsolutePathCreator: FolderPathFromAbsolutePathCreator,
+    private readonly folderPathFromAbsolutePathCreator: FolderPathCreator,
     private readonly repository: FolderRepository,
     private readonly folderFinder: FolderFinder,
     private readonly ipc: SyncEngineIpc
   ) {}
 
   async run(absolutePath: string): Promise<Folder> {
-    const folderPath = this.folderPathFromAbsolutePathCreator.run(
+    const folderPath = this.folderPathFromAbsolutePathCreator.fromAbsolute(
       PlatformPathConverter.winToPosix(absolutePath)
     );
     this.ipc.send('CREATING_FOLDER', {

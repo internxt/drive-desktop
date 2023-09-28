@@ -1,32 +1,30 @@
 import { FolderFinder } from '../../application/FolderFinder';
-import { WebdavFolderMover } from '../../application/WebdavFolderMover';
-import { WebdavFolderRenamer } from '../../application/WebdavFolderRenamer';
+import { FolderMover } from '../../application/FolderMover';
 import { FolderMother } from '../domain/FolderMother';
 import { FolderRepositoryMock } from '../__mocks__/FolderRepositoryMock';
 import { IpcRendererSyncEngineMock } from '../../../shared/test/__mock__/IpcRendererSyncEngineMock';
+import { FolderPath } from '../../domain/FolderPath';
 
 describe('Folder Mover', () => {
   let repository: FolderRepositoryMock;
   let folderFinder: FolderFinder;
-  let folderRenamer: WebdavFolderRenamer;
   let ipc: IpcRendererSyncEngineMock;
-  let SUT: WebdavFolderMover;
+  let SUT: FolderMover;
 
   beforeEach(() => {
     repository = new FolderRepositoryMock();
     folderFinder = new FolderFinder(repository);
     ipc = new IpcRendererSyncEngineMock();
-    folderRenamer = new WebdavFolderRenamer(repository, ipc);
 
-    SUT = new WebdavFolderMover(repository, folderFinder, folderRenamer);
+    SUT = new FolderMover(repository, folderFinder);
   });
 
-  it('Folders cannot be ovewrited', async () => {
+  it('Folders cannot be overwrite', async () => {
     const folder = FolderMother.in(1, '/folderA/folderB');
-    const destination = '/folderC/folderB';
+    const destination = new FolderPath('/folderC/folderB');
 
     repository.mockSearch.mockImplementation(() =>
-      FolderMother.in(2, destination)
+      FolderMother.in(2, destination.value)
     );
 
     try {
@@ -43,7 +41,7 @@ describe('Folder Mover', () => {
   describe('Move', () => {
     it('moves a folder when the destination folder does not contain a folder with the same folder', async () => {
       const folder = FolderMother.in(1, '/folderA/folderB');
-      const destination = '/folderC/folderB';
+      const destination = new FolderPath('/folderC/folderB');
       const folderC = FolderMother.in(2, '/folderC');
 
       repository.mockSearch
@@ -54,23 +52,6 @@ describe('Folder Mover', () => {
 
       expect(repository.mockUpdateParentDir).toHaveBeenCalled();
       expect(repository.mockUpdateName).not.toHaveBeenCalled();
-    });
-  });
-
-  describe('Rename', () => {
-    it('when a folder is moved to same folder its renamed', async () => {
-      const folderAId = 30010278;
-      const folder = FolderMother.in(folderAId, '/folderA/folderB');
-      const destination = '/folderA/folderC';
-
-      repository.mockSearch
-        .mockReturnValueOnce(undefined)
-        .mockReturnValueOnce(FolderMother.withId(folderAId));
-
-      await SUT.run(folder, destination);
-
-      expect(repository.mockUpdateName).toHaveBeenCalled();
-      expect(repository.mockUpdateParentDir).not.toHaveBeenCalled();
     });
   });
 });

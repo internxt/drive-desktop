@@ -132,6 +132,14 @@ export class HttpFolderRepository implements FolderRepository {
         `[REPOSITORY] Error updating item metadata: ${res.status}`
       );
     }
+
+    const old = this.searchByPartial({ uuid: folder.uuid });
+
+    if (old) {
+      delete this.folders[old?.path.value];
+    }
+
+    this.folders[folder.path.value] = folder;
   }
 
   async updateParentDir(folder: Folder): Promise<void> {
@@ -145,7 +153,13 @@ export class HttpFolderRepository implements FolderRepository {
       throw new Error(`[REPOSITORY] Error moving item: ${res.status}`);
     }
 
-    await this.init();
+    const old = this.searchByPartial({ uuid: folder.uuid });
+
+    if (old) {
+      delete this.folders[old?.path.value];
+    }
+
+    this.folders[folder.path.value] = folder;
   }
 
   async searchOn(folder: Folder): Promise<Array<Folder>> {

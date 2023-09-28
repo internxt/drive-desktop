@@ -1,7 +1,7 @@
 import { FolderCreator } from 'workers/sync-engine/modules/folders/application/FolderCreator';
 import { FolderDeleter } from 'workers/sync-engine/modules/folders/application/FolderDeleter';
 import { FolderFinder } from 'workers/sync-engine/modules/folders/application/FolderFinder';
-import { FolderPathFromAbsolutePathCreator } from 'workers/sync-engine/modules/folders/application/FolderPathFromAbsolutePathCreator';
+import { FolderPathCreator } from 'workers/sync-engine/modules/folders/application/FolderPathCreator';
 import { FolderSearcher } from 'workers/sync-engine/modules/folders/application/FolderSearcher';
 import { ParentFoldersExistForDeletion } from 'workers/sync-engine/modules/folders/application/ParentFoldersExistForDeletion';
 import { FolderPlaceholderCreator } from 'workers/sync-engine/modules/folders/infrastructure/FolderPlaceholderCreator';
@@ -12,6 +12,9 @@ import { DependencyInjectionLocalRootFolderPath } from '../common/localRootFolde
 import { DependencyInjectionTraverserProvider } from '../common/traverser';
 import { FoldersContainer } from './FoldersContainer';
 import { DependencyInjectionVirtualDrive } from '../common/virtualDrive';
+import { FolderPathUpdater } from 'workers/sync-engine/modules/folders/application/FolderPathUpdater';
+import { FolderMover } from 'workers/sync-engine/modules/folders/application/FolderMover';
+import { FolderRenamer } from 'workers/sync-engine/modules/folders/application/FolderRenamer';
 
 export async function buildFoldersContainer(): Promise<FoldersContainer> {
   const clients = DependencyInjectionHttpClientsProvider.get();
@@ -27,8 +30,9 @@ export async function buildFoldersContainer(): Promise<FoldersContainer> {
   );
 
   await repository.init();
-  const folderPathFromAbsolutePathCreator =
-    new FolderPathFromAbsolutePathCreator(rootFolderPath);
+  const folderPathFromAbsolutePathCreator = new FolderPathCreator(
+    rootFolderPath
+  );
 
   const folderFinder = new FolderFinder(repository);
 
@@ -53,6 +57,16 @@ export async function buildFoldersContainer(): Promise<FoldersContainer> {
     ipcRendererSyncEngine
   );
 
+  const folderMover = new FolderMover(repository, folderFinder);
+  const folderRenamer = new FolderRenamer(repository, ipcRendererSyncEngine);
+
+  const folderPathUpdater = new FolderPathUpdater(
+    repository,
+    folderPathFromAbsolutePathCreator,
+    folderMover,
+    folderRenamer
+  );
+
   return {
     folderCreator,
     folderFinder,
@@ -61,5 +75,6 @@ export async function buildFoldersContainer(): Promise<FoldersContainer> {
     folderDeleter,
     parentFoldersExistForDeletion,
     folderPlaceholderCreator,
+    folderPathUpdater,
   };
 }

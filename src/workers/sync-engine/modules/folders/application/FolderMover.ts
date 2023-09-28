@@ -3,13 +3,11 @@ import { FolderPath } from '../domain/FolderPath';
 import { Folder } from '../domain/Folder';
 import { FolderRepository } from '../domain/FolderRepository';
 import { FolderFinder } from './FolderFinder';
-import { WebdavFolderRenamer } from './WebdavFolderRenamer';
 
-export class WebdavFolderMover {
+export class FolderMover {
   constructor(
     private readonly repository: FolderRepository,
-    private readonly folderFinder: FolderFinder,
-    private readonly folderRenamer: WebdavFolderRenamer
+    private readonly folderFinder: FolderFinder
   ) {}
 
   private async move(folder: Folder, parentFolder: Folder) {
@@ -18,8 +16,7 @@ export class WebdavFolderMover {
     await this.repository.updateParentDir(folder);
   }
 
-  async run(folder: Folder, to: string): Promise<void> {
-    const destination = new FolderPath(to);
+  async run(folder: Folder, destination: FolderPath): Promise<void> {
     const resultFolder = this.repository.search(destination.value);
 
     const shouldBeMerge = resultFolder !== undefined;
@@ -29,11 +26,6 @@ export class WebdavFolderMover {
     }
 
     const destinationFolder = this.folderFinder.run(destination.dirname());
-
-    if (folder.isIn(destinationFolder)) {
-      await this.folderRenamer.run(folder, to);
-      return;
-    }
 
     await this.move(folder, destinationFolder);
   }

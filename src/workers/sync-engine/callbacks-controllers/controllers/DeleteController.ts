@@ -43,8 +43,7 @@ export class DeleteController extends CallbackController {
   async execute(contentsId: string) {
     const trimmedId = this.trim(contentsId);
 
-    // TODO: need a better way to detect if its a file or a folder
-    if (trimmedId.length === 24) {
+    if (this.isContentsId(trimmedId)) {
       this.filesQueue.push(trimmedId);
       return;
     }

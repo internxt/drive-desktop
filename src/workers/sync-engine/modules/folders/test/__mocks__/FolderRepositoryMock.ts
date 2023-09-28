@@ -1,10 +1,11 @@
 import { Nullable } from 'shared/types/Nullable';
 import { FolderPath } from '../../domain/FolderPath';
-import { Folder } from '../../domain/Folder';
+import { Folder, FolderAttributes } from '../../domain/Folder';
 import { FolderRepository } from '../../domain/FolderRepository';
 
 export class FolderRepositoryMock implements FolderRepository {
   public mockSearch = jest.fn();
+  public mockSearchByPartial = jest.fn();
   public mockAdd = jest.fn();
   public mockUpdateName = jest.fn();
   public mockUpdateParentDir = jest.fn();
@@ -14,6 +15,10 @@ export class FolderRepositoryMock implements FolderRepository {
 
   search(pathLike: string): Nullable<Folder> {
     return this.mockSearch(pathLike);
+  }
+
+  searchByPartial(partial: Partial<FolderAttributes>): Nullable<Folder> {
+    return this.mockSearchByPartial(partial);
   }
 
   add(file: Folder): Promise<void> {
