@@ -2,6 +2,8 @@ import { File } from '../../../files/domain/File';
 import { FolderStatuses } from '../../domain/FolderStatus';
 import { Folder } from '../../domain/Folder';
 import { FolderUuid } from '../../domain/FolderUuid';
+import Chance from 'chance';
+const chance = new Chance();
 
 export class FolderMother {
   static containing(file: File) {
@@ -57,7 +59,7 @@ export class FolderMother {
       id: 2048,
       uuid: FolderUuid.random().value,
       path: '/Zodseve',
-      parentId: null,
+      parentId: chance.integer({ min: 1 }),
       updatedAt: new Date().toISOString(),
       createdAt: new Date().toISOString(),
       status: FolderStatuses.EXISTS,

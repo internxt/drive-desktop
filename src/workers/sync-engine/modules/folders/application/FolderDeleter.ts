@@ -4,14 +4,13 @@ import { FolderRepository } from '../domain/FolderRepository';
 import { ActionNotPermittedError } from '../domain/errors/ActionNotPermittedError';
 import { FolderNotFoundError } from '../domain/errors/FolderNotFoundError';
 import { ParentFoldersExistForDeletion } from './ParentFoldersExistForDeletion';
-import { FolderPlaceholderCreator } from '../infrastructure/FolderPlaceholderCreator';
+import { PlaceholderCreator } from '../../placeholders/domain/PlaceholderCreator';
 
 export class FolderDeleter {
   constructor(
     private readonly repository: FolderRepository,
     private readonly parentFoldersExistForDeletion: ParentFoldersExistForDeletion,
-    // TODO: do not import form infrastructure
-    private readonly folderPlaceholderCreator: FolderPlaceholderCreator
+    private readonly placeholderCreator: PlaceholderCreator
   ) {}
 
   async run(uuid: Folder['uuid']): Promise<void> {
@@ -43,7 +42,7 @@ export class FolderDeleter {
     } catch (error: unknown) {
       Logger.error(`Error deleting the folder ${folder.name}: `, error);
 
-      this.folderPlaceholderCreator.run(folder);
+      this.placeholderCreator.folder(folder);
     }
   }
 }

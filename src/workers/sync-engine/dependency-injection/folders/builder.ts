@@ -4,23 +4,23 @@ import { FolderFinder } from 'workers/sync-engine/modules/folders/application/Fo
 import { FolderPathCreator } from 'workers/sync-engine/modules/folders/application/FolderPathCreator';
 import { FolderSearcher } from 'workers/sync-engine/modules/folders/application/FolderSearcher';
 import { ParentFoldersExistForDeletion } from 'workers/sync-engine/modules/folders/application/ParentFoldersExistForDeletion';
-import { FolderPlaceholderCreator } from 'workers/sync-engine/modules/folders/infrastructure/FolderPlaceholderCreator';
 import { HttpFolderRepository } from 'workers/sync-engine/modules/folders/infrastructure/HttpFolderRepository';
 import { ipcRendererSyncEngine } from '../../ipcRendererSyncEngine';
 import { DependencyInjectionHttpClientsProvider } from '../common/clients';
 import { DependencyInjectionLocalRootFolderPath } from '../common/localRootFolderPath';
 import { DependencyInjectionTraverserProvider } from '../common/traverser';
 import { FoldersContainer } from './FoldersContainer';
-import { DependencyInjectionVirtualDrive } from '../common/virtualDrive';
 import { FolderPathUpdater } from 'workers/sync-engine/modules/folders/application/FolderPathUpdater';
 import { FolderMover } from 'workers/sync-engine/modules/folders/application/FolderMover';
 import { FolderRenamer } from 'workers/sync-engine/modules/folders/application/FolderRenamer';
+import { PlaceholderContainer } from '../placeholders/PlaceholdersContainer';
 
-export async function buildFoldersContainer(): Promise<FoldersContainer> {
+export async function buildFoldersContainer(
+  placeholdersContainer: PlaceholderContainer
+): Promise<FoldersContainer> {
   const clients = DependencyInjectionHttpClientsProvider.get();
   const traverser = DependencyInjectionTraverserProvider.get();
   const rootFolderPath = DependencyInjectionLocalRootFolderPath.get();
-  const { virtualDrive } = DependencyInjectionVirtualDrive;
 
   const repository = new HttpFolderRepository(
     clients.drive,
@@ -42,12 +42,10 @@ export async function buildFoldersContainer(): Promise<FoldersContainer> {
     repository
   );
 
-  const folderPlaceholderCreator = new FolderPlaceholderCreator(virtualDrive);
-
   const folderDeleter = new FolderDeleter(
     repository,
     parentFoldersExistForDeletion,
-    folderPlaceholderCreator
+    placeholdersContainer.placeholderCreator
   );
 
   const folderCreator = new FolderCreator(
@@ -74,7 +72,6 @@ export async function buildFoldersContainer(): Promise<FoldersContainer> {
     folderSearcher,
     folderDeleter,
     parentFoldersExistForDeletion,
-    folderPlaceholderCreator,
     folderPathUpdater,
   };
 }
