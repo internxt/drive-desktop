@@ -4,7 +4,6 @@ import { DependencyContainerFactory } from './dependency-injection/DependencyCon
 import packageJson from '../../../package.json';
 import { BindingsManager } from './BindingManager';
 import fs from 'fs/promises';
-import { buildControllers } from './callbacks-controllers/buildControllers';
 import { iconPath } from 'workers/utils/icon';
 
 async function ensureTheFolderExist(path: string) {
@@ -19,26 +18,16 @@ async function ensureTheFolderExist(path: string) {
 async function setUp() {
   Logger.info('[SYNC ENGINE] Starting sync engine process');
 
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const { VirtualDrive } = require('virtual-drive/dist');
-
   const virtualDrivePath = await ipcRenderer.invoke('get-virtual-drive-root');
 
-  Logger.info(
-    '[SYNC ENGINE] Going to create root sync folder on: ',
-    virtualDrivePath
-  );
+  Logger.info('[SYNC ENGINE] Going to use root folder: ', virtualDrivePath);
 
   await ensureTheFolderExist(virtualDrivePath);
-
-  const virtualDrive = new VirtualDrive(virtualDrivePath);
 
   const factory = new DependencyContainerFactory();
   const container = await factory.build();
 
-  const controllers = buildControllers(container);
-
-  const bindings = new BindingsManager(virtualDrive, controllers, {
+  const bindings = new BindingsManager(container, {
     root: virtualDrivePath,
     icon: iconPath,
   });

@@ -1,37 +1,38 @@
-import { VirtualDrive } from 'virtual-drive';
 import Logger from 'electron-log';
 import { Folder } from './modules/folders/domain/Folder';
 import { File } from './modules/files/domain/File';
+import { DependencyContainer } from './dependency-injection/DependencyContainer';
 import { buildControllers } from './callbacks-controllers/buildControllers';
 
 export class BindingsManager {
   private static readonly PROVIDER_NAME = 'Internxt';
 
   constructor(
-    private readonly drive: VirtualDrive,
-    private readonly controllers: ReturnType<typeof buildControllers>,
+    private readonly container: DependencyContainer,
     private readonly paths: {
       root: string;
       icon: string;
     }
   ) {}
 
-  private createFolderPlaceholder(folder: Folder) {
+  public createFolderPlaceholder(folder: Folder) {
     // In order to create a folder placeholder it's path must en with /
     const folderPath = `${folder.path.value}/`;
 
-    this.drive.createItemByPath(folderPath, folder.uuid);
+    this.container.virtualDrive.createItemByPath(folderPath, folder.uuid);
+  }
+  public createFilePlaceholder(file: File) {
+    this.container.virtualDrive.createItemByPath(
+      file.path.value,
+      file.contentsId,
+      file.size
+    );
   }
 
   public createPlaceHolders(items: Array<File | Folder>) {
     items.forEach((item) => {
       if (item.isFile()) {
-        this.drive.createItemByPath(
-          item.path.value,
-          item.contentsId,
-          item.size
-        );
-        return;
+        return this.createFilePlaceholder(item);
       }
 
       this.createFolderPlaceholder(item);
@@ -40,17 +41,22 @@ export class BindingsManager {
 
   async start(version: string, providerId: string) {
     await this.stop();
+
+    const controllers = buildControllers(this.container);
+
     const callbacks = {
       notifyDeleteCallback: (
         contentsId: string,
         callback: (response: boolean) => void
       ) => {
-        this.controllers.deleteFile
+        controllers.delete
           .execute(contentsId)
           .then(() => {
+            Logger.debug('DELETE RESPONSE SUCCESSFUL');
             callback(true);
           })
           .catch((error: Error) => {
+            Logger.debug('DELETE RESPONSE NOT SUCCESSFUL');
             Logger.error(error);
             callback(false);
           });
@@ -63,7 +69,7 @@ export class BindingsManager {
         contentsId: string,
         callback: (response: boolean) => void
       ) => {
-        this.controllers.renameOrMoveFile.execute(
+        controllers.renameOrMoveFile.execute(
           absolutePath,
           contentsId,
           callback
@@ -73,13 +79,13 @@ export class BindingsManager {
         absolutePath: string,
         callback: (acknowledge: boolean, id: string) => void
       ) => {
-        this.controllers.addFile.execute(absolutePath, callback);
+        controllers.addFile.execute(absolutePath, callback);
       },
       fetchDataCallback: (
         contentsId: string,
         callback: (success: boolean, path: string) => void
       ) => {
-        this.controllers.downloadFile
+        controllers.downloadFile
           .execute(contentsId)
           .then((path: string) => {
             callback(true, path);
@@ -121,7 +127,7 @@ export class BindingsManager {
       },
     };
 
-    await this.drive.registerSyncRoot(
+    await this.container.virtualDrive.registerSyncRoot(
       BindingsManager.PROVIDER_NAME,
       version,
       providerId,
@@ -129,14 +135,14 @@ export class BindingsManager {
       this.paths.icon
     );
 
-    await this.drive.connectSyncRoot();
+    await this.container.virtualDrive.connectSyncRoot();
   }
 
   watch() {
-    this.drive.watchAndWait(this.paths.root);
+    this.container.virtualDrive.watchAndWait(this.paths.root);
   }
 
   async stop() {
-    await this.drive.disconnectSyncRoot();
+    await this.container.virtualDrive.disconnectSyncRoot();
   }
 }

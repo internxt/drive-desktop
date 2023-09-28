@@ -3,14 +3,14 @@ import { FileAlreadyExistsError } from '../domain/errors/FileAlreadyExistsError'
 import { FilePath } from '../domain/FilePath';
 import { File } from '../domain/File';
 import { FileRepository } from '../domain/FileRepository';
-import { WebdavFolderFinder } from '../../folders/application/WebdavFolderFinder';
+import { FolderFinder } from '../../folders/application/FolderFinder';
 import { FileFinderByContentsId } from './FileFinderByContentsId';
 
 export class FilePathUpdater {
   constructor(
     private readonly repository: FileRepository,
     private readonly fileFinderByContentsId: FileFinderByContentsId,
-    private readonly folderFinder: WebdavFolderFinder
+    private readonly folderFinder: FolderFinder
   ) {}
 
   private async rename(file: File, path: FilePath) {

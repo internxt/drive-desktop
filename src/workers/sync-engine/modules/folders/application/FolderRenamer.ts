@@ -3,27 +3,25 @@ import { FolderPath } from '../domain/FolderPath';
 import { Folder } from '../domain/Folder';
 import { FolderRepository } from '../domain/FolderRepository';
 
-export class WebdavFolderRenamer {
+export class FolderRenamer {
   constructor(
     private readonly repository: FolderRepository,
     private readonly ipc: SyncEngineIpc
   ) {}
 
-  async run(folder: Folder, destination: string) {
-    const path = new FolderPath(destination);
-
+  async run(folder: Folder, destination: FolderPath) {
     this.ipc.send('RENAMING_FOLDER', {
       oldName: folder.name,
-      newName: path.name(),
+      newName: destination.name(),
     });
 
-    folder.rename(path);
+    folder.rename(destination);
 
     await this.repository.updateName(folder);
 
     this.ipc.send('FOLDER_RENAMED', {
       oldName: folder.name,
-      newName: path.name(),
+      newName: destination.name(),
     });
   }
 }

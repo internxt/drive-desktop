@@ -21,7 +21,12 @@ export abstract class Path extends ValueObject<string> {
   }
 
   dirname(): string {
-    return this.convertPathToCurrentPlatform(path.dirname(this.value));
+    const dirname = this.convertPathToCurrentPlatform(path.dirname(this.value));
+    if (dirname === '.') {
+      return path.sep;
+    }
+
+    return dirname;
   }
 
   posixDirname(): string {

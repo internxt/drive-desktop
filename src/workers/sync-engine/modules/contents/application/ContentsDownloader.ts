@@ -4,7 +4,7 @@ import { ContentFileDownloader } from '../domain/contentHandlers/ContentFileDown
 import { File } from '../../files/domain/File';
 import { LocalFileContents } from '../domain/LocalFileContents';
 import { LocalFileWriter } from '../domain/LocalFileWriter';
-import { Stopwatch } from 'shared/types/Stopwatch';
+import { Stopwatch } from '../../../../../shared/types/Stopwatch';
 import Logger from 'electron-log';
 
 export class ContentsDownloader {

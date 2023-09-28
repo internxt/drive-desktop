@@ -6,4 +6,12 @@ export abstract class CallbackController {
       ''
     );
   }
+  protected isContentsId(id: string): boolean {
+    // make sure the id is trimmed before comparing
+    // if it was already trimmed should not change its length
+    const trimmed = this.trim(id);
+
+    // TODO: need a better way to detect if its a file or a folder
+    return trimmed.length === 24;
+  }
 }

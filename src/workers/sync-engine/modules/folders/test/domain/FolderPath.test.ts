@@ -3,7 +3,7 @@ import { PlatformPathConverter } from '../../../shared/test/helpers/PlatformPath
 import path from 'path';
 
 describe('Path', () => {
-  describe('path instanciation', () => {
+  describe('path instantiation', () => {
     it('path from parts creates expected result', () => {
       const parts = [path.sep, 'Family'];
 
