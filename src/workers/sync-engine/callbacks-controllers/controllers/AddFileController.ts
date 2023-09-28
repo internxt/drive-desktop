@@ -11,22 +11,31 @@ import { FolderCreator } from '../../modules/folders/application/FolderCreator';
 import { MapObserver } from 'workers/sync-engine/modules/shared/domain/MapObserver';
 import { FolderFinder } from 'workers/sync-engine/modules/folders/application/FolderFinder';
 
-export type DehydrateAndCreatePlaceholder = (
-  id: string,
-  relativePath: string,
-  size: number
-) => void;
+type Queue = Map<string, (acknowledge: boolean, id: string) => void>;
 
 export class AddFileController extends CallbackController {
-  private filesQueue = new Map<
-    string,
-    (acknowledge: boolean, id: string) => void
-  >();
+  private readonly filesQueue: Queue;
+  private readonly foldersQueue: Queue;
 
-  private foldersQueue = new Map<
-    string,
-    (acknowledge: boolean, id: string) => void
-  >();
+  private readonly observer: MapObserver;
+
+  constructor(
+    private readonly contentsUploader: RetryContentsUploader,
+    private readonly filePathFromAbsolutePathCreator: FilePathFromAbsolutePathCreator,
+    private readonly fileCreator: FileCreator,
+    private readonly fileDeleter: FileDeleter,
+    private readonly searchByPartial: FileByPartialSearcher,
+    private readonly folderCreator: FolderCreator,
+    private readonly folderFinder: FolderFinder
+  ) {
+    super();
+
+    this.filesQueue = new Map();
+    this.foldersQueue = new Map();
+
+    this.observer = new MapObserver(this.foldersQueue, this.createFiles);
+    this.observer.startObserving();
+  }
 
   private createFile = async (
     absolutePath: string,
@@ -89,23 +98,6 @@ export class AddFileController extends CallbackController {
       await this.createFolder(absolutePath, callback);
     }
   };
-
-  private readonly obsever = new MapObserver(
-    this.foldersQueue,
-    this.createFiles
-  );
-
-  constructor(
-    private readonly contentsUploader: RetryContentsUploader,
-    private readonly filePathFromAbsolutePathCreator: FilePathFromAbsolutePathCreator,
-    private readonly fileCreator: FileCreator,
-    private readonly fileDeleter: FileDeleter,
-    private readonly searchByPartial: FileByPartialSearcher,
-    private readonly folderCreator: FolderCreator,
-    private readonly folderFinder: FolderFinder
-  ) {
-    super();
-  }
 
   async execute(
     absolutePath: string,

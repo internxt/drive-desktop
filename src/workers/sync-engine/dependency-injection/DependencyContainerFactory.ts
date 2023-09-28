@@ -8,6 +8,7 @@ import { buildFilesContainer } from './files/builder';
 import { buildFoldersContainer } from './folders/builder';
 import { buildItemsContainer } from './items/builder';
 import { DependencyInjectionVirtualDrive } from './common/virtualDrive';
+import { buildPlaceholdersContainer } from './placeholders/builder';
 
 export class DependencyContainerFactory {
   private static _container: DependencyContainer | undefined;
@@ -39,9 +40,10 @@ export class DependencyContainerFactory {
     const { bus } = DependencyInjectionEventBus;
     const { virtualDrive } = DependencyInjectionVirtualDrive;
 
+    const PlaceholderContainer = buildPlaceholdersContainer();
     const itemsContainer = buildItemsContainer();
     const contentsContainer = await buildContentsContainer();
-    const foldersContainer = await buildFoldersContainer();
+    const foldersContainer = await buildFoldersContainer(PlaceholderContainer);
     const { container: filesContainer } = await buildFilesContainer(
       foldersContainer
     );

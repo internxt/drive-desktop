@@ -3,11 +3,9 @@ export class MapObserver {
     private readonly mapToObserve: Map<any, any>,
     private readonly callback: () => void,
     private intervalId: NodeJS.Timeout | null = null
-  ) {
-    this.startObserving();
-  }
+  ) {}
 
-  private startObserving() {
+  startObserving() {
     if (this.intervalId === null) {
       this.intervalId = setInterval(() => {
         if (this.mapToObserve.size === 0) {

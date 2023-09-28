@@ -2,19 +2,16 @@ import { FolderFinder } from '../../application/FolderFinder';
 import { FolderMover } from '../../application/FolderMover';
 import { FolderMother } from '../domain/FolderMother';
 import { FolderRepositoryMock } from '../__mocks__/FolderRepositoryMock';
-import { IpcRendererSyncEngineMock } from '../../../shared/test/__mock__/IpcRendererSyncEngineMock';
 import { FolderPath } from '../../domain/FolderPath';
 
 describe('Folder Mover', () => {
   let repository: FolderRepositoryMock;
   let folderFinder: FolderFinder;
-  let ipc: IpcRendererSyncEngineMock;
   let SUT: FolderMover;
 
   beforeEach(() => {
     repository = new FolderRepositoryMock();
     folderFinder = new FolderFinder(repository);
-    ipc = new IpcRendererSyncEngineMock();
 
     SUT = new FolderMover(repository, folderFinder);
   });

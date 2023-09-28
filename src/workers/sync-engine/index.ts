@@ -4,7 +4,6 @@ import { DependencyContainerFactory } from './dependency-injection/DependencyCon
 import packageJson from '../../../package.json';
 import { BindingsManager } from './BindingManager';
 import fs from 'fs/promises';
-import { buildControllers } from './callbacks-controllers/buildControllers';
 import { iconPath } from 'workers/utils/icon';
 
 async function ensureTheFolderExist(path: string) {
