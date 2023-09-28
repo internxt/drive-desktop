@@ -2,14 +2,15 @@ import { Folder } from '../domain/Folder';
 import { FolderRepository } from '../domain/FolderRepository';
 import { FolderStatuses } from '../domain/FolderStatus';
 
-export class ParentFoldersExistForDeletion {
+export class AllParentFoldersStatusIsExists {
   constructor(private readonly repository: FolderRepository) {}
 
   run(id: Folder['id']): boolean {
     const folder = this.repository.searchByPartial({ id });
 
     if (!folder) {
-      throw new Error(`Folder with id ${id} was not found`);
+      // TODO: investigate why when uploading a file in a path than previously existed returns undefined
+      return true;
     }
 
     if (!folder.hasStatus(FolderStatuses.EXISTS)) {

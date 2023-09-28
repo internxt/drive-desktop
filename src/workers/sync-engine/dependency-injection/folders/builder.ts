@@ -3,7 +3,7 @@ import { FolderDeleter } from 'workers/sync-engine/modules/folders/application/F
 import { FolderFinder } from 'workers/sync-engine/modules/folders/application/FolderFinder';
 import { FolderPathCreator } from 'workers/sync-engine/modules/folders/application/FolderPathCreator';
 import { FolderSearcher } from 'workers/sync-engine/modules/folders/application/FolderSearcher';
-import { ParentFoldersExistForDeletion } from 'workers/sync-engine/modules/folders/application/ParentFoldersExistForDeletion';
+import { AllParentFoldersStatusIsExists } from 'workers/sync-engine/modules/folders/application/AllParentFoldersStatusIsExists';
 import { HttpFolderRepository } from 'workers/sync-engine/modules/folders/infrastructure/HttpFolderRepository';
 import { ipcRendererSyncEngine } from '../../ipcRendererSyncEngine';
 import { DependencyInjectionHttpClientsProvider } from '../common/clients';
@@ -38,13 +38,13 @@ export async function buildFoldersContainer(
 
   const folderSearcher = new FolderSearcher(repository);
 
-  const parentFoldersExistForDeletion = new ParentFoldersExistForDeletion(
+  const allParentFoldersStatusIsExists = new AllParentFoldersStatusIsExists(
     repository
   );
 
   const folderDeleter = new FolderDeleter(
     repository,
-    parentFoldersExistForDeletion,
+    allParentFoldersStatusIsExists,
     placeholdersContainer.placeholderCreator
   );
 
@@ -71,7 +71,7 @@ export async function buildFoldersContainer(
     folderPathFromAbsolutePathCreator,
     folderSearcher,
     folderDeleter,
-    parentFoldersExistForDeletion,
+    allParentFoldersStatusIsExists: allParentFoldersStatusIsExists,
     folderPathUpdater,
   };
 }

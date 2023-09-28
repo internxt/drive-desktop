@@ -68,7 +68,7 @@ export class RemoteSyncManager {
    * Throws an error if there's a sync in progress for this class instance
    */
   async startRemoteSync() {
-    const start = Date.now();
+    // const start = Date.now();
     Logger.info('Starting remote to local sync');
 
     const testPassed = this.smokeTest();
@@ -102,17 +102,18 @@ export class RemoteSyncManager {
       this.changeStatus('SYNC_FAILED');
       reportError(error as Error);
     } finally {
-      const totalDuration = Date.now() - start;
+      // const totalDuration = Date.now() - start;
 
-      Logger.info('-----------------');
-      Logger.info('REMOTE SYNC STATS\n');
+      // Logger.info('-----------------');
+      // Logger.info('REMOTE SYNC STATS\n');
       Logger.info('Total synced files: ', this.totalFilesSynced);
+      Logger.info('Total synced folders: ', this.totalFoldersSynced);
 
-      Logger.info(
-        `Files sync speed: ${
-          this.totalFilesSynced / (totalDuration / 1000)
-        } files/second`
-      );
+      // Logger.info(
+      //   `Files sync speed: ${
+      //     this.totalFilesSynced / (totalDuration / 1000)
+      //   } files/second`
+      // );
 
       // Logger.info('Total synced folders: ', this.totalFoldersSynced);
       // Logger.info(

@@ -1,18 +1,13 @@
 import { DependencyContainer } from '../dependency-injection/DependencyContainer';
-import { AddFileController } from './controllers/AddFileController';
+import { AddController } from './controllers/AddController';
 import { DeleteController } from './controllers/DeleteController';
 import { DownloadFileController } from './controllers/DownloadFileController';
 import { RenameOrMoveController } from './controllers/RenameOrMoveController';
 
 export function buildControllers(container: DependencyContainer) {
-  const addFileController = new AddFileController(
-    container.contentsUploader,
-    container.filePathFromAbsolutePathCreator,
-    container.fileCreator,
-    container.fileDeleter,
-    container.fileByPartialSearcher,
-    container.folderCreator,
-    container.folderFinder
+  const addFileController = new AddController(
+    container.fileCreationOrchestrator,
+    container.folderCreator
   );
 
   const deleteController = new DeleteController(
