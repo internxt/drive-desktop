@@ -4,7 +4,7 @@ import { FolderFinder } from '../../modules/folders/application/FolderFinder';
 import { FolderPathCreator } from '../../modules/folders/application/FolderPathCreator';
 import { FolderPathUpdater } from '../../modules/folders/application/FolderPathUpdater';
 import { FolderSearcher } from '../../modules/folders/application/FolderSearcher';
-import { ParentFoldersExistForDeletion } from '../../modules/folders/application/ParentFoldersExistForDeletion';
+import { AllParentFoldersStatusIsExists } from '../../modules/folders/application/AllParentFoldersStatusIsExists';
 
 export interface FoldersContainer {
   folderCreator: FolderCreator;
@@ -12,6 +12,6 @@ export interface FoldersContainer {
   folderPathFromAbsolutePathCreator: FolderPathCreator;
   folderSearcher: FolderSearcher;
   folderDeleter: FolderDeleter;
-  parentFoldersExistForDeletion: ParentFoldersExistForDeletion;
+  allParentFoldersStatusIsExists: AllParentFoldersStatusIsExists;
   folderPathUpdater: FolderPathUpdater;
 }

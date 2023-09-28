@@ -1,5 +1,4 @@
 import { getUser } from 'main/auth/service';
-import { getClients } from '../../../shared/HttpClient/backgroud-process-clients';
 import { DomainEventSubscribers } from '../modules/shared/infrastructure/DomainEventSubscribers';
 import { DependencyContainer } from './DependencyContainer';
 import { DependencyInjectionEventBus } from './common/eventBus';
@@ -9,6 +8,7 @@ import { buildFoldersContainer } from './folders/builder';
 import { buildItemsContainer } from './items/builder';
 import { DependencyInjectionVirtualDrive } from './common/virtualDrive';
 import { buildPlaceholdersContainer } from './placeholders/builder';
+import { buildBoundaryBridgeContainer } from './boundaryBridge/build';
 
 export class DependencyContainerFactory {
   private static _container: DependencyContainer | undefined;
@@ -35,8 +35,6 @@ export class DependencyContainerFactory {
       throw new Error('');
     }
 
-    const clients = getClients();
-
     const { bus } = DependencyInjectionEventBus;
     const { virtualDrive } = DependencyInjectionVirtualDrive;
 
@@ -48,16 +46,18 @@ export class DependencyContainerFactory {
       foldersContainer,
       placeholderContainer
     );
+    const boundaryBridgeContainer = buildBoundaryBridgeContainer(
+      contentsContainer,
+      filesContainer
+    );
 
     const container = {
-      drive: clients.drive,
-      newDrive: clients.newDrive,
-
       ...itemsContainer,
       ...contentsContainer,
       ...filesContainer,
       ...foldersContainer,
       ...placeholderContainer,
+      ...boundaryBridgeContainer,
 
       virtualDrive,
     };

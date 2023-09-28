@@ -1,29 +1,37 @@
 import Logger from 'electron-log';
 import { SyncEngineIpc } from '../../../ipcRendererSyncEngine';
-import { ParentFoldersExistForDeletion } from '../../folders/application/ParentFoldersExistForDeletion';
+import { AllParentFoldersStatusIsExists } from '../../folders/application/AllParentFoldersStatusIsExists';
 import { FileRepository } from '../domain/FileRepository';
 import { FileStatuses } from '../domain/FileStatus';
-import { FileFinderByContentsId } from './FileFinderByContentsId';
 import { PlaceholderCreator } from '../../placeholders/domain/PlaceholderCreator';
+import { FileNotFoundError } from '../domain/errors/FileNotFoundError';
+import { File } from '../domain/File';
 
 export class FileDeleter {
   constructor(
     private readonly repository: FileRepository,
-    private readonly fileFinder: FileFinderByContentsId,
-    private readonly parentFoldersExistForDeletion: ParentFoldersExistForDeletion,
+    private readonly allParentFoldersStatusIsExists: AllParentFoldersStatusIsExists,
     private readonly placeholderCreator: PlaceholderCreator,
     private readonly ipc: SyncEngineIpc
   ) {}
 
   async run(contentsId: string): Promise<void> {
-    const file = this.fileFinder.run(contentsId);
+    const file = this.repository.searchByPartial({ contentsId });
 
+    if (!file) {
+      throw new FileNotFoundError(contentsId);
+    }
+
+    await this.act(file);
+  }
+
+  async act(file: File) {
     if (file.status.is(FileStatuses.TRASHED)) {
       Logger.warn(`File ${file.path.value} is already trashed. Will ignore...`);
       return;
     }
 
-    const allParentsExists = this.parentFoldersExistForDeletion.run(
+    const allParentsExists = this.allParentFoldersStatusIsExists.run(
       file.folderId
     );
 

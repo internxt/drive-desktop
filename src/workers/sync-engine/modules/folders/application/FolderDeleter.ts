@@ -3,13 +3,13 @@ import { Folder } from '../domain/Folder';
 import { FolderRepository } from '../domain/FolderRepository';
 import { ActionNotPermittedError } from '../domain/errors/ActionNotPermittedError';
 import { FolderNotFoundError } from '../domain/errors/FolderNotFoundError';
-import { ParentFoldersExistForDeletion } from './ParentFoldersExistForDeletion';
+import { AllParentFoldersStatusIsExists } from './AllParentFoldersStatusIsExists';
 import { PlaceholderCreator } from '../../placeholders/domain/PlaceholderCreator';
 
 export class FolderDeleter {
   constructor(
     private readonly repository: FolderRepository,
-    private readonly parentFoldersExistForDeletion: ParentFoldersExistForDeletion,
+    private readonly allParentFoldersStatusIsExists: AllParentFoldersStatusIsExists,
     private readonly placeholderCreator: PlaceholderCreator
   ) {}
 
@@ -25,7 +25,7 @@ export class FolderDeleter {
         throw new ActionNotPermittedError('Trash root folder');
       }
 
-      const allParentsExists = this.parentFoldersExistForDeletion.run(
+      const allParentsExists = this.allParentFoldersStatusIsExists.run(
         // TODO: Create a new aggregate root for root folder so the rest have the parent Id as number
         folder.parentId as number
       );

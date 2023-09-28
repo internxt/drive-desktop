@@ -54,8 +54,7 @@ export async function buildFilesContainer(
 
   const fileDeleter = new FileDeleter(
     fileRepository,
-    fileFinderByContentsId,
-    folderContainer.parentFoldersExistForDeletion,
+    folderContainer.allParentFoldersStatusIsExists,
     placeholderContainer.placeholderCreator,
     ipcRendererSyncEngine
   );
@@ -71,6 +70,7 @@ export async function buildFilesContainer(
   const fileCreator = new FileCreator(
     fileRepository,
     folderContainer.folderFinder,
+    fileDeleter,
     eventBus
   );
 
