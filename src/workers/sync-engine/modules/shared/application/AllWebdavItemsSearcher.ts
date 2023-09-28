@@ -1,12 +1,12 @@
 import { FileRepository } from '../../files/domain/FileRepository';
-import { WebdavFolderFinder } from '../../folders/application/WebdavFolderFinder';
+import { FolderFinder } from '../../folders/application/FolderFinder';
 import { FolderRepository } from '../../folders/domain/FolderRepository';
 
 export class AllWebdavItemsNameLister {
   constructor(
     private readonly filesRepository: FileRepository,
     private readonly folderRepository: FolderRepository,
-    private readonly folderfinder: WebdavFolderFinder
+    private readonly folderfinder: FolderFinder
   ) {}
 
   async run(path: string): Promise<Array<string>> {

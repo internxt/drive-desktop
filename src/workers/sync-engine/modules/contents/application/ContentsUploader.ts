@@ -17,7 +17,7 @@ export class ContentsUploader {
     localFileContents: LocalFileContents
   ) {
     uploader.on('start', () => {
-      this.ipc.send('UPLOADING_FILE', {
+      this.ipc.send('FILE_UPLOADING', {
         name: localFileContents.name,
         extension: localFileContents.extension,
         nameWithExtension: localFileContents.nameWithExtension,
@@ -27,7 +27,7 @@ export class ContentsUploader {
     });
 
     uploader.on('progress', (progress: number) => {
-      this.ipc.send('UPLOADING_FILE', {
+      this.ipc.send('FILE_UPLOADING', {
         name: localFileContents.name,
         extension: localFileContents.extension,
         nameWithExtension: localFileContents.nameWithExtension,

@@ -47,6 +47,16 @@ ipcMainDrive.on('FILE_OVERWRITED', (_, payload) => {
   });
 });
 
+ipcMainDrive.on('FILE_RENAMING', (_, payload) => {
+  const { nameWithExtension, oldName } = payload;
+
+  broadcastToWindows('sync-info-update', {
+    action: 'RENAMING',
+    name: nameWithExtension,
+    oldName,
+  });
+});
+
 ipcMainDrive.on('FILE_RENAMED', (_, payload) => {
   const { nameWithExtension } = payload;
 

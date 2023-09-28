@@ -4,14 +4,16 @@ import { ServerFile } from '../../../../filesystems/domain/ServerFile';
 import { ServerFolder } from '../../../../filesystems/domain/ServerFolder';
 import { Traverser } from '../../items/application/Traverser';
 import { FolderPath } from '../domain/FolderPath';
-import { Folder } from '../domain/Folder';
+import { Folder, FolderAttributes } from '../domain/Folder';
 import { FolderRepository } from '../domain/FolderRepository';
 import Logger from 'electron-log';
 import * as uuid from 'uuid';
 import { UpdateFolderNameDTO } from './dtos/UpdateFolderNameDTO';
 import { SyncEngineIpc } from '../../../ipcRendererSyncEngine';
 import { RemoteItemsGenerator } from '../../items/application/RemoteItemsGenerator';
-import { FolderStatuses } from '../domain/FolderStatus';
+import { FolderStatus, FolderStatuses } from '../domain/FolderStatus';
+import nodePath from 'path';
+import { PlatformPathConverter } from '../../shared/test/helpers/PlatformPathConverter';
 
 export class HttpFolderRepository implements FolderRepository {
   public folders: Record<string, Folder> = {};
@@ -43,14 +45,34 @@ export class HttpFolderRepository implements FolderRepository {
     ) as Array<[string, Folder]>;
 
     this.folders = folders.reduce((items, [key, value]) => {
-      items[key] = value;
+      if (items[key] === undefined) {
+        items[key] = value;
+      } else if (value.updatedAt > items[key].updatedAt) {
+        items[key] = value;
+      }
 
       return items;
-    }, {} as Record<string, Folder>);
+    }, this.folders);
   }
 
   search(path: string): Nullable<Folder> {
+    // Logger.debug(Object.keys(this.folders));
     return this.folders[path];
+  }
+
+  searchByPartial(partial: Partial<FolderAttributes>): Nullable<Folder> {
+    const keys = Object.keys(partial) as Array<keyof Partial<FolderAttributes>>;
+
+    const folder = Object.values(this.folders).find((folder) => {
+      // Logger.debug(folder.attributes()[keys[0]], partial[keys[0]]);
+      return keys.every((key) => folder.attributes()[key] === partial[key]);
+    });
+
+    if (folder) {
+      return Folder.from(folder.attributes());
+    }
+
+    return undefined;
   }
 
   async create(path: FolderPath, parentId: number): Promise<Folder> {
@@ -69,13 +91,13 @@ export class HttpFolderRepository implements FolderRepository {
     );
 
     if (response.status !== 201) {
-      throw new Error('Folder creation failded');
+      throw new Error('Folder creation failed');
     }
 
     const serverFolder = response.data as ServerFolder | null;
 
     if (!serverFolder) {
-      throw new Error('Folder creation failded, no data returned');
+      throw new Error('Folder creation failed, no data returned');
     }
 
     const folder = Folder.create({
@@ -87,6 +109,10 @@ export class HttpFolderRepository implements FolderRepository {
       path: path.value,
       status: FolderStatuses.EXISTS,
     });
+
+    const normalized = nodePath.normalize(folder.path.value);
+    const posix = PlatformPathConverter.winToPosix(normalized);
+    this.folders[posix] = folder;
 
     return folder;
   }
@@ -106,6 +132,14 @@ export class HttpFolderRepository implements FolderRepository {
         `[REPOSITORY] Error updating item metadata: ${res.status}`
       );
     }
+
+    const old = this.searchByPartial({ uuid: folder.uuid });
+
+    if (old) {
+      delete this.folders[old?.path.value];
+    }
+
+    this.folders[folder.path.value] = folder;
   }
 
   async updateParentDir(folder: Folder): Promise<void> {
@@ -119,7 +153,13 @@ export class HttpFolderRepository implements FolderRepository {
       throw new Error(`[REPOSITORY] Error moving item: ${res.status}`);
     }
 
-    await this.init();
+    const old = this.searchByPartial({ uuid: folder.uuid });
+
+    if (old) {
+      delete this.folders[old?.path.value];
+    }
+
+    this.folders[folder.path.value] = folder;
   }
 
   async searchOn(folder: Folder): Promise<Array<Folder>> {
@@ -128,6 +168,10 @@ export class HttpFolderRepository implements FolderRepository {
   }
 
   async trash(folder: Folder): Promise<void> {
+    if (folder.status !== FolderStatus.Trashed) {
+      throw new Error('The status need to be trashed to be deleted');
+    }
+
     const result = await this.trashClient.post(
       `${process.env.NEW_DRIVE_URL}/drive/storage/trash/add`,
       {
@@ -135,16 +179,17 @@ export class HttpFolderRepository implements FolderRepository {
       }
     );
 
-    if (result.status === 200) {
+    if (result.status !== 200) {
+      Logger.error(
+        '[FOLDER REPOSITORY] Folder deletion failed with status: ',
+        result.status,
+        result.statusText
+      );
       return;
     }
 
-    Logger.error(
-      '[FOLDER REPOSITORY] Folder deletion failed with status: ',
-      result.status,
-      result.statusText
-    );
-
-    await this.ipc.invoke('START_REMOTE_SYNC');
+    const normalized = nodePath.normalize(folder.path.value);
+    const posix = PlatformPathConverter.winToPosix(normalized);
+    this.folders[posix] = folder;
   }
 }

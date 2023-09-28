@@ -68,7 +68,7 @@ export class RemoteSyncManager {
    * Throws an error if there's a sync in progress for this class instance
    */
   async startRemoteSync() {
-    const start = Date.now();
+    // const start = Date.now();
     Logger.info('Starting remote to local sync');
 
     const testPassed = this.smokeTest();
@@ -102,26 +102,27 @@ export class RemoteSyncManager {
       this.changeStatus('SYNC_FAILED');
       reportError(error as Error);
     } finally {
-      const totalDuration = Date.now() - start;
+      // const totalDuration = Date.now() - start;
 
-      Logger.info('-----------------');
-      Logger.info('REMOTE SYNC STATS\n');
+      // Logger.info('-----------------');
+      // Logger.info('REMOTE SYNC STATS\n');
       Logger.info('Total synced files: ', this.totalFilesSynced);
-
-      Logger.info(
-        `Files sync speed: ${
-          this.totalFilesSynced / (totalDuration / 1000)
-        } files/second`
-      );
-
       Logger.info('Total synced folders: ', this.totalFoldersSynced);
-      Logger.info(
-        `Folders sync speed: ${
-          this.totalFoldersSynced / (totalDuration / 1000)
-        } folders/second`
-      );
-      Logger.info(`Total remote to local sync time: ${totalDuration}ms`);
-      Logger.info('-----------------');
+
+      // Logger.info(
+      //   `Files sync speed: ${
+      //     this.totalFilesSynced / (totalDuration / 1000)
+      //   } files/second`
+      // );
+
+      // Logger.info('Total synced folders: ', this.totalFoldersSynced);
+      // Logger.info(
+      //   `Folders sync speed: ${
+      //     this.totalFoldersSynced / (totalDuration / 1000)
+      //   } folders/second`
+      // );
+      // Logger.info(`Total remote to local sync time: ${totalDuration}ms`);
+      // Logger.info('-----------------');
     }
   }
 
@@ -387,9 +388,9 @@ export class RemoteSyncManager {
         ? updatedAtCheckpoint.toISOString()
         : undefined,
     };
-    Logger.info(
-      `Requesting folders with params ${JSON.stringify(params, null, 2)}`
-    );
+    // Logger.info(
+    //   `Requesting folders with params ${JSON.stringify(params, null, 2)}`
+    // );
     const response = await this.config.httpClient.get(
       `${process.env.NEW_DRIVE_URL}/drive/folders`,
       {
