@@ -40,12 +40,13 @@ export class DependencyContainerFactory {
     const { bus } = DependencyInjectionEventBus;
     const { virtualDrive } = DependencyInjectionVirtualDrive;
 
-    const PlaceholderContainer = buildPlaceholdersContainer();
     const itemsContainer = buildItemsContainer();
+    const placeholderContainer = buildPlaceholdersContainer(itemsContainer);
     const contentsContainer = await buildContentsContainer();
-    const foldersContainer = await buildFoldersContainer(PlaceholderContainer);
+    const foldersContainer = await buildFoldersContainer(placeholderContainer);
     const { container: filesContainer } = await buildFilesContainer(
-      foldersContainer
+      foldersContainer,
+      placeholderContainer
     );
 
     const container = {
@@ -56,6 +57,7 @@ export class DependencyContainerFactory {
       ...contentsContainer,
       ...filesContainer,
       ...foldersContainer,
+      ...placeholderContainer,
 
       virtualDrive,
     };

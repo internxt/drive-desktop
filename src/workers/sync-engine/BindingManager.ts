@@ -1,6 +1,4 @@
 import Logger from 'electron-log';
-import { Folder } from './modules/folders/domain/Folder';
-import { File } from './modules/files/domain/File';
 import { DependencyContainer } from './dependency-injection/DependencyContainer';
 import { buildControllers } from './callbacks-controllers/buildControllers';
 
@@ -14,30 +12,6 @@ export class BindingsManager {
       icon: string;
     }
   ) {}
-
-  public createFolderPlaceholder(folder: Folder) {
-    // In order to create a folder placeholder it's path must en with /
-    const folderPath = `${folder.path.value}/`;
-
-    this.container.virtualDrive.createItemByPath(folderPath, folder.uuid);
-  }
-  public createFilePlaceholder(file: File) {
-    this.container.virtualDrive.createItemByPath(
-      file.path.value,
-      file.contentsId,
-      file.size
-    );
-  }
-
-  public createPlaceHolders(items: Array<File | Folder>) {
-    items.forEach((item) => {
-      if (item.isFile()) {
-        return this.createFilePlaceholder(item);
-      }
-
-      this.createFolderPlaceholder(item);
-    });
-  }
 
   async start(version: string, providerId: string) {
     await this.stop();

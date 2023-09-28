@@ -9,12 +9,14 @@ import { ContentsContainer } from './contents/ContentsContainer';
 import { FilesContainer } from './files/FilesContainer';
 import { FoldersContainer } from './folders/FoldersContainer';
 import { ItemsContainer } from './items/ItemsContainer';
+import { PlaceholderContainer } from './placeholders/PlaceholdersContainer';
 
 export interface DependencyContainer
   extends ItemsContainer,
     ContentsContainer,
     FilesContainer,
-    FoldersContainer {
+    FoldersContainer,
+    PlaceholderContainer {
   fileCreator: FileCreator;
   filePathUpdater: FilePathUpdater;
   fileSearcher: FileSearcher;

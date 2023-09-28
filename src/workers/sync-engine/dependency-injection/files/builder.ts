@@ -1,4 +1,6 @@
 import { CreateFilePlaceholderEmitter } from 'workers/sync-engine/modules/files/application/CreateFilePlaceholderEmitter';
+import { CreateFilePlaceholderOnDeletionFailed } from 'workers/sync-engine/modules/files/application/CreateFilePlaceholderOnDeletionFailed';
+import { FilePlaceholderCreatorFromContentsId } from 'workers/sync-engine/modules/files/application/FilePlaceholderCreatorFromContentsId';
 import crypt from '../../../utils/crypt';
 import { ipcRendererSyncEngine } from '../../ipcRendererSyncEngine';
 import { FileByPartialSearcher } from '../../modules/files/application/FileByPartialSearcher';
@@ -16,14 +18,12 @@ import { DependencyInjectionLocalRootFolderPath } from '../common/localRootFolde
 import { DependencyInjectionTraverserProvider } from '../common/traverser';
 import { DependencyInjectionUserProvider } from '../common/user';
 import { FoldersContainer } from '../folders/FoldersContainer';
+import { PlaceholderContainer } from '../placeholders/PlaceholdersContainer';
 import { FilesContainer } from './FilesContainer';
-import { FilePlaceholderCreatorFromContentsId } from 'workers/sync-engine/modules/files/application/FilePlaceholderCreatorFromContentsId';
-import { FilePlaceholderCreator } from 'workers/sync-engine/modules/files/infrastructure/FilePlaceholderCreator';
-import { CreateFilePlaceholderOnDeletionFailed } from 'workers/sync-engine/modules/files/application/CreateFilePlaceholderOnDeletionFailed';
-import { DependencyInjectionVirtualDrive } from '../common/virtualDrive';
 
 export async function buildFilesContainer(
-  folderContainer: FoldersContainer
+  folderContainer: FoldersContainer,
+  placeholderContainer: PlaceholderContainer
 ): Promise<{
   container: FilesContainer;
   subscribers: any;
@@ -33,7 +33,6 @@ export async function buildFilesContainer(
   const user = DependencyInjectionUserProvider.get();
   const localRootFolderPath = DependencyInjectionLocalRootFolderPath.get();
   const { bus: eventBus } = DependencyInjectionEventBus;
-  const { virtualDrive } = DependencyInjectionVirtualDrive;
 
   const fileRepository = new HttpFileRepository(
     crypt,
@@ -53,13 +52,11 @@ export async function buildFilesContainer(
     fileRepository
   );
 
-  const placeholderCreator = new FilePlaceholderCreator(virtualDrive);
-
   const fileDeleter = new FileDeleter(
     fileRepository,
     fileFinderByContentsId,
     folderContainer.parentFoldersExistForDeletion,
-    placeholderCreator,
+    placeholderContainer.placeholderCreator,
     ipcRendererSyncEngine
   );
 
@@ -90,7 +87,7 @@ export async function buildFilesContainer(
   const filePlaceholderCreatorFromContentsId =
     new FilePlaceholderCreatorFromContentsId(
       fileFinderByContentsId,
-      placeholderCreator
+      placeholderContainer.placeholderCreator
     );
 
   const createFilePlaceholderOnDeletionFailed =

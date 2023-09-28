@@ -47,9 +47,7 @@ async function setUp() {
     '{E9D7EB38-B229-5DC5-9396-017C449D59CD}'
   );
 
-  const tree = await container.treeBuilder.run();
-
-  bindings.createPlaceHolders(tree);
+  container.treePlaceholderCreator.run();
 
   bindings.watch();
 }

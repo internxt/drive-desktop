@@ -4,15 +4,14 @@ import { ParentFoldersExistForDeletion } from '../../folders/application/ParentF
 import { FileRepository } from '../domain/FileRepository';
 import { FileStatuses } from '../domain/FileStatus';
 import { FileFinderByContentsId } from './FileFinderByContentsId';
-import { FilePlaceholderCreator } from '../infrastructure/FilePlaceholderCreator';
+import { PlaceholderCreator } from '../../placeholders/domain/PlaceholderCreator';
 
 export class FileDeleter {
   constructor(
     private readonly repository: FileRepository,
     private readonly fileFinder: FileFinderByContentsId,
     private readonly parentFoldersExistForDeletion: ParentFoldersExistForDeletion,
-    // TODO: don't import it directly from infrastructure
-    private readonly filePlaceholderCreator: FilePlaceholderCreator,
+    private readonly placeholderCreator: PlaceholderCreator,
     private readonly ipc: SyncEngineIpc
   ) {}
 
@@ -68,7 +67,7 @@ export class FileDeleter {
         error: message,
       });
 
-      this.filePlaceholderCreator.run(file);
+      this.placeholderCreator.file(file);
     }
   }
 }
