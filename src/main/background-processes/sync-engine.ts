@@ -33,21 +33,21 @@ function spawnSyncEngineWorker() {
   });
 
   ipcMain.on('SYNC_ENGINE_PROCESS_SETUP_SUCCESSFUL', () => {
-    Logger.debug('[MAIN] SYNC ENGINE RUNNIG');
+    Logger.debug('[MAIN] SYNC ENGINE RUNNING');
     workerIsRunning = true;
   });
 
   ipcMain.on('SYNC_ENGINE_PROCESS_SETUP_FAILED', () => {
-    Logger.debug('[MAIN] SYNC ENGINE NOT RUNNIG');
+    Logger.debug('[MAIN] SYNC ENGINE NOT RUNNING');
     workerIsRunning = false;
   });
 }
 
 export async function stopSyncEngineWatcher() {
-  Logger.info('[MAIN] STOPING SYNC ENGINE WORKER...');
+  Logger.info('[MAIN] STOPPING SYNC ENGINE WORKER...');
 
   if (!workerIsRunning) {
-    Logger.info('[MAIN] WORKER WAS NOT RUNNIG');
+    Logger.info('[MAIN] WORKER WAS NOT RUNNING');
     worker?.destroy();
     worker = null;
     return;
@@ -55,7 +55,7 @@ export async function stopSyncEngineWatcher() {
 
   const stopPromise = new Promise<void>((resolve, reject) => {
     ipcMain.once('SYNC_ENGINE_STOP_ERROR', (_, error: Error) => {
-      Logger.error('[MAIN] Error stoping sync engine worker', error);
+      Logger.error('[MAIN] Error stopping sync engine worker', error);
       reject(error);
     });
 
@@ -64,15 +64,15 @@ export async function stopSyncEngineWatcher() {
       Logger.info('[MAIN] Sync engine stopped');
     });
 
-    const millisecndsToWait = 10_000;
+    const millisecondsToWait = 10_000;
 
     setTimeout(() => {
       reject(
         new Error(
-          `Timeout waiting for sync engien to stop after ${millisecndsToWait} milliseconds`
+          `Timeout waiting for sync engine to stop after ${millisecondsToWait} milliseconds`
         )
       );
-    }, millisecndsToWait);
+    }, millisecondsToWait);
   });
 
   try {
@@ -89,6 +89,55 @@ export async function stopSyncEngineWatcher() {
   }
 }
 
-eventBus.on('USER_LOGGED_OUT', stopSyncEngineWatcher);
-eventBus.on('USER_WAS_UNAUTHORIZED', stopSyncEngineWatcher);
+async function stopAndClearSyncEngineWatcher() {
+  Logger.info('[MAIN] STOPPING AND CLEAR SYNC ENGINE WORKER...');
+
+  if (!workerIsRunning) {
+    Logger.info('[MAIN] WORKER WAS NOT RUNNING');
+    worker?.destroy();
+    worker = null;
+    return;
+  }
+
+  const response = new Promise<void>((resolve, reject) => {
+    ipcMain.once(
+      'ERROR_ON_STOP_AND_CLEAR_SYNC_ENGINE_PROCESS',
+      (_, error: Error) => {
+        Logger.error('[MAIN] Error stopping sync engine worker', error);
+        reject(error);
+      }
+    );
+
+    ipcMain.once('SYNC_ENGINE_STOP_AND_CLEAR_SUCCESS', () => {
+      resolve();
+      Logger.info('[MAIN] Sync engine stopped and cleared');
+    });
+
+    const millisecondsToWait = 10_000;
+
+    setTimeout(() => {
+      reject(
+        new Error(
+          `Timeout waiting for sync engine to stop after ${millisecondsToWait} milliseconds`
+        )
+      );
+    }, millisecondsToWait);
+  });
+
+  try {
+    worker?.webContents.send('STOP_AND_CLEAR_SYNC_ENGINE_PROCESS');
+
+    await response;
+  } catch (err) {
+    // TODO: handle error
+    Logger.error(err);
+  } finally {
+    worker?.destroy();
+    workerIsRunning = false;
+    worker = null;
+  }
+}
+
+eventBus.on('USER_LOGGED_OUT', stopAndClearSyncEngineWatcher);
+eventBus.on('USER_WAS_UNAUTHORIZED', stopAndClearSyncEngineWatcher);
 eventBus.on('INITIAL_SYNC_READY', spawnSyncEngineWorker);
