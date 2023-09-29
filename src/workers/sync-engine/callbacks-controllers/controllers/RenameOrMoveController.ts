@@ -30,7 +30,7 @@ export class RenameOrMoveController extends CallbackController {
 
       const relative = this.filePathFromAbsolutePathCreator.run(absolutePath);
 
-      if (this.isContentsId(trimmedId)) {
+      if (this.isFilePlaceholder(trimmedId)) {
         await this.filePathUpdater.run(trimmedId, relative);
         return callback(true);
       }

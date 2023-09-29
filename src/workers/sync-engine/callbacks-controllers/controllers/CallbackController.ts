@@ -1,3 +1,6 @@
+import { isFilePlaceholderId } from '../../modules/placeholders/domain/FilePlaceholderId';
+import { isFolderPlaceholderId } from '../../modules/placeholders/domain/FolderPlaceholderId';
+
 export abstract class CallbackController {
   protected trim(id: string): string {
     return id.replace(
@@ -6,12 +9,20 @@ export abstract class CallbackController {
       ''
     );
   }
-  protected isContentsId(id: string): boolean {
+
+  protected isFilePlaceholder(id: string): boolean {
     // make sure the id is trimmed before comparing
     // if it was already trimmed should not change its length
     const trimmed = this.trim(id);
 
-    // TODO: need a better way to detect if its a file or a folder
-    return trimmed.length === 24;
+    return isFilePlaceholderId(trimmed);
+  }
+
+  protected isFolderPlaceholder(id: string): boolean {
+    // make sure the id is trimmed before comparing
+    // if it was already trimmed should not change its length
+    const trimmed = this.trim(id);
+
+    return isFolderPlaceholderId(trimmed);
   }
 }

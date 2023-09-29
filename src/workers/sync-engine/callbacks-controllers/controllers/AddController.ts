@@ -2,8 +2,10 @@ import Logger from 'electron-log';
 import { CallbackController } from './CallbackController';
 import { rawPathIsFolder } from '../helpers/rawPathIsFolder';
 import { FolderCreator } from '../../modules/folders/application/FolderCreator';
-import { MapObserver } from 'workers/sync-engine/modules/shared/domain/MapObserver';
-import { FileCreationOrchestrator } from 'workers/sync-engine/modules/boundaryBridge/application/FileCreationOrchestrator';
+import { MapObserver } from '../../modules/shared/domain/MapObserver';
+import { FileCreationOrchestrator } from '../../modules/boundaryBridge/application/FileCreationOrchestrator';
+import { createFolderPlaceholderId } from '../../modules/placeholders/domain/FolderPlaceholderId';
+import { createFilePlaceholderId } from '../../modules/placeholders/domain/FilePlaceholderId';
 
 type Queue = Map<string, (acknowledge: boolean, id: string) => void>;
 
@@ -32,7 +34,7 @@ export class AddController extends CallbackController {
   ) => {
     try {
       const contentsId = await this.fileCreationOrchestrator.run(absolutePath);
-      return callback(true, contentsId);
+      return callback(true, createFilePlaceholderId(contentsId));
     } catch (error: unknown) {
       Logger.error('Error when adding a file: ', error);
       callback(false, '');
@@ -60,7 +62,7 @@ export class AddController extends CallbackController {
     Logger.info('Creating folder', absolutePath);
     try {
       const folder = await this.folderCreator.run(absolutePath);
-      callback(true, folder.uuid);
+      callback(true, createFolderPlaceholderId(folder.uuid));
     } catch (error: unknown) {
       Logger.error('Error creating a folder: ', error);
       callback(false, '');

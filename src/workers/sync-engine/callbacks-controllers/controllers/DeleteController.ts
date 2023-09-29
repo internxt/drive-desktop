@@ -43,7 +43,7 @@ export class DeleteController extends CallbackController {
   async execute(contentsId: string) {
     const trimmedId = this.trim(contentsId);
 
-    if (this.isContentsId(trimmedId)) {
+    if (this.isFilePlaceholder(trimmedId)) {
       this.filesQueue.push(trimmedId);
       return;
     }
