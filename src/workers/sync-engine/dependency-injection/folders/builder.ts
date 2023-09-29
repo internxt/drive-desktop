@@ -1,19 +1,20 @@
-import { FolderCreator } from 'workers/sync-engine/modules/folders/application/FolderCreator';
-import { FolderDeleter } from 'workers/sync-engine/modules/folders/application/FolderDeleter';
-import { FolderFinder } from 'workers/sync-engine/modules/folders/application/FolderFinder';
-import { FolderPathCreator } from 'workers/sync-engine/modules/folders/application/FolderPathCreator';
-import { FolderSearcher } from 'workers/sync-engine/modules/folders/application/FolderSearcher';
-import { AllParentFoldersStatusIsExists } from 'workers/sync-engine/modules/folders/application/AllParentFoldersStatusIsExists';
-import { HttpFolderRepository } from 'workers/sync-engine/modules/folders/infrastructure/HttpFolderRepository';
+import { FolderCreator } from '../../modules/folders/application/FolderCreator';
+import { FolderDeleter } from '../../modules/folders/application/FolderDeleter';
+import { FolderFinder } from '../../modules/folders/application/FolderFinder';
+import { FolderPathCreator } from '../../modules/folders/application/FolderPathCreator';
+import { FolderSearcher } from '../../modules/folders/application/FolderSearcher';
+import { AllParentFoldersStatusIsExists } from '../../modules/folders/application/AllParentFoldersStatusIsExists';
+import { HttpFolderRepository } from '../../modules/folders/infrastructure/HttpFolderRepository';
 import { ipcRendererSyncEngine } from '../../ipcRendererSyncEngine';
 import { DependencyInjectionHttpClientsProvider } from '../common/clients';
 import { DependencyInjectionLocalRootFolderPath } from '../common/localRootFolderPath';
 import { DependencyInjectionTraverserProvider } from '../common/traverser';
 import { FoldersContainer } from './FoldersContainer';
-import { FolderPathUpdater } from 'workers/sync-engine/modules/folders/application/FolderPathUpdater';
-import { FolderMover } from 'workers/sync-engine/modules/folders/application/FolderMover';
-import { FolderRenamer } from 'workers/sync-engine/modules/folders/application/FolderRenamer';
+import { FolderPathUpdater } from '../../modules/folders/application/FolderPathUpdater';
+import { FolderMover } from '../../modules/folders/application/FolderMover';
+import { FolderRenamer } from '../../modules/folders/application/FolderRenamer';
 import { PlaceholderContainer } from '../placeholders/PlaceholdersContainer';
+import { FolderClearer } from '../../modules/folders/application/FolderClearer';
 
 export async function buildFoldersContainer(
   placeholdersContainer: PlaceholderContainer
@@ -65,6 +66,8 @@ export async function buildFoldersContainer(
     folderRenamer
   );
 
+  const folderClearer = new FolderClearer(repository);
+
   return {
     folderCreator,
     folderFinder,
@@ -73,5 +76,6 @@ export async function buildFoldersContainer(
     folderDeleter,
     allParentFoldersStatusIsExists: allParentFoldersStatusIsExists,
     folderPathUpdater,
+    folderClearer,
   };
 }

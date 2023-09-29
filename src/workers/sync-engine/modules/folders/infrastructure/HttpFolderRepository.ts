@@ -33,7 +33,7 @@ export class HttpFolderRepository implements FolderRepository {
     return remoteItemsGenerator.getAll();
   }
 
-  public async init(): Promise<void> {
+  public async init(startingFolders: Record<string, Folder> = {}): Promise<void> {
     const raw = await this.getTree();
 
     this.traverser.reset();
@@ -52,7 +52,11 @@ export class HttpFolderRepository implements FolderRepository {
       }
 
       return items;
-    }, this.folders);
+    }, startingFolders);
+  }
+
+  private async reload(): Promise<void> {
+    await this.init(this.folders);
   }
 
   search(path: string): Nullable<Folder> {
@@ -163,7 +167,7 @@ export class HttpFolderRepository implements FolderRepository {
   }
 
   async searchOn(folder: Folder): Promise<Array<Folder>> {
-    await this.init();
+    await this.reload();
     return Object.values(this.folders).filter((f) => f.isIn(folder));
   }
 
@@ -191,5 +195,9 @@ export class HttpFolderRepository implements FolderRepository {
     const normalized = nodePath.normalize(folder.path.value);
     const posix = PlatformPathConverter.winToPosix(normalized);
     this.folders[posix] = folder;
+  }
+
+  clear(): void {
+    this.folders = {};
   }
 }

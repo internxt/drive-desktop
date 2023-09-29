@@ -1,4 +1,5 @@
 import { FileClearer } from '../../files/application/FileClearer';
+import { FolderClearer } from '../../folders/application/FolderClearer';
 import { TreeBuilder } from '../../items/application/TreeBuilder';
 import { PlaceholderCreator } from '../../placeholders/domain/PlaceholderCreator';
 
@@ -8,10 +9,12 @@ export class TreePlaceholderCreator {
     private readonly treeBuilder: TreeBuilder,
     private readonly placeholderCreator: PlaceholderCreator,
     private readonly fileClearer: FileClearer,
+    private readonly folderClearer: FolderClearer,
   ) {}
 
   async run(): Promise<void> {
     await this.fileClearer.run();
+    await this.folderClearer.run();
     const tree = await this.treeBuilder.run();
 
     tree.forEach((item) => {
