@@ -11,6 +11,7 @@ export class FileRepositoryMock implements FileRepository {
   public mockUpdateName = jest.fn();
   public mockUpdateParentDir = jest.fn();
   public mockSearchOnFolder = jest.fn();
+  public mockClear = jest.fn();
 
   search(pathLike: FilePath): Nullable<File> {
     return this.mockSearch(pathLike);
@@ -38,6 +39,10 @@ export class FileRepositoryMock implements FileRepository {
 
   searchOnFolder(folderId: number): Promise<Array<File>> {
     return this.mockSearchOnFolder(folderId);
+  }
+
+  clear(): void {
+    return this.mockClear();
   }
 
   clearMocks() {

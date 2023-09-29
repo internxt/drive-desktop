@@ -17,4 +17,6 @@ export interface FileRepository {
   updateParentDir(item: File): Promise<void>;
 
   searchOnFolder(folderId: FolderAttributes['id']): Promise<Array<File>>;
+
+  clear(): void;
 }

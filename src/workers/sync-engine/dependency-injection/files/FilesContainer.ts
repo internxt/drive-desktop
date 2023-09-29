@@ -9,6 +9,7 @@ import { FilePathUpdater } from '../../modules/files/application/FilePathUpdater
 import { FilePlaceholderCreatorFromContentsId } from '../../modules/files/application/FilePlaceholderCreatorFromContentsId';
 import { FileSearcher } from '../../modules/files/application/FileSearcher';
 import { LocalRepositoryRepositoryRefresher } from '../../modules/files/application/LocalRepositoryRepositoryRefresher';
+import { FileClearer } from '../../modules/files/application/FileClearer';
 
 export interface FilesContainer {
   fileFinderByContentsId: FileFinderByContentsId;
@@ -22,4 +23,5 @@ export interface FilesContainer {
   createFilePlaceholderEmitter: CreateFilePlaceholderEmitter;
   filePlaceholderCreatorFromContentsId: FilePlaceholderCreatorFromContentsId;
   createFilePlaceholderOnDeletionFailed: CreateFilePlaceholderOnDeletionFailed;
+  fileClearer: FileClearer;
 }

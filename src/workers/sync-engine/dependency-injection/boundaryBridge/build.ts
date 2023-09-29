@@ -2,10 +2,15 @@ import { BoundaryBridgeContainer } from './BoundaryBridgeContainer';
 import { FileCreationOrchestrator } from 'workers/sync-engine/modules/boundaryBridge/application/FileCreationOrchestrator';
 import { ContentsContainer } from '../contents/ContentsContainer';
 import { FilesContainer } from '../files/FilesContainer';
+import { PlaceholderContainer } from '../placeholders/PlaceholdersContainer';
+import { TreePlaceholderCreator } from '../../modules/boundaryBridge/application/TreePlaceholderCreator';
+import { ItemsContainer } from '../items/ItemsContainer';
 
 export function buildBoundaryBridgeContainer(
   contentsContainer: ContentsContainer,
-  filesContainer: FilesContainer
+  filesContainer: FilesContainer,
+  itemsContainer: ItemsContainer,
+  placeholderContainer: PlaceholderContainer,
 ): BoundaryBridgeContainer {
   const fileCreationOrchestrator = new FileCreationOrchestrator(
     contentsContainer.contentsUploader,
@@ -13,5 +18,11 @@ export function buildBoundaryBridgeContainer(
     filesContainer.fileCreator
   );
 
-  return { fileCreationOrchestrator };
+  const treePlaceholderCreator = new TreePlaceholderCreator(
+    itemsContainer.treeBuilder,
+    placeholderContainer.placeholderCreator,
+    filesContainer.fileClearer
+  );
+
+  return { fileCreationOrchestrator, treePlaceholderCreator };
 }

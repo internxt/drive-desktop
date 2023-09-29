@@ -36,7 +36,7 @@ export class HttpFileRepository implements FileRepository {
     return remoteItemsGenerator.getAll();
   }
 
-  public async init(): Promise<void> {
+  public async init(startingFiles: Record<string, File> = {}): Promise<void> {
     const raw = await this.getTree();
 
     this.traverser.reset();
@@ -55,11 +55,11 @@ export class HttpFileRepository implements FileRepository {
       }
 
       return items;
-    }, this.files);
+    }, startingFiles);
   }
 
   private async reload(): Promise<void> {
-    await this.init();
+    await this.init(this.files);
   }
 
   search(path: FilePath): Nullable<File> {
@@ -99,7 +99,7 @@ export class HttpFileRepository implements FileRepository {
 
     if (result.status === 200) {
       this.files[file.path.value] = file;
-      await this.init();
+      await this.reload();
     }
   }
 
@@ -198,7 +198,11 @@ export class HttpFileRepository implements FileRepository {
   }
 
   async searchOnFolder(folderId: number): Promise<Array<File>> {
-    await this.init();
+    await this.reload();
     return Object.values(this.files).filter((file) => file.hasParent(folderId));
+  }
+
+  clear(): void {
+    this.files = {};
   }
 }
