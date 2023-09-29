@@ -31,7 +31,7 @@ describe('File path updater', () => {
   it('when the extension does not changes it updates the name of the file', async () => {
     const file = FileMother.any();
 
-    repository.mockSearchByCriteria.mockReturnValue(file);
+    repository.mockSearchByPartial.mockReturnValue(file);
 
     const destination = new FilePath(
       `${file.dirname}/_${file.nameWithExtension}`

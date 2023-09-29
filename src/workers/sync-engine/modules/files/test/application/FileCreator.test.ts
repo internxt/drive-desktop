@@ -10,6 +10,7 @@ import { FileDeleter } from '../../application/FileDeleter';
 import { AllParentFoldersStatusIsExists } from '../../../folders/application/AllParentFoldersStatusIsExists';
 import { PlaceholderCreatorMock } from '../../../placeholders/test/__mock__/PlaceholderCreatorMock';
 import { IpcRendererSyncEngineMock } from '../../../shared/test/__mock__/IpcRendererSyncEngineMock';
+import { FileMother } from '../domain/FileMother';
 describe('File Creator', () => {
   let fileRepository: FileRepositoryMock;
   let folderRepository: FolderRepositoryMock;
@@ -80,6 +81,36 @@ describe('File Creator', () => {
       'webdav.file.created'
     );
     expect(eventBus.publishMock.mock.calls[0][0][0].aggregateId).toBe(
+      contents.id
+    );
+  });
+
+  it('deletes the file on remote if it already exists on the path', async () => {
+    const path = new FilePath('/cat.png');
+    const existingFile = FileMother.fromPath(path.value);
+    const contents = FileContentsMother.random();
+
+    const folder = FolderMother.any();
+
+    fileRepository.mockSearchByPartial
+      .mockReturnValueOnce(existingFile)
+      .mockReturnValueOnce(existingFile);
+
+    folderRepository.mockSearchByPartial.mockReturnValueOnce(folder);
+    fileRepository.mockDelete.mockImplementationOnce(() => {
+      // returns Promise<void>
+    });
+    folderRepository.mockSearch.mockReturnValueOnce(folder);
+    fileRepository.mockAdd.mockImplementationOnce(() => {
+      // returns Promise<void>
+    });
+
+    await SUT.run(path, contents);
+
+    expect(fileRepository.mockDelete.mock.calls[0][0].contentsId).toBe(
+      existingFile.contentsId
+    );
+    expect(fileRepository.mockAdd.mock.calls[0][0].contentsId).toBe(
       contents.id
     );
   });

@@ -5,6 +5,7 @@ import packageJson from '../../../package.json';
 import { BindingsManager } from './BindingManager';
 import fs from 'fs/promises';
 import { iconPath } from 'workers/utils/icon';
+import { VirtualDrive } from 'virtual-drive/dist';
 
 async function ensureTheFolderExist(path: string) {
   try {
@@ -56,16 +57,32 @@ async function setUp() {
     container.treePlaceholderCreator.run();
 
     Logger.info('[SYNC ENGINE] sync engine updated successfully');
+    ipcRenderer.on('STOP_AND_CLEAR_SYNC_ENGINE_PROCESS', async (event) => {
+      Logger.info('[SYNC ENGINE] Stopping and clearing sync engine');
+
+      try {
+        await bindings.stop();
+
+        VirtualDrive.unregisterSyncRoot(virtualDrivePath);
+
+        Logger.info('[SYNC ENGINE] sync engine stopped successfully');
+
+        event.sender.send('SYNC_ENGINE_STOP_AND_CLEAR_SUCCESS');
+      } catch (error: unknown) {
+        Logger.error('[SYNC ENGINE] Error stopping and cleaning: ', error);
+        event.sender.send('ERROR_ON_STOP_AND_CLEAR_SYNC_ENGINE_PROCESS');
+      }
+    });
+
+    await bindings.start(
+      packageJson.version,
+      '{E9D7EB38-B229-5DC5-9396-017C449D59CD}'
+    );
+
+    container.treePlaceholderCreator.run();
+
+    bindings.watch();
   });
-
-  await bindings.start(
-    packageJson.version,
-    '{E9D7EB38-B229-5DC5-9396-017C449D59CD}'
-  );
-
-  container.treePlaceholderCreator.run();
-
-  bindings.watch();
 }
 
 setUp()

@@ -16,10 +16,7 @@ export class FileCreator {
     private readonly eventBus: EventBus
   ) {}
 
-  async run(
-    filePath: FilePath,
-    fileContents: RemoteFileContents
-  ): Promise<File> {
+  async run(filePath: FilePath, contents: RemoteFileContents): Promise<File> {
     const existingFile = this.repository.searchByPartial({
       path: PlatformPathConverter.winToPosix(filePath.value),
     });
@@ -28,12 +25,11 @@ export class FileCreator {
       await this.fileDeleter.act(existingFile);
     }
 
-    const contentsId = fileContents.id;
-    const size = new FileSize(fileContents.size);
+    const size = new FileSize(contents.size);
 
     const folder = this.folderFinder.findFromFilePath(filePath);
 
-    const file = File.create(contentsId, folder, size, filePath);
+    const file = File.create(contents.id, folder, size, filePath);
 
     await this.repository.add(file);
 
