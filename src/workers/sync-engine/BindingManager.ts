@@ -1,6 +1,7 @@
 import Logger from 'electron-log';
 import { DependencyContainer } from './dependency-injection/DependencyContainer';
 import { buildControllers } from './callbacks-controllers/buildControllers';
+import { VirtualDrive } from 'virtual-drive/dist';
 
 export class BindingsManager {
   private static readonly PROVIDER_NAME = 'Internxt';
