@@ -11,7 +11,7 @@ import * as uuid from 'uuid';
 import { UpdateFolderNameDTO } from './dtos/UpdateFolderNameDTO';
 import { SyncEngineIpc } from '../../../ipcRendererSyncEngine';
 import { RemoteItemsGenerator } from '../../items/application/RemoteItemsGenerator';
-import { FolderStatus, FolderStatuses } from '../domain/FolderStatus';
+import { FolderStatuses } from '../domain/FolderStatus';
 import nodePath from 'path';
 import { PlatformPathConverter } from '../../shared/test/helpers/PlatformPathConverter';
 
@@ -168,8 +168,8 @@ export class HttpFolderRepository implements FolderRepository {
   }
 
   async trash(folder: Folder): Promise<void> {
-    if (folder.status !== FolderStatus.Trashed) {
-      throw new Error('The status need to be trashed to be deleted');
+    if (folder.status.value !== FolderStatuses.TRASHED) {
+      throw new Error('The status needs to be trashed to be deleted');
     }
 
     const result = await this.trashClient.post(
