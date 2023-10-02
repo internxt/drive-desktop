@@ -3,11 +3,13 @@ import { AddController } from './controllers/AddController';
 import { DeleteController } from './controllers/DeleteController';
 import { DownloadFileController } from './controllers/DownloadFileController';
 import { RenameOrMoveController } from './controllers/RenameOrMoveController';
+import { OfflineRenameOrMoveController } from './controllers/offline/OfflineRenameOrMoveController';
 
 export function buildControllers(container: DependencyContainer) {
   const addFileController = new AddController(
     container.fileCreationOrchestrator,
-    container.folderCreator
+    container.folderCreator,
+    container.offline.folderCreator
   );
 
   const deleteController = new DeleteController(
@@ -15,7 +17,7 @@ export function buildControllers(container: DependencyContainer) {
     container.folderDeleter
   );
 
-  const renameOrMoveFileController = new RenameOrMoveController(
+  const renameOrMoveController = new RenameOrMoveController(
     container.filePathFromAbsolutePathCreator,
     container.filePathUpdater,
     container.folderPathUpdater,
@@ -28,10 +30,17 @@ export function buildControllers(container: DependencyContainer) {
     container.localRepositoryRefresher
   );
 
+  const offlineRenameOrMoveController = new OfflineRenameOrMoveController(
+    container.offline.folderPathUpdater
+  );
+
   return {
     addFile: addFileController,
-    renameOrMoveFile: renameOrMoveFileController,
+    renameOrMove: renameOrMoveController,
     delete: deleteController,
     downloadFile: downloadFileController,
+    offline: {
+      renameOrMove: offlineRenameOrMoveController,
+    },
   } as const;
 }

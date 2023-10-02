@@ -14,6 +14,12 @@ import { FolderPathUpdater } from 'workers/sync-engine/modules/folders/applicati
 import { FolderMover } from 'workers/sync-engine/modules/folders/application/FolderMover';
 import { FolderRenamer } from 'workers/sync-engine/modules/folders/application/FolderRenamer';
 import { PlaceholderContainer } from '../placeholders/PlaceholdersContainer';
+import { FolderByPartialSearcher } from 'workers/sync-engine/modules/folders/application/FolderByPartialSearcher';
+import { InMemoryOfflineFolderRepository } from 'workers/sync-engine/modules/folders/infrastructure/InMemoryOfflineFolderRepository';
+import { OfflineFolderCreator } from 'workers/sync-engine/modules/folders/application/Offline/OfflineFolderCreator';
+import { OfflineFolderPathUpdater } from 'workers/sync-engine/modules/folders/application/Offline/OfflineFolderPathUpdater';
+import { OfflineFolderMover } from 'workers/sync-engine/modules/folders/application/Offline/OfflineFolderMover';
+import { OfflineFolderRenamer } from 'workers/sync-engine/modules/folders/application/Offline/OfflineFolderRenamer';
 
 export async function buildFoldersContainer(
   placeholdersContainer: PlaceholderContainer
@@ -30,9 +36,7 @@ export async function buildFoldersContainer(
   );
 
   await repository.init();
-  const folderPathFromAbsolutePathCreator = new FolderPathCreator(
-    rootFolderPath
-  );
+  const folderPathCreator = new FolderPathCreator(rootFolderPath);
 
   const folderFinder = new FolderFinder(repository);
 
@@ -49,7 +53,6 @@ export async function buildFoldersContainer(
   );
 
   const folderCreator = new FolderCreator(
-    folderPathFromAbsolutePathCreator,
     repository,
     folderFinder,
     ipcRendererSyncEngine
@@ -58,20 +61,46 @@ export async function buildFoldersContainer(
   const folderMover = new FolderMover(repository, folderFinder);
   const folderRenamer = new FolderRenamer(repository, ipcRendererSyncEngine);
 
+  const folderByPartialSearcher = new FolderByPartialSearcher(repository);
+
   const folderPathUpdater = new FolderPathUpdater(
     repository,
-    folderPathFromAbsolutePathCreator,
+    folderPathCreator,
     folderMover,
     folderRenamer
+  );
+
+  const offlineRepository = new InMemoryOfflineFolderRepository();
+  const offlineFolderCreator = new OfflineFolderCreator(
+    folderPathCreator,
+    folderFinder,
+    offlineRepository
+  );
+
+  const offlineFolderMover = new OfflineFolderMover(
+    offlineRepository,
+    folderFinder
+  );
+  const offlineFolderRenamer = new OfflineFolderRenamer(offlineRepository);
+  const offlineFolderPathUpdater = new OfflineFolderPathUpdater(
+    offlineRepository,
+    folderPathCreator,
+    offlineFolderMover,
+    offlineFolderRenamer
   );
 
   return {
     folderCreator,
     folderFinder,
-    folderPathFromAbsolutePathCreator,
+    folderPathFromAbsolutePathCreator: folderPathCreator,
     folderSearcher,
     folderDeleter,
     allParentFoldersStatusIsExists: allParentFoldersStatusIsExists,
     folderPathUpdater,
+    folderByPartialSearcher,
+    offline: {
+      folderCreator: offlineFolderCreator,
+      folderPathUpdater: offlineFolderPathUpdater,
+    },
   };
 }

@@ -5,6 +5,9 @@ import { FolderPathCreator } from '../../modules/folders/application/FolderPathC
 import { FolderPathUpdater } from '../../modules/folders/application/FolderPathUpdater';
 import { FolderSearcher } from '../../modules/folders/application/FolderSearcher';
 import { AllParentFoldersStatusIsExists } from '../../modules/folders/application/AllParentFoldersStatusIsExists';
+import { FolderByPartialSearcher } from '../../modules/folders/application/FolderByPartialSearcher';
+import { OfflineFolderCreator } from 'workers/sync-engine/modules/folders/application/Offline/OfflineFolderCreator';
+import { OfflineFolderPathUpdater } from 'workers/sync-engine/modules/folders/application/Offline/OfflineFolderPathUpdater';
 
 export interface FoldersContainer {
   folderCreator: FolderCreator;
@@ -14,4 +17,9 @@ export interface FoldersContainer {
   folderDeleter: FolderDeleter;
   allParentFoldersStatusIsExists: AllParentFoldersStatusIsExists;
   folderPathUpdater: FolderPathUpdater;
+  folderByPartialSearcher: FolderByPartialSearcher;
+  offline: {
+    folderCreator: OfflineFolderCreator;
+    folderPathUpdater: OfflineFolderPathUpdater;
+  };
 }

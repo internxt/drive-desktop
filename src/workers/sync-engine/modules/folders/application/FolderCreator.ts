@@ -2,34 +2,29 @@ import { SyncEngineIpc } from '../../../ipcRendererSyncEngine';
 import { PlatformPathConverter } from '../../shared/test/helpers/PlatformPathConverter';
 import { Folder } from '../domain/Folder';
 import { FolderRepository } from '../domain/FolderRepository';
+import { OfflineFolder } from '../domain/OfflineFolder';
 import { FolderFinder } from './FolderFinder';
-import { FolderPathCreator } from './FolderPathCreator';
 
 export class FolderCreator {
   constructor(
-    private readonly folderPathFromAbsolutePathCreator: FolderPathCreator,
     private readonly repository: FolderRepository,
     private readonly folderFinder: FolderFinder,
     private readonly ipc: SyncEngineIpc
   ) {}
 
-  async run(absolutePath: string): Promise<Folder> {
-    const folderPath = this.folderPathFromAbsolutePathCreator.fromAbsolute(
-      PlatformPathConverter.winToPosix(absolutePath)
-    );
-
+  async run(offlineFolder: OfflineFolder): Promise<Folder> {
     this.ipc.send('FOLDER_CREATING', {
-      name: folderPath.name(),
+      name: offlineFolder.name,
     });
 
     const parent = this.folderFinder.run(
-      PlatformPathConverter.winToPosix(folderPath.dirname())
+      PlatformPathConverter.winToPosix(offlineFolder.dirname)
     );
 
-    const folder = await this.repository.create(folderPath, parent.id);
+    const folder = await this.repository.create(offlineFolder.path, parent.id);
 
     this.ipc.send('FOLDER_CREATED', {
-      name: folderPath.name(),
+      name: offlineFolder.name,
     });
 
     return folder;

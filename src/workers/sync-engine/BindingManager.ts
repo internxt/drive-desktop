@@ -1,6 +1,7 @@
 import Logger from 'electron-log';
 import { DependencyContainer } from './dependency-injection/DependencyContainer';
 import { buildControllers } from './callbacks-controllers/buildControllers';
+import { executeControllerWithFallback } from './callbacks-controllers/middlewares/executeControllerWithFallback';
 
 export class BindingsManager {
   private static readonly PROVIDER_NAME = 'Internxt';
@@ -41,11 +42,15 @@ export class BindingsManager {
         contentsId: string,
         callback: (response: boolean) => void
       ) => {
-        controllers.renameOrMoveFile.execute(
-          absolutePath,
-          contentsId,
-          callback
-        );
+        const fn = executeControllerWithFallback({
+          handler: controllers.renameOrMove.execute.bind(
+            controllers.renameOrMove
+          ),
+          fallback: controllers.offline.renameOrMove.execute.bind(
+            controllers.offline.renameOrMove
+          ),
+        });
+        fn(absolutePath, contentsId, callback);
       },
       notifyFileAddedCallback: (
         absolutePath: string,

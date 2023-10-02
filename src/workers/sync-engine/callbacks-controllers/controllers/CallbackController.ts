@@ -15,6 +15,8 @@ export abstract class CallbackController {
     // if it was already trimmed should not change its length
     const trimmed = this.trim(id);
 
+    return trimmed.length === 24;
+
     return isFilePlaceholderId(trimmed);
   }
 
@@ -22,6 +24,8 @@ export abstract class CallbackController {
     // make sure the id is trimmed before comparing
     // if it was already trimmed should not change its length
     const trimmed = this.trim(id);
+
+    return trimmed.length > 24;
 
     return isFolderPlaceholderId(trimmed);
   }
