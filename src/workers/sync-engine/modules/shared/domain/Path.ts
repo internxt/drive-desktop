@@ -14,8 +14,9 @@ export abstract class Path extends ValueObject<string> {
     return p.split(path.win32.sep).join(path.posix.sep);
   }
 
-  name(): string {
+  name(isFolder?:boolean): string {
     const base = path.basename(this.value);
+    if(isFolder) return base;
     const { name } = path.parse(base);
     return name;
   }
