@@ -77,4 +77,16 @@ export class FolderMother {
       status: FolderStatuses.TRASHED,
     });
   }
+
+  static root() {
+    return Folder.from({
+      id: 2048,
+      uuid: FolderUuid.random().value,
+      path: '/',
+      parentId: null,
+      updatedAt: new Date().toISOString(),
+      createdAt: new Date().toISOString(),
+      status: FolderStatuses.EXISTS,
+    });
+  }
 }

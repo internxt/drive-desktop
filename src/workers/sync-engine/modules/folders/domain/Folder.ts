@@ -184,3 +184,5 @@ export class Folder extends AggregateRoot {
     return attributes;
   }
 }
+
+export const RootFolderName = '/' as const;

@@ -17,6 +17,7 @@ export class FolderCreator {
     const folderPath = this.folderPathFromAbsolutePathCreator.fromAbsolute(
       PlatformPathConverter.winToPosix(absolutePath)
     );
+
     this.ipc.send('FOLDER_CREATING', {
       name: folderPath.name(),
     });
