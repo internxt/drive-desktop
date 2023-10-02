@@ -52,6 +52,11 @@ export type FolderEvents = {
 export type FilesEvents = {
   FILE_UPLOADING: (payload: FileUpdatePayload) => void;
   FILE_UPLOADED: (payload: FileUpdatePayload) => void;
+  FILE_CREATED: (payload: {
+    name: string;
+    extension: string;
+    nameWithExtension: string;
+  }) => void;
   FILE_DOWNLOAD_ERROR: (payload: {
     name: string;
     extension: string;
