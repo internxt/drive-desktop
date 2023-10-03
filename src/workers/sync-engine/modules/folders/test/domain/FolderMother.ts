@@ -1,6 +1,6 @@
 import { File } from '../../../files/domain/File';
 import { FolderStatuses } from '../../domain/FolderStatus';
-import { Folder } from '../../domain/Folder';
+import { Folder, FolderAttributes } from '../../domain/Folder';
 import { FolderUuid } from '../../domain/FolderUuid';
 import Chance from 'chance';
 const chance = new Chance();
@@ -88,5 +88,10 @@ export class FolderMother {
       createdAt: new Date().toISOString(),
       status: FolderStatuses.EXISTS,
     });
+  }
+
+  static fromPartial(partial: Partial<FolderAttributes>) {
+    const any = FolderMother.any();
+    return Folder.from({ ...any.attributes(), ...partial });
   }
 }

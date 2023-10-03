@@ -85,7 +85,9 @@ export class AddController extends CallbackController {
   ) => {
     const offlineFolder = this.offlineFolderCreator.run(absolutePath);
     callback(true, offlineFolder.uuid);
-    this.foldersQueue.set(offlineFolder, () => {});
+    this.foldersQueue.set(offlineFolder, () => {
+      //no-op
+    });
   };
 
   async execute(

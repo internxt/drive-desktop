@@ -137,7 +137,7 @@ export class Folder extends AggregateRoot {
     }
 
     this._path = this._path.updateName(newPath.name());
-
+    this.updatedAt = new Date();
     //TODO: record rename event
   }
 

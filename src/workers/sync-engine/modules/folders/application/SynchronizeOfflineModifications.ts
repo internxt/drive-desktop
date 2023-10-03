@@ -15,12 +15,13 @@ export class SynchronizeOfflineModifications {
   async run(uuid: Folder['uuid']) {
     Logger.debug('Synchronize potential offline changes');
     const offlineFolder = this.offlineRepository.getByUuid(uuid);
-    const folder = this.repository.searchByPartial({ uuid });
 
     if (!offlineFolder) {
       Logger.debug(`There is no offline folder with ${uuid}`);
       return;
     }
+
+    const folder = this.repository.searchByPartial({ uuid });
 
     if (!folder) {
       Logger.debug('There is no folder with ', uuid);
@@ -32,6 +33,11 @@ export class SynchronizeOfflineModifications {
         'Offline and online folder have the same name: ',
         folder.name
       );
+      return;
+    }
+
+    if (folder.updatedAt > offlineFolder.updatedAt) {
+      Logger.debug('Online folder is newer than the offline ', folder.name);
       return;
     }
 

@@ -14,12 +14,6 @@ export type OfflineFolderAttributes = {
   status: string;
 };
 
-// type FunctionKeys<T> = {
-//   [K in keyof T]: T[K] extends (...args: any[]) => any ? K : never;
-// }[keyof T];
-
-// type Action = [keyof Folder, Parameters<Folder[FunctionKeys<Folder>]>];
-
 export class OfflineFolder extends AggregateRoot {
   private constructor(
     private _uuid: FolderUuid,
@@ -93,6 +87,7 @@ export class OfflineFolder extends AggregateRoot {
     }
 
     this._path = this._path.updateName(destination.name());
+    this.updatedAt = new Date();
   }
 
   isFolder(): this is OfflineFolder {
