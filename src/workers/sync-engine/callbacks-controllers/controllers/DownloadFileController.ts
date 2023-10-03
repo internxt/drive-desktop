@@ -2,6 +2,7 @@ import { ContentsDownloader } from '../../modules/contents/application/ContentsD
 import { FileFinderByContentsId } from '../../modules/files/application/FileFinderByContentsId';
 import { LocalRepositoryRepositoryRefresher } from '../../modules/files/application/LocalRepositoryRepositoryRefresher';
 import { CallbackController } from './CallbackController';
+import Logger from 'electron-log';
 
 export class DownloadFileController extends CallbackController {
   constructor(
@@ -12,24 +13,31 @@ export class DownloadFileController extends CallbackController {
     super();
   }
 
-  private async action(id: string) {
+  private async action(
+    id: string,
+    cb: (response: boolean, filePath: string) => void
+  ): Promise<string> {
     const file = this.fileFinder.run(id);
 
-    return await this.downloader.run(file);
+    return await this.downloader.run(file, cb);
   }
 
-  async execute(contentsId: string): Promise<string> {
+  async execute(
+    contentsId: string,
+    cb: (response: boolean, filePath: string) => void
+  ): Promise<string> {
     const trimmedId = this.trim(contentsId);
 
     try {
-      return await this.action(trimmedId);
+      return await this.action(trimmedId, cb);
     } catch {
       await this.localRepositoryRefresher.run();
 
       return await new Promise((resolve, reject) => {
         setTimeout(async () => {
           try {
-            const result = await this.action(trimmedId);
+            Logger.debug('cb: ', cb);
+            const result = await this.action(trimmedId, cb);
             resolve(result);
           } catch (error) {
             reject(error);

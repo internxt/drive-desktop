@@ -60,12 +60,12 @@ export class BindingsManager {
         callback: (success: boolean, path: string) => void
       ) => {
         controllers.downloadFile
-          .execute(contentsId)
+          .execute(contentsId, callback)
           .then((path: string) => {
-            callback(true, path);
+            Logger.debug('Execute Fetch Data Callback, sending path:', path);
           })
           .catch((error: Error) => {
-            Logger.error('Fetch Data Callback:', error);
+            Logger.error('Error Fetch Data Callback:', error);
             callback(false, '');
           });
       },

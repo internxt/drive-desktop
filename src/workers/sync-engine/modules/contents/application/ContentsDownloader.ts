@@ -5,6 +5,7 @@ import { File } from '../../files/domain/File';
 import { LocalFileContents } from '../domain/LocalFileContents';
 import { LocalFileWriter } from '../domain/LocalFileWriter';
 import { Stopwatch } from '../../../../../shared/types/Stopwatch';
+
 import Logger from 'electron-log';
 
 export class ContentsDownloader {
@@ -14,7 +15,11 @@ export class ContentsDownloader {
     private readonly ipc: SyncEngineIpc
   ) {}
 
-  private registerEvents(downloader: ContentFileDownloader, file: File) {
+  private registerEvents(
+    downloader: ContentFileDownloader,
+    file: File,
+    cb: (response: boolean, filePath: string) => void
+  ) {
     downloader.on('start', () => {
       this.ipc.send('FILE_DOWNLOADING', {
         name: file.name,
@@ -25,7 +30,8 @@ export class ContentsDownloader {
       });
     });
 
-    downloader.on('progress', (progress: number) => {
+    downloader.on('progress', async (progress: number) => {
+      cb(true, ''); // TODO: fix this, we should not use path here
       this.ipc.send('FILE_DOWNLOADING', {
         name: file.name,
         extension: file.type,
@@ -55,10 +61,13 @@ export class ContentsDownloader {
     });
   }
 
-  async run(file: File): Promise<string> {
+  async run(
+    file: File,
+    cb: (response: boolean, filePath: string) => void
+  ): Promise<string> {
     const downloader = this.managerFactory.downloader();
 
-    this.registerEvents(downloader, file);
+    this.registerEvents(downloader, file, cb);
 
     const stopwatch = new Stopwatch();
 
