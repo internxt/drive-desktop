@@ -3,6 +3,7 @@ import { AggregateRoot } from '../../shared/domain/AggregateRoot';
 import { FolderPath } from './FolderPath';
 import { FolderStatus, FolderStatuses } from './FolderStatus';
 import { FolderUuid } from './FolderUuid';
+import { FolderCreatedDomainEvent } from './events/FolderCreatedDomainEvent';
 
 export type FolderAttributes = {
   id: number;
@@ -96,8 +97,8 @@ export class Folder extends AggregateRoot {
     );
   }
 
-  static create(attributes: FolderAttributes) {
-    return new Folder(
+  static create(attributes: FolderAttributes): Folder {
+    const folder = new Folder(
       attributes.id,
       new FolderUuid(attributes.uuid),
       new FolderPath(attributes.path),
@@ -106,6 +107,13 @@ export class Folder extends AggregateRoot {
       new Date(attributes.createdAt),
       FolderStatus.Exists
     );
+
+    const folderCreatedEvent = new FolderCreatedDomainEvent({
+      aggregateId: attributes.uuid,
+    });
+    folder.record(folderCreatedEvent);
+
+    return folder;
   }
 
   moveTo(folder: Folder) {

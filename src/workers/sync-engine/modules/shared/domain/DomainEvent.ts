@@ -25,7 +25,7 @@ export abstract class DomainEvent {
     const { aggregateId, eventName, eventId } = params;
     this.aggregateId = aggregateId;
     this.eventId = eventId || uuid.v4();
-    this.eventName = `webdav.${eventName}`;
+    this.eventName = `${eventName}`;
   }
 
   abstract toPrimitives(): DomainEventAttributes;

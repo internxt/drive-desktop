@@ -15,6 +15,7 @@ export class DependencyContainerFactory {
 
   static readonly subscribers: Array<keyof DependencyContainer> = [
     'createFilePlaceholderOnDeletionFailed',
+    'synchronizeOfflineModificationsOnFolderCreated',
   ];
 
   eventSubscribers(

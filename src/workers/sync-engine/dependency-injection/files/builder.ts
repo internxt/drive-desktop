@@ -1,4 +1,3 @@
-import { CreateFilePlaceholderEmitter } from 'workers/sync-engine/modules/files/application/CreateFilePlaceholderEmitter';
 import { CreateFilePlaceholderOnDeletionFailed } from 'workers/sync-engine/modules/files/application/CreateFilePlaceholderOnDeletionFailed';
 import { FilePlaceholderCreatorFromContentsId } from 'workers/sync-engine/modules/files/application/FilePlaceholderCreatorFromContentsId';
 import crypt from '../../../utils/crypt';
@@ -81,10 +80,6 @@ export async function buildFilesContainer(
 
   const fileSearcher = new FileSearcher(fileRepository);
 
-  const createFilePlaceholderEmitter = new CreateFilePlaceholderEmitter(
-    eventBus
-  );
-
   const filePlaceholderCreatorFromContentsId =
     new FilePlaceholderCreatorFromContentsId(
       fileFinderByContentsId,
@@ -105,7 +100,6 @@ export async function buildFilesContainer(
     fileCreator,
     filePathFromAbsolutePathCreator,
     fileSearcher,
-    createFilePlaceholderEmitter: createFilePlaceholderEmitter,
     filePlaceholderCreatorFromContentsId: filePlaceholderCreatorFromContentsId,
     createFilePlaceholderOnDeletionFailed:
       createFilePlaceholderOnDeletionFailed,

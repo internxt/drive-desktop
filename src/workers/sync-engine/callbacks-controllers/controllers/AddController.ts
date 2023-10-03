@@ -4,8 +4,6 @@ import { rawPathIsFolder } from '../helpers/rawPathIsFolder';
 import { FolderCreator } from '../../modules/folders/application/FolderCreator';
 import { MapObserver } from '../../modules/shared/domain/MapObserver';
 import { FileCreationOrchestrator } from '../../modules/boundaryBridge/application/FileCreationOrchestrator';
-import { createFolderPlaceholderId } from '../../modules/placeholders/domain/FolderPlaceholderId';
-import { createFilePlaceholderId } from '../../modules/placeholders/domain/FilePlaceholderId';
 import { OfflineFolderCreator } from '../../modules/folders/application/Offline/OfflineFolderCreator';
 import { OfflineFolder } from 'workers/sync-engine/modules/folders/domain/OfflineFolder';
 

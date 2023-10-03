@@ -1,5 +1,4 @@
 import { CreateFilePlaceholderOnDeletionFailed } from '../../modules/files/application/CreateFilePlaceholderOnDeletionFailed';
-import { CreateFilePlaceholderEmitter } from '../../modules/files/application/CreateFilePlaceholderEmitter';
 import { FileByPartialSearcher } from '../../modules/files/application/FileByPartialSearcher';
 import { FileCreator } from '../../modules/files/application/FileCreator';
 import { FileDeleter } from '../../modules/files/application/FileDeleter';
@@ -19,7 +18,6 @@ export interface FilesContainer {
   fileCreator: FileCreator;
   filePathFromAbsolutePathCreator: FilePathFromAbsolutePathCreator;
   fileSearcher: FileSearcher;
-  createFilePlaceholderEmitter: CreateFilePlaceholderEmitter;
   filePlaceholderCreatorFromContentsId: FilePlaceholderCreatorFromContentsId;
   createFilePlaceholderOnDeletionFailed: CreateFilePlaceholderOnDeletionFailed;
 }

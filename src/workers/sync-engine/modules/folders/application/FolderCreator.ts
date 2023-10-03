@@ -1,4 +1,5 @@
 import { SyncEngineIpc } from '../../../ipcRendererSyncEngine';
+import { EventBus } from '../../shared/domain/WebdavServerEventBus';
 import { PlatformPathConverter } from '../../shared/test/helpers/PlatformPathConverter';
 import { Folder } from '../domain/Folder';
 import { FolderRepository } from '../domain/FolderRepository';
@@ -9,7 +10,8 @@ export class FolderCreator {
   constructor(
     private readonly repository: FolderRepository,
     private readonly folderFinder: FolderFinder,
-    private readonly ipc: SyncEngineIpc
+    private readonly ipc: SyncEngineIpc,
+    private readonly eventBus: EventBus
   ) {}
 
   async run(offlineFolder: OfflineFolder): Promise<Folder> {
@@ -22,6 +24,9 @@ export class FolderCreator {
     );
 
     const folder = await this.repository.create(offlineFolder.path, parent.id);
+
+    const events = folder.pullDomainEvents();
+    this.eventBus.publish(events);
 
     this.ipc.send('FOLDER_CREATED', {
       name: offlineFolder.name,
