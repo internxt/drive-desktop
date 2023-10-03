@@ -23,7 +23,11 @@ export class FolderCreator {
       PlatformPathConverter.winToPosix(offlineFolder.dirname)
     );
 
-    const folder = await this.repository.create(offlineFolder.path, parent.id);
+    const folder = await this.repository.create(
+      offlineFolder.path,
+      parent.id,
+      offlineFolder.uuid
+    );
 
     const events = folder.pullDomainEvents();
     this.eventBus.publish(events);

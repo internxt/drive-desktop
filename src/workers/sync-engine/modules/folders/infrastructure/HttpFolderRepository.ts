@@ -75,7 +75,11 @@ export class HttpFolderRepository implements FolderRepository {
     return undefined;
   }
 
-  async create(path: FolderPath, parentId: number): Promise<Folder> {
+  async create(
+    path: FolderPath,
+    parentId: number,
+    uuid: Folder['uuid']
+  ): Promise<Folder> {
     const plainName = path.name();
 
     if (!plainName) {
@@ -87,6 +91,7 @@ export class HttpFolderRepository implements FolderRepository {
       {
         folderName: plainName,
         parentFolderId: parentId,
+        uuid,
       }
     );
 
