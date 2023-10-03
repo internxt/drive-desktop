@@ -1,4 +1,4 @@
-import { EventBus } from '../../modules/shared/domain/WebdavServerEventBus';
+import { EventBus } from '../../modules/shared/domain/EventBus';
 import { NodeJsEventBus } from '../../modules/shared/infrastructure/NodeJsEventBus';
 
 export class DependencyInjectionEventBus {

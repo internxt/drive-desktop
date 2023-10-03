@@ -1,5 +1,5 @@
 import { SyncEngineIpc } from '../../../ipcRendererSyncEngine';
-import { EventBus } from '../../shared/domain/WebdavServerEventBus';
+import { EventBus } from '../../shared/domain/EventBus';
 import { PlatformPathConverter } from '../../shared/test/helpers/PlatformPathConverter';
 import { Folder } from '../domain/Folder';
 import { FolderRepository } from '../domain/FolderRepository';

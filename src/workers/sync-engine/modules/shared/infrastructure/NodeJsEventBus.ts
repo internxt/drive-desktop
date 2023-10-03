@@ -1,6 +1,6 @@
 import EventEmitter from 'events';
 import { DomainEvent } from '../domain/DomainEvent';
-import { EventBus } from '../domain/WebdavServerEventBus';
+import { EventBus } from '../domain/EventBus';
 import { DomainEventSubscribers } from './DomainEventSubscribers';
 
 export class NodeJsEventBus extends EventEmitter implements EventBus {
