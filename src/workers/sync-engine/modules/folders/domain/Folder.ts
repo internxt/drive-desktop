@@ -5,6 +5,7 @@ import { FolderStatus, FolderStatuses } from './FolderStatus';
 import { FolderUuid } from './FolderUuid';
 import { FolderCreatedDomainEvent } from './events/FolderCreatedDomainEvent';
 import { FolderRenamedDomainEvent } from './events/FolderRenamedDomainEvent';
+import Logger from 'electron-log';
 
 export type FolderAttributes = {
   id: number;
@@ -137,7 +138,6 @@ export class Folder extends AggregateRoot {
     if (this._path.hasSameName(newPath)) {
       throw new Error('Cannot rename a folder to the same name');
     }
-
     this._path = this._path.updateName(newPath.name());
     this.updatedAt = new Date();
 

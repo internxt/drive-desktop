@@ -1,5 +1,6 @@
 import path from 'path';
 import { Path } from '../../shared/domain/Path';
+import { PlatformPathConverter } from '../../shared/test/helpers/PlatformPathConverter';
 
 export class FolderPath extends Path {
   constructor(value: string) {
@@ -7,9 +8,11 @@ export class FolderPath extends Path {
   }
 
   static fromParts(parts: Array<string>) {
-    const full = path.join(...parts);
+    const full = path.posix.join(...parts);
 
-    return new FolderPath(full);
+    return new FolderPath(
+      PlatformPathConverter.winToPosix(path.normalize(full))
+    );
   }
 
   name(): string {

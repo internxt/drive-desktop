@@ -56,7 +56,7 @@ export class HttpFolderRepository implements FolderRepository {
   }
 
   search(path: string): Nullable<Folder> {
-    // Logger.debug(Object.keys(this.folders));
+    Logger.debug(Object.keys(this.folders));
     return this.folders[path];
   }
 
@@ -144,6 +144,7 @@ export class HttpFolderRepository implements FolderRepository {
       delete this.folders[old?.path.value];
     }
 
+    Logger.debug('PATH BEFORE INDEX', folder.path.value);
     this.folders[folder.path.value] = folder;
   }
 

@@ -18,6 +18,7 @@ export class FolderPathCreator {
     const relative = this.calculateRelativePath(this.baseFolder, sanitized);
 
     const withSlash = path.sep + relative;
-    return new FolderPath(withSlash);
+    const normalized = path.normalize(withSlash);
+    return new FolderPath(normalized);
   }
 }

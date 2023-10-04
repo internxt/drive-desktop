@@ -105,6 +105,7 @@ export class AddController extends CallbackController {
     if (rawPathIsFolder(absolutePath)) {
       this.enqueueFolder(absolutePath, callback);
       await this.createFolders();
+      await this.createFiles();
       return;
     }
 
@@ -112,7 +113,7 @@ export class AddController extends CallbackController {
 
     if (this.foldersQueue.size === 0) {
       Logger.debug('File is not going to be queued. Creating...', absolutePath);
-      this.createFiles();
+      await this.createFiles();
     } else {
       Logger.debug('File has been queued: ', absolutePath);
     }
