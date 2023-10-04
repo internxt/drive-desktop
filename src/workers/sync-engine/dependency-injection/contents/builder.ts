@@ -57,5 +57,6 @@ export async function buildContentsContainer(): Promise<ContentsContainer> {
   return {
     contentsUploader: retryContentsUploader,
     contentsDownloader,
+    temporalFolderProvider,
   };
 }

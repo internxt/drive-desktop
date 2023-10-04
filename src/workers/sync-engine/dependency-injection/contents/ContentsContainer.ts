@@ -4,4 +4,5 @@ import { ContentsDownloader } from '../../modules/contents/application/ContentsD
 export interface ContentsContainer {
   contentsUploader: RetryContentsUploader;
   contentsDownloader: ContentsDownloader;
+  temporalFolderProvider: () => Promise<string>;
 }

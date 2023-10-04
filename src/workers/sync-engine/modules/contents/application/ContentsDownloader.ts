@@ -5,8 +5,10 @@ import { File } from '../../files/domain/File';
 import { LocalFileContents } from '../domain/LocalFileContents';
 import { LocalFileWriter } from '../domain/LocalFileWriter';
 import { Stopwatch } from '../../../../../shared/types/Stopwatch';
-
+import { ensureFolderExists } from 'shared/fs/ensure-folder-exists';
+import path from 'path';
 import Logger from 'electron-log';
+import { buildContentsContainer } from 'workers/sync-engine/dependency-injection/contents/builder';
 
 export class ContentsDownloader {
   constructor(
@@ -15,11 +17,17 @@ export class ContentsDownloader {
     private readonly ipc: SyncEngineIpc
   ) {}
 
-  private registerEvents(
+  private async registerEvents(
     downloader: ContentFileDownloader,
     file: File,
     cb: (response: boolean, filePath: string) => void
   ) {
+    const contentsContainer = await buildContentsContainer();
+    const location = await contentsContainer.temporalFolderProvider();
+    const folderPath = path.join(location, 'internxt');
+    ensureFolderExists(folderPath);
+    const filePath = path.join(folderPath, file.nameWithExtension);
+
     downloader.on('start', () => {
       this.ipc.send('FILE_DOWNLOADING', {
         name: file.name,
@@ -30,8 +38,8 @@ export class ContentsDownloader {
       });
     });
 
-    downloader.on('progress', (progress: number) => {
-      cb(true, '');
+    downloader.on('progress', async (progress: number) => {
+      cb(true, filePath);
       this.ipc.send('FILE_DOWNLOADING', {
         name: file.name,
         extension: file.type,
