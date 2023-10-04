@@ -17,7 +17,7 @@ export class FolderFinder {
   }
 
   findFromFilePath(path: FilePath): Folder {
-    const folder = this.repository.search(path.posixDirname());
+    const folder = this.repository.search(path.value);
 
     if (!folder) {
       throw new FolderNotFoundError(path.value);

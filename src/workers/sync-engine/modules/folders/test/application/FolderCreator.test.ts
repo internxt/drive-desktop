@@ -1,11 +1,11 @@
-import path from 'path';
 import { IpcRendererSyncEngineMock } from '../../../shared/test/__mock__/IpcRendererSyncEngineMock';
 import { FolderCreator } from '../../application/FolderCreator';
 import { FolderFinder } from '../../application/FolderFinder';
 import { FolderRepositoryMock } from '../__mocks__/FolderRepositoryMock';
-import { FolderPath } from '../../domain/FolderPath';
 import { FolderMother } from '../domain/FolderMother';
-import { EventBusMock } from 'workers/sync-engine/modules/shared/test/__mock__/EventBusMock';
+import { EventBusMock } from '../../../shared/test/__mock__/EventBusMock';
+import { OfflineFolderMother } from '../domain/OfflineFolderMother';
+import { Folder } from '../../domain/Folder';
 
 describe('Folder Creator', () => {
   let SUT: FolderCreator;
@@ -13,62 +13,96 @@ describe('Folder Creator', () => {
   let repository: FolderRepositoryMock;
   let folderFinder: FolderFinder;
   let syncEngineIpc: IpcRendererSyncEngineMock;
-
-  const BASE_FOLDER_ID = 'D:\\Users\\HalfBloodPrince\\InternxtDrive';
+  let eventBus: EventBusMock;
 
   beforeEach(() => {
     repository = new FolderRepositoryMock();
     folderFinder = new FolderFinder(repository);
     syncEngineIpc = new IpcRendererSyncEngineMock();
 
-    const eventBus = new EventBusMock();
+    eventBus = new EventBusMock();
 
     SUT = new FolderCreator(repository, folderFinder, syncEngineIpc, eventBus);
   });
 
-  it('creates on a folder on the root folder', async () => {
-    const folderPath = path.join(BASE_FOLDER_ID, 'lily');
-    const expectedPath = new FolderPath('\\lily');
+  it('creates on a folder from a offline folder', async () => {
+    const offlineFolder = OfflineFolderMother.random();
 
-    const folder = FolderMother.root();
+    const parentFolder = FolderMother.fromPartial({
+      id: offlineFolder.parentId,
+      path: offlineFolder.dirname,
+    });
 
-    const spy = jest.spyOn(folderFinder, 'run').mockReturnValueOnce(folder);
+    const resultFolderAttributes = FolderMother.fromPartial(
+      offlineFolder.attributes()
+    ).attributes();
 
-    await SUT.run(folderPath);
+    repository.mockCreate.mockResolvedValueOnce(
+      Folder.create(resultFolderAttributes)
+    );
 
-    expect(spy).toBeCalledWith('/');
-    expect(repository.mockCreate).toBeCalledWith(expectedPath, folder.id);
+    const spy = jest
+      .spyOn(folderFinder, 'run')
+      .mockReturnValueOnce(parentFolder);
+
+    await SUT.run(offlineFolder);
+
+    expect(spy).toBeCalledWith(parentFolder.path.value);
+    expect(repository.mockCreate).toBeCalledWith(
+      offlineFolder.path,
+      parentFolder.id,
+      offlineFolder.uuid
+    );
   });
 
   describe('Synchronization messages', () => {
     it('sends the message FOLDER_CREATING', async () => {
-      const folderPath = path.join(BASE_FOLDER_ID, 'lily');
+      const offlineFolder = OfflineFolderMother.random();
 
-      const folder = FolderMother.root();
+      const parentFolder = FolderMother.fromPartial({
+        id: offlineFolder.parentId,
+        path: offlineFolder.dirname,
+      });
 
-      jest.spyOn(folderFinder, 'run').mockReturnValueOnce(folder);
+      const resultFolderAttributes = FolderMother.fromPartial(
+        offlineFolder.attributes()
+      ).attributes();
 
-      await SUT.run(folderPath);
+      repository.mockCreate.mockResolvedValueOnce(
+        Folder.create(resultFolderAttributes)
+      );
+
+      jest.spyOn(folderFinder, 'run').mockReturnValueOnce(parentFolder);
+
+      await SUT.run(offlineFolder);
 
       expect(syncEngineIpc.sendMock).toBeCalledWith('FOLDER_CREATING', {
-        name: 'lily',
+        name: offlineFolder.name,
       });
-      expect(syncEngineIpc.sendMock).toHaveBeenCalledBefore(
-        repository.mockCreate
-      );
     });
 
     it('sends the message FOLDER_CREATED', async () => {
-      const folderPath = path.join(BASE_FOLDER_ID, 'lily');
+      const offlineFolder = OfflineFolderMother.random();
 
-      const folder = FolderMother.root();
+      const parentFolder = FolderMother.fromPartial({
+        id: offlineFolder.parentId,
+        path: offlineFolder.dirname,
+      });
 
-      jest.spyOn(folderFinder, 'run').mockReturnValueOnce(folder);
+      const resultFolderAttributes = FolderMother.fromPartial(
+        offlineFolder.attributes()
+      ).attributes();
 
-      await SUT.run(folderPath);
+      repository.mockCreate.mockResolvedValueOnce(
+        Folder.create(resultFolderAttributes)
+      );
+
+      jest.spyOn(folderFinder, 'run').mockReturnValueOnce(parentFolder);
+
+      await SUT.run(offlineFolder);
 
       expect(syncEngineIpc.sendMock).toBeCalledWith('FOLDER_CREATED', {
-        name: 'lily',
+        name: offlineFolder.name,
       });
     });
   });

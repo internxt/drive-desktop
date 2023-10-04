@@ -1,6 +1,5 @@
 import { SyncEngineIpc } from '../../../ipcRendererSyncEngine';
 import { EventBus } from '../../shared/domain/EventBus';
-import { PlatformPathConverter } from '../../shared/application/PlatformPathConverter';
 import { Folder } from '../domain/Folder';
 import { FolderRepository } from '../domain/FolderRepository';
 import { OfflineFolder } from '../domain/OfflineFolder';
@@ -19,9 +18,7 @@ export class FolderCreator {
       name: offlineFolder.name,
     });
 
-    const parent = this.folderFinder.run(
-      PlatformPathConverter.winToPosix(offlineFolder.dirname)
-    );
+    const parent = this.folderFinder.run(offlineFolder.dirname);
 
     const folder = await this.repository.create(
       offlineFolder.path,

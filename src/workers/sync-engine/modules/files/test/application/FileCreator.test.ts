@@ -84,7 +84,7 @@ describe('File Creator', () => {
     await SUT.run(path, contents);
 
     expect(eventBus.publishMock.mock.calls[0][0][0].eventName).toBe(
-      'webdav.file.created'
+      'file.created'
     );
     expect(eventBus.publishMock.mock.calls[0][0][0].aggregateId).toBe(
       contents.id

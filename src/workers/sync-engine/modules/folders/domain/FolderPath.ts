@@ -1,6 +1,5 @@
 import path from 'path';
 import { Path } from '../../shared/domain/Path';
-import { PlatformPathConverter } from '../../shared/application/PlatformPathConverter';
 
 export class FolderPath extends Path {
   constructor(value: string) {
@@ -10,13 +9,11 @@ export class FolderPath extends Path {
   static fromParts(parts: Array<string>) {
     const full = path.posix.join(...parts);
 
-    return new FolderPath(
-      PlatformPathConverter.winToPosix(path.normalize(full))
-    );
+    return new FolderPath(path.posix.normalize(full));
   }
 
   name(): string {
-    if (this.value === path.sep) {
+    if (this.value === path.posix.sep) {
       return 'Internxt Drive';
     }
 

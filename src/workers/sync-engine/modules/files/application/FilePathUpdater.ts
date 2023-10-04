@@ -37,9 +37,7 @@ export class FilePathUpdater {
         throw new ActionNotPermitedError('rename and change folder');
       }
 
-      const destinationFolder = this.folderFinder.run(
-        destination.posixDirname()
-      );
+      const destinationFolder = this.folderFinder.run(destination.dirname());
 
       file.moveTo(destinationFolder);
 
