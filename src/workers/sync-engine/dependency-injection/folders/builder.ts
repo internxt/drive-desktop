@@ -4,7 +4,6 @@ import { FolderCreator } from 'workers/sync-engine/modules/folders/application/F
 import { FolderDeleter } from 'workers/sync-engine/modules/folders/application/FolderDeleter';
 import { FolderFinder } from 'workers/sync-engine/modules/folders/application/FolderFinder';
 import { FolderMover } from 'workers/sync-engine/modules/folders/application/FolderMover';
-import { FolderPathCreator } from 'workers/sync-engine/modules/folders/application/FolderPathCreator';
 import { FolderPathUpdater } from 'workers/sync-engine/modules/folders/application/FolderPathUpdater';
 import { FolderRenamer } from 'workers/sync-engine/modules/folders/application/FolderRenamer';
 import { FolderSearcher } from 'workers/sync-engine/modules/folders/application/FolderSearcher';
@@ -17,7 +16,6 @@ import { InMemoryOfflineFolderRepository } from 'workers/sync-engine/modules/fol
 import { ipcRendererSyncEngine } from '../../ipcRendererSyncEngine';
 import { DependencyInjectionHttpClientsProvider } from '../common/clients';
 import { DependencyInjectionEventBus } from '../common/eventBus';
-import { DependencyInjectionLocalRootFolderPath } from '../common/localRootFolderPath';
 import { DependencyInjectionTraverserProvider } from '../common/traverser';
 import { PlaceholderContainer } from '../placeholders/PlaceholdersContainer';
 import { FoldersContainer } from './FoldersContainer';
@@ -29,7 +27,6 @@ export async function buildFoldersContainer(
 ): Promise<FoldersContainer> {
   const clients = DependencyInjectionHttpClientsProvider.get();
   const traverser = DependencyInjectionTraverserProvider.get();
-  const rootFolderPath = DependencyInjectionLocalRootFolderPath.get();
   const eventBus = DependencyInjectionEventBus.bus;
 
   const repository = new HttpFolderRepository(
@@ -40,7 +37,6 @@ export async function buildFoldersContainer(
   );
 
   await repository.init();
-  const folderPathCreator = new FolderPathCreator(rootFolderPath);
 
   const folderFinder = new FolderFinder(repository);
 
@@ -70,14 +66,12 @@ export async function buildFoldersContainer(
 
   const folderPathUpdater = new FolderPathUpdater(
     repository,
-    folderPathCreator,
     folderMover,
     folderRenamer
   );
 
   const offlineRepository = new InMemoryOfflineFolderRepository();
   const offlineFolderCreator = new OfflineFolderCreator(
-    folderPathCreator,
     folderFinder,
     offlineRepository,
     repository
@@ -90,7 +84,6 @@ export async function buildFoldersContainer(
   const offlineFolderRenamer = new OfflineFolderRenamer(offlineRepository);
   const offlineFolderPathUpdater = new OfflineFolderPathUpdater(
     offlineRepository,
-    folderPathCreator,
     offlineFolderMover,
     offlineFolderRenamer
   );
@@ -108,7 +101,6 @@ export async function buildFoldersContainer(
   return {
     folderCreator,
     folderFinder,
-    folderPathFromAbsolutePathCreator: folderPathCreator,
     folderSearcher,
     folderDeleter,
     allParentFoldersStatusIsExists: allParentFoldersStatusIsExists,

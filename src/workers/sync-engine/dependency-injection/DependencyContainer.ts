@@ -6,6 +6,7 @@ import { FoldersContainer } from './folders/FoldersContainer';
 import { ItemsContainer } from './items/ItemsContainer';
 import { PlaceholderContainer } from './placeholders/PlaceholdersContainer';
 import { BoundaryBridgeContainer } from './boundaryBridge/BoundaryBridgeContainer';
+import { SharedContainer } from './shared/SharedContainer';
 
 export interface DependencyContainer
   extends ItemsContainer,
@@ -13,6 +14,7 @@ export interface DependencyContainer
     FilesContainer,
     FoldersContainer,
     PlaceholderContainer,
+    SharedContainer,
     BoundaryBridgeContainer {
   virtualDrive: VirtualDrive;
 }

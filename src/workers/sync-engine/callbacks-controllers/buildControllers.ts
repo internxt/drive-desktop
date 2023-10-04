@@ -7,6 +7,7 @@ import { OfflineRenameOrMoveController } from './controllers/offline/OfflineRena
 
 export function buildControllers(container: DependencyContainer) {
   const addFileController = new AddController(
+    container.absolutePathToRelativeConverter,
     container.fileCreationOrchestrator,
     container.folderCreator,
     container.offline.folderCreator
@@ -18,7 +19,7 @@ export function buildControllers(container: DependencyContainer) {
   );
 
   const renameOrMoveController = new RenameOrMoveController(
-    container.filePathFromAbsolutePathCreator,
+    container.absolutePathToRelativeConverter,
     container.filePathUpdater,
     container.folderPathUpdater,
     deleteController

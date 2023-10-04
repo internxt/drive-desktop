@@ -1,13 +1,14 @@
 import { FolderPathUpdater } from '../../modules/folders/application/FolderPathUpdater';
-import { FilePathFromAbsolutePathCreator } from '../../modules/files/application/FilePathFromAbsolutePathCreator';
 import { FilePathUpdater } from '../../modules/files/application/FilePathUpdater';
 import { CallbackController } from './CallbackController';
 import { DeleteController } from './DeleteController';
 import Logger from 'electron-log';
+import { AbsolutePathToRelativeConverter } from 'workers/sync-engine/modules/shared/application/AbsolutePathToRelativeConverter';
+import { PlatformPathConverter } from 'workers/sync-engine/modules/shared/application/PlatformPathConverter';
 
 export class RenameOrMoveController extends CallbackController {
   constructor(
-    private readonly filePathFromAbsolutePathCreator: FilePathFromAbsolutePathCreator,
+    private readonly absolutePathToRelativeConverter: AbsolutePathToRelativeConverter,
     private readonly filePathUpdater: FilePathUpdater,
     private readonly folderPathUpdater: FolderPathUpdater,
     private readonly deleteController: DeleteController
@@ -28,17 +29,21 @@ export class RenameOrMoveController extends CallbackController {
         return callback(true);
       }
 
-      const relative = this.filePathFromAbsolutePathCreator.run(absolutePath);
+      const win32RelativePath =
+        this.absolutePathToRelativeConverter.run(absolutePath);
+
+      const posixRelativePath =
+        PlatformPathConverter.winToPosix(win32RelativePath);
 
       if (this.isFilePlaceholder(trimmedId)) {
         const [_, contentsId] = trimmedId.split(':');
-        await this.filePathUpdater.run(contentsId, relative);
+        await this.filePathUpdater.run(contentsId, posixRelativePath);
         return callback(true);
       }
 
       if (this.isFolderPlaceholder(trimmedId)) {
         const [_, folderUuid] = trimmedId.split(':');
-        await this.folderPathUpdater.run(folderUuid, absolutePath);
+        await this.folderPathUpdater.run(folderUuid, posixRelativePath);
         return callback(true);
       }
 

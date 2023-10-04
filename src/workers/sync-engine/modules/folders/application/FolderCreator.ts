@@ -1,6 +1,6 @@
 import { SyncEngineIpc } from '../../../ipcRendererSyncEngine';
 import { EventBus } from '../../shared/domain/EventBus';
-import { PlatformPathConverter } from '../../shared/test/helpers/PlatformPathConverter';
+import { PlatformPathConverter } from '../../shared/application/PlatformPathConverter';
 import { Folder } from '../domain/Folder';
 import { FolderRepository } from '../domain/FolderRepository';
 import { OfflineFolder } from '../domain/OfflineFolder';

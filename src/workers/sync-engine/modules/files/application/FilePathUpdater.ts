@@ -23,7 +23,8 @@ export class FilePathUpdater {
     // await this.eventBus.publish(file.pullDomainEvents());
   }
 
-  async run(contentsId: string, destination: FilePath) {
+  async run(contentsId: string, posixRelativePath: string) {
+    const destination = new FilePath(posixRelativePath);
     const file = this.fileFinderByContentsId.run(contentsId);
 
     this.ipc.send('FILE_RENAMING', {

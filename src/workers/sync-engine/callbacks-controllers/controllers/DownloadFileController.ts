@@ -1,7 +1,9 @@
+import { FilePlaceholderId } from 'workers/sync-engine/modules/placeholders/domain/FilePlaceholderId';
 import { ContentsDownloader } from '../../modules/contents/application/ContentsDownloader';
 import { FileFinderByContentsId } from '../../modules/files/application/FileFinderByContentsId';
 import { LocalRepositoryRepositoryRefresher } from '../../modules/files/application/LocalRepositoryRepositoryRefresher';
 import { CallbackController } from './CallbackController';
+import Logger from 'electron-log';
 
 export class DownloadFileController extends CallbackController {
   constructor(
@@ -18,12 +20,17 @@ export class DownloadFileController extends CallbackController {
     return await this.downloader.run(file);
   }
 
-  async execute(contentsId: string): Promise<string> {
+  async execute(contentsId: FilePlaceholderId): Promise<string> {
     const trimmedId = this.trim(contentsId);
 
     try {
-      return await this.action(trimmedId);
-    } catch {
+      const [_, contentsId] = trimmedId.split(':');
+      return await this.action(contentsId);
+    } catch (error: unknown) {
+      Logger.error(
+        'Error downloading a file, going to refresh and retry: ',
+        error
+      );
       await this.localRepositoryRefresher.run();
 
       return await new Promise((resolve, reject) => {

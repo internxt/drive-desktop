@@ -1,5 +1,5 @@
 import { FolderPath } from '../../domain/FolderPath';
-import { PlatformPathConverter } from '../../../shared/test/helpers/PlatformPathConverter';
+import { PlatformPathConverter } from '../../../shared/application/PlatformPathConverter';
 import path from 'path';
 
 describe('Path', () => {

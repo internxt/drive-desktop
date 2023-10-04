@@ -5,7 +5,6 @@ import { FolderStatus, FolderStatuses } from './FolderStatus';
 import { FolderUuid } from './FolderUuid';
 import { FolderCreatedDomainEvent } from './events/FolderCreatedDomainEvent';
 import { FolderRenamedDomainEvent } from './events/FolderRenamedDomainEvent';
-import Logger from 'electron-log';
 
 export type FolderAttributes = {
   id: number;

@@ -1,6 +1,6 @@
 import path from 'path';
 import { Path } from '../../shared/domain/Path';
-import { PlatformPathConverter } from '../../shared/test/helpers/PlatformPathConverter';
+import { PlatformPathConverter } from '../../shared/application/PlatformPathConverter';
 
 export class FolderPath extends Path {
   constructor(value: string) {

@@ -5,9 +5,11 @@ import { FolderCreator } from '../../modules/folders/application/FolderCreator';
 import { MapObserver } from '../../modules/shared/domain/MapObserver';
 import { FileCreationOrchestrator } from '../../modules/boundaryBridge/application/FileCreationOrchestrator';
 import { OfflineFolderCreator } from '../../modules/folders/application/Offline/OfflineFolderCreator';
-import { OfflineFolder } from 'workers/sync-engine/modules/folders/domain/OfflineFolder';
-import { createFilePlaceholderId } from 'workers/sync-engine/modules/placeholders/domain/FilePlaceholderId';
-import { createFolderPlaceholderId } from 'workers/sync-engine/modules/placeholders/domain/FolderPlaceholderId';
+import { OfflineFolder } from '../../modules/folders/domain/OfflineFolder';
+import { createFilePlaceholderId } from '../../modules/placeholders/domain/FilePlaceholderId';
+import { createFolderPlaceholderId } from '../../modules/placeholders/domain/FolderPlaceholderId';
+import { PlatformPathConverter } from '../../modules/shared/application/PlatformPathConverter';
+import { AbsolutePathToRelativeConverter } from '../../modules/shared/application/AbsolutePathToRelativeConverter';
 
 type FileCreationQueue = Map<
   string,
@@ -26,6 +28,7 @@ export class AddController extends CallbackController {
   private readonly observer: MapObserver;
 
   constructor(
+    private readonly absolutePathToRelativeConverter: AbsolutePathToRelativeConverter,
     private readonly fileCreationOrchestrator: FileCreationOrchestrator,
     private readonly folderCreator: FolderCreator,
     private readonly offlineFolderCreator: OfflineFolderCreator
@@ -40,23 +43,25 @@ export class AddController extends CallbackController {
   }
 
   private createFile = async (
-    absolutePath: string,
+    posixRelativePath: string,
     callback: (acknowledge: boolean, id: string) => void
   ) => {
     try {
-      const contentsId = await this.fileCreationOrchestrator.run(absolutePath);
+      const contentsId = await this.fileCreationOrchestrator.run(
+        posixRelativePath
+      );
       return callback(true, createFilePlaceholderId(contentsId));
     } catch (error: unknown) {
       Logger.error('Error when adding a file: ', error);
       callback(false, '');
     } finally {
-      this.filesQueue.delete(absolutePath);
+      this.filesQueue.delete(posixRelativePath);
     }
   };
 
   private createFiles = async () => {
-    for (const [absolutePath, callback] of this.filesQueue) {
-      await this.createFile(absolutePath, callback);
+    for (const [posixRelativePath, callback] of this.filesQueue) {
+      await this.createFile(posixRelativePath, callback);
     }
   };
 
@@ -83,11 +88,11 @@ export class AddController extends CallbackController {
   };
 
   private enqueueFolder = (
-    absolutePath: string,
+    posixRelativePath: string,
     callback: CreationCallback
   ) => {
     try {
-      const offlineFolder = this.offlineFolderCreator.run(absolutePath);
+      const offlineFolder = this.offlineFolderCreator.run(posixRelativePath);
       callback(true, createFolderPlaceholderId(offlineFolder.uuid));
       this.foldersQueue.set(offlineFolder, () => {
         //no-op
@@ -102,20 +107,29 @@ export class AddController extends CallbackController {
     absolutePath: string,
     callback: CreationCallback
   ): Promise<void> {
+    const win32RelativePath =
+      this.absolutePathToRelativeConverter.run(absolutePath);
+
+    const posixRelativePath =
+      PlatformPathConverter.winToPosix(win32RelativePath);
+
     if (rawPathIsFolder(absolutePath)) {
-      this.enqueueFolder(absolutePath, callback);
+      this.enqueueFolder(posixRelativePath, callback);
       await this.createFolders();
       await this.createFiles();
       return;
     }
 
-    this.filesQueue.set(absolutePath, callback);
+    this.filesQueue.set(posixRelativePath, callback);
 
     if (this.foldersQueue.size === 0) {
-      Logger.debug('File is not going to be queued. Creating...', absolutePath);
+      Logger.debug(
+        'File is not going to be queued. Creating...',
+        posixRelativePath
+      );
       await this.createFiles();
     } else {
-      Logger.debug('File has been queued: ', absolutePath);
+      Logger.debug('File has been queued: ', posixRelativePath);
     }
   }
 }

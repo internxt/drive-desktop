@@ -2,15 +2,14 @@ import path from 'path';
 import { IpcRendererSyncEngineMock } from '../../../shared/test/__mock__/IpcRendererSyncEngineMock';
 import { FolderCreator } from '../../application/FolderCreator';
 import { FolderFinder } from '../../application/FolderFinder';
-import { FolderPathCreator } from '../../application/FolderPathCreator';
 import { FolderRepositoryMock } from '../__mocks__/FolderRepositoryMock';
 import { FolderPath } from '../../domain/FolderPath';
 import { FolderMother } from '../domain/FolderMother';
+import { EventBusMock } from 'workers/sync-engine/modules/shared/test/__mock__/EventBusMock';
 
 describe('Folder Creator', () => {
   let SUT: FolderCreator;
 
-  let folderPathCreator: FolderPathCreator;
   let repository: FolderRepositoryMock;
   let folderFinder: FolderFinder;
   let syncEngineIpc: IpcRendererSyncEngineMock;
@@ -18,17 +17,13 @@ describe('Folder Creator', () => {
   const BASE_FOLDER_ID = 'D:\\Users\\HalfBloodPrince\\InternxtDrive';
 
   beforeEach(() => {
-    folderPathCreator = new FolderPathCreator(BASE_FOLDER_ID);
     repository = new FolderRepositoryMock();
     folderFinder = new FolderFinder(repository);
     syncEngineIpc = new IpcRendererSyncEngineMock();
 
-    SUT = new FolderCreator(
-      folderPathCreator,
-      repository,
-      folderFinder,
-      syncEngineIpc
-    );
+    const eventBus = new EventBusMock();
+
+    SUT = new FolderCreator(repository, folderFinder, syncEngineIpc, eventBus);
   });
 
   it('creates on a folder on the root folder', async () => {

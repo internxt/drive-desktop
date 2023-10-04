@@ -13,7 +13,7 @@ import { SyncEngineIpc } from '../../../ipcRendererSyncEngine';
 import { RemoteItemsGenerator } from '../../items/application/RemoteItemsGenerator';
 import { FolderStatus, FolderStatuses } from '../domain/FolderStatus';
 import nodePath from 'path';
-import { PlatformPathConverter } from '../../shared/test/helpers/PlatformPathConverter';
+import { PlatformPathConverter } from '../../shared/application/PlatformPathConverter';
 
 export class HttpFolderRepository implements FolderRepository {
   public folders: Record<string, Folder> = {};
@@ -174,10 +174,6 @@ export class HttpFolderRepository implements FolderRepository {
   }
 
   async trash(folder: Folder): Promise<void> {
-    if (folder.status !== FolderStatus.Trashed) {
-      throw new Error('The status need to be trashed to be deleted');
-    }
-
     const result = await this.trashClient.post(
       `${process.env.NEW_DRIVE_URL}/drive/storage/trash/add`,
       {

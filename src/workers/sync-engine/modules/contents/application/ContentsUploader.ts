@@ -4,12 +4,15 @@ import { ContentsManagersFactory } from '../domain/ContentsManagersFactory';
 import { LocalContentsProvider } from '../domain/LocalFileProvider';
 import { RemoteFileContents } from '../domain/RemoteFileContents';
 import { LocalFileContents } from '../domain/LocalFileContents';
+import { PlatformPathConverter } from '../../shared/application/PlatformPathConverter';
+import { RelativePathToAbsoluteConverter } from '../../shared/application/RelativePathToAbsoluteConverter';
 
 export class ContentsUploader {
   constructor(
     private readonly remoteContentsManagersFactory: ContentsManagersFactory,
     private readonly contentProvider: LocalContentsProvider,
-    private readonly ipc: SyncEngineIpc
+    private readonly ipc: SyncEngineIpc,
+    private readonly relativePathToAbsoluteConverter: RelativePathToAbsoluteConverter
   ) {}
 
   private registerEvents(
@@ -56,7 +59,13 @@ export class ContentsUploader {
     });
   }
 
-  async run(absolutePath: string): Promise<RemoteFileContents> {
+  async run(posixRelativePath: string): Promise<RemoteFileContents> {
+    const win32RelativePath =
+      PlatformPathConverter.posixToWin(posixRelativePath);
+
+    const absolutePath =
+      this.relativePathToAbsoluteConverter.run(win32RelativePath);
+
     const { contents, abortSignal } = await this.contentProvider.provide(
       absolutePath
     );

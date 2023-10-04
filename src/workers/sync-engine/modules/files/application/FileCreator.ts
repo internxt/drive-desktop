@@ -6,7 +6,7 @@ import { FileSize } from '../domain/FileSize';
 import { EventBus } from '../../shared/domain/EventBus';
 import { RemoteFileContents } from '../../contents/domain/RemoteFileContents';
 import { FileDeleter } from './FileDeleter';
-import { PlatformPathConverter } from '../../shared/test/helpers/PlatformPathConverter';
+import { PlatformPathConverter } from '../../shared/application/PlatformPathConverter';
 
 export class FileCreator {
   constructor(
