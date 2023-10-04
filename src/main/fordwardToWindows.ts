@@ -85,7 +85,7 @@ ipcMainDrive.on('FILE_UPLOADING', (_, payload) => {
   });
 });
 
-ipcMainDrive.on('FILE_UPLOADED', (_, payload) => {
+ipcMainDrive.on('FILE_CREATED', (_, payload) => {
   const { nameWithExtension } = payload;
 
   broadcastToWindows('sync-info-update', {

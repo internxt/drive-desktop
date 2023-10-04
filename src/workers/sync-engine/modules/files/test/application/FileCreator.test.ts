@@ -39,7 +39,13 @@ describe('File Creator', () => {
     const folderFinder = new FolderFinder(folderRepository);
     eventBus = new EventBusMock();
 
-    SUT = new FileCreator(fileRepository, folderFinder, fileDeleter, eventBus);
+    SUT = new FileCreator(
+      fileRepository,
+      folderFinder,
+      fileDeleter,
+      eventBus,
+      ipc
+    );
   });
 
   it('creates the file on the drive server', async () => {

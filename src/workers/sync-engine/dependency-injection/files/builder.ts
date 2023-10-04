@@ -69,7 +69,8 @@ export async function buildFilesContainer(
     fileRepository,
     folderContainer.folderFinder,
     fileDeleter,
-    eventBus
+    eventBus,
+    ipcRendererSyncEngine
   );
 
   const fileSearcher = new FileSearcher(fileRepository);

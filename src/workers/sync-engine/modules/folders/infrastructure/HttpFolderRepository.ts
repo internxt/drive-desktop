@@ -11,7 +11,7 @@ import * as uuid from 'uuid';
 import { UpdateFolderNameDTO } from './dtos/UpdateFolderNameDTO';
 import { SyncEngineIpc } from '../../../ipcRendererSyncEngine';
 import { RemoteItemsGenerator } from '../../items/application/RemoteItemsGenerator';
-import { FolderStatus, FolderStatuses } from '../domain/FolderStatus';
+import { FolderStatuses } from '../domain/FolderStatus';
 import nodePath from 'path';
 import { PlatformPathConverter } from '../../shared/application/PlatformPathConverter';
 

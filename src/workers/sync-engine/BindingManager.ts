@@ -2,6 +2,7 @@ import Logger from 'electron-log';
 import { DependencyContainer } from './dependency-injection/DependencyContainer';
 import { buildControllers } from './callbacks-controllers/buildControllers';
 import { executeControllerWithFallback } from './callbacks-controllers/middlewares/executeControllerWithFallback';
+import { FilePlaceholderId } from './modules/placeholders/domain/FilePlaceholderId';
 
 export class BindingsManager {
   private static readonly PROVIDER_NAME = 'Internxt';
@@ -59,7 +60,7 @@ export class BindingsManager {
         controllers.addFile.execute(absolutePath, callback);
       },
       fetchDataCallback: (
-        contentsId: string,
+        contentsId: FilePlaceholderId,
         callback: (success: boolean, path: string) => void
       ) => {
         controllers.downloadFile
