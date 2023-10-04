@@ -6,6 +6,8 @@ import { FolderRepositoryMock } from '../__mocks__/FolderRepositoryMock';
 import { FolderUuid } from '../../domain/FolderUuid';
 import { OfflineFolderMother } from '../domain/OfflineFolderMother';
 import { FolderMother } from '../domain/FolderMother';
+import { FolderRenamedDomainEvent } from '../../domain/events/FolderRenamedDomainEvent';
+import { FolderPath } from '../../domain/FolderPath';
 
 describe('Synchronize Offline Modifications', () => {
   let offlineRepository: InMemoryOfflineFolderRepository;
@@ -49,19 +51,27 @@ describe('Synchronize Offline Modifications', () => {
     }
   });
 
-  it('does nothing if the name of the online and offline folder is the same', async () => {
+  it('does nothing if the name of the online folder is not the previous one on the event', async () => {
     const offlineFolder = OfflineFolderMother.random();
-    const folder = FolderMother.fromPartial(offlineFolder.attributes());
+
+    offlineFolder.rename(
+      FolderPath.fromParts(offlineFolder.dirname, offlineFolder.name + '!')
+    );
+
+    const folder = FolderMother.fromPartial({
+      ...offlineFolder.attributes(),
+      path: offlineFolder.dirname + offlineFolder.name.repeat(1),
+    });
 
     const offlineRepositorySyp = jest
       .spyOn(offlineRepository, 'getByUuid')
       .mockReturnValueOnce(offlineFolder);
 
-    const renamerSpy = jest.spyOn(renamer, 'run');
-
     repository.mockSearchByPartial.mockReturnValueOnce(folder);
 
-    SUT.run(offlineFolder.uuid);
+    const renamerSpy = jest.spyOn(renamer, 'run');
+
+    await SUT.run(offlineFolder.uuid);
 
     expect(offlineRepositorySyp).toBeCalledWith(offlineFolder.uuid);
     expect(repository.mockSearchByPartial).toBeCalledWith({
@@ -70,16 +80,13 @@ describe('Synchronize Offline Modifications', () => {
     expect(renamerSpy).not.toBeCalled();
   });
 
-  it('only renames the online folder if the modification data is older than the offline one', async () => {
-    const offlineFolder = OfflineFolderMother.fromPartial({
-      updatedAt: new Date('2023-10-01').toISOString(),
-      path: '/new-name',
-    });
-    const folder = FolderMother.fromPartial({
-      ...offlineFolder.attributes(),
-      updatedAt: new Date('2000-10-01').toISOString(),
-      path: '/old-name',
-    });
+  it('renames the online folder if the folder name is the previous one on the event', async () => {
+    const offlineFolder = OfflineFolderMother.random();
+    const folder = FolderMother.fromPartial(offlineFolder.attributes());
+
+    offlineFolder.rename(
+      FolderPath.fromParts(offlineFolder.dirname, offlineFolder.name + '!')
+    );
 
     jest
       .spyOn(offlineRepository, 'getByUuid')
@@ -89,8 +96,38 @@ describe('Synchronize Offline Modifications', () => {
 
     repository.mockSearchByPartial.mockReturnValueOnce(folder);
 
-    SUT.run(offlineFolder.uuid);
+    await SUT.run(offlineFolder.uuid);
 
     expect(renamerSpy).toBeCalledWith(folder, offlineFolder.path);
+  });
+
+  it('makes all the name changes recoded on the events', async () => {
+    const offlineFolder = OfflineFolderMother.random();
+    const afterCreation = FolderMother.fromPartial(offlineFolder.attributes());
+
+    offlineFolder.rename(
+      FolderPath.fromParts(offlineFolder.dirname, offlineFolder.name + '!')
+    );
+    const afterFirstRename = FolderMother.fromPartial(
+      offlineFolder.attributes()
+    );
+    offlineFolder.rename(
+      FolderPath.fromParts(offlineFolder.dirname, offlineFolder.name + '!')
+    );
+
+    jest
+      .spyOn(offlineRepository, 'getByUuid')
+      .mockReturnValueOnce(offlineFolder);
+
+    const renamerSpy = jest.spyOn(renamer, 'run');
+
+    repository.mockSearchByPartial
+      .mockReturnValueOnce(afterCreation)
+      .mockReturnValueOnce(afterFirstRename);
+
+    const uuid = offlineFolder.uuid;
+    await SUT.run(uuid);
+
+    expect(renamerSpy).toBeCalledTimes(2);
   });
 });

@@ -6,7 +6,7 @@ export class FolderPath extends Path {
     super(value);
   }
 
-  static fromParts(parts: Array<string>) {
+  static fromParts(...parts: Array<string>) {
     const full = path.posix.join(...parts);
 
     return new FolderPath(path.posix.normalize(full));
@@ -21,10 +21,10 @@ export class FolderPath extends Path {
   }
 
   updateName(name: string): FolderPath {
-    return FolderPath.fromParts([this.dirname(), name]);
+    return FolderPath.fromParts(this.dirname(), name);
   }
 
   changeFolder(folder: string): FolderPath {
-    return FolderPath.fromParts([folder, this.name()]);
+    return FolderPath.fromParts(folder, this.name());
   }
 }

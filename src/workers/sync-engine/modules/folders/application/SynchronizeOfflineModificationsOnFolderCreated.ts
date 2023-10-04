@@ -13,7 +13,7 @@ export class SynchronizeOfflineModificationsOnFolderCreated
   subscribedTo(): DomainEventClass[] {
     return [FolderCreatedDomainEvent];
   }
-  on(domainEvent: FolderCreatedDomainEvent): Promise<void> {
-    return this.synchronizeOfflineModifications.run(domainEvent.aggregateId);
+  async on(domainEvent: FolderCreatedDomainEvent): Promise<void> {
+    await this.synchronizeOfflineModifications.run(domainEvent.aggregateId);
   }
 }
