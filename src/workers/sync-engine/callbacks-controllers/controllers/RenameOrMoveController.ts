@@ -31,12 +31,19 @@ export class RenameOrMoveController extends CallbackController {
       const relative = this.filePathFromAbsolutePathCreator.run(absolutePath);
 
       if (this.isFilePlaceholder(trimmedId)) {
-        await this.filePathUpdater.run(trimmedId, relative);
+        const [_, contentsId] = trimmedId.split(':');
+        await this.filePathUpdater.run(contentsId, relative);
         return callback(true);
       }
 
-      await this.folderPathUpdater.run(trimmedId, absolutePath);
-      callback(true);
+      if (this.isFolderPlaceholder(trimmedId)) {
+        const [_, folderUuid] = trimmedId.split(':');
+        await this.folderPathUpdater.run(folderUuid, absolutePath);
+        return callback(true);
+      }
+
+      Logger.error('Unidentified placeholder id: ', trimmedId);
+      callback(false);
     } catch (error: unknown) {
       Logger.error(error);
       callback(false);

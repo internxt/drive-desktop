@@ -4,6 +4,7 @@ import { FolderPath } from './FolderPath';
 import { FolderStatus, FolderStatuses } from './FolderStatus';
 import { FolderUuid } from './FolderUuid';
 import { Folder } from './Folder';
+import { FolderRenamedDomainEvent } from './events/FolderRenamedDomainEvent';
 
 export type OfflineFolderAttributes = {
   uuid: string;
@@ -82,12 +83,21 @@ export class OfflineFolder extends AggregateRoot {
   }
 
   rename(destination: FolderPath) {
+    const oldPath = this._path;
     if (this._path.hasSameName(destination)) {
       throw new Error('Cannot rename a folder to the same name');
     }
 
     this._path = this._path.updateName(destination.name());
     this.updatedAt = new Date();
+
+    const event = new FolderRenamedDomainEvent({
+      aggregateId: this.uuid,
+      previousPath: oldPath.value,
+      nextPath: this._path.value,
+    });
+
+    this.record(event);
   }
 
   isFolder(): this is OfflineFolder {

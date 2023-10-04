@@ -21,11 +21,18 @@ export class OfflineRenameOrMoveController extends CallbackController {
       }
 
       if (this.isFilePlaceholder(trimmedId)) {
+        Logger.error('Tried to rename or move an offline file');
         return callback(false);
       }
-      Logger.debug('absolute path', absolutePath);
-      await this.folderPathUpdater.run(trimmedId, absolutePath);
-      callback(true);
+
+      if (this.isFolderPlaceholder(trimmedId)) {
+        const [_, folderUuid] = trimmedId.split(':');
+        await this.folderPathUpdater.run(folderUuid, absolutePath);
+        return callback(true);
+      }
+
+      Logger.error('Placeholder id not identified: ', trimmedId);
+      callback(false);
     } catch (error: unknown) {
       Logger.error(error);
       callback(false);

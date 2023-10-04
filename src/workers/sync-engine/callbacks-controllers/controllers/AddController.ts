@@ -6,6 +6,8 @@ import { MapObserver } from '../../modules/shared/domain/MapObserver';
 import { FileCreationOrchestrator } from '../../modules/boundaryBridge/application/FileCreationOrchestrator';
 import { OfflineFolderCreator } from '../../modules/folders/application/Offline/OfflineFolderCreator';
 import { OfflineFolder } from 'workers/sync-engine/modules/folders/domain/OfflineFolder';
+import { createFilePlaceholderId } from 'workers/sync-engine/modules/placeholders/domain/FilePlaceholderId';
+import { createFolderPlaceholderId } from 'workers/sync-engine/modules/placeholders/domain/FolderPlaceholderId';
 
 type FileCreationQueue = Map<
   string,
@@ -43,7 +45,7 @@ export class AddController extends CallbackController {
   ) => {
     try {
       const contentsId = await this.fileCreationOrchestrator.run(absolutePath);
-      return callback(true, contentsId);
+      return callback(true, createFilePlaceholderId(contentsId));
     } catch (error: unknown) {
       Logger.error('Error when adding a file: ', error);
       callback(false, '');
@@ -59,8 +61,9 @@ export class AddController extends CallbackController {
   };
 
   private createFolders = async () => {
-    for (const [absolutePath, callback] of this.foldersQueue) {
-      await this.createFolder(absolutePath, callback);
+    Logger.debug('FOLDERS TO CREATE', this.foldersQueue.size);
+    for (const [offlineFolder, callback] of this.foldersQueue) {
+      await this.createFolder(offlineFolder, callback);
     }
   };
 
@@ -83,11 +86,16 @@ export class AddController extends CallbackController {
     absolutePath: string,
     callback: CreationCallback
   ) => {
-    const offlineFolder = this.offlineFolderCreator.run(absolutePath);
-    callback(true, offlineFolder.uuid);
-    this.foldersQueue.set(offlineFolder, () => {
-      //no-op
-    });
+    try {
+      const offlineFolder = this.offlineFolderCreator.run(absolutePath);
+      callback(true, createFolderPlaceholderId(offlineFolder.uuid));
+      this.foldersQueue.set(offlineFolder, () => {
+        //no-op
+      });
+    } catch (error: unknown) {
+      Logger.error('Error on folder creation: ', error);
+      callback(false, '');
+    }
   };
 
   async execute(

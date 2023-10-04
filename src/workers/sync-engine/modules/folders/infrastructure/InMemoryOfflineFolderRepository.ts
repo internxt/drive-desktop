@@ -17,8 +17,25 @@ export class InMemoryOfflineFolderRepository
   }
 
   update(folder: OfflineFolder): void {
-    Logger.debug('OFFLINE FOLDER UPDATED:', folder.attributes());
-    this.foldersByPath[folder.path.value] = folder;
-    this.foldersByUuid[folder.uuid] = folder;
+    try {
+      const storedFolder = this.foldersByPath[folder.path.value] as
+        | OfflineFolder
+        | undefined;
+
+      const storedEvents = storedFolder ? storedFolder.pullDomainEvents() : [];
+      const newEvents = folder.pullDomainEvents();
+
+      [...storedEvents, ...newEvents].forEach((event) => folder.record(event));
+
+      this.foldersByPath[folder.path.value] = folder;
+      this.foldersByUuid[folder.uuid] = folder;
+    } catch (error: unknown) {
+      Logger.error('ERROR UPDATING OFFLINE FOLDER', error);
+    }
+  }
+
+  remove(folder: OfflineFolder): void {
+    delete this.foldersByPath[folder.path.value];
+    delete this.foldersByUuid[folder.uuid];
   }
 }

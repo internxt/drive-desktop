@@ -44,10 +44,17 @@ export class DeleteController extends CallbackController {
     const trimmedId = this.trim(contentsId);
 
     if (this.isFilePlaceholder(trimmedId)) {
-      this.filesQueue.push(trimmedId);
+      const [_, contentsId] = trimmedId.split(':');
+      this.filesQueue.push(contentsId);
       return;
     }
 
-    this.foldersQueue.push(trimmedId);
+    if (this.isFolderPlaceholder(trimmedId)) {
+      const [_, folderUuid] = trimmedId.split(':');
+      this.foldersQueue.push(folderUuid);
+      return;
+    }
+
+    throw new Error(`Placeholder Id not identified:  ${trimmedId}`);
   }
 }

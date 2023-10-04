@@ -79,7 +79,8 @@ export async function buildFoldersContainer(
   const offlineFolderCreator = new OfflineFolderCreator(
     folderPathCreator,
     folderFinder,
-    offlineRepository
+    offlineRepository,
+    repository
   );
 
   const offlineFolderMover = new OfflineFolderMover(

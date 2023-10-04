@@ -2,6 +2,7 @@ import { Folder } from '../domain/Folder';
 import { FolderRepository } from '../domain/FolderRepository';
 import { OfflineFolderRepository } from '../domain/OfflineFolderRepository';
 import { FolderNotFoundError } from '../domain/errors/FolderNotFoundError';
+import { FolderRenamedDomainEvent } from '../domain/events/FolderRenamedDomainEvent';
 import { FolderRenamer } from './FolderRenamer';
 import Logger from 'electron-log';
 
@@ -13,7 +14,8 @@ export class SynchronizeOfflineModifications {
   ) {}
 
   async run(uuid: Folder['uuid']) {
-    Logger.debug('Synchronize potential offline changes');
+    Logger.debug('Synchronize potential offline changes for folder: ', uuid);
+
     const offlineFolder = this.offlineRepository.getByUuid(uuid);
 
     if (!offlineFolder) {
@@ -21,28 +23,34 @@ export class SynchronizeOfflineModifications {
       return;
     }
 
-    const folder = this.repository.searchByPartial({ uuid });
+    const events = offlineFolder.pullDomainEvents();
 
-    if (!folder) {
-      Logger.debug('There is no folder with ', uuid);
-      throw new FolderNotFoundError(uuid);
+    for (const event of events) {
+      if (event.eventName !== FolderRenamedDomainEvent.EVENT_NAME) {
+        continue;
+      }
+
+      const rename = event as FolderRenamedDomainEvent;
+
+      const folder = this.repository.searchByPartial({ uuid });
+
+      if (!folder) {
+        throw new FolderNotFoundError(uuid);
+      }
+
+      if (rename.previousPath !== folder.path.value) {
+        continue;
+      }
+
+      try {
+        Logger.debug('Updating the folder with path: ', offlineFolder.path);
+        await this.renamer.run(folder, offlineFolder.path);
+        Logger.debug('Folder updated with the path: ', offlineFolder.path);
+      } catch (error: unknown) {
+        Logger.error(error);
+      }
     }
 
-    if (offlineFolder.name === folder.name) {
-      Logger.debug(
-        'Offline and online folder have the same name: ',
-        folder.name
-      );
-      return;
-    }
-
-    if (folder.updatedAt > offlineFolder.updatedAt) {
-      Logger.debug('Online folder is newer than the offline ', folder.name);
-      return;
-    }
-
-    Logger.debug('Updating the folder with path: ', offlineFolder.path);
-    await this.renamer.run(folder, offlineFolder.path);
-    Logger.debug('Folder updated with the path: ', offlineFolder.path);
+    this.offlineRepository.remove(offlineFolder);
   }
 }

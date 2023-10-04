@@ -18,7 +18,7 @@ export const executeControllerWithFallback =
       handler(absolutePath, placeholderId, (response: boolean) => {
         if (!response) {
           Logger.warn('Default handler failed, running fallback');
-          fallback(absolutePath, placeholderId, callback);
+          fallback(absolutePath, placeholderId, callback.bind(fallback));
           return;
         }
 

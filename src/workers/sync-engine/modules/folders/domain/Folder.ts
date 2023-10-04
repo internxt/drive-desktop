@@ -4,6 +4,7 @@ import { FolderPath } from './FolderPath';
 import { FolderStatus, FolderStatuses } from './FolderStatus';
 import { FolderUuid } from './FolderUuid';
 import { FolderCreatedDomainEvent } from './events/FolderCreatedDomainEvent';
+import { FolderRenamedDomainEvent } from './events/FolderRenamedDomainEvent';
 
 export type FolderAttributes = {
   id: number;
@@ -132,13 +133,21 @@ export class Folder extends AggregateRoot {
   }
 
   rename(newPath: FolderPath) {
+    const oldPath = this._path;
     if (this._path.hasSameName(newPath)) {
       throw new Error('Cannot rename a folder to the same name');
     }
 
     this._path = this._path.updateName(newPath.name());
     this.updatedAt = new Date();
-    //TODO: record rename event
+
+    const event = new FolderRenamedDomainEvent({
+      aggregateId: this.uuid,
+      previousPath: oldPath.name(),
+      nextPath: this._path.name(),
+    });
+
+    this.record(event);
   }
 
   trash() {
