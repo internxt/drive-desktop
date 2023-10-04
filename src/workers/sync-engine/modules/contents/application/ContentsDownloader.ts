@@ -38,7 +38,7 @@ export class ContentsDownloader {
       });
     });
 
-    downloader.on('progress', async (progress: number) => {
+    downloader.on('progress', (progress: number) => {
       cb(true, filePath);
       this.ipc.send('FILE_DOWNLOADING', {
         name: file.name,
