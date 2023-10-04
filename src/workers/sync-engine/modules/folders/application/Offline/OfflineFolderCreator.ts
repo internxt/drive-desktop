@@ -1,4 +1,3 @@
-import { PlatformPathConverter } from '../../../shared/application/PlatformPathConverter';
 import { FolderPath } from '../../domain/FolderPath';
 import { FolderRepository } from '../../domain/FolderRepository';
 import { OfflineFolder } from '../../domain/OfflineFolder';
@@ -23,9 +22,7 @@ export class OfflineFolderCreator {
       throw new Error('The folder already exists on remote');
     }
 
-    const parent = this.folderFinder.run(
-      PlatformPathConverter.winToPosix(folderPath.dirname())
-    );
+    const parent = this.folderFinder.run(folderPath.dirname());
 
     const folder = OfflineFolder.create(folderPath, parent.id);
 

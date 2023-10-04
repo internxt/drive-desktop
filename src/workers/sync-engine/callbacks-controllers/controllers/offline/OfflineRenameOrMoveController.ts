@@ -1,9 +1,14 @@
-import { OfflineFolderPathUpdater } from 'workers/sync-engine/modules/folders/application/Offline/OfflineFolderPathUpdater';
-import { CallbackController } from '../CallbackController';
 import Logger from 'electron-log';
+import { OfflineFolderPathUpdater } from '../../../modules/folders/application/Offline/OfflineFolderPathUpdater';
+import { AbsolutePathToRelativeConverter } from '../../../modules/shared/application/AbsolutePathToRelativeConverter';
+import { PlatformPathConverter } from '../../../modules/shared/application/PlatformPathConverter';
+import { CallbackController } from '../CallbackController';
 
 export class OfflineRenameOrMoveController extends CallbackController {
-  constructor(private readonly folderPathUpdater: OfflineFolderPathUpdater) {
+  constructor(
+    private readonly absolutePathToRelativeConverter: AbsolutePathToRelativeConverter,
+    private readonly folderPathUpdater: OfflineFolderPathUpdater
+  ) {
     super();
   }
 
@@ -20,6 +25,12 @@ export class OfflineRenameOrMoveController extends CallbackController {
         return callback(false);
       }
 
+      const win32RelativePath =
+        this.absolutePathToRelativeConverter.run(absolutePath);
+
+      const posixRelativePath =
+        PlatformPathConverter.winToPosix(win32RelativePath);
+
       if (this.isFilePlaceholder(trimmedId)) {
         Logger.error('Tried to rename or move an offline file');
         return callback(false);
@@ -27,7 +38,8 @@ export class OfflineRenameOrMoveController extends CallbackController {
 
       if (this.isFolderPlaceholder(trimmedId)) {
         const [_, folderUuid] = trimmedId.split(':');
-        await this.folderPathUpdater.run(folderUuid, absolutePath);
+        await this.folderPathUpdater.run(folderUuid, posixRelativePath);
+        Logger.debug('OFFLINE FOLDER PATH UPDATED: ', folderUuid);
         return callback(true);
       }
 

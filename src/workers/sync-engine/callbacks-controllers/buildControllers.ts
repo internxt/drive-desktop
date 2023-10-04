@@ -32,6 +32,7 @@ export function buildControllers(container: DependencyContainer) {
   );
 
   const offlineRenameOrMoveController = new OfflineRenameOrMoveController(
+    container.absolutePathToRelativeConverter,
     container.offline.folderPathUpdater
   );
 

@@ -6,7 +6,6 @@ import { FolderRepositoryMock } from '../__mocks__/FolderRepositoryMock';
 import { FolderUuid } from '../../domain/FolderUuid';
 import { OfflineFolderMother } from '../domain/OfflineFolderMother';
 import { FolderMother } from '../domain/FolderMother';
-import { FolderRenamedDomainEvent } from '../../domain/events/FolderRenamedDomainEvent';
 import { FolderPath } from '../../domain/FolderPath';
 
 describe('Synchronize Offline Modifications', () => {
