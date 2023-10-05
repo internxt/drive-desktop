@@ -6,21 +6,31 @@ import { FileRepository } from '../domain/FileRepository';
 import { FolderFinder } from '../../folders/application/FolderFinder';
 import { FileFinderByContentsId } from './FileFinderByContentsId';
 import { SyncEngineIpc } from '../../../ipcRendererSyncEngine';
+import { LocalFileIdProvider } from '../../shared/application/LocalFileIdProvider';
 
 export class FilePathUpdater {
   constructor(
     private readonly repository: FileRepository,
     private readonly fileFinderByContentsId: FileFinderByContentsId,
     private readonly folderFinder: FolderFinder,
-    private readonly ipc: SyncEngineIpc
+    private readonly ipc: SyncEngineIpc,
+    private readonly localFileIdProvider: LocalFileIdProvider
   ) {}
 
   private async rename(file: File, path: FilePath) {
     file.rename(path);
 
     await this.repository.updateName(file);
+  }
 
-    // await this.eventBus.publish(file.pullDomainEvents());
+  private async move(file: File, destination: FilePath) {
+    const trackerId = await this.localFileIdProvider.run(file.path.value);
+
+    const destinationFolder = this.folderFinder.run(destination.dirname());
+
+    file.moveTo(destinationFolder, trackerId);
+
+    await this.repository.updateParentDir(file);
   }
 
   async run(contentsId: string, posixRelativePath: string) {
@@ -31,12 +41,7 @@ export class FilePathUpdater {
       if (file.nameWithExtension !== destination.nameWithExtension()) {
         throw new ActionNotPermittedError('rename and change folder');
       }
-
-      const destinationFolder = this.folderFinder.run(destination.dirname());
-
-      file.moveTo(destinationFolder);
-
-      await this.repository.updateParentDir(file);
+      await this.move(file, destination);
       return;
     }
 

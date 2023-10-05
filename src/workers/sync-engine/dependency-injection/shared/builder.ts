@@ -1,7 +1,8 @@
-import { AbsolutePathToRelativeConverter } from 'workers/sync-engine/modules/shared/application/AbsolutePathToRelativeConverter';
+import { AbsolutePathToRelativeConverter } from '../../modules/shared/application/AbsolutePathToRelativeConverter';
 import { SharedContainer } from './SharedContainer';
 import { DependencyInjectionLocalRootFolderPath } from '../common/localRootFolderPath';
-import { RelativePathToAbsoluteConverter } from 'workers/sync-engine/modules/shared/application/RelativePathToAbsoluteConverter';
+import { RelativePathToAbsoluteConverter } from '../../modules/shared/application/RelativePathToAbsoluteConverter';
+import { LocalFileIdProvider } from '../../modules/shared/application/LocalFileIdProvider';
 
 export function buildSharedContainer(): SharedContainer {
   const localRootFolderPath = DependencyInjectionLocalRootFolderPath.get();
@@ -13,5 +14,13 @@ export function buildSharedContainer(): SharedContainer {
     localRootFolderPath
   );
 
-  return { absolutePathToRelativeConverter, relativePathToAbsoluteConverter };
+  const localFileIdProvider = new LocalFileIdProvider(
+    relativePathToAbsoluteConverter
+  );
+
+  return {
+    absolutePathToRelativeConverter,
+    relativePathToAbsoluteConverter,
+    localFileIdProvider,
+  };
 }

@@ -7,6 +7,7 @@ import { FilePathUpdater } from '../../modules/files/application/FilePathUpdater
 import { FilePlaceholderCreatorFromContentsId } from '../../modules/files/application/FilePlaceholderCreatorFromContentsId';
 import { FileSearcher } from '../../modules/files/application/FileSearcher';
 import { LocalRepositoryRepositoryRefresher } from '../../modules/files/application/LocalRepositoryRepositoryRefresher';
+import { SameFileWasMoved } from '../../modules/files/application/SameFileWasMoved';
 
 export interface FilesContainer {
   fileFinderByContentsId: FileFinderByContentsId;
@@ -18,4 +19,5 @@ export interface FilesContainer {
   fileSearcher: FileSearcher;
   filePlaceholderCreatorFromContentsId: FilePlaceholderCreatorFromContentsId;
   createFilePlaceholderOnDeletionFailed: CreateFilePlaceholderOnDeletionFailed;
+  sameFileWasMoved: SameFileWasMoved;
 }
