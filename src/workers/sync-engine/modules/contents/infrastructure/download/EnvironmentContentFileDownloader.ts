@@ -6,13 +6,14 @@ import {
   FileDownloadEvents,
 } from '../../domain/contentHandlers/ContentFileDownloader';
 import { File } from '../../../files/domain/File';
+import { DownloadOneShardStrategy } from '@internxt/inxt-js/build/lib/core';
 
 export class EnvironmentContentFileDownloader implements ContentFileDownloader {
   private eventEmitter: EventEmitter;
   private stopwatch: Stopwatch;
 
   constructor(
-    private readonly fn: DownloadStrategyFunction<unknown>,
+    private readonly fn: DownloadStrategyFunction<DownloadOneShardStrategy>,
     private readonly bucket: string
   ) {
     this.eventEmitter = new EventEmitter();
@@ -48,7 +49,7 @@ export class EnvironmentContentFileDownloader implements ContentFileDownloader {
           label: 'Dynamic',
           params: {
             useProxy: false,
-            concurrency: 10,
+            chunkSize: 4096 * 1024,
           },
         }
       );
