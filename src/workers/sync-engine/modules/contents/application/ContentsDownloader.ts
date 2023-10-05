@@ -20,7 +20,7 @@ export class ContentsDownloader {
   private async registerEvents(
     downloader: ContentFileDownloader,
     file: File,
-    cb: (response: boolean, filePath: string) => void
+    cb: (data: boolean, filePath: string) => void
   ) {
     const contentsContainer = await buildContentsContainer();
     const location = await contentsContainer.temporalFolderProvider();
@@ -71,7 +71,7 @@ export class ContentsDownloader {
 
   async run(
     file: File,
-    cb: (response: boolean, filePath: string) => void
+    cb: (data: boolean, filePath: string) => void
   ): Promise<string> {
     const downloader = this.managerFactory.downloader();
 

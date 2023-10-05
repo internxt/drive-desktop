@@ -15,7 +15,7 @@ export class DownloadFileController extends CallbackController {
 
   private async action(
     id: string,
-    cb: (response: boolean, filePath: string) => void
+    cb: (data: boolean, filePath: string) => void
   ): Promise<string> {
     const file = this.fileFinder.run(id);
 
@@ -24,7 +24,7 @@ export class DownloadFileController extends CallbackController {
 
   async execute(
     contentsId: string,
-    cb: (response: boolean, filePath: string) => void
+    cb: (data: boolean, filePath: string) => void
   ): Promise<string> {
     const trimmedId = this.trim(contentsId);
 

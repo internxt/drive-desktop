@@ -57,7 +57,7 @@ export class BindingsManager {
       },
       fetchDataCallback: (
         contentsId: string,
-        callback: (success: boolean, path: string) => void
+        callback: (data: boolean, path: string) => void
       ) => {
         controllers.downloadFile
           .execute(contentsId, callback)
