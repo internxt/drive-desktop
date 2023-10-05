@@ -7,6 +7,7 @@ import { FolderFinder } from '../../folders/application/FolderFinder';
 import { FileFinderByContentsId } from './FileFinderByContentsId';
 import { SyncEngineIpc } from '../../../ipcRendererSyncEngine';
 import { LocalFileIdProvider } from '../../shared/application/LocalFileIdProvider';
+import { EventHistory } from '../../shared/domain/EventRepository';
 
 export class FilePathUpdater {
   constructor(
@@ -14,7 +15,8 @@ export class FilePathUpdater {
     private readonly fileFinderByContentsId: FileFinderByContentsId,
     private readonly folderFinder: FolderFinder,
     private readonly ipc: SyncEngineIpc,
-    private readonly localFileIdProvider: LocalFileIdProvider
+    private readonly localFileIdProvider: LocalFileIdProvider,
+    private readonly eventHistory: EventHistory
   ) {}
 
   private async rename(file: File, path: FilePath) {
@@ -31,6 +33,10 @@ export class FilePathUpdater {
     file.moveTo(destinationFolder, trackerId);
 
     await this.repository.updateParentDir(file);
+
+    const events = file.pullDomainEvents();
+
+    events.forEach((event) => this.eventHistory.store(event));
   }
 
   async run(contentsId: string, posixRelativePath: string) {

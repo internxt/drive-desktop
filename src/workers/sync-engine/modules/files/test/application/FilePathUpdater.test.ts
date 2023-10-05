@@ -6,13 +6,17 @@ import { FolderFinder } from '../../../folders/application/FolderFinder';
 import { FolderFinderMock } from '../../../folders/test/__mocks__/FolderFinderMock';
 import { FileFinderByContentsId } from '../../application/FileFinderByContentsId';
 import { IpcRendererSyncEngineMock } from '../../../shared/test/__mock__/IpcRendererSyncEngineMock';
+import { LocalFileIdProvider } from 'workers/sync-engine/modules/shared/application/LocalFileIdProvider';
+import { InMemoryEventHistory } from 'workers/sync-engine/modules/shared/infrastructure/InMemoryEventHistory';
 
 describe('File path updater', () => {
   let repository: FileRepositoryMock;
   let fileFinderByContentsId: FileFinderByContentsId;
   let folderFinder: FolderFinderMock;
-  let SUT: FilePathUpdater;
   let ipcRendererMock: IpcRendererSyncEngineMock;
+  let localFileIdProvider: LocalFileIdProvider;
+  let eventHistory: InMemoryEventHistory;
+  let SUT: FilePathUpdater;
 
   beforeEach(() => {
     repository = new FileRepositoryMock();
@@ -24,7 +28,9 @@ describe('File path updater', () => {
       repository,
       fileFinderByContentsId,
       folderFinder as unknown as FolderFinder,
-      ipcRendererMock
+      ipcRendererMock,
+      localFileIdProvider,
+      eventHistory
     );
   });
 

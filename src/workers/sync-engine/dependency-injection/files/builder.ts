@@ -19,6 +19,7 @@ import { PlaceholderContainer } from '../placeholders/PlaceholdersContainer';
 import { FilesContainer } from './FilesContainer';
 import { SharedContainer } from '../shared/SharedContainer';
 import { SameFileWasMoved } from 'workers/sync-engine/modules/files/application/SameFileWasMoved';
+import { DependencyInjectionEventHistory } from '../common/eventHistory';
 
 export async function buildFilesContainer(
   folderContainer: FoldersContainer,
@@ -31,8 +32,8 @@ export async function buildFilesContainer(
   const clients = DependencyInjectionHttpClientsProvider.get();
   const traverser = DependencyInjectionTraverserProvider.get();
   const user = DependencyInjectionUserProvider.get();
-
   const { bus: eventBus } = DependencyInjectionEventBus;
+  const eventHistory = DependencyInjectionEventHistory.get();
 
   const fileRepository = new HttpFileRepository(
     crypt,
@@ -63,7 +64,8 @@ export async function buildFilesContainer(
 
   const sameFileWasMoved = new SameFileWasMoved(
     fileByPartialSearcher,
-    sharedContainer.localFileIdProvider
+    sharedContainer.localFileIdProvider,
+    eventHistory
   );
 
   const filePathUpdater = new FilePathUpdater(
@@ -71,7 +73,8 @@ export async function buildFilesContainer(
     fileFinderByContentsId,
     folderContainer.folderFinder,
     ipcRendererSyncEngine,
-    sharedContainer.localFileIdProvider
+    sharedContainer.localFileIdProvider,
+    eventHistory
   );
 
   const fileCreator = new FileCreator(

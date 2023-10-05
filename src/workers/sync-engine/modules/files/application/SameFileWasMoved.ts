@@ -1,4 +1,5 @@
 import { LocalFileIdProvider } from '../../shared/application/LocalFileIdProvider';
+import { EventHistory } from '../../shared/domain/EventRepository';
 import { FilePath } from '../domain/FilePath';
 import { FileMovedDomainEvent } from '../domain/events/FileMovedDomainEvent';
 import { FileByPartialSearcher } from './FileByPartialSearcher';
@@ -10,7 +11,8 @@ type WasMovedResult = { result: false } | { result: true; contentsId: string };
 export class SameFileWasMoved {
   constructor(
     private readonly fileByPartialSearcher: FileByPartialSearcher,
-    private readonly localFileIdProvider: LocalFileIdProvider
+    private readonly localFileIdProvider: LocalFileIdProvider,
+    private readonly eventHistory: EventHistory
   ) {}
 
   async run(path: FilePath): Promise<WasMovedResult> {
@@ -23,7 +25,13 @@ export class SameFileWasMoved {
       return { result: false };
     }
 
-    const events = fileInDestination.pullDomainEvents();
+    const events = await this.eventHistory.search(fileInDestination.contentsId);
+
+    if (events.length === 0) {
+      Logger.debug('NO EVENTS FOUND');
+      return { result: false };
+    }
+
     const movedEvent = events.find(
       (event) => event instanceof FileMovedDomainEvent
     );

@@ -79,11 +79,7 @@ export class HttpFileRepository implements FileRepository {
     });
 
     if (file) {
-      const response = File.from(file.attributes());
-      file.pullDomainEvents().forEach((event) => {
-        response.record(event);
-      });
-      return response;
+      return File.from(file.attributes());
     }
 
     return undefined;
