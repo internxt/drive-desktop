@@ -53,7 +53,7 @@ export class FileCreator {
         nameWithExtension: filePath.nameWithExtension(),
         error: message,
       });
-      return Promise.reject();
+      throw error;
     }
   }
 }

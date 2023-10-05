@@ -1,4 +1,4 @@
-import { ActionNotPermitedError } from '../domain/errors/ActionNotPermitedError';
+import { ActionNotPermittedError } from '../domain/errors/ActionNotPermittedError';
 import { FileAlreadyExistsError } from '../domain/errors/FileAlreadyExistsError';
 import { FilePath } from '../domain/FilePath';
 import { File } from '../domain/File';
@@ -27,14 +27,9 @@ export class FilePathUpdater {
     const destination = new FilePath(posixRelativePath);
     const file = this.fileFinderByContentsId.run(contentsId);
 
-    this.ipc.send('FILE_RENAMING', {
-      oldName: file.name,
-      nameWithExtension: destination.nameWithExtension(),
-    });
-
     if (file.dirname !== destination.dirname()) {
       if (file.nameWithExtension !== destination.nameWithExtension()) {
-        throw new ActionNotPermitedError('rename and change folder');
+        throw new ActionNotPermittedError('rename and change folder');
       }
 
       const destinationFolder = this.folderFinder.run(destination.dirname());
@@ -42,6 +37,7 @@ export class FilePathUpdater {
       file.moveTo(destinationFolder);
 
       await this.repository.updateParentDir(file);
+      return;
     }
 
     const destinationFile = this.repository.search(destination);
@@ -57,6 +53,10 @@ export class FilePathUpdater {
     }
 
     if (destination.extensionMatch(file.type)) {
+      this.ipc.send('FILE_RENAMING', {
+        oldName: file.name,
+        nameWithExtension: destination.nameWithExtension(),
+      });
       await this.rename(file, destination);
       this.ipc.send('FILE_RENAMED', {
         oldName: file.name,

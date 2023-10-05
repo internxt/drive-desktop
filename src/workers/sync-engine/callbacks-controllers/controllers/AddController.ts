@@ -1,6 +1,5 @@
 import Logger from 'electron-log';
 import { CallbackController } from './CallbackController';
-import { rawPathIsFolder } from '../helpers/rawPathIsFolder';
 import { FolderCreator } from '../../modules/folders/application/FolderCreator';
 import { MapObserver } from '../../modules/shared/domain/MapObserver';
 import { FileCreationOrchestrator } from '../../modules/boundaryBridge/application/FileCreationOrchestrator';
@@ -10,6 +9,7 @@ import { createFilePlaceholderId } from '../../modules/placeholders/domain/FileP
 import { createFolderPlaceholderId } from '../../modules/placeholders/domain/FolderPlaceholderId';
 import { PlatformPathConverter } from '../../modules/shared/application/PlatformPathConverter';
 import { AbsolutePathToRelativeConverter } from '../../modules/shared/application/AbsolutePathToRelativeConverter';
+import { PathTypeChecker } from '../../../../shared/fs/PathTypeChecker ';
 
 type FileCreationQueue = Map<
   string,
@@ -113,7 +113,9 @@ export class AddController extends CallbackController {
     const posixRelativePath =
       PlatformPathConverter.winToPosix(win32RelativePath);
 
-    if (rawPathIsFolder(absolutePath)) {
+    const isFolder = await PathTypeChecker.isFolder(absolutePath);
+
+    if (isFolder) {
       this.enqueueFolder(posixRelativePath, callback);
       await this.createFolders();
       await this.createFiles();
