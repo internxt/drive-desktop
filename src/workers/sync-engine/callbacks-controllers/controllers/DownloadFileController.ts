@@ -1,4 +1,3 @@
-import { StatusDownloadCallback } from 'workers/sync-engine/BindingManager';
 import { ContentsDownloader } from '../../modules/contents/application/ContentsDownloader';
 import { FileFinderByContentsId } from '../../modules/files/application/FileFinderByContentsId';
 import { LocalRepositoryRepositoryRefresher } from '../../modules/files/application/LocalRepositoryRepositoryRefresher';
@@ -16,7 +15,7 @@ export class DownloadFileController extends CallbackController {
 
   private async action(
     id: string,
-    cb: (status: StatusDownloadCallback, filePath: string) => void
+    cb: (data: boolean, filePath: string) => void
   ): Promise<string> {
     const file = this.fileFinder.run(id);
 
@@ -25,7 +24,7 @@ export class DownloadFileController extends CallbackController {
 
   async execute(
     contentsId: string,
-    cb: (status: StatusDownloadCallback, filePath: string) => void
+    cb: (data: boolean, filePath: string) => void
   ): Promise<string> {
     const trimmedId = this.trim(contentsId);
 
