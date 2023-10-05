@@ -1,5 +1,5 @@
 import { DomainEvent } from '../../domain/DomainEvent';
-import { EventBus } from '../../domain/WebdavServerEventBus';
+import { EventBus } from '../../domain/EventBus';
 import { DomainEventSubscribers } from '../../infrastructure/DomainEventSubscribers';
 
 export class EventBusMock implements EventBus {

@@ -23,7 +23,8 @@ export class FilePathUpdater {
     // await this.eventBus.publish(file.pullDomainEvents());
   }
 
-  async run(contentsId: string, destination: FilePath) {
+  async run(contentsId: string, posixRelativePath: string) {
+    const destination = new FilePath(posixRelativePath);
     const file = this.fileFinderByContentsId.run(contentsId);
 
     this.ipc.send('FILE_RENAMING', {
@@ -36,9 +37,7 @@ export class FilePathUpdater {
         throw new ActionNotPermitedError('rename and change folder');
       }
 
-      const destinationFolder = this.folderFinder.run(
-        destination.posixDirname()
-      );
+      const destinationFolder = this.folderFinder.run(destination.dirname());
 
       file.moveTo(destinationFolder);
 

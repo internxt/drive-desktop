@@ -10,8 +10,11 @@ import { DependencyInjectionUserProvider } from '../common/user';
 import { ContentsContainer } from './ContentsContainer';
 import { FSLocalFileWriter } from 'workers/sync-engine/modules/contents/infrastructure/FSLocalFileWriter';
 import { RetryContentsUploader } from 'workers/sync-engine/modules/contents/application/RetryContentsUploader';
+import { SharedContainer } from '../shared/SharedContainer';
 
-export async function buildContentsContainer(): Promise<ContentsContainer> {
+export async function buildContentsContainer(
+  sharedContainer: SharedContainer
+): Promise<ContentsContainer> {
   const user = DependencyInjectionUserProvider.get();
   const mnemonic = DependencyInjectionMnemonicProvider.get();
 
@@ -29,7 +32,8 @@ export async function buildContentsContainer(): Promise<ContentsContainer> {
   const contentsUploader = new ContentsUploader(
     contentsManagerFactory,
     contentsProvider,
-    ipcRendererSyncEngine
+    ipcRendererSyncEngine,
+    sharedContainer.relativePathToAbsoluteConverter
   );
 
   const retryContentsUploader = new RetryContentsUploader(contentsUploader);

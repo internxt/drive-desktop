@@ -9,12 +9,14 @@ import { buildItemsContainer } from './items/builder';
 import { DependencyInjectionVirtualDrive } from './common/virtualDrive';
 import { buildPlaceholdersContainer } from './placeholders/builder';
 import { buildBoundaryBridgeContainer } from './boundaryBridge/build';
+import { buildSharedContainer } from './shared/builder';
 
 export class DependencyContainerFactory {
   private static _container: DependencyContainer | undefined;
 
   static readonly subscribers: Array<keyof DependencyContainer> = [
     'createFilePlaceholderOnDeletionFailed',
+    'synchronizeOfflineModificationsOnFolderCreated',
   ];
 
   eventSubscribers(
@@ -38,9 +40,10 @@ export class DependencyContainerFactory {
     const { bus } = DependencyInjectionEventBus;
     const { virtualDrive } = DependencyInjectionVirtualDrive;
 
+    const sharedContainer = buildSharedContainer();
     const itemsContainer = buildItemsContainer();
     const placeholderContainer = buildPlaceholdersContainer(itemsContainer);
-    const contentsContainer = await buildContentsContainer();
+    const contentsContainer = await buildContentsContainer(sharedContainer);
     const foldersContainer = await buildFoldersContainer(placeholderContainer);
     const { container: filesContainer } = await buildFilesContainer(
       foldersContainer,
@@ -57,6 +60,7 @@ export class DependencyContainerFactory {
       ...filesContainer,
       ...foldersContainer,
       ...placeholderContainer,
+      ...sharedContainer,
       ...boundaryBridgeContainer,
 
       virtualDrive,

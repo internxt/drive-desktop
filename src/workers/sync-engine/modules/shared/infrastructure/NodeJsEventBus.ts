@@ -1,6 +1,6 @@
 import EventEmitter from 'events';
 import { DomainEvent } from '../domain/DomainEvent';
-import { EventBus } from '../domain/WebdavServerEventBus';
+import { EventBus } from '../domain/EventBus';
 import { DomainEventSubscribers } from './DomainEventSubscribers';
 
 export class NodeJsEventBus extends EventEmitter implements EventBus {
@@ -13,7 +13,7 @@ export class NodeJsEventBus extends EventEmitter implements EventBus {
   addSubscribers(subscribers: DomainEventSubscribers): void {
     subscribers.items.forEach((subscriber) => {
       subscriber.subscribedTo().forEach((event) => {
-        this.on(`webdav.${event.EVENT_NAME}`, subscriber.on.bind(subscriber));
+        this.on(`${event.EVENT_NAME}`, subscriber.on.bind(subscriber));
       });
     });
   }

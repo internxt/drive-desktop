@@ -1,4 +1,3 @@
-import { CreateFilePlaceholderEmitter } from 'workers/sync-engine/modules/files/application/CreateFilePlaceholderEmitter';
 import { CreateFilePlaceholderOnDeletionFailed } from 'workers/sync-engine/modules/files/application/CreateFilePlaceholderOnDeletionFailed';
 import { FilePlaceholderCreatorFromContentsId } from 'workers/sync-engine/modules/files/application/FilePlaceholderCreatorFromContentsId';
 import crypt from '../../../utils/crypt';
@@ -7,14 +6,12 @@ import { FileByPartialSearcher } from '../../modules/files/application/FileByPar
 import { FileCreator } from '../../modules/files/application/FileCreator';
 import { FileDeleter } from '../../modules/files/application/FileDeleter';
 import { FileFinderByContentsId } from '../../modules/files/application/FileFinderByContentsId';
-import { FilePathFromAbsolutePathCreator } from '../../modules/files/application/FilePathFromAbsolutePathCreator';
 import { FilePathUpdater } from '../../modules/files/application/FilePathUpdater';
 import { FileSearcher } from '../../modules/files/application/FileSearcher';
 import { LocalRepositoryRepositoryRefresher } from '../../modules/files/application/LocalRepositoryRepositoryRefresher';
 import { HttpFileRepository } from '../../modules/files/infrastructure/HttpFileRepository';
 import { DependencyInjectionHttpClientsProvider } from '../common/clients';
 import { DependencyInjectionEventBus } from '../common/eventBus';
-import { DependencyInjectionLocalRootFolderPath } from '../common/localRootFolderPath';
 import { DependencyInjectionTraverserProvider } from '../common/traverser';
 import { DependencyInjectionUserProvider } from '../common/user';
 import { FoldersContainer } from '../folders/FoldersContainer';
@@ -31,7 +28,7 @@ export async function buildFilesContainer(
   const clients = DependencyInjectionHttpClientsProvider.get();
   const traverser = DependencyInjectionTraverserProvider.get();
   const user = DependencyInjectionUserProvider.get();
-  const localRootFolderPath = DependencyInjectionLocalRootFolderPath.get();
+
   const { bus: eventBus } = DependencyInjectionEventBus;
 
   const fileRepository = new HttpFileRepository(
@@ -76,15 +73,7 @@ export async function buildFilesContainer(
     ipcRendererSyncEngine
   );
 
-  const filePathFromAbsolutePathCreator = new FilePathFromAbsolutePathCreator(
-    localRootFolderPath
-  );
-
   const fileSearcher = new FileSearcher(fileRepository);
-
-  const createFilePlaceholderEmitter = new CreateFilePlaceholderEmitter(
-    eventBus
-  );
 
   const filePlaceholderCreatorFromContentsId =
     new FilePlaceholderCreatorFromContentsId(
@@ -104,9 +93,7 @@ export async function buildFilesContainer(
     fileByPartialSearcher,
     filePathUpdater,
     fileCreator,
-    filePathFromAbsolutePathCreator,
     fileSearcher,
-    createFilePlaceholderEmitter: createFilePlaceholderEmitter,
     filePlaceholderCreatorFromContentsId: filePlaceholderCreatorFromContentsId,
     createFilePlaceholderOnDeletionFailed:
       createFilePlaceholderOnDeletionFailed,

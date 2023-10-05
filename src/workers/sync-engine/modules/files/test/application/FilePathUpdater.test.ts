@@ -37,7 +37,7 @@ describe('File path updater', () => {
       `${file.dirname}/_${file.nameWithExtension}`
     );
 
-    await SUT.run(file.contentsId, destination);
+    await SUT.run(file.contentsId, destination.value);
 
     expect(repository.mockUpdateName).toBeCalledWith(
       expect.objectContaining(file)

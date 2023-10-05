@@ -1,30 +1,30 @@
-import path from 'path';
 import { Folder } from '../domain/Folder';
-import { FolderPathCreator } from './FolderPathCreator';
 import { FolderRepository } from '../domain/FolderRepository';
 import { FolderNotFoundError } from '../domain/errors/FolderNotFoundError';
 import { ActionNotPermittedError } from '../domain/errors/ActionNotPermittedError';
 import { FolderMover } from './FolderMover';
 import { FolderRenamer } from './FolderRenamer';
+import { FolderPath } from '../domain/FolderPath';
+import Logger from 'electron-log';
 
 export class FolderPathUpdater {
   constructor(
     private readonly repository: FolderRepository,
-    private readonly pathCreator: FolderPathCreator,
     private readonly folderMover: FolderMover,
     private readonly folderRenamer: FolderRenamer
   ) {}
 
-  async run(uuid: Folder['uuid'], absolutePath: string) {
-    const normalized = path.normalize(absolutePath);
-
+  async run(uuid: Folder['uuid'], posixRelativePath: string) {
     const folder = this.repository.searchByPartial({ uuid });
 
     if (!folder) {
       throw new FolderNotFoundError(uuid);
     }
 
-    const desiredPath = this.pathCreator.fromAbsolute(normalized);
+    const desiredPath = new FolderPath(posixRelativePath);
+
+    Logger.debug('desired path', desiredPath);
+    Logger.debug('folder', folder.attributes());
 
     const dirnameChanged = folder.dirname !== desiredPath.dirname();
     const nameChanged = folder.name !== desiredPath.name();
@@ -38,6 +38,7 @@ export class FolderPathUpdater {
     }
 
     if (nameChanged) {
+      Logger.debug('about to rename');
       return await this.folderRenamer.run(folder, desiredPath);
     }
 
