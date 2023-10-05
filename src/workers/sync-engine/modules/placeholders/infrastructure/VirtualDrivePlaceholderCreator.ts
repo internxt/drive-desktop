@@ -13,13 +13,19 @@ export class VirtualDrivePlaceholderCreator implements PlaceholderCreator {
 
     const placeholderId = createFolderPlaceholderId(folder.uuid);
 
-    this.drive.createItemByPath(folderPath, placeholderId);
+    this.drive.createFolderByPath(
+      folderPath,
+      placeholderId,
+      0,
+      folder.createdAt.getTime(),
+      folder.updatedAt.getTime()
+    );
   }
 
   file(file: File): void {
     const placeholderId = createFilePlaceholderId(file.contentsId);
 
-    this.drive.createItemByPath(
+    this.drive.createFileByPath(
       file.path.value,
       placeholderId,
       file.size,
