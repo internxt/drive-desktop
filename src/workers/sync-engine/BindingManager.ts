@@ -51,7 +51,7 @@ export class BindingsManager {
       },
       notifyFileAddedCallback: (
         absolutePath: string,
-        callback: (acknowledge: boolean, id: string) => void
+        callback: (acknowledge: boolean, id: string) => boolean
       ) => {
         controllers.addFile.execute(absolutePath, callback);
       },
@@ -63,6 +63,14 @@ export class BindingsManager {
           .execute(contentsId, callback)
           .then((path: string) => {
             Logger.debug('Execute Fetch Data Callback, sending path:', path);
+
+            let condition = true;
+            // eslint-disable-next-line no-constant-condition
+            while (true) {
+              //@ts-ignore
+              condition = callback(true, path);
+              Logger.debug('condition', condition);
+            }
           })
           .catch((error: Error) => {
             Logger.error('Error Fetch Data Callback:', error);
