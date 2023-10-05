@@ -57,19 +57,18 @@ export class BindingsManager {
       },
       fetchDataCallback: (
         contentsId: string,
-        callback: (data: boolean, path: string) => void
+        callback: (data: boolean, path: string) => boolean
       ) => {
         controllers.downloadFile
           .execute(contentsId, callback)
           .then((path: string) => {
             Logger.debug('Execute Fetch Data Callback, sending path:', path);
 
-            let condition = true;
-            // eslint-disable-next-line no-constant-condition
-            while (true) {
-              //@ts-ignore
-              condition = callback(true, path);
-              Logger.debug('condition', condition);
+            let finished = false;
+            while (!finished) {
+              //callback returns true or void ( never return false , this will be resolved in the future )
+              finished = callback(true, path);
+              Logger.debug('condition', finished);
             }
           })
           .catch((error: Error) => {
