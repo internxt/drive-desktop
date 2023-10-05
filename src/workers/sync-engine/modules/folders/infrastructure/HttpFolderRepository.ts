@@ -11,9 +11,9 @@ import * as uuid from 'uuid';
 import { UpdateFolderNameDTO } from './dtos/UpdateFolderNameDTO';
 import { SyncEngineIpc } from '../../../ipcRendererSyncEngine';
 import { RemoteItemsGenerator } from '../../items/application/RemoteItemsGenerator';
-import { FolderStatus, FolderStatuses } from '../domain/FolderStatus';
+import { FolderStatuses } from '../domain/FolderStatus';
 import nodePath from 'path';
-import { PlatformPathConverter } from '../../shared/test/helpers/PlatformPathConverter';
+import { PlatformPathConverter } from '../../shared/application/PlatformPathConverter';
 
 export class HttpFolderRepository implements FolderRepository {
   public folders: Record<string, Folder> = {};
@@ -60,7 +60,7 @@ export class HttpFolderRepository implements FolderRepository {
   }
 
   search(path: string): Nullable<Folder> {
-    // Logger.debug(Object.keys(this.folders));
+    Logger.debug(Object.keys(this.folders));
     return this.folders[path];
   }
 
@@ -79,7 +79,11 @@ export class HttpFolderRepository implements FolderRepository {
     return undefined;
   }
 
-  async create(path: FolderPath, parentId: number): Promise<Folder> {
+  async create(
+    path: FolderPath,
+    parentId: number,
+    uuid: Folder['uuid']
+  ): Promise<Folder> {
     const plainName = path.name();
 
     if (!plainName) {
@@ -91,6 +95,7 @@ export class HttpFolderRepository implements FolderRepository {
       {
         folderName: plainName,
         parentFolderId: parentId,
+        uuid,
       }
     );
 
@@ -143,6 +148,7 @@ export class HttpFolderRepository implements FolderRepository {
       delete this.folders[old?.path.value];
     }
 
+    Logger.debug('PATH BEFORE INDEX', folder.path.value);
     this.folders[folder.path.value] = folder;
   }
 
@@ -172,10 +178,6 @@ export class HttpFolderRepository implements FolderRepository {
   }
 
   async trash(folder: Folder): Promise<void> {
-    if (folder.status !== FolderStatus.Trashed) {
-      throw new Error('The status need to be trashed to be deleted');
-    }
-
     const result = await this.trashClient.post(
       `${process.env.NEW_DRIVE_URL}/drive/storage/trash/add`,
       {

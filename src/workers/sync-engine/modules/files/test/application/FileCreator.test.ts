@@ -39,7 +39,13 @@ describe('File Creator', () => {
     const folderFinder = new FolderFinder(folderRepository);
     eventBus = new EventBusMock();
 
-    SUT = new FileCreator(fileRepository, folderFinder, fileDeleter, eventBus);
+    SUT = new FileCreator(
+      fileRepository,
+      folderFinder,
+      fileDeleter,
+      eventBus,
+      ipc
+    );
   });
 
   it('creates the file on the drive server', async () => {
@@ -78,7 +84,7 @@ describe('File Creator', () => {
     await SUT.run(path, contents);
 
     expect(eventBus.publishMock.mock.calls[0][0][0].eventName).toBe(
-      'webdav.file.created'
+      'file.created'
     );
     expect(eventBus.publishMock.mock.calls[0][0][0].aggregateId).toBe(
       contents.id

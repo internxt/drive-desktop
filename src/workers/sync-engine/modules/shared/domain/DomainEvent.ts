@@ -15,6 +15,7 @@ export abstract class DomainEvent {
   readonly aggregateId: string;
   readonly eventId: string;
   readonly eventName: string;
+  readonly occurredOn?: Date;
 
   constructor(params: {
     eventName: string;
@@ -22,10 +23,11 @@ export abstract class DomainEvent {
     eventId?: string;
     occurredOn?: Date;
   }) {
-    const { aggregateId, eventName, eventId } = params;
+    const { aggregateId, eventName, eventId, occurredOn } = params;
     this.aggregateId = aggregateId;
     this.eventId = eventId || uuid.v4();
-    this.eventName = `webdav.${eventName}`;
+    this.eventName = `${eventName}`;
+    this.occurredOn = occurredOn || new Date();
   }
 
   abstract toPrimitives(): DomainEventAttributes;

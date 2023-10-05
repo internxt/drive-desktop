@@ -41,12 +41,12 @@ export class RetryContentsUploader {
     );
   }
 
-  async run(absolutePath: string): Promise<RemoteFileContents> {
+  async run(posixRelativePath: string): Promise<RemoteFileContents> {
     await new Promise((resolve) => {
       setTimeout(resolve, RetryContentsUploader.INITIAL_DELAY);
     });
 
-    const upload = () => this.uploader.run(absolutePath);
+    const upload = () => this.uploader.run(posixRelativePath);
 
     return this.retryUpload(upload);
   }

@@ -1,6 +1,6 @@
 import { InvalidArgumentError } from '../../../../shared/domain/InvalidArgumentError';
 import { EnumValueObject } from '../../../../shared/domain/EnumValueObject';
-import { ActionNotPermitedError } from './errors/ActionNotPermitedError';
+import { ActionNotPermittedError } from './errors/ActionNotPermittedError';
 
 export enum FileStatuses {
   EXISTS = 'EXISTS',
@@ -28,11 +28,11 @@ export class FileStatus extends EnumValueObject<FileStatuses> {
 
   changeTo(status: FileStatuses): FileStatus {
     if (this.value === 'TRASHED') {
-      throw new ActionNotPermitedError('restore from trash');
+      throw new ActionNotPermittedError('restore from trash');
     }
 
     if (this.value === 'DELETED') {
-      throw new ActionNotPermitedError('restore, file is deleted');
+      throw new ActionNotPermittedError('restore, file is deleted');
     }
 
     return new FileStatus(FileStatuses[status]);
