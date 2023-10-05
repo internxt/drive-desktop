@@ -12,6 +12,11 @@ export class FileRepositoryMock implements FileRepository {
   public mockUpdateParentDir = jest.fn();
   public mockSearchOnFolder = jest.fn();
   public mockClear = jest.fn();
+  public mockInsert = jest.fn();
+
+  insert(file: File): Promise<void> {
+    return this.mockInsert(file);
+  }
 
   search(pathLike: FilePath): Nullable<File> {
     return this.mockSearch(pathLike);

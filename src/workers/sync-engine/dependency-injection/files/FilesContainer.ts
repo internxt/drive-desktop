@@ -8,6 +8,7 @@ import { FilePlaceholderCreatorFromContentsId } from '../../modules/files/applic
 import { FileSearcher } from '../../modules/files/application/FileSearcher';
 import { LocalRepositoryRepositoryRefresher } from '../../modules/files/application/LocalRepositoryRepositoryRefresher';
 import { FileClearer } from '../../modules/files/application/FileClearer';
+import { ManagedFileRepository } from 'workers/sync-engine/modules/files/domain/ManagedFileRepository';
 
 export interface FilesContainer {
   fileFinderByContentsId: FileFinderByContentsId;
@@ -20,4 +21,5 @@ export interface FilesContainer {
   filePlaceholderCreatorFromContentsId: FilePlaceholderCreatorFromContentsId;
   createFilePlaceholderOnDeletionFailed: CreateFilePlaceholderOnDeletionFailed;
   fileClearer: FileClearer;
+  managedFileRepository: ManagedFileRepository;
 }

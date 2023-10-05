@@ -15,8 +15,11 @@ import { RemoteItemsGenerator } from '../../items/application/RemoteItemsGenerat
 import { FileStatuses } from '../domain/FileStatus';
 import { Crypt } from '../../shared/domain/Crypt';
 import { SyncEngineIpc } from '../../../ipcRendererSyncEngine';
+import { ManagedFileRepository } from '../domain/ManagedFileRepository';
 
-export class HttpFileRepository implements FileRepository {
+export class HttpFileRepository
+  implements FileRepository, ManagedFileRepository
+{
   public files: Record<string, File> = {};
 
   constructor(
@@ -204,5 +207,20 @@ export class HttpFileRepository implements FileRepository {
 
   clear(): void {
     this.files = {};
+  }
+
+  insert(file: File): Promise<void> {
+    if (this.files[file.path.value]) {
+      throw new Error('Insert file only should insert non existent');
+    }
+    this.files[file.path.value] = file;
+    return Promise.resolve();
+  }
+
+  overwrite(oldFile: File, newFile: File): Promise<void> {
+    delete this.files[oldFile.path.value];
+
+    this.files[newFile.path.value] = newFile;
+    return Promise.resolve();
   }
 }

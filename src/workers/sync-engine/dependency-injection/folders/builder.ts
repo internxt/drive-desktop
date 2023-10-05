@@ -115,5 +115,6 @@ export async function buildFoldersContainer(
       folderPathUpdater: offlineFolderPathUpdater,
       synchronizeOfflineModifications,
     },
+    managedFolderRepository: repository,
   };
 }

@@ -46,22 +46,11 @@ async function setUp() {
   ipcRenderer.on('UPDATE_SYNC_ENGINE_PROCESS', async () => {
     Logger.info('[SYNC ENGINE] Updating sync engine');
 
-    await bindings.stop();
-    bindings.cleanUp();
-
-    await bindings.start(
-      packageJson.version,
-      '{E9D7EB38-B229-5DC5-9396-017C449D59CD}'
-    );
-
-    container.treePlaceholderCreator.run();
+    container.syncPlaceholders.run();
 
     Logger.info('[SYNC ENGINE] sync engine updated successfully');
-
-    bindings.watch();
   });
 
-  Logger.info('[SYNC ENGINE] sync engine updated successfully');
   ipcRenderer.on('STOP_AND_CLEAR_SYNC_ENGINE_PROCESS', async (event) => {
     Logger.info('[SYNC ENGINE] Stopping and clearing sync engine');
 

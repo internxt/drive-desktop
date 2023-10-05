@@ -101,6 +101,7 @@ export async function buildFilesContainer(
     createFilePlaceholderOnDeletionFailed:
       createFilePlaceholderOnDeletionFailed,
     fileClearer,
+    managedFileRepository: fileRepository,
   };
 
   return { container, subscribers: [] };

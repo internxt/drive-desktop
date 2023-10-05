@@ -10,6 +10,7 @@ import { OfflineFolderCreator } from '../../modules/folders/application/Offline/
 import { OfflineFolderPathUpdater } from '../../modules/folders/application/Offline/OfflineFolderPathUpdater';
 import { SynchronizeOfflineModifications } from '../../modules/folders/application/SynchronizeOfflineModifications';
 import { SynchronizeOfflineModificationsOnFolderCreated } from '../../modules/folders/application/SynchronizeOfflineModificationsOnFolderCreated';
+import { ManagedFolderRepository } from '../../modules/folders/domain/ManagedFolderRepository';
 
 export interface FoldersContainer {
   folderCreator: FolderCreator;
@@ -26,4 +27,5 @@ export interface FoldersContainer {
     folderPathUpdater: OfflineFolderPathUpdater;
     synchronizeOfflineModifications: SynchronizeOfflineModifications;
   };
+  managedFolderRepository: ManagedFolderRepository;
 }

@@ -54,7 +54,8 @@ export class DependencyContainerFactory {
       filesContainer,
       foldersContainer,
       itemsContainer,
-      placeholderContainer
+      placeholderContainer,
+      sharedContainer
     );
 
     const container = {

@@ -14,8 +14,11 @@ import { RemoteItemsGenerator } from '../../items/application/RemoteItemsGenerat
 import { FolderStatuses } from '../domain/FolderStatus';
 import nodePath from 'path';
 import { PlatformPathConverter } from '../../shared/application/PlatformPathConverter';
+import { ManagedFolderRepository } from '../domain/ManagedFolderRepository';
 
-export class HttpFolderRepository implements FolderRepository {
+export class HttpFolderRepository
+  implements FolderRepository, ManagedFolderRepository
+{
   public folders: Record<string, Folder> = {};
 
   constructor(
@@ -33,7 +36,9 @@ export class HttpFolderRepository implements FolderRepository {
     return remoteItemsGenerator.getAll();
   }
 
-  public async init(startingFolders: Record<string, Folder> = {}): Promise<void> {
+  public async init(
+    startingFolders: Record<string, Folder> = {}
+  ): Promise<void> {
     const raw = await this.getTree();
 
     this.traverser.reset();
@@ -201,5 +206,19 @@ export class HttpFolderRepository implements FolderRepository {
 
   clear(): void {
     this.folders = {};
+  }
+
+  insert(folder: Folder): Promise<void> {
+    if (this.folders[folder.path.value]) {
+      throw new Error('Insert file only should insert non existent');
+    }
+    this.folders[folder.path.value] = folder;
+    return Promise.resolve();
+  }
+  overwrite(oldFolder: Folder, newFolder: Folder): Promise<void> {
+    delete this.folders[oldFolder.path.value];
+
+    this.folders[newFolder.path.value] = newFolder;
+    return Promise.resolve();
   }
 }
