@@ -2,6 +2,7 @@ import Logger from 'electron-log';
 import { DependencyContainer } from './dependency-injection/DependencyContainer';
 import { buildControllers } from './callbacks-controllers/buildControllers';
 
+export type StatusDownloadCallback = 'progress' | 'error' | 'finish';
 export class BindingsManager {
   private static readonly PROVIDER_NAME = 'Internxt';
 
@@ -57,16 +58,17 @@ export class BindingsManager {
       },
       fetchDataCallback: (
         contentsId: string,
-        callback: (success: boolean, path: string) => void
+        callback: (status: StatusDownloadCallback, path: string) => void
       ) => {
         controllers.downloadFile
           .execute(contentsId, callback)
           .then((path: string) => {
             Logger.debug('Execute Fetch Data Callback, sending path:', path);
+            callback('finish', path);
           })
           .catch((error: Error) => {
             Logger.error('Error Fetch Data Callback:', error);
-            callback(false, '');
+            callback('error', '');
           });
       },
       validateDataCallback: () => {
