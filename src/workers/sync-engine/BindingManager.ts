@@ -1,7 +1,10 @@
 import Logger from 'electron-log';
 import { DependencyContainer } from './dependency-injection/DependencyContainer';
 import { buildControllers } from './callbacks-controllers/buildControllers';
+import { executeControllerWithFallback } from './callbacks-controllers/middlewares/executeControllerWithFallback';
+import { FilePlaceholderId } from './modules/placeholders/domain/FilePlaceholderId';
 
+export type CallbackDownload = (success: boolean, filePath: string) => boolean;
 export class BindingsManager {
   private static readonly PROVIDER_NAME = 'Internxt';
 
@@ -26,11 +29,9 @@ export class BindingsManager {
         controllers.delete
           .execute(contentsId)
           .then(() => {
-            Logger.debug('DELETE RESPONSE SUCCESSFUL');
             callback(true);
           })
           .catch((error: Error) => {
-            Logger.debug('DELETE RESPONSE NOT SUCCESSFUL');
             Logger.error(error);
             callback(false);
           });
@@ -43,11 +44,15 @@ export class BindingsManager {
         contentsId: string,
         callback: (response: boolean) => void
       ) => {
-        controllers.renameOrMoveFile.execute(
-          absolutePath,
-          contentsId,
-          callback
-        );
+        const fn = executeControllerWithFallback({
+          handler: controllers.renameOrMove.execute.bind(
+            controllers.renameOrMove
+          ),
+          fallback: controllers.offline.renameOrMove.execute.bind(
+            controllers.offline.renameOrMove
+          ),
+        });
+        fn(absolutePath, contentsId, callback);
       },
       notifyFileAddedCallback: (
         absolutePath: string,
@@ -56,8 +61,8 @@ export class BindingsManager {
         controllers.addFile.execute(absolutePath, callback);
       },
       fetchDataCallback: (
-        contentsId: string,
-        callback: (data: boolean, path: string) => boolean
+        contentsId: FilePlaceholderId,
+        callback: CallbackDownload
       ) => {
         controllers.downloadFile
           .execute(contentsId, callback)

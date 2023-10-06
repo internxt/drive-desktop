@@ -7,14 +7,14 @@ export class FilePath extends Path {
   }
 
   static fromParts(parts: Array<string>) {
-    const full = path.join(...parts);
+    const full = path.posix.join(...parts);
 
     return new FilePath(full);
   }
 
   extension(): string {
-    const base = path.basename(this.value);
-    const { ext } = path.parse(base);
+    const base = path.posix.basename(this.value);
+    const { ext } = path.posix.parse(base);
     return ext.slice(1);
   }
 
@@ -25,14 +25,14 @@ export class FilePath extends Path {
   }
 
   name(): string {
-    const base = path.basename(this.value);
-    const { name } = path.parse(base);
+    const base = path.posix.basename(this.value);
+    const { name } = path.posix.parse(base);
     return name;
   }
 
   nameWithExtension(): string {
-    const basename = path.basename(this.value);
-    const { base } = path.parse(basename);
+    const basename = path.posix.basename(this.value);
+    const { base } = path.posix.parse(basename);
     return base;
   }
 

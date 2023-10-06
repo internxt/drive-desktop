@@ -36,7 +36,8 @@ describe('Http Folder Repository', () => {
 
       await SUT.create(
         new FolderPath(`/${serverFolder.name}`),
-        serverFolder.parentId as unknown as number
+        serverFolder.parentId as unknown as number,
+        'd337ce74-4524-5e87-aebd-0a6f56628065'
       );
 
       const savedFolder = SUT.search(`/${serverFolder.name}`);

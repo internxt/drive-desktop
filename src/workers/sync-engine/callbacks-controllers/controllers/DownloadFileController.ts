@@ -1,8 +1,10 @@
+import { FilePlaceholderId } from 'workers/sync-engine/modules/placeholders/domain/FilePlaceholderId';
 import { ContentsDownloader } from '../../modules/contents/application/ContentsDownloader';
 import { FileFinderByContentsId } from '../../modules/files/application/FileFinderByContentsId';
 import { LocalRepositoryRepositoryRefresher } from '../../modules/files/application/LocalRepositoryRepositoryRefresher';
 import { CallbackController } from './CallbackController';
 import Logger from 'electron-log';
+import { CallbackDownload } from 'workers/sync-engine/BindingManager';
 
 export class DownloadFileController extends CallbackController {
   constructor(
@@ -13,24 +15,26 @@ export class DownloadFileController extends CallbackController {
     super();
   }
 
-  private async action(
-    id: string,
-    cb: (data: boolean, filePath: string) => void
-  ): Promise<string> {
+  private async action(id: string, cb: CallbackDownload): Promise<string> {
     const file = this.fileFinder.run(id);
 
     return await this.downloader.run(file, cb);
   }
 
   async execute(
-    contentsId: string,
-    cb: (data: boolean, filePath: string) => void
+    contentsId: FilePlaceholderId,
+    cb: CallbackDownload
   ): Promise<string> {
     const trimmedId = this.trim(contentsId);
 
     try {
-      return await this.action(trimmedId, cb);
-    } catch {
+      const [_, contentsId] = trimmedId.split(':');
+      return await this.action(contentsId, cb);
+    } catch (error: unknown) {
+      Logger.error(
+        'Error downloading a file, going to refresh and retry: ',
+        error
+      );
       await this.localRepositoryRefresher.run();
 
       return await new Promise((resolve, reject) => {

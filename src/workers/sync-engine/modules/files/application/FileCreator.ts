@@ -3,10 +3,10 @@ import { FilePath } from '../domain/FilePath';
 import { File } from '../domain/File';
 import { FileRepository } from '../domain/FileRepository';
 import { FileSize } from '../domain/FileSize';
-import { EventBus } from '../../shared/domain/WebdavServerEventBus';
+import { EventBus } from '../../shared/domain/EventBus';
 import { RemoteFileContents } from '../../contents/domain/RemoteFileContents';
 import { FileDeleter } from './FileDeleter';
-import { PlatformPathConverter } from '../../shared/test/helpers/PlatformPathConverter';
+import { PlatformPathConverter } from '../../shared/application/PlatformPathConverter';
 import { SyncEngineIpc } from '../../../ipcRendererSyncEngine';
 
 export class FileCreator {
@@ -53,7 +53,7 @@ export class FileCreator {
         nameWithExtension: filePath.nameWithExtension(),
         error: message,
       });
-      return Promise.reject();
+      throw error;
     }
   }
 }

@@ -12,11 +12,11 @@ export class FilePathMother {
     const name = `${chance.word()}.${chance.word({ length: 3 })}`;
 
     if (level === 0) {
-      return new FilePath(path.join(name));
+      return new FilePath(path.posix.join(name));
     }
 
     const folders = chance.sentence({ words: level });
 
-    return new FilePath(path.join(...folders, name));
+    return new FilePath(path.posix.join(...folders, name));
   }
 }

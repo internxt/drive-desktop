@@ -1,29 +1,7 @@
 import { FilePath } from '../../domain/FilePath';
-import { PlatformPathConverter } from '../../../shared/test/helpers/PlatformPathConverter';
-import path from 'path';
 
 describe('Path', () => {
-  describe('path instanciation', () => {
-    it('path from parts creates expected result', () => {
-      const parts = [path.sep, 'Family'];
-
-      const filePath = FilePath.fromParts(parts);
-
-      expect(filePath.value).toBe(
-        PlatformPathConverter.convertAnyToCurrent('/Family')
-      );
-    });
-
-    it('works', () => {
-      const folderPath = new FilePath('/Family');
-
-      const basePath = folderPath.dirname();
-
-      expect(basePath).toBe(path.sep);
-    });
-  });
-
-  describe('extension handeling', () => {
+  describe('extension handling', () => {
     describe('files without extension', () => {
       it('when a file has no extension hasExtension returns false', () => {
         const path = new FilePath('/folder/file');

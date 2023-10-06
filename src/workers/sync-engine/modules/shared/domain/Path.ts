@@ -1,36 +1,35 @@
 import path from 'path';
 import { ValueObject } from '../../../../shared/domain/ValueObject';
+import { InvalidArgumentError } from '../../../../shared/domain/InvalidArgumentError';
 
 export abstract class Path extends ValueObject<string> {
-  private convertPathToCurrentPlatform(p: string) {
-    const fromPlatform = p.includes(path.posix.sep) ? path.posix : path.win32;
+  constructor(value: string) {
+    super(value);
 
-    const toPlatform = path.sep === path.posix.sep ? path.posix : path.win32;
-
-    return p.split(fromPlatform.sep).join(toPlatform.sep);
+    this.ensurePathIsPosix(value);
   }
 
-  private convertPathToPosix(p: string) {
-    return p.split(path.win32.sep).join(path.posix.sep);
+  private ensurePathIsPosix(value: string) {
+    const isPosix = value.indexOf('/') !== -1;
+
+    if (!isPosix) {
+      throw new InvalidArgumentError(`Paths have to be posix, path: ${value}`);
+    }
   }
 
   name(): string {
-    const base = path.basename(this.value);
-    const { name } = path.parse(base);
+    const base = path.posix.basename(this.value);
+    const { name } = path.posix.parse(base);
     return name;
   }
 
   dirname(): string {
-    const dirname = this.convertPathToCurrentPlatform(path.dirname(this.value));
+    const dirname = path.posix.dirname(this.value);
     if (dirname === '.') {
-      return path.sep;
+      return path.posix.sep;
     }
 
     return dirname;
-  }
-
-  posixDirname(): string {
-    return this.convertPathToPosix(path.dirname(this.value));
   }
 
   hasSameName(other: Path) {

@@ -9,7 +9,8 @@ export interface FolderRepository {
 
   create(
     name: FolderPath,
-    parentId: FolderAttributes['parentId']
+    parentId: FolderAttributes['parentId'],
+    uuid: Folder['uuid']
   ): Promise<Folder>;
 
   updateName(folder: Folder): Promise<void>;

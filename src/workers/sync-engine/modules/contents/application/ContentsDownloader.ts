@@ -9,6 +9,8 @@ import { ensureFolderExists } from 'shared/fs/ensure-folder-exists';
 import path from 'path';
 import Logger from 'electron-log';
 import { buildContentsContainer } from 'workers/sync-engine/dependency-injection/contents/builder';
+import { buildSharedContainer } from 'workers/sync-engine/dependency-injection/shared/builder';
+import { CallbackDownload } from 'workers/sync-engine/BindingManager';
 
 export class ContentsDownloader {
   constructor(
@@ -20,9 +22,10 @@ export class ContentsDownloader {
   private async registerEvents(
     downloader: ContentFileDownloader,
     file: File,
-    cb: (data: boolean, filePath: string) => void
+    cb: CallbackDownload
   ) {
-    const contentsContainer = await buildContentsContainer();
+    const sharedContainer = buildSharedContainer();
+    const contentsContainer = await buildContentsContainer(sharedContainer);
     const location = await contentsContainer.temporalFolderProvider();
     const folderPath = path.join(location, 'internxt');
     ensureFolderExists(folderPath);
@@ -69,10 +72,7 @@ export class ContentsDownloader {
     });
   }
 
-  async run(
-    file: File,
-    cb: (data: boolean, filePath: string) => void
-  ): Promise<string> {
+  async run(file: File, cb: CallbackDownload): Promise<string> {
     const downloader = this.managerFactory.downloader();
 
     this.registerEvents(downloader, file, cb);

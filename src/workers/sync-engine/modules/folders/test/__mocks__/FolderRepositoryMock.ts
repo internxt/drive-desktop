@@ -33,8 +33,12 @@ export class FolderRepositoryMock implements FolderRepository {
     return this.mockUpdateParentDir(item);
   }
 
-  create(name: FolderPath, parentId: number | null): Promise<Folder> {
-    return this.mockCreate(name, parentId);
+  create(
+    name: FolderPath,
+    parentId: number | null,
+    uuid: Folder['uuid']
+  ): Promise<Folder> {
+    return this.mockCreate(name, parentId, uuid);
   }
 
   searchOn(folder: Folder): Promise<Folder[]> {

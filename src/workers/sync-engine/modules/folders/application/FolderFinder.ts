@@ -17,10 +17,10 @@ export class FolderFinder {
   }
 
   findFromFilePath(path: FilePath): Folder {
-    const folder = this.repository.search(path.posixDirname());
+    const folder = this.repository.search(path.dirname());
 
     if (!folder) {
-      throw new FolderNotFoundError(path.value);
+      throw new FolderNotFoundError(path.dirname());
     }
 
     return folder;
