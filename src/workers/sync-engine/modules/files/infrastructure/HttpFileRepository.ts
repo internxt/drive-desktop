@@ -16,7 +16,6 @@ import { FileStatuses } from '../domain/FileStatus';
 import { Crypt } from '../../shared/domain/Crypt';
 import { SyncEngineIpc } from '../../../ipcRendererSyncEngine';
 import { ManagedFileRepository } from '../domain/ManagedFileRepository';
-import Logger from 'electron-log';
 
 export class HttpFileRepository
   implements FileRepository, ManagedFileRepository
@@ -214,8 +213,6 @@ export class HttpFileRepository
     }
 
     this.files[file.path.value] = file;
-
-    Logger.debug('NEW PATH ON REPO', file.path.value);
   }
 
   async searchOnFolder(folderId: number): Promise<Array<File>> {

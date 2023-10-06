@@ -1,20 +1,20 @@
 import { Axios } from 'axios';
+import Logger from 'electron-log';
+import nodePath from 'path';
 import { Nullable } from 'shared/types/Nullable';
+import * as uuid from 'uuid';
 import { ServerFile } from '../../../../filesystems/domain/ServerFile';
 import { ServerFolder } from '../../../../filesystems/domain/ServerFolder';
-import { Traverser } from '../../items/application/Traverser';
-import { FolderPath } from '../domain/FolderPath';
-import { Folder, FolderAttributes } from '../domain/Folder';
-import { FolderRepository } from '../domain/FolderRepository';
-import Logger from 'electron-log';
-import * as uuid from 'uuid';
-import { UpdateFolderNameDTO } from './dtos/UpdateFolderNameDTO';
 import { SyncEngineIpc } from '../../../ipcRendererSyncEngine';
 import { RemoteItemsGenerator } from '../../items/application/RemoteItemsGenerator';
-import { FolderStatuses } from '../domain/FolderStatus';
-import nodePath from 'path';
+import { Traverser } from '../../items/application/Traverser';
 import { PlatformPathConverter } from '../../shared/application/PlatformPathConverter';
+import { Folder, FolderAttributes } from '../domain/Folder';
+import { FolderPath } from '../domain/FolderPath';
+import { FolderRepository } from '../domain/FolderRepository';
+import { FolderStatuses } from '../domain/FolderStatus';
 import { ManagedFolderRepository } from '../domain/ManagedFolderRepository';
+import { UpdateFolderNameDTO } from './dtos/UpdateFolderNameDTO';
 
 export class HttpFolderRepository
   implements FolderRepository, ManagedFolderRepository
@@ -58,11 +58,6 @@ export class HttpFolderRepository
 
       return items;
     }, startingFolders);
-
-    Logger.debug(
-      'Number of folders in repository: ',
-      Object.keys(this.folders).length
-    );
   }
 
   private async reload(): Promise<void> {
@@ -70,7 +65,6 @@ export class HttpFolderRepository
   }
 
   search(path: string): Nullable<Folder> {
-    Logger.debug(Object.keys(this.folders));
     return this.folders[path];
   }
 
@@ -78,7 +72,6 @@ export class HttpFolderRepository
     const keys = Object.keys(partial) as Array<keyof Partial<FolderAttributes>>;
 
     const folder = Object.values(this.folders).find((folder) => {
-      // Logger.debug(folder.attributes()[keys[0]], partial[keys[0]]);
       return keys.every((key) => folder.attributes()[key] === partial[key]);
     });
 
@@ -158,7 +151,6 @@ export class HttpFolderRepository
       delete this.folders[old?.path.value];
     }
 
-    Logger.debug('PATH BEFORE INDEX', folder.path.value);
     this.folders[folder.path.value] = folder;
   }
 
