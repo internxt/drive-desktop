@@ -32,6 +32,7 @@ describe('Contents Downloader', () => {
 
       await SUT.run(FileMother.any(), () => {
         /* do nothing */
+        return true;
       });
 
       expect(factory.mockDownloader.onMock).toBeCalledWith(
@@ -46,7 +47,7 @@ describe('Contents Downloader', () => {
 
     const file = FileMother.any();
     await SUT.run(file, () => {
-      /* do nothing */
+      return true;
     });
 
     expect(localWriter.writeMock).toBeCalledWith(
