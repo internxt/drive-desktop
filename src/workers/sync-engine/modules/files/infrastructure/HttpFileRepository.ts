@@ -78,7 +78,16 @@ export class HttpFileRepository
     const keys = Object.keys(partial) as Array<keyof Partial<FileAttributes>>;
 
     const file = Object.values(this.files).find((file) => {
-      return keys.every((key) => file.attributes()[key] === partial[key]);
+      return keys.every((key: keyof FileAttributes) => {
+        if (key === 'contentsId') {
+          return (
+            (file.attributes()[key] as string).normalize() ==
+            (partial[key] as string).normalize()
+          );
+        }
+
+        return file.attributes()[key] == partial[key];
+      });
     });
 
     if (file) {

@@ -20,7 +20,8 @@ export class FilePathUpdater {
   ) {}
 
   private async rename(file: File, path: FilePath) {
-    file.rename(path);
+    const trackerId = await this.localFileIdProvider.run(file.path.value);
+    file.rename(path, trackerId);
 
     await this.repository.updateName(file);
   }

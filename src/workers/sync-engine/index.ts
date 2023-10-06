@@ -46,7 +46,7 @@ async function setUp() {
   ipcRenderer.on('UPDATE_SYNC_ENGINE_PROCESS', async () => {
     Logger.info('[SYNC ENGINE] Updating sync engine');
 
-    container.syncPlaceholders.run();
+    await container.syncPlaceholders.run();
 
     Logger.info('[SYNC ENGINE] sync engine updated successfully');
   });

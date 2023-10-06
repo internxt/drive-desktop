@@ -10,6 +10,7 @@ import { SyncRemoteFile } from 'workers/sync-engine/modules/boundaryBridge/appli
 import { SharedContainer } from '../shared/SharedContainer';
 import { SyncPlaceholders } from 'workers/sync-engine/modules/boundaryBridge/application/SyncPlaceholders';
 import { SyncRemoteFolder } from 'workers/sync-engine/modules/boundaryBridge/application/SyncRemoteFolder';
+import { DependencyInjectionEventHistory } from '../common/eventHistory';
 
 export function buildBoundaryBridgeContainer(
   contentsContainer: ContentsContainer,
@@ -19,6 +20,8 @@ export function buildBoundaryBridgeContainer(
   placeholderContainer: PlaceholderContainer,
   sharedContainer: SharedContainer
 ): BoundaryBridgeContainer {
+  const eventHistory = DependencyInjectionEventHistory.get();
+
   const fileCreationOrchestrator = new FileCreationOrchestrator(
     contentsContainer.contentsUploader,
     filesContainer.fileCreator,
@@ -36,7 +39,9 @@ export function buildBoundaryBridgeContainer(
     filesContainer.fileByPartialSearcher,
     filesContainer.managedFileRepository,
     placeholderContainer.placeholderCreator,
-    sharedContainer.relativePathToAbsoluteConverter
+    sharedContainer.relativePathToAbsoluteConverter,
+    sharedContainer.localFileIdProvider,
+    eventHistory
   );
 
   const syncRemoteFolder = new SyncRemoteFolder(
