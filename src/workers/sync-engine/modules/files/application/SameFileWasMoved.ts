@@ -21,14 +21,12 @@ export class SameFileWasMoved {
     });
 
     if (!fileInDestination) {
-      Logger.debug('FILE IN DESTINATION DOES NOT EXISTS', path);
       return { result: false };
     }
 
     const events = await this.eventHistory.search(fileInDestination.contentsId);
 
     if (events.length === 0) {
-      Logger.debug('NO EVENTS FOUND');
       return { result: false };
     }
 
@@ -37,14 +35,12 @@ export class SameFileWasMoved {
     );
 
     if (!movedEvent) {
-      Logger.debug('MOVED EVENT NOT FOUND');
       return { result: false };
     }
 
     const trackerId = await this.localFileIdProvider.run(path.value);
 
     if (trackerId !== movedEvent.toPrimitives().trackerId) {
-      Logger.debug('DOES NOT HAVE THE SAME LOCAL ID');
       return { result: false };
     }
 

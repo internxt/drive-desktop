@@ -22,6 +22,11 @@ type FolderCreationQueue = Map<
 type CreationCallback = (acknowledge: boolean, id: string) => void;
 
 export class AddController extends CallbackController {
+  // Gets called when:
+  //  - a file has been added
+  //  -a file has been saved
+  //  - after a file has been moved to a folder
+
   private readonly filesQueue: FileCreationQueue;
   private readonly foldersQueue: FolderCreationQueue;
 
