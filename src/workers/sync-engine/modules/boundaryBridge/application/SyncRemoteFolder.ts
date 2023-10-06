@@ -15,6 +15,48 @@ export class SyncRemoteFolder {
     private readonly relativePathToAbsoluteConverter: RelativePathToAbsoluteConverter
   ) {}
 
+  private async renameFolderRecursive(
+    currentWin32AbsolutePath: string,
+    newWin32AbsolutePath: string
+  ) {
+    //Ensure it exists
+    await fs.stat(currentWin32AbsolutePath);
+
+    await fs.rename(currentWin32AbsolutePath, newWin32AbsolutePath);
+
+    const children = await fs.readdir(newWin32AbsolutePath);
+
+    for (const child of children) {
+      const childWin32AbsolutePath = path.win32.join(
+        newWin32AbsolutePath,
+        child
+      );
+      const newChildWin32AbsolutePath = path.win32.join(
+        newWin32AbsolutePath,
+        child
+      );
+
+      const stat = await fs.stat(childWin32AbsolutePath);
+
+      if (stat.isDirectory()) {
+        await this.renameFolderRecursive(
+          childWin32AbsolutePath,
+          newChildWin32AbsolutePath
+        );
+      } else {
+        await fs.rename(childWin32AbsolutePath, newChildWin32AbsolutePath);
+      }
+    }
+  }
+
+  private async folderExists(win32AbsolutePath: string): Promise<boolean> {
+    try {
+      await fs.stat(win32AbsolutePath);
+      return true;
+    } catch {
+      return false;
+    }
+  }
   private canWrite(win32AbsolutePath: string) {
     try {
       fs.access(win32AbsolutePath, FsConstants.R_OK | FsConstants.W_OK);
@@ -28,6 +70,8 @@ export class SyncRemoteFolder {
     if (remote.path.value === path.posix.sep) {
       return;
     }
+
+    Logger.debug('Updating remote folder: ', remote.path.value);
 
     const local = this.folderByPartialSearcher.run({
       uuid: remote.uuid,
@@ -63,9 +107,15 @@ export class SyncRemoteFolder {
         }
 
         try {
-          Logger.debug('win32AbsolutePath: ', win32AbsolutePath);
-          await fs.unlink(win32AbsolutePath);
-          this.virtualDrivePlaceholderCreator.folder(remote);
+          const exists = await this.folderExists(win32AbsolutePath);
+          if (exists) {
+            const newWin32AbsolutePath =
+              this.relativePathToAbsoluteConverter.run(remote.path.value);
+            await this.renameFolderRecursive(
+              win32AbsolutePath,
+              newWin32AbsolutePath
+            );
+          }
         } catch (error) {
           Logger.error(error);
         }

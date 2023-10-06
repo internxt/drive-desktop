@@ -58,6 +58,11 @@ export class HttpFolderRepository
 
       return items;
     }, startingFolders);
+
+    Logger.debug(
+      'Number of folders in repository: ',
+      Object.keys(this.folders).length
+    );
   }
 
   private async reload(): Promise<void> {
@@ -204,6 +209,7 @@ export class HttpFolderRepository
     this.folders[posix] = folder;
   }
 
+  /** @deprecated */
   clear(): void {
     this.folders = {};
   }

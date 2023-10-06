@@ -38,7 +38,6 @@ export class SyncRemoteFile {
       if (remote.name !== local.name) {
         const event = new FileRenamedDomainEvent({
           aggregateId: remote.contentsId,
-          trackerId,
         });
         this.eventHistory.store(event);
       }

@@ -30,9 +30,7 @@ export function buildBoundaryBridgeContainer(
 
   const treePlaceholderCreator = new TreePlaceholderCreator(
     itemsContainer.treeBuilder,
-    placeholderContainer.placeholderCreator,
-    filesContainer.fileClearer,
-    foldersContainer.folderClearer
+    placeholderContainer.placeholderCreator
   );
 
   const syncRemoteFile = new SyncRemoteFile(

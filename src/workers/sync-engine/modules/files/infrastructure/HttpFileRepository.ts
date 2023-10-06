@@ -223,6 +223,7 @@ export class HttpFileRepository
     return Object.values(this.files).filter((file) => file.hasParent(folderId));
   }
 
+  /** @deprecated */
   clear(): void {
     this.files = {};
   }

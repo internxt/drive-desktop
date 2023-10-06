@@ -21,5 +21,6 @@ export interface FolderRepository {
 
   trash(folder: Folder): Promise<void>;
 
+  /** @deprecated */
   clear(): void;
 }

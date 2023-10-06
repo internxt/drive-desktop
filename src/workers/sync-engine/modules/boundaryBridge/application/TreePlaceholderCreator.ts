@@ -1,5 +1,3 @@
-import { FileClearer } from '../../files/application/FileClearer';
-import { FolderClearer } from '../../folders/application/FolderClearer';
 import { File } from '../../files/domain/File';
 import { Folder } from '../../folders/domain/Folder';
 import { TreeBuilder } from '../../items/application/TreeBuilder';
@@ -9,16 +7,11 @@ type Items = { files: Array<File>; folders: Array<Folder> };
 
 export class TreePlaceholderCreator {
   constructor(
-    // TODO: fix the import from infra
     private readonly treeBuilder: TreeBuilder,
-    private readonly placeholderCreator: PlaceholderCreator,
-    private readonly fileClearer: FileClearer,
-    private readonly folderClearer: FolderClearer
+    private readonly placeholderCreator: PlaceholderCreator
   ) {}
 
   async run(): Promise<void> {
-    await this.fileClearer.run();
-    await this.folderClearer.run();
     const tree = await this.treeBuilder.run();
 
     const items = tree.reduce(
