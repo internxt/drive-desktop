@@ -9,7 +9,8 @@ export function buildBoundaryBridgeContainer(
 ): BoundaryBridgeContainer {
   const fileCreationOrchestrator = new FileCreationOrchestrator(
     contentsContainer.contentsUploader,
-    filesContainer.fileCreator
+    filesContainer.fileCreator,
+    filesContainer.sameFileWasMoved
   );
 
   return { fileCreationOrchestrator };

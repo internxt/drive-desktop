@@ -10,6 +10,7 @@ import { FileActionCannotModifyExtension } from './errors/FileActionCannotModify
 import { FileDeletedDomainEvent } from './FileDeletedDomainEvent';
 import { FileStatus, FileStatuses } from './FileStatus';
 import { ContentsId } from '../../contents/domain/ContentsId';
+import { FileMovedDomainEvent } from './events/FileMovedDomainEvent';
 
 export type FileAttributes = {
   contentsId: string;
@@ -122,7 +123,7 @@ export class File extends AggregateRoot {
     );
   }
 
-  moveTo(folder: Folder): void {
+  moveTo(folder: Folder, trackerId: string): void {
     if (this.folderId === folder.id) {
       throw new FileCannotBeMovedToTheOriginalFolderError(this.path.value);
     }
@@ -130,7 +131,12 @@ export class File extends AggregateRoot {
     this._folderId = folder.id;
     this._path = this._path.changeFolder(folder.path.value);
 
-    //TODO: record file moved event
+    this.record(
+      new FileMovedDomainEvent({
+        aggregateId: this._contentsId.value,
+        trackerId,
+      })
+    );
   }
 
   clone(contentsId: string, folderId: number, newPath: FilePath) {

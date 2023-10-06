@@ -17,10 +17,14 @@ import { DependencyInjectionUserProvider } from '../common/user';
 import { FoldersContainer } from '../folders/FoldersContainer';
 import { PlaceholderContainer } from '../placeholders/PlaceholdersContainer';
 import { FilesContainer } from './FilesContainer';
+import { SharedContainer } from '../shared/SharedContainer';
+import { SameFileWasMoved } from 'workers/sync-engine/modules/files/application/SameFileWasMoved';
+import { DependencyInjectionEventHistory } from '../common/eventHistory';
 
 export async function buildFilesContainer(
   folderContainer: FoldersContainer,
-  placeholderContainer: PlaceholderContainer
+  placeholderContainer: PlaceholderContainer,
+  sharedContainer: SharedContainer
 ): Promise<{
   container: FilesContainer;
   subscribers: any;
@@ -28,8 +32,8 @@ export async function buildFilesContainer(
   const clients = DependencyInjectionHttpClientsProvider.get();
   const traverser = DependencyInjectionTraverserProvider.get();
   const user = DependencyInjectionUserProvider.get();
-
   const { bus: eventBus } = DependencyInjectionEventBus;
+  const eventHistory = DependencyInjectionEventHistory.get();
 
   const fileRepository = new HttpFileRepository(
     crypt,
@@ -58,11 +62,19 @@ export async function buildFilesContainer(
 
   const fileByPartialSearcher = new FileByPartialSearcher(fileRepository);
 
+  const sameFileWasMoved = new SameFileWasMoved(
+    fileByPartialSearcher,
+    sharedContainer.localFileIdProvider,
+    eventHistory
+  );
+
   const filePathUpdater = new FilePathUpdater(
     fileRepository,
     fileFinderByContentsId,
     folderContainer.folderFinder,
-    ipcRendererSyncEngine
+    ipcRendererSyncEngine,
+    sharedContainer.localFileIdProvider,
+    eventHistory
   );
 
   const fileCreator = new FileCreator(
@@ -97,6 +109,7 @@ export async function buildFilesContainer(
     filePlaceholderCreatorFromContentsId: filePlaceholderCreatorFromContentsId,
     createFilePlaceholderOnDeletionFailed:
       createFilePlaceholderOnDeletionFailed,
+    sameFileWasMoved,
   };
 
   return { container, subscribers: [] };

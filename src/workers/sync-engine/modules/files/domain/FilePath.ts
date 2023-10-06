@@ -49,7 +49,7 @@ export class FilePath extends Path {
   }
 
   changeFolder(folder: string): FilePath {
-    return FilePath.fromParts([folder, this.name()]);
+    return FilePath.fromParts([folder, this.nameWithExtension()]);
   }
 
   updateName(name: string): FilePath {
