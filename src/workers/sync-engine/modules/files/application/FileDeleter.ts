@@ -4,7 +4,6 @@ import { AllParentFoldersStatusIsExists } from '../../folders/application/AllPar
 import { FileRepository } from '../domain/FileRepository';
 import { FileStatuses } from '../domain/FileStatus';
 import { PlaceholderCreator } from '../../placeholders/domain/PlaceholderCreator';
-import { FileNotFoundError } from '../domain/errors/FileNotFoundError';
 import { File } from '../domain/File';
 
 export class FileDeleter {
@@ -19,7 +18,7 @@ export class FileDeleter {
     const file = this.repository.searchByPartial({ contentsId });
 
     if (!file) {
-      throw new FileNotFoundError(contentsId);
+      return;
     }
 
     await this.act(file);

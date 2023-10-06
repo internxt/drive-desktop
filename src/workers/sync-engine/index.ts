@@ -43,6 +43,14 @@ async function setUp() {
     event.sender.send('SYNC_ENGINE_STOP_SUCCESS');
   });
 
+  ipcRenderer.on('UPDATE_SYNC_ENGINE_PROCESS', async () => {
+    Logger.info('[SYNC ENGINE] Updating sync engine');
+
+    await container.syncPlaceholders.run();
+
+    Logger.info('[SYNC ENGINE] sync engine updated successfully');
+  });
+
   ipcRenderer.on('STOP_AND_CLEAR_SYNC_ENGINE_PROCESS', async (event) => {
     Logger.info('[SYNC ENGINE] Stopping and clearing sync engine');
 

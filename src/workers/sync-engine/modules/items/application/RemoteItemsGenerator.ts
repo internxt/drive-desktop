@@ -25,6 +25,7 @@ export class RemoteItemsGenerator {
         id: updatedFile.id,
         modificationTime: updatedFile.modificationTime,
         name: updatedFile.name,
+        plainName: updatedFile.plainName,
         size: updatedFile.size,
         type: updatedFile.type ?? null,
         updatedAt: updatedFile.updatedAt,

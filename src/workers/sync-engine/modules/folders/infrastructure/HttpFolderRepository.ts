@@ -1,21 +1,24 @@
 import { Axios } from 'axios';
+import Logger from 'electron-log';
+import nodePath from 'path';
 import { Nullable } from 'shared/types/Nullable';
+import * as uuid from 'uuid';
 import { ServerFile } from '../../../../filesystems/domain/ServerFile';
 import { ServerFolder } from '../../../../filesystems/domain/ServerFolder';
-import { Traverser } from '../../items/application/Traverser';
-import { FolderPath } from '../domain/FolderPath';
-import { Folder, FolderAttributes } from '../domain/Folder';
-import { FolderRepository } from '../domain/FolderRepository';
-import Logger from 'electron-log';
-import * as uuid from 'uuid';
-import { UpdateFolderNameDTO } from './dtos/UpdateFolderNameDTO';
 import { SyncEngineIpc } from '../../../ipcRendererSyncEngine';
 import { RemoteItemsGenerator } from '../../items/application/RemoteItemsGenerator';
-import { FolderStatuses } from '../domain/FolderStatus';
-import nodePath from 'path';
+import { Traverser } from '../../items/application/Traverser';
 import { PlatformPathConverter } from '../../shared/application/PlatformPathConverter';
+import { Folder, FolderAttributes } from '../domain/Folder';
+import { FolderPath } from '../domain/FolderPath';
+import { FolderRepository } from '../domain/FolderRepository';
+import { FolderStatuses } from '../domain/FolderStatus';
+import { ManagedFolderRepository } from '../domain/ManagedFolderRepository';
+import { UpdateFolderNameDTO } from './dtos/UpdateFolderNameDTO';
 
-export class HttpFolderRepository implements FolderRepository {
+export class HttpFolderRepository
+  implements FolderRepository, ManagedFolderRepository
+{
   public folders: Record<string, Folder> = {};
 
   constructor(
@@ -33,7 +36,9 @@ export class HttpFolderRepository implements FolderRepository {
     return remoteItemsGenerator.getAll();
   }
 
-  public async init(): Promise<void> {
+  public async init(
+    startingFolders: Record<string, Folder> = {}
+  ): Promise<void> {
     const raw = await this.getTree();
 
     this.traverser.reset();
@@ -52,11 +57,14 @@ export class HttpFolderRepository implements FolderRepository {
       }
 
       return items;
-    }, this.folders);
+    }, startingFolders);
+  }
+
+  private async reload(): Promise<void> {
+    await this.init(this.folders);
   }
 
   search(path: string): Nullable<Folder> {
-    Logger.debug(Object.keys(this.folders));
     return this.folders[path];
   }
 
@@ -64,7 +72,6 @@ export class HttpFolderRepository implements FolderRepository {
     const keys = Object.keys(partial) as Array<keyof Partial<FolderAttributes>>;
 
     const folder = Object.values(this.folders).find((folder) => {
-      // Logger.debug(folder.attributes()[keys[0]], partial[keys[0]]);
       return keys.every((key) => folder.attributes()[key] === partial[key]);
     });
 
@@ -144,7 +151,6 @@ export class HttpFolderRepository implements FolderRepository {
       delete this.folders[old?.path.value];
     }
 
-    Logger.debug('PATH BEFORE INDEX', folder.path.value);
     this.folders[folder.path.value] = folder;
   }
 
@@ -169,7 +175,7 @@ export class HttpFolderRepository implements FolderRepository {
   }
 
   async searchOn(folder: Folder): Promise<Array<Folder>> {
-    await this.init();
+    await this.reload();
     return Object.values(this.folders).filter((f) => f.isIn(folder));
   }
 
@@ -193,5 +199,24 @@ export class HttpFolderRepository implements FolderRepository {
     const normalized = nodePath.normalize(folder.path.value);
     const posix = PlatformPathConverter.winToPosix(normalized);
     this.folders[posix] = folder;
+  }
+
+  /** @deprecated */
+  clear(): void {
+    this.folders = {};
+  }
+
+  insert(folder: Folder): Promise<void> {
+    if (this.folders[folder.path.value]) {
+      throw new Error('Insert file only should insert non existent');
+    }
+    this.folders[folder.path.value] = folder;
+    return Promise.resolve();
+  }
+  overwrite(oldFolder: Folder, newFolder: Folder): Promise<void> {
+    delete this.folders[oldFolder.path.value];
+
+    this.folders[newFolder.path.value] = newFolder;
+    return Promise.resolve();
   }
 }

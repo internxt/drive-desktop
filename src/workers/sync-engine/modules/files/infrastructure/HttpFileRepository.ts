@@ -15,9 +15,11 @@ import { RemoteItemsGenerator } from '../../items/application/RemoteItemsGenerat
 import { FileStatuses } from '../domain/FileStatus';
 import { Crypt } from '../../shared/domain/Crypt';
 import { SyncEngineIpc } from '../../../ipcRendererSyncEngine';
-import Logger from 'electron-log';
+import { ManagedFileRepository } from '../domain/ManagedFileRepository';
 
-export class HttpFileRepository implements FileRepository {
+export class HttpFileRepository
+  implements FileRepository, ManagedFileRepository
+{
   public files: Record<string, File> = {};
 
   constructor(
@@ -37,7 +39,7 @@ export class HttpFileRepository implements FileRepository {
     return remoteItemsGenerator.getAll();
   }
 
-  public async init(): Promise<void> {
+  public async init(startingFiles: Record<string, File> = {}): Promise<void> {
     const raw = await this.getTree();
 
     this.traverser.reset();
@@ -56,11 +58,11 @@ export class HttpFileRepository implements FileRepository {
       }
 
       return items;
-    }, this.files);
+    }, startingFiles);
   }
 
   private async reload(): Promise<void> {
-    await this.init();
+    await this.init(this.files);
   }
 
   search(path: FilePath): Nullable<File> {
@@ -75,7 +77,16 @@ export class HttpFileRepository implements FileRepository {
     const keys = Object.keys(partial) as Array<keyof Partial<FileAttributes>>;
 
     const file = Object.values(this.files).find((file) => {
-      return keys.every((key) => file.attributes()[key] === partial[key]);
+      return keys.every((key: keyof FileAttributes) => {
+        if (key === 'contentsId') {
+          return (
+            (file.attributes()[key] as string).normalize() ==
+            (partial[key] as string).normalize()
+          );
+        }
+
+        return file.attributes()[key] == partial[key];
+      });
     });
 
     if (file) {
@@ -100,7 +111,7 @@ export class HttpFileRepository implements FileRepository {
 
     if (result.status === 200) {
       this.files[file.path.value] = file;
-      await this.init();
+      await this.reload();
     }
   }
 
@@ -202,12 +213,30 @@ export class HttpFileRepository implements FileRepository {
     }
 
     this.files[file.path.value] = file;
-
-    Logger.debug('NEW PATH ON REPO', file.path.value);
   }
 
   async searchOnFolder(folderId: number): Promise<Array<File>> {
-    await this.init();
+    await this.reload();
     return Object.values(this.files).filter((file) => file.hasParent(folderId));
+  }
+
+  /** @deprecated */
+  clear(): void {
+    this.files = {};
+  }
+
+  insert(file: File): Promise<void> {
+    if (this.files[file.path.value]) {
+      throw new Error('Insert file only should insert non existent');
+    }
+    this.files[file.path.value] = file;
+    return Promise.resolve();
+  }
+
+  overwrite(oldFile: File, newFile: File): Promise<void> {
+    delete this.files[oldFile.path.value];
+
+    this.files[newFile.path.value] = newFile;
+    return Promise.resolve();
   }
 }

@@ -18,4 +18,5 @@ export type ServerFile = {
   updatedAt: string;
   userId: number;
   status: ServerFileStatus;
+  plainName?: string;
 };

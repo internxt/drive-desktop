@@ -11,6 +11,7 @@ import { FileDeletedDomainEvent } from './FileDeletedDomainEvent';
 import { FileStatus, FileStatuses } from './FileStatus';
 import { ContentsId } from '../../contents/domain/ContentsId';
 import { FileMovedDomainEvent } from './events/FileMovedDomainEvent';
+import { FileRenamedDomainEvent } from './events/FileRenamedDomainEvent';
 
 export type FileAttributes = {
   contentsId: string;
@@ -198,7 +199,11 @@ export class File extends AggregateRoot {
 
     this._path = this._path.updateName(newPath.nameWithExtension());
 
-    // TODO: record rename event
+    this.record(
+      new FileRenamedDomainEvent({
+        aggregateId: this.contentsId,
+      })
+    );
   }
 
   hasParent(id: number): boolean {

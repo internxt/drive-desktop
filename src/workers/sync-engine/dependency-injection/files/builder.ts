@@ -17,6 +17,7 @@ import { DependencyInjectionUserProvider } from '../common/user';
 import { FoldersContainer } from '../folders/FoldersContainer';
 import { PlaceholderContainer } from '../placeholders/PlaceholdersContainer';
 import { FilesContainer } from './FilesContainer';
+import { FileClearer } from '../../modules/files/application/FileClearer';
 import { SharedContainer } from '../shared/SharedContainer';
 import { SameFileWasMoved } from 'workers/sync-engine/modules/files/application/SameFileWasMoved';
 import { DependencyInjectionEventHistory } from '../common/eventHistory';
@@ -98,6 +99,8 @@ export async function buildFilesContainer(
       filePlaceholderCreatorFromContentsId
     );
 
+  const fileClearer = new FileClearer(fileRepository);
+
   const container: FilesContainer = {
     fileFinderByContentsId,
     localRepositoryRefresher: localRepositoryRefresher,
@@ -109,6 +112,8 @@ export async function buildFilesContainer(
     filePlaceholderCreatorFromContentsId: filePlaceholderCreatorFromContentsId,
     createFilePlaceholderOnDeletionFailed:
       createFilePlaceholderOnDeletionFailed,
+    fileClearer,
+    managedFileRepository: fileRepository,
     sameFileWasMoved,
   };
 

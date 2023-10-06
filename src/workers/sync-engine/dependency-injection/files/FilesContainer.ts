@@ -7,6 +7,8 @@ import { FilePathUpdater } from '../../modules/files/application/FilePathUpdater
 import { FilePlaceholderCreatorFromContentsId } from '../../modules/files/application/FilePlaceholderCreatorFromContentsId';
 import { FileSearcher } from '../../modules/files/application/FileSearcher';
 import { LocalRepositoryRepositoryRefresher } from '../../modules/files/application/LocalRepositoryRepositoryRefresher';
+import { FileClearer } from '../../modules/files/application/FileClearer';
+import { ManagedFileRepository } from 'workers/sync-engine/modules/files/domain/ManagedFileRepository';
 import { SameFileWasMoved } from '../../modules/files/application/SameFileWasMoved';
 
 export interface FilesContainer {
@@ -19,5 +21,7 @@ export interface FilesContainer {
   fileSearcher: FileSearcher;
   filePlaceholderCreatorFromContentsId: FilePlaceholderCreatorFromContentsId;
   createFilePlaceholderOnDeletionFailed: CreateFilePlaceholderOnDeletionFailed;
+  fileClearer: FileClearer;
+  managedFileRepository: ManagedFileRepository;
   sameFileWasMoved: SameFileWasMoved;
 }

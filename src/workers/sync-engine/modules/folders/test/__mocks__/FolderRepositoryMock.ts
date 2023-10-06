@@ -12,6 +12,7 @@ export class FolderRepositoryMock implements FolderRepository {
   public mockCreate = jest.fn();
   public mockSearchOnFolder = jest.fn();
   public mockTrash = jest.fn();
+  public mockClear = jest.fn();
 
   search(pathLike: string): Nullable<Folder> {
     return this.mockSearch(pathLike);
@@ -47,6 +48,10 @@ export class FolderRepositoryMock implements FolderRepository {
 
   trash(folder: Folder): Promise<void> {
     return this.mockTrash(folder);
+  }
+
+  clear(): void {
+    return this.mockClear();
   }
 
   clearMocks() {

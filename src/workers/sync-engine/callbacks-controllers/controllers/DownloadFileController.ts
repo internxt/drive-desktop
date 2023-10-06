@@ -15,6 +15,7 @@ export class DownloadFileController extends CallbackController {
   }
 
   private async action(id: string) {
+    Logger.info('find file with id : ', id);
     const file = this.fileFinder.run(id);
 
     return await this.downloader.run(file);
@@ -25,6 +26,7 @@ export class DownloadFileController extends CallbackController {
 
     try {
       const [_, contentsId] = trimmedId.split(':');
+      Logger.info('Downloading file: ', contentsId);
       return await this.action(contentsId);
     } catch (error: unknown) {
       Logger.error(
@@ -36,7 +38,8 @@ export class DownloadFileController extends CallbackController {
       return await new Promise((resolve, reject) => {
         setTimeout(async () => {
           try {
-            const result = await this.action(trimmedId);
+            const [_, contentsId] = trimmedId.split(':');
+            const result = await this.action(contentsId);
             resolve(result);
           } catch (error) {
             reject(error);

@@ -1,26 +1,27 @@
-import { AllParentFoldersStatusIsExists } from 'workers/sync-engine/modules/folders/application/AllParentFoldersStatusIsExists';
-import { FolderByPartialSearcher } from 'workers/sync-engine/modules/folders/application/FolderByPartialSearcher';
-import { FolderCreator } from 'workers/sync-engine/modules/folders/application/FolderCreator';
-import { FolderDeleter } from 'workers/sync-engine/modules/folders/application/FolderDeleter';
-import { FolderFinder } from 'workers/sync-engine/modules/folders/application/FolderFinder';
-import { FolderMover } from 'workers/sync-engine/modules/folders/application/FolderMover';
-import { FolderPathUpdater } from 'workers/sync-engine/modules/folders/application/FolderPathUpdater';
-import { FolderRenamer } from 'workers/sync-engine/modules/folders/application/FolderRenamer';
-import { FolderSearcher } from 'workers/sync-engine/modules/folders/application/FolderSearcher';
-import { OfflineFolderCreator } from 'workers/sync-engine/modules/folders/application/Offline/OfflineFolderCreator';
-import { OfflineFolderMover } from 'workers/sync-engine/modules/folders/application/Offline/OfflineFolderMover';
-import { OfflineFolderPathUpdater } from 'workers/sync-engine/modules/folders/application/Offline/OfflineFolderPathUpdater';
-import { OfflineFolderRenamer } from 'workers/sync-engine/modules/folders/application/Offline/OfflineFolderRenamer';
-import { HttpFolderRepository } from 'workers/sync-engine/modules/folders/infrastructure/HttpFolderRepository';
-import { InMemoryOfflineFolderRepository } from 'workers/sync-engine/modules/folders/infrastructure/InMemoryOfflineFolderRepository';
 import { ipcRendererSyncEngine } from '../../ipcRendererSyncEngine';
+import { AllParentFoldersStatusIsExists } from '../../modules/folders/application/AllParentFoldersStatusIsExists';
+import { FolderByPartialSearcher } from '../../modules/folders/application/FolderByPartialSearcher';
+import { FolderClearer } from '../../modules/folders/application/FolderClearer';
+import { FolderCreator } from '../../modules/folders/application/FolderCreator';
+import { FolderDeleter } from '../../modules/folders/application/FolderDeleter';
+import { FolderFinder } from '../../modules/folders/application/FolderFinder';
+import { FolderMover } from '../../modules/folders/application/FolderMover';
+import { FolderPathUpdater } from '../../modules/folders/application/FolderPathUpdater';
+import { FolderRenamer } from '../../modules/folders/application/FolderRenamer';
+import { FolderSearcher } from '../../modules/folders/application/FolderSearcher';
+import { OfflineFolderCreator } from '../../modules/folders/application/Offline/OfflineFolderCreator';
+import { OfflineFolderMover } from '../../modules/folders/application/Offline/OfflineFolderMover';
+import { OfflineFolderPathUpdater } from '../../modules/folders/application/Offline/OfflineFolderPathUpdater';
+import { OfflineFolderRenamer } from '../../modules/folders/application/Offline/OfflineFolderRenamer';
+import { SynchronizeOfflineModifications } from '../../modules/folders/application/SynchronizeOfflineModifications';
+import { SynchronizeOfflineModificationsOnFolderCreated } from '../../modules/folders/application/SynchronizeOfflineModificationsOnFolderCreated';
+import { HttpFolderRepository } from '../../modules/folders/infrastructure/HttpFolderRepository';
+import { InMemoryOfflineFolderRepository } from '../../modules/folders/infrastructure/InMemoryOfflineFolderRepository';
 import { DependencyInjectionHttpClientsProvider } from '../common/clients';
 import { DependencyInjectionEventBus } from '../common/eventBus';
 import { DependencyInjectionTraverserProvider } from '../common/traverser';
 import { PlaceholderContainer } from '../placeholders/PlaceholdersContainer';
 import { FoldersContainer } from './FoldersContainer';
-import { SynchronizeOfflineModifications } from 'workers/sync-engine/modules/folders/application/SynchronizeOfflineModifications';
-import { SynchronizeOfflineModificationsOnFolderCreated } from 'workers/sync-engine/modules/folders/application/SynchronizeOfflineModificationsOnFolderCreated';
 
 export async function buildFoldersContainer(
   placeholdersContainer: PlaceholderContainer
@@ -70,6 +71,7 @@ export async function buildFoldersContainer(
     folderRenamer
   );
 
+  const folderClearer = new FolderClearer(repository);
   const offlineRepository = new InMemoryOfflineFolderRepository();
   const offlineFolderCreator = new OfflineFolderCreator(
     folderFinder,
@@ -105,6 +107,7 @@ export async function buildFoldersContainer(
     folderDeleter,
     allParentFoldersStatusIsExists: allParentFoldersStatusIsExists,
     folderPathUpdater,
+    folderClearer,
     folderByPartialSearcher,
     synchronizeOfflineModificationsOnFolderCreated,
     offline: {
@@ -112,5 +115,6 @@ export async function buildFoldersContainer(
       folderPathUpdater: offlineFolderPathUpdater,
       synchronizeOfflineModifications,
     },
+    managedFolderRepository: repository,
   };
 }

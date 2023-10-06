@@ -138,6 +138,15 @@ async function stopAndClearSyncEngineWatcher() {
   }
 }
 
+export function updateSyncEngine() {
+  try {
+    worker?.webContents.send('UPDATE_SYNC_ENGINE_PROCESS');
+  } catch (err) {
+    // TODO: handle error
+    Logger.error(err);
+  }
+}
+
 eventBus.on('USER_LOGGED_OUT', stopAndClearSyncEngineWatcher);
 eventBus.on('USER_WAS_UNAUTHORIZED', stopAndClearSyncEngineWatcher);
 eventBus.on('INITIAL_SYNC_READY', spawnSyncEngineWorker);

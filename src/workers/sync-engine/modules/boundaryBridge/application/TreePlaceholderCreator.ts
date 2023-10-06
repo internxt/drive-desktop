@@ -1,13 +1,12 @@
 import { File } from '../../files/domain/File';
 import { Folder } from '../../folders/domain/Folder';
 import { TreeBuilder } from '../../items/application/TreeBuilder';
-import { PlaceholderCreator } from '../domain/PlaceholderCreator';
+import { PlaceholderCreator } from '../../placeholders/domain/PlaceholderCreator';
 
 type Items = { files: Array<File>; folders: Array<Folder> };
 
 export class TreePlaceholderCreator {
   constructor(
-    // TODO: fix the import from infra
     private readonly treeBuilder: TreeBuilder,
     private readonly placeholderCreator: PlaceholderCreator
   ) {}

@@ -1,6 +1,7 @@
 import Logger from 'electron-log';
 import { DependencyContainer } from './dependency-injection/DependencyContainer';
 import { buildControllers } from './callbacks-controllers/buildControllers';
+import { VirtualDrive } from 'virtual-drive/dist';
 import { executeControllerWithFallback } from './callbacks-controllers/middlewares/executeControllerWithFallback';
 import { FilePlaceholderId } from './modules/placeholders/domain/FilePlaceholderId';
 
@@ -122,5 +123,9 @@ export class BindingsManager {
 
   async stop() {
     await this.container.virtualDrive.disconnectSyncRoot();
+  }
+
+  cleanUp() {
+    VirtualDrive.unregisterSyncRoot(this.paths.root);
   }
 }

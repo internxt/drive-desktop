@@ -20,4 +20,7 @@ export interface FolderRepository {
   searchOn(folder: Folder): Promise<Array<Folder>>;
 
   trash(folder: Folder): Promise<void>;
+
+  /** @deprecated */
+  clear(): void;
 }
