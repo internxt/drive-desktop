@@ -1,4 +1,4 @@
-import { BrowserWindow, screen } from 'electron';
+import { BrowserWindow, ipcMain, screen } from 'electron';
 
 import eventBus from '../event-bus';
 import { TrayMenu } from '../tray/tray';
@@ -11,6 +11,19 @@ const widgetConfig: { width: number; height: number; placeUnderTray: boolean } =
 
 let widget: BrowserWindow | null = null;
 export const getWidget = () => (widget?.isDestroyed() ? null : widget);
+
+ipcMain.on('FILE_DOWNLOADING', (_, payload) => {
+  const { processInfo } = payload;
+  if (!processInfo.progress) {
+    const widget = getWidget();
+    if (widget && !widget.isVisible()) {
+      //  Windows 11 is not focusing the app on .show(), so it is not moving the app to top.
+      widget.setAlwaysOnTop(true);
+      widget.show();
+      widget.setAlwaysOnTop(false);
+    }
+  }
+});
 
 export const createWidget = async () => {
   widget = new BrowserWindow({
