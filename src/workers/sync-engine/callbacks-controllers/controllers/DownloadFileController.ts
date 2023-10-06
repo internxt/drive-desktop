@@ -4,6 +4,7 @@ import { FileFinderByContentsId } from '../../modules/files/application/FileFind
 import { LocalRepositoryRepositoryRefresher } from '../../modules/files/application/LocalRepositoryRepositoryRefresher';
 import { CallbackController } from './CallbackController';
 import Logger from 'electron-log';
+import { CallbackDownload } from 'workers/sync-engine/BindingManager';
 
 export class DownloadFileController extends CallbackController {
   constructor(
@@ -14,20 +15,21 @@ export class DownloadFileController extends CallbackController {
     super();
   }
 
-  private async action(id: string) {
-    Logger.info('find file with id : ', id);
+  private async action(id: string, cb: CallbackDownload): Promise<string> {
     const file = this.fileFinder.run(id);
 
-    return await this.downloader.run(file);
+    return await this.downloader.run(file, cb);
   }
 
-  async execute(contentsId: FilePlaceholderId): Promise<string> {
+  async execute(
+    contentsId: FilePlaceholderId,
+    cb: CallbackDownload
+  ): Promise<string> {
     const trimmedId = this.trim(contentsId);
 
     try {
       const [_, contentsId] = trimmedId.split(':');
-      Logger.info('Downloading file: ', contentsId);
-      return await this.action(contentsId);
+      return await this.action(contentsId, cb);
     } catch (error: unknown) {
       Logger.error(
         'Error downloading a file, going to refresh and retry: ',
@@ -39,7 +41,8 @@ export class DownloadFileController extends CallbackController {
         setTimeout(async () => {
           try {
             const [_, contentsId] = trimmedId.split(':');
-            const result = await this.action(contentsId);
+            Logger.debug('cb: ', cb);
+            const result = await this.action(contentsId, cb);
             resolve(result);
           } catch (error) {
             reject(error);

@@ -61,5 +61,6 @@ export async function buildContentsContainer(
   return {
     contentsUploader: retryContentsUploader,
     contentsDownloader,
+    temporalFolderProvider,
   };
 }

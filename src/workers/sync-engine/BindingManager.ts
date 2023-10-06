@@ -5,6 +5,7 @@ import { VirtualDrive } from 'virtual-drive/dist';
 import { executeControllerWithFallback } from './callbacks-controllers/middlewares/executeControllerWithFallback';
 import { FilePlaceholderId } from './modules/placeholders/domain/FilePlaceholderId';
 
+export type CallbackDownload = (success: boolean, filePath: string) => boolean;
 export class BindingsManager {
   private static readonly PROVIDER_NAME = 'Internxt';
 
@@ -56,21 +57,28 @@ export class BindingsManager {
       },
       notifyFileAddedCallback: (
         absolutePath: string,
-        callback: (acknowledge: boolean, id: string) => void
+        callback: (acknowledge: boolean, id: string) => boolean
       ) => {
         controllers.addFile.execute(absolutePath, callback);
       },
       fetchDataCallback: (
         contentsId: FilePlaceholderId,
-        callback: (success: boolean, path: string) => void
+        callback: CallbackDownload
       ) => {
         controllers.downloadFile
-          .execute(contentsId)
+          .execute(contentsId, callback)
           .then((path: string) => {
-            callback(true, path);
+            Logger.debug('Execute Fetch Data Callback, sending path:', path);
+
+            let finished = false;
+            while (!finished) {
+              //callback returns true or void ( never return false , this will be resolved in the future )
+              finished = callback(true, path);
+              Logger.debug('condition', finished);
+            }
           })
           .catch((error: Error) => {
-            Logger.error('Fetch Data Callback:', error);
+            Logger.error('Error Fetch Data Callback:', error);
             callback(false, '');
           });
       },

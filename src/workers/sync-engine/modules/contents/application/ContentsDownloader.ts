@@ -5,7 +5,12 @@ import { File } from '../../files/domain/File';
 import { LocalFileContents } from '../domain/LocalFileContents';
 import { LocalFileWriter } from '../domain/LocalFileWriter';
 import { Stopwatch } from '../../../../../shared/types/Stopwatch';
+import { ensureFolderExists } from 'shared/fs/ensure-folder-exists';
+import path from 'path';
 import Logger from 'electron-log';
+import { buildContentsContainer } from 'workers/sync-engine/dependency-injection/contents/builder';
+import { buildSharedContainer } from 'workers/sync-engine/dependency-injection/shared/builder';
+import { CallbackDownload } from 'workers/sync-engine/BindingManager';
 
 export class ContentsDownloader {
   constructor(
@@ -14,7 +19,18 @@ export class ContentsDownloader {
     private readonly ipc: SyncEngineIpc
   ) {}
 
-  private registerEvents(downloader: ContentFileDownloader, file: File) {
+  private async registerEvents(
+    downloader: ContentFileDownloader,
+    file: File,
+    cb: CallbackDownload
+  ) {
+    const sharedContainer = buildSharedContainer();
+    const contentsContainer = await buildContentsContainer(sharedContainer);
+    const location = await contentsContainer.temporalFolderProvider();
+    const folderPath = path.join(location, 'internxt');
+    ensureFolderExists(folderPath);
+    const filePath = path.join(folderPath, file.nameWithExtension);
+
     downloader.on('start', () => {
       this.ipc.send('FILE_DOWNLOADING', {
         name: file.name,
@@ -26,6 +42,7 @@ export class ContentsDownloader {
     });
 
     downloader.on('progress', (progress: number) => {
+      cb(true, filePath);
       this.ipc.send('FILE_DOWNLOADING', {
         name: file.name,
         extension: file.type,
@@ -55,10 +72,10 @@ export class ContentsDownloader {
     });
   }
 
-  async run(file: File): Promise<string> {
+  async run(file: File, cb: CallbackDownload): Promise<string> {
     const downloader = this.managerFactory.downloader();
 
-    this.registerEvents(downloader, file);
+    this.registerEvents(downloader, file, cb);
 
     const stopwatch = new Stopwatch();
 
