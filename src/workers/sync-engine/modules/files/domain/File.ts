@@ -184,7 +184,7 @@ export class File extends AggregateRoot {
     return file;
   }
 
-  rename(newPath: FilePath, trackerId: string) {
+  rename(newPath: FilePath) {
     if (!this._path.hasSameDirname(newPath)) {
       throw new FileActionOnlyCanAffectOneLevelError('rename');
     }
@@ -202,7 +202,6 @@ export class File extends AggregateRoot {
     this.record(
       new FileRenamedDomainEvent({
         aggregateId: this.contentsId,
-        trackerId: trackerId,
       })
     );
   }
