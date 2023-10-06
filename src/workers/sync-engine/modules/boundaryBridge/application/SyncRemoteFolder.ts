@@ -71,8 +71,6 @@ export class SyncRemoteFolder {
       return;
     }
 
-    Logger.debug('Updating remote folder: ', remote.path.value);
-
     const local = this.folderByPartialSearcher.run({
       uuid: remote.uuid,
     });

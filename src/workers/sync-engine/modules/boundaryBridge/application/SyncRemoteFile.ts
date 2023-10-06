@@ -32,7 +32,7 @@ export class SyncRemoteFile {
       return;
     }
 
-    if (remote.name !== local.name || remote.folderId !== local.folderId) {
+    if (local.path.value !== remote.path.value) {
       Logger.debug('Updating file placeholder: ', remote.path.value);
       const trackerId = await this.localFileIdProvider.run(local.path.value);
       if (remote.name !== local.name) {
