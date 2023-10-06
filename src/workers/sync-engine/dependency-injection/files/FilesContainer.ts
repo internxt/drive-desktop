@@ -9,6 +9,7 @@ import { FileSearcher } from '../../modules/files/application/FileSearcher';
 import { LocalRepositoryRepositoryRefresher } from '../../modules/files/application/LocalRepositoryRepositoryRefresher';
 import { FileClearer } from '../../modules/files/application/FileClearer';
 import { ManagedFileRepository } from 'workers/sync-engine/modules/files/domain/ManagedFileRepository';
+import { SameFileWasMoved } from '../../modules/files/application/SameFileWasMoved';
 
 export interface FilesContainer {
   fileFinderByContentsId: FileFinderByContentsId;
@@ -22,4 +23,5 @@ export interface FilesContainer {
   createFilePlaceholderOnDeletionFailed: CreateFilePlaceholderOnDeletionFailed;
   fileClearer: FileClearer;
   managedFileRepository: ManagedFileRepository;
+  sameFileWasMoved: SameFileWasMoved;
 }

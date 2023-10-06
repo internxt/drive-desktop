@@ -21,7 +21,8 @@ export function buildBoundaryBridgeContainer(
 ): BoundaryBridgeContainer {
   const fileCreationOrchestrator = new FileCreationOrchestrator(
     contentsContainer.contentsUploader,
-    filesContainer.fileCreator
+    filesContainer.fileCreator,
+    filesContainer.sameFileWasMoved
   );
 
   const treePlaceholderCreator = new TreePlaceholderCreator(

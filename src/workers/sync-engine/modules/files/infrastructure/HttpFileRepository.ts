@@ -16,6 +16,7 @@ import { FileStatuses } from '../domain/FileStatus';
 import { Crypt } from '../../shared/domain/Crypt';
 import { SyncEngineIpc } from '../../../ipcRendererSyncEngine';
 import { ManagedFileRepository } from '../domain/ManagedFileRepository';
+import Logger from 'electron-log';
 
 export class HttpFileRepository
   implements FileRepository, ManagedFileRepository
@@ -184,11 +185,11 @@ export class HttpFileRepository
     await this.reload();
   }
 
-  async updateParentDir(item: File): Promise<void> {
+  async updateParentDir(file: File): Promise<void> {
     const url = `${process.env.API_URL}/api/storage/move/file`;
     const body: UpdateFileParentDirDTO = {
-      destination: item.folderId,
-      fileId: item.contentsId,
+      destination: file.folderId,
+      fileId: file.contentsId,
     };
 
     const res = await this.httpClient.post(url, body);
@@ -197,7 +198,15 @@ export class HttpFileRepository
       throw new Error(`[REPOSITORY] Error moving item: ${res.status}`);
     }
 
-    await this.reload();
+    const old = this.searchByPartial({ contentsId: file.contentsId });
+
+    if (old) {
+      delete this.files[old?.path.value];
+    }
+
+    this.files[file.path.value] = file;
+
+    Logger.debug('NEW PATH ON REPO', file.path.value);
   }
 
   async searchOnFolder(folderId: number): Promise<Array<File>> {
