@@ -78,7 +78,6 @@ export class ContentsDownloader {
     stopwatch.reset();
     stopwatch.start();
     const write = await this.localWriter.write(localContents);
-    Logger.debug('End write with', stopwatch.elapsedTime);
 
     return write;
   }
