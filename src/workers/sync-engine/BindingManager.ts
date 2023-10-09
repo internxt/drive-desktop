@@ -61,26 +61,34 @@ export class BindingsManager {
       ) => {
         controllers.addFile.execute(absolutePath, callback);
       },
-      fetchDataCallback: (
+      fetchDataCallback: async (
         contentsId: FilePlaceholderId,
         callback: CallbackDownload
       ) => {
-        controllers.downloadFile
-          .execute(contentsId, callback)
-          .then((path: string) => {
-            Logger.debug('Execute Fetch Data Callback, sending path:', path);
+        try {
+          const path = await controllers.downloadFile.execute(
+            contentsId,
+            callback
+          );
+          Logger.debug('Execute Fetch Data Callback, sending path:', path);
 
-            let finished = false;
-            while (!finished) {
-              //callback returns true or void ( never return false , this will be resolved in the future )
-              finished = callback(true, path);
-              Logger.debug('condition', finished);
-            }
-          })
-          .catch((error: Error) => {
-            Logger.error('Error Fetch Data Callback:', error);
-            callback(false, '');
+          let finished = false;
+          while (!finished) {
+            finished = callback(true, path);
+            Logger.debug('condition', finished);
+          }
+
+          // Esperar hasta que la ejecución de fetchDataCallback esté completa antes de continuar
+          await new Promise((resolve) => {
+            setTimeout(() => {
+              Logger.debug('timeout');
+              resolve(true);
+            }, 500);
           });
+        } catch (error) {
+          Logger.error(error);
+          callback(false, '');
+        }
       },
       validateDataCallback: () => {
         Logger.debug('validateDataCallback');
