@@ -8,15 +8,15 @@ import { Stopwatch } from '../../../../../shared/types/Stopwatch';
 import { ensureFolderExists } from 'shared/fs/ensure-folder-exists';
 import path from 'path';
 import Logger from 'electron-log';
-import { buildContentsContainer } from 'workers/sync-engine/dependency-injection/contents/builder';
-import { buildSharedContainer } from 'workers/sync-engine/dependency-injection/shared/builder';
 import { CallbackDownload } from 'workers/sync-engine/BindingManager';
+import { TemporalFolderProvider } from './temporalFolderProvider';
 
 export class ContentsDownloader {
   constructor(
     private readonly managerFactory: ContentsManagersFactory,
     private readonly localWriter: LocalFileWriter,
-    private readonly ipc: SyncEngineIpc
+    private readonly ipc: SyncEngineIpc,
+    private readonly temporalFolderProvider: TemporalFolderProvider
   ) {}
 
   private async registerEvents(
@@ -24,9 +24,7 @@ export class ContentsDownloader {
     file: File,
     cb: CallbackDownload
   ) {
-    const sharedContainer = buildSharedContainer();
-    const contentsContainer = await buildContentsContainer(sharedContainer);
-    const location = await contentsContainer.temporalFolderProvider();
+    const location = await this.temporalFolderProvider();
     const folderPath = path.join(location, 'internxt');
     ensureFolderExists(folderPath);
     const filePath = path.join(folderPath, file.nameWithExtension);

@@ -5,6 +5,7 @@ import { IpcRendererSyncEngineMock } from '../../../shared/test/__mock__/IpcRend
 import { FileDownloadEvents } from '../../domain/contentHandlers/ContentFileDownloader';
 import { ReadableHelloWorld } from '../__mocks__/ReadableHelloWorld';
 import { LocalFileWriterMock } from '../__mocks__/LocalFileWriterMock';
+import { temporalFolderProvider } from '../../application/temporalFolderProvider';
 
 describe('Contents Downloader', () => {
   let localWriter: LocalFileWriterMock;
@@ -18,7 +19,12 @@ describe('Contents Downloader', () => {
     localWriter = new LocalFileWriterMock();
     ipc = new IpcRendererSyncEngineMock();
 
-    SUT = new ContentsDownloader(factory, localWriter, ipc);
+    SUT = new ContentsDownloader(
+      factory,
+      localWriter,
+      ipc,
+      temporalFolderProvider
+    );
   });
 
   it.each(['start', 'progress', 'finish', 'error'] satisfies Array<

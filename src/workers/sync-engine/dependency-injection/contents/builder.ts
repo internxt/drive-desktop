@@ -1,16 +1,16 @@
 import { Environment } from '@internxt/inxt-js';
-import { ContentsDownloader } from '../../modules/contents/application/ContentsDownloader';
-import { FSLocalFileProvider } from '../../modules/contents/infrastructure/FSLocalFileProvider';
+import { RetryContentsUploader } from 'workers/sync-engine/modules/contents/application/RetryContentsUploader';
+import { FSLocalFileWriter } from 'workers/sync-engine/modules/contents/infrastructure/FSLocalFileWriter';
 import { ipcRendererSyncEngine } from '../../ipcRendererSyncEngine';
-import { ipcRenderer } from 'electron';
+import { ContentsDownloader } from '../../modules/contents/application/ContentsDownloader';
 import { ContentsUploader } from '../../modules/contents/application/ContentsUploader';
+import { temporalFolderProvider } from '../../modules/contents/application/temporalFolderProvider';
 import { EnvironmentRemoteFileContentsManagersFactory } from '../../modules/contents/infrastructure/EnvironmentRemoteFileContentsManagersFactory';
+import { FSLocalFileProvider } from '../../modules/contents/infrastructure/FSLocalFileProvider';
 import { DependencyInjectionMnemonicProvider } from '../common/mnemonic';
 import { DependencyInjectionUserProvider } from '../common/user';
-import { ContentsContainer } from './ContentsContainer';
-import { FSLocalFileWriter } from 'workers/sync-engine/modules/contents/infrastructure/FSLocalFileWriter';
-import { RetryContentsUploader } from 'workers/sync-engine/modules/contents/application/RetryContentsUploader';
 import { SharedContainer } from '../shared/SharedContainer';
+import { ContentsContainer } from './ContentsContainer';
 
 export async function buildContentsContainer(
   sharedContainer: SharedContainer
@@ -38,24 +38,13 @@ export async function buildContentsContainer(
 
   const retryContentsUploader = new RetryContentsUploader(contentsUploader);
 
-  const temporalFolderProvider = async (): Promise<string> => {
-    const temporalFilesFolder = await ipcRenderer.invoke(
-      'APP:TEMPORAL_FILES_FOLDER'
-    );
-
-    if (typeof temporalFilesFolder !== 'string') {
-      throw new Error('Temporal folder path is not a string ');
-    }
-
-    return temporalFilesFolder;
-  };
-
   const localWriter = new FSLocalFileWriter(temporalFolderProvider);
 
   const contentsDownloader = new ContentsDownloader(
     contentsManagerFactory,
     localWriter,
-    ipcRendererSyncEngine
+    ipcRendererSyncEngine,
+    temporalFolderProvider
   );
 
   return {
