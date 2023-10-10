@@ -6,8 +6,9 @@ import { PlaceholderCreator } from '../../placeholders/domain/PlaceholderCreator
 import { RelativePathToAbsoluteConverter } from '../../shared/application/RelativePathToAbsoluteConverter';
 import Logger from 'electron-log';
 import path from 'path';
+import { FolderStatuses } from '../../folders/domain/FolderStatus';
 
-export class SyncRemoteFolder {
+export class UpdatePlaceholderFolder {
   constructor(
     private readonly folderByPartialSearcher: FolderByPartialSearcher,
     private readonly managedFolderRepository: ManagedFolderRepository,
@@ -66,6 +67,13 @@ export class SyncRemoteFolder {
     }
   }
 
+  private hasToBeDeleted(local: Folder, remote: Folder) {
+    const localExists = local.status.is(FolderStatuses.EXISTS);
+    const remoteIsTrashed = remote.status.is(FolderStatuses.TRASHED);
+    const remoteIsDeleted = remote.status.is(FolderStatuses.DELETED);
+    return localExists && (remoteIsTrashed || remoteIsDeleted);
+  }
+
   async run(remote: Folder): Promise<void> {
     if (remote.path.value === path.posix.sep) {
       return;
@@ -76,9 +84,11 @@ export class SyncRemoteFolder {
     });
 
     if (!local) {
-      Logger.debug('Creating folder placeholder: ', remote.path.value);
-      await this.managedFolderRepository.insert(remote);
-      this.virtualDrivePlaceholderCreator.folder(remote);
+      if (remote.status.is(FolderStatuses.EXISTS)) {
+        Logger.debug('Creating folder placeholder: ', remote.path.value);
+        await this.managedFolderRepository.insert(remote);
+        this.virtualDrivePlaceholderCreator.folder(remote);
+      }
       return;
     }
 
@@ -118,6 +128,14 @@ export class SyncRemoteFolder {
           Logger.error(error);
         }
       }
+    }
+
+    if (this.hasToBeDeleted(local, remote)) {
+      const win32AbsolutePath = this.relativePathToAbsoluteConverter.run(
+        local.path.value
+      );
+      await fs.rm(win32AbsolutePath, { recursive: true });
+      return;
     }
   }
 }

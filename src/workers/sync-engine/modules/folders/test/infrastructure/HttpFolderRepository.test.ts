@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { Traverser } from '../../../items/application/Traverser';
+import { ExistingItemsTraverser } from '../../../items/application/ExistingItemsTraverser';
 import { FolderPath } from '../../domain/FolderPath';
 import { HttpFolderRepository } from '../../infrastructure/HttpFolderRepository';
 import { fakeDecryptor } from '../../../shared/test/domain/FakeCrypt';
@@ -16,7 +16,7 @@ describe('Http Folder Repository', () => {
 
   describe('save', () => {
     beforeEach(() => {
-      const traverser = new Traverser(fakeDecryptor, rootFolderId);
+      const traverser = new ExistingItemsTraverser(fakeDecryptor, rootFolderId);
 
       ipc = new IpcRendererSyncEngineMock();
 

@@ -25,6 +25,7 @@ export class FolderStatus extends EnumValueObject<FolderStatuses> {
 
   static Exists = new FolderStatus(FolderStatuses.EXISTS);
   static Trashed = new FolderStatus(FolderStatuses.TRASHED);
+  static Deleted = new FolderStatus(FolderStatuses.DELETED);
 
   changeTo(status: FolderStatuses): FolderStatus {
     if (this.value === 'TRASHED') {
