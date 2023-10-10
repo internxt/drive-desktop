@@ -12,10 +12,12 @@ import { FileStatus, FileStatuses } from './FileStatus';
 import { ContentsId } from '../../contents/domain/ContentsId';
 import { FileMovedDomainEvent } from './events/FileMovedDomainEvent';
 import { FileRenamedDomainEvent } from './events/FileRenamedDomainEvent';
+import { FolderUuid } from '../../folders/domain/FolderUuid';
 
 export type FileAttributes = {
   contentsId: string;
   folderId: number;
+  folderUuid: string;
   createdAt: string;
   modificationTime: string;
   path: string;
@@ -32,13 +34,18 @@ export class File extends AggregateRoot {
     private readonly _size: FileSize,
     public createdAt: Date,
     public updatedAt: Date,
-    private _status: FileStatus
+    private _status: FileStatus,
+    private _folderUuid: FolderUuid
   ) {
     super();
   }
 
   public get contentsId() {
     return this._contentsId.value;
+  }
+
+  public get folderUuid(): string {
+    return this._folderUuid.value;
   }
 
   public get folderId() {
@@ -81,7 +88,8 @@ export class File extends AggregateRoot {
       new FileSize(attributes.size),
       new Date(attributes.createdAt),
       new Date(attributes.updatedAt),
-      FileStatus.fromValue(attributes.status)
+      FileStatus.fromValue(attributes.status),
+      new FolderUuid(attributes.folderUuid)
     );
   }
 
@@ -98,7 +106,8 @@ export class File extends AggregateRoot {
       size,
       new Date(),
       new Date(),
-      FileStatus.Exists
+      FileStatus.Exists,
+      new FolderUuid(folder.uuid)
     );
 
     file.record(
@@ -138,50 +147,6 @@ export class File extends AggregateRoot {
         trackerId,
       })
     );
-  }
-
-  clone(contentsId: string, folderId: number, newPath: FilePath) {
-    const file = new File(
-      new ContentsId(contentsId),
-      folderId,
-      newPath,
-      this._size,
-      this.createdAt,
-      new Date(),
-      FileStatus.Exists
-    );
-
-    file.record(
-      new FileCreatedDomainEvent({
-        aggregateId: contentsId,
-        size: this._size.value,
-        type: this._path.extension(),
-      })
-    );
-
-    return file;
-  }
-
-  overwrite(contentsId: string, folderId: number, newPath: FilePath) {
-    const file = new File(
-      new ContentsId(contentsId),
-      folderId,
-      newPath,
-      this._size,
-      this.createdAt,
-      new Date(),
-      FileStatus.Exists
-    );
-
-    file.record(
-      new FileCreatedDomainEvent({
-        aggregateId: contentsId,
-        size: this._size.value,
-        type: this._path.extension(),
-      })
-    );
-
-    return file;
   }
 
   rename(newPath: FilePath) {
@@ -271,6 +236,7 @@ export class File extends AggregateRoot {
       createdAt: this.createdAt.toISOString(),
       updatedAt: this.updatedAt.toISOString(),
       status: this.status.value,
+      folderUuid: this.folderUuid,
     };
   }
 
@@ -284,6 +250,7 @@ export class File extends AggregateRoot {
       updatedAt: this.updatedAt.toISOString(),
       status: this.status.value,
       modificationTime: this.updatedAt.toISOString(),
+      folderUuid: this.folderUuid,
     };
   }
 }

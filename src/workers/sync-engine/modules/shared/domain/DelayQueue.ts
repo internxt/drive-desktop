@@ -30,8 +30,13 @@ export class DelayQueue {
         const reversedItems = Array.from(this.queue.entries()).reverse();
 
         for (const [item] of reversedItems) {
-          await this.fn(item);
-          this.queue.delete(item);
+          try {
+            await this.fn(item);
+          } catch (error) {
+            Logger.error(error);
+          } finally {
+            this.queue.delete(item);
+          }
         }
 
         return;
@@ -46,6 +51,10 @@ export class DelayQueue {
     this.setTimeout();
 
     this.queue.set(value);
+  }
+
+  dequeue(value: string) {
+    this.queue.delete(value);
   }
 
   get size(): number {

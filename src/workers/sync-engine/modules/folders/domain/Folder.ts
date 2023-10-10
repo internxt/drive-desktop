@@ -17,6 +17,8 @@ export type FolderAttributes = {
 };
 
 export class Folder extends AggregateRoot {
+  static readonly ROOT_FOLDER_UUID = '43711926-15c2-5ebf-8c24-5099fa9af3c3';
+
   private constructor(
     public id: number,
     private _uuid: FolderUuid,

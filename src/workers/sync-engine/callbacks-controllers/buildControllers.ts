@@ -15,7 +15,9 @@ export function buildControllers(container: DependencyContainer) {
 
   const deleteController = new DeleteController(
     container.fileDeleter,
-    container.folderDeleter
+    container.folderDeleter,
+    container.childrenFilesSearcher,
+    container.childFolderSearcher
   );
 
   const renameOrMoveController = new RenameOrMoveController(

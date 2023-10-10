@@ -13,9 +13,14 @@ export class FolderRepositoryMock implements FolderRepository {
   public mockSearchOnFolder = jest.fn();
   public mockTrash = jest.fn();
   public mockClear = jest.fn();
+  public mockMatchingPartial = jest.fn();
 
   search(pathLike: string): Nullable<Folder> {
     return this.mockSearch(pathLike);
+  }
+
+  matchingPartial(partial: Partial<FolderAttributes>): Folder[] {
+    return this.mockMatchingPartial(partial);
   }
 
   searchByPartial(partial: Partial<FolderAttributes>): Nullable<Folder> {

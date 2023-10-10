@@ -96,6 +96,25 @@ export class HttpFileRepository
     return undefined;
   }
 
+  matchingPartial(partial: Partial<FileAttributes>): Array<File> {
+    const keys = Object.keys(partial) as Array<keyof Partial<FileAttributes>>;
+
+    const files = Object.values(this.files).filter((file) => {
+      return keys.every((key: keyof FileAttributes) => {
+        if (key === 'contentsId') {
+          return (
+            (file.attributes()[key] as string).normalize() ==
+            (partial[key] as string).normalize()
+          );
+        }
+
+        return file.attributes()[key] == partial[key];
+      });
+    });
+
+    return files.map((file) => File.from(file.attributes()));
+  }
+
   async delete(file: File): Promise<void> {
     const result = await this.trashHttpClient.post(
       `${process.env.NEW_DRIVE_URL}/drive/storage/trash/add`,
@@ -156,6 +175,7 @@ export class HttpFileRepository
       size: parseInt(result.data.size, 10),
       path: file.path.value,
       status: FileStatuses.EXISTS,
+      folderUuid: file.folderUuid,
     });
 
     this.files[file.path.value] = created;

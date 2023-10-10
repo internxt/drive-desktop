@@ -9,7 +9,11 @@ import { ItemsIndexedByPath } from '../domain/ItemsIndexedByPath';
 import { EitherTransformer } from '../../shared/application/EitherTransformer';
 import { Traverser } from '../domain/Traverser';
 
-function fileFromServerFile(relativePath: string, server: ServerFile): File {
+function fileFromServerFile(
+  relativePath: string,
+  server: ServerFile,
+  folderUuid: string
+): File {
   return File.from({
     folderId: server.folderId,
     contentsId: server.fileId,
@@ -19,13 +23,12 @@ function fileFromServerFile(relativePath: string, server: ServerFile): File {
     updatedAt: server.updatedAt,
     path: relativePath,
     status: server.status,
+    folderUuid,
   });
 }
 
 export class AllStatusesTraverser implements Traverser {
   private readonly collection: ItemsIndexedByPath = {};
-  private static readonly ROOT_FOLDER_UUID =
-    '43711926-15c2-5ebf-8c24-5099fa9af3c3';
 
   private rawTree: {
     files: Array<ServerFile>;
@@ -43,7 +46,7 @@ export class AllStatusesTraverser implements Traverser {
     private readonly baseFolderId: number
   ) {}
 
-  private traverse(currentId: number, currentName = '') {
+  private traverse(currentId: number, currentUuid: string, currentName = '') {
     if (!this.rawTree) return;
 
     const filesInThisFolder = this.rawTree.files.filter(
@@ -77,7 +80,7 @@ export class AllStatusesTraverser implements Traverser {
       })
       .forEach(({ file, name }) => {
         EitherTransformer.handleWithEither(() =>
-          fileFromServerFile(name, file)
+          fileFromServerFile(name, file, currentUuid)
         ).fold(
           (error) => {
             Logger.warn(
@@ -113,7 +116,7 @@ export class AllStatusesTraverser implements Traverser {
         status: folder.status,
       });
 
-      this.traverse(folder.id, `${name}`);
+      this.traverse(folder.id, folder.uuid, `${name}`);
     });
   }
 
@@ -124,7 +127,7 @@ export class AllStatusesTraverser implements Traverser {
 
     this.collection['/'] = Folder.from({
       id: this.baseFolderId,
-      uuid: AllStatusesTraverser.ROOT_FOLDER_UUID,
+      uuid: Folder.ROOT_FOLDER_UUID,
       parentId: null,
       updatedAt: new Date().toISOString(),
       createdAt: new Date().toISOString(),
@@ -139,11 +142,11 @@ export class AllStatusesTraverser implements Traverser {
   }) {
     this.rawTree = rawTree;
 
-    this.traverse(this.baseFolderId);
+    this.traverse(this.baseFolderId, Folder.ROOT_FOLDER_UUID);
 
     this.collection['/'] = Folder.from({
       id: this.baseFolderId,
-      uuid: AllStatusesTraverser.ROOT_FOLDER_UUID,
+      uuid: Folder.ROOT_FOLDER_UUID,
       parentId: null,
       updatedAt: new Date().toISOString(),
       createdAt: new Date().toISOString(),

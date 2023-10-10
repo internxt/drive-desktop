@@ -13,6 +13,7 @@ export class FileRepositoryMock implements FileRepository {
   public mockSearchOnFolder = jest.fn();
   public mockClear = jest.fn();
   public mockInsert = jest.fn();
+  public mockMatchingPartial = jest.fn();
 
   insert(file: File): Promise<void> {
     return this.mockInsert(file);
@@ -24,6 +25,10 @@ export class FileRepositoryMock implements FileRepository {
 
   searchByPartial(partial: Partial<FileAttributes>): Nullable<File> {
     return this.mockSearchByPartial(partial);
+  }
+
+  matchingPartial(partial: Partial<FileAttributes>): File[] {
+    return this.mockMatchingPartial(partial);
   }
 
   delete(file: File): Promise<void> {

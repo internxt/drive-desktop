@@ -1,3 +1,4 @@
+import { ChildrenFoldersSearcher } from '../../modules/folders/application/ChildrenFoldersSearcher';
 import { ipcRendererSyncEngine } from '../../ipcRendererSyncEngine';
 import { AllParentFoldersStatusIsExists } from '../../modules/folders/application/AllParentFoldersStatusIsExists';
 import { FolderByPartialSearcher } from '../../modules/folders/application/FolderByPartialSearcher';
@@ -100,6 +101,8 @@ export async function buildFoldersContainer(
       synchronizeOfflineModifications
     );
 
+  const childFolderSearcher = new ChildrenFoldersSearcher(repository);
+
   return {
     folderCreator,
     folderFinder,
@@ -116,5 +119,6 @@ export async function buildFoldersContainer(
       synchronizeOfflineModifications,
     },
     managedFolderRepository: repository,
+    childFolderSearcher,
   };
 }

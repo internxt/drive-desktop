@@ -14,6 +14,10 @@ export class FolderDeleter {
   ) {}
 
   async run(uuid: Folder['uuid']): Promise<void> {
+    if (uuid === Folder.ROOT_FOLDER_UUID) {
+      throw new ActionNotPermittedError('Delete root folder');
+    }
+
     const folder = this.repository.searchByPartial({ uuid });
 
     if (!folder) {

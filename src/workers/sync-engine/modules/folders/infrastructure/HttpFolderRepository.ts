@@ -82,6 +82,16 @@ export class HttpFolderRepository
     return undefined;
   }
 
+  matchingPartial(partial: Partial<FolderAttributes>): Array<Folder> {
+    const keys = Object.keys(partial) as Array<keyof Partial<FolderAttributes>>;
+
+    const folders = Object.values(this.folders).filter((folder) => {
+      return keys.every((key) => folder.attributes()[key] === partial[key]);
+    });
+
+    return folders.map((folder) => Folder.from(folder.attributes()));
+  }
+
   async create(
     path: FolderPath,
     parentId: number,

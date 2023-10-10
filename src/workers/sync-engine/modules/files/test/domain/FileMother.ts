@@ -1,6 +1,7 @@
-import { FileStatuses } from '../../domain/FileStatus';
-import { File, FileAttributes } from '../../domain/File';
 import { ContentsIdMother } from '../../../contents/test/domain/ContentsIdMother';
+import { FolderUuid } from '../../../folders/domain/FolderUuid';
+import { File, FileAttributes } from '../../domain/File';
+import { FileStatuses } from '../../domain/FileStatus';
 import { FilePathMother } from './FilePathMother';
 
 export class FileMother {
@@ -14,6 +15,7 @@ export class FileMother {
       size: 8939,
       updatedAt: new Date().toISOString(),
       status: FileStatuses.EXISTS,
+      folderUuid: FolderUuid.random().value,
     });
   }
 
@@ -27,6 +29,7 @@ export class FileMother {
       size: 893924973,
       updatedAt: new Date().toISOString(),
       status: FileStatuses.EXISTS,
+      folderUuid: FolderUuid.random().value,
     });
   }
 
@@ -40,6 +43,7 @@ export class FileMother {
       size: 893924973,
       updatedAt: new Date().toISOString(),
       status: FileStatuses.EXISTS,
+      folderUuid: FolderUuid.random().value,
     });
   }
 
@@ -53,6 +57,7 @@ export class FileMother {
       size: 893924973,
       updatedAt: new Date().toISOString(),
       status: FileStatuses.EXISTS,
+      folderUuid: FolderUuid.random().value,
       ...partial,
     });
   }

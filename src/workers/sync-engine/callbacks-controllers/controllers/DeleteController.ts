@@ -1,8 +1,11 @@
-import { FolderDeleter } from 'workers/sync-engine/modules/folders/application/FolderDeleter';
-import { FileDeleter } from '../../modules/files/application/FileDeleter';
-import { CallbackController } from './CallbackController';
-import { DelayQueue } from 'workers/sync-engine/modules/shared/domain/DelayQueue';
 import Logger from 'electron-log';
+import { ChildrenFilesSearcher } from '../../modules/files/application/ChildrenFilesSearcher';
+import { FileDeleter } from '../../modules/files/application/FileDeleter';
+import { ChildrenFoldersSearcher } from '../../modules/folders/application/ChildrenFoldersSearcher';
+import { FolderDeleter } from '../../modules/folders/application/FolderDeleter';
+import { Folder } from '../../modules/folders/domain/Folder';
+import { DelayQueue } from '../../modules/shared/domain/DelayQueue';
+import { CallbackController } from './CallbackController';
 
 export class DeleteController extends CallbackController {
   private readonly filesQueue: DelayQueue;
@@ -10,7 +13,9 @@ export class DeleteController extends CallbackController {
 
   constructor(
     private readonly fileDeleter: FileDeleter,
-    private readonly folderDeleter: FolderDeleter
+    private readonly folderDeleter: FolderDeleter,
+    private readonly childrenFilesSearcher: ChildrenFilesSearcher,
+    private readonly childrenFoldersSearcher: ChildrenFoldersSearcher
   ) {
     super();
 
@@ -19,7 +24,25 @@ export class DeleteController extends CallbackController {
     };
 
     const deleteFolder = async (folder: string) => {
-      await this.folderDeleter.run(folder);
+      try {
+        await this.folderDeleter.run(folder);
+      } catch (error: unknown) {
+        Logger.error(error);
+
+        // If a folder deletion fails, we need to remove the children elements form the queue
+        const folders = this.childrenFoldersSearcher.run(folder);
+        const foldersUuid = folders.map((folder) => folder.uuid);
+
+        [...foldersUuid, folder]
+          .flatMap((uuid) => this.childrenFilesSearcher.run(uuid))
+          .forEach((file) => {
+            this.filesQueue.dequeue(file.contentsId);
+          });
+
+        folders.forEach((folder) => {
+          this.foldersQueue.dequeue(folder.uuid);
+        });
+      }
     };
 
     const canDeleteFolders = () => {
@@ -42,6 +65,15 @@ export class DeleteController extends CallbackController {
   }
 
   async execute(contentsId: string) {
+    // Gets triggered when a file or folder is deleted or moved to trash.
+    // In the case of folders first gets triggered by all the contents of the folder (files and folders).
+    // To be able to only delete only the root folder, the files and folders get queued and after a delay
+    // the deletion starts by deleting firs the folders in reverse order. The deletion use cases checks
+    // if the element has a folder in the upper levels already trashed and if it has it skips the deletion
+    // of the element.
+    // When folder deletion fails we search all the elements form that node and delete them from the
+    // queue.
+
     const trimmedId = this.trim(contentsId);
 
     if (this.isFilePlaceholder(trimmedId)) {
@@ -56,6 +88,10 @@ export class DeleteController extends CallbackController {
       Logger.debug(`Adding folder: ${folderUuid} to the trash queue`);
       this.foldersQueue.push(folderUuid);
       return;
+    }
+
+    if (trimmedId === Folder.ROOT_FOLDER_UUID) {
+      throw new Error('Cannot delete root folder');
     }
 
     throw new Error(`Placeholder Id not identified:  ${trimmedId}`);

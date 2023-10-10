@@ -10,6 +10,7 @@ import { LocalRepositoryRepositoryRefresher } from '../../modules/files/applicat
 import { FileClearer } from '../../modules/files/application/FileClearer';
 import { ManagedFileRepository } from 'workers/sync-engine/modules/files/domain/ManagedFileRepository';
 import { SameFileWasMoved } from '../../modules/files/application/SameFileWasMoved';
+import { ChildrenFilesSearcher } from '../../modules/files/application/ChildrenFilesSearcher';
 
 export interface FilesContainer {
   fileFinderByContentsId: FileFinderByContentsId;
@@ -24,4 +25,5 @@ export interface FilesContainer {
   fileClearer: FileClearer;
   managedFileRepository: ManagedFileRepository;
   sameFileWasMoved: SameFileWasMoved;
+  childrenFilesSearcher: ChildrenFilesSearcher;
 }

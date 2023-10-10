@@ -7,6 +7,8 @@ export interface FolderRepository {
 
   searchByPartial(partial: Partial<FolderAttributes>): Nullable<Folder>;
 
+  matchingPartial(partial: Partial<FolderAttributes>): Array<Folder>;
+
   create(
     name: FolderPath,
     parentId: FolderAttributes['parentId'],

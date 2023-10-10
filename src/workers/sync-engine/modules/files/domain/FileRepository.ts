@@ -8,6 +8,8 @@ export interface FileRepository {
 
   searchByPartial(partial: Partial<FileAttributes>): Nullable<File>;
 
+  matchingPartial(partial: Partial<FileAttributes>): Array<File>;
+
   delete(file: File): Promise<void>;
 
   add(file: File): Promise<void>;
