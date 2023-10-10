@@ -37,7 +37,7 @@ export class DelayQueue {
         return;
       }
 
-      Logger.debug(this.name, ' loop blocked');
+      Logger.debug(this.name, 'delay queue blocked');
       this.setTimeout();
     }, DelayQueue.DELAY);
   }

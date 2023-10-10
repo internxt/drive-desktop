@@ -2,6 +2,7 @@ import { FolderDeleter } from 'workers/sync-engine/modules/folders/application/F
 import { FileDeleter } from '../../modules/files/application/FileDeleter';
 import { CallbackController } from './CallbackController';
 import { DelayQueue } from 'workers/sync-engine/modules/shared/domain/DelayQueue';
+import Logger from 'electron-log';
 
 export class DeleteController extends CallbackController {
   private readonly filesQueue: DelayQueue;
@@ -45,12 +46,14 @@ export class DeleteController extends CallbackController {
 
     if (this.isFilePlaceholder(trimmedId)) {
       const [_, contentsId] = trimmedId.split(':');
+      Logger.debug(`Adding file: ${contentsId} to the trash queue`);
       this.filesQueue.push(contentsId);
       return;
     }
 
     if (this.isFolderPlaceholder(trimmedId)) {
       const [_, folderUuid] = trimmedId.split(':');
+      Logger.debug(`Adding folder: ${folderUuid} to the trash queue`);
       this.foldersQueue.push(folderUuid);
       return;
     }
