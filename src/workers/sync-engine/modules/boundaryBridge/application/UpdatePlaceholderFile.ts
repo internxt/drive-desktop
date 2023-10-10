@@ -9,7 +9,7 @@ import { FileMovedDomainEvent } from '../../files/domain/events/FileMovedDomainE
 import { LocalFileIdProvider } from '../../shared/application/LocalFileIdProvider';
 import { FileRenamedDomainEvent } from '../../files/domain/events/FileRenamedDomainEvent';
 import { EventHistory } from '../../shared/domain/EventRepository';
-import { FileStatus } from '../../files/domain/FileStatus';
+import { FileStatuses } from '../../files/domain/FileStatus';
 
 export class UpdatePlaceholderFile {
   constructor(
@@ -22,11 +22,10 @@ export class UpdatePlaceholderFile {
   ) {}
 
   private hasToBeDeleted(local: File, remote: File): boolean {
-    return (
-      local.status === FileStatus.Exists &&
-      (remote.status === FileStatus.Trashed ||
-        remote.status === FileStatus.Deleted)
-    );
+    const localExists = local.status.is(FileStatuses.EXISTS);
+    const remoteIsTrashed = remote.status.is(FileStatuses.TRASHED);
+    const remoteIsDeleted = remote.status.is(FileStatuses.DELETED);
+    return localExists && (remoteIsTrashed || remoteIsDeleted);
   }
 
   async run(remote: File): Promise<void> {
@@ -35,7 +34,7 @@ export class UpdatePlaceholderFile {
     });
 
     if (!local) {
-      if (remote.status === FileStatus.Exists) {
+      if (remote.status.is(FileStatuses.EXISTS)) {
         Logger.debug('Creating file placeholder: ', remote.path.value);
         await this.managedFileRepository.insert(remote);
         this.virtualDrivePlaceholderCreator.file(remote);
