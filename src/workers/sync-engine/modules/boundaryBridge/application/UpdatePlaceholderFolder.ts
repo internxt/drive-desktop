@@ -7,7 +7,7 @@ import { RelativePathToAbsoluteConverter } from '../../shared/application/Relati
 import Logger from 'electron-log';
 import path from 'path';
 
-export class SyncRemoteFolder {
+export class UpdatePlaceholderFolder {
   constructor(
     private readonly folderByPartialSearcher: FolderByPartialSearcher,
     private readonly managedFolderRepository: ManagedFolderRepository,

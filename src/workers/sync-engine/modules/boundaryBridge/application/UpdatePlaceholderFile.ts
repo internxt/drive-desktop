@@ -9,8 +9,9 @@ import { FileMovedDomainEvent } from '../../files/domain/events/FileMovedDomainE
 import { LocalFileIdProvider } from '../../shared/application/LocalFileIdProvider';
 import { FileRenamedDomainEvent } from '../../files/domain/events/FileRenamedDomainEvent';
 import { EventHistory } from '../../shared/domain/EventRepository';
+import { FileStatus } from '../../files/domain/FileStatus';
 
-export class SyncRemoteFile {
+export class UpdatePlaceholderFile {
   constructor(
     private readonly fileByPartialSearcher: FileByPartialSearcher,
     private readonly managedFileRepository: ManagedFileRepository,
@@ -20,15 +21,25 @@ export class SyncRemoteFile {
     private readonly eventHistory: EventHistory
   ) {}
 
+  private hasToBeDeleted(local: File, remote: File): boolean {
+    return (
+      local.status === FileStatus.Exists &&
+      (remote.status === FileStatus.Trashed ||
+        remote.status === FileStatus.Deleted)
+    );
+  }
+
   async run(remote: File): Promise<void> {
     const local = this.fileByPartialSearcher.run({
       contentsId: remote.contentsId,
     });
 
     if (!local) {
-      Logger.debug('Creating file placeholder: ', remote.path.value);
-      await this.managedFileRepository.insert(remote);
-      this.virtualDrivePlaceholderCreator.file(remote);
+      if (remote.status === FileStatus.Exists) {
+        Logger.debug('Creating file placeholder: ', remote.path.value);
+        await this.managedFileRepository.insert(remote);
+        this.virtualDrivePlaceholderCreator.file(remote);
+      }
       return;
     }
 
@@ -63,6 +74,14 @@ export class SyncRemoteFile {
         );
         await fs.rename(win32AbsolutePath, newWin32AbsolutePath);
       }
+    }
+
+    if (this.hasToBeDeleted(local, remote)) {
+      const win32AbsolutePath = this.relativePathToAbsoluteConverter.run(
+        local.path.value
+      );
+      await fs.unlink(win32AbsolutePath);
+      return;
     }
   }
 }

@@ -1,7 +1,7 @@
 import { ContentsIdMother } from '../../../contents/test/domain/ContentsIdMother';
 import { ServerFile } from '../../../../../filesystems/domain/ServerFile';
 import { ServerFolder } from '../../../../../filesystems/domain/ServerFolder';
-import { Traverser } from '../../../items/application/Traverser';
+import { ExistingItemsTraverser } from '../../application/ExistingItemsTraverser';
 
 const fakeDecrypt = {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -23,7 +23,7 @@ describe('Traverser', () => {
       ],
       folders: [],
     };
-    const SUT = new Traverser(fakeDecrypt, baseFolderId);
+    const SUT = new ExistingItemsTraverser(fakeDecrypt, baseFolderId);
 
     const result = SUT.run(rawTree);
 
@@ -52,7 +52,7 @@ describe('Traverser', () => {
         } as ServerFolder,
       ],
     };
-    const SUT = new Traverser(fakeDecrypt, baseFolderId);
+    const SUT = new ExistingItemsTraverser(fakeDecrypt, baseFolderId);
 
     const result = SUT.run(rawTree);
 
@@ -77,7 +77,7 @@ describe('Traverser', () => {
         } as ServerFolder,
       ],
     };
-    const SUT = new Traverser(fakeDecrypt, baseFolderId);
+    const SUT = new ExistingItemsTraverser(fakeDecrypt, baseFolderId);
 
     const result = SUT.run(rawTree);
 
@@ -105,7 +105,7 @@ describe('Traverser', () => {
         } as ServerFolder,
       ],
     };
-    const SUT = new Traverser(fakeDecrypt, baseFolderId);
+    const SUT = new ExistingItemsTraverser(fakeDecrypt, baseFolderId);
 
     const result = SUT.run(rawTree);
 
@@ -137,7 +137,7 @@ describe('Traverser', () => {
         } as ServerFolder,
       ],
     };
-    const SUT = new Traverser(fakeDecrypt, baseFolderId);
+    const SUT = new ExistingItemsTraverser(fakeDecrypt, baseFolderId);
 
     const result = SUT.run(rawTree);
 
@@ -176,7 +176,7 @@ describe('Traverser', () => {
       ],
       folders: [],
     };
-    const SUT = new Traverser(fakeDecrypt, baseFolderId);
+    const SUT = new ExistingItemsTraverser(fakeDecrypt, baseFolderId);
 
     const result = SUT.run(rawTree);
 
@@ -198,7 +198,7 @@ describe('Traverser', () => {
         {} as ServerFolder,
       ],
     };
-    const SUT = new Traverser(fakeDecrypt, baseFolderId);
+    const SUT = new ExistingItemsTraverser(fakeDecrypt, baseFolderId);
 
     const result = SUT.run(rawTree);
 

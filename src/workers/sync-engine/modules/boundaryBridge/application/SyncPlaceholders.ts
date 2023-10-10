@@ -1,5 +1,5 @@
-import { SyncRemoteFile } from './SyncRemoteFile';
-import { SyncRemoteFolder } from './SyncRemoteFolder';
+import { UpdatePlaceholderFile } from './UpdatePlaceholderFile';
+import { UpdatePlaceholderFolder } from './UpdatePlaceholderFolder';
 import { File } from '../../files/domain/File';
 import { Folder } from '../../folders/domain/Folder';
 import { TreeBuilder } from '../../items/application/TreeBuilder';
@@ -7,8 +7,8 @@ import { TreeBuilder } from '../../items/application/TreeBuilder';
 export class SyncPlaceholders {
   constructor(
     private readonly treeBuilder: TreeBuilder,
-    private readonly syncFileRemoteChanges: SyncRemoteFile,
-    private readonly syncFolderRemoteChanges: SyncRemoteFolder
+    private readonly updatePlaceholderFile: UpdatePlaceholderFile,
+    private readonly updatePlaceholderFolder: UpdatePlaceholderFolder
   ) {}
 
   async run() {
@@ -19,7 +19,7 @@ export class SyncPlaceholders {
     ) as Array<Folder>;
 
     const foldersActualization = folders.map((folder) => {
-      this.syncFolderRemoteChanges.run(folder);
+      this.updatePlaceholderFolder.run(folder);
     });
 
     await Promise.all(foldersActualization);
@@ -29,7 +29,7 @@ export class SyncPlaceholders {
     ) as Array<File>;
 
     const filesActualization = files.map((file) =>
-      this.syncFileRemoteChanges.run(file)
+      this.updatePlaceholderFile.run(file)
     );
 
     await Promise.all(filesActualization);

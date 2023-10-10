@@ -1,18 +1,13 @@
 import Logger from 'electron-log';
-import {
-  ServerFile,
-  ServerFileStatus,
-} from '../../../../filesystems/domain/ServerFile';
-import {
-  ServerFolder,
-  ServerFolderStatus,
-} from '../../../../filesystems/domain/ServerFolder';
+import { ServerFile } from '../../../../filesystems/domain/ServerFile';
+import { ServerFolder } from '../../../../filesystems/domain/ServerFolder';
 import { fileNameIsValid } from '../../../../utils/name-verification';
 import { File } from '../../files/domain/File';
 import { FolderStatus } from '../../folders/domain/FolderStatus';
 import { Folder } from '../../folders/domain/Folder';
 import { ItemsIndexedByPath } from '../domain/ItemsIndexedByPath';
 import { EitherTransformer } from '../../shared/application/EitherTransformer';
+import { Traverser } from '../domain/Traverser';
 
 function fileFromServerFile(relativePath: string, server: ServerFile): File {
   return File.from({
@@ -27,7 +22,7 @@ function fileFromServerFile(relativePath: string, server: ServerFile): File {
   });
 }
 
-export class Traverser {
+export class AllStatusesTraverser implements Traverser {
   private readonly collection: ItemsIndexedByPath = {};
   private static readonly ROOT_FOLDER_UUID =
     '43711926-15c2-5ebf-8c24-5099fa9af3c3';
@@ -81,9 +76,6 @@ export class Traverser {
         return true;
       })
       .forEach(({ file, name }) => {
-        if (file.status !== ServerFileStatus.EXISTS) {
-          return;
-        }
         EitherTransformer.handleWithEither(() =>
           fileFromServerFile(name, file)
         ).fold(
@@ -111,8 +103,6 @@ export class Traverser {
 
       const name = `${currentName}/${plainName}`;
 
-      if (folder.status !== ServerFolderStatus.EXISTS) return;
-
       this.collection[name] = Folder.from({
         id: folder.id,
         uuid: folder.uuid,
@@ -134,7 +124,7 @@ export class Traverser {
 
     this.collection['/'] = Folder.from({
       id: this.baseFolderId,
-      uuid: Traverser.ROOT_FOLDER_UUID,
+      uuid: AllStatusesTraverser.ROOT_FOLDER_UUID,
       parentId: null,
       updatedAt: new Date().toISOString(),
       createdAt: new Date().toISOString(),
@@ -153,7 +143,7 @@ export class Traverser {
 
     this.collection['/'] = Folder.from({
       id: this.baseFolderId,
-      uuid: Traverser.ROOT_FOLDER_UUID,
+      uuid: AllStatusesTraverser.ROOT_FOLDER_UUID,
       parentId: null,
       updatedAt: new Date().toISOString(),
       createdAt: new Date().toISOString(),

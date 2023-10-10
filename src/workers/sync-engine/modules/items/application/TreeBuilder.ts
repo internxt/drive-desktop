@@ -1,7 +1,7 @@
 import { File } from '../../files/domain/File';
 import { Folder } from '../../folders/domain/Folder';
 import { RemoteItemsGenerator } from './RemoteItemsGenerator';
-import { Traverser } from './Traverser';
+import { Traverser } from '../domain/Traverser';
 
 export class TreeBuilder {
   constructor(
