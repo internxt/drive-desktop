@@ -1,7 +1,7 @@
-import { EventRecorder } from 'workers/sync-engine/modules/shared/infrastructure/EventRecorder';
+import { EventRecorder } from '../../modules/shared/infrastructure/EventRecorder';
 import { EventBus } from '../../modules/shared/domain/EventBus';
 import { NodeJsEventBus } from '../../modules/shared/infrastructure/NodeJsEventBus';
-import { DependencyInjectionEventHistory } from './eventHistory';
+import { DependencyInjectionEventRepository } from './eventRepository';
 
 export class DependencyInjectionEventBus {
   private static _bus: EventBus;
@@ -13,7 +13,7 @@ export class DependencyInjectionEventBus {
 
     const eventBus = new NodeJsEventBus();
 
-    const eventHistory = DependencyInjectionEventHistory.get();
+    const eventHistory = DependencyInjectionEventRepository.get();
 
     const bus = new EventRecorder(eventHistory, eventBus);
 

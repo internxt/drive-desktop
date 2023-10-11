@@ -1,6 +1,6 @@
 import { Environment } from '@internxt/inxt-js';
-import { RetryContentsUploader } from 'workers/sync-engine/modules/contents/application/RetryContentsUploader';
-import { FSLocalFileWriter } from 'workers/sync-engine/modules/contents/infrastructure/FSLocalFileWriter';
+import { RetryContentsUploader } from '../../modules/contents/application/RetryContentsUploader';
+import { FSLocalFileWriter } from '../../modules/contents/infrastructure/FSLocalFileWriter';
 import { ipcRendererSyncEngine } from '../../ipcRendererSyncEngine';
 import { ContentsDownloader } from '../../modules/contents/application/ContentsDownloader';
 import { ContentsUploader } from '../../modules/contents/application/ContentsUploader';
@@ -11,12 +11,14 @@ import { DependencyInjectionMnemonicProvider } from '../common/mnemonic';
 import { DependencyInjectionUserProvider } from '../common/user';
 import { SharedContainer } from '../shared/SharedContainer';
 import { ContentsContainer } from './ContentsContainer';
+import { DependencyInjectionEventBus } from '../common/eventBus';
 
 export async function buildContentsContainer(
   sharedContainer: SharedContainer
 ): Promise<ContentsContainer> {
   const user = DependencyInjectionUserProvider.get();
   const mnemonic = DependencyInjectionMnemonicProvider.get();
+  const { bus: eventBus } = DependencyInjectionEventBus;
 
   const environment = new Environment({
     bridgeUrl: process.env.BRIDGE_URL,
@@ -44,7 +46,8 @@ export async function buildContentsContainer(
     contentsManagerFactory,
     localWriter,
     ipcRendererSyncEngine,
-    temporalFolderProvider
+    temporalFolderProvider,
+    eventBus
   );
 
   return {

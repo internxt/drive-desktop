@@ -1,11 +1,11 @@
 import { DomainEvent } from '../domain/DomainEvent';
 import { EventBus } from '../domain/EventBus';
-import { EventHistory } from '../domain/EventRepository';
+import { EventRepository } from '../domain/EventRepository';
 import { DomainEventSubscribers } from './DomainEventSubscribers';
 
 export class EventRecorder implements EventBus {
   constructor(
-    private readonly history: EventHistory,
+    private readonly history: EventRepository,
     private readonly bus: EventBus
   ) {}
 

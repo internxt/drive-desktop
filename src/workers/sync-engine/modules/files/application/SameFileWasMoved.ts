@@ -1,5 +1,5 @@
 import { LocalFileIdProvider } from '../../shared/application/LocalFileIdProvider';
-import { EventHistory } from '../../shared/domain/EventRepository';
+import { EventRepository } from '../../shared/domain/EventRepository';
 import { FilePath } from '../domain/FilePath';
 import { FileMovedDomainEvent } from '../domain/events/FileMovedDomainEvent';
 import { FileByPartialSearcher } from './FileByPartialSearcher';
@@ -12,7 +12,7 @@ export class SameFileWasMoved {
   constructor(
     private readonly fileByPartialSearcher: FileByPartialSearcher,
     private readonly localFileIdProvider: LocalFileIdProvider,
-    private readonly eventHistory: EventHistory
+    private readonly eventHistory: EventRepository
   ) {}
 
   async run(path: FilePath): Promise<WasMovedResult> {

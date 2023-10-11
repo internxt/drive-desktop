@@ -8,7 +8,7 @@ import Logger from 'electron-log';
 import { FileMovedDomainEvent } from '../../files/domain/events/FileMovedDomainEvent';
 import { LocalFileIdProvider } from '../../shared/application/LocalFileIdProvider';
 import { FileRenamedDomainEvent } from '../../files/domain/events/FileRenamedDomainEvent';
-import { EventHistory } from '../../shared/domain/EventRepository';
+import { EventRepository } from '../../shared/domain/EventRepository';
 import { FileStatuses } from '../../files/domain/FileStatus';
 
 export class UpdatePlaceholderFile {
@@ -18,7 +18,7 @@ export class UpdatePlaceholderFile {
     private readonly virtualDrivePlaceholderCreator: PlaceholderCreator,
     private readonly relativePathToAbsoluteConverter: RelativePathToAbsoluteConverter,
     private readonly localFileIdProvider: LocalFileIdProvider,
-    private readonly eventHistory: EventHistory
+    private readonly eventHistory: EventRepository
   ) {}
 
   private hasToBeDeleted(local: File, remote: File): boolean {

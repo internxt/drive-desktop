@@ -4,19 +4,19 @@ import { ContentFileDownloader } from '../domain/contentHandlers/ContentFileDown
 import { File } from '../../files/domain/File';
 import { LocalFileContents } from '../domain/LocalFileContents';
 import { LocalFileWriter } from '../domain/LocalFileWriter';
-import { Stopwatch } from '../../../../../shared/types/Stopwatch';
-import { ensureFolderExists } from 'shared/fs/ensure-folder-exists';
+import { ensureFolderExists } from '../../../../../shared/fs/ensure-folder-exists';
 import path from 'path';
-import Logger from 'electron-log';
-import { CallbackDownload } from 'workers/sync-engine/BindingManager';
+import { CallbackDownload } from '../../../BindingManager';
 import { TemporalFolderProvider } from './temporalFolderProvider';
+import { EventBus } from '../../shared/domain/EventBus';
 
 export class ContentsDownloader {
   constructor(
     private readonly managerFactory: ContentsManagersFactory,
     private readonly localWriter: LocalFileWriter,
     private readonly ipc: SyncEngineIpc,
-    private readonly temporalFolderProvider: TemporalFolderProvider
+    private readonly temporalFolderProvider: TemporalFolderProvider,
+    private readonly eventBus: EventBus
   ) {}
 
   private async registerEvents(
@@ -60,13 +60,8 @@ export class ContentsDownloader {
     });
 
     downloader.on('finish', () => {
-      this.ipc.send('FILE_DOWNLOADED', {
-        name: file.name,
-        extension: file.type,
-        nameWithExtension: file.nameWithExtension,
-        size: file.size,
-        processInfo: { elapsedTime: downloader.elapsedTime() },
-      });
+      // The file download being finished does not mean it has been hidratated
+      // TODO: We might want to track this time instead of the whole completion time
     });
   }
 
@@ -75,24 +70,17 @@ export class ContentsDownloader {
 
     this.registerEvents(downloader, file, cb);
 
-    const stopwatch = new Stopwatch();
-
-    Logger.debug('Start download');
-    stopwatch.start();
     const readable = await downloader.download(file);
-    Logger.debug('Download finished with: ', stopwatch.elapsedTime());
-    const localContents = LocalFileContents.from({
-      name: file.name,
-      extension: file.type,
-      size: file.size,
-      birthTime: file.createdAt.getUTCMilliseconds(),
-      modifiedTime: file.updatedAt.getUTCMilliseconds(),
-      contents: readable,
-    });
-    Logger.debug('Start write ');
-    stopwatch.reset();
-    stopwatch.start();
+    const localContents = LocalFileContents.downloadedFrom(
+      file,
+      readable,
+      downloader.elapsedTime()
+    );
+
     const write = await this.localWriter.write(localContents);
+
+    const events = localContents.pullDomainEvents();
+    await this.eventBus.publish(events);
 
     return write;
   }

@@ -1,10 +1,10 @@
-import { FilePlaceholderId } from 'workers/sync-engine/modules/placeholders/domain/FilePlaceholderId';
+import { FilePlaceholderId } from '../../modules/placeholders/domain/FilePlaceholderId';
 import { ContentsDownloader } from '../../modules/contents/application/ContentsDownloader';
 import { FileFinderByContentsId } from '../../modules/files/application/FileFinderByContentsId';
 import { LocalRepositoryRepositoryRefresher } from '../../modules/files/application/LocalRepositoryRepositoryRefresher';
 import { CallbackController } from './CallbackController';
 import Logger from 'electron-log';
-import { CallbackDownload } from 'workers/sync-engine/BindingManager';
+import { CallbackDownload } from '../../BindingManager';
 
 export class DownloadFileController extends CallbackController {
   constructor(
@@ -22,10 +22,10 @@ export class DownloadFileController extends CallbackController {
   }
 
   async execute(
-    contentsId: FilePlaceholderId,
+    filePlaceholderId: FilePlaceholderId,
     cb: CallbackDownload
   ): Promise<string> {
-    const trimmedId = this.trim(contentsId);
+    const trimmedId = this.trim(filePlaceholderId);
 
     try {
       const [_, contentsId] = trimmedId.split(':');
