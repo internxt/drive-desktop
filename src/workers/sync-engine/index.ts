@@ -57,9 +57,9 @@ async function setUp() {
     try {
       await bindings.stop();
 
-      VirtualDrive.unregisterSyncRoot(virtualDrivePath);
+      await VirtualDrive.unregisterSyncRoot(virtualDrivePath);
 
-      Logger.info('[SYNC ENGINE] sync engine stopped successfully');
+      Logger.info('[SYNC ENGINE] sync engine stopped and cleared successfully');
 
       event.sender.send('SYNC_ENGINE_STOP_AND_CLEAR_SUCCESS');
     } catch (error: unknown) {
@@ -73,7 +73,7 @@ async function setUp() {
     '{E9D7EB38-B229-5DC5-9396-017C449D59CD}'
   );
 
-  container.treePlaceholderCreator.run();
+  await container.treePlaceholderCreator.run();
 
   bindings.watch();
 }

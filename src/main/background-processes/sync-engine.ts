@@ -5,8 +5,20 @@ import eventBus from '../event-bus';
 
 let worker: BrowserWindow | null = null;
 let workerIsRunning = false;
+let startingWorker = false;
 
 function spawnSyncEngineWorker() {
+  if (startingWorker) {
+    Logger.info('[MAIN] Worker is already starting');
+    return;
+  }
+  if (workerIsRunning) {
+    Logger.info('[MAIN] Worker is already running');
+    return;
+  }
+
+  startingWorker = true;
+
   worker = new BrowserWindow({
     webPreferences: {
       nodeIntegration: true,
@@ -32,14 +44,16 @@ function spawnSyncEngineWorker() {
     worker?.destroy();
   });
 
-  ipcMain.on('SYNC_ENGINE_PROCESS_SETUP_SUCCESSFUL', () => {
+  ipcMain.once('SYNC_ENGINE_PROCESS_SETUP_SUCCESSFUL', () => {
     Logger.debug('[MAIN] SYNC ENGINE RUNNING');
     workerIsRunning = true;
+    startingWorker = false;
   });
 
   ipcMain.on('SYNC_ENGINE_PROCESS_SETUP_FAILED', () => {
     Logger.debug('[MAIN] SYNC ENGINE NOT RUNNING');
     workerIsRunning = false;
+    startingWorker = false;
   });
 }
 
