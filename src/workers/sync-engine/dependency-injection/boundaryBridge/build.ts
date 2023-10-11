@@ -10,7 +10,7 @@ import { UpdatePlaceholderFile } from 'workers/sync-engine/modules/boundaryBridg
 import { SharedContainer } from '../shared/SharedContainer';
 import { SyncPlaceholders } from 'workers/sync-engine/modules/boundaryBridge/application/SyncPlaceholders';
 import { UpdatePlaceholderFolder } from 'workers/sync-engine/modules/boundaryBridge/application/UpdatePlaceholderFolder';
-import { DependencyInjectionEventHistory } from '../common/eventHistory';
+import { DependencyInjectionEventRepository } from '../common/eventRepository';
 
 export function buildBoundaryBridgeContainer(
   contentsContainer: ContentsContainer,
@@ -20,7 +20,7 @@ export function buildBoundaryBridgeContainer(
   placeholderContainer: PlaceholderContainer,
   sharedContainer: SharedContainer
 ): BoundaryBridgeContainer {
-  const eventHistory = DependencyInjectionEventHistory.get();
+  const eventHistory = DependencyInjectionEventRepository.get();
 
   const fileCreationOrchestrator = new FileCreationOrchestrator(
     contentsContainer.contentsUploader,

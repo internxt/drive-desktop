@@ -20,7 +20,7 @@ import { FilesContainer } from './FilesContainer';
 import { FileClearer } from '../../modules/files/application/FileClearer';
 import { SharedContainer } from '../shared/SharedContainer';
 import { SameFileWasMoved } from 'workers/sync-engine/modules/files/application/SameFileWasMoved';
-import { DependencyInjectionEventHistory } from '../common/eventHistory';
+import { DependencyInjectionEventRepository } from '../common/eventRepository';
 
 export async function buildFilesContainer(
   folderContainer: FoldersContainer,
@@ -34,7 +34,7 @@ export async function buildFilesContainer(
   const traverser = DependencyInjectionTraverserProvider.get();
   const user = DependencyInjectionUserProvider.get();
   const { bus: eventBus } = DependencyInjectionEventBus;
-  const eventHistory = DependencyInjectionEventHistory.get();
+  const eventHistory = DependencyInjectionEventRepository.get();
 
   const fileRepository = new HttpFileRepository(
     crypt,

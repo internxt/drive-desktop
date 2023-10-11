@@ -6,11 +6,13 @@ import { FileDownloadEvents } from '../../domain/contentHandlers/ContentFileDown
 import { ReadableHelloWorld } from '../__mocks__/ReadableHelloWorld';
 import { LocalFileWriterMock } from '../__mocks__/LocalFileWriterMock';
 import { temporalFolderProvider } from '../../application/temporalFolderProvider';
+import { EventBusMock } from '../../../shared/test/__mock__/EventBusMock';
 
 describe('Contents Downloader', () => {
   let localWriter: LocalFileWriterMock;
   let factory: RemoteFileContentsManagersFactoryMock;
   let ipc: IpcRendererSyncEngineMock;
+  let eventBus: EventBusMock;
 
   let SUT: ContentsDownloader;
 
@@ -18,12 +20,14 @@ describe('Contents Downloader', () => {
     factory = new RemoteFileContentsManagersFactoryMock();
     localWriter = new LocalFileWriterMock();
     ipc = new IpcRendererSyncEngineMock();
+    eventBus = new EventBusMock();
 
     SUT = new ContentsDownloader(
       factory,
       localWriter,
       ipc,
-      temporalFolderProvider
+      temporalFolderProvider,
+      eventBus
     );
   });
 
