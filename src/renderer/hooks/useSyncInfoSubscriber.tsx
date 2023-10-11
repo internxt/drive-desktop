@@ -7,7 +7,6 @@ export function useSyncInfoSubscriber() {
   >([]);
 
   function onSyncItem(item: ProcessInfoUpdatePayload) {
-    console.log('INFO', item);
     const MAX_ITEMS = 50;
 
     setProcessInfoUpdatedPayload((currentItems) => {
