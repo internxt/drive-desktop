@@ -19,7 +19,7 @@ export class FileCreationOrchestrator {
     if (wasMoved.result) {
       // When a file gets moved, a file creation get triggered.
       // if we find out that its the same file return the contents Id of that file
-      return wasMoved.contentsId;
+      throw new Error('File was moved here');
     }
 
     const fileContents = await this.contentsUploader.run(posixRelativePath);
