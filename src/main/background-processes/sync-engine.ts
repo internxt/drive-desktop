@@ -42,6 +42,12 @@ function spawnSyncEngineWorker() {
 
   worker.on('close', () => {
     worker?.destroy();
+
+    if (workerIsRunning) {
+      Logger.warn('The sync engine process ended unexpectedly, relaunching');
+      workerIsRunning = false;
+      spawnSyncEngineWorker();
+    }
   });
 
   ipcMain.once('SYNC_ENGINE_PROCESS_SETUP_SUCCESSFUL', () => {
