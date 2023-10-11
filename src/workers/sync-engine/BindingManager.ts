@@ -76,13 +76,14 @@ export class BindingsManager {
           while (!finished) {
             finished = callback(true, path);
             Logger.debug('condition', finished);
-            try {
-              await controllers.notifyPlaceholderHydrationFinished.execute(
-                contentsId
-              );
-            } catch (error) {
-              Logger.error('notify: ', error);
-            }
+          }
+
+          try {
+            await controllers.notifyPlaceholderHydrationFinished.execute(
+              contentsId
+            );
+          } catch (error) {
+            Logger.error('notify: ', error);
           }
 
           // Esperar hasta que la ejecución de fetchDataCallback esté completa antes de continuar
