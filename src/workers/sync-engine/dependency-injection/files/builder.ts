@@ -75,7 +75,7 @@ export async function buildFilesContainer(
     folderContainer.folderFinder,
     ipcRendererSyncEngine,
     sharedContainer.localFileIdProvider,
-    eventHistory
+    eventBus
   );
 
   const fileCreator = new FileCreator(

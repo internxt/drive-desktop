@@ -7,7 +7,7 @@ import { FolderFinderMock } from '../../../folders/test/__mocks__/FolderFinderMo
 import { FileFinderByContentsId } from '../../application/FileFinderByContentsId';
 import { IpcRendererSyncEngineMock } from '../../../shared/test/__mock__/IpcRendererSyncEngineMock';
 import { LocalFileIdProvider } from 'workers/sync-engine/modules/shared/application/LocalFileIdProvider';
-import { InMemoryEventHistory } from 'workers/sync-engine/modules/shared/infrastructure/InMemoryEventHistory';
+import { EventBusMock } from 'workers/sync-engine/modules/shared/test/__mock__/EventBusMock';
 
 describe('File path updater', () => {
   let repository: FileRepositoryMock;
@@ -15,7 +15,7 @@ describe('File path updater', () => {
   let folderFinder: FolderFinderMock;
   let ipcRendererMock: IpcRendererSyncEngineMock;
   let localFileIdProvider: LocalFileIdProvider;
-  let eventHistory: InMemoryEventHistory;
+  let eventBus: EventBusMock;
   let SUT: FilePathUpdater;
 
   beforeEach(() => {
@@ -23,6 +23,7 @@ describe('File path updater', () => {
     folderFinder = new FolderFinderMock();
     fileFinderByContentsId = new FileFinderByContentsId(repository);
     ipcRendererMock = new IpcRendererSyncEngineMock();
+    eventBus = new EventBusMock();
 
     SUT = new FilePathUpdater(
       repository,
@@ -30,7 +31,7 @@ describe('File path updater', () => {
       folderFinder as unknown as FolderFinder,
       ipcRendererMock,
       localFileIdProvider,
-      eventHistory
+      eventBus
     );
   });
 

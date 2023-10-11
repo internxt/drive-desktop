@@ -2,12 +2,12 @@ import { AggregateRoot } from '../../shared/domain/AggregateRoot';
 import { Folder } from '../../folders/domain/Folder';
 import { FilePath } from './FilePath';
 import { FileSize } from './FileSize';
-import { FileCreatedDomainEvent } from './FileCreatedDomainEvent';
+import { FileCreatedDomainEvent } from './events/FileCreatedDomainEvent';
 import { FileCannotBeMovedToTheOriginalFolderError } from './errors/FileCannotBeMovedToTheOriginalFolderError';
 import { FileActionOnlyCanAffectOneLevelError } from './errors/FileActionOnlyCanAffectOneLevelError';
 import { FileNameShouldDifferFromOriginalError } from './errors/FileNameShouldDifferFromOriginalError';
 import { FileActionCannotModifyExtension } from './errors/FileActionCannotModifyExtension';
-import { FileDeletedDomainEvent } from './FileDeletedDomainEvent';
+import { FileDeletedDomainEvent } from './events/FileDeletedDomainEvent';
 import { FileStatus, FileStatuses } from './FileStatus';
 import { ContentsId } from '../../contents/domain/ContentsId';
 import { FileMovedDomainEvent } from './events/FileMovedDomainEvent';
@@ -138,50 +138,6 @@ export class File extends AggregateRoot {
         trackerId,
       })
     );
-  }
-
-  clone(contentsId: string, folderId: number, newPath: FilePath) {
-    const file = new File(
-      new ContentsId(contentsId),
-      folderId,
-      newPath,
-      this._size,
-      this.createdAt,
-      new Date(),
-      FileStatus.Exists
-    );
-
-    file.record(
-      new FileCreatedDomainEvent({
-        aggregateId: contentsId,
-        size: this._size.value,
-        type: this._path.extension(),
-      })
-    );
-
-    return file;
-  }
-
-  overwrite(contentsId: string, folderId: number, newPath: FilePath) {
-    const file = new File(
-      new ContentsId(contentsId),
-      folderId,
-      newPath,
-      this._size,
-      this.createdAt,
-      new Date(),
-      FileStatus.Exists
-    );
-
-    file.record(
-      new FileCreatedDomainEvent({
-        aggregateId: contentsId,
-        size: this._size.value,
-        type: this._path.extension(),
-      })
-    );
-
-    return file;
   }
 
   rename(newPath: FilePath) {
