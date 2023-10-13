@@ -1,3 +1,4 @@
+import { FileErrorInfo } from 'shared/IPC/events/drive';
 import { ipcMainDrive } from './ipcs/mainDrive';
 import { broadcastToWindows } from './windows';
 
@@ -121,7 +122,7 @@ ipcMainDrive.on('FILE_RENAME_ERROR', (_, payload) => {
   });
 });
 
-ipcMainDrive.on('FILE_DELETION_ERROR', (_, payload) => {
+ipcMainDrive.on('FILE_DELETION_ERROR', (_, payload: FileErrorInfo) => {
   const { nameWithExtension } = payload;
 
   broadcastToWindows('sync-info-update', {

@@ -1,5 +1,6 @@
 import { DriveFile } from 'main/database/entities/DriveFile';
 import { DriveFolder } from 'main/database/entities/DriveFolder';
+import { ProcessInfoUpdatePayload } from 'workers/types';
 
 const trackedEvents = [
   'delete',
@@ -124,9 +125,16 @@ export type SyncEngineInvocableFunctions = {
   START_REMOTE_SYNC: () => Promise<void>;
 };
 
+// TODO: change how errors are reported to the ui
+export type ProcessInfoUpdate = {
+  SYNC_INFO_UPDATE: (payload: ProcessInfoUpdatePayload) => void;
+};
+
 export type FromProcess = FilesEvents &
   FolderEvents &
-  SyncEngineInvocableFunctions;
+  SyncEngineInvocableFunctions &
+  ProcessInfoUpdate;
+
 export type FromMain = {
   [key: string]: (...args: Array<any>) => any;
 };

@@ -213,7 +213,6 @@ export type ProcessIssue = ProcessInfoBase & {
     | 'METADATA_READ_ERROR';
 
   errorName: ProcessErrorName;
-  errorDetails: ErrorDetails;
   process: 'SYNC' | 'BACKUPS';
 };
 
