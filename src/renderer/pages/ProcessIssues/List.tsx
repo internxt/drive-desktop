@@ -257,9 +257,9 @@ function Item({
         </div>
 
         <div className="flex items-center space-x-2">
-          <Button variant="secondary" size="sm" onClick={onInfoClick}>
+          {/* <Button variant="secondary" size="sm" onClick={onInfoClick}>
             Report
-          </Button>
+          </Button> */}
 
           <CaretDown
             className={`transform transition-all duration-200 ${
