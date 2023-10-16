@@ -81,8 +81,8 @@ eventBus.on('RECEIVED_REMOTE_CHANGES', async () => {
   // Wait before checking for updates, could be possible
   // that we received the notification, but if we check
   // for new data we don't receive it
-  await sleep(500);
-  
+  await sleep(2_000);
+
   await remoteSyncManager.startRemoteSync();
   updateSyncEngine();
 });
