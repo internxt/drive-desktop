@@ -19,7 +19,7 @@ export default function ProcessIssues() {
   const { backupFatalErrors } = useBackupFatalErrors();
   const [reportData, setReportData] = useState<Pick<
     ProcessIssue,
-    'errorName' | 'errorDetails'
+    'errorName'
   > | null>(null);
 
   const [activeSection, setActiveSection] = useState<Section>('SYNC');

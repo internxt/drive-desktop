@@ -79,6 +79,6 @@ ipcMain.on('BACKUP_ISSUE', (_, issue: BackupProgressIssue) => {
   }
 
   backupProcessInfo.errors[issue.folderId].push(
-    `${issue.errorName} error when ${issue.errorDetails.action}`
+    `${issue.errorName} error when ${issue}`
   );
 });

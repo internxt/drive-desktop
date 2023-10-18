@@ -2,7 +2,7 @@ import { Dialog, Transition } from '@headlessui/react';
 import { Fragment, useState } from 'react';
 import { useTranslationContext } from 'renderer/context/LocalContext';
 
-import { ProcessIssue } from '../../../workers/types';
+import { ErrorDetails, ProcessIssue } from '../../../workers/types';
 import { longMessages, shortMessages } from '../../messages/process-error';
 import Button from 'renderer/components/Button';
 import TextArea from 'renderer/components/TextArea';
@@ -26,7 +26,7 @@ export function ReportModal({
   data,
   onClose,
 }: {
-  data: Pick<ProcessIssue, 'errorName' | 'errorDetails'> | null;
+  data: Pick<ProcessIssue, 'errorName'> | null;
   onClose: () => void;
 }) {
   const { translate } = useTranslationContext();
@@ -68,8 +68,9 @@ export function ReportModal({
 
   async function handleSubmit() {
     setRequestState('SENDING');
+    // Send reports throw the issues windows was disabled
     const result = await window.electron.sendReport({
-      errorDetails: data!.errorDetails,
+      errorDetails: {} as ErrorDetails,
       userComment,
       includeLogs,
     });

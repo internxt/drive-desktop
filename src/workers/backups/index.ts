@@ -123,7 +123,6 @@ async function setUp() {
       kind,
       name,
       errorName,
-      errorDetails,
       process: 'BACKUPS',
       folderId,
     });
@@ -174,7 +173,6 @@ async function setUp() {
       kind,
       name,
       errorName,
-      errorDetails,
       process: 'BACKUPS',
       folderId,
     });
@@ -214,7 +212,6 @@ async function setUp() {
         kind,
         name,
         errorName,
-        errorDetails,
         process: 'BACKUPS',
         folderId,
       });

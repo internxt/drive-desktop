@@ -18,7 +18,6 @@ import useFatalErrorActions from '../../hooks/FatalErrorActions';
 import { generalErrors } from '../../messages/general-error';
 import { shortMessages } from '../../messages/process-error';
 import { getBaseName } from '../../utils/path';
-import Button from 'renderer/components/Button';
 import { FatalError } from '../../components/Backups/FatalError';
 
 export default function ProcessIssuesList({
@@ -34,9 +33,7 @@ export default function ProcessIssuesList({
   backupFatalErrors: BackupFatalError[];
   showBackupFatalErrors: boolean;
   selectedTab: 'SYNC' | 'BACKUPS' | 'GENERAL';
-  onClickOnErrorInfo: (
-    errorClicked: Pick<ProcessIssue, 'errorName' | 'errorDetails'>
-  ) => void;
+  onClickOnErrorInfo: (errorClicked: Pick<ProcessIssue, 'errorName'>) => void;
 }) {
   const { translate } = useTranslationContext();
   const [isLoading, setIsLoading] = useState(false);
@@ -53,8 +50,6 @@ export default function ProcessIssuesList({
   function onInfoClick(errorName: ProcessErrorName) {
     onClickOnErrorInfo({
       errorName,
-      errorDetails: processIssues.find((i) => i.errorName === errorName)!
-        .errorDetails,
     });
   }
 
@@ -225,7 +220,6 @@ function Item({
   issues,
   isSelected,
   onClick,
-  onInfoClick,
 }: {
   errorName: ProcessErrorName;
   issues: ProcessIssue[];
