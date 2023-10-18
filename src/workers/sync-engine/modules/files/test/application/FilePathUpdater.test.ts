@@ -6,8 +6,8 @@ import { FolderFinder } from '../../../folders/application/FolderFinder';
 import { FolderFinderMock } from '../../../folders/test/__mocks__/FolderFinderMock';
 import { FileFinderByContentsId } from '../../application/FileFinderByContentsId';
 import { IpcRendererSyncEngineMock } from '../../../shared/test/__mock__/IpcRendererSyncEngineMock';
-import { LocalFileIdProvider } from 'workers/sync-engine/modules/shared/application/LocalFileIdProvider';
-import { EventBusMock } from 'workers/sync-engine/modules/shared/test/__mock__/EventBusMock';
+import { LocalFileIdProvider } from '../../../shared/application/LocalFileIdProvider';
+import { EventBusMock } from '../../../shared/test/__mock__/EventBusMock';
 
 describe('File path updater', () => {
   let repository: FileRepositoryMock;

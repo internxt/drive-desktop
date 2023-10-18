@@ -33,12 +33,17 @@ describe('File Deleter', () => {
     );
   });
 
-  it('does not trash a file if its not found', async () => {
+  it('does not nothing if the file its not found', async () => {
     const contentsId = ContentsIdMother.raw();
 
     repository.mockSearch.mockReturnValueOnce(undefined);
+    jest
+      .spyOn(allParentFoldersStatusIsExists, 'run')
+      .mockReturnValueOnce(false);
 
-    await expect(async () => await SUT.run(contentsId)).rejects.toThrow();
+    await SUT.run(contentsId);
+
+    expect(repository.mockDelete).not.toBeCalled();
   });
 
   it('does not delete a file if it has a parent already trashed', async () => {
