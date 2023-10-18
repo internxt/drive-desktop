@@ -5,6 +5,7 @@ import { FolderStatus, FolderStatuses } from './FolderStatus';
 import { FolderUuid } from './FolderUuid';
 import { FolderCreatedDomainEvent } from './events/FolderCreatedDomainEvent';
 import { FolderRenamedDomainEvent } from './events/FolderRenamedDomainEvent';
+import { FolderMovedDomainEvent } from './events/FolderMovedDomainEvent';
 
 export type FolderAttributes = {
   id: number;
@@ -129,7 +130,12 @@ export class Folder extends AggregateRoot {
     this._path = this._path.changeFolder(folder.path.value);
     this._parentId = folder.id;
 
-    //TODO: record moved event
+    this.record(
+      new FolderMovedDomainEvent({
+        aggregateId: this.uuid,
+        resultPath: this._path,
+      })
+    );
   }
 
   rename(newPath: FolderPath) {

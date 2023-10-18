@@ -19,6 +19,7 @@ import { HttpFolderRepository } from '../../modules/folders/infrastructure/HttpF
 import { InMemoryOfflineFolderRepository } from '../../modules/folders/infrastructure/InMemoryOfflineFolderRepository';
 import { DependencyInjectionHttpClientsProvider } from '../common/clients';
 import { DependencyInjectionEventBus } from '../common/eventBus';
+import { DependencyInjectionEventRepository } from '../common/eventRepository';
 import { DependencyInjectionTraverserProvider } from '../common/traverser';
 import { PlaceholderContainer } from '../placeholders/PlaceholdersContainer';
 import { FoldersContainer } from './FoldersContainer';
@@ -29,6 +30,7 @@ export async function buildFoldersContainer(
   const clients = DependencyInjectionHttpClientsProvider.get();
   const traverser = DependencyInjectionTraverserProvider.get();
   const eventBus = DependencyInjectionEventBus.bus;
+  const eventRepository = DependencyInjectionEventRepository.get();
 
   const repository = new HttpFolderRepository(
     clients.drive,
@@ -60,7 +62,7 @@ export async function buildFoldersContainer(
     eventBus
   );
 
-  const folderMover = new FolderMover(repository, folderFinder);
+  const folderMover = new FolderMover(repository, folderFinder, eventBus);
   const folderRenamer = new FolderRenamer(repository, ipcRendererSyncEngine);
 
   const folderByPartialSearcher = new FolderByPartialSearcher(repository);
@@ -68,7 +70,8 @@ export async function buildFoldersContainer(
   const folderPathUpdater = new FolderPathUpdater(
     repository,
     folderMover,
-    folderRenamer
+    folderRenamer,
+    eventRepository
   );
 
   const folderClearer = new FolderClearer(repository);

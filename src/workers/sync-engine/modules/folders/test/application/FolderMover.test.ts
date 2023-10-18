@@ -3,17 +3,20 @@ import { FolderMover } from '../../application/FolderMover';
 import { FolderMother } from '../domain/FolderMother';
 import { FolderRepositoryMock } from '../__mocks__/FolderRepositoryMock';
 import { FolderPath } from '../../domain/FolderPath';
+import { EventBusMock } from 'workers/sync-engine/modules/shared/test/__mock__/EventBusMock';
 
 describe('Folder Mover', () => {
   let repository: FolderRepositoryMock;
   let folderFinder: FolderFinder;
   let SUT: FolderMover;
+  let eventBus: EventBusMock;
 
   beforeEach(() => {
     repository = new FolderRepositoryMock();
     folderFinder = new FolderFinder(repository);
+    eventBus = new EventBusMock();
 
-    SUT = new FolderMover(repository, folderFinder);
+    SUT = new FolderMover(repository, folderFinder, eventBus);
   });
 
   it('Folders cannot be overwrite', async () => {

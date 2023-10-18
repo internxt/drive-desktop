@@ -1,17 +1,20 @@
+import Logger from 'electron-log';
+import { EventRepository } from '../../shared/domain/EventRepository';
 import { Folder } from '../domain/Folder';
+import { FolderPath } from '../domain/FolderPath';
 import { FolderRepository } from '../domain/FolderRepository';
-import { FolderNotFoundError } from '../domain/errors/FolderNotFoundError';
 import { ActionNotPermittedError } from '../domain/errors/ActionNotPermittedError';
+import { FolderNotFoundError } from '../domain/errors/FolderNotFoundError';
 import { FolderMover } from './FolderMover';
 import { FolderRenamer } from './FolderRenamer';
-import { FolderPath } from '../domain/FolderPath';
-import Logger from 'electron-log';
+import { FolderMovedDomainEvent } from '../domain/events/FolderMovedDomainEvent';
 
 export class FolderPathUpdater {
   constructor(
     private readonly repository: FolderRepository,
     private readonly folderMover: FolderMover,
-    private readonly folderRenamer: FolderRenamer
+    private readonly folderRenamer: FolderRenamer,
+    private readonly eventHistory: EventRepository
   ) {}
 
   async run(uuid: Folder['uuid'], posixRelativePath: string) {
@@ -42,6 +45,24 @@ export class FolderPathUpdater {
       return await this.folderRenamer.run(folder, desiredPath);
     }
 
-    throw new Error('No path change detected for folder path update');
+    const folderEvents = await this.eventHistory.search(folder.uuid);
+
+    const folderMovedEvent = folderEvents.find((event) => {
+      if (!(event instanceof FolderMovedDomainEvent)) {
+        return false;
+      }
+
+      const { resultPath } = event.toPrimitives();
+
+      if (resultPath !== desiredPath.value) {
+        return false;
+      }
+
+      return true;
+    });
+
+    if (!folderMovedEvent) {
+      throw new Error('No path change detected for folder path update');
+    }
   }
 }
