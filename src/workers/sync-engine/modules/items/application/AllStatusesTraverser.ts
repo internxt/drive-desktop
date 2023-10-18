@@ -1,6 +1,9 @@
 import Logger from 'electron-log';
 import { ServerFile } from '../../../../filesystems/domain/ServerFile';
-import { ServerFolder } from '../../../../filesystems/domain/ServerFolder';
+import {
+  ServerFolder,
+  ServerFolderStatus,
+} from '../../../../filesystems/domain/ServerFolder';
 import { fileNameIsValid } from '../../../../utils/name-verification';
 import { File } from '../../files/domain/File';
 import { FolderStatus } from '../../folders/domain/FolderStatus';
@@ -113,7 +116,13 @@ export class AllStatusesTraverser implements Traverser {
         status: folder.status,
       });
 
-      this.traverse(folder.id, `${name}`);
+      if (folder.status === ServerFolderStatus.EXISTS) {
+        // The folders and the files from trashed or deleted folders
+        // will have the status "EXISTS", to avoid filtering witch folders and files
+        // are in a deleted or trashed folder they not included on the collection.
+        // We cannot perform any action on them either way
+        this.traverse(folder.id, `${name}`);
+      }
     });
   }
 
