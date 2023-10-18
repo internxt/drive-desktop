@@ -62,6 +62,8 @@ export class FolderPathUpdater {
     });
 
     if (!folderMovedEvent) {
+      // When a folder with content is moved the update path its called twice
+      // it the folder has been moved there then ignore it
       throw new Error('No path change detected for folder path update');
     }
   }
