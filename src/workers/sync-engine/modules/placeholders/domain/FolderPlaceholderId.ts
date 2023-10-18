@@ -1,10 +1,11 @@
-export type FolderPlaceholderIdPrefix = 'FOLDER:';
+export type FolderPlaceholderIdPrefixType = 'FOLDER:';
+export const FolderPlaceholderIdPrefix = 'FOLDER:';
 
-export type FolderPlaceholderId = `${FolderPlaceholderIdPrefix}${string}`;
+export type FolderPlaceholderId = `${FolderPlaceholderIdPrefixType}${string}`;
 
 function typedCheck(
   input: string,
-  prefix: FolderPlaceholderIdPrefix = 'FOLDER:'
+  prefix: FolderPlaceholderIdPrefixType = 'FOLDER:'
 ): input is FolderPlaceholderId {
   return input.startsWith(prefix);
 }
@@ -17,7 +18,7 @@ export function isFolderPlaceholderId(
 
 function typedCreate(
   id: string,
-  prefix: FolderPlaceholderIdPrefix = 'FOLDER:'
+  prefix: FolderPlaceholderIdPrefixType = 'FOLDER:'
 ): FolderPlaceholderId {
   return (prefix + id) as FolderPlaceholderId;
 }

@@ -1,10 +1,11 @@
-export type FilePlaceholderIdPrefix = 'FILE:';
+export type FilePlaceholderIdPrefixType = 'FILE:';
+export const FilePlaceholderIdPrefix = 'FILE:';
 
-export type FilePlaceholderId = `${FilePlaceholderIdPrefix}${string}`;
+export type FilePlaceholderId = `${FilePlaceholderIdPrefixType}${string}`;
 
 function typedCheck(
   input: string,
-  prefix: FilePlaceholderIdPrefix = 'FILE:'
+  prefix: FilePlaceholderIdPrefixType = 'FILE:'
 ): input is FilePlaceholderId {
   return input.startsWith(prefix);
 }
@@ -14,7 +15,7 @@ export function isFilePlaceholderId(input: string): input is FilePlaceholderId {
 
 function typedCreate(
   id: string,
-  prefix: FilePlaceholderIdPrefix = 'FILE:'
+  prefix: FilePlaceholderIdPrefixType = 'FILE:'
 ): FilePlaceholderId {
   return (prefix + id) as FilePlaceholderId;
 }
