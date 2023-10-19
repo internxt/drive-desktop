@@ -12,7 +12,7 @@ export type CallbackDownload = (
 ) => Promise<{ finished: boolean; progress: number }>;
 export class BindingsManager {
   private static readonly PROVIDER_NAME = 'Internxt';
-
+  private progressBuffer = 0;
   constructor(
     private readonly container: DependencyContainer,
     private readonly paths: {
@@ -88,6 +88,11 @@ export class BindingsManager {
           while (!finished) {
             const result = await callback(true, path);
             finished = result.finished;
+            if (this.progressBuffer == result.progress) {
+              break;
+            } else {
+              this.progressBuffer = result.progress;
+            }
             Logger.debug('condition', finished);
             ipcRendererSyncEngine.send('FILE_DOWNLOADING', {
               name: file.name,
@@ -101,6 +106,7 @@ export class BindingsManager {
             });
           }
 
+          this.progressBuffer = 0;
           try {
             await controllers.notifyPlaceholderHydrationFinished.execute(
               contentsId
