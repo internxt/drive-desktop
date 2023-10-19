@@ -14,7 +14,6 @@ import { Readable } from 'stream';
 
 export class ContentsDownloader {
   private readableDownloader: Readable | null;
-  private hydrationFailed: boolean;
   constructor(
     private readonly managerFactory: ContentsManagersFactory,
     private readonly localWriter: LocalFileWriter,
@@ -23,7 +22,6 @@ export class ContentsDownloader {
     private readonly eventBus: EventBus
   ) {
     this.readableDownloader = null;
-    this.hydrationFailed = false;
   }
 
   private async registerEvents(
@@ -46,17 +44,19 @@ export class ContentsDownloader {
       });
     });
 
-    downloader.on('progress', async (progress: number) => {
-      Logger.debug('INSIDE PROGRESS=======================');
+    downloader.on('progress', async () => {
       const result = await cb(true, filePath);
       const hydrationProgress = result.progress;
+      Logger.debug(
+        '\n\n******************************************hydrationProgress : \n\n',
+        hydrationProgress
+      );
 
       if (result.finished) {
         downloader.forceStop();
         Logger.debug('Downloader force stop', this.readableDownloader);
         this.readableDownloader?.destroy();
         this.readableDownloader?.emit('close');
-        this.hydrationFailed = true;
       }
 
       this.ipc.send('FILE_DOWNLOADING', {
@@ -72,7 +72,6 @@ export class ContentsDownloader {
     });
 
     downloader.on('error', (error: Error) => {
-      Logger.error('INSIDE ERROR=======================', error);
       this.ipc.send('FILE_DOWNLOAD_ERROR', {
         name: file.name,
         extension: file.type,
@@ -83,7 +82,6 @@ export class ContentsDownloader {
 
     downloader.on('finish', () => {
       Logger.error('INSIDE FINISH=======================');
-      this.hydrationFailed = false;
       // The file download being finished does not mean it has been hidratated
       // TODO: We might want to track this time instead of the whole completion time
     });

@@ -13,6 +13,10 @@ export class ContentFileDownloaderMock implements ContentFileDownloader {
     return this.mock();
   }
 
+  forceStop(): void {
+    return;
+  }
+
   on(
     event: keyof FileDownloadEvents,
     fn:
