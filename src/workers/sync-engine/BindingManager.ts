@@ -91,7 +91,7 @@ export class BindingsManager {
             if (this.progressBuffer == result.progress) {
               break;
             } else {
-              this.progressBuffer += result.progress;
+              this.progressBuffer = result.progress;
             }
             Logger.debug('condition', finished);
             ipcRendererSyncEngine.send('FILE_DOWNLOADING', {
