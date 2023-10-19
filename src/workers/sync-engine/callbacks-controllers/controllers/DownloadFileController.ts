@@ -21,6 +21,10 @@ export class DownloadFileController extends CallbackController {
     return await this.downloader.run(file, cb);
   }
 
+  fileFinderByContentsId(contentsId: string) {
+    return this.fileFinder.run(contentsId);
+  }
+
   async execute(
     filePlaceholderId: FilePlaceholderId,
     cb: CallbackDownload

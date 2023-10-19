@@ -7,10 +7,13 @@ import {
 } from '../../domain/contentHandlers/ContentFileDownloader';
 import { File } from '../../../files/domain/File';
 import { DownloadOneShardStrategy } from '@internxt/inxt-js/build/lib/core';
+import { ActionState } from '@internxt/inxt-js/build/api';
 
 export class EnvironmentContentFileDownloader implements ContentFileDownloader {
   private eventEmitter: EventEmitter;
   private stopwatch: Stopwatch;
+
+  private state: ActionState | null;
 
   constructor(
     private readonly fn: DownloadStrategyFunction<DownloadOneShardStrategy>,
@@ -18,6 +21,16 @@ export class EnvironmentContentFileDownloader implements ContentFileDownloader {
   ) {
     this.eventEmitter = new EventEmitter();
     this.stopwatch = new Stopwatch();
+    this.state = null;
+  }
+
+  forceStop(): void {
+    //@ts-ignore
+    // Logger.debug('Finish emitter type', this.state?.type);
+    // Logger.debug('Finish emitter stop method', this.state?.stop);
+    this.state?.stop();
+    // this.eventEmitter.emit('error');
+    // this.eventEmitter.emit('finish');
   }
 
   download(file: File): Promise<Readable> {
@@ -26,7 +39,7 @@ export class EnvironmentContentFileDownloader implements ContentFileDownloader {
     this.eventEmitter.emit('start');
 
     return new Promise((resolve, reject) => {
-      this.fn(
+      this.state = this.fn(
         this.bucket,
         file.contentsId,
         {

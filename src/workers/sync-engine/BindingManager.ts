@@ -4,8 +4,12 @@ import { buildControllers } from './callbacks-controllers/buildControllers';
 import { VirtualDrive } from 'virtual-drive/dist';
 import { executeControllerWithFallback } from './callbacks-controllers/middlewares/executeControllerWithFallback';
 import { FilePlaceholderId } from './modules/placeholders/domain/FilePlaceholderId';
+import { ipcRendererSyncEngine } from './ipcRendererSyncEngine';
 
-export type CallbackDownload = (success: boolean, filePath: string) => boolean;
+export type CallbackDownload = (
+  success: boolean,
+  filePath: string
+) => Promise<{ finished: boolean; progress: number }>;
 export class BindingsManager {
   private static readonly PROVIDER_NAME = 'Internxt';
 
@@ -71,11 +75,30 @@ export class BindingsManager {
             callback
           );
           Logger.debug('Execute Fetch Data Callback, sending path:', path);
-
+          const file = controllers.downloadFile.fileFinderByContentsId(
+            contentsId
+              .replace(
+                // eslint-disable-next-line no-control-regex
+                /[\x00-\x1F\x7F-\x9F]/g,
+                ''
+              )
+              .split(':')[1]
+          );
           let finished = false;
           while (!finished) {
-            finished = callback(true, path);
+            const result = await callback(true, path);
+            finished = result.finished;
             Logger.debug('condition', finished);
+            ipcRendererSyncEngine.send('FILE_DOWNLOADING', {
+              name: file.name,
+              extension: file.type,
+              nameWithExtension: file.nameWithExtension,
+              size: file.size,
+              processInfo: {
+                elapsedTime: 0,
+                progress: result.progress,
+              },
+            });
           }
 
           try {
