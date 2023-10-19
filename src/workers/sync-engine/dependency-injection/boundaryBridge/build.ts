@@ -11,6 +11,7 @@ import { SharedContainer } from '../shared/SharedContainer';
 import { SyncPlaceholders } from 'workers/sync-engine/modules/boundaryBridge/application/SyncPlaceholders';
 import { UpdatePlaceholderFolder } from 'workers/sync-engine/modules/boundaryBridge/application/UpdatePlaceholderFolder';
 import { DependencyInjectionEventRepository } from '../common/eventRepository';
+import { DependencyInjectionVirtualDrive } from '../common/virtualDrive';
 
 export function buildBoundaryBridgeContainer(
   contentsContainer: ContentsContainer,
@@ -21,6 +22,7 @@ export function buildBoundaryBridgeContainer(
   sharedContainer: SharedContainer
 ): BoundaryBridgeContainer {
   const eventHistory = DependencyInjectionEventRepository.get();
+  const virtualDrive = DependencyInjectionVirtualDrive.virtualDrive;
 
   const fileCreationOrchestrator = new FileCreationOrchestrator(
     contentsContainer.contentsUploader,
@@ -52,7 +54,8 @@ export function buildBoundaryBridgeContainer(
   const syncPlaceholders = new SyncPlaceholders(
     itemsContainer.allStatusesTreeBuilder,
     syncRemoteFile,
-    syncRemoteFolder
+    syncRemoteFolder,
+    virtualDrive,
   );
 
   return {
