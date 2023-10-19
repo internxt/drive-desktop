@@ -5,7 +5,6 @@ import { FileRepository } from '../domain/FileRepository';
 import { FileStatuses } from '../domain/FileStatus';
 import { PlaceholderCreator } from '../../placeholders/domain/PlaceholderCreator';
 import { File } from '../domain/File';
-import { createErrorDetails } from '../../../../utils/reporting';
 
 export class FileDeleter {
   constructor(
@@ -81,7 +80,6 @@ export class FileDeleter {
         action: 'DELETE_ERROR',
         errorName: 'BAD_RESPONSE',
         process: 'SYNC',
-        errorDetails: createErrorDetails(error, 'Deleting file', 'Bad respone')
       });
 
       this.placeholderCreator.file(file);

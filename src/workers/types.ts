@@ -204,7 +204,6 @@ export type GeneralIssue = {
     stack: string;
   };
 };
-
 export type ProcessIssue = ProcessInfoBase & {
   action:
     | 'UPLOAD_ERROR'
@@ -212,9 +211,9 @@ export type ProcessIssue = ProcessInfoBase & {
     | 'RENAME_ERROR'
     | 'DELETE_ERROR'
     | 'METADATA_READ_ERROR';
+
   errorName: ProcessErrorName;
   process: 'SYNC' | 'BACKUPS';
-  errorDetails: ErrorDetails;
 };
 
 export type ProcessInfoUpdatePayload =
