@@ -9,15 +9,22 @@ import path from 'path';
 import { CallbackDownload } from '../../../BindingManager';
 import { TemporalFolderProvider } from './temporalFolderProvider';
 import { EventBus } from '../../shared/domain/EventBus';
+import Logger from 'electron-log';
+import { Readable } from 'stream';
 
 export class ContentsDownloader {
+  private readableDownloader: Readable | null;
+  private hydrationFailed: boolean;
   constructor(
     private readonly managerFactory: ContentsManagersFactory,
     private readonly localWriter: LocalFileWriter,
     private readonly ipc: SyncEngineIpc,
     private readonly temporalFolderProvider: TemporalFolderProvider,
     private readonly eventBus: EventBus
-  ) {}
+  ) {
+    this.readableDownloader = null;
+    this.hydrationFailed = false;
+  }
 
   private async registerEvents(
     downloader: ContentFileDownloader,
@@ -39,18 +46,33 @@ export class ContentsDownloader {
       });
     });
 
-    downloader.on('progress', (progress: number) => {
-      cb(true, filePath);
+    downloader.on('progress', async (progress: number) => {
+      Logger.debug('INSIDE PROGRESS=======================');
+      const result = await cb(true, filePath);
+      const hydrationProgress = result.progress;
+
+      if (result.finished) {
+        downloader.forceStop();
+        Logger.debug('Downloader force stop', this.readableDownloader);
+        this.readableDownloader?.destroy();
+        this.readableDownloader?.emit('close');
+        this.hydrationFailed = true;
+      }
+
       this.ipc.send('FILE_DOWNLOADING', {
         name: file.name,
         extension: file.type,
         nameWithExtension: file.nameWithExtension,
         size: file.size,
-        processInfo: { elapsedTime: downloader.elapsedTime(), progress },
+        processInfo: {
+          elapsedTime: downloader.elapsedTime(),
+          progress: hydrationProgress,
+        },
       });
     });
 
     downloader.on('error', (error: Error) => {
+      Logger.error('INSIDE ERROR=======================', error);
       this.ipc.send('FILE_DOWNLOAD_ERROR', {
         name: file.name,
         extension: file.type,
@@ -60,6 +82,8 @@ export class ContentsDownloader {
     });
 
     downloader.on('finish', () => {
+      Logger.error('INSIDE FINISH=======================');
+      this.hydrationFailed = false;
       // The file download being finished does not mean it has been hidratated
       // TODO: We might want to track this time instead of the whole completion time
     });
@@ -71,6 +95,7 @@ export class ContentsDownloader {
     this.registerEvents(downloader, file, cb);
 
     const readable = await downloader.download(file);
+    this.readableDownloader = readable;
     const localContents = LocalFileContents.downloadedFrom(
       file,
       readable,

@@ -11,6 +11,8 @@ export type FileDownloadEvents = {
 export interface ContentFileDownloader {
   download(file: File): Promise<Readable>;
 
+  forceStop(): void;
+
   on(
     event: keyof FileDownloadEvents,
     handler: FileDownloadEvents[keyof FileDownloadEvents]
