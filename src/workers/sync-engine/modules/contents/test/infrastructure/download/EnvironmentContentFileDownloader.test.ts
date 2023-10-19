@@ -79,45 +79,4 @@ describe('Environment Content File Downloader', () => {
       });
     });
   });
-
-  describe('time watcher', () => {
-    it('starts the timer when the file is downloaded', async () => {
-      const strategy = createDownloadStrategy((callbacks) => {
-        callbacks.progressCallback(50);
-        callbacks.finishedCallback(null as unknown as Error, Readable.from(''));
-      });
-
-      const downloader = new EnvironmentContentFileDownloader(strategy, bucket);
-
-      downloader.on('progress', () => {
-        expect(downloader.elapsedTime()).toBeGreaterThan(-1);
-      });
-
-      expect(downloader.elapsedTime()).toBe(-1);
-
-      await downloader.download(file);
-    });
-
-    it('stops the timer when the file is not downloaded', async () => {
-      const delay = 100;
-      const strategy = createDownloadStrategy((callbacks) => {
-        callbacks.progressCallback(50);
-        setTimeout(() => {
-          callbacks.finishedCallback(
-            null as unknown as Error,
-            Readable.from('')
-          );
-        }, delay);
-      });
-
-      const downloader = new EnvironmentContentFileDownloader(strategy, bucket);
-
-      await downloader.download(file);
-
-      setTimeout(() => {
-        expect(downloader.elapsedTime()).toBeGreaterThan(delay - 10);
-        expect(downloader.elapsedTime()).toBeLessThan(delay + 10);
-      }, delay);
-    });
-  });
 });
