@@ -18,7 +18,6 @@ import useFatalErrorActions from '../../hooks/FatalErrorActions';
 import { generalErrors } from '../../messages/general-error';
 import { shortMessages } from '../../messages/process-error';
 import { getBaseName } from '../../utils/path';
-import Button from 'renderer/components/Button';
 import { FatalError } from '../../components/Backups/FatalError';
 
 export default function ProcessIssuesList({
@@ -183,9 +182,8 @@ function GeneralIssueItem({
         </h1>
 
         <CaretDown
-          className={`transform transition-all duration-200 ${
-            isSelected ? 'rotate-180' : 'rotate-0'
-          }`}
+          className={`transform transition-all duration-200 ${isSelected ? 'rotate-180' : 'rotate-0'
+            }`}
           size={20}
         />
       </div>
@@ -225,7 +223,7 @@ function Item({
   issues,
   isSelected,
   onClick,
-  onInfoClick,
+  //onInfoClick,
 }: {
   errorName: ProcessErrorName;
   issues: ProcessIssue[];
@@ -262,9 +260,8 @@ function Item({
           </Button> */}
 
           <CaretDown
-            className={`transform transition-all duration-200 ${
-              isSelected ? 'rotate-180' : 'rotate-0'
-            }`}
+            className={`transform transition-all duration-200 ${isSelected ? 'rotate-180' : 'rotate-0'
+              }`}
             size={20}
           />
         </div>
