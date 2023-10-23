@@ -29,7 +29,9 @@
     "test:unit": "jest --silent",
     "test:e2e": "playwright test --config=src/test",
     "type-check": "tsc --noEmit --pretty --skipLibCheck",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "reload-virtual-drive": "cd release/app && yarn reload-virtual-drive && cd ../.. && yarn",
+    "start:reload-bindings": "npm run reload-virtual-drive && npm run start"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
