@@ -37,7 +37,7 @@ export function buildItemsContainer(): ItemsContainer {
   );
 
   return {
-    treeBuilder,
+    existingItemsTreeBuilder: treeBuilder,
     allStatusesTreeBuilder,
   };
 }

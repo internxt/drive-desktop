@@ -5,7 +5,6 @@ import packageJson from '../../../package.json';
 import { BindingsManager } from './BindingManager';
 import fs from 'fs/promises';
 import { iconPath } from 'workers/utils/icon';
-import { VirtualDrive } from 'virtual-drive/dist';
 
 async function ensureTheFolderExist(path: string) {
   try {
@@ -56,8 +55,7 @@ async function setUp() {
 
     try {
       await bindings.stop();
-
-      await VirtualDrive.unregisterSyncRoot(virtualDrivePath);
+      await bindings.cleanUp();
 
       Logger.info('[SYNC ENGINE] sync engine stopped and cleared successfully');
 

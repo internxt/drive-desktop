@@ -18,6 +18,8 @@ export interface FileRepository {
 
   searchOnFolder(folderId: FolderAttributes['id']): Promise<Array<File>>;
 
+  all(): Promise<Array<File>>;
+
   /** @deprecated */
   clear(): void;
 }

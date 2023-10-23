@@ -1,5 +1,7 @@
+import { ManagedFileRepository } from 'workers/sync-engine/modules/files/domain/ManagedFileRepository';
 import { CreateFilePlaceholderOnDeletionFailed } from '../../modules/files/application/CreateFilePlaceholderOnDeletionFailed';
 import { FileByPartialSearcher } from '../../modules/files/application/FileByPartialSearcher';
+import { FileClearer } from '../../modules/files/application/FileClearer';
 import { FileCreator } from '../../modules/files/application/FileCreator';
 import { FileDeleter } from '../../modules/files/application/FileDeleter';
 import { FileFinderByContentsId } from '../../modules/files/application/FileFinderByContentsId';
@@ -7,8 +9,7 @@ import { FilePathUpdater } from '../../modules/files/application/FilePathUpdater
 import { FilePlaceholderCreatorFromContentsId } from '../../modules/files/application/FilePlaceholderCreatorFromContentsId';
 import { FileSearcher } from '../../modules/files/application/FileSearcher';
 import { LocalRepositoryRepositoryRefresher } from '../../modules/files/application/LocalRepositoryRepositoryRefresher';
-import { FileClearer } from '../../modules/files/application/FileClearer';
-import { ManagedFileRepository } from 'workers/sync-engine/modules/files/domain/ManagedFileRepository';
+import { RetrieveAllFiles } from '../../modules/files/application/RetrieveAllFiles';
 import { SameFileWasMoved } from '../../modules/files/application/SameFileWasMoved';
 
 export interface FilesContainer {
@@ -24,4 +25,5 @@ export interface FilesContainer {
   fileClearer: FileClearer;
   managedFileRepository: ManagedFileRepository;
   sameFileWasMoved: SameFileWasMoved;
+  retrieveAllFiles: RetrieveAllFiles;
 }

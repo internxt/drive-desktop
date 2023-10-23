@@ -39,6 +39,10 @@ export class HttpFileRepository
     return remoteItemsGenerator.getAll();
   }
 
+  public all(): Promise<Array<File>> {
+    return Promise.resolve(Object.values(this.files));
+  }
+
   public async init(startingFiles: Record<string, File> = {}): Promise<void> {
     const raw = await this.getTree();
 
