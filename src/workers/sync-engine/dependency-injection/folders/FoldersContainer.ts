@@ -11,6 +11,7 @@ import { OfflineFolderPathUpdater } from '../../modules/folders/application/Offl
 import { SynchronizeOfflineModifications } from '../../modules/folders/application/SynchronizeOfflineModifications';
 import { SynchronizeOfflineModificationsOnFolderCreated } from '../../modules/folders/application/SynchronizeOfflineModificationsOnFolderCreated';
 import { ManagedFolderRepository } from '../../modules/folders/domain/ManagedFolderRepository';
+import { RetrieveAllFolders } from '../../modules/folders/application/RetrieveAllFolders';
 
 export interface FoldersContainer {
   folderCreator: FolderCreator;
@@ -28,4 +29,5 @@ export interface FoldersContainer {
     synchronizeOfflineModifications: SynchronizeOfflineModifications;
   };
   managedFolderRepository: ManagedFolderRepository;
+  retrieveAllFolders: RetrieveAllFolders;
 }

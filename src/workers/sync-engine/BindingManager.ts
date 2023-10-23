@@ -5,7 +5,6 @@ import { VirtualDrive } from 'virtual-drive/dist';
 import { executeControllerWithFallback } from './callbacks-controllers/middlewares/executeControllerWithFallback';
 import { FilePlaceholderId } from './modules/placeholders/domain/FilePlaceholderId';
 import { ipcRendererSyncEngine } from './ipcRendererSyncEngine';
-import { AbsolutePathToRelativeConverter } from './modules/shared/application/AbsolutePathToRelativeConverter';
 import { PlatformPathConverter } from './modules/shared/application/PlatformPathConverter';
 
 export type CallbackDownload = (
@@ -184,8 +183,9 @@ export class BindingsManager {
     await VirtualDrive.unregisterSyncRoot(this.paths.root);
 
     const files = await this.container.retrieveAllFiles.run();
+    const folders = await this.container.retrieveAllFolders.run();
 
-    const items = [...files];
+    const items = [...files, ...folders];
 
     const win32AbsolutePaths = items.map((item) => {
       const posixRelativePath = item.path.value;

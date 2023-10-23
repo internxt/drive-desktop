@@ -13,6 +13,7 @@ import { OfflineFolderCreator } from '../../modules/folders/application/Offline/
 import { OfflineFolderMover } from '../../modules/folders/application/Offline/OfflineFolderMover';
 import { OfflineFolderPathUpdater } from '../../modules/folders/application/Offline/OfflineFolderPathUpdater';
 import { OfflineFolderRenamer } from '../../modules/folders/application/Offline/OfflineFolderRenamer';
+import { RetrieveAllFolders } from '../../modules/folders/application/RetrieveAllFolders';
 import { SynchronizeOfflineModifications } from '../../modules/folders/application/SynchronizeOfflineModifications';
 import { SynchronizeOfflineModificationsOnFolderCreated } from '../../modules/folders/application/SynchronizeOfflineModificationsOnFolderCreated';
 import { HttpFolderRepository } from '../../modules/folders/infrastructure/HttpFolderRepository';
@@ -116,5 +117,6 @@ export async function buildFoldersContainer(
       synchronizeOfflineModifications,
     },
     managedFolderRepository: repository,
+    retrieveAllFolders: new RetrieveAllFolders(repository),
   };
 }

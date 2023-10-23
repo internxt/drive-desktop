@@ -64,6 +64,10 @@ export class HttpFolderRepository
     await this.init(this.folders);
   }
 
+  all(): Promise<Array<Folder>> {
+    return Promise.resolve(Object.values(this.folders));
+  }
+
   search(path: string): Nullable<Folder> {
     return this.folders[path];
   }

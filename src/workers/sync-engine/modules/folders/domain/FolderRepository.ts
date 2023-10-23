@@ -3,6 +3,8 @@ import { Nullable } from '../../../../../shared/types/Nullable';
 import { FolderPath } from './FolderPath';
 
 export interface FolderRepository {
+  all(): Promise<Array<Folder>>;
+
   search(path: string): Nullable<Folder>;
 
   searchByPartial(partial: Partial<FolderAttributes>): Nullable<Folder>;

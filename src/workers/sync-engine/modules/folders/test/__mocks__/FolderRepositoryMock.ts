@@ -13,6 +13,11 @@ export class FolderRepositoryMock implements FolderRepository {
   public mockSearchOnFolder = jest.fn();
   public mockTrash = jest.fn();
   public mockClear = jest.fn();
+  public mockAll = jest.fn();
+
+  all(): Promise<Array<Folder>> {
+    return this.mockAll();
+  }
 
   search(pathLike: string): Nullable<Folder> {
     return this.mockSearch(pathLike);
