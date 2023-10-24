@@ -6,6 +6,7 @@ import { executeControllerWithFallback } from './callbacks-controllers/middlewar
 import { FilePlaceholderId } from './modules/placeholders/domain/FilePlaceholderId';
 import { ipcRendererSyncEngine } from './ipcRendererSyncEngine';
 import { PlatformPathConverter } from './modules/shared/application/PlatformPathConverter';
+import { ItemsSearcher } from './modules/items/application/ItemsSearcher';
 
 export type CallbackDownload = (
   success: boolean,
@@ -182,6 +183,12 @@ export class BindingsManager {
   async cleanUp() {
     await VirtualDrive.unregisterSyncRoot(this.paths.root);
 
+    //********************************************************************************************* */
+    const itemsSearcher = new ItemsSearcher();
+    const remainingItems = itemsSearcher.listFilesAndFolders(this.paths.root);
+
+    Logger.debug('remainingItems: ', remainingItems);
+    //********************************************************************************************* */
     const files = await this.container.retrieveAllFiles.run();
     const folders = await this.container.retrieveAllFolders.run();
 
