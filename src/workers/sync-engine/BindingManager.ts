@@ -7,6 +7,7 @@ import { FilePlaceholderId } from './modules/placeholders/domain/FilePlaceholder
 import { ipcRendererSyncEngine } from './ipcRendererSyncEngine';
 import { PlatformPathConverter } from './modules/shared/application/PlatformPathConverter';
 import { ItemsSearcher } from './modules/items/application/ItemsSearcher';
+import * as fs from 'fs';
 
 export type CallbackDownload = (
   success: boolean,
@@ -183,12 +184,9 @@ export class BindingsManager {
   async cleanUp() {
     await VirtualDrive.unregisterSyncRoot(this.paths.root);
 
-    //********************************************************************************************* */
     const itemsSearcher = new ItemsSearcher();
     const remainingItems = itemsSearcher.listFilesAndFolders(this.paths.root);
 
-    Logger.debug('remainingItems: ', remainingItems);
-    //********************************************************************************************* */
     const files = await this.container.retrieveAllFiles.run();
     const folders = await this.container.retrieveAllFolders.run();
 
@@ -206,6 +204,35 @@ export class BindingsManager {
       );
     });
 
-    Logger.debug('items: ', win32AbsolutePaths);
+    Logger.debug('remainingItems', remainingItems);
+    Logger.debug('win32AbsolutePaths', win32AbsolutePaths);
+    // find all common string in remainingItems and win32AbsolutePaths
+    // and delete them
+    const commonItems = remainingItems.filter((item) =>
+      win32AbsolutePaths.includes(item)
+    );
+
+    const toDeleteFolder: string[] = [];
+
+    commonItems.forEach((item) => {
+      try {
+        const stat = fs.statSync(item);
+        if (stat.isDirectory()) {
+          toDeleteFolder.push(item);
+        } else if (stat.isFile()) {
+          fs.unlinkSync(item);
+        }
+      } catch (error) {
+        Logger.error(error);
+      }
+    });
+
+    toDeleteFolder.forEach((item) => {
+      try {
+        fs.rmdirSync(item, { recursive: true });
+      } catch (error) {
+        Logger.error(error);
+      }
+    });
   }
 }
