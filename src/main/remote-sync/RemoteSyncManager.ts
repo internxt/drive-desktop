@@ -466,12 +466,19 @@ export class RemoteSyncManager {
     };
   };
   private async createOrUpdateSyncedFileEntry(remoteFile: RemoteSyncedFile) {
+    if (!remoteFile.folderId) {
+      return;
+    }
     await this.db.files.create(remoteFile);
   }
 
   private async createOrUpdateSyncedFolderEntry(
     remoteFolder: RemoteSyncedFolder
   ) {
+    if (!remoteFolder.id) {
+      return;
+    }
+
     await this.db.folders.create({
       ...remoteFolder,
       parentId: remoteFolder.parentId ?? undefined,
