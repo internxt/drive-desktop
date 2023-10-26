@@ -475,6 +475,10 @@ export class RemoteSyncManager {
   private async createOrUpdateSyncedFolderEntry(
     remoteFolder: RemoteSyncedFolder
   ) {
+    if (!remoteFolder.id) {
+      return;
+    }
+
     await this.db.folders.create({
       ...remoteFolder,
       parentId: remoteFolder.parentId ?? undefined,
