@@ -466,6 +466,9 @@ export class RemoteSyncManager {
     };
   };
   private async createOrUpdateSyncedFileEntry(remoteFile: RemoteSyncedFile) {
+    if (!remoteFile.folderId) {
+      return;
+    }
     await this.db.files.create(remoteFile);
   }
 
