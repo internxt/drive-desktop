@@ -1,4 +1,3 @@
-import { VirtualDrive } from 'virtual-drive/dist';
 import { File } from '../../files/domain/File';
 import { Folder } from '../../folders/domain/Folder';
 import { PlaceholderCreator } from '../domain/PlaceholderCreator';

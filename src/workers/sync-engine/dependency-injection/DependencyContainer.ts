@@ -1,5 +1,4 @@
 /* eslint-disable max-len */
-import { VirtualDrive } from 'virtual-drive/dist';
 import { ContentsContainer } from './contents/ContentsContainer';
 import { FilesContainer } from './files/FilesContainer';
 import { FoldersContainer } from './folders/FoldersContainer';
@@ -15,6 +14,4 @@ export interface DependencyContainer
     FoldersContainer,
     PlaceholderContainer,
     SharedContainer,
-    BoundaryBridgeContainer {
-  virtualDrive: VirtualDrive;
-}
+    BoundaryBridgeContainer {}

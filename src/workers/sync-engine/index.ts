@@ -1,6 +1,5 @@
 import Logger from 'electron-log';
 import { ipcRenderer } from 'electron';
-import { DependencyContainerFactory } from './dependency-injection/DependencyContainerFactory';
 import packageJson from '../../../package.json';
 import { BindingsManager } from './BindingManager';
 import fs from 'fs/promises';
@@ -24,10 +23,7 @@ async function setUp() {
 
   await ensureTheFolderExist(virtualDrivePath);
 
-  const factory = new DependencyContainerFactory();
-  const container = await factory.build();
-
-  const bindings = new BindingsManager(container, {
+  const bindings = new BindingsManager({
     root: virtualDrivePath,
     icon: iconPath,
   });
@@ -45,7 +41,7 @@ async function setUp() {
   ipcRenderer.on('UPDATE_SYNC_ENGINE_PROCESS', async () => {
     Logger.info('[SYNC ENGINE] Updating sync engine');
 
-    await container.syncPlaceholders.run();
+    // await container.syncPlaceholders.run();
 
     Logger.info('[SYNC ENGINE] sync engine updated successfully');
   });
@@ -71,7 +67,7 @@ async function setUp() {
     '{E9D7EB38-B229-5DC5-9396-017C449D59CD}'
   );
 
-  await container.treePlaceholderCreator.run();
+  // await container.treePlaceholderCreator.run();
 
   bindings.watch();
 }

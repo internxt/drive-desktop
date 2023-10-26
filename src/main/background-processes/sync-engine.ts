@@ -1,171 +1,108 @@
-import { BrowserWindow, ipcMain } from 'electron';
-import path from 'path';
 import Logger from 'electron-log';
 import eventBus from '../event-bus';
+import { getRootVirtualDrive } from '../virutal-root-folder/service';
+import fuse from '@cocalc/fuse-native';
 
-let worker: BrowserWindow | null = null;
-let workerIsRunning = false;
-let startingWorker = false;
+let _fuse: {
+  unmount(arg0: (err: any) => void): unknown;
+  mount: (arg0: (err: any) => void) => void;
+};
 
 function spawnSyncEngineWorker() {
-  if (startingWorker) {
-    Logger.info('[MAIN] Worker is already starting');
-    return;
-  }
-  if (workerIsRunning) {
-    Logger.info('[MAIN] Worker is already running');
-    return;
-  }
-
-  startingWorker = true;
-
-  worker = new BrowserWindow({
-    webPreferences: {
-      nodeIntegration: true,
-      contextIsolation: false,
-      backgroundThrottling: false,
+  const ops = {
+    getattr: (path: string, cb: (code: number, params?: any) => void) => {
+      if (path === '/') {
+        cb(0, { mode: 16877, size: 0 });
+      } else if (path === '/hello.txt') {
+        cb(0, { mode: 33188, size: 12 });
+      } else {
+        cb(fuse.ENOENT);
+      }
     },
-    show: false,
+    readdir: (path: string, cb: (code: number, params?: any) => void) => {
+      if (path === '/') {
+        cb(0, ['.', '..', 'hello.txt']);
+      } else {
+        cb(fuse.ENOENT);
+      }
+    },
+    open: (path: string, flags, cb: (code: number, params?: any) => void) => {
+      if (path === '/hello.txt') {
+        cb(0, 123); // Use a unique file descriptor (123 in this example)
+      } else {
+        cb(fuse.ENOENT);
+      }
+    },
+    read: (
+      path: string,
+      fd,
+      buf,
+      len,
+      pos,
+      cb: (code: number, params?: any) => void
+    ) => {
+      if (path !== '/hello.txt') {
+        return cb(fuse.ENOENT);
+      }
+
+      const data = Buffer.from('Hello, FUSE!');
+
+      if (pos >= data.length) {
+        return cb(0);
+      }
+
+      const slice = data.slice(pos, pos + len);
+      slice.copy(buf);
+      cb(slice.length);
+    },
+    release: function (
+      readPath: string,
+      fd: number,
+      cb: (status: number) => void
+    ): void {
+      throw new Error('Function not implemented.');
+    },
+  };
+
+  const root = getRootVirtualDrive();
+
+  Logger.debug('ROOT FOLDER: ', root);
+
+  _fuse = new fuse(root, ops, {
+    debug: true,
+    mkdir: true,
+    force: true,
   });
-  worker
-    .loadFile(
-      process.env.NODE_ENV === 'development'
-        ? '../../release/app/dist/sync-engine/index.html'
-        : `${path.join(__dirname, '..', 'sync-engine')}/index.html`
-    )
-    .then(() => {
-      Logger.info('[MAIN] Sync engine worker loaded');
-    })
-    .catch((err) => {
-      Logger.error('[MAIN] Error loading sync engine worker', err);
-    });
-
-  worker.on('close', () => {
-    worker?.destroy();
-
-    if (workerIsRunning) {
-      Logger.warn('The sync engine process ended unexpectedly, relaunching');
-      workerIsRunning = false;
-      spawnSyncEngineWorker();
+  _fuse.mount((err: any) => {
+    if (err) {
+      Logger.error(`FUSE mount error: ${err}`);
     }
   });
 
-  ipcMain.once('SYNC_ENGINE_PROCESS_SETUP_SUCCESSFUL', () => {
-    Logger.debug('[MAIN] SYNC ENGINE RUNNING');
-    workerIsRunning = true;
-    startingWorker = false;
-  });
+  fuse.isConfigured((isConfigured: boolean) => {
+    Logger.info(`FUSE is configured: ${isConfigured}`);
 
-  ipcMain.on('SYNC_ENGINE_PROCESS_SETUP_FAILED', () => {
-    Logger.debug('[MAIN] SYNC ENGINE NOT RUNNING');
-    workerIsRunning = false;
-    startingWorker = false;
+    if (!isConfigured) {
+      fuse.configure((...params: any[]) => {
+        Logger.debug(`FUSE configure cb params: ${{ params }}`);
+      });
+    }
   });
 }
 
 export async function stopSyncEngineWatcher() {
-  Logger.info('[MAIN] STOPPING SYNC ENGINE WORKER...');
-
-  if (!workerIsRunning) {
-    Logger.info('[MAIN] WORKER WAS NOT RUNNING');
-    worker?.destroy();
-    worker = null;
-    return;
-  }
-
-  const stopPromise = new Promise<void>((resolve, reject) => {
-    ipcMain.once('SYNC_ENGINE_STOP_ERROR', (_, error: Error) => {
-      Logger.error('[MAIN] Error stopping sync engine worker', error);
-      reject(error);
-    });
-
-    ipcMain.once('SYNC_ENGINE_STOP_SUCCESS', () => {
-      resolve();
-      Logger.info('[MAIN] Sync engine stopped');
-    });
-
-    const millisecondsToWait = 10_000;
-
-    setTimeout(() => {
-      reject(
-        new Error(
-          `Timeout waiting for sync engine to stop after ${millisecondsToWait} milliseconds`
-        )
-      );
-    }, millisecondsToWait);
+  _fuse?.unmount((err: any) => {
+    if (err) {
+      Logger.error(`FUSE unmount error: ${err}`);
+    }
   });
-
-  try {
-    worker?.webContents.send('STOP_SYNC_ENGINE_PROCESS');
-
-    await stopPromise;
-  } catch (err) {
-    // TODO: handle error
-    Logger.error(err);
-  } finally {
-    worker?.destroy();
-    workerIsRunning = false;
-    worker = null;
-  }
 }
 
 async function stopAndClearSyncEngineWatcher() {
-  Logger.info('[MAIN] STOPPING AND CLEAR SYNC ENGINE WORKER...');
-
-  if (!workerIsRunning) {
-    Logger.info('[MAIN] WORKER WAS NOT RUNNING');
-    worker?.destroy();
-    worker = null;
-    return;
-  }
-
-  const response = new Promise<void>((resolve, reject) => {
-    ipcMain.once(
-      'ERROR_ON_STOP_AND_CLEAR_SYNC_ENGINE_PROCESS',
-      (_, error: Error) => {
-        Logger.error('[MAIN] Error stopping sync engine worker', error);
-        reject(error);
-      }
-    );
-
-    ipcMain.once('SYNC_ENGINE_STOP_AND_CLEAR_SUCCESS', () => {
-      resolve();
-      Logger.info('[MAIN] Sync engine stopped and cleared');
-    });
-
-    const millisecondsToWait = 10_000;
-
-    setTimeout(() => {
-      reject(
-        new Error(
-          `Timeout waiting for sync engine to stop after ${millisecondsToWait} milliseconds`
-        )
-      );
-    }, millisecondsToWait);
-  });
-
-  try {
-    worker?.webContents.send('STOP_AND_CLEAR_SYNC_ENGINE_PROCESS');
-
-    await response;
-  } catch (err) {
-    // TODO: handle error
-    Logger.error(err);
-  } finally {
-    worker?.destroy();
-    workerIsRunning = false;
-    worker = null;
-  }
+  stopSyncEngineWatcher();
 }
 
-export function updateSyncEngine() {
-  try {
-    worker?.webContents.send('UPDATE_SYNC_ENGINE_PROCESS');
-  } catch (err) {
-    // TODO: handle error
-    Logger.error(err);
-  }
-}
+export function updateSyncEngine() {}
 
 eventBus.on('USER_LOGGED_OUT', stopAndClearSyncEngineWatcher);
 eventBus.on('USER_WAS_UNAUTHORIZED', stopAndClearSyncEngineWatcher);

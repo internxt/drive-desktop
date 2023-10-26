@@ -11,7 +11,6 @@ import { SharedContainer } from '../shared/SharedContainer';
 import { SyncPlaceholders } from 'workers/sync-engine/modules/boundaryBridge/application/SyncPlaceholders';
 import { UpdatePlaceholderFolder } from 'workers/sync-engine/modules/boundaryBridge/application/UpdatePlaceholderFolder';
 import { DependencyInjectionEventRepository } from '../common/eventRepository';
-import { DependencyInjectionVirtualDrive } from '../common/virtualDrive';
 
 export function buildBoundaryBridgeContainer(
   contentsContainer: ContentsContainer,
