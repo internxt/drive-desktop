@@ -1,7 +1,9 @@
 import Logger from 'electron-log';
 import eventBus from '../event-bus';
 import { getRootVirtualDrive } from '../virutal-root-folder/service';
-import fuse from '@cocalc/fuse-native';
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+// const fuse = require('@cocalc/fuse-native');
+const fuse = require('@gcas/fuse');
 
 let _fuse: {
   unmount(arg0: (err: any) => void): unknown;
@@ -14,7 +16,17 @@ function spawnSyncEngineWorker() {
       if (path === '/') {
         cb(0, { mode: 16877, size: 0 });
       } else if (path === '/hello.txt') {
-        cb(0, { mode: 33188, size: 12 });
+        Logger.debug('HELLO');
+        return process.nextTick(cb, 0, {
+          mtime: new Date(),
+          atime: new Date(),
+          ctime: new Date(),
+          nlink: 1,
+          size: 12,
+          mode: 33188,
+          uid: process.getuid ? process.getuid() : 0,
+          gid: process.getgid ? process.getgid() : 0,
+        });
       } else {
         cb(fuse.ENOENT);
       }
@@ -35,33 +47,30 @@ function spawnSyncEngineWorker() {
     },
     read: (
       path: string,
-      fd,
-      buf,
-      len,
-      pos,
+      fd: any,
+      buf: Buffer,
+      len: number,
+      pos: number,
       cb: (code: number, params?: any) => void
     ) => {
+      Logger.debug(path, fd, buf, len, pos);
       if (path !== '/hello.txt') {
-        return cb(fuse.ENOENT);
+        return process.nextTick(cb, fuse.ENOENT);
       }
+      const str = 'hello world\n'.slice(pos);
 
-      const data = Buffer.from('Hello, FUSE!');
+      if (!str) return process.nextTick(cb, 0);
+      buf.write(str);
 
-      if (pos >= data.length) {
-        return cb(0);
-      }
-
-      const slice = data.slice(pos, pos + len);
-      slice.copy(buf);
-      cb(slice.length);
+      return process.nextTick(cb, str.length);
     },
-    release: function (
-      readPath: string,
-      fd: number,
-      cb: (status: number) => void
-    ): void {
-      throw new Error('Function not implemented.');
-    },
+    // release: function (
+    //   readPath: string,
+    //   fd: number,
+    //   cb: (status: number) => void
+    // ): void {
+    //   throw new Error('Function not implemented.');
+    // },
   };
 
   const root = getRootVirtualDrive();
@@ -73,21 +82,26 @@ function spawnSyncEngineWorker() {
     mkdir: true,
     force: true,
   });
+
   _fuse.mount((err: any) => {
     if (err) {
       Logger.error(`FUSE mount error: ${err}`);
     }
   });
 
-  fuse.isConfigured((isConfigured: boolean) => {
-    Logger.info(`FUSE is configured: ${isConfigured}`);
+  // fuse.isConfigured((err: Error | null, isConfigured: boolean) => {
+  //   if (err) {
+  //     Logger.error('FUSE ERROR: ', err);
+  //   }
 
-    if (!isConfigured) {
-      fuse.configure((...params: any[]) => {
-        Logger.debug(`FUSE configure cb params: ${{ params }}`);
-      });
-    }
-  });
+  //   Logger.info(`FUSE is configured: ${isConfigured}`);
+
+  //   if (!isConfigured) {
+  //     fuse.configure((...params: any[]) => {
+  //       Logger.debug(`FUSE configure cb params: ${{ params }}`);
+  //     });
+  //   }
+  // });
 }
 
 export async function stopSyncEngineWatcher() {
