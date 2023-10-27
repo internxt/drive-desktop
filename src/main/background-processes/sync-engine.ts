@@ -46,11 +46,13 @@ function spawnSyncEngineWorker() {
       }
     },
     open: (path: string, flags, cb: (code: number, params?: any) => void) => {
-      if (path === '/hello.txt') {
-        cb(0, 123); // Use a unique file descriptor (123 in this example)
-      } else {
-        cb(fuse.ENOENT);
+      const file = files[path];
+
+      if (!file) {
+        return cb(fuse.ENOENT);
       }
+
+      cb(0, file.uid);
     },
     read: (
       path: string,
@@ -60,10 +62,12 @@ function spawnSyncEngineWorker() {
       pos: number,
       cb: (code: number, params?: any) => void
     ) => {
-      Logger.debug(path, fd, buf, len, pos);
-      if (path !== '/hello.txt') {
-        return process.nextTick(cb, fuse.ENOENT);
+      const file = files[path];
+
+      if (!file) {
+        return cb(fuse.ENOENT);
       }
+
       const str = 'hello world\n'.slice(pos);
 
       if (!str) return process.nextTick(cb, 0);
