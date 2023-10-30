@@ -13,12 +13,13 @@ export class FolderCreator {
     private readonly eventBus: EventBus
   ) {}
 
-  async run(offlineFolder: OfflineFolder): Promise<Folder> {
+  async run(offlineFolder: OfflineFolder): Promise<void> {
     this.ipc.send('FOLDER_CREATING', {
       name: offlineFolder.name,
     });
 
-    const folder = await this.fileSystem.create(offlineFolder);
+    const attributes = await this.fileSystem.create(offlineFolder);
+    const folder = Folder.create(attributes);
     await this.repository.add(folder);
 
     const events = folder.pullDomainEvents();
@@ -27,7 +28,5 @@ export class FolderCreator {
     this.ipc.send('FOLDER_CREATED', {
       name: offlineFolder.name,
     });
-
-    return folder;
   }
 }

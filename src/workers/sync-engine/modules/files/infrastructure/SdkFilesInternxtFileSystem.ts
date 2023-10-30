@@ -2,7 +2,7 @@ import { Storage } from '@internxt/sdk/dist/drive/storage';
 import { EncryptionVersion } from '@internxt/sdk/dist/drive/storage/types';
 import * as uuid from 'uuid';
 import { Crypt } from '../../shared/domain/Crypt';
-import { File } from '../domain/File';
+import { File, FileAttributes } from '../domain/File';
 import { FileInternxtFileSystem } from '../domain/FileInternxtFileSystem';
 import { FileStatuses } from '../domain/FileStatus';
 import { OfflineFile } from '../domain/OfflineFile';
@@ -24,7 +24,7 @@ export class SdkFilesInternxtFileSystem implements FileInternxtFileSystem {
       ],
     });
   }
-  async create(offlineFile: OfflineFile): Promise<File> {
+  async create(offlineFile: OfflineFile): Promise<FileAttributes> {
     const encryptedName = this.crypt.encryptName(
       offlineFile.name,
       offlineFile.folderId.toString()
@@ -44,7 +44,7 @@ export class SdkFilesInternxtFileSystem implements FileInternxtFileSystem {
       encrypt_version: EncryptionVersion.Aes03,
     });
 
-    const file = File.from({
+    return {
       contentsId: data.fileId,
       folderId: data.folderId,
       createdAt: data.createdAt,
@@ -53,9 +53,7 @@ export class SdkFilesInternxtFileSystem implements FileInternxtFileSystem {
       size: offlineFile.size,
       updatedAt: data.updatedAt,
       status: FileStatuses.EXISTS,
-    });
-
-    return file;
+    };
   }
   async rename(file: File): Promise<void> {
     await this.sdk.updateFile({

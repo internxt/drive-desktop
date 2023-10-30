@@ -2,7 +2,7 @@ import { Storage } from '@internxt/sdk/dist/drive/storage';
 import { Axios } from 'axios';
 import * as uuid from 'uuid';
 import { ServerFolder } from '../../../../filesystems/domain/ServerFolder';
-import { Folder } from '../domain/Folder';
+import { Folder, FolderAttributes } from '../domain/Folder';
 import { FolderStatuses } from '../domain/FolderStatus';
 import { OfflineFolder } from '../domain/OfflineFolder';
 import { UpdateFolderNameDTO } from './dtos/UpdateFolderNameDTO';
@@ -18,7 +18,7 @@ export class SdkFoldersInternxtFileSystem implements FolderInternxtFileSystem {
       items: [{ type: 'folder', id: folder.id as unknown as string }],
     });
   }
-  async create(offlineFolder: OfflineFolder): Promise<Folder> {
+  async create(offlineFolder: OfflineFolder): Promise<FolderAttributes> {
     if (!offlineFolder.name) {
       throw new Error('Bad folder name');
     }
@@ -46,7 +46,7 @@ export class SdkFoldersInternxtFileSystem implements FolderInternxtFileSystem {
       throw new Error('Folder creation failed, no parent id');
     }
 
-    const folder = Folder.create({
+    return {
       id: serverFolder.id,
       uuid: serverFolder.uuid,
       parentId: serverFolder.parentId,
@@ -54,9 +54,7 @@ export class SdkFoldersInternxtFileSystem implements FolderInternxtFileSystem {
       createdAt: serverFolder.createdAt,
       path: offlineFolder.path.value,
       status: FolderStatuses.EXISTS,
-    });
-
-    return folder;
+    };
   }
   async rename(folder: Folder): Promise<void> {
     const url = `${process.env.API_URL}/api/storage/folder/${folder.id}/meta`;

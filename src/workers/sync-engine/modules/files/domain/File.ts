@@ -81,7 +81,9 @@ export class File extends AggregateRoot {
     );
   }
 
-  static create(file: File): File {
+  static create(attributes: FileAttributes): File {
+    const file = File.from(attributes);
+
     file.record(
       new FileCreatedDomainEvent({
         aggregateId: file.contentsId,
