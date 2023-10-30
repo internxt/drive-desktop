@@ -17,7 +17,7 @@ export class FolderRenamer {
 
     folder.rename(destination);
 
-    await this.repository.updateName(folder);
+    await this.repository.update(folder);
 
     this.ipc.send('FOLDER_RENAMED', {
       oldName: folder.name,

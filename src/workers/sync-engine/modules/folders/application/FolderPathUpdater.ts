@@ -15,7 +15,7 @@ export class FolderPathUpdater {
   ) {}
 
   async run(uuid: Folder['uuid'], posixRelativePath: string) {
-    const folder = this.repository.searchByPartial({ uuid });
+    const folder = await this.repository.searchByPartial({ uuid });
 
     if (!folder) {
       throw new FolderNotFoundError(uuid);

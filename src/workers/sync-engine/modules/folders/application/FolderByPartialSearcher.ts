@@ -4,7 +4,7 @@ import { FolderRepository } from '../domain/FolderRepository';
 export class FolderByPartialSearcher {
   constructor(private readonly repository: FolderRepository) {}
 
-  run(partial: Partial<FolderAttributes>): Folder | undefined {
+  run(partial: Partial<FolderAttributes>): Promise<Folder | undefined> {
     return this.repository.searchByPartial(partial);
   }
 }

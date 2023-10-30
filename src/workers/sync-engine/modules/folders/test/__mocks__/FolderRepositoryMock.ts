@@ -31,7 +31,7 @@ export class FolderRepositoryMock implements FolderRepository {
     return this.mockAdd(file);
   }
 
-  updateName(item: Folder): Promise<void> {
+  update(item: Folder): Promise<void> {
     return this.mockUpdateName(item);
   }
 
@@ -39,7 +39,7 @@ export class FolderRepositoryMock implements FolderRepository {
     return this.mockUpdateParentDir(item);
   }
 
-  create(
+  add(
     name: FolderPath,
     parentId: number | null,
     uuid: Folder['uuid']
@@ -51,7 +51,7 @@ export class FolderRepositoryMock implements FolderRepository {
     return this.mockSearchOnFolder(folder);
   }
 
-  trash(folder: Folder): Promise<void> {
+  delete(folder: Folder): Promise<void> {
     return this.mockTrash(folder);
   }
 

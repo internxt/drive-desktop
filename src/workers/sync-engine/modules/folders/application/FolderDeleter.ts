@@ -1,33 +1,29 @@
 import Logger from 'electron-log';
 import { Folder } from '../domain/Folder';
 import { FolderRepository } from '../domain/FolderRepository';
-import { ActionNotPermittedError } from '../domain/errors/ActionNotPermittedError';
 import { FolderNotFoundError } from '../domain/errors/FolderNotFoundError';
 import { AllParentFoldersStatusIsExists } from './AllParentFoldersStatusIsExists';
 import { PlaceholderCreator } from '../../placeholders/domain/PlaceholderCreator';
+import { FolderInternxtFileSystem } from '../domain/FolderInternxtFileSystem';
 
 export class FolderDeleter {
   constructor(
+    private readonly fileSystem: FolderInternxtFileSystem,
     private readonly repository: FolderRepository,
     private readonly allParentFoldersStatusIsExists: AllParentFoldersStatusIsExists,
     private readonly placeholderCreator: PlaceholderCreator
   ) {}
 
   async run(uuid: Folder['uuid']): Promise<void> {
-    const folder = this.repository.searchByPartial({ uuid });
+    const folder = await this.repository.searchByPartial({ uuid });
 
     if (!folder) {
       throw new FolderNotFoundError(uuid);
     }
 
     try {
-      if (!folder.parentId) {
-        throw new ActionNotPermittedError('Trash root folder');
-      }
-
       const allParentsExists = this.allParentFoldersStatusIsExists.run(
-        // TODO: Create a new aggregate root for root folder so the rest have the parent Id as number
-        folder.parentId as number
+        folder.parentId
       );
 
       if (!allParentsExists) {
@@ -38,7 +34,9 @@ export class FolderDeleter {
       }
 
       folder.trash();
-      await this.repository.trash(folder);
+
+      await this.fileSystem.trash(folder);
+      await this.repository.delete(folder);
     } catch (error: unknown) {
       Logger.error(`Error deleting the folder ${folder.name}: `, error);
 

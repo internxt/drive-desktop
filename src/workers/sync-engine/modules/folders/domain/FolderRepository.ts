@@ -1,28 +1,16 @@
 import { Folder, FolderAttributes } from './Folder';
 import { Nullable } from '../../../../../shared/types/Nullable';
-import { FolderPath } from './FolderPath';
 
 export interface FolderRepository {
   all(): Promise<Array<Folder>>;
 
-  search(path: string): Nullable<Folder>;
+  searchByPartial(
+    partial: Partial<FolderAttributes>
+  ): Promise<Nullable<Folder>>;
 
-  searchByPartial(partial: Partial<FolderAttributes>): Nullable<Folder>;
+  add(folder: Folder): Promise<void>;
 
-  create(
-    name: FolderPath,
-    parentId: FolderAttributes['parentId'],
-    uuid: Folder['uuid']
-  ): Promise<Folder>;
+  update(folder: Folder): Promise<void>;
 
-  updateName(folder: Folder): Promise<void>;
-
-  updateParentDir(folder: Folder): Promise<void>;
-
-  searchOn(folder: Folder): Promise<Array<Folder>>;
-
-  trash(folder: Folder): Promise<void>;
-
-  /** @deprecated */
-  clear(): void;
+  delete(folder: Folder): Promise<void>;
 }

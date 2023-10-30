@@ -1,14 +1,14 @@
 import { SyncEngineIpc } from '../../../ipcRendererSyncEngine';
 import { EventBus } from '../../shared/domain/EventBus';
 import { Folder } from '../domain/Folder';
+import { FolderInternxtFileSystem } from '../domain/FolderInternxtFileSystem';
 import { FolderRepository } from '../domain/FolderRepository';
 import { OfflineFolder } from '../domain/OfflineFolder';
-import { FolderFinder } from './FolderFinder';
 
 export class FolderCreator {
   constructor(
+    private readonly fileSystem: FolderInternxtFileSystem,
     private readonly repository: FolderRepository,
-    private readonly folderFinder: FolderFinder,
     private readonly ipc: SyncEngineIpc,
     private readonly eventBus: EventBus
   ) {}
@@ -18,13 +18,8 @@ export class FolderCreator {
       name: offlineFolder.name,
     });
 
-    const parent = this.folderFinder.run(offlineFolder.dirname);
-
-    const folder = await this.repository.create(
-      offlineFolder.path,
-      parent.id,
-      offlineFolder.uuid
-    );
+    const folder = await this.fileSystem.create(offlineFolder);
+    await this.repository.add(folder);
 
     const events = folder.pullDomainEvents();
     this.eventBus.publish(events);

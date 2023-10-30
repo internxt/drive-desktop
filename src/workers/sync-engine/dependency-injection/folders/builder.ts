@@ -16,7 +16,7 @@ import { OfflineFolderRenamer } from '../../modules/folders/application/Offline/
 import { RetrieveAllFolders } from '../../modules/folders/application/RetrieveAllFolders';
 import { SynchronizeOfflineModifications } from '../../modules/folders/application/SynchronizeOfflineModifications';
 import { SynchronizeOfflineModificationsOnFolderCreated } from '../../modules/folders/application/SynchronizeOfflineModificationsOnFolderCreated';
-import { HttpFolderRepository } from '../../modules/folders/infrastructure/HttpFolderRepository';
+import { InMemoryFolderRepository } from '../../modules/folders/infrastructure/InMemoryFolderRepository';
 import { InMemoryOfflineFolderRepository } from '../../modules/folders/infrastructure/InMemoryOfflineFolderRepository';
 import { DependencyInjectionHttpClientsProvider } from '../common/clients';
 import { DependencyInjectionEventBus } from '../common/eventBus';
@@ -31,7 +31,7 @@ export async function buildFoldersContainer(
   const traverser = DependencyInjectionTraverserProvider.get();
   const eventBus = DependencyInjectionEventBus.bus;
 
-  const repository = new HttpFolderRepository(
+  const repository = new InMemoryFolderRepository(
     clients.drive,
     clients.newDrive,
     traverser,

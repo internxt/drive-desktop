@@ -32,7 +32,7 @@ export class SynchronizeOfflineModifications {
 
       const rename = event as FolderRenamedDomainEvent;
 
-      const folder = this.repository.searchByPartial({ uuid });
+      const folder = await this.repository.searchByPartial({ uuid });
 
       if (!folder) {
         throw new FolderNotFoundError(uuid);

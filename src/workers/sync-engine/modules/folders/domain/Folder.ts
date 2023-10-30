@@ -5,11 +5,12 @@ import { FolderStatus, FolderStatuses } from './FolderStatus';
 import { FolderUuid } from './FolderUuid';
 import { FolderCreatedDomainEvent } from './events/FolderCreatedDomainEvent';
 import { FolderRenamedDomainEvent } from './events/FolderRenamedDomainEvent';
+import { ActionNotPermittedError } from './errors/ActionNotPermittedError';
 
 export type FolderAttributes = {
   id: number;
   uuid: string;
-  parentId: null | number;
+  parentId: number;
   path: string;
   updatedAt: string;
   createdAt: string;
@@ -21,7 +22,7 @@ export class Folder extends AggregateRoot {
     public id: number,
     private _uuid: FolderUuid,
     private _path: FolderPath,
-    private _parentId: null | number,
+    private _parentId: number,
     public createdAt: Date,
     public updatedAt: Date,
     private _status: FolderStatus
@@ -150,6 +151,10 @@ export class Folder extends AggregateRoot {
   }
 
   trash() {
+    if (!this.parentId) {
+      throw new ActionNotPermittedError('Trash root folder');
+    }
+
     this._status = this._status.changeTo(FolderStatuses.TRASHED);
     this.updatedAt = new Date();
 

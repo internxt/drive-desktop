@@ -17,7 +17,9 @@ export class FileMover {
 
   async run(file: File, destination: FilePath) {
     const trackerId = await this.localFileIdProvider.run(file.path.value);
-    const destinationFolder = this.folderFinder.run(destination.dirname());
+    const destinationFolder = await this.folderFinder.run(
+      destination.dirname()
+    );
 
     file.move(destinationFolder, trackerId);
 
