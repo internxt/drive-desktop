@@ -1,10 +1,10 @@
 import { SyncEngineIpc } from '../../../ipcRendererSyncEngine';
-import { HttpFileRepository } from '../infrastructure/HttpFileRepository';
+import { InMemoryFileRepository } from '../infrastructure/InMemoryFileRepository';
 
 export class LocalRepositoryRepositoryRefresher {
   constructor(
     private readonly ipc: SyncEngineIpc,
-    private readonly repository: HttpFileRepository
+    private readonly repository: InMemoryFileRepository
   ) {}
 
   async run() {

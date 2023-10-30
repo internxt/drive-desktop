@@ -12,7 +12,7 @@ import { FileSearcher } from '../../modules/files/application/FileSearcher';
 import { LocalRepositoryRepositoryRefresher } from '../../modules/files/application/LocalRepositoryRepositoryRefresher';
 import { RetrieveAllFiles } from '../../modules/files/application/RetrieveAllFiles';
 import { SameFileWasMoved } from '../../modules/files/application/SameFileWasMoved';
-import { HttpFileRepository } from '../../modules/files/infrastructure/HttpFileRepository';
+import { InMemoryFileRepository } from '../../modules/files/infrastructure/InMemoryFileRepository';
 import { DependencyInjectionHttpClientsProvider } from '../common/clients';
 import { DependencyInjectionEventBus } from '../common/eventBus';
 import { DependencyInjectionEventRepository } from '../common/eventRepository';
@@ -37,7 +37,7 @@ export async function buildFilesContainer(
   const { bus: eventBus } = DependencyInjectionEventBus;
   const eventHistory = DependencyInjectionEventRepository.get();
 
-  const fileRepository = new HttpFileRepository(
+  const fileRepository = new InMemoryFileRepository(
     crypt,
     clients.drive,
     clients.newDrive,

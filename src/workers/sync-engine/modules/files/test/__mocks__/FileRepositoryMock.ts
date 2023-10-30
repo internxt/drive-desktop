@@ -47,7 +47,7 @@ export class FileRepositoryMock implements FileRepository {
     return this.mockUpdateParentDir(item);
   }
 
-  searchOnFolder(folderId: number): Promise<Array<File>> {
+  onFolder(folderId: number): Promise<Array<File>> {
     return this.mockSearchOnFolder(folderId);
   }
 

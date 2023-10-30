@@ -8,10 +8,13 @@ import { RemoteFileContents } from '../../contents/domain/RemoteFileContents';
 import { FileDeleter } from './FileDeleter';
 import { PlatformPathConverter } from '../../shared/application/PlatformPathConverter';
 import { SyncEngineIpc } from '../../../ipcRendererSyncEngine';
+import { OfflineFile } from '../domain/OfflineFile';
+import { FileInternxtFileSystem } from '../domain/FileInternxtFileSystem';
 
 export class FileCreator {
   constructor(
     private readonly repository: FileRepository,
+    private readonly fileSystem: FileInternxtFileSystem,
     private readonly folderFinder: FolderFinder,
     private readonly fileDeleter: FileDeleter,
     private readonly eventBus: EventBus,
@@ -20,27 +23,36 @@ export class FileCreator {
 
   async run(filePath: FilePath, contents: RemoteFileContents): Promise<File> {
     try {
-      const existingFile = this.repository.searchByPartial({
+      const existingFile = await this.repository.searchByPartial({
         path: PlatformPathConverter.winToPosix(filePath.value),
       });
 
       if (existingFile) {
-        await this.fileDeleter.act(existingFile);
+        await this.fileDeleter.run(existingFile.contentsId);
       }
 
       const size = new FileSize(contents.size);
 
       const folder = this.folderFinder.findFromFilePath(filePath);
 
-      const file = File.create(contents.id, folder, size, filePath);
+      const offlineFile = OfflineFile.create(
+        contents.id,
+        folder,
+        size,
+        filePath
+      );
+
+      const attributes = await this.fileSystem.create(offlineFile);
+
+      const file = File.create(attributes);
 
       await this.repository.add(file);
 
-      await this.eventBus.publish(file.pullDomainEvents());
+      await this.eventBus.publish(offlineFile.pullDomainEvents());
       this.ipc.send('FILE_CREATED', {
-        name: file.name,
-        extension: file.type,
-        nameWithExtension: file.nameWithExtension,
+        name: offlineFile.name,
+        extension: offlineFile.type,
+        nameWithExtension: offlineFile.nameWithExtension,
       });
 
       return file;

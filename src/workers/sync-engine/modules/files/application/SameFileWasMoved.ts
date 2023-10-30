@@ -16,7 +16,7 @@ export class SameFileWasMoved {
   ) {}
 
   async run(path: FilePath): Promise<WasMovedResult> {
-    const fileInDestination = this.fileByPartialSearcher.run({
+    const fileInDestination = await this.fileByPartialSearcher.run({
       path: path.value,
     });
 

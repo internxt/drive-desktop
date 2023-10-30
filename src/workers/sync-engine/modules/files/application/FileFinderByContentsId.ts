@@ -5,8 +5,8 @@ import { File } from '../domain/File';
 export class FileFinderByContentsId {
   constructor(private readonly repository: FileRepository) {}
 
-  run(contentsId: string): File {
-    const file = this.repository.searchByPartial({ contentsId });
+  async run(contentsId: string): Promise<File> {
+    const file = await this.repository.searchByPartial({ contentsId });
 
     if (!file) {
       throw new FileNotFoundError(contentsId);

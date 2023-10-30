@@ -4,7 +4,7 @@ import { FileRepository } from '../domain/FileRepository';
 export class FileByPartialSearcher {
   constructor(private readonly repository: FileRepository) {}
 
-  run(partial: Partial<FileAttributes>): File | undefined {
+  run(partial: Partial<FileAttributes>): Promise<File | undefined> {
     return this.repository.searchByPartial(partial);
   }
 }

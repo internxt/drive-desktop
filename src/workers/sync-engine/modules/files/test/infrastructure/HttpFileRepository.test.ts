@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { ExistingItemsTraverser } from '../../../items/application/ExistingItemsTraverser';
-import { HttpFileRepository } from '../../infrastructure/HttpFileRepository';
+import { InMemoryFileRepository } from '../../infrastructure/InMemoryFileRepository';
 import { IpcRendererSyncEngineMock } from '../../../shared/test/__mock__/IpcRendererSyncEngineMock';
 import { FilePath } from '../../domain/FilePath';
 import { ServerFileMother } from './ServerFileMother';
@@ -22,14 +22,14 @@ const rootFolder = ServerFolderMother.fromPartial({
 describe('Http File Repository', () => {
   let traverser: ExistingItemsTraverser;
   let ipc: IpcRendererSyncEngineMock;
-  let SUT: HttpFileRepository;
+  let SUT: InMemoryFileRepository;
 
   beforeEach(() => {
     traverser = new ExistingItemsTraverser(fakeDecryptor, rootFolderId);
 
     ipc = new IpcRendererSyncEngineMock();
 
-    SUT = new HttpFileRepository(
+    SUT = new InMemoryFileRepository(
       fakeDecryptor,
       axios,
       axios,

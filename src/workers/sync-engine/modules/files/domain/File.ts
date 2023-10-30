@@ -12,6 +12,8 @@ import { FileStatus, FileStatuses } from './FileStatus';
 import { ContentsId } from '../../contents/domain/ContentsId';
 import { FileMovedDomainEvent } from './events/FileMovedDomainEvent';
 import { FileRenamedDomainEvent } from './events/FileRenamedDomainEvent';
+import { OfflineFile } from './OfflineFile';
+import { ActionNotPermittedError } from './errors/ActionNotPermittedError';
 
 export type FileAttributes = {
   contentsId: string;
@@ -85,27 +87,14 @@ export class File extends AggregateRoot {
     );
   }
 
-  static create(
-    contentsId: string,
-    folder: Folder,
-    size: FileSize,
-    path: FilePath
-  ): File {
-    const file = new File(
-      new ContentsId(contentsId),
-      folder.id,
-      path,
-      size,
-      new Date(),
-      new Date(),
-      FileStatus.Exists
-    );
+  static create(attributes: FileAttributes): File {
+    const file = File.from(attributes);
 
     file.record(
       new FileCreatedDomainEvent({
-        aggregateId: contentsId,
+        aggregateId: file.contentsId,
         size: file.size,
-        type: path.extension(),
+        type: file.type,
       })
     );
 
@@ -124,11 +113,7 @@ export class File extends AggregateRoot {
     );
   }
 
-  moveTo(folder: Folder, trackerId: string): void {
-    if (this.folderId === folder.id) {
-      throw new FileCannotBeMovedToTheOriginalFolderError(this.path.value);
-    }
-
+  move(folder: Folder, trackerId: string): void {
     this._folderId = folder.id;
     this._path = this._path.changeFolder(folder.path.value);
 
@@ -140,20 +125,8 @@ export class File extends AggregateRoot {
     );
   }
 
-  rename(newPath: FilePath) {
-    if (!this._path.hasSameDirname(newPath)) {
-      throw new FileActionOnlyCanAffectOneLevelError('rename');
-    }
-
-    if (!newPath.hasSameExtension(this._path)) {
-      throw new FileActionCannotModifyExtension('rename');
-    }
-
-    if (this._path.hasSameName(newPath)) {
-      throw new FileNameShouldDifferFromOriginalError('rename');
-    }
-
-    this._path = this._path.updateName(newPath.nameWithExtension());
+  rename(newName: FilePath) {
+    this._path = this._path.updateName(`${newName}.${this.type}`);
 
     this.record(
       new FileRenamedDomainEvent({

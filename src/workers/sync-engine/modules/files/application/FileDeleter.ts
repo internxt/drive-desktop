@@ -15,16 +15,16 @@ export class FileDeleter {
   ) {}
 
   async run(contentsId: string): Promise<void> {
-    const file = this.repository.searchByPartial({ contentsId });
+    const file = await this.repository.searchByPartial({ contentsId });
 
     if (!file) {
       return;
     }
 
-    await this.act(file);
+    await this.deleteFile(file);
   }
 
-  async act(file: File) {
+  private async deleteFile(file: File) {
     if (file.status.is(FileStatuses.TRASHED)) {
       Logger.warn(`File ${file.path.value} is already trashed. Will ignore...`);
       return;

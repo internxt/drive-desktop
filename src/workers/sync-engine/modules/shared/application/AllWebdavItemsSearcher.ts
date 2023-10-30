@@ -14,7 +14,7 @@ export class AllWebdavItemsNameLister {
 
     const names: Array<string> = [];
 
-    const files = await this.filesRepository.searchOnFolder(folder.id);
+    const files = await this.filesRepository.onFolder(folder.id);
 
     files.forEach((file) => names.push(file.nameWithExtension));
 
