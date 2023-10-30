@@ -6,13 +6,15 @@ const imageExtensions = fileExtensionGroups[FileExtensionGroup.Image];
 const pdfExtensions = fileExtensionGroups[FileExtensionGroup.Pdf];
 
 const thumbnailableImageExtension = [
-  ...imageExtensions.jpg,
-  ...imageExtensions.png,
-  ...imageExtensions.bmp,
-  ...imageExtensions.gif,
+  ...(imageExtensions.jpg as unknown as Array<string>),
+  ...(imageExtensions.png as unknown as Array<string>),
+  ...(imageExtensions.bmp as unknown as Array<string>),
+  ...(imageExtensions.gif as unknown as Array<string>),
 ] as const;
 
-const thumbnailablePdfExtension = [...pdfExtensions.pdf] as const;
+const thumbnailablePdfExtension = [
+  ...(pdfExtensions.pdf as unknown as Array<string>),
+] as const;
 
 const thumbnailableExtension = [
   ...thumbnailableImageExtension,

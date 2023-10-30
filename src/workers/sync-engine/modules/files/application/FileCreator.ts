@@ -42,9 +42,9 @@ export class FileCreator {
         filePath
       );
 
-      const attributes = await this.fileSystem.create(offlineFile);
-
-      const file = File.create(attributes);
+      // Todo: ???
+      const created = await this.fileSystem.create(offlineFile);
+      const file = File.create(created);
 
       await this.repository.add(file);
 

@@ -3,7 +3,7 @@ import Logger from 'electron-log';
 
 import { getUser } from '../../main/auth/service';
 import configStore from '../../main/config';
-import { getClients } from '../../shared/HttpClient/backgroud-process-clients';
+import { getClients } from '../../shared/HttpClient/background-process-clients';
 import { getLocalFilesystem } from '../filesystems/local-filesystem';
 import { getRemoteFilesystem } from '../filesystems/remote-filesystem';
 import {

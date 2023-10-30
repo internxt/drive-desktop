@@ -14,7 +14,6 @@ import { FileStatuses } from '../../files/domain/FileStatus';
 export class UpdatePlaceholderFile {
   constructor(
     private readonly fileByPartialSearcher: FileByPartialSearcher,
-    private readonly managedFileRepository: ManagedFileRepository,
     private readonly virtualDrivePlaceholderCreator: PlaceholderCreator,
     private readonly relativePathToAbsoluteConverter: RelativePathToAbsoluteConverter,
     private readonly localFileIdProvider: LocalFileIdProvider,
@@ -29,7 +28,7 @@ export class UpdatePlaceholderFile {
   }
 
   async run(remote: File): Promise<void> {
-    const local = this.fileByPartialSearcher.run({
+    const local = await this.fileByPartialSearcher.run({
       contentsId: remote.contentsId,
     });
 

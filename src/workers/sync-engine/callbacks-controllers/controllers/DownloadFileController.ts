@@ -16,7 +16,7 @@ export class DownloadFileController extends CallbackController {
   }
 
   private async action(id: string, cb: CallbackDownload): Promise<string> {
-    const file = this.fileFinder.run(id);
+    const file = await this.fileFinder.run(id);
 
     return await this.downloader.run(file, cb);
   }
@@ -33,20 +33,19 @@ export class DownloadFileController extends CallbackController {
 
     try {
       const [_, contentsId] = trimmedId.split(':');
-      return await this.action(contentsId, cb);
+      return await this.action(contentsId as string, cb);
     } catch (error: unknown) {
       Logger.error(
         'Error downloading a file, going to refresh and retry: ',
         error
       );
-      await this.localRepositoryRefresher.run();
 
       return await new Promise((resolve, reject) => {
         setTimeout(async () => {
           try {
             const [_, contentsId] = trimmedId.split(':');
             Logger.debug('cb: ', cb);
-            const result = await this.action(contentsId, cb);
+            const result = await this.action(contentsId as string, cb);
             resolve(result);
           } catch (error) {
             reject(error);

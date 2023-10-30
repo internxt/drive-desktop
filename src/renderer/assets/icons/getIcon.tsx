@@ -1,3 +1,4 @@
+import { ReactElement } from 'react';
 import Audio from './audio.svg';
 import Code from './code.svg';
 import Csv from './csv.svg';
@@ -295,7 +296,7 @@ export const fileIcon = (extension: string) => {
   );
 
   if (file_icon.length > 0) {
-    return file_icon[0].icon;
+    return file_icon[0]?.icon;
   } else {
     return <Default />;
   }

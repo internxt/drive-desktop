@@ -38,7 +38,10 @@ export class OfflineRenameOrMoveController extends CallbackController {
 
       if (this.isFolderPlaceholder(trimmedId)) {
         const [_, folderUuid] = trimmedId.split(':');
-        await this.folderPathUpdater.run(folderUuid, posixRelativePath);
+        await this.folderPathUpdater.run(
+          folderUuid as string,
+          posixRelativePath
+        );
         Logger.debug('OFFLINE FOLDER PATH UPDATED: ', folderUuid);
         return callback(true);
       }

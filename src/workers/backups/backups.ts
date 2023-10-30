@@ -50,6 +50,7 @@ class Backups extends Process {
     }
 
     const smallFiles = pullFromRemote.filter(
+      // @ts-ignore
       (name) => currentLocal[name].size <= Backups.MAX_SMALL_FILE_SIZE
     );
     Logger.debug('Small files: ', smallFiles);

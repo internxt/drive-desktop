@@ -36,7 +36,7 @@ function cleanAndStartRemoteNotifications() {
       }
       cookieHeader.forEach((cookieString: string) => {
         if (cookieString.includes('INGRESSCOOKIE=')) {
-          const cookie = cookieString.split(';')[0];
+          const cookie = cookieString.split(';')[0] as string;
           if (socket) {
             socket.io.opts.extraHeaders = {
               cookie,

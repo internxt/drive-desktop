@@ -8,8 +8,8 @@ export class FilePlaceholderCreatorFromContentsId {
     private readonly placeholderCreator: PlaceholderCreator
   ) {}
 
-  run(contentsId: File['contentsId']) {
-    const file = this.finder.run(contentsId);
+  async run(contentsId: File['contentsId']): Promise<void> {
+    const file = await this.finder.run(contentsId);
 
     this.placeholderCreator.file(file);
   }

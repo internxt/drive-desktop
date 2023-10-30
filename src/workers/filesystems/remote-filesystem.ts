@@ -239,6 +239,7 @@ export function getRemoteFilesystem({
           items: [
             {
               type: 'file',
+              // @ts-ignore
               id: fileInCache.fileId,
             },
           ],

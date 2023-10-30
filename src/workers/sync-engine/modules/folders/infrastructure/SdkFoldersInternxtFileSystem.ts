@@ -42,6 +42,10 @@ export class SdkFoldersInternxtFileSystem implements FolderInternxtFileSystem {
       throw new Error('Folder creation failed, no data returned');
     }
 
+    if (!serverFolder.parentId) {
+      throw new Error('Folder creation failed, no parent id');
+    }
+
     const folder = Folder.create({
       id: serverFolder.id,
       uuid: serverFolder.uuid,

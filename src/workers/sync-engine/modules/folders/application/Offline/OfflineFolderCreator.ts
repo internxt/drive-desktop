@@ -11,10 +11,10 @@ export class OfflineFolderCreator {
     private readonly repository: FolderRepository
   ) {}
 
-  run(posixRelativePath: string): OfflineFolder {
+  async run(posixRelativePath: string): Promise<OfflineFolder> {
     const folderPath = new FolderPath(posixRelativePath);
 
-    const onlineFolder = this.repository.searchByPartial({
+    const onlineFolder = await this.repository.searchByPartial({
       path: folderPath.value,
     });
 
@@ -22,7 +22,7 @@ export class OfflineFolderCreator {
       throw new Error('The folder already exists on remote');
     }
 
-    const parent = this.folderFinder.run(folderPath.dirname());
+    const parent = await this.folderFinder.run(folderPath.dirname());
 
     const folder = OfflineFolder.create(folderPath, parent.id);
 

@@ -68,6 +68,10 @@ export async function chooseSyncRootWithDialog(): Promise<string | null> {
   if (!result.canceled) {
     const chosenPath = result.filePaths[0];
 
+    if (!chosenPath) {
+      return null;
+    }
+
     setSyncRoot(chosenPath);
     eventBus.emit('SYNC_ROOT_CHANGED', chosenPath);
 

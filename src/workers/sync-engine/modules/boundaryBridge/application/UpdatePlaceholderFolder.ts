@@ -79,7 +79,7 @@ export class UpdatePlaceholderFolder {
       return;
     }
 
-    const local = this.folderByPartialSearcher.run({
+    const local = await this.folderByPartialSearcher.run({
       uuid: remote.uuid,
     });
 

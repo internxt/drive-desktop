@@ -3,17 +3,11 @@ import { Folder } from '../../folders/domain/Folder';
 import { FilePath } from './FilePath';
 import { FileSize } from './FileSize';
 import { FileCreatedDomainEvent } from './events/FileCreatedDomainEvent';
-import { FileCannotBeMovedToTheOriginalFolderError } from './errors/FileCannotBeMovedToTheOriginalFolderError';
-import { FileActionOnlyCanAffectOneLevelError } from './errors/FileActionOnlyCanAffectOneLevelError';
-import { FileNameShouldDifferFromOriginalError } from './errors/FileNameShouldDifferFromOriginalError';
-import { FileActionCannotModifyExtension } from './errors/FileActionCannotModifyExtension';
 import { FileDeletedDomainEvent } from './events/FileDeletedDomainEvent';
 import { FileStatus, FileStatuses } from './FileStatus';
 import { ContentsId } from '../../contents/domain/ContentsId';
 import { FileMovedDomainEvent } from './events/FileMovedDomainEvent';
 import { FileRenamedDomainEvent } from './events/FileRenamedDomainEvent';
-import { OfflineFile } from './OfflineFile';
-import { ActionNotPermittedError } from './errors/ActionNotPermittedError';
 
 export type FileAttributes = {
   contentsId: string;
@@ -87,9 +81,7 @@ export class File extends AggregateRoot {
     );
   }
 
-  static create(attributes: FileAttributes): File {
-    const file = File.from(attributes);
-
+  static create(file: File): File {
     file.record(
       new FileCreatedDomainEvent({
         aggregateId: file.contentsId,

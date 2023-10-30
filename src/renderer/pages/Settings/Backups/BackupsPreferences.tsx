@@ -102,9 +102,13 @@ export default function BackupsPreferences({
   async function onBackupsIntervalChanged(value: string) {
     const interval = BackupsIntervals.filter(
       (option) => option.value === value
-    )[0].interval;
+    )[0];
 
-    await window.electron.setBackupsInterval(interval);
+    if (!interval) {
+      return;
+    }
+
+    await window.electron.setBackupsInterval(interval.interval);
     refreshBackupsInterval();
   }
 

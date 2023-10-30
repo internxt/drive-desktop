@@ -6,6 +6,8 @@ import {
 } from 'renderer/components/Backups/BackupsFoldersSelector';
 import { reportError } from 'renderer/utils/errors';
 import useClientPlatform from 'renderer/hooks/ClientPlatform';
+import { MigrationSlide } from '../Migration/helpers';
+import { OnboardingSlide } from './helpers';
 
 // Slide 1 is welcome slide, last slide is summary, doesn't count
 const totalSlides = SLIDES.length - 2;
@@ -43,15 +45,15 @@ export default function Onboarding() {
   };
 
   const SlideContent = useMemo(() => {
-    return SLIDES[slideIndex].component;
+    return (SLIDES[slideIndex] as OnboardingSlide).component;
   }, [slideIndex]);
 
   const SlideContentFooter = useMemo(() => {
-    return SLIDES[slideIndex].footer;
+    return (SLIDES[slideIndex] as OnboardingSlide).footer;
   }, [slideIndex]);
 
   const SlideImage = useMemo(() => {
-    return SLIDES[slideIndex].image;
+    return (SLIDES[slideIndex] as OnboardingSlide).image;
   }, [slideIndex]);
 
   const setupBackups = () => {

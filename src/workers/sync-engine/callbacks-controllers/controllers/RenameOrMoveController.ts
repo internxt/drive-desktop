@@ -37,13 +37,16 @@ export class RenameOrMoveController extends CallbackController {
 
       if (this.isFilePlaceholder(trimmedId)) {
         const [_, contentsId] = trimmedId.split(':');
-        await this.filePathUpdater.run(contentsId, posixRelativePath);
+        await this.filePathUpdater.run(contentsId as string, posixRelativePath);
         return callback(true);
       }
 
       if (this.isFolderPlaceholder(trimmedId)) {
         const [_, folderUuid] = trimmedId.split(':');
-        await this.folderPathUpdater.run(folderUuid, posixRelativePath);
+        await this.folderPathUpdater.run(
+          folderUuid as string,
+          posixRelativePath
+        );
         return callback(true);
       }
 

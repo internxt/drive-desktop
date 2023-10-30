@@ -1,19 +1,16 @@
+import { FileRenamer } from 'workers/sync-engine/modules/files/application/FileRenamer';
 import crypt from '../../../utils/crypt';
 import { ipcRendererSyncEngine } from '../../ipcRendererSyncEngine';
 import { CreateFilePlaceholderOnDeletionFailed } from '../../modules/files/application/CreateFilePlaceholderOnDeletionFailed';
 import { FileByPartialSearcher } from '../../modules/files/application/FileByPartialSearcher';
-import { FileClearer } from '../../modules/files/application/FileClearer';
 import { FileCreator } from '../../modules/files/application/FileCreator';
 import { FileDeleter } from '../../modules/files/application/FileDeleter';
 import { FileFinderByContentsId } from '../../modules/files/application/FileFinderByContentsId';
 import { FilePathUpdater } from '../../modules/files/application/FilePathUpdater';
 import { FilePlaceholderCreatorFromContentsId } from '../../modules/files/application/FilePlaceholderCreatorFromContentsId';
-import { FileSearcher } from '../../modules/files/application/FileSearcher';
-import { LocalRepositoryRepositoryRefresher } from '../../modules/files/application/LocalRepositoryRepositoryRefresher';
 import { RetrieveAllFiles } from '../../modules/files/application/RetrieveAllFiles';
 import { SameFileWasMoved } from '../../modules/files/application/SameFileWasMoved';
 import { InMemoryFileRepository } from '../../modules/files/infrastructure/InMemoryFileRepository';
-import { DependencyInjectionHttpClientsProvider } from '../common/clients';
 import { DependencyInjectionEventBus } from '../common/eventBus';
 import { DependencyInjectionEventRepository } from '../common/eventRepository';
 import { DependencyInjectionTraverserProvider } from '../common/traverser';
@@ -22,6 +19,9 @@ import { FoldersContainer } from '../folders/FoldersContainer';
 import { PlaceholderContainer } from '../placeholders/PlaceholdersContainer';
 import { SharedContainer } from '../shared/SharedContainer';
 import { FilesContainer } from './FilesContainer';
+import { SdkFilesInternxtFileSystem } from 'workers/sync-engine/modules/files/infrastructure/SdkFilesInternxtFileSystem';
+import { DependencyInjectionStorageSdk } from '../common/strogaeSdk';
+import { FileMover } from 'workers/sync-engine/modules/files/application/FileMover';
 
 export async function buildFilesContainer(
   folderContainer: FoldersContainer,
@@ -31,38 +31,24 @@ export async function buildFilesContainer(
   container: FilesContainer;
   subscribers: any;
 }> {
-  const clients = DependencyInjectionHttpClientsProvider.get();
   const traverser = DependencyInjectionTraverserProvider.get();
   const user = DependencyInjectionUserProvider.get();
   const { bus: eventBus } = DependencyInjectionEventBus;
   const eventHistory = DependencyInjectionEventRepository.get();
+  const sdk = await DependencyInjectionStorageSdk.get();
 
-  const fileRepository = new InMemoryFileRepository(
-    crypt,
-    clients.drive,
-    clients.newDrive,
-    traverser,
-    user.bucket,
-    ipcRendererSyncEngine
-  );
+  const repository = new InMemoryFileRepository();
 
-  await fileRepository.init();
-
-  const fileFinderByContentsId = new FileFinderByContentsId(fileRepository);
-
-  const localRepositoryRefresher = new LocalRepositoryRepositoryRefresher(
-    ipcRendererSyncEngine,
-    fileRepository
-  );
+  const fileFinderByContentsId = new FileFinderByContentsId(repository);
 
   const fileDeleter = new FileDeleter(
-    fileRepository,
+    repository,
     folderContainer.allParentFoldersStatusIsExists,
     placeholderContainer.placeholderCreator,
     ipcRendererSyncEngine
   );
 
-  const fileByPartialSearcher = new FileByPartialSearcher(fileRepository);
+  const fileByPartialSearcher = new FileByPartialSearcher(repository);
 
   const sameFileWasMoved = new SameFileWasMoved(
     fileByPartialSearcher,
@@ -70,24 +56,33 @@ export async function buildFilesContainer(
     eventHistory
   );
 
-  const filePathUpdater = new FilePathUpdater(
-    fileRepository,
-    fileFinderByContentsId,
-    folderContainer.folderFinder,
-    ipcRendererSyncEngine,
+  const fileSystem = new SdkFilesInternxtFileSystem(sdk, crypt, user.bucket);
+
+  const fileRenamer = new FileRenamer(fileSystem, repository, eventBus);
+  const fileMover = new FileMover(
     sharedContainer.localFileIdProvider,
+    folderContainer.folderFinder,
+    fileSystem,
+    repository,
     eventBus
   );
 
+  const filePathUpdater = new FilePathUpdater(
+    repository,
+    fileFinderByContentsId,
+    fileRenamer,
+    fileMover,
+    ipcRendererSyncEngine
+  );
+
   const fileCreator = new FileCreator(
-    fileRepository,
+    repository,
+    fileSystem,
     folderContainer.folderFinder,
     fileDeleter,
     eventBus,
     ipcRendererSyncEngine
   );
-
-  const fileSearcher = new FileSearcher(fileRepository);
 
   const filePlaceholderCreatorFromContentsId =
     new FilePlaceholderCreatorFromContentsId(
@@ -100,23 +95,17 @@ export async function buildFilesContainer(
       filePlaceholderCreatorFromContentsId
     );
 
-  const fileClearer = new FileClearer(fileRepository);
-
   const container: FilesContainer = {
     fileFinderByContentsId,
-    localRepositoryRefresher: localRepositoryRefresher,
     fileDeleter,
     fileByPartialSearcher,
     filePathUpdater,
     fileCreator,
-    fileSearcher,
     filePlaceholderCreatorFromContentsId: filePlaceholderCreatorFromContentsId,
     createFilePlaceholderOnDeletionFailed:
       createFilePlaceholderOnDeletionFailed,
-    fileClearer,
-    managedFileRepository: fileRepository,
     sameFileWasMoved,
-    retrieveAllFiles: new RetrieveAllFiles(fileRepository),
+    retrieveAllFiles: new RetrieveAllFiles(repository),
   };
 
   return { container, subscribers: [] };

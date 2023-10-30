@@ -78,7 +78,7 @@ export class OfflineFolder extends AggregateRoot {
     );
   }
 
-  moveTo(destinationFolder: Folder) {
+  move(destinationFolder: Folder) {
     this._parentId = destinationFolder.id;
   }
 

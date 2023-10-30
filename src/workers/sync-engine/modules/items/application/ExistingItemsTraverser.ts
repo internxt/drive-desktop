@@ -9,7 +9,6 @@ import {
 } from '../../../../filesystems/domain/ServerFolder';
 import { fileNameIsValid } from '../../../../utils/name-verification';
 import { File } from '../../files/domain/File';
-import { FolderStatus } from '../../folders/domain/FolderStatus';
 import { Folder } from '../../folders/domain/Folder';
 import { ItemsIndexedByPath } from '../domain/ItemsIndexedByPath';
 import { EitherTransformer } from '../../shared/application/EitherTransformer';
@@ -30,8 +29,6 @@ function fileFromServerFile(relativePath: string, server: ServerFile): File {
 
 export class ExistingItemsTraverser implements Traverser {
   private readonly collection: ItemsIndexedByPath = {};
-  private static readonly ROOT_FOLDER_UUID =
-    '43711926-15c2-5ebf-8c24-5099fa9af3c3';
 
   private rawTree: {
     files: Array<ServerFile>;
@@ -132,16 +129,6 @@ export class ExistingItemsTraverser implements Traverser {
     Object.keys(this.collection).forEach(
       (k: string) => delete this.collection[k]
     );
-
-    this.collection['/'] = Folder.from({
-      id: this.baseFolderId,
-      uuid: ExistingItemsTraverser.ROOT_FOLDER_UUID,
-      parentId: null,
-      updatedAt: new Date().toISOString(),
-      createdAt: new Date().toISOString(),
-      path: '/',
-      status: FolderStatus.Exists.value,
-    });
   }
 
   public run(rawTree: {
@@ -151,16 +138,6 @@ export class ExistingItemsTraverser implements Traverser {
     this.rawTree = rawTree;
 
     this.traverse(this.baseFolderId);
-
-    this.collection['/'] = Folder.from({
-      id: this.baseFolderId,
-      uuid: ExistingItemsTraverser.ROOT_FOLDER_UUID,
-      parentId: null,
-      updatedAt: new Date().toISOString(),
-      createdAt: new Date().toISOString(),
-      path: '/',
-      status: FolderStatus.Exists.value,
-    });
 
     return this.collection;
   }

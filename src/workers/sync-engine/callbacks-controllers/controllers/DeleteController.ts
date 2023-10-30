@@ -47,14 +47,14 @@ export class DeleteController extends CallbackController {
     if (this.isFilePlaceholder(trimmedId)) {
       const [_, contentsId] = trimmedId.split(':');
       Logger.debug(`Adding file: ${contentsId} to the trash queue`);
-      this.filesQueue.push(contentsId);
+      this.filesQueue.push(contentsId as string);
       return;
     }
 
     if (this.isFolderPlaceholder(trimmedId)) {
       const [_, folderUuid] = trimmedId.split(':');
       Logger.debug(`Adding folder: ${folderUuid} to the trash queue`);
-      this.foldersQueue.push(folderUuid);
+      this.foldersQueue.push(folderUuid as string);
       return;
     }
 

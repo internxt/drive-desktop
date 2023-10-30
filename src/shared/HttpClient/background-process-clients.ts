@@ -3,7 +3,8 @@ import { ipcRenderer } from 'electron';
 import { AuthorizedClients } from './Clients';
 import { AuthorizedHttpClient } from './HttpClient';
 
-const onUserUnauthorized = () => ipcRenderer.emit('user-is-unauthorized');
+export const onUserUnauthorized = () =>
+  ipcRenderer.emit('user-is-unauthorized');
 
 const driveHeadersProvider = () => ipcRenderer.invoke('get-headers');
 const newDriveHeadersProvider = () =>

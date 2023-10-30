@@ -60,7 +60,15 @@ ipcMain.on('BACKUP_COMPLETED', (folderId: any) => {
   const items = backupProcessInfo.items[folderId];
   const errors = backupProcessInfo.errors[folderId];
 
+  if (!items) {
+    return;
+  }
+
   folderBackupCompleted(backupProcessInfo.shceduled, items);
+
+  if (!errors) {
+    return;
+  }
 
   if (errors?.length > 0) {
     backupError(backupProcessInfo.shceduled, items, errors);

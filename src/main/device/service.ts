@@ -145,7 +145,17 @@ export async function getBackupsFromDevice(): Promise<
     .filter((backup: Backup) => {
       const pathname = findBackupPathnameFromId(backup.id);
 
-      return pathname && backupsList[pathname].enabled;
+      if (!pathname) {
+        return false;
+      }
+
+      const b = backupsList[pathname];
+
+      if (!b) {
+        return false;
+      }
+
+      return pathname && b.enabled;
     })
     .map((backup: Backup) => ({
       ...backup,

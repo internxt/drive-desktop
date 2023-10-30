@@ -10,7 +10,7 @@ function extractNameAndExtension(nameWithExtension: string): [string, string] {
     return [nameWithExtension, ''];
   }
 
-  const [name, extension] = nameWithExtension.split('.');
+  const [name, extension] = nameWithExtension.split('.') as [string, string];
 
   return [name, extension];
 }

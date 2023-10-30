@@ -2,9 +2,11 @@ import { SyncEngineIpc } from '../../../ipcRendererSyncEngine';
 import { FolderPath } from '../domain/FolderPath';
 import { Folder } from '../domain/Folder';
 import { FolderRepository } from '../domain/FolderRepository';
+import { FolderInternxtFileSystem } from '../domain/FolderInternxtFileSystem';
 
 export class FolderRenamer {
   constructor(
+    private readonly fileSystem: FolderInternxtFileSystem,
     private readonly repository: FolderRepository,
     private readonly ipc: SyncEngineIpc
   ) {}
@@ -17,6 +19,7 @@ export class FolderRenamer {
 
     folder.rename(destination);
 
+    await this.fileSystem.rename(folder);
     await this.repository.update(folder);
 
     this.ipc.send('FOLDER_RENAMED', {

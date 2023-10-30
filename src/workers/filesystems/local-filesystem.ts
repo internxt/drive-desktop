@@ -29,6 +29,7 @@ export function getLocalFilesystem(
    * @returns Listing path relative to localPath with '/' as separator
    */
   function getListingPath(actualPath: string) {
+    // @ts-ignore
     return actualPath.split(localPath)[1].replaceAll(path.sep, '/');
   }
 

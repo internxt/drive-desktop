@@ -37,7 +37,6 @@ export function buildBoundaryBridgeContainer(
 
   const syncRemoteFile = new UpdatePlaceholderFile(
     filesContainer.fileByPartialSearcher,
-    filesContainer.managedFileRepository,
     placeholderContainer.placeholderCreator,
     sharedContainer.relativePathToAbsoluteConverter,
     sharedContainer.localFileIdProvider,

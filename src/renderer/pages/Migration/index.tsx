@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { SLIDES } from './config';
 
 import { useTranslationContext } from 'renderer/context/LocalContext';
-import { MigrationSlideProps } from './helpers';
+import { MigrationSlide, MigrationSlideProps } from './helpers';
 import { reportError } from 'renderer/utils/errors';
 import useClientPlatform from 'renderer/hooks/ClientPlatform';
 
@@ -115,15 +115,15 @@ export default function Migration() {
   };
 
   const SlideContent = useMemo(() => {
-    return SLIDES[slideIndex].component;
+    return (SLIDES[slideIndex] as MigrationSlide).component;
   }, [slideIndex, migrationProgress]);
 
   const SlideContentFooter = useMemo(() => {
-    return SLIDES[slideIndex].footer;
+    return (SLIDES[slideIndex] as MigrationSlide).footer;
   }, [slideIndex]);
 
   const SlideImage = useMemo(() => {
-    return SLIDES[slideIndex].image;
+    return (SLIDES[slideIndex] as MigrationSlide).image;
   }, [slideIndex]);
 
   const currentSlide = slideIndex - 2;

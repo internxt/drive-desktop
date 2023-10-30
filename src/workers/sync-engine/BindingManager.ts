@@ -79,6 +79,7 @@ export class BindingsManager {
           );
           Logger.debug('Execute Fetch Data Callback, sending path:', path);
           const file = controllers.downloadFile.fileFinderByContentsId(
+            // @ts-ignore
             contentsId
               .replace(
                 // eslint-disable-next-line no-control-regex

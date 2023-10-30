@@ -20,9 +20,11 @@ export class OfflineFolderMover {
       throw new ActionNotPermittedError('overwrite');
     }
 
-    const destinationFolder = this.folderFinder.run(destination.dirname());
+    const destinationFolder = await this.folderFinder.run(
+      destination.dirname()
+    );
 
-    folder.moveTo(destinationFolder);
+    folder.move(destinationFolder);
     this.offlineFolderRepository.update(folder);
   }
 }

@@ -23,7 +23,7 @@ export class FolderMother {
       id: 2048,
       uuid: FolderUuid.random().value,
       path: '/Zodseve',
-      parentId: null,
+      parentId: chance.integer({ min: 1 }),
       updatedAt: new Date().toISOString(),
       createdAt: new Date().toISOString(),
       status: FolderStatuses.EXISTS,
@@ -71,22 +71,10 @@ export class FolderMother {
       id: 2048,
       uuid: FolderUuid.random().value,
       path: '/Zodseve',
-      parentId: null,
+      parentId: chance.integer({ min: 1 }),
       updatedAt: new Date().toISOString(),
       createdAt: new Date().toISOString(),
       status: FolderStatuses.TRASHED,
-    });
-  }
-
-  static root() {
-    return Folder.from({
-      id: 2048,
-      uuid: FolderUuid.random().value,
-      path: '/',
-      parentId: null,
-      updatedAt: new Date().toISOString(),
-      createdAt: new Date().toISOString(),
-      status: FolderStatuses.EXISTS,
     });
   }
 

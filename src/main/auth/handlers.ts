@@ -42,6 +42,7 @@ ipcMain.handle('get-headers', (_, includeMnemonic) =>
 ipcMain.handle('get-headers-for-new-api', () => getNewApiHeaders());
 
 ipcMain.handle('get-new-token', () => obtainToken('newToken'));
+ipcMain.handle('get-token', () => obtainToken('bearerToken'));
 
 export function onUserUnauthorized() {
   eventBus.emit('USER_WAS_UNAUTHORIZED');

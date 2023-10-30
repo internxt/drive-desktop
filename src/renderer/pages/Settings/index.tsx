@@ -13,7 +13,9 @@ export default function Settings() {
   useEffect(() => {
     const resizeObserver = new ResizeObserver(([rootElement]) =>
       window.electron.settingsWindowResized({
+        // @ts-ignore
         width: rootElement.borderBoxSize[0].inlineSize,
+        // @ts-ignore
         height: rootElement.borderBoxSize[0].blockSize,
       })
     );
