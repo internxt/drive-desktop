@@ -1,10 +1,10 @@
 import { DomainEventClass } from '../../shared/domain/DomainEvent';
-import { WebdavDomainEventSubscriber } from '../../shared/domain/WebdavDomainEventSubscriber';
+import { DomainEventSubscriber } from '../../shared/domain/DomainEventSubscriber';
 import { OptimisticFileDeletionFailed } from '../domain/events/OptimisticFileDeletionFailed';
 import { FilePlaceholderCreatorFromContentsId } from './FilePlaceholderCreatorFromContentsId';
 
 export class CreateFilePlaceholderOnDeletionFailed
-  implements WebdavDomainEventSubscriber<OptimisticFileDeletionFailed>
+  implements DomainEventSubscriber<OptimisticFileDeletionFailed>
 {
   constructor(private readonly creator: FilePlaceholderCreatorFromContentsId) {}
 

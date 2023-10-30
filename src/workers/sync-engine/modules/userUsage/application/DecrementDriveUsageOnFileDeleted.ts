@@ -1,11 +1,11 @@
 import { FileCreatedDomainEvent } from '../../files/domain/events/FileCreatedDomainEvent';
 import { DomainEventClass } from '../../shared/domain/DomainEvent';
-import { WebdavDomainEventSubscriber } from '../../shared/domain/WebdavDomainEventSubscriber';
+import { DomainEventSubscriber } from '../../shared/domain/DomainEventSubscriber';
 import { UserUsageIncrementer } from './UserUsageIncrementer';
 import { FileDeletedDomainEvent } from '../../files/domain/events/FileDeletedDomainEvent';
 
 export class DecrementDriveUsageOnFileDeleted
-  implements WebdavDomainEventSubscriber<FileCreatedDomainEvent>
+  implements DomainEventSubscriber<FileCreatedDomainEvent>
 {
   constructor(private readonly incrementer: UserUsageIncrementer) {}
 
