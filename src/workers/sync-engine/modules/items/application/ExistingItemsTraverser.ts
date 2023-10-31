@@ -12,7 +12,7 @@ import { File } from '../../files/domain/File';
 import { Folder } from '../../folders/domain/Folder';
 import { ItemsIndexedByPath } from '../domain/ItemsIndexedByPath';
 import { EitherTransformer } from '../../shared/application/EitherTransformer';
-import { Traverser } from '../domain/Traverser';
+import { RemoteItemsRepository } from '../domain/RemoteItemsRepository';
 
 function fileFromServerFile(relativePath: string, server: ServerFile): File {
   return File.from({
@@ -27,13 +27,13 @@ function fileFromServerFile(relativePath: string, server: ServerFile): File {
   });
 }
 
-export class ExistingItemsTraverser implements Traverser {
-  private readonly collection: ItemsIndexedByPath = {};
+type Tree = {
+  files: Array<ServerFile>;
+  folders: Array<ServerFolder>;
+};
 
-  private rawTree: {
-    files: Array<ServerFile>;
-    folders: Array<ServerFolder>;
-  } | null = null;
+export class ExistingItemsTraverser {
+  private readonly collection: ItemsIndexedByPath = {};
 
   constructor(
     private readonly decrypt: {
@@ -43,17 +43,16 @@ export class ExistingItemsTraverser implements Traverser {
         encryptVersion: string
       ) => string | null;
     },
-    private readonly baseFolderId: number
+    private readonly baseFolderId: number,
+    private readonly remoteItemsRepository: RemoteItemsRepository
   ) {}
 
-  private traverse(currentId: number, currentName = '') {
-    if (!this.rawTree) return;
-
-    const filesInThisFolder = this.rawTree.files.filter(
+  private traverse(tree: Tree, currentId: number, currentName = '') {
+    const filesInThisFolder = tree.files.filter(
       (file) => file.folderId === currentId
     );
 
-    const foldersInThisFolder = this.rawTree.folders.filter((folder) => {
+    const foldersInThisFolder = tree.folders.filter((folder) => {
       return folder.parentId === currentId;
     });
 
@@ -121,23 +120,13 @@ export class ExistingItemsTraverser implements Traverser {
         status: folder.status,
       });
 
-      this.traverse(folder.id, `${name}`);
+      this.traverse(tree, folder.id, `${name}`);
     });
   }
 
-  public reset() {
-    Object.keys(this.collection).forEach(
-      (k: string) => delete this.collection[k]
-    );
-  }
-
-  public run(rawTree: {
-    files: Array<ServerFile>;
-    folders: Array<ServerFolder>;
-  }) {
-    this.rawTree = rawTree;
-
-    this.traverse(this.baseFolderId);
+  async run(): Promise<ItemsIndexedByPath> {
+    const tree = await this.remoteItemsRepository.getAll();
+    this.traverse(tree, this.baseFolderId);
 
     return this.collection;
   }

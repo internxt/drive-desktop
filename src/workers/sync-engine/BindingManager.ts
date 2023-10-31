@@ -24,8 +24,13 @@ export class BindingsManager {
     }
   ) {}
 
+  private async load(): Promise<void> {
+    await this.container.populateFileRepository.run();
+  }
+
   async start(version: string, providerId: string) {
     await this.stop();
+    await this.load();
 
     const controllers = buildControllers(this.container);
 

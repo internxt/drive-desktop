@@ -5,8 +5,6 @@ import { FileRepository } from '../domain/FileRepository';
 export class InMemoryFileRepository implements FileRepository {
   public filesAttributes: Record<string, FileAttributes> = {};
 
-  constructor() {}
-
   all(): Promise<Array<File>> {
     return Promise.resolve(
       Object.values(this.filesAttributes).map((attributes) =>

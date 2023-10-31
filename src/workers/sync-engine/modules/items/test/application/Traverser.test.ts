@@ -2,14 +2,15 @@ import { ContentsIdMother } from '../../../contents/test/domain/ContentsIdMother
 import { ServerFile } from '../../../../../filesystems/domain/ServerFile';
 import { ServerFolder } from '../../../../../filesystems/domain/ServerFolder';
 import { ExistingItemsTraverser } from '../../application/ExistingItemsTraverser';
+import { RemoteItemsRepository } from '../../domain/RemoteItemsRepository';
 
 const fakeDecrypt = {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   decryptName: (name: string, _a: string, _b: string) => name,
 };
 
-describe('Traverser', () => {
-  it('first level files starts with /', () => {
+describe('Traverser', async () => {
+  it('first level files starts with /', async () => {
     const baseFolderId = 6;
     const rawTree = {
       files: [
@@ -23,14 +24,22 @@ describe('Traverser', () => {
       ],
       folders: [],
     };
-    const SUT = new ExistingItemsTraverser(fakeDecrypt, baseFolderId);
+    const itemsRepository: RemoteItemsRepository = {
+      getAll: () => Promise.resolve(rawTree),
+    };
 
-    const result = SUT.run(rawTree);
+    const SUT = new ExistingItemsTraverser(
+      fakeDecrypt,
+      baseFolderId,
+      itemsRepository
+    );
+
+    const result = await SUT.run();
 
     expect(Object.keys(result)).toStrictEqual(['/file A', '/']);
   });
 
-  it('second level files starts with /', () => {
+  it('second level files starts with /', async () => {
     const baseFolderId = 6;
     const rawTree = {
       files: [
@@ -52,9 +61,16 @@ describe('Traverser', () => {
         } as ServerFolder,
       ],
     };
-    const SUT = new ExistingItemsTraverser(fakeDecrypt, baseFolderId);
+    const itemsRepository: RemoteItemsRepository = {
+      getAll: () => Promise.resolve(rawTree),
+    };
+    const SUT = new ExistingItemsTraverser(
+      fakeDecrypt,
+      baseFolderId,
+      itemsRepository
+    );
 
-    const result = SUT.run(rawTree);
+    const result = await SUT.run();
 
     expect(Object.keys(result)).toStrictEqual([
       '/folder A',
@@ -63,7 +79,7 @@ describe('Traverser', () => {
     ]);
   });
 
-  it('first level folder starts with /', () => {
+  it('first level folder starts with /', async () => {
     const baseFolderId = 6;
     const rawTree = {
       files: [],
@@ -77,14 +93,22 @@ describe('Traverser', () => {
         } as ServerFolder,
       ],
     };
-    const SUT = new ExistingItemsTraverser(fakeDecrypt, baseFolderId);
 
-    const result = SUT.run(rawTree);
+    const itemsRepository: RemoteItemsRepository = {
+      getAll: () => Promise.resolve(rawTree),
+    };
+    const SUT = new ExistingItemsTraverser(
+      fakeDecrypt,
+      baseFolderId,
+      itemsRepository
+    );
+
+    const result = await SUT.run();
 
     expect(Object.keys(result)).toStrictEqual(['/folder A', '/']);
   });
 
-  it('second level folder starts with /', () => {
+  it('second level folder starts with /', async () => {
     const baseFolderId = 6;
     const rawTree = {
       files: [],
@@ -105,9 +129,17 @@ describe('Traverser', () => {
         } as ServerFolder,
       ],
     };
-    const SUT = new ExistingItemsTraverser(fakeDecrypt, baseFolderId);
+    const itemsRepository: RemoteItemsRepository = {
+      getAll: () => Promise.resolve(rawTree),
+    };
 
-    const result = SUT.run(rawTree);
+    const SUT = new ExistingItemsTraverser(
+      fakeDecrypt,
+      baseFolderId,
+      itemsRepository
+    );
+
+    const result = await SUT.run();
 
     expect(Object.keys(result)).toStrictEqual([
       '/folder A',
@@ -116,7 +148,7 @@ describe('Traverser', () => {
     ]);
   });
 
-  it('root folder should exist', () => {
+  it('root folder should exist', async () => {
     const baseFolderId = 6;
     const rawTree = {
       files: [],
@@ -137,9 +169,17 @@ describe('Traverser', () => {
         } as ServerFolder,
       ],
     };
-    const SUT = new ExistingItemsTraverser(fakeDecrypt, baseFolderId);
 
-    const result = SUT.run(rawTree);
+    const itemsRepository: RemoteItemsRepository = {
+      getAll: () => Promise.resolve(rawTree),
+    };
+    const SUT = new ExistingItemsTraverser(
+      fakeDecrypt,
+      baseFolderId,
+      itemsRepository
+    );
+
+    const result = await SUT.run();
 
     expect(Object.keys(result)).toStrictEqual([
       '/folder A',
@@ -148,7 +188,7 @@ describe('Traverser', () => {
     ]);
   });
 
-  it('when a file data is invalid ignore it and continue', () => {
+  it('when a file data is invalid ignore it and continue', async () => {
     const baseFolderId = 6;
     const rawTree = {
       files: [
@@ -176,14 +216,21 @@ describe('Traverser', () => {
       ],
       folders: [],
     };
-    const SUT = new ExistingItemsTraverser(fakeDecrypt, baseFolderId);
+    const itemsRepository: RemoteItemsRepository = {
+      getAll: () => Promise.resolve(rawTree),
+    };
+    const SUT = new ExistingItemsTraverser(
+      fakeDecrypt,
+      baseFolderId,
+      itemsRepository
+    );
 
-    const result = SUT.run(rawTree);
+    const result = await SUT.run();
 
     expect(Object.keys(result)).toStrictEqual(['/valid_name', '/']);
   });
 
-  it('when a folder data is invalid ignore it and continue', () => {
+  it('when a folder data is invalid ignore it and continue', async () => {
     const baseFolderId = 6;
     const rawTree = {
       files: [],
@@ -198,9 +245,16 @@ describe('Traverser', () => {
         {} as ServerFolder,
       ],
     };
-    const SUT = new ExistingItemsTraverser(fakeDecrypt, baseFolderId);
+    const itemsRepository: RemoteItemsRepository = {
+      getAll: () => Promise.resolve(rawTree),
+    };
+    const SUT = new ExistingItemsTraverser(
+      fakeDecrypt,
+      baseFolderId,
+      itemsRepository
+    );
 
-    const result = SUT.run(rawTree);
+    const result = await SUT.run();
 
     expect(Object.keys(result)).toStrictEqual(['/folder A', '/']);
   });

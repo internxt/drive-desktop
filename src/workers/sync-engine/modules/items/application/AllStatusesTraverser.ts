@@ -9,7 +9,12 @@ import { File } from '../../files/domain/File';
 import { Folder } from '../../folders/domain/Folder';
 import { ItemsIndexedByPath } from '../domain/ItemsIndexedByPath';
 import { EitherTransformer } from '../../shared/application/EitherTransformer';
-import { Traverser } from '../domain/Traverser';
+import { RemoteItemsRepository } from '../domain/RemoteItemsRepository';
+
+type Tree = {
+  files: Array<ServerFile>;
+  folders: Array<ServerFolder>;
+};
 
 function fileFromServerFile(relativePath: string, server: ServerFile): File {
   return File.from({
@@ -24,12 +29,8 @@ function fileFromServerFile(relativePath: string, server: ServerFile): File {
   });
 }
 
-export class AllStatusesTraverser implements Traverser {
+export class AllStatusesTraverser {
   private readonly collection: ItemsIndexedByPath = {};
-  private rawTree: {
-    files: Array<ServerFile>;
-    folders: Array<ServerFolder>;
-  } | null = null;
 
   constructor(
     private readonly decrypt: {
@@ -39,17 +40,16 @@ export class AllStatusesTraverser implements Traverser {
         encryptVersion: string
       ) => string | null;
     },
-    private readonly baseFolderId: number
+    private readonly baseFolderId: number,
+    private readonly remoteItemsRepository: RemoteItemsRepository
   ) {}
 
-  private traverse(currentId: number, currentName = '') {
-    if (!this.rawTree) return;
-
-    const filesInThisFolder = this.rawTree.files.filter(
+  private traverse(tree: Tree, currentId: number, currentName = '') {
+    const filesInThisFolder = tree.files.filter(
       (file) => file.folderId === currentId
     );
 
-    const foldersInThisFolder = this.rawTree.folders.filter((folder) => {
+    const foldersInThisFolder = tree.folders.filter((folder) => {
       return folder.parentId === currentId;
     });
 
@@ -117,24 +117,15 @@ export class AllStatusesTraverser implements Traverser {
         // will have the status "EXISTS", to avoid filtering witch folders and files
         // are in a deleted or trashed folder they not included on the collection.
         // We cannot perform any action on them either way
-        this.traverse(folder.id, `${name}`);
+        this.traverse(tree, folder.id, `${name}`);
       }
     });
   }
 
-  public reset() {
-    Object.keys(this.collection).forEach(
-      (k: string) => delete this.collection[k]
-    );
-  }
+  async run(): Promise<ItemsIndexedByPath> {
+    const tree = await this.remoteItemsRepository.getAll();
 
-  public run(rawTree: {
-    files: Array<ServerFile>;
-    folders: Array<ServerFolder>;
-  }) {
-    this.rawTree = rawTree;
-
-    this.traverse(this.baseFolderId);
+    this.traverse(tree, this.baseFolderId);
 
     return this.collection;
   }

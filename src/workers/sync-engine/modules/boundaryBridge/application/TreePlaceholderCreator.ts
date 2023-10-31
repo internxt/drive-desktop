@@ -1,20 +1,22 @@
 import { File } from '../../files/domain/File';
 import { Folder } from '../../folders/domain/Folder';
-import { TreeBuilder } from '../../items/application/TreeBuilder';
+import { ExistingItemsTraverser } from '../../items/application/ExistingItemsTraverser';
 import { PlaceholderCreator } from '../../placeholders/domain/PlaceholderCreator';
 
 type Items = { files: Array<File>; folders: Array<Folder> };
 
 export class TreePlaceholderCreator {
   constructor(
-    private readonly treeBuilder: TreeBuilder,
+    private readonly traverser: ExistingItemsTraverser,
     private readonly placeholderCreator: PlaceholderCreator
   ) {}
 
   async run(): Promise<void> {
-    const tree = await this.treeBuilder.run();
+    const tree = await this.traverser.run();
 
-    const items = tree.reduce(
+    const array = Object.values(tree);
+
+    const items = array.reduce(
       (items, item) => {
         if (item.isFile()) {
           items.files.push(item);

@@ -8,7 +8,7 @@ import {
 } from '../../../../filesystems/domain/ServerFolder';
 import { SyncEngineIpc } from '../../../ipcRendererSyncEngine';
 
-export class RemoteItemsGenerator {
+export class IpcRemoteItemsRepository {
   constructor(private readonly ipc: SyncEngineIpc) {}
   async getAll(): Promise<{ files: ServerFile[]; folders: ServerFolder[] }> {
     const updatedRemoteItems = await this.ipc.invoke(

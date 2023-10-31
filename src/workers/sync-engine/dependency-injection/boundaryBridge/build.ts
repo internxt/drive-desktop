@@ -31,7 +31,7 @@ export function buildBoundaryBridgeContainer(
   );
 
   const treePlaceholderCreator = new TreePlaceholderCreator(
-    itemsContainer.existingItemsTreeBuilder,
+    itemsContainer.existingItemsTraverser,
     placeholderContainer.placeholderCreator
   );
 
@@ -52,7 +52,7 @@ export function buildBoundaryBridgeContainer(
   );
 
   const syncPlaceholders = new SyncPlaceholders(
-    itemsContainer.allStatusesTreeBuilder,
+    itemsContainer.allStatusesTraverser,
     syncRemoteFile,
     syncRemoteFolder,
     virtualDrive

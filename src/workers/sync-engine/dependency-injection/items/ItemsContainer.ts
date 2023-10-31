@@ -1,6 +1,7 @@
-import { TreeBuilder } from '../../modules/items/application/TreeBuilder';
+import { ExistingItemsTraverser } from '../../modules/items/application/ExistingItemsTraverser';
+import { AllStatusesTraverser } from '../../modules/items/application/AllStatusesTraverser';
 
 export interface ItemsContainer {
-  existingItemsTreeBuilder: TreeBuilder;
-  allStatusesTreeBuilder: TreeBuilder;
+  existingItemsTraverser: ExistingItemsTraverser;
+  allStatusesTraverser: AllStatusesTraverser;
 }

@@ -21,16 +21,18 @@ import { FilesContainer } from './FilesContainer';
 import { SdkFilesInternxtFileSystem } from 'workers/sync-engine/modules/files/infrastructure/SdkFilesInternxtFileSystem';
 import { DependencyInjectionStorageSdk } from '../common/strogaeSdk';
 import { FileMover } from 'workers/sync-engine/modules/files/application/FileMover';
+import { PopulateFileRepository } from 'workers/sync-engine/modules/files/application/PopulateFileRepository';
+import { ItemsContainer } from '../items/ItemsContainer';
 
 export async function buildFilesContainer(
   folderContainer: FoldersContainer,
   placeholderContainer: PlaceholderContainer,
+  itemsContainer: ItemsContainer,
   sharedContainer: SharedContainer
 ): Promise<{
   container: FilesContainer;
   subscribers: any;
 }> {
-  // const traverser = DependencyInjectionTraverserProvider.get();
   const user = DependencyInjectionUserProvider.get();
   const { bus: eventBus } = DependencyInjectionEventBus;
   const eventHistory = DependencyInjectionEventRepository.get();
@@ -94,6 +96,11 @@ export async function buildFilesContainer(
       filePlaceholderCreatorFromContentsId
     );
 
+  const populateFileRepository = new PopulateFileRepository(
+    itemsContainer.existingItemsTraverser,
+    repository
+  );
+
   const container: FilesContainer = {
     fileFinderByContentsId,
     fileDeleter,
@@ -106,6 +113,7 @@ export async function buildFilesContainer(
     sameFileWasMoved,
     retrieveAllFiles: new RetrieveAllFiles(repository),
     fileRepository: repository,
+    populateFileRepository,
   };
 
   return { container, subscribers: [] };
