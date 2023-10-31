@@ -13,7 +13,6 @@ import { SameFileWasMoved } from '../../modules/files/application/SameFileWasMov
 import { InMemoryFileRepository } from '../../modules/files/infrastructure/InMemoryFileRepository';
 import { DependencyInjectionEventBus } from '../common/eventBus';
 import { DependencyInjectionEventRepository } from '../common/eventRepository';
-import { DependencyInjectionTraverserProvider } from '../common/traverser';
 import { DependencyInjectionUserProvider } from '../common/user';
 import { FoldersContainer } from '../folders/FoldersContainer';
 import { PlaceholderContainer } from '../placeholders/PlaceholdersContainer';
@@ -31,7 +30,7 @@ export async function buildFilesContainer(
   container: FilesContainer;
   subscribers: any;
 }> {
-  const traverser = DependencyInjectionTraverserProvider.get();
+  // const traverser = DependencyInjectionTraverserProvider.get();
   const user = DependencyInjectionUserProvider.get();
   const { bus: eventBus } = DependencyInjectionEventBus;
   const eventHistory = DependencyInjectionEventRepository.get();
@@ -106,6 +105,7 @@ export async function buildFilesContainer(
       createFilePlaceholderOnDeletionFailed,
     sameFileWasMoved,
     retrieveAllFiles: new RetrieveAllFiles(repository),
+    fileRepository: repository,
   };
 
   return { container, subscribers: [] };

@@ -1,4 +1,4 @@
-import { Folder } from '../../domain/Folder';
+import { Folder, FolderAttributes } from '../../domain/Folder';
 import { FolderInternxtFileSystem } from '../../domain/FolderInternxtFileSystem';
 import { OfflineFolder } from '../../domain/OfflineFolder';
 
@@ -11,7 +11,7 @@ export class FolderInternxtFileSystemMock implements FolderInternxtFileSystem {
   async trash(entity: Folder): Promise<void> {
     return this.trashMock(entity);
   }
-  async create(entity: OfflineFolder): Promise<Folder> {
+  async create(entity: OfflineFolder): Promise<FolderAttributes> {
     return this.creteMock(entity);
   }
   async rename(entity: Folder): Promise<void> {

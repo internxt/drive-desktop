@@ -1,7 +1,6 @@
 import { FilePlaceholderId } from '../../modules/placeholders/domain/FilePlaceholderId';
 import { ContentsDownloader } from '../../modules/contents/application/ContentsDownloader';
 import { FileFinderByContentsId } from '../../modules/files/application/FileFinderByContentsId';
-import { LocalRepositoryRepositoryRefresher } from '../../modules/files/application/LocalRepositoryRepositoryRefresher';
 import { CallbackController } from './CallbackController';
 import Logger from 'electron-log';
 import { CallbackDownload } from '../../BindingManager';
@@ -9,8 +8,7 @@ import { CallbackDownload } from '../../BindingManager';
 export class DownloadFileController extends CallbackController {
   constructor(
     private readonly fileFinder: FileFinderByContentsId,
-    private readonly downloader: ContentsDownloader,
-    private readonly localRepositoryRefresher: LocalRepositoryRepositoryRefresher
+    private readonly downloader: ContentsDownloader
   ) {
     super();
   }

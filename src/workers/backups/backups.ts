@@ -71,7 +71,13 @@ class Backups extends Process {
     await Promise.all(smallFileQueues);
 
     const mediumFiles = pullFromRemote.filter((name) => {
-      const { size } = currentLocal[name];
+      const listing = currentLocal[name];
+
+      if (!listing) {
+        return;
+      }
+
+      const { size } = listing;
 
       return (
         size > Backups.MAX_SMALL_FILE_SIZE &&
@@ -95,9 +101,13 @@ class Backups extends Process {
 
     await Promise.all(mediumFileQueues);
 
-    const bigFiles = pullFromRemote.filter(
-      (name) => currentLocal[name].size > Backups.MAX_MEDIUM_FILE_SIZE
-    );
+    const bigFiles = pullFromRemote.filter((name) => {
+      const file = currentLocal[name];
+
+      if (!file) return false;
+
+      return file.size > Backups.MAX_MEDIUM_FILE_SIZE;
+    });
 
     Logger.debug('Big files: ', bigFiles);
 

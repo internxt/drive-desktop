@@ -19,7 +19,6 @@ import { InMemoryOfflineFolderRepository } from '../../modules/folders/infrastru
 import { DependencyInjectionHttpClientsProvider } from '../common/clients';
 import { DependencyInjectionEventBus } from '../common/eventBus';
 import { DependencyInjectionStorageSdk } from '../common/strogaeSdk';
-import { DependencyInjectionTraverserProvider } from '../common/traverser';
 import { PlaceholderContainer } from '../placeholders/PlaceholdersContainer';
 import { FoldersContainer } from './FoldersContainer';
 import { SdkFoldersInternxtFileSystem } from 'workers/sync-engine/modules/folders/infrastructure/SdkFoldersInternxtFileSystem';
@@ -28,7 +27,7 @@ export async function buildFoldersContainer(
   placeholdersContainer: PlaceholderContainer
 ): Promise<FoldersContainer> {
   const clients = DependencyInjectionHttpClientsProvider.get();
-  const traverser = DependencyInjectionTraverserProvider.get();
+  // const traverser = DependencyInjectionTraverserProvider.get();
   const eventBus = DependencyInjectionEventBus.bus;
   const sdk = await DependencyInjectionStorageSdk.get();
 
@@ -113,5 +112,6 @@ export async function buildFoldersContainer(
       synchronizeOfflineModifications,
     },
     retrieveAllFolders: new RetrieveAllFolders(repository),
+    folderRepository: repository,
   };
 }

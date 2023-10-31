@@ -222,7 +222,11 @@ export async function addBackup(): Promise<void> {
   }
 
   if (folderStillExists) {
-    backupList[chosenPath].enabled = true;
+    const backup = backupList[chosenPath];
+    if (!backup) {
+      return;
+    }
+    backup.enabled = true;
     configStore.set('backupList', backupList);
   } else {
     return createBackup(chosenPath);
@@ -271,7 +275,13 @@ export async function disableBackup(backup: Backup): Promise<void> {
   const backupsList = configStore.get('backupList');
   const pathname = findBackupPathnameFromId(backup.id)!;
 
-  backupsList[pathname].enabled = false;
+  const storedBackup = backupsList[pathname];
+
+  if (!storedBackup) {
+    return;
+  }
+
+  storedBackup.enabled = false;
 
   configStore.set('backupList', backupsList);
 }
@@ -364,6 +374,7 @@ export async function getPathFromDialog(): Promise<{
 
   const itemPath =
     chosenPath +
+    // @ts-ignore
     (chosenPath[chosenPath.length - 1] === path.sep ? '' : path.sep);
 
   const itemName = path.basename(itemPath);

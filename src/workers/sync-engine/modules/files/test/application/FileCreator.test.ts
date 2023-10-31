@@ -11,7 +11,9 @@ import { AllParentFoldersStatusIsExists } from '../../../folders/application/All
 import { PlaceholderCreatorMock } from '../../../placeholders/test/__mock__/PlaceholderCreatorMock';
 import { IpcRendererSyncEngineMock } from '../../../shared/test/__mock__/IpcRendererSyncEngineMock';
 import { FileMother } from '../domain/FileMother';
+import { FileInternxtFileSystemMock } from '../__mocks__/FileInternxtFileSystemMock';
 describe('File Creator', () => {
+  let fileSystem: FileInternxtFileSystemMock;
   let fileRepository: FileRepositoryMock;
   let folderRepository: FolderRepositoryMock;
   let fileDeleter: FileDeleter;
@@ -23,6 +25,7 @@ describe('File Creator', () => {
   const ipc = new IpcRendererSyncEngineMock();
 
   beforeEach(() => {
+    fileSystem = new FileInternxtFileSystemMock();
     fileRepository = new FileRepositoryMock();
     folderRepository = new FolderRepositoryMock();
     const allParentFoldersStatusIsExists = new AllParentFoldersStatusIsExists(
@@ -41,6 +44,7 @@ describe('File Creator', () => {
 
     SUT = new FileCreator(
       fileRepository,
+      fileSystem,
       folderFinder,
       fileDeleter,
       eventBus,
@@ -54,7 +58,7 @@ describe('File Creator', () => {
 
     const folder = FolderMother.any();
 
-    folderRepository.mockSearch.mockReturnValueOnce(folder);
+    folderRepository.searchByPartialMock.mockReturnValueOnce(folder);
     fileRepository.mockAdd.mockImplementationOnce(() => {
       // returns Promise<void>
     });
@@ -76,7 +80,7 @@ describe('File Creator', () => {
 
     const folder = FolderMother.any();
 
-    folderRepository.mockSearch.mockReturnValueOnce(folder);
+    folderRepository.searchByPartialMock.mockReturnValueOnce(folder);
     fileRepository.mockAdd.mockImplementationOnce(() => {
       // returns Promise<void>
     });
@@ -102,11 +106,11 @@ describe('File Creator', () => {
       .mockReturnValueOnce(existingFile)
       .mockReturnValueOnce(existingFile);
 
-    folderRepository.mockSearchByPartial.mockReturnValueOnce(folder);
+    folderRepository.searchByPartialMock.mockReturnValueOnce(folder);
     fileRepository.mockDelete.mockImplementationOnce(() => {
       // returns Promise<void>
     });
-    folderRepository.mockSearch.mockReturnValueOnce(folder);
+    folderRepository.searchByPartialMock.mockReturnValueOnce(folder);
     fileRepository.mockAdd.mockImplementationOnce(() => {
       // returns Promise<void>
     });

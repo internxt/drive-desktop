@@ -1,3 +1,4 @@
+import { FileRepository } from '../../modules/files/domain/FileRepository';
 import { CreateFilePlaceholderOnDeletionFailed } from '../../modules/files/application/CreateFilePlaceholderOnDeletionFailed';
 import { FileByPartialSearcher } from '../../modules/files/application/FileByPartialSearcher';
 import { FileCreator } from '../../modules/files/application/FileCreator';
@@ -18,4 +19,5 @@ export interface FilesContainer {
   createFilePlaceholderOnDeletionFailed: CreateFilePlaceholderOnDeletionFailed;
   sameFileWasMoved: SameFileWasMoved;
   retrieveAllFiles: RetrieveAllFiles;
+  fileRepository: FileRepository;
 }

@@ -9,6 +9,7 @@ import { OfflineFolderPathUpdater } from '../../modules/folders/application/Offl
 import { SynchronizeOfflineModifications } from '../../modules/folders/application/SynchronizeOfflineModifications';
 import { SynchronizeOfflineModificationsOnFolderCreated } from '../../modules/folders/application/SynchronizeOfflineModificationsOnFolderCreated';
 import { RetrieveAllFolders } from '../../modules/folders/application/RetrieveAllFolders';
+import { FolderRepository } from 'workers/sync-engine/modules/folders/domain/FolderRepository';
 
 export interface FoldersContainer {
   folderCreator: FolderCreator;
@@ -24,4 +25,5 @@ export interface FoldersContainer {
     synchronizeOfflineModifications: SynchronizeOfflineModifications;
   };
   retrieveAllFolders: RetrieveAllFolders;
+  folderRepository: FolderRepository;
 }

@@ -257,6 +257,11 @@ export function getRemoteFilesystem({
 
     async renameFile(oldName: string, newName: string): Promise<void> {
       const fileInCache = cache[oldName];
+
+      if (!fileInCache) {
+        return;
+      }
+
       const newNameBase = path.parse(newName).name;
 
       try {
@@ -571,6 +576,10 @@ export function getRemoteFilesystem({
     async deleteFolder(name: string): Promise<void> {
       const folderInCache = cache[name];
 
+      if (!folderInCache) {
+        return;
+      }
+
       const { id } = folderInCache;
 
       try {
@@ -612,6 +621,10 @@ export function getRemoteFilesystem({
       progressCallback: FileSystemProgressCallback
     ): Promise<Source> {
       const fileInCache = cache[name];
+
+      if (!fileInCache) {
+        throw new Error('File in cache not found');
+      }
 
       Logger.log(`Getting source of ${name} fileId: ${fileInCache.fileId}`);
 

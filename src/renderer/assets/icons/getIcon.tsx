@@ -1,4 +1,3 @@
-import { ReactElement } from 'react';
 import Audio from './audio.svg';
 import Code from './code.svg';
 import Csv from './csv.svg';

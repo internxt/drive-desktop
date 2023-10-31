@@ -78,6 +78,8 @@ ipcMain.on('BACKUP_COMPLETED', (folderId: any) => {
 ipcMain.on('BACKUP_FATAL_ERROR', (_, { folderId, errorName }) => {
   const items = backupProcessInfo.items[folderId];
 
+  if (!items) return;
+
   backupError(backupProcessInfo.shceduled, items, errorName);
 });
 
@@ -86,6 +88,7 @@ ipcMain.on('BACKUP_ISSUE', (_, issue: BackupProgressIssue) => {
     backupProcessInfo.errors[issue.folderId] = [];
   }
 
+  // @ts-ignore
   backupProcessInfo.errors[issue.folderId].push(
     `${issue.errorName} error when ${issue}`
   );

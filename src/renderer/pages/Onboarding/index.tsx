@@ -6,7 +6,6 @@ import {
 } from 'renderer/components/Backups/BackupsFoldersSelector';
 import { reportError } from 'renderer/utils/errors';
 import useClientPlatform from 'renderer/hooks/ClientPlatform';
-import { MigrationSlide } from '../Migration/helpers';
 import { OnboardingSlide } from './helpers';
 
 // Slide 1 is welcome slide, last slide is summary, doesn't count

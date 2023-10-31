@@ -8,26 +8,18 @@ export class FileRepositoryMock implements FileRepository {
   public mockSearchByPartial = jest.fn();
   public mockDelete = jest.fn();
   public mockAdd = jest.fn();
-  public mockUpdateName = jest.fn();
-  public mockUpdateParentDir = jest.fn();
-  public mockSearchOnFolder = jest.fn();
-  public mockClear = jest.fn();
-  public mockInsert = jest.fn();
+  public mockUpdate = jest.fn();
   public mockAll = jest.fn();
 
   all(): Promise<Array<File>> {
     return this.mockAll();
   }
 
-  insert(file: File): Promise<void> {
-    return this.mockInsert(file);
-  }
-
   search(pathLike: FilePath): Nullable<File> {
     return this.mockSearch(pathLike);
   }
 
-  searchByPartial(partial: Partial<FileAttributes>): Nullable<File> {
+  searchByPartial(partial: Partial<FileAttributes>): Promise<Nullable<File>> {
     return this.mockSearchByPartial(partial);
   }
 
@@ -39,20 +31,8 @@ export class FileRepositoryMock implements FileRepository {
     return this.mockAdd(file);
   }
 
-  updateName(item: File): Promise<void> {
-    return this.mockUpdateName(item);
-  }
-
-  updateParentDir(item: File): Promise<void> {
-    return this.mockUpdateParentDir(item);
-  }
-
-  onFolder(folderId: number): Promise<Array<File>> {
-    return this.mockSearchOnFolder(folderId);
-  }
-
-  clear(): void {
-    return this.mockClear();
+  update(item: File): Promise<void> {
+    return this.mockUpdate(item);
   }
 
   clearMocks() {

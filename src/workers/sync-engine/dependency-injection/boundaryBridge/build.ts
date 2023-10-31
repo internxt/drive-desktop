@@ -36,6 +36,7 @@ export function buildBoundaryBridgeContainer(
   );
 
   const syncRemoteFile = new UpdatePlaceholderFile(
+    filesContainer.fileRepository,
     filesContainer.fileByPartialSearcher,
     placeholderContainer.placeholderCreator,
     sharedContainer.relativePathToAbsoluteConverter,
@@ -45,7 +46,7 @@ export function buildBoundaryBridgeContainer(
 
   const syncRemoteFolder = new UpdatePlaceholderFolder(
     foldersContainer.folderByPartialSearcher,
-    foldersContainer.managedFolderRepository,
+    foldersContainer.folderRepository,
     placeholderContainer.placeholderCreator,
     sharedContainer.relativePathToAbsoluteConverter
   );

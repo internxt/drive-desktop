@@ -78,7 +78,7 @@ export class BindingsManager {
             callback
           );
           Logger.debug('Execute Fetch Data Callback, sending path:', path);
-          const file = controllers.downloadFile.fileFinderByContentsId(
+          const file = await controllers.downloadFile.fileFinderByContentsId(
             // @ts-ignore
             contentsId
               .replace(

@@ -6,6 +6,7 @@ import { FolderMother } from '../domain/FolderMother';
 import { EventBusMock } from '../../../shared/test/__mock__/EventBusMock';
 import { OfflineFolderMother } from '../domain/OfflineFolderMother';
 import { Folder } from '../../domain/Folder';
+import { FolderInternxtFileSystemMock } from '../__mocks__/FolderFileSystemMock';
 
 describe('Folder Creator', () => {
   let SUT: FolderCreator;
@@ -13,16 +14,18 @@ describe('Folder Creator', () => {
   let repository: FolderRepositoryMock;
   let folderFinder: FolderFinder;
   let syncEngineIpc: IpcRendererSyncEngineMock;
+  let fileSystem: FolderInternxtFileSystemMock;
   let eventBus: EventBusMock;
 
   beforeEach(() => {
     repository = new FolderRepositoryMock();
     folderFinder = new FolderFinder(repository);
     syncEngineIpc = new IpcRendererSyncEngineMock();
+    fileSystem = new FolderInternxtFileSystemMock();
 
     eventBus = new EventBusMock();
 
-    SUT = new FolderCreator(repository, folderFinder, syncEngineIpc, eventBus);
+    SUT = new FolderCreator(fileSystem, repository, syncEngineIpc, eventBus);
   });
 
   it('creates on a folder from a offline folder', async () => {
@@ -37,22 +40,18 @@ describe('Folder Creator', () => {
       offlineFolder.attributes()
     ).attributes();
 
-    repository.mockCreate.mockResolvedValueOnce(
+    fileSystem.creteMock.mockResolvedValueOnce(
       Folder.create(resultFolderAttributes)
     );
 
     const spy = jest
       .spyOn(folderFinder, 'run')
-      .mockReturnValueOnce(parentFolder);
+      .mockResolvedValueOnce(parentFolder);
 
     await SUT.run(offlineFolder);
 
     expect(spy).toBeCalledWith(parentFolder.path.value);
-    expect(repository.mockCreate).toBeCalledWith(
-      offlineFolder.path,
-      parentFolder.id,
-      offlineFolder.uuid
-    );
+    expect(fileSystem.creteMock).toBeCalledWith(offlineFolder);
   });
 
   describe('Synchronization messages', () => {
@@ -68,11 +67,11 @@ describe('Folder Creator', () => {
         offlineFolder.attributes()
       ).attributes();
 
-      repository.mockCreate.mockResolvedValueOnce(
+      fileSystem.creteMock.mockResolvedValueOnce(
         Folder.create(resultFolderAttributes)
       );
 
-      jest.spyOn(folderFinder, 'run').mockReturnValueOnce(parentFolder);
+      jest.spyOn(folderFinder, 'run').mockResolvedValueOnce(parentFolder);
 
       await SUT.run(offlineFolder);
 
@@ -93,11 +92,11 @@ describe('Folder Creator', () => {
         offlineFolder.attributes()
       ).attributes();
 
-      repository.mockCreate.mockResolvedValueOnce(
+      fileSystem.creteMock.mockResolvedValueOnce(
         Folder.create(resultFolderAttributes)
       );
 
-      jest.spyOn(folderFinder, 'run').mockReturnValueOnce(parentFolder);
+      jest.spyOn(folderFinder, 'run').mockResolvedValueOnce(parentFolder);
 
       await SUT.run(offlineFolder);
 

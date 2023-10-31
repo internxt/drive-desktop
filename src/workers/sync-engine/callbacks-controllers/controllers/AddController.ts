@@ -92,12 +92,14 @@ export class AddController extends CallbackController {
     }
   };
 
-  private enqueueFolder = (
+  private enqueueFolder = async (
     posixRelativePath: string,
     callback: CreationCallback
   ) => {
     try {
-      const offlineFolder = this.offlineFolderCreator.run(posixRelativePath);
+      const offlineFolder = await this.offlineFolderCreator.run(
+        posixRelativePath
+      );
       callback(true, createFolderPlaceholderId(offlineFolder.uuid));
       this.foldersQueue.set(offlineFolder, () => {
         //no-op
@@ -121,7 +123,7 @@ export class AddController extends CallbackController {
     const isFolder = await PathTypeChecker.isFolder(absolutePath);
 
     if (isFolder) {
-      this.enqueueFolder(posixRelativePath, callback);
+      await this.enqueueFolder(posixRelativePath, callback);
       await this.createFolders();
       await this.createFiles();
       return;
