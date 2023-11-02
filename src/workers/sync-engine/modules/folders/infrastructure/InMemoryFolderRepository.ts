@@ -3,6 +3,7 @@ import { Nullable } from 'shared/types/Nullable';
 import { PlatformPathConverter } from '../../shared/application/PlatformPathConverter';
 import { Folder, FolderAttributes } from '../domain/Folder';
 import { FolderRepository } from '../domain/FolderRepository';
+import Logger from 'electron-log';
 
 export class InMemoryFolderRepository implements FolderRepository {
   public foldersAttributes: Record<string, FolderAttributes> = {};
@@ -19,6 +20,9 @@ export class InMemoryFolderRepository implements FolderRepository {
     partial: Partial<FolderAttributes>
   ): Promise<Nullable<Folder>> {
     const keys = Object.keys(partial) as Array<keyof Partial<FolderAttributes>>;
+
+    Logger.debug('STORED', JSON.stringify(this.foldersAttributes, null, 2));
+    Logger.debug('KEYS', JSON.stringify(partial, null, 2));
 
     const folder = Object.values(this.foldersAttributes).find((folder) => {
       return keys.every((key) => folder[key] === partial[key]);

@@ -26,6 +26,7 @@ export class BindingsManager {
 
   private async load(): Promise<void> {
     await this.container.populateFileRepository.run();
+    await this.container.populateFolderRepository.run();
   }
 
   async start(version: string, providerId: string) {

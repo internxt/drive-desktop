@@ -44,7 +44,10 @@ export class DependencyContainerFactory {
     const itemsContainer = buildItemsContainer();
     const placeholderContainer = buildPlaceholdersContainer();
     const contentsContainer = await buildContentsContainer(sharedContainer);
-    const foldersContainer = await buildFoldersContainer(placeholderContainer);
+    const foldersContainer = await buildFoldersContainer(
+      placeholderContainer,
+      itemsContainer
+    );
     const { container: filesContainer } = await buildFilesContainer(
       foldersContainer,
       placeholderContainer,

@@ -11,12 +11,22 @@ import { FolderInternxtFileSystem } from '../domain/FolderInternxtFileSystem';
 export class SdkFoldersInternxtFileSystem implements FolderInternxtFileSystem {
   constructor(
     private readonly sdk: Storage,
-    private readonly driveClient: Axios
+    private readonly driveClient: Axios,
+    private readonly newClient: Axios
   ) {}
   async trash(folder: Folder): Promise<void> {
-    await this.sdk.addItemsToTrash({
-      items: [{ type: 'folder', id: folder.id as unknown as string }],
-    });
+    const result = await this.newClient.post(
+      `${process.env.NEW_DRIVE_URL}/drive/storage/trash/add`,
+      {
+        items: [{ type: 'folder', id: folder.id }],
+      }
+    );
+
+    if (result.status !== 200) {
+      throw new Error(`Could not trash the folder with id: ${folder.id}`);
+    }
+
+    return Promise.resolve();
   }
   async create(offlineFolder: OfflineFolder): Promise<FolderAttributes> {
     if (!offlineFolder.name) {

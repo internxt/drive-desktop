@@ -10,7 +10,7 @@ import { ActionNotPermittedError } from './errors/ActionNotPermittedError';
 export type FolderAttributes = {
   id: number;
   uuid: string;
-  parentId: number;
+  parentId: number | null;
   path: string;
   updatedAt: string;
   createdAt: string;
@@ -22,7 +22,7 @@ export class Folder extends AggregateRoot {
     public id: number,
     private _uuid: FolderUuid,
     private _path: FolderPath,
-    private _parentId: number,
+    private _parentId: number | null,
     public createdAt: Date,
     public updatedAt: Date,
     private _status: FolderStatus

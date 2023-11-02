@@ -6,10 +6,11 @@ import { FolderFinder } from '../../modules/folders/application/FolderFinder';
 import { FolderPathUpdater } from '../../modules/folders/application/FolderPathUpdater';
 import { OfflineFolderCreator } from '../../modules/folders/application/Offline/OfflineFolderCreator';
 import { OfflineFolderPathUpdater } from '../../modules/folders/application/Offline/OfflineFolderPathUpdater';
+import { PopulateFolderRepository } from '../../modules/folders/application/PopulateFolderRepository';
+import { RetrieveAllFolders } from '../../modules/folders/application/RetrieveAllFolders';
 import { SynchronizeOfflineModifications } from '../../modules/folders/application/SynchronizeOfflineModifications';
 import { SynchronizeOfflineModificationsOnFolderCreated } from '../../modules/folders/application/SynchronizeOfflineModificationsOnFolderCreated';
-import { RetrieveAllFolders } from '../../modules/folders/application/RetrieveAllFolders';
-import { FolderRepository } from 'workers/sync-engine/modules/folders/domain/FolderRepository';
+import { FolderRepository } from '../../modules/folders/domain/FolderRepository';
 
 export interface FoldersContainer {
   folderCreator: FolderCreator;
@@ -26,4 +27,5 @@ export interface FoldersContainer {
   };
   retrieveAllFolders: RetrieveAllFolders;
   folderRepository: FolderRepository;
+  populateFolderRepository: PopulateFolderRepository;
 }

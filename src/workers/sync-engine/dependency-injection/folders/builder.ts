@@ -21,16 +21,19 @@ import { DependencyInjectionEventBus } from '../common/eventBus';
 import { DependencyInjectionStorageSdk } from '../common/strogaeSdk';
 import { PlaceholderContainer } from '../placeholders/PlaceholdersContainer';
 import { FoldersContainer } from './FoldersContainer';
-import { SdkFoldersInternxtFileSystem } from 'workers/sync-engine/modules/folders/infrastructure/SdkFoldersInternxtFileSystem';
+import { SdkFoldersInternxtFileSystem } from '../../modules/folders/infrastructure/SdkFoldersInternxtFileSystem';
+import { PopulateFolderRepository } from '../../modules/folders/application/PopulateFolderRepository';
+import { ItemsContainer } from '../items/ItemsContainer';
+import { DependencyInjectionUserProvider } from '../common/user';
 
 export async function buildFoldersContainer(
-  placeholdersContainer: PlaceholderContainer
+  placeholdersContainer: PlaceholderContainer,
+  itemsContainer: ItemsContainer
 ): Promise<FoldersContainer> {
   const clients = DependencyInjectionHttpClientsProvider.get();
-  // const traverser = DependencyInjectionTraverserProvider.get();
   const eventBus = DependencyInjectionEventBus.bus;
   const sdk = await DependencyInjectionStorageSdk.get();
-
+  const user = DependencyInjectionUserProvider.get();
   const repository = new InMemoryFolderRepository();
 
   const folderFinder = new FolderFinder(repository);
@@ -39,7 +42,11 @@ export async function buildFoldersContainer(
     repository
   );
 
-  const fileSystem = new SdkFoldersInternxtFileSystem(sdk, clients.drive);
+  const fileSystem = new SdkFoldersInternxtFileSystem(
+    sdk,
+    clients.drive,
+    clients.newDrive
+  );
 
   const folderDeleter = new FolderDeleter(
     fileSystem,
@@ -98,6 +105,12 @@ export async function buildFoldersContainer(
       synchronizeOfflineModifications
     );
 
+  const populateFolderRepository = new PopulateFolderRepository(
+    itemsContainer.existingItemsTraverser,
+    repository,
+    user.root_folder_id
+  );
+
   return {
     folderCreator,
     folderFinder,
@@ -113,5 +126,6 @@ export async function buildFoldersContainer(
     },
     retrieveAllFolders: new RetrieveAllFolders(repository),
     folderRepository: repository,
+    populateFolderRepository,
   };
 }
