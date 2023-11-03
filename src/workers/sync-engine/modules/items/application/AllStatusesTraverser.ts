@@ -4,26 +4,13 @@ import {
   ServerFolder,
   ServerFolderStatus,
 } from '../../../../filesystems/domain/ServerFolder';
-import { fileNameIsValid } from '../../../../utils/name-verification';
-import { File } from '../../files/domain/File';
 import { FolderStatus } from '../../folders/domain/FolderStatus';
 import { Folder } from '../../folders/domain/Folder';
 import { ItemsIndexedByPath } from '../domain/ItemsIndexedByPath';
 import { EitherTransformer } from '../../shared/application/EitherTransformer';
 import { Traverser } from '../domain/Traverser';
-
-function fileFromServerFile(relativePath: string, server: ServerFile): File {
-  return File.from({
-    folderId: server.folderId,
-    contentsId: server.fileId,
-    modificationTime: server.modificationTime,
-    size: server.size,
-    createdAt: server.createdAt,
-    updatedAt: server.updatedAt,
-    path: relativePath,
-    status: server.status,
-  });
-}
+import { createFileFromServerFile } from './FileCreatorFromServerFile';
+import { createFolderFromServerFolder } from './FolderCreatorFromServerFolder';
 
 export class AllStatusesTraverser implements Traverser {
   private readonly collection: ItemsIndexedByPath = {};
@@ -57,42 +44,30 @@ export class AllStatusesTraverser implements Traverser {
       return folder.parentId === currentId;
     });
 
-    filesInThisFolder
-      .map((file) => ({
-        name: `${currentName}/${this.decrypt.decryptName(
-          file.name,
-          file.folderId.toString(),
-          file.encrypt_version
-        )}${file.type ? `.${file.type}` : ''}`,
-        file,
-      }))
-      .filter(({ name }) => {
-        const isValid = fileNameIsValid(name);
+    filesInThisFolder.forEach((file) => {
+      const decryptedName = this.decrypt.decryptName(
+        file.name,
+        file.folderId.toString(),
+        file.encrypt_version
+      );
+      const extensionToAdd = file.type ? `.${file.type}` : '';
 
-        if (!isValid) {
+      const relativeFilePath = `${currentName}/${decryptedName}${extensionToAdd}`;
+
+      EitherTransformer.handleWithEither(() =>
+        createFileFromServerFile(file, relativeFilePath)
+      ).fold(
+        (error) => {
           Logger.warn(
-            `REMOTE file with name ${name} will be ignored due an invalid name`
+            `[Traverser] File with path ${relativeFilePath} could not be created: `,
+            error
           );
-          return false;
+        },
+        (file) => {
+          this.collection[relativeFilePath] = file;
         }
-
-        return true;
-      })
-      .forEach(({ file, name }) => {
-        EitherTransformer.handleWithEither(() =>
-          fileFromServerFile(name, file)
-        ).fold(
-          (error) => {
-            Logger.warn(
-              `[Traverser] File with path ${name} could not be created: `,
-              error
-            );
-          },
-          (file) => {
-            this.collection[name] = file;
-          }
-        );
-      });
+      );
+    });
 
     foldersInThisFolder.forEach((folder: ServerFolder) => {
       const plainName =
@@ -106,15 +81,19 @@ export class AllStatusesTraverser implements Traverser {
 
       const name = `${currentName}/${plainName}`;
 
-      this.collection[name] = Folder.from({
-        id: folder.id,
-        uuid: folder.uuid,
-        parentId: folder.parentId as number,
-        updatedAt: folder.updatedAt,
-        createdAt: folder.createdAt,
-        path: name,
-        status: folder.status,
-      });
+      EitherTransformer.handleWithEither(() =>
+        createFolderFromServerFolder(folder, name)
+      ).fold(
+        (error) => {
+          Logger.warn(
+            `[Traverser] Folder with path ${name} could not be created: `,
+            error
+          );
+        },
+        (folder) => {
+          this.collection[name] = folder;
+        }
+      );
 
       if (folder.status === ServerFolderStatus.EXISTS) {
         // The folders and the files from trashed or deleted folders
