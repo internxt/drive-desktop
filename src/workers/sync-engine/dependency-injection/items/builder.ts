@@ -4,8 +4,7 @@ import { ipcRendererSyncEngine } from '../../ipcRendererSyncEngine';
 import { RemoteItemsGenerator } from '../../modules/items/application/RemoteItemsGenerator';
 import { getUser } from '../../../../main/auth/service';
 import crypt from '../../../utils/crypt';
-import { ExistingItemsTraverser } from 'workers/sync-engine/modules/items/application/ExistingItemsTraverser';
-import { AllStatusesTraverser } from 'workers/sync-engine/modules/items/application/AllStatusesTraverser';
+import { Traverser } from 'workers/sync-engine/modules/items/application/Traverser';
 
 export function buildItemsContainer(): ItemsContainer {
   const user = getUser();
@@ -16,19 +15,15 @@ export function buildItemsContainer(): ItemsContainer {
 
   const remoteItemsGenerator = new RemoteItemsGenerator(ipcRendererSyncEngine);
 
-  const existingItemsTraverser = new ExistingItemsTraverser(
+  const existingItemsTraverser = Traverser.existingItems(
     crypt,
     user.root_folder_id
   );
+  const allStatusesTraverser = Traverser.allItems(crypt, user.root_folder_id);
 
   const treeBuilder = new TreeBuilder(
     remoteItemsGenerator,
     existingItemsTraverser
-  );
-
-  const allStatusesTraverser = new AllStatusesTraverser(
-    crypt,
-    user.root_folder_id
   );
 
   const allStatusesTreeBuilder = new TreeBuilder(

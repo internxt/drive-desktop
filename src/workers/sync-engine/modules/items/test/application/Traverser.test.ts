@@ -7,7 +7,7 @@ import {
   ServerFolder,
   ServerFolderStatus,
 } from '../../../../../filesystems/domain/ServerFolder';
-import { ExistingItemsTraverser } from '../../application/ExistingItemsTraverser';
+import { Traverser } from '../../application/Traverser';
 
 const fakeDecrypt = {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -29,7 +29,7 @@ describe('Traverser', () => {
       ],
       folders: [],
     };
-    const SUT = new ExistingItemsTraverser(
+    const SUT = new Traverser(
       fakeDecrypt,
       baseFolderId,
       [ServerFileStatus.EXISTS, ServerFileStatus.TRASHED],
@@ -63,7 +63,7 @@ describe('Traverser', () => {
         } as ServerFolder,
       ],
     };
-    const SUT = new ExistingItemsTraverser(
+    const SUT = new Traverser(
       fakeDecrypt,
       baseFolderId,
       [ServerFileStatus.EXISTS, ServerFileStatus.TRASHED],
@@ -93,7 +93,7 @@ describe('Traverser', () => {
         } as ServerFolder,
       ],
     };
-    const SUT = new ExistingItemsTraverser(
+    const SUT = new Traverser(
       fakeDecrypt,
       baseFolderId,
       [ServerFileStatus.EXISTS, ServerFileStatus.TRASHED],
@@ -126,7 +126,7 @@ describe('Traverser', () => {
         } as ServerFolder,
       ],
     };
-    const SUT = new ExistingItemsTraverser(
+    const SUT = new Traverser(
       fakeDecrypt,
       baseFolderId,
       [ServerFileStatus.EXISTS, ServerFileStatus.TRASHED],
@@ -163,7 +163,7 @@ describe('Traverser', () => {
         } as ServerFolder,
       ],
     };
-    const SUT = new ExistingItemsTraverser(
+    const SUT = new Traverser(
       fakeDecrypt,
       baseFolderId,
       [ServerFileStatus.EXISTS, ServerFileStatus.TRASHED],
@@ -207,7 +207,7 @@ describe('Traverser', () => {
       ],
       folders: [],
     };
-    const SUT = new ExistingItemsTraverser(
+    const SUT = new Traverser(
       fakeDecrypt,
       baseFolderId,
       [ServerFileStatus.EXISTS, ServerFileStatus.TRASHED],
@@ -234,7 +234,7 @@ describe('Traverser', () => {
         {} as ServerFolder,
       ],
     };
-    const SUT = new ExistingItemsTraverser(
+    const SUT = new Traverser(
       fakeDecrypt,
       baseFolderId,
       [ServerFileStatus.EXISTS, ServerFileStatus.TRASHED],
@@ -258,9 +258,17 @@ describe('Traverser', () => {
           status: 'TRASHED',
         } as ServerFile,
       ],
-      folders: [],
+      folders: [
+        {
+          id: 22491,
+          parentId: baseFolderId,
+          plain_name: 'folder A',
+          status: 'TRASHED',
+          uuid: 'fc790269-92ac-5990-b9e0-a08d6552bf0b',
+        } as ServerFolder,
+      ],
     };
-    const SUT = new ExistingItemsTraverser(
+    const SUT = new Traverser(
       fakeDecrypt,
       baseFolderId,
       [ServerFileStatus.EXISTS, ServerFileStatus.TRASHED],

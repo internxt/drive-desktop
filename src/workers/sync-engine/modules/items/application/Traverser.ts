@@ -7,17 +7,14 @@ import {
   ServerFolder,
   ServerFolderStatus,
 } from '../../../../filesystems/domain/ServerFolder';
-import { fileNameIsValid } from '../../../../utils/name-verification';
-import { File } from '../../files/domain/File';
 import { FolderStatus } from '../../folders/domain/FolderStatus';
 import { Folder } from '../../folders/domain/Folder';
 import { ItemsIndexedByPath } from '../domain/ItemsIndexedByPath';
 import { EitherTransformer } from '../../shared/application/EitherTransformer';
-import { Traverser } from '../domain/Traverser';
 import { createFileFromServerFile } from './FileCreatorFromServerFile';
 import { createFolderFromServerFolder } from './FolderCreatorFromServerFolder';
 
-export class ExistingItemsTraverser implements Traverser {
+export class Traverser {
   private readonly collection: ItemsIndexedByPath = {};
   private static readonly ROOT_FOLDER_UUID =
     '43711926-15c2-5ebf-8c24-5099fa9af3c3';
@@ -40,6 +37,37 @@ export class ExistingItemsTraverser implements Traverser {
     private readonly folderStatusesToFilter: Array<ServerFolderStatus>
   ) {}
 
+  static existingItems(
+    decrypt: {
+      decryptName: (
+        name: string,
+        folderId: string,
+        encryptVersion: string
+      ) => string | null;
+    },
+    baseFolderId: number
+  ): Traverser {
+    return new Traverser(
+      decrypt,
+      baseFolderId,
+      [ServerFileStatus.EXISTS],
+      [ServerFolderStatus.EXISTS]
+    );
+  }
+
+  static allItems(
+    decrypt: {
+      decryptName: (
+        name: string,
+        folderId: string,
+        encryptVersion: string
+      ) => string | null;
+    },
+    baseFolderId: number
+  ): Traverser {
+    return new Traverser(decrypt, baseFolderId, [], []);
+  }
+
   private traverse(currentId: number, currentName = '') {
     if (!this.rawTree) return;
 
@@ -52,7 +80,7 @@ export class ExistingItemsTraverser implements Traverser {
     });
 
     filesInThisFolder.forEach((file) => {
-      if (file.status !== ServerFileStatus.EXISTS) {
+      if (!this.fileStatusesToFilter.includes(file.status)) {
         return;
       }
 
@@ -92,7 +120,9 @@ export class ExistingItemsTraverser implements Traverser {
 
       const name = `${currentName}/${plainName}`;
 
-      if (folder.status !== ServerFolderStatus.EXISTS) return;
+      if (!this.folderStatusesToFilter.includes(folder.status)) {
+        return;
+      }
 
       EitherTransformer.handleWithEither(() =>
         createFolderFromServerFolder(folder, name)
@@ -125,7 +155,7 @@ export class ExistingItemsTraverser implements Traverser {
 
     this.collection['/'] = Folder.from({
       id: this.baseFolderId,
-      uuid: ExistingItemsTraverser.ROOT_FOLDER_UUID,
+      uuid: Traverser.ROOT_FOLDER_UUID,
       parentId: null,
       updatedAt: new Date().toISOString(),
       createdAt: new Date().toISOString(),
@@ -144,7 +174,7 @@ export class ExistingItemsTraverser implements Traverser {
 
     this.collection['/'] = Folder.from({
       id: this.baseFolderId,
-      uuid: ExistingItemsTraverser.ROOT_FOLDER_UUID,
+      uuid: Traverser.ROOT_FOLDER_UUID,
       parentId: null,
       updatedAt: new Date().toISOString(),
       createdAt: new Date().toISOString(),

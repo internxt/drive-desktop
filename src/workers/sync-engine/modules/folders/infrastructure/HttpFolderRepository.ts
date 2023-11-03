@@ -7,7 +7,7 @@ import { ServerFile } from '../../../../filesystems/domain/ServerFile';
 import { ServerFolder } from '../../../../filesystems/domain/ServerFolder';
 import { SyncEngineIpc } from '../../../ipcRendererSyncEngine';
 import { RemoteItemsGenerator } from '../../items/application/RemoteItemsGenerator';
-import { ExistingItemsTraverser } from '../../items/application/ExistingItemsTraverser';
+import { Traverser } from '../../items/application/Traverser';
 import { PlatformPathConverter } from '../../shared/application/PlatformPathConverter';
 import { Folder, FolderAttributes } from '../domain/Folder';
 import { FolderPath } from '../domain/FolderPath';
@@ -24,7 +24,7 @@ export class HttpFolderRepository
   constructor(
     private readonly driveClient: Axios,
     private readonly trashClient: Axios,
-    private readonly traverser: ExistingItemsTraverser,
+    private readonly traverser: Traverser,
     private readonly ipc: SyncEngineIpc
   ) {}
 
