@@ -1,21 +1,19 @@
-import { File } from '../../files/domain/File';
-import fs from 'fs/promises';
-import { RelativePathToAbsoluteConverter } from '../../shared/application/RelativePathToAbsoluteConverter';
-import { FileByPartialSearcher } from '../../files/application/FileByPartialSearcher';
-import { ManagedFileRepository } from '../../files/domain/ManagedFileRepository';
-import { PlaceholderCreator } from '../../placeholders/domain/PlaceholderCreator';
 import Logger from 'electron-log';
-import { FileMovedDomainEvent } from '../../files/domain/events/FileMovedDomainEvent';
+import fs from 'fs/promises';
 import { LocalFileIdProvider } from '../../shared/application/LocalFileIdProvider';
-import { FileRenamedDomainEvent } from '../../files/domain/events/FileRenamedDomainEvent';
+import { RelativePathToAbsoluteConverter } from '../../shared/application/RelativePathToAbsoluteConverter';
 import { EventRepository } from '../../shared/domain/EventRepository';
-import { FileStatuses } from '../../files/domain/FileStatus';
+import { File } from '../domain/File';
+import { FileRepository } from '../domain/FileRepository';
+import { FileStatuses } from '../domain/FileStatus';
+import { FileMovedDomainEvent } from '../domain/events/FileMovedDomainEvent';
+import { FileRenamedDomainEvent } from '../domain/events/FileRenamedDomainEvent';
+import { LocalFileSystem } from '../domain/file-systems/LocalFileSystem';
 
-export class UpdatePlaceholderFile {
+export class FilePlaceholderUpdater {
   constructor(
-    private readonly fileByPartialSearcher: FileByPartialSearcher,
-    private readonly managedFileRepository: ManagedFileRepository,
-    private readonly virtualDrivePlaceholderCreator: PlaceholderCreator,
+    private readonly repository: FileRepository,
+    private readonly localFileSystem: LocalFileSystem,
     private readonly relativePathToAbsoluteConverter: RelativePathToAbsoluteConverter,
     private readonly localFileIdProvider: LocalFileIdProvider,
     private readonly eventHistory: EventRepository
@@ -29,22 +27,22 @@ export class UpdatePlaceholderFile {
   }
 
   async run(remote: File): Promise<void> {
-    const local = this.fileByPartialSearcher.run({
+    const local = this.repository.searchByPartial({
       contentsId: remote.contentsId,
     });
 
     if (!local) {
       if (remote.status.is(FileStatuses.EXISTS)) {
-        Logger.debug('Creating file placeholder: ', remote.path.value);
-        await this.managedFileRepository.insert(remote);
-        this.virtualDrivePlaceholderCreator.file(remote);
+        Logger.debug('Creating file placeholder: ', remote.path);
+        await this.repository.add(remote);
+        await this.localFileSystem.createPlaceHolder(remote);
       }
       return;
     }
 
-    if (local.path.value !== remote.path.value) {
-      Logger.debug('Updating file placeholder: ', remote.path.value);
-      const trackerId = await this.localFileIdProvider.run(local.path.value);
+    if (local.path !== remote.path) {
+      Logger.debug('Updating file placeholder: ', remote.path);
+      const trackerId = await this.localFileIdProvider.run(local.path);
       if (remote.name !== local.name) {
         const event = new FileRenamedDomainEvent({
           aggregateId: remote.contentsId,
@@ -59,17 +57,17 @@ export class UpdatePlaceholderFile {
         this.eventHistory.store(event);
       }
 
-      await this.managedFileRepository.overwrite(local, remote);
+      await this.repository.update(remote);
 
       try {
-        await fs.stat(remote.path.value);
+        await fs.stat(remote.path);
         // Do nothing
       } catch {
         const win32AbsolutePath = this.relativePathToAbsoluteConverter.run(
-          local.path.value
+          local.path
         );
         const newWin32AbsolutePath = this.relativePathToAbsoluteConverter.run(
-          remote.path.value
+          remote.path
         );
         await fs.rename(win32AbsolutePath, newWin32AbsolutePath);
       }
@@ -77,7 +75,7 @@ export class UpdatePlaceholderFile {
 
     if (this.hasToBeDeleted(local, remote)) {
       const win32AbsolutePath = this.relativePathToAbsoluteConverter.run(
-        local.path.value
+        local.path
       );
       await fs.unlink(win32AbsolutePath);
       return;

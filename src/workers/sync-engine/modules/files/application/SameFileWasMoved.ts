@@ -17,7 +17,7 @@ export class SameFileWasMoved {
 
   async run(path: FilePath): Promise<WasMovedResult> {
     const fileInDestination = this.repository.searchByPartial({
-      path: path.value,
+      path: path,
     });
 
     if (!fileInDestination) {
@@ -38,7 +38,7 @@ export class SameFileWasMoved {
       return { result: false };
     }
 
-    const trackerId = await this.localFileIdProvider.run(path.value);
+    const trackerId = await this.localFileIdProvider.run(path);
 
     if (trackerId !== movedEvent.toPrimitives().trackerId) {
       return { result: false };

@@ -47,7 +47,7 @@ describe('Folder Creator', () => {
 
     await SUT.run(offlineFolder);
 
-    expect(spy).toBeCalledWith(parentFolder.path.value);
+    expect(spy).toBeCalledWith(parentFolder.path);
     expect(repository.mockCreate).toBeCalledWith(
       offlineFolder.path,
       parentFolder.id,

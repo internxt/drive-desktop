@@ -18,7 +18,7 @@ export class InMemoryOfflineFolderRepository
 
   update(folder: OfflineFolder): void {
     try {
-      const storedFolder = this.foldersByPath[folder.path.value] as
+      const storedFolder = this.foldersByPath[folder.path] as
         | OfflineFolder
         | undefined;
 
@@ -27,7 +27,7 @@ export class InMemoryOfflineFolderRepository
 
       [...storedEvents, ...newEvents].forEach((event) => folder.record(event));
 
-      this.foldersByPath[folder.path.value] = folder;
+      this.foldersByPath[folder.path] = folder;
       this.foldersByUuid[folder.uuid] = folder;
     } catch (error: unknown) {
       Logger.error('ERROR UPDATING OFFLINE FOLDER', error);
@@ -35,7 +35,7 @@ export class InMemoryOfflineFolderRepository
   }
 
   remove(folder: OfflineFolder): void {
-    delete this.foldersByPath[folder.path.value];
+    delete this.foldersByPath[folder.path];
     delete this.foldersByUuid[folder.uuid];
   }
 }

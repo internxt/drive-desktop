@@ -121,11 +121,11 @@ export class HttpFolderRepository
       parentId: serverFolder.parentId,
       updatedAt: serverFolder.updatedAt,
       createdAt: serverFolder.createdAt,
-      path: path.value,
+      path: path,
       status: FolderStatuses.EXISTS,
     });
 
-    const normalized = nodePath.normalize(folder.path.value);
+    const normalized = nodePath.normalize(folder.path);
     const posix = PlatformPathConverter.winToPosix(normalized);
     this.folders[posix] = folder;
 
@@ -151,10 +151,10 @@ export class HttpFolderRepository
     const old = this.searchByPartial({ uuid: folder.uuid });
 
     if (old) {
-      delete this.folders[old?.path.value];
+      delete this.folders[old?.path];
     }
 
-    this.folders[folder.path.value] = folder;
+    this.folders[folder.path] = folder;
   }
 
   async updateParentDir(folder: Folder): Promise<void> {
@@ -171,10 +171,10 @@ export class HttpFolderRepository
     const old = this.searchByPartial({ uuid: folder.uuid });
 
     if (old) {
-      delete this.folders[old?.path.value];
+      delete this.folders[old?.path];
     }
 
-    this.folders[folder.path.value] = folder;
+    this.folders[folder.path] = folder;
   }
 
   async searchOn(folder: Folder): Promise<Array<Folder>> {
@@ -199,7 +199,7 @@ export class HttpFolderRepository
       return;
     }
 
-    const normalized = nodePath.normalize(folder.path.value);
+    const normalized = nodePath.normalize(folder.path);
     const posix = PlatformPathConverter.winToPosix(normalized);
     this.folders[posix] = folder;
   }
@@ -210,16 +210,16 @@ export class HttpFolderRepository
   }
 
   insert(folder: Folder): Promise<void> {
-    if (this.folders[folder.path.value]) {
+    if (this.folders[folder.path]) {
       throw new Error('Insert file only should insert non existent');
     }
-    this.folders[folder.path.value] = folder;
+    this.folders[folder.path] = folder;
     return Promise.resolve();
   }
   overwrite(oldFolder: Folder, newFolder: Folder): Promise<void> {
-    delete this.folders[oldFolder.path.value];
+    delete this.folders[oldFolder.path];
 
-    this.folders[newFolder.path.value] = newFolder;
+    this.folders[newFolder.path] = newFolder;
     return Promise.resolve();
   }
 }

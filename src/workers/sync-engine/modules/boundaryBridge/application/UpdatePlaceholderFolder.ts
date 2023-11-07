@@ -75,7 +75,7 @@ export class UpdatePlaceholderFolder {
   }
 
   async run(remote: Folder): Promise<void> {
-    if (remote.path.value === path.posix.sep) {
+    if (remote.path === path.posix.sep) {
       return;
     }
 
@@ -85,7 +85,7 @@ export class UpdatePlaceholderFolder {
 
     if (!local) {
       if (remote.status.is(FolderStatuses.EXISTS)) {
-        Logger.debug('Creating folder placeholder: ', remote.path.value);
+        Logger.debug('Creating folder placeholder: ', remote.path);
         await this.managedFolderRepository.insert(remote);
         this.virtualDrivePlaceholderCreator.folder(remote);
       }
@@ -93,24 +93,22 @@ export class UpdatePlaceholderFolder {
     }
 
     if (remote.name !== local.name || remote.parentId !== local.parentId) {
-      Logger.debug('Updating folder placeholder: ', remote.path.value);
+      Logger.debug('Updating folder placeholder: ', remote.path);
       await this.managedFolderRepository.overwrite(local, remote);
 
       try {
-        const stat = await fs.stat(remote.path.value);
+        const stat = await fs.stat(remote.path);
         Logger.debug('Placeholder already exists: ', stat);
         // Do nothing
       } catch {
         const win32AbsolutePath = this.relativePathToAbsoluteConverter.run(
-          local.path.value
+          local.path
         );
 
         const canBeWritten = this.canWrite(win32AbsolutePath);
 
         if (!canBeWritten) {
-          Logger.warn(
-            `Cannot modify the folder placeholder ${local.path.value}`
-          );
+          Logger.warn(`Cannot modify the folder placeholder ${local.path}`);
           return;
         }
 
@@ -118,7 +116,7 @@ export class UpdatePlaceholderFolder {
           const exists = await this.folderExists(win32AbsolutePath);
           if (exists) {
             const newWin32AbsolutePath =
-              this.relativePathToAbsoluteConverter.run(remote.path.value);
+              this.relativePathToAbsoluteConverter.run(remote.path);
             await this.renameFolderRecursive(
               win32AbsolutePath,
               newWin32AbsolutePath
@@ -132,7 +130,7 @@ export class UpdatePlaceholderFolder {
 
     if (this.hasToBeDeleted(local, remote)) {
       const win32AbsolutePath = this.relativePathToAbsoluteConverter.run(
-        local.path.value
+        local.path
       );
       await fs.rm(win32AbsolutePath, { recursive: true });
       return;

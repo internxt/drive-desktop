@@ -9,7 +9,7 @@ export class FileNode {
   }
 
   public get id(): string {
-    return this.file.path.value;
+    return this.file.path;
   }
 
   public isFile(): this is FileNode {

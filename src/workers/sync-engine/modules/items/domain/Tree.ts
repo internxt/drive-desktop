@@ -42,7 +42,7 @@ export class Tree {
   }
 
   addFile(parentNode: Folder, file: File) {
-    const parent = this.tree.get(parentNode.path.value) as FolderNode;
+    const parent = this.tree.get(parentNode.path) as FolderNode;
 
     if (!parent) {
       throw new Error('Parent node not found');
@@ -55,7 +55,7 @@ export class Tree {
   }
 
   addFolder(parentNode: Folder, folder: Folder) {
-    const parent = this.tree.get(parentNode.path.value) as FolderNode;
+    const parent = this.tree.get(parentNode.path) as FolderNode;
 
     if (!parent) {
       throw new Error('Parent node not found');

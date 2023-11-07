@@ -12,7 +12,7 @@ export class FolderNode {
   }
 
   public get id(): string {
-    return this.folder.path.value;
+    return this.folder.path;
   }
 
   addChild(node: Node): void {

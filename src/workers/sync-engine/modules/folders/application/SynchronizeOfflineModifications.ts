@@ -38,7 +38,7 @@ export class SynchronizeOfflineModifications {
         throw new FolderNotFoundError(uuid);
       }
 
-      if (rename.previousPath !== folder.path.value) {
+      if (rename.previousPath !== folder.path) {
         continue;
       }
 

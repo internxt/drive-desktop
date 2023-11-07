@@ -39,7 +39,7 @@ export class SDKFileSystem implements RemoteFileSystem {
       ...data,
       contentsId: data.fileId,
       modificationTime: data.updatedAt,
-      path: offline.path.value,
+      path: offline.path,
       status: FileStatuses.EXISTS,
     };
   }

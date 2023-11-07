@@ -1,4 +1,4 @@
-import { UpdatePlaceholderFile } from './UpdatePlaceholderFile';
+import { FilePlaceholderUpdater } from '../../files/application/FilePlaceholderUpdater';
 import { UpdatePlaceholderFolder } from './UpdatePlaceholderFolder';
 import { File } from '../../files/domain/File';
 import { Folder } from '../../folders/domain/Folder';
@@ -11,7 +11,7 @@ import { FolderPlaceholderIdPrefix } from '../../placeholders/domain/FolderPlace
 export class SyncPlaceholders {
   constructor(
     private readonly treeBuilder: TreeBuilder,
-    private readonly updatePlaceholderFile: UpdatePlaceholderFile,
+    private readonly updatePlaceholderFile: FilePlaceholderUpdater,
     private readonly updatePlaceholderFolder: UpdatePlaceholderFolder,
     private readonly virtualDrive: VirtualDrive
   ) {}
@@ -19,10 +19,14 @@ export class SyncPlaceholders {
   async run() {
     const tree = await this.treeBuilder.run();
 
-    const listPlaceholdersIds = (await this.virtualDrive.getItemsIds()).map(id => trimPlaceholderId(id));
+    const listPlaceholdersIds = (await this.virtualDrive.getItemsIds()).map(
+      (id) => trimPlaceholderId(id)
+    );
 
-    const folders = Object.values(tree).filter((item) =>
-      item.isFolder() && listPlaceholdersIds.includes(FolderPlaceholderIdPrefix + item.uuid)
+    const folders = Object.values(tree).filter(
+      (item) =>
+        item.isFolder() &&
+        listPlaceholdersIds.includes(FolderPlaceholderIdPrefix + item.uuid)
     ) as Array<Folder>;
 
     const foldersActualization = folders.map((folder) => {
@@ -31,8 +35,10 @@ export class SyncPlaceholders {
 
     await Promise.all(foldersActualization);
 
-    const files = Object.values(tree).filter((item) =>
-      item.isFile() && listPlaceholdersIds.includes(FilePlaceholderIdPrefix + item.contentsId)
+    const files = Object.values(tree).filter(
+      (item) =>
+        item.isFile() &&
+        listPlaceholdersIds.includes(FilePlaceholderIdPrefix + item.contentsId)
     ) as Array<File>;
 
     const filesActualization = files.map((file) =>
