@@ -1,12 +1,12 @@
 import { FilePath } from '../../files/domain/FilePath';
 import { File } from '../../files/domain/File';
-import { FileRepository } from '../../files/domain/FileRepository';
+import { OldFileRepository } from '../../files/domain/OldFileRepository';
 import { Folder } from '../../folders/domain/Folder';
 import { FolderRepository } from '../../folders/domain/FolderRepository';
 
 export class WebdavUnknownItemTypeSearcher {
   constructor(
-    private readonly filesRepository: FileRepository,
+    private readonly filesRepository: OldFileRepository,
     private readonly folderRepository: FolderRepository
   ) {}
 

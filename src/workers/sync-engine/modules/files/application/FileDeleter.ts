@@ -1,32 +1,30 @@
 import Logger from 'electron-log';
 import { SyncEngineIpc } from '../../../ipcRendererSyncEngine';
 import { AllParentFoldersStatusIsExists } from '../../folders/application/AllParentFoldersStatusIsExists';
-import { FileRepository } from '../domain/FileRepository';
 import { FileStatuses } from '../domain/FileStatus';
 import { PlaceholderCreator } from '../../placeholders/domain/PlaceholderCreator';
 import { File } from '../domain/File';
+import { FileRepository } from '../domain/FileRepository';
+import { RemoteFileSystem } from '../domain/file-systems/RemoteFileSystem';
 
 export class FileDeleter {
   constructor(
+    private readonly fileSystem: RemoteFileSystem,
     private readonly repository: FileRepository,
     private readonly allParentFoldersStatusIsExists: AllParentFoldersStatusIsExists,
     private readonly placeholderCreator: PlaceholderCreator,
     private readonly ipc: SyncEngineIpc
   ) {}
 
-  async run(contentsId: string): Promise<void> {
+  async run(contentsId: File['contentsId']): Promise<void> {
     const file = this.repository.searchByPartial({ contentsId });
 
     if (!file) {
       return;
     }
 
-    await this.act(file);
-  }
-
-  async act(file: File) {
     if (file.status.is(FileStatuses.TRASHED)) {
-      Logger.warn(`File ${file.path.value} is already trashed. Will ignore...`);
+      Logger.warn(`File ${file.path} is already trashed. Will ignore...`);
       return;
     }
 
@@ -36,7 +34,7 @@ export class FileDeleter {
 
     if (!allParentsExists) {
       Logger.warn(
-        `Skipped file deletion for ${file.path.value}. A folder in a higher level is already marked as trashed`
+        `Skipped file deletion for ${file.path}. A folder in a higher level is already marked as trashed`
       );
       return;
     }
@@ -51,7 +49,8 @@ export class FileDeleter {
     try {
       file.trash();
 
-      await this.repository.delete(file);
+      await this.fileSystem.trash(file.contentsId);
+      await this.repository.delete(file.contentsId);
 
       this.ipc.send('FILE_DELETED', {
         name: file.name,

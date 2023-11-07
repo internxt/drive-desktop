@@ -84,7 +84,7 @@ export class Traverser {
       );
       const extensionToAdd = file.type ? `.${file.type}` : '';
 
-      const relativeFilePath = `${currentFolder.path.value}${decryptedName}${extensionToAdd}`;
+      const relativeFilePath = `${currentFolder.path}${decryptedName}${extensionToAdd}`;
 
       EitherTransformer.handleWithEither(() =>
         createFileFromServerFile(file, relativeFilePath)
@@ -111,7 +111,7 @@ export class Traverser {
         ) ||
         serverFolder.name;
 
-      const name = `${currentFolder.path.value}/${plainName}`;
+      const name = `${currentFolder.path}/${plainName}`;
 
       if (!this.folderStatusesToFilter.includes(serverFolder.status)) {
         return;
@@ -141,16 +141,13 @@ export class Traverser {
     });
   }
 
-  public run(items: {
-    files: Array<ServerFile>;
-    folders: Array<ServerFolder>;
-  }) {
+  public run(items: Items): Tree {
     const rootFolder = this.createRootFolder();
 
     const tree = new Tree(rootFolder);
 
     this.traverse(tree, items, rootFolder);
 
-    return { ...tree.files, ...tree.folders };
+    return tree;
   }
 }

@@ -1,8 +1,8 @@
 import { LocalFileIdProvider } from '../../shared/application/LocalFileIdProvider';
 import { EventRepository } from '../../shared/domain/EventRepository';
 import { FilePath } from '../domain/FilePath';
+import { FileRepository } from '../domain/FileRepository';
 import { FileMovedDomainEvent } from '../domain/events/FileMovedDomainEvent';
-import { FileByPartialSearcher } from './FileByPartialSearcher';
 import Logger from 'electron-log';
 
 // TODO: find a better name
@@ -10,13 +10,13 @@ type WasMovedResult = { result: false } | { result: true; contentsId: string };
 
 export class SameFileWasMoved {
   constructor(
-    private readonly fileByPartialSearcher: FileByPartialSearcher,
+    private readonly repository: FileRepository,
     private readonly localFileIdProvider: LocalFileIdProvider,
     private readonly eventHistory: EventRepository
   ) {}
 
   async run(path: FilePath): Promise<WasMovedResult> {
-    const fileInDestination = this.fileByPartialSearcher.run({
+    const fileInDestination = this.repository.searchByPartial({
       path: path.value,
     });
 

@@ -1,8 +1,8 @@
 import { File } from '../domain/File';
-import { FileRepository } from '../domain/FileRepository';
+import { OldFileRepository } from '../domain/OldFileRepository';
 
 export class RetrieveAllFiles {
-  constructor(private readonly repository: FileRepository) {}
+  constructor(private readonly repository: OldFileRepository) {}
 
   run(): Promise<Array<File>> {
     return this.repository.all();

@@ -1,5 +1,4 @@
-import { File } from '../../files/domain/File';
-import { Folder } from '../../folders/domain/Folder';
+import { Tree } from '../domain/Tree';
 import { RemoteItemsGenerator } from './RemoteItemsGenerator';
 import { Traverser } from './Traverser';
 
@@ -9,9 +8,9 @@ export class TreeBuilder {
     private readonly traverser: Traverser
   ) {}
 
-  async run(): Promise<Array<File | Folder>> {
+  async run(): Promise<Tree> {
     const items = await this.remoteItemsGenerator.getAll();
 
-    return Object.values(this.traverser.run(items));
+    return this.traverser.run(items);
   }
 }

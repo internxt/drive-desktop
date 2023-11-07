@@ -33,8 +33,8 @@ export class Folder extends AggregateRoot {
     return this._uuid.value;
   }
 
-  public get path() {
-    return this._path;
+  public get path(): string {
+    return this._path.value;
   }
 
   public get name() {
@@ -126,7 +126,7 @@ export class Folder extends AggregateRoot {
       throw new Error('Cannot move a folder to its current folder');
     }
 
-    this._path = this._path.changeFolder(folder.path.value);
+    this._path = this._path.changeFolder(folder.path);
     this._parentId = folder.id;
 
     //TODO: record moved event

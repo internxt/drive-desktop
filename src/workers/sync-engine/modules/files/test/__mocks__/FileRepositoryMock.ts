@@ -1,9 +1,9 @@
 import { Nullable } from 'shared/types/Nullable';
 import { FilePath } from '../../domain/FilePath';
 import { File, FileAttributes } from '../../domain/File';
-import { FileRepository } from '../../domain/FileRepository';
+import { OldFileRepository } from '../../domain/OldFileRepository';
 
-export class FileRepositoryMock implements FileRepository {
+export class FileRepositoryMock implements OldFileRepository {
   public mockSearch = jest.fn();
   public mockSearchByPartial = jest.fn();
   public mockDelete = jest.fn();

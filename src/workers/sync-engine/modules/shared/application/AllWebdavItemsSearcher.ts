@@ -1,10 +1,10 @@
-import { FileRepository } from '../../files/domain/FileRepository';
+import { OldFileRepository } from '../../files/domain/OldFileRepository';
 import { FolderFinder } from '../../folders/application/FolderFinder';
 import { FolderRepository } from '../../folders/domain/FolderRepository';
 
 export class AllWebdavItemsNameLister {
   constructor(
-    private readonly filesRepository: FileRepository,
+    private readonly filesRepository: OldFileRepository,
     private readonly folderRepository: FolderRepository,
     private readonly folderfinder: FolderFinder
   ) {}

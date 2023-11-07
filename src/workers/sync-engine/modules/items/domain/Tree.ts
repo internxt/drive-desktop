@@ -13,24 +13,24 @@ export class Tree {
     this.tree.set('/', node);
   }
 
-  public get files(): Record<string, File> {
-    const files: Record<string, File> = {};
+  public get files(): Array<File> {
+    const files: Array<File> = [];
 
     this.tree.forEach((node) => {
       if (node.isFile()) {
-        files[node.id] = node.file;
+        files.push(node.file);
       }
     });
 
     return files;
   }
 
-  public get folders(): Record<string, Folder> {
-    const folders: Record<string, Folder> = {};
+  public get folders(): Array<Folder> {
+    const folders: Array<Folder> = [];
 
     this.tree.forEach((node) => {
       if (node.isFolder()) {
-        folders[node.id] = node.folder;
+        folders.push(node.folder);
       }
     });
 

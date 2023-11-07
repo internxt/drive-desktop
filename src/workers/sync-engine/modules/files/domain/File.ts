@@ -12,6 +12,7 @@ import { FileStatus, FileStatuses } from './FileStatus';
 import { ContentsId } from '../../contents/domain/ContentsId';
 import { FileMovedDomainEvent } from './events/FileMovedDomainEvent';
 import { FileRenamedDomainEvent } from './events/FileRenamedDomainEvent';
+import { FilePlaceholderId, createFilePlaceholderId } from './PlaceholderId';
 
 export type FileAttributes = {
   contentsId: string;
@@ -45,8 +46,8 @@ export class File extends AggregateRoot {
     return this._folderId;
   }
 
-  public get path() {
-    return this._path;
+  public get path(): string {
+    return this._path.value;
   }
 
   public get type() {
@@ -71,6 +72,10 @@ export class File extends AggregateRoot {
 
   public get status() {
     return this._status;
+  }
+
+  public get placeholderId(): FilePlaceholderId {
+    return createFilePlaceholderId(this.contentsId);
   }
 
   static from(attributes: FileAttributes): File {
@@ -126,11 +131,11 @@ export class File extends AggregateRoot {
 
   moveTo(folder: Folder, trackerId: string): void {
     if (this.folderId === folder.id) {
-      throw new FileCannotBeMovedToTheOriginalFolderError(this.path.value);
+      throw new FileCannotBeMovedToTheOriginalFolderError(this.path);
     }
 
     this._folderId = folder.id;
-    this._path = this._path.changeFolder(folder.path.value);
+    this._path = this._path.changeFolder(folder.path);
 
     this.record(
       new FileMovedDomainEvent({
@@ -178,46 +183,6 @@ export class File extends AggregateRoot {
     return this._status.is(status);
   }
 
-  update(
-    attributes: Partial<
-      Pick<
-        FileAttributes,
-        | 'path'
-        | 'createdAt'
-        | 'updatedAt'
-        | 'contentsId'
-        | 'folderId'
-        | 'status'
-      >
-    >
-  ) {
-    if (attributes.path) {
-      this._path = new FilePath(attributes.path);
-    }
-
-    if (attributes.createdAt) {
-      this.createdAt = new Date(attributes.createdAt);
-    }
-
-    if (attributes.updatedAt) {
-      this.updatedAt = new Date(attributes.updatedAt);
-    }
-
-    if (attributes.contentsId) {
-      this._contentsId = new ContentsId(attributes.contentsId);
-    }
-
-    if (attributes.folderId) {
-      this._folderId = attributes.folderId;
-    }
-
-    if (attributes.status) {
-      this._status = FileStatus.fromValue(attributes.status);
-    }
-
-    return this;
-  }
-
   toPrimitives(): Omit<FileAttributes, 'modificationTime'> {
     return {
       contentsId: this.contentsId,
@@ -235,8 +200,8 @@ export class File extends AggregateRoot {
       contentsId: this.contentsId,
       folderId: this.folderId,
       createdAt: this.createdAt.toISOString(),
-      path: this._path.value,
-      size: this._size.value,
+      path: this.path,
+      size: this.size,
       updatedAt: this.updatedAt.toISOString(),
       status: this.status.value,
       modificationTime: this.updatedAt.toISOString(),

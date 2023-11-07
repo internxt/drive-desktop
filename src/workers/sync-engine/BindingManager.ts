@@ -24,6 +24,12 @@ export class BindingsManager {
     }
   ) {}
 
+  async load(): Promise<void> {
+    const tree = await this.container.existingItemsTreeBuilder.run();
+
+    await this.container.repositoryPopulator.run(tree.files);
+  }
+
   async start(version: string, providerId: string) {
     await this.stop();
 
@@ -193,7 +199,7 @@ export class BindingsManager {
     const items = [...files, ...folders];
 
     const win32AbsolutePaths = items.map((item) => {
-      const posixRelativePath = item.path.value;
+      const posixRelativePath = item.path;
       // este path es relativo al root y en formato posix
 
       const win32RelativePaths =

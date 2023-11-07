@@ -1,16 +1,19 @@
 import { FolderFinder } from '../../folders/application/FolderFinder';
 import { FilePath } from '../domain/FilePath';
 import { File } from '../domain/File';
-import { FileRepository } from '../domain/FileRepository';
 import { FileSize } from '../domain/FileSize';
 import { EventBus } from '../../shared/domain/EventBus';
 import { RemoteFileContents } from '../../contents/domain/RemoteFileContents';
 import { FileDeleter } from './FileDeleter';
 import { PlatformPathConverter } from '../../shared/application/PlatformPathConverter';
 import { SyncEngineIpc } from '../../../ipcRendererSyncEngine';
+import { FileRepository } from '../domain/FileRepository';
+import { RemoteFileSystem } from '../domain/file-systems/RemoteFileSystem';
+import { OfflineFile } from '../domain/OfflineFile';
 
 export class FileCreator {
   constructor(
+    private readonly fileSystem: RemoteFileSystem,
     private readonly repository: FileRepository,
     private readonly folderFinder: FolderFinder,
     private readonly fileDeleter: FileDeleter,
@@ -25,18 +28,21 @@ export class FileCreator {
       });
 
       if (existingFile) {
-        await this.fileDeleter.act(existingFile);
+        await this.fileDeleter.run(existingFile.contentsId);
       }
 
       const size = new FileSize(contents.size);
 
       const folder = this.folderFinder.findFromFilePath(filePath);
 
-      const file = File.create(contents.id, folder, size, filePath);
+      const offline = OfflineFile.create(contents.id, folder, size, filePath);
+
+      const persistedAttributes = await this.fileSystem.persist(offline);
+      const file = File.from(persistedAttributes);
 
       await this.repository.add(file);
 
-      await this.eventBus.publish(file.pullDomainEvents());
+      await this.eventBus.publish(offline.pullDomainEvents());
       this.ipc.send('FILE_CREATED', {
         name: file.name,
         extension: file.type,

@@ -10,6 +10,7 @@ import { SyncEngineIpc } from '../../../ipcRendererSyncEngine';
 
 export class RemoteItemsGenerator {
   constructor(private readonly ipc: SyncEngineIpc) {}
+
   async getAll(): Promise<{ files: ServerFile[]; folders: ServerFolder[] }> {
     const updatedRemoteItems = await this.ipc.invoke(
       'GET_UPDATED_REMOTE_ITEMS'

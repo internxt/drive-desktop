@@ -1,9 +1,9 @@
-import { FileRepository } from '../domain/FileRepository';
+import { OldFileRepository } from '../domain/OldFileRepository';
 import { FileNotFoundError } from '../domain/errors/FileNotFoundError';
 import { File } from '../domain/File';
 
 export class FileFinderByContentsId {
-  constructor(private readonly repository: FileRepository) {}
+  constructor(private readonly repository: OldFileRepository) {}
 
   run(contentsId: string): File {
     const file = this.repository.searchByPartial({ contentsId });

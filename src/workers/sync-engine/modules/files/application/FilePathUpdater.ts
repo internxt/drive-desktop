@@ -2,15 +2,17 @@ import { ActionNotPermittedError } from '../domain/errors/ActionNotPermittedErro
 import { FileAlreadyExistsError } from '../domain/errors/FileAlreadyExistsError';
 import { FilePath } from '../domain/FilePath';
 import { File } from '../domain/File';
-import { FileRepository } from '../domain/FileRepository';
 import { FolderFinder } from '../../folders/application/FolderFinder';
 import { FileFinderByContentsId } from './FileFinderByContentsId';
 import { SyncEngineIpc } from '../../../ipcRendererSyncEngine';
 import { LocalFileIdProvider } from '../../shared/application/LocalFileIdProvider';
 import { EventBus } from '../../shared/domain/EventBus';
+import { FileRepository } from '../domain/FileRepository';
+import { RemoteFileSystem } from '../domain/file-systems/RemoteFileSystem';
 
 export class FilePathUpdater {
   constructor(
+    private readonly fileSystem: RemoteFileSystem,
     private readonly repository: FileRepository,
     private readonly fileFinderByContentsId: FileFinderByContentsId,
     private readonly folderFinder: FolderFinder,
@@ -22,23 +24,24 @@ export class FilePathUpdater {
   private async rename(file: File, path: FilePath) {
     file.rename(path);
 
-    await this.repository.updateName(file);
+    await this.fileSystem.rename(file);
+    await this.repository.update(file);
 
     const events = file.pullDomainEvents();
     this.eventBus.publish(events);
   }
 
   private async move(file: File, destination: FilePath) {
-    const trackerId = await this.localFileIdProvider.run(file.path.value);
+    const trackerId = await this.localFileIdProvider.run(file.path);
 
     const destinationFolder = this.folderFinder.run(destination.dirname());
 
     file.moveTo(destinationFolder, trackerId);
 
-    await this.repository.updateParentDir(file);
+    await this.fileSystem.move(file);
+    await this.repository.update(file);
 
     const events = file.pullDomainEvents();
-
     this.eventBus.publish(events);
   }
 
@@ -54,7 +57,9 @@ export class FilePathUpdater {
       return;
     }
 
-    const destinationFile = this.repository.search(destination);
+    const destinationFile = this.repository.searchByPartial({
+      path: destination.value,
+    });
 
     if (destinationFile) {
       this.ipc.send('FILE_RENAME_ERROR', {
