@@ -4,7 +4,6 @@ import { getRootVirtualDrive } from '../virutal-root-folder/service';
 import fs, { unlink } from 'fs';
 import _path from 'path';
 import { app } from 'electron';
-import path from 'path';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 // const fuse = require('@cocalc/fuse-native');
@@ -67,6 +66,19 @@ async function spawnSyncEngineWorker() {
   };
 
   const ops = {
+    listxattr: (path: string, cb: (err: number, list?: string[]) => void) => {
+      cb(0, ['sync_status', 'b']);
+    },
+    getxattr: (
+      path: string,
+      name: string,
+      size: number,
+      cb: (err: number, data: Buffer) => void
+    ) => {
+      Logger.debug('GETXATTR', path, name, size, cb);
+      const buff = Buffer.from('in sync');
+      cb(0, buff);
+    },
     getattr: (path: string, cb: (code: number, params?: any) => void) => {
       Logger.debug(`GETATTR ${path}`);
       if (path === '/') {
@@ -85,9 +97,13 @@ async function spawnSyncEngineWorker() {
 
         const size = getSize();
 
-        return process.nextTick(cb, 0, { ...file, size });
+        return process.nextTick(cb, 0, {
+          ...file,
+          size,
+          sync_status: 'online',
+        });
       } else if (folders[path]) {
-        return cb(0, folders[path]);
+        return cb(0, { ...folders[path], sync_status: 'online' });
       } else {
         cb(fuse.ENOENT);
       }
@@ -280,7 +296,7 @@ async function spawnSyncEngineWorker() {
   Logger.debug('ROOT FOLDER: ', root);
 
   _fuse = new fuse(root, ops, {
-    debug: false,
+    debug: true,
     mkdir: true,
     force: true,
   });
