@@ -131,7 +131,7 @@ export class Traverser {
           tree.addFolder(currentFolder, folder);
 
           if (folder.hasStatus(FolderStatuses.EXISTS)) {
-            // The folders and the files from trashed or deleted folders
+            // The folders and the files inside trashed or deleted folders
             // will have the status "EXISTS", to avoid filtering witch folders and files
             // are in a deleted or trashed folder they not included on the collection.
             // We cannot perform any action on them either way
