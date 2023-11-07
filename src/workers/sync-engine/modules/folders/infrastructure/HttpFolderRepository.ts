@@ -41,7 +41,6 @@ export class HttpFolderRepository
   ): Promise<void> {
     const raw = await this.getTree();
 
-    this.traverser.reset();
     const all = this.traverser.run(raw);
 
     const folders = Object.entries(all).filter(

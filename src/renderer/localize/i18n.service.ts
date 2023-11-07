@@ -21,9 +21,10 @@ const languageDetection = (callback: (lang: Language | undefined) => void) => {
     }
 
     const systemLangs = await queryApp('getPreferredSystemLanguages');
-    const parsed = systemLangs.map((l) => l.split('-')[0]);
+    const parsed = systemLangs.map((l: string) => l.split('-')[0]);
 
-    const preferedLanguageAvailable = parsed.find(isLanguage);
+    const preferedLanguageAvailable =
+      (parsed.find(isLanguage) as Language) || undefined;
 
     const language = preferedLanguageAvailable || DEFAULT_LANGUAGE;
 

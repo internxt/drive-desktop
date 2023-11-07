@@ -16,7 +16,7 @@ describe('Http Folder Repository', () => {
 
   describe('save', () => {
     beforeEach(() => {
-      const traverser = new Traverser(fakeDecryptor, rootFolderId);
+      const traverser = Traverser.existingItems(fakeDecryptor, rootFolderId);
 
       ipc = new IpcRendererSyncEngineMock();
 

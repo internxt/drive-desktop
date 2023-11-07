@@ -12,8 +12,6 @@ export class TreeBuilder {
   async run(): Promise<Array<File | Folder>> {
     const items = await this.remoteItemsGenerator.getAll();
 
-    this.traverser.reset();
-
     return Object.values(this.traverser.run(items));
   }
 }

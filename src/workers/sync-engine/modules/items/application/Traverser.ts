@@ -17,7 +17,6 @@ import { createFileFromServerFile } from './FileCreatorFromServerFile';
 import { createFolderFromServerFolder } from './FolderCreatorFromServerFolder';
 import { NameDecryptor } from '../domain/NameDecryptor';
 import { Tree } from '../domain/Tree';
-import { File } from '../../files/domain/File';
 
 type Items = {
   files: Array<ServerFile>;
@@ -112,7 +111,7 @@ export class Traverser {
         ) ||
         serverFolder.name;
 
-      const name = `${currentFolder.path.value}${plainName}`;
+      const name = `${currentFolder.path.value}/${plainName}`;
 
       if (!this.folderStatusesToFilter.includes(serverFolder.status)) {
         return;

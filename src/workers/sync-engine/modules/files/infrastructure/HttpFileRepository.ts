@@ -46,7 +46,6 @@ export class HttpFileRepository
   public async init(startingFiles: Record<string, File> = {}): Promise<void> {
     const raw = await this.getTree();
 
-    this.traverser.reset();
     const all = this.traverser.run(raw);
 
     const files = Object.entries(all).filter(
