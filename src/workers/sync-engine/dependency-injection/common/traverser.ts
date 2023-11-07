@@ -12,7 +12,7 @@ export class DependencyInjectionTraverserProvider {
 
     const user = DependencyInjectionUserProvider.get();
 
-    const traverser = new Traverser(crypt, user.root_folder_id);
+    const traverser = Traverser.existingItems(crypt, user.root_folder_id);
 
     DependencyInjectionTraverserProvider.traverser = traverser;
 

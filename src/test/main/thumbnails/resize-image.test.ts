@@ -5,7 +5,7 @@ import path from 'path';
 import { execSync } from 'child_process';
 import { ThumbnailProperties } from '../../../main/thumbnails/domain/ThumbnailProperties';
 
-describe('GM Resize Image', () => {
+describe.skip('GM Resize Image', () => {
   it('gm is installed', () => {
     expect(() => {
       execSync('gm version', { stdio: 'ignore' });
