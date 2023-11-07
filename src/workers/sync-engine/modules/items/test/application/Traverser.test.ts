@@ -38,7 +38,7 @@ describe('Traverser', () => {
 
     const result = SUT.run(rawTree);
 
-    expect(Object.keys(result)).toStrictEqual(['/file A', '/']);
+    expect(Object.keys(result)).toEqual(['/file A', '/']);
   });
 
   it('second level files starts with /', () => {
@@ -72,11 +72,7 @@ describe('Traverser', () => {
 
     const result = SUT.run(rawTree);
 
-    expect(Object.keys(result)).toStrictEqual([
-      '/folder A',
-      '/folder A/file A',
-      '/',
-    ]);
+    expect(Object.keys(result)).toEqual(['/folder A', '/folder A/file A', '/']);
   });
 
   it('first level folder starts with /', () => {
@@ -102,7 +98,7 @@ describe('Traverser', () => {
 
     const result = SUT.run(rawTree);
 
-    expect(Object.keys(result)).toStrictEqual(['/folder A', '/']);
+    expect(Object.keys(result)).toEqual(['/folder A', '/']);
   });
 
   it('second level folder starts with /', () => {
@@ -135,7 +131,7 @@ describe('Traverser', () => {
 
     const result = SUT.run(rawTree);
 
-    expect(Object.keys(result)).toStrictEqual([
+    expect(Object.keys(result)).toEqual([
       '/folder A',
       '/folder A/folder B',
       '/',
@@ -172,7 +168,7 @@ describe('Traverser', () => {
 
     const result = SUT.run(rawTree);
 
-    expect(Object.keys(result)).toStrictEqual([
+    expect(Object.keys(result)).toEqual([
       '/folder A',
       '/folder A/folder B',
       '/',
@@ -216,7 +212,7 @@ describe('Traverser', () => {
 
     const result = SUT.run(rawTree);
 
-    expect(Object.keys(result)).toStrictEqual(['/valid_name', '/']);
+    expect(Object.keys(result)).toEqual(['/valid_name', '/']);
   });
 
   it('when a folder data is invalid ignore it and continue', () => {

@@ -24,10 +24,10 @@ export class FolderNode {
   }
 
   public isFile(): this is FileNode {
-    return true;
+    return false;
   }
 
   public isFolder(): this is FolderNode {
-    return false;
+    return true;
   }
 }

@@ -10,7 +10,7 @@ export class Tree {
   constructor(rootFolder: Folder) {
     const node = FolderNode.from(rootFolder);
 
-    this.tree.set(node.id, node);
+    this.tree.set('/', node);
   }
 
   public get files(): Record<string, File> {

@@ -85,7 +85,7 @@ export class Traverser {
       );
       const extensionToAdd = file.type ? `.${file.type}` : '';
 
-      const relativeFilePath = `${currentFolder.path.value}/${decryptedName}${extensionToAdd}`;
+      const relativeFilePath = `${currentFolder.path.value}${decryptedName}${extensionToAdd}`;
 
       EitherTransformer.handleWithEither(() =>
         createFileFromServerFile(file, relativeFilePath)
@@ -112,7 +112,7 @@ export class Traverser {
         ) ||
         serverFolder.name;
 
-      const name = `${currentFolder.path.value}/${plainName}`;
+      const name = `${currentFolder.path.value}${plainName}`;
 
       if (!this.folderStatusesToFilter.includes(serverFolder.status)) {
         return;
