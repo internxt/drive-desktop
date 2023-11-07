@@ -1,4 +1,3 @@
-import { ManagedFileRepository } from '../../modules/files/domain/ManagedFileRepository';
 import { CreateFilePlaceholderOnDeletionFailed } from '../../modules/files/application/CreateFilePlaceholderOnDeletionFailed';
 import { FileCreator } from '../../modules/files/application/FileCreator';
 import { FileDeleter } from '../../modules/files/application/FileDeleter';
@@ -16,7 +15,6 @@ export interface FilesContainer {
   fileCreator: FileCreator;
   filePlaceholderCreatorFromContentsId: FilePlaceholderCreatorFromContentsId;
   createFilePlaceholderOnDeletionFailed: CreateFilePlaceholderOnDeletionFailed;
-  managedFileRepository: ManagedFileRepository;
   sameFileWasMoved: SameFileWasMoved;
   retrieveAllFiles: RetrieveAllFiles;
   repositoryPopulator: RepositoryPopulator;

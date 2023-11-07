@@ -1,77 +1,63 @@
+import { SDKRemoteFileSystem } from 'workers/sync-engine/modules/files/infrastructure/SDKRemoteFileSystem';
 import crypt from '../../../utils/crypt';
 import { ipcRendererSyncEngine } from '../../ipcRendererSyncEngine';
 import { CreateFilePlaceholderOnDeletionFailed } from '../../modules/files/application/CreateFilePlaceholderOnDeletionFailed';
-import { FileByPartialSearcher } from '../../modules/files/application/FileByPartialSearcher';
-import { FileClearer } from '../../modules/files/application/FileClearer';
 import { FileCreator } from '../../modules/files/application/FileCreator';
 import { FileDeleter } from '../../modules/files/application/FileDeleter';
 import { FileFinderByContentsId } from '../../modules/files/application/FileFinderByContentsId';
 import { FilePathUpdater } from '../../modules/files/application/FilePathUpdater';
 import { FilePlaceholderCreatorFromContentsId } from '../../modules/files/application/FilePlaceholderCreatorFromContentsId';
-import { FileSearcher } from '../../modules/files/application/FileSearcher';
-import { LocalRepositoryRepositoryRefresher } from '../../modules/files/application/LocalRepositoryRepositoryRefresher';
 import { RetrieveAllFiles } from '../../modules/files/application/RetrieveAllFiles';
 import { SameFileWasMoved } from '../../modules/files/application/SameFileWasMoved';
-import { HttpFileRepository } from '../../modules/files/infrastructure/HttpFileRepository';
-import { DependencyInjectionHttpClientsProvider } from '../common/clients';
 import { DependencyInjectionEventBus } from '../common/eventBus';
 import { DependencyInjectionEventRepository } from '../common/eventRepository';
-import { DependencyInjectionTraverserProvider } from '../common/traverser';
 import { DependencyInjectionUserProvider } from '../common/user';
+import { DependencyInjectionVirtualDrive } from '../common/virtualDrive';
 import { FoldersContainer } from '../folders/FoldersContainer';
-import { PlaceholderContainer } from '../placeholders/PlaceholdersContainer';
 import { SharedContainer } from '../shared/SharedContainer';
 import { FilesContainer } from './FilesContainer';
+import { NodeWinLocalFileSystem } from 'workers/sync-engine/modules/files/infrastructure/NodeWinLocalFileSystem';
+import { DependencyInjectionStorageSdk } from '../common/sdk';
+import { InMemoryFileRepository } from 'workers/sync-engine/modules/files/infrastructure/InMemoryFileRepository';
+import { RepositoryPopulator } from 'workers/sync-engine/modules/files/application/RepositoryPopulator';
 
 export async function buildFilesContainer(
   folderContainer: FoldersContainer,
-  placeholderContainer: PlaceholderContainer,
   sharedContainer: SharedContainer
 ): Promise<{
   container: FilesContainer;
   subscribers: any;
 }> {
-  const clients = DependencyInjectionHttpClientsProvider.get();
-  const traverser = DependencyInjectionTraverserProvider.get();
   const user = DependencyInjectionUserProvider.get();
   const { bus: eventBus } = DependencyInjectionEventBus;
   const eventHistory = DependencyInjectionEventRepository.get();
+  const { virtualDrive } = DependencyInjectionVirtualDrive;
+  const sdk = await DependencyInjectionStorageSdk.get();
 
-  const fileRepository = new HttpFileRepository(
-    crypt,
-    clients.drive,
-    clients.newDrive,
-    traverser,
-    user.bucket,
-    ipcRendererSyncEngine
-  );
+  const remoteFileSystem = new SDKRemoteFileSystem(sdk, crypt, user.bucket);
+  const localFileSystem = new NodeWinLocalFileSystem(virtualDrive);
 
-  await fileRepository.init();
+  const repository = new InMemoryFileRepository();
 
-  const fileFinderByContentsId = new FileFinderByContentsId(fileRepository);
-
-  const localRepositoryRefresher = new LocalRepositoryRepositoryRefresher(
-    ipcRendererSyncEngine,
-    fileRepository
-  );
+  const fileFinderByContentsId = new FileFinderByContentsId(repository);
 
   const fileDeleter = new FileDeleter(
-    fileRepository,
+    remoteFileSystem,
+    localFileSystem,
+    repository,
     folderContainer.allParentFoldersStatusIsExists,
-    placeholderContainer.placeholderCreator,
     ipcRendererSyncEngine
   );
 
-  const fileByPartialSearcher = new FileByPartialSearcher(fileRepository);
-
   const sameFileWasMoved = new SameFileWasMoved(
-    fileByPartialSearcher,
+    repository,
     sharedContainer.localFileIdProvider,
     eventHistory
   );
 
   const filePathUpdater = new FilePathUpdater(
-    fileRepository,
+    remoteFileSystem,
+    repository,
     fileFinderByContentsId,
     folderContainer.folderFinder,
     ipcRendererSyncEngine,
@@ -80,19 +66,18 @@ export async function buildFilesContainer(
   );
 
   const fileCreator = new FileCreator(
-    fileRepository,
+    remoteFileSystem,
+    repository,
     folderContainer.folderFinder,
     fileDeleter,
     eventBus,
     ipcRendererSyncEngine
   );
 
-  const fileSearcher = new FileSearcher(fileRepository);
-
   const filePlaceholderCreatorFromContentsId =
     new FilePlaceholderCreatorFromContentsId(
       fileFinderByContentsId,
-      placeholderContainer.placeholderCreator
+      localFileSystem
     );
 
   const createFilePlaceholderOnDeletionFailed =
@@ -100,23 +85,19 @@ export async function buildFilesContainer(
       filePlaceholderCreatorFromContentsId
     );
 
-  const fileClearer = new FileClearer(fileRepository);
+  const repositoryPopulator = new RepositoryPopulator(repository);
 
   const container: FilesContainer = {
     fileFinderByContentsId,
-    localRepositoryRefresher: localRepositoryRefresher,
     fileDeleter,
-    fileByPartialSearcher,
     filePathUpdater,
     fileCreator,
-    fileSearcher,
     filePlaceholderCreatorFromContentsId: filePlaceholderCreatorFromContentsId,
     createFilePlaceholderOnDeletionFailed:
       createFilePlaceholderOnDeletionFailed,
-    fileClearer,
-    managedFileRepository: fileRepository,
     sameFileWasMoved,
-    retrieveAllFiles: new RetrieveAllFiles(fileRepository),
+    retrieveAllFiles: new RetrieveAllFiles(repository),
+    repositoryPopulator: repositoryPopulator,
   };
 
   return { container, subscribers: [] };

@@ -2,17 +2,17 @@ import Logger from 'electron-log';
 import { SyncEngineIpc } from '../../../ipcRendererSyncEngine';
 import { AllParentFoldersStatusIsExists } from '../../folders/application/AllParentFoldersStatusIsExists';
 import { FileStatuses } from '../domain/FileStatus';
-import { PlaceholderCreator } from '../../placeholders/domain/PlaceholderCreator';
 import { File } from '../domain/File';
 import { FileRepository } from '../domain/FileRepository';
 import { RemoteFileSystem } from '../domain/file-systems/RemoteFileSystem';
+import { LocalFileSystem } from '../domain/file-systems/LocalFileSystem';
 
 export class FileDeleter {
   constructor(
-    private readonly fileSystem: RemoteFileSystem,
+    private readonly remote: RemoteFileSystem,
+    private readonly local: LocalFileSystem,
     private readonly repository: FileRepository,
     private readonly allParentFoldersStatusIsExists: AllParentFoldersStatusIsExists,
-    private readonly placeholderCreator: PlaceholderCreator,
     private readonly ipc: SyncEngineIpc
   ) {}
 
@@ -49,7 +49,7 @@ export class FileDeleter {
     try {
       file.trash();
 
-      await this.fileSystem.trash(file.contentsId);
+      await this.remote.trash(file.contentsId);
       await this.repository.delete(file.contentsId);
 
       this.ipc.send('FILE_DELETED', {
@@ -81,7 +81,7 @@ export class FileDeleter {
         process: 'SYNC',
       });
 
-      this.placeholderCreator.file(file);
+      this.local.createPlaceHolder(file);
     }
   }
 }

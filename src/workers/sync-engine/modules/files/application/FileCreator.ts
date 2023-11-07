@@ -13,7 +13,7 @@ import { OfflineFile } from '../domain/OfflineFile';
 
 export class FileCreator {
   constructor(
-    private readonly fileSystem: RemoteFileSystem,
+    private readonly remote: RemoteFileSystem,
     private readonly repository: FileRepository,
     private readonly folderFinder: FolderFinder,
     private readonly fileDeleter: FileDeleter,
@@ -37,7 +37,7 @@ export class FileCreator {
 
       const offline = OfflineFile.create(contents.id, folder, size, filePath);
 
-      const persistedAttributes = await this.fileSystem.persist(offline);
+      const persistedAttributes = await this.remote.persist(offline);
       const file = File.from(persistedAttributes);
 
       await this.repository.add(file);

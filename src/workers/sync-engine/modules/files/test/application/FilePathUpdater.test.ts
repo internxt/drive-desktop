@@ -8,6 +8,7 @@ import { FileFinderByContentsId } from '../../application/FileFinderByContentsId
 import { IpcRendererSyncEngineMock } from '../../../shared/test/__mock__/IpcRendererSyncEngineMock';
 import { LocalFileIdProvider } from '../../../shared/application/LocalFileIdProvider';
 import { EventBusMock } from '../../../shared/test/__mock__/EventBusMock';
+import { RemoteFileSystemMock } from '../__mocks__/RemoteFileSystemMock';
 
 describe('File path updater', () => {
   let repository: FileRepositoryMock;
@@ -16,6 +17,7 @@ describe('File path updater', () => {
   let ipcRendererMock: IpcRendererSyncEngineMock;
   let localFileIdProvider: LocalFileIdProvider;
   let eventBus: EventBusMock;
+  let remoteFileSystemMock: RemoteFileSystemMock;
   let SUT: FilePathUpdater;
 
   beforeEach(() => {
@@ -24,8 +26,10 @@ describe('File path updater', () => {
     fileFinderByContentsId = new FileFinderByContentsId(repository);
     ipcRendererMock = new IpcRendererSyncEngineMock();
     eventBus = new EventBusMock();
+    remoteFileSystemMock = new RemoteFileSystemMock();
 
     SUT = new FilePathUpdater(
+      remoteFileSystemMock,
       repository,
       fileFinderByContentsId,
       folderFinder as unknown as FolderFinder,
@@ -38,7 +42,7 @@ describe('File path updater', () => {
   it('when the extension does not changes it updates the name of the file', async () => {
     const file = FileMother.any();
 
-    repository.mockSearchByPartial.mockReturnValue(file);
+    repository.searchByPartialMock.mockReturnValue(file);
 
     const destination = new FilePath(
       `${file.dirname}/_${file.nameWithExtension}`
@@ -46,8 +50,6 @@ describe('File path updater', () => {
 
     await SUT.run(file.contentsId, destination.value);
 
-    expect(repository.mockUpdateName).toBeCalledWith(
-      expect.objectContaining(file)
-    );
+    expect(repository.updateMock).toBeCalledWith(expect.objectContaining(file));
   });
 });

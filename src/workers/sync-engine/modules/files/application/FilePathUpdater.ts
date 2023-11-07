@@ -12,7 +12,7 @@ import { RemoteFileSystem } from '../domain/file-systems/RemoteFileSystem';
 
 export class FilePathUpdater {
   constructor(
-    private readonly fileSystem: RemoteFileSystem,
+    private readonly remote: RemoteFileSystem,
     private readonly repository: FileRepository,
     private readonly fileFinderByContentsId: FileFinderByContentsId,
     private readonly folderFinder: FolderFinder,
@@ -24,7 +24,7 @@ export class FilePathUpdater {
   private async rename(file: File, path: FilePath) {
     file.rename(path);
 
-    await this.fileSystem.rename(file);
+    await this.remote.rename(file);
     await this.repository.update(file);
 
     const events = file.pullDomainEvents();
@@ -38,7 +38,7 @@ export class FilePathUpdater {
 
     file.moveTo(destinationFolder, trackerId);
 
-    await this.fileSystem.move(file);
+    await this.remote.move(file);
     await this.repository.update(file);
 
     const events = file.pullDomainEvents();

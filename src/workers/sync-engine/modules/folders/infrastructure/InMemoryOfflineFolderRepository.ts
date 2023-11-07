@@ -5,20 +5,15 @@ import Logger from 'electron-log';
 export class InMemoryOfflineFolderRepository
   implements OfflineFolderRepository
 {
-  private foldersByPath: Record<string, OfflineFolder> = {};
   private foldersByUuid: Record<string, OfflineFolder> = {};
 
   getByUuid(uuid: string): OfflineFolder | undefined {
     return this.foldersByUuid[uuid];
   }
 
-  getByPath(path: string): OfflineFolder | undefined {
-    return this.foldersByPath[path];
-  }
-
   update(folder: OfflineFolder): void {
     try {
-      const storedFolder = this.foldersByPath[folder.path] as
+      const storedFolder = this.foldersByUuid[folder.uuid] as
         | OfflineFolder
         | undefined;
 
@@ -27,7 +22,6 @@ export class InMemoryOfflineFolderRepository
 
       [...storedEvents, ...newEvents].forEach((event) => folder.record(event));
 
-      this.foldersByPath[folder.path] = folder;
       this.foldersByUuid[folder.uuid] = folder;
     } catch (error: unknown) {
       Logger.error('ERROR UPDATING OFFLINE FOLDER', error);
@@ -35,7 +29,6 @@ export class InMemoryOfflineFolderRepository
   }
 
   remove(folder: OfflineFolder): void {
-    delete this.foldersByPath[folder.path];
     delete this.foldersByUuid[folder.uuid];
   }
 }

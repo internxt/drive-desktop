@@ -1,61 +1,27 @@
 import { Nullable } from 'shared/types/Nullable';
-import { FilePath } from '../../domain/FilePath';
 import { File, FileAttributes } from '../../domain/File';
-import { OldFileRepository } from '../../domain/OldFileRepository';
+import { FileRepository } from '../../domain/FileRepository';
 
-export class FileRepositoryMock implements OldFileRepository {
-  public mockSearch = jest.fn();
-  public mockSearchByPartial = jest.fn();
-  public mockDelete = jest.fn();
-  public mockAdd = jest.fn();
-  public mockUpdateName = jest.fn();
-  public mockUpdateParentDir = jest.fn();
-  public mockSearchOnFolder = jest.fn();
-  public mockClear = jest.fn();
-  public mockInsert = jest.fn();
-  public mockAll = jest.fn();
+export class FileRepositoryMock implements FileRepository {
+  public readonly allMock = jest.fn();
+  public readonly searchByPartialMock = jest.fn();
+  public readonly deleteMock = jest.fn();
+  public readonly addMock = jest.fn();
+  public readonly updateMock = jest.fn();
 
-  all(): Promise<Array<File>> {
-    return this.mockAll();
+  all(): Promise<File[]> {
+    return this.allMock();
   }
-
-  insert(file: File): Promise<void> {
-    return this.mockInsert(file);
-  }
-
-  search(pathLike: FilePath): Nullable<File> {
-    return this.mockSearch(pathLike);
-  }
-
   searchByPartial(partial: Partial<FileAttributes>): Nullable<File> {
-    return this.mockSearchByPartial(partial);
+    return this.searchByPartialMock(partial);
   }
-
-  delete(file: File): Promise<void> {
-    return this.mockDelete(file);
+  delete(id: string): Promise<void> {
+    return this.deleteMock(id);
   }
-
   add(file: File): Promise<void> {
-    return this.mockAdd(file);
+    return this.addMock(file);
   }
-
-  updateName(item: File): Promise<void> {
-    return this.mockUpdateName(item);
-  }
-
-  updateParentDir(item: File): Promise<void> {
-    return this.mockUpdateParentDir(item);
-  }
-
-  searchOnFolder(folderId: number): Promise<Array<File>> {
-    return this.mockSearchOnFolder(folderId);
-  }
-
-  clear(): void {
-    return this.mockClear();
-  }
-
-  clearMocks() {
-    jest.clearAllMocks();
+  update(file: File): Promise<void> {
+    return this.updateMock(file);
   }
 }

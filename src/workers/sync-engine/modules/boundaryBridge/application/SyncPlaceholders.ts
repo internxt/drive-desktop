@@ -5,8 +5,8 @@ import { Folder } from '../../folders/domain/Folder';
 import { TreeBuilder } from '../../items/application/TreeBuilder';
 import { VirtualDrive } from 'virtual-drive/dist';
 import { trimPlaceholderId } from '../../placeholders/domain/CommonPlaceholder';
-import { FilePlaceholderIdPrefix } from '../../placeholders/domain/FilePlaceholderId';
 import { FolderPlaceholderIdPrefix } from '../../placeholders/domain/FolderPlaceholderId';
+import { FilePlaceholderIdPrefix } from '../../files/domain/PlaceholderId';
 
 export class SyncPlaceholders {
   constructor(

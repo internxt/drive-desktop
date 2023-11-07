@@ -6,7 +6,6 @@ import { PlaceholderContainer } from '../placeholders/PlaceholdersContainer';
 import { TreePlaceholderCreator } from '../../modules/boundaryBridge/application/TreePlaceholderCreator';
 import { ItemsContainer } from '../items/ItemsContainer';
 import { FoldersContainer } from '../folders/FoldersContainer';
-import { UpdatePlaceholderFile } from 'workers/sync-engine/modules/boundaryBridge/application/UpdatePlaceholderFile';
 import { SharedContainer } from '../shared/SharedContainer';
 import { SyncPlaceholders } from 'workers/sync-engine/modules/boundaryBridge/application/SyncPlaceholders';
 import { UpdatePlaceholderFolder } from 'workers/sync-engine/modules/boundaryBridge/application/UpdatePlaceholderFolder';

@@ -7,7 +7,7 @@ import { RemoteFileSystem } from '../domain/file-systems/RemoteFileSystem';
 import { OfflineFile } from '../domain/OfflineFile';
 import * as uuid from 'uuid';
 
-export class SDKFileSystem implements RemoteFileSystem {
+export class SDKRemoteFileSystem implements RemoteFileSystem {
   constructor(
     private readonly sdk: Storage,
     private readonly crypt: Crypt,

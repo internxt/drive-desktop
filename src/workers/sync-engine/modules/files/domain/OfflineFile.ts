@@ -30,8 +30,8 @@ export class OfflineFile extends AggregateRoot {
     return this._folderId;
   }
 
-  public get path() {
-    return this._path;
+  public get path(): string {
+    return this._path.value;
   }
 
   public get type() {

@@ -1,4 +1,4 @@
-export type Crypt = {
+export interface Crypt {
   decryptName: (
     cipherText: string,
     salt: string,
@@ -6,4 +6,4 @@ export type Crypt = {
   ) => string | null;
 
   encryptName: (name: string, salt: string) => string | null;
-};
+}

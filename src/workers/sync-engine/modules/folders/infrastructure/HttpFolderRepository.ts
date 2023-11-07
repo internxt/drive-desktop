@@ -121,7 +121,7 @@ export class HttpFolderRepository
       parentId: serverFolder.parentId,
       updatedAt: serverFolder.updatedAt,
       createdAt: serverFolder.createdAt,
-      path: path,
+      path: path.value,
       status: FolderStatuses.EXISTS,
     });
 
