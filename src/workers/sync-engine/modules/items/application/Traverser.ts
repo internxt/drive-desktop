@@ -13,8 +13,8 @@ import {
 } from '../../folders/domain/FolderStatus';
 import { Folder } from '../../folders/domain/Folder';
 import { EitherTransformer } from '../../shared/application/EitherTransformer';
-import { createFileFromServerFile } from './FileCreatorFromServerFile';
-import { createFolderFromServerFolder } from './FolderCreatorFromServerFolder';
+import { createFileFromServerFile } from '../../files/application/FileCreatorFromServerFile';
+import { createFolderFromServerFolder } from '../../folders/application/FolderCreatorFromServerFolder';
 import { NameDecryptor } from '../domain/NameDecryptor';
 import { Tree } from '../domain/Tree';
 

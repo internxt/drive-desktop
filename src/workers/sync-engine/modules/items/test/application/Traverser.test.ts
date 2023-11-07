@@ -8,13 +8,11 @@ import {
   ServerFolderStatus,
 } from '../../../../../filesystems/domain/ServerFolder';
 import { Traverser } from '../../application/Traverser';
-
-const fakeDecrypt = {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  decryptName: (name: string, _a: string, _b: string) => name,
-};
+import { FakeNameDecryptor } from '../infrastructure/FakeNameDecryptor';
 
 describe('Traverser', () => {
+  const nameDecryptor = new FakeNameDecryptor();
+
   it('first level files starts with /', () => {
     const baseFolderId = 6;
     const rawTree = {
@@ -30,7 +28,7 @@ describe('Traverser', () => {
       folders: [],
     };
     const SUT = new Traverser(
-      fakeDecrypt,
+      nameDecryptor,
       baseFolderId,
       [ServerFileStatus.EXISTS, ServerFileStatus.TRASHED],
       [ServerFolderStatus.EXISTS]
@@ -64,7 +62,7 @@ describe('Traverser', () => {
       ],
     };
     const SUT = new Traverser(
-      fakeDecrypt,
+      nameDecryptor,
       baseFolderId,
       [ServerFileStatus.EXISTS, ServerFileStatus.TRASHED],
       [ServerFolderStatus.EXISTS]
@@ -90,7 +88,7 @@ describe('Traverser', () => {
       ],
     };
     const SUT = new Traverser(
-      fakeDecrypt,
+      nameDecryptor,
       baseFolderId,
       [ServerFileStatus.EXISTS, ServerFileStatus.TRASHED],
       [ServerFolderStatus.EXISTS]
@@ -123,7 +121,7 @@ describe('Traverser', () => {
       ],
     };
     const SUT = new Traverser(
-      fakeDecrypt,
+      nameDecryptor,
       baseFolderId,
       [ServerFileStatus.EXISTS, ServerFileStatus.TRASHED],
       [ServerFolderStatus.EXISTS]
@@ -160,7 +158,7 @@ describe('Traverser', () => {
       ],
     };
     const SUT = new Traverser(
-      fakeDecrypt,
+      nameDecryptor,
       baseFolderId,
       [ServerFileStatus.EXISTS, ServerFileStatus.TRASHED],
       [ServerFolderStatus.EXISTS]
@@ -204,7 +202,7 @@ describe('Traverser', () => {
       folders: [],
     };
     const SUT = new Traverser(
-      fakeDecrypt,
+      nameDecryptor,
       baseFolderId,
       [ServerFileStatus.EXISTS, ServerFileStatus.TRASHED],
       [ServerFolderStatus.EXISTS]
@@ -231,7 +229,7 @@ describe('Traverser', () => {
       ],
     };
     const SUT = new Traverser(
-      fakeDecrypt,
+      nameDecryptor,
       baseFolderId,
       [ServerFileStatus.EXISTS, ServerFileStatus.TRASHED],
       [ServerFolderStatus.EXISTS]
@@ -265,7 +263,7 @@ describe('Traverser', () => {
       ],
     };
     const SUT = new Traverser(
-      fakeDecrypt,
+      nameDecryptor,
       baseFolderId,
       [ServerFileStatus.EXISTS, ServerFileStatus.TRASHED],
       [ServerFolderStatus.EXISTS]
