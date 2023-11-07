@@ -7,44 +7,33 @@ import {
   ServerFolder,
   ServerFolderStatus,
 } from '../../../../filesystems/domain/ServerFolder';
-import { FolderStatus } from '../../folders/domain/FolderStatus';
+import {
+  FolderStatus,
+  FolderStatuses,
+} from '../../folders/domain/FolderStatus';
 import { Folder } from '../../folders/domain/Folder';
-import { ItemsIndexedByPath } from '../domain/ItemsIndexedByPath';
 import { EitherTransformer } from '../../shared/application/EitherTransformer';
 import { createFileFromServerFile } from './FileCreatorFromServerFile';
 import { createFolderFromServerFolder } from './FolderCreatorFromServerFolder';
+import { NameDecryptor } from '../domain/NameDecryptor';
+import { Tree } from '../domain/Tree';
+import { File } from '../../files/domain/File';
+
+type Items = {
+  files: Array<ServerFile>;
+  folders: Array<ServerFolder>;
+};
 
 export class Traverser {
-  private readonly collection: ItemsIndexedByPath = {};
-  private static readonly ROOT_FOLDER_UUID =
-    '43711926-15c2-5ebf-8c24-5099fa9af3c3';
-
-  private rawTree: {
-    files: Array<ServerFile>;
-    folders: Array<ServerFolder>;
-  } | null = null;
-
   constructor(
-    private readonly decrypt: {
-      decryptName: (
-        name: string,
-        folderId: string,
-        encryptVersion: string
-      ) => string | null;
-    },
+    private readonly decrypt: NameDecryptor,
     private readonly baseFolderId: number,
     private readonly fileStatusesToFilter: Array<ServerFileStatus>,
     private readonly folderStatusesToFilter: Array<ServerFolderStatus>
   ) {}
 
   static existingItems(
-    decrypt: {
-      decryptName: (
-        name: string,
-        folderId: string,
-        encryptVersion: string
-      ) => string | null;
-    },
+    decrypt: NameDecryptor,
     baseFolderId: number
   ): Traverser {
     return new Traverser(
@@ -55,28 +44,33 @@ export class Traverser {
     );
   }
 
-  static allItems(
-    decrypt: {
-      decryptName: (
-        name: string,
-        folderId: string,
-        encryptVersion: string
-      ) => string | null;
-    },
-    baseFolderId: number
-  ): Traverser {
+  static allItems(decrypt: NameDecryptor, baseFolderId: number): Traverser {
     return new Traverser(decrypt, baseFolderId, [], []);
   }
 
-  private traverse(currentId: number, currentName = '') {
-    if (!this.rawTree) return;
+  private createRootFolder(): Folder {
+    const rootFolderUuid = '43711926-15c2-5ebf-8c24-5099fa9af3c3';
 
-    const filesInThisFolder = this.rawTree.files.filter(
-      (file) => file.folderId === currentId
+    return Folder.from({
+      id: this.baseFolderId,
+      uuid: rootFolderUuid,
+      parentId: null,
+      updatedAt: new Date().toISOString(),
+      createdAt: new Date().toISOString(),
+      path: '/',
+      status: FolderStatus.Exists.value,
+    });
+  }
+
+  private traverse(tree: Tree, items: Items, currentFolder: Folder) {
+    if (!items) return;
+
+    const filesInThisFolder = items.files.filter(
+      (file) => file.folderId === currentFolder.id
     );
 
-    const foldersInThisFolder = this.rawTree.folders.filter((folder) => {
-      return folder.parentId === currentId;
+    const foldersInThisFolder = items.folders.filter((folder) => {
+      return folder.parentId === currentFolder.id;
     });
 
     filesInThisFolder.forEach((file) => {
@@ -91,7 +85,7 @@ export class Traverser {
       );
       const extensionToAdd = file.type ? `.${file.type}` : '';
 
-      const relativeFilePath = `${currentName}/${decryptedName}${extensionToAdd}`;
+      const relativeFilePath = `${currentFolder.path.value}/${decryptedName}${extensionToAdd}`;
 
       EitherTransformer.handleWithEither(() =>
         createFileFromServerFile(file, relativeFilePath)
@@ -103,29 +97,29 @@ export class Traverser {
           );
         },
         (file) => {
-          this.collection[relativeFilePath] = file;
+          tree.addFile(currentFolder, file);
         }
       );
     });
 
-    foldersInThisFolder.forEach((folder: ServerFolder) => {
+    foldersInThisFolder.forEach((serverFolder: ServerFolder) => {
       const plainName =
-        folder.plain_name ||
+        serverFolder.plain_name ||
         this.decrypt.decryptName(
-          folder.name,
-          (folder.parentId as number).toString(),
+          serverFolder.name,
+          (serverFolder.parentId as number).toString(),
           '03-aes'
         ) ||
-        folder.name;
+        serverFolder.name;
 
-      const name = `${currentName}/${plainName}`;
+      const name = `${currentFolder.path.value}/${plainName}`;
 
-      if (!this.folderStatusesToFilter.includes(folder.status)) {
+      if (!this.folderStatusesToFilter.includes(serverFolder.status)) {
         return;
       }
 
       EitherTransformer.handleWithEither(() =>
-        createFolderFromServerFolder(folder, name)
+        createFolderFromServerFolder(serverFolder, name)
       ).fold(
         (error) => {
           Logger.warn(
@@ -134,54 +128,30 @@ export class Traverser {
           );
         },
         (folder) => {
-          this.collection[name] = folder;
+          tree.addFolder(currentFolder, folder);
+
+          if (folder.hasStatus(FolderStatuses.EXISTS)) {
+            // The folders and the files from trashed or deleted folders
+            // will have the status "EXISTS", to avoid filtering witch folders and files
+            // are in a deleted or trashed folder they not included on the collection.
+            // We cannot perform any action on them either way
+            this.traverse(tree, items, folder);
+          }
         }
       );
-
-      if (folder.status === ServerFolderStatus.EXISTS) {
-        // The folders and the files from trashed or deleted folders
-        // will have the status "EXISTS", to avoid filtering witch folders and files
-        // are in a deleted or trashed folder they not included on the collection.
-        // We cannot perform any action on them either way
-        this.traverse(folder.id, `${name}`);
-      }
     });
   }
 
-  public reset() {
-    Object.keys(this.collection).forEach(
-      (k: string) => delete this.collection[k]
-    );
-
-    this.collection['/'] = Folder.from({
-      id: this.baseFolderId,
-      uuid: Traverser.ROOT_FOLDER_UUID,
-      parentId: null,
-      updatedAt: new Date().toISOString(),
-      createdAt: new Date().toISOString(),
-      path: '/',
-      status: FolderStatus.Exists.value,
-    });
-  }
-
-  public run(rawTree: {
+  public run(items: {
     files: Array<ServerFile>;
     folders: Array<ServerFolder>;
   }) {
-    this.rawTree = rawTree;
+    const rootFolder = this.createRootFolder();
 
-    this.traverse(this.baseFolderId);
+    const tree = new Tree(rootFolder);
 
-    this.collection['/'] = Folder.from({
-      id: this.baseFolderId,
-      uuid: Traverser.ROOT_FOLDER_UUID,
-      parentId: null,
-      updatedAt: new Date().toISOString(),
-      createdAt: new Date().toISOString(),
-      path: '/',
-      status: FolderStatus.Exists.value,
-    });
+    this.traverse(tree, items, rootFolder);
 
-    return this.collection;
+    return { ...tree.files, ...tree.folders };
   }
 }
