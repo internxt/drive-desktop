@@ -12,6 +12,7 @@ import { IpcRendererSyncEngineMock } from '../../../shared/test/__mock__/IpcRend
 import { FileMother } from '../domain/FileMother';
 import { RemoteFileSystemMock } from '../__mocks__/RemoteFileSystemMock';
 import { LocalFileSystemMock } from '../__mocks__/LocalFileSystemMock';
+
 describe('File Creator', () => {
   let remoteFileSystemMock: RemoteFileSystemMock;
   let localFileSystemMock: LocalFileSystemMock;
@@ -62,7 +63,7 @@ describe('File Creator', () => {
 
     const folder = FolderMother.any();
 
-    folderRepository.mockSearch.mockReturnValueOnce(folder);
+    folderRepository.searchByPartialMock.mockReturnValueOnce(folder);
     fileRepository.addMock.mockImplementationOnce(() => {
       // returns Promise<void>
     });
@@ -84,7 +85,7 @@ describe('File Creator', () => {
 
     const folder = FolderMother.any();
 
-    folderRepository.mockSearch.mockReturnValueOnce(folder);
+    folderRepository.searchByPartialMock.mockReturnValueOnce(folder);
     fileRepository.addMock.mockImplementationOnce(() => {
       // returns Promise<void>
     });
@@ -110,11 +111,11 @@ describe('File Creator', () => {
       .mockReturnValueOnce(existingFile)
       .mockReturnValueOnce(existingFile);
 
-    folderRepository.mockSearchByPartial.mockReturnValueOnce(folder);
+    folderRepository.searchByPartialMock.mockReturnValueOnce(folder);
     fileRepository.deleteMock.mockImplementationOnce(() => {
       // returns Promise<void>
     });
-    folderRepository.mockSearch.mockReturnValueOnce(folder);
+    folderRepository.searchByPartialMock.mockReturnValueOnce(folder);
     fileRepository.addMock.mockImplementationOnce(() => {
       // returns Promise<void>
     });

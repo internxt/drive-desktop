@@ -5,12 +5,14 @@ import { FolderRepositoryMock } from '../__mocks__/FolderRepositoryMock';
 import { AllParentFoldersStatusIsExists } from '../../application/AllParentFoldersStatusIsExists';
 import { PlaceholderCreatorMock } from '../../../placeholders/test/__mock__/PlaceholderCreatorMock';
 import { FolderRemoteFileSystemMock } from '../__mocks__/FolderRemoteFileSystemMock';
+import { FolderLocalFileSystemMock } from '../__mocks__/FolderLocalFileSystemMock';
 
 describe('Folder deleter', () => {
   let repository: FolderRepositoryMock;
   let placeholderCreator: PlaceholderCreatorMock;
   let allParentFoldersStatusIsExists: AllParentFoldersStatusIsExists;
   let remote: FolderRemoteFileSystemMock;
+  let local: FolderLocalFileSystemMock;
   let SUT: FolderDeleter;
 
   beforeEach(() => {
@@ -19,12 +21,14 @@ describe('Folder deleter', () => {
       repository
     );
     placeholderCreator = new PlaceholderCreatorMock();
-    new FolderRemoteFileSystemMock();
+    remote = new FolderRemoteFileSystemMock();
+    local = new FolderLocalFileSystemMock();
+
     SUT = new FolderDeleter(
       repository,
       remote,
-      allParentFoldersStatusIsExists,
-      placeholderCreator
+      local,
+      allParentFoldersStatusIsExists
     );
   });
 

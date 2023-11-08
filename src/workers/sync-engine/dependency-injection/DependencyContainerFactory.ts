@@ -7,7 +7,6 @@ import { buildFilesContainer } from './files/builder';
 import { buildFoldersContainer } from './folders/builder';
 import { buildItemsContainer } from './items/builder';
 import { DependencyInjectionVirtualDrive } from './common/virtualDrive';
-import { buildPlaceholdersContainer } from './placeholders/builder';
 import { buildBoundaryBridgeContainer } from './boundaryBridge/build';
 import { buildSharedContainer } from './shared/builder';
 
@@ -42,9 +41,8 @@ export class DependencyContainerFactory {
 
     const sharedContainer = buildSharedContainer();
     const itemsContainer = buildItemsContainer();
-    const placeholderContainer = buildPlaceholdersContainer();
     const contentsContainer = await buildContentsContainer(sharedContainer);
-    const foldersContainer = await buildFoldersContainer(placeholderContainer);
+    const foldersContainer = await buildFoldersContainer();
     const { container: filesContainer } = await buildFilesContainer(
       foldersContainer,
       sharedContainer
@@ -54,7 +52,6 @@ export class DependencyContainerFactory {
       filesContainer,
       foldersContainer,
       itemsContainer,
-      placeholderContainer,
       sharedContainer
     );
 
@@ -63,7 +60,6 @@ export class DependencyContainerFactory {
       ...contentsContainer,
       ...filesContainer,
       ...foldersContainer,
-      ...placeholderContainer,
       ...sharedContainer,
       ...boundaryBridgeContainer,
 

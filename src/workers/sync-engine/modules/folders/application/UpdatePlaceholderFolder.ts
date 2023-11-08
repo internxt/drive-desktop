@@ -1,17 +1,17 @@
 import { promises as fs, constants as FsConstants } from 'fs';
-import { FolderByPartialSearcher } from '../../folders/application/FolderByPartialSearcher';
-import { Folder } from '../../folders/domain/Folder';
-import { ManagedFolderRepository } from '../../folders/domain/ManagedFolderRepository';
+import { FolderByPartialSearcher } from './FolderByPartialSearcher';
+import { Folder } from '../domain/Folder';
 import { PlaceholderCreator } from '../../placeholders/domain/PlaceholderCreator';
 import { RelativePathToAbsoluteConverter } from '../../shared/application/RelativePathToAbsoluteConverter';
 import Logger from 'electron-log';
 import path from 'path';
-import { FolderStatuses } from '../../folders/domain/FolderStatus';
+import { FolderStatuses } from '../domain/FolderStatus';
+import { FolderRepository } from '../domain/FolderRepository';
 
-export class UpdatePlaceholderFolder {
+export class FolderPlaceholderUpdater {
   constructor(
     private readonly folderByPartialSearcher: FolderByPartialSearcher,
-    private readonly managedFolderRepository: ManagedFolderRepository,
+    private readonly repository: FolderRepository,
     private readonly virtualDrivePlaceholderCreator: PlaceholderCreator,
     private readonly relativePathToAbsoluteConverter: RelativePathToAbsoluteConverter
   ) {}
@@ -58,6 +58,7 @@ export class UpdatePlaceholderFolder {
       return false;
     }
   }
+
   private canWrite(win32AbsolutePath: string) {
     try {
       fs.access(win32AbsolutePath, FsConstants.R_OK | FsConstants.W_OK);
@@ -86,7 +87,7 @@ export class UpdatePlaceholderFolder {
     if (!local) {
       if (remote.status.is(FolderStatuses.EXISTS)) {
         Logger.debug('Creating folder placeholder: ', remote.path);
-        await this.managedFolderRepository.insert(remote);
+        await this.repository.add(remote);
         this.virtualDrivePlaceholderCreator.folder(remote);
       }
       return;
@@ -94,7 +95,7 @@ export class UpdatePlaceholderFolder {
 
     if (remote.name !== local.name || remote.parentId !== local.parentId) {
       Logger.debug('Updating folder placeholder: ', remote.path);
-      await this.managedFolderRepository.overwrite(local, remote);
+      await this.repository.update(remote);
 
       try {
         const stat = await fs.stat(remote.path);
