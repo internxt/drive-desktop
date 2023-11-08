@@ -2,7 +2,6 @@ import {
   FilePlaceholderId,
   isFilePlaceholderId,
 } from '../../modules/files/domain/PlaceholderId';
-import { trimPlaceholderId } from '../../modules/placeholders/domain/CommonPlaceholder';
 
 import {
   FolderPlaceholderId,
@@ -11,13 +10,19 @@ import {
 
 export abstract class CallbackController {
   protected trim(id: string): string {
-    return trimPlaceholderId(id);
+    return id
+      .replace(
+        // eslint-disable-next-line no-control-regex
+        /[\x00-\x1F\x7F-\x9F]/g,
+        ''
+      )
+      .normalize();
   }
 
   protected isFilePlaceholder(id: string): id is FilePlaceholderId {
     // make sure the id is trimmed before comparing
     // if it was already trimmed should not change its length
-    const trimmed = trimPlaceholderId(id);
+    const trimmed = this.trim(id);
 
     return isFilePlaceholderId(trimmed);
   }
@@ -25,7 +30,7 @@ export abstract class CallbackController {
   protected isFolderPlaceholder(id: string): id is FolderPlaceholderId {
     // make sure the id is trimmed before comparing
     // if it was already trimmed should not change its length
-    const trimmed = trimPlaceholderId(id);
+    const trimmed = this.trim(id);
 
     return isFolderPlaceholderId(trimmed);
   }

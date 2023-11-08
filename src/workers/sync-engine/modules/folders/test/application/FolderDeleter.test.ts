@@ -3,13 +3,11 @@ import { FolderStatus } from '../../domain/FolderStatus';
 import { FolderMother } from '../domain/FolderMother';
 import { FolderRepositoryMock } from '../__mocks__/FolderRepositoryMock';
 import { AllParentFoldersStatusIsExists } from '../../application/AllParentFoldersStatusIsExists';
-import { PlaceholderCreatorMock } from '../../../placeholders/test/__mock__/PlaceholderCreatorMock';
 import { FolderRemoteFileSystemMock } from '../__mocks__/FolderRemoteFileSystemMock';
 import { FolderLocalFileSystemMock } from '../__mocks__/FolderLocalFileSystemMock';
 
 describe('Folder deleter', () => {
   let repository: FolderRepositoryMock;
-  let placeholderCreator: PlaceholderCreatorMock;
   let allParentFoldersStatusIsExists: AllParentFoldersStatusIsExists;
   let remote: FolderRemoteFileSystemMock;
   let local: FolderLocalFileSystemMock;
@@ -20,7 +18,6 @@ describe('Folder deleter', () => {
     allParentFoldersStatusIsExists = new AllParentFoldersStatusIsExists(
       repository
     );
-    placeholderCreator = new PlaceholderCreatorMock();
     remote = new FolderRemoteFileSystemMock();
     local = new FolderLocalFileSystemMock();
 
@@ -86,6 +83,6 @@ describe('Folder deleter', () => {
 
     await SUT.run(folder.uuid);
 
-    expect(placeholderCreator.folderMock).toBeCalledWith(folder);
+    expect(local.createPlaceHolderMock).toBeCalledWith(folder);
   });
 });
