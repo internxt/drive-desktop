@@ -173,6 +173,10 @@ export class Folder extends AggregateRoot {
     return false;
   }
 
+  isRoot(): boolean {
+    return !this._parentId;
+  }
+
   hasStatus(status: FolderStatuses): boolean {
     return this._status.value === status;
   }

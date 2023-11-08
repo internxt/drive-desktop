@@ -34,9 +34,10 @@ describe('Traverser', () => {
       [ServerFolderStatus.EXISTS]
     );
 
-    const result = SUT.run(rawTree);
+    const tree = SUT.run(rawTree);
 
-    expect(Object.keys(result)).toEqual(['/file A', '/']);
+    expect(tree.filePaths).toEqual(['/file A']);
+    expect(tree.folderPaths).toEqual(['/']);
   });
 
   it('second level files starts with /', () => {
@@ -68,9 +69,10 @@ describe('Traverser', () => {
       [ServerFolderStatus.EXISTS]
     );
 
-    const result = SUT.run(rawTree);
+    const tree = SUT.run(rawTree);
 
-    expect(Object.keys(result)).toEqual(['/folder A', '/folder A/file A', '/']);
+    expect(tree.filePaths).toEqual(['/folder A/file A']);
+    expect(tree.folderPaths).toEqual(['/', '/folder A']);
   });
 
   it('first level folder starts with /', () => {
@@ -94,9 +96,9 @@ describe('Traverser', () => {
       [ServerFolderStatus.EXISTS]
     );
 
-    const result = SUT.run(rawTree);
+    const tree = SUT.run(rawTree);
 
-    expect(Object.keys(result)).toEqual(['/folder A', '/']);
+    expect(tree.folderPaths).toEqual(['/', '/folder A']);
   });
 
   it('second level folder starts with /', () => {
@@ -127,13 +129,9 @@ describe('Traverser', () => {
       [ServerFolderStatus.EXISTS]
     );
 
-    const result = SUT.run(rawTree);
+    const tree = SUT.run(rawTree);
 
-    expect(Object.keys(result)).toEqual([
-      '/folder A',
-      '/folder A/folder B',
-      '/',
-    ]);
+    expect(tree.folderPaths).toEqual(['/', '/folder A', '/folder A/folder B']);
   });
 
   it('root folder should exist', () => {
@@ -164,13 +162,9 @@ describe('Traverser', () => {
       [ServerFolderStatus.EXISTS]
     );
 
-    const result = SUT.run(rawTree);
+    const tree = SUT.run(rawTree);
 
-    expect(Object.keys(result)).toEqual([
-      '/folder A',
-      '/folder A/folder B',
-      '/',
-    ]);
+    expect(tree.folderPaths).toEqual(['/', '/folder A', '/folder A/folder B']);
   });
 
   it('when a file data is invalid ignore it and continue', () => {
@@ -208,9 +202,9 @@ describe('Traverser', () => {
       [ServerFolderStatus.EXISTS]
     );
 
-    const result = SUT.run(rawTree);
+    const tree = SUT.run(rawTree);
 
-    expect(Object.keys(result)).toEqual(['/valid_name', '/']);
+    expect(tree.filePaths).toEqual(['/valid_name']);
   });
 
   it('when a folder data is invalid ignore it and continue', () => {
@@ -235,9 +229,10 @@ describe('Traverser', () => {
       [ServerFolderStatus.EXISTS]
     );
 
-    const result = SUT.run(rawTree);
+    const tree = SUT.run(rawTree);
 
-    expect(Object.keys(result)).toStrictEqual(['/folder A', '/']);
+    expect(tree.filePaths).toEqual([]);
+    expect(tree.folderPaths).toEqual(['/', '/folder A']);
   });
 
   it('filters the files and folders depending on the filters set', () => {
@@ -269,8 +264,9 @@ describe('Traverser', () => {
       [ServerFolderStatus.EXISTS]
     );
 
-    const result = SUT.run(rawTree);
+    const tree = SUT.run(rawTree);
 
-    expect(Object.keys(result)).toStrictEqual(['/file A', '/']);
+    expect(tree.filePaths).toEqual(['/file A']);
+    expect(tree.folderPaths).toEqual(['/']);
   });
 });

@@ -25,6 +25,10 @@ export class Tree {
     return files;
   }
 
+  public get filePaths(): Array<string> {
+    return this.files.map((f) => f.path);
+  }
+
   public get folders(): Array<Folder> {
     const folders: Array<Folder> = [];
 
@@ -35,6 +39,10 @@ export class Tree {
     });
 
     return folders;
+  }
+
+  public get folderPaths(): Array<string> {
+    return this.folders.map((f) => f.path);
   }
 
   private addNode(node: Node): void {

@@ -7,16 +7,13 @@ import { EventBusMock } from '../../../shared/test/__mock__/EventBusMock';
 import { FilePath } from '../../domain/FilePath';
 import { FileContentsMother } from '../../../contents/test/domain/FileContentsMother';
 import { FileDeleter } from '../../application/FileDeleter';
-import { AllParentFoldersStatusIsExists } from '../../../folders/application/AllParentFoldersStatusIsExists';
 import { IpcRendererSyncEngineMock } from '../../../shared/test/__mock__/IpcRendererSyncEngineMock';
 import { FileMother } from '../domain/FileMother';
 import { RemoteFileSystemMock } from '../__mocks__/RemoteFileSystemMock';
-import { LocalFileSystemMock } from '../__mocks__/LocalFileSystemMock';
+import { File } from '../../domain/File';
 
 describe('File Creator', () => {
   let remoteFileSystemMock: RemoteFileSystemMock;
-  let localFileSystemMock: LocalFileSystemMock;
-
   let fileRepository: FileRepositoryMock;
   let folderRepository: FolderRepositoryMock;
   let fileDeleter: FileDeleter;
@@ -28,21 +25,14 @@ describe('File Creator', () => {
 
   beforeEach(() => {
     remoteFileSystemMock = new RemoteFileSystemMock();
-    localFileSystemMock = new LocalFileSystemMock();
 
     fileRepository = new FileRepositoryMock();
     folderRepository = new FolderRepositoryMock();
-    const allParentFoldersStatusIsExists = new AllParentFoldersStatusIsExists(
-      folderRepository
-    );
-
-    fileDeleter = new FileDeleter(
-      remoteFileSystemMock,
-      localFileSystemMock,
-      fileRepository,
-      allParentFoldersStatusIsExists,
-      ipc
-    );
+    fileDeleter = {
+      run: (_id: string) => {
+        //no-op
+      },
+    } as unknown as FileDeleter;
 
     const folderFinder = new FolderFinder(folderRepository);
     eventBus = new EventBusMock();
@@ -63,25 +53,32 @@ describe('File Creator', () => {
 
     const folder = FolderMother.any();
 
+    const fileAttributes = FileMother.fromPartial({
+      path: path.value,
+      contentsId: contents.id,
+    }).attributes();
+
     folderRepository.searchByPartialMock.mockReturnValueOnce(folder);
     fileRepository.addMock.mockImplementationOnce(() => {
       // returns Promise<void>
     });
 
+    remoteFileSystemMock.persistMock.mockResolvedValueOnce(fileAttributes);
+
     await SUT.run(path, contents);
 
-    expect(fileRepository.addMock.mock.calls[0][0].contentsId).toBe(
-      contents.id
+    expect(fileRepository.addMock).toBeCalledWith(
+      expect.objectContaining(File.from(fileAttributes))
     );
-    expect(fileRepository.addMock.mock.calls[0][0].size).toStrictEqual(
-      contents.size
-    );
-    expect(fileRepository.addMock.mock.calls[0][0].folderId).toBe(folder.id);
   });
 
   it('once the file entry is created the creation event should have been emitted', async () => {
     const path = new FilePath('/cat.png');
     const contents = FileContentsMother.random();
+    const fileAttributes = FileMother.fromPartial({
+      path: path.value,
+      contentsId: contents.id,
+    }).attributes();
 
     const folder = FolderMother.any();
 
@@ -89,6 +86,8 @@ describe('File Creator', () => {
     fileRepository.addMock.mockImplementationOnce(() => {
       // returns Promise<void>
     });
+
+    remoteFileSystemMock.persistMock.mockResolvedValueOnce(fileAttributes);
 
     await SUT.run(path, contents);
 
@@ -104,6 +103,10 @@ describe('File Creator', () => {
     const path = new FilePath('/cat.png');
     const existingFile = FileMother.fromPath(path.value);
     const contents = FileContentsMother.random();
+    const fileAttributes = FileMother.fromPartial({
+      path: path.value,
+      contentsId: contents.id,
+    }).attributes();
 
     const folder = FolderMother.any();
 
@@ -111,10 +114,12 @@ describe('File Creator', () => {
       .mockReturnValueOnce(existingFile)
       .mockReturnValueOnce(existingFile);
 
-    folderRepository.searchByPartialMock.mockReturnValueOnce(folder);
-    fileRepository.deleteMock.mockImplementationOnce(() => {
-      // returns Promise<void>
-    });
+    const deleterSpy = jest
+      .spyOn(fileDeleter, 'run')
+      .mockResolvedValueOnce(Promise.resolve());
+
+    remoteFileSystemMock.persistMock.mockResolvedValueOnce(fileAttributes);
+
     folderRepository.searchByPartialMock.mockReturnValueOnce(folder);
     fileRepository.addMock.mockImplementationOnce(() => {
       // returns Promise<void>
@@ -122,11 +127,15 @@ describe('File Creator', () => {
 
     await SUT.run(path, contents);
 
-    expect(fileRepository.deleteMock.mock.calls[0][0].contentsId).toBe(
-      existingFile.contentsId
+    expect(deleterSpy).toBeCalledWith(existingFile.contentsId);
+
+    expect(remoteFileSystemMock.persistMock).toBeCalledWith(
+      expect.objectContaining({
+        contentsId: contents.id,
+      })
     );
-    expect(fileRepository.addMock.mock.calls[0][0].contentsId).toBe(
-      contents.id
+    expect(fileRepository.addMock).toBeCalledWith(
+      expect.objectContaining(File.from(fileAttributes))
     );
   });
 });

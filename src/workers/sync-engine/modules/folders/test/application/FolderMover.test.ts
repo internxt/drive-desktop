@@ -49,7 +49,7 @@ describe('Folder Mover', () => {
 
       await SUT.run(folder, destination);
 
-      expect(repository.update).toHaveBeenCalled();
+      expect(repository.updateMock).toHaveBeenCalled();
     });
   });
 });

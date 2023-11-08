@@ -84,7 +84,11 @@ export class Traverser {
       );
       const extensionToAdd = file.type ? `.${file.type}` : '';
 
-      const relativeFilePath = `${currentFolder.path}${decryptedName}${extensionToAdd}`;
+      const relativeFilePath =
+        `${currentFolder.path}/${decryptedName}${extensionToAdd}`.replaceAll(
+          '//',
+          '/'
+        );
 
       EitherTransformer.handleWithEither(() =>
         createFileFromServerFile(file, relativeFilePath)

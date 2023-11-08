@@ -5,7 +5,6 @@ import { FileDeleter } from '../../application/FileDeleter';
 import { FolderRepositoryMock } from '../../../folders/test/__mocks__/FolderRepositoryMock';
 import { ContentsIdMother } from '../../../contents/test/domain/ContentsIdMother';
 import { FileMother } from '../domain/FileMother';
-import { FileStatus } from '../../domain/FileStatus';
 import { RemoteFileSystemMock } from '../__mocks__/RemoteFileSystemMock';
 import { LocalFileSystemMock } from '../__mocks__/LocalFileSystemMock';
 
@@ -82,8 +81,7 @@ describe('File Deleter', () => {
 
     await SUT.run(file.contentsId);
 
-    expect(repository.deleteMock).toBeCalledWith(
-      expect.objectContaining({ status: FileStatus.Trashed })
-    );
+    expect(remoteFileSystemMock.trashMock).toBeCalledWith(file.contentsId);
+    expect(repository.deleteMock).toBeCalledWith(file.contentsId);
   });
 });

@@ -1,21 +1,22 @@
-import { FilePathUpdater } from '../../application/FilePathUpdater';
-import { FilePath } from '../../domain/FilePath';
-import { FileMother } from '../domain/FileMother';
-import { FileRepositoryMock } from '../__mocks__/FileRepositoryMock';
 import { FolderFinder } from '../../../folders/application/FolderFinder';
 import { FolderFinderMock } from '../../../folders/test/__mocks__/FolderFinderMock';
-import { FileFinderByContentsId } from '../../application/FileFinderByContentsId';
-import { IpcRendererSyncEngineMock } from '../../../shared/test/__mock__/IpcRendererSyncEngineMock';
-import { LocalFileIdProvider } from '../../../shared/application/LocalFileIdProvider';
+import { FolderMother } from '../../../folders/test/domain/FolderMother';
 import { EventBusMock } from '../../../shared/test/__mock__/EventBusMock';
+import { IpcRendererSyncEngineMock } from '../../../shared/test/__mock__/IpcRendererSyncEngineMock';
+import { FileFinderByContentsId } from '../../application/FileFinderByContentsId';
+import { FilePathUpdater } from '../../application/FilePathUpdater';
+import { FilePath } from '../../domain/FilePath';
+import { FileRepositoryMock } from '../__mocks__/FileRepositoryMock';
+import { LocalFileSystemMock } from '../__mocks__/LocalFileSystemMock';
 import { RemoteFileSystemMock } from '../__mocks__/RemoteFileSystemMock';
+import { FileMother } from '../domain/FileMother';
 
 describe('File path updater', () => {
   let repository: FileRepositoryMock;
   let fileFinderByContentsId: FileFinderByContentsId;
   let folderFinder: FolderFinderMock;
   let ipcRendererMock: IpcRendererSyncEngineMock;
-  let localFileIdProvider: LocalFileIdProvider;
+  let localFileSystem: LocalFileSystemMock;
   let eventBus: EventBusMock;
   let remoteFileSystemMock: RemoteFileSystemMock;
   let SUT: FilePathUpdater;
@@ -27,29 +28,93 @@ describe('File path updater', () => {
     ipcRendererMock = new IpcRendererSyncEngineMock();
     eventBus = new EventBusMock();
     remoteFileSystemMock = new RemoteFileSystemMock();
+    localFileSystem = new LocalFileSystemMock();
 
     SUT = new FilePathUpdater(
       remoteFileSystemMock,
+      localFileSystem,
       repository,
       fileFinderByContentsId,
       folderFinder as unknown as FolderFinder,
       ipcRendererMock,
-      localFileIdProvider,
       eventBus
     );
   });
 
-  it('when the extension does not changes it updates the name of the file', async () => {
-    const file = FileMother.any();
+  it('renames a file when the extension and folder does not change', async () => {
+    const fileToRename = FileMother.any();
+    const fileWithDestinationPath = undefined;
 
-    repository.searchByPartialMock.mockReturnValue(file);
+    repository.searchByPartialMock
+      .mockReturnValueOnce(fileToRename)
+      .mockReturnValueOnce(fileWithDestinationPath);
 
     const destination = new FilePath(
-      `${file.dirname}/_${file.nameWithExtension}`
+      `${fileToRename.dirname}/_${fileToRename.nameWithExtension}`
     );
 
-    await SUT.run(file.contentsId, destination.value);
+    await SUT.run(fileToRename.contentsId, destination.value);
 
-    expect(repository.updateMock).toBeCalledWith(expect.objectContaining(file));
+    expect(repository.updateMock).toBeCalledWith(
+      expect.objectContaining({ path: destination.value })
+    );
+    expect(remoteFileSystemMock.renameMock).toBeCalledWith(
+      expect.objectContaining({ path: destination.value })
+    );
+  });
+
+  it('does not rename or moves a file when the extension changes', async () => {
+    const fileToRename = FileMother.any();
+    const fileWithDestinationPath = undefined;
+
+    repository.searchByPartialMock
+      .mockReturnValueOnce(fileToRename)
+      .mockReturnValueOnce(fileWithDestinationPath);
+
+    const destination = new FilePath(
+      `${fileToRename.dirname}/_${fileToRename.nameWithExtension}n`
+    );
+
+    expect(async () => {
+      await SUT.run(fileToRename.contentsId, destination.value);
+    }).rejects.toThrow();
+  });
+
+  it('moves a file when the folder changes', async () => {
+    const fileToMove = FileMother.any();
+    const fileInDestination = undefined;
+    const localFileId = '1-2';
+
+    repository.searchByPartialMock
+      .mockReturnValueOnce(fileToMove)
+      .mockReturnValueOnce(fileInDestination);
+
+    localFileSystem.getLocalFileIdMock.mockResolvedValueOnce(localFileId);
+
+    const destination = new FilePath(
+      `${fileToMove.dirname}_/${fileToMove.nameWithExtension}`
+    );
+
+    const destinationFolder = FolderMother.fromPartial({
+      id: fileToMove.folderId + 1,
+      path: destination.dirname(),
+    });
+
+    folderFinder.mock.mockReturnValueOnce(destinationFolder);
+
+    await SUT.run(fileToMove.contentsId, destination.value);
+
+    expect(repository.updateMock).toBeCalledWith(
+      expect.objectContaining({
+        folderId: destinationFolder.id,
+        path: destination.value,
+      })
+    );
+    expect(remoteFileSystemMock.moveMock).toBeCalledWith(
+      expect.objectContaining({
+        folderId: destinationFolder.id,
+        path: destination.value,
+      })
+    );
   });
 });

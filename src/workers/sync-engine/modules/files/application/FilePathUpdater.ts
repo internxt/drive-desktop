@@ -5,19 +5,19 @@ import { File } from '../domain/File';
 import { FolderFinder } from '../../folders/application/FolderFinder';
 import { FileFinderByContentsId } from './FileFinderByContentsId';
 import { SyncEngineIpc } from '../../../ipcRendererSyncEngine';
-import { LocalFileIdProvider } from '../../shared/application/LocalFileIdProvider';
 import { EventBus } from '../../shared/domain/EventBus';
 import { FileRepository } from '../domain/FileRepository';
 import { RemoteFileSystem } from '../domain/file-systems/RemoteFileSystem';
+import { LocalFileSystem } from '../domain/file-systems/LocalFileSystem';
 
 export class FilePathUpdater {
   constructor(
     private readonly remote: RemoteFileSystem,
+    private readonly local: LocalFileSystem,
     private readonly repository: FileRepository,
     private readonly fileFinderByContentsId: FileFinderByContentsId,
     private readonly folderFinder: FolderFinder,
     private readonly ipc: SyncEngineIpc,
-    private readonly localFileIdProvider: LocalFileIdProvider,
     private readonly eventBus: EventBus
   ) {}
 
@@ -32,7 +32,7 @@ export class FilePathUpdater {
   }
 
   private async move(file: File, destination: FilePath) {
-    const trackerId = await this.localFileIdProvider.run(file.path);
+    const trackerId = await this.local.getLocalFileId(file);
 
     const destinationFolder = this.folderFinder.run(destination.dirname());
 

@@ -9,7 +9,7 @@ export class FilePathMother {
       throw new Error('Nested level of a file must be greater or equal to 0');
     }
 
-    const name = `${chance.word()}.${chance.word({ length: 3 })}`;
+    const name = `/${chance.word()}.${chance.word({ length: 3 })}`;
 
     if (level === 0) {
       return new FilePath(path.posix.join(name));
