@@ -1,9 +1,9 @@
-import { FilePlaceholderId } from '../../modules/placeholders/domain/FilePlaceholderId';
-import { ContentsDownloader } from '../../modules/contents/application/ContentsDownloader';
-import { FileFinderByContentsId } from '../../modules/files/application/FileFinderByContentsId';
-import { CallbackController } from './CallbackController';
 import Logger from 'electron-log';
 import { CallbackDownload } from '../../BindingManager';
+import { ContentsDownloader } from '../../modules/contents/application/ContentsDownloader';
+import { FileFinderByContentsId } from '../../modules/files/application/FileFinderByContentsId';
+import { FilePlaceholderId } from '../../modules/files/domain/PlaceholderId';
+import { CallbackController } from './CallbackController';
 
 export class DownloadFileController extends CallbackController {
   constructor(

@@ -1,4 +1,4 @@
-import { SDKRemoteFileSystem } from 'workers/sync-engine/modules/files/infrastructure/SDKRemoteFileSystem';
+import { SDKRemoteFileSystem } from '../../modules/files/infrastructure/SDKRemoteFileSystem';
 import crypt from '../../../utils/crypt';
 import { ipcRendererSyncEngine } from '../../ipcRendererSyncEngine';
 import { CreateFilePlaceholderOnDeletionFailed } from '../../modules/files/application/CreateFilePlaceholderOnDeletionFailed';
@@ -16,10 +16,13 @@ import { DependencyInjectionVirtualDrive } from '../common/virtualDrive';
 import { FoldersContainer } from '../folders/FoldersContainer';
 import { SharedContainer } from '../shared/SharedContainer';
 import { FilesContainer } from './FilesContainer';
-import { NodeWinLocalFileSystem } from 'workers/sync-engine/modules/files/infrastructure/NodeWinLocalFileSystem';
+import { NodeWinLocalFileSystem } from '../../modules/files/infrastructure/NodeWinLocalFileSystem';
 import { DependencyInjectionStorageSdk } from '../common/sdk';
-import { InMemoryFileRepository } from 'workers/sync-engine/modules/files/infrastructure/InMemoryFileRepository';
-import { RepositoryPopulator } from 'workers/sync-engine/modules/files/application/RepositoryPopulator';
+import { InMemoryFileRepository } from '../../modules/files/infrastructure/InMemoryFileRepository';
+import { RepositoryPopulator } from '../../modules/files/application/RepositoryPopulator';
+import { FilesPlaceholderCreator } from '../../modules/files/application/FilesPlaceholdersCreator';
+import { FilesPlaceholderUpdater } from '../../modules/files/application/FilesPlaceholderUpdater';
+import { LocalFileIdProvider } from '../../modules/shared/application/LocalFileIdProvider';
 
 export async function buildFilesContainer(
   folderContainer: FoldersContainer,
@@ -87,6 +90,20 @@ export async function buildFilesContainer(
 
   const repositoryPopulator = new RepositoryPopulator(repository);
 
+  const filesPlaceholderCreator = new FilesPlaceholderCreator(localFileSystem);
+
+  const localFileIdProvider = new LocalFileIdProvider(
+    sharedContainer.relativePathToAbsoluteConverter
+  );
+
+  const filesPlaceholderUpdater = new FilesPlaceholderUpdater(
+    repository,
+    localFileSystem,
+    sharedContainer.relativePathToAbsoluteConverter,
+    localFileIdProvider,
+    eventHistory
+  );
+
   const container: FilesContainer = {
     fileFinderByContentsId,
     fileDeleter,
@@ -98,6 +115,8 @@ export async function buildFilesContainer(
     sameFileWasMoved,
     retrieveAllFiles: new RetrieveAllFiles(repository),
     repositoryPopulator: repositoryPopulator,
+    filesPlaceholderCreator,
+    filesPlaceholderUpdater,
   };
 
   return { container, subscribers: [] };

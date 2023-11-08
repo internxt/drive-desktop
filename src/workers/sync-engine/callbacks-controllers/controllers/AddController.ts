@@ -1,15 +1,15 @@
 import Logger from 'electron-log';
-import { CallbackController } from './CallbackController';
-import { FolderCreator } from '../../modules/folders/application/FolderCreator';
-import { MapObserver } from '../../modules/shared/domain/MapObserver';
+import { PathTypeChecker } from '../../../../shared/fs/PathTypeChecker ';
 import { FileCreationOrchestrator } from '../../modules/boundaryBridge/application/FileCreationOrchestrator';
+import { createFilePlaceholderId } from '../../modules/files/domain/PlaceholderId';
+import { FolderCreator } from '../../modules/folders/application/FolderCreator';
 import { OfflineFolderCreator } from '../../modules/folders/application/Offline/OfflineFolderCreator';
 import { OfflineFolder } from '../../modules/folders/domain/OfflineFolder';
-import { createFilePlaceholderId } from '../../modules/placeholders/domain/FilePlaceholderId';
 import { createFolderPlaceholderId } from '../../modules/placeholders/domain/FolderPlaceholderId';
-import { PlatformPathConverter } from '../../modules/shared/application/PlatformPathConverter';
 import { AbsolutePathToRelativeConverter } from '../../modules/shared/application/AbsolutePathToRelativeConverter';
-import { PathTypeChecker } from '../../../../shared/fs/PathTypeChecker ';
+import { PlatformPathConverter } from '../../modules/shared/application/PlatformPathConverter';
+import { MapObserver } from '../../modules/shared/domain/MapObserver';
+import { CallbackController } from './CallbackController';
 
 type FileCreationQueue = Map<
   string,

@@ -11,9 +11,10 @@ export class OfflineFolderMover {
   ) {}
 
   async run(folder: OfflineFolder, destination: FolderPath) {
-    const resultFolder = this.offlineFolderRepository.getByPath(
-      destination.value
-    );
+    const resultFolder = this.offlineFolderRepository.searchByPartial({
+      path: destination.value,
+    });
+
     const shouldBeMerge = resultFolder !== undefined;
 
     if (shouldBeMerge) {

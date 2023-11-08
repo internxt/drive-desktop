@@ -28,8 +28,7 @@ export function buildControllers(container: DependencyContainer) {
 
   const downloadFileController = new DownloadFileController(
     container.fileFinderByContentsId,
-    container.contentsDownloader,
-    container.localRepositoryRefresher
+    container.contentsDownloader
   );
 
   const offlineRenameOrMoveController = new OfflineRenameOrMoveController(

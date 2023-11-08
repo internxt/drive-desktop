@@ -1,31 +1,44 @@
-import { OfflineFolder } from '../domain/OfflineFolder';
+import {
+  OfflineFolder,
+  OfflineFolderAttributes,
+} from '../domain/OfflineFolder';
 import { OfflineFolderRepository } from '../domain/OfflineFolderRepository';
-import Logger from 'electron-log';
 
 export class InMemoryOfflineFolderRepository
   implements OfflineFolderRepository
 {
-  private foldersByUuid: Record<string, OfflineFolder> = {};
+  private foldersByUuid: Record<
+    OfflineFolder['uuid'],
+    OfflineFolderAttributes
+  > = {};
 
-  getByUuid(uuid: string): OfflineFolder | undefined {
-    return this.foldersByUuid[uuid];
+  private get values(): Array<OfflineFolderAttributes> {
+    return Object.values(this.foldersByUuid);
+  }
+
+  searchByPartial(
+    partial: Partial<OfflineFolderAttributes>
+  ): OfflineFolder | undefined {
+    const keys = Object.keys(partial) as Array<
+      keyof Partial<OfflineFolderAttributes>
+    >;
+
+    const folderAttributes = this.values.find((attributes) =>
+      keys.every(
+        (key: keyof Partial<OfflineFolderAttributes>) =>
+          attributes[key] === partial[key]
+      )
+    );
+
+    if (!folderAttributes) {
+      return undefined;
+    }
+
+    return OfflineFolder.from(folderAttributes);
   }
 
   update(folder: OfflineFolder): void {
-    try {
-      const storedFolder = this.foldersByUuid[folder.uuid] as
-        | OfflineFolder
-        | undefined;
-
-      const storedEvents = storedFolder ? storedFolder.pullDomainEvents() : [];
-      const newEvents = folder.pullDomainEvents();
-
-      [...storedEvents, ...newEvents].forEach((event) => folder.record(event));
-
-      this.foldersByUuid[folder.uuid] = folder;
-    } catch (error: unknown) {
-      Logger.error('ERROR UPDATING OFFLINE FOLDER', error);
-    }
+    this.foldersByUuid[folder.uuid] = folder.attributes();
   }
 
   remove(folder: OfflineFolder): void {

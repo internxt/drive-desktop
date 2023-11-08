@@ -1,8 +1,9 @@
-import { trimPlaceholderId } from '../../modules/placeholders/domain/CommonPlaceholder';
 import {
   FilePlaceholderId,
   isFilePlaceholderId,
-} from '../../modules/placeholders/domain/FilePlaceholderId';
+} from '../../modules/files/domain/PlaceholderId';
+import { trimPlaceholderId } from '../../modules/placeholders/domain/CommonPlaceholder';
+
 import {
   FolderPlaceholderId,
   isFolderPlaceholderId,
