@@ -10,7 +10,7 @@ import { FileMovedDomainEvent } from '../domain/events/FileMovedDomainEvent';
 import { FileRenamedDomainEvent } from '../domain/events/FileRenamedDomainEvent';
 import { LocalFileSystem } from '../domain/file-systems/LocalFileSystem';
 
-export class FilePlaceholderUpdater {
+export class FilesPlaceholderUpdater {
   constructor(
     private readonly repository: FileRepository,
     private readonly localFileSystem: LocalFileSystem,
@@ -26,7 +26,7 @@ export class FilePlaceholderUpdater {
     return localExists && (remoteIsTrashed || remoteIsDeleted);
   }
 
-  async run(remote: File): Promise<void> {
+  private async update(remote: File): Promise<void> {
     const local = this.repository.searchByPartial({
       contentsId: remote.contentsId,
     });
@@ -80,5 +80,11 @@ export class FilePlaceholderUpdater {
       await fs.unlink(win32AbsolutePath);
       return;
     }
+  }
+
+  async run(remotes: Array<File>): Promise<void> {
+    const updtePromises = remotes.map((remote) => this.update(remote));
+
+    await Promise.all(updtePromises);
   }
 }

@@ -7,6 +7,8 @@ import { FilePlaceholderCreatorFromContentsId } from '../../modules/files/applic
 import { RetrieveAllFiles } from '../../modules/files/application/RetrieveAllFiles';
 import { SameFileWasMoved } from '../../modules/files/application/SameFileWasMoved';
 import { RepositoryPopulator } from '../../modules/files/application/RepositoryPopulator';
+import { FilesPlaceholderCreator } from '../../modules/files/application/FilesPlaceholdersCreator';
+import { FilesPlaceholderUpdater } from '../../modules/files/application/FilesPlaceholderUpdater';
 
 export interface FilesContainer {
   fileFinderByContentsId: FileFinderByContentsId;
@@ -18,4 +20,6 @@ export interface FilesContainer {
   sameFileWasMoved: SameFileWasMoved;
   retrieveAllFiles: RetrieveAllFiles;
   repositoryPopulator: RepositoryPopulator;
+  filesPlaceholderCreator: FilesPlaceholderCreator;
+  filesPlaceholderUpdater: FilesPlaceholderUpdater;
 }

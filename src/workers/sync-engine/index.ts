@@ -46,6 +46,7 @@ async function setUp() {
     Logger.info('[SYNC ENGINE] Updating sync engine');
 
     await container.syncPlaceholders.run();
+    await bindings.update();
 
     Logger.info('[SYNC ENGINE] sync engine updated successfully');
   });

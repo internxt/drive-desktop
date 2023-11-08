@@ -3,11 +3,11 @@ import { DependencyContainer } from './dependency-injection/DependencyContainer'
 import { buildControllers } from './callbacks-controllers/buildControllers';
 import { VirtualDrive } from 'virtual-drive/dist';
 import { executeControllerWithFallback } from './callbacks-controllers/middlewares/executeControllerWithFallback';
-import { FilePlaceholderId } from './modules/placeholders/domain/FilePlaceholderId';
 import { ipcRendererSyncEngine } from './ipcRendererSyncEngine';
 import { PlatformPathConverter } from './modules/shared/application/PlatformPathConverter';
 import { ItemsSearcher } from './modules/items/application/ItemsSearcher';
 import * as fs from 'fs';
+import { FilePlaceholderId } from './modules/files/domain/PlaceholderId';
 
 export type CallbackDownload = (
   success: boolean,
@@ -28,6 +28,7 @@ export class BindingsManager {
     const tree = await this.container.existingItemsTreeBuilder.run();
 
     await this.container.repositoryPopulator.run(tree.files);
+    await this.container.filesPlaceholderCreator.run(tree.files);
   }
 
   async start(version: string, providerId: string) {
@@ -240,5 +241,11 @@ export class BindingsManager {
         Logger.error(error);
       }
     });
+  }
+
+  async update() {
+    const tree = await this.container.existingItemsTreeBuilder.run();
+
+    await this.container.filesPlaceholderUpdater.run(tree.files);
   }
 }

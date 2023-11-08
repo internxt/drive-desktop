@@ -1,17 +1,13 @@
-import { FilePlaceholderUpdater } from '../../files/application/FilePlaceholderUpdater';
 import { UpdatePlaceholderFolder } from './UpdatePlaceholderFolder';
-import { File } from '../../files/domain/File';
 import { Folder } from '../../folders/domain/Folder';
 import { TreeBuilder } from '../../items/application/TreeBuilder';
 import { VirtualDrive } from 'virtual-drive/dist';
 import { trimPlaceholderId } from '../../placeholders/domain/CommonPlaceholder';
 import { FolderPlaceholderIdPrefix } from '../../placeholders/domain/FolderPlaceholderId';
-import { FilePlaceholderIdPrefix } from '../../files/domain/PlaceholderId';
 
 export class SyncPlaceholders {
   constructor(
     private readonly treeBuilder: TreeBuilder,
-    private readonly updatePlaceholderFile: FilePlaceholderUpdater,
     private readonly updatePlaceholderFolder: UpdatePlaceholderFolder,
     private readonly virtualDrive: VirtualDrive
   ) {}
@@ -34,17 +30,5 @@ export class SyncPlaceholders {
     });
 
     await Promise.all(foldersActualization);
-
-    const files = Object.values(tree).filter(
-      (item) =>
-        item.isFile() &&
-        listPlaceholdersIds.includes(FilePlaceholderIdPrefix + item.contentsId)
-    ) as Array<File>;
-
-    const filesActualization = files.map((file) =>
-      this.updatePlaceholderFile.run(file)
-    );
-
-    await Promise.all(filesActualization);
   }
 }

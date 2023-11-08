@@ -9,7 +9,6 @@ import { FoldersContainer } from '../folders/FoldersContainer';
 import { SharedContainer } from '../shared/SharedContainer';
 import { SyncPlaceholders } from 'workers/sync-engine/modules/boundaryBridge/application/SyncPlaceholders';
 import { UpdatePlaceholderFolder } from 'workers/sync-engine/modules/boundaryBridge/application/UpdatePlaceholderFolder';
-import { DependencyInjectionEventRepository } from '../common/eventRepository';
 import { DependencyInjectionVirtualDrive } from '../common/virtualDrive';
 
 export function buildBoundaryBridgeContainer(
@@ -20,7 +19,6 @@ export function buildBoundaryBridgeContainer(
   placeholderContainer: PlaceholderContainer,
   sharedContainer: SharedContainer
 ): BoundaryBridgeContainer {
-  const eventHistory = DependencyInjectionEventRepository.get();
   const virtualDrive = DependencyInjectionVirtualDrive.virtualDrive;
 
   const fileCreationOrchestrator = new FileCreationOrchestrator(
@@ -34,15 +32,6 @@ export function buildBoundaryBridgeContainer(
     placeholderContainer.placeholderCreator
   );
 
-  const syncRemoteFile = new UpdatePlaceholderFile(
-    filesContainer.fileByPartialSearcher,
-    filesContainer.managedFileRepository,
-    placeholderContainer.placeholderCreator,
-    sharedContainer.relativePathToAbsoluteConverter,
-    sharedContainer.localFileIdProvider,
-    eventHistory
-  );
-
   const syncRemoteFolder = new UpdatePlaceholderFolder(
     foldersContainer.folderByPartialSearcher,
     foldersContainer.managedFolderRepository,
@@ -52,7 +41,6 @@ export function buildBoundaryBridgeContainer(
 
   const syncPlaceholders = new SyncPlaceholders(
     itemsContainer.allStatusesTreeBuilder,
-    syncRemoteFile,
     syncRemoteFolder,
     virtualDrive
   );
