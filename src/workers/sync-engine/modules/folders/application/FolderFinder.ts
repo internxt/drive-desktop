@@ -7,7 +7,7 @@ export class FolderFinder {
   constructor(private readonly repository: FolderRepository) {}
 
   run(path: string): Folder {
-    const folder = this.repository.search(path);
+    const folder = this.repository.searchByPartial({ path });
 
     if (!folder) {
       throw new FolderNotFoundError(path);
@@ -17,7 +17,7 @@ export class FolderFinder {
   }
 
   findFromFilePath(path: FilePath): Folder {
-    const folder = this.repository.search(path.dirname());
+    const folder = this.repository.searchByPartial({ path: path.dirname() });
 
     if (!folder) {
       throw new FolderNotFoundError(path.dirname());

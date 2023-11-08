@@ -1,5 +1,5 @@
 import { FolderPath } from '../../domain/FolderPath';
-import { FolderRepository } from '../../domain/FolderRepository';
+import { OldFolderRepository } from '../../domain/OldFolderRepository';
 import { OfflineFolder } from '../../domain/OfflineFolder';
 import { OfflineFolderRepository } from '../../domain/OfflineFolderRepository';
 import { FolderFinder } from '../FolderFinder';
@@ -8,7 +8,7 @@ export class OfflineFolderCreator {
   constructor(
     private readonly folderFinder: FolderFinder,
     private readonly offlineRepository: OfflineFolderRepository,
-    private readonly repository: FolderRepository
+    private readonly repository: OldFolderRepository
   ) {}
 
   run(posixRelativePath: string): OfflineFolder {

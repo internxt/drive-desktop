@@ -10,5 +10,5 @@ export interface FileRepository {
 
   add(file: File): Promise<void>;
 
-  update(item: File): Promise<void>;
+  update(file: File): Promise<void>;
 }

@@ -1,7 +1,7 @@
-import { File } from '../domain/File';
 import { VirtualDrive } from 'virtual-drive/dist';
-import { LocalFileSystem } from '../domain/file-systems/LocalFileSystem';
 import { FileStatuses } from '../../files/domain/FileStatus';
+import { File } from '../domain/File';
+import { LocalFileSystem } from '../domain/file-systems/LocalFileSystem';
 
 export class NodeWinLocalFileSystem implements LocalFileSystem {
   constructor(private readonly virtualDrive: VirtualDrive) {}

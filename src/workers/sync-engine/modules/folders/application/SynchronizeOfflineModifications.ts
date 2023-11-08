@@ -1,10 +1,10 @@
 import { Folder } from '../domain/Folder';
-import { FolderRepository } from '../domain/FolderRepository';
 import { OfflineFolderRepository } from '../domain/OfflineFolderRepository';
 import { FolderNotFoundError } from '../domain/errors/FolderNotFoundError';
 import { FolderRenamedDomainEvent } from '../domain/events/FolderRenamedDomainEvent';
 import { FolderRenamer } from './FolderRenamer';
 import Logger from 'electron-log';
+import { FolderRepository } from '../domain/FolderRepository';
 
 export class SynchronizeOfflineModifications {
   constructor(

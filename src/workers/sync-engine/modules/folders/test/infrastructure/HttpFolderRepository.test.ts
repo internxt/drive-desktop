@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { Traverser } from '../../../items/application/Traverser';
 import { FolderPath } from '../../domain/FolderPath';
-import { HttpFolderRepository } from '../../infrastructure/HttpFolderRepository';
+import { HttpRemoteFileSystem } from '../../infrastructure/HttpRemoteFileSystem';
 import { fakeDecryptor } from '../../../shared/test/domain/FakeCrypt';
 import { IpcRendererSyncEngineMock } from '../../../shared/test/__mock__/IpcRendererSyncEngineMock';
 import { ServerFolderMother } from '../../../items/test/persistance/ServerFolderMother';
@@ -12,7 +12,7 @@ const rootFolderId = 4206870830;
 
 describe('Http Folder Repository', () => {
   let ipc: IpcRendererSyncEngineMock;
-  let SUT: HttpFolderRepository;
+  let SUT: HttpRemoteFileSystem;
 
   describe('save', () => {
     beforeEach(() => {
@@ -20,7 +20,7 @@ describe('Http Folder Repository', () => {
 
       ipc = new IpcRendererSyncEngineMock();
 
-      SUT = new HttpFolderRepository(axios, axios, traverser, ipc);
+      SUT = new HttpRemoteFileSystem(axios, axios, traverser, ipc);
     });
 
     it.skip('after a folder is saved it has to have all its properties set', async () => {

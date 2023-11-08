@@ -3,7 +3,7 @@ import { File, FileAttributes } from '../domain/File';
 import { FileRepository } from '../domain/FileRepository';
 
 export class InMemoryFileRepository implements FileRepository {
-  public files: Map<string, FileAttributes>;
+  private files: Map<string, FileAttributes>;
 
   private get values(): Array<FileAttributes> {
     return Array.from(this.files.values());

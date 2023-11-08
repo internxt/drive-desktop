@@ -7,7 +7,7 @@ import { trimPlaceholderId } from '../../modules/placeholders/domain/CommonPlace
 import {
   FolderPlaceholderId,
   isFolderPlaceholderId,
-} from '../../modules/placeholders/domain/FolderPlaceholderId';
+} from '../../modules/folders/domain/FolderPlaceholderId';
 
 export abstract class CallbackController {
   protected trim(id: string): string {

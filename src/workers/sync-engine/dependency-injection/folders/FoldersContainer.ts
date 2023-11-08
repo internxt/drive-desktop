@@ -12,6 +12,7 @@ import { SynchronizeOfflineModifications } from '../../modules/folders/applicati
 import { SynchronizeOfflineModificationsOnFolderCreated } from '../../modules/folders/application/SynchronizeOfflineModificationsOnFolderCreated';
 import { ManagedFolderRepository } from '../../modules/folders/domain/ManagedFolderRepository';
 import { RetrieveAllFolders } from '../../modules/folders/application/RetrieveAllFolders';
+import { FolderRepositoryInitiator } from '../../modules/folders/application/FolderRepositoryInitiator';
 
 export interface FoldersContainer {
   folderCreator: FolderCreator;
@@ -30,4 +31,5 @@ export interface FoldersContainer {
   };
   managedFolderRepository: ManagedFolderRepository;
   retrieveAllFolders: RetrieveAllFolders;
+  folderRepositoryInitiator: FolderRepositoryInitiator;
 }

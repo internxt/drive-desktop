@@ -5,7 +5,7 @@ import { createFilePlaceholderId } from '../../modules/files/domain/PlaceholderI
 import { FolderCreator } from '../../modules/folders/application/FolderCreator';
 import { OfflineFolderCreator } from '../../modules/folders/application/Offline/OfflineFolderCreator';
 import { OfflineFolder } from '../../modules/folders/domain/OfflineFolder';
-import { createFolderPlaceholderId } from '../../modules/placeholders/domain/FolderPlaceholderId';
+import { createFolderPlaceholderId } from '../../modules/folders/domain/FolderPlaceholderId';
 import { AbsolutePathToRelativeConverter } from '../../modules/shared/application/AbsolutePathToRelativeConverter';
 import { PlatformPathConverter } from '../../modules/shared/application/PlatformPathConverter';
 import { MapObserver } from '../../modules/shared/domain/MapObserver';

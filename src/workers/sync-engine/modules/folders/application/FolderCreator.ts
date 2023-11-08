@@ -3,12 +3,12 @@ import { EventBus } from '../../shared/domain/EventBus';
 import { Folder } from '../domain/Folder';
 import { FolderRepository } from '../domain/FolderRepository';
 import { OfflineFolder } from '../domain/OfflineFolder';
-import { FolderFinder } from './FolderFinder';
+import { RemoteFileSystem } from '../domain/file-systems/RemoteFileSystem';
 
 export class FolderCreator {
   constructor(
     private readonly repository: FolderRepository,
-    private readonly folderFinder: FolderFinder,
+    private readonly remote: RemoteFileSystem,
     private readonly ipc: SyncEngineIpc,
     private readonly eventBus: EventBus
   ) {}
@@ -18,13 +18,11 @@ export class FolderCreator {
       name: offlineFolder.name,
     });
 
-    const parent = this.folderFinder.run(offlineFolder.dirname);
+    const attributes = await this.remote.persist(offlineFolder);
 
-    const folder = await this.repository.create(
-      offlineFolder.path,
-      parent.id,
-      offlineFolder.uuid
-    );
+    const folder = Folder.create(attributes);
+
+    await this.repository.add(folder);
 
     const events = folder.pullDomainEvents();
     this.eventBus.publish(events);

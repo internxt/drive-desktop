@@ -5,6 +5,7 @@ import { FolderStatus, FolderStatuses } from './FolderStatus';
 import { FolderUuid } from './FolderUuid';
 import { FolderCreatedDomainEvent } from './events/FolderCreatedDomainEvent';
 import { FolderRenamedDomainEvent } from './events/FolderRenamedDomainEvent';
+import { createFolderPlaceholderId } from './FolderPlaceholderId';
 
 export type FolderAttributes = {
   id: number;
@@ -56,6 +57,10 @@ export class Folder extends AggregateRoot {
   public get size() {
     // Currently we cannot acquire the folder size.
     return 0;
+  }
+
+  public get placeholderId() {
+    return createFolderPlaceholderId(this.uuid);
   }
 
   public update(attributes: Partial<FolderAttributes>) {

@@ -1,9 +1,9 @@
 import { Nullable } from 'shared/types/Nullable';
 import { FolderPath } from '../../domain/FolderPath';
 import { Folder, FolderAttributes } from '../../domain/Folder';
-import { FolderRepository } from '../../domain/FolderRepository';
+import { OldFolderRepository } from '../../domain/OldFolderRepository';
 
-export class FolderRepositoryMock implements FolderRepository {
+export class FolderRepositoryMock implements OldFolderRepository {
   public mockSearch = jest.fn();
   public mockSearchByPartial = jest.fn();
   public mockAdd = jest.fn();

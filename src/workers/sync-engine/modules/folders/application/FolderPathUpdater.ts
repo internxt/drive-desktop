@@ -1,11 +1,11 @@
+import Logger from 'electron-log';
 import { Folder } from '../domain/Folder';
+import { FolderPath } from '../domain/FolderPath';
 import { FolderRepository } from '../domain/FolderRepository';
-import { FolderNotFoundError } from '../domain/errors/FolderNotFoundError';
 import { ActionNotPermittedError } from '../domain/errors/ActionNotPermittedError';
+import { FolderNotFoundError } from '../domain/errors/FolderNotFoundError';
 import { FolderMover } from './FolderMover';
 import { FolderRenamer } from './FolderRenamer';
-import { FolderPath } from '../domain/FolderPath';
-import Logger from 'electron-log';
 
 export class FolderPathUpdater {
   constructor(

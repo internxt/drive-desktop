@@ -3,7 +3,7 @@ import { Folder } from '../../folders/domain/Folder';
 import { TreeBuilder } from '../../items/application/TreeBuilder';
 import { VirtualDrive } from 'virtual-drive/dist';
 import { trimPlaceholderId } from '../../placeholders/domain/CommonPlaceholder';
-import { FolderPlaceholderIdPrefix } from '../../placeholders/domain/FolderPlaceholderId';
+import { FolderPlaceholderIdPrefix } from '../../folders/domain/FolderPlaceholderId';
 
 export class SyncPlaceholders {
   constructor(

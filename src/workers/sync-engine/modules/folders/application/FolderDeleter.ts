@@ -1,14 +1,16 @@
 import Logger from 'electron-log';
 import { Folder } from '../domain/Folder';
-import { FolderRepository } from '../domain/FolderRepository';
 import { ActionNotPermittedError } from '../domain/errors/ActionNotPermittedError';
 import { FolderNotFoundError } from '../domain/errors/FolderNotFoundError';
 import { AllParentFoldersStatusIsExists } from './AllParentFoldersStatusIsExists';
 import { PlaceholderCreator } from '../../placeholders/domain/PlaceholderCreator';
+import { FolderRepository } from '../domain/FolderRepository';
+import { RemoteFileSystem } from '../domain/file-systems/RemoteFileSystem';
 
 export class FolderDeleter {
   constructor(
     private readonly repository: FolderRepository,
+    private readonly remote: RemoteFileSystem,
     private readonly allParentFoldersStatusIsExists: AllParentFoldersStatusIsExists,
     private readonly placeholderCreator: PlaceholderCreator
   ) {}
@@ -38,7 +40,9 @@ export class FolderDeleter {
       }
 
       folder.trash();
-      await this.repository.trash(folder);
+
+      await this.remote.trash(folder.id);
+      await this.repository.delete(folder.id);
     } catch (error: unknown) {
       Logger.error(`Error deleting the folder ${folder.name}: `, error);
 
