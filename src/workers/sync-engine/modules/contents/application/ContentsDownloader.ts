@@ -40,7 +40,7 @@ export class ContentsDownloader {
         extension: file.type,
         nameWithExtension: file.nameWithExtension,
         size: file.size,
-        processInfo: { elapsedTime: downloader.elapsedTime() },
+        processInfo: { elapsedTime: downloader.elapsedTime(), progress: 0 },
       });
     });
 
@@ -57,18 +57,25 @@ export class ContentsDownloader {
         Logger.debug('Downloader force stop', this.readableDownloader);
         this.readableDownloader?.destroy();
         this.readableDownloader?.emit('close');
+        this.ipc.send('FILE_DOWNLOADED', {
+          name: file.name,
+          extension: file.type,
+          nameWithExtension: file.nameWithExtension,
+          size: file.size,
+          processInfo: { elapsedTime: downloader.elapsedTime() },
+        });
+      } else {
+        this.ipc.send('FILE_DOWNLOADING', {
+          name: file.name,
+          extension: file.type,
+          nameWithExtension: file.nameWithExtension,
+          size: file.size,
+          processInfo: {
+            elapsedTime: downloader.elapsedTime(),
+            progress: hydrationProgress,
+          },
+        });
       }
-
-      this.ipc.send('FILE_DOWNLOADING', {
-        name: file.name,
-        extension: file.type,
-        nameWithExtension: file.nameWithExtension,
-        size: file.size,
-        processInfo: {
-          elapsedTime: downloader.elapsedTime(),
-          progress: hydrationProgress,
-        },
-      });
     });
 
     downloader.on('error', (error: Error) => {
@@ -84,6 +91,13 @@ export class ContentsDownloader {
       Logger.error('INSIDE FINISH=======================');
       // The file download being finished does not mean it has been hidratated
       // TODO: We might want to track this time instead of the whole completion time
+      this.ipc.send('FILE_DOWNLOADED', {
+        name: file.name,
+        extension: file.type,
+        nameWithExtension: file.nameWithExtension,
+        size: file.size,
+        processInfo: { elapsedTime: downloader.elapsedTime() },
+      });
     });
   }
 
