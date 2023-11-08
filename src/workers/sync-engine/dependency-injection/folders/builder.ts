@@ -1,14 +1,13 @@
+import { InMemoryFolderRepository } from 'workers/sync-engine/modules/folders/infrastructure/InMemoryFolderRepository';
 import { ipcRendererSyncEngine } from '../../ipcRendererSyncEngine';
 import { AllParentFoldersStatusIsExists } from '../../modules/folders/application/AllParentFoldersStatusIsExists';
 import { FolderByPartialSearcher } from '../../modules/folders/application/FolderByPartialSearcher';
-import { FolderClearer } from '../../modules/folders/application/FolderClearer';
 import { FolderCreator } from '../../modules/folders/application/FolderCreator';
 import { FolderDeleter } from '../../modules/folders/application/FolderDeleter';
 import { FolderFinder } from '../../modules/folders/application/FolderFinder';
 import { FolderMover } from '../../modules/folders/application/FolderMover';
 import { FolderPathUpdater } from '../../modules/folders/application/FolderPathUpdater';
 import { FolderRenamer } from '../../modules/folders/application/FolderRenamer';
-import { FolderSearcher } from '../../modules/folders/application/FolderSearcher';
 import { OfflineFolderCreator } from '../../modules/folders/application/Offline/OfflineFolderCreator';
 import { OfflineFolderMover } from '../../modules/folders/application/Offline/OfflineFolderMover';
 import { OfflineFolderPathUpdater } from '../../modules/folders/application/Offline/OfflineFolderPathUpdater';
@@ -20,29 +19,25 @@ import { HttpRemoteFileSystem } from '../../modules/folders/infrastructure/HttpR
 import { InMemoryOfflineFolderRepository } from '../../modules/folders/infrastructure/InMemoryOfflineFolderRepository';
 import { DependencyInjectionHttpClientsProvider } from '../common/clients';
 import { DependencyInjectionEventBus } from '../common/eventBus';
-import { DependencyInjectionTraverserProvider } from '../common/traverser';
-import { PlaceholderContainer } from '../placeholders/PlaceholdersContainer';
 import { FoldersContainer } from './FoldersContainer';
+import { NodeWinLocalFileSystem } from '../../modules/folders/infrastructure/NodeWinLocalFileSystem';
+import { DependencyInjectionVirtualDrive } from '../common/virtualDrive';
+import { FolderRepositoryInitiator } from 'workers/sync-engine/modules/folders/application/FolderRepositoryInitiator';
 
-export async function buildFoldersContainer(
-  placeholdersContainer: PlaceholderContainer
-): Promise<FoldersContainer> {
+export async function buildFoldersContainer(): Promise<FoldersContainer> {
   const clients = DependencyInjectionHttpClientsProvider.get();
-  const traverser = DependencyInjectionTraverserProvider.get();
   const eventBus = DependencyInjectionEventBus.bus;
+  const { virtualDrive } = DependencyInjectionVirtualDrive;
 
-  const repository = new HttpRemoteFileSystem(
+  const repository = new InMemoryFolderRepository();
+
+  const localFileSystem = new NodeWinLocalFileSystem(virtualDrive);
+  const remoteFileSystem = new HttpRemoteFileSystem(
     clients.drive,
-    clients.newDrive,
-    traverser,
-    ipcRendererSyncEngine
+    clients.newDrive
   );
 
-  await repository.init();
-
   const folderFinder = new FolderFinder(repository);
-
-  const folderSearcher = new FolderSearcher(repository);
 
   const allParentFoldersStatusIsExists = new AllParentFoldersStatusIsExists(
     repository
@@ -50,19 +45,28 @@ export async function buildFoldersContainer(
 
   const folderDeleter = new FolderDeleter(
     repository,
-    allParentFoldersStatusIsExists,
-    placeholdersContainer.placeholderCreator
+    remoteFileSystem,
+    localFileSystem,
+    allParentFoldersStatusIsExists
   );
 
   const folderCreator = new FolderCreator(
     repository,
-    folderFinder,
+    remoteFileSystem,
     ipcRendererSyncEngine,
     eventBus
   );
 
-  const folderMover = new FolderMover(repository, folderFinder);
-  const folderRenamer = new FolderRenamer(repository, ipcRendererSyncEngine);
+  const folderMover = new FolderMover(
+    repository,
+    remoteFileSystem,
+    folderFinder
+  );
+  const folderRenamer = new FolderRenamer(
+    repository,
+    remoteFileSystem,
+    ipcRendererSyncEngine
+  );
 
   const folderByPartialSearcher = new FolderByPartialSearcher(repository);
 
@@ -72,7 +76,6 @@ export async function buildFoldersContainer(
     folderRenamer
   );
 
-  const folderClearer = new FolderClearer(repository);
   const offlineRepository = new InMemoryOfflineFolderRepository();
   const offlineFolderCreator = new OfflineFolderCreator(
     folderFinder,
@@ -101,14 +104,14 @@ export async function buildFoldersContainer(
       synchronizeOfflineModifications
     );
 
+  const folderRepositoryInitiator = new FolderRepositoryInitiator(repository);
+
   return {
     folderCreator,
     folderFinder,
-    folderSearcher,
     folderDeleter,
     allParentFoldersStatusIsExists: allParentFoldersStatusIsExists,
     folderPathUpdater,
-    folderClearer,
     folderByPartialSearcher,
     synchronizeOfflineModificationsOnFolderCreated,
     offline: {
@@ -116,7 +119,7 @@ export async function buildFoldersContainer(
       folderPathUpdater: offlineFolderPathUpdater,
       synchronizeOfflineModifications,
     },
-    managedFolderRepository: repository,
     retrieveAllFolders: new RetrieveAllFolders(repository),
+    folderRepositoryInitiator,
   };
 }

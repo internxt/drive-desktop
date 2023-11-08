@@ -3,16 +3,16 @@ import { Folder } from '../domain/Folder';
 import { ActionNotPermittedError } from '../domain/errors/ActionNotPermittedError';
 import { FolderNotFoundError } from '../domain/errors/FolderNotFoundError';
 import { AllParentFoldersStatusIsExists } from './AllParentFoldersStatusIsExists';
-import { PlaceholderCreator } from '../../placeholders/domain/PlaceholderCreator';
 import { FolderRepository } from '../domain/FolderRepository';
 import { RemoteFileSystem } from '../domain/file-systems/RemoteFileSystem';
+import { LocalFileSystem } from '../domain/file-systems/LocalFileSystem';
 
 export class FolderDeleter {
   constructor(
     private readonly repository: FolderRepository,
     private readonly remote: RemoteFileSystem,
-    private readonly allParentFoldersStatusIsExists: AllParentFoldersStatusIsExists,
-    private readonly placeholderCreator: PlaceholderCreator
+    private readonly local: LocalFileSystem,
+    private readonly allParentFoldersStatusIsExists: AllParentFoldersStatusIsExists
   ) {}
 
   async run(uuid: Folder['uuid']): Promise<void> {
@@ -46,7 +46,7 @@ export class FolderDeleter {
     } catch (error: unknown) {
       Logger.error(`Error deleting the folder ${folder.name}: `, error);
 
-      this.placeholderCreator.folder(folder);
+      this.local.createPlaceHolder(folder);
     }
   }
 }

@@ -7,18 +7,25 @@ import { FolderUuid } from '../../domain/FolderUuid';
 import { OfflineFolderMother } from '../domain/OfflineFolderMother';
 import { FolderMother } from '../domain/FolderMother';
 import { FolderPath } from '../../domain/FolderPath';
+import { FolderRemoteFileSystemMock } from '../__mocks__/FolderRemoteFileSystemMock';
 
 describe('Synchronize Offline Modifications', () => {
   let offlineRepository: InMemoryOfflineFolderRepository;
   let repository: FolderRepositoryMock;
+  let folderRemoteFileSystemMock: FolderRemoteFileSystemMock;
   let renamer: FolderRenamer;
 
   let SUT: SynchronizeOfflineModifications;
 
   beforeEach(() => {
     offlineRepository = new InMemoryOfflineFolderRepository();
+    folderRemoteFileSystemMock = new FolderRemoteFileSystemMock();
     repository = new FolderRepositoryMock();
-    renamer = new FolderRenamer(repository, new IpcRendererSyncEngineMock());
+    renamer = new FolderRenamer(
+      repository,
+      folderRemoteFileSystemMock,
+      new IpcRendererSyncEngineMock()
+    );
 
     SUT = new SynchronizeOfflineModifications(
       offlineRepository,
@@ -34,7 +41,7 @@ describe('Synchronize Offline Modifications', () => {
 
     await SUT.run(FolderUuid.random().value);
 
-    expect(repository.mockSearchByPartial).not.toBeCalled();
+    expect(repository.searchByPartialMock).not.toBeCalled();
   });
 
   it('throws an error if there is no folder with the given uuid', async () => {
@@ -42,7 +49,7 @@ describe('Synchronize Offline Modifications', () => {
       .spyOn(offlineRepository, 'searchByPartial')
       .mockReturnValueOnce(OfflineFolderMother.random());
 
-    repository.mockSearchByPartial.mockReturnValueOnce(undefined);
+    repository.searchByPartialMock.mockReturnValueOnce(undefined);
 
     try {
       await SUT.run(FolderUuid.random().value);
@@ -68,14 +75,14 @@ describe('Synchronize Offline Modifications', () => {
       .spyOn(offlineRepository, 'searchByPartial')
       .mockReturnValueOnce(offlineFolder);
 
-    repository.mockSearchByPartial.mockReturnValueOnce(folder);
+    repository.searchByPartialMock.mockReturnValueOnce(folder);
 
     const renamerSpy = jest.spyOn(renamer, 'run');
 
     await SUT.run(offlineFolder.uuid);
 
     expect(offlineRepositorySyp).toBeCalledWith(offlineFolder.uuid);
-    expect(repository.mockSearchByPartial).toBeCalledWith({
+    expect(repository.searchByPartialMock).toBeCalledWith({
       uuid: offlineFolder.uuid,
     });
     expect(renamerSpy).not.toBeCalled();
@@ -95,7 +102,7 @@ describe('Synchronize Offline Modifications', () => {
 
     const renamerSpy = jest.spyOn(renamer, 'run');
 
-    repository.mockSearchByPartial.mockReturnValueOnce(folder);
+    repository.searchByPartialMock.mockReturnValueOnce(folder);
 
     await SUT.run(offlineFolder.uuid);
 
@@ -122,7 +129,7 @@ describe('Synchronize Offline Modifications', () => {
 
     const renamerSpy = jest.spyOn(renamer, 'run');
 
-    repository.mockSearchByPartial
+    repository.searchByPartialMock
       .mockReturnValueOnce(afterCreation)
       .mockReturnValueOnce(afterFirstRename);
 

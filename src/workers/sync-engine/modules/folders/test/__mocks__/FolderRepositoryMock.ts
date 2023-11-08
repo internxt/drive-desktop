@@ -1,65 +1,31 @@
 import { Nullable } from 'shared/types/Nullable';
-import { FolderPath } from '../../domain/FolderPath';
 import { Folder, FolderAttributes } from '../../domain/Folder';
-import { OldFolderRepository } from '../../domain/OldFolderRepository';
+import { FolderRepository } from '../../domain/FolderRepository';
 
-export class FolderRepositoryMock implements OldFolderRepository {
-  public mockSearch = jest.fn();
-  public mockSearchByPartial = jest.fn();
-  public mockAdd = jest.fn();
-  public mockUpdateName = jest.fn();
-  public mockUpdateParentDir = jest.fn();
-  public mockCreate = jest.fn();
-  public mockSearchOnFolder = jest.fn();
-  public mockTrash = jest.fn();
-  public mockClear = jest.fn();
-  public mockAll = jest.fn();
+export class FolderRepositoryMock implements FolderRepository {
+  public readonly allMock = jest.fn();
+  public readonly searchByPartialMock = jest.fn();
+  public readonly addMock = jest.fn();
+  public readonly deleteMock = jest.fn();
+  public readonly updateMock = jest.fn();
 
-  all(): Promise<Array<Folder>> {
-    return this.mockAll();
-  }
-
-  search(pathLike: string): Nullable<Folder> {
-    return this.mockSearch(pathLike);
+  all(): Promise<Folder[]> {
+    return this.allMock();
   }
 
   searchByPartial(partial: Partial<FolderAttributes>): Nullable<Folder> {
-    return this.mockSearchByPartial(partial);
+    return this.searchByPartialMock(partial);
   }
 
-  add(file: Folder): Promise<void> {
-    return this.mockAdd(file);
+  add(folder: Folder): Promise<void> {
+    return this.addMock(folder);
   }
 
-  updateName(item: Folder): Promise<void> {
-    return this.mockUpdateName(item);
+  delete(id: number): Promise<void> {
+    return this.deleteMock(id);
   }
 
-  updateParentDir(item: Folder): Promise<void> {
-    return this.mockUpdateParentDir(item);
-  }
-
-  create(
-    name: FolderPath,
-    parentId: number | null,
-    uuid: Folder['uuid']
-  ): Promise<Folder> {
-    return this.mockCreate(name, parentId, uuid);
-  }
-
-  searchOn(folder: Folder): Promise<Folder[]> {
-    return this.mockSearchOnFolder(folder);
-  }
-
-  trash(folder: Folder): Promise<void> {
-    return this.mockTrash(folder);
-  }
-
-  clear(): void {
-    return this.mockClear();
-  }
-
-  clearMocks() {
-    jest.clearAllMocks();
+  update(folder: Folder): Promise<void> {
+    return this.updateMock(folder);
   }
 }

@@ -4,11 +4,13 @@ import { FolderMother } from '../domain/FolderMother';
 import { FolderRepositoryMock } from '../__mocks__/FolderRepositoryMock';
 import { AllParentFoldersStatusIsExists } from '../../application/AllParentFoldersStatusIsExists';
 import { PlaceholderCreatorMock } from '../../../placeholders/test/__mock__/PlaceholderCreatorMock';
+import { FolderRemoteFileSystemMock } from '../__mocks__/FolderRemoteFileSystemMock';
 
 describe('Folder deleter', () => {
   let repository: FolderRepositoryMock;
   let placeholderCreator: PlaceholderCreatorMock;
   let allParentFoldersStatusIsExists: AllParentFoldersStatusIsExists;
+  let remote: FolderRemoteFileSystemMock;
   let SUT: FolderDeleter;
 
   beforeEach(() => {
@@ -17,8 +19,10 @@ describe('Folder deleter', () => {
       repository
     );
     placeholderCreator = new PlaceholderCreatorMock();
+    new FolderRemoteFileSystemMock();
     SUT = new FolderDeleter(
       repository,
+      remote,
       allParentFoldersStatusIsExists,
       placeholderCreator
     );
@@ -27,12 +31,12 @@ describe('Folder deleter', () => {
   it('trashes an existing folder', async () => {
     const folder = FolderMother.exists();
 
-    repository.mockSearchByPartial.mockReturnValueOnce(folder);
+    repository.searchByPartialMock.mockReturnValueOnce(folder);
     jest.spyOn(allParentFoldersStatusIsExists, 'run').mockReturnValueOnce(true);
 
     await SUT.run(folder.uuid);
 
-    expect(repository.mockTrash).toBeCalledWith(
+    expect(repository.deleteMock).toBeCalledWith(
       expect.objectContaining({
         status: FolderStatus.Trashed,
       })
@@ -42,20 +46,20 @@ describe('Folder deleter', () => {
   it('throws an error when trashing a folder already trashed', async () => {
     const folder = FolderMother.trashed();
 
-    repository.mockSearchByPartial.mockReturnValueOnce(folder);
+    repository.searchByPartialMock.mockReturnValueOnce(folder);
     jest.spyOn(allParentFoldersStatusIsExists, 'run').mockReturnValueOnce(true);
 
     await SUT.run(folder.uuid).catch((err) => {
       expect(err).toBeDefined();
     });
 
-    expect(repository.mockTrash).not.toBeCalled();
+    expect(repository.deleteMock).not.toBeCalled();
   });
 
   it('does not delete the folder if a higher folder is already deleted ', async () => {
     const folder = FolderMother.exists();
 
-    repository.mockSearchByPartial.mockReturnValueOnce(folder);
+    repository.searchByPartialMock.mockReturnValueOnce(folder);
     jest
       .spyOn(allParentFoldersStatusIsExists, 'run')
       .mockReturnValueOnce(false);
@@ -64,15 +68,15 @@ describe('Folder deleter', () => {
       expect(err).toBeDefined();
     });
 
-    expect(repository.mockTrash).not.toBeCalled();
+    expect(repository.deleteMock).not.toBeCalled();
   });
 
   it('recreates the placeholder if the deletion fails', async () => {
     const folder = FolderMother.exists();
 
-    repository.mockSearchByPartial.mockReturnValueOnce(folder);
+    repository.searchByPartialMock.mockReturnValueOnce(folder);
     jest.spyOn(allParentFoldersStatusIsExists, 'run').mockReturnValueOnce(true);
-    repository.mockTrash.mockRejectedValue(
+    repository.deleteMock.mockRejectedValue(
       new Error('Error during the deletion')
     );
 

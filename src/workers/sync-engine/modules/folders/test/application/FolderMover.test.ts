@@ -3,24 +3,27 @@ import { FolderMover } from '../../application/FolderMover';
 import { FolderMother } from '../domain/FolderMother';
 import { FolderRepositoryMock } from '../__mocks__/FolderRepositoryMock';
 import { FolderPath } from '../../domain/FolderPath';
+import { FolderRemoteFileSystemMock } from '../__mocks__/FolderRemoteFileSystemMock';
 
 describe('Folder Mover', () => {
   let repository: FolderRepositoryMock;
   let folderFinder: FolderFinder;
+  let remoteFileSystem: FolderRemoteFileSystemMock;
   let SUT: FolderMover;
 
   beforeEach(() => {
     repository = new FolderRepositoryMock();
     folderFinder = new FolderFinder(repository);
+    remoteFileSystem = new FolderRemoteFileSystemMock();
 
-    SUT = new FolderMover(repository, folderFinder);
+    SUT = new FolderMover(repository, remoteFileSystem, folderFinder);
   });
 
   it('Folders cannot be overwrite', async () => {
     const folder = FolderMother.in(1, '/folderA/folderB');
     const destination = new FolderPath('/folderC/folderB');
 
-    repository.mockSearch.mockImplementation(() =>
+    repository.searchByPartialMock.mockImplementation(() =>
       FolderMother.in(2, destination.value)
     );
 
@@ -31,8 +34,7 @@ describe('Folder Mover', () => {
       expect(err).toBeDefined();
     }
 
-    expect(repository.mockUpdateName).not.toBeCalled();
-    expect(repository.mockUpdateParentDir).not.toBeCalled();
+    expect(repository.updateMock).not.toBeCalled();
   });
 
   describe('Move', () => {
@@ -41,14 +43,13 @@ describe('Folder Mover', () => {
       const destination = new FolderPath('/folderC/folderB');
       const folderC = FolderMother.in(2, '/folderC');
 
-      repository.mockSearch
+      repository.searchByPartialMock
         .mockReturnValueOnce(undefined)
         .mockReturnValueOnce(folderC);
 
       await SUT.run(folder, destination);
 
-      expect(repository.mockUpdateParentDir).toHaveBeenCalled();
-      expect(repository.mockUpdateName).not.toHaveBeenCalled();
+      expect(repository.update).toHaveBeenCalled();
     });
   });
 });
