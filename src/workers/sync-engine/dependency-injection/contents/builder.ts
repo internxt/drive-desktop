@@ -12,6 +12,8 @@ import { DependencyInjectionUserProvider } from '../common/user';
 import { SharedContainer } from '../shared/SharedContainer';
 import { ContentsContainer } from './ContentsContainer';
 import { DependencyInjectionEventBus } from '../common/eventBus';
+import { NotifyMainProcessHydrationFinished } from 'workers/sync-engine/modules/contents/application/NotifyMainProcessHydrationFinished';
+import { DependencyInjectionEventRepository } from '../common/eventRepository';
 
 export async function buildContentsContainer(
   sharedContainer: SharedContainer
@@ -19,6 +21,7 @@ export async function buildContentsContainer(
   const user = DependencyInjectionUserProvider.get();
   const mnemonic = DependencyInjectionMnemonicProvider.get();
   const { bus: eventBus } = DependencyInjectionEventBus;
+  const eventRepository = DependencyInjectionEventRepository.get();
 
   const environment = new Environment({
     bridgeUrl: process.env.BRIDGE_URL,
@@ -50,9 +53,16 @@ export async function buildContentsContainer(
     eventBus
   );
 
+  const notifyMainProcessHydrationFinished =
+    new NotifyMainProcessHydrationFinished(
+      eventRepository,
+      ipcRendererSyncEngine
+    );
+
   return {
     contentsUploader: retryContentsUploader,
     contentsDownloader,
     temporalFolderProvider,
+    notifyMainProcessHydrationFinished,
   };
 }

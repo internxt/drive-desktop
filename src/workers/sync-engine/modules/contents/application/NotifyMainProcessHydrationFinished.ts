@@ -1,6 +1,6 @@
 import { SyncEngineIpc } from '../../../ipcRendererSyncEngine';
 import { EventRepository } from '../../shared/domain/EventRepository';
-import { ContentsDownloadedDomainEvent } from '../../contents/domain/events/ContentsDownloadedDomainEvent';
+import { ContentsDownloadedDomainEvent } from '../domain/events/ContentsDownloadedDomainEvent';
 import Logger from 'electron-log';
 
 export class NotifyMainProcessHydrationFinished {
