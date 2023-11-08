@@ -16,7 +16,7 @@ export class SynchronizeOfflineModifications {
   async run(uuid: Folder['uuid']) {
     Logger.debug('Synchronize potential offline changes for folder: ', uuid);
 
-    const offlineFolder = this.offlineRepository.getByUuid(uuid);
+    const offlineFolder = this.offlineRepository.searchByPartial({ uuid });
 
     if (!offlineFolder) {
       Logger.debug(`There is no offline folder with ${uuid}`);

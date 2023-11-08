@@ -14,7 +14,7 @@ export class OfflineFolderPathUpdater {
   ) {}
 
   async run(uuid: OfflineFolder['uuid'], posixRelativePath: string) {
-    const folder = this.offlineFoldersRepository.getByUuid(uuid);
+    const folder = this.offlineFoldersRepository.searchByPartial({ uuid });
 
     if (!folder) {
       throw new Error(`Folder ${uuid} not found in offline folders`);

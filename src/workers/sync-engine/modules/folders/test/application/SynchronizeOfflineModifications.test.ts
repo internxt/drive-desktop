@@ -28,7 +28,9 @@ describe('Synchronize Offline Modifications', () => {
   });
 
   it('does nothing if there is no offline folder with the given uuid', async () => {
-    jest.spyOn(offlineRepository, 'getByUuid').mockReturnValueOnce(undefined);
+    jest
+      .spyOn(offlineRepository, 'searchByPartial')
+      .mockReturnValueOnce(undefined);
 
     await SUT.run(FolderUuid.random().value);
 
@@ -37,7 +39,7 @@ describe('Synchronize Offline Modifications', () => {
 
   it('throws an error if there is no folder with the given uuid', async () => {
     jest
-      .spyOn(offlineRepository, 'getByUuid')
+      .spyOn(offlineRepository, 'searchByPartial')
       .mockReturnValueOnce(OfflineFolderMother.random());
 
     repository.mockSearchByPartial.mockReturnValueOnce(undefined);
@@ -63,7 +65,7 @@ describe('Synchronize Offline Modifications', () => {
     });
 
     const offlineRepositorySyp = jest
-      .spyOn(offlineRepository, 'getByUuid')
+      .spyOn(offlineRepository, 'searchByPartial')
       .mockReturnValueOnce(offlineFolder);
 
     repository.mockSearchByPartial.mockReturnValueOnce(folder);
@@ -88,7 +90,7 @@ describe('Synchronize Offline Modifications', () => {
     );
 
     jest
-      .spyOn(offlineRepository, 'getByUuid')
+      .spyOn(offlineRepository, 'searchByPartial')
       .mockReturnValueOnce(offlineFolder);
 
     const renamerSpy = jest.spyOn(renamer, 'run');
@@ -115,7 +117,7 @@ describe('Synchronize Offline Modifications', () => {
     );
 
     jest
-      .spyOn(offlineRepository, 'getByUuid')
+      .spyOn(offlineRepository, 'searchByPartial')
       .mockReturnValueOnce(offlineFolder);
 
     const renamerSpy = jest.spyOn(renamer, 'run');
