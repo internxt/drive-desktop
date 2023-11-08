@@ -1,18 +1,16 @@
 import { promises as fs, constants as FsConstants } from 'fs';
-import { FolderByPartialSearcher } from './FolderByPartialSearcher';
 import { Folder } from '../domain/Folder';
-import { PlaceholderCreator } from '../../placeholders/domain/PlaceholderCreator';
 import { RelativePathToAbsoluteConverter } from '../../shared/application/RelativePathToAbsoluteConverter';
 import Logger from 'electron-log';
 import path from 'path';
 import { FolderStatuses } from '../domain/FolderStatus';
 import { FolderRepository } from '../domain/FolderRepository';
+import { LocalFileSystem } from '../domain/file-systems/LocalFileSystem';
 
 export class FolderPlaceholderUpdater {
   constructor(
-    private readonly folderByPartialSearcher: FolderByPartialSearcher,
     private readonly repository: FolderRepository,
-    private readonly virtualDrivePlaceholderCreator: PlaceholderCreator,
+    private readonly local: LocalFileSystem,
     private readonly relativePathToAbsoluteConverter: RelativePathToAbsoluteConverter
   ) {}
 
@@ -75,12 +73,12 @@ export class FolderPlaceholderUpdater {
     return localExists && (remoteIsTrashed || remoteIsDeleted);
   }
 
-  async run(remote: Folder): Promise<void> {
+  private async update(remote: Folder): Promise<void> {
     if (remote.path === path.posix.sep) {
       return;
     }
 
-    const local = this.folderByPartialSearcher.run({
+    const local = this.repository.searchByPartial({
       uuid: remote.uuid,
     });
 
@@ -88,7 +86,7 @@ export class FolderPlaceholderUpdater {
       if (remote.status.is(FolderStatuses.EXISTS)) {
         Logger.debug('Creating folder placeholder: ', remote.path);
         await this.repository.add(remote);
-        this.virtualDrivePlaceholderCreator.folder(remote);
+        this.local.createPlaceHolder(remote);
       }
       return;
     }
@@ -136,5 +134,11 @@ export class FolderPlaceholderUpdater {
       await fs.rm(win32AbsolutePath, { recursive: true });
       return;
     }
+  }
+
+  async run(remotes: Array<Folder>): Promise<void> {
+    const updatePromises = remotes.map((remote) => this.update(remote));
+
+    await Promise.all(updatePromises);
   }
 }

@@ -1,4 +1,4 @@
-import { InMemoryFolderRepository } from 'workers/sync-engine/modules/folders/infrastructure/InMemoryFolderRepository';
+import { InMemoryFolderRepository } from '../../modules/folders/infrastructure/InMemoryFolderRepository';
 import { ipcRendererSyncEngine } from '../../ipcRendererSyncEngine';
 import { AllParentFoldersStatusIsExists } from '../../modules/folders/application/AllParentFoldersStatusIsExists';
 import { FolderByPartialSearcher } from '../../modules/folders/application/FolderByPartialSearcher';
@@ -22,9 +22,14 @@ import { DependencyInjectionEventBus } from '../common/eventBus';
 import { FoldersContainer } from './FoldersContainer';
 import { NodeWinLocalFileSystem } from '../../modules/folders/infrastructure/NodeWinLocalFileSystem';
 import { DependencyInjectionVirtualDrive } from '../common/virtualDrive';
-import { FolderRepositoryInitiator } from 'workers/sync-engine/modules/folders/application/FolderRepositoryInitiator';
+import { FolderRepositoryInitiator } from '../../modules/folders/application/FolderRepositoryInitiator';
+import { FoldersPlacholderCreator } from '../../modules/folders/application/FoldersPlacholderCreator';
+import { FolderPlaceholderUpdater } from 'workers/sync-engine/modules/folders/application/UpdatePlaceholderFolder';
+import { SharedContainer } from '../shared/SharedContainer';
 
-export async function buildFoldersContainer(): Promise<FoldersContainer> {
+export async function buildFoldersContainer(
+  shredContainer: SharedContainer
+): Promise<FoldersContainer> {
   const clients = DependencyInjectionHttpClientsProvider.get();
   const eventBus = DependencyInjectionEventBus.bus;
   const { virtualDrive } = DependencyInjectionVirtualDrive;
@@ -106,6 +111,14 @@ export async function buildFoldersContainer(): Promise<FoldersContainer> {
 
   const folderRepositoryInitiator = new FolderRepositoryInitiator(repository);
 
+  const folderPlacholderCreator = new FoldersPlacholderCreator(localFileSystem);
+
+  const folderPlaceholderUpdater = new FolderPlaceholderUpdater(
+    repository,
+    localFileSystem,
+    shredContainer.relativePathToAbsoluteConverter
+  );
+
   return {
     folderCreator,
     folderFinder,
@@ -121,5 +134,7 @@ export async function buildFoldersContainer(): Promise<FoldersContainer> {
     },
     retrieveAllFolders: new RetrieveAllFolders(repository),
     folderRepositoryInitiator,
+    foldersPlacholderCreator: folderPlacholderCreator,
+    folderPlaceholderUpdater,
   };
 }

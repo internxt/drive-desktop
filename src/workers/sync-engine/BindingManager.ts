@@ -31,6 +31,7 @@ export class BindingsManager {
     await this.container.filesPlaceholderCreator.run(tree.files);
 
     await this.container.folderRepositoryInitiator.run(tree.folders);
+    await this.container.foldersPlacholderCreator.run(tree.folders);
   }
 
   async start(version: string, providerId: string) {
@@ -180,6 +181,8 @@ export class BindingsManager {
     );
 
     await this.container.virtualDrive.connectSyncRoot();
+
+    await this.load();
   }
 
   watch() {
@@ -249,5 +252,6 @@ export class BindingsManager {
     const tree = await this.container.existingItemsTreeBuilder.run();
 
     await this.container.filesPlaceholderUpdater.run(tree.files);
+    await this.container.folderPlaceholderUpdater.run(tree.folders);
   }
 }

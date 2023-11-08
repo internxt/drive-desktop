@@ -11,6 +11,7 @@ import { SynchronizeOfflineModificationsOnFolderCreated } from '../../modules/fo
 import { RetrieveAllFolders } from '../../modules/folders/application/RetrieveAllFolders';
 import { FolderRepositoryInitiator } from '../../modules/folders/application/FolderRepositoryInitiator';
 import { FolderPlaceholderUpdater } from '../../modules/folders/application/UpdatePlaceholderFolder';
+import { FoldersPlacholderCreator } from '../../modules/folders/application/FoldersPlacholderCreator';
 
 export interface FoldersContainer {
   folderCreator: FolderCreator;
@@ -28,4 +29,5 @@ export interface FoldersContainer {
   retrieveAllFolders: RetrieveAllFolders;
   folderRepositoryInitiator: FolderRepositoryInitiator;
   folderPlaceholderUpdater: FolderPlaceholderUpdater;
+  foldersPlacholderCreator: FoldersPlacholderCreator;
 }

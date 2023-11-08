@@ -45,7 +45,6 @@ async function setUp() {
   ipcRenderer.on('UPDATE_SYNC_ENGINE_PROCESS', async () => {
     Logger.info('[SYNC ENGINE] Updating sync engine');
 
-    await container.syncPlaceholders.run();
     await bindings.update();
 
     Logger.info('[SYNC ENGINE] sync engine updated successfully');
@@ -71,8 +70,6 @@ async function setUp() {
     packageJson.version,
     '{E9D7EB38-B229-5DC5-9396-017C449D59CD}'
   );
-
-  await container.treePlaceholderCreator.run();
 
   bindings.watch();
 }
