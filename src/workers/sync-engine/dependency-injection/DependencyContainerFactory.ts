@@ -42,17 +42,14 @@ export class DependencyContainerFactory {
     const sharedContainer = buildSharedContainer();
     const itemsContainer = buildItemsContainer();
     const contentsContainer = await buildContentsContainer(sharedContainer);
-    const foldersContainer = await buildFoldersContainer();
+    const foldersContainer = await buildFoldersContainer(sharedContainer);
     const { container: filesContainer } = await buildFilesContainer(
       foldersContainer,
       sharedContainer
     );
     const boundaryBridgeContainer = buildBoundaryBridgeContainer(
       contentsContainer,
-      filesContainer,
-      foldersContainer,
-      itemsContainer,
-      sharedContainer
+      filesContainer
     );
 
     const container = {
