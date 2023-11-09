@@ -299,8 +299,9 @@ describe('Traverser', () => {
       [ServerFolderStatus.EXISTS]
     );
 
-    const result = SUT.run(rawTree);
+    const tree = SUT.run(rawTree);
 
-    expect(Object.keys(result)).toStrictEqual(['/file A', '/']);
+    expect(tree.filePaths).toEqual(['/file A']);
+    expect(tree.folderPaths).toEqual(['/']);
   });
 });

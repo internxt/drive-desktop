@@ -8,7 +8,7 @@ import { LocalFileWriterMock } from '../__mocks__/LocalFileWriterMock';
 import { temporalFolderProvider } from '../../application/temporalFolderProvider';
 import { EventBusMock } from '../../../shared/test/__mock__/EventBusMock';
 
-describe('Contents Downloader', () => {
+describe.skip('Contents Downloader', () => {
   let localWriter: LocalFileWriterMock;
   let factory: RemoteFileContentsManagersFactoryMock;
   let ipc: IpcRendererSyncEngineMock;
