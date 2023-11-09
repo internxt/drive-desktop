@@ -1,6 +1,7 @@
 import { Storage } from '@internxt/sdk/dist/drive/storage';
 import { ipcRenderer } from 'electron';
 import { onUserUnauthorized } from '../../../../shared/HttpClient/backgroud-process-clients';
+import packageJson from '../../../../../package.json';
 
 export class DependencyInjectionStorageSdk {
   private static sdk: Storage;
@@ -11,8 +12,7 @@ export class DependencyInjectionStorageSdk {
     }
 
     const url = `${process.env.API_URL}/api`;
-    const { name: clientName, version: clientVersion } =
-      await ipcRenderer.invoke('APP:INFO');
+    const { name: clientName, version: clientVersion } = packageJson;
 
     const token = await ipcRenderer.invoke('get-token');
 
