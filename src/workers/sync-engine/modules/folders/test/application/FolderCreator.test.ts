@@ -6,6 +6,7 @@ import { EventBusMock } from '../../../shared/test/__mock__/EventBusMock';
 import { OfflineFolderMother } from '../domain/OfflineFolderMother';
 import { Folder } from '../../domain/Folder';
 import { FolderRemoteFileSystemMock } from '../__mocks__/FolderRemoteFileSystemMock';
+import { off } from 'process';
 
 describe('Folder Creator', () => {
   let SUT: FolderCreator;
@@ -27,27 +28,15 @@ describe('Folder Creator', () => {
 
   it('creates on a folder from a offline folder', async () => {
     const offlineFolder = OfflineFolderMother.random();
+    const folder = FolderMother.fromPartial(offlineFolder.attributes());
 
-    const parentFolder = FolderMother.fromPartial({
-      id: offlineFolder.parentId,
-      path: offlineFolder.dirname,
-    });
+    remote.persistMock.mockResolvedValueOnce(folder.attributes());
 
-    const resultFolderAttributes = FolderMother.fromPartial(
-      offlineFolder.attributes()
-    ).attributes();
-
-    repository.addMock.mockResolvedValueOnce(
-      Folder.create(resultFolderAttributes)
-    );
+    repository.addMock.mockResolvedValueOnce(Promise.resolve());
 
     await SUT.run(offlineFolder);
 
-    expect(repository.addMock).toBeCalledWith(
-      offlineFolder.path,
-      parentFolder.id,
-      offlineFolder.uuid
-    );
+    expect(repository.addMock).toBeCalledWith(folder);
   });
 
   describe('Synchronization messages', () => {
@@ -57,6 +46,8 @@ describe('Folder Creator', () => {
       const resultFolderAttributes = FolderMother.fromPartial(
         offlineFolder.attributes()
       ).attributes();
+
+      remote.persistMock.mockResolvedValueOnce(resultFolderAttributes);
 
       repository.addMock.mockResolvedValueOnce(
         Folder.create(resultFolderAttributes)
@@ -79,6 +70,8 @@ describe('Folder Creator', () => {
       repository.addMock.mockResolvedValueOnce(
         Folder.create(resultFolderAttributes)
       );
+
+      remote.persistMock.mockResolvedValueOnce(resultFolderAttributes);
 
       await SUT.run(offlineFolder);
 

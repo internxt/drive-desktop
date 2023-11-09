@@ -81,7 +81,7 @@ describe('Synchronize Offline Modifications', () => {
 
     await SUT.run(offlineFolder.uuid);
 
-    expect(offlineRepositorySyp).toBeCalledWith(offlineFolder.uuid);
+    expect(offlineRepositorySyp).toBeCalledWith({ uuid: offlineFolder.uuid });
     expect(repository.searchByPartialMock).toBeCalledWith({
       uuid: offlineFolder.uuid,
     });
