@@ -1,7 +1,13 @@
 import { ContentsIdMother } from '../../../contents/test/domain/ContentsIdMother';
-import { ServerFile } from '../../../../../filesystems/domain/ServerFile';
-import { ServerFolder } from '../../../../../filesystems/domain/ServerFolder';
-import { ExistingItemsTraverser } from '../../application/ExistingItemsTraverser';
+import {
+  ServerFile,
+  ServerFileStatus,
+} from '../../../../../filesystems/domain/ServerFile';
+import {
+  ServerFolder,
+  ServerFolderStatus,
+} from '../../../../../filesystems/domain/ServerFolder';
+import { Traverser } from '../../application/Traverser';
 
 const fakeDecrypt = {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -23,7 +29,12 @@ describe('Traverser', () => {
       ],
       folders: [],
     };
-    const SUT = new ExistingItemsTraverser(fakeDecrypt, baseFolderId);
+    const SUT = new Traverser(
+      fakeDecrypt,
+      baseFolderId,
+      [ServerFileStatus.EXISTS, ServerFileStatus.TRASHED],
+      [ServerFolderStatus.EXISTS]
+    );
 
     const result = SUT.run(rawTree);
 
@@ -52,7 +63,12 @@ describe('Traverser', () => {
         } as ServerFolder,
       ],
     };
-    const SUT = new ExistingItemsTraverser(fakeDecrypt, baseFolderId);
+    const SUT = new Traverser(
+      fakeDecrypt,
+      baseFolderId,
+      [ServerFileStatus.EXISTS, ServerFileStatus.TRASHED],
+      [ServerFolderStatus.EXISTS]
+    );
 
     const result = SUT.run(rawTree);
 
@@ -77,7 +93,12 @@ describe('Traverser', () => {
         } as ServerFolder,
       ],
     };
-    const SUT = new ExistingItemsTraverser(fakeDecrypt, baseFolderId);
+    const SUT = new Traverser(
+      fakeDecrypt,
+      baseFolderId,
+      [ServerFileStatus.EXISTS, ServerFileStatus.TRASHED],
+      [ServerFolderStatus.EXISTS]
+    );
 
     const result = SUT.run(rawTree);
 
@@ -105,7 +126,12 @@ describe('Traverser', () => {
         } as ServerFolder,
       ],
     };
-    const SUT = new ExistingItemsTraverser(fakeDecrypt, baseFolderId);
+    const SUT = new Traverser(
+      fakeDecrypt,
+      baseFolderId,
+      [ServerFileStatus.EXISTS, ServerFileStatus.TRASHED],
+      [ServerFolderStatus.EXISTS]
+    );
 
     const result = SUT.run(rawTree);
 
@@ -137,7 +163,12 @@ describe('Traverser', () => {
         } as ServerFolder,
       ],
     };
-    const SUT = new ExistingItemsTraverser(fakeDecrypt, baseFolderId);
+    const SUT = new Traverser(
+      fakeDecrypt,
+      baseFolderId,
+      [ServerFileStatus.EXISTS, ServerFileStatus.TRASHED],
+      [ServerFolderStatus.EXISTS]
+    );
 
     const result = SUT.run(rawTree);
 
@@ -176,7 +207,12 @@ describe('Traverser', () => {
       ],
       folders: [],
     };
-    const SUT = new ExistingItemsTraverser(fakeDecrypt, baseFolderId);
+    const SUT = new Traverser(
+      fakeDecrypt,
+      baseFolderId,
+      [ServerFileStatus.EXISTS, ServerFileStatus.TRASHED],
+      [ServerFolderStatus.EXISTS]
+    );
 
     const result = SUT.run(rawTree);
 
@@ -198,10 +234,49 @@ describe('Traverser', () => {
         {} as ServerFolder,
       ],
     };
-    const SUT = new ExistingItemsTraverser(fakeDecrypt, baseFolderId);
+    const SUT = new Traverser(
+      fakeDecrypt,
+      baseFolderId,
+      [ServerFileStatus.EXISTS, ServerFileStatus.TRASHED],
+      [ServerFolderStatus.EXISTS]
+    );
 
     const result = SUT.run(rawTree);
 
     expect(Object.keys(result)).toStrictEqual(['/folder A', '/']);
+  });
+
+  it('filters the files and folders depending on the filters set', () => {
+    const baseFolderId = 6;
+    const rawTree = {
+      files: [
+        {
+          name: 'file A',
+          fileId: ContentsIdMother.raw(),
+          folderId: baseFolderId,
+          size: 67,
+          status: 'TRASHED',
+        } as ServerFile,
+      ],
+      folders: [
+        {
+          id: 22491,
+          parentId: baseFolderId,
+          plain_name: 'folder A',
+          status: 'TRASHED',
+          uuid: 'fc790269-92ac-5990-b9e0-a08d6552bf0b',
+        } as ServerFolder,
+      ],
+    };
+    const SUT = new Traverser(
+      fakeDecrypt,
+      baseFolderId,
+      [ServerFileStatus.EXISTS, ServerFileStatus.TRASHED],
+      [ServerFolderStatus.EXISTS]
+    );
+
+    const result = SUT.run(rawTree);
+
+    expect(Object.keys(result)).toStrictEqual(['/file A', '/']);
   });
 });

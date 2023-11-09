@@ -1,31 +1,20 @@
 import Logger from 'electron-log';
-import { ServerFile } from '../../../../filesystems/domain/ServerFile';
+import {
+  ServerFile,
+  ServerFileStatus,
+} from '../../../../filesystems/domain/ServerFile';
 import {
   ServerFolder,
   ServerFolderStatus,
 } from '../../../../filesystems/domain/ServerFolder';
-import { fileNameIsValid } from '../../../../utils/name-verification';
-import { File } from '../../files/domain/File';
 import { FolderStatus } from '../../folders/domain/FolderStatus';
 import { Folder } from '../../folders/domain/Folder';
 import { ItemsIndexedByPath } from '../domain/ItemsIndexedByPath';
 import { EitherTransformer } from '../../shared/application/EitherTransformer';
-import { Traverser } from '../domain/Traverser';
+import { createFileFromServerFile } from './FileCreatorFromServerFile';
+import { createFolderFromServerFolder } from './FolderCreatorFromServerFolder';
 
-function fileFromServerFile(relativePath: string, server: ServerFile): File {
-  return File.from({
-    folderId: server.folderId,
-    contentsId: server.fileId,
-    modificationTime: server.modificationTime,
-    size: server.size,
-    createdAt: server.createdAt,
-    updatedAt: server.updatedAt,
-    path: relativePath,
-    status: server.status,
-  });
-}
-
-export class AllStatusesTraverser implements Traverser {
+export class Traverser {
   private readonly collection: ItemsIndexedByPath = {};
   private static readonly ROOT_FOLDER_UUID =
     '43711926-15c2-5ebf-8c24-5099fa9af3c3';
@@ -43,8 +32,41 @@ export class AllStatusesTraverser implements Traverser {
         encryptVersion: string
       ) => string | null;
     },
-    private readonly baseFolderId: number
+    private readonly baseFolderId: number,
+    private readonly fileStatusesToFilter: Array<ServerFileStatus>,
+    private readonly folderStatusesToFilter: Array<ServerFolderStatus>
   ) {}
+
+  static existingItems(
+    decrypt: {
+      decryptName: (
+        name: string,
+        folderId: string,
+        encryptVersion: string
+      ) => string | null;
+    },
+    baseFolderId: number
+  ): Traverser {
+    return new Traverser(
+      decrypt,
+      baseFolderId,
+      [ServerFileStatus.EXISTS],
+      [ServerFolderStatus.EXISTS]
+    );
+  }
+
+  static allItems(
+    decrypt: {
+      decryptName: (
+        name: string,
+        folderId: string,
+        encryptVersion: string
+      ) => string | null;
+    },
+    baseFolderId: number
+  ): Traverser {
+    return new Traverser(decrypt, baseFolderId, [], []);
+  }
 
   private traverse(currentId: number, currentName = '') {
     if (!this.rawTree) return;
@@ -57,42 +79,34 @@ export class AllStatusesTraverser implements Traverser {
       return folder.parentId === currentId;
     });
 
-    filesInThisFolder
-      .map((file) => ({
-        name: `${currentName}/${this.decrypt.decryptName(
-          file.name,
-          file.folderId.toString(),
-          file.encrypt_version
-        )}${file.type ? `.${file.type}` : ''}`,
-        file,
-      }))
-      .filter(({ name }) => {
-        const isValid = fileNameIsValid(name);
+    filesInThisFolder.forEach((file) => {
+      if (!this.fileStatusesToFilter.includes(file.status)) {
+        return;
+      }
 
-        if (!isValid) {
+      const decryptedName = this.decrypt.decryptName(
+        file.name,
+        file.folderId.toString(),
+        file.encrypt_version
+      );
+      const extensionToAdd = file.type ? `.${file.type}` : '';
+
+      const relativeFilePath = `${currentName}/${decryptedName}${extensionToAdd}`;
+
+      EitherTransformer.handleWithEither(() =>
+        createFileFromServerFile(file, relativeFilePath)
+      ).fold(
+        (error) => {
           Logger.warn(
-            `REMOTE file with name ${name} will be ignored due an invalid name`
+            `[Traverser] File with path ${relativeFilePath} could not be created: `,
+            error
           );
-          return false;
+        },
+        (file) => {
+          this.collection[relativeFilePath] = file;
         }
-
-        return true;
-      })
-      .forEach(({ file, name }) => {
-        EitherTransformer.handleWithEither(() =>
-          fileFromServerFile(name, file)
-        ).fold(
-          (error) => {
-            Logger.warn(
-              `[Traverser] File with path ${name} could not be created: `,
-              error
-            );
-          },
-          (file) => {
-            this.collection[name] = file;
-          }
-        );
-      });
+      );
+    });
 
     foldersInThisFolder.forEach((folder: ServerFolder) => {
       const plainName =
@@ -106,15 +120,23 @@ export class AllStatusesTraverser implements Traverser {
 
       const name = `${currentName}/${plainName}`;
 
-      this.collection[name] = Folder.from({
-        id: folder.id,
-        uuid: folder.uuid,
-        parentId: folder.parentId as number,
-        updatedAt: folder.updatedAt,
-        createdAt: folder.createdAt,
-        path: name,
-        status: folder.status,
-      });
+      if (!this.folderStatusesToFilter.includes(folder.status)) {
+        return;
+      }
+
+      EitherTransformer.handleWithEither(() =>
+        createFolderFromServerFolder(folder, name)
+      ).fold(
+        (error) => {
+          Logger.warn(
+            `[Traverser] Folder with path ${name} could not be created: `,
+            error
+          );
+        },
+        (folder) => {
+          this.collection[name] = folder;
+        }
+      );
 
       if (folder.status === ServerFolderStatus.EXISTS) {
         // The folders and the files from trashed or deleted folders
@@ -133,7 +155,7 @@ export class AllStatusesTraverser implements Traverser {
 
     this.collection['/'] = Folder.from({
       id: this.baseFolderId,
-      uuid: AllStatusesTraverser.ROOT_FOLDER_UUID,
+      uuid: Traverser.ROOT_FOLDER_UUID,
       parentId: null,
       updatedAt: new Date().toISOString(),
       createdAt: new Date().toISOString(),
@@ -152,7 +174,7 @@ export class AllStatusesTraverser implements Traverser {
 
     this.collection['/'] = Folder.from({
       id: this.baseFolderId,
-      uuid: AllStatusesTraverser.ROOT_FOLDER_UUID,
+      uuid: Traverser.ROOT_FOLDER_UUID,
       parentId: null,
       updatedAt: new Date().toISOString(),
       createdAt: new Date().toISOString(),

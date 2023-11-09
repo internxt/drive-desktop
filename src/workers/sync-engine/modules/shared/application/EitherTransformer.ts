@@ -9,7 +9,7 @@ export class EitherTransformer {
       if (error instanceof Error) {
         return left(error);
       }
-      return left(new Error('unkown error'));
+      return left(new Error('unknown error'));
     }
   }
 }

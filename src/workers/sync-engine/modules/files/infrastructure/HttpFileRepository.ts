@@ -6,7 +6,7 @@ import { ServerFolder } from '../../../../filesystems/domain/ServerFolder';
 import { File, FileAttributes } from '../domain/File';
 import { FileRepository } from '../domain/FileRepository';
 import * as uuid from 'uuid';
-import { ExistingItemsTraverser } from '../../items/application/ExistingItemsTraverser';
+import { Traverser } from '../../items/application/Traverser';
 import { AddFileDTO } from './dtos/AddFileDTO';
 import { UpdateFileParentDirDTO } from './dtos/UpdateFileParentDirDTO';
 import { UpdateFileNameDTO } from './dtos/UpdateFileNameDTO';
@@ -26,7 +26,7 @@ export class HttpFileRepository
     private readonly crypt: Crypt,
     private readonly httpClient: Axios,
     private readonly trashHttpClient: Axios,
-    private readonly traverser: ExistingItemsTraverser,
+    private readonly traverser: Traverser,
     private readonly bucket: string,
     private readonly ipc: SyncEngineIpc
   ) {}
