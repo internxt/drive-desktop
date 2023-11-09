@@ -38,7 +38,10 @@ export async function buildFilesContainer(
   const sdk = await DependencyInjectionStorageSdk.get();
 
   const remoteFileSystem = new SDKRemoteFileSystem(sdk, crypt, user.bucket);
-  const localFileSystem = new NodeWinLocalFileSystem(virtualDrive);
+  const localFileSystem = new NodeWinLocalFileSystem(
+    virtualDrive,
+    sharedContainer.relativePathToAbsoluteConverter
+  );
 
   const repository = new InMemoryFileRepository();
 
@@ -60,11 +63,11 @@ export async function buildFilesContainer(
 
   const filePathUpdater = new FilePathUpdater(
     remoteFileSystem,
+    localFileSystem,
     repository,
     fileFinderByContentsId,
     folderContainer.folderFinder,
     ipcRendererSyncEngine,
-    sharedContainer.localFileIdProvider,
     eventBus
   );
 

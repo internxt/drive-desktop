@@ -6,7 +6,6 @@ import { EventBusMock } from '../../../shared/test/__mock__/EventBusMock';
 import { OfflineFolderMother } from '../domain/OfflineFolderMother';
 import { Folder } from '../../domain/Folder';
 import { FolderRemoteFileSystemMock } from '../__mocks__/FolderRemoteFileSystemMock';
-import { off } from 'process';
 
 describe('Folder Creator', () => {
   let SUT: FolderCreator;

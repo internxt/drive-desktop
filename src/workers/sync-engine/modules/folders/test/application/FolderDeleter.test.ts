@@ -1,5 +1,4 @@
 import { FolderDeleter } from '../../application/FolderDeleter';
-import { FolderStatus } from '../../domain/FolderStatus';
 import { FolderMother } from '../domain/FolderMother';
 import { FolderRepositoryMock } from '../__mocks__/FolderRepositoryMock';
 import { AllParentFoldersStatusIsExists } from '../../application/AllParentFoldersStatusIsExists';

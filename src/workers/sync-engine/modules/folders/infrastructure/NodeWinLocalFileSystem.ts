@@ -13,7 +13,7 @@ export class NodeWinLocalFileSystem implements LocalFileSystem {
 
     const folderPath = `${folder.path}/`;
 
-    this.virtualDrive.createFileByPath(
+    this.virtualDrive.createFolderByPath(
       folderPath,
       folder.placeholderId,
       0,
