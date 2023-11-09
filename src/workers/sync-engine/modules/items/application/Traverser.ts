@@ -15,7 +15,7 @@ import { Folder } from '../../folders/domain/Folder';
 import { EitherTransformer } from '../../shared/application/EitherTransformer';
 import { createFileFromServerFile } from '../../files/application/FileCreatorFromServerFile';
 import { createFolderFromServerFolder } from '../../folders/application/FolderCreatorFromServerFolder';
-import { NameDecryptor } from '../domain/NameDecryptor';
+import { NameDecrypt } from '../domain/NameDecrypt';
 import { Tree } from '../domain/Tree';
 
 type Items = {
@@ -25,16 +25,13 @@ type Items = {
 
 export class Traverser {
   constructor(
-    private readonly decrypt: NameDecryptor,
+    private readonly decrypt: NameDecrypt,
     private readonly baseFolderId: number,
     private readonly fileStatusesToFilter: Array<ServerFileStatus>,
     private readonly folderStatusesToFilter: Array<ServerFolderStatus>
   ) {}
 
-  static existingItems(
-    decrypt: NameDecryptor,
-    baseFolderId: number
-  ): Traverser {
+  static existingItems(decrypt: NameDecrypt, baseFolderId: number): Traverser {
     return new Traverser(
       decrypt,
       baseFolderId,
@@ -43,7 +40,7 @@ export class Traverser {
     );
   }
 
-  static allItems(decrypt: NameDecryptor, baseFolderId: number): Traverser {
+  static allItems(decrypt: NameDecrypt, baseFolderId: number): Traverser {
     return new Traverser(decrypt, baseFolderId, [], []);
   }
 

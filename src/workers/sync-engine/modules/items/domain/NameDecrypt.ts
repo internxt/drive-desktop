@@ -1,4 +1,4 @@
-export interface NameDecryptor {
+export interface NameDecrypt {
   decryptName: (
     name: string,
     folderId: string,

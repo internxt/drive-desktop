@@ -1,6 +1,6 @@
-import { NameDecryptor } from '../../domain/NameDecryptor';
+import { NameDecrypt } from '../../domain/NameDecrypt';
 
-export class FakeNameDecryptor implements NameDecryptor {
+export class FakeNameDecrypt implements NameDecrypt {
   decryptName(
     name: string,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars

@@ -1,7 +1,7 @@
 import crypto from '../../../../utils/crypt';
-import { NameDecryptor } from '../domain/NameDecryptor';
+import { NameDecrypt } from '../domain/NameDecrypt';
 
-export class CryptoJsNameDecryptor implements NameDecryptor {
+export class CryptoJsNameDecrypt implements NameDecrypt {
   decryptName(
     name: string,
     folderId: string,

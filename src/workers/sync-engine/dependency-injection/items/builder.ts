@@ -3,9 +3,8 @@ import { ItemsContainer } from './ItemsContainer';
 import { ipcRendererSyncEngine } from '../../ipcRendererSyncEngine';
 import { RemoteItemsGenerator } from '../../modules/items/application/RemoteItemsGenerator';
 import { getUser } from '../../../../main/auth/service';
-
 import { Traverser } from 'workers/sync-engine/modules/items/application/Traverser';
-import { CryptoJsNameDecryptor } from 'workers/sync-engine/modules/items/infrastructure/CryptoJsNameDecryptor';
+import { CryptoJsNameDecrypt as CryptoJsNameDecrypt } from 'workers/sync-engine/modules/items/infrastructure/CryptoJsNameDecrypt';
 
 export function buildItemsContainer(): ItemsContainer {
   const user = getUser();
@@ -16,7 +15,7 @@ export function buildItemsContainer(): ItemsContainer {
 
   const remoteItemsGenerator = new RemoteItemsGenerator(ipcRendererSyncEngine);
 
-  const nameDecryptor = new CryptoJsNameDecryptor();
+  const nameDecryptor = new CryptoJsNameDecrypt();
 
   const existingItemsTraverser = Traverser.existingItems(
     nameDecryptor,
@@ -26,7 +25,6 @@ export function buildItemsContainer(): ItemsContainer {
     nameDecryptor,
     user.root_folder_id
   );
-
   const treeBuilder = new TreeBuilder(
     remoteItemsGenerator,
     existingItemsTraverser

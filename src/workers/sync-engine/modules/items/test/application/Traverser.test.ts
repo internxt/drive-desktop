@@ -8,10 +8,10 @@ import {
   ServerFolderStatus,
 } from '../../../../../filesystems/domain/ServerFolder';
 import { Traverser } from '../../application/Traverser';
-import { FakeNameDecryptor } from '../infrastructure/FakeNameDecryptor';
+import { FakeNameDecrypt } from '../infrastructure/FakeNameDecrypt';
 
 describe('Traverser', () => {
-  const nameDecryptor = new FakeNameDecryptor();
+  const nameDecrypt = new FakeNameDecrypt();
 
   it('first level files starts with /', () => {
     const baseFolderId = 6;
@@ -28,7 +28,7 @@ describe('Traverser', () => {
       folders: [],
     };
     const SUT = new Traverser(
-      nameDecryptor,
+      nameDecrypt,
       baseFolderId,
       [ServerFileStatus.EXISTS, ServerFileStatus.TRASHED],
       [ServerFolderStatus.EXISTS]
@@ -63,7 +63,7 @@ describe('Traverser', () => {
       ],
     };
     const SUT = new Traverser(
-      nameDecryptor,
+      nameDecrypt,
       baseFolderId,
       [ServerFileStatus.EXISTS, ServerFileStatus.TRASHED],
       [ServerFolderStatus.EXISTS]
@@ -90,7 +90,7 @@ describe('Traverser', () => {
       ],
     };
     const SUT = new Traverser(
-      nameDecryptor,
+      nameDecrypt,
       baseFolderId,
       [ServerFileStatus.EXISTS, ServerFileStatus.TRASHED],
       [ServerFolderStatus.EXISTS]
@@ -123,7 +123,7 @@ describe('Traverser', () => {
       ],
     };
     const SUT = new Traverser(
-      nameDecryptor,
+      nameDecrypt,
       baseFolderId,
       [ServerFileStatus.EXISTS, ServerFileStatus.TRASHED],
       [ServerFolderStatus.EXISTS]
@@ -156,7 +156,7 @@ describe('Traverser', () => {
       ],
     };
     const SUT = new Traverser(
-      nameDecryptor,
+      nameDecrypt,
       baseFolderId,
       [ServerFileStatus.EXISTS, ServerFileStatus.TRASHED],
       [ServerFolderStatus.EXISTS]
@@ -196,7 +196,7 @@ describe('Traverser', () => {
       folders: [],
     };
     const SUT = new Traverser(
-      nameDecryptor,
+      nameDecrypt,
       baseFolderId,
       [ServerFileStatus.EXISTS, ServerFileStatus.TRASHED],
       [ServerFolderStatus.EXISTS]
@@ -223,7 +223,7 @@ describe('Traverser', () => {
       ],
     };
     const SUT = new Traverser(
-      nameDecryptor,
+      nameDecrypt,
       baseFolderId,
       [ServerFileStatus.EXISTS, ServerFileStatus.TRASHED],
       [ServerFolderStatus.EXISTS]
@@ -258,7 +258,7 @@ describe('Traverser', () => {
       ],
     };
     const SUT = new Traverser(
-      nameDecryptor,
+      nameDecrypt,
       baseFolderId,
       [ServerFileStatus.EXISTS, ServerFileStatus.TRASHED],
       [ServerFolderStatus.EXISTS]
@@ -268,5 +268,39 @@ describe('Traverser', () => {
 
     expect(tree.filePaths).toEqual(['/file A']);
     expect(tree.folderPaths).toEqual(['/']);
+  });
+
+  it('filters the files and folders depending on the filters set', () => {
+    const baseFolderId = 6;
+    const rawTree = {
+      files: [
+        {
+          name: 'file A',
+          fileId: ContentsIdMother.raw(),
+          folderId: baseFolderId,
+          size: 67,
+          status: 'TRASHED',
+        } as ServerFile,
+      ],
+      folders: [
+        {
+          id: 22491,
+          parentId: baseFolderId,
+          plain_name: 'folder A',
+          status: 'TRASHED',
+          uuid: 'fc790269-92ac-5990-b9e0-a08d6552bf0b',
+        } as ServerFolder,
+      ],
+    };
+    const SUT = new Traverser(
+      nameDecrypt,
+      baseFolderId,
+      [ServerFileStatus.EXISTS, ServerFileStatus.TRASHED],
+      [ServerFolderStatus.EXISTS]
+    );
+
+    const result = SUT.run(rawTree);
+
+    expect(Object.keys(result)).toStrictEqual(['/file A', '/']);
   });
 });
