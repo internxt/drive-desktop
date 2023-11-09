@@ -40,7 +40,7 @@ export class ContentsDownloader {
         extension: file.type,
         nameWithExtension: file.nameWithExtension,
         size: file.size,
-        processInfo: { elapsedTime: downloader.elapsedTime(), progress: 0 },
+        processInfo: { elapsedTime: downloader.elapsedTime() },
       });
     });
 
