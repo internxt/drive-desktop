@@ -1,7 +1,7 @@
 import { Folder } from '../domain/Folder';
 import { LocalFileSystem } from '../domain/file-systems/LocalFileSystem';
 
-export class FoldersPlacholderCreator {
+export class FoldersPlaceholderCreator {
   constructor(private readonly local: LocalFileSystem) {}
 
   async run(folders: Array<Folder>): Promise<void> {

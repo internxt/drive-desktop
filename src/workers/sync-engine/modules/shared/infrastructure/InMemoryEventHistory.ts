@@ -22,4 +22,15 @@ export class InMemoryEventRepository implements EventRepository {
       this.events.filter((e) => e.aggregateId === aggregateId)
     );
   }
+
+  async filter<Event extends typeof DomainEvent>(
+    aggregateId: string,
+    event: Event
+  ): Promise<Array<Event>> {
+    const events = await this.search(aggregateId);
+
+    const filtered = events.filter((e) => e.eventName === event.EVENT_NAME);
+
+    return filtered as unknown as Event[];
+  }
 }

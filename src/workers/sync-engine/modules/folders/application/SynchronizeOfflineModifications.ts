@@ -5,12 +5,14 @@ import { FolderRenamedDomainEvent } from '../domain/events/FolderRenamedDomainEv
 import { FolderRenamer } from './FolderRenamer';
 import Logger from 'electron-log';
 import { FolderRepository } from '../domain/FolderRepository';
+import { EventRepository } from '../../shared/domain/EventRepository';
 
 export class SynchronizeOfflineModifications {
   constructor(
     private readonly offlineRepository: OfflineFolderRepository,
     private readonly repository: FolderRepository,
-    private readonly renamer: FolderRenamer
+    private readonly renamer: FolderRenamer,
+    private readonly eventsRepository: EventRepository
   ) {}
 
   async run(uuid: Folder['uuid']) {
@@ -23,7 +25,7 @@ export class SynchronizeOfflineModifications {
       return;
     }
 
-    const events = offlineFolder.pullDomainEvents();
+    const events = await this.eventsRepository.search(uuid);
 
     for (const event of events) {
       if (event.eventName !== FolderRenamedDomainEvent.EVENT_NAME) {

@@ -23,9 +23,10 @@ import { FoldersContainer } from './FoldersContainer';
 import { NodeWinLocalFileSystem } from '../../modules/folders/infrastructure/NodeWinLocalFileSystem';
 import { DependencyInjectionVirtualDrive } from '../common/virtualDrive';
 import { FolderRepositoryInitiator } from '../../modules/folders/application/FolderRepositoryInitiator';
-import { FoldersPlacholderCreator } from '../../modules/folders/application/FoldersPlacholderCreator';
+import { FoldersPlaceholderCreator } from '../../modules/folders/application/FoldersPlaceholderCreator';
 import { FolderPlaceholderUpdater } from 'workers/sync-engine/modules/folders/application/UpdatePlaceholderFolder';
 import { SharedContainer } from '../shared/SharedContainer';
+import { DependencyInjectionEventRepository } from '../common/eventRepository';
 
 export async function buildFoldersContainer(
   shredContainer: SharedContainer
@@ -33,6 +34,7 @@ export async function buildFoldersContainer(
   const clients = DependencyInjectionHttpClientsProvider.get();
   const eventBus = DependencyInjectionEventBus.bus;
   const { virtualDrive } = DependencyInjectionVirtualDrive;
+  const eventRepository = DependencyInjectionEventRepository.get();
 
   const repository = new InMemoryFolderRepository();
 
@@ -101,7 +103,8 @@ export async function buildFoldersContainer(
   const synchronizeOfflineModifications = new SynchronizeOfflineModifications(
     offlineRepository,
     repository,
-    folderRenamer
+    folderRenamer,
+    eventRepository
   );
 
   const synchronizeOfflineModificationsOnFolderCreated =
@@ -111,7 +114,9 @@ export async function buildFoldersContainer(
 
   const folderRepositoryInitiator = new FolderRepositoryInitiator(repository);
 
-  const folderPlacholderCreator = new FoldersPlacholderCreator(localFileSystem);
+  const foldersPlaceholderCreator = new FoldersPlaceholderCreator(
+    localFileSystem
+  );
 
   const folderPlaceholderUpdater = new FolderPlaceholderUpdater(
     repository,
@@ -134,7 +139,7 @@ export async function buildFoldersContainer(
     },
     retrieveAllFolders: new RetrieveAllFolders(repository),
     folderRepositoryInitiator,
-    foldersPlacholderCreator: folderPlacholderCreator,
+    foldersPlaceholderCreator,
     folderPlaceholderUpdater,
   };
 }
