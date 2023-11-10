@@ -31,7 +31,7 @@
     "outDir": "release/app/dist"
   },
   "exclude": [
-    "test",
+    "tests",
     "release/build",
     "release/app/dist",
     ".erb/dll",
@@ -39,6 +39,6 @@
     "src/workers/backups/process.ts",
     "src/workers/backups",
     "src/workers/filesystems",
-    "src/test",
+    "test",
   ]
 }
