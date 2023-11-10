@@ -85,7 +85,7 @@ export class LocalFileContents extends AggregateRoot {
     return remoteContents;
   }
 
-  toPrimitives(): Omit<LocalFileContentsAttributes, 'contents'> {
+  attributes(): Omit<LocalFileContentsAttributes, 'contents'> {
     return {
       name: this.name,
       extension: this.extension,

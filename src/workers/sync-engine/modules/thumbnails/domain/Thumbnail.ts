@@ -34,7 +34,7 @@ export class Thumbnail extends AggregateRoot {
     return this._bucket;
   }
 
-  toPrimitives(): ThumbnailAtributes {
+  attributes(): ThumbnailAtributes {
     return {
       id: this.id,
       contentsId: this.contentsId,

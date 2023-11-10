@@ -27,8 +27,7 @@ export class InMemoryFileRepository implements FileRepository {
       return keys.every((key: keyof FileAttributes) => {
         if (key === 'contentsId') {
           return (
-            (attributes[key] as string).normalize() ==
-            (partial[key] as string).normalize()
+            attributes[key].normalize() == (partial[key] as string).normalize()
           );
         }
 

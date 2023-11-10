@@ -8,12 +8,15 @@ import { OfflineFolderMother } from '../domain/OfflineFolderMother';
 import { FolderMother } from '../domain/FolderMother';
 import { FolderPath } from '../../domain/FolderPath';
 import { FolderRemoteFileSystemMock } from '../__mocks__/FolderRemoteFileSystemMock';
+import { EventRepositoryMock } from '../../../shared/test/__mock__/EventRepositoryMock';
+import { FolderRenamedDomainEvent } from '../../domain/events/FolderRenamedDomainEvent';
 
 describe('Synchronize Offline Modifications', () => {
   let offlineRepository: InMemoryOfflineFolderRepository;
   let repository: FolderRepositoryMock;
   let folderRemoteFileSystemMock: FolderRemoteFileSystemMock;
   let renamer: FolderRenamer;
+  let eventRepositoryMock: EventRepositoryMock;
 
   let SUT: SynchronizeOfflineModifications;
 
@@ -26,11 +29,13 @@ describe('Synchronize Offline Modifications', () => {
       folderRemoteFileSystemMock,
       new IpcRendererSyncEngineMock()
     );
+    eventRepositoryMock = new EventRepositoryMock();
 
     SUT = new SynchronizeOfflineModifications(
       offlineRepository,
       repository,
-      renamer
+      renamer,
+      eventRepositoryMock
     );
   });
 
@@ -79,12 +84,12 @@ describe('Synchronize Offline Modifications', () => {
 
     const renamerSpy = jest.spyOn(renamer, 'run');
 
+    eventRepositoryMock.searchMock.mockResolvedValueOnce([]);
+
     await SUT.run(offlineFolder.uuid);
 
     expect(offlineRepositorySyp).toBeCalledWith({ uuid: offlineFolder.uuid });
-    expect(repository.searchByPartialMock).toBeCalledWith({
-      uuid: offlineFolder.uuid,
-    });
+    expect(eventRepositoryMock.searchMock).toBeCalledWith(offlineFolder.uuid);
     expect(renamerSpy).not.toBeCalled();
   });
 
@@ -104,6 +109,14 @@ describe('Synchronize Offline Modifications', () => {
 
     repository.searchByPartialMock.mockReturnValueOnce(folder);
 
+    const event = new FolderRenamedDomainEvent({
+      aggregateId: offlineFolder.uuid,
+      previousPath: folder.path,
+      nextPath: offlineFolder.path.value,
+    });
+
+    eventRepositoryMock.searchMock.mockResolvedValueOnce([event]);
+
     await SUT.run(offlineFolder.uuid);
 
     expect(renamerSpy).toBeCalledWith(folder, offlineFolder.path);
@@ -119,9 +132,14 @@ describe('Synchronize Offline Modifications', () => {
     const afterFirstRename = FolderMother.fromPartial(
       offlineFolder.attributes()
     );
-    offlineFolder.rename(
-      FolderPath.fromParts(offlineFolder.dirname, offlineFolder.name + '!')
-    );
+
+    const event = new FolderRenamedDomainEvent({
+      aggregateId: offlineFolder.uuid,
+      previousPath: afterCreation.path,
+      nextPath: afterFirstRename.path,
+    });
+
+    eventRepositoryMock.searchMock.mockResolvedValueOnce([event]);
 
     jest
       .spyOn(offlineRepository, 'searchByPartial')
@@ -134,8 +152,9 @@ describe('Synchronize Offline Modifications', () => {
       .mockReturnValueOnce(afterFirstRename);
 
     const uuid = offlineFolder.uuid;
+
     await SUT.run(uuid);
 
-    expect(renamerSpy).toBeCalledTimes(2);
+    expect(renamerSpy).toBeCalledTimes(1);
   });
 });

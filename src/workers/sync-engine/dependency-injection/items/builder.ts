@@ -4,7 +4,7 @@ import { ipcRendererSyncEngine } from '../../ipcRendererSyncEngine';
 import { RemoteItemsGenerator } from '../../modules/items/application/RemoteItemsGenerator';
 import { getUser } from '../../../../main/auth/service';
 import { Traverser } from 'workers/sync-engine/modules/items/application/Traverser';
-import { CryptoJsNameDecrypt as CryptoJsNameDecrypt } from 'workers/sync-engine/modules/items/infrastructure/CryptoJsNameDecrypt';
+import { CryptoJsNameDecrypt } from 'workers/sync-engine/modules/items/infrastructure/CryptoJsNameDecrypt';
 
 export function buildItemsContainer(): ItemsContainer {
   const user = getUser();

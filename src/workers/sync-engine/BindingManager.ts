@@ -31,7 +31,7 @@ export class BindingsManager {
     await this.container.filesPlaceholderCreator.run(tree.files);
 
     await this.container.folderRepositoryInitiator.run(tree.folders);
-    await this.container.foldersPlacholderCreator.run(tree.folders);
+    await this.container.foldersPlaceholderCreator.run(tree.folders);
   }
 
   async start(version: string, providerId: string) {

@@ -99,15 +99,6 @@ export class OfflineFile extends AggregateRoot {
     return true;
   }
 
-  toPrimitives(): OfflineFileAttributes {
-    return {
-      contentsId: this.contentsId,
-      folderId: this.folderId,
-      path: this._path.value,
-      size: this._size.value,
-    };
-  }
-
   attributes(): OfflineFileAttributes {
     return {
       contentsId: this.contentsId,

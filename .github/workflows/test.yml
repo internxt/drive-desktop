@@ -11,9 +11,10 @@ jobs:
       - name: Check out Git repository
         uses: actions/checkout@v2
       - name: Use Node.js
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
-          node-version: 16
+          node-version: 18
+          cache: 'yarn'
       - name: Create .npmrc file
         run: |
           echo "registry=https://registry.yarnpkg.com/" > .npmrc
