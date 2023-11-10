@@ -1,10 +1,9 @@
 import { useMemo, useState } from 'react';
 import { SLIDES } from './config';
-
-import { useTranslationContext } from 'renderer/context/LocalContext';
 import { MigrationSlideProps } from './helpers';
-import { reportError } from 'renderer/utils/errors';
-import useClientPlatform from 'renderer/hooks/ClientPlatform';
+import { reportError } from 'apps/renderer/utils/errors';
+import { useTranslationContext } from 'apps/renderer/context/LocalContext';
+import useClientPlatform from 'apps/renderer/hooks/ClientPlatform';
 
 const totalSlides = SLIDES.length - 3;
 

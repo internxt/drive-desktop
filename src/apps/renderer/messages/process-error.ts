@@ -1,4 +1,4 @@
-import { ProcessErrorName } from '../../workers/types';
+import { ProcessErrorName } from 'apps/shared/types';
 
 type ProcessErrorMessages = Record<ProcessErrorName, string>;
 

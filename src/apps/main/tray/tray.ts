@@ -1,6 +1,6 @@
 import { app, Menu, nativeImage, Tray } from 'electron';
 import path from 'path';
-import PackageJson from '../../../package.json';
+import PackageJson from '../../../../package.json';
 import eventBus from '../event-bus';
 import {
   getOrCreateWidged,

@@ -1,13 +1,5 @@
 import Logger from 'electron-log';
 import {
-  ServerFile,
-  ServerFileStatus,
-} from '../../../../filesystems/domain/ServerFile';
-import {
-  ServerFolder,
-  ServerFolderStatus,
-} from '../../../../filesystems/domain/ServerFolder';
-import {
   FolderStatus,
   FolderStatuses,
 } from '../../folders/domain/FolderStatus';
@@ -17,6 +9,11 @@ import { createFileFromServerFile } from '../../files/application/FileCreatorFro
 import { createFolderFromServerFolder } from '../../folders/application/FolderCreatorFromServerFolder';
 import { NameDecrypt } from '../domain/NameDecrypt';
 import { Tree } from '../domain/Tree';
+import { ServerFile, ServerFileStatus } from 'context/shared/domain/ServerFile';
+import {
+  ServerFolder,
+  ServerFolderStatus,
+} from 'context/shared/domain/ServerFolder';
 
 type Items = {
   files: Array<ServerFile>;

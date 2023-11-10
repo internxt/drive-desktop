@@ -3,13 +3,13 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 import { useEffect, useState } from 'react';
 import { BackupProgress } from '../../../../main/background-processes/backups';
 import Button from '../../../components/Button';
-import Select, { SelectOptionsType } from 'renderer/components/Select';
 import Checkbox from '../../../components/Checkbox';
 import { useTranslationContext } from '../../../context/LocalContext';
 import useBackupStatus from '../../../hooks/BackupStatus';
 import { getPercentualProgress } from '../../../utils/backups-progress';
 import useBackupFatalErrors from '../../../hooks/BackupFatalErrors';
 import { WarningCircle } from '@phosphor-icons/react';
+import Select, { SelectOptionsType } from 'apps/renderer/components/Select';
 
 dayjs.extend(relativeTime);
 

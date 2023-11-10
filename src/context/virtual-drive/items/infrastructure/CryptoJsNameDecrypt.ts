@@ -1,4 +1,4 @@
-import crypto from '../../../../utils/crypt';
+import crypto from '../../../shared/infrastructure/crypt';
 import { NameDecrypt } from '../domain/NameDecrypt';
 
 export class CryptoJsNameDecrypt implements NameDecrypt {

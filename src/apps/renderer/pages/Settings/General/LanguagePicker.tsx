@@ -1,11 +1,11 @@
 import dayjs from 'dayjs';
 import i18next from 'i18next';
 import { useEffect, useState } from 'react';
-import DayJsLocales from '../../../../shared/Locale/DayJsLocales';
-import { DEFAULT_LANGUAGE, Language } from '../../../../shared/Locale/Language';
-import Select, { SelectOptionsType } from 'renderer/components/Select';
 import { useTranslationContext } from '../../../context/LocalContext';
 import useConfig from '../../../hooks/useConfig';
+import Select, { SelectOptionsType } from 'apps/renderer/components/Select';
+import DayJsLocales from 'apps/shared/Locale/DayJsLocales';
+import { Language, DEFAULT_LANGUAGE } from 'apps/shared/Locale/Language';
 
 export default function LanguagePicker(): JSX.Element {
   const { translate } = useTranslationContext();

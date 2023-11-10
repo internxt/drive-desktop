@@ -1,4 +1,4 @@
-import { LocalContextProps } from 'renderer/context/LocalContext';
+import { LocalContextProps } from 'apps/renderer/context/LocalContext';
 
 export type MigrationSlideProps = {
   onGoNextSlide: () => void;

@@ -1,4 +1,4 @@
-import configStore from '../../../../main/config';
+import configStore from '../../../main/config';
 
 export class DependencyInjectionMnemonicProvider {
   private static _: string;

@@ -1,9 +1,8 @@
-import { useTranslationContext } from 'renderer/context/LocalContext';
-
-import { ProcessFatalErrorName } from '../../../workers/types';
+import { useTranslationContext } from 'apps/renderer/context/LocalContext';
+import { ProcessFatalErrorName } from 'apps/shared/types';
 import ErrorIcon from '../../assets/error.svg';
 import messages from '../../messages/process-fatal-error';
-import Button from 'renderer/components/Button';
+import Button from '../Button';
 
 export function FatalError({
   errorName,

@@ -1,6 +1,6 @@
-import { DriveFile } from 'main/database/entities/DriveFile';
-import { DriveFolder } from 'main/database/entities/DriveFolder';
-import { ProcessInfoUpdatePayload } from 'workers/types';
+import { DriveFile } from 'apps/main/database/entities/DriveFile';
+import { DriveFolder } from 'apps/main/database/entities/DriveFolder';
+import { ProcessInfoUpdatePayload } from 'apps/shared/types';
 
 const trackedEvents = [
   'delete',

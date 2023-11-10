@@ -1,15 +1,15 @@
 import { useEffect, useRef, useState } from 'react';
-import packageJson from '../../../../package.json';
+import packageJson from '../../../../../package.json';
 import { useTranslationContext } from '../../context/LocalContext';
 import ErrorBanner from './ErrorBanner';
 import { accessRequest, hashPassword, loginRequest } from './service';
 import TwoFA from './TwoFA';
 import { LoginState } from './types';
 import WarningBanner from './WarningBanner';
-import TextInput from 'renderer/components/TextInput';
-import PasswordInput from 'renderer/components/PasswordInput';
-import WindowTopBar from 'renderer/components/WindowTopBar';
-import Button from 'renderer/components/Button';
+import Button from 'apps/renderer/components/Button';
+import PasswordInput from 'apps/renderer/components/PasswordInput';
+import TextInput from 'apps/renderer/components/TextInput';
+import WindowTopBar from 'apps/renderer/components/WindowTopBar';
 
 const TOWFA_ERROR_MESSAGE = 'Wrong 2-factor auth code';
 

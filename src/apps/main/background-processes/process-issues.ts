@@ -1,12 +1,12 @@
 import { ipcMain } from 'electron';
 
-import {
-  GeneralIssue,
-  ProcessInfoUpdatePayload,
-  ProcessIssue,
-} from '../../workers/types';
 import eventBus from '../event-bus';
 import { broadcastToWindows } from '../windows';
+import {
+  ProcessIssue,
+  GeneralIssue,
+  ProcessInfoUpdatePayload,
+} from 'apps/shared/types';
 
 let processIssues: ProcessIssue[] = [];
 let generalIssues: GeneralIssue[] = [];

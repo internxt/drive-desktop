@@ -1,6 +1,6 @@
-import { InvalidArgumentError } from '../../../../shared/domain/InvalidArgumentError';
-import { EnumValueObject } from '../../../../shared/domain/EnumValueObject';
+import { EnumValueObject } from 'context/shared/domain/EnumValueObject';
 import { ActionNotPermittedError } from './errors/ActionNotPermittedError';
+import { InvalidArgumentError } from 'context/shared/domain/InvalidArgumentError';
 
 export enum FileStatuses {
   EXISTS = 'EXISTS',

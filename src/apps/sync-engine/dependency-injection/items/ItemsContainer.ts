@@ -1,4 +1,4 @@
-import { TreeBuilder } from '../../modules/items/application/TreeBuilder';
+import { TreeBuilder } from 'context/virtual-drive/items/application/TreeBuilder';
 
 export interface ItemsContainer {
   existingItemsTreeBuilder: TreeBuilder;

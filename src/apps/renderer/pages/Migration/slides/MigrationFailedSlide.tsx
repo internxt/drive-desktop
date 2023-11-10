@@ -1,8 +1,8 @@
 import React from 'react';
 import { MigrationSlideProps } from '../helpers';
-import { SideTextAnimation } from 'renderer/pages/Onboarding/helpers';
 import { XCircle } from 'phosphor-react';
-import Button from 'renderer/components/Button';
+import Button from 'apps/renderer/components/Button';
+import { SideTextAnimation } from '../../Onboarding/helpers';
 
 export type MigrationFailedSlideProps = MigrationSlideProps;
 

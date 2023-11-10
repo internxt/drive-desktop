@@ -1,4 +1,4 @@
-import packageJson from '../../../../../package.json';
+import packageJson from '../../../../../../package.json';
 import { useTranslationContext } from '../../../context/LocalContext';
 
 export default function AppInfo() {

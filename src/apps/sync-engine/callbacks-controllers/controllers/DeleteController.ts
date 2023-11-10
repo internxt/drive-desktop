@@ -1,7 +1,7 @@
-import { FolderDeleter } from 'workers/sync-engine/modules/folders/application/FolderDeleter';
-import { FileDeleter } from '../../modules/files/application/FileDeleter';
+import { FileDeleter } from 'context/virtual-drive/files/application/FileDeleter';
+import { FolderDeleter } from 'context/virtual-drive/folders/application/FolderDeleter';
+import { DelayQueue } from 'context/virtual-drive/shared/domain/DelayQueue';
 import { CallbackController } from './CallbackController';
-import { DelayQueue } from 'workers/sync-engine/modules/shared/domain/DelayQueue';
 import Logger from 'electron-log';
 
 export class DeleteController extends CallbackController {

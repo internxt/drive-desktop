@@ -1,6 +1,5 @@
-import { useTranslationContext } from 'renderer/context/LocalContext';
-
-import { ProcessFatalErrorName } from '../../../workers/types';
+import { useTranslationContext } from 'apps/renderer/context/LocalContext';
+import { ProcessFatalErrorName } from 'apps/shared/types';
 import Warn from '../../assets/warn.svg';
 import useBackupFatalErrors from '../../hooks/BackupFatalErrors';
 import obtainErrorAction from '../../messages/backups/backups-actions-map';

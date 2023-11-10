@@ -1,12 +1,11 @@
 import { File, FileAttributes } from './File';
-import { Nullable } from '../../../../../shared/types/Nullable';
 import { FolderAttributes } from '../../folders/domain/Folder';
 import { FilePath } from './FilePath';
 
 export interface OldFileRepository {
-  search(pathLike: FilePath): Nullable<File>;
+  search(pathLike: FilePath): File | undefined;
 
-  searchByPartial(partial: Partial<FileAttributes>): Nullable<File>;
+  searchByPartial(partial: Partial<FileAttributes>): File | undefined;
 
   delete(file: File): Promise<void>;
 

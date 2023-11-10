@@ -1,10 +1,10 @@
 import { CheckCircle } from 'phosphor-react';
 import React from 'react';
-import { useTranslationContext } from 'renderer/context/LocalContext';
 import {
   OnboardingSlideProps,
   getPlatformPhraseTranslationKey,
 } from '../helpers';
+import { useTranslationContext } from 'apps/renderer/context/LocalContext';
 
 export type OnboardingCompletedSlideProps = OnboardingSlideProps;
 

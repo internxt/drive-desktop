@@ -5,13 +5,13 @@ import { createReadStream } from 'fs';
 import fs from 'fs/promises';
 import path from 'path';
 
-import packageJson from '../../../package.json';
-import { ErrorDetails } from '../../workers/types';
+import packageJson from '../../../../package.json';
 import { obtainToken } from '../auth/service';
 import { BugReportResult } from './BugReportResult';
 import * as Sentry from '@sentry/electron/main';
 import { User } from '../types';
 import Logger from 'electron-log';
+import { ErrorDetails } from 'apps/shared/types';
 /**
  * Reports an error to Sentry from the main process
  *

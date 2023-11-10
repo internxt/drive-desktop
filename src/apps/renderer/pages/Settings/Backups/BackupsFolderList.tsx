@@ -1,7 +1,6 @@
 import { Dialog, Transition } from '@headlessui/react';
 import { Minus, Plus } from '@phosphor-icons/react';
 import { Fragment, ReactNode, useEffect, useState } from 'react';
-import { useTranslationContext } from 'renderer/context/LocalContext';
 import { useBackups } from '../../../hooks/useBackups';
 import useBackupFatalErrors from '../../../hooks/BackupFatalErrors';
 
@@ -10,6 +9,7 @@ import FolderIcon from '../../../assets/folder.svg';
 import Spinner from '../../../assets/spinner.svg';
 import Button from '../../../components/Button';
 import Checkbox from '../../../components/Checkbox';
+import { useTranslationContext } from 'apps/renderer/context/LocalContext';
 
 export interface BackupFolderListProps {
   onGoToPanel: () => void;

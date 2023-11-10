@@ -1,5 +1,5 @@
-import { FilePlaceholderId } from '../../modules/files/domain/PlaceholderId';
-import { NotifyMainProcessHydrationFinished } from '../../modules/contents/application/NotifyMainProcessHydrationFinished';
+import { NotifyMainProcessHydrationFinished } from 'context/virtual-drive/contents/application/NotifyMainProcessHydrationFinished';
+import { FilePlaceholderId } from 'context/virtual-drive/files/domain/PlaceholderId';
 import { CallbackController } from './CallbackController';
 
 export class NotifyPlaceholderHydrationFinished extends CallbackController {

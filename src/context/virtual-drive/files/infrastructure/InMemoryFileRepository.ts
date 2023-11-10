@@ -1,4 +1,3 @@
-import { Nullable } from 'shared/types/Nullable';
 import { File, FileAttributes } from '../domain/File';
 import { FileRepository } from '../domain/FileRepository';
 
@@ -20,7 +19,7 @@ export class InMemoryFileRepository implements FileRepository {
     return Promise.resolve(files);
   }
 
-  searchByPartial(partial: Partial<FileAttributes>): Nullable<File> {
+  searchByPartial(partial: Partial<FileAttributes>): File | undefined {
     const keys = Object.keys(partial) as Array<keyof Partial<FileAttributes>>;
 
     const file = this.values.find((attributes) => {

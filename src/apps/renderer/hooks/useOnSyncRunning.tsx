@@ -1,4 +1,4 @@
-import { SyncStatus } from 'main/background-processes/sync';
+import { SyncStatus } from 'apps/main/background-processes/sync';
 import useSyncStatus from './useSyncStatus';
 
 export function useOnSyncRunning(fn: () => void) {

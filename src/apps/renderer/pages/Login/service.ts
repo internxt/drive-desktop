@@ -1,6 +1,6 @@
 import CryptoJS from 'crypto-js';
 
-import packageConfig from '../../../../package.json';
+import packageConfig from '../../../../../package.json';
 import { User } from '../../../main/types';
 
 export function hashPassword(password: string, sKey: string): string {

@@ -1,8 +1,8 @@
+import { ensureFolderExists } from 'apps/shared/fs/ensure-folder-exists';
+import { WriteReadableToFile } from 'apps/shared/fs/write-readable-to-file';
 import { LocalFileContents } from '../domain/LocalFileContents';
 import { LocalFileWriter } from '../domain/LocalFileWriter';
 import path from 'path';
-import { ensureFolderExists } from '../../../../../shared/fs/ensure-folder-exists';
-import { WriteReadableToFile } from '../../../../../shared/fs/write-readable-to-file';
 
 export type LocationProvider = () => Promise<string>;
 

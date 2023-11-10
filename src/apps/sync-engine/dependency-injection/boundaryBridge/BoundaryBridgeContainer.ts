@@ -1,4 +1,4 @@
-import { FileCreationOrchestrator } from '../../modules/boundaryBridge/application/FileCreationOrchestrator';
+import { FileCreationOrchestrator } from 'context/virtual-drive/boundaryBridge/application/FileCreationOrchestrator';
 
 export interface BoundaryBridgeContainer {
   fileCreationOrchestrator: FileCreationOrchestrator;

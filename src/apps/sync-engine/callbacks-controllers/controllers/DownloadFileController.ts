@@ -1,9 +1,9 @@
 import Logger from 'electron-log';
 import { CallbackDownload } from '../../BindingManager';
-import { ContentsDownloader } from '../../modules/contents/application/ContentsDownloader';
-import { FileFinderByContentsId } from '../../modules/files/application/FileFinderByContentsId';
-import { FilePlaceholderId } from '../../modules/files/domain/PlaceholderId';
 import { CallbackController } from './CallbackController';
+import { ContentsDownloader } from 'context/virtual-drive/contents/application/ContentsDownloader';
+import { FileFinderByContentsId } from 'context/virtual-drive/files/application/FileFinderByContentsId';
+import { FilePlaceholderId } from 'context/virtual-drive/files/domain/PlaceholderId';
 
 export class DownloadFileController extends CallbackController {
   constructor(

@@ -6,10 +6,10 @@ import { EventBus } from '../../shared/domain/EventBus';
 import { RemoteFileContents } from '../../contents/domain/RemoteFileContents';
 import { FileDeleter } from './FileDeleter';
 import { PlatformPathConverter } from '../../shared/application/PlatformPathConverter';
-import { SyncEngineIpc } from '../../../ipcRendererSyncEngine';
 import { FileRepository } from '../domain/FileRepository';
 import { RemoteFileSystem } from '../domain/file-systems/RemoteFileSystem';
 import { OfflineFile } from '../domain/OfflineFile';
+import { SyncEngineIpc } from 'apps/sync-engine/ipcRendererSyncEngine';
 
 export class FileCreator {
   constructor(

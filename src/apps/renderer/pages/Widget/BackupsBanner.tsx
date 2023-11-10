@@ -13,7 +13,7 @@ import useBackupStatus from '../../hooks/BackupStatus';
 import useProcessIssues from '../../hooks/ProcessIssues';
 import { getPercentualProgress } from '../../utils/backups-progress';
 import { ClockCounterClockwise, X } from '@phosphor-icons/react';
-import { DeviceContext } from 'renderer/context/DeviceContext';
+import { DeviceContext } from 'apps/renderer/context/DeviceContext';
 
 export function BackupsBanner({
   className = '',

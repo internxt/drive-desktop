@@ -1,15 +1,8 @@
 import { CaretDown } from '@phosphor-icons/react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useState } from 'react';
-import { useTranslationContext } from 'renderer/context/LocalContext';
-
 import { BackupFatalError } from '../../../main/background-processes/types/BackupFatalError';
-import {
-  GeneralErrorName,
-  GeneralIssue,
-  ProcessErrorName,
-  ProcessIssue,
-} from '../../../workers/types';
+
 import { Action } from '../../actions/types';
 import FileIcon from '../../assets/file.svg';
 import Spinner from '../../assets/spinner.svg';
@@ -19,6 +12,13 @@ import { generalErrors } from '../../messages/general-error';
 import { shortMessages } from '../../messages/process-error';
 import { getBaseName } from '../../utils/path';
 import { FatalError } from '../../components/Backups/FatalError';
+import { useTranslationContext } from 'apps/renderer/context/LocalContext';
+import {
+  GeneralIssue,
+  ProcessIssue,
+  ProcessErrorName,
+  GeneralErrorName,
+} from 'apps/shared/types';
 
 export default function ProcessIssuesList({
   selectedTab,

@@ -1,11 +1,11 @@
 import Logger from 'electron-log';
-import { SyncEngineIpc } from '../../../ipcRendererSyncEngine';
 import { AllParentFoldersStatusIsExists } from '../../folders/application/AllParentFoldersStatusIsExists';
 import { FileStatuses } from '../domain/FileStatus';
 import { File } from '../domain/File';
 import { FileRepository } from '../domain/FileRepository';
 import { RemoteFileSystem } from '../domain/file-systems/RemoteFileSystem';
 import { LocalFileSystem } from '../domain/file-systems/LocalFileSystem';
+import { SyncEngineIpc } from 'apps/sync-engine/ipcRendererSyncEngine';
 
 export class FileDeleter {
   constructor(

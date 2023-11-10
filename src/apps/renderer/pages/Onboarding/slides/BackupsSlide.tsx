@@ -1,6 +1,6 @@
 import React from 'react';
 import { OnboardingSlideProps } from '../helpers';
-import { useTranslationContext } from 'renderer/context/LocalContext';
+import { useTranslationContext } from 'apps/renderer/context/LocalContext';
 
 export type BackupsSlideProps = OnboardingSlideProps;
 

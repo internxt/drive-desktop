@@ -1,11 +1,10 @@
 import { useEffect, useState } from 'react';
-import Button from 'renderer/components/Button';
 import { User } from '../../../../main/types';
 import Spinner from '../../../assets/spinner.svg';
 import useUsage from '../../../hooks/useUsage';
 import Usage from './Usage';
 import UserInfo from './UserInfo';
-import { useTranslationContext } from 'renderer/context/LocalContext';
+import Button from 'apps/renderer/components/Button';
 
 export default function AccountSection({ active }: { active: boolean }) {
   const { translate } = useTranslationContext();
@@ -43,4 +42,7 @@ export default function AccountSection({ active }: { active: boolean }) {
       </div>
     </div>
   );
+}
+function useTranslationContext(): { translate: any } {
+  throw new Error('Function not implemented.');
 }

@@ -1,6 +1,5 @@
+import { ProcessIssue } from 'apps/shared/types';
 import { useEffect, useState } from 'react';
-
-import { ProcessIssue } from '../../workers/types';
 
 export default function useProcessIssues() {
   const [processIssues, setProcessIssues] = useState<ProcessIssue[]>([]);

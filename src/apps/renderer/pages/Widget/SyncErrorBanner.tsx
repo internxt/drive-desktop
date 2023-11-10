@@ -1,5 +1,5 @@
+import { ProcessFatalErrorName } from 'apps/shared/types';
 import { SyncStatus } from '../../../main/background-processes/sync';
-import { ProcessFatalErrorName } from '../../../workers/types';
 import Error from '../../assets/error.svg';
 import Warn from '../../assets/warn.svg';
 import { useTranslationContext } from '../../context/LocalContext';

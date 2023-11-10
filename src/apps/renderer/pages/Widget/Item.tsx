@@ -1,13 +1,10 @@
 import { Check, WarningCircle } from '@phosphor-icons/react';
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
-import { fileIcon } from 'renderer/assets/icons/getIcon';
-import {
-  ProcessErrorName,
-  ProcessInfoUpdatePayload,
-} from '../../../workers/types';
 import { useTranslationContext } from '../../context/LocalContext';
 import { shortMessages } from '../../messages/process-error';
 import { getBaseName, getExtension } from '../../utils/path';
+import { fileIcon } from 'apps/renderer/assets/icons/getIcon';
+import { ProcessInfoUpdatePayload, ProcessErrorName } from 'apps/shared/types';
 
 export function Item({
   name,

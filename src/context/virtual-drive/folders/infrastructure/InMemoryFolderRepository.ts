@@ -1,4 +1,3 @@
-import { Nullable } from 'shared/types/Nullable';
 import { Folder, FolderAttributes } from '../domain/Folder';
 import { FolderRepository } from '../domain/FolderRepository';
 
@@ -21,7 +20,7 @@ export class InMemoryFolderRepository implements FolderRepository {
     return Promise.resolve(folders);
   }
 
-  searchByPartial(partial: Partial<FolderAttributes>): Nullable<Folder> {
+  searchByPartial(partial: Partial<FolderAttributes>): Folder | undefined {
     const keys = Object.keys(partial) as Array<keyof Partial<FolderAttributes>>;
 
     const folder = this.values.find((attributes) => {

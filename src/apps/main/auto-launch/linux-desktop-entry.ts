@@ -1,7 +1,7 @@
 import fs from 'fs';
 import os from 'os';
 
-import packageJson from '../../../package.json';
+import packageJson from '../../../../package.json';
 
 const fileName = `${packageJson.name}.desktop`;
 const desktopFilePath = `${os.homedir()}/.config/autostart`;

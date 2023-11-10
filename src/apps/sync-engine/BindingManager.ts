@@ -4,10 +4,11 @@ import { buildControllers } from './callbacks-controllers/buildControllers';
 import { VirtualDrive } from 'virtual-drive/dist';
 import { executeControllerWithFallback } from './callbacks-controllers/middlewares/executeControllerWithFallback';
 import { ipcRendererSyncEngine } from './ipcRendererSyncEngine';
-import { PlatformPathConverter } from './modules/shared/application/PlatformPathConverter';
-import { ItemsSearcher } from './modules/items/application/ItemsSearcher';
+
 import * as fs from 'fs';
-import { FilePlaceholderId } from './modules/files/domain/PlaceholderId';
+import { FilePlaceholderId } from 'context/virtual-drive/files/domain/PlaceholderId';
+import { ItemsSearcher } from 'context/virtual-drive/items/application/ItemsSearcher';
+import { PlatformPathConverter } from 'context/virtual-drive/shared/application/PlatformPathConverter';
 
 export type CallbackDownload = (
   success: boolean,

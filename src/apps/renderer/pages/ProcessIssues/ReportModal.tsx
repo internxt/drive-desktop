@@ -1,12 +1,14 @@
 import { Dialog, Transition } from '@headlessui/react';
+import Button from 'apps/renderer/components/Button';
+import Checkbox from 'apps/renderer/components/Checkbox';
+import TextArea from 'apps/renderer/components/TextArea';
+import { useTranslationContext } from 'apps/renderer/context/LocalContext';
+import {
+  shortMessages,
+  longMessages,
+} from 'apps/renderer/messages/general-error';
+import { ProcessIssue, ErrorDetails } from 'apps/shared/types';
 import { Fragment, useState } from 'react';
-import { useTranslationContext } from 'renderer/context/LocalContext';
-
-import { ErrorDetails, ProcessIssue } from '../../../workers/types';
-import { longMessages, shortMessages } from '../../messages/process-error';
-import Button from 'renderer/components/Button';
-import TextArea from 'renderer/components/TextArea';
-import Checkbox from 'renderer/components/Checkbox';
 
 const posibleErrorStates = ['ERROR', 'TOO_MANY_REPORTS'] as const;
 type ErrorReportRequestState = (typeof posibleErrorStates)[number];

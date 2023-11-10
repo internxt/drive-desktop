@@ -1,5 +1,5 @@
-import { AuthorizedClients } from 'shared/HttpClient/Clients';
-import { getClients } from 'shared/HttpClient/backgroud-process-clients';
+import { AuthorizedClients } from 'apps/shared/HttpClient/Clients';
+import { getClients } from 'apps/shared/HttpClient/backgroud-process-clients';
 
 export class DependencyInjectionHttpClientsProvider {
   private static clients: AuthorizedClients;

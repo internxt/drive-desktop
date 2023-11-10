@@ -1,5 +1,5 @@
+import { useTranslationContext } from 'apps/renderer/context/LocalContext';
 import React from 'react';
-import { useTranslationContext } from 'renderer/context/LocalContext';
 
 export const AvailableOfflineSlide: React.FC = () => {
   const { translate } = useTranslationContext();

@@ -1,4 +1,4 @@
-import packageJson from '../../../package.json';
+import packageJson from '../../../../package.json';
 import ConfigStore from '../config';
 import { client } from './rudderstack-client';
 import os from 'os';
@@ -6,7 +6,7 @@ import Logger from 'electron-log';
 import {
   TrackedActions,
   ErrorContext,
-} from '../../shared/IPC/events/sync-engine';
+} from 'apps/shared/IPC/events/sync-engine';
 
 function platformShortName(platform: string) {
   switch (platform) {

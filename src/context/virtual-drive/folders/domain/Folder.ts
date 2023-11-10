@@ -180,8 +180,8 @@ export class Folder extends AggregateRoot {
     return this._status.value === status;
   }
 
-  attributes(): FolderAttributes {
-    const attributes: FolderAttributes = {
+  attributes() {
+    return {
       id: this.id,
       uuid: this.uuid,
       parentId: this._parentId || 0,
@@ -190,8 +190,6 @@ export class Folder extends AggregateRoot {
       createdAt: this.createdAt.toISOString(),
       status: this.status.value,
     };
-
-    return attributes;
   }
 }
 

@@ -4,8 +4,8 @@ import {
   ContentFileUploader,
   FileUploadEvents,
 } from '../../domain/contentHandlers/ContentFileUploader';
-import { Stopwatch } from '../../../../../../shared/types/Stopwatch';
 import { ContentsId } from '../../domain/ContentsId';
+import { Stopwatch } from 'apps/shared/types/Stopwatch';
 
 export class EnvironmentContentFileUploader implements ContentFileUploader {
   private eventEmitter: EventEmitter;

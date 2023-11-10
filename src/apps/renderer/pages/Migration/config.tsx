@@ -1,6 +1,4 @@
-import { useTranslationContext } from 'renderer/context/LocalContext';
 import { MigrationSlide, UploadSuccessAnimation } from './helpers';
-import Button from 'renderer/components/Button';
 import {
   SideImageAnimation,
   SideTextAnimation,
@@ -18,6 +16,8 @@ import { DeleteOldDriveFolderSlide } from './slides/DeleteOldDriveFolderSlide';
 import { AvailableOnlineSlide } from '../Onboarding/slides/AvailableOnlineSlide';
 import { ContextMenuSlide } from '../Onboarding/slides/ContextMenuSlide';
 import { AvailableOfflineSlide } from '../Onboarding/slides/AvailableOfflineSlide';
+import Button from 'apps/renderer/components/Button';
+import { useTranslationContext } from 'apps/renderer/context/LocalContext';
 
 export const SLIDES: MigrationSlide[] = [
   {

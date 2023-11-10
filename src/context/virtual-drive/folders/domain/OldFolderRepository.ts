@@ -1,13 +1,12 @@
 import { Folder, FolderAttributes } from './Folder';
-import { Nullable } from '../../../../../shared/types/Nullable';
 import { FolderPath } from './FolderPath';
 
 export interface OldFolderRepository {
   all(): Promise<Array<Folder>>;
 
-  search(path: string): Nullable<Folder>;
+  search(path: string): Folder | undefined;
 
-  searchByPartial(partial: Partial<FolderAttributes>): Nullable<Folder>;
+  searchByPartial(partial: Partial<FolderAttributes>): Folder | undefined;
 
   create(
     name: FolderPath,

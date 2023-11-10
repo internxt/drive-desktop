@@ -1,10 +1,10 @@
-import { TreeBuilder } from '../../modules/items/application/TreeBuilder';
 import { ItemsContainer } from './ItemsContainer';
 import { ipcRendererSyncEngine } from '../../ipcRendererSyncEngine';
-import { RemoteItemsGenerator } from '../../modules/items/application/RemoteItemsGenerator';
-import { getUser } from '../../../../main/auth/service';
-import { Traverser } from 'workers/sync-engine/modules/items/application/Traverser';
-import { CryptoJsNameDecrypt } from 'workers/sync-engine/modules/items/infrastructure/CryptoJsNameDecrypt';
+import { getUser } from 'apps/main/auth/service';
+import { Traverser } from 'context/virtual-drive/items/application/Traverser';
+import { CryptoJsNameDecrypt } from 'context/virtual-drive/items/infrastructure/CryptoJsNameDecrypt';
+import { RemoteItemsGenerator } from 'context/virtual-drive/items/application/RemoteItemsGenerator';
+import { TreeBuilder } from 'context/virtual-drive/items/application/TreeBuilder';
 
 export function buildItemsContainer(): ItemsContainer {
   const user = getUser();

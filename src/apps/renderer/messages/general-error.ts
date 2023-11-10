@@ -1,4 +1,4 @@
-import { GeneralErrorName } from '../../workers/types';
+import { GeneralErrorName } from 'apps/shared/types';
 
 type GeneralErrorMessages = Record<GeneralErrorName, string>;
 

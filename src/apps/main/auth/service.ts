@@ -1,15 +1,15 @@
 import { safeStorage } from 'electron';
 import Logger from 'electron-log';
 
-import packageConfig from '../../../package.json';
+import packageConfig from '../../../../package.json';
 import ConfigStore, { defaults, fieldsToSave } from '../config';
 import { User } from '../types';
 
 const TOKEN_ENCODING = 'latin1';
 
 const tokensKeys = ['bearerToken', 'newToken'] as const;
-type TokenKey = typeof tokensKeys[number];
-type EncryptedTokenKey = `${typeof tokensKeys[number]}Encrypted`;
+type TokenKey = (typeof tokensKeys)[number];
+type EncryptedTokenKey = `${(typeof tokensKeys)[number]}Encrypted`;
 
 export function encryptToken() {
   const bearerTokenEncrypted = ConfigStore.get('bearerTokenEncrypted');

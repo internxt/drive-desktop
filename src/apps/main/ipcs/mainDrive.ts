@@ -1,7 +1,7 @@
 import { ipcMain } from 'electron';
-import { DriveEvents } from '../../shared/IPC/events/drive';
-import { CustomIpc } from '../../shared/IPC/IPCs';
 import { NoEvents } from './NoEvents';
+import { CustomIpc } from 'apps/shared/IPC/IPCs';
+import { DriveEvents } from 'apps/shared/IPC/events/drive';
 
 export type IpcMainDrive = CustomIpc<NoEvents, DriveEvents>;
 

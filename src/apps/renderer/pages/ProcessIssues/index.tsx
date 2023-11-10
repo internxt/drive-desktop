@@ -1,7 +1,5 @@
 import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
-
-import { ProcessIssue } from '../../../workers/types';
 import WindowTopBar from '../../components/WindowTopBar';
 import { useTranslationContext } from '../../context/LocalContext';
 import useBackupFatalErrors from '../../hooks/BackupFatalErrors';
@@ -9,6 +7,7 @@ import useGeneralIssues from '../../hooks/GeneralIssues';
 import useProcessIssues from '../../hooks/ProcessIssues';
 import ProcessIssuesList from './List';
 import { ReportModal } from './ReportModal';
+import { ProcessIssue } from 'apps/shared/types';
 
 type Section = 'SYNC' | 'GENERAL';
 

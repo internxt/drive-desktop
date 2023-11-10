@@ -3,8 +3,8 @@ import FolderIcon from '../../assets/folder.svg';
 
 import Button from '../Button';
 import { UilMinus, UilPlus } from '@iconscout/react-unicons';
-import { useTranslationContext } from 'renderer/context/LocalContext';
-import { reportError } from 'renderer/utils/errors';
+import { useTranslationContext } from 'apps/renderer/context/LocalContext';
+import { reportError } from 'apps/renderer/utils/errors';
 
 export type BackupFolder = {
   path: string;

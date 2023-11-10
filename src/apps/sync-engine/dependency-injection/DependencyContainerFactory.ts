@@ -1,5 +1,3 @@
-import { getUser } from 'main/auth/service';
-import { DomainEventSubscribers } from '../modules/shared/infrastructure/DomainEventSubscribers';
 import { DependencyContainer } from './DependencyContainer';
 import { DependencyInjectionEventBus } from './common/eventBus';
 import { buildContentsContainer } from './contents/builder';
@@ -9,6 +7,8 @@ import { buildItemsContainer } from './items/builder';
 import { DependencyInjectionVirtualDrive } from './common/virtualDrive';
 import { buildBoundaryBridgeContainer } from './boundaryBridge/build';
 import { buildSharedContainer } from './shared/builder';
+import { getUser } from 'apps/main/auth/service';
+import { DomainEventSubscribers } from 'context/virtual-drive/shared/infrastructure/DomainEventSubscribers';
 
 export class DependencyContainerFactory {
   private static _container: DependencyContainer | undefined;

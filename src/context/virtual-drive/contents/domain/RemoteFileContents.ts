@@ -1,4 +1,3 @@
-import { Primitives } from 'shared/types/Primitives';
 import { AggregateRoot } from '../../shared/domain/AggregateRoot';
 import { ContentsId } from './ContentsId';
 import { ContentsSize } from './ContentsSize';
@@ -35,7 +34,7 @@ export class RemoteFileContents extends AggregateRoot {
     );
   }
 
-  attributes(): Record<string, Primitives> {
+  attributes() {
     return {
       contentsId: this.id,
       size: this.size,

@@ -1,14 +1,5 @@
-import { SDKRemoteFileSystem } from '../../modules/files/infrastructure/SDKRemoteFileSystem';
-import crypt from '../../../utils/crypt';
+import crypt from '../../../../context/shared/infrastructure/crypt';
 import { ipcRendererSyncEngine } from '../../ipcRendererSyncEngine';
-import { CreateFilePlaceholderOnDeletionFailed } from '../../modules/files/application/CreateFilePlaceholderOnDeletionFailed';
-import { FileCreator } from '../../modules/files/application/FileCreator';
-import { FileDeleter } from '../../modules/files/application/FileDeleter';
-import { FileFinderByContentsId } from '../../modules/files/application/FileFinderByContentsId';
-import { FilePathUpdater } from '../../modules/files/application/FilePathUpdater';
-import { FilePlaceholderCreatorFromContentsId } from '../../modules/files/application/FilePlaceholderCreatorFromContentsId';
-import { RetrieveAllFiles } from '../../modules/files/application/RetrieveAllFiles';
-import { SameFileWasMoved } from '../../modules/files/application/SameFileWasMoved';
 import { DependencyInjectionEventBus } from '../common/eventBus';
 import { DependencyInjectionEventRepository } from '../common/eventRepository';
 import { DependencyInjectionUserProvider } from '../common/user';
@@ -16,13 +7,22 @@ import { DependencyInjectionVirtualDrive } from '../common/virtualDrive';
 import { FoldersContainer } from '../folders/FoldersContainer';
 import { SharedContainer } from '../shared/SharedContainer';
 import { FilesContainer } from './FilesContainer';
-import { NodeWinLocalFileSystem } from '../../modules/files/infrastructure/NodeWinLocalFileSystem';
 import { DependencyInjectionStorageSdk } from '../common/sdk';
-import { InMemoryFileRepository } from '../../modules/files/infrastructure/InMemoryFileRepository';
-import { RepositoryPopulator } from '../../modules/files/application/RepositoryPopulator';
-import { FilesPlaceholderCreator } from '../../modules/files/application/FilesPlaceholdersCreator';
-import { FilesPlaceholderUpdater } from '../../modules/files/application/FilesPlaceholderUpdater';
-import { LocalFileIdProvider } from '../../modules/shared/application/LocalFileIdProvider';
+import { CreateFilePlaceholderOnDeletionFailed } from 'context/virtual-drive/files/application/CreateFilePlaceholderOnDeletionFailed';
+import { FileCreator } from 'context/virtual-drive/files/application/FileCreator';
+import { FileDeleter } from 'context/virtual-drive/files/application/FileDeleter';
+import { FileFinderByContentsId } from 'context/virtual-drive/files/application/FileFinderByContentsId';
+import { FilePathUpdater } from 'context/virtual-drive/files/application/FilePathUpdater';
+import { FilePlaceholderCreatorFromContentsId } from 'context/virtual-drive/files/application/FilePlaceholderCreatorFromContentsId';
+import { FilesPlaceholderUpdater } from 'context/virtual-drive/files/application/FilesPlaceholderUpdater';
+import { FilesPlaceholderCreator } from 'context/virtual-drive/files/application/FilesPlaceholdersCreator';
+import { RepositoryPopulator } from 'context/virtual-drive/files/application/RepositoryPopulator';
+import { RetrieveAllFiles } from 'context/virtual-drive/files/application/RetrieveAllFiles';
+import { SameFileWasMoved } from 'context/virtual-drive/files/application/SameFileWasMoved';
+import { InMemoryFileRepository } from 'context/virtual-drive/files/infrastructure/InMemoryFileRepository';
+import { SDKRemoteFileSystem } from 'context/virtual-drive/files/infrastructure/SDKRemoteFileSystem';
+import { NodeWinLocalFileSystem } from 'context/virtual-drive/files/infrastructure/NodeWinLocalFileSystem';
+import { LocalFileIdProvider } from 'context/virtual-drive/shared/application/LocalFileIdProvider';
 
 export async function buildFilesContainer(
   folderContainer: FoldersContainer,
@@ -57,7 +57,7 @@ export async function buildFilesContainer(
 
   const sameFileWasMoved = new SameFileWasMoved(
     repository,
-    sharedContainer.localFileIdProvider,
+    localFileSystem,
     eventHistory
   );
 

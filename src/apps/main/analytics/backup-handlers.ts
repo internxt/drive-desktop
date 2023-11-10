@@ -1,6 +1,5 @@
 import { ipcMain } from 'electron';
-
-import { BackupProgressIssue, BackupsArgs } from '../../workers/backups';
+import { BackupProgressIssue, BackupsArgs } from 'apps/backups';
 import {
   backupCompleted,
   backupError,

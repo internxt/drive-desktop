@@ -1,4 +1,3 @@
-import { SyncEngineIpc } from 'workers/sync-engine/ipcRendererSyncEngine';
 import { ContentFileUploader } from '../domain/contentHandlers/ContentFileUploader';
 import { ContentsManagersFactory } from '../domain/ContentsManagersFactory';
 import { LocalContentsProvider } from '../domain/LocalFileProvider';
@@ -6,6 +5,7 @@ import { RemoteFileContents } from '../domain/RemoteFileContents';
 import { LocalFileContents } from '../domain/LocalFileContents';
 import { PlatformPathConverter } from '../../shared/application/PlatformPathConverter';
 import { RelativePathToAbsoluteConverter } from '../../shared/application/RelativePathToAbsoluteConverter';
+import { SyncEngineIpc } from 'apps/sync-engine/ipcRendererSyncEngine';
 
 export class ContentsUploader {
   constructor(

@@ -1,9 +1,9 @@
-import { LocalFileIdProvider } from '../../shared/application/LocalFileIdProvider';
 import { EventRepository } from '../../shared/domain/EventRepository';
 import { FilePath } from '../domain/FilePath';
 import { FileRepository } from '../domain/FileRepository';
 import { FileMovedDomainEvent } from '../domain/events/FileMovedDomainEvent';
 import Logger from 'electron-log';
+import { LocalFileSystem } from '../domain/file-systems/LocalFileSystem';
 
 // TODO: find a better name
 type WasMovedResult = { result: false } | { result: true; contentsId: string };
@@ -11,7 +11,7 @@ type WasMovedResult = { result: false } | { result: true; contentsId: string };
 export class SameFileWasMoved {
   constructor(
     private readonly repository: FileRepository,
-    private readonly localFileIdProvider: LocalFileIdProvider,
+    private readonly localFileSystem: LocalFileSystem,
     private readonly eventHistory: EventRepository
   ) {}
 
@@ -38,7 +38,15 @@ export class SameFileWasMoved {
       return { result: false };
     }
 
-    const trackerId = await this.localFileIdProvider.run(path.value);
+    const file = this.repository.searchByPartial({
+      contentsId: movedEvent.aggregateId,
+    });
+
+    if (!file) {
+      return { result: false };
+    }
+
+    const trackerId = await this.localFileSystem.getLocalFileId(file);
 
     if (trackerId !== movedEvent.toPrimitives().trackerId) {
       return { result: false };

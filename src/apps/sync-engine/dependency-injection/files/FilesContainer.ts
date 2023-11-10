@@ -1,14 +1,14 @@
-import { CreateFilePlaceholderOnDeletionFailed } from '../../modules/files/application/CreateFilePlaceholderOnDeletionFailed';
-import { FileCreator } from '../../modules/files/application/FileCreator';
-import { FileDeleter } from '../../modules/files/application/FileDeleter';
-import { FileFinderByContentsId } from '../../modules/files/application/FileFinderByContentsId';
-import { FilePathUpdater } from '../../modules/files/application/FilePathUpdater';
-import { FilePlaceholderCreatorFromContentsId } from '../../modules/files/application/FilePlaceholderCreatorFromContentsId';
-import { RetrieveAllFiles } from '../../modules/files/application/RetrieveAllFiles';
-import { SameFileWasMoved } from '../../modules/files/application/SameFileWasMoved';
-import { RepositoryPopulator } from '../../modules/files/application/RepositoryPopulator';
-import { FilesPlaceholderCreator } from '../../modules/files/application/FilesPlaceholdersCreator';
-import { FilesPlaceholderUpdater } from '../../modules/files/application/FilesPlaceholderUpdater';
+import { CreateFilePlaceholderOnDeletionFailed } from 'context/virtual-drive/files/application/CreateFilePlaceholderOnDeletionFailed';
+import { FileCreator } from 'context/virtual-drive/files/application/FileCreator';
+import { FileDeleter } from 'context/virtual-drive/files/application/FileDeleter';
+import { FileFinderByContentsId } from 'context/virtual-drive/files/application/FileFinderByContentsId';
+import { FilePathUpdater } from 'context/virtual-drive/files/application/FilePathUpdater';
+import { FilePlaceholderCreatorFromContentsId } from 'context/virtual-drive/files/application/FilePlaceholderCreatorFromContentsId';
+import { FilesPlaceholderUpdater } from 'context/virtual-drive/files/application/FilesPlaceholderUpdater';
+import { FilesPlaceholderCreator } from 'context/virtual-drive/files/application/FilesPlaceholdersCreator';
+import { RepositoryPopulator } from 'context/virtual-drive/files/application/RepositoryPopulator';
+import { RetrieveAllFiles } from 'context/virtual-drive/files/application/RetrieveAllFiles';
+import { SameFileWasMoved } from 'context/virtual-drive/files/application/SameFileWasMoved';
 
 export interface FilesContainer {
   fileFinderByContentsId: FileFinderByContentsId;

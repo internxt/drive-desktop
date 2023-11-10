@@ -3,9 +3,8 @@ import { SLIDES } from './config';
 import {
   BackupFolder,
   BackupsFoldersSelector,
-} from 'renderer/components/Backups/BackupsFoldersSelector';
-import { reportError } from 'renderer/utils/errors';
-import useClientPlatform from 'renderer/hooks/ClientPlatform';
+} from 'apps/renderer/components/Backups/BackupsFoldersSelector';
+import useClientPlatform from 'apps/renderer/hooks/ClientPlatform';
 
 // Slide 1 is welcome slide, last slide is summary, doesn't count
 const totalSlides = SLIDES.length - 2;

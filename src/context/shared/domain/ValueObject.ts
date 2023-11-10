@@ -1,6 +1,6 @@
 import { InvalidArgumentError } from './InvalidArgumentError';
 
-export type Primitives = string | number | boolean | Date;
+export type Primitives = string | number | boolean | Date | undefined;
 
 export abstract class ValueObject<T extends Primitives> {
   readonly value: T;
@@ -21,9 +21,5 @@ export abstract class ValueObject<T extends Primitives> {
       other.constructor.name === this.constructor.name &&
       other.value === this.value
     );
-  }
-
-  toString(): string {
-    return this.value.toString();
   }
 }

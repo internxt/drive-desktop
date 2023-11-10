@@ -6,7 +6,6 @@ import { ContextMenuSlide } from './slides/ContextMenuSlide';
 import { WelcomeSlide } from './slides/WelcomeSlide';
 import { FilesOrganizationSlide } from './slides/FilesOrganizationSlide';
 
-import { useTranslationContext } from 'renderer/context/LocalContext';
 import {
   // BackupsSVG,
   OnboardingSlide,
@@ -16,10 +15,11 @@ import {
   getOfflineImageSvg,
   getOnlineImageSvg,
 } from './helpers';
-import Button from 'renderer/components/Button';
 
 import ContextMenuSvg from '../../assets/onboarding/context-menu.svg';
 import { OnboardingCompletedSlide } from './slides/OnboardingCompletedSlide';
+import Button from 'apps/renderer/components/Button';
+import { useTranslationContext } from 'apps/renderer/context/LocalContext';
 export const SLIDES: OnboardingSlide[] = [
   {
     name: 'Welcome Slide',

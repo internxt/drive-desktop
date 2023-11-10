@@ -1,4 +1,4 @@
-import { ServerFile } from '../../../../filesystems/domain/ServerFile';
+import { ServerFile } from 'context/shared/domain/ServerFile';
 import { File } from '../../files/domain/File';
 
 export function createFileFromServerFile(

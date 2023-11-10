@@ -1,10 +1,9 @@
 import { Folder, FolderAttributes } from './Folder';
-import { Nullable } from '../../../../../shared/types/Nullable';
 
 export interface FolderRepository {
   all(): Promise<Array<Folder>>;
 
-  searchByPartial(partial: Partial<FolderAttributes>): Nullable<Folder>;
+  searchByPartial(partial: Partial<FolderAttributes>): Folder | undefined;
 
   add(folder: Folder): Promise<void>;
 

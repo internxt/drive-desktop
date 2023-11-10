@@ -1,5 +1,4 @@
 import { DownloadStrategyFunction } from '@internxt/inxt-js/build/lib/core/download/strategy';
-import { Stopwatch } from '../../../../../../shared/types/Stopwatch';
 import { EventEmitter, Readable } from 'stream';
 import {
   ContentFileDownloader,
@@ -8,6 +7,7 @@ import {
 import { File } from '../../../files/domain/File';
 import { DownloadOneShardStrategy } from '@internxt/inxt-js/build/lib/core';
 import { ActionState } from '@internxt/inxt-js/build/api';
+import { Stopwatch } from 'apps/shared/types/Stopwatch';
 
 export class EnvironmentContentFileDownloader implements ContentFileDownloader {
   private eventEmitter: EventEmitter;

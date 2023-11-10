@@ -1,5 +1,5 @@
 import { DownloadStrategyFunction } from '@internxt/inxt-js/build/lib/core/download/strategy';
-import { Stopwatch } from '../../../../../shared/types/Stopwatch';
+import { Stopwatch } from 'apps/shared/types/Stopwatch';
 import { EventEmitter, Readable } from 'stream';
 
 export type EnvironmentDownloaderEvents = {

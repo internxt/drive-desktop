@@ -4,11 +4,11 @@ import { FilePath } from '../domain/FilePath';
 import { File } from '../domain/File';
 import { FolderFinder } from '../../folders/application/FolderFinder';
 import { FileFinderByContentsId } from './FileFinderByContentsId';
-import { SyncEngineIpc } from '../../../ipcRendererSyncEngine';
 import { EventBus } from '../../shared/domain/EventBus';
 import { FileRepository } from '../domain/FileRepository';
 import { RemoteFileSystem } from '../domain/file-systems/RemoteFileSystem';
 import { LocalFileSystem } from '../domain/file-systems/LocalFileSystem';
+import { SyncEngineIpc } from 'apps/sync-engine/ipcRendererSyncEngine';
 
 export class FilePathUpdater {
   constructor(

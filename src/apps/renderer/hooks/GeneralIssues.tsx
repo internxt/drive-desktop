@@ -1,6 +1,5 @@
+import { GeneralIssue } from 'apps/shared/types';
 import { useEffect, useState } from 'react';
-
-import { GeneralIssue } from '../../workers/types';
 
 export default function useGeneralIssues() {
   const [generalIssues, setGeneralIssues] = useState<GeneralIssue[]>([]);

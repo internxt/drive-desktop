@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import Button from '../../components/Button';
 import { useTranslationContext } from '../../context/LocalContext';
-import { reportError } from 'renderer/utils/errors';
+import { reportError } from 'apps/renderer/utils/errors';
 import { ChatsCircle } from 'phosphor-react';
-import WindowTopBar from 'renderer/components/WindowTopBar';
-import TextArea from 'renderer/components/TextArea';
+import WindowTopBar from 'apps/renderer/components/WindowTopBar';
+import TextArea from 'apps/renderer/components/TextArea';
 
 const CHARACTERS_LIMIT = 1000;
 export default function Feedback() {

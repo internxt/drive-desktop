@@ -1,5 +1,5 @@
-import { Traverser } from 'workers/sync-engine/modules/items/application/Traverser';
-import crypt from '../../../utils/crypt';
+import { Traverser } from 'context/virtual-drive/items/application/Traverser';
+import crypt from '../../../../context/shared/infrastructure/crypt';
 import { DependencyInjectionUserProvider } from './user';
 
 export class DependencyInjectionTraverserProvider {

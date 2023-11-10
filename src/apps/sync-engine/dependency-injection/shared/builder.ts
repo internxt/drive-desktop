@@ -1,8 +1,7 @@
-import { AbsolutePathToRelativeConverter } from '../../modules/shared/application/AbsolutePathToRelativeConverter';
 import { SharedContainer } from './SharedContainer';
 import { DependencyInjectionLocalRootFolderPath } from '../common/localRootFolderPath';
-import { RelativePathToAbsoluteConverter } from '../../modules/shared/application/RelativePathToAbsoluteConverter';
-import { LocalFileIdProvider } from '../../modules/shared/application/LocalFileIdProvider';
+import { AbsolutePathToRelativeConverter } from 'context/virtual-drive/shared/application/AbsolutePathToRelativeConverter';
+import { RelativePathToAbsoluteConverter } from 'context/virtual-drive/shared/application/RelativePathToAbsoluteConverter';
 
 export function buildSharedContainer(): SharedContainer {
   const localRootFolderPath = DependencyInjectionLocalRootFolderPath.get();
@@ -14,13 +13,8 @@ export function buildSharedContainer(): SharedContainer {
     localRootFolderPath
   );
 
-  const localFileIdProvider = new LocalFileIdProvider(
-    relativePathToAbsoluteConverter
-  );
-
   return {
     absolutePathToRelativeConverter,
     relativePathToAbsoluteConverter,
-    localFileIdProvider,
   };
 }

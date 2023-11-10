@@ -1,4 +1,4 @@
-import { ProcessFatalErrorName } from '../../workers/types';
+import { ProcessFatalErrorName } from 'apps/shared/types';
 
 const messages: Record<ProcessFatalErrorName, string> = {
   NO_INTERNET: 'issues.error-messages.no-internet',
