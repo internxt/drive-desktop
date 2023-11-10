@@ -15,4 +15,16 @@ describe('AbsolutePathToRelativeConverter', () => {
       expect(relative).toBe('\\New folder (4)');
     });
   }
+
+  if (path.delimiter === path.posix.delimiter) {
+    it('works', () => {
+      const absolute = '/home/users/internxt/InternxtDrive/New Folder (4)';
+
+      const sut = new AbsolutePathToRelativeConverter('/home/users/internxt/');
+
+      const relative = sut.run(absolute);
+
+      expect(relative).toBe('/New folder (4)');
+    });
+  }
 });
