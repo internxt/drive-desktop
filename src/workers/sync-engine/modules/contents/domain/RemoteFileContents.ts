@@ -35,7 +35,7 @@ export class RemoteFileContents extends AggregateRoot {
     );
   }
 
-  toPrimitives(): Record<string, Primitives> {
+  attributes(): Record<string, Primitives> {
     return {
       contentsId: this.id,
       size: this.size,

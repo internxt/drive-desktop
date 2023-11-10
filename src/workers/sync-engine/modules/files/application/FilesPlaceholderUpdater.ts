@@ -78,13 +78,12 @@ export class FilesPlaceholderUpdater {
         local.path
       );
       await fs.unlink(win32AbsolutePath);
-      return;
     }
   }
 
   async run(remotes: Array<File>): Promise<void> {
-    const updtePromises = remotes.map((remote) => this.update(remote));
+    const updatePromises = remotes.map((remote) => this.update(remote));
 
-    await Promise.all(updtePromises);
+    await Promise.all(updatePromises);
   }
 }

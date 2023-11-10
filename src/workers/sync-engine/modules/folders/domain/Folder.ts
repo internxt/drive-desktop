@@ -1,4 +1,3 @@
-import { Primitives } from 'shared/types/Primitives';
 import { AggregateRoot } from '../../shared/domain/AggregateRoot';
 import { FolderPath } from './FolderPath';
 import { FolderStatus, FolderStatuses } from './FolderStatus';
@@ -179,20 +178,6 @@ export class Folder extends AggregateRoot {
 
   hasStatus(status: FolderStatuses): boolean {
     return this._status.value === status;
-  }
-
-  toPrimitives(): Record<string, Primitives> {
-    const attributes: FolderAttributes = {
-      id: this.id,
-      uuid: this.uuid,
-      parentId: this._parentId || 0,
-      path: this._path.value,
-      updatedAt: this.updatedAt.toISOString(),
-      createdAt: this.createdAt.toISOString(),
-      status: this.status.value,
-    };
-
-    return attributes;
   }
 
   attributes(): FolderAttributes {

@@ -183,18 +183,6 @@ export class File extends AggregateRoot {
     return this._status.is(status);
   }
 
-  toPrimitives(): Omit<FileAttributes, 'modificationTime'> {
-    return {
-      contentsId: this.contentsId,
-      folderId: this.folderId,
-      path: this._path.value,
-      size: this._size.value,
-      createdAt: this.createdAt.toISOString(),
-      updatedAt: this.updatedAt.toISOString(),
-      status: this.status.value,
-    };
-  }
-
   attributes(): FileAttributes {
     return {
       contentsId: this.contentsId,
