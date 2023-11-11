@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@parcel/watcher": "^2.0.5",
-    "@rudderstack/rudder-sdk-node": "^1.1.4",
+    "@rudderstack/rudder-sdk-node": "^2.0.6",
     "better-sqlite3": "^8.3.0",
     "typeorm": "^0.3.16"
   },
