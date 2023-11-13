@@ -1,17 +1,12 @@
 import { CaretDown } from '@phosphor-icons/react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useState } from 'react';
-import { BackupFatalError } from '../../../main/background-processes/types/BackupFatalError';
-
-import { Action } from '../../actions/types';
 import FileIcon from '../../assets/file.svg';
 import Spinner from '../../assets/spinner.svg';
 import WarnIcon from '../../assets/warn.svg';
-import useFatalErrorActions from '../../hooks/FatalErrorActions';
 import { generalErrors } from '../../messages/general-error';
 import { shortMessages } from '../../messages/process-error';
 import { getBaseName } from '../../utils/path';
-import { FatalError } from '../../components/Backups/FatalError';
 import { useTranslationContext } from 'apps/renderer/context/LocalContext';
 import {
   GeneralIssue,
@@ -23,24 +18,14 @@ import {
 export default function ProcessIssuesList({
   selectedTab,
   processIssues,
-  backupFatalErrors,
-  showBackupFatalErrors,
   onClickOnErrorInfo,
   generalIssues,
 }: {
   generalIssues: GeneralIssue[];
   processIssues: ProcessIssue[];
-  backupFatalErrors: BackupFatalError[];
-  showBackupFatalErrors: boolean;
   selectedTab: 'SYNC' | 'BACKUPS' | 'GENERAL';
   onClickOnErrorInfo: (errorClicked: Pick<ProcessIssue, 'errorName'>) => void;
 }) {
-  const { translate } = useTranslationContext();
-  const [isLoading, setIsLoading] = useState(false);
-  const fatalErrorActionMap = useFatalErrorActions(
-    showBackupFatalErrors ? 'BACKUPS' : 'SYNC'
-  );
-
   const [selectedErrorName, setSelectedErrorName] = useState<
     ProcessErrorName | GeneralErrorName | null
   >(null);
@@ -90,21 +75,12 @@ export default function ProcessIssuesList({
     ));
   };
 
-  const actionWrapper =
-    (action: Action) => async (error: BackupFatalError | undefined) => {
-      setIsLoading(true);
-      await action.func(error);
-      setIsLoading(false);
-    };
-
   const issuesIsEmpty = () => {
     switch (selectedTab) {
       case 'GENERAL':
         return generalIssues.length === 0;
       case 'SYNC':
         return processIssues.length === 0;
-      case 'BACKUPS':
-        return backupFatalErrors.length === 0;
       default:
         return true;
     }
@@ -112,23 +88,10 @@ export default function ProcessIssuesList({
 
   return (
     <ul className="relative m-5 mt-2 flex flex-1 flex-col divide-y divide-gray-5 overflow-y-auto rounded-lg border border-gray-20 bg-surface shadow-sm">
-      {showBackupFatalErrors &&
-        backupFatalErrors.map((error) => (
-          <FatalError
-            key={error.folderId}
-            errorName={error.errorName}
-            path={error.path}
-            showIcon={true}
-            actionName={translate(fatalErrorActionMap[error.errorName].name)}
-            onActionClick={() =>
-              actionWrapper(fatalErrorActionMap[error.errorName])(error)
-            }
-          />
-        ))}
       {renderItems()}
 
       {issuesIsEmpty() ? <Empty /> : null}
-      {isLoading && (
+      {false && (
         <div className="absolute flex h-full w-full items-center justify-center bg-surface/75">
           <Spinner className="h-5 w-5 animate-spin text-gray-100" />
         </div>

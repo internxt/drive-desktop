@@ -1,1 +1,1 @@
-export type Process = 'SYNC' | 'BACKUPS';
+export type Process = 'SYNC';

@@ -2,9 +2,6 @@ const { contextBridge, ipcRenderer } = require('electron');
 const path = require('path');
 
 contextBridge.exposeInMainWorld('electron', {
-  query(query) {
-    return ipcRenderer.invoke('execute-app-query', query);
-  },
   getConfigKey(key) {
     return ipcRenderer.invoke('get-config-key', key);
   },
@@ -295,6 +292,9 @@ contextBridge.exposeInMainWorld('electron', {
   },
   openUrl: (url) => {
     ipcRenderer.invoke('open-url', url);
+  },
+  getPreferredAppLanguage() {
+    return ipcRenderer.invoke('APP:PREFERRED_LANGUAGE');
   },
   path,
 });

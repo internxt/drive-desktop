@@ -1,5 +1,5 @@
+import { Usage } from 'apps/main/usage/Usage';
 import { useEffect, useState } from 'react';
-import { Usage } from '../../main/usage/usage';
 
 export default function useUsage() {
   const [usage, setUsage] = useState<Usage>();

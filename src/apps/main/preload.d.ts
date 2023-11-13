@@ -1,7 +1,5 @@
 declare interface Window {
   electron: {
-    query: typeof import('./app-info/service').executeQuery;
-
     getConfigKey(key: import('./config/service').StoredValues): Promise<any>;
 
     listenToConfigKeyChange<T>(
@@ -12,6 +10,32 @@ declare interface Window {
     setConfigKey: typeof import('./config/service').setConfigKey;
 
     pathChanged(path: string): void;
+
+    getGeneralIssues: () => Promise<
+      import('../../apps/shared/types').GeneralIssue[]
+    >;
+
+    onGeneralIssuesChanged: (
+      func: (value: import('../../apps/shared/types').GeneralIssue[]) => void
+    ) => () => void;
+
+    onSyncStopped: (
+      func: (
+        value: import('../../context/desktop/sync/domain/SyncStoppedPayload').SyncStoppedPayload
+      ) => void
+    ) => () => void;
+
+    getProcessIssues(): Promise<import('apps/shared/types').ProcessIssue[]>;
+
+    onProcessIssuesChanged(
+      func: (value: import('apps/shared/types').ProcessIssue[]) => void
+    ): () => void;
+
+    onSyncInfoUpdate(
+      func: (
+        value: import('apps/shared/types').ProcessInfoUpdatePayload
+      ) => void
+    ): () => void;
 
     userIsUnauthorized(): void;
 
@@ -49,38 +73,9 @@ declare interface Window {
 
     stopSyncProcess(): void;
 
-    getSyncStatus(): Promise<
-      import('main/background-processes/sync').SyncStatus
-    >;
-
-    onSyncStatusChanged(
-      func: (value: import('main/background-processes/sync').SyncStatus) => void
-    ): () => void;
-
-    onSyncStopped(
-      func: (
-        value: import('main/background-processes/sync').SyncStoppedPayload
-      ) => void
-    ): () => void;
-
-    onSyncInfoUpdate(
-      func: (value: import('../workers/types').ProcessInfoUpdatePayload) => void
-    ): () => void;
-
     moveSyncFolderToDesktop(): Promise<
       typeof import('../main/migration/service').moveSyncFolderToDesktop
     >;
-    getProcessIssues(): Promise<import('../workers/types').ProcessIssue[]>;
-
-    onProcessIssuesChanged(
-      func: (value: import('../workers/types').ProcessIssue[]) => void
-    ): () => void;
-
-    getGeneralIssues(): Promise<import('../workers/types').GeneralIssue[]>;
-
-    onGeneralIssuesChanged(
-      func: (value: import('../workers/types').GeneralIssue[]) => void
-    ): () => void;
 
     openProcessIssuesWindow(): void;
 
@@ -105,16 +100,6 @@ declare interface Window {
     startBackupsProcess(): void;
 
     stopBackupsProcess(): void;
-
-    getBackupsStatus(): Promise<
-      import('main/background-processes/backups').BackupsStatus
-    >;
-
-    onBackupsStatusChanged(
-      func: (
-        value: import('main/background-processes/backups').BackupsStatus
-      ) => void
-    ): () => void;
 
     getVirtualDriveRoot(): Promise<string>;
 
@@ -142,31 +127,7 @@ declare interface Window {
 
     getLastBackupTimestamp: () => Promise<number>;
 
-    getLastBackupExitReason: () => Promise<
-      import('../main/background-processes/backups').BackupExitReason | null
-    >;
-
-    onBackupProgress(
-      func: (
-        value: import('main/background-processes/backups').BackupProgress
-      ) => void
-    ): () => void;
-
-    getBackupFatalErrors(): Promise<
-      Array<
-        import('../main/background-processes/types/BackupFatalError').BackupFatalError
-      >
-    >;
-
     deleteBackupError(folderId: number): Promise<void>;
-
-    onBackupFatalErrorsChanged(
-      func: (
-        value: Array<
-          import('../main/background-processes/types/BackupFatalError').BackupFatalError
-        >
-      ) => void
-    ): () => void;
 
     changeBackupPath: typeof import('../main/device/service').changeBackupPath;
 
@@ -205,5 +166,6 @@ declare interface Window {
     retryVirtualDriveMount(): void;
     startRemoteSync: () => Promise<void>;
     openUrl: (url: string) => Promise<void>;
+    getPreferredAppLanguage: () => Promise<Array<string>>;
   };
 }

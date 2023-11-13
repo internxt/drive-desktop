@@ -1,11 +1,11 @@
 import { ProcessFatalErrorName } from 'apps/shared/types';
-import { SyncStatus } from '../../../main/background-processes/sync';
 import Error from '../../assets/error.svg';
 import Warn from '../../assets/warn.svg';
 import { useTranslationContext } from '../../context/LocalContext';
 import useSyncStatus from '../../hooks/useSyncStatus';
 import useSyncStopped from '../../hooks/useSyncStopped';
 import SyncFatalErrorMessages from '../../messages/process-fatal-error';
+import { SyncStatus } from 'context/desktop/sync/domain/SyncStatus';
 
 const fatalErrorActionMap: Record<
   ProcessFatalErrorName,
@@ -50,10 +50,7 @@ export default function SyncErrorBanner() {
   useSyncStatus(onSyncStatusChanged);
 
   const severity: 'FATAL' | 'WARN' = 'FATAL' as 'FATAL' | 'WARN';
-  const show =
-    stopReason !== null &&
-    stopReason?.reason !== 'EXIT' &&
-    stopReason?.reason !== 'STOPPED_BY_USER';
+  const show = stopReason !== null && stopReason?.reason !== 'STOPPED_BY_USER';
 
   const Icon = severity === 'FATAL' ? Error : Warn;
 

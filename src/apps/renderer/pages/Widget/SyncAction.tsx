@@ -3,11 +3,11 @@ import { useEffect, useState } from 'react';
 import { useTranslationContext } from '../../context/LocalContext';
 import { CheckCircle, XCircle } from '@phosphor-icons/react';
 import Spinner from '../../assets/spinner.svg';
-import { SyncStatus } from '../../../main/background-processes/sync';
 import Button from 'apps/renderer/components/Button';
 import useVirtualDriveStatus from 'apps/renderer/hooks/VirtualDriveStatus';
 import useSyncStatus from 'apps/renderer/hooks/useSyncStatus';
 import useUsage from 'apps/renderer/hooks/useUsage';
+import { SyncStatus } from 'context/desktop/sync/domain/SyncStatus';
 
 export default function SyncAction(props: { syncStatus: SyncStatus }) {
   const { translate } = useTranslationContext();

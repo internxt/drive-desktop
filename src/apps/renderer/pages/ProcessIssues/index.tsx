@@ -53,8 +53,6 @@ export default function ProcessIssues() {
 
       <ProcessIssuesList
         selectedTab={activeSection}
-        showBackupFatalErrors={false}
-        backupFatalErrors={backupFatalErrors}
         generalIssues={generalIssues}
         processIssues={processIssuesFilteredByActiveSection}
         onClickOnErrorInfo={setReportData}

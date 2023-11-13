@@ -6,7 +6,7 @@ import { useTranslationContext } from 'apps/renderer/context/LocalContext';
 import {
   shortMessages,
   longMessages,
-} from 'apps/renderer/messages/general-error';
+} from 'apps/renderer/messages/process-error';
 import { ProcessIssue, ErrorDetails } from 'apps/shared/types';
 import { Fragment, useState } from 'react';
 
