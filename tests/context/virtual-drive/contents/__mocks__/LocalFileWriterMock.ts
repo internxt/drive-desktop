@@ -1,5 +1,5 @@
-import { LocalFileContents } from '../../domain/LocalFileContents';
-import { LocalFileWriter } from '../../domain/LocalFileWriter';
+import { LocalFileContents } from '../../../../../src/context/virtual-drive/contents/domain/LocalFileContents';
+import { LocalFileWriter } from '../../../../../src/context/virtual-drive/contents/domain/LocalFileWriter';
 
 export class LocalFileWriterMock implements LocalFileWriter {
   public writeMock = jest.fn();

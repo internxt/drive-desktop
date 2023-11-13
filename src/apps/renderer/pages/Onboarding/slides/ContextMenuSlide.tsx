@@ -1,5 +1,5 @@
-import { useTranslationContext } from 'apps/renderer/context/LocalContext';
 import React from 'react';
+import { useTranslationContext } from '../../../context/LocalContext';
 
 export const ContextMenuSlide: React.FC = () => {
   const { translate } = useTranslationContext();

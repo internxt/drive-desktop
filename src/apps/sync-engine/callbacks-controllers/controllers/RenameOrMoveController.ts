@@ -1,7 +1,7 @@
-import { FilePathUpdater } from 'context/virtual-drive/files/application/FilePathUpdater';
-import { FolderPathUpdater } from 'context/virtual-drive/folders/application/FolderPathUpdater';
-import { AbsolutePathToRelativeConverter } from 'context/virtual-drive/shared/application/AbsolutePathToRelativeConverter';
-import { PlatformPathConverter } from 'context/virtual-drive/shared/application/PlatformPathConverter';
+import { FilePathUpdater } from '../../../../context/virtual-drive/files/application/FilePathUpdater';
+import { FolderPathUpdater } from '../../../../context/virtual-drive/folders/application/FolderPathUpdater';
+import { AbsolutePathToRelativeConverter } from '../../../../context/virtual-drive/shared/application/AbsolutePathToRelativeConverter';
+import { PlatformPathConverter } from '../../../../context/virtual-drive/shared/application/PlatformPathConverter';
 import { CallbackController } from './CallbackController';
 import { DeleteController } from './DeleteController';
 import Logger from 'electron-log';

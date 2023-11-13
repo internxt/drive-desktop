@@ -1,14 +1,14 @@
+import { DomainEventSubscribers } from '../../../context/virtual-drive/shared/infrastructure/DomainEventSubscribers';
+import { getUser } from '../../main/auth/service';
 import { DependencyContainer } from './DependencyContainer';
+import { buildBoundaryBridgeContainer } from './boundaryBridge/build';
 import { DependencyInjectionEventBus } from './common/eventBus';
+import { DependencyInjectionVirtualDrive } from './common/virtualDrive';
 import { buildContentsContainer } from './contents/builder';
 import { buildFilesContainer } from './files/builder';
 import { buildFoldersContainer } from './folders/builder';
 import { buildItemsContainer } from './items/builder';
-import { DependencyInjectionVirtualDrive } from './common/virtualDrive';
-import { buildBoundaryBridgeContainer } from './boundaryBridge/build';
 import { buildSharedContainer } from './shared/builder';
-import { getUser } from 'apps/main/auth/service';
-import { DomainEventSubscribers } from 'context/virtual-drive/shared/infrastructure/DomainEventSubscribers';
 
 export class DependencyContainerFactory {
   private static _container: DependencyContainer | undefined;

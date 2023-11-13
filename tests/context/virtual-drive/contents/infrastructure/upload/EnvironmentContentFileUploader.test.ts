@@ -1,5 +1,5 @@
 import { Readable } from 'stream';
-import { EnvironmentContentFileUploader } from '../../../infrastructure/upload/EnvironmentContentFileUploader';
+import { EnvironmentContentFileUploader } from '../../../../../../src/context/virtual-drive/contents/infrastructure/upload/EnvironmentContentFileUploader';
 import { createUploadStrategy } from '../../__mocks__/environment/UploadStrategyFunctionMock';
 import { ContentsIdMother } from '../../domain/ContentsIdMother';
 

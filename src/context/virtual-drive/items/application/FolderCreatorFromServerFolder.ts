@@ -1,4 +1,4 @@
-import { ServerFolder } from 'context/shared/domain/ServerFolder';
+import { ServerFolder } from '../../../shared/domain/ServerFolder';
 import { Folder } from '../../folders/domain/Folder';
 
 export function createFolderFromServerFolder(

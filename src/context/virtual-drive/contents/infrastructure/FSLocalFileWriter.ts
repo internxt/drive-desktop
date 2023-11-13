@@ -1,5 +1,5 @@
-import { ensureFolderExists } from 'apps/shared/fs/ensure-folder-exists';
-import { WriteReadableToFile } from 'apps/shared/fs/write-readable-to-file';
+import { ensureFolderExists } from '../../../../apps/shared/fs/ensure-folder-exists';
+import { WriteReadableToFile } from '../../../../apps/shared/fs/write-readable-to-file';
 import { LocalFileContents } from '../domain/LocalFileContents';
 import { LocalFileWriter } from '../domain/LocalFileWriter';
 import path from 'path';

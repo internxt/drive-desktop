@@ -1,8 +1,8 @@
 import Logger from 'electron-log';
+import { OfflineFolderPathUpdater } from '../../../../../context/virtual-drive/folders/application/Offline/OfflineFolderPathUpdater';
+import { AbsolutePathToRelativeConverter } from '../../../../../context/virtual-drive/shared/application/AbsolutePathToRelativeConverter';
+import { PlatformPathConverter } from '../../../../../context/virtual-drive/shared/application/PlatformPathConverter';
 import { CallbackController } from '../CallbackController';
-import { OfflineFolderPathUpdater } from 'context/virtual-drive/folders/application/Offline/OfflineFolderPathUpdater';
-import { AbsolutePathToRelativeConverter } from 'context/virtual-drive/shared/application/AbsolutePathToRelativeConverter';
-import { PlatformPathConverter } from 'context/virtual-drive/shared/application/PlatformPathConverter';
 
 export class OfflineRenameOrMoveController extends CallbackController {
   constructor(

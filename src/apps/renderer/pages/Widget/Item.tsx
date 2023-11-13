@@ -3,8 +3,11 @@ import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import { useTranslationContext } from '../../context/LocalContext';
 import { shortMessages } from '../../messages/process-error';
 import { getBaseName, getExtension } from '../../utils/path';
-import { fileIcon } from 'apps/renderer/assets/icons/getIcon';
-import { ProcessInfoUpdatePayload, ProcessErrorName } from 'apps/shared/types';
+import {
+  ProcessInfoUpdatePayload,
+  ProcessErrorName,
+} from '../../../shared/types';
+import { fileIcon } from '../../assets/icons/getIcon';
 
 export function Item({
   name,

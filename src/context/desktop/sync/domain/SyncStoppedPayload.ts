@@ -1,4 +1,4 @@
-import { ProcessFatalErrorName } from 'apps/shared/types';
+import { ProcessFatalErrorName } from '../../../../apps/shared/types';
 
 export type SyncStoppedPayload =
   | { reason: 'STOPPED_BY_USER' }

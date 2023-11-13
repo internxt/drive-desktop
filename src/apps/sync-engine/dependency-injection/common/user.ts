@@ -1,5 +1,5 @@
-import { getUser } from 'apps/main/auth/service';
-import { User } from 'apps/main/types';
+import { getUser } from '../../../main/auth/service';
+import { User } from '../../../main/types';
 
 export class DependencyInjectionUserProvider {
   private static _user: User;

@@ -2,8 +2,8 @@ import { useContext, useEffect, useState } from 'react';
 import Spinner from '../../../assets/spinner.svg';
 import { DeviceContext } from '../../../context/DeviceContext';
 import { useTranslationContext } from '../../../context/LocalContext';
-import Button from 'apps/renderer/components/Button';
-import TextInput from 'apps/renderer/components/TextInput';
+import Button from '../../../components/Button';
+import TextInput from '../../../components/TextInput';
 
 export default function DeviceName({
   onChangeView,

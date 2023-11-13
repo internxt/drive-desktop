@@ -1,10 +1,10 @@
 import { AnimatePresence } from 'framer-motion';
-import { NoInfoToShow } from './NoInfoToShow';
-import { Item } from './Item';
+import { useOnSyncRunning } from '../../hooks/useOnSyncRunning';
+import { useOnSyncStopped } from '../../hooks/useOnSyncStopped';
+import { useSyncInfoSubscriber } from '../../hooks/useSyncInfoSubscriber';
 import { AnimationWrapper } from './AnimationWrapper';
-import { useOnSyncRunning } from 'apps/renderer/hooks/useOnSyncRunning';
-import { useOnSyncStopped } from 'apps/renderer/hooks/useOnSyncStopped';
-import { useSyncInfoSubscriber } from 'apps/renderer/hooks/useSyncInfoSubscriber';
+import { Item } from './Item';
+import { NoInfoToShow } from './NoInfoToShow';
 
 export default function SyncInfo() {
   const { processInfoUpdatedPayload, clearItems, removeOnProgressItems } =

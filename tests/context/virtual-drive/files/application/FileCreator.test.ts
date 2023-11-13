@@ -1,16 +1,16 @@
-import { FolderMother } from '../../../folders/test/domain/FolderMother';
-import { FolderRepositoryMock } from '../../../folders/test/__mocks__/FolderRepositoryMock';
-import { FolderFinder } from '../../../folders/application/FolderFinder';
-import { FileCreator } from '../../application/FileCreator';
+import { FileCreator } from '../../../../../src/context/virtual-drive/files/application/FileCreator';
+import { FileDeleter } from '../../../../../src/context/virtual-drive/files/application/FileDeleter';
+import { FilePath } from '../../../../../src/context/virtual-drive/files/domain/FilePath';
+import { File } from '../../../../../src/context/virtual-drive/files/domain/File';
+import { FolderFinder } from '../../../../../src/context/virtual-drive/folders/application/FolderFinder';
+import { FileContentsMother } from '../../contents/domain/FileContentsMother';
+import { FolderRepositoryMock } from '../../folders/__mocks__/FolderRepositoryMock';
+import { FolderMother } from '../../folders/domain/FolderMother';
+import { EventBusMock } from '../../shared/__mock__/EventBusMock';
+import { IpcRendererSyncEngineMock } from '../../shared/__mock__/IpcRendererSyncEngineMock';
 import { FileRepositoryMock } from '../__mocks__/FileRepositoryMock';
-import { EventBusMock } from '../../../shared/test/__mock__/EventBusMock';
-import { FilePath } from '../../domain/FilePath';
-import { FileContentsMother } from '../../../contents/test/domain/FileContentsMother';
-import { FileDeleter } from '../../application/FileDeleter';
-import { IpcRendererSyncEngineMock } from '../../../shared/test/__mock__/IpcRendererSyncEngineMock';
-import { FileMother } from '../domain/FileMother';
 import { RemoteFileSystemMock } from '../__mocks__/RemoteFileSystemMock';
-import { File } from '../../domain/File';
+import { FileMother } from '../domain/FileMother';
 
 describe('File Creator', () => {
   let remoteFileSystemMock: RemoteFileSystemMock;

@@ -1,4 +1,4 @@
-import { ErrorDetails } from 'apps/shared/types';
+import { ErrorDetails } from '../shared/types';
 
 export function createErrorDetails(
   originalError: any,

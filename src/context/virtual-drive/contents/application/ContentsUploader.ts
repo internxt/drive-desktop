@@ -5,7 +5,7 @@ import { RemoteFileContents } from '../domain/RemoteFileContents';
 import { LocalFileContents } from '../domain/LocalFileContents';
 import { PlatformPathConverter } from '../../shared/application/PlatformPathConverter';
 import { RelativePathToAbsoluteConverter } from '../../shared/application/RelativePathToAbsoluteConverter';
-import { SyncEngineIpc } from 'apps/sync-engine/ipcRendererSyncEngine';
+import { SyncEngineIpc } from '../../../../apps/sync-engine/ipcRendererSyncEngine';
 
 export class ContentsUploader {
   constructor(

@@ -1,4 +1,4 @@
-import { ProcessFatalErrorName } from 'apps/shared/types';
+import { ProcessFatalErrorName } from '../../shared/types';
 
 export interface Action {
   name: string;

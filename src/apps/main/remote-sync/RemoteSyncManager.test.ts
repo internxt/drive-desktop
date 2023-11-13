@@ -6,13 +6,14 @@ jest.mock('@sentry/electron/main', () => ({
 jest.mock('electron');
 jest.mock('electron-store');
 jest.mock('axios');
-import { DatabaseCollectionAdapter } from 'apps/main/database/adapters/base';
-import { DriveFile } from 'apps/main/database/entities/DriveFile';
-import { DriveFolder } from 'apps/main/database/entities/DriveFolder';
+
 import { RemoteSyncManager } from './RemoteSyncManager';
 import { RemoteSyncedFile, RemoteSyncedFolder } from './helpers';
 import * as uuid from 'uuid';
 import axios from 'axios';
+import { DatabaseCollectionAdapter } from '../database/adapters/base';
+import { DriveFile } from '../database/entities/DriveFile';
+import { DriveFolder } from '../database/entities/DriveFolder';
 
 const mockedAxios = axios as jest.Mocked<typeof axios>;
 

@@ -1,15 +1,15 @@
 import Logger from 'electron-log';
+import { FileCreationOrchestrator } from '../../../../context/virtual-drive/boundaryBridge/application/FileCreationOrchestrator';
+import { createFilePlaceholderId } from '../../../../context/virtual-drive/files/domain/PlaceholderId';
+import { FolderCreator } from '../../../../context/virtual-drive/folders/application/FolderCreator';
+import { OfflineFolderCreator } from '../../../../context/virtual-drive/folders/application/Offline/OfflineFolderCreator';
+import { createFolderPlaceholderId } from '../../../../context/virtual-drive/folders/domain/FolderPlaceholderId';
+import { OfflineFolder } from '../../../../context/virtual-drive/folders/domain/OfflineFolder';
+import { AbsolutePathToRelativeConverter } from '../../../../context/virtual-drive/shared/application/AbsolutePathToRelativeConverter';
+import { PlatformPathConverter } from '../../../../context/virtual-drive/shared/application/PlatformPathConverter';
+import { MapObserver } from '../../../../context/virtual-drive/shared/domain/MapObserver';
+import { PathTypeChecker } from '../../../shared/fs/PathTypeChecker ';
 import { CallbackController } from './CallbackController';
-import { PathTypeChecker } from 'apps/shared/fs/PathTypeChecker ';
-import { FileCreationOrchestrator } from 'context/virtual-drive/boundaryBridge/application/FileCreationOrchestrator';
-import { createFilePlaceholderId } from 'context/virtual-drive/files/domain/PlaceholderId';
-import { FolderCreator } from 'context/virtual-drive/folders/application/FolderCreator';
-import { OfflineFolderCreator } from 'context/virtual-drive/folders/application/Offline/OfflineFolderCreator';
-import { createFolderPlaceholderId } from 'context/virtual-drive/folders/domain/FolderPlaceholderId';
-import { OfflineFolder } from 'context/virtual-drive/folders/domain/OfflineFolder';
-import { AbsolutePathToRelativeConverter } from 'context/virtual-drive/shared/application/AbsolutePathToRelativeConverter';
-import { PlatformPathConverter } from 'context/virtual-drive/shared/application/PlatformPathConverter';
-import { MapObserver } from 'context/virtual-drive/shared/domain/MapObserver';
 
 type FileCreationQueue = Map<
   string,

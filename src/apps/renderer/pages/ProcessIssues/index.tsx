@@ -7,7 +7,7 @@ import useGeneralIssues from '../../hooks/GeneralIssues';
 import useProcessIssues from '../../hooks/ProcessIssues';
 import ProcessIssuesList from './List';
 import { ReportModal } from './ReportModal';
-import { ProcessIssue } from 'apps/shared/types';
+import { ProcessIssue } from '../../../shared/types';
 
 type Section = 'SYNC' | 'GENERAL';
 

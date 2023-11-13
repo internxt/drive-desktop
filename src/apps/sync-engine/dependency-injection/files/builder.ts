@@ -8,21 +8,21 @@ import { FoldersContainer } from '../folders/FoldersContainer';
 import { SharedContainer } from '../shared/SharedContainer';
 import { FilesContainer } from './FilesContainer';
 import { DependencyInjectionStorageSdk } from '../common/sdk';
-import { CreateFilePlaceholderOnDeletionFailed } from 'context/virtual-drive/files/application/CreateFilePlaceholderOnDeletionFailed';
-import { FileCreator } from 'context/virtual-drive/files/application/FileCreator';
-import { FileDeleter } from 'context/virtual-drive/files/application/FileDeleter';
-import { FileFinderByContentsId } from 'context/virtual-drive/files/application/FileFinderByContentsId';
-import { FilePathUpdater } from 'context/virtual-drive/files/application/FilePathUpdater';
-import { FilePlaceholderCreatorFromContentsId } from 'context/virtual-drive/files/application/FilePlaceholderCreatorFromContentsId';
-import { FilesPlaceholderUpdater } from 'context/virtual-drive/files/application/FilesPlaceholderUpdater';
-import { FilesPlaceholderCreator } from 'context/virtual-drive/files/application/FilesPlaceholdersCreator';
-import { RepositoryPopulator } from 'context/virtual-drive/files/application/RepositoryPopulator';
-import { RetrieveAllFiles } from 'context/virtual-drive/files/application/RetrieveAllFiles';
-import { SameFileWasMoved } from 'context/virtual-drive/files/application/SameFileWasMoved';
-import { InMemoryFileRepository } from 'context/virtual-drive/files/infrastructure/InMemoryFileRepository';
-import { SDKRemoteFileSystem } from 'context/virtual-drive/files/infrastructure/SDKRemoteFileSystem';
-import { NodeWinLocalFileSystem } from 'context/virtual-drive/files/infrastructure/NodeWinLocalFileSystem';
-import { LocalFileIdProvider } from 'context/virtual-drive/shared/application/LocalFileIdProvider';
+import { CreateFilePlaceholderOnDeletionFailed } from '../../../../context/virtual-drive/files/application/CreateFilePlaceholderOnDeletionFailed';
+import { FileCreator } from '../../../../context/virtual-drive/files/application/FileCreator';
+import { FileDeleter } from '../../../../context/virtual-drive/files/application/FileDeleter';
+import { FileFinderByContentsId } from '../../../../context/virtual-drive/files/application/FileFinderByContentsId';
+import { FilePathUpdater } from '../../../../context/virtual-drive/files/application/FilePathUpdater';
+import { FilePlaceholderCreatorFromContentsId } from '../../../../context/virtual-drive/files/application/FilePlaceholderCreatorFromContentsId';
+import { FilesPlaceholderUpdater } from '../../../../context/virtual-drive/files/application/FilesPlaceholderUpdater';
+import { FilesPlaceholderCreator } from '../../../../context/virtual-drive/files/application/FilesPlaceholdersCreator';
+import { RepositoryPopulator } from '../../../../context/virtual-drive/files/application/RepositoryPopulator';
+import { RetrieveAllFiles } from '../../../../context/virtual-drive/files/application/RetrieveAllFiles';
+import { SameFileWasMoved } from '../../../../context/virtual-drive/files/application/SameFileWasMoved';
+import { InMemoryFileRepository } from '../../../../context/virtual-drive/files/infrastructure/InMemoryFileRepository';
+import { SDKRemoteFileSystem } from '../../../../context/virtual-drive/files/infrastructure/SDKRemoteFileSystem';
+import { NodeWinLocalFileSystem } from '../../../../context/virtual-drive/files/infrastructure/NodeWinLocalFileSystem';
+import { LocalFileIdProvider } from '../../../../context/virtual-drive/shared/application/LocalFileIdProvider';
 
 export async function buildFilesContainer(
   folderContainer: FoldersContainer,

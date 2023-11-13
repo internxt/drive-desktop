@@ -1,4 +1,4 @@
-import configStore from 'apps/main/config';
+import configStore from '../../../main/config';
 
 export class DependencyInjectionLocalRootFolderPath {
   private static path: string;

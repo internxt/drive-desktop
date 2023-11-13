@@ -1,5 +1,5 @@
-import { ProcessInfoUpdatePayload } from 'apps/shared/types';
 import { useEffect, useState } from 'react';
+import { ProcessInfoUpdatePayload } from '../../shared/types';
 
 export function useSyncInfoSubscriber() {
   const [processInfoUpdatedPayload, setProcessInfoUpdatedPayload] = useState<

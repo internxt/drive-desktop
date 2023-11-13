@@ -1,6 +1,6 @@
 import { broadcastToWindows } from './windows';
 import { ipcMainDrive } from './ipcs/mainDrive';
-import { FileErrorInfo } from 'apps/shared/IPC/events/drive';
+import { FileErrorInfo } from '../shared/IPC/events/drive';
 
 ipcMainDrive.on('FILE_DELETED', (_, payload) => {
   const { nameWithExtension } = payload;

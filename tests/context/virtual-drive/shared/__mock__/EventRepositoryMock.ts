@@ -1,5 +1,5 @@
-import { DomainEvent } from '../../domain/DomainEvent';
-import { EventRepository } from '../../domain/EventRepository';
+import { DomainEvent } from '../../../../../src/context/virtual-drive/shared/domain/DomainEvent';
+import { EventRepository } from '../../../../../src/context/virtual-drive/shared/domain/EventRepository';
 
 export class EventRepositoryMock implements EventRepository {
   public readonly storeMock = jest.fn();

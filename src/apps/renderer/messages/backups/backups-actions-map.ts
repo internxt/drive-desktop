@@ -1,4 +1,4 @@
-import { ProcessFatalErrorName } from 'apps/shared/types';
+import { ProcessFatalErrorName } from '../../../shared/types';
 
 export type FaltalErrorAction = { name: string; fn: () => void };
 

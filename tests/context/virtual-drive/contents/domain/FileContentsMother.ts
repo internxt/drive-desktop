@@ -1,4 +1,4 @@
-import { RemoteFileContents } from '../../domain/RemoteFileContents';
+import { RemoteFileContents } from '../../../../../src/context/virtual-drive/contents/domain/RemoteFileContents';
 import { ContentsIdMother } from './ContentsIdMother';
 import { ContentsSizeMother } from './ContentsSizeMother';
 

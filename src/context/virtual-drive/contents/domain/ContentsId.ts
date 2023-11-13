@@ -1,5 +1,5 @@
-import { InvalidArgumentError } from 'context/shared/domain/InvalidArgumentError';
-import { ValueObject } from 'context/shared/domain/ValueObject';
+import { InvalidArgumentError } from '../../../shared/domain/InvalidArgumentError';
+import { ValueObject } from '../../../shared/domain/ValueObject';
 
 export class ContentsId extends ValueObject<string> {
   static readonly VALID_LENGTH = 24;

@@ -1,15 +1,12 @@
-import { BackupFatalError } from '../../main/background-processes/types/BackupFatalError';
 import {
+  ProcessFatalErrorName,
+  ProcessErrorName,
+  ProcessIssue,
   GeneralErrorName,
   GeneralIssue,
-  ProcessErrorName,
-  ProcessFatalErrorName,
-  ProcessIssue,
-} from '../../workers/types';
+} from '../../src/apps/shared/types';
 
-export const createBackupFatalError = (
-  errorName: ProcessFatalErrorName
-): BackupFatalError => ({
+export const createBackupFatalError = (errorName: ProcessFatalErrorName) => ({
   path: `folder/file${Date.now()}.txt`,
   folderId: 24816,
   errorName,
@@ -22,12 +19,6 @@ export const createSyncError = (
   name: 'name',
   action: 'DELETE_ERROR',
   errorName: processErrorName,
-  errorDetails: {
-    action: 'a',
-    message: 'b',
-    code: 'lkañjsdlfk',
-    stack: 'dsasdf',
-  },
   process: 'SYNC',
 });
 

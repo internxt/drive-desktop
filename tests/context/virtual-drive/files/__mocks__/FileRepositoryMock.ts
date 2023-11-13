@@ -1,6 +1,9 @@
-import { Nullable } from 'shared/types/Nullable';
-import { File, FileAttributes } from '../../domain/File';
-import { FileRepository } from '../../domain/FileRepository';
+import { Nullable } from '../../../../../src/apps/shared/types/Nullable';
+import {
+  File,
+  FileAttributes,
+} from '../../../../../src/context/virtual-drive/files/domain/File';
+import { FileRepository } from '../../../../../src/context/virtual-drive/files/domain/FileRepository';
 
 export class FileRepositoryMock implements FileRepository {
   public readonly allMock = jest.fn();

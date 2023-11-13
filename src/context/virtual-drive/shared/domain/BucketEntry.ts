@@ -1,4 +1,4 @@
-import { ValueObject } from 'context/shared/domain/ValueObject';
+import { ValueObject } from '../../../shared/domain/ValueObject';
 
 export class BucketEntry extends ValueObject<number> {
   public static MAX_SIZE = 20 * 1024 * 1024 * 1024;

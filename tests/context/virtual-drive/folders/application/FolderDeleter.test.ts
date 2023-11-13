@@ -1,9 +1,9 @@
-import { FolderDeleter } from '../../application/FolderDeleter';
-import { FolderMother } from '../domain/FolderMother';
-import { FolderRepositoryMock } from '../__mocks__/FolderRepositoryMock';
-import { AllParentFoldersStatusIsExists } from '../../application/AllParentFoldersStatusIsExists';
+import { AllParentFoldersStatusIsExists } from '../../../../../src/context/virtual-drive/folders/application/AllParentFoldersStatusIsExists';
+import { FolderDeleter } from '../../../../../src/context/virtual-drive/folders/application/FolderDeleter';
 import { FolderLocalFileSystemMock } from '../__mocks__/FolderLocalFileSystemMock';
 import { FolderRemoteFileSystemMock } from '../__mocks__/FolderRemoteFileSystemMock';
+import { FolderRepositoryMock } from '../__mocks__/FolderRepositoryMock';
+import { FolderMother } from '../domain/FolderMother';
 
 describe('Folder deleter', () => {
   let repository: FolderRepositoryMock;

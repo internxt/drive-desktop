@@ -16,8 +16,8 @@ import { DeleteOldDriveFolderSlide } from './slides/DeleteOldDriveFolderSlide';
 import { AvailableOnlineSlide } from '../Onboarding/slides/AvailableOnlineSlide';
 import { ContextMenuSlide } from '../Onboarding/slides/ContextMenuSlide';
 import { AvailableOfflineSlide } from '../Onboarding/slides/AvailableOfflineSlide';
-import Button from 'apps/renderer/components/Button';
-import { useTranslationContext } from 'apps/renderer/context/LocalContext';
+import { useTranslationContext } from '../../context/LocalContext';
+import Button from '../../components/Button';
 
 export const SLIDES: MigrationSlide[] = [
   {

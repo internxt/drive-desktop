@@ -1,6 +1,6 @@
 import Chance from 'chance';
 import path from 'path';
-import { FilePath } from '../../domain/FilePath';
+import { FilePath } from '../../../../../src/context/virtual-drive/files/domain/FilePath';
 const chance = new Chance();
 
 export class FilePathMother {

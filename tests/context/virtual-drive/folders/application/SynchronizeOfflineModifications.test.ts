@@ -1,15 +1,15 @@
-import { IpcRendererSyncEngineMock } from '../../../../../src/context/virtual-drive/shared/test/__mock__/IpcRendererSyncEngineMock';
 import { FolderRenamer } from '../../../../../src/context/virtual-drive/folders/application/FolderRenamer';
 import { SynchronizeOfflineModifications } from '../../../../../src/context/virtual-drive/folders/application/SynchronizeOfflineModifications';
-import { InMemoryOfflineFolderRepository } from '../../../../../src/context/virtual-drive/folders/infrastructure/InMemoryOfflineFolderRepository';
-import { FolderRepositoryMock } from '../__mocks__/FolderRepositoryMock';
-import { FolderUuid } from '../../../../../src/context/virtual-drive/folders/domain/FolderUuid';
-import { OfflineFolderMother } from '../domain/OfflineFolderMother';
-import { FolderMother } from '../domain/FolderMother';
 import { FolderPath } from '../../../../../src/context/virtual-drive/folders/domain/FolderPath';
-import { FolderRemoteFileSystemMock } from '../__mocks__/FolderRemoteFileSystemMock';
-import { EventRepositoryMock } from '../../../../../src/context/virtual-drive/shared/test/__mock__/EventRepositoryMock';
+import { FolderUuid } from '../../../../../src/context/virtual-drive/folders/domain/FolderUuid';
 import { FolderRenamedDomainEvent } from '../../../../../src/context/virtual-drive/folders/domain/events/FolderRenamedDomainEvent';
+import { InMemoryOfflineFolderRepository } from '../../../../../src/context/virtual-drive/folders/infrastructure/InMemoryOfflineFolderRepository';
+import { EventRepositoryMock } from '../../shared/__mock__/EventRepositoryMock';
+import { IpcRendererSyncEngineMock } from '../../shared/__mock__/IpcRendererSyncEngineMock';
+import { FolderRemoteFileSystemMock } from '../__mocks__/FolderRemoteFileSystemMock';
+import { FolderRepositoryMock } from '../__mocks__/FolderRepositoryMock';
+import { FolderMother } from '../domain/FolderMother';
+import { OfflineFolderMother } from '../domain/OfflineFolderMother';
 
 describe('Synchronize Offline Modifications', () => {
   let offlineRepository: InMemoryOfflineFolderRepository;

@@ -1,5 +1,5 @@
-import { File } from '../../domain/File';
-import { LocalFileSystem } from '../../domain/file-systems/LocalFileSystem';
+import { LocalFileSystem } from '../../../../../src/context/virtual-drive/files/domain/file-systems/LocalFileSystem';
+import { File } from '../../../../../src/context/virtual-drive/files/domain/File';
 
 export class LocalFileSystemMock implements LocalFileSystem {
   public readonly createPlaceHolderMock = jest.fn();

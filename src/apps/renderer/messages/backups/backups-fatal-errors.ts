@@ -1,4 +1,4 @@
-import { ProcessFatalErrorName } from 'apps/shared/types';
+import { ProcessFatalErrorName } from '../../../shared/types';
 import processFatalErrors from '../process-fatal-error';
 
 const messages: Partial<Record<ProcessFatalErrorName, string>> = {

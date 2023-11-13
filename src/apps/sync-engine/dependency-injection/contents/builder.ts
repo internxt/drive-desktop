@@ -1,20 +1,19 @@
 import { Environment } from '@internxt/inxt-js';
-
 import { DependencyInjectionMnemonicProvider } from '../common/mnemonic';
 import { DependencyInjectionUserProvider } from '../common/user';
 import { SharedContainer } from '../shared/SharedContainer';
 import { ContentsContainer } from './ContentsContainer';
 import { DependencyInjectionEventBus } from '../common/eventBus';
 import { DependencyInjectionEventRepository } from '../common/eventRepository';
-import { ipcRendererSyncEngine } from 'apps/sync-engine/ipcRendererSyncEngine';
-import { ContentsDownloader } from 'context/virtual-drive/contents/application/ContentsDownloader';
-import { ContentsUploader } from 'context/virtual-drive/contents/application/ContentsUploader';
-import { NotifyMainProcessHydrationFinished } from 'context/virtual-drive/contents/application/NotifyMainProcessHydrationFinished';
-import { RetryContentsUploader } from 'context/virtual-drive/contents/application/RetryContentsUploader';
-import { temporalFolderProvider } from 'context/virtual-drive/contents/application/temporalFolderProvider';
-import { EnvironmentRemoteFileContentsManagersFactory } from 'context/virtual-drive/contents/infrastructure/EnvironmentRemoteFileContentsManagersFactory';
-import { FSLocalFileProvider } from 'context/virtual-drive/contents/infrastructure/FSLocalFileProvider';
-import { FSLocalFileWriter } from 'context/virtual-drive/contents/infrastructure/FSLocalFileWriter';
+import { ContentsDownloader } from '../../../../context/virtual-drive/contents/application/ContentsDownloader';
+import { ContentsUploader } from '../../../../context/virtual-drive/contents/application/ContentsUploader';
+import { NotifyMainProcessHydrationFinished } from '../../../../context/virtual-drive/contents/application/NotifyMainProcessHydrationFinished';
+import { RetryContentsUploader } from '../../../../context/virtual-drive/contents/application/RetryContentsUploader';
+import { temporalFolderProvider } from '../../../../context/virtual-drive/contents/application/temporalFolderProvider';
+import { EnvironmentRemoteFileContentsManagersFactory } from '../../../../context/virtual-drive/contents/infrastructure/EnvironmentRemoteFileContentsManagersFactory';
+import { FSLocalFileProvider } from '../../../../context/virtual-drive/contents/infrastructure/FSLocalFileProvider';
+import { FSLocalFileWriter } from '../../../../context/virtual-drive/contents/infrastructure/FSLocalFileWriter';
+import { ipcRendererSyncEngine } from '../../ipcRendererSyncEngine';
 
 export async function buildContentsContainer(
   sharedContainer: SharedContainer

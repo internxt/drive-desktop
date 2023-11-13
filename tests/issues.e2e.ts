@@ -4,13 +4,7 @@ import {
   ipcMainEmit,
 } from 'electron-playwright-helpers';
 import { _electron as electron } from 'playwright';
-import { DEFAULT_LANGUAGE } from '../shared/Locale/Language';
 
-import {
-  GeneralIssue,
-  ProcessErrorName,
-  ProcessFatalErrorName,
-} from '../workers/types';
 import AccessResponseFixtures from './fixtures/AccessResponse.json';
 import {
   createBackupFatalError,
@@ -19,22 +13,17 @@ import {
 } from './fixtures/errors';
 import { getWindowTopBarTitle } from './selectors';
 import { wait } from './utils';
+import { DEFAULT_LANGUAGE } from '../src/apps/shared/Locale/Language';
+import {
+  ProcessErrorName,
+  ProcessFatalErrorName,
+  GeneralIssue,
+} from '../src/apps/shared/types';
 
 const activeTabSelector = 'button.text-neutral-500';
 const tabSelector = (name: 'Sync' | 'Backups' | 'General') =>
   `button.text-m-neutral-80:has-text("${name}")`;
 const emptyIssuesListSelector = 'p.text-xs.font-medium.text-m-neutral-60';
-const infoCircleSelector = '.inline.h-4.w-4.text-blue-60';
-
-const allProcessErrorsName: Array<ProcessErrorName> = [
-  'NOT_EXISTS',
-  'NO_PERMISSION',
-  'NO_INTERNET',
-  'NO_REMOTE_CONNECTION',
-  'BAD_RESPONSE',
-  'EMPTY_FILE',
-  'UNKNOWN',
-];
 
 test.describe('process issues', () => {
   let electronApp: ElectronApplication;

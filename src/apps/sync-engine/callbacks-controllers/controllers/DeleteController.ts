@@ -1,6 +1,6 @@
-import { FileDeleter } from 'context/virtual-drive/files/application/FileDeleter';
-import { FolderDeleter } from 'context/virtual-drive/folders/application/FolderDeleter';
-import { DelayQueue } from 'context/virtual-drive/shared/domain/DelayQueue';
+import { FileDeleter } from '../../../../context/virtual-drive/files/application/FileDeleter';
+import { FolderDeleter } from '../../../../context/virtual-drive/folders/application/FolderDeleter';
+import { DelayQueue } from '../../../../context/virtual-drive/shared/domain/DelayQueue';
 import { CallbackController } from './CallbackController';
 import Logger from 'electron-log';
 

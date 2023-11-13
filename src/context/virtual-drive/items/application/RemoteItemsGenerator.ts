@@ -1,9 +1,12 @@
-import { SyncEngineIpc } from 'apps/sync-engine/ipcRendererSyncEngine';
-import { ServerFile, ServerFileStatus } from 'context/shared/domain/ServerFile';
+import { SyncEngineIpc } from '../../../../apps/sync-engine/ipcRendererSyncEngine';
+import {
+  ServerFile,
+  ServerFileStatus,
+} from '../../../shared/domain/ServerFile';
 import {
   ServerFolder,
   ServerFolderStatus,
-} from 'context/shared/domain/ServerFolder';
+} from '../../../shared/domain/ServerFolder';
 
 export class RemoteItemsGenerator {
   constructor(private readonly ipc: SyncEngineIpc) {}

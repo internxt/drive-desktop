@@ -1,4 +1,4 @@
-import { SyncEngineIpc } from 'apps/sync-engine/ipcRendererSyncEngine';
+import { SyncEngineIpc } from '../../../../apps/sync-engine/ipcRendererSyncEngine';
 import { EventBus } from '../../shared/domain/EventBus';
 import { Folder } from '../domain/Folder';
 import { FolderRepository } from '../domain/FolderRepository';

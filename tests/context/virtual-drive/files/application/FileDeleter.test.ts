@@ -1,12 +1,12 @@
-import { AllParentFoldersStatusIsExists } from '../../../folders/application/AllParentFoldersStatusIsExists';
 import { FileRepositoryMock } from '../__mocks__/FileRepositoryMock';
-import { IpcRendererSyncEngineMock } from '../../../shared/test/__mock__/IpcRendererSyncEngineMock';
-import { FileDeleter } from '../../application/FileDeleter';
-import { FolderRepositoryMock } from '../../../folders/test/__mocks__/FolderRepositoryMock';
-import { ContentsIdMother } from '../../../contents/test/domain/ContentsIdMother';
 import { FileMother } from '../domain/FileMother';
 import { RemoteFileSystemMock } from '../__mocks__/RemoteFileSystemMock';
 import { LocalFileSystemMock } from '../__mocks__/LocalFileSystemMock';
+import { IpcRendererSyncEngineMock } from '../../shared/__mock__/IpcRendererSyncEngineMock';
+import { FileDeleter } from '../../../../../src/context/virtual-drive/files/application/FileDeleter';
+import { FolderRepositoryMock } from '../../folders/__mocks__/FolderRepositoryMock';
+import { ContentsIdMother } from '../../contents/domain/ContentsIdMother';
+import { AllParentFoldersStatusIsExists } from '../../../../../src/context/virtual-drive/folders/application/AllParentFoldersStatusIsExists';
 
 describe('File Deleter', () => {
   let repository: FileRepositoryMock;

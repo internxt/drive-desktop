@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { DEFAULT_THEME, Theme } from '../../../../shared/types/Theme';
+import Select, { SelectOptionsType } from '../../../components/Select';
 import { useTranslationContext } from '../../../context/LocalContext';
 import useConfig from '../../../hooks/useConfig';
-import Select, { SelectOptionsType } from 'apps/renderer/components/Select';
 
 export default function ThemePicker(): JSX.Element {
   const { translate } = useTranslationContext();

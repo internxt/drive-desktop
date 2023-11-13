@@ -1,13 +1,12 @@
-import { useEffect, useState } from 'react';
-
-import { useTranslationContext } from '../../context/LocalContext';
 import { CheckCircle, XCircle } from '@phosphor-icons/react';
+import { useEffect, useState } from 'react';
+import { SyncStatus } from '../../../../context/desktop/sync/domain/SyncStatus';
 import Spinner from '../../assets/spinner.svg';
-import Button from 'apps/renderer/components/Button';
-import useVirtualDriveStatus from 'apps/renderer/hooks/VirtualDriveStatus';
-import useSyncStatus from 'apps/renderer/hooks/useSyncStatus';
-import useUsage from 'apps/renderer/hooks/useUsage';
-import { SyncStatus } from 'context/desktop/sync/domain/SyncStatus';
+import Button from '../../components/Button';
+import { useTranslationContext } from '../../context/LocalContext';
+import useVirtualDriveStatus from '../../hooks/VirtualDriveStatus';
+import useSyncStatus from '../../hooks/useSyncStatus';
+import useUsage from '../../hooks/useUsage';
 
 export default function SyncAction(props: { syncStatus: SyncStatus }) {
   const { translate } = useTranslationContext();

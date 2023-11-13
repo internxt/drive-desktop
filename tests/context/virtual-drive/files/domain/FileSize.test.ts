@@ -1,4 +1,4 @@
-import { FileSize } from '../../domain/FileSize';
+import { FileSize } from '../../../../../src/context/virtual-drive/files/domain/FileSize';
 
 describe('File Size', () => {
   const twentyGB = 20 * 1024 * 1024 * 1024;

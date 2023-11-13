@@ -1,6 +1,7 @@
-import { FileStatuses } from '../../domain/FileStatus';
-import { File, FileAttributes } from '../../domain/File';
-import { ContentsIdMother } from '../../../contents/test/domain/ContentsIdMother';
+import { FileAttributes } from '../../../../../src/context/virtual-drive/files/domain/File';
+import { FileStatuses } from '../../../../../src/context/virtual-drive/files/domain/FileStatus';
+import { File } from '../../../../../src/context/virtual-drive/files/domain/File';
+import { ContentsIdMother } from '../../contents/domain/ContentsIdMother';
 import { FilePathMother } from './FilePathMother';
 
 export class FileMother {

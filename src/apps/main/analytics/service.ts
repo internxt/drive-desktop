@@ -6,7 +6,7 @@ import Logger from 'electron-log';
 import {
   TrackedActions,
   ErrorContext,
-} from 'apps/shared/IPC/events/sync-engine';
+} from '../../shared/IPC/events/sync-engine';
 
 function platformShortName(platform: string) {
   switch (platform) {

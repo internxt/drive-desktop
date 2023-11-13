@@ -1,5 +1,5 @@
-import { EventRepository } from 'context/virtual-drive/shared/domain/EventRepository';
-import { InMemoryEventRepository } from 'context/virtual-drive/shared/infrastructure/InMemoryEventHistory';
+import { EventRepository } from '../../../../context/virtual-drive/shared/domain/EventRepository';
+import { InMemoryEventRepository } from '../../../../context/virtual-drive/shared/infrastructure/InMemoryEventHistory';
 
 export class DependencyInjectionEventRepository {
   private static history: EventRepository;

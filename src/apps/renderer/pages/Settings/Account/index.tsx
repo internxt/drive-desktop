@@ -4,7 +4,7 @@ import Spinner from '../../../assets/spinner.svg';
 import useUsage from '../../../hooks/useUsage';
 import Usage from './Usage';
 import UserInfo from './UserInfo';
-import Button from 'apps/renderer/components/Button';
+import Button from '../../../components/Button';
 
 export default function AccountSection({ active }: { active: boolean }) {
   const { translate } = useTranslationContext();

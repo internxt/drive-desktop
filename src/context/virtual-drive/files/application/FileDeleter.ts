@@ -5,7 +5,7 @@ import { File } from '../domain/File';
 import { FileRepository } from '../domain/FileRepository';
 import { RemoteFileSystem } from '../domain/file-systems/RemoteFileSystem';
 import { LocalFileSystem } from '../domain/file-systems/LocalFileSystem';
-import { SyncEngineIpc } from 'apps/sync-engine/ipcRendererSyncEngine';
+import { SyncEngineIpc } from '../../../../apps/sync-engine/ipcRendererSyncEngine';
 
 export class FileDeleter {
   constructor(

@@ -9,7 +9,7 @@ import { PlatformPathConverter } from '../../shared/application/PlatformPathConv
 import { FileRepository } from '../domain/FileRepository';
 import { RemoteFileSystem } from '../domain/file-systems/RemoteFileSystem';
 import { OfflineFile } from '../domain/OfflineFile';
-import { SyncEngineIpc } from 'apps/sync-engine/ipcRendererSyncEngine';
+import { SyncEngineIpc } from '../../../../apps/sync-engine/ipcRendererSyncEngine';
 
 export class FileCreator {
   constructor(

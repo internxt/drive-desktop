@@ -1,11 +1,11 @@
-import { IpcRendererSyncEngineMock } from '../../../shared/test/__mock__/IpcRendererSyncEngineMock';
-import { FolderCreator } from '../../application/FolderCreator';
+import { FolderCreator } from '../../../../../src/context/virtual-drive/folders/application/FolderCreator';
+import { Folder } from '../../../../../src/context/virtual-drive/folders/domain/Folder';
+import { EventBusMock } from '../../shared/__mock__/EventBusMock';
+import { IpcRendererSyncEngineMock } from '../../shared/__mock__/IpcRendererSyncEngineMock';
+import { FolderRemoteFileSystemMock } from '../__mocks__/FolderRemoteFileSystemMock';
 import { FolderRepositoryMock } from '../__mocks__/FolderRepositoryMock';
 import { FolderMother } from '../domain/FolderMother';
-import { EventBusMock } from '../../../shared/test/__mock__/EventBusMock';
 import { OfflineFolderMother } from '../domain/OfflineFolderMother';
-import { Folder } from '../../domain/Folder';
-import { FolderRemoteFileSystemMock } from '../__mocks__/FolderRemoteFileSystemMock';
 
 describe('Folder Creator', () => {
   let SUT: FolderCreator;

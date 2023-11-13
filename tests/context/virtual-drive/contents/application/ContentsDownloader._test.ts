@@ -1,12 +1,12 @@
-import { ContentsDownloader } from '../../application/ContentsDownloader';
-import { FileMother } from '../../../files/test/domain/FileMother';
-import { RemoteFileContentsManagersFactoryMock } from '../__mocks__/RemoteFileContentsManagersFactoryMock';
-import { IpcRendererSyncEngineMock } from '../../../shared/test/__mock__/IpcRendererSyncEngineMock';
-import { FileDownloadEvents } from '../../domain/contentHandlers/ContentFileDownloader';
-import { ReadableHelloWorld } from '../__mocks__/ReadableHelloWorld';
+import { ContentsDownloader } from '../../../../../src/context/virtual-drive/contents/application/ContentsDownloader';
+import { temporalFolderProvider } from '../../../../../src/context/virtual-drive/contents/application/temporalFolderProvider';
+import { FileDownloadEvents } from '../../../../../src/context/virtual-drive/contents/domain/contentHandlers/ContentFileDownloader';
+import { FileMother } from '../../files/domain/FileMother';
+import { EventBusMock } from '../../shared/__mock__/EventBusMock';
+import { IpcRendererSyncEngineMock } from '../../shared/__mock__/IpcRendererSyncEngineMock';
 import { LocalFileWriterMock } from '../__mocks__/LocalFileWriterMock';
-import { temporalFolderProvider } from '../../application/temporalFolderProvider';
-import { EventBusMock } from '../../../shared/test/__mock__/EventBusMock';
+import { ReadableHelloWorld } from '../__mocks__/ReadableHelloWorld';
+import { RemoteFileContentsManagersFactoryMock } from '../__mocks__/RemoteFileContentsManagersFactoryMock';
 
 describe.skip('Contents Downloader', () => {
   let localWriter: LocalFileWriterMock;

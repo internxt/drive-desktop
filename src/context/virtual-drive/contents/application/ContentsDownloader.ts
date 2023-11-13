@@ -1,16 +1,16 @@
-import { ContentsManagersFactory } from '../domain/ContentsManagersFactory';
-import { ContentFileDownloader } from '../domain/contentHandlers/ContentFileDownloader';
+import Logger from 'electron-log';
+import path from 'path';
+import { Readable } from 'stream';
+import { ensureFolderExists } from '../../../../apps/shared/fs/ensure-folder-exists';
+import { CallbackDownload } from '../../../../apps/sync-engine/BindingManager';
+import { SyncEngineIpc } from '../../../../apps/sync-engine/ipcRendererSyncEngine';
 import { File } from '../../files/domain/File';
+import { EventBus } from '../../shared/domain/EventBus';
+import { ContentsManagersFactory } from '../domain/ContentsManagersFactory';
 import { LocalFileContents } from '../domain/LocalFileContents';
 import { LocalFileWriter } from '../domain/LocalFileWriter';
-import path from 'path';
+import { ContentFileDownloader } from '../domain/contentHandlers/ContentFileDownloader';
 import { TemporalFolderProvider } from './temporalFolderProvider';
-import { EventBus } from '../../shared/domain/EventBus';
-import Logger from 'electron-log';
-import { Readable } from 'stream';
-import { CallbackDownload } from 'apps/sync-engine/BindingManager';
-import { ensureFolderExists } from 'apps/shared/fs/ensure-folder-exists';
-import { SyncEngineIpc } from 'apps/sync-engine/ipcRendererSyncEngine';
 
 export class ContentsDownloader {
   private readableDownloader: Readable | null;

@@ -1,14 +1,13 @@
 import Logger from 'electron-log';
-import { DependencyContainer } from './dependency-injection/DependencyContainer';
-import { buildControllers } from './callbacks-controllers/buildControllers';
-import { VirtualDrive } from 'virtual-drive/dist';
-import { executeControllerWithFallback } from './callbacks-controllers/middlewares/executeControllerWithFallback';
-import { ipcRendererSyncEngine } from './ipcRendererSyncEngine';
-
 import * as fs from 'fs';
-import { FilePlaceholderId } from 'context/virtual-drive/files/domain/PlaceholderId';
-import { ItemsSearcher } from 'context/virtual-drive/items/application/ItemsSearcher';
-import { PlatformPathConverter } from 'context/virtual-drive/shared/application/PlatformPathConverter';
+import { VirtualDrive } from 'virtual-drive/dist';
+import { FilePlaceholderId } from '../../context/virtual-drive/files/domain/PlaceholderId';
+import { ItemsSearcher } from '../../context/virtual-drive/items/application/ItemsSearcher';
+import { PlatformPathConverter } from '../../context/virtual-drive/shared/application/PlatformPathConverter';
+import { buildControllers } from './callbacks-controllers/buildControllers';
+import { executeControllerWithFallback } from './callbacks-controllers/middlewares/executeControllerWithFallback';
+import { DependencyContainer } from './dependency-injection/DependencyContainer';
+import { ipcRendererSyncEngine } from './ipcRendererSyncEngine';
 
 export type CallbackDownload = (
   success: boolean,

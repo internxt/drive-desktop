@@ -1,10 +1,8 @@
 import React, { useState } from 'react';
 import FolderIcon from '../../assets/folder.svg';
-
 import Button from '../Button';
 import { UilMinus, UilPlus } from '@iconscout/react-unicons';
-import { useTranslationContext } from 'apps/renderer/context/LocalContext';
-import { reportError } from 'apps/renderer/utils/errors';
+import { useTranslationContext } from '../../context/LocalContext';
 
 export type BackupFolder = {
   path: string;

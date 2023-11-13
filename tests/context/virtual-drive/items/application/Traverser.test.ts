@@ -1,13 +1,13 @@
-import { ContentsIdMother } from '../../../contents/test/domain/ContentsIdMother';
 import {
   ServerFile,
   ServerFileStatus,
-} from '../../../../../filesystems/domain/ServerFile';
+} from '../../../../../src/context/shared/domain/ServerFile';
 import {
-  ServerFolder,
   ServerFolderStatus,
-} from '../../../../../filesystems/domain/ServerFolder';
-import { Traverser } from '../../application/Traverser';
+  ServerFolder,
+} from '../../../../../src/context/shared/domain/ServerFolder';
+import { Traverser } from '../../../../../src/context/virtual-drive/items/application/Traverser';
+import { ContentsIdMother } from '../../contents/domain/ContentsIdMother';
 import { FakeNameDecrypt } from '../infrastructure/FakeNameDecrypt';
 
 describe('Traverser', () => {

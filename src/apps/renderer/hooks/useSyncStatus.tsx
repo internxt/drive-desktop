@@ -1,5 +1,5 @@
-import { SyncStatus } from 'context/desktop/sync/domain/SyncStatus';
 import { useEffect, useState } from 'react';
+import { SyncStatus } from '../../../context/desktop/sync/domain/SyncStatus';
 
 export default function useSyncStatus(
   onChange?: (curentState: SyncStatus) => void

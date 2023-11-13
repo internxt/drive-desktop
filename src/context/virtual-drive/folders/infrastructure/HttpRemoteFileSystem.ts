@@ -6,7 +6,7 @@ import { FolderStatuses } from '../domain/FolderStatus';
 import { UpdateFolderNameDTO } from './dtos/UpdateFolderNameDTO';
 import { RemoteFileSystem } from '../domain/file-systems/RemoteFileSystem';
 import { OfflineFolder } from '../domain/OfflineFolder';
-import { ServerFolder } from 'context/shared/domain/ServerFolder';
+import { ServerFolder } from '../../../shared/domain/ServerFolder';
 
 export class HttpRemoteFileSystem implements RemoteFileSystem {
   public folders: Record<string, Folder> = {};

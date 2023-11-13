@@ -7,13 +7,13 @@ import WarnIcon from '../../assets/warn.svg';
 import { generalErrors } from '../../messages/general-error';
 import { shortMessages } from '../../messages/process-error';
 import { getBaseName } from '../../utils/path';
-import { useTranslationContext } from 'apps/renderer/context/LocalContext';
 import {
   GeneralIssue,
   ProcessIssue,
   ProcessErrorName,
   GeneralErrorName,
-} from 'apps/shared/types';
+} from '../../../shared/types';
+import { useTranslationContext } from '../../context/LocalContext';
 
 export default function ProcessIssuesList({
   selectedTab,

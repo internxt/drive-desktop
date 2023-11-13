@@ -18,8 +18,8 @@ import {
 
 import ContextMenuSvg from '../../assets/onboarding/context-menu.svg';
 import { OnboardingCompletedSlide } from './slides/OnboardingCompletedSlide';
-import Button from 'apps/renderer/components/Button';
-import { useTranslationContext } from 'apps/renderer/context/LocalContext';
+import Button from '../../components/Button';
+import { useTranslationContext } from '../../context/LocalContext';
 export const SLIDES: OnboardingSlide[] = [
   {
     name: 'Welcome Slide',

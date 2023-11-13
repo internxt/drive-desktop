@@ -1,10 +1,10 @@
-import { ItemsContainer } from './ItemsContainer';
+import { RemoteItemsGenerator } from '../../../../context/virtual-drive/items/application/RemoteItemsGenerator';
+import { Traverser } from '../../../../context/virtual-drive/items/application/Traverser';
+import { TreeBuilder } from '../../../../context/virtual-drive/items/application/TreeBuilder';
+import { CryptoJsNameDecrypt } from '../../../../context/virtual-drive/items/infrastructure/CryptoJsNameDecrypt';
+import { getUser } from '../../../main/auth/service';
 import { ipcRendererSyncEngine } from '../../ipcRendererSyncEngine';
-import { getUser } from 'apps/main/auth/service';
-import { Traverser } from 'context/virtual-drive/items/application/Traverser';
-import { CryptoJsNameDecrypt } from 'context/virtual-drive/items/infrastructure/CryptoJsNameDecrypt';
-import { RemoteItemsGenerator } from 'context/virtual-drive/items/application/RemoteItemsGenerator';
-import { TreeBuilder } from 'context/virtual-drive/items/application/TreeBuilder';
+import { ItemsContainer } from './ItemsContainer';
 
 export function buildItemsContainer(): ItemsContainer {
   const user = getUser();

@@ -1,5 +1,5 @@
-import { Traverser } from 'context/virtual-drive/items/application/Traverser';
 import crypt from '../../../../context/shared/infrastructure/crypt';
+import { Traverser } from '../../../../context/virtual-drive/items/application/Traverser';
 import { DependencyInjectionUserProvider } from './user';
 
 export class DependencyInjectionTraverserProvider {

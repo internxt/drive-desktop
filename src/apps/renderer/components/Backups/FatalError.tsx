@@ -1,6 +1,6 @@
-import { useTranslationContext } from 'apps/renderer/context/LocalContext';
-import { ProcessFatalErrorName } from 'apps/shared/types';
+import { ProcessFatalErrorName } from '../../../shared/types';
 import ErrorIcon from '../../assets/error.svg';
+import { useTranslationContext } from '../../context/LocalContext';
 import messages from '../../messages/process-fatal-error';
 import Button from '../Button';
 

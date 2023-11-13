@@ -1,11 +1,11 @@
-import { ProcessFatalErrorName } from 'apps/shared/types';
+import { SyncStatus } from '../../../../context/desktop/sync/domain/SyncStatus';
+import { ProcessFatalErrorName } from '../../../shared/types';
 import Error from '../../assets/error.svg';
 import Warn from '../../assets/warn.svg';
 import { useTranslationContext } from '../../context/LocalContext';
 import useSyncStatus from '../../hooks/useSyncStatus';
 import useSyncStopped from '../../hooks/useSyncStopped';
 import SyncFatalErrorMessages from '../../messages/process-fatal-error';
-import { SyncStatus } from 'context/desktop/sync/domain/SyncStatus';
 
 const fatalErrorActionMap: Record<
   ProcessFatalErrorName,

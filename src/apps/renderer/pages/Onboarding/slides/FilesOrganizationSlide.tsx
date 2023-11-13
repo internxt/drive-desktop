@@ -1,6 +1,6 @@
 import React from 'react';
 import { OnboardingSlideProps, getPlatformName } from '../helpers';
-import { useTranslationContext } from 'apps/renderer/context/LocalContext';
+import { useTranslationContext } from '../../../context/LocalContext';
 
 export type FilesOrganizationSlideProps = OnboardingSlideProps;
 

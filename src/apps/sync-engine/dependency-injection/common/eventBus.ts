@@ -1,6 +1,6 @@
-import { EventBus } from 'context/virtual-drive/shared/domain/EventBus';
-import { EventRecorder } from 'context/virtual-drive/shared/infrastructure/EventRecorder';
-import { NodeJsEventBus } from 'context/virtual-drive/shared/infrastructure/NodeJsEventBus';
+import { EventBus } from '../../../../context/virtual-drive/shared/domain/EventBus';
+import { EventRecorder } from '../../../../context/virtual-drive/shared/infrastructure/EventRecorder';
+import { NodeJsEventBus } from '../../../../context/virtual-drive/shared/infrastructure/NodeJsEventBus';
 import { DependencyInjectionEventRepository } from './eventRepository';
 
 export class DependencyInjectionEventBus {

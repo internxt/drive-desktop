@@ -6,7 +6,7 @@ import {
   ProcessIssue,
   GeneralIssue,
   ProcessInfoUpdatePayload,
-} from 'apps/shared/types';
+} from '../../shared/types';
 
 let processIssues: ProcessIssue[] = [];
 let generalIssues: GeneralIssue[] = [];

@@ -1,6 +1,6 @@
-import { DomainEvent } from '../../domain/DomainEvent';
-import { EventBus } from '../../domain/EventBus';
-import { DomainEventSubscribers } from '../../infrastructure/DomainEventSubscribers';
+import { DomainEvent } from '../../../../../src/context/virtual-drive/shared/domain/DomainEvent';
+import { EventBus } from '../../../../../src/context/virtual-drive/shared/domain/EventBus';
+import { DomainEventSubscribers } from '../../../../../src/context/virtual-drive/shared/infrastructure/DomainEventSubscribers';
 
 export class EventBusMock implements EventBus {
   public publishMock = jest.fn();

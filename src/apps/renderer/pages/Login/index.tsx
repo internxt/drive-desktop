@@ -6,10 +6,10 @@ import { accessRequest, hashPassword, loginRequest } from './service';
 import TwoFA from './TwoFA';
 import { LoginState } from './types';
 import WarningBanner from './WarningBanner';
-import Button from 'apps/renderer/components/Button';
-import PasswordInput from 'apps/renderer/components/PasswordInput';
-import TextInput from 'apps/renderer/components/TextInput';
-import WindowTopBar from 'apps/renderer/components/WindowTopBar';
+import Button from '../../components/Button';
+import PasswordInput from '../../components/PasswordInput';
+import TextInput from '../../components/TextInput';
+import WindowTopBar from '../../components/WindowTopBar';
 
 const TOWFA_ERROR_MESSAGE = 'Wrong 2-factor auth code';
 

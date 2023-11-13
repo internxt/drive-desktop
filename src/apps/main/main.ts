@@ -50,9 +50,9 @@ import configStore from './config';
 import { getTray, setTrayStatus } from './tray/tray';
 import { openOnboardingWindow } from './windows/onboarding';
 import { reportError } from './bug-report/service';
-import { Theme } from 'apps/shared/types/Theme';
 import { setCleanUpFunction } from './quit';
 import { stopSyncEngineWatcher } from './background-processes/sync-engine';
+import { Theme } from '../shared/types/Theme';
 
 Logger.log(`Running ${packageJson.version}`);
 

@@ -1,9 +1,9 @@
-import { createReadStream } from 'fs';
-import { reziseImage } from '../../../main/thumbnails/application/resize-image';
-import { getFileSize } from './helpers';
-import path from 'path';
 import { execSync } from 'child_process';
-import { ThumbnailProperties } from '../../../main/thumbnails/domain/ThumbnailProperties';
+import { createReadStream } from 'fs';
+import path from 'path';
+import { reziseImage } from '../../../src/apps/main/thumbnails/application/resize-image';
+import { ThumbnailProperties } from '../../../src/apps/main/thumbnails/domain/ThumbnailProperties';
+import { getFileSize } from './helpers';
 
 describe.skip('GM Resize Image', () => {
   it('gm is installed', () => {

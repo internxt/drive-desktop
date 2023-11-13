@@ -1,5 +1,8 @@
-import { FromMain, FromProcess } from 'shared/IPC/events/sync-engine';
-import { SyncEngineIpc } from '../../../../ipcRendererSyncEngine';
+import {
+  FromMain,
+  FromProcess,
+} from '../../../../../src/apps/shared/IPC/events/sync-engine';
+import { SyncEngineIpc } from '../../../../../src/apps/sync-engine/ipcRendererSyncEngine';
 
 export class IpcRendererSyncEngineMock implements SyncEngineIpc {
   sendMock = jest.fn();

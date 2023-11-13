@@ -1,4 +1,4 @@
-import { User } from 'apps/main/types';
+import { User } from '../../../../main/types';
 import Button from '../../../components/Button';
 import { useTranslationContext } from '../../../context/LocalContext';
 

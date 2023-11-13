@@ -1,12 +1,12 @@
-import DayJsLocales from 'apps/shared/Locale/DayJsLocales';
-import {
-  Language,
-  isLanguage,
-  DEFAULT_LANGUAGE,
-} from 'apps/shared/Locale/Language';
 import dayjs from 'dayjs';
 import i18next from 'i18next';
 import { initReactI18next } from 'react-i18next';
+import DayJsLocales from '../../shared/Locale/DayJsLocales';
+import {
+  DEFAULT_LANGUAGE,
+  Language,
+  isLanguage,
+} from '../../shared/Locale/Language';
 import { getConfigKey } from '../utils/query';
 
 const languageDetection = (callback: (lang: Language | undefined) => void) => {

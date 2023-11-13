@@ -4,7 +4,7 @@ import {
   OnboardingSlideProps,
   getPlatformPhraseTranslationKey,
 } from '../helpers';
-import { useTranslationContext } from 'apps/renderer/context/LocalContext';
+import { useTranslationContext } from '../../../context/LocalContext';
 
 export type OnboardingCompletedSlideProps = OnboardingSlideProps;
 

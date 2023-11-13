@@ -1,9 +1,9 @@
-import { ContentsManagersFactory } from '../../domain/ContentsManagersFactory';
-import { ContentFileUploader } from '../../domain/contentHandlers/ContentFileUploader';
-import { ContentFileUploaderMock } from './ContentFileUploaderMock';
+import { ContentsManagersFactory } from '../../../../../src/context/virtual-drive/contents/domain/ContentsManagersFactory';
+import { LocalFileContents } from '../../../../../src/context/virtual-drive/contents/domain/LocalFileContents';
+import { ContentFileDownloader } from '../../../../../src/context/virtual-drive/contents/domain/contentHandlers/ContentFileDownloader';
+import { ContentFileUploader } from '../../../../../src/context/virtual-drive/contents/domain/contentHandlers/ContentFileUploader';
 import { ContentFileDownloaderMock } from './ContentFileDownloaderMock';
-import { ContentFileDownloader } from '../../domain/contentHandlers/ContentFileDownloader';
-import { LocalFileContents } from '../../domain/LocalFileContents';
+import { ContentFileUploaderMock } from './ContentFileUploaderMock';
 
 export class RemoteFileContentsManagersFactoryMock
   implements ContentsManagersFactory
