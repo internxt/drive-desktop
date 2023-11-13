@@ -1,6 +1,6 @@
 import { ContentsId } from '../../contents/domain/ContentsId';
 import { Folder } from '../../folders/domain/Folder';
-import { AggregateRoot } from '../../shared/domain/AggregateRoot';
+import { AggregateRoot } from '../../../shared/domain/AggregateRoot';
 import { FilePath } from './FilePath';
 import { FileSize } from './FileSize';
 import { FileCreatedDomainEvent } from './events/FileCreatedDomainEvent';

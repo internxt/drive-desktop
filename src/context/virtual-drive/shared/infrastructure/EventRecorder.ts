@@ -1,4 +1,4 @@
-import { DomainEvent } from '../domain/DomainEvent';
+import { DomainEvent } from '../../../shared/domain/DomainEvent';
 import { EventBus } from '../domain/EventBus';
 import { EventRepository } from '../domain/EventRepository';
 import { DomainEventSubscribers } from './DomainEventSubscribers';

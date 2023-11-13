@@ -1,4 +1,4 @@
-import { DomainEvent } from '../../../../../src/context/virtual-drive/shared/domain/DomainEvent';
+import { DomainEvent } from '../../../../../src/context/shared/domain/DomainEvent';
 import { EventRepository } from '../../../../../src/context/virtual-drive/shared/domain/EventRepository';
 
 export class EventRepositoryMock implements EventRepository {

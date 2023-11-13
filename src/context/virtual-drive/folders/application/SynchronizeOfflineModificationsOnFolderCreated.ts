@@ -1,10 +1,10 @@
-import { DomainEventClass } from '../../shared/domain/DomainEvent';
-import { WebdavDomainEventSubscriber } from '../../shared/domain/WebdavDomainEventSubscriber';
+import { DomainEventClass } from '../../../shared/domain/DomainEvent';
+import { DomainEventSubscriber } from '../../../shared/domain/DomainEventSubscriber';
 import { FolderCreatedDomainEvent } from '../domain/events/FolderCreatedDomainEvent';
 import { SynchronizeOfflineModifications } from './SynchronizeOfflineModifications';
 
 export class SynchronizeOfflineModificationsOnFolderCreated
-  implements WebdavDomainEventSubscriber<FolderCreatedDomainEvent>
+  implements DomainEventSubscriber<FolderCreatedDomainEvent>
 {
   constructor(
     private readonly synchronizeOfflineModifications: SynchronizeOfflineModifications

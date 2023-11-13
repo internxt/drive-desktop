@@ -1,4 +1,4 @@
-import { DomainEvent } from '../../../../../src/context/virtual-drive/shared/domain/DomainEvent';
+import { DomainEvent } from '../../../../../src/context/shared/domain/DomainEvent';
 import { EventBus } from '../../../../../src/context/virtual-drive/shared/domain/EventBus';
 import { DomainEventSubscribers } from '../../../../../src/context/virtual-drive/shared/infrastructure/DomainEventSubscribers';
 

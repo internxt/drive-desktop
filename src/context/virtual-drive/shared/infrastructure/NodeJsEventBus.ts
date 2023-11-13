@@ -1,5 +1,5 @@
 import EventEmitter from 'events';
-import { DomainEvent } from '../domain/DomainEvent';
+import { DomainEvent } from '../../../shared/domain/DomainEvent';
 import { EventBus } from '../domain/EventBus';
 import { DomainEventSubscribers } from './DomainEventSubscribers';
 

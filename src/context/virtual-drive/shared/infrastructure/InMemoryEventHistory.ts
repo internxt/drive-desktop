@@ -1,4 +1,4 @@
-import { DomainEvent } from '../domain/DomainEvent';
+import { DomainEvent } from '../../../shared/domain/DomainEvent';
 import { EventRepository } from '../domain/EventRepository';
 
 export class InMemoryEventRepository implements EventRepository {

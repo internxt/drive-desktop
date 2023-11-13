@@ -1,4 +1,4 @@
-import { Primitives } from '../../../shared/domain/ValueObject';
+import { Primitives } from './ValueObject';
 import { DomainEvent } from './DomainEvent';
 
 export abstract class AggregateRoot {

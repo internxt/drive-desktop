@@ -1,10 +1,10 @@
 import { FileCreatedDomainEvent } from '../../files/domain/events/FileCreatedDomainEvent';
-import { DomainEventClass } from '../../shared/domain/DomainEvent';
-import { WebdavDomainEventSubscriber } from '../../shared/domain/WebdavDomainEventSubscriber';
+import { DomainEventClass } from '../../../shared/domain/DomainEvent';
+import { DomainEventSubscriber } from '../../../shared/domain/DomainEventSubscriber';
 import { UserUsageIncrementer } from './UserUsageIncrementer';
 
 export class IncrementDriveUsageOnFileCreated
-  implements WebdavDomainEventSubscriber<FileCreatedDomainEvent>
+  implements DomainEventSubscriber<FileCreatedDomainEvent>
 {
   constructor(private readonly incrementer: UserUsageIncrementer) {}
 

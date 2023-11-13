@@ -1,5 +1,5 @@
 import { DomainEventSubscribers } from '../infrastructure/DomainEventSubscribers';
-import { DomainEvent } from './DomainEvent';
+import { DomainEvent } from '../../../shared/domain/DomainEvent';
 
 export interface EventBus {
   publish(events: Array<DomainEvent>): Promise<void>;

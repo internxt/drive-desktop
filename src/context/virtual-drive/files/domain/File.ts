@@ -1,4 +1,4 @@
-import { AggregateRoot } from '../../shared/domain/AggregateRoot';
+import { AggregateRoot } from '../../../shared/domain/AggregateRoot';
 import { Folder } from '../../folders/domain/Folder';
 import { FilePath } from './FilePath';
 import { FileSize } from './FileSize';

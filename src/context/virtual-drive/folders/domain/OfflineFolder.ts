@@ -1,4 +1,4 @@
-import { AggregateRoot } from '../../shared/domain/AggregateRoot';
+import { AggregateRoot } from '../../../shared/domain/AggregateRoot';
 import { FolderPath } from './FolderPath';
 import { FolderStatus, FolderStatuses } from './FolderStatus';
 import { FolderUuid } from './FolderUuid';

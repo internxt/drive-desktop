@@ -1,5 +1,5 @@
 import { Readable } from 'stream';
-import { AggregateRoot } from '../../shared/domain/AggregateRoot';
+import { AggregateRoot } from '../../../shared/domain/AggregateRoot';
 import { ContentsSize } from './ContentsSize';
 import { ContentsDownloadedDomainEvent } from './events/ContentsDownloadedDomainEvent';
 import { File } from '../../files/domain/File';

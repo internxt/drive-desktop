@@ -1,4 +1,4 @@
-import { Either, left, right } from '../domain/Either';
+import { Either, left, right } from '../../../shared/domain/Either';
 
 export class EitherTransformer {
   static handleWithEither<T>(fn: () => T): Either<Error, T> {

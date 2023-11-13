@@ -1,4 +1,4 @@
-import { DomainEvent } from '../../../shared/domain/DomainEvent';
+import { DomainEvent } from '../../../../shared/domain/DomainEvent';
 
 export class FolderRenamedDomainEvent extends DomainEvent {
   static readonly EVENT_NAME = 'folder.renamed';

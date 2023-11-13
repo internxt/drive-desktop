@@ -1,4 +1,4 @@
-import { DomainEvent } from './DomainEvent';
+import { DomainEvent } from '../../../shared/domain/DomainEvent';
 
 export interface EventRepository {
   store(event: DomainEvent): Promise<void>;

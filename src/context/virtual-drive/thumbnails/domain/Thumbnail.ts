@@ -1,4 +1,4 @@
-import { AggregateRoot } from '../../shared/domain/AggregateRoot';
+import { AggregateRoot } from '../../../shared/domain/AggregateRoot';
 import { ThumbnailContentId } from './ThumbanailContentId';
 
 export type ThumbnailAtributes = {

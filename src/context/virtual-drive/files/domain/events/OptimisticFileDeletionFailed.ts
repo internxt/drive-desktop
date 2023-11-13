@@ -1,4 +1,4 @@
-import { DomainEvent } from '../../../shared/domain/DomainEvent';
+import { DomainEvent } from '../../../../shared/domain/DomainEvent';
 
 export class OptimisticFileDeletionFailed extends DomainEvent {
   static readonly EVENT_NAME = 'file.deletion.failed';
