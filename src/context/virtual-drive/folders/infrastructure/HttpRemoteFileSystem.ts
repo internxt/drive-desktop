@@ -7,6 +7,7 @@ import { UpdateFolderNameDTO } from './dtos/UpdateFolderNameDTO';
 import { RemoteFileSystem } from '../domain/file-systems/RemoteFileSystem';
 import { OfflineFolder } from '../domain/OfflineFolder';
 import { ServerFolder } from '../../../shared/domain/ServerFolder';
+import { CreateFolderDTO } from './dtos/CreateFolderDTO';
 
 export class HttpRemoteFileSystem implements RemoteFileSystem {
   public folders: Record<string, Folder> = {};
@@ -21,13 +22,15 @@ export class HttpRemoteFileSystem implements RemoteFileSystem {
       throw new Error('Bad folder name');
     }
 
+    const body: CreateFolderDTO = {
+      folderName: offline.name,
+      parentFolderId: offline.parentId,
+      uuid: offline.uuid,
+    };
+
     const response = await this.driveClient.post(
       `${process.env.API_URL}/api/storage/folder`,
-      {
-        folderName: offline.name,
-        parentFolderId: offline.parentId,
-        uuid,
-      }
+      body
     );
 
     if (response.status !== 201) {

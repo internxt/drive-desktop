@@ -249,9 +249,15 @@ export class BindingsManager {
   }
 
   async update() {
-    const tree = await this.container.existingItemsTreeBuilder.run();
+    Logger.info('[SYNC ENGINE]: Updating placeholders');
 
-    await this.container.filesPlaceholderUpdater.run(tree.files);
-    await this.container.folderPlaceholderUpdater.run(tree.folders);
+    try {
+      const tree = await this.container.existingItemsTreeBuilder.run();
+
+      await this.container.filesPlaceholderUpdater.run(tree.files);
+      await this.container.folderPlaceholderUpdater.run(tree.folders);
+    } catch (error) {
+      Logger.error('[SYNC ENGINE] ', error);
+    }
   }
 }
