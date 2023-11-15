@@ -8,6 +8,7 @@ import { ipcRendererSyncEngine } from './ipcRendererSyncEngine';
 import { PlatformPathConverter } from './modules/shared/application/PlatformPathConverter';
 import { ItemsSearcher } from './modules/items/application/ItemsSearcher';
 import * as fs from 'fs';
+import { ProcessIssue } from 'workers/types';
 
 export type CallbackDownload = (
   success: boolean,
@@ -128,6 +129,26 @@ export class BindingsManager {
         } catch (error) {
           Logger.error(error);
           callback(false, '');
+        }
+      },
+      notifyMessageCallback: (
+        message: string,
+        action: ProcessIssue['action'],
+        errorName: ProcessIssue['errorName'],
+        callback: (response: boolean) => void
+      ) => {
+        try {
+          callback(true);
+          ipcRendererSyncEngine.send('SYNC_INFO_UPDATE', {
+            name: message,
+            action: action,
+            errorName,
+            process: 'SYNC',
+            kind: 'LOCAL',
+          });
+        } catch (error) {
+          Logger.error(error);
+          callback(false);
         }
       },
       validateDataCallback: () => {
