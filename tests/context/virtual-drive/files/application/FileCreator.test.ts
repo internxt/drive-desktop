@@ -2,20 +2,18 @@ import { FileCreator } from '../../../../../src/context/virtual-drive/files/appl
 import { FileDeleter } from '../../../../../src/context/virtual-drive/files/application/FileDeleter';
 import { FilePath } from '../../../../../src/context/virtual-drive/files/domain/FilePath';
 import { File } from '../../../../../src/context/virtual-drive/files/domain/File';
-import { FolderFinder } from '../../../../../src/context/virtual-drive/folders/application/FolderFinder';
 import { FileContentsMother } from '../../contents/domain/FileContentsMother';
-import { FolderRepositoryMock } from '../../folders/__mocks__/FolderRepositoryMock';
-import { FolderMother } from '../../folders/domain/FolderMother';
 import { EventBusMock } from '../../shared/__mock__/EventBusMock';
 import { IpcRendererSyncEngineMock } from '../../shared/__mock__/IpcRendererSyncEngineMock';
 import { FileRepositoryMock } from '../__mocks__/FileRepositoryMock';
 import { RemoteFileSystemMock } from '../__mocks__/RemoteFileSystemMock';
 import { FileMother } from '../domain/FileMother';
+import { FolderFinderFactory } from '../../folders/__mocks__/FolderFinderFactory';
+import { FileDeleterFactory } from '../__mocks__/FileDeleterFactory';
 
 describe('File Creator', () => {
   let remoteFileSystemMock: RemoteFileSystemMock;
   let fileRepository: FileRepositoryMock;
-  let folderRepository: FolderRepositoryMock;
   let fileDeleter: FileDeleter;
   let eventBus: EventBusMock;
 
@@ -25,16 +23,9 @@ describe('File Creator', () => {
 
   beforeEach(() => {
     remoteFileSystemMock = new RemoteFileSystemMock();
-
     fileRepository = new FileRepositoryMock();
-    folderRepository = new FolderRepositoryMock();
-    fileDeleter = {
-      run: (_id: string) => {
-        //no-op
-      },
-    } as unknown as FileDeleter;
-
-    const folderFinder = new FolderFinder(folderRepository);
+    fileDeleter = FileDeleterFactory.deletionSucces();
+    const folderFinder = FolderFinderFactory.existingFolder();
     eventBus = new EventBusMock();
 
     SUT = new FileCreator(
@@ -51,14 +42,11 @@ describe('File Creator', () => {
     const path = new FilePath('/cat.png');
     const contents = FileContentsMother.random();
 
-    const folder = FolderMother.any();
-
     const fileAttributes = FileMother.fromPartial({
       path: path.value,
       contentsId: contents.id,
     }).attributes();
 
-    folderRepository.searchByPartialMock.mockReturnValueOnce(folder);
     fileRepository.addMock.mockImplementationOnce(() => {
       // returns Promise<void>
     });
@@ -80,9 +68,6 @@ describe('File Creator', () => {
       contentsId: contents.id,
     }).attributes();
 
-    const folder = FolderMother.any();
-
-    folderRepository.searchByPartialMock.mockReturnValueOnce(folder);
     fileRepository.addMock.mockImplementationOnce(() => {
       // returns Promise<void>
     });
@@ -108,8 +93,6 @@ describe('File Creator', () => {
       contentsId: contents.id,
     }).attributes();
 
-    const folder = FolderMother.any();
-
     fileRepository.searchByPartialMock
       .mockReturnValueOnce(existingFile)
       .mockReturnValueOnce(existingFile);
@@ -120,7 +103,6 @@ describe('File Creator', () => {
 
     remoteFileSystemMock.persistMock.mockResolvedValueOnce(fileAttributes);
 
-    folderRepository.searchByPartialMock.mockReturnValueOnce(folder);
     fileRepository.addMock.mockImplementationOnce(() => {
       // returns Promise<void>
     });
