@@ -37,12 +37,12 @@ export function ReportModal({
   const [includeLogs, setIncludeLogs] = useState(true);
   const [userComment, setUserComment] = useState('');
 
-  const dialogTitle = data
-    ? translate(shortMessages[data.errorName])
-    : undefined;
-  const errorDescription = data
-    ? translate(longMessages[data.errorName])
-    : undefined;
+
+  //@ts-ignore
+  const dialogTitle = data ? translate(shortMessages[data.errorName]) : undefined;
+
+  //@ts-ignore
+  const errorDescription = data ? translate(longMessages[data.errorName]) : undefined;
 
   const handleOpenURL = async (URL: string) => {
     try {
