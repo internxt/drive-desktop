@@ -5,6 +5,7 @@ import useUsage from '../../../hooks/useUsage';
 import Usage from './Usage';
 import UserInfo from './UserInfo';
 import Button from '../../../components/Button';
+import { useTranslationContext } from '../../../context/LocalContext';
 
 export default function AccountSection({ active }: { active: boolean }) {
   const { translate } = useTranslationContext();
@@ -42,7 +43,4 @@ export default function AccountSection({ active }: { active: boolean }) {
       </div>
     </div>
   );
-}
-function useTranslationContext(): { translate: any } {
-  throw new Error('Function not implemented.');
 }

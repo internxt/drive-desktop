@@ -1,16 +1,15 @@
 import React from 'react';
 import { MigrationSlideProps } from '../helpers';
-import { SideTextAnimation } from '../../Onboarding/helpers';
+import {
+  SideTextAnimation,
+  getPlatformPhraseTranslationKey,
+} from '../../Onboarding/helpers';
 
 export type DeleteOldDriveFolderSlideProps = MigrationSlideProps;
 
 export const DeleteOldDriveFolderSlide: React.FC<
   DeleteOldDriveFolderSlideProps
 > = (props) => {
-  function getPlatformPhraseTranslationKey(_platform: string): any {
-    throw new Error('Function not implemented.');
-  }
-
   return (
     <div className="flex h-full w-full">
       <SideTextAnimation display>
