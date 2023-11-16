@@ -4,6 +4,7 @@ import { DependencyContainerFactory } from './dependency-injection/DependencyCon
 import packageJson from '../../../package.json';
 import { BindingsManager } from './BindingManager';
 import fs from 'fs/promises';
+import { iconPath } from '../utils/icon';
 
 async function ensureTheFolderExist(path: string) {
   try {
@@ -28,7 +29,7 @@ async function setUp() {
 
   const bindings = new BindingsManager(container, {
     root: virtualDrivePath,
-    icon: '',
+    icon: iconPath,
   });
 
   ipcRenderer.on('STOP_SYNC_ENGINE_PROCESS', async (event) => {
