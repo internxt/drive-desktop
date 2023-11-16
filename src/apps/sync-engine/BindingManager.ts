@@ -135,6 +135,8 @@ export class BindingsManager {
               resolve(true);
             }, 500);
           });
+
+          fs.unlinkSync(path);
         } catch (error) {
           Logger.error(error);
           callback(false, '');

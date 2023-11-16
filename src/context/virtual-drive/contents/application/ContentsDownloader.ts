@@ -47,10 +47,6 @@ export class ContentsDownloader {
     downloader.on('progress', async () => {
       const result = await cb(true, filePath);
       const hydrationProgress = result.progress;
-      Logger.debug(
-        '\n\n******************************************hydrationProgress : \n\n',
-        hydrationProgress
-      );
 
       if (result.finished) {
         downloader.forceStop();
@@ -81,7 +77,6 @@ export class ContentsDownloader {
     });
 
     downloader.on('finish', () => {
-      Logger.error('INSIDE FINISH=======================');
       // The file download being finished does not mean it has been hidratated
       // TODO: We might want to track this time instead of the whole completion time
     });
