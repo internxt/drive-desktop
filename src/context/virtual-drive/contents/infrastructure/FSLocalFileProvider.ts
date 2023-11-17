@@ -16,17 +16,48 @@ function extractNameAndExtension(nameWithExtension: string): [string, string] {
 }
 
 export class FSLocalFileProvider implements LocalContentsProvider {
+  private static readonly TIMEOUT_BUSY_CHECK = 10_000;
   private reading = new Map<string, AbortController>();
 
-  private createAbortableStream(filePath: string): {
+  private async untilIsNotBusy(filePath: string): Promise<void> {
+    const readable = createReadStream(filePath);
+
+    return new Promise((resolve, reject) => {
+      readable.on('error', async (err: NodeJS.ErrnoException) => {
+        if (err.code === 'EBUSY') {
+          Logger.debug(
+            `File is busy, will wait ${FSLocalFileProvider.TIMEOUT_BUSY_CHECK} ms and try it again`
+          );
+
+          await new Promise((next) => {
+            setTimeout(next, FSLocalFileProvider.TIMEOUT_BUSY_CHECK);
+          });
+
+          readable.read();
+        }
+      });
+
+      readable.on('data', () => {
+        Logger.debug('data!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
+        readable.close();
+        resolve();
+      });
+
+      readable.read();
+    });
+  }
+
+  private async createAbortableStream(filePath: string): Promise<{
     readable: Readable;
     controller: AbortController;
-  } {
+  }> {
     const isBeingRead = this.reading.get(filePath);
 
     if (isBeingRead) {
       isBeingRead.abort();
     }
+
+    await this.untilIsNotBusy(filePath);
 
     const readStream = createReadStream(filePath);
 
@@ -38,8 +69,9 @@ export class FSLocalFileProvider implements LocalContentsProvider {
   }
 
   async provide(absoluteFilePath: string) {
-    const { readable, controller } =
-      this.createAbortableStream(absoluteFilePath);
+    const { readable, controller } = await this.createAbortableStream(
+      absoluteFilePath
+    );
 
     const { size, mtimeMs, birthtimeMs } = await fs.stat(absoluteFilePath);
 
