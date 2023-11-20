@@ -10,7 +10,7 @@ import { ContentsManagersFactory } from '../domain/ContentsManagersFactory';
 import { LocalFileContents } from '../domain/LocalFileContents';
 import { LocalFileWriter } from '../domain/LocalFileWriter';
 import { ContentFileDownloader } from '../domain/contentHandlers/ContentFileDownloader';
-import { LocalFileContentsDirectoryProvider } from '../domain/LocalFileContentsDirectoryProvider';
+import { LocalFileContentsDirectoryProvider } from '../../shared/domain/LocalFileContentsDirectoryProvider';
 
 export class ContentsDownloader {
   private readableDownloader: Readable | null;

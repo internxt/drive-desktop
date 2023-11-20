@@ -5,6 +5,7 @@ import { DependencyContainer } from './dependency-injection/DependencyContainer'
 import { Readdir } from './callbacks/Readdir';
 import { Getattr } from './callbacks/Getattr';
 import { Open } from './callbacks/Open';
+import { Read } from './callbacks/Read';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const fuse = require('@gcas/fuse');
@@ -62,6 +63,7 @@ export class FuseApp {
     const readdir = new Readdir(this.container);
     const getattr = new Getattr(this.container);
     const open = new Open(this.container);
+    const read = new Read(this.container);
 
     return {
       listxattr: (path: string, cb: (err: number, list?: string[]) => void) => {
@@ -80,36 +82,7 @@ export class FuseApp {
       getattr: getattr.execute.bind(getattr),
       readdir: readdir.execute.bind(readdir),
       open: open.execute.bind(open),
-      read: (
-        path: string,
-        fd: any,
-        buf: Buffer,
-        len: number,
-        pos: number,
-        cb: (code: number, params?: any) => void
-      ) => {
-        Logger.debug(`READ ${path}`);
-        const fullPath = _path.join(this.paths.local, path);
-
-        fs.readFile(fullPath, (err, data) => {
-          if (err) {
-            console.error(`Error reading file: ${err}`);
-            cb(fuse.ENOENT); // Indicate an error code, e.g., if the file doesn't exist
-            return;
-          }
-
-          // Convert the data to a Buffer
-          const dataBuffer = Buffer.from(data);
-
-          // Determine the number of bytes to read based on the length and position
-          const bytesRead = Math.min(dataBuffer.length - pos, len);
-
-          // Copy the data to the provided buffer
-          dataBuffer.copy(buf, 0, pos, pos + bytesRead);
-
-          cb(bytesRead); // Indicate the number of bytes read
-        });
-      },
+      read: read.execute.bind(read),
       rename: async (src: string, dest: string, cb: any) => {
         Logger.debug(`RENAME ${src} -> ${dest}`);
         // ALSO HANDLES THE MOVE ACTION

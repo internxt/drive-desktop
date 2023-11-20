@@ -13,7 +13,7 @@ import { EnvironmentRemoteFileContentsManagersFactory } from '../../../../contex
 import { FSLocalFileProvider } from '../../../../context/virtual-drive/contents/infrastructure/FSLocalFileProvider';
 import { FSLocalFileWriter } from '../../../../context/virtual-drive/contents/infrastructure/FSLocalFileWriter';
 import { ipcRendererSyncEngine } from '../../ipcRendererSyncEngine';
-import { IPCLocalFileContentsDirectoryProvider } from '../../../../context/virtual-drive/contents/infrastructure/IPCLocalFileContentsDirectoryProvider';
+import { IPCLocalFileContentsDirectoryProvider } from '../../../../context/virtual-drive/shared/infrastructure/LocalFileContentsDirectoryProviders/IPCLocalFileContentsDirectoryProvider';
 
 export async function buildContentsContainer(
   sharedContainer: SharedContainer
@@ -46,7 +46,10 @@ export async function buildContentsContainer(
   const localFileContentsDirectoryProvider =
     new IPCLocalFileContentsDirectoryProvider();
 
-  const localWriter = new FSLocalFileWriter(localFileContentsDirectoryProvider);
+  const localWriter = new FSLocalFileWriter(
+    localFileContentsDirectoryProvider,
+    'internxt'
+  );
 
   const contentsDownloader = new ContentsDownloader(
     contentsManagerFactory,

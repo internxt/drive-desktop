@@ -2,6 +2,7 @@ import { DependencyContainer } from './DependencyContainer';
 import { buildContentsContainer } from './contents/builder';
 import { buildFilesContainer } from './files/builder';
 import { buildFoldersContainer } from './folders/builder';
+import { buildSharedContainer } from './shared/builder';
 import { buildTreeContainer } from './tree/builder';
 
 export class DependencyContainerFactory {
@@ -32,12 +33,14 @@ export class DependencyContainerFactory {
       folderContainer
     );
     const contentsContainer = await buildContentsContainer();
+    const sharedContainer = await buildSharedContainer();
 
     const container = {
       ...treeContainer,
       ...folderContainer,
       ...filesContainer,
       ...contentsContainer,
+      ...sharedContainer,
     };
 
     return container;

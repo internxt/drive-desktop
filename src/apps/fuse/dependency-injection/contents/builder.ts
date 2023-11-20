@@ -5,8 +5,8 @@ import { DependencyInjectionUserProvider } from '../common/user';
 import { DependencyInjectionMnemonicProvider } from '../common/mnemonic';
 import { EnvironmentRemoteFileContentsManagersFactory } from '../../../../context/virtual-drive/contents/infrastructure/EnvironmentRemoteFileContentsManagersFactory';
 import { FSLocalFileWriter } from '../../../../context/virtual-drive/contents/infrastructure/FSLocalFileWriter';
-import { app } from 'electron';
 import { DependencyInjectionEventBus } from '../common/eventBus';
+import { FuseAppDataLocalFileContentsDirectoryProvider } from '../../../../context/virtual-drive/shared/infrastructure/LocalFileContentsDirectoryProviders/FuseAppDataLocalFileContentsDirectoryProvider';
 
 export async function buildContentsContainer(): Promise<ContentsContainer> {
   const user = DependencyInjectionUserProvider.get();
@@ -23,11 +23,13 @@ export async function buildContentsContainer(): Promise<ContentsContainer> {
   const contentsManagerFactory =
     new EnvironmentRemoteFileContentsManagersFactory(environment, user.bucket);
 
-  const temporalFolderProvider = () => {
-    return Promise.resolve(app.getPath('temp'));
-  };
+  const localFileContentsDirectoryProvider =
+    new FuseAppDataLocalFileContentsDirectoryProvider();
 
-  const localWriter = new FSLocalFileWriter(temporalFolderProvider);
+  const localWriter = new FSLocalFileWriter(
+    localFileContentsDirectoryProvider,
+    'downloaded'
+  );
 
   const downloadContentsToPlainFile = new DownloadContentsToPlainFile(
     contentsManagerFactory,
