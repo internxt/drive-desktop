@@ -15,6 +15,7 @@ import { FileRenamedDomainEvent } from './events/FileRenamedDomainEvent';
 import { FilePlaceholderId, createFilePlaceholderId } from './PlaceholderId';
 
 export type FileAttributes = {
+  id: number;
   contentsId: string;
   folderId: number;
   createdAt: string;
@@ -27,6 +28,7 @@ export type FileAttributes = {
 
 export class File extends AggregateRoot {
   private constructor(
+    private _id: number,
     private _contentsId: ContentsId,
     private _folderId: number,
     private _path: FilePath,
@@ -36,6 +38,10 @@ export class File extends AggregateRoot {
     private _status: FileStatus
   ) {
     super();
+  }
+
+  public get id(): number {
+    return this._id;
   }
 
   public get contentsId() {
@@ -80,6 +86,7 @@ export class File extends AggregateRoot {
 
   static from(attributes: FileAttributes): File {
     return new File(
+      attributes.id,
       new ContentsId(attributes.contentsId),
       attributes.folderId,
       new FilePath(attributes.path),
@@ -91,12 +98,14 @@ export class File extends AggregateRoot {
   }
 
   static create(
+    id: number,
     contentsId: string,
     folder: Folder,
     size: FileSize,
     path: FilePath
   ): File {
     const file = new File(
+      id,
       new ContentsId(contentsId),
       folder.id,
       path,
@@ -185,6 +194,7 @@ export class File extends AggregateRoot {
 
   attributes(): FileAttributes {
     return {
+      id: this.id,
       contentsId: this.contentsId,
       folderId: this.folderId,
       createdAt: this.createdAt.toISOString(),

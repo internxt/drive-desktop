@@ -7,8 +7,9 @@ import {
   ServerFolder,
   ServerFolderStatus,
 } from '../../../shared/domain/ServerFolder';
+import { RemoteItemsGenerator } from '../domain/RemoteItemsGenerator';
 
-export class RemoteItemsGenerator {
+export class IpcRemoteItemsGenerator implements RemoteItemsGenerator {
   constructor(private readonly ipc: SyncEngineIpc) {}
 
   async getAll(): Promise<{ files: ServerFile[]; folders: ServerFolder[] }> {

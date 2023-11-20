@@ -8,6 +8,7 @@ import { buildControllers } from './callbacks-controllers/buildControllers';
 import { executeControllerWithFallback } from './callbacks-controllers/middlewares/executeControllerWithFallback';
 import { DependencyContainer } from './dependency-injection/DependencyContainer';
 import { ipcRendererSyncEngine } from './ipcRendererSyncEngine';
+import { ProcessIssue } from '../shared/types';
 
 export type CallbackDownload = (
   success: boolean,
@@ -15,10 +16,9 @@ export type CallbackDownload = (
 ) => Promise<{ finished: boolean; progress: number }>;
 export class BindingsManager {
   private static readonly PROVIDER_NAME = 'Internxt';
-
-  private fuse: any | null = null;
-
+  private progressBuffer = 0;
   constructor(
+    private readonly container: DependencyContainer,
     private readonly paths: {
       root: string;
       icon: string;
@@ -36,94 +36,183 @@ export class BindingsManager {
   }
 
   async start(version: string, providerId: string) {
-    const fuse = require('fuse-native');
-    const ops = {
-      getattr: (path: string, cb: (code: number, params?: any) => void) => {
-        if (path === '/') {
-          cb(0, { mode: 16877, size: 0 });
-        } else if (path === '/hello.txt') {
-          cb(0, { mode: 33188, size: 12 });
-        } else {
-          cb(Fuse.ENOENT);
-        }
-      },
-      readdir: (path: string, cb: (code: number, params?: any) => void) => {
-        if (path === '/') {
-          cb(0, ['.', '..', 'hello.txt']);
-        } else {
-          cb(Fuse.ENOENT);
-        }
-      },
-      open: (path: string, flags, cb: (code: number, params?: any) => void) => {
-        if (path === '/hello.txt') {
-          cb(0, 123); // Use a unique file descriptor (123 in this example)
-        } else {
-          cb(Fuse.ENOENT);
-        }
-      },
-      read: (
-        path: string,
-        fd,
-        buf,
-        len,
-        pos,
-        cb: (code: number, params?: any) => void
+    await this.stop();
+
+    const controllers = buildControllers(this.container);
+
+    const callbacks = {
+      notifyDeleteCallback: (
+        contentsId: string,
+        callback: (response: boolean) => void
       ) => {
-        if (path === '/hello.txt') {
-          const data = Buffer.from('Hello, FUSE!');
-          if (pos >= data.length) {
-            cb(0);
-          } else {
-            const slice = data.slice(pos, pos + len);
-            slice.copy(buf);
-            cb(slice.length);
+        controllers.delete
+          .execute(contentsId)
+          .then(() => {
+            callback(true);
+          })
+          .catch((error: Error) => {
+            Logger.error(error);
+            callback(false);
+          });
+      },
+      notifyDeleteCompletionCallback: () => {
+        Logger.info('Deletion completed');
+      },
+      notifyRenameCallback: (
+        absolutePath: string,
+        contentsId: string,
+        callback: (response: boolean) => void
+      ) => {
+        const fn = executeControllerWithFallback({
+          handler: controllers.renameOrMove.execute.bind(
+            controllers.renameOrMove
+          ),
+          fallback: controllers.offline.renameOrMove.execute.bind(
+            controllers.offline.renameOrMove
+          ),
+        });
+        fn(absolutePath, contentsId, callback);
+      },
+      notifyFileAddedCallback: (
+        absolutePath: string,
+        callback: (acknowledge: boolean, id: string) => boolean
+      ) => {
+        controllers.addFile.execute(absolutePath, callback);
+      },
+      fetchDataCallback: async (
+        contentsId: FilePlaceholderId,
+        callback: CallbackDownload
+      ) => {
+        try {
+          const path = await controllers.downloadFile.execute(
+            contentsId,
+            callback
+          );
+          Logger.debug('Execute Fetch Data Callback, sending path:', path);
+          const file = controllers.downloadFile.fileFinderByContentsId(
+            contentsId
+              .replace(
+                // eslint-disable-next-line no-control-regex
+                /[\x00-\x1F\x7F-\x9F]/g,
+                ''
+              )
+              .split(':')[1]
+          );
+          let finished = false;
+          while (!finished) {
+            const result = await callback(true, path);
+            finished = result.finished;
+            if (this.progressBuffer == result.progress) {
+              break;
+            } else {
+              this.progressBuffer = result.progress;
+            }
+            Logger.debug('condition', finished);
+            ipcRendererSyncEngine.send('FILE_DOWNLOADING', {
+              name: file.name,
+              extension: file.type,
+              nameWithExtension: file.nameWithExtension,
+              size: file.size,
+              processInfo: {
+                elapsedTime: 0,
+                progress: result.progress,
+              },
+            });
           }
-        } else {
-          cb(Fuse.ENOENT);
+
+          this.progressBuffer = 0;
+          try {
+            await controllers.notifyPlaceholderHydrationFinished.execute(
+              contentsId
+            );
+          } catch (error) {
+            Logger.error('notify: ', error);
+          }
+
+          // Esperar hasta que la ejecución de fetchDataCallback esté completa antes de continuar
+          await new Promise((resolve) => {
+            setTimeout(() => {
+              Logger.debug('timeout');
+              resolve(true);
+            }, 500);
+          });
+
+          fs.unlinkSync(path);
+        } catch (error) {
+          Logger.error(error);
+          callback(false, '');
         }
       },
-      release: function (
-        readPath: string,
-        fd: number,
-        cb: (status: number) => void
-      ): void {
-        throw new Error('Function not implemented.');
+      notifyMessageCallback: (
+        message: string,
+        action: ProcessIssue['action'],
+        errorName: ProcessIssue['errorName'],
+        callback: (response: boolean) => void
+      ) => {
+        try {
+          callback(true);
+          ipcRendererSyncEngine.send('SYNC_INFO_UPDATE', {
+            name: message,
+            action: action,
+            errorName,
+            process: 'SYNC',
+            kind: 'LOCAL',
+          });
+        } catch (error) {
+          Logger.error(error);
+          callback(false);
+        }
+      },
+      validateDataCallback: () => {
+        Logger.debug('validateDataCallback');
+      },
+      cancelFetchDataCallback: () => {
+        Logger.debug('cancelFetchDataCallback');
+      },
+      fetchPlaceholdersCallback: () => {
+        Logger.debug('fetchPlaceholdersCallback');
+      },
+      cancelFetchPlaceholdersCallback: () => {
+        Logger.debug('cancelFetchPlaceholdersCallback');
+      },
+      notifyFileOpenCompletionCallback: () => {
+        Logger.debug('notifyFileOpenCompletionCallback');
+      },
+      notifyFileCloseCompletionCallback: () => {
+        Logger.debug('notifyFileCloseCompletionCallback');
+      },
+      notifyDehydrateCallback: () => {
+        Logger.debug('notifyDehydrateCallback');
+      },
+      notifyDehydrateCompletionCallback: () => {
+        Logger.debug('notifyDehydrateCompletionCallback');
+      },
+      notifyRenameCompletionCallback: () => {
+        Logger.debug('notifyRenameCompletionCallback');
+      },
+      noneCallback: () => {
+        Logger.debug('noneCallback');
       },
     };
-    // this.fuse = new fuse(this.paths.root, ops, { debug: true });
-    // this.fuse.mount((err: any) => {
-    //   if (err) {
-    //     Logger.error(`FUSE mount error: ${err}`);
-    //   }
-    // });
 
-    Logger.debug('FUSE: ', { fuse });
+    await this.container.virtualDrive.registerSyncRoot(
+      BindingsManager.PROVIDER_NAME,
+      version,
+      providerId,
+      callbacks,
+      this.paths.icon
+    );
 
-<<<<<<< HEAD:src/workers/sync-engine/BindingManager.ts
-    fuse.isConfigured((isConfigured: boolean) => {
-      Logger.info(`FUSE is configured: ${isConfigured}`);
-
-      if (!isConfigured) {
-        fuse.configure((...params: any[]) => {
-          Logger.debug(`FUSE configure cb params: ${{ params }}`);
-        });
-      }
-    });
-=======
     await this.container.virtualDrive.connectSyncRoot();
 
     await this.load();
->>>>>>> windows:src/apps/sync-engine/BindingManager.ts
   }
 
-  watch() {}
+  watch() {
+    this.container.virtualDrive.watchAndWait(this.paths.root);
+  }
 
   async stop() {
-<<<<<<< HEAD:src/workers/sync-engine/BindingManager.ts
-    this.fuse?.unmount((err: any) => {
-      if (err) {
-        Logger.error(`FUSE unmount error: ${err}`);
-=======
     await this.container.virtualDrive.disconnectSyncRoot();
   }
 
@@ -178,14 +267,10 @@ export class BindingsManager {
         fs.rmdirSync(item, { recursive: true });
       } catch (error) {
         Logger.error(error);
->>>>>>> windows:src/apps/sync-engine/BindingManager.ts
       }
     });
   }
 
-<<<<<<< HEAD:src/workers/sync-engine/BindingManager.ts
-  async cleanUp() {}
-=======
   async update() {
     Logger.info('[SYNC ENGINE]: Updating placeholders');
 
@@ -198,5 +283,4 @@ export class BindingsManager {
       Logger.error('[SYNC ENGINE] ', error);
     }
   }
->>>>>>> windows:src/apps/sync-engine/BindingManager.ts
 }

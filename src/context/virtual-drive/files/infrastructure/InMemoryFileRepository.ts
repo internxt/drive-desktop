@@ -41,6 +41,26 @@ export class InMemoryFileRepository implements FileRepository {
     return undefined;
   }
 
+  listByPartial(partial: Partial<FileAttributes>): Promise<Array<File>> {
+    const keys = Object.keys(partial) as Array<keyof Partial<FileAttributes>>;
+
+    const filesAttributes = this.values.filter((attributes) => {
+      return keys.every((key: keyof FileAttributes) => {
+        if (key === 'contentsId') {
+          return (
+            attributes[key].normalize() == (partial[key] as string).normalize()
+          );
+        }
+
+        return attributes[key] == partial[key];
+      });
+    });
+
+    const files = filesAttributes.map((attributes) => File.from(attributes));
+
+    return Promise.resolve(files);
+  }
+
   async delete(id: File['contentsId']): Promise<void> {
     const deleted = this.files.delete(id);
 

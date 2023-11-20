@@ -7,6 +7,7 @@ import { FolderRepository } from '../../../../../src/context/virtual-drive/folde
 export class FolderRepositoryMock implements FolderRepository {
   public readonly allMock = jest.fn();
   public readonly searchByPartialMock = jest.fn();
+  public readonly listByPartialMock = jest.fn();
   public readonly addMock = jest.fn();
   public readonly deleteMock = jest.fn();
   public readonly updateMock = jest.fn();
@@ -17,6 +18,10 @@ export class FolderRepositoryMock implements FolderRepository {
 
   searchByPartial(partial: Partial<FolderAttributes>): Folder | undefined {
     return this.searchByPartialMock(partial);
+  }
+
+  listByPartial(partial: Partial<FolderAttributes>): Promise<Array<Folder>> {
+    return this.listByPartialMock(partial);
   }
 
   add(folder: Folder): Promise<void> {

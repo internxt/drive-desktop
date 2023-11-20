@@ -5,6 +5,8 @@ export interface FileRepository {
 
   searchByPartial(partial: Partial<FileAttributes>): File | undefined;
 
+  listByPartial(partial: Partial<FileAttributes>): Promise<Array<File>>;
+
   delete(id: File['contentsId']): Promise<void>;
 
   add(file: File): Promise<void>;

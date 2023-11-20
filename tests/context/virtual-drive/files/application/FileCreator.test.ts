@@ -86,7 +86,7 @@ describe('File Creator', () => {
 
   it('deletes the file on remote if it already exists on the path', async () => {
     const path = new FilePath('/cat.png');
-    const existingFile = FileMother.fromPath(path.value);
+    const existingFile = FileMother.fromPartial({ path: path.value });
     const contents = FileContentsMother.random();
     const fileAttributes = FileMother.fromPartial({
       path: path.value,

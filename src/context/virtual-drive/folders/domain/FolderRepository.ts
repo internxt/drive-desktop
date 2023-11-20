@@ -5,6 +5,8 @@ export interface FolderRepository {
 
   searchByPartial(partial: Partial<FolderAttributes>): Folder | undefined;
 
+  listByPartial(partial: Partial<FolderAttributes>): Promise<Array<Folder>>;
+
   add(folder: Folder): Promise<void>;
 
   delete(id: Folder['id']): Promise<void>;
