@@ -1,39 +1,16 @@
 import Logger from 'electron-log';
 
-import fs, { unlink } from 'fs';
 import _path from 'path';
 import { app } from 'electron';
 import { getRootVirtualDrive } from '../main/virutal-root-folder/service';
 import eventBus from '../main/event-bus';
 import { FuseApp } from './FuseApp';
 import { DependencyContainerFactory } from './dependency-injection/DependencyContainerFactory';
-
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-// const fuse = require('@cocalc/fuse-native');
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-// const fuse = require('@gcas/fuse');
-
-// let _fuse: {
-//   unmount(arg0: (err: any) => void): unknown;
-//   mount: (arg0: (err: any) => void) => void;
-// };
-
-const temp = app.getPath('temp');
-
-const tempFolder = _path.join(temp, 'internxt');
+import path from 'path';
 
 let fuseApp: FuseApp;
 
 async function spawnSyncEngineWorker() {
-  await new Promise<void>((resolve) =>
-    fs.stat(tempFolder, (err) => {
-      if (err) {
-        fs.mkdirSync(tempFolder);
-      }
-      resolve();
-    })
-  );
-
   const root = getRootVirtualDrive();
 
   Logger.debug('ROOT FOLDER: ', root);
@@ -42,7 +19,10 @@ async function spawnSyncEngineWorker() {
 
   const container = await containerFactory.build();
 
-  fuseApp = new FuseApp(container, { root, local: tempFolder });
+  const appData = app.getPath('appData');
+  const local = path.join(appData, 'internxt-drive', 'downloaded');
+
+  fuseApp = new FuseApp(container, { root, local });
 
   await fuseApp.start();
 
