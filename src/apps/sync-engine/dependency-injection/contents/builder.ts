@@ -9,11 +9,11 @@ import { ContentsDownloader } from '../../../../context/virtual-drive/contents/a
 import { ContentsUploader } from '../../../../context/virtual-drive/contents/application/ContentsUploader';
 import { NotifyMainProcessHydrationFinished } from '../../../../context/virtual-drive/contents/application/NotifyMainProcessHydrationFinished';
 import { RetryContentsUploader } from '../../../../context/virtual-drive/contents/application/RetryContentsUploader';
-import { temporalFolderProvider } from '../../../../context/virtual-drive/contents/application/temporalFolderProvider';
 import { EnvironmentRemoteFileContentsManagersFactory } from '../../../../context/virtual-drive/contents/infrastructure/EnvironmentRemoteFileContentsManagersFactory';
 import { FSLocalFileProvider } from '../../../../context/virtual-drive/contents/infrastructure/FSLocalFileProvider';
 import { FSLocalFileWriter } from '../../../../context/virtual-drive/contents/infrastructure/FSLocalFileWriter';
 import { ipcRendererSyncEngine } from '../../ipcRendererSyncEngine';
+import { IPCLocalFileContentsDirectoryProvider } from '../../../../context/virtual-drive/contents/infrastructure/IPCLocalFileContentsDirectoryProvider';
 
 export async function buildContentsContainer(
   sharedContainer: SharedContainer
@@ -43,13 +43,16 @@ export async function buildContentsContainer(
 
   const retryContentsUploader = new RetryContentsUploader(contentsUploader);
 
-  const localWriter = new FSLocalFileWriter(temporalFolderProvider);
+  const localFileContentsDirectoryProvider =
+    new IPCLocalFileContentsDirectoryProvider();
+
+  const localWriter = new FSLocalFileWriter(localFileContentsDirectoryProvider);
 
   const contentsDownloader = new ContentsDownloader(
     contentsManagerFactory,
     localWriter,
     ipcRendererSyncEngine,
-    temporalFolderProvider,
+    localFileContentsDirectoryProvider,
     eventBus
   );
 
@@ -62,7 +65,7 @@ export async function buildContentsContainer(
   return {
     contentsUploader: retryContentsUploader,
     contentsDownloader,
-    temporalFolderProvider,
+    localFileContentsDirectoryProvider,
     notifyMainProcessHydrationFinished,
   };
 }
