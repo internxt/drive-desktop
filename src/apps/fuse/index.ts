@@ -25,20 +25,6 @@ async function spawnSyncEngineWorker() {
   fuseApp = new FuseApp(container, { root, local });
 
   await fuseApp.start();
-
-  // fuse.isConfigured((err: Error | null, isConfigured: boolean) => {
-  //   if (err) {
-  //     Logger.error('FUSE ERROR: ', err);
-  //   }
-
-  //   Logger.info(`FUSE is configured: ${isConfigured}`);
-
-  //   if (!isConfigured) {
-  //     fuse.configure((...params: any[]) => {
-  //       Logger.debug(`FUSE configure cb params: ${{ params }}`);
-  //     });
-  //   }
-  // });
 }
 
 export async function stopSyncEngineWatcher() {
