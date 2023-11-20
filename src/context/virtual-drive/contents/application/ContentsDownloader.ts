@@ -10,7 +10,7 @@ import { ContentsManagersFactory } from '../domain/ContentsManagersFactory';
 import { LocalFileContents } from '../domain/LocalFileContents';
 import { LocalFileWriter } from '../domain/LocalFileWriter';
 import { ContentFileDownloader } from '../domain/contentHandlers/ContentFileDownloader';
-import { TemporalFolderProvider } from './temporalFolderProvider';
+import { LocalFileContentsDirectoryProvider } from '../domain/LocalFileContentsDirectoryProvider';
 
 export class ContentsDownloader {
   private readableDownloader: Readable | null;
@@ -18,7 +18,7 @@ export class ContentsDownloader {
     private readonly managerFactory: ContentsManagersFactory,
     private readonly localWriter: LocalFileWriter,
     private readonly ipc: SyncEngineIpc,
-    private readonly temporalFolderProvider: TemporalFolderProvider,
+    private readonly localFileContentsDirectoryProvider: LocalFileContentsDirectoryProvider,
     private readonly eventBus: EventBus
   ) {
     this.readableDownloader = null;
@@ -29,7 +29,7 @@ export class ContentsDownloader {
     file: File,
     cb: CallbackDownload
   ) {
-    const location = await this.temporalFolderProvider();
+    const location = await this.localFileContentsDirectoryProvider.provide();
     const folderPath = path.join(location, 'internxt');
     ensureFolderExists(folderPath);
     const filePath = path.join(folderPath, file.nameWithExtension);

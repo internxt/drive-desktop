@@ -1,9 +1,9 @@
 import { ContentsDownloader } from '../../../../../src/context/virtual-drive/contents/application/ContentsDownloader';
-import { temporalFolderProvider } from '../../../../../src/context/virtual-drive/contents/application/temporalFolderProvider';
 import { FileDownloadEvents } from '../../../../../src/context/virtual-drive/contents/domain/contentHandlers/ContentFileDownloader';
 import { FileMother } from '../../files/domain/FileMother';
 import { EventBusMock } from '../../shared/__mock__/EventBusMock';
 import { IpcRendererSyncEngineMock } from '../../shared/__mock__/IpcRendererSyncEngineMock';
+import { LocalFileContentsDirectoryProviderMock } from '../__mocks__/LocalFileContentsDirectoryProviderMock';
 import { LocalFileWriterMock } from '../__mocks__/LocalFileWriterMock';
 import { ReadableHelloWorld } from '../__mocks__/ReadableHelloWorld';
 import { RemoteFileContentsManagersFactoryMock } from '../__mocks__/RemoteFileContentsManagersFactoryMock';
@@ -11,6 +11,7 @@ import { RemoteFileContentsManagersFactoryMock } from '../__mocks__/RemoteFileCo
 describe.skip('Contents Downloader', () => {
   let localWriter: LocalFileWriterMock;
   let factory: RemoteFileContentsManagersFactoryMock;
+  let localFileContentsDirectoryProviderMock: LocalFileContentsDirectoryProviderMock;
   let ipc: IpcRendererSyncEngineMock;
   let eventBus: EventBusMock;
 
@@ -19,6 +20,8 @@ describe.skip('Contents Downloader', () => {
   beforeEach(() => {
     factory = new RemoteFileContentsManagersFactoryMock();
     localWriter = new LocalFileWriterMock();
+    localFileContentsDirectoryProviderMock =
+      new LocalFileContentsDirectoryProviderMock();
     ipc = new IpcRendererSyncEngineMock();
     eventBus = new EventBusMock();
 
@@ -26,7 +29,7 @@ describe.skip('Contents Downloader', () => {
       factory,
       localWriter,
       ipc,
-      temporalFolderProvider,
+      localFileContentsDirectoryProviderMock,
       eventBus
     );
   });
