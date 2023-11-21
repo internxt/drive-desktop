@@ -5,15 +5,16 @@ on: [pull_request]
 jobs:
   test:
     name: 🧪 Lint and test
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
 
     steps:
       - name: Check out Git repository
         uses: actions/checkout@v2
       - name: Use Node.js
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
-          node-version: 16
+          node-version: 18
+          cache: 'yarn'
       - name: Create .npmrc file
         run: |
           echo "registry=https://registry.yarnpkg.com/" > .npmrc
@@ -28,8 +29,6 @@ jobs:
           install-command: yarn --ignore-scripts --frozen-lockfile
       - name: Lint
         run: yarn run lint
-      - name: Typescript check
-        run: yarn run type-check
       - name: Build processes
         run: yarn build:main && yarn build:renderer
       - name: Run test

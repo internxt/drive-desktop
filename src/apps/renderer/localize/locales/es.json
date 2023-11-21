@@ -1,0 +1,365 @@
+{
+  "login": {
+    "email": {
+      "section": "Correo electrónico"
+    },
+    "password": {
+      "section": "Contraseña",
+      "placeholder": "Contraseña",
+      "forgotten": "¿Has olvidado tu contraseña?",
+      "hide": "Ocultar",
+      "show": "Mostrar"
+    },
+    "action": {
+      "login": "Iniciar sesión",
+      "is-loggin-in": "Iniciando sesión"
+    },
+    "create-account": "Crear cuenta",
+    "2fa": {
+      "section": "Código de autenticación",
+      "description": "Has configurado la autenticación en dos pasos, por favor introduce el código de 6 dígitos",
+      "change-account": "Cambiar cuenta",
+      "wrong-code": "Código incorrecto, inténtalo de nuevo"
+    },
+    "error": {
+      "empty-fields": "Contraseña o correo electrónico incorrectos"
+    },
+    "warning": {
+      "no-internet": "Sin conexión a internet"
+    }
+  },
+  "onboarding": {
+    "slides": {
+      "welcome": {
+        "title": "¡Bienvenido a Internxt Drive!",
+        "description": "Empieza haciendo una copia de seguridad de todos tus archivos y carpetas importantes en la barra lateral del buscador.",
+        "take-tour": "Hacer recorrido"
+      },
+      "files-organization": {
+        "title": "Accede y organiza todos tus archivos almacenados desde la barra lateral",
+        "description": "Tu carpeta personal de Internxt Drive se encuentra en tu barra lateral de {{platform_app}}."
+      },
+      "available-online": {
+        "title": "Ahorra espacio en tu dispositivo con la descarga inteligente",
+        "description": "Guarda los archivos no esenciales como solo online para ahorrar espacio en la unidad local.",
+        "description-2": "Al guardarlos de esta forma, los archivos se eliminan automáticamente de tu dispositivo y se suben a la nube."
+      },
+      "available-offline": {
+        "title": "Sincronización entre dispositivos y acceso a archivos sin conexión",
+        "description": "Almacena tus archivos esenciales como disponibles sin conexión para tenerlos siempre a mano.",
+        "description-2": "Al guardar como disponibles sin conexión, los archivos se almacenan localmente y se sincronizan automáticamente en todos tus dispositivos."
+      },
+      "context-menu": {
+        "title": "Organiza tus archivos con un solo clic",
+        "description": "Basta con hacer clic con el botón derecho en uno o varios archivos y seleccionar cómo deseas almacenarlos.",
+        "list-1": "Etiqueta los archivos disponibles sin conexión para acceder a ellos en cualquier momento, con o sin internet",
+        "list-2": "Etiqueta los archivos sólo en línea para ahorrar espacio físico en el disco duro"
+      },
+      "backups": {
+        "title": "Haz copias de seguridad y protege tus archivos con un par de clics",
+        "description": "Realiza copias de seguridad de tus archivos con solo seleccionar las carpetas que desea proteger.",
+        "description-2": "Programa tus copias de seguridad y mantén tus archivos seguros y actualizados en todos tus dispositivos.",
+        "setup-backups": "Configurar"
+      },
+      "onboarding-completed": {
+        "title": "Ya está todo listo, ¡disfruta de tu privacidad!",
+        "backups-completed": {
+          "title": "{{folders}} carpetas añadidas a las copias de seguridad",
+          "description": "Añade más carpetas y programa copias de seguridad automáticas en Configuración"
+        },
+        "desktop-ready": {
+          "title": "Internxt Drive está listo",
+          "description": "Accede a tus archivos almacenados desde la barra lateral de tu {{platform_phrase}}."
+        }
+      }
+    },
+    "common": {
+      "onboarding-progress": "{{current_slide}} de {{total_slides}}",
+      "continue": "Continuar",
+      "open-drive": "Abrir Internxt Drive",
+      "skip": "Saltar",
+      "platform-phrase": {
+        "windows": "explorador de archivos",
+        "linux": "buscador de archivos",
+        "macos": "Finder"
+      }
+    }
+  },
+  "migration": {
+    "slides": {
+      "welcome": {
+        "title": "Nueva actualización de la aplicación de escritorio de Internxt!",
+        "features": {
+          "title": "Novedades en esta versión:",
+          "feature-1": "Selecciona lo que desees descargar y ahorra espacio en el disco duro.",
+          "feature-2": "Apariencia y sensación nativa del sistema operativo para gestionar tus archivos y carpetas."
+        }
+      },
+      "migration": {
+        "title": "Nos aseguramos de que todos tus archivos están a salvo",
+        "in-progress": "Subiendo archivos pendientes",
+        "item-progress": "{{processed_items}} de {{total_items}} archivos subidos"
+      },
+      "migration-failed": {
+        "title": "Nos aseguramos de que todos tus archivos están a salvo",
+        "message": "No se han podido cargar algunos archivos",
+        "description": "Hemos movido esos archivos a tu escritorio, arrástralos y suéltalos en tu Internxt Drive",
+        "show-files": "Mostrar archivos"
+      },
+      "delete-old-drive-folder": {
+        "title": "Tu Internxt Drive de siempre, en una nueva ubicación",
+        "message": "Tu carpeta personal de Internxt Drive se encuentra en la barra lateral {{platform_app}}."
+      },
+      "new-widget": {
+        "title": "Sé más productivo con nuestro widget rediseñado",
+        "message": "Hemos rediseñado y reconstruido nuestro widget para aumentar la productividad, la comodidad y la velocidad.",
+        "message-2": "Todos los cambios se actualizan en tiempo real."
+      }
+    },
+    "common": {
+      "continue": "Continuar",
+      "cancel": "Cancelar",
+      "open-drive": "Abrir Internxt Drive"
+    }
+  },
+  "widget": {
+    "header": {
+      "usage": {
+        "of": "de",
+        "upgrade": "Comprar espacio"
+      },
+      "dropdown": {
+        "preferences": "Preferencias",
+        "issues": "Lista de errores",
+        "send-feedback": "Enviar feedback",
+        "support": "Ayuda",
+        "logout": "Cerrar sesión",
+        "quit": "Salir"
+      }
+    },
+    "body": {
+      "activity": {
+        "operation": {
+          "downloading": "Descargando",
+          "decrypting": "Desencriptando",
+          "uploading": "Subiendo",
+          "encrypting": "Encriptando",
+          "downloaded": "Descargado",
+          "uploaded": "Subido",
+          "deleting": "Moviendo a la papelera",
+          "deleted": "Movido a la papelera",
+          "renaming": "Renombrando",
+          "renamed": "Renombrado"
+        }
+      },
+      "no-activity": {
+        "title": "No hay actividad reciente",
+        "description": "La información aparecerá aquí cuando hagas cambios, para sincronizar tu carpeta local con Internxt Drive"
+      },
+      "upToDate": {
+        "title": "Tus archivos están actualizados",
+        "subtitle": "La actividad de sincronización se mostrará aquí"
+      },
+      "errors": {
+        "sync": {},
+        "backups": {
+          "folder-not-found": {
+            "text": "No se pudo realizar la copia, no se encuentra la carpeta",
+            "action": "Ver error"
+          }
+        }
+      }
+    },
+    "footer": {
+      "action-description": {
+        "syncing": "Sincronizando tus archivos",
+        "updated": "Sincronizado",
+        "failed": "Sincronización fallida"
+      },
+      "errors": {
+        "lock": "Sincronización bloqueada por otro dispositivo",
+        "offline": "No hay conexión a internet"
+      }
+    },
+    "sync-error": {
+      "title": "No se puede acceder al contenido",
+      "message": "Parece que hay problemas para obtener el contenido de la nube, por favor inténtalo de nuevo",
+      "button": "Reintentar"
+    },
+    "virtual-drive-error": {
+      "title": "No se puede montar tu Drive",
+      "message": "Estamos teniendo problemas para montar tu Internxt Drive, por favor inténtalo de nuevo",
+      "mounting": "Montando..",
+      "button": "Reintentar"
+    }
+  },
+  "settings": {
+    "header": {
+      "section": {
+        "GENERAL": "General",
+        "ACCOUNT": "Cuenta",
+        "BACKUPS": "Backups"
+      }
+    },
+    "general": {
+      "device": {
+        "section": "Nombre del dispositivo",
+        "action": {
+          "edit": "Editar",
+          "cancel": "Cancelar",
+          "save": "Guardar"
+        }
+      },
+      "auto-startup": "Iniciar Internxt Drive al arrancar el sistema",
+      "language": {
+        "label": "Idioma",
+        "options": {
+          "es": "Español (Español)",
+          "en": "English (Inglés)",
+          "fr": "Français (Francés)"
+        }
+      },
+      "theme": {
+        "label": "Apariencia",
+        "options": {
+          "system": "Sistema",
+          "light": "Claro",
+          "dark": "Oscuro"
+        }
+      },
+      "sync": {
+        "folder": "Carpeta Internxt Drive",
+        "change-folder": "Cambiar carpeta"
+      },
+      "app-info": {
+        "open-logs": "Abrir registros",
+        "open-migration": "Empezar migración",
+        "more": "Más información sobre Internxt Drive"
+      }
+    },
+    "account": {
+      "logout": "Cerrar sesión",
+      "usage": {
+        "display": "Usado {{used}} de {{total}}",
+        "upgrade": "Comprar espacio",
+        "change": "Cambiar",
+        "plan": "Plan actual",
+        "free": "Gratis",
+        "loadError": {
+          "title": "No se han podido obtener tus datos de uso",
+          "action": "Reintentar"
+        },
+        "current": {
+          "used": "usado",
+          "of": "de",
+          "in-use": "usado"
+        },
+        "full": {
+          "title": "Tu almacenamiento está lleno",
+          "subtitle": "No puedes subir, sincronizar ni hacer copias de seguridad de archivos. Amplía ahora tu plan o elimina archivos para ahorrar espacio."
+        }
+      }
+    },
+    "backups": {
+      "add-folders": "Haz clic en + para hacer una copia de seguridad de tus carpetas",
+      "selected-folder": "{{count}} carpeta",
+      "selected-folders": "{{count}} carpetas",
+      "activate": "Hacer copia de seguridad de tus carpetas",
+      "view-backups": "Ver copias de seguridad",
+      "select-folders": "Seleccionar carpetas",
+      "last-backup-had-issues": "La última copia de seguridad tuvo algunos problemas",
+      "see-issues": "Ver problemas",
+      "action": {
+        "start": "Hacer copia",
+        "stop": "Stop backup",
+        "running": "Subiendo backup {{progress}}",
+        "last-run": "Última ejecución"
+      },
+      "frequency": {
+        "title": "Frecuencia de subida",
+        "options": {
+          "6h": "Cada 6 h",
+          "12h": "Cada 12 h",
+          "24h": "Cada día",
+          "manually": "Manualmente"
+        }
+      },
+      "folders": {
+        "explanation": "Carpetas a añadir en la siguiente copia de seguridad",
+        "no-folders": "No hay carpetas seleccionadas",
+        "done": "Hecho",
+        "stop-baking-up": {
+          "title": "¿Detener la copia de seguridad de ",
+          "explanation": "Los archivos nuevos que se añadan a esta carpeta ya no se copiarán en Internxt Drive. Los archivos originales permanecerán en tu ordenador",
+          "confirm": "Detener copia de seguridad",
+          "cancel": "Continuar copia de seguridad",
+          "dont-ask-again": "No volver a preguntar"
+        }
+      }
+    }
+  },
+  "issues": {
+    "title": "Lista de errores",
+    "tabs": {
+      "sync": "Sincronización",
+      "backups": "Copias de seguridad",
+      "general": "General"
+    },
+    "no-issues": "No se han encontrado errores",
+    "actions": {
+      "select-folder": "Seleccionar carpeta",
+      "find-folder": "Buscar la carpeta",
+      "try-again": "Volver a intentar"
+    },
+    "short-error-messages": {
+      "unknown": "Error desconocido",
+      "emtpy-file": "El archivo está vacío",
+      "bad-response": "Error de los servidores de Internxt",
+      "no-remote-connection": "No pudimos conectar con los servidores de Internxt",
+      "no-internet-connection": "No hay conexión a Internet",
+      "no-permission": "Permisos insuficientes",
+      "file-does-not-exist": "El archivo no existe",
+      "file-too-big": "El tamaño máximo de carga es de 20GB. Por favor, intenta con archivos más pequeños."
+    },
+    "error-messages": {
+      "no-internet": "No estás conectado a Internet, lo intentaremos más tarde",
+      "no-remote-connection": "No hemos podido conectar con los servidores de Internxt, lo intentaremos más tarde",
+      "cannot-get-current-listings": "No pudimos obtener el estado de tus archivos actuales, lo intentaremos más tarde",
+      "base-directory-does-not-exist": "No se pudo encontrar su carpeta de sincronización",
+      "insuficient-permision-accessing-base-directory": "Internxt App no tiene permiso para acceder a su carpeta de sincronización",
+      "cannot-access-base-directory": "No hemos podido acceder a su carpeta local",
+      "cannot-access-tmp-directory": "No hemos podido acceder a su carpeta local",
+      "unknown": "Error desconocido al intentar sincronizar sus archivos",
+      "empty-file": "No admitimos archivos con un tamaño de 0 bytes debido a nuestros procesos de cifrado",
+      "bad-response": "Error de servidor al procesar este archivo. Por favor, intente iniciar de nuevo el proceso de sincronización",
+      "file-does-not-exist": "Este archivo estaba presente cuando comparamos su carpeta local con su unidad Internxt, pero desapareció cuando intentamos acceder a él. Si has eliminado este archivo, no te preocupes, este error debería desaparecer la próxima vez que se inicie el proceso de sincronización",
+      "file-too-big": "El tamaño máximo de carga es de 20GB. Por favor, intenta con archivos más pequeños."
+    },
+    "report-modal": {
+      "actions": {
+        "close": "Cerrar",
+        "cancel": "Cancelar",
+        "report": "Informar",
+        "send": "Enviar"
+      },
+      "help-url": "Para obtener ayuda, visita",
+      "report": "También puedes enviar un informe sobre este error",
+      "user-comments": "Comentarios",
+      "include-logs": "Incluir los registros de este proceso de sincronización con fines de solucionar el error"
+    }
+  },
+  "feedback": {
+    "window-title": "Enviar comentatios",
+    "title": "Compartir comentatios con Internxt",
+    "description": "Tus comentarios hacen que Internxt mejore y nos ayudan a crear mejores experiencias de producto",
+    "placeholder": "Haznos saber lo que tienes en mente, lo que te gustaría mejorar o describe el error o problema",
+    "characters-count": "{{character_count}}/{{character_limit}}",
+    "send-feedback": "Enviar comentatios",
+    "sent-title": "Gracias por compartir tu opinión",
+    "sent-message": "Realmente apreciamos tu tiempo y esfuerzo para ayudarnos a mejorar nuestros servicios.",
+    "close": "Cerrar"
+  },
+  "common": {
+    "cancel": "Cancelar"
+  }
+}
