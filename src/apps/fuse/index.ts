@@ -7,10 +7,15 @@ import eventBus from '../main/event-bus';
 import { FuseApp } from './FuseApp';
 import { DependencyContainerFactory } from './dependency-injection/DependencyContainerFactory';
 import path from 'path';
+import { HidratationApi } from '../hydratation-api/HidratationApi';
 
 let fuseApp: FuseApp;
 
 async function spawnSyncEngineWorker() {
+  const api = new HidratationApi();
+
+  await api.start();
+
   const root = getRootVirtualDrive();
 
   Logger.debug('ROOT FOLDER: ', root);
