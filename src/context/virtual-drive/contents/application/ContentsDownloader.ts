@@ -86,13 +86,6 @@ export class ContentsDownloader {
     downloader.on('finish', () => {
       // The file download being finished does not mean it has been hidratated
       // TODO: We might want to track this time instead of the whole completion time
-      this.ipc.send('FILE_DOWNLOADED', {
-        name: file.name,
-        extension: file.type,
-        nameWithExtension: file.nameWithExtension,
-        size: file.size,
-        processInfo: { elapsedTime: downloader.elapsedTime() },
-      });
     });
   }
 
