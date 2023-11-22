@@ -1,4 +1,4 @@
-import { LocationProvider } from '../../../../../src/context/virtual-drive/contents/infrastructure/FSLocalFileWriter';
+import { LocationProvider } from '../../../../../src/context/virtual-drive/contents/infrastructure/FSLocalFileSystem';
 
 export class LocationProviderMock {
   public mock = jest.fn();

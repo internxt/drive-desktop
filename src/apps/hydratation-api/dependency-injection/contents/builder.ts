@@ -4,9 +4,10 @@ import { ContentsContainer } from './ContentsContainer';
 import { DependencyInjectionUserProvider } from '../common/user';
 import { DependencyInjectionMnemonicProvider } from '../common/mnemonic';
 import { EnvironmentRemoteFileContentsManagersFactory } from '../../../../context/virtual-drive/contents/infrastructure/EnvironmentRemoteFileContentsManagersFactory';
-import { FSLocalFileWriter } from '../../../../context/virtual-drive/contents/infrastructure/FSLocalFileWriter';
+import { FSLocalFileSystem } from '../../../../context/virtual-drive/contents/infrastructure/FSLocalFileSystem';
 import { DependencyInjectionEventBus } from '../common/eventBus';
 import { FuseAppDataLocalFileContentsDirectoryProvider } from '../../../../context/virtual-drive/shared/infrastructure/LocalFileContentsDirectoryProviders/FuseAppDataLocalFileContentsDirectoryProvider';
+import { LocalContentsDeleter } from '../../../../context/virtual-drive/contents/application/LocalContentsDeleter';
 
 export async function buildContentsContainer(): Promise<ContentsContainer> {
   const user = DependencyInjectionUserProvider.get();
@@ -26,18 +27,21 @@ export async function buildContentsContainer(): Promise<ContentsContainer> {
   const localFileContentsDirectoryProvider =
     new FuseAppDataLocalFileContentsDirectoryProvider();
 
-  const localWriter = new FSLocalFileWriter(
+  const localFS = new FSLocalFileSystem(
     localFileContentsDirectoryProvider,
     'downloaded'
   );
 
   const downloadContentsToPlainFile = new DownloadContentsToPlainFile(
     contentsManagerFactory,
-    localWriter,
+    localFS,
     eventBus
   );
 
+  const localContentsDeleter = new LocalContentsDeleter(localFS);
+
   return {
     downloadContentsToPlainFile,
+    localContentsDeleter,
   };
 }

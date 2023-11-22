@@ -1,7 +1,7 @@
 import { LocalFileContents } from '../../../../../src/context/virtual-drive/contents/domain/LocalFileContents';
-import { LocalFileWriter } from '../../../../../src/context/virtual-drive/contents/domain/LocalFileWriter';
+import { LocalFileSystem } from '../../../../../src/context/virtual-drive/contents/domain/LocalFileSystem';
 
-export class LocalFileWriterMock implements LocalFileWriter {
+export class LocalFileWriterMock implements LocalFileSystem {
   public writeMock = jest.fn();
 
   write(contents: LocalFileContents): Promise<string> {

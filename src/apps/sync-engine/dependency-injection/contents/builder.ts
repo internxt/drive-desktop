@@ -11,7 +11,7 @@ import { NotifyMainProcessHydrationFinished } from '../../../../context/virtual-
 import { RetryContentsUploader } from '../../../../context/virtual-drive/contents/application/RetryContentsUploader';
 import { EnvironmentRemoteFileContentsManagersFactory } from '../../../../context/virtual-drive/contents/infrastructure/EnvironmentRemoteFileContentsManagersFactory';
 import { FSLocalFileProvider } from '../../../../context/virtual-drive/contents/infrastructure/FSLocalFileProvider';
-import { FSLocalFileWriter } from '../../../../context/virtual-drive/contents/infrastructure/FSLocalFileWriter';
+import { FSLocalFileSystem } from '../../../../context/virtual-drive/contents/infrastructure/FSLocalFileSystem';
 import { ipcRendererSyncEngine } from '../../ipcRendererSyncEngine';
 import { IPCLocalFileContentsDirectoryProvider } from '../../../../context/virtual-drive/shared/infrastructure/LocalFileContentsDirectoryProviders/IPCLocalFileContentsDirectoryProvider';
 
@@ -46,7 +46,7 @@ export async function buildContentsContainer(
   const localFileContentsDirectoryProvider =
     new IPCLocalFileContentsDirectoryProvider();
 
-  const localWriter = new FSLocalFileWriter(
+  const localWriter = new FSLocalFileSystem(
     localFileContentsDirectoryProvider,
     'internxt'
   );

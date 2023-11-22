@@ -8,7 +8,7 @@ import { File } from '../../files/domain/File';
 import { EventBus } from '../../shared/domain/EventBus';
 import { ContentsManagersFactory } from '../domain/ContentsManagersFactory';
 import { LocalFileContents } from '../domain/LocalFileContents';
-import { LocalFileWriter } from '../domain/LocalFileWriter';
+import { LocalFileSystem } from '../domain/LocalFileSystem';
 import { ContentFileDownloader } from '../domain/contentHandlers/ContentFileDownloader';
 import { LocalFileContentsDirectoryProvider } from '../../shared/domain/LocalFileContentsDirectoryProvider';
 
@@ -16,7 +16,7 @@ export class ContentsDownloader {
   private readableDownloader: Readable | null;
   constructor(
     private readonly managerFactory: ContentsManagersFactory,
-    private readonly localWriter: LocalFileWriter,
+    private readonly localWriter: LocalFileSystem,
     private readonly ipc: SyncEngineIpc,
     private readonly localFileContentsDirectoryProvider: LocalFileContentsDirectoryProvider,
     private readonly eventBus: EventBus
