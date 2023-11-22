@@ -4,6 +4,10 @@ import Logger from 'electron-log';
 import { buildContentsRouter } from './routes/contents';
 import { DependencyContainerFactory } from './dependency-injection/DependencyContainerFactory';
 
+export interface HidratationApiOptions {
+  debug: boolean;
+}
+
 export class HidratationApi {
   private static readonly PORT = 4567;
   private readonly app;
@@ -23,8 +27,17 @@ export class HidratationApi {
     return routers;
   }
 
-  async start(): Promise<void> {
+  async start(options: HidratationApiOptions): Promise<void> {
     const routers = await this.buildRouters();
+
+    if (options.debug) {
+      this.app.use((req, _res, next) => {
+        Logger.debug(
+          `[${new Date().toLocaleString()}] ${req.method} ${req.url}`
+        );
+        next();
+      });
+    }
 
     Object.entries(routers).forEach(([route, router]: [string, Router]) => {
       this.app.use(`/${route}`, router);

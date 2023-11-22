@@ -16,14 +16,20 @@ export class Open {
       return cb(fuse.ENOENT);
     }
 
-    Logger.debug(path, ' FOUNDED', file.contentsId);
+    const alreadyDownloaded = await this.container.localContentChecker.run(
+      file
+    );
+
+    if (alreadyDownloaded) {
+      Logger.debug('[FUSE] File contents already in local');
+      cb(0, file.id);
+      return;
+    }
 
     try {
-      Logger.info('[FUSE] Starting the download of ', path);
-
+      Logger.debug('[FUSE] File contents not in local');
       await this.container.downloadContentsToPlainFile.run(file);
 
-      Logger.info('[FUSE] Download ended ', path);
       cb(0, file.id);
     } catch (err: unknown) {
       Logger.error('[FUSE] Error downloading file: ', err);

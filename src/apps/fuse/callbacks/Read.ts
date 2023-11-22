@@ -18,7 +18,16 @@ export class Read {
   ) {
     Logger.debug(`READ ${path}`);
 
-    const filePath = this.container.relativePathToAbsoluteConverter.run(path);
+    const file = await this.container.filesSearcher.run({ path });
+
+    if (!file) {
+      cb(fuse.ENOENT);
+      return;
+    }
+
+    const filePath = this.container.relativePathToAbsoluteConverter.run(
+      file.contentsId
+    );
 
     fs.readFile(filePath, (err, data) => {
       if (err) {

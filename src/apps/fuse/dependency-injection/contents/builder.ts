@@ -7,6 +7,7 @@ import { EnvironmentRemoteFileContentsManagersFactory } from '../../../../contex
 import { FSLocalFileSystem } from '../../../../context/virtual-drive/contents/infrastructure/FSLocalFileSystem';
 import { DependencyInjectionEventBus } from '../common/eventBus';
 import { FuseAppDataLocalFileContentsDirectoryProvider } from '../../../../context/virtual-drive/shared/infrastructure/LocalFileContentsDirectoryProviders/FuseAppDataLocalFileContentsDirectoryProvider';
+import { LocalContentChecker } from '../../../../context/virtual-drive/contents/application/LocalContentChecker';
 
 export async function buildContentsContainer(): Promise<ContentsContainer> {
   const user = DependencyInjectionUserProvider.get();
@@ -26,18 +27,21 @@ export async function buildContentsContainer(): Promise<ContentsContainer> {
   const localFileContentsDirectoryProvider =
     new FuseAppDataLocalFileContentsDirectoryProvider();
 
-  const localWriter = new FSLocalFileSystem(
+  const localFS = new FSLocalFileSystem(
     localFileContentsDirectoryProvider,
     'downloaded'
   );
 
   const downloadContentsToPlainFile = new DownloadContentsToPlainFile(
     contentsManagerFactory,
-    localWriter,
+    localFS,
     eventBus
   );
 
+  const localContentChecker = new LocalContentChecker(localFS);
+
   return {
     downloadContentsToPlainFile,
+    localContentChecker,
   };
 }

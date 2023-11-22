@@ -14,7 +14,9 @@ let fuseApp: FuseApp;
 async function spawnSyncEngineWorker() {
   const api = new HidratationApi();
 
-  await api.start();
+  await api.start({
+    debug: false,
+  });
 
   const root = getRootVirtualDrive();
 
