@@ -53,18 +53,25 @@ export class ContentsDownloader {
         Logger.debug('Downloader force stop', this.readableDownloader);
         this.readableDownloader?.destroy();
         this.readableDownloader?.emit('close');
+        this.ipc.send('FILE_DOWNLOADED', {
+          name: file.name,
+          extension: file.type,
+          nameWithExtension: file.nameWithExtension,
+          size: file.size,
+          processInfo: { elapsedTime: downloader.elapsedTime() },
+        });
+      } else {
+        this.ipc.send('FILE_DOWNLOADING', {
+          name: file.name,
+          extension: file.type,
+          nameWithExtension: file.nameWithExtension,
+          size: file.size,
+          processInfo: {
+            elapsedTime: downloader.elapsedTime(),
+            progress: hydrationProgress,
+          },
+        });
       }
-
-      this.ipc.send('FILE_DOWNLOADING', {
-        name: file.name,
-        extension: file.type,
-        nameWithExtension: file.nameWithExtension,
-        size: file.size,
-        processInfo: {
-          elapsedTime: downloader.elapsedTime(),
-          progress: hydrationProgress,
-        },
-      });
     });
 
     downloader.on('error', (error: Error) => {
