@@ -6,7 +6,7 @@ export function buildContentsRouter(container: DependencyContainer): Router {
   const controllers = buildContentsController(container);
   const router = express.Router();
 
-  router.post('/download/:id', controllers.download);
+  router.post('/download/:path', controllers.download);
 
   return router;
 }

@@ -21,7 +21,7 @@ export class DownloadContentsToPlainFile {
       downloader.elapsedTime()
     );
 
-    const write = await this.localWriter.write(localContents);
+    const write = await this.localWriter.write(localContents, file.contentsId);
 
     const events = localContents.pullDomainEvents();
     await this.eventBus.publish(events);

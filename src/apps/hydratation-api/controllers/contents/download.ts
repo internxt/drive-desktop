@@ -4,11 +4,13 @@ import Logger from 'electron-log';
 
 export function buildContentsController(container: DependencyContainer) {
   const download = async (req: Request, res: Response) => {
-    const id = req.params.id;
+    const decodedBuffer = Buffer.from(req.params.path, 'base64');
 
-    Logger.info('DOWNLOAD PETICION TO:', id);
+    const path = decodedBuffer.toString('utf-8').replaceAll('%20', ' ');
 
-    const file = await container.filesSearcher.run({ contentsId: id });
+    Logger.info('DOWNLOAD PETICION TO:', path);
+
+    const file = await container.filesSearcher.run({ path: `/${path}` });
 
     if (!file) {
       res.status(404).send();
@@ -17,7 +19,7 @@ export function buildContentsController(container: DependencyContainer) {
 
     await container.downloadContentsToPlainFile.run(file);
 
-    res.send(`Contents ID: ${req.params.id}`);
+    res.json({ id: file.contentsId });
   };
 
   return {

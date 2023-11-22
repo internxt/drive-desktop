@@ -3,5 +3,5 @@ import { LocalFileContents } from './LocalFileContents';
 type ResultFilePath = string;
 
 export interface LocalFileWriter {
-  write(contents: LocalFileContents): Promise<ResultFilePath>;
+  write(contents: LocalFileContents, name?: string): Promise<ResultFilePath>;
 }

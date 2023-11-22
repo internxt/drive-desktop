@@ -11,13 +11,15 @@ export class FSLocalFileWriter implements LocalFileWriter {
     private readonly subfolder: string
   ) {}
 
-  async write(contents: LocalFileContents): Promise<string> {
+  async write(contents: LocalFileContents, name?: string): Promise<string> {
     const location = await this.locationProvider.provide();
 
     const folderPath = path.join(location, this.subfolder);
     ensureFolderExists(folderPath);
 
-    const filePath = path.join(folderPath, contents.nameWithExtension);
+    const fileName = name || contents.nameWithExtension;
+
+    const filePath = path.join(folderPath, fileName);
 
     await WriteReadableToFile.write(contents.stream, filePath);
 
