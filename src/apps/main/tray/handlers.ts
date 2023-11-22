@@ -28,6 +28,10 @@ ipcMainDrive.on('FILE_DOWNLOADING', () => {
   setTrayStatus('SYNCING');
 });
 
+ipcMainDrive.on('FILE_DOWNLOADED', () => {
+  setTrayStatus('IDLE');
+});
+
 ipcMainDrive.on('FILE_MOVED', () => {
   setTrayStatus('IDLE');
 });
@@ -41,7 +45,7 @@ ipcMainDrive.on('FILE_RENAMING', () => {
 });
 
 ipcMainDrive.on('FILE_RENAMED', () => {
-  setTrayStatus('LOADING');
+  setTrayStatus('IDLE');
 });
 
 ipcMainDrive.on('FILE_CLONNED', () => {
