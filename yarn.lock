@@ -1267,10 +1267,10 @@
     "@typescript-eslint/parser" "^5.4.0"
     eslint-config-prettier "^8.3.0"
 
-"@internxt/inxt-js@^2.0.7":
-  version "2.0.7"
-  resolved "https://npm.pkg.github.com/download/@internxt/inxt-js/2.0.7/807b826712ef6092a1c48769875d273108c3e5ed#807b826712ef6092a1c48769875d273108c3e5ed"
-  integrity sha512-W+LoBR06v654sJG6pRv3tMU3JC4LuSgEpeU66Yelnql/CLdIfS25TnDhzvSheatZRB5HmMvrPWjztBiq8hBqhQ==
+"@internxt/inxt-js@^2.0.8":
+  version "2.0.8"
+  resolved "https://npm.pkg.github.com/download/@internxt/inxt-js/2.0.8/24e128938b2a9025ac420f8ffa90ee26416f5663#24e128938b2a9025ac420f8ffa90ee26416f5663"
+  integrity sha512-50qxyL8O222auIU//g5baEQErrHKAy203Fk9b6O0ceSSjnIYBqRs4RYzMqx+/XvIES+kP8+bzrgrSyYARKxdoA==
   dependencies:
     "@internxt/lib" "^1.1.6"
     "@internxt/sdk" "^1.4.27"
@@ -1293,14 +1293,6 @@
     axios "^0.24.0"
     query-string "^7.1.0"
     uuid "^8.3.2"
-
-"@internxt/webdav-server@^1.0.0":
-  version "1.0.0"
-  resolved "https://npm.pkg.github.com/download/@internxt/webdav-server/1.0.0/902e2042c38ec87be32481d8de888ed851ddc796#902e2042c38ec87be32481d8de888ed851ddc796"
-  integrity sha512-qtxDnLkFB6mEWE7zE5F2+2ruZAAMUM6IpplEiZi5v4WxoMiPIZUi3yXAr6wfnRVBrJN5SyvmDvqm5miCjOBguQ==
-  dependencies:
-    mime-types "^2.1.18"
-    xml-js-builder "^1.0.3"
 
 "@isaacs/cliui@^8.0.2":
   version "8.0.2"
@@ -5263,10 +5255,10 @@ electron-updater@^4.6.4:
     lodash.isequal "^4.5.0"
     semver "^7.3.5"
 
-electron@^25.1.0:
-  version "25.1.0"
-  resolved "https://registry.yarnpkg.com/electron/-/electron-25.1.0.tgz#78c79aba4bef941217c337dca46745b5551b5735"
-  integrity sha512-VKk4G/0euO7ysMKQKHXmI4d3/qR4uHsAtVFXK2WfQUVxBmc160OAm2R6PN9/EXmgXEioKQBtbc2/lvWyYpDbuA==
+electron@^25.8.1:
+  version "25.8.1"
+  resolved "https://registry.yarnpkg.com/electron/-/electron-25.8.1.tgz#092fab5a833db4d9240d4d6f36218cf7ca954f86"
+  integrity sha512-GtcP1nMrROZfFg0+mhyj1hamrHvukfF6of2B/pcWxmWkd5FVY1NJib0tlhiorFZRzQN5Z+APLPr7aMolt7i2AQ==
   dependencies:
     "@electron/get" "^2.0.0"
     "@types/node" "^18.11.18"
@@ -8496,7 +8488,7 @@ mime-db@1.52.0, "mime-db@>= 1.43.0 < 2":
   resolved "https://registry.yarnpkg.com/mime-db/-/mime-db-1.52.0.tgz#bbabcdc02859f4987301c856e3387ce5ec43bf70"
   integrity sha512-sPU4uV7dYlvtWJxwwxHD0PuihVNiE7TyAbQ5SWxDCB9mUYvOgroQOwYQQOKPJ8CIbE+1ETVlOoK1UC2nU3gYvg==
 
-mime-types@^2.1.12, mime-types@^2.1.18, mime-types@^2.1.27, mime-types@^2.1.31, mime-types@~2.1.17, mime-types@~2.1.24, mime-types@~2.1.34:
+mime-types@^2.1.12, mime-types@^2.1.27, mime-types@^2.1.31, mime-types@~2.1.17, mime-types@~2.1.24, mime-types@~2.1.34:
   version "2.1.35"
   resolved "https://registry.yarnpkg.com/mime-types/-/mime-types-2.1.35.tgz#381a871b62a734450660ae3deee44813f70d959a"
   integrity sha512-ZDY+bPm5zTTF+YpCrAU9nK0UgICYPT0QtT1NZWFv4s++TNkcgVaT0g6+4R2uI4MjQjzysHB1zxuWL50hzaeXiw==
@@ -8808,6 +8800,13 @@ node-int64@^0.4.0:
   version "0.4.0"
   resolved "https://registry.yarnpkg.com/node-int64/-/node-int64-0.4.0.tgz#87a9065cdb355d3182d8f94ce11188b825c68a3b"
   integrity sha512-O5lz91xSOeoXP6DulyHfllpq+Eg00MWitZIbtPfoSEvqIHdl5gfcY6hYzDWnj0qD5tz52PI08u9qUvSVeUBeHw==
+
+node-loader@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/node-loader/-/node-loader-2.0.0.tgz#9109a6d828703fd3e0aa03c1baec12a798071562"
+  integrity sha512-I5VN34NO4/5UYJaUBtkrODPWxbobrE4hgDqPrjB25yPkonFhCmZ146vTH+Zg417E9Iwoh1l/MbRs1apc5J295Q==
+  dependencies:
+    loader-utils "^2.0.0"
 
 node-releases@^2.0.12:
   version "2.0.12"
@@ -11921,20 +11920,6 @@ ws@~8.11.0:
   version "8.11.0"
   resolved "https://registry.yarnpkg.com/ws/-/ws-8.11.0.tgz#6a0d36b8edfd9f96d8b25683db2f8d7de6e8e143"
   integrity sha512-HPG3wQd9sNQoT9xHyNCXoDUa+Xw/VevmY9FoHyQ+g+rrMn4j6FB4np7Z0OhdTgjx6MgQLK7jwSy1YecU1+4Asg==
-
-xml-js-builder@^1.0.3:
-  version "1.0.3"
-  resolved "https://registry.yarnpkg.com/xml-js-builder/-/xml-js-builder-1.0.3.tgz#91d275cb926f9dc4167f029357a5b2875b5d3894"
-  integrity sha512-BoLgG/glT45M0jK5PGh9h+iGrQxa8jJk9ofR63GroRifl2tbGB3/yYiVY3wQWHrZgWWfl9+7fhEB/VoD9mWnSg==
-  dependencies:
-    xml-js "^1.6.2"
-
-xml-js@^1.6.2:
-  version "1.6.11"
-  resolved "https://registry.yarnpkg.com/xml-js/-/xml-js-1.6.11.tgz#927d2f6947f7f1c19a316dd8eea3614e8b18f8e9"
-  integrity sha512-7rVi2KMfwfWFl+GpPg6m80IVMWXLRjO+PxTq7V2CDhoGak0wzYzFgUY2m4XJ47OGdXd8eLE8EmwfAmdjw7lC1g==
-  dependencies:
-    sax "^1.2.4"
 
 xml-name-validator@^3.0.0:
   version "3.0.0"

@@ -1,6 +1,6 @@
 {
   "name": "internxt-drive",
-  "version": "2.0.0",
+  "version": "2.0.3",
   "author": "Internxt <hello@internxt.com>",
   "description": "Internxt Drive client UI",
   "license": "AGPL-3.0",
@@ -8,28 +8,28 @@
     "url": "https://github.com/internxt/drive-desktop"
   },
   "scripts": {
-    "build": "concurrently \"npm run build:main\" \"npm run build:renderer\" \"npm run build:sync\" \"npm run build:backups\" \"npm run build:webdav\"",
+    "build": "concurrently \"npm run build:main\" \"npm run build:renderer\" \"npm run build:sync-engine\"",
     "build:main": "cross-env NODE_ENV=production TS_NODE_TRANSPILE_ONLY=true webpack --config ./.erb/configs/webpack.config.main.prod.ts",
     "build:renderer": "cross-env NODE_ENV=production TS_NODE_TRANSPILE_ONLY=true webpack --config ./.erb/configs/webpack.config.renderer.prod.ts",
-    "build:sync": "echo '-- WARNING --: Sync worker has been removed, skipping build'",
-    "build:backups": "cross-env NODE_ENV=production TS_NODE_TRANSPILE_ONLY=true webpack --config ./.erb/configs/webpack.config.backups.ts",
-    "build:webdav": "cross-env NODE_ENV=production TS_NODE_TRANSPILE_ONLY=true webpack --config ./.erb/configs/webpack.config.webdav.ts",
+    "build:sync-engine": "cross-env NODE_ENV=production TS_NODE_TRANSPILE_ONLY=true webpack --config ./.erb/configs/webpack.config.sync-engine.ts",
     "rebuild": "electron-rebuild --parallel --types prod,dev,optional --module-dir release/app",
     "lint": "cross-env NODE_ENV=development eslint . --ext .ts,.tsx",
     "lint:fix": "yarn run lint --fix",
     "package": "ts-node ./.erb/scripts/clean.js dist && npm run build && electron-builder build --publish never",
     "publish": "ts-node ./.erb/scripts/clean.js dist && npm run build && electron-builder build --publish always",
     "postinstall": "ts-node .erb/scripts/check-native-dep.js && electron-builder install-app-deps && cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true webpack --config ./.erb/configs/webpack.config.renderer.dev.dll.ts && opencollective-postinstall",
-    "start": "ts-node ./.erb/scripts/check-port-in-use.js && npm run start:backups && npm run start:webdav && npm run start:renderer",
-    "start:main": "cross-env NODE_ENV=development electron -r ts-node/register/transpile-only ./src/main/main.ts",
+    "start": "ts-node ./.erb/scripts/check-port-in-use.js && npm run start:sync-engine && npm run start:renderer",
+    "start:main": "cross-env NODE_ENV=development electron -r ts-node/register/transpile-only ./src/apps/main/main.ts",
     "start:renderer": "cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true webpack serve --config ./.erb/configs/webpack.config.renderer.dev.ts",
     "start:sync": "cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true webpack --config ./.erb/configs/webpack.config.sync.ts",
-    "start:backups": "cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true webpack --config ./.erb/configs/webpack.config.backups.ts",
-    "start:webdav": "cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true webpack --config ./.erb/configs/webpack.config.webdav.ts",
+    "start:sync-engine": "cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true webpack --config ./.erb/configs/webpack.config.sync-engine.ts",
     "test": "jest && playwright test --config=src/test",
     "test:unit": "jest --silent",
     "test:e2e": "playwright test --config=src/test",
-    "prepare": "husky install"
+    "type-check": "tsc --noEmit --pretty --skipLibCheck",
+    "prepare": "husky install",
+    "reload-virtual-drive": "cd release/app && yarn reload-virtual-drive && cd ../.. && yarn",
+    "start:reload-bindings": "npm run reload-virtual-drive && npm run start"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
@@ -118,6 +118,9 @@
     }
   },
   "jest": {
+    "setupFilesAfterEnv": [
+      "jest-extended/all"
+    ],
     "globals": {
       "ts-jest": {
         "tsconfig": "tsconfig.test.json"
@@ -198,7 +201,7 @@
     "detect-port": "^1.3.0",
     "dotenv": "^10.0.0",
     "dotenv-webpack": "^7.0.3",
-    "electron": "^25.1.0",
+    "electron": "^25.8.1",
     "electron-builder": "^23.6.0",
     "electron-devtools-installer": "^3.2.0",
     "electron-notarize": "^1.1.1",
@@ -229,6 +232,7 @@
     "lint-staged": "^12.1.4",
     "mini-css-extract-plugin": "^2.4.5",
     "ms": "^2.1.3",
+    "node-loader": "^2.0.0",
     "opencollective-postinstall": "^2.0.3",
     "playwright": "1.26.1",
     "postcss": "^8.4.5",
@@ -258,10 +262,9 @@
   "dependencies": {
     "@headlessui/react": "^1.4.2",
     "@iconscout/react-unicons": "^1.1.6",
-    "@internxt/inxt-js": "^2.0.7",
+    "@internxt/inxt-js": "^2.0.8",
     "@internxt/lib": "^1.1.6",
     "@internxt/sdk": "^1.4.33",
-    "@internxt/webdav-server": "^1.0.0",
     "@phosphor-icons/react": "2.0.9",
     "@radix-ui/react-select": "^1.2.2",
     "@sentry/electron": "^4.5.0",
