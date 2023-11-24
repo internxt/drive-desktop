@@ -165,7 +165,6 @@ declare interface Window {
     ): () => void;
     retryVirtualDriveMount(): void;
     startRemoteSync: () => Promise<void>;
-    getDownloadUrls: () => Promise<{ platforms: Record<string, string> }>;
     openUrl: (url: string) => Promise<void>;
     getPreferredAppLanguage: () => Promise<Array<string>>;
   };

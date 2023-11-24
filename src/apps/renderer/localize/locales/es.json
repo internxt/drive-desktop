@@ -123,10 +123,6 @@
     }
   },
   "widget": {
-    "macos-available": {
-      "title": "Desktop v2.0 está disponible!",
-      "message": "La versión nativa de MacOS es más rapida y eficiente, instálala hoy"
-    },
     "header": {
       "usage": {
         "of": "de",

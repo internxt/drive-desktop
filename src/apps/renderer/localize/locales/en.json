@@ -123,10 +123,6 @@
     }
   },
   "widget": {
-    "macos-available": {
-      "title": "Desktop v2.0 is already here!",
-      "message": "The native macOS app is faster and more efficient, install it today"
-    },
     "header": {
       "usage": {
         "of": "of",
