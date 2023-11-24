@@ -65,6 +65,7 @@ ipcMain.on('SYNC_INFO_UPDATE', (_, payload: ProcessInfoUpdatePayload) => {
       'RENAME_ERROR',
       'DELETE_ERROR',
       'METADATA_READ_ERROR',
+      'UPLOAD_ERROR',
     ].includes(payload.action)
   ) {
     addProcessIssue(payload as ProcessIssue);

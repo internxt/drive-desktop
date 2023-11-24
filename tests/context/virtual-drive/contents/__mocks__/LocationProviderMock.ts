@@ -1,7 +1,9 @@
-import { LocationProvider } from '../../../../../src/context/virtual-drive/contents/infrastructure/FSLocalFileSystem';
+import { LocalFileContentsDirectoryProvider } from '../../../../../src/context/virtual-drive/shared/domain/LocalFileContentsDirectoryProvider';
 
-export class LocationProviderMock {
+export class LocationProviderMock
+  implements LocalFileContentsDirectoryProvider
+{
   public mock = jest.fn();
 
-  provider: LocationProvider = this.mock;
+  provide = this.mock;
 }

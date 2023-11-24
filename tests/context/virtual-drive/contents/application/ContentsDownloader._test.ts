@@ -4,12 +4,12 @@ import { FileMother } from '../../files/domain/FileMother';
 import { EventBusMock } from '../../shared/__mock__/EventBusMock';
 import { IpcRendererSyncEngineMock } from '../../shared/__mock__/IpcRendererSyncEngineMock';
 import { LocalFileContentsDirectoryProviderMock } from '../__mocks__/LocalFileContentsDirectoryProviderMock';
-import { LocalFileWriterMock } from '../__mocks__/LocalFileWriterMock';
+import { LocalFileSystemMock } from '../__mocks__/LocalFileWriterMock';
 import { ReadableHelloWorld } from '../__mocks__/ReadableHelloWorld';
 import { RemoteFileContentsManagersFactoryMock } from '../__mocks__/RemoteFileContentsManagersFactoryMock';
 
 describe.skip('Contents Downloader', () => {
-  let localWriter: LocalFileWriterMock;
+  let localWriter: LocalFileSystemMock;
   let factory: RemoteFileContentsManagersFactoryMock;
   let localFileContentsDirectoryProviderMock: LocalFileContentsDirectoryProviderMock;
   let ipc: IpcRendererSyncEngineMock;
@@ -19,7 +19,7 @@ describe.skip('Contents Downloader', () => {
 
   beforeEach(() => {
     factory = new RemoteFileContentsManagersFactoryMock();
-    localWriter = new LocalFileWriterMock();
+    localWriter = new LocalFileSystemMock();
     localFileContentsDirectoryProviderMock =
       new LocalFileContentsDirectoryProviderMock();
     ipc = new IpcRendererSyncEngineMock();

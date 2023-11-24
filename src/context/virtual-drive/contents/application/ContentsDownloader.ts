@@ -8,8 +8,8 @@ import { File } from '../../files/domain/File';
 import { EventBus } from '../../shared/domain/EventBus';
 import { ContentsManagersFactory } from '../domain/ContentsManagersFactory';
 import { LocalFileContents } from '../domain/LocalFileContents';
-import { LocalFileSystem } from '../domain/LocalFileSystem';
 import { ContentFileDownloader } from '../domain/contentHandlers/ContentFileDownloader';
+import { LocalFileSystem } from '../domain/LocalFileSystem';
 import { LocalFileContentsDirectoryProvider } from '../../shared/domain/LocalFileContentsDirectoryProvider';
 
 export class ContentsDownloader {
@@ -47,28 +47,31 @@ export class ContentsDownloader {
     downloader.on('progress', async () => {
       const result = await cb(true, filePath);
       const hydrationProgress = result.progress;
-      Logger.debug(
-        '\n\n******************************************hydrationProgress : \n\n',
-        hydrationProgress
-      );
 
       if (result.finished) {
         downloader.forceStop();
         Logger.debug('Downloader force stop', this.readableDownloader);
         this.readableDownloader?.destroy();
         this.readableDownloader?.emit('close');
+        this.ipc.send('FILE_DOWNLOADED', {
+          name: file.name,
+          extension: file.type,
+          nameWithExtension: file.nameWithExtension,
+          size: file.size,
+          processInfo: { elapsedTime: downloader.elapsedTime() },
+        });
+      } else {
+        this.ipc.send('FILE_DOWNLOADING', {
+          name: file.name,
+          extension: file.type,
+          nameWithExtension: file.nameWithExtension,
+          size: file.size,
+          processInfo: {
+            elapsedTime: downloader.elapsedTime(),
+            progress: hydrationProgress,
+          },
+        });
       }
-
-      this.ipc.send('FILE_DOWNLOADING', {
-        name: file.name,
-        extension: file.type,
-        nameWithExtension: file.nameWithExtension,
-        size: file.size,
-        processInfo: {
-          elapsedTime: downloader.elapsedTime(),
-          progress: hydrationProgress,
-        },
-      });
     });
 
     downloader.on('error', (error: Error) => {
@@ -81,7 +84,6 @@ export class ContentsDownloader {
     });
 
     downloader.on('finish', () => {
-      Logger.error('INSIDE FINISH=======================');
       // The file download being finished does not mean it has been hidratated
       // TODO: We might want to track this time instead of the whole completion time
     });

@@ -14,7 +14,8 @@
     "@gcas/fuse": "^2.4.2",
     "@rudderstack/rudder-sdk-node": "^1.1.4",
     "better-sqlite3": "^8.3.0",
-    "typeorm": "^0.3.16"
+    "typeorm": "^0.3.16",
+    "virtual-drive": "../../../node-win"
   },
   "license": "MIT"
 }

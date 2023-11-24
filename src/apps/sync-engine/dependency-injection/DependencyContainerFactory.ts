@@ -3,6 +3,7 @@ import { getUser } from '../../main/auth/service';
 import { DependencyContainer } from './DependencyContainer';
 import { buildBoundaryBridgeContainer } from './boundaryBridge/build';
 import { DependencyInjectionEventBus } from './common/eventBus';
+import { DependencyInjectionVirtualDrive } from './common/virtualDrive';
 import { buildContentsContainer } from './contents/builder';
 import { buildFilesContainer } from './files/builder';
 import { buildFoldersContainer } from './folders/builder';
@@ -36,6 +37,7 @@ export class DependencyContainerFactory {
     }
 
     const { bus } = DependencyInjectionEventBus;
+    const { virtualDrive } = DependencyInjectionVirtualDrive;
 
     const sharedContainer = buildSharedContainer();
     const itemsContainer = buildItemsContainer();
@@ -57,6 +59,8 @@ export class DependencyContainerFactory {
       ...foldersContainer,
       ...sharedContainer,
       ...boundaryBridgeContainer,
+
+      virtualDrive,
     };
 
     bus.addSubscribers(DomainEventSubscribers.from(container));

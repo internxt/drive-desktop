@@ -48,7 +48,7 @@ export async function buildContentsContainer(
 
   const localWriter = new FSLocalFileSystem(
     localFileContentsDirectoryProvider,
-    'internxt'
+    ''
   );
 
   const contentsDownloader = new ContentsDownloader(
