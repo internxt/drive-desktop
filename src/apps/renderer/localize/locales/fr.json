@@ -12,7 +12,7 @@
     },
     "action": {
       "login": "S'identifier",
-      "is-loggin-in": "Se connecter"
+      "is-logging-in": "Se connecter..."
     },
     "create-account": "Créer un compte",
     "2fa": {

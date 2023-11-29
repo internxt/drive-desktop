@@ -12,7 +12,7 @@
     },
     "action": {
       "login": "Login",
-      "is-logging-in": "Loggin in..."
+      "is-logging-in": "Logging you in..."
     },
     "create-account": "Create account",
     "2fa": {
