@@ -314,13 +314,14 @@
     },
     "short-error-messages": {
       "unknown": "Unknown error",
-      "empty-file": "File is empty",
+      "empty-file": "Empty files are not supported.",
       "bad-response": "Bad response from Internxt servers",
       "no-remote-connection": "Can't connect to Internxt servers",
       "no-internet-connection": "No internet connection",
       "no-permission": "Insufficient permissions",
       "file-does-not-exist": "File doesn't exist",
-      "file-too-big": "Max upload size is 20GB. Please try smaller files."
+      "file-too-big": "Max upload size is 20GB. Please try smaller files.",
+      "file-non-extension": "Files without extensions are not supported."
     },
     "error-messages": {
       "no-internet": "Looks like you are not connected to the internet, we'll try again later",
@@ -334,7 +335,8 @@
       "empty-file": "We don't support files with a size of 0 bytes because of our processes of sharding and encryption",
       "bad-response": "We got a bad response from our servers while processing this file. Please, try starting the sync process again.",
       "file-does-not-exist": "This file was present when we compared your local folder with your Internxt drive but dissapeared when we tried to access it. If you deleted this file, don't worry, this error should dissapear the next time the sync process starts.",
-      "file-too-big": "Max upload size is 20GB. Please try smaller files."
+      "file-too-big": "Max upload size is 20GB. Please try smaller files.",
+      "file-non-extension": "Files without extensions are not supported. Not synchronized."
     },
     "report-modal": {
       "actions": {
