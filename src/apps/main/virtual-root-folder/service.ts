@@ -20,6 +20,17 @@ async function existsFolder(pathname: string): Promise<boolean> {
   }
 }
 
+export async function clearDirectory(pathname: string): Promise<boolean> {
+  try {
+    await fs.rm(pathname, { recursive: true });
+    await fs.mkdir(pathname);
+
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 async function isEmptyFolder(pathname: string): Promise<boolean> {
   const filesInFolder = await fs.readdir(pathname);
 
