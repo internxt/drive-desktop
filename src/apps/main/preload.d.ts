@@ -103,7 +103,7 @@ declare interface Window {
 
     getVirtualDriveRoot(): Promise<string>;
 
-    chooseSyncRootWithDialog: typeof import('./virutal-root-folder/service').chooseSyncRootWithDialog;
+    chooseSyncRootWithDialog: typeof import('./virtual-root-folder/service').chooseSyncRootWithDialog;
 
     path: typeof import('path');
 

@@ -12,10 +12,9 @@ export class FSLocalFileWriter implements LocalFileWriter {
   async write(contents: LocalFileContents): Promise<string> {
     const location = await this.getLocation();
 
-    const folderPath = path.join(location, 'internxt');
-    ensureFolderExists(folderPath);
+    ensureFolderExists(location);
 
-    const filePath = path.join(folderPath, contents.nameWithExtension);
+    const filePath = path.join(location, contents.nameWithExtension);
 
     await WriteReadableToFile.write(contents.stream, filePath);
 

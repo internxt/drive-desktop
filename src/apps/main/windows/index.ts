@@ -7,7 +7,7 @@ import { getProcessIssuesWindow } from './process-issues';
 import { getSettingsWindow } from './settings';
 import { getFeedbackWindow } from './feedback';
 import { getWidget } from './widget';
-import { openVirtualDriveRootFolder } from '../virutal-root-folder/service';
+import { openVirtualDriveRootFolder } from '../virtual-root-folder/service';
 
 function closeAuxWindows() {
   getProcessIssuesWindow()?.close();

@@ -30,9 +30,9 @@ export class ContentsDownloader {
     cb: CallbackDownload
   ) {
     const location = await this.temporalFolderProvider();
-    const folderPath = path.join(location, 'internxt');
-    ensureFolderExists(folderPath);
-    const filePath = path.join(folderPath, file.nameWithExtension);
+    ensureFolderExists(location);
+
+    const filePath = path.join(location, file.nameWithExtension);
 
     downloader.on('start', () => {
       this.ipc.send('FILE_DOWNLOADING', {
