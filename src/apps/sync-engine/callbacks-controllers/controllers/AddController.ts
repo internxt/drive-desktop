@@ -10,6 +10,7 @@ import { PlatformPathConverter } from '../../../../context/virtual-drive/shared/
 import { MapObserver } from '../../../../context/virtual-drive/shared/domain/MapObserver';
 import { PathTypeChecker } from '../../../shared/fs/PathTypeChecker ';
 import { CallbackController } from './CallbackController';
+import logger from 'electron-log';
 
 type FileCreationQueue = Map<
   string,
@@ -55,9 +56,10 @@ export class AddController extends CallbackController {
       const contentsId = await this.fileCreationOrchestrator.run(
         posixRelativePath
       );
-      return callback(true, createFilePlaceholderId(contentsId));
+      logger.debug('[TEST]', posixRelativePath);
+      callback(true, createFilePlaceholderId(contentsId));
     } catch (error: unknown) {
-      Logger.error('Error when adding a file: ', error);
+      Logger.error('Error when adding a file: ' + posixRelativePath, error);
       callback(false, '');
     } finally {
       this.filesQueue.delete(posixRelativePath);
@@ -65,6 +67,7 @@ export class AddController extends CallbackController {
   };
 
   private createFiles = async () => {
+    Logger.debug('FILES TO CREATE', this.foldersQueue.size);
     for (const [posixRelativePath, callback] of this.filesQueue) {
       await this.createFile(posixRelativePath, callback);
     }
@@ -84,6 +87,8 @@ export class AddController extends CallbackController {
     Logger.info('Creating folder', offlineFolder);
     try {
       await this.folderCreator.run(offlineFolder);
+      logger.debug('[TEST]', 'folder created callback emited');
+      callback(true, createFolderPlaceholderId(offlineFolder.uuid));
     } catch (error: unknown) {
       Logger.error('Error creating a folder: ', error);
       callback(false, '');
@@ -96,16 +101,16 @@ export class AddController extends CallbackController {
     posixRelativePath: string,
     callback: CreationCallback
   ) => {
-    try {
-      const offlineFolder = this.offlineFolderCreator.run(posixRelativePath);
-      callback(true, createFolderPlaceholderId(offlineFolder.uuid));
-      this.foldersQueue.set(offlineFolder, () => {
-        //no-op
-      });
-    } catch (error: unknown) {
-      Logger.error('Error on folder creation: ', error);
-      callback(false, '');
-    }
+    // try {
+    const offlineFolder = this.offlineFolderCreator.run(posixRelativePath);
+    // callback(true, createFolderPlaceholderId(offlineFolder.uuid));
+    this.foldersQueue.set(offlineFolder, () => {
+      //no-op
+    });
+    // } catch (error: unknown) {
+    //   Logger.error('Error on folder creation: ', error);
+    //   callback(false, '');
+    // }
   };
 
   async execute(
@@ -121,22 +126,27 @@ export class AddController extends CallbackController {
     const isFolder = await PathTypeChecker.isFolder(absolutePath);
 
     if (isFolder) {
-      this.enqueueFolder(posixRelativePath, callback);
-      await this.createFolders();
-      await this.createFiles();
-      return;
-    }
-
-    this.filesQueue.set(posixRelativePath, callback);
-
-    if (this.foldersQueue.size === 0) {
-      Logger.debug(
-        'File is not going to be queued. Creating...',
-        posixRelativePath
-      );
-      await this.createFiles();
+      logger.debug('[Is Folder]', posixRelativePath);
+      // this.enqueueFolder(posixRelativePath, callback);
+      const offlineFolder = this.offlineFolderCreator.run(posixRelativePath);
+      this.createFolder(offlineFolder, callback);
+      // await this.createFolders();
+      // await this.createFiles();
+      // return;
     } else {
-      Logger.debug('File has been queued: ', posixRelativePath);
+      logger.debug('[Is Not Folder]', posixRelativePath);
+      // this.filesQueue.set(posixRelativePath, callback);
+
+      this.createFile(posixRelativePath, callback);
+      // if (this.foldersQueue.size === 0) {
+      //   Logger.debug(
+      //     'File is not going to be queued. Creating...',
+      //     posixRelativePath
+      //   );
+      //   await this.createFiles();
+      // } else {
+      //   Logger.debug('File has been queued: ', posixRelativePath);
+      // }
     }
   }
 }
