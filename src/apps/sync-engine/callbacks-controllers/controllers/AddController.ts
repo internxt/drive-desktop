@@ -7,19 +7,11 @@ import { createFolderPlaceholderId } from '../../../../context/virtual-drive/fol
 import { OfflineFolder } from '../../../../context/virtual-drive/folders/domain/OfflineFolder';
 import { AbsolutePathToRelativeConverter } from '../../../../context/virtual-drive/shared/application/AbsolutePathToRelativeConverter';
 import { PlatformPathConverter } from '../../../../context/virtual-drive/shared/application/PlatformPathConverter';
-import { MapObserver } from '../../../../context/virtual-drive/shared/domain/MapObserver';
 import { PathTypeChecker } from '../../../shared/fs/PathTypeChecker ';
 import { CallbackController } from './CallbackController';
-import logger from 'electron-log';
+import { FolderNotFoundError } from '../../../../context/virtual-drive/folders/domain/errors/FolderNotFoundError';
+import path from 'path';
 
-type FileCreationQueue = Map<
-  string,
-  (acknowledge: boolean, id: string) => void
->;
-type FolderCreationQueue = Map<
-  OfflineFolder,
-  (acknowledge: boolean, id: string) => void
->;
 type CreationCallback = (acknowledge: boolean, id: string) => void;
 
 export class AddController extends CallbackController {
@@ -28,11 +20,6 @@ export class AddController extends CallbackController {
   //  -a file has been saved
   //  - after a file has been moved to a folder
 
-  private readonly filesQueue: FileCreationQueue;
-  private readonly foldersQueue: FolderCreationQueue;
-
-  private readonly observer: MapObserver;
-
   constructor(
     private readonly absolutePathToRelativeConverter: AbsolutePathToRelativeConverter,
     private readonly fileCreationOrchestrator: FileCreationOrchestrator,
@@ -40,78 +27,80 @@ export class AddController extends CallbackController {
     private readonly offlineFolderCreator: OfflineFolderCreator
   ) {
     super();
-
-    this.filesQueue = new Map();
-    this.foldersQueue = new Map();
-
-    this.observer = new MapObserver(this.foldersQueue, this.createFiles);
-    this.observer.startObserving();
   }
 
   private createFile = async (
     posixRelativePath: string,
-    callback: (acknowledge: boolean, id: string) => void
+    callback: (acknowledge: boolean, id: string) => void,
+    attempts = 3
   ) => {
     try {
       const contentsId = await this.fileCreationOrchestrator.run(
         posixRelativePath
       );
-      logger.debug('[TEST]', posixRelativePath);
+      Logger.debug(
+        'File created callback emited by',
+        posixRelativePath,
+        'contentsId',
+        contentsId
+      );
       callback(true, createFilePlaceholderId(contentsId));
     } catch (error: unknown) {
       Logger.error('Error when adding a file: ' + posixRelativePath, error);
+      if (error instanceof FolderNotFoundError) {
+        await this.createFolderFromFile(posixRelativePath);
+      }
+      if (attempts > 0) {
+        Logger.debug('[Creating file]', 'retrying...', attempts);
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+        await this.createFile(posixRelativePath, callback, attempts - 1);
+        attempts--;
+        return;
+      }
+      Logger.error('[Creating file]', 'Max retries reached', 'callback emited');
       callback(false, '');
-    } finally {
-      this.filesQueue.delete(posixRelativePath);
-    }
-  };
-
-  private createFiles = async () => {
-    Logger.debug('FILES TO CREATE', this.foldersQueue.size);
-    for (const [posixRelativePath, callback] of this.filesQueue) {
-      await this.createFile(posixRelativePath, callback);
-    }
-  };
-
-  private createFolders = async () => {
-    Logger.debug('FOLDERS TO CREATE', this.foldersQueue.size);
-    for (const [offlineFolder, callback] of this.foldersQueue) {
-      await this.createFolder(offlineFolder, callback);
     }
   };
 
   private createFolder = async (
     offlineFolder: OfflineFolder,
-    callback: (acknowledge: boolean, id: string) => void
+    callback: (acknowledge: boolean, id: string) => void,
+    attempts = 3
   ) => {
-    Logger.info('Creating folder', offlineFolder);
     try {
       await this.folderCreator.run(offlineFolder);
-      logger.debug('[TEST]', 'folder created callback emited');
+      Logger.debug('Folder created callback emited', offlineFolder.name);
       callback(true, createFolderPlaceholderId(offlineFolder.uuid));
     } catch (error: unknown) {
-      Logger.error('Error creating a folder: ', error);
+      Logger.error('Error creating folder', error);
+      if (attempts > 0) {
+        Logger.info('[Creating folder]', 'retrying...', attempts);
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+        await this.createFolder(offlineFolder, callback, attempts - 1);
+        attempts--;
+        return;
+      }
+      Logger.debug(
+        '[Creating folder]',
+        'Max retries reached',
+        'callback emited'
+      );
       callback(false, '');
-    } finally {
-      this.foldersQueue.delete(offlineFolder);
     }
   };
 
-  private enqueueFolder = (
-    posixRelativePath: string,
-    callback: CreationCallback
-  ) => {
-    // try {
-    const offlineFolder = this.offlineFolderCreator.run(posixRelativePath);
-    // callback(true, createFolderPlaceholderId(offlineFolder.uuid));
-    this.foldersQueue.set(offlineFolder, () => {
-      //no-op
-    });
-    // } catch (error: unknown) {
-    //   Logger.error('Error on folder creation: ', error);
-    //   callback(false, '');
-    // }
-  };
+  private async createFolderFromFile(posixRelativePath: string) {
+    try {
+      const dir = path.dirname(posixRelativePath);
+      const offlineFolder = this.offlineFolderCreator.run(dir);
+      const newFolder = await this.folderCreator.run(offlineFolder);
+      // TODO: we need to add from node-win a function to convert folders to placeholders manually here
+      Logger.debug('Folder created from file creation', newFolder);
+    } catch (folderCreationError) {
+      Logger.error('Error creating folder from file:', folderCreationError);
+      // TODO: Handle error
+    }
+  }
 
   async execute(
     absolutePath: string,
@@ -124,29 +113,14 @@ export class AddController extends CallbackController {
       PlatformPathConverter.winToPosix(win32RelativePath);
 
     const isFolder = await PathTypeChecker.isFolder(absolutePath);
-
+    const attempts = 3;
     if (isFolder) {
-      logger.debug('[Is Folder]', posixRelativePath);
-      // this.enqueueFolder(posixRelativePath, callback);
+      Logger.debug('[Is Folder]', posixRelativePath);
       const offlineFolder = this.offlineFolderCreator.run(posixRelativePath);
-      this.createFolder(offlineFolder, callback);
-      // await this.createFolders();
-      // await this.createFiles();
-      // return;
+      await this.createFolder(offlineFolder, callback, attempts);
     } else {
-      logger.debug('[Is Not Folder]', posixRelativePath);
-      // this.filesQueue.set(posixRelativePath, callback);
-
-      this.createFile(posixRelativePath, callback);
-      // if (this.foldersQueue.size === 0) {
-      //   Logger.debug(
-      //     'File is not going to be queued. Creating...',
-      //     posixRelativePath
-      //   );
-      //   await this.createFiles();
-      // } else {
-      //   Logger.debug('File has been queued: ', posixRelativePath);
-      // }
+      Logger.debug('[Is File]', posixRelativePath);
+      await this.createFile(posixRelativePath, callback, attempts);
     }
   }
 }
