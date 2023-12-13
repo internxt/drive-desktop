@@ -9,7 +9,6 @@ import { executeControllerWithFallback } from './callbacks-controllers/middlewar
 import { DependencyContainer } from './dependency-injection/DependencyContainer';
 import { ipcRendererSyncEngine } from './ipcRendererSyncEngine';
 import { ProcessIssue } from '../shared/types';
-import logger from 'electron-log';
 
 export type CallbackDownload = (
   success: boolean,
@@ -78,7 +77,7 @@ export class BindingsManager {
         absolutePath: string,
         callback: (acknowledge: boolean, id: string) => boolean
       ) => {
-        logger.debug('[Order]', absolutePath);
+        Logger.debug('Path received from callback', absolutePath);
         controllers.addFile.execute(absolutePath, callback);
       },
       fetchDataCallback: async (
