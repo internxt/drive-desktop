@@ -4,6 +4,7 @@ import { FileDeleter } from '../../../../context/virtual-drive/files/application
 import { FileFinderByContentsId } from '../../../../context/virtual-drive/files/application/FileFinderByContentsId';
 import { FilePathUpdater } from '../../../../context/virtual-drive/files/application/FilePathUpdater';
 import { FilePlaceholderCreatorFromContentsId } from '../../../../context/virtual-drive/files/application/FilePlaceholderCreatorFromContentsId';
+import { FileUpdater } from '../../../../context/virtual-drive/files/application/FileUpdater';
 import { FilesPlaceholderUpdater } from '../../../../context/virtual-drive/files/application/FilesPlaceholderUpdater';
 import { FilesPlaceholderCreator } from '../../../../context/virtual-drive/files/application/FilesPlaceholdersCreator';
 import { RepositoryPopulator } from '../../../../context/virtual-drive/files/application/RepositoryPopulator';
@@ -22,4 +23,5 @@ export interface FilesContainer {
   repositoryPopulator: RepositoryPopulator;
   filesPlaceholderCreator: FilesPlaceholderCreator;
   filesPlaceholderUpdater: FilesPlaceholderUpdater;
+  fileUpdater: FileUpdater;
 }

@@ -23,6 +23,9 @@ import { InMemoryFileRepository } from '../../../../context/virtual-drive/files/
 import { SDKRemoteFileSystem } from '../../../../context/virtual-drive/files/infrastructure/SDKRemoteFileSystem';
 import { NodeWinLocalFileSystem } from '../../../../context/virtual-drive/files/infrastructure/NodeWinLocalFileSystem';
 import { LocalFileIdProvider } from '../../../../context/virtual-drive/shared/application/LocalFileIdProvider';
+import { DependencyInjectionHttpClientsProvider } from '../common/clients';
+import { FileUpdater } from '../../../../context/virtual-drive/files/application/FileUpdater';
+import { HttpRemoteFileSystem } from '../../../../context/virtual-drive/files/infrastructure/HttpRemoteFileSystem';
 
 export async function buildFilesContainer(
   folderContainer: FoldersContainer,
@@ -36,8 +39,10 @@ export async function buildFilesContainer(
   const eventHistory = DependencyInjectionEventRepository.get();
   const { virtualDrive } = DependencyInjectionVirtualDrive;
   const sdk = await DependencyInjectionStorageSdk.get();
+  const clients = DependencyInjectionHttpClientsProvider.get();
 
-  const remoteFileSystem = new SDKRemoteFileSystem(sdk, crypt, user.bucket);
+  const remoteSDKFileSystem = new SDKRemoteFileSystem(sdk, crypt, user.bucket);
+  const remoteHTTPFileSystem = new HttpRemoteFileSystem(clients.newDrive);
   const localFileSystem = new NodeWinLocalFileSystem(
     virtualDrive,
     sharedContainer.relativePathToAbsoluteConverter
@@ -48,10 +53,16 @@ export async function buildFilesContainer(
   const fileFinderByContentsId = new FileFinderByContentsId(repository);
 
   const fileDeleter = new FileDeleter(
-    remoteFileSystem,
+    remoteSDKFileSystem,
     localFileSystem,
     repository,
     folderContainer.allParentFoldersStatusIsExists,
+    ipcRendererSyncEngine
+  );
+
+  const fileUpdater = new FileUpdater(
+    remoteHTTPFileSystem,
+    repository,
     ipcRendererSyncEngine
   );
 
@@ -62,7 +73,7 @@ export async function buildFilesContainer(
   );
 
   const filePathUpdater = new FilePathUpdater(
-    remoteFileSystem,
+    remoteSDKFileSystem,
     localFileSystem,
     repository,
     fileFinderByContentsId,
@@ -72,7 +83,7 @@ export async function buildFilesContainer(
   );
 
   const fileCreator = new FileCreator(
-    remoteFileSystem,
+    remoteSDKFileSystem,
     repository,
     folderContainer.folderFinder,
     fileDeleter,
@@ -120,6 +131,7 @@ export async function buildFilesContainer(
     repositoryPopulator: repositoryPopulator,
     filesPlaceholderCreator,
     filesPlaceholderUpdater,
+    fileUpdater,
   };
 
   return { container, subscribers: [] };
