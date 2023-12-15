@@ -1,9 +1,9 @@
 import { VirtualDrive } from 'virtual-drive/dist';
 import { Folder } from '../domain/Folder';
 import { FolderStatuses } from '../domain/FolderStatus';
-import { LocalFileSystem } from '../domain/file-systems/LocalFileSystem';
+import { LocalFolderSystem } from '../domain/file-systems/LocalFolderSystem';
 
-export class NodeWinLocalFileSystem implements LocalFileSystem {
+export class NodeWinLocalFolderSystem implements LocalFolderSystem {
   constructor(private readonly virtualDrive: VirtualDrive) {}
 
   async createPlaceHolder(folder: Folder): Promise<void> {
