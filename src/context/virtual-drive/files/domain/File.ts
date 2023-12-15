@@ -13,6 +13,7 @@ import { ContentsId } from '../../contents/domain/ContentsId';
 import { FileMovedDomainEvent } from './events/FileMovedDomainEvent';
 import { FileRenamedDomainEvent } from './events/FileRenamedDomainEvent';
 import { FilePlaceholderId, createFilePlaceholderId } from './PlaceholderId';
+import { FileUpdatedDomainEvent } from './events/FileUpdatedDomainEvent';
 
 export type FileAttributes = {
   contentsId: string;
@@ -125,6 +126,20 @@ export class File extends AggregateRoot {
       new FileDeletedDomainEvent({
         aggregateId: this.contentsId,
         size: this._size.value,
+      })
+    );
+  }
+  
+  update(newContentsId: string) {
+    this.updatedAt = new Date();
+    this._contentsId = new ContentsId(newContentsId);
+
+    this.record(
+      new FileUpdatedDomainEvent({
+        aggregateId: newContentsId,
+        size: this._size.value,
+        type: this.type,
+        newContentsId,
       })
     );
   }
