@@ -4,6 +4,7 @@ import { DeleteController } from './controllers/DeleteController';
 import { DownloadFileController } from './controllers/DownloadFileController';
 import { NotifyPlaceholderHydrationFinished } from './controllers/NotifyPlaceholderHydrationFinished';
 import { RenameOrMoveController } from './controllers/RenameOrMoveController';
+import { UpdateFileController } from './controllers/UpdateFileController';
 import { OfflineRenameOrMoveController } from './controllers/offline/OfflineRenameOrMoveController';
 
 export function buildControllers(container: DependencyContainer) {
@@ -12,6 +13,11 @@ export function buildControllers(container: DependencyContainer) {
     container.fileCreationOrchestrator,
     container.folderCreator,
     container.offline.folderCreator
+  );
+
+  const updateFileController = new UpdateFileController(
+    container.fileCreationOrchestrator,
+    container.fileUpdater
   );
 
   const deleteController = new DeleteController(
@@ -44,6 +50,7 @@ export function buildControllers(container: DependencyContainer) {
   return {
     addFile: addFileController,
     renameOrMove: renameOrMoveController,
+    updateFile: updateFileController,
     delete: deleteController,
     downloadFile: downloadFileController,
     offline: {
