@@ -163,6 +163,12 @@ export class BindingsManager {
           callback(false);
         }
       },
+      notifyFileUpdatedCallback: (
+        absolutePath: string,
+        callback: (acknowledge: boolean, id: string) => boolean
+      ) => {
+        controllers.updateFile.execute(absolutePath, callback);
+      },
       validateDataCallback: () => {
         Logger.debug('validateDataCallback');
       },
