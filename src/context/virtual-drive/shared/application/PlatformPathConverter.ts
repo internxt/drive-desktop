@@ -18,4 +18,10 @@ export class PlatformPathConverter {
   static posixToWin(posix: string): string {
     return posix.split(path.posix.sep).join(path.win32.sep);
   }
+
+  static getFatherPathPosix(posixPath: string): string {
+    const normalizedPath = path.normalize(posixPath);
+    const dir = path.dirname(normalizedPath);
+    return this.winToPosix(dir);
+  }
 }
