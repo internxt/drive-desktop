@@ -37,12 +37,6 @@ export class AddController extends CallbackController {
       const contentsId = await this.fileCreationOrchestrator.run(
         posixRelativePath
       );
-      // Logger.debug(
-      //   'File created callback emited by',
-      //   posixRelativePath,
-      //   'contentsId',
-      //   contentsId
-      // );
       callback(true, createFilePlaceholderId(contentsId));
     } catch (error: unknown) {
       Logger.error('Error when adding a file: ' + posixRelativePath, error);
@@ -53,7 +47,6 @@ export class AddController extends CallbackController {
         Logger.info('[Creating file]', 'retrying...', attempts);
         await new Promise((resolve) => setTimeout(resolve, 2000));
         await this.createFile(posixRelativePath, callback, attempts - 1);
-        // attempts--;
         return;
       }
       Logger.error('[Creating file]', 'Max retries reached', 'callback emited');
@@ -87,6 +80,7 @@ export class AddController extends CallbackController {
   };
 
   private async createFolderFather(posixRelativePath: string) {
+    Logger.info('posixRelativePath', posixRelativePath);
     const posixDir =
       PlatformPathConverter.getFatherPathPosix(posixRelativePath);
     try {
