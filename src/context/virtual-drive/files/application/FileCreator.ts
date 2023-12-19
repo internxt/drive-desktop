@@ -33,7 +33,7 @@ export class FileCreator {
 
       const size = new FileSize(contents.size);
 
-      const folder = await this.folderFinder.findFromFilePath(filePath);
+      const folder = this.folderFinder.findFromFilePath(filePath);
 
       const offline = OfflineFile.create(contents.id, folder, size, filePath);
 

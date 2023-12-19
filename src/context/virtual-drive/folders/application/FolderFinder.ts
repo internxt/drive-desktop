@@ -16,7 +16,7 @@ export class FolderFinder {
     return folder;
   }
 
-  async findFromFilePath(path: FilePath): Promise<Folder> {
+  findFromFilePath(path: FilePath): Folder {
     const folder = this.repository.searchByPartial({ path: path.dirname() });
 
     if (!folder) {
