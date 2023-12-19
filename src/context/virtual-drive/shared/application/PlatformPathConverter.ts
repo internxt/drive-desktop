@@ -20,8 +20,9 @@ export class PlatformPathConverter {
   }
 
   static getFatherPathPosix(posixPath: string): string {
-    const normalizedPath = path.normalize(posixPath);
-    const dir = path.dirname(normalizedPath);
-    return this.winToPosix(dir);
+    const pathArray = posixPath.split('/');
+    const folderToCreate = pathArray.pop();
+    const parentPath = pathArray.join('/');
+    return this.winToPosix(parentPath);
   }
 }

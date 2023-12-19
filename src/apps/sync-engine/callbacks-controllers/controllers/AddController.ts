@@ -10,6 +10,7 @@ import { PlatformPathConverter } from '../../../../context/virtual-drive/shared/
 import { PathTypeChecker } from '../../../shared/fs/PathTypeChecker ';
 import { CallbackController } from './CallbackController';
 import { FolderNotFoundError } from '../../../../context/virtual-drive/folders/domain/errors/FolderNotFoundError';
+import { Folder } from '../../../../context/virtual-drive/folders/domain/Folder';
 
 type CreationCallback = (acknowledge: boolean, id: string) => void;
 
@@ -78,25 +79,27 @@ export class AddController extends CallbackController {
       callback(false, '');
     }
   };
+  private async runFolderCreator(posixRelativePath: string): Promise<Folder> {
+    const offlineFolder = this.offlineFolderCreator.run(posixRelativePath);
+    return this.folderCreator.run(offlineFolder);
+  }
 
   private async createFolderFather(posixRelativePath: string) {
     Logger.info('posixRelativePath', posixRelativePath);
     const posixDir =
       PlatformPathConverter.getFatherPathPosix(posixRelativePath);
     try {
-      const offlineFolder = this.offlineFolderCreator.run(posixDir);
-      const newFolder = await this.folderCreator.run(offlineFolder);
-      // TODO: we need to add from node-win a function to convert folders to placeholders manually here
-      Logger.debug('Folder created from father creation:', newFolder);
-    } catch (e) {
-      Logger.error('Error creating folder father creation:', e);
-      if (e instanceof FolderNotFoundError) {
+      await this.runFolderCreator(posixDir);
+    } catch (error) {
+      Logger.error('Error creating folder father creation:', error);
+      if (error instanceof FolderNotFoundError) {
+        // father created
         await this.createFolderFather(posixDir);
+        // child created
+        await this.runFolderCreator(posixDir);
+      } else {
+        throw error;
       }
-      const offlineFolder = this.offlineFolderCreator.run(posixDir);
-      const newFolder = await this.folderCreator.run(offlineFolder);
-      // TODO: we need to add from node-win a function to convert folders to placeholders manually here
-      Logger.debug('Folder created from father creation:', newFolder);
     }
   }
 
@@ -107,9 +110,13 @@ export class AddController extends CallbackController {
       return this.offlineFolderCreator.run(posixRelativePath);
     } catch (error) {
       if (error instanceof FolderNotFoundError) {
+        // father created
         await this.createFolderFather(posixRelativePath);
+        // child created
+        return this.createOfflineFolder(posixRelativePath);
+      } else {
+        throw error;
       }
-      return this.createOfflineFolder(posixRelativePath);
     }
   }
 
