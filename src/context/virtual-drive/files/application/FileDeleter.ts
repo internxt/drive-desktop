@@ -50,7 +50,7 @@ export class FileDeleter {
       file.trash();
 
       await this.remote.trash(file.contentsId);
-      await this.repository.delete(file.contentsId);
+      await this.repository.update(file);
 
       this.ipc.send('FILE_DELETED', {
         name: file.name,
