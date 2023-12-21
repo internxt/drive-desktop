@@ -25,7 +25,7 @@ export class HttpRemoteFileSystem implements RemoteFileSystem {
     const body: CreateFolderDTO = {
       folderName: offline.name,
       parentFolderId: offline.parentId,
-      // uuid: offline.uuid, // TODO: Maybe we can avoid errors sending the uuid, because it's optional
+      uuid: offline.uuid, // TODO: Maybe we can avoid errors sending the uuid, because it's optional
     };
 
     const response = await this.driveClient.post(

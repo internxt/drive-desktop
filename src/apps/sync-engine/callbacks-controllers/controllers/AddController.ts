@@ -76,7 +76,7 @@ export class AddController extends CallbackController {
         'Max retries reached',
         'callback emited'
       );
-      callback(false, '');
+      throw error;
     }
   };
   private async runFolderCreator(posixRelativePath: string): Promise<Folder> {
@@ -98,6 +98,10 @@ export class AddController extends CallbackController {
         // child created
         await this.runFolderCreator(posixDir);
       } else {
+        Logger.error(
+          'Error creating folder father creation inside catch:',
+          error
+        );
         throw error;
       }
     }
@@ -115,6 +119,7 @@ export class AddController extends CallbackController {
         // child created
         return this.createOfflineFolder(posixRelativePath);
       } else {
+        Logger.error('Error creating offline folder:', error);
         throw error;
       }
     }
@@ -134,11 +139,22 @@ export class AddController extends CallbackController {
     const attempts = 3;
     if (isFolder) {
       Logger.debug('[Is Folder]', posixRelativePath);
-      const offlineFolder = await this.createOfflineFolder(posixRelativePath);
-      await this.createFolder(offlineFolder, callback, attempts);
+      let offlineFolder: OfflineFolder;
+      try {
+        offlineFolder = await this.createOfflineFolder(posixRelativePath);
+        await this.createFolder(offlineFolder, callback, attempts);
+      } catch (error) {
+        Logger.error('[folder creation] Error captured:', error);
+        callback(false, '');
+      }
     } else {
       Logger.debug('[Is File]', posixRelativePath);
-      await this.createFile(posixRelativePath, callback, attempts);
+      try {
+        await this.createFile(posixRelativePath, callback, attempts);
+      } catch (error) {
+        Logger.error('[file creation] Error captured:', error);
+        callback(false, '');
+      }
     }
   }
 }
