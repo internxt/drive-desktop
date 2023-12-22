@@ -18,12 +18,12 @@ export class HttpRemoteFileSystem implements RemoteFileSystem {
   ) {}
 
   async persist(offline: OfflineFolder): Promise<FolderAttributes> {
-    if (!offline.name) {
+    if (!offline.name || !offline.basename) {
       throw new Error('Bad folder name');
     }
 
     const body: CreateFolderDTO = {
-      folderName: offline.name,
+      folderName: offline.basename,
       parentFolderId: offline.parentId,
       uuid: offline.uuid, // TODO: Maybe we can avoid errors sending the uuid, because it's optional
     };
