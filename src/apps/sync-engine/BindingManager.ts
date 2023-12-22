@@ -262,14 +262,6 @@ export class BindingsManager {
         Logger.error(error);
       }
     });
-
-    toDeleteFolder.forEach((item) => {
-      try {
-        fs.rmdirSync(item, { recursive: true });
-      } catch (error) {
-        Logger.error(error);
-      }
-    });
   }
 
   async update() {
