@@ -25,6 +25,7 @@ export class FileCreator {
     try {
       const existingFile = this.repository.searchByPartial({
         path: PlatformPathConverter.winToPosix(filePath.value),
+        status: 'EXISTS',
       });
 
       if (existingFile) {
