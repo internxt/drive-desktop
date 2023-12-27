@@ -3,7 +3,7 @@ import _path from 'path';
 import Logger from 'electron-log';
 import { DependencyContainer } from './dependency-injection/DependencyContainer';
 import { Readdir } from './callbacks/Readdir';
-import { Getattr } from './callbacks/Getattr';
+import { GetAttributes } from './callbacks/GetAttributes';
 import { Open } from './callbacks/Open';
 import { Read } from './callbacks/Read';
 import { RenameOrMove } from './callbacks/RenameAndMove';
@@ -34,7 +34,7 @@ export class FuseApp {
     const chance = new Chance();
 
     const readdir = new Readdir(this.container);
-    const getattr = new Getattr(this.container);
+    const getattr = new GetAttributes(this.container);
     const open = new Open(this.container);
     const read = new Read(this.container);
     const renameOrMove = new RenameOrMove(this.container);

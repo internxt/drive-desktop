@@ -4,7 +4,7 @@ import { Callback } from './Callback';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const fuse = require('@gcas/fuse');
 
-export class Getattr {
+export class GetAttributes {
   constructor(private readonly container: DependencyContainer) {}
 
   async execute(path: string, cb: Callback): Promise<void> {
