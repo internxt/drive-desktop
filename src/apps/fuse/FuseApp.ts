@@ -7,6 +7,8 @@ import { GetAttributes } from './callbacks/GetAttributes';
 import { Open } from './callbacks/Open';
 import { Read } from './callbacks/Read';
 import { RenameOrMove } from './callbacks/RenameAndMove';
+import { ListXAttributes } from './callbacks/ListXAttributes';
+import { GetXAttribute } from './callbacks/GetXAttribute';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const fuse = require('@gcas/fuse');
@@ -33,6 +35,8 @@ export class FuseApp {
     const Chance = require('chance');
     const chance = new Chance();
 
+    const listXAttributes = new ListXAttributes();
+    const getXAttribute = new GetXAttribute();
     const readdir = new Readdir(this.container);
     const getattr = new GetAttributes(this.container);
     const open = new Open(this.container);
@@ -40,19 +44,8 @@ export class FuseApp {
     const renameOrMove = new RenameOrMove(this.container);
 
     return {
-      listxattr: (path: string, cb: (err: number, list?: string[]) => void) => {
-        cb(0, []);
-      },
-      getxattr: (
-        path: string,
-        name: string,
-        size: number,
-        cb: (err: number, data: Buffer) => void
-      ) => {
-        Logger.debug('GETXATTR', path, name, size, cb);
-        const buff = Buffer.from('in sync');
-        cb(0, buff);
-      },
+      listxattr: listXAttributes.execute.bind(listXAttributes),
+      getxattr: getXAttribute.export.bind(getXAttribute),
       getattr: getattr.execute.bind(getattr),
       readdir: readdir.execute.bind(readdir),
       open: open.execute.bind(open),
