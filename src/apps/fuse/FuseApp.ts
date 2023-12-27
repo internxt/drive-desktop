@@ -11,6 +11,7 @@ import { ListXAttributes } from './callbacks/ListXAttributes';
 import { GetXAttribute } from './callbacks/GetXAttribute';
 import { CreateFile } from './callbacks/CreateFile';
 import { CreateFolder } from './callbacks/CreateFolder';
+import { DeleteFile } from './callbacks/DeleteFile';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const fuse = require('@gcas/fuse');
@@ -42,6 +43,7 @@ export class FuseApp {
     const renameOrMove = new RenameOrMove(this.container);
     const createFile = new CreateFile(this.container);
     const createFolder = new CreateFolder(this.container);
+    const deleteFile = new DeleteFile(this.container);
 
     return {
       listxattr: listXAttributes.execute.bind(listXAttributes),
@@ -99,19 +101,7 @@ export class FuseApp {
         Logger.debug(`RELEASE ${readPath}`);
         cb(0);
       },
-      unlink: (path: string, cb: (code: number) => void) => {
-        Logger.debug(`UNLINK ${path}`);
-        delete this.files[path];
-
-        unlink(_path.join(this.paths.local, path), (err) => {
-          if (err) {
-            Logger.error('ERROR DELETING FILE', err);
-            return cb(fuse.EIO);
-          }
-
-          cb(0);
-        });
-      },
+      unlink: deleteFile.execute.bind(deleteFile),
       rmdir: (path: string, cb: (code: number) => void) => {
         Logger.debug(`RMDIR ${path}`);
         delete this.folders[path];

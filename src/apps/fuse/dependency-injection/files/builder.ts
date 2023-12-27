@@ -84,5 +84,6 @@ export async function buildFilesContainer(
     filePathUpdater,
     sameFileWasMoved,
     fileCreator,
+    fileDeleter,
   };
 }
