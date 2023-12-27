@@ -11,15 +11,13 @@ import { ListXAttributes } from './callbacks/ListXAttributes';
 import { GetXAttribute } from './callbacks/GetXAttribute';
 import { CreateFile } from './callbacks/CreateFile';
 import { CreateFolder } from './callbacks/CreateFolder';
-import { DeleteFile } from './callbacks/DeleteFile';
+import { TrashFile } from './callbacks/TrashFile';
+import { TrashFolder } from './callbacks/TrashFolder';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const fuse = require('@gcas/fuse');
 
 export class FuseApp {
-  private files: Record<string, any>;
-  private folders: Record<string, any>;
-
   private _fuse: any;
 
   constructor(
@@ -28,10 +26,7 @@ export class FuseApp {
       root: string;
       local: string;
     }
-  ) {
-    this.files = {};
-    this.folders = {};
-  }
+  ) {}
 
   private getOpt() {
     const listXAttributes = new ListXAttributes();
@@ -43,7 +38,8 @@ export class FuseApp {
     const renameOrMove = new RenameOrMove(this.container);
     const createFile = new CreateFile(this.container);
     const createFolder = new CreateFolder(this.container);
-    const deleteFile = new DeleteFile(this.container);
+    const trashFile = new TrashFile(this.container);
+    const trashFolder = new TrashFolder(this.container);
 
     return {
       listxattr: listXAttributes.execute.bind(listXAttributes),
@@ -101,15 +97,8 @@ export class FuseApp {
         Logger.debug(`RELEASE ${readPath}`);
         cb(0);
       },
-      unlink: deleteFile.execute.bind(deleteFile),
-      rmdir: (path: string, cb: (code: number) => void) => {
-        Logger.debug(`RMDIR ${path}`);
-        delete this.folders[path];
-
-        fs.rmdirSync(_path.join(this.paths.local, path));
-
-        cb(0);
-      },
+      unlink: trashFile.execute.bind(trashFile),
+      rmdir: trashFolder.execute.bind(trashFolder),
     };
   }
 

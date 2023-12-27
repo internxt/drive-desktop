@@ -1,5 +1,6 @@
 import { AllParentFoldersStatusIsExists } from '../../../../context/virtual-drive/folders/application/AllParentFoldersStatusIsExists';
 import { FolderCreator } from '../../../../context/virtual-drive/folders/application/FolderCreator';
+import { FolderDeleter } from '../../../../context/virtual-drive/folders/application/FolderDeleter';
 import { FolderFinder } from '../../../../context/virtual-drive/folders/application/FolderFinder';
 import { FolderMover } from '../../../../context/virtual-drive/folders/application/FolderMover';
 import { FolderPathUpdater } from '../../../../context/virtual-drive/folders/application/FolderPathUpdater';
@@ -9,6 +10,7 @@ import { FolderSearcher } from '../../../../context/virtual-drive/folders/applic
 import { FoldersByParentPathSearcher } from '../../../../context/virtual-drive/folders/application/FoldersByParentPathNameLister';
 import { OfflineFolderCreator } from '../../../../context/virtual-drive/folders/application/Offline/OfflineFolderCreator';
 import { Folder } from '../../../../context/virtual-drive/folders/domain/Folder';
+import { FuseLocalFileSystem } from '../../../../context/virtual-drive/folders/infrastructure/FuseLocalFileSystem';
 import { HttpRemoteFileSystem } from '../../../../context/virtual-drive/folders/infrastructure/HttpRemoteFileSystem';
 import { InMemoryFolderRepository } from '../../../../context/virtual-drive/folders/infrastructure/InMemoryFolderRepository';
 import { InMemoryOfflineFolderRepository } from '../../../../context/virtual-drive/folders/infrastructure/InMemoryOfflineFolderRepository';
@@ -26,6 +28,9 @@ export async function buildFoldersContainer(
     clients.drive,
     clients.newDrive
   );
+
+  const localFileSystem = new FuseLocalFileSystem();
+
   const { bus: eventBus } = DependencyInjectionEventBus;
 
   const offlineFolderRepository = new InMemoryOfflineFolderRepository();
@@ -77,6 +82,13 @@ export async function buildFoldersContainer(
     repository
   );
 
+  const folderDeleter = new FolderDeleter(
+    repository,
+    remoteFileSystem,
+    localFileSystem,
+    allParentFoldersStatusIsExists
+  );
+
   const offline = {
     offlineFolderCreator,
   };
@@ -88,6 +100,7 @@ export async function buildFoldersContainer(
     folderPathUpdater,
     allParentFoldersStatusIsExists,
     folderCreator,
+    folderDeleter,
     offline,
   };
 }
