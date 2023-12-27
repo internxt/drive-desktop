@@ -9,7 +9,8 @@ import { Read } from './callbacks/Read';
 import { RenameOrMove } from './callbacks/RenameAndMove';
 import { ListXAttributes } from './callbacks/ListXAttributes';
 import { GetXAttribute } from './callbacks/GetXAttribute';
-import { Create } from './callbacks/Create';
+import { CreateFile } from './callbacks/CreateFile';
+import { CreateFolder } from './callbacks/CreateFolder';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const fuse = require('@gcas/fuse');
@@ -39,7 +40,8 @@ export class FuseApp {
     const open = new Open(this.container);
     const read = new Read(this.container);
     const renameOrMove = new RenameOrMove(this.container);
-    const create = new Create(this.container);
+    const createFile = new CreateFile(this.container);
+    const createFolder = new CreateFolder(this.container);
 
     return {
       listxattr: listXAttributes.execute.bind(listXAttributes),
@@ -49,7 +51,7 @@ export class FuseApp {
       open: open.execute.bind(open),
       read: read.execute.bind(read),
       rename: renameOrMove.execute.bind(renameOrMove),
-      create: create.execute.bind(create),
+      create: createFile.execute.bind(createFile),
       write: (
         path: string,
         fd: string,
@@ -88,20 +90,7 @@ export class FuseApp {
           });
         });
       },
-      mkdir: async (path: string, mode: number, cb: any) => {
-        Logger.debug(`MKDIR ${path}`);
-        this.folders[path] = {
-          uid: 123401,
-          gid: 123401,
-          mode: 16877,
-        };
-
-        Logger.debug('Folder created:', path);
-
-        fs.mkdirSync(_path.join(this.paths.local, path));
-
-        cb(0);
-      },
+      mkdir: createFolder.execute.bind(createFolder),
       release: function (
         readPath: string,
         fd: number,

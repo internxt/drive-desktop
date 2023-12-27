@@ -4,7 +4,7 @@ import { DependencyContainer } from '../dependency-injection/DependencyContainer
 
 type CreateCallback = TypedCallback<never>;
 
-export class Create {
+export class CreateFile {
   constructor(private readonly container: DependencyContainer) {}
 
   async execute(
