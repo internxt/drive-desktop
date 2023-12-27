@@ -167,6 +167,6 @@ export function updateSyncEngine() {
   }
 }
 
-eventBus.on('USER_LOGGED_OUT', stopAndClearSyncEngineWatcher);
-eventBus.on('USER_WAS_UNAUTHORIZED', stopAndClearSyncEngineWatcher);
-eventBus.on('INITIAL_SYNC_READY', spawnSyncEngineWorker);
+// eventBus.on('USER_LOGGED_OUT', stopAndClearSyncEngineWatcher);
+// eventBus.on('USER_WAS_UNAUTHORIZED', stopAndClearSyncEngineWatcher);
+// eventBus.on('INITIAL_SYNC_READY', spawnSyncEngineWorker);

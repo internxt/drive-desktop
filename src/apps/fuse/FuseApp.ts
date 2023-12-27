@@ -6,6 +6,7 @@ import { Readdir } from './callbacks/Readdir';
 import { Getattr } from './callbacks/Getattr';
 import { Open } from './callbacks/Open';
 import { Read } from './callbacks/Read';
+import { RenameOrMove } from './callbacks/RenameAndMove';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const fuse = require('@gcas/fuse');
@@ -32,38 +33,11 @@ export class FuseApp {
     const Chance = require('chance');
     const chance = new Chance();
 
-    const renameFile = async (src: string, dest: string) => {
-      const srcFile = this.files[src];
-
-      const destFile = { ...srcFile };
-
-      delete this.files[src];
-      this.files[dest] = destFile;
-
-      const oldPath = _path.join(this.paths.local, src);
-      const newPath = _path.join(this.paths.local, dest);
-
-      fs.renameSync(oldPath, newPath);
-    };
-
-    const renameFolder = async (src: string, dest: string) => {
-      const srcFolder = this.folders[src];
-
-      const destFolder = { ...srcFolder };
-
-      delete this.folders[src];
-      this.folders[dest] = destFolder;
-
-      const oldPath = _path.join(this.paths.local, src);
-      const newPath = _path.join(this.paths.local, dest);
-
-      fs.renameSync(oldPath, newPath);
-    };
-
     const readdir = new Readdir(this.container);
     const getattr = new Getattr(this.container);
     const open = new Open(this.container);
     const read = new Read(this.container);
+    const renameOrMove = new RenameOrMove(this.container);
 
     return {
       listxattr: (path: string, cb: (err: number, list?: string[]) => void) => {
@@ -83,21 +57,7 @@ export class FuseApp {
       readdir: readdir.execute.bind(readdir),
       open: open.execute.bind(open),
       read: read.execute.bind(read),
-      rename: async (src: string, dest: string, cb: any) => {
-        Logger.debug(`RENAME ${src} -> ${dest}`);
-        // ALSO HANDLES THE MOVE ACTION
-        if (this.files[src] !== undefined) {
-          await renameFile(src, dest);
-          cb(0);
-        }
-
-        if (this.folders[src] !== undefined) {
-          await renameFolder(src, dest);
-          cb(0);
-        }
-
-        return cb(fuse.ENOENT);
-      },
+      rename: renameOrMove.execute.bind(renameOrMove),
       create: async (path: string, mode: number, cb: any) => {
         Logger.debug(`CREATE ${path}`);
         this.files[path] = {

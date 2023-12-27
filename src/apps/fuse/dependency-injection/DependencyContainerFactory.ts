@@ -27,13 +27,15 @@ export class DependencyContainerFactory {
 
     const tree = await treeContainer.existingNodesTreeBuilder.run();
 
+    const sharedContainer = await buildSharedContainer();
+
     const folderContainer = await buildFoldersContainer(tree.folders);
+    const contentsContainer = await buildContentsContainer();
     const filesContainer = await buildFilesContainer(
       tree.files,
-      folderContainer
+      folderContainer,
+      sharedContainer
     );
-    const contentsContainer = await buildContentsContainer();
-    const sharedContainer = await buildSharedContainer();
 
     const container = {
       ...treeContainer,

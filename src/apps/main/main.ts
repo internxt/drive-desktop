@@ -17,6 +17,7 @@ import './windows/settings';
 import './windows/process-issues';
 import './windows';
 import './background-processes/sync-engine';
+import '../fuse/index';
 import './background-processes/process-issues';
 import './device/handlers';
 import './usage/handlers';

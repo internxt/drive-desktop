@@ -8,7 +8,8 @@ import { EventBus } from '../../shared/domain/EventBus';
 import { FileRepository } from '../domain/FileRepository';
 import { RemoteFileSystem } from '../domain/file-systems/RemoteFileSystem';
 import { LocalFileSystem } from '../domain/file-systems/LocalFileSystem';
-import { SyncEngineIpc } from '../../../../apps/sync-engine/ipcRendererSyncEngine';
+import { FileRenameFailedDomainEvent } from '../domain/events/FileRenameFailedDomainEvent';
+import { FileRenameStartedDomainEvent } from '../domain/events/FileRenameStartedDomainEvent';
 
 export class FilePathUpdater {
   constructor(
@@ -17,11 +18,18 @@ export class FilePathUpdater {
     private readonly repository: FileRepository,
     private readonly fileFinderByContentsId: FileFinderByContentsId,
     private readonly folderFinder: FolderFinder,
-    private readonly ipc: SyncEngineIpc,
     private readonly eventBus: EventBus
   ) {}
 
   private async rename(file: File, path: FilePath) {
+    this.eventBus.publish([
+      new FileRenameStartedDomainEvent({
+        aggregateId: file.contentsId,
+        oldName: file.name,
+        nameWithExtension: path.nameWithExtension(),
+      }),
+    ]);
+
     file.rename(path);
 
     await this.remote.rename(file);
@@ -62,25 +70,20 @@ export class FilePathUpdater {
     });
 
     if (destinationFile) {
-      this.ipc.send('FILE_RENAME_ERROR', {
-        name: file.name,
-        extension: file.type,
-        nameWithExtension: file.nameWithExtension,
-        error: 'Renaming error: file already exists',
-      });
+      this.eventBus.publish([
+        new FileRenameFailedDomainEvent({
+          aggregateId: file.contentsId,
+          name: file.name,
+          extension: file.type,
+          nameWithExtension: file.nameWithExtension,
+          error: 'Renaming error: file already exists',
+        }),
+      ]);
       throw new FileAlreadyExistsError(destination.name());
     }
 
     if (destination.extensionMatch(file.type)) {
-      this.ipc.send('FILE_RENAMING', {
-        oldName: file.name,
-        nameWithExtension: destination.nameWithExtension(),
-      });
       await this.rename(file, destination);
-      this.ipc.send('FILE_RENAMED', {
-        oldName: file.name,
-        nameWithExtension: destination.nameWithExtension(),
-      });
       return;
     }
 
