@@ -30,7 +30,7 @@ export class DependencyContainerFactory {
     const sharedContainer = await buildSharedContainer();
 
     const folderContainer = await buildFoldersContainer(tree.folders);
-    const contentsContainer = await buildContentsContainer();
+    const contentsContainer = await buildContentsContainer(sharedContainer);
     const filesContainer = await buildFilesContainer(
       tree.files,
       folderContainer,

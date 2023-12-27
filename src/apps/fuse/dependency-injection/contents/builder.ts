@@ -8,8 +8,14 @@ import { FSLocalFileSystem } from '../../../../context/virtual-drive/contents/in
 import { DependencyInjectionEventBus } from '../common/eventBus';
 import { FuseAppDataLocalFileContentsDirectoryProvider } from '../../../../context/virtual-drive/shared/infrastructure/LocalFileContentsDirectoryProviders/FuseAppDataLocalFileContentsDirectoryProvider';
 import { LocalContentChecker } from '../../../../context/virtual-drive/contents/application/LocalContentChecker';
+import { RetryContentsUploader } from '../../../../context/virtual-drive/contents/application/RetryContentsUploader';
+import { ContentsUploader } from '../../../../context/virtual-drive/contents/application/ContentsUploader';
+import { FSLocalFileProvider } from '../../../../context/virtual-drive/contents/infrastructure/FSLocalFileProvider';
+import { SharedContainer } from '../shared/SharedContainer';
 
-export async function buildContentsContainer(): Promise<ContentsContainer> {
+export async function buildContentsContainer(
+  sharedContainer: SharedContainer
+): Promise<ContentsContainer> {
   const user = DependencyInjectionUserProvider.get();
   const mnemonic = DependencyInjectionMnemonicProvider.get();
   const { bus: eventBus } = DependencyInjectionEventBus;
@@ -40,8 +46,17 @@ export async function buildContentsContainer(): Promise<ContentsContainer> {
 
   const localContentChecker = new LocalContentChecker(localFS);
 
+  const contentsUploader = new ContentsUploader(
+    contentsManagerFactory,
+    new FSLocalFileProvider(),
+    sharedContainer.relativePathToAbsoluteConverter
+  );
+
+  const retryContentsUploader = new RetryContentsUploader(contentsUploader);
+
   return {
     downloadContentsToPlainFile,
     localContentChecker,
+    retryContentsUploader,
   };
 }

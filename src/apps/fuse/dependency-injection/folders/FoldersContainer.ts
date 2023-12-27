@@ -1,3 +1,4 @@
+import { AllParentFoldersStatusIsExists } from '../../../../context/virtual-drive/folders/application/AllParentFoldersStatusIsExists';
 import { FolderFinder } from '../../../../context/virtual-drive/folders/application/FolderFinder';
 import { FolderPathUpdater } from '../../../../context/virtual-drive/folders/application/FolderPathUpdater';
 import { FolderSearcher } from '../../../../context/virtual-drive/folders/application/FolderSearcher';
@@ -8,4 +9,5 @@ export interface FoldersContainer {
   folderSearcher: FolderSearcher;
   foldersByParentPathSearcher: FoldersByParentPathSearcher;
   folderPathUpdater: FolderPathUpdater;
+  allParentFoldersStatusIsExists: AllParentFoldersStatusIsExists;
 }

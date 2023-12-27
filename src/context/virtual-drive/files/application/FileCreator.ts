@@ -9,7 +9,6 @@ import { PlatformPathConverter } from '../../shared/application/PlatformPathConv
 import { FileRepository } from '../domain/FileRepository';
 import { RemoteFileSystem } from '../domain/file-systems/RemoteFileSystem';
 import { OfflineFile } from '../domain/OfflineFile';
-import { SyncEngineIpc } from '../../../../apps/sync-engine/ipcRendererSyncEngine';
 
 export class FileCreator {
   constructor(
@@ -17,8 +16,7 @@ export class FileCreator {
     private readonly repository: FileRepository,
     private readonly folderFinder: FolderFinder,
     private readonly fileDeleter: FileDeleter,
-    private readonly eventBus: EventBus,
-    private readonly ipc: SyncEngineIpc
+    private readonly eventBus: EventBus
   ) {}
 
   async run(filePath: FilePath, contents: RemoteFileContents): Promise<File> {
@@ -43,22 +41,22 @@ export class FileCreator {
       await this.repository.add(file);
 
       await this.eventBus.publish(offline.pullDomainEvents());
-      this.ipc.send('FILE_CREATED', {
-        name: file.name,
-        extension: file.type,
-        nameWithExtension: file.nameWithExtension,
-      });
+      // this.ipc.send('FILE_CREATED', {
+      //   name: file.name,
+      //   extension: file.type,
+      //   nameWithExtension: file.nameWithExtension,
+      // });
 
       return file;
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : 'unknown error';
+      const _message = error instanceof Error ? error.message : 'unknown error';
 
-      this.ipc.send('FILE_UPLOAD_ERROR', {
-        name: filePath.name(),
-        extension: filePath.extension(),
-        nameWithExtension: filePath.nameWithExtension(),
-        error: message,
-      });
+      // this.ipc.send('FILE_UPLOAD_ERROR', {
+      //   name: filePath.name(),
+      //   extension: filePath.extension(),
+      //   nameWithExtension: filePath.nameWithExtension(),
+      //   error: message,
+      // });
       throw error;
     }
   }

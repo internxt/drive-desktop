@@ -9,6 +9,7 @@ import { Read } from './callbacks/Read';
 import { RenameOrMove } from './callbacks/RenameAndMove';
 import { ListXAttributes } from './callbacks/ListXAttributes';
 import { GetXAttribute } from './callbacks/GetXAttribute';
+import { Create } from './callbacks/Create';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const fuse = require('@gcas/fuse');
@@ -31,10 +32,6 @@ export class FuseApp {
   }
 
   private getOpt() {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const Chance = require('chance');
-    const chance = new Chance();
-
     const listXAttributes = new ListXAttributes();
     const getXAttribute = new GetXAttribute();
     const readdir = new Readdir(this.container);
@@ -42,6 +39,7 @@ export class FuseApp {
     const open = new Open(this.container);
     const read = new Read(this.container);
     const renameOrMove = new RenameOrMove(this.container);
+    const create = new Create(this.container);
 
     return {
       listxattr: listXAttributes.execute.bind(listXAttributes),
@@ -51,16 +49,7 @@ export class FuseApp {
       open: open.execute.bind(open),
       read: read.execute.bind(read),
       rename: renameOrMove.execute.bind(renameOrMove),
-      create: async (path: string, mode: number, cb: any) => {
-        Logger.debug(`CREATE ${path}`);
-        this.files[path] = {
-          uid: chance.integer({ min: 100 }),
-          gid: chance.integer({ min: 100 }),
-          mode: 33188,
-        };
-
-        cb(0);
-      },
+      create: create.execute.bind(create),
       write: (
         path: string,
         fd: string,

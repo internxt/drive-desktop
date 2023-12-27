@@ -1,3 +1,4 @@
+import { AllParentFoldersStatusIsExists } from '../../../../context/virtual-drive/folders/application/AllParentFoldersStatusIsExists';
 import { FolderFinder } from '../../../../context/virtual-drive/folders/application/FolderFinder';
 import { FolderMover } from '../../../../context/virtual-drive/folders/application/FolderMover';
 import { FolderPathUpdater } from '../../../../context/virtual-drive/folders/application/FolderPathUpdater';
@@ -55,10 +56,15 @@ export async function buildFoldersContainer(
     folderRenamer
   );
 
+  const allParentFoldersStatusIsExists = new AllParentFoldersStatusIsExists(
+    repository
+  );
+
   return {
     folderFinder,
     folderSearcher,
     foldersByParentPathSearcher,
     folderPathUpdater,
+    allParentFoldersStatusIsExists,
   };
 }
