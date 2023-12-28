@@ -1,15 +1,12 @@
-import { ContentsManagersFactory } from '../domain/ContentsManagersFactory';
-import { LocalContentsProvider } from '../domain/LocalFileProvider';
-import { RemoteFileContents } from '../domain/RemoteFileContents';
-import { PlatformPathConverter } from '../../shared/application/PlatformPathConverter';
-import { RelativePathToAbsoluteConverter } from '../../shared/application/RelativePathToAbsoluteConverter';
-import { EventBus } from '../../shared/domain/EventBus';
+import { EventBus } from '../../../virtual-drive/shared/domain/EventBus';
+import { OfflineContentsManagersFactory } from '../domain/OfflineContentsManagersFactory';
+import { OfflineContentsRepository } from '../domain/OfflineContentsRepository';
+import { OfflineContentsUploadedDomainEvent } from '../domain/events/OfflineContentsUploadedDomainEvent';
 
-export class ContentsUploader {
+export class OfflineContentsUploader {
   constructor(
-    private readonly remoteContentsManagersFactory: ContentsManagersFactory,
-    private readonly contentProvider: LocalContentsProvider,
-    private readonly relativePathToAbsoluteConverter: RelativePathToAbsoluteConverter,
+    private readonly contentsManagersFactory: OfflineContentsManagersFactory,
+    private readonly repository: OfflineContentsRepository,
     private readonly eventBus: EventBus
   ) {}
 
@@ -57,30 +54,25 @@ export class ContentsUploader {
   //   });
   // }
 
-  async run(posixRelativePath: string): Promise<RemoteFileContents> {
-    const win32RelativePath =
-      PlatformPathConverter.posixToWin(posixRelativePath);
-
-    const absolutePath =
-      this.relativePathToAbsoluteConverter.run(win32RelativePath);
-
-    const { contents, abortSignal } = await this.contentProvider.provide(
+  async run(absolutePath: string): Promise<string> {
+    const { contents, abortSignal, size } = await this.repository.provide(
       absolutePath
     );
 
-    const uploader = this.remoteContentsManagersFactory.uploader(
-      contents,
-      abortSignal
-    );
+    const uploader = this.contentsManagersFactory.uploader(size, abortSignal);
 
     // this.registerEvents(uploader, contents);
 
-    const contentsId = await uploader.upload(contents.stream, contents.size);
+    const contentsId = await uploader.upload(contents, size);
 
-    const fileContents = RemoteFileContents.create(contentsId, contents.size);
+    const uploadedEvent = new OfflineContentsUploadedDomainEvent({
+      aggregateId: contentsId,
+      size,
+      absolutePath,
+    });
 
-    await this.eventBus.publish(fileContents.pullDomainEvents());
+    await this.eventBus.publish([uploadedEvent]);
 
-    return fileContents;
+    return contentsId;
   }
 }

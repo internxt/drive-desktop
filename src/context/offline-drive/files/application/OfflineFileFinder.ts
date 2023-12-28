@@ -1,0 +1,16 @@
+import { OfflineFile, OfflineFileAttributes } from '../domain/OfflineFile';
+import { OfflineFileSearcher } from './OfflineFileSearcher';
+
+export class OfflineFileFinder {
+  constructor(private readonly searcher: OfflineFileSearcher) {}
+
+  async run(partial: Partial<OfflineFileAttributes>): Promise<OfflineFile> {
+    const file = await this.searcher.execute(partial);
+
+    if (!file) {
+      throw new Error('Offline file not founded');
+    }
+
+    return file;
+  }
+}

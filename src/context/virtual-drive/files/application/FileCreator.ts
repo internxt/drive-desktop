@@ -3,7 +3,6 @@ import { FilePath } from '../domain/FilePath';
 import { File } from '../domain/File';
 import { FileSize } from '../domain/FileSize';
 import { EventBus } from '../../shared/domain/EventBus';
-import { RemoteFileContents } from '../../contents/domain/RemoteFileContents';
 import { FileDeleter } from './FileDeleter';
 import { PlatformPathConverter } from '../../shared/application/PlatformPathConverter';
 import { FileRepository } from '../domain/FileRepository';
@@ -19,8 +18,10 @@ export class FileCreator {
     private readonly eventBus: EventBus
   ) {}
 
-  async run(filePath: FilePath, contents: RemoteFileContents): Promise<File> {
+  async run(path: string, contentsId: string, size: number): Promise<File> {
     try {
+      const filePath = new FilePath(path);
+
       const existingFile = this.repository.searchByPartial({
         path: PlatformPathConverter.winToPosix(filePath.value),
       });
@@ -29,14 +30,19 @@ export class FileCreator {
         await this.fileDeleter.run(existingFile.contentsId);
       }
 
-      const size = new FileSize(contents.size);
+      const fileSize = new FileSize(size);
 
       const folder = this.folderFinder.findFromFilePath(filePath);
 
-      const offline = OfflineFile.create(contents.id, folder, size, filePath);
+      const offline = OfflineFile.create(
+        contentsId,
+        folder,
+        fileSize,
+        filePath
+      );
 
       const persistedAttributes = await this.remote.persist(offline);
-      const file = File.from(persistedAttributes);
+      const file = File.create(persistedAttributes);
 
       await this.repository.add(file);
 

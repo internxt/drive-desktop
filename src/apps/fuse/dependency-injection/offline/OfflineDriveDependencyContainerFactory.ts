@@ -1,3 +1,5 @@
+import { buildBoundaryBridgeContainer } from './BoundaryBridge/boundaryBridgeContainerBuilder';
+import { buildOfflineContentsContainer } from './OfflineContents/offlineContentsContainerBuilder';
 import { OfflineDriveDependencyContainer } from './OfflineDriveDependencyContainer';
 import { buildOfflineFilesContainer } from './OfflineFiles/builder';
 
@@ -23,9 +25,19 @@ export class OfflineDriveDependencyContainerFactory {
     }
 
     const filesContainer = await buildOfflineFilesContainer();
+    const contentsContainer = await buildOfflineContentsContainer(
+      filesContainer
+    );
+
+    const boundaryBridgeContainer = await buildBoundaryBridgeContainer(
+      filesContainer,
+      contentsContainer
+    );
 
     const container = {
       ...filesContainer,
+      ...contentsContainer,
+      ...boundaryBridgeContainer,
     };
 
     return container;

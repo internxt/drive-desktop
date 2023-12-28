@@ -6,4 +6,6 @@ export interface OfflineFileRepository {
   searchByPartial(
     partial: Partial<OfflineFileAttributes>
   ): Promise<OfflineFile | undefined>;
+
+  delete(id: OfflineFileAttributes['id']): Promise<void>;
 }

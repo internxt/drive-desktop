@@ -25,4 +25,8 @@ export class InMemoryOfflineFileRepository implements OfflineFileRepository {
 
     return file;
   }
+
+  async delete(id: OfflineFileAttributes['id']): Promise<void> {
+    this.files.delete(id);
+  }
 }

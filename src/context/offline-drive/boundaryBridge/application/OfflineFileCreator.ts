@@ -1,15 +1,15 @@
 import { FilePath } from '../../../virtual-drive/files/domain/FilePath';
 import { FileSize } from '../../../virtual-drive/files/domain/FileSize';
 import { EventBus } from '../../../virtual-drive/shared/domain/EventBus';
-import { OfflineFile } from '../domain/OfflineFile';
-import { OfflineFileFileSystem } from '../domain/OfflineFileFileSystem';
-import { OfflineFileRepository } from '../domain/OfflineFileRepository';
+import { OfflineFile } from '../../files/domain/OfflineFile';
+import { OfflineContentsRepository } from '../../contents/domain/OfflineContentsRepository';
+import { OfflineFileRepository } from '../../files/domain/OfflineFileRepository';
 import * as uuid from 'uuid';
 
-export class CreateOfflineFile {
+export class OfflineFileCreator {
   constructor(
-    private readonly repository: OfflineFileRepository,
-    private readonly offlineFileSystem: OfflineFileFileSystem,
+    private readonly fileRepository: OfflineFileRepository,
+    private readonly contentsRepository: OfflineContentsRepository,
     private readonly eventBus: EventBus
   ) {}
 
@@ -21,9 +21,10 @@ export class CreateOfflineFile {
 
     const file = OfflineFile.create(id, createdAt, filePath, size);
 
-    await this.offlineFileSystem.createEmptyFile(file.id);
+    await this.contentsRepository.createEmptyFile(file.id);
 
-    await this.repository.save(file);
+    await this.fileRepository.save(file);
+
     await this.eventBus.publish(file.pullDomainEvents());
   }
 }

@@ -97,29 +97,23 @@ export class File extends AggregateRoot {
     );
   }
 
-  static create(
-    id: number,
-    contentsId: string,
-    folder: Folder,
-    size: FileSize,
-    path: FilePath
-  ): File {
+  static create(attributes: FileAttributes): File {
     const file = new File(
-      id,
-      new ContentsId(contentsId),
-      folder.id,
-      path,
-      size,
-      new Date(),
-      new Date(),
-      FileStatus.Exists
+      attributes.id,
+      new ContentsId(attributes.contentsId),
+      attributes.folderId,
+      new FilePath(attributes.path),
+      new FileSize(attributes.size),
+      new Date(attributes.createdAt),
+      new Date(attributes.updatedAt),
+      FileStatus.fromValue(attributes.status)
     );
 
     file.record(
       new FileCreatedDomainEvent({
-        aggregateId: contentsId,
+        aggregateId: file.contentsId,
         size: file.size,
-        type: path.extension(),
+        type: file.type,
       })
     );
 

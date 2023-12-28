@@ -6,6 +6,7 @@ import { LocalFileSystem } from '../domain/LocalFileSystem';
 import path from 'path';
 import fs from 'fs/promises';
 import Logger from 'electron-log';
+import { ContentsId } from '../domain/ContentsId';
 
 export class FSLocalFileSystem implements LocalFileSystem {
   constructor(
@@ -46,11 +47,18 @@ export class FSLocalFileSystem implements LocalFileSystem {
     const absolutePath = path.join(folder, relativePath);
 
     try {
-      Logger.debug(' exists path,', absolutePath);
       await fs.stat(absolutePath);
       return true;
     } catch {
       return false;
     }
+  }
+
+  async add(contentsId: ContentsId, source: string): Promise<void> {
+    const folder = await this.baseFolder();
+
+    const destination = path.join(folder, contentsId.value);
+
+    await fs.rename(source, destination);
   }
 }

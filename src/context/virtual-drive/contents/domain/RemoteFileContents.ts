@@ -1,6 +1,7 @@
 import { AggregateRoot } from '../../../shared/domain/AggregateRoot';
 import { ContentsId } from './ContentsId';
 import { ContentsSize } from './ContentsSize';
+import { ContentsUploadedDomainEvent } from './events/ContentsUploadedDomainEvent';
 
 export type RemoteFileContentsAttributes = {
   id: string;
@@ -24,7 +25,13 @@ export class RemoteFileContents extends AggregateRoot {
   }
 
   static create(id: ContentsId, size: number): RemoteFileContents {
-    return new RemoteFileContents(id, new ContentsSize(size));
+    const contents = new RemoteFileContents(id, new ContentsSize(size));
+
+    contents.record(
+      new ContentsUploadedDomainEvent({ aggregateId: contents.id, size })
+    );
+
+    return contents;
   }
 
   static from(attributes: RemoteFileContentsAttributes): RemoteFileContents {

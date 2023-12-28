@@ -15,6 +15,7 @@ import { TrashFile } from './callbacks/TrashFile';
 import { TrashFolder } from './callbacks/TrashFolder';
 import { OfflineDriveDependencyContainer } from './dependency-injection/offline/OfflineDriveDependencyContainer';
 import { WriteFile } from './callbacks/WriteFile';
+import { ReleaseCallback } from './callbacks/ReleaseCallback';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const fuse = require('@gcas/fuse');
@@ -47,6 +48,7 @@ export class FuseApp {
     const trashFile = new TrashFile(this.virtualDriveContainer);
     const trashFolder = new TrashFolder(this.virtualDriveContainer);
     const writeFile = new WriteFile(this.offlineDriveContainer);
+    const release = new ReleaseCallback(this.offlineDriveContainer);
 
     return {
       listxattr: listXAttributes.execute.bind(listXAttributes),
@@ -59,14 +61,7 @@ export class FuseApp {
       create: createFile.execute.bind(createFile),
       write: writeFile.execute.bind(writeFile),
       mkdir: createFolder.execute.bind(createFolder),
-      release: function (
-        readPath: string,
-        fd: number,
-        cb: (status: number) => void
-      ): void {
-        Logger.debug(`RELEASE ${readPath}`);
-        cb(0);
-      },
+      release: release.execute.bind(release),
       unlink: trashFile.execute.bind(trashFile),
       rmdir: trashFolder.execute.bind(trashFolder),
     };

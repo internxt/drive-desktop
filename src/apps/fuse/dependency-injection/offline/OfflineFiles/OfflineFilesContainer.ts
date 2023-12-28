@@ -1,9 +1,9 @@
-import { CreateOfflineFile } from '../../../../../context/offline-drive/files/application/CreateOfflineFile';
+import { OfflineFileFinder } from '../../../../../context/offline-drive/files/application/OfflineFileFinder';
 import { OfflineFileSearcher } from '../../../../../context/offline-drive/files/application/OfflineFileSearcher';
-import { WriteToOfflineFile } from '../../../../../context/offline-drive/files/application/WriteToOfflineFile';
+import { OfflineFileSizeIncreaser } from '../../../../../context/offline-drive/files/application/OfflineFileSizeIncreaser';
 
 export interface OfflineFilesContainer {
-  createOfflineFile: CreateOfflineFile;
   offlineFileSearcher: OfflineFileSearcher;
-  writeToOfflineFile: WriteToOfflineFile;
+  offlineFileFinder: OfflineFileFinder;
+  offlineFileSizeIncreaser: OfflineFileSizeIncreaser;
 }

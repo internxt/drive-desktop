@@ -1,11 +1,14 @@
 import fs from 'fs';
-import { OfflineFileFileSystem } from '../domain/OfflineFileFileSystem';
-import { OfflineFileAttributes } from '../domain/OfflineFile';
+import { OfflineContentsRepository } from '../domain/OfflineContentsRepository';
+import { OfflineFileAttributes } from '../../files/domain/OfflineFile';
 import { LocalFileContentsDirectoryProvider } from '../../../virtual-drive/shared/domain/LocalFileContentsDirectoryProvider';
 import path from 'path';
 import Logger from 'electron-log';
+import { Readable } from 'stream';
 
-export class FSOfflineFileFileSystem implements OfflineFileFileSystem {
+export class NodeFSOfflineContentsRepository
+  implements OfflineContentsRepository
+{
   constructor(
     private readonly locationProvider: LocalFileContentsDirectoryProvider,
     private readonly subfolder: string
@@ -85,4 +88,12 @@ export class FSOfflineFileFileSystem implements OfflineFileFileSystem {
       });
     });
   }
+
+  async getAbsolutePath(id: string): Promise<string> {
+    return this.filePath(id);
+  }
+
+  provide: (
+    path: string
+  ) => Promise<{ contents: Readable; size: number; abortSignal: AbortSignal }>;
 }
