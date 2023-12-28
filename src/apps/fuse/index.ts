@@ -5,9 +5,10 @@ import { app } from 'electron';
 import { getRootVirtualDrive } from '../main/virutal-root-folder/service';
 import eventBus from '../main/event-bus';
 import { FuseApp } from './FuseApp';
-import { DependencyContainerFactory } from './dependency-injection/DependencyContainerFactory';
+import { DependencyContainerFactory } from './dependency-injection/virtual-drive/DependencyContainerFactory';
 import path from 'path';
 import { HidratationApi } from '../hydratation-api/HidratationApi';
+import { OfflineDriveDependencyContainerFactory } from './dependency-injection/offline/OfflineDriveDependencyContainerFactory';
 
 let fuseApp: FuseApp;
 
@@ -22,14 +23,20 @@ async function spawnSyncEngineWorker() {
 
   Logger.debug('ROOT FOLDER: ', root);
 
-  const containerFactory = new DependencyContainerFactory();
+  const virtualDriveContainerFactory = new DependencyContainerFactory();
+  const virtualDriveContainer = await virtualDriveContainerFactory.build();
 
-  const container = await containerFactory.build();
+  const offlineDriveContainerFactory =
+    new OfflineDriveDependencyContainerFactory();
+  const offlineDriveContainer = await offlineDriveContainerFactory.build();
 
   const appData = app.getPath('appData');
   const local = path.join(appData, 'internxt-drive', 'downloaded');
 
-  fuseApp = new FuseApp(container, { root, local });
+  fuseApp = new FuseApp(virtualDriveContainer, offlineDriveContainer, {
+    root,
+    local,
+  });
 
   await fuseApp.start();
 }

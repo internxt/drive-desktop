@@ -1,5 +1,5 @@
 import Logger from 'electron-log';
-import { DependencyContainer } from '../dependency-injection/DependencyContainer';
+import { DependencyContainer } from '../dependency-injection/virtual-drive/DependencyContainer';
 import { TypedCallback } from './Callback';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const fuse = require('@gcas/fuse');

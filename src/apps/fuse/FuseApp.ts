@@ -1,7 +1,7 @@
 import fs, { unlink } from 'fs';
 import _path from 'path';
 import Logger from 'electron-log';
-import { DependencyContainer } from './dependency-injection/DependencyContainer';
+import { DependencyContainer } from './dependency-injection/virtual-drive/DependencyContainer';
 import { Readdir } from './callbacks/Readdir';
 import { GetAttributes } from './callbacks/GetAttributes';
 import { Open } from './callbacks/Open';
@@ -13,6 +13,8 @@ import { CreateFile } from './callbacks/CreateFile';
 import { CreateFolder } from './callbacks/CreateFolder';
 import { TrashFile } from './callbacks/TrashFile';
 import { TrashFolder } from './callbacks/TrashFolder';
+import { OfflineDriveDependencyContainer } from './dependency-injection/offline/OfflineDriveDependencyContainer';
+import { WriteFile } from './callbacks/WriteFile';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const fuse = require('@gcas/fuse');
@@ -21,7 +23,8 @@ export class FuseApp {
   private _fuse: any;
 
   constructor(
-    private readonly container: DependencyContainer,
+    private readonly virtualDriveContainer: DependencyContainer,
+    private readonly offlineDriveContainer: OfflineDriveDependencyContainer,
     private readonly paths: {
       root: string;
       local: string;
@@ -31,15 +34,19 @@ export class FuseApp {
   private getOpt() {
     const listXAttributes = new ListXAttributes();
     const getXAttribute = new GetXAttribute();
-    const readdir = new Readdir(this.container);
-    const getattr = new GetAttributes(this.container);
-    const open = new Open(this.container);
-    const read = new Read(this.container);
-    const renameOrMove = new RenameOrMove(this.container);
-    const createFile = new CreateFile(this.container);
-    const createFolder = new CreateFolder(this.container);
-    const trashFile = new TrashFile(this.container);
-    const trashFolder = new TrashFolder(this.container);
+    const readdir = new Readdir(this.virtualDriveContainer);
+    const getattr = new GetAttributes(
+      this.virtualDriveContainer,
+      this.offlineDriveContainer
+    );
+    const open = new Open(this.virtualDriveContainer);
+    const read = new Read(this.virtualDriveContainer);
+    const renameOrMove = new RenameOrMove(this.virtualDriveContainer);
+    const createFile = new CreateFile(this.offlineDriveContainer);
+    const createFolder = new CreateFolder(this.virtualDriveContainer);
+    const trashFile = new TrashFile(this.virtualDriveContainer);
+    const trashFolder = new TrashFolder(this.virtualDriveContainer);
+    const writeFile = new WriteFile(this.offlineDriveContainer);
 
     return {
       listxattr: listXAttributes.execute.bind(listXAttributes),
@@ -50,44 +57,7 @@ export class FuseApp {
       read: read.execute.bind(read),
       rename: renameOrMove.execute.bind(renameOrMove),
       create: createFile.execute.bind(createFile),
-      write: (
-        path: string,
-        fd: string,
-        buffer: Buffer,
-        len: number,
-        pos: number,
-        cb: any
-      ) => {
-        Logger.debug(`WRITE ${path}`);
-        const fullPath = _path.join(this.paths.local, path);
-        fs.open(fullPath, 'w', (err, fileDescriptor) => {
-          if (err) {
-            console.error(`Error opening file for writing: ${err}`);
-            cb(fuse.ENOENT); // Indicate an error code, e.g., if the file doesn't exist
-            return;
-          }
-
-          // Create a Buffer from the incoming data
-          const dataBuffer = Buffer.from(buffer.slice(0, len));
-
-          // Write data to the file at the specified position
-          fs.write(fileDescriptor, dataBuffer, 0, len, pos, (writeErr) => {
-            if (writeErr) {
-              console.error(`Error writing to file: ${writeErr}`);
-              cb(fuse.EIO); // Indicate an error code, e.g., EIO for I/O error
-            } else {
-              cb(len); // Indicate success by returning the number of bytes written
-            }
-
-            // Close the file
-            fs.close(fileDescriptor, () => {
-              if (writeErr) {
-                console.error(`Error closing file: ${writeErr}`);
-              }
-            });
-          });
-        });
-      },
+      write: writeFile.execute.bind(writeFile),
       mkdir: createFolder.execute.bind(createFolder),
       release: function (
         readPath: string,

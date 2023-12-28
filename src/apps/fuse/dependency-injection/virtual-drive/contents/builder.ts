@@ -1,17 +1,17 @@
 import { Environment } from '@internxt/inxt-js';
-import { DownloadContentsToPlainFile } from '../../../../context/virtual-drive/contents/application/DownloadContentsToPlainFile';
-import { ContentsContainer } from './ContentsContainer';
-import { DependencyInjectionUserProvider } from '../common/user';
-import { DependencyInjectionMnemonicProvider } from '../common/mnemonic';
-import { EnvironmentRemoteFileContentsManagersFactory } from '../../../../context/virtual-drive/contents/infrastructure/EnvironmentRemoteFileContentsManagersFactory';
-import { FSLocalFileSystem } from '../../../../context/virtual-drive/contents/infrastructure/FSLocalFileSystem';
-import { DependencyInjectionEventBus } from '../common/eventBus';
-import { FuseAppDataLocalFileContentsDirectoryProvider } from '../../../../context/virtual-drive/shared/infrastructure/LocalFileContentsDirectoryProviders/FuseAppDataLocalFileContentsDirectoryProvider';
-import { LocalContentChecker } from '../../../../context/virtual-drive/contents/application/LocalContentChecker';
-import { RetryContentsUploader } from '../../../../context/virtual-drive/contents/application/RetryContentsUploader';
-import { ContentsUploader } from '../../../../context/virtual-drive/contents/application/ContentsUploader';
-import { FSLocalFileProvider } from '../../../../context/virtual-drive/contents/infrastructure/FSLocalFileProvider';
+import { ContentsUploader } from '../../../../../context/virtual-drive/contents/application/ContentsUploader';
+import { DownloadContentsToPlainFile } from '../../../../../context/virtual-drive/contents/application/DownloadContentsToPlainFile';
+import { LocalContentChecker } from '../../../../../context/virtual-drive/contents/application/LocalContentChecker';
+import { RetryContentsUploader } from '../../../../../context/virtual-drive/contents/application/RetryContentsUploader';
+import { EnvironmentRemoteFileContentsManagersFactory } from '../../../../../context/virtual-drive/contents/infrastructure/EnvironmentRemoteFileContentsManagersFactory';
+import { FSLocalFileProvider } from '../../../../../context/virtual-drive/contents/infrastructure/FSLocalFileProvider';
+import { FSLocalFileSystem } from '../../../../../context/virtual-drive/contents/infrastructure/FSLocalFileSystem';
+import { FuseAppDataLocalFileContentsDirectoryProvider } from '../../../../../context/virtual-drive/shared/infrastructure/LocalFileContentsDirectoryProviders/FuseAppDataLocalFileContentsDirectoryProvider';
+import { DependencyInjectionEventBus } from '../../common/eventBus';
+import { DependencyInjectionMnemonicProvider } from '../../common/mnemonic';
+import { DependencyInjectionUserProvider } from '../../common/user';
 import { SharedContainer } from '../shared/SharedContainer';
+import { ContentsContainer } from './ContentsContainer';
 
 export async function buildContentsContainer(
   sharedContainer: SharedContainer

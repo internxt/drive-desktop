@@ -1,5 +1,5 @@
 import { File } from '../../../context/virtual-drive/files/domain/File';
-import { DependencyContainer } from '../dependency-injection/DependencyContainer';
+import { DependencyContainer } from '../dependency-injection/virtual-drive/DependencyContainer';
 import { Folder } from '../../../context/virtual-drive/folders/domain/Folder';
 import { Callback } from './Callback';
 

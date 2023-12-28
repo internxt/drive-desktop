@@ -1,4 +1,4 @@
-import { DependencyContainer } from '../dependency-injection/DependencyContainer';
+import { DependencyContainer } from '../dependency-injection/virtual-drive/DependencyContainer';
 import { Callback } from './Callback';
 
 export class CreateFolder {

@@ -1,11 +1,11 @@
 import Logger from 'electron-log';
 import { TypedCallback } from './Callback';
-import { DependencyContainer } from '../dependency-injection/DependencyContainer';
+import { OfflineDriveDependencyContainer } from '../dependency-injection/offline/OfflineDriveDependencyContainer';
 
 type CreateCallback = TypedCallback<never>;
 
 export class CreateFile {
-  constructor(private readonly container: DependencyContainer) {}
+  constructor(private readonly container: OfflineDriveDependencyContainer) {}
 
   async execute(
     path: string,
@@ -14,7 +14,7 @@ export class CreateFile {
   ): Promise<void> {
     Logger.debug(`CREATE ${path}`);
 
-    await this.container.retryContentsUploader.run(path);
+    await this.container.createOfflineFile.run(path);
 
     cb(0);
   }
