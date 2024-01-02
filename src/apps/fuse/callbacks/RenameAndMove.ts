@@ -1,5 +1,5 @@
 import { File } from '../../../context/virtual-drive/files/domain/File';
-import { DependencyContainer } from '../dependency-injection/virtual-drive/DependencyContainer';
+import { VirtualDriveDependencyContainer } from '../dependency-injection/virtual-drive/VirtualDriveDependencyContainer';
 import { Folder } from '../../../context/virtual-drive/folders/domain/Folder';
 import { Callback } from './Callback';
 
@@ -7,7 +7,7 @@ import { Callback } from './Callback';
 const fuse = require('@gcas/fuse');
 
 export class RenameOrMove {
-  constructor(private readonly container: DependencyContainer) {}
+  constructor(private readonly container: VirtualDriveDependencyContainer) {}
 
   private async findFile(path: string): Promise<File | undefined> {
     const file = await this.container.filesSearcher.run({ path });

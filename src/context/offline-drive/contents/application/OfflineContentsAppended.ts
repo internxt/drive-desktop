@@ -2,7 +2,7 @@ import { OfflineFileFinder } from '../../files/application/OfflineFileFinder';
 import { OfflineFileSizeIncreaser } from '../../files/application/OfflineFileSizeIncreaser';
 import { OfflineContentsRepository } from '../domain/OfflineContentsRepository';
 
-export class OfflineContentsAppended {
+export class OfflineContentsAppender {
   constructor(
     private readonly offlineFileFinder: OfflineFileFinder,
     private readonly offlineFileSizeIncreaser: OfflineFileSizeIncreaser,

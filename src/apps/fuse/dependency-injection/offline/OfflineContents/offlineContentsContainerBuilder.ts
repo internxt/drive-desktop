@@ -1,4 +1,5 @@
-import { OfflineContentsAppended } from '../../../../../context/offline-drive/contents/application/OfflineContentsAppended';
+import { OfflineContentsAppender } from '../../../../../context/offline-drive/contents/application/OfflineContentsAppended';
+import { OfflineContentsCreator } from '../../../../../context/offline-drive/contents/application/OfflineContentsCreator';
 import { OfflineContentsPathCalculator } from '../../../../../context/offline-drive/contents/application/OfflineContentsPathCalculator';
 import { OfflineContentsUploader } from '../../../../../context/offline-drive/contents/application/OfflineContentsUploader';
 import { EnvironmentOfflineContentsManagersFactory } from '../../../../../context/offline-drive/contents/infrastructure/EnvironmentRemoteFileContentsManagersFactory';
@@ -26,7 +27,7 @@ export async function buildOfflineContentsContainer(
 
   await repository.init();
 
-  const offlineContentsAppended = new OfflineContentsAppended(
+  const offlineContentsAppender = new OfflineContentsAppender(
     offlineFilesContainer.offlineFileFinder,
     offlineFilesContainer.offlineFileSizeIncreaser,
     repository
@@ -45,8 +46,11 @@ export async function buildOfflineContentsContainer(
     eventBus
   );
 
+  const offlineContentsCreator = new OfflineContentsCreator(repository);
+
   return {
-    offlineContentsAppended,
+    offlineContentsCreator,
+    offlineContentsAppender,
     offlineContentsPathCalculator,
     offlineContentsUploader,
   };

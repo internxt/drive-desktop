@@ -1,4 +1,5 @@
 import crypt from '../../../../../context/shared/infrastructure/crypt';
+import { CreateFileOnOfflineFileUploaded } from '../../../../../context/virtual-drive/files/application/CreateFileOnOfflineFileUplodaded';
 import { FileCreator } from '../../../../../context/virtual-drive/files/application/FileCreator';
 import { FileDeleter } from '../../../../../context/virtual-drive/files/application/FileDeleter';
 import { FileFinderByContentsId } from '../../../../../context/virtual-drive/files/application/FileFinderByContentsId';
@@ -78,6 +79,10 @@ export async function buildFilesContainer(
     eventBus
   );
 
+  const createFileOnOfflineFileUploaded = new CreateFileOnOfflineFileUploaded(
+    fileCreator
+  );
+
   return {
     filesByFolderPathNameLister,
     filesSearcher,
@@ -85,5 +90,6 @@ export async function buildFilesContainer(
     sameFileWasMoved,
     fileCreator,
     fileDeleter,
+    createFileOnOfflineFileUploaded,
   };
 }

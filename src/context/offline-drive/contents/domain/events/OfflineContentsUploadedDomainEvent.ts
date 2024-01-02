@@ -4,16 +4,16 @@ export class OfflineContentsUploadedDomainEvent extends DomainEvent {
   static readonly EVENT_NAME = 'offline.contents.uploaded';
 
   readonly size: number;
-  readonly absolutePath: string;
+  readonly path: string;
 
   constructor({
     aggregateId,
     size,
-    absolutePath,
+    path,
   }: {
     aggregateId: string;
     size: number;
-    absolutePath: string;
+    path: string;
   }) {
     super({
       aggregateId,
@@ -21,14 +21,14 @@ export class OfflineContentsUploadedDomainEvent extends DomainEvent {
     });
 
     this.size = size;
-    this.absolutePath = absolutePath;
+    this.path = path;
   }
 
   toPrimitives() {
     return {
       aggregateId: this.aggregateId,
       size: this.size,
-      absolutePath: this.absolutePath,
+      path: this.path,
     };
   }
 }

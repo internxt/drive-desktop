@@ -14,7 +14,7 @@ export class CreateFile {
   ): Promise<void> {
     Logger.debug(`CREATE ${path}`);
 
-    await this.container.createOfflineFile.run(path);
+    await this.container.offlineFileAndContentsCreator.run(path);
 
     cb(0);
   }

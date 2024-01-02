@@ -49,7 +49,8 @@ export async function buildContentsContainer(
   const contentsUploader = new ContentsUploader(
     contentsManagerFactory,
     new FSLocalFileProvider(),
-    sharedContainer.relativePathToAbsoluteConverter
+    sharedContainer.relativePathToAbsoluteConverter,
+    eventBus
   );
 
   const retryContentsUploader = new RetryContentsUploader(contentsUploader);

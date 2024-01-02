@@ -1,5 +1,5 @@
 import { OfflineDriveDependencyContainer } from '../dependency-injection/offline/OfflineDriveDependencyContainer';
-import { DependencyContainer } from '../dependency-injection/virtual-drive/DependencyContainer';
+import { VirtualDriveDependencyContainer } from '../dependency-injection/virtual-drive/VirtualDriveDependencyContainer';
 import { Callback } from './Callback';
 import Logger from 'electron-log';
 
@@ -8,7 +8,7 @@ const fuse = require('@gcas/fuse');
 
 export class GetAttributes {
   constructor(
-    private readonly virtualDriveContainer: DependencyContainer,
+    private readonly virtualDriveContainer: VirtualDriveDependencyContainer,
     private readonly offlineDriveContainer: OfflineDriveDependencyContainer
   ) {}
 
@@ -34,7 +34,7 @@ export class GetAttributes {
     }
 
     const offlineFile =
-      await this.offlineDriveContainer.offlineFileSearcher.execute(path);
+      await this.offlineDriveContainer.offlineFileSearcher.run({ path });
 
     if (offlineFile) {
       return cb(0, { mode: 33188, size: offlineFile.size });

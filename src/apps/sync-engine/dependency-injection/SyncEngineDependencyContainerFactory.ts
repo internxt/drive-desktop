@@ -1,6 +1,6 @@
-import { DomainEventSubscribers } from '../../../context/virtual-drive/shared/infrastructure/DomainEventSubscribers';
+import { SyncEngineDomainEventSubscribers } from './SyncEngineDomainEventSubscribers';
 import { getUser } from '../../main/auth/service';
-import { DependencyContainer } from './DependencyContainer';
+import { SyncEngineDependencyContainer } from './SyncEngineDependencyContainer';
 import { buildBoundaryBridgeContainer } from './boundaryBridge/build';
 import { DependencyInjectionEventBus } from './common/eventBus';
 import { DependencyInjectionVirtualDrive } from './common/virtualDrive';
@@ -10,25 +10,27 @@ import { buildFoldersContainer } from './folders/builder';
 import { buildItemsContainer } from './items/builder';
 import { buildSharedContainer } from './shared/builder';
 
-export class DependencyContainerFactory {
-  private static _container: DependencyContainer | undefined;
+export class SyncEngineDependencyContainerFactory {
+  private static _container: SyncEngineDependencyContainer | undefined;
 
-  static readonly subscribers: Array<keyof DependencyContainer> = [
+  static readonly subscribers: Array<keyof SyncEngineDependencyContainer> = [
     'createFilePlaceholderOnDeletionFailed',
     'synchronizeOfflineModificationsOnFolderCreated',
   ];
 
   eventSubscribers(
-    key: keyof DependencyContainer
-  ): DependencyContainer[keyof DependencyContainer] | undefined {
-    if (!DependencyContainerFactory._container) return undefined;
+    key: keyof SyncEngineDependencyContainer
+  ):
+    | SyncEngineDependencyContainer[keyof SyncEngineDependencyContainer]
+    | undefined {
+    if (!SyncEngineDependencyContainerFactory._container) return undefined;
 
-    return DependencyContainerFactory._container[key];
+    return SyncEngineDependencyContainerFactory._container[key];
   }
 
-  async build(): Promise<DependencyContainer> {
-    if (DependencyContainerFactory._container !== undefined) {
-      return DependencyContainerFactory._container;
+  async build(): Promise<SyncEngineDependencyContainer> {
+    if (SyncEngineDependencyContainerFactory._container !== undefined) {
+      return SyncEngineDependencyContainerFactory._container;
     }
     const user = getUser();
 
@@ -63,8 +65,8 @@ export class DependencyContainerFactory {
       virtualDrive,
     };
 
-    bus.addSubscribers(DomainEventSubscribers.from(container));
-    DependencyContainerFactory._container = container;
+    bus.addSubscribers(SyncEngineDomainEventSubscribers.from(container));
+    SyncEngineDependencyContainerFactory._container = container;
 
     return container;
   }

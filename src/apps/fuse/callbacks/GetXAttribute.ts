@@ -10,7 +10,7 @@ export class GetXAttribute {
     size: string,
     cb: GetXAttributeCallback
   ): Promise<void> {
-    Logger.debug('GETXATTR', path, name, size, cb);
+    Logger.debug('GETXATTR', path, name, size);
 
     const buff = Buffer.from('in sync');
     cb(0, buff);

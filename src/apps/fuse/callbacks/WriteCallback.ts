@@ -3,7 +3,7 @@ import { TypedCallback } from './Callback';
 
 type WriteFileCallback = TypedCallback<number>;
 
-export class WriteFile {
+export class WriteCallback {
   constructor(private readonly container: OfflineDriveDependencyContainer) {}
 
   async execute(
@@ -14,7 +14,7 @@ export class WriteFile {
     pos: number,
     cb: WriteFileCallback
   ): Promise<void> {
-    await this.container.writeToOfflineFile.run(path, buffer, len, pos);
+    await this.container.offlineContentsAppender.run(path, buffer, len, pos);
 
     cb(len);
   }

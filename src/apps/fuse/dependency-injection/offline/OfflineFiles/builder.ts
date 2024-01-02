@@ -3,8 +3,12 @@ import { InMemoryOfflineFileRepository } from '../../../../../context/offline-dr
 import { OfflineFilesContainer } from './OfflineFilesContainer';
 import { OfflineFileFinder } from '../../../../../context/offline-drive/files/application/OfflineFileFinder';
 import { OfflineFileSizeIncreaser } from '../../../../../context/offline-drive/files/application/OfflineFileSizeIncreaser';
+import { OfflineFileCreator } from '../../../../../context/offline-drive/files/application/OfflineFileCreator';
+import { DependencyInjectionEventBus } from '../../common/eventBus';
 
 export async function buildOfflineFilesContainer(): Promise<OfflineFilesContainer> {
+  const { bus: eventBus } = DependencyInjectionEventBus;
+
   const repository = new InMemoryOfflineFileRepository();
 
   const offlineFileSearcher = new OfflineFileSearcher(repository);
@@ -13,7 +17,10 @@ export async function buildOfflineFilesContainer(): Promise<OfflineFilesContaine
 
   const offlineFileSizeIncreaser = new OfflineFileSizeIncreaser(repository);
 
+  const offlineFileCreator = new OfflineFileCreator(repository, eventBus);
+
   return {
+    offlineFileCreator,
     offlineFileSearcher,
     offlineFileFinder,
     offlineFileSizeIncreaser,

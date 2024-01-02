@@ -7,7 +7,7 @@ import { ItemsContainer } from './items/ItemsContainer';
 import { BoundaryBridgeContainer } from './boundaryBridge/BoundaryBridgeContainer';
 import { SharedContainer } from './shared/SharedContainer';
 
-export interface DependencyContainer
+export interface SyncEngineDependencyContainer
   extends ItemsContainer,
     ContentsContainer,
     FilesContainer,

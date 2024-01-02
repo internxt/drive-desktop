@@ -1,4 +1,5 @@
-import fs from 'fs';
+import fs, { createReadStream, watch } from 'fs';
+import { stat as statPromises } from 'fs/promises';
 import { OfflineContentsRepository } from '../domain/OfflineContentsRepository';
 import { OfflineFileAttributes } from '../../files/domain/OfflineFile';
 import { LocalFileContentsDirectoryProvider } from '../../../virtual-drive/shared/domain/LocalFileContentsDirectoryProvider';
@@ -24,6 +25,17 @@ export class NodeFSOfflineContentsRepository
     const folder = await this.folderPath();
 
     return path.join(folder, id);
+  }
+
+  private createAbortableStream(filePath: string): {
+    readable: Readable;
+    controller: AbortController;
+  } {
+    const readStream = createReadStream(filePath);
+
+    const controller = new AbortController();
+
+    return { readable: readStream, controller };
   }
 
   async init(): Promise<void> {
@@ -93,7 +105,35 @@ export class NodeFSOfflineContentsRepository
     return this.filePath(id);
   }
 
-  provide: (
-    path: string
-  ) => Promise<{ contents: Readable; size: number; abortSignal: AbortSignal }>;
+  async provide(absoluteFilePath: string) {
+    const { readable, controller } =
+      this.createAbortableStream(absoluteFilePath);
+
+    const { size } = await statPromises(absoluteFilePath);
+
+    const absoluteFolderPath = path.dirname(absoluteFilePath);
+    const nameWithExtension = path.basename(absoluteFilePath);
+
+    const watcher = watch(absoluteFolderPath, (_, filename) => {
+      if (filename !== nameWithExtension) {
+        return;
+      }
+      Logger.warn(
+        filename,
+        ' has been changed during read, it will be aborted'
+      );
+
+      controller.abort();
+    });
+
+    readable.on('end', () => {
+      watcher.close();
+    });
+
+    return {
+      contents: readable,
+      size,
+      abortSignal: controller.signal,
+    };
+  }
 }

@@ -4,7 +4,7 @@ import { FoldersContainer } from './folders/FoldersContainer';
 import { SharedContainer } from './shared/SharedContainer';
 import { TreeContainer } from './tree/TreeContainer';
 
-export interface DependencyContainer
+export interface VirtualDriveDependencyContainer
   extends TreeContainer,
     FilesContainer,
     FoldersContainer,

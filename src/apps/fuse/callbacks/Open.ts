@@ -1,4 +1,4 @@
-import { DependencyContainer } from '../dependency-injection/virtual-drive/DependencyContainer';
+import { VirtualDriveDependencyContainer } from '../dependency-injection/virtual-drive/VirtualDriveDependencyContainer';
 import { Callback } from './Callback';
 import Logger from 'electron-log';
 
@@ -6,7 +6,7 @@ import Logger from 'electron-log';
 const fuse = require('@gcas/fuse');
 
 export class Open {
-  constructor(private readonly container: DependencyContainer) {}
+  constructor(private readonly container: VirtualDriveDependencyContainer) {}
 
   async execute(path: string, _flags: Array<any>, cb: Callback): Promise<void> {
     Logger.debug('OPEN ', path);

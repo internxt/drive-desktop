@@ -1,11 +1,11 @@
-import { DependencyContainer } from '../dependency-injection/virtual-drive/DependencyContainer';
+import { VirtualDriveDependencyContainer } from '../dependency-injection/virtual-drive/VirtualDriveDependencyContainer';
 import { Callback } from './Callback';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const fuse = require('@gcas/fuse');
 
 export class TrashFile {
-  constructor(private readonly container: DependencyContainer) {}
+  constructor(private readonly container: VirtualDriveDependencyContainer) {}
 
   async execute(path: string, cb: Callback): Promise<void> {
     try {

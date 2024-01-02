@@ -1,26 +1,30 @@
-import { DependencyContainer } from './DependencyContainer';
+import { VirtualDriveDependencyContainer } from './VirtualDriveDependencyContainer';
 import { buildContentsContainer } from './contents/builder';
 import { buildFilesContainer } from './files/builder';
 import { buildFoldersContainer } from './folders/builder';
 import { buildSharedContainer } from './shared/builder';
 import { buildTreeContainer } from './tree/builder';
 
-export class DependencyContainerFactory {
-  private static _container: DependencyContainer | undefined;
+export class VirtualDriveDependencyContainerFactory {
+  private static _container: VirtualDriveDependencyContainer | undefined;
 
-  static readonly subscribers: Array<keyof DependencyContainer> = [];
+  static readonly subscribers: Array<keyof VirtualDriveDependencyContainer> = [
+    'createFileOnOfflineFileUploaded',
+  ];
 
   eventSubscribers(
-    key: keyof DependencyContainer
-  ): DependencyContainer[keyof DependencyContainer] | undefined {
-    if (!DependencyContainerFactory._container) return undefined;
+    key: keyof VirtualDriveDependencyContainer
+  ):
+    | VirtualDriveDependencyContainer[keyof VirtualDriveDependencyContainer]
+    | undefined {
+    if (!VirtualDriveDependencyContainerFactory._container) return undefined;
 
-    return DependencyContainerFactory._container[key];
+    return VirtualDriveDependencyContainerFactory._container[key];
   }
 
-  async build(): Promise<DependencyContainer> {
-    if (DependencyContainerFactory._container !== undefined) {
-      return DependencyContainerFactory._container;
+  async build(): Promise<VirtualDriveDependencyContainer> {
+    if (VirtualDriveDependencyContainerFactory._container !== undefined) {
+      return VirtualDriveDependencyContainerFactory._container;
     }
 
     const treeContainer = buildTreeContainer();

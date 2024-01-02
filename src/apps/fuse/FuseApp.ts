@@ -1,7 +1,5 @@
-import fs, { unlink } from 'fs';
 import _path from 'path';
 import Logger from 'electron-log';
-import { DependencyContainer } from './dependency-injection/virtual-drive/DependencyContainer';
 import { Readdir } from './callbacks/Readdir';
 import { GetAttributes } from './callbacks/GetAttributes';
 import { Open } from './callbacks/Open';
@@ -13,9 +11,9 @@ import { CreateFile } from './callbacks/CreateFile';
 import { CreateFolder } from './callbacks/CreateFolder';
 import { TrashFile } from './callbacks/TrashFile';
 import { TrashFolder } from './callbacks/TrashFolder';
-import { OfflineDriveDependencyContainer } from './dependency-injection/offline/OfflineDriveDependencyContainer';
-import { WriteFile } from './callbacks/WriteFile';
+import { WriteCallback } from './callbacks/WriteCallback';
 import { ReleaseCallback } from './callbacks/ReleaseCallback';
+import { FuseDependencyContainer } from './dependency-injection/FuseDependencyContainer';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const fuse = require('@gcas/fuse');
@@ -24,8 +22,7 @@ export class FuseApp {
   private _fuse: any;
 
   constructor(
-    private readonly virtualDriveContainer: DependencyContainer,
-    private readonly offlineDriveContainer: OfflineDriveDependencyContainer,
+    private readonly fuseContainer: FuseDependencyContainer,
     private readonly paths: {
       root: string;
       local: string;
@@ -35,20 +32,28 @@ export class FuseApp {
   private getOpt() {
     const listXAttributes = new ListXAttributes();
     const getXAttribute = new GetXAttribute();
-    const readdir = new Readdir(this.virtualDriveContainer);
+    const readdir = new Readdir(this.fuseContainer.virtualDriveContainer);
     const getattr = new GetAttributes(
-      this.virtualDriveContainer,
-      this.offlineDriveContainer
+      this.fuseContainer.virtualDriveContainer,
+      this.fuseContainer.offlineDriveContainer
     );
-    const open = new Open(this.virtualDriveContainer);
-    const read = new Read(this.virtualDriveContainer);
-    const renameOrMove = new RenameOrMove(this.virtualDriveContainer);
-    const createFile = new CreateFile(this.offlineDriveContainer);
-    const createFolder = new CreateFolder(this.virtualDriveContainer);
-    const trashFile = new TrashFile(this.virtualDriveContainer);
-    const trashFolder = new TrashFolder(this.virtualDriveContainer);
-    const writeFile = new WriteFile(this.offlineDriveContainer);
-    const release = new ReleaseCallback(this.offlineDriveContainer);
+    const open = new Open(this.fuseContainer.virtualDriveContainer);
+    const read = new Read(this.fuseContainer.virtualDriveContainer);
+    const renameOrMove = new RenameOrMove(
+      this.fuseContainer.virtualDriveContainer
+    );
+    const createFile = new CreateFile(this.fuseContainer.offlineDriveContainer);
+    const createFolder = new CreateFolder(
+      this.fuseContainer.virtualDriveContainer
+    );
+    const trashFile = new TrashFile(this.fuseContainer.virtualDriveContainer);
+    const trashFolder = new TrashFolder(
+      this.fuseContainer.virtualDriveContainer
+    );
+    const write = new WriteCallback(this.fuseContainer.offlineDriveContainer);
+    const release = new ReleaseCallback(
+      this.fuseContainer.offlineDriveContainer
+    );
 
     return {
       listxattr: listXAttributes.execute.bind(listXAttributes),
@@ -59,7 +64,7 @@ export class FuseApp {
       read: read.execute.bind(read),
       rename: renameOrMove.execute.bind(renameOrMove),
       create: createFile.execute.bind(createFile),
-      write: writeFile.execute.bind(writeFile),
+      write: write.execute.bind(write),
       mkdir: createFolder.execute.bind(createFolder),
       release: release.execute.bind(release),
       unlink: trashFile.execute.bind(trashFile),

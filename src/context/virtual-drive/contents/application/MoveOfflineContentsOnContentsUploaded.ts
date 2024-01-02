@@ -12,6 +12,6 @@ export class MoveOfflineContentsOnContentsUploaded
     return [OfflineContentsUploadedDomainEvent];
   }
   async on(domainEvent: OfflineContentsUploadedDomainEvent): Promise<void> {
-    await this.mover.run(domainEvent.absolutePath, domainEvent.aggregateId);
+    await this.mover.run(domainEvent.path, domainEvent.aggregateId);
   }
 }
