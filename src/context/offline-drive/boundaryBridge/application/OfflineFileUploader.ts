@@ -16,12 +16,12 @@ export class OfflineFileUploader {
 
     const contentsId = await this.contentsUploader.run(absolutePath);
 
-    const uploadedEvent = new OfflineContentsUploadedDomainEvent({
+    const contentsUploadedEvent = new OfflineContentsUploadedDomainEvent({
       aggregateId: contentsId,
       size: file.size,
       path: file.path,
     });
 
-    await this.eventBus.publish([uploadedEvent]);
+    await this.eventBus.publish([contentsUploadedEvent]);
   }
 }

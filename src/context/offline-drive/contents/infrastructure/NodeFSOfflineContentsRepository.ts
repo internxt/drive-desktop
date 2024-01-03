@@ -87,8 +87,6 @@ export class NodeFSOfflineContentsRepository
   async createEmptyFile(id: string): Promise<void> {
     const file = await this.filePath(id);
 
-    Logger.debug('Creating an empty file on ', file);
-
     return new Promise((resolve) => {
       fs.writeFile(file, '', (err) => {
         if (err) {

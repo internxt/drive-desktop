@@ -68,7 +68,7 @@ export class FuseApp {
       read: read.execute.bind(read),
       rename: renameOrMove.handle.bind(renameOrMove),
       create: create.handle.bind(create),
-      write: write.handle.bind(write),
+      write: write.execute.bind(write),
       mkdir: makeDirectory.handle.bind(makeDirectory),
       release: release.handle.bind(release),
       unlink: trashFile.handle.bind(trashFile),

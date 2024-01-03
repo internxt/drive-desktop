@@ -114,6 +114,7 @@ export class File extends AggregateRoot {
         aggregateId: file.contentsId,
         size: file.size,
         type: file.type,
+        path: file.path,
       })
     );
 

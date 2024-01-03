@@ -1,20 +1,18 @@
 import { OfflineDriveDependencyContainer } from '../dependency-injection/offline/OfflineDriveDependencyContainer';
-import { FuseCallback } from './FuseCallback';
 
-export class WriteCallback extends FuseCallback<number> {
-  constructor(private readonly container: OfflineDriveDependencyContainer) {
-    super('Write');
-  }
+export class WriteCallback {
+  constructor(private readonly container: OfflineDriveDependencyContainer) {}
 
   async execute(
     path: string,
     _fd: string,
     buffer: Buffer,
     len: number,
-    pos: number
+    pos: number,
+    cb: (a: number) => void
   ) {
     await this.container.offlineContentsAppender.run(path, buffer, len, pos);
 
-    return this.right(len);
+    return cb(len);
   }
 }
