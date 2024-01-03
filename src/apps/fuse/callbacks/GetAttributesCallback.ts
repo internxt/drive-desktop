@@ -41,7 +41,7 @@ export class GetAttributesCallback extends FuseCallback<GetAttributesCallbackDat
 
     return this.left(
       new NoSuchFileOrDirectoryError(
-        `${path} not founded on when retrieving it's attributes`
+        `"${path}" not founded on when retrieving it's attributes`
       )
     );
   }

@@ -17,7 +17,7 @@ export abstract class FuseCallback<T> {
   }
 
   protected left(error: FuseError): Either<FuseError, T> {
-    Logger.error(`[${this.name}] `, error.message, error.description);
+    Logger.error(`${this.name} Error: ${error.message}.`, error.description);
     return left(error);
   }
 
@@ -26,7 +26,7 @@ export abstract class FuseCallback<T> {
     stopwatch.start();
 
     const callback = params.pop() as CallbackWithData<T>;
-    Logger.info(`${this.name}: `, ...params);
+    // Logger.info(`${this.name}: `, ...params);
 
     const result = await this.execute(...params);
 
@@ -37,8 +37,7 @@ export abstract class FuseCallback<T> {
 
     const data = result.getRight();
 
-    const elapsedTime = stopwatch.elapsedTime();
-    Logger.info(`Elapsed time for ${this.name}: `, elapsedTime);
+    // Logger.info(`Elapsed time for ${this.name}: `, stopwatch.elapsedTime());
 
     callback(FuseCallback.OK, data);
   }

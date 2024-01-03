@@ -80,6 +80,8 @@ export class FileDeleter {
       // });
 
       this.local.createPlaceHolder(file);
+
+      throw error;
     }
   }
 }

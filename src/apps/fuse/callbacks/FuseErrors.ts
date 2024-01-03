@@ -20,24 +20,24 @@ export class NoSuchFileOrDirectoryError extends FuseError {
 
 export class FileOrDirectoryAlreadyExistsError extends FuseError {
   constructor(description: string) {
-    super(FuseCodes.ENOENT, 'File or directory already exists', description);
+    super(FuseCodes.EEXIST, 'File or directory already exists', description);
   }
 }
 
 export class IOError extends FuseError {
   constructor(description: string) {
-    super(FuseCodes.ENOENT, 'Input/output error', description);
+    super(FuseCodes.EIO, 'Input/output error', description);
   }
 }
 
 export class InvalidArgumentError extends FuseError {
   constructor(description: string) {
-    super(FuseCodes.ENOENT, 'Invalid argument', description);
+    super(FuseCodes.EINVAL, 'Invalid argument', description);
   }
 }
 
 export class PermissionDeniedError extends FuseError {
   constructor(description: string) {
-    super(FuseCodes.ENOENT, 'Permission denied', description);
+    super(FuseCodes.EACCES, 'Permission denied', description);
   }
 }
