@@ -5,11 +5,10 @@ import { IOError, NoSuchFileOrDirectoryError } from './FuseErrors';
 
 export class OpenCallback extends FuseCallback<number> {
   constructor(private readonly container: VirtualDriveDependencyContainer) {
-    super();
+    super('Open');
   }
 
   async execute(path: string, _flags: Array<any>) {
-    Logger.debug('OPEN ', path);
     const file = await this.container.filesSearcher.run({ path });
 
     if (!file) {

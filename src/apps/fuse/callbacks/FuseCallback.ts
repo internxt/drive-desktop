@@ -1,4 +1,5 @@
 import { Either, right, left } from '../../../context/shared/domain/Either';
+import { Stopwatch } from '../../shared/types/Stopwatch';
 import { FuseError } from './FuseErrors';
 import Logger from 'electron-log';
 
@@ -9,19 +10,25 @@ export type CallbackWithData<T> = (code: number, params?: T) => void;
 export abstract class FuseCallback<T> {
   protected static readonly OK = 0;
 
+  constructor(private readonly name: string) {}
+
   protected right(value: T): Either<FuseError, T> {
     return right(value);
   }
 
   protected left(error: FuseError): Either<FuseError, T> {
-    Logger.error('[FUSE CALLBACK ERROR] ', error.message, error.description);
+    Logger.error(`[${this.name}] `, error.message, error.description);
     return left(error);
   }
 
   async handle(...params: any[]): Promise<void> {
-    const callback = params.pop() as CallbackWithData<T>;
+    const stopwatch = new Stopwatch();
+    stopwatch.start();
 
-    const result = await this.execute(params);
+    const callback = params.pop() as CallbackWithData<T>;
+    Logger.info(`${this.name}: `, ...params);
+
+    const result = await this.execute(...params);
 
     if (result.isLeft()) {
       const error = result.getLeft();
@@ -29,6 +36,9 @@ export abstract class FuseCallback<T> {
     }
 
     const data = result.getRight();
+
+    const elapsedTime = stopwatch.elapsedTime();
+    Logger.info(`Elapsed time for ${this.name}: `, elapsedTime);
 
     callback(FuseCallback.OK, data);
   }
@@ -44,7 +54,7 @@ export abstract class NotifyFuseCallback extends FuseCallback<undefined> {
   async handle(...params: any[]): Promise<void> {
     const callback = params.pop() as Callback;
 
-    const result = await this.execute(params);
+    const result = await this.execute(...params);
 
     if (result.isLeft()) {
       const error = result.getLeft();

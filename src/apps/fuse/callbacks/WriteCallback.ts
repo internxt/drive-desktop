@@ -3,7 +3,7 @@ import { FuseCallback } from './FuseCallback';
 
 export class WriteCallback extends FuseCallback<number> {
   constructor(private readonly container: OfflineDriveDependencyContainer) {
-    super();
+    super('Write');
   }
 
   async execute(

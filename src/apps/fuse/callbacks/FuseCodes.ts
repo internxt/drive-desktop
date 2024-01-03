@@ -1,19 +1,22 @@
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const fuse = require('@gcas/fuse');
+
 export enum FuseCodes {
   // Operation not supported (Functionality not implemented)
-  ENOSYS = 38,
+  ENOSYS = fuse.ENOSYS,
 
   // No such file or directory
-  ENOENT = 2,
+  ENOENT = fuse.ENOENT,
 
   // File or directory already exists
-  EEXIST = 17,
+  EEXIST = fuse.EEXIST,
 
   // Input/output error
-  EIO = 5,
+  EIO = fuse.EIO,
 
   // Invalid argument
-  EINVAL = 22,
+  EINVAL = fuse.EINVAL,
 
   // Permission denied
-  EACCES = 13,
+  EACCES = fuse.EACCES,
 }

@@ -1,4 +1,3 @@
-import Logger from 'electron-log';
 import { OfflineDriveDependencyContainer } from '../dependency-injection/offline/OfflineDriveDependencyContainer';
 import { VirtualDriveDependencyContainer } from '../dependency-injection/virtual-drive/VirtualDriveDependencyContainer';
 import { FuseCallback } from './FuseCallback';
@@ -11,12 +10,10 @@ export class GetAttributesCallback extends FuseCallback<GetAttributesCallbackDat
     private readonly virtualDriveContainer: VirtualDriveDependencyContainer,
     private readonly offlineDriveContainer: OfflineDriveDependencyContainer
   ) {
-    super();
+    super('Get Attributes');
   }
 
   async execute(path: string) {
-    Logger.debug('GET ATTRIBUTES OF ', path);
-
     if (path === '/') {
       return this.right({ mode: 16877, size: 0 });
     }
@@ -44,7 +41,7 @@ export class GetAttributesCallback extends FuseCallback<GetAttributesCallbackDat
 
     return this.left(
       new NoSuchFileOrDirectoryError(
-        `${path} not founded on when it's attributes`
+        `${path} not founded on when retrieving it's attributes`
       )
     );
   }

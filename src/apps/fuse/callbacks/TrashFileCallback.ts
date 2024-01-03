@@ -4,7 +4,7 @@ import { IOError, NoSuchFileOrDirectoryError } from './FuseErrors';
 
 export class TrashFileCallback extends NotifyFuseCallback {
   constructor(private readonly container: VirtualDriveDependencyContainer) {
-    super();
+    super('Trash file');
   }
 
   async execute(path: string) {

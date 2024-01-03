@@ -30,8 +30,8 @@ export class FuseApp {
   ) {}
 
   private getOpt() {
-    const listXAttributes = new ListXAttributesCallback();
-    const getXAttribute = new GetXAttributeCallback();
+    const listXAttributes = new ListXAttributesCallback('ListXAttributes');
+    const getXAttribute = new GetXAttributeCallback('GetXAttribute');
     const readdir = new ReaddirCallback(
       this.fuseContainer.virtualDriveContainer
     );
@@ -62,17 +62,17 @@ export class FuseApp {
     return {
       listxattr: listXAttributes.execute.bind(listXAttributes),
       getxattr: getXAttribute.execute.bind(getXAttribute),
-      getattr: getattr.execute.bind(getattr),
-      readdir: readdir.execute.bind(readdir),
-      open: open.execute.bind(open),
+      getattr: getattr.handle.bind(getattr),
+      readdir: readdir.handle.bind(readdir),
+      open: open.handle.bind(open),
       read: read.execute.bind(read),
-      rename: renameOrMove.execute.bind(renameOrMove),
-      create: create.execute.bind(create),
-      write: write.execute.bind(write),
-      mkdir: makeDirectory.execute.bind(makeDirectory),
-      release: release.execute.bind(release),
-      unlink: trashFile.execute.bind(trashFile),
-      rmdir: trashFolder.execute.bind(trashFolder),
+      rename: renameOrMove.handle.bind(renameOrMove),
+      create: create.handle.bind(create),
+      write: write.handle.bind(write),
+      mkdir: makeDirectory.handle.bind(makeDirectory),
+      release: release.handle.bind(release),
+      unlink: trashFile.handle.bind(trashFile),
+      rmdir: trashFolder.handle.bind(trashFolder),
     };
   }
 

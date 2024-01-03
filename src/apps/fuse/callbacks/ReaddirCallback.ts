@@ -4,7 +4,7 @@ import { NoSuchFileOrDirectoryError } from './FuseErrors';
 
 export class ReaddirCallback extends FuseCallback<Array<string>> {
   constructor(private readonly container: VirtualDriveDependencyContainer) {
-    super();
+    super('Read Directory');
   }
 
   async execute(path: string) {

@@ -3,7 +3,7 @@ import { NotifyFuseCallback } from './FuseCallback';
 
 export class MakeDirectoryCallback extends NotifyFuseCallback {
   constructor(private readonly container: VirtualDriveDependencyContainer) {
-    super();
+    super('Make Directory');
   }
 
   async execute(path: string, _mode: number) {

@@ -4,7 +4,7 @@ import { IOError } from './FuseErrors';
 
 export class ReleaseCallback extends NotifyFuseCallback {
   constructor(private readonly container: OfflineDriveDependencyContainer) {
-    super();
+    super('Release');
   }
 
   async execute(path: string, fd: number) {

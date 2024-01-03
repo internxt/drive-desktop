@@ -6,7 +6,7 @@ import { NoSuchFileOrDirectoryError } from './FuseErrors';
 
 export class RenameOrMoveCallback extends NotifyFuseCallback {
   constructor(private readonly container: VirtualDriveDependencyContainer) {
-    super();
+    super('Rename Or Move');
   }
 
   private async findFile(path: string): Promise<File | undefined> {
