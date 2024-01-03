@@ -20,6 +20,7 @@ export class OfflineFileUploader {
       aggregateId: contentsId,
       size: file.size,
       path: file.path,
+      offlineContentsPath: absolutePath,
     });
 
     await this.eventBus.publish([contentsUploadedEvent]);

@@ -1,4 +1,5 @@
 import { File } from '../../files/domain/File';
+import { ContentsId } from '../domain/ContentsId';
 import { LocalFileSystem } from '../domain/LocalFileSystem';
 import Logger from 'electron-log';
 
@@ -7,7 +8,8 @@ export class LocalContentsDeleter {
 
   async run(file: File): Promise<void> {
     try {
-      await this.local.remove(file.contentsId);
+      const contentsId = new ContentsId(file.contentsId);
+      await this.local.remove(contentsId);
     } catch (err) {
       Logger.error(err);
     }

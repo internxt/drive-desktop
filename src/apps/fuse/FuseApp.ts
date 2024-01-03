@@ -1,4 +1,3 @@
-import _path from 'path';
 import Logger from 'electron-log';
 import { ReaddirCallback } from './callbacks/ReaddirCallback';
 import { GetAttributesCallback } from './callbacks/GetAttributesCallback';
@@ -98,5 +97,9 @@ export class FuseApp {
         Logger.error(`FUSE unmount error: ${err}`);
       }
     });
+  }
+
+  async clearCache(): Promise<void> {
+    await this.fuseContainer.virtualDriveContainer.allLocalContentsDeleter.run();
   }
 }

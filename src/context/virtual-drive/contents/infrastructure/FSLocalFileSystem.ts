@@ -33,18 +33,17 @@ export class FSLocalFileSystem implements LocalFileSystem {
     return filePath;
   }
 
-  async remove(relativePath: string): Promise<void> {
+  async remove(contentsId: ContentsId): Promise<void> {
     const folder = await this.baseFolder();
 
-    const absolutePath = path.join(folder, relativePath);
-    Logger.debug(' delete path,', absolutePath);
+    const absolutePath = path.join(folder, contentsId.value);
     return fs.rm(absolutePath);
   }
 
-  async exists(relativePath: string): Promise<boolean> {
+  async exists(contentsId: ContentsId): Promise<boolean> {
     const folder = await this.baseFolder();
 
-    const absolutePath = path.join(folder, relativePath);
+    const absolutePath = path.join(folder, contentsId.value);
 
     try {
       await fs.stat(absolutePath);
@@ -60,5 +59,24 @@ export class FSLocalFileSystem implements LocalFileSystem {
     const destination = path.join(folder, contentsId.value);
 
     await fs.rename(source, destination);
+  }
+
+  async listExistentFiles(): Promise<Array<ContentsId>> {
+    const folder = await this.baseFolder();
+
+    const names = await fs.readdir(folder);
+
+    return Promise.all(
+      names
+        .filter(async (name) => {
+          const fullPath = path.join(folder, name);
+          const stat = await fs.stat(fullPath);
+
+          return stat.isFile();
+        })
+        .map(async (name) => {
+          return new ContentsId(name);
+        })
+    );
   }
 }

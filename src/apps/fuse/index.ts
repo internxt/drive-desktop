@@ -1,6 +1,5 @@
 import Logger from 'electron-log';
 
-import _path from 'path';
 import { app } from 'electron';
 import { getRootVirtualDrive } from '../main/virutal-root-folder/service';
 import eventBus from '../main/event-bus';
@@ -41,7 +40,8 @@ export async function stopSyncEngineWatcher() {
 }
 
 async function stopAndClearSyncEngineWatcher() {
-  stopSyncEngineWatcher();
+  await fuseApp.clearCache();
+  await fuseApp.stop();
 }
 
 export function updateSyncEngine() {

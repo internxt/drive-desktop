@@ -10,6 +10,7 @@ export class VirtualDriveDependencyContainerFactory {
 
   static readonly subscribers: Array<keyof VirtualDriveDependencyContainer> = [
     'createFileOnOfflineFileUploaded',
+    'moveOfflineContentsOnContentsUploaded',
   ];
 
   eventSubscribers(

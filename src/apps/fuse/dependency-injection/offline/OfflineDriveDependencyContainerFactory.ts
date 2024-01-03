@@ -6,8 +6,9 @@ import { buildOfflineFilesContainer } from './OfflineFiles/builder';
 export class OfflineDriveDependencyContainerFactory {
   private static _container: OfflineDriveDependencyContainer | undefined;
 
-  static readonly subscribers: Array<keyof OfflineDriveDependencyContainer> =
-    [];
+  static readonly subscribers: Array<keyof OfflineDriveDependencyContainer> = [
+    'clearOfflineFileOnFileCreated',
+  ];
 
   eventSubscribers(
     key: keyof OfflineDriveDependencyContainer

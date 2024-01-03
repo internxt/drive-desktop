@@ -12,6 +12,9 @@ import { DependencyInjectionMnemonicProvider } from '../../common/mnemonic';
 import { DependencyInjectionUserProvider } from '../../common/user';
 import { SharedContainer } from '../shared/SharedContainer';
 import { ContentsContainer } from './ContentsContainer';
+import { MoveOfflineContentsOnContentsUploaded } from '../../../../../context/virtual-drive/contents/application/MoveOfflineContentsOnContentsUploaded';
+import { LocalContentsMover } from '../../../../../context/virtual-drive/contents/application/LocalContentsMover';
+import { AllLocalContentsDeleter } from '../../../../../context/virtual-drive/contents/application/AllLocalContentsDeleter';
 
 export async function buildContentsContainer(
   sharedContainer: SharedContainer
@@ -55,9 +58,20 @@ export async function buildContentsContainer(
 
   const retryContentsUploader = new RetryContentsUploader(contentsUploader);
 
+  const localContentsMover = new LocalContentsMover(localFS);
+
+  const allLocalContentsDeleter = new AllLocalContentsDeleter(localFS);
+
+  // Event subscribers
+
+  const moveOfflineContentsOnContentsUploaded =
+    new MoveOfflineContentsOnContentsUploaded(localContentsMover);
+
   return {
     downloadContentsToPlainFile,
     localContentChecker,
     retryContentsUploader,
+    allLocalContentsDeleter,
+    moveOfflineContentsOnContentsUploaded,
   };
 }
