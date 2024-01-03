@@ -1,18 +1,34 @@
 import { OfflineDriveDependencyContainer } from '../dependency-injection/offline/OfflineDriveDependencyContainer';
-import { Callback } from './Callback';
+import { NotifyFuseCallback } from './FuseCallback';
+import { IOError } from './FuseErrors';
 
-export class ReleaseCallback {
-  constructor(private readonly container: OfflineDriveDependencyContainer) {}
+export class ReleaseCallback extends NotifyFuseCallback {
+  constructor(private readonly container: OfflineDriveDependencyContainer) {
+    super();
+  }
 
-  async execute(path: string, _fd: number, cb: Callback): Promise<void> {
+  async execute(path: string, fd: number) {
     const file = await this.container.offlineFileSearcher.run({ path });
 
     if (!file) {
-      return cb(0);
+      return this.right();
     }
 
-    await this.container.offlineFileUploader.run(file);
+    try {
+      await this.container.offlineFileUploader.run(file);
+      return this.right();
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        return this.left(
+          new IOError(
+            `${err.message} when uploading ${path} and with flag: ${fd}`
+          )
+        );
+      }
 
-    cb(0);
+      return this.left(
+        new IOError(`Error when uploading ${path} with flag ${fd}: ${err}`)
+      );
+    }
   }
 }

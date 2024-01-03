@@ -1,16 +1,16 @@
 import _path from 'path';
 import Logger from 'electron-log';
-import { Readdir } from './callbacks/Readdir';
-import { GetAttributes } from './callbacks/GetAttributes';
-import { Open } from './callbacks/Open';
-import { Read } from './callbacks/Read';
-import { RenameOrMove } from './callbacks/RenameAndMove';
-import { ListXAttributes } from './callbacks/ListXAttributes';
-import { GetXAttribute } from './callbacks/GetXAttribute';
-import { CreateFile } from './callbacks/CreateFile';
-import { CreateFolder } from './callbacks/CreateFolder';
-import { TrashFile } from './callbacks/TrashFile';
-import { TrashFolder } from './callbacks/TrashFolder';
+import { ReaddirCallback } from './callbacks/ReaddirCallback';
+import { GetAttributesCallback } from './callbacks/GetAttributesCallback';
+import { OpenCallback } from './callbacks/OpenCallback';
+import { ReadCallback } from './callbacks/ReadCallback';
+import { RenameOrMoveCallback } from './callbacks/RenameOrMoveCallback';
+import { ListXAttributesCallback } from './callbacks/ListXAttributesCallback';
+import { GetXAttributeCallback } from './callbacks/GetXAttributeCallback';
+import { CreateCallback } from './callbacks/CreateCallback';
+import { MakeDirectoryCallback } from './callbacks/MakeDirectoryCallback';
+import { TrashFileCallback } from './callbacks/TrashFileCallback';
+import { TrashFolderCallback } from './callbacks/TrashFolderCallback';
 import { WriteCallback } from './callbacks/WriteCallback';
 import { ReleaseCallback } from './callbacks/ReleaseCallback';
 import { FuseDependencyContainer } from './dependency-injection/FuseDependencyContainer';
@@ -30,24 +30,28 @@ export class FuseApp {
   ) {}
 
   private getOpt() {
-    const listXAttributes = new ListXAttributes();
-    const getXAttribute = new GetXAttribute();
-    const readdir = new Readdir(this.fuseContainer.virtualDriveContainer);
-    const getattr = new GetAttributes(
+    const listXAttributes = new ListXAttributesCallback();
+    const getXAttribute = new GetXAttributeCallback();
+    const readdir = new ReaddirCallback(
+      this.fuseContainer.virtualDriveContainer
+    );
+    const getattr = new GetAttributesCallback(
       this.fuseContainer.virtualDriveContainer,
       this.fuseContainer.offlineDriveContainer
     );
-    const open = new Open(this.fuseContainer.virtualDriveContainer);
-    const read = new Read(this.fuseContainer.virtualDriveContainer);
-    const renameOrMove = new RenameOrMove(
+    const open = new OpenCallback(this.fuseContainer.virtualDriveContainer);
+    const read = new ReadCallback(this.fuseContainer.virtualDriveContainer);
+    const renameOrMove = new RenameOrMoveCallback(
       this.fuseContainer.virtualDriveContainer
     );
-    const createFile = new CreateFile(this.fuseContainer.offlineDriveContainer);
-    const createFolder = new CreateFolder(
+    const create = new CreateCallback(this.fuseContainer.offlineDriveContainer);
+    const makeDirectory = new MakeDirectoryCallback(
       this.fuseContainer.virtualDriveContainer
     );
-    const trashFile = new TrashFile(this.fuseContainer.virtualDriveContainer);
-    const trashFolder = new TrashFolder(
+    const trashFile = new TrashFileCallback(
+      this.fuseContainer.virtualDriveContainer
+    );
+    const trashFolder = new TrashFolderCallback(
       this.fuseContainer.virtualDriveContainer
     );
     const write = new WriteCallback(this.fuseContainer.offlineDriveContainer);
@@ -57,15 +61,15 @@ export class FuseApp {
 
     return {
       listxattr: listXAttributes.execute.bind(listXAttributes),
-      getxattr: getXAttribute.export.bind(getXAttribute),
+      getxattr: getXAttribute.execute.bind(getXAttribute),
       getattr: getattr.execute.bind(getattr),
       readdir: readdir.execute.bind(readdir),
       open: open.execute.bind(open),
       read: read.execute.bind(read),
       rename: renameOrMove.execute.bind(renameOrMove),
-      create: createFile.execute.bind(createFile),
+      create: create.execute.bind(create),
       write: write.execute.bind(write),
-      mkdir: createFolder.execute.bind(createFolder),
+      mkdir: makeDirectory.execute.bind(makeDirectory),
       release: release.execute.bind(release),
       unlink: trashFile.execute.bind(trashFile),
       rmdir: trashFolder.execute.bind(trashFolder),

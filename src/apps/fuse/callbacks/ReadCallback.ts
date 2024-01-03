@@ -5,7 +5,7 @@ import { VirtualDriveDependencyContainer } from '../dependency-injection/virtual
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const fuse = require('@gcas/fuse');
 
-export class Read {
+export class ReadCallback {
   constructor(private readonly container: VirtualDriveDependencyContainer) {}
 
   async execute(
@@ -31,21 +31,18 @@ export class Read {
 
     fs.readFile(filePath, (err, data) => {
       if (err) {
-        console.error(`Error reading file: ${err}`);
-        cb(fuse.ENOENT); // Indicate an error code, e.g., if the file doesn't exist
+        Logger.error(`Error reading file: ${err}`);
+        cb(fuse.ENOENT);
         return;
       }
 
-      // Convert the data to a Buffer
       const dataBuffer = Buffer.from(data);
 
-      // Determine the number of bytes to read based on the length and position
       const bytesRead = Math.min(dataBuffer.length - pos, len);
 
-      // Copy the data to the provided buffer
       dataBuffer.copy(buf, 0, pos, pos + bytesRead);
 
-      cb(bytesRead); // Indicate the number of bytes read}
+      cb(bytesRead); // Indicate the number of bytes read ????????????
     });
   }
 }

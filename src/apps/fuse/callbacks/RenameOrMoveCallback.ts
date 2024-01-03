@@ -1,13 +1,13 @@
 import { File } from '../../../context/virtual-drive/files/domain/File';
 import { VirtualDriveDependencyContainer } from '../dependency-injection/virtual-drive/VirtualDriveDependencyContainer';
 import { Folder } from '../../../context/virtual-drive/folders/domain/Folder';
-import { Callback } from './Callback';
+import { NotifyFuseCallback } from './FuseCallback';
+import { NoSuchFileOrDirectoryError } from './FuseErrors';
 
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const fuse = require('@gcas/fuse');
-
-export class RenameOrMove {
-  constructor(private readonly container: VirtualDriveDependencyContainer) {}
+export class RenameOrMoveCallback extends NotifyFuseCallback {
+  constructor(private readonly container: VirtualDriveDependencyContainer) {
+    super();
+  }
 
   private async findFile(path: string): Promise<File | undefined> {
     const file = await this.container.filesSearcher.run({ path });
@@ -21,21 +21,25 @@ export class RenameOrMove {
     return folder;
   }
 
-  async execute(src: string, dest: string, cb: Callback) {
+  async execute(src: string, dest: string) {
     const file = await this.findFile(src);
 
     if (file) {
       await this.container.filePathUpdater.run(file.contentsId, dest);
-      return cb(0);
+      return this.right();
     }
 
     const folder = await this.findFolder(src);
 
     if (folder) {
       await this.container.folderPathUpdater.run(folder.uuid, dest);
-      return cb(0);
+      return this.right();
     }
 
-    return cb(fuse.ENOENT);
+    return this.left(
+      new NoSuchFileOrDirectoryError(
+        `File or folder not found when trying to change a path, src: ${src}, dest: ${dest}`
+      )
+    );
   }
 }

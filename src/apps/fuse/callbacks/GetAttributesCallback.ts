@@ -1,28 +1,30 @@
+import Logger from 'electron-log';
 import { OfflineDriveDependencyContainer } from '../dependency-injection/offline/OfflineDriveDependencyContainer';
 import { VirtualDriveDependencyContainer } from '../dependency-injection/virtual-drive/VirtualDriveDependencyContainer';
-import { Callback } from './Callback';
-import Logger from 'electron-log';
+import { FuseCallback } from './FuseCallback';
+import { NoSuchFileOrDirectoryError } from './FuseErrors';
 
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const fuse = require('@gcas/fuse');
+type GetAttributesCallbackData = { mode: number; size: number };
 
-export class GetAttributes {
+export class GetAttributesCallback extends FuseCallback<GetAttributesCallbackData> {
   constructor(
     private readonly virtualDriveContainer: VirtualDriveDependencyContainer,
     private readonly offlineDriveContainer: OfflineDriveDependencyContainer
-  ) {}
+  ) {
+    super();
+  }
 
-  async execute(path: string, cb: Callback): Promise<void> {
+  async execute(path: string) {
     Logger.debug('GET ATTRIBUTES OF ', path);
 
     if (path === '/') {
-      return cb(0, { mode: 16877, size: 0 });
+      return this.right({ mode: 16877, size: 0 });
     }
 
     const file = await this.virtualDriveContainer.filesSearcher.run({ path });
 
     if (file) {
-      return cb(0, { mode: 33188, size: file.size });
+      return this.right({ mode: 33188, size: file.size });
     }
 
     const folder = await this.virtualDriveContainer.folderSearcher.run({
@@ -30,16 +32,20 @@ export class GetAttributes {
     });
 
     if (folder) {
-      return cb(0, { mode: 16877, size: 0 });
+      return this.right({ mode: 16877, size: 0 });
     }
 
     const offlineFile =
       await this.offlineDriveContainer.offlineFileSearcher.run({ path });
 
     if (offlineFile) {
-      return cb(0, { mode: 33188, size: offlineFile.size });
+      return this.right({ mode: 33188, size: offlineFile.size });
     }
 
-    cb(fuse.ENOENT);
+    return this.left(
+      new NoSuchFileOrDirectoryError(
+        `${path} not founded on when it's attributes`
+      )
+    );
   }
 }
