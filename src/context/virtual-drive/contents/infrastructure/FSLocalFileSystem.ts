@@ -5,7 +5,6 @@ import { LocalFileContentsDirectoryProvider } from '../../shared/domain/LocalFil
 import { LocalFileSystem } from '../domain/LocalFileSystem';
 import path from 'path';
 import fs from 'fs/promises';
-import Logger from 'electron-log';
 import { ContentsId } from '../domain/ContentsId';
 
 export class FSLocalFileSystem implements LocalFileSystem {

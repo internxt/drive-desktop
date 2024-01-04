@@ -24,17 +24,17 @@ export class OpenCallback extends FuseCallback<number> {
     );
 
     if (alreadyDownloaded) {
-      Logger.debug('[FUSE] File contents already in local');
+      Logger.debug(`"${file.nameWithExtension}" contents are already in local`);
       return this.right(file.id);
     }
 
     try {
-      Logger.debug('[FUSE] File contents not in local');
+      Logger.debug(`"${file.nameWithExtension}" contents are not in local`);
       await this.container.downloadContentsToPlainFile.run(file);
 
       return this.right(file.id);
     } catch (err: unknown) {
-      Logger.error('[FUSE] Error downloading file: ', err);
+      Logger.error('Error downloading file: ', err);
 
       if (err instanceof Error) {
         return this.left(new IOError(`${err.message} when opening ${path}`));

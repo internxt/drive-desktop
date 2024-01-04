@@ -29,6 +29,8 @@ export class ReadCallback {
       file.contentsId
     );
 
+    Logger.debug('READING FILE FROM ', filePath);
+
     fs.readFile(filePath, (err, data) => {
       if (err) {
         Logger.error(`Error reading file: ${err}`);
@@ -36,13 +38,14 @@ export class ReadCallback {
         return;
       }
 
-      const dataBuffer = Buffer.from(data);
+      if (pos >= data.length) return cb(0);
 
-      const bytesRead = Math.min(dataBuffer.length - pos, len);
+      // const bytesRead = Math.min(buffer.length - pos, len);
+      const part = data.slice(pos, pos + len);
 
-      dataBuffer.copy(buf, 0, pos, pos + bytesRead);
+      part.copy(buf);
 
-      cb(bytesRead); // Indicate the number of bytes read ????????????
+      cb(part.length); // Indicate the number of bytes read ????????????
     });
   }
 }
