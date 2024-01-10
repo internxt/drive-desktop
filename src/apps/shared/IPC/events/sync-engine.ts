@@ -115,6 +115,27 @@ export type FilesEvents = {
   FILE_OVERWRITTEN: (payload: { nameWithExtension: string }) => void;
 
   FILE_CLONED: (payload: FileUpdatePayload) => void;
+
+  FILE_UPDATING: (payload: {
+    name: string;
+    extension: string;
+    nameWithExtension: string;
+    size: number;
+  }) => void;
+
+  FILE_UPDATED: (payload: {
+    name: string;
+    extension: string;
+    nameWithExtension: string;
+    size: number;
+  }) => void;
+
+  FILE_UPDATE_ERROR: (payload: {
+    name: string;
+    extension: string;
+    nameWithExtension: string;
+    error: string;
+  }) => void;
 };
 
 export type SyncEngineInvocableFunctions = {
