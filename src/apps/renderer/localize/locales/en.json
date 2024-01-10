@@ -1,7 +1,7 @@
 {
   "login": {
     "email": {
-      "section": "Email adress"
+      "section": "Email address"
     },
     "password": {
       "section": "Password",
