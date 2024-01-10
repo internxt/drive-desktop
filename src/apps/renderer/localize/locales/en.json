@@ -1,7 +1,7 @@
 {
   "login": {
     "email": {
-      "section": "Email adress"
+      "section": "Email address"
     },
     "password": {
       "section": "Password",
@@ -11,7 +11,7 @@
       "show": "Show"
     },
     "action": {
-      "login": "Login",
+      "login": "Log in",
       "is-logging-in": "Logging you in..."
     },
     "create-account": "Create account",
