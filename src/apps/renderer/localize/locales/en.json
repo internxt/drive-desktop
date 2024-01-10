@@ -11,8 +11,8 @@
       "show": "Show"
     },
     "action": {
-      "login": "Login",
-      "is-logging-in": "Loggin in..."
+      "login": "Log in",
+      "is-logging-in": "Logging you in..."
     },
     "create-account": "Create account",
     "2fa": {
