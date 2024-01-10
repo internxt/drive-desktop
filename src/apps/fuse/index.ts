@@ -5,13 +5,13 @@ import { getRootVirtualDrive } from '../main/virutal-root-folder/service';
 import eventBus from '../main/event-bus';
 import { FuseApp } from './FuseApp';
 import path from 'path';
-import { HidratationApi } from '../hydratation-api/HidratationApi';
+import { HydrationApi } from '../hydratation-api/HidratationApi';
 import { FuseDependencyContainerFactory } from './dependency-injection/FuseDependencyContainerFactory';
 
 let fuseApp: FuseApp;
 
 async function spawnSyncEngineWorker() {
-  const api = new HidratationApi();
+  const api = new HydrationApi();
 
   await api.start({
     debug: false,

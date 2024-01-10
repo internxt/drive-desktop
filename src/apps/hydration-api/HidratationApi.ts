@@ -4,11 +4,11 @@ import Logger from 'electron-log';
 import { buildContentsRouter } from './routes/contents';
 import { DependencyContainerFactory } from './dependency-injection/DependencyContainerFactory';
 
-export interface HidratationApiOptions {
+export interface HydrationApiOptions {
   debug: boolean;
 }
 
-export class HidratationApi {
+export class HydrationApi {
   private static readonly PORT = 4567;
   private readonly app;
 
@@ -27,7 +27,7 @@ export class HidratationApi {
     return routers;
   }
 
-  async start(options: HidratationApiOptions): Promise<void> {
+  async start(options: HydrationApiOptions): Promise<void> {
     const routers = await this.buildRouters();
 
     if (options.debug) {
@@ -44,10 +44,8 @@ export class HidratationApi {
     });
 
     return new Promise((resolve) => {
-      this.app.listen(HidratationApi.PORT, () => {
-        Logger.info(
-          `Hidratation Api is running on port ${HidratationApi.PORT}`
-        );
+      this.app.listen(HydrationApi.PORT, () => {
+        Logger.info(`Hidratation Api is running on port ${HydrationApi.PORT}`);
         resolve();
       });
     });
