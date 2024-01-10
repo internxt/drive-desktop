@@ -11,7 +11,7 @@
       "show": "Show"
     },
     "action": {
-      "login": "Login",
+      "login": "Log in",
       "is-logging-in": "Logging you in..."
     },
     "create-account": "Create account",
