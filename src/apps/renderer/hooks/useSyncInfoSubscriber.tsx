@@ -16,6 +16,7 @@ export function useSyncInfoSubscriber() {
 
       const itemIsAnError = [
         'UPLOAD_ERROR',
+        'UPDATE_ERROR',
         'DOWNLOAD_ERROR',
         'RENAME_ERROR',
         'DELETE_ERROR',
@@ -33,7 +34,7 @@ export function useSyncInfoSubscriber() {
   function clearItems() {
     setProcessInfoUpdatedPayload((current) =>
       current.filter((item) =>
-        ['UPLOADING', 'DOWNLOADING', 'RENAMING', 'DELETING'].includes(
+        ['UPLOADING', 'DOWNLOADING', 'RENAMING', 'DELETING', 'UPDATING'].includes(
           item.action
         )
       )
@@ -47,6 +48,7 @@ export function useSyncInfoSubscriber() {
           item.action !== 'UPLOADING' &&
           item.action !== 'DOWNLOADING' &&
           item.action !== 'RENAMING' &&
+          item.action !== 'UPDATING' &&
           item.action !== 'DELETING'
       );
     });

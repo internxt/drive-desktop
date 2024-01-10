@@ -213,6 +213,7 @@ export type ProcessIssue = ProcessInfoBase & {
     | 'DOWNLOAD_ERROR'
     | 'RENAME_ERROR'
     | 'DELETE_ERROR'
+    | 'UPDATE_ERROR'
     | 'METADATA_READ_ERROR';
 
   errorName: ProcessErrorName;
@@ -223,11 +224,11 @@ export type ProcessInfoUpdatePayload =
   | (ProcessInfoBase &
       (
         | {
-            action: 'UPLOADING' | 'DOWNLOADING' | 'RENAMING' | 'DELETING';
+            action: 'UPLOADING' | 'DOWNLOADING' | 'RENAMING' | 'DELETING' | 'UPDATING';
             progress: number;
           }
         | {
-            action: 'UPLOADED' | 'DOWNLOADED' | 'RENAMED' | 'DELETED';
+            action: 'UPLOADED' | 'DOWNLOADED' | 'RENAMED' | 'DELETED' | 'UPDATED';
           }
       ))
   | ProcessIssue;

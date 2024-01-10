@@ -60,6 +60,14 @@ ipcMainDrive.on('FILE_UPLOADED', () => {
   setTrayStatus('IDLE');
 });
 
+ipcMainDrive.on('FILE_UPDATING', () => {
+  setTrayStatus('SYNCING');
+});
+
+ipcMainDrive.on('FILE_UPDATED', () => {
+  setTrayStatus('IDLE');
+});
+
 ipcMainDrive.on('FILE_UPLOAD_ERROR', () => {
   setTrayStatus('ALERT');
 });
@@ -73,5 +81,9 @@ ipcMainDrive.on('FILE_RENAME_ERROR', () => {
 });
 
 ipcMainDrive.on('FILE_DELETION_ERROR', () => {
+  setTrayStatus('ALERT');
+});
+
+ipcMainDrive.on('FILE_UPDATE_ERROR', () => {
   setTrayStatus('ALERT');
 });

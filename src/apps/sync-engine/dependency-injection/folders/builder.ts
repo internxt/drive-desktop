@@ -1,4 +1,4 @@
-import { NodeWinLocalFileSystem } from '../../../../context/virtual-drive/folders/infrastructure/NodeWinLocalFileSystem';
+import { NodeWinLocalFolderSystem } from '../../../../context/virtual-drive/folders/infrastructure/NodeWinLocalFolderSystem';
 import { AllParentFoldersStatusIsExists } from '../../../../context/virtual-drive/folders/application/AllParentFoldersStatusIsExists';
 import { FolderByPartialSearcher } from '../../../../context/virtual-drive/folders/application/FolderByPartialSearcher';
 import { FolderCreator } from '../../../../context/virtual-drive/folders/application/FolderCreator';
@@ -17,7 +17,7 @@ import { RetrieveAllFolders } from '../../../../context/virtual-drive/folders/ap
 import { SynchronizeOfflineModifications } from '../../../../context/virtual-drive/folders/application/SynchronizeOfflineModifications';
 import { SynchronizeOfflineModificationsOnFolderCreated } from '../../../../context/virtual-drive/folders/application/SynchronizeOfflineModificationsOnFolderCreated';
 import { FolderPlaceholderUpdater } from '../../../../context/virtual-drive/folders/application/UpdatePlaceholderFolder';
-import { HttpRemoteFileSystem } from '../../../../context/virtual-drive/folders/infrastructure/HttpRemoteFileSystem';
+import { HttpRemoteFolderSystem } from '../../../../context/virtual-drive/folders/infrastructure/HttpRemoteFolderSystem';
 import { InMemoryFolderRepository } from '../../../../context/virtual-drive/folders/infrastructure/InMemoryFolderRepository';
 import { InMemoryOfflineFolderRepository } from '../../../../context/virtual-drive/folders/infrastructure/InMemoryOfflineFolderRepository';
 import { ipcRendererSyncEngine } from '../../ipcRendererSyncEngine';
@@ -38,8 +38,8 @@ export async function buildFoldersContainer(
 
   const repository = new InMemoryFolderRepository();
 
-  const localFileSystem = new NodeWinLocalFileSystem(virtualDrive);
-  const remoteFileSystem = new HttpRemoteFileSystem(
+  const localFileSystem = new NodeWinLocalFolderSystem(virtualDrive);
+  const remoteFileSystem = new HttpRemoteFolderSystem(
     clients.drive,
     clients.newDrive
   );

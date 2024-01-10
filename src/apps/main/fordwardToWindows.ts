@@ -95,6 +95,24 @@ ipcMainDrive.on('FILE_CREATED', (_, payload) => {
   });
 });
 
+ipcMainDrive.on('FILE_UPDATED', (_, payload) => {
+  const { nameWithExtension } = payload;
+
+  broadcastToWindows('sync-info-update', {
+    action: 'UPDATED',
+    name: nameWithExtension,
+  });
+});
+
+ipcMainDrive.on('FILE_UPDATING', (_, payload) => {
+  const { nameWithExtension } = payload;
+
+  broadcastToWindows('sync-info-update', {
+    action: 'UPDATING',
+    name: nameWithExtension,
+  });
+});
+
 ipcMainDrive.on('FILE_UPLOAD_ERROR', (_, payload) => {
   const { nameWithExtension } = payload;
 
@@ -127,6 +145,15 @@ ipcMainDrive.on('FILE_DELETION_ERROR', (_, payload: FileErrorInfo) => {
 
   broadcastToWindows('sync-info-update', {
     action: 'DELETE_ERROR',
+    name: nameWithExtension,
+  });
+});
+
+ipcMainDrive.on('FILE_UPDATE_ERROR', (_, payload: FileErrorInfo) => {
+  const { nameWithExtension } = payload;
+
+  broadcastToWindows('sync-info-update', {
+    action: 'UPDATE_ERROR',
     name: nameWithExtension,
   });
 });

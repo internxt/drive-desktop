@@ -4,12 +4,12 @@ import * as uuid from 'uuid';
 import { Folder, FolderAttributes } from '../domain/Folder';
 import { FolderStatuses } from '../domain/FolderStatus';
 import { UpdateFolderNameDTO } from './dtos/UpdateFolderNameDTO';
-import { RemoteFileSystem } from '../domain/file-systems/RemoteFileSystem';
+import { RemoteFolderSystem } from '../domain/file-systems/RemoteFolderSystem';
 import { OfflineFolder } from '../domain/OfflineFolder';
 import { ServerFolder } from '../../../shared/domain/ServerFolder';
 import { CreateFolderDTO } from './dtos/CreateFolderDTO';
 
-export class HttpRemoteFileSystem implements RemoteFileSystem {
+export class HttpRemoteFolderSystem implements RemoteFolderSystem {
   public folders: Record<string, Folder> = {};
 
   constructor(

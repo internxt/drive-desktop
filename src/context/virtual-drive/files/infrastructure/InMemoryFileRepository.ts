@@ -53,9 +53,13 @@ export class InMemoryFileRepository implements FileRepository {
     this.files.set(file.contentsId, file.attributes());
   }
 
-  async update(file: File): Promise<void> {
-    if (!this.files.has(file.contentsId)) {
+  async update(file: File, oldContentsId?: File['contentsId']): Promise<void> {
+    if (!this.files.has(file.contentsId) || (oldContentsId && !this.files.has(oldContentsId))) {
       throw new Error('File not found');
+    }
+
+    if (oldContentsId) {
+      this.files.delete(oldContentsId);
     }
 
     return this.add(file);

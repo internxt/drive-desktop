@@ -11,7 +11,7 @@ export class SDKRemoteFileSystem implements RemoteFileSystem {
   constructor(
     private readonly sdk: Storage,
     private readonly crypt: Crypt,
-    private readonly bucket: string
+    private readonly bucket: string,
   ) {}
 
   async persist(offline: OfflineFile): Promise<FileAttributes> {
@@ -73,5 +73,9 @@ export class SDKRemoteFileSystem implements RemoteFileSystem {
       destinationPath: uuid.v4(),
       bucketId: this.bucket,
     });
+  }
+
+  update(): Promise<void> {
+    throw new Error('Method not implemented.');
   }
 }

@@ -3,9 +3,9 @@ import {
   FolderAttributes,
 } from '../../../../../src/context/virtual-drive/folders/domain/Folder';
 import { OfflineFolder } from '../../../../../src/context/virtual-drive/folders/domain/OfflineFolder';
-import { RemoteFileSystem } from '../../../../../src/context/virtual-drive/folders/domain/file-systems/RemoteFileSystem';
+import { RemoteFolderSystem } from '../../../../../src/context/virtual-drive/folders/domain/file-systems/RemoteFolderSystem';
 
-export class FolderRemoteFileSystemMock implements RemoteFileSystem {
+export class FolderRemoteFileSystemMock implements RemoteFolderSystem {
   public readonly persistMock = jest.fn();
   public readonly trashMock = jest.fn();
   public readonly moveMock = jest.fn();
