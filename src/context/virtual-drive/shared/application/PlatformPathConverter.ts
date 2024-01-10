@@ -21,7 +21,7 @@ export class PlatformPathConverter {
 
   static getFatherPathPosix(posixPath: string): string {
     const pathArray = posixPath.split('/');
-    const folderToCreate = pathArray.pop();
+    pathArray.pop();
     const parentPath = pathArray.join('/');
     return this.winToPosix(parentPath);
   }
