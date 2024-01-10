@@ -22,7 +22,7 @@ describe('Folder Creator', () => {
 
     eventBus = new EventBusMock();
 
-    SUT = new FolderCreator(repository, remote, syncEngineIpc, eventBus);
+    SUT = new FolderCreator(repository, remote, eventBus);
   });
 
   it('creates on a folder from a offline folder', async () => {

@@ -12,7 +12,7 @@ describe('File Deleter', () => {
   let repository: FileRepositoryMock;
   let allParentFoldersStatusIsExists: AllParentFoldersStatusIsExists;
   let remoteFileSystemMock: RemoteFileSystemMock;
-  let localFilseSystemMock: LocalFileSystemMock;
+  let localFilesSystemMock: LocalFileSystemMock;
   let ipc: IpcRendererSyncEngineMock;
 
   let SUT: FileDeleter;
@@ -23,16 +23,15 @@ describe('File Deleter', () => {
     allParentFoldersStatusIsExists = new AllParentFoldersStatusIsExists(
       folderRepository
     );
-    localFilseSystemMock = new LocalFileSystemMock();
+    localFilesSystemMock = new LocalFileSystemMock();
     remoteFileSystemMock = new RemoteFileSystemMock();
     ipc = new IpcRendererSyncEngineMock();
 
     SUT = new FileDeleter(
       remoteFileSystemMock,
-      localFilseSystemMock,
+      localFilesSystemMock,
       repository,
-      allParentFoldersStatusIsExists,
-      ipc
+      allParentFoldersStatusIsExists
     );
   });
 

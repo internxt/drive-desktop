@@ -14,6 +14,7 @@ import { FuseLocalFileSystem } from '../../../../../context/virtual-drive/folder
 import { HttpRemoteFileSystem } from '../../../../../context/virtual-drive/folders/infrastructure/HttpRemoteFileSystem';
 import { InMemoryFolderRepository } from '../../../../../context/virtual-drive/folders/infrastructure/InMemoryFolderRepository';
 import { InMemoryOfflineFolderRepository } from '../../../../../context/virtual-drive/folders/infrastructure/InMemoryOfflineFolderRepository';
+import { MainProcessFolderSyncNotifier } from '../../../../../context/virtual-drive/folders/infrastructure/MainProcessFolderSyncNotifier';
 import { DependencyInjectionHttpClientsProvider } from '../../common/clients';
 import { DependencyInjectionEventBus } from '../../common/eventBus';
 
@@ -24,6 +25,8 @@ export async function buildFoldersContainer(
 ): Promise<FoldersContainer> {
   const repository = new InMemoryFolderRepository();
   const clients = DependencyInjectionHttpClientsProvider.get();
+
+  const notifier = new MainProcessFolderSyncNotifier();
 
   const remoteFileSystem = new HttpRemoteFileSystem(
     clients.drive,
@@ -58,7 +61,8 @@ export async function buildFoldersContainer(
   const folderRenamer = new FolderRenamer(
     repository,
     remoteFileSystem,
-    eventBus
+    eventBus,
+    notifier
   );
 
   const folderPathUpdater = new FolderPathUpdater(
@@ -74,7 +78,8 @@ export async function buildFoldersContainer(
   const folderCreator = new FolderCreator(
     repository,
     remoteFileSystem,
-    eventBus
+    eventBus,
+    notifier
   );
 
   const offlineFolderCreator = new OfflineFolderCreator(

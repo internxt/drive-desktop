@@ -4,8 +4,8 @@ import { FolderPath } from '../../../../../src/context/virtual-drive/folders/dom
 import { FolderUuid } from '../../../../../src/context/virtual-drive/folders/domain/FolderUuid';
 import { FolderRenamedDomainEvent } from '../../../../../src/context/virtual-drive/folders/domain/events/FolderRenamedDomainEvent';
 import { InMemoryOfflineFolderRepository } from '../../../../../src/context/virtual-drive/folders/infrastructure/InMemoryOfflineFolderRepository';
+import { EventBusMock } from '../../shared/__mock__/EventBusMock';
 import { EventRepositoryMock } from '../../shared/__mock__/EventRepositoryMock';
-import { IpcRendererSyncEngineMock } from '../../shared/__mock__/IpcRendererSyncEngineMock';
 import { FolderRemoteFileSystemMock } from '../__mocks__/FolderRemoteFileSystemMock';
 import { FolderRepositoryMock } from '../__mocks__/FolderRepositoryMock';
 import { FolderMother } from '../domain/FolderMother';
@@ -27,7 +27,7 @@ describe('Synchronize Offline Modifications', () => {
     renamer = new FolderRenamer(
       repository,
       folderRemoteFileSystemMock,
-      new IpcRendererSyncEngineMock()
+      new EventBusMock()
     );
     eventRepositoryMock = new EventRepositoryMock();
 

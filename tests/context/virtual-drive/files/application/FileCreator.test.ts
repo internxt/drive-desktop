@@ -4,7 +4,6 @@ import { FilePath } from '../../../../../src/context/virtual-drive/files/domain/
 import { File } from '../../../../../src/context/virtual-drive/files/domain/File';
 import { FileContentsMother } from '../../contents/domain/FileContentsMother';
 import { EventBusMock } from '../../shared/__mock__/EventBusMock';
-import { IpcRendererSyncEngineMock } from '../../shared/__mock__/IpcRendererSyncEngineMock';
 import { FileRepositoryMock } from '../__mocks__/FileRepositoryMock';
 import { RemoteFileSystemMock } from '../__mocks__/RemoteFileSystemMock';
 import { FileMother } from '../domain/FileMother';
@@ -19,8 +18,6 @@ describe('File Creator', () => {
 
   let SUT: FileCreator;
 
-  const ipc = new IpcRendererSyncEngineMock();
-
   beforeEach(() => {
     remoteFileSystemMock = new RemoteFileSystemMock();
     fileRepository = new FileRepositoryMock();
@@ -33,8 +30,7 @@ describe('File Creator', () => {
       fileRepository,
       folderFinder,
       fileDeleter,
-      eventBus,
-      ipc
+      eventBus
     );
   });
 
@@ -53,7 +49,7 @@ describe('File Creator', () => {
 
     remoteFileSystemMock.persistMock.mockResolvedValueOnce(fileAttributes);
 
-    await SUT.run(path, contents);
+    await SUT.run(path.value, contents.id, contents.size);
 
     expect(fileRepository.addMock).toBeCalledWith(
       expect.objectContaining(File.from(fileAttributes))
@@ -74,7 +70,7 @@ describe('File Creator', () => {
 
     remoteFileSystemMock.persistMock.mockResolvedValueOnce(fileAttributes);
 
-    await SUT.run(path, contents);
+    await SUT.run(path.value, contents.id, contents.size);
 
     expect(eventBus.publishMock.mock.calls[0][0][0].eventName).toBe(
       'file.created'
@@ -107,7 +103,7 @@ describe('File Creator', () => {
       // returns Promise<void>
     });
 
-    await SUT.run(path, contents);
+    await SUT.run(path.value, contents.id, contents.size);
 
     expect(deleterSpy).toBeCalledWith(existingFile.contentsId);
 
