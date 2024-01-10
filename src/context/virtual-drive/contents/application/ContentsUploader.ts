@@ -1,61 +1,61 @@
-import { ContentsManagersFactory } from '../domain/ContentsManagersFactory';
-import { LocalContentsProvider } from '../domain/LocalFileProvider';
-import { RemoteFileContents } from '../domain/RemoteFileContents';
 import { PlatformPathConverter } from '../../shared/application/PlatformPathConverter';
 import { RelativePathToAbsoluteConverter } from '../../shared/application/RelativePathToAbsoluteConverter';
 import { EventBus } from '../../shared/domain/EventBus';
+import { ContentsManagersFactory } from '../domain/ContentsManagersFactory';
+import { ContentsActionNotifier } from '../domain/ContentsActionsNotifier';
+import { LocalFileContents } from '../domain/LocalFileContents';
+import { LocalContentsProvider } from '../domain/LocalFileProvider';
+import { RemoteFileContents } from '../domain/RemoteFileContents';
+import { ContentFileUploader } from '../domain/contentHandlers/ContentFileUploader';
 
 export class ContentsUploader {
   constructor(
     private readonly remoteContentsManagersFactory: ContentsManagersFactory,
     private readonly contentProvider: LocalContentsProvider,
     private readonly relativePathToAbsoluteConverter: RelativePathToAbsoluteConverter,
-    private readonly eventBus: EventBus
+    private readonly eventBus: EventBus,
+    private readonly notifier: ContentsActionNotifier
   ) {}
 
-  // private registerEvents(
-  //   uploader: ContentFileUploader,
-  //   localFileContents: LocalFileContents
-  // ) {
-  //   uploader.on('start', () => {
-  //     this.ipc.send('FILE_UPLOADING', {
-  //       name: localFileContents.name,
-  //       extension: localFileContents.extension,
-  //       nameWithExtension: localFileContents.nameWithExtension,
-  //       size: localFileContents.size,
-  //       processInfo: { elapsedTime: uploader.elapsedTime() },
-  //     });
-  //   });
+  private registerEvents(
+    uploader: ContentFileUploader,
+    localFileContents: LocalFileContents
+  ) {
+    uploader.on('start', () => {
+      this.notifier.uploadStarted(
+        localFileContents.name,
+        localFileContents.extension,
+        localFileContents.size,
+        { elapsedTime: uploader.elapsedTime() }
+      );
+    });
 
-  //   uploader.on('progress', (progress: number) => {
-  //     this.ipc.send('FILE_UPLOADING', {
-  //       name: localFileContents.name,
-  //       extension: localFileContents.extension,
-  //       nameWithExtension: localFileContents.nameWithExtension,
-  //       size: localFileContents.size,
-  //       processInfo: { elapsedTime: uploader.elapsedTime(), progress },
-  //     });
-  //   });
+    uploader.on('progress', (progress: number) => {
+      this.notifier.uploadProgress(
+        localFileContents.name,
+        localFileContents.extension,
+        localFileContents.size,
+        { elapsedTime: uploader.elapsedTime(), progress }
+      );
+    });
 
-  //   uploader.on('error', (error: Error) => {
-  //     this.ipc.send('FILE_UPLOAD_ERROR', {
-  //       name: localFileContents.name,
-  //       extension: localFileContents.extension,
-  //       nameWithExtension: localFileContents.nameWithExtension,
-  //       error: error.message,
-  //     });
-  //   });
+    uploader.on('error', (error: Error) => {
+      this.notifier.uploadError(
+        localFileContents.name,
+        localFileContents.extension,
+        error.message
+      );
+    });
 
-  //   uploader.on('finish', () => {
-  //     this.ipc.send('FILE_UPLOADED', {
-  //       name: localFileContents.name,
-  //       extension: localFileContents.extension,
-  //       nameWithExtension: localFileContents.nameWithExtension,
-  //       size: localFileContents.size,
-  //       processInfo: { elapsedTime: uploader.elapsedTime() },
-  //     });
-  //   });
-  // }
+    uploader.on('finish', () => {
+      this.notifier.uploadCompleted(
+        localFileContents.name,
+        localFileContents.extension,
+        localFileContents.size,
+        { elapsedTime: uploader.elapsedTime() }
+      );
+    });
+  }
 
   async run(posixRelativePath: string): Promise<RemoteFileContents> {
     const win32RelativePath =
@@ -73,7 +73,7 @@ export class ContentsUploader {
       abortSignal
     );
 
-    // this.registerEvents(uploader, contents);
+    this.registerEvents(uploader, contents);
 
     const contentsId = await uploader.upload(contents.stream, contents.size);
 

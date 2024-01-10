@@ -15,6 +15,7 @@ import { ContentsContainer } from './ContentsContainer';
 import { MoveOfflineContentsOnContentsUploaded } from '../../../../../context/virtual-drive/contents/application/MoveOfflineContentsOnContentsUploaded';
 import { LocalContentsMover } from '../../../../../context/virtual-drive/contents/application/LocalContentsMover';
 import { AllLocalContentsDeleter } from '../../../../../context/virtual-drive/contents/application/AllLocalContentsDeleter';
+import { MainProcessContentsActionNotifier } from '../../../../../context/virtual-drive/contents/infrastructure/MainProcessContentsActionNotifier';
 
 export async function buildContentsContainer(
   sharedContainer: SharedContainer
@@ -22,6 +23,8 @@ export async function buildContentsContainer(
   const user = DependencyInjectionUserProvider.get();
   const mnemonic = DependencyInjectionMnemonicProvider.get();
   const { bus: eventBus } = DependencyInjectionEventBus;
+
+  const contentsActionNotifier = new MainProcessContentsActionNotifier();
 
   const environment = new Environment({
     bridgeUrl: process.env.BRIDGE_URL,
@@ -53,7 +56,8 @@ export async function buildContentsContainer(
     contentsManagerFactory,
     new FSLocalFileProvider(),
     sharedContainer.relativePathToAbsoluteConverter,
-    eventBus
+    eventBus,
+    contentsActionNotifier
   );
 
   const retryContentsUploader = new RetryContentsUploader(contentsUploader);
