@@ -43,6 +43,15 @@ export class OfflineFile extends AggregateRoot {
     return file;
   }
 
+  static from(attributes: OfflineFileAttributes): OfflineFile {
+    return new OfflineFile(
+      attributes.id,
+      attributes.createdAt,
+      new FilePath(attributes.path),
+      new FileSize(attributes.size)
+    );
+  }
+
   increaseSizeBy(bytes: number): void {
     const newSize = this.size + bytes;
 
