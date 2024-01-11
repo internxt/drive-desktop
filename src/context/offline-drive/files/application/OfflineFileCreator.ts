@@ -19,9 +19,9 @@ export class OfflineFileCreator {
 
     const file = OfflineFile.create(id, createdAt, filePath, size);
 
-    await this.eventBus.publish(file.pullDomainEvents());
-
     await this.repository.save(file);
+
+    await this.eventBus.publish(file.pullDomainEvents());
 
     return file;
   }
