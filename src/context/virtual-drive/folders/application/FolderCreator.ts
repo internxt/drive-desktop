@@ -14,7 +14,7 @@ export class FolderCreator {
   ) {}
 
   async run(offlineFolder: OfflineFolder): Promise<Folder> {
-    this.notifier.created(offlineFolder.name);
+    this.notifier.creating(offlineFolder.name);
 
     const attributes = await this.remote.persist(offlineFolder);
 

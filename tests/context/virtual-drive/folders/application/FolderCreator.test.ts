@@ -1,8 +1,6 @@
 import { FolderCreator } from '../../../../../src/context/virtual-drive/folders/application/FolderCreator';
 import { Folder } from '../../../../../src/context/virtual-drive/folders/domain/Folder';
-import { FolderSyncNotifier } from '../../../../../src/context/virtual-drive/folders/domain/FolderSyncNotifier';
 import { EventBusMock } from '../../shared/__mock__/EventBusMock';
-import { IpcRendererSyncEngineMock } from '../../shared/__mock__/IpcRendererSyncEngineMock';
 import { FolderRemoteFileSystemMock } from '../__mocks__/FolderRemoteFileSystemMock';
 import { FolderRepositoryMock } from '../__mocks__/FolderRepositoryMock';
 import { FolderSyncNotifierMock } from '../__mocks__/FolderSyncManagerMock';
@@ -14,13 +12,11 @@ describe('Folder Creator', () => {
 
   let repository: FolderRepositoryMock;
   let remote: FolderRemoteFileSystemMock;
-  let syncEngineIpc: IpcRendererSyncEngineMock;
   let eventBus: EventBusMock;
-  let notifier: FolderSyncNotifier;
+  let notifier: FolderSyncNotifierMock;
 
   beforeEach(() => {
     repository = new FolderRepositoryMock();
-    syncEngineIpc = new IpcRendererSyncEngineMock();
     remote = new FolderRemoteFileSystemMock();
     notifier = new FolderSyncNotifierMock();
 
@@ -58,9 +54,7 @@ describe('Folder Creator', () => {
 
       await SUT.run(offlineFolder);
 
-      expect(syncEngineIpc.sendMock).toBeCalledWith('FOLDER_CREATING', {
-        name: offlineFolder.name,
-      });
+      expect(notifier.creatingMock).toBeCalledWith(offlineFolder.name);
     });
 
     it('sends the message FOLDER_CREATED', async () => {
@@ -78,9 +72,7 @@ describe('Folder Creator', () => {
 
       await SUT.run(offlineFolder);
 
-      expect(syncEngineIpc.sendMock).toBeCalledWith('FOLDER_CREATED', {
-        name: offlineFolder.name,
-      });
+      expect(notifier.createdMock).toBeCalledWith(offlineFolder.name);
     });
   });
 });
