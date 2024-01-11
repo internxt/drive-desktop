@@ -1,5 +1,6 @@
 import { broadcastToWindows } from './windows';
 import { ipcMainDrive } from './ipcs/mainDrive';
+import { ipcMainSyncEngine } from './ipcs/ipcMainSyncEngine';
 import { FileErrorInfo } from '../shared/IPC/events/drive';
 
 ipcMainDrive.on('FILE_DELETED', (_, payload) => {
@@ -128,5 +129,12 @@ ipcMainDrive.on('FILE_DELETION_ERROR', (_, payload: FileErrorInfo) => {
   broadcastToWindows('sync-info-update', {
     action: 'DELETE_ERROR',
     name: nameWithExtension,
+  });
+});
+
+ipcMainSyncEngine.on('SYNC_PROBLEM', (_, payload) => {
+  broadcastToWindows('sync-info-update', {
+    action: 'SYNC_PROBLEM',
+    name: payload.additionalData.name,
   });
 });

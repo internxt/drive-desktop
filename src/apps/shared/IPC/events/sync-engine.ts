@@ -128,6 +128,10 @@ export type SyncEngineInvocableFunctions = {
 // TODO: change how errors are reported to the ui
 export type ProcessInfoUpdate = {
   SYNC_INFO_UPDATE: (payload: ProcessInfoUpdatePayload) => void;
+  SYNC_PROBLEM: (payload: {
+    key: string;
+    additionalData: Record<string, any>;
+  }) => void;
 };
 
 export type FromProcess = FilesEvents &

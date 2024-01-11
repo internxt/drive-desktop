@@ -321,7 +321,8 @@
       "no-permission": "Insufficient permissions",
       "file-does-not-exist": "File doesn't exist",
       "file-too-big": "Max upload size is 20GB. Please try smaller files.",
-      "file-non-extension": "Files without extensions are not supported."
+      "file-non-extension": "Files without extensions are not supported.",
+      "duplicated-node": "It appears that there are duplicate file or folder names in this directory. Please rename one of them to ensure synchronization"
     },
     "error-messages": {
       "no-internet": "Looks like you are not connected to the internet, we'll try again later",
@@ -334,9 +335,10 @@
       "unknown": "An unknown error ocurred while trying to sync your files",
       "empty-file": "We don't support files with a size of 0 bytes because of our processes of sharding and encryption",
       "bad-response": "We got a bad response from our servers while processing this file. Please, try starting the sync process again.",
-      "file-does-not-exist": "This file was present when we compared your local folder with your Internxt drive but dissapeared when we tried to access it. If you deleted this file, don't worry, this error should dissapear the next time the sync process starts.",
+      "file-does-not-exist": "This file was present when we compared your local folder with your Internxt drive but disappeared when we tried to access it. If you deleted this file, don't worry, this error should dissapear the next time the sync process starts.",
       "file-too-big": "Max upload size is 20GB. Please try smaller files.",
-      "file-non-extension": "Files without extensions are not supported. Not synchronized."
+      "file-non-extension": "Files without extensions are not supported. Not synchronized.",
+      "duplicated-node": "There are two elements (file or folder) with the same name on a folder. Rename one of them to sync them both"
     },
     "report-modal": {
       "actions": {

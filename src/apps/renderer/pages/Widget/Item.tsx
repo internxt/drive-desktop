@@ -68,7 +68,8 @@ export function Item({
                 action === 'DOWNLOAD_ERROR' ||
                 action === 'UPLOAD_ERROR' ||
                 action === 'RENAME_ERROR' ||
-                action === 'METADATA_READ_ERROR')
+                action === 'METADATA_READ_ERROR' ||
+                action === 'GENERATE_TREE')
                 ? 'text-red'
                 : undefined
             }`}
@@ -78,7 +79,8 @@ export function Item({
                 action === 'DOWNLOAD_ERROR' ||
                 action === 'UPLOAD_ERROR' ||
                 action === 'RENAME_ERROR' ||
-                action === 'METADATA_READ_ERROR')
+                action === 'METADATA_READ_ERROR' ||
+                action === 'GENERATE_TREE')
                 ? description
                 : undefined
             }
@@ -123,7 +125,8 @@ export function Item({
               action === 'DOWNLOAD_ERROR' ||
               action === 'UPLOAD_ERROR' ||
               action === 'RENAME_ERROR' ||
-              action === 'METADATA_READ_ERROR') && (
+              action === 'METADATA_READ_ERROR' ||
+              action === 'GENERATE_TREE') && (
               <WarningCircle size={24} className="text-red" weight="regular" />
             )}
         </div>
