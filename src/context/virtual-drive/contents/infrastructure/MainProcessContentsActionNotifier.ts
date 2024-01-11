@@ -5,7 +5,7 @@ import {
 import { setTrayStatus } from '../../../../apps/main/tray/tray';
 import { broadcastToWindows } from '../../../../apps/main/windows';
 import { Notifier } from '../../../shared/domain/Notifier';
-import { ContentsActionNotifier } from '../domain/ContentsActionsNotifier';
+import { ContentsActionNotifier } from '../domain/ContentsActionNotifier';
 
 export class MainProcessContentsActionNotifier
   extends Notifier

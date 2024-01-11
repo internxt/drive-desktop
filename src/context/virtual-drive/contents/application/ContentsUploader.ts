@@ -2,7 +2,7 @@ import { PlatformPathConverter } from '../../shared/application/PlatformPathConv
 import { RelativePathToAbsoluteConverter } from '../../shared/application/RelativePathToAbsoluteConverter';
 import { EventBus } from '../../shared/domain/EventBus';
 import { ContentsManagersFactory } from '../domain/ContentsManagersFactory';
-import { ContentsActionNotifier } from '../domain/ContentsActionsNotifier';
+import { ContentsActionNotifier } from '../domain/ContentsActionNotifier';
 import { LocalFileContents } from '../domain/LocalFileContents';
 import { LocalContentsProvider } from '../domain/LocalFileProvider';
 import { RemoteFileContents } from '../domain/RemoteFileContents';
