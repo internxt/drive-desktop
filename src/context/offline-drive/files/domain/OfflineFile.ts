@@ -34,11 +34,11 @@ export class OfflineFile extends AggregateRoot {
   }
 
   static create(
-    id: OfflineFileId,
     createdAt: number,
     path: FilePath,
     size: FileSize
   ): OfflineFile {
+    const id = OfflineFileId.create();
     const file = new OfflineFile(id, createdAt, path, size);
 
     return file;
