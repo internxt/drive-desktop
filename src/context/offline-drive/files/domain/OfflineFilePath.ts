@@ -1,7 +1,7 @@
 import path from 'path';
 import { Path } from '../../../shared/domain/Path';
 
-export class FilePath extends Path {
+export class OfflineFilePath extends Path {
   constructor(value: string) {
     super(value);
   }
@@ -9,7 +9,7 @@ export class FilePath extends Path {
   static fromParts(parts: Array<string>) {
     const full = path.posix.join(...parts);
 
-    return new FilePath(full);
+    return new OfflineFilePath(full);
   }
 
   extension(): string {
@@ -36,7 +36,7 @@ export class FilePath extends Path {
     return base;
   }
 
-  hasSameDirname(other: FilePath): boolean {
+  hasSameDirname(other: OfflineFilePath): boolean {
     return this.dirname() === other.dirname();
   }
 
@@ -44,15 +44,15 @@ export class FilePath extends Path {
     return this.extension() === extension;
   }
 
-  hasSameExtension(other: FilePath): boolean {
+  hasSameExtension(other: OfflineFilePath): boolean {
     return this.extension() === other.extension();
   }
 
-  changeFolder(folder: string): FilePath {
-    return FilePath.fromParts([folder, this.nameWithExtension()]);
+  changeFolder(folder: string): OfflineFilePath {
+    return OfflineFilePath.fromParts([folder, this.nameWithExtension()]);
   }
 
-  updateName(name: string): FilePath {
-    return FilePath.fromParts([this.dirname(), name]);
+  updateName(name: string): OfflineFilePath {
+    return OfflineFilePath.fromParts([this.dirname(), name]);
   }
 }

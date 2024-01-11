@@ -1,6 +1,6 @@
 import path from 'path';
-import { InvalidArgumentError } from '../../../shared/domain/InvalidArgumentError';
-import { ValueObject } from '../../../shared/domain/ValueObject';
+import { InvalidArgumentError } from './InvalidArgumentError';
+import { ValueObject } from './ValueObject';
 
 const isWindowsRootDirectory = /[a-zA-Z]:[\\/]/;
 const containsNullCharacter = /\0/g;

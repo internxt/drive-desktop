@@ -3,7 +3,6 @@ import { FileSize } from '../../../virtual-drive/files/domain/FileSize';
 import { EventBus } from '../../../virtual-drive/shared/domain/EventBus';
 import { OfflineFile } from '../domain/OfflineFile';
 import { OfflineFileRepository } from '../domain/OfflineFileRepository';
-import * as uuid from 'uuid';
 
 export class OfflineFileCreator {
   constructor(

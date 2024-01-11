@@ -1,7 +1,7 @@
 import { AggregateRoot } from '../../../shared/domain/AggregateRoot';
-import { FilePath } from '../../../virtual-drive/files/domain/FilePath';
-import { FileSize } from '../../../virtual-drive/files/domain/FileSize';
 import { OfflineFileId } from './OfflineFileId';
+import { OfflineFilePath } from './OfflineFilePath';
+import { OfflineFileSize } from './OfflineFileSize';
 
 export type OfflineFileAttributes = {
   id: string;
@@ -14,8 +14,8 @@ export class OfflineFile extends AggregateRoot {
   private constructor(
     private _id: OfflineFileId,
     private _createdAt: number,
-    private _path: FilePath,
-    private _size: FileSize
+    private _path: OfflineFilePath,
+    private _size: OfflineFileSize
   ) {
     super();
   }
@@ -35,8 +35,8 @@ export class OfflineFile extends AggregateRoot {
 
   static create(
     createdAt: number,
-    path: FilePath,
-    size: FileSize
+    path: OfflineFilePath,
+    size: OfflineFileSize
   ): OfflineFile {
     const id = OfflineFileId.create();
     const file = new OfflineFile(id, createdAt, path, size);
@@ -48,15 +48,15 @@ export class OfflineFile extends AggregateRoot {
     return new OfflineFile(
       new OfflineFileId(attributes.id),
       attributes.createdAt,
-      new FilePath(attributes.path),
-      new FileSize(attributes.size)
+      new OfflineFilePath(attributes.path),
+      new OfflineFileSize(attributes.size)
     );
   }
 
   increaseSizeBy(bytes: number): void {
     const newSize = this.size + bytes;
 
-    this._size = new FileSize(newSize);
+    this._size = new OfflineFileSize(newSize);
   }
 
   attributes(): OfflineFileAttributes {
