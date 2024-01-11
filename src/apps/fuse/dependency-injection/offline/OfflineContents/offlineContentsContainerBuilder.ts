@@ -4,6 +4,7 @@ import { OfflineContentsPathCalculator } from '../../../../../context/offline-dr
 import { OfflineContentsUploader } from '../../../../../context/offline-drive/contents/application/OfflineContentsUploader';
 import { EnvironmentOfflineContentsManagersFactory } from '../../../../../context/offline-drive/contents/infrastructure/EnvironmentRemoteFileContentsManagersFactory';
 import { NodeFSOfflineContentsRepository } from '../../../../../context/offline-drive/contents/infrastructure/NodeFSOfflineContentsRepository';
+import { MainProcessUploadProgressTracker } from '../../../../../context/shared/infrastructure/MainProcessUploadProgressTracker';
 import { FuseAppDataLocalFileContentsDirectoryProvider } from '../../../../../context/virtual-drive/shared/infrastructure/LocalFileContentsDirectoryProviders/FuseAppDataLocalFileContentsDirectoryProvider';
 import { DependencyInjectionInxtEnvironment } from '../../common/inxt-environment';
 import { DependencyInjectionUserProvider } from '../../common/user';
@@ -25,6 +26,8 @@ export async function buildOfflineContentsContainer(
 
   await repository.init();
 
+  const tracker = new MainProcessUploadProgressTracker();
+
   const offlineContentsAppender = new OfflineContentsAppender(
     offlineFilesContainer.offlineFileFinder,
     offlineFilesContainer.offlineFileSizeIncreaser,
@@ -40,7 +43,8 @@ export async function buildOfflineContentsContainer(
 
   const offlineContentsUploader = new OfflineContentsUploader(
     environmentOfflineContentsManagersFactory,
-    repository
+    repository,
+    tracker
   );
 
   const offlineContentsCreator = new OfflineContentsCreator(repository);

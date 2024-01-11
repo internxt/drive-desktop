@@ -32,6 +32,12 @@ export class OfflineFile extends AggregateRoot {
   public get size() {
     return this._size.value;
   }
+  public get name() {
+    return this._path.name();
+  }
+  public get extension() {
+    return this._path.extension();
+  }
 
   static create(
     createdAt: number,

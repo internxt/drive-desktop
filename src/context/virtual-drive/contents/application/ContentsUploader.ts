@@ -2,7 +2,7 @@ import { PlatformPathConverter } from '../../shared/application/PlatformPathConv
 import { RelativePathToAbsoluteConverter } from '../../shared/application/RelativePathToAbsoluteConverter';
 import { EventBus } from '../../shared/domain/EventBus';
 import { ContentsManagersFactory } from '../domain/ContentsManagersFactory';
-import { ContentsActionNotifier } from '../domain/ContentsActionNotifier';
+import { UploadProgressTracker } from '../../../shared/domain/UploadProgressTracker';
 import { LocalFileContents } from '../domain/LocalFileContents';
 import { LocalContentsProvider } from '../domain/LocalFileProvider';
 import { RemoteFileContents } from '../domain/RemoteFileContents';
@@ -14,7 +14,7 @@ export class ContentsUploader {
     private readonly contentProvider: LocalContentsProvider,
     private readonly relativePathToAbsoluteConverter: RelativePathToAbsoluteConverter,
     private readonly eventBus: EventBus,
-    private readonly notifier: ContentsActionNotifier
+    private readonly notifier: UploadProgressTracker
   ) {}
 
   private registerEvents(

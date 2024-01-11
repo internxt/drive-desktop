@@ -1,15 +1,12 @@
-import {
-  trackError,
-  trackEvent,
-} from '../../../../apps/main/analytics/service';
-import { setTrayStatus } from '../../../../apps/main/tray/tray';
-import { broadcastToWindows } from '../../../../apps/main/windows';
-import { Notifier } from '../../../shared/domain/Notifier';
-import { ContentsActionNotifier } from '../domain/ContentsActionNotifier';
+import { trackError, trackEvent } from '../../../apps/main/analytics/service';
+import { setTrayStatus } from '../../../apps/main/tray/tray';
+import { broadcastToWindows } from '../../../apps/main/windows';
+import { Notifier } from '../domain/Notifier';
+import { UploadProgressTracker } from '../domain/UploadProgressTracker';
 
-export class MainProcessContentsActionNotifier
+export class MainProcessUploadProgressTracker
   extends Notifier
-  implements ContentsActionNotifier
+  implements UploadProgressTracker
 {
   uploadStarted(name: string, extension: string, size: number): void {
     trackEvent('Upload Started', {

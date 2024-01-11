@@ -15,7 +15,7 @@ import { ContentsContainer } from './ContentsContainer';
 import { MoveOfflineContentsOnContentsUploaded } from '../../../../../context/virtual-drive/contents/application/MoveOfflineContentsOnContentsUploaded';
 import { LocalContentsMover } from '../../../../../context/virtual-drive/contents/application/LocalContentsMover';
 import { AllLocalContentsDeleter } from '../../../../../context/virtual-drive/contents/application/AllLocalContentsDeleter';
-import { MainProcessContentsActionNotifier } from '../../../../../context/virtual-drive/contents/infrastructure/MainProcessContentsActionNotifier';
+import { MainProcessUploadProgressTracker } from '../../../../../context/shared/infrastructure/MainProcessUploadProgressTracker';
 
 export async function buildContentsContainer(
   sharedContainer: SharedContainer
@@ -24,7 +24,7 @@ export async function buildContentsContainer(
   const mnemonic = DependencyInjectionMnemonicProvider.get();
   const { bus: eventBus } = DependencyInjectionEventBus;
 
-  const contentsActionNotifier = new MainProcessContentsActionNotifier();
+  const contentsActionNotifier = new MainProcessUploadProgressTracker();
 
   const environment = new Environment({
     bridgeUrl: process.env.BRIDGE_URL,

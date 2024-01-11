@@ -1,4 +1,4 @@
-export interface ContentsActionNotifier {
+export interface UploadProgressTracker {
   uploadStarted(
     name: string,
     extension: string,

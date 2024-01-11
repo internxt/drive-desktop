@@ -14,7 +14,13 @@ export class OfflineFileUploader {
   async run(file: OfflineFile): Promise<void> {
     const absolutePath = await this.offlineFilePathRetriever.run(file);
 
-    const contentsId = await this.contentsUploader.run(absolutePath);
+    const { name, extension } = file;
+
+    const contentsId = await this.contentsUploader.run(
+      name,
+      extension,
+      absolutePath
+    );
 
     const contentsUploadedEvent = new OfflineContentsUploadedDomainEvent({
       aggregateId: contentsId,

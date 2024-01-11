@@ -1,3 +1,3 @@
-import { BucketEntry } from '../../../virtual-drive/shared/domain/BucketEntry';
+import { BucketEntry } from '../../../shared/domain/BucketEntry';
 
 export class OfflineContentsSize extends BucketEntry {}
