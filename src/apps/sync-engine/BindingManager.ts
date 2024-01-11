@@ -77,6 +77,7 @@ export class BindingsManager {
         absolutePath: string,
         callback: (acknowledge: boolean, id: string) => boolean
       ) => {
+        Logger.debug('Path received from callback', absolutePath);
         controllers.addFile.execute(absolutePath, callback);
       },
       fetchDataCallback: async (
@@ -257,14 +258,6 @@ export class BindingsManager {
         } else if (stat.isFile()) {
           fs.unlinkSync(item);
         }
-      } catch (error) {
-        Logger.error(error);
-      }
-    });
-
-    toDeleteFolder.forEach((item) => {
-      try {
-        fs.rmdirSync(item, { recursive: true });
       } catch (error) {
         Logger.error(error);
       }

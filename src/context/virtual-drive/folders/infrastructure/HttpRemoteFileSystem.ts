@@ -1,4 +1,4 @@
-import { Axios } from 'axios';
+import axios, { Axios } from 'axios';
 import Logger from 'electron-log';
 import * as uuid from 'uuid';
 import { Folder, FolderAttributes } from '../domain/Folder';
@@ -18,40 +18,46 @@ export class HttpRemoteFileSystem implements RemoteFileSystem {
   ) {}
 
   async persist(offline: OfflineFolder): Promise<FolderAttributes> {
-    if (!offline.name) {
+    if (!offline.name || !offline.basename) {
       throw new Error('Bad folder name');
     }
 
     const body: CreateFolderDTO = {
-      folderName: offline.name,
+      folderName: offline.basename,
       parentFolderId: offline.parentId,
-      uuid: offline.uuid,
+      uuid: offline.uuid, // TODO: Maybe we can avoid errors sending the uuid, because it's optional
     };
 
-    const response = await this.driveClient.post(
-      `${process.env.API_URL}/api/storage/folder`,
-      body
-    );
+    try {
+      const response = await this.driveClient.post(
+        `${process.env.API_URL}/api/storage/folder`,
+        body
+      );
+      if (response.status !== 201) {
+        throw new Error('Folder creation failed');
+      }
 
-    if (response.status !== 201) {
-      throw new Error('Folder creation failed');
+      const serverFolder = response.data as ServerFolder | null;
+
+      if (!serverFolder) {
+        throw new Error('Folder creation failed, no data returned');
+      }
+      return {
+        id: serverFolder.id,
+        uuid: serverFolder.uuid,
+        parentId: serverFolder.parentId,
+        updatedAt: serverFolder.updatedAt,
+        createdAt: serverFolder.createdAt,
+        path: offline.path.value,
+        status: FolderStatuses.EXISTS,
+      };
+    } catch (error: any) {
+      Logger.error('[FOLDER FILE SYSTEM] Error creating folder', error);
+      if (axios.isAxiosError(error)) {
+        Logger.error('[Is Axios Error]', error.response?.data);
+      }
+      throw error;
     }
-
-    const serverFolder = response.data as ServerFolder | null;
-
-    if (!serverFolder) {
-      throw new Error('Folder creation failed, no data returned');
-    }
-
-    return {
-      id: serverFolder.id,
-      uuid: serverFolder.uuid,
-      parentId: serverFolder.parentId,
-      updatedAt: serverFolder.updatedAt,
-      createdAt: serverFolder.createdAt,
-      path: offline.path.value,
-      status: FolderStatuses.EXISTS,
-    };
   }
 
   async trash(id: Folder['id']): Promise<void> {

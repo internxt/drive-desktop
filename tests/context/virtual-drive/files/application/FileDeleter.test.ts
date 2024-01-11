@@ -7,12 +7,13 @@ import { FileDeleter } from '../../../../../src/context/virtual-drive/files/appl
 import { FolderRepositoryMock } from '../../folders/__mocks__/FolderRepositoryMock';
 import { ContentsIdMother } from '../../contents/domain/ContentsIdMother';
 import { AllParentFoldersStatusIsExists } from '../../../../../src/context/virtual-drive/folders/application/AllParentFoldersStatusIsExists';
+import { FileStatus } from '../../../../../src/context/virtual-drive/files/domain/FileStatus';
 
 describe('File Deleter', () => {
   let repository: FileRepositoryMock;
   let allParentFoldersStatusIsExists: AllParentFoldersStatusIsExists;
   let remoteFileSystemMock: RemoteFileSystemMock;
-  let localFilseSystemMock: LocalFileSystemMock;
+  let localFileSystemMock: LocalFileSystemMock;
   let ipc: IpcRendererSyncEngineMock;
 
   let SUT: FileDeleter;
@@ -23,13 +24,13 @@ describe('File Deleter', () => {
     allParentFoldersStatusIsExists = new AllParentFoldersStatusIsExists(
       folderRepository
     );
-    localFilseSystemMock = new LocalFileSystemMock();
+    localFileSystemMock = new LocalFileSystemMock();
     remoteFileSystemMock = new RemoteFileSystemMock();
     ipc = new IpcRendererSyncEngineMock();
 
     SUT = new FileDeleter(
       remoteFileSystemMock,
-      localFilseSystemMock,
+      localFileSystemMock,
       repository,
       allParentFoldersStatusIsExists,
       ipc
@@ -70,7 +71,7 @@ describe('File Deleter', () => {
 
     await SUT.run(file.contentsId);
 
-    expect(repository.deleteMock).toBeCalled();
+    expect(remoteFileSystemMock.trashMock).toBeCalled();
   });
 
   it('trashes the file with the status trashed', async () => {
@@ -82,6 +83,8 @@ describe('File Deleter', () => {
     await SUT.run(file.contentsId);
 
     expect(remoteFileSystemMock.trashMock).toBeCalledWith(file.contentsId);
-    expect(repository.deleteMock).toBeCalledWith(file.contentsId);
+    expect(repository.updateMock).toBeCalledWith(
+      expect.objectContaining({ status: FileStatus.Trashed })
+    );
   });
 });

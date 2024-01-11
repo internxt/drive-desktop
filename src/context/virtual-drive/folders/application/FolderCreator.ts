@@ -15,7 +15,7 @@ export class FolderCreator {
 
   async run(offlineFolder: OfflineFolder): Promise<Folder> {
     this.ipc.send('FOLDER_CREATING', {
-      name: offlineFolder.name,
+      name: offlineFolder.basename,
     });
 
     const attributes = await this.remote.persist(offlineFolder);
