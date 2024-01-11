@@ -16,7 +16,7 @@ export class ContentsDownloader {
   private readableDownloader: Readable | null;
   constructor(
     private readonly managerFactory: ContentsManagersFactory,
-    private readonly localWriter: LocalFileSystem,
+    private readonly localFileSystem: LocalFileSystem,
     private readonly ipc: SyncEngineIpc,
     private readonly localFileContentsDirectoryProvider: LocalFileContentsDirectoryProvider,
     private readonly eventBus: EventBus
@@ -102,7 +102,7 @@ export class ContentsDownloader {
       downloader.elapsedTime()
     );
 
-    const write = await this.localWriter.write(localContents);
+    const write = await this.localFileSystem.write(localContents);
 
     const events = localContents.pullDomainEvents();
     await this.eventBus.publish(events);

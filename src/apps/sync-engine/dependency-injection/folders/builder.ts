@@ -20,13 +20,13 @@ import { FolderPlaceholderUpdater } from '../../../../context/virtual-drive/fold
 import { HttpRemoteFileSystem } from '../../../../context/virtual-drive/folders/infrastructure/HttpRemoteFileSystem';
 import { InMemoryFolderRepository } from '../../../../context/virtual-drive/folders/infrastructure/InMemoryFolderRepository';
 import { InMemoryOfflineFolderRepository } from '../../../../context/virtual-drive/folders/infrastructure/InMemoryOfflineFolderRepository';
-import { ipcRendererSyncEngine } from '../../ipcRendererSyncEngine';
 import { DependencyInjectionHttpClientsProvider } from '../common/clients';
 import { DependencyInjectionEventBus } from '../common/eventBus';
 import { DependencyInjectionEventRepository } from '../common/eventRepository';
 import { DependencyInjectionVirtualDrive } from '../common/virtualDrive';
 import { SharedContainer } from '../shared/SharedContainer';
 import { FoldersContainer } from './FoldersContainer';
+import { MainProcessFolderSyncNotifier } from '../../../../context/virtual-drive/folders/infrastructure/MainProcessFolderSyncNotifier';
 
 export async function buildFoldersContainer(
   shredContainer: SharedContainer
@@ -38,8 +38,11 @@ export async function buildFoldersContainer(
 
   const repository = new InMemoryFolderRepository();
 
+  const notifier = new MainProcessFolderSyncNotifier();
+
   const localFileSystem = new NodeWinLocalFileSystem(virtualDrive);
   const remoteFileSystem = new HttpRemoteFileSystem(
+    //  @ts-ignore
     clients.drive,
     clients.newDrive
   );
@@ -60,8 +63,8 @@ export async function buildFoldersContainer(
   const folderCreator = new FolderCreator(
     repository,
     remoteFileSystem,
-    ipcRendererSyncEngine,
-    eventBus
+    eventBus,
+    notifier
   );
 
   const folderMover = new FolderMover(
@@ -72,7 +75,8 @@ export async function buildFoldersContainer(
   const folderRenamer = new FolderRenamer(
     repository,
     remoteFileSystem,
-    ipcRendererSyncEngine
+    eventBus,
+    notifier
   );
 
   const folderByPartialSearcher = new FolderByPartialSearcher(repository);

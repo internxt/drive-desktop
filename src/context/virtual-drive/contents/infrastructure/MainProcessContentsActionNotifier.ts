@@ -4,15 +4,13 @@ import {
 } from '../../../../apps/main/analytics/service';
 import { setTrayStatus } from '../../../../apps/main/tray/tray';
 import { broadcastToWindows } from '../../../../apps/main/windows';
+import { Notifier } from '../../../shared/domain/Notifier';
 import { ContentsActionNotifier } from '../domain/ContentsActionsNotifier';
 
 export class MainProcessContentsActionNotifier
+  extends Notifier
   implements ContentsActionNotifier
 {
-  private nameWithExtension(name: string, type: string): string {
-    return `${name}.${type}`;
-  }
-
   uploadStarted(name: string, extension: string, size: number): void {
     trackEvent('Upload Started', {
       file_name: name,

@@ -10,7 +10,7 @@ export class ReadCallback {
 
   async execute(
     path: string,
-    fd: any,
+    _fd: any,
     buf: Buffer,
     len: number,
     pos: number,

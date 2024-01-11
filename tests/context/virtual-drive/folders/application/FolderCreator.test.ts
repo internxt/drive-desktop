@@ -1,9 +1,11 @@
 import { FolderCreator } from '../../../../../src/context/virtual-drive/folders/application/FolderCreator';
 import { Folder } from '../../../../../src/context/virtual-drive/folders/domain/Folder';
+import { FolderSyncNotifier } from '../../../../../src/context/virtual-drive/folders/domain/FolderSyncNotifier';
 import { EventBusMock } from '../../shared/__mock__/EventBusMock';
 import { IpcRendererSyncEngineMock } from '../../shared/__mock__/IpcRendererSyncEngineMock';
 import { FolderRemoteFileSystemMock } from '../__mocks__/FolderRemoteFileSystemMock';
 import { FolderRepositoryMock } from '../__mocks__/FolderRepositoryMock';
+import { FolderSyncNotifierMock } from '../__mocks__/FolderSyncManagerMock';
 import { FolderMother } from '../domain/FolderMother';
 import { OfflineFolderMother } from '../domain/OfflineFolderMother';
 
@@ -14,15 +16,17 @@ describe('Folder Creator', () => {
   let remote: FolderRemoteFileSystemMock;
   let syncEngineIpc: IpcRendererSyncEngineMock;
   let eventBus: EventBusMock;
+  let notifier: FolderSyncNotifier;
 
   beforeEach(() => {
     repository = new FolderRepositoryMock();
     syncEngineIpc = new IpcRendererSyncEngineMock();
     remote = new FolderRemoteFileSystemMock();
+    notifier = new FolderSyncNotifierMock();
 
     eventBus = new EventBusMock();
 
-    SUT = new FolderCreator(repository, remote, eventBus);
+    SUT = new FolderCreator(repository, remote, eventBus, notifier);
   });
 
   it('creates on a folder from a offline folder', async () => {

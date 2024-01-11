@@ -8,6 +8,7 @@ import { PlatformPathConverter } from '../../shared/application/PlatformPathConv
 import { FileRepository } from '../domain/FileRepository';
 import { RemoteFileSystem } from '../domain/file-systems/RemoteFileSystem';
 import { OfflineFile } from '../domain/OfflineFile';
+import { FileSyncNotifier } from '../domain/FileSyncNotifier';
 
 export class FileCreator {
   constructor(
@@ -15,7 +16,8 @@ export class FileCreator {
     private readonly repository: FileRepository,
     private readonly folderFinder: FolderFinder,
     private readonly fileDeleter: FileDeleter,
-    private readonly eventBus: EventBus
+    private readonly eventBus: EventBus,
+    private readonly notifier: FileSyncNotifier
   ) {}
 
   async run(path: string, contentsId: string, size: number): Promise<File> {
@@ -47,22 +49,17 @@ export class FileCreator {
       await this.repository.add(file);
 
       await this.eventBus.publish(offline.pullDomainEvents());
-      // this.ipc.send('FILE_CREATED', {
-      //   name: file.name,
-      //   extension: file.type,
-      //   nameWithExtension: file.nameWithExtension,
-      // });
+      await this.notifier.created(file.name, file.type);
 
       return file;
     } catch (error: unknown) {
-      const _message = error instanceof Error ? error.message : 'unknown error';
+      const message =
+        error instanceof Error ? error.message : '[File Creator] unknown error';
 
-      // this.ipc.send('FILE_UPLOAD_ERROR', {
-      //   name: filePath.name(),
-      //   extension: filePath.extension(),
-      //   nameWithExtension: filePath.nameWithExtension(),
-      //   error: message,
-      // });
+      const filePath = new FilePath(path);
+
+      await this.notifier.error(filePath.name(), filePath.extension(), message);
+
       throw error;
     }
   }

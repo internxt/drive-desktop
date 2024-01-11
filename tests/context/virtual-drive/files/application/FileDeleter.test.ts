@@ -2,18 +2,18 @@ import { FileRepositoryMock } from '../__mocks__/FileRepositoryMock';
 import { FileMother } from '../domain/FileMother';
 import { RemoteFileSystemMock } from '../__mocks__/RemoteFileSystemMock';
 import { LocalFileSystemMock } from '../__mocks__/LocalFileSystemMock';
-import { IpcRendererSyncEngineMock } from '../../shared/__mock__/IpcRendererSyncEngineMock';
 import { FileDeleter } from '../../../../../src/context/virtual-drive/files/application/FileDeleter';
 import { FolderRepositoryMock } from '../../folders/__mocks__/FolderRepositoryMock';
 import { ContentsIdMother } from '../../contents/domain/ContentsIdMother';
 import { AllParentFoldersStatusIsExists } from '../../../../../src/context/virtual-drive/folders/application/AllParentFoldersStatusIsExists';
+import { FileSyncNotifierMock } from '../__mocks__/FileSyncNotifierMock';
 
 describe('File Deleter', () => {
   let repository: FileRepositoryMock;
   let allParentFoldersStatusIsExists: AllParentFoldersStatusIsExists;
   let remoteFileSystemMock: RemoteFileSystemMock;
   let localFilesSystemMock: LocalFileSystemMock;
-  let ipc: IpcRendererSyncEngineMock;
+  let notifier: FileSyncNotifierMock;
 
   let SUT: FileDeleter;
 
@@ -25,13 +25,14 @@ describe('File Deleter', () => {
     );
     localFilesSystemMock = new LocalFileSystemMock();
     remoteFileSystemMock = new RemoteFileSystemMock();
-    ipc = new IpcRendererSyncEngineMock();
+    notifier = new FileSyncNotifierMock();
 
     SUT = new FileDeleter(
       remoteFileSystemMock,
       localFilesSystemMock,
       repository,
-      allParentFoldersStatusIsExists
+      allParentFoldersStatusIsExists,
+      notifier
     );
   });
 

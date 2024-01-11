@@ -9,7 +9,7 @@ import { ReadableHelloWorld } from '../__mocks__/ReadableHelloWorld';
 import { RemoteFileContentsManagersFactoryMock } from '../__mocks__/RemoteFileContentsManagersFactoryMock';
 
 describe.skip('Contents Downloader', () => {
-  let localWriter: LocalFileSystemMock;
+  let localFileSystem: LocalFileSystemMock;
   let factory: RemoteFileContentsManagersFactoryMock;
   let localFileContentsDirectoryProviderMock: LocalFileContentsDirectoryProviderMock;
   let ipc: IpcRendererSyncEngineMock;
@@ -19,7 +19,7 @@ describe.skip('Contents Downloader', () => {
 
   beforeEach(() => {
     factory = new RemoteFileContentsManagersFactoryMock();
-    localWriter = new LocalFileSystemMock();
+    localFileSystem = new LocalFileSystemMock();
     localFileContentsDirectoryProviderMock =
       new LocalFileContentsDirectoryProviderMock();
     ipc = new IpcRendererSyncEngineMock();
@@ -27,7 +27,7 @@ describe.skip('Contents Downloader', () => {
 
     SUT = new ContentsDownloader(
       factory,
-      localWriter,
+      localFileSystem,
       ipc,
       localFileContentsDirectoryProviderMock,
       eventBus
@@ -64,7 +64,7 @@ describe.skip('Contents Downloader', () => {
       return { finished: true, progress: 100 };
     });
 
-    expect(localWriter.writeMock).toBeCalledWith(
+    expect(localFileSystem.writeMock).toBeCalledWith(
       expect.objectContaining({
         name: file.name,
         extension: file.type,

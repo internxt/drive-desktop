@@ -46,6 +46,7 @@ export class FilesPlaceholderUpdater {
       if (remote.name !== local.name) {
         const event = new FileRenamedDomainEvent({
           aggregateId: remote.contentsId,
+          oldName: local.name,
         });
         this.eventHistory.store(event);
       }

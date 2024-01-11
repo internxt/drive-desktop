@@ -9,28 +9,32 @@ import { RemoteFileSystemMock } from '../__mocks__/RemoteFileSystemMock';
 import { FileMother } from '../domain/FileMother';
 import { FolderFinderFactory } from '../../folders/__mocks__/FolderFinderFactory';
 import { FileDeleterFactory } from '../__mocks__/FileDeleterFactory';
+import { FileSyncNotifierMock } from '../__mocks__/FileSyncNotifierMock';
 
 describe('File Creator', () => {
   let remoteFileSystemMock: RemoteFileSystemMock;
   let fileRepository: FileRepositoryMock;
   let fileDeleter: FileDeleter;
   let eventBus: EventBusMock;
+  let notifier: FileSyncNotifierMock;
 
   let SUT: FileCreator;
 
   beforeEach(() => {
     remoteFileSystemMock = new RemoteFileSystemMock();
     fileRepository = new FileRepositoryMock();
-    fileDeleter = FileDeleterFactory.deletionSucces();
+    fileDeleter = FileDeleterFactory.deletionSuccess();
     const folderFinder = FolderFinderFactory.existingFolder();
     eventBus = new EventBusMock();
+    notifier = new FileSyncNotifierMock();
 
     SUT = new FileCreator(
       remoteFileSystemMock,
       fileRepository,
       folderFinder,
       fileDeleter,
-      eventBus
+      eventBus,
+      notifier
     );
   });
 

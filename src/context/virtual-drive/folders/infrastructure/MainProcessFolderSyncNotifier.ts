@@ -2,19 +2,19 @@ import { setTrayStatus } from '../../../../apps/main/tray/tray';
 import { FolderSyncNotifier } from '../domain/FolderSyncNotifier';
 
 export class MainProcessFolderSyncNotifier implements FolderSyncNotifier {
-  rename(name: string, newName: string): void {
+  async rename(_name: string, _newName: string): Promise<void> {
     setTrayStatus('SYNCING');
   }
-  renamed(name: string, newName: string): void {
+  async renamed(_name: string, _newName: string): Promise<void> {
     setTrayStatus('IDLE');
   }
-  creating(name: string): void {
+  async creating(_name: string): Promise<void> {
     setTrayStatus('SYNCING');
   }
-  created(name: string): void {
+  async created(_name: string): Promise<void> {
     setTrayStatus('IDLE');
   }
-  error(): void {
+  async error(): Promise<void> {
     throw new Error('Method not implemented.');
   }
 }

@@ -29,6 +29,7 @@ export async function buildFoldersContainer(
   const notifier = new MainProcessFolderSyncNotifier();
 
   const remoteFileSystem = new HttpRemoteFileSystem(
+    // @ts-ignore
     clients.drive,
     clients.newDrive
   );

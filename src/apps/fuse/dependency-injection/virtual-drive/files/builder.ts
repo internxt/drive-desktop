@@ -11,6 +11,7 @@ import { SameFileWasMoved } from '../../../../../context/virtual-drive/files/app
 import { File } from '../../../../../context/virtual-drive/files/domain/File';
 import { FuseLocalFileSystem } from '../../../../../context/virtual-drive/files/infrastructure/FuseLocalFileSystem';
 import { InMemoryFileRepository } from '../../../../../context/virtual-drive/files/infrastructure/InMemoryFileRepository';
+import { MainProcessFileSyncNotifier } from '../../../../../context/virtual-drive/files/infrastructure/MainProcessFileSyncNotifier';
 import { SDKRemoteFileSystem } from '../../../../../context/virtual-drive/files/infrastructure/SDKRemoteFileSystem';
 import { DependencyInjectionEventBus } from '../../common/eventBus';
 import { DependencyInjectionEventRepository } from '../../common/eventRepository';
@@ -34,6 +35,8 @@ export async function buildFilesContainer(
   const repositoryPopulator = new RepositoryPopulator(repository);
 
   await repositoryPopulator.run(initialFiles);
+
+  const notifier = new MainProcessFileSyncNotifier();
 
   const filesByFolderPathNameLister = new FilesByFolderPathSearcher(
     repository,
@@ -68,7 +71,8 @@ export async function buildFilesContainer(
     remoteFileSystem,
     localFileSystem,
     repository,
-    folderContainer.allParentFoldersStatusIsExists
+    folderContainer.allParentFoldersStatusIsExists,
+    notifier
   );
 
   const fileCreator = new FileCreator(
@@ -76,7 +80,8 @@ export async function buildFilesContainer(
     repository,
     folderContainer.folderFinder,
     fileDeleter,
-    eventBus
+    eventBus,
+    notifier
   );
 
   const createFileOnOfflineFileUploaded = new CreateFileOnOfflineFileUploaded(

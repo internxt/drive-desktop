@@ -5,8 +5,8 @@ import { getRootVirtualDrive } from '../main/virutal-root-folder/service';
 import eventBus from '../main/event-bus';
 import { FuseApp } from './FuseApp';
 import path from 'path';
-import { HydrationApi } from '../hydratation-api/HidratationApi';
 import { FuseDependencyContainerFactory } from './dependency-injection/FuseDependencyContainerFactory';
+import { HydrationApi } from '../hydration-api/HydrationApi';
 
 let fuseApp: FuseApp;
 
