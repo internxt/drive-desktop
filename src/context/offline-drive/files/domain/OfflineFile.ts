@@ -1,6 +1,7 @@
 import { AggregateRoot } from '../../../shared/domain/AggregateRoot';
 import { FilePath } from '../../../virtual-drive/files/domain/FilePath';
 import { FileSize } from '../../../virtual-drive/files/domain/FileSize';
+import { OfflineFileId } from './OfflineFileId';
 
 export type OfflineFileAttributes = {
   id: string;
@@ -11,7 +12,7 @@ export type OfflineFileAttributes = {
 
 export class OfflineFile extends AggregateRoot {
   private constructor(
-    private _id: string,
+    private _id: OfflineFileId,
     private _createdAt: number,
     private _path: FilePath,
     private _size: FileSize
@@ -19,10 +20,10 @@ export class OfflineFile extends AggregateRoot {
     super();
   }
 
-  public get id() {
-    return this._id;
+  public get id(): string {
+    return this._id.value;
   }
-  public get createdAt() {
+  public get createdAt(): number {
     return this._createdAt;
   }
   public get path() {
@@ -33,7 +34,7 @@ export class OfflineFile extends AggregateRoot {
   }
 
   static create(
-    id: string,
+    id: OfflineFileId,
     createdAt: number,
     path: FilePath,
     size: FileSize
@@ -45,7 +46,7 @@ export class OfflineFile extends AggregateRoot {
 
   static from(attributes: OfflineFileAttributes): OfflineFile {
     return new OfflineFile(
-      attributes.id,
+      new OfflineFileId(attributes.id),
       attributes.createdAt,
       new FilePath(attributes.path),
       new FileSize(attributes.size)
