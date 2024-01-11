@@ -2,10 +2,10 @@ import { OfflineFile, OfflineFileAttributes } from '../domain/OfflineFile';
 import { OfflineFileRepository } from '../domain/OfflineFileRepository';
 
 export class InMemoryOfflineFileRepository implements OfflineFileRepository {
-  private readonly files = new Map<string, OfflineFile>();
+  private readonly files = new Map<string, OfflineFileAttributes>();
 
   async save(file: OfflineFile): Promise<void> {
-    this.files.set(file.id, file);
+    this.files.set(file.id, file.attributes());
   }
 
   async searchByPartial(
@@ -23,7 +23,11 @@ export class InMemoryOfflineFileRepository implements OfflineFileRepository {
       );
     });
 
-    return file;
+    if (!file) {
+      return undefined;
+    }
+
+    return OfflineFile.from(file);
   }
 
   async delete(id: OfflineFileAttributes['id']): Promise<void> {
