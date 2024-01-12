@@ -1,5 +1,5 @@
 import Logger from 'electron-log';
-import fs from 'fs';
+import fs from 'fs/promises';
 import { VirtualDriveDependencyContainer } from '../dependency-injection/virtual-drive/VirtualDriveDependencyContainer';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -7,6 +7,26 @@ const fuse = require('@gcas/fuse');
 
 export class ReadCallback {
   constructor(private readonly container: VirtualDriveDependencyContainer) {}
+
+  private async read(
+    filePath: string,
+    buffer: Buffer,
+    length: number,
+    position: number
+  ): Promise<number> {
+    Logger.debug('READING FILE FROM ', filePath, length, position);
+
+    const data = await fs.readFile(filePath);
+
+    if (position >= data.length) {
+      Logger.debug('READ DONE');
+      return 0;
+    }
+
+    const part = data.slice(position, position + length);
+    part.copy(buffer); // write the result of the read to the result buffer
+    return part.length; // number of bytes read
+  }
 
   async execute(
     path: string,
@@ -16,8 +36,6 @@ export class ReadCallback {
     pos: number,
     cb: (code: number, params?: any) => void
   ) {
-    Logger.debug(`READ ${path}`);
-
     const file = await this.container.filesSearcher.run({ path });
 
     if (!file) {
@@ -29,23 +47,12 @@ export class ReadCallback {
       file.contentsId
     );
 
-    Logger.debug('READING FILE FROM ', filePath);
-
-    fs.readFile(filePath, (err, data) => {
-      if (err) {
-        Logger.error(`Error reading file: ${err}`);
-        cb(fuse.ENOENT);
-        return;
-      }
-
-      if (pos >= data.length) return cb(0);
-
-      // const bytesRead = Math.min(buffer.length - pos, len);
-      const part = data.slice(pos, pos + len);
-
-      part.copy(buf);
-
-      cb(part.length); // Indicate the number of bytes read ????????????
-    });
+    try {
+      const bytesRead = await this.read(filePath, buf, len, pos);
+      cb(bytesRead);
+    } catch (err) {
+      Logger.error(`Error reading file: ${err}`);
+      cb(fuse.ENOENT);
+    }
   }
 }

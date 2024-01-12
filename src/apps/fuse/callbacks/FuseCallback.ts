@@ -14,7 +14,7 @@ export abstract class FuseCallback<T> {
 
   protected right(value: T): Either<FuseError, T> {
     if (this.debug) {
-      Logger.debug(`${this.name} Result: ${value}`);
+      Logger.debug(`${this.name} Result: ${JSON.stringify({ value })}`);
     }
 
     return right(value);
