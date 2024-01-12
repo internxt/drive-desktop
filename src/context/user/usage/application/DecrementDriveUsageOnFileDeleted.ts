@@ -1,19 +1,19 @@
-import { FileCreatedDomainEvent } from '../../files/domain/events/FileCreatedDomainEvent';
 import { DomainEventClass } from '../../../shared/domain/DomainEvent';
 import { DomainEventSubscriber } from '../../../shared/domain/DomainEventSubscriber';
-import { UserUsageIncrementer } from './UserUsageIncrementer';
-import { FileDeletedDomainEvent } from '../../files/domain/events/FileDeletedDomainEvent';
+import { FileCreatedDomainEvent } from '../../../virtual-drive/files/domain/events/FileCreatedDomainEvent';
+import { FileDeletedDomainEvent } from '../../../virtual-drive/files/domain/events/FileDeletedDomainEvent';
+import { UserUsageDecrementor } from './UserUsageDecrementor';
 
 export class DecrementDriveUsageOnFileDeleted
   implements DomainEventSubscriber<FileCreatedDomainEvent>
 {
-  constructor(private readonly incrementer: UserUsageIncrementer) {}
+  constructor(private readonly decrementor: UserUsageDecrementor) {}
 
   subscribedTo(): DomainEventClass[] {
     return [FileDeletedDomainEvent];
   }
 
   on(domainEvent: FileDeletedDomainEvent): Promise<void> {
-    return this.incrementer.run(domainEvent.size);
+    return this.decrementor.run(domainEvent.size);
   }
 }

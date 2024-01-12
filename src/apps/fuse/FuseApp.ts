@@ -18,6 +18,7 @@ import { FuseDependencyContainer } from './dependency-injection/FuseDependencyCo
 const fuse = require('@gcas/fuse');
 
 export class FuseApp {
+  private static readonly SID = 41033;
   private _fuse: any;
 
   constructor(
@@ -28,7 +29,7 @@ export class FuseApp {
     }
   ) {}
 
-  private getOpt() {
+  private async getOpt() {
     const listXAttributes = new ListXAttributesCallback('ListXAttributes');
     const getXAttribute = new GetXAttributeCallback('GetXAttribute');
     const readdir = new ReaddirCallback(
@@ -72,11 +73,12 @@ export class FuseApp {
       release: release.handle.bind(release),
       unlink: trashFile.handle.bind(trashFile),
       rmdir: trashFolder.handle.bind(trashFolder),
+      // statfs: statfs.execute.bind(statfs),
     };
   }
 
   async start(): Promise<void> {
-    const ops = this.getOpt();
+    const ops = await this.getOpt();
 
     this._fuse = new fuse(this.paths.root, ops, {
       debug: false,

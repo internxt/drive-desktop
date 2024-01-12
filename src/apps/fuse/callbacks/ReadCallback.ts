@@ -14,7 +14,7 @@ export class ReadCallback {
     length: number,
     position: number
   ): Promise<number> {
-    Logger.debug('READING FILE FROM ', filePath, length, position);
+    // Logger.debug('READING FILE FROM ', filePath, length, position);
 
     const data = await fs.readFile(filePath);
 

@@ -2,11 +2,13 @@ import { FuseDependencyContainer } from './FuseDependencyContainer';
 import { FuseDomainEventSubscribers } from './FuseDomainEventSubscribers';
 import { DependencyInjectionEventBus } from './common/eventBus';
 import { OfflineDriveDependencyContainerFactory } from './offline/OfflineDriveDependencyContainerFactory';
+import { UserContainerFactory } from './user/UserContainerFactory';
 import { VirtualDriveDependencyContainerFactory } from './virtual-drive/VirtualDriveDependencyContainerFactory';
 
 type FuseDependencyContainerFactorySubscribers = Array<
   | keyof FuseDependencyContainer['offlineDriveContainer']
   | keyof FuseDependencyContainer['virtualDriveContainer']
+  | keyof FuseDependencyContainer['userContainer']
 >;
 
 export class FuseDependencyContainerFactory {
@@ -15,6 +17,7 @@ export class FuseDependencyContainerFactory {
   static readonly subscribers: FuseDependencyContainerFactorySubscribers = [
     ...VirtualDriveDependencyContainerFactory.subscribers,
     ...OfflineDriveDependencyContainerFactory.subscribers,
+    ...UserContainerFactory.subscribers,
   ];
 
   eventSubscribers(
@@ -40,9 +43,13 @@ export class FuseDependencyContainerFactory {
       new OfflineDriveDependencyContainerFactory();
     const offlineDriveContainer = await offlineDriveContainerFactory.build();
 
+    const userContainerFactory = new UserContainerFactory();
+    const userContainer = await userContainerFactory.build();
+
     const container = {
       offlineDriveContainer,
       virtualDriveContainer,
+      userContainer,
     };
 
     bus.addSubscribers(FuseDomainEventSubscribers.from(container));

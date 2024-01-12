@@ -1,5 +1,5 @@
 import { UserUsageRepository } from '../domain/UserUsageRepository';
-import { BytesInBinaryToInternacionalSystem } from './BytesInBinaryToInternacionalSystem';
+import { BytesInBinaryToInternationalSystem } from './BytesInBinaryToInternationalSystem';
 
 export class UsedSpaceCalculator {
   constructor(private readonly repository: UserUsageRepository) {}
@@ -10,10 +10,10 @@ export class UsedSpaceCalculator {
     const used = usage.totalInUse();
 
     if (process.platform === 'linux')
-      return BytesInBinaryToInternacionalSystem.run(used);
+      return BytesInBinaryToInternationalSystem.run(used);
 
     if (process.platform === 'darwin')
-      return BytesInBinaryToInternacionalSystem.run(used);
+      return BytesInBinaryToInternationalSystem.run(used);
 
     return used;
   }

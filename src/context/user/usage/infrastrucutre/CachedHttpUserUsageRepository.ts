@@ -5,7 +5,7 @@ import { UserUsageRepository } from '../domain/UserUsageRepository';
 import { UserUsageLimitDTO } from './dtos/UserUsageLimitDTO';
 
 export class CachedHttpUserUsageRepository implements UserUsageRepository {
-  private cahdedUserUsage: UserUsage | undefined;
+  private cachedUserUsage: UserUsage | undefined;
 
   constructor(
     private readonly driveClient: Axios,
@@ -18,7 +18,7 @@ export class CachedHttpUserUsageRepository implements UserUsageRepository {
     );
 
     if (response.status !== 200) {
-      throw new Error('Error retriving drive usage');
+      throw new Error('Error retrieving drive usage');
     }
 
     return response.data.total;
@@ -37,7 +37,7 @@ export class CachedHttpUserUsageRepository implements UserUsageRepository {
   }
 
   async getUsage(): Promise<UserUsage> {
-    if (this.cahdedUserUsage) return this.cahdedUserUsage;
+    if (this.cachedUserUsage) return this.cachedUserUsage;
 
     const drive = await this.getDriveUsage();
     const { usage: photos } = await this.photosSubmodule.getUsage();
@@ -49,12 +49,12 @@ export class CachedHttpUserUsageRepository implements UserUsageRepository {
       limit,
     });
 
-    this.cahdedUserUsage = usage;
+    this.cachedUserUsage = usage;
 
     return usage;
   }
 
   async save(usage: UserUsage) {
-    this.cahdedUserUsage = usage;
+    this.cachedUserUsage = usage;
   }
 }

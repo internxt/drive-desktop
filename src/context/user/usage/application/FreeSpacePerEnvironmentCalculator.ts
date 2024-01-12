@@ -1,5 +1,5 @@
 import { UserUsageRepository } from '../domain/UserUsageRepository';
-import { BytesInBinaryToInternacionalSystem } from './BytesInBinaryToInternacionalSystem';
+import { BytesInBinaryToInternationalSystem } from './BytesInBinaryToInternationalSystem';
 
 export class FreeSpacePerEnvironmentCalculator {
   constructor(private readonly repository: UserUsageRepository) {}
@@ -14,10 +14,10 @@ export class FreeSpacePerEnvironmentCalculator {
     const freeSpace = usage.free();
 
     if (process.platform === 'linux')
-      return BytesInBinaryToInternacionalSystem.run(freeSpace);
+      return BytesInBinaryToInternationalSystem.run(freeSpace);
 
     if (process.platform === 'darwin')
-      return BytesInBinaryToInternacionalSystem.run(freeSpace);
+      return BytesInBinaryToInternationalSystem.run(freeSpace);
 
     return freeSpace;
   }

@@ -1,6 +1,6 @@
 import { UserUsageRepository } from '../domain/UserUsageRepository';
 
-export class UserUsageIncrementer {
+export class UserUsageIncrementor {
   constructor(private readonly repository: UserUsageRepository) {}
 
   async run(weight: number) {

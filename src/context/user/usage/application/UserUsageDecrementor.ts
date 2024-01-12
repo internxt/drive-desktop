@@ -1,6 +1,6 @@
 import { UserUsageRepository } from '../domain/UserUsageRepository';
 
-export class UserUsageDecrementer {
+export class UserUsageDecrementor {
   constructor(private readonly repository: UserUsageRepository) {}
 
   async run(weight: number) {
