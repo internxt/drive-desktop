@@ -10,9 +10,13 @@ export type CallbackWithData<T> = (code: number, params?: T) => void;
 export abstract class FuseCallback<T> {
   protected static readonly OK = 0;
 
-  constructor(private readonly name: string) {}
+  constructor(private readonly name: string, private readonly debug = false) {}
 
   protected right(value: T): Either<FuseError, T> {
+    if (this.debug) {
+      Logger.debug(`${this.name} Result: ${value}`);
+    }
+
     return right(value);
   }
 

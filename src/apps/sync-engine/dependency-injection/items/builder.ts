@@ -17,16 +17,14 @@ export function buildItemsContainer(): ItemsContainer {
     ipcRendererSyncEngine
   );
 
-  const nameDecryptor = new CryptoJsNameDecrypt();
+  const nameDecrypt = new CryptoJsNameDecrypt();
 
   const existingItemsTraverser = Traverser.existingItems(
-    nameDecryptor,
-    ipcRendererSyncEngine,
+    nameDecrypt,
     user.root_folder_id
   );
   const allStatusesTraverser = Traverser.allItems(
-    nameDecryptor,
-    ipcRendererSyncEngine,
+    nameDecrypt,
     user.root_folder_id
   );
   const treeBuilder = new TreeBuilder(

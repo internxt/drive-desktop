@@ -1,6 +1,5 @@
 import * as Sentry from '@sentry/electron/renderer';
 import Logger from 'electron-log';
-import { SyncEngineIpc } from '../../../../apps/sync-engine/ipcRendererSyncEngine';
 import {
   ServerFile,
   ServerFileStatus,
@@ -28,32 +27,22 @@ type Items = {
 export class Traverser {
   constructor(
     private readonly decrypt: NameDecrypt,
-    private readonly ipc: SyncEngineIpc,
     private readonly baseFolderId: number,
     private readonly fileStatusesToFilter: Array<ServerFileStatus>,
     private readonly folderStatusesToFilter: Array<ServerFolderStatus>
   ) {}
 
-  static existingItems(
-    decrypt: NameDecrypt,
-    ipc: SyncEngineIpc,
-    baseFolderId: number
-  ): Traverser {
+  static existingItems(decrypt: NameDecrypt, baseFolderId: number): Traverser {
     return new Traverser(
       decrypt,
-      ipc,
       baseFolderId,
       [ServerFileStatus.EXISTS],
       [ServerFolderStatus.EXISTS]
     );
   }
 
-  static allItems(
-    decrypt: NameDecrypt,
-    ipc: SyncEngineIpc,
-    baseFolderId: number
-  ): Traverser {
-    return new Traverser(decrypt, ipc, baseFolderId, [], []);
+  static allItems(decrypt: NameDecrypt, baseFolderId: number): Traverser {
+    return new Traverser(decrypt, baseFolderId, [], []);
   }
 
   private createRootFolder(): Folder {
@@ -106,12 +95,6 @@ export class Traverser {
         (error): void => {
           Logger.warn('[Traverser] Error adding file:', error);
           Sentry.captureException(error);
-          this.ipc.send('SYNC_PROBLEM', {
-            key: 'node-duplicated',
-            additionalData: {
-              name: serverFile.plainName,
-            },
-          });
         },
         () => {
           //  no-op
@@ -145,12 +128,6 @@ export class Traverser {
         (error) => {
           Logger.warn(`[Traverser] Error adding folder:  ${error} `);
           Sentry.captureException(error);
-          this.ipc.send('SYNC_PROBLEM', {
-            key: 'node-duplicated',
-            additionalData: {
-              name,
-            },
-          });
         },
         (folder) => {
           if (folder.hasStatus(FolderStatuses.EXISTS)) {
