@@ -8,11 +8,11 @@ export class FilesByFolderPathSearcher {
     private readonly folderFinder: FolderFinder
   ) {}
 
-  async run(folderPath: string): Promise<Array<File>> {
+  async run(folderPath: string): Promise<Array<File['nameWithExtension']>> {
     const folder = this.folderFinder.run(folderPath);
 
     const files = await this.repository.listByPartial({ folderId: folder.id });
 
-    return files;
+    return files.map((file) => file.nameWithExtension);
   }
 }

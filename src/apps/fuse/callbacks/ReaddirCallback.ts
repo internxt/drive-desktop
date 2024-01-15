@@ -4,22 +4,23 @@ import { NoSuchFileOrDirectoryError } from './FuseErrors';
 
 export class ReaddirCallback extends FuseCallback<Array<string>> {
   constructor(private readonly container: VirtualDriveDependencyContainer) {
-    super('Read Directory');
+    super('Read Directory', {});
   }
 
   async execute(path: string) {
     try {
-      const files = await this.container.filesByFolderPathNameLister.run(path);
+      const filesNamesPromise =
+        this.container.filesByFolderPathNameLister.run(path);
 
-      const fileNames = files.map((file) => file.nameWithExtension);
+      const folderNamesPromise =
+        this.container.foldersByParentPathLister.run(path);
 
-      const folders = await this.container.foldersByParentPathSearcher.run(
-        path
-      );
+      const [filesNames, foldersNames] = await Promise.all([
+        filesNamesPromise,
+        folderNamesPromise,
+      ]);
 
-      const foldersNames = folders.map((folder) => folder.name);
-
-      return this.right(['.', '..', ...fileNames, ...foldersNames]);
+      return this.right(['.', '..', ...filesNames, ...foldersNames]);
     } catch (error) {
       return this.left(
         new NoSuchFileOrDirectoryError(

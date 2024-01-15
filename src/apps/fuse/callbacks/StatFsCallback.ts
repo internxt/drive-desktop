@@ -22,7 +22,7 @@ export class StatFsCallback extends FuseCallback<Partial<StatFsCallbackData>> {
     private readonly localStats: Partial<StatFsCallbackData>,
     private readonly sid: number
   ) {
-    super('Stat FS', true);
+    super('Stat FS');
   }
 
   async execute(path: string) {
