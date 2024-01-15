@@ -2,6 +2,8 @@ import { Either, right, left } from '../../../context/shared/domain/Either';
 import { Stopwatch } from '../../shared/types/Stopwatch';
 import { FuseError } from './FuseErrors';
 import Logger from 'electron-log';
+import { PathsToIgnore } from './PathsToIgnore';
+import { FuseCodes } from './FuseCodes';
 
 export type Callback = (code: number) => void;
 
@@ -51,6 +53,10 @@ export abstract class FuseCallback<T> {
 
   async handle(...params: any[]): Promise<void> {
     const callback = params.pop() as CallbackWithData<T>;
+
+    if (PathsToIgnore.includes(params[0])) {
+      return callback(FuseCodes.EINVAL);
+    }
 
     if (this.debug.input) {
       Logger.debug(`${this.name}: `, ...params);
