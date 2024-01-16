@@ -11,11 +11,10 @@ export class OfflineFileCreator {
   ) {}
 
   async run(path: string): Promise<OfflineFile> {
-    const createdAt = Date.now();
     const filePath = new FilePath(path);
     const size = new FileSize(0);
 
-    const file = OfflineFile.create(createdAt, filePath, size);
+    const file = OfflineFile.create(filePath, size);
 
     await this.repository.save(file);
 

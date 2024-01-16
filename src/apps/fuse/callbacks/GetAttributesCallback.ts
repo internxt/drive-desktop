@@ -3,7 +3,13 @@ import { VirtualDriveDependencyContainer } from '../dependency-injection/virtual
 import { FuseCallback } from './FuseCallback';
 import { NoSuchFileOrDirectoryError } from './FuseErrors';
 
-type GetAttributesCallbackData = { mode: number; size: number };
+type GetAttributesCallbackData = {
+  mode: number;
+  size: number;
+  mtime: Date;
+  atime?: Date;
+  ctime: Date;
+};
 
 export class GetAttributesCallback extends FuseCallback<GetAttributesCallbackData> {
   private static readonly FILE = 33188;
@@ -13,18 +19,30 @@ export class GetAttributesCallback extends FuseCallback<GetAttributesCallbackDat
     private readonly virtualDriveContainer: VirtualDriveDependencyContainer,
     private readonly offlineDriveContainer: OfflineDriveDependencyContainer
   ) {
-    super('Get Attributes');
+    super('Get Attributes', { elapsedTime: false, result: false });
   }
 
   async execute(path: string) {
     if (path === '/') {
-      return this.right({ mode: GetAttributesCallback.FOLDER, size: 0 });
+      return this.right({
+        mode: GetAttributesCallback.FOLDER,
+        size: 0,
+        mtime: new Date(),
+        ctime: new Date(),
+        atime: undefined,
+      });
     }
 
     const file = await this.virtualDriveContainer.filesSearcher.run({ path });
 
     if (file) {
-      return this.right({ mode: GetAttributesCallback.FILE, size: file.size });
+      return this.right({
+        mode: GetAttributesCallback.FILE,
+        size: file.size,
+        ctime: file.createdAt,
+        mtime: file.updatedAt,
+        atime: new Date(),
+      });
     }
 
     const folder = await this.virtualDriveContainer.folderSearcher.run({
@@ -32,7 +50,13 @@ export class GetAttributesCallback extends FuseCallback<GetAttributesCallbackDat
     });
 
     if (folder) {
-      return this.right({ mode: GetAttributesCallback.FOLDER, size: 0 });
+      return this.right({
+        mode: GetAttributesCallback.FOLDER,
+        size: 0,
+        ctime: folder.createdAt,
+        mtime: folder.updatedAt,
+        atime: folder.createdAt,
+      });
     }
 
     const offlineFile =
@@ -42,6 +66,9 @@ export class GetAttributesCallback extends FuseCallback<GetAttributesCallbackDat
       return this.right({
         mode: GetAttributesCallback.FILE,
         size: offlineFile.size,
+        mtime: new Date(),
+        ctime: offlineFile.createdAt,
+        atime: offlineFile.createdAt,
       });
     }
 

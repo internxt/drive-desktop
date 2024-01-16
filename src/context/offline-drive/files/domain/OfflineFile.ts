@@ -5,7 +5,7 @@ import { OfflineFileSize } from './OfflineFileSize';
 
 export type OfflineFileAttributes = {
   id: string;
-  createdAt: number;
+  createdAt: Date;
   path: string;
   size: number;
 };
@@ -13,7 +13,7 @@ export type OfflineFileAttributes = {
 export class OfflineFile extends AggregateRoot {
   private constructor(
     private _id: OfflineFileId,
-    private _createdAt: number,
+    private _createdAt: Date,
     private _path: OfflineFilePath,
     private _size: OfflineFileSize
   ) {
@@ -23,7 +23,7 @@ export class OfflineFile extends AggregateRoot {
   public get id(): string {
     return this._id.value;
   }
-  public get createdAt(): number {
+  public get createdAt(): Date {
     return this._createdAt;
   }
   public get path() {
@@ -39,12 +39,10 @@ export class OfflineFile extends AggregateRoot {
     return this._path.extension();
   }
 
-  static create(
-    createdAt: number,
-    path: OfflineFilePath,
-    size: OfflineFileSize
-  ): OfflineFile {
+  static create(path: OfflineFilePath, size: OfflineFileSize): OfflineFile {
     const id = OfflineFileId.create();
+    const createdAt = new Date();
+
     const file = new OfflineFile(id, createdAt, path, size);
 
     return file;

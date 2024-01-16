@@ -30,7 +30,7 @@ export class FuseApp {
   ) {}
 
   private async getOpt() {
-    const listXAttributes = new ListXAttributesCallback('ListXAttributes');
+    const listXAttributes = new ListXAttributesCallback();
     const getXAttribute = new GetXAttributeCallback('GetXAttribute');
     const readdir = new ReaddirCallback(
       this.fuseContainer.virtualDriveContainer

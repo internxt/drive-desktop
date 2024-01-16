@@ -27,20 +27,24 @@ export abstract class FuseCallback<T> {
     }
   ) {}
 
-  private logTime(fun: () => Promise<Either<FuseError, T>>) {
+  private async logTime(fun: () => Promise<Either<FuseError, T>>) {
     const stopwatch = new Stopwatch();
     stopwatch.start();
 
-    const result = fun();
+    const result = await fun();
 
-    Logger.debug(`Elapsed time for ${this.name}: `, stopwatch.elapsedTime());
+    if (this.debug.elapsedTime) {
+      Logger.debug(`Elapsed time for ${this.name}: `, stopwatch.elapsedTime());
+    }
 
     return result;
   }
 
   protected right(value: T): Either<FuseError, T> {
     if (this.debug.result) {
-      Logger.debug(`${this.name} Result: ${JSON.stringify({ value })}`);
+      Logger.debug(
+        `${this.name} Result: ${JSON.stringify({ value }, null, 2)}`
+      );
     }
 
     return right(value);
@@ -62,9 +66,7 @@ export abstract class FuseCallback<T> {
       Logger.debug(`${this.name}: `, ...params);
     }
 
-    const result = await (this.debug.elapsedTime
-      ? this.logTime(() => this.execute(...params))
-      : this.execute(...params));
+    const result = await this.logTime(() => this.execute(...params));
 
     if (result.isLeft()) {
       const error = result.getLeft();
