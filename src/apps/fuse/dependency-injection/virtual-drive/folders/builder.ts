@@ -109,5 +109,6 @@ export async function buildFoldersContainer(
     folderCreator,
     folderDeleter,
     offline,
+    folderRepositoryInitiator,
   };
 }

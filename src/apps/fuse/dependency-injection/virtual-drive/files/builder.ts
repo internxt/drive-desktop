@@ -95,6 +95,9 @@ export async function buildFilesContainer(
     sameFileWasMoved,
     fileCreator,
     fileDeleter,
+    repositoryPopulator,
+
+    // event handlers
     createFileOnOfflineFileUploaded,
   };
 }

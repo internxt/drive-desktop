@@ -10,7 +10,7 @@ import { HydrationApi } from '../hydration-api/HydrationApi';
 
 let fuseApp: FuseApp;
 
-async function spawnSyncEngineWorker() {
+async function startFuseApp() {
   const api = new HydrationApi();
 
   await api.start({
@@ -39,15 +39,16 @@ export async function stopSyncEngineWatcher() {
   await fuseApp.stop();
 }
 
-async function stopAndClearSyncEngineWatcher() {
+async function stopAndClearFuseApp() {
   await fuseApp.clearCache();
   await fuseApp.stop();
 }
 
-export function updateSyncEngine() {
-  // no op
+async function updateFuseApp() {
+  await fuseApp.update();
 }
 
-eventBus.on('USER_LOGGED_OUT', stopAndClearSyncEngineWatcher);
-eventBus.on('USER_WAS_UNAUTHORIZED', stopAndClearSyncEngineWatcher);
-eventBus.on('INITIAL_SYNC_READY', spawnSyncEngineWorker);
+eventBus.on('USER_LOGGED_OUT', stopAndClearFuseApp);
+eventBus.on('USER_WAS_UNAUTHORIZED', stopAndClearFuseApp);
+eventBus.on('INITIAL_SYNC_READY', startFuseApp);
+eventBus.on('REMOTE_CHANGES_SYNCHED', updateFuseApp);

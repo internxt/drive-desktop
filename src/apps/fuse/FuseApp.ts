@@ -88,7 +88,7 @@ export class FuseApp {
 
     this._fuse.mount((err: any) => {
       if (err) {
-        Logger.error(`FUSE mount error: ${err}`);
+        Logger.error(`[FUSE] mount error: ${err}`);
       }
     });
   }
@@ -96,12 +96,29 @@ export class FuseApp {
   async stop(): Promise<void> {
     this._fuse?.unmount((err: any) => {
       if (err) {
-        Logger.error(`FUSE unmount error: ${err}`);
+        Logger.error(`[FUSE] unmount error: ${err}`);
       }
     });
   }
 
   async clearCache(): Promise<void> {
     await this.fuseContainer.virtualDriveContainer.allLocalContentsDeleter.run();
+  }
+
+  async update(): Promise<void> {
+    Logger.info('[FUSE] Updating tree');
+
+    const tree =
+      await this.fuseContainer.virtualDriveContainer.existingNodesTreeBuilder.run();
+
+    await this.fuseContainer.virtualDriveContainer.repositoryPopulator.run(
+      tree.files
+    );
+
+    await this.fuseContainer.virtualDriveContainer.folderRepositoryInitiator.run(
+      tree.folders
+    );
+
+    Logger.info('[FUSE] Tree updated successfully');
   }
 }

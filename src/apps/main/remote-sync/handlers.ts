@@ -84,7 +84,7 @@ eventBus.on('RECEIVED_REMOTE_CHANGES', async () => {
   await sleep(2_000);
 
   await remoteSyncManager.startRemoteSync();
-  updateSyncEngine();
+  eventBus.emit('REMOTE_CHANGES_SYNCHED');
 });
 
 eventBus.on('USER_LOGGED_IN', async () => {

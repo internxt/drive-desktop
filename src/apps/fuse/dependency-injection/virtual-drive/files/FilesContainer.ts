@@ -5,6 +5,7 @@ import { FileCreator } from '../../../../../context/virtual-drive/files/applicat
 import { SameFileWasMoved } from '../../../../../context/virtual-drive/files/application/SameFileWasMoved';
 import { FileDeleter } from '../../../../../context/virtual-drive/files/application/FileDeleter';
 import { CreateFileOnOfflineFileUploaded } from '../../../../../context/virtual-drive/files/application/CreateFileOnOfflineFileUplodaded';
+import { RepositoryPopulator } from '../../../../../context/virtual-drive/files/application/RepositoryPopulator';
 
 export interface FilesContainer {
   filesByFolderPathNameLister: FilesByFolderPathSearcher;
@@ -13,5 +14,6 @@ export interface FilesContainer {
   fileCreator: FileCreator;
   fileDeleter: FileDeleter;
   sameFileWasMoved: SameFileWasMoved;
+  repositoryPopulator: RepositoryPopulator;
   createFileOnOfflineFileUploaded: CreateFileOnOfflineFileUploaded;
 }

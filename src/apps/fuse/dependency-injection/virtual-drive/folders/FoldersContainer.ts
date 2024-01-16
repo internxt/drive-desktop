@@ -3,6 +3,7 @@ import { FolderCreator } from '../../../../../context/virtual-drive/folders/appl
 import { FolderDeleter } from '../../../../../context/virtual-drive/folders/application/FolderDeleter';
 import { FolderFinder } from '../../../../../context/virtual-drive/folders/application/FolderFinder';
 import { FolderPathUpdater } from '../../../../../context/virtual-drive/folders/application/FolderPathUpdater';
+import { FolderRepositoryInitiator } from '../../../../../context/virtual-drive/folders/application/FolderRepositoryInitiator';
 import { FolderSearcher } from '../../../../../context/virtual-drive/folders/application/FolderSearcher';
 import { FoldersByParentPathLister } from '../../../../../context/virtual-drive/folders/application/FoldersByParentPathLister';
 import { OfflineFolderCreator } from '../../../../../context/virtual-drive/folders/application/Offline/OfflineFolderCreator';
@@ -15,6 +16,7 @@ export interface FoldersContainer {
   allParentFoldersStatusIsExists: AllParentFoldersStatusIsExists;
   folderCreator: FolderCreator;
   folderDeleter: FolderDeleter;
+  folderRepositoryInitiator: FolderRepositoryInitiator;
   offline: {
     offlineFolderCreator: OfflineFolderCreator;
   };
