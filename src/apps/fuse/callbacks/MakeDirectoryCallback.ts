@@ -1,13 +1,36 @@
+import { FolderAlreadyExists } from '../../../context/virtual-drive/folders/domain/errors/FolderAlreadyExists';
 import { VirtualDriveDependencyContainer } from '../dependency-injection/virtual-drive/VirtualDriveDependencyContainer';
 import { NotifyFuseCallback } from './FuseCallback';
-import { IOError } from './FuseErrors';
+import {
+  FileOrDirectoryAlreadyExistsError,
+  FuseError,
+  IOError,
+  InvalidArgumentError,
+} from './FuseErrors';
+import { FolderNotFoundError } from '../../../context/virtual-drive/folders/domain/errors/FolderNotFoundError';
 
 export class MakeDirectoryCallback extends NotifyFuseCallback {
   constructor(private readonly container: VirtualDriveDependencyContainer) {
     super('Make Directory');
   }
 
-  async execute(path: string, _mode: number) {
+  private resolveError(
+    input: { path: string; mode: number },
+    err: unknown
+  ): FuseError {
+    if (err instanceof FolderAlreadyExists) {
+      return new FileOrDirectoryAlreadyExistsError(input.path);
+    }
+    if (err instanceof FolderNotFoundError) {
+      return new InvalidArgumentError(input.path);
+    }
+
+    return new IOError(
+      `Unknown error while creating the folder: ${input.path}`
+    );
+  }
+
+  async execute(path: string, mode: number) {
     try {
       await this.container.folderSyncNotifier.creating(path);
 
@@ -17,9 +40,11 @@ export class MakeDirectoryCallback extends NotifyFuseCallback {
 
       return this.right();
     } catch (err: unknown) {
-      await this.container.folderSyncNotifier.error();
+      const error = this.resolveError({ path, mode }, err);
 
-      return this.left(new IOError(path));
+      this.container.folderSyncNotifier.error();
+
+      return this.left(error);
     }
   }
 }
