@@ -10,7 +10,7 @@ export class OfflineFileMother {
   static any(): OfflineFile {
     return OfflineFile.from({
       id: uuid.v4(),
-      createdAt: Date.now(),
+      createdAt: new Date(),
       path: FilePathMother.random().value,
       size: FileSizeMother.random().value,
     });

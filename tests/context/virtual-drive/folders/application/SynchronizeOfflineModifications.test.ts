@@ -117,14 +117,17 @@ describe('Synchronize Offline Modifications', () => {
     const event = new FolderRenamedDomainEvent({
       aggregateId: offlineFolder.uuid,
       previousPath: folder.path,
-      nextPath: offlineFolder.path.value,
+      nextPath: offlineFolder.path,
     });
 
     eventRepositoryMock.searchMock.mockResolvedValueOnce([event]);
 
     await SUT.run(offlineFolder.uuid);
 
-    expect(renamerSpy).toBeCalledWith(folder, offlineFolder.path);
+    expect(renamerSpy).toBeCalledWith(
+      folder,
+      new FolderPath(offlineFolder.path)
+    );
   });
 
   it('makes all the name changes recoded on the events', async () => {

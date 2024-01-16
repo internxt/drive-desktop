@@ -1,6 +1,6 @@
 import * as uuid from 'uuid';
 import { InvalidArgumentError } from '../../../shared/domain/InvalidArgumentError';
-import { ValueObject } from '../../../shared/domain/ValueObject';
+import { ValueObject } from '../../../shared/domain/value-objects/ValueObject';
 
 export class FolderUuid extends ValueObject<string> {
   constructor(value: string) {

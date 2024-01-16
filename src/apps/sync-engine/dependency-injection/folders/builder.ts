@@ -1,7 +1,7 @@
 import { NodeWinLocalFileSystem } from '../../../../context/virtual-drive/folders/infrastructure/NodeWinLocalFileSystem';
 import { AllParentFoldersStatusIsExists } from '../../../../context/virtual-drive/folders/application/AllParentFoldersStatusIsExists';
 import { FolderByPartialSearcher } from '../../../../context/virtual-drive/folders/application/FolderByPartialSearcher';
-import { FolderCreator } from '../../../../context/virtual-drive/folders/application/FolderCreator';
+import { FolderCreatorFromOfflineFolder } from '../../../../context/virtual-drive/folders/application/FolderCreatorFromOfflineFolder';
 import { FolderDeleter } from '../../../../context/virtual-drive/folders/application/FolderDeleter';
 import { FolderFinder } from '../../../../context/virtual-drive/folders/application/FolderFinder';
 import { FolderMover } from '../../../../context/virtual-drive/folders/application/FolderMover';
@@ -60,7 +60,7 @@ export async function buildFoldersContainer(
     allParentFoldersStatusIsExists
   );
 
-  const folderCreator = new FolderCreator(
+  const folderCreator = new FolderCreatorFromOfflineFolder(
     repository,
     remoteFileSystem,
     eventBus,

@@ -1,4 +1,4 @@
-import { Uuid } from '../../../../src/context/shared/domain/Uuid';
+import { Uuid } from '../../../../src/context/shared/domain/value-objects/Uuid';
 import * as uuid from 'uuid';
 
 export class UuidMother {

@@ -4,6 +4,7 @@ import { FolderStatus, FolderStatuses } from './FolderStatus';
 import { FolderUuid } from './FolderUuid';
 import { Folder } from './Folder';
 import { FolderRenamedDomainEvent } from './events/FolderRenamedDomainEvent';
+import { FolderId } from './FolderId';
 
 export type OfflineFolderAttributes = {
   uuid: string;
@@ -18,7 +19,7 @@ export class OfflineFolder extends AggregateRoot {
   private constructor(
     private _uuid: FolderUuid,
     private _path: FolderPath,
-    private _parentId: number,
+    private _parentId: FolderId,
     public createdAt: Date,
     public updatedAt: Date,
     private _status: FolderStatus
@@ -30,8 +31,8 @@ export class OfflineFolder extends AggregateRoot {
     return this._uuid.value;
   }
 
-  public get path() {
-    return this._path;
+  public get path(): string {
+    return this._path.value;
   }
 
   public get name() {
@@ -42,8 +43,8 @@ export class OfflineFolder extends AggregateRoot {
     return this._path.dirname();
   }
 
-  public get parentId() {
-    return this._parentId;
+  public get parentId(): number {
+    return this._parentId.value;
   }
 
   public get status() {
@@ -59,14 +60,14 @@ export class OfflineFolder extends AggregateRoot {
     return new OfflineFolder(
       new FolderUuid(attributes.uuid),
       new FolderPath(attributes.path),
-      attributes.parentId,
+      new FolderId(attributes.parentId),
       new Date(attributes.updatedAt),
       new Date(attributes.createdAt),
       FolderStatus.fromValue(attributes.status)
     );
   }
 
-  static create(path: FolderPath, parentId: number): OfflineFolder {
+  static create(path: FolderPath, parentId: FolderId): OfflineFolder {
     return new OfflineFolder(
       FolderUuid.random(),
       path,
@@ -78,7 +79,7 @@ export class OfflineFolder extends AggregateRoot {
   }
 
   moveTo(destinationFolder: Folder) {
-    this._parentId = destinationFolder.id;
+    this._parentId = new FolderId(destinationFolder.id);
   }
 
   rename(destination: FolderPath) {
@@ -114,7 +115,7 @@ export class OfflineFolder extends AggregateRoot {
   attributes(): OfflineFolderAttributes {
     const attributes: OfflineFolderAttributes = {
       uuid: this.uuid,
-      parentId: this._parentId,
+      parentId: this.parentId,
       path: this._path.value,
       updatedAt: this.updatedAt.toISOString(),
       createdAt: this.createdAt.toISOString(),

@@ -1,7 +1,7 @@
 import Logger from 'electron-log';
 import { FileCreationOrchestrator } from '../../../../context/virtual-drive/boundaryBridge/application/FileCreationOrchestrator';
 import { createFilePlaceholderId } from '../../../../context/virtual-drive/files/domain/PlaceholderId';
-import { FolderCreator } from '../../../../context/virtual-drive/folders/application/FolderCreator';
+import { FolderCreatorFromOfflineFolder } from '../../../../context/virtual-drive/folders/application/FolderCreatorFromOfflineFolder';
 import { OfflineFolderCreator } from '../../../../context/virtual-drive/folders/application/Offline/OfflineFolderCreator';
 import { createFolderPlaceholderId } from '../../../../context/virtual-drive/folders/domain/FolderPlaceholderId';
 import { OfflineFolder } from '../../../../context/virtual-drive/folders/domain/OfflineFolder';
@@ -35,7 +35,7 @@ export class AddController extends CallbackController {
   constructor(
     private readonly absolutePathToRelativeConverter: AbsolutePathToRelativeConverter,
     private readonly fileCreationOrchestrator: FileCreationOrchestrator,
-    private readonly folderCreator: FolderCreator,
+    private readonly folderCreator: FolderCreatorFromOfflineFolder,
     private readonly offlineFolderCreator: OfflineFolderCreator
   ) {
     super();

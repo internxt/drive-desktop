@@ -1,5 +1,6 @@
 import { VirtualDriveDependencyContainer } from '../dependency-injection/virtual-drive/VirtualDriveDependencyContainer';
 import { NotifyFuseCallback } from './FuseCallback';
+import { IOError } from './FuseErrors';
 
 export class MakeDirectoryCallback extends NotifyFuseCallback {
   constructor(private readonly container: VirtualDriveDependencyContainer) {
@@ -7,10 +8,18 @@ export class MakeDirectoryCallback extends NotifyFuseCallback {
   }
 
   async execute(path: string, _mode: number) {
-    const offlineFolder = this.container.offline.offlineFolderCreator.run(path);
+    try {
+      await this.container.folderSyncNotifier.creating(path);
 
-    await this.container.folderCreator.run(offlineFolder);
+      await this.container.folderCreator.run(path);
 
-    return this.right();
+      await this.container.folderSyncNotifier.created(path);
+
+      return this.right();
+    } catch (err: unknown) {
+      await this.container.folderSyncNotifier.error();
+
+      return this.left(new IOError(path));
+    }
   }
 }

@@ -1,8 +1,22 @@
-import { Folder, FolderAttributes } from '../Folder';
-import { OfflineFolder } from '../OfflineFolder';
+import { Folder } from '../Folder';
+import { FolderId } from '../FolderId';
+import { FolderPath } from '../FolderPath';
+import { FolderUuid } from '../FolderUuid';
+
+export type FolderPersistedDto = {
+  id: number;
+  uuid: string;
+  parentId: number;
+  updatedAt: string;
+  createdAt: string;
+};
 
 export interface RemoteFileSystem {
-  persist(offline: OfflineFolder): Promise<FolderAttributes>;
+  persist(
+    path: FolderPath,
+    parentId: FolderId,
+    uuid?: FolderUuid
+  ): Promise<FolderPersistedDto>;
 
   trash(id: Folder['id']): Promise<void>;
 

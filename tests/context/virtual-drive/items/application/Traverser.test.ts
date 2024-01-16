@@ -8,12 +8,10 @@ import {
 } from '../../../../../src/context/shared/domain/ServerFolder';
 import { Traverser } from '../../../../../src/context/virtual-drive/items/application/Traverser';
 import { ContentsIdMother } from '../../contents/domain/ContentsIdMother';
-import { IpcRendererSyncEngineMock } from '../../shared/__mock__/IpcRendererSyncEngineMock';
 import { FakeNameDecrypt } from '../infrastructure/FakeNameDecrypt';
 
 describe('Traverser', () => {
   const nameDecrypt = new FakeNameDecrypt();
-  const ipc = new IpcRendererSyncEngineMock();
 
   it('first level files starts with /', () => {
     const baseFolderId = 6;
@@ -31,7 +29,7 @@ describe('Traverser', () => {
     };
     const SUT = new Traverser(
       nameDecrypt,
-      ipc,
+
       baseFolderId,
       [ServerFileStatus.EXISTS, ServerFileStatus.TRASHED],
       [ServerFolderStatus.EXISTS]
@@ -67,7 +65,7 @@ describe('Traverser', () => {
     };
     const SUT = new Traverser(
       nameDecrypt,
-      ipc,
+
       baseFolderId,
       [ServerFileStatus.EXISTS, ServerFileStatus.TRASHED],
       [ServerFolderStatus.EXISTS]
@@ -95,7 +93,7 @@ describe('Traverser', () => {
     };
     const SUT = new Traverser(
       nameDecrypt,
-      ipc,
+
       baseFolderId,
       [ServerFileStatus.EXISTS, ServerFileStatus.TRASHED],
       [ServerFolderStatus.EXISTS]
@@ -129,7 +127,7 @@ describe('Traverser', () => {
     };
     const SUT = new Traverser(
       nameDecrypt,
-      ipc,
+
       baseFolderId,
       [ServerFileStatus.EXISTS, ServerFileStatus.TRASHED],
       [ServerFolderStatus.EXISTS]
@@ -163,7 +161,7 @@ describe('Traverser', () => {
     };
     const SUT = new Traverser(
       nameDecrypt,
-      ipc,
+
       baseFolderId,
       [ServerFileStatus.EXISTS, ServerFileStatus.TRASHED],
       [ServerFolderStatus.EXISTS]
@@ -204,7 +202,7 @@ describe('Traverser', () => {
     };
     const SUT = new Traverser(
       nameDecrypt,
-      ipc,
+
       baseFolderId,
       [ServerFileStatus.EXISTS, ServerFileStatus.TRASHED],
       [ServerFolderStatus.EXISTS]
@@ -232,7 +230,7 @@ describe('Traverser', () => {
     };
     const SUT = new Traverser(
       nameDecrypt,
-      ipc,
+
       baseFolderId,
       [ServerFileStatus.EXISTS, ServerFileStatus.TRASHED],
       [ServerFolderStatus.EXISTS]
@@ -268,7 +266,7 @@ describe('Traverser', () => {
     };
     const SUT = new Traverser(
       nameDecrypt,
-      ipc,
+
       baseFolderId,
       [ServerFileStatus.EXISTS, ServerFileStatus.TRASHED],
       [ServerFolderStatus.EXISTS]
@@ -304,7 +302,6 @@ describe('Traverser', () => {
     };
     const SUT = new Traverser(
       nameDecrypt,
-      ipc,
       baseFolderId,
       [ServerFileStatus.EXISTS, ServerFileStatus.TRASHED],
       [ServerFolderStatus.EXISTS]

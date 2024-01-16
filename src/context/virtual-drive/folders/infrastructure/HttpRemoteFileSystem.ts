@@ -1,13 +1,17 @@
 import { Axios } from 'axios';
 import Logger from 'electron-log';
 import * as uuid from 'uuid';
-import { Folder, FolderAttributes } from '../domain/Folder';
-import { FolderStatuses } from '../domain/FolderStatus';
+import { Folder } from '../domain/Folder';
 import { UpdateFolderNameDTO } from './dtos/UpdateFolderNameDTO';
-import { RemoteFileSystem } from '../domain/file-systems/RemoteFileSystem';
-import { OfflineFolder } from '../domain/OfflineFolder';
+import {
+  FolderPersistedDto,
+  RemoteFileSystem,
+} from '../domain/file-systems/RemoteFileSystem';
 import { ServerFolder } from '../../../shared/domain/ServerFolder';
 import { CreateFolderDTO } from './dtos/CreateFolderDTO';
+import { FolderPath } from '../domain/FolderPath';
+import { FolderUuid } from '../domain/FolderUuid';
+import { FolderId } from '../domain/FolderId';
 
 export class HttpRemoteFileSystem implements RemoteFileSystem {
   public folders: Record<string, Folder> = {};
@@ -17,15 +21,15 @@ export class HttpRemoteFileSystem implements RemoteFileSystem {
     private readonly trashClient: Axios
   ) {}
 
-  async persist(offline: OfflineFolder): Promise<FolderAttributes> {
-    if (!offline.name) {
-      throw new Error('Bad folder name');
-    }
-
+  async persist(
+    path: FolderPath,
+    parentId: FolderId,
+    uuid?: FolderUuid
+  ): Promise<FolderPersistedDto> {
     const body: CreateFolderDTO = {
-      folderName: offline.name,
-      parentFolderId: offline.parentId,
-      uuid: offline.uuid,
+      folderName: path.name(),
+      parentFolderId: parentId.value,
+      uuid: uuid?.value,
     };
 
     const response = await this.driveClient.post(
@@ -46,11 +50,9 @@ export class HttpRemoteFileSystem implements RemoteFileSystem {
     return {
       id: serverFolder.id,
       uuid: serverFolder.uuid,
-      parentId: serverFolder.parentId,
+      parentId: parentId.value,
       updatedAt: serverFolder.updatedAt,
       createdAt: serverFolder.createdAt,
-      path: offline.path.value,
-      status: FolderStatuses.EXISTS,
     };
   }
 

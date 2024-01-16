@@ -3,6 +3,7 @@ import { OfflineFolder } from '../../domain/OfflineFolder';
 import { OfflineFolderRepository } from '../../domain/OfflineFolderRepository';
 import { FolderFinder } from '../FolderFinder';
 import { FolderRepository } from '../../domain/FolderRepository';
+import { FolderId } from '../../domain/FolderId';
 
 export class OfflineFolderCreator {
   constructor(
@@ -24,7 +25,9 @@ export class OfflineFolderCreator {
 
     const parent = this.folderFinder.run(folderPath.dirname());
 
-    const folder = OfflineFolder.create(folderPath, parent.id);
+    const parentId = new FolderId(parent.id);
+
+    const folder = OfflineFolder.create(folderPath, parentId);
 
     this.offlineRepository.update(folder);
 

@@ -7,8 +7,8 @@ type GetAttributesCallbackData = {
   mode: number;
   size: number;
   mtime: Date;
-  atime?: Date;
   ctime: Date;
+  atime?: Date;
 };
 
 export class GetAttributesCallback extends FuseCallback<GetAttributesCallbackData> {
