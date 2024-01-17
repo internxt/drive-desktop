@@ -4,7 +4,7 @@ import { FolderCreatedAt } from '../domain/FolderCreatedAt';
 import { FolderId } from '../domain/FolderId';
 import { FolderPath } from '../domain/FolderPath';
 import { FolderRepository } from '../domain/FolderRepository';
-import { FolderSyncNotifier } from '../domain/FolderSyncNotifier';
+import { SyncFolderMessenger } from '../domain/SyncFolderMessenger';
 import { FolderUpdatedAt } from '../domain/FolderUpdatedAt';
 import { FolderUuid } from '../domain/FolderUuid';
 import { OfflineFolder } from '../domain/OfflineFolder';
@@ -15,11 +15,11 @@ export class FolderCreatorFromOfflineFolder {
     private readonly repository: FolderRepository,
     private readonly remote: RemoteFileSystem,
     private readonly eventBus: EventBus,
-    private readonly notifier: FolderSyncNotifier
+    private readonly syncFolderMessenger: SyncFolderMessenger
   ) {}
 
   async run(offlineFolder: OfflineFolder): Promise<Folder> {
-    this.notifier.creating(offlineFolder.name);
+    this.syncFolderMessenger.creating(offlineFolder.name);
 
     const attributes = await this.remote.persist(
       new FolderPath(offlineFolder.path),
@@ -41,7 +41,7 @@ export class FolderCreatorFromOfflineFolder {
     const events = folder.pullDomainEvents();
     this.eventBus.publish(events);
 
-    this.notifier.created(offlineFolder.name);
+    this.syncFolderMessenger.created(offlineFolder.name);
 
     return folder;
   }

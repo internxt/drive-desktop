@@ -1,7 +1,7 @@
 import { setTrayStatus } from '../../../../apps/main/tray/tray';
-import { FolderSyncNotifier } from '../domain/FolderSyncNotifier';
+import { SyncFolderMessenger } from '../domain/SyncFolderMessenger';
 
-export class MainProcessFolderSyncNotifier implements FolderSyncNotifier {
+export class MainProcessSyncFolderMessenger implements SyncFolderMessenger {
   async rename(_name: string, _newName: string): Promise<void> {
     setTrayStatus('SYNCING');
   }

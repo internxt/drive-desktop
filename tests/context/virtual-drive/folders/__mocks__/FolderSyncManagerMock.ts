@@ -1,6 +1,6 @@
-import { FolderSyncNotifier } from '../../../../../src/context/virtual-drive/folders/domain/FolderSyncNotifier';
+import { SyncFolderMessenger } from '../../../../../src/context/virtual-drive/folders/domain/SyncFolderMessenger';
 
-export class FolderSyncNotifierMock implements FolderSyncNotifier {
+export class FolderSyncNotifierMock implements SyncFolderMessenger {
   public creatingMock = jest.fn();
   public createdMock = jest.fn();
   public renameMock = jest.fn();

@@ -7,7 +7,7 @@ import { FolderPathUpdater } from '../../../../../context/virtual-drive/folders/
 import { FolderRepositoryInitiator } from '../../../../../context/virtual-drive/folders/application/FolderRepositoryInitiator';
 import { FolderSearcher } from '../../../../../context/virtual-drive/folders/application/FolderSearcher';
 import { FoldersByParentPathLister } from '../../../../../context/virtual-drive/folders/application/FoldersByParentPathLister';
-import { FolderSyncNotifier } from '../../../../../context/virtual-drive/folders/domain/FolderSyncNotifier';
+import { SyncFolderMessenger } from '../../../../../context/virtual-drive/folders/domain/SyncFolderMessenger';
 
 export interface FoldersContainer {
   folderFinder: FolderFinder;
@@ -19,5 +19,5 @@ export interface FoldersContainer {
   folderCreator: FolderCreator;
   folderDeleter: FolderDeleter;
   folderRepositoryInitiator: FolderRepositoryInitiator;
-  folderSyncNotifier: FolderSyncNotifier;
+  syncFolderMessenger: SyncFolderMessenger;
 }

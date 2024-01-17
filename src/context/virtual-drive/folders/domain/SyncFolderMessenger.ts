@@ -1,4 +1,4 @@
-export interface FolderSyncNotifier {
+export interface SyncFolderMessenger {
   creating(name: string): Promise<void>;
   created(name: string): Promise<void>;
   rename(name: string, newName: string): Promise<void>;

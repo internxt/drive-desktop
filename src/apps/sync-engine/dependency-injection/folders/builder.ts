@@ -26,7 +26,7 @@ import { DependencyInjectionEventRepository } from '../common/eventRepository';
 import { DependencyInjectionVirtualDrive } from '../common/virtualDrive';
 import { SharedContainer } from '../shared/SharedContainer';
 import { FoldersContainer } from './FoldersContainer';
-import { MainProcessFolderSyncNotifier } from '../../../../context/virtual-drive/folders/infrastructure/MainProcessFolderSyncNotifier';
+import { MainProcessSyncFolderMessenger } from '../../../../context/virtual-drive/folders/infrastructure/MainProcessFolderSyncNotifier';
 
 export async function buildFoldersContainer(
   shredContainer: SharedContainer
@@ -38,7 +38,7 @@ export async function buildFoldersContainer(
 
   const repository = new InMemoryFolderRepository();
 
-  const notifier = new MainProcessFolderSyncNotifier();
+  const syncFolderMessenger = new MainProcessSyncFolderMessenger();
 
   const localFileSystem = new NodeWinLocalFileSystem(virtualDrive);
   const remoteFileSystem = new HttpRemoteFileSystem(
@@ -64,7 +64,7 @@ export async function buildFoldersContainer(
     repository,
     remoteFileSystem,
     eventBus,
-    notifier
+    syncFolderMessenger
   );
 
   const folderMover = new FolderMover(
@@ -76,7 +76,7 @@ export async function buildFoldersContainer(
     repository,
     remoteFileSystem,
     eventBus,
-    notifier
+    syncFolderMessenger
   );
 
   const folderByPartialSearcher = new FolderByPartialSearcher(repository);

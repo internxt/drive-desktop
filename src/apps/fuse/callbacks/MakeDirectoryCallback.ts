@@ -32,17 +32,17 @@ export class MakeDirectoryCallback extends NotifyFuseCallback {
 
   async execute(path: string, mode: number) {
     try {
-      await this.container.folderSyncNotifier.creating(path);
+      await this.container.syncFolderMessenger.creating(path);
 
       await this.container.folderCreator.run(path);
 
-      await this.container.folderSyncNotifier.created(path);
+      await this.container.syncFolderMessenger.created(path);
 
       return this.right();
     } catch (err: unknown) {
       const error = this.resolveError({ path, mode }, err);
 
-      this.container.folderSyncNotifier.error();
+      this.container.syncFolderMessenger.error();
 
       return this.left(error);
     }
