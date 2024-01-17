@@ -1,4 +1,6 @@
+import { trackError } from '../../../../apps/main/analytics/service';
 import { setTrayStatus } from '../../../../apps/main/tray/tray';
+import { broadcastToWindows } from '../../../../apps/main/windows';
 import { SyncFolderMessenger } from '../domain/SyncFolderMessenger';
 
 export class MainProcessSyncFolderMessenger implements SyncFolderMessenger {
@@ -14,7 +16,14 @@ export class MainProcessSyncFolderMessenger implements SyncFolderMessenger {
   async created(_name: string): Promise<void> {
     setTrayStatus('IDLE');
   }
-  async error(): Promise<void> {
-    throw new Error('Method not implemented.');
+  async error(name: string, message: string): Promise<void> {
+    setTrayStatus('ALERT');
+
+    trackError('Upload Error', new Error(message), {
+      itemType: 'Folder',
+      root: '',
+      from: name,
+      action: 'Upload',
+    });
   }
 }

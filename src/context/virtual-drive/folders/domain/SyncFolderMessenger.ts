@@ -3,5 +3,5 @@ export interface SyncFolderMessenger {
   created(name: string): Promise<void>;
   rename(name: string, newName: string): Promise<void>;
   renamed(name: string, newName: string): Promise<void>;
-  error(): Promise<void>;
+  error(name: string, message: string): Promise<void>;
 }
