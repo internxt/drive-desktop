@@ -314,7 +314,7 @@
     },
     "short-error-messages": {
       "unknown": "Unknown error",
-      "empty-file": "File is empty",
+      "empty-file": "Empty files are not supported.",
       "bad-response": "Bad response from Internxt servers",
       "no-remote-connection": "Can't connect to Internxt servers",
       "no-internet-connection": "No internet connection",

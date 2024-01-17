@@ -12,7 +12,7 @@
     },
     "action": {
       "login": "Iniciar sesión",
-      "is-loggin-in": "Iniciando sesión"
+      "is-logging-in": "Iniciando sesión..."
     },
     "create-account": "Crear cuenta",
     "2fa": {
@@ -313,7 +313,7 @@
     },
     "short-error-messages": {
       "unknown": "Error desconocido",
-      "emtpy-file": "El archivo está vacío",
+      "emtpy-file": "Archivos vacios no son soportados",
       "bad-response": "Error de los servidores de Internxt",
       "no-remote-connection": "No pudimos conectar con los servidores de Internxt",
       "no-internet-connection": "No hay conexión a Internet",
@@ -353,14 +353,14 @@
     }
   },
   "feedback": {
-    "window-title": "Enviar comentatios",
-    "title": "Compartir comentatios con Internxt",
-    "description": "Tus comentarios hacen que Internxt mejore y nos ayudan a crear mejores experiencias de producto",
+    "window-title": "Comentarios sobre Internxt para Escritorio",
+    "title": "Comparte tus opiniones con Internxt",
+    "description": "Tus comentarios hacen que mejoremos y creemos mejores experiencias de producto",
     "placeholder": "Haznos saber lo que tienes en mente, lo que te gustaría mejorar o describe el error o problema",
     "characters-count": "{{character_count}}/{{character_limit}}",
-    "send-feedback": "Enviar comentatios",
-    "sent-title": "Gracias por compartir tu opinión",
-    "sent-message": "Realmente apreciamos tu tiempo y esfuerzo para ayudarnos a mejorar nuestros servicios.",
+    "send-feedback": "Enviar comentarios",
+    "sent-title": "Gracias por compartir tus comentarios",
+    "sent-message": "Apreciamos tu tiempo y esfuerzo para ayudarnos a mejorar nuestros servicios.",
     "close": "Cerrar"
   },
   "common": {

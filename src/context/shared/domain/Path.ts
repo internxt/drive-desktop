@@ -44,6 +44,10 @@ export abstract class Path extends ValueObject<string> {
     return name;
   }
 
+  basename(): string {
+    return path.posix.basename(this.value);
+  }
+
   dirname(): string {
     const dirname = path.posix.dirname(this.value);
     if (dirname === '.') {

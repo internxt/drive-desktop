@@ -31,7 +31,7 @@ export class EnvironmentRemoteFileContentsManagersFactory
     const fn =
       contents.size >
       EnvironmentRemoteFileContentsManagersFactory.MULTIPART_UPLOAD_SIZE_THRESHOLD
-        ? this.environment.uploadMultipartFile
+        ? this.environment.uploadMultipartFile.bind(this.environment)
         : this.environment.upload;
 
     return new EnvironmentContentFileUploader(fn, this.bucket, abortSignal);

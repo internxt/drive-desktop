@@ -9,6 +9,7 @@ import { FileRepository } from '../domain/FileRepository';
 import { RemoteFileSystem } from '../domain/file-systems/RemoteFileSystem';
 import { OfflineFile } from '../domain/OfflineFile';
 import { SyncFileMessenger } from '../domain/SyncFileMessenger';
+import { FileStatuses } from '../domain/FileStatus';
 
 export class FileCreator {
   constructor(
@@ -26,6 +27,7 @@ export class FileCreator {
 
       const existingFile = this.repository.searchByPartial({
         path: PlatformPathConverter.winToPosix(filePath.value),
+        status: FileStatuses.EXISTS,
       });
 
       if (existingFile) {

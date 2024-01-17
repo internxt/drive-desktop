@@ -7,6 +7,7 @@ import { FolderRepositoryMock } from '../../folders/__mocks__/FolderRepositoryMo
 import { ContentsIdMother } from '../../contents/domain/ContentsIdMother';
 import { AllParentFoldersStatusIsExists } from '../../../../../src/context/virtual-drive/folders/application/AllParentFoldersStatusIsExists';
 import { FileSyncNotifierMock } from '../__mocks__/FileSyncNotifierMock';
+import { FileStatus } from '../../../../../src/context/virtual-drive/files/domain/FileStatus';
 
 describe('File Deleter', () => {
   let repository: FileRepositoryMock;
@@ -70,7 +71,7 @@ describe('File Deleter', () => {
 
     await SUT.run(file.contentsId);
 
-    expect(repository.deleteMock).toBeCalled();
+    expect(remoteFileSystemMock.trashMock).toBeCalled();
   });
 
   it('trashes the file with the status trashed', async () => {
@@ -82,6 +83,8 @@ describe('File Deleter', () => {
     await SUT.run(file.contentsId);
 
     expect(remoteFileSystemMock.trashMock).toBeCalledWith(file.contentsId);
-    expect(repository.deleteMock).toBeCalledWith(file.contentsId);
+    expect(repository.updateMock).toBeCalledWith(
+      expect.objectContaining({ status: FileStatus.Trashed })
+    );
   });
 });

@@ -20,6 +20,10 @@ export class FolderPath extends Path {
     return super.name();
   }
 
+  basename(): string {
+    return super.basename();
+  }
+
   updateName(name: string): FolderPath {
     return FolderPath.fromParts(this.dirname(), name);
   }

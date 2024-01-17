@@ -145,6 +145,9 @@ export type ProcessErrorName =
   // The file is bigger than the current upload limit
   | 'FILE_TOO_BIG'
 
+  // The file don't have an extension
+  | 'FILE_NON_EXTENSION'
+
   // Unknown error
   | 'UNKNOWN'
 

@@ -11,6 +11,7 @@ export const shortMessages: ProcessErrorMessages = {
   EMPTY_FILE: 'issues.short-error-messages.empty-file',
   UNKNOWN: 'issues.short-error-messages.unknown',
   FILE_TOO_BIG: 'issues.short-error-messages.file-too-big',
+  FILE_NON_EXTENSION: 'issues.short-error-messages.file-non-extension',
   DUPLICATED_NODE: 'issues.short-error-messages.duplicated-node',
 };
 
@@ -24,5 +25,6 @@ export const longMessages: ProcessErrorMessages = {
   EMPTY_FILE: 'issues.error-messages.empty-file',
   UNKNOWN: 'issues.error-messages.unknown',
   FILE_TOO_BIG: 'issues.error-messages.file-too-big',
+  FILE_NON_EXTENSION: 'issues.error-messages.file-non-extension',
   DUPLICATED_NODE: 'issues.error-messages.duplicated-node',
 };

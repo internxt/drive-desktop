@@ -20,6 +20,17 @@ async function existsFolder(pathname: string): Promise<boolean> {
   }
 }
 
+export async function clearDirectory(pathname: string): Promise<boolean> {
+  try {
+    await fs.rm(pathname, { recursive: true });
+    await fs.mkdir(pathname);
+
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 async function isEmptyFolder(pathname: string): Promise<boolean> {
   const filesInFolder = await fs.readdir(pathname);
 
@@ -29,7 +40,13 @@ async function isEmptyFolder(pathname: string): Promise<boolean> {
 function setSyncRoot(pathname: string): void {
   const pathNameWithSepInTheEnd =
     pathname[pathname.length - 1] === path.sep ? pathname : pathname + path.sep;
-
+  const logEnginePath = path.join(
+    app.getPath('appData'),
+    'internxt-drive',
+    'logs',
+    'node-win.txt'
+  );
+  configStore.set('logEnginePath', logEnginePath);
   configStore.set('syncRoot', pathNameWithSepInTheEnd);
   configStore.set('lastSavedListing', '');
 }

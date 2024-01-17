@@ -36,7 +36,7 @@ describe('Folder deleter', () => {
 
     await SUT.run(folder.uuid);
 
-    expect(repository.deleteMock).toBeCalledWith(folder.id);
+    expect(remote.trashMock).toBeCalledWith(folder.id);
   });
 
   it('throws an error when trashing a folder already trashed', async () => {
@@ -72,9 +72,7 @@ describe('Folder deleter', () => {
 
     repository.searchByPartialMock.mockReturnValueOnce(folder);
     jest.spyOn(allParentFoldersStatusIsExists, 'run').mockReturnValueOnce(true);
-    repository.deleteMock.mockRejectedValue(
-      new Error('Error during the deletion')
-    );
+    remote.trashMock.mockRejectedValue(new Error('Error during the deletion'));
 
     await SUT.run(folder.uuid);
 

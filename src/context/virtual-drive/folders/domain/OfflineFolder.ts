@@ -39,6 +39,10 @@ export class OfflineFolder extends AggregateRoot {
     return this._path.name();
   }
 
+  public get basename() {
+    return this._path.basename();
+  }
+
   public get dirname() {
     return this._path.dirname();
   }
