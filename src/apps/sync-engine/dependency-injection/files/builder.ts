@@ -22,7 +22,7 @@ import { InMemoryFileRepository } from '../../../../context/virtual-drive/files/
 import { SDKRemoteFileSystem } from '../../../../context/virtual-drive/files/infrastructure/SDKRemoteFileSystem';
 import { NodeWinLocalFileSystem } from '../../../../context/virtual-drive/files/infrastructure/NodeWinLocalFileSystem';
 import { LocalFileIdProvider } from '../../../../context/virtual-drive/shared/application/LocalFileIdProvider';
-import { MainProcessFileSyncNotifier } from '../../../../context/virtual-drive/files/infrastructure/MainProcessFileSyncNotifier';
+import { MainProcessSyncFileMessenger } from '../../../../context/virtual-drive/files/infrastructure/MainProcessFileSyncNotifier';
 
 export async function buildFilesContainer(
   folderContainer: FoldersContainer,
@@ -42,7 +42,7 @@ export async function buildFilesContainer(
     virtualDrive,
     sharedContainer.relativePathToAbsoluteConverter
   );
-  const notifier = new MainProcessFileSyncNotifier();
+  const syncFileMessenger = new MainProcessSyncFileMessenger();
 
   const repository = new InMemoryFileRepository();
 
@@ -53,7 +53,7 @@ export async function buildFilesContainer(
     localFileSystem,
     repository,
     folderContainer.allParentFoldersStatusIsExists,
-    notifier
+    syncFileMessenger
   );
 
   const sameFileWasMoved = new SameFileWasMoved(
@@ -77,7 +77,7 @@ export async function buildFilesContainer(
     folderContainer.folderFinder,
     fileDeleter,
     eventBus,
-    notifier
+    syncFileMessenger
   );
 
   const filePlaceholderCreatorFromContentsId =

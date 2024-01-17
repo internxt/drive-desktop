@@ -6,12 +6,12 @@ import { addProcessIssue } from '../../../../apps/main/background-processes/proc
 import { setTrayStatus } from '../../../../apps/main/tray/tray';
 import { broadcastToWindows } from '../../../../apps/main/windows';
 import { ProcessIssue } from '../../../../apps/shared/types';
-import { Notifier } from '../../../shared/domain/Notifier';
-import { FileSyncNotifier } from '../domain/FileSyncNotifier';
+import { SyncMessenger } from '../../../shared/domain/SyncMessenger';
+import { SyncFileMessenger } from '../domain/SyncFileMessenger';
 
-export class MainProcessFileSyncNotifier
-  extends Notifier
-  implements FileSyncNotifier
+export class MainProcessSyncFileMessenger
+  extends SyncMessenger
+  implements SyncFileMessenger
 {
   async created(name: string, extension: string): Promise<void> {
     const nameWithExtension = this.nameWithExtension(name, extension);

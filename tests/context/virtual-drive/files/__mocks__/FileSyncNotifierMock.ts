@@ -1,6 +1,6 @@
-import { FileSyncNotifier } from '../../../../../src/context/virtual-drive/files/domain/FileSyncNotifier';
+import { SyncFileMessenger } from '../../../../../src/context/virtual-drive/files/domain/SyncFileMessenger';
 
-export class FileSyncNotifierMock implements FileSyncNotifier {
+export class FileSyncNotifierMock implements SyncFileMessenger {
   public createdMock = jest.fn();
   public errorMock = jest.fn();
   public trashingMock = jest.fn();

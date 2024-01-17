@@ -1,11 +1,11 @@
 import { trackError, trackEvent } from '../../../apps/main/analytics/service';
 import { setTrayStatus } from '../../../apps/main/tray/tray';
 import { broadcastToWindows } from '../../../apps/main/windows';
-import { Notifier } from '../domain/Notifier';
+import { SyncMessenger } from '../domain/SyncMessenger';
 import { UploadProgressTracker } from '../domain/UploadProgressTracker';
 
 export class MainProcessUploadProgressTracker
-  extends Notifier
+  extends SyncMessenger
   implements UploadProgressTracker
 {
   uploadStarted(name: string, extension: string, size: number): void {

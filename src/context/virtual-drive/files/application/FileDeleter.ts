@@ -3,7 +3,7 @@ import { AllParentFoldersStatusIsExists } from '../../folders/application/AllPar
 import { File } from '../domain/File';
 import { FileRepository } from '../domain/FileRepository';
 import { FileStatuses } from '../domain/FileStatus';
-import { FileSyncNotifier } from '../domain/FileSyncNotifier';
+import { SyncFileMessenger } from '../domain/SyncFileMessenger';
 import { LocalFileSystem } from '../domain/file-systems/LocalFileSystem';
 import { RemoteFileSystem } from '../domain/file-systems/RemoteFileSystem';
 
@@ -13,7 +13,7 @@ export class FileDeleter {
     private readonly local: LocalFileSystem,
     private readonly repository: FileRepository,
     private readonly allParentFoldersStatusIsExists: AllParentFoldersStatusIsExists,
-    private readonly notifier: FileSyncNotifier
+    private readonly notifier: SyncFileMessenger
   ) {}
 
   async run(contentsId: File['contentsId']): Promise<void> {

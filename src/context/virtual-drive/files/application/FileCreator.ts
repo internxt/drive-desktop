@@ -8,7 +8,7 @@ import { PlatformPathConverter } from '../../shared/application/PlatformPathConv
 import { FileRepository } from '../domain/FileRepository';
 import { RemoteFileSystem } from '../domain/file-systems/RemoteFileSystem';
 import { OfflineFile } from '../domain/OfflineFile';
-import { FileSyncNotifier } from '../domain/FileSyncNotifier';
+import { SyncFileMessenger } from '../domain/SyncFileMessenger';
 
 export class FileCreator {
   constructor(
@@ -17,7 +17,7 @@ export class FileCreator {
     private readonly folderFinder: FolderFinder,
     private readonly fileDeleter: FileDeleter,
     private readonly eventBus: EventBus,
-    private readonly notifier: FileSyncNotifier
+    private readonly notifier: SyncFileMessenger
   ) {}
 
   async run(path: string, contentsId: string, size: number): Promise<File> {
