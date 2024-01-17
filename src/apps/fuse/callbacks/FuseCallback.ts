@@ -11,7 +11,7 @@ export type CallbackWithData<T> = (code: number, params?: T) => void;
 
 type DebugOptions = {
   input: boolean;
-  result: boolean;
+  output: boolean;
   elapsedTime: boolean;
 };
 
@@ -19,10 +19,10 @@ export abstract class FuseCallback<T> {
   protected static readonly OK = 0;
 
   constructor(
-    private readonly name: string,
-    private readonly debug: Partial<DebugOptions> = {
+    protected readonly name: string,
+    protected readonly debug: Partial<DebugOptions> = {
       input: false,
-      result: false,
+      output: false,
       elapsedTime: false,
     }
   ) {}
@@ -41,7 +41,7 @@ export abstract class FuseCallback<T> {
   }
 
   protected right(value: T): Either<FuseError, T> {
-    if (this.debug.result) {
+    if (this.debug.output) {
       Logger.debug(
         `${this.name} Result: ${JSON.stringify({ value }, null, 2)}`
       );
@@ -58,7 +58,7 @@ export abstract class FuseCallback<T> {
   async handle(...params: any[]): Promise<void> {
     const callback = params.pop() as CallbackWithData<T>;
 
-    if (PathsToIgnore.includes(params[0])) {
+    if (PathsToIgnore.some((regex) => regex.test(params[0]))) {
       return callback(FuseCodes.EINVAL);
     }
 
@@ -83,6 +83,10 @@ export abstract class FuseCallback<T> {
 
 export abstract class NotifyFuseCallback extends FuseCallback<undefined> {
   protected right(): Either<FuseError, undefined> {
+    if (this.debug.output) {
+      Logger.debug(`${this.name} completed successfully`);
+    }
+
     return right(undefined);
   }
 

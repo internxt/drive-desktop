@@ -19,7 +19,7 @@ export class GetAttributesCallback extends FuseCallback<GetAttributesCallbackDat
     private readonly virtualDriveContainer: VirtualDriveDependencyContainer,
     private readonly offlineDriveContainer: OfflineDriveDependencyContainer
   ) {
-    super('Get Attributes', { elapsedTime: false, result: false });
+    super('Get Attributes');
   }
 
   async execute(path: string) {
