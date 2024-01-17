@@ -1,6 +1,5 @@
 import { trackError } from '../../../../apps/main/analytics/service';
 import { setTrayStatus } from '../../../../apps/main/tray/tray';
-import { broadcastToWindows } from '../../../../apps/main/windows';
 import { SyncFolderMessenger } from '../domain/SyncFolderMessenger';
 
 export class MainProcessSyncFolderMessenger implements SyncFolderMessenger {

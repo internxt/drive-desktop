@@ -1,4 +1,4 @@
-import axios, { Axios } from 'axios';
+import { Axios } from 'axios';
 import Logger from 'electron-log';
 import * as uuid from 'uuid';
 import { Folder } from '../domain/Folder';

@@ -15,6 +15,7 @@ export async function buildUsageContainer(): Promise<UsageContainer> {
   const { photos } = Photos;
 
   const repository = new CachedHttpUserUsageRepository(
+    // @ts-ignore
     clients.newDrive,
     photos
   );

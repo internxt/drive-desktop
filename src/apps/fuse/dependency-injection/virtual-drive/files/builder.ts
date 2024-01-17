@@ -13,6 +13,7 @@ import { FuseLocalFileSystem } from '../../../../../context/virtual-drive/files/
 import { InMemoryFileRepository } from '../../../../../context/virtual-drive/files/infrastructure/InMemoryFileRepository';
 import { MainProcessSyncFileMessenger } from '../../../../../context/virtual-drive/files/infrastructure/MainProcessSyncFileMessenger';
 import { SDKRemoteFileSystem } from '../../../../../context/virtual-drive/files/infrastructure/SDKRemoteFileSystem';
+import { DependencyInjectionHttpClientsProvider } from '../../common/clients';
 import { DependencyInjectionEventBus } from '../../common/eventBus';
 import { DependencyInjectionEventRepository } from '../../common/eventRepository';
 import { DependencyInjectionStorageSdk } from '../../common/sdk';
@@ -31,6 +32,7 @@ export async function buildFilesContainer(
   const user = DependencyInjectionUserProvider.get();
   const sdk = await DependencyInjectionStorageSdk.get();
   const { bus: eventBus } = DependencyInjectionEventBus;
+  const clients = DependencyInjectionHttpClientsProvider.get();
 
   const repositoryPopulator = new RepositoryPopulator(repository);
 
@@ -45,7 +47,12 @@ export async function buildFilesContainer(
 
   const filesSearcher = new FilesSearcher(repository);
 
-  const remoteFileSystem = new SDKRemoteFileSystem(sdk, crypt, user.bucket);
+  const remoteFileSystem = new SDKRemoteFileSystem(
+    sdk,
+    clients,
+    crypt,
+    user.bucket
+  );
   const localFileSystem = new FuseLocalFileSystem(
     sharedContainer.relativePathToAbsoluteConverter
   );

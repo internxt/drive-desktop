@@ -1,12 +1,12 @@
 import Logger from 'electron-log';
 
 import { app } from 'electron';
-import { getRootVirtualDrive } from '../main/virutal-root-folder/service';
 import eventBus from '../main/event-bus';
 import { FuseApp } from './FuseApp';
 import path from 'path';
 import { FuseDependencyContainerFactory } from './dependency-injection/FuseDependencyContainerFactory';
 import { HydrationApi } from '../hydration-api/HydrationApi';
+import { getRootVirtualDrive } from '../main/virtual-root-folder/service';
 
 let fuseApp: FuseApp;
 

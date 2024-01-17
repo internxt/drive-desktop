@@ -1,7 +1,6 @@
 import crypt from '../../../../context/shared/infrastructure/crypt';
 import { Traverser } from '../../../../context/virtual-drive/items/application/Traverser';
 import { DependencyInjectionUserProvider } from './user';
-import { ipcRendererSyncEngine } from '../../ipcRendererSyncEngine';
 
 export class DependencyInjectionTraverserProvider {
   private static traverser: Traverser;
@@ -13,11 +12,7 @@ export class DependencyInjectionTraverserProvider {
 
     const user = DependencyInjectionUserProvider.get();
 
-    const traverser = Traverser.existingItems(
-      crypt,
-      ipcRendererSyncEngine,
-      user.root_folder_id
-    );
+    const traverser = Traverser.existingItems(crypt, user.root_folder_id);
 
     DependencyInjectionTraverserProvider.traverser = traverser;
 

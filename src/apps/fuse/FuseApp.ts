@@ -18,7 +18,6 @@ import { FuseDependencyContainer } from './dependency-injection/FuseDependencyCo
 const fuse = require('@gcas/fuse');
 
 export class FuseApp {
-  private static readonly SID = 41033;
   private _fuse: any;
 
   constructor(

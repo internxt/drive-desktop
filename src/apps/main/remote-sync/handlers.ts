@@ -9,7 +9,6 @@ import { ipcMain } from 'electron';
 import { reportError } from '../bug-report/service';
 import { sleep } from '../util';
 import { broadcastToWindows } from '../windows';
-import { updateSyncEngine } from '../background-processes/sync-engine';
 
 let initialSyncReady = false;
 const driveFilesCollection = new DriveFilesCollection();

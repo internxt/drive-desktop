@@ -1,4 +1,3 @@
-import { UserDependencyContainer } from '../dependency-injection/user/UserDependencyContainer';
 import { FuseCallback } from './FuseCallback';
 import Logger from 'electron-log';
 
@@ -17,11 +16,7 @@ type StatFsCallbackData = {
 };
 
 export class StatFsCallback extends FuseCallback<Partial<StatFsCallbackData>> {
-  constructor(
-    private readonly _userContainer: UserDependencyContainer,
-    private readonly localStats: Partial<StatFsCallbackData>,
-    private readonly sid: number
-  ) {
+  constructor(private readonly localStats: Partial<StatFsCallbackData>) {
     super('Stat FS');
   }
 
