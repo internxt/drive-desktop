@@ -60,7 +60,11 @@ export class FileCreator {
 
       const filePath = new FilePath(path);
 
-      await this.notifier.error(filePath.name(), filePath.extension(), message);
+      await this.notifier.errorWhileCreating(
+        filePath.name(),
+        filePath.extension(),
+        message
+      );
 
       throw error;
     }

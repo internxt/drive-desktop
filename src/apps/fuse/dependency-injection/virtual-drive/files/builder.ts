@@ -11,7 +11,7 @@ import { SameFileWasMoved } from '../../../../../context/virtual-drive/files/app
 import { File } from '../../../../../context/virtual-drive/files/domain/File';
 import { FuseLocalFileSystem } from '../../../../../context/virtual-drive/files/infrastructure/FuseLocalFileSystem';
 import { InMemoryFileRepository } from '../../../../../context/virtual-drive/files/infrastructure/InMemoryFileRepository';
-import { MainProcessSyncFileMessenger } from '../../../../../context/virtual-drive/files/infrastructure/MainProcessSyncFileMessenger';
+import { MainProcessSyncFileMessenger } from '../../../../../context/virtual-drive/files/infrastructure/SyncFileMessengers/MainProcessSyncFileMessenger';
 import { SDKRemoteFileSystem } from '../../../../../context/virtual-drive/files/infrastructure/SDKRemoteFileSystem';
 import { DependencyInjectionHttpClientsProvider } from '../../common/clients';
 import { DependencyInjectionEventBus } from '../../common/eventBus';

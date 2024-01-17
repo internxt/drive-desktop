@@ -10,7 +10,11 @@ export class FileSyncNotifierMock implements SyncFileMessenger {
   created(name: string, extension: string): Promise<void> {
     return this.createdMock(name, extension);
   }
-  error(name: string, extension: string, message: string): Promise<void> {
+  errorWhileCreating(
+    name: string,
+    extension: string,
+    message: string
+  ): Promise<void> {
     return this.errorMock(name, extension, message);
   }
   trashing(name: string, type: string, size: number): Promise<void> {

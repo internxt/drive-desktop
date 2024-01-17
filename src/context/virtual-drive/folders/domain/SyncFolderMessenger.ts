@@ -1,7 +1,13 @@
 export interface SyncFolderMessenger {
-  creating(name: string): Promise<void>;
-  created(name: string): Promise<void>;
-  rename(name: string, newName: string): Promise<void>;
-  renamed(name: string, newName: string): Promise<void>;
-  error(name: string, message: string): Promise<void>;
+  creating(desiredName: string): Promise<void>;
+  created(desiredName: string): Promise<void>;
+  errorWhileCreating(desiredName: string, message: string): Promise<void>;
+
+  rename(currentName: string, desiredName: string): Promise<void>;
+  renamed(currentName: string, desiredName: string): Promise<void>;
+  errorWhileRenaming(
+    currentName: string,
+    desiredName: string,
+    message: string
+  ): Promise<void>;
 }

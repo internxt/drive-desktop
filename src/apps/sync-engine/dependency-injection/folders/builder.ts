@@ -1,4 +1,3 @@
-import { NodeWinLocalFileSystem } from '../../../../context/virtual-drive/folders/infrastructure/NodeWinLocalFileSystem';
 import { AllParentFoldersStatusIsExists } from '../../../../context/virtual-drive/folders/application/AllParentFoldersStatusIsExists';
 import { FolderByPartialSearcher } from '../../../../context/virtual-drive/folders/application/FolderByPartialSearcher';
 import { FolderCreatorFromOfflineFolder } from '../../../../context/virtual-drive/folders/application/FolderCreatorFromOfflineFolder';
@@ -20,13 +19,15 @@ import { FolderPlaceholderUpdater } from '../../../../context/virtual-drive/fold
 import { HttpRemoteFileSystem } from '../../../../context/virtual-drive/folders/infrastructure/HttpRemoteFileSystem';
 import { InMemoryFolderRepository } from '../../../../context/virtual-drive/folders/infrastructure/InMemoryFolderRepository';
 import { InMemoryOfflineFolderRepository } from '../../../../context/virtual-drive/folders/infrastructure/InMemoryOfflineFolderRepository';
+import { NodeWinLocalFileSystem } from '../../../../context/virtual-drive/folders/infrastructure/NodeWinLocalFileSystem';
+import { BackgroundProcessSyncFolderMessenger } from '../../../../context/virtual-drive/folders/infrastructure/SyncMessengers/BackgroundProcessSyncFolderMessenger';
+import { ipcRendererSyncEngine } from '../../ipcRendererSyncEngine';
 import { DependencyInjectionHttpClientsProvider } from '../common/clients';
 import { DependencyInjectionEventBus } from '../common/eventBus';
 import { DependencyInjectionEventRepository } from '../common/eventRepository';
 import { DependencyInjectionVirtualDrive } from '../common/virtualDrive';
 import { SharedContainer } from '../shared/SharedContainer';
 import { FoldersContainer } from './FoldersContainer';
-import { MainProcessSyncFolderMessenger } from '../../../../context/virtual-drive/folders/infrastructure/MainProcessSyncFolderMessenger';
 
 export async function buildFoldersContainer(
   shredContainer: SharedContainer
@@ -38,7 +39,9 @@ export async function buildFoldersContainer(
 
   const repository = new InMemoryFolderRepository();
 
-  const syncFolderMessenger = new MainProcessSyncFolderMessenger();
+  const syncFolderMessenger = new BackgroundProcessSyncFolderMessenger(
+    ipcRendererSyncEngine
+  );
 
   const localFileSystem = new NodeWinLocalFileSystem(virtualDrive);
   const remoteFileSystem = new HttpRemoteFileSystem(

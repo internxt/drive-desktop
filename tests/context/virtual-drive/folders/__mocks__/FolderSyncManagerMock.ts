@@ -19,7 +19,7 @@ export class FolderSyncNotifierMock implements SyncFolderMessenger {
   renamed(name: string, newName: string): Promise<void> {
     return this.renamedMock(name, newName);
   }
-  error(): Promise<void> {
+  errorWhileCreating(): Promise<void> {
     return this.errorMock();
   }
 }

@@ -1,13 +1,13 @@
 import {
   trackError,
   trackEvent,
-} from '../../../../apps/main/analytics/service';
-import { addProcessIssue } from '../../../../apps/main/background-processes/process-issues';
-import { setTrayStatus } from '../../../../apps/main/tray/tray';
-import { broadcastToWindows } from '../../../../apps/main/windows';
-import { ProcessIssue } from '../../../../apps/shared/types';
-import { SyncMessenger } from '../../../shared/domain/SyncMessenger';
-import { SyncFileMessenger } from '../domain/SyncFileMessenger';
+} from '../../../../../apps/main/analytics/service';
+import { addProcessIssue } from '../../../../../apps/main/background-processes/process-issues';
+import { setTrayStatus } from '../../../../../apps/main/tray/tray';
+import { broadcastToWindows } from '../../../../../apps/main/windows';
+import { ProcessIssue } from '../../../../../apps/shared/types';
+import { SyncMessenger } from '../../../../shared/domain/SyncMessenger';
+import { SyncFileMessenger } from '../../domain/SyncFileMessenger';
 
 export class MainProcessSyncFileMessenger
   extends SyncMessenger
@@ -22,7 +22,11 @@ export class MainProcessSyncFileMessenger
     });
   }
 
-  async error(name: string, extension: string, message: string): Promise<void> {
+  async errorWhileCreating(
+    name: string,
+    extension: string,
+    message: string
+  ): Promise<void> {
     const nameWithExtension = this.nameWithExtension(name, extension);
 
     setTrayStatus('ALERT');

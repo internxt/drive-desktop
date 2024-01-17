@@ -42,7 +42,10 @@ export class MakeDirectoryCallback extends NotifyFuseCallback {
     } catch (err: unknown) {
       const error = this.resolveError({ path, mode }, err);
 
-      this.container.syncFolderMessenger.error(path, 'unknown error');
+      this.container.syncFolderMessenger.errorWhileCreating(
+        path,
+        'unknown error'
+      );
 
       return this.left(error);
     }
