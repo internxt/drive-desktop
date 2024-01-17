@@ -30,6 +30,7 @@ import './migration/handlers';
 import './config/handlers';
 import './app-info/handlers';
 import './remote-sync/handlers';
+import './virtual-drive';
 
 import { app, nativeTheme } from 'electron';
 import Logger from 'electron-log';

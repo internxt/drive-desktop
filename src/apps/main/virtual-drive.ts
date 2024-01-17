@@ -3,5 +3,5 @@ if (process.platform === 'win32') {
 }
 
 if (process.platform === 'linux') {
-  import('../fuse');
+  import('../fuse/index');
 }
