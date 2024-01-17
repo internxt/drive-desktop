@@ -13,7 +13,7 @@ import { Folder } from '../../../../../context/virtual-drive/folders/domain/Fold
 import { FuseLocalFileSystem } from '../../../../../context/virtual-drive/folders/infrastructure/FuseLocalFileSystem';
 import { HttpRemoteFileSystem } from '../../../../../context/virtual-drive/folders/infrastructure/HttpRemoteFileSystem';
 import { InMemoryFolderRepository } from '../../../../../context/virtual-drive/folders/infrastructure/InMemoryFolderRepository';
-import { MainProcessSyncFolderMessenger } from '../../../../../context/virtual-drive/folders/infrastructure/MainProcessFolderSyncNotifier';
+import { MainProcessSyncFolderMessenger } from '../../../../../context/virtual-drive/folders/infrastructure/MainProcessSyncFolderMessenger';
 import { DependencyInjectionHttpClientsProvider } from '../../common/clients';
 import { DependencyInjectionEventBus } from '../../common/eventBus';
 

@@ -26,7 +26,7 @@ import { DependencyInjectionEventRepository } from '../common/eventRepository';
 import { DependencyInjectionVirtualDrive } from '../common/virtualDrive';
 import { SharedContainer } from '../shared/SharedContainer';
 import { FoldersContainer } from './FoldersContainer';
-import { MainProcessSyncFolderMessenger } from '../../../../context/virtual-drive/folders/infrastructure/MainProcessFolderSyncNotifier';
+import { MainProcessSyncFolderMessenger } from '../../../../context/virtual-drive/folders/infrastructure/MainProcessSyncFolderMessenger';
 
 export async function buildFoldersContainer(
   shredContainer: SharedContainer

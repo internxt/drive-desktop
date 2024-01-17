@@ -22,7 +22,7 @@ import { InMemoryFileRepository } from '../../../../context/virtual-drive/files/
 import { SDKRemoteFileSystem } from '../../../../context/virtual-drive/files/infrastructure/SDKRemoteFileSystem';
 import { NodeWinLocalFileSystem } from '../../../../context/virtual-drive/files/infrastructure/NodeWinLocalFileSystem';
 import { LocalFileIdProvider } from '../../../../context/virtual-drive/shared/application/LocalFileIdProvider';
-import { MainProcessSyncFileMessenger } from '../../../../context/virtual-drive/files/infrastructure/MainProcessFileSyncNotifier';
+import { MainProcessSyncFileMessenger } from '../../../../context/virtual-drive/files/infrastructure/MainProcessSyncFileMessenger';
 
 export async function buildFilesContainer(
   folderContainer: FoldersContainer,
