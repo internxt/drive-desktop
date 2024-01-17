@@ -7,15 +7,13 @@
   "scripts": {
     "electron-rebuild": "node -r ts-node/register ../../.erb/scripts/electron-rebuild.js",
     "link-modules": "node -r ts-node/register ../../.erb/scripts/link-modules.ts",
-    "postinstall": "npm run electron-rebuild --sequential && npm run link-modules",
-    "reload-virtual-drive": "yarn add  --ignore-scripts ../../../node-win && npm run link-modules"
+    "postinstall": "npm run electron-rebuild --sequential && npm run link-modules"
   },
   "dependencies": {
     "@gcas/fuse": "^2.4.2",
     "@rudderstack/rudder-sdk-node": "^1.1.4",
     "better-sqlite3": "^8.3.0",
-    "typeorm": "^0.3.16",
-    "virtual-drive": "../../../node-win"
+    "typeorm": "^0.3.16"
   },
   "license": "MIT"
 }
