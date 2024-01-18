@@ -1,3 +1,4 @@
+// @ts-ignore
 import { VirtualDrive } from 'virtual-drive/dist';
 import { DependencyInjectionLocalRootFolderPath } from './localRootFolderPath';
 import { DependencyInjectionLogEnginePath } from './logEnginePath';

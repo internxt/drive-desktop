@@ -1,5 +1,6 @@
 import Logger from 'electron-log';
 import * as fs from 'fs';
+// @ts-ignore
 import { VirtualDrive } from 'virtual-drive/dist';
 import { FilePlaceholderId } from '../../context/virtual-drive/files/domain/PlaceholderId';
 import { ItemsSearcher } from '../../context/virtual-drive/items/application/ItemsSearcher';
