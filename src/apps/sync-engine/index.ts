@@ -81,5 +81,8 @@ setUp()
   })
   .catch((error) => {
     Logger.error('[SYNC ENGINE] Error setting up', error);
+    if (error.toString().includes('Error: ConnectSyncRoot failed')) {
+      Logger.info('[SYNC ENGINE] We neeed to restart the app virtual drive');
+    }
     ipcRenderer.send('SYNC_ENGINE_PROCESS_SETUP_FAILED');
   });

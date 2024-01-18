@@ -24,6 +24,7 @@ import { SDKRemoteFileSystem } from '../../../../context/virtual-drive/files/inf
 import { NodeWinLocalFileSystem } from '../../../../context/virtual-drive/files/infrastructure/NodeWinLocalFileSystem';
 import { LocalFileIdProvider } from '../../../../context/virtual-drive/shared/application/LocalFileIdProvider';
 import { DependencyInjectionHttpClientsProvider } from '../common/clients';
+import { FileFolderContainerDetector } from '../../../../context/virtual-drive/files/application/FileFolderContainerDetector';
 
 export async function buildFilesContainer(
   folderContainer: FoldersContainer,
@@ -61,6 +62,11 @@ export async function buildFilesContainer(
     repository,
     folderContainer.allParentFoldersStatusIsExists,
     ipcRendererSyncEngine
+  );
+
+  const fileFolderContainerDetector = new FileFolderContainerDetector(
+    repository,
+    folderContainer.folderFinder
   );
 
   const sameFileWasMoved = new SameFileWasMoved(
@@ -120,6 +126,7 @@ export async function buildFilesContainer(
     fileDeleter,
     filePathUpdater,
     fileCreator,
+    fileFolderContainerDetector,
     filePlaceholderCreatorFromContentsId: filePlaceholderCreatorFromContentsId,
     createFilePlaceholderOnDeletionFailed:
       createFilePlaceholderOnDeletionFailed,

@@ -20,26 +20,29 @@ export class DelayQueue {
     }
   }
 
-  private setTimeout() {
+  private setTimeout(delay = DelayQueue.DELAY) {
     this.clearTimeout();
     this.timeout = setTimeout(async () => {
       Logger.debug('Will try to run delay queue for: ', this.name);
       if (this.canLoop()) {
         Logger.debug('Running delay queue for: ', this.name);
-
         const reversedItems = Array.from(this.queue.entries()).reverse();
-
-        for (const [item] of reversedItems) {
-          await this.fn(item);
-          this.queue.delete(item);
+        await this.executeFn(reversedItems[0][0]);
+        if (!this.isEmpty) {
+          Logger.debug('Restarting delay queue is not empty');
+          this.setTimeout(500);
         }
-
         return;
       }
 
       Logger.debug(this.name, 'delay queue blocked');
       this.setTimeout();
-    }, DelayQueue.DELAY);
+    }, delay);
+  }
+
+  private async executeFn(item: string) {
+    this.queue.delete(item);
+    await this.fn(item);
   }
 
   push(value: string) {
@@ -55,5 +58,17 @@ export class DelayQueue {
   clear() {
     this.clearTimeout();
     this.queue.clear();
+  }
+
+  removeOne(value: string) {
+    this.queue.delete(value);
+  }
+
+  get values(): string[] {
+    return Array.from(this.queue.keys());
+  }
+
+  get isEmpty(): boolean {
+    return this.queue.size === 0;
   }
 }

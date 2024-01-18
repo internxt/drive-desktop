@@ -25,4 +25,12 @@ export class FolderFinder {
 
     return folder;
   }
+
+  findFromId(id: Folder['id'] | undefined): Folder {
+    const folder = this.repository.searchByPartial({ id });
+    if (!folder) {
+      throw new Error('Folder not found');
+    }
+    return folder;
+  }
 }

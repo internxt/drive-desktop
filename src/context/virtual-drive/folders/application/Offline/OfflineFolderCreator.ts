@@ -3,6 +3,7 @@ import { OfflineFolder } from '../../domain/OfflineFolder';
 import { OfflineFolderRepository } from '../../domain/OfflineFolderRepository';
 import { FolderFinder } from '../FolderFinder';
 import { FolderRepository } from '../../domain/FolderRepository';
+import { FolderStatuses } from '../../domain/FolderStatus';
 
 export class OfflineFolderCreator {
   constructor(
@@ -16,6 +17,7 @@ export class OfflineFolderCreator {
 
     const onlineFolder = this.repository.searchByPartial({
       path: folderPath.value,
+      status: FolderStatuses.EXISTS,
     });
 
     if (onlineFolder) {

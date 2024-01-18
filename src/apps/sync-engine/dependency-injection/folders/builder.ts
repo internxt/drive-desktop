@@ -27,6 +27,8 @@ import { DependencyInjectionEventRepository } from '../common/eventRepository';
 import { DependencyInjectionVirtualDrive } from '../common/virtualDrive';
 import { SharedContainer } from '../shared/SharedContainer';
 import { FoldersContainer } from './FoldersContainer';
+import { RetryFolderDeleter } from '../../../../context/virtual-drive/folders/application/RetryFolderDeleter';
+import { FolderContainerDetector } from '../../../../context/virtual-drive/folders/application/FolderContainerDetector';
 
 export async function buildFoldersContainer(
   shredContainer: SharedContainer
@@ -56,6 +58,8 @@ export async function buildFoldersContainer(
     localFileSystem,
     allParentFoldersStatusIsExists
   );
+
+  const retryFolderDeleter = new RetryFolderDeleter(folderDeleter);
 
   const folderCreator = new FolderCreator(
     repository,
@@ -124,12 +128,16 @@ export async function buildFoldersContainer(
     shredContainer.relativePathToAbsoluteConverter
   );
 
+  const folderContainerDetector = new FolderContainerDetector(repository);
+
   return {
     folderCreator,
     folderFinder,
     folderDeleter,
+    retryFolderDeleter,
     allParentFoldersStatusIsExists: allParentFoldersStatusIsExists,
     folderPathUpdater,
+    folderContainerDetector,
     folderByPartialSearcher,
     synchronizeOfflineModificationsOnFolderCreated,
     offline: {

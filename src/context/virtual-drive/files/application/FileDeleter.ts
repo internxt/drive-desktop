@@ -65,7 +65,7 @@ export class FileDeleter {
       );
 
       const message = error instanceof Error ? error.message : 'Unknown error';
-
+      this.local.createPlaceHolder(file);
       this.ipc.send('FILE_DELETION_ERROR', {
         name: file.name,
         extension: file.type,
@@ -80,8 +80,6 @@ export class FileDeleter {
         errorName: 'BAD_RESPONSE',
         process: 'SYNC',
       });
-
-      this.local.createPlaceHolder(file);
     }
   }
 }
