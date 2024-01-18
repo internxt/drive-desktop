@@ -23,9 +23,6 @@ export class FolderPathUpdater {
 
     const desiredPath = new FolderPath(posixRelativePath);
 
-    Logger.debug('desired path', desiredPath);
-    Logger.debug('folder', folder.attributes());
-
     const dirnameChanged = folder.dirname !== desiredPath.dirname();
     const nameChanged = folder.name !== desiredPath.name();
 

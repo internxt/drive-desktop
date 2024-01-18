@@ -1,7 +1,9 @@
+import { Either, left } from '../../../context/shared/domain/Either';
 import { OfflineDriveDependencyContainer } from '../dependency-injection/offline/OfflineDriveDependencyContainer';
 import { VirtualDriveDependencyContainer } from '../dependency-injection/virtual-drive/VirtualDriveDependencyContainer';
 import { FuseCallback } from './FuseCallback';
-import { NoSuchFileOrDirectoryError } from './FuseErrors';
+import { FuseError, NoSuchFileOrDirectoryError } from './FuseErrors';
+import Logger from 'electron-log';
 
 type GetAttributesCallbackData = {
   mode: number;
@@ -20,6 +22,15 @@ export class GetAttributesCallback extends FuseCallback<GetAttributesCallbackDat
     private readonly offlineDriveContainer: OfflineDriveDependencyContainer
   ) {
     super('Get Attributes');
+  }
+
+  protected left(
+    error: FuseError
+  ): Either<FuseError, GetAttributesCallbackData> {
+    // When the OS wants to check if a node exists will try to get the attributes of it
+    // so not founding them is not an error
+    Logger.info(`Attributes of ${this.name}:.`, error.description);
+    return left(error);
   }
 
   async execute(path: string) {

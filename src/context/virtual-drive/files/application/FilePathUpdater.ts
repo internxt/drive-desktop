@@ -61,6 +61,7 @@ export class FilePathUpdater {
       if (file.nameWithExtension !== destination.nameWithExtension()) {
         throw new ActionNotPermittedError('rename and change folder');
       }
+
       await this.move(file, destination);
       return;
     }

@@ -325,9 +325,8 @@ export class RemoteSyncManager {
         : undefined,
     };
 
-    Logger.info(
-      `Requesting files with params ${JSON.stringify(params, null, 2)}`
-    );
+    Logger.info('Requesting files');
+
     const response = await this.config.httpClient.get(
       `${process.env.NEW_DRIVE_URL}/drive/files`,
       {
