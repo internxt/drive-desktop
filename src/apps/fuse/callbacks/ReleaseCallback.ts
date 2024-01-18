@@ -1,6 +1,6 @@
 import { OfflineDriveDependencyContainer } from '../dependency-injection/offline/OfflineDriveDependencyContainer';
 import { NotifyFuseCallback } from './FuseCallback';
-import { IOError } from './FuseErrors';
+import { FuseIOError } from './FuseErrors';
 
 export class ReleaseCallback extends NotifyFuseCallback {
   constructor(private readonly container: OfflineDriveDependencyContainer) {
@@ -20,14 +20,14 @@ export class ReleaseCallback extends NotifyFuseCallback {
     } catch (err: unknown) {
       if (err instanceof Error) {
         return this.left(
-          new IOError(
+          new FuseIOError(
             `${err.message} when uploading ${path} and with flag: ${fd}`
           )
         );
       }
 
       return this.left(
-        new IOError(`Error when uploading ${path} with flag ${fd}: ${err}`)
+        new FuseIOError(`Error when uploading ${path} with flag ${fd}: ${err}`)
       );
     }
   }

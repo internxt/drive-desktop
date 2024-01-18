@@ -1,43 +1,43 @@
-import { File } from '../../../context/virtual-drive/files/domain/File';
 import { VirtualDriveDependencyContainer } from '../dependency-injection/virtual-drive/VirtualDriveDependencyContainer';
-import { Folder } from '../../../context/virtual-drive/folders/domain/Folder';
 import { NotifyFuseCallback } from './FuseCallback';
-import { NoSuchFileOrDirectoryError } from './FuseErrors';
+import { FuseError, FuseNoSuchFileOrDirectoryError } from './FuseErrors';
+import { RenameOrMoveFile } from './RenameOrMoveFile';
+import { RenameOrMoveFolder } from './RenameOrMoveFolder';
 
 export class RenameOrMoveCallback extends NotifyFuseCallback {
-  constructor(private readonly container: VirtualDriveDependencyContainer) {
+  private readonly updateFile: RenameOrMoveFile;
+  private readonly updateFolder: RenameOrMoveFolder;
+
+  constructor(container: VirtualDriveDependencyContainer) {
     super('Rename Or Move');
-  }
 
-  private async findFile(path: string): Promise<File | undefined> {
-    const file = await this.container.filesSearcher.run({ path });
-
-    return file;
-  }
-
-  private async findFolder(path: string): Promise<Folder | undefined> {
-    const folder = await this.container.folderSearcher.run({ path });
-
-    return folder;
+    this.updateFile = new RenameOrMoveFile(container);
+    this.updateFolder = new RenameOrMoveFolder(container);
   }
 
   async execute(src: string, dest: string) {
-    const file = await this.findFile(src);
+    const fileResult = await this.updateFile.execute(src, dest);
 
-    if (file) {
-      await this.container.filePathUpdater.run(file.contentsId, dest);
+    if (fileResult instanceof FuseError) {
+      return this.left(fileResult);
+    }
+
+    if (fileResult === 'success') {
       return this.right();
     }
 
-    const folder = await this.findFolder(src);
+    const folderResult = await this.updateFolder.execute(src, dest);
 
-    if (folder) {
-      await this.container.folderPathUpdater.run(folder.uuid, dest);
+    if (folderResult instanceof FuseError) {
+      return this.left(folderResult);
+    }
+
+    if (folderResult === 'success') {
       return this.right();
     }
 
     return this.left(
-      new NoSuchFileOrDirectoryError(
+      new FuseNoSuchFileOrDirectoryError(
         `File or folder not found when trying to change a path, src: ${src}, dest: ${dest}`
       )
     );

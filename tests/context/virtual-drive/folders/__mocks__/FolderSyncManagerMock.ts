@@ -5,7 +5,8 @@ export class FolderSyncNotifierMock implements SyncFolderMessenger {
   public createdMock = jest.fn();
   public renameMock = jest.fn();
   public renamedMock = jest.fn();
-  public errorMock = jest.fn();
+  public errorWhileCreatingMock = jest.fn();
+  public errorWhileRenamingMock = jest.fn();
 
   creating(name: string): Promise<void> {
     return this.creatingMock(name);
@@ -20,6 +21,13 @@ export class FolderSyncNotifierMock implements SyncFolderMessenger {
     return this.renamedMock(name, newName);
   }
   errorWhileCreating(): Promise<void> {
-    return this.errorMock();
+    return this.errorWhileCreatingMock();
+  }
+  errorWhileRenaming(
+    currentName: string,
+    desiredName: string,
+    message: string
+  ): Promise<void> {
+    return this.errorWhileRenamingMock(currentName, desiredName, message);
   }
 }

@@ -2,10 +2,10 @@ import { FolderAlreadyExists } from '../../../context/virtual-drive/folders/doma
 import { VirtualDriveDependencyContainer } from '../dependency-injection/virtual-drive/VirtualDriveDependencyContainer';
 import { NotifyFuseCallback } from './FuseCallback';
 import {
-  FileOrDirectoryAlreadyExistsError,
+  FuseFileOrDirectoryAlreadyExistsError,
   FuseError,
-  IOError,
-  InvalidArgumentError,
+  FuseIOError,
+  FuseInvalidArgumentError,
 } from './FuseErrors';
 import { FolderNotFoundError } from '../../../context/virtual-drive/folders/domain/errors/FolderNotFoundError';
 
@@ -19,13 +19,13 @@ export class MakeDirectoryCallback extends NotifyFuseCallback {
     err: unknown
   ): FuseError {
     if (err instanceof FolderAlreadyExists) {
-      return new FileOrDirectoryAlreadyExistsError(input.path);
+      return new FuseFileOrDirectoryAlreadyExistsError(input.path);
     }
     if (err instanceof FolderNotFoundError) {
-      return new InvalidArgumentError(input.path);
+      return new FuseInvalidArgumentError(input.path);
     }
 
-    return new IOError(
+    return new FuseIOError(
       `Unknown error while creating the folder: ${input.path}`
     );
   }

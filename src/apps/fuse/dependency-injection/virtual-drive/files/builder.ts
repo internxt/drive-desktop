@@ -103,7 +103,7 @@ export async function buildFilesContainer(
     fileCreator,
     fileDeleter,
     repositoryPopulator,
-
+    syncFileMessenger,
     // event handlers
     createFileOnOfflineFileUploaded,
   };

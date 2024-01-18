@@ -12,4 +12,11 @@ export interface SyncFileMessenger {
     extension: string,
     message: string
   ): Promise<void>;
+  renaming(current: string, desired: string): Promise<void>;
+  renamed(current: string, desired: string): Promise<void>;
+  errorWhileRenaming(
+    current: string,
+    desired: string,
+    message: string
+  ): Promise<void>;
 }

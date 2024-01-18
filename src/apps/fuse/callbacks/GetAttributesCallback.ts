@@ -2,7 +2,7 @@ import { Either, left } from '../../../context/shared/domain/Either';
 import { OfflineDriveDependencyContainer } from '../dependency-injection/offline/OfflineDriveDependencyContainer';
 import { VirtualDriveDependencyContainer } from '../dependency-injection/virtual-drive/VirtualDriveDependencyContainer';
 import { FuseCallback } from './FuseCallback';
-import { FuseError, NoSuchFileOrDirectoryError } from './FuseErrors';
+import { FuseError, FuseNoSuchFileOrDirectoryError } from './FuseErrors';
 import Logger from 'electron-log';
 
 type GetAttributesCallbackData = {
@@ -84,7 +84,7 @@ export class GetAttributesCallback extends FuseCallback<GetAttributesCallbackDat
     }
 
     return this.left(
-      new NoSuchFileOrDirectoryError(
+      new FuseNoSuchFileOrDirectoryError(
         `"${path}" not founded on when retrieving it's attributes`
       )
     );

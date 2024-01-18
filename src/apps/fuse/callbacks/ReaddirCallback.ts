@@ -1,6 +1,6 @@
 import { VirtualDriveDependencyContainer } from '../dependency-injection/virtual-drive/VirtualDriveDependencyContainer';
 import { FuseCallback } from './FuseCallback';
-import { NoSuchFileOrDirectoryError } from './FuseErrors';
+import { FuseNoSuchFileOrDirectoryError } from './FuseErrors';
 
 export class ReaddirCallback extends FuseCallback<Array<string>> {
   constructor(private readonly container: VirtualDriveDependencyContainer) {
@@ -23,7 +23,7 @@ export class ReaddirCallback extends FuseCallback<Array<string>> {
       return this.right(['.', '..', ...filesNames, ...foldersNames]);
     } catch (error) {
       return this.left(
-        new NoSuchFileOrDirectoryError(
+        new FuseNoSuchFileOrDirectoryError(
           'Could not retrieve the files and folder of the system'
         )
       );

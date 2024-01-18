@@ -1,3 +1,4 @@
+import path from 'path';
 import { SyncEngineIpc } from '../../../../../apps/sync-engine/ipcRendererSyncEngine';
 import { SyncMessenger } from '../../../../shared/domain/SyncMessenger';
 import { SyncFileMessenger } from '../../domain/SyncFileMessenger';
@@ -9,7 +10,6 @@ export class BackgroundProcessSyncFileMessenger
   constructor(private readonly ipc: SyncEngineIpc) {
     super();
   }
-
   async created(name: string, extension: string): Promise<void> {
     this.ipc.send('FILE_CREATED', {
       name,
@@ -58,6 +58,37 @@ export class BackgroundProcessSyncFileMessenger
       name,
       extension,
       nameWithExtension: this.nameWithExtension(name, extension),
+      error: message,
+    });
+  }
+
+  async renaming(current: string, desired: string): Promise<void> {
+    this.ipc.send('FILE_RENAMING', {
+      oldName: current,
+      nameWithExtension: desired,
+    });
+  }
+
+  async renamed(current: string, desired: string): Promise<void> {
+    this.ipc.send('FILE_RENAMED', {
+      oldName: current,
+      nameWithExtension: desired,
+    });
+  }
+
+  async errorWhileRenaming(
+    current: string,
+    _desired: string,
+    message: string
+  ): Promise<void> {
+    const extension = path.extname(current);
+
+    const name = current.replace(`.${extension}`, '');
+
+    this.ipc.send('FILE_RENAME_ERROR', {
+      name,
+      extension,
+      nameWithExtension: current,
       error: message,
     });
   }

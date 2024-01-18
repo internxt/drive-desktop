@@ -1,7 +1,7 @@
 import { VirtualDriveDependencyContainer } from '../dependency-injection/virtual-drive/VirtualDriveDependencyContainer';
 import Logger from 'electron-log';
 import { FuseCallback } from './FuseCallback';
-import { IOError, NoSuchFileOrDirectoryError } from './FuseErrors';
+import { FuseIOError, FuseNoSuchFileOrDirectoryError } from './FuseErrors';
 
 export class OpenCallback extends FuseCallback<number> {
   constructor(private readonly container: VirtualDriveDependencyContainer) {
@@ -13,7 +13,7 @@ export class OpenCallback extends FuseCallback<number> {
 
     if (!file) {
       return this.left(
-        new NoSuchFileOrDirectoryError(
+        new FuseNoSuchFileOrDirectoryError(
           `${path} not founded on when trying to open it`
         )
       );
@@ -39,11 +39,13 @@ export class OpenCallback extends FuseCallback<number> {
       Logger.error('Error downloading file: ', err);
 
       if (err instanceof Error) {
-        return this.left(new IOError(`${err.message} when opening ${path}`));
+        return this.left(
+          new FuseIOError(`${err.message} when opening ${path}`)
+        );
       }
 
       return this.left(
-        new IOError(`unknown error when opening ${path}: ${err}`)
+        new FuseIOError(`unknown error when opening ${path}: ${err}`)
       );
     }
   }

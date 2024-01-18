@@ -93,4 +93,36 @@ export class MainProcessSyncFileMessenger
 
     addProcessIssue(issue);
   }
+
+  async renaming(current: string, desired: string): Promise<void> {
+    broadcastToWindows('sync-info-update', {
+      action: 'RENAMING',
+      name: desired,
+      oldName: current,
+    });
+
+    setTrayStatus('SYNCING');
+  }
+
+  async renamed(_current: string, desired: string): Promise<void> {
+    broadcastToWindows('sync-info-update', {
+      action: 'RENAMED',
+      name: desired,
+    });
+
+    setTrayStatus('IDLE');
+  }
+
+  async errorWhileRenaming(
+    current: string,
+    _desired: string,
+    _message: string
+  ): Promise<void> {
+    broadcastToWindows('sync-info-update', {
+      action: 'RENAME_ERROR',
+      name: current,
+    });
+
+    setTrayStatus('ALERT');
+  }
 }

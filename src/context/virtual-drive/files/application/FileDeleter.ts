@@ -44,7 +44,7 @@ export class FileDeleter {
       file.trash();
 
       await this.remote.trash(file.contentsId);
-      await this.repository.delete(file.contentsId);
+      await this.repository.update(file);
       await this.notifier.trashed(file.name, file.type, file.size);
     } catch (error: unknown) {
       Logger.error(

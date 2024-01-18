@@ -1,6 +1,6 @@
 import { VirtualDriveDependencyContainer } from '../dependency-injection/virtual-drive/VirtualDriveDependencyContainer';
 import { NotifyFuseCallback } from './FuseCallback';
-import { IOError, NoSuchFileOrDirectoryError } from './FuseErrors';
+import { FuseIOError, FuseNoSuchFileOrDirectoryError } from './FuseErrors';
 
 export class TrashFolderCallback extends NotifyFuseCallback {
   constructor(private readonly container: VirtualDriveDependencyContainer) {
@@ -12,7 +12,7 @@ export class TrashFolderCallback extends NotifyFuseCallback {
 
     if (!folder) {
       return this.left(
-        new NoSuchFileOrDirectoryError(
+        new FuseNoSuchFileOrDirectoryError(
           `folder not found when trying to delete it ${path}`
         )
       );
@@ -24,11 +24,13 @@ export class TrashFolderCallback extends NotifyFuseCallback {
       return this.right();
     } catch (err: unknown) {
       if (err instanceof Error) {
-        return this.left(new IOError(`${err.message} when trashing ${path}`));
+        return this.left(
+          new FuseIOError(`${err.message} when trashing ${path}`)
+        );
       }
 
       return this.left(
-        new IOError(`error when trying to trash the folder ${path}: ${err}`)
+        new FuseIOError(`error when trying to trash the folder ${path}: ${err}`)
       );
     }
   }
