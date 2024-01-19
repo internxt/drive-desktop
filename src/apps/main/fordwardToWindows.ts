@@ -1,8 +1,7 @@
 import { broadcastToWindows } from './windows';
-import { ipcMainDrive } from './ipcs/mainDrive';
-import { FileErrorInfo } from '../shared/IPC/events/drive';
+import { MainVirtualDriveIPC } from './ipcs/VirtualDriveIPC';
 
-ipcMainDrive.on('FILE_DELETED', (_, payload) => {
+MainVirtualDriveIPC.on('FILE_DELETED', (_, payload) => {
   const { nameWithExtension } = payload;
 
   broadcastToWindows('sync-info-update', {
@@ -11,7 +10,7 @@ ipcMainDrive.on('FILE_DELETED', (_, payload) => {
   });
 });
 
-ipcMainDrive.on('FILE_DOWNLOADING', (_, payload) => {
+MainVirtualDriveIPC.on('FILE_DOWNLOADING', (_, payload) => {
   const { nameWithExtension, processInfo } = payload;
 
   broadcastToWindows('sync-info-update', {
@@ -21,7 +20,7 @@ ipcMainDrive.on('FILE_DOWNLOADING', (_, payload) => {
   });
 });
 
-ipcMainDrive.on('FILE_DOWNLOADED', (_, payload) => {
+MainVirtualDriveIPC.on('FILE_DOWNLOADED', (_, payload) => {
   const { nameWithExtension } = payload;
 
   broadcastToWindows('sync-info-update', {
@@ -30,7 +29,7 @@ ipcMainDrive.on('FILE_DOWNLOADED', (_, payload) => {
   });
 });
 
-ipcMainDrive.on('FILE_MOVED', (_, payload) => {
+MainVirtualDriveIPC.on('FILE_MOVED', (_, payload) => {
   const { nameWithExtension } = payload;
 
   broadcastToWindows('sync-info-update', {
@@ -39,16 +38,7 @@ ipcMainDrive.on('FILE_MOVED', (_, payload) => {
   });
 });
 
-ipcMainDrive.on('FILE_OVERWRITED', (_, payload) => {
-  const { nameWithExtension } = payload;
-
-  broadcastToWindows('sync-info-update', {
-    action: 'MOVED',
-    name: nameWithExtension,
-  });
-});
-
-ipcMainDrive.on('FILE_RENAMING', (_, payload) => {
+MainVirtualDriveIPC.on('FILE_RENAMING', (_, payload) => {
   const { nameWithExtension, oldName } = payload;
 
   broadcastToWindows('sync-info-update', {
@@ -58,7 +48,7 @@ ipcMainDrive.on('FILE_RENAMING', (_, payload) => {
   });
 });
 
-ipcMainDrive.on('FILE_RENAMED', (_, payload) => {
+MainVirtualDriveIPC.on('FILE_RENAMED', (_, payload) => {
   const { nameWithExtension } = payload;
 
   broadcastToWindows('sync-info-update', {
@@ -67,16 +57,7 @@ ipcMainDrive.on('FILE_RENAMED', (_, payload) => {
   });
 });
 
-ipcMainDrive.on('FILE_CLONNED', (_, payload) => {
-  const { nameWithExtension } = payload;
-
-  broadcastToWindows('sync-info-update', {
-    action: 'UPLOADED',
-    name: nameWithExtension,
-  });
-});
-
-ipcMainDrive.on('FILE_UPLOADING', (_, payload) => {
+MainVirtualDriveIPC.on('FILE_UPLOADING', (_, payload) => {
   const { nameWithExtension, processInfo } = payload;
 
   broadcastToWindows('sync-info-update', {
@@ -86,7 +67,7 @@ ipcMainDrive.on('FILE_UPLOADING', (_, payload) => {
   });
 });
 
-ipcMainDrive.on('FILE_CREATED', (_, payload) => {
+MainVirtualDriveIPC.on('FILE_CREATED', (_, payload) => {
   const { nameWithExtension } = payload;
 
   broadcastToWindows('sync-info-update', {
@@ -95,7 +76,7 @@ ipcMainDrive.on('FILE_CREATED', (_, payload) => {
   });
 });
 
-ipcMainDrive.on('FILE_UPLOAD_ERROR', (_, payload) => {
+MainVirtualDriveIPC.on('FILE_UPLOAD_ERROR', (_, payload) => {
   const { nameWithExtension } = payload;
 
   broadcastToWindows('sync-info-update', {
@@ -104,7 +85,7 @@ ipcMainDrive.on('FILE_UPLOAD_ERROR', (_, payload) => {
   });
 });
 
-ipcMainDrive.on('FILE_DOWNLOAD_ERROR', (_, payload) => {
+MainVirtualDriveIPC.on('FILE_DOWNLOAD_ERROR', (_, payload) => {
   const { nameWithExtension } = payload;
 
   broadcastToWindows('sync-info-update', {
@@ -113,7 +94,7 @@ ipcMainDrive.on('FILE_DOWNLOAD_ERROR', (_, payload) => {
   });
 });
 
-ipcMainDrive.on('FILE_RENAME_ERROR', (_, payload) => {
+MainVirtualDriveIPC.on('FILE_RENAME_ERROR', (_, payload) => {
   const { nameWithExtension } = payload;
 
   broadcastToWindows('sync-info-update', {
@@ -122,7 +103,7 @@ ipcMainDrive.on('FILE_RENAME_ERROR', (_, payload) => {
   });
 });
 
-ipcMainDrive.on('FILE_DELETION_ERROR', (_, payload: FileErrorInfo) => {
+MainVirtualDriveIPC.on('FILE_DELETION_ERROR', (_, payload) => {
   const { nameWithExtension } = payload;
 
   broadcastToWindows('sync-info-update', {

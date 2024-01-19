@@ -1,77 +1,69 @@
-import { ipcMainDrive } from '../ipcs/mainDrive';
+import { MainVirtualDriveIPC } from '../ipcs/VirtualDriveIPC';
 import { setTrayStatus } from './tray';
 
-ipcMainDrive.on('FOLDER_CREATING', () => {
+MainVirtualDriveIPC.on('FOLDER_CREATING', () => {
   setTrayStatus('SYNCING');
 });
 
-ipcMainDrive.on('FOLDER_CREATED', () => {
+MainVirtualDriveIPC.on('FOLDER_CREATED', () => {
   setTrayStatus('IDLE');
 });
 
-ipcMainDrive.on('FOLDER_RENAMING', () => {
+MainVirtualDriveIPC.on('FOLDER_RENAMING', () => {
   setTrayStatus('SYNCING');
 });
 
-ipcMainDrive.on('FOLDER_RENAMED', () => {
+MainVirtualDriveIPC.on('FOLDER_RENAMED', () => {
   setTrayStatus('IDLE');
 });
 
-ipcMainDrive.on('FILE_DELETING', () => {
+MainVirtualDriveIPC.on('FILE_DELETING', () => {
   setTrayStatus('SYNCING');
 });
-ipcMainDrive.on('FILE_DELETED', () => {
+MainVirtualDriveIPC.on('FILE_DELETED', () => {
   setTrayStatus('IDLE');
 });
 
-ipcMainDrive.on('FILE_DOWNLOADING', () => {
-  setTrayStatus('SYNCING');
-});
-
-ipcMainDrive.on('FILE_DOWNLOADED', () => {
-  setTrayStatus('IDLE');
-});
-
-ipcMainDrive.on('FILE_MOVED', () => {
-  setTrayStatus('IDLE');
-});
-
-ipcMainDrive.on('FILE_OVERWRITED', () => {
-  setTrayStatus('IDLE');
-});
-
-ipcMainDrive.on('FILE_RENAMING', () => {
+MainVirtualDriveIPC.on('FILE_DOWNLOADING', () => {
   setTrayStatus('SYNCING');
 });
 
-ipcMainDrive.on('FILE_RENAMED', () => {
+MainVirtualDriveIPC.on('FILE_DOWNLOADED', () => {
   setTrayStatus('IDLE');
 });
 
-ipcMainDrive.on('FILE_CLONNED', () => {
+MainVirtualDriveIPC.on('FILE_MOVED', () => {
   setTrayStatus('IDLE');
 });
 
-ipcMainDrive.on('FILE_UPLOADING', () => {
+MainVirtualDriveIPC.on('FILE_RENAMING', () => {
   setTrayStatus('SYNCING');
 });
 
-ipcMainDrive.on('FILE_UPLOADED', () => {
+MainVirtualDriveIPC.on('FILE_RENAMED', () => {
   setTrayStatus('IDLE');
 });
 
-ipcMainDrive.on('FILE_UPLOAD_ERROR', () => {
+MainVirtualDriveIPC.on('FILE_UPLOADING', () => {
+  setTrayStatus('SYNCING');
+});
+
+MainVirtualDriveIPC.on('FILE_UPLOADED', () => {
+  setTrayStatus('IDLE');
+});
+
+MainVirtualDriveIPC.on('FILE_UPLOAD_ERROR', () => {
   setTrayStatus('ALERT');
 });
 
-ipcMainDrive.on('FILE_DOWNLOAD_ERROR', () => {
+MainVirtualDriveIPC.on('FILE_DOWNLOAD_ERROR', () => {
   setTrayStatus('ALERT');
 });
 
-ipcMainDrive.on('FILE_RENAME_ERROR', () => {
+MainVirtualDriveIPC.on('FILE_RENAME_ERROR', () => {
   setTrayStatus('ALERT');
 });
 
-ipcMainDrive.on('FILE_DELETION_ERROR', () => {
+MainVirtualDriveIPC.on('FILE_DELETION_ERROR', () => {
   setTrayStatus('ALERT');
 });

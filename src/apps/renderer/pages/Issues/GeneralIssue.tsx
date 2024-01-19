@@ -7,7 +7,7 @@ import FileIcon from '../../assets/file.svg';
 import WarnIcon from '../../assets/warn.svg';
 import { AppErrorName } from '../../../../shared/issues/AppIssue';
 
-export function AppIssue({
+export function AppIssueElement({
   issues,
   isSelected,
   errorName,

@@ -143,6 +143,4 @@ export type FromProcess = FilesEvents &
   FolderEvents &
   SyncEngineInvocableFunctions;
 
-export type FromMain = {
-  [key: string]: (...args: Array<any>) => any;
-};
+export type FromMain = FilesEvents & FolderEvents;

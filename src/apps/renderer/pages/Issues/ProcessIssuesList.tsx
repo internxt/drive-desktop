@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { AppIssue, ProcessErrorName } from '../../../shared/types';
 import { Issue } from './Issue';
-import { AppIssue } from './GeneralIssue';
 import { NoIssues } from './NoIssues';
 import { Section } from './Section';
 import { AppErrorName } from '../../../../shared/issues/AppIssue';
 import { VirtualDriveIssue } from '../../../../shared/issues/VirtualDriveIssue';
+import { AppIssueElement } from './GeneralIssue';
 
 type ProcessIssuesListProps = {
   selectedTab: Section;
@@ -29,7 +29,7 @@ export default function ProcessIssuesList({
         const error = issue.errorName;
 
         return (
-          <AppIssue
+          <AppIssueElement
             onClick={() =>
               selectedErrorName === error
                 ? setSelectedErrorName(null)
