@@ -1,5 +1,5 @@
 import { SyncStatus } from '../../../../context/desktop/sync/domain/SyncStatus';
-import { ProcessFatalErrorName } from '../../../shared/types';
+import { ProcessFatalErrorName } from '../../../../shared/issues/VirtualDriveIssue';
 import Error from '../../assets/error.svg';
 import Warn from '../../assets/warn.svg';
 import { useTranslationContext } from '../../context/LocalContext';
@@ -20,7 +20,7 @@ const fatalErrorActionMap: Record<
       }
     },
   },
-  INSUFICIENT_PERMISION_ACCESSING_BASE_DIRECTORY: {
+  INSUFFICIENT_PERMISSION_ACCESSING_BASE_DIRECTORY: {
     name: 'Change folder',
     func: async () => {
       const result = await window.electron.chooseSyncRootWithDialog();

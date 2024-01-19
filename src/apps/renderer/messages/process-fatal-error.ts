@@ -1,4 +1,4 @@
-import { ProcessFatalErrorName } from '../../shared/types';
+import { ProcessFatalErrorName } from '../../../shared/issues/VirtualDriveIssue';
 
 const messages: Record<ProcessFatalErrorName, string> = {
   NO_INTERNET: 'issues.error-messages.no-internet',
@@ -7,8 +7,8 @@ const messages: Record<ProcessFatalErrorName, string> = {
     'issues.error-messages.cannot-get-current-listings',
   BASE_DIRECTORY_DOES_NOT_EXIST:
     'issues.error-messages.base-directory-does-not-exist',
-  INSUFICIENT_PERMISION_ACCESSING_BASE_DIRECTORY:
-    'issues.error-messages.insuficient-permision-accessing-base-directory',
+  INSUFFICIENT_PERMISSION_ACCESSING_BASE_DIRECTORY:
+    'issues.error-messages.insufficient-permission-accessing-base-directory',
   CANNOT_ACCESS_BASE_DIRECTORY:
     'issues.error-messages.cannot-access-base-directory',
   CANNOT_ACCESS_TMP_DIRECTORY:

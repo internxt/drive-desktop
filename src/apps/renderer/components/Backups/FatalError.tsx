@@ -1,4 +1,4 @@
-import { ProcessFatalErrorName } from '../../../shared/types';
+import { ProcessFatalErrorName } from '../../../../shared/issues/VirtualDriveIssue';
 import ErrorIcon from '../../assets/error.svg';
 import { useTranslationContext } from '../../context/LocalContext';
 import messages from '../../messages/process-fatal-error';

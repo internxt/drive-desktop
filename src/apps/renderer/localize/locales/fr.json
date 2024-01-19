@@ -322,7 +322,7 @@
       "no-remote-connection": "Nous n'avons pas pu nous connecter aux serveurs Internxt, nous réessayerons plus tard",
       "cannot-get-current-listings": "Nous n'avons pas pu obtenir l'état de vos fichiers actuels, nous réessayerons plus tard",
       "base-directory-does-not-exist": "Impossible de trouver votre dossier de synchronisation",
-      "insuficient-permision-accessing-base-directory": "Internxt App n'a pas la permission d'accéder à votre dossier de synchronisation",
+      "insufficient-permission-accessing-base-directory": "Internxt App n'a pas la permission d'accéder à votre dossier de synchronisation",
       "cannot-access-base-directory": "Nous n'avons pas pu accéder à votre dossier local",
       "cannot-access-tmp-directory": "Nous n'avons pas pu accéder à votre dossier local",
       "unknown": "Une erreur inconnue s'est produite lors de la synchronisation de vos fichiers",

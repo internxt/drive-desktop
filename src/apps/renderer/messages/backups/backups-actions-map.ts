@@ -1,4 +1,4 @@
-import { ProcessFatalErrorName } from '../../../shared/types';
+import { ProcessFatalErrorName } from '../../../../shared/issues/VirtualDriveIssue';
 
 export type FaltalErrorAction = { name: string; fn: () => void };
 

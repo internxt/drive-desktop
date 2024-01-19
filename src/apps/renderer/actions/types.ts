@@ -1,4 +1,4 @@
-import { ProcessFatalErrorName } from '../../shared/types';
+import { ProcessFatalErrorName } from '../../../shared/issues/VirtualDriveIssue';
 
 export interface Action {
   name: string;

@@ -1,10 +1,9 @@
+import { ProcessErrorName, AppIssue } from '../../src/apps/shared/types';
+import { AppErrorName } from '../../src/shared/issues/AppIssue';
 import {
   ProcessFatalErrorName,
-  ProcessErrorName,
-  AppIssue,
-} from '../../src/apps/shared/types';
-import { AppErrorName } from '../../src/shared/issues/AppIssue';
-import { VirtualDriveIssue } from '../../src/shared/issues/VirtualDriveIssue';
+  VirtualDriveIssue,
+} from '../../src/shared/issues/VirtualDriveIssue';
 
 export const createBackupFatalError = (errorName: ProcessFatalErrorName) => ({
   path: `folder/file${Date.now()}.txt`,

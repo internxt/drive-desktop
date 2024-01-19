@@ -1,4 +1,4 @@
-import { ProcessFatalErrorName } from '../../../../apps/shared/types';
+import { ProcessFatalErrorName } from '../../../../shared/issues/VirtualDriveIssue';
 
 export type SyncStoppedPayload =
   | { reason: 'STOPPED_BY_USER' }
