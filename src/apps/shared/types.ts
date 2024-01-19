@@ -1,4 +1,5 @@
 import { Readable } from 'stream';
+import { AppErrorName } from '../../shared/issues/AppIssue';
 
 export interface FileSystem {
   /**
@@ -122,7 +123,6 @@ export class ProcessFatalError extends Error {
   }
 }
 
-export type GeneralErrorName = 'UNKNOWN_DEVICE_NAME';
 export type ProcessErrorName =
   // File or folder does not exist
   | 'NOT_EXISTS'
@@ -195,14 +195,9 @@ export type ErrorDetails = {
   additionalInfo?: string;
 };
 
-type ProcessInfoBase = {
-  kind: FileSystemKind;
-  name: string;
-};
-
-export type GeneralIssue = {
+export type AppIssue = {
   action: 'GET_DEVICE_NAME_ERROR';
-  errorName: GeneralErrorName;
+  errorName: AppErrorName;
   process: 'GENERAL';
   errorDetails: {
     name: string;
@@ -210,31 +205,18 @@ export type GeneralIssue = {
     stack: string;
   };
 };
-export type ProcessIssue = ProcessInfoBase & {
-  action:
-    | 'UPLOAD_ERROR'
-    | 'DOWNLOAD_ERROR'
-    | 'RENAME_ERROR'
-    | 'DELETE_ERROR'
-    | 'METADATA_READ_ERROR'
-    | 'GENERATE_TREE';
 
-  errorName: ProcessErrorName;
-  process: 'SYNC' | 'BACKUPS';
-};
-
-export type ProcessInfoUpdatePayload =
-  | (ProcessInfoBase &
-      (
-        | {
-            action: 'UPLOADING' | 'DOWNLOADING' | 'RENAMING' | 'DELETING';
-            progress: number;
-          }
-        | {
-            action: 'UPLOADED' | 'DOWNLOADED' | 'RENAMED' | 'DELETED';
-          }
-      ))
-  | ProcessIssue;
+export type ProcessInfo =
+  | {
+      action: 'UPLOADING' | 'DOWNLOADING' | 'RENAMING' | 'DELETING';
+      progress: number;
+      name: string;
+    }
+  | {
+      action: 'UPLOADED' | 'DOWNLOADED' | 'RENAMED' | 'DELETED';
+      name: string;
+      progress: undefined;
+    };
 
 type SyncActionName =
   | 'renameInLocal'

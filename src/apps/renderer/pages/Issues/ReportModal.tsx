@@ -1,11 +1,12 @@
 import { Dialog, Transition } from '@headlessui/react';
 import { Fragment, useState } from 'react';
-import { ProcessIssue, ErrorDetails } from '../../../shared/types';
+import { ErrorDetails } from '../../../shared/types';
 import Button from '../../components/Button';
 import Checkbox from '../../components/Checkbox';
 import TextArea from '../../components/TextArea';
 import { useTranslationContext } from '../../context/LocalContext';
 import { shortMessages, longMessages } from '../../messages/general-error';
+import { VirtualDriveIssue } from '../../../../shared/issues/VirtualDriveIssue';
 
 const posibleErrorStates = ['ERROR', 'TOO_MANY_REPORTS'] as const;
 type ErrorReportRequestState = (typeof posibleErrorStates)[number];
@@ -25,7 +26,7 @@ export function ReportModal({
   data,
   onClose,
 }: {
-  data: Pick<ProcessIssue, 'errorName'> | null;
+  data: Pick<VirtualDriveIssue, 'errorName'> | null;
   onClose: () => void;
 }) {
   const { translate } = useTranslationContext();
@@ -37,12 +38,15 @@ export function ReportModal({
   const [includeLogs, setIncludeLogs] = useState(true);
   const [userComment, setUserComment] = useState('');
 
+  //@ts-ignore
+  const dialogTitle = data
+    ? translate(shortMessages[data.errorName])
+    : undefined;
 
   //@ts-ignore
-  const dialogTitle = data ? translate(shortMessages[data.errorName]) : undefined;
-
-  //@ts-ignore
-  const errorDescription = data ? translate(longMessages[data.errorName]) : undefined;
+  const errorDescription = data
+    ? translate(longMessages[data.errorName])
+    : undefined;
 
   const handleOpenURL = async (URL: string) => {
     try {

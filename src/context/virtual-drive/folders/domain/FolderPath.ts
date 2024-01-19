@@ -1,5 +1,5 @@
 import path from 'path';
-import { Path } from '../../../shared/domain/Path';
+import { Path } from '../../../shared/domain/value-objects/Path';
 
 export class FolderPath extends Path {
   constructor(value: string) {

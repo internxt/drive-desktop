@@ -17,7 +17,7 @@ import { DEFAULT_LANGUAGE } from '../src/apps/shared/Locale/Language';
 import {
   ProcessErrorName,
   ProcessFatalErrorName,
-  GeneralIssue,
+  AppIssue,
 } from '../src/apps/shared/types';
 
 const activeTabSelector = 'button.text-neutral-500';
@@ -44,7 +44,7 @@ test.describe('process issues', () => {
     await ipcMainEmit(electronApp, 'add-backup-fatal-errors', errors);
   };
 
-  const addGeneralIssues = async (issues: Array<GeneralIssue>) => {
+  const addGeneralIssues = async (issues: Array<AppIssue>) => {
     const eventsEmited = issues.map((issue) =>
       ipcMainEmit(electronApp, 'add-device-issue', issue)
     );

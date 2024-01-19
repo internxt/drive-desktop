@@ -7,7 +7,7 @@ import {
   FuseInvalidArgumentError,
   FuseNoSuchFileOrDirectoryError,
 } from './FuseErrors';
-import { InvalidArgumentError } from '../../../context/shared/domain/InvalidArgumentError';
+import { InvalidArgumentError } from '../../../context/shared/domain/errors/InvalidArgumentError';
 import { FolderNotFoundError } from '../../../context/virtual-drive/folders/domain/errors/FolderNotFoundError';
 import { PathHasNotChangedError } from '../../../context/virtual-drive/folders/domain/errors/PathHasNotChangedError';
 

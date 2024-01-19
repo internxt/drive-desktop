@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react';
-import { ProcessInfoUpdatePayload } from '../../shared/types';
+import { ProcessInfo } from '../../shared/types';
 
 export function useSyncInfoSubscriber() {
   const [processInfoUpdatedPayload, setProcessInfoUpdatedPayload] = useState<
-    ProcessInfoUpdatePayload[]
+    ProcessInfo[]
   >([]);
 
-  function onSyncItem(item: ProcessInfoUpdatePayload) {
+  function onSyncItem(item: ProcessInfo) {
     const MAX_ITEMS = 50;
 
     setProcessInfoUpdatedPayload((currentItems) => {

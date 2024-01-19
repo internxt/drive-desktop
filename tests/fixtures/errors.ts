@@ -1,10 +1,10 @@
 import {
   ProcessFatalErrorName,
   ProcessErrorName,
-  ProcessIssue,
-  GeneralErrorName,
-  GeneralIssue,
+  AppIssue,
 } from '../../src/apps/shared/types';
+import { AppErrorName } from '../../src/shared/issues/AppIssue';
+import { VirtualDriveIssue } from '../../src/shared/issues/VirtualDriveIssue';
 
 export const createBackupFatalError = (errorName: ProcessFatalErrorName) => ({
   path: `folder/file${Date.now()}.txt`,
@@ -14,17 +14,13 @@ export const createBackupFatalError = (errorName: ProcessFatalErrorName) => ({
 
 export const createSyncError = (
   processErrorName: ProcessErrorName
-): ProcessIssue => ({
-  kind: 'LOCAL',
-  name: 'name',
+): VirtualDriveIssue => ({
+  node: 'name',
   action: 'DELETE_ERROR',
   errorName: processErrorName,
-  process: 'SYNC',
 });
 
-export const createGeneralIssueFixture = (
-  name: GeneralErrorName
-): GeneralIssue => ({
+export const createGeneralIssueFixture = (name: AppErrorName): AppIssue => ({
   action: 'GET_DEVICE_NAME_ERROR',
   errorName: name,
   process: 'GENERAL',

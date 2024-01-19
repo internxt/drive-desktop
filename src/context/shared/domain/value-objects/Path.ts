@@ -1,6 +1,6 @@
 import path from 'path';
-import { InvalidArgumentError } from './InvalidArgumentError';
-import { ValueObject } from './value-objects/ValueObject';
+import { InvalidArgumentError } from '../errors/InvalidArgumentError';
+import { ValueObject } from './ValueObject';
 
 const isWindowsRootDirectory = /[a-zA-Z]:[\\/]/;
 const containsNullCharacter = /\0/g;
