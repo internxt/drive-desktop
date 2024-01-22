@@ -2,7 +2,7 @@ import {
   trackError,
   trackEvent,
 } from '../../../../../apps/main/analytics/service';
-import { addVirtualDrive } from '../../../../../apps/main/issues/virtual-drive';
+import { addVirtualDriveIssue } from '../../../../../apps/main/issues/virtual-drive';
 import { setTrayStatus } from '../../../../../apps/main/tray/tray';
 import { broadcastToWindows } from '../../../../../apps/main/windows';
 import { VirtualDriveIssue } from '../../../../../shared/issues/VirtualDriveIssue';
@@ -89,7 +89,7 @@ export class MainProcessSyncFileMessenger
       errorName: 'UNKNOWN',
     };
 
-    addVirtualDrive(issue);
+    addVirtualDriveIssue(issue);
   }
 
   async renaming(current: string, desired: string): Promise<void> {

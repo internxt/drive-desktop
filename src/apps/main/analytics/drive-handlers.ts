@@ -1,7 +1,7 @@
-import { MainVirtualDriveIPC } from '../ipcs/VirtualDriveIPC';
+import { MainProcessSyncEngineIPC } from '../MainProcessSyncEngineIPC';
 import { trackError, trackEvent } from './service';
 
-MainVirtualDriveIPC.on('FILE_DELETED', (_, payload) => {
+MainProcessSyncEngineIPC.on('FILE_DELETED', (_, payload) => {
   const { name, extension, size } = payload;
 
   trackEvent('Delete Completed', {
@@ -11,7 +11,7 @@ MainVirtualDriveIPC.on('FILE_DELETED', (_, payload) => {
   });
 });
 
-MainVirtualDriveIPC.on('FILE_DOWNLOADING', (_, payload) => {
+MainProcessSyncEngineIPC.on('FILE_DOWNLOADING', (_, payload) => {
   const { name, size, extension, processInfo } = payload;
 
   if (!processInfo.progress) {
@@ -24,7 +24,7 @@ MainVirtualDriveIPC.on('FILE_DOWNLOADING', (_, payload) => {
   }
 });
 
-MainVirtualDriveIPC.on('FILE_DOWNLOADED', (_, payload) => {
+MainProcessSyncEngineIPC.on('FILE_DOWNLOADED', (_, payload) => {
   const { name, extension, size, processInfo } = payload;
 
   trackEvent('Download Completed', {
@@ -35,7 +35,7 @@ MainVirtualDriveIPC.on('FILE_DOWNLOADED', (_, payload) => {
   });
 });
 
-MainVirtualDriveIPC.on('FILE_UPLOADING', (_, payload) => {
+MainProcessSyncEngineIPC.on('FILE_UPLOADING', (_, payload) => {
   const { name, size, extension, processInfo } = payload;
 
   if (!processInfo.progress) {
@@ -48,7 +48,7 @@ MainVirtualDriveIPC.on('FILE_UPLOADING', (_, payload) => {
   }
 });
 
-MainVirtualDriveIPC.on('FILE_UPLOADED', (_, payload) => {
+MainProcessSyncEngineIPC.on('FILE_UPLOADED', (_, payload) => {
   const { name, extension, size, processInfo } = payload;
 
   trackEvent('Upload Completed', {
@@ -59,7 +59,7 @@ MainVirtualDriveIPC.on('FILE_UPLOADED', (_, payload) => {
   });
 });
 
-MainVirtualDriveIPC.on('FILE_UPLOAD_ERROR', (_, payload) => {
+MainProcessSyncEngineIPC.on('FILE_UPLOAD_ERROR', (_, payload) => {
   const { name, error } = payload;
 
   trackError('Upload Error', new Error(error), {
@@ -70,7 +70,7 @@ MainVirtualDriveIPC.on('FILE_UPLOAD_ERROR', (_, payload) => {
   });
 });
 
-MainVirtualDriveIPC.on('FILE_DOWNLOAD_ERROR', (_, payload) => {
+MainProcessSyncEngineIPC.on('FILE_DOWNLOAD_ERROR', (_, payload) => {
   const { name, error } = payload;
 
   trackError('Download Error', new Error(error), {
@@ -81,7 +81,7 @@ MainVirtualDriveIPC.on('FILE_DOWNLOAD_ERROR', (_, payload) => {
   });
 });
 
-MainVirtualDriveIPC.on('FILE_RENAME_ERROR', (_, payload) => {
+MainProcessSyncEngineIPC.on('FILE_RENAME_ERROR', (_, payload) => {
   const { name, error } = payload;
 
   trackError('Rename Error', new Error(error), {
@@ -92,7 +92,7 @@ MainVirtualDriveIPC.on('FILE_RENAME_ERROR', (_, payload) => {
   });
 });
 
-MainVirtualDriveIPC.on('FILE_DELETION_ERROR', (_, payload) => {
+MainProcessSyncEngineIPC.on('FILE_DELETION_ERROR', (_, payload) => {
   const { name, error } = payload;
 
   trackError('Delete Error', new Error(error), {

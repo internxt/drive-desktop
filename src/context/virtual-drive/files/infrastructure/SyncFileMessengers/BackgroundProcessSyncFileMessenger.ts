@@ -1,5 +1,5 @@
 import path from 'path';
-import { SyncEngineIpc } from '../../../../../apps/sync-engine/ipcRendererSyncEngine';
+import { SyncEngineIpc } from '../../../../../apps/sync-engine/SyncEngineIpc';
 import { SyncMessenger } from '../../../../shared/domain/SyncMessenger';
 import { SyncFileMessenger } from '../../domain/SyncFileMessenger';
 

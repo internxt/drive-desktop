@@ -3,7 +3,7 @@ import { Traverser } from '../../../../context/virtual-drive/items/application/T
 import { TreeBuilder } from '../../../../context/virtual-drive/items/application/TreeBuilder';
 import { CryptoJsNameDecrypt } from '../../../../context/virtual-drive/items/infrastructure/CryptoJsNameDecrypt';
 import { getUser } from '../../../main/auth/service';
-import { ipcRendererSyncEngine } from '../../ipcRendererSyncEngine';
+import { SyncEngineIPC } from '../../SyncEngineIpc';
 import { ItemsContainer } from './ItemsContainer';
 
 export function buildItemsContainer(): ItemsContainer {
@@ -13,9 +13,7 @@ export function buildItemsContainer(): ItemsContainer {
     throw new Error('Could not get user when building Items dependencies');
   }
 
-  const remoteItemsGenerator = new IpcRemoteItemsGenerator(
-    ipcRendererSyncEngine
-  );
+  const remoteItemsGenerator = new IpcRemoteItemsGenerator(SyncEngineIPC);
 
   const nameDecrypt = new CryptoJsNameDecrypt();
 

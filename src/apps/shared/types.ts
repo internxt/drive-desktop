@@ -29,7 +29,7 @@ export type ProcessErrorName =
   | 'UNKNOWN'
 
   // Duplicated node path
-  | 'DUPLICATED';
+  | 'DUPLICATED_NODE';
 
 export class ProcessError extends Error {
   details: ErrorDetails;

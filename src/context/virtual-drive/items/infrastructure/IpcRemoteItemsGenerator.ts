@@ -1,4 +1,4 @@
-import { SyncEngineIpc } from '../../../../apps/sync-engine/ipcRendererSyncEngine';
+import { SyncEngineIpc } from '../../../../apps/sync-engine/SyncEngineIpc';
 import {
   ServerFile,
   ServerFileStatus,

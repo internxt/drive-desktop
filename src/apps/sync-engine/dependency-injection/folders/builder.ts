@@ -21,7 +21,7 @@ import { InMemoryFolderRepository } from '../../../../context/virtual-drive/fold
 import { InMemoryOfflineFolderRepository } from '../../../../context/virtual-drive/folders/infrastructure/InMemoryOfflineFolderRepository';
 import { NodeWinLocalFileSystem } from '../../../../context/virtual-drive/folders/infrastructure/NodeWinLocalFileSystem';
 import { BackgroundProcessSyncFolderMessenger } from '../../../../context/virtual-drive/folders/infrastructure/SyncMessengers/BackgroundProcessSyncFolderMessenger';
-import { ipcRendererSyncEngine } from '../../ipcRendererSyncEngine';
+import { SyncEngineIPC } from '../../SyncEngineIpc';
 import { DependencyInjectionHttpClientsProvider } from '../common/clients';
 import { DependencyInjectionEventBus } from '../common/eventBus';
 import { DependencyInjectionEventRepository } from '../common/eventRepository';
@@ -40,7 +40,7 @@ export async function buildFoldersContainer(
   const repository = new InMemoryFolderRepository();
 
   const syncFolderMessenger = new BackgroundProcessSyncFolderMessenger(
-    ipcRendererSyncEngine
+    SyncEngineIPC
   );
 
   const localFileSystem = new NodeWinLocalFileSystem(virtualDrive);

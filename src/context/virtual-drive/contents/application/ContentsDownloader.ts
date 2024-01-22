@@ -3,7 +3,7 @@ import path from 'path';
 import { Readable } from 'stream';
 import { ensureFolderExists } from '../../../../apps/shared/fs/ensure-folder-exists';
 import { CallbackDownload } from '../../../../apps/sync-engine/BindingManager';
-import { SyncEngineIpc } from '../../../../apps/sync-engine/ipcRendererSyncEngine';
+import { SyncEngineIpc } from '../../../../apps/sync-engine/SyncEngineIpc';
 import { File } from '../../files/domain/File';
 import { EventBus } from '../../shared/domain/EventBus';
 import { ContentsManagersFactory } from '../domain/ContentsManagersFactory';

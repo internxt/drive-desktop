@@ -8,7 +8,7 @@ import { PlatformPathConverter } from '../../context/virtual-drive/shared/applic
 import { buildControllers } from './callbacks-controllers/buildControllers';
 import { executeControllerWithFallback } from './callbacks-controllers/middlewares/executeControllerWithFallback';
 import { SyncEngineDependencyContainer } from './dependency-injection/SyncEngineDependencyContainer';
-import { ipcRendererSyncEngine } from './ipcRendererSyncEngine';
+import { SyncEngineIPC } from './SyncEngineIpc';
 import { VirtualDriveIssue } from '../../shared/issues/VirtualDriveIssue';
 
 export type CallbackDownload = (
@@ -110,7 +110,7 @@ export class BindingsManager {
               this.progressBuffer = result.progress;
             }
             Logger.debug('condition', finished);
-            ipcRendererSyncEngine.send('FILE_DOWNLOADING', {
+            SyncEngineIPC.send('FILE_DOWNLOADING', {
               name: file.name,
               extension: file.type,
               nameWithExtension: file.nameWithExtension,

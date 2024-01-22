@@ -22,21 +22,21 @@ export function clearBackupsIssues() {
   // no-op
 }
 
-export function addVirtualDrive(issue: VirtualDriveIssue) {
+export function addVirtualDriveIssue(issue: VirtualDriveIssue) {
   virtualDriveIssues.push(issue);
   onProcessIssuesChanged();
 }
 
 ipcMain.on('SYNC_PROBLEM', (_, payload) => {
-  addVirtualDrive({
+  addVirtualDriveIssue({
     action: 'GENERATE_TREE',
-    errorName: 'DUPLICATED',
+    errorName: 'DUPLICATED_NODE',
     node: payload.additionalData.name,
   });
 });
 
 ipcMain.on('BACKUP_ISSUE', (_, issue: VirtualDriveIssue) => {
-  addVirtualDrive(issue);
+  addVirtualDriveIssue(issue);
 });
 
 ipcMain.handle('get.issues.virtual-drive', getVirtualDriveIssues);

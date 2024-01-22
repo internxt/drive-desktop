@@ -1,69 +1,69 @@
-import { MainVirtualDriveIPC } from '../ipcs/VirtualDriveIPC';
+import { MainProcessSyncEngineIPC } from '../MainProcessSyncEngineIPC';
 import { setTrayStatus } from './tray';
 
-MainVirtualDriveIPC.on('FOLDER_CREATING', () => {
+MainProcessSyncEngineIPC.on('FOLDER_CREATING', () => {
   setTrayStatus('SYNCING');
 });
 
-MainVirtualDriveIPC.on('FOLDER_CREATED', () => {
+MainProcessSyncEngineIPC.on('FOLDER_CREATED', () => {
   setTrayStatus('IDLE');
 });
 
-MainVirtualDriveIPC.on('FOLDER_RENAMING', () => {
+MainProcessSyncEngineIPC.on('FOLDER_RENAMING', () => {
   setTrayStatus('SYNCING');
 });
 
-MainVirtualDriveIPC.on('FOLDER_RENAMED', () => {
+MainProcessSyncEngineIPC.on('FOLDER_RENAMED', () => {
   setTrayStatus('IDLE');
 });
 
-MainVirtualDriveIPC.on('FILE_DELETING', () => {
+MainProcessSyncEngineIPC.on('FILE_DELETING', () => {
   setTrayStatus('SYNCING');
 });
-MainVirtualDriveIPC.on('FILE_DELETED', () => {
+MainProcessSyncEngineIPC.on('FILE_DELETED', () => {
   setTrayStatus('IDLE');
 });
 
-MainVirtualDriveIPC.on('FILE_DOWNLOADING', () => {
-  setTrayStatus('SYNCING');
-});
-
-MainVirtualDriveIPC.on('FILE_DOWNLOADED', () => {
-  setTrayStatus('IDLE');
-});
-
-MainVirtualDriveIPC.on('FILE_MOVED', () => {
-  setTrayStatus('IDLE');
-});
-
-MainVirtualDriveIPC.on('FILE_RENAMING', () => {
+MainProcessSyncEngineIPC.on('FILE_DOWNLOADING', () => {
   setTrayStatus('SYNCING');
 });
 
-MainVirtualDriveIPC.on('FILE_RENAMED', () => {
+MainProcessSyncEngineIPC.on('FILE_DOWNLOADED', () => {
   setTrayStatus('IDLE');
 });
 
-MainVirtualDriveIPC.on('FILE_UPLOADING', () => {
+MainProcessSyncEngineIPC.on('FILE_MOVED', () => {
+  setTrayStatus('IDLE');
+});
+
+MainProcessSyncEngineIPC.on('FILE_RENAMING', () => {
   setTrayStatus('SYNCING');
 });
 
-MainVirtualDriveIPC.on('FILE_UPLOADED', () => {
+MainProcessSyncEngineIPC.on('FILE_RENAMED', () => {
   setTrayStatus('IDLE');
 });
 
-MainVirtualDriveIPC.on('FILE_UPLOAD_ERROR', () => {
+MainProcessSyncEngineIPC.on('FILE_UPLOADING', () => {
+  setTrayStatus('SYNCING');
+});
+
+MainProcessSyncEngineIPC.on('FILE_UPLOADED', () => {
+  setTrayStatus('IDLE');
+});
+
+MainProcessSyncEngineIPC.on('FILE_UPLOAD_ERROR', () => {
   setTrayStatus('ALERT');
 });
 
-MainVirtualDriveIPC.on('FILE_DOWNLOAD_ERROR', () => {
+MainProcessSyncEngineIPC.on('FILE_DOWNLOAD_ERROR', () => {
   setTrayStatus('ALERT');
 });
 
-MainVirtualDriveIPC.on('FILE_RENAME_ERROR', () => {
+MainProcessSyncEngineIPC.on('FILE_RENAME_ERROR', () => {
   setTrayStatus('ALERT');
 });
 
-MainVirtualDriveIPC.on('FILE_DELETION_ERROR', () => {
+MainProcessSyncEngineIPC.on('FILE_DELETION_ERROR', () => {
   setTrayStatus('ALERT');
 });
