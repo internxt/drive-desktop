@@ -1,7 +1,7 @@
 import { ipcMain } from 'electron';
-import { AppIssue } from '../../shared/types';
 import eventBus from '../event-bus';
 import { broadcastToWindows } from '../windows';
+import { AppIssue } from '../../../shared/issues/AppIssue';
 
 let issues: AppIssue[] = [];
 

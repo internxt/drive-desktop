@@ -1,6 +1,5 @@
-import { AppIssue } from '../../src/apps/shared/types';
 import { ErrorCause } from '../../src/context/virtual-drive/shared/domain/ErrorCause';
-import { AppErrorName } from '../../src/shared/issues/AppIssue';
+import { AppError, AppIssue } from '../../src/shared/issues/AppIssue';
 import { FatalError } from '../../src/shared/issues/FatalError';
 import { VirtualDriveIssue } from '../../src/shared/issues/VirtualDriveIssue';
 
@@ -16,10 +15,9 @@ export const createSyncError = (cause: ErrorCause): VirtualDriveIssue => ({
   cause: cause,
 });
 
-export const createGeneralIssueFixture = (name: AppErrorName): AppIssue => ({
+export const createGeneralIssueFixture = (name: AppError): AppIssue => ({
   action: 'GET_DEVICE_NAME_ERROR',
   errorName: name,
-  process: 'GENERAL',
   errorDetails: {
     name: 'Device name could not be retrieved',
     message: 'Error retrieving the device name',

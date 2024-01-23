@@ -15,7 +15,6 @@ export const addUnknownDeviceIssue = (error: Error) => {
   addAppIssue({
     errorName: 'UNKNOWN_DEVICE_NAME',
     action: 'GET_DEVICE_NAME_ERROR',
-    process: 'GENERAL',
     errorDetails: {
       name: error.name,
       message: error.message,
@@ -25,7 +24,6 @@ export const addUnknownDeviceIssue = (error: Error) => {
   addAppIssue({
     errorName: 'UNKNOWN_DEVICE_NAME',
     action: 'GET_DEVICE_NAME_ERROR',
-    process: 'GENERAL',
     errorDetails: {
       name: error.name,
       message: error.message,

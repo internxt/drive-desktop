@@ -1,11 +1,10 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { CaretDown } from 'phosphor-react';
-import { AppIssue } from '../../../shared/types';
 import { useTranslationContext } from '../../context/LocalContext';
 import { generalErrors } from '../../messages/general-error';
 import FileIcon from '../../assets/file.svg';
 import WarnIcon from '../../assets/warn.svg';
-import { AppErrorName } from '../../../../shared/issues/AppIssue';
+import { AppError, AppIssue } from '../../../../shared/issues/AppIssue';
 
 export function AppIssueElement({
   issues,
@@ -13,7 +12,7 @@ export function AppIssueElement({
   errorName,
   onClick,
 }: {
-  errorName: AppErrorName;
+  errorName: AppError;
   issues: AppIssue[];
   isSelected: boolean;
   onClick: () => void;

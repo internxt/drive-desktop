@@ -1,12 +1,11 @@
 import { useState } from 'react';
-import { AppIssue } from '../../../shared/types';
 import { Issue } from './Issue';
 import { NoIssues } from './NoIssues';
 import { Section } from './Section';
-import { AppErrorName } from '../../../../shared/issues/AppIssue';
 import { VirtualDriveIssue } from '../../../../shared/issues/VirtualDriveIssue';
 import { AppIssueElement } from './GeneralIssue';
 import { ErrorCause } from '../../../../context/virtual-drive/shared/domain/ErrorCause';
+import { AppError, AppIssue } from '../../../../shared/issues/AppIssue';
 
 type ProcessIssuesListProps = {
   selectedTab: Section;
@@ -21,7 +20,7 @@ export default function ProcessIssuesList({
   issues,
 }: ProcessIssuesListProps) {
   const [selectedErrorName, setSelectedErrorName] = useState<
-    ErrorCause | AppErrorName | null
+    ErrorCause | AppError | null
   >(null);
 
   const renderItems = () => {
