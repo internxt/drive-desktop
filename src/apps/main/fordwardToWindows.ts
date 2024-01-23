@@ -1,5 +1,6 @@
 import { broadcastToWindows } from './windows';
 import { MainProcessSyncEngineIPC } from './MainProcessSyncEngineIPC';
+import Logger from 'electron-log';
 
 MainProcessSyncEngineIPC.on('FILE_DELETED', (_, payload) => {
   const { nameWithExtension } = payload;
@@ -79,7 +80,9 @@ MainProcessSyncEngineIPC.on('FILE_CREATED', (_, payload) => {
 MainProcessSyncEngineIPC.on('FILE_UPLOAD_ERROR', (_, payload) => {
   const { nameWithExtension } = payload;
 
-  broadcastToWindows('sync-info-update', {
+  Logger.debug('FILE_UPLOAD_ERROR', payload);
+
+  broadcastToWindows('sync-error', {
     action: 'UPLOAD_ERROR',
     name: nameWithExtension,
   });
@@ -111,10 +114,3 @@ MainProcessSyncEngineIPC.on('FILE_DELETION_ERROR', (_, payload) => {
     name: nameWithExtension,
   });
 });
-
-// ipcMainSyncEngine.on('SYNC_PROBLEM', (_, payload) => {
-//   broadcastToWindows('sync-info-update', {
-//     action: 'SYNC_PROBLEM',
-//     name: payload.additionalData.name,
-//   });
-// });

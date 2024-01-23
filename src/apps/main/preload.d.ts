@@ -12,11 +12,11 @@ declare interface Window {
     pathChanged(path: string): void;
 
     getGeneralIssues: () => Promise<
-      import('../../apps/shared/types').AppIssue[]
+      import('../../shared/issues/AppIssue').AppIssue[]
     >;
 
     onGeneralIssuesChanged: (
-      func: (value: import('../../apps/shared/types').AppIssue[]) => void
+      func: (value: import('../../shared/issues/AppIssue').AppIssue[]) => void
     ) => () => void;
 
     onSyncStopped: (
@@ -26,11 +26,13 @@ declare interface Window {
     ) => () => void;
 
     getVirtualDriveIssues(): Promise<
-      import('../shared/types').VirtualDriveIssue[]
+      import('../../shared/issues/VirtualDriveIssue').VirtualDriveIssue[]
     >;
 
     onProcessIssuesChanged(
-      func: (value: import('../shared/types').VirtualDriveIssue[]) => void
+      func: (
+        value: import('../../shared/issues/VirtualDriveIssue').VirtualDriveIssue[]
+      ) => void
     ): () => void;
 
     onSyncInfoUpdate(

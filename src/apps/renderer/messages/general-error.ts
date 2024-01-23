@@ -1,4 +1,4 @@
-import { AppError } from '../../../shared/issues/AppIssue';
+import { AppError } from '../../../shared/issues/AppError';
 
 type AppErrorMessages = Record<AppError, string>;
 

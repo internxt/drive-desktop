@@ -1,3 +1,5 @@
+import { ErrorCause } from '../../../../../../shared/issues/ErrorCause';
+
 type ProcessInfo = {
   elapsedTime: number;
   progress?: number;
@@ -32,7 +34,7 @@ export type FilesEvents = {
     name: string;
     extension: string;
     nameWithExtension: string;
-    error: string;
+    cause: ErrorCause;
   }) => void;
 
   FILE_DELETING: (payload: {

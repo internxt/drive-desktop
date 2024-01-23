@@ -2,6 +2,7 @@ import path from 'path';
 import { SyncEngineIpc } from '../../../../../apps/sync-engine/SyncEngineIpc';
 import { SyncMessenger } from '../../../../shared/domain/SyncMessenger';
 import { SyncFileMessenger } from '../../domain/SyncFileMessenger';
+import { ErrorCause } from '../../../../../shared/issues/ErrorCause';
 
 export class BackgroundProcessSyncFileMessenger
   extends SyncMessenger
@@ -21,13 +22,13 @@ export class BackgroundProcessSyncFileMessenger
   async errorWhileCreating(
     name: string,
     extension: string,
-    message: string
+    cause: ErrorCause
   ): Promise<void> {
     this.ipc.send('FILE_UPLOAD_ERROR', {
       name,
       extension,
       nameWithExtension: this.nameWithExtension(name, extension),
-      error: message,
+      cause,
     });
   }
 

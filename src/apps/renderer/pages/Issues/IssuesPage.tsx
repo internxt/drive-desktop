@@ -4,7 +4,7 @@ import { useTranslationContext } from '../../context/LocalContext';
 import useBackupFatalErrors from '../../hooks/BackupFatalErrors';
 import useGeneralIssues from '../../hooks/GeneralIssues';
 import useVirtualDriveIssues from '../../hooks/ProcessIssues';
-import ProcessIssuesList from './ProcessIssuesList';
+import IssuesAccordions from './IssuesAccordions';
 import { IssuesTabs } from './IssuesTabs';
 import { Section } from './Section';
 
@@ -35,7 +35,7 @@ export default function IssuesPage() {
         <IssuesTabs active={activeSection} onChangeTab={setActiveSection} />
       </div>
 
-      <ProcessIssuesList
+      <IssuesAccordions
         selectedTab={activeSection}
         issues={{ app: appIssues, virtualDrive: virtualDriveIssues }}
       />

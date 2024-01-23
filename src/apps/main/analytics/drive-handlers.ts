@@ -60,7 +60,7 @@ MainProcessSyncEngineIPC.on('FILE_UPLOADED', (_, payload) => {
 });
 
 MainProcessSyncEngineIPC.on('FILE_UPLOAD_ERROR', (_, payload) => {
-  const { name, error } = payload;
+  const { name, cause: error } = payload;
 
   trackError('Upload Error', new Error(error), {
     itemType: 'File',

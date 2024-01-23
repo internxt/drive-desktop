@@ -1,8 +1,8 @@
-import { ipcMain } from 'electron';
-
 import eventBus from '../event-bus';
 import { broadcastToWindows } from '../windows';
 import { VirtualDriveIssue } from '../../../shared/issues/VirtualDriveIssue';
+import { MainProcessSyncEngineIPC } from '../MainProcessSyncEngineIPC';
+import { ipcMain } from 'electron';
 
 let virtualDriveIssues: VirtualDriveIssue[] = [];
 
@@ -27,16 +27,12 @@ export function addVirtualDriveIssue(issue: VirtualDriveIssue) {
   onProcessIssuesChanged();
 }
 
-ipcMain.on('SYNC_PROBLEM', (_, payload) => {
+MainProcessSyncEngineIPC.on('FILE_UPLOAD_ERROR', (_, payload) => {
   addVirtualDriveIssue({
-    error: 'GENERATE_TREE',
-    cause: 'DUPLICATED_NODE',
-    name: payload.additionalData.name,
+    error: 'UPLOAD_ERROR',
+    cause: payload.cause,
+    name: payload.nameWithExtension,
   });
-});
-
-ipcMain.on('BACKUP_ISSUE', (_, issue: VirtualDriveIssue) => {
-  addVirtualDriveIssue(issue);
 });
 
 ipcMain.handle('get.issues.virtual-drive', getVirtualDriveIssues);

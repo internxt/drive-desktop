@@ -10,7 +10,9 @@ export function useDriveInfoHistory() {
     setDriveHistory((prevList) => {
       const newList = [...prevList.slice(0, MAX_ITEMS - 1), item];
 
-      return newList.length <= MAX_ITEMS ? newList : newList.slice(1);
+      const result = newList.length <= MAX_ITEMS ? newList : newList.slice(1);
+
+      return result;
     });
   }
 

@@ -21,15 +21,6 @@ export const addUnknownDeviceIssue = (error: Error) => {
       stack: error.stack || '',
     },
   });
-  addAppIssue({
-    errorName: 'UNKNOWN_DEVICE_NAME',
-    action: 'GET_DEVICE_NAME_ERROR',
-    errorDetails: {
-      name: error.name,
-      message: error.message,
-      stack: error.stack || '',
-    },
-  });
 };
 
 function createDevice(deviceName: string) {

@@ -6,26 +6,41 @@ import { useTranslationContext } from '../../context/LocalContext';
 import { getBaseName } from '../../utils/path';
 import { shortMessages } from '../../messages/virtual-drive-error';
 import { VirtualDriveIssue } from '../../../../shared/issues/VirtualDriveIssue';
-import { ErrorCause } from '../../../../context/virtual-drive/shared/domain/ErrorCause';
+import { ErrorCause } from '../../../../shared/issues/ErrorCause';
+import { useState } from 'react';
+import { Accordion } from './Accordion';
 
-export function Issue({
+function groupAppIssuesByErrorName(issues: VirtualDriveIssue[]) {
+  const appIssuesGroupedByErrorName = issues.reduce((acc, current) => {
+    const key = current.cause;
+
+    if (!acc[key]) {
+      acc[key] = [];
+    }
+
+    acc[key].push(current);
+
+    return acc;
+  }, {} as Record<ErrorCause, VirtualDriveIssue[]>);
+
+  return Object.entries(appIssuesGroupedByErrorName) as Array<
+    [ErrorCause, Array<VirtualDriveIssue>]
+  >;
+}
+
+function VirtualDriveIssue({
   errorName,
   issues,
-  isSelected,
-  onClick,
+  extend,
 }: {
   errorName: ErrorCause;
   issues: VirtualDriveIssue[];
-  isSelected: boolean;
-  onClick: () => void;
+  extend: boolean;
 }) {
   const { translate } = useTranslationContext();
 
   return (
-    <li
-      onClick={onClick}
-      className="flex flex-col space-y-2.5 p-3 hover:bg-gray-5"
-    >
+    <>
       <div className="flex space-x-2.5">
         <WarnIcon className="h-5 w-5" />
 
@@ -45,7 +60,7 @@ export function Issue({
         <div className="flex items-center space-x-2">
           <CaretDown
             className={`transform transition-all duration-200 ${
-              isSelected ? 'rotate-180' : 'rotate-0'
+              extend ? 'rotate-180' : 'rotate-0'
             }`}
             size={20}
           />
@@ -53,7 +68,7 @@ export function Issue({
       </div>
 
       <AnimatePresence>
-        {isSelected && (
+        {extend && (
           <motion.div
             initial="collapsed"
             animate="open"
@@ -79,6 +94,50 @@ export function Issue({
           </motion.div>
         )}
       </AnimatePresence>
-    </li>
+    </>
+  );
+}
+
+type VirtualDriveIssuesByErrorAccordionProps = {
+  issues: Array<VirtualDriveIssue>;
+};
+
+export function SyncIssuesByErrorAccordion({
+  issues,
+}: VirtualDriveIssuesByErrorAccordionProps) {
+  const { translate } = useTranslationContext();
+  const [selected, setSelected] = useState<ErrorCause | null>(null);
+
+  const issuesByCauseArray = groupAppIssuesByErrorName(issues);
+
+  const isSelected = (cause: ErrorCause) => {
+    return cause === selected;
+  };
+
+  const toggleOrSelectCause = (clickedCause: ErrorCause) => () => {
+    if (clickedCause === selected) {
+      setSelected(null);
+      return;
+    }
+
+    setSelected(clickedCause);
+  };
+
+  return (
+    <ul>
+      {issuesByCauseArray.map(([cause, issues]) => (
+        <li
+          className="flex flex-col space-y-2.5 p-3 hover:bg-gray-5"
+          onClick={toggleOrSelectCause(cause)}
+          key={cause}
+        >
+          <Accordion
+            title={translate(shortMessages[cause])}
+            collapsed={!isSelected(cause)}
+            elements={issues.map((issue) => getBaseName(issue.name))}
+          />
+        </li>
+      ))}
+    </ul>
   );
 }

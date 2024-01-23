@@ -1,5 +1,6 @@
-import { ErrorCause } from '../../src/context/virtual-drive/shared/domain/ErrorCause';
-import { AppError, AppIssue } from '../../src/shared/issues/AppIssue';
+import { AppError } from '../../src/shared/issues/AppError';
+import { AppIssue } from '../../src/shared/issues/AppIssue';
+import { ErrorCause } from '../../src/shared/issues/ErrorCause';
 import { FatalError } from '../../src/shared/issues/FatalError';
 import { VirtualDriveIssue } from '../../src/shared/issues/VirtualDriveIssue';
 

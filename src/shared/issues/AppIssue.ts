@@ -1,6 +1,4 @@
-const AppErrors = ['UNKNOWN_DEVICE_NAME'] as const;
-
-export type AppError = (typeof AppErrors)[number];
+import { AppError } from './AppError';
 
 export type AppIssue = {
   action: 'GET_DEVICE_NAME_ERROR';

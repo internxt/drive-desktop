@@ -15,7 +15,7 @@ import { getWindowTopBarTitle } from './selectors';
 import { wait } from './utils';
 import { DEFAULT_LANGUAGE } from '../src/apps/shared/Locale/Language';
 import { FatalError } from '../src/shared/issues/FatalError';
-import { ErrorCause } from '../src/context/virtual-drive/shared/domain/ErrorCause';
+import { ErrorCause } from '../src/shared/issues/ErrorCause';
 import { AppIssue } from '../src/shared/issues/AppIssue';
 
 const activeTabSelector = 'button.text-neutral-500';
