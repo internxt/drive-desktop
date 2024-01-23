@@ -31,7 +31,7 @@ ipcMain.on('SYNC_PROBLEM', (_, payload) => {
   addVirtualDriveIssue({
     error: 'GENERATE_TREE',
     cause: 'DUPLICATED_NODE',
-    node: payload.additionalData.name,
+    name: payload.additionalData.name,
   });
 });
 

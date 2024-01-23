@@ -84,7 +84,7 @@ export class MainProcessSyncFileMessenger
     });
 
     const issue: VirtualDriveIssue = {
-      node: name,
+      name: name,
       error: 'DELETE_ERROR',
       cause: 'UNKNOWN',
     };

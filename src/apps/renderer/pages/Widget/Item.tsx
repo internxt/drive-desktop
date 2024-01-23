@@ -2,10 +2,10 @@ import { Check } from '@phosphor-icons/react';
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import { useTranslationContext } from '../../context/LocalContext';
 import { getBaseName, getExtension } from '../../utils/path';
-import { ProcessInfo } from '../../../shared/types';
+import { DriveInfo } from '../../../shared/types';
 import { fileIcon } from '../../assets/icons/getIcon';
 
-export function Item({ name, action, progress }: ProcessInfo) {
+export function Item({ name, action, progress }: DriveInfo) {
   const { translate } = useTranslationContext();
   const progressDisplay = progress ? `${Math.ceil(progress * 100)}%` : '';
 

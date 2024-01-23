@@ -6,7 +6,7 @@ export class MainProcessTreeBuilderMessenger implements TreeBuilderMessenger {
     addVirtualDriveIssue({
       error: 'GENERATE_TREE',
       cause: 'DUPLICATED_NODE',
-      node: name,
+      name: name,
     });
   }
 }

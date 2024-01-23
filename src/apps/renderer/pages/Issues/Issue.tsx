@@ -68,11 +68,11 @@ export function Issue({
             {issues.map((issue) => (
               <div
                 className="flex min-w-0 items-center space-x-2.5 overflow-hidden"
-                key={issue.node}
+                key={issue.name}
               >
                 <FileIcon className="h-5 w-5 shrink-0" />
                 <p className="flex flex-1 text-gray-60">
-                  {getBaseName(issue.node)}
+                  {getBaseName(issue.name)}
                 </p>
               </div>
             ))}

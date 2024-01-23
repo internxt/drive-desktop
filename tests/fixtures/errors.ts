@@ -12,7 +12,7 @@ export const createBackupFatalError = (errorName: FatalError) => ({
 export const createSyncError = (
   processErrorName: ErrorCause
 ): VirtualDriveIssue => ({
-  node: 'name',
+  name: 'name',
   error: 'DELETE_ERROR',
   cause: processErrorName,
 });

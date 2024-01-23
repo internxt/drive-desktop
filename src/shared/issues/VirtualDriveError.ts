@@ -1,4 +1,4 @@
-export const VirtualDriveErrors = [
+const VirtualDriveErrors = [
   'UPLOAD_ERROR',
   'DOWNLOAD_ERROR',
   'RENAME_ERROR',
@@ -8,3 +8,7 @@ export const VirtualDriveErrors = [
 ] as const;
 
 export type VirtualDriveError = (typeof VirtualDriveErrors)[number];
+
+export function isVirtualDriveError(maybe: string): maybe is VirtualDriveError {
+  return VirtualDriveErrors.includes(maybe as VirtualDriveError);
+}
