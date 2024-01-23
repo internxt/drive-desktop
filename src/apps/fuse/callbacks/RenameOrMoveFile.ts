@@ -9,6 +9,8 @@ import {
   FuseFileOrDirectoryAlreadyExistsError,
   FuseIOError,
 } from './FuseErrors';
+import { DriveDesktopError } from '../../../context/shared/domain/errors/DriveDesktopError';
+import { SyncErrorCause } from '../../../shared/issues/SyncErrorCause';
 
 export class RenameOrMoveFile {
   constructor(private readonly container: VirtualDriveDependencyContainer) {}
@@ -61,10 +63,13 @@ export class RenameOrMoveFile {
       const current = path.basename(src);
       const desired = path.basename(dest);
 
+      const cause: SyncErrorCause =
+        err instanceof DriveDesktopError ? err.syncErrorCause : 'UNKNOWN';
+
       await this.container.syncFileMessenger.errorWhileRenaming(
         current,
         desired,
-        error.message
+        cause
       );
 
       return error;

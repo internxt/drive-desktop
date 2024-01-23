@@ -1,6 +1,6 @@
-import { ErrorCause } from '../../../shared/issues/ErrorCause';
+import { SyncErrorCause } from '../../../shared/issues/SyncErrorCause';
 
-type ProcessErrorMessages = Record<ErrorCause, string>;
+type ProcessErrorMessages = Record<SyncErrorCause, string>;
 
 export const shortMessages: ProcessErrorMessages = {
   NOT_EXISTS: 'issues.short-error-messages.file-does-not-exist',

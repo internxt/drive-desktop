@@ -6,7 +6,7 @@ import { useTranslationContext } from '../../context/LocalContext';
 import { getBaseName } from '../../utils/path';
 import { shortMessages } from '../../messages/virtual-drive-error';
 import { VirtualDriveIssue } from '../../../../shared/issues/VirtualDriveIssue';
-import { ErrorCause } from '../../../../shared/issues/ErrorCause';
+import { SyncErrorCause } from '../../../../shared/issues/SyncErrorCause';
 import { useState } from 'react';
 import { Accordion } from './Accordion';
 
@@ -21,10 +21,10 @@ function groupAppIssuesByErrorName(issues: VirtualDriveIssue[]) {
     acc[key].push(current);
 
     return acc;
-  }, {} as Record<ErrorCause, VirtualDriveIssue[]>);
+  }, {} as Record<SyncErrorCause, VirtualDriveIssue[]>);
 
   return Object.entries(appIssuesGroupedByErrorName) as Array<
-    [ErrorCause, Array<VirtualDriveIssue>]
+    [SyncErrorCause, Array<VirtualDriveIssue>]
   >;
 }
 
@@ -33,7 +33,7 @@ function VirtualDriveIssue({
   issues,
   extend,
 }: {
-  errorName: ErrorCause;
+  errorName: SyncErrorCause;
   issues: VirtualDriveIssue[];
   extend: boolean;
 }) {
@@ -106,15 +106,15 @@ export function SyncIssuesByErrorAccordion({
   issues,
 }: VirtualDriveIssuesByErrorAccordionProps) {
   const { translate } = useTranslationContext();
-  const [selected, setSelected] = useState<ErrorCause | null>(null);
+  const [selected, setSelected] = useState<SyncErrorCause | null>(null);
 
   const issuesByCauseArray = groupAppIssuesByErrorName(issues);
 
-  const isSelected = (cause: ErrorCause) => {
+  const isSelected = (cause: SyncErrorCause) => {
     return cause === selected;
   };
 
-  const toggleOrSelectCause = (clickedCause: ErrorCause) => () => {
+  const toggleOrSelectCause = (clickedCause: SyncErrorCause) => () => {
     if (clickedCause === selected) {
       setSelected(null);
       return;

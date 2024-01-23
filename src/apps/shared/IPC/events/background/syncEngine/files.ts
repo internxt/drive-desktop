@@ -1,4 +1,4 @@
-import { ErrorCause } from '../../../../../../shared/issues/ErrorCause';
+import { SyncErrorCause } from '../../../../../../shared/issues/SyncErrorCause';
 
 type ProcessInfo = {
   elapsedTime: number;
@@ -34,7 +34,7 @@ export type FilesEvents = {
     name: string;
     extension: string;
     nameWithExtension: string;
-    cause: ErrorCause;
+    cause: SyncErrorCause;
   }) => void;
 
   FILE_DELETING: (payload: {

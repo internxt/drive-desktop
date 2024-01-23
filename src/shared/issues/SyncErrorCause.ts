@@ -1,4 +1,4 @@
-export type ErrorCause =
+export type SyncErrorCause =
   // File or folder does not exist
   | 'NOT_EXISTS'
 
@@ -27,4 +27,6 @@ export type ErrorCause =
   | 'UNKNOWN'
 
   // Duplicated node path
-  | 'DUPLICATED_NODE';
+  | 'DUPLICATED_NODE'
+  | 'ACTION_NOT_PERMITTED'
+  | 'FILE_ALREADY_EXISTS';
