@@ -1102,6 +1102,11 @@
     enabled "2.0.x"
     kuler "^2.0.0"
 
+"@dashlane/pqc-kem-kyber512-node@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@dashlane/pqc-kem-kyber512-node/-/pqc-kem-kyber512-node-1.0.0.tgz#0305f8a6c86595a1dc3b0d16184237c71e912d8c"
+  integrity sha512-gVzQwP/1OqKLyYZ/oRI9uECSnYIcLUcZbnAA34Q2l8X1eXq5JWf304tDp1UTdYdJ+ZE58SmQ68VCa/WvpCviGw==
+
 "@develar/schema-utils@~2.6.5":
   version "2.6.5"
   resolved "https://registry.npmjs.org/@develar/schema-utils/-/schema-utils-2.6.5.tgz"

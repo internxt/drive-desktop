@@ -261,6 +261,7 @@
     "webpack-merge": "^5.8.0"
   },
   "dependencies": {
+    "@dashlane/pqc-kem-kyber512-node": "^1.0.0",
     "@headlessui/react": "^1.4.2",
     "@iconscout/react-unicons": "^1.1.6",
     "@internxt/inxt-js": "^2.0.8",
