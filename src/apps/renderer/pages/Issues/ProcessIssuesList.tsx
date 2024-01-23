@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import { AppIssue, ErrorCause } from '../../../shared/types';
+import { AppIssue } from '../../../shared/types';
 import { Issue } from './Issue';
 import { NoIssues } from './NoIssues';
 import { Section } from './Section';
 import { AppErrorName } from '../../../../shared/issues/AppIssue';
 import { VirtualDriveIssue } from '../../../../shared/issues/VirtualDriveIssue';
 import { AppIssueElement } from './GeneralIssue';
+import { ErrorCause } from '../../../../context/virtual-drive/shared/domain/ErrorCause';
 
 type ProcessIssuesListProps = {
   selectedTab: Section;

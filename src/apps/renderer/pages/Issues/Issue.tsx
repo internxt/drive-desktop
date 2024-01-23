@@ -1,12 +1,12 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { CaretDown } from 'phosphor-react';
-import { ErrorCause } from '../../../shared/types';
 import FileIcon from '../../assets/file.svg';
 import WarnIcon from '../../assets/warn.svg';
 import { useTranslationContext } from '../../context/LocalContext';
 import { getBaseName } from '../../utils/path';
 import { shortMessages } from '../../messages/virtual-drive-error';
 import { VirtualDriveIssue } from '../../../../shared/issues/VirtualDriveIssue';
+import { ErrorCause } from '../../../../context/virtual-drive/shared/domain/ErrorCause';
 
 export function Issue({
   errorName,

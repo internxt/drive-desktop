@@ -14,8 +14,9 @@ import {
 import { getWindowTopBarTitle } from './selectors';
 import { wait } from './utils';
 import { DEFAULT_LANGUAGE } from '../src/apps/shared/Locale/Language';
-import { ErrorCause, AppIssue } from '../src/apps/shared/types';
+import { AppIssue } from '../src/apps/shared/types';
 import { FatalError } from '../src/shared/issues/FatalError';
+import { ErrorCause } from '../src/context/virtual-drive/shared/domain/ErrorCause';
 
 const activeTabSelector = 'button.text-neutral-500';
 const tabSelector = (name: 'Sync' | 'Backups' | 'General') =>

@@ -1,4 +1,4 @@
-import { ErrorCause } from '../../apps/shared/types';
+import { ErrorCause } from '../../context/virtual-drive/shared/domain/ErrorCause';
 import { VirtualDriveError } from './VirtualDriveError';
 
 export type VirtualDriveIssue = {

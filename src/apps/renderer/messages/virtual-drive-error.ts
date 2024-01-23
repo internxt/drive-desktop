@@ -1,4 +1,4 @@
-import { ErrorCause } from '../../shared/types';
+import { ErrorCause } from '../../../context/virtual-drive/shared/domain/ErrorCause';
 
 type ProcessErrorMessages = Record<ErrorCause, string>;
 
