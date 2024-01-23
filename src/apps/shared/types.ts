@@ -1,6 +1,6 @@
 import { AppErrorName } from '../../shared/issues/AppIssue';
 
-export type ProcessErrorName =
+export type ErrorCause =
   // File or folder does not exist
   | 'NOT_EXISTS'
 
@@ -34,7 +34,7 @@ export type ProcessErrorName =
 export class ProcessError extends Error {
   details: ErrorDetails;
 
-  constructor(name: ProcessErrorName, details: ErrorDetails) {
+  constructor(name: ErrorCause, details: ErrorDetails) {
     super();
     this.name = name;
     this.details = details;

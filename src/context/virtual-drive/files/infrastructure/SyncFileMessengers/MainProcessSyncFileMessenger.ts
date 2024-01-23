@@ -85,8 +85,8 @@ export class MainProcessSyncFileMessenger
 
     const issue: VirtualDriveIssue = {
       node: name,
-      action: 'DELETE_ERROR',
-      errorName: 'UNKNOWN',
+      error: 'DELETE_ERROR',
+      cause: 'UNKNOWN',
     };
 
     addVirtualDriveIssue(issue);

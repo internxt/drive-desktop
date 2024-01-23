@@ -29,8 +29,8 @@ export function addVirtualDriveIssue(issue: VirtualDriveIssue) {
 
 ipcMain.on('SYNC_PROBLEM', (_, payload) => {
   addVirtualDriveIssue({
-    action: 'GENERATE_TREE',
-    errorName: 'DUPLICATED_NODE',
+    error: 'GENERATE_TREE',
+    cause: 'DUPLICATED_NODE',
     node: payload.additionalData.name,
   });
 });

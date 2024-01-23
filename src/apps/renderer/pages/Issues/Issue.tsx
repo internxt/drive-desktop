@@ -1,11 +1,11 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { CaretDown } from 'phosphor-react';
-import { ProcessErrorName } from '../../../shared/types';
+import { ErrorCause } from '../../../shared/types';
 import FileIcon from '../../assets/file.svg';
 import WarnIcon from '../../assets/warn.svg';
 import { useTranslationContext } from '../../context/LocalContext';
 import { getBaseName } from '../../utils/path';
-import { shortMessages } from '../../messages/process-error';
+import { shortMessages } from '../../messages/virtual-drive-error';
 import { VirtualDriveIssue } from '../../../../shared/issues/VirtualDriveIssue';
 
 export function Issue({
@@ -14,7 +14,7 @@ export function Issue({
   isSelected,
   onClick,
 }: {
-  errorName: ProcessErrorName;
+  errorName: ErrorCause;
   issues: VirtualDriveIssue[];
   isSelected: boolean;
   onClick: () => void;

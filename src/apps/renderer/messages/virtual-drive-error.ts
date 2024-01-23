@@ -1,6 +1,6 @@
-import { ProcessErrorName } from '../../shared/types';
+import { ErrorCause } from '../../shared/types';
 
-type ProcessErrorMessages = Record<ProcessErrorName, string>;
+type ProcessErrorMessages = Record<ErrorCause, string>;
 
 export const shortMessages: ProcessErrorMessages = {
   NOT_EXISTS: 'issues.short-error-messages.file-does-not-exist',

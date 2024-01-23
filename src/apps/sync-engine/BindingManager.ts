@@ -3,13 +3,13 @@ import * as fs from 'fs';
 // @ts-ignore
 import { VirtualDrive } from 'virtual-drive/dist';
 import { FilePlaceholderId } from '../../context/virtual-drive/files/domain/PlaceholderId';
-import { ItemsSearcher } from '../../context/virtual-drive/items/application/ItemsSearcher';
 import { PlatformPathConverter } from '../../context/virtual-drive/shared/application/PlatformPathConverter';
 import { buildControllers } from './callbacks-controllers/buildControllers';
 import { executeControllerWithFallback } from './callbacks-controllers/middlewares/executeControllerWithFallback';
 import { SyncEngineDependencyContainer } from './dependency-injection/SyncEngineDependencyContainer';
 import { SyncEngineIPC } from './SyncEngineIpc';
 import { VirtualDriveIssue } from '../../shared/issues/VirtualDriveIssue';
+import { ItemsSearcher } from '../../context/virtual-drive/tree/application/ItemsSearcher';
 
 export type CallbackDownload = (
   success: boolean,
@@ -147,8 +147,8 @@ export class BindingsManager {
       },
       notifyMessageCallback: (
         message: string,
-        action: VirtualDriveIssue['action'],
-        errorName: VirtualDriveIssue['errorName'],
+        action: VirtualDriveIssue['error'],
+        errorName: VirtualDriveIssue['cause'],
         callback: (response: boolean) => void
       ) => {
         try {

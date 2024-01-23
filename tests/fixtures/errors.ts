@@ -1,22 +1,20 @@
-import { ProcessErrorName, AppIssue } from '../../src/apps/shared/types';
+import { ErrorCause, AppIssue } from '../../src/apps/shared/types';
 import { AppErrorName } from '../../src/shared/issues/AppIssue';
-import {
-  ProcessFatalErrorName,
-  VirtualDriveIssue,
-} from '../../src/shared/issues/VirtualDriveIssue';
+import { FatalError } from '../../src/shared/issues/FatalError';
+import { VirtualDriveIssue } from '../../src/shared/issues/VirtualDriveIssue';
 
-export const createBackupFatalError = (errorName: ProcessFatalErrorName) => ({
+export const createBackupFatalError = (errorName: FatalError) => ({
   path: `folder/file${Date.now()}.txt`,
   folderId: 24816,
   errorName,
 });
 
 export const createSyncError = (
-  processErrorName: ProcessErrorName
+  processErrorName: ErrorCause
 ): VirtualDriveIssue => ({
   node: 'name',
-  action: 'DELETE_ERROR',
-  errorName: processErrorName,
+  error: 'DELETE_ERROR',
+  cause: processErrorName,
 });
 
 export const createGeneralIssueFixture = (name: AppErrorName): AppIssue => ({
@@ -24,8 +22,8 @@ export const createGeneralIssueFixture = (name: AppErrorName): AppIssue => ({
   errorName: name,
   process: 'GENERAL',
   errorDetails: {
-    name: 'Device name could not be retrived',
-    message: 'Error retriving the device name',
+    name: 'Device name could not be retrieved',
+    message: 'Error retrieving the device name',
     stack: '',
   },
 });

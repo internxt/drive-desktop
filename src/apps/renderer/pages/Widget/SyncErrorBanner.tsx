@@ -1,14 +1,14 @@
 import { SyncStatus } from '../../../../context/desktop/sync/domain/SyncStatus';
-import { ProcessFatalErrorName } from '../../../../shared/issues/VirtualDriveIssue';
+import { FatalError } from '../../../../shared/issues/FatalError';
 import Error from '../../assets/error.svg';
 import Warn from '../../assets/warn.svg';
 import { useTranslationContext } from '../../context/LocalContext';
 import useSyncStatus from '../../hooks/useSyncStatus';
 import useSyncStopped from '../../hooks/useSyncStopped';
-import SyncFatalErrorMessages from '../../messages/process-fatal-error';
+import SyncFatalErrorMessages from '../../messages/fatal-error';
 
 const fatalErrorActionMap: Record<
-  ProcessFatalErrorName,
+  FatalError,
   { name: string; func: () => void } | undefined
 > = {
   BASE_DIRECTORY_DOES_NOT_EXIST: {

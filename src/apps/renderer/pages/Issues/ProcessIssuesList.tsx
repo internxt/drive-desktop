@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { AppIssue, ProcessErrorName } from '../../../shared/types';
+import { AppIssue, ErrorCause } from '../../../shared/types';
 import { Issue } from './Issue';
 import { NoIssues } from './NoIssues';
 import { Section } from './Section';
@@ -20,7 +20,7 @@ export default function ProcessIssuesList({
   issues,
 }: ProcessIssuesListProps) {
   const [selectedErrorName, setSelectedErrorName] = useState<
-    ProcessErrorName | AppErrorName | null
+    ErrorCause | AppErrorName | null
   >(null);
 
   const renderItems = () => {
@@ -45,7 +45,7 @@ export default function ProcessIssuesList({
     }
 
     return issues[selectedTab].map((issue) => {
-      const error = issue.errorName;
+      const error = issue.cause;
       return (
         <Issue
           key={error}
@@ -55,7 +55,7 @@ export default function ProcessIssuesList({
               : setSelectedErrorName(error)
           }
           errorName={error}
-          issues={issues[selectedTab].filter((i) => i.errorName === error)}
+          issues={issues[selectedTab].filter((i) => i.cause === error)}
           isSelected={selectedErrorName === error}
         />
       );

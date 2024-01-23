@@ -1,6 +1,6 @@
-import { ProcessFatalErrorName } from '../../../shared/issues/VirtualDriveIssue';
+import { FatalError } from '../../../shared/issues/FatalError';
 
-const messages: Record<ProcessFatalErrorName, string> = {
+const messages: Record<FatalError, string> = {
   NO_INTERNET: 'issues.error-messages.no-internet',
   NO_REMOTE_CONNECTION: 'issues.error-messages.no-remote-connection',
   CANNOT_GET_CURRENT_LISTINGS:
