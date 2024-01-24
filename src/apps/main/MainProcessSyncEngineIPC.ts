@@ -1,11 +1,11 @@
 import { ipcMain } from 'electron';
-import { CustomIpc } from '../shared/IPC/IPCs';
-import { MainProcessSyncEngineEvents } from '../shared/IPC/events/main/syncEngine';
-import { BackgroundProcessSyncEngineEvents } from '../shared/IPC/events/background/syncEngine/synEngine';
+import { TypedIPC } from '../shared/IPC/IPCs';
+import { MainProcessVirtualDriveEvents } from '../shared/IPC/events/virtualDrive/MainProcessVirtualDriveEvents';
+import { BackgroundProcessVirtualDriveEvents } from '../shared/IPC/events/virtualDrive/BackgroundProcessVirtualDriveEvents';
 
-export type MainProcessSyncEngineIPC = CustomIpc<
-  MainProcessSyncEngineEvents,
-  BackgroundProcessSyncEngineEvents
+export type MainProcessSyncEngineIPC = TypedIPC<
+  MainProcessVirtualDriveEvents,
+  BackgroundProcessVirtualDriveEvents
 >;
 
 export const MainProcessSyncEngineIPC =

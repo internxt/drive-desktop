@@ -1,5 +1,5 @@
-import { BackgroundProcessSyncEngineEvents } from '../../../../../src/apps/shared/IPC/events/background/syncEngine/synEngine';
-import { MainProcessSyncEngineEvents } from '../../../../../src/apps/shared/IPC/events/main/syncEngine';
+import { BackgroundProcessVirtualDriveEvents } from '../../../../../src/apps/shared/IPC/events/virtualDrive/BackgroundProcessVirtualDriveEvents';
+import { MainProcessVirtualDriveEvents } from '../../../../../src/apps/shared/IPC/events/virtualDrive/MainProcessVirtualDriveEvents';
 import { SyncEngineIpc } from '../../../../../src/apps/sync-engine/SyncEngineIpc';
 
 export class IpcRendererSyncEngineMock implements SyncEngineIpc {
@@ -32,9 +32,9 @@ export class IpcRendererSyncEngineMock implements SyncEngineIpc {
     event: Event,
     listener: (
       event: Electron.IpcMainEvent,
-      ...args: Parameters<BackgroundProcessSyncEngineEvents[Event]>
+      ...args: Parameters<BackgroundProcessVirtualDriveEvents[Event]>
     ) => void
-  ): Promise<ReturnType<MainProcessSyncEngineEvents[Event]>> {
+  ): Promise<ReturnType<MainProcessVirtualDriveEvents[Event]>> {
     return this.handleMock(event, listener);
   }
 }

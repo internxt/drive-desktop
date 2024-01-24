@@ -8,4 +8,4 @@ type TreeEvents = {
   }>;
 };
 
-export type MainProcessSyncEngineEvents = TreeEvents;
+export type MainProcessVirtualDriveEvents = TreeEvents;

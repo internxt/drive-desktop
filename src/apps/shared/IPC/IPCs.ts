@@ -2,7 +2,7 @@ import { IpcMainEvent } from 'electron';
 
 type EventHandler = (...args: any) => any;
 
-export type CustomIPCEvents = Record<string, EventHandler>;
+type CustomIPCEvents = Record<string, EventHandler>;
 
 type NonVoidReturnHandler<T extends CustomIPCEvents> = {
   [Property in keyof T as ReturnType<T[Property]> extends void
@@ -22,7 +22,7 @@ type VoidParamsHandler<T extends CustomIPCEvents> = {
     : never]: T[Property];
 };
 
-export interface CustomIpc<
+export interface TypedIPC<
   EmittedEvents extends CustomIPCEvents,
   ListenedEvents extends CustomIPCEvents
 > {

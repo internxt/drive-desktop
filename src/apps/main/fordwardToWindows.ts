@@ -1,6 +1,5 @@
 import { broadcastToWindows } from './windows';
 import { MainProcessSyncEngineIPC } from './MainProcessSyncEngineIPC';
-import Logger from 'electron-log';
 
 MainProcessSyncEngineIPC.on('FILE_DELETED', (_, payload) => {
   const { nameWithExtension } = payload;
@@ -89,7 +88,7 @@ MainProcessSyncEngineIPC.on('FILE_UPLOAD_ERROR', (_, payload) => {
 MainProcessSyncEngineIPC.on('FILE_DOWNLOAD_ERROR', (_, payload) => {
   const { nameWithExtension } = payload;
 
-  broadcastToWindows('sync-info-update', {
+  broadcastToWindows('sync-error', {
     action: 'DOWNLOAD_ERROR',
     name: nameWithExtension,
   });
@@ -98,7 +97,7 @@ MainProcessSyncEngineIPC.on('FILE_DOWNLOAD_ERROR', (_, payload) => {
 MainProcessSyncEngineIPC.on('FILE_RENAME_ERROR', (_, payload) => {
   const { nameWithExtension } = payload;
 
-  broadcastToWindows('sync-info-update', {
+  broadcastToWindows('sync-error', {
     action: 'RENAME_ERROR',
     name: nameWithExtension,
   });
@@ -107,7 +106,7 @@ MainProcessSyncEngineIPC.on('FILE_RENAME_ERROR', (_, payload) => {
 MainProcessSyncEngineIPC.on('FILE_DELETION_ERROR', (_, payload) => {
   const { nameWithExtension } = payload;
 
-  broadcastToWindows('sync-info-update', {
+  broadcastToWindows('sync-error', {
     action: 'DELETE_ERROR',
     name: nameWithExtension,
   });
