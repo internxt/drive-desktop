@@ -27,17 +27,32 @@ export abstract class FuseCallback<T> {
     }
   ) {}
 
-  private async logTime(fun: () => Promise<Either<FuseError, T>>) {
+  protected async executeAndCatch(
+    params: any[]
+  ): Promise<Either<FuseError, T>> {
+    // Ensure that an Either is always returned
+
     const stopwatch = new Stopwatch();
-    stopwatch.start();
+    try {
+      stopwatch.start();
 
-    const result = await fun();
+      const result = await this.execute(...params);
 
-    if (this.debug.elapsedTime) {
-      Logger.debug(`Elapsed time for ${this.name}: `, stopwatch.elapsedTime());
+      return result;
+    } catch (throwed: unknown) {
+      if (throwed instanceof FuseError) {
+        return this.left(throwed);
+      }
+
+      return this.left(new FuseUnknownError());
+    } finally {
+      if (this.debug.elapsedTime) {
+        Logger.debug(
+          `Elapsed time for ${this.name}: `,
+          stopwatch.elapsedTime()
+        );
+      }
     }
-
-    return result;
   }
 
   protected right(value: T): Either<FuseError, T> {
@@ -73,7 +88,7 @@ export abstract class FuseCallback<T> {
       Logger.debug(`${this.name}: `, ...params);
     }
 
-    const result = await this.logTime(() => this.execute(...params));
+    const result = await this.executeAndCatch(params);
 
     if (result.isLeft()) {
       const error = result.getLeft();
@@ -100,22 +115,14 @@ export abstract class NotifyFuseCallback extends FuseCallback<undefined> {
   async handle(...params: any[]): Promise<void> {
     const callback = params.pop() as Callback;
 
-    try {
-      const result = await this.execute(...params);
+    const result = await this.executeAndCatch(params);
 
-      if (result.isLeft()) {
-        const error = result.getLeft();
+    if (result.isLeft()) {
+      const error = result.getLeft();
 
-        return callback(error.code);
-      }
-
-      callback(NotifyFuseCallback.OK);
-    } catch (throwed: unknown) {
-      if (throwed instanceof FuseError) {
-        return callback(throwed.code);
-      }
-
-      return callback(FuseCodes.EIO);
+      return callback(error.code);
     }
+
+    callback(NotifyFuseCallback.OK);
   }
 }

@@ -21,7 +21,7 @@ export class MakeDirectoryCallback extends NotifyFuseCallback {
         'unknown error'
       );
 
-      throw throwed;
+      return this.left(throwed);
     }
   }
 }
