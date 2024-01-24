@@ -147,19 +147,18 @@ export class BindingsManager {
       },
       notifyMessageCallback: (
         message: string,
-        action: VirtualDriveIssue['error'],
-        errorName: VirtualDriveIssue['cause'],
+        _error: VirtualDriveIssue['error'],
+        cause: VirtualDriveIssue['cause'],
         callback: (response: boolean) => void
       ) => {
         try {
           callback(true);
-          // ipcRendererSyncEngine.send('SYNC_INFO_UPDATE', {
-          //   name: message,
-          //   action: action,
-          //   errorName,
-          //   process: 'SYNC',
-          //   kind: 'LOCAL',
-          // });
+          SyncEngineIPC.send('FILE_UPLOAD_ERROR', {
+            name: message,
+            cause,
+            extension: '',
+            nameWithExtension: '',
+          });
         } catch (error) {
           Logger.error(error);
           callback(false);

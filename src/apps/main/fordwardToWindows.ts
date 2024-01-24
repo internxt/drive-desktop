@@ -80,8 +80,6 @@ MainProcessSyncEngineIPC.on('FILE_CREATED', (_, payload) => {
 MainProcessSyncEngineIPC.on('FILE_UPLOAD_ERROR', (_, payload) => {
   const { nameWithExtension } = payload;
 
-  Logger.debug('FILE_UPLOAD_ERROR', payload);
-
   broadcastToWindows('sync-error', {
     action: 'UPLOAD_ERROR',
     name: nameWithExtension,
