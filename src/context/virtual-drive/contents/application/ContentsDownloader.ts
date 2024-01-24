@@ -11,6 +11,7 @@ import { LocalFileContents } from '../domain/LocalFileContents';
 import { ContentFileDownloader } from '../domain/contentHandlers/ContentFileDownloader';
 import { LocalFileSystem } from '../domain/LocalFileSystem';
 import { LocalFileContentsDirectoryProvider } from '../../shared/domain/LocalFileContentsDirectoryProvider';
+import { DriveDesktopError } from '../../../shared/domain/errors/DriveDesktopError';
 
 export class ContentsDownloader {
   private readableDownloader: Readable | null;
@@ -75,16 +76,19 @@ export class ContentsDownloader {
     });
 
     downloader.on('error', (error: Error) => {
+      const cause =
+        error instanceof DriveDesktopError ? error.syncErrorCause : 'UNKNOWN';
+
       this.ipc.send('FILE_DOWNLOAD_ERROR', {
         name: file.name,
         extension: file.type,
         nameWithExtension: file.nameWithExtension,
-        error: error.message,
+        cause,
       });
     });
 
     downloader.on('finish', () => {
-      // The file download being finished does not mean it has been hidratated
+      // The file download being finished does not mean it has been hydrated
       // TODO: We might want to track this time instead of the whole completion time
     });
   }

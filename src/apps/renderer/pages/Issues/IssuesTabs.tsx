@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { useTranslationContext } from '../../context/LocalContext';
 import { Section } from './Section';
 
-function Pill({
+function TabPill({
   value,
   name,
   active,
@@ -74,7 +74,8 @@ export function IssuesTabs({
         />
 
         {tabs.map((tab) => (
-          <Pill
+          <TabPill
+            key={tab.value}
             {...tab}
             active={active === tab.value}
             setAsActive={() => {

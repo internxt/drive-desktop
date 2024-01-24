@@ -71,9 +71,9 @@ MainProcessSyncEngineIPC.on('FILE_UPLOAD_ERROR', (_, payload) => {
 });
 
 MainProcessSyncEngineIPC.on('FILE_DOWNLOAD_ERROR', (_, payload) => {
-  const { name, error } = payload;
+  const { name, cause } = payload;
 
-  trackError('Download Error', new Error(error), {
+  trackError('Download Error', new Error(cause), {
     itemType: 'File',
     root: '',
     from: name,
@@ -82,9 +82,9 @@ MainProcessSyncEngineIPC.on('FILE_DOWNLOAD_ERROR', (_, payload) => {
 });
 
 MainProcessSyncEngineIPC.on('FILE_RENAME_ERROR', (_, payload) => {
-  const { name, error } = payload;
+  const { name, cause } = payload;
 
-  trackError('Rename Error', new Error(error), {
+  trackError('Rename Error', new Error(cause), {
     itemType: 'File',
     root: '',
     from: name,
@@ -93,9 +93,9 @@ MainProcessSyncEngineIPC.on('FILE_RENAME_ERROR', (_, payload) => {
 });
 
 MainProcessSyncEngineIPC.on('FILE_DELETION_ERROR', (_, payload) => {
-  const { name, error } = payload;
+  const { name, cause } = payload;
 
-  trackError('Delete Error', new Error(error), {
+  trackError('Delete Error', new Error(cause), {
     itemType: 'File',
     root: '',
     from: name,

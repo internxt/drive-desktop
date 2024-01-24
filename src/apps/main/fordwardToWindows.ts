@@ -75,39 +75,3 @@ MainProcessSyncEngineIPC.on('FILE_CREATED', (_, payload) => {
     name: nameWithExtension,
   });
 });
-
-MainProcessSyncEngineIPC.on('FILE_UPLOAD_ERROR', (_, payload) => {
-  const { nameWithExtension } = payload;
-
-  broadcastToWindows('sync-error', {
-    action: 'UPLOAD_ERROR',
-    name: nameWithExtension,
-  });
-});
-
-MainProcessSyncEngineIPC.on('FILE_DOWNLOAD_ERROR', (_, payload) => {
-  const { nameWithExtension } = payload;
-
-  broadcastToWindows('sync-error', {
-    action: 'DOWNLOAD_ERROR',
-    name: nameWithExtension,
-  });
-});
-
-MainProcessSyncEngineIPC.on('FILE_RENAME_ERROR', (_, payload) => {
-  const { nameWithExtension } = payload;
-
-  broadcastToWindows('sync-error', {
-    action: 'RENAME_ERROR',
-    name: nameWithExtension,
-  });
-});
-
-MainProcessSyncEngineIPC.on('FILE_DELETION_ERROR', (_, payload) => {
-  const { nameWithExtension } = payload;
-
-  broadcastToWindows('sync-error', {
-    action: 'DELETE_ERROR',
-    name: nameWithExtension,
-  });
-});

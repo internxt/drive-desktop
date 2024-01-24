@@ -25,7 +25,7 @@ export type FilesEvents = {
     name: string;
     extension: string;
     nameWithExtension: string;
-    error: string;
+    cause: SyncErrorCause;
   }) => void;
 
   FILE_DOWNLOADING: (payload: FileUpdatePayload) => void;
@@ -53,7 +53,7 @@ export type FilesEvents = {
     name: string;
     extension: string;
     nameWithExtension: string;
-    error: string;
+    cause: SyncErrorCause;
   }) => void;
 
   FILE_RENAMING: (payload: {
@@ -72,7 +72,7 @@ export type FilesEvents = {
     name: string;
     extension: string;
     nameWithExtension: string;
-    error: string;
+    cause: SyncErrorCause;
   }) => void;
 
   FILE_OVERWRITTEN: (payload: { nameWithExtension: string }) => void;

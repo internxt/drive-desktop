@@ -11,7 +11,7 @@ function getVirtualDriveIssues() {
 }
 
 function onProcessIssuesChanged() {
-  broadcastToWindows('process-issues-changed', getVirtualDriveIssues);
+  broadcastToWindows('process-issues-changed', getVirtualDriveIssues());
 }
 
 export function clearSyncIssues() {
@@ -32,6 +32,36 @@ MainProcessSyncEngineIPC.on('FILE_UPLOAD_ERROR', (_, payload) => {
     error: 'UPLOAD_ERROR',
     cause: payload.cause,
     name: payload.nameWithExtension,
+  });
+});
+
+MainProcessSyncEngineIPC.on('FILE_DOWNLOAD_ERROR', (_, payload) => {
+  const { nameWithExtension } = payload;
+
+  addVirtualDriveIssue({
+    error: 'DOWNLOAD_ERROR',
+    cause: payload.cause,
+    name: nameWithExtension,
+  });
+});
+
+MainProcessSyncEngineIPC.on('FILE_RENAME_ERROR', (_, payload) => {
+  const { nameWithExtension } = payload;
+
+  addVirtualDriveIssue({
+    error: 'RENAME_ERROR',
+    cause: payload.cause,
+    name: nameWithExtension,
+  });
+});
+
+MainProcessSyncEngineIPC.on('FILE_DELETION_ERROR', (_, payload) => {
+  const { nameWithExtension } = payload;
+
+  addVirtualDriveIssue({
+    error: 'DELETE_ERROR',
+    cause: payload.cause,
+    name: nameWithExtension,
   });
 });
 
