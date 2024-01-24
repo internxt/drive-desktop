@@ -11,11 +11,7 @@ export class TrashFileCallback extends NotifyFuseCallback {
     const file = await this.container.filesSearcher.run({ path });
 
     if (!file) {
-      return this.left(
-        new FuseNoSuchFileOrDirectoryError(
-          `${path} not founded when trying to trash it`
-        )
-      );
+      return this.left(new FuseNoSuchFileOrDirectoryError());
     }
 
     try {
@@ -23,7 +19,7 @@ export class TrashFileCallback extends NotifyFuseCallback {
 
       return this.right();
     } catch {
-      return this.left(new FuseIOError(`trying to trash ${path}`));
+      return this.left(new FuseIOError());
     }
   }
 }

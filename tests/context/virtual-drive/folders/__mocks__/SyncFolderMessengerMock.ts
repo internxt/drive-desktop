@@ -1,12 +1,13 @@
 import { SyncFolderMessenger } from '../../../../../src/context/virtual-drive/folders/domain/SyncFolderMessenger';
 
-export class FolderSyncNotifierMock implements SyncFolderMessenger {
+export class SyncFolderMessengerMock implements SyncFolderMessenger {
   public creatingMock = jest.fn();
   public createdMock = jest.fn();
   public renameMock = jest.fn();
   public renamedMock = jest.fn();
   public errorWhileCreatingMock = jest.fn();
   public errorWhileRenamingMock = jest.fn();
+  public errorWhileTrashingMock = jest.fn();
 
   creating(name: string): Promise<void> {
     return this.creatingMock(name);
@@ -29,5 +30,9 @@ export class FolderSyncNotifierMock implements SyncFolderMessenger {
     message: string
   ): Promise<void> {
     return this.errorWhileRenamingMock(currentName, desiredName, message);
+  }
+
+  errorWhileTrashing(name: string): Promise<void> {
+    return this.errorWhileTrashingMock(name);
   }
 }

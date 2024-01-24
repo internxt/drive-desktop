@@ -53,4 +53,8 @@ export class BackgroundProcessSyncFolderMessenger
       error: message,
     });
   }
+
+  async errorWhileTrashing(_name: string): Promise<void> {
+    // TODO: implement
+  }
 }

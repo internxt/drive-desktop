@@ -1,6 +1,6 @@
 import { Either, right, left } from '../../../context/shared/domain/Either';
 import { Stopwatch } from '../../shared/types/Stopwatch';
-import { FuseError } from './FuseErrors';
+import { FuseError, FuseUnknownError } from './FuseErrors';
 import Logger from 'electron-log';
 import { PathsToIgnore } from './PathsToIgnore';
 import { FuseCodes } from './FuseCodes';
@@ -50,9 +50,16 @@ export abstract class FuseCallback<T> {
     return right(value);
   }
 
-  protected left(error: FuseError): Either<FuseError, T> {
-    Logger.error(`${this.name} Error: ${error.message}.`, error.description);
-    return left(error);
+  protected left(error: FuseError): Either<FuseError, T>;
+  protected left(error: unknown): Either<FuseError, T>;
+
+  protected left(error: FuseError | unknown): Either<FuseError, T> {
+    if (error instanceof FuseError) {
+      return left(error);
+    }
+
+    Logger.error(`${this.name} Error: Unknown.`);
+    return left(new FuseUnknownError());
   }
 
   async handle(...params: any[]): Promise<void> {
@@ -93,13 +100,22 @@ export abstract class NotifyFuseCallback extends FuseCallback<undefined> {
   async handle(...params: any[]): Promise<void> {
     const callback = params.pop() as Callback;
 
-    const result = await this.execute(...params);
+    try {
+      const result = await this.execute(...params);
 
-    if (result.isLeft()) {
-      const error = result.getLeft();
-      return callback(error.code);
+      if (result.isLeft()) {
+        const error = result.getLeft();
+
+        return callback(error.code);
+      }
+
+      callback(NotifyFuseCallback.OK);
+    } catch (throwed: unknown) {
+      if (throwed instanceof FuseError) {
+        return callback(throwed.code);
+      }
+
+      return callback(FuseCodes.EIO);
     }
-
-    callback(NotifyFuseCallback.OK);
   }
 }

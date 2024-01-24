@@ -53,13 +53,13 @@ export class BackgroundProcessSyncFileMessenger
   async errorWhileTrashing(
     name: string,
     extension: string,
-    message: string
+    cause: SyncErrorCause
   ): Promise<void> {
     this.ipc.send('FILE_DELETION_ERROR', {
       name,
       extension,
       nameWithExtension: this.nameWithExtension(name, extension),
-      error: message,
+      cause,
     });
   }
 
@@ -80,7 +80,7 @@ export class BackgroundProcessSyncFileMessenger
   async errorWhileRenaming(
     current: string,
     _desired: string,
-    message: string
+    cause: SyncErrorCause
   ): Promise<void> {
     const extension = path.extname(current);
 
@@ -90,7 +90,7 @@ export class BackgroundProcessSyncFileMessenger
       name,
       extension,
       nameWithExtension: current,
-      error: message,
+      cause,
     });
   }
 }
