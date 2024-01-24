@@ -67,10 +67,10 @@ function GeneralIssueAccordion({
             transition={{ ease: 'easeInOut' }}
             className="space-y-2 overflow-hidden rounded-lg border-gray-20 bg-surface p-3"
           >
-            {issues.map((issue) => (
+            {issues.map((issue, index) => (
               <div
                 className="flex min-w-0 items-center space-x-2.5 overflow-hidden"
-                key={issue.errorDetails.name}
+                key={issue.errorName + index}
               >
                 <FileIcon className="h-5 w-5 shrink-0" />
                 <p className="flex flex-1 text-gray-60">

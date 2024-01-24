@@ -7,6 +7,8 @@ import useSyncStatus from '../../hooks/useSyncStatus';
 import useSyncStopped from '../../hooks/useSyncStopped';
 import SyncFatalErrorMessages from '../../messages/fatal-error';
 
+type ErrorSeverity = 'FATAL' | 'WARN';
+
 const fatalErrorActionMap: Record<
   FatalError,
   { name: string; func: () => void } | undefined
@@ -49,7 +51,7 @@ export default function SyncErrorBanner() {
 
   useSyncStatus(onSyncStatusChanged);
 
-  const severity: 'FATAL' | 'WARN' = 'FATAL' as 'FATAL' | 'WARN';
+  const severity = 'FATAL' as ErrorSeverity;
   const show = stopReason !== null && stopReason?.reason !== 'STOPPED_BY_USER';
 
   const Icon = severity === 'FATAL' ? Error : Warn;

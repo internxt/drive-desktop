@@ -25,7 +25,7 @@ export default function IssuesPage() {
     ) {
       setActiveSection('virtualDrive');
     }
-  }, [virtualDriveIssues, backupFatalErrors, appIssues]);
+  }, [virtualDriveIssues, appIssues]);
 
   return (
     <div className="flex h-screen flex-col overflow-hidden">
