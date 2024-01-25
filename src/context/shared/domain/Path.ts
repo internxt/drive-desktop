@@ -14,10 +14,12 @@ export abstract class Path extends ValueObject<string> {
   ];
 
   constructor(value: string) {
-    super(value);
+    const normalized = path.normalize(value);
 
-    this.ensurePathIsPosix(value);
-    this.ensurePathIsNotMalicious(value);
+    super(normalized);
+
+    this.ensurePathIsPosix(normalized);
+    this.ensurePathIsNotMalicious(normalized);
   }
 
   private ensurePathIsNotMalicious(value: string) {

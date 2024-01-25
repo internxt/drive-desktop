@@ -1,7 +1,7 @@
 import { FolderFinder } from '../../../../../src/context/virtual-drive/folders/application/FolderFinder';
 import { FolderRepository } from '../../../../../src/context/virtual-drive/folders/domain/FolderRepository';
 
-export class FolderFinderTestClass extends FolderFinder {
+export class FolderFinderMock extends FolderFinder {
   constructor() {
     super({} as FolderRepository);
   }

@@ -2,7 +2,7 @@ import { FileFinderByContentsId } from '../../../../../src/context/virtual-drive
 import { FilePathUpdater } from '../../../../../src/context/virtual-drive/files/application/FilePathUpdater';
 import { FilePath } from '../../../../../src/context/virtual-drive/files/domain/FilePath';
 import { FolderFinder } from '../../../../../src/context/virtual-drive/folders/application/FolderFinder';
-import { FolderFinderTestClass } from '../../folders/__mocks__/FolderFinderTestClass';
+import { FolderFinderMock } from '../../folders/__mocks__/FolderFinderMock';
 import { FolderMother } from '../../folders/domain/FolderMother';
 import { EventBusMock } from '../../shared/__mock__/EventBusMock';
 import { FileRepositoryMock } from '../__mocks__/FileRepositoryMock';
@@ -13,7 +13,7 @@ import { FileMother } from '../domain/FileMother';
 describe('File path updater', () => {
   let repository: FileRepositoryMock;
   let fileFinderByContentsId: FileFinderByContentsId;
-  let folderFinder: FolderFinderTestClass;
+  let folderFinder: FolderFinderMock;
   let localFileSystem: LocalFileSystemMock;
   let eventBus: EventBusMock;
   let remoteFileSystemMock: RemoteFileSystemMock;
@@ -21,7 +21,7 @@ describe('File path updater', () => {
 
   beforeEach(() => {
     repository = new FileRepositoryMock();
-    folderFinder = new FolderFinderTestClass();
+    folderFinder = new FolderFinderMock();
     fileFinderByContentsId = new FileFinderByContentsId(repository);
     eventBus = new EventBusMock();
     remoteFileSystemMock = new RemoteFileSystemMock();

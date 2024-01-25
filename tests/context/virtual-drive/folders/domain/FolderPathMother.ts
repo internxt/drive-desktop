@@ -22,4 +22,12 @@ export class FolderPathMother {
 
     return new FolderPath(path.normalize([folder.value, name].join('/')));
   }
+
+  static withDifferentParent(folderPath: FolderPath, name: string): FolderPath {
+    const asArray = folderPath.value.split('/');
+
+    asArray[asArray.length - 2] = name;
+
+    return new FolderPath(asArray.join('/'));
+  }
 }
