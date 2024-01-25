@@ -5,15 +5,16 @@ on: [pull_request]
 jobs:
   test:
     name: 🧪 Lint and test
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
 
     steps:
       - name: Check out Git repository
         uses: actions/checkout@v2
       - name: Use Node.js
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
-          node-version: 16
+          node-version: 18
+          cache: 'yarn'
       - name: Create .npmrc file
         run: |
           echo "registry=https://registry.yarnpkg.com/" > .npmrc
@@ -22,11 +23,13 @@ jobs:
           # You have to use a PAT instead https://github.com/actions/setup-node/issues/49
           echo //npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN }} >> .npmrc
           echo "always-auth=true" >> .npmrc
-      - name: Install dependenciies
-        run: yarn --ignore-scripts
+      - name: Install dependencies
+        uses: bahmutov/npm-install@v1
+        with:
+          install-command: yarn --ignore-scripts --frozen-lockfile
       - name: Lint
         run: yarn run lint
-      - name: Build process
-        run: yarn build
+      - name: Build processes
+        run: yarn build:main && yarn build:renderer
       - name: Run test
         run: yarn test:unit

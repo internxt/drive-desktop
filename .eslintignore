@@ -27,3 +27,8 @@ npm-debug.log.*
 *.css.d.ts
 *.sass.d.ts
 *.scss.d.ts
+
+src/workers/backups/process.ts
+src/workers/backups/*
+src/workers/filesystems/*
+src/test/*

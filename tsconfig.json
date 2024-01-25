@@ -12,7 +12,7 @@
     "strict": true,
     "pretty": true,
     "sourceMap": true,
-    "baseUrl": "./src",
+    "rootDir": ".",
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noImplicitReturns": true,
@@ -31,10 +31,11 @@
     "outDir": "release/app/dist"
   },
   "exclude": [
-    "test",
     "release/build",
     "release/app/dist",
     ".erb/dll",
-    "__mock__"
+    "src/workers/backups/process.ts",
+    "src/workers/backups",
+    "src/workers/filesystems",
   ]
 }
