@@ -1,6 +1,6 @@
 import { DomainEvent } from '../../../../../src/context/shared/domain/DomainEvent';
 import { EventBus } from '../../../../../src/context/virtual-drive/shared/domain/EventBus';
-import { DomainEventSubscribers } from '../../../../../src/context/virtual-drive/shared/infrastructure/DomainEventSubscribers';
+import { SyncEngineDomainEventSubscribers } from '../../../../../src/apps/sync-engine/dependency-injection/SyncEngineDomainEventSubscribers';
 
 export class EventBusMock implements EventBus {
   public publishMock = jest.fn();
@@ -9,7 +9,7 @@ export class EventBusMock implements EventBus {
     this.publishMock(events);
   }
 
-  addSubscribers(_subscribers: DomainEventSubscribers): void {
+  addSubscribers(_subscribers: SyncEngineDomainEventSubscribers): void {
     //
   }
 

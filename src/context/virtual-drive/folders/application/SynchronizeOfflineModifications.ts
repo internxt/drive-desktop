@@ -6,6 +6,7 @@ import { FolderRenamer } from './FolderRenamer';
 import Logger from 'electron-log';
 import { FolderRepository } from '../domain/FolderRepository';
 import { EventRepository } from '../../shared/domain/EventRepository';
+import { FolderPath } from '../domain/FolderPath';
 
 export class SynchronizeOfflineModifications {
   constructor(
@@ -46,7 +47,7 @@ export class SynchronizeOfflineModifications {
 
       try {
         Logger.debug('Updating the folder with path: ', offlineFolder.path);
-        await this.renamer.run(folder, offlineFolder.path);
+        await this.renamer.run(folder, new FolderPath(offlineFolder.path));
         Logger.debug('Folder updated with the path: ', offlineFolder.path);
       } catch (error: unknown) {
         Logger.error(error);

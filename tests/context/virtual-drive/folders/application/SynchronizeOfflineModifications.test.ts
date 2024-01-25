@@ -4,10 +4,11 @@ import { FolderPath } from '../../../../../src/context/virtual-drive/folders/dom
 import { FolderUuid } from '../../../../../src/context/virtual-drive/folders/domain/FolderUuid';
 import { FolderRenamedDomainEvent } from '../../../../../src/context/virtual-drive/folders/domain/events/FolderRenamedDomainEvent';
 import { InMemoryOfflineFolderRepository } from '../../../../../src/context/virtual-drive/folders/infrastructure/InMemoryOfflineFolderRepository';
+import { EventBusMock } from '../../shared/__mock__/EventBusMock';
 import { EventRepositoryMock } from '../../shared/__mock__/EventRepositoryMock';
-import { IpcRendererSyncEngineMock } from '../../shared/__mock__/IpcRendererSyncEngineMock';
 import { FolderRemoteFileSystemMock } from '../__mocks__/FolderRemoteFileSystemMock';
 import { FolderRepositoryMock } from '../__mocks__/FolderRepositoryMock';
+import { FolderSyncNotifierMock } from '../__mocks__/FolderSyncManagerMock';
 import { FolderMother } from '../domain/FolderMother';
 import { OfflineFolderMother } from '../domain/OfflineFolderMother';
 
@@ -17,6 +18,7 @@ describe('Synchronize Offline Modifications', () => {
   let folderRemoteFileSystemMock: FolderRemoteFileSystemMock;
   let renamer: FolderRenamer;
   let eventRepositoryMock: EventRepositoryMock;
+  let notifier: FolderSyncNotifierMock;
 
   let SUT: SynchronizeOfflineModifications;
 
@@ -24,10 +26,13 @@ describe('Synchronize Offline Modifications', () => {
     offlineRepository = new InMemoryOfflineFolderRepository();
     folderRemoteFileSystemMock = new FolderRemoteFileSystemMock();
     repository = new FolderRepositoryMock();
+    notifier = new FolderSyncNotifierMock();
+
     renamer = new FolderRenamer(
       repository,
       folderRemoteFileSystemMock,
-      new IpcRendererSyncEngineMock()
+      new EventBusMock(),
+      notifier
     );
     eventRepositoryMock = new EventRepositoryMock();
 
@@ -112,14 +117,17 @@ describe('Synchronize Offline Modifications', () => {
     const event = new FolderRenamedDomainEvent({
       aggregateId: offlineFolder.uuid,
       previousPath: folder.path,
-      nextPath: offlineFolder.path.value,
+      nextPath: offlineFolder.path,
     });
 
     eventRepositoryMock.searchMock.mockResolvedValueOnce([event]);
 
     await SUT.run(offlineFolder.uuid);
 
-    expect(renamerSpy).toBeCalledWith(folder, offlineFolder.path);
+    expect(renamerSpy).toBeCalledWith(
+      folder,
+      new FolderPath(offlineFolder.path)
+    );
   });
 
   it('makes all the name changes recoded on the events', async () => {

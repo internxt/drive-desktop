@@ -9,7 +9,6 @@ import { ipcMain } from 'electron';
 import { reportError } from '../bug-report/service';
 import { sleep } from '../util';
 import { broadcastToWindows } from '../windows';
-import { updateSyncEngine } from '../background-processes/sync-engine';
 
 let initialSyncReady = false;
 const driveFilesCollection = new DriveFilesCollection();
@@ -84,7 +83,7 @@ eventBus.on('RECEIVED_REMOTE_CHANGES', async () => {
   await sleep(2_000);
 
   await remoteSyncManager.startRemoteSync();
-  updateSyncEngine();
+  eventBus.emit('REMOTE_CHANGES_SYNCHED');
 });
 
 eventBus.on('USER_LOGGED_IN', async () => {

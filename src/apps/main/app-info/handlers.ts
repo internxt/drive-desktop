@@ -1,4 +1,5 @@
 import { ipcMain, app } from 'electron';
+import { getInxtTempFolder } from './helpers';
 
 ipcMain.handle('get-path', (_, path) => {
   const result = app.getPath(path);
@@ -6,7 +7,7 @@ ipcMain.handle('get-path', (_, path) => {
 });
 
 ipcMain.handle('APP:TEMPORAL_FILES_FOLDER', () => {
-  return app.getPath('temp');
+  return getInxtTempFolder();
 });
 
 ipcMain.handle('APP:PREFERRED_LANGUAGE', (): Array<string> => {

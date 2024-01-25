@@ -81,6 +81,7 @@ export class OfflineFile extends AggregateRoot {
         aggregateId: contentsId,
         size: file.size,
         type: path.extension(),
+        path: file.path,
       })
     );
 

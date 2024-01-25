@@ -12,7 +12,7 @@
     },
     "action": {
       "login": "S'identifier",
-      "is-loggin-in": "Se connecter"
+      "is-logging-in": "Se connecter..."
     },
     "create-account": "Créer un compte",
     "2fa": {
@@ -308,13 +308,14 @@
     },
     "short-error-messages": {
       "unknown": "Erreur inconnue",
-      "empty-file": "Le fichier est vide",
+      "empty-file": "Les fichiers vides ne sont pas pris en charge",
       "bad-response": "Mauvaise réponse des serveurs Internxt",
       "no-remote-connection": "Impossible de se connecter aux serveurs Internxt",
       "no-internet-connection": "Pas de connexion internet",
       "no-permission": "Permissions insuffisantes",
       "file-does-not-exist": "Le fichier n'existe pas",
-      "file-too-big": "La taille maximale de téléchargement est de 20 GB. Veuillez essayer des fichiers plus petits."
+      "file-too-big": "La taille maximale de téléchargement est de 20 GB. Veuillez essayer des fichiers plus petits.",
+      "duplicated-node": "Il y a un conflit avec l'élément."
     },
     "error-messages": {
       "no-internet": "Il semble que vous ne soyez pas connecté à l'internet, nous réessayerons plus tard",
@@ -328,7 +329,9 @@
       "empty-file": "Nous ne prenons pas en charge les fichiers d'une taille de 0 octet en raison de nos processus de  chiffrement",
       "bad-response": "Nous avons reçu une mauvaise réponse de nos serveurs lors du traitement de ce fichier. Veuillez essayer de relancer le processus de synchronisation.",
       "file-does-not-exist": "Ce fichier était présent lorsque nous avons comparé votre dossier local avec votre disque interne, mais il a disparu lorsque nous avons essayé d'y accéder. Si vous avez supprimé ce fichier, ne vous inquiétez pas, cette erreur devrait disparaître au prochain démarrage du processus de synchronisation.",
-      "file-too-big": "La taille maximale de téléchargement est de 20 GB. Veuillez essayer des fichiers plus petits."
+      "file-too-big": "La taille maximale de téléchargement est de 20 GB. Veuillez essayer des fichiers plus petits.",
+      "file-non-extension": "Les archives sans extensions ne sont pas supportées. Non synchronisées",
+      "duplicated-node": "Il y a deux éléments (fichier ou dossier) avec le même nom dans un dossier. Renommez l'un d'eux pour les synchroniser tous les deux."
     },
     "report-modal": {
       "actions": {
@@ -344,14 +347,14 @@
     }
   },
   "feedback": {
-    "window-title": "Envoyer les commentaires",
-    "title": "Partager un retour d'expérience avec Internxt",
-    "description": "Vos commentaires permettent à Internxt de s'améliorer et nous aident à créer de meilleures expériences de produits",
+    "window-title": "Commentaires sur Internxt for Desktop",
+    "title": "Faites-nous part de vos commentaires sur Internxt",
+    "description": "Vos commentaires nous aident à améliorer et à créer de meilleures expériences de produits.",
     "placeholder": "Laissez-nous savoir ce qui vous préoccupe, ce que vous aimeriez améliorer ou décrivez l'erreur ou le problème.",
     "characters-count": "{{character_count}}/{{character_limit}}",
     "send-feedback": "Envoyer les commentaire",
     "sent-title": "Merci de nous avoir fait part de vos commentaires",
-    "sent-message": "Nous apprécions vraiment le temps et les efforts que vous consacrez à l'amélioration de nos services.",
+    "sent-message": "Nous apprécions le temps et les efforts que vous consacrez à l'amélioration de nos services.",
     "close": "Fermer"
   },
   "common": {

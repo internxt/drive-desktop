@@ -1,7 +1,6 @@
-import { NodeWinLocalFileSystem } from '../../../../context/virtual-drive/folders/infrastructure/NodeWinLocalFileSystem';
 import { AllParentFoldersStatusIsExists } from '../../../../context/virtual-drive/folders/application/AllParentFoldersStatusIsExists';
 import { FolderByPartialSearcher } from '../../../../context/virtual-drive/folders/application/FolderByPartialSearcher';
-import { FolderCreator } from '../../../../context/virtual-drive/folders/application/FolderCreator';
+import { FolderCreatorFromOfflineFolder } from '../../../../context/virtual-drive/folders/application/FolderCreatorFromOfflineFolder';
 import { FolderDeleter } from '../../../../context/virtual-drive/folders/application/FolderDeleter';
 import { FolderFinder } from '../../../../context/virtual-drive/folders/application/FolderFinder';
 import { FolderMover } from '../../../../context/virtual-drive/folders/application/FolderMover';
@@ -20,6 +19,8 @@ import { FolderPlaceholderUpdater } from '../../../../context/virtual-drive/fold
 import { HttpRemoteFileSystem } from '../../../../context/virtual-drive/folders/infrastructure/HttpRemoteFileSystem';
 import { InMemoryFolderRepository } from '../../../../context/virtual-drive/folders/infrastructure/InMemoryFolderRepository';
 import { InMemoryOfflineFolderRepository } from '../../../../context/virtual-drive/folders/infrastructure/InMemoryOfflineFolderRepository';
+import { NodeWinLocalFileSystem } from '../../../../context/virtual-drive/folders/infrastructure/NodeWinLocalFileSystem';
+import { BackgroundProcessSyncFolderMessenger } from '../../../../context/virtual-drive/folders/infrastructure/SyncMessengers/BackgroundProcessSyncFolderMessenger';
 import { ipcRendererSyncEngine } from '../../ipcRendererSyncEngine';
 import { DependencyInjectionHttpClientsProvider } from '../common/clients';
 import { DependencyInjectionEventBus } from '../common/eventBus';
@@ -38,8 +39,13 @@ export async function buildFoldersContainer(
 
   const repository = new InMemoryFolderRepository();
 
+  const syncFolderMessenger = new BackgroundProcessSyncFolderMessenger(
+    ipcRendererSyncEngine
+  );
+
   const localFileSystem = new NodeWinLocalFileSystem(virtualDrive);
   const remoteFileSystem = new HttpRemoteFileSystem(
+    //  @ts-ignore
     clients.drive,
     clients.newDrive
   );
@@ -57,11 +63,11 @@ export async function buildFoldersContainer(
     allParentFoldersStatusIsExists
   );
 
-  const folderCreator = new FolderCreator(
+  const folderCreator = new FolderCreatorFromOfflineFolder(
     repository,
     remoteFileSystem,
-    ipcRendererSyncEngine,
-    eventBus
+    eventBus,
+    syncFolderMessenger
   );
 
   const folderMover = new FolderMover(
@@ -72,7 +78,8 @@ export async function buildFoldersContainer(
   const folderRenamer = new FolderRenamer(
     repository,
     remoteFileSystem,
-    ipcRendererSyncEngine
+    eventBus,
+    syncFolderMessenger
   );
 
   const folderByPartialSearcher = new FolderByPartialSearcher(repository);

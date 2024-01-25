@@ -1,4 +1,4 @@
-import { EnumValueObject } from '../../../shared/domain/EnumValueObject';
+import { EnumValueObject } from '../../../shared/domain/value-objects/EnumValueObject';
 import { InvalidArgumentError } from '../../../shared/domain/InvalidArgumentError';
 import { ActionNotPermittedError } from './errors/ActionNotPermittedError';
 

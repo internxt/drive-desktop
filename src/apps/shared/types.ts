@@ -145,8 +145,14 @@ export type ProcessErrorName =
   // The file is bigger than the current upload limit
   | 'FILE_TOO_BIG'
 
+  // The file don't have an extension
+  | 'FILE_NON_EXTENSION'
+
   // Unknown error
-  | 'UNKNOWN';
+  | 'UNKNOWN'
+
+  // Duplicated node path
+  | 'DUPLICATED_NODE';
 
 export class ProcessError extends Error {
   details: ErrorDetails;
@@ -210,7 +216,8 @@ export type ProcessIssue = ProcessInfoBase & {
     | 'DOWNLOAD_ERROR'
     | 'RENAME_ERROR'
     | 'DELETE_ERROR'
-    | 'METADATA_READ_ERROR';
+    | 'METADATA_READ_ERROR'
+    | 'GENERATE_TREE';
 
   errorName: ProcessErrorName;
   process: 'SYNC' | 'BACKUPS';

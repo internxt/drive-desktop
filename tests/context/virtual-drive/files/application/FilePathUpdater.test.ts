@@ -5,7 +5,6 @@ import { FolderFinder } from '../../../../../src/context/virtual-drive/folders/a
 import { FolderFinderMock } from '../../folders/__mocks__/FolderFinderMock';
 import { FolderMother } from '../../folders/domain/FolderMother';
 import { EventBusMock } from '../../shared/__mock__/EventBusMock';
-import { IpcRendererSyncEngineMock } from '../../shared/__mock__/IpcRendererSyncEngineMock';
 import { FileRepositoryMock } from '../__mocks__/FileRepositoryMock';
 import { LocalFileSystemMock } from '../__mocks__/LocalFileSystemMock';
 import { RemoteFileSystemMock } from '../__mocks__/RemoteFileSystemMock';
@@ -15,7 +14,6 @@ describe('File path updater', () => {
   let repository: FileRepositoryMock;
   let fileFinderByContentsId: FileFinderByContentsId;
   let folderFinder: FolderFinderMock;
-  let ipcRendererMock: IpcRendererSyncEngineMock;
   let localFileSystem: LocalFileSystemMock;
   let eventBus: EventBusMock;
   let remoteFileSystemMock: RemoteFileSystemMock;
@@ -25,7 +23,6 @@ describe('File path updater', () => {
     repository = new FileRepositoryMock();
     folderFinder = new FolderFinderMock();
     fileFinderByContentsId = new FileFinderByContentsId(repository);
-    ipcRendererMock = new IpcRendererSyncEngineMock();
     eventBus = new EventBusMock();
     remoteFileSystemMock = new RemoteFileSystemMock();
     localFileSystem = new LocalFileSystemMock();
@@ -36,7 +33,6 @@ describe('File path updater', () => {
       repository,
       fileFinderByContentsId,
       folderFinder as unknown as FolderFinder,
-      ipcRendererMock,
       eventBus
     );
   });

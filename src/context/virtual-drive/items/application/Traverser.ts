@@ -1,14 +1,5 @@
+import * as Sentry from '@sentry/electron/renderer';
 import Logger from 'electron-log';
-import {
-  FolderStatus,
-  FolderStatuses,
-} from '../../folders/domain/FolderStatus';
-import { Folder } from '../../folders/domain/Folder';
-import { EitherTransformer } from '../../shared/application/EitherTransformer';
-import { createFileFromServerFile } from '../../files/application/FileCreatorFromServerFile';
-import { createFolderFromServerFolder } from '../../folders/application/FolderCreatorFromServerFolder';
-import { NameDecrypt } from '../domain/NameDecrypt';
-import { Tree } from '../domain/Tree';
 import {
   ServerFile,
   ServerFileStatus,
@@ -17,6 +8,16 @@ import {
   ServerFolder,
   ServerFolderStatus,
 } from '../../../shared/domain/ServerFolder';
+import { createFileFromServerFile } from '../../files/application/FileCreatorFromServerFile';
+import { createFolderFromServerFolder } from '../../folders/application/FolderCreatorFromServerFolder';
+import { Folder } from '../../folders/domain/Folder';
+import {
+  FolderStatus,
+  FolderStatuses,
+} from '../../folders/domain/FolderStatus';
+import { EitherTransformer } from '../../shared/application/EitherTransformer';
+import { NameDecrypt } from '../domain/NameDecrypt';
+import { Tree } from '../domain/Tree';
 
 type Items = {
   files: Array<ServerFile>;
@@ -69,17 +70,17 @@ export class Traverser {
       return folder.parentId === currentFolder.id;
     });
 
-    filesInThisFolder.forEach((file) => {
-      if (!this.fileStatusesToFilter.includes(file.status)) {
+    filesInThisFolder.forEach((serverFile) => {
+      if (!this.fileStatusesToFilter.includes(serverFile.status)) {
         return;
       }
 
       const decryptedName = this.decrypt.decryptName(
-        file.name,
-        file.folderId.toString(),
-        file.encrypt_version
+        serverFile.name,
+        serverFile.folderId.toString(),
+        serverFile.encrypt_version
       );
-      const extensionToAdd = file.type ? `.${file.type}` : '';
+      const extensionToAdd = serverFile.type ? `.${serverFile.type}` : '';
 
       const relativeFilePath =
         `${currentFolder.path}/${decryptedName}${extensionToAdd}`.replaceAll(
@@ -87,17 +88,16 @@ export class Traverser {
           '/'
         );
 
-      EitherTransformer.handleWithEither(() =>
-        createFileFromServerFile(file, relativeFilePath)
-      ).fold(
-        (error) => {
-          Logger.warn(
-            `[Traverser] File with path ${relativeFilePath} could not be created: `,
-            error
-          );
+      EitherTransformer.handleWithEither(() => {
+        const file = createFileFromServerFile(serverFile, relativeFilePath);
+        tree.addFile(currentFolder, file);
+      }).fold(
+        (error): void => {
+          Logger.warn('[Traverser] Error adding file:', error);
+          Sentry.captureException(error);
         },
-        (file) => {
-          tree.addFile(currentFolder, file);
+        () => {
+          //  no-op
         }
       );
     });
@@ -118,18 +118,18 @@ export class Traverser {
         return;
       }
 
-      EitherTransformer.handleWithEither(() =>
-        createFolderFromServerFolder(serverFolder, name)
-      ).fold(
+      EitherTransformer.handleWithEither(() => {
+        const folder = createFolderFromServerFolder(serverFolder, name);
+
+        tree.addFolder(currentFolder, folder);
+
+        return folder;
+      }).fold(
         (error) => {
-          Logger.warn(
-            `[Traverser] Folder with path ${name} could not be created: `,
-            error
-          );
+          Logger.warn(`[Traverser] Error adding folder:  ${error} `);
+          Sentry.captureException(error);
         },
         (folder) => {
-          tree.addFolder(currentFolder, folder);
-
           if (folder.hasStatus(FolderStatuses.EXISTS)) {
             // The folders and the files inside trashed or deleted folders
             // will have the status "EXISTS", to avoid filtering witch folders and files

@@ -67,9 +67,9 @@ export class FolderPlaceholderUpdater {
   }
 
   private hasToBeDeleted(local: Folder, remote: Folder) {
-    const localExists = local.status.is(FolderStatuses.EXISTS);
-    const remoteIsTrashed = remote.status.is(FolderStatuses.TRASHED);
-    const remoteIsDeleted = remote.status.is(FolderStatuses.DELETED);
+    const localExists = local.hasStatus(FolderStatuses.EXISTS);
+    const remoteIsTrashed = remote.hasStatus(FolderStatuses.TRASHED);
+    const remoteIsDeleted = remote.hasStatus(FolderStatuses.DELETED);
     return localExists && (remoteIsTrashed || remoteIsDeleted);
   }
 
@@ -83,7 +83,7 @@ export class FolderPlaceholderUpdater {
     });
 
     if (!local) {
-      if (remote.status.is(FolderStatuses.EXISTS)) {
+      if (remote.hasStatus(FolderStatuses.EXISTS)) {
         Logger.debug('Creating folder placeholder: ', remote.path);
         await this.repository.add(remote);
         this.local.createPlaceHolder(remote);

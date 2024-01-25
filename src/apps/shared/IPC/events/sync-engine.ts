@@ -45,9 +45,15 @@ type FileUpdatePayload = {
 export type FolderEvents = {
   FOLDER_CREATING: (payload: { name: string }) => void;
   FOLDER_CREATED: (payload: { name: string }) => void;
+  FOLDER_CREATION_ERROR: (payload: { name: string; error: string }) => void;
 
   FOLDER_RENAMING: (payload: { oldName: string; newName: string }) => void;
   FOLDER_RENAMED: (payload: { oldName: string; newName: string }) => void;
+  FOLDER_RENAME_ERROR: (payload: {
+    oldName: string;
+    newName: string;
+    error: string;
+  }) => void;
 };
 
 export type FilesEvents = {
@@ -128,6 +134,10 @@ export type SyncEngineInvocableFunctions = {
 // TODO: change how errors are reported to the ui
 export type ProcessInfoUpdate = {
   SYNC_INFO_UPDATE: (payload: ProcessInfoUpdatePayload) => void;
+  SYNC_PROBLEM: (payload: {
+    key: string;
+    additionalData: Record<string, any>;
+  }) => void;
 };
 
 export type FromProcess = FilesEvents &

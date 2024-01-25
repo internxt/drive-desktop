@@ -8,7 +8,7 @@ import 'regenerator-runtime/runtime';
 // via webpack in prod
 import 'dotenv/config';
 // ***** APP BOOTSTRAPPING ****************************************************** //
-import './virutal-root-folder/handlers';
+import './virtual-root-folder/handlers';
 import './auto-launch/handlers';
 import './logger';
 import './bug-report/handlers';
@@ -16,7 +16,6 @@ import './auth/handlers';
 import './windows/settings';
 import './windows/process-issues';
 import './windows';
-import './background-processes/sync-engine';
 import './background-processes/process-issues';
 import './device/handlers';
 import './usage/handlers';
@@ -31,6 +30,7 @@ import './migration/handlers';
 import './config/handlers';
 import './app-info/handlers';
 import './remote-sync/handlers';
+import './virtual-drive';
 
 import { app, nativeTheme } from 'electron';
 import Logger from 'electron-log';

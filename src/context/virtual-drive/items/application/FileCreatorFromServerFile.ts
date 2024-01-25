@@ -6,6 +6,7 @@ export function createFileFromServerFile(
   relativePath: string
 ): File {
   return File.from({
+    id: server.id,
     folderId: server.folderId,
     contentsId: server.fileId,
     modificationTime: server.modificationTime,

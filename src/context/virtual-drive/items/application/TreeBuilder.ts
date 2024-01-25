@@ -1,5 +1,5 @@
+import { RemoteItemsGenerator } from '../domain/RemoteItemsGenerator';
 import { Tree } from '../domain/Tree';
-import { RemoteItemsGenerator } from './RemoteItemsGenerator';
 import { Traverser } from './Traverser';
 
 export class TreeBuilder {

@@ -12,6 +12,19 @@ export type UnauthorizedNotifier = () => void;
 export class AuthorizedHttpClient {
   public readonly client: AxiosInstance;
 
+  constructor(
+    private headersProvider: HeadersProvider,
+    private unauthorizedNotifier: UnauthorizedNotifier
+  ) {
+    this.client = axios.create();
+
+    this.client.interceptors.request.use(this.addApplicationHeaders.bind(this));
+
+    this.client.interceptors.response.use((response: AxiosResponse) => {
+      return response;
+    }, this.handleUnauthorizedResponse.bind(this));
+  }
+
   private handleUnauthorizedResponse(error: AxiosError) {
     if (error?.response?.status === 401) {
       Logger.warn('[AUTH] Request unauthorized');
@@ -29,18 +42,5 @@ export class AuthorizedHttpClient {
     config.headers = await this.headersProvider();
 
     return config;
-  }
-
-  constructor(
-    private headersProvider: HeadersProvider,
-    private unauthorizedNotifier: UnauthorizedNotifier
-  ) {
-    this.client = axios.create();
-
-    this.client.interceptors.request.use(this.addApplicationHeaders.bind(this));
-
-    this.client.interceptors.response.use((response: AxiosResponse) => {
-      return response;
-    }, this.handleUnauthorizedResponse.bind(this));
   }
 }

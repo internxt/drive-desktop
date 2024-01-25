@@ -2,18 +2,19 @@ import { FileRepositoryMock } from '../__mocks__/FileRepositoryMock';
 import { FileMother } from '../domain/FileMother';
 import { RemoteFileSystemMock } from '../__mocks__/RemoteFileSystemMock';
 import { LocalFileSystemMock } from '../__mocks__/LocalFileSystemMock';
-import { IpcRendererSyncEngineMock } from '../../shared/__mock__/IpcRendererSyncEngineMock';
 import { FileDeleter } from '../../../../../src/context/virtual-drive/files/application/FileDeleter';
 import { FolderRepositoryMock } from '../../folders/__mocks__/FolderRepositoryMock';
 import { ContentsIdMother } from '../../contents/domain/ContentsIdMother';
 import { AllParentFoldersStatusIsExists } from '../../../../../src/context/virtual-drive/folders/application/AllParentFoldersStatusIsExists';
+import { FileSyncNotifierMock } from '../__mocks__/FileSyncNotifierMock';
+import { FileStatus } from '../../../../../src/context/virtual-drive/files/domain/FileStatus';
 
 describe('File Deleter', () => {
   let repository: FileRepositoryMock;
   let allParentFoldersStatusIsExists: AllParentFoldersStatusIsExists;
   let remoteFileSystemMock: RemoteFileSystemMock;
-  let localFilseSystemMock: LocalFileSystemMock;
-  let ipc: IpcRendererSyncEngineMock;
+  let localFilesSystemMock: LocalFileSystemMock;
+  let notifier: FileSyncNotifierMock;
 
   let SUT: FileDeleter;
 
@@ -23,16 +24,16 @@ describe('File Deleter', () => {
     allParentFoldersStatusIsExists = new AllParentFoldersStatusIsExists(
       folderRepository
     );
-    localFilseSystemMock = new LocalFileSystemMock();
+    localFilesSystemMock = new LocalFileSystemMock();
     remoteFileSystemMock = new RemoteFileSystemMock();
-    ipc = new IpcRendererSyncEngineMock();
+    notifier = new FileSyncNotifierMock();
 
     SUT = new FileDeleter(
       remoteFileSystemMock,
-      localFilseSystemMock,
+      localFilesSystemMock,
       repository,
       allParentFoldersStatusIsExists,
-      ipc
+      notifier
     );
   });
 
@@ -70,7 +71,7 @@ describe('File Deleter', () => {
 
     await SUT.run(file.contentsId);
 
-    expect(repository.deleteMock).toBeCalled();
+    expect(remoteFileSystemMock.trashMock).toBeCalled();
   });
 
   it('trashes the file with the status trashed', async () => {
@@ -82,6 +83,8 @@ describe('File Deleter', () => {
     await SUT.run(file.contentsId);
 
     expect(remoteFileSystemMock.trashMock).toBeCalledWith(file.contentsId);
-    expect(repository.deleteMock).toBeCalledWith(file.contentsId);
+    expect(repository.updateMock).toBeCalledWith(
+      expect.objectContaining({ status: FileStatus.Trashed })
+    );
   });
 });

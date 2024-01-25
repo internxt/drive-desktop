@@ -6,10 +6,13 @@ import { FileStatuses } from '../domain/FileStatus';
 import { RemoteFileSystem } from '../domain/file-systems/RemoteFileSystem';
 import { OfflineFile } from '../domain/OfflineFile';
 import * as uuid from 'uuid';
+import { AuthorizedClients } from '../../../../apps/shared/HttpClient/Clients';
+import Logger from 'electron-log';
 
 export class SDKRemoteFileSystem implements RemoteFileSystem {
   constructor(
     private readonly sdk: Storage,
+    private readonly clients: AuthorizedClients,
     private readonly crypt: Crypt,
     private readonly bucket: string
   ) {}
@@ -45,14 +48,22 @@ export class SDKRemoteFileSystem implements RemoteFileSystem {
   }
 
   async trash(contentsId: string): Promise<void> {
-    await this.sdk.addItemsToTrash({
-      items: [
-        {
-          type: 'file',
-          id: contentsId,
-        },
-      ],
-    });
+    const result = await this.clients.newDrive.post(
+      `${process.env.NEW_DRIVE_URL}/drive/storage/trash/add`,
+      {
+        items: [{ type: 'file', id: contentsId }],
+      }
+    );
+
+    if (result.status !== 200) {
+      Logger.error(
+        '[FILE FILE SYSTEM] File deletion failed with status: ',
+        result.status,
+        result.statusText
+      );
+
+      throw new Error('Error when deleting file');
+    }
   }
 
   async rename(file: File): Promise<void> {

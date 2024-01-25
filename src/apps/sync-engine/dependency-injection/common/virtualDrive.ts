@@ -1,5 +1,7 @@
+// @ts-ignore
 import { VirtualDrive } from 'virtual-drive/dist';
 import { DependencyInjectionLocalRootFolderPath } from './localRootFolderPath';
+import { DependencyInjectionLogEnginePath } from './logEnginePath';
 
 export class DependencyInjectionVirtualDrive {
   private static _vd: VirtualDrive;
@@ -10,8 +12,8 @@ export class DependencyInjectionVirtualDrive {
     }
 
     const root = DependencyInjectionLocalRootFolderPath.get();
-
-    const vd = new VirtualDrive(root);
+    const logPath = DependencyInjectionLogEnginePath.get();
+    const vd = new VirtualDrive(root, logPath);
 
     DependencyInjectionVirtualDrive._vd = vd;
 

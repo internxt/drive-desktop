@@ -1,5 +1,5 @@
 import path from 'path';
-import { Path } from '../../shared/domain/Path';
+import { Path } from '../../../shared/domain/Path';
 
 export class FolderPath extends Path {
   constructor(value: string) {
@@ -18,6 +18,10 @@ export class FolderPath extends Path {
     }
 
     return super.name();
+  }
+
+  basename(): string {
+    return super.basename();
   }
 
   updateName(name: string): FolderPath {

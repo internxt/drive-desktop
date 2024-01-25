@@ -6,6 +6,7 @@ import { ActionNotPermittedError } from '../domain/errors/ActionNotPermittedErro
 import { FolderNotFoundError } from '../domain/errors/FolderNotFoundError';
 import { FolderMover } from './FolderMover';
 import { FolderRenamer } from './FolderRenamer';
+import { PathHasNotChangedError } from '../domain/errors/PathHasNotChangedError';
 
 export class FolderPathUpdater {
   constructor(
@@ -23,10 +24,7 @@ export class FolderPathUpdater {
 
     const desiredPath = new FolderPath(posixRelativePath);
 
-    Logger.debug('desired path', desiredPath);
-    Logger.debug('folder', folder.attributes());
-
-    const dirnameChanged = folder.dirname !== desiredPath.dirname();
+    const dirnameChanged = folder.dirname.value !== desiredPath.dirname();
     const nameChanged = folder.name !== desiredPath.name();
 
     if (dirnameChanged && nameChanged) {
@@ -42,6 +40,6 @@ export class FolderPathUpdater {
       return await this.folderRenamer.run(folder, desiredPath);
     }
 
-    throw new Error('No path change detected for folder path update');
+    throw new PathHasNotChangedError();
   }
 }

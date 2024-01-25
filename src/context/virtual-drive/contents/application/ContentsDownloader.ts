@@ -8,17 +8,17 @@ import { File } from '../../files/domain/File';
 import { EventBus } from '../../shared/domain/EventBus';
 import { ContentsManagersFactory } from '../domain/ContentsManagersFactory';
 import { LocalFileContents } from '../domain/LocalFileContents';
-import { LocalFileWriter } from '../domain/LocalFileWriter';
 import { ContentFileDownloader } from '../domain/contentHandlers/ContentFileDownloader';
-import { TemporalFolderProvider } from './temporalFolderProvider';
+import { LocalFileSystem } from '../domain/LocalFileSystem';
+import { LocalFileContentsDirectoryProvider } from '../../shared/domain/LocalFileContentsDirectoryProvider';
 
 export class ContentsDownloader {
   private readableDownloader: Readable | null;
   constructor(
     private readonly managerFactory: ContentsManagersFactory,
-    private readonly localWriter: LocalFileWriter,
+    private readonly localFileSystem: LocalFileSystem,
     private readonly ipc: SyncEngineIpc,
-    private readonly temporalFolderProvider: TemporalFolderProvider,
+    private readonly localFileContentsDirectoryProvider: LocalFileContentsDirectoryProvider,
     private readonly eventBus: EventBus
   ) {
     this.readableDownloader = null;
@@ -29,7 +29,7 @@ export class ContentsDownloader {
     file: File,
     cb: CallbackDownload
   ) {
-    const location = await this.temporalFolderProvider();
+    const location = await this.localFileContentsDirectoryProvider.provide();
     const folderPath = path.join(location, 'internxt');
     ensureFolderExists(folderPath);
     const filePath = path.join(folderPath, file.nameWithExtension);
@@ -102,7 +102,7 @@ export class ContentsDownloader {
       downloader.elapsedTime()
     );
 
-    const write = await this.localWriter.write(localContents);
+    const write = await this.localFileSystem.write(localContents);
 
     const events = localContents.pullDomainEvents();
     await this.eventBus.publish(events);
