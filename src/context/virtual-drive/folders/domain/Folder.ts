@@ -49,8 +49,8 @@ export class Folder extends AggregateRoot {
     return this._path.name();
   }
 
-  public get dirname() {
-    return this._path.dirname();
+  public get dirname(): FolderPath {
+    return new FolderPath('/' + this._path.dirname());
   }
 
   public get parentId(): number | undefined {
@@ -133,7 +133,6 @@ export class Folder extends AggregateRoot {
       parentId,
       createdAt,
       updatedAt,
-      createdAt,
       FolderStatus.Exists
     );
 

@@ -3,7 +3,6 @@ import { Folder } from '../domain/Folder';
 import { FolderRepository } from '../domain/FolderRepository';
 import { RemoteFileSystem } from '../domain/file-systems/RemoteFileSystem';
 import { EventBus } from '../../shared/domain/EventBus';
-import { FolderRenameStartedDomainEvent } from '../domain/events/FolderRenameStartedDomainEvent';
 import { SyncFolderMessenger } from '../domain/SyncFolderMessenger';
 
 export class FolderRenamer {
@@ -16,13 +15,8 @@ export class FolderRenamer {
 
   async run(folder: Folder, destination: FolderPath) {
     this.syncFolderMessenger.rename(folder.name, destination.name());
-    this.eventBus.publish([
-      new FolderRenameStartedDomainEvent({
-        aggregateId: folder.uuid,
-        oldName: folder.name,
-        newName: destination.name(),
-      }),
-    ]);
+
+    const nameBeforeRename = folder.name;
 
     folder.rename(destination);
 
@@ -30,6 +24,6 @@ export class FolderRenamer {
     await this.repository.update(folder);
 
     this.eventBus.publish(folder.pullDomainEvents());
-    this.syncFolderMessenger.renamed(folder.name, destination.name());
+    this.syncFolderMessenger.renamed(nameBeforeRename, folder.name);
   }
 }
