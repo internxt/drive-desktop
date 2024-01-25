@@ -4,11 +4,11 @@ export class AbsolutePathToRelativeConverter {
   constructor(private readonly baseFolder: string) {}
 
   private calculateRelativePath(basePath: string, folderPath: string): string {
-    const relativePath = path.relative(basePath, folderPath);
-    const relativeFolders = path.dirname(relativePath);
-    const fileName = path.basename(folderPath);
+    const relativePath = path.win32.relative(basePath, folderPath);
+    const relativeFolders = path.win32.dirname(relativePath);
+    const fileName = path.win32.basename(folderPath);
 
-    return path.join(relativeFolders, fileName);
+    return path.win32.join(relativeFolders, fileName);
   }
 
   run(absolutePath: string): string {

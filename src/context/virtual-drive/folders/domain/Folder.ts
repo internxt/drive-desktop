@@ -131,6 +131,7 @@ export class Folder extends AggregateRoot {
       uuid,
       path,
       parentId,
+      createdAt,
       updatedAt,
       createdAt,
       FolderStatus.Exists
