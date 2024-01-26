@@ -7,7 +7,7 @@ import { DependencyInjectionLocalRootFolderPath } from '../common/localRootFolde
 import { SharedContainer } from './SharedContainer';
 
 export function buildSharedContainer(): SharedContainer {
-  const MONITORING_PULLING_INTERVAL = 1_000; // 1 second
+  const MONITORING_PULLING_INTERVAL = 5_000; // 1 second
   const localRootFolderPath = DependencyInjectionLocalRootFolderPath.get();
   const absolutePathToRelativeConverter = new AbsolutePathToRelativeConverter(
     localRootFolderPath

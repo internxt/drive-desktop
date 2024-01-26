@@ -37,7 +37,7 @@ export class BindingsManager {
 
   async start(version: string, providerId: string) {
     await this.stop();
-    this.container.pollingMonitorStart.run(this.monitorSimulateFn);
+    this.pillingStart();
 
     const controllers = buildControllers(this.container);
 
@@ -279,7 +279,14 @@ export class BindingsManager {
     }
   }
 
-  private async monitorSimulateFn(): Promise<void> {
-    Logger.info('[SYNC ENGINE] Starting monitoring polling...');
+  private async pillingStart() {
+    return this.container.pollingMonitorStart.run(this.pilling.bind(this));
+  }
+
+  private async pilling(): Promise<void> {
+    Logger.info('[SYNC ENGINE] Monitoring polling...');
+    const result =
+      await this.container.virtualDrive.getPlaceholderWithStatePending();
+    Logger.info('[SYNC ENGINE] result', result);
   }
 }
