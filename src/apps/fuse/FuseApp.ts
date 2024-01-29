@@ -4,8 +4,6 @@ import { GetAttributesCallback } from './callbacks/GetAttributesCallback';
 import { OpenCallback } from './callbacks/OpenCallback';
 import { ReadCallback } from './callbacks/ReadCallback';
 import { RenameOrMoveCallback } from './callbacks/RenameOrMoveCallback';
-import { ListXAttributesCallback } from './callbacks/ListXAttributesCallback';
-import { GetXAttributeCallback } from './callbacks/GetXAttributeCallback';
 import { CreateCallback } from './callbacks/CreateCallback';
 import { MakeDirectoryCallback } from './callbacks/MakeDirectoryCallback';
 import { TrashFileCallback } from './callbacks/TrashFileCallback';
@@ -29,8 +27,6 @@ export class FuseApp {
   ) {}
 
   private async getOpt() {
-    const listXAttributes = new ListXAttributesCallback();
-    const getXAttribute = new GetXAttributeCallback('GetXAttribute');
     const readdir = new ReaddirCallback(
       this.fuseContainer.virtualDriveContainer
     );
@@ -59,8 +55,6 @@ export class FuseApp {
     );
 
     return {
-      listxattr: listXAttributes.execute.bind(listXAttributes),
-      getxattr: getXAttribute.execute.bind(getXAttribute),
       getattr: getattr.handle.bind(getattr),
       readdir: readdir.handle.bind(readdir),
       open: open.handle.bind(open),
@@ -72,7 +66,6 @@ export class FuseApp {
       release: release.handle.bind(release),
       unlink: trashFile.handle.bind(trashFile),
       rmdir: trashFolder.handle.bind(trashFolder),
-      // statfs: statfs.execute.bind(statfs),
     };
   }
 

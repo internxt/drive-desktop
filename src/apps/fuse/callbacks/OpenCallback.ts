@@ -24,9 +24,7 @@ export class OpenCallback extends FuseCallback<number> {
     );
 
     if (alreadyDownloaded) {
-      Logger.debug(
-        `[Local Cache] "${file.nameWithExtension}" contents are already in local`
-      );
+      Logger.debug(`"${file.nameWithExtension}" contents are already in local`);
       return this.right(file.id);
     }
 
