@@ -1,37 +1,24 @@
-import { Readable } from 'stream';
 import { AggregateRoot } from '../../../shared/domain/AggregateRoot';
+import { OfflineContentsName } from './OfflineContentsName';
 import { OfflineContentsSize } from './OfflineContentsSize';
 
 export type LocalFileContentsAttributes = {
   name: string;
-  extension: string;
   size: number;
   birthTime: number;
   modifiedTime: number;
-  contents: Readable;
+  absolutePath: string;
 };
 
 export class OfflineContents extends AggregateRoot {
   private constructor(
-    private readonly _name: string,
-    private readonly _extension: string,
+    private _name: OfflineContentsName,
     private readonly _size: OfflineContentsSize,
     private readonly _birthTime: number,
     private readonly _modifiedTime: number,
-    public readonly stream: Readable
+    public readonly absolutePath: string
   ) {
     super();
-  }
-
-  public get name(): string {
-    return this._name;
-  }
-  public get extension(): string {
-    return this._extension;
-  }
-
-  public get nameWithExtension(): string {
-    return this.name + (this.extension.length >= 0 ? '.' + this.extension : '');
   }
 
   public get size(): number {
@@ -48,24 +35,23 @@ export class OfflineContents extends AggregateRoot {
 
   static from(attributes: LocalFileContentsAttributes): OfflineContents {
     const remoteContents = new OfflineContents(
-      attributes.name,
-      attributes.extension,
+      new OfflineContentsName(attributes.name),
       new OfflineContentsSize(attributes.size),
       attributes.birthTime,
       attributes.modifiedTime,
-      attributes.contents
+      attributes.absolutePath
     );
 
     return remoteContents;
   }
 
-  attributes(): Omit<LocalFileContentsAttributes, 'contents'> {
+  attributes(): LocalFileContentsAttributes {
     return {
-      name: this.name,
-      extension: this.extension,
+      name: this._name.value,
       size: this.size,
       birthTime: this.birthTime,
       modifiedTime: this.modifiedTime,
+      absolutePath: this.absolutePath,
     };
   }
 }

@@ -1,6 +1,5 @@
 import { OfflineContentsAppender } from '../../../../../context/offline-drive/contents/application/OfflineContentsAppender';
 import { OfflineContentsCreator } from '../../../../../context/offline-drive/contents/application/OfflineContentsCreator';
-import { OfflineContentsPathCalculator } from '../../../../../context/offline-drive/contents/application/OfflineContentsPathCalculator';
 import { OfflineContentsUploader } from '../../../../../context/offline-drive/contents/application/OfflineContentsUploader';
 import { EnvironmentOfflineContentsManagersFactory } from '../../../../../context/offline-drive/contents/infrastructure/EnvironmentRemoteFileContentsManagersFactory';
 import { NodeFSOfflineContentsRepository } from '../../../../../context/offline-drive/contents/infrastructure/NodeFSOfflineContentsRepository';
@@ -36,18 +35,16 @@ export async function buildOfflineContentsContainer(
     repository
   );
 
-  const offlineContentsPathCalculator = new OfflineContentsPathCalculator(
-    repository
-  );
-
   const environmentOfflineContentsManagersFactory =
-    new EnvironmentOfflineContentsManagersFactory(environment, user.bucket);
+    new EnvironmentOfflineContentsManagersFactory(
+      environment,
+      user.bucket,
+      tracker
+    );
 
   const offlineContentsUploader = new OfflineContentsUploader(
-    offlineContentsPathCalculator,
-    environmentOfflineContentsManagersFactory,
     repository,
-    tracker,
+    environmentOfflineContentsManagersFactory,
     eventBus
   );
 

@@ -6,6 +6,8 @@ import { LocalFileContentsDirectoryProvider } from '../../../virtual-drive/share
 import path from 'path';
 import Logger from 'electron-log';
 import { Readable } from 'stream';
+import { OfflineContents } from '../domain/OfflineContents';
+import { OfflineContentsName } from '../domain/OfflineContentsName';
 
 export class NodeFSOfflineContentsRepository
   implements OfflineContentsRepository
@@ -21,10 +23,10 @@ export class NodeFSOfflineContentsRepository
     return path.join(location, this.subfolder);
   }
 
-  private async filePath(id: OfflineFile['id']): Promise<string> {
+  private async filePath(name: OfflineContentsName): Promise<string> {
     const folder = await this.folderPath();
 
-    return path.join(folder, id.value);
+    return path.join(folder, name.value);
   }
 
   private createAbortableStream(filePath: string): {
@@ -69,11 +71,17 @@ export class NodeFSOfflineContentsRepository
     return this.filePath(id);
   }
 
-  async provide(absoluteFilePath: string) {
+  async read(offlineContentsName: OfflineContentsName): Promise<{
+    contents: OfflineContents;
+    stream: Readable;
+    abortSignal: AbortSignal;
+  }> {
+    const absoluteFilePath = await this.getAbsolutePath(offlineContentsName);
+
     const { readable, controller } =
       this.createAbortableStream(absoluteFilePath);
 
-    const { size } = await statPromises(absoluteFilePath);
+    const { size, mtimeMs, birthtimeMs } = await statPromises(absoluteFilePath);
 
     const absoluteFolderPath = path.dirname(absoluteFilePath);
     const nameWithExtension = path.basename(absoluteFilePath);
@@ -94,9 +102,17 @@ export class NodeFSOfflineContentsRepository
       watcher.close();
     });
 
-    return {
-      contents: readable,
+    const contents = OfflineContents.from({
+      name: offlineContentsName.value,
       size,
+      modifiedTime: mtimeMs,
+      birthTime: birthtimeMs,
+      absolutePath: absoluteFilePath,
+    });
+
+    return {
+      contents,
+      stream: readable,
       abortSignal: controller.signal,
     };
   }
