@@ -27,7 +27,7 @@ export class AuthorizedHttpClient {
 
   private handleUnauthorizedResponse(error: AxiosError) {
     if (error?.response?.status === 401) {
-      Logger.warn('[AUTH] Request unauthorized');
+      Logger.warn('[AUTH] Request unauthorized', error.config.url);
       this.unauthorizedNotifier();
     }
 
