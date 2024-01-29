@@ -6,8 +6,6 @@ export class LocalContentsMover {
   constructor(private readonly fileSystem: LocalFileSystem) {}
 
   async run(contentsId: ContentsId, src: string): Promise<void> {
-    Logger.debug('LocalContentsMover contentsId', contentsId, 'src', src);
-
     const exists = await this.fileSystem.exists(contentsId);
 
     if (exists) {
@@ -15,5 +13,7 @@ export class LocalContentsMover {
     }
 
     await this.fileSystem.add(contentsId, src);
+
+    Logger.info('Added', contentsId.value, 'to offline files contents cache');
   }
 }

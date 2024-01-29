@@ -64,9 +64,6 @@ export class OfflineContentsUploader {
           elapsedTime: uploader.elapsedTime(),
         }
       );
-      Logger.debug('FILE_UPLOADED', {
-        processInfo: { elapsedTime: uploader.elapsedTime() },
-      });
     });
   }
 
@@ -84,8 +81,6 @@ export class OfflineContentsUploader {
     this.registerEvents(path, size, uploader);
 
     const contentsId = await uploader.upload(readable, size);
-
-    Logger.debug('FILE UPLOADED WITH ID: ', contentsId);
 
     const contentsUploadedEvent = new OfflineContentsUploadedDomainEvent({
       aggregateId: contentsId,
