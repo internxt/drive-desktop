@@ -2,12 +2,7 @@ import { Readable } from 'stream';
 import { OfflineFileAttributes } from '../../files/domain/OfflineFile';
 
 export interface OfflineContentsRepository {
-  writeToFile(
-    id: OfflineFileAttributes['id'],
-    buffer: Buffer,
-    length: number,
-    position: number
-  ): Promise<void>;
+  writeToFile(id: OfflineFileAttributes['id'], buffer: Buffer): Promise<void>;
 
   createEmptyFile(id: OfflineFileAttributes['id']): Promise<void>;
 

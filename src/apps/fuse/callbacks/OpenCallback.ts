@@ -31,7 +31,6 @@ export class OpenCallback extends FuseCallback<number> {
     }
 
     try {
-      Logger.debug(`"${file.nameWithExtension}" contents are not in local`);
       await this.container.downloadContentsToPlainFile.run(file);
 
       return this.right(file.id);

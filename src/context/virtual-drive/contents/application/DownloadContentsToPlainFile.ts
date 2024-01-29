@@ -5,6 +5,7 @@ import { ContentsManagersFactory } from '../domain/ContentsManagersFactory';
 import { LocalFileContents } from '../domain/LocalFileContents';
 import { LocalFileSystem } from '../domain/LocalFileSystem';
 import { ContentFileDownloader } from '../domain/contentHandlers/ContentFileDownloader';
+import Logger from 'electron-log';
 
 export class DownloadContentsToPlainFile {
   constructor(
@@ -46,6 +47,8 @@ export class DownloadContentsToPlainFile {
   }
 
   async run(file: File): Promise<string> {
+    Logger.debug(`downloading "${file.nameWithExtension}"`);
+
     const downloader = this.managerFactory.downloader();
 
     this.registerEvents(downloader, file);

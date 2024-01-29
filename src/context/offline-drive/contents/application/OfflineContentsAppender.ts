@@ -1,6 +1,7 @@
 import { OfflineFileFinder } from '../../files/application/OfflineFileFinder';
 import { OfflineFileSizeIncreaser } from '../../files/application/OfflineFileSizeIncreaser';
 import { OfflineContentsRepository } from '../domain/OfflineContentsRepository';
+import { OfflineContentsIOError } from '../domain/errors/IOError';
 
 export class OfflineContentsAppender {
   constructor(
@@ -9,21 +10,15 @@ export class OfflineContentsAppender {
     private readonly contentsRepository: OfflineContentsRepository
   ) {}
 
-  async run(
-    path: string,
-    buffer: Buffer,
-    length: number,
-    position: number
-  ): Promise<void> {
+  async run(path: string, buffer: Buffer): Promise<void> {
     const file = await this.offlineFileFinder.run({ path });
 
-    await this.contentsRepository.writeToFile(
-      file.id,
-      buffer,
-      length,
-      position
-    );
+    try {
+      await this.contentsRepository.writeToFile(file.id, buffer);
+    } catch (error: unknown) {
+      throw new OfflineContentsIOError();
+    }
 
-    await this.offlineFileSizeIncreaser.run(file.id, length);
+    await this.offlineFileSizeIncreaser.run(file.id, buffer.length);
   }
 }

@@ -1,4 +1,4 @@
-import { OfflineContentsAppender } from '../../../../../context/offline-drive/contents/application/OfflineContentsAppended';
+import { OfflineContentsAppender } from '../../../../../context/offline-drive/contents/application/OfflineContentsAppender';
 import { OfflineContentsCreator } from '../../../../../context/offline-drive/contents/application/OfflineContentsCreator';
 import { OfflineContentsPathCalculator } from '../../../../../context/offline-drive/contents/application/OfflineContentsPathCalculator';
 import { OfflineContentsUploader } from '../../../../../context/offline-drive/contents/application/OfflineContentsUploader';

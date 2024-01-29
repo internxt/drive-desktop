@@ -46,42 +46,11 @@ export class NodeFSOfflineContentsRepository
 
   async writeToFile(
     id: OfflineFileAttributes['id'],
-    buffer: Buffer,
-    length: number,
-    position: number
+    buffer: Buffer
   ): Promise<void> {
     const file = await this.filePath(id);
 
-    return new Promise((resolve) => {
-      fs.open(file, 'w', (err, fileDescriptor) => {
-        if (err) {
-          throw err;
-        }
-
-        const dataBuffer = Buffer.from(buffer.slice(0, length));
-
-        fs.write(
-          fileDescriptor,
-          dataBuffer,
-          0,
-          length,
-          position,
-          (writeErr) => {
-            if (writeErr) {
-              throw writeErr;
-            }
-
-            fs.close(fileDescriptor, () => {
-              if (writeErr) {
-                throw writeErr; // TODO: is this needed?
-              }
-
-              resolve();
-            });
-          }
-        );
-      });
-    });
+    fs.appendFileSync(file, buffer);
   }
 
   async createEmptyFile(id: string): Promise<void> {
