@@ -6,6 +6,7 @@ import { EnvironmentOfflineContentsManagersFactory } from '../../../../../contex
 import { NodeFSOfflineContentsRepository } from '../../../../../context/offline-drive/contents/infrastructure/NodeFSOfflineContentsRepository';
 import { MainProcessUploadProgressTracker } from '../../../../../context/shared/infrastructure/MainProcessUploadProgressTracker';
 import { FuseAppDataLocalFileContentsDirectoryProvider } from '../../../../../context/virtual-drive/shared/infrastructure/LocalFileContentsDirectoryProviders/FuseAppDataLocalFileContentsDirectoryProvider';
+import { DependencyInjectionEventBus } from '../../../../fuse/dependency-injection/common/eventBus';
 import { DependencyInjectionInxtEnvironment } from '../../common/inxt-environment';
 import { DependencyInjectionUserProvider } from '../../common/user';
 import { OfflineFilesContainer } from '../OfflineFiles/OfflineFilesContainer';
@@ -16,6 +17,7 @@ export async function buildOfflineContentsContainer(
 ): Promise<OfflineContentsDependencyContainer> {
   const environment = DependencyInjectionInxtEnvironment.get();
   const user = DependencyInjectionUserProvider.get();
+  const eventBus = DependencyInjectionEventBus.bus;
 
   const localFileContentsDirectoryProvider =
     new FuseAppDataLocalFileContentsDirectoryProvider();
@@ -42,9 +44,11 @@ export async function buildOfflineContentsContainer(
     new EnvironmentOfflineContentsManagersFactory(environment, user.bucket);
 
   const offlineContentsUploader = new OfflineContentsUploader(
+    offlineContentsPathCalculator,
     environmentOfflineContentsManagersFactory,
     repository,
-    tracker
+    tracker,
+    eventBus
   );
 
   const offlineContentsCreator = new OfflineContentsCreator(repository);
@@ -52,7 +56,6 @@ export async function buildOfflineContentsContainer(
   return {
     offlineContentsCreator,
     offlineContentsAppender,
-    offlineContentsPathCalculator,
     offlineContentsUploader,
   };
 }

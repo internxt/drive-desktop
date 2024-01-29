@@ -1,12 +1,12 @@
 import { Readable } from 'stream';
-import { OfflineFileAttributes } from '../../files/domain/OfflineFile';
+import { OfflineFile } from '../../files/domain/OfflineFile';
 
 export interface OfflineContentsRepository {
-  writeToFile(id: OfflineFileAttributes['id'], buffer: Buffer): Promise<void>;
+  writeToFile(id: OfflineFile['id'], buffer: Buffer): Promise<void>;
 
-  createEmptyFile(id: OfflineFileAttributes['id']): Promise<void>;
+  createEmptyFile(id: OfflineFile['id']): Promise<void>;
 
-  getAbsolutePath(id: OfflineFileAttributes['id']): Promise<string>;
+  getAbsolutePath(id: OfflineFile['id']): Promise<string>;
 
   provide: (path: string) => Promise<{
     contents: Readable;

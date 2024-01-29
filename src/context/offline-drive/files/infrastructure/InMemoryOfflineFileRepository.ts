@@ -1,8 +1,9 @@
 import { OfflineFile, OfflineFileAttributes } from '../domain/OfflineFile';
+import { OfflineFileId } from '../domain/OfflineFileId';
 import { OfflineFileRepository } from '../domain/OfflineFileRepository';
 
 export class InMemoryOfflineFileRepository implements OfflineFileRepository {
-  private readonly files = new Map<string, OfflineFileAttributes>();
+  private readonly files = new Map<OfflineFileId, OfflineFileAttributes>();
 
   async save(file: OfflineFile): Promise<void> {
     this.files.set(file.id, file.attributes());
@@ -30,7 +31,7 @@ export class InMemoryOfflineFileRepository implements OfflineFileRepository {
     return OfflineFile.from(file);
   }
 
-  async delete(id: OfflineFileAttributes['id']): Promise<void> {
+  async delete(id: OfflineFile['id']): Promise<void> {
     this.files.delete(id);
   }
 }

@@ -1,7 +1,7 @@
 import fs, { createReadStream, watch } from 'fs';
 import { stat as statPromises } from 'fs/promises';
 import { OfflineContentsRepository } from '../domain/OfflineContentsRepository';
-import { OfflineFileAttributes } from '../../files/domain/OfflineFile';
+import { OfflineFile } from '../../files/domain/OfflineFile';
 import { LocalFileContentsDirectoryProvider } from '../../../virtual-drive/shared/domain/LocalFileContentsDirectoryProvider';
 import path from 'path';
 import Logger from 'electron-log';
@@ -21,10 +21,10 @@ export class NodeFSOfflineContentsRepository
     return path.join(location, this.subfolder);
   }
 
-  private async filePath(id: string): Promise<string> {
+  private async filePath(id: OfflineFile['id']): Promise<string> {
     const folder = await this.folderPath();
 
-    return path.join(folder, id);
+    return path.join(folder, id.value);
   }
 
   private createAbortableStream(filePath: string): {
@@ -44,16 +44,13 @@ export class NodeFSOfflineContentsRepository
     fs.mkdirSync(folder, { recursive: true });
   }
 
-  async writeToFile(
-    id: OfflineFileAttributes['id'],
-    buffer: Buffer
-  ): Promise<void> {
+  async writeToFile(id: OfflineFile['id'], buffer: Buffer): Promise<void> {
     const file = await this.filePath(id);
 
     fs.appendFileSync(file, buffer);
   }
 
-  async createEmptyFile(id: string): Promise<void> {
+  async createEmptyFile(id: OfflineFile['id']): Promise<void> {
     const file = await this.filePath(id);
 
     return new Promise((resolve) => {
@@ -68,7 +65,7 @@ export class NodeFSOfflineContentsRepository
     });
   }
 
-  async getAbsolutePath(id: string): Promise<string> {
+  async getAbsolutePath(id: OfflineFile['id']): Promise<string> {
     return this.filePath(id);
   }
 

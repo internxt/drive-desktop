@@ -15,7 +15,7 @@ export class ReleaseCallback extends NotifyFuseCallback {
     }
 
     try {
-      await this.container.offlineFileUploader.run(file);
+      await this.container.offlineContentsUploader.run(file.id, file.path);
       return this.right();
     } catch (err: unknown) {
       if (err instanceof Error) {

@@ -1,6 +1,7 @@
 import { OfflineContentsUploadedDomainEvent } from '../../../offline-drive/contents/domain/events/OfflineContentsUploadedDomainEvent';
 import { DomainEventClass } from '../../../shared/domain/DomainEvent';
 import { DomainEventSubscriber } from '../../../shared/domain/DomainEventSubscriber';
+import { FilePath } from '../domain/FilePath';
 import { FileCreator } from './FileCreator';
 
 export class CreateFileOnOfflineFileUploaded
@@ -13,6 +14,8 @@ export class CreateFileOnOfflineFileUploaded
   }
 
   async on(event: OfflineContentsUploadedDomainEvent): Promise<void> {
-    await this.creator.run(event.path, event.aggregateId, event.size);
+    const filePath = new FilePath(event.path);
+
+    await this.creator.run(filePath, event.aggregateId, event.size);
   }
 }

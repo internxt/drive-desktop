@@ -1,6 +1,5 @@
 import { OfflineFileSizeIncreaser } from '../../../../../src/context/offline-drive/files/application/OfflineFileSizeIncreaser';
 import { OfflineFile } from '../../../../../src/context/offline-drive/files/domain/OfflineFile';
-import { FileSize } from '../../../../../src/context/virtual-drive/files/domain/FileSize';
 import { OfflineFileRepositoryMock } from '../__mocks__/OfflineFileRepositoryMock';
 import { OfflineFileIdMother } from '../domain/OfflineFileIdMother';
 import { OfflineFileMother } from '../domain/OfflineFileMother';
@@ -26,10 +25,10 @@ describe('Offline File Size Increaser', () => {
       OfflineFile.from(file.attributes())
     );
 
-    await SUT.run(id.value, amount);
+    await SUT.run(id, amount);
 
     expect(repository.saveMock).toBeCalledWith(
-      expect.objectContaining({ _size: new FileSize(file.size + amount) })
+      expect.objectContaining({ _size: file.size.increment(amount) })
     );
   });
 });

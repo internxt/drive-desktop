@@ -2,6 +2,7 @@ import {
   OfflineFile,
   OfflineFileAttributes,
 } from '../../../../../src/context/offline-drive/files/domain/OfflineFile';
+import { OfflineFileId } from '../../../../../src/context/offline-drive/files/domain/OfflineFileId';
 import { OfflineFileRepository } from '../../../../../src/context/offline-drive/files/domain/OfflineFileRepository';
 
 export class OfflineFileRepositoryMock implements OfflineFileRepository {
@@ -17,7 +18,8 @@ export class OfflineFileRepositoryMock implements OfflineFileRepository {
   ): Promise<OfflineFile | undefined> {
     return this.searchByPartialMock(partial);
   }
-  delete(id: string): Promise<void> {
+
+  delete(id: OfflineFileId): Promise<void> {
     return this.deleteMock(id);
   }
 }

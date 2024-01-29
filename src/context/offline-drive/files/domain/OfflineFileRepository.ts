@@ -7,5 +7,5 @@ export interface OfflineFileRepository {
     partial: Partial<OfflineFileAttributes>
   ): Promise<OfflineFile | undefined>;
 
-  delete(id: OfflineFileAttributes['id']): Promise<void>;
+  delete(id: OfflineFile['id']): Promise<void>;
 }

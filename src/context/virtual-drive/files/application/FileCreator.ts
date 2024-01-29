@@ -21,10 +21,12 @@ export class FileCreator {
     private readonly notifier: SyncFileMessenger
   ) {}
 
-  async run(path: string, contentsId: string, size: number): Promise<File> {
+  async run(
+    filePath: FilePath,
+    contentsId: string,
+    size: number
+  ): Promise<File> {
     try {
-      const filePath = new FilePath(path);
-
       const existingFile = this.repository.searchByPartial({
         path: PlatformPathConverter.winToPosix(filePath.value),
         status: FileStatuses.EXISTS,
@@ -57,8 +59,6 @@ export class FileCreator {
     } catch (error: unknown) {
       const message =
         error instanceof Error ? error.message : '[File Creator] unknown error';
-
-      const filePath = new FilePath(path);
 
       await this.notifier.errorWhileCreating(
         filePath.name(),
