@@ -5,12 +5,12 @@ import {
 } from '../../../../../src/context/virtual-drive/contents/domain/contentHandlers/ContentFileDownloader';
 
 export class ContentFileDownloaderMock implements ContentFileDownloader {
-  mock = jest.fn();
+  downloadMock = jest.fn();
   onMock = jest.fn();
   elapsedTimeMock = jest.fn();
 
   download(): Promise<Readable> {
-    return this.mock();
+    return this.downloadMock();
   }
 
   forceStop(): void {
