@@ -37,7 +37,10 @@ export class DownloadContentsToPlainFile {
   async run(file: File): Promise<void> {
     const contentsId = new ContentsId(file.contentsId);
 
-    this.local.exists(contentsId);
+    const alreadyInLocal = await this.local.exists(contentsId);
+    if (alreadyInLocal) {
+      return;
+    }
 
     Logger.debug(`downloading "${file.nameWithExtension}"`);
 
