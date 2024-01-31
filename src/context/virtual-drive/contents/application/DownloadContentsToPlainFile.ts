@@ -37,9 +37,12 @@ export class DownloadContentsToPlainFile {
   async run(file: File): Promise<void> {
     const contentsId = new ContentsId(file.contentsId);
 
-    const alreadyInLocal = await this.local.exists(contentsId);
-    if (alreadyInLocal) {
-      return;
+    const metadata = await this.local.metadata(contentsId);
+
+    if (metadata) {
+      if (metadata.isUpToDate(file.updatedAt)) {
+        return;
+      }
     }
 
     Logger.debug(`downloading "${file.nameWithExtension}"`);

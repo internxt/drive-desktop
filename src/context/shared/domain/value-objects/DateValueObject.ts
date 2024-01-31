@@ -13,6 +13,18 @@ export class DateValueObject extends ValueObject<Date> {
     return new DateValueObject(date);
   }
 
+  isPrevious(than: Date): boolean {
+    return this.value < than;
+  }
+
+  isAfter(than: Date): boolean {
+    return this.value > than;
+  }
+
+  same(than: Date): boolean {
+    return this.value === than;
+  }
+
   toISOString(): string {
     return this.value.toISOString();
   }
