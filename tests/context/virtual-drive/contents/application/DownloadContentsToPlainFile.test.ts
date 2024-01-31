@@ -1,6 +1,6 @@
 import { DownloadContentsToPlainFile } from '../../../../../src/context/virtual-drive/contents/application/DownloadContentsToPlainFile';
 import { ContentsMetadata } from '../../../../../src/context/virtual-drive/contents/domain/ContentsMetadata';
-import { DateMother } from '../../../shared/domain/DateValueObjectMother';
+import { DateMother } from '../../../shared/domain/DateMother';
 import { FileMother } from '../../files/domain/FileMother';
 import { DownloadProgressTrackerMock } from '../../shared/__mock__/DownloadProgressTrackerMock';
 import { EventBusMock } from '../../shared/__mock__/EventBusMock';
