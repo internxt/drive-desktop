@@ -1,14 +1,9 @@
 import { UploadStrategyFunction } from '@internxt/inxt-js/build/lib/core/upload/strategy';
 import { EventEmitter, Readable } from 'stream';
 import { Stopwatch } from '../../../../apps/shared/types/Stopwatch';
-import {
-  OfflineContentUploader,
-  OfflineContentsUploadEvents,
-} from '../domain/OfflineContentsManagersFactory';
+import { OfflineContentsUploadEvents } from '../domain/OfflineContentsManagersFactory';
 
-export class EnvironmentOfflineContentsUploader
-  implements OfflineContentUploader
-{
+export class EnvironmentOfflineContentsUploader {
   private eventEmitter: EventEmitter;
   private stopwatch: Stopwatch;
 

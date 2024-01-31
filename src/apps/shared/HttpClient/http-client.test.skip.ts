@@ -1,7 +1,7 @@
 import { AxiosInstance } from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 
-import { AuthorizedHttpClient } from './HttpClient';
+import { AuthorizedHttpClient } from './AuthorizedHttpClient';
 
 const URL = 'http://jibuwsik.ie/ugco';
 

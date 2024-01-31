@@ -1,51 +1,52 @@
-import { broadcastToWindows } from '../../../../apps/main/windows';
+import { DownloadProgressTracker } from '../../../shared/domain/DownloadProgressTracker';
 import { File } from '../../files/domain/File';
 import { EventBus } from '../../shared/domain/EventBus';
+import { ContentsId } from '../domain/ContentsId';
 import { ContentsManagersFactory } from '../domain/ContentsManagersFactory';
 import { LocalFileContents } from '../domain/LocalFileContents';
 import { LocalFileSystem } from '../domain/LocalFileSystem';
 import { ContentFileDownloader } from '../domain/contentHandlers/ContentFileDownloader';
+import Logger from 'electron-log';
 
 export class DownloadContentsToPlainFile {
   constructor(
     private readonly managerFactory: ContentsManagersFactory,
-    private readonly localWriter: LocalFileSystem,
-    private readonly eventBus: EventBus
+    private readonly local: LocalFileSystem,
+    private readonly eventBus: EventBus,
+    private readonly tracker: DownloadProgressTracker
   ) {}
 
   private async registerEvents(downloader: ContentFileDownloader, file: File) {
     downloader.on('start', () => {
-      broadcastToWindows('sync-info-update', {
-        action: 'DOWNLOADING',
-        name: file.nameWithExtension,
-        progress: 0,
-      });
+      this.tracker.downloadStarted(file.nameWithExtension);
     });
 
     downloader.on('progress', (progress: number) => {
-      broadcastToWindows('sync-info-update', {
-        action: 'DOWNLOADING',
-        name: file.nameWithExtension,
-        progress: progress,
-      });
+      this.tracker.downloadUpdate(file.nameWithExtension, progress);
     });
 
     downloader.on('error', () => {
-      broadcastToWindows('sync-info-update', {
-        action: 'DOWNLOAD_ERROR',
-        name: file.nameWithExtension,
-      });
+      this.tracker.error(file.nameWithExtension);
     });
 
     downloader.on('finish', () => {
-      broadcastToWindows('sync-info-update', {
-        action: 'DOWNLOADED',
-        name: file.nameWithExtension,
-      });
+      this.tracker.downloadFinished(file.nameWithExtension);
     });
   }
 
-  async run(file: File): Promise<string> {
+  async run(file: File): Promise<void> {
+    const contentsId = new ContentsId(file.contentsId);
+
+    const metadata = await this.local.metadata(contentsId);
+
+    if (metadata) {
+      if (metadata.isUpToDate(file.updatedAt)) {
+        return;
+      }
+    }
+
+    Logger.debug(`downloading "${file.nameWithExtension}"`);
+
     const downloader = this.managerFactory.downloader();
 
     this.registerEvents(downloader, file);
@@ -57,11 +58,9 @@ export class DownloadContentsToPlainFile {
       downloader.elapsedTime()
     );
 
-    const write = await this.localWriter.write(localContents, file.contentsId);
+    await this.local.write(localContents, file.contentsId);
 
     const events = localContents.pullDomainEvents();
     await this.eventBus.publish(events);
-
-    return write;
   }
 }

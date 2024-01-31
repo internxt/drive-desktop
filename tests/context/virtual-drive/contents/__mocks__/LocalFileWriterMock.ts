@@ -6,6 +6,7 @@ export class LocalFileSystemMock implements LocalFileSystem {
   public writeMock = jest.fn();
   public removeMock = jest.fn();
   public existsMock = jest.fn();
+  public metadataMock = jest.fn();
   public addMock = jest.fn();
   public listExistentFilesMock = jest.fn();
 
@@ -19,6 +20,10 @@ export class LocalFileSystemMock implements LocalFileSystem {
 
   exists(contentId: ContentsId): Promise<boolean> {
     return this.existsMock(contentId);
+  }
+
+  metadata(contentsId: ContentsId) {
+    return this.metadataMock(contentsId);
   }
 
   add(contentsId: ContentsId, source: string): Promise<void> {

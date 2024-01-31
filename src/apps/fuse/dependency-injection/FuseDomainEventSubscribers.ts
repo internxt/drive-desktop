@@ -10,7 +10,6 @@ export class FuseDomainEventSubscribers {
     const plainContainer = {
       ...container.offlineDriveContainer,
       ...container.virtualDriveContainer,
-      ...container.userContainer,
     };
 
     const subscribers = FuseDependencyContainerFactory.subscribers.map(

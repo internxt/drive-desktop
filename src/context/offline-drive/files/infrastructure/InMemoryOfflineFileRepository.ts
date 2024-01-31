@@ -5,7 +5,7 @@ export class InMemoryOfflineFileRepository implements OfflineFileRepository {
   private readonly files = new Map<string, OfflineFileAttributes>();
 
   async save(file: OfflineFile): Promise<void> {
-    this.files.set(file.id, file.attributes());
+    this.files.set(file.id.value, file.attributes());
   }
 
   async searchByPartial(
@@ -30,7 +30,7 @@ export class InMemoryOfflineFileRepository implements OfflineFileRepository {
     return OfflineFile.from(file);
   }
 
-  async delete(id: OfflineFileAttributes['id']): Promise<void> {
-    this.files.delete(id);
+  async delete(id: OfflineFile['id']): Promise<void> {
+    this.files.delete(id.value);
   }
 }

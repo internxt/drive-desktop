@@ -8,10 +8,10 @@ export class WriteCallback {
     _fd: string,
     buffer: Buffer,
     len: number,
-    pos: number,
+    _pos: number,
     cb: (a: number) => void
   ) {
-    await this.container.offlineContentsAppender.run(path, buffer, len, pos);
+    await this.container.offlineContentsAppender.run(path, buffer);
 
     return cb(len);
   }

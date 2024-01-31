@@ -1,4 +1,5 @@
 import { Readable } from 'stream';
+import { OfflineContents } from './OfflineContents';
 
 type ContentsId = string;
 
@@ -9,17 +10,16 @@ export type OfflineContentsUploadEvents = {
   error: (error: Error) => void;
 };
 
-export interface OfflineContentUploader {
-  upload(contents: Readable, size: number): Promise<ContentsId>;
-
-  on(
-    event: keyof OfflineContentsUploadEvents,
-    fn: OfflineContentsUploadEvents[keyof OfflineContentsUploadEvents]
-  ): void;
-
-  elapsedTime(): number;
-}
+export type OfflineContentUploader = () => Promise<string>;
 
 export interface OfflineContentsManagersFactory {
-  uploader(size: number, abortSignal?: AbortSignal): OfflineContentUploader;
+  uploader(
+    readable: Readable,
+    contents: OfflineContents,
+    desiredPathElements: {
+      name: string;
+      extension: string;
+    },
+    abortSignal?: AbortSignal
+  ): OfflineContentUploader;
 }

@@ -39,7 +39,7 @@ describe.skip('Contents Downloader', () => {
   >)(
     'tracks all the manager events ',
     async (event: keyof FileDownloadEvents) => {
-      factory.mockDownloader.mock.mockResolvedValueOnce(
+      factory.mockDownloader.downloadMock.mockResolvedValueOnce(
         new ReadableHelloWorld()
       );
 
@@ -56,7 +56,9 @@ describe.skip('Contents Downloader', () => {
   );
 
   it('writes the downloaded content a local file', async () => {
-    factory.mockDownloader.mock.mockResolvedValueOnce(new ReadableHelloWorld());
+    factory.mockDownloader.downloadMock.mockResolvedValueOnce(
+      new ReadableHelloWorld()
+    );
 
     const file = FileMother.any();
     await SUT.run(file, async () => {

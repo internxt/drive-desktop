@@ -1,8 +1,8 @@
 import { FilePath } from '../../../virtual-drive/files/domain/FilePath';
-import { FileSize } from '../../../virtual-drive/files/domain/FileSize';
 import { EventBus } from '../../../virtual-drive/shared/domain/EventBus';
 import { OfflineFile } from '../domain/OfflineFile';
 import { OfflineFileRepository } from '../domain/OfflineFileRepository';
+import { OfflineFileSize } from '../domain/OfflineFileSize';
 
 export class OfflineFileCreator {
   constructor(
@@ -12,7 +12,7 @@ export class OfflineFileCreator {
 
   async run(path: string): Promise<OfflineFile> {
     const filePath = new FilePath(path);
-    const size = new FileSize(0);
+    const size = new OfflineFileSize(0);
 
     const file = OfflineFile.create(filePath, size);
 
