@@ -20,21 +20,23 @@ export class OfflineFile extends AggregateRoot {
     super();
   }
 
-  public get id(): string {
-    return this._id.value;
+  public get id() {
+    return this._id;
   }
-  public get createdAt(): Date {
+  public get createdAt() {
     return this._createdAt;
   }
   public get path() {
-    return this._path.value;
+    return this._path;
   }
   public get size() {
-    return this._size.value;
+    return this._size;
   }
+
   public get name() {
     return this._path.name();
   }
+
   public get extension() {
     return this._path.extension();
   }
@@ -58,17 +60,15 @@ export class OfflineFile extends AggregateRoot {
   }
 
   increaseSizeBy(bytes: number): void {
-    const newSize = this.size + bytes;
-
-    this._size = new OfflineFileSize(newSize);
+    this._size = this._size.increment(bytes);
   }
 
   attributes(): OfflineFileAttributes {
     return {
-      id: this.id,
-      createdAt: this.createdAt,
-      path: this.path,
-      size: this.size,
+      id: this._id.value,
+      createdAt: this._createdAt,
+      path: this._path.value,
+      size: this._size.value,
     };
   }
 }

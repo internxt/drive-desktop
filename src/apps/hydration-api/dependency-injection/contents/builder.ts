@@ -8,6 +8,7 @@ import { FSLocalFileSystem } from '../../../../context/virtual-drive/contents/in
 import { DependencyInjectionEventBus } from '../common/eventBus';
 import { FuseAppDataLocalFileContentsDirectoryProvider } from '../../../../context/virtual-drive/shared/infrastructure/LocalFileContentsDirectoryProviders/FuseAppDataLocalFileContentsDirectoryProvider';
 import { LocalContentsDeleter } from '../../../../context/virtual-drive/contents/application/LocalContentsDeleter';
+import { MainProcessDownloadProgressTracker } from '../../../../context/shared/infrastructure/MainProcessDownloadProgressTracker';
 
 export async function buildContentsContainer(): Promise<ContentsContainer> {
   const user = DependencyInjectionUserProvider.get();
@@ -32,10 +33,13 @@ export async function buildContentsContainer(): Promise<ContentsContainer> {
     'downloaded'
   );
 
+  const tracker = new MainProcessDownloadProgressTracker();
+
   const downloadContentsToPlainFile = new DownloadContentsToPlainFile(
     contentsManagerFactory,
     localFS,
-    eventBus
+    eventBus,
+    tracker
   );
 
   const localContentsDeleter = new LocalContentsDeleter(localFS);

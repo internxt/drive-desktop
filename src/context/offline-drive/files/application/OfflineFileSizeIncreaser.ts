@@ -1,10 +1,11 @@
+import { OfflineFileId } from '../domain/OfflineFileId';
 import { OfflineFileRepository } from '../domain/OfflineFileRepository';
 
 export class OfflineFileSizeIncreaser {
   constructor(private readonly repository: OfflineFileRepository) {}
 
-  async run(id: string, amount: number): Promise<void> {
-    const file = await this.repository.searchByPartial({ id });
+  async run(id: OfflineFileId, amount: number): Promise<void> {
+    const file = await this.repository.searchByPartial({ id: id.value });
 
     if (!file) {
       throw new Error('Offline file not found');

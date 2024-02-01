@@ -27,16 +27,24 @@ export class SDKRemoteFileSystem implements RemoteFileSystem {
       throw new Error('Failed to encrypt name');
     }
 
-    const data = await this.sdk.createFileEntry({
-      id: offline.contentsId,
-      type: offline.type,
-      size: offline.size,
-      name: encryptedName,
-      plain_name: offline.name,
-      bucket: this.bucket,
-      folder_id: offline.folderId,
-      encrypt_version: EncryptionVersion.Aes03,
-    });
+    const body = {
+      file: {
+        fileId: offline.contentsId,
+        file_id: offline.contentsId,
+        type: offline.type,
+        size: offline.size,
+        name: encryptedName,
+        plain_name: offline.name,
+        bucket: this.bucket,
+        folder_id: offline.folderId,
+        encrypt_version: EncryptionVersion.Aes03,
+      },
+    };
+
+    const { data } = await this.clients.drive.post(
+      `${process.env.API_URL}/api/storage/file`,
+      body
+    );
 
     return {
       ...data,

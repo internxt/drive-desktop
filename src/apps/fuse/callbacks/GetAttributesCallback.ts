@@ -76,7 +76,7 @@ export class GetAttributesCallback extends FuseCallback<GetAttributesCallbackDat
     if (offlineFile) {
       return this.right({
         mode: GetAttributesCallback.FILE,
-        size: offlineFile.size,
+        size: offlineFile.size.value,
         mtime: new Date(),
         ctime: offlineFile.createdAt,
         atime: offlineFile.createdAt,

@@ -3,7 +3,7 @@ import { Axios } from 'axios';
 import { onUserUnauthorized } from '../../main/auth/handlers';
 import { getHeaders, getNewApiHeaders } from '../../main/auth/service';
 import { AuthorizedClients } from './Clients';
-import { AuthorizedHttpClient } from './HttpClient';
+import { AuthorizedHttpClient } from './AuthorizedHttpClient';
 
 const headersProvider = () => Promise.resolve(getHeaders(false));
 const newHeadersProvider = () => Promise.resolve(getNewApiHeaders());

@@ -1,11 +1,13 @@
 import fs, { createReadStream, watch } from 'fs';
 import { stat as statPromises } from 'fs/promises';
 import { OfflineContentsRepository } from '../domain/OfflineContentsRepository';
-import { OfflineFileAttributes } from '../../files/domain/OfflineFile';
+import { OfflineFile } from '../../files/domain/OfflineFile';
 import { LocalFileContentsDirectoryProvider } from '../../../virtual-drive/shared/domain/LocalFileContentsDirectoryProvider';
 import path from 'path';
 import Logger from 'electron-log';
 import { Readable } from 'stream';
+import { OfflineContents } from '../domain/OfflineContents';
+import { OfflineContentsName } from '../domain/OfflineContentsName';
 
 export class NodeFSOfflineContentsRepository
   implements OfflineContentsRepository
@@ -21,10 +23,10 @@ export class NodeFSOfflineContentsRepository
     return path.join(location, this.subfolder);
   }
 
-  private async filePath(id: string): Promise<string> {
+  private async filePath(name: OfflineContentsName): Promise<string> {
     const folder = await this.folderPath();
 
-    return path.join(folder, id);
+    return path.join(folder, name.value);
   }
 
   private createAbortableStream(filePath: string): {
@@ -44,47 +46,13 @@ export class NodeFSOfflineContentsRepository
     fs.mkdirSync(folder, { recursive: true });
   }
 
-  async writeToFile(
-    id: OfflineFileAttributes['id'],
-    buffer: Buffer,
-    length: number,
-    position: number
-  ): Promise<void> {
+  async writeToFile(id: OfflineFile['id'], buffer: Buffer): Promise<void> {
     const file = await this.filePath(id);
 
-    return new Promise((resolve) => {
-      fs.open(file, 'w', (err, fileDescriptor) => {
-        if (err) {
-          throw err;
-        }
-
-        const dataBuffer = Buffer.from(buffer.slice(0, length));
-
-        fs.write(
-          fileDescriptor,
-          dataBuffer,
-          0,
-          length,
-          position,
-          (writeErr) => {
-            if (writeErr) {
-              throw writeErr;
-            }
-
-            fs.close(fileDescriptor, () => {
-              if (writeErr) {
-                throw writeErr; // TODO: is this needed?
-              }
-
-              resolve();
-            });
-          }
-        );
-      });
-    });
+    fs.appendFileSync(file, buffer);
   }
 
-  async createEmptyFile(id: string): Promise<void> {
+  async createEmptyFile(id: OfflineFile['id']): Promise<void> {
     const file = await this.filePath(id);
 
     return new Promise((resolve) => {
@@ -99,15 +67,21 @@ export class NodeFSOfflineContentsRepository
     });
   }
 
-  async getAbsolutePath(id: string): Promise<string> {
+  async getAbsolutePath(id: OfflineFile['id']): Promise<string> {
     return this.filePath(id);
   }
 
-  async provide(absoluteFilePath: string) {
+  async read(offlineContentsName: OfflineContentsName): Promise<{
+    contents: OfflineContents;
+    stream: Readable;
+    abortSignal: AbortSignal;
+  }> {
+    const absoluteFilePath = await this.getAbsolutePath(offlineContentsName);
+
     const { readable, controller } =
       this.createAbortableStream(absoluteFilePath);
 
-    const { size } = await statPromises(absoluteFilePath);
+    const { size, mtimeMs, birthtimeMs } = await statPromises(absoluteFilePath);
 
     const absoluteFolderPath = path.dirname(absoluteFilePath);
     const nameWithExtension = path.basename(absoluteFilePath);
@@ -128,9 +102,17 @@ export class NodeFSOfflineContentsRepository
       watcher.close();
     });
 
-    return {
-      contents: readable,
+    const contents = OfflineContents.from({
+      name: offlineContentsName.value,
       size,
+      modifiedTime: mtimeMs,
+      birthTime: birthtimeMs,
+      absolutePath: absoluteFilePath,
+    });
+
+    return {
+      contents,
+      stream: readable,
       abortSignal: controller.signal,
     };
   }
