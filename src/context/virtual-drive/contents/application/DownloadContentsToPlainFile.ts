@@ -18,19 +18,24 @@ export class DownloadContentsToPlainFile {
 
   private async registerEvents(downloader: ContentFileDownloader, file: File) {
     downloader.on('start', () => {
-      this.tracker.downloadStarted(file.nameWithExtension);
+      this.tracker.downloadStarted(file.name, file.type, file.size);
     });
 
-    downloader.on('progress', (progress: number) => {
-      this.tracker.downloadUpdate(file.nameWithExtension, progress);
+    downloader.on('progress', (progress: number, elapsedTime: number) => {
+      this.tracker.downloadUpdate(file.name, file.type, file.size, {
+        elapsedTime,
+        percentage: progress,
+      });
     });
 
     downloader.on('error', () => {
-      this.tracker.error(file.nameWithExtension);
+      this.tracker.error(file.name, file.type);
     });
 
-    downloader.on('finish', () => {
-      this.tracker.downloadFinished(file.nameWithExtension);
+    downloader.on('finish', (elapsedTime: number) => {
+      this.tracker.downloadFinished(file.name, file.type, file.size, {
+        elapsedTime,
+      });
     });
   }
 
