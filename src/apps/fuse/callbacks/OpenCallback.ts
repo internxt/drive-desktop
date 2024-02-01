@@ -19,15 +19,6 @@ export class OpenCallback extends FuseCallback<number> {
       );
     }
 
-    const alreadyDownloaded = await this.container.localContentChecker.run(
-      file
-    );
-
-    if (alreadyDownloaded) {
-      Logger.debug(`"${file.nameWithExtension}" contents are already in local`);
-      return this.right(file.id);
-    }
-
     try {
       await this.container.downloadContentsToPlainFile.run(file);
 

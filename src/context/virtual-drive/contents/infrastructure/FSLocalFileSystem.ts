@@ -6,6 +6,7 @@ import { LocalFileSystem } from '../domain/LocalFileSystem';
 import path from 'path';
 import fs from 'fs/promises';
 import { ContentsId } from '../domain/ContentsId';
+import { ContentsMetadata } from '../domain/ContentsMetadata';
 
 export class FSLocalFileSystem implements LocalFileSystem {
   constructor(
@@ -50,6 +51,16 @@ export class FSLocalFileSystem implements LocalFileSystem {
     } catch {
       return false;
     }
+  }
+
+  async metadata(contentsId: ContentsId) {
+    const folder = await this.baseFolder();
+
+    const absolutePath = path.join(folder, contentsId.value);
+
+    const { mtimeMs } = await fs.stat(absolutePath);
+
+    return ContentsMetadata.from({ modificationDate: new Date(mtimeMs) });
   }
 
   async add(contentsId: ContentsId, source: string): Promise<void> {
