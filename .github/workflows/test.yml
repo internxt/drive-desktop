@@ -5,7 +5,13 @@ on: [pull_request]
 jobs:
   test:
     name: 🧪 Lint and test
-    runs-on: windows-latest
+    strategy:
+      matrix:
+        os:
+          - macos-latest
+          - windows-latest
+
+    runs-on: ${{ matrix.os }}
 
     steps:
       - name: Check out Git repository
