@@ -58,9 +58,13 @@ export class FSLocalFileSystem implements LocalFileSystem {
 
     const absolutePath = path.join(folder, contentsId.value);
 
-    const { mtimeMs } = await fs.stat(absolutePath);
+    try {
+      const { mtimeMs } = await fs.stat(absolutePath);
 
-    return ContentsMetadata.from({ modificationDate: new Date(mtimeMs) });
+      return ContentsMetadata.from({ modificationDate: new Date(mtimeMs) });
+    } catch {
+      return undefined;
+    }
   }
 
   async add(contentsId: ContentsId, source: string): Promise<void> {
