@@ -52,7 +52,7 @@ export class EnvironmentOfflineContentsManagersFactory
     uploader.on('progress', (progress: number) => {
       this.progressTracker.uploadProgress(name, extension, contents.size, {
         elapsedTime: uploader.elapsedTime(),
-        progress,
+        percentage: progress,
       });
     });
 

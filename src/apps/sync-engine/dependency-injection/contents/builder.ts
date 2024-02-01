@@ -14,7 +14,7 @@ import { FSLocalFileProvider } from '../../../../context/virtual-drive/contents/
 import { FSLocalFileSystem } from '../../../../context/virtual-drive/contents/infrastructure/FSLocalFileSystem';
 import { SyncEngineIPC } from '../../SyncEngineIpc';
 import { IPCLocalFileContentsDirectoryProvider } from '../../../../context/virtual-drive/shared/infrastructure/LocalFileContentsDirectoryProviders/IPCLocalFileContentsDirectoryProvider';
-import { MainProcessUploadProgressTracker } from '../../../../context/shared/infrastructure/MainProcessUploadProgressTracker';
+import { BackgroundProcessUploadProgressTracker } from '../../../../context/virtual-drive/contents/infrastructure/upload/BackgroundProcessUploadProgressTracker';
 
 export async function buildContentsContainer(
   sharedContainer: SharedContainer
@@ -31,7 +31,7 @@ export async function buildContentsContainer(
     encryptionKey: mnemonic,
   });
 
-  const notifier = new MainProcessUploadProgressTracker();
+  const notifier = new BackgroundProcessUploadProgressTracker(SyncEngineIPC);
 
   const contentsManagerFactory =
     new EnvironmentRemoteFileContentsManagersFactory(environment, user.bucket);

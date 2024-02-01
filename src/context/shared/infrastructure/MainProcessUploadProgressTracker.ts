@@ -29,7 +29,7 @@ export class MainProcessUploadProgressTracker
     name: string,
     extension: string,
     size: number,
-    processInfo: { elapsedTime: number; progress: number }
+    progress: { elapsedTime: number; percentage: number }
   ): void {
     const nameWithExtension = this.nameWithExtension(name, extension);
 
@@ -37,13 +37,13 @@ export class MainProcessUploadProgressTracker
       file_name: name,
       file_extension: extension,
       file_size: size,
-      elapsedTimeMs: processInfo.elapsedTime,
+      elapsedTimeMs: progress.elapsedTime,
     });
 
     broadcastToWindows('sync-info-update', {
       action: 'UPLOADING',
       name: nameWithExtension,
-      progress: processInfo.progress,
+      progress: progress.percentage,
     });
   }
 
