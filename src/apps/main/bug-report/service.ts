@@ -11,7 +11,7 @@ import { BugReportResult } from './BugReportResult';
 import * as Sentry from '@sentry/electron/main';
 import { User } from '../types';
 import Logger from 'electron-log';
-import { ErrorDetails } from '../../shared/types';
+import { ErrorDetails } from './ErrorDetails';
 
 /**
  * Reports an error to Sentry from the main process

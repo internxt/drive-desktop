@@ -1,5 +1,5 @@
 import * as uuid from 'uuid';
-import { InvalidArgumentError } from '../InvalidArgumentError';
+import { InvalidArgumentError } from '../errors/InvalidArgumentError';
 import { ValueObject } from './ValueObject';
 
 export class Uuid extends ValueObject<string> {

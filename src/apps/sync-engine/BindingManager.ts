@@ -3,13 +3,13 @@ import * as fs from 'fs';
 // @ts-ignore
 import { VirtualDrive } from 'virtual-drive/dist';
 import { FilePlaceholderId } from '../../context/virtual-drive/files/domain/PlaceholderId';
-import { ItemsSearcher } from '../../context/virtual-drive/items/application/ItemsSearcher';
 import { PlatformPathConverter } from '../../context/virtual-drive/shared/application/PlatformPathConverter';
 import { buildControllers } from './callbacks-controllers/buildControllers';
 import { executeControllerWithFallback } from './callbacks-controllers/middlewares/executeControllerWithFallback';
 import { SyncEngineDependencyContainer } from './dependency-injection/SyncEngineDependencyContainer';
-import { ipcRendererSyncEngine } from './ipcRendererSyncEngine';
-import { ProcessIssue } from '../shared/types';
+import { SyncEngineIPC } from './SyncEngineIpc';
+import { VirtualDriveIssue } from '../../shared/issues/VirtualDriveIssue';
+import { ItemsSearcher } from '../../context/virtual-drive/tree/application/ItemsSearcher';
 
 export type CallbackDownload = (
   success: boolean,
@@ -110,7 +110,7 @@ export class BindingsManager {
               this.progressBuffer = result.progress;
             }
             Logger.debug('condition', finished);
-            ipcRendererSyncEngine.send('FILE_DOWNLOADING', {
+            SyncEngineIPC.send('FILE_DOWNLOADING', {
               name: file.name,
               extension: file.type,
               nameWithExtension: file.nameWithExtension,
@@ -147,18 +147,17 @@ export class BindingsManager {
       },
       notifyMessageCallback: (
         message: string,
-        action: ProcessIssue['action'],
-        errorName: ProcessIssue['errorName'],
+        _error: VirtualDriveIssue['error'],
+        cause: VirtualDriveIssue['cause'],
         callback: (response: boolean) => void
       ) => {
         try {
           callback(true);
-          ipcRendererSyncEngine.send('SYNC_INFO_UPDATE', {
+          SyncEngineIPC.send('FILE_UPLOAD_ERROR', {
             name: message,
-            action: action,
-            errorName,
-            process: 'SYNC',
-            kind: 'LOCAL',
+            cause,
+            extension: '',
+            nameWithExtension: '',
           });
         } catch (error) {
           Logger.error(error);

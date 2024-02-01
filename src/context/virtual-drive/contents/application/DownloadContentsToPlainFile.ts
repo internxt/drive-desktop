@@ -22,7 +22,7 @@ export class DownloadContentsToPlainFile {
     });
 
     downloader.on('progress', (progress: number, elapsedTime: number) => {
-      this.tracker.downloadUpdate(file.name, file.type, file.size, {
+      this.tracker.downloadUpdate(file.name, file.type, {
         elapsedTime,
         percentage: progress,
       });

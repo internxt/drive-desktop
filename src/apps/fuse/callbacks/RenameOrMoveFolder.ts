@@ -1,45 +1,25 @@
 import path from 'path';
 import { FolderPath } from '../../../context/virtual-drive/folders/domain/FolderPath';
 import { VirtualDriveDependencyContainer } from '../dependency-injection/virtual-drive/VirtualDriveDependencyContainer';
-import {
-  FuseError,
-  FuseIOError,
-  FuseInvalidArgumentError,
-  FuseNoSuchFileOrDirectoryError,
-} from './FuseErrors';
-import { InvalidArgumentError } from '../../../context/shared/domain/InvalidArgumentError';
-import { FolderNotFoundError } from '../../../context/virtual-drive/folders/domain/errors/FolderNotFoundError';
-import { PathHasNotChangedError } from '../../../context/virtual-drive/folders/domain/errors/PathHasNotChangedError';
+import { FuseError, FuseUnknownError } from './FuseErrors';
+import { Either, left, right } from '../../../context/shared/domain/Either';
+
+type RenameOrMoveRight = 'no-op' | 'success';
 
 export class RenameOrMoveFolder {
+  private static readonly NO_OP: RenameOrMoveRight = 'no-op';
+  private static readonly SUCCESS: RenameOrMoveRight = 'success';
+
   constructor(private readonly container: VirtualDriveDependencyContainer) {}
-
-  private resolverError(input: { src: string; dest: string }, err: unknown) {
-    if (err instanceof InvalidArgumentError) {
-      return FuseInvalidArgumentError.translate(err);
-    }
-
-    if (err instanceof FolderNotFoundError) {
-      return FuseNoSuchFileOrDirectoryError.translate(err);
-    }
-
-    if (err instanceof PathHasNotChangedError) {
-      return FuseInvalidArgumentError.translate(err);
-    }
-
-    return new FuseIOError(
-      `Unknown error while updating the path from ${input.src} to ${input.dest}`
-    );
-  }
 
   async execute(
     src: string,
     dest: string
-  ): Promise<FuseError | 'no-op' | 'success'> {
+  ): Promise<Either<FuseError, RenameOrMoveRight>> {
     const folder = await this.container.folderSearcher.run({ path: src });
 
     if (!folder) {
-      return 'no-op';
+      return right(RenameOrMoveFolder.NO_OP);
     }
 
     try {
@@ -57,20 +37,22 @@ export class RenameOrMoveFolder {
         desiredPath.name()
       );
 
-      return 'success';
-    } catch (err: unknown) {
-      const error = this.resolverError({ src, dest }, err);
-
+      return right(RenameOrMoveFolder.SUCCESS);
+    } catch (throwed: unknown) {
       const current = path.basename(src);
       const desired = path.basename(dest);
 
       await this.container.syncFolderMessenger.errorWhileRenaming(
         current,
         desired,
-        error.message
+        'message '
       );
 
-      return error;
+      if (throwed instanceof FuseError) {
+        return left(throwed);
+      }
+
+      return left(new FuseUnknownError());
     }
   }
 }

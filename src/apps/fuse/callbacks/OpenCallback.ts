@@ -12,11 +12,7 @@ export class OpenCallback extends FuseCallback<number> {
     const file = await this.container.filesSearcher.run({ path });
 
     if (!file) {
-      return this.left(
-        new FuseNoSuchFileOrDirectoryError(
-          `${path} not founded on when trying to open it`
-        )
-      );
+      return this.left(new FuseNoSuchFileOrDirectoryError());
     }
 
     try {
@@ -25,16 +21,10 @@ export class OpenCallback extends FuseCallback<number> {
       return this.right(file.id);
     } catch (err: unknown) {
       Logger.error('Error downloading file: ', err);
-
       if (err instanceof Error) {
-        return this.left(
-          new FuseIOError(`${err.message} when opening ${path}`)
-        );
+        return this.left(new FuseIOError());
       }
-
-      return this.left(
-        new FuseIOError(`unknown error when opening ${path}: ${err}`)
-      );
+      return this.left(new FuseIOError());
     }
   }
 }

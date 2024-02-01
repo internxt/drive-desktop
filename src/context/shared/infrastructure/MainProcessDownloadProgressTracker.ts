@@ -15,7 +15,7 @@ export class MainProcessDownloadProgressTracker
   ): Promise<void> {
     setTrayStatus('SYNCING');
 
-    trackEvent('Upload Started', {
+    trackEvent('Download Started', {
       file_name: name,
       file_extension: extension,
       file_size: size,
@@ -32,16 +32,8 @@ export class MainProcessDownloadProgressTracker
   async downloadUpdate(
     name: string,
     extension: string,
-    size: number,
     progress: { elapsedTime: number; percentage: number }
   ): Promise<void> {
-    trackEvent('Upload Started', {
-      file_name: name,
-      file_extension: extension,
-      file_size: size,
-      elapsedTimeMs: progress.elapsedTime,
-    });
-
     broadcastToWindows('sync-info-update', {
       action: 'DOWNLOADING',
       name: this.nameWithExtension(name, extension),
@@ -61,7 +53,7 @@ export class MainProcessDownloadProgressTracker
 
     setTrayStatus('IDLE');
 
-    trackEvent('Upload Completed', {
+    trackEvent('Download Completed', {
       file_name: name,
       file_extension: extension,
       file_size: size,
@@ -69,7 +61,7 @@ export class MainProcessDownloadProgressTracker
     });
 
     broadcastToWindows('sync-info-update', {
-      action: 'UPLOADED',
+      action: 'DOWNLOADED',
       name: nameWithExtension,
     });
   }
@@ -78,7 +70,7 @@ export class MainProcessDownloadProgressTracker
     const nameWithExtension = this.nameWithExtension(name, extension);
 
     // TODO: finish this
-    trackError('Upload Error', new Error(), {
+    trackError('Download Error', new Error(), {
       itemType: 'File',
       root: '',
       from: name,

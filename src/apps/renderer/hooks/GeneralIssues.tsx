@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
-import { GeneralIssue } from '../../shared/types';
+import { AppIssue } from '../../../shared/issues/AppIssue';
 
 export default function useGeneralIssues() {
-  const [generalIssues, setGeneralIssues] = useState<GeneralIssue[]>([]);
+  const [generalIssues, setGeneralIssues] = useState<AppIssue[]>([]);
 
   useEffect(() => {
     window.electron.getGeneralIssues().then(setGeneralIssues);

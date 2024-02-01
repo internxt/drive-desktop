@@ -29,7 +29,7 @@ export class GetAttributesCallback extends FuseCallback<GetAttributesCallbackDat
   ): Either<FuseError, GetAttributesCallbackData> {
     // When the OS wants to check if a node exists will try to get the attributes of it
     // so not founding them is not an error
-    Logger.info(`Attributes of ${this.name}:.`, error.description);
+    Logger.info(`Attributes of ${this.name}:.`);
     return left(error);
   }
 
@@ -83,10 +83,6 @@ export class GetAttributesCallback extends FuseCallback<GetAttributesCallbackDat
       });
     }
 
-    return this.left(
-      new FuseNoSuchFileOrDirectoryError(
-        `"${path}" not founded on when retrieving it's attributes`
-      )
-    );
+    return this.left(new FuseNoSuchFileOrDirectoryError());
   }
 }

@@ -35,7 +35,7 @@ export class ContentsUploader {
         localFileContents.name,
         localFileContents.extension,
         localFileContents.size,
-        { elapsedTime: uploader.elapsedTime(), progress }
+        { elapsedTime: uploader.elapsedTime(), percentage: progress }
       );
     });
 

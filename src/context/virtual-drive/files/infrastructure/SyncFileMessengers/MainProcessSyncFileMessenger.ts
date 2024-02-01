@@ -2,10 +2,10 @@ import {
   trackError,
   trackEvent,
 } from '../../../../../apps/main/analytics/service';
-import { addProcessIssue } from '../../../../../apps/main/background-processes/process-issues';
+import { addVirtualDriveIssue } from '../../../../../apps/main/issues/virtual-drive';
 import { setTrayStatus } from '../../../../../apps/main/tray/tray';
 import { broadcastToWindows } from '../../../../../apps/main/windows';
-import { ProcessIssue } from '../../../../../apps/shared/types';
+import { VirtualDriveIssue } from '../../../../../shared/issues/VirtualDriveIssue';
 import { SyncMessenger } from '../../../../shared/domain/SyncMessenger';
 import { SyncFileMessenger } from '../../domain/SyncFileMessenger';
 
@@ -83,15 +83,13 @@ export class MainProcessSyncFileMessenger
       action: 'Delete',
     });
 
-    const issue: ProcessIssue = {
-      kind: 'REMOTE',
-      name,
-      action: 'DELETE_ERROR',
-      errorName: 'UNKNOWN',
-      process: 'SYNC',
+    const issue: VirtualDriveIssue = {
+      name: name,
+      error: 'DELETE_ERROR',
+      cause: 'UNKNOWN',
     };
 
-    addProcessIssue(issue);
+    addVirtualDriveIssue(issue);
   }
 
   async renaming(current: string, desired: string): Promise<void> {

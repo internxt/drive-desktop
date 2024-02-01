@@ -3,7 +3,6 @@ export interface DownloadProgressTracker {
   downloadUpdate(
     name: string,
     extension: string,
-    size: number,
     progress: {
       elapsedTime: number;
       percentage: number;

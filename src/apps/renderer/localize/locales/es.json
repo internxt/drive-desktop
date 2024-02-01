@@ -321,14 +321,16 @@
       "file-does-not-exist": "El archivo no existe",
       "file-too-big": "El tamaño máximo de carga es de 20GB. Por favor, intenta con archivos más pequeños.",
       "file-non-extension": "Archivos sin extensión no son soportados",
-      "duplicated-node": "Hay un conflicto con el elemento"
+      "duplicated-node": "Hay un conflicto con el elemento",
+      "action-not-permitted": "La operación no pudo completarse.",
+      "file-already-exists": "No se puede completar la operación. El archivo ya existe en los servidores de Internxt."
     },
     "error-messages": {
       "no-internet": "No estás conectado a Internet, lo intentaremos más tarde",
       "no-remote-connection": "No hemos podido conectar con los servidores de Internxt, lo intentaremos más tarde",
       "cannot-get-current-listings": "No pudimos obtener el estado de tus archivos actuales, lo intentaremos más tarde",
       "base-directory-does-not-exist": "No se pudo encontrar su carpeta de sincronización",
-      "insuficient-permision-accessing-base-directory": "Internxt App no tiene permiso para acceder a su carpeta de sincronización",
+      "insufficient-permission-accessing-base-directory": "Internxt App no tiene permiso para acceder a su carpeta de sincronización",
       "cannot-access-base-directory": "No hemos podido acceder a su carpeta local",
       "cannot-access-tmp-directory": "No hemos podido acceder a su carpeta local",
       "unknown": "Error desconocido al intentar sincronizar sus archivos",
@@ -337,7 +339,9 @@
       "file-does-not-exist": "Este archivo estaba presente cuando comparamos su carpeta local con su unidad Internxt, pero desapareció cuando intentamos acceder a él. Si has eliminado este archivo, no te preocupes, este error debería desaparecer la próxima vez que se inicie el proceso de sincronización",
       "file-too-big": "El tamaño máximo de carga es de 20GB. Por favor, intenta con archivos más pequeños.",
       "file-non-extension": "Los archivos sin extensiones no son soportados. No sincronizado",
-      "duplicated-node": "Hay dos elementos (archivo o carpeta) con el mismo nombre en una carpeta. Cambia el nombre de uno de ellos para sincronizar ambos."
+      "duplicated-node": "Hay dos elementos (archivo o carpeta) con el mismo nombre en una carpeta. Cambia el nombre de uno de ellos para sincronizar ambos.",
+      "action-not-permitted": "La operación no pudo completarse, posiblemente debido a un conflicto con otro archivo.",
+      "file-already-exists": "No se puede completar la operación. El archivo ya existe en los servidores de Internxt."
     },
     "report-modal": {
       "actions": {

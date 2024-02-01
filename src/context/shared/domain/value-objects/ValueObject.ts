@@ -1,4 +1,4 @@
-import { InvalidArgumentError } from '../InvalidArgumentError';
+import { InvalidArgumentError } from '../errors/InvalidArgumentError';
 
 export type Primitives = string | number | boolean | Date | undefined;
 

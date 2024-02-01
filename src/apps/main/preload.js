@@ -91,8 +91,8 @@ contextBridge.exposeInMainWorld('electron', {
     ipcRenderer.on(eventName, callback);
     return () => ipcRenderer.removeListener(eventName, callback);
   },
-  getProcessIssues() {
-    return ipcRenderer.invoke('get-process-issues');
+  getVirtualDriveIssues() {
+    return ipcRenderer.invoke('get.issues.virtual-drive');
   },
   onProcessIssuesChanged(func) {
     const eventName = 'process-issues-changed';

@@ -7,7 +7,7 @@ export class ReleaseCallback extends NotifyFuseCallback {
     super('Release');
   }
 
-  async execute(path: string, fd: number) {
+  async execute(path: string, _fd: number) {
     const file = await this.container.offlineFileSearcher.run({ path });
 
     if (!file) {
@@ -19,16 +19,10 @@ export class ReleaseCallback extends NotifyFuseCallback {
       return this.right();
     } catch (err: unknown) {
       if (err instanceof Error) {
-        return this.left(
-          new FuseIOError(
-            `${err.message} when uploading ${path} and with flag: ${fd}`
-          )
-        );
+        return this.left(new FuseIOError());
       }
 
-      return this.left(
-        new FuseIOError(`Error when uploading ${path} with flag ${fd}: ${err}`)
-      );
+      return this.left(new FuseIOError());
     }
   }
 }

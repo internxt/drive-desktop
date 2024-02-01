@@ -10,6 +10,8 @@ import { RemoteFileSystem } from '../domain/file-systems/RemoteFileSystem';
 import { OfflineFile } from '../domain/OfflineFile';
 import { SyncFileMessenger } from '../domain/SyncFileMessenger';
 import { FileStatuses } from '../domain/FileStatus';
+import { DriveDesktopError } from '../../../shared/domain/errors/DriveDesktopError';
+import Logger from 'electron-log';
 
 export class FileCreator {
   constructor(
@@ -57,13 +59,17 @@ export class FileCreator {
 
       return file;
     } catch (error: unknown) {
-      const message =
-        error instanceof Error ? error.message : '[File Creator] unknown error';
+      const message = error instanceof Error ? error.message : 'unknown error';
+
+      Logger.error('[File Creator]', message);
+
+      const cause =
+        error instanceof DriveDesktopError ? error.syncErrorCause : 'UNKNOWN';
 
       await this.notifier.errorWhileCreating(
         filePath.name(),
         filePath.extension(),
-        message
+        cause
       );
 
       throw error;
