@@ -16,6 +16,7 @@ import { MoveOfflineContentsOnContentsUploaded } from '../../../../../context/vi
 import { LocalContentsMover } from '../../../../../context/virtual-drive/contents/application/LocalContentsMover';
 import { AllLocalContentsDeleter } from '../../../../../context/virtual-drive/contents/application/AllLocalContentsDeleter';
 import { MainProcessUploadProgressTracker } from '../../../../../context/shared/infrastructure/MainProcessUploadProgressTracker';
+import { MainProcessDownloadProgressTracker } from '../../../../../context/shared/infrastructure/MainProcessDownloadProgressTracker';
 
 export async function buildContentsContainer(
   sharedContainer: SharedContainer
@@ -44,10 +45,13 @@ export async function buildContentsContainer(
     'downloaded'
   );
 
+  const tracker = new MainProcessDownloadProgressTracker();
+
   const downloadContentsToPlainFile = new DownloadContentsToPlainFile(
     contentsManagerFactory,
     localFS,
-    eventBus
+    eventBus,
+    tracker
   );
 
   const localContentChecker = new LocalContentChecker(localFS);

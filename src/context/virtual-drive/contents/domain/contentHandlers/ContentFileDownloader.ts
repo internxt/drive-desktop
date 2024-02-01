@@ -3,7 +3,7 @@ import { File, FileAttributes } from '../../../files/domain/File';
 
 export type FileDownloadEvents = {
   start: () => void;
-  progress: (progress: number) => void;
+  progress: (progress: number, elapsedTime: number) => void;
   finish: (fileId: FileAttributes['contentsId']) => void;
   error: (error: Error) => void;
 };

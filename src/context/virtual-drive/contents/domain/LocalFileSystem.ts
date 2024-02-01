@@ -1,3 +1,4 @@
+import { ContentsMetadata } from './ContentsMetadata';
 import { ContentsId } from './ContentsId';
 import { LocalFileContents } from './LocalFileContents';
 
@@ -9,6 +10,11 @@ export interface LocalFileSystem {
   remove(contentsId: ContentsId): Promise<void>;
 
   exists(contentsId: ContentsId): Promise<boolean>;
+
+  /**
+   * @return the FileMetadata of the file or undefined if does not exits
+   */
+  metadata(contentsId: ContentsId): Promise<ContentsMetadata | undefined>;
 
   add(contentsId: ContentsId, source: string): Promise<void>;
 

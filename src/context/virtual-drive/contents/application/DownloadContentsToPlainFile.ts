@@ -1,6 +1,7 @@
-import { broadcastToWindows } from '../../../../apps/main/windows';
+import { DownloadProgressTracker } from '../../../shared/domain/DownloadProgressTracker';
 import { File } from '../../files/domain/File';
 import { EventBus } from '../../shared/domain/EventBus';
+import { ContentsId } from '../domain/ContentsId';
 import { ContentsManagersFactory } from '../domain/ContentsManagersFactory';
 import { LocalFileContents } from '../domain/LocalFileContents';
 import { LocalFileSystem } from '../domain/LocalFileSystem';
@@ -10,43 +11,45 @@ import Logger from 'electron-log';
 export class DownloadContentsToPlainFile {
   constructor(
     private readonly managerFactory: ContentsManagersFactory,
-    private readonly localWriter: LocalFileSystem,
-    private readonly eventBus: EventBus
+    private readonly local: LocalFileSystem,
+    private readonly eventBus: EventBus,
+    private readonly tracker: DownloadProgressTracker
   ) {}
 
   private async registerEvents(downloader: ContentFileDownloader, file: File) {
     downloader.on('start', () => {
-      broadcastToWindows('sync-info-update', {
-        action: 'DOWNLOADING',
-        name: file.nameWithExtension,
-        progress: 0,
-      });
+      this.tracker.downloadStarted(file.name, file.type, file.size);
     });
 
-    downloader.on('progress', (progress: number) => {
-      broadcastToWindows('sync-info-update', {
-        action: 'DOWNLOADING',
-        name: file.nameWithExtension,
-        progress: progress,
+    downloader.on('progress', (progress: number, elapsedTime: number) => {
+      this.tracker.downloadUpdate(file.name, file.type, file.size, {
+        elapsedTime,
+        percentage: progress,
       });
     });
 
     downloader.on('error', () => {
-      broadcastToWindows('sync-info-update', {
-        action: 'DOWNLOAD_ERROR',
-        name: file.nameWithExtension,
-      });
+      this.tracker.error(file.name, file.type);
     });
 
-    downloader.on('finish', () => {
-      broadcastToWindows('sync-info-update', {
-        action: 'DOWNLOADED',
-        name: file.nameWithExtension,
+    downloader.on('finish', (elapsedTime: number) => {
+      this.tracker.downloadFinished(file.name, file.type, file.size, {
+        elapsedTime,
       });
     });
   }
 
-  async run(file: File): Promise<string> {
+  async run(file: File): Promise<void> {
+    const contentsId = new ContentsId(file.contentsId);
+
+    const metadata = await this.local.metadata(contentsId);
+
+    if (metadata) {
+      if (metadata.isUpToDate(file.updatedAt)) {
+        return;
+      }
+    }
+
     Logger.debug(`downloading "${file.nameWithExtension}"`);
 
     const downloader = this.managerFactory.downloader();
@@ -60,11 +63,9 @@ export class DownloadContentsToPlainFile {
       downloader.elapsedTime()
     );
 
-    const write = await this.localWriter.write(localContents, file.contentsId);
+    await this.local.write(localContents, file.contentsId);
 
     const events = localContents.pullDomainEvents();
     await this.eventBus.publish(events);
-
-    return write;
   }
 }
