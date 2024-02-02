@@ -1,5 +1,4 @@
 import { FuseCallback } from './FuseCallback';
-import Logger from 'electron-log';
 
 type StatFsCallbackData = {
   bsize: number; // fundamental file system block size in bytes
@@ -21,8 +20,6 @@ export class StatFsCallback extends FuseCallback<Partial<StatFsCallbackData>> {
   }
 
   async execute(path: string) {
-    Logger.debug('Stats FS', path);
-
     return this.right({
       bsize: 1000000,
       frsize: 1000000,
