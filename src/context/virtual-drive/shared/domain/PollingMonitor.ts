@@ -1,8 +1,6 @@
 export type MonitorFn = () => Promise<void>;
 export class PollingMonitor {
-  constructor(
-    private readonly delay: number // private readonly fn: () => Promise<void>
-  ) {}
+  constructor(private readonly delay: number) {}
 
   private timeout: NodeJS.Timeout | null = null;
 

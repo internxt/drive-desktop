@@ -37,7 +37,7 @@ export class BindingsManager {
 
   async start(version: string, providerId: string) {
     await this.stop();
-    this.pillingStart();
+    this.pollingStart();
 
     const controllers = buildControllers(this.container);
 
@@ -279,14 +279,14 @@ export class BindingsManager {
     }
   }
 
-  private async pillingStart() {
-    return this.container.pollingMonitorStart.run(this.pilling.bind(this));
+  private async pollingStart() {
+    return this.container.pollingMonitorStart.run(this.polling.bind(this));
   }
 
-  private async pilling(): Promise<void> {
+  private async polling(): Promise<void> {
     Logger.info('[SYNC ENGINE] Monitoring polling...');
-    const result =
-      await this.container.virtualDrive.getPlaceholderWithStatePending();
-    Logger.info('[SYNC ENGINE] result', result);
+    const fileInPendingPaths =
+      (await this.container.virtualDrive.getPlaceholderWithStatePending()) as Array<string>;
+    await this.container.fileSyncOrchestrator.run(fileInPendingPaths);
   }
 }

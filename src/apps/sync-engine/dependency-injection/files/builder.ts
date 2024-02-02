@@ -24,6 +24,7 @@ import { SDKRemoteFileSystem } from '../../../../context/virtual-drive/files/inf
 import { NodeWinLocalFileSystem } from '../../../../context/virtual-drive/files/infrastructure/NodeWinLocalFileSystem';
 import { LocalFileIdProvider } from '../../../../context/virtual-drive/shared/application/LocalFileIdProvider';
 import { DependencyInjectionHttpClientsProvider } from '../common/clients';
+import { FileSyncronizer } from '../../../../context/virtual-drive/files/application/FileSyncronizer';
 
 export async function buildFilesContainer(
   folderContainer: FoldersContainer,
@@ -115,11 +116,21 @@ export async function buildFilesContainer(
     eventHistory
   );
 
+  const fileSyncronizer = new FileSyncronizer(
+    repository,
+    localFileSystem,
+    fileCreator,
+    sharedContainer.absolutePathToRelativeConverter,
+    folderContainer.folderCreator,
+    folderContainer.offline.folderCreator
+  );
+
   const container: FilesContainer = {
     fileFinderByContentsId,
     fileDeleter,
     filePathUpdater,
     fileCreator,
+    fileSyncronizer,
     filePlaceholderCreatorFromContentsId: filePlaceholderCreatorFromContentsId,
     createFilePlaceholderOnDeletionFailed:
       createFilePlaceholderOnDeletionFailed,
