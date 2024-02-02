@@ -16,7 +16,7 @@ type StatFsCallbackData = {
 };
 
 export class StatFsCallback extends FuseCallback<Partial<StatFsCallbackData>> {
-  constructor(private readonly localStats: Partial<StatFsCallbackData>) {
+  constructor() {
     super('Stat FS');
   }
 
@@ -24,7 +24,8 @@ export class StatFsCallback extends FuseCallback<Partial<StatFsCallbackData>> {
     Logger.debug('Stats FS', path);
 
     return this.right({
-      ...this.localStats,
+      bsize: 1000000,
+      frsize: 1000000,
     });
   }
 }

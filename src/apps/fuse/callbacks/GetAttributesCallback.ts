@@ -3,7 +3,6 @@ import { OfflineDriveDependencyContainer } from '../dependency-injection/offline
 import { VirtualDriveDependencyContainer } from '../dependency-injection/virtual-drive/VirtualDriveDependencyContainer';
 import { FuseCallback } from './FuseCallback';
 import { FuseError, FuseNoSuchFileOrDirectoryError } from './FuseErrors';
-import Logger from 'electron-log';
 
 type GetAttributesCallbackData = {
   mode: number;
@@ -29,7 +28,7 @@ export class GetAttributesCallback extends FuseCallback<GetAttributesCallbackDat
   ): Either<FuseError, GetAttributesCallbackData> {
     // When the OS wants to check if a node exists will try to get the attributes of it
     // so not founding them is not an error
-    Logger.info(`Attributes of ${this.name}:.`);
+    // Logger.info(`Attributes of ${this.name}: `);
     return left(error);
   }
 

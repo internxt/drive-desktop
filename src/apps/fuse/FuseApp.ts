@@ -11,6 +11,7 @@ import { TrashFolderCallback } from './callbacks/TrashFolderCallback';
 import { WriteCallback } from './callbacks/WriteCallback';
 import { ReleaseCallback } from './callbacks/ReleaseCallback';
 import { FuseDependencyContainer } from './dependency-injection/FuseDependencyContainer';
+import { StatFsCallback } from './callbacks/StatFsCallback';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const fuse = require('@gcas/fuse');
@@ -54,6 +55,8 @@ export class FuseApp {
       this.fuseContainer.offlineDriveContainer
     );
 
+    const statfs = new StatFsCallback();
+
     return {
       getattr: getattr.handle.bind(getattr),
       readdir: readdir.handle.bind(readdir),
@@ -66,6 +69,7 @@ export class FuseApp {
       release: release.handle.bind(release),
       unlink: trashFile.handle.bind(trashFile),
       rmdir: trashFolder.handle.bind(trashFolder),
+      statfs: statfs.handle.bind(statfs),
     };
   }
 

@@ -1,6 +1,5 @@
 import { ContentsId } from '../domain/ContentsId';
 import { LocalFileSystem } from '../domain/LocalFileSystem';
-import Logger from 'electron-log';
 
 export class LocalContentsMover {
   constructor(private readonly fileSystem: LocalFileSystem) {}
@@ -13,7 +12,5 @@ export class LocalContentsMover {
     }
 
     await this.fileSystem.add(contentsId, src);
-
-    Logger.info('Added', contentsId.value, 'to offline files contents cache');
   }
 }
