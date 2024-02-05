@@ -31,12 +31,6 @@ export class DownloadContentsToPlainFile {
     downloader.on('error', () => {
       this.tracker.error(file.name, file.type);
     });
-
-    downloader.on('finish', (elapsedTime: number) => {
-      this.tracker.downloadFinished(file.name, file.type, file.size, {
-        elapsedTime,
-      });
-    });
   }
 
   async run(file: File): Promise<void> {
@@ -64,6 +58,10 @@ export class DownloadContentsToPlainFile {
     );
 
     await this.local.write(localContents, file.contentsId);
+
+    this.tracker.downloadFinished(file.name, file.type, file.size, {
+      elapsedTime: downloader.elapsedTime(),
+    });
 
     const events = localContents.pullDomainEvents();
     await this.eventBus.publish(events);
