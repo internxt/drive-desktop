@@ -5,6 +5,7 @@ import { DriveDesktopError } from '../../../context/shared/domain/errors/DriveDe
 import { SyncErrorCause } from '../../../shared/issues/SyncErrorCause';
 import { Either, left, right } from '../../../context/shared/domain/Either';
 import { FuseError, FuseUnknownError } from './FuseErrors';
+import { FileStatuses } from '../../../context/virtual-drive/files/domain/FileStatus';
 
 type RenameOrMoveRight = 'no-op' | 'success';
 
@@ -18,7 +19,10 @@ export class RenameOrMoveFile {
     src: string,
     dest: string
   ): Promise<Either<FuseError, RenameOrMoveRight>> {
-    const file = await this.container.filesSearcher.run({ path: src });
+    const file = await this.container.filesSearcher.run({
+      path: src,
+      status: FileStatuses.EXISTS,
+    });
 
     if (!file) {
       return right(RenameOrMoveFile.NO_OP);

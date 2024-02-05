@@ -25,8 +25,7 @@ export class ContentsUploader {
       this.notifier.uploadStarted(
         localFileContents.name,
         localFileContents.extension,
-        localFileContents.size,
-        { elapsedTime: uploader.elapsedTime() }
+        localFileContents.size
       );
     });
 
@@ -39,11 +38,12 @@ export class ContentsUploader {
       );
     });
 
-    uploader.on('error', (error: Error) => {
+    uploader.on('error', (_error: Error) => {
+      // TODO: use error to define the cause of the error
       this.notifier.uploadError(
         localFileContents.name,
         localFileContents.extension,
-        error.message
+        'UNKNOWN'
       );
     });
 

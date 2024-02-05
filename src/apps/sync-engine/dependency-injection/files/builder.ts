@@ -78,7 +78,6 @@ export async function buildFilesContainer(
     remoteFileSystem,
     localFileSystem,
     repository,
-    fileFinderByContentsId,
     folderContainer.folderFinder,
     eventBus
   );

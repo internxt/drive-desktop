@@ -1,4 +1,5 @@
 import { Either, left } from '../../../context/shared/domain/Either';
+import { FileStatuses } from '../../../context/virtual-drive/files/domain/FileStatus';
 import { OfflineDriveDependencyContainer } from '../dependency-injection/offline/OfflineDriveDependencyContainer';
 import { VirtualDriveDependencyContainer } from '../dependency-injection/virtual-drive/VirtualDriveDependencyContainer';
 import { FuseCallback } from './FuseCallback';
@@ -44,7 +45,10 @@ export class GetAttributesCallback extends FuseCallback<GetAttributesCallbackDat
       });
     }
 
-    const file = await this.virtualDriveContainer.filesSearcher.run({ path });
+    const file = await this.virtualDriveContainer.filesSearcher.run({
+      path,
+      status: FileStatuses.EXISTS,
+    });
 
     if (file) {
       return this.right({

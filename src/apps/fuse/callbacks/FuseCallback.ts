@@ -105,15 +105,15 @@ export abstract class FuseCallback<T> {
 
 export abstract class NotifyFuseCallback extends FuseCallback<undefined> {
   protected right(): Either<FuseError, undefined> {
-    if (this.debug.output) {
-      Logger.debug(`${this.name} completed successfully`);
-    }
-
     return right(undefined);
   }
 
   async handle(...params: any[]): Promise<void> {
     const callback = params.pop() as Callback;
+
+    if (this.debug.input) {
+      Logger.debug(`${this.name}: `, ...params);
+    }
 
     const result = await this.executeAndCatch(params);
 
@@ -121,6 +121,10 @@ export abstract class NotifyFuseCallback extends FuseCallback<undefined> {
       const error = result.getLeft();
 
       return callback(error.code);
+    }
+
+    if (this.debug.output) {
+      Logger.debug(`${this.name} completed successfully`);
     }
 
     callback(NotifyFuseCallback.OK);

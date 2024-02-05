@@ -1,5 +1,4 @@
 import { app, dialog, shell } from 'electron';
-import Logger from 'electron-log';
 import fs from 'fs/promises';
 import path from 'path';
 import configStore from '../config';

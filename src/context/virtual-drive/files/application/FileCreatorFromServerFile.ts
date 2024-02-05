@@ -1,5 +1,6 @@
 import { ServerFile } from '../../../shared/domain/ServerFile';
 import { File } from '../domain/File';
+import { FileStatuses } from '../domain/FileStatus';
 
 export function createFileFromServerFile(
   server: ServerFile,
@@ -14,6 +15,6 @@ export function createFileFromServerFile(
     createdAt: server.createdAt,
     updatedAt: server.updatedAt,
     path: relativePath,
-    status: server.status,
+    status: FileStatuses[server.status as 'EXISTS' | 'TRASHED' | 'DELETED'],
   });
 }
