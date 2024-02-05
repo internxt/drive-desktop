@@ -19,11 +19,7 @@ export class ContentFileDownloaderMock implements ContentFileDownloader {
 
   on(
     event: keyof FileDownloadEvents,
-    fn:
-      | (() => void)
-      | ((progress: number) => void)
-      | ((fileId: string) => void)
-      | ((error: Error) => void)
+    fn: FileDownloadEvents[keyof FileDownloadEvents]
   ): void {
     return this.onMock(event, fn);
   }

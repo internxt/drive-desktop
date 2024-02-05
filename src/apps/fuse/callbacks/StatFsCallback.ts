@@ -1,5 +1,4 @@
 import { FuseCallback } from './FuseCallback';
-import Logger from 'electron-log';
 
 type StatFsCallbackData = {
   bsize: number; // fundamental file system block size in bytes
@@ -16,15 +15,23 @@ type StatFsCallbackData = {
 };
 
 export class StatFsCallback extends FuseCallback<Partial<StatFsCallbackData>> {
-  constructor(private readonly localStats: Partial<StatFsCallbackData>) {
+  constructor() {
     super('Stat FS');
   }
 
   async execute(path: string) {
-    Logger.debug('Stats FS', path);
-
     return this.right({
-      ...this.localStats,
+      bsize: 1000000,
+      frsize: 1000000,
+      blocks: 1000000,
+      bfree: 1000000,
+      bavail: 1000000,
+      files: 1000000,
+      ffree: 1000000,
+      favail: 1000000,
+      fsid: 1000000,
+      flag: 1000000,
+      namemax: 1000000,
     });
   }
 }

@@ -53,8 +53,6 @@ export class EnvironmentContentFileDownloader implements ContentFileDownloader {
               this.eventEmitter.emit('error', err);
               return reject(err);
             }
-            this.eventEmitter.emit('finish', this.elapsedTime());
-
             resolve(stream);
           },
         },

@@ -8,6 +8,8 @@ export function useDriveInfoHistory() {
   const addItemToHistoryDebounced = throttle((item: DriveInfo) => {
     const MAX_ITEMS = 50;
 
+    console.log(item);
+
     setDriveHistory((prevList) => {
       const prevListWithoutItem = prevList.filter(
         ({ name }) => name !== item.name

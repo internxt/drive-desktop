@@ -6,8 +6,8 @@ import {
 } from '../../domain/contentHandlers/ContentFileDownloader';
 import { File } from '../../../files/domain/File';
 import { DownloadOneShardStrategy } from '@internxt/inxt-js/build/lib/core';
-import { ActionState } from '@internxt/inxt-js/build/api';
 import { Stopwatch } from '../../../../../apps/shared/types/Stopwatch';
+import Logger from 'electron-log';
 
 export class FuseEnvironmentContentFileDownloader
   implements ContentFileDownloader
@@ -15,24 +15,16 @@ export class FuseEnvironmentContentFileDownloader
   private eventEmitter: EventEmitter;
   private stopwatch: Stopwatch;
 
-  private state: ActionState | null;
-
   constructor(
     private readonly fn: DownloadStrategyFunction<DownloadOneShardStrategy>,
     private readonly bucket: string
   ) {
     this.eventEmitter = new EventEmitter();
     this.stopwatch = new Stopwatch();
-    this.state = null;
   }
 
   forceStop(): void {
-    //@ts-ignore
-    // Logger.debug('Finish emitter type', this.state?.type);
-    // Logger.debug('Finish emitter stop method', this.state?.stop);
-    this.state?.stop();
-    // this.eventEmitter.emit('error');
-    // this.eventEmitter.emit('finish');
+    throw new Error('Method not implemented.');
   }
 
   download(file: File): Promise<Readable> {
@@ -41,7 +33,7 @@ export class FuseEnvironmentContentFileDownloader
     this.eventEmitter.emit('start');
 
     return new Promise((resolve, reject) => {
-      this.state = this.fn(
+      this.fn(
         this.bucket,
         file.contentsId,
         {
@@ -76,9 +68,6 @@ export class FuseEnvironmentContentFileDownloader
     handler: FileDownloadEvents[keyof FileDownloadEvents]
   ): void {
     this.eventEmitter.on(event, handler);
-    this.eventEmitter.on('finish', () => {
-      this.eventEmitter.removeAllListeners();
-    });
   }
 
   elapsedTime(): number {

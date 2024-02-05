@@ -87,10 +87,10 @@ export class ContentsDownloader {
       });
     });
 
-    downloader.on('finish', () => {
-      // The file download being finished does not mean it has been hydrated
-      // TODO: We might want to track this time instead of the whole completion time
-    });
+    // downloader.on('finish', () => {
+    // The file download being finished does not mean it has been hydrated
+    // TODO: We might want to track this time instead of the whole completion time
+    // });
   }
 
   async run(file: File, cb: CallbackDownload): Promise<string> {

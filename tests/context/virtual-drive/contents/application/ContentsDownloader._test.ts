@@ -34,7 +34,7 @@ describe.skip('Contents Downloader', () => {
     );
   });
 
-  it.each(['start', 'progress', 'finish', 'error'] satisfies Array<
+  it.each(['start', 'progress', 'error'] satisfies Array<
     keyof FileDownloadEvents
   >)(
     'tracks all the manager events ',

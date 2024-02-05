@@ -33,7 +33,7 @@ describe('Environment Content File Downloader', () => {
 
       const handler = jest.fn();
 
-      downloader.on('finish', handler);
+      // downloader.on('finish', handler);
 
       await downloader.download(file);
 

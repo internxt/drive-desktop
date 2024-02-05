@@ -8,33 +8,41 @@ const fuse = require('@gcas/fuse');
 export class ReadCallback {
   constructor(private readonly container: VirtualDriveDependencyContainer) {}
 
+  private readonly buffers = new Map<string, Buffer>();
+
+  private async obtainBufferFor(filePath: string): Promise<Buffer> {
+    const cachedBuffer = this.buffers.get(filePath);
+    if (cachedBuffer) {
+      return cachedBuffer;
+    }
+
+    return fs.readFile(filePath);
+  }
+
   private async read(
-    filePath: string,
+    source: Buffer,
     buffer: Buffer,
     length: number,
     position: number
   ): Promise<number> {
-    // Logger.debug('READING FILE FROM ', filePath, length, position);
-
-    const data = await fs.readFile(filePath);
-
-    if (position >= data.length) {
+    if (position >= source.length) {
       Logger.debug('READ DONE');
       return 0;
     }
 
-    const part = data.slice(position, position + length);
-    part.copy(buffer); // write the result of the read to the result buffer
-    return part.length; // number of bytes read
+    const part = source.slice(position, position + length);
+    part.copy(buffer);
+
+    return part.length;
   }
 
   async execute(
     path: string,
-    _fd: any,
+    _fileHandle: number,
     buf: Buffer,
     len: number,
     pos: number,
-    cb: (code: number, params?: any) => void
+    cb: (result: number) => void
   ) {
     const file = await this.container.filesSearcher.run({ path });
 
@@ -48,7 +56,16 @@ export class ReadCallback {
     );
 
     try {
-      const bytesRead = await this.read(filePath, buf, len, pos);
+      Logger.debug('READING FILE FROM ', filePath, len, pos);
+
+      const source = await this.obtainBufferFor(filePath);
+
+      const bytesRead = await this.read(source, buf, len, pos);
+
+      if (bytesRead === 0) {
+        this.buffers.delete(filePath);
+      }
+
       cb(bytesRead);
     } catch (err) {
       Logger.error(`Error reading file: ${err}`);
