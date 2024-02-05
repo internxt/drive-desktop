@@ -1,5 +1,6 @@
 export interface DownloadProgressTracker {
   downloadStarted(name: string, extension: string, size: number): Promise<void>;
+
   downloadUpdate(
     name: string,
     extension: string,
@@ -8,6 +9,7 @@ export interface DownloadProgressTracker {
       percentage: number;
     }
   ): Promise<void>;
+
   downloadFinished(
     name: string,
     extension: string,
@@ -16,5 +18,6 @@ export interface DownloadProgressTracker {
       elapsedTime: number;
     }
   ): Promise<void>;
+
   error(name: string, extension: string): Promise<void>;
 }
