@@ -12,11 +12,11 @@ declare interface Window {
     pathChanged(path: string): void;
 
     getGeneralIssues: () => Promise<
-      import('../../apps/shared/types').GeneralIssue[]
+      import('../../shared/issues/AppIssue').AppIssue[]
     >;
 
     onGeneralIssuesChanged: (
-      func: (value: import('../../apps/shared/types').GeneralIssue[]) => void
+      func: (value: import('../../shared/issues/AppIssue').AppIssue[]) => void
     ) => () => void;
 
     onSyncStopped: (
@@ -25,16 +25,18 @@ declare interface Window {
       ) => void
     ) => () => void;
 
-    getProcessIssues(): Promise<import('apps/shared/types').ProcessIssue[]>;
+    getVirtualDriveIssues(): Promise<
+      import('../../shared/issues/VirtualDriveIssue').VirtualDriveIssue[]
+    >;
 
     onProcessIssuesChanged(
-      func: (value: import('apps/shared/types').ProcessIssue[]) => void
+      func: (
+        value: import('../../shared/issues/VirtualDriveIssue').VirtualDriveIssue[]
+      ) => void
     ): () => void;
 
     onSyncInfoUpdate(
-      func: (
-        value: import('apps/shared/types').ProcessInfoUpdatePayload
-      ) => void
+      func: (value: import('../shared/types').DriveInfo) => void
     ): () => void;
 
     userIsUnauthorized(): void;

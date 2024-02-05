@@ -2,7 +2,7 @@ import { FolderCreatorFromOfflineFolder } from '../../../../../src/context/virtu
 import { EventBusMock } from '../../shared/__mock__/EventBusMock';
 import { FolderRemoteFileSystemMock } from '../__mocks__/FolderRemoteFileSystemMock';
 import { FolderRepositoryMock } from '../__mocks__/FolderRepositoryMock';
-import { FolderSyncNotifierMock } from '../__mocks__/FolderSyncManagerMock';
+import { SyncFolderMessengerMock } from '../__mocks__/SyncFolderMessengerMock';
 import { FolderMother } from '../domain/FolderMother';
 import { OfflineFolderMother } from '../domain/OfflineFolderMother';
 
@@ -12,12 +12,12 @@ describe('Folder Creator from Offline Folder', () => {
   let repository: FolderRepositoryMock;
   let remote: FolderRemoteFileSystemMock;
   let eventBus: EventBusMock;
-  let notifier: FolderSyncNotifierMock;
+  let messenger: SyncFolderMessengerMock;
 
   beforeEach(() => {
     repository = new FolderRepositoryMock();
     remote = new FolderRemoteFileSystemMock();
-    notifier = new FolderSyncNotifierMock();
+    messenger = new SyncFolderMessengerMock();
 
     eventBus = new EventBusMock();
 
@@ -25,7 +25,7 @@ describe('Folder Creator from Offline Folder', () => {
       repository,
       remote,
       eventBus,
-      notifier
+      messenger
     );
   });
 
@@ -58,7 +58,7 @@ describe('Folder Creator from Offline Folder', () => {
 
       await SUT.run(offlineFolder);
 
-      expect(notifier.creatingMock).toBeCalledWith(offlineFolder.name);
+      expect(messenger.creatingMock).toBeCalledWith(offlineFolder.name);
     });
 
     it('sends the message FOLDER_CREATED', async () => {
@@ -76,7 +76,7 @@ describe('Folder Creator from Offline Folder', () => {
 
       await SUT.run(offlineFolder);
 
-      expect(notifier.createdMock).toBeCalledWith(offlineFolder.name);
+      expect(messenger.createdMock).toBeCalledWith(offlineFolder.name);
     });
   });
 });

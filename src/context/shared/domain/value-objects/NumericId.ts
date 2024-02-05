@@ -1,4 +1,4 @@
-import { InvalidArgumentError } from '../InvalidArgumentError';
+import { InvalidArgumentError } from '../errors/InvalidArgumentError';
 import { ValueObject } from './ValueObject';
 
 export class NumericId extends ValueObject<number> {

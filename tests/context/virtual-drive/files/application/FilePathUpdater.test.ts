@@ -1,4 +1,3 @@
-import { FileFinderByContentsId } from '../../../../../src/context/virtual-drive/files/application/FileFinderByContentsId';
 import { FilePathUpdater } from '../../../../../src/context/virtual-drive/files/application/FilePathUpdater';
 import { FilePath } from '../../../../../src/context/virtual-drive/files/domain/FilePath';
 import { FolderFinder } from '../../../../../src/context/virtual-drive/folders/application/FolderFinder';
@@ -12,7 +11,6 @@ import { FileMother } from '../domain/FileMother';
 
 describe('File path updater', () => {
   let repository: FileRepositoryMock;
-  let fileFinderByContentsId: FileFinderByContentsId;
   let folderFinder: FolderFinderMock;
   let localFileSystem: LocalFileSystemMock;
   let eventBus: EventBusMock;
@@ -22,7 +20,6 @@ describe('File path updater', () => {
   beforeEach(() => {
     repository = new FileRepositoryMock();
     folderFinder = new FolderFinderMock();
-    fileFinderByContentsId = new FileFinderByContentsId(repository);
     eventBus = new EventBusMock();
     remoteFileSystemMock = new RemoteFileSystemMock();
     localFileSystem = new LocalFileSystemMock();
@@ -31,7 +28,6 @@ describe('File path updater', () => {
       remoteFileSystemMock,
       localFileSystem,
       repository,
-      fileFinderByContentsId,
       folderFinder as unknown as FolderFinder,
       eventBus
     );

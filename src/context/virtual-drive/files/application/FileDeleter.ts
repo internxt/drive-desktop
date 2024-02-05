@@ -6,6 +6,7 @@ import { FileStatuses } from '../domain/FileStatus';
 import { SyncFileMessenger } from '../domain/SyncFileMessenger';
 import { LocalFileSystem } from '../domain/file-systems/LocalFileSystem';
 import { RemoteFileSystem } from '../domain/file-systems/RemoteFileSystem';
+import { DriveDesktopError } from '../../../shared/domain/errors/DriveDesktopError';
 
 export class FileDeleter {
   constructor(
@@ -17,7 +18,10 @@ export class FileDeleter {
   ) {}
 
   async run(contentsId: File['contentsId']): Promise<void> {
-    const file = this.repository.searchByPartial({ contentsId });
+    const file = this.repository.searchByPartial({
+      contentsId,
+      status: FileStatuses.EXISTS,
+    });
 
     if (!file) {
       return;
@@ -47,14 +51,16 @@ export class FileDeleter {
       await this.repository.update(file);
       await this.notifier.trashed(file.name, file.type, file.size);
     } catch (error: unknown) {
-      Logger.error(
-        `Error deleting the file ${file.nameWithExtension}: `,
-        error
-      );
-
       const message = error instanceof Error ? error.message : 'Unknown error';
 
-      this.notifier.errorWhileTrashing(file.name, file.type, message);
+      Logger.error('[File Deleter]', message);
+
+      const cause =
+        error instanceof DriveDesktopError ? error.syncErrorCause : 'UNKNOWN';
+
+      this.notifier.errorWhileTrashing(file.name, file.type, cause);
+
+      // TODO: add an event and an event handler to recreate placeholders if needed
       this.local.createPlaceHolder(file);
 
       throw error;

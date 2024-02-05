@@ -3,20 +3,21 @@ import { FileAlreadyExistsError } from '../domain/errors/FileAlreadyExistsError'
 import { FilePath } from '../domain/FilePath';
 import { File } from '../domain/File';
 import { FolderFinder } from '../../folders/application/FolderFinder';
-import { FileFinderByContentsId } from './FileFinderByContentsId';
 import { EventBus } from '../../shared/domain/EventBus';
 import { FileRepository } from '../domain/FileRepository';
 import { RemoteFileSystem } from '../domain/file-systems/RemoteFileSystem';
 import { LocalFileSystem } from '../domain/file-systems/LocalFileSystem';
 import { FileRenameFailedDomainEvent } from '../domain/events/FileRenameFailedDomainEvent';
 import { FileRenameStartedDomainEvent } from '../domain/events/FileRenameStartedDomainEvent';
+import { FileStatuses } from '../domain/FileStatus';
+import { FileNotFoundError } from '../domain/errors/FileNotFoundError';
+import Logger from 'electron-log';
 
 export class FilePathUpdater {
   constructor(
     private readonly remote: RemoteFileSystem,
     private readonly local: LocalFileSystem,
     private readonly repository: FileRepository,
-    private readonly fileFinderByContentsId: FileFinderByContentsId,
     private readonly folderFinder: FolderFinder,
     private readonly eventBus: EventBus
   ) {}
@@ -55,7 +56,16 @@ export class FilePathUpdater {
 
   async run(contentsId: string, posixRelativePath: string) {
     const destination = new FilePath(posixRelativePath);
-    const file = this.fileFinderByContentsId.run(contentsId);
+    const file = this.repository.searchByPartial({
+      contentsId,
+      status: FileStatuses.EXISTS,
+    });
+
+    if (!file) {
+      throw new FileNotFoundError(contentsId);
+    }
+
+    Logger.debug('FILE RENAMER FILE FOUNDED');
 
     if (file.dirname !== destination.dirname()) {
       if (file.nameWithExtension !== destination.nameWithExtension()) {
@@ -68,6 +78,7 @@ export class FilePathUpdater {
 
     const destinationFile = this.repository.searchByPartial({
       path: destination.value,
+      status: FileStatuses.EXISTS,
     });
 
     if (destinationFile) {

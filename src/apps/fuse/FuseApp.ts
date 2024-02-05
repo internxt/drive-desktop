@@ -16,6 +16,7 @@ import { FuseDependencyContainer } from './dependency-injection/FuseDependencyCo
 const fuse = require('@gcas/fuse');
 
 export class FuseApp {
+  private static readonly MAX_INT_32 = 2147483647;
   private _fuse: any;
 
   constructor(
@@ -76,6 +77,7 @@ export class FuseApp {
       debug: false,
       mkdir: true,
       force: true,
+      maxRead: FuseApp.MAX_INT_32,
     });
 
     this._fuse.mount((err: any) => {

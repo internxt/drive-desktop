@@ -1,12 +1,12 @@
-import { ProcessFatalErrorName } from '../../../shared/types';
-import processFatalErrors from '../process-fatal-error';
+import { FatalError } from '../../../../shared/issues/FatalError';
+import processFatalErrors from '../fatal-error';
 
-const messages: Partial<Record<ProcessFatalErrorName, string>> = {
+const messages: Partial<Record<FatalError, string>> = {
   BASE_DIRECTORY_DOES_NOT_EXIST:
     'widget.body.errors.backups.folder-not-found.text',
 };
 
-function obtainErrorMessage(errorName: ProcessFatalErrorName): string {
+function obtainErrorMessage(errorName: FatalError): string {
   const specificBackupErrorName = messages[errorName];
 
   if (specificBackupErrorName) {

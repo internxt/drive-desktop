@@ -1,7 +1,7 @@
-import { Traverser } from '../../../../../context/virtual-drive/items/application/Traverser';
-import { TreeBuilder } from '../../../../../context/virtual-drive/items/application/TreeBuilder';
-import { CryptoJsNameDecrypt } from '../../../../../context/virtual-drive/items/infrastructure/CryptoJsNameDecrypt';
-import { SQLiteRemoteItemsGenerator } from '../../../../../context/virtual-drive/items/infrastructure/SQLiteRemoteItemsGenerator';
+import { Traverser } from '../../../../../context/virtual-drive/tree/application/Traverser';
+import { TreeBuilder } from '../../../../../context/virtual-drive/tree/application/TreeBuilder';
+import { CryptoJsNameDecrypt } from '../../../../../context/virtual-drive/tree/infrastructure/CryptoJsNameDecrypt';
+import { SQLiteRemoteItemsGenerator } from '../../../../../context/virtual-drive/tree/infrastructure/SQLiteRemoteItemsGenerator';
 import { getUser } from '../../../../main/auth/service';
 import { TreeContainer } from './TreeContainer';
 

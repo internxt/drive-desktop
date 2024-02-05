@@ -22,7 +22,7 @@ export class DownloadContentsToPlainFile {
     });
 
     downloader.on('progress', (progress: number, elapsedTime: number) => {
-      this.tracker.downloadUpdate(file.name, file.type, file.size, {
+      this.tracker.downloadUpdate(file.name, file.type, {
         elapsedTime,
         percentage: progress,
       });
@@ -30,12 +30,6 @@ export class DownloadContentsToPlainFile {
 
     downloader.on('error', () => {
       this.tracker.error(file.name, file.type);
-    });
-
-    downloader.on('finish', (elapsedTime: number) => {
-      this.tracker.downloadFinished(file.name, file.type, file.size, {
-        elapsedTime,
-      });
     });
   }
 
@@ -64,6 +58,10 @@ export class DownloadContentsToPlainFile {
     );
 
     await this.local.write(localContents, file.contentsId);
+
+    this.tracker.downloadFinished(file.name, file.type, file.size, {
+      elapsedTime: downloader.elapsedTime(),
+    });
 
     const events = localContents.pullDomainEvents();
     await this.eventBus.publish(events);

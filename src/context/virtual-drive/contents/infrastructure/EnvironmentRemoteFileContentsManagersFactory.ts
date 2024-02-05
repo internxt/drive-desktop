@@ -5,6 +5,7 @@ import { ContentsManagersFactory } from '../domain/ContentsManagersFactory';
 import { EnvironmentContentFileDownloader } from './download/EnvironmentContentFileDownloader';
 import { EnvironmentContentFileUploader } from './upload/EnvironmentContentFileUploader';
 import { LocalFileContents } from '../domain/LocalFileContents';
+import { FuseEnvironmentContentFileDownloader } from './download/FuseEnvironmentContentFileDownloader';
 
 export class EnvironmentRemoteFileContentsManagersFactory
   implements ContentsManagersFactory
@@ -17,6 +18,13 @@ export class EnvironmentRemoteFileContentsManagersFactory
   ) {}
 
   downloader(): ContentFileDownloader {
+    if (process.platform === 'linux') {
+      return new FuseEnvironmentContentFileDownloader(
+        this.environment.download,
+        this.bucket
+      );
+    }
+
     return new EnvironmentContentFileDownloader(
       this.environment.download,
       this.bucket

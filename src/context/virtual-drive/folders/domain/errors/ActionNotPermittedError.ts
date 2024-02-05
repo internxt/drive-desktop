@@ -1,5 +1,7 @@
-export class ActionNotPermittedError extends Error {
+import { DriveDesktopError } from '../../../../shared/domain/errors/DriveDesktopError';
+
+export class ActionNotPermittedError extends DriveDesktopError {
   constructor(action: string) {
-    super(`${action} is not permitted on folders`);
+    super('ACTION_NOT_PERMITTED', `${action} is not permitted on folders`);
   }
 }

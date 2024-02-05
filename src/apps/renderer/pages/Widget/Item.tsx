@@ -1,23 +1,11 @@
-import { Check, WarningCircle } from '@phosphor-icons/react';
+import { Check } from '@phosphor-icons/react';
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import { useTranslationContext } from '../../context/LocalContext';
-import { shortMessages } from '../../messages/process-error';
 import { getBaseName, getExtension } from '../../utils/path';
-import {
-  ProcessInfoUpdatePayload,
-  ProcessErrorName,
-} from '../../../shared/types';
+import { DriveInfo } from '../../../shared/types';
 import { fileIcon } from '../../assets/icons/getIcon';
 
-export function Item({
-  name,
-  action,
-  progress,
-  errorName,
-}: ProcessInfoUpdatePayload & {
-  progress?: number;
-  errorName?: ProcessErrorName;
-}) {
+export function Item({ name, action, progress }: DriveInfo) {
   const { translate } = useTranslationContext();
   const progressDisplay = progress ? `${Math.ceil(progress * 100)}%` : '';
 
@@ -43,8 +31,6 @@ export function Item({
     description = translate('widget.body.activity.operation.renaming');
   } else if (action === 'RENAMED') {
     description = translate('widget.body.activity.operation.renamed');
-  } else if (errorName) {
-    description = shortMessages[errorName];
   }
 
   return (
@@ -61,30 +47,7 @@ export function Item({
           >
             {getBaseName(name)}
           </p>
-          <p
-            className={`truncate text-xs text-gray-50 ${
-              action &&
-              (action === 'DELETE_ERROR' ||
-                action === 'DOWNLOAD_ERROR' ||
-                action === 'UPLOAD_ERROR' ||
-                action === 'RENAME_ERROR' ||
-                action === 'METADATA_READ_ERROR' ||
-                action === 'GENERATE_TREE')
-                ? 'text-red'
-                : undefined
-            }`}
-            title={
-              action &&
-              (action === 'DELETE_ERROR' ||
-                action === 'DOWNLOAD_ERROR' ||
-                action === 'UPLOAD_ERROR' ||
-                action === 'RENAME_ERROR' ||
-                action === 'METADATA_READ_ERROR' ||
-                action === 'GENERATE_TREE')
-                ? description
-                : undefined
-            }
-          >
+          <p className={'truncate text-xs text-gray-50'}>
             {`${description} ${progressDisplay}`}
           </p>
         </div>
@@ -117,17 +80,6 @@ export function Item({
               action === 'UPLOADED' ||
               action === 'RENAMED') && (
               <Check size={24} className="text-green" weight="bold" />
-            )}
-
-          {/* ERROR */}
-          {action &&
-            (action === 'DELETE_ERROR' ||
-              action === 'DOWNLOAD_ERROR' ||
-              action === 'UPLOAD_ERROR' ||
-              action === 'RENAME_ERROR' ||
-              action === 'METADATA_READ_ERROR' ||
-              action === 'GENERATE_TREE') && (
-              <WarningCircle size={24} className="text-red" weight="regular" />
             )}
         </div>
       </div>

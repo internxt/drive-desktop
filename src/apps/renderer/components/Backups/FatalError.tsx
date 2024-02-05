@@ -1,10 +1,10 @@
-import { ProcessFatalErrorName } from '../../../shared/types';
+import { FatalError } from '../../../../shared/issues/FatalError';
 import ErrorIcon from '../../assets/error.svg';
 import { useTranslationContext } from '../../context/LocalContext';
-import messages from '../../messages/process-fatal-error';
+import messages from '../../messages/fatal-error';
 import Button from '../Button';
 
-export function FatalError({
+export function FatalErrorComponent({
   errorName,
   path,
   onActionClick,
@@ -12,7 +12,7 @@ export function FatalError({
   showIcon,
   className,
 }: {
-  errorName: ProcessFatalErrorName;
+  errorName: FatalError;
   path: string;
   actionName: string;
   onActionClick: () => void;

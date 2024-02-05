@@ -16,7 +16,7 @@ import './auth/handlers';
 import './windows/settings';
 import './windows/process-issues';
 import './windows';
-import './background-processes/process-issues';
+import './issues/virtual-drive';
 import './device/handlers';
 import './usage/handlers';
 import './realtime';

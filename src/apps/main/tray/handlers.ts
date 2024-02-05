@@ -1,77 +1,69 @@
-import { ipcMainDrive } from '../ipcs/mainDrive';
+import { MainProcessSyncEngineIPC } from '../MainProcessSyncEngineIPC';
 import { setTrayStatus } from './tray';
 
-ipcMainDrive.on('FOLDER_CREATING', () => {
+MainProcessSyncEngineIPC.on('FOLDER_CREATING', () => {
   setTrayStatus('SYNCING');
 });
 
-ipcMainDrive.on('FOLDER_CREATED', () => {
+MainProcessSyncEngineIPC.on('FOLDER_CREATED', () => {
   setTrayStatus('IDLE');
 });
 
-ipcMainDrive.on('FOLDER_RENAMING', () => {
+MainProcessSyncEngineIPC.on('FOLDER_RENAMING', () => {
   setTrayStatus('SYNCING');
 });
 
-ipcMainDrive.on('FOLDER_RENAMED', () => {
+MainProcessSyncEngineIPC.on('FOLDER_RENAMED', () => {
   setTrayStatus('IDLE');
 });
 
-ipcMainDrive.on('FILE_DELETING', () => {
+MainProcessSyncEngineIPC.on('FILE_DELETING', () => {
   setTrayStatus('SYNCING');
 });
-ipcMainDrive.on('FILE_DELETED', () => {
+MainProcessSyncEngineIPC.on('FILE_DELETED', () => {
   setTrayStatus('IDLE');
 });
 
-ipcMainDrive.on('FILE_DOWNLOADING', () => {
-  setTrayStatus('SYNCING');
-});
-
-ipcMainDrive.on('FILE_DOWNLOADED', () => {
-  setTrayStatus('IDLE');
-});
-
-ipcMainDrive.on('FILE_MOVED', () => {
-  setTrayStatus('IDLE');
-});
-
-ipcMainDrive.on('FILE_OVERWRITED', () => {
-  setTrayStatus('IDLE');
-});
-
-ipcMainDrive.on('FILE_RENAMING', () => {
+MainProcessSyncEngineIPC.on('FILE_DOWNLOADING', () => {
   setTrayStatus('SYNCING');
 });
 
-ipcMainDrive.on('FILE_RENAMED', () => {
+MainProcessSyncEngineIPC.on('FILE_DOWNLOADED', () => {
   setTrayStatus('IDLE');
 });
 
-ipcMainDrive.on('FILE_CLONNED', () => {
+MainProcessSyncEngineIPC.on('FILE_MOVED', () => {
   setTrayStatus('IDLE');
 });
 
-ipcMainDrive.on('FILE_UPLOADING', () => {
+MainProcessSyncEngineIPC.on('FILE_RENAMING', () => {
   setTrayStatus('SYNCING');
 });
 
-ipcMainDrive.on('FILE_UPLOADED', () => {
+MainProcessSyncEngineIPC.on('FILE_RENAMED', () => {
   setTrayStatus('IDLE');
 });
 
-ipcMainDrive.on('FILE_UPLOAD_ERROR', () => {
+MainProcessSyncEngineIPC.on('FILE_UPLOADING', () => {
+  setTrayStatus('SYNCING');
+});
+
+MainProcessSyncEngineIPC.on('FILE_UPLOADED', () => {
+  setTrayStatus('IDLE');
+});
+
+MainProcessSyncEngineIPC.on('FILE_UPLOAD_ERROR', () => {
   setTrayStatus('ALERT');
 });
 
-ipcMainDrive.on('FILE_DOWNLOAD_ERROR', () => {
+MainProcessSyncEngineIPC.on('FILE_DOWNLOAD_ERROR', () => {
   setTrayStatus('ALERT');
 });
 
-ipcMainDrive.on('FILE_RENAME_ERROR', () => {
+MainProcessSyncEngineIPC.on('FILE_RENAME_ERROR', () => {
   setTrayStatus('ALERT');
 });
 
-ipcMainDrive.on('FILE_DELETION_ERROR', () => {
+MainProcessSyncEngineIPC.on('FILE_DELETION_ERROR', () => {
   setTrayStatus('ALERT');
 });

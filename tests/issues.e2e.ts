@@ -14,11 +14,9 @@ import {
 import { getWindowTopBarTitle } from './selectors';
 import { wait } from './utils';
 import { DEFAULT_LANGUAGE } from '../src/apps/shared/Locale/Language';
-import {
-  ProcessErrorName,
-  ProcessFatalErrorName,
-  GeneralIssue,
-} from '../src/apps/shared/types';
+import { FatalError } from '../src/shared/issues/FatalError';
+import { SyncErrorCause } from '../src/shared/issues/SyncErrorCause';
+import { AppIssue } from '../src/shared/issues/AppIssue';
 
 const activeTabSelector = 'button.text-neutral-500';
 const tabSelector = (name: 'Sync' | 'Backups' | 'General') =>
@@ -29,7 +27,7 @@ test.describe('process issues', () => {
   let electronApp: ElectronApplication;
   let page: Page;
 
-  const addSyncErrors = async (errors: Array<ProcessErrorName>) => {
+  const addSyncErrors = async (errors: Array<SyncErrorCause>) => {
     const emitEvents = errors
       .map(createSyncError)
       .map((error) => ipcMainEmit(electronApp, 'SYNC_INFO_UPDATE', error));
@@ -38,13 +36,13 @@ test.describe('process issues', () => {
   };
 
   const addBackupsErrors = async (
-    errorsName: Array<ProcessFatalErrorName>
+    errorsName: Array<FatalError>
   ): Promise<void> => {
     const errors = errorsName.map(createBackupFatalError);
     await ipcMainEmit(electronApp, 'add-backup-fatal-errors', errors);
   };
 
-  const addGeneralIssues = async (issues: Array<GeneralIssue>) => {
+  const addGeneralIssues = async (issues: Array<AppIssue>) => {
     const eventsEmited = issues.map((issue) =>
       ipcMainEmit(electronApp, 'add-device-issue', issue)
     );

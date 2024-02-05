@@ -15,7 +15,7 @@ import { NodeWinLocalFileSystem } from '../../../../context/virtual-drive/files/
 import { SDKRemoteFileSystem } from '../../../../context/virtual-drive/files/infrastructure/SDKRemoteFileSystem';
 import { BackgroundProcessSyncFileMessenger } from '../../../../context/virtual-drive/files/infrastructure/SyncFileMessengers/BackgroundProcessSyncFileMessenger';
 import { LocalFileIdProvider } from '../../../../context/virtual-drive/shared/application/LocalFileIdProvider';
-import { ipcRendererSyncEngine } from '../../ipcRendererSyncEngine';
+import { SyncEngineIPC } from '../../SyncEngineIpc';
 import { DependencyInjectionHttpClientsProvider } from '../common/clients';
 import { DependencyInjectionEventBus } from '../common/eventBus';
 import { DependencyInjectionEventRepository } from '../common/eventRepository';
@@ -53,7 +53,7 @@ export async function buildFilesContainer(
   );
 
   const syncFileMessenger = new BackgroundProcessSyncFileMessenger(
-    ipcRendererSyncEngine
+    SyncEngineIPC
   );
 
   const repository = new InMemoryFileRepository();
@@ -78,7 +78,6 @@ export async function buildFilesContainer(
     remoteFileSystem,
     localFileSystem,
     repository,
-    fileFinderByContentsId,
     folderContainer.folderFinder,
     eventBus
   );

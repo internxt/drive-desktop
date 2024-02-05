@@ -1,4 +1,5 @@
 import { Either, left } from '../../../context/shared/domain/Either';
+import { FileStatuses } from '../../../context/virtual-drive/files/domain/FileStatus';
 import { OfflineDriveDependencyContainer } from '../dependency-injection/offline/OfflineDriveDependencyContainer';
 import { VirtualDriveDependencyContainer } from '../dependency-injection/virtual-drive/VirtualDriveDependencyContainer';
 import { FuseCallback } from './FuseCallback';
@@ -29,7 +30,7 @@ export class GetAttributesCallback extends FuseCallback<GetAttributesCallbackDat
   ): Either<FuseError, GetAttributesCallbackData> {
     // When the OS wants to check if a node exists will try to get the attributes of it
     // so not founding them is not an error
-    Logger.info(`Attributes of ${this.name}:.`, error.description);
+    Logger.info(`Attributes of ${this.name}:.`);
     return left(error);
   }
 
@@ -44,7 +45,10 @@ export class GetAttributesCallback extends FuseCallback<GetAttributesCallbackDat
       });
     }
 
-    const file = await this.virtualDriveContainer.filesSearcher.run({ path });
+    const file = await this.virtualDriveContainer.filesSearcher.run({
+      path,
+      status: FileStatuses.EXISTS,
+    });
 
     if (file) {
       return this.right({
@@ -83,10 +87,6 @@ export class GetAttributesCallback extends FuseCallback<GetAttributesCallbackDat
       });
     }
 
-    return this.left(
-      new FuseNoSuchFileOrDirectoryError(
-        `"${path}" not founded on when retrieving it's attributes`
-      )
-    );
+    return this.left(new FuseNoSuchFileOrDirectoryError());
   }
 }

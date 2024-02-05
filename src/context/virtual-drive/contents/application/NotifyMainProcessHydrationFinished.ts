@@ -1,4 +1,4 @@
-import { SyncEngineIpc } from '../../../../apps/sync-engine/ipcRendererSyncEngine';
+import { SyncEngineIpc } from '../../../../apps/sync-engine/SyncEngineIpc';
 import { EventRepository } from '../../shared/domain/EventRepository';
 import { ContentsDownloadedDomainEvent } from '../domain/events/ContentsDownloadedDomainEvent';
 import Logger from 'electron-log';

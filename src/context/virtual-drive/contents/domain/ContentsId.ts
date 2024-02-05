@@ -1,4 +1,4 @@
-import { InvalidArgumentError } from '../../../shared/domain/InvalidArgumentError';
+import { InvalidArgumentError } from '../../../shared/domain/errors/InvalidArgumentError';
 import { ValueObject } from '../../../shared/domain/value-objects/ValueObject';
 
 export class ContentsId extends ValueObject<string> {

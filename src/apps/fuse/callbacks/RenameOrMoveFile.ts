@@ -1,42 +1,31 @@
 import path from 'path';
 import { FilePath } from '../../../context/virtual-drive/files/domain/FilePath';
 import { VirtualDriveDependencyContainer } from '../dependency-injection/virtual-drive/VirtualDriveDependencyContainer';
-import { FileAlreadyExistsError } from '../../../context/virtual-drive/files/domain/errors/FileAlreadyExistsError';
-import { ActionNotPermittedError } from '../../../context/virtual-drive/folders/domain/errors/ActionNotPermittedError';
-import {
-  FuseError,
-  FuseInvalidArgumentError,
-  FuseFileOrDirectoryAlreadyExistsError,
-  FuseIOError,
-} from './FuseErrors';
+import { DriveDesktopError } from '../../../context/shared/domain/errors/DriveDesktopError';
+import { SyncErrorCause } from '../../../shared/issues/SyncErrorCause';
+import { Either, left, right } from '../../../context/shared/domain/Either';
+import { FuseError, FuseUnknownError } from './FuseErrors';
+import { FileStatuses } from '../../../context/virtual-drive/files/domain/FileStatus';
+
+type RenameOrMoveRight = 'no-op' | 'success';
 
 export class RenameOrMoveFile {
+  private static readonly NO_OP: RenameOrMoveRight = 'no-op';
+  private static readonly SUCCESS: RenameOrMoveRight = 'success';
+
   constructor(private readonly container: VirtualDriveDependencyContainer) {}
-
-  private resolveError(
-    input: { src: string; dest: string },
-    err: unknown
-  ): FuseError {
-    if (err instanceof ActionNotPermittedError) {
-      return new FuseInvalidArgumentError(input.src);
-    }
-    if (err instanceof FileAlreadyExistsError) {
-      return new FuseFileOrDirectoryAlreadyExistsError(input.src);
-    }
-
-    return new FuseIOError(
-      `Unknown error while updating the path from ${input.src} to ${input.dest}`
-    );
-  }
 
   async execute(
     src: string,
     dest: string
-  ): Promise<FuseError | 'no-op' | 'success'> {
-    const file = await this.container.filesSearcher.run({ path: src });
+  ): Promise<Either<FuseError, RenameOrMoveRight>> {
+    const file = await this.container.filesSearcher.run({
+      path: src,
+      status: FileStatuses.EXISTS,
+    });
 
     if (!file) {
-      return 'no-op';
+      return right(RenameOrMoveFile.NO_OP);
     }
 
     try {
@@ -54,20 +43,27 @@ export class RenameOrMoveFile {
         desiredPath.nameWithExtension()
       );
 
-      return 'success';
-    } catch (err: unknown) {
-      const error = this.resolveError({ src, dest }, err);
-
+      return right(RenameOrMoveFile.SUCCESS);
+    } catch (throwed: unknown) {
       const current = path.basename(src);
       const desired = path.basename(dest);
+
+      const cause: SyncErrorCause =
+        throwed instanceof DriveDesktopError
+          ? throwed.syncErrorCause
+          : 'UNKNOWN';
 
       await this.container.syncFileMessenger.errorWhileRenaming(
         current,
         desired,
-        error.message
+        cause
       );
 
-      return error;
+      if (throwed instanceof FuseError) {
+        return left(throwed);
+      }
+
+      return left(new FuseUnknownError());
     }
   }
 }

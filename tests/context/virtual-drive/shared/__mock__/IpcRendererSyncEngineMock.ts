@@ -1,8 +1,6 @@
-import {
-  FromMain,
-  FromProcess,
-} from '../../../../../src/apps/shared/IPC/events/sync-engine';
-import { SyncEngineIpc } from '../../../../../src/apps/sync-engine/ipcRendererSyncEngine';
+import { BackgroundProcessVirtualDriveEvents } from '../../../../../src/apps/shared/IPC/events/virtualDrive/BackgroundProcessVirtualDriveEvents';
+import { MainProcessVirtualDriveEvents } from '../../../../../src/apps/shared/IPC/events/virtualDrive/MainProcessVirtualDriveEvents';
+import { SyncEngineIpc } from '../../../../../src/apps/sync-engine/SyncEngineIpc';
 
 export class IpcRendererSyncEngineMock implements SyncEngineIpc {
   sendMock = jest.fn();
@@ -16,7 +14,7 @@ export class IpcRendererSyncEngineMock implements SyncEngineIpc {
     return this.sendMock(event, ...args);
   }
 
-  emit(event: keyof FromProcess): void {
+  emit(event: string): void {
     return this.emitMock(event);
   }
   on(event: string | number): void {
@@ -26,10 +24,7 @@ export class IpcRendererSyncEngineMock implements SyncEngineIpc {
     this.onceMock(event);
   }
 
-  invoke<Event extends never>(
-    event: Event,
-    ...args: never
-  ): Promise<ReturnType<FromProcess[Event]>> {
+  invoke<Event extends never>(event: Event, ...args: never): Promise<any> {
     return this.onInvokeMock(event, args);
   }
 
@@ -37,9 +32,9 @@ export class IpcRendererSyncEngineMock implements SyncEngineIpc {
     event: Event,
     listener: (
       event: Electron.IpcMainEvent,
-      ...args: Parameters<FromProcess[Event]>
+      ...args: Parameters<BackgroundProcessVirtualDriveEvents[Event]>
     ) => void
-  ): Promise<ReturnType<FromMain[Event]>> {
+  ): Promise<ReturnType<MainProcessVirtualDriveEvents[Event]>> {
     return this.handleMock(event, listener);
   }
 }

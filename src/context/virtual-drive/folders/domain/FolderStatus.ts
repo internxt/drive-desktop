@@ -1,5 +1,5 @@
 import { EnumValueObject } from '../../../shared/domain/value-objects/EnumValueObject';
-import { InvalidArgumentError } from '../../../shared/domain/InvalidArgumentError';
+import { InvalidArgumentError } from '../../../shared/domain/errors/InvalidArgumentError';
 import { ActionNotPermittedError } from './errors/ActionNotPermittedError';
 
 export enum FolderStatuses {

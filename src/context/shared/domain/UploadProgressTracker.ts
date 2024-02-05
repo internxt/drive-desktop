@@ -1,24 +1,21 @@
+import { SyncErrorCause } from '../../../shared/issues/SyncErrorCause';
+
 export interface UploadProgressTracker {
-  uploadStarted(
-    name: string,
-    extension: string,
-    size: number,
-    processInfo: { elapsedTime: number }
-  ): void;
+  uploadStarted(name: string, extension: string, size: number): void;
 
   uploadProgress(
     name: string,
     extension: string,
     size: number,
-    processInfo: { elapsedTime: number; progress: number }
+    progress: { elapsedTime: number; percentage: number }
   ): void;
 
-  uploadError(name: string, extension: string, error: string): void;
+  uploadError(name: string, extension: string, cause: SyncErrorCause): void;
 
   uploadCompleted(
     name: string,
     extension: string,
     size: number,
-    processInfo: { elapsedTime: number }
+    progress: { elapsedTime: number }
   ): void;
 }

@@ -4,30 +4,28 @@ import SyncErrorBanner from './SyncErrorBanner';
 import SyncInfo from './SyncInfo';
 import useSyncStatus from '../../hooks/useSyncStatus';
 import { SyncFailed } from './SyncFailed';
+import { useEffect, useState } from 'react';
+
+const handleRetrySync = () => {
+  window.electron.startRemoteSync().catch((err) => {
+    reportError(err);
+  });
+};
 
 export default function Widget() {
   const { syncStatus } = useSyncStatus();
+  const [displayErrorInWidget, setDisplayErrorInWidget] = useState(false);
 
-  const handleRetrySync = () => {
-    window.electron.startRemoteSync().catch((err) => {
-      reportError(err);
-    });
-  };
-
-  const displayErrorInWidget = syncStatus && syncStatus === 'FAILED';
-
-  const renderWidgetError = () => {
-    if (syncStatus === 'FAILED') {
-      return <SyncFailed onRetrySync={handleRetrySync} />;
-    }
-    return <></>;
-  };
+  useEffect(() => {
+    setDisplayErrorInWidget(syncStatus && syncStatus === 'FAILED');
+  }, [syncStatus]);
 
   return (
     <div className="flex h-screen flex-col overflow-hidden">
       <Header />
       <SyncErrorBanner />
-      {displayErrorInWidget ? renderWidgetError() : <SyncInfo />}
+      {displayErrorInWidget && <SyncFailed onRetrySync={handleRetrySync} />}
+      {!displayErrorInWidget && <SyncInfo />}
       <SyncAction syncStatus={syncStatus} />
     </div>
   );

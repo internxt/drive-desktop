@@ -322,14 +322,16 @@
       "file-does-not-exist": "File doesn't exist",
       "file-too-big": "Max upload size is 20GB. Please try smaller files.",
       "file-non-extension": "Files without extensions are not supported.",
-      "duplicated-node": "It appears that there are duplicate file or folder names in this directory. Please rename one of them to ensure synchronization"
+      "duplicated-node": "It appears that there are duplicate file or folder names in this directory. Please rename one of them to ensure synchronization",
+      "action-not-permitted": "Unable to complete the operation.",
+      "file-already-exists": "Unable to complete the operation. The file already exists on Internxt servers"
     },
     "error-messages": {
       "no-internet": "Looks like you are not connected to the internet, we'll try again later",
       "no-remote-connection": "We could not connect to Internxt servers, we'll try again later",
       "cannot-get-current-listings": "We could not get the status of your current files, we'll try again later",
       "base-directory-does-not-exist": "Unable to find your sync folder",
-      "insuficient-permision-accessing-base-directory": "Internxt App does not have permission to access your sync folder",
+      "insufficient-permission-accessing-base-directory": "Internxt App does not have permission to access your sync folder",
       "cannot-access-base-directory": "We could not access your local folder",
       "cannot-access-tmp-directory": "We could not access your  local folder",
       "unknown": "An unknown error ocurred while trying to sync your files",
@@ -338,7 +340,9 @@
       "file-does-not-exist": "This file was present when we compared your local folder with your Internxt drive but disappeared when we tried to access it. If you deleted this file, don't worry, this error should dissapear the next time the sync process starts.",
       "file-too-big": "Max upload size is 20GB. Please try smaller files.",
       "file-non-extension": "Files without extensions are not supported. Not synchronized.",
-      "duplicated-node": "There are two elements (file or folder) with the same name on a folder. Rename one of them to sync them both"
+      "duplicated-node": "There are two elements (file or folder) with the same name on a folder. Rename one of them to sync them both",
+      "action-not-permitted": "The operation could not be completed, possibly due to a conflict with another file.",
+      "file-already-exists": "Unable to complete the operation. The file already exists on Internxt servers"
     },
     "report-modal": {
       "actions": {

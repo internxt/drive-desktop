@@ -7,7 +7,7 @@ import { User } from '../../../main/types';
 import { useTranslationContext } from '../../context/LocalContext';
 import useBackupFatalErrors from '../../hooks/BackupFatalErrors';
 import useGeneralIssues from '../../hooks/GeneralIssues';
-import useProcessIssues from '../../hooks/ProcessIssues';
+import useVirtualDriveIssues from '../../hooks/ProcessIssues';
 import useUsage from '../../hooks/useUsage';
 import useVirtualDriveStatus from '../../hooks/VirtualDriveStatus';
 import { reportError } from '../../utils/errors';
@@ -15,7 +15,7 @@ import { reportError } from '../../utils/errors';
 export default function Header() {
   const { translate } = useTranslationContext();
   const { virtualDriveCanBeOpened } = useVirtualDriveStatus();
-  const processIssues = useProcessIssues();
+  const processIssues = useVirtualDriveIssues();
   const generalIssues = useGeneralIssues();
   const { backupFatalErrors } = useBackupFatalErrors();
 

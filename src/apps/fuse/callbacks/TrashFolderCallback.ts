@@ -1,6 +1,7 @@
 import { VirtualDriveDependencyContainer } from '../dependency-injection/virtual-drive/VirtualDriveDependencyContainer';
 import { NotifyFuseCallback } from './FuseCallback';
-import { FuseIOError, FuseNoSuchFileOrDirectoryError } from './FuseErrors';
+import { FuseNoSuchFileOrDirectoryError } from './FuseErrors';
+import { basename } from 'path';
 
 export class TrashFolderCallback extends NotifyFuseCallback {
   constructor(private readonly container: VirtualDriveDependencyContainer) {
@@ -11,27 +12,19 @@ export class TrashFolderCallback extends NotifyFuseCallback {
     const folder = await this.container.folderSearcher.run({ path });
 
     if (!folder) {
-      return this.left(
-        new FuseNoSuchFileOrDirectoryError(
-          `folder not found when trying to delete it ${path}`
-        )
-      );
+      return this.left(new FuseNoSuchFileOrDirectoryError());
     }
 
     try {
       await this.container.folderDeleter.run(folder.uuid);
 
       return this.right();
-    } catch (err: unknown) {
-      if (err instanceof Error) {
-        return this.left(
-          new FuseIOError(`${err.message} when trashing ${path}`)
-        );
-      }
+    } catch (throwed: unknown) {
+      const name = basename(path);
 
-      return this.left(
-        new FuseIOError(`error when trying to trash the folder ${path}: ${err}`)
-      );
+      this.container.syncFolderMessenger.errorWhileTrashing(name);
+
+      return this.left(throwed);
     }
   }
 }

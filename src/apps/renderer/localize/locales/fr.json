@@ -315,14 +315,16 @@
       "no-permission": "Permissions insuffisantes",
       "file-does-not-exist": "Le fichier n'existe pas",
       "file-too-big": "La taille maximale de téléchargement est de 20 GB. Veuillez essayer des fichiers plus petits.",
-      "duplicated-node": "Il y a un conflit avec l'élément."
+      "duplicated-node": "Il y a un conflit avec l'élément.",
+      "action-not-permitted": "L'opération n'a pas pu être complétée.",
+      "file-already-exists": "Impossible de terminer l'opération. Le fichier existe déjà sur les serveurs Internxt."
     },
     "error-messages": {
       "no-internet": "Il semble que vous ne soyez pas connecté à l'internet, nous réessayerons plus tard",
       "no-remote-connection": "Nous n'avons pas pu nous connecter aux serveurs Internxt, nous réessayerons plus tard",
       "cannot-get-current-listings": "Nous n'avons pas pu obtenir l'état de vos fichiers actuels, nous réessayerons plus tard",
       "base-directory-does-not-exist": "Impossible de trouver votre dossier de synchronisation",
-      "insuficient-permision-accessing-base-directory": "Internxt App n'a pas la permission d'accéder à votre dossier de synchronisation",
+      "insufficient-permission-accessing-base-directory": "Internxt App n'a pas la permission d'accéder à votre dossier de synchronisation",
       "cannot-access-base-directory": "Nous n'avons pas pu accéder à votre dossier local",
       "cannot-access-tmp-directory": "Nous n'avons pas pu accéder à votre dossier local",
       "unknown": "Une erreur inconnue s'est produite lors de la synchronisation de vos fichiers",
@@ -331,7 +333,9 @@
       "file-does-not-exist": "Ce fichier était présent lorsque nous avons comparé votre dossier local avec votre disque interne, mais il a disparu lorsque nous avons essayé d'y accéder. Si vous avez supprimé ce fichier, ne vous inquiétez pas, cette erreur devrait disparaître au prochain démarrage du processus de synchronisation.",
       "file-too-big": "La taille maximale de téléchargement est de 20 GB. Veuillez essayer des fichiers plus petits.",
       "file-non-extension": "Les archives sans extensions ne sont pas supportées. Non synchronisées",
-      "duplicated-node": "Il y a deux éléments (fichier ou dossier) avec le même nom dans un dossier. Renommez l'un d'eux pour les synchroniser tous les deux."
+      "duplicated-node": "Il y a deux éléments (fichier ou dossier) avec le même nom dans un dossier. Renommez l'un d'eux pour les synchroniser tous les deux.",
+      "action-not-permitted": "L'opération n'a pas pu être complétée, probablement en raison d'un conflit avec un autre fichier.",
+      "file-already-exists": "Impossible de terminer l'opération. Le fichier existe déjà sur les serveurs Internxt."
     },
     "report-modal": {
       "actions": {

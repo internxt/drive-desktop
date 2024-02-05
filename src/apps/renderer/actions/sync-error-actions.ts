@@ -21,6 +21,6 @@ export const syncErrorActions: FatalErrorActionMap = {
     name: 'issues.actions.select-folder',
     func: selectRootSyncFolder,
   },
-  INSUFICIENT_PERMISION_ACCESSING_BASE_DIRECTORY: tryAgain,
+  INSUFFICIENT_PERMISSION_ACCESSING_BASE_DIRECTORY: tryAgain,
   UNKNOWN: tryAgain,
 };

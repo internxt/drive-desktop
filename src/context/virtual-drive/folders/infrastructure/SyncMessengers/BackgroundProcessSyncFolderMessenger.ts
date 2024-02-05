@@ -1,4 +1,4 @@
-import { SyncEngineIpc } from '../../../../../apps/sync-engine/ipcRendererSyncEngine';
+import { SyncEngineIpc } from '../../../../../apps/sync-engine/SyncEngineIpc';
 import { SyncMessenger } from '../../../../shared/domain/SyncMessenger';
 import { SyncFolderMessenger } from '../../domain/SyncFolderMessenger';
 
@@ -52,5 +52,9 @@ export class BackgroundProcessSyncFolderMessenger
       newName: desiredName,
       error: message,
     });
+  }
+
+  async errorWhileTrashing(_name: string): Promise<void> {
+    // TODO: implement
   }
 }

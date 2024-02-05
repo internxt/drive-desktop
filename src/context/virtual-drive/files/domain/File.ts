@@ -23,7 +23,7 @@ export type FileAttributes = {
   path: string;
   size: number;
   updatedAt: string;
-  status: string;
+  status: FileStatuses;
 };
 
 export class File extends AggregateRoot {

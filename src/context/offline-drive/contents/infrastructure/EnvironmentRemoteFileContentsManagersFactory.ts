@@ -44,20 +44,19 @@ export class EnvironmentOfflineContentsManagersFactory
     );
 
     uploader.on('start', () => {
-      this.progressTracker.uploadStarted(name, extension, contents.size, {
-        elapsedTime: uploader.elapsedTime(),
-      });
+      this.progressTracker.uploadStarted(name, extension, contents.size);
     });
 
     uploader.on('progress', (progress: number) => {
       this.progressTracker.uploadProgress(name, extension, contents.size, {
         elapsedTime: uploader.elapsedTime(),
-        progress,
+        percentage: progress,
       });
     });
 
-    uploader.on('error', (error: Error) => {
-      this.progressTracker.uploadError(name, extension, error.message);
+    uploader.on('error', (_error: Error) => {
+      // TODO: use error to determine the cause
+      this.progressTracker.uploadError(name, extension, 'UNKNOWN');
     });
 
     uploader.on('finish', () => {

@@ -7,6 +7,7 @@ export class SyncFolderMessengerMock implements SyncFolderMessenger {
   public readonly renameMock = jest.fn();
   public readonly renamedMock = jest.fn();
   public readonly errorWhileRenamingMock = jest.fn();
+  public readonly errorWhileTrashingMock = jest.fn();
 
   creating(desiredName: string): Promise<void> {
     return this.creatingMock(desiredName);
@@ -29,5 +30,8 @@ export class SyncFolderMessengerMock implements SyncFolderMessenger {
     message: string
   ): Promise<void> {
     return this.errorWhileRenamingMock(currentName, desiredName, message);
+  }
+  errorWhileTrashing(name: string): Promise<void> {
+    return this.errorWhileTrashingMock(name);
   }
 }

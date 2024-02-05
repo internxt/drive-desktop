@@ -6,26 +6,15 @@ import os from 'os';
 import path from 'path';
 
 import { getHeaders } from '../auth/service';
-import { addGeneralIssue } from '../background-processes/process-issues';
 import configStore from '../config';
+import { addAppIssue } from '../issues/app';
 
 export type Device = { name: string; id: number; bucket: string };
 
 export const addUnknownDeviceIssue = (error: Error) => {
-  addGeneralIssue({
+  addAppIssue({
     errorName: 'UNKNOWN_DEVICE_NAME',
     action: 'GET_DEVICE_NAME_ERROR',
-    process: 'GENERAL',
-    errorDetails: {
-      name: error.name,
-      message: error.message,
-      stack: error.stack || '',
-    },
-  });
-  addGeneralIssue({
-    errorName: 'UNKNOWN_DEVICE_NAME',
-    action: 'GET_DEVICE_NAME_ERROR',
-    process: 'GENERAL',
     errorDetails: {
       name: error.name,
       message: error.message,

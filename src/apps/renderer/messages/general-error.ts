@@ -1,18 +1,18 @@
-import { GeneralErrorName } from '../../shared/types';
+import { AppError } from '../../../shared/issues/AppError';
 
-type GeneralErrorMessages = Record<GeneralErrorName, string>;
+type AppErrorMessages = Record<AppError, string>;
 
-export const shortMessages: GeneralErrorMessages = {
+export const shortMessages: AppErrorMessages = {
   UNKNOWN_DEVICE_NAME: 'Could not retrieve your device’s name.',
 };
 
-export const longMessages: GeneralErrorMessages = {
+export const longMessages: AppErrorMessages = {
   UNKNOWN_DEVICE_NAME: 'Please restart the app.',
 };
 
 export const generalErrors: {
-  longMessages: GeneralErrorMessages;
-  shortMessages: GeneralErrorMessages;
+  longMessages: AppErrorMessages;
+  shortMessages: AppErrorMessages;
 } = {
   shortMessages,
   longMessages,

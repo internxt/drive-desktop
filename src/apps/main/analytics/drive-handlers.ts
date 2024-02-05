@@ -1,7 +1,7 @@
-import { ipcMainDrive } from '../ipcs/mainDrive';
+import { MainProcessSyncEngineIPC } from '../MainProcessSyncEngineIPC';
 import { trackError, trackEvent } from './service';
 
-ipcMainDrive.on('FILE_DELETED', (_, payload) => {
+MainProcessSyncEngineIPC.on('FILE_DELETED', (_, payload) => {
   const { name, extension, size } = payload;
 
   trackEvent('Delete Completed', {
@@ -11,7 +11,7 @@ ipcMainDrive.on('FILE_DELETED', (_, payload) => {
   });
 });
 
-ipcMainDrive.on('FILE_DOWNLOADING', (_, payload) => {
+MainProcessSyncEngineIPC.on('FILE_DOWNLOADING', (_, payload) => {
   const { name, size, extension, processInfo } = payload;
 
   if (!processInfo.progress) {
@@ -24,7 +24,7 @@ ipcMainDrive.on('FILE_DOWNLOADING', (_, payload) => {
   }
 });
 
-ipcMainDrive.on('FILE_DOWNLOADED', (_, payload) => {
+MainProcessSyncEngineIPC.on('FILE_DOWNLOADED', (_, payload) => {
   const { name, extension, size, processInfo } = payload;
 
   trackEvent('Download Completed', {
@@ -35,19 +35,7 @@ ipcMainDrive.on('FILE_DOWNLOADED', (_, payload) => {
   });
 });
 
-ipcMainDrive.on('FILE_CLONNED', (_, payload) => {
-  const { name, extension, size, processInfo } = payload;
-
-  trackEvent('Upload Completed', {
-    file_name: name,
-    file_extension: extension,
-    file_size: size,
-    cloned: true,
-    elapsedTimeMs: processInfo.elapsedTime,
-  });
-});
-
-ipcMainDrive.on('FILE_UPLOADING', (_, payload) => {
+MainProcessSyncEngineIPC.on('FILE_UPLOADING', (_, payload) => {
   const { name, size, extension, processInfo } = payload;
 
   if (!processInfo.progress) {
@@ -60,7 +48,7 @@ ipcMainDrive.on('FILE_UPLOADING', (_, payload) => {
   }
 });
 
-ipcMainDrive.on('FILE_UPLOADED', (_, payload) => {
+MainProcessSyncEngineIPC.on('FILE_UPLOADED', (_, payload) => {
   const { name, extension, size, processInfo } = payload;
 
   trackEvent('Upload Completed', {
@@ -71,8 +59,8 @@ ipcMainDrive.on('FILE_UPLOADED', (_, payload) => {
   });
 });
 
-ipcMainDrive.on('FILE_UPLOAD_ERROR', (_, payload) => {
-  const { name, error } = payload;
+MainProcessSyncEngineIPC.on('FILE_UPLOAD_ERROR', (_, payload) => {
+  const { name, cause: error } = payload;
 
   trackError('Upload Error', new Error(error), {
     itemType: 'File',
@@ -82,10 +70,10 @@ ipcMainDrive.on('FILE_UPLOAD_ERROR', (_, payload) => {
   });
 });
 
-ipcMainDrive.on('FILE_DOWNLOAD_ERROR', (_, payload) => {
-  const { name, error } = payload;
+MainProcessSyncEngineIPC.on('FILE_DOWNLOAD_ERROR', (_, payload) => {
+  const { name, cause } = payload;
 
-  trackError('Download Error', new Error(error), {
+  trackError('Download Error', new Error(cause), {
     itemType: 'File',
     root: '',
     from: name,
@@ -93,10 +81,10 @@ ipcMainDrive.on('FILE_DOWNLOAD_ERROR', (_, payload) => {
   });
 });
 
-ipcMainDrive.on('FILE_RENAME_ERROR', (_, payload) => {
-  const { name, error } = payload;
+MainProcessSyncEngineIPC.on('FILE_RENAME_ERROR', (_, payload) => {
+  const { name, cause } = payload;
 
-  trackError('Rename Error', new Error(error), {
+  trackError('Rename Error', new Error(cause), {
     itemType: 'File',
     root: '',
     from: name,
@@ -104,10 +92,10 @@ ipcMainDrive.on('FILE_RENAME_ERROR', (_, payload) => {
   });
 });
 
-ipcMainDrive.on('FILE_DELETION_ERROR', (_, payload) => {
-  const { name, error } = payload;
+MainProcessSyncEngineIPC.on('FILE_DELETION_ERROR', (_, payload) => {
+  const { name, cause } = payload;
 
-  trackError('Delete Error', new Error(error), {
+  trackError('Delete Error', new Error(cause), {
     itemType: 'File',
     root: '',
     from: name,
