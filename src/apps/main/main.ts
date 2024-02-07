@@ -69,8 +69,12 @@ if (process.env.SENTRY_DSN) {
 }
 
 function checkForUpdates() {
-  autoUpdater.logger = Logger;
-  autoUpdater.checkForUpdatesAndNotify();
+  try {
+    autoUpdater.logger = Logger;
+    autoUpdater.checkForUpdatesAndNotify();
+  } catch (err: unknown) {
+    Logger.error(err);
+  }
 }
 
 if (process.platform === 'darwin') {
