@@ -15,5 +15,5 @@ export interface FileRepository {
     file: File,
     newContentsId: File['contentsId'],
     newSize: File['size']
-  ): Promise<void>;
+  ): Promise<File>;
 }

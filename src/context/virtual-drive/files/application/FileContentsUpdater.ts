@@ -12,10 +12,8 @@ export class FileContentsUpdater {
     file: File,
     contentsId: File['contentsId'],
     size: File['size']
-  ): Promise<void> {
-    await Promise.all([
-      this.remote.replace(file, contentsId, size),
-      this.repository.updateContentsAndSize(file, contentsId, size),
-    ]);
+  ): Promise<File> {
+    await this.remote.replace(file, contentsId, size);
+    return this.repository.updateContentsAndSize(file, contentsId, size);
   }
 }
