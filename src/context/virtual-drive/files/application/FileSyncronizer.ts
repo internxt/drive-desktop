@@ -33,7 +33,7 @@ export class FileSyncronizer {
   async run(
     absolutePath: string,
     upload: (path: string) => Promise<RemoteFileContents>
-  ) {
+  ): Promise<void> {
     const win32RelativePath =
       this.absolutePathToRelativeConverter.run(absolutePath);
 
@@ -55,6 +55,7 @@ export class FileSyncronizer {
           contents.id,
           contents.size
         );
+        Logger.info('existingFile ', existingFile);
       }
       await this.convertAndUpdateSyncStatus(existingFile);
     } else {
@@ -100,7 +101,7 @@ export class FileSyncronizer {
     const posixDir =
       PlatformPathConverter.getFatherPathPosix(posixRelativePath);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 2000));
       await this.runFolderCreator(posixDir);
     } catch (error) {
       Logger.error('Error creating folder father creation:', error);

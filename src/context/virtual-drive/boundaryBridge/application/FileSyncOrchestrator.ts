@@ -1,5 +1,6 @@
 import { RetryContentsUploader } from '../../contents/application/RetryContentsUploader';
 import { FileSyncronizer } from '../../files/application/FileSyncronizer';
+import Logger from 'electron-log';
 
 export class FileSyncOrchestrator {
   constructor(
@@ -7,14 +8,14 @@ export class FileSyncOrchestrator {
     private readonly fileSyncronizer: FileSyncronizer
   ) {}
 
-  run(absolutePaths: string[]): Promise<void[]> {
-    return Promise.all(
-      absolutePaths.map(async (absolutePath) => {
+  async run(absolutePaths: string[]): Promise<void[]> {
+    const promises = absolutePaths.map(
+      async (absolutePath) =>
         await this.fileSyncronizer.run(
           absolutePath,
           this.contentsUploader.run.bind(this.contentsUploader)
-        );
-      })
+        )
     );
+    return Promise.all(promises);
   }
 }
