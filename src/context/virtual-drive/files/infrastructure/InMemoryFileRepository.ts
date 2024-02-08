@@ -85,7 +85,7 @@ export class InMemoryFileRepository implements FileRepository {
     file: File,
     newContentsId: File['contentsId'],
     newSize: File['size']
-  ): Promise<void> {
+  ): Promise<File> {
     if (!this.files.has(file.contentsId)) {
       throw new Error('File not found');
     }
@@ -93,5 +93,6 @@ export class InMemoryFileRepository implements FileRepository {
     const updatedFile = file.replaceContestsAndSize(newContentsId, newSize);
     this.files.set(updatedFile.contentsId, updatedFile.attributes());
     this.files.delete(file.contentsId);
+    return updatedFile;
   }
 }

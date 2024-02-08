@@ -7,7 +7,6 @@ import Logger from 'electron-log';
 import { FileCreator } from './FileCreator';
 import { AbsolutePathToRelativeConverter } from '../../shared/application/AbsolutePathToRelativeConverter';
 import { FolderNotFoundError } from '../../folders/domain/errors/FolderNotFoundError';
-import { FolderCreator } from '../../folders/application/FolderCreator';
 import { OfflineFolderCreator } from '../../folders/application/Offline/OfflineFolderCreator';
 import { Folder } from '../../folders/domain/Folder';
 import * as fs from 'fs';
@@ -16,6 +15,7 @@ import { FileSyncStatusUpdater } from './FileSyncStatusUpdater';
 import { FilePlaceholderConverter } from './FIlePlaceholderConverter';
 import { FoldersFatherSyncStatusUpdater } from '../../folders/application/FoldersFatherSyncStatusUpdater';
 import { FolderCreatorFromOfflineFolder } from '../../folders/application/FolderCreatorFromOfflineFolder';
+import { FileContentsUpdater } from './FileContentsUpdater';
 
 export class FileSyncronizer {
   constructor(
@@ -26,6 +26,7 @@ export class FileSyncronizer {
     private readonly absolutePathToRelativeConverter: AbsolutePathToRelativeConverter,
     private readonly folderCreator: FolderCreatorFromOfflineFolder,
     private readonly offlineFolderCreator: OfflineFolderCreator,
+    private readonly fileContentsUpdater: FileContentsUpdater,
     private readonly foldersFatherSyncStatusUpdater: FoldersFatherSyncStatusUpdater
   ) {}
 
@@ -41,14 +42,19 @@ export class FileSyncronizer {
 
     const path = new FilePath(posixRelativePath);
 
-    const existingFile = this.repository.searchByPartial({
+    let existingFile = this.repository.searchByPartial({
       path: PlatformPathConverter.winToPosix(path.value),
       status: FileStatuses.EXISTS,
     });
 
     if (existingFile) {
       if (this.hasDifferentSize(existingFile, absolutePath)) {
-        return;
+        const contents = await upload(posixRelativePath);
+        existingFile = await this.fileContentsUpdater.run(
+          existingFile,
+          contents.id,
+          contents.size
+        );
       }
       await this.convertAndUpdateSyncStatus(existingFile);
     } else {
@@ -123,7 +129,9 @@ export class FileSyncronizer {
   }
 
   private async convertAndUpdateSyncStatus(file: File) {
-    await this.filePlaceholderConverter.run(file);
-    await this.fileSyncStatusUpdater.run(file);
+    await Promise.all([
+      this.filePlaceholderConverter.run(file),
+      this.fileSyncStatusUpdater.run(file),
+    ]);
   }
 }
