@@ -22,15 +22,21 @@ export class FileCreator {
     private readonly ipc: SyncEngineIpc
   ) {}
 
-  async run(filePath: FilePath, contents: RemoteFileContents): Promise<File> {
+  async run(
+    filePath: FilePath,
+    contents: RemoteFileContents,
+    existingFileAlreadyEvaluated = false
+  ): Promise<File> {
     try {
-      const existingFile = this.repository.searchByPartial({
-        path: PlatformPathConverter.winToPosix(filePath.value),
-        status: FileStatuses.EXISTS,
-      });
+      if (!existingFileAlreadyEvaluated) {
+        const existingFile = this.repository.searchByPartial({
+          path: PlatformPathConverter.winToPosix(filePath.value),
+          status: FileStatuses.EXISTS,
+        });
 
-      if (existingFile) {
-        await this.fileDeleter.run(existingFile.contentsId);
+        if (existingFile) {
+          await this.fileDeleter.run(existingFile.contentsId);
+        }
       }
 
       const size = new FileSize(contents.size);

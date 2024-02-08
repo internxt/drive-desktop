@@ -9,12 +9,16 @@ import { FilesPlaceholderCreator } from '../../../../context/virtual-drive/files
 import { RepositoryPopulator } from '../../../../context/virtual-drive/files/application/RepositoryPopulator';
 import { RetrieveAllFiles } from '../../../../context/virtual-drive/files/application/RetrieveAllFiles';
 import { SameFileWasMoved } from '../../../../context/virtual-drive/files/application/SameFileWasMoved';
+import { FileSyncronizer } from '../../../../context/virtual-drive/files/application/FileSyncronizer';
+import { FilePlaceholderConverter } from '../../../../context/virtual-drive/files/application/FIlePlaceholderConverter';
+import { FileSyncStatusUpdater } from '../../../../context/virtual-drive/files/application/FileSyncStatusUpdater';
 
 export interface FilesContainer {
   fileFinderByContentsId: FileFinderByContentsId;
   fileDeleter: FileDeleter;
   filePathUpdater: FilePathUpdater;
   fileCreator: FileCreator;
+  fileSyncronizer: FileSyncronizer;
   filePlaceholderCreatorFromContentsId: FilePlaceholderCreatorFromContentsId;
   createFilePlaceholderOnDeletionFailed: CreateFilePlaceholderOnDeletionFailed;
   sameFileWasMoved: SameFileWasMoved;
@@ -22,4 +26,6 @@ export interface FilesContainer {
   repositoryPopulator: RepositoryPopulator;
   filesPlaceholderCreator: FilesPlaceholderCreator;
   filesPlaceholderUpdater: FilesPlaceholderUpdater;
+  filePlaceholderConverter: FilePlaceholderConverter;
+  fileSyncStatusUpdater: FileSyncStatusUpdater;
 }

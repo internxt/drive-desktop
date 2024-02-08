@@ -34,4 +34,22 @@ export class NodeWinLocalFileSystem implements LocalFileSystem {
       file.updatedAt.getTime()
     );
   }
+
+  async updateSyncStatus(file: File): Promise<void> {
+    const win32AbsolutePath = this.relativePathToAbsoluteConverter.run(
+      file.path
+    );
+    return this.virtualDrive.updateSyncStatus(win32AbsolutePath, false);
+  }
+
+  async convertToPlaceholder(file: File): Promise<void> {
+    const win32AbsolutePath = this.relativePathToAbsoluteConverter.run(
+      file.path
+    );
+
+    return this.virtualDrive.convertToPlaceholder(
+      win32AbsolutePath,
+      file.placeholderId
+    );
+  }
 }
