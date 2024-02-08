@@ -15,7 +15,7 @@ import { FileRenamedDomainEvent } from './events/FileRenamedDomainEvent';
 import { FilePlaceholderId, createFilePlaceholderId } from './PlaceholderId';
 
 export type FileAttributes = {
-  uuid: string;
+  uuid?: string;
   contentsId: string;
   folderId: number;
   createdAt: string;
