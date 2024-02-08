@@ -6,4 +6,6 @@ export interface LocalFileSystem {
   getLocalFileId(file: File): Promise<`${string}-${string}`>;
 
   updateSyncStatus(file: File): Promise<void>;
+
+  convertToPlaceholder(file: File): Promise<void>;
 }

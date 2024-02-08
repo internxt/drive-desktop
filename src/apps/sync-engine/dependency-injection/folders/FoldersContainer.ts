@@ -12,6 +12,9 @@ import { RetrieveAllFolders } from '../../../../context/virtual-drive/folders/ap
 import { SynchronizeOfflineModifications } from '../../../../context/virtual-drive/folders/application/SynchronizeOfflineModifications';
 import { SynchronizeOfflineModificationsOnFolderCreated } from '../../../../context/virtual-drive/folders/application/SynchronizeOfflineModificationsOnFolderCreated';
 import { FolderPlaceholderUpdater } from '../../../../context/virtual-drive/folders/application/UpdatePlaceholderFolder';
+import { FolderPlaceholderConverter } from '../../../../context/virtual-drive/folders/application/FolderPlaceholderConverter';
+import { FolderSyncStatusUpdater } from '../../../../context/virtual-drive/folders/application/FolderSyncStatusUpdater';
+import { FoldersFatherSyncStatusUpdater } from '../../../../context/virtual-drive/folders/application/FoldersFatherSyncStatusUpdater';
 
 export interface FoldersContainer {
   folderCreator: FolderCreator;
@@ -30,4 +33,7 @@ export interface FoldersContainer {
   folderRepositoryInitiator: FolderRepositoryInitiator;
   folderPlaceholderUpdater: FolderPlaceholderUpdater;
   foldersPlaceholderCreator: FoldersPlaceholderCreator;
+  folderPlaceholderConverter: FolderPlaceholderConverter;
+  folderSyncStatusUpdater: FolderSyncStatusUpdater;
+  foldersFatherSyncStatusUpdater: FoldersFatherSyncStatusUpdater;
 }

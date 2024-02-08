@@ -10,18 +10,22 @@ import { FolderNotFoundError } from '../../folders/domain/errors/FolderNotFoundE
 import { FolderCreator } from '../../folders/application/FolderCreator';
 import { OfflineFolderCreator } from '../../folders/application/Offline/OfflineFolderCreator';
 import { Folder } from '../../folders/domain/Folder';
-import { LocalFileSystem } from '../domain/file-systems/LocalFileSystem';
 import * as fs from 'fs';
 import { File } from '../domain/File';
+import { FileSyncStatusUpdater } from './FileSyncStatusUpdater';
+import { FilePlaceholderConverter } from './FIlePlaceholderConverter';
+import { FoldersFatherSyncStatusUpdater } from '../../folders/application/FoldersFatherSyncStatusUpdater';
 
 export class FileSyncronizer {
   constructor(
     private readonly repository: FileRepository,
-    private readonly localFileSystem: LocalFileSystem,
+    private readonly fileSyncStatusUpdater: FileSyncStatusUpdater,
+    private readonly filePlaceholderConverter: FilePlaceholderConverter,
     private readonly fileCreator: FileCreator,
     private readonly absolutePathToRelativeConverter: AbsolutePathToRelativeConverter,
     private readonly folderCreator: FolderCreator,
-    private readonly offlineFolderCreator: OfflineFolderCreator
+    private readonly offlineFolderCreator: OfflineFolderCreator,
+    private readonly foldersFatherSyncStatusUpdater: FoldersFatherSyncStatusUpdater
   ) {}
 
   async run(
@@ -41,33 +45,28 @@ export class FileSyncronizer {
       status: FileStatuses.EXISTS,
     });
 
-    Logger.debug(`Updating sync status file ${posixRelativePath}`);
     if (existingFile) {
       if (this.hasDifferentSize(existingFile, absolutePath)) {
-        Logger.debug(
-          `[${posixRelativePath}] has different size update content`
-        );
         return;
       }
-      Logger.debug(`[${posixRelativePath}] already exists`);
-      await this.localFileSystem.updateSyncStatus(existingFile);
+      await this.convertAndUpdateSyncStatus(existingFile);
     } else {
-      Logger.debug(`[${posixRelativePath}] does not exist`);
       await this.retryCreation(posixRelativePath, path, upload);
     }
   }
 
-  private async retryCreation(
+  private retryCreation = async (
     posixRelativePath: string,
     filePath: FilePath,
     upload: (path: string) => Promise<RemoteFileContents>,
     attemps = 3
-  ) {
+  ) => {
     try {
       const fileContents = await upload(posixRelativePath);
       const createdFile = await this.fileCreator.run(filePath, fileContents);
-      await this.localFileSystem.updateSyncStatus(createdFile);
+      await this.convertAndUpdateSyncStatus(createdFile);
     } catch (error: unknown) {
+      Logger.error('Error creating file:', error);
       if (error instanceof FolderNotFoundError) {
         await this.createFolderFather(posixRelativePath);
       }
@@ -82,7 +81,7 @@ export class FileSyncronizer {
         return;
       }
     }
-  }
+  };
 
   private async runFolderCreator(posixRelativePath: string): Promise<Folder> {
     const offlineFolder = this.offlineFolderCreator.run(posixRelativePath);
@@ -93,8 +92,8 @@ export class FileSyncronizer {
     Logger.info('posixRelativePath', posixRelativePath);
     const posixDir =
       PlatformPathConverter.getFatherPathPosix(posixRelativePath);
-    Logger.info('posixDir', posixDir);
     try {
+      await new Promise((resolve) => setTimeout(resolve, 1000));
       await this.runFolderCreator(posixDir);
     } catch (error) {
       Logger.error('Error creating folder father creation:', error);
@@ -115,6 +114,11 @@ export class FileSyncronizer {
 
   private hasDifferentSize(file: File, absoulthePath: string) {
     const stats = fs.statSync(absoulthePath);
-    return file.size !== stats.size;
+    return Math.abs(file.size - stats.size) > 0.001;
+  }
+
+  private async convertAndUpdateSyncStatus(file: File) {
+    await this.filePlaceholderConverter.run(file);
+    await this.fileSyncStatusUpdater.run(file);
   }
 }

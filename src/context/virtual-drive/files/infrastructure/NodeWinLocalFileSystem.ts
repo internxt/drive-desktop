@@ -4,7 +4,6 @@ import { File } from '../domain/File';
 import { LocalFileSystem } from '../domain/file-systems/LocalFileSystem';
 import { RelativePathToAbsoluteConverter } from '../../shared/application/RelativePathToAbsoluteConverter';
 import fs from 'fs/promises';
-import Logger from 'electron-log';
 
 export class NodeWinLocalFileSystem implements LocalFileSystem {
   constructor(
@@ -40,7 +39,17 @@ export class NodeWinLocalFileSystem implements LocalFileSystem {
     const win32AbsolutePath = this.relativePathToAbsoluteConverter.run(
       file.path
     );
-    Logger.debug(`Updating sync status file ${win32AbsolutePath}`);
     return this.virtualDrive.updateSyncStatus(win32AbsolutePath, false);
+  }
+
+  async convertToPlaceholder(file: File): Promise<void> {
+    const win32AbsolutePath = this.relativePathToAbsoluteConverter.run(
+      file.path
+    );
+
+    return this.virtualDrive.convertToPlaceholder(
+      win32AbsolutePath,
+      file.placeholderId
+    );
   }
 }

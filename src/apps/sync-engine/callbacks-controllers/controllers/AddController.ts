@@ -89,6 +89,7 @@ export class AddController extends CallbackController {
     const posixDir =
       PlatformPathConverter.getFatherPathPosix(posixRelativePath);
     try {
+      await new Promise((resolve) => setTimeout(resolve, 1000));
       await this.runFolderCreator(posixDir);
     } catch (error) {
       Logger.error('Error creating folder father creation:', error);
