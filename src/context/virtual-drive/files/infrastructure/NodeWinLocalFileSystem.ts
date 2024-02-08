@@ -1,3 +1,4 @@
+// @ts-ignore this package can only be installed on win32, so in other platforms will give an ts-error
 import { VirtualDrive } from 'virtual-drive/dist';
 import { FileStatuses } from '../../files/domain/FileStatus';
 import { File } from '../domain/File';

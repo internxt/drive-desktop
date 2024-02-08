@@ -1,9 +1,11 @@
+import { Folder } from '../../../../../src/context/virtual-drive/folders/domain/Folder';
+import { FolderId } from '../../../../../src/context/virtual-drive/folders/domain/FolderId';
+import { FolderPath } from '../../../../../src/context/virtual-drive/folders/domain/FolderPath';
+import { FolderUuid } from '../../../../../src/context/virtual-drive/folders/domain/FolderUuid';
 import {
-  Folder,
-  FolderAttributes,
-} from '../../../../../src/context/virtual-drive/folders/domain/Folder';
-import { OfflineFolder } from '../../../../../src/context/virtual-drive/folders/domain/OfflineFolder';
-import { RemoteFileSystem } from '../../../../../src/context/virtual-drive/folders/domain/file-systems/RemoteFileSystem';
+  FolderPersistedDto,
+  RemoteFileSystem,
+} from '../../../../../src/context/virtual-drive/folders/domain/file-systems/RemoteFileSystem';
 
 export class FolderRemoteFileSystemMock implements RemoteFileSystem {
   public readonly persistMock = jest.fn();
@@ -11,9 +13,14 @@ export class FolderRemoteFileSystemMock implements RemoteFileSystem {
   public readonly moveMock = jest.fn();
   public readonly renameMock = jest.fn();
 
-  persist(offline: OfflineFolder): Promise<FolderAttributes> {
-    return this.persistMock(offline);
+  persist(
+    path: FolderPath,
+    parentId: FolderId,
+    uuid?: FolderUuid | undefined
+  ): Promise<FolderPersistedDto> {
+    return this.persistMock(path, parentId, uuid);
   }
+
   trash(id: number): Promise<void> {
     return this.trashMock(id);
   }

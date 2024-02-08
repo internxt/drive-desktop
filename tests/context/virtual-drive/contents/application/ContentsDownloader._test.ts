@@ -1,16 +1,17 @@
 import { ContentsDownloader } from '../../../../../src/context/virtual-drive/contents/application/ContentsDownloader';
-import { temporalFolderProvider } from '../../../../../src/context/virtual-drive/contents/application/temporalFolderProvider';
 import { FileDownloadEvents } from '../../../../../src/context/virtual-drive/contents/domain/contentHandlers/ContentFileDownloader';
 import { FileMother } from '../../files/domain/FileMother';
 import { EventBusMock } from '../../shared/__mock__/EventBusMock';
 import { IpcRendererSyncEngineMock } from '../../shared/__mock__/IpcRendererSyncEngineMock';
-import { LocalFileWriterMock } from '../__mocks__/LocalFileWriterMock';
+import { LocalFileContentsDirectoryProviderMock } from '../__mocks__/LocalFileContentsDirectoryProviderMock';
+import { LocalFileSystemMock } from '../__mocks__/LocalFileWriterMock';
 import { ReadableHelloWorld } from '../__mocks__/ReadableHelloWorld';
 import { RemoteFileContentsManagersFactoryMock } from '../__mocks__/RemoteFileContentsManagersFactoryMock';
 
 describe.skip('Contents Downloader', () => {
-  let localWriter: LocalFileWriterMock;
+  let localFileSystem: LocalFileSystemMock;
   let factory: RemoteFileContentsManagersFactoryMock;
+  let localFileContentsDirectoryProviderMock: LocalFileContentsDirectoryProviderMock;
   let ipc: IpcRendererSyncEngineMock;
   let eventBus: EventBusMock;
 
@@ -18,15 +19,17 @@ describe.skip('Contents Downloader', () => {
 
   beforeEach(() => {
     factory = new RemoteFileContentsManagersFactoryMock();
-    localWriter = new LocalFileWriterMock();
+    localFileSystem = new LocalFileSystemMock();
+    localFileContentsDirectoryProviderMock =
+      new LocalFileContentsDirectoryProviderMock();
     ipc = new IpcRendererSyncEngineMock();
     eventBus = new EventBusMock();
 
     SUT = new ContentsDownloader(
       factory,
-      localWriter,
+      localFileSystem,
       ipc,
-      temporalFolderProvider,
+      localFileContentsDirectoryProviderMock,
       eventBus
     );
   });
@@ -61,7 +64,7 @@ describe.skip('Contents Downloader', () => {
       return { finished: true, progress: 100 };
     });
 
-    expect(localWriter.writeMock).toBeCalledWith(
+    expect(localFileSystem.writeMock).toBeCalledWith(
       expect.objectContaining({
         name: file.name,
         extension: file.type,

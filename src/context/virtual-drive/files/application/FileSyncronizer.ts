@@ -15,6 +15,7 @@ import { File } from '../domain/File';
 import { FileSyncStatusUpdater } from './FileSyncStatusUpdater';
 import { FilePlaceholderConverter } from './FIlePlaceholderConverter';
 import { FoldersFatherSyncStatusUpdater } from '../../folders/application/FoldersFatherSyncStatusUpdater';
+import { FolderCreatorFromOfflineFolder } from '../../folders/application/FolderCreatorFromOfflineFolder';
 
 export class FileSyncronizer {
   constructor(
@@ -23,7 +24,7 @@ export class FileSyncronizer {
     private readonly filePlaceholderConverter: FilePlaceholderConverter,
     private readonly fileCreator: FileCreator,
     private readonly absolutePathToRelativeConverter: AbsolutePathToRelativeConverter,
-    private readonly folderCreator: FolderCreator,
+    private readonly folderCreator: FolderCreatorFromOfflineFolder,
     private readonly offlineFolderCreator: OfflineFolderCreator,
     private readonly foldersFatherSyncStatusUpdater: FoldersFatherSyncStatusUpdater
   ) {}
@@ -63,7 +64,11 @@ export class FileSyncronizer {
   ) => {
     try {
       const fileContents = await upload(posixRelativePath);
-      const createdFile = await this.fileCreator.run(filePath, fileContents);
+      const createdFile = await this.fileCreator.run(
+        filePath.value,
+        fileContents.id,
+        fileContents.size
+      );
       await this.convertAndUpdateSyncStatus(createdFile);
     } catch (error: unknown) {
       Logger.error('Error creating file:', error);

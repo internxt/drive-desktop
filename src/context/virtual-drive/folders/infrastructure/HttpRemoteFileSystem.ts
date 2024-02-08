@@ -1,13 +1,17 @@
-import axios, { Axios } from 'axios';
+import { Axios } from 'axios';
 import Logger from 'electron-log';
 import * as uuid from 'uuid';
-import { Folder, FolderAttributes } from '../domain/Folder';
-import { FolderStatuses } from '../domain/FolderStatus';
+import { Folder } from '../domain/Folder';
 import { UpdateFolderNameDTO } from './dtos/UpdateFolderNameDTO';
-import { RemoteFileSystem } from '../domain/file-systems/RemoteFileSystem';
-import { OfflineFolder } from '../domain/OfflineFolder';
+import {
+  FolderPersistedDto,
+  RemoteFileSystem,
+} from '../domain/file-systems/RemoteFileSystem';
 import { ServerFolder } from '../../../shared/domain/ServerFolder';
 import { CreateFolderDTO } from './dtos/CreateFolderDTO';
+import { FolderPath } from '../domain/FolderPath';
+import { FolderUuid } from '../domain/FolderUuid';
+import { FolderId } from '../domain/FolderId';
 
 export class HttpRemoteFileSystem implements RemoteFileSystem {
   public folders: Record<string, Folder> = {};
@@ -17,47 +21,39 @@ export class HttpRemoteFileSystem implements RemoteFileSystem {
     private readonly trashClient: Axios
   ) {}
 
-  async persist(offline: OfflineFolder): Promise<FolderAttributes> {
-    if (!offline.name || !offline.basename) {
-      throw new Error('Bad folder name');
-    }
-
+  async persist(
+    path: FolderPath,
+    parentId: FolderId,
+    uuid?: FolderUuid
+  ): Promise<FolderPersistedDto> {
     const body: CreateFolderDTO = {
-      folderName: offline.basename,
-      parentFolderId: offline.parentId,
-      uuid: offline.uuid, // TODO: Maybe we can avoid errors sending the uuid, because it's optional
+      folderName: path.name(),
+      parentFolderId: parentId.value,
+      uuid: uuid?.value,
     };
 
-    try {
-      const response = await this.driveClient.post(
-        `${process.env.API_URL}/api/storage/folder`,
-        body
-      );
-      if (response.status !== 201) {
-        throw new Error('Folder creation failed');
-      }
+    const response = await this.driveClient.post(
+      `${process.env.API_URL}/api/storage/folder`,
+      body
+    );
 
-      const serverFolder = response.data as ServerFolder | null;
-
-      if (!serverFolder) {
-        throw new Error('Folder creation failed, no data returned');
-      }
-      return {
-        id: serverFolder.id,
-        uuid: serverFolder.uuid,
-        parentId: serverFolder.parentId,
-        updatedAt: serverFolder.updatedAt,
-        createdAt: serverFolder.createdAt,
-        path: offline.path.value,
-        status: FolderStatuses.EXISTS,
-      };
-    } catch (error: any) {
-      Logger.error('[FOLDER FILE SYSTEM] Error creating folder', error);
-      if (axios.isAxiosError(error)) {
-        Logger.error('[Is Axios Error]', error.response?.data);
-      }
-      throw error;
+    if (response.status !== 201) {
+      throw new Error('Folder creation failed');
     }
+
+    const serverFolder = response.data as ServerFolder | null;
+
+    if (!serverFolder) {
+      throw new Error('Folder creation failed, no data returned');
+    }
+
+    return {
+      id: serverFolder.id,
+      uuid: serverFolder.uuid,
+      parentId: parentId.value,
+      updatedAt: serverFolder.updatedAt,
+      createdAt: serverFolder.createdAt,
+    };
   }
 
   async trash(id: Folder['id']): Promise<void> {

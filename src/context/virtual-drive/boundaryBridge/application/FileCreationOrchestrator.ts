@@ -24,7 +24,11 @@ export class FileCreationOrchestrator {
 
     const fileContents = await this.contentsUploader.run(posixRelativePath);
 
-    const createdFile = await this.fileCreator.run(path, fileContents);
+    const createdFile = await this.fileCreator.run(
+      path.value,
+      fileContents.id,
+      fileContents.size
+    );
 
     return createdFile.contentsId;
   }

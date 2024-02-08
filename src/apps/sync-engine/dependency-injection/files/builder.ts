@@ -1,13 +1,4 @@
 import crypt from '../../../../context/shared/infrastructure/crypt';
-import { ipcRendererSyncEngine } from '../../ipcRendererSyncEngine';
-import { DependencyInjectionEventBus } from '../common/eventBus';
-import { DependencyInjectionEventRepository } from '../common/eventRepository';
-import { DependencyInjectionUserProvider } from '../common/user';
-import { DependencyInjectionVirtualDrive } from '../common/virtualDrive';
-import { FoldersContainer } from '../folders/FoldersContainer';
-import { SharedContainer } from '../shared/SharedContainer';
-import { FilesContainer } from './FilesContainer';
-import { DependencyInjectionStorageSdk } from '../common/sdk';
 import { CreateFilePlaceholderOnDeletionFailed } from '../../../../context/virtual-drive/files/application/CreateFilePlaceholderOnDeletionFailed';
 import { FileCreator } from '../../../../context/virtual-drive/files/application/FileCreator';
 import { FileDeleter } from '../../../../context/virtual-drive/files/application/FileDeleter';
@@ -20,13 +11,23 @@ import { RepositoryPopulator } from '../../../../context/virtual-drive/files/app
 import { RetrieveAllFiles } from '../../../../context/virtual-drive/files/application/RetrieveAllFiles';
 import { SameFileWasMoved } from '../../../../context/virtual-drive/files/application/SameFileWasMoved';
 import { InMemoryFileRepository } from '../../../../context/virtual-drive/files/infrastructure/InMemoryFileRepository';
-import { SDKRemoteFileSystem } from '../../../../context/virtual-drive/files/infrastructure/SDKRemoteFileSystem';
 import { NodeWinLocalFileSystem } from '../../../../context/virtual-drive/files/infrastructure/NodeWinLocalFileSystem';
+import { SDKRemoteFileSystem } from '../../../../context/virtual-drive/files/infrastructure/SDKRemoteFileSystem';
+import { BackgroundProcessSyncFileMessenger } from '../../../../context/virtual-drive/files/infrastructure/SyncFileMessengers/BackgroundProcessSyncFileMessenger';
 import { LocalFileIdProvider } from '../../../../context/virtual-drive/shared/application/LocalFileIdProvider';
+import { ipcRendererSyncEngine } from '../../ipcRendererSyncEngine';
 import { DependencyInjectionHttpClientsProvider } from '../common/clients';
 import { FileSyncronizer } from '../../../../context/virtual-drive/files/application/FileSyncronizer';
 import { FilePlaceholderConverter } from '../../../../context/virtual-drive/files/application/FIlePlaceholderConverter';
 import { FileSyncStatusUpdater } from '../../../../context/virtual-drive/files/application/FileSyncStatusUpdater';
+import { DependencyInjectionEventBus } from '../common/eventBus';
+import { DependencyInjectionEventRepository } from '../common/eventRepository';
+import { DependencyInjectionStorageSdk } from '../common/sdk';
+import { DependencyInjectionUserProvider } from '../common/user';
+import { DependencyInjectionVirtualDrive } from '../common/virtualDrive';
+import { FoldersContainer } from '../folders/FoldersContainer';
+import { SharedContainer } from '../shared/SharedContainer';
+import { FilesContainer } from './FilesContainer';
 
 export async function buildFilesContainer(
   folderContainer: FoldersContainer,
@@ -54,6 +55,10 @@ export async function buildFilesContainer(
     sharedContainer.relativePathToAbsoluteConverter
   );
 
+  const syncFileMessenger = new BackgroundProcessSyncFileMessenger(
+    ipcRendererSyncEngine
+  );
+
   const repository = new InMemoryFileRepository();
 
   const fileFinderByContentsId = new FileFinderByContentsId(repository);
@@ -63,7 +68,7 @@ export async function buildFilesContainer(
     localFileSystem,
     repository,
     folderContainer.allParentFoldersStatusIsExists,
-    ipcRendererSyncEngine
+    syncFileMessenger
   );
 
   const sameFileWasMoved = new SameFileWasMoved(
@@ -78,7 +83,6 @@ export async function buildFilesContainer(
     repository,
     fileFinderByContentsId,
     folderContainer.folderFinder,
-    ipcRendererSyncEngine,
     eventBus
   );
 
@@ -88,7 +92,7 @@ export async function buildFilesContainer(
     folderContainer.folderFinder,
     fileDeleter,
     eventBus,
-    ipcRendererSyncEngine
+    syncFileMessenger
   );
 
   const filePlaceholderCreatorFromContentsId =

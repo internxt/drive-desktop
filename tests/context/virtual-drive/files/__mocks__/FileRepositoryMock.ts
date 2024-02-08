@@ -8,6 +8,7 @@ import { FileRepository } from '../../../../../src/context/virtual-drive/files/d
 export class FileRepositoryMock implements FileRepository {
   public readonly allMock = jest.fn();
   public readonly searchByPartialMock = jest.fn();
+  public readonly listByPartialMock = jest.fn();
   public readonly deleteMock = jest.fn();
   public readonly addMock = jest.fn();
   public readonly updateMock = jest.fn();
@@ -17,6 +18,9 @@ export class FileRepositoryMock implements FileRepository {
   }
   searchByPartial(partial: Partial<FileAttributes>): Nullable<File> {
     return this.searchByPartialMock(partial);
+  }
+  listByPartial(partial: Partial<FileAttributes>): Promise<File[]> {
+    return this.listByPartialMock(partial);
   }
   delete(id: string): Promise<void> {
     return this.deleteMock(id);

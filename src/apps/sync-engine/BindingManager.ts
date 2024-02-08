@@ -1,12 +1,13 @@
 import Logger from 'electron-log';
 import * as fs from 'fs';
+// @ts-ignore
 import { VirtualDrive } from 'virtual-drive/dist';
 import { FilePlaceholderId } from '../../context/virtual-drive/files/domain/PlaceholderId';
 import { ItemsSearcher } from '../../context/virtual-drive/items/application/ItemsSearcher';
 import { PlatformPathConverter } from '../../context/virtual-drive/shared/application/PlatformPathConverter';
 import { buildControllers } from './callbacks-controllers/buildControllers';
 import { executeControllerWithFallback } from './callbacks-controllers/middlewares/executeControllerWithFallback';
-import { DependencyContainer } from './dependency-injection/DependencyContainer';
+import { SyncEngineDependencyContainer } from './dependency-injection/SyncEngineDependencyContainer';
 import { ipcRendererSyncEngine } from './ipcRendererSyncEngine';
 import { ProcessIssue } from '../shared/types';
 
@@ -18,7 +19,7 @@ export class BindingsManager {
   private static readonly PROVIDER_NAME = 'Internxt';
   private progressBuffer = 0;
   constructor(
-    private readonly container: DependencyContainer,
+    private readonly container: SyncEngineDependencyContainer,
     private readonly paths: {
       root: string;
       icon: string;

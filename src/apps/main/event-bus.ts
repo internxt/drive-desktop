@@ -26,6 +26,9 @@ interface Events {
 
   // Used when we have at least one full remote-local sync so we can display content
   INITIAL_SYNC_READY: () => void;
+
+  // Used when the local DB has the most recent changes of remote
+  REMOTE_CHANGES_SYNCHED: () => void;
 }
 
 declare interface EventBus {

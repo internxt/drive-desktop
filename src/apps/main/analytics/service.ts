@@ -266,7 +266,7 @@ export function trackEvent(
     properties,
     context: deviceContext,
   };
-  Logger.debug('Tracked event', payload);
+  Logger.debug('Tracked event', event);
 
   client.track(payload);
 }
