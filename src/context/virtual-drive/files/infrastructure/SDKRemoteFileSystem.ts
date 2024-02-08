@@ -85,4 +85,14 @@ export class SDKRemoteFileSystem implements RemoteFileSystem {
       bucketId: this.bucket,
     });
   }
+
+  async replace(file: File): Promise<void> {
+    await this.clients.newDrive.put(
+      `${process.env.DRIVE_URL}/api/files/${file.uuid}`,
+      {
+        fileId: file.contentsId,
+        size: this.bucket,
+      }
+    );
+  }
 }
