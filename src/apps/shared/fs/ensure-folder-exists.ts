@@ -4,7 +4,6 @@ import Logger from 'electron-log';
 export function ensureFolderExists(folder: PathLike) {
   try {
     accessSync(folder, constants.F_OK);
-    Logger.info(`Folder <${folder}> already exists`);
   } catch (err) {
     Logger.info(`Folder <${folder}> does not exists, going to  create it`);
     try {
