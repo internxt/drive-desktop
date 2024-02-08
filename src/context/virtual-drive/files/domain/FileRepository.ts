@@ -10,4 +10,10 @@ export interface FileRepository {
   add(file: File): Promise<void>;
 
   update(file: File): Promise<void>;
+
+  updateContentsAndSize(
+    file: File,
+    newContentsId: File['contentsId'],
+    newSize: File['size']
+  ): Promise<void>;
 }

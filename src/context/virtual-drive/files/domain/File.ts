@@ -32,7 +32,7 @@ export class File extends AggregateRoot {
     private _contentsId: ContentsId,
     private _folderId: number,
     private _path: FilePath,
-    private readonly _size: FileSize,
+    private _size: FileSize,
     public createdAt: Date,
     public updatedAt: Date,
     private _status: FileStatus
@@ -86,7 +86,7 @@ export class File extends AggregateRoot {
 
   static from(attributes: FileAttributes): File {
     return new File(
-      attributes.uuid,
+      attributes.uuid || '',
       new ContentsId(attributes.contentsId),
       attributes.folderId,
       new FilePath(attributes.path),
@@ -189,6 +189,22 @@ export class File extends AggregateRoot {
 
   hasStatus(status: FileStatuses): boolean {
     return this._status.is(status);
+  }
+
+  replaceContestsAndSize(contentsId: string, size: number) {
+    this._contentsId = new ContentsId(contentsId);
+    this._size = new FileSize(size);
+    this.updatedAt = new Date();
+
+    // this.record(
+    //   new FileCreatedDomainEvent({
+    //     aggregateId: this.contentsId,
+    //     size: this.size,
+    //     type: this.type,
+    //     path: this.path,
+    //   })
+    // );
+    return this;
   }
 
   attributes(): FileAttributes {
