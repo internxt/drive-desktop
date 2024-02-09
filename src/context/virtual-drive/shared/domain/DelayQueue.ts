@@ -68,6 +68,10 @@ export class DelayQueue {
     return Array.from(this.queue.keys());
   }
 
+  get reversedValues(): string[] {
+    return Array.from(this.queue.keys()).reverse();
+  }
+
   get isEmpty(): boolean {
     return this.queue.size === 0;
   }

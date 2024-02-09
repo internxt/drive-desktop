@@ -89,8 +89,7 @@ export class DeleteController extends CallbackController {
   }
 
   private CleanQueueFolder(folderUuid: Folder['uuid']) {
-    const folders = this.foldersQueue.values;
-    const reversedFolders = folders.reverse();
+    const reversedFolders = this.foldersQueue.reversedValues;
     reversedFolders.forEach((folder) => {
       const isParentFolder = this.folderContainerDetector.run(
         folder,

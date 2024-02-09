@@ -2,6 +2,7 @@ import { FolderFinder } from '../../folders/application/FolderFinder';
 import { File } from '../../files/domain/File';
 import { Folder } from '../../folders/domain/Folder';
 import { FileRepository } from '../domain/FileRepository';
+import { FileNotFoundError } from '../domain/errors/FileNotFoundError';
 
 export class FileFolderContainerDetector {
   constructor(
@@ -10,9 +11,13 @@ export class FileFolderContainerDetector {
   ) {}
 
   run(contentId: File['contentsId'], folderContentId: Folder['uuid']): boolean {
-    const file = this.repository.searchByPartial({ contentsId: contentId });
-    const folder = this.folderFinder.findFromId(file?.folderId);
-    const [_, folderUuid] = folder.placeholderId.split(':');
-    return folderUuid === folderContentId;
+    const file = this.repository.searchByPartial({
+      contentsId: contentId,
+    });
+    if (!file) {
+      throw new FileNotFoundError(contentId);
+    }
+    const folder = this.folderFinder.findFromId(file.folderId);
+    return folder.uuid === folderContentId;
   }
 }
