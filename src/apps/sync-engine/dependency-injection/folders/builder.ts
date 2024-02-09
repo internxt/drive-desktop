@@ -27,6 +27,8 @@ import { DependencyInjectionEventRepository } from '../common/eventRepository';
 import { DependencyInjectionVirtualDrive } from '../common/virtualDrive';
 import { SharedContainer } from '../shared/SharedContainer';
 import { FoldersContainer } from './FoldersContainer';
+import { RetryFolderDeleter } from '../../../../context/virtual-drive/folders/application/RetryFolderDeleter';
+import { FolderContainerDetector } from '../../../../context/virtual-drive/folders/application/FolderContainerDetector';
 import { FolderPlaceholderConverter } from '../../../../context/virtual-drive/folders/application/FolderPlaceholderConverter';
 import { FolderSyncStatusUpdater } from '../../../../context/virtual-drive/folders/application/FolderSyncStatusUpdater';
 import { FoldersFatherSyncStatusUpdater } from '../../../../context/virtual-drive/folders/application/FoldersFatherSyncStatusUpdater';
@@ -68,6 +70,8 @@ export async function buildFoldersContainer(
     localFileSystem,
     allParentFoldersStatusIsExists
   );
+
+  const retryFolderDeleter = new RetryFolderDeleter(folderDeleter);
 
   const folderCreator = new FolderCreator(
     repository,
@@ -137,6 +141,7 @@ export async function buildFoldersContainer(
     shredContainer.relativePathToAbsoluteConverter
   );
 
+  const folderContainerDetector = new FolderContainerDetector(repository);
   const foldersFatherSyncStatusUpdater = new FoldersFatherSyncStatusUpdater(
     localFileSystem,
     repository
@@ -146,8 +151,10 @@ export async function buildFoldersContainer(
     folderCreator,
     folderFinder,
     folderDeleter,
+    retryFolderDeleter,
     allParentFoldersStatusIsExists: allParentFoldersStatusIsExists,
     folderPathUpdater,
+    folderContainerDetector,
     folderByPartialSearcher,
     synchronizeOfflineModificationsOnFolderCreated,
     offline: {
