@@ -25,6 +25,9 @@ import { NodeWinLocalFileSystem } from '../../../../context/virtual-drive/files/
 import { LocalFileIdProvider } from '../../../../context/virtual-drive/shared/application/LocalFileIdProvider';
 import { DependencyInjectionHttpClientsProvider } from '../common/clients';
 import { FileFolderContainerDetector } from '../../../../context/virtual-drive/files/application/FileFolderContainerDetector';
+import { FileSyncronizer } from '../../../../context/virtual-drive/files/application/FileSyncronizer';
+import { FilePlaceholderConverter } from '../../../../context/virtual-drive/files/application/FIlePlaceholderConverter';
+import { FileSyncStatusUpdater } from '../../../../context/virtual-drive/files/application/FileSyncStatusUpdater';
 
 export async function buildFilesContainer(
   folderContainer: FoldersContainer,
@@ -121,12 +124,30 @@ export async function buildFilesContainer(
     eventHistory
   );
 
+  const filePlaceholderConverter = new FilePlaceholderConverter(
+    localFileSystem
+  );
+
+  const fileSyncStatusUpdater = new FileSyncStatusUpdater(localFileSystem);
+
+  const fileSyncronizer = new FileSyncronizer(
+    repository,
+    fileSyncStatusUpdater,
+    filePlaceholderConverter,
+    fileCreator,
+    sharedContainer.absolutePathToRelativeConverter,
+    folderContainer.folderCreator,
+    folderContainer.offline.folderCreator,
+    folderContainer.foldersFatherSyncStatusUpdater
+  );
+
   const container: FilesContainer = {
     fileFinderByContentsId,
     fileDeleter,
     filePathUpdater,
     fileCreator,
     fileFolderContainerDetector,
+    fileSyncronizer,
     filePlaceholderCreatorFromContentsId: filePlaceholderCreatorFromContentsId,
     createFilePlaceholderOnDeletionFailed:
       createFilePlaceholderOnDeletionFailed,
@@ -135,6 +156,8 @@ export async function buildFilesContainer(
     repositoryPopulator: repositoryPopulator,
     filesPlaceholderCreator,
     filesPlaceholderUpdater,
+    filePlaceholderConverter,
+    fileSyncStatusUpdater,
   };
 
   return { container, subscribers: [] };

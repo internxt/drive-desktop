@@ -1,10 +1,11 @@
 import { Folder } from '../../folders/domain/Folder';
 import { FileNode } from './FileNode';
 import { Node } from './Node';
+
 export class FolderNode {
   private constructor(
     public readonly folder: Folder,
-    private childern: Map<string, Node>
+    private children: Map<string, Node>
   ) {}
 
   static from(folder: Folder): FolderNode {
@@ -16,11 +17,11 @@ export class FolderNode {
   }
 
   addChild(node: Node): void {
-    if (this.childern.has(node.id)) {
-      throw new Error('Child already exists');
+    if (this.children.has(node.id)) {
+      throw new Error(`Duplicated node detected: ${node.id}`);
     }
 
-    this.childern.set(node.id, node);
+    this.children.set(node.id, node);
   }
 
   public isFile(): this is FileNode {
