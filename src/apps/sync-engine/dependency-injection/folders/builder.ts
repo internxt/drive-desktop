@@ -27,6 +27,9 @@ import { DependencyInjectionEventRepository } from '../common/eventRepository';
 import { DependencyInjectionVirtualDrive } from '../common/virtualDrive';
 import { SharedContainer } from '../shared/SharedContainer';
 import { FoldersContainer } from './FoldersContainer';
+import { FolderPlaceholderConverter } from '../../../../context/virtual-drive/folders/application/FolderPlaceholderConverter';
+import { FolderSyncStatusUpdater } from '../../../../context/virtual-drive/folders/application/FolderSyncStatusUpdater';
+import { FoldersFatherSyncStatusUpdater } from '../../../../context/virtual-drive/folders/application/FoldersFatherSyncStatusUpdater';
 
 export async function buildFoldersContainer(
   shredContainer: SharedContainer
@@ -38,11 +41,20 @@ export async function buildFoldersContainer(
 
   const repository = new InMemoryFolderRepository();
 
-  const localFileSystem = new NodeWinLocalFileSystem(virtualDrive);
+  const localFileSystem = new NodeWinLocalFileSystem(
+    virtualDrive,
+    shredContainer.relativePathToAbsoluteConverter
+  );
   const remoteFileSystem = new HttpRemoteFileSystem(
     clients.drive,
     clients.newDrive
   );
+
+  const folderPlaceholderConverter = new FolderPlaceholderConverter(
+    localFileSystem
+  );
+
+  const folderSyncStatusUpdater = new FolderSyncStatusUpdater(localFileSystem);
 
   const folderFinder = new FolderFinder(repository);
 
@@ -61,7 +73,8 @@ export async function buildFoldersContainer(
     repository,
     remoteFileSystem,
     ipcRendererSyncEngine,
-    eventBus
+    eventBus,
+    folderPlaceholderConverter
   );
 
   const folderMover = new FolderMover(
@@ -124,6 +137,11 @@ export async function buildFoldersContainer(
     shredContainer.relativePathToAbsoluteConverter
   );
 
+  const foldersFatherSyncStatusUpdater = new FoldersFatherSyncStatusUpdater(
+    localFileSystem,
+    repository
+  );
+
   return {
     folderCreator,
     folderFinder,
@@ -141,5 +159,8 @@ export async function buildFoldersContainer(
     folderRepositoryInitiator,
     foldersPlaceholderCreator,
     folderPlaceholderUpdater,
+    folderPlaceholderConverter,
+    folderSyncStatusUpdater,
+    foldersFatherSyncStatusUpdater,
   };
 }

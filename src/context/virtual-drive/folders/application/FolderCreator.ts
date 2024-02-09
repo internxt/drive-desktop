@@ -4,13 +4,15 @@ import { Folder } from '../domain/Folder';
 import { FolderRepository } from '../domain/FolderRepository';
 import { OfflineFolder } from '../domain/OfflineFolder';
 import { RemoteFileSystem } from '../domain/file-systems/RemoteFileSystem';
+import { FolderPlaceholderConverter } from './FolderPlaceholderConverter';
 
 export class FolderCreator {
   constructor(
     private readonly repository: FolderRepository,
     private readonly remote: RemoteFileSystem,
     private readonly ipc: SyncEngineIpc,
-    private readonly eventBus: EventBus
+    private readonly eventBus: EventBus,
+    private readonly folderPlaceholderConverter: FolderPlaceholderConverter
   ) {}
 
   async run(offlineFolder: OfflineFolder): Promise<Folder> {
@@ -26,6 +28,8 @@ export class FolderCreator {
 
     const events = folder.pullDomainEvents();
     this.eventBus.publish(events);
+
+    await this.folderPlaceholderConverter.run(folder);
 
     this.ipc.send('FOLDER_CREATED', {
       name: offlineFolder.name,
