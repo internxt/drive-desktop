@@ -27,6 +27,7 @@ import { DependencyInjectionHttpClientsProvider } from '../common/clients';
 import { FileSyncronizer } from '../../../../context/virtual-drive/files/application/FileSyncronizer';
 import { FilePlaceholderConverter } from '../../../../context/virtual-drive/files/application/FIlePlaceholderConverter';
 import { FileSyncStatusUpdater } from '../../../../context/virtual-drive/files/application/FileSyncStatusUpdater';
+import { FileContentsUpdater } from '../../../../context/virtual-drive/files/application/FileContentsUpdater';
 
 export async function buildFilesContainer(
   folderContainer: FoldersContainer,
@@ -124,6 +125,11 @@ export async function buildFilesContainer(
 
   const fileSyncStatusUpdater = new FileSyncStatusUpdater(localFileSystem);
 
+  const fileContentsUpdater = new FileContentsUpdater(
+    repository,
+    remoteFileSystem
+  );
+
   const fileSyncronizer = new FileSyncronizer(
     repository,
     fileSyncStatusUpdater,
@@ -132,6 +138,7 @@ export async function buildFilesContainer(
     sharedContainer.absolutePathToRelativeConverter,
     folderContainer.folderCreator,
     folderContainer.offline.folderCreator,
+    fileContentsUpdater,
     folderContainer.foldersFatherSyncStatusUpdater
   );
 

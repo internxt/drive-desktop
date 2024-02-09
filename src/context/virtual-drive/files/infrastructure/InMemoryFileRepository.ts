@@ -60,4 +60,19 @@ export class InMemoryFileRepository implements FileRepository {
 
     return this.add(file);
   }
+
+  async updateContentsAndSize(
+    file: File,
+    newContentsId: File['contentsId'],
+    newSize: File['size']
+  ): Promise<File> {
+    if (!this.files.has(file.contentsId)) {
+      throw new Error('File not found');
+    }
+
+    const updatedFile = file.replaceContestsAndSize(newContentsId, newSize);
+    this.files.set(updatedFile.contentsId, updatedFile.attributes());
+    this.files.delete(file.contentsId);
+    return updatedFile;
+  }
 }

@@ -284,10 +284,15 @@ export class BindingsManager {
   }
 
   private async polling(): Promise<void> {
-    Logger.info('[SYNC ENGINE] Monitoring polling...');
-    const fileInPendingPaths =
-      (await this.container.virtualDrive.getPlaceholderWithStatePending()) as Array<string>;
-    Logger.info('[SYNC ENGINE] fileInPendingPaths', fileInPendingPaths);
-    await this.container.fileSyncOrchestrator.run(fileInPendingPaths);
+    try {
+      Logger.info('[SYNC ENGINE] Monitoring polling...');
+
+      const fileInPendingPaths =
+        (await this.container.virtualDrive.getPlaceholderWithStatePending()) as Array<string>;
+      Logger.info('[SYNC ENGINE] fileInPendingPaths', fileInPendingPaths);
+      await this.container.fileSyncOrchestrator.run(fileInPendingPaths);
+    } catch (error) {
+      Logger.error('[SYNC ENGINE] Polling', error);
+    }
   }
 }

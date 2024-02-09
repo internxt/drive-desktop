@@ -15,6 +15,7 @@ import { FileRenamedDomainEvent } from './events/FileRenamedDomainEvent';
 import { FilePlaceholderId, createFilePlaceholderId } from './PlaceholderId';
 
 export type FileAttributes = {
+  uuid?: string;
   contentsId: string;
   folderId: number;
   createdAt: string;
@@ -27,15 +28,20 @@ export type FileAttributes = {
 
 export class File extends AggregateRoot {
   private constructor(
+    private _uuid: string,
     private _contentsId: ContentsId,
     private _folderId: number,
     private _path: FilePath,
-    private readonly _size: FileSize,
+    private _size: FileSize,
     public createdAt: Date,
     public updatedAt: Date,
     private _status: FileStatus
   ) {
     super();
+  }
+
+  public get uuid(): string {
+    return this._uuid;
   }
 
   public get contentsId() {
@@ -80,6 +86,7 @@ export class File extends AggregateRoot {
 
   static from(attributes: FileAttributes): File {
     return new File(
+      attributes.uuid ?? '',
       new ContentsId(attributes.contentsId),
       attributes.folderId,
       new FilePath(attributes.path),
@@ -97,6 +104,7 @@ export class File extends AggregateRoot {
     path: FilePath
   ): File {
     const file = new File(
+      '', // we should generate a uuid here
       new ContentsId(contentsId),
       folder.id,
       path,
@@ -183,8 +191,17 @@ export class File extends AggregateRoot {
     return this._status.is(status);
   }
 
+  replaceContestsAndSize(contentsId: string, size: number) {
+    this._contentsId = new ContentsId(contentsId);
+    this._size = new FileSize(size);
+    this.updatedAt = new Date();
+
+    return this;
+  }
+
   attributes(): FileAttributes {
     return {
+      uuid: this._uuid,
       contentsId: this.contentsId,
       folderId: this.folderId,
       createdAt: this.createdAt.toISOString(),
