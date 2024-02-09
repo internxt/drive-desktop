@@ -18,6 +18,9 @@ import { FoldersFatherSyncStatusUpdater } from '../../folders/application/Folder
 import { FileContentsUpdater } from './FileContentsUpdater';
 
 export class FileSyncronizer {
+  // queue of files to be uploaded
+  private filePath: string | undefined;
+  private foldersPathQueue: string[] = [];
   constructor(
     private readonly repository: FileRepository,
     private readonly fileSyncStatusUpdater: FileSyncStatusUpdater,
@@ -34,6 +37,7 @@ export class FileSyncronizer {
     absolutePath: string,
     upload: (path: string) => Promise<RemoteFileContents>
   ): Promise<void> {
+    this.filePath = absolutePath;
     const win32RelativePath =
       this.absolutePathToRelativeConverter.run(absolutePath);
 
@@ -70,6 +74,7 @@ export class FileSyncronizer {
     attemps = 3
   ) => {
     try {
+      await new Promise((resolve) => setTimeout(resolve, 2000));
       const fileContents = await upload(posixRelativePath);
       const createdFile = await this.fileCreator.run(filePath, fileContents);
       await this.convertAndUpdateSyncStatus(createdFile);
@@ -101,15 +106,18 @@ export class FileSyncronizer {
     const posixDir =
       PlatformPathConverter.getFatherPathPosix(posixRelativePath);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      await new Promise((resolve) => setTimeout(resolve, 4000));
       await this.runFolderCreator(posixDir);
     } catch (error) {
       Logger.error('Error creating folder father creation:', error);
       if (error instanceof FolderNotFoundError) {
+        this.foldersPathQueue.push(posixDir);
         // father created
         await this.createFolderFather(posixDir);
         // child created
-        await this.runFolderCreator(posixDir);
+        // await new Promise((resolve) => setTimeout(resolve, 4000));
+        Logger.info('Creando hijo', posixDir);
+        await this.retryFolderCreation(posixDir);
       } else {
         Logger.error(
           'Error creating folder father creation inside catch:',
@@ -131,4 +139,17 @@ export class FileSyncronizer {
       this.fileSyncStatusUpdater.run(file),
     ]);
   }
+
+  private retryFolderCreation = async (posixDir: string, attemps = 3) => {
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 4000));
+      await this.runFolderCreator(posixDir);
+    } catch (error) {
+      Logger.error('Error creating folder father creation:', error);
+      if (attemps > 0) {
+        await this.retryFolderCreation(posixDir, attemps - 1);
+        return;
+      }
+    }
+  };
 }

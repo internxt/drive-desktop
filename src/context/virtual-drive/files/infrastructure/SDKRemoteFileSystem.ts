@@ -91,9 +91,8 @@ export class SDKRemoteFileSystem implements RemoteFileSystem {
     newContentsId: File['contentsId'],
     newSize: File['size']
   ): Promise<void> {
-    //TODO: we don't have the file uuid, maybe we should use a different endpoint
     await this.clients.newDrive.put(
-      `${process.env.DRIVE_URL}/api/files/${file.uuid}`,
+      `${process.env.NEW_DRIVE_URL}/drive/files/${file.uuid}`,
       {
         fileId: newContentsId,
         size: newSize,

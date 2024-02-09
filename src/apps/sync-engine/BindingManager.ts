@@ -37,8 +37,11 @@ export class BindingsManager {
 
   async start(version: string, providerId: string) {
     await this.stop();
-    await this.pollingStart();
+    // await this.pollingStart();
 
+    setTimeout(async () => {
+      await this.polling();
+    }, 10000);
     const controllers = buildControllers(this.container);
 
     const callbacks = {

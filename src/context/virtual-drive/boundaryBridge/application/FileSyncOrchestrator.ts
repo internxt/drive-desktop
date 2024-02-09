@@ -1,6 +1,5 @@
 import { RetryContentsUploader } from '../../contents/application/RetryContentsUploader';
 import { FileSyncronizer } from '../../files/application/FileSyncronizer';
-import Logger from 'electron-log';
 
 export class FileSyncOrchestrator {
   constructor(

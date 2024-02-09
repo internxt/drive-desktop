@@ -3,6 +3,7 @@ import { OfflineFolder } from '../../domain/OfflineFolder';
 import { OfflineFolderRepository } from '../../domain/OfflineFolderRepository';
 import { FolderFinder } from '../FolderFinder';
 import { FolderRepository } from '../../domain/FolderRepository';
+import Logger from 'electron-log';
 
 export class OfflineFolderCreator {
   constructor(

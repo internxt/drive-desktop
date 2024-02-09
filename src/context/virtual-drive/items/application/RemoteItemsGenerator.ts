@@ -1,4 +1,5 @@
 import { SyncEngineIpc } from '../../../../apps/sync-engine/ipcRendererSyncEngine';
+import Logger from 'electron-log';
 import {
   ServerFile,
   ServerFileStatus,
