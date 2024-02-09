@@ -52,4 +52,8 @@ export class NodeWinLocalFileSystem implements LocalFileSystem {
       file.placeholderId
     );
   }
+
+  getPlaceholderState(file: File): Promise<void> {
+    return this.virtualDrive.getPlaceholderState(file.path);
+  }
 }
