@@ -86,7 +86,7 @@ export class File extends AggregateRoot {
 
   static from(attributes: FileAttributes): File {
     return new File(
-      attributes.uuid || '',
+      attributes.uuid ?? '',
       new ContentsId(attributes.contentsId),
       attributes.folderId,
       new FilePath(attributes.path),
@@ -196,14 +196,6 @@ export class File extends AggregateRoot {
     this._size = new FileSize(size);
     this.updatedAt = new Date();
 
-    // this.record(
-    //   new FileCreatedDomainEvent({
-    //     aggregateId: this.contentsId,
-    //     size: this.size,
-    //     type: this.type,
-    //     path: this.path,
-    //   })
-    // );
     return this;
   }
 
