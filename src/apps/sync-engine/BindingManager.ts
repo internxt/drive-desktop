@@ -37,11 +37,8 @@ export class BindingsManager {
 
   async start(version: string, providerId: string) {
     await this.stop();
-    // await this.pollingStart();
+    await this.pollingStart();
 
-    setTimeout(async () => {
-      await this.polling();
-    }, 10000);
     const controllers = buildControllers(this.container);
 
     const callbacks = {
@@ -292,7 +289,7 @@ export class BindingsManager {
 
       const fileInPendingPaths =
         (await this.container.virtualDrive.getPlaceholderWithStatePending()) as Array<string>;
-
+      Logger.info('[SYNC ENGINE] fileInPendingPaths', fileInPendingPaths);
       await this.container.fileSyncOrchestrator.run(fileInPendingPaths);
     } catch (error) {
       Logger.error('[SYNC ENGINE] Polling', error);

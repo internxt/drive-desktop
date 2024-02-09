@@ -7,14 +7,19 @@ export class FileSyncOrchestrator {
     private readonly fileSyncronizer: FileSyncronizer
   ) {}
 
-  async run(absolutePaths: string[]): Promise<void[]> {
-    const promises = absolutePaths.map(
-      async (absolutePath) =>
-        await this.fileSyncronizer.run(
-          absolutePath,
-          this.contentsUploader.run.bind(this.contentsUploader)
-        )
-    );
-    return Promise.all(promises);
+  async run(absolutePaths: string[]): Promise<void> {
+    // const promises = absolutePaths.map(async (absolutePath) => {
+    //   return this.fileSyncronizer.run(
+    //     absolutePath,
+    //     this.contentsUploader.run.bind(this.contentsUploader)
+    //   );
+    // });
+    // return await Promise.all(promises);
+    for (const absolutePath of absolutePaths) {
+      await this.fileSyncronizer.run(
+        absolutePath,
+        this.contentsUploader.run.bind(this.contentsUploader)
+      );
+    }
   }
 }

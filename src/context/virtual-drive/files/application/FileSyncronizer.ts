@@ -46,11 +46,27 @@ export class FileSyncronizer {
 
     const path = new FilePath(posixRelativePath);
 
-    let existingFile = this.repository.searchByPartial({
+    const existingFile = this.repository.searchByPartial({
       path: PlatformPathConverter.winToPosix(path.value),
       status: FileStatuses.EXISTS,
     });
 
+    await this.sync(
+      existingFile,
+      absolutePath,
+      posixRelativePath,
+      path,
+      upload
+    );
+  }
+
+  private async sync(
+    existingFile: File | undefined,
+    absolutePath: string,
+    posixRelativePath: string,
+    path: FilePath,
+    upload: (path: string) => Promise<RemoteFileContents>
+  ) {
     if (existingFile) {
       if (this.hasDifferentSize(existingFile, absolutePath)) {
         const contents = await upload(posixRelativePath);
@@ -115,8 +131,7 @@ export class FileSyncronizer {
         // father created
         await this.createFolderFather(posixDir);
         // child created
-        // await new Promise((resolve) => setTimeout(resolve, 4000));
-        Logger.info('Creando hijo', posixDir);
+        Logger.info('Creating child', posixDir);
         await this.retryFolderCreation(posixDir);
       } else {
         Logger.error(
