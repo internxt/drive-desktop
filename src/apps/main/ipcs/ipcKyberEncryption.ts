@@ -1,10 +1,8 @@
 import { ipcMain } from 'electron';
 import KyberCrypto from '../../../context/shared/infrastructure/kyber-encryption';
 
-// Crear instancia de KyberCrypto
 const kyber = new KyberCrypto();
 
-// Inicializar Kyber antes de manejar las solicitudes
 (async () => {
   try {
     await kyber.initialize();
@@ -14,7 +12,6 @@ const kyber = new KyberCrypto();
   }
 })();
 
-// Manejo de generación de claves
 ipcMain.handle('generate-key-pair', async () => {
   try {
     const { publicKey, privateKey } = await kyber.generateKeyPair();
@@ -28,7 +25,6 @@ ipcMain.handle('generate-key-pair', async () => {
   }
 });
 
-// Manejo de encriptación
 ipcMain.handle('encrypt', async (event, publicKey) => {
   try {
     const result = await kyber.encrypt(publicKey);
