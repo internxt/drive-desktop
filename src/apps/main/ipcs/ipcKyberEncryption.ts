@@ -25,7 +25,7 @@ ipcMain.handle('generate-key-pair', async () => {
   }
 });
 
-ipcMain.handle('encrypt', async (event, publicKey) => {
+ipcMain.handle('encrypt', async (_, publicKey) => {
   try {
     const result = await kyber.encrypt(publicKey);
     return {
@@ -38,7 +38,7 @@ ipcMain.handle('encrypt', async (event, publicKey) => {
   }
 });
 
-ipcMain.handle('decrypt', async (event, encryptedData, privateKey) => {
+ipcMain.handle('decrypt', async (_, encryptedData, privateKey) => {
   try {
     const decryptedMessage = kyber.decrypt(encryptedData, privateKey);
     return decryptedMessage;
