@@ -87,7 +87,12 @@ export type RemoteSyncedFolder = {
   status: string;
 };
 
-export type RemoteSyncStatus = 'IDLE' | 'SYNCED' | 'SYNCING' | 'SYNC_FAILED';
+export type RemoteSyncStatus =
+  | 'IDLE'
+  | 'SYNCED'
+  | 'SYNCING'
+  | 'SYNC_FAILED'
+  | 'SYNC_PENDING';
 export type SyncConfig = {
   retry: number;
   maxRetries: number;

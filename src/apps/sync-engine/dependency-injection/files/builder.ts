@@ -144,8 +144,7 @@ export async function buildFilesContainer(
     sharedContainer.absolutePathToRelativeConverter,
     folderContainer.folderCreator,
     folderContainer.offline.folderCreator,
-    fileContentsUpdater,
-    folderContainer.foldersFatherSyncStatusUpdater
+    fileContentsUpdater
   );
 
   const container: FilesContainer = {

@@ -10,6 +10,7 @@ export class RemoteFileSystemMock implements RemoteFileSystem {
   public readonly trashMock = jest.fn();
   public readonly moveMock = jest.fn();
   public readonly renameMock = jest.fn();
+  public readonly replaceMock = jest.fn();
 
   persist(offline: OfflineFile): Promise<FileAttributes> {
     return this.persistMock(offline);
@@ -25,5 +26,9 @@ export class RemoteFileSystemMock implements RemoteFileSystem {
 
   rename(file: File): Promise<void> {
     return this.renameMock(file);
+  }
+
+  replace(file: File, newContentsId: string, newSize: number): Promise<void> {
+    return this.replaceMock(file, newContentsId, newSize);
   }
 }

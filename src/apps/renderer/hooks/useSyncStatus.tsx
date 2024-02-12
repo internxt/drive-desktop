@@ -19,6 +19,10 @@ export default function useSyncStatus(
       if (status === 'SYNC_FAILED') {
         setSyncStatus('FAILED');
       }
+
+      if (status === 'SYNC_PENDING') {
+        setSyncStatus('SYNC PENDING');
+      }
     });
 
     const removeListener = window.electron.onRemoteSyncStatusChange(
@@ -33,6 +37,10 @@ export default function useSyncStatus(
 
         if (newStatus === 'SYNC_FAILED') {
           setSyncStatus('FAILED');
+        }
+
+        if (newStatus === 'SYNC_PENDING') {
+          setSyncStatus('SYNC PENDING');
         }
       }
     );
