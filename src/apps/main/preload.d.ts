@@ -229,5 +229,11 @@ declare interface Window {
       hasDiscoveredBackups: () => Promise<boolean>;
       discoveredBackups: () => Promise<void>;
     };
+    generateKeyPair: () => Promise<void>;
+    encrypt: (message: string, publicKey: Uint8Array) => Promise<void>;
+    decrypt: (
+      encryptedData: Uint8Array,
+      privateKey: Uint8Array
+    ) => Promise<void>;
   };
 }
