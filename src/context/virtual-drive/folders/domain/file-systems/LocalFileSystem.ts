@@ -6,4 +6,6 @@ export interface LocalFileSystem {
   updateSyncStatus(folder: Folder): Promise<void>;
 
   convertToPlaceholder(folder: Folder): Promise<void>;
+
+  getPlaceholderState(folder: Folder): Promise<void>;
 }

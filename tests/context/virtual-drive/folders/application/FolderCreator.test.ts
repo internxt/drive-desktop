@@ -2,10 +2,12 @@ import { FolderCreator } from '../../../../../src/context/virtual-drive/folders/
 import { Folder } from '../../../../../src/context/virtual-drive/folders/domain/Folder';
 import { EventBusMock } from '../../shared/__mock__/EventBusMock';
 import { IpcRendererSyncEngineMock } from '../../shared/__mock__/IpcRendererSyncEngineMock';
+import { FolderPlaceholderConverterMock } from '../__mocks__/FolderPlaceholderConverterMock';
 import { FolderRemoteFileSystemMock } from '../__mocks__/FolderRemoteFileSystemMock';
 import { FolderRepositoryMock } from '../__mocks__/FolderRepositoryMock';
 import { FolderMother } from '../domain/FolderMother';
 import { OfflineFolderMother } from '../domain/OfflineFolderMother';
+import { FolderLocalFileSystemMock } from '../__mocks__/FolderLocalFileSystemMock';
 
 describe('Folder Creator', () => {
   let SUT: FolderCreator;
@@ -14,6 +16,8 @@ describe('Folder Creator', () => {
   let remote: FolderRemoteFileSystemMock;
   let syncEngineIpc: IpcRendererSyncEngineMock;
   let eventBus: EventBusMock;
+  let folderPlaceholderConverter: FolderPlaceholderConverterMock;
+  let folderLocalFileSystemMock: FolderLocalFileSystemMock;
 
   beforeEach(() => {
     repository = new FolderRepositoryMock();
@@ -21,8 +25,17 @@ describe('Folder Creator', () => {
     remote = new FolderRemoteFileSystemMock();
 
     eventBus = new EventBusMock();
+    folderPlaceholderConverter = new FolderPlaceholderConverterMock(
+      folderLocalFileSystemMock
+    );
 
-    SUT = new FolderCreator(repository, remote, syncEngineIpc, eventBus);
+    SUT = new FolderCreator(
+      repository,
+      remote,
+      syncEngineIpc,
+      eventBus,
+      folderPlaceholderConverter
+    );
   });
 
   it('creates on a folder from a offline folder', async () => {

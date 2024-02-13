@@ -24,9 +24,12 @@ import { SDKRemoteFileSystem } from '../../../../context/virtual-drive/files/inf
 import { NodeWinLocalFileSystem } from '../../../../context/virtual-drive/files/infrastructure/NodeWinLocalFileSystem';
 import { LocalFileIdProvider } from '../../../../context/virtual-drive/shared/application/LocalFileIdProvider';
 import { DependencyInjectionHttpClientsProvider } from '../common/clients';
+import { FileFolderContainerDetector } from '../../../../context/virtual-drive/files/application/FileFolderContainerDetector';
 import { FileSyncronizer } from '../../../../context/virtual-drive/files/application/FileSyncronizer';
 import { FilePlaceholderConverter } from '../../../../context/virtual-drive/files/application/FIlePlaceholderConverter';
 import { FileSyncStatusUpdater } from '../../../../context/virtual-drive/files/application/FileSyncStatusUpdater';
+import { FileContentsUpdater } from '../../../../context/virtual-drive/files/application/FileContentsUpdater';
+import { FileCheckerStatusInRoot } from '../../../../context/virtual-drive/files/application/FileCheckerStatusInRoot';
 
 export async function buildFilesContainer(
   folderContainer: FoldersContainer,
@@ -64,6 +67,11 @@ export async function buildFilesContainer(
     repository,
     folderContainer.allParentFoldersStatusIsExists,
     ipcRendererSyncEngine
+  );
+
+  const fileFolderContainerDetector = new FileFolderContainerDetector(
+    repository,
+    folderContainer.folderFinder
   );
 
   const sameFileWasMoved = new SameFileWasMoved(
@@ -124,6 +132,11 @@ export async function buildFilesContainer(
 
   const fileSyncStatusUpdater = new FileSyncStatusUpdater(localFileSystem);
 
+  const fileContentsUpdater = new FileContentsUpdater(
+    repository,
+    remoteFileSystem
+  );
+
   const fileSyncronizer = new FileSyncronizer(
     repository,
     fileSyncStatusUpdater,
@@ -132,14 +145,17 @@ export async function buildFilesContainer(
     sharedContainer.absolutePathToRelativeConverter,
     folderContainer.folderCreator,
     folderContainer.offline.folderCreator,
-    folderContainer.foldersFatherSyncStatusUpdater
+    fileContentsUpdater
   );
+
+  const filesCheckerStatusInRoot = new FileCheckerStatusInRoot(localFileSystem);
 
   const container: FilesContainer = {
     fileFinderByContentsId,
     fileDeleter,
     filePathUpdater,
     fileCreator,
+    fileFolderContainerDetector,
     fileSyncronizer,
     filePlaceholderCreatorFromContentsId: filePlaceholderCreatorFromContentsId,
     createFilePlaceholderOnDeletionFailed:
@@ -151,6 +167,7 @@ export async function buildFilesContainer(
     filesPlaceholderUpdater,
     filePlaceholderConverter,
     fileSyncStatusUpdater,
+    filesCheckerStatusInRoot,
   };
 
   return { container, subscribers: [] };

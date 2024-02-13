@@ -45,4 +45,10 @@ export class NodeWinLocalFileSystem implements LocalFileSystem {
       folder.placeholderId
     );
   }
+
+  getPlaceholderState(folder: Folder): Promise<void> {
+    const folderPath = `${folder.path}/`;
+
+    return this.virtualDrive.getPlaceholderState(folderPath);
+  }
 }

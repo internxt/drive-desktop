@@ -14,5 +14,6 @@ export function createFileFromServerFile(
     updatedAt: server.updatedAt,
     path: relativePath,
     status: server.status,
+    uuid: server.uuid,
   });
 }

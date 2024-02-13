@@ -11,6 +11,7 @@ import { RemoteFileSystem } from '../domain/file-systems/RemoteFileSystem';
 import { OfflineFile } from '../domain/OfflineFile';
 import { SyncEngineIpc } from '../../../../apps/sync-engine/ipcRendererSyncEngine';
 import { FileStatuses } from '../domain/FileStatus';
+import { ipcRenderer } from 'electron';
 
 export class FileCreator {
   constructor(
@@ -56,6 +57,7 @@ export class FileCreator {
         extension: file.type,
         nameWithExtension: file.nameWithExtension,
       });
+      ipcRenderer.send('CHECK_SYNC');
 
       return file;
     } catch (error: unknown) {

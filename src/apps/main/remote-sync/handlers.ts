@@ -101,3 +101,19 @@ eventBus.on('USER_LOGGED_OUT', () => {
   remoteSyncManager.resetRemoteSync();
   clearRemoteSyncStore();
 });
+
+ipcMain.on('CHECK_SYNC', (event) => {
+  Logger.info('Checking sync');
+  event.sender.send(
+    'CHECK_SYNC_ENGINE_RESPONSE',
+    'Dato obtenido del proceso de sincronización'
+  );
+});
+
+ipcMain.on('CHECK_SYNC_CHANGE_STATUS', async (_, placeholderStates) => {
+  await sleep(2_000);
+  Logger.info('[SYNC ENGINE] Changing status');
+  remoteSyncManager.placeholderStatus = 'SYNCING';
+  await sleep(7_00);
+  remoteSyncManager.placeholderStatus = placeholderStates;
+});

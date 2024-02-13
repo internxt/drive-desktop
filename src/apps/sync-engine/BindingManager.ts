@@ -9,11 +9,18 @@ import { executeControllerWithFallback } from './callbacks-controllers/middlewar
 import { DependencyContainer } from './dependency-injection/DependencyContainer';
 import { ipcRendererSyncEngine } from './ipcRendererSyncEngine';
 import { ProcessIssue } from '../shared/types';
+import { ipcRenderer } from 'electron';
 
 export type CallbackDownload = (
   success: boolean,
   filePath: string
 ) => Promise<{ finished: boolean; progress: number }>;
+
+export type FileAddedCallback = (
+  acknowledge: boolean,
+  id: string
+) => Promise<boolean>;
+
 export class BindingsManager {
   private static readonly PROVIDER_NAME = 'Internxt';
   private progressBuffer = 0;
@@ -55,6 +62,7 @@ export class BindingsManager {
             Logger.error(error);
             callback(false);
           });
+        ipcRenderer.send('CHECK_SYNC');
       },
       notifyDeleteCompletionCallback: () => {
         Logger.info('Deletion completed');
@@ -73,13 +81,15 @@ export class BindingsManager {
           ),
         });
         fn(absolutePath, contentsId, callback);
+        ipcRenderer.send('CHECK_SYNC');
       },
       notifyFileAddedCallback: (
         absolutePath: string,
-        callback: (acknowledge: boolean, id: string) => boolean
+        callback: FileAddedCallback
       ) => {
         Logger.debug('Path received from callback', absolutePath);
         controllers.addFile.execute(absolutePath, callback);
+        ipcRenderer.send('CHECK_SYNC');
       },
       fetchDataCallback: async (
         contentsId: FilePlaceholderId,
@@ -140,6 +150,7 @@ export class BindingsManager {
           });
 
           fs.unlinkSync(path);
+          ipcRenderer.send('CHECK_SYNC');
         } catch (error) {
           Logger.error(error);
           callback(false, '');
@@ -160,6 +171,7 @@ export class BindingsManager {
             process: 'SYNC',
             kind: 'LOCAL',
           });
+          ipcRenderer.send('CHECK_SYNC');
         } catch (error) {
           Logger.error(error);
           callback(false);
@@ -284,10 +296,16 @@ export class BindingsManager {
   }
 
   private async polling(): Promise<void> {
-    Logger.info('[SYNC ENGINE] Monitoring polling...');
-    const fileInPendingPaths =
-      (await this.container.virtualDrive.getPlaceholderWithStatePending()) as Array<string>;
-    Logger.info('[SYNC ENGINE] fileInPendingPaths', fileInPendingPaths);
-    await this.container.fileSyncOrchestrator.run(fileInPendingPaths);
+    try {
+      Logger.info('[SYNC ENGINE] Monitoring polling...');
+
+      const fileInPendingPaths =
+        (await this.container.virtualDrive.getPlaceholderWithStatePending()) as Array<string>;
+      Logger.info('[SYNC ENGINE] fileInPendingPaths', fileInPendingPaths);
+      await this.container.fileSyncOrchestrator.run(fileInPendingPaths);
+      ipcRenderer.send('CHECK_SYNC');
+    } catch (error) {
+      Logger.error('[SYNC ENGINE] Polling', error);
+    }
   }
 }

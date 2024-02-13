@@ -19,6 +19,29 @@ export class InMemoryFileRepository implements FileRepository {
     return Promise.resolve(files);
   }
 
+  async allSearchByPartial(
+    partial: Partial<FileAttributes>
+  ): Promise<Array<File>> {
+    const keys = Object.keys(partial) as Array<keyof Partial<FileAttributes>>;
+
+    const files = this.values
+      .filter((attributes) => {
+        return keys.every((key: keyof FileAttributes) => {
+          if (key === 'contentsId') {
+            return (
+              attributes[key].normalize() ==
+              (partial[key] as string).normalize()
+            );
+          }
+
+          return attributes[key] == partial[key];
+        });
+      })
+      .map((attributes) => File.from(attributes));
+
+    return files;
+  }
+
   searchByPartial(partial: Partial<FileAttributes>): File | undefined {
     const keys = Object.keys(partial) as Array<keyof Partial<FileAttributes>>;
 
@@ -59,5 +82,20 @@ export class InMemoryFileRepository implements FileRepository {
     }
 
     return this.add(file);
+  }
+
+  async updateContentsAndSize(
+    file: File,
+    newContentsId: File['contentsId'],
+    newSize: File['size']
+  ): Promise<File> {
+    if (!this.files.has(file.contentsId)) {
+      throw new Error('File not found');
+    }
+
+    const updatedFile = file.replaceContestsAndSize(newContentsId, newSize);
+    this.files.set(updatedFile.contentsId, updatedFile.attributes());
+    this.files.delete(file.contentsId);
+    return updatedFile;
   }
 }

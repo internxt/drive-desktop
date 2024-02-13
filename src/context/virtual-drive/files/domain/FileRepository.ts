@@ -5,9 +5,17 @@ export interface FileRepository {
 
   searchByPartial(partial: Partial<FileAttributes>): File | undefined;
 
+  allSearchByPartial(partial: Partial<FileAttributes>): Promise<Array<File>>;
+
   delete(id: File['contentsId']): Promise<void>;
 
   add(file: File): Promise<void>;
 
   update(file: File): Promise<void>;
+
+  updateContentsAndSize(
+    file: File,
+    newContentsId: File['contentsId'],
+    newSize: File['size']
+  ): Promise<File>;
 }

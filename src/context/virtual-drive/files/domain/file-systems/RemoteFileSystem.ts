@@ -9,4 +9,10 @@ export interface RemoteFileSystem {
   move(file: File): Promise<void>;
 
   rename(file: File): Promise<void>;
+
+  replace(
+    file: File,
+    newContentsId: File['contentsId'],
+    newSize: File['size']
+  ): Promise<void>;
 }
