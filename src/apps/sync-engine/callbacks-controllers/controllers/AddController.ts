@@ -44,7 +44,6 @@ export class AddController extends CallbackController {
       );
       if (confirmCreation) {
         Logger.info('File created', posixRelativePath);
-        // ipcRenderer.send('CHECK_SYNC');
       }
       ipcRenderer.send('CHECK_SYNC');
     } catch (error: unknown) {

@@ -78,11 +78,6 @@ export class RemoteSyncManager {
     Logger.info('Starting remote to local sync');
     Logger.info('Checking if we are in a valid state to start the sync');
 
-    // Logger.debug(
-    //   '[ this.chekers.fileCheker.run()]',
-    //   await this.chekers.fileCheker.run()
-    // );
-
     const testPassed = this.smokeTest();
 
     if (!testPassed) {
