@@ -4,6 +4,7 @@ import { File } from '../domain/File';
 import { LocalFileSystem } from '../domain/file-systems/LocalFileSystem';
 import { RelativePathToAbsoluteConverter } from '../../shared/application/RelativePathToAbsoluteConverter';
 import fs from 'fs/promises';
+import { PlaceholderState } from '../domain/PlaceholderState';
 
 export class NodeWinLocalFileSystem implements LocalFileSystem {
   constructor(
@@ -55,5 +56,13 @@ export class NodeWinLocalFileSystem implements LocalFileSystem {
 
   getPlaceholderState(file: File): Promise<void> {
     return this.virtualDrive.getPlaceholderState(file.path);
+  }
+
+  getPlaceholderStateByRelativePath(
+    relativePath: string
+  ): Promise<PlaceholderState> {
+    return this.virtualDrive.getPlaceholderState(
+      relativePath
+    ) as Promise<PlaceholderState>;
   }
 }

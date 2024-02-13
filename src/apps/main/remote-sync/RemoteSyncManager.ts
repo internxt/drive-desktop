@@ -17,6 +17,7 @@ import { DriveFile } from '../database/entities/DriveFile';
 export class RemoteSyncManager {
   private foldersSyncStatus: RemoteSyncStatus = 'IDLE';
   private filesSyncStatus: RemoteSyncStatus = 'IDLE';
+  private _placeholdersStatus: RemoteSyncStatus = 'IDLE';
   private status: RemoteSyncStatus = 'IDLE';
   private onStatusChangeCallbacks: Array<
     (newStatus: RemoteSyncStatus) => void
@@ -34,8 +35,13 @@ export class RemoteSyncManager {
       fetchFoldersLimitPerRequest: number;
       syncFiles: boolean;
       syncFolders: boolean;
-    }
+    } // , // private chekers: { //   fileCheker: FileCheckerStatusInRoot; // }
   ) {}
+
+  set placeholderStatus(status: RemoteSyncStatus) {
+    this._placeholdersStatus = status;
+    this.checkRemoteSyncStatus();
+  }
 
   onStatusChange(callback: (newStatus: RemoteSyncStatus) => void) {
     if (typeof callback !== 'function') return;
@@ -70,6 +76,12 @@ export class RemoteSyncManager {
   async startRemoteSync() {
     // const start = Date.now();
     Logger.info('Starting remote to local sync');
+    Logger.info('Checking if we are in a valid state to start the sync');
+
+    // Logger.debug(
+    //   '[ this.chekers.fileCheker.run()]',
+    //   await this.chekers.fileCheker.run()
+    // );
 
     const testPassed = this.smokeTest();
 
@@ -151,6 +163,15 @@ export class RemoteSyncManager {
   }
 
   private checkRemoteSyncStatus() {
+    if (this._placeholdersStatus === 'SYNCING') {
+      this.changeStatus('SYNCING');
+      return;
+    }
+    // placeholders are still sync-pending
+    if (this._placeholdersStatus === 'SYNC_PENDING') {
+      this.changeStatus('SYNC_PENDING');
+      return;
+    }
     // We only syncing files
     if (
       this.config.syncFiles &&

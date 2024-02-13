@@ -6,6 +6,7 @@ import { LocalFileContents } from '../domain/LocalFileContents';
 import { PlatformPathConverter } from '../../shared/application/PlatformPathConverter';
 import { RelativePathToAbsoluteConverter } from '../../shared/application/RelativePathToAbsoluteConverter';
 import { SyncEngineIpc } from '../../../../apps/sync-engine/ipcRendererSyncEngine';
+import { ipcRenderer } from 'electron';
 
 export class ContentsUploader {
   constructor(
@@ -37,6 +38,7 @@ export class ContentsUploader {
         size: localFileContents.size,
         processInfo: { elapsedTime: uploader.elapsedTime(), progress },
       });
+      ipcRenderer.send('CHECK_SYNC');
     });
 
     uploader.on('error', (error: Error) => {
@@ -46,6 +48,7 @@ export class ContentsUploader {
         nameWithExtension: localFileContents.nameWithExtension,
         error: error.message,
       });
+      ipcRenderer.send('CHECK_SYNC');
     });
 
     uploader.on('finish', () => {
@@ -56,6 +59,7 @@ export class ContentsUploader {
         size: localFileContents.size,
         processInfo: { elapsedTime: uploader.elapsedTime() },
       });
+      ipcRenderer.send('CHECK_SYNC');
     });
   }
 

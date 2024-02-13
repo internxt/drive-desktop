@@ -32,6 +32,13 @@ async function setUp() {
     icon: iconPath,
   });
 
+  ipcRenderer.on('CHECK_SYNC_ENGINE_RESPONSE', async (event) => {
+    Logger.info('[SYNC ENGINE] Checking sync engine response');
+    const placeholderStatuses = await container.filesCheckerStatusInRoot.run();
+    const placeholderStates = placeholderStatuses;
+    event.sender.send('CHECK_SYNC_CHANGE_STATUS', placeholderStates);
+  });
+
   ipcRenderer.on('STOP_SYNC_ENGINE_PROCESS', async (event) => {
     Logger.info('[SYNC ENGINE] Stopping sync engine');
 
@@ -72,6 +79,8 @@ async function setUp() {
   );
 
   bindings.watch();
+
+  ipcRenderer.send('CHECK_SYNC');
 }
 
 setUp()

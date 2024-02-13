@@ -13,6 +13,7 @@ import { FileFolderContainerDetector } from '../../../../context/virtual-drive/f
 import { FileSyncronizer } from '../../../../context/virtual-drive/files/application/FileSyncronizer';
 import { FilePlaceholderConverter } from '../../../../context/virtual-drive/files/application/FIlePlaceholderConverter';
 import { FileSyncStatusUpdater } from '../../../../context/virtual-drive/files/application/FileSyncStatusUpdater';
+import { FileCheckerStatusInRoot } from '../../../../context/virtual-drive/files/application/FileCheckerStatusInRoot';
 
 export interface FilesContainer {
   fileFinderByContentsId: FileFinderByContentsId;
@@ -30,4 +31,5 @@ export interface FilesContainer {
   filesPlaceholderUpdater: FilesPlaceholderUpdater;
   filePlaceholderConverter: FilePlaceholderConverter;
   fileSyncStatusUpdater: FileSyncStatusUpdater;
+  filesCheckerStatusInRoot: FileCheckerStatusInRoot;
 }

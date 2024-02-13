@@ -11,6 +11,7 @@ import { LocalFileContents } from '../domain/LocalFileContents';
 import { LocalFileWriter } from '../domain/LocalFileWriter';
 import { ContentFileDownloader } from '../domain/contentHandlers/ContentFileDownloader';
 import { TemporalFolderProvider } from './temporalFolderProvider';
+import { ipcRenderer } from 'electron';
 
 export class ContentsDownloader {
   private readableDownloader: Readable | null;
@@ -60,6 +61,7 @@ export class ContentsDownloader {
           size: file.size,
           processInfo: { elapsedTime: downloader.elapsedTime() },
         });
+        ipcRenderer.send('CHECK_SYNC');
       } else {
         this.ipc.send('FILE_DOWNLOADING', {
           name: file.name,

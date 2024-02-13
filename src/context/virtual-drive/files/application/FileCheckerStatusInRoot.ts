@@ -1,0 +1,52 @@
+import { LocalFileSystem } from '../domain/file-systems/LocalFileSystem';
+import Logger from 'electron-log';
+import { PlaceholderState } from '../domain/PlaceholderState';
+import {
+  PinState,
+  SyncState,
+} from '../../../../apps/shared/types/PlaceholderStates';
+import fs from 'fs';
+import { DependencyInjectionLocalRootFolderPath } from '../../../../apps/sync-engine/dependency-injection/common/localRootFolderPath';
+
+export class FileCheckerStatusInRoot {
+  constructor(private readonly localFileSystem: LocalFileSystem) {}
+  async run() {
+    const rootFolderPath = DependencyInjectionLocalRootFolderPath.get();
+    const itemsOfRoot = await this.getItemsRoot(rootFolderPath);
+    const status = await this.checkSync(itemsOfRoot);
+    return status;
+  }
+
+  private async checkSync(itemsOfRoot: string[]) {
+    let finalStatus = 'SYNCED';
+    for (const path of itemsOfRoot) {
+      const placeholderStatus =
+        (await this.localFileSystem.getPlaceholderStateByRelativePath(
+          path
+        )) as PlaceholderState;
+
+      const ps = placeholderStatus.pinState;
+      const ss = placeholderStatus.syncState;
+      const status =
+        ps &&
+        ss &&
+        ps !== PinState.AlwaysLocal &&
+        ps !== PinState.OnlineOnly &&
+        ss !== SyncState.InSync;
+
+      if (status) {
+        Logger.debug(
+          `[File Checker Status In Root] item ${path} with status: ${status}`
+        );
+        finalStatus = 'SYNC_PENDING';
+        break;
+      }
+    }
+    return finalStatus;
+  }
+
+  private async getItemsRoot(absolutePath: string): Promise<string[]> {
+    const items = fs.readdirSync(absolutePath);
+    return items;
+  }
+}
