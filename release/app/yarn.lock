@@ -981,6 +981,7 @@ uuid@^9.0.0:
     dotenv "^16.4.1"
     joi "^17.12.0"
     tsconfig-paths "^4.2.0"
+    yargs "^17.7.2"
 
 winston-transport@^4.5.0:
   version "4.5.0"
