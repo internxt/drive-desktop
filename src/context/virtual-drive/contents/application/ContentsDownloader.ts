@@ -46,6 +46,7 @@ export class ContentsDownloader {
     });
 
     downloader.on('progress', async () => {
+      Logger.debug('[Server] Download progress');
       const result = await cb(true, filePath);
       const hydrationProgress = result.progress;
 

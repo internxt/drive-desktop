@@ -335,7 +335,7 @@ export class RemoteSyncManager {
     const params = {
       limit: this.config.fetchFilesLimitPerRequest,
       offset: 0,
-      status: 'ALL',
+      status: 'EXISTS',
       updatedAt: updatedAtCheckpoint
         ? updatedAtCheckpoint.toISOString()
         : undefined,
@@ -399,7 +399,7 @@ export class RemoteSyncManager {
     const params = {
       limit: this.config.fetchFilesLimitPerRequest,
       offset: 0,
-      status: 'ALL',
+      status: 'EXISTS',
       updatedAt: updatedAtCheckpoint
         ? updatedAtCheckpoint.toISOString()
         : undefined,
