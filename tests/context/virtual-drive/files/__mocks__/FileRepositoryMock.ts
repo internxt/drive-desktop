@@ -12,6 +12,7 @@ export class FileRepositoryMock implements FileRepository {
   public readonly addMock = jest.fn();
   public readonly updateMock = jest.fn();
   public readonly updateContentsAndSizeMock = jest.fn();
+  public readonly allSearchByPartialMock = jest.fn();
 
   all(): Promise<File[]> {
     return this.allMock();
@@ -34,5 +35,8 @@ export class FileRepositoryMock implements FileRepository {
     newSize: number
   ): Promise<File> {
     return this.updateContentsAndSizeMock(file, newContentsId, newSize);
+  }
+  allSearchByPartial(partial: Partial<FileAttributes>): Promise<File[]> {
+    return this.allSearchByPartialMock(partial);
   }
 }
