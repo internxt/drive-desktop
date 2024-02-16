@@ -348,6 +348,12 @@ contextBridge.exposeInMainWorld('electron', {
       ipcRenderer.send('user.set-has-discovered-backups');
     },
   },
+  kyber: {
+    generateKeyPair: () => ipcRenderer.invoke('generate-key-pair'),
+    encrypt: (_, publicKey) => ipcRenderer.invoke('encrypt', _, publicKey),
+    decrypt: (encryptedData, privateKey) =>
+      ipcRenderer.invoke('decrypt', encryptedData, privateKey),
+  },
 
   path,
 });
