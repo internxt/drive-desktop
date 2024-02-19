@@ -47,34 +47,18 @@ export class ContentsDownloader {
 
     downloader.on('progress', async () => {
       Logger.debug('[Server] Download progress');
-      const result = await cb(true, filePath);
-      const hydrationProgress = result.progress;
+      const { progress } = await cb(true, filePath);
 
-      if (result.finished) {
-        downloader.forceStop();
-        Logger.debug('Downloader force stop', this.readableDownloader);
-        this.readableDownloader?.destroy();
-        this.readableDownloader?.emit('close');
-        this.ipc.send('FILE_DOWNLOADED', {
-          name: file.name,
-          extension: file.type,
-          nameWithExtension: file.nameWithExtension,
-          size: file.size,
-          processInfo: { elapsedTime: downloader.elapsedTime() },
-        });
-        ipcRenderer.send('CHECK_SYNC');
-      } else {
-        this.ipc.send('FILE_DOWNLOADING', {
-          name: file.name,
-          extension: file.type,
-          nameWithExtension: file.nameWithExtension,
-          size: file.size,
-          processInfo: {
-            elapsedTime: downloader.elapsedTime(),
-            progress: hydrationProgress,
-          },
-        });
-      }
+      this.ipc.send('FILE_DOWNLOADING', {
+        name: file.name,
+        extension: file.type,
+        nameWithExtension: file.nameWithExtension,
+        size: file.size,
+        processInfo: {
+          elapsedTime: downloader.elapsedTime(),
+          progress,
+        },
+      });
     });
 
     downloader.on('error', (error: Error) => {
@@ -99,6 +83,7 @@ export class ContentsDownloader {
 
     const readable = await downloader.download(file);
     this.readableDownloader = readable;
+
     const localContents = LocalFileContents.downloadedFrom(
       file,
       readable,
@@ -109,6 +94,14 @@ export class ContentsDownloader {
 
     const events = localContents.pullDomainEvents();
     await this.eventBus.publish(events);
+
+    this.ipc.send('FILE_DOWNLOADED', {
+      name: file.name,
+      extension: file.type,
+      nameWithExtension: file.nameWithExtension,
+      size: file.size,
+      processInfo: { elapsedTime: downloader.elapsedTime() },
+    });
 
     return write;
   }
