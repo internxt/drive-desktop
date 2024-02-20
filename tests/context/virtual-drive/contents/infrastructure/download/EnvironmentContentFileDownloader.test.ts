@@ -85,7 +85,7 @@ describe('Environment Content File Downloader', () => {
       });
     });
 
-    it('emits an event before the promises fails', async () => {
+    it('emits the error event before the promises fails', async () => {
       const errorMsg = 'Error uploading file';
       const strategy = createDownloadStrategy((callbacks) => {
         callbacks.finishedCallback(
