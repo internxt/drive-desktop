@@ -21,7 +21,7 @@ export class WriteReadableToFile {
           return;
         }
         if (size !== expectedSize) {
-          reject('Wried file does not have expected size');
+          reject(new Error('Wried file does not have expected size'));
           return;
         }
 
