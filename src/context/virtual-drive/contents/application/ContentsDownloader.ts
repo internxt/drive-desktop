@@ -11,7 +11,7 @@ import { LocalFileContents } from '../domain/LocalFileContents';
 import { LocalFileWriter } from '../domain/LocalFileWriter';
 import { ContentFileDownloader } from '../domain/contentHandlers/ContentFileDownloader';
 import { TemporalFolderProvider } from './temporalFolderProvider';
-import { ipcRenderer } from 'electron';
+import * as fs from 'fs';
 
 export class ContentsDownloader {
   private readableDownloader: Readable | null;
@@ -25,11 +25,7 @@ export class ContentsDownloader {
     this.readableDownloader = null;
   }
 
-  private async registerEvents(
-    downloader: ContentFileDownloader,
-    file: File,
-    cb: CallbackDownload
-  ) {
+  private async registerEvents(downloader: ContentFileDownloader, file: File) {
     const location = await this.temporalFolderProvider();
     ensureFolderExists(location);
 
@@ -46,8 +42,11 @@ export class ContentsDownloader {
     });
 
     downloader.on('progress', async () => {
-      Logger.debug('[Server] Download progress');
-      const { progress } = await cb(true, filePath);
+      Logger.debug('[Server] Download progress', filePath);
+
+      const stats = fs.statSync(filePath);
+      const fileSizeInBytes = stats.size;
+      const progress = fileSizeInBytes / file.size;
 
       this.ipc.send('FILE_DOWNLOADING', {
         name: file.name,
@@ -71,15 +70,16 @@ export class ContentsDownloader {
     });
 
     downloader.on('finish', () => {
+      // cb(true, filePath);
       // The file download being finished does not mean it has been hidratated
       // TODO: We might want to track this time instead of the whole completion time
     });
   }
 
-  async run(file: File, cb: CallbackDownload): Promise<string> {
+  async run(file: File): Promise<string> {
     const downloader = this.managerFactory.downloader();
 
-    this.registerEvents(downloader, file, cb);
+    await this.registerEvents(downloader, file);
 
     const readable = await downloader.download(file);
     this.readableDownloader = readable;
