@@ -22,6 +22,16 @@ ipcMainDrive.on('FILE_DOWNLOADING', (_, payload) => {
   });
 });
 
+ipcMainDrive.on('FILE_PREPARING', (_, payload) => {
+  const { nameWithExtension, processInfo } = payload;
+
+  broadcastToWindows('sync-info-update', {
+    action: 'PREPARING',
+    name: nameWithExtension,
+    progress: processInfo.progress,
+  });
+});
+
 ipcMainDrive.on('FILE_DOWNLOADED', (_, payload) => {
   const { nameWithExtension } = payload;
 

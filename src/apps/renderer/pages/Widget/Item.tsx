@@ -27,6 +27,8 @@ export function Item({
     description = progress
       ? translate('widget.body.activity.operation.downloading')
       : translate('widget.body.activity.operation.decrypting');
+  } else if (action === 'PREPARING') {
+    description = translate('widget.body.activity.operation.preparing');
   } else if (action === 'UPLOADING') {
     description = progress
       ? translate('widget.body.activity.operation.uploading')
@@ -94,6 +96,7 @@ export function Item({
           {action &&
             (action === 'UPLOADING' ||
               action === 'DOWNLOADING' ||
+              action === 'PREPARING' ||
               action === 'RENAMING' ||
               action === 'DELETING') && (
               <CircularProgressbar

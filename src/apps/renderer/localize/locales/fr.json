@@ -140,6 +140,7 @@
       "activity": {
         "operation": {
           "downloading": "Téléchargement",
+          "preparing": "Préparation",
           "decrypting": "Décryptage",
           "uploading": "téléchargement",
           "encrypting": "Encryptage",
