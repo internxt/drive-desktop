@@ -227,7 +227,12 @@ export type ProcessInfoUpdatePayload =
   | (ProcessInfoBase &
       (
         | {
-            action: 'UPLOADING' | 'DOWNLOADING' | 'RENAMING' | 'DELETING';
+            action:
+              | 'UPLOADING'
+              | 'DOWNLOADING'
+              | 'PREPARING'
+              | 'RENAMING'
+              | 'DELETING';
             progress: number;
           }
         | {

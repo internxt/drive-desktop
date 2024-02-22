@@ -19,4 +19,6 @@ export interface ContentFileDownloader {
   ): void;
 
   elapsedTime(): number;
+
+  removeListeners(): void;
 }

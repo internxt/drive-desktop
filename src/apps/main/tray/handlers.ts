@@ -28,6 +28,10 @@ ipcMainDrive.on('FILE_DOWNLOADING', () => {
   setTrayStatus('SYNCING');
 });
 
+ipcMainDrive.on('FILE_PREPARING', () => {
+  setTrayStatus('SYNCING');
+});
+
 ipcMainDrive.on('FILE_DOWNLOADED', () => {
   setTrayStatus('IDLE');
 });
