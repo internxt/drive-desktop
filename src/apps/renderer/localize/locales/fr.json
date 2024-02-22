@@ -140,6 +140,7 @@
       "activity": {
         "operation": {
           "downloading": "Téléchargement",
+          "preparing": "Préparation",
           "decrypting": "Décryptage",
           "uploading": "téléchargement",
           "encrypting": "Encryptage",
@@ -172,7 +173,8 @@
     "footer": {
       "action-description": {
         "syncing": "Synchronisation de vos fichiers",
-        "updated": "Mis à jour il y a quelques instants"
+        "updated": "Mis à jour il y a quelques instants",
+        "sync-pending": "Synchronisation en attente"
       },
       "errors": {
         "lock": "Synchronisation bloquée par un autre dispositif"

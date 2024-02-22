@@ -141,6 +141,7 @@
       "activity": {
         "operation": {
           "downloading": "Downloading",
+          "preparing": "Preparing",
           "decrypting": "Decrypting",
           "uploading": "Uploading",
           "encrypting": "Encrypting",
@@ -174,7 +175,8 @@
       "action-description": {
         "syncing": "Syncing your files",
         "updated": "Fully synced",
-        "failed": "Sync failed"
+        "failed": "Sync failed",
+        "sync-pending": "Sync pending"
       },
       "errors": {
         "lock": "Sync locked by other device",

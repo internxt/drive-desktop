@@ -11,8 +11,8 @@ import { PathTypeChecker } from '../../../shared/fs/PathTypeChecker ';
 import { CallbackController } from './CallbackController';
 import { FolderNotFoundError } from '../../../../context/virtual-drive/folders/domain/errors/FolderNotFoundError';
 import { Folder } from '../../../../context/virtual-drive/folders/domain/Folder';
-
-type CreationCallback = (acknowledge: boolean, id: string) => void;
+import { ipcRenderer } from 'electron';
+import { FileAddedCallback } from '../../BindingManager';
 
 export class AddController extends CallbackController {
   // Gets called when:
@@ -31,14 +31,21 @@ export class AddController extends CallbackController {
 
   private createFile = async (
     posixRelativePath: string,
-    callback: (acknowledge: boolean, id: string) => void,
+    callback: FileAddedCallback,
     attempts = 3
   ) => {
     try {
       const contentsId = await this.fileCreationOrchestrator.run(
         posixRelativePath
       );
-      callback(true, createFilePlaceholderId(contentsId));
+      const confirmCreation = await callback(
+        true,
+        createFilePlaceholderId(contentsId)
+      );
+      if (confirmCreation) {
+        Logger.info('File created', posixRelativePath);
+      }
+      ipcRenderer.send('CHECK_SYNC');
     } catch (error: unknown) {
       Logger.error('Error when adding a file: ' + posixRelativePath, error);
       if (error instanceof FolderNotFoundError) {
@@ -57,12 +64,19 @@ export class AddController extends CallbackController {
 
   private createFolder = async (
     offlineFolder: OfflineFolder,
-    callback: (acknowledge: boolean, id: string) => void,
+    callback: FileAddedCallback,
     attempts = 3
   ) => {
     try {
       await this.folderCreator.run(offlineFolder);
-      callback(true, createFolderPlaceholderId(offlineFolder.uuid));
+      const creationConfirm = await callback(
+        true,
+        createFolderPlaceholderId(offlineFolder.uuid)
+      );
+      if (creationConfirm) {
+        Logger.info('creationConfirm', creationConfirm);
+      }
+      ipcRenderer.send('CHECK_SYNC');
     } catch (error: unknown) {
       Logger.error('Error creating folder', error);
       if (attempts > 0) {
@@ -128,7 +142,7 @@ export class AddController extends CallbackController {
 
   async execute(
     absolutePath: string,
-    callback: CreationCallback
+    callback: FileAddedCallback
   ): Promise<void> {
     const win32RelativePath =
       this.absolutePathToRelativeConverter.run(absolutePath);

@@ -40,10 +40,7 @@ describe.skip('Contents Downloader', () => {
         new ReadableHelloWorld()
       );
 
-      await SUT.run(FileMother.any(), async () => {
-        /* do nothing */
-        return { finished: true, progress: 100 };
-      });
+      await SUT.run(FileMother.any());
 
       expect(factory.mockDownloader.onMock).toBeCalledWith(
         event,
@@ -56,10 +53,7 @@ describe.skip('Contents Downloader', () => {
     factory.mockDownloader.mock.mockResolvedValueOnce(new ReadableHelloWorld());
 
     const file = FileMother.any();
-    await SUT.run(file, async () => {
-      /* do nothing */
-      return { finished: true, progress: 100 };
-    });
+    await SUT.run(file);
 
     expect(localWriter.writeMock).toBeCalledWith(
       expect.objectContaining({

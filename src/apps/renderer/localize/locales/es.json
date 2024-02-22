@@ -141,6 +141,7 @@
       "activity": {
         "operation": {
           "downloading": "Descargando",
+          "preparing": "Preparando",
           "decrypting": "Desencriptando",
           "uploading": "Subiendo",
           "encrypting": "Encriptando",
@@ -174,7 +175,8 @@
       "action-description": {
         "syncing": "Sincronizando tus archivos",
         "updated": "Sincronizado",
-        "failed": "Sincronización fallida"
+        "failed": "Sincronización fallida",
+        "sync-pending": "Sincronización pendiente"
       },
       "errors": {
         "lock": "Sincronización bloqueada por otro dispositivo",

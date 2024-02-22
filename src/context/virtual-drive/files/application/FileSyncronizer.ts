@@ -14,12 +14,10 @@ import * as fs from 'fs';
 import { File } from '../domain/File';
 import { FileSyncStatusUpdater } from './FileSyncStatusUpdater';
 import { FilePlaceholderConverter } from './FIlePlaceholderConverter';
-import { FoldersFatherSyncStatusUpdater } from '../../folders/application/FoldersFatherSyncStatusUpdater';
 import { FileContentsUpdater } from './FileContentsUpdater';
 
 export class FileSyncronizer {
   // queue of files to be uploaded
-  private filePath: string | undefined;
   private foldersPathQueue: string[] = [];
   constructor(
     private readonly repository: FileRepository,
@@ -29,15 +27,14 @@ export class FileSyncronizer {
     private readonly absolutePathToRelativeConverter: AbsolutePathToRelativeConverter,
     private readonly folderCreator: FolderCreator,
     private readonly offlineFolderCreator: OfflineFolderCreator,
-    private readonly fileContentsUpdater: FileContentsUpdater,
-    private readonly foldersFatherSyncStatusUpdater: FoldersFatherSyncStatusUpdater
-  ) {}
+    private readonly fileContentsUpdater: FileContentsUpdater
+  ) // private readonly foldersFatherSyncStatusUpdater: FoldersFatherSyncStatusUpdater
+  {}
 
   async run(
     absolutePath: string,
     upload: (path: string) => Promise<RemoteFileContents>
   ): Promise<void> {
-    this.filePath = absolutePath;
     const win32RelativePath =
       this.absolutePathToRelativeConverter.run(absolutePath);
 

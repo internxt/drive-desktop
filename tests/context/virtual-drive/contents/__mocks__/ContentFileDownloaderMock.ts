@@ -9,6 +9,10 @@ export class ContentFileDownloaderMock implements ContentFileDownloader {
   onMock = jest.fn();
   elapsedTimeMock = jest.fn();
 
+  removeListeners(): void {
+    return;
+  }
+
   download(): Promise<Readable> {
     return this.mock();
   }

@@ -9,11 +9,18 @@ import { executeControllerWithFallback } from './callbacks-controllers/middlewar
 import { DependencyContainer } from './dependency-injection/DependencyContainer';
 import { ipcRendererSyncEngine } from './ipcRendererSyncEngine';
 import { ProcessIssue } from '../shared/types';
+import { ipcRenderer } from 'electron';
 
 export type CallbackDownload = (
   success: boolean,
   filePath: string
 ) => Promise<{ finished: boolean; progress: number }>;
+
+export type FileAddedCallback = (
+  acknowledge: boolean,
+  id: string
+) => Promise<boolean>;
+
 export class BindingsManager {
   private static readonly PROVIDER_NAME = 'Internxt';
   private progressBuffer = 0;
@@ -55,6 +62,7 @@ export class BindingsManager {
             Logger.error(error);
             callback(false);
           });
+        ipcRenderer.send('CHECK_SYNC');
       },
       notifyDeleteCompletionCallback: () => {
         Logger.info('Deletion completed');
@@ -73,24 +81,23 @@ export class BindingsManager {
           ),
         });
         fn(absolutePath, contentsId, callback);
+        ipcRenderer.send('CHECK_SYNC');
       },
       notifyFileAddedCallback: (
         absolutePath: string,
-        callback: (acknowledge: boolean, id: string) => boolean
+        callback: FileAddedCallback
       ) => {
         Logger.debug('Path received from callback', absolutePath);
         controllers.addFile.execute(absolutePath, callback);
+        ipcRenderer.send('CHECK_SYNC');
       },
       fetchDataCallback: async (
         contentsId: FilePlaceholderId,
         callback: CallbackDownload
       ) => {
         try {
-          const path = await controllers.downloadFile.execute(
-            contentsId,
-            callback
-          );
-          Logger.debug('Execute Fetch Data Callback, sending path:', path);
+          Logger.debug('[Fetch Data Callback] Donwloading begins');
+          const path = await controllers.downloadFile.execute(contentsId);
           const file = controllers.downloadFile.fileFinderByContentsId(
             contentsId
               .replace(
@@ -100,35 +107,43 @@ export class BindingsManager {
               )
               .split(':')[1]
           );
+          Logger.debug('[Fetch Data Callback] Preparing begins', path);
           let finished = false;
-          while (!finished) {
-            const result = await callback(true, path);
-            finished = result.finished;
-            if (this.progressBuffer == result.progress) {
-              break;
-            } else {
-              this.progressBuffer = result.progress;
-            }
-            Logger.debug('condition', finished);
-            ipcRendererSyncEngine.send('FILE_DOWNLOADING', {
-              name: file.name,
-              extension: file.type,
-              nameWithExtension: file.nameWithExtension,
-              size: file.size,
-              processInfo: {
-                elapsedTime: 0,
-                progress: result.progress,
-              },
-            });
-          }
-
-          this.progressBuffer = 0;
           try {
+            while (!finished) {
+              const result = await callback(true, path);
+              finished = result.finished;
+              Logger.debug('callback result', result);
+
+              if (finished && result.progress === 0) {
+                throw new Error('Result progress is 0');
+              } else if (this.progressBuffer == result.progress) {
+                break;
+              } else {
+                this.progressBuffer = result.progress;
+              }
+              Logger.debug('condition', finished);
+              ipcRendererSyncEngine.send('FILE_PREPARING', {
+                name: file.name,
+                extension: file.type,
+                nameWithExtension: file.nameWithExtension,
+                size: file.size,
+                processInfo: {
+                  elapsedTime: 0,
+                  progress: result.progress,
+                },
+              });
+            }
+            this.progressBuffer = 0;
+
             await controllers.notifyPlaceholderHydrationFinished.execute(
               contentsId
             );
+
+            await this.container.virtualDrive.closeDownloadMutex();
           } catch (error) {
             Logger.error('notify: ', error);
+            await this.container.virtualDrive.closeDownloadMutex();
           }
 
           // Esperar hasta que la ejecución de fetchDataCallback esté completa antes de continuar
@@ -140,6 +155,7 @@ export class BindingsManager {
           });
 
           fs.unlinkSync(path);
+          ipcRenderer.send('CHECK_SYNC');
         } catch (error) {
           Logger.error(error);
           callback(false, '');
@@ -160,6 +176,7 @@ export class BindingsManager {
             process: 'SYNC',
             kind: 'LOCAL',
           });
+          ipcRenderer.send('CHECK_SYNC');
         } catch (error) {
           Logger.error(error);
           callback(false);
@@ -244,26 +261,25 @@ export class BindingsManager {
 
     Logger.debug('remainingItems', remainingItems);
     Logger.debug('win32AbsolutePaths', win32AbsolutePaths);
+
     // find all common string in remainingItems and win32AbsolutePaths
     // and delete them
-    const commonItems = remainingItems.filter((item) =>
-      win32AbsolutePaths.includes(item)
-    );
-
-    const toDeleteFolder: string[] = [];
-
-    commonItems.forEach((item) => {
-      try {
-        const stat = fs.statSync(item);
-        if (stat.isDirectory()) {
-          toDeleteFolder.push(item);
-        } else if (stat.isFile()) {
-          fs.unlinkSync(item);
-        }
-      } catch (error) {
-        Logger.error(error);
-      }
-    });
+    // const commonItems = remainingItems.filter((item) =>
+    //   win32AbsolutePaths.includes(item)
+    // );
+    // const toDeleteFolder: string[] = [];
+    // commonItems.forEach((item) => {
+    //   try {
+    //     const stat = fs.statSync(item);
+    //     if (stat.isDirectory()) {
+    //       toDeleteFolder.push(item);
+    //     } else if (stat.isFile()) {
+    //       fs.unlinkSync(item);
+    //     }
+    //   } catch (error) {
+    //     Logger.error(error);
+    //   }
+    // });
   }
 
   async update() {
@@ -291,6 +307,7 @@ export class BindingsManager {
         (await this.container.virtualDrive.getPlaceholderWithStatePending()) as Array<string>;
       Logger.info('[SYNC ENGINE] fileInPendingPaths', fileInPendingPaths);
       await this.container.fileSyncOrchestrator.run(fileInPendingPaths);
+      ipcRenderer.send('CHECK_SYNC');
     } catch (error) {
       Logger.error('[SYNC ENGINE] Polling', error);
     }
