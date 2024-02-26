@@ -4,7 +4,7 @@ import { FolderCreatorFromOfflineFolder } from '../../../../../context/virtual-d
 import { FolderDeleter } from '../../../../../context/virtual-drive/folders/application/FolderDeleter';
 import { FolderFinder } from '../../../../../context/virtual-drive/folders/application/FolderFinder';
 import { FolderPathUpdater } from '../../../../../context/virtual-drive/folders/application/FolderPathUpdater';
-import { FolderRepositoryInitiator } from '../../../../../context/virtual-drive/folders/application/FolderRepositoryInitiator';
+import { FolderRepositoryInitializer } from '../../../../../context/virtual-drive/folders/application/FolderRepositoryInitializer';
 import { FolderSearcher } from '../../../../../context/virtual-drive/folders/application/FolderSearcher';
 import { FoldersByParentPathLister } from '../../../../../context/virtual-drive/folders/application/FoldersByParentPathLister';
 import { SyncFolderMessenger } from '../../../../../context/virtual-drive/folders/domain/SyncFolderMessenger';
@@ -18,6 +18,6 @@ export interface FoldersContainer {
   folderCreatorFromOfflineFolder: FolderCreatorFromOfflineFolder;
   folderCreator: FolderCreator;
   folderDeleter: FolderDeleter;
-  folderRepositoryInitiator: FolderRepositoryInitiator;
+  folderRepositoryInitiator: FolderRepositoryInitializer;
   syncFolderMessenger: SyncFolderMessenger;
 }

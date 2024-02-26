@@ -1,7 +1,7 @@
 import { Folder } from '../domain/Folder';
 import { FolderRepository } from '../domain/FolderRepository';
 
-export class FolderRepositoryInitiator {
+export class FolderRepositoryInitializer {
   constructor(private readonly repository: FolderRepository) {}
 
   async run(folders: Array<Folder>): Promise<void> {

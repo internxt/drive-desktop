@@ -6,14 +6,14 @@ import { FolderFinder } from '../../../../../context/virtual-drive/folders/appli
 import { FolderMover } from '../../../../../context/virtual-drive/folders/application/FolderMover';
 import { FolderPathUpdater } from '../../../../../context/virtual-drive/folders/application/FolderPathUpdater';
 import { FolderRenamer } from '../../../../../context/virtual-drive/folders/application/FolderRenamer';
-import { FolderRepositoryInitiator } from '../../../../../context/virtual-drive/folders/application/FolderRepositoryInitiator';
+import { FolderRepositoryInitializer } from '../../../../../context/virtual-drive/folders/application/FolderRepositoryInitializer';
 import { FolderSearcher } from '../../../../../context/virtual-drive/folders/application/FolderSearcher';
 import { FoldersByParentPathLister } from '../../../../../context/virtual-drive/folders/application/FoldersByParentPathLister';
 import { Folder } from '../../../../../context/virtual-drive/folders/domain/Folder';
 import { FuseLocalFileSystem } from '../../../../../context/virtual-drive/folders/infrastructure/FuseLocalFileSystem';
 import { HttpRemoteFileSystem } from '../../../../../context/virtual-drive/folders/infrastructure/HttpRemoteFileSystem';
-import { InMemoryFolderRepository } from '../../../../../context/virtual-drive/folders/infrastructure/InMemoryFolderRepository';
 import { MainProcessSyncFolderMessenger } from '../../../../../context/virtual-drive/folders/infrastructure/SyncMessengers/MainProcessSyncFolderMessenger';
+import { InMemoryFolderRepositorySingleton } from '../../../../shared/dependency-injection/virtual-drive/folders/InMemoryFolderRepositorySingleton';
 import { DependencyInjectionHttpClientsProvider } from '../../common/clients';
 import { DependencyInjectionEventBus } from '../../common/eventBus';
 
@@ -22,7 +22,7 @@ import { FoldersContainer } from './FoldersContainer';
 export async function buildFoldersContainer(
   initialFolders: Array<Folder>
 ): Promise<FoldersContainer> {
-  const repository = new InMemoryFolderRepository();
+  const repository = InMemoryFolderRepositorySingleton.instance;
   const clients = DependencyInjectionHttpClientsProvider.get();
 
   const syncFolderMessenger = new MainProcessSyncFolderMessenger();
@@ -37,7 +37,7 @@ export async function buildFoldersContainer(
 
   const { bus: eventBus } = DependencyInjectionEventBus;
 
-  const folderRepositoryInitiator = new FolderRepositoryInitiator(repository);
+  const folderRepositoryInitiator = new FolderRepositoryInitializer(repository);
 
   await folderRepositoryInitiator.run(initialFolders);
 

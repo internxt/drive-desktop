@@ -6,7 +6,7 @@ import { FolderFinder } from '../../../../context/virtual-drive/folders/applicat
 import { FolderMover } from '../../../../context/virtual-drive/folders/application/FolderMover';
 import { FolderPathUpdater } from '../../../../context/virtual-drive/folders/application/FolderPathUpdater';
 import { FolderRenamer } from '../../../../context/virtual-drive/folders/application/FolderRenamer';
-import { FolderRepositoryInitiator } from '../../../../context/virtual-drive/folders/application/FolderRepositoryInitiator';
+import { FolderRepositoryInitializer } from '../../../../context/virtual-drive/folders/application/FolderRepositoryInitializer';
 import { FoldersPlaceholderCreator } from '../../../../context/virtual-drive/folders/application/FoldersPlaceholderCreator';
 import { OfflineFolderCreator } from '../../../../context/virtual-drive/folders/application/Offline/OfflineFolderCreator';
 import { OfflineFolderMover } from '../../../../context/virtual-drive/folders/application/Offline/OfflineFolderMover';
@@ -119,7 +119,7 @@ export async function buildFoldersContainer(
       synchronizeOfflineModifications
     );
 
-  const folderRepositoryInitiator = new FolderRepositoryInitiator(repository);
+  const folderRepositoryInitiator = new FolderRepositoryInitializer(repository);
 
   const foldersPlaceholderCreator = new FoldersPlaceholderCreator(
     localFileSystem

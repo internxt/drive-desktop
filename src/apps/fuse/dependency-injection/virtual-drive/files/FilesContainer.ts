@@ -5,7 +5,7 @@ import { FileCreator } from '../../../../../context/virtual-drive/files/applicat
 import { SameFileWasMoved } from '../../../../../context/virtual-drive/files/application/SameFileWasMoved';
 import { FileDeleter } from '../../../../../context/virtual-drive/files/application/FileDeleter';
 import { CreateFileOnOfflineFileUploaded } from '../../../../../context/virtual-drive/files/application/CreateFileOnOfflineFileUplodaded';
-import { RepositoryPopulator } from '../../../../../context/virtual-drive/files/application/RepositoryPopulator';
+import { FileRepositoryInitializer } from '../../../../../context/virtual-drive/files/application/FileRepositoryInitializer';
 import { SyncFileMessenger } from '../../../../../context/virtual-drive/files/domain/SyncFileMessenger';
 
 export interface FilesContainer {
@@ -15,7 +15,7 @@ export interface FilesContainer {
   fileCreator: FileCreator;
   fileDeleter: FileDeleter;
   sameFileWasMoved: SameFileWasMoved;
-  repositoryPopulator: RepositoryPopulator;
+  repositoryPopulator: FileRepositoryInitializer;
   syncFileMessenger: SyncFileMessenger;
   // event handler
   createFileOnOfflineFileUploaded: CreateFileOnOfflineFileUploaded;

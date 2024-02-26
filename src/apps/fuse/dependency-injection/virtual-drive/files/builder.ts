@@ -5,11 +5,10 @@ import { FileDeleter } from '../../../../../context/virtual-drive/files/applicat
 import { FilePathUpdater } from '../../../../../context/virtual-drive/files/application/FilePathUpdater';
 import { FilesByFolderPathSearcher } from '../../../../../context/virtual-drive/files/application/FilesByFolderPathSearcher';
 import { FilesSearcher } from '../../../../../context/virtual-drive/files/application/FilesSearcher';
-import { RepositoryPopulator } from '../../../../../context/virtual-drive/files/application/RepositoryPopulator';
+import { FileRepositoryInitializer } from '../../../../../context/virtual-drive/files/application/FileRepositoryInitializer';
 import { SameFileWasMoved } from '../../../../../context/virtual-drive/files/application/SameFileWasMoved';
 import { File } from '../../../../../context/virtual-drive/files/domain/File';
 import { FuseLocalFileSystem } from '../../../../../context/virtual-drive/files/infrastructure/FuseLocalFileSystem';
-import { InMemoryFileRepository } from '../../../../../context/virtual-drive/files/infrastructure/InMemoryFileRepository';
 import { MainProcessSyncFileMessenger } from '../../../../../context/virtual-drive/files/infrastructure/SyncFileMessengers/MainProcessSyncFileMessenger';
 import { SDKRemoteFileSystem } from '../../../../../context/virtual-drive/files/infrastructure/SDKRemoteFileSystem';
 import { DependencyInjectionHttpClientsProvider } from '../../common/clients';
@@ -20,20 +19,21 @@ import { DependencyInjectionUserProvider } from '../../common/user';
 import { FoldersContainer } from '../folders/FoldersContainer';
 import { SharedContainer } from '../shared/SharedContainer';
 import { FilesContainer } from './FilesContainer';
+import { InMemoryFileRepositorySingleton } from '../../../../shared/dependency-injection/virtual-drive/files/InMemoryFileRepositorySingleton';
 
 export async function buildFilesContainer(
   initialFiles: Array<File>,
   folderContainer: FoldersContainer,
   sharedContainer: SharedContainer
 ): Promise<FilesContainer> {
-  const repository = new InMemoryFileRepository();
+  const repository = InMemoryFileRepositorySingleton.instance;
   const eventRepository = DependencyInjectionEventRepository.get();
   const user = DependencyInjectionUserProvider.get();
   const sdk = await DependencyInjectionStorageSdk.get();
   const { bus: eventBus } = DependencyInjectionEventBus;
   const clients = DependencyInjectionHttpClientsProvider.get();
 
-  const repositoryPopulator = new RepositoryPopulator(repository);
+  const repositoryPopulator = new FileRepositoryInitializer(repository);
 
   await repositoryPopulator.run(initialFiles);
 

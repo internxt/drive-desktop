@@ -1,7 +1,7 @@
 import { File } from '../domain/File';
 import { FileRepository } from '../domain/FileRepository';
 
-export class RepositoryPopulator {
+export class FileRepositoryInitializer {
   constructor(private readonly repository: FileRepository) {}
 
   async run(files: Array<File>): Promise<void> {
