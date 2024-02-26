@@ -198,15 +198,6 @@ export function trackEvent(
   Logger.debug('Tracked event', event);
 
   client.track(payload);
-
-  client.flush((err: Error, batch: Array<any>) => {
-    if (err) {
-      Logger.error(err);
-      return;
-    }
-
-    Logger.debug('Flushed ', JSON.stringify(batch, null, 2));
-  });
 }
 
 export function trackError(
