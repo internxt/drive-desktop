@@ -1,4 +1,3 @@
-import { Nullable } from '../../../../../src/apps/shared/types/Nullable';
 import {
   File,
   FileAttributes,
@@ -10,7 +9,6 @@ export class FileRepositoryMock implements FileRepository {
   public readonly matchingPartialMock = jest.fn();
   public readonly searchByIdMock = jest.fn();
   public readonly searchByContentsIdMock = jest.fn();
-  public readonly listByPartialMock = jest.fn();
   public readonly deleteMock = jest.fn();
   public readonly addMock = jest.fn();
   public readonly updateMock = jest.fn();
@@ -19,12 +17,8 @@ export class FileRepositoryMock implements FileRepository {
     return this.allMock();
   }
 
-  matchingPartial(partial: Partial<FileAttributes>): Nullable<Array<File>> {
+  matchingPartial(partial: Partial<FileAttributes>): Array<File> {
     return this.matchingPartialMock(partial);
-  }
-
-  listByPartial(partial: Partial<FileAttributes>): Promise<File[]> {
-    return this.listByPartialMock(partial);
   }
 
   searchById(id: number): Promise<File | undefined> {

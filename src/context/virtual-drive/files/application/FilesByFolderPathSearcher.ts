@@ -12,7 +12,7 @@ export class FilesByFolderPathSearcher {
   async run(folderPath: string): Promise<Array<File['nameWithExtension']>> {
     const folder = this.folderFinder.run(folderPath);
 
-    const files = await this.repository.listByPartial({
+    const files = this.repository.matchingPartial({
       folderId: folder.id,
       status: FileStatuses.EXISTS,
     });
