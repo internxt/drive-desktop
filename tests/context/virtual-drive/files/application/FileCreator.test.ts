@@ -95,9 +95,9 @@ describe('File Creator', () => {
       contentsId: contents.id,
     }).attributes();
 
-    fileRepository.searchByPartialMock
-      .mockReturnValueOnce(existingFile)
-      .mockReturnValueOnce(existingFile);
+    fileRepository.matchingPartialMock
+      .mockReturnValueOnce([existingFile])
+      .mockReturnValueOnce([existingFile]);
 
     const deleterSpy = jest
       .spyOn(fileDeleter, 'run')

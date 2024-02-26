@@ -7,7 +7,7 @@ import { FileRepository } from '../../../../../src/context/virtual-drive/files/d
 
 export class FileRepositoryMock implements FileRepository {
   public readonly allMock = jest.fn();
-  public readonly searchByPartialMock = jest.fn();
+  public readonly matchingPartialMock = jest.fn();
   public readonly searchByIdMock = jest.fn();
   public readonly searchByContentsIdMock = jest.fn();
   public readonly listByPartialMock = jest.fn();
@@ -20,7 +20,7 @@ export class FileRepositoryMock implements FileRepository {
   }
 
   matchingPartial(partial: Partial<FileAttributes>): Nullable<Array<File>> {
-    return this.searchByPartialMock(partial);
+    return this.matchingPartialMock(partial);
   }
 
   listByPartial(partial: Partial<FileAttributes>): Promise<File[]> {

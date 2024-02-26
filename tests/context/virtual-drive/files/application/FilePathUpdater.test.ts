@@ -41,7 +41,7 @@ describe('File path updater', () => {
     const fileToRename = FileMother.any();
     const fileWithDestinationPath = undefined;
 
-    repository.searchByPartialMock
+    singleFileMatchingTestClass.mock
       .mockReturnValueOnce(fileToRename)
       .mockReturnValueOnce(fileWithDestinationPath);
 
@@ -63,7 +63,7 @@ describe('File path updater', () => {
     const fileToRename = FileMother.any();
     const fileWithDestinationPath = undefined;
 
-    repository.searchByPartialMock
+    singleFileMatchingTestClass.mock
       .mockReturnValueOnce(fileToRename)
       .mockReturnValueOnce(fileWithDestinationPath);
 
@@ -81,7 +81,7 @@ describe('File path updater', () => {
     const fileInDestination = undefined;
     const localFileId = '1-2';
 
-    repository.searchByPartialMock
+    singleFileMatchingTestClass.mock
       .mockReturnValueOnce(fileToMove)
       .mockReturnValueOnce(fileInDestination);
 
