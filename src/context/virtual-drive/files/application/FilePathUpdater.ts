@@ -1,23 +1,25 @@
-import { ActionNotPermittedError } from '../domain/errors/ActionNotPermittedError';
-import { FileAlreadyExistsError } from '../domain/errors/FileAlreadyExistsError';
-import { FilePath } from '../domain/FilePath';
-import { File } from '../domain/File';
+import Logger from 'electron-log';
 import { FolderFinder } from '../../folders/application/FolderFinder';
 import { EventBus } from '../../shared/domain/EventBus';
+import { File } from '../domain/File';
+import { FilePath } from '../domain/FilePath';
 import { FileRepository } from '../domain/FileRepository';
-import { RemoteFileSystem } from '../domain/file-systems/RemoteFileSystem';
-import { LocalFileSystem } from '../domain/file-systems/LocalFileSystem';
+import { FileStatuses } from '../domain/FileStatus';
+import { ActionNotPermittedError } from '../domain/errors/ActionNotPermittedError';
+import { FileAlreadyExistsError } from '../domain/errors/FileAlreadyExistsError';
+import { FileNotFoundError } from '../domain/errors/FileNotFoundError';
 import { FileRenameFailedDomainEvent } from '../domain/events/FileRenameFailedDomainEvent';
 import { FileRenameStartedDomainEvent } from '../domain/events/FileRenameStartedDomainEvent';
-import { FileStatuses } from '../domain/FileStatus';
-import { FileNotFoundError } from '../domain/errors/FileNotFoundError';
-import Logger from 'electron-log';
+import { LocalFileSystem } from '../domain/file-systems/LocalFileSystem';
+import { RemoteFileSystem } from '../domain/file-systems/RemoteFileSystem';
+import { SingleFileMatchingSearcher } from './SingleFileMatchingSearcher';
 
 export class FilePathUpdater {
   constructor(
     private readonly remote: RemoteFileSystem,
     private readonly local: LocalFileSystem,
     private readonly repository: FileRepository,
+    private readonly singleFileMatching: SingleFileMatchingSearcher,
     private readonly folderFinder: FolderFinder,
     private readonly eventBus: EventBus
   ) {}
@@ -56,7 +58,7 @@ export class FilePathUpdater {
 
   async run(contentsId: string, posixRelativePath: string) {
     const destination = new FilePath(posixRelativePath);
-    const file = this.repository.searchByPartial({
+    const file = await this.singleFileMatching.run({
       contentsId,
       status: FileStatuses.EXISTS,
     });
@@ -76,7 +78,7 @@ export class FilePathUpdater {
       return;
     }
 
-    const destinationFile = this.repository.searchByPartial({
+    const destinationFile = this.repository.matchingPartial({
       path: destination.value,
       status: FileStatuses.EXISTS,
     });

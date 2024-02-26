@@ -29,13 +29,17 @@ export class FileCreator {
     size: number
   ): Promise<File> {
     try {
-      const existingFile = this.repository.searchByPartial({
+      const existingFiles = this.repository.matchingPartial({
         path: PlatformPathConverter.winToPosix(filePath.value),
         status: FileStatuses.EXISTS,
       });
 
-      if (existingFile) {
-        await this.fileDeleter.run(existingFile.contentsId);
+      if (existingFiles) {
+        await Promise.all(
+          existingFiles.map((existingFile) =>
+            this.fileDeleter.run(existingFile.contentsId)
+          )
+        );
       }
 
       const fileSize = new FileSize(size);

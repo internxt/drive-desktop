@@ -1,23 +1,25 @@
+import Logger from 'electron-log';
 import { EventRepository } from '../../shared/domain/EventRepository';
 import { FilePath } from '../domain/FilePath';
-import { FileRepository } from '../domain/FileRepository';
+import { FileStatuses } from '../domain/FileStatus';
 import { FileMovedDomainEvent } from '../domain/events/FileMovedDomainEvent';
-import Logger from 'electron-log';
 import { LocalFileSystem } from '../domain/file-systems/LocalFileSystem';
+import { SingleFileMatchingSearcher } from './SingleFileMatchingSearcher';
 
 // TODO: find a better name
 type WasMovedResult = { result: false } | { result: true; contentsId: string };
 
 export class SameFileWasMoved {
   constructor(
-    private readonly repository: FileRepository,
+    private readonly singleFileSearcher: SingleFileMatchingSearcher,
     private readonly localFileSystem: LocalFileSystem,
     private readonly eventHistory: EventRepository
   ) {}
 
   async run(path: FilePath): Promise<WasMovedResult> {
-    const fileInDestination = this.repository.searchByPartial({
+    const fileInDestination = await this.singleFileSearcher.run({
       path: path.value,
+      status: FileStatuses.EXISTS,
     });
 
     if (!fileInDestination) {
@@ -38,7 +40,7 @@ export class SameFileWasMoved {
       return { result: false };
     }
 
-    const file = this.repository.searchByPartial({
+    const file = await this.singleFileSearcher.run({
       contentsId: movedEvent.aggregateId,
     });
 

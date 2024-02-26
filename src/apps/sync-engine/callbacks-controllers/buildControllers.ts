@@ -27,7 +27,7 @@ export function buildControllers(container: SyncEngineDependencyContainer) {
   );
 
   const downloadFileController = new DownloadFileController(
-    container.fileFinderByContentsId,
+    container.singleFileMatchingFinder,
     container.contentsDownloader
   );
 

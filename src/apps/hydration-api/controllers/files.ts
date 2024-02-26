@@ -6,10 +6,12 @@ export function buildFilesControllers(container: DependencyContainer) {
   const getAll = async (_req: Request, res: Response) => {
     const files = await container.retrieveAllFiles.run();
 
-    res.status(200).send({ files });
+    const result = files.map((file) => file.attributes());
+
+    res.status(200).send({ files: result });
   };
 
-  const getByPartial = async (req: Request, res: Response) => {
+  const filter = async (req: Request, res: Response) => {
     const filter = Object.entries(req.query)
 
       .map(([key, param]) => {
@@ -29,8 +31,8 @@ export function buildFilesControllers(container: DependencyContainer) {
       return;
     }
 
-    res.status(200).send({ file });
+    res.status(200).send({ file: file.attributes() });
   };
 
-  return { getAll, getByPartial };
+  return { getAll, getByPartial: filter };
 }

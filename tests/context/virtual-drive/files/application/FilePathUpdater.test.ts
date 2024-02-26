@@ -7,11 +7,13 @@ import { EventBusMock } from '../../shared/__mock__/EventBusMock';
 import { FileRepositoryMock } from '../__mocks__/FileRepositoryMock';
 import { LocalFileSystemMock } from '../__mocks__/LocalFileSystemMock';
 import { RemoteFileSystemMock } from '../__mocks__/RemoteFileSystemMock';
+import { SingleFileMatchingTestClass } from '../__test-class__/SingleFileMatchingTestClass';
 import { FileMother } from '../domain/FileMother';
 
 describe('File path updater', () => {
   let repository: FileRepositoryMock;
   let folderFinder: FolderFinderMock;
+  let singleFileMatchingTestClass: SingleFileMatchingTestClass;
   let localFileSystem: LocalFileSystemMock;
   let eventBus: EventBusMock;
   let remoteFileSystemMock: RemoteFileSystemMock;
@@ -20,6 +22,7 @@ describe('File path updater', () => {
   beforeEach(() => {
     repository = new FileRepositoryMock();
     folderFinder = new FolderFinderMock();
+    singleFileMatchingTestClass = new SingleFileMatchingTestClass();
     eventBus = new EventBusMock();
     remoteFileSystemMock = new RemoteFileSystemMock();
     localFileSystem = new LocalFileSystemMock();
@@ -28,6 +31,7 @@ describe('File path updater', () => {
       remoteFileSystemMock,
       localFileSystem,
       repository,
+      singleFileMatchingTestClass,
       folderFinder as unknown as FolderFinder,
       eventBus
     );

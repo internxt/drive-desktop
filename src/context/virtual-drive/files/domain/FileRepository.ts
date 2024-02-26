@@ -3,7 +3,11 @@ import { File, FileAttributes } from './File';
 export interface FileRepository {
   all(): Promise<Array<File>>;
 
-  searchByPartial(partial: Partial<FileAttributes>): File | undefined;
+  matchingPartial(partial: Partial<FileAttributes>): Array<File> | undefined;
+
+  searchById(id: File['id']): Promise<File | undefined>;
+
+  searchByContentsId(id: File['contentsId']): Promise<File | undefined>;
 
   listByPartial(partial: Partial<FileAttributes>): Promise<Array<File>>;
 

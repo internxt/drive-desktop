@@ -27,9 +27,7 @@ export class FilesPlaceholderUpdater {
   }
 
   private async update(remote: File): Promise<void> {
-    const local = this.repository.searchByPartial({
-      contentsId: remote.contentsId,
-    });
+    const local = await this.repository.searchByContentsId(remote.contentsId);
 
     if (!local) {
       if (remote.status.is(FileStatuses.EXISTS)) {

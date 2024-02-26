@@ -4,7 +4,7 @@ import { FileCreator } from '../../../../../context/virtual-drive/files/applicat
 import { FileDeleter } from '../../../../../context/virtual-drive/files/application/FileDeleter';
 import { FilePathUpdater } from '../../../../../context/virtual-drive/files/application/FilePathUpdater';
 import { FilesByFolderPathSearcher } from '../../../../../context/virtual-drive/files/application/FilesByFolderPathSearcher';
-import { FilesSearcher } from '../../../../../context/virtual-drive/files/application/FilesSearcher';
+import { FirstsFileSearcher } from '../../../../../context/virtual-drive/files/application/FirstsFileSearcher';
 import { FileRepositoryInitializer } from '../../../../../context/virtual-drive/files/application/FileRepositoryInitializer';
 import { SameFileWasMoved } from '../../../../../context/virtual-drive/files/application/SameFileWasMoved';
 import { File } from '../../../../../context/virtual-drive/files/domain/File';
@@ -20,6 +20,7 @@ import { FoldersContainer } from '../folders/FoldersContainer';
 import { SharedContainer } from '../shared/SharedContainer';
 import { FilesContainer } from './FilesContainer';
 import { InMemoryFileRepositorySingleton } from '../../../../shared/dependency-injection/virtual-drive/files/InMemoryFileRepositorySingleton';
+import { SingleFileMatchingSearcher } from '../../../../../context/virtual-drive/files/application/SingleFileMatchingSearcher';
 
 export async function buildFilesContainer(
   initialFiles: Array<File>,
@@ -44,7 +45,7 @@ export async function buildFilesContainer(
     folderContainer.folderFinder
   );
 
-  const filesSearcher = new FilesSearcher(repository);
+  const filesSearcher = new FirstsFileSearcher(repository);
 
   const remoteFileSystem = new SDKRemoteFileSystem(
     sdk,
@@ -56,16 +57,19 @@ export async function buildFilesContainer(
     sharedContainer.relativePathToAbsoluteConverter
   );
 
+  const singleFileMatchingSearcher = new SingleFileMatchingSearcher(repository);
+
   const filePathUpdater = new FilePathUpdater(
     remoteFileSystem,
     localFileSystem,
     repository,
+    singleFileMatchingSearcher,
     folderContainer.folderFinder,
     eventBus
   );
 
   const sameFileWasMoved = new SameFileWasMoved(
-    repository,
+    singleFileMatchingSearcher,
     localFileSystem,
     eventRepository
   );
