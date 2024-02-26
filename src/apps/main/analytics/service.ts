@@ -51,7 +51,7 @@ export function applicationOpened() {
   );
 }
 
-export function userSignin() {
+export function userSigning() {
   const { uuid: userId, email } = ConfigStore.get('userData');
 
   client.identify(
@@ -73,7 +73,7 @@ export function userSignin() {
   );
 }
 
-export function userSigninFailed(email?: string) {
+export function userSigningFailed(email?: string) {
   const clientId = ConfigStore.get('clientId');
 
   client.identify(
