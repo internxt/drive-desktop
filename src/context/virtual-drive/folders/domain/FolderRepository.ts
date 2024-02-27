@@ -4,11 +4,10 @@ export interface FolderRepository {
   all(): Promise<Array<Folder>>;
 
   searchById(id: Folder['id']): Promise<Folder | undefined>;
+
   searchByUuid(id: Folder['uuid']): Promise<Folder | undefined>;
 
   matchingPartial(partial: Partial<FolderAttributes>): Array<Folder>;
-
-  listByPartial(partial: Partial<FolderAttributes>): Promise<Array<Folder>>;
 
   add(folder: Folder): Promise<void>;
 

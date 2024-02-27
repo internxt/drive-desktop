@@ -12,7 +12,7 @@ export class FoldersByParentPathLister {
   async run(folderPath: FolderPath): Promise<Array<Folder['name']>> {
     const parent = await this.parentFolderFinder.run(folderPath);
 
-    const folders = await this.repository.listByPartial({
+    const folders = this.repository.matchingPartial({
       parentId: parent.id,
     });
 
