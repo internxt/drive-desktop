@@ -1,5 +1,5 @@
 import { FilesByFolderPathSearcher } from '../../../../context/virtual-drive/files/application/FilesByFolderPathSearcher';
-import { FilesSearcher } from '../../../../context/virtual-drive/files/application/FilesSearcher';
+import { FirstsFileSearcher } from '../../../../context/virtual-drive/files/application/FirstsFileSearcher';
 import { RetrieveAllFiles } from '../../../../context/virtual-drive/files/application/RetrieveAllFiles';
 import { InMemoryFileRepositorySingleton } from '../../../shared/dependency-injection/virtual-drive/files/InMemoryFileRepositorySingleton';
 import { FoldersContainer } from '../folders/FoldersContainer';
@@ -12,10 +12,10 @@ export async function buildFilesContainer(
 
   const filesByFolderPathNameLister = new FilesByFolderPathSearcher(
     repository,
-    folderContainer.folderFinder
+    folderContainer.parentFolderFinder
   );
 
-  const filesSearcher = new FilesSearcher(repository);
+  const filesSearcher = new FirstsFileSearcher(repository);
 
   const retrieveAllFiles = new RetrieveAllFiles(repository);
 

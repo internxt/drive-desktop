@@ -1,21 +1,21 @@
 import { FolderPath } from '../../domain/FolderPath';
 import { OfflineFolder } from '../../domain/OfflineFolder';
 import { OfflineFolderRepository } from '../../domain/OfflineFolderRepository';
-import { FolderFinder } from '../FolderFinder';
+import { ParentFolderFinder } from '../ParentFolderFinder';
 import { FolderRepository } from '../../domain/FolderRepository';
 import { FolderId } from '../../domain/FolderId';
 
 export class OfflineFolderCreator {
   constructor(
-    private readonly folderFinder: FolderFinder,
+    private readonly parentFolderFinder: ParentFolderFinder,
     private readonly offlineRepository: OfflineFolderRepository,
     private readonly repository: FolderRepository
   ) {}
 
-  run(posixRelativePath: string): OfflineFolder {
+  async run(posixRelativePath: string): Promise<OfflineFolder> {
     const folderPath = new FolderPath(posixRelativePath);
 
-    const onlineFolder = this.repository.searchByPartial({
+    const onlineFolder = this.repository.matchingPartial({
       path: folderPath.value,
     });
 
@@ -23,7 +23,7 @@ export class OfflineFolderCreator {
       throw new Error('The folder already exists on remote');
     }
 
-    const parent = this.folderFinder.run(folderPath.dirname());
+    const parent = await this.parentFolderFinder.run(folderPath);
 
     const parentId = new FolderId(parent.id);
 

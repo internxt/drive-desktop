@@ -2,7 +2,6 @@ import crypt from '../../../../context/shared/infrastructure/crypt';
 import { CreateFilePlaceholderOnDeletionFailed } from '../../../../context/virtual-drive/files/application/CreateFilePlaceholderOnDeletionFailed';
 import { FileCreator } from '../../../../context/virtual-drive/files/application/FileCreator';
 import { FileDeleter } from '../../../../context/virtual-drive/files/application/FileDeleter';
-import { FileFinderByContentsId } from '../../../../context/virtual-drive/files/application/FileFinderByContentsId';
 import { FilePathUpdater } from '../../../../context/virtual-drive/files/application/FilePathUpdater';
 import { FilePlaceholderCreatorFromContentsId } from '../../../../context/virtual-drive/files/application/FilePlaceholderCreatorFromContentsId';
 import { FilesPlaceholderUpdater } from '../../../../context/virtual-drive/files/application/FilesPlaceholderUpdater';
@@ -25,6 +24,8 @@ import { DependencyInjectionVirtualDrive } from '../common/virtualDrive';
 import { FoldersContainer } from '../folders/FoldersContainer';
 import { SharedContainer } from '../shared/SharedContainer';
 import { FilesContainer } from './FilesContainer';
+import { SingleFileMatchingSearcher } from '../../../../context/virtual-drive/files/application/SingleFileMatchingSearcher';
+import { SingleFileMatchingFinder } from '../../../../context/virtual-drive/files/application/SingleFileMatchingFinder';
 
 export async function buildFilesContainer(
   folderContainer: FoldersContainer,
@@ -58,7 +59,8 @@ export async function buildFilesContainer(
 
   const repository = new InMemoryFileRepository();
 
-  const fileFinderByContentsId = new FileFinderByContentsId(repository);
+  const singleFileMatchingSearcher = new SingleFileMatchingSearcher(repository);
+  const singleFileMatchingFinder = new SingleFileMatchingFinder(repository);
 
   const fileDeleter = new FileDeleter(
     remoteFileSystem,
@@ -69,7 +71,7 @@ export async function buildFilesContainer(
   );
 
   const sameFileWasMoved = new SameFileWasMoved(
-    repository,
+    singleFileMatchingSearcher,
     localFileSystem,
     eventHistory
   );
@@ -78,14 +80,15 @@ export async function buildFilesContainer(
     remoteFileSystem,
     localFileSystem,
     repository,
-    folderContainer.folderFinder,
+    singleFileMatchingSearcher,
+    folderContainer.parentFolderFinder,
     eventBus
   );
 
   const fileCreator = new FileCreator(
     remoteFileSystem,
     repository,
-    folderContainer.folderFinder,
+    folderContainer.parentFolderFinder,
     fileDeleter,
     eventBus,
     syncFileMessenger
@@ -93,7 +96,7 @@ export async function buildFilesContainer(
 
   const filePlaceholderCreatorFromContentsId =
     new FilePlaceholderCreatorFromContentsId(
-      fileFinderByContentsId,
+      singleFileMatchingFinder,
       localFileSystem
     );
 
@@ -119,7 +122,6 @@ export async function buildFilesContainer(
   );
 
   const container: FilesContainer = {
-    fileFinderByContentsId,
     fileDeleter,
     filePathUpdater,
     fileCreator,
@@ -131,6 +133,7 @@ export async function buildFilesContainer(
     repositoryPopulator: repositoryPopulator,
     filesPlaceholderCreator,
     filesPlaceholderUpdater,
+    singleFileMatchingFinder,
   };
 
   return { container, subscribers: [] };

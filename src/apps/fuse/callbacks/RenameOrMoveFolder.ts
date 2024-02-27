@@ -3,6 +3,7 @@ import { FolderPath } from '../../../context/virtual-drive/folders/domain/Folder
 import { VirtualDriveDependencyContainer } from '../dependency-injection/virtual-drive/VirtualDriveDependencyContainer';
 import { FuseError, FuseUnknownError } from './FuseErrors';
 import { Either, left, right } from '../../../context/shared/domain/Either';
+import { FolderStatuses } from '../../../context/virtual-drive/folders/domain/FolderStatus';
 
 type RenameOrMoveRight = 'no-op' | 'success';
 
@@ -16,7 +17,10 @@ export class RenameOrMoveFolder {
     src: string,
     dest: string
   ): Promise<Either<FuseError, RenameOrMoveRight>> {
-    const folder = await this.container.folderSearcher.run({ path: src });
+    const folder = await this.container.singleFolderMatchingSearcher.run({
+      path: src,
+      status: FolderStatuses.EXISTS,
+    });
 
     if (!folder) {
       return right(RenameOrMoveFolder.NO_OP);

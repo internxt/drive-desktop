@@ -1,4 +1,4 @@
-import { FilesSearcher } from '../../../../../context/virtual-drive/files/application/FilesSearcher';
+import { FirstsFileSearcher } from '../../../../../context/virtual-drive/files/application/FirstsFileSearcher';
 import { FilesByFolderPathSearcher } from '../../../../../context/virtual-drive/files/application/FilesByFolderPathSearcher';
 import { FilePathUpdater } from '../../../../../context/virtual-drive/files/application/FilePathUpdater';
 import { FileCreator } from '../../../../../context/virtual-drive/files/application/FileCreator';
@@ -10,7 +10,7 @@ import { SyncFileMessenger } from '../../../../../context/virtual-drive/files/do
 
 export interface FilesContainer {
   filesByFolderPathNameLister: FilesByFolderPathSearcher;
-  filesSearcher: FilesSearcher;
+  filesSearcher: FirstsFileSearcher;
   filePathUpdater: FilePathUpdater;
   fileCreator: FileCreator;
   fileDeleter: FileDeleter;

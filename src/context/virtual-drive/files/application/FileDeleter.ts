@@ -18,10 +18,7 @@ export class FileDeleter {
   ) {}
 
   async run(contentsId: File['contentsId']): Promise<void> {
-    const file = this.repository.searchByPartial({
-      contentsId,
-      status: FileStatuses.EXISTS,
-    });
+    const file = await this.repository.searchByContentsId(contentsId);
 
     if (!file) {
       return;
@@ -32,7 +29,7 @@ export class FileDeleter {
       return;
     }
 
-    const allParentsExists = this.allParentFoldersStatusIsExists.run(
+    const allParentsExists = await this.allParentFoldersStatusIsExists.run(
       file.folderId
     );
 

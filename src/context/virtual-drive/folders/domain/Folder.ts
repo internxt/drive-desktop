@@ -9,6 +9,7 @@ import { FolderId } from './FolderId';
 import { FolderCreatedAt } from './FolderCreatedAt';
 import { FolderUpdatedAt } from './FolderUpdatedAt';
 import { FolderMovedDomainEvent } from './events/FolderMovedDomainEvent';
+import { FolderAlreadyTrashed } from './errors/FolderAlreadyTrashed';
 
 export type FolderAttributes = {
   id: number;
@@ -185,6 +186,10 @@ export class Folder extends AggregateRoot {
   }
 
   trash() {
+    if (!this._status.is(FolderStatuses.EXISTS)) {
+      throw new FolderAlreadyTrashed(this.name);
+    }
+
     this._status = this._status.changeTo(FolderStatuses.TRASHED);
     this._updatedAt = FolderUpdatedAt.now();
 

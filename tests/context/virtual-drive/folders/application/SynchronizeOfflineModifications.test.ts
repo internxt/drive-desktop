@@ -51,7 +51,7 @@ describe('Synchronize Offline Modifications', () => {
 
     await SUT.run(FolderUuid.random().value);
 
-    expect(repository.searchByPartialMock).not.toBeCalled();
+    expect(repository.matchingPartialMock).not.toBeCalled();
   });
 
   it('throws an error if there is no folder with the given uuid', async () => {
@@ -59,7 +59,7 @@ describe('Synchronize Offline Modifications', () => {
       .spyOn(offlineRepository, 'searchByPartial')
       .mockReturnValueOnce(OfflineFolderMother.random());
 
-    repository.searchByPartialMock.mockReturnValueOnce(undefined);
+    repository.matchingPartialMock.mockReturnValueOnce(undefined);
 
     try {
       await SUT.run(FolderUuid.random().value);
@@ -85,7 +85,7 @@ describe('Synchronize Offline Modifications', () => {
       .spyOn(offlineRepository, 'searchByPartial')
       .mockReturnValueOnce(offlineFolder);
 
-    repository.searchByPartialMock.mockReturnValueOnce(folder);
+    repository.matchingPartialMock.mockReturnValueOnce(folder);
 
     const renamerSpy = jest.spyOn(renamer, 'run');
 
@@ -112,7 +112,7 @@ describe('Synchronize Offline Modifications', () => {
 
     const renamerSpy = jest.spyOn(renamer, 'run');
 
-    repository.searchByPartialMock.mockReturnValueOnce(folder);
+    repository.matchingPartialMock.mockReturnValueOnce([folder]);
 
     const event = new FolderRenamedDomainEvent({
       aggregateId: offlineFolder.uuid,
@@ -155,9 +155,9 @@ describe('Synchronize Offline Modifications', () => {
 
     const renamerSpy = jest.spyOn(renamer, 'run');
 
-    repository.searchByPartialMock
-      .mockReturnValueOnce(afterCreation)
-      .mockReturnValueOnce(afterFirstRename);
+    repository.matchingPartialMock
+      .mockReturnValueOnce([afterCreation])
+      .mockReturnValueOnce([afterFirstRename]);
 
     const uuid = offlineFolder.uuid;
 

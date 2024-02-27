@@ -40,7 +40,7 @@ describe('Folder Path Updater', () => {
 
   it('throws a Folder Not Found Error if not folder is founded', async () => {
     const { uuid, destination } = provideInputs();
-    repository.searchByPartialMock.mockReturnValueOnce(undefined);
+    repository.matchingPartialMock.mockReturnValueOnce([]);
 
     try {
       await folderPathUpdater.run(uuid, destination);
@@ -53,7 +53,7 @@ describe('Folder Path Updater', () => {
     const folder = FolderMother.any();
     const destination = FolderPathMother.any();
 
-    repository.searchByPartialMock.mockReturnValueOnce(folder);
+    repository.matchingPartialMock.mockReturnValueOnce([folder]);
 
     try {
       await folderPathUpdater.run(folder.uuid, destination.value);
@@ -66,7 +66,7 @@ describe('Folder Path Updater', () => {
     const folder = FolderMother.any();
     const folderPathWithNewName = FolderPathMother.onFolder(folder.dirname);
 
-    repository.searchByPartialMock.mockReturnValueOnce(folder);
+    repository.matchingPartialMock.mockReturnValueOnce([folder]);
 
     await folderPathUpdater.run(folder.uuid, folderPathWithNewName.value);
 
@@ -84,7 +84,7 @@ describe('Folder Path Updater', () => {
       folder.name + '(1)'
     );
 
-    repository.searchByPartialMock.mockReturnValueOnce(folder);
+    repository.matchingPartialMock.mockReturnValueOnce([folder]);
 
     await folderPathUpdater.run(folder.uuid, desiredPath.value);
 
@@ -98,7 +98,7 @@ describe('Folder Path Updater', () => {
   it('throws a Path Has Not Changed Error if the path desired path is the same as the current', async () => {
     const folder = FolderMother.any();
 
-    repository.searchByPartialMock.mockReturnValueOnce(folder);
+    repository.matchingPartialMock.mockReturnValueOnce([folder]);
 
     try {
       await folderPathUpdater.run(folder.uuid, folder.path);
