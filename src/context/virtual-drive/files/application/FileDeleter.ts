@@ -29,7 +29,7 @@ export class FileDeleter {
       return;
     }
 
-    const allParentsExists = this.allParentFoldersStatusIsExists.run(
+    const allParentsExists = await this.allParentFoldersStatusIsExists.run(
       file.folderId
     );
 

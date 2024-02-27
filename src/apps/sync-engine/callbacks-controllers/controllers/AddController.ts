@@ -113,7 +113,7 @@ export class AddController extends CallbackController {
     posixRelativePath: string
   ): Promise<OfflineFolder> {
     try {
-      return this.offlineFolderCreator.run(posixRelativePath);
+      return await this.offlineFolderCreator.run(posixRelativePath);
     } catch (error) {
       if (error instanceof FolderNotFoundError) {
         // father created
