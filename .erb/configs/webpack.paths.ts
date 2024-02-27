@@ -4,12 +4,12 @@ const rootPath = path.join(__dirname, '../..');
 
 const dllPath = path.join(__dirname, '../dll');
 
-const srcPath = path.join(rootPath, 'src');
+const srcPath = path.join(rootPath, 'src', 'apps');
 const srcMainPath = path.join(srcPath, 'main');
 const srcRendererPath = path.join(srcPath, 'renderer');
 const srcSyncPath = path.join(srcPath, 'workers', 'sync');
 const srcBackupsPath = path.join(srcPath, 'workers', 'backups');
-const srcSyncEnginePath = path.join(srcPath, 'workers', 'sync-engine');
+const srcSyncEnginePath = path.join(srcPath, 'sync-engine');
 
 const releasePath = path.join(rootPath, 'release');
 const appPath = path.join(releasePath, 'app');
