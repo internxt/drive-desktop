@@ -60,9 +60,10 @@ export class GetAttributesCallback extends FuseCallback<GetAttributesCallbackDat
       });
     }
 
-    const folder = await this.virtualDriveContainer.folderSearcher.run({
-      path,
-    });
+    const folder =
+      await this.virtualDriveContainer.singleFolderMatchingSearcher.run({
+        path,
+      });
 
     if (folder) {
       return this.right({

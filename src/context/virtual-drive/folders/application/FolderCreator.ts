@@ -7,38 +7,38 @@ import { FolderRepository } from '../domain/FolderRepository';
 import { FolderStatuses } from '../domain/FolderStatus';
 import { FolderUpdatedAt } from '../domain/FolderUpdatedAt';
 import { FolderUuid } from '../domain/FolderUuid';
-import { FolderAlreadyExists } from '../domain/errors/FolderAlreadyExists';
+import { FolderInPathAlreadyExistsError } from '../domain/errors/FolderInPathAlreadyExistsError';
 import { RemoteFileSystem } from '../domain/file-systems/RemoteFileSystem';
-import { SingleFolderMatchingFinder } from './SingleFolderMatchingFinder';
+import { ParentFolderFinder } from './ParentFolderFinder';
 
 export class FolderCreator {
   constructor(
     private readonly repository: FolderRepository,
-    private readonly singleFolderFinder: SingleFolderMatchingFinder,
+    private readonly parentFolderFinder: ParentFolderFinder,
     private readonly remote: RemoteFileSystem,
     private readonly eventBus: EventBus
   ) {}
 
-  private ensureItDoesNotExists(path: FolderPath): void {
-    const folder = this.repository.matchingPartial({
+  private async ensureItDoesNotExists(path: FolderPath): Promise<void> {
+    const result = this.repository.matchingPartial({
       path: path.value,
       status: FolderStatuses.EXISTS,
     });
 
-    if (folder.length > 0) {
-      throw new FolderAlreadyExists(folder[0]);
+    if (result.length > 0) {
+      throw new FolderInPathAlreadyExistsError(path);
     }
   }
 
   private async findParentId(path: FolderPath): Promise<FolderId> {
-    const parent = await this.singleFolderFinder.run({ path: path.value });
+    const parent = await this.parentFolderFinder.run(path);
     return new FolderId(parent.id);
   }
 
   async run(path: string): Promise<void> {
     const folderPath = new FolderPath(path);
 
-    this.ensureItDoesNotExists(folderPath);
+    await this.ensureItDoesNotExists(folderPath);
 
     const parentId = await this.findParentId(folderPath);
 

@@ -18,6 +18,7 @@ import { DependencyInjectionEventBus } from '../../common/eventBus';
 
 import { FoldersContainer } from './FoldersContainer';
 import { SingleFolderMatchingFinder } from '../../../../../context/virtual-drive/folders/application/SingleFolderMatchingFinder';
+import { SingleFolderMatchingSearcher } from '../../../../../context/virtual-drive/folders/application/SingleFolderMatchingSearcher';
 
 export async function buildFoldersContainer(
   initialFolders: Array<Folder>
@@ -43,6 +44,9 @@ export async function buildFoldersContainer(
 
   const parentFolderFinder = new ParentFolderFinder(repository);
   const singleFolderMatchingFinder = new SingleFolderMatchingFinder(repository);
+  const singleFolderMatchingSearcher = new SingleFolderMatchingSearcher(
+    repository
+  );
 
   const foldersByParentPathSearcher = new FoldersByParentPathLister(
     parentFolderFinder,
@@ -81,7 +85,7 @@ export async function buildFoldersContainer(
 
   const folderCreator = new FolderCreator(
     repository,
-    singleFolderMatchingFinder,
+    parentFolderFinder,
     remoteFileSystem,
     eventBus
   );
@@ -103,5 +107,7 @@ export async function buildFoldersContainer(
     folderDeleter,
     syncFolderMessenger,
     folderRepositoryInitiator,
+    singleFolderMatchingFinder,
+    singleFolderMatchingSearcher,
   };
 }
