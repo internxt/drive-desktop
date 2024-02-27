@@ -2,12 +2,12 @@ import { FolderPath } from '../../domain/FolderPath';
 import { OfflineFolder } from '../../domain/OfflineFolder';
 import { OfflineFolderRepository } from '../../domain/OfflineFolderRepository';
 import { ActionNotPermittedError } from '../../domain/errors/ActionNotPermittedError';
-import { FolderFinder } from '../FolderFinder';
+import { ParentFolderFinder } from '../ParentFolderFinder';
 
 export class OfflineFolderMover {
   constructor(
     private readonly offlineFolderRepository: OfflineFolderRepository,
-    private readonly folderFinder: FolderFinder
+    private readonly parentFolderFinder: ParentFolderFinder
   ) {}
 
   async run(folder: OfflineFolder, destination: FolderPath) {
@@ -21,7 +21,7 @@ export class OfflineFolderMover {
       throw new ActionNotPermittedError('overwrite');
     }
 
-    const destinationFolder = this.folderFinder.run(destination.dirname());
+    const destinationFolder = await this.parentFolderFinder.run(destination);
 
     folder.moveTo(destinationFolder);
     this.offlineFolderRepository.update(folder);

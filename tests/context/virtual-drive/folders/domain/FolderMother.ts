@@ -34,18 +34,6 @@ export class FolderMother {
     });
   }
 
-  static in(folderId: number, path: string) {
-    return Folder.from({
-      id: 20445,
-      uuid: FolderUuid.random().value,
-      path,
-      parentId: folderId,
-      updatedAt: new Date().toISOString(),
-      createdAt: new Date().toISOString(),
-      status: FolderStatuses.EXISTS,
-    });
-  }
-
   static withId(folderId: number) {
     return Folder.from({
       id: folderId,

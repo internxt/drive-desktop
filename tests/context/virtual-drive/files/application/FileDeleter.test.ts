@@ -43,7 +43,7 @@ describe('File Deleter', () => {
     repository.searchByContentsIdMock.mockReturnValueOnce(undefined);
     jest
       .spyOn(allParentFoldersStatusIsExists, 'run')
-      .mockReturnValueOnce(false);
+      .mockResolvedValueOnce(false);
 
     await SUT.run(contentsId);
 
@@ -56,7 +56,7 @@ describe('File Deleter', () => {
     repository.searchByContentsIdMock.mockReturnValueOnce(file);
     jest
       .spyOn(allParentFoldersStatusIsExists, 'run')
-      .mockReturnValueOnce(false);
+      .mockResolvedValueOnce(false);
 
     await SUT.run(file.contentsId);
 
@@ -67,7 +67,9 @@ describe('File Deleter', () => {
     const file = FileMother.any();
 
     repository.searchByContentsIdMock.mockReturnValueOnce(file);
-    jest.spyOn(allParentFoldersStatusIsExists, 'run').mockReturnValueOnce(true);
+    jest
+      .spyOn(allParentFoldersStatusIsExists, 'run')
+      .mockResolvedValueOnce(true);
 
     await SUT.run(file.contentsId);
 
@@ -78,7 +80,9 @@ describe('File Deleter', () => {
     const file = FileMother.any();
 
     repository.searchByContentsIdMock.mockReturnValueOnce(file);
-    jest.spyOn(allParentFoldersStatusIsExists, 'run').mockReturnValueOnce(true);
+    jest
+      .spyOn(allParentFoldersStatusIsExists, 'run')
+      .mockResolvedValueOnce(true);
 
     await SUT.run(file.contentsId);
 

@@ -16,7 +16,7 @@ export class FolderDeleter {
   ) {}
 
   async run(uuid: Folder['uuid']): Promise<void> {
-    const folder = this.repository.searchByPartial({ uuid });
+    const folder = await this.repository.searchByUuid(uuid);
 
     if (!folder) {
       throw new FolderNotFoundError(uuid);

@@ -78,9 +78,9 @@ export class FolderPlaceholderUpdater {
       return;
     }
 
-    const local = this.repository.searchByPartial({
+    const local = this.repository.matchingPartial({
       uuid: remote.uuid,
-    });
+    })[0];
 
     if (!local) {
       if (remote.hasStatus(FolderStatuses.EXISTS)) {

@@ -20,20 +20,36 @@ export class InMemoryFolderRepository implements FolderRepository {
     return Promise.resolve(folders);
   }
 
-  searchByPartial(partial: Partial<FolderAttributes>): Folder | undefined {
+  async searchById(id: Folder['id']): Promise<Folder | undefined> {
+    const attributes = this.folders.get(id);
+
+    if (!attributes) return;
+
+    return Folder.from(attributes);
+  }
+
+  async searchByUuid(id: Folder['uuid']): Promise<Folder | undefined> {
+    const folders = this.folders.values();
+
+    for (const attributes of folders) {
+      if (id === attributes.uuid) {
+        return Folder.from(attributes);
+      }
+    }
+
+    return undefined;
+  }
+
+  matchingPartial(partial: Partial<FolderAttributes>): Array<Folder> {
     const keys = Object.keys(partial) as Array<keyof Partial<FolderAttributes>>;
 
-    const folder = this.values.find((attributes) => {
+    const foldersAttributes = this.values.filter((attributes) => {
       return keys.every(
         (key: keyof FolderAttributes) => attributes[key] === partial[key]
       );
     });
 
-    if (folder) {
-      return Folder.from(folder);
-    }
-
-    return undefined;
+    return foldersAttributes.map((attributes) => Folder.from(attributes));
   }
 
   listByPartial(partial: Partial<FolderAttributes>): Promise<Folder[]> {

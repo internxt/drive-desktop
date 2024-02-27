@@ -3,7 +3,10 @@ import { Folder, FolderAttributes } from './Folder';
 export interface FolderRepository {
   all(): Promise<Array<Folder>>;
 
-  searchByPartial(partial: Partial<FolderAttributes>): Folder | undefined;
+  searchById(id: Folder['id']): Promise<Folder | undefined>;
+  searchByUuid(id: Folder['uuid']): Promise<Folder | undefined>;
+
+  matchingPartial(partial: Partial<FolderAttributes>): Array<Folder>;
 
   listByPartial(partial: Partial<FolderAttributes>): Promise<Array<Folder>>;
 

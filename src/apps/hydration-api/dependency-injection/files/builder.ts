@@ -12,7 +12,7 @@ export async function buildFilesContainer(
 
   const filesByFolderPathNameLister = new FilesByFolderPathSearcher(
     repository,
-    folderContainer.folderFinder
+    folderContainer.parentFolderFinder
   );
 
   const filesSearcher = new FirstsFileSearcher(repository);

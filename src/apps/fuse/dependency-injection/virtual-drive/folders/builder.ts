@@ -2,12 +2,11 @@ import { AllParentFoldersStatusIsExists } from '../../../../../context/virtual-d
 import { FolderCreator } from '../../../../../context/virtual-drive/folders/application/FolderCreator';
 import { FolderCreatorFromOfflineFolder } from '../../../../../context/virtual-drive/folders/application/FolderCreatorFromOfflineFolder';
 import { FolderDeleter } from '../../../../../context/virtual-drive/folders/application/FolderDeleter';
-import { FolderFinder } from '../../../../../context/virtual-drive/folders/application/FolderFinder';
+import { ParentFolderFinder } from '../../../../../context/virtual-drive/folders/application/ParentFolderFinder';
 import { FolderMover } from '../../../../../context/virtual-drive/folders/application/FolderMover';
 import { FolderPathUpdater } from '../../../../../context/virtual-drive/folders/application/FolderPathUpdater';
 import { FolderRenamer } from '../../../../../context/virtual-drive/folders/application/FolderRenamer';
 import { FolderRepositoryInitializer } from '../../../../../context/virtual-drive/folders/application/FolderRepositoryInitializer';
-import { FolderSearcher } from '../../../../../context/virtual-drive/folders/application/FolderSearcher';
 import { FoldersByParentPathLister } from '../../../../../context/virtual-drive/folders/application/FoldersByParentPathLister';
 import { Folder } from '../../../../../context/virtual-drive/folders/domain/Folder';
 import { FuseLocalFileSystem } from '../../../../../context/virtual-drive/folders/infrastructure/FuseLocalFileSystem';
@@ -18,6 +17,7 @@ import { DependencyInjectionHttpClientsProvider } from '../../common/clients';
 import { DependencyInjectionEventBus } from '../../common/eventBus';
 
 import { FoldersContainer } from './FoldersContainer';
+import { SingleFolderMatchingFinder } from '../../../../../context/virtual-drive/folders/application/SingleFolderMatchingFinder';
 
 export async function buildFoldersContainer(
   initialFolders: Array<Folder>
@@ -41,19 +41,18 @@ export async function buildFoldersContainer(
 
   await folderRepositoryInitiator.run(initialFolders);
 
-  const folderFinder = new FolderFinder(repository);
-
-  const folderSearcher = new FolderSearcher(repository);
+  const parentFolderFinder = new ParentFolderFinder(repository);
+  const singleFolderMatchingFinder = new SingleFolderMatchingFinder(repository);
 
   const foldersByParentPathSearcher = new FoldersByParentPathLister(
-    folderFinder,
+    parentFolderFinder,
     repository
   );
 
   const folderMover = new FolderMover(
     repository,
     remoteFileSystem,
-    folderFinder
+    parentFolderFinder
   );
 
   const folderRenamer = new FolderRenamer(
@@ -82,6 +81,7 @@ export async function buildFoldersContainer(
 
   const folderCreator = new FolderCreator(
     repository,
+    singleFolderMatchingFinder,
     remoteFileSystem,
     eventBus
   );
@@ -94,8 +94,7 @@ export async function buildFoldersContainer(
   );
 
   return {
-    folderFinder,
-    folderSearcher,
+    parentFolderFinder,
     foldersByParentPathLister: foldersByParentPathSearcher,
     folderPathUpdater,
     allParentFoldersStatusIsExists,

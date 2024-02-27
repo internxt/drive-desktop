@@ -42,7 +42,7 @@ export async function buildFilesContainer(
 
   const filesByFolderPathNameLister = new FilesByFolderPathSearcher(
     repository,
-    folderContainer.folderFinder
+    folderContainer.parentFolderFinder
   );
 
   const filesSearcher = new FirstsFileSearcher(repository);
@@ -64,7 +64,7 @@ export async function buildFilesContainer(
     localFileSystem,
     repository,
     singleFileMatchingSearcher,
-    folderContainer.folderFinder,
+    folderContainer.parentFolderFinder,
     eventBus
   );
 
@@ -85,7 +85,7 @@ export async function buildFilesContainer(
   const fileCreator = new FileCreator(
     remoteFileSystem,
     repository,
-    folderContainer.folderFinder,
+    folderContainer.parentFolderFinder,
     fileDeleter,
     eventBus,
     syncFileMessenger

@@ -4,38 +4,34 @@ import { FolderCreatedAt } from '../domain/FolderCreatedAt';
 import { FolderId } from '../domain/FolderId';
 import { FolderPath } from '../domain/FolderPath';
 import { FolderRepository } from '../domain/FolderRepository';
+import { FolderStatuses } from '../domain/FolderStatus';
 import { FolderUpdatedAt } from '../domain/FolderUpdatedAt';
 import { FolderUuid } from '../domain/FolderUuid';
 import { FolderAlreadyExists } from '../domain/errors/FolderAlreadyExists';
-import { FolderNotFoundError } from '../domain/errors/FolderNotFoundError';
 import { RemoteFileSystem } from '../domain/file-systems/RemoteFileSystem';
+import { SingleFolderMatchingFinder } from './SingleFolderMatchingFinder';
 
 export class FolderCreator {
   constructor(
     private readonly repository: FolderRepository,
+    private readonly singleFolderFinder: SingleFolderMatchingFinder,
     private readonly remote: RemoteFileSystem,
     private readonly eventBus: EventBus
   ) {}
 
   private ensureItDoesNotExists(path: FolderPath): void {
-    const folder = this.repository.searchByPartial({ path: path.value });
-
-    if (!folder) {
-      return;
-    }
-
-    throw new FolderAlreadyExists(folder);
-  }
-
-  private findParentId(path: FolderPath): FolderId {
-    const parent = this.repository.searchByPartial({
-      path: path.dirname(),
+    const folder = this.repository.matchingPartial({
+      path: path.value,
+      status: FolderStatuses.EXISTS,
     });
 
-    if (!parent) {
-      throw new FolderNotFoundError(path.dirname());
+    if (folder.length > 0) {
+      throw new FolderAlreadyExists(folder[0]);
     }
+  }
 
+  private async findParentId(path: FolderPath): Promise<FolderId> {
+    const parent = await this.singleFolderFinder.run({ path: path.value });
     return new FolderId(parent.id);
   }
 
@@ -44,7 +40,7 @@ export class FolderCreator {
 
     this.ensureItDoesNotExists(folderPath);
 
-    const parentId = this.findParentId(folderPath);
+    const parentId = await this.findParentId(folderPath);
 
     const response = await this.remote.persist(folderPath, parentId);
 

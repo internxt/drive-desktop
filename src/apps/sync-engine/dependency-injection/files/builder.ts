@@ -81,14 +81,14 @@ export async function buildFilesContainer(
     localFileSystem,
     repository,
     singleFileMatchingSearcher,
-    folderContainer.folderFinder,
+    folderContainer.parentFolderFinder,
     eventBus
   );
 
   const fileCreator = new FileCreator(
     remoteFileSystem,
     repository,
-    folderContainer.folderFinder,
+    folderContainer.parentFolderFinder,
     fileDeleter,
     eventBus,
     syncFileMessenger

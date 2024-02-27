@@ -1,8 +1,7 @@
 import { AllParentFoldersStatusIsExists } from '../../../../context/virtual-drive/folders/application/AllParentFoldersStatusIsExists';
-import { FolderByPartialSearcher } from '../../../../context/virtual-drive/folders/application/FolderByPartialSearcher';
 import { FolderCreatorFromOfflineFolder } from '../../../../context/virtual-drive/folders/application/FolderCreatorFromOfflineFolder';
 import { FolderDeleter } from '../../../../context/virtual-drive/folders/application/FolderDeleter';
-import { FolderFinder } from '../../../../context/virtual-drive/folders/application/FolderFinder';
+import { ParentFolderFinder } from '../../../../context/virtual-drive/folders/application/ParentFolderFinder';
 import { FolderMover } from '../../../../context/virtual-drive/folders/application/FolderMover';
 import { FolderPathUpdater } from '../../../../context/virtual-drive/folders/application/FolderPathUpdater';
 import { FolderRenamer } from '../../../../context/virtual-drive/folders/application/FolderRenamer';
@@ -50,7 +49,7 @@ export async function buildFoldersContainer(
     clients.newDrive
   );
 
-  const folderFinder = new FolderFinder(repository);
+  const parentFolderFinder = new ParentFolderFinder(repository);
 
   const allParentFoldersStatusIsExists = new AllParentFoldersStatusIsExists(
     repository
@@ -73,7 +72,7 @@ export async function buildFoldersContainer(
   const folderMover = new FolderMover(
     repository,
     remoteFileSystem,
-    folderFinder
+    parentFolderFinder
   );
   const folderRenamer = new FolderRenamer(
     repository,
@@ -81,8 +80,6 @@ export async function buildFoldersContainer(
     eventBus,
     syncFolderMessenger
   );
-
-  const folderByPartialSearcher = new FolderByPartialSearcher(repository);
 
   const folderPathUpdater = new FolderPathUpdater(
     repository,
@@ -92,14 +89,14 @@ export async function buildFoldersContainer(
 
   const offlineRepository = new InMemoryOfflineFolderRepository();
   const offlineFolderCreator = new OfflineFolderCreator(
-    folderFinder,
+    parentFolderFinder,
     offlineRepository,
     repository
   );
 
   const offlineFolderMover = new OfflineFolderMover(
     offlineRepository,
-    folderFinder
+    parentFolderFinder
   );
   const offlineFolderRenamer = new OfflineFolderRenamer(offlineRepository);
   const offlineFolderPathUpdater = new OfflineFolderPathUpdater(
@@ -133,11 +130,10 @@ export async function buildFoldersContainer(
 
   return {
     folderCreator,
-    folderFinder,
+    parentFolderFinder,
     folderDeleter,
     allParentFoldersStatusIsExists: allParentFoldersStatusIsExists,
     folderPathUpdater,
-    folderByPartialSearcher,
     synchronizeOfflineModificationsOnFolderCreated,
     offline: {
       folderCreator: offlineFolderCreator,

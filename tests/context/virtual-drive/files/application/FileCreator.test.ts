@@ -24,14 +24,14 @@ describe('File Creator', () => {
     remoteFileSystemMock = new RemoteFileSystemMock();
     fileRepository = new FileRepositoryMock();
     fileDeleter = FileDeleterFactory.deletionSuccess();
-    const folderFinder = FolderFinderFactory.existingFolder();
+    const parentFolderFinder = FolderFinderFactory.existingFolder();
     eventBus = new EventBusMock();
     notifier = new FileSyncNotifierMock();
 
     SUT = new FileCreator(
       remoteFileSystemMock,
       fileRepository,
-      folderFinder,
+      parentFolderFinder,
       fileDeleter,
       eventBus,
       notifier

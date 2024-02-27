@@ -1,5 +1,5 @@
 import Logger from 'electron-log';
-import { FolderFinder } from '../../folders/application/FolderFinder';
+import { ParentFolderFinder } from '../../folders/application/ParentFolderFinder';
 import { EventBus } from '../../shared/domain/EventBus';
 import { File } from '../domain/File';
 import { FilePath } from '../domain/FilePath';
@@ -20,7 +20,7 @@ export class FilePathUpdater {
     private readonly local: LocalFileSystem,
     private readonly repository: FileRepository,
     private readonly singleFileMatching: SingleFileMatchingSearcher,
-    private readonly folderFinder: FolderFinder,
+    private readonly parentFolderFinder: ParentFolderFinder,
     private readonly eventBus: EventBus
   ) {}
 
@@ -45,7 +45,7 @@ export class FilePathUpdater {
   private async move(file: File, destination: FilePath) {
     const trackerId = await this.local.getLocalFileId(file);
 
-    const destinationFolder = this.folderFinder.run(destination.dirname());
+    const destinationFolder = await this.parentFolderFinder.run(destination);
 
     file.moveTo(destinationFolder, trackerId);
 
