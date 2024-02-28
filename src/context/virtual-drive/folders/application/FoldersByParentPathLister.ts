@@ -1,19 +1,18 @@
 import { Folder } from '../domain/Folder';
-import { FolderPath } from '../domain/FolderPath';
 import { FolderRepository } from '../domain/FolderRepository';
-import { ParentFolderFinder } from './ParentFolderFinder';
+import { SingleFolderMatchingFinder } from './SingleFolderMatchingFinder';
 
 export class FoldersByParentPathLister {
   constructor(
-    private readonly parentFolderFinder: ParentFolderFinder,
+    private readonly SingleFolderMatchingFinder: SingleFolderMatchingFinder,
     private readonly repository: FolderRepository
   ) {}
 
-  async run(folderPath: FolderPath): Promise<Array<Folder['name']>> {
-    const parent = await this.parentFolderFinder.run(folderPath);
+  async run(path: string): Promise<Array<Folder['name']>> {
+    const folder = await this.SingleFolderMatchingFinder.run({ path });
 
     const folders = this.repository.matchingPartial({
-      parentId: parent.id,
+      parentId: folder.id,
     });
 
     return folders.map((folder) => folder.name);

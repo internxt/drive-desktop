@@ -24,14 +24,14 @@ export function buildFilesControllers(container: DependencyContainer) {
         };
       }, {});
 
-    const file = await container.filesSearcher.run(filter);
+    const files = await container.filesSearcherByPartialMatch.run(filter);
 
-    if (!file) {
+    if (!files) {
       res.sendStatus(404);
       return;
     }
 
-    res.status(200).send({ file: file.attributes() });
+    res.status(200).send({ files: files.map((file) => file.attributes()) });
   };
 
   return { getAll, getByPartial: filter };

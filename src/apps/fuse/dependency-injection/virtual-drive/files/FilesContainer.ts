@@ -7,6 +7,7 @@ import { FileDeleter } from '../../../../../context/virtual-drive/files/applicat
 import { CreateFileOnOfflineFileUploaded } from '../../../../../context/virtual-drive/files/application/CreateFileOnOfflineFileUplodaded';
 import { FileRepositoryInitializer } from '../../../../../context/virtual-drive/files/application/FileRepositoryInitializer';
 import { SyncFileMessenger } from '../../../../../context/virtual-drive/files/domain/SyncFileMessenger';
+import { FilesSearcherByPartialMatch } from '../../../../../context/virtual-drive/files/application/search-all/FilesSearcherByPartialMatch';
 
 export interface FilesContainer {
   filesByFolderPathNameLister: FilesByFolderPathSearcher;
@@ -17,6 +18,7 @@ export interface FilesContainer {
   sameFileWasMoved: SameFileWasMoved;
   repositoryPopulator: FileRepositoryInitializer;
   syncFileMessenger: SyncFileMessenger;
+  filesSearcherByPartialMatch: FilesSearcherByPartialMatch;
   // event handler
   createFileOnOfflineFileUploaded: CreateFileOnOfflineFileUploaded;
 }

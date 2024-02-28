@@ -1,5 +1,4 @@
-import { ParentFolderFinder } from '../../folders/application/ParentFolderFinder';
-import { FolderPath } from '../../folders/domain/FolderPath';
+import { SingleFolderMatchingFinder } from '../../folders/application/SingleFolderMatchingFinder';
 import { File } from '../domain/File';
 import { FileRepository } from '../domain/FileRepository';
 import { FileStatuses } from '../domain/FileStatus';
@@ -7,11 +6,11 @@ import { FileStatuses } from '../domain/FileStatus';
 export class FilesByFolderPathSearcher {
   constructor(
     private readonly repository: FileRepository,
-    private readonly parentFolderFinder: ParentFolderFinder
+    private readonly singleFolderMatchingFinder: SingleFolderMatchingFinder
   ) {}
 
-  async run(folderPath: FolderPath): Promise<Array<File['nameWithExtension']>> {
-    const folder = await this.parentFolderFinder.run(folderPath);
+  async run(path: string): Promise<Array<File['nameWithExtension']>> {
+    const folder = await this.singleFolderMatchingFinder.run({ path });
 
     const files = this.repository.matchingPartial({
       folderId: folder.id,

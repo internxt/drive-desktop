@@ -49,7 +49,7 @@ export async function buildFoldersContainer(
   );
 
   const foldersByParentPathSearcher = new FoldersByParentPathLister(
-    parentFolderFinder,
+    singleFolderMatchingFinder,
     repository
   );
 

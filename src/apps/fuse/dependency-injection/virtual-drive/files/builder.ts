@@ -21,6 +21,7 @@ import { SharedContainer } from '../shared/SharedContainer';
 import { FilesContainer } from './FilesContainer';
 import { InMemoryFileRepositorySingleton } from '../../../../shared/dependency-injection/virtual-drive/files/InMemoryFileRepositorySingleton';
 import { SingleFileMatchingSearcher } from '../../../../../context/virtual-drive/files/application/SingleFileMatchingSearcher';
+import { FilesSearcherByPartialMatch } from '../../../../../context/virtual-drive/files/application/search-all/FilesSearcherByPartialMatch';
 
 export async function buildFilesContainer(
   initialFiles: Array<File>,
@@ -42,7 +43,7 @@ export async function buildFilesContainer(
 
   const filesByFolderPathNameLister = new FilesByFolderPathSearcher(
     repository,
-    folderContainer.parentFolderFinder
+    folderContainer.singleFolderMatchingFinder
   );
 
   const filesSearcher = new FirstsFileSearcher(repository);
@@ -95,6 +96,10 @@ export async function buildFilesContainer(
     fileCreator
   );
 
+  const filesSearcherByPartialMatch = new FilesSearcherByPartialMatch(
+    repository
+  );
+
   return {
     filesByFolderPathNameLister,
     filesSearcher,
@@ -104,6 +109,7 @@ export async function buildFilesContainer(
     fileDeleter,
     repositoryPopulator,
     syncFileMessenger,
+    filesSearcherByPartialMatch,
     // event handlers
     createFileOnOfflineFileUploaded,
   };
