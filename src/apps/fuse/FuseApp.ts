@@ -11,6 +11,7 @@ import { TrashFolderCallback } from './callbacks/TrashFolderCallback';
 import { WriteCallback } from './callbacks/WriteCallback';
 import { ReleaseCallback } from './callbacks/ReleaseCallback';
 import { FuseDependencyContainer } from './dependency-injection/FuseDependencyContainer';
+import { ensureFolderExists } from './../shared/fs/ensure-folder-exists';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const fuse = require('@gcas/fuse');
@@ -72,11 +73,11 @@ export class FuseApp {
 
   async start(): Promise<void> {
     const ops = await this.getOpt();
+    ensureFolderExists(this.paths.root);
+    ensureFolderExists(this.paths.local);
 
     this._fuse = new fuse(this.paths.root, ops, {
       debug: false,
-      mkdir: true,
-      force: true,
       maxRead: FuseApp.MAX_INT_32,
     });
 
