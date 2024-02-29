@@ -1,5 +1,6 @@
 import { LocalFileSystem } from '../../../../../src/context/virtual-drive/files/domain/file-systems/LocalFileSystem';
 import { File } from '../../../../../src/context/virtual-drive/files/domain/File';
+import { PlaceholderState } from '../../../../../src/context/virtual-drive/files/domain/PlaceholderState';
 
 export class LocalFileSystemMock implements LocalFileSystem {
   public readonly createPlaceHolderMock = jest.fn();
@@ -7,6 +8,7 @@ export class LocalFileSystemMock implements LocalFileSystem {
   public readonly updateSyncStatusMock = jest.fn();
   public readonly convertToPlaceholderMock = jest.fn();
   public readonly getPlaceholderStateMock = jest.fn();
+  public readonly getPlaceholderStateByRelativePathMock = jest.fn();
 
   createPlaceHolder(file: File): Promise<void> {
     return this.createPlaceHolder(file);
@@ -26,5 +28,11 @@ export class LocalFileSystemMock implements LocalFileSystem {
 
   getPlaceholderState(file: File): Promise<void> {
     return this.getPlaceholderStateMock(file);
+  }
+
+  getPlaceholderStateByRelativePath(
+    relativePath: string
+  ): Promise<PlaceholderState> {
+    return this.getPlaceholderStateByRelativePathMock(relativePath);
   }
 }

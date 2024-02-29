@@ -8,6 +8,7 @@ import { File } from '../../../files/domain/File';
 import { DownloadOneShardStrategy } from '@internxt/inxt-js/build/lib/core';
 import { ActionState } from '@internxt/inxt-js/build/api';
 import { Stopwatch } from '../../../../../apps/shared/types/Stopwatch';
+import Logger from 'electron-log';
 
 export class EnvironmentContentFileDownloader implements ContentFileDownloader {
   private eventEmitter: EventEmitter;
@@ -47,13 +48,20 @@ export class EnvironmentContentFileDownloader implements ContentFileDownloader {
             this.eventEmitter.emit('progress', progress);
           },
           finishedCallback: async (err: Error, stream: Readable) => {
+            Logger.debug('[FinishedCallback] Stream is ready');
             this.stopwatch.finish();
 
             if (err) {
               this.eventEmitter.emit('error', err);
               return reject(err);
             }
+
             this.eventEmitter.emit('finish');
+
+            stream.on('close', () => {
+              Logger.debug('[FinishedCallback] Stream closed');
+              this.removeListeners();
+            });
 
             resolve(stream);
           },
@@ -78,5 +86,9 @@ export class EnvironmentContentFileDownloader implements ContentFileDownloader {
 
   elapsedTime(): number {
     return this.stopwatch.elapsedTime();
+  }
+
+  removeListeners(): void {
+    this.eventEmitter.removeAllListeners();
   }
 }

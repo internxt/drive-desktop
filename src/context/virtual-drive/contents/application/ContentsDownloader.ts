@@ -2,7 +2,6 @@ import Logger from 'electron-log';
 import path from 'path';
 import { Readable } from 'stream';
 import { ensureFolderExists } from '../../../../apps/shared/fs/ensure-folder-exists';
-import { CallbackDownload } from '../../../../apps/sync-engine/BindingManager';
 import { SyncEngineIpc } from '../../../../apps/sync-engine/ipcRendererSyncEngine';
 import { File } from '../../files/domain/File';
 import { EventBus } from '../../shared/domain/EventBus';
@@ -11,7 +10,7 @@ import { LocalFileContents } from '../domain/LocalFileContents';
 import { LocalFileWriter } from '../domain/LocalFileWriter';
 import { ContentFileDownloader } from '../domain/contentHandlers/ContentFileDownloader';
 import { TemporalFolderProvider } from './temporalFolderProvider';
-import { ipcRenderer } from 'electron';
+import * as fs from 'fs';
 
 export class ContentsDownloader {
   private readableDownloader: Readable | null;
@@ -25,11 +24,7 @@ export class ContentsDownloader {
     this.readableDownloader = null;
   }
 
-  private async registerEvents(
-    downloader: ContentFileDownloader,
-    file: File,
-    cb: CallbackDownload
-  ) {
+  private async registerEvents(downloader: ContentFileDownloader, file: File) {
     const location = await this.temporalFolderProvider();
     ensureFolderExists(location);
 
@@ -46,34 +41,22 @@ export class ContentsDownloader {
     });
 
     downloader.on('progress', async () => {
-      const result = await cb(true, filePath);
-      const hydrationProgress = result.progress;
+      Logger.debug('[Server] Download progress', filePath);
 
-      if (result.finished) {
-        downloader.forceStop();
-        Logger.debug('Downloader force stop', this.readableDownloader);
-        this.readableDownloader?.destroy();
-        this.readableDownloader?.emit('close');
-        this.ipc.send('FILE_DOWNLOADED', {
-          name: file.name,
-          extension: file.type,
-          nameWithExtension: file.nameWithExtension,
-          size: file.size,
-          processInfo: { elapsedTime: downloader.elapsedTime() },
-        });
-        ipcRenderer.send('CHECK_SYNC');
-      } else {
-        this.ipc.send('FILE_DOWNLOADING', {
-          name: file.name,
-          extension: file.type,
-          nameWithExtension: file.nameWithExtension,
-          size: file.size,
-          processInfo: {
-            elapsedTime: downloader.elapsedTime(),
-            progress: hydrationProgress,
-          },
-        });
-      }
+      const stats = fs.statSync(filePath);
+      const fileSizeInBytes = stats.size;
+      const progress = fileSizeInBytes / file.size;
+
+      this.ipc.send('FILE_DOWNLOADING', {
+        name: file.name,
+        extension: file.type,
+        nameWithExtension: file.nameWithExtension,
+        size: file.size,
+        processInfo: {
+          elapsedTime: downloader.elapsedTime(),
+          progress,
+        },
+      });
     });
 
     downloader.on('error', (error: Error) => {
@@ -86,18 +69,20 @@ export class ContentsDownloader {
     });
 
     downloader.on('finish', () => {
+      // cb(true, filePath);
       // The file download being finished does not mean it has been hidratated
       // TODO: We might want to track this time instead of the whole completion time
     });
   }
 
-  async run(file: File, cb: CallbackDownload): Promise<string> {
+  async run(file: File): Promise<string> {
     const downloader = this.managerFactory.downloader();
 
-    this.registerEvents(downloader, file, cb);
+    await this.registerEvents(downloader, file);
 
     const readable = await downloader.download(file);
     this.readableDownloader = readable;
+
     const localContents = LocalFileContents.downloadedFrom(
       file,
       readable,
@@ -108,6 +93,14 @@ export class ContentsDownloader {
 
     const events = localContents.pullDomainEvents();
     await this.eventBus.publish(events);
+
+    this.ipc.send('FILE_DOWNLOADED', {
+      name: file.name,
+      extension: file.type,
+      nameWithExtension: file.nameWithExtension,
+      size: file.size,
+      processInfo: { elapsedTime: downloader.elapsedTime() },
+    });
 
     return write;
   }
