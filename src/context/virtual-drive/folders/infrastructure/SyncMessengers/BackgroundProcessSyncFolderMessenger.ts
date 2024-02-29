@@ -1,4 +1,5 @@
 import { SyncEngineIpc } from '../../../../../apps/sync-engine/SyncEngineIpc';
+import { VirtualDriveFolderIssue } from '../../../../../shared/issues/VirtualDriveIssue';
 import { SyncMessenger } from '../../../../shared/domain/SyncMessenger';
 import { SyncFolderMessenger } from '../../domain/SyncFolderMessenger';
 
@@ -56,5 +57,9 @@ export class BackgroundProcessSyncFolderMessenger
 
   async errorWhileTrashing(_name: string): Promise<void> {
     // TODO: implement
+  }
+
+  error(_error: VirtualDriveFolderIssue): Promise<void> {
+    throw new Error('Method not implemented.');
   }
 }

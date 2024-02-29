@@ -8,6 +8,7 @@ import { getSettingsWindow } from './settings';
 import { getFeedbackWindow } from './feedback';
 import { getWidget } from './widget';
 import { openVirtualDriveRootFolder } from '../virtual-root-folder/service';
+import { VirtualDriveIssue } from '../../../shared/issues/VirtualDriveIssue';
 
 function closeAuxWindows() {
   getProcessIssuesWindow()?.close();
@@ -30,6 +31,14 @@ export function broadcastToWindows(eventName: string, data: any) {
   ];
 
   renderers.forEach((r) => r?.webContents.send(eventName, data));
+}
+
+export function notifyIssueToUser({ error, name }: VirtualDriveIssue) {
+  const windows = [getWidget(), getProcessIssuesWindow()];
+
+  windows.forEach((window) =>
+    window?.webContents.send('sync-info-update', { action: error, name })
+  );
 }
 
 export function setUpCommonWindowHandlers(window: BrowserWindow) {

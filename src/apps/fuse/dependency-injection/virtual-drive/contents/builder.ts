@@ -25,7 +25,7 @@ export async function buildContentsContainer(
   const mnemonic = DependencyInjectionMnemonicProvider.get();
   const { bus: eventBus } = DependencyInjectionEventBus;
 
-  const contentsActionNotifier = new MainProcessUploadProgressTracker();
+  const uploadProgressTracker = new MainProcessUploadProgressTracker();
 
   const environment = new Environment({
     bridgeUrl: process.env.BRIDGE_URL,
@@ -61,7 +61,7 @@ export async function buildContentsContainer(
     new FSLocalFileProvider(),
     sharedContainer.relativePathToAbsoluteConverter,
     eventBus,
-    contentsActionNotifier
+    uploadProgressTracker
   );
 
   const retryContentsUploader = new RetryContentsUploader(contentsUploader);

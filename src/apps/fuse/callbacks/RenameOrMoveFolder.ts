@@ -1,4 +1,4 @@
-import path from 'path';
+import { basename } from 'path';
 import { FolderPath } from '../../../context/virtual-drive/folders/domain/FolderPath';
 import { VirtualDriveDependencyContainer } from '../dependency-injection/virtual-drive/VirtualDriveDependencyContainer';
 import { FuseError, FuseUnknownError } from './FuseErrors';
@@ -43,14 +43,11 @@ export class RenameOrMoveFolder {
 
       return right(RenameOrMoveFolder.SUCCESS);
     } catch (throwed: unknown) {
-      const current = path.basename(src);
-      const desired = path.basename(dest);
-
-      await this.container.syncFolderMessenger.errorWhileRenaming(
-        current,
-        desired,
-        'message '
-      );
+      await this.container.syncFolderMessenger.error({
+        error: 'FOLDER_RENAME_ERROR',
+        cause: 'UNKNOWN',
+        name: basename(src),
+      });
 
       if (throwed instanceof FuseError) {
         return left(throwed);

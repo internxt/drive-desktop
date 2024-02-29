@@ -117,7 +117,7 @@ export class MainProcessSyncFileMessenger
     _message: string
   ): Promise<void> {
     broadcastToWindows('sync-info-update', {
-      action: 'RENAME_ERROR',
+      action: 'FOLDER_RENAME_ERROR',
       name: current,
     });
 

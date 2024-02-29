@@ -7,6 +7,24 @@ import {
   TrackedActions,
   ErrorContext,
 } from '../../shared/IPC/events/sync-engine';
+import {
+  VirtualDriveError,
+  isVirtualDriveFolderError,
+} from '../../../shared/issues/VirtualDriveError';
+import { VirtualDriveFolderIssue } from '../../../shared/issues/VirtualDriveIssue';
+
+const virtualDriveErrorToTrackedActionsMap = new Map<
+  VirtualDriveError,
+  TrackedActions
+>([
+  ['UPLOAD_ERROR', 'Upload Error'],
+  ['DOWNLOAD_ERROR', 'Download Error'],
+  ['RENAME_ERROR', 'Rename Error'],
+  ['DELETE_ERROR', 'Delete Error'],
+  // FOLDERS
+  ['FOLDER_RENAME_ERROR', 'Rename Error'],
+  ['FOLDER_CREATE_ERROR', 'Upload Error'],
+]);
 
 function platformShortName(platform: string) {
   switch (platform) {
@@ -212,6 +230,34 @@ export function trackError(
     item: context?.from ?? 'NO_ITEM_IN_CONTEXT',
     type: context?.itemType ?? 'NO_ITEM_TYPE_IN_CONTEXT',
     error: error.message,
+  };
+
+  const payload = {
+    userId: userData ? userData.uuid : undefined,
+    anonymousId: userData ? undefined : clientId,
+    event: event,
+    properties,
+    context: deviceContext,
+  };
+
+  client.track(payload);
+}
+
+export function trackVirtualDriveError(error: VirtualDriveFolderIssue) {
+  const event = virtualDriveErrorToTrackedActionsMap.get(error.error);
+
+  if (!event) {
+    // Error has no event associated to be tracked
+    return;
+  }
+
+  const userData = ConfigStore.get('userData');
+  const clientId = ConfigStore.get('clientId');
+
+  const properties = {
+    item: error.name,
+    error: error.cause,
+    type: isVirtualDriveFolderError(error.error) ? 'Folder' : 'File',
   };
 
   const payload = {
