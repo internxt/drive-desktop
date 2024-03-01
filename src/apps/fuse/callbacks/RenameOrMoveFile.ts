@@ -48,7 +48,7 @@ export class RenameOrMoveFile {
       const cause: SyncErrorCause =
         trowed instanceof DriveDesktopError ? trowed.syncErrorCause : 'UNKNOWN';
 
-      await this.container.syncFileMessenger.error({
+      await this.container.syncFileMessenger.issues({
         error: 'RENAME_ERROR',
         cause,
         name: path.basename(src),

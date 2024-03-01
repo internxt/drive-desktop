@@ -7,7 +7,7 @@ export class FileSyncNotifierMock implements SyncFileMessenger {
   public trashedMock = jest.fn();
   public renamingMock = jest.fn();
   public renamedMock = jest.fn();
-  public errorMock = jest.fn();
+  public issueMock = jest.fn();
 
   created(name: string, extension: string): Promise<void> {
     return this.createdMock(name, extension);
@@ -29,7 +29,7 @@ export class FileSyncNotifierMock implements SyncFileMessenger {
     return this.renamedMock(current, desired);
   }
 
-  error(error: VirtualDriveFileIssue): Promise<void> {
-    return this.errorMock(error);
+  issues(issue: VirtualDriveFileIssue): Promise<void> {
+    return this.issueMock(issue);
   }
 }

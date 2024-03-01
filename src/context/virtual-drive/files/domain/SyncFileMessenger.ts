@@ -6,5 +6,5 @@ export interface SyncFileMessenger {
   trashed(name: string, extension: string, size: number): Promise<void>;
   renaming(current: string, desired: string): Promise<void>;
   renamed(current: string, desired: string): Promise<void>;
-  error(error: VirtualDriveFileIssue): Promise<void>;
+  issues(issue: VirtualDriveFileIssue): Promise<void>;
 }

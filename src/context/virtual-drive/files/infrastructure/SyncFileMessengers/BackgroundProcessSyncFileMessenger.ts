@@ -65,7 +65,7 @@ export class BackgroundProcessSyncFileMessenger
     });
   }
 
-  async error(issue: VirtualDriveFileIssue): Promise<void> {
+  async issues(issue: VirtualDriveFileIssue): Promise<void> {
     const event = virtualDriveFileErrorToFileErrorKeyMap[issue.error];
 
     this.ipc.send(event, {

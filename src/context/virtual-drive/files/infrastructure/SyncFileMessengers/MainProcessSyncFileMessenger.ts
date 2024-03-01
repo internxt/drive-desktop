@@ -115,7 +115,7 @@ export class MainProcessSyncFileMessenger
     setTrayStatus('IDLE');
   }
 
-  async error(error: VirtualDriveFileIssue): Promise<void> {
+  async issues(error: VirtualDriveFileIssue): Promise<void> {
     setTrayStatus('ALERT');
 
     trackVirtualDriveError(error);

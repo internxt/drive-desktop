@@ -55,7 +55,7 @@ export class FileDeleter {
       const cause =
         error instanceof DriveDesktopError ? error.syncErrorCause : 'UNKNOWN';
 
-      await this.notifier.error({
+      await this.notifier.issues({
         error: 'DELETE_ERROR',
         cause,
         name: file.nameWithExtension,
