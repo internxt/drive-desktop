@@ -55,7 +55,11 @@ export class FileDeleter {
       const cause =
         error instanceof DriveDesktopError ? error.syncErrorCause : 'UNKNOWN';
 
-      this.notifier.errorWhileTrashing(file.name, file.type, cause);
+      await this.notifier.error({
+        error: 'DELETE_ERROR',
+        cause,
+        name: file.nameWithExtension,
+      });
 
       // TODO: add an event and an event handler to recreate placeholders if needed
       this.local.createPlaceHolder(file);

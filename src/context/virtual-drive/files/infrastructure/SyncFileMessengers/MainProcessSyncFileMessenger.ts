@@ -1,11 +1,15 @@
 import {
   trackError,
   trackEvent,
+  trackVirtualDriveError,
 } from '../../../../../apps/main/analytics/service';
 import { addVirtualDriveIssue } from '../../../../../apps/main/issues/virtual-drive';
 import { setTrayStatus } from '../../../../../apps/main/tray/tray';
 import { broadcastToWindows } from '../../../../../apps/main/windows';
-import { VirtualDriveIssue } from '../../../../../shared/issues/VirtualDriveIssue';
+import {
+  VirtualDriveFileIssue,
+  VirtualDriveIssue,
+} from '../../../../../shared/issues/VirtualDriveIssue';
 import { SyncMessenger } from '../../../../shared/domain/SyncMessenger';
 import { SyncFileMessenger } from '../../domain/SyncFileMessenger';
 
@@ -111,16 +115,11 @@ export class MainProcessSyncFileMessenger
     setTrayStatus('IDLE');
   }
 
-  async errorWhileRenaming(
-    current: string,
-    _desired: string,
-    _message: string
-  ): Promise<void> {
-    broadcastToWindows('sync-info-update', {
-      action: 'FOLDER_RENAME_ERROR',
-      name: current,
-    });
-
+  async error(error: VirtualDriveFileIssue): Promise<void> {
     setTrayStatus('ALERT');
+
+    trackVirtualDriveError(error);
+
+    addVirtualDriveIssue(error);
   }
 }

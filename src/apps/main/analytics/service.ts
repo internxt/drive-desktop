@@ -11,7 +11,7 @@ import {
   VirtualDriveError,
   isVirtualDriveFolderError,
 } from '../../../shared/issues/VirtualDriveError';
-import { VirtualDriveFolderIssue } from '../../../shared/issues/VirtualDriveIssue';
+import { VirtualDriveIssue } from '../../../shared/issues/VirtualDriveIssue';
 
 const virtualDriveErrorToTrackedActionsMap = new Map<
   VirtualDriveError,
@@ -243,7 +243,7 @@ export function trackError(
   client.track(payload);
 }
 
-export function trackVirtualDriveError(error: VirtualDriveFolderIssue) {
+export function trackVirtualDriveError(error: VirtualDriveIssue) {
   const event = virtualDriveErrorToTrackedActionsMap.get(error.error);
 
   if (!event) {
