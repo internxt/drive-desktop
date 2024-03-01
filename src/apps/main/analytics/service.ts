@@ -228,8 +228,8 @@ export function trackError(
   client.track(payload);
 }
 
-export function trackVirtualDriveError(error: VirtualDriveIssue) {
-  const event = virtualDriveErrorToTrackedActionsMap.get(error.error);
+export function trackVirtualDriveError(issue: VirtualDriveIssue) {
+  const event = virtualDriveErrorToTrackedActionsMap.get(issue.error);
 
   if (!event) {
     // Error has no event associated to be tracked
@@ -240,9 +240,9 @@ export function trackVirtualDriveError(error: VirtualDriveIssue) {
   const clientId = ConfigStore.get('clientId');
 
   const properties = {
-    item: error.name,
-    error: error.cause,
-    type: isVirtualDriveFolderError(error.error) ? 'Folder' : 'File',
+    item: issue.name,
+    error: issue.cause,
+    type: isVirtualDriveFolderError(issue.error) ? 'Folder' : 'File',
   };
 
   const payload = {
