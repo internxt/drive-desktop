@@ -50,7 +50,7 @@ export class MainProcessSyncFolderMessenger implements SyncFolderMessenger {
     });
   }
 
-  async error(issue: VirtualDriveFolderIssue): Promise<void> {
+  async issue(issue: VirtualDriveFolderIssue): Promise<void> {
     setTrayStatus('ALERT');
 
     trackVirtualDriveError(issue);

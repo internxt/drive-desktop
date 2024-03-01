@@ -17,7 +17,7 @@ export class MakeDirectoryCallback extends NotifyFuseCallback {
 
       return this.right();
     } catch (throwed: unknown) {
-      await this.container.syncFolderMessenger.error({
+      await this.container.syncFolderMessenger.issue({
         error: 'FOLDER_CREATE_ERROR',
         cause: 'UNKNOWN',
         name: basename(path),

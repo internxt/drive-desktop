@@ -19,7 +19,7 @@ export class TrashFolderCallback extends NotifyFuseCallback {
 
       return this.right();
     } catch (throwed: unknown) {
-      await this.container.syncFolderMessenger.error({
+      await this.container.syncFolderMessenger.issue({
         error: 'FOLDER_TRASH_ERROR',
         cause: 'UNKNOWN',
         name: basename(path),

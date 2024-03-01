@@ -1,15 +1,11 @@
 import { SyncEngineIpc } from '../../../../../apps/sync-engine/SyncEngineIpc';
 import { VirtualDriveFolderIssue } from '../../../../../shared/issues/VirtualDriveIssue';
-import { SyncMessenger } from '../../../../shared/domain/SyncMessenger';
 import { SyncFolderMessenger } from '../../domain/SyncFolderMessenger';
 
 export class BackgroundProcessSyncFolderMessenger
-  extends SyncMessenger
   implements SyncFolderMessenger
 {
-  constructor(private readonly ipc: SyncEngineIpc) {
-    super();
-  }
+  constructor(private readonly ipc: SyncEngineIpc) {}
 
   async creating(currentName: string): Promise<void> {
     this.ipc.send('FOLDER_CREATING', { name: currentName });
@@ -17,16 +13,6 @@ export class BackgroundProcessSyncFolderMessenger
 
   async created(currentName: string): Promise<void> {
     this.ipc.send('FOLDER_CREATED', { name: currentName });
-  }
-
-  async errorWhileCreating(
-    currentName: string,
-    message: string
-  ): Promise<void> {
-    this.ipc.send('FOLDER_CREATION_ERROR', {
-      name: currentName,
-      error: message,
-    });
   }
 
   async rename(currentName: string, desiredName: string): Promise<void> {
@@ -43,23 +29,7 @@ export class BackgroundProcessSyncFolderMessenger
     });
   }
 
-  async errorWhileRenaming(
-    currentName: string,
-    desiredName: string,
-    message: string
-  ): Promise<void> {
-    this.ipc.send('FOLDER_RENAME_ERROR', {
-      oldName: currentName,
-      newName: desiredName,
-      error: message,
-    });
-  }
-
-  async errorWhileTrashing(_name: string): Promise<void> {
+  async issue(_issue: VirtualDriveFolderIssue): Promise<void> {
     // TODO: implement
-  }
-
-  error(_error: VirtualDriveFolderIssue): Promise<void> {
-    throw new Error('Method not implemented.');
   }
 }

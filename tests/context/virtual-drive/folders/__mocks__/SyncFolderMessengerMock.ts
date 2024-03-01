@@ -6,7 +6,7 @@ export class SyncFolderMessengerMock implements SyncFolderMessenger {
   public createdMock = jest.fn();
   public renameMock = jest.fn();
   public renamedMock = jest.fn();
-  public errorMock = jest.fn();
+  public issuesMock = jest.fn();
 
   creating(name: string): Promise<void> {
     return this.creatingMock(name);
@@ -24,7 +24,7 @@ export class SyncFolderMessengerMock implements SyncFolderMessenger {
     return this.renamedMock(name, newName);
   }
 
-  error(error: VirtualDriveFolderIssue): Promise<void> {
-    return this.errorMock(error);
+  issue(error: VirtualDriveFolderIssue): Promise<void> {
+    return this.issuesMock(error);
   }
 }

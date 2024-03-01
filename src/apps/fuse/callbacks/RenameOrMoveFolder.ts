@@ -43,7 +43,7 @@ export class RenameOrMoveFolder {
 
       return right(RenameOrMoveFolder.SUCCESS);
     } catch (throwed: unknown) {
-      await this.container.syncFolderMessenger.error({
+      await this.container.syncFolderMessenger.issue({
         error: 'FOLDER_RENAME_ERROR',
         cause: 'UNKNOWN',
         name: basename(src),

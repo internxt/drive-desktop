@@ -5,5 +5,5 @@ export interface SyncFolderMessenger {
   created(desiredName: string): Promise<void>;
   rename(currentName: string, desiredName: string): Promise<void>;
   renamed(currentName: string, desiredName: string): Promise<void>;
-  error(error: VirtualDriveFolderIssue): Promise<void>;
+  issue(issue: VirtualDriveFolderIssue): Promise<void>;
 }
