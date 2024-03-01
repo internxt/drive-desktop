@@ -7,24 +7,9 @@ import {
   TrackedActions,
   ErrorContext,
 } from '../../shared/IPC/events/sync-engine';
-import {
-  VirtualDriveError,
-  isVirtualDriveFolderError,
-} from '../../../shared/issues/VirtualDriveError';
+import { isVirtualDriveFolderError } from '../../../shared/issues/VirtualDriveError';
 import { VirtualDriveIssue } from '../../../shared/issues/VirtualDriveIssue';
-
-const virtualDriveErrorToTrackedActionsMap = new Map<
-  VirtualDriveError,
-  TrackedActions
->([
-  ['UPLOAD_ERROR', 'Upload Error'],
-  ['DOWNLOAD_ERROR', 'Download Error'],
-  ['RENAME_ERROR', 'Rename Error'],
-  ['DELETE_ERROR', 'Delete Error'],
-  // FOLDERS
-  ['FOLDER_RENAME_ERROR', 'Rename Error'],
-  ['FOLDER_CREATE_ERROR', 'Upload Error'],
-]);
+import { virtualDriveErrorToTrackedActionsMap } from './helpers/virtualDriveErrorToTrackedActionsMap';
 
 function platformShortName(platform: string) {
   switch (platform) {
