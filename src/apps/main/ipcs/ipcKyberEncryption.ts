@@ -40,7 +40,7 @@ ipcMain.handle('encrypt', async (_, publicKey) => {
 
 ipcMain.handle('decrypt', async (_, encryptedData, privateKey) => {
   try {
-    const decryptedMessage = kyber.decrypt(encryptedData, privateKey);
+    const decryptedMessage = await kyber.decrypt(encryptedData, privateKey);
     return decryptedMessage;
   } catch (error) {
     console.error('Error during decryption:', error);
