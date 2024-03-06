@@ -143,7 +143,7 @@ export class Traverser {
         return folder;
       }).fold(
         (error) => {
-          Logger.warn(`[Traverser] Error adding folder:  ${error} `);
+          Logger.warn(`[Traverser] :  ${error} `);
           Sentry.captureException(error);
           this.ipc.send('SYNC_PROBLEM', {
             key: 'node-duplicated',
