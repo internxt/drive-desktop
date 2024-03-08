@@ -13,9 +13,6 @@ import { DatabaseCollectionAdapter } from '../database/adapters/base';
 import { Axios } from 'axios';
 import { DriveFolder } from '../database/entities/DriveFolder';
 import { DriveFile } from '../database/entities/DriveFile';
-//import fs
-import { promises as fs } from 'fs';
-import path from 'path';
 
 export class RemoteSyncManager {
   private foldersSyncStatus: RemoteSyncStatus = 'IDLE';
@@ -347,68 +344,6 @@ export class RemoteSyncManager {
       hasMore: boolean;
       result: RemoteSyncedFile[];
     };
-
-    // params.status = 'TRASHED';
-
-    // const trashedResponse = await this.config.httpClient.get(
-    //   `${process.env.NEW_DRIVE_URL}/drive/files`,
-    //   {
-    //     params,
-    //   }
-    // );
-
-    // // merge both responses
-    // const response = {
-    //   status: existsResponse.status,
-    //   data: [...existsResponse.data, ...trashedResponse.data],
-    // };
-
-    // // Logger.info(
-    // //   `Requesting files with params ${JSON.stringify(params, null, 2)}`
-    // // );
-    // // const response = await this.config.httpClient.get(
-    // //   `${process.env.NEW_DRIVE_URL}/drive/files`,
-    // //   {
-    // //     params,
-    // //   }
-    // // );
-
-    // Logger.debug('[Server files]', response.data);
-
-    // if (response.status > 299) {
-    //   throw new Error(
-    //     `Fetch files response not ok with body ${JSON.stringify(
-    //       response.data,
-    //       null,
-    //       2
-    //     )} and status ${response.status}`
-    //   );
-    // }
-
-    // if (Array.isArray(response.data)) {
-    //   Logger.info(`Received ${response.data.length} fetched files`);
-    // } else {
-    //   Logger.info(
-    //     `Expected to receive an array of files, but instead received ${JSON.stringify(
-    //       response,
-    //       null,
-    //       2
-    //     )}`
-    //   );
-
-    //   throw new Error('Did not receive an array of files');
-    // }
-
-    // const hasMore =
-    //   response.data.length === this.config.fetchFilesLimitPerRequest;
-
-    // return {
-    //   hasMore,
-    //   result:
-    //     response.data && Array.isArray(response.data)
-    //       ? response.data.map(this.patchDriveFileResponseItem)
-    //       : [],
-    // };
   }
 
   private async fetchItems(
@@ -506,65 +441,6 @@ export class RemoteSyncManager {
       hasMore: boolean;
       result: RemoteSyncedFolder[];
     };
-    // params.status = 'EXISTS';
-
-    // const existsResponse = await this.config.httpClient.get(
-    //   `${process.env.NEW_DRIVE_URL}/drive/folders`,
-    //   {
-    //     params,
-    //   }
-    // );
-
-    // params.status = 'TRASHED';
-
-    // const trashedResponse = await this.config.httpClient.get(
-    //   `${process.env.NEW_DRIVE_URL}/drive/folders`,
-    //   {
-    //     params,
-    //   }
-    // );
-
-    // // merge both responses
-    // const response = {
-    //   status: existsResponse.status,
-    //   data: [...existsResponse.data, ...trashedResponse.data],
-    // };
-
-    // Logger.debug('[Server folders]', response.data);
-    // if (response.status > 299) {
-    //   throw new Error(
-    //     `Fetch files response not ok with body ${JSON.stringify(
-    //       response.data,
-    //       null,
-    //       2
-    //     )} and status ${response.status}`
-    //   );
-    // }
-
-    // if (Array.isArray(response.data)) {
-    //   Logger.info(`Received ${response.data.length} fetched folders`);
-    // } else {
-    //   Logger.info(
-    //     `Expected to receive an array of folders, but instead received ${JSON.stringify(
-    //       response,
-    //       null,
-    //       2
-    //     )}`
-    //   );
-
-    //   throw new Error('Did not receive an array of folders');
-    // }
-
-    // const hasMore =
-    //   response.data.length === this.config.fetchFilesLimitPerRequest;
-
-    // return {
-    //   hasMore,
-    //   result:
-    //     response.data && Array.isArray(response.data)
-    //       ? response.data.map(this.patchDriveFolderResponseItem)
-    //       : [],
-    // };
   }
 
   private patchDriveFolderResponseItem = (payload: any): RemoteSyncedFolder => {

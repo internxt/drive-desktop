@@ -46,8 +46,8 @@ export class Traverser {
       decrypt,
       ipc,
       baseFolderId,
-      [ServerFileStatus.EXISTS],
-      [ServerFolderStatus.EXISTS]
+      [ServerFileStatus.EXISTS, ServerFileStatus.TRASHED],
+      [ServerFolderStatus.EXISTS, ServerFolderStatus.TRASHED]
     );
   }
 
