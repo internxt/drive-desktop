@@ -82,7 +82,7 @@ export class Traverser {
     });
 
     filesInThisFolder.forEach((serverFile) => {
-      if (!this.fileStatusesToFilter.includes(serverFile.status)) {
+      if (serverFile.status !== ServerFileStatus.EXISTS) {
         return;
       }
 
