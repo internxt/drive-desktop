@@ -13,6 +13,9 @@ import { DatabaseCollectionAdapter } from '../database/adapters/base';
 import { Axios } from 'axios';
 import { DriveFolder } from '../database/entities/DriveFolder';
 import { DriveFile } from '../database/entities/DriveFile';
+//import fs
+import { promises as fs } from 'fs';
+import path from 'path';
 
 export class RemoteSyncManager {
   private foldersSyncStatus: RemoteSyncStatus = 'IDLE';
@@ -335,55 +338,149 @@ export class RemoteSyncManager {
     const params = {
       limit: this.config.fetchFilesLimitPerRequest,
       offset: 0,
-      status: 'EXISTS',
+      status: '',
       updatedAt: updatedAtCheckpoint
         ? updatedAtCheckpoint.toISOString()
         : undefined,
     };
+    return (await this.fetchItems(params, 'files')) as {
+      hasMore: boolean;
+      result: RemoteSyncedFile[];
+    };
 
-    Logger.info(
-      `Requesting files with params ${JSON.stringify(params, null, 2)}`
-    );
-    const response = await this.config.httpClient.get(
-      `${process.env.NEW_DRIVE_URL}/drive/files`,
-      {
-        params,
-      }
-    );
+    // params.status = 'TRASHED';
 
-    if (response.status > 299) {
+    // const trashedResponse = await this.config.httpClient.get(
+    //   `${process.env.NEW_DRIVE_URL}/drive/files`,
+    //   {
+    //     params,
+    //   }
+    // );
+
+    // // merge both responses
+    // const response = {
+    //   status: existsResponse.status,
+    //   data: [...existsResponse.data, ...trashedResponse.data],
+    // };
+
+    // // Logger.info(
+    // //   `Requesting files with params ${JSON.stringify(params, null, 2)}`
+    // // );
+    // // const response = await this.config.httpClient.get(
+    // //   `${process.env.NEW_DRIVE_URL}/drive/files`,
+    // //   {
+    // //     params,
+    // //   }
+    // // );
+
+    // Logger.debug('[Server files]', response.data);
+
+    // if (response.status > 299) {
+    //   throw new Error(
+    //     `Fetch files response not ok with body ${JSON.stringify(
+    //       response.data,
+    //       null,
+    //       2
+    //     )} and status ${response.status}`
+    //   );
+    // }
+
+    // if (Array.isArray(response.data)) {
+    //   Logger.info(`Received ${response.data.length} fetched files`);
+    // } else {
+    //   Logger.info(
+    //     `Expected to receive an array of files, but instead received ${JSON.stringify(
+    //       response,
+    //       null,
+    //       2
+    //     )}`
+    //   );
+
+    //   throw new Error('Did not receive an array of files');
+    // }
+
+    // const hasMore =
+    //   response.data.length === this.config.fetchFilesLimitPerRequest;
+
+    // return {
+    //   hasMore,
+    //   result:
+    //     response.data && Array.isArray(response.data)
+    //       ? response.data.map(this.patchDriveFileResponseItem)
+    //       : [],
+    // };
+  }
+
+  private async fetchItems(
+    params: {
+      limit: number;
+      offset: number;
+      status: string;
+      updatedAt: string | undefined;
+    },
+    type: 'files' | 'folders'
+  ) {
+    const fetchWithStatus = async (status: string) => {
+      params.status = status;
+      return await this.config.httpClient.get(
+        `${process.env.NEW_DRIVE_URL}/drive/${type}`,
+        { params }
+      );
+    };
+
+    const [existingItemsResponse, trashedItemsResponse] = await Promise.all([
+      fetchWithStatus('EXISTS'),
+      fetchWithStatus('TRASHED'),
+    ]);
+
+    if (
+      existingItemsResponse.status > 299 ||
+      trashedItemsResponse.status > 299
+    ) {
       throw new Error(
-        `Fetch files response not ok with body ${JSON.stringify(
-          response.data,
+        `Fetch ${type} response not ok with body ${JSON.stringify(
+          existingItemsResponse.data,
           null,
           2
-        )} and status ${response.status}`
+        )} and status ${existingItemsResponse.status}`
       );
     }
 
-    if (Array.isArray(response.data)) {
-      Logger.info(`Received ${response.data.length} fetched files`);
+    if (
+      Array.isArray(existingItemsResponse.data) ||
+      Array.isArray(trashedItemsResponse.data)
+    ) {
+      Logger.info(
+        `Received ${
+          existingItemsResponse.data.length + trashedItemsResponse.data.length
+        } fetched ${type}`
+      );
     } else {
       Logger.info(
-        `Expected to receive an array of files, but instead received ${JSON.stringify(
-          response,
+        `Expected to receive an array of ${type}, but instead received ${JSON.stringify(
+          existingItemsResponse,
           null,
           2
         )}`
       );
 
-      throw new Error('Did not receive an array of files');
+      throw new Error(`Did not receive an array of ${type}`);
     }
 
     const hasMore =
-      response.data.length === this.config.fetchFilesLimitPerRequest;
+      existingItemsResponse.data.length === params.limit ||
+      trashedItemsResponse.data.length === params.limit;
 
     return {
       hasMore,
-      result:
-        response.data && Array.isArray(response.data)
-          ? response.data.map(this.patchDriveFileResponseItem)
-          : [],
+      result: [...existingItemsResponse.data, ...trashedItemsResponse.data].map(
+        (payload) => {
+          if (type === 'files') {
+            return this.patchDriveFileResponseItem(payload);
+          }
+          return this.patchDriveFolderResponseItem(payload);
+        }
+      ) as RemoteSyncedFile[] | RemoteSyncedFolder[],
     };
   }
 
@@ -399,55 +496,75 @@ export class RemoteSyncManager {
     const params = {
       limit: this.config.fetchFilesLimitPerRequest,
       offset: 0,
-      status: 'EXISTS',
+      status: '',
       updatedAt: updatedAtCheckpoint
         ? updatedAtCheckpoint.toISOString()
         : undefined,
     };
-    // Logger.info(
-    //   `Requesting folders with params ${JSON.stringify(params, null, 2)}`
-    // );
-    const response = await this.config.httpClient.get(
-      `${process.env.NEW_DRIVE_URL}/drive/folders`,
-      {
-        params,
-      }
-    );
 
-    if (response.status > 299) {
-      throw new Error(
-        `Fetch files response not ok with body ${JSON.stringify(
-          response.data,
-          null,
-          2
-        )} and status ${response.status}`
-      );
-    }
-
-    if (Array.isArray(response.data)) {
-      Logger.info(`Received ${response.data.length} fetched folders`);
-    } else {
-      Logger.info(
-        `Expected to receive an array of folders, but instead received ${JSON.stringify(
-          response,
-          null,
-          2
-        )}`
-      );
-
-      throw new Error('Did not receive an array of folders');
-    }
-
-    const hasMore =
-      response.data.length === this.config.fetchFilesLimitPerRequest;
-
-    return {
-      hasMore,
-      result:
-        response.data && Array.isArray(response.data)
-          ? response.data.map(this.patchDriveFolderResponseItem)
-          : [],
+    return (await this.fetchItems(params, 'folders')) as {
+      hasMore: boolean;
+      result: RemoteSyncedFolder[];
     };
+    // params.status = 'EXISTS';
+
+    // const existsResponse = await this.config.httpClient.get(
+    //   `${process.env.NEW_DRIVE_URL}/drive/folders`,
+    //   {
+    //     params,
+    //   }
+    // );
+
+    // params.status = 'TRASHED';
+
+    // const trashedResponse = await this.config.httpClient.get(
+    //   `${process.env.NEW_DRIVE_URL}/drive/folders`,
+    //   {
+    //     params,
+    //   }
+    // );
+
+    // // merge both responses
+    // const response = {
+    //   status: existsResponse.status,
+    //   data: [...existsResponse.data, ...trashedResponse.data],
+    // };
+
+    // Logger.debug('[Server folders]', response.data);
+    // if (response.status > 299) {
+    //   throw new Error(
+    //     `Fetch files response not ok with body ${JSON.stringify(
+    //       response.data,
+    //       null,
+    //       2
+    //     )} and status ${response.status}`
+    //   );
+    // }
+
+    // if (Array.isArray(response.data)) {
+    //   Logger.info(`Received ${response.data.length} fetched folders`);
+    // } else {
+    //   Logger.info(
+    //     `Expected to receive an array of folders, but instead received ${JSON.stringify(
+    //       response,
+    //       null,
+    //       2
+    //     )}`
+    //   );
+
+    //   throw new Error('Did not receive an array of folders');
+    // }
+
+    // const hasMore =
+    //   response.data.length === this.config.fetchFilesLimitPerRequest;
+
+    // return {
+    //   hasMore,
+    //   result:
+    //     response.data && Array.isArray(response.data)
+    //       ? response.data.map(this.patchDriveFolderResponseItem)
+    //       : [],
+    // };
   }
 
   private patchDriveFolderResponseItem = (payload: any): RemoteSyncedFolder => {
