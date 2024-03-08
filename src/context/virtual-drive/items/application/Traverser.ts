@@ -108,9 +108,18 @@ export class Traverser {
       ) {
         const localRootFolderPath =
           DependencyInjectionLocalRootFolderPath.get();
-
-        fs.unlinkSync(path.join(localRootFolderPath, relativeFilePath));
-        return;
+        try {
+          Logger.info(
+            `[Traverser] Removing file from local storage: ${relativeFilePath}`
+          );
+          fs.unlinkSync(path.join(localRootFolderPath, relativeFilePath));
+          return;
+        } catch (error) {
+          Logger.warn(
+            `[Traverser] Error removing file from local storage: ${error}`
+          );
+          return;
+        }
       }
 
       EitherTransformer.handleWithEither(() => {
