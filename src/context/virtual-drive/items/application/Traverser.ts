@@ -19,6 +19,9 @@ import {
 import { EitherTransformer } from '../../shared/application/EitherTransformer';
 import { NameDecrypt } from '../domain/NameDecrypt';
 import { Tree } from '../domain/Tree';
+import * as fs from 'fs';
+import * as path from 'path';
+import { DependencyInjectionLocalRootFolderPath } from '../../../../apps/sync-engine/dependency-injection/common/localRootFolderPath';
 
 type Items = {
   files: Array<ServerFile>;
@@ -82,7 +85,7 @@ export class Traverser {
     });
 
     filesInThisFolder.forEach((serverFile) => {
-      if (serverFile.status !== ServerFileStatus.EXISTS) {
+      if (!this.fileStatusesToFilter.includes(serverFile.status)) {
         return;
       }
 
@@ -98,6 +101,17 @@ export class Traverser {
           '//',
           '/'
         );
+
+      if (
+        serverFile.status === ServerFileStatus.REMOVED ||
+        serverFile.status === ServerFileStatus.TRASHED
+      ) {
+        const localRootFolderPath =
+          DependencyInjectionLocalRootFolderPath.get();
+
+        fs.unlinkSync(path.join(localRootFolderPath, relativeFilePath));
+        return;
+      }
 
       EitherTransformer.handleWithEither(() => {
         const file = createFileFromServerFile(serverFile, relativeFilePath);
