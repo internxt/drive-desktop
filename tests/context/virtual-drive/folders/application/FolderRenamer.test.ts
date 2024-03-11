@@ -10,14 +10,14 @@ import { SyncFolderMessengerMock } from '../__mocks__/SyncFolderMessengerMock';
 
 describe('Folder Renamer', () => {
   let repository: FolderRepositoryMock;
-  let remoteFS: FolderRemoteFileSystemMock;
+  let remote: FolderRemoteFileSystemMock;
   let syncFolderMessenger: SyncFolderMessengerMock;
   let renamer: FolderRenamer;
 
   beforeEach(() => {
     repository = new FolderRepositoryMock();
 
-    remoteFS = new FolderRemoteFileSystemMock();
+    remote = new FolderRemoteFileSystemMock();
 
     const eventBus = new EventBusMock();
 
@@ -25,38 +25,44 @@ describe('Folder Renamer', () => {
 
     renamer = new FolderRenamer(
       repository,
-      remoteFS,
+      remote,
       eventBus,
       syncFolderMessenger
     );
   });
 
-  const provideInputs = (): { folder: Folder; destination: FolderPath } => {
+  const setUpHappyPath = (): {
+    folder: Folder;
+    destination: FolderPath;
+    expectedFolder: Folder;
+  } => {
     const folder = FolderMother.any();
     const destination = FolderPathMother.onFolder(folder.dirname);
+
+    const expectedFolder = FolderMother.fromPartial({
+      path: destination.value,
+    });
+
+    remote.shouldRename(expectedFolder);
 
     return {
       folder,
       destination,
+      expectedFolder,
     };
   };
 
   describe('Remote syncing', () => {
     it('renames the folder with the new name', async () => {
-      const { folder, destination } = provideInputs();
+      const { folder, destination } = setUpHappyPath();
 
       await renamer.run(folder, destination);
-
-      expect(remoteFS.renameMock).toBeCalledTimes(1);
-      expect(remoteFS.renameMock).toBeCalledWith(
-        expect.objectContaining({ _path: destination })
-      );
     });
   });
 
   describe('Local syncing', () => {
     it('updates the local repository', async () => {
-      const { folder, destination } = provideInputs();
+      const { folder, destination } = setUpHappyPath();
 
       await renamer.run(folder, destination);
 
@@ -69,7 +75,7 @@ describe('Folder Renamer', () => {
 
   describe('Messaging', () => {
     it('sends a message when starts to rename', async () => {
-      const { folder, destination } = provideInputs();
+      const { folder, destination } = setUpHappyPath();
       const original = folder.name;
 
       await renamer.run(folder, destination);
@@ -82,7 +88,7 @@ describe('Folder Renamer', () => {
     });
 
     it('sends a message when the rename has been completed', async () => {
-      const { folder, destination } = provideInputs();
+      const { folder, destination } = setUpHappyPath();
       const original = folder.name;
 
       await renamer.run(folder, destination);

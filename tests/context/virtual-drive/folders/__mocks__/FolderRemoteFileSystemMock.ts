@@ -10,8 +10,8 @@ import {
 export class FolderRemoteFileSystemMock implements RemoteFileSystem {
   private readonly persistMock = jest.fn();
   private readonly trashMock = jest.fn();
-  public readonly moveMock = jest.fn();
-  public readonly renameMock = jest.fn();
+  private readonly moveMock = jest.fn();
+  private readonly renameMock = jest.fn();
 
   persist(
     path: FolderPath,
@@ -30,11 +30,23 @@ export class FolderRemoteFileSystemMock implements RemoteFileSystem {
   }
 
   move(folder: Folder): Promise<void> {
-    return this.moveMock(folder);
+    expect(this.moveMock).toBeCalledWith(
+      expect.objectContaining({
+        _path: new FolderPath(folder.path),
+        _id: new FolderId(folder.id as number),
+        _parentId: new FolderId(folder.parentId as number),
+      })
+    );
+
+    return this.moveMock();
   }
 
   rename(folder: Folder): Promise<void> {
-    return this.renameMock(folder);
+    expect(this.renameMock).toBeCalledWith(
+      expect.objectContaining({ _path: new FolderPath(folder.path) })
+    );
+
+    return this.renameMock();
   }
 
   shouldPersists(folder: Folder, includeUuid: boolean) {
@@ -62,5 +74,27 @@ export class FolderRemoteFileSystemMock implements RemoteFileSystem {
     }
 
     this.trashMock.mockReturnValue(Promise.resolve());
+  }
+
+  shouldRename(folder: Folder, error?: Error) {
+    this.renameMock(folder);
+
+    if (error) {
+      this.renameMock.mockRejectedValueOnce(error);
+      return;
+    }
+
+    this.renameMock.mockReturnValueOnce(Promise.resolve());
+  }
+
+  shouldMove(folder: Folder, error?: Error) {
+    this.moveMock(folder);
+
+    if (error) {
+      this.moveMock.mockRejectedValueOnce(error);
+      return;
+    }
+
+    this.moveMock.mockReturnValueOnce(Promise.resolve());
   }
 }

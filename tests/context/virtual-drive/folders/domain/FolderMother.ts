@@ -1,12 +1,15 @@
+import Chance from 'chance';
 import { File } from '../../../../../src/context/virtual-drive/files/domain/File';
-import { FolderStatuses } from '../../../../../src/context/virtual-drive/folders/domain/FolderStatus';
 import {
   Folder,
   FolderAttributes,
 } from '../../../../../src/context/virtual-drive/folders/domain/Folder';
+import { FolderPath } from '../../../../../src/context/virtual-drive/folders/domain/FolderPath';
+import { FolderStatuses } from '../../../../../src/context/virtual-drive/folders/domain/FolderStatus';
 import { FolderUuid } from '../../../../../src/context/virtual-drive/folders/domain/FolderUuid';
-import Chance from 'chance';
+import { FolderIdMother } from './FolderIdMother';
 import { FolderPathMother } from './FolderPathMother';
+
 const chance = new Chance();
 
 export class FolderMother {
@@ -24,7 +27,7 @@ export class FolderMother {
 
   static any() {
     return Folder.from({
-      id: 2048,
+      id: FolderIdMother.any().value,
       uuid: FolderUuid.random().value,
       path: FolderPathMother.any().value,
       parentId: null,
@@ -85,5 +88,12 @@ export class FolderMother {
   static fromPartial(partial: Partial<FolderAttributes>) {
     const any = FolderMother.any();
     return Folder.from({ ...any.attributes(), ...partial });
+  }
+
+  static createChildForm(root: Folder) {
+    return FolderMother.fromPartial({
+      path: FolderPathMother.onFolder(new FolderPath(root.path)).value,
+      parentId: root.id as number,
+    });
   }
 }
