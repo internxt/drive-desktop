@@ -1,17 +1,16 @@
 import { InvalidArgumentError } from '../../../../../src/context/shared/domain/errors/InvalidArgumentError';
 import { FolderCreator } from '../../../../../src/context/virtual-drive/folders/application/FolderCreator';
 import { ParentFolderFinder } from '../../../../../src/context/virtual-drive/folders/application/ParentFolderFinder';
-import { Folder } from '../../../../../src/context/virtual-drive/folders/domain/Folder';
-import { FolderId } from '../../../../../src/context/virtual-drive/folders/domain/FolderId';
 import { FolderStatuses } from '../../../../../src/context/virtual-drive/folders/domain/FolderStatus';
 import { FolderInPathAlreadyExistsError } from '../../../../../src/context/virtual-drive/folders/domain/errors/FolderInPathAlreadyExistsError';
 import { FolderNotFoundError } from '../../../../../src/context/virtual-drive/folders/domain/errors/FolderNotFoundError';
-import { FolderPersistedDto } from '../../../../../src/context/virtual-drive/folders/domain/file-systems/RemoteFileSystem';
 import { EventBusMock } from '../../shared/__mock__/EventBusMock';
 import { FolderRemoteFileSystemMock } from '../__mocks__/FolderRemoteFileSystemMock';
 import { FolderRepositoryMock } from '../__mocks__/FolderRepositoryMock';
 import { FolderMother } from '../domain/FolderMother';
 import { FolderPathMother } from '../domain/FolderPathMother';
+
+const WITH_NO_UUID = false;
 
 describe('Folder Creator', () => {
   let repository: FolderRepositoryMock;
@@ -29,16 +28,6 @@ describe('Folder Creator', () => {
 
     SUT = new FolderCreator(repository, parentFolderFinder, remote, eventBus);
   });
-
-  const mockCorrectPersistance = (folder: Folder) => {
-    remote.persistMock.mockResolvedValueOnce({
-      id: folder.id,
-      uuid: folder.uuid,
-      createdAt: folder.createdAt.toISOString(),
-      updatedAt: folder.updatedAt.toISOString(),
-      parentId: folder.parentId as number,
-    } satisfies FolderPersistedDto);
-  };
 
   it('throws an InvalidArgument error if the path is not a valid posix path', async () => {
     const nonPosixPath = 'C:\\Users\\Internxt';
@@ -86,35 +75,29 @@ describe('Folder Creator', () => {
   it('persists a folder in the remote fs when the parent folder is found and the path is available', async () => {
     const path = FolderPathMother.any();
     const parent = FolderMother.fromPartial({ path: path.dirname() });
-    const folderCreated = FolderMother.fromPartial({
+    const createdFolder = FolderMother.fromPartial({
       path: path.value,
       parentId: parent.id,
     });
 
-    mockCorrectPersistance(folderCreated);
+    remote.shouldPersists(createdFolder, WITH_NO_UUID);
 
     repository.matchingPartialMock
       .mockReturnValueOnce([])
       .mockReturnValueOnce([parent]);
 
     await SUT.run(path.value);
-
-    expect(remote.persistMock).toBeCalledWith(
-      path,
-      new FolderId(parent.id),
-      undefined // optional parameter
-    );
   });
 
   it('add the folder to the repository', async () => {
     const path = FolderPathMother.any();
     const parent = FolderMother.fromPartial({ path: path.dirname() });
-    const folderCreated = FolderMother.fromPartial({
+    const createdFolder = FolderMother.fromPartial({
       path: path.value,
       parentId: parent.id,
     });
 
-    mockCorrectPersistance(folderCreated);
+    remote.shouldPersists(createdFolder, WITH_NO_UUID);
 
     repository.matchingPartialMock
       .mockReturnValueOnce([])
@@ -123,19 +106,19 @@ describe('Folder Creator', () => {
     await SUT.run(path.value);
 
     expect(repository.addMock).toBeCalledWith(
-      expect.objectContaining(folderCreated)
+      expect.objectContaining(createdFolder)
     );
   });
 
   it('publishes folder created event', async () => {
     const path = FolderPathMother.any();
     const parent = FolderMother.fromPartial({ path: path.dirname() });
-    const folderCreated = FolderMother.fromPartial({
+    const createdFolder = FolderMother.fromPartial({
       path: path.value,
       parentId: parent.id,
     });
 
-    mockCorrectPersistance(folderCreated);
+    remote.shouldPersists(createdFolder, WITH_NO_UUID);
 
     repository.matchingPartialMock
       .mockReturnValueOnce([])
@@ -145,7 +128,7 @@ describe('Folder Creator', () => {
 
     expect(eventBus.publishMock).toBeCalledWith(
       expect.arrayContaining([
-        expect.objectContaining({ aggregateId: folderCreated.uuid }),
+        expect.objectContaining({ aggregateId: createdFolder.uuid }),
       ])
     );
   });

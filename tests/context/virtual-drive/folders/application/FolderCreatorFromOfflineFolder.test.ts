@@ -6,6 +6,8 @@ import { SyncFolderMessengerMock } from '../__mocks__/SyncFolderMessengerMock';
 import { FolderMother } from '../domain/FolderMother';
 import { OfflineFolderMother } from '../domain/OfflineFolderMother';
 
+const WITH_UUID = true;
+
 describe('Folder Creator from Offline Folder', () => {
   let SUT: FolderCreatorFromOfflineFolder;
 
@@ -33,7 +35,7 @@ describe('Folder Creator from Offline Folder', () => {
     const offlineFolder = OfflineFolderMother.random();
     const folder = FolderMother.fromPartial(offlineFolder.attributes());
 
-    remote.persistMock.mockResolvedValueOnce(folder.attributes());
+    remote.shouldPersists(folder, WITH_UUID);
 
     repository.addMock.mockResolvedValueOnce(Promise.resolve());
 
@@ -46,11 +48,12 @@ describe('Folder Creator from Offline Folder', () => {
     it('sends the message FOLDER_CREATING', async () => {
       const offlineFolder = OfflineFolderMother.random();
 
-      const resultFolderAttributes = FolderMother.fromPartial(
+      const expectedFolder = FolderMother.fromPartial(
         offlineFolder.attributes()
-      ).attributes();
+      );
 
-      remote.persistMock.mockResolvedValueOnce(resultFolderAttributes);
+      remote.shouldPersists(expectedFolder, WITH_UUID);
+      // remote.persistMock.mockResolvedValueOnce(resultFolderAttributes);
 
       repository.addMock.mockImplementationOnce(() => {
         // no-op
@@ -64,15 +67,15 @@ describe('Folder Creator from Offline Folder', () => {
     it('sends the message FOLDER_CREATED', async () => {
       const offlineFolder = OfflineFolderMother.random();
 
-      const resultFolderAttributes = FolderMother.fromPartial(
+      const expectedFolder = FolderMother.fromPartial(
         offlineFolder.attributes()
-      ).attributes();
+      );
 
       repository.addMock.mockImplementationOnce(() => {
         // no-op
       });
 
-      remote.persistMock.mockResolvedValueOnce(resultFolderAttributes);
+      remote.shouldPersists(expectedFolder, WITH_UUID);
 
       await SUT.run(offlineFolder);
 
