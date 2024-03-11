@@ -1,26 +1,26 @@
 import Logger from 'electron-log';
 import { ContentsDownloader } from '../../../../context/virtual-drive/contents/application/ContentsDownloader';
-import { FileFinderByContentsId } from '../../../../context/virtual-drive/files/application/FileFinderByContentsId';
 import { FilePlaceholderId } from '../../../../context/virtual-drive/files/domain/PlaceholderId';
 import { CallbackDownload } from '../../BindingManager';
 import { CallbackController } from './CallbackController';
+import { SingleFileMatchingFinder } from '../../../../context/virtual-drive/files/application/SingleFileMatchingFinder';
 
 export class DownloadFileController extends CallbackController {
   constructor(
-    private readonly fileFinder: FileFinderByContentsId,
+    private readonly fileFinder: SingleFileMatchingFinder,
     private readonly downloader: ContentsDownloader
   ) {
     super();
   }
 
   private async action(id: string, cb: CallbackDownload): Promise<string> {
-    const file = this.fileFinder.run(id);
+    const file = await this.fileFinder.run({ contentsId: id });
 
     return await this.downloader.run(file, cb);
   }
 
   fileFinderByContentsId(contentsId: string) {
-    return this.fileFinder.run(contentsId);
+    return this.fileFinder.run({ contentsId });
   }
 
   async execute(

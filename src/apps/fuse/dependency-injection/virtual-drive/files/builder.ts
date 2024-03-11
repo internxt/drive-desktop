@@ -4,12 +4,11 @@ import { FileCreator } from '../../../../../context/virtual-drive/files/applicat
 import { FileDeleter } from '../../../../../context/virtual-drive/files/application/FileDeleter';
 import { FilePathUpdater } from '../../../../../context/virtual-drive/files/application/FilePathUpdater';
 import { FilesByFolderPathSearcher } from '../../../../../context/virtual-drive/files/application/FilesByFolderPathSearcher';
-import { FilesSearcher } from '../../../../../context/virtual-drive/files/application/FilesSearcher';
-import { RepositoryPopulator } from '../../../../../context/virtual-drive/files/application/RepositoryPopulator';
+import { FirstsFileSearcher } from '../../../../../context/virtual-drive/files/application/FirstsFileSearcher';
+import { FileRepositoryInitializer } from '../../../../../context/virtual-drive/files/application/FileRepositoryInitializer';
 import { SameFileWasMoved } from '../../../../../context/virtual-drive/files/application/SameFileWasMoved';
 import { File } from '../../../../../context/virtual-drive/files/domain/File';
 import { FuseLocalFileSystem } from '../../../../../context/virtual-drive/files/infrastructure/FuseLocalFileSystem';
-import { InMemoryFileRepository } from '../../../../../context/virtual-drive/files/infrastructure/InMemoryFileRepository';
 import { MainProcessSyncFileMessenger } from '../../../../../context/virtual-drive/files/infrastructure/SyncFileMessengers/MainProcessSyncFileMessenger';
 import { SDKRemoteFileSystem } from '../../../../../context/virtual-drive/files/infrastructure/SDKRemoteFileSystem';
 import { DependencyInjectionHttpClientsProvider } from '../../common/clients';
@@ -20,20 +19,23 @@ import { DependencyInjectionUserProvider } from '../../common/user';
 import { FoldersContainer } from '../folders/FoldersContainer';
 import { SharedContainer } from '../shared/SharedContainer';
 import { FilesContainer } from './FilesContainer';
+import { InMemoryFileRepositorySingleton } from '../../../../shared/dependency-injection/virtual-drive/files/InMemoryFileRepositorySingleton';
+import { SingleFileMatchingSearcher } from '../../../../../context/virtual-drive/files/application/SingleFileMatchingSearcher';
+import { FilesSearcherByPartialMatch } from '../../../../../context/virtual-drive/files/application/search-all/FilesSearcherByPartialMatch';
 
 export async function buildFilesContainer(
   initialFiles: Array<File>,
   folderContainer: FoldersContainer,
   sharedContainer: SharedContainer
 ): Promise<FilesContainer> {
-  const repository = new InMemoryFileRepository();
+  const repository = InMemoryFileRepositorySingleton.instance;
   const eventRepository = DependencyInjectionEventRepository.get();
   const user = DependencyInjectionUserProvider.get();
   const sdk = await DependencyInjectionStorageSdk.get();
   const { bus: eventBus } = DependencyInjectionEventBus;
   const clients = DependencyInjectionHttpClientsProvider.get();
 
-  const repositoryPopulator = new RepositoryPopulator(repository);
+  const repositoryPopulator = new FileRepositoryInitializer(repository);
 
   await repositoryPopulator.run(initialFiles);
 
@@ -41,10 +43,10 @@ export async function buildFilesContainer(
 
   const filesByFolderPathNameLister = new FilesByFolderPathSearcher(
     repository,
-    folderContainer.folderFinder
+    folderContainer.singleFolderMatchingFinder
   );
 
-  const filesSearcher = new FilesSearcher(repository);
+  const filesSearcher = new FirstsFileSearcher(repository);
 
   const remoteFileSystem = new SDKRemoteFileSystem(
     sdk,
@@ -56,16 +58,19 @@ export async function buildFilesContainer(
     sharedContainer.relativePathToAbsoluteConverter
   );
 
+  const singleFileMatchingSearcher = new SingleFileMatchingSearcher(repository);
+
   const filePathUpdater = new FilePathUpdater(
     remoteFileSystem,
     localFileSystem,
     repository,
-    folderContainer.folderFinder,
+    singleFileMatchingSearcher,
+    folderContainer.parentFolderFinder,
     eventBus
   );
 
   const sameFileWasMoved = new SameFileWasMoved(
-    repository,
+    singleFileMatchingSearcher,
     localFileSystem,
     eventRepository
   );
@@ -81,7 +86,7 @@ export async function buildFilesContainer(
   const fileCreator = new FileCreator(
     remoteFileSystem,
     repository,
-    folderContainer.folderFinder,
+    folderContainer.parentFolderFinder,
     fileDeleter,
     eventBus,
     syncFileMessenger
@@ -89,6 +94,10 @@ export async function buildFilesContainer(
 
   const createFileOnOfflineFileUploaded = new CreateFileOnOfflineFileUploaded(
     fileCreator
+  );
+
+  const filesSearcherByPartialMatch = new FilesSearcherByPartialMatch(
+    repository
   );
 
   return {
@@ -100,6 +109,7 @@ export async function buildFilesContainer(
     fileDeleter,
     repositoryPopulator,
     syncFileMessenger,
+    filesSearcherByPartialMatch,
     // event handlers
     createFileOnOfflineFileUploaded,
   };

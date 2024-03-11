@@ -66,6 +66,10 @@ async function setUp() {
     }
   });
 
+  ipcRenderer.on('SYNC_ENGINE:PING', (event) => {
+    event.sender.send('SYNC_ENGINE:PONG');
+  });
+
   await bindings.start(
     packageJson.version,
     '{E9D7EB38-B229-5DC5-9396-017C449D59CD}'

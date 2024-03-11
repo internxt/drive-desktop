@@ -20,36 +20,36 @@ export class InMemoryFolderRepository implements FolderRepository {
     return Promise.resolve(folders);
   }
 
-  searchByPartial(partial: Partial<FolderAttributes>): Folder | undefined {
-    const keys = Object.keys(partial) as Array<keyof Partial<FolderAttributes>>;
+  async searchById(id: Folder['id']): Promise<Folder | undefined> {
+    const attributes = this.folders.get(id);
 
-    const folder = this.values.find((attributes) => {
-      return keys.every(
-        (key: keyof FolderAttributes) => attributes[key] === partial[key]
-      );
-    });
+    if (!attributes) return;
 
-    if (folder) {
-      return Folder.from(folder);
+    return Folder.from(attributes);
+  }
+
+  async searchByUuid(id: Folder['uuid']): Promise<Folder | undefined> {
+    const folders = this.folders.values();
+
+    for (const attributes of folders) {
+      if (id === attributes.uuid) {
+        return Folder.from(attributes);
+      }
     }
 
     return undefined;
   }
 
-  listByPartial(partial: Partial<FolderAttributes>): Promise<Folder[]> {
+  matchingPartial(partial: Partial<FolderAttributes>): Array<Folder> {
     const keys = Object.keys(partial) as Array<keyof Partial<FolderAttributes>>;
 
-    const folderAttributes = this.values.filter((attributes) => {
+    const foldersAttributes = this.values.filter((attributes) => {
       return keys.every(
         (key: keyof FolderAttributes) => attributes[key] === partial[key]
       );
     });
 
-    const folders = folderAttributes.map((attributes) =>
-      Folder.from(attributes)
-    );
-
-    return Promise.resolve(folders);
+    return foldersAttributes.map((attributes) => Folder.from(attributes));
   }
 
   async add(folder: Folder): Promise<void> {

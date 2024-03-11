@@ -2,10 +2,56 @@ import { BrowserWindow, ipcMain } from 'electron';
 import path from 'path';
 import Logger from 'electron-log';
 import eventBus from '../event-bus';
+import nodeSchedule from 'node-schedule';
 
 let worker: BrowserWindow | null = null;
 let workerIsRunning = false;
 let startingWorker = false;
+let healthCheckSchedule: nodeSchedule.Job | null = null;
+
+async function healthCheck() {
+  const responsePromise = new Promise<void>((resolve, reject) => {
+    ipcMain.once('SYNC_ENGINE:PONG', () => {
+      resolve();
+    });
+
+    const millisecondsToWait = 2_000;
+
+    setTimeout(() => {
+      reject(
+        new Error(
+          `Health check failed after ${millisecondsToWait} milliseconds`
+        )
+      );
+    }, millisecondsToWait);
+  });
+
+  worker?.webContents.send('SYNC_ENGINE:PING');
+
+  await responsePromise;
+}
+
+function scheduleHeathCheck() {
+  if (healthCheckSchedule) {
+    healthCheckSchedule.cancel(false);
+  }
+
+  const relaunchOnFail = () =>
+    healthCheck()
+      .then(() => {
+        // Logger.debug('Health check succeeded');
+      })
+      .catch(() => {
+        Logger.warn('Health check failed, relaunching the worker');
+        workerIsRunning = false;
+        worker?.destroy();
+        spawnSyncEngineWorker();
+      });
+
+  healthCheckSchedule = nodeSchedule.scheduleJob('*/30 * * * * *', async () => {
+    await relaunchOnFail();
+  });
+}
 
 function spawnSyncEngineWorker() {
   if (startingWorker) {
@@ -35,6 +81,7 @@ function spawnSyncEngineWorker() {
     )
     .then(() => {
       Logger.info('[MAIN] Sync engine worker loaded');
+      scheduleHeathCheck();
     })
     .catch((err) => {
       Logger.error('[MAIN] Error loading sync engine worker', err);
@@ -65,6 +112,8 @@ function spawnSyncEngineWorker() {
 
 export async function stopSyncEngineWatcher() {
   Logger.info('[MAIN] STOPPING SYNC ENGINE WORKER...');
+
+  healthCheckSchedule?.cancel(false);
 
   if (!workerIsRunning) {
     Logger.info('[MAIN] WORKER WAS NOT RUNNING');
@@ -111,6 +160,8 @@ export async function stopSyncEngineWatcher() {
 
 async function stopAndClearSyncEngineWatcher() {
   Logger.info('[MAIN] STOPPING AND CLEAR SYNC ENGINE WORKER...');
+
+  healthCheckSchedule?.cancel(false);
 
   if (!workerIsRunning) {
     Logger.info('[MAIN] WORKER WAS NOT RUNNING');

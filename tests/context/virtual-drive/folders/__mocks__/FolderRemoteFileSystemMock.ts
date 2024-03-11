@@ -8,26 +8,93 @@ import {
 } from '../../../../../src/context/virtual-drive/folders/domain/file-systems/RemoteFileSystem';
 
 export class FolderRemoteFileSystemMock implements RemoteFileSystem {
-  public readonly persistMock = jest.fn();
-  public readonly trashMock = jest.fn();
-  public readonly moveMock = jest.fn();
-  public readonly renameMock = jest.fn();
+  private readonly persistMock = jest.fn();
+  private readonly trashMock = jest.fn();
+  private readonly moveMock = jest.fn();
+  private readonly renameMock = jest.fn();
 
   persist(
     path: FolderPath,
     parentId: FolderId,
     uuid?: FolderUuid | undefined
   ): Promise<FolderPersistedDto> {
-    return this.persistMock(path, parentId, uuid);
+    expect(this.persistMock).toHaveBeenCalledWith(path, parentId, uuid);
+
+    return this.persistMock();
   }
 
   trash(id: number): Promise<void> {
-    return this.trashMock(id);
+    expect(this.trashMock).toBeCalledWith(id);
+
+    return this.trashMock();
   }
+
   move(folder: Folder): Promise<void> {
-    return this.moveMock(folder);
+    expect(this.moveMock).toBeCalledWith(
+      expect.objectContaining({
+        _path: new FolderPath(folder.path),
+        _id: new FolderId(folder.id as number),
+        _parentId: new FolderId(folder.parentId as number),
+      })
+    );
+
+    return this.moveMock();
   }
+
   rename(folder: Folder): Promise<void> {
-    return this.renameMock(folder);
+    expect(this.renameMock).toBeCalledWith(
+      expect.objectContaining({ _path: new FolderPath(folder.path) })
+    );
+
+    return this.renameMock();
+  }
+
+  shouldPersists(folder: Folder, includeUuid: boolean) {
+    this.persistMock(
+      new FolderPath(folder.path),
+      new FolderId(folder.parentId as number),
+      includeUuid ? new FolderUuid(folder.uuid) : undefined
+    );
+
+    this.persistMock.mockResolvedValueOnce({
+      id: folder.id,
+      uuid: folder.uuid,
+      createdAt: folder.createdAt.toISOString(),
+      updatedAt: folder.updatedAt.toISOString(),
+      parentId: folder.parentId as number,
+    } satisfies FolderPersistedDto);
+  }
+
+  shouldTrash(folder: Folder, error?: Error) {
+    this.trashMock(folder.id);
+
+    if (error) {
+      this.trashMock.mockRejectedValueOnce(error);
+      return;
+    }
+
+    this.trashMock.mockReturnValue(Promise.resolve());
+  }
+
+  shouldRename(folder: Folder, error?: Error) {
+    this.renameMock(folder);
+
+    if (error) {
+      this.renameMock.mockRejectedValueOnce(error);
+      return;
+    }
+
+    this.renameMock.mockReturnValueOnce(Promise.resolve());
+  }
+
+  shouldMove(folder: Folder, error?: Error) {
+    this.moveMock(folder);
+
+    if (error) {
+      this.moveMock.mockRejectedValueOnce(error);
+      return;
+    }
+
+    this.moveMock.mockReturnValueOnce(Promise.resolve());
   }
 }

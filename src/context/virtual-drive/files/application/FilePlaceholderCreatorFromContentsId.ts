@@ -1,15 +1,15 @@
 import { File } from '../domain/File';
 import { LocalFileSystem } from '../domain/file-systems/LocalFileSystem';
-import { FileFinderByContentsId } from './FileFinderByContentsId';
+import { SingleFileMatchingFinder } from './SingleFileMatchingFinder';
 
 export class FilePlaceholderCreatorFromContentsId {
   constructor(
-    private readonly finder: FileFinderByContentsId,
+    private readonly finder: SingleFileMatchingFinder,
     private readonly local: LocalFileSystem
   ) {}
 
-  run(contentsId: File['contentsId']) {
-    const file = this.finder.run(contentsId);
+  async run(contentsId: File['contentsId']) {
+    const file = await this.finder.run({ contentsId });
 
     this.local.createPlaceHolder(file);
   }

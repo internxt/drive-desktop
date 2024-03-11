@@ -80,7 +80,9 @@ export class AddController extends CallbackController {
     }
   };
   private async runFolderCreator(posixRelativePath: string): Promise<Folder> {
-    const offlineFolder = this.offlineFolderCreator.run(posixRelativePath);
+    const offlineFolder = await this.offlineFolderCreator.run(
+      posixRelativePath
+    );
     return this.folderCreator.run(offlineFolder);
   }
 
@@ -111,7 +113,7 @@ export class AddController extends CallbackController {
     posixRelativePath: string
   ): Promise<OfflineFolder> {
     try {
-      return this.offlineFolderCreator.run(posixRelativePath);
+      return await this.offlineFolderCreator.run(posixRelativePath);
     } catch (error) {
       if (error instanceof FolderNotFoundError) {
         // father created

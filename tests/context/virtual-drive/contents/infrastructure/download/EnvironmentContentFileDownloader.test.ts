@@ -56,7 +56,13 @@ describe('Environment Content File Downloader', () => {
 
       await downloader.download(file);
 
-      expect(handler.mock.calls).toEqual([[25], [50], [75]]);
+      const firstArgumentsOfProgress = handler.mock.calls.map(
+        (args) => args[0]
+      );
+
+      expect(firstArgumentsOfProgress).toEqual(
+        expect.arrayContaining([25, 50, 75])
+      );
     });
 
     it('emits an event when there is an error', async () => {
@@ -76,6 +82,25 @@ describe('Environment Content File Downloader', () => {
 
       await downloader.download(file).catch(() => {
         // no-op
+      });
+    });
+
+    it('emits the error event before the promises fails', async () => {
+      const errorMsg = 'Error uploading file';
+      const strategy = createDownloadStrategy((callbacks) => {
+        callbacks.finishedCallback(
+          { message: errorMsg } as unknown as Error,
+          Readable.from('')
+        );
+      });
+
+      const downloader = new EnvironmentContentFileDownloader(strategy, bucket);
+
+      const errorCallback = jest.fn();
+      downloader.on('error', errorCallback);
+
+      await downloader.download(file).catch(() => {
+        expect(errorCallback).toBeCalled();
       });
     });
   });

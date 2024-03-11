@@ -1,9 +1,9 @@
-import { FolderFinder } from '../../../../context/virtual-drive/folders/application/FolderFinder';
-import { FolderSearcher } from '../../../../context/virtual-drive/folders/application/FolderSearcher';
+import { ParentFolderFinder } from '../../../../context/virtual-drive/folders/application/ParentFolderFinder';
 import { FoldersByParentPathLister } from '../../../../context/virtual-drive/folders/application/FoldersByParentPathLister';
+import { SingleFolderMatchingFinder } from '../../../../context/virtual-drive/folders/application/SingleFolderMatchingFinder';
 
 export interface FoldersContainer {
-  folderFinder: FolderFinder;
-  folderSearcher: FolderSearcher;
+  parentFolderFinder: ParentFolderFinder;
   foldersByParentPathSearcher: FoldersByParentPathLister;
+  singleFolderMatchingFinder: SingleFolderMatchingFinder;
 }

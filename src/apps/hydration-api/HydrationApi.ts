@@ -1,8 +1,8 @@
-import express, { Router } from 'express';
 import Logger from 'electron-log';
-
-import { buildContentsRouter } from './routes/contents';
+import express, { Router } from 'express';
 import { DependencyContainerFactory } from './dependency-injection/DependencyContainerFactory';
+import { buildContentsRouter } from './routes/contents';
+import { buildFilesRouter } from './routes/files';
 
 export interface HydrationApiOptions {
   debug: boolean;
@@ -22,6 +22,7 @@ export class HydrationApi {
 
     const routers = {
       contents: buildContentsRouter(container),
+      files: buildFilesRouter(container),
     };
 
     return routers;

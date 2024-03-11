@@ -1,4 +1,4 @@
-const VirtualDriveErrors = [
+const virtualDriveFileErrors = [
   'UPLOAD_ERROR',
   'DOWNLOAD_ERROR',
   'RENAME_ERROR',
@@ -7,8 +7,29 @@ const VirtualDriveErrors = [
   'GENERATE_TREE',
 ] as const;
 
-export type VirtualDriveError = (typeof VirtualDriveErrors)[number];
+const virtualDriveFolderErrors = [
+  'FOLDER_RENAME_ERROR',
+  'FOLDER_CREATE_ERROR',
+  'FOLDER_TRASH_ERROR',
+] as const;
 
-export function isVirtualDriveError(maybe: string): maybe is VirtualDriveError {
-  return VirtualDriveErrors.includes(maybe as VirtualDriveError);
+export type VirtualDriveFileError = (typeof virtualDriveFileErrors)[number];
+export type VirtualDriveFolderError = (typeof virtualDriveFolderErrors)[number];
+export type VirtualDriveError = VirtualDriveFileError | VirtualDriveFolderError;
+
+function is<T extends string>(set: readonly T[]) {
+  return (maybe: string): maybe is T => set.includes(maybe as T);
 }
+
+export const isVirtualDriveFileError = is<VirtualDriveFileError>(
+  virtualDriveFileErrors
+);
+
+export const isVirtualDriveFolderError = is<VirtualDriveFolderError>(
+  virtualDriveFolderErrors
+);
+
+export const isVirtualDriveError = is<VirtualDriveError>([
+  ...virtualDriveFileErrors,
+  ...virtualDriveFolderErrors,
+]);

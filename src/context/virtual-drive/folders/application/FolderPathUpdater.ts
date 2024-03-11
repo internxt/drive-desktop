@@ -7,6 +7,7 @@ import { FolderNotFoundError } from '../domain/errors/FolderNotFoundError';
 import { FolderMover } from './FolderMover';
 import { FolderRenamer } from './FolderRenamer';
 import { PathHasNotChangedError } from '../domain/errors/PathHasNotChangedError';
+import { FolderStatuses } from '../domain/FolderStatus';
 
 export class FolderPathUpdater {
   constructor(
@@ -16,7 +17,10 @@ export class FolderPathUpdater {
   ) {}
 
   async run(uuid: Folder['uuid'], posixRelativePath: string) {
-    const folder = this.repository.searchByPartial({ uuid });
+    const folder = this.repository.matchingPartial({
+      uuid,
+      status: FolderStatuses.EXISTS,
+    })[0];
 
     if (!folder) {
       throw new FolderNotFoundError(uuid);

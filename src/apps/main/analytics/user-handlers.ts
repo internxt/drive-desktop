@@ -3,14 +3,14 @@ import eventBus from '../event-bus';
 import {
   sendFeedback,
   userLogout,
-  userSignin,
-  userSigninFailed,
+  userSigning,
+  userSigningFailed,
 } from './service';
 import { clearRemoteSyncStore } from '../remote-sync/helpers';
 import { clearTempFolder } from '../app-info/helpers';
 
 eventBus.on('USER_LOGGED_IN', () => {
-  userSignin();
+  userSigning();
   clearTempFolder();
 });
 
@@ -21,7 +21,7 @@ eventBus.on('USER_LOGGED_OUT', () => {
 });
 
 ipcMain.on('USER_LOGIN_FAILED', (_, email: string) => {
-  userSigninFailed(email);
+  userSigningFailed(email);
 });
 
 ipcMain.handle('send-feedback', (_, feedback: string) => {

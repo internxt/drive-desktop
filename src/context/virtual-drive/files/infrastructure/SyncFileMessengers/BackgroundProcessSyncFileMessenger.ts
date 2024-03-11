@@ -2,7 +2,21 @@ import path from 'path';
 import { SyncEngineIpc } from '../../../../../apps/sync-engine/SyncEngineIpc';
 import { SyncMessenger } from '../../../../shared/domain/SyncMessenger';
 import { SyncFileMessenger } from '../../domain/SyncFileMessenger';
-import { SyncErrorCause } from '../../../../../shared/issues/SyncErrorCause';
+import { VirtualDriveFileIssue } from '../../../../../shared/issues/VirtualDriveIssue';
+import { VirtualDriveFileError } from '../../../../../shared/issues/VirtualDriveError';
+import { FileErrorEvents } from '../../../../../apps/shared/IPC/events/virtualDrive/backgroundEvents/files';
+
+const virtualDriveFileErrorToFileErrorKeyMap: Record<
+  VirtualDriveFileError,
+  keyof FileErrorEvents
+> = {
+  UPLOAD_ERROR: 'FILE_UPLOAD_ERROR',
+  DOWNLOAD_ERROR: 'FILE_DOWNLOAD_ERROR',
+  RENAME_ERROR: 'FILE_RENAME_ERROR',
+  DELETE_ERROR: 'FILE_DELETION_ERROR',
+  METADATA_READ_ERROR: 'FILE_UPLOAD_ERROR',
+  GENERATE_TREE: 'FILE_DOWNLOAD_ERROR',
+};
 
 export class BackgroundProcessSyncFileMessenger
   extends SyncMessenger
@@ -16,19 +30,6 @@ export class BackgroundProcessSyncFileMessenger
       name,
       extension,
       nameWithExtension: this.nameWithExtension(name, extension),
-    });
-  }
-
-  async errorWhileCreating(
-    name: string,
-    extension: string,
-    cause: SyncErrorCause
-  ): Promise<void> {
-    this.ipc.send('FILE_UPLOAD_ERROR', {
-      name,
-      extension,
-      nameWithExtension: this.nameWithExtension(name, extension),
-      cause,
     });
   }
 
@@ -50,19 +51,6 @@ export class BackgroundProcessSyncFileMessenger
     });
   }
 
-  async errorWhileTrashing(
-    name: string,
-    extension: string,
-    cause: SyncErrorCause
-  ): Promise<void> {
-    this.ipc.send('FILE_DELETION_ERROR', {
-      name,
-      extension,
-      nameWithExtension: this.nameWithExtension(name, extension),
-      cause,
-    });
-  }
-
   async renaming(current: string, desired: string): Promise<void> {
     this.ipc.send('FILE_RENAMING', {
       oldName: current,
@@ -77,20 +65,14 @@ export class BackgroundProcessSyncFileMessenger
     });
   }
 
-  async errorWhileRenaming(
-    current: string,
-    _desired: string,
-    cause: SyncErrorCause
-  ): Promise<void> {
-    const extension = path.extname(current);
+  async issues(issue: VirtualDriveFileIssue): Promise<void> {
+    const event = virtualDriveFileErrorToFileErrorKeyMap[issue.error];
 
-    const name = current.replace(`.${extension}`, '');
-
-    this.ipc.send('FILE_RENAME_ERROR', {
-      name,
-      extension,
-      nameWithExtension: current,
-      cause,
+    this.ipc.send(event, {
+      name: path.basename(issue.name, path.extname(issue.name)),
+      extension: path.extname(issue.name),
+      nameWithExtension: issue.name,
+      cause: issue.cause,
     });
   }
 }

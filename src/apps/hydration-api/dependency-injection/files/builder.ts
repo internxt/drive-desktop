@@ -1,30 +1,33 @@
 import { FilesByFolderPathSearcher } from '../../../../context/virtual-drive/files/application/FilesByFolderPathSearcher';
-import { FilesSearcher } from '../../../../context/virtual-drive/files/application/FilesSearcher';
-import { RepositoryPopulator } from '../../../../context/virtual-drive/files/application/RepositoryPopulator';
-import { File } from '../../../../context/virtual-drive/files/domain/File';
-import { InMemoryFileRepository } from '../../../../context/virtual-drive/files/infrastructure/InMemoryFileRepository';
+import { FirstsFileSearcher } from '../../../../context/virtual-drive/files/application/FirstsFileSearcher';
+import { RetrieveAllFiles } from '../../../../context/virtual-drive/files/application/RetrieveAllFiles';
+import { FilesSearcherByPartialMatch } from '../../../../context/virtual-drive/files/application/search-all/FilesSearcherByPartialMatch';
+import { InMemoryFileRepositorySingleton } from '../../../shared/dependency-injection/virtual-drive/files/InMemoryFileRepositorySingleton';
 import { FoldersContainer } from '../folders/FoldersContainer';
 import { FilesContainer } from './FilesContainer';
 
 export async function buildFilesContainer(
-  initialFiles: Array<File>,
   folderContainer: FoldersContainer
 ): Promise<FilesContainer> {
-  const repository = new InMemoryFileRepository();
-
-  const repositoryPopulator = new RepositoryPopulator(repository);
-
-  await repositoryPopulator.run(initialFiles);
+  const repository = InMemoryFileRepositorySingleton.instance;
 
   const filesByFolderPathNameLister = new FilesByFolderPathSearcher(
     repository,
-    folderContainer.folderFinder
+    folderContainer.singleFolderMatchingFinder
   );
 
-  const filesSearcher = new FilesSearcher(repository);
+  const filesSearcher = new FirstsFileSearcher(repository);
+
+  const retrieveAllFiles = new RetrieveAllFiles(repository);
+
+  const filesSearcherByPartialMatch = new FilesSearcherByPartialMatch(
+    repository
+  );
 
   return {
     filesByFolderPathNameLister,
     filesSearcher,
+    retrieveAllFiles,
+    filesSearcherByPartialMatch,
   };
 }

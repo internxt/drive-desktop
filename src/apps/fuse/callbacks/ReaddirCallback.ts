@@ -3,7 +3,7 @@ import { FuseCallback } from './FuseCallback';
 
 export class ReaddirCallback extends FuseCallback<Array<string>> {
   constructor(private readonly container: VirtualDriveDependencyContainer) {
-    super('Read Directory', {});
+    super('Read Directory');
   }
 
   async execute(path: string) {

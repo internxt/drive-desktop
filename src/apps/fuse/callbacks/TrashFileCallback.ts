@@ -1,3 +1,4 @@
+import { FileStatuses } from '../../../context/virtual-drive/files/domain/FileStatus';
 import { VirtualDriveDependencyContainer } from '../dependency-injection/virtual-drive/VirtualDriveDependencyContainer';
 import { NotifyFuseCallback } from './FuseCallback';
 import { FuseIOError, FuseNoSuchFileOrDirectoryError } from './FuseErrors';
@@ -8,7 +9,10 @@ export class TrashFileCallback extends NotifyFuseCallback {
   }
 
   async execute(path: string) {
-    const file = await this.container.filesSearcher.run({ path });
+    const file = await this.container.filesSearcher.run({
+      path,
+      status: FileStatuses.EXISTS,
+    });
 
     if (!file) {
       return this.left(new FuseNoSuchFileOrDirectoryError());

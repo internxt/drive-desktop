@@ -7,6 +7,9 @@ import {
   TrackedActions,
   ErrorContext,
 } from '../../shared/IPC/events/sync-engine';
+import { isVirtualDriveFolderError } from '../../../shared/issues/VirtualDriveError';
+import { VirtualDriveIssue } from '../../../shared/issues/VirtualDriveIssue';
+import { virtualDriveErrorToTrackedActionsMap } from './helpers/virtualDriveErrorToTrackedActionsMap';
 
 function platformShortName(platform: string) {
   switch (platform) {
@@ -51,7 +54,7 @@ export function applicationOpened() {
   );
 }
 
-export function userSignin() {
+export function userSigning() {
   const { uuid: userId, email } = ConfigStore.get('userData');
 
   client.identify(
@@ -73,7 +76,7 @@ export function userSignin() {
   );
 }
 
-export function userSigninFailed(email?: string) {
+export function userSigningFailed(email?: string) {
   const clientId = ConfigStore.get('clientId');
 
   client.identify(
@@ -198,15 +201,6 @@ export function trackEvent(
   Logger.debug('Tracked event', event);
 
   client.track(payload);
-
-  client.flush((err: Error, batch: Array<any>) => {
-    if (err) {
-      Logger.error(err);
-      return;
-    }
-
-    Logger.debug('Flushed ', JSON.stringify(batch, null, 2));
-  });
 }
 
 export function trackError(
@@ -221,6 +215,34 @@ export function trackError(
     item: context?.from ?? 'NO_ITEM_IN_CONTEXT',
     type: context?.itemType ?? 'NO_ITEM_TYPE_IN_CONTEXT',
     error: error.message,
+  };
+
+  const payload = {
+    userId: userData ? userData.uuid : undefined,
+    anonymousId: userData ? undefined : clientId,
+    event: event,
+    properties,
+    context: deviceContext,
+  };
+
+  client.track(payload);
+}
+
+export function trackVirtualDriveError(issue: VirtualDriveIssue) {
+  const event = virtualDriveErrorToTrackedActionsMap.get(issue.error);
+
+  if (!event) {
+    // Error has no event associated to be tracked
+    return;
+  }
+
+  const userData = ConfigStore.get('userData');
+  const clientId = ConfigStore.get('clientId');
+
+  const properties = {
+    item: issue.name,
+    error: issue.cause,
+    type: isVirtualDriveFolderError(issue.error) ? 'Folder' : 'File',
   };
 
   const payload = {

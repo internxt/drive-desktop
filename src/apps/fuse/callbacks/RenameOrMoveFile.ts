@@ -44,23 +44,18 @@ export class RenameOrMoveFile {
       );
 
       return right(RenameOrMoveFile.SUCCESS);
-    } catch (throwed: unknown) {
-      const current = path.basename(src);
-      const desired = path.basename(dest);
-
+    } catch (trowed: unknown) {
       const cause: SyncErrorCause =
-        throwed instanceof DriveDesktopError
-          ? throwed.syncErrorCause
-          : 'UNKNOWN';
+        trowed instanceof DriveDesktopError ? trowed.syncErrorCause : 'UNKNOWN';
 
-      await this.container.syncFileMessenger.errorWhileRenaming(
-        current,
-        desired,
-        cause
-      );
+      await this.container.syncFileMessenger.issues({
+        error: 'RENAME_ERROR',
+        cause,
+        name: path.basename(src),
+      });
 
-      if (throwed instanceof FuseError) {
-        return left(throwed);
+      if (trowed instanceof FuseError) {
+        return left(trowed);
       }
 
       return left(new FuseUnknownError());

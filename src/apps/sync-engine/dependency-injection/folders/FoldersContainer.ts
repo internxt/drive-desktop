@@ -1,10 +1,9 @@
 import { AllParentFoldersStatusIsExists } from '../../../../context/virtual-drive/folders/application/AllParentFoldersStatusIsExists';
-import { FolderByPartialSearcher } from '../../../../context/virtual-drive/folders/application/FolderByPartialSearcher';
 import { FolderCreatorFromOfflineFolder } from '../../../../context/virtual-drive/folders/application/FolderCreatorFromOfflineFolder';
 import { FolderDeleter } from '../../../../context/virtual-drive/folders/application/FolderDeleter';
-import { FolderFinder } from '../../../../context/virtual-drive/folders/application/FolderFinder';
+import { ParentFolderFinder } from '../../../../context/virtual-drive/folders/application/ParentFolderFinder';
 import { FolderPathUpdater } from '../../../../context/virtual-drive/folders/application/FolderPathUpdater';
-import { FolderRepositoryInitiator } from '../../../../context/virtual-drive/folders/application/FolderRepositoryInitiator';
+import { FolderRepositoryInitializer } from '../../../../context/virtual-drive/folders/application/FolderRepositoryInitializer';
 import { FoldersPlaceholderCreator } from '../../../../context/virtual-drive/folders/application/FoldersPlaceholderCreator';
 import { OfflineFolderCreator } from '../../../../context/virtual-drive/folders/application/Offline/OfflineFolderCreator';
 import { OfflineFolderPathUpdater } from '../../../../context/virtual-drive/folders/application/Offline/OfflineFolderPathUpdater';
@@ -15,11 +14,10 @@ import { FolderPlaceholderUpdater } from '../../../../context/virtual-drive/fold
 
 export interface FoldersContainer {
   folderCreator: FolderCreatorFromOfflineFolder;
-  folderFinder: FolderFinder;
+  parentFolderFinder: ParentFolderFinder;
   folderDeleter: FolderDeleter;
   allParentFoldersStatusIsExists: AllParentFoldersStatusIsExists;
   folderPathUpdater: FolderPathUpdater;
-  folderByPartialSearcher: FolderByPartialSearcher;
   synchronizeOfflineModificationsOnFolderCreated: SynchronizeOfflineModificationsOnFolderCreated;
   offline: {
     folderCreator: OfflineFolderCreator;
@@ -27,7 +25,7 @@ export interface FoldersContainer {
     synchronizeOfflineModifications: SynchronizeOfflineModifications;
   };
   retrieveAllFolders: RetrieveAllFolders;
-  folderRepositoryInitiator: FolderRepositoryInitiator;
+  folderRepositoryInitiator: FolderRepositoryInitializer;
   folderPlaceholderUpdater: FolderPlaceholderUpdater;
   foldersPlaceholderCreator: FoldersPlaceholderCreator;
 }

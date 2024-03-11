@@ -1,6 +1,6 @@
+import { FolderStatuses } from '../../../context/virtual-drive/folders/domain/FolderStatus';
 import { VirtualDriveDependencyContainer } from '../dependency-injection/virtual-drive/VirtualDriveDependencyContainer';
 import { NotifyFuseCallback } from './FuseCallback';
-import { FuseNoSuchFileOrDirectoryError } from './FuseErrors';
 import { basename } from 'path';
 
 export class TrashFolderCallback extends NotifyFuseCallback {
@@ -9,20 +9,21 @@ export class TrashFolderCallback extends NotifyFuseCallback {
   }
 
   async execute(path: string) {
-    const folder = await this.container.folderSearcher.run({ path });
-
-    if (!folder) {
-      return this.left(new FuseNoSuchFileOrDirectoryError());
-    }
-
     try {
+      const folder = await this.container.singleFolderMatchingFinder.run({
+        path,
+        status: FolderStatuses.EXISTS,
+      });
+
       await this.container.folderDeleter.run(folder.uuid);
 
       return this.right();
     } catch (throwed: unknown) {
-      const name = basename(path);
-
-      this.container.syncFolderMessenger.errorWhileTrashing(name);
+      await this.container.syncFolderMessenger.issue({
+        error: 'FOLDER_TRASH_ERROR',
+        cause: 'UNKNOWN',
+        name: basename(path),
+      });
 
       return this.left(throwed);
     }

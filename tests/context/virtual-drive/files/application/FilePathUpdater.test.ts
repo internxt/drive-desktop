@@ -1,17 +1,19 @@
 import { FilePathUpdater } from '../../../../../src/context/virtual-drive/files/application/FilePathUpdater';
 import { FilePath } from '../../../../../src/context/virtual-drive/files/domain/FilePath';
-import { FolderFinder } from '../../../../../src/context/virtual-drive/folders/application/FolderFinder';
-import { FolderFinderMock } from '../../folders/__mocks__/FolderFinderMock';
+import { ParentFolderFinder } from '../../../../../src/context/virtual-drive/folders/application/ParentFolderFinder';
+import { ParentFolderFinderTestClass } from '../../folders/__test-class__/ParentFolderFinderTestClass';
 import { FolderMother } from '../../folders/domain/FolderMother';
 import { EventBusMock } from '../../shared/__mock__/EventBusMock';
 import { FileRepositoryMock } from '../__mocks__/FileRepositoryMock';
 import { LocalFileSystemMock } from '../__mocks__/LocalFileSystemMock';
 import { RemoteFileSystemMock } from '../__mocks__/RemoteFileSystemMock';
+import { SingleFileMatchingTestClass } from '../__test-class__/SingleFileMatchingTestClass';
 import { FileMother } from '../domain/FileMother';
 
 describe('File path updater', () => {
   let repository: FileRepositoryMock;
-  let folderFinder: FolderFinderMock;
+  let folderFinder: ParentFolderFinderTestClass;
+  let singleFileMatchingTestClass: SingleFileMatchingTestClass;
   let localFileSystem: LocalFileSystemMock;
   let eventBus: EventBusMock;
   let remoteFileSystemMock: RemoteFileSystemMock;
@@ -19,7 +21,8 @@ describe('File path updater', () => {
 
   beforeEach(() => {
     repository = new FileRepositoryMock();
-    folderFinder = new FolderFinderMock();
+    folderFinder = new ParentFolderFinderTestClass();
+    singleFileMatchingTestClass = new SingleFileMatchingTestClass();
     eventBus = new EventBusMock();
     remoteFileSystemMock = new RemoteFileSystemMock();
     localFileSystem = new LocalFileSystemMock();
@@ -28,7 +31,8 @@ describe('File path updater', () => {
       remoteFileSystemMock,
       localFileSystem,
       repository,
-      folderFinder as unknown as FolderFinder,
+      singleFileMatchingTestClass,
+      folderFinder as unknown as ParentFolderFinder,
       eventBus
     );
   });
@@ -37,7 +41,7 @@ describe('File path updater', () => {
     const fileToRename = FileMother.any();
     const fileWithDestinationPath = undefined;
 
-    repository.searchByPartialMock
+    singleFileMatchingTestClass.mock
       .mockReturnValueOnce(fileToRename)
       .mockReturnValueOnce(fileWithDestinationPath);
 
@@ -59,7 +63,7 @@ describe('File path updater', () => {
     const fileToRename = FileMother.any();
     const fileWithDestinationPath = undefined;
 
-    repository.searchByPartialMock
+    singleFileMatchingTestClass.mock
       .mockReturnValueOnce(fileToRename)
       .mockReturnValueOnce(fileWithDestinationPath);
 
@@ -77,7 +81,7 @@ describe('File path updater', () => {
     const fileInDestination = undefined;
     const localFileId = '1-2';
 
-    repository.searchByPartialMock
+    singleFileMatchingTestClass.mock
       .mockReturnValueOnce(fileToMove)
       .mockReturnValueOnce(fileInDestination);
 

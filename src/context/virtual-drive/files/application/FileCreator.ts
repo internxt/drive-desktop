@@ -1,4 +1,3 @@
-import { FolderFinder } from '../../folders/application/FolderFinder';
 import { FilePath } from '../domain/FilePath';
 import { File } from '../domain/File';
 import { FileSize } from '../domain/FileSize';
@@ -12,12 +11,13 @@ import { SyncFileMessenger } from '../domain/SyncFileMessenger';
 import { FileStatuses } from '../domain/FileStatus';
 import { DriveDesktopError } from '../../../shared/domain/errors/DriveDesktopError';
 import Logger from 'electron-log';
+import { ParentFolderFinder } from '../../folders/application/ParentFolderFinder';
 
 export class FileCreator {
   constructor(
     private readonly remote: RemoteFileSystem,
     private readonly repository: FileRepository,
-    private readonly folderFinder: FolderFinder,
+    private readonly parentFolderFinder: ParentFolderFinder,
     private readonly fileDeleter: FileDeleter,
     private readonly eventBus: EventBus,
     private readonly notifier: SyncFileMessenger
@@ -29,18 +29,22 @@ export class FileCreator {
     size: number
   ): Promise<File> {
     try {
-      const existingFile = this.repository.searchByPartial({
+      const existingFiles = this.repository.matchingPartial({
         path: PlatformPathConverter.winToPosix(filePath.value),
         status: FileStatuses.EXISTS,
       });
 
-      if (existingFile) {
-        await this.fileDeleter.run(existingFile.contentsId);
+      if (existingFiles) {
+        await Promise.all(
+          existingFiles.map((existingFile) =>
+            this.fileDeleter.run(existingFile.contentsId)
+          )
+        );
       }
 
       const fileSize = new FileSize(size);
 
-      const folder = this.folderFinder.findFromFilePath(filePath);
+      const folder = await this.parentFolderFinder.run(filePath);
 
       const offline = OfflineFile.create(
         contentsId,
@@ -66,11 +70,11 @@ export class FileCreator {
       const cause =
         error instanceof DriveDesktopError ? error.syncErrorCause : 'UNKNOWN';
 
-      await this.notifier.errorWhileCreating(
-        filePath.name(),
-        filePath.extension(),
-        cause
-      );
+      await this.notifier.issues({
+        error: 'UPLOAD_ERROR',
+        cause,
+        name: filePath.nameWithExtension(),
+      });
 
       throw error;
     }

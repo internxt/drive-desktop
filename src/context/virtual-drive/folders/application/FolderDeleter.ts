@@ -16,7 +16,7 @@ export class FolderDeleter {
   ) {}
 
   async run(uuid: Folder['uuid']): Promise<void> {
-    const folder = this.repository.searchByPartial({ uuid });
+    const folder = await this.repository.searchByUuid(uuid);
 
     if (!folder) {
       throw new FolderNotFoundError(uuid);
@@ -27,7 +27,7 @@ export class FolderDeleter {
         throw new ActionNotPermittedError('Trash root folder');
       }
 
-      const allParentsExists = this.allParentFoldersStatusIsExists.run(
+      const allParentsExists = await this.allParentFoldersStatusIsExists.run(
         // TODO: Create a new aggregate root for root folder so the rest have the parent Id as number
         folder.parentId as number
       );
