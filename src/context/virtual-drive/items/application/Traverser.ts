@@ -33,8 +33,8 @@ export class Traverser {
     private readonly decrypt: NameDecrypt,
     private readonly ipc: SyncEngineIpc,
     private readonly baseFolderId: number,
-    private readonly fileStatusesToFilter: Array<ServerFileStatus>,
-    private readonly folderStatusesToFilter: Array<ServerFolderStatus>
+    private fileStatusesToFilter: Array<ServerFileStatus>,
+    private folderStatusesToFilter: Array<ServerFolderStatus>
   ) {}
 
   static existingItems(
@@ -46,8 +46,8 @@ export class Traverser {
       decrypt,
       ipc,
       baseFolderId,
-      [ServerFileStatus.EXISTS, ServerFileStatus.TRASHED],
-      [ServerFolderStatus.EXISTS, ServerFolderStatus.TRASHED]
+      [ServerFileStatus.EXISTS],
+      [ServerFolderStatus.EXISTS]
     );
   }
 
@@ -57,6 +57,14 @@ export class Traverser {
     baseFolderId: number
   ): Traverser {
     return new Traverser(decrypt, ipc, baseFolderId, [], []);
+  }
+
+  public setFileStatusesToFilter(statuses: Array<ServerFileStatus>): void {
+    this.fileStatusesToFilter = statuses;
+  }
+
+  public setFolderStatusesToFilter(statuses: Array<ServerFolderStatus>): void {
+    this.folderStatusesToFilter = statuses;
   }
 
   private createRootFolder(): Folder {

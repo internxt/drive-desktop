@@ -10,6 +10,8 @@ import { DependencyContainer } from './dependency-injection/DependencyContainer'
 import { ipcRendererSyncEngine } from './ipcRendererSyncEngine';
 import { ProcessIssue } from '../shared/types';
 import { ipcRenderer } from 'electron';
+import { ServerFileStatus } from '../../context/shared/domain/ServerFile';
+import { ServerFolderStatus } from '../../context/shared/domain/ServerFolder';
 
 export type CallbackDownload = (
   success: boolean,
@@ -286,6 +288,15 @@ export class BindingsManager {
     Logger.info('[SYNC ENGINE]: Updating placeholders');
 
     try {
+      this.container.existingItemsTreeBuilder.setFilterStatusesToFilter([
+        ServerFileStatus.EXISTS,
+        ServerFileStatus.TRASHED,
+      ]);
+      this.container.existingItemsTreeBuilder.setFolderStatusesToFilter([
+        ServerFolderStatus.EXISTS,
+        ServerFolderStatus.TRASHED,
+      ]);
+
       const tree = await this.container.existingItemsTreeBuilder.run();
 
       await this.container.filesPlaceholderUpdater.run(tree.files);
