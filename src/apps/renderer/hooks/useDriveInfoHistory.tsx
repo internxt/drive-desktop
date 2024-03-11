@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
-import { DriveInfo } from '../../shared/types';
+import { DriveOperationInfo } from '../../shared/types';
 import throttle from 'lodash/throttle';
 
 export function useDriveInfoHistory() {
-  const [driveHistory, setDriveHistory] = useState<DriveInfo[]>([]);
+  const [driveHistory, setDriveHistory] = useState<DriveOperationInfo[]>([]);
 
-  const addItemToHistoryDebounced = throttle((item: DriveInfo) => {
+  const addItemToHistoryDebounced = throttle((item: DriveOperationInfo) => {
     const MAX_ITEMS = 50;
 
     setDriveHistory((prevList) => {
@@ -21,7 +21,7 @@ export function useDriveInfoHistory() {
     });
   }, 1000);
 
-  function addItemToHistory(item: DriveInfo) {
+  function addItemToHistory(item: DriveOperationInfo) {
     addItemToHistoryDebounced(item);
   }
 

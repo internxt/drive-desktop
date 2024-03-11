@@ -1,3 +1,4 @@
+import { basename } from 'path';
 import { VirtualDriveDependencyContainer } from '../dependency-injection/virtual-drive/VirtualDriveDependencyContainer';
 import { NotifyFuseCallback } from './FuseCallback';
 
@@ -16,10 +17,11 @@ export class MakeDirectoryCallback extends NotifyFuseCallback {
 
       return this.right();
     } catch (throwed: unknown) {
-      this.container.syncFolderMessenger.errorWhileCreating(
-        path,
-        'unknown error'
-      );
+      await this.container.syncFolderMessenger.issue({
+        error: 'FOLDER_CREATE_ERROR',
+        cause: 'UNKNOWN',
+        name: basename(path),
+      });
 
       return this.left(throwed);
     }

@@ -8,6 +8,7 @@ import { getSettingsWindow } from './settings';
 import { getFeedbackWindow } from './feedback';
 import { getWidget } from './widget';
 import { openVirtualDriveRootFolder } from '../virtual-root-folder/service';
+import { DriveOperationInfo } from '../../shared/types';
 
 function closeAuxWindows() {
   getProcessIssuesWindow()?.close();
@@ -30,6 +31,18 @@ export function broadcastToWindows(eventName: string, data: any) {
   ];
 
   renderers.forEach((r) => r?.webContents.send(eventName, data));
+}
+
+export function virtualDriveUpdate(info: DriveOperationInfo) {
+  const windows = [getWidget(), getProcessIssuesWindow()];
+
+  windows.forEach((window) =>
+    window?.webContents.send('sync-info-update', {
+      action: info.action,
+      name: info.name,
+      oldName: info.oldName,
+    })
+  );
 }
 
 export function setUpCommonWindowHandlers(window: BrowserWindow) {

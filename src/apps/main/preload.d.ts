@@ -36,7 +36,7 @@ declare interface Window {
     ): () => void;
 
     onSyncInfoUpdate(
-      func: (value: import('../shared/types').DriveInfo) => void
+      func: (value: import('../shared/types').DriveOperationInfo) => void
     ): () => void;
 
     userIsUnauthorized(): void;

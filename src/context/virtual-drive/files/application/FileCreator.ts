@@ -70,11 +70,11 @@ export class FileCreator {
       const cause =
         error instanceof DriveDesktopError ? error.syncErrorCause : 'UNKNOWN';
 
-      await this.notifier.errorWhileCreating(
-        filePath.name(),
-        filePath.extension(),
-        cause
-      );
+      await this.notifier.issues({
+        error: 'UPLOAD_ERROR',
+        cause,
+        name: filePath.nameWithExtension(),
+      });
 
       throw error;
     }

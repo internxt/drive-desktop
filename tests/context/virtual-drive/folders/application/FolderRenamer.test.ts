@@ -2,11 +2,11 @@ import { FolderRenamer } from '../../../../../src/context/virtual-drive/folders/
 import { EventBusMock } from '../../shared/__mock__/EventBusMock';
 import { FolderRemoteFileSystemMock } from '../__mocks__/FolderRemoteFileSystemMock';
 import { FolderRepositoryMock } from '../__mocks__/FolderRepositoryMock';
-import { SyncFolderMessengerMock } from '../__mocks__/SycnFolderMessengerMock';
 import { FolderMother } from '../domain/FolderMother';
 import { FolderPathMother } from '../domain/FolderPathMother';
 import { FolderPath } from '../../../../../src/context/virtual-drive/folders/domain/FolderPath';
 import { Folder } from '../../../../../src/context/virtual-drive/folders/domain/Folder';
+import { SyncFolderMessengerMock } from '../__mocks__/SyncFolderMessengerMock';
 
 describe('Folder Renamer', () => {
   let repository: FolderRepositoryMock;
