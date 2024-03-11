@@ -32,14 +32,14 @@ describe('Folder deleter', () => {
   it('trashes an existing folder', async () => {
     const folder = FolderMother.exists();
 
+    remote.shouldTrash(folder);
+
     repository.searchByUuidMock.mockResolvedValueOnce(folder);
     jest
       .spyOn(allParentFoldersStatusIsExists, 'run')
       .mockResolvedValueOnce(true);
 
     await SUT.run(folder.uuid);
-
-    expect(remote.trashMock).toBeCalledWith(folder.id);
   });
 
   it('throws an error when trashing a folder already trashed', async () => {
@@ -80,7 +80,7 @@ describe('Folder deleter', () => {
     jest
       .spyOn(allParentFoldersStatusIsExists, 'run')
       .mockResolvedValueOnce(true);
-    remote.trashMock.mockRejectedValue(new Error('Error during the deletion'));
+    remote.shouldTrash(folder, new Error('Error during the deletion'));
 
     await SUT.run(folder.uuid);
 

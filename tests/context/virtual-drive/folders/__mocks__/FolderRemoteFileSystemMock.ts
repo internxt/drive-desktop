@@ -9,7 +9,7 @@ import {
 
 export class FolderRemoteFileSystemMock implements RemoteFileSystem {
   private readonly persistMock = jest.fn();
-  public readonly trashMock = jest.fn();
+  private readonly trashMock = jest.fn();
   public readonly moveMock = jest.fn();
   public readonly renameMock = jest.fn();
 
@@ -24,7 +24,9 @@ export class FolderRemoteFileSystemMock implements RemoteFileSystem {
   }
 
   trash(id: number): Promise<void> {
-    return this.trashMock(id);
+    expect(this.trashMock).toBeCalledWith(id);
+
+    return this.trashMock();
   }
 
   move(folder: Folder): Promise<void> {
@@ -49,5 +51,16 @@ export class FolderRemoteFileSystemMock implements RemoteFileSystem {
       updatedAt: folder.updatedAt.toISOString(),
       parentId: folder.parentId as number,
     } satisfies FolderPersistedDto);
+  }
+
+  shouldTrash(folder: Folder, error?: Error) {
+    this.trashMock(folder.id);
+
+    if (error) {
+      this.trashMock.mockRejectedValueOnce(error);
+      return;
+    }
+
+    this.trashMock.mockReturnValue(Promise.resolve());
   }
 }
