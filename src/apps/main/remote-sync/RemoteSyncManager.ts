@@ -335,18 +335,64 @@ export class RemoteSyncManager {
     const params = {
       limit: this.config.fetchFilesLimitPerRequest,
       offset: 0,
-      status: '',
+      status: 'ALL',
       updatedAt: updatedAtCheckpoint
         ? updatedAtCheckpoint.toISOString()
         : undefined,
     };
-    return (await this.fetchItems(params, 'files')) as {
-      hasMore: boolean;
-      result: RemoteSyncedFile[];
+    const allFilesResponse = await this.fetchItems(params, 'files');
+    if (allFilesResponse.status > 299) {
+      throw new Error(
+        `Fetch files response not ok with body ${JSON.stringify(
+          allFilesResponse.data,
+          null,
+          2
+        )} and status ${allFilesResponse.status}`
+      );
+    }
+
+    if (Array.isArray(allFilesResponse.data)) {
+      Logger.info(`Received ${allFilesResponse.data.length} fetched files`);
+    } else {
+      Logger.info(
+        `Expected to receive an array of files, but instead received ${JSON.stringify(
+          allFilesResponse,
+          null,
+          2
+        )}`
+      );
+
+      throw new Error('Did not receive an array of files');
+    }
+
+    const hasMore =
+      allFilesResponse.data.length === this.config.fetchFilesLimitPerRequest;
+
+    return {
+      hasMore,
+      result:
+        allFilesResponse.data && Array.isArray(allFilesResponse.data)
+          ? allFilesResponse.data.map(this.patchDriveFileResponseItem)
+          : [],
     };
   }
 
-  private async fetchItems(
+  private fetchItems = async (
+    params: {
+      limit: number;
+      offset: number;
+      status: string;
+      updatedAt: string | undefined;
+    },
+    type: 'files' | 'folders'
+  ) => {
+    return await this.config.httpClient.get(
+      `${process.env.NEW_DRIVE_URL}/drive/${type}`,
+      { params }
+    );
+  };
+
+  private async fetchItemsExistsAndTrashed(
     params: {
       limit: number;
       offset: number;
@@ -355,17 +401,9 @@ export class RemoteSyncManager {
     },
     type: 'files' | 'folders'
   ) {
-    const fetchWithStatus = async (status: string) => {
-      params.status = status;
-      return await this.config.httpClient.get(
-        `${process.env.NEW_DRIVE_URL}/drive/${type}`,
-        { params }
-      );
-    };
-
     const [existingItemsResponse, trashedItemsResponse] = await Promise.all([
-      fetchWithStatus('EXISTS'),
-      fetchWithStatus('TRASHED'),
+      this.fetchItems({ ...params, status: 'EXISTS' }, type),
+      this.fetchItems({ ...params, status: 'TRASHED' }, type),
     ]);
 
     if (
@@ -431,15 +469,47 @@ export class RemoteSyncManager {
     const params = {
       limit: this.config.fetchFilesLimitPerRequest,
       offset: 0,
-      status: '',
+      status: 'ALL',
       updatedAt: updatedAtCheckpoint
         ? updatedAtCheckpoint.toISOString()
         : undefined,
     };
 
-    return (await this.fetchItems(params, 'folders')) as {
-      hasMore: boolean;
-      result: RemoteSyncedFolder[];
+    const allFoldersResponse = await this.fetchItems(params, 'folders');
+
+    if (allFoldersResponse.status > 299) {
+      throw new Error(
+        `Fetch files response not ok with body ${JSON.stringify(
+          allFoldersResponse.data,
+          null,
+          2
+        )} and status ${allFoldersResponse.status}`
+      );
+    }
+
+    if (Array.isArray(allFoldersResponse.data)) {
+      Logger.info(`Received ${allFoldersResponse.data.length} fetched files`);
+    } else {
+      Logger.info(
+        `Expected to receive an array of files, but instead received ${JSON.stringify(
+          allFoldersResponse,
+          null,
+          2
+        )}`
+      );
+
+      throw new Error('Did not receive an array of files');
+    }
+
+    const hasMore =
+      allFoldersResponse.data.length === this.config.fetchFilesLimitPerRequest;
+
+    return {
+      hasMore,
+      result:
+        allFoldersResponse.data && Array.isArray(allFoldersResponse.data)
+          ? allFoldersResponse.data.map(this.patchDriveFolderResponseItem)
+          : [],
     };
   }
 
