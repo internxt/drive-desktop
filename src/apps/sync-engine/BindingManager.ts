@@ -292,6 +292,7 @@ export class BindingsManager {
         ServerFileStatus.EXISTS,
         ServerFileStatus.TRASHED,
       ]);
+
       this.container.existingItemsTreeBuilder.setFolderStatusesToFilter([
         ServerFolderStatus.EXISTS,
         ServerFolderStatus.TRASHED,
@@ -299,6 +300,18 @@ export class BindingsManager {
 
       const tree = await this.container.existingItemsTreeBuilder.run();
 
+      Logger.debug(
+        'Trashed files',
+        tree.trashedFilesList.map((f) => f.path)
+      );
+
+      // Delete all the placeholders that are not in the tree
+      await this.container.filesPlaceholderUpdater.run(tree.trashedFilesList);
+      await this.container.folderPlaceholderUpdater.run(
+        tree.trashedFoldersList
+      );
+
+      // Create all the placeholders that are in the tree
       await this.container.filesPlaceholderUpdater.run(tree.files);
       await this.container.folderPlaceholderUpdater.run(tree.folders);
     } catch (error) {

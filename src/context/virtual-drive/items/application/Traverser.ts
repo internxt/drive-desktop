@@ -19,10 +19,6 @@ import {
 import { EitherTransformer } from '../../shared/application/EitherTransformer';
 import { NameDecrypt } from '../domain/NameDecrypt';
 import { Tree } from '../domain/Tree';
-import * as fs from 'fs';
-import * as path from 'path';
-import { DependencyInjectionLocalRootFolderPath } from '../../../../apps/sync-engine/dependency-injection/common/localRootFolderPath';
-
 type Items = {
   files: Array<ServerFile>;
   folders: Array<ServerFolder>;
@@ -114,17 +110,17 @@ export class Traverser {
         serverFile.status === ServerFileStatus.REMOVED ||
         serverFile.status === ServerFileStatus.TRASHED
       ) {
-        const localRootFolderPath =
-          DependencyInjectionLocalRootFolderPath.get();
         try {
           Logger.info(
-            `[Traverser] Removing file from local storage: ${relativeFilePath}`
+            `[Traverser] Adding the file to the local deletion queue: ${relativeFilePath}`
           );
-          fs.unlinkSync(path.join(localRootFolderPath, relativeFilePath));
+          tree.appendTrashedFile(
+            createFileFromServerFile(serverFile, relativeFilePath)
+          );
           return;
         } catch (error) {
           Logger.warn(
-            `[Traverser] Error removing file from local storage: ${error}`
+            `[Traverser] Error adding file to delete queue: ${error}`
           );
           return;
         }
@@ -164,6 +160,26 @@ export class Traverser {
 
       if (!this.folderStatusesToFilter.includes(serverFolder.status)) {
         return;
+      }
+
+      if (
+        serverFolder.status === ServerFolderStatus.REMOVED ||
+        serverFolder.status === ServerFolderStatus.TRASHED
+      ) {
+        try {
+          Logger.info(
+            `[Traverser] Adding the folder to the local deletion queue: ${name}`
+          );
+          tree.appendTrashedFolder(
+            createFolderFromServerFolder(serverFolder, name)
+          );
+          return;
+        } catch (error) {
+          Logger.warn(
+            `[Traverser] Error adding folder to delete queue: ${error}`
+          );
+          return;
+        }
       }
 
       EitherTransformer.handleWithEither(() => {

@@ -20,6 +20,25 @@ export class FilesPlaceholderUpdater {
   ) {}
 
   private hasToBeDeleted(local: File, remote: File): boolean {
+    Logger.debug(
+      '========================================================',
+      'Checking if file has to be deleted: \n',
+      'Path Remoto: ',
+      remote.path + '\n',
+      'Path Local: ',
+      local.path + '\n',
+      'Remote Status',
+      remote.status.value + '\n',
+      'Local Status: ',
+      local.status.value + '\n',
+      'Local exists: ',
+      local.status.is(FileStatuses.EXISTS) + '\n',
+      'Remote is trashed: ',
+      remote.status.is(FileStatuses.TRASHED) + '\n',
+      'Remote is deleted: ',
+      remote.status.is(FileStatuses.DELETED) + '\n',
+      '========================================================'
+    );
     const localExists = local.status.is(FileStatuses.EXISTS);
     const remoteIsTrashed = remote.status.is(FileStatuses.TRASHED);
     const remoteIsDeleted = remote.status.is(FileStatuses.DELETED);
@@ -27,11 +46,21 @@ export class FilesPlaceholderUpdater {
   }
 
   private async update(remote: File): Promise<void> {
+    Logger.debug(
+      'Updating file placeholder *********************************************: \n',
+      remote.path,
+      remote.contentsId,
+      (await this.repository.all()).map((file) =>
+        JSON.stringify({ path: file.path, contentsId: file.contentsId })
+      ),
+      '\n'
+    );
     const local = this.repository.searchByPartial({
       contentsId: remote.contentsId,
     });
 
     if (!local) {
+      Logger.debug('Not in local');
       if (remote.status.is(FileStatuses.EXISTS)) {
         Logger.debug('Creating file placeholder: ', remote.path);
         await this.repository.add(remote);
