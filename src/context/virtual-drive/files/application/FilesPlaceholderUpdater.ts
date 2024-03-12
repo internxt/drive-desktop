@@ -60,7 +60,6 @@ export class FilesPlaceholderUpdater {
     });
 
     if (!local) {
-      Logger.debug('Not in local');
       if (remote.status.is(FileStatuses.EXISTS)) {
         Logger.debug('Creating file placeholder: ', remote.path);
         await this.repository.add(remote);
