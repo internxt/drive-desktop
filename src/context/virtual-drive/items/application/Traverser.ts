@@ -107,7 +107,7 @@ export class Traverser {
         );
 
       if (
-        serverFile.status === ServerFileStatus.REMOVED ||
+        serverFile.status === ServerFileStatus.DELETED ||
         serverFile.status === ServerFileStatus.TRASHED
       ) {
         try {
@@ -163,7 +163,7 @@ export class Traverser {
       }
 
       if (
-        serverFolder.status === ServerFolderStatus.REMOVED ||
+        serverFolder.status === ServerFolderStatus.DELETED ||
         serverFolder.status === ServerFolderStatus.TRASHED
       ) {
         try {

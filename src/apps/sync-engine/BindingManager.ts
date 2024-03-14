@@ -291,11 +291,13 @@ export class BindingsManager {
       this.container.existingItemsTreeBuilder.setFilterStatusesToFilter([
         ServerFileStatus.EXISTS,
         ServerFileStatus.TRASHED,
+        ServerFileStatus.DELETED,
       ]);
 
       this.container.existingItemsTreeBuilder.setFolderStatusesToFilter([
         ServerFolderStatus.EXISTS,
         ServerFolderStatus.TRASHED,
+        ServerFolderStatus.DELETED,
       ]);
 
       const tree = await this.container.existingItemsTreeBuilder.run();
@@ -306,8 +308,8 @@ export class BindingsManager {
       );
 
       // Delete all the placeholders that are not in the tree
-      await this.container.filesPlaceholderUpdater.run(tree.trashedFilesList);
-      await this.container.folderPlaceholderUpdater.run(
+      await this.container?.filesPlaceholderDeleter?.run(tree.trashedFilesList);
+      await this.container?.folderPlaceholderDeleter?.run(
         tree.trashedFoldersList
       );
 

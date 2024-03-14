@@ -30,6 +30,7 @@ import { FilePlaceholderConverter } from '../../../../context/virtual-drive/file
 import { FileSyncStatusUpdater } from '../../../../context/virtual-drive/files/application/FileSyncStatusUpdater';
 import { FileContentsUpdater } from '../../../../context/virtual-drive/files/application/FileContentsUpdater';
 import { FileCheckerStatusInRoot } from '../../../../context/virtual-drive/files/application/FileCheckerStatusInRoot';
+import { FilesPlaceholderDeleter } from '../../../../context/virtual-drive/files/application/FilesPlaceholderDeleter';
 
 export async function buildFilesContainer(
   folderContainer: FoldersContainer,
@@ -126,6 +127,10 @@ export async function buildFilesContainer(
     eventHistory
   );
 
+  const filesPlaceholderDeleter = new FilesPlaceholderDeleter(
+    sharedContainer.relativePathToAbsoluteConverter
+  );
+
   const filePlaceholderConverter = new FilePlaceholderConverter(
     localFileSystem
   );
@@ -165,6 +170,7 @@ export async function buildFilesContainer(
     repositoryPopulator: repositoryPopulator,
     filesPlaceholderCreator,
     filesPlaceholderUpdater,
+    filesPlaceholderDeleter,
     filePlaceholderConverter,
     fileSyncStatusUpdater,
     filesCheckerStatusInRoot,
