@@ -22,7 +22,7 @@ export type FileAddedCallback = (
 ) => Promise<boolean>;
 
 export class BindingsManager {
-  private static readonly PROVIDER_NAME = 'Internxt';
+  private static readonly PROVIDER_NAME = 'PcCloud';
   private progressBuffer = 0;
   constructor(
     private readonly container: DependencyContainer,
