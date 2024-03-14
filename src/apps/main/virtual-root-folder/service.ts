@@ -5,7 +5,7 @@ import path from 'path';
 import configStore from '../config';
 import eventBus from '../event-bus';
 
-const ROOT_FOLDER_NAME = 'InternxtDrive';
+const ROOT_FOLDER_NAME = 'PcCLoud';
 const HOME_FOLDER_PATH = app.getPath('home');
 
 const VIRTUAL_DRIVE_FOLDER = path.join(HOME_FOLDER_PATH, ROOT_FOLDER_NAME);
@@ -63,21 +63,6 @@ export function getRootVirtualDrive(): string {
 export async function setupRootFolder(n = 0): Promise<void> {
   setSyncRoot(VIRTUAL_DRIVE_FOLDER);
   return;
-  const folderName = ROOT_FOLDER_NAME;
-
-  const rootFolderName = folderName + (n ? ` (${n})` : '');
-  const rootFolderPath = path.join(HOME_FOLDER_PATH, rootFolderName);
-
-  const notExistsOrIsEmpty =
-    !(await existsFolder(rootFolderPath)) ||
-    (await isEmptyFolder(rootFolderPath));
-
-  if (notExistsOrIsEmpty) {
-    await fs.mkdir(rootFolderPath, { recursive: true });
-    setSyncRoot(rootFolderPath);
-  } else {
-    return setupRootFolder(n + 1);
-  }
 }
 
 export async function chooseSyncRootWithDialog(): Promise<string | null> {
