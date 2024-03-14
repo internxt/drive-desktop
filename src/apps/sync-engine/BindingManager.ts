@@ -35,6 +35,18 @@ export class BindingsManager {
   ) {}
 
   async load(): Promise<void> {
+    this.container.existingItemsTreeBuilder.setFilterStatusesToFilter([
+      ServerFileStatus.EXISTS,
+      ServerFileStatus.TRASHED,
+      ServerFileStatus.DELETED,
+    ]);
+
+    this.container.existingItemsTreeBuilder.setFolderStatusesToFilter([
+      ServerFolderStatus.EXISTS,
+      ServerFolderStatus.TRASHED,
+      ServerFolderStatus.DELETED,
+    ]);
+
     const tree = await this.container.existingItemsTreeBuilder.run();
 
     await this.container.repositoryPopulator.run(tree.files);
@@ -42,6 +54,16 @@ export class BindingsManager {
 
     await this.container.folderRepositoryInitiator.run(tree.folders);
     await this.container.foldersPlaceholderCreator.run(tree.folders);
+
+    Logger.debug(
+      'Trashed in load',
+      tree.trashedFilesList,
+      tree.trashedFoldersList
+    );
+    await this.container?.filesPlaceholderDeleter?.run(tree.trashedFilesList);
+    await this.container?.folderPlaceholderDeleter?.run(
+      tree.trashedFoldersList
+    );
   }
 
   async start(version: string, providerId: string) {
@@ -288,18 +310,6 @@ export class BindingsManager {
     Logger.info('[SYNC ENGINE]: Updating placeholders');
 
     try {
-      this.container.existingItemsTreeBuilder.setFilterStatusesToFilter([
-        ServerFileStatus.EXISTS,
-        ServerFileStatus.TRASHED,
-        ServerFileStatus.DELETED,
-      ]);
-
-      this.container.existingItemsTreeBuilder.setFolderStatusesToFilter([
-        ServerFolderStatus.EXISTS,
-        ServerFolderStatus.TRASHED,
-        ServerFolderStatus.DELETED,
-      ]);
-
       const tree = await this.container.existingItemsTreeBuilder.run();
 
       Logger.debug(

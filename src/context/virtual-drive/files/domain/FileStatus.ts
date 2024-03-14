@@ -2,6 +2,8 @@ import { EnumValueObject } from '../../../shared/domain/EnumValueObject';
 import { InvalidArgumentError } from '../../../shared/domain/InvalidArgumentError';
 import { ActionNotPermittedError } from './errors/ActionNotPermittedError';
 
+// Several of our implementations work under the premise that the name of the enum key matches
+// the value, it is important that when new elements are included, this rule continues to be followed.
 export enum FileStatuses {
   EXISTS = 'EXISTS',
   TRASHED = 'TRASHED',

@@ -2,21 +2,26 @@ import { FileStatuses } from '../domain/FileStatus';
 import { File } from '../domain/File';
 import fs from 'fs/promises';
 import { RelativePathToAbsoluteConverter } from '../../shared/application/RelativePathToAbsoluteConverter';
+import { RemoteFileSystem } from '../domain/file-systems/RemoteFileSystem';
 
 export class FilesPlaceholderDeleter {
   constructor(
+    private remoteFileSystem: RemoteFileSystem,
     private readonly relativePathToAbsoluteConverter: RelativePathToAbsoluteConverter
   ) {}
 
-  private hasToBeDeleted(remote: File): boolean {
+  private async hasToBeDeleted(remote: File): Promise<boolean> {
+    const fileStatus = await this.remoteFileSystem.checkStatusFile(
+      remote['uuid']
+    );
     return (
-      remote.status.is(FileStatuses.TRASHED) ||
-      remote.status.is(FileStatuses.DELETED)
+      fileStatus === FileStatuses.TRASHED || fileStatus === FileStatuses.DELETED
     );
   }
 
   private async delete(remote: File): Promise<void> {
-    if (this.hasToBeDeleted(remote)) {
+    const hasToBeDeleted = await this.hasToBeDeleted(remote);
+    if (hasToBeDeleted) {
       const win32AbsolutePath = this.relativePathToAbsoluteConverter.run(
         remote.path
       );

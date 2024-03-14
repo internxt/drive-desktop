@@ -60,6 +60,27 @@ export class HttpRemoteFileSystem implements RemoteFileSystem {
     }
   }
 
+  async checkStatusFolder(uuid: Folder['uuid']): Promise<FolderStatuses> {
+    const response = await this.driveClient.get(
+      `${process.env.NEW_DRIVE_URL}/drive/folders/${uuid}/meta`
+    );
+
+    if (response.status === 404) {
+      return FolderStatuses.DELETED;
+    }
+
+    if (response.status !== 200) {
+      Logger.error(
+        '[FOLDER FILE SYSTEM] Error getting folder metadata',
+        response.status,
+        response.statusText
+      );
+      throw new Error('Error getting folder metadata');
+    }
+
+    return response.data.status as FolderStatuses;
+  }
+
   async trash(id: Folder['id']): Promise<void> {
     const result = await this.trashClient.post(
       `${process.env.NEW_DRIVE_URL}/drive/storage/trash/add`,
