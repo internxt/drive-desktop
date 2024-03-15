@@ -33,7 +33,6 @@ export class FilesPlaceholderUpdater {
 
     if (!local) {
       if (remote.status.is(FileStatuses.EXISTS)) {
-        Logger.debug('Creating file placeholder: ', remote.path);
         await this.repository.add(remote);
         await this.localFileSystem.createPlaceHolder(remote);
       }
@@ -41,7 +40,6 @@ export class FilesPlaceholderUpdater {
     }
 
     if (local.path !== remote.path) {
-      Logger.debug('Updating file placeholder: ', remote.path);
       const trackerId = await this.localFileIdProvider.run(local.path);
       if (remote.name !== local.name) {
         const event = new FileRenamedDomainEvent({

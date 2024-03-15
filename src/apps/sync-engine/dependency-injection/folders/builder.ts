@@ -32,6 +32,7 @@ import { FolderContainerDetector } from '../../../../context/virtual-drive/folde
 import { FolderPlaceholderConverter } from '../../../../context/virtual-drive/folders/application/FolderPlaceholderConverter';
 import { FolderSyncStatusUpdater } from '../../../../context/virtual-drive/folders/application/FolderSyncStatusUpdater';
 import { FoldersFatherSyncStatusUpdater } from '../../../../context/virtual-drive/folders/application/FoldersFatherSyncStatusUpdater';
+import { FolderPlaceholderDeleter } from './../../../../context/virtual-drive/folders/application/FolderPlaceholderDeleter';
 
 export async function buildFoldersContainer(
   shredContainer: SharedContainer
@@ -141,6 +142,11 @@ export async function buildFoldersContainer(
     shredContainer.relativePathToAbsoluteConverter
   );
 
+  const folderPlaceholderDeleter = new FolderPlaceholderDeleter(
+    shredContainer.relativePathToAbsoluteConverter,
+    remoteFileSystem
+  );
+
   const folderContainerDetector = new FolderContainerDetector(repository);
   const foldersFatherSyncStatusUpdater = new FoldersFatherSyncStatusUpdater(
     localFileSystem,
@@ -163,6 +169,7 @@ export async function buildFoldersContainer(
       synchronizeOfflineModifications,
     },
     retrieveAllFolders: new RetrieveAllFolders(repository),
+    folderPlaceholderDeleter,
     folderRepositoryInitiator,
     foldersPlaceholderCreator,
     folderPlaceholderUpdater,

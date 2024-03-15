@@ -47,6 +47,27 @@ export class SDKRemoteFileSystem implements RemoteFileSystem {
     };
   }
 
+  async checkStatusFile(uuid: File['uuid']): Promise<FileStatuses> {
+    const response = await this.clients.newDrive.get(
+      `${process.env.NEW_DRIVE_URL}/drive/files/${uuid}/meta`
+    );
+
+    if (response.status === 404) {
+      return FileStatuses.DELETED;
+    }
+
+    if (response.status !== 200) {
+      Logger.error(
+        '[FILE FILE SYSTEM] Error checking file status',
+        response.status,
+        response.statusText
+      );
+      throw new Error('Error checking file status');
+    }
+
+    return response.data.status as FileStatuses;
+  }
+
   async trash(contentsId: string): Promise<void> {
     const result = await this.clients.newDrive.post(
       `${process.env.NEW_DRIVE_URL}/drive/storage/trash/add`,

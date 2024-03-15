@@ -8,6 +8,8 @@ export interface LocalFileSystem {
 
   updateSyncStatus(file: File): Promise<void>;
 
+  getFileIdentity(path: File['path']): Promise<File['uuid']>;
+
   convertToPlaceholder(file: File): Promise<void>;
 
   getPlaceholderState(file: File): Promise<void>;

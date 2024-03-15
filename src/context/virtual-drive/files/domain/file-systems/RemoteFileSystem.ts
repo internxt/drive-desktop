@@ -1,4 +1,5 @@
 import { File, FileAttributes } from '../File';
+import { FileStatuses } from '../FileStatus';
 import { OfflineFile } from '../OfflineFile';
 
 export interface RemoteFileSystem {
@@ -9,6 +10,8 @@ export interface RemoteFileSystem {
   move(file: File): Promise<void>;
 
   rename(file: File): Promise<void>;
+
+  checkStatusFile(uuid: File['uuid']): Promise<FileStatuses>;
 
   replace(
     file: File,
