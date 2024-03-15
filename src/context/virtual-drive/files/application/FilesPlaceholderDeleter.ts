@@ -1,6 +1,5 @@
 import { FileStatuses } from '../domain/FileStatus';
 import { File } from '../domain/File';
-import * as fs from 'fs';
 import { RelativePathToAbsoluteConverter } from '../../shared/application/RelativePathToAbsoluteConverter';
 import { RemoteFileSystem } from '../domain/file-systems/RemoteFileSystem';
 import { LocalFileSystem } from '../domain/file-systems/LocalFileSystem';
@@ -24,19 +23,20 @@ export class FilesPlaceholderDeleter {
       localdb uuid: ${remote['contentsId']}\n
       localStatus: ${remote.status.value}\n
       syncroot uuidd: ${localUUID.split(':')[1]}\n
+      syncroot uuidd2: ${localUUID}\n
       remoteo status: ${fileStatus}\n
       trashed condition: ${
         fileStatus === FileStatuses.TRASHED ||
         fileStatus === FileStatuses.DELETED
       }\n
       localUUID condition: ${localUUID.split(':')[1] === remote['contentsId']}\n
-      lenuuid: ${localUUID.split(':')[1].trim().length}\n
-      lenremote: ${remote['contentsId'].trim().length}\n`
+      lenuuid: ${localUUID.split(':')[1]?.trim().length}\n
+      lenremote: ${remote['contentsId']?.trim().length}\n`
     );
     return (
       (fileStatus === FileStatuses.TRASHED ||
         fileStatus === FileStatuses.DELETED) &&
-      localUUID.split(':')[1].trim() === remote['contentsId'].trim()
+      localUUID.split(':')[1]?.trim() === remote['contentsId']?.trim()
     );
   }
 
@@ -45,17 +45,17 @@ export class FilesPlaceholderDeleter {
     Logger.info(`hasToBeDeleted: ${hasToBeDeleted}`);
     if (hasToBeDeleted) {
       Logger.info(`deleting file: ${remote.path}`);
-      const win32AbsolutePath = this.relativePathToAbsoluteConverter.run(
-        remote.path
-      );
-      Logger.info(`win32AbsolutePath: ${win32AbsolutePath}`);
-      fs.unlink(win32AbsolutePath, () => {
-        Logger.info(`file deleted: ${remote.path}`);
-      });
+      // const win32AbsolutePath = this.relativePathToAbsoluteConverter.run(
+      //   remote.path
+      // );
+      // Logger.info(`win32AbsolutePath: ${win32AbsolutePath}`);
+      await this.local.deleteFileSyncRoot(remote.path);
     }
   }
 
   async run(remotes: File[]): Promise<void> {
-    await remotes.map((remote) => this.delete(remote));
+    for (const remote of remotes) {
+      await this.delete(remote);
+    }
   }
 }

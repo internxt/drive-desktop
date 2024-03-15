@@ -10,6 +10,8 @@ export interface LocalFileSystem {
 
   getFileIdentity(path: File['path']): Promise<File['uuid']>;
 
+  deleteFileSyncRoot(path: File['path']): Promise<void>;
+
   convertToPlaceholder(file: File): Promise<void>;
 
   getPlaceholderState(file: File): Promise<void>;
