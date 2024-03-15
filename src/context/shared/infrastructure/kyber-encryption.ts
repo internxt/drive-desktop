@@ -15,10 +15,6 @@ class KyberCrypto {
     this.kem = await kemBuilder();
   }
 
-  /**
-   * Genera un par de claves pública y privada.
-   * @returns {Object} Contiene `publicKey` y `privateKey`.
-   */
   async generateKeyPair() {
     if (!this.kem) {
       throw new Error(
