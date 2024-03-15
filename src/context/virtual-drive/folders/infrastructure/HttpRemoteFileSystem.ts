@@ -61,11 +61,12 @@ export class HttpRemoteFileSystem implements RemoteFileSystem {
   }
 
   async checkStatusFolder(uuid: Folder['uuid']): Promise<FolderStatuses> {
-    const response = await this.driveClient.get(
-      `${process.env.NEW_DRIVE_URL}/drive/folders/${uuid}/meta`
-    );
-
-    if (response.status === 404) {
+    let response;
+    try {
+      response = await this.trashClient.get(
+        `${process.env.NEW_DRIVE_URL}/drive/folders/${uuid}/meta`
+      );
+    } catch {
       return FolderStatuses.DELETED;
     }
 

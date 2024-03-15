@@ -6,6 +6,8 @@ import { RemoteFileSystem } from '../domain/file-systems/RemoteFileSystem';
 import { LocalFileSystem } from '../domain/file-systems/LocalFileSystem';
 import Logger from 'electron-log';
 import { sleep } from '../../../../apps/main/util';
+import fs from 'fs/promises';
+
 export class FolderPlaceholderDeleter {
   constructor(
     private readonly relativePathToAbsoluteConverter: RelativePathToAbsoluteConverter,
@@ -56,6 +58,8 @@ export class FolderPlaceholderDeleter {
       const win32AbsolutePath = this.relativePathToAbsoluteConverter.run(
         remote.path
       );
+      Logger.info(`win32AbsolutePath in delete: ${win32AbsolutePath}`);
+      //await fs.rm(win32AbsolutePath, { recursive: true, force: true });
       await this.local.deleteFileSyncRoot(remote.path);
     }
   }
