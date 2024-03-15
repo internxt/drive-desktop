@@ -1,7 +1,7 @@
 import { Folder } from '../../folders/domain/Folder';
+import Logger from 'electron-log';
 import { FileNode } from './FileNode';
 import { Node } from './Node';
-
 export class FolderNode {
   private constructor(
     public readonly folder: Folder,
@@ -18,7 +18,9 @@ export class FolderNode {
 
   addChild(node: Node): void {
     if (this.children.has(node.id)) {
-      throw new Error(`Duplicated node detected: ${node.id}`);
+      Logger.warn(`[New Error] Duplicated node detected: ${node.id}`);
+      return;
+      // throw new Error(`Duplicated node detected: ${node.id}`);
     }
 
     this.children.set(node.id, node);
