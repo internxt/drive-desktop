@@ -49,11 +49,11 @@ export class BindingsManager {
 
     const tree = await this.container.existingItemsTreeBuilder.run();
 
-    await this.container.repositoryPopulator.run(tree.files);
-    await this.container.filesPlaceholderCreator.run(tree.files);
-
     await this.container.folderRepositoryInitiator.run(tree.folders);
     await this.container.foldersPlaceholderCreator.run(tree.folders);
+
+    await this.container.repositoryPopulator.run(tree.files);
+    await this.container.filesPlaceholderCreator.run(tree.files);
 
     Logger.debug(
       'Trashed in load',
