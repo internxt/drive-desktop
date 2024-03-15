@@ -1,6 +1,6 @@
 import path from 'path';
 
-const brandPath = 'brands/pc-cloud';
+const brandPath = '/brands/pc-cloud/';
 
 export const iconPath =
   process.env.NODE_ENV === 'development'
