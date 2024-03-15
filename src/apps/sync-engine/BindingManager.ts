@@ -60,6 +60,11 @@ export class BindingsManager {
       tree.trashedFilesList,
       tree.trashedFoldersList
     );
+
+    Logger.debug(
+      'Trashed folder',
+      tree.trashedFoldersList.map((f) => f.path)
+    );
     await this.container?.filesPlaceholderDeleter?.run(tree.trashedFilesList);
     await this.container?.folderPlaceholderDeleter?.run(
       tree.trashedFoldersList
@@ -313,8 +318,8 @@ export class BindingsManager {
       const tree = await this.container.existingItemsTreeBuilder.run();
 
       Logger.debug(
-        'Trashed files',
-        tree.trashedFilesList.map((f) => f.path)
+        'Trashed folder',
+        tree.trashedFoldersList.map((f) => f.path)
       );
 
       // Delete all the placeholders that are not in the tree

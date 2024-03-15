@@ -8,7 +8,7 @@ export interface LocalFileSystem {
 
   updateSyncStatus(file: File): Promise<void>;
 
-  getFileIdentity(path: File['path']): Promise<File['uuid']>;
+  getFileIdentity(path: File['path']): Promise<string>;
 
   deleteFileSyncRoot(path: File['path']): Promise<void>;
 

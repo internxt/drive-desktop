@@ -7,5 +7,9 @@ export interface LocalFileSystem {
 
   convertToPlaceholder(folder: Folder): Promise<void>;
 
+  getFileIdentity(path: Folder['path']): Promise<string>;
+
+  deleteFileSyncRoot(path: Folder['path']): Promise<void>;
+
   getPlaceholderState(folder: Folder): Promise<void>;
 }

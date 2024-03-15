@@ -144,7 +144,8 @@ export async function buildFoldersContainer(
 
   const folderPlaceholderDeleter = new FolderPlaceholderDeleter(
     shredContainer.relativePathToAbsoluteConverter,
-    remoteFileSystem
+    remoteFileSystem,
+    localFileSystem
   );
 
   const folderContainerDetector = new FolderContainerDetector(repository);

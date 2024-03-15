@@ -4,6 +4,7 @@ import { RelativePathToAbsoluteConverter } from '../../shared/application/Relati
 import { RemoteFileSystem } from '../domain/file-systems/RemoteFileSystem';
 import { LocalFileSystem } from '../domain/file-systems/LocalFileSystem';
 import Logger from 'electron-log';
+import { sleep } from '../../../../apps/main/util';
 export class FilesPlaceholderDeleter {
   constructor(
     private remoteFileSystem: RemoteFileSystem,
@@ -12,11 +13,16 @@ export class FilesPlaceholderDeleter {
   ) {}
 
   private async hasToBeDeleted(remote: File): Promise<boolean> {
+    const localUUID = await this.local.getFileIdentity(remote.path);
+
+    if (!localUUID) {
+      return false;
+    }
+
+    sleep(500);
     const fileStatus = await this.remoteFileSystem.checkStatusFile(
       remote['uuid']
     );
-
-    const localUUID = await this.local.getFileIdentity(remote.path);
 
     Logger.info(
       `localdb path: ${remote.path}\n
