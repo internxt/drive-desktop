@@ -129,7 +129,8 @@ export async function buildFilesContainer(
 
   const filesPlaceholderDeleter = new FilesPlaceholderDeleter(
     remoteFileSystem,
-    sharedContainer.relativePathToAbsoluteConverter
+    sharedContainer.relativePathToAbsoluteConverter,
+    localFileSystem
   );
 
   const filePlaceholderConverter = new FilePlaceholderConverter(
