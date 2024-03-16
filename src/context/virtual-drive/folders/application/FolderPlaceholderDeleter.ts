@@ -1,12 +1,10 @@
 import { RelativePathToAbsoluteConverter } from '../../shared/application/RelativePathToAbsoluteConverter';
 import { Folder } from '../domain/Folder';
 import { FolderStatuses } from '../domain/FolderStatus';
-import fs from 'fs/promises';
 import { RemoteFileSystem } from '../domain/file-systems/RemoteFileSystem';
 import { LocalFileSystem } from '../domain/file-systems/LocalFileSystem';
 import Logger from 'electron-log';
 import { sleep } from '../../../../apps/main/util';
-import fs from 'fs/promises';
 
 export class FolderPlaceholderDeleter {
   constructor(
@@ -16,10 +14,14 @@ export class FolderPlaceholderDeleter {
   ) {}
 
   private async hasToBeDeleted(remote: Folder): Promise<boolean> {
-    Logger.info(`remote path in hastobedeleted: ${remote.path}`);
+    if (!remote.path) {
+      return false;
+    }
     const localUUID = await this.local.getFileIdentity(remote.path);
-    Logger.info(`localUUID in hastobedeleted: ${localUUID}`);
+    Logger.info(`Local UUID: ${localUUID}, remote path: ${remote.path}`);
+
     if (!localUUID) {
+      Logger.info(`Local UUID not found for ${remote.path}, skipping deletion`);
       return false;
     }
 
@@ -28,20 +30,28 @@ export class FolderPlaceholderDeleter {
       remote['uuid']
     );
 
+    // temporal condition to avoid deleting folders that are not in the trash
+    // https://github.com/internxt/drive-desktop/blob/60f2ee9a28eab37438b3e8365f4bd519e748a047/src/context/virtual-drive/folders/infrastructure/HttpRemoteFileSystem.ts#L70
+    if (
+      folderStatus === FolderStatuses.DELETED &&
+      !remote.status.is(FolderStatuses.DELETED) &&
+      !remote.status.is(FolderStatuses.TRASHED)
+    ) {
+      Logger.info(
+        `Folder ${remote.path} with undefined status, skipping deletion`
+      );
+      return false;
+    }
+
     Logger.info(
-      `localdb path: ${remote.path}\n
-      localdb uuid: ${remote['uuid']}\n
-      localStatus: ${remote.status.value}\n
-      syncroot uuidd: ${localUUID.split(':')[1]}\n
-      syncroot uuidd2: ${localUUID}\n
-      remoteo status: ${folderStatus}\n
-      trashed condition: ${
+      `
+      Localdb path: ${remote.path}\n
+      ___________\n
+      Condition Status: ${
         folderStatus === FolderStatuses.TRASHED ||
         folderStatus === FolderStatuses.DELETED
       }\n
-        localUUID condition: ${localUUID.split(':')[1] === remote['uuid']}\n
-        lenuuid: ${localUUID.split(':')[1]?.trim().length}\n
-        lenremote: ${remote['uuid']?.trim().length}\n`
+      Condition ID: ${localUUID.split(':')[1] === remote['uuid']}\n`
     );
 
     return (
@@ -58,7 +68,6 @@ export class FolderPlaceholderDeleter {
       const win32AbsolutePath = this.relativePathToAbsoluteConverter.run(
         remote.path
       );
-      Logger.info(`win32AbsolutePath in delete: ${win32AbsolutePath}`);
       //await fs.rm(win32AbsolutePath, { recursive: true, force: true });
       await this.local.deleteFileSyncRoot(remote.path);
     }

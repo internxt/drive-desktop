@@ -66,7 +66,7 @@ export class HttpRemoteFileSystem implements RemoteFileSystem {
       response = await this.trashClient.get(
         `${process.env.NEW_DRIVE_URL}/drive/folders/${uuid}/meta`
       );
-    } catch {
+    } catch (error) {
       return FolderStatuses.DELETED;
     }
 

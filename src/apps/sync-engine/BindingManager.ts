@@ -55,16 +55,6 @@ export class BindingsManager {
     await this.container.repositoryPopulator.run(tree.files);
     await this.container.filesPlaceholderCreator.run(tree.files);
 
-    Logger.debug(
-      'Trashed in load',
-      tree.trashedFilesList,
-      tree.trashedFoldersList
-    );
-
-    Logger.debug(
-      'Trashed folder',
-      tree.trashedFoldersList.map((f) => f.path)
-    );
     await this.container?.filesPlaceholderDeleter?.run(tree.trashedFilesList);
     await this.container?.folderPlaceholderDeleter?.run(
       tree.trashedFoldersList
@@ -316,11 +306,6 @@ export class BindingsManager {
 
     try {
       const tree = await this.container.existingItemsTreeBuilder.run();
-
-      Logger.debug(
-        'Trashed folder',
-        tree.trashedFoldersList.map((f) => f.path)
-      );
 
       // Delete all the placeholders that are not in the tree
       await this.container?.filesPlaceholderDeleter?.run(tree.trashedFilesList);

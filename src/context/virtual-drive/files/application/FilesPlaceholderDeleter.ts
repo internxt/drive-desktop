@@ -25,19 +25,14 @@ export class FilesPlaceholderDeleter {
     );
 
     Logger.info(
-      `localdb path: ${remote.path}\n
-      localdb uuid: ${remote['contentsId']}\n
-      localStatus: ${remote.status.value}\n
-      syncroot uuidd: ${localUUID.split(':')[1]}\n
-      syncroot uuidd2: ${localUUID}\n
-      remoteo status: ${fileStatus}\n
-      trashed condition: ${
+      `
+      Localdb path: ${remote.path}\n
+      ___________\n
+      Condition Status: ${
         fileStatus === FileStatuses.TRASHED ||
         fileStatus === FileStatuses.DELETED
       }\n
-      localUUID condition: ${localUUID.split(':')[1] === remote['contentsId']}\n
-      lenuuid: ${localUUID.split(':')[1]?.trim().length}\n
-      lenremote: ${remote['contentsId']?.trim().length}\n`
+      Condition ID: ${localUUID.split(':')[1] === remote['contentsId']}\n`
     );
     return (
       (fileStatus === FileStatuses.TRASHED ||
@@ -48,13 +43,7 @@ export class FilesPlaceholderDeleter {
 
   private async delete(remote: File): Promise<void> {
     const hasToBeDeleted = await this.hasToBeDeleted(remote);
-    Logger.info(`hasToBeDeleted: ${hasToBeDeleted}`);
     if (hasToBeDeleted) {
-      Logger.info(`deleting file: ${remote.path}`);
-      // const win32AbsolutePath = this.relativePathToAbsoluteConverter.run(
-      //   remote.path
-      // );
-      // Logger.info(`win32AbsolutePath: ${win32AbsolutePath}`);
       await this.local.deleteFileSyncRoot(remote.path);
     }
   }
