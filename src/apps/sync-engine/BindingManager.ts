@@ -314,8 +314,8 @@ export class BindingsManager {
       );
 
       // Create all the placeholders that are in the tree
-      await this.container.filesPlaceholderUpdater.run(tree.files);
       await this.container.folderPlaceholderUpdater.run(tree.folders);
+      await this.container.filesPlaceholderUpdater.run(tree.files);
     } catch (error) {
       Logger.error('[SYNC ENGINE] ', error);
     }
