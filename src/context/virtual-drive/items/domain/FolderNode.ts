@@ -20,7 +20,6 @@ export class FolderNode {
     if (this.children.has(node.id)) {
       Logger.warn(`[New Error] Duplicated node detected: ${node.id}`);
       return;
-      // throw new Error(`Duplicated node detected: ${node.id}`);
     }
 
     this.children.set(node.id, node);

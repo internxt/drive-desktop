@@ -65,10 +65,6 @@ export class FolderPlaceholderDeleter {
     const hasToBeDeleted = await this.hasToBeDeleted(remote);
 
     if (hasToBeDeleted) {
-      const win32AbsolutePath = this.relativePathToAbsoluteConverter.run(
-        remote.path
-      );
-      //await fs.rm(win32AbsolutePath, { recursive: true, force: true });
       await this.local.deleteFileSyncRoot(remote.path);
     }
   }
