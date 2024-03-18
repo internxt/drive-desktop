@@ -1,6 +1,6 @@
 {
   "name": "internxt-drive",
-  "version": "2.0.5",
+  "version": "2.0.6",
   "description": "Internxt Drive client UI",
   "main": "./dist/main/main.js",
   "author": "Internxt <hello@internxt.com>",
@@ -14,7 +14,7 @@
     "@rudderstack/rudder-sdk-node": "^1.1.4",
     "better-sqlite3": "^8.3.0",
     "typeorm": "^0.3.16",
-    "virtual-drive": "file:../../../node-win"
+    "virtual-drive": "../../../../node-win"
   },
   "license": "MIT"
 }
