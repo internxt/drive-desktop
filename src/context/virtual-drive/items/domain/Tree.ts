@@ -6,6 +6,8 @@ import { Node } from './Node';
 
 export class Tree {
   private tree = new Map<string, Node>();
+  private trashedFiles = new Map<string, File>();
+  private trashedFolders = new Map<string, Folder>();
 
   constructor(rootFolder: Folder) {
     const node = FolderNode.from(rootFolder);
@@ -27,6 +29,22 @@ export class Tree {
 
   public get filePaths(): Array<string> {
     return this.files.map((f) => f.path);
+  }
+
+  public get trashedFilesList(): Array<File> {
+    return Array.from(this.trashedFiles.values());
+  }
+
+  public appendTrashedFile(file: File) {
+    this.trashedFiles.set(file.path, file);
+  }
+
+  public get trashedFoldersList(): Array<Folder> {
+    return Array.from(this.trashedFolders.values());
+  }
+
+  public appendTrashedFolder(folder: Folder) {
+    this.trashedFolders.set(folder.path, folder);
   }
 
   public get folders(): Array<Folder> {

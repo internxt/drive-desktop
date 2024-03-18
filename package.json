@@ -1,6 +1,6 @@
 {
   "name": "internxt-drive",
-  "version": "2.0.5",
+  "version": "2.0.6",
   "author": "Internxt <hello@internxt.com>",
   "description": "Internxt Drive client UI",
   "license": "AGPL-3.0",
@@ -28,7 +28,7 @@
     "test:e2e": "playwright test --config=src/test",
     "type-check": "tsc --noEmit --pretty --skipLibCheck",
     "prepare": "husky install",
-    "reload-virtual-drive": "cd release/app && yarn reload-virtual-drive && cd ../.. && yarn",
+    "reload-virtual-drive": "cd release/app && npm run reload-virtual-drive && cd ../.. && npm i",
     "start:reload-bindings": "npm run reload-virtual-drive && npm run start"
   },
   "lint-staged": {
@@ -242,7 +242,6 @@
     "react-refresh": "^0.11.0",
     "react-refresh-typescript": "^2.0.3",
     "react-test-renderer": "^17.0.2",
-    "rimraf": "^3.0.2",
     "sass": "^1.45.1",
     "sass-loader": "^12.4.0",
     "style-loader": "^3.3.1",

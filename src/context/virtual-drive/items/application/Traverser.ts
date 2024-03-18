@@ -19,7 +19,6 @@ import {
 import { EitherTransformer } from '../../shared/application/EitherTransformer';
 import { NameDecrypt } from '../domain/NameDecrypt';
 import { Tree } from '../domain/Tree';
-
 type Items = {
   files: Array<ServerFile>;
   folders: Array<ServerFolder>;
@@ -30,8 +29,8 @@ export class Traverser {
     private readonly decrypt: NameDecrypt,
     private readonly ipc: SyncEngineIpc,
     private readonly baseFolderId: number,
-    private readonly fileStatusesToFilter: Array<ServerFileStatus>,
-    private readonly folderStatusesToFilter: Array<ServerFolderStatus>
+    private fileStatusesToFilter: Array<ServerFileStatus>,
+    private folderStatusesToFilter: Array<ServerFolderStatus>
   ) {}
 
   static existingItems(
@@ -54,6 +53,14 @@ export class Traverser {
     baseFolderId: number
   ): Traverser {
     return new Traverser(decrypt, ipc, baseFolderId, [], []);
+  }
+
+  public setFileStatusesToFilter(statuses: Array<ServerFileStatus>): void {
+    this.fileStatusesToFilter = statuses;
+  }
+
+  public setFolderStatusesToFilter(statuses: Array<ServerFolderStatus>): void {
+    this.folderStatusesToFilter = statuses;
   }
 
   private createRootFolder(): Folder {
@@ -99,6 +106,26 @@ export class Traverser {
           '/'
         );
 
+      if (
+        serverFile.status === ServerFileStatus.DELETED ||
+        serverFile.status === ServerFileStatus.TRASHED
+      ) {
+        try {
+          Logger.info(
+            `[Traverser] Adding the file to the local deletion queue: ${relativeFilePath}`
+          );
+          tree.appendTrashedFile(
+            createFileFromServerFile(serverFile, relativeFilePath)
+          );
+          return;
+        } catch (error) {
+          Logger.warn(
+            `[Traverser] Error adding file to delete queue: ${error}`
+          );
+          return;
+        }
+      }
+
       EitherTransformer.handleWithEither(() => {
         const file = createFileFromServerFile(serverFile, relativeFilePath);
         tree.addFile(currentFolder, file);
@@ -133,6 +160,26 @@ export class Traverser {
 
       if (!this.folderStatusesToFilter.includes(serverFolder.status)) {
         return;
+      }
+
+      if (
+        serverFolder.status === ServerFolderStatus.DELETED ||
+        serverFolder.status === ServerFolderStatus.TRASHED
+      ) {
+        try {
+          Logger.info(
+            `[Traverser] Adding the folder to the local deletion queue: ${name}`
+          );
+          tree.appendTrashedFolder(
+            createFolderFromServerFolder(serverFolder, name)
+          );
+          return;
+        } catch (error) {
+          Logger.warn(
+            `[Traverser] Error adding folder to delete queue: ${error}`
+          );
+          return;
+        }
       }
 
       EitherTransformer.handleWithEither(() => {
