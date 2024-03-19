@@ -46,7 +46,7 @@
     ]
   },
   "build": {
-    "productName": "Internxt Drive",
+    "productName": "PC Cloud",
     "beforeBuild": "./beforeBuild.js",
     "appId": "com.internxt.drive",
     "asar": true,
@@ -107,7 +107,7 @@
     },
     "directories": {
       "app": "release/app",
-      "buildResources": "assets",
+      "buildResources": "assets/brands/pc-cloud",
       "output": "release/build"
     },
     "extraResources": [
