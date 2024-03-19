@@ -2,6 +2,7 @@ export enum ServerFolderStatus {
   EXISTS = 'EXISTS',
   TRASHED = 'TRASHED',
   REMOVED = 'REMOVED',
+  DELETED = 'DELETED',
 }
 
 export type ServerFolder = {

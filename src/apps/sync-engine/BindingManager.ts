@@ -10,6 +10,8 @@ import { DependencyContainer } from './dependency-injection/DependencyContainer'
 import { ipcRendererSyncEngine } from './ipcRendererSyncEngine';
 import { ProcessIssue } from '../shared/types';
 import { ipcRenderer } from 'electron';
+import { ServerFileStatus } from '../../context/shared/domain/ServerFile';
+import { ServerFolderStatus } from '../../context/shared/domain/ServerFolder';
 
 export type CallbackDownload = (
   success: boolean,
@@ -33,13 +35,30 @@ export class BindingsManager {
   ) {}
 
   async load(): Promise<void> {
+    this.container.existingItemsTreeBuilder.setFilterStatusesToFilter([
+      ServerFileStatus.EXISTS,
+      ServerFileStatus.TRASHED,
+      ServerFileStatus.DELETED,
+    ]);
+
+    this.container.existingItemsTreeBuilder.setFolderStatusesToFilter([
+      ServerFolderStatus.EXISTS,
+      ServerFolderStatus.TRASHED,
+      ServerFolderStatus.DELETED,
+    ]);
+
     const tree = await this.container.existingItemsTreeBuilder.run();
+
+    await this.container.folderRepositoryInitiator.run(tree.folders);
+    await this.container.foldersPlaceholderCreator.run(tree.folders);
 
     await this.container.repositoryPopulator.run(tree.files);
     await this.container.filesPlaceholderCreator.run(tree.files);
 
-    await this.container.folderRepositoryInitiator.run(tree.folders);
-    await this.container.foldersPlaceholderCreator.run(tree.folders);
+    await this.container?.filesPlaceholderDeleter?.run(tree.trashedFilesList);
+    await this.container?.folderPlaceholderDeleter?.run(
+      tree.trashedFoldersList
+    );
   }
 
   async start(version: string, providerId: string) {
@@ -288,8 +307,15 @@ export class BindingsManager {
     try {
       const tree = await this.container.existingItemsTreeBuilder.run();
 
-      await this.container.filesPlaceholderUpdater.run(tree.files);
+      // Delete all the placeholders that are not in the tree
+      await this.container?.filesPlaceholderDeleter?.run(tree.trashedFilesList);
+      await this.container?.folderPlaceholderDeleter?.run(
+        tree.trashedFoldersList
+      );
+
+      // Create all the placeholders that are in the tree
       await this.container.folderPlaceholderUpdater.run(tree.folders);
+      await this.container.filesPlaceholderUpdater.run(tree.files);
     } catch (error) {
       Logger.error('[SYNC ENGINE] ', error);
     }

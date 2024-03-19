@@ -36,6 +36,13 @@ export class NodeWinLocalFileSystem implements LocalFileSystem {
     );
   }
 
+  async getFileIdentity(path: File['path']): Promise<string> {
+    return this.virtualDrive.getFileIdentity(path);
+  }
+  async deleteFileSyncRoot(path: File['path']): Promise<void> {
+    await this.virtualDrive.deleteFileSyncRoot(path);
+  }
+
   async updateSyncStatus(file: File): Promise<void> {
     const win32AbsolutePath = this.relativePathToAbsoluteConverter.run(
       file.path

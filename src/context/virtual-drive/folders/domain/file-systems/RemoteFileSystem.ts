@@ -1,4 +1,5 @@
 import { Folder, FolderAttributes } from '../Folder';
+import { FolderStatuses } from '../FolderStatus';
 import { OfflineFolder } from '../OfflineFolder';
 
 export interface RemoteFileSystem {
@@ -9,4 +10,6 @@ export interface RemoteFileSystem {
   move(folder: Folder): Promise<void>;
 
   rename(folder: Folder): Promise<void>;
+
+  checkStatusFolder(uuid: Folder['uuid']): Promise<FolderStatuses>;
 }
