@@ -1,8 +1,10 @@
+import { ContentsChunkReader } from '../../../../../context/offline-drive/contents/application/ContentsChunkReader';
 import { OfflineContentsAppender } from '../../../../../context/offline-drive/contents/application/OfflineContentsAppender';
 import { OfflineContentsCreator } from '../../../../../context/offline-drive/contents/application/OfflineContentsCreator';
 import { OfflineContentsUploader } from '../../../../../context/offline-drive/contents/application/OfflineContentsUploader';
 import { EnvironmentOfflineContentsManagersFactory } from '../../../../../context/offline-drive/contents/infrastructure/EnvironmentRemoteFileContentsManagersFactory';
 import { NodeFSOfflineContentsRepository } from '../../../../../context/offline-drive/contents/infrastructure/NodeFSOfflineContentsRepository';
+import { CachedFSContentsRepository } from '../../../../../context/offline-drive/contents/infrastructure/cache/CachedFSContentsRepository';
 import { MainProcessUploadProgressTracker } from '../../../../../context/shared/infrastructure/MainProcessUploadProgressTracker';
 import { FuseAppDataLocalFileContentsDirectoryProvider } from '../../../../../context/virtual-drive/shared/infrastructure/LocalFileContentsDirectoryProviders/FuseAppDataLocalFileContentsDirectoryProvider';
 import { DependencyInjectionEventBus } from '../../../../fuse/dependency-injection/common/eventBus';
@@ -50,9 +52,13 @@ export async function buildOfflineContentsContainer(
 
   const offlineContentsCreator = new OfflineContentsCreator(repository);
 
+  const contentsRepository = new CachedFSContentsRepository();
+  const contentsChunkReader = new ContentsChunkReader(contentsRepository);
+
   return {
     offlineContentsCreator,
     offlineContentsAppender,
     offlineContentsUploader,
+    contentsChunkReader,
   };
 }

@@ -15,7 +15,7 @@ export class TrashFileCallback extends NotifyFuseCallback {
     });
 
     if (!file) {
-      return this.left(new FuseNoSuchFileOrDirectoryError());
+      return this.left(new FuseNoSuchFileOrDirectoryError(path));
     }
 
     try {

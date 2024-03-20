@@ -37,7 +37,10 @@ export class FuseApp {
       this.fuseContainer.offlineDriveContainer
     );
     const open = new OpenCallback(this.fuseContainer.virtualDriveContainer);
-    const read = new ReadCallback(this.fuseContainer.virtualDriveContainer);
+    const read = new ReadCallback(
+      this.fuseContainer.virtualDriveContainer,
+      this.fuseContainer.offlineDriveContainer
+    );
     const renameOrMove = new RenameOrMoveCallback(
       this.fuseContainer.virtualDriveContainer
     );
