@@ -1,28 +1,18 @@
 import { OfflineDriveDependencyContainer } from '../dependency-injection/offline/OfflineDriveDependencyContainer';
 import { NotifyFuseCallback } from './FuseCallback';
-import { FuseIOError } from './FuseErrors';
 
 export class ReleaseCallback extends NotifyFuseCallback {
   constructor(private readonly container: OfflineDriveDependencyContainer) {
-    super('Release');
+    super('Release', { input: true });
   }
 
   async execute(path: string, _fd: number) {
-    const file = await this.container.offlineFileSearcher.run({ path });
+    const uploadError = await this.container.offlineFileUploader.run(path);
 
-    if (!file) {
-      return this.right();
+    if (uploadError) {
+      return this.left(uploadError);
     }
 
-    try {
-      await this.container.offlineContentsUploader.run(file.id, file.path);
-      return this.right();
-    } catch (err: unknown) {
-      if (err instanceof Error) {
-        return this.left(new FuseIOError());
-      }
-
-      return this.left(new FuseIOError());
-    }
+    return this.right();
   }
 }
