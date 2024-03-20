@@ -17,8 +17,6 @@ export class ReadCallback {
     length: number,
     position: number
   ): Promise<number> {
-    // Logger.debug('READING ', length, 'MB FROM ', filePath);
-
     const readResult = await this.offlineDrive.contentsChunkReader.run(
       filePath,
       length,
@@ -26,7 +24,6 @@ export class ReadCallback {
     );
 
     if (!readResult.isPresent()) {
-      Logger.debug('READ DONE');
       return 0;
     }
 
