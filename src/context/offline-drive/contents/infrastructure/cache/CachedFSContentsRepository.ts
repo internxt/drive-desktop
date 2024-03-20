@@ -1,6 +1,7 @@
 import { ContentsRepository } from '../../domain/ContentsRepository';
 import fs from 'fs/promises';
-
+import Logger from 'electron-log';
+import { basename } from 'path';
 export class CachedFSContentsRepository implements ContentsRepository {
   private buffers: Map<string, Buffer> = new Map();
 
@@ -17,7 +18,11 @@ export class CachedFSContentsRepository implements ContentsRepository {
     return read;
   }
 
-  forget(_path: string): void {
-    //
+  async forget(path: string): Promise<void> {
+    const deleted = this.buffers.delete(path);
+
+    if (deleted) {
+      Logger.debug(`Buffer from ${basename(path)} deleted from cache`);
+    }
   }
 }

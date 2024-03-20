@@ -1,5 +1,6 @@
 import { ContentsChunkReader } from '../../../../../context/offline-drive/contents/application/ContentsChunkReader';
 import { OfflineContentsAppender } from '../../../../../context/offline-drive/contents/application/OfflineContentsAppender';
+import { OfflineContentsCacheCleaner } from '../../../../../context/offline-drive/contents/application/OfflineContentsCacheCleaner';
 import { OfflineContentsCreator } from '../../../../../context/offline-drive/contents/application/OfflineContentsCreator';
 import { OfflineContentsUploader } from '../../../../../context/offline-drive/contents/application/OfflineContentsUploader';
 import { EnvironmentOfflineContentsManagersFactory } from '../../../../../context/offline-drive/contents/infrastructure/EnvironmentRemoteFileContentsManagersFactory';
@@ -55,10 +56,15 @@ export async function buildOfflineContentsContainer(
   const contentsRepository = new CachedFSContentsRepository();
   const contentsChunkReader = new ContentsChunkReader(contentsRepository);
 
+  const offlineContentsCacheCleaner = new OfflineContentsCacheCleaner(
+    contentsRepository
+  );
+
   return {
     offlineContentsCreator,
     offlineContentsAppender,
     offlineContentsUploader,
     contentsChunkReader,
+    offlineContentsCacheCleaner,
   };
 }

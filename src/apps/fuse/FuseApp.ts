@@ -56,7 +56,8 @@ export class FuseApp {
     );
     const write = new WriteCallback(this.fuseContainer.offlineDriveContainer);
     const release = new ReleaseCallback(
-      this.fuseContainer.offlineDriveContainer
+      this.fuseContainer.offlineDriveContainer,
+      this.fuseContainer.virtualDriveContainer
     );
 
     return {

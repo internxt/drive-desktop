@@ -1,3 +1,4 @@
+import { OfflineContentsCacheCleaner } from '../../../../../context/offline-drive/contents/application/OfflineContentsCacheCleaner';
 import { ContentsChunkReader } from '../../../../../context/offline-drive/contents/application/ContentsChunkReader';
 import { OfflineContentsAppender } from '../../../../../context/offline-drive/contents/application/OfflineContentsAppender';
 import { OfflineContentsCreator } from '../../../../../context/offline-drive/contents/application/OfflineContentsCreator';
@@ -8,4 +9,5 @@ export interface OfflineContentsDependencyContainer {
   offlineContentsAppender: OfflineContentsAppender;
   offlineContentsUploader: OfflineContentsUploader;
   contentsChunkReader: ContentsChunkReader;
+  offlineContentsCacheCleaner: OfflineContentsCacheCleaner;
 }
