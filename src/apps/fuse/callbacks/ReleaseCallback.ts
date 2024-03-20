@@ -1,28 +1,41 @@
 import { OfflineDriveDependencyContainer } from '../dependency-injection/offline/OfflineDriveDependencyContainer';
+import { VirtualDriveDependencyContainer } from '../dependency-injection/virtual-drive/VirtualDriveDependencyContainer';
 import { NotifyFuseCallback } from './FuseCallback';
-import { FuseIOError } from './FuseErrors';
 
 export class ReleaseCallback extends NotifyFuseCallback {
-  constructor(private readonly container: OfflineDriveDependencyContainer) {
+  constructor(
+    private readonly offlineDrive: OfflineDriveDependencyContainer,
+    private readonly virtualDrive: VirtualDriveDependencyContainer
+  ) {
     super('Release');
   }
 
   async execute(path: string, _fd: number) {
-    const file = await this.container.offlineFileSearcher.run({ path });
+    const offlineFile = await this.offlineDrive.offlineFileSearcher.run({
+      path,
+    });
 
-    if (!file) {
+    if (offlineFile) {
+      await this.offlineDrive.offlineContentsUploader.run(
+        offlineFile.id,
+        offlineFile.path
+      );
       return this.right();
     }
 
-    try {
-      await this.container.offlineContentsUploader.run(file.id, file.path);
-      return this.right();
-    } catch (err: unknown) {
-      if (err instanceof Error) {
-        return this.left(new FuseIOError());
-      }
+    const virtualFile = await this.virtualDrive.filesSearcher.run({ path });
 
-      return this.left(new FuseIOError());
+    if (virtualFile) {
+      const contentsPath =
+        this.virtualDrive.relativePathToAbsoluteConverter.run(
+          virtualFile.contentsId
+        );
+
+      await this.offlineDrive.offlineContentsCacheCleaner.run(contentsPath);
+
+      return this.right();
     }
+
+    return this.right();
   }
 }

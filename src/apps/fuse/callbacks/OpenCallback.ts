@@ -12,7 +12,7 @@ export class OpenCallback extends FuseCallback<number> {
     const file = await this.container.filesSearcher.run({ path });
 
     if (!file) {
-      return this.left(new FuseNoSuchFileOrDirectoryError());
+      return this.left(new FuseNoSuchFileOrDirectoryError(path));
     }
 
     try {

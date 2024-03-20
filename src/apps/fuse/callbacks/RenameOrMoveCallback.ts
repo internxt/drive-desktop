@@ -36,6 +36,6 @@ export class RenameOrMoveCallback extends NotifyFuseCallback {
       return this.right();
     }
 
-    return this.left(new FuseNoSuchFileOrDirectoryError());
+    return this.left(new FuseNoSuchFileOrDirectoryError(src));
   }
 }

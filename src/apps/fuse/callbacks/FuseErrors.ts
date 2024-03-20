@@ -11,8 +11,8 @@ export class FuseError extends Error {
 }
 
 export class FuseNoSuchFileOrDirectoryError extends FuseError {
-  constructor() {
-    super(FuseCodes.ENOENT, 'No such file or directory');
+  constructor(readonly path: string) {
+    super(FuseCodes.ENOENT, `No such file or directory <${path}>`);
   }
 }
 

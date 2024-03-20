@@ -1,12 +1,15 @@
 import Logger from 'electron-log';
-import fs from 'fs/promises';
 import { VirtualDriveDependencyContainer } from '../dependency-injection/virtual-drive/VirtualDriveDependencyContainer';
+import { OfflineDriveDependencyContainer } from '../dependency-injection/offline/OfflineDriveDependencyContainer';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const fuse = require('@gcas/fuse');
 
 export class ReadCallback {
-  constructor(private readonly container: VirtualDriveDependencyContainer) {}
+  constructor(
+    private readonly virtualDrive: VirtualDriveDependencyContainer,
+    private readonly offlineDrive: OfflineDriveDependencyContainer
+  ) {}
 
   private async read(
     filePath: string,
@@ -14,18 +17,20 @@ export class ReadCallback {
     length: number,
     position: number
   ): Promise<number> {
-    // Logger.debug('READING FILE FROM ', filePath, length, position);
+    const readResult = await this.offlineDrive.contentsChunkReader.run(
+      filePath,
+      length,
+      position
+    );
 
-    const data = await fs.readFile(filePath);
-
-    if (position >= data.length) {
-      Logger.debug('READ DONE');
+    if (!readResult.isPresent()) {
       return 0;
     }
 
-    const part = data.slice(position, position + length);
-    part.copy(buffer); // write the result of the read to the result buffer
-    return part.length; // number of bytes read
+    const chunk = readResult.get();
+
+    chunk.copy(buffer); // write the result of the read to the result buffer
+    return chunk.length; // number of bytes read
   }
 
   async execute(
@@ -36,14 +41,14 @@ export class ReadCallback {
     pos: number,
     cb: (code: number, params?: any) => void
   ) {
-    const file = await this.container.filesSearcher.run({ path });
+    const file = await this.virtualDrive.filesSearcher.run({ path });
 
     if (!file) {
       cb(fuse.ENOENT);
       return;
     }
 
-    const filePath = this.container.relativePathToAbsoluteConverter.run(
+    const filePath = this.virtualDrive.relativePathToAbsoluteConverter.run(
       file.contentsId
     );
 
