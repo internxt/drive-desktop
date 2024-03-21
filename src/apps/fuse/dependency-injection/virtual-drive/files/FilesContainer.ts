@@ -4,7 +4,7 @@ import { FilePathUpdater } from '../../../../../context/virtual-drive/files/appl
 import { FileCreator } from '../../../../../context/virtual-drive/files/application/FileCreator';
 import { SameFileWasMoved } from '../../../../../context/virtual-drive/files/application/SameFileWasMoved';
 import { FileDeleter } from '../../../../../context/virtual-drive/files/application/FileDeleter';
-import { CreateFileOnOfflineFileUploaded } from '../../../../../context/virtual-drive/files/application/CreateFileOnOfflineFileUplodaded';
+import { CreateFileOnOfflineFileUploaded } from '../../../../../context/virtual-drive/files/application/event-subsribers/CreateFileOnOfflineFileUplodaded';
 import { FileRepositoryInitializer } from '../../../../../context/virtual-drive/files/application/FileRepositoryInitializer';
 import { SyncFileMessenger } from '../../../../../context/virtual-drive/files/domain/SyncFileMessenger';
 import { FilesSearcherByPartialMatch } from '../../../../../context/virtual-drive/files/application/search-all/FilesSearcherByPartialMatch';

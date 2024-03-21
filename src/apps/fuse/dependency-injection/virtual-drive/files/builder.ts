@@ -1,5 +1,5 @@
 import crypt from '../../../../../context/shared/infrastructure/crypt';
-import { CreateFileOnOfflineFileUploaded } from '../../../../../context/virtual-drive/files/application/CreateFileOnOfflineFileUplodaded';
+import { CreateFileOnOfflineFileUploaded } from '../../../../../context/virtual-drive/files/application/event-subsribers/CreateFileOnOfflineFileUplodaded';
 import { FileCreator } from '../../../../../context/virtual-drive/files/application/FileCreator';
 import { FileDeleter } from '../../../../../context/virtual-drive/files/application/FileDeleter';
 import { FilePathUpdater } from '../../../../../context/virtual-drive/files/application/FilePathUpdater';

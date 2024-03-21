@@ -1,7 +1,7 @@
-import { DomainEventClass } from '../../../shared/domain/DomainEvent';
-import { DomainEventSubscriber } from '../../../shared/domain/DomainEventSubscriber';
-import { OptimisticFileDeletionFailed } from '../domain/events/OptimisticFileDeletionFailed';
-import { FilePlaceholderCreatorFromContentsId } from './FilePlaceholderCreatorFromContentsId';
+import { DomainEventClass } from '../../../../shared/domain/DomainEvent';
+import { DomainEventSubscriber } from '../../../../shared/domain/DomainEventSubscriber';
+import { OptimisticFileDeletionFailed } from '../../domain/events/OptimisticFileDeletionFailed';
+import { FilePlaceholderCreatorFromContentsId } from '../FilePlaceholderCreatorFromContentsId';
 
 export class CreateFilePlaceholderOnDeletionFailed
   implements DomainEventSubscriber<OptimisticFileDeletionFailed>
