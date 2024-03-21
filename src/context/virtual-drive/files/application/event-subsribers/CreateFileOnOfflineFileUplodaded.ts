@@ -20,12 +20,15 @@ export class CreateFileOnOfflineFileUploaded
 
   async on(event: OfflineContentsUploadedDomainEvent): Promise<void> {
     try {
-      const hasToOverride = await this.fileToOverrideProvider.run();
+      const fileToOverride = await this.fileToOverrideProvider.run();
+
+      if (fileToOverride.isPresent()) {
+        Logger.debug('!!!!!!!!!!!!!!!!!!!!');
+        Logger.debug('IT SHOULD OVERRIDE:', fileToOverride.get());
+        return;
+      }
+
       const filePath = new FilePath(event.path);
-
-      Logger.debug('!!!!!!!!!!!!!!!!!!!!');
-      Logger.debug('IT SHOULD OVERRIDE:', hasToOverride);
-
       await this.creator.run(filePath, event.aggregateId, event.size);
     } catch (err) {
       Logger.error('[CreateFileOnOfflineFileUploaded]:', err);
