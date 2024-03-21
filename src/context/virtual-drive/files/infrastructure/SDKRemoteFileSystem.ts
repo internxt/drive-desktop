@@ -95,7 +95,7 @@ export class SDKRemoteFileSystem implements RemoteFileSystem {
   }
 
   async override(file: File): Promise<void> {
-    await this.sdk.replaceFile('b81849d9-e45e-5e00-9e4e-b9cc3b1c1687', {
+    await this.sdk.replaceFile(file.uuid, {
       fileId: file.contentsId,
       size: file.size,
     });
