@@ -4,13 +4,15 @@ import { DomainEventSubscriber } from '../../../../shared/domain/DomainEventSubs
 import { FileCreator } from '../FileCreator';
 import Logger from 'electron-log';
 import { FileToOverrideProvider } from '../FileToOverrideProvider';
+import { FileOverrider } from '../override/FileOverrider';
 
 export class CreateFileOnOfflineFileUploaded
   implements DomainEventSubscriber<OfflineContentsUploadedDomainEvent>
 {
   constructor(
     private readonly creator: FileCreator,
-    private readonly fileToOverrideProvider: FileToOverrideProvider
+    private readonly fileToOverrideProvider: FileToOverrideProvider,
+    private readonly fileOverrider: FileOverrider
   ) {}
 
   subscribedTo(): DomainEventClass[] {
@@ -22,8 +24,7 @@ export class CreateFileOnOfflineFileUploaded
       const fileToOverride = await this.fileToOverrideProvider.run();
 
       if (fileToOverride.isPresent()) {
-        Logger.debug('!!!!!!!!!!!!!!!!!!!!');
-        Logger.debug('IT SHOULD OVERRIDE:', fileToOverride.get());
+        await this.fileOverrider.run(event.path, event.aggregateId, event.size);
         return;
       }
 
