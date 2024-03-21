@@ -93,4 +93,11 @@ export class SDKRemoteFileSystem implements RemoteFileSystem {
       bucketId: this.bucket,
     });
   }
+
+  async override(file: File): Promise<void> {
+    await this.sdk.replaceFile('b81849d9-e45e-5e00-9e4e-b9cc3b1c1687', {
+      fileId: file.contentsId,
+      size: file.size,
+    });
+  }
 }

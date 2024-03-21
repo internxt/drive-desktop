@@ -10,7 +10,7 @@ describe('Environment Content File Uploader', () => {
   describe('event emitter', () => {
     it('emits an event on start', async () => {
       const strategy = createUploadStrategy((opts) => {
-        opts.finishedCallback(null, ContentsIdMother.raw());
+        opts.finishedCallback(null, ContentsIdMother.primitive());
       });
 
       const uploader = new EnvironmentContentFileUploader(strategy, bucket);
@@ -25,7 +25,7 @@ describe('Environment Content File Uploader', () => {
     });
 
     it('emits an event with an id when a file is uploaded', async () => {
-      const uploadedFileId = ContentsIdMother.raw();
+      const uploadedFileId = ContentsIdMother.primitive();
       const strategy = createUploadStrategy((opts) => {
         opts.finishedCallback(null, uploadedFileId);
       });
@@ -44,7 +44,7 @@ describe('Environment Content File Uploader', () => {
         opts.progressCallback(25, 1, 4);
         opts.progressCallback(50, 2, 4);
         opts.progressCallback(75, 3, 4);
-        opts.finishedCallback(null, ContentsIdMother.raw());
+        opts.finishedCallback(null, ContentsIdMother.primitive());
       });
 
       const uploader = new EnvironmentContentFileUploader(strategy, bucket);
@@ -61,7 +61,7 @@ describe('Environment Content File Uploader', () => {
     it('emits an event when there is a progress update and finish on the end', async () => {
       const strategy = createUploadStrategy((opts) => {
         opts.progressCallback(50, 2, 4);
-        opts.finishedCallback(null, ContentsIdMother.raw());
+        opts.finishedCallback(null, ContentsIdMother.primitive());
       });
 
       const uploader = new EnvironmentContentFileUploader(strategy, bucket);
@@ -102,7 +102,7 @@ describe('Environment Content File Uploader', () => {
       const strategy = createUploadStrategy((opts) => {
         setTimeout(() => opts.progressCallback(50, 1, 4), 20);
         setTimeout(
-          () => opts.finishedCallback(null, ContentsIdMother.raw()),
+          () => opts.finishedCallback(null, ContentsIdMother.primitive()),
           100
         );
       });
@@ -122,7 +122,7 @@ describe('Environment Content File Uploader', () => {
       const delay = 1000;
       const strategy = createUploadStrategy((opts) => {
         setTimeout(
-          () => opts.finishedCallback(null, ContentsIdMother.raw()),
+          () => opts.finishedCallback(null, ContentsIdMother.primitive()),
           delay
         );
       });

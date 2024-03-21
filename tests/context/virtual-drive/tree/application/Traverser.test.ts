@@ -19,7 +19,7 @@ describe('Traverser', () => {
       files: [
         {
           name: 'file A',
-          fileId: ContentsIdMother.raw(),
+          fileId: ContentsIdMother.primitive(),
           folderId: baseFolderId,
           size: 67,
           status: 'EXISTS',
@@ -46,7 +46,7 @@ describe('Traverser', () => {
       files: [
         {
           name: 'file A',
-          fileId: ContentsIdMother.raw(),
+          fileId: ContentsIdMother.primitive(),
           folderId: 22491,
           size: 200,
           status: 'EXISTS',
@@ -180,14 +180,14 @@ describe('Traverser', () => {
         } as ServerFile,
         {
           name: 'valid_name',
-          fileId: ContentsIdMother.raw(),
+          fileId: ContentsIdMother.primitive(),
           folderId: baseFolderId,
           size: 67,
           status: 'EXISTS',
         } as ServerFile,
         {
           name: 'valid_name_2',
-          fileId: ContentsIdMother.raw(),
+          fileId: ContentsIdMother.primitive(),
           folderId: baseFolderId,
           size: 67,
           status: 'INVALID_STATUS',
@@ -241,7 +241,7 @@ describe('Traverser', () => {
       files: [
         {
           name: 'file A',
-          fileId: ContentsIdMother.raw(),
+          fileId: ContentsIdMother.primitive(),
           folderId: baseFolderId,
           size: 67,
           status: 'TRASHED',
@@ -276,7 +276,7 @@ describe('Traverser', () => {
       files: [
         {
           name: 'file A',
-          fileId: ContentsIdMother.raw(),
+          fileId: ContentsIdMother.primitive(),
           folderId: baseFolderId,
           size: 67,
           status: 'TRASHED',

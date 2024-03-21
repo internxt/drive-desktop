@@ -13,6 +13,7 @@ import { ContentsId } from '../../contents/domain/ContentsId';
 import { FileMovedDomainEvent } from './events/FileMovedDomainEvent';
 import { FileRenamedDomainEvent } from './events/FileRenamedDomainEvent';
 import { FilePlaceholderId, createFilePlaceholderId } from './PlaceholderId';
+import { FileOverriddenDomainEvent } from './events/FileOverriddenDomainEvent';
 
 export type FileAttributes = {
   id: number;
@@ -32,7 +33,7 @@ export class File extends AggregateRoot {
     private _contentsId: ContentsId,
     private _folderId: number,
     private _path: FilePath,
-    private readonly _size: FileSize,
+    private _size: FileSize,
     public createdAt: Date,
     public updatedAt: Date,
     private _status: FileStatus
@@ -170,6 +171,24 @@ export class File extends AggregateRoot {
       new FileRenamedDomainEvent({
         aggregateId: this.contentsId,
         oldName: currentName,
+      })
+    );
+  }
+
+  changeContents(contentsId: ContentsId, contentsSize: FileSize) {
+    const previousContentsId = this.contentsId;
+    const previousSize = this.size;
+
+    this._contentsId = contentsId;
+    this._size = contentsSize;
+
+    this.record(
+      new FileOverriddenDomainEvent({
+        aggregateId: this.contentsId,
+        previousContentsId,
+        previousSize,
+        currentContentsId: contentsId.value,
+        currentSize: contentsSize.value,
       })
     );
   }

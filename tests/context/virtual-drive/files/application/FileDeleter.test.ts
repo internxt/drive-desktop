@@ -38,7 +38,7 @@ describe('File Deleter', () => {
   });
 
   it('does not nothing if the file its not found', async () => {
-    const contentsId = ContentsIdMother.raw();
+    const contentsId = ContentsIdMother.primitive();
 
     repository.searchByContentsIdMock.mockReturnValueOnce(undefined);
     jest

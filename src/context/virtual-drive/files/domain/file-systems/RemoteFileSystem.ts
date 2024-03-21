@@ -9,4 +9,6 @@ export interface RemoteFileSystem {
   move(file: File): Promise<void>;
 
   rename(file: File): Promise<void>;
+
+  override(file: File): Promise<void>;
 }
