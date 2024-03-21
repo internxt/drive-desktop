@@ -1,3 +1,4 @@
+import { Optional } from '../../../../shared/types/Optional';
 import { DomainEvent } from '../../../shared/domain/DomainEvent';
 import { EventRepository } from '../domain/EventRepository';
 
@@ -32,5 +33,13 @@ export class InMemoryEventRepository implements EventRepository {
     const filtered = events.filter((e) => e.eventName === event.EVENT_NAME);
 
     return filtered as unknown as Event[];
+  }
+
+  async last<Event extends DomainEvent>(
+    eventName: Event['eventName']
+  ): Promise<Optional<Event>> {
+    const event = this.events.findLast((e) => e.eventName === eventName);
+
+    return new Optional(event as Event);
   }
 }

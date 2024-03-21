@@ -22,6 +22,7 @@ import { FilesContainer } from './FilesContainer';
 import { InMemoryFileRepositorySingleton } from '../../../../shared/dependency-injection/virtual-drive/files/InMemoryFileRepositorySingleton';
 import { SingleFileMatchingSearcher } from '../../../../../context/virtual-drive/files/application/SingleFileMatchingSearcher';
 import { FilesSearcherByPartialMatch } from '../../../../../context/virtual-drive/files/application/search-all/FilesSearcherByPartialMatch';
+import { FileToOverrideProvider } from '../../../../../context/virtual-drive/files/application/FileToOverrideProvider';
 
 export async function buildFilesContainer(
   initialFiles: Array<File>,
@@ -92,8 +93,14 @@ export async function buildFilesContainer(
     syncFileMessenger
   );
 
+  const fileToOverrideProvider = new FileToOverrideProvider(
+    eventRepository,
+    repository
+  );
+
   const createFileOnOfflineFileUploaded = new CreateFileOnOfflineFileUploaded(
-    fileCreator
+    fileCreator,
+    fileToOverrideProvider
   );
 
   const filesSearcherByPartialMatch = new FilesSearcherByPartialMatch(
@@ -110,6 +117,7 @@ export async function buildFilesContainer(
     repositoryPopulator,
     syncFileMessenger,
     filesSearcherByPartialMatch,
+    fileToOverrideProvider,
     // event handlers
     createFileOnOfflineFileUploaded,
   };
