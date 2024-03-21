@@ -77,14 +77,17 @@ ipcMain.handle('get-remote-sync-status', () =>
   remoteSyncManager.getSyncStatus()
 );
 
+export async function updateRemoteSync(): Promise<void> {
+  await sleep(2_000);
+  await remoteSyncManager.startRemoteSync();
+  updateSyncEngine();
+}
+
 eventBus.on('RECEIVED_REMOTE_CHANGES', async () => {
   // Wait before checking for updates, could be possible
   // that we received the notification, but if we check
   // for new data we don't receive it
-  await sleep(2_000);
-
-  await remoteSyncManager.startRemoteSync();
-  updateSyncEngine();
+  await updateRemoteSync();
 });
 
 eventBus.on('USER_LOGGED_IN', async () => {

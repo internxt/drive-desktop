@@ -200,6 +200,18 @@ export default function Header() {
                     <div>
                       <DropdownItem
                         active={active}
+                        onClick={() => window.electron.openSettingsWindow()}
+                      >
+                        <span>{translate('widget.header.dropdown.sync')}</span>
+                      </DropdownItem>
+                    </div>
+                  )}
+                </Menu.Item>
+                <Menu.Item>
+                  {({ active }) => (
+                    <div>
+                      <DropdownItem
+                        active={active}
                         onClick={() => window.electron.openFeedbackWindow()}
                       >
                         <span>
