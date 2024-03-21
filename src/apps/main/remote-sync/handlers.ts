@@ -83,6 +83,11 @@ export async function updateRemoteSync(): Promise<void> {
   updateSyncEngine();
 }
 
+ipcMain.handle('SYNC_MANUALLY', async () => {
+  Logger.info('[Manual Sync] Received manual sync event');
+  await updateRemoteSync();
+});
+
 eventBus.on('RECEIVED_REMOTE_CHANGES', async () => {
   // Wait before checking for updates, could be possible
   // that we received the notification, but if we check
