@@ -8,6 +8,7 @@ export function createFileFromServerFile(
 ): File {
   return File.from({
     id: server.id,
+    uuid: server.uuid,
     folderId: server.folderId,
     contentsId: server.fileId,
     modificationTime: server.modificationTime,

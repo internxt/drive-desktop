@@ -7,6 +7,7 @@ import {
   ServerFolder,
 } from '../../../../../src/context/shared/domain/ServerFolder';
 import { Traverser } from '../../../../../src/context/virtual-drive/tree/application/Traverser';
+import { UuidMother } from '../../../shared/domain/UuidMother';
 import { ContentsIdMother } from '../../contents/domain/ContentsIdMother';
 import { FakeNameDecrypt } from '../infrastructure/FakeNameDecrypt';
 
@@ -20,6 +21,7 @@ describe('Traverser', () => {
         {
           name: 'file A',
           fileId: ContentsIdMother.primitive(),
+          uuid: UuidMother.primitive(),
           folderId: baseFolderId,
           size: 67,
           status: 'EXISTS',
@@ -47,6 +49,7 @@ describe('Traverser', () => {
         {
           name: 'file A',
           fileId: ContentsIdMother.primitive(),
+          uuid: UuidMother.primitive(),
           folderId: 22491,
           size: 200,
           status: 'EXISTS',
@@ -174,6 +177,7 @@ describe('Traverser', () => {
         {
           name: 'invalid file',
           fileId: 'Some response',
+          uuid: UuidMother.primitive(),
           folderId: baseFolderId,
           size: 67,
           status: 'EXISTS',
@@ -181,6 +185,7 @@ describe('Traverser', () => {
         {
           name: 'valid_name',
           fileId: ContentsIdMother.primitive(),
+          uuid: UuidMother.primitive(),
           folderId: baseFolderId,
           size: 67,
           status: 'EXISTS',
@@ -188,6 +193,7 @@ describe('Traverser', () => {
         {
           name: 'valid_name_2',
           fileId: ContentsIdMother.primitive(),
+          uuid: UuidMother.primitive(),
           folderId: baseFolderId,
           size: 67,
           status: 'INVALID_STATUS',
@@ -242,6 +248,7 @@ describe('Traverser', () => {
         {
           name: 'file A',
           fileId: ContentsIdMother.primitive(),
+          uuid: UuidMother.primitive(),
           folderId: baseFolderId,
           size: 67,
           status: 'TRASHED',
@@ -277,6 +284,7 @@ describe('Traverser', () => {
         {
           name: 'file A',
           fileId: ContentsIdMother.primitive(),
+          uuid: UuidMother.primitive(),
           folderId: baseFolderId,
           size: 67,
           status: 'TRASHED',

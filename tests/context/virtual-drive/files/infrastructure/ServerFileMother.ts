@@ -2,6 +2,7 @@ import {
   ServerFile,
   ServerFileStatus,
 } from '../../../../../src/context/shared/domain/ServerFile';
+import { UuidMother } from '../../../shared/domain/UuidMother';
 import { ContentsIdMother } from '../../contents/domain/ContentsIdMother';
 
 export class ServerFileMother {
@@ -20,6 +21,7 @@ export class ServerFileMother {
       updatedAt: new Date().toISOString(),
       userId: 1965074674,
       status: ServerFileStatus.EXISTS,
+      uuid: UuidMother.primitive(),
       ...partial,
     };
   }
