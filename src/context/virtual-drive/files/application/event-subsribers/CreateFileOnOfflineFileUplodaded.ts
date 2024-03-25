@@ -1,8 +1,8 @@
+import Logger from 'electron-log';
 import { OfflineContentsUploadedDomainEvent } from '../../../../offline-drive/contents/domain/events/OfflineContentsUploadedDomainEvent';
 import { DomainEventClass } from '../../../../shared/domain/DomainEvent';
 import { DomainEventSubscriber } from '../../../../shared/domain/DomainEventSubscriber';
 import { FileCreator } from '../FileCreator';
-import Logger from 'electron-log';
 import { FileToOverrideProvider } from '../FileToOverrideProvider';
 import { FileOverrider } from '../override/FileOverrider';
 
@@ -25,7 +25,6 @@ export class CreateFileOnOfflineFileUploaded
 
       if (fileToOverride.isPresent()) {
         const file = fileToOverride.get();
-        Logger.debug(file);
         await this.fileOverrider.run(file.uuid, event.aggregateId, event.size);
         return;
       }
