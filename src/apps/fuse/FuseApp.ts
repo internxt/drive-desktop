@@ -108,19 +108,21 @@ export class FuseApp {
   }
 
   async update(): Promise<void> {
-    Logger.info('[FUSE] Updating tree');
+    try {
+      const tree =
+        await this.fuseContainer.virtualDriveContainer.existingNodesTreeBuilder.run();
 
-    const tree =
-      await this.fuseContainer.virtualDriveContainer.existingNodesTreeBuilder.run();
+      await this.fuseContainer.virtualDriveContainer.repositoryPopulator.run(
+        tree.files
+      );
 
-    await this.fuseContainer.virtualDriveContainer.repositoryPopulator.run(
-      tree.files
-    );
+      await this.fuseContainer.virtualDriveContainer.folderRepositoryInitiator.run(
+        tree.folders
+      );
 
-    await this.fuseContainer.virtualDriveContainer.folderRepositoryInitiator.run(
-      tree.folders
-    );
-
-    Logger.info('[FUSE] Tree updated successfully');
+      Logger.info('[FUSE] Tree updated successfully');
+    } catch (err) {
+      Logger.error('[FUSE] Updating the tree ', err);
+    }
   }
 }

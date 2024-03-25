@@ -95,11 +95,6 @@ export class SDKRemoteFileSystem implements RemoteFileSystem {
   }
 
   async override(file: File): Promise<void> {
-    Logger.debug('override', file.path, {
-      fileId: file.contentsId,
-      size: file.size,
-    });
-
     await this.clients.newDrive.put(
       `${process.env.NEW_DRIVE_URL}/drive/files/${file.uuid}`,
       {
@@ -107,5 +102,7 @@ export class SDKRemoteFileSystem implements RemoteFileSystem {
         size: file.size,
       }
     );
+
+    Logger.info(`File ${file.path} overridden`);
   }
 }
