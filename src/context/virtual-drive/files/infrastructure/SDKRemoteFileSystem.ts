@@ -95,13 +95,13 @@ export class SDKRemoteFileSystem implements RemoteFileSystem {
   }
 
   async override(file: File): Promise<void> {
-    Logger.debug('override', file.uuid, {
+    Logger.debug('override', file.path, {
       fileId: file.contentsId,
       size: file.size,
     });
 
     await this.clients.newDrive.put(
-      `https://api.internxt.com/drive/files/${file.uuid}`,
+      `${process.env.NEW_DRIVE_URL}/files/${file.uuid}`,
       {
         fileId: file.contentsId,
         size: file.size,
