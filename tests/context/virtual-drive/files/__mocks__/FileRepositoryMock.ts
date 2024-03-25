@@ -8,6 +8,7 @@ export class FileRepositoryMock implements FileRepository {
   public readonly allMock = jest.fn();
   public readonly matchingPartialMock = jest.fn();
   public readonly searchByUuidMock = jest.fn();
+  public readonly searchByContentsIdMock = jest.fn();
   public readonly deleteMock = jest.fn();
   public readonly addMock = jest.fn();
   public readonly updateMock = jest.fn();
@@ -22,6 +23,10 @@ export class FileRepositoryMock implements FileRepository {
 
   searchByUuid(uuid: string): Promise<File | undefined> {
     return this.searchByUuidMock(uuid);
+  }
+
+  searchByContentsId(contentsId: string): Promise<File | undefined> {
+    return this.searchByContentsIdMock(contentsId);
   }
 
   delete(id: string): Promise<void> {

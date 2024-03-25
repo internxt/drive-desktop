@@ -3,7 +3,6 @@ import { OfflineContentsUploadedDomainEvent } from '../../../../offline-drive/co
 import { DomainEventClass } from '../../../../shared/domain/DomainEvent';
 import { DomainEventSubscriber } from '../../../../shared/domain/DomainEventSubscriber';
 import { FileCreator } from '../FileCreator';
-import { FileToOverrideProvider } from '../FileToOverrideProvider';
 import { FileOverrider } from '../override/FileOverrider';
 
 export class CreateFileOnOfflineFileUploaded
@@ -11,7 +10,6 @@ export class CreateFileOnOfflineFileUploaded
 {
   constructor(
     private readonly creator: FileCreator,
-    private readonly fileToOverrideProvider: FileToOverrideProvider,
     private readonly fileOverrider: FileOverrider
   ) {}
 
@@ -19,17 +17,24 @@ export class CreateFileOnOfflineFileUploaded
     return [OfflineContentsUploadedDomainEvent];
   }
 
+  private async create(
+    event: OfflineContentsUploadedDomainEvent
+  ): Promise<void> {
+    if (event.replaces) {
+      await this.fileOverrider.run(
+        event.replaces,
+        event.aggregateId,
+        event.size
+      );
+      return;
+    }
+
+    await this.creator.run(event.path, event.aggregateId, event.size);
+  }
+
   async on(event: OfflineContentsUploadedDomainEvent): Promise<void> {
     try {
-      const fileToOverride = await this.fileToOverrideProvider.run();
-
-      if (fileToOverride.isPresent()) {
-        const file = fileToOverride.get();
-        await this.fileOverrider.run(file.uuid, event.aggregateId, event.size);
-        return;
-      }
-
-      await this.creator.run(event.path, event.aggregateId, event.size);
+      this.create(event);
     } catch (err) {
       Logger.error('[CreateFileOnOfflineFileUploaded]:', err);
     }

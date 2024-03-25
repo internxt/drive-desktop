@@ -7,7 +7,9 @@ export interface FileRepository {
 
   searchByUuid(uuid: File['uuid']): Promise<File | undefined>;
 
-  delete(id: File['contentsId']): Promise<void>;
+  searchByContentsId(id: File['contentsId']): Promise<File | undefined>;
+
+  // delete(id: File['contentsId']): Promise<void>;
 
   add(file: File): Promise<void>;
 

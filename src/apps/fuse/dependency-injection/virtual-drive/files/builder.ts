@@ -21,9 +21,7 @@ import { FilesContainer } from './FilesContainer';
 import { InMemoryFileRepositorySingleton } from '../../../../shared/dependency-injection/virtual-drive/files/InMemoryFileRepositorySingleton';
 import { SingleFileMatchingSearcher } from '../../../../../context/virtual-drive/files/application/SingleFileMatchingSearcher';
 import { FilesSearcherByPartialMatch } from '../../../../../context/virtual-drive/files/application/search-all/FilesSearcherByPartialMatch';
-import { FileToOverrideProvider } from '../../../../../context/virtual-drive/files/application/FileToOverrideProvider';
 import { FileOverrider } from '../../../../../context/virtual-drive/files/application/override/FileOverrider';
-import { SingleFileMatchingFinder } from '../../../../../context/virtual-drive/files/application/SingleFileMatchingFinder';
 
 export async function buildFilesContainer(
   initialFiles: Array<File>,
@@ -58,7 +56,6 @@ export async function buildFilesContainer(
   const localFileSystem = new FuseLocalFileSystem();
 
   const singleFileMatchingSearcher = new SingleFileMatchingSearcher(repository);
-  const singleFileMatchingFinder = new SingleFileMatchingFinder(repository);
 
   const filePathUpdater = new FilePathUpdater(
     remoteFileSystem,
@@ -92,11 +89,6 @@ export async function buildFilesContainer(
     syncFileMessenger
   );
 
-  const fileToOverrideProvider = new FileToOverrideProvider(
-    eventRepository,
-    repository
-  );
-
   const fileOverrider = new FileOverrider(
     remoteFileSystem,
     repository,
@@ -105,7 +97,6 @@ export async function buildFilesContainer(
 
   const createFileOnOfflineFileUploaded = new CreateFileOnOfflineFileUploaded(
     fileCreator,
-    fileToOverrideProvider,
     fileOverrider
   );
 
@@ -123,7 +114,6 @@ export async function buildFilesContainer(
     repositoryPopulator,
     syncFileMessenger,
     filesSearcherByPartialMatch,
-    fileToOverrideProvider,
     // event handlers
     createFileOnOfflineFileUploaded,
   };

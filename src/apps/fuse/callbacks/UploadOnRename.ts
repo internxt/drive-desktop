@@ -30,7 +30,8 @@ export class UploadOnRename {
 
     await this.offline.offlineContentsUploader.run(
       offlineFile.id,
-      offlineFile.path
+      offlineFile.path,
+      virtualFile.contentsId
     );
 
     return right(UploadOnRename.SUCCESS);

@@ -6,17 +6,20 @@ export class OfflineContentsUploadedDomainEvent extends DomainEvent {
   readonly size: number;
   readonly path: string;
   readonly offlineContentsPath: string;
+  readonly replaces: string | undefined;
 
   constructor({
     aggregateId,
     size,
     path,
     offlineContentsPath,
+    replaces,
   }: {
     aggregateId: string;
     size: number;
     path: string;
     offlineContentsPath: string;
+    replaces?: string;
   }) {
     super({
       aggregateId,
@@ -26,6 +29,7 @@ export class OfflineContentsUploadedDomainEvent extends DomainEvent {
     this.size = size;
     this.path = path;
     this.offlineContentsPath = offlineContentsPath;
+    this.replaces = replaces;
   }
 
   toPrimitives() {
@@ -34,6 +38,7 @@ export class OfflineContentsUploadedDomainEvent extends DomainEvent {
       size: this.size,
       path: this.path,
       offlineContentsPath: this.offlineContentsPath,
+      replaces: this.replaces,
     };
   }
 }

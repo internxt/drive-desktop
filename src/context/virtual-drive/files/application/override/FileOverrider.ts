@@ -14,14 +14,14 @@ export class FileOverrider {
   ) {}
 
   async run(
-    uuid: File['uuid'],
+    oldContentsId: File['contentsId'],
     newContentsId: File['contentsId'],
     newSize: File['size']
   ): Promise<void> {
-    const file = await this.repository.searchByUuid(uuid);
+    const file = await this.repository.searchByContentsId(oldContentsId);
 
     if (!file) {
-      throw new FileNotFoundError(uuid);
+      throw new FileNotFoundError(oldContentsId);
     }
 
     file.changeContents(new ContentsId(newContentsId), new FileSize(newSize));

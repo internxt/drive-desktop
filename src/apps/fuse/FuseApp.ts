@@ -12,8 +12,6 @@ import { WriteCallback } from './callbacks/WriteCallback';
 import { ReleaseCallback } from './callbacks/ReleaseCallback';
 import { FuseDependencyContainer } from './dependency-injection/FuseDependencyContainer';
 import { ensureFolderExists } from './../shared/fs/ensure-folder-exists';
-import { exec } from 'child_process';
-import Fuse from 'fuse-native';
 import { mountPromise, unmountFusedDirectory, unmountPromise } from './helpers';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires

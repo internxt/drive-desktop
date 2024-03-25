@@ -20,7 +20,7 @@ describe('File Overrider', () => {
     const updatedContentsId = ContentsIdMother.random();
     const updatedSize = FileSizeMother.random();
 
-    repository.searchByUuidMock.mockReturnValueOnce(undefined);
+    repository.searchByContentsIdMock.mockReturnValueOnce(undefined);
 
     try {
       await overrider.run(
@@ -45,7 +45,7 @@ describe('File Overrider', () => {
     const updatedContentsId = ContentsIdMother.random();
     const updatedSize = FileSizeMother.random();
 
-    repository.searchByUuidMock.mockReturnValueOnce(file);
+    repository.searchByContentsIdMock.mockReturnValueOnce(file);
 
     await overrider.run(file.path, updatedContentsId.value, updatedSize.value);
 
@@ -68,7 +68,7 @@ describe('File Overrider', () => {
     const file = FileMother.any();
     const updatedContentsId = ContentsIdMother.primitive();
 
-    repository.searchByUuidMock.mockReturnValueOnce(file);
+    repository.searchByContentsIdMock.mockReturnValueOnce(file);
 
     await overrider.run(
       file.path,

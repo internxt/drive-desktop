@@ -8,7 +8,6 @@ import { CreateFileOnOfflineFileUploaded } from '../../../../../context/virtual-
 import { FileRepositoryInitializer } from '../../../../../context/virtual-drive/files/application/FileRepositoryInitializer';
 import { SyncFileMessenger } from '../../../../../context/virtual-drive/files/domain/SyncFileMessenger';
 import { FilesSearcherByPartialMatch } from '../../../../../context/virtual-drive/files/application/search-all/FilesSearcherByPartialMatch';
-import { FileToOverrideProvider } from '../../../../../context/virtual-drive/files/application/FileToOverrideProvider';
 
 export interface FilesContainer {
   filesByFolderPathNameLister: FilesByFolderPathSearcher;
@@ -20,7 +19,6 @@ export interface FilesContainer {
   repositoryPopulator: FileRepositoryInitializer;
   syncFileMessenger: SyncFileMessenger;
   filesSearcherByPartialMatch: FilesSearcherByPartialMatch;
-  fileToOverrideProvider: FileToOverrideProvider;
   // event handler
   createFileOnOfflineFileUploaded: CreateFileOnOfflineFileUploaded;
 }

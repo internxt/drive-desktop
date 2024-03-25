@@ -101,7 +101,7 @@ export class SDKRemoteFileSystem implements RemoteFileSystem {
     });
 
     await this.clients.newDrive.put(
-      `${process.env.NEW_DRIVE_URL}/files/${file.uuid}`,
+      `${process.env.NEW_DRIVE_URL}/drive/files/${file.uuid}`,
       {
         fileId: file.contentsId,
         size: file.size,

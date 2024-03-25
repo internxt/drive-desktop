@@ -1,26 +1,17 @@
 import { CreateFileOnOfflineFileUploaded } from '../../../../../../src/context/virtual-drive/files/application/event-subsribers/CreateFileOnOfflineFileUplodaded';
-import { Optional } from '../../../../../../src/shared/types/Optional';
 import { FileCreatorTestClass } from '../../__test-class__/FileCreatorTestClass';
 import { FileOverriderTestClass } from '../../__test-class__/FileOverriderTestClass';
-import { FileToOverrideProviderTestClass } from '../../__test-class__/FileToOverrideProviderTestClass';
-import { FileMother } from '../../domain/FileMother';
 import { OfflineContentsUploadedDomainEventMother } from '../../domain/events/OfflineContentsUploadedDomainEventMother';
 
 describe('Create File On Offline File Uploaded', () => {
-  it('creates a new file when no file to be overridden is found', async () => {
+  it('creates a new file when event replaces field is undefined', async () => {
     const creator = new FileCreatorTestClass();
-    const toOverride = new FileToOverrideProviderTestClass();
     const overrider = new FileOverriderTestClass();
 
-    const uploadedEvent = OfflineContentsUploadedDomainEventMother.any();
+    const uploadedEvent =
+      OfflineContentsUploadedDomainEventMother.doesNotReplace();
 
-    const sut = new CreateFileOnOfflineFileUploaded(
-      creator,
-      toOverride,
-      overrider
-    );
-
-    toOverride.mock.mockReturnValueOnce(Optional.empty());
+    const sut = new CreateFileOnOfflineFileUploaded(creator, overrider);
 
     await sut.on(uploadedEvent);
 
@@ -31,46 +22,33 @@ describe('Create File On Offline File Uploaded', () => {
     );
   });
 
-  it('does not create a new file an overridden file is provided', async () => {
+  it('does not create a new file when the replaces files is defined', async () => {
     const creator = new FileCreatorTestClass();
-    const toOverride = new FileToOverrideProviderTestClass();
     const overrider = new FileOverriderTestClass();
 
-    const uploadedEvent = OfflineContentsUploadedDomainEventMother.any();
+    const uploadedEvent =
+      OfflineContentsUploadedDomainEventMother.replacesContents();
 
-    const sut = new CreateFileOnOfflineFileUploaded(
-      creator,
-      toOverride,
-      overrider
-    );
-
-    toOverride.mock.mockReturnValueOnce(Optional.of(FileMother.any()));
+    const sut = new CreateFileOnOfflineFileUploaded(creator, overrider);
 
     await sut.on(uploadedEvent);
 
     expect(creator.mock).not.toBeCalled();
   });
 
-  it('overrides the file with the data provided', async () => {
+  it('overrides file with contents specified on the event', async () => {
     const creator = new FileCreatorTestClass();
-    const toOverride = new FileToOverrideProviderTestClass();
     const overrider = new FileOverriderTestClass();
 
-    const uploadedEvent = OfflineContentsUploadedDomainEventMother.any();
-    const fileToOverride = FileMother.any();
+    const uploadedEvent =
+      OfflineContentsUploadedDomainEventMother.replacesContents();
 
-    const sut = new CreateFileOnOfflineFileUploaded(
-      creator,
-      toOverride,
-      overrider
-    );
-
-    toOverride.mock.mockReturnValueOnce(Optional.of(fileToOverride));
+    const sut = new CreateFileOnOfflineFileUploaded(creator, overrider);
 
     await sut.on(uploadedEvent);
 
     expect(overrider.mock).toBeCalledWith(
-      fileToOverride.uuid,
+      uploadedEvent.replaces,
       uploadedEvent.aggregateId,
       uploadedEvent.size
     );
