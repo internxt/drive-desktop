@@ -28,8 +28,7 @@ export class OfflineContentsUploader {
     const contentsId = await uploader();
 
     const contentsUploadedEvent = new OfflineContentsUploadedDomainEvent({
-      aggregateId: 'no-id',
-      contentsId,
+      aggregateId: contentsId,
       offlineContentsPath: contents.absolutePath,
       size: contents.size,
       path: path.value,

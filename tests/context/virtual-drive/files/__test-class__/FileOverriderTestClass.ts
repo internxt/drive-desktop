@@ -1,4 +1,3 @@
-import { SingleFileMatchingFinder } from '../../../../../src/context/virtual-drive/files/application/SingleFileMatchingFinder';
 import { FileOverrider } from '../../../../../src/context/virtual-drive/files/application/override/FileOverrider';
 import { File } from '../../../../../src/context/virtual-drive/files/domain/File';
 import { FileRepository } from '../../../../../src/context/virtual-drive/files/domain/FileRepository';
@@ -9,12 +8,7 @@ export class FileOverriderTestClass extends FileOverrider {
   readonly mock = jest.fn();
 
   constructor() {
-    super(
-      {} as SingleFileMatchingFinder,
-      {} as RemoteFileSystem,
-      {} as FileRepository,
-      {} as EventBus
-    );
+    super({} as RemoteFileSystem, {} as FileRepository, {} as EventBus);
   }
 
   run(path: File['path'], contentsId: File['contentsId'], size: File['size']) {

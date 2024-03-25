@@ -98,7 +98,6 @@ export async function buildFilesContainer(
   );
 
   const fileOverrider = new FileOverrider(
-    singleFileMatchingFinder,
     remoteFileSystem,
     repository,
     eventBus

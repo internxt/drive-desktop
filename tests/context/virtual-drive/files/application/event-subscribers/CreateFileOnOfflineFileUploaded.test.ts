@@ -57,6 +57,7 @@ describe('Create File On Offline File Uploaded', () => {
     const overrider = new FileOverriderTestClass();
 
     const uploadedEvent = OfflineContentsUploadedDomainEventMother.any();
+    const fileToOverride = FileMother.any();
 
     const sut = new CreateFileOnOfflineFileUploaded(
       creator,
@@ -64,13 +65,13 @@ describe('Create File On Offline File Uploaded', () => {
       overrider
     );
 
-    toOverride.mock.mockReturnValueOnce(Optional.of(FileMother.any()));
+    toOverride.mock.mockReturnValueOnce(Optional.of(fileToOverride));
 
     await sut.on(uploadedEvent);
 
     expect(overrider.mock).toBeCalledWith(
-      uploadedEvent.path,
-      uploadedEvent.contentsId,
+      fileToOverride.uuid,
+      uploadedEvent.aggregateId,
       uploadedEvent.size
     );
   });

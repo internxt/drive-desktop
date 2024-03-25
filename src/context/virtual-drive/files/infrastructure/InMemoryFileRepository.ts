@@ -12,9 +12,7 @@ export class InMemoryFileRepository implements FileRepository {
   constructor(files?: Array<File>) {
     this.files = new Map();
     if (files) {
-      files.forEach((file) =>
-        this.files.set(file.contentsId, file.attributes())
-      );
+      files.forEach((file) => this.files.set(file.uuid, file.attributes()));
     }
   }
 

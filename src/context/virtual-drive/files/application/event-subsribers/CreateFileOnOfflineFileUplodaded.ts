@@ -25,7 +25,8 @@ export class CreateFileOnOfflineFileUploaded
 
       if (fileToOverride.isPresent()) {
         const file = fileToOverride.get();
-        await this.fileOverrider.run(event.path, event.contentsId, event.size);
+        Logger.debug(file);
+        await this.fileOverrider.run(file.uuid, event.aggregateId, event.size);
         return;
       }
 
