@@ -1,8 +1,9 @@
 import { File, FileAttributes } from '../domain/File';
 import { FileRepository } from '../domain/FileRepository';
+import { FileNotFoundError } from '../domain/errors/FileNotFoundError';
 
 export class InMemoryFileRepository implements FileRepository {
-  private files: Map<File['contentsId'], FileAttributes>;
+  private files: Map<File['uuid'], FileAttributes>;
 
   private get values(): Array<FileAttributes> {
     return Array.from(this.files.values());
@@ -17,20 +18,8 @@ export class InMemoryFileRepository implements FileRepository {
     }
   }
 
-  async searchById(id: number): Promise<File | undefined> {
-    const files = this.files.values();
-
-    for (const attributes of files) {
-      if (id === attributes.id) {
-        return File.from(attributes);
-      }
-    }
-
-    return undefined;
-  }
-
-  async searchByContentsId(id: string): Promise<File | undefined> {
-    const attributes = this.files.get(id);
+  async searchByUuid(uuid: File['uuid']): Promise<File | undefined> {
+    const attributes = this.files.get(uuid);
 
     if (!attributes) {
       return;
@@ -77,12 +66,12 @@ export class InMemoryFileRepository implements FileRepository {
   }
 
   async add(file: File): Promise<void> {
-    this.files.set(file.contentsId, file.attributes());
+    this.files.set(file.uuid, file.attributes());
   }
 
   async update(file: File): Promise<void> {
-    if (!this.files.has(file.contentsId)) {
-      throw new Error('File not found');
+    if (!this.files.has(file.uuid)) {
+      throw new FileNotFoundError(file.uuid);
     }
 
     return this.add(file);

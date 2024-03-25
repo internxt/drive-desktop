@@ -44,16 +44,19 @@ export class FilePathUpdater {
 
   private async move(file: File, destination: FilePath) {
     const trackerId = await this.local.getLocalFileId(file);
+    Logger.debug('trackerId', trackerId);
 
     const destinationFolder = await this.parentFolderFinder.run(destination);
-
+    Logger.debug('destinationFolder', destinationFolder);
     file.moveTo(destinationFolder, trackerId);
 
+    Logger.debug('REMOTE CHANGES');
     await this.remote.move(file);
     await this.repository.update(file);
 
     const events = file.pullDomainEvents();
     this.eventBus.publish(events);
+    Logger.debug('DONE');
   }
 
   async run(contentsId: string, posixRelativePath: string) {
@@ -73,6 +76,8 @@ export class FilePathUpdater {
       if (file.nameWithExtension !== destination.nameWithExtension()) {
         throw new ActionNotPermittedError('rename and change folder');
       }
+
+      Logger.debug('MOVE');
 
       await this.move(file, destination);
       return;

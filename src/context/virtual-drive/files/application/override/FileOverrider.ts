@@ -1,6 +1,7 @@
 import { ContentsId } from '../../../contents/domain/ContentsId';
 import { EventBus } from '../../../shared/domain/EventBus';
 import { File } from '../../domain/File';
+import { FileRepository } from '../../domain/FileRepository';
 import { FileSize } from '../../domain/FileSize';
 import { FileStatuses } from '../../domain/FileStatus';
 import { FileNotFoundError } from '../../domain/errors/FileNotFoundError';
@@ -11,6 +12,7 @@ export class FileOverrider {
   constructor(
     private readonly finder: SingleFileMatchingFinder,
     private readonly rfs: RemoteFileSystem,
+    private readonly repository: FileRepository,
     private readonly eventBus: EventBus
   ) {}
 
@@ -33,7 +35,9 @@ export class FileOverrider {
 
     file.changeContents(newContentsId, newSize);
 
-    this.rfs.override(file);
+    await this.rfs.override(file);
+
+    await this.repository.update(file);
 
     this.eventBus.publish(file.pullDomainEvents());
   }

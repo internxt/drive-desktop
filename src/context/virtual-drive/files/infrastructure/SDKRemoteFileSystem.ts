@@ -95,9 +95,17 @@ export class SDKRemoteFileSystem implements RemoteFileSystem {
   }
 
   async override(file: File): Promise<void> {
-    await this.sdk.replaceFile(file.uuid, {
+    Logger.debug('override', file.uuid, {
       fileId: file.contentsId,
       size: file.size,
     });
+
+    await this.clients.newDrive.put(
+      `https://api.internxt.com/drive/files/${file.uuid}`,
+      {
+        fileId: file.contentsId,
+        size: file.size,
+      }
+    );
   }
 }

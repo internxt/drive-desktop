@@ -17,17 +17,17 @@ import { DependencyInjectionEventRepository } from '../../common/eventRepository
 import { DependencyInjectionStorageSdk } from '../../common/sdk';
 import { DependencyInjectionUserProvider } from '../../common/user';
 import { FoldersContainer } from '../folders/FoldersContainer';
-import { SharedContainer } from '../shared/SharedContainer';
 import { FilesContainer } from './FilesContainer';
 import { InMemoryFileRepositorySingleton } from '../../../../shared/dependency-injection/virtual-drive/files/InMemoryFileRepositorySingleton';
 import { SingleFileMatchingSearcher } from '../../../../../context/virtual-drive/files/application/SingleFileMatchingSearcher';
 import { FilesSearcherByPartialMatch } from '../../../../../context/virtual-drive/files/application/search-all/FilesSearcherByPartialMatch';
 import { FileToOverrideProvider } from '../../../../../context/virtual-drive/files/application/FileToOverrideProvider';
+import { FileOverrider } from '../../../../../context/virtual-drive/files/application/override/FileOverrider';
+import { SingleFileMatchingFinder } from '../../../../../context/virtual-drive/files/application/SingleFileMatchingFinder';
 
 export async function buildFilesContainer(
   initialFiles: Array<File>,
-  folderContainer: FoldersContainer,
-  sharedContainer: SharedContainer
+  folderContainer: FoldersContainer
 ): Promise<FilesContainer> {
   const repository = InMemoryFileRepositorySingleton.instance;
   const eventRepository = DependencyInjectionEventRepository.get();
@@ -55,11 +55,10 @@ export async function buildFilesContainer(
     crypt,
     user.bucket
   );
-  const localFileSystem = new FuseLocalFileSystem(
-    sharedContainer.relativePathToAbsoluteConverter
-  );
+  const localFileSystem = new FuseLocalFileSystem();
 
   const singleFileMatchingSearcher = new SingleFileMatchingSearcher(repository);
+  const singleFileMatchingFinder = new SingleFileMatchingFinder(repository);
 
   const filePathUpdater = new FilePathUpdater(
     remoteFileSystem,
@@ -98,9 +97,17 @@ export async function buildFilesContainer(
     repository
   );
 
+  const fileOverrider = new FileOverrider(
+    singleFileMatchingFinder,
+    remoteFileSystem,
+    repository,
+    eventBus
+  );
+
   const createFileOnOfflineFileUploaded = new CreateFileOnOfflineFileUploaded(
     fileCreator,
-    fileToOverrideProvider
+    fileToOverrideProvider,
+    fileOverrider
   );
 
   const filesSearcherByPartialMatch = new FilesSearcherByPartialMatch(

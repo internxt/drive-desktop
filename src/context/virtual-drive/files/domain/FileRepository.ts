@@ -5,9 +5,7 @@ export interface FileRepository {
 
   matchingPartial(partial: Partial<FileAttributes>): Array<File>;
 
-  searchById(id: File['id']): Promise<File | undefined>;
-
-  searchByContentsId(id: File['contentsId']): Promise<File | undefined>;
+  searchByUuid(uuid: File['uuid']): Promise<File | undefined>;
 
   delete(id: File['contentsId']): Promise<void>;
 

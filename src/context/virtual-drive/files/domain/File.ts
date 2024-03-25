@@ -121,7 +121,7 @@ export class File extends AggregateRoot {
 
     file.record(
       new FileCreatedDomainEvent({
-        aggregateId: file.contentsId,
+        aggregateId: file.uuid,
         size: file.size,
         type: file.type,
         path: file.path,
@@ -137,7 +137,7 @@ export class File extends AggregateRoot {
 
     this.record(
       new FileDeletedDomainEvent({
-        aggregateId: this.contentsId,
+        aggregateId: this.uuid,
         size: this._size.value,
       })
     );
@@ -153,7 +153,7 @@ export class File extends AggregateRoot {
 
     this.record(
       new FileMovedDomainEvent({
-        aggregateId: this._contentsId.value,
+        aggregateId: this.uuid,
         trackerId,
       })
     );
@@ -178,7 +178,7 @@ export class File extends AggregateRoot {
 
     this.record(
       new FileRenamedDomainEvent({
-        aggregateId: this.contentsId,
+        aggregateId: this.uuid,
         oldName: currentName,
       })
     );
@@ -193,7 +193,7 @@ export class File extends AggregateRoot {
 
     this.record(
       new FileOverriddenDomainEvent({
-        aggregateId: this.contentsId,
+        aggregateId: this.uuid,
         previousContentsId,
         previousSize,
         currentContentsId: contentsId.value,

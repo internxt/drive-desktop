@@ -23,7 +23,7 @@ export class FileToOverrideProvider {
 
     const event = eventOptional.get();
 
-    const file = await this.repository.searchByContentsId(event.aggregateId);
+    const file = await this.repository.searchByUuid(event.aggregateId);
 
     if (!file) {
       throw new FileNotFoundError(event.aggregateId);

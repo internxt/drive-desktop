@@ -70,7 +70,7 @@ describe('Create File On Offline File Uploaded', () => {
 
     expect(overrider.mock).toBeCalledWith(
       uploadedEvent.path,
-      uploadedEvent.aggregateId,
+      uploadedEvent.contentsId,
       uploadedEvent.size
     );
   });

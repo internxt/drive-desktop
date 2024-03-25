@@ -16,7 +16,7 @@ describe('File Overrider', () => {
     const finder = new SingleFileMatchingFinder(repository);
     const eventBus = new EventBusMock();
 
-    const overrider = new FileOverrider(finder, rfs, eventBus);
+    const overrider = new FileOverrider(finder, rfs, repository, eventBus);
 
     const file = FileMother.any();
     const updatedContentsId = ContentsIdMother.random();
@@ -42,7 +42,7 @@ describe('File Overrider', () => {
     const finder = new SingleFileMatchingFinder(repository);
     const eventBus = new EventBusMock();
 
-    const overrider = new FileOverrider(finder, rfs, eventBus);
+    const overrider = new FileOverrider(finder, rfs, repository, eventBus);
 
     const file = FileMother.any();
     const updatedContentsId = ContentsIdMother.random();
@@ -67,7 +67,7 @@ describe('File Overrider', () => {
     const finder = new SingleFileMatchingFinder(repository);
     const eventBus = new EventBusMock();
 
-    const overrider = new FileOverrider(finder, rfs, eventBus);
+    const overrider = new FileOverrider(finder, rfs, repository, eventBus);
 
     const file = FileMother.any();
     const updatedContentsId = ContentsIdMother.primitive();
@@ -84,7 +84,7 @@ describe('File Overrider', () => {
       expect.arrayContaining([
         expect.objectContaining({
           eventName: FileOverriddenDomainEvent.EVENT_NAME,
-          aggregateId: updatedContentsId,
+          aggregateId: file.uuid,
         }),
       ])
     );
