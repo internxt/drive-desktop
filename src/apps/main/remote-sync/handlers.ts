@@ -9,7 +9,10 @@ import { ipcMain } from 'electron';
 import { reportError } from '../bug-report/service';
 import { sleep } from '../util';
 import { broadcastToWindows } from '../windows';
-import { updateSyncEngine } from '../background-processes/sync-engine';
+import {
+  updateSyncEngine,
+  fallbackSyncEngine,
+} from '../background-processes/sync-engine';
 
 let initialSyncReady = false;
 const driveFilesCollection = new DriveFilesCollection();
@@ -82,10 +85,15 @@ export async function updateRemoteSync(): Promise<void> {
   await remoteSyncManager.startRemoteSync();
   updateSyncEngine();
 }
+export async function fallbackRemoteSync(): Promise<void> {
+  await sleep(2_000);
+  fallbackSyncEngine();
+}
 
 ipcMain.handle('SYNC_MANUALLY', async () => {
   Logger.info('[Manual Sync] Received manual sync event');
   await updateRemoteSync();
+  await fallbackRemoteSync();
 });
 
 eventBus.on('RECEIVED_REMOTE_CHANGES', async () => {

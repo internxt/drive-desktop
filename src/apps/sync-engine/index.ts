@@ -57,6 +57,14 @@ async function setUp() {
     Logger.info('[SYNC ENGINE] sync engine updated successfully');
   });
 
+  ipcRenderer.on('FALLBACK_SYNC_ENGINE_PROCESS', async () => {
+    Logger.info('[SYNC ENGINE] Fallback sync engine');
+
+    await bindings.polling();
+
+    Logger.info('[SYNC ENGINE] sync engine fallback successfully');
+  });
+
   ipcRenderer.on('STOP_AND_CLEAR_SYNC_ENGINE_PROCESS', async (event) => {
     Logger.info('[SYNC ENGINE] Stopping and clearing sync engine');
 
