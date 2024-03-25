@@ -45,6 +45,10 @@ export default function Header() {
     window.electron.quit();
   }
 
+  function onSyncClick() {
+    window.electron.syncManually();
+  }
+
   const handleOpenURL = async (URL: string) => {
     try {
       await window.electron.openUrl(URL);
@@ -191,6 +195,15 @@ export default function Header() {
                         <span>
                           {translate('widget.header.dropdown.preferences')}
                         </span>
+                      </DropdownItem>
+                    </div>
+                  )}
+                </Menu.Item>
+                <Menu.Item>
+                  {({ active }) => (
+                    <div>
+                      <DropdownItem active={active} onClick={onSyncClick}>
+                        <span>{translate('widget.header.dropdown.sync')}</span>
                       </DropdownItem>
                     </div>
                   )}

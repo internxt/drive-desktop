@@ -218,6 +218,14 @@ export function updateSyncEngine() {
   }
 }
 
+export function fallbackSyncEngine() {
+  try {
+    worker?.webContents.send('FALLBACK_SYNC_ENGINE_PROCESS');
+  } catch (err) {
+    Logger.error(err);
+  }
+}
+
 eventBus.on('USER_LOGGED_OUT', stopAndClearSyncEngineWatcher);
 eventBus.on('USER_WAS_UNAUTHORIZED', stopAndClearSyncEngineWatcher);
 eventBus.on('INITIAL_SYNC_READY', spawnSyncEngineWorker);
