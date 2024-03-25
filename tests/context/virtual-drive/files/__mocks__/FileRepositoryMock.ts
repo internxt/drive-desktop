@@ -7,7 +7,7 @@ import { FileRepository } from '../../../../../src/context/virtual-drive/files/d
 export class FileRepositoryMock implements FileRepository {
   public readonly allMock = jest.fn();
   public readonly matchingPartialMock = jest.fn();
-  public readonly searchByIdMock = jest.fn();
+  public readonly searchByUuidMock = jest.fn();
   public readonly searchByContentsIdMock = jest.fn();
   public readonly deleteMock = jest.fn();
   public readonly addMock = jest.fn();
@@ -21,12 +21,12 @@ export class FileRepositoryMock implements FileRepository {
     return this.matchingPartialMock(partial);
   }
 
-  searchById(id: number): Promise<File | undefined> {
-    return this.searchByIdMock(id);
+  searchByUuid(uuid: string): Promise<File | undefined> {
+    return this.searchByUuidMock(uuid);
   }
 
-  searchByContentsId(id: string): Promise<File | undefined> {
-    return this.searchByContentsIdMock(id);
+  searchByContentsId(contentsId: string): Promise<File | undefined> {
+    return this.searchByContentsIdMock(contentsId);
   }
 
   delete(id: string): Promise<void> {

@@ -29,6 +29,7 @@ export class SQLiteRemoteItemsGenerator implements RemoteItemsGenerator {
         updatedAt: updatedFile.updatedAt,
         userId: updatedFile.userId,
         status: updatedFile.status as ServerFileStatus,
+        uuid: updatedFile.uuid,
       };
     });
 

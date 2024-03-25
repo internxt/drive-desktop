@@ -1,5 +1,5 @@
 export class Optional<T> {
-  private constructor(private readonly value: T | undefined) {}
+  constructor(private readonly value: T | undefined) {}
 
   static of<T>(value: T): Optional<T> {
     return new Optional(value);

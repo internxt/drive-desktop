@@ -6,4 +6,8 @@ export class FileSizeMother {
   static random() {
     return new FileSize(chance.integer({ min: 0, max: FileSize.MAX_SIZE }));
   }
+
+  static primitive(): number {
+    return FileSizeMother.random().value;
+  }
 }

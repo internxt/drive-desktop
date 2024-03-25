@@ -12,7 +12,8 @@ import { FileStatuses } from '../domain/FileStatus';
 import { DriveDesktopError } from '../../../shared/domain/errors/DriveDesktopError';
 import Logger from 'electron-log';
 import { ParentFolderFinder } from '../../folders/application/ParentFolderFinder';
-
+import { ContentsId } from '../../contents/domain/ContentsId';
+import { basename } from 'path';
 export class FileCreator {
   constructor(
     private readonly remote: RemoteFileSystem,
@@ -23,14 +24,10 @@ export class FileCreator {
     private readonly notifier: SyncFileMessenger
   ) {}
 
-  async run(
-    filePath: FilePath,
-    contentsId: string,
-    size: number
-  ): Promise<File> {
+  async run(path: string, contentsId: string, size: number): Promise<File> {
     try {
       const existingFiles = this.repository.matchingPartial({
-        path: PlatformPathConverter.winToPosix(filePath.value),
+        path: PlatformPathConverter.winToPosix(path),
         status: FileStatuses.EXISTS,
       });
 
@@ -43,11 +40,12 @@ export class FileCreator {
       }
 
       const fileSize = new FileSize(size);
+      const filePath = new FilePath(path);
 
       const folder = await this.parentFolderFinder.run(filePath);
 
       const offline = OfflineFile.create(
-        contentsId,
+        new ContentsId(contentsId),
         folder,
         fileSize,
         filePath
@@ -73,7 +71,7 @@ export class FileCreator {
       await this.notifier.issues({
         error: 'UPLOAD_ERROR',
         cause,
-        name: filePath.nameWithExtension(),
+        name: basename(path),
       });
 
       throw error;

@@ -308,7 +308,7 @@
     "node": ">=18.0.0 <19.0.0",
     "npm": ">=7.x"
   },
-    "engines": {
+  "engines": {
     "node": ">=18.0.0 <19.0.0"
   },
   "browserslist": [],

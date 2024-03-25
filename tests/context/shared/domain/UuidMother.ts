@@ -5,4 +5,8 @@ export class UuidMother {
   static random(): Uuid {
     return new Uuid(uuid.v4());
   }
+
+  static primitive(): string {
+    return UuidMother.random().value;
+  }
 }

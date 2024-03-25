@@ -93,4 +93,16 @@ export class SDKRemoteFileSystem implements RemoteFileSystem {
       bucketId: this.bucket,
     });
   }
+
+  async override(file: File): Promise<void> {
+    await this.clients.newDrive.put(
+      `${process.env.NEW_DRIVE_URL}/drive/files/${file.uuid}`,
+      {
+        fileId: file.contentsId,
+        size: file.size,
+      }
+    );
+
+    Logger.info(`File ${file.path} overridden`);
+  }
 }

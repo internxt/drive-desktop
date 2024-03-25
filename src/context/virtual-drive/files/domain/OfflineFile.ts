@@ -64,21 +64,16 @@ export class OfflineFile extends AggregateRoot {
   }
 
   static create(
-    contentsId: string,
+    contentsId: ContentsId,
     folder: Folder,
     size: FileSize,
     path: FilePath
   ): OfflineFile {
-    const file = new OfflineFile(
-      new ContentsId(contentsId),
-      folder.id,
-      path,
-      size
-    );
+    const file = new OfflineFile(contentsId, folder.id, path, size);
 
     file.record(
       new FileCreatedDomainEvent({
-        aggregateId: contentsId,
+        aggregateId: contentsId.value,
         size: file.size,
         type: path.extension(),
         path: file.path,

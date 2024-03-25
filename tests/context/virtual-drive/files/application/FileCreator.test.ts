@@ -53,7 +53,7 @@ describe('File Creator', () => {
 
     remoteFileSystemMock.persistMock.mockResolvedValueOnce(fileAttributes);
 
-    await SUT.run(path, contents.id, contents.size);
+    await SUT.run(path.value, contents.id, contents.size);
 
     expect(fileRepository.addMock).toBeCalledWith(
       expect.objectContaining({
@@ -76,7 +76,7 @@ describe('File Creator', () => {
 
     remoteFileSystemMock.persistMock.mockResolvedValueOnce(fileAttributes);
 
-    await SUT.run(path, contents.id, contents.size);
+    await SUT.run(path.value, contents.id, contents.size);
 
     expect(eventBus.publishMock.mock.calls[0][0][0].eventName).toBe(
       'file.created'
@@ -109,7 +109,7 @@ describe('File Creator', () => {
       // returns Promise<void>
     });
 
-    await SUT.run(path, contents.id, contents.size);
+    await SUT.run(path.value, contents.id, contents.size);
 
     expect(deleterSpy).toBeCalledWith(existingFile.contentsId);
 

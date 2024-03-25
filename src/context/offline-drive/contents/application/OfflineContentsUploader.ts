@@ -12,7 +12,11 @@ export class OfflineContentsUploader {
     private readonly eventBus: EventBus
   ) {}
 
-  async run(name: OfflineContentsName, path: FilePath): Promise<string> {
+  async run(
+    name: OfflineContentsName,
+    path: FilePath,
+    replaces?: string
+  ): Promise<string> {
     const { contents, stream, abortSignal } = await this.repository.read(name);
 
     const uploader = this.contentsManagersFactory.uploader(
@@ -32,6 +36,7 @@ export class OfflineContentsUploader {
       offlineContentsPath: contents.absolutePath,
       size: contents.size,
       path: path.value,
+      replaces,
     });
 
     await this.eventBus.publish([contentsUploadedEvent]);

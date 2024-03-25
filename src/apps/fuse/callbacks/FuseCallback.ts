@@ -120,6 +120,10 @@ export abstract class NotifyFuseCallback extends FuseCallback<undefined> {
     if (result.isLeft()) {
       const error = result.getLeft();
 
+      if (this.debug.output) {
+        Logger.debug(`${this.name} ${error}`);
+      }
+
       return callback(error.code);
     }
 

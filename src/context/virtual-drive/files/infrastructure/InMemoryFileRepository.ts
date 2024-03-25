@@ -1,36 +1,43 @@
 import { File, FileAttributes } from '../domain/File';
 import { FileRepository } from '../domain/FileRepository';
+import { FileNotFoundError } from '../domain/errors/FileNotFoundError';
 
 export class InMemoryFileRepository implements FileRepository {
-  private files: Map<File['contentsId'], FileAttributes>;
+  private filesByUuid: Map<File['uuid'], FileAttributes>;
+  private filesByContentsId: Map<File['contentsId'], FileAttributes>;
 
   private get values(): Array<FileAttributes> {
-    return Array.from(this.files.values());
+    return Array.from(this.filesByUuid.values());
   }
 
   constructor(files?: Array<File>) {
-    this.files = new Map();
+    this.filesByUuid = new Map();
+    this.filesByContentsId = new Map();
+
     if (files) {
-      files.forEach((file) =>
-        this.files.set(file.contentsId, file.attributes())
-      );
+      files.forEach((file) => {
+        const attributes = file.attributes();
+
+        this.filesByUuid.set(file.uuid, attributes);
+        this.filesByContentsId.set(file.contentsId, attributes);
+      });
     }
   }
 
-  async searchById(id: number): Promise<File | undefined> {
-    const files = this.files.values();
+  async searchByUuid(uuid: File['uuid']): Promise<File | undefined> {
+    const attributes = this.filesByUuid.get(uuid);
 
-    for (const attributes of files) {
-      if (id === attributes.id) {
-        return File.from(attributes);
-      }
+    if (!attributes) {
+      return;
     }
 
-    return undefined;
+    return File.from(attributes);
   }
 
-  async searchByContentsId(id: string): Promise<File | undefined> {
-    const attributes = this.files.get(id);
+  async searchByContentsId(
+    contentsId: File['contentsId']
+  ): Promise<File | undefined> {
+    const attributes = this.filesByContentsId.get(contentsId);
 
     if (!attributes) {
       return;
@@ -40,7 +47,7 @@ export class InMemoryFileRepository implements FileRepository {
   }
 
   public all(): Promise<Array<File>> {
-    const files = [...this.files.values()].map((attributes) =>
+    const files = [...this.filesByUuid.values()].map((attributes) =>
       File.from(attributes)
     );
     return Promise.resolve(files);
@@ -68,21 +75,25 @@ export class InMemoryFileRepository implements FileRepository {
     return filesAttributes.map((attributes) => File.from(attributes));
   }
 
-  async delete(id: File['contentsId']): Promise<void> {
-    const deleted = this.files.delete(id);
+  // async delete(id: File['contentsId']): Promise<void> {
+  //   const file = this.filesByContentsId(id);
+  //   const deleted = this.filesByUuid.delete(id);
 
-    if (!deleted) {
-      throw new Error('File not found');
-    }
-  }
+  //   if (!deleted) {
+  //     throw new Error('File not found');
+  //   }
+  // }
 
   async add(file: File): Promise<void> {
-    this.files.set(file.contentsId, file.attributes());
+    const attributes = file.attributes();
+
+    this.filesByUuid.set(file.uuid, attributes);
+    this.filesByContentsId.set(file.contentsId, attributes);
   }
 
   async update(file: File): Promise<void> {
-    if (!this.files.has(file.contentsId)) {
-      throw new Error('File not found');
+    if (!this.filesByUuid.has(file.uuid)) {
+      throw new FileNotFoundError(file.uuid);
     }
 
     return this.add(file);
