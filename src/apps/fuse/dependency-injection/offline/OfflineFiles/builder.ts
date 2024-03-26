@@ -7,6 +7,7 @@ import { OfflineFileCreator } from '../../../../../context/offline-drive/files/a
 import { DependencyInjectionEventBus } from '../../common/eventBus';
 import { ClearOfflineFileOnFileCreated } from '../../../../../context/offline-drive/files/application/ClearOfflineFileOnFileCreated';
 import { OfflineFileDeleter } from '../../../../../context/offline-drive/files/application/OfflineFileDeleter';
+import { OfflineFilesByParentPathLister } from '../../../../../context/offline-drive/files/application/OfflineFileListerByParentFolder';
 
 export async function buildOfflineFilesContainer(): Promise<OfflineFilesContainer> {
   const { bus: eventBus } = DependencyInjectionEventBus;
@@ -23,6 +24,10 @@ export async function buildOfflineFilesContainer(): Promise<OfflineFilesContaine
 
   const offlineFileDeleter = new OfflineFileDeleter(repository);
 
+  const offlineFilesByParentPathLister = new OfflineFilesByParentPathLister(
+    repository
+  );
+
   // Event Listeners
   const clearOfflineFileOnFileCreated = new ClearOfflineFileOnFileCreated(
     offlineFileDeleter
@@ -33,6 +38,9 @@ export async function buildOfflineFilesContainer(): Promise<OfflineFilesContaine
     offlineFileSearcher,
     offlineFileFinder,
     offlineFileSizeIncreaser,
+    offlineFilesByParentPathLister,
+
+    // Event Listeners
     clearOfflineFileOnFileCreated,
   };
 }

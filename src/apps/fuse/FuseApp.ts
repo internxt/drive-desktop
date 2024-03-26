@@ -13,6 +13,7 @@ import { ReleaseCallback } from './callbacks/ReleaseCallback';
 import { FuseDependencyContainer } from './dependency-injection/FuseDependencyContainer';
 import { ensureFolderExists } from './../shared/fs/ensure-folder-exists';
 import { mountPromise, unmountFusedDirectory, unmountPromise } from './helpers';
+import { ChownCallback } from './callbacks/ChownCallback';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const fuse = require('@gcas/fuse');
@@ -31,13 +32,17 @@ export class FuseApp {
 
   private async getOpt() {
     const readdir = new ReaddirCallback(
-      this.fuseContainer.virtualDriveContainer
+      this.fuseContainer.virtualDriveContainer,
+      this.fuseContainer.offlineDriveContainer
     );
     const getattr = new GetAttributesCallback(
       this.fuseContainer.virtualDriveContainer,
       this.fuseContainer.offlineDriveContainer
     );
-    const open = new OpenCallback(this.fuseContainer.virtualDriveContainer);
+    const open = new OpenCallback(
+      this.fuseContainer.virtualDriveContainer,
+      this.fuseContainer.offlineDriveContainer
+    );
     const read = new ReadCallback(
       this.fuseContainer.virtualDriveContainer,
       this.fuseContainer.offlineDriveContainer
@@ -51,7 +56,8 @@ export class FuseApp {
       this.fuseContainer.virtualDriveContainer
     );
     const trashFile = new TrashFileCallback(
-      this.fuseContainer.virtualDriveContainer
+      this.fuseContainer.virtualDriveContainer,
+      this.fuseContainer.offlineDriveContainer
     );
     const trashFolder = new TrashFolderCallback(
       this.fuseContainer.virtualDriveContainer
@@ -61,6 +67,8 @@ export class FuseApp {
       this.fuseContainer.offlineDriveContainer,
       this.fuseContainer.virtualDriveContainer
     );
+
+    const chown = new ChownCallback();
 
     return {
       getattr: getattr.handle.bind(getattr),
@@ -74,6 +82,7 @@ export class FuseApp {
       release: release.handle.bind(release),
       unlink: trashFile.handle.bind(trashFile),
       rmdir: trashFolder.handle.bind(trashFolder),
+      chown: chown.handle.bind(chown),
     };
   }
 

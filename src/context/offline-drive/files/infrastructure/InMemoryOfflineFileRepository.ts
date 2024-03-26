@@ -17,6 +17,8 @@ export class InMemoryOfflineFileRepository implements OfflineFileRepository {
 
     const values = Array.from(this.files.values());
 
+    // Logger.debug(values);
+
     const file = values.find((attributes) => {
       return keys.every(
         (key: keyof OfflineFileAttributes) => attributes[key] == partial[key]
@@ -32,5 +34,12 @@ export class InMemoryOfflineFileRepository implements OfflineFileRepository {
 
   async delete(id: OfflineFile['id']): Promise<void> {
     this.files.delete(id.value);
+  }
+
+  async all(): Promise<Array<OfflineFile>> {
+    const fileAttributes = Array.from(this.files);
+    return fileAttributes.map(([_, attributes]) =>
+      OfflineFile.from(attributes)
+    );
   }
 }

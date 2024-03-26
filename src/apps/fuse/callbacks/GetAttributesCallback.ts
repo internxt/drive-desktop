@@ -12,6 +12,8 @@ type GetAttributesCallbackData = {
   mtime: Date;
   ctime: Date;
   atime?: Date;
+  uid: number;
+  gid: number;
 };
 
 export class GetAttributesCallback extends FuseCallback<GetAttributesCallbackData> {
@@ -42,6 +44,8 @@ export class GetAttributesCallback extends FuseCallback<GetAttributesCallbackDat
         mtime: new Date(),
         ctime: new Date(),
         atime: undefined,
+        uid: process.getuid(),
+        gid: process.getgid(),
       });
     }
 
@@ -57,6 +61,8 @@ export class GetAttributesCallback extends FuseCallback<GetAttributesCallbackDat
         ctime: file.createdAt,
         mtime: file.updatedAt,
         atime: new Date(),
+        uid: process.getuid(),
+        gid: process.getgid(),
       });
     }
 
@@ -72,6 +78,8 @@ export class GetAttributesCallback extends FuseCallback<GetAttributesCallbackDat
         ctime: folder.createdAt,
         mtime: folder.updatedAt,
         atime: folder.createdAt,
+        uid: process.getuid(),
+        gid: process.getgid(),
       });
     }
 
@@ -85,6 +93,8 @@ export class GetAttributesCallback extends FuseCallback<GetAttributesCallbackDat
         mtime: new Date(),
         ctime: offlineFile.createdAt,
         atime: offlineFile.createdAt,
+        uid: process.getuid(),
+        gid: process.getgid(),
       });
     }
 

@@ -3,7 +3,7 @@ import { NotifyFuseCallback } from './FuseCallback';
 
 export class CreateCallback extends NotifyFuseCallback {
   constructor(private readonly container: OfflineDriveDependencyContainer) {
-    super('Create');
+    super('Create', { input: true, output: true });
   }
 
   async execute(path: string, _mode: number) {

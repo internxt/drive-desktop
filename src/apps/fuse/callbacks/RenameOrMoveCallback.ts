@@ -15,7 +15,7 @@ export class RenameOrMoveCallback extends NotifyFuseCallback {
     virtual: VirtualDriveDependencyContainer,
     offline: OfflineDriveDependencyContainer
   ) {
-    super('Rename Or Move');
+    super('Rename Or Move', { input: true, output: true });
 
     this.updateFile = new RenameOrMoveFile(virtual);
     this.updateFolder = new RenameOrMoveFolder(virtual);
