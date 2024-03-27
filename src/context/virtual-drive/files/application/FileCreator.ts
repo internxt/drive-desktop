@@ -63,7 +63,7 @@ export class FileCreator {
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : 'unknown error';
 
-      Logger.error('[File Creator]', message);
+      Logger.error(`[File Creator] ${path}`, message);
 
       const cause =
         error instanceof DriveDesktopError ? error.syncErrorCause : 'UNKNOWN';

@@ -6,13 +6,13 @@ import { OfflineDriveDependencyContainer } from '../dependency-injection/offline
 
 export class OpenCallback extends FuseCallback<number> {
   private readonly fileDescriptors = new Map<string, number>();
-  private lastFileDescriptor = 0;
+  private lastFileDescriptor = 10000000;
 
   constructor(
     private readonly virtual: VirtualDriveDependencyContainer,
     private readonly offline: OfflineDriveDependencyContainer
   ) {
-    super('Open', { input: true, output: true });
+    super('Open', { input: true, output: false });
   }
 
   private nextFileDescriptor(): number {
@@ -43,7 +43,7 @@ export class OpenCallback extends FuseCallback<number> {
       const offline = await this.offline.offlineFileSearcher.run({ path });
       if (offline) {
         const fileDescriptor = this.getFileDescriptor(path);
-        return this.right(fileDescriptor);
+        return this.right(0);
       }
       return this.left(new FuseNoSuchFileOrDirectoryError(path));
     }
@@ -51,7 +51,7 @@ export class OpenCallback extends FuseCallback<number> {
     try {
       await this.virtual.downloadContentsToPlainFile.run(virtual);
 
-      return this.right(virtual.id);
+      return this.right(0);
     } catch (err: unknown) {
       Logger.error('Error downloading file: ', err);
       if (err instanceof Error) {

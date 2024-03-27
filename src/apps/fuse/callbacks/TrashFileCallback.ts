@@ -27,6 +27,11 @@ export class TrashFileCallback extends NotifyFuseCallback {
         return this.left(new FuseNoSuchFileOrDirectoryError(path));
       }
 
+      if (offline.isTemporal()) {
+        await this.offline.temporalOfflineContentsDeleter.run(offline);
+        await this.offline.temporalOfflineDeleter.run(offline);
+      }
+
       return this.right();
     }
 

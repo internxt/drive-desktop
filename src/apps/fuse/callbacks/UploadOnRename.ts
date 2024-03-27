@@ -3,6 +3,7 @@ import { VirtualDriveDependencyContainer } from '../dependency-injection/virtual
 import { FileStatuses } from '../../../context/virtual-drive/files/domain/FileStatus';
 import { Either, right } from '../../../context/shared/domain/Either';
 import { FuseError } from './FuseErrors';
+import Logger from 'electron-log';
 
 type Result = 'no-op' | 'success';
 
@@ -24,7 +25,13 @@ export class UploadOnRename {
       status: FileStatuses.EXISTS,
     });
 
-    if (!offlineFile || !virtualFile) {
+    if (!offlineFile) {
+      Logger.debug('[UPLOAD ON RENAME] offline file not found', src);
+      return right(UploadOnRename.NO_OP);
+    }
+
+    if (!virtualFile) {
+      Logger.debug('[UPLOAD ON RENAME] virtual file not found', dest);
       return right(UploadOnRename.NO_OP);
     }
 

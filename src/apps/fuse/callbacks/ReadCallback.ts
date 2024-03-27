@@ -1,6 +1,7 @@
 import Logger from 'electron-log';
 import { VirtualDriveDependencyContainer } from '../dependency-injection/virtual-drive/VirtualDriveDependencyContainer';
 import { OfflineDriveDependencyContainer } from '../dependency-injection/offline/OfflineDriveDependencyContainer';
+import { Optional } from '../../../shared/types/Optional';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const fuse = require('@gcas/fuse');
@@ -33,6 +34,17 @@ export class ReadCallback {
     return chunk.length; // number of bytes read
   }
 
+  private async copyToBuffer(buffer: Buffer, bufferOptional: Optional<Buffer>) {
+    if (!bufferOptional.isPresent()) {
+      return 0;
+    }
+
+    const chunk = bufferOptional.get();
+
+    chunk.copy(buffer); // write the result of the read to the result buffer
+    return chunk.length; // number of bytes read
+  }
+
   async execute(
     path: string,
     _fd: any,
@@ -41,15 +53,37 @@ export class ReadCallback {
     pos: number,
     cb: (code: number, params?: any) => void
   ) {
-    const file = await this.virtualDrive.filesSearcher.run({ path });
+    Logger.debug('READ', path);
 
-    if (!file) {
-      cb(fuse.ENOENT);
+    const virtualFile = await this.virtualDrive.filesSearcher.run({ path });
+
+    if (!virtualFile) {
+      const offlineFile = await this.offlineDrive.offlineFileSearcher.run({
+        path,
+      });
+
+      if (!offlineFile) {
+        Logger.error('READ FILE NOT FOUND', path);
+        cb(fuse.ENOENT);
+        return;
+      }
+
+      Logger.error('NEED TO READ', offlineFile.attributes());
+      const chunk =
+        await this.offlineDrive.temporalOfflineContentsChucksReader.run(
+          offlineFile.id,
+          len,
+          pos
+        );
+
+      const result = await this.copyToBuffer(buf, chunk);
+
+      cb(result);
       return;
     }
 
     const filePath = this.virtualDrive.relativePathToAbsoluteConverter.run(
-      file.contentsId
+      virtualFile.contentsId
     );
 
     try {

@@ -14,7 +14,7 @@ export class WriteCallback {
   ) {
     Logger.debug('WRITE: ', path, len, pos);
 
-    await this.container.offlineContentsAppender.run(path, buffer);
+    await this.container.offlineContentsAppender.run(path, buffer, len, pos);
 
     return cb(len);
   }

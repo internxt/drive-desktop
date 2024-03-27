@@ -4,6 +4,7 @@ import { OfflineContentsRepository } from '../domain/OfflineContentsRepository';
 import { OfflineContentsUploadedDomainEvent } from '../domain/events/OfflineContentsUploadedDomainEvent';
 import { FilePath } from '../../../virtual-drive/files/domain/FilePath';
 import { OfflineContentsName } from '../domain/OfflineContentsName';
+import Logger from 'electron-log';
 
 export class OfflineContentsUploader {
   constructor(
@@ -17,7 +18,8 @@ export class OfflineContentsUploader {
     path: FilePath,
     replaces?: string
   ): Promise<string> {
-    const { contents, stream, abortSignal } = await this.repository.read(name);
+    const { contents, stream, abortSignal } =
+      await this.repository.createStream(name);
 
     const uploader = this.contentsManagersFactory.uploader(
       stream,
@@ -30,6 +32,8 @@ export class OfflineContentsUploader {
     );
 
     const contentsId = await uploader();
+
+    Logger.debug(`${path.value} uploaded with id ${contentsId}`);
 
     const contentsUploadedEvent = new OfflineContentsUploadedDomainEvent({
       aggregateId: contentsId,

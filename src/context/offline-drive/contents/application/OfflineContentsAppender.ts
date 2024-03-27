@@ -10,11 +10,21 @@ export class OfflineContentsAppender {
     private readonly contentsRepository: OfflineContentsRepository
   ) {}
 
-  async run(path: string, buffer: Buffer): Promise<void> {
+  async run(
+    path: string,
+    buffer: Buffer,
+    length: number,
+    position: number
+  ): Promise<void> {
     const file = await this.offlineFileFinder.run({ path });
 
     try {
-      await this.contentsRepository.writeToFile(file.id, buffer);
+      await this.contentsRepository.writeToFile(
+        file.id,
+        buffer,
+        length,
+        position
+      );
     } catch (error: unknown) {
       throw new OfflineContentsIOError();
     }

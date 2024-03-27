@@ -20,7 +20,9 @@ export class ReaddirCallback extends FuseCallback<Array<string>> {
       path
     );
 
-    const offlineFilesNames = offlineFiles.map((file) => file.name);
+    const temporalFileNames = offlineFiles
+      .filter((file) => file.isTemporal())
+      .map((file) => file.name);
 
     const [filesNames, foldersNames] = await Promise.all([
       filesNamesPromise,
@@ -32,7 +34,7 @@ export class ReaddirCallback extends FuseCallback<Array<string>> {
       '..',
       ...filesNames,
       ...foldersNames,
-      ...offlineFilesNames,
+      ...temporalFileNames,
     ]);
   }
 }

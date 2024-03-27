@@ -63,6 +63,10 @@ export class OfflineFile extends AggregateRoot {
     this._size = this._size.increment(bytes);
   }
 
+  isTemporal(): boolean {
+    return this.name.startsWith('.~lock.') || this.extension === '.tmp';
+  }
+
   attributes(): OfflineFileAttributes {
     return {
       id: this._id.value,

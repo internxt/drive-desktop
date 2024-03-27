@@ -128,7 +128,7 @@ export abstract class NotifyFuseCallback extends FuseCallback<undefined> {
     }
 
     if (this.debug.output) {
-      Logger.debug(`${this.name} completed successfully`);
+      Logger.debug(`${this.name} completed successfully ${params[0]}`);
     }
 
     callback(NotifyFuseCallback.OK);
