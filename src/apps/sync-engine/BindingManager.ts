@@ -324,6 +324,7 @@ export class BindingsManager {
   }
 
   private async pollingStart() {
+    Logger.debug('[SYNC ENGINE] Starting polling');
     return this.container.pollingMonitorStart.run(this.polling.bind(this));
   }
 
