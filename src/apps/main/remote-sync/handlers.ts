@@ -2,7 +2,7 @@ import eventBus from '../event-bus';
 import { RemoteSyncManager } from './RemoteSyncManager';
 import { DriveFilesCollection } from '../database/collections/DriveFileCollection';
 import { DriveFoldersCollection } from '../database/collections/DriveFolderCollection';
-import { clearRemoteSyncStore } from './helpers';
+import { clearRemoteSyncStore, RemoteSyncStatus } from './helpers';
 import { getNewTokenClient } from '../../shared/HttpClient/main-process-client';
 import Logger from 'electron-log';
 import { ipcMain } from 'electron';
@@ -120,10 +120,7 @@ eventBus.on('USER_LOGGED_OUT', () => {
 
 ipcMain.on('CHECK_SYNC', (event) => {
   Logger.info('Checking sync');
-  event.sender.send(
-    'CHECK_SYNC_ENGINE_RESPONSE',
-    'Dato obtenido del proceso de sincronización'
-  );
+  event.sender.send('CHECK_SYNC_ENGINE_RESPONSE', '');
 });
 
 ipcMain.on('CHECK_SYNC_CHANGE_STATUS', async (_, placeholderStates) => {
@@ -132,4 +129,9 @@ ipcMain.on('CHECK_SYNC_CHANGE_STATUS', async (_, placeholderStates) => {
   remoteSyncManager.placeholderStatus = 'SYNCING';
   await sleep(7_00);
   remoteSyncManager.placeholderStatus = placeholderStates;
+});
+
+ipcMain.handle('CHECK_SYNC_IN_PROGRESS', async () => {
+  const syncingStatus: RemoteSyncStatus = 'SYNCING';
+  return remoteSyncManager.getSyncStatus() === syncingStatus;
 });
