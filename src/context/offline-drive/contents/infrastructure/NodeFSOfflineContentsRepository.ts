@@ -1,11 +1,11 @@
-import fs, { createReadStream, unlink, watch } from 'fs';
+import fs, { closeSync, createReadStream, readSync, unlink, watch } from 'fs';
 import { readFile, stat as statPromises } from 'fs/promises';
 import { OfflineContentsRepository } from '../domain/OfflineContentsRepository';
 import { OfflineFile } from '../../files/domain/OfflineFile';
 import { LocalFileContentsDirectoryProvider } from '../../../virtual-drive/shared/domain/LocalFileContentsDirectoryProvider';
 import { basename, dirname, join } from 'path';
 import Logger from 'electron-log';
-import { Readable } from 'stream';
+import { Readable, Stream } from 'stream';
 import { OfflineContents } from '../domain/OfflineContents';
 import { OfflineContentsName } from '../domain/OfflineContentsName';
 import { OfflineFileId } from '../../files/domain/OfflineFileId';
@@ -24,7 +24,7 @@ export class NodeFSOfflineContentsRepository
     return join(location, this.subfolder);
   }
 
-  private async filePath(name: OfflineContentsName): Promise<string> {
+  async filePath(name: OfflineContentsName): Promise<string> {
     const folder = await this.folderPath();
 
     return join(folder, name.value);
@@ -68,10 +68,10 @@ export class NodeFSOfflineContentsRepository
   }
 
   async createEmptyFile(id: OfflineFile['id']): Promise<void> {
-    const file = await this.filePath(id);
+    const path = await this.filePath(id);
 
     return new Promise((resolve) => {
-      fs.writeFile(file, '', (err) => {
+      fs.writeFile(path, '', (err) => {
         if (err) {
           Logger.error('[FSOfflineFileFileSystem] ', err);
           throw new Error(`could not create empty file for id: ${id}`);
@@ -82,16 +82,16 @@ export class NodeFSOfflineContentsRepository
     });
   }
 
-  async getAbsolutePath(id: OfflineFile['id']): Promise<string> {
+  async getAbsolutePath(id: OfflineFileId): Promise<string> {
     return this.filePath(id);
   }
 
-  async createStream(offlineContentsName: OfflineContentsName): Promise<{
+  async createStream(id: OfflineContentsName): Promise<{
     contents: OfflineContents;
     stream: Readable;
     abortSignal: AbortSignal;
   }> {
-    const absoluteFilePath = await this.getAbsolutePath(offlineContentsName);
+    const absoluteFilePath = await this.getAbsolutePath(id);
 
     const { readable, controller } =
       this.createAbortableStream(absoluteFilePath);
@@ -118,7 +118,7 @@ export class NodeFSOfflineContentsRepository
     });
 
     const contents = OfflineContents.from({
-      name: offlineContentsName.value,
+      name: id.value,
       size,
       modifiedTime: mtimeMs,
       birthTime: birthtimeMs,

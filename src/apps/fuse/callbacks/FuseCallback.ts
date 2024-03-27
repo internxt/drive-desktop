@@ -70,6 +70,7 @@ export abstract class FuseCallback<T> {
 
   protected left(error: FuseError | unknown): Either<FuseError, T> {
     if (error instanceof FuseError) {
+      Logger.error(`${this.name} ${error}`);
       return left(error);
     }
 

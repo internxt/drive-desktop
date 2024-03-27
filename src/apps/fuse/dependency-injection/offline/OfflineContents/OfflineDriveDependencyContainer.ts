@@ -5,6 +5,7 @@ import { OfflineContentsCreator } from '../../../../../context/offline-drive/con
 import { OfflineContentsUploader } from '../../../../../context/offline-drive/contents/application/OfflineContentsUploader';
 import { AuxiliarOfflineContentsChucksReader } from '../../../../../context/offline-drive/contents/application/auxiliar/AuxiliarOfflineContentsChucksReader';
 import { AuxiliarOfflineContentsDeleter } from '../../../../../context/offline-drive/contents/application/auxiliar/AuxiliarOfflineContentsDeleter';
+import { OfflineContentsByteByByteComparator } from '../../../../../context/offline-drive/contents/application/OfflineContentsByteByByteComparator';
 
 export interface OfflineContentsDependencyContainer {
   offlineContentsCreator: OfflineContentsCreator;
@@ -14,4 +15,5 @@ export interface OfflineContentsDependencyContainer {
   offlineContentsCacheCleaner: OfflineContentsCacheCleaner;
   auxiliarOfflineContentsChucksReader: AuxiliarOfflineContentsChucksReader;
   auxiliarOfflineContentsDeleter: AuxiliarOfflineContentsDeleter;
+  offlineContentsByteByByteComparator: OfflineContentsByteByByteComparator;
 }

@@ -13,6 +13,7 @@ export type OfflineFileAttributes = {
 export class OfflineFile extends AggregateRoot {
   private static readonly TEMPORAL_EXTENSION = 'tmp';
   private static readonly LOCK_FILE_NAME_PREFIX = '.~lock.';
+  private static readonly OUTPUT_STREAM_NAME_PREFIX = '.~lock.';
 
   private constructor(
     private _id: OfflineFileId,
@@ -69,8 +70,9 @@ export class OfflineFile extends AggregateRoot {
   isAuxiliary(): boolean {
     const isLockFile = this.isLockFile();
     const isTemporal = this.isTemporal();
+    const isOutputStream = this.isOutputStream();
 
-    return isLockFile || isTemporal;
+    return isLockFile || isTemporal || isOutputStream;
   }
 
   isLockFile(): boolean {
@@ -79,6 +81,10 @@ export class OfflineFile extends AggregateRoot {
 
   isTemporal(): boolean {
     return this.extension === OfflineFile.TEMPORAL_EXTENSION;
+  }
+
+  isOutputStream(): boolean {
+    return this.name.startsWith(OfflineFile.OUTPUT_STREAM_NAME_PREFIX);
   }
 
   attributes(): OfflineFileAttributes {

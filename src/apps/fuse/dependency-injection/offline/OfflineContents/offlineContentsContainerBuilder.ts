@@ -14,6 +14,7 @@ import { DependencyInjectionInxtEnvironment } from '../../common/inxt-environmen
 import { DependencyInjectionUserProvider } from '../../common/user';
 import { OfflineFilesContainer } from '../OfflineFiles/OfflineFilesContainer';
 import { OfflineContentsDependencyContainer } from './OfflineDriveDependencyContainer';
+import { OfflineContentsByteByByteComparator } from '../../../../../context/offline-drive/contents/application/OfflineContentsByteByByteComparator';
 
 export async function buildOfflineContentsContainer(
   offlineFilesContainer: OfflineFilesContainer
@@ -60,6 +61,9 @@ export async function buildOfflineContentsContainer(
     repository
   );
 
+  const offlineContentsByteByByteComparator =
+    new OfflineContentsByteByByteComparator(repository);
+
   const auxiliarOfflineContentsChucksReader =
     new AuxiliarOfflineContentsChucksReader(repository);
 
@@ -73,6 +77,7 @@ export async function buildOfflineContentsContainer(
     offlineContentsUploader,
     contentsChunkReader,
     offlineContentsCacheCleaner,
+    offlineContentsByteByByteComparator,
     auxiliarOfflineContentsChucksReader,
     auxiliarOfflineContentsDeleter,
   };

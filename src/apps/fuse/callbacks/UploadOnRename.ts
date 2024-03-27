@@ -4,6 +4,8 @@ import { FileStatuses } from '../../../context/virtual-drive/files/domain/FileSt
 import { Either, right } from '../../../context/shared/domain/Either';
 import { FuseError } from './FuseErrors';
 import Logger from 'electron-log';
+import { File } from '../../../context/virtual-drive/files/domain/File';
+import { OfflineFile } from '../../../context/offline-drive/files/domain/OfflineFile';
 
 type Result = 'no-op' | 'success';
 
@@ -15,14 +17,40 @@ export class UploadOnRename {
     private readonly virtual: VirtualDriveDependencyContainer
   ) {}
 
+  private async differs(virtual: File, offline: OfflineFile): Promise<boolean> {
+    if (virtual.size !== offline.size.value) {
+      return true;
+    }
+
+    try {
+      const filePath = this.virtual.relativePathToAbsoluteConverter.run(
+        virtual.contentsId
+      );
+
+      const areEqual =
+        await this.offline.offlineContentsByteByByteComparator.run(
+          filePath,
+          offline
+        );
+
+      Logger.info(`Contents of <${virtual.path}> did not change`);
+
+      return !areEqual;
+    } catch (err) {
+      Logger.error(err);
+    }
+
+    return false;
+  }
+
   async run(src: string, dest: string): Promise<Either<FuseError, Result>> {
-    const virtualFile = await this.virtual.filesSearcher.run({
+    const fileToOverride = await this.virtual.filesSearcher.run({
       path: dest,
       status: FileStatuses.EXISTS,
     });
 
-    if (!virtualFile) {
-      Logger.debug('[UPLOAD ON RENAME] virtual file not found', dest);
+    if (!fileToOverride) {
+      Logger.debug('[UPLOAD ON RENAME] file to override not found', dest);
       return right(UploadOnRename.NO_OP);
     }
 
@@ -35,10 +63,16 @@ export class UploadOnRename {
       return right(UploadOnRename.NO_OP);
     }
 
+    const differs = await this.differs(fileToOverride, offlineFile);
+
+    if (!differs) {
+      return right(UploadOnRename.SUCCESS);
+    }
+
     await this.offline.offlineContentsUploader.run(
       offlineFile.id,
       offlineFile.path,
-      virtualFile.contentsId
+      fileToOverride.contentsId
     );
 
     return right(UploadOnRename.SUCCESS);
