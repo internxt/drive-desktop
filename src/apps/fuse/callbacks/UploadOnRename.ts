@@ -3,6 +3,7 @@ import { VirtualDriveDependencyContainer } from '../dependency-injection/virtual
 import { FileStatuses } from '../../../context/virtual-drive/files/domain/FileStatus';
 import { Either, right } from '../../../context/shared/domain/Either';
 import { FuseError } from './FuseErrors';
+import Logger from 'electron-log';
 
 type Result = 'no-op' | 'success';
 
@@ -15,16 +16,22 @@ export class UploadOnRename {
   ) {}
 
   async run(src: string, dest: string): Promise<Either<FuseError, Result>> {
-    const offlineFile = await this.offline.offlineFileSearcher.run({
-      path: src,
-    });
-
     const virtualFile = await this.virtual.filesSearcher.run({
       path: dest,
       status: FileStatuses.EXISTS,
     });
 
-    if (!offlineFile || !virtualFile) {
+    if (!virtualFile) {
+      Logger.debug('[UPLOAD ON RENAME] virtual file not found', dest);
+      return right(UploadOnRename.NO_OP);
+    }
+
+    const offlineFile = await this.offline.offlineFileSearcher.run({
+      path: src,
+    });
+
+    if (!offlineFile) {
+      Logger.debug('[UPLOAD ON RENAME] offline file not found', src);
       return right(UploadOnRename.NO_OP);
     }
 

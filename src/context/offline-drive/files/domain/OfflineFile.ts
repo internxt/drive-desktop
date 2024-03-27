@@ -11,6 +11,9 @@ export type OfflineFileAttributes = {
 };
 
 export class OfflineFile extends AggregateRoot {
+  private static readonly TEMPORAL_EXTENSION = 'tmp';
+  private static readonly LOCK_FILE_NAME_PREFIX = '.~lock.';
+
   private constructor(
     private _id: OfflineFileId,
     private _createdAt: Date,
@@ -61,6 +64,21 @@ export class OfflineFile extends AggregateRoot {
 
   increaseSizeBy(bytes: number): void {
     this._size = this._size.increment(bytes);
+  }
+
+  isAuxiliary(): boolean {
+    const isLockFile = this.isLockFile();
+    const isTemporal = this.isTemporal();
+
+    return isLockFile || isTemporal;
+  }
+
+  isLockFile(): boolean {
+    return this.name.startsWith(OfflineFile.LOCK_FILE_NAME_PREFIX);
+  }
+
+  isTemporal(): boolean {
+    return this.extension === OfflineFile.TEMPORAL_EXTENSION;
   }
 
   attributes(): OfflineFileAttributes {

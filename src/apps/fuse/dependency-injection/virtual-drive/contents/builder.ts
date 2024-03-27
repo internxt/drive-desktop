@@ -80,6 +80,9 @@ export async function buildContentsContainer(
     localContentChecker,
     retryContentsUploader,
     allLocalContentsDeleter,
+    localContentsMover,
+
+    // Event subscribers
     moveOfflineContentsOnContentsUploaded,
   };
 }

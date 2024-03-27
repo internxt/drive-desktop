@@ -1,8 +1,8 @@
 import { Optional } from '../../../../shared/types/Optional';
-import { ContentsRepository } from '../domain/ContentsRepository';
+import { OfflineContentsRepository } from '../domain/OfflineContentsRepository';
 
 export class ContentsChunkReader {
-  constructor(private readonly repository: ContentsRepository) {}
+  constructor(private readonly repository: OfflineContentsRepository) {}
 
   async run(
     contentsPath: string,

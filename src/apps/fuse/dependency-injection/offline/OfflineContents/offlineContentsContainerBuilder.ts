@@ -3,9 +3,10 @@ import { OfflineContentsAppender } from '../../../../../context/offline-drive/co
 import { OfflineContentsCacheCleaner } from '../../../../../context/offline-drive/contents/application/OfflineContentsCacheCleaner';
 import { OfflineContentsCreator } from '../../../../../context/offline-drive/contents/application/OfflineContentsCreator';
 import { OfflineContentsUploader } from '../../../../../context/offline-drive/contents/application/OfflineContentsUploader';
+import { AuxiliarOfflineContentsDeleter } from '../../../../../context/offline-drive/contents/application/auxiliar/AuxiliarOfflineContentsDeleter';
+import { AuxiliarOfflineContentsChucksReader } from '../../../../../context/offline-drive/contents/application/auxiliar/AuxiliarOfflineContentsChucksReader';
 import { EnvironmentOfflineContentsManagersFactory } from '../../../../../context/offline-drive/contents/infrastructure/EnvironmentRemoteFileContentsManagersFactory';
 import { NodeFSOfflineContentsRepository } from '../../../../../context/offline-drive/contents/infrastructure/NodeFSOfflineContentsRepository';
-import { CachedFSContentsRepository } from '../../../../../context/offline-drive/contents/infrastructure/cache/CachedFSContentsRepository';
 import { MainProcessUploadProgressTracker } from '../../../../../context/shared/infrastructure/MainProcessUploadProgressTracker';
 import { FuseAppDataLocalFileContentsDirectoryProvider } from '../../../../../context/virtual-drive/shared/infrastructure/LocalFileContentsDirectoryProviders/FuseAppDataLocalFileContentsDirectoryProvider';
 import { DependencyInjectionEventBus } from '../../../../fuse/dependency-injection/common/eventBus';
@@ -53,11 +54,17 @@ export async function buildOfflineContentsContainer(
 
   const offlineContentsCreator = new OfflineContentsCreator(repository);
 
-  const contentsRepository = new CachedFSContentsRepository();
-  const contentsChunkReader = new ContentsChunkReader(contentsRepository);
+  const contentsChunkReader = new ContentsChunkReader(repository);
 
   const offlineContentsCacheCleaner = new OfflineContentsCacheCleaner(
-    contentsRepository
+    repository
+  );
+
+  const auxiliarOfflineContentsChucksReader =
+    new AuxiliarOfflineContentsChucksReader(repository);
+
+  const auxiliarOfflineContentsDeleter = new AuxiliarOfflineContentsDeleter(
+    repository
   );
 
   return {
@@ -66,5 +73,7 @@ export async function buildOfflineContentsContainer(
     offlineContentsUploader,
     contentsChunkReader,
     offlineContentsCacheCleaner,
+    auxiliarOfflineContentsChucksReader,
+    auxiliarOfflineContentsDeleter,
   };
 }

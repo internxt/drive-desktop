@@ -1,8 +1,8 @@
-import { ContentsRepository } from '../../domain/ContentsRepository';
 import fs from 'fs/promises';
 import Logger from 'electron-log';
 import { basename } from 'path';
-export class CachedFSContentsRepository implements ContentsRepository {
+
+export class CachedFSContentsRepository {
   private buffers: Map<string, Buffer> = new Map();
 
   async read(path: string): Promise<Buffer> {

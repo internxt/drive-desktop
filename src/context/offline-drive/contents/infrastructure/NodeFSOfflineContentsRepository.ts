@@ -1,13 +1,14 @@
-import fs, { createReadStream, watch } from 'fs';
-import { stat as statPromises } from 'fs/promises';
+import fs, { createReadStream, unlink, watch } from 'fs';
+import { readFile, stat as statPromises } from 'fs/promises';
 import { OfflineContentsRepository } from '../domain/OfflineContentsRepository';
 import { OfflineFile } from '../../files/domain/OfflineFile';
 import { LocalFileContentsDirectoryProvider } from '../../../virtual-drive/shared/domain/LocalFileContentsDirectoryProvider';
-import path from 'path';
+import { basename, dirname, join } from 'path';
 import Logger from 'electron-log';
 import { Readable } from 'stream';
 import { OfflineContents } from '../domain/OfflineContents';
 import { OfflineContentsName } from '../domain/OfflineContentsName';
+import { OfflineFileId } from '../../files/domain/OfflineFileId';
 
 export class NodeFSOfflineContentsRepository
   implements OfflineContentsRepository
@@ -20,13 +21,13 @@ export class NodeFSOfflineContentsRepository
   private async folderPath(): Promise<string> {
     const location = await this.locationProvider.provide();
 
-    return path.join(location, this.subfolder);
+    return join(location, this.subfolder);
   }
 
   private async filePath(name: OfflineContentsName): Promise<string> {
     const folder = await this.folderPath();
 
-    return path.join(folder, name.value);
+    return join(folder, name.value);
   }
 
   private createAbortableStream(filePath: string): {
@@ -46,10 +47,24 @@ export class NodeFSOfflineContentsRepository
     fs.mkdirSync(folder, { recursive: true });
   }
 
-  async writeToFile(id: OfflineFile['id'], buffer: Buffer): Promise<void> {
+  async writeToFile(
+    id: OfflineFile['id'],
+    buffer: Buffer,
+    length: number,
+    position: number
+  ): Promise<void> {
     const file = await this.filePath(id);
 
-    fs.appendFileSync(file, buffer);
+    // Open the file in write mode with the 'r+' flag to allow reading and writing.
+    const fd = fs.openSync(file, 'r+');
+
+    try {
+      // Write the buffer to the file at the specified position.
+      fs.writeSync(fd, buffer, 0, length, position);
+    } finally {
+      // Close the file descriptor to release resources.
+      fs.closeSync(fd);
+    }
   }
 
   async createEmptyFile(id: OfflineFile['id']): Promise<void> {
@@ -71,7 +86,7 @@ export class NodeFSOfflineContentsRepository
     return this.filePath(id);
   }
 
-  async read(offlineContentsName: OfflineContentsName): Promise<{
+  async createStream(offlineContentsName: OfflineContentsName): Promise<{
     contents: OfflineContents;
     stream: Readable;
     abortSignal: AbortSignal;
@@ -83,8 +98,8 @@ export class NodeFSOfflineContentsRepository
 
     const { size, mtimeMs, birthtimeMs } = await statPromises(absoluteFilePath);
 
-    const absoluteFolderPath = path.dirname(absoluteFilePath);
-    const nameWithExtension = path.basename(absoluteFilePath);
+    const absoluteFolderPath = dirname(absoluteFilePath);
+    const nameWithExtension = basename(absoluteFilePath);
 
     const watcher = watch(absoluteFolderPath, (_, filename) => {
       if (filename !== nameWithExtension) {
@@ -115,5 +130,64 @@ export class NodeFSOfflineContentsRepository
       stream: readable,
       abortSignal: controller.signal,
     };
+  }
+
+  private buffers: Map<string, Buffer> = new Map();
+
+  async read(path: string): Promise<Buffer> {
+    const cached = this.buffers.get(path);
+
+    if (cached) {
+      return cached;
+    }
+
+    const read = await readFile(path);
+    this.buffers.set(path, read);
+
+    return read;
+  }
+
+  async forget(path: string): Promise<void> {
+    const deleted = this.buffers.delete(path);
+
+    if (deleted) {
+      Logger.debug(`Buffer from ${basename(path)} deleted from cache`);
+    }
+  }
+
+  async readFromId(id: OfflineFileId): Promise<Buffer> {
+    const path = await this.getAbsolutePath(id);
+
+    const cached = this.buffers.get(path);
+
+    if (cached) {
+      return cached;
+    }
+
+    const read = await readFile(path);
+    this.buffers.set(path, read);
+
+    return read;
+  }
+
+  async remove(id: OfflineFileId): Promise<void> {
+    const path = await this.getAbsolutePath(id);
+
+    return new Promise<void>((resolve, reject) => {
+      unlink(path, (err: NodeJS.ErrnoException | null) => {
+        if (err) {
+          if (err.code !== 'ENOENT') {
+            Logger.debug(`Could not delete ${id}, it already does not exists`);
+            resolve();
+            return;
+          }
+
+          reject(err);
+          return;
+        }
+
+        resolve();
+      });
+    });
   }
 }

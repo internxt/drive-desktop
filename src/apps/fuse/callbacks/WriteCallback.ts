@@ -1,5 +1,4 @@
 import { OfflineDriveDependencyContainer } from '../dependency-injection/offline/OfflineDriveDependencyContainer';
-import Logger from 'electron-log';
 
 export class WriteCallback {
   constructor(private readonly container: OfflineDriveDependencyContainer) {}
@@ -12,9 +11,7 @@ export class WriteCallback {
     pos: number,
     cb: (a: number) => void
   ) {
-    Logger.debug('WRITE: ', path, len, pos);
-
-    await this.container.offlineContentsAppender.run(path, buffer);
+    await this.container.offlineContentsAppender.run(path, buffer, len, pos);
 
     return cb(len);
   }

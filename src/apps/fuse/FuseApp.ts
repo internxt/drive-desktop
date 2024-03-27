@@ -31,13 +31,17 @@ export class FuseApp {
 
   private async getOpt() {
     const readdir = new ReaddirCallback(
-      this.fuseContainer.virtualDriveContainer
+      this.fuseContainer.virtualDriveContainer,
+      this.fuseContainer.offlineDriveContainer
     );
     const getattr = new GetAttributesCallback(
       this.fuseContainer.virtualDriveContainer,
       this.fuseContainer.offlineDriveContainer
     );
-    const open = new OpenCallback(this.fuseContainer.virtualDriveContainer);
+    const open = new OpenCallback(
+      this.fuseContainer.virtualDriveContainer,
+      this.fuseContainer.offlineDriveContainer
+    );
     const read = new ReadCallback(
       this.fuseContainer.virtualDriveContainer,
       this.fuseContainer.offlineDriveContainer
@@ -51,7 +55,8 @@ export class FuseApp {
       this.fuseContainer.virtualDriveContainer
     );
     const trashFile = new TrashFileCallback(
-      this.fuseContainer.virtualDriveContainer
+      this.fuseContainer.virtualDriveContainer,
+      this.fuseContainer.offlineDriveContainer
     );
     const trashFolder = new TrashFolderCallback(
       this.fuseContainer.virtualDriveContainer

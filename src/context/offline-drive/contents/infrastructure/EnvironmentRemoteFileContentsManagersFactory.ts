@@ -7,6 +7,7 @@ import { EnvironmentOfflineContentsUploader } from './EnvironmentOfflineContents
 import { OfflineContents } from '../domain/OfflineContents';
 import { UploadProgressTracker } from '../../../shared/domain/UploadProgressTracker';
 import { Readable } from 'stream';
+import Logger from 'electron-log';
 
 export class EnvironmentOfflineContentsManagersFactory
   implements OfflineContentsManagersFactory
@@ -54,8 +55,9 @@ export class EnvironmentOfflineContentsManagersFactory
       });
     });
 
-    uploader.on('error', (_error: Error) => {
+    uploader.on('error', (error: Error) => {
       // TODO: use error to determine the cause
+      Logger.debug('UPLOADER ERROR', error);
       this.progressTracker.uploadError(name, extension, 'UNKNOWN');
     });
 

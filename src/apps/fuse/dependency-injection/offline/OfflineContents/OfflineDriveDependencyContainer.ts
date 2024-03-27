@@ -3,6 +3,8 @@ import { ContentsChunkReader } from '../../../../../context/offline-drive/conten
 import { OfflineContentsAppender } from '../../../../../context/offline-drive/contents/application/OfflineContentsAppender';
 import { OfflineContentsCreator } from '../../../../../context/offline-drive/contents/application/OfflineContentsCreator';
 import { OfflineContentsUploader } from '../../../../../context/offline-drive/contents/application/OfflineContentsUploader';
+import { AuxiliarOfflineContentsChucksReader } from '../../../../../context/offline-drive/contents/application/auxiliar/AuxiliarOfflineContentsChucksReader';
+import { AuxiliarOfflineContentsDeleter } from '../../../../../context/offline-drive/contents/application/auxiliar/AuxiliarOfflineContentsDeleter';
 
 export interface OfflineContentsDependencyContainer {
   offlineContentsCreator: OfflineContentsCreator;
@@ -10,4 +12,6 @@ export interface OfflineContentsDependencyContainer {
   offlineContentsUploader: OfflineContentsUploader;
   contentsChunkReader: ContentsChunkReader;
   offlineContentsCacheCleaner: OfflineContentsCacheCleaner;
+  auxiliarOfflineContentsChucksReader: AuxiliarOfflineContentsChucksReader;
+  auxiliarOfflineContentsDeleter: AuxiliarOfflineContentsDeleter;
 }
