@@ -53,8 +53,6 @@ export class ReadCallback {
     pos: number,
     cb: (code: number, params?: any) => void
   ) {
-    Logger.debug('READ', path);
-
     const virtualFile = await this.virtualDrive.filesSearcher.run({ path });
 
     if (!virtualFile) {
@@ -68,9 +66,8 @@ export class ReadCallback {
         return;
       }
 
-      Logger.error('NEED TO READ', offlineFile.attributes());
       const chunk =
-        await this.offlineDrive.temporalOfflineContentsChucksReader.run(
+        await this.offlineDrive.auxiliarOfflineContentsChucksReader.run(
           offlineFile.id,
           len,
           pos
@@ -91,7 +88,7 @@ export class ReadCallback {
       cb(bytesRead);
     } catch (err) {
       Logger.error(`Error reading file: ${err}`);
-      cb(fuse.ENOENT);
+      cb(fuse.EIO);
     }
   }
 }

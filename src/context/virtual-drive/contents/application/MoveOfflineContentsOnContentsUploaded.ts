@@ -10,7 +10,7 @@ export class MoveOfflineContentsOnContentsUploaded
   constructor(private readonly mover: LocalContentsMover) {}
 
   subscribedTo(): DomainEventClass[] {
-    return [OfflineContentsUploadedDomainEvent];
+    return []; // Disabled because moving the contents created an error while editing some files
   }
   async on(domainEvent: OfflineContentsUploadedDomainEvent): Promise<void> {
     const contentsId = new ContentsId(domainEvent.aggregateId);

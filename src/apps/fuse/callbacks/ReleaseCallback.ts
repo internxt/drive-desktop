@@ -9,7 +9,7 @@ export class ReleaseCallback extends NotifyFuseCallback {
     private readonly offlineDrive: OfflineDriveDependencyContainer,
     private readonly virtualDrive: VirtualDriveDependencyContainer
   ) {
-    super('Release', { input: true, output: true });
+    super('Release');
   }
 
   async execute(path: string, _fd: number) {
@@ -23,7 +23,7 @@ export class ReleaseCallback extends NotifyFuseCallback {
           return this.right();
         }
 
-        if (offlineFile.isTemporal()) {
+        if (offlineFile.isAuxiliary()) {
           return this.right();
         }
 
@@ -49,8 +49,6 @@ export class ReleaseCallback extends NotifyFuseCallback {
 
       return this.right();
     } catch (err: unknown) {
-      ////////////////////////////////////TODO: DOES NOT MAKE A CREATE CALL?
-
       Logger.error('RELEASE', err);
       return this.left(new FuseIOError());
     }

@@ -16,22 +16,22 @@ export class UploadOnRename {
   ) {}
 
   async run(src: string, dest: string): Promise<Either<FuseError, Result>> {
-    const offlineFile = await this.offline.offlineFileSearcher.run({
-      path: src,
-    });
-
     const virtualFile = await this.virtual.filesSearcher.run({
       path: dest,
       status: FileStatuses.EXISTS,
     });
 
-    if (!offlineFile) {
-      Logger.debug('[UPLOAD ON RENAME] offline file not found', src);
+    if (!virtualFile) {
+      Logger.debug('[UPLOAD ON RENAME] virtual file not found', dest);
       return right(UploadOnRename.NO_OP);
     }
 
-    if (!virtualFile) {
-      Logger.debug('[UPLOAD ON RENAME] virtual file not found', dest);
+    const offlineFile = await this.offline.offlineFileSearcher.run({
+      path: src,
+    });
+
+    if (!offlineFile) {
+      Logger.debug('[UPLOAD ON RENAME] offline file not found', src);
       return right(UploadOnRename.NO_OP);
     }
 

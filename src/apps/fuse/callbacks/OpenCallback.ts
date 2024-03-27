@@ -5,35 +5,11 @@ import { FuseIOError, FuseNoSuchFileOrDirectoryError } from './FuseErrors';
 import { OfflineDriveDependencyContainer } from '../dependency-injection/offline/OfflineDriveDependencyContainer';
 
 export class OpenCallback extends FuseCallback<number> {
-  private readonly fileDescriptors = new Map<string, number>();
-  private lastFileDescriptor = 10000000;
-
   constructor(
     private readonly virtual: VirtualDriveDependencyContainer,
     private readonly offline: OfflineDriveDependencyContainer
   ) {
-    super('Open', { input: true, output: false });
-  }
-
-  private nextFileDescriptor(): number {
-    const next = this.lastFileDescriptor + 1;
-    this.lastFileDescriptor = next;
-
-    return next;
-  }
-
-  private getFileDescriptor(path: string): number {
-    const fileDescriptor = this.fileDescriptors.get(path);
-
-    if (fileDescriptor) {
-      return fileDescriptor;
-    }
-
-    const nextFileDescriptor = this.nextFileDescriptor();
-
-    this.fileDescriptors.set(path, nextFileDescriptor);
-
-    return nextFileDescriptor;
+    super('Open');
   }
 
   async execute(path: string, _flags: Array<any>) {
@@ -42,7 +18,6 @@ export class OpenCallback extends FuseCallback<number> {
     if (!virtual) {
       const offline = await this.offline.offlineFileSearcher.run({ path });
       if (offline) {
-        const fileDescriptor = this.getFileDescriptor(path);
         return this.right(0);
       }
       return this.left(new FuseNoSuchFileOrDirectoryError(path));

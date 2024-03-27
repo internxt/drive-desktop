@@ -5,7 +5,7 @@ export class ChownCallback extends NotifyFuseCallback {
     super('Chown', { input: true, output: true });
   }
 
-  async execute(path: string, uid: number, gid: number) {
+  async execute(_path: string, _uid: number, _gid: number) {
     return this.right();
   }
 }

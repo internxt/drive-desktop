@@ -1,4 +1,4 @@
-import fs, { createReadStream, unlink, unlinkSync, watch } from 'fs';
+import fs, { createReadStream, unlink, watch } from 'fs';
 import { readFile, stat as statPromises } from 'fs/promises';
 import { OfflineContentsRepository } from '../domain/OfflineContentsRepository';
 import { OfflineFile } from '../../files/domain/OfflineFile';

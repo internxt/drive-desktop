@@ -9,7 +9,7 @@ export class TrashFileCallback extends NotifyFuseCallback {
     private readonly virtual: VirtualDriveDependencyContainer,
     private readonly offline: OfflineDriveDependencyContainer
   ) {
-    super('Trash file', { input: true, output: true });
+    super('Trash file');
   }
 
   async execute(path: string) {
@@ -27,8 +27,8 @@ export class TrashFileCallback extends NotifyFuseCallback {
         return this.left(new FuseNoSuchFileOrDirectoryError(path));
       }
 
-      if (offline.isTemporal()) {
-        await this.offline.temporalOfflineContentsDeleter.run(offline);
+      if (offline.isAuxiliary()) {
+        await this.offline.auxiliarOfflineContentsDeleter.run(offline);
         await this.offline.temporalOfflineDeleter.run(offline);
       }
 

@@ -3,8 +3,8 @@ import { OfflineContentsAppender } from '../../../../../context/offline-drive/co
 import { OfflineContentsCacheCleaner } from '../../../../../context/offline-drive/contents/application/OfflineContentsCacheCleaner';
 import { OfflineContentsCreator } from '../../../../../context/offline-drive/contents/application/OfflineContentsCreator';
 import { OfflineContentsUploader } from '../../../../../context/offline-drive/contents/application/OfflineContentsUploader';
-import { TemporalOfflineContentsDeleter } from '../../../../../context/offline-drive/contents/application/TemporalOfflineContentsDeleter';
-import { TemporalOfflineContentsChucksReader } from '../../../../../context/offline-drive/contents/application/TemporalOfflineContentsReader';
+import { AuxiliarOfflineContentsDeleter } from '../../../../../context/offline-drive/contents/application/auxiliar/AuxiliarOfflineContentsDeleter';
+import { AuxiliarOfflineContentsChucksReader } from '../../../../../context/offline-drive/contents/application/auxiliar/AuxiliarOfflineContentsChucksReader';
 import { EnvironmentOfflineContentsManagersFactory } from '../../../../../context/offline-drive/contents/infrastructure/EnvironmentRemoteFileContentsManagersFactory';
 import { NodeFSOfflineContentsRepository } from '../../../../../context/offline-drive/contents/infrastructure/NodeFSOfflineContentsRepository';
 import { MainProcessUploadProgressTracker } from '../../../../../context/shared/infrastructure/MainProcessUploadProgressTracker';
@@ -60,10 +60,10 @@ export async function buildOfflineContentsContainer(
     repository
   );
 
-  const temporalOfflineContentsChucksReader =
-    new TemporalOfflineContentsChucksReader(repository);
+  const auxiliarOfflineContentsChucksReader =
+    new AuxiliarOfflineContentsChucksReader(repository);
 
-  const temporalOfflineContentsDeleter = new TemporalOfflineContentsDeleter(
+  const auxiliarOfflineContentsDeleter = new AuxiliarOfflineContentsDeleter(
     repository
   );
 
@@ -73,7 +73,7 @@ export async function buildOfflineContentsContainer(
     offlineContentsUploader,
     contentsChunkReader,
     offlineContentsCacheCleaner,
-    temporalOfflineContentsChucksReader,
-    temporalOfflineContentsDeleter,
+    auxiliarOfflineContentsChucksReader,
+    auxiliarOfflineContentsDeleter,
   };
 }

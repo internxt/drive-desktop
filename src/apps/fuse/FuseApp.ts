@@ -14,8 +14,6 @@ import { FuseDependencyContainer } from './dependency-injection/FuseDependencyCo
 import { ensureFolderExists } from './../shared/fs/ensure-folder-exists';
 import { mountPromise, unmountFusedDirectory, unmountPromise } from './helpers';
 import { ChownCallback } from './callbacks/ChownCallback';
-import { AccessCallback } from './callbacks/AccessCallback';
-import { AsyncFunctionQueue } from './AsyncFunctionQueue';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const fuse = require('@gcas/fuse');
@@ -71,9 +69,6 @@ export class FuseApp {
     );
 
     const chown = new ChownCallback();
-    const access = new AccessCallback();
-
-    // const releaseQueue = new AsyncFunctionQueue(release.handle.bind(release));
 
     return {
       getattr: getattr.handle.bind(getattr),
@@ -88,7 +83,6 @@ export class FuseApp {
       unlink: trashFile.handle.bind(trashFile),
       rmdir: trashFolder.handle.bind(trashFolder),
       chown: chown.handle.bind(chown),
-      // access: access.handle.bind(access),
     };
   }
 

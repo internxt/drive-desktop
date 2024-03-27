@@ -1,9 +1,9 @@
-import { Optional } from '../../../../shared/types/Optional';
-import { OfflineFileId } from '../../files/domain/OfflineFileId';
-import { OfflineContentsRepository } from '../domain/OfflineContentsRepository';
+import { Optional } from '../../../../../shared/types/Optional';
+import { OfflineFileId } from '../../../files/domain/OfflineFileId';
+import { OfflineContentsRepository } from '../../domain/OfflineContentsRepository';
 import Logger from 'electron-log';
 
-export class TemporalOfflineContentsChucksReader {
+export class AuxiliarOfflineContentsChucksReader {
   constructor(private readonly repository: OfflineContentsRepository) {}
 
   async run(
@@ -19,7 +19,7 @@ export class TemporalOfflineContentsChucksReader {
 
     const chunk = data.slice(position, position + length);
 
-    Logger.debug('Read from temporal file', id);
+    Logger.debug('Read from auxiliar file', id);
 
     return Optional.of(chunk);
   }
