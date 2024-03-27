@@ -13,7 +13,6 @@ import { ReleaseCallback } from './callbacks/ReleaseCallback';
 import { FuseDependencyContainer } from './dependency-injection/FuseDependencyContainer';
 import { ensureFolderExists } from './../shared/fs/ensure-folder-exists';
 import { mountPromise, unmountFusedDirectory, unmountPromise } from './helpers';
-import { ChownCallback } from './callbacks/ChownCallback';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const fuse = require('@gcas/fuse');
@@ -68,8 +67,6 @@ export class FuseApp {
       this.fuseContainer.virtualDriveContainer
     );
 
-    const chown = new ChownCallback();
-
     return {
       getattr: getattr.handle.bind(getattr),
       readdir: readdir.handle.bind(readdir),
@@ -82,7 +79,6 @@ export class FuseApp {
       release: release.handle.bind(release),
       unlink: trashFile.handle.bind(trashFile),
       rmdir: trashFolder.handle.bind(trashFolder),
-      chown: chown.handle.bind(chown),
     };
   }
 
