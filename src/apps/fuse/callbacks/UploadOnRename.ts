@@ -72,7 +72,11 @@ export class UploadOnRename {
     await this.offline.offlineContentsUploader.run(
       offlineFile.id,
       offlineFile.path,
-      fileToOverride.contentsId
+      {
+        contentsId: fileToOverride.contentsId,
+        name: fileToOverride.name,
+        extension: fileToOverride.type,
+      }
     );
 
     return right(UploadOnRename.SUCCESS);
