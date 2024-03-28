@@ -1,11 +1,11 @@
-import fs, { closeSync, createReadStream, readSync, unlink, watch } from 'fs';
+import fs, { createReadStream, unlink, watch } from 'fs';
 import { readFile, stat as statPromises } from 'fs/promises';
 import { OfflineContentsRepository } from '../domain/OfflineContentsRepository';
 import { OfflineFile } from '../../files/domain/OfflineFile';
 import { LocalFileContentsDirectoryProvider } from '../../../virtual-drive/shared/domain/LocalFileContentsDirectoryProvider';
 import { basename, dirname, join } from 'path';
 import Logger from 'electron-log';
-import { Readable, Stream } from 'stream';
+import { Readable } from 'stream';
 import { OfflineContents } from '../domain/OfflineContents';
 import { OfflineContentsName } from '../domain/OfflineContentsName';
 import { OfflineFileId } from '../../files/domain/OfflineFileId';

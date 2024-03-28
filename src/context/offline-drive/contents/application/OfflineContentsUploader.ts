@@ -6,6 +6,12 @@ import { FilePath } from '../../../virtual-drive/files/domain/FilePath';
 import { OfflineContentsName } from '../domain/OfflineContentsName';
 import Logger from 'electron-log';
 
+interface Replaces {
+  contentsId: string;
+  name: string;
+  extension: string;
+}
+
 export class OfflineContentsUploader {
   constructor(
     private readonly repository: OfflineContentsRepository,
@@ -16,7 +22,7 @@ export class OfflineContentsUploader {
   async run(
     name: OfflineContentsName,
     path: FilePath,
-    replaces?: string
+    replaces?: Replaces
   ): Promise<string> {
     const { contents, stream, abortSignal } =
       await this.repository.createStream(name);
@@ -25,8 +31,8 @@ export class OfflineContentsUploader {
       stream,
       contents,
       {
-        name: path.name(),
-        extension: path.extension(),
+        name: replaces?.name || path.name(),
+        extension: replaces?.extension || path.extension(),
       },
       abortSignal
     );
@@ -40,7 +46,7 @@ export class OfflineContentsUploader {
       offlineContentsPath: contents.absolutePath,
       size: contents.size,
       path: path.value,
-      replaces,
+      replaces: replaces?.contentsId,
     });
 
     await this.eventBus.publish([contentsUploadedEvent]);
