@@ -9,7 +9,7 @@ export class ContentsIdMother {
     return new ContentsId(raw);
   }
 
-  static raw(): string {
+  static primitive(): string {
     return chance.string({ length: ContentsId.VALID_LENGTH });
   }
 }

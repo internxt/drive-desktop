@@ -1,6 +1,10 @@
+import { ContentsChunkReader } from '../../../../../context/offline-drive/contents/application/ContentsChunkReader';
 import { OfflineContentsAppender } from '../../../../../context/offline-drive/contents/application/OfflineContentsAppender';
+import { OfflineContentsCacheCleaner } from '../../../../../context/offline-drive/contents/application/OfflineContentsCacheCleaner';
 import { OfflineContentsCreator } from '../../../../../context/offline-drive/contents/application/OfflineContentsCreator';
 import { OfflineContentsUploader } from '../../../../../context/offline-drive/contents/application/OfflineContentsUploader';
+import { AuxiliarOfflineContentsDeleter } from '../../../../../context/offline-drive/contents/application/auxiliar/AuxiliarOfflineContentsDeleter';
+import { AuxiliarOfflineContentsChucksReader } from '../../../../../context/offline-drive/contents/application/auxiliar/AuxiliarOfflineContentsChucksReader';
 import { EnvironmentOfflineContentsManagersFactory } from '../../../../../context/offline-drive/contents/infrastructure/EnvironmentRemoteFileContentsManagersFactory';
 import { NodeFSOfflineContentsRepository } from '../../../../../context/offline-drive/contents/infrastructure/NodeFSOfflineContentsRepository';
 import { MainProcessUploadProgressTracker } from '../../../../../context/shared/infrastructure/MainProcessUploadProgressTracker';
@@ -10,6 +14,7 @@ import { DependencyInjectionInxtEnvironment } from '../../common/inxt-environmen
 import { DependencyInjectionUserProvider } from '../../common/user';
 import { OfflineFilesContainer } from '../OfflineFiles/OfflineFilesContainer';
 import { OfflineContentsDependencyContainer } from './OfflineDriveDependencyContainer';
+import { OfflineContentsByteByByteComparator } from '../../../../../context/offline-drive/contents/application/OfflineContentsByteByByteComparator';
 
 export async function buildOfflineContentsContainer(
   offlineFilesContainer: OfflineFilesContainer
@@ -50,9 +55,30 @@ export async function buildOfflineContentsContainer(
 
   const offlineContentsCreator = new OfflineContentsCreator(repository);
 
+  const contentsChunkReader = new ContentsChunkReader(repository);
+
+  const offlineContentsCacheCleaner = new OfflineContentsCacheCleaner(
+    repository
+  );
+
+  const offlineContentsByteByByteComparator =
+    new OfflineContentsByteByByteComparator(repository);
+
+  const auxiliarOfflineContentsChucksReader =
+    new AuxiliarOfflineContentsChucksReader(repository);
+
+  const auxiliarOfflineContentsDeleter = new AuxiliarOfflineContentsDeleter(
+    repository
+  );
+
   return {
     offlineContentsCreator,
     offlineContentsAppender,
     offlineContentsUploader,
+    contentsChunkReader,
+    offlineContentsCacheCleaner,
+    offlineContentsByteByByteComparator,
+    auxiliarOfflineContentsChucksReader,
+    auxiliarOfflineContentsDeleter,
   };
 }

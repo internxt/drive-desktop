@@ -19,4 +19,5 @@ export type ServerFile = {
   userId: number;
   status: ServerFileStatus;
   plainName?: string;
+  uuid: string;
 };

@@ -16,5 +16,9 @@ export class BucketEntry extends ValueObject<number> {
     if (value < 0) {
       throw new Error('File size cannot be negative');
     }
+
+    // if (value === 0) {
+    //   throw new Error('File size cannot be zero');
+    // }
   }
 }

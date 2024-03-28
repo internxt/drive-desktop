@@ -13,9 +13,12 @@ import { ContentsId } from '../../contents/domain/ContentsId';
 import { FileMovedDomainEvent } from './events/FileMovedDomainEvent';
 import { FileRenamedDomainEvent } from './events/FileRenamedDomainEvent';
 import { FilePlaceholderId, createFilePlaceholderId } from './PlaceholderId';
+import { FileOverriddenDomainEvent } from './events/FileOverriddenDomainEvent';
+import { FileUuid } from './FileUuid';
 
 export type FileAttributes = {
   id: number;
+  uuid: string;
   contentsId: string;
   folderId: number;
   createdAt: string;
@@ -29,10 +32,11 @@ export type FileAttributes = {
 export class File extends AggregateRoot {
   private constructor(
     private _id: number,
+    private _uuid: FileUuid,
     private _contentsId: ContentsId,
     private _folderId: number,
     private _path: FilePath,
-    private readonly _size: FileSize,
+    private _size: FileSize,
     public createdAt: Date,
     public updatedAt: Date,
     private _status: FileStatus
@@ -42,6 +46,10 @@ export class File extends AggregateRoot {
 
   public get id(): number {
     return this._id;
+  }
+
+  public get uuid(): string {
+    return this._uuid.value;
   }
 
   public get contentsId() {
@@ -87,6 +95,7 @@ export class File extends AggregateRoot {
   static from(attributes: FileAttributes): File {
     return new File(
       attributes.id,
+      new FileUuid(attributes.uuid),
       new ContentsId(attributes.contentsId),
       attributes.folderId,
       new FilePath(attributes.path),
@@ -100,6 +109,7 @@ export class File extends AggregateRoot {
   static create(attributes: FileAttributes): File {
     const file = new File(
       attributes.id,
+      new FileUuid(attributes.uuid),
       new ContentsId(attributes.contentsId),
       attributes.folderId,
       new FilePath(attributes.path),
@@ -111,7 +121,7 @@ export class File extends AggregateRoot {
 
     file.record(
       new FileCreatedDomainEvent({
-        aggregateId: file.contentsId,
+        aggregateId: file.uuid,
         size: file.size,
         type: file.type,
         path: file.path,
@@ -127,7 +137,7 @@ export class File extends AggregateRoot {
 
     this.record(
       new FileDeletedDomainEvent({
-        aggregateId: this.contentsId,
+        aggregateId: this.uuid,
         size: this._size.value,
       })
     );
@@ -143,7 +153,7 @@ export class File extends AggregateRoot {
 
     this.record(
       new FileMovedDomainEvent({
-        aggregateId: this._contentsId.value,
+        aggregateId: this.uuid,
         trackerId,
       })
     );
@@ -168,8 +178,26 @@ export class File extends AggregateRoot {
 
     this.record(
       new FileRenamedDomainEvent({
-        aggregateId: this.contentsId,
+        aggregateId: this.uuid,
         oldName: currentName,
+      })
+    );
+  }
+
+  changeContents(contentsId: ContentsId, contentsSize: FileSize) {
+    const previousContentsId = this.contentsId;
+    const previousSize = this.size;
+
+    this._contentsId = contentsId;
+    this._size = contentsSize;
+
+    this.record(
+      new FileOverriddenDomainEvent({
+        aggregateId: this.uuid,
+        previousContentsId,
+        previousSize,
+        currentContentsId: contentsId.value,
+        currentSize: contentsSize.value,
       })
     );
   }
@@ -193,6 +221,7 @@ export class File extends AggregateRoot {
   attributes(): FileAttributes {
     return {
       id: this.id,
+      uuid: this.uuid,
       contentsId: this.contentsId,
       folderId: this.folderId,
       createdAt: this.createdAt.toISOString(),

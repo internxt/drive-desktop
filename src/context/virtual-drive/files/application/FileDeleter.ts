@@ -18,7 +18,12 @@ export class FileDeleter {
   ) {}
 
   async run(contentsId: File['contentsId']): Promise<void> {
-    const file = await this.repository.searchByContentsId(contentsId);
+    const file = this.repository
+      .matchingPartial({
+        contentsId,
+        status: FileStatuses.EXISTS,
+      })
+      .at(0);
 
     if (!file) {
       return;

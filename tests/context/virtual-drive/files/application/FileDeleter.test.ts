@@ -38,9 +38,9 @@ describe('File Deleter', () => {
   });
 
   it('does not nothing if the file its not found', async () => {
-    const contentsId = ContentsIdMother.raw();
+    const contentsId = ContentsIdMother.primitive();
 
-    repository.searchByContentsIdMock.mockReturnValueOnce(undefined);
+    repository.matchingPartialMock.mockReturnValueOnce([]);
     jest
       .spyOn(allParentFoldersStatusIsExists, 'run')
       .mockResolvedValueOnce(false);
@@ -53,7 +53,7 @@ describe('File Deleter', () => {
   it('does not delete a file if it has a parent already trashed', async () => {
     const file = FileMother.any();
 
-    repository.searchByContentsIdMock.mockReturnValueOnce(file);
+    repository.matchingPartialMock.mockReturnValueOnce([file]);
     jest
       .spyOn(allParentFoldersStatusIsExists, 'run')
       .mockResolvedValueOnce(false);
@@ -66,7 +66,7 @@ describe('File Deleter', () => {
   it('trashes the file if it exists and does not have any parent trashed', async () => {
     const file = FileMother.any();
 
-    repository.searchByContentsIdMock.mockReturnValueOnce(file);
+    repository.matchingPartialMock.mockReturnValueOnce([file]);
     jest
       .spyOn(allParentFoldersStatusIsExists, 'run')
       .mockResolvedValueOnce(true);
@@ -79,7 +79,7 @@ describe('File Deleter', () => {
   it('trashes the file with the status trashed', async () => {
     const file = FileMother.any();
 
-    repository.searchByContentsIdMock.mockReturnValueOnce(file);
+    repository.matchingPartialMock.mockReturnValueOnce([file]);
     jest
       .spyOn(allParentFoldersStatusIsExists, 'run')
       .mockResolvedValueOnce(true);

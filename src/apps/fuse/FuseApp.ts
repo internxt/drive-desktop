@@ -12,6 +12,7 @@ import { WriteCallback } from './callbacks/WriteCallback';
 import { ReleaseCallback } from './callbacks/ReleaseCallback';
 import { FuseDependencyContainer } from './dependency-injection/FuseDependencyContainer';
 import { ensureFolderExists } from './../shared/fs/ensure-folder-exists';
+import { mountPromise, unmountFusedDirectory, unmountPromise } from './helpers';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const fuse = require('@gcas/fuse');
@@ -30,30 +31,40 @@ export class FuseApp {
 
   private async getOpt() {
     const readdir = new ReaddirCallback(
-      this.fuseContainer.virtualDriveContainer
+      this.fuseContainer.virtualDriveContainer,
+      this.fuseContainer.offlineDriveContainer
     );
     const getattr = new GetAttributesCallback(
       this.fuseContainer.virtualDriveContainer,
       this.fuseContainer.offlineDriveContainer
     );
-    const open = new OpenCallback(this.fuseContainer.virtualDriveContainer);
-    const read = new ReadCallback(this.fuseContainer.virtualDriveContainer);
+    const open = new OpenCallback(
+      this.fuseContainer.virtualDriveContainer,
+      this.fuseContainer.offlineDriveContainer
+    );
+    const read = new ReadCallback(
+      this.fuseContainer.virtualDriveContainer,
+      this.fuseContainer.offlineDriveContainer
+    );
     const renameOrMove = new RenameOrMoveCallback(
-      this.fuseContainer.virtualDriveContainer
+      this.fuseContainer.virtualDriveContainer,
+      this.fuseContainer.offlineDriveContainer
     );
     const create = new CreateCallback(this.fuseContainer.offlineDriveContainer);
     const makeDirectory = new MakeDirectoryCallback(
       this.fuseContainer.virtualDriveContainer
     );
     const trashFile = new TrashFileCallback(
-      this.fuseContainer.virtualDriveContainer
+      this.fuseContainer.virtualDriveContainer,
+      this.fuseContainer.offlineDriveContainer
     );
     const trashFolder = new TrashFolderCallback(
       this.fuseContainer.virtualDriveContainer
     );
     const write = new WriteCallback(this.fuseContainer.offlineDriveContainer);
     const release = new ReleaseCallback(
-      this.fuseContainer.offlineDriveContainer
+      this.fuseContainer.offlineDriveContainer,
+      this.fuseContainer.virtualDriveContainer
     );
 
     return {
@@ -81,19 +92,20 @@ export class FuseApp {
       maxRead: FuseApp.MAX_INT_32,
     });
 
-    this._fuse.mount((err: any) => {
-      if (err) {
+    try {
+      await mountPromise(this._fuse);
+    } catch {
+      try {
+        await unmountFusedDirectory(this.paths.root);
+        await mountPromise(this._fuse);
+      } catch (err) {
         Logger.error(`[FUSE] mount error: ${err}`);
       }
-    });
+    }
   }
 
   async stop(): Promise<void> {
-    this._fuse?.unmount((err: any) => {
-      if (err) {
-        Logger.error(`[FUSE] unmount error: ${err}`);
-      }
-    });
+    await unmountPromise(this._fuse);
   }
 
   async clearCache(): Promise<void> {
@@ -101,19 +113,21 @@ export class FuseApp {
   }
 
   async update(): Promise<void> {
-    Logger.info('[FUSE] Updating tree');
+    try {
+      const tree =
+        await this.fuseContainer.virtualDriveContainer.existingNodesTreeBuilder.run();
 
-    const tree =
-      await this.fuseContainer.virtualDriveContainer.existingNodesTreeBuilder.run();
+      await this.fuseContainer.virtualDriveContainer.repositoryPopulator.run(
+        tree.files
+      );
 
-    await this.fuseContainer.virtualDriveContainer.repositoryPopulator.run(
-      tree.files
-    );
+      await this.fuseContainer.virtualDriveContainer.folderRepositoryInitiator.run(
+        tree.folders
+      );
 
-    await this.fuseContainer.virtualDriveContainer.folderRepositoryInitiator.run(
-      tree.folders
-    );
-
-    Logger.info('[FUSE] Tree updated successfully');
+      Logger.info('[FUSE] Tree updated successfully');
+    } catch (err) {
+      Logger.error('[FUSE] Updating the tree ', err);
+    }
   }
 }

@@ -4,7 +4,6 @@ import { OfflineDriveDependencyContainer } from '../dependency-injection/offline
 import { VirtualDriveDependencyContainer } from '../dependency-injection/virtual-drive/VirtualDriveDependencyContainer';
 import { FuseCallback } from './FuseCallback';
 import { FuseError, FuseNoSuchFileOrDirectoryError } from './FuseErrors';
-import Logger from 'electron-log';
 
 type GetAttributesCallbackData = {
   mode: number;
@@ -12,6 +11,8 @@ type GetAttributesCallbackData = {
   mtime: Date;
   ctime: Date;
   atime?: Date;
+  uid: number;
+  gid: number;
 };
 
 export class GetAttributesCallback extends FuseCallback<GetAttributesCallbackData> {
@@ -26,11 +27,10 @@ export class GetAttributesCallback extends FuseCallback<GetAttributesCallbackDat
   }
 
   protected left(
-    error: FuseError
+    error: FuseNoSuchFileOrDirectoryError
   ): Either<FuseError, GetAttributesCallbackData> {
     // When the OS wants to check if a node exists will try to get the attributes of it
     // so not founding them is not an error
-    Logger.info(`Attributes of ${this.name}:.`);
     return left(error);
   }
 
@@ -42,6 +42,8 @@ export class GetAttributesCallback extends FuseCallback<GetAttributesCallbackDat
         mtime: new Date(),
         ctime: new Date(),
         atime: undefined,
+        uid: process.getuid(),
+        gid: process.getgid(),
       });
     }
 
@@ -57,6 +59,8 @@ export class GetAttributesCallback extends FuseCallback<GetAttributesCallbackDat
         ctime: file.createdAt,
         mtime: file.updatedAt,
         atime: new Date(),
+        uid: process.getuid(),
+        gid: process.getgid(),
       });
     }
 
@@ -72,6 +76,8 @@ export class GetAttributesCallback extends FuseCallback<GetAttributesCallbackDat
         ctime: folder.createdAt,
         mtime: folder.updatedAt,
         atime: folder.createdAt,
+        uid: process.getuid(),
+        gid: process.getgid(),
       });
     }
 
@@ -85,9 +91,11 @@ export class GetAttributesCallback extends FuseCallback<GetAttributesCallbackDat
         mtime: new Date(),
         ctime: offlineFile.createdAt,
         atime: offlineFile.createdAt,
+        uid: process.getuid(),
+        gid: process.getgid(),
       });
     }
 
-    return this.left(new FuseNoSuchFileOrDirectoryError());
+    return this.left(new FuseNoSuchFileOrDirectoryError(path));
   }
 }

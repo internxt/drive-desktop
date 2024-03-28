@@ -2,23 +2,31 @@ import { VirtualDriveDependencyContainer } from '../dependency-injection/virtual
 import Logger from 'electron-log';
 import { FuseCallback } from './FuseCallback';
 import { FuseIOError, FuseNoSuchFileOrDirectoryError } from './FuseErrors';
+import { OfflineDriveDependencyContainer } from '../dependency-injection/offline/OfflineDriveDependencyContainer';
 
 export class OpenCallback extends FuseCallback<number> {
-  constructor(private readonly container: VirtualDriveDependencyContainer) {
+  constructor(
+    private readonly virtual: VirtualDriveDependencyContainer,
+    private readonly offline: OfflineDriveDependencyContainer
+  ) {
     super('Open');
   }
 
   async execute(path: string, _flags: Array<any>) {
-    const file = await this.container.filesSearcher.run({ path });
+    const virtual = await this.virtual.filesSearcher.run({ path });
 
-    if (!file) {
-      return this.left(new FuseNoSuchFileOrDirectoryError());
+    if (!virtual) {
+      const offline = await this.offline.offlineFileSearcher.run({ path });
+      if (offline) {
+        return this.right(0);
+      }
+      return this.left(new FuseNoSuchFileOrDirectoryError(path));
     }
 
     try {
-      await this.container.downloadContentsToPlainFile.run(file);
+      await this.virtual.downloadContentsToPlainFile.run(virtual);
 
-      return this.right(file.id);
+      return this.right(0);
     } catch (err: unknown) {
       Logger.error('Error downloading file: ', err);
       if (err instanceof Error) {

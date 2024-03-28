@@ -38,8 +38,7 @@ export class VirtualDriveDependencyContainerFactory {
     const contentsContainer = await buildContentsContainer(sharedContainer);
     const filesContainer = await buildFilesContainer(
       tree.files,
-      folderContainer,
-      sharedContainer
+      folderContainer
     );
 
     const container = {

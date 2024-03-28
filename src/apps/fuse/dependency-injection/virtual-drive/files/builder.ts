@@ -1,5 +1,5 @@
 import crypt from '../../../../../context/shared/infrastructure/crypt';
-import { CreateFileOnOfflineFileUploaded } from '../../../../../context/virtual-drive/files/application/CreateFileOnOfflineFileUplodaded';
+import { CreateFileOnOfflineFileUploaded } from '../../../../../context/virtual-drive/files/application/event-subsribers/CreateFileOnOfflineFileUplodaded';
 import { FileCreator } from '../../../../../context/virtual-drive/files/application/FileCreator';
 import { FileDeleter } from '../../../../../context/virtual-drive/files/application/FileDeleter';
 import { FilePathUpdater } from '../../../../../context/virtual-drive/files/application/FilePathUpdater';
@@ -17,16 +17,15 @@ import { DependencyInjectionEventRepository } from '../../common/eventRepository
 import { DependencyInjectionStorageSdk } from '../../common/sdk';
 import { DependencyInjectionUserProvider } from '../../common/user';
 import { FoldersContainer } from '../folders/FoldersContainer';
-import { SharedContainer } from '../shared/SharedContainer';
 import { FilesContainer } from './FilesContainer';
 import { InMemoryFileRepositorySingleton } from '../../../../shared/dependency-injection/virtual-drive/files/InMemoryFileRepositorySingleton';
 import { SingleFileMatchingSearcher } from '../../../../../context/virtual-drive/files/application/SingleFileMatchingSearcher';
 import { FilesSearcherByPartialMatch } from '../../../../../context/virtual-drive/files/application/search-all/FilesSearcherByPartialMatch';
+import { FileOverrider } from '../../../../../context/virtual-drive/files/application/override/FileOverrider';
 
 export async function buildFilesContainer(
   initialFiles: Array<File>,
-  folderContainer: FoldersContainer,
-  sharedContainer: SharedContainer
+  folderContainer: FoldersContainer
 ): Promise<FilesContainer> {
   const repository = InMemoryFileRepositorySingleton.instance;
   const eventRepository = DependencyInjectionEventRepository.get();
@@ -54,9 +53,7 @@ export async function buildFilesContainer(
     crypt,
     user.bucket
   );
-  const localFileSystem = new FuseLocalFileSystem(
-    sharedContainer.relativePathToAbsoluteConverter
-  );
+  const localFileSystem = new FuseLocalFileSystem();
 
   const singleFileMatchingSearcher = new SingleFileMatchingSearcher(repository);
 
@@ -92,8 +89,15 @@ export async function buildFilesContainer(
     syncFileMessenger
   );
 
+  const fileOverrider = new FileOverrider(
+    remoteFileSystem,
+    repository,
+    eventBus
+  );
+
   const createFileOnOfflineFileUploaded = new CreateFileOnOfflineFileUploaded(
-    fileCreator
+    fileCreator,
+    fileOverrider
   );
 
   const filesSearcherByPartialMatch = new FilesSearcherByPartialMatch(

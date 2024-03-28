@@ -9,6 +9,7 @@ export class OfflineFileRepositoryMock implements OfflineFileRepository {
   public saveMock = jest.fn();
   public searchByPartialMock = jest.fn();
   public deleteMock = jest.fn();
+  public allMock = jest.fn();
 
   save(file: OfflineFile): Promise<void> {
     return this.saveMock(file);
@@ -21,5 +22,9 @@ export class OfflineFileRepositoryMock implements OfflineFileRepository {
 
   delete(id: OfflineFileId): Promise<void> {
     return this.deleteMock(id);
+  }
+
+  all(): Promise<OfflineFile[]> {
+    return this.allMock();
   }
 }

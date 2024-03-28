@@ -8,4 +8,6 @@ export interface OfflineFileRepository {
   ): Promise<OfflineFile | undefined>;
 
   delete(id: OfflineFile['id']): Promise<void>;
+
+  all(): Promise<Array<OfflineFile>>;
 }

@@ -5,18 +5,11 @@ import eventBus from '../main/event-bus';
 import { FuseApp } from './FuseApp';
 import path from 'path';
 import { FuseDependencyContainerFactory } from './dependency-injection/FuseDependencyContainerFactory';
-import { HydrationApi } from '../hydration-api/HydrationApi';
 import { getRootVirtualDrive } from '../main/virtual-root-folder/service';
 
 let fuseApp: FuseApp;
 
 async function startFuseApp() {
-  const api = new HydrationApi();
-
-  await api.start({
-    debug: false,
-  });
-
   const root = getRootVirtualDrive();
 
   Logger.debug('ROOT FOLDER: ', root);

@@ -7,6 +7,7 @@ import { LocalFileContents } from '../domain/LocalFileContents';
 import { LocalFileSystem } from '../domain/LocalFileSystem';
 import { ContentFileDownloader } from '../domain/contentHandlers/ContentFileDownloader';
 import Logger from 'electron-log';
+import { ContentsAccededDomainEvent } from '../domain/events/ContentsAccededDomainEvent';
 
 export class DownloadContentsToPlainFile {
   constructor(
@@ -35,6 +36,13 @@ export class DownloadContentsToPlainFile {
 
   async run(file: File): Promise<void> {
     const contentsId = new ContentsId(file.contentsId);
+
+    await this.eventBus.publish([
+      new ContentsAccededDomainEvent({
+        aggregateId: file.contentsId,
+        path: file.path,
+      }),
+    ]);
 
     const metadata = await this.local.metadata(contentsId);
 

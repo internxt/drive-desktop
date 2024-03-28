@@ -70,6 +70,7 @@ export abstract class FuseCallback<T> {
 
   protected left(error: FuseError | unknown): Either<FuseError, T> {
     if (error instanceof FuseError) {
+      Logger.error(`${this.name} ${error}`);
       return left(error);
     }
 
@@ -120,11 +121,15 @@ export abstract class NotifyFuseCallback extends FuseCallback<undefined> {
     if (result.isLeft()) {
       const error = result.getLeft();
 
+      if (this.debug.output) {
+        Logger.debug(`${this.name} ${error}`);
+      }
+
       return callback(error.code);
     }
 
     if (this.debug.output) {
-      Logger.debug(`${this.name} completed successfully`);
+      Logger.debug(`${this.name} completed successfully ${params[0]}`);
     }
 
     callback(NotifyFuseCallback.OK);

@@ -148,12 +148,16 @@ eventBus.on('USER_LOGGED_IN', async () => {
 eventBus.on('USER_LOGGED_OUT', async () => {
   setTrayStatus('IDLE');
   const widget = getWidget();
+
   if (widget) {
-    widget.hide();
-    widget.destroy();
+    widget?.hide();
   }
 
   await createAuthWindow();
+
+  if (widget) {
+    widget.destroy();
+  }
   if (AppDataSource.isInitialized) {
     await AppDataSource.destroy();
   }
