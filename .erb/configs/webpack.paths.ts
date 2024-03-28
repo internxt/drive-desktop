@@ -10,6 +10,7 @@ const srcRendererPath = path.join(srcPath, 'renderer');
 const srcSyncPath = path.join(srcPath, 'workers', 'sync');
 const srcBackupsPath = path.join(srcPath, 'workers', 'backups');
 const srcSyncEnginePath = path.join(srcPath, 'sync-engine');
+const srcFusePath = path.join(srcPath, 'fuse');
 
 const releasePath = path.join(rootPath, 'release');
 const appPath = path.join(releasePath, 'app');
@@ -23,6 +24,7 @@ const distRendererPath = path.join(distPath, 'renderer');
 const distSyncPath = path.join(distPath, 'sync');
 const distBackupsPath = path.join(distPath, 'backups');
 const distSyncEnginePath = path.join(distPath, 'sync-engine');
+const distFusePath = path.join(distPath, 'fuse');
 
 const buildPath = path.join(releasePath, 'build');
 
@@ -47,4 +49,6 @@ export default {
   distBackupsPath,
   srcSyncEnginePath,
   distSyncEnginePath,
+  srcFusePath,
+  distFusePath,
 };
