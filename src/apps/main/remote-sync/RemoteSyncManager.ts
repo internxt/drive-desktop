@@ -6,6 +6,7 @@ import {
   RemoteSyncedFile,
   SyncConfig,
   SYNC_OFFSET_MS,
+  WAITING_AFTER_SYNCING
 } from './helpers';
 import { reportError } from '../bug-report/service';
 
@@ -24,6 +25,8 @@ export class RemoteSyncManager {
   > = [];
   private totalFilesSynced = 0;
   private totalFoldersSynced = 0;
+  private lastSyncingFinishedTimestamp: Date | null = null;
+
   constructor(
     private db: {
       files: DatabaseCollectionAdapter<DriveFile>;
@@ -50,6 +53,9 @@ export class RemoteSyncManager {
   getSyncStatus(): RemoteSyncStatus {
     return this.status;
   }
+  getLastSyncingFinishedTimestamp() {
+    return this.lastSyncingFinishedTimestamp;
+  }
 
   /**
    * Check if the RemoteSyncManager is in SYNCED status
@@ -60,10 +66,22 @@ export class RemoteSyncManager {
     return this.status === 'SYNCED';
   }
 
+  /**
+   * Consult if recently the RemoteSyncManager was syncing
+   * @returns True if the RemoteSyncManager was syncing recently
+   * @returns False if the RemoteSyncManager was not syncing recently
+   */
+  recentlyWasSyncing() {
+    const passedTime = Date.now() - (this.getLastSyncingFinishedTimestamp()?.getTime() || Date.now() );
+    return passedTime < WAITING_AFTER_SYNCING;
+  }
+
   resetRemoteSync() {
     this.changeStatus('IDLE');
     this.filesSyncStatus = 'IDLE';
     this.foldersSyncStatus = 'IDLE';
+    this._placeholdersStatus = 'IDLE';
+    this.lastSyncingFinishedTimestamp = null;
     this.totalFilesSynced = 0;
     this.totalFoldersSynced = 0;
   }
@@ -148,6 +166,7 @@ export class RemoteSyncManager {
     return true;
   }
   private changeStatus(newStatus: RemoteSyncStatus) {
+    this.addLastSyncingFinishedTimestamp();
     if (newStatus === this.status) return;
     Logger.info(`RemoteSyncManager ${this.status} -> ${newStatus}`);
     this.status = newStatus;
@@ -155,6 +174,12 @@ export class RemoteSyncManager {
       if (typeof callback !== 'function') return;
       callback(newStatus);
     });
+  }
+
+  private addLastSyncingFinishedTimestamp() {
+    if (this.status !== 'SYNCING') return;
+    Logger.info('Adding last syncing finished timestamp');
+    this.lastSyncingFinishedTimestamp = new Date();
   }
 
   private checkRemoteSyncStatus() {
