@@ -124,14 +124,14 @@ ipcMain.on('CHECK_SYNC', (event) => {
 });
 
 ipcMain.on('CHECK_SYNC_CHANGE_STATUS', async (_, placeholderStates) => {
-  await sleep(2_000);
-  Logger.info('[SYNC ENGINE] Changing status');
-  remoteSyncManager.placeholderStatus = 'SYNCING';
-  await sleep(7_00);
+  Logger.info('[SYNC ENGINE] Changing status', placeholderStates);
+  await sleep(5_00);
   remoteSyncManager.placeholderStatus = placeholderStates;
 });
 
 ipcMain.handle('CHECK_SYNC_IN_PROGRESS', async () => {
   const syncingStatus: RemoteSyncStatus = 'SYNCING';
-  return remoteSyncManager.getSyncStatus() === syncingStatus;
+  const isSyncing = remoteSyncManager.getSyncStatus() === syncingStatus;
+  const recentlySyncing = remoteSyncManager.recentlyWasSyncing();
+  return isSyncing || recentlySyncing; // If it's syncing or recently was syncing
 });
