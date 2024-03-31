@@ -15,6 +15,14 @@ class KyberCrypto {
     this.kem = await kemBuilder();
   }
 
+  private ensureInitialized() {
+    if (!this.kem) {
+      throw new Error(
+        'Kyber instance not initialized. Call `initialize()` first.'
+      );
+    }
+  }
+
   async generateKeyPair() {
     if (!this.kem) {
       throw new Error(
