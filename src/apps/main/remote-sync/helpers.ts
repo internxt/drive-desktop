@@ -99,7 +99,7 @@ export type SyncConfig = {
 };
 
 export const SYNC_OFFSET_MS = 0;
-export const WAITING_AFTER_SYNCING = 1000 * 60 * 3; // 5 minutes
+export const WAITING_AFTER_SYNCING = 1000 * 60 * 3;
 
 export const lastSyncedAtIsNewer = (
   itemUpdatedAt: Date,
