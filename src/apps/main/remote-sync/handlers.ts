@@ -109,7 +109,7 @@ ipcMain.on('CHECK_SYNC', (event) => {
 
 ipcMain.on('CHECK_SYNC_CHANGE_STATUS', async (_, placeholderStates) => {
   Logger.info('[SYNC ENGINE] Changing status', placeholderStates);
-  await sleep(5_00);
+  await sleep(5_000);
   remoteSyncManager.placeholderStatus = placeholderStates;
 });
 
