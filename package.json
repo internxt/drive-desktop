@@ -104,6 +104,11 @@
       ],
       "category": "Development"
     },
+    "deb": {
+      "depends": [
+        "libfuse2"
+      ]
+    },
     "directories": {
       "app": "release/app",
       "buildResources": "assets",
