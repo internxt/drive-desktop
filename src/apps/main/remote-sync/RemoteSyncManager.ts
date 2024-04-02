@@ -50,10 +50,12 @@ export class RemoteSyncManager {
     if (typeof callback !== 'function') return;
     this.onStatusChangeCallbacks.push(callback);
   }
+
   getSyncStatus(): RemoteSyncStatus {
     return this.status;
   }
-  getLastSyncingFinishedTimestamp() {
+
+  private getLastSyncingFinishedTimestamp() {
     return this.lastSyncingFinishedTimestamp;
   }
 
