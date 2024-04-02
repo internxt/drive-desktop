@@ -72,7 +72,7 @@ export class RemoteSyncManager {
    * @returns False if the RemoteSyncManager was not syncing recently
    */
   recentlyWasSyncing() {
-    const passedTime = Date.now() - (this.getLastSyncingFinishedTimestamp()?.getTime() || Date.now() );
+    const passedTime = Date.now() - ( this.getLastSyncingFinishedTimestamp()?.getTime() ?? Date.now() );
     return passedTime < WAITING_AFTER_SYNCING;
   }
 
