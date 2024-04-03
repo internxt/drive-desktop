@@ -299,5 +299,9 @@ contextBridge.exposeInMainWorld('electron', {
   syncManually() {
     return ipcRenderer.invoke('SYNC_MANUALLY');
   },
+  getRecentlywasSyncing()  {
+    return ipcRenderer.invoke('CHECK_SYNC_IN_PROGRESS');
+  },
+
   path,
 });

@@ -168,5 +168,6 @@ declare interface Window {
     openUrl: (url: string) => Promise<void>;
     getPreferredAppLanguage: () => Promise<Array<string>>;
     syncManually: () => Promise<void>;
+    getRecentlywasSyncing: () => Promise<boolean>;
   };
 }
