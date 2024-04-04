@@ -58,13 +58,22 @@ export function onUserUnauthorized() {
 ipcMain.on('user-is-unauthorized', onUserUnauthorized);
 
 ipcMain.on('user-logged-in', async (_, data: AccessResponse) => {
-  setCredentials(data.user, data.user.mnemonic, data.token, data.newToken);
-  if (!canHisConfigBeRestored(data.user.uuid)) {
-    await setupRootFolder();
-  }
+  try {
+    await setCredentials(
+      data.user,
+      data.user.mnemonic,
+      data.token,
+      data.newToken
+    );
+    if (!canHisConfigBeRestored(data.user.uuid)) {
+      await setupRootFolder();
+    }
 
-  setIsLoggedIn(true);
-  eventBus.emit('USER_LOGGED_IN');
+    setIsLoggedIn(true);
+    eventBus.emit('USER_LOGGED_IN');
+  } catch (err) {
+    Logger.error(err);
+  }
 });
 
 ipcMain.on('user-logged-out', () => {
