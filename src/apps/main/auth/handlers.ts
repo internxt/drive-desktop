@@ -67,7 +67,6 @@ ipcMain.on('user-logged-in', async (_, data: AccessResponse) => {
     setIsLoggedIn(true);
     eventBus.emit('USER_LOGGED_IN');
   } catch (err) {
-    Logger.info('USER TOKENS:', data.token, data.newToken);
     Logger.error(err);
   }
 });
