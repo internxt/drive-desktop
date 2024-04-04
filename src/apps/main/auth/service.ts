@@ -4,6 +4,7 @@ import Logger from 'electron-log';
 import packageConfig from '../../../../package.json';
 import ConfigStore, { defaults, fieldsToSave } from '../config';
 import { User } from '../types';
+import { Delay } from '../../shared/Delay';
 
 const TOKEN_ENCODING = 'latin1';
 
@@ -39,7 +40,7 @@ function ecnryptToken(token: string): string {
   return buffer.toString(TOKEN_ENCODING);
 }
 
-export function setCredentials(
+export async function setCredentials(
   userData: User,
   mnemonic: string,
   bearerToken: string,
@@ -47,6 +48,11 @@ export function setCredentials(
 ) {
   ConfigStore.set('mnemonic', mnemonic);
   ConfigStore.set('userData', userData);
+
+  await Delay.ms(1_000);
+  // In the version of electron we are using calling
+  // isEncryptionAvailable or decryptString "too son" will crash the app
+  // we will be able to remove once we can update the electron version
 
   const isSafeStorageAvailable = safeStorage.isEncryptionAvailable();
 
