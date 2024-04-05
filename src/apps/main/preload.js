@@ -297,4 +297,5 @@ contextBridge.exposeInMainWorld('electron', {
     return ipcRenderer.invoke('APP:PREFERRED_LANGUAGE');
   },
   path,
+  ipcRenderer,
 });

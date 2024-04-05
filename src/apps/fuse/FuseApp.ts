@@ -12,7 +12,7 @@ import { WriteCallback } from './callbacks/WriteCallback';
 import { ReleaseCallback } from './callbacks/ReleaseCallback';
 import { FuseDependencyContainer } from './dependency-injection/FuseDependencyContainer';
 import { ensureFolderExists } from './../shared/fs/ensure-folder-exists';
-import { mountPromise, unmountFusedDirectory, unmountPromise } from './helpers';
+import { mountPromise, unmountPromise } from './helpers';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const fuse = require('@gcas/fuse');
@@ -89,14 +89,17 @@ export class FuseApp {
 
     this._fuse = new fuse(this.paths.root, ops, {
       debug: false,
+      force: true,
       maxRead: FuseApp.MAX_INT_32,
     });
 
     try {
       await mountPromise(this._fuse);
-    } catch {
+      Logger.info('[FUSE] mounted');
+    } catch (firstMountError) {
+      Logger.error(`[FUSE] mount error: ${firstMountError}`);
       try {
-        await unmountFusedDirectory(this.paths.root);
+        await unmountPromise(this._fuse);
         await mountPromise(this._fuse);
       } catch (err) {
         Logger.error(`[FUSE] mount error: ${err}`);
@@ -105,7 +108,7 @@ export class FuseApp {
   }
 
   async stop(): Promise<void> {
-    await unmountPromise(this._fuse);
+    //no-op
   }
 
   async clearCache(): Promise<void> {
