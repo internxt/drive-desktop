@@ -15,6 +15,7 @@ import { File } from '../domain/File';
 import { FileSyncStatusUpdater } from './FileSyncStatusUpdater';
 import { FilePlaceholderConverter } from './FIlePlaceholderConverter';
 import { FileContentsUpdater } from './FileContentsUpdater';
+import { FileIdentityUpdater } from './FileIndetityUpdater';
 
 export class FileSyncronizer {
   // queue of files to be uploaded
@@ -23,6 +24,7 @@ export class FileSyncronizer {
     private readonly repository: FileRepository,
     private readonly fileSyncStatusUpdater: FileSyncStatusUpdater,
     private readonly filePlaceholderConverter: FilePlaceholderConverter,
+    private readonly fileIdentityUpdater: FileIdentityUpdater,
     private readonly fileCreator: FileCreator,
     private readonly absolutePathToRelativeConverter: AbsolutePathToRelativeConverter,
     private readonly folderCreator: FolderCreator,
@@ -148,6 +150,7 @@ export class FileSyncronizer {
   private async convertAndUpdateSyncStatus(file: File) {
     await Promise.all([
       this.filePlaceholderConverter.run(file),
+      this.fileIdentityUpdater.run(file),
       this.fileSyncStatusUpdater.run(file),
     ]);
   }

@@ -15,7 +15,7 @@ export class NodeWinLocalFileSystem implements LocalFileSystem {
   async getLocalFileId(file: File): Promise<`${string}-${string}`> {
     const win32AbsolutePath = this.relativePathToAbsoluteConverter.run(
       file.path
-    );
+      );
 
     const { ino, dev } = await fs.stat(win32AbsolutePath);
 
@@ -71,5 +71,10 @@ export class NodeWinLocalFileSystem implements LocalFileSystem {
     return this.virtualDrive.getPlaceholderState(
       relativePath
     ) as Promise<PlaceholderState>;
+  }
+
+  async updateFileIdentity(path: string, newIdentity: `${string}-${string}`): Promise<void> {
+      const isNotDirectory = true;
+      return this.virtualDrive.updateFileIdentity(path, newIdentity, isNotDirectory);
   }
 }
