@@ -19,4 +19,9 @@ export interface LocalFileSystem {
   getPlaceholderStateByRelativePath(
     relativePath: string
   ): Promise<PlaceholderState>;
+
+  updateFileIdentity(
+    path: File['path'],
+    newIdentity: string
+  ): Promise<void>;
 }
