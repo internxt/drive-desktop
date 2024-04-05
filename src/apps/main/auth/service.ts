@@ -152,6 +152,14 @@ export function obtainToken(tokenName: TokenKey): string {
   return safeStorage.decryptString(buffer);
 }
 
+export function tokensArePresent(): boolean {
+  const tokens = tokensKeys
+    .map((token) => ConfigStore.get(token))
+    .filter((token) => token && token.length !== 0);
+
+  return tokens.length === tokensKeys.length;
+}
+
 export function obtainTokens(): Array<string> {
   return tokensKeys.map(obtainToken);
 }

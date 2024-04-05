@@ -16,10 +16,14 @@ import {
   logout,
   obtainToken,
   setCredentials,
+  tokensArePresent,
 } from './service';
 
 let isLoggedIn: boolean;
-setIsLoggedIn(!!getUser());
+
+if (getUser() && tokensArePresent()) {
+  setIsLoggedIn(true);
+}
 
 export function setIsLoggedIn(value: boolean) {
   isLoggedIn = value;
