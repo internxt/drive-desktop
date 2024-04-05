@@ -19,7 +19,7 @@ import {
   tokensArePresent,
 } from './service';
 
-let isLoggedIn: boolean;
+let isLoggedIn = false;
 
 if (getUser() && tokensArePresent()) {
   setIsLoggedIn(true);
