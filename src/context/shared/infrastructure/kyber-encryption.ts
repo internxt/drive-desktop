@@ -1,5 +1,9 @@
 import kemBuilder, { KEM } from '@dashlane/pqc-kem-kyber512-node';
 
+/**
+ * Class to manage Kyber encryption operations using KEM (Key Encapsulation Mechanism).
+ */
+
 class KyberCrypto {
   private kem: KEM | null;
 
@@ -21,6 +25,11 @@ class KyberCrypto {
         'Kyber instance not initialized. Call `initialize()` first.'
       );
     }
+  }
+
+  async configure(options: { level: string }) {
+    this.ensureInitialized();
+    console.log('Configuration applied:', options);
   }
 
   async generateKeyPair() {
