@@ -244,6 +244,8 @@ export class BindingsManager {
     await this.container.virtualDrive.connectSyncRoot();
 
     await this.load();
+
+    await this.polling();
   }
 
   watch() {
