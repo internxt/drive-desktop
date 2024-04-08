@@ -5,7 +5,7 @@ import packageJson from '../../../package.json';
 import { BindingsManager } from './BindingManager';
 import fs from 'fs/promises';
 import { iconPath } from '../utils/icon';
-
+import * as Sentry from '@sentry/electron/renderer';
 async function ensureTheFolderExist(path: string) {
   try {
     await fs.access(path);
@@ -69,6 +69,7 @@ async function setUp() {
       event.sender.send('SYNC_ENGINE_STOP_AND_CLEAR_SUCCESS');
     } catch (error: unknown) {
       Logger.error('[SYNC ENGINE] Error stopping and cleaning: ', error);
+      Sentry.captureException(error);
       event.sender.send('ERROR_ON_STOP_AND_CLEAR_SYNC_ENGINE_PROCESS');
     }
   });
@@ -94,7 +95,9 @@ setUp()
   })
   .catch((error) => {
     Logger.error('[SYNC ENGINE] Error setting up', error);
+    Sentry.captureException(error);
     if (error.toString().includes('Error: ConnectSyncRoot failed')) {
+      Sentry.captureMessage('ConnectSyncRoot failed');
       Logger.info('[SYNC ENGINE] We neeed to restart the app virtual drive');
     }
     ipcRenderer.send('SYNC_ENGINE_PROCESS_SETUP_FAILED');

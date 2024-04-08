@@ -6,7 +6,7 @@ import Logger from 'electron-log';
 import { FileFolderContainerDetector } from '../../../../context/virtual-drive/files/application/FileFolderContainerDetector';
 import { Folder } from '../../../../context/virtual-drive/folders/domain/Folder';
 import { FolderContainerDetector } from '../../../../context/virtual-drive/folders/application/FolderContainerDetector';
-
+import * as Sentry from '@sentry/electron/renderer';
 export class DeleteController extends CallbackController {
   private readonly filesQueue: DelayQueue;
   private readonly foldersQueue: DelayQueue;
@@ -28,6 +28,7 @@ export class DeleteController extends CallbackController {
         await this.retryFolderDeleter.run(folder);
       } catch (error) {
         Logger.error('Error deleting folder: ', error);
+        Sentry.captureException(error);
         // TODO: create tree of placeholders that are not deleted
       }
     };
