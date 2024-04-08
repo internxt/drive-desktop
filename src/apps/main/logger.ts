@@ -16,7 +16,7 @@ if (process.env.NODE_ENV !== 'development') {
 // Handle open logs
 
 ipcMain.on('open-logs', () => {
-  const logfilePath = log.transports.file.getFile().path;
-  const logFolderPath = path.dirname(logfilePath);
+  const logFilePath = log.transports.file.getFile().path;
+  const logFolderPath = path.dirname(logFilePath);
   shell.openPath(logFolderPath);
 });
