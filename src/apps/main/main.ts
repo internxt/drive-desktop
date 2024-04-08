@@ -79,10 +79,6 @@ function checkForUpdates() {
   autoUpdater.checkForUpdatesAndNotify();
 }
 
-if (process.platform === 'darwin') {
-  app.dock.hide();
-}
-
 if (process.env.NODE_ENV === 'production') {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   const sourceMapSupport = require('source-map-support');
