@@ -6,7 +6,7 @@ import { AllParentFoldersStatusIsExists } from './AllParentFoldersStatusIsExists
 import { FolderRepository } from '../domain/FolderRepository';
 import { RemoteFileSystem } from '../domain/file-systems/RemoteFileSystem';
 import { LocalFileSystem } from '../domain/file-systems/LocalFileSystem';
-
+import * as Sentry from '@sentry/electron';
 export class FolderDeleter {
   constructor(
     private readonly repository: FolderRepository,
@@ -45,7 +45,7 @@ export class FolderDeleter {
       await this.repository.update(folder);
     } catch (error: unknown) {
       Logger.error(`Error deleting the folder ${folder.name}: `, error);
-
+      Sentry.captureException(error);
       this.local.createPlaceHolder(folder);
     }
   }

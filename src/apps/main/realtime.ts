@@ -3,6 +3,7 @@ import { io, Socket } from 'socket.io-client';
 import { obtainToken } from './auth/service';
 import eventBus from './event-bus';
 import { broadcastToWindows } from './windows';
+import { reportError } from '../renderer/utils/errors';
 
 type XHRRequest = {
   getResponseHeader: (headerName: string) => string[] | null;
@@ -57,6 +58,7 @@ function cleanAndStartRemoteNotifications() {
 
   socket.on('connect_error', (error) => {
     logger.error('❌ Remote notifications connect error: ', error);
+    reportError(error);
   });
 
   socket.on('event', (data) => {

@@ -3,7 +3,7 @@ import { OfflineFolderPathUpdater } from '../../../../../context/virtual-drive/f
 import { AbsolutePathToRelativeConverter } from '../../../../../context/virtual-drive/shared/application/AbsolutePathToRelativeConverter';
 import { PlatformPathConverter } from '../../../../../context/virtual-drive/shared/application/PlatformPathConverter';
 import { CallbackController } from '../CallbackController';
-
+import * as Sentry from '@sentry/electron/renderer';
 export class OfflineRenameOrMoveController extends CallbackController {
   constructor(
     private readonly absolutePathToRelativeConverter: AbsolutePathToRelativeConverter,
@@ -47,6 +47,7 @@ export class OfflineRenameOrMoveController extends CallbackController {
       callback(false);
     } catch (error: unknown) {
       Logger.error(error);
+      Sentry.captureException(error);
       callback(false);
     }
   }
