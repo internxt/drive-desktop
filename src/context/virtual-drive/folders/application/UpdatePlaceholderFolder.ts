@@ -6,7 +6,7 @@ import path from 'path';
 import { FolderStatuses } from '../domain/FolderStatus';
 import { FolderRepository } from '../domain/FolderRepository';
 import { LocalFileSystem } from '../domain/file-systems/LocalFileSystem';
-import * as Sentry from '@sentry/electron';
+import * as Sentry from '@sentry/electron/renderer';
 export class FolderPlaceholderUpdater {
   constructor(
     private readonly repository: FolderRepository,

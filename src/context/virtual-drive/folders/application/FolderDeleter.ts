@@ -6,7 +6,7 @@ import { AllParentFoldersStatusIsExists } from './AllParentFoldersStatusIsExists
 import { FolderRepository } from '../domain/FolderRepository';
 import { RemoteFileSystem } from '../domain/file-systems/RemoteFileSystem';
 import { LocalFileSystem } from '../domain/file-systems/LocalFileSystem';
-import * as Sentry from '@sentry/electron';
+
 export class FolderDeleter {
   constructor(
     private readonly repository: FolderRepository,
