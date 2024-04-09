@@ -5,6 +5,7 @@ import { PlatformPathConverter } from '../../../../context/virtual-drive/shared/
 import { CallbackController } from './CallbackController';
 import { DeleteController } from './DeleteController';
 import Logger from 'electron-log';
+import * as Sentry from '@sentry/electron/renderer';
 
 export class RenameOrMoveController extends CallbackController {
   constructor(
@@ -51,6 +52,7 @@ export class RenameOrMoveController extends CallbackController {
       callback(false);
     } catch (error: unknown) {
       Logger.error(error);
+      Sentry.captureException(error);
       callback(false);
     }
   }
