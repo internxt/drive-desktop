@@ -5,7 +5,7 @@
   "description": "Internxt Drive client UI",
   "license": "AGPL-3.0",
   "repository": {
-    "url": "https://github.com/internxt/drive-desktop"
+    "url": "https://github.com/internxt/drive-desktop-linux"
   },
   "scripts": {
     "build": "concurrently \"npm run build:main\" \"npm run build:fuse\" \"npm run build:renderer\"",
