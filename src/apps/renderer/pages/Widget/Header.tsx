@@ -9,12 +9,13 @@ import useBackupFatalErrors from '../../hooks/BackupFatalErrors';
 import useGeneralIssues from '../../hooks/GeneralIssues';
 import useVirtualDriveIssues from '../../hooks/ProcessIssues';
 import useUsage from '../../hooks/useUsage';
-import useVirtualDriveStatus from '../../hooks/VirtualDriveStatus';
 import { reportError } from '../../utils/errors';
+import { FuseDriveStatus } from '../../../fuse/FuseDriveStatus';
 
-export default function Header() {
+export default function Header(props: {
+  virtualDriveStatus: FuseDriveStatus | undefined;
+}) {
   const { translate } = useTranslationContext();
-  const { virtualDriveCanBeOpened } = useVirtualDriveStatus();
   const processIssues = useVirtualDriveIssues();
   const generalIssues = useGeneralIssues();
   const { backupFatalErrors } = useBackupFatalErrors();
@@ -154,9 +155,8 @@ export default function Header() {
       >
         <Globe size={22} />
       </HeaderItemWrapper>
-
       <HeaderItemWrapper
-        disabled={!virtualDriveCanBeOpened()}
+        disabled={props.virtualDriveStatus !== 'MOUNTED'}
         onClick={window.electron.openVirtualDriveFolder}
       >
         <FolderSimple size={22} />

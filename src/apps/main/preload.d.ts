@@ -158,14 +158,14 @@ declare interface Window {
       import('./remote-sync/helpers').RemoteSyncStatus
     >;
     getVirtualDriveStatus(): Promise<
-      import('../shared/types/VirtualDriveStatus').VirtualDriveStatus
+      import('../fuse/FuseDriveStatus').FuseDriveStatus
     >;
     onVirtualDriveStatusChange(
       callback: (event: {
-        status: import('../shared/types/VirtualDriveStatus').VirtualDriveStatus;
+        status: import('../fuse/FuseDriveStatus').FuseDriveStatus;
       }) => void
     ): () => void;
-    retryVirtualDriveMount(): void;
+    retryVirtualDriveMount(): Promise<void>;
     startRemoteSync: () => Promise<void>;
     openUrl: (url: string) => Promise<void>;
     getPreferredAppLanguage: () => Promise<Array<string>>;

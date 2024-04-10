@@ -1,23 +1,39 @@
 import { useEffect, useState } from 'react';
 import { reportError } from '../utils/errors';
-import { VirtualDriveStatus } from '../../shared/types/VirtualDriveStatus';
+import { FuseDriveStatus } from '../../fuse/FuseDriveStatus';
 
 export default function useVirtualDriveStatus() {
   const [virtualDriveStatus, setVirtualDriveStatus] =
-    useState<VirtualDriveStatus>();
+    useState<FuseDriveStatus>();
 
   useEffect(() => {
     window.electron
-      .getVirtualDriveRoot()
-      .then(() => setVirtualDriveStatus(VirtualDriveStatus.READY))
+      .getVirtualDriveStatus()
+      .then((status: FuseDriveStatus) => setVirtualDriveStatus(status))
       .catch((err) => {
         reportError(err);
       });
   }, []);
 
-  function virtualDriveCanBeOpened() {
-    return virtualDriveStatus !== VirtualDriveStatus.NOT_FOUND;
+  useEffect(() => {
+    const removeListener = window.electron.onVirtualDriveStatusChange(
+      (status) => setVirtualDriveStatus(status.status)
+    );
+
+    return removeListener;
+  }, []);
+
+  function retryMount() {
+    window.electron
+      .retryVirtualDriveMount()
+      .then(() => {
+        return window.electron.getVirtualDriveStatus();
+      })
+      .then((status: FuseDriveStatus) => setVirtualDriveStatus(status))
+      .catch((err) => {
+        reportError(err);
+      });
   }
 
-  return { virtualDriveStatus, virtualDriveCanBeOpened };
+  return { virtualDriveStatus, retryMount };
 }

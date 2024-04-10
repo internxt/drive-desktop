@@ -1,6 +1,6 @@
 import Logger from 'electron-log';
 
-import { app } from 'electron';
+import { app, ipcMain } from 'electron';
 import eventBus from '../main/event-bus';
 import { FuseApp } from './FuseApp';
 import path from 'path';
@@ -45,3 +45,12 @@ eventBus.on('USER_LOGGED_OUT', stopAndClearFuseApp);
 eventBus.on('USER_WAS_UNAUTHORIZED', stopAndClearFuseApp);
 eventBus.on('INITIAL_SYNC_READY', startFuseApp);
 eventBus.on('REMOTE_CHANGES_SYNCHED', updateFuseApp);
+
+ipcMain.handle('get-virtual-drive-status', () => {
+  return fuseApp.getStatus();
+});
+
+ipcMain.handle('retry-virtual-drive-mount', async () => {
+  fuseApp.stop();
+  await startFuseApp();
+});

@@ -13,11 +13,13 @@ import { ReleaseCallback } from './callbacks/ReleaseCallback';
 import { FuseDependencyContainer } from './dependency-injection/FuseDependencyContainer';
 import { ensureFolderExists } from './../shared/fs/ensure-folder-exists';
 import { mountPromise, unmountPromise } from './helpers';
+import { FuseDriveStatus } from './FuseDriveStatus';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const fuse = require('@gcas/fuse');
 
 export class FuseApp {
+  private status: FuseDriveStatus = 'UNMOUNTED';
   private static readonly MAX_INT_32 = 2147483647;
   private _fuse: any;
 
@@ -95,13 +97,16 @@ export class FuseApp {
 
     try {
       await mountPromise(this._fuse);
+      this.status = 'MOUNTED';
       Logger.info('[FUSE] mounted');
     } catch (firstMountError) {
       Logger.error(`[FUSE] mount error: ${firstMountError}`);
       try {
         await unmountPromise(this._fuse);
         await mountPromise(this._fuse);
+        this.status = 'MOUNTED';
       } catch (err) {
+        this.status = 'ERROR';
         Logger.error(`[FUSE] mount error: ${err}`);
       }
     }
@@ -132,5 +137,22 @@ export class FuseApp {
     } catch (err) {
       Logger.error('[FUSE] Updating the tree ', err);
     }
+  }
+
+  getStatus() {
+    return this.status;
+  }
+
+  async mount() {
+    try {
+      await unmountPromise(this._fuse);
+      await mountPromise(this._fuse);
+      this.status = 'MOUNTED';
+    } catch (err) {
+      this.status = 'ERROR';
+      Logger.error(`[FUSE] mount error: ${err}`);
+    }
+
+    return this.status;
   }
 }
