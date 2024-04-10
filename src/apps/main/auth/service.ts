@@ -213,10 +213,7 @@ function saveConfig() {
 
   const configToSave: any = {};
 
-  for (const field of fieldsToSave) {
-    const value = ConfigStore.get(field);
-    configToSave[field] = value;
-  }
+  resetConfig();
 
   ConfigStore.set('savedConfigs', {
     ...savedConfigs,
