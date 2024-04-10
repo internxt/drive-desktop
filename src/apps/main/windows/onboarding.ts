@@ -35,6 +35,7 @@ export const openOnboardingWindow = () => {
 
   onboardingWindow.on('ready-to-show', () => {
     onboardingWindow?.show();
+    configStore.set('lastOnboardingShown', Date.now().toLocaleString());
   });
 
   onboardingWindow.on('closed', () => {
