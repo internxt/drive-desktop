@@ -39,11 +39,9 @@ describe('File path updater', () => {
 
   it('renames a file when the extension and folder does not change', async () => {
     const fileToRename = FileMother.any();
-    const fileWithDestinationPath = undefined;
 
-    singleFileMatchingTestClass.mock
-      .mockReturnValueOnce(fileToRename)
-      .mockReturnValueOnce(fileWithDestinationPath);
+    singleFileMatchingTestClass.mock.mockReturnValueOnce(fileToRename);
+    repository.matchingPartialMock.mockReturnValueOnce([]);
 
     const destination = new FilePath(
       `${fileToRename.dirname}/_${fileToRename.nameWithExtension}`

@@ -88,7 +88,7 @@ export class FilePathUpdater {
       status: FileStatuses.EXISTS,
     });
 
-    if (destinationFile) {
+    if (destinationFile.length > 0) {
       this.eventBus.publish([
         new FileRenameFailedDomainEvent({
           aggregateId: file.contentsId,
