@@ -188,7 +188,7 @@
     },
     "virtual-drive-error": {
       "title": "No se puede montar tu Drive",
-      "message": "Estamos teniendo problemas para montar tu Internxt Drive, intenta desmontarlo manualmente y presiona montar.",
+      "message": "Estamos teniendo problemas al montar tu unidad Internxt. Intenta desmontarla manualmente y luego reiniciar la aplicación.",
       "mounting": "Montando..",
       "button": "Montar"
     }

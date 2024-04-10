@@ -5,6 +5,7 @@ import { User } from './types';
 
 // Fields to persist between user sessions
 export const fieldsToSave = [
+  'lastOnboardingShown',
   'backupsEnabled',
   'backupInterval',
   'lastBackup',
@@ -13,7 +14,6 @@ export const fieldsToSave = [
   'lastSync',
   'deviceId',
   'backupList',
-  'lastOnboardingShown',
 ] as const;
 
 export interface AppStore {
