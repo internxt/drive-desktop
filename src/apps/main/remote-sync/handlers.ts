@@ -129,9 +129,9 @@ ipcMain.on('CHECK_SYNC_CHANGE_STATUS', async (_, placeholderStates) => {
   remoteSyncManager.placeholderStatus = placeholderStates;
 });
 
-ipcMain.handle('CHECK_SYNC_IN_PROGRESS', async () => {
+ipcMain.handle('CHECK_SYNC_IN_PROGRESS', async (_, milliSeconds : number) => {
   const syncingStatus: RemoteSyncStatus = 'SYNCING';
   const isSyncing = remoteSyncManager.getSyncStatus() === syncingStatus;
-  const recentlySyncing = remoteSyncManager.recentlyWasSyncing();
-  return isSyncing || recentlySyncing; // If it's syncing or recently was syncing
+  const recentlySyncing = remoteSyncManager.recentlyWasSyncing(milliSeconds);
+  return isSyncing || recentlySyncing; // syncing or recently was syncing
 });

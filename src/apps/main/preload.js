@@ -300,7 +300,8 @@ contextBridge.exposeInMainWorld('electron', {
     return ipcRenderer.invoke('SYNC_MANUALLY');
   },
   getRecentlywasSyncing()  {
-    return ipcRenderer.invoke('CHECK_SYNC_IN_PROGRESS');
+    const FIVE_SECONDS = 5000;
+    return ipcRenderer.invoke('CHECK_SYNC_IN_PROGRESS', FIVE_SECONDS);
   },
 
   path,
