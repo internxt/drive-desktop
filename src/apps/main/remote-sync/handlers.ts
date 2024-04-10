@@ -7,8 +7,8 @@ import { getNewTokenClient } from '../../shared/HttpClient/main-process-client';
 import Logger from 'electron-log';
 import { ipcMain } from 'electron';
 import { reportError } from '../bug-report/service';
-import { sleep } from '../util';
 import { broadcastToWindows } from '../windows';
+import { debounce } from 'lodash';
 
 let initialSyncReady = false;
 const driveFilesCollection = new DriveFilesCollection();
@@ -75,15 +75,16 @@ remoteSyncManager.onStatusChange((newStatus) => {
 ipcMain.handle('get-remote-sync-status', () =>
   remoteSyncManager.getSyncStatus()
 );
+const debouncedSynchronization = debounce(async () => {
+  await remoteSyncManager.startRemoteSync();
+  eventBus.emit('REMOTE_CHANGES_SYNCHED');
+}, 2_000);
 
 eventBus.on('RECEIVED_REMOTE_CHANGES', async () => {
   // Wait before checking for updates, could be possible
   // that we received the notification, but if we check
   // for new data we don't receive it
-  await sleep(2_000);
-
-  await remoteSyncManager.startRemoteSync();
-  eventBus.emit('REMOTE_CHANGES_SYNCHED');
+  await debouncedSynchronization();
 });
 
 eventBus.on('USER_LOGGED_IN', async () => {
