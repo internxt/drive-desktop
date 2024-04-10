@@ -13,6 +13,7 @@ export const fieldsToSave = [
   'lastSync',
   'deviceId',
   'backupList',
+  'lastOnboardingShown',
 ] as const;
 
 export interface AppStore {
