@@ -185,8 +185,8 @@
     },
     "virtual-drive-error": {
       "title": "Impossible de créer le lecteur",
-      "message": "Nous avons des problèmes pour créer votre Internxt Drive, ",
-      "button": "Veuillez réessayer"
+      "message": "Nous rencontrons des problèmes pour monter votre Internxt Drive, essayez de le démonter manuellement et appuyez sur monter. ",
+      "button": "Monter"
     }
   },
   "settings": {

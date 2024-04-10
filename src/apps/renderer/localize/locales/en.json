@@ -188,9 +188,9 @@
     },
     "virtual-drive-error": {
       "title": "Can't mount your drive",
-      "message": "We are having issues mounting your Internxt Drive, please try again",
+      "message": "We are having issues mounting your Internxt Drive, try unmounting it manually and press mount",
       "mounting": "Mounting...",
-      "button": "Try again"
+      "button": "Mount"
     }
   },
   "settings": {
