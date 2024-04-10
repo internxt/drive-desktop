@@ -8,6 +8,10 @@ export class MakeDirectoryCallback extends NotifyFuseCallback {
   }
 
   async execute(path: string, _mode: number) {
+    if (path.startsWith('/.Trash')) {
+      return this.right();
+    }
+
     try {
       await this.container.syncFolderMessenger.creating(path);
 

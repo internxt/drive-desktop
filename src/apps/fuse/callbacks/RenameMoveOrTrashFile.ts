@@ -6,14 +6,37 @@ import { SyncErrorCause } from '../../../shared/issues/SyncErrorCause';
 import { Either, left, right } from '../../../context/shared/domain/Either';
 import { FuseError, FuseUnknownError } from './FuseErrors';
 import { FileStatuses } from '../../../context/virtual-drive/files/domain/FileStatus';
+import { File } from '../../../context/virtual-drive/files/domain/File';
 
 type RenameOrMoveRight = 'no-op' | 'success';
 
-export class RenameOrMoveFile {
+export class RenameMoveOrTrashFile {
   private static readonly NO_OP: RenameOrMoveRight = 'no-op';
   private static readonly SUCCESS: RenameOrMoveRight = 'success';
 
   constructor(private readonly container: VirtualDriveDependencyContainer) {}
+
+  private async trash(file: File): Promise<FuseError | undefined> {
+    try {
+      await this.container.fileDeleter.run(file.contentsId);
+      return undefined;
+    } catch (trowed: unknown) {
+      const cause: SyncErrorCause =
+        trowed instanceof DriveDesktopError ? trowed.syncErrorCause : 'UNKNOWN';
+
+      await this.container.syncFileMessenger.issues({
+        error: 'DELETE_ERROR',
+        cause,
+        name: file.name,
+      });
+
+      if (trowed instanceof FuseError) {
+        return trowed;
+      }
+
+      return new FuseUnknownError();
+    }
+  }
 
   async execute(
     src: string,
@@ -25,7 +48,18 @@ export class RenameOrMoveFile {
     });
 
     if (!file) {
-      return right(RenameOrMoveFile.NO_OP);
+      return right(RenameMoveOrTrashFile.NO_OP);
+    }
+
+    if (dest.startsWith('/.Trash')) {
+      const error = await this.trash(file);
+
+      if (!error) {
+        return right(RenameMoveOrTrashFile.SUCCESS);
+      }
+
+      return left(error);
+    } else {
     }
 
     try {
@@ -43,7 +77,7 @@ export class RenameOrMoveFile {
         desiredPath.nameWithExtension()
       );
 
-      return right(RenameOrMoveFile.SUCCESS);
+      return right(RenameMoveOrTrashFile.SUCCESS);
     } catch (trowed: unknown) {
       const cause: SyncErrorCause =
         trowed instanceof DriveDesktopError ? trowed.syncErrorCause : 'UNKNOWN';

@@ -2,23 +2,23 @@ import { OfflineDriveDependencyContainer } from '../dependency-injection/offline
 import { VirtualDriveDependencyContainer } from '../dependency-injection/virtual-drive/VirtualDriveDependencyContainer';
 import { NotifyFuseCallback } from './FuseCallback';
 import { FuseNoSuchFileOrDirectoryError } from './FuseErrors';
-import { RenameOrMoveFile } from './RenameOrMoveFile';
-import { RenameOrMoveFolder } from './RenameOrMoveFolder';
+import { RenameMoveOrTrashFile } from './RenameMoveOrTrashFile';
+import { RenameMoveOrTrashFolder } from './RenameMoveOrTrashFolder';
 import { UploadOnRename } from './UploadOnRename';
 
 export class RenameOrMoveCallback extends NotifyFuseCallback {
-  private readonly updateFile: RenameOrMoveFile;
-  private readonly updateFolder: RenameOrMoveFolder;
+  private readonly updateFile: RenameMoveOrTrashFile;
+  private readonly updateFolder: RenameMoveOrTrashFolder;
   private readonly uploadOnRename: UploadOnRename;
 
   constructor(
     virtual: VirtualDriveDependencyContainer,
     offline: OfflineDriveDependencyContainer
   ) {
-    super('Rename Or Move', { input: true, output: true });
+    super('Rename Move or Trash', { input: true, output: true });
 
-    this.updateFile = new RenameOrMoveFile(virtual);
-    this.updateFolder = new RenameOrMoveFolder(virtual);
+    this.updateFile = new RenameMoveOrTrashFile(virtual);
+    this.updateFolder = new RenameMoveOrTrashFolder(virtual);
     this.uploadOnRename = new UploadOnRename(offline, virtual);
   }
 
