@@ -194,7 +194,8 @@ export function canHisConfigBeRestored(uuid: string) {
 }
 
 export function logout() {
-  Logger.info('Loggin out');
+  Logger.info('Logging out');
+
   saveConfig();
   resetConfig();
   resetCredentials();

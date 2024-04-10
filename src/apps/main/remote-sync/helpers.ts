@@ -1,30 +1,13 @@
-import Store from 'electron-store';
+import configStore from '../config';
 
-let store: Store<{
-  lastFilesSyncAt?: string;
-  lastFoldersSyncAt?: string;
-}> | null = null;
-export const getRemoteSyncStore = () => {
-  if (!store) {
-    store = new Store<{
-      lastFilesSyncAt?: string;
-      lastFoldersSyncAt?: string;
-    }>({
-      defaults: {
-        lastFilesSyncAt: undefined,
-        lastFoldersSyncAt: undefined,
-      },
-    });
+export const clearRemoteSyncStore = () => {
+  const store = configStore;
 
-    return store;
-  }
-
-  return store;
+  store.reset('lastFilesSyncAt', 'lastFoldersSyncAt');
 };
 
-export const clearRemoteSyncStore = () => getRemoteSyncStore().clear();
 export function getLastFilesSyncAt(): Date | undefined {
-  const value = getRemoteSyncStore().get('lastFilesSyncAt');
+  const value = configStore.get('lastFilesSyncAt');
 
   if (!value) return undefined;
 
@@ -32,7 +15,7 @@ export function getLastFilesSyncAt(): Date | undefined {
 }
 
 export function saveLastFilesSyncAt(date: Date, offsetMs: number): Date {
-  getRemoteSyncStore().set(
+  configStore.set(
     'lastFilesSyncAt',
     new Date(date.getTime() - offsetMs).toISOString()
   );
@@ -40,7 +23,7 @@ export function saveLastFilesSyncAt(date: Date, offsetMs: number): Date {
 }
 
 export function getLastFoldersSyncAt(): Date | undefined {
-  const value = getRemoteSyncStore().get('lastFoldersSyncAt');
+  const value = configStore.get('lastFoldersSyncAt');
 
   if (!value) return undefined;
 
@@ -48,7 +31,7 @@ export function getLastFoldersSyncAt(): Date | undefined {
 }
 
 export function saveLastFoldersSyncAt(date: Date, offsetMs: number): Date {
-  getRemoteSyncStore().set(
+  configStore.set(
     'lastFoldersSyncAt',
     new Date(date.getTime() - offsetMs).toISOString()
   );

@@ -38,6 +38,8 @@ export interface AppStore {
   preferedLanguage?: string;
   preferedTheme?: string;
   virtualdriveWindowsLetter: string;
+  lastFilesSyncAt?: string;
+  lastFoldersSyncAt?: string;
 }
 
 const schema: Schema<AppStore> = {
@@ -104,6 +106,8 @@ const schema: Schema<AppStore> = {
   virtualdriveWindowsLetter: {
     type: 'string',
   },
+  lastFilesSyncAt: { type: 'string' },
+  lastFoldersSyncAt: { type: 'string' },
 } as const;
 
 export const defaults: AppStore = {
@@ -128,6 +132,8 @@ export const defaults: AppStore = {
   preferedLanguage: '',
   preferedTheme: 'system',
   virtualdriveWindowsLetter: 'I',
+  lastFilesSyncAt: undefined,
+  lastFoldersSyncAt: undefined,
 };
 
 const configStore = new Store({ schema, defaults });
