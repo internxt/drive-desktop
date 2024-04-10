@@ -51,6 +51,7 @@ ipcMain.handle('get-virtual-drive-status', () => {
 });
 
 ipcMain.handle('retry-virtual-drive-mount', async () => {
+  Logger.info('Going to retry mount the app');
   fuseApp.stop();
   await startFuseApp();
 });
