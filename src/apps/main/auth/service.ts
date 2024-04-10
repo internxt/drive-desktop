@@ -224,7 +224,10 @@ function saveConfig() {
   });
 }
 
-const keepFields = ['preferedLanguage'];
+const keepFields: Array<keyof typeof defaults> = [
+  'preferedLanguage',
+  'lastOnboardingShown',
+];
 
 function resetConfig() {
   for (const field of fieldsToSave) {
