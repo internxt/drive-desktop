@@ -37,6 +37,10 @@ export class RemoteSyncManager {
     }
   ) {}
 
+  getTotalFilesSynced() {
+    return this.totalFilesSynced;
+  }
+
   onStatusChange(callback: (newStatus: RemoteSyncStatus) => void) {
     if (typeof callback !== 'function') return;
     this.onStatusChangeCallbacks.push(callback);

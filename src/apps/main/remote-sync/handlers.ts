@@ -9,6 +9,7 @@ import { ipcMain } from 'electron';
 import { reportError } from '../bug-report/service';
 import { broadcastToWindows } from '../windows';
 import { debounce } from 'lodash';
+import { getUsageService } from '../usage/handlers';
 
 let initialSyncReady = false;
 const driveFilesCollection = new DriveFilesCollection();
@@ -57,16 +58,53 @@ ipcMain.handle('GET_UPDATED_REMOTE_ITEMS', async () => {
   return getUpdatedRemoteItems();
 });
 
-export function startRemoteSync(): Promise<void> {
-  return remoteSyncManager.startRemoteSync();
+export async function startRemoteSync(): Promise<void> {
+  remoteSyncManager.startRemoteSync();
 }
+
+async function calculateLocalUsage() {
+  return driveFilesCollection.calculateAllFilesWeight();
+}
+
+async function checkIsFullySyncAndResync() {
+  const service = getUsageService();
+
+  const driveUsage = await service.getDriveUsage();
+  const localCount = await calculateLocalUsage();
+
+  if (driveUsage !== localCount) {
+    Logger.warn('REMOTE AND LOCAL USAGE DOES NOT MATCH WILL RETRY');
+    Logger.info('Previous drive size: ', driveUsage);
+    Logger.info('Previous local size: ', localCount);
+    Logger.info(
+      'Previous files count',
+      remoteSyncManager.getTotalFilesSynced()
+    );
+
+    clearRemoteSyncStore();
+
+    await remoteSyncManager.startRemoteSync().catch((error) => {
+      Logger.error('Error starting remote sync manager', error);
+      reportError(error);
+    });
+
+    const afterCount = await calculateLocalUsage();
+    const currentUsage = await service.getDriveUsage();
+
+    Logger.info('Current local size: ', afterCount);
+    Logger.info('Current remote size: ', currentUsage);
+    Logger.info('Current files count', remoteSyncManager.getTotalFilesSynced());
+  }
+}
+
 ipcMain.handle('START_REMOTE_SYNC', async () => {
   await startRemoteSync();
 });
 
-remoteSyncManager.onStatusChange((newStatus) => {
+remoteSyncManager.onStatusChange(async (newStatus) => {
   if (!initialSyncReady && newStatus === 'SYNCED') {
     initialSyncReady = true;
+    await checkIsFullySyncAndResync();
     eventBus.emit('INITIAL_SYNC_READY');
   }
   broadcastToWindows('remote-sync-status-change', newStatus);
@@ -94,6 +132,8 @@ eventBus.on('USER_LOGGED_IN', async () => {
     Logger.error('Error starting remote sync manager', error);
     reportError(error);
   });
+
+  await checkIsFullySyncAndResync();
 });
 
 eventBus.on('USER_LOGGED_OUT', () => {

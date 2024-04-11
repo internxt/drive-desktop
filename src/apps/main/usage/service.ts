@@ -15,7 +15,7 @@ export class UserUsageService {
     return usage;
   }
 
-  private async getDriveUsage(): Promise<number> {
+  public async getDriveUsage(): Promise<number> {
     const usage = await this.storage.spaceUsage();
 
     return usage.total;

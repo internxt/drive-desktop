@@ -2,6 +2,9 @@ import { DatabaseCollectionAdapter } from '../adapters/base';
 import { AppDataSource } from '../data-source';
 import { DriveFile } from '../entities/DriveFile';
 import { Repository } from 'typeorm';
+
+import Logger from 'electron-log';
+
 export class DriveFilesCollection
   implements DatabaseCollectionAdapter<DriveFile>
 {
@@ -66,5 +69,12 @@ export class DriveFilesCollection
     return {
       success: result.affected ? true : false,
     };
+  }
+
+  async calculateAllFilesWeight(): Promise<number> {
+    const result = await this.repository.query(
+      "SELECT SUM(f.size) as local_weight  from drive_file f WHERE f.status != 'DELETED'"
+    );
+    return result[0].local_weight;
   }
 }
