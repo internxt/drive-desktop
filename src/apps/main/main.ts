@@ -64,6 +64,7 @@ Logger.log(`Running ${packageJson.version}`);
 
 Logger.log('Initializing Sentry for main process');
 if (process.env.SENTRY_DSN) {
+  Logger.log(`App is packaged: ${app.isPackaged}`);
   Sentry.init({
     // Enable Sentry only when app is packaged
     enabled: app.isPackaged,

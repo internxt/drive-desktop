@@ -43,7 +43,9 @@ function scheduleHeathCheck() {
         // Logger.debug('Health check succeeded');
       })
       .catch(() => {
-        Logger.warn('Health check failed, relaunching the worker');
+        const warning = 'Health check failed, relaunching the worker';
+        Logger.warn(warning);
+        Sentry.captureMessage(warning);
         workerIsRunning = false;
         worker?.destroy();
         spawnSyncEngineWorker();

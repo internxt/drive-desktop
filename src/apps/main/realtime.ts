@@ -3,7 +3,7 @@ import { io, Socket } from 'socket.io-client';
 import { obtainToken } from './auth/service';
 import eventBus from './event-bus';
 import { broadcastToWindows } from './windows';
-import { reportError } from '../renderer/utils/errors';
+import * as Sentry from '@sentry/electron/main';
 
 type XHRRequest = {
   getResponseHeader: (headerName: string) => string[] | null;
@@ -54,11 +54,12 @@ function cleanAndStartRemoteNotifications() {
 
   socket.on('disconnect', (reason) => {
     logger.log('❌ Remote notifications disconnected, reason: ', reason);
+    Sentry.captureException(reason);
   });
 
   socket.on('connect_error', (error) => {
     logger.error('❌ Remote notifications connect error: ', error);
-    reportError(error);
+    Sentry.captureException(error);
   });
 
   socket.on('event', (data) => {
