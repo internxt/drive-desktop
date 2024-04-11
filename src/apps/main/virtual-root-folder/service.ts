@@ -5,7 +5,7 @@ import configStore from '../config';
 import eventBus from '../event-bus';
 import { exec } from 'child_process';
 
-const ROOT_FOLDER_NAME = 'InternxtDrive';
+const ROOT_FOLDER_NAME = 'Internxt Drive';
 const HOME_FOLDER_PATH = app.getPath('home');
 
 const VIRTUAL_DRIVE_FOLDER = path.join(HOME_FOLDER_PATH, ROOT_FOLDER_NAME);
