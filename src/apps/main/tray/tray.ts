@@ -117,9 +117,10 @@ export const setTrayStatus = (status: TrayMenuState) => {
 };
 
 export function setupTrayIcon() {
+  const brandPath = '/brands/pc-cloud/';
   const RESOURCES_PATH = app.isPackaged
-    ? path.join(process.resourcesPath, 'assets')
-    : path.join(__dirname, '../../../../assets');
+    ? path.join(process.resourcesPath, 'assets', brandPath)
+    : path.join(__dirname, '../../../../assets', brandPath);
 
   const iconsPath = path.join(RESOURCES_PATH, 'tray');
 

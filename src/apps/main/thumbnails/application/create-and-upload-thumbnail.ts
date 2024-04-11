@@ -3,6 +3,7 @@ import Logger from 'electron-log';
 import { ThumbnailUploaderFactory } from '../infrastructure/ThumbnailUploaderFactory';
 import { obtainImageToThumbnailIt } from './obtain-image-to-thumbnail-it';
 import { reziseImage } from './resize-image';
+import * as Sentry from '@sentry/electron/main';
 
 export async function createAndUploadThumbnail(id: number, name: string) {
   const uploader = ThumbnailUploaderFactory.build();
@@ -17,5 +18,6 @@ export async function createAndUploadThumbnail(id: number, name: string) {
 
   await uploader.upload(id, thumbnail).catch((err) => {
     Logger.error('[THUMBNAIL] Error uploading thumbnail: ', err);
+    Sentry.captureException(err);
   });
 }

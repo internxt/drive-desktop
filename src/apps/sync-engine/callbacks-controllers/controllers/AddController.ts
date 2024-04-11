@@ -13,6 +13,7 @@ import { FolderNotFoundError } from '../../../../context/virtual-drive/folders/d
 import { Folder } from '../../../../context/virtual-drive/folders/domain/Folder';
 import { ipcRenderer } from 'electron';
 import { FileAddedCallback } from '../../BindingManager';
+import * as Sentry from '@sentry/electron/renderer';
 
 export class AddController extends CallbackController {
   // Gets called when:
@@ -48,6 +49,7 @@ export class AddController extends CallbackController {
       ipcRenderer.send('CHECK_SYNC');
     } catch (error: unknown) {
       Logger.error('Error when adding a file: ' + posixRelativePath, error);
+      Sentry.captureException(error);
       if (error instanceof FolderNotFoundError) {
         await this.createFolderFather(posixRelativePath);
       }
@@ -58,6 +60,7 @@ export class AddController extends CallbackController {
         return;
       }
       Logger.error('[Creating file]', 'Max retries reached', 'callback emited');
+      Sentry.captureException(error);
       callback(false, '');
     }
   };
@@ -79,6 +82,7 @@ export class AddController extends CallbackController {
       ipcRenderer.send('CHECK_SYNC');
     } catch (error: unknown) {
       Logger.error('Error creating folder', error);
+      Sentry.captureException(error);
       if (attempts > 0) {
         Logger.info('[Creating folder]', 'retrying...', attempts);
         await new Promise((resolve) => setTimeout(resolve, 2000));
@@ -90,6 +94,7 @@ export class AddController extends CallbackController {
         'Max retries reached',
         'callback emited'
       );
+      Sentry.captureException(error);
       throw error;
     }
   };
@@ -107,6 +112,7 @@ export class AddController extends CallbackController {
       await this.runFolderCreator(posixDir);
     } catch (error) {
       Logger.error('Error creating folder father creation:', error);
+      Sentry.captureException(error);
       if (error instanceof FolderNotFoundError) {
         // father created
         await this.createFolderFather(posixDir);
@@ -117,6 +123,7 @@ export class AddController extends CallbackController {
           'Error creating folder father creation inside catch:',
           error
         );
+        Sentry.captureException(error);
         throw error;
       }
     }
@@ -135,6 +142,7 @@ export class AddController extends CallbackController {
         return this.createOfflineFolder(posixRelativePath);
       } else {
         Logger.error('Error creating offline folder:', error);
+        Sentry.captureException(error);
         throw error;
       }
     }
@@ -160,6 +168,7 @@ export class AddController extends CallbackController {
         await this.createFolder(offlineFolder, callback, attempts);
       } catch (error) {
         Logger.error('[folder creation] Error captured:', error);
+        Sentry.captureException(error);
         callback(false, '');
       }
     } else {
@@ -168,6 +177,7 @@ export class AddController extends CallbackController {
         await this.createFile(posixRelativePath, callback, attempts);
       } catch (error) {
         Logger.error('[file creation] Error captured:', error);
+        Sentry.captureException(error);
         callback(false, '');
       }
     }

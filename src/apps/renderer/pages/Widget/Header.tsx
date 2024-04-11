@@ -12,6 +12,7 @@ import useUsage from '../../hooks/useUsage';
 import useVirtualDriveStatus from '../../hooks/VirtualDriveStatus';
 import { reportError } from '../../utils/errors';
 
+
 export default function Header() {
   const { translate } = useTranslationContext();
   const { virtualDriveCanBeOpened } = useVirtualDriveStatus();
@@ -44,6 +45,19 @@ export default function Header() {
   function onQuitClick() {
     window.electron.quit();
   }
+
+  const wasSyncing =  () => {
+    return window.electron.getRecentlywasSyncing();
+  };
+
+  async function onSyncClick() {
+    const notAllowed = await wasSyncing();
+    if (notAllowed) {
+      return;
+    }
+    window.electron.syncManually();
+  }
+
 
   const handleOpenURL = async (URL: string) => {
     try {
@@ -194,6 +208,17 @@ export default function Header() {
                       </DropdownItem>
                     </div>
                   )}
+                </Menu.Item>
+                <Menu.Item>
+                  {({active}) => {
+
+                    return (<div>
+                      <DropdownItem active={active} onClick={onSyncClick}  >
+                        <span>{translate('widget.header.dropdown.sync')}</span>
+                      </DropdownItem>
+                    </div>);
+                  }
+                  }
                 </Menu.Item>
                 <Menu.Item>
                   {({ active }) => (

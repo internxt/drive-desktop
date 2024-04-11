@@ -8,6 +8,7 @@ import { RemoteFileSystem } from '../domain/file-systems/RemoteFileSystem';
 import { OfflineFolder } from '../domain/OfflineFolder';
 import { ServerFolder } from '../../../shared/domain/ServerFolder';
 import { CreateFolderDTO } from './dtos/CreateFolderDTO';
+import * as Sentry from '@sentry/electron/renderer';
 
 export class HttpRemoteFileSystem implements RemoteFileSystem {
   public folders: Record<string, Folder> = {};
@@ -53,6 +54,7 @@ export class HttpRemoteFileSystem implements RemoteFileSystem {
       };
     } catch (error: any) {
       Logger.error('[FOLDER FILE SYSTEM] Error creating folder', error);
+      Sentry.captureException(error);
       if (axios.isAxiosError(error)) {
         Logger.error('[Is Axios Error]', error.response?.data);
       }
@@ -76,6 +78,7 @@ export class HttpRemoteFileSystem implements RemoteFileSystem {
         response.status,
         response.statusText
       );
+      Sentry.captureException(new Error('Error getting folder metadata'));
       throw new Error('Error getting folder metadata');
     }
 
@@ -96,6 +99,7 @@ export class HttpRemoteFileSystem implements RemoteFileSystem {
         result.status,
         result.statusText
       );
+      Sentry.captureException(new Error('Error when deleting folder'));
 
       throw new Error('Error when deleting folder');
     }

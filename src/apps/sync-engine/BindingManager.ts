@@ -12,6 +12,7 @@ import { ProcessIssue } from '../shared/types';
 import { ipcRenderer } from 'electron';
 import { ServerFileStatus } from '../../context/shared/domain/ServerFile';
 import { ServerFolderStatus } from '../../context/shared/domain/ServerFolder';
+import * as Sentry from '@sentry/electron/renderer';
 
 export type CallbackDownload = (
   success: boolean,
@@ -24,7 +25,7 @@ export type FileAddedCallback = (
 ) => Promise<boolean>;
 
 export class BindingsManager {
-  private static readonly PROVIDER_NAME = 'Internxt';
+  private static readonly PROVIDER_NAME = 'PcCloud';
   private progressBuffer = 0;
   constructor(
     private readonly container: DependencyContainer,
@@ -79,6 +80,7 @@ export class BindingsManager {
           })
           .catch((error: Error) => {
             Logger.error(error);
+            Sentry.captureException(error);
             callback(false);
           });
         ipcRenderer.send('CHECK_SYNC');
@@ -162,6 +164,7 @@ export class BindingsManager {
             await this.container.virtualDrive.closeDownloadMutex();
           } catch (error) {
             Logger.error('notify: ', error);
+            Sentry.captureException(error);
             await this.container.virtualDrive.closeDownloadMutex();
           }
 
@@ -177,6 +180,7 @@ export class BindingsManager {
           ipcRenderer.send('CHECK_SYNC');
         } catch (error) {
           Logger.error(error);
+          Sentry.captureException(error);
           callback(false, '');
         }
       },
@@ -198,6 +202,7 @@ export class BindingsManager {
           ipcRenderer.send('CHECK_SYNC');
         } catch (error) {
           Logger.error(error);
+          Sentry.captureException(error);
           callback(false);
         }
       },
@@ -244,6 +249,8 @@ export class BindingsManager {
     await this.container.virtualDrive.connectSyncRoot();
 
     await this.load();
+
+    await this.polling();
   }
 
   watch() {
@@ -318,24 +325,28 @@ export class BindingsManager {
       await this.container.filesPlaceholderUpdater.run(tree.files);
     } catch (error) {
       Logger.error('[SYNC ENGINE] ', error);
+      Sentry.captureException(error);
     }
   }
 
   private async pollingStart() {
+    Logger.debug('[SYNC ENGINE] Starting polling');
     return this.container.pollingMonitorStart.run(this.polling.bind(this));
   }
 
-  private async polling(): Promise<void> {
+  async polling(): Promise<void> {
     try {
       Logger.info('[SYNC ENGINE] Monitoring polling...');
 
       const fileInPendingPaths =
         (await this.container.virtualDrive.getPlaceholderWithStatePending()) as Array<string>;
       Logger.info('[SYNC ENGINE] fileInPendingPaths', fileInPendingPaths);
+
       await this.container.fileSyncOrchestrator.run(fileInPendingPaths);
       ipcRenderer.send('CHECK_SYNC');
     } catch (error) {
       Logger.error('[SYNC ENGINE] Polling', error);
+      Sentry.captureException(error);
     }
   }
 }

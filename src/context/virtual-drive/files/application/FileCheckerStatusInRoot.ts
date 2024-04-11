@@ -27,16 +27,16 @@ export class FileCheckerStatusInRoot {
 
       const ps = placeholderStatus.pinState;
       const ss = placeholderStatus.syncState;
-      const status =
+      const notSynced =
         ps &&
         ss &&
         ps !== PinState.AlwaysLocal &&
         ps !== PinState.OnlineOnly &&
         ss !== SyncState.InSync;
 
-      if (status) {
+      if (notSynced) {
         Logger.debug(
-          `[File Checker Status In Root] item ${path} with status: ${status}`
+          `[File Checker Status In Root] item ${path} with status: ${notSynced}`
         );
         finalStatus = 'SYNC_PENDING';
         break;

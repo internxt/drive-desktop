@@ -6,7 +6,7 @@ import { FolderRenamer } from './FolderRenamer';
 import Logger from 'electron-log';
 import { FolderRepository } from '../domain/FolderRepository';
 import { EventRepository } from '../../shared/domain/EventRepository';
-
+import * as Sentry from '@sentry/electron/renderer';
 export class SynchronizeOfflineModifications {
   constructor(
     private readonly offlineRepository: OfflineFolderRepository,
@@ -50,6 +50,7 @@ export class SynchronizeOfflineModifications {
         Logger.debug('Folder updated with the path: ', offlineFolder.path);
       } catch (error: unknown) {
         Logger.error(error);
+        Sentry.captureException(error);
       }
     }
 

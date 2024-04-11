@@ -1,4 +1,5 @@
 export type MonitorFn = () => Promise<void>;
+export type PermissionFn = () => Promise<boolean>;
 export class PollingMonitor {
   constructor(private readonly delay: number) {}
 
@@ -11,16 +12,25 @@ export class PollingMonitor {
     }
   }
 
-  private setTimeout(fn: MonitorFn) {
+  private setTimeout(fn: MonitorFn, permissionFn: PermissionFn) {
     this.clearTimeout();
     this.timeout = setTimeout(async () => {
+      if (!(await permissionFn())) {
+        // wait for the next interval
+        this.repeatDelay(fn, permissionFn);
+        return;
+      }
       await fn();
-      this.setTimeout(fn);
+      this.repeatDelay(fn, permissionFn);
     }, this.delay);
   }
 
-  start(fn: MonitorFn) {
-    this.setTimeout(fn);
+  private repeatDelay(fn: MonitorFn, runPermissionFn: PermissionFn) {
+    this.setTimeout(fn, runPermissionFn);
+  }
+
+  start(fn: MonitorFn, runPermissionFn: PermissionFn) {
+    this.setTimeout(fn, runPermissionFn);
   }
 
   stop() {
