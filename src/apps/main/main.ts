@@ -54,6 +54,12 @@ import { setCleanUpFunction } from './quit';
 import { stopSyncEngineWatcher } from './background-processes/sync-engine';
 import { Theme } from '../shared/types/Theme';
 
+const gotTheLock = app.requestSingleInstanceLock();
+
+if (!gotTheLock) {
+  app.quit();
+}
+
 Logger.log(`Running ${packageJson.version}`);
 
 Logger.log('Initializing Sentry for main process');
@@ -71,10 +77,6 @@ if (process.env.SENTRY_DSN) {
 function checkForUpdates() {
   autoUpdater.logger = Logger;
   autoUpdater.checkForUpdatesAndNotify();
-}
-
-if (process.platform === 'darwin') {
-  app.dock.hide();
 }
 
 if (process.env.NODE_ENV === 'production') {
