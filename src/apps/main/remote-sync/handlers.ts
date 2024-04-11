@@ -10,6 +10,7 @@ import { reportError } from '../bug-report/service';
 import { broadcastToWindows } from '../windows';
 import { debounce } from 'lodash';
 import { getUsageService } from '../usage/handlers';
+import { sleep } from '../util';
 
 let initialSyncReady = false;
 const driveFilesCollection = new DriveFilesCollection();
@@ -59,42 +60,47 @@ ipcMain.handle('GET_UPDATED_REMOTE_ITEMS', async () => {
 });
 
 export async function startRemoteSync(): Promise<void> {
-  remoteSyncManager.startRemoteSync();
+  await remoteSyncManager.startRemoteSync();
+
+  await checkIsFullySyncAndResync();
 }
 
 async function calculateLocalUsage() {
   return driveFilesCollection.calculateAllFilesWeight();
 }
 
-async function checkIsFullySyncAndResync() {
+async function checkIsFullySyncAndResync(): Promise<void> {
   const service = getUsageService();
 
   const driveUsage = await service.getDriveUsage();
   const localCount = await calculateLocalUsage();
 
-  if (driveUsage !== localCount) {
-    Logger.warn('REMOTE AND LOCAL USAGE DOES NOT MATCH WILL RETRY');
-    Logger.info('Previous drive size: ', driveUsage);
-    Logger.info('Previous local size: ', localCount);
-    Logger.info(
-      'Previous files count',
-      remoteSyncManager.getTotalFilesSynced()
-    );
-
-    clearRemoteSyncStore();
-
-    await remoteSyncManager.startRemoteSync().catch((error) => {
-      Logger.error('Error starting remote sync manager', error);
-      reportError(error);
-    });
-
-    const afterCount = await calculateLocalUsage();
-    const currentUsage = await service.getDriveUsage();
-
-    Logger.info('Current local size: ', afterCount);
-    Logger.info('Current remote size: ', currentUsage);
-    Logger.info('Current files count', remoteSyncManager.getTotalFilesSynced());
+  if (driveUsage === localCount) {
+    Logger.info('SIZES MATCH');
+    return;
   }
+
+  Logger.warn('REMOTE AND LOCAL USAGE DOES NOT MATCH WILL RETRY');
+  Logger.info('Previous drive size: ', driveUsage);
+  Logger.info('Previous local size: ', localCount);
+  Logger.info('Previous files count', remoteSyncManager.getTotalFilesSynced());
+
+  clearRemoteSyncStore();
+
+  await sleep(5_000);
+
+  await remoteSyncManager.startRemoteSync().catch((error) => {
+    Logger.error('Error starting remote sync manager', error);
+    reportError(error);
+  });
+
+  /*  
+  const localNumberOfFiles = await driveFilesCollection.countFiles();
+  const syncNumberOfFiles = remoteSyncManager.getTotalFilesSynced();
+  Logger.info('Current local files: ', localNumberOfFiles);
+  Logger.info('Current sync size: ', syncNumberOfFiles);
+
+  return localNumberOfFiles === syncNumberOfFiles; */
 }
 
 ipcMain.handle('START_REMOTE_SYNC', async () => {
@@ -114,7 +120,7 @@ ipcMain.handle('get-remote-sync-status', () =>
   remoteSyncManager.getSyncStatus()
 );
 const debouncedSynchronization = debounce(async () => {
-  await remoteSyncManager.startRemoteSync();
+  await startRemoteSync();
   eventBus.emit('REMOTE_CHANGES_SYNCHED');
 }, 3_000);
 

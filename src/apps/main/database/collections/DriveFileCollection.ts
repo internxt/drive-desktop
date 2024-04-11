@@ -77,4 +77,11 @@ export class DriveFilesCollection
     );
     return result[0].local_weight;
   }
+
+  async countFiles(): Promise<number> {
+    const result = await this.repository.query(
+      "SELECT COUNT(*) as total  from drive_file f WHERE f.status != 'DELETED'"
+    );
+    return result[0].total;
+  }
 }
