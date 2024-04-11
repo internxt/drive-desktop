@@ -78,7 +78,7 @@ ipcMain.handle('get-remote-sync-status', () =>
 const debouncedSynchronization = debounce(async () => {
   await remoteSyncManager.startRemoteSync();
   eventBus.emit('REMOTE_CHANGES_SYNCHED');
-}, 2_000);
+}, 3_000);
 
 eventBus.on('RECEIVED_REMOTE_CHANGES', async () => {
   // Wait before checking for updates, could be possible

@@ -47,6 +47,9 @@ eventBus.on('INITIAL_SYNC_READY', startFuseApp);
 eventBus.on('REMOTE_CHANGES_SYNCHED', updateFuseApp);
 
 ipcMain.handle('get-virtual-drive-status', () => {
+  if (!fuseApp) {
+    return 'MOUNTED';
+  }
   return fuseApp.getStatus();
 });
 

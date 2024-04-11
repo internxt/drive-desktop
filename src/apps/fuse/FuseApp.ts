@@ -105,6 +105,7 @@ export class FuseApp {
         await unmountPromise(this._fuse);
         await mountPromise(this._fuse);
         this.status = 'MOUNTED';
+        Logger.info('[FUSE] mounted');
       } catch (err) {
         this.status = 'ERROR';
         Logger.error(`[FUSE] mount error: ${err}`);

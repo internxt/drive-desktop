@@ -3,13 +3,14 @@ import configStore from '../config';
 export const clearRemoteSyncStore = () => {
   const store = configStore;
 
-  store.reset('lastFilesSyncAt', 'lastFoldersSyncAt');
+  store.set('lastFilesSyncAt', '');
+  store.set('lastFoldersSyncAt', '');
 };
 
 export function getLastFilesSyncAt(): Date | undefined {
   const value = configStore.get('lastFilesSyncAt');
 
-  if (!value) return undefined;
+  if (!value || value.length === 0) return undefined;
 
   return new Date(value);
 }
@@ -25,7 +26,7 @@ export function saveLastFilesSyncAt(date: Date, offsetMs: number): Date {
 export function getLastFoldersSyncAt(): Date | undefined {
   const value = configStore.get('lastFoldersSyncAt');
 
-  if (!value) return undefined;
+  if (!value || value.length === 0) return undefined;
 
   return new Date(value);
 }
