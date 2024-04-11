@@ -70,6 +70,7 @@ if (process.env.SENTRY_DSN) {
     enabled: app.isPackaged,
     dsn: process.env.SENTRY_DSN,
   });
+  Sentry.captureMessage('Main process started');
   Logger.log('Sentry is ready for main process');
 } else {
   Logger.error('Sentry DSN not found, cannot initialize Sentry');

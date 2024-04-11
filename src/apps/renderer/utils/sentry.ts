@@ -9,9 +9,9 @@ import { User } from '../../main/types';
 export const initSentry = () => {
   Sentry.init({
     dsn: process.env.SENTRY_DSN,
-    enabled: true, // TODO: add env variable to enable/disable Sentry
+    enabled: true, // it is true but is using app.isPackaged from the main process
   });
-  Sentry.captureMessage('Renderer process started');
+  Sentry.captureMessage('Render process started');
 };
 
 /**
