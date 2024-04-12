@@ -10,6 +10,7 @@ import Button from '../../components/Button';
 import PasswordInput from '../../components/PasswordInput';
 import TextInput from '../../components/TextInput';
 import WindowTopBar from '../../components/WindowTopBar';
+import { reportError, setUserContextForReports } from '../../utils/sentry';
 
 const TOWFA_ERROR_MESSAGE = 'Wrong 2-factor auth code';
 
@@ -38,18 +39,20 @@ export default function Login() {
 
     try {
       const res = await accessRequest(email, password, encryptedHash, twoFA);
+      setUserContextForReports(res.user);
       window.electron.userLoggedIn(res);
     } catch (err) {
       const { message } = err as Error;
 
       const phaseToSet =
-        message === TOWFA_ERROR_MESSAGE ? '2fa' : 'credentials';
+      message === TOWFA_ERROR_MESSAGE ? '2fa' : 'credentials';
 
       setState('error');
       setPhase(phaseToSet);
       // TODO: adjust styles to acomodate longer error messages
       setErrorDetails(translate('login.2fa.wrong-code'));
       window.electron.userLogginFailed(email);
+      reportError(err);
     }
   }
 

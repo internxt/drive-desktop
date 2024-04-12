@@ -3,7 +3,7 @@ import { SLIDES } from './config';
 import { MigrationSlideProps } from './helpers';
 import { useTranslationContext } from '../../context/LocalContext';
 import useClientPlatform from '../../hooks/ClientPlatform';
-import { reportError } from '../../utils/errors';
+import { reportError } from '../../utils/sentry';
 
 const totalSlides = SLIDES.length - 3;
 

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { reportError } from '../utils/errors';
+import { reportError } from '../utils/sentry';
 import { VirtualDriveStatus } from '../../shared/types/VirtualDriveStatus';
 
 export default function useVirtualDriveStatus() {
