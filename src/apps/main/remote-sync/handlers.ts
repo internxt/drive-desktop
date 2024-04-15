@@ -12,6 +12,8 @@ import { broadcastToWindows } from '../windows';
 import { updateSyncEngine } from '../background-processes/sync-engine';
 import { debounce } from 'lodash';
 
+const SYNC_DEBOUNCE_DELAY = 3_000;
+
 let initialSyncReady = false;
 const driveFilesCollection = new DriveFilesCollection();
 const driveFoldersCollection = new DriveFoldersCollection();
@@ -81,7 +83,7 @@ ipcMain.handle('get-remote-sync-status', () =>
 const debouncedSynchronization = debounce(async () => {
   await startRemoteSync();
   updateSyncEngine();
-}, 3_000);
+}, SYNC_DEBOUNCE_DELAY);
 
 eventBus.on('RECEIVED_REMOTE_CHANGES', async () => {
   // Wait before checking for updates, could be possible
