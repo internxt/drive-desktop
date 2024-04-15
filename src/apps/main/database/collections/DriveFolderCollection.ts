@@ -77,11 +77,7 @@ export class DriveFoldersCollection
     try {
       const queryResult = await this.repository
         .createQueryBuilder('drive_folder')
-        .orderBy(
-          // eslint-disable-next-line quotes
-          "STR_TO_DATE(drive_folder.updatedAt, '%Y-%m-%dT%H:%i:%sZ')",
-          'DESC'
-        )
+        .orderBy('datetime(drive_folder.updatedAt)', 'DESC')
         .getOne();
 
       return {
