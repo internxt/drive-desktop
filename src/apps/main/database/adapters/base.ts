@@ -1,20 +1,20 @@
-export abstract class DatabaseCollectionAdapter<DatabaseItemType> {
+export interface DatabaseCollectionAdapter<DatabaseItemType> {
   /**
    * Used to initialize the database adapter
    */
-  abstract connect(): Promise<{ success: boolean }>;
+  connect(): Promise<{ success: boolean }>;
 
   /**
    * Gets an item from the database
    */
-  abstract get(
+  get(
     itemId: string
   ): Promise<{ success: boolean; result: DatabaseItemType | null }>;
 
   /**
    * Updates an item in the database
    */
-  abstract update(
+  update(
     itemId: string,
     updatePayload: Partial<DatabaseItemType>
   ): Promise<{
@@ -25,7 +25,7 @@ export abstract class DatabaseCollectionAdapter<DatabaseItemType> {
   /**
    * Creates an item in the database
    */
-  abstract create(creationPayload: DatabaseItemType): Promise<{
+  create(creationPayload: DatabaseItemType): Promise<{
     success: boolean;
     result: DatabaseItemType | null;
   }>;
@@ -33,7 +33,12 @@ export abstract class DatabaseCollectionAdapter<DatabaseItemType> {
   /**
    * Removes an item from the database
    */
-  abstract remove(itemId: string): Promise<{
+  remove(itemId: string): Promise<{
     success: boolean;
+  }>;
+
+  getLastUpdated(): Promise<{
+    success: boolean;
+    result: DatabaseItemType | null;
   }>;
 }

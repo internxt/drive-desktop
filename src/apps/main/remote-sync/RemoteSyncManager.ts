@@ -1,12 +1,12 @@
 import Logger from 'electron-log';
-import * as helpers from './helpers';
 import {
   RemoteSyncStatus,
   RemoteSyncedFolder,
   RemoteSyncedFile,
   SyncConfig,
-  SYNC_OFFSET_MS,
   WAITING_AFTER_SYNCING,
+  SIX_HOURS_IN_MILLISECONDS,
+  rewind,
 } from './helpers';
 import { reportError } from '../bug-report/service';
 
@@ -14,6 +14,7 @@ import { DatabaseCollectionAdapter } from '../database/adapters/base';
 import { Axios } from 'axios';
 import { DriveFolder } from '../database/entities/DriveFolder';
 import { DriveFile } from '../database/entities/DriveFile';
+import { Nullable } from '../../shared/types/Nullable';
 
 export class RemoteSyncManager {
   private foldersSyncStatus: RemoteSyncStatus = 'IDLE';
@@ -38,7 +39,7 @@ export class RemoteSyncManager {
       fetchFoldersLimitPerRequest: number;
       syncFiles: boolean;
       syncFolders: boolean;
-    } // , // private chekers: { //   fileCheker: FileCheckerStatusInRoot; // }
+    }
   ) {}
 
   set placeholderStatus(status: RemoteSyncStatus) {
@@ -131,27 +132,8 @@ export class RemoteSyncManager {
       this.changeStatus('SYNC_FAILED');
       reportError(error as Error);
     } finally {
-      // const totalDuration = Date.now() - start;
-
-      // Logger.info('-----------------');
-      // Logger.info('REMOTE SYNC STATS\n');
       Logger.info('Total synced files: ', this.totalFilesSynced);
       Logger.info('Total synced folders: ', this.totalFoldersSynced);
-
-      // Logger.info(
-      //   `Files sync speed: ${
-      //     this.totalFilesSynced / (totalDuration / 1000)
-      //   } files/second`
-      // );
-
-      // Logger.info('Total synced folders: ', this.totalFoldersSynced);
-      // Logger.info(
-      //   `Folders sync speed: ${
-      //     this.totalFoldersSynced / (totalDuration / 1000)
-      //   } folders/second`
-      // );
-      // Logger.info(`Total remote to local sync time: ${totalDuration}ms`);
-      // Logger.info('-----------------');
     }
   }
 
@@ -234,21 +216,33 @@ export class RemoteSyncManager {
     }
   }
 
+  private async getFileCheckpoint(): Promise<Nullable<Date>> {
+    const { success, result } = await this.db.files.getLastUpdated();
+
+    if (!success) return undefined;
+
+    if (!result) return undefined;
+
+    const updatedAt = new Date(result.updatedAt);
+
+    return rewind(updatedAt, SIX_HOURS_IN_MILLISECONDS);
+  }
+
   /**
    * Syncs all the remote files and saves them into the local db
    * @param syncConfig Config to execute the sync with
    * @returns
    */
   private async syncRemoteFiles(syncConfig: SyncConfig, from?: Date) {
-    const lastFilesSyncAt = from ?? helpers.getLastFilesSyncAt();
+    const fileCheckpoint = from ?? (await this.getFileCheckpoint());
     try {
       Logger.info(
         `Syncing files updated from ${
-          lastFilesSyncAt ?? '(no last date provided)'
+          fileCheckpoint ?? '(no last date provided)'
         }`
       );
       const { hasMore, result } = await this.fetchFilesFromRemote(
-        lastFilesSyncAt
+        fileCheckpoint
       );
 
       let lastFileSynced = null;
@@ -256,9 +250,7 @@ export class RemoteSyncManager {
       for (const remoteFile of result) {
         // eslint-disable-next-line no-await-in-loop
         await this.createOrUpdateSyncedFileEntry(remoteFile);
-        const fileUpdatedAt = new Date(remoteFile.updatedAt);
 
-        helpers.saveLastFilesSyncAt(fileUpdatedAt, SYNC_OFFSET_MS);
         this.totalFilesSynced++;
         lastFileSynced = remoteFile;
       }
@@ -281,8 +273,8 @@ export class RemoteSyncManager {
       Logger.error('Remote files sync failed with error: ', error);
 
       reportError(error as Error, {
-        lastFilesSyncAt: lastFilesSyncAt
-          ? lastFilesSyncAt.toISOString()
+        lastFilesSyncAt: fileCheckpoint
+          ? fileCheckpoint.toISOString()
           : 'INITIAL_FILES_SYNC',
       });
       if (syncConfig.retry >= syncConfig.maxRetries) {
@@ -299,21 +291,33 @@ export class RemoteSyncManager {
     }
   }
 
+  private async getLastFolderSyncAt(): Promise<Nullable<Date>> {
+    const { success, result } = await this.db.folders.getLastUpdated();
+
+    if (!success) return undefined;
+
+    if (!result) return undefined;
+
+    const updatedAt = new Date(result.updatedAt);
+
+    return rewind(updatedAt, SIX_HOURS_IN_MILLISECONDS);
+  }
+
   /**
    * Syncs all the remote folders and saves them into the local db
    * @param syncConfig Config to execute the sync with
    * @returns
    */
   private async syncRemoteFolders(syncConfig: SyncConfig, from?: Date) {
-    const lastFoldersSyncAt = from ?? helpers.getLastFoldersSyncAt();
+    const lastFolderSyncAt = from ?? (await this.getLastFolderSyncAt());
     try {
       Logger.info(
         `Syncing folders updated from ${
-          lastFoldersSyncAt ?? '(no last date provided)'
+          lastFolderSyncAt ?? '(no last date provided)'
         }`
       );
       const { hasMore, result } = await this.fetchFoldersFromRemote(
-        lastFoldersSyncAt
+        lastFolderSyncAt
       );
 
       let lastFolderSynced = null;
@@ -321,10 +325,7 @@ export class RemoteSyncManager {
       for (const remoteFolder of result) {
         // eslint-disable-next-line no-await-in-loop
         await this.createOrUpdateSyncedFolderEntry(remoteFolder);
-        const foldersUpdatedAt = new Date(remoteFolder.updatedAt);
 
-        Logger.info(`Saving folders updatedAt ${foldersUpdatedAt}`);
-        helpers.saveLastFoldersSyncAt(foldersUpdatedAt, SYNC_OFFSET_MS);
         this.totalFoldersSynced++;
         lastFolderSynced = remoteFolder;
       }
@@ -346,8 +347,8 @@ export class RemoteSyncManager {
     } catch (error) {
       Logger.error('Remote folders sync failed with error: ', error);
       reportError(error as Error, {
-        lastFoldersSyncAt: lastFoldersSyncAt
-          ? lastFoldersSyncAt.toISOString()
+        lastFoldersSyncAt: lastFolderSyncAt
+          ? lastFolderSyncAt.toISOString()
           : 'INITIAL_FOLDERS_SYNC',
       });
       if (syncConfig.retry >= syncConfig.maxRetries) {
