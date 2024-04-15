@@ -60,7 +60,7 @@ function cleanAndStartRemoteNotifications() {
   });
 
   socket.on('event', (data) => {
-    logger.log('Notification received: ', data.event);
+    logger.log('Notification received: ', data);
 
     broadcastToWindows('remote-changes', undefined);
     eventBus.emit('RECEIVED_REMOTE_CHANGES');
