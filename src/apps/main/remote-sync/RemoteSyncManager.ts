@@ -72,9 +72,6 @@ export class RemoteSyncManager {
    * Throws an error if there's a sync in progress for this class instance
    */
   async startRemoteSync() {
-    // const start = Date.now();
-    Logger.info('Starting remote to local sync');
-
     const testPassed = this.smokeTest();
 
     if (!testPassed) {
@@ -85,7 +82,7 @@ export class RemoteSyncManager {
     await this.db.files.connect();
     await this.db.folders.connect();
 
-    Logger.info('Starting RemoteSyncManager');
+    Logger.info('[SYNC MANAGER] Starting');
     this.changeStatus('SYNCING');
     try {
       await Promise.all([
@@ -106,27 +103,11 @@ export class RemoteSyncManager {
       this.changeStatus('SYNC_FAILED');
       reportError(error as Error);
     } finally {
-      // const totalDuration = Date.now() - start;
-
-      // Logger.info('-----------------');
-      // Logger.info('REMOTE SYNC STATS\n');
-      Logger.info('Total synced files: ', this.totalFilesSynced);
-      Logger.info('Total synced folders: ', this.totalFoldersSynced);
-
-      // Logger.info(
-      //   `Files sync speed: ${
-      //     this.totalFilesSynced / (totalDuration / 1000)
-      //   } files/second`
-      // );
-
-      // Logger.info('Total synced folders: ', this.totalFoldersSynced);
-      // Logger.info(
-      //   `Folders sync speed: ${
-      //     this.totalFoldersSynced / (totalDuration / 1000)
-      //   } folders/second`
-      // );
-      // Logger.info(`Total remote to local sync time: ${totalDuration}ms`);
-      // Logger.info('-----------------');
+      Logger.info('[SYNC MANAGER] Total synced files: ', this.totalFilesSynced);
+      Logger.info(
+        '[SYNC MANAGER] Total synced folders: ',
+        this.totalFoldersSynced
+      );
     }
   }
 
@@ -136,7 +117,7 @@ export class RemoteSyncManager {
   private smokeTest() {
     if (this.status === 'SYNCING') {
       Logger.warn(
-        'RemoteSyncManager should not be in SYNCING status to start, not starting again'
+        '[SYNC MANAGER] RemoteSyncManager should not be in SYNCING status to start, not starting again'
       );
 
       return false;
@@ -146,7 +127,9 @@ export class RemoteSyncManager {
   }
   private changeStatus(newStatus: RemoteSyncStatus) {
     if (newStatus === this.status) return;
-    Logger.info(`RemoteSyncManager ${this.status} -> ${newStatus}`);
+    Logger.info(
+      `[SYNC MANAGER] RemoteSyncManager ${this.status} -> ${newStatus}`
+    );
     this.status = newStatus;
     this.onStatusChangeCallbacks.forEach((callback) => {
       if (typeof callback !== 'function') return;
@@ -198,17 +181,14 @@ export class RemoteSyncManager {
    * @param syncConfig Config to execute the sync with
    * @returns
    */
-  private async syncRemoteFiles(syncConfig: SyncConfig) {
-    const lastFilesSyncAt = await helpers.getLastFilesSyncAt();
+  private async syncRemoteFiles(syncConfig: SyncConfig, from?: Date) {
+    const lastFilesSyncAt = from ?? helpers.getLastFilesSyncAt();
     try {
-      Logger.info(
-        `Syncing files updated from ${
-          lastFilesSyncAt ?? '(no last date provided)'
-        }`
-      );
       const { hasMore, result } = await this.fetchFilesFromRemote(
         lastFilesSyncAt
       );
+
+      let lastFileSynced = null;
 
       for (const remoteFile of result) {
         // eslint-disable-next-line no-await-in-loop
@@ -217,21 +197,27 @@ export class RemoteSyncManager {
 
         helpers.saveLastFilesSyncAt(fileUpdatedAt, SYNC_OFFSET_MS);
         this.totalFilesSynced++;
+        lastFileSynced = remoteFile;
       }
 
       if (!hasMore) {
-        Logger.info('Remote files sync finished');
+        Logger.info('[SYNC MANAGER] Remote files sync finished');
         this.filesSyncStatus = 'SYNCED';
         this.checkRemoteSyncStatus();
         return;
       }
-      Logger.info('Retrieving more files for sync');
-      await this.syncRemoteFiles({
-        retry: 1,
-        maxRetries: syncConfig.maxRetries,
-      });
+      await this.syncRemoteFiles(
+        {
+          retry: 1,
+          maxRetries: syncConfig.maxRetries,
+        },
+        lastFileSynced ? new Date(lastFileSynced.updatedAt) : undefined
+      );
     } catch (error) {
-      Logger.error('Remote files sync failed with error: ', error);
+      Logger.error(
+        '[SYNC MANAGER] Remote files sync failed with error: ',
+        error
+      );
 
       reportError(error as Error, {
         lastFilesSyncAt: lastFilesSyncAt
@@ -257,26 +243,23 @@ export class RemoteSyncManager {
    * @param syncConfig Config to execute the sync with
    * @returns
    */
-  private async syncRemoteFolders(syncConfig: SyncConfig) {
-    const lastFoldersSyncAt = await helpers.getLastFoldersSyncAt();
+  private async syncRemoteFolders(syncConfig: SyncConfig, from?: Date) {
+    const lastFoldersSyncAt = from ?? helpers.getLastFoldersSyncAt();
     try {
-      Logger.info(
-        `Syncing folders updated from ${
-          lastFoldersSyncAt ?? '(no last date provided)'
-        }`
-      );
       const { hasMore, result } = await this.fetchFoldersFromRemote(
         lastFoldersSyncAt
       );
+
+      let lastFolderSynced = null;
 
       for (const remoteFolder of result) {
         // eslint-disable-next-line no-await-in-loop
         await this.createOrUpdateSyncedFolderEntry(remoteFolder);
         const foldersUpdatedAt = new Date(remoteFolder.updatedAt);
 
-        Logger.info(`Saving folders updatedAt ${foldersUpdatedAt}`);
         helpers.saveLastFoldersSyncAt(foldersUpdatedAt, SYNC_OFFSET_MS);
         this.totalFoldersSynced++;
+        lastFolderSynced = remoteFolder;
       }
 
       if (!hasMore) {
@@ -285,13 +268,18 @@ export class RemoteSyncManager {
         return;
       }
 
-      Logger.info('Retrieving more folders for sync');
-      await this.syncRemoteFolders({
-        retry: 1,
-        maxRetries: syncConfig.maxRetries,
-      });
+      await this.syncRemoteFolders(
+        {
+          retry: 1,
+          maxRetries: syncConfig.maxRetries,
+        },
+        lastFolderSynced ? new Date(lastFolderSynced.updatedAt) : undefined
+      );
     } catch (error) {
-      Logger.error('Remote folders sync failed with error: ', error);
+      Logger.error(
+        '[SYNC MANAGER] Remote folders sync failed with error: ',
+        error
+      );
       reportError(error as Error, {
         lastFoldersSyncAt: lastFoldersSyncAt
           ? lastFoldersSyncAt.toISOString()
@@ -329,8 +317,6 @@ export class RemoteSyncManager {
         : undefined,
     };
 
-    Logger.info('Requesting files');
-
     const response = await this.config.httpClient.get(
       `${process.env.NEW_DRIVE_URL}/drive/files`,
       {
@@ -349,10 +335,10 @@ export class RemoteSyncManager {
     }
 
     if (Array.isArray(response.data)) {
-      Logger.info(`Received ${response.data.length} fetched files`);
+      // no-op
     } else {
       Logger.info(
-        `Expected to receive an array of files, but instead received ${JSON.stringify(
+        `[SYNC MANAGER] Expected to receive an array of files, but instead received ${JSON.stringify(
           response,
           null,
           2
@@ -391,9 +377,6 @@ export class RemoteSyncManager {
         ? updatedAtCheckpoint.toISOString()
         : undefined,
     };
-    // Logger.info(
-    //   `Requesting folders with params ${JSON.stringify(params, null, 2)}`
-    // );
     const response = await this.config.httpClient.get(
       `${process.env.NEW_DRIVE_URL}/drive/folders`,
       {
@@ -412,10 +395,10 @@ export class RemoteSyncManager {
     }
 
     if (Array.isArray(response.data)) {
-      Logger.info(`Received ${response.data.length} fetched folders`);
+      // no-op
     } else {
       Logger.info(
-        `Expected to receive an array of folders, but instead received ${JSON.stringify(
+        `[SYNC MANAGER] Expected to receive an array of folders, but instead received ${JSON.stringify(
           response,
           null,
           2

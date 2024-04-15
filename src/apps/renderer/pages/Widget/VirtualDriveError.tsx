@@ -2,12 +2,7 @@ import React from 'react';
 import { useTranslationContext } from '../../context/LocalContext';
 import { Download } from '@phosphor-icons/react';
 
-export interface VirtualDriveErrorProps {
-  status: string;
-  onRetryVirtualDriveMount: () => void;
-}
-
-export const VirtualDriveError: React.FC<VirtualDriveErrorProps> = (props) => {
+export const VirtualDriveError: React.FC = () => {
   const { translate } = useTranslationContext();
   return (
     <div className="relative flex flex-1 flex-col items-center justify-center space-y-5 px-8">

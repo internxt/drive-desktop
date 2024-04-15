@@ -18,7 +18,7 @@ export default function Widget() {
   const { syncStatus } = useSyncStatus();
   const [displayErrorInWidget, setDisplayErrorInWidget] = useState(false);
 
-  const { virtualDriveStatus, retryMount } = useVirtualDriveStatus();
+  const { virtualDriveStatus } = useVirtualDriveStatus();
 
   useEffect(() => {
     setDisplayErrorInWidget(syncStatus && syncStatus === 'FAILED');
@@ -28,10 +28,7 @@ export default function Widget() {
     <div className="flex h-screen flex-col overflow-hidden">
       <Header virtualDriveStatus={virtualDriveStatus} />
       {virtualDriveStatus === 'ERROR' ? (
-        <VirtualDriveError
-          status={virtualDriveStatus}
-          onRetryVirtualDriveMount={retryMount}
-        />
+        <VirtualDriveError />
       ) : (
         <>
           <SyncErrorBanner />

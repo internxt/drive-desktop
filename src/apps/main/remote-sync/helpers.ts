@@ -1,5 +1,7 @@
 import configStore from '../config';
 
+const SIX_HOURS_IN_MILLISECOND = 6 * 60 * 60 * 1000;
+
 export const clearRemoteSyncStore = () => {
   const store = configStore;
 
@@ -12,7 +14,11 @@ export function getLastFilesSyncAt(): Date | undefined {
 
   if (!value || value.length === 0) return undefined;
 
-  return new Date(value);
+  const date = new Date(value);
+
+  date.setTime(date.getTime() - SIX_HOURS_IN_MILLISECOND);
+
+  return date;
 }
 
 export function saveLastFilesSyncAt(date: Date, offsetMs: number): Date {
@@ -28,7 +34,11 @@ export function getLastFoldersSyncAt(): Date | undefined {
 
   if (!value || value.length === 0) return undefined;
 
-  return new Date(value);
+  const date = new Date(value);
+
+  date.setTime(date.getTime() - SIX_HOURS_IN_MILLISECOND);
+
+  return date;
 }
 
 export function saveLastFoldersSyncAt(date: Date, offsetMs: number): Date {
