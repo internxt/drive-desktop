@@ -6,7 +6,7 @@ import {
   RemoteSyncedFile,
   SyncConfig,
   SYNC_OFFSET_MS,
-  WAITING_AFTER_SYNCING
+  WAITING_AFTER_SYNCING,
 } from './helpers';
 import { reportError } from '../bug-report/service';
 
@@ -26,6 +26,8 @@ export class RemoteSyncManager {
   private totalFilesSynced = 0;
   private totalFoldersSynced = 0;
   private lastSyncingFinishedTimestamp: Date | null = null;
+
+  private static SIX_HOURS = 6 * 60 * 60 * 1000;
 
   constructor(
     private db: {
@@ -74,7 +76,9 @@ export class RemoteSyncManager {
    * @returns False if the RemoteSyncManager was not syncing recently
    */
   recentlyWasSyncing() {
-    const passedTime = Date.now() - ( this.getLastSyncingFinishedTimestamp()?.getTime() ?? Date.now() );
+    const passedTime =
+      Date.now() -
+      (this.getLastSyncingFinishedTimestamp()?.getTime() ?? Date.now());
     return passedTime < WAITING_AFTER_SYNCING;
   }
 
@@ -359,6 +363,12 @@ export class RemoteSyncManager {
     hasMore: boolean;
     result: RemoteSyncedFile[];
   }> {
+    if (updatedAtCheckpoint) {
+      updatedAtCheckpoint.setTime(
+        updatedAtCheckpoint.getTime() - RemoteSyncManager.SIX_HOURS
+      );
+    }
+
     const params = {
       limit: this.config.fetchFilesLimitPerRequest,
       offset: 0,
@@ -428,6 +438,12 @@ export class RemoteSyncManager {
     hasMore: boolean;
     result: RemoteSyncedFolder[];
   }> {
+    if (updatedAtCheckpoint) {
+      updatedAtCheckpoint.setTime(
+        updatedAtCheckpoint.getTime() - RemoteSyncManager.SIX_HOURS
+      );
+    }
+
     const params = {
       limit: this.config.fetchFilesLimitPerRequest,
       offset: 0,
