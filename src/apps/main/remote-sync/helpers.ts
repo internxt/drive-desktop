@@ -1,5 +1,7 @@
 import Store from 'electron-store';
 
+const SIX_HOURS_IN_MILLISECONDS = 6 * 60 * 60 * 1000;
+
 let store: Store<{
   lastFilesSyncAt?: string;
   lastFoldersSyncAt?: string;
@@ -23,12 +25,17 @@ export const getRemoteSyncStore = () => {
 };
 
 export const clearRemoteSyncStore = () => getRemoteSyncStore().clear();
+
 export function getLastFilesSyncAt(): Date | undefined {
   const value = getRemoteSyncStore().get('lastFilesSyncAt');
 
   if (!value) return undefined;
 
-  return new Date(value);
+  const date = new Date(value);
+
+  date.setTime(date.getTime() - SIX_HOURS_IN_MILLISECONDS);
+
+  return date;
 }
 
 export function saveLastFilesSyncAt(date: Date, offsetMs: number): Date {
@@ -44,7 +51,11 @@ export function getLastFoldersSyncAt(): Date | undefined {
 
   if (!value) return undefined;
 
-  return new Date(value);
+  const date = new Date(value);
+
+  date.setTime(date.getTime() - SIX_HOURS_IN_MILLISECONDS);
+
+  return date;
 }
 
 export function saveLastFoldersSyncAt(date: Date, offsetMs: number): Date {

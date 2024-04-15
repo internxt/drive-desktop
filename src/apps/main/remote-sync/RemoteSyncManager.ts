@@ -27,8 +27,6 @@ export class RemoteSyncManager {
   private totalFoldersSynced = 0;
   private lastSyncingFinishedTimestamp: Date | null = null;
 
-  private static SIX_HOURS = 6 * 60 * 60 * 1000;
-
   constructor(
     private db: {
       files: DatabaseCollectionAdapter<DriveFile>;
@@ -241,8 +239,8 @@ export class RemoteSyncManager {
    * @param syncConfig Config to execute the sync with
    * @returns
    */
-  private async syncRemoteFiles(syncConfig: SyncConfig) {
-    const lastFilesSyncAt = await helpers.getLastFilesSyncAt();
+  private async syncRemoteFiles(syncConfig: SyncConfig, from?: Date) {
+    const lastFilesSyncAt = from ?? helpers.getLastFilesSyncAt();
     try {
       Logger.info(
         `Syncing files updated from ${
@@ -253,6 +251,8 @@ export class RemoteSyncManager {
         lastFilesSyncAt
       );
 
+      let lastFileSynced = null;
+
       for (const remoteFile of result) {
         // eslint-disable-next-line no-await-in-loop
         await this.createOrUpdateSyncedFileEntry(remoteFile);
@@ -260,6 +260,7 @@ export class RemoteSyncManager {
 
         helpers.saveLastFilesSyncAt(fileUpdatedAt, SYNC_OFFSET_MS);
         this.totalFilesSynced++;
+        lastFileSynced = remoteFile;
       }
 
       if (!hasMore) {
@@ -269,10 +270,13 @@ export class RemoteSyncManager {
         return;
       }
       Logger.info('Retrieving more files for sync');
-      await this.syncRemoteFiles({
-        retry: 1,
-        maxRetries: syncConfig.maxRetries,
-      });
+      await this.syncRemoteFiles(
+        {
+          retry: 1,
+          maxRetries: syncConfig.maxRetries,
+        },
+        lastFileSynced ? new Date(lastFileSynced.updatedAt) : undefined
+      );
     } catch (error) {
       Logger.error('Remote files sync failed with error: ', error);
 
@@ -300,8 +304,8 @@ export class RemoteSyncManager {
    * @param syncConfig Config to execute the sync with
    * @returns
    */
-  private async syncRemoteFolders(syncConfig: SyncConfig) {
-    const lastFoldersSyncAt = await helpers.getLastFoldersSyncAt();
+  private async syncRemoteFolders(syncConfig: SyncConfig, from?: Date) {
+    const lastFoldersSyncAt = from ?? helpers.getLastFoldersSyncAt();
     try {
       Logger.info(
         `Syncing folders updated from ${
@@ -312,6 +316,8 @@ export class RemoteSyncManager {
         lastFoldersSyncAt
       );
 
+      let lastFolderSynced = null;
+
       for (const remoteFolder of result) {
         // eslint-disable-next-line no-await-in-loop
         await this.createOrUpdateSyncedFolderEntry(remoteFolder);
@@ -320,6 +326,7 @@ export class RemoteSyncManager {
         Logger.info(`Saving folders updatedAt ${foldersUpdatedAt}`);
         helpers.saveLastFoldersSyncAt(foldersUpdatedAt, SYNC_OFFSET_MS);
         this.totalFoldersSynced++;
+        lastFolderSynced = remoteFolder;
       }
 
       if (!hasMore) {
@@ -329,10 +336,13 @@ export class RemoteSyncManager {
       }
 
       Logger.info('Retrieving more folders for sync');
-      await this.syncRemoteFolders({
-        retry: 1,
-        maxRetries: syncConfig.maxRetries,
-      });
+      await this.syncRemoteFolders(
+        {
+          retry: 1,
+          maxRetries: syncConfig.maxRetries,
+        },
+        lastFolderSynced ? new Date(lastFolderSynced.updatedAt) : undefined
+      );
     } catch (error) {
       Logger.error('Remote folders sync failed with error: ', error);
       reportError(error as Error, {
@@ -363,12 +373,6 @@ export class RemoteSyncManager {
     hasMore: boolean;
     result: RemoteSyncedFile[];
   }> {
-    if (updatedAtCheckpoint) {
-      updatedAtCheckpoint.setTime(
-        updatedAtCheckpoint.getTime() - RemoteSyncManager.SIX_HOURS
-      );
-    }
-
     const params = {
       limit: this.config.fetchFilesLimitPerRequest,
       offset: 0,
@@ -438,12 +442,6 @@ export class RemoteSyncManager {
     hasMore: boolean;
     result: RemoteSyncedFolder[];
   }> {
-    if (updatedAtCheckpoint) {
-      updatedAtCheckpoint.setTime(
-        updatedAtCheckpoint.getTime() - RemoteSyncManager.SIX_HOURS
-      );
-    }
-
     const params = {
       limit: this.config.fetchFilesLimitPerRequest,
       offset: 0,
