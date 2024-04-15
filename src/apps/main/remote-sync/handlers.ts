@@ -10,6 +10,7 @@ import { reportError } from '../bug-report/service';
 import { sleep } from '../util';
 import { broadcastToWindows } from '../windows';
 import { updateSyncEngine } from '../background-processes/sync-engine';
+import { debounce } from 'lodash';
 
 let initialSyncReady = false;
 const driveFilesCollection = new DriveFilesCollection();
@@ -77,14 +78,16 @@ ipcMain.handle('get-remote-sync-status', () =>
   remoteSyncManager.getSyncStatus()
 );
 
+const debouncedSynchronization = debounce(async () => {
+  await startRemoteSync();
+  updateSyncEngine();
+}, 3_000);
+
 eventBus.on('RECEIVED_REMOTE_CHANGES', async () => {
   // Wait before checking for updates, could be possible
   // that we received the notification, but if we check
   // for new data we don't receive it
-  await sleep(2_000);
-
-  await remoteSyncManager.startRemoteSync();
-  updateSyncEngine();
+  debouncedSynchronization();
 });
 
 eventBus.on('USER_LOGGED_IN', async () => {
