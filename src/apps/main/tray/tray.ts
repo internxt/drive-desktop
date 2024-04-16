@@ -10,6 +10,8 @@ import {
 import { getIsLoggedIn } from '../auth/handlers';
 import { getAuthWindow } from '../windows/auth';
 import { quitApp } from '../quit';
+import Logger from 'electron-log';
+import * as Sentry from '@sentry/electron/main';
 
 type TrayMenuState = 'IDLE' | 'SYNCING' | 'ALERT' | 'LOADING';
 
@@ -137,6 +139,9 @@ export function setupTrayIcon() {
 
     if (widgetWindow) {
       toggleWidgetVisibility();
+    } else {
+      Logger.warn('[ON TRAY ICON CLICK] window is undefined');
+      Sentry.captureMessage('[ON TRAY ICON CLICK] window is undefined');
     }
   }
 
