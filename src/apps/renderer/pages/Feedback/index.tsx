@@ -4,7 +4,7 @@ import { useTranslationContext } from '../../context/LocalContext';
 import { ChatsCircle } from 'phosphor-react';
 import WindowTopBar from '../../components/WindowTopBar';
 import TextArea from '../../components/TextArea';
-import { reportError } from '../../utils/errors';
+import { reportError } from '../../utils/sentry';
 
 const CHARACTERS_LIMIT = 1000;
 export default function Feedback() {
