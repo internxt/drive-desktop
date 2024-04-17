@@ -33,7 +33,7 @@
       "welcome": {
         "title": "Internxt Drive'a hoş geldiniz",
         "description": "Finder kenar çubuğundaki tüm önemli dosya ve klasörlerinizi yedekleyerek başlayalım.",
-        "take-tour": "Take a tour"
+        "take-tour": "Özelliklere göz at"
       },
       "files-organization": {
         "title": "Tüm kayıtlı dosyalarınıza kenar çubuğundan erişin ve düzenleyin",
@@ -76,7 +76,7 @@
     "common": {
       "onboarding-progress": "{{current_slide}} of {{total_slides}}",
       "continue": "Continue",
-      "skip": "Skip",
+      "skip": "Kapat",
       "open-drive": "Internxt Drive'ı açın",
       "platform-phrase": {
         "windows": "file explorer",
