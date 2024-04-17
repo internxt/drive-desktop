@@ -296,5 +296,13 @@ contextBridge.exposeInMainWorld('electron', {
   getPreferredAppLanguage() {
     return ipcRenderer.invoke('APP:PREFERRED_LANGUAGE');
   },
+  syncManually() {
+    return ipcRenderer.invoke('SYNC_MANUALLY');
+  },
+  getRecentlywasSyncing()  {
+    const FIVE_SECONDS = 5000;
+    return ipcRenderer.invoke('CHECK_SYNC_IN_PROGRESS', FIVE_SECONDS);
+  },
+
   path,
 });
