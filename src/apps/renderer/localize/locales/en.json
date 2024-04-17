@@ -134,7 +134,21 @@
         "send-feedback": "Send feedback",
         "support": "Support",
         "logout": "Log out",
-        "quit": "Quit"
+        "quit": "Quit",
+        "logout-confirmation": {
+          "no-sync-pending": {
+            "title": "Log out from this device?",
+            "message": "Internxt Drive will not show up without an account logged in.",
+            "confirm": "Log out",
+            "cancel": "Cancel"
+          },
+          "sync-pending": {
+            "title": "Some items are not synced",
+            "message": "If you log out now, these files won’t be synced and will be moved to a folder on the desktop.",
+            "confirm": "Log out",
+            "cancel": "Force sync"
+          }
+        }
       }
     },
     "body": {

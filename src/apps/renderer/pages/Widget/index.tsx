@@ -4,9 +4,12 @@ import SyncErrorBanner from './SyncErrorBanner';
 import SyncInfo from './SyncInfo';
 import useSyncStatus from '../../hooks/useSyncStatus';
 import { SyncFailed } from './SyncFailed';
+import ModalLogout from './Logout';
+import { useState } from 'react';
 
 export default function Widget() {
   const { syncStatus } = useSyncStatus();
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState<boolean>(false);
 
   const handleRetrySync = () => {
     window.electron.startRemoteSync().catch((err) => {
@@ -25,10 +28,18 @@ export default function Widget() {
 
   return (
     <div className="flex h-screen flex-col overflow-hidden">
-      <Header />
+      <Header setIsLogoutModalOpen={setIsLogoutModalOpen} />
       <SyncErrorBanner />
       {displayErrorInWidget ? renderWidgetError() : <SyncInfo />}
       <SyncAction syncStatus={syncStatus} />
+      <ModalLogout
+        isOpen={isLogoutModalOpen}
+        onClose={() => setIsLogoutModalOpen(false)}
+        onLogout={() => {
+          setIsLogoutModalOpen(false);
+          window.electron.logout();
+        }}
+      />
     </div>
   );
 }

@@ -12,9 +12,14 @@ import useUsage from '../../hooks/useUsage';
 import useVirtualDriveStatus from '../../hooks/VirtualDriveStatus';
 import { reportError } from '../../utils/sentry';
 
-export default function Header() {
+interface HeadersProps {
+  setIsLogoutModalOpen: (isOpen: boolean) => void;
+}
+
+const Header: React.FC<HeadersProps> = ({ setIsLogoutModalOpen }) => {
   const { translate } = useTranslationContext();
   const { virtualDriveCanBeOpened } = useVirtualDriveStatus();
+
   const processIssues = useProcessIssues();
   const generalIssues = useGeneralIssues();
   const { backupFatalErrors } = useBackupFatalErrors();
@@ -249,7 +254,7 @@ export default function Header() {
                     <div>
                       <DropdownItem
                         active={active}
-                        onClick={window.electron.logout}
+                        onClick={() => setIsLogoutModalOpen(true)}
                       >
                         <span>
                           {translate('widget.header.dropdown.logout')}
@@ -281,4 +286,6 @@ export default function Header() {
       <ItemsSection />
     </div>
   );
-}
+};
+
+export default Header;

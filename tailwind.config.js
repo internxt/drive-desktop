@@ -122,6 +122,7 @@ module.exports = {
         '1/2': '50%',
       },
       fontSize: {
+        'supporting-3': '14px',
         'supporting-2': '10px',
         'supporting-1': '8px',
       },

@@ -134,7 +134,21 @@
         "send-feedback": "Enviar feedback",
         "support": "Ayuda",
         "logout": "Cerrar sesión",
-        "quit": "Salir"
+        "quit": "Salir",
+        "logout-confirmation": {
+          "no-sync-pending": {
+            "title": "¿Cerrar sesión en este dispositivo?",
+            "message": "Internxt Drive no se mostrará sin una cuenta iniciada.",
+            "confirm": "Cerrar sesión",
+            "cancel": "Cancelar"
+          },
+          "sync-pending": {
+            "title": "Algunos elementos no están sincronizados",
+            "message": "Si cierras sesión ahora, estos archivos no se sincronizarán y se moverán a una carpeta en el escritorio.",
+            "confirm": "Cerrar sesión",
+            "cancel": "Forzar sincronización"
+          }
+        }
       }
     },
     "body": {
