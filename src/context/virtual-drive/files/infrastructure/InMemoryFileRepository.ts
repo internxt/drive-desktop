@@ -92,10 +92,13 @@ export class InMemoryFileRepository implements FileRepository {
     if (!this.files.has(file.contentsId)) {
       throw new Error('File not found');
     }
-
+    const oldContentsId = file.contentsId;
     const updatedFile = file.replaceContestsAndSize(newContentsId, newSize);
+    // first delete the old file to be able to add the new one
+    this.files.delete(oldContentsId);
     this.files.set(updatedFile.contentsId, updatedFile.attributes());
-    this.files.delete(file.contentsId);
     return updatedFile;
   }
+
+
 }
