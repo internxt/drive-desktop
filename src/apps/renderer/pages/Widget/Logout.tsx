@@ -30,7 +30,7 @@ const ModalLogout: React.FC<ModalLogoutProps> = ({
     };
 
     checkSyncPending();
-  });
+  }, [syncStatus]);
 
   //TODO: Implement forceSync function to force sync update
   const forceSync = () => {};
