@@ -1,75 +1,75 @@
 {
   "login": {
     "email": {
-      "section": "Email address"
+      "section": "E-posta adresi"
     },
     "password": {
-      "section": "Password",
-      "placeholder": "Password",
-      "forgotten": "Forgot your password?",
-      "hide": "Hide",
-      "show": "Show"
+      "section": "Parola",
+      "placeholder": "Parola",
+      "forgotten": "Parolanızı mı unuttunuz?",
+      "hide": "Gizle",
+      "show": "Göster"
     },
     "action": {
-      "login": "Log in",
-      "is-logging-in": "Logging you in..."
+      "login": "Giriş yap",
+      "is-logging-in": "Giriş yapılıyor..."
     },
-    "create-account": "Create account",
+    "create-account": "Hesap oluştur",
     "2fa": {
-      "section": "Authentication code",
-      "description": "You have configured two factor authentication, please enter the 6 digit code",
-      "change-account": "Change account",
-      "wrong-code": "Incorrect code, try again"
+      "section": "Kimlik doğrulama kodu",
+      "description": "İki faktörlü kimlik doğrulamayı kurdunuz. Lütfen 6 haneli kodu girin",
+      "change-account": "Hesabı değiştir",
+      "wrong-code": "Hatalı kod. Tekrar deneyin"
     },
     "error": {
-      "empty-fields": "Incorrect password or email"
+      "empty-fields": "Yanlış parola veya e-posta"
     },
     "warning": {
-      "no-internet": "No internet connection"
+      "no-internet": "İnternet bağlantınız yok"
     }
   },
   "onboarding": {
     "slides": {
       "welcome": {
-        "title": "Welcome to Internxt Drive!",
-        "description": "Let's start by backing up all of your important files and folders in your finder's sidebar.",
+        "title": "Internxt Drive'a hoş geldiniz",
+        "description": "Finder kenar çubuğundaki tüm önemli dosya ve klasörlerinizi yedekleyerek başlayalım.",
         "take-tour": "Take a tour"
       },
       "files-organization": {
-        "title": "Access and organize all of your stored files from the sidebar",
-        "description": "Your personal Internxt Drive folder is located in your {{platform_app}} sidebar"
+        "title": "Tüm kayıtlı dosyalarınıza kenar çubuğundan erişin ve düzenleyin",
+        "description": "Internxt Drive klasörünüz {{platform_app}} kenar çubuğunuzda bulunur"
       },
       "available-online": {
-        "title": "Save space on your device with smart download",
-        "description": "Store non-essential files as online only to save local drive space",
-        "description-2": "By saving as online only, files are automatically removed from your device and uploaded to the cloud"
+        "title": "Akıllı indirme ile cihazınızda yer kazanın",
+        "description": "Yerel sürücü alanından tasarruf etmek için gerekli olmayan dosyaları yalnızca çevrimiçi olarak depolayın",
+        "description-2": "Yalnızca çevrimiçi olarak kaydettiğinizde dosyalar otomatik olarak cihazınızdan kaldırılır ve buluta yüklenir"
       },
       "available-offline": {
-        "title": "Sync across devices and access files offline",
-        "description": "Store essential files as available offline to always have them on hand.",
-        "description-2": "By saving as available offline, files are stored locally and automatically sync across your devices."
+        "title": "Cihazlar arasında eşitleme ve dosyalara çevrimdışı erişim",
+        "description": "Her zaman elinizin altında olması için önemli dosyaları çevrimdışı olarak saklayın.",
+        "description-2": "Çevrimdışı kullanılabilir olarak kaydedildiğinde dosyalar yerel olarak depolanır ve cihazlarınız arasında otomatik olarak eşitlenir"
       },
       "context-menu": {
-        "title": "Organize your files with just one click",
-        "description": "Simply right-click one or more files and select how you want them stored.",
-        "list-1": "Label files available offline to access them anytime, with or without internet",
-        "list-2": "Label files online only to save physical hard drive space"
+        "title": "Dosyalarınızı tek tıklamayla düzenleyin",
+        "description": "Bir veya daha fazla dosyaya sağ tıklayın ve nasıl saklanmalarını istediğinizi seçin.",
+        "list-1": "İnternet olsun ya da olmasın istediğiniz zaman erişmek için dosyaları çevrimdışı olarak etiketleyin",
+        "list-2": "Fiziksel sabit disk alanından tasarruf etmek için dosyaları yalnızca çevrimiçi olarak etiketleyin"
       },
       "backups": {
-        "title": "Back up and secure your files with couple clicks",
-        "description": "Back up your files by simply selecting the folders you want to protect.",
-        "description-2": "Schedule backups and keep your files safe and up-to-date across your devices.",
-        "setup-backups": "Set up backups"
+        "title": "Dosyalarınızı birkaç tıklamayla yedekleyin ve güvenliğini sağlayın",
+        "description": "Sadece korumak istediğiniz klasörleri seçerek dosyalarınızı yedekleyin.",
+        "description-2": "Yedeklemeleri planlayın ve dosyalarınızı cihazlarınız arasında güvende ve güncel tutun.",
+        "setup-backups": "Yedeklemeleri kurun"
       },
       "onboarding-completed": {
-        "title": "You're all set, enjoy your privacy!",
+        "title": "Her şey hazır. Gizliliğin tadını çıkarın",
         "backups-completed": {
           "title": "{{folders}} folders added to backups",
           "description": "Add more folders and schedule automatic backups in Settings"
         },
         "desktop-ready": {
-          "title": "Internxt Drive is ready",
-          "description": "Access your stored files from your {{platform_phrase}}’s sidebar"
+          "title": "Internxt Drive hazır",
+          "description": "Depolanan dosyalarınıza {{platform_phrase}}'s kenar çubuğundan erişin"
         }
       }
     },
@@ -77,7 +77,7 @@
       "onboarding-progress": "{{current_slide}} of {{total_slides}}",
       "continue": "Continue",
       "skip": "Skip",
-      "open-drive": "Open Internxt Drive",
+      "open-drive": "Internxt Drive'ı açın",
       "platform-phrase": {
         "windows": "file explorer",
         "linux": "file browser",
@@ -117,24 +117,24 @@
       }
     },
     "common": {
-      "continue": "Continue",
-      "cancel": "Cancel",
-      "open-drive": "Open Internxt Drive"
+      "continue": "Devam et",
+      "cancel": "İptal et",
+      "open-drive": "Internxt Drive'ı açın"
     }
   },
   "widget": {
     "header": {
       "usage": {
         "of": "of",
-        "upgrade": "Upgrade"
+        "upgrade": "Yükselt"
       },
       "dropdown": {
-        "preferences": "Preferences",
-        "issues": "Issues",
-        "send-feedback": "Send feedback",
-        "support": "Support",
-        "logout": "Log out",
-        "quit": "Quit"
+        "preferences": "Tercihler",
+        "issues": "Sorunlar",
+        "send-feedback": "Geri bildirim gönder",
+        "support": "Destek",
+        "logout": "Çıkış yap",
+        "quit": "Kapat"
       }
     },
     "body": {
@@ -142,10 +142,10 @@
         "operation": {
           "downloading": "Downloading",
           "decrypting": "Decrypting",
-          "uploading": "Uploading",
-          "encrypting": "Encrypting",
+          "uploading": "Yükleniyor",
+          "encrypting": "Şifreleniyor",
           "downloaded": "Downloaded",
-          "uploaded": "Uploaded",
+          "uploaded": "Yüklendi",
           "deleting": "Moving to trash",
           "deleted": "Moved to trash",
           "renaming": "Renaming",
@@ -172,9 +172,9 @@
     },
     "footer": {
       "action-description": {
-        "syncing": "Syncing your files",
-        "updated": "Fully synced",
-        "failed": "Sync failed"
+        "syncing": "Dosyalarınız eşitleniyor",
+        "updated": "Tamamen eşitlendi",
+        "failed": "Eşitleme başarısız"
       },
       "errors": {
         "lock": "Sync locked by other device",
@@ -196,35 +196,35 @@
   "settings": {
     "header": {
       "section": {
-        "GENERAL": "general",
-        "ACCOUNT": "account",
-        "BACKUPS": "backups"
+        "GENERAL": "genel",
+        "ACCOUNT": "hesap",
+        "BACKUPS": "yedeklemeler"
       }
     },
     "general": {
       "device": {
-        "section": "Device name",
+        "section": "Cihaz adı",
         "action": {
-          "edit": "Edit",
-          "cancel": "Cancel",
-          "save": "Save"
+          "edit": "Düzenle",
+          "cancel": "İptal et",
+          "save": "Kaydet"
         }
       },
-      "auto-startup": "Start Internxt Drive on system startup",
+      "auto-startup": "Internxt Drive'ı sistem başlangıcında başlatın",
       "language": {
-        "label": "Language",
+        "label": "Dil",
         "options": {
-          "es": "Español (Spanish)",
-          "en": "English (English)",
-          "fr": "Français (French)"
+          "es": "Español (İspanyolca)",
+          "en": "English (İngilizce)",
+          "fr": "Français (Fransızça)"
         }
       },
       "theme": {
-        "label": "Appearance",
+        "label": "Görünüm",
         "options": {
-          "system": "System",
-          "light": "Light",
-          "dark": "Dark"
+          "system": "Sistem",
+          "light": "Açık",
+          "dark": "Koyu"
         }
       },
       "sync": {
@@ -232,19 +232,19 @@
         "change-folder": "Change folder"
       },
       "app-info": {
-        "open-logs": "Open logs",
+        "open-logs": "Sitem günlüğünü açın",
         "open-migration": "Start migration",
-        "more": "Learn more about Internxt Drive"
+        "more": "Internxt Drive hakkında daha fazla bilgi edinin"
       }
     },
     "account": {
-      "logout": "Log out",
+      "logout": "Çıkış yap",
       "usage": {
-        "display": "Used {{used}} of {{total}}",
-        "upgrade": "Upgrade",
-        "change": "Change",
-        "plan": "Current plan",
-        "free": "Free",
+        "display": "{{used}} kullanılan toplam {{total}}",
+        "upgrade": "Yükselt",
+        "change": "Değiştir",
+        "plan": "Mevcut plan",
+        "free": "Ücretsiz",
         "loadError": {
           "title": "Couldn't fetch your usage details",
           "action": "Retry"
@@ -300,13 +300,13 @@
     }
   },
   "issues": {
-    "title": "Issues",
+    "title": "Sorunlar",
     "tabs": {
-      "sync": "Sync",
-      "backups": "Backups",
-      "general": "General"
+      "sync": "Eşitleme",
+      "backups": "Yedeklemeler",
+      "general": "Genel"
     },
-    "no-issues": "No issues found",
+    "no-issues": "Hiçbir sorun bulunamadı",
     "actions": {
       "select-folder": "Select folder",
       "find-folder": "Find folder",
@@ -358,15 +358,15 @@
     }
   },
   "feedback": {
-    "window-title": "Internxt Desktop feedback",
-    "title": "Share feedback with Internxt",
-    "description": "Your feedback makes Internxt improve and helps us to create better product experiences",
-    "placeholder": "Let us know what's in your mind, what you'd like to improve or describe the bug or issue",
+    "window-title": "Internxt Masaüstü geri bildirimi",
+    "title": "Internxt ile geri bildirim paylaşın",
+    "description": "Geri bildirimleriniz Internxt'in gelişmesini sağlar ve daha iyi ürün deneyimleri oluşturmamıza yardımcı olur",
+    "placeholder": "Aklınızdan geçenleri, neyi iyileştirmek istediğinizi bize bildirin veya hatayı veya sorunu anlatın",
     "characters-count": "{{character_count}}/{{character_limit}}",
-    "send-feedback": "Send feedback",
-    "sent-title": "Thank you for sharing your feedback",
-    "sent-message": "We really appreciate your time and effort to help us improve our services.",
-    "close": "Close"
+    "send-feedback": "Geri bildirimi gönder",
+    "sent-title": "Görüşlerinizi paylaştığınız için teşekkür ederiz",
+    "sent-message": "Hizmetlerimizi geliştirmemize yardımcı olmak için ayırdığınız zaman ve gösterdiğiniz çaba için gerçekten minnettarız.",
+    "close": "Kapat"
   },
   "common": {
     "cancel": "Cancel"
