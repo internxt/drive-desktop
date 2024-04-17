@@ -50,6 +50,18 @@ const Header: React.FC<HeadersProps> = ({ setIsLogoutModalOpen }) => {
     window.electron.quit();
   }
 
+  const wasSyncing = () => {
+    return window.electron.getRecentlywasSyncing();
+  };
+
+  async function onSyncClick() {
+    const notAllowed = await wasSyncing();
+    if (notAllowed) {
+      return;
+    }
+    window.electron.syncManually();
+  }
+
   const handleOpenURL = async (URL: string) => {
     try {
       await window.electron.openUrl(URL);
@@ -199,6 +211,19 @@ const Header: React.FC<HeadersProps> = ({ setIsLogoutModalOpen }) => {
                       </DropdownItem>
                     </div>
                   )}
+                </Menu.Item>
+                <Menu.Item>
+                  {({ active }) => {
+                    return (
+                      <div>
+                        <DropdownItem active={active} onClick={onSyncClick}>
+                          <span>
+                            {translate('widget.header.dropdown.sync')}
+                          </span>
+                        </DropdownItem>
+                      </div>
+                    );
+                  }}
                 </Menu.Item>
                 <Menu.Item>
                   {({ active }) => (

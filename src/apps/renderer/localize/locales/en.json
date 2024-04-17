@@ -130,6 +130,7 @@
       },
       "dropdown": {
         "preferences": "Preferences",
+        "sync": "Sync",
         "issues": "Issues",
         "send-feedback": "Send feedback",
         "support": "Support",

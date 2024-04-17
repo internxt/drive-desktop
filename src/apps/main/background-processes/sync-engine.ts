@@ -9,6 +9,19 @@ let worker: BrowserWindow | null = null;
 let workerIsRunning = false;
 let startingWorker = false;
 let healthCheckSchedule: nodeSchedule.Job | null = null;
+let attemptsAlreadyStarting = 0;
+
+ipcMain.once('SYNC_ENGINE_PROCESS_SETUP_SUCCESSFUL', () => {
+  Logger.debug('[MAIN] SYNC ENGINE RUNNING');
+  workerIsRunning = true;
+  startingWorker = false;
+});
+
+ipcMain.on('SYNC_ENGINE_PROCESS_SETUP_FAILED', () => {
+  Logger.debug('[MAIN] SYNC ENGINE FAILED');
+  workerIsRunning = false;
+  startingWorker = false;
+});
 
 async function healthCheck() {
   const responsePromise = new Promise<void>((resolve, reject) => {
@@ -48,6 +61,11 @@ function scheduleHeathCheck() {
         Sentry.captureMessage(warning);
         workerIsRunning = false;
         worker?.destroy();
+        if (attemptsAlreadyStarting >= 3) {
+          attemptsAlreadyStarting = 0;
+          startingWorker = false;
+          return;
+        }
         spawnSyncEngineWorker();
       });
 
@@ -59,6 +77,7 @@ function scheduleHeathCheck() {
 function spawnSyncEngineWorker() {
   if (startingWorker) {
     Logger.info('[MAIN] Worker is already starting');
+    attemptsAlreadyStarting++;
     return;
   }
   if (workerIsRunning) {
@@ -99,18 +118,6 @@ function spawnSyncEngineWorker() {
       workerIsRunning = false;
       spawnSyncEngineWorker();
     }
-  });
-
-  ipcMain.once('SYNC_ENGINE_PROCESS_SETUP_SUCCESSFUL', () => {
-    Logger.debug('[MAIN] SYNC ENGINE RUNNING');
-    workerIsRunning = true;
-    startingWorker = false;
-  });
-
-  ipcMain.on('SYNC_ENGINE_PROCESS_SETUP_FAILED', () => {
-    Logger.debug('[MAIN] SYNC ENGINE NOT RUNNING');
-    workerIsRunning = false;
-    startingWorker = false;
   });
 }
 
@@ -219,11 +226,33 @@ async function stopAndClearSyncEngineWatcher() {
 
 export function updateSyncEngine() {
   try {
-    worker?.webContents.send('UPDATE_SYNC_ENGINE_PROCESS');
+    if (worker && worker?.webContents && !worker.isDestroyed()) {
+      worker?.webContents.send('UPDATE_SYNC_ENGINE_PROCESS');
+    }
   } catch (err) {
     // TODO: handle error
     Logger.error(err);
     Sentry.captureException(err);
+  }
+}
+
+export function fallbackSyncEngine() {
+  try {
+    if (worker && worker?.webContents && !worker.isDestroyed()) {
+      worker?.webContents.send('FALLBACK_SYNC_ENGINE_PROCESS');
+    }
+  } catch (err) {
+    Logger.error(err);
+  }
+}
+export async function getFilesInSyncPending() {
+  try {
+    if (worker && worker?.webContents && !worker.isDestroyed()) {
+      return worker?.webContents.send('GET_FILE_UNSYNC_IN_SYNC_ENGINE_PROCESS');
+    }
+  } catch (err) {
+    Logger.error(err);
+    return [];
   }
 }
 

@@ -10,7 +10,7 @@ import * as Sentry from '@sentry/electron/renderer';
 function initSentry() {
   Sentry.init({
     dsn: process.env.SENTRY_DSN,
-    enabled: true // it is true but is using app.isPackaged from the main process
+    enabled: true, // it is true but is using app.isPackaged from the main process
   });
   Sentry.captureMessage('Sync engine process started');
 }
@@ -27,7 +27,6 @@ async function ensureTheFolderExist(path: string) {
 }
 
 async function setUp() {
-
   Logger.info('[SYNC ENGINE] Starting sync engine process');
 
   const virtualDrivePath = await ipcRenderer.invoke('get-virtual-drive-root');
@@ -67,6 +66,21 @@ async function setUp() {
     await bindings.update();
 
     Logger.info('[SYNC ENGINE] sync engine updated successfully');
+  });
+
+  ipcRenderer.on('FALLBACK_SYNC_ENGINE_PROCESS', async () => {
+    Logger.info('[SYNC ENGINE] Fallback sync engine');
+
+    await bindings.polling();
+
+    Logger.info('[SYNC ENGINE] sync engine fallback successfully');
+  });
+
+  ipcRenderer.on('GET_FILE_UNSYNC_IN_SYNC_ENGINE_PROCESS', async () => {
+    Logger.info('[SYNC ENGINE] Getting file unsync');
+
+    const filesPending = await bindings.getFileInSyncPending();
+    return filesPending;
   });
 
   ipcRenderer.on('STOP_AND_CLEAR_SYNC_ENGINE_PROCESS', async (event) => {

@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslationContext } from '../../context/LocalContext';
 import useSyncStatus from '../../hooks/useSyncStatus';
+import { on } from 'events';
 
 interface ModalLogoutProps {
   isOpen: boolean;
@@ -24,8 +25,9 @@ const ModalLogout: React.FC<ModalLogoutProps> = ({
 
   useEffect(() => {
     //TODO: Implement checkSyncPending function to check if sync is pending
-    const checkSyncPending = async () => {
-      const syncPending = syncStatus === 'SYNC PENDING';
+    const checkSyncPending = () => {
+      const syncPending =
+        syncStatus === 'SYNC PENDING' || syncStatus === 'RUNNING';
       setIsSyncPending(syncPending);
     };
 
@@ -33,7 +35,11 @@ const ModalLogout: React.FC<ModalLogoutProps> = ({
   }, [syncStatus]);
 
   //TODO: Implement forceSync function to force sync update
-  const forceSync = () => {};
+  const forceSync = () => {
+    window.electron.syncManually().then(() => {
+      onClose();
+    });
+  };
 
   return (
     <div
