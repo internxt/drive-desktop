@@ -10,7 +10,7 @@ import useGeneralIssues from '../../hooks/GeneralIssues';
 import useProcessIssues from '../../hooks/ProcessIssues';
 import useUsage from '../../hooks/useUsage';
 import useVirtualDriveStatus from '../../hooks/VirtualDriveStatus';
-import { reportError } from '../../utils/errors';
+import { reportError } from '../../utils/sentry';
 
 
 export default function Header() {

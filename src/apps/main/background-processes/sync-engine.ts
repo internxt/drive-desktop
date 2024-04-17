@@ -3,6 +3,7 @@ import path from 'path';
 import Logger from 'electron-log';
 import eventBus from '../event-bus';
 import nodeSchedule from 'node-schedule';
+import * as Sentry from '@sentry/electron/main';
 
 let worker: BrowserWindow | null = null;
 let workerIsRunning = false;
@@ -55,7 +56,9 @@ function scheduleHeathCheck() {
         // Logger.debug('Health check succeeded');
       })
       .catch(() => {
-        Logger.warn('Health check failed, relaunching the worker');
+        const warning = 'Health check failed, relaunching the worker';
+        Logger.warn(warning);
+        Sentry.captureMessage(warning);
         workerIsRunning = false;
         worker?.destroy();
         if (attemptsAlreadyStarting >= 3) {
@@ -104,6 +107,7 @@ function spawnSyncEngineWorker() {
     })
     .catch((err) => {
       Logger.error('[MAIN] Error loading sync engine worker', err);
+      Sentry.captureException(err);
     });
 
   worker.on('close', () => {
@@ -132,6 +136,7 @@ export async function stopSyncEngineWatcher() {
   const stopPromise = new Promise<void>((resolve, reject) => {
     ipcMain.once('SYNC_ENGINE_STOP_ERROR', (_, error: Error) => {
       Logger.error('[MAIN] Error stopping sync engine worker', error);
+      Sentry.captureException(error);
       reject(error);
     });
 
@@ -158,6 +163,7 @@ export async function stopSyncEngineWatcher() {
   } catch (err) {
     // TODO: handle error
     Logger.error(err);
+    Sentry.captureException(err);
   } finally {
     worker?.destroy();
     workerIsRunning = false;
@@ -182,6 +188,7 @@ async function stopAndClearSyncEngineWatcher() {
       'ERROR_ON_STOP_AND_CLEAR_SYNC_ENGINE_PROCESS',
       (_, error: Error) => {
         Logger.error('[MAIN] Error stopping sync engine worker', error);
+        Sentry.captureException(error);
         reject(error);
       }
     );
@@ -209,6 +216,7 @@ async function stopAndClearSyncEngineWatcher() {
   } catch (err) {
     // TODO: handle error
     Logger.error(err);
+    Sentry.captureException(err);
   } finally {
     worker?.destroy();
     workerIsRunning = false;
@@ -224,6 +232,7 @@ export function updateSyncEngine() {
   } catch (err) {
     // TODO: handle error
     Logger.error(err);
+    Sentry.captureException(err);
   }
 }
 
