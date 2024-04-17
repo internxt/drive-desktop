@@ -130,6 +130,7 @@
       },
       "dropdown": {
         "preferences": "Préférences",
+        "sync": "Synchroniser",
         "issues": "Liste d'erreurs",
         "support": "Aide",
         "logout": "Déconnecter",
