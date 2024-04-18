@@ -2,7 +2,7 @@ import Logger from 'electron-log';
 import fs from 'fs/promises';
 import os from 'os';
 import path from 'path';
-import { doesFileExist } from '../shared/fs/fileExists';
+import { doesFileExist } from '../../shared/fs/fileExists';
 import { exec } from 'child_process';
 
 const name = 'internxt-virtual-drive.py';
@@ -24,6 +24,10 @@ function extensionFile() {
       name
     );
   }
+}
+
+export async function isInstalled(): Promise<boolean> {
+  return await doesFileExist(destination);
 }
 
 export async function copyNautilusExtensionFile(): Promise<void> {

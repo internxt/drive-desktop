@@ -53,8 +53,8 @@ import { reportError } from './bug-report/service';
 import { setCleanUpFunction } from './quit';
 import { stopSyncEngineWatcher } from './background-processes/sync-engine';
 import { Theme } from '../shared/types/Theme';
-import { installNautilusExtension } from '../nautilus-extension/install';
-import { uninstallNautilusExtension } from '../nautilus-extension/uninstall';
+import { installNautilusExtension } from './nautilus-extension/install';
+import { uninstallNautilusExtension } from './nautilus-extension/uninstall';
 
 const gotTheLock = app.requestSingleInstanceLock();
 

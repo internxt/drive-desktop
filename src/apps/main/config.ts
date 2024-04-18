@@ -14,6 +14,7 @@ export const fieldsToSave = [
   'lastSync',
   'deviceId',
   'backupList',
+  'nautilusExtensionVersion',
 ] as const;
 
 export interface AppStore {
@@ -40,6 +41,7 @@ export interface AppStore {
   virtualdriveWindowsLetter: string;
   lastFilesSyncAt?: string;
   lastFoldersSyncAt?: string;
+  nautilusExtensionVersion: number;
 }
 
 const schema: Schema<AppStore> = {
@@ -108,6 +110,7 @@ const schema: Schema<AppStore> = {
   },
   lastFilesSyncAt: { type: 'string' },
   lastFoldersSyncAt: { type: 'string' },
+  nautilusExtensionVersion: { type: 'number' },
 } as const;
 
 export const defaults: AppStore = {
@@ -134,6 +137,7 @@ export const defaults: AppStore = {
   virtualdriveWindowsLetter: 'I',
   lastFilesSyncAt: undefined,
   lastFoldersSyncAt: undefined,
+  nautilusExtensionVersion: 0,
 };
 
 const configStore = new Store({ schema, defaults });
