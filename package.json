@@ -1,6 +1,6 @@
 {
   "name": "internxt-drive",
-  "version": "2.0.0",
+  "version": "2.0.0-beta.1",
   "author": "Internxt <hello@internxt.com>",
   "description": "Internxt Drive client UI",
   "license": "AGPL-3.0",
@@ -11,9 +11,9 @@
     "build": "concurrently \"npm run build:main\" \"npm run build:fuse\" \"npm run build:renderer\"",
     "build:main": "cross-env NODE_ENV=production TS_NODE_TRANSPILE_ONLY=true webpack --config ./.erb/configs/webpack.config.main.prod.ts",
     "build:renderer": "cross-env NODE_ENV=production TS_NODE_TRANSPILE_ONLY=true webpack --config ./.erb/configs/webpack.config.renderer.prod.ts",
-    "build:sync-engine": "cross-env NODE_ENV=production TS_NODE_TRANSPILE_ONLY=true webpack --config ./.erb/configs/webpack.config.sync-engine.ts",
     "build:fuse": "cross-env NODE_ENV=production TS_NODE_TRANSPILE_ONLY=true webpack --config ./.erb/configs/webpack.config.fuse.ts",
     "rebuild": "electron-rebuild --parallel --types prod,dev,optional --module-dir release/app",
+    "reinstall:nautilus-extension": "NODE_ENV=development ts-node src/apps/nautilus-extension/reload.ts",
     "lint": "cross-env NODE_ENV=development eslint . --ext .ts,.tsx",
     "lint:fix": "yarn run lint --fix",
     "package": "ts-node ./.erb/scripts/clean.js dist && npm run build && electron-builder build --publish never",
@@ -23,7 +23,6 @@
     "start:main": "cross-env NODE_ENV=development electron -r ts-node/register/transpile-only ./src/apps/main/main.ts",
     "start:renderer": "cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true webpack serve --config ./.erb/configs/webpack.config.renderer.dev.ts",
     "start:sync": "cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true webpack --config ./.erb/configs/webpack.config.sync.ts",
-    "start:sync-engine": "cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true webpack --config ./.erb/configs/webpack.config.sync-engine.ts",
     "test": "jest && playwright test --config=src/test",
     "test:unit": "jest --silent",
     "test:e2e": "playwright test --config=src/test",
@@ -106,7 +105,8 @@
     },
     "deb": {
       "depends": [
-        "libfuse2"
+        "libfuse2",
+        "python3-nautilus"
       ]
     },
     "directories": {
@@ -115,7 +115,8 @@
       "output": "release/build"
     },
     "extraResources": [
-      "./assets/**"
+      "./assets/**",
+      "./src/apps/nautilus-extension/internxt-virtual-drive.py"
     ],
     "publish": {
       "provider": "github"

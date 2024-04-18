@@ -53,6 +53,8 @@ import { reportError } from './bug-report/service';
 import { setCleanUpFunction } from './quit';
 import { stopSyncEngineWatcher } from './background-processes/sync-engine';
 import { Theme } from '../shared/types/Theme';
+import { installNautilusExtension } from '../nautilus-extension/install';
+import { uninstallNautilusExtension } from '../nautilus-extension/uninstall';
 
 const gotTheLock = app.requestSingleInstanceLock();
 
@@ -144,6 +146,8 @@ eventBus.on('USER_LOGGED_IN', async () => {
       widget.show();
     }
 
+    await installNautilusExtension();
+
     setCleanUpFunction(stopSyncEngineWatcher);
   } catch (error) {
     Logger.error(error);
@@ -167,4 +171,6 @@ eventBus.on('USER_LOGGED_OUT', async () => {
   if (AppDataSource.isInitialized) {
     await AppDataSource.destroy();
   }
+
+  await uninstallNautilusExtension();
 });
