@@ -1,53 +1,4 @@
-import configStore from '../config';
-
-const SIX_HOURS_IN_MILLISECOND = 6 * 60 * 60 * 1000;
-
-export const clearRemoteSyncStore = () => {
-  const store = configStore;
-
-  store.set('lastFilesSyncAt', '');
-  store.set('lastFoldersSyncAt', '');
-};
-
-export function getLastFilesSyncAt(): Date | undefined {
-  const value = configStore.get('lastFilesSyncAt');
-
-  if (!value || value.length === 0) return undefined;
-
-  const date = new Date(value);
-
-  date.setTime(date.getTime() - SIX_HOURS_IN_MILLISECOND);
-
-  return date;
-}
-
-export function saveLastFilesSyncAt(date: Date, offsetMs: number): Date {
-  configStore.set(
-    'lastFilesSyncAt',
-    new Date(date.getTime() - offsetMs).toISOString()
-  );
-  return date;
-}
-
-export function getLastFoldersSyncAt(): Date | undefined {
-  const value = configStore.get('lastFoldersSyncAt');
-
-  if (!value || value.length === 0) return undefined;
-
-  const date = new Date(value);
-
-  date.setTime(date.getTime() - SIX_HOURS_IN_MILLISECOND);
-
-  return date;
-}
-
-export function saveLastFoldersSyncAt(date: Date, offsetMs: number): Date {
-  configStore.set(
-    'lastFoldersSyncAt',
-    new Date(date.getTime() - offsetMs).toISOString()
-  );
-  return date;
-}
+export const SIX_HOURS_IN_MILLISECONDS = 6 * 60 * 60 * 1000;
 
 export type RemoteSyncedFile = {
   id: number;
@@ -96,3 +47,11 @@ export const lastSyncedAtIsNewer = (
 ) => {
   return itemUpdatedAt.getTime() - offset > lastItemsSyncAt.getTime();
 };
+
+export function rewind(original: Date, milliseconds: number): Date {
+  const shallowCopy = new Date(original.getTime());
+
+  shallowCopy.setTime(shallowCopy.getTime() - milliseconds);
+
+  return shallowCopy;
+}

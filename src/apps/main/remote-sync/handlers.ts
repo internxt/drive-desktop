@@ -2,13 +2,14 @@ import eventBus from '../event-bus';
 import { RemoteSyncManager } from './RemoteSyncManager';
 import { DriveFilesCollection } from '../database/collections/DriveFileCollection';
 import { DriveFoldersCollection } from '../database/collections/DriveFolderCollection';
-import { clearRemoteSyncStore } from './helpers';
 import { getNewTokenClient } from '../../shared/HttpClient/main-process-client';
 import Logger from 'electron-log';
 import { ipcMain } from 'electron';
 import { reportError } from '../bug-report/service';
 import { broadcastToWindows } from '../windows';
 import { debounce } from 'lodash';
+
+const SYNC_DEBOUNCE_DELAY = 3_000;
 
 let initialSyncReady = false;
 const driveFilesCollection = new DriveFilesCollection();
@@ -79,7 +80,7 @@ ipcMain.handle('get-remote-sync-status', () =>
 const debouncedSynchronization = debounce(async () => {
   await startRemoteSync();
   eventBus.emit('REMOTE_CHANGES_SYNCHED');
-}, 3_000);
+}, SYNC_DEBOUNCE_DELAY);
 
 eventBus.on('RECEIVED_REMOTE_CHANGES', async () => {
   // Wait before checking for updates, could be possible
@@ -98,5 +99,4 @@ eventBus.on('USER_LOGGED_IN', async () => {
 eventBus.on('USER_LOGGED_OUT', () => {
   initialSyncReady = false;
   remoteSyncManager.resetRemoteSync();
-  clearRemoteSyncStore();
 });

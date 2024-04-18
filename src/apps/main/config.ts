@@ -39,8 +39,6 @@ export interface AppStore {
   preferedLanguage?: string;
   preferedTheme?: string;
   virtualdriveWindowsLetter: string;
-  lastFilesSyncAt?: string;
-  lastFoldersSyncAt?: string;
   nautilusExtensionVersion: number;
 }
 
@@ -108,8 +106,6 @@ const schema: Schema<AppStore> = {
   virtualdriveWindowsLetter: {
     type: 'string',
   },
-  lastFilesSyncAt: { type: 'string' },
-  lastFoldersSyncAt: { type: 'string' },
   nautilusExtensionVersion: { type: 'number' },
 } as const;
 
@@ -135,8 +131,6 @@ export const defaults: AppStore = {
   preferedLanguage: '',
   preferedTheme: 'system',
   virtualdriveWindowsLetter: 'I',
-  lastFilesSyncAt: undefined,
-  lastFoldersSyncAt: undefined,
   nautilusExtensionVersion: 0,
 };
 

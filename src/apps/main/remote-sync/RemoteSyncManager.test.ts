@@ -23,6 +23,7 @@ const inMemorySyncedFilesCollection: DatabaseCollectionAdapter<DriveFile> = {
   update: jest.fn(),
   create: jest.fn(),
   remove: jest.fn(),
+  getLastUpdated: jest.fn(),
 };
 
 const inMemorySyncedFoldersCollection: DatabaseCollectionAdapter<DriveFolder> =
@@ -32,6 +33,7 @@ const inMemorySyncedFoldersCollection: DatabaseCollectionAdapter<DriveFolder> =
     update: jest.fn(),
     create: jest.fn(),
     remove: jest.fn(),
+    getLastUpdated: jest.fn(),
   };
 
 const createRemoteSyncedFileFixture = (
@@ -94,6 +96,12 @@ describe('RemoteSyncManager', () => {
       syncFolders: true,
     }
   );
+
+  inMemorySyncedFilesCollection.getLastUpdated = () =>
+    Promise.resolve({ success: false, result: null });
+  inMemorySyncedFoldersCollection.getLastUpdated = () =>
+    Promise.resolve({ success: false, result: null });
+
   beforeEach(() => {
     sut = new RemoteSyncManager(
       {
@@ -249,20 +257,6 @@ describe('RemoteSyncManager', () => {
     });
 
     it('Should fail the sync if some files or folders cannot be retrieved', async () => {
-      const sut = new RemoteSyncManager(
-        {
-          folders: inMemorySyncedFoldersCollection,
-          files: inMemorySyncedFilesCollection,
-        },
-        {
-          httpClient: mockedAxios,
-          fetchFilesLimitPerRequest: 2,
-          fetchFoldersLimitPerRequest: 2,
-          syncFiles: true,
-          syncFolders: true,
-        }
-      );
-
       mockedAxios.get.mockRejectedValueOnce('Fail on purpose');
 
       await sut.startRemoteSync();

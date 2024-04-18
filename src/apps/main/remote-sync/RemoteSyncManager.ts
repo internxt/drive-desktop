@@ -1,18 +1,18 @@
 import Logger from 'electron-log';
-import * as helpers from './helpers';
 import {
   RemoteSyncStatus,
   RemoteSyncedFolder,
   RemoteSyncedFile,
   SyncConfig,
-  SYNC_OFFSET_MS,
+  rewind,
+  SIX_HOURS_IN_MILLISECONDS,
 } from './helpers';
 import { reportError } from '../bug-report/service';
-
 import { DatabaseCollectionAdapter } from '../database/adapters/base';
 import { Axios } from 'axios';
 import { DriveFolder } from '../database/entities/DriveFolder';
 import { DriveFile } from '../database/entities/DriveFile';
+import { Nullable } from '../../shared/types/Nullable';
 
 export class RemoteSyncManager {
   private foldersSyncStatus: RemoteSyncStatus = 'IDLE';
@@ -176,16 +176,28 @@ export class RemoteSyncManager {
     }
   }
 
+  private async getFileCheckpoint(): Promise<Nullable<Date>> {
+    const { success, result } = await this.db.files.getLastUpdated();
+
+    if (!success) return undefined;
+
+    if (!result) return undefined;
+
+    const updatedAt = new Date(result.updatedAt);
+
+    return rewind(updatedAt, SIX_HOURS_IN_MILLISECONDS);
+  }
+
   /**
    * Syncs all the remote files and saves them into the local db
    * @param syncConfig Config to execute the sync with
    * @returns
    */
   private async syncRemoteFiles(syncConfig: SyncConfig, from?: Date) {
-    const lastFilesSyncAt = from ?? helpers.getLastFilesSyncAt();
+    const fileCheckPoint = from ?? (await this.getFileCheckpoint());
     try {
       const { hasMore, result } = await this.fetchFilesFromRemote(
-        lastFilesSyncAt
+        fileCheckPoint
       );
 
       let lastFileSynced = null;
@@ -193,9 +205,7 @@ export class RemoteSyncManager {
       for (const remoteFile of result) {
         // eslint-disable-next-line no-await-in-loop
         await this.createOrUpdateSyncedFileEntry(remoteFile);
-        const fileUpdatedAt = new Date(remoteFile.updatedAt);
 
-        helpers.saveLastFilesSyncAt(fileUpdatedAt, SYNC_OFFSET_MS);
         this.totalFilesSynced++;
         lastFileSynced = remoteFile;
       }
@@ -220,8 +230,8 @@ export class RemoteSyncManager {
       );
 
       reportError(error as Error, {
-        lastFilesSyncAt: lastFilesSyncAt
-          ? lastFilesSyncAt.toISOString()
+        lastFilesSyncAt: fileCheckPoint
+          ? fileCheckPoint.toISOString()
           : 'INITIAL_FILES_SYNC',
       });
       if (syncConfig.retry >= syncConfig.maxRetries) {
@@ -238,16 +248,29 @@ export class RemoteSyncManager {
     }
   }
 
+  private async getLastFolderSyncAt(): Promise<Nullable<Date>> {
+    const { success, result } = await this.db.folders.getLastUpdated();
+
+    if (!success) return undefined;
+
+    if (!result) return undefined;
+
+    const updatedAt = new Date(result.updatedAt);
+
+    return rewind(updatedAt, SIX_HOURS_IN_MILLISECONDS);
+  }
+
   /**
    * Syncs all the remote folders and saves them into the local db
    * @param syncConfig Config to execute the sync with
    * @returns
    */
   private async syncRemoteFolders(syncConfig: SyncConfig, from?: Date) {
-    const lastFoldersSyncAt = from ?? helpers.getLastFoldersSyncAt();
+    const folderCheckPoint = from ?? (await this.getLastFolderSyncAt());
+
     try {
       const { hasMore, result } = await this.fetchFoldersFromRemote(
-        lastFoldersSyncAt
+        folderCheckPoint
       );
 
       let lastFolderSynced = null;
@@ -255,9 +278,7 @@ export class RemoteSyncManager {
       for (const remoteFolder of result) {
         // eslint-disable-next-line no-await-in-loop
         await this.createOrUpdateSyncedFolderEntry(remoteFolder);
-        const foldersUpdatedAt = new Date(remoteFolder.updatedAt);
 
-        helpers.saveLastFoldersSyncAt(foldersUpdatedAt, SYNC_OFFSET_MS);
         this.totalFoldersSynced++;
         lastFolderSynced = remoteFolder;
       }
@@ -281,8 +302,8 @@ export class RemoteSyncManager {
         error
       );
       reportError(error as Error, {
-        lastFoldersSyncAt: lastFoldersSyncAt
-          ? lastFoldersSyncAt.toISOString()
+        lastFoldersSyncAt: folderCheckPoint
+          ? folderCheckPoint.toISOString()
           : 'INITIAL_FOLDERS_SYNC',
       });
       if (syncConfig.retry >= syncConfig.maxRetries) {

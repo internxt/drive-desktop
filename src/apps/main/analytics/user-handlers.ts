@@ -6,7 +6,6 @@ import {
   userSigning,
   userSigningFailed,
 } from './service';
-import { clearRemoteSyncStore } from '../remote-sync/helpers';
 import { clearTempFolder } from '../app-info/helpers';
 
 eventBus.on('USER_LOGGED_IN', () => {
@@ -16,7 +15,6 @@ eventBus.on('USER_LOGGED_IN', () => {
 
 eventBus.on('USER_LOGGED_OUT', () => {
   userLogout();
-  clearRemoteSyncStore();
   clearTempFolder();
 });
 

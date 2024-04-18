@@ -2,6 +2,8 @@ import { DatabaseCollectionAdapter } from '../adapters/base';
 import { AppDataSource } from '../data-source';
 import { DriveFile } from '../entities/DriveFile';
 import { Repository } from 'typeorm';
+import * as Sentry from '@sentry/electron/main';
+import Logger from 'electron-log';
 
 export class DriveFilesCollection
   implements DatabaseCollectionAdapter<DriveFile>
@@ -67,5 +69,29 @@ export class DriveFilesCollection
     return {
       success: result.affected ? true : false,
     };
+  }
+
+  async getLastUpdated(): Promise<{
+    success: boolean;
+    result: DriveFile | null;
+  }> {
+    try {
+      const queryResult = await this.repository
+        .createQueryBuilder('drive_file')
+        .orderBy('datetime(drive_file.updatedAt)', 'DESC')
+        .getOne();
+
+      return {
+        success: true,
+        result: queryResult,
+      };
+    } catch (error) {
+      Sentry.captureException(error);
+      Logger.error('Error fetching newest drive file:', error);
+      return {
+        success: false,
+        result: null,
+      };
+    }
   }
 }
