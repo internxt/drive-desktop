@@ -245,11 +245,12 @@ export function fallbackSyncEngine() {
     Logger.error(err);
   }
 }
-export async function getFilesInSyncPending() {
+export async function sendUpdateFilesInSyncPending(): Promise<string[]> {
   try {
     if (worker && worker?.webContents && !worker.isDestroyed()) {
-      return worker?.webContents.send('GET_FILE_UNSYNC_IN_SYNC_ENGINE_PROCESS');
+     worker?.webContents.send('UPDATE_UNSYNC_FILE_IN_SYNC_ENGINE_PROCESS');
     }
+    return [];
   } catch (err) {
     Logger.error(err);
     return [];

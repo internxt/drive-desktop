@@ -76,11 +76,12 @@ async function setUp() {
     Logger.info('[SYNC ENGINE] sync engine fallback successfully');
   });
 
-  ipcRenderer.on('GET_FILE_UNSYNC_IN_SYNC_ENGINE_PROCESS', async () => {
-    Logger.info('[SYNC ENGINE] Getting file unsync');
+  ipcRenderer.on('UPDATE_UNSYNC_FILE_IN_SYNC_ENGINE_PROCESS', async (event) => {
+    Logger.info('[SYNC ENGINE] updating file unsync');
 
     const filesPending = await bindings.getFileInSyncPending();
-    return filesPending;
+  
+    event.sender.send('UPDATE_UNSYNC_FILE_IN_SYNC_ENGINE', filesPending);
   });
 
   ipcRenderer.on('STOP_AND_CLEAR_SYNC_ENGINE_PROCESS', async (event) => {

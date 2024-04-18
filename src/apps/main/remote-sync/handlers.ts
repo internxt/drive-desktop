@@ -12,6 +12,7 @@ import { broadcastToWindows } from '../windows';
 import {
   updateSyncEngine,
   fallbackSyncEngine,
+  sendUpdateFilesInSyncPending,
 } from '../background-processes/sync-engine';
 
 let initialSyncReady = false;
@@ -99,6 +100,25 @@ ipcMain.handle('SYNC_MANUALLY', async () => {
   await fallbackRemoteSync();
 });
 
+ipcMain.handle('GET_UNSYNC_FILE_IN_SYNC_ENGINE', async () => {
+  Logger.info('[Get UnSync] Received Get UnSync File event');
+  Logger.info(remoteSyncManager.getUnSyncFiles());
+  return remoteSyncManager.getUnSyncFiles();
+});
+
+ipcMain.handle('SEND_UPDATE_UNSYNC_FILE_IN_SYNC_ENGINE', async () => {
+  Logger.info('[UPDATE UnSync] Received update UnSync File event');
+  await sendUpdateFilesInSyncPending();
+});
+
+ipcMain.on(
+  'UPDATE_UNSYNC_FILE_IN_SYNC_ENGINE',
+  async (_, filesPath: string[]) => {
+    Logger.info('[SYNC ENGINE] update unSync files', filesPath);
+    remoteSyncManager.setUnsyncFiles(filesPath);
+  }
+);
+
 eventBus.on('RECEIVED_REMOTE_CHANGES', async () => {
   await updateRemoteSync();
 });
@@ -129,7 +149,7 @@ ipcMain.on('CHECK_SYNC_CHANGE_STATUS', async (_, placeholderStates) => {
   remoteSyncManager.placeholderStatus = placeholderStates;
 });
 
-ipcMain.handle('CHECK_SYNC_IN_PROGRESS', async (_, milliSeconds : number) => {
+ipcMain.handle('CHECK_SYNC_IN_PROGRESS', async (_, milliSeconds: number) => {
   const syncingStatus: RemoteSyncStatus = 'SYNCING';
   const isSyncing = remoteSyncManager.getSyncStatus() === syncingStatus;
   const recentlySyncing = remoteSyncManager.recentlyWasSyncing(milliSeconds);

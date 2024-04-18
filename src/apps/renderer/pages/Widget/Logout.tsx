@@ -3,6 +3,8 @@ import React, { useEffect, useState } from 'react';
 import { useTranslationContext } from '../../context/LocalContext';
 import useSyncStatus from '../../hooks/useSyncStatus';
 import { on } from 'events';
+import { ipcRenderer } from 'electron';
+import { sleep } from '../../../main/util';
 
 interface ModalLogoutProps {
   isOpen: boolean;
@@ -22,24 +24,41 @@ const ModalLogout: React.FC<ModalLogoutProps> = ({
   const { syncStatus } = useSyncStatus();
 
   const [isSyncPending, setIsSyncPending] = useState<boolean>(false);
+  const [isReady, setIsReady] = useState<boolean>(false);
 
   useEffect(() => {
     //TODO: Implement checkSyncPending function to check if sync is pending
-    const checkSyncPending = () => {
+    const checkSyncPending = async (): Promise<boolean> => {
       const syncPending =
         syncStatus === 'SYNC PENDING' || syncStatus === 'RUNNING';
-      setIsSyncPending(syncPending);
+      const wasSyncing = await window.electron.getRecentlywasSyncing();
+      // que espere
+      const existFileUnsync = await window.electron.getUnsycFileInSyncEngine();
+
+      return syncPending || wasSyncing || existFileUnsync.length > 0;
     };
 
-    checkSyncPending();
+    window.electron.updateUnsycFileInSyncEngine().then(() => {
+      checkSyncPending().then((value) => {
+        setIsSyncPending(value);
+      });
+    });
   }, [syncStatus]);
 
-  //TODO: Implement forceSync function to force sync update
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsReady(true);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [isOpen]);
+
   const forceSync = () => {
     window.electron.syncManually().then(() => {
       onClose();
     });
   };
+
+  if (!isReady) return null;
 
   return (
     <div

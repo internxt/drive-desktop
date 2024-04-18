@@ -299,7 +299,13 @@ contextBridge.exposeInMainWorld('electron', {
   syncManually() {
     return ipcRenderer.invoke('SYNC_MANUALLY');
   },
-  getRecentlywasSyncing()  {
+  getUnsycFileInSyncEngine() {
+    return ipcRenderer.invoke('GET_UNSYNC_FILE_IN_SYNC_ENGINE');
+  },
+  updateUnsycFileInSyncEngine() {
+    return ipcRenderer.invoke('SEND_UPDATE_UNSYNC_FILE_IN_SYNC_ENGINE');
+  },
+  getRecentlywasSyncing() {
     const FIVE_SECONDS = 5000;
     return ipcRenderer.invoke('CHECK_SYNC_IN_PROGRESS', FIVE_SECONDS);
   },
