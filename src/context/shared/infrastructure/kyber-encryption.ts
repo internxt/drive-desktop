@@ -27,6 +27,12 @@ class KyberCrypto {
     }
   }
 
+  /**
+   * Configures the Kyber instance with advanced options.
+   * @param {Object} options - Advanced options for Kyber.
+   * @param {string} options.level - Security level (e.g., 'high', 'low').
+   */
+
   async configure(options: { level: string }) {
     this.ensureInitialized();
     console.log('Configuration applied:', options);
