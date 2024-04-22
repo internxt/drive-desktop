@@ -5,6 +5,7 @@ import { LocalFileSystem } from '../domain/file-systems/LocalFileSystem';
 import { RelativePathToAbsoluteConverter } from '../../shared/application/RelativePathToAbsoluteConverter';
 import fs from 'fs/promises';
 import { PlaceholderState } from '../domain/PlaceholderState';
+import Logger from 'electron-log';
 
 export class NodeWinLocalFileSystem implements LocalFileSystem {
   constructor(
@@ -15,7 +16,7 @@ export class NodeWinLocalFileSystem implements LocalFileSystem {
   async getLocalFileId(file: File): Promise<`${string}-${string}`> {
     const win32AbsolutePath = this.relativePathToAbsoluteConverter.run(
       file.path
-    );
+      );
 
     const { ino, dev } = await fs.stat(win32AbsolutePath);
 
@@ -71,5 +72,11 @@ export class NodeWinLocalFileSystem implements LocalFileSystem {
     return this.virtualDrive.getPlaceholderState(
       relativePath
     ) as Promise<PlaceholderState>;
+  }
+
+  async updateFileIdentity(path: string, newIdentity: `${string}-${string}`): Promise<void> {
+      Logger.info('[updateFileIdentity]: ', path, newIdentity);
+      const isNotDirectory = true;
+      return this.virtualDrive.updateFileIdentity(path, newIdentity, isNotDirectory);
   }
 }
