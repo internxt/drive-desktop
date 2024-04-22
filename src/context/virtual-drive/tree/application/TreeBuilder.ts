@@ -1,7 +1,9 @@
+import { Service } from 'diod';
 import { RemoteItemsGenerator } from '../domain/RemoteItemsGenerator';
 import { Tree } from '../domain/Tree';
 import { Traverser } from './Traverser';
 
+@Service()
 export class TreeBuilder {
   constructor(
     private readonly remoteItemsGenerator: RemoteItemsGenerator,

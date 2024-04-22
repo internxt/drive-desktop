@@ -1,16 +1,17 @@
 import { DomainEvent } from '../../../../../src/context/shared/domain/DomainEvent';
+import { DomainEventSubscriber } from '../../../../../src/context/shared/domain/DomainEventSubscriber';
 import { EventBus } from '../../../../../src/context/virtual-drive/shared/domain/EventBus';
-import { SyncEngineDomainEventSubscribers } from '../../../../../src/apps/sync-engine/dependency-injection/SyncEngineDomainEventSubscribers';
 
 export class EventBusMock implements EventBus {
   public publishMock = jest.fn();
+  public addSubscribersMock = jest.fn();
 
   async publish(events: DomainEvent[]) {
     this.publishMock(events);
   }
 
-  addSubscribers(_subscribers: SyncEngineDomainEventSubscribers): void {
-    //
+  addSubscribers(subscribers: Array<DomainEventSubscriber<DomainEvent>>): void {
+    this.addSubscribers(subscribers);
   }
 
   assertLastPublishedEventIs(expectedEvent: DomainEvent) {

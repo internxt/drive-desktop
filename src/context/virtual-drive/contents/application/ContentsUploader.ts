@@ -1,13 +1,15 @@
+import { Service } from 'diod';
+import { UploadProgressTracker } from '../../../shared/domain/UploadProgressTracker';
 import { PlatformPathConverter } from '../../shared/application/PlatformPathConverter';
 import { RelativePathToAbsoluteConverter } from '../../shared/application/RelativePathToAbsoluteConverter';
 import { EventBus } from '../../shared/domain/EventBus';
 import { ContentsManagersFactory } from '../domain/ContentsManagersFactory';
-import { UploadProgressTracker } from '../../../shared/domain/UploadProgressTracker';
 import { LocalFileContents } from '../domain/LocalFileContents';
 import { LocalContentsProvider } from '../domain/LocalFileProvider';
 import { RemoteFileContents } from '../domain/RemoteFileContents';
 import { ContentFileUploader } from '../domain/contentHandlers/ContentFileUploader';
 
+@Service()
 export class ContentsUploader {
   constructor(
     private readonly remoteContentsManagersFactory: ContentsManagersFactory,

@@ -1,12 +1,14 @@
 import { Environment } from '@internxt/inxt-js';
+import { Service } from 'diod';
+import { ContentsManagersFactory } from '../domain/ContentsManagersFactory';
+import { LocalFileContents } from '../domain/LocalFileContents';
 import { ContentFileDownloader } from '../domain/contentHandlers/ContentFileDownloader';
 import { ContentFileUploader } from '../domain/contentHandlers/ContentFileUploader';
-import { ContentsManagersFactory } from '../domain/ContentsManagersFactory';
 import { EnvironmentContentFileDownloader } from './download/EnvironmentContentFileDownloader';
-import { EnvironmentContentFileUploader } from './upload/EnvironmentContentFileUploader';
-import { LocalFileContents } from '../domain/LocalFileContents';
 import { FuseEnvironmentContentFileDownloader } from './download/FuseEnvironmentContentFileDownloader';
+import { EnvironmentContentFileUploader } from './upload/EnvironmentContentFileUploader';
 
+@Service()
 export class EnvironmentRemoteFileContentsManagersFactory
   implements ContentsManagersFactory
 {

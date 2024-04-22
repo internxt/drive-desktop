@@ -1,11 +1,13 @@
-import { ActionNotPermittedError } from '../domain/errors/ActionNotPermittedError';
-import { FolderPath } from '../domain/FolderPath';
+import { Service } from 'diod';
 import { Folder } from '../domain/Folder';
-import { ParentFolderFinder } from './ParentFolderFinder';
+import { FolderPath } from '../domain/FolderPath';
 import { FolderRepository } from '../domain/FolderRepository';
-import { RemoteFileSystem } from '../domain/file-systems/RemoteFileSystem';
 import { FolderStatuses } from '../domain/FolderStatus';
+import { ActionNotPermittedError } from '../domain/errors/ActionNotPermittedError';
+import { RemoteFileSystem } from '../domain/file-systems/RemoteFileSystem';
+import { ParentFolderFinder } from './ParentFolderFinder';
 
+@Service()
 export class FolderMover {
   constructor(
     private readonly repository: FolderRepository,

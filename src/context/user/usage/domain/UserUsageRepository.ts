@@ -1,6 +1,6 @@
 import { UserUsage } from './UserUsage';
 
-export interface UserUsageRepository {
-  getUsage(): Promise<UserUsage>;
-  save(usage: UserUsage): Promise<void>;
+export abstract class UserUsageRepository {
+  abstract getUsage(): Promise<UserUsage>;
+  abstract save(usage: UserUsage): Promise<void>;
 }

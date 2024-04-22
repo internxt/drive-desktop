@@ -1,18 +1,22 @@
 import { SyncErrorCause } from '../../../shared/issues/SyncErrorCause';
 
-export interface UploadProgressTracker {
-  uploadStarted(name: string, extension: string, size: number): void;
+export abstract class UploadProgressTracker {
+  abstract uploadStarted(name: string, extension: string, size: number): void;
 
-  uploadProgress(
+  abstract uploadProgress(
     name: string,
     extension: string,
     size: number,
     progress: { elapsedTime: number; percentage: number }
   ): void;
 
-  uploadError(name: string, extension: string, cause: SyncErrorCause): void;
+  abstract uploadError(
+    name: string,
+    extension: string,
+    cause: SyncErrorCause
+  ): void;
 
-  uploadCompleted(
+  abstract uploadCompleted(
     name: string,
     extension: string,
     size: number,

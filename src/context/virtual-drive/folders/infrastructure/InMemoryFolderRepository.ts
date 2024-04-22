@@ -1,6 +1,8 @@
 import { Folder, FolderAttributes } from '../domain/Folder';
 import { FolderRepository } from '../domain/FolderRepository';
+import { Service } from 'diod';
 
+@Service()
 export class InMemoryFolderRepository implements FolderRepository {
   private folders: Map<Folder['id'], FolderAttributes>;
 

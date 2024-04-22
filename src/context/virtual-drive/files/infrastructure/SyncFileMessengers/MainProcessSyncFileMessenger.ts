@@ -12,7 +12,9 @@ import {
 } from '../../../../../shared/issues/VirtualDriveIssue';
 import { SyncMessenger } from '../../../../shared/domain/SyncMessenger';
 import { SyncFileMessenger } from '../../domain/SyncFileMessenger';
+import { Service } from 'diod';
 
+@Service()
 export class MainProcessSyncFileMessenger
   extends SyncMessenger
   implements SyncFileMessenger

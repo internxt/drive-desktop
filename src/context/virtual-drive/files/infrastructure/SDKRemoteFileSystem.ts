@@ -1,14 +1,16 @@
 import { Storage } from '@internxt/sdk/dist/drive/storage';
 import { EncryptionVersion } from '@internxt/sdk/dist/drive/storage/types';
+import { Service } from 'diod';
+import Logger from 'electron-log';
+import * as uuid from 'uuid';
+import { AuthorizedClients } from '../../../../apps/shared/HttpClient/Clients';
 import { Crypt } from '../../shared/domain/Crypt';
 import { File, FileAttributes } from '../domain/File';
 import { FileStatuses } from '../domain/FileStatus';
-import { RemoteFileSystem } from '../domain/file-systems/RemoteFileSystem';
 import { OfflineFile } from '../domain/OfflineFile';
-import * as uuid from 'uuid';
-import { AuthorizedClients } from '../../../../apps/shared/HttpClient/Clients';
-import Logger from 'electron-log';
+import { RemoteFileSystem } from '../domain/file-systems/RemoteFileSystem';
 
+@Service()
 export class SDKRemoteFileSystem implements RemoteFileSystem {
   constructor(
     private readonly sdk: Storage,

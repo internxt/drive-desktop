@@ -1,8 +1,10 @@
+import { Service } from 'diod';
 import { DomainEventClass } from '../../../shared/domain/DomainEvent';
 import { DomainEventSubscriber } from '../../../shared/domain/DomainEventSubscriber';
 import { FolderCreatedDomainEvent } from '../domain/events/FolderCreatedDomainEvent';
 import { SynchronizeOfflineModifications } from './SynchronizeOfflineModifications';
 
+@Service()
 export class SynchronizeOfflineModificationsOnFolderCreated
   implements DomainEventSubscriber<FolderCreatedDomainEvent>
 {

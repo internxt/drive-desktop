@@ -1,5 +1,4 @@
-import { OfflineDriveDependencyContainer } from '../dependency-injection/offline/OfflineDriveDependencyContainer';
-import { VirtualDriveDependencyContainer } from '../dependency-injection/virtual-drive/VirtualDriveDependencyContainer';
+import { Container } from 'diod';
 import { NotifyFuseCallback } from './FuseCallback';
 import { FuseNoSuchFileOrDirectoryError } from './FuseErrors';
 import { RenameMoveOrTrashFile } from './RenameMoveOrTrashFile';
@@ -11,15 +10,12 @@ export class RenameOrMoveCallback extends NotifyFuseCallback {
   private readonly updateFolder: RenameMoveOrTrashFolder;
   private readonly uploadOnRename: UploadOnRename;
 
-  constructor(
-    virtual: VirtualDriveDependencyContainer,
-    offline: OfflineDriveDependencyContainer
-  ) {
+  constructor(container: Container) {
     super('Rename Move or Trash', { input: true, output: true });
 
-    this.updateFile = new RenameMoveOrTrashFile(virtual);
-    this.updateFolder = new RenameMoveOrTrashFolder(virtual);
-    this.uploadOnRename = new UploadOnRename(offline, virtual);
+    this.updateFile = new RenameMoveOrTrashFile(container);
+    this.updateFolder = new RenameMoveOrTrashFolder(container);
+    this.uploadOnRename = new UploadOnRename(container);
   }
 
   async execute(src: string, dest: string) {

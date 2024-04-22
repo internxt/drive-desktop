@@ -1,6 +1,8 @@
+import { Service } from 'diod';
 import { File } from '../domain/File';
 import { LocalFileSystem } from '../domain/file-systems/LocalFileSystem';
 
+@Service()
 export class FilesPlaceholderCreator {
   constructor(private readonly local: LocalFileSystem) {}
 

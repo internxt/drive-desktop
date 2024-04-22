@@ -1,7 +1,7 @@
 import { File } from '../File';
 
-export interface LocalFileSystem {
-  createPlaceHolder(file: File): Promise<void>;
+export abstract class LocalFileSystem {
+  abstract createPlaceHolder(file: File): Promise<void>;
 
-  getLocalFileId(file: File): Promise<`${string}-${string}`>;
+  abstract getLocalFileId(file: File): Promise<`${string}-${string}`>;
 }

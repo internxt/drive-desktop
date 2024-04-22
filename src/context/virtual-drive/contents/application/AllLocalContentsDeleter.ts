@@ -1,6 +1,8 @@
+import { Service } from 'diod';
 import { LocalFileSystem } from '../domain/LocalFileSystem';
 import Logger from 'electron-log';
 
+@Service()
 export class AllLocalContentsDeleter {
   constructor(private readonly localFileSystem: LocalFileSystem) {}
 

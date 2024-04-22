@@ -1,9 +1,11 @@
 /* eslint-disable no-await-in-loop */
-import { OfflineContentsRepository } from '../domain/OfflineContentsRepository';
-import { OfflineFile } from '../../files/domain/OfflineFile';
+import { Service } from 'diod';
 import fs from 'fs';
+import { OfflineFile } from '../../files/domain/OfflineFile';
+import { OfflineContentsRepository } from '../domain/OfflineContentsRepository';
 import { NodeFSOfflineContentsRepository } from '../infrastructure/NodeFSOfflineContentsRepository';
 
+@Service()
 export class OfflineContentsByteByByteComparator {
   private static readonly BUFFER_SIZE = 64 * 1024; // 64KB;
 

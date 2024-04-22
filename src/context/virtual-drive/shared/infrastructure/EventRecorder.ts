@@ -1,7 +1,7 @@
 import { DomainEvent } from '../../../shared/domain/DomainEvent';
+import { DomainEventSubscriber } from '../../../shared/domain/DomainEventSubscriber';
 import { EventBus } from '../domain/EventBus';
 import { EventRepository } from '../domain/EventRepository';
-import { SyncEngineDomainEventSubscribers } from '../../../../apps/sync-engine/dependency-injection/SyncEngineDomainEventSubscribers';
 
 export class EventRecorder implements EventBus {
   constructor(
@@ -16,7 +16,11 @@ export class EventRecorder implements EventBus {
     await this.bus.publish(events);
   }
 
-  addSubscribers(subscribers: SyncEngineDomainEventSubscribers): void {
+  addSubscribers(subscribers: Array<DomainEventSubscriber<DomainEvent>>): void {
     this.bus.addSubscribers(subscribers);
+  }
+
+  instance() {
+    return this;
   }
 }

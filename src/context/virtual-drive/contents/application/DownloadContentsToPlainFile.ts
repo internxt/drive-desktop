@@ -1,3 +1,5 @@
+import { Service } from 'diod';
+import Logger from 'electron-log';
 import { DownloadProgressTracker } from '../../../shared/domain/DownloadProgressTracker';
 import { File } from '../../files/domain/File';
 import { EventBus } from '../../shared/domain/EventBus';
@@ -6,9 +8,9 @@ import { ContentsManagersFactory } from '../domain/ContentsManagersFactory';
 import { LocalFileContents } from '../domain/LocalFileContents';
 import { LocalFileSystem } from '../domain/LocalFileSystem';
 import { ContentFileDownloader } from '../domain/contentHandlers/ContentFileDownloader';
-import Logger from 'electron-log';
 import { ContentsAccededDomainEvent } from '../domain/events/ContentsAccededDomainEvent';
 
+@Service()
 export class DownloadContentsToPlainFile {
   constructor(
     private readonly managerFactory: ContentsManagersFactory,

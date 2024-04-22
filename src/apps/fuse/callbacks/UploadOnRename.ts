@@ -1,21 +1,22 @@
-import { OfflineDriveDependencyContainer } from '../dependency-injection/offline/OfflineDriveDependencyContainer';
-import { VirtualDriveDependencyContainer } from '../dependency-injection/virtual-drive/VirtualDriveDependencyContainer';
 import { FileStatuses } from '../../../context/virtual-drive/files/domain/FileStatus';
 import { Either, right } from '../../../context/shared/domain/Either';
 import { FuseError } from './FuseErrors';
 import Logger from 'electron-log';
 import { File } from '../../../context/virtual-drive/files/domain/File';
 import { OfflineFile } from '../../../context/offline-drive/files/domain/OfflineFile';
+import { Container } from 'diod';
+import { FirstsFileSearcher } from '../../../context/virtual-drive/files/application/FirstsFileSearcher';
+import { RelativePathToAbsoluteConverter } from '../../../context/virtual-drive/shared/application/RelativePathToAbsoluteConverter';
+import { OfflineContentsByteByByteComparator } from '../../../context/offline-drive/contents/application/OfflineContentsByteByByteComparator';
+import { OfflineContentsUploader } from '../../../context/offline-drive/contents/application/OfflineContentsUploader';
+import { OfflineFileSearcher } from '../../../context/offline-drive/files/application/OfflineFileSearcher';
 
 type Result = 'no-op' | 'success';
 
 export class UploadOnRename {
   private static readonly NO_OP: Result = 'no-op';
   private static readonly SUCCESS: Result = 'success';
-  constructor(
-    private readonly offline: OfflineDriveDependencyContainer,
-    private readonly virtual: VirtualDriveDependencyContainer
-  ) {}
+  constructor(private readonly container: Container) {}
 
   private async differs(virtual: File, offline: OfflineFile): Promise<boolean> {
     if (virtual.size !== offline.size.value) {
@@ -23,15 +24,13 @@ export class UploadOnRename {
     }
 
     try {
-      const filePath = this.virtual.relativePathToAbsoluteConverter.run(
-        virtual.contentsId
-      );
+      const filePath = this.container
+        .get(RelativePathToAbsoluteConverter)
+        .run(virtual.contentsId);
 
-      const areEqual =
-        await this.offline.offlineContentsByteByByteComparator.run(
-          filePath,
-          offline
-        );
+      const areEqual = await this.container
+        .get(OfflineContentsByteByByteComparator)
+        .run(filePath, offline);
 
       Logger.info(`Contents of <${virtual.path}> did not change`);
 
@@ -44,7 +43,7 @@ export class UploadOnRename {
   }
 
   async run(src: string, dest: string): Promise<Either<FuseError, Result>> {
-    const fileToOverride = await this.virtual.filesSearcher.run({
+    const fileToOverride = await this.container.get(FirstsFileSearcher).run({
       path: dest,
       status: FileStatuses.EXISTS,
     });
@@ -54,7 +53,7 @@ export class UploadOnRename {
       return right(UploadOnRename.NO_OP);
     }
 
-    const offlineFile = await this.offline.offlineFileSearcher.run({
+    const offlineFile = await this.container.get(OfflineFileSearcher).run({
       path: src,
     });
 
@@ -69,15 +68,13 @@ export class UploadOnRename {
       return right(UploadOnRename.SUCCESS);
     }
 
-    await this.offline.offlineContentsUploader.run(
-      offlineFile.id,
-      offlineFile.path,
-      {
+    await this.container
+      .get(OfflineContentsUploader)
+      .run(offlineFile.id, offlineFile.path, {
         contentsId: fileToOverride.contentsId,
         name: fileToOverride.name,
         extension: fileToOverride.type,
-      }
-    );
+      });
 
     return right(UploadOnRename.SUCCESS);
   }

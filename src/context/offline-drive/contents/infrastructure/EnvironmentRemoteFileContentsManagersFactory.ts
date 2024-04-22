@@ -1,14 +1,16 @@
 import { Environment } from '@internxt/inxt-js';
+import { Service } from 'diod';
+import Logger from 'electron-log';
+import { Readable } from 'stream';
+import { UploadProgressTracker } from '../../../shared/domain/UploadProgressTracker';
+import { OfflineContents } from '../domain/OfflineContents';
 import {
   OfflineContentUploader,
   OfflineContentsManagersFactory,
 } from '../domain/OfflineContentsManagersFactory';
 import { EnvironmentOfflineContentsUploader } from './EnvironmentOfflineContentsUploader';
-import { OfflineContents } from '../domain/OfflineContents';
-import { UploadProgressTracker } from '../../../shared/domain/UploadProgressTracker';
-import { Readable } from 'stream';
-import Logger from 'electron-log';
 
+@Service()
 export class EnvironmentOfflineContentsManagersFactory
   implements OfflineContentsManagersFactory
 {

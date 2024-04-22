@@ -1,11 +1,13 @@
+import { Service } from 'diod';
+import fs from 'fs/promises';
 // @ts-ignore this package can only be installed on win32, so in other platforms will give an ts-error
 import { VirtualDrive } from 'virtual-drive/dist';
 import { FileStatuses } from '../../files/domain/FileStatus';
+import { RelativePathToAbsoluteConverter } from '../../shared/application/RelativePathToAbsoluteConverter';
 import { File } from '../domain/File';
 import { LocalFileSystem } from '../domain/file-systems/LocalFileSystem';
-import { RelativePathToAbsoluteConverter } from '../../shared/application/RelativePathToAbsoluteConverter';
-import fs from 'fs/promises';
 
+@Service()
 export class NodeWinLocalFileSystem implements LocalFileSystem {
   constructor(
     private readonly virtualDrive: VirtualDrive,

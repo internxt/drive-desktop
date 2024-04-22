@@ -1,3 +1,3 @@
 if (process.platform === 'linux') {
-  import('../fuse/index');
+  import('../drive/index');
 }

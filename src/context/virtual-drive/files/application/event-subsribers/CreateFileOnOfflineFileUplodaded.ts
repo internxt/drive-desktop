@@ -1,3 +1,4 @@
+import { Service } from 'diod';
 import Logger from 'electron-log';
 import { OfflineContentsUploadedDomainEvent } from '../../../../offline-drive/contents/domain/events/OfflineContentsUploadedDomainEvent';
 import { DomainEventClass } from '../../../../shared/domain/DomainEvent';
@@ -5,6 +6,7 @@ import { DomainEventSubscriber } from '../../../../shared/domain/DomainEventSubs
 import { FileCreator } from '../FileCreator';
 import { FileOverrider } from '../override/FileOverrider';
 
+@Service()
 export class CreateFileOnOfflineFileUploaded
   implements DomainEventSubscriber<OfflineContentsUploadedDomainEvent>
 {

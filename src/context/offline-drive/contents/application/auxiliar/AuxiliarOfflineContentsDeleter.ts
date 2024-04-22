@@ -1,7 +1,9 @@
+import { Service } from 'diod';
 import { OfflineFile } from '../../../files/domain/OfflineFile';
 import { OfflineContentsRepository } from '../../domain/OfflineContentsRepository';
 import Logger from 'electron-log';
 
+@Service()
 export class AuxiliarOfflineContentsDeleter {
   constructor(private readonly repository: OfflineContentsRepository) {}
 

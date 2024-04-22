@@ -1,11 +1,13 @@
+import { Service } from 'diod';
 import { ContentFileDownloader } from './contentHandlers/ContentFileDownloader';
 import { ContentFileUploader } from './contentHandlers/ContentFileUploader';
 import { LocalFileContents } from './LocalFileContents';
 
-export interface ContentsManagersFactory {
-  downloader(): ContentFileDownloader;
+@Service()
+export abstract class ContentsManagersFactory {
+  abstract downloader(): ContentFileDownloader;
 
-  uploader(
+  abstract uploader(
     contents: LocalFileContents,
     abortSignal?: AbortSignal
   ): ContentFileUploader;

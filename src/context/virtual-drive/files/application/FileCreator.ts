@@ -1,19 +1,22 @@
-import { FilePath } from '../domain/FilePath';
-import { File } from '../domain/File';
-import { FileSize } from '../domain/FileSize';
-import { EventBus } from '../../shared/domain/EventBus';
-import { FileDeleter } from './FileDeleter';
+import { Service } from 'diod';
+import Logger from 'electron-log';
+import { basename } from 'path';
+import { DriveDesktopError } from '../../../shared/domain/errors/DriveDesktopError';
+import { ContentsId } from '../../contents/domain/ContentsId';
+import { ParentFolderFinder } from '../../folders/application/ParentFolderFinder';
 import { PlatformPathConverter } from '../../shared/application/PlatformPathConverter';
+import { EventBus } from '../../shared/domain/EventBus';
+import { File } from '../domain/File';
+import { FilePath } from '../domain/FilePath';
 import { FileRepository } from '../domain/FileRepository';
-import { RemoteFileSystem } from '../domain/file-systems/RemoteFileSystem';
+import { FileSize } from '../domain/FileSize';
+import { FileStatuses } from '../domain/FileStatus';
 import { OfflineFile } from '../domain/OfflineFile';
 import { SyncFileMessenger } from '../domain/SyncFileMessenger';
-import { FileStatuses } from '../domain/FileStatus';
-import { DriveDesktopError } from '../../../shared/domain/errors/DriveDesktopError';
-import Logger from 'electron-log';
-import { ParentFolderFinder } from '../../folders/application/ParentFolderFinder';
-import { ContentsId } from '../../contents/domain/ContentsId';
-import { basename } from 'path';
+import { RemoteFileSystem } from '../domain/file-systems/RemoteFileSystem';
+import { FileDeleter } from './FileDeleter';
+
+@Service()
 export class FileCreator {
   constructor(
     private readonly remote: RemoteFileSystem,

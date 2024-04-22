@@ -1,6 +1,8 @@
+import { Service } from 'diod';
 import { OfflineFile, OfflineFileAttributes } from '../domain/OfflineFile';
 import { OfflineFileRepository } from '../domain/OfflineFileRepository';
 
+@Service()
 export class InMemoryOfflineFileRepository implements OfflineFileRepository {
   private readonly files = new Map<string, OfflineFileAttributes>();
 
@@ -16,8 +18,6 @@ export class InMemoryOfflineFileRepository implements OfflineFileRepository {
     >;
 
     const values = Array.from(this.files.values());
-
-    // Logger.debug(values);
 
     const file = values.find((attributes) => {
       return keys.every(

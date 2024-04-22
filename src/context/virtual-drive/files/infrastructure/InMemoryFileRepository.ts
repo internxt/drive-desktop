@@ -1,7 +1,9 @@
 import { File, FileAttributes } from '../domain/File';
 import { FileRepository } from '../domain/FileRepository';
 import { FileNotFoundError } from '../domain/errors/FileNotFoundError';
+import { Service } from 'diod';
 
+@Service()
 export class InMemoryFileRepository implements FileRepository {
   private filesByUuid: Map<File['uuid'], FileAttributes>;
   private filesByContentsId: Map<File['contentsId'], FileAttributes>;
@@ -10,18 +12,9 @@ export class InMemoryFileRepository implements FileRepository {
     return Array.from(this.filesByUuid.values());
   }
 
-  constructor(files?: Array<File>) {
+  constructor() {
     this.filesByUuid = new Map();
     this.filesByContentsId = new Map();
-
-    if (files) {
-      files.forEach((file) => {
-        const attributes = file.attributes();
-
-        this.filesByUuid.set(file.uuid, attributes);
-        this.filesByContentsId.set(file.contentsId, attributes);
-      });
-    }
   }
 
   async searchByUuid(uuid: File['uuid']): Promise<File | undefined> {

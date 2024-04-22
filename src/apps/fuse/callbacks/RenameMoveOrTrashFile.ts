@@ -1,12 +1,16 @@
+import { Container } from 'diod';
 import path from 'path';
-import { FilePath } from '../../../context/virtual-drive/files/domain/FilePath';
-import { VirtualDriveDependencyContainer } from '../dependency-injection/virtual-drive/VirtualDriveDependencyContainer';
-import { DriveDesktopError } from '../../../context/shared/domain/errors/DriveDesktopError';
-import { SyncErrorCause } from '../../../shared/issues/SyncErrorCause';
 import { Either, left, right } from '../../../context/shared/domain/Either';
-import { FuseError, FuseUnknownError } from './FuseErrors';
-import { FileStatuses } from '../../../context/virtual-drive/files/domain/FileStatus';
+import { DriveDesktopError } from '../../../context/shared/domain/errors/DriveDesktopError';
+import { FileDeleter } from '../../../context/virtual-drive/files/application/FileDeleter';
+import { FilePathUpdater } from '../../../context/virtual-drive/files/application/FilePathUpdater';
+import { FirstsFileSearcher } from '../../../context/virtual-drive/files/application/FirstsFileSearcher';
 import { File } from '../../../context/virtual-drive/files/domain/File';
+import { FilePath } from '../../../context/virtual-drive/files/domain/FilePath';
+import { FileStatuses } from '../../../context/virtual-drive/files/domain/FileStatus';
+import { SyncFileMessenger } from '../../../context/virtual-drive/files/domain/SyncFileMessenger';
+import { SyncErrorCause } from '../../../shared/issues/SyncErrorCause';
+import { FuseError, FuseUnknownError } from './FuseErrors';
 
 type RenameOrMoveRight = 'no-op' | 'success';
 
@@ -14,17 +18,17 @@ export class RenameMoveOrTrashFile {
   private static readonly NO_OP: RenameOrMoveRight = 'no-op';
   private static readonly SUCCESS: RenameOrMoveRight = 'success';
 
-  constructor(private readonly container: VirtualDriveDependencyContainer) {}
+  constructor(private readonly container: Container) {}
 
   private async trash(file: File): Promise<FuseError | undefined> {
     try {
-      await this.container.fileDeleter.run(file.contentsId);
+      await this.container.get(FileDeleter).run(file.contentsId);
       return undefined;
     } catch (trowed: unknown) {
       const cause: SyncErrorCause =
         trowed instanceof DriveDesktopError ? trowed.syncErrorCause : 'UNKNOWN';
 
-      await this.container.syncFileMessenger.issues({
+      await this.container.get(SyncFileMessenger).issues({
         error: 'DELETE_ERROR',
         cause,
         name: file.name,
@@ -42,7 +46,7 @@ export class RenameMoveOrTrashFile {
     src: string,
     dest: string
   ): Promise<Either<FuseError, RenameOrMoveRight>> {
-    const file = await this.container.filesSearcher.run({
+    const file = await this.container.get(FirstsFileSearcher).run({
       path: src,
       status: FileStatuses.EXISTS,
     });
@@ -59,30 +63,27 @@ export class RenameMoveOrTrashFile {
       }
 
       return left(error);
-    } else {
     }
 
     try {
       const desiredPath = new FilePath(dest);
 
-      await this.container.syncFileMessenger.renaming(
-        file.nameWithExtension,
-        desiredPath.nameWithExtension()
-      );
+      await this.container
+        .get(SyncFileMessenger)
+        .renaming(file.nameWithExtension, desiredPath.nameWithExtension());
 
-      await this.container.filePathUpdater.run(file.contentsId, dest);
+      await this.container.get(FilePathUpdater).run(file.contentsId, dest);
 
-      await this.container.syncFileMessenger.renamed(
-        file.nameWithExtension,
-        desiredPath.nameWithExtension()
-      );
+      await this.container
+        .get(SyncFileMessenger)
+        .renamed(file.nameWithExtension, desiredPath.nameWithExtension());
 
       return right(RenameMoveOrTrashFile.SUCCESS);
     } catch (trowed: unknown) {
       const cause: SyncErrorCause =
         trowed instanceof DriveDesktopError ? trowed.syncErrorCause : 'UNKNOWN';
 
-      await this.container.syncFileMessenger.issues({
+      await this.container.get(SyncFileMessenger).issues({
         error: 'RENAME_ERROR',
         cause,
         name: path.basename(src),

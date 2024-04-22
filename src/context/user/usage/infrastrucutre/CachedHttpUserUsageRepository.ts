@@ -3,7 +3,9 @@ import { Axios } from 'axios';
 import { UserUsage } from '../domain/UserUsage';
 import { UserUsageRepository } from '../domain/UserUsageRepository';
 import { UserUsageLimitDTO } from './dtos/UserUsageLimitDTO';
+import { Service } from 'diod';
 
+@Service()
 export class CachedHttpUserUsageRepository implements UserUsageRepository {
   private cachedUserUsage: UserUsage | undefined;
 

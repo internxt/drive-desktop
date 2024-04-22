@@ -1,13 +1,13 @@
 import { OfflineFile, OfflineFileAttributes } from './OfflineFile';
 
-export interface OfflineFileRepository {
-  save(file: OfflineFile): Promise<void>;
+export abstract class OfflineFileRepository {
+  abstract save(file: OfflineFile): Promise<void>;
 
-  searchByPartial(
+  abstract searchByPartial(
     partial: Partial<OfflineFileAttributes>
   ): Promise<OfflineFile | undefined>;
 
-  delete(id: OfflineFile['id']): Promise<void>;
+  abstract delete(id: OfflineFile['id']): Promise<void>;
 
-  all(): Promise<Array<OfflineFile>>;
+  abstract all(): Promise<Array<OfflineFile>>;
 }

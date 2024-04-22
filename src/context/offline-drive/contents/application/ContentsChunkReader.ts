@@ -1,6 +1,8 @@
+import { Service } from 'diod';
 import { Optional } from '../../../../shared/types/Optional';
 import { OfflineContentsRepository } from '../domain/OfflineContentsRepository';
 
+@Service()
 export class ContentsChunkReader {
   constructor(private readonly repository: OfflineContentsRepository) {}
 

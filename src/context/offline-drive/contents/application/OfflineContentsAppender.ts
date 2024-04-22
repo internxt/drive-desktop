@@ -1,8 +1,10 @@
+import { Service } from 'diod';
 import { OfflineFileFinder } from '../../files/application/OfflineFileFinder';
 import { OfflineFileSizeIncreaser } from '../../files/application/OfflineFileSizeIncreaser';
 import { OfflineContentsRepository } from '../domain/OfflineContentsRepository';
 import { OfflineContentsIOError } from '../domain/errors/IOError';
 
+@Service()
 export class OfflineContentsAppender {
   constructor(
     private readonly offlineFileFinder: OfflineFileFinder,

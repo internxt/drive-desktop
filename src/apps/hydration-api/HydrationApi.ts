@@ -1,9 +1,8 @@
 import Logger from 'electron-log';
 import express, { Router } from 'express';
-import { DependencyContainerFactory } from './dependency-injection/DependencyContainerFactory';
 import { buildContentsRouter } from './routes/contents';
 import { buildFilesRouter } from './routes/files';
-
+import { Container } from 'diod';
 export interface HydrationApiOptions {
   debug: boolean;
 }
@@ -12,17 +11,14 @@ export class HydrationApi {
   private static readonly PORT = 4567;
   private readonly app;
 
-  constructor() {
+  constructor(private readonly container: Container) {
     this.app = express();
   }
 
   private async buildRouters() {
-    const containerFactory = new DependencyContainerFactory();
-    const container = await containerFactory.build();
-
     const routers = {
-      contents: buildContentsRouter(container),
-      files: buildFilesRouter(container),
+      contents: buildContentsRouter(this.container),
+      files: buildFilesRouter(this.container),
     };
 
     return routers;

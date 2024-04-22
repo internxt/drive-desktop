@@ -1,13 +1,15 @@
+import { Service } from 'diod';
+import Logger from 'electron-log';
+import { EventRepository } from '../../shared/domain/EventRepository';
 import { Folder } from '../domain/Folder';
+import { FolderPath } from '../domain/FolderPath';
+import { FolderRepository } from '../domain/FolderRepository';
 import { OfflineFolderRepository } from '../domain/OfflineFolderRepository';
 import { FolderNotFoundError } from '../domain/errors/FolderNotFoundError';
 import { FolderRenamedDomainEvent } from '../domain/events/FolderRenamedDomainEvent';
 import { FolderRenamer } from './FolderRenamer';
-import Logger from 'electron-log';
-import { FolderRepository } from '../domain/FolderRepository';
-import { EventRepository } from '../../shared/domain/EventRepository';
-import { FolderPath } from '../domain/FolderPath';
 
+@Service()
 export class SynchronizeOfflineModifications {
   constructor(
     private readonly offlineRepository: OfflineFolderRepository,

@@ -1,22 +1,23 @@
-import { VirtualDriveDependencyContainer } from '../dependency-injection/virtual-drive/VirtualDriveDependencyContainer';
+import { Container } from 'diod';
 import Logger from 'electron-log';
+import { OfflineFileSearcher } from '../../../context/offline-drive/files/application/OfflineFileSearcher';
+import { DownloadContentsToPlainFile } from '../../../context/virtual-drive/contents/application/DownloadContentsToPlainFile';
+import { FirstsFileSearcher } from '../../../context/virtual-drive/files/application/FirstsFileSearcher';
 import { FuseCallback } from './FuseCallback';
 import { FuseIOError, FuseNoSuchFileOrDirectoryError } from './FuseErrors';
-import { OfflineDriveDependencyContainer } from '../dependency-injection/offline/OfflineDriveDependencyContainer';
 
 export class OpenCallback extends FuseCallback<number> {
-  constructor(
-    private readonly virtual: VirtualDriveDependencyContainer,
-    private readonly offline: OfflineDriveDependencyContainer
-  ) {
+  constructor(private readonly container: Container) {
     super('Open');
   }
 
   async execute(path: string, _flags: Array<any>) {
-    const virtual = await this.virtual.filesSearcher.run({ path });
+    const virtual = await this.container.get(FirstsFileSearcher).run({ path });
 
     if (!virtual) {
-      const offline = await this.offline.offlineFileSearcher.run({ path });
+      const offline = await this.container
+        .get(OfflineFileSearcher)
+        .run({ path });
       if (offline) {
         return this.right(0);
       }
@@ -24,7 +25,7 @@ export class OpenCallback extends FuseCallback<number> {
     }
 
     try {
-      await this.virtual.downloadContentsToPlainFile.run(virtual);
+      await this.container.get(DownloadContentsToPlainFile).run(virtual);
 
       return this.right(0);
     } catch (err: unknown) {

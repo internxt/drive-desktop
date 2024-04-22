@@ -1,9 +1,11 @@
+import { Container } from 'diod';
 import { Either, left } from '../../../context/shared/domain/Either';
 import { FileStatuses } from '../../../context/virtual-drive/files/domain/FileStatus';
-import { OfflineDriveDependencyContainer } from '../dependency-injection/offline/OfflineDriveDependencyContainer';
-import { VirtualDriveDependencyContainer } from '../dependency-injection/virtual-drive/VirtualDriveDependencyContainer';
 import { FuseCallback } from './FuseCallback';
 import { FuseError, FuseNoSuchFileOrDirectoryError } from './FuseErrors';
+import { FirstsFileSearcher } from '../../../context/virtual-drive/files/application/FirstsFileSearcher';
+import { SingleFolderMatchingSearcher } from '../../../context/virtual-drive/folders/application/SingleFolderMatchingSearcher';
+import { OfflineFileSearcher } from '../../../context/offline-drive/files/application/OfflineFileSearcher';
 
 type GetAttributesCallbackData = {
   mode: number;
@@ -19,10 +21,7 @@ export class GetAttributesCallback extends FuseCallback<GetAttributesCallbackDat
   private static readonly FILE = 33188;
   private static readonly FOLDER = 16877;
 
-  constructor(
-    private readonly virtualDriveContainer: VirtualDriveDependencyContainer,
-    private readonly offlineDriveContainer: OfflineDriveDependencyContainer
-  ) {
+  constructor(private readonly container: Container) {
     super('Get Attributes');
   }
 
@@ -47,7 +46,7 @@ export class GetAttributesCallback extends FuseCallback<GetAttributesCallbackDat
       });
     }
 
-    const file = await this.virtualDriveContainer.filesSearcher.run({
+    const file = await this.container.get(FirstsFileSearcher).run({
       path,
       status: FileStatuses.EXISTS,
     });
@@ -64,10 +63,9 @@ export class GetAttributesCallback extends FuseCallback<GetAttributesCallbackDat
       });
     }
 
-    const folder =
-      await this.virtualDriveContainer.singleFolderMatchingSearcher.run({
-        path,
-      });
+    const folder = await this.container.get(SingleFolderMatchingSearcher).run({
+      path,
+    });
 
     if (folder) {
       return this.right({
@@ -81,8 +79,9 @@ export class GetAttributesCallback extends FuseCallback<GetAttributesCallbackDat
       });
     }
 
-    const offlineFile =
-      await this.offlineDriveContainer.offlineFileSearcher.run({ path });
+    const offlineFile = await this.container
+      .get(OfflineFileSearcher)
+      .run({ path });
 
     if (offlineFile) {
       return this.right({

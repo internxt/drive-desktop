@@ -11,16 +11,16 @@ export type FolderPersistedDto = {
   createdAt: string;
 };
 
-export interface RemoteFileSystem {
-  persist(
+export abstract class RemoteFileSystem {
+  abstract persist(
     path: FolderPath,
     parentId: FolderId,
     uuid?: FolderUuid
   ): Promise<FolderPersistedDto>;
 
-  trash(id: Folder['id']): Promise<void>;
+  abstract trash(id: Folder['id']): Promise<void>;
 
-  move(folder: Folder): Promise<void>;
+  abstract move(folder: Folder): Promise<void>;
 
-  rename(folder: Folder): Promise<void>;
+  abstract rename(folder: Folder): Promise<void>;
 }

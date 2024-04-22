@@ -1,10 +1,11 @@
+import { Service } from 'diod';
+import Logger from 'electron-log';
+import { FilePath } from '../../../virtual-drive/files/domain/FilePath';
 import { EventBus } from '../../../virtual-drive/shared/domain/EventBus';
 import { OfflineContentsManagersFactory } from '../domain/OfflineContentsManagersFactory';
+import { OfflineContentsName } from '../domain/OfflineContentsName';
 import { OfflineContentsRepository } from '../domain/OfflineContentsRepository';
 import { OfflineContentsUploadedDomainEvent } from '../domain/events/OfflineContentsUploadedDomainEvent';
-import { FilePath } from '../../../virtual-drive/files/domain/FilePath';
-import { OfflineContentsName } from '../domain/OfflineContentsName';
-import Logger from 'electron-log';
 
 interface Replaces {
   contentsId: string;
@@ -12,6 +13,7 @@ interface Replaces {
   extension: string;
 }
 
+@Service()
 export class OfflineContentsUploader {
   constructor(
     private readonly repository: OfflineContentsRepository,

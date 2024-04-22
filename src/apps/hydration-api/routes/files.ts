@@ -1,8 +1,8 @@
 import express, { Router } from 'express';
 import { buildFilesControllers } from '../controllers/files';
-import { DependencyContainer } from '../dependency-injection/DependencyContainer';
+import { Container } from 'diod';
 
-export function buildFilesRouter(container: DependencyContainer): Router {
+export function buildFilesRouter(container: Container): Router {
   const controllers = buildFilesControllers(container);
   const router = express.Router();
 

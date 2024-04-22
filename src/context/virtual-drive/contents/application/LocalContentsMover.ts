@@ -1,7 +1,9 @@
+import { Service } from 'diod';
 import { ContentsId } from '../domain/ContentsId';
 import { LocalFileSystem } from '../domain/LocalFileSystem';
 import Logger from 'electron-log';
 
+@Service()
 export class LocalContentsMover {
   constructor(private readonly fileSystem: LocalFileSystem) {}
 

@@ -1,7 +1,9 @@
+import { Service } from 'diod';
 import { File, FileAttributes } from '../domain/File';
 import { FileRepository } from '../domain/FileRepository';
 import { OnlyOneFileExpectedError } from '../domain/errors/OnlyOneFileExpectedError';
 
+@Service()
 export class SingleFileMatchingSearcher {
   constructor(private readonly repository: FileRepository) {}
 

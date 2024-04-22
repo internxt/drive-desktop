@@ -1,6 +1,8 @@
+import { Service } from 'diod';
 import { OfflineContentsCreator } from '../../contents/application/OfflineContentsCreator';
 import { OfflineFileCreator } from '../../files/application/OfflineFileCreator';
 
+@Service()
 export class OfflineFileAndContentsCreator {
   constructor(
     private readonly offlineFileCreator: OfflineFileCreator,

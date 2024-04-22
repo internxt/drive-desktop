@@ -1,12 +1,14 @@
+import { Service } from 'diod';
 import Logger from 'electron-log';
 import { Folder } from '../domain/Folder';
+import { FolderRepository } from '../domain/FolderRepository';
 import { ActionNotPermittedError } from '../domain/errors/ActionNotPermittedError';
 import { FolderNotFoundError } from '../domain/errors/FolderNotFoundError';
-import { AllParentFoldersStatusIsExists } from './AllParentFoldersStatusIsExists';
-import { FolderRepository } from '../domain/FolderRepository';
-import { RemoteFileSystem } from '../domain/file-systems/RemoteFileSystem';
 import { LocalFileSystem } from '../domain/file-systems/LocalFileSystem';
+import { RemoteFileSystem } from '../domain/file-systems/RemoteFileSystem';
+import { AllParentFoldersStatusIsExists } from './AllParentFoldersStatusIsExists';
 
+@Service()
 export class FolderDeleter {
   constructor(
     private readonly repository: FolderRepository,

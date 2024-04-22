@@ -1,3 +1,4 @@
+import { Service } from 'diod';
 import Logger from 'electron-log';
 import { ParentFolderFinder } from '../../folders/application/ParentFolderFinder';
 import { EventBus } from '../../shared/domain/EventBus';
@@ -14,6 +15,7 @@ import { LocalFileSystem } from '../domain/file-systems/LocalFileSystem';
 import { RemoteFileSystem } from '../domain/file-systems/RemoteFileSystem';
 import { SingleFileMatchingSearcher } from './SingleFileMatchingSearcher';
 
+@Service()
 export class FilePathUpdater {
   constructor(
     private readonly remote: RemoteFileSystem,

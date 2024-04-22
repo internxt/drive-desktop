@@ -1,14 +1,14 @@
 import { File, FileAttributes } from '../File';
 import { OfflineFile } from '../OfflineFile';
 
-export interface RemoteFileSystem {
-  persist(offline: OfflineFile): Promise<FileAttributes>;
+export abstract class RemoteFileSystem {
+  abstract persist(offline: OfflineFile): Promise<FileAttributes>;
 
-  trash(contentsId: File['contentsId']): Promise<void>;
+  abstract trash(contentsId: File['contentsId']): Promise<void>;
 
-  move(file: File): Promise<void>;
+  abstract move(file: File): Promise<void>;
 
-  rename(file: File): Promise<void>;
+  abstract rename(file: File): Promise<void>;
 
-  override(file: File): Promise<void>;
+  abstract override(file: File): Promise<void>;
 }

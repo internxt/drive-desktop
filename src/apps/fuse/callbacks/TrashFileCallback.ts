@@ -1,25 +1,26 @@
+import { Container } from 'diod';
+import { AuxiliarOfflineContentsDeleter } from '../../../context/offline-drive/contents/application/auxiliar/AuxiliarOfflineContentsDeleter';
+import { OfflineFileSearcher } from '../../../context/offline-drive/files/application/OfflineFileSearcher';
+import { TemporalOfflineDeleter } from '../../../context/offline-drive/files/application/TemporalOfflineDeleter';
+import { FileDeleter } from '../../../context/virtual-drive/files/application/FileDeleter';
+import { FirstsFileSearcher } from '../../../context/virtual-drive/files/application/FirstsFileSearcher';
 import { FileStatuses } from '../../../context/virtual-drive/files/domain/FileStatus';
-import { OfflineDriveDependencyContainer } from '../dependency-injection/offline/OfflineDriveDependencyContainer';
-import { VirtualDriveDependencyContainer } from '../dependency-injection/virtual-drive/VirtualDriveDependencyContainer';
 import { NotifyFuseCallback } from './FuseCallback';
 import { FuseIOError, FuseNoSuchFileOrDirectoryError } from './FuseErrors';
 
 export class TrashFileCallback extends NotifyFuseCallback {
-  constructor(
-    private readonly virtual: VirtualDriveDependencyContainer,
-    private readonly offline: OfflineDriveDependencyContainer
-  ) {
+  constructor(private readonly container: Container) {
     super('Trash file');
   }
 
   async execute(path: string) {
-    const file = await this.virtual.filesSearcher.run({
+    const file = await this.container.get(FirstsFileSearcher).run({
       path,
       status: FileStatuses.EXISTS,
     });
 
     if (!file) {
-      const offline = await this.offline.offlineFileSearcher.run({
+      const offline = await this.container.get(OfflineFileSearcher).run({
         path,
       });
 
@@ -28,15 +29,15 @@ export class TrashFileCallback extends NotifyFuseCallback {
       }
 
       if (offline.isAuxiliary()) {
-        await this.offline.auxiliarOfflineContentsDeleter.run(offline);
-        await this.offline.temporalOfflineDeleter.run(offline);
+        await this.container.get(AuxiliarOfflineContentsDeleter).run(offline);
+        await this.container.get(TemporalOfflineDeleter).run(offline);
       }
 
       return this.right();
     }
 
     try {
-      await this.virtual.fileDeleter.run(file.contentsId);
+      await this.container.get(FileDeleter).run(file.contentsId);
 
       return this.right();
     } catch {

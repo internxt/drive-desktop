@@ -1,9 +1,11 @@
+import { Service } from 'diod';
 import { FilePath } from '../../../virtual-drive/files/domain/FilePath';
 import { EventBus } from '../../../virtual-drive/shared/domain/EventBus';
 import { OfflineFile } from '../domain/OfflineFile';
 import { OfflineFileRepository } from '../domain/OfflineFileRepository';
 import { OfflineFileSize } from '../domain/OfflineFileSize';
 
+@Service()
 export class OfflineFileCreator {
   constructor(
     private readonly repository: OfflineFileRepository,

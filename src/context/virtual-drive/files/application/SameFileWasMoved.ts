@@ -1,3 +1,4 @@
+import { Service } from 'diod';
 import Logger from 'electron-log';
 import { EventRepository } from '../../shared/domain/EventRepository';
 import { FilePath } from '../domain/FilePath';
@@ -9,6 +10,7 @@ import { SingleFileMatchingSearcher } from './SingleFileMatchingSearcher';
 // TODO: find a better name
 type WasMovedResult = { result: false } | { result: true; contentsId: string };
 
+@Service()
 export class SameFileWasMoved {
   constructor(
     private readonly singleFileSearcher: SingleFileMatchingSearcher,

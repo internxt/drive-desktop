@@ -1,7 +1,9 @@
+import { Service } from 'diod';
 import { Folder, FolderAttributes } from '../domain/Folder';
 import { FolderRepository } from '../domain/FolderRepository';
 import { OnlyOneFolderExpectedError } from '../domain/errors/OnlyOneFolderExpectedError';
 
+@Service()
 export class SingleFolderMatchingSearcher {
   constructor(private readonly repository: FolderRepository) {}
 

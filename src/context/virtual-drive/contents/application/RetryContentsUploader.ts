@@ -1,9 +1,11 @@
+import { Service } from 'diod';
 import { RemoteFileContents } from '../domain/RemoteFileContents';
 import { ContentsUploader } from './ContentsUploader';
 import Logger from 'electron-log';
 
 // TODO: the retry logic should be on the infrastructure layer
 // change the uploader factory method to revive a function that returns the needed data
+@Service()
 export class RetryContentsUploader {
   private static NUMBER_OF_RETRIES = 2;
   private static MILLISECOND_BETWEEN_TRIES = 1_000;

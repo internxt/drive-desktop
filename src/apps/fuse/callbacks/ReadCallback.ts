@@ -1,16 +1,17 @@
+import { Container } from 'diod';
 import Logger from 'electron-log';
-import { VirtualDriveDependencyContainer } from '../dependency-injection/virtual-drive/VirtualDriveDependencyContainer';
-import { OfflineDriveDependencyContainer } from '../dependency-injection/offline/OfflineDriveDependencyContainer';
+import { ContentsChunkReader } from '../../../context/offline-drive/contents/application/ContentsChunkReader';
+import { AuxiliarOfflineContentsChucksReader } from '../../../context/offline-drive/contents/application/auxiliar/AuxiliarOfflineContentsChucksReader';
+import { OfflineFileSearcher } from '../../../context/offline-drive/files/application/OfflineFileSearcher';
+import { FirstsFileSearcher } from '../../../context/virtual-drive/files/application/FirstsFileSearcher';
+import { RelativePathToAbsoluteConverter } from '../../../context/virtual-drive/shared/application/RelativePathToAbsoluteConverter';
 import { Optional } from '../../../shared/types/Optional';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const fuse = require('@gcas/fuse');
 
 export class ReadCallback {
-  constructor(
-    private readonly virtualDrive: VirtualDriveDependencyContainer,
-    private readonly offlineDrive: OfflineDriveDependencyContainer
-  ) {}
+  constructor(private readonly container: Container) {}
 
   private async read(
     filePath: string,
@@ -18,11 +19,9 @@ export class ReadCallback {
     length: number,
     position: number
   ): Promise<number> {
-    const readResult = await this.offlineDrive.contentsChunkReader.run(
-      filePath,
-      length,
-      position
-    );
+    const readResult = await this.container
+      .get(ContentsChunkReader)
+      .run(filePath, length, position);
 
     if (!readResult.isPresent()) {
       return 0;
@@ -53,10 +52,12 @@ export class ReadCallback {
     pos: number,
     cb: (code: number, params?: any) => void
   ) {
-    const virtualFile = await this.virtualDrive.filesSearcher.run({ path });
+    const virtualFile = await this.container.get(FirstsFileSearcher).run({
+      path,
+    });
 
     if (!virtualFile) {
-      const offlineFile = await this.offlineDrive.offlineFileSearcher.run({
+      const offlineFile = await this.container.get(OfflineFileSearcher).run({
         path,
       });
 
@@ -66,12 +67,9 @@ export class ReadCallback {
         return;
       }
 
-      const chunk =
-        await this.offlineDrive.auxiliarOfflineContentsChucksReader.run(
-          offlineFile.id,
-          len,
-          pos
-        );
+      const chunk = await this.container
+        .get(AuxiliarOfflineContentsChucksReader)
+        .run(offlineFile.id, len, pos);
 
       const result = await this.copyToBuffer(buf, chunk);
 
@@ -79,9 +77,9 @@ export class ReadCallback {
       return;
     }
 
-    const filePath = this.virtualDrive.relativePathToAbsoluteConverter.run(
-      virtualFile.contentsId
-    );
+    const filePath = this.container
+      .get(RelativePathToAbsoluteConverter)
+      .run(virtualFile.contentsId);
 
     try {
       const bytesRead = await this.read(filePath, buf, len, pos);

@@ -1,3 +1,4 @@
+import { Service } from 'diod';
 import Logger from 'electron-log';
 import { createReadStream, promises as fs, watch } from 'fs';
 import path from 'path';
@@ -15,6 +16,7 @@ function extractNameAndExtension(nameWithExtension: string): [string, string] {
   return [name, extension];
 }
 
+@Service()
 export class FSLocalFileProvider implements LocalContentsProvider {
   private static readonly TIMEOUT_BUSY_CHECK = 10_000;
   private reading = new Map<string, AbortController>();

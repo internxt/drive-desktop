@@ -1,6 +1,8 @@
+import { Service } from 'diod';
 import { OfflineFileId } from '../domain/OfflineFileId';
 import { OfflineFileRepository } from '../domain/OfflineFileRepository';
 
+@Service()
 export class OfflineFileSizeIncreaser {
   constructor(private readonly repository: OfflineFileRepository) {}
 

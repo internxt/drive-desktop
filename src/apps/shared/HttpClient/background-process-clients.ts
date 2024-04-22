@@ -1,7 +1,6 @@
 import { ipcRenderer } from 'electron';
-
-import { AuthorizedClients } from './Clients';
 import { AuthorizedHttpClient } from './AuthorizedHttpClient';
+import { AuthorizedClients } from './Clients';
 
 export const onUserUnauthorized = () =>
   ipcRenderer.emit('user-is-unauthorized');

@@ -1,5 +1,7 @@
+import { Service } from 'diod';
 import { OfflineContentsRepository } from '../domain/OfflineContentsRepository';
 
+@Service()
 export class OfflineContentsCacheCleaner {
   constructor(private readonly repository: OfflineContentsRepository) {}
 

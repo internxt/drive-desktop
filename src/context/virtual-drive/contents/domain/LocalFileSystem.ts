@@ -1,22 +1,29 @@
-import { ContentsMetadata } from './ContentsMetadata';
+import { Service } from 'diod';
 import { ContentsId } from './ContentsId';
+import { ContentsMetadata } from './ContentsMetadata';
 import { LocalFileContents } from './LocalFileContents';
 
 type ResultFilePath = string;
 
-export interface LocalFileSystem {
-  write(contents: LocalFileContents, name?: string): Promise<ResultFilePath>;
+@Service()
+export abstract class LocalFileSystem {
+  abstract write(
+    contents: LocalFileContents,
+    name?: string
+  ): Promise<ResultFilePath>;
 
-  remove(contentsId: ContentsId): Promise<void>;
+  abstract remove(contentsId: ContentsId): Promise<void>;
 
-  exists(contentsId: ContentsId): Promise<boolean>;
+  abstract exists(contentsId: ContentsId): Promise<boolean>;
 
   /**
    * @return the FileMetadata of the file or undefined if does not exits
    */
-  metadata(contentsId: ContentsId): Promise<ContentsMetadata | undefined>;
+  abstract metadata(
+    contentsId: ContentsId
+  ): Promise<ContentsMetadata | undefined>;
 
-  add(contentsId: ContentsId, source: string): Promise<void>;
+  abstract add(contentsId: ContentsId, source: string): Promise<void>;
 
-  listExistentFiles(): Promise<Array<ContentsId>>;
+  abstract listExistentFiles(): Promise<Array<ContentsId>>;
 }

@@ -1,7 +1,8 @@
-import { OfflineDriveDependencyContainer } from '../dependency-injection/offline/OfflineDriveDependencyContainer';
+import { Container } from 'diod';
+import { OfflineContentsAppender } from '../../../context/offline-drive/contents/application/OfflineContentsAppender';
 
 export class WriteCallback {
-  constructor(private readonly container: OfflineDriveDependencyContainer) {}
+  constructor(private readonly container: Container) {}
 
   async execute(
     path: string,
@@ -11,7 +12,9 @@ export class WriteCallback {
     pos: number,
     cb: (a: number) => void
   ) {
-    await this.container.offlineContentsAppender.run(path, buffer, len, pos);
+    await this.container
+      .get(OfflineContentsAppender)
+      .run(path, buffer, len, pos);
 
     return cb(len);
   }

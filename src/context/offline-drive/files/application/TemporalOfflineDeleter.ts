@@ -1,6 +1,8 @@
+import { Service } from 'diod';
 import { OfflineFile } from '../domain/OfflineFile';
 import { OfflineFileRepository } from '../domain/OfflineFileRepository';
 
+@Service()
 export class TemporalOfflineDeleter {
   constructor(private readonly repository: OfflineFileRepository) {}
 

@@ -12,6 +12,7 @@ export type CallbackWithData<T> = (code: number, params?: T) => void;
 type DebugOptions = {
   input: boolean;
   output: boolean;
+  debug: boolean;
   elapsedTime: boolean;
 };
 
@@ -23,6 +24,7 @@ export abstract class FuseCallback<T> {
     protected readonly debug: Partial<DebugOptions> = {
       input: false,
       output: false,
+      debug: false,
       elapsedTime: false,
     }
   ) {}
@@ -76,6 +78,12 @@ export abstract class FuseCallback<T> {
 
     Logger.error(`${this.name} Error: Unknown.`);
     return left(new FuseUnknownError());
+  }
+
+  protected logDebugMessage(...message: Array<string>): void {
+    if (!this.debug) return;
+
+    Logger.debug(`${this.name}: `, ...message);
   }
 
   async handle(...params: any[]): Promise<void> {

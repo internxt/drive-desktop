@@ -1,9 +1,11 @@
+import { Container } from 'diod';
 import { basename } from 'path';
-import { VirtualDriveDependencyContainer } from '../dependency-injection/virtual-drive/VirtualDriveDependencyContainer';
+import { FolderCreator } from '../../../context/virtual-drive/folders/application/FolderCreator';
+import { SyncFolderMessenger } from '../../../context/virtual-drive/folders/domain/SyncFolderMessenger';
 import { NotifyFuseCallback } from './FuseCallback';
 
 export class MakeDirectoryCallback extends NotifyFuseCallback {
-  constructor(private readonly container: VirtualDriveDependencyContainer) {
+  constructor(private readonly container: Container) {
     super('Make Directory');
   }
 
@@ -13,15 +15,15 @@ export class MakeDirectoryCallback extends NotifyFuseCallback {
     }
 
     try {
-      await this.container.syncFolderMessenger.creating(path);
+      await this.container.get(SyncFolderMessenger).creating(path);
 
-      await this.container.folderCreator.run(path);
+      await this.container.get(FolderCreator).run(path);
 
-      await this.container.syncFolderMessenger.created(path);
+      await this.container.get(SyncFolderMessenger).created(path);
 
       return this.right();
     } catch (throwed: unknown) {
-      await this.container.syncFolderMessenger.issue({
+      await this.container.get(SyncFolderMessenger).issue({
         error: 'FOLDER_CREATE_ERROR',
         cause: 'UNKNOWN',
         name: basename(path),

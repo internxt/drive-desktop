@@ -1,8 +1,10 @@
+import { Service } from 'diod';
 import { SingleFolderMatchingFinder } from '../../folders/application/SingleFolderMatchingFinder';
 import { File } from '../domain/File';
 import { FileRepository } from '../domain/FileRepository';
 import { FileStatuses } from '../domain/FileStatus';
 
+@Service()
 export class FilesByFolderPathSearcher {
   constructor(
     private readonly repository: FileRepository,

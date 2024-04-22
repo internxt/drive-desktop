@@ -1,3 +1,4 @@
+import { Service } from 'diod';
 import { EventBus } from '../../shared/domain/EventBus';
 import { Folder } from '../domain/Folder';
 import { FolderCreatedAt } from '../domain/FolderCreatedAt';
@@ -11,6 +12,7 @@ import { FolderInPathAlreadyExistsError } from '../domain/errors/FolderInPathAlr
 import { RemoteFileSystem } from '../domain/file-systems/RemoteFileSystem';
 import { ParentFolderFinder } from './ParentFolderFinder';
 
+@Service()
 export class FolderCreator {
   constructor(
     private readonly repository: FolderRepository,

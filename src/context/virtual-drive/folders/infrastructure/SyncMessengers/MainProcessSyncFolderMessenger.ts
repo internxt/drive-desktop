@@ -4,7 +4,9 @@ import { setTrayStatus } from '../../../../../apps/main/tray/tray';
 import { virtualDriveUpdate } from '../../../../../apps/main/windows';
 import { VirtualDriveFolderIssue } from '../../../../../shared/issues/VirtualDriveIssue';
 import { SyncFolderMessenger } from '../../domain/SyncFolderMessenger';
+import { Service } from 'diod';
 
+@Service()
 export class MainProcessSyncFolderMessenger implements SyncFolderMessenger {
   async rename(name: string, newName: string): Promise<void> {
     setTrayStatus('SYNCING');

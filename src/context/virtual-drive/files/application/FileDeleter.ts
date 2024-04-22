@@ -1,4 +1,6 @@
+import { Service } from 'diod';
 import Logger from 'electron-log';
+import { DriveDesktopError } from '../../../shared/domain/errors/DriveDesktopError';
 import { AllParentFoldersStatusIsExists } from '../../folders/application/AllParentFoldersStatusIsExists';
 import { File } from '../domain/File';
 import { FileRepository } from '../domain/FileRepository';
@@ -6,8 +8,8 @@ import { FileStatuses } from '../domain/FileStatus';
 import { SyncFileMessenger } from '../domain/SyncFileMessenger';
 import { LocalFileSystem } from '../domain/file-systems/LocalFileSystem';
 import { RemoteFileSystem } from '../domain/file-systems/RemoteFileSystem';
-import { DriveDesktopError } from '../../../shared/domain/errors/DriveDesktopError';
 
+@Service()
 export class FileDeleter {
   constructor(
     private readonly remote: RemoteFileSystem,

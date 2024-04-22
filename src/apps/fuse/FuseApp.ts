@@ -10,10 +10,14 @@ import { TrashFileCallback } from './callbacks/TrashFileCallback';
 import { TrashFolderCallback } from './callbacks/TrashFolderCallback';
 import { WriteCallback } from './callbacks/WriteCallback';
 import { ReleaseCallback } from './callbacks/ReleaseCallback';
-import { FuseDependencyContainer } from './dependency-injection/FuseDependencyContainer';
 import { ensureFolderExists } from './../shared/fs/ensure-folder-exists';
 import { mountPromise, unmountPromise } from './helpers';
 import { FuseDriveStatus } from './FuseDriveStatus';
+import { Container } from 'diod';
+import { AllLocalContentsDeleter } from '../../context/virtual-drive/contents/application/AllLocalContentsDeleter';
+import { TreeBuilder } from '../../context/virtual-drive/tree/application/TreeBuilder';
+import { FolderRepositoryInitializer } from '../../context/virtual-drive/folders/application/FolderRepositoryInitializer';
+import { FileRepositoryInitializer } from '../../context/virtual-drive/files/application/FileRepositoryInitializer';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const fuse = require('@gcas/fuse');
@@ -24,7 +28,7 @@ export class FuseApp {
   private _fuse: any;
 
   constructor(
-    private readonly fuseContainer: FuseDependencyContainer,
+    private readonly container: Container,
     private readonly paths: {
       root: string;
       local: string;
@@ -32,42 +36,17 @@ export class FuseApp {
   ) {}
 
   private async getOpt() {
-    const readdir = new ReaddirCallback(
-      this.fuseContainer.virtualDriveContainer,
-      this.fuseContainer.offlineDriveContainer
-    );
-    const getattr = new GetAttributesCallback(
-      this.fuseContainer.virtualDriveContainer,
-      this.fuseContainer.offlineDriveContainer
-    );
-    const open = new OpenCallback(
-      this.fuseContainer.virtualDriveContainer,
-      this.fuseContainer.offlineDriveContainer
-    );
-    const read = new ReadCallback(
-      this.fuseContainer.virtualDriveContainer,
-      this.fuseContainer.offlineDriveContainer
-    );
-    const renameOrMove = new RenameOrMoveCallback(
-      this.fuseContainer.virtualDriveContainer,
-      this.fuseContainer.offlineDriveContainer
-    );
-    const create = new CreateCallback(this.fuseContainer.offlineDriveContainer);
-    const makeDirectory = new MakeDirectoryCallback(
-      this.fuseContainer.virtualDriveContainer
-    );
-    const trashFile = new TrashFileCallback(
-      this.fuseContainer.virtualDriveContainer,
-      this.fuseContainer.offlineDriveContainer
-    );
-    const trashFolder = new TrashFolderCallback(
-      this.fuseContainer.virtualDriveContainer
-    );
-    const write = new WriteCallback(this.fuseContainer.offlineDriveContainer);
-    const release = new ReleaseCallback(
-      this.fuseContainer.offlineDriveContainer,
-      this.fuseContainer.virtualDriveContainer
-    );
+    const readdir = new ReaddirCallback(this.container);
+    const getattr = new GetAttributesCallback(this.container);
+    const open = new OpenCallback(this.container);
+    const read = new ReadCallback(this.container);
+    const renameOrMove = new RenameOrMoveCallback(this.container);
+    const create = new CreateCallback(this.container);
+    const makeDirectory = new MakeDirectoryCallback(this.container);
+    const trashFile = new TrashFileCallback(this.container);
+    const trashFolder = new TrashFolderCallback(this.container);
+    const write = new WriteCallback(this.container);
+    const release = new ReleaseCallback(this.container);
 
     return {
       getattr: getattr.handle.bind(getattr),
@@ -118,21 +97,16 @@ export class FuseApp {
   }
 
   async clearCache(): Promise<void> {
-    await this.fuseContainer.virtualDriveContainer.allLocalContentsDeleter.run();
+    await this.container.get(AllLocalContentsDeleter).run();
   }
 
   async update(): Promise<void> {
     try {
-      const tree =
-        await this.fuseContainer.virtualDriveContainer.existingNodesTreeBuilder.run();
+      const tree = await this.container.get(TreeBuilder).run();
 
-      await this.fuseContainer.virtualDriveContainer.repositoryPopulator.run(
-        tree.files
-      );
+      await this.container.get(FileRepositoryInitializer).run(tree.files);
 
-      await this.fuseContainer.virtualDriveContainer.folderRepositoryInitiator.run(
-        tree.folders
-      );
+      await this.container.get(FolderRepositoryInitializer).run(tree.folders);
 
       Logger.info('[FUSE] Tree updated successfully');
     } catch (err) {

@@ -1,6 +1,8 @@
+import { Service } from 'diod';
 import { Folder } from '../domain/Folder';
 import { FolderRepository } from '../domain/FolderRepository';
 
+@Service()
 export class FolderRepositoryInitializer {
   constructor(private readonly repository: FolderRepository) {}
 

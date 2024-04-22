@@ -1,13 +1,15 @@
+import { Service } from 'diod';
+import fs from 'fs/promises';
+import path from 'path';
 import { ensureFolderExists } from '../../../../apps/shared/fs/ensure-folder-exists';
 import { WriteReadableToFile } from '../../../../apps/shared/fs/write-readable-to-file';
-import { LocalFileContents } from '../domain/LocalFileContents';
 import { LocalFileContentsDirectoryProvider } from '../../shared/domain/LocalFileContentsDirectoryProvider';
-import { LocalFileSystem } from '../domain/LocalFileSystem';
-import path from 'path';
-import fs from 'fs/promises';
 import { ContentsId } from '../domain/ContentsId';
 import { ContentsMetadata } from '../domain/ContentsMetadata';
+import { LocalFileContents } from '../domain/LocalFileContents';
+import { LocalFileSystem } from '../domain/LocalFileSystem';
 
+@Service()
 export class FSLocalFileSystem implements LocalFileSystem {
   constructor(
     private readonly locationProvider: LocalFileContentsDirectoryProvider,

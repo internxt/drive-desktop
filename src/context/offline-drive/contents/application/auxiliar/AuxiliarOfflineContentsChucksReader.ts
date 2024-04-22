@@ -1,8 +1,10 @@
+import { Service } from 'diod';
 import { Optional } from '../../../../../shared/types/Optional';
 import { OfflineFileId } from '../../../files/domain/OfflineFileId';
 import { OfflineContentsRepository } from '../../domain/OfflineContentsRepository';
 import Logger from 'electron-log';
 
+@Service()
 export class AuxiliarOfflineContentsChucksReader {
   constructor(private readonly repository: OfflineContentsRepository) {}
 

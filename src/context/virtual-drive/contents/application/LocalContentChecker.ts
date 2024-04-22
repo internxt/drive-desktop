@@ -1,7 +1,9 @@
+import { Service } from 'diod';
 import { File } from '../../files/domain/File';
 import { ContentsId } from '../domain/ContentsId';
 import { LocalFileSystem } from '../domain/LocalFileSystem';
 
+@Service()
 export class LocalContentChecker {
   constructor(private readonly local: LocalFileSystem) {}
 

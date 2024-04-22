@@ -1,7 +1,9 @@
 import { dirname } from 'path';
 import { OfflineFile } from '../domain/OfflineFile';
 import { OfflineFileRepository } from '../domain/OfflineFileRepository';
+import { Service } from 'diod';
 
+@Service()
 export class OfflineFilesByParentPathLister {
   constructor(private readonly repository: OfflineFileRepository) {}
 

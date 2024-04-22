@@ -1,5 +1,5 @@
 import { Folder } from '../Folder';
 
-export interface LocalFileSystem {
-  createPlaceHolder(folder: Folder): Promise<void>;
+export abstract class LocalFileSystem {
+  abstract createPlaceHolder(folder: Folder): Promise<void>;
 }

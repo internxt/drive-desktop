@@ -1,3 +1,4 @@
+import { Service } from 'diod';
 import Logger from 'electron-log';
 import fs from 'fs/promises';
 import { LocalFileIdProvider } from '../../shared/application/LocalFileIdProvider';
@@ -10,6 +11,7 @@ import { FileMovedDomainEvent } from '../domain/events/FileMovedDomainEvent';
 import { FileRenamedDomainEvent } from '../domain/events/FileRenamedDomainEvent';
 import { LocalFileSystem } from '../domain/file-systems/LocalFileSystem';
 
+@Service()
 export class FilesPlaceholderUpdater {
   constructor(
     private readonly repository: FileRepository,

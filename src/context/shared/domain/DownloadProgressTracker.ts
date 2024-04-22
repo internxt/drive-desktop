@@ -1,7 +1,11 @@
-export interface DownloadProgressTracker {
-  downloadStarted(name: string, extension: string, size: number): Promise<void>;
+export abstract class DownloadProgressTracker {
+  abstract downloadStarted(
+    name: string,
+    extension: string,
+    size: number
+  ): Promise<void>;
 
-  downloadUpdate(
+  abstract downloadUpdate(
     name: string,
     extension: string,
     progress: {
@@ -9,7 +13,7 @@ export interface DownloadProgressTracker {
       percentage: number;
     }
   ): Promise<void>;
-  downloadFinished(
+  abstract downloadFinished(
     name: string,
     extension: string,
     size: number,
@@ -17,5 +21,5 @@ export interface DownloadProgressTracker {
       elapsedTime: number;
     }
   ): Promise<void>;
-  error(name: string, extension: string): Promise<void>;
+  abstract error(name: string, extension: string): Promise<void>;
 }

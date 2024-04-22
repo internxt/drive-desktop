@@ -1,15 +1,17 @@
+import { Service } from 'diod';
 import { EventBus } from '../../shared/domain/EventBus';
 import { Folder } from '../domain/Folder';
 import { FolderCreatedAt } from '../domain/FolderCreatedAt';
 import { FolderId } from '../domain/FolderId';
 import { FolderPath } from '../domain/FolderPath';
 import { FolderRepository } from '../domain/FolderRepository';
-import { SyncFolderMessenger } from '../domain/SyncFolderMessenger';
 import { FolderUpdatedAt } from '../domain/FolderUpdatedAt';
 import { FolderUuid } from '../domain/FolderUuid';
 import { OfflineFolder } from '../domain/OfflineFolder';
+import { SyncFolderMessenger } from '../domain/SyncFolderMessenger';
 import { RemoteFileSystem } from '../domain/file-systems/RemoteFileSystem';
 
+@Service()
 export class FolderCreatorFromOfflineFolder {
   constructor(
     private readonly repository: FolderRepository,

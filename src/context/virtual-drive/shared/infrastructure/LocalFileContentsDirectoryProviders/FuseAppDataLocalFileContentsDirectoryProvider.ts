@@ -1,8 +1,9 @@
+import { Service } from 'diod';
 import { app } from 'electron';
-import { LocalFileContentsDirectoryProvider } from '../../domain/LocalFileContentsDirectoryProvider';
 import path from 'path';
+import { LocalFileContentsDirectoryProvider } from '../../domain/LocalFileContentsDirectoryProvider';
 
-// TODO: move it to shared
+@Service()
 export class FuseAppDataLocalFileContentsDirectoryProvider
   implements LocalFileContentsDirectoryProvider
 {

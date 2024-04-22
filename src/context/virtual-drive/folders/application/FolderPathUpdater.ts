@@ -1,14 +1,16 @@
+import { Service } from 'diod';
 import Logger from 'electron-log';
 import { Folder } from '../domain/Folder';
 import { FolderPath } from '../domain/FolderPath';
 import { FolderRepository } from '../domain/FolderRepository';
+import { FolderStatuses } from '../domain/FolderStatus';
 import { ActionNotPermittedError } from '../domain/errors/ActionNotPermittedError';
 import { FolderNotFoundError } from '../domain/errors/FolderNotFoundError';
+import { PathHasNotChangedError } from '../domain/errors/PathHasNotChangedError';
 import { FolderMover } from './FolderMover';
 import { FolderRenamer } from './FolderRenamer';
-import { PathHasNotChangedError } from '../domain/errors/PathHasNotChangedError';
-import { FolderStatuses } from '../domain/FolderStatus';
 
+@Service()
 export class FolderPathUpdater {
   constructor(
     private readonly repository: FolderRepository,

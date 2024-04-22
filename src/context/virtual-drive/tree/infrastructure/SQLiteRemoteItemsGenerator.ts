@@ -1,3 +1,4 @@
+import { Service } from 'diod';
 import { getUpdatedRemoteItems } from '../../../../apps/main/remote-sync/handlers';
 import {
   ServerFile,
@@ -9,6 +10,7 @@ import {
 } from '../../../shared/domain/ServerFolder';
 import { RemoteItemsGenerator } from '../domain/RemoteItemsGenerator';
 
+@Service()
 export class SQLiteRemoteItemsGenerator implements RemoteItemsGenerator {
   async getAll(): Promise<{ files: ServerFile[]; folders: ServerFolder[] }> {
     const result = await getUpdatedRemoteItems();

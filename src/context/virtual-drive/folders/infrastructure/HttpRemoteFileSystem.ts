@@ -1,18 +1,20 @@
 import { Axios } from 'axios';
+import { Service } from 'diod';
 import Logger from 'electron-log';
 import * as uuid from 'uuid';
+import { ServerFolder } from '../../../shared/domain/ServerFolder';
 import { Folder } from '../domain/Folder';
-import { UpdateFolderNameDTO } from './dtos/UpdateFolderNameDTO';
+import { FolderId } from '../domain/FolderId';
+import { FolderPath } from '../domain/FolderPath';
+import { FolderUuid } from '../domain/FolderUuid';
 import {
   FolderPersistedDto,
   RemoteFileSystem,
 } from '../domain/file-systems/RemoteFileSystem';
-import { ServerFolder } from '../../../shared/domain/ServerFolder';
 import { CreateFolderDTO } from './dtos/CreateFolderDTO';
-import { FolderPath } from '../domain/FolderPath';
-import { FolderUuid } from '../domain/FolderUuid';
-import { FolderId } from '../domain/FolderId';
+import { UpdateFolderNameDTO } from './dtos/UpdateFolderNameDTO';
 
+@Service()
 export class HttpRemoteFileSystem implements RemoteFileSystem {
   public folders: Record<string, Folder> = {};
 

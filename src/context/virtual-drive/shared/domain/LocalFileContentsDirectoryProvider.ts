@@ -1,3 +1,3 @@
-export interface LocalFileContentsDirectoryProvider {
-  provide(): Promise<string>;
+export abstract class LocalFileContentsDirectoryProvider {
+  abstract provide(): Promise<string>;
 }

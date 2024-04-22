@@ -1,10 +1,12 @@
 import { FileAttributes } from '../../../context/virtual-drive/files/domain/File';
-import { DependencyContainer } from '../dependency-injection/DependencyContainer';
 import { Request, Response } from 'express';
+import { Container } from 'diod';
+import { RetrieveAllFiles } from '../../../context/virtual-drive/files/application/RetrieveAllFiles';
+import { FilesSearcherByPartialMatch } from '../../../context/virtual-drive/files/application/search-all/FilesSearcherByPartialMatch';
 
-export function buildFilesControllers(container: DependencyContainer) {
+export function buildFilesControllers(container: Container) {
   const getAll = async (_req: Request, res: Response) => {
-    const files = await container.retrieveAllFiles.run();
+    const files = await container.get(RetrieveAllFiles).run();
 
     const result = files.map((file) => file.attributes());
 
@@ -24,7 +26,7 @@ export function buildFilesControllers(container: DependencyContainer) {
         };
       }, {});
 
-    const files = await container.filesSearcherByPartialMatch.run(filter);
+    const files = await container.get(FilesSearcherByPartialMatch).run(filter);
 
     if (!files) {
       res.sendStatus(404);

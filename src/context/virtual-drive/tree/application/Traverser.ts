@@ -1,4 +1,5 @@
 import * as Sentry from '@sentry/electron/renderer';
+import { Service } from 'diod';
 import Logger from 'electron-log';
 import {
   ServerFile,
@@ -23,7 +24,7 @@ type Items = {
   files: Array<ServerFile>;
   folders: Array<ServerFolder>;
 };
-
+@Service()
 export class Traverser {
   constructor(
     private readonly decrypt: NameDecrypt,

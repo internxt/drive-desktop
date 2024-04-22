@@ -1,10 +1,12 @@
-import { FolderPath } from '../domain/FolderPath';
-import { Folder } from '../domain/Folder';
-import { FolderRepository } from '../domain/FolderRepository';
-import { RemoteFileSystem } from '../domain/file-systems/RemoteFileSystem';
+import { Service } from 'diod';
 import { EventBus } from '../../shared/domain/EventBus';
+import { Folder } from '../domain/Folder';
+import { FolderPath } from '../domain/FolderPath';
+import { FolderRepository } from '../domain/FolderRepository';
 import { SyncFolderMessenger } from '../domain/SyncFolderMessenger';
+import { RemoteFileSystem } from '../domain/file-systems/RemoteFileSystem';
 
+@Service()
 export class FolderRenamer {
   constructor(
     private readonly repository: FolderRepository,

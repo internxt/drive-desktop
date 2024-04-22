@@ -1,9 +1,11 @@
+import { Service } from 'diod';
 import { trackError, trackEvent } from '../../../apps/main/analytics/service';
 import { setTrayStatus } from '../../../apps/main/tray/tray';
 import { broadcastToWindows } from '../../../apps/main/windows';
 import { SyncMessenger } from '../domain/SyncMessenger';
 import { UploadProgressTracker } from '../domain/UploadProgressTracker';
 
+@Service()
 export class MainProcessUploadProgressTracker
   extends SyncMessenger
   implements UploadProgressTracker

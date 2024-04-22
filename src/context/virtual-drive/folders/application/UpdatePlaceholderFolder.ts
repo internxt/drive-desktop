@@ -1,12 +1,14 @@
-import { promises as fs, constants as FsConstants } from 'fs';
-import { Folder } from '../domain/Folder';
-import { RelativePathToAbsoluteConverter } from '../../shared/application/RelativePathToAbsoluteConverter';
+import { Service } from 'diod';
 import Logger from 'electron-log';
+import { promises as fs, constants as FsConstants } from 'fs';
 import path from 'path';
-import { FolderStatuses } from '../domain/FolderStatus';
-import { FolderRepository } from '../domain/FolderRepository';
+import { RelativePathToAbsoluteConverter } from '../../shared/application/RelativePathToAbsoluteConverter';
 import { LocalFileSystem } from '../domain/file-systems/LocalFileSystem';
+import { Folder } from '../domain/Folder';
+import { FolderRepository } from '../domain/FolderRepository';
+import { FolderStatuses } from '../domain/FolderStatus';
 
+@Service()
 export class FolderPlaceholderUpdater {
   constructor(
     private readonly repository: FolderRepository,

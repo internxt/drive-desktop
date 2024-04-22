@@ -12,8 +12,8 @@ export type OfflineContentsUploadEvents = {
 
 export type OfflineContentUploader = () => Promise<string>;
 
-export interface OfflineContentsManagersFactory {
-  uploader(
+export abstract class OfflineContentsManagersFactory {
+  abstract uploader(
     readable: Readable,
     contents: OfflineContents,
     desiredPathElements: {
