@@ -13,6 +13,7 @@ import { ipcRenderer } from 'electron';
 import { ServerFileStatus } from '../../context/shared/domain/ServerFile';
 import { ServerFolderStatus } from '../../context/shared/domain/ServerFolder';
 import * as Sentry from '@sentry/electron/renderer';
+import { runner } from '../utils/runner';
 
 export type CallbackDownload = (
   success: boolean,
@@ -248,9 +249,12 @@ export class BindingsManager {
 
     await this.container.virtualDrive.connectSyncRoot();
 
-    await this.load();
+    // run in order the following functions
+    await runner([
+      this.load.bind(this),
+      this.polling.bind(this),
+    ]);
 
-    await this.polling();
   }
 
   watch() {
@@ -264,9 +268,6 @@ export class BindingsManager {
 
   async cleanUp() {
     await VirtualDrive.unregisterSyncRoot(this.paths.root);
-
-    const itemsSearcher = new ItemsSearcher();
-    const remainingItems = itemsSearcher.listFilesAndFolders(this.paths.root);
 
     const files = await this.container.retrieveAllFiles.run();
     const folders = await this.container.retrieveAllFolders.run();
@@ -285,7 +286,7 @@ export class BindingsManager {
       );
     });
 
-    Logger.debug('remainingItems', remainingItems);
+    // Logger.debug('remainingItems', remainingItems);
     Logger.debug('win32AbsolutePaths', win32AbsolutePaths);
 
     // find all common string in remainingItems and win32AbsolutePaths
