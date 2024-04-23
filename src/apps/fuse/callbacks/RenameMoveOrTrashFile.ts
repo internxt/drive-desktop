@@ -2,9 +2,9 @@ import { Container } from 'diod';
 import path from 'path';
 import { Either, left, right } from '../../../context/shared/domain/Either';
 import { DriveDesktopError } from '../../../context/shared/domain/errors/DriveDesktopError';
-import { FileDeleter } from '../../../context/virtual-drive/files/application/FileDeleter';
-import { FilePathUpdater } from '../../../context/virtual-drive/files/application/FilePathUpdater';
-import { FirstsFileSearcher } from '../../../context/virtual-drive/files/application/FirstsFileSearcher';
+import { FileTrasher } from '../../../context/virtual-drive/files/application/trash/FileTrasher';
+import { FilePathUpdater } from '../../../context/virtual-drive/files/application/move/FilePathUpdater';
+import { FirstsFileSearcher } from '../../../context/virtual-drive/files/application/search/FirstsFileSearcher';
 import { File } from '../../../context/virtual-drive/files/domain/File';
 import { FilePath } from '../../../context/virtual-drive/files/domain/FilePath';
 import { FileStatuses } from '../../../context/virtual-drive/files/domain/FileStatus';
@@ -22,7 +22,7 @@ export class RenameMoveOrTrashFile {
 
   private async trash(file: File): Promise<FuseError | undefined> {
     try {
-      await this.container.get(FileDeleter).run(file.contentsId);
+      await this.container.get(FileTrasher).run(file.contentsId);
       return undefined;
     } catch (trowed: unknown) {
       const cause: SyncErrorCause =

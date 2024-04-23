@@ -1,12 +1,11 @@
 import { Container } from 'diod';
-import { AuxiliarOfflineContentsDeleter } from '../../../context/offline-drive/contents/application/auxiliar/AuxiliarOfflineContentsDeleter';
-import { OfflineFileSearcher } from '../../../context/offline-drive/files/application/OfflineFileSearcher';
-import { TemporalOfflineDeleter } from '../../../context/offline-drive/files/application/TemporalOfflineDeleter';
-import { FileDeleter } from '../../../context/virtual-drive/files/application/FileDeleter';
-import { FirstsFileSearcher } from '../../../context/virtual-drive/files/application/FirstsFileSearcher';
+import { FileTrasher } from '../../../context/virtual-drive/files/application/trash/FileTrasher';
+import { FirstsFileSearcher } from '../../../context/virtual-drive/files/application/search/FirstsFileSearcher';
 import { FileStatuses } from '../../../context/virtual-drive/files/domain/FileStatus';
 import { NotifyFuseCallback } from './FuseCallback';
 import { FuseIOError, FuseNoSuchFileOrDirectoryError } from './FuseErrors';
+import { TemporalFileByPathFinder } from '../../../context/offline-drive/TemporalFiles/application/find/TemporalFileByPathFinder';
+import { TemporalFileDeleter } from '../../../context/offline-drive/TemporalFiles/application/deletion/TemporalFileDeleter';
 
 export class TrashFileCallback extends NotifyFuseCallback {
   constructor(private readonly container: Container) {
@@ -20,24 +19,21 @@ export class TrashFileCallback extends NotifyFuseCallback {
     });
 
     if (!file) {
-      const offline = await this.container.get(OfflineFileSearcher).run({
-        path,
-      });
+      const document = await this.container
+        .get(TemporalFileByPathFinder)
+        .run(path);
 
-      if (!offline) {
+      if (!document) {
         return this.left(new FuseNoSuchFileOrDirectoryError(path));
       }
 
-      if (offline.isAuxiliary()) {
-        await this.container.get(AuxiliarOfflineContentsDeleter).run(offline);
-        await this.container.get(TemporalOfflineDeleter).run(offline);
-      }
+      await this.container.get(TemporalFileDeleter).run(path);
 
       return this.right();
     }
 
     try {
-      await this.container.get(FileDeleter).run(file.contentsId);
+      await this.container.get(FileTrasher).run(file.contentsId);
 
       return this.right();
     } catch {

@@ -1,4 +1,4 @@
-import { SingleFileMatchingSearcher } from '../../../../../src/context/virtual-drive/files/application/SingleFileMatchingSearcher';
+import { SingleFileMatchingSearcher } from '../../../../../src/context/virtual-drive/files/application/search/SingleFileMatchingSearcher';
 import {
   FileAttributes,
   File,

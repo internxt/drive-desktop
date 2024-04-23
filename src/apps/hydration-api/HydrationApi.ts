@@ -1,8 +1,9 @@
-import Logger from 'electron-log';
 import express, { Router } from 'express';
 import { buildContentsRouter } from './routes/contents';
 import { buildFilesRouter } from './routes/files';
 import { Container } from 'diod';
+import { HydrationApiLogger } from './HydrationApiLogger';
+
 export interface HydrationApiOptions {
   debug: boolean;
 }
@@ -10,9 +11,11 @@ export interface HydrationApiOptions {
 export class HydrationApi {
   private static readonly PORT = 4567;
   private readonly app;
+  private readonly logger: HydrationApiLogger;
 
   constructor(private readonly container: Container) {
     this.app = express();
+    this.logger = new HydrationApiLogger();
   }
 
   private async buildRouters() {
@@ -29,7 +32,7 @@ export class HydrationApi {
 
     if (options.debug) {
       this.app.use((req, _res, next) => {
-        Logger.debug(
+        this.logger.debug(
           `[${new Date().toLocaleString()}] ${req.method} ${req.url}`
         );
         next();
@@ -42,7 +45,7 @@ export class HydrationApi {
 
     return new Promise((resolve) => {
       this.app.listen(HydrationApi.PORT, () => {
-        Logger.info(`Hidratation Api is running on port ${HydrationApi.PORT}`);
+        this.logger.info(`running on port ${HydrationApi.PORT}`);
         resolve();
       });
     });

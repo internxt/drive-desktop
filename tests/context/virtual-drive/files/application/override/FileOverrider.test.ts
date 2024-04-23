@@ -1,8 +1,8 @@
 import { FileOverrider } from '../../../../../../src/context/virtual-drive/files/application/override/FileOverrider';
 import { FileNotFoundError } from '../../../../../../src/context/virtual-drive/files/domain/errors/FileNotFoundError';
 import { FileOverriddenDomainEvent } from '../../../../../../src/context/virtual-drive/files/domain/events/FileOverriddenDomainEvent';
-import { ContentsIdMother } from '../../../contents/domain/ContentsIdMother';
 import { EventBusMock } from '../../../shared/__mock__/EventBusMock';
+import { BucketEntryIdMother } from '../../../shared/domain/BucketEntryIdMother';
 import { FileRepositoryMock } from '../../__mocks__/FileRepositoryMock';
 import { RemoteFileSystemMock } from '../../__mocks__/RemoteFileSystemMock';
 import { FileMother } from '../../domain/FileMother';
@@ -17,7 +17,7 @@ describe('File Overrider', () => {
     const overrider = new FileOverrider(rfs, repository, eventBus);
 
     const file = FileMother.any();
-    const updatedContentsId = ContentsIdMother.random();
+    const updatedContentsId = BucketEntryIdMother.random();
     const updatedSize = FileSizeMother.random();
 
     repository.searchByContentsIdMock.mockReturnValueOnce(undefined);
@@ -42,7 +42,7 @@ describe('File Overrider', () => {
     const overrider = new FileOverrider(rfs, repository, eventBus);
 
     const file = FileMother.any();
-    const updatedContentsId = ContentsIdMother.random();
+    const updatedContentsId = BucketEntryIdMother.random();
     const updatedSize = FileSizeMother.random();
 
     repository.searchByContentsIdMock.mockReturnValueOnce(file);
@@ -66,7 +66,7 @@ describe('File Overrider', () => {
     const overrider = new FileOverrider(rfs, repository, eventBus);
 
     const file = FileMother.any();
-    const updatedContentsId = ContentsIdMother.primitive();
+    const updatedContentsId = BucketEntryIdMother.primitive();
 
     repository.searchByContentsIdMock.mockReturnValueOnce(file);
 

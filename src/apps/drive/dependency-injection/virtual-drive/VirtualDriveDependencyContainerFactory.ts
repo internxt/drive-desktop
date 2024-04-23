@@ -1,5 +1,4 @@
 import { ContainerBuilder } from 'diod';
-import { registerContentsServices } from './registerContentsServices';
 import { registerFilesServices } from './registerFilesServices';
 import { registerFolderServices } from './registerFolderServices';
 import { registerSharedServices } from './registerSharedServices';
@@ -12,8 +11,6 @@ export class VirtualDriveDependencyContainerFactory {
     await registerSharedServices(builder);
 
     await registerFolderServices(builder);
-
-    registerContentsServices(builder);
 
     await registerFilesServices(builder);
   }

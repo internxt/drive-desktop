@@ -3,7 +3,7 @@ import { ReaddirCallback } from './callbacks/ReaddirCallback';
 import { GetAttributesCallback } from './callbacks/GetAttributesCallback';
 import { OpenCallback } from './callbacks/OpenCallback';
 import { ReadCallback } from './callbacks/ReadCallback';
-import { RenameOrMoveCallback } from './callbacks/RenameOrMoveCallback';
+import { RenameMoveOrTrashCallback } from './callbacks/RenameOrMoveCallback';
 import { CreateCallback } from './callbacks/CreateCallback';
 import { MakeDirectoryCallback } from './callbacks/MakeDirectoryCallback';
 import { TrashFileCallback } from './callbacks/TrashFileCallback';
@@ -14,10 +14,10 @@ import { ensureFolderExists } from './../shared/fs/ensure-folder-exists';
 import { mountPromise, unmountPromise } from './helpers';
 import { FuseDriveStatus } from './FuseDriveStatus';
 import { Container } from 'diod';
-import { AllLocalContentsDeleter } from '../../context/virtual-drive/contents/application/AllLocalContentsDeleter';
 import { TreeBuilder } from '../../context/virtual-drive/tree/application/TreeBuilder';
 import { FolderRepositoryInitializer } from '../../context/virtual-drive/folders/application/FolderRepositoryInitializer';
 import { FileRepositoryInitializer } from '../../context/virtual-drive/files/application/FileRepositoryInitializer';
+import { ClearLocalFiles } from '../../context/offline-drive/LocalFile/application/delete/ClearLocalFiles';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const fuse = require('@gcas/fuse');
@@ -40,7 +40,7 @@ export class FuseApp {
     const getattr = new GetAttributesCallback(this.container);
     const open = new OpenCallback(this.container);
     const read = new ReadCallback(this.container);
-    const renameOrMove = new RenameOrMoveCallback(this.container);
+    const renameOrMove = new RenameMoveOrTrashCallback(this.container);
     const create = new CreateCallback(this.container);
     const makeDirectory = new MakeDirectoryCallback(this.container);
     const trashFile = new TrashFileCallback(this.container);
@@ -97,7 +97,7 @@ export class FuseApp {
   }
 
   async clearCache(): Promise<void> {
-    await this.container.get(AllLocalContentsDeleter).run();
+    await this.container.get(ClearLocalFiles).run();
   }
 
   async update(): Promise<void> {

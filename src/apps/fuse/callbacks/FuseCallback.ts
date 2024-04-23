@@ -42,6 +42,7 @@ export abstract class FuseCallback<T> {
 
       return result;
     } catch (throwed: unknown) {
+      Logger.error(throwed);
       if (throwed instanceof FuseError) {
         return this.left(throwed);
       }

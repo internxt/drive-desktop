@@ -3,9 +3,9 @@ import { Either, left } from '../../../context/shared/domain/Either';
 import { FileStatuses } from '../../../context/virtual-drive/files/domain/FileStatus';
 import { FuseCallback } from './FuseCallback';
 import { FuseError, FuseNoSuchFileOrDirectoryError } from './FuseErrors';
-import { FirstsFileSearcher } from '../../../context/virtual-drive/files/application/FirstsFileSearcher';
+import { FirstsFileSearcher } from '../../../context/virtual-drive/files/application/search/FirstsFileSearcher';
 import { SingleFolderMatchingSearcher } from '../../../context/virtual-drive/folders/application/SingleFolderMatchingSearcher';
-import { OfflineFileSearcher } from '../../../context/offline-drive/files/application/OfflineFileSearcher';
+import { TemporalFileByPathFinder } from '../../../context/offline-drive/TemporalFiles/application/find/TemporalFileByPathFinder';
 
 type GetAttributesCallbackData = {
   mode: number;
@@ -79,17 +79,17 @@ export class GetAttributesCallback extends FuseCallback<GetAttributesCallbackDat
       });
     }
 
-    const offlineFile = await this.container
-      .get(OfflineFileSearcher)
-      .run({ path });
+    const document = await this.container
+      .get(TemporalFileByPathFinder)
+      .run(path);
 
-    if (offlineFile) {
+    if (document) {
       return this.right({
         mode: GetAttributesCallback.FILE,
-        size: offlineFile.size.value,
+        size: document.size.value,
         mtime: new Date(),
-        ctime: offlineFile.createdAt,
-        atime: offlineFile.createdAt,
+        ctime: document.createdAt,
+        atime: document.createdAt,
         uid: process.getuid(),
         gid: process.getgid(),
       });

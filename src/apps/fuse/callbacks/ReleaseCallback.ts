@@ -1,39 +1,36 @@
 import { Container } from 'diod';
-import Logger from 'electron-log';
-import { OfflineContentsCacheCleaner } from '../../../context/offline-drive/contents/application/OfflineContentsCacheCleaner';
-import { OfflineContentsUploader } from '../../../context/offline-drive/contents/application/OfflineContentsUploader';
-import { OfflineFileSearcher } from '../../../context/offline-drive/files/application/OfflineFileSearcher';
-import { FirstsFileSearcher } from '../../../context/virtual-drive/files/application/FirstsFileSearcher';
-import { RelativePathToAbsoluteConverter } from '../../../context/virtual-drive/shared/application/RelativePathToAbsoluteConverter';
+import { TemporalFileByPathFinder } from '../../../context/offline-drive/TemporalFiles/application/find/TemporalFileByPathFinder';
+import { TemporalFileUploader } from '../../../context/offline-drive/TemporalFiles/application/upload/TemporalFileUploader';
+import { FirstsFileSearcher } from '../../../context/virtual-drive/files/application/search/FirstsFileSearcher';
 import { NotifyFuseCallback } from './FuseCallback';
 import { FuseIOError } from './FuseErrors';
+import Logger from 'electron-log';
+import { LocalFileCacheDeleter } from '../../../context/offline-drive/LocalFile/application/delete/LocalFileCacheDeleter';
 
 export class ReleaseCallback extends NotifyFuseCallback {
   constructor(private readonly container: Container) {
-    super('Release');
+    super('Release', { debug: false });
   }
 
   async execute(path: string, _fd: number) {
     try {
-      const offlineFile = await this.container.get(OfflineFileSearcher).run({
-        path,
-      });
+      const document = await this.container
+        .get(TemporalFileByPathFinder)
+        .run(path);
 
-      if (offlineFile) {
+      if (document) {
         this.logDebugMessage('Offline File found');
-        if (offlineFile.size.value === 0) {
+        if (document.size.value === 0) {
           this.logDebugMessage('Offline File Size is 0');
           return this.right();
         }
 
-        if (offlineFile.isAuxiliary()) {
+        if (document.isAuxiliary()) {
           this.logDebugMessage('Offline File is Auxiliary');
           return this.right();
         }
 
-        await this.container
-          .get(OfflineContentsUploader)
-          .run(offlineFile.id, offlineFile.path);
+        await this.container.get(TemporalFileUploader).run(document.path.value);
         this.logDebugMessage('Offline File has been uploaded');
         return this.right();
       }
@@ -43,12 +40,13 @@ export class ReleaseCallback extends NotifyFuseCallback {
       });
 
       if (virtualFile) {
-        this.logDebugMessage('Virtual File has been uploaded');
-        const contentsPath = this.container
-          .get(RelativePathToAbsoluteConverter)
+        await this.container
+          .get(LocalFileCacheDeleter)
           .run(virtualFile.contentsId);
 
-        await this.container.get(OfflineContentsCacheCleaner).run(contentsPath);
+        this.logDebugMessage(
+          `${virtualFile.path} removed from local file cache`
+        );
 
         return this.right();
       }
@@ -56,7 +54,7 @@ export class ReleaseCallback extends NotifyFuseCallback {
       this.logDebugMessage(`File with ${path} not found`);
       return this.right();
     } catch (err: unknown) {
-      Logger.error('RELEASE', err);
+      Logger.error(err);
       return this.left(new FuseIOError());
     }
   }

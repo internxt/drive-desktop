@@ -8,7 +8,7 @@ import {
 } from '../../../../../src/context/shared/domain/ServerFolder';
 import { Traverser } from '../../../../../src/context/virtual-drive/tree/application/Traverser';
 import { UuidMother } from '../../../shared/domain/UuidMother';
-import { ContentsIdMother } from '../../contents/domain/ContentsIdMother';
+import { BucketEntryIdMother } from '../../shared/domain/BucketEntryIdMother';
 import { FakeNameDecrypt } from '../infrastructure/FakeNameDecrypt';
 
 describe('Traverser', () => {
@@ -20,7 +20,7 @@ describe('Traverser', () => {
       files: [
         {
           name: 'file A',
-          fileId: ContentsIdMother.primitive(),
+          fileId: BucketEntryIdMother.primitive(),
           uuid: UuidMother.primitive(),
           folderId: baseFolderId,
           size: 67,
@@ -48,7 +48,7 @@ describe('Traverser', () => {
       files: [
         {
           name: 'file A',
-          fileId: ContentsIdMother.primitive(),
+          fileId: BucketEntryIdMother.primitive(),
           uuid: UuidMother.primitive(),
           folderId: 22491,
           size: 200,
@@ -184,7 +184,7 @@ describe('Traverser', () => {
         } as ServerFile,
         {
           name: 'valid_name',
-          fileId: ContentsIdMother.primitive(),
+          fileId: BucketEntryIdMother.primitive(),
           uuid: UuidMother.primitive(),
           folderId: baseFolderId,
           size: 67,
@@ -192,7 +192,7 @@ describe('Traverser', () => {
         } as ServerFile,
         {
           name: 'valid_name_2',
-          fileId: ContentsIdMother.primitive(),
+          fileId: BucketEntryIdMother.primitive(),
           uuid: UuidMother.primitive(),
           folderId: baseFolderId,
           size: 67,
@@ -247,7 +247,7 @@ describe('Traverser', () => {
       files: [
         {
           name: 'file A',
-          fileId: ContentsIdMother.primitive(),
+          fileId: BucketEntryIdMother.primitive(),
           uuid: UuidMother.primitive(),
           folderId: baseFolderId,
           size: 67,
@@ -283,7 +283,7 @@ describe('Traverser', () => {
       files: [
         {
           name: 'file A',
-          fileId: ContentsIdMother.primitive(),
+          fileId: BucketEntryIdMother.primitive(),
           uuid: UuidMother.primitive(),
           folderId: baseFolderId,
           size: 67,

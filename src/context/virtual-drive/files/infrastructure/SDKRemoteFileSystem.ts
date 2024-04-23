@@ -5,10 +5,13 @@ import Logger from 'electron-log';
 import * as uuid from 'uuid';
 import { AuthorizedClients } from '../../../../apps/shared/HttpClient/Clients';
 import { Crypt } from '../../shared/domain/Crypt';
-import { File, FileAttributes } from '../domain/File';
-import { FileStatuses } from '../domain/FileStatus';
-import { OfflineFile } from '../domain/OfflineFile';
-import { RemoteFileSystem } from '../domain/file-systems/RemoteFileSystem';
+import { File } from '../domain/File';
+import {
+  FileDataToPersist,
+  PersistedFileData,
+  RemoteFileSystem,
+} from '../domain/file-systems/RemoteFileSystem';
+import { CreateFileDTO } from './dtos/CreateFileDTO';
 
 @Service()
 export class SDKRemoteFileSystem implements RemoteFileSystem {
@@ -19,26 +22,26 @@ export class SDKRemoteFileSystem implements RemoteFileSystem {
     private readonly bucket: string
   ) {}
 
-  async persist(offline: OfflineFile): Promise<FileAttributes> {
+  async persist(dataToPersists: FileDataToPersist): Promise<PersistedFileData> {
     const encryptedName = this.crypt.encryptName(
-      offline.name,
-      offline.folderId.toString()
+      dataToPersists.path.name(),
+      dataToPersists.folderId.toString()
     );
 
     if (!encryptedName) {
       throw new Error('Failed to encrypt name');
     }
 
-    const body = {
+    const body: CreateFileDTO = {
       file: {
-        fileId: offline.contentsId,
-        file_id: offline.contentsId,
-        type: offline.type,
-        size: offline.size,
+        fileId: dataToPersists.contentsId.value,
+        file_id: dataToPersists.contentsId.value,
+        type: dataToPersists.path.extension(),
+        size: dataToPersists.size.value,
         name: encryptedName,
-        plain_name: offline.name,
+        plain_name: dataToPersists.path.name(),
         bucket: this.bucket,
-        folder_id: offline.folderId,
+        folder_id: dataToPersists.folderId.value,
         encrypt_version: EncryptionVersion.Aes03,
       },
     };
@@ -48,13 +51,14 @@ export class SDKRemoteFileSystem implements RemoteFileSystem {
       body
     );
 
-    return {
-      ...data,
-      contentsId: data.fileId,
+    const result: PersistedFileData = {
       modificationTime: data.updatedAt,
-      path: offline.path,
-      status: FileStatuses.EXISTS,
+      id: data.id,
+      uuid: data.uuid,
+      createdAt: data.createdAt,
     };
+
+    return result;
   }
 
   async trash(contentsId: string): Promise<void> {

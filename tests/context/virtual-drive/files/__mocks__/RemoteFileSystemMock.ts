@@ -1,9 +1,9 @@
+import { File } from '../../../../../src/context/virtual-drive/files/domain/File';
 import {
-  File,
-  FileAttributes,
-} from '../../../../../src/context/virtual-drive/files/domain/File';
-import { OfflineFile } from '../../../../../src/context/virtual-drive/files/domain/OfflineFile';
-import { RemoteFileSystem } from '../../../../../src/context/virtual-drive/files/domain/file-systems/RemoteFileSystem';
+  FileDataToPersist,
+  PersistedFileData,
+  RemoteFileSystem,
+} from '../../../../../src/context/virtual-drive/files/domain/file-systems/RemoteFileSystem';
 
 export class RemoteFileSystemMock implements RemoteFileSystem {
   public readonly persistMock = jest.fn();
@@ -12,7 +12,7 @@ export class RemoteFileSystemMock implements RemoteFileSystem {
   public readonly renameMock = jest.fn();
   public readonly overrideMock = jest.fn();
 
-  persist(offline: OfflineFile): Promise<FileAttributes> {
+  persist(offline: FileDataToPersist): Promise<PersistedFileData> {
     return this.persistMock(offline);
   }
 

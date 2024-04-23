@@ -3,13 +3,14 @@ import { Either, right } from '../../../context/shared/domain/Either';
 import { FuseError } from './FuseErrors';
 import Logger from 'electron-log';
 import { File } from '../../../context/virtual-drive/files/domain/File';
-import { OfflineFile } from '../../../context/offline-drive/files/domain/OfflineFile';
 import { Container } from 'diod';
-import { FirstsFileSearcher } from '../../../context/virtual-drive/files/application/FirstsFileSearcher';
+import { FirstsFileSearcher } from '../../../context/virtual-drive/files/application/search/FirstsFileSearcher';
 import { RelativePathToAbsoluteConverter } from '../../../context/virtual-drive/shared/application/RelativePathToAbsoluteConverter';
-import { OfflineContentsByteByByteComparator } from '../../../context/offline-drive/contents/application/OfflineContentsByteByByteComparator';
-import { OfflineContentsUploader } from '../../../context/offline-drive/contents/application/OfflineContentsUploader';
-import { OfflineFileSearcher } from '../../../context/offline-drive/files/application/OfflineFileSearcher';
+import { TemporalFileUploader } from '../../../context/offline-drive/TemporalFiles/application/upload/TemporalFileUploader';
+import { TemporalFileByPathFinder } from '../../../context/offline-drive/TemporalFiles/application/find/TemporalFileByPathFinder';
+import { TemporalFile } from '../../../context/offline-drive/TemporalFiles/domain/TemporalFile';
+import { TemporalFileByteByByteComparator } from '../../../context/offline-drive/TemporalFiles/application/comparation/TemporalFileByteByByteComparator';
+import { TemporalFilePath } from '../../../context/offline-drive/TemporalFiles/domain/TemporalFilePath';
 
 type Result = 'no-op' | 'success';
 
@@ -18,8 +19,11 @@ export class UploadOnRename {
   private static readonly SUCCESS: Result = 'success';
   constructor(private readonly container: Container) {}
 
-  private async differs(virtual: File, offline: OfflineFile): Promise<boolean> {
-    if (virtual.size !== offline.size.value) {
+  private async differs(
+    virtual: File,
+    document: TemporalFile
+  ): Promise<boolean> {
+    if (virtual.size !== document.size.value) {
       return true;
     }
 
@@ -29,8 +33,8 @@ export class UploadOnRename {
         .run(virtual.contentsId);
 
       const areEqual = await this.container
-        .get(OfflineContentsByteByByteComparator)
-        .run(filePath, offline);
+        .get(TemporalFileByteByByteComparator)
+        .run(new TemporalFilePath(filePath), document.path);
 
       Logger.info(`Contents of <${virtual.path}> did not change`);
 
@@ -53,28 +57,26 @@ export class UploadOnRename {
       return right(UploadOnRename.NO_OP);
     }
 
-    const offlineFile = await this.container.get(OfflineFileSearcher).run({
-      path: src,
-    });
+    const document = await this.container
+      .get(TemporalFileByPathFinder)
+      .run(src);
 
-    if (!offlineFile) {
+    if (!document) {
       Logger.debug('[UPLOAD ON RENAME] offline file not found', src);
       return right(UploadOnRename.NO_OP);
     }
 
-    const differs = await this.differs(fileToOverride, offlineFile);
+    const differs = await this.differs(fileToOverride, document);
 
     if (!differs) {
       return right(UploadOnRename.SUCCESS);
     }
 
-    await this.container
-      .get(OfflineContentsUploader)
-      .run(offlineFile.id, offlineFile.path, {
-        contentsId: fileToOverride.contentsId,
-        name: fileToOverride.name,
-        extension: fileToOverride.type,
-      });
+    await this.container.get(TemporalFileUploader).run(document.path.value, {
+      contentsId: fileToOverride.contentsId,
+      name: fileToOverride.name,
+      extension: fileToOverride.type,
+    });
 
     return right(UploadOnRename.SUCCESS);
   }

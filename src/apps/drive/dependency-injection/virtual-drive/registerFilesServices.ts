@@ -1,19 +1,16 @@
 import { ContainerBuilder } from 'diod';
 import crypt from '../../../../context/shared/infrastructure/crypt';
-import { FileCreator } from '../../../../context/virtual-drive/files/application/FileCreator';
-import { FileDeleter } from '../../../../context/virtual-drive/files/application/FileDeleter';
-import { FilePathUpdater } from '../../../../context/virtual-drive/files/application/FilePathUpdater';
-import { FilesByFolderPathSearcher } from '../../../../context/virtual-drive/files/application/FilesByFolderPathSearcher';
-import { FirstsFileSearcher } from '../../../../context/virtual-drive/files/application/FirstsFileSearcher';
-import { SameFileWasMoved } from '../../../../context/virtual-drive/files/application/SameFileWasMoved';
-import { SingleFileMatchingSearcher } from '../../../../context/virtual-drive/files/application/SingleFileMatchingSearcher';
-import { CreateFileOnOfflineFileUploaded } from '../../../../context/virtual-drive/files/application/event-subsribers/CreateFileOnOfflineFileUplodaded';
+import { FileCreator } from '../../../../context/virtual-drive/files/application/create/FileCreator';
+import { FileTrasher } from '../../../../context/virtual-drive/files/application/trash/FileTrasher';
+import { FilePathUpdater } from '../../../../context/virtual-drive/files/application/move/FilePathUpdater';
+import { FilesByFolderPathSearcher } from '../../../../context/virtual-drive/files/application/search/FilesByFolderPathSearcher';
+import { FirstsFileSearcher } from '../../../../context/virtual-drive/files/application/search/FirstsFileSearcher';
+import { SingleFileMatchingSearcher } from '../../../../context/virtual-drive/files/application/search/SingleFileMatchingSearcher';
+import { CreateFileOnTemporalFileUploaded } from '../../../../context/virtual-drive/files/application/create/CreateFileOnTemporalFileUploaded';
 import { FileOverrider } from '../../../../context/virtual-drive/files/application/override/FileOverrider';
 import { FilesSearcherByPartialMatch } from '../../../../context/virtual-drive/files/application/search-all/FilesSearcherByPartialMatch';
 import { SyncFileMessenger } from '../../../../context/virtual-drive/files/domain/SyncFileMessenger';
-import { LocalFileSystem } from '../../../../context/virtual-drive/files/domain/file-systems/LocalFileSystem';
 import { RemoteFileSystem } from '../../../../context/virtual-drive/files/domain/file-systems/RemoteFileSystem';
-import { FuseLocalFileSystem } from '../../../../context/virtual-drive/files/infrastructure/FuseLocalFileSystem';
 import { SDKRemoteFileSystem } from '../../../../context/virtual-drive/files/infrastructure/SDKRemoteFileSystem';
 import { MainProcessSyncFileMessenger } from '../../../../context/virtual-drive/files/infrastructure/SyncFileMessengers/MainProcessSyncFileMessenger';
 import { DependencyInjectionMainProcessStorageSdk } from '../../../shared/dependency-injection/main/DependencyInjectionMainProcessStorageSdk';
@@ -23,6 +20,10 @@ import { FileRepository } from '../../../../context/virtual-drive/files/domain/F
 import { InMemoryFileRepository } from '../../../../context/virtual-drive/files/infrastructure/InMemoryFileRepository';
 import { FileRepositoryInitializer } from '../../../../context/virtual-drive/files/application/FileRepositoryInitializer';
 import { RetrieveAllFiles } from '../../../../context/virtual-drive/files/application/RetrieveAllFiles';
+import { FileDownloader } from '../../../../context/virtual-drive/files/application/download/FileDownloader';
+import { FileDownloaderHandlerFactory } from '../../../../context/virtual-drive/files/domain/download/FileDownloaderHandlerFactory';
+import { EnvironmentFileDownloaderHandlerFactory } from '../../../../context/virtual-drive/files/infrastructure/download/EnvironmentRemoteFileContentsManagersFactory';
+import { Environment } from '@internxt/inxt-js';
 
 export async function registerFilesServices(
   builder: ContainerBuilder
@@ -52,7 +53,15 @@ export async function registerFilesServices(
         )
     );
 
-  builder.register(LocalFileSystem).use(FuseLocalFileSystem);
+  builder
+    .register(FileDownloaderHandlerFactory)
+    .useFactory(
+      (c) =>
+        new EnvironmentFileDownloaderHandlerFactory(
+          c.get(Environment),
+          user.bucket
+        )
+    );
 
   // Services
 
@@ -68,9 +77,7 @@ export async function registerFilesServices(
 
   builder.registerAndUse(FilePathUpdater);
 
-  builder.registerAndUse(SameFileWasMoved);
-
-  builder.registerAndUse(FileDeleter);
+  builder.registerAndUse(FileTrasher);
 
   builder.registerAndUse(FileCreator);
 
@@ -78,9 +85,10 @@ export async function registerFilesServices(
 
   builder.registerAndUse(FileOverrider);
 
-  // Event Handlers
+  builder.registerAndUse(FileDownloader);
 
+  // Event Handlers
   builder
-    .registerAndUse(CreateFileOnOfflineFileUploaded)
+    .registerAndUse(CreateFileOnTemporalFileUploaded)
     .addTag('event-handler');
 }

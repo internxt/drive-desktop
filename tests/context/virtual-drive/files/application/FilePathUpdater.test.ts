@@ -1,11 +1,10 @@
-import { FilePathUpdater } from '../../../../../src/context/virtual-drive/files/application/FilePathUpdater';
+import { FilePathUpdater } from '../../../../../src/context/virtual-drive/files/application/move/FilePathUpdater';
 import { FilePath } from '../../../../../src/context/virtual-drive/files/domain/FilePath';
 import { ParentFolderFinder } from '../../../../../src/context/virtual-drive/folders/application/ParentFolderFinder';
 import { ParentFolderFinderTestClass } from '../../folders/__test-class__/ParentFolderFinderTestClass';
 import { FolderMother } from '../../folders/domain/FolderMother';
 import { EventBusMock } from '../../shared/__mock__/EventBusMock';
 import { FileRepositoryMock } from '../__mocks__/FileRepositoryMock';
-import { LocalFileSystemMock } from '../__mocks__/LocalFileSystemMock';
 import { RemoteFileSystemMock } from '../__mocks__/RemoteFileSystemMock';
 import { SingleFileMatchingTestClass } from '../__test-class__/SingleFileMatchingTestClass';
 import { FileMother } from '../domain/FileMother';
@@ -14,7 +13,6 @@ describe('File path updater', () => {
   let repository: FileRepositoryMock;
   let folderFinder: ParentFolderFinderTestClass;
   let singleFileMatchingTestClass: SingleFileMatchingTestClass;
-  let localFileSystem: LocalFileSystemMock;
   let eventBus: EventBusMock;
   let remoteFileSystemMock: RemoteFileSystemMock;
   let SUT: FilePathUpdater;
@@ -25,11 +23,9 @@ describe('File path updater', () => {
     singleFileMatchingTestClass = new SingleFileMatchingTestClass();
     eventBus = new EventBusMock();
     remoteFileSystemMock = new RemoteFileSystemMock();
-    localFileSystem = new LocalFileSystemMock();
 
     SUT = new FilePathUpdater(
       remoteFileSystemMock,
-      localFileSystem,
       repository,
       singleFileMatchingTestClass,
       folderFinder as unknown as ParentFolderFinder,
@@ -77,13 +73,10 @@ describe('File path updater', () => {
   it('moves a file when the folder changes', async () => {
     const fileToMove = FileMother.any();
     const fileInDestination = undefined;
-    const localFileId = '1-2';
 
     singleFileMatchingTestClass.mock
       .mockReturnValueOnce(fileToMove)
       .mockReturnValueOnce(fileInDestination);
-
-    localFileSystem.getLocalFileIdMock.mockResolvedValueOnce(localFileId);
 
     const destination = new FilePath(
       `${fileToMove.dirname}_/${fileToMove.nameWithExtension}`

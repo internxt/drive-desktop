@@ -1,16 +1,16 @@
 import { Request, Response } from 'express';
 import Logger from 'electron-log';
 import { Container } from 'diod';
-import { FirstsFileSearcher } from '../../../context/virtual-drive/files/application/FirstsFileSearcher';
-import { DownloadContentsToPlainFile } from '../../../context/virtual-drive/contents/application/DownloadContentsToPlainFile';
-import { LocalContentsDeleter } from '../../../context/virtual-drive/contents/application/LocalContentsDeleter';
+import { FirstsFileSearcher } from '../../../context/virtual-drive/files/application/search/FirstsFileSearcher';
+import { FileDownloader } from '../../../context/virtual-drive/files/application/download/FileDownloader';
+import { LocalFileWriter } from '../../../context/offline-drive/LocalFile/application/write/LocalFileWriter';
+import { LocalFileDeleter } from '../../../context/offline-drive/LocalFile/application/delete/LocalFileDeleter';
+
 export function buildContentsController(container: Container) {
   const download = async (req: Request, res: Response) => {
     const decodedBuffer = Buffer.from(req.params.path, 'base64');
 
     const path = decodedBuffer.toString('utf-8').replaceAll('%20', ' ');
-
-    Logger.info('DOWNLOAD:', path);
 
     const file = await container.get(FirstsFileSearcher).run({ path });
 
@@ -19,7 +19,8 @@ export function buildContentsController(container: Container) {
       return;
     }
 
-    await container.get(DownloadContentsToPlainFile).run(file);
+    const stream = await container.get(FileDownloader).run(file);
+    await container.get(LocalFileWriter).run(file.contentsId, stream);
 
     res.status(201).send();
   };
@@ -40,7 +41,7 @@ export function buildContentsController(container: Container) {
       return;
     }
 
-    await container.get(LocalContentsDeleter).run(file);
+    await container.get(LocalFileDeleter).run(file.contentsId);
 
     res.status(201).send();
   };

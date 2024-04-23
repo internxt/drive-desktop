@@ -1,11 +1,11 @@
 import { Service } from 'diod';
-import { ContentsId } from '../../../contents/domain/ContentsId';
 import { EventBus } from '../../../shared/domain/EventBus';
 import { File } from '../../domain/File';
 import { FileRepository } from '../../domain/FileRepository';
 import { FileSize } from '../../domain/FileSize';
 import { FileNotFoundError } from '../../domain/errors/FileNotFoundError';
 import { RemoteFileSystem } from '../../domain/file-systems/RemoteFileSystem';
+import { FileContentsId } from '../../domain/FileContentsId';
 
 @Service()
 export class FileOverrider {
@@ -26,7 +26,10 @@ export class FileOverrider {
       throw new FileNotFoundError(oldContentsId);
     }
 
-    file.changeContents(new ContentsId(newContentsId), new FileSize(newSize));
+    file.changeContents(
+      new FileContentsId(newContentsId),
+      new FileSize(newSize)
+    );
 
     await this.rfs.override(file);
 

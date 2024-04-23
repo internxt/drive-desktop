@@ -5,7 +5,7 @@ import { RenameMoveOrTrashFile } from './RenameMoveOrTrashFile';
 import { RenameMoveOrTrashFolder } from './RenameMoveOrTrashFolder';
 import { UploadOnRename } from './UploadOnRename';
 
-export class RenameOrMoveCallback extends NotifyFuseCallback {
+export class RenameMoveOrTrashCallback extends NotifyFuseCallback {
   private readonly updateFile: RenameMoveOrTrashFile;
   private readonly updateFolder: RenameMoveOrTrashFolder;
   private readonly uploadOnRename: UploadOnRename;

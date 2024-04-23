@@ -1,5 +1,5 @@
-import { FileCreator } from '../../../../../src/context/virtual-drive/files/application/FileCreator';
-import { FileDeleter } from '../../../../../src/context/virtual-drive/files/application/FileDeleter';
+import { FileCreator } from '../../../../../src/context/virtual-drive/files/application/create/FileCreator';
+import { FileTrasher } from '../../../../../src/context/virtual-drive/files/application/trash/FileTrasher';
 import { File } from '../../../../../src/context/virtual-drive/files/domain/File';
 import { FileRepository } from '../../../../../src/context/virtual-drive/files/domain/FileRepository';
 import { SyncFileMessenger } from '../../../../../src/context/virtual-drive/files/domain/SyncFileMessenger';
@@ -15,7 +15,7 @@ export class FileCreatorTestClass extends FileCreator {
       {} as RemoteFileSystem,
       {} as FileRepository,
       {} as ParentFolderFinder,
-      {} as FileDeleter,
+      {} as FileTrasher,
       {} as EventBus,
       {} as SyncFileMessenger
     );

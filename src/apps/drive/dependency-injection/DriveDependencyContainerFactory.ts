@@ -1,11 +1,11 @@
 import { DomainEvent } from '../../../context/shared/domain/DomainEvent';
 import { DomainEventSubscriber } from '../../../context/shared/domain/DomainEventSubscriber';
+import { SubscribeDomainEventsHandlerToTheirEvents } from '../../../context/shared/infrastructure/domain-events/SubscribeDomainEventsHandlerToTheirEvents';
 import { FileRepositoryInitializer } from '../../../context/virtual-drive/files/application/FileRepositoryInitializer';
 import { FolderRepositoryInitializer } from '../../../context/virtual-drive/folders/application/FolderRepositoryInitializer';
-import { EventBus } from '../../../context/virtual-drive/shared/domain/EventBus';
 import { TreeBuilder } from '../../../context/virtual-drive/tree/application/TreeBuilder';
 import { mainProcessSharedInfraBuilder } from '../../shared/dependency-injection/main/mainProcessSharedInfraContainer';
-import { OfflineDependencyContainerFactory } from './offline/OfflineDependencyContainerFactory';
+import { OfflineDependencyContainerFactory } from './offline-drive/OfflineDependencyContainerFactory';
 import { VirtualDriveDependencyContainerFactory } from './virtual-drive/VirtualDriveDependencyContainerFactory';
 import { Container } from 'diod';
 
@@ -25,8 +25,8 @@ export class DriveDependencyContainerFactory {
       )
       .map((identifier) => container.get(identifier));
 
-    const eventBus = container.get(EventBus);
-    eventBus.addSubscribers(subscribers);
+    const subscribe = container.get(SubscribeDomainEventsHandlerToTheirEvents);
+    subscribe.run(subscribers);
 
     // init
     const tree = await container.get(TreeBuilder).run();

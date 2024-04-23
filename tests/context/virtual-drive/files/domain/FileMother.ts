@@ -1,10 +1,10 @@
 import { FileAttributes } from '../../../../../src/context/virtual-drive/files/domain/File';
 import { FileStatuses } from '../../../../../src/context/virtual-drive/files/domain/FileStatus';
 import { File } from '../../../../../src/context/virtual-drive/files/domain/File';
-import { ContentsIdMother } from '../../contents/domain/ContentsIdMother';
 import { FilePathMother } from './FilePathMother';
 import Chance from 'chance';
 import { UuidMother } from '../../../shared/domain/UuidMother';
+import { BucketEntryIdMother } from '../../shared/domain/BucketEntryIdMother';
 
 const chance = new Chance();
 
@@ -13,7 +13,7 @@ export class FileMother {
     return File.from({
       id: chance.integer({ min: 1000 }),
       uuid: UuidMother.primitive(),
-      contentsId: ContentsIdMother.random().value,
+      contentsId: BucketEntryIdMother.primitive(),
       folderId: 3972960,
       createdAt: new Date().toISOString(),
       modificationTime: new Date().toISOString(),
@@ -28,7 +28,7 @@ export class FileMother {
     return File.from({
       id: chance.integer({ min: 1000 }),
       uuid: UuidMother.primitive(),
-      contentsId: ContentsIdMother.random().value,
+      contentsId: BucketEntryIdMother.primitive(),
       folderId: 3972960,
       createdAt: new Date().toISOString(),
       modificationTime: new Date().toISOString(),

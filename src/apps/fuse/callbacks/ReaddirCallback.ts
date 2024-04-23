@@ -1,8 +1,8 @@
 import { Container } from 'diod';
 import { FuseCallback } from './FuseCallback';
-import { FilesByFolderPathSearcher } from '../../../context/virtual-drive/files/application/FilesByFolderPathSearcher';
+import { FilesByFolderPathSearcher } from '../../../context/virtual-drive/files/application/search/FilesByFolderPathSearcher';
 import { FoldersByParentPathLister } from '../../../context/virtual-drive/folders/application/FoldersByParentPathLister';
-import { OfflineFilesByParentPathLister } from '../../../context/offline-drive/files/application/OfflineFileListerByParentFolder';
+import { TemporalFileByFolderFinder } from '../../../context/offline-drive/TemporalFiles/application/find/TemporalFileByFolderFinder';
 
 export class ReaddirCallback extends FuseCallback<Array<string>> {
   constructor(private readonly container: Container) {
@@ -18,11 +18,11 @@ export class ReaddirCallback extends FuseCallback<Array<string>> {
       .get(FoldersByParentPathLister)
       .run(path);
 
-    const offlineFiles = await this.container
-      .get(OfflineFilesByParentPathLister)
+    const documents = await this.container
+      .get(TemporalFileByFolderFinder)
       .run(path);
 
-    const auxiliaryFileName = offlineFiles
+    const auxiliaryFileName = documents
       .filter((file) => file.isAuxiliary())
       .map((file) => file.name);
 

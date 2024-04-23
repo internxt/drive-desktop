@@ -9,7 +9,7 @@ import {
   ServerFolder,
   ServerFolderStatus,
 } from '../../../shared/domain/ServerFolder';
-import { createFileFromServerFile } from '../../files/application/FileCreatorFromServerFile';
+import { createFileFromServerFile } from './FileCreatorFromServerFile';
 import { createFolderFromServerFolder } from '../../folders/application/FolderCreatorFromServerFolder';
 import { Folder } from '../../folders/domain/Folder';
 import {
@@ -76,11 +76,13 @@ export class Traverser {
         return;
       }
 
-      const decryptedName = this.decrypt.decryptName(
-        serverFile.name,
-        serverFile.folderId.toString(),
-        serverFile.encrypt_version
-      );
+      const decryptedName =
+        serverFile.plainName ??
+        this.decrypt.decryptName(
+          serverFile.name,
+          serverFile.folderId.toString(),
+          serverFile.encrypt_version
+        );
       const extensionToAdd = serverFile.type ? `.${serverFile.type}` : '';
 
       const relativeFilePath =

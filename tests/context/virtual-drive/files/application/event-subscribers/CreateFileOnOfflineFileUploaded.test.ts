@@ -1,4 +1,4 @@
-import { CreateFileOnOfflineFileUploaded } from '../../../../../../src/context/virtual-drive/files/application/event-subsribers/CreateFileOnOfflineFileUplodaded';
+import { CreateFileOnTemporalFileUploaded } from '../../../../../../src/context/virtual-drive/files/application/create/CreateFileOnTemporalFileUploaded';
 import { FileCreatorTestClass } from '../../__test-class__/FileCreatorTestClass';
 import { FileOverriderTestClass } from '../../__test-class__/FileOverriderTestClass';
 import { OfflineContentsUploadedDomainEventMother } from '../../domain/events/OfflineContentsUploadedDomainEventMother';
@@ -11,7 +11,7 @@ describe('Create File On Offline File Uploaded', () => {
     const uploadedEvent =
       OfflineContentsUploadedDomainEventMother.doesNotReplace();
 
-    const sut = new CreateFileOnOfflineFileUploaded(creator, overrider);
+    const sut = new CreateFileOnTemporalFileUploaded(creator, overrider);
 
     await sut.on(uploadedEvent);
 
@@ -29,7 +29,7 @@ describe('Create File On Offline File Uploaded', () => {
     const uploadedEvent =
       OfflineContentsUploadedDomainEventMother.replacesContents();
 
-    const sut = new CreateFileOnOfflineFileUploaded(creator, overrider);
+    const sut = new CreateFileOnTemporalFileUploaded(creator, overrider);
 
     await sut.on(uploadedEvent);
 
@@ -43,7 +43,7 @@ describe('Create File On Offline File Uploaded', () => {
     const uploadedEvent =
       OfflineContentsUploadedDomainEventMother.replacesContents();
 
-    const sut = new CreateFileOnOfflineFileUploaded(creator, overrider);
+    const sut = new CreateFileOnTemporalFileUploaded(creator, overrider);
 
     await sut.on(uploadedEvent);
 
