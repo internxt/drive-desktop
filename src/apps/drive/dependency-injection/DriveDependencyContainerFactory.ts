@@ -10,15 +10,19 @@ import { VirtualDriveDependencyContainerFactory } from './virtual-drive/VirtualD
 import { Container } from 'diod';
 
 export class DriveDependencyContainerFactory {
-  static async build(): Promise<Container> {
+  private static async buildContexts(): Promise<Container> {
     const builder = await mainProcessSharedInfraBuilder();
 
     await VirtualDriveDependencyContainerFactory.build(builder);
 
     await OfflineDependencyContainerFactory.build(builder);
 
-    const container = builder.build();
+    return builder.build();
+  }
 
+  private static async addEventSubscribers(
+    container: Container
+  ): Promise<void> {
     const subscribers = container
       .findTaggedServiceIdentifiers<DomainEventSubscriber<DomainEvent>>(
         'event-handler'
@@ -27,18 +31,19 @@ export class DriveDependencyContainerFactory {
 
     const subscribe = container.get(SubscribeDomainEventsHandlerToTheirEvents);
     subscribe.run(subscribers);
+  }
+
+  static async build(): Promise<Container> {
+    const container = await DriveDependencyContainerFactory.buildContexts();
+
+    await DriveDependencyContainerFactory.addEventSubscribers(container);
 
     // init
     const tree = await container.get(TreeBuilder).run();
 
-    const folderRepositoryInitiator = container.get(
-      FolderRepositoryInitializer
-    );
+    await container.get(FolderRepositoryInitializer).run(tree.folders);
 
-    const fileRepositoryInitiator = container.get(FileRepositoryInitializer);
-
-    await folderRepositoryInitiator.run(tree.folders);
-    await fileRepositoryInitiator.run(tree.files);
+    await container.get(FileRepositoryInitializer).run(tree.files);
 
     return container;
   }
