@@ -1,9 +1,9 @@
+import { exec } from 'child_process';
 import Logger from 'electron-log';
 import fs from 'fs/promises';
 import os from 'os';
 import path from 'path';
 import { doesFileExist } from '../../shared/fs/fileExists';
-import { exec } from 'child_process';
 
 const name = 'internxt-virtual-drive.py';
 
@@ -35,6 +35,11 @@ export async function copyNautilusExtensionFile(): Promise<void> {
   if (alreadyExists) return;
 
   const source = extensionFile();
+
+  if (process.env.NODE_ENV !== 'production') {
+    await fs.link(source, destination);
+    return;
+  }
 
   await fs.cp(source, destination);
 

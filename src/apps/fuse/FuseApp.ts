@@ -1,23 +1,24 @@
+import { Container } from 'diod';
 import Logger from 'electron-log';
-import { ReaddirCallback } from './callbacks/ReaddirCallback';
+import { ClearLocalFiles } from '../../context/offline-drive/LocalFile/application/delete/ClearLocalFiles';
+import { FileRepositoryInitializer } from '../../context/virtual-drive/files/application/FileRepositoryInitializer';
+import { FolderRepositoryInitializer } from '../../context/virtual-drive/folders/application/FolderRepositoryInitializer';
+import { TreeBuilder } from '../../context/virtual-drive/tree/application/TreeBuilder';
+import { ensureFolderExists } from './../shared/fs/ensure-folder-exists';
+import { FuseDriveStatus } from './FuseDriveStatus';
+import { CreateCallback } from './callbacks/CreateCallback';
 import { GetAttributesCallback } from './callbacks/GetAttributesCallback';
+import { GetXAttributeCallback } from './callbacks/GetXAttributeCallback';
+import { MakeDirectoryCallback } from './callbacks/MakeDirectoryCallback';
 import { OpenCallback } from './callbacks/OpenCallback';
 import { ReadCallback } from './callbacks/ReadCallback';
+import { ReaddirCallback } from './callbacks/ReaddirCallback';
+import { ReleaseCallback } from './callbacks/ReleaseCallback';
 import { RenameMoveOrTrashCallback } from './callbacks/RenameOrMoveCallback';
-import { CreateCallback } from './callbacks/CreateCallback';
-import { MakeDirectoryCallback } from './callbacks/MakeDirectoryCallback';
 import { TrashFileCallback } from './callbacks/TrashFileCallback';
 import { TrashFolderCallback } from './callbacks/TrashFolderCallback';
 import { WriteCallback } from './callbacks/WriteCallback';
-import { ReleaseCallback } from './callbacks/ReleaseCallback';
-import { ensureFolderExists } from './../shared/fs/ensure-folder-exists';
 import { mountPromise, unmountPromise } from './helpers';
-import { FuseDriveStatus } from './FuseDriveStatus';
-import { Container } from 'diod';
-import { TreeBuilder } from '../../context/virtual-drive/tree/application/TreeBuilder';
-import { FolderRepositoryInitializer } from '../../context/virtual-drive/folders/application/FolderRepositoryInitializer';
-import { FileRepositoryInitializer } from '../../context/virtual-drive/files/application/FileRepositoryInitializer';
-import { ClearLocalFiles } from '../../context/offline-drive/LocalFile/application/delete/ClearLocalFiles';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const fuse = require('@gcas/fuse');
@@ -47,6 +48,7 @@ export class FuseApp {
     const trashFolder = new TrashFolderCallback(this.container);
     const write = new WriteCallback(this.container);
     const release = new ReleaseCallback(this.container);
+    const getXAttributes = new GetXAttributeCallback(this.container);
 
     return {
       getattr: getattr.handle.bind(getattr),
@@ -60,6 +62,7 @@ export class FuseApp {
       release: release.handle.bind(release),
       unlink: trashFile.handle.bind(trashFile),
       rmdir: trashFolder.handle.bind(trashFolder),
+      getxattr: getXAttributes.handle.bind(getXAttributes),
     };
   }
 

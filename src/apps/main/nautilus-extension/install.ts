@@ -14,6 +14,10 @@ function isUpToDate(): boolean {
     'nautilusExtensionVersion'
   );
 
+  if (process.env.NODE_ENV !== 'production') {
+    return false;
+  }
+
   return nautilusExtensionInstalledAt >= LATEST_NAUTILUS_EXTENSION_VERSION;
 }
 

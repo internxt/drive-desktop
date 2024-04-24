@@ -6,7 +6,8 @@ from gi.repository import Nautilus, GObject, Gtk, Gdk
 from urllib.parse import urlparse, unquote
 import requests
 import base64
-
+import xattr
+import urllib.parse
 
 try:
   gi.require_version('Gtk', '4.0')
@@ -25,6 +26,12 @@ SYNC_STATUS_ATTRIBUTE_NAME ="Sync Status"
 SYNC_STATUS_ONLY_ONLINE="Only online"
 
 VIRTUAL_DRIVE_ROOT_FOLDER_NAME = "Internxt%20Drive"
+
+status_to_emblem_map = {
+   "on_local": "drive-removable-media",
+   "on_remote": "weather-overcast",
+   "downloading": "appointment-soon"
+}
 
 
 class InternxtVirtualDrive(GObject.Object, Nautilus.MenuProvider, Nautilus.ColumnProvider,
@@ -56,7 +63,6 @@ class InternxtVirtualDrive(GObject.Object, Nautilus.MenuProvider, Nautilus.Colum
 
         self.selected_files[window.get_id()] = files
 
-
         return self._create_menu_items(files, "File")
 
     def get_background_items(self, *args):
@@ -65,9 +71,35 @@ class InternxtVirtualDrive(GObject.Object, Nautilus.MenuProvider, Nautilus.Colum
 
     def _file_is_in_virtual_drive(self, file):
         file_uri = file.get_uri();
-        # user_home = os.path.expanduser("~")
-        # internxtDrive = os.path.join(user_home, 'InternxtDrive')
         return self.root_folder in file_uri
+
+    def _setItemStatus(self, file, status):
+      emblem = status_to_emblem_map[status]
+
+      if emblem == '' or emblem is None:
+         return
+
+      file.invalidate_extension_info()
+      file.add_emblem(emblem)
+
+    def _set_emblem_status(self, file):
+      target_key = 'status'
+
+      path = file.get_uri().replace('file://', '').replace('%20', ' ')
+
+      decoded_uri = urllib.parse.unquote(path)
+
+      attrs = xattr.xattr(decoded_uri)
+
+      if target_key.encode() in attrs:
+        status = attrs.get(target_key.encode()).decode('utf-8')
+
+        self._setItemStatus(file, status)
+
+      else:
+        file.invalidate_extension_info()
+        print(f"Key '{target_key}' not found")
+
 
     def _create_menu_items(self, files, group):
         active_items = []
@@ -98,15 +130,23 @@ class InternxtVirtualDrive(GObject.Object, Nautilus.MenuProvider, Nautilus.Colum
         return active_items
 
     def _download(self, menu, files):
-        # base_path = "file:///home/jvalles/InternxtDrive/"
         for file in files:
+            self._setItemStatus(file, 'downloading')
+
             relative_path = file.get_uri().replace(self.file_base_dir, '')
+
             print(relative_path)
+
             bytes_data = relative_path.encode('utf-8')
             base64_encoded = base64.b64encode(bytes_data).decode('utf-8')
             url = "http://localhost:4567/contents/" + base64_encoded
+
             print(url)
+
             requests.post(url)
+
+            self._setItemStatus(file, 'on_local')
+
 
     def _clear(self, menu, files):
         # base_path = "file:///home/jvalles/InternxtDrive/"
@@ -129,6 +169,9 @@ class InternxtVirtualDrive(GObject.Object, Nautilus.MenuProvider, Nautilus.Colum
     def update_file_info(self, file):
         if not self._file_is_in_virtual_drive(file):
             return
+
+        print(f'update file info {file.get_uri()}')
+        self._set_emblem_status(file)
 
         file.add_string_attribute(SYNC_STATUS_ATTRIBUTE_NAME,SYNC_STATUS_ONLY_ONLINE)
         self.get_columns()
