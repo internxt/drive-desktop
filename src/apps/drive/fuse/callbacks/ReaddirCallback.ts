@@ -1,8 +1,8 @@
 import { Container } from 'diod';
 import { FuseCallback } from './FuseCallback';
-import { FilesByFolderPathSearcher } from '../../../context/virtual-drive/files/application/search/FilesByFolderPathSearcher';
-import { FoldersByParentPathLister } from '../../../context/virtual-drive/folders/application/FoldersByParentPathLister';
-import { TemporalFileByFolderFinder } from '../../../context/offline-drive/TemporalFiles/application/find/TemporalFileByFolderFinder';
+import { FilesByFolderPathSearcher } from '../../../../context/virtual-drive/files/application/search/FilesByFolderPathSearcher';
+import { FoldersByParentPathLister } from '../../../../context/virtual-drive/folders/application/FoldersByParentPathLister';
+import { TemporalFileByFolderFinder } from '../../../../context/offline-drive/TemporalFiles/application/find/TemporalFileByFolderFinder';
 
 export class ReaddirCallback extends FuseCallback<Array<string>> {
   constructor(private readonly container: Container) {

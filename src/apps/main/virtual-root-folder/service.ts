@@ -4,6 +4,7 @@ import path from 'path';
 import configStore from '../config';
 import eventBus from '../event-bus';
 import { exec } from 'child_process';
+import { ensureFolderExists } from '../../shared/fs/ensure-folder-exists';
 
 const ROOT_FOLDER_NAME = 'Internxt Drive';
 const HOME_FOLDER_PATH = app.getPath('home');
@@ -53,6 +54,8 @@ function setSyncRoot(pathname: string): void {
 
 export function getRootVirtualDrive(): string {
   const current = configStore.get('syncRoot');
+  ensureFolderExists(current);
+
   if (current !== VIRTUAL_DRIVE_FOLDER) {
     setupRootFolder();
   }

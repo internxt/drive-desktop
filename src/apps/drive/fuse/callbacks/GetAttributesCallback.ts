@@ -1,11 +1,11 @@
 import { Container } from 'diod';
-import { Either, left } from '../../../context/shared/domain/Either';
-import { FileStatuses } from '../../../context/virtual-drive/files/domain/FileStatus';
+import { Either, left } from '../../../../context/shared/domain/Either';
+import { FileStatuses } from '../../../../context/virtual-drive/files/domain/FileStatus';
 import { FuseCallback } from './FuseCallback';
 import { FuseError, FuseNoSuchFileOrDirectoryError } from './FuseErrors';
-import { FirstsFileSearcher } from '../../../context/virtual-drive/files/application/search/FirstsFileSearcher';
-import { SingleFolderMatchingSearcher } from '../../../context/virtual-drive/folders/application/SingleFolderMatchingSearcher';
-import { TemporalFileByPathFinder } from '../../../context/offline-drive/TemporalFiles/application/find/TemporalFileByPathFinder';
+import { FirstsFileSearcher } from '../../../../context/virtual-drive/files/application/search/FirstsFileSearcher';
+import { SingleFolderMatchingSearcher } from '../../../../context/virtual-drive/folders/application/SingleFolderMatchingSearcher';
+import { TemporalFileByPathFinder } from '../../../../context/offline-drive/TemporalFiles/application/find/TemporalFileByPathFinder';
 
 type GetAttributesCallbackData = {
   mode: number;

@@ -2,6 +2,7 @@ import { Service } from 'diod';
 import { Readable } from 'form-data';
 import { readFile, readdir, unlink } from 'fs/promises';
 import path from 'path';
+import { ensureFolderExists } from '../../../../apps/shared/fs/ensure-folder-exists';
 import { WriteReadableToFile } from '../../../../apps/shared/fs/write-readable-to-file';
 import { LocalFileId } from '../domain/LocalFileId';
 import { LocalFileRepository } from '../domain/LocalFileRepository';
@@ -12,6 +13,8 @@ export class NodeLocalFilesRepository implements LocalFileRepository {
   constructor(private readonly baseFolder: string) {}
 
   async init(): Promise<void> {
+    ensureFolderExists(this.baseFolder);
+
     const files = await readdir(this.baseFolder);
 
     files.forEach((file) => {

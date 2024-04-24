@@ -1,11 +1,11 @@
 import { Container } from 'diod';
-import { FileTrasher } from '../../../context/virtual-drive/files/application/trash/FileTrasher';
-import { FirstsFileSearcher } from '../../../context/virtual-drive/files/application/search/FirstsFileSearcher';
-import { FileStatuses } from '../../../context/virtual-drive/files/domain/FileStatus';
+import { FileTrasher } from '../../../../context/virtual-drive/files/application/trash/FileTrasher';
+import { FirstsFileSearcher } from '../../../../context/virtual-drive/files/application/search/FirstsFileSearcher';
+import { FileStatuses } from '../../../../context/virtual-drive/files/domain/FileStatus';
 import { NotifyFuseCallback } from './FuseCallback';
 import { FuseIOError, FuseNoSuchFileOrDirectoryError } from './FuseErrors';
-import { TemporalFileByPathFinder } from '../../../context/offline-drive/TemporalFiles/application/find/TemporalFileByPathFinder';
-import { TemporalFileDeleter } from '../../../context/offline-drive/TemporalFiles/application/deletion/TemporalFileDeleter';
+import { TemporalFileByPathFinder } from '../../../../context/offline-drive/TemporalFiles/application/find/TemporalFileByPathFinder';
+import { TemporalFileDeleter } from '../../../../context/offline-drive/TemporalFiles/application/deletion/TemporalFileDeleter';
 
 export class TrashFileCallback extends NotifyFuseCallback {
   constructor(private readonly container: Container) {

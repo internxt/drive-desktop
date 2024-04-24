@@ -1,5 +1,5 @@
-import { Either, right, left } from '../../../context/shared/domain/Either';
-import { Stopwatch } from '../../shared/types/Stopwatch';
+import { Either, right, left } from '../../../../context/shared/domain/Either';
+import { Stopwatch } from '../../../shared/types/Stopwatch';
 import { FuseError, FuseUnknownError } from './FuseErrors';
 import Logger from 'electron-log';
 import { PathsToIgnore } from './PathsToIgnore';

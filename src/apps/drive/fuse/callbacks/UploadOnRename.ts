@@ -1,16 +1,16 @@
-import { FileStatuses } from '../../../context/virtual-drive/files/domain/FileStatus';
-import { Either, right } from '../../../context/shared/domain/Either';
+import { FileStatuses } from '../../../../context/virtual-drive/files/domain/FileStatus';
+import { Either, right } from '../../../../context/shared/domain/Either';
 import { FuseError } from './FuseErrors';
 import Logger from 'electron-log';
-import { File } from '../../../context/virtual-drive/files/domain/File';
+import { File } from '../../../../context/virtual-drive/files/domain/File';
 import { Container } from 'diod';
-import { FirstsFileSearcher } from '../../../context/virtual-drive/files/application/search/FirstsFileSearcher';
-import { RelativePathToAbsoluteConverter } from '../../../context/virtual-drive/shared/application/RelativePathToAbsoluteConverter';
-import { TemporalFileUploader } from '../../../context/offline-drive/TemporalFiles/application/upload/TemporalFileUploader';
-import { TemporalFileByPathFinder } from '../../../context/offline-drive/TemporalFiles/application/find/TemporalFileByPathFinder';
-import { TemporalFile } from '../../../context/offline-drive/TemporalFiles/domain/TemporalFile';
-import { TemporalFileByteByByteComparator } from '../../../context/offline-drive/TemporalFiles/application/comparation/TemporalFileByteByByteComparator';
-import { TemporalFilePath } from '../../../context/offline-drive/TemporalFiles/domain/TemporalFilePath';
+import { FirstsFileSearcher } from '../../../../context/virtual-drive/files/application/search/FirstsFileSearcher';
+import { RelativePathToAbsoluteConverter } from '../../../../context/virtual-drive/shared/application/RelativePathToAbsoluteConverter';
+import { TemporalFileUploader } from '../../../../context/offline-drive/TemporalFiles/application/upload/TemporalFileUploader';
+import { TemporalFileByPathFinder } from '../../../../context/offline-drive/TemporalFiles/application/find/TemporalFileByPathFinder';
+import { TemporalFile } from '../../../../context/offline-drive/TemporalFiles/domain/TemporalFile';
+import { TemporalFileByteByByteComparator } from '../../../../context/offline-drive/TemporalFiles/application/comparation/TemporalFileByteByByteComparator';
+import { TemporalFilePath } from '../../../../context/offline-drive/TemporalFiles/domain/TemporalFilePath';
 
 type Result = 'no-op' | 'success';
 

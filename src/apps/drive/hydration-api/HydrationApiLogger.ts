@@ -1,4 +1,4 @@
-import { AppLogger } from '../shared/AppLogger';
+import { AppLogger } from '../../shared/AppLogger';
 
 export class HydrationApiLogger extends AppLogger {
   constructor() {

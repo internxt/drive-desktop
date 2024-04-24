@@ -1,7 +1,7 @@
 import { Container } from 'diod';
 import { basename } from 'path';
-import { FolderCreator } from '../../../context/virtual-drive/folders/application/FolderCreator';
-import { SyncFolderMessenger } from '../../../context/virtual-drive/folders/domain/SyncFolderMessenger';
+import { FolderCreator } from '../../../../context/virtual-drive/folders/application/FolderCreator';
+import { SyncFolderMessenger } from '../../../../context/virtual-drive/folders/domain/SyncFolderMessenger';
 import { NotifyFuseCallback } from './FuseCallback';
 
 export class MakeDirectoryCallback extends NotifyFuseCallback {

@@ -16,24 +16,25 @@ import { TemporalFileUploaderFactory } from '../../../../context/offline-drive/T
 import { NodeTemporalFileRepository } from '../../../../context/offline-drive/TemporalFiles/infrastructure/NodeTemporalFileRepository';
 import { EnvironmentTemporalFileUploaderFactory } from '../../../../context/offline-drive/TemporalFiles/infrastructure/upload/EnvironmentTemporalFileUploaderFactory';
 import { UploadProgressTracker } from '../../../../context/shared/domain/UploadProgressTracker';
-import { FuseAppDataLocalFileContentsDirectoryProvider } from '../../../../context/virtual-drive/shared/infrastructure/LocalFileContentsDirectoryProviders/FuseAppDataLocalFileContentsDirectoryProvider';
 import { DependencyInjectionMainProcessUserProvider } from '../../../shared/dependency-injection/main/DependencyInjectionMainProcessUserProvider';
+import { app } from 'electron';
 
 export async function registerTemporalFilesServices(builder: ContainerBuilder) {
   // Infra
-  const localFileContentsDirectoryProvider =
-    new FuseAppDataLocalFileContentsDirectoryProvider();
-
-  const dir = await localFileContentsDirectoryProvider.provide();
-
   const user = DependencyInjectionMainProcessUserProvider.get();
 
-  const read = path.join(dir, 'downloaded');
-  const write = path.join(dir, 'uploads');
+  const temporal = app.getPath('temp');
+  const write = path.join(temporal, 'internxt-drive-tmp');
 
   builder
     .register(TemporalFileRepository)
-    .useFactory(() => new NodeTemporalFileRepository(read, write))
+    .useFactory(() => {
+      const repo = new NodeTemporalFileRepository(write);
+
+      repo.init();
+
+      return repo;
+    })
     .private()
     .asSingleton();
 

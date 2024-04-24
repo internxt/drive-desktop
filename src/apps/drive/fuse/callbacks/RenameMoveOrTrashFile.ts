@@ -1,15 +1,15 @@
 import { Container } from 'diod';
 import path from 'path';
-import { Either, left, right } from '../../../context/shared/domain/Either';
-import { DriveDesktopError } from '../../../context/shared/domain/errors/DriveDesktopError';
-import { FileTrasher } from '../../../context/virtual-drive/files/application/trash/FileTrasher';
-import { FilePathUpdater } from '../../../context/virtual-drive/files/application/move/FilePathUpdater';
-import { FirstsFileSearcher } from '../../../context/virtual-drive/files/application/search/FirstsFileSearcher';
-import { File } from '../../../context/virtual-drive/files/domain/File';
-import { FilePath } from '../../../context/virtual-drive/files/domain/FilePath';
-import { FileStatuses } from '../../../context/virtual-drive/files/domain/FileStatus';
-import { SyncFileMessenger } from '../../../context/virtual-drive/files/domain/SyncFileMessenger';
-import { SyncErrorCause } from '../../../shared/issues/SyncErrorCause';
+import { Either, left, right } from '../../../../context/shared/domain/Either';
+import { DriveDesktopError } from '../../../../context/shared/domain/errors/DriveDesktopError';
+import { FileTrasher } from '../../../../context/virtual-drive/files/application/trash/FileTrasher';
+import { FilePathUpdater } from '../../../../context/virtual-drive/files/application/move/FilePathUpdater';
+import { FirstsFileSearcher } from '../../../../context/virtual-drive/files/application/search/FirstsFileSearcher';
+import { File } from '../../../../context/virtual-drive/files/domain/File';
+import { FilePath } from '../../../../context/virtual-drive/files/domain/FilePath';
+import { FileStatuses } from '../../../../context/virtual-drive/files/domain/FileStatus';
+import { SyncFileMessenger } from '../../../../context/virtual-drive/files/domain/SyncFileMessenger';
+import { SyncErrorCause } from '../../../../shared/issues/SyncErrorCause';
 import { FuseError, FuseUnknownError } from './FuseErrors';
 
 type RenameOrMoveRight = 'no-op' | 'success';

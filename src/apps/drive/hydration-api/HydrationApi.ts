@@ -1,8 +1,9 @@
-import express, { Router } from 'express';
-import { buildContentsRouter } from './routes/contents';
-import { buildFilesRouter } from './routes/files';
 import { Container } from 'diod';
+import express, { Router } from 'express';
+import { VirtualDrive } from '../VirtualDrive';
 import { HydrationApiLogger } from './HydrationApiLogger';
+import { buildHydrationRouter } from './routes/contents';
+import { buildFilesRouter } from './routes/files';
 
 export interface HydrationApiOptions {
   debug: boolean;
@@ -13,14 +14,17 @@ export class HydrationApi {
   private readonly app;
   private readonly logger: HydrationApiLogger;
 
-  constructor(private readonly container: Container) {
+  constructor(
+    private readonly virtualDrive: VirtualDrive,
+    private readonly container: Container
+  ) {
     this.app = express();
     this.logger = new HydrationApiLogger();
   }
 
   private async buildRouters() {
     const routers = {
-      contents: buildContentsRouter(this.container),
+      hydration: buildHydrationRouter(this.virtualDrive, this.logger),
       files: buildFilesRouter(this.container),
     };
 

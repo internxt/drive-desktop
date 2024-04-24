@@ -1,17 +1,17 @@
 import { basename } from 'path';
-import { FolderPath } from '../../../context/virtual-drive/folders/domain/FolderPath';
+import { FolderPath } from '../../../../context/virtual-drive/folders/domain/FolderPath';
 import { FuseError, FuseUnknownError } from './FuseErrors';
-import { Either, left, right } from '../../../context/shared/domain/Either';
-import { FolderStatuses } from '../../../context/virtual-drive/folders/domain/FolderStatus';
-import { Folder } from '../../../context/virtual-drive/folders/domain/Folder';
-import { DriveDesktopError } from '../../../context/shared/domain/errors/DriveDesktopError';
-import { SyncErrorCause } from '../../../shared/issues/SyncErrorCause';
+import { Either, left, right } from '../../../../context/shared/domain/Either';
+import { FolderStatuses } from '../../../../context/virtual-drive/folders/domain/FolderStatus';
+import { Folder } from '../../../../context/virtual-drive/folders/domain/Folder';
+import { DriveDesktopError } from '../../../../context/shared/domain/errors/DriveDesktopError';
+import { SyncErrorCause } from '../../../../shared/issues/SyncErrorCause';
 import { Container } from 'diod';
-import { SyncFileMessenger } from '../../../context/virtual-drive/files/domain/SyncFileMessenger';
-import { FolderDeleter } from '../../../context/virtual-drive/folders/application/FolderDeleter';
-import { FolderPathUpdater } from '../../../context/virtual-drive/folders/application/FolderPathUpdater';
-import { SingleFolderMatchingSearcher } from '../../../context/virtual-drive/folders/application/SingleFolderMatchingSearcher';
-import { SyncFolderMessenger } from '../../../context/virtual-drive/folders/domain/SyncFolderMessenger';
+import { SyncFileMessenger } from '../../../../context/virtual-drive/files/domain/SyncFileMessenger';
+import { FolderDeleter } from '../../../../context/virtual-drive/folders/application/FolderDeleter';
+import { FolderPathUpdater } from '../../../../context/virtual-drive/folders/application/FolderPathUpdater';
+import { SingleFolderMatchingSearcher } from '../../../../context/virtual-drive/folders/application/SingleFolderMatchingSearcher';
+import { SyncFolderMessenger } from '../../../../context/virtual-drive/folders/domain/SyncFolderMessenger';
 
 type RenameOrMoveRight = 'no-op' | 'success';
 

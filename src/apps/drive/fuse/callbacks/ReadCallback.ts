@@ -1,10 +1,10 @@
 import { Container } from 'diod';
 import Logger from 'electron-log';
-import { TemporalFileByPathFinder } from '../../../context/offline-drive/TemporalFiles/application/find/TemporalFileByPathFinder';
-import { FirstsFileSearcher } from '../../../context/virtual-drive/files/application/search/FirstsFileSearcher';
-import { Optional } from '../../../shared/types/Optional';
-import { TemporalFileChunkReader } from '../../../context/offline-drive/TemporalFiles/application/read/TemporalFileChunkReader';
-import { LocalFileChunkReader } from '../../../context/offline-drive/LocalFile/application/read/LocalFileChunkReader';
+import { TemporalFileByPathFinder } from '../../../../context/offline-drive/TemporalFiles/application/find/TemporalFileByPathFinder';
+import { FirstsFileSearcher } from '../../../../context/virtual-drive/files/application/search/FirstsFileSearcher';
+import { Optional } from '../../../../shared/types/Optional';
+import { TemporalFileChunkReader } from '../../../../context/offline-drive/TemporalFiles/application/read/TemporalFileChunkReader';
+import { LocalFileChunkReader } from '../../../../context/offline-drive/LocalFile/application/read/LocalFileChunkReader';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const fuse = require('@gcas/fuse');

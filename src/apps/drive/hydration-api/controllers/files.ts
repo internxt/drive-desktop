@@ -1,8 +1,8 @@
-import { FileAttributes } from '../../../context/virtual-drive/files/domain/File';
+import { FileAttributes } from '../../../../context/virtual-drive/files/domain/File';
 import { Request, Response } from 'express';
 import { Container } from 'diod';
-import { RetrieveAllFiles } from '../../../context/virtual-drive/files/application/RetrieveAllFiles';
-import { FilesSearcherByPartialMatch } from '../../../context/virtual-drive/files/application/search-all/FilesSearcherByPartialMatch';
+import { RetrieveAllFiles } from '../../../../context/virtual-drive/files/application/RetrieveAllFiles';
+import { FilesSearcherByPartialMatch } from '../../../../context/virtual-drive/files/application/search-all/FilesSearcherByPartialMatch';
 
 export function buildFilesControllers(container: Container) {
   const getAll = async (_req: Request, res: Response) => {

@@ -1,9 +1,9 @@
 import { Container } from 'diod';
 import { basename } from 'path';
-import { FolderDeleter } from '../../../context/virtual-drive/folders/application/FolderDeleter';
-import { SingleFolderMatchingFinder } from '../../../context/virtual-drive/folders/application/SingleFolderMatchingFinder';
-import { FolderStatuses } from '../../../context/virtual-drive/folders/domain/FolderStatus';
-import { SyncFolderMessenger } from '../../../context/virtual-drive/folders/domain/SyncFolderMessenger';
+import { FolderDeleter } from '../../../../context/virtual-drive/folders/application/FolderDeleter';
+import { SingleFolderMatchingFinder } from '../../../../context/virtual-drive/folders/application/SingleFolderMatchingFinder';
+import { FolderStatuses } from '../../../../context/virtual-drive/folders/domain/FolderStatus';
+import { SyncFolderMessenger } from '../../../../context/virtual-drive/folders/domain/SyncFolderMessenger';
 import { NotifyFuseCallback } from './FuseCallback';
 
 export class TrashFolderCallback extends NotifyFuseCallback {

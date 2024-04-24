@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { reportError } from '../utils/errors';
-import { FuseDriveStatus } from '../../fuse/FuseDriveStatus';
+import { FuseDriveStatus } from '../../drive/fuse/FuseDriveStatus';
 
 export default function useVirtualDriveStatus() {
   const [virtualDriveStatus, setVirtualDriveStatus] =

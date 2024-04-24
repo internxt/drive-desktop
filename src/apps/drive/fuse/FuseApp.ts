@@ -1,10 +1,10 @@
 import { Container } from 'diod';
 import Logger from 'electron-log';
-import { ClearLocalFiles } from '../../context/offline-drive/LocalFile/application/delete/ClearLocalFiles';
-import { FileRepositoryInitializer } from '../../context/virtual-drive/files/application/FileRepositoryInitializer';
-import { FolderRepositoryInitializer } from '../../context/virtual-drive/folders/application/FolderRepositoryInitializer';
-import { TreeBuilder } from '../../context/virtual-drive/tree/application/TreeBuilder';
-import { ensureFolderExists } from './../shared/fs/ensure-folder-exists';
+import { ClearLocalFiles } from '../../../context/offline-drive/LocalFile/application/delete/ClearLocalFiles';
+import { FileRepositoryInitializer } from '../../../context/virtual-drive/files/application/FileRepositoryInitializer';
+import { FolderRepositoryInitializer } from '../../../context/virtual-drive/folders/application/FolderRepositoryInitializer';
+import { TreeBuilder } from '../../../context/virtual-drive/tree/application/TreeBuilder';
+import { VirtualDrive } from '../VirtualDrive';
 import { FuseDriveStatus } from './FuseDriveStatus';
 import { CreateCallback } from './callbacks/CreateCallback';
 import { GetAttributesCallback } from './callbacks/GetAttributesCallback';
@@ -29,17 +29,15 @@ export class FuseApp {
   private _fuse: any;
 
   constructor(
+    private readonly virtualDrive: VirtualDrive,
     private readonly container: Container,
-    private readonly paths: {
-      root: string;
-      local: string;
-    }
+    private readonly root: string
   ) {}
 
   private async getOpt() {
     const readdir = new ReaddirCallback(this.container);
     const getattr = new GetAttributesCallback(this.container);
-    const open = new OpenCallback(this.container);
+    const open = new OpenCallback(this.virtualDrive);
     const read = new ReadCallback(this.container);
     const renameOrMove = new RenameMoveOrTrashCallback(this.container);
     const create = new CreateCallback(this.container);
@@ -48,7 +46,7 @@ export class FuseApp {
     const trashFolder = new TrashFolderCallback(this.container);
     const write = new WriteCallback(this.container);
     const release = new ReleaseCallback(this.container);
-    const getXAttributes = new GetXAttributeCallback(this.container);
+    const getXAttributes = new GetXAttributeCallback(this.virtualDrive);
 
     return {
       getattr: getattr.handle.bind(getattr),
@@ -68,10 +66,8 @@ export class FuseApp {
 
   async start(): Promise<void> {
     const ops = await this.getOpt();
-    ensureFolderExists(this.paths.root);
-    ensureFolderExists(this.paths.local);
 
-    this._fuse = new fuse(this.paths.root, ops, {
+    this._fuse = new fuse(this.root, ops, {
       debug: false,
       force: true,
       maxRead: FuseApp.MAX_INT_32,
