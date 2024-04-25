@@ -126,27 +126,35 @@ class InternxtVirtualDrive(GObject.Object, Nautilus.MenuProvider, Nautilus.Colum
     def _create_menu_items(self, files, group):
         active_items = []
 
-        filtered_files = []
-        for file in files:
-            if self._file_is_in_virtual_drive(file):
-             filtered_files.append(file)
+        local_files = []
+        remote_files = []
 
-        if len(filtered_files) > 0:
-            download = Nautilus.MenuItem(
+        for file in files:
+          if self._file_is_in_virtual_drive(file) and not file.is_directory():
+            status = self._get_x_attribute(file, 'hydration-status')
+
+            if (status == 'on_local'):
+              local_files.append(file)
+
+            if (status == 'on_remote'):
+              remote_files.append(file)
+
+        if len(local_files) > 0:
+          clear = Nautilus.MenuItem(
+              name="InternxtVirtualDrive::CLEAR" + group,
+              label="Make remote only",
+          )
+          clear.connect("activate", self._make_remote_only, local_files)
+
+          active_items.append(clear)
+
+        if len(remote_files) > 0:
+          download = Nautilus.MenuItem(
                 name="InternxtVirtualDrive::DOWNLOAD" + group,
                 label="Make Available Offline",
             )
-            download.connect("activate", self._make_locally_available, filtered_files)
-            active_items.append(download)
-
-
-            clear = Nautilus.MenuItem(
-                name="InternxtVirtualDrive::CLEAR" + group,
-                label="Make remote only",
-            )
-            clear.connect("activate", self._make_remote_only, filtered_files)
-
-            active_items.append(clear)
+          download.connect("activate", self._make_locally_available, remote_files)
+          active_items.append(download)
 
         return active_items
 
