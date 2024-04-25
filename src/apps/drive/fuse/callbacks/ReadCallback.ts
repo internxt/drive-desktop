@@ -1,10 +1,10 @@
 import { Container } from 'diod';
 import Logger from 'electron-log';
-import { TemporalFileByPathFinder } from '../../../../context/offline-drive/TemporalFiles/application/find/TemporalFileByPathFinder';
+import { TemporalFileByPathFinder } from '../../../../context/storage/TemporalFiles/application/find/TemporalFileByPathFinder';
 import { FirstsFileSearcher } from '../../../../context/virtual-drive/files/application/search/FirstsFileSearcher';
 import { Optional } from '../../../../shared/types/Optional';
-import { TemporalFileChunkReader } from '../../../../context/offline-drive/TemporalFiles/application/read/TemporalFileChunkReader';
-import { LocalFileChunkReader } from '../../../../context/offline-drive/LocalFile/application/read/LocalFileChunkReader';
+import { TemporalFileChunkReader } from '../../../../context/storage/TemporalFiles/application/read/TemporalFileChunkReader';
+import { StorageFileChunkReader } from '../../../../context/storage/StorageFiles/application/read/StorageFileChunkReader';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const fuse = require('@gcas/fuse');
@@ -19,7 +19,7 @@ export class ReadCallback {
     position: number
   ): Promise<number> {
     const readResult = await this.container
-      .get(LocalFileChunkReader)
+      .get(StorageFileChunkReader)
       .run(contentsId, length, position);
 
     if (!readResult.isPresent()) {

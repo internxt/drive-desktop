@@ -1,6 +1,6 @@
 import { Container } from 'diod';
 import Logger from 'electron-log';
-import { ClearLocalFiles } from '../../../context/offline-drive/LocalFile/application/delete/ClearLocalFiles';
+import { StorageClearer } from '../../../context/storage/StorageFiles/application/delete/StorageClearer';
 import { FileRepositoryInitializer } from '../../../context/virtual-drive/files/application/FileRepositoryInitializer';
 import { FolderRepositoryInitializer } from '../../../context/virtual-drive/folders/application/FolderRepositoryInitializer';
 import { TreeBuilder } from '../../../context/virtual-drive/tree/application/TreeBuilder';
@@ -96,7 +96,7 @@ export class FuseApp {
   }
 
   async clearCache(): Promise<void> {
-    await this.container.get(ClearLocalFiles).run();
+    await this.container.get(StorageClearer).run();
   }
 
   async update(): Promise<void> {

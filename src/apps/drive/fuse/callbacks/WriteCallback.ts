@@ -1,5 +1,5 @@
 import { Container } from 'diod';
-import { TemporalFileWriter } from '../../../../context/offline-drive/TemporalFiles/application/write/TemporalFileWriter';
+import { TemporalFileWriter } from '../../../../context/storage/TemporalFiles/application/write/TemporalFileWriter';
 
 export class WriteCallback {
   constructor(private readonly container: Container) {}

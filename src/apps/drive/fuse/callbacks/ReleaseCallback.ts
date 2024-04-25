@@ -1,11 +1,11 @@
 import { Container } from 'diod';
-import { TemporalFileByPathFinder } from '../../../../context/offline-drive/TemporalFiles/application/find/TemporalFileByPathFinder';
-import { TemporalFileUploader } from '../../../../context/offline-drive/TemporalFiles/application/upload/TemporalFileUploader';
+import { TemporalFileByPathFinder } from '../../../../context/storage/TemporalFiles/application/find/TemporalFileByPathFinder';
+import { TemporalFileUploader } from '../../../../context/storage/TemporalFiles/application/upload/TemporalFileUploader';
 import { FirstsFileSearcher } from '../../../../context/virtual-drive/files/application/search/FirstsFileSearcher';
 import { NotifyFuseCallback } from './FuseCallback';
 import { FuseIOError } from './FuseErrors';
 import Logger from 'electron-log';
-import { LocalFileCacheDeleter } from '../../../../context/offline-drive/LocalFile/application/delete/LocalFileCacheDeleter';
+import { StorageCacheDeleter } from '../../../../context/storage/StorageFiles/application/delete/StorageCacheDeleter';
 
 export class ReleaseCallback extends NotifyFuseCallback {
   constructor(private readonly container: Container) {
@@ -41,7 +41,7 @@ export class ReleaseCallback extends NotifyFuseCallback {
 
       if (virtualFile) {
         await this.container
-          .get(LocalFileCacheDeleter)
+          .get(StorageCacheDeleter)
           .run(virtualFile.contentsId);
 
         this.logDebugMessage(

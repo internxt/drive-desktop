@@ -5,7 +5,7 @@ import { FuseCallback } from './FuseCallback';
 import { FuseError, FuseNoSuchFileOrDirectoryError } from './FuseErrors';
 import { FirstsFileSearcher } from '../../../../context/virtual-drive/files/application/search/FirstsFileSearcher';
 import { SingleFolderMatchingSearcher } from '../../../../context/virtual-drive/folders/application/SingleFolderMatchingSearcher';
-import { TemporalFileByPathFinder } from '../../../../context/offline-drive/TemporalFiles/application/find/TemporalFileByPathFinder';
+import { TemporalFileByPathFinder } from '../../../../context/storage/TemporalFiles/application/find/TemporalFileByPathFinder';
 
 type GetAttributesCallbackData = {
   mode: number;

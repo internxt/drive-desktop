@@ -1,7 +1,7 @@
 import Logger from 'electron-log';
 import { VirtualDrive } from '../../VirtualDrive';
 import { FuseCallback } from './FuseCallback';
-import { FuseIOError, FuseNoSuchFileOrDirectoryError } from './FuseErrors';
+import { FuseIOError } from './FuseErrors';
 
 export class OpenCallback extends FuseCallback<number> {
   constructor(private readonly virtualDrive: VirtualDrive) {
@@ -10,12 +10,7 @@ export class OpenCallback extends FuseCallback<number> {
 
   async execute(path: string, _flags: Array<any>) {
     try {
-      const locallyAvailableResult = await this.virtualDrive.isLocallyAvailable(
-        path
-      );
-
-      const locallyAvailable =
-        locallyAvailableResult.isRight() && locallyAvailableResult.getRight();
+      const locallyAvailable = await this.virtualDrive.isLocallyAvailable(path);
 
       if (locallyAvailable) {
         return this.right(0);
@@ -29,11 +24,7 @@ export class OpenCallback extends FuseCallback<number> {
         return this.right(0);
       }
 
-      const result = await this.virtualDrive.makeFileLocallyAvailable(path);
-
-      if (result.isLeft()) {
-        return this.left(new FuseNoSuchFileOrDirectoryError(path));
-      }
+      await this.virtualDrive.makeFileLocallyAvailable(path);
 
       return this.right(0);
     } catch (err: unknown) {

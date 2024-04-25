@@ -6,11 +6,11 @@ import { File } from '../../../../context/virtual-drive/files/domain/File';
 import { Container } from 'diod';
 import { FirstsFileSearcher } from '../../../../context/virtual-drive/files/application/search/FirstsFileSearcher';
 import { RelativePathToAbsoluteConverter } from '../../../../context/virtual-drive/shared/application/RelativePathToAbsoluteConverter';
-import { TemporalFileUploader } from '../../../../context/offline-drive/TemporalFiles/application/upload/TemporalFileUploader';
-import { TemporalFileByPathFinder } from '../../../../context/offline-drive/TemporalFiles/application/find/TemporalFileByPathFinder';
-import { TemporalFile } from '../../../../context/offline-drive/TemporalFiles/domain/TemporalFile';
-import { TemporalFileByteByByteComparator } from '../../../../context/offline-drive/TemporalFiles/application/comparation/TemporalFileByteByByteComparator';
-import { TemporalFilePath } from '../../../../context/offline-drive/TemporalFiles/domain/TemporalFilePath';
+import { TemporalFileUploader } from '../../../../context/storage/TemporalFiles/application/upload/TemporalFileUploader';
+import { TemporalFileByPathFinder } from '../../../../context/storage/TemporalFiles/application/find/TemporalFileByPathFinder';
+import { TemporalFile } from '../../../../context/storage/TemporalFiles/domain/TemporalFile';
+import { TemporalFileByteByByteComparator } from '../../../../context/storage/TemporalFiles/application/comparation/TemporalFileByteByByteComparator';
+import { TemporalFilePath } from '../../../../context/storage/TemporalFiles/domain/TemporalFilePath';
 
 type Result = 'no-op' | 'success';
 

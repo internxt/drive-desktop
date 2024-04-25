@@ -1,6 +1,3 @@
-import { ipcMain } from 'electron';
-import Logger from 'electron-log';
-import eventBus from '../main/event-bus';
 import { getRootVirtualDrive } from '../main/virtual-root-folder/service';
 import { VirtualDrive } from './VirtualDrive';
 import { DriveDependencyContainerFactory } from './dependency-injection/DriveDependencyContainerFactory';
@@ -9,14 +6,14 @@ import { HydrationApi } from './hydration-api/HydrationApi';
 
 let fuseApp: FuseApp;
 
-async function startFuseApp() {
+export async function startVirtualDrive() {
   const root = getRootVirtualDrive();
 
   const container = await DriveDependencyContainerFactory.build();
 
   const virtualDrive = new VirtualDrive(container);
 
-  const hydrationApi = new HydrationApi(virtualDrive, container);
+  const hydrationApi = new HydrationApi(container);
 
   fuseApp = new FuseApp(virtualDrive, container, root);
 
@@ -29,29 +26,22 @@ export async function stopSyncEngineWatcher() {
   await fuseApp.stop();
 }
 
-async function stopAndClearFuseApp() {
+export async function stopAndClearFuseApp() {
   await fuseApp.clearCache();
   await fuseApp.stop();
 }
 
-async function updateFuseApp() {
+export async function updateFuseApp() {
   await fuseApp.update();
 }
 
-eventBus.on('USER_LOGGED_OUT', stopAndClearFuseApp);
-eventBus.on('USER_WAS_UNAUTHORIZED', stopAndClearFuseApp);
-eventBus.on('INITIAL_SYNC_READY', startFuseApp);
-eventBus.on('REMOTE_CHANGES_SYNCHED', updateFuseApp);
-
-ipcMain.handle('get-virtual-drive-status', () => {
+export function getFuseDriveState() {
   if (!fuseApp) {
-    return 'MOUNTED';
+    return 'UNMOUNTED';
   }
   return fuseApp.getStatus();
-});
+}
 
-ipcMain.handle('retry-virtual-drive-mount', async () => {
-  Logger.info('Going to retry mount the app');
+export function stopFuse() {
   fuseApp.stop();
-  await startFuseApp();
-});
+}

@@ -4,8 +4,8 @@ import { FirstsFileSearcher } from '../../../../context/virtual-drive/files/appl
 import { FileStatuses } from '../../../../context/virtual-drive/files/domain/FileStatus';
 import { NotifyFuseCallback } from './FuseCallback';
 import { FuseIOError, FuseNoSuchFileOrDirectoryError } from './FuseErrors';
-import { TemporalFileByPathFinder } from '../../../../context/offline-drive/TemporalFiles/application/find/TemporalFileByPathFinder';
-import { TemporalFileDeleter } from '../../../../context/offline-drive/TemporalFiles/application/deletion/TemporalFileDeleter';
+import { TemporalFileByPathFinder } from '../../../../context/storage/TemporalFiles/application/find/TemporalFileByPathFinder';
+import { TemporalFileDeleter } from '../../../../context/storage/TemporalFiles/application/deletion/TemporalFileDeleter';
 
 export class TrashFileCallback extends NotifyFuseCallback {
   constructor(private readonly container: Container) {

@@ -6,10 +6,10 @@ export class GetXAttributeCallback extends FuseCallback<Buffer> {
     super('Get X Attribute', { input: false });
   }
 
-  async execute(path: string, name: string, size: string) {
+  async execute(path: string, _name: string, _size: string) {
     const isAvailableLocally = await this.drive.isLocallyAvailable(path);
 
-    if (isAvailableLocally.isRight() && isAvailableLocally.getRight()) {
+    if (isAvailableLocally) {
       return this.right(Buffer.from('on_local'));
     }
 

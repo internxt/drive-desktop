@@ -1,6 +1,6 @@
 import { Service } from 'diod';
 import Logger from 'electron-log';
-import { TemporalFileUploadedDomainEvent } from '../../../../offline-drive/TemporalFiles/domain/upload/TemporalFileUploadedDomainEvent';
+import { TemporalFileUploadedDomainEvent } from '../../../../storage/TemporalFiles/domain/upload/TemporalFileUploadedDomainEvent';
 import { DomainEventClass } from '../../../../shared/domain/DomainEvent';
 import { DomainEventSubscriber } from '../../../../shared/domain/DomainEventSubscriber';
 import { FileCreator } from './FileCreator';

@@ -1,6 +1,6 @@
 import { FileSizeMother } from '../FileSizeMother';
 import { FilePathMother } from '../FilePathMother';
-import { TemporalFileUploadedDomainEvent } from '../../../../../../src/context/offline-drive/TemporalFiles/domain/upload/TemporalFileUploadedDomainEvent';
+import { TemporalFileUploadedDomainEvent } from '../../../../../../src/context/storage/TemporalFiles/domain/upload/TemporalFileUploadedDomainEvent';
 import { BucketEntryIdMother } from '../../../shared/domain/BucketEntryIdMother';
 
 export class OfflineContentsUploadedDomainEventMother {

@@ -1,6 +1,6 @@
 import { Container } from 'diod';
 import { NotifyFuseCallback } from './FuseCallback';
-import { TemporalFileCreator } from '../../../../context/offline-drive/TemporalFiles/application/creation/TemporalFileCreator';
+import { TemporalFileCreator } from '../../../../context/storage/TemporalFiles/application/creation/TemporalFileCreator';
 
 export class CreateCallback extends NotifyFuseCallback {
   constructor(private readonly container: Container) {

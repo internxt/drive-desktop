@@ -1,70 +1,24 @@
 import { Container } from 'diod';
-import { LocalFileIsAvailable } from '../../context/offline-drive/LocalFile/application/find/LocalFileIsAvaliable';
-import { FirstsFileSearcher } from '../../context/virtual-drive/files/application/search/FirstsFileSearcher';
-import { FileDownloader } from '../../context/virtual-drive/files/application/download/FileDownloader';
-import { LocalFileWriter } from '../../context/offline-drive/LocalFile/application/write/LocalFileWriter';
-import { Either, left, right } from '../../context/shared/domain/Either';
-import {
-  FileNotFoundVirtualDriveError,
-  VirtualDriveError,
-} from './errors/VirtualDriveError';
-import { LocalFileDeleter } from '../../context/offline-drive/LocalFile/application/delete/LocalFileDeleter';
-import { TemporalFileByPathFinder } from '../../context/offline-drive/TemporalFiles/application/find/TemporalFileByPathFinder';
+import { Either, right } from '../../context/shared/domain/Either';
+import { StorageFileDeleter } from '../../context/storage/StorageFiles/application/delete/StorageFileDeleter';
+import { MakeStorageFileAvaliableOffline } from '../../context/storage/StorageFiles/application/offline/MakeStorageFileAvaliableOffline';
+import { StorageFileIsAvailableOffline } from '../../context/storage/StorageFiles/application/offline/StorageFileIsAvailableOffline';
+import { TemporalFileByPathFinder } from '../../context/storage/TemporalFiles/application/find/TemporalFileByPathFinder';
+import { VirtualDriveError } from './errors/VirtualDriveError';
 
 export class VirtualDrive {
   constructor(private readonly container: Container) {}
 
-  async isLocallyAvailable(
-    path: string
-  ): Promise<Either<VirtualDriveError, boolean>> {
-    const virtualFile = await this.container.get(FirstsFileSearcher).run({
-      path,
-    });
-
-    if (!virtualFile) {
-      return left(new FileNotFoundVirtualDriveError(path));
-    }
-
-    const isAvailable = await this.container
-      .get(LocalFileIsAvailable)
-      .run(virtualFile.contentsId);
-
-    return right(isAvailable);
+  async isLocallyAvailable(path: string): Promise<boolean> {
+    return await this.container.get(StorageFileIsAvailableOffline).run(path);
   }
 
-  async makeFileLocallyAvailable(
-    path: string
-  ): Promise<Either<VirtualDriveError, void>> {
-    const virtualFile = await this.container
-      .get(FirstsFileSearcher)
-      .run({ path });
-
-    if (!virtualFile) {
-      return left(new FileNotFoundVirtualDriveError(path));
-    }
-
-    const stream = await this.container.get(FileDownloader).run(virtualFile);
-    await this.container
-      .get(LocalFileWriter)
-      .run(virtualFile.contentsId, stream);
-
-    return right(undefined);
+  async makeFileLocallyAvailable(path: string): Promise<void> {
+    await this.container.get(MakeStorageFileAvaliableOffline).run(path);
   }
 
-  async makeFileRemoteOnly(
-    path: string
-  ): Promise<Either<VirtualDriveError, void>> {
-    const file = await this.container.get(FirstsFileSearcher).run({
-      path,
-    });
-
-    if (!file) {
-      return left(new FileNotFoundVirtualDriveError(path));
-    }
-
-    await this.container.get(LocalFileDeleter).run(file.contentsId);
-
-    return right(undefined);
+  async makeFileRemoteOnly(path: string): Promise<void> {
+    await this.container.get(StorageFileDeleter).run(path);
   }
 
   async temporalFileExists(

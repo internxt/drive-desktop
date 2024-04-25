@@ -1,27 +1,15 @@
+import { Container } from 'diod';
 import { Request, Response } from 'express';
-import { VirtualDrive } from '../../VirtualDrive';
-import { HydrationApiLogger } from '../HydrationApiLogger';
-import { getStatusForError } from './VirtualDriveErrorToStatusMap';
+import { StorageFileDeleter } from '../../../../context/storage/StorageFiles/application/delete/StorageFileDeleter';
+import { MakeStorageFileAvaliableOffline } from '../../../../context/storage/StorageFiles/application/offline/MakeStorageFileAvaliableOffline';
 
-export function buildContentsController(
-  virtualDrive: VirtualDrive,
-  logger: HydrationApiLogger
-) {
+export function buildContentsController(container: Container) {
   const download = async (req: Request, res: Response) => {
     const decodedBuffer = Buffer.from(req.params.path, 'base64');
 
     const path = decodedBuffer.toString('utf-8').replaceAll('%20', ' ');
 
-    const result = await virtualDrive.makeFileLocallyAvailable(path);
-
-    if (result.isLeft()) {
-      const error = result.getLeft();
-
-      logger.error(error);
-
-      const status = getStatusForError(error);
-      res.sendStatus(status);
-    }
+    await container.get(MakeStorageFileAvaliableOffline).run(path);
 
     res.status(201).send();
   };
@@ -31,16 +19,7 @@ export function buildContentsController(
 
     const path = decodedBuffer.toString('utf-8').replaceAll('%20', ' ');
 
-    const result = await virtualDrive.makeFileRemoteOnly(path);
-
-    if (result.isLeft()) {
-      const error = result.getLeft();
-
-      logger.error(error);
-
-      const status = getStatusForError(error);
-      res.sendStatus(status);
-    }
+    await container.get(StorageFileDeleter).run(path);
 
     res.status(201).send();
   };

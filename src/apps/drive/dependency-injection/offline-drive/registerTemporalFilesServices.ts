@@ -1,23 +1,23 @@
 import { Environment } from '@internxt/inxt-js';
 import { ContainerBuilder } from 'diod';
-import path from 'path';
-import { TemporalFileByteByByteComparator } from '../../../../context/offline-drive/TemporalFiles/application/comparation/TemporalFileByteByByteComparator';
-import { TemporalFileCreator } from '../../../../context/offline-drive/TemporalFiles/application/creation/TemporalFileCreator';
-import { DeleteTemporalFileOnFileCreated } from '../../../../context/offline-drive/TemporalFiles/application/deletion/DeleteTemporalFileOnFileCreated';
-import { TemporalFileDeleter } from '../../../../context/offline-drive/TemporalFiles/application/deletion/TemporalFileDeleter';
-import { TemporalFileByFolderFinder } from '../../../../context/offline-drive/TemporalFiles/application/find/TemporalFileByFolderFinder';
-import { TemporalFileByPathFinder } from '../../../../context/offline-drive/TemporalFiles/application/find/TemporalFileByPathFinder';
-import { TemporalFilePathsByFolderFinder } from '../../../../context/offline-drive/TemporalFiles/application/find/TemporalFilePathsByFolderFinder';
-import { TemporalFileChunkReader } from '../../../../context/offline-drive/TemporalFiles/application/read/TemporalFileChunkReader';
-import { TemporalFileUploader } from '../../../../context/offline-drive/TemporalFiles/application/upload/TemporalFileUploader';
-import { TemporalFileWriter } from '../../../../context/offline-drive/TemporalFiles/application/write/TemporalFileWriter';
-import { TemporalFileRepository } from '../../../../context/offline-drive/TemporalFiles/domain/TemporalFileRepository';
-import { TemporalFileUploaderFactory } from '../../../../context/offline-drive/TemporalFiles/domain/upload/TemporalFileUploaderFactory';
-import { NodeTemporalFileRepository } from '../../../../context/offline-drive/TemporalFiles/infrastructure/NodeTemporalFileRepository';
-import { EnvironmentTemporalFileUploaderFactory } from '../../../../context/offline-drive/TemporalFiles/infrastructure/upload/EnvironmentTemporalFileUploaderFactory';
-import { UploadProgressTracker } from '../../../../context/shared/domain/UploadProgressTracker';
-import { DependencyInjectionMainProcessUserProvider } from '../../../shared/dependency-injection/main/DependencyInjectionMainProcessUserProvider';
 import { app } from 'electron';
+import path from 'path';
+import { UploadProgressTracker } from '../../../../context/shared/domain/UploadProgressTracker';
+import { TemporalFileByteByByteComparator } from '../../../../context/storage/TemporalFiles/application/comparation/TemporalFileByteByByteComparator';
+import { TemporalFileCreator } from '../../../../context/storage/TemporalFiles/application/creation/TemporalFileCreator';
+import { DeleteTemporalFileOnFileCreated } from '../../../../context/storage/TemporalFiles/application/deletion/DeleteTemporalFileOnFileCreated';
+import { TemporalFileDeleter } from '../../../../context/storage/TemporalFiles/application/deletion/TemporalFileDeleter';
+import { TemporalFileByFolderFinder } from '../../../../context/storage/TemporalFiles/application/find/TemporalFileByFolderFinder';
+import { TemporalFileByPathFinder } from '../../../../context/storage/TemporalFiles/application/find/TemporalFileByPathFinder';
+import { TemporalFilePathsByFolderFinder } from '../../../../context/storage/TemporalFiles/application/find/TemporalFilePathsByFolderFinder';
+import { TemporalFileChunkReader } from '../../../../context/storage/TemporalFiles/application/read/TemporalFileChunkReader';
+import { TemporalFileUploader } from '../../../../context/storage/TemporalFiles/application/upload/TemporalFileUploader';
+import { TemporalFileWriter } from '../../../../context/storage/TemporalFiles/application/write/TemporalFileWriter';
+import { TemporalFileRepository } from '../../../../context/storage/TemporalFiles/domain/TemporalFileRepository';
+import { TemporalFileUploaderFactory } from '../../../../context/storage/TemporalFiles/domain/upload/TemporalFileUploaderFactory';
+import { NodeTemporalFileRepository } from '../../../../context/storage/TemporalFiles/infrastructure/NodeTemporalFileRepository';
+import { EnvironmentTemporalFileUploaderFactory } from '../../../../context/storage/TemporalFiles/infrastructure/upload/EnvironmentTemporalFileUploaderFactory';
+import { DependencyInjectionMainProcessUserProvider } from '../../../shared/dependency-injection/main/DependencyInjectionMainProcessUserProvider';
 
 export async function registerTemporalFilesServices(builder: ContainerBuilder) {
   // Infra

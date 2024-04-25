@@ -1,6 +1,5 @@
 import { Container } from 'diod';
 import express, { Router } from 'express';
-import { VirtualDrive } from '../VirtualDrive';
 import { HydrationApiLogger } from './HydrationApiLogger';
 import { buildHydrationRouter } from './routes/contents';
 import { buildFilesRouter } from './routes/files';
@@ -14,17 +13,14 @@ export class HydrationApi {
   private readonly app;
   private readonly logger: HydrationApiLogger;
 
-  constructor(
-    private readonly virtualDrive: VirtualDrive,
-    private readonly container: Container
-  ) {
+  constructor(private readonly container: Container) {
     this.app = express();
     this.logger = new HydrationApiLogger();
   }
 
   private async buildRouters() {
     const routers = {
-      hydration: buildHydrationRouter(this.virtualDrive, this.logger),
+      hydration: buildHydrationRouter(this.container),
       files: buildFilesRouter(this.container),
     };
 
