@@ -11,7 +11,6 @@ import { ensureFolderExists } from '../../../../../../../apps/shared/fs/ensure-f
 import { WriteReadableToFile } from '../../../../../../../apps/shared/fs/write-readable-to-file';
 import { StorageFile } from '../../../../domain/StorageFile';
 import { StorageFileId } from '../../../../domain/StorageFileId';
-import { StorageFilePath } from '../../../../domain/StorageFilePath';
 import { StorageFileRepository } from '../../../../domain/StorageFileRepository';
 import { TypeOrmStorageFile } from './entities/TypeOrmStorageFile';
 
@@ -51,9 +50,9 @@ export class TypeOrmAndNodeFsStorageFilesRepository
     return buffer;
   }
 
-  async exists(storageFilePath: StorageFilePath): Promise<boolean> {
+  async exists(id: StorageFileId): Promise<boolean> {
     const attributes = await this.db.findOneBy({
-      path: storageFilePath.value,
+      id: id.value,
     });
 
     if (!attributes) {
@@ -63,13 +62,13 @@ export class TypeOrmAndNodeFsStorageFilesRepository
     return true;
   }
 
-  async retrieve(storageFilePath: StorageFilePath): Promise<StorageFile> {
+  async retrieve(id: StorageFileId): Promise<StorageFile> {
     const attributes = await this.db.findOneBy({
-      path: storageFilePath.value,
+      id: id.value,
     });
 
     if (!attributes) {
-      throw new Error(`Storage file ${storageFilePath.value} not found`);
+      throw new Error(`Storage file ${id.value} not found`);
     }
 
     return StorageFile.from(attributes);

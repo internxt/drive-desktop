@@ -1,12 +1,11 @@
 import { Readable } from 'stream';
 import { StorageFileId } from './StorageFileId';
-import { StorageFilePath } from './StorageFilePath';
 import { StorageFile } from './StorageFile';
 
 export abstract class StorageFileRepository {
-  abstract exists(path: StorageFilePath): Promise<boolean>;
+  abstract exists(id: StorageFileId): Promise<boolean>;
 
-  abstract retrieve(path: StorageFilePath): Promise<StorageFile>;
+  abstract retrieve(id: StorageFileId): Promise<StorageFile>;
 
   abstract store(file: StorageFile, readable: Readable): Promise<void>;
 

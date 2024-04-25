@@ -3,16 +3,14 @@ import {
   Entity,
   PrimaryColumn,
 } from '../../../../../../../../apps/node_modules/typeorm';
+import { StorageFileAttributes } from '../../../../../domain/StorageFile';
 
 @Entity('storage_file')
-export class TypeOrmStorageFile {
+export class TypeOrmStorageFile implements StorageFileAttributes {
   @PrimaryColumn({
     nullable: false,
   })
   id!: string;
-
-  @Column({ nullable: false })
-  path!: string;
 
   @Column({ nullable: false, unique: false })
   size!: number;

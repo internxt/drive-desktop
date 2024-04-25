@@ -13,29 +13,39 @@ export class StorageFileDownloader {
     private readonly tracker: DownloadProgressTracker
   ) {}
 
-  private async registerEvents(handler: DownloaderHandler, file: StorageFile) {
+  private async registerEvents(
+    handler: DownloaderHandler,
+    { name, type, size }: { name: string; type: string; size: number }
+  ) {
     handler.on('start', () => {
-      this.tracker.downloadStarted(file.name, file.extension, file.size.value);
+      this.tracker.downloadStarted(name, type, size);
     });
 
     handler.on('progress', (progress: number, elapsedTime: number) => {
-      this.tracker.downloadUpdate(file.name, file.extension, {
+      this.tracker.downloadUpdate(name, type, {
         elapsedTime,
         percentage: progress,
       });
     });
 
     handler.on('error', () => {
-      this.tracker.error(file.name, file.extension);
+      this.tracker.error(name, type);
     });
   }
 
-  async run(file: StorageFile): Promise<Readable> {
-    Logger.debug(`downloading "${file.path.nameWithExtension()}"`);
+  async run(
+    file: StorageFile,
+    metadata: {
+      name: string;
+      type: string;
+      size: number;
+    }
+  ): Promise<Readable> {
+    Logger.debug(`downloading "${metadata.name}.${metadata.type}"`);
 
     const downloader = this.managerFactory.downloader();
 
-    this.registerEvents(downloader, file);
+    this.registerEvents(downloader, metadata);
 
     return await downloader.download(file);
   }

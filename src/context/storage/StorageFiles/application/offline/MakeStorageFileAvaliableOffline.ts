@@ -1,10 +1,10 @@
 import { Service } from 'diod';
 import { StorageFileRepository } from '../../domain/StorageFileRepository';
-import { StorageFilePath } from '../../domain/StorageFilePath';
 import { StorageFileDownloader } from '../download/StorageFileDownloader';
 import { FileStatuses } from '../../../../virtual-drive/files/domain/FileStatus';
 import { SingleFileMatchingFinder } from '../../../../virtual-drive/files/application/SingleFileMatchingFinder';
 import { StorageFile } from '../../domain/StorageFile';
+import { StorageFileId } from '../../domain/StorageFileId';
 
 @Service()
 export class MakeStorageFileAvaliableOffline {
@@ -15,26 +15,25 @@ export class MakeStorageFileAvaliableOffline {
   ) {}
 
   async run(path: string) {
-    const storagePath = new StorageFilePath(path);
-
-    const alreadyExists = await this.repository.exists(storagePath);
-
-    if (alreadyExists) {
-      return;
-    }
-
     const virtual = await this.virtualFileFinder.run({
       path,
       status: FileStatuses.EXISTS,
     });
 
+    const id = new StorageFileId(virtual.contentsId);
+
+    const alreadyExists = await this.repository.exists(id);
+
+    if (alreadyExists) {
+      return;
+    }
+
     const storage = StorageFile.from({
       id: virtual.contentsId,
-      path: virtual.path,
       size: virtual.size,
     });
 
-    const readable = await this.downloader.run(storage);
+    const readable = await this.downloader.run(storage, virtual);
     await this.repository.store(storage, readable);
   }
 }

@@ -1,25 +1,33 @@
 import { Service } from 'diod';
-import { StorageFileRepository } from '../../domain/StorageFileRepository';
+import { SingleFileMatchingFinder } from '../../../../virtual-drive/files/application/SingleFileMatchingFinder';
+import { FileStatuses } from '../../../../virtual-drive/files/domain/FileStatus';
 import { StorageFileCache } from '../../domain/StorageFileCache';
-import { StorageFilePath } from '../../domain/StorageFilePath';
+import { StorageFileId } from '../../domain/StorageFileId';
+import { StorageFileRepository } from '../../domain/StorageFileRepository';
 
 @Service()
 export class StorageFileDeleter {
   constructor(
     private readonly repository: StorageFileRepository,
+    private readonly virtualFileFinder: SingleFileMatchingFinder,
     private readonly cache: StorageFileCache
   ) {}
 
   async run(path: string) {
-    const storagePath = new StorageFilePath(path);
+    const virtual = await this.virtualFileFinder.run({
+      path,
+      status: FileStatuses.EXISTS,
+    });
 
-    const exists = await this.repository.exists(storagePath);
+    const id = new StorageFileId(virtual.contentsId);
+
+    const exists = await this.repository.exists(id);
 
     if (!exists) {
       return;
     }
 
-    const file = await this.repository.retrieve(storagePath);
+    const file = await this.repository.retrieve(id);
 
     await this.repository.delete(file.id);
 
