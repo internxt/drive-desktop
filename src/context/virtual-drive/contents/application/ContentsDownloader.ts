@@ -16,7 +16,7 @@ import { CallbackDownload } from '../../../../apps/sync-engine/BindingManager';
 export class ContentsDownloader {
   private readableDownloader: Readable | null;
   private WAIT_TO_SEND_PROGRESS = 20000;
-  private startedAt: Date | null = null;
+  private progressAt: Date | null = null;
   constructor(
     private readonly managerFactory: ContentsManagersFactory,
     private readonly localWriter: LocalFileWriter,
@@ -34,7 +34,7 @@ export class ContentsDownloader {
     const filePath = path.join(location, file.nameWithExtension);
 
     downloader.on('start', () => {
-      this.startedAt = new Date();
+      this.progressAt = new Date();
       this.ipc.send('FILE_DOWNLOADING', {
         name: file.name,
         extension: file.type,
@@ -51,7 +51,7 @@ export class ContentsDownloader {
       const fileSizeInBytes = stats.size;
       const progress = fileSizeInBytes / file.size;
 
-      // this.runCallback(callback, filePath);
+      this.waitToCb(callback, filePath);
 
       this.ipc.send('FILE_DOWNLOADING', {
         name: file.name,
@@ -82,11 +82,11 @@ export class ContentsDownloader {
     });
   }
 
-  private runCallback(callback: CallbackDownload, filePath: string) {
-     if ( this.startedAt && (new Date().getTime() - this.startedAt.getTime()) > this.WAIT_TO_SEND_PROGRESS) {
+  private waitToCb(callback: CallbackDownload, filePath: string) {
+     if ( this.progressAt && (new Date().getTime() - this.progressAt.getTime()) > this.WAIT_TO_SEND_PROGRESS) {
         callback(true, filePath);
-
       }
+      this.progressAt = new Date();
   }
 
   async run(file: File, callback: CallbackDownload): Promise<string> {

@@ -118,8 +118,8 @@ export class BindingsManager {
         callback: CallbackDownload
       ) => {
         try {
-          Logger.debug('[Fetch Data Callback] Donwloading begins');
-          const path = await controllers.downloadFile.execute(contentsId);
+          Logger.debug('[Fetch Data Callback] Donwloading begins',);
+          const path = await controllers.downloadFile.execute(contentsId, callback);
           const file = controllers.downloadFile.fileFinderByContentsId(
             contentsId
               .replace(
@@ -211,6 +211,7 @@ export class BindingsManager {
         Logger.debug('validateDataCallback');
       },
       cancelFetchDataCallback: () => {
+        // TODO: clean up temp file, free up space of placeholder
         Logger.debug('cancelFetchDataCallback');
       },
       fetchPlaceholdersCallback: () => {

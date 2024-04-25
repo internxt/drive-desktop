@@ -15,6 +15,7 @@ export class DownloadFileController extends CallbackController {
 
   private async action(id: string, callback: CallbackDownload): Promise<string> {
     const file = this.fileFinder.run(id);
+    Logger.info('[Begin] Download: ', file.path);
     return await this.downloader.run(file, callback);
   }
 
