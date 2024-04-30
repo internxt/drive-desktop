@@ -102,6 +102,7 @@ async function setUp() {
   });
 
   ipcRenderer.on('SYNC_ENGINE:PING', (event) => {
+    Logger.info('[SYNC ENGINE] Sending Pong');
     event.sender.send('SYNC_ENGINE:PONG');
   });
 

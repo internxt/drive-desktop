@@ -3,6 +3,7 @@ import { ContentsDownloader } from '../../../../context/virtual-drive/contents/a
 import { FileFinderByContentsId } from '../../../../context/virtual-drive/files/application/FileFinderByContentsId';
 import { FilePlaceholderId } from '../../../../context/virtual-drive/files/domain/PlaceholderId';
 import { CallbackController } from './CallbackController';
+import { CallbackDownload } from '../../BindingManager';
 
 export class DownloadFileController extends CallbackController {
   constructor(
@@ -12,21 +13,22 @@ export class DownloadFileController extends CallbackController {
     super();
   }
 
-  private async action(id: string): Promise<string> {
+  private async action(id: string, callback: CallbackDownload): Promise<string> {
     const file = this.fileFinder.run(id);
-    return await this.downloader.run(file);
+    Logger.info('[Begin] Download: ', file.path);
+    return await this.downloader.run(file, callback);
   }
 
   fileFinderByContentsId(contentsId: string) {
     return this.fileFinder.run(contentsId);
   }
 
-  async execute(filePlaceholderId: FilePlaceholderId): Promise<string> {
+  async execute(filePlaceholderId: FilePlaceholderId, callback: CallbackDownload): Promise<string> {
     const trimmedId = this.trim(filePlaceholderId);
 
     try {
       const [_, contentsId] = trimmedId.split(':');
-      return await this.action(contentsId);
+      return await this.action(contentsId, callback);
     } catch (error: unknown) {
       Logger.error(
         'Error downloading a file, going to refresh and retry: ',
@@ -37,7 +39,7 @@ export class DownloadFileController extends CallbackController {
         setTimeout(async () => {
           try {
             const [_, contentsId] = trimmedId.split(':');
-            const result = await this.action(contentsId);
+            const result = await this.action(contentsId, callback);
             resolve(result);
           } catch (error) {
             reject(error);

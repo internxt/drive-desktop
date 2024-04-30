@@ -2,6 +2,7 @@ import { broadcastToWindows } from './windows';
 import { ipcMainDrive } from './ipcs/mainDrive';
 import { ipcMainSyncEngine } from './ipcs/ipcMainSyncEngine';
 import { FileErrorInfo } from '../shared/IPC/events/drive';
+import { setIsProcessing } from './remote-sync/handlers';
 
 ipcMainDrive.on('FILE_DELETED', (_, payload) => {
   const { nameWithExtension } = payload;
@@ -14,7 +15,7 @@ ipcMainDrive.on('FILE_DELETED', (_, payload) => {
 
 ipcMainDrive.on('FILE_DOWNLOADING', (_, payload) => {
   const { nameWithExtension, processInfo } = payload;
-
+  setIsProcessing(true);
   broadcastToWindows('sync-info-update', {
     action: 'DOWNLOADING',
     name: nameWithExtension,
@@ -24,7 +25,7 @@ ipcMainDrive.on('FILE_DOWNLOADING', (_, payload) => {
 
 ipcMainDrive.on('FILE_PREPARING', (_, payload) => {
   const { nameWithExtension, processInfo } = payload;
-
+  setIsProcessing(true);
   broadcastToWindows('sync-info-update', {
     action: 'PREPARING',
     name: nameWithExtension,
@@ -34,7 +35,7 @@ ipcMainDrive.on('FILE_PREPARING', (_, payload) => {
 
 ipcMainDrive.on('FILE_DOWNLOADED', (_, payload) => {
   const { nameWithExtension } = payload;
-
+  setIsProcessing(false);
   broadcastToWindows('sync-info-update', {
     action: 'DOWNLOADED',
     name: nameWithExtension,
@@ -61,7 +62,7 @@ ipcMainDrive.on('FILE_OVERWRITED', (_, payload) => {
 
 ipcMainDrive.on('FILE_RENAMING', (_, payload) => {
   const { nameWithExtension, oldName } = payload;
-
+  setIsProcessing(true);
   broadcastToWindows('sync-info-update', {
     action: 'RENAMING',
     name: nameWithExtension,
@@ -71,7 +72,7 @@ ipcMainDrive.on('FILE_RENAMING', (_, payload) => {
 
 ipcMainDrive.on('FILE_RENAMED', (_, payload) => {
   const { nameWithExtension } = payload;
-
+  setIsProcessing(false);
   broadcastToWindows('sync-info-update', {
     action: 'RENAMED',
     name: nameWithExtension,
@@ -89,7 +90,7 @@ ipcMainDrive.on('FILE_CLONNED', (_, payload) => {
 
 ipcMainDrive.on('FILE_UPLOADING', (_, payload) => {
   const { nameWithExtension, processInfo } = payload;
-
+  setIsProcessing(true);
   broadcastToWindows('sync-info-update', {
     action: 'UPLOADING',
     name: nameWithExtension,

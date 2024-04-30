@@ -4,6 +4,7 @@ import Logger from 'electron-log';
 import eventBus from '../event-bus';
 import nodeSchedule from 'node-schedule';
 import * as Sentry from '@sentry/electron/main';
+import { checkSyncEngineInProcess } from '../remote-sync/handlers';
 
 let worker: BrowserWindow | null = null;
 let workerIsRunning = false;
@@ -26,6 +27,7 @@ ipcMain.on('SYNC_ENGINE_PROCESS_SETUP_FAILED', () => {
 async function healthCheck() {
   const responsePromise = new Promise<void>((resolve, reject) => {
     ipcMain.once('SYNC_ENGINE:PONG', () => {
+      Logger.debug('Health check PONG resolved');
       resolve();
     });
 
@@ -70,7 +72,11 @@ function scheduleHeathCheck() {
       });
 
   healthCheckSchedule = nodeSchedule.scheduleJob('*/30 * * * * *', async () => {
-    await relaunchOnFail();
+    const workerIsPending = checkSyncEngineInProcess(5_000);
+    Logger.debug('Health check', workerIsPending ? 'Worker is pending' : 'Worker is running');
+    if(!workerIsPending) {
+      await relaunchOnFail();
+    }
   });
 }
 

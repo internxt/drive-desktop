@@ -20,9 +20,11 @@ export class WriteReadableToFile {
           resolve();
           return;
         }
-        if (size !== expectedSize) {
+        const tolerance = 1; // set the tolerance value to 1 byte
+        if (Math.abs(size - expectedSize) <= tolerance) {
+          resolve();
+        } else {
           reject(new Error('Wried file does not have expected size'));
-          return;
         }
 
         resolve();

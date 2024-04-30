@@ -98,6 +98,17 @@ export async function fallbackRemoteSync(): Promise<void> {
   fallbackSyncEngine();
 }
 
+export function checkSyncEngineInProcess (milliSeconds: number) {
+  const syncingStatus: RemoteSyncStatus = 'SYNCING';
+  const isSyncing = remoteSyncManager.getSyncStatus() === syncingStatus;
+  const recentlySyncing = remoteSyncManager.recentlyWasSyncing(milliSeconds);
+  return isSyncing || recentlySyncing; // syncing or recently was syncing
+};
+
+export function setIsProcessing(isProcessing: boolean) {
+  remoteSyncManager.isProcessRunning = isProcessing;
+}
+
 ipcMain.handle('SYNC_MANUALLY', async () => {
   Logger.info('[Manual Sync] Received manual sync event');
   await updateRemoteSync();
@@ -159,9 +170,14 @@ ipcMain.on('CHECK_SYNC_CHANGE_STATUS', async (_, placeholderStates) => {
   remoteSyncManager.placeholderStatus = placeholderStates;
 });
 
-ipcMain.handle('CHECK_SYNC_IN_PROGRESS', async (_, milliSeconds: number) => {
+export async function checkSyncInProgress(milliSeconds: number) {
   const syncingStatus: RemoteSyncStatus = 'SYNCING';
   const isSyncing = remoteSyncManager.getSyncStatus() === syncingStatus;
   const recentlySyncing = remoteSyncManager.recentlyWasSyncing(milliSeconds);
   return isSyncing || recentlySyncing; // syncing or recently was syncing
+}
+
+ipcMain.handle('CHECK_SYNC_IN_PROGRESS', async (_, milliSeconds: number) => {
+  return await checkSyncInProgress(milliSeconds);
 });
+
