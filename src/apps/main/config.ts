@@ -37,6 +37,7 @@ export interface AppStore {
   preferedLanguage?: string;
   preferedTheme?: string;
   virtualdriveWindowsLetter: string;
+  dataIntegrityMaintenance?: boolean;
 }
 
 const schema: Schema<AppStore> = {
@@ -103,6 +104,9 @@ const schema: Schema<AppStore> = {
   virtualdriveWindowsLetter: {
     type: 'string',
   },
+  dataIntegrityMaintenance: {
+    type: 'boolean',
+  },
 } as const;
 
 export const defaults: AppStore = {
@@ -127,6 +131,7 @@ export const defaults: AppStore = {
   preferedLanguage: '',
   preferedTheme: 'system',
   virtualdriveWindowsLetter: 'I',
+  dataIntegrityMaintenance: false,
 };
 
 const configStore = new Store({ schema, defaults });
