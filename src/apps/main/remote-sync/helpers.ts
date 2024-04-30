@@ -44,6 +44,9 @@ export type SyncConfig = {
   maxRetries: number;
 };
 
+export const SYNC_OFFSET_MS = 0;
+export const WAITING_AFTER_SYNCING_DEFAULT = 1000 * 60 * 3;
+
 export const lastSyncedAtIsNewer = (
   itemUpdatedAt: Date,
   lastItemsSyncAt: Date,

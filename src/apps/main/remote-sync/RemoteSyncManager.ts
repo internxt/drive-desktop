@@ -4,9 +4,9 @@ import {
   RemoteSyncedFolder,
   RemoteSyncedFile,
   SyncConfig,
-  WAITING_AFTER_SYNCING,
   SIX_HOURS_IN_MILLISECONDS,
   rewind,
+  WAITING_AFTER_SYNCING_DEFAULT
 } from './helpers';
 import { reportError } from '../bug-report/service';
 
@@ -73,12 +73,11 @@ export class RemoteSyncManager {
    * Consult if recently the RemoteSyncManager was syncing
    * @returns True if the RemoteSyncManager was syncing recently
    * @returns False if the RemoteSyncManager was not syncing recently
+   * @param milliseconds Time in milliseconds to check if the RemoteSyncManager was syncing
    */
-  recentlyWasSyncing() {
-    const passedTime =
-      Date.now() -
-      (this.getLastSyncingFinishedTimestamp()?.getTime() ?? Date.now());
-    return passedTime < WAITING_AFTER_SYNCING;
+  recentlyWasSyncing( milliseconds: number) {
+    const passedTime = Date.now() - ( this.getLastSyncingFinishedTimestamp()?.getTime() ?? Date.now() );
+    return passedTime < ( milliseconds ?? WAITING_AFTER_SYNCING_DEFAULT );
   }
 
   resetRemoteSync() {
