@@ -33,6 +33,27 @@ export function encryptToken() {
   ConfigStore.set('bearerTokenEncrypted', true);
 }
 
+export function obtainToken(tokenName: TokenKey): string {
+  const token = ConfigStore.get(tokenName);
+  const isEncrypted = ConfigStore.get<EncryptedTokenKey>(
+    `${tokenName}Encrypted`
+  );
+
+  if (!isEncrypted) {
+    return token;
+  }
+
+  if (!safeStorage.isEncryptionAvailable()) {
+    throw new Error(
+      '[AUTH] Safe Storage was not available when decrypting encrypted token'
+    );
+  }
+
+  const buffer = Buffer.from(token, TOKEN_ENCODING);
+
+  return safeStorage.decryptString(buffer);
+}
+
 function ecnryptToken(token: string): string {
   const buffer = safeStorage.encryptString(token);
 
@@ -125,26 +146,6 @@ export function getUser(): User | null {
   return user && Object.keys(user).length ? user : null;
 }
 
-export function obtainToken(tokenName: TokenKey): string {
-  const token = ConfigStore.get(tokenName);
-  const isEncrypted = ConfigStore.get<EncryptedTokenKey>(
-    `${tokenName}Encrypted`
-  );
-
-  if (!isEncrypted) {
-    return token;
-  }
-
-  if (!safeStorage.isEncryptionAvailable()) {
-    throw new Error(
-      '[AUTH] Safe Storage was not available when decrypting encrypted token'
-    );
-  }
-
-  const buffer = Buffer.from(token, TOKEN_ENCODING);
-
-  return safeStorage.decryptString(buffer);
-}
 
 export function obtainTokens(): Array<string> {
   return tokensKeys.map(obtainToken);
@@ -179,14 +180,6 @@ export function canHisConfigBeRestored(uuid: string) {
   return true;
 }
 
-export function logout() {
-  Logger.info('Loggin out');
-  saveConfig();
-  resetConfig();
-  resetCredentials();
-  Logger.info('[AUTH] User logged out');
-}
-
 function saveConfig() {
   const user = getUser();
   if (!user) {
@@ -219,3 +212,13 @@ function resetConfig() {
     }
   }
 }
+
+export function logout() {
+  Logger.info('Loggin out');
+  saveConfig();
+  resetConfig();
+  resetCredentials();
+  Logger.info('[AUTH] User logged out');
+}
+
+
