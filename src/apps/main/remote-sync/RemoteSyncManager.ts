@@ -27,6 +27,7 @@ export class RemoteSyncManager {
   private totalFilesSynced = 0;
   private totalFoldersSynced = 0;
   private lastSyncingFinishedTimestamp: Date | null = null;
+  private _isProcessRunning = false;
 
   constructor(
     private db: {
@@ -150,6 +151,16 @@ export class RemoteSyncManager {
 
     return true;
   }
+
+  set isProcessRunning(value: boolean) {
+    if (value) {
+      this.changeStatus('SYNCING');
+    } else {
+      this.checkRemoteSyncStatus();
+    }
+    this._isProcessRunning = value;
+  }
+
   private changeStatus(newStatus: RemoteSyncStatus) {
     this.addLastSyncingFinishedTimestamp();
     if (newStatus === this.status) return;
@@ -168,10 +179,6 @@ export class RemoteSyncManager {
   }
 
   private checkRemoteSyncStatus() {
-    if (this._placeholdersStatus === 'SYNCING') {
-      this.changeStatus('SYNCING');
-      return;
-    }
     // placeholders are still sync-pending
     if (this._placeholdersStatus === 'SYNC_PENDING') {
       this.changeStatus('SYNC_PENDING');
