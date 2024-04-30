@@ -38,6 +38,11 @@ class KyberCrypto {
     console.log('Configuration applied:', options);
   }
 
+  async verifyKey(publicKey: Uint8Array): Promise<boolean> {
+    this.ensureInitialized();
+    return publicKey.length > 0;
+  }
+
   async generateKeyPair() {
     if (!this.kem) {
       throw new Error(
