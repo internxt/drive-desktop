@@ -287,7 +287,6 @@ export class BindingsManager {
       );
     });
 
-    // Logger.debug('remainingItems', remainingItems);
     Logger.debug('win32AbsolutePaths', win32AbsolutePaths);
 
     // find all common string in remainingItems and win32AbsolutePaths
