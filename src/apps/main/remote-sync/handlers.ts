@@ -9,10 +9,10 @@ import { ipcMain } from 'electron';
 import { reportError } from '../bug-report/service';
 import { sleep } from '../util';
 import { broadcastToWindows } from '../windows';
-import {
-  updateSyncEngine,
-  fallbackSyncEngine,
-} from '../background-processes/sync-engine';
+import { updateSyncEngine,fallbackSyncEngine} from '../background-processes/sync-engine';
+import { debounce } from 'lodash';
+
+const SYNC_DEBOUNCE_DELAY = 3_000;
 
 let initialSyncReady = false;
 const driveFilesCollection = new DriveFilesCollection();
@@ -85,7 +85,7 @@ export async function updateRemoteSync(): Promise<void> {
   // that we received the notification, but if we check
   // for new data we don't receive it
   await sleep(2_000);
-  await remoteSyncManager.startRemoteSync();
+  await startRemoteSync();
   updateSyncEngine();
 }
 export async function fallbackRemoteSync(): Promise<void> {
@@ -99,8 +99,15 @@ ipcMain.handle('SYNC_MANUALLY', async () => {
   await fallbackRemoteSync();
 });
 
-eventBus.on('RECEIVED_REMOTE_CHANGES', async () => {
+const debouncedSynchronization = debounce(async () => {
   await updateRemoteSync();
+}, SYNC_DEBOUNCE_DELAY);
+
+eventBus.on('RECEIVED_REMOTE_CHANGES', async () => {
+  // Wait before checking for updates, could be possible
+  // that we received the notification, but if we check
+  // for new data we don't receive it
+  debouncedSynchronization();
 });
 
 eventBus.on('USER_LOGGED_IN', async () => {
