@@ -190,7 +190,7 @@ function saveConfig() {
 
   const savedConfigs = ConfigStore.get('savedConfigs');
 
-  const configToSave: any = {};
+  const configToSave: Record<string, unknown> = {};
 
   for (const field of fieldsToSave) {
     const value = ConfigStore.get(field);
