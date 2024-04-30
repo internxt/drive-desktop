@@ -4,6 +4,7 @@ import {
   RemoteSyncedFolder,
   RemoteSyncedFile,
   SyncConfig,
+  SYNC_OFFSET_MS,
   SIX_HOURS_IN_MILLISECONDS,
   rewind,
   WAITING_AFTER_SYNCING_DEFAULT
@@ -25,6 +26,7 @@ export class RemoteSyncManager {
     (newStatus: RemoteSyncStatus) => void
   > = [];
   private totalFilesSynced = 0;
+  private totalFilesUnsynced: string[] = [];
   private totalFoldersSynced = 0;
   private lastSyncingFinishedTimestamp: Date | null = null;
   private _isProcessRunning = false;
@@ -57,6 +59,14 @@ export class RemoteSyncManager {
     return this.status;
   }
 
+  getUnSyncFiles(): string[] {
+    return this.totalFilesUnsynced;
+  }
+
+  setUnsyncFiles(files: string[]): void {
+    this.totalFilesUnsynced = files;
+  }
+
   private getLastSyncingFinishedTimestamp() {
     return this.lastSyncingFinishedTimestamp;
   }
@@ -76,9 +86,11 @@ export class RemoteSyncManager {
    * @returns False if the RemoteSyncManager was not syncing recently
    * @param milliseconds Time in milliseconds to check if the RemoteSyncManager was syncing
    */
-  recentlyWasSyncing( milliseconds: number) {
-    const passedTime = Date.now() - ( this.getLastSyncingFinishedTimestamp()?.getTime() ?? Date.now() );
-    return passedTime < ( milliseconds ?? WAITING_AFTER_SYNCING_DEFAULT );
+  recentlyWasSyncing(milliseconds: number) {
+    const passedTime =
+      Date.now() -
+      (this.getLastSyncingFinishedTimestamp()?.getTime() ?? Date.now());
+    return passedTime < (milliseconds ?? WAITING_AFTER_SYNCING_DEFAULT);
   }
 
   resetRemoteSync() {
@@ -88,6 +100,7 @@ export class RemoteSyncManager {
     this._placeholdersStatus = 'IDLE';
     this.lastSyncingFinishedTimestamp = null;
     this.totalFilesSynced = 0;
+    this.totalFilesUnsynced = [];
     this.totalFoldersSynced = 0;
   }
   /**
@@ -107,6 +120,7 @@ export class RemoteSyncManager {
       return;
     }
     this.totalFilesSynced = 0;
+    this.totalFilesUnsynced = [];
     this.totalFoldersSynced = 0;
     await this.db.files.connect();
     await this.db.folders.connect();
@@ -133,6 +147,7 @@ export class RemoteSyncManager {
       reportError(error as Error);
     } finally {
       Logger.info('Total synced files: ', this.totalFilesSynced);
+      Logger.info('Total unsynced files: ', this.totalFilesUnsynced);
       Logger.info('Total synced folders: ', this.totalFoldersSynced);
     }
   }

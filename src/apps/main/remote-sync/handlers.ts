@@ -9,10 +9,15 @@ import { ipcMain } from 'electron';
 import { reportError } from '../bug-report/service';
 import { sleep } from '../util';
 import { broadcastToWindows } from '../windows';
-import { updateSyncEngine,fallbackSyncEngine} from '../background-processes/sync-engine';
+import {
+  updateSyncEngine,
+  fallbackSyncEngine,
+  sendUpdateFilesInSyncPending,
+} from '../background-processes/sync-engine';
 import { debounce } from 'lodash';
 
 const SYNC_DEBOUNCE_DELAY = 3_000;
+
 
 let initialSyncReady = false;
 const driveFilesCollection = new DriveFilesCollection();
@@ -110,6 +115,25 @@ ipcMain.handle('SYNC_MANUALLY', async () => {
   await fallbackRemoteSync();
 });
 
+ipcMain.handle('GET_UNSYNC_FILE_IN_SYNC_ENGINE', async () => {
+  Logger.info('[Get UnSync] Received Get UnSync File event');
+  Logger.info(remoteSyncManager.getUnSyncFiles());
+  return remoteSyncManager.getUnSyncFiles();
+});
+
+ipcMain.handle('SEND_UPDATE_UNSYNC_FILE_IN_SYNC_ENGINE', async () => {
+  Logger.info('[UPDATE UnSync] Received update UnSync File event');
+  await sendUpdateFilesInSyncPending();
+});
+
+ipcMain.on(
+  'UPDATE_UNSYNC_FILE_IN_SYNC_ENGINE',
+  async (_, filesPath: string[]) => {
+    Logger.info('[SYNC ENGINE] update unSync files', filesPath);
+    remoteSyncManager.setUnsyncFiles(filesPath);
+  }
+);
+
 const debouncedSynchronization = debounce(async () => {
   await updateRemoteSync();
 }, SYNC_DEBOUNCE_DELAY);
@@ -146,6 +170,14 @@ ipcMain.on('CHECK_SYNC_CHANGE_STATUS', async (_, placeholderStates) => {
   remoteSyncManager.placeholderStatus = placeholderStates;
 });
 
-ipcMain.handle('CHECK_SYNC_IN_PROGRESS', async (_, milliSeconds : number) => {
-  return checkSyncEngineInProcess(milliSeconds);
+export async function checkSyncInProgress(milliSeconds: number) {
+  const syncingStatus: RemoteSyncStatus = 'SYNCING';
+  const isSyncing = remoteSyncManager.getSyncStatus() === syncingStatus;
+  const recentlySyncing = remoteSyncManager.recentlyWasSyncing(milliSeconds);
+  return isSyncing || recentlySyncing; // syncing or recently was syncing
+}
+
+ipcMain.handle('CHECK_SYNC_IN_PROGRESS', async (_, milliSeconds: number) => {
+  return await checkSyncInProgress(milliSeconds);
 });
+

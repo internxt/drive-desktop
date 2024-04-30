@@ -12,10 +12,14 @@ import useUsage from '../../hooks/useUsage';
 import useVirtualDriveStatus from '../../hooks/VirtualDriveStatus';
 import { reportError } from '../../utils/sentry';
 
+interface HeadersProps {
+  setIsLogoutModalOpen: (isOpen: boolean) => void;
+}
 
-export default function Header() {
+const Header: React.FC<HeadersProps> = ({ setIsLogoutModalOpen }) => {
   const { translate } = useTranslationContext();
   const { virtualDriveCanBeOpened } = useVirtualDriveStatus();
+
   const processIssues = useProcessIssues();
   const generalIssues = useGeneralIssues();
   const { backupFatalErrors } = useBackupFatalErrors();
@@ -46,7 +50,7 @@ export default function Header() {
     window.electron.quit();
   }
 
-  const wasSyncing =  () => {
+  const wasSyncing = () => {
     return window.electron.getRecentlywasSyncing();
   };
 
@@ -58,7 +62,6 @@ export default function Header() {
     window.electron.syncManually();
   }
 
-
   const handleOpenURL = async (URL: string) => {
     try {
       await window.electron.openUrl(URL);
@@ -66,6 +69,10 @@ export default function Header() {
       reportError(error);
     }
   };
+
+  const handleLogoutModalOpen = () => {
+  setIsLogoutModalOpen(true);
+};
 
   const AccountSection = () => {
     const { translate } = useTranslationContext();
@@ -210,15 +217,17 @@ export default function Header() {
                   )}
                 </Menu.Item>
                 <Menu.Item>
-                  {({active}) => {
-
-                    return (<div>
-                      <DropdownItem active={active} onClick={onSyncClick}  >
-                        <span>{translate('widget.header.dropdown.sync')}</span>
-                      </DropdownItem>
-                    </div>);
-                  }
-                  }
+                  {({ active }) => {
+                    return (
+                      <div>
+                        <DropdownItem active={active} onClick={onSyncClick}>
+                          <span>
+                            {translate('widget.header.dropdown.sync')}
+                          </span>
+                        </DropdownItem>
+                      </div>
+                    );
+                  }}
                 </Menu.Item>
                 <Menu.Item>
                   {({ active }) => (
@@ -274,7 +283,7 @@ export default function Header() {
                     <div>
                       <DropdownItem
                         active={active}
-                        onClick={window.electron.logout}
+                        onClick={handleLogoutModalOpen}
                       >
                         <span>
                           {translate('widget.header.dropdown.logout')}
@@ -306,4 +315,6 @@ export default function Header() {
       <ItemsSection />
     </div>
   );
-}
+};
+
+export default Header;

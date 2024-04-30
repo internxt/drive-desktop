@@ -11,6 +11,13 @@ import {
 let processIssues: ProcessIssue[] = [];
 let generalIssues: GeneralIssue[] = [];
 
+export function getGeneralIssues() {
+  return generalIssues;
+}
+function getProcessIssues() {
+  return processIssues;
+}
+
 ipcMain.handle('get-process-issues', getProcessIssues);
 ipcMain.handle('get-general-issues', getGeneralIssues);
 
@@ -22,16 +29,8 @@ function onGeneralIssuesChanged() {
   broadcastToWindows('general-issues-changed', generalIssues);
 }
 
-function getProcessIssues() {
-  return processIssues;
-}
-
 export function getSyncIssues() {
   return processIssues.filter((issue) => issue.process === 'SYNC');
-}
-
-export function getGeneralIssues() {
-  return generalIssues;
 }
 
 export function clearSyncIssues() {

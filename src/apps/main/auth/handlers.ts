@@ -19,13 +19,13 @@ import {
 } from './service';
 
 let isLoggedIn: boolean;
-setIsLoggedIn(!!getUser());
-
 export function setIsLoggedIn(value: boolean) {
   isLoggedIn = value;
 
   getWidget()?.webContents.send('user-logged-in-changed', value);
 }
+
+setIsLoggedIn(!!getUser());
 
 export function getIsLoggedIn() {
   return isLoggedIn;

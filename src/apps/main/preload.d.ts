@@ -169,5 +169,7 @@ declare interface Window {
     getPreferredAppLanguage: () => Promise<Array<string>>;
     syncManually: () => Promise<void>;
     getRecentlywasSyncing: () => Promise<boolean>;
+    getUnsycFileInSyncEngine: () => Promise<string[]>;
+    updateUnsycFileInSyncEngine: () => Promise<void>;
   };
 }

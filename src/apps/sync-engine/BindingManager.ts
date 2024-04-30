@@ -350,4 +350,19 @@ export class BindingsManager {
       Sentry.captureException(error);
     }
   }
+  async getFileInSyncPending(): Promise<string[]> {
+    try {
+      Logger.info('[SYNC ENGINE] Updating unsync files...');
+
+      const fileInPendingPaths =
+        (await this.container.virtualDrive.getPlaceholderWithStatePending()) as Array<string>;
+      Logger.info('[SYNC ENGINE] fileInPendingPaths', fileInPendingPaths);
+
+      return fileInPendingPaths;
+    } catch (error) {
+      Logger.error('[SYNC ENGINE]  Updating unsync files error: ', error);
+      Sentry.captureException(error);
+      return [];
+    }
+  }
 }
