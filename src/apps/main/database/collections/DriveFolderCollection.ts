@@ -2,6 +2,9 @@ import { DatabaseCollectionAdapter } from '../adapters/base';
 import { AppDataSource } from '../data-source';
 import { DriveFolder } from '../entities/DriveFolder';
 import { Repository } from 'typeorm';
+import * as Sentry from '@sentry/electron/main';
+import Logger from 'electron-log';
+
 export class DriveFoldersCollection
   implements DatabaseCollectionAdapter<DriveFolder>
 {
@@ -65,5 +68,29 @@ export class DriveFoldersCollection
     return {
       success: result.affected ? true : false,
     };
+  }
+
+  async getLastUpdated(): Promise<{
+    success: boolean;
+    result: DriveFolder | null;
+  }> {
+    try {
+      const queryResult = await this.repository
+        .createQueryBuilder('drive_folder')
+        .orderBy('datetime(drive_folder.updatedAt)', 'DESC')
+        .getOne();
+
+      return {
+        success: true,
+        result: queryResult,
+      };
+    } catch (error) {
+      Sentry.captureException(error);
+      Logger.error('Error fetching newest drive folder:', error);
+      return {
+        success: false,
+        result: null,
+      };
+    }
   }
 }
