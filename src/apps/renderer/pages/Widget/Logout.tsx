@@ -2,9 +2,6 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslationContext } from '../../context/LocalContext';
 import useSyncStatus from '../../hooks/useSyncStatus';
-import { on } from 'events';
-import { ipcRenderer } from 'electron';
-import { sleep } from '../../../main/util';
 
 interface ModalLogoutProps {
   isOpen: boolean;
@@ -32,7 +29,7 @@ const ModalLogout: React.FC<ModalLogoutProps> = ({
       const syncPending =
         syncStatus === 'SYNC PENDING' || syncStatus === 'RUNNING';
       const wasSyncing = await window.electron.getRecentlywasSyncing();
-      // que espere
+
       const existFileUnsync = await window.electron.getUnsycFileInSyncEngine();
 
       return syncPending || wasSyncing || existFileUnsync.length > 0;

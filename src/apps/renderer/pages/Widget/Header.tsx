@@ -70,6 +70,10 @@ const Header: React.FC<HeadersProps> = ({ setIsLogoutModalOpen }) => {
     }
   };
 
+  const handleLogoutModalOpen = () => {
+  setIsLogoutModalOpen(true);
+};
+
   const AccountSection = () => {
     const { translate } = useTranslationContext();
     const [user, setUser] = useState<User | null>(null);
@@ -279,7 +283,7 @@ const Header: React.FC<HeadersProps> = ({ setIsLogoutModalOpen }) => {
                     <div>
                       <DropdownItem
                         active={active}
-                        onClick={() => setIsLogoutModalOpen(true)}
+                        onClick={handleLogoutModalOpen}
                       >
                         <span>
                           {translate('widget.header.dropdown.logout')}

@@ -226,7 +226,7 @@ async function stopAndClearSyncEngineWatcher() {
 
 export function updateSyncEngine() {
   try {
-    if (worker && worker?.webContents && !worker.isDestroyed()) {
+    if (worker?.webContents && !worker?.isDestroyed()) {
       worker?.webContents.send('UPDATE_SYNC_ENGINE_PROCESS');
     }
   } catch (err) {
@@ -238,7 +238,7 @@ export function updateSyncEngine() {
 
 export function fallbackSyncEngine() {
   try {
-    if (worker && worker?.webContents && !worker.isDestroyed()) {
+    if (worker?.webContents && !worker?.isDestroyed()) {
       worker?.webContents.send('FALLBACK_SYNC_ENGINE_PROCESS');
     }
   } catch (err) {
@@ -247,7 +247,7 @@ export function fallbackSyncEngine() {
 }
 export async function sendUpdateFilesInSyncPending(): Promise<string[]> {
   try {
-    if (worker && worker?.webContents && !worker.isDestroyed()) {
+    if (worker?.webContents && !worker?.isDestroyed()) {
      worker?.webContents.send('UPDATE_UNSYNC_FILE_IN_SYNC_ENGINE_PROCESS');
     }
     return [];
