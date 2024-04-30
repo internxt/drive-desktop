@@ -1,14 +1,14 @@
 import { Service } from 'diod';
 import { Optional } from '../../../../../shared/types/Optional';
 import { StorageFileId } from '../../domain/StorageFileId';
-import { StorageFileRepository } from '../../domain/StorageFileRepository';
+import { StorageFilesRepository } from '../../domain/StorageFilesRepository';
 import { StorageFileCache } from '../../domain/StorageFileCache';
 
 @Service()
 export class StorageFileChunkReader {
   constructor(
     private readonly cache: StorageFileCache,
-    private readonly repository: StorageFileRepository
+    private readonly repository: StorageFilesRepository
   ) {}
 
   private async obtainData(id: StorageFileId): Promise<Buffer> {

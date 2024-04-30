@@ -1,5 +1,5 @@
 import { Service } from 'diod';
-import { StorageFileRepository } from '../../domain/StorageFileRepository';
+import { StorageFilesRepository } from '../../domain/StorageFilesRepository';
 import { SingleFileMatchingFinder } from '../../../../virtual-drive/files/application/SingleFileMatchingFinder';
 import { FileStatuses } from '../../../../virtual-drive/files/domain/FileStatus';
 import { StorageFileId } from '../../domain/StorageFileId';
@@ -8,7 +8,7 @@ import { StorageFileId } from '../../domain/StorageFileId';
 export class StorageFileIsAvailableOffline {
   constructor(
     private readonly virtualFileFinder: SingleFileMatchingFinder,
-    private readonly repository: StorageFileRepository
+    private readonly repository: StorageFilesRepository
   ) {}
 
   async run(path: string) {

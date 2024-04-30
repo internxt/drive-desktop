@@ -3,6 +3,7 @@ import express, { Router } from 'express';
 import { HydrationApiLogger } from './HydrationApiLogger';
 import { buildHydrationRouter } from './routes/contents';
 import { buildFilesRouter } from './routes/files';
+import { errorHandlerMiddleware } from './controllers/middlewares/errorHandlerMiddleware';
 
 export interface HydrationApiOptions {
   debug: boolean;
@@ -29,6 +30,8 @@ export class HydrationApi {
 
   async start(options: HydrationApiOptions): Promise<void> {
     const routers = await this.buildRouters();
+
+    this.app.use(errorHandlerMiddleware);
 
     if (options.debug) {
       this.app.use((req, _res, next) => {

@@ -68,20 +68,22 @@ export class InMemoryFileRepository implements FileRepository {
     return filesAttributes.map((attributes) => File.from(attributes));
   }
 
-  // async delete(id: File['contentsId']): Promise<void> {
-  //   const file = this.filesByContentsId(id);
-  //   const deleted = this.filesByUuid.delete(id);
-
-  //   if (!deleted) {
-  //     throw new Error('File not found');
-  //   }
-  // }
-
-  async add(file: File): Promise<void> {
+  async upsert(file: File): Promise<boolean> {
     const attributes = file.attributes();
+
+    const isAlreadyStored =
+      this.filesByUuid.has(file.uuid) ||
+      this.filesByContentsId.has(file.contentsId);
+
+    if (isAlreadyStored) {
+      this.filesByUuid.delete(file.uuid);
+      this.filesByContentsId.delete(file.contentsId);
+    }
 
     this.filesByUuid.set(file.uuid, attributes);
     this.filesByContentsId.set(file.contentsId, attributes);
+
+    return isAlreadyStored;
   }
 
   async update(file: File): Promise<void> {
@@ -89,6 +91,11 @@ export class InMemoryFileRepository implements FileRepository {
       throw new FileNotFoundError(file.uuid);
     }
 
-    return this.add(file);
+    this.upsert(file);
+  }
+
+  async clear(): Promise<void> {
+    this.filesByUuid.clear();
+    this.filesByContentsId.clear();
   }
 }

@@ -14,4 +14,7 @@ export class TypeOrmStorageFile implements StorageFileAttributes {
 
   @Column({ nullable: false, unique: false })
   size!: number;
+
+  @Column({ nullable: false, unique: false })
+  virtualId!: string;
 }

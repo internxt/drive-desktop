@@ -11,9 +11,9 @@ export abstract class FileRepository {
     id: File['contentsId']
   ): Promise<File | undefined>;
 
-  //abstract delete(id: File['contentsId']): Promise<void>;
-
-  abstract add(file: File): Promise<void>;
+  abstract upsert(file: File): Promise<boolean>;
 
   abstract update(file: File): Promise<void>;
+
+  abstract clear(): Promise<void>;
 }

@@ -16,7 +16,7 @@ export class CreateFileOnTemporalFileUploaded
   ) {}
 
   subscribedTo(): DomainEventClass[] {
-    return [TemporalFileUploadedDomainEvent, TemporalFileUploadedDomainEvent];
+    return [TemporalFileUploadedDomainEvent];
   }
 
   private async create(event: TemporalFileUploadedDomainEvent): Promise<void> {

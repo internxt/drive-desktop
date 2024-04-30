@@ -3,7 +3,7 @@ import { Folder } from '../domain/Folder';
 import { FolderRepository } from '../domain/FolderRepository';
 
 @Service()
-export class FolderRepositoryInitializer {
+export class FolderRepositorySynchronizer {
   constructor(private readonly repository: FolderRepository) {}
 
   async run(folders: Array<Folder>): Promise<void> {

@@ -1,8 +1,8 @@
 import { Container } from 'diod';
 import Logger from 'electron-log';
 import { StorageClearer } from '../../../context/storage/StorageFiles/application/delete/StorageClearer';
-import { FileRepositoryInitializer } from '../../../context/virtual-drive/files/application/FileRepositoryInitializer';
-import { FolderRepositoryInitializer } from '../../../context/virtual-drive/folders/application/FolderRepositoryInitializer';
+import { FileRepositorySynchronizer } from '../../../context/virtual-drive/files/application/FileRepositorySynchronizer';
+import { FolderRepositorySynchronizer } from '../../../context/virtual-drive/folders/application/FolderRepositorySynchronizer';
 import { TreeBuilder } from '../../../context/virtual-drive/tree/application/TreeBuilder';
 import { VirtualDrive } from '../VirtualDrive';
 import { FuseDriveStatus } from './FuseDriveStatus';
@@ -19,6 +19,7 @@ import { TrashFileCallback } from './callbacks/TrashFileCallback';
 import { TrashFolderCallback } from './callbacks/TrashFolderCallback';
 import { WriteCallback } from './callbacks/WriteCallback';
 import { mountPromise, unmountPromise } from './helpers';
+import { StorageRemoteChangesSyncher } from '../../../context/storage/StorageFiles/application/sync/StorageRemoteChangesSyncher';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const fuse = require('@gcas/fuse');
@@ -34,7 +35,7 @@ export class FuseApp {
     private readonly root: string
   ) {}
 
-  private async getOpt() {
+  private getOpt() {
     const readdir = new ReaddirCallback(this.container);
     const getattr = new GetAttributesCallback(this.container);
     const open = new OpenCallback(this.virtualDrive);
@@ -65,7 +66,9 @@ export class FuseApp {
   }
 
   async start(): Promise<void> {
-    const ops = await this.getOpt();
+    const ops = this.getOpt();
+
+    await this.update();
 
     this._fuse = new fuse(this.root, ops, {
       debug: false,
@@ -103,9 +106,11 @@ export class FuseApp {
     try {
       const tree = await this.container.get(TreeBuilder).run();
 
-      await this.container.get(FileRepositoryInitializer).run(tree.files);
+      await this.container.get(FileRepositorySynchronizer).run(tree.files);
 
-      await this.container.get(FolderRepositoryInitializer).run(tree.folders);
+      await this.container.get(FolderRepositorySynchronizer).run(tree.folders);
+
+      await this.container.get(StorageRemoteChangesSyncher).run();
 
       Logger.info('[FUSE] Tree updated successfully');
     } catch (err) {

@@ -18,7 +18,7 @@ import { DependencyInjectionMainProcessUserProvider } from '../../../shared/depe
 import { AuthorizedClients } from '../../../shared/HttpClient/Clients';
 import { FileRepository } from '../../../../context/virtual-drive/files/domain/FileRepository';
 import { InMemoryFileRepository } from '../../../../context/virtual-drive/files/infrastructure/InMemoryFileRepository';
-import { FileRepositoryInitializer } from '../../../../context/virtual-drive/files/application/FileRepositoryInitializer';
+import { FileRepositorySynchronizer } from '../../../../context/virtual-drive/files/application/FileRepositorySynchronizer';
 import { RetrieveAllFiles } from '../../../../context/virtual-drive/files/application/RetrieveAllFiles';
 import { StorageFileDownloader } from '../../../../context/storage/StorageFiles/application/download/StorageFileDownloader';
 import { SingleFileMatchingFinder } from '../../../../context/virtual-drive/files/application/SingleFileMatchingFinder';
@@ -52,8 +52,9 @@ export async function registerFilesServices(
     );
 
   // Services
+  builder.registerAndUse(StorageFileDownloader).private();
 
-  builder.registerAndUse(FileRepositoryInitializer);
+  builder.registerAndUse(FileRepositorySynchronizer);
 
   builder.registerAndUse(RetrieveAllFiles);
 
@@ -72,8 +73,6 @@ export async function registerFilesServices(
   builder.registerAndUse(FilesSearcherByPartialMatch);
 
   builder.registerAndUse(FileOverrider);
-
-  builder.registerAndUse(StorageFileDownloader);
 
   builder.registerAndUse(SingleFileMatchingFinder);
 

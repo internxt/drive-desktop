@@ -1,6 +1,5 @@
 import { Service } from 'diod';
 import { Readable } from 'form-data';
-import { PathLike } from 'fs';
 import { readFile, unlink } from 'fs/promises';
 import path from 'path';
 import {
@@ -11,12 +10,12 @@ import { ensureFolderExists } from '../../../../../../../apps/shared/fs/ensure-f
 import { WriteReadableToFile } from '../../../../../../../apps/shared/fs/write-readable-to-file';
 import { StorageFile } from '../../../../domain/StorageFile';
 import { StorageFileId } from '../../../../domain/StorageFileId';
-import { StorageFileRepository } from '../../../../domain/StorageFileRepository';
+import { StorageFilesRepository } from '../../../../domain/StorageFilesRepository';
 import { TypeOrmStorageFile } from './entities/TypeOrmStorageFile';
 
 @Service()
 export class TypeOrmAndNodeFsStorageFilesRepository
-  implements StorageFileRepository
+  implements StorageFilesRepository
 {
   private readonly db: Repository<TypeOrmStorageFile>;
 
@@ -24,22 +23,16 @@ export class TypeOrmAndNodeFsStorageFilesRepository
     this.db = dataSource.getRepository('storage_file');
   }
 
-  private calculateFsPath(file: StorageFile): PathLike {
-    return path.join(this.baseFolder, file.id.value);
-  }
-
-  private save(file: StorageFile): void {
-    this.db.save(file.attributes());
-  }
-
   async init(): Promise<void> {
     ensureFolderExists(this.baseFolder);
   }
 
   async store(file: StorageFile, readable: Readable): Promise<void> {
-    await WriteReadableToFile.write(readable, this.calculateFsPath(file));
+    const where = path.join(this.baseFolder, file.id.value);
 
-    this.save(file);
+    await WriteReadableToFile.write(readable, where);
+
+    await this.db.save(file.attributes());
   }
 
   async read(id: StorageFileId): Promise<Buffer> {
@@ -79,7 +72,7 @@ export class TypeOrmAndNodeFsStorageFilesRepository
 
     await unlink(pathToUnlink);
 
-    await this.db.delete(id.value);
+    await this.db.delete({ id: id.value });
   }
 
   async deleteAll(): Promise<void> {
@@ -90,5 +83,11 @@ export class TypeOrmAndNodeFsStorageFilesRepository
       .map((id: StorageFileId) => this.delete(id));
 
     await Promise.all(deleted);
+  }
+
+  async all(): Promise<StorageFile[]> {
+    const all = await this.db.find();
+
+    return all.map(StorageFile.from);
   }
 }

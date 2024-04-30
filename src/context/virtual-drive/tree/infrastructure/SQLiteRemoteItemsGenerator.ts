@@ -1,5 +1,5 @@
 import { Service } from 'diod';
-import { getUpdatedRemoteItems } from '../../../../apps/main/remote-sync/handlers';
+import { getUpdatedRemoteItems } from '../../../../apps/main/remote-sync/service';
 import {
   ServerFile,
   ServerFileStatus,

@@ -54,7 +54,6 @@ class InternxtVirtualDrive(GObject.Object, Nautilus.MenuProvider, Nautilus.Colum
     def __init__(self):
         self.display = Gdk.Display.get_default()
 
-
         self.selected_files = {}
 
         app = Gtk.Application.get_default()
@@ -200,13 +199,14 @@ class InternxtVirtualDrive(GObject.Object, Nautilus.MenuProvider, Nautilus.Colum
 
 
     def get_columns(self):
-        return (Nautilus.Column(name='InternxtVirtualDrive::sync',
-            attribute=SYNC_STATUS_ATTRIBUTE_NAME,
-            label=SYNC_STATUS_ATTRIBUTE_NAME,
-            description="Sync status"),)
+      return (Nautilus.Column(name='InternxtVirtualDrive::sync',
+          attribute=SYNC_STATUS_ATTRIBUTE_NAME,
+          label=SYNC_STATUS_ATTRIBUTE_NAME,
+          description="Sync status"),)
 
     def update_file_info(self, file):
-        if not self._file_is_in_virtual_drive(file):
-            return
+      if not self._file_is_in_virtual_drive(file):
+        return
 
-        self._update_file_status(file)
+
+      self._update_file_status(file)

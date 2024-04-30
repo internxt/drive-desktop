@@ -41,12 +41,16 @@ export class StorageFileDownloader {
       size: number;
     }
   ): Promise<Readable> {
-    Logger.debug(`downloading "${metadata.name}.${metadata.type}"`);
-
     const downloader = this.managerFactory.downloader();
 
     this.registerEvents(downloader, metadata);
 
-    return await downloader.download(file);
+    const stream = await downloader.download(file);
+
+    Logger.debug(
+      `stream created "${metadata.name}.${metadata.type}" with ${file.id.value}`
+    );
+
+    return stream;
   }
 }

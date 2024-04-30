@@ -12,6 +12,7 @@ export class FileRepositoryMock implements FileRepository {
   public readonly deleteMock = jest.fn();
   public readonly addMock = jest.fn();
   public readonly updateMock = jest.fn();
+  public readonly clearMock = jest.fn();
 
   all(): Promise<File[]> {
     return this.allMock();
@@ -33,11 +34,15 @@ export class FileRepositoryMock implements FileRepository {
     return this.deleteMock(id);
   }
 
-  add(file: File): Promise<void> {
+  upsert(file: File): Promise<boolean> {
     return this.addMock(file);
   }
 
   update(file: File): Promise<void> {
     return this.updateMock(file);
+  }
+
+  clear(): Promise<void> {
+    return this.clearMock();
   }
 }

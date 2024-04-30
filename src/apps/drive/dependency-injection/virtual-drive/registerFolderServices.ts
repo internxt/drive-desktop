@@ -6,7 +6,7 @@ import { FolderDeleter } from '../../../../context/virtual-drive/folders/applica
 import { FolderMover } from '../../../../context/virtual-drive/folders/application/FolderMover';
 import { FolderPathUpdater } from '../../../../context/virtual-drive/folders/application/FolderPathUpdater';
 import { FolderRenamer } from '../../../../context/virtual-drive/folders/application/FolderRenamer';
-import { FolderRepositoryInitializer } from '../../../../context/virtual-drive/folders/application/FolderRepositoryInitializer';
+import { FolderRepositorySynchronizer } from '../../../../context/virtual-drive/folders/application/FolderRepositorySynchronizer';
 import { FoldersByParentPathLister } from '../../../../context/virtual-drive/folders/application/FoldersByParentPathLister';
 import { ParentFolderFinder } from '../../../../context/virtual-drive/folders/application/ParentFolderFinder';
 import { SingleFolderMatchingFinder } from '../../../../context/virtual-drive/folders/application/SingleFolderMatchingFinder';
@@ -49,7 +49,7 @@ export async function registerFolderServices(
   builder.register(LocalFileSystem).use(FuseLocalFileSystem).private();
 
   // Services
-  builder.registerAndUse(FolderRepositoryInitializer);
+  builder.registerAndUse(FolderRepositorySynchronizer);
 
   builder.registerAndUse(ParentFolderFinder);
 

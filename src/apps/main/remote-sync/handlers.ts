@@ -1,92 +1,33 @@
-import eventBus from '../event-bus';
-import { RemoteSyncManager } from './RemoteSyncManager';
-import { DriveFilesCollection } from '../database/collections/DriveFileCollection';
-import { DriveFoldersCollection } from '../database/collections/DriveFolderCollection';
-import { getNewTokenClient } from '../../shared/HttpClient/main-process-client';
-import Logger from 'electron-log';
 import { ipcMain } from 'electron';
+import Logger from 'electron-log';
 import { reportError } from '../bug-report/service';
-import { broadcastToWindows } from '../windows';
-import { debounce } from 'lodash';
-
-const SYNC_DEBOUNCE_DELAY = 3_000;
-
-let initialSyncReady = false;
-const driveFilesCollection = new DriveFilesCollection();
-const driveFoldersCollection = new DriveFoldersCollection();
-const remoteSyncManager = new RemoteSyncManager(
-  {
-    files: driveFilesCollection,
-    folders: driveFoldersCollection,
-  },
-  {
-    httpClient: getNewTokenClient(),
-    fetchFilesLimitPerRequest: 50,
-    fetchFoldersLimitPerRequest: 50,
-    syncFiles: true,
-    syncFolders: true,
-  }
-);
-
-export async function getUpdatedRemoteItems() {
-  try {
-    const [allDriveFiles, allDriveFolders] = await Promise.all([
-      driveFilesCollection.getAll(),
-      driveFoldersCollection.getAll(),
-    ]);
-
-    if (!allDriveFiles.success)
-      throw new Error('Failed to retrieve all the drive files from local db');
-
-    if (!allDriveFolders.success)
-      throw new Error('Failed to retrieve all the drive folders from local db');
-    return {
-      files: allDriveFiles.result,
-      folders: allDriveFolders.result,
-    };
-  } catch (error) {
-    reportError(error as Error, {
-      description:
-        'Something failed when updating the local db pulling the new changes from remote',
-    });
-    throw error;
-  }
-}
+import eventBus from '../event-bus';
+import { setInitialSyncState } from './InitialSyncReady';
+import {
+  getUpdatedRemoteItems,
+  remoteSyncManager,
+  resyncRemoteSync,
+  startRemoteSync,
+} from './service';
 
 ipcMain.handle('GET_UPDATED_REMOTE_ITEMS', async () => {
   Logger.debug('[MAIN] Getting updated remote items');
   return getUpdatedRemoteItems();
 });
 
-export async function startRemoteSync(): Promise<void> {
-  await remoteSyncManager.startRemoteSync();
-}
-
 ipcMain.handle('START_REMOTE_SYNC', async () => {
   await startRemoteSync();
-});
-
-remoteSyncManager.onStatusChange(async (newStatus) => {
-  if (!initialSyncReady && newStatus === 'SYNCED') {
-    initialSyncReady = true;
-    eventBus.emit('INITIAL_SYNC_READY');
-  }
-  broadcastToWindows('remote-sync-status-change', newStatus);
 });
 
 ipcMain.handle('get-remote-sync-status', () =>
   remoteSyncManager.getSyncStatus()
 );
-const debouncedSynchronization = debounce(async () => {
-  await startRemoteSync();
-  eventBus.emit('REMOTE_CHANGES_SYNCHED');
-}, SYNC_DEBOUNCE_DELAY);
 
 eventBus.on('RECEIVED_REMOTE_CHANGES', async () => {
   // Wait before checking for updates, could be possible
   // that we received the notification, but if we check
   // for new data we don't receive it
-  await debouncedSynchronization();
+  await resyncRemoteSync();
 });
 
 eventBus.on('USER_LOGGED_IN', async () => {
@@ -97,6 +38,6 @@ eventBus.on('USER_LOGGED_IN', async () => {
 });
 
 eventBus.on('USER_LOGGED_OUT', () => {
-  initialSyncReady = false;
+  setInitialSyncState('NOT_READY');
   remoteSyncManager.resetRemoteSync();
 });

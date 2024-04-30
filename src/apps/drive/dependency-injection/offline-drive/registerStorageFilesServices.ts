@@ -9,13 +9,14 @@ import { MakeStorageFileAvaliableOffline } from '../../../../context/storage/Sto
 import { StorageFileIsAvailableOffline } from '../../../../context/storage/StorageFiles/application/offline/StorageFileIsAvailableOffline';
 import { StorageFileChunkReader } from '../../../../context/storage/StorageFiles/application/read/StorageFileChunkReader';
 import { StorageFileCache } from '../../../../context/storage/StorageFiles/domain/StorageFileCache';
-import { StorageFileRepository } from '../../../../context/storage/StorageFiles/domain/StorageFileRepository';
+import { StorageFilesRepository } from '../../../../context/storage/StorageFiles/domain/StorageFilesRepository';
 import { DownloaderHandlerFactory } from '../../../../context/storage/StorageFiles/domain/download/DownloaderHandlerFactory';
 import { EnvironmentFileDownloaderHandlerFactory } from '../../../../context/storage/StorageFiles/infrastructure/download/EnvironmentRemoteFileContentsManagersFactory';
 import { InMemoryStorageFileCache } from '../../../../context/storage/StorageFiles/infrastructure/persistance/cache/InMemoryStorageFileCache';
 import { TypeOrmAndNodeFsStorageFilesRepository } from '../../../../context/storage/StorageFiles/infrastructure/persistance/repository/typeorm/TypeOrmAndNodeFsStorageFilesRepository';
 import { TypeOrmStorageFilesDataSourceFactory } from '../../../../context/storage/StorageFiles/infrastructure/persistance/repository/typeorm/TypeOrmStorageFilesDataSourceFactory';
 import { DependencyInjectionMainProcessUserProvider } from '../../../shared/dependency-injection/main/DependencyInjectionMainProcessUserProvider';
+import { StorageRemoteChangesSyncher } from '../../../../context/storage/StorageFiles/application/sync/StorageRemoteChangesSyncher';
 
 export async function registerStorageFilesServices(
   builder: ContainerBuilder
@@ -32,7 +33,7 @@ export async function registerStorageFilesServices(
   const repo = new TypeOrmAndNodeFsStorageFilesRepository(local, dataSource);
   await repo.init();
 
-  builder.register(StorageFileRepository).useInstance(repo).private();
+  builder.register(StorageFilesRepository).useInstance(repo).private();
 
   builder
     .register(DownloaderHandlerFactory)
@@ -51,10 +52,12 @@ export async function registerStorageFilesServices(
     .private();
 
   // Services
+
   builder.registerAndUse(StorageFileIsAvailableOffline);
   builder.registerAndUse(MakeStorageFileAvaliableOffline);
   builder.registerAndUse(StorageFileChunkReader);
   builder.registerAndUse(StorageCacheDeleter);
   builder.registerAndUse(StorageFileDeleter);
   builder.registerAndUse(StorageClearer);
+  builder.registerAndUse(StorageRemoteChangesSyncher);
 }

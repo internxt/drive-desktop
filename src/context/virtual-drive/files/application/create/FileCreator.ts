@@ -69,7 +69,7 @@ export class FileCreator {
         updatedAt: modificationTime,
       });
 
-      await this.repository.add(file);
+      await this.repository.upsert(file);
       await this.eventBus.publish(file.pullDomainEvents());
       await this.notifier.created(file.name, file.type);
 

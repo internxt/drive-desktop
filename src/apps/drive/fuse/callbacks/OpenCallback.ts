@@ -1,7 +1,10 @@
 import Logger from 'electron-log';
 import { VirtualDrive } from '../../VirtualDrive';
 import { FuseCallback } from './FuseCallback';
-import { FuseIOError } from './FuseErrors';
+import {
+  FuseFileOrDirectoryAlreadyExistsError,
+  FuseIOError,
+} from './FuseErrors';
 
 export class OpenCallback extends FuseCallback<number> {
   constructor(private readonly virtualDrive: VirtualDrive) {
@@ -28,6 +31,10 @@ export class OpenCallback extends FuseCallback<number> {
 
       return this.right(0);
     } catch (err: unknown) {
+      if (path.includes('.goutputstream-')) {
+        return this.left(new FuseFileOrDirectoryAlreadyExistsError());
+      }
+
       Logger.error('Error downloading file: ', err);
       if (err instanceof Error) {
         return this.left(new FuseIOError());

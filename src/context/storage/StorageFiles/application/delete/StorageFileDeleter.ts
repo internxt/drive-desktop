@@ -3,12 +3,12 @@ import { SingleFileMatchingFinder } from '../../../../virtual-drive/files/applic
 import { FileStatuses } from '../../../../virtual-drive/files/domain/FileStatus';
 import { StorageFileCache } from '../../domain/StorageFileCache';
 import { StorageFileId } from '../../domain/StorageFileId';
-import { StorageFileRepository } from '../../domain/StorageFileRepository';
+import { StorageFilesRepository } from '../../domain/StorageFilesRepository';
 
 @Service()
 export class StorageFileDeleter {
   constructor(
-    private readonly repository: StorageFileRepository,
+    private readonly repository: StorageFilesRepository,
     private readonly virtualFileFinder: SingleFileMatchingFinder,
     private readonly cache: StorageFileCache
   ) {}

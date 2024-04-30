@@ -14,6 +14,7 @@ type DebugOptions = {
   output: boolean;
   debug: boolean;
   elapsedTime: boolean;
+  detectSlowCallbacks: boolean;
 };
 
 export abstract class FuseCallback<T> {
@@ -26,6 +27,7 @@ export abstract class FuseCallback<T> {
       output: false,
       debug: false,
       elapsedTime: false,
+      detectSlowCallbacks: true,
     }
   ) {}
 
@@ -35,6 +37,18 @@ export abstract class FuseCallback<T> {
     // Ensure that an Either is always returned
 
     const stopwatch = new Stopwatch();
+    let interval: NodeJS.Timer | undefined = undefined;
+
+    if (this.debug.detectSlowCallbacks) {
+      interval = setInterval(() => {
+        const et = stopwatch.elapsedTime();
+
+        if (et > 10) {
+          Logger.debug(`${this.name} ${params} is running for ${et}ms`);
+        }
+      }, 2_000);
+    }
+
     try {
       stopwatch.start();
 
@@ -51,9 +65,13 @@ export abstract class FuseCallback<T> {
     } finally {
       if (this.debug.elapsedTime) {
         Logger.debug(
-          `Elapsed time for ${this.name}: `,
+          `Elapsed time for ${this.name}: ${params[0]} `,
           stopwatch.elapsedTime()
         );
+      }
+
+      if (interval) {
+        clearInterval(interval);
       }
     }
   }

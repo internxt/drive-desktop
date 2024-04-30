@@ -4,7 +4,7 @@ import { AbsolutePathToRelativeConverter } from '../../../../context/virtual-dri
 import { RelativePathToAbsoluteConverter } from '../../../../context/virtual-drive/shared/application/RelativePathToAbsoluteConverter';
 import { FuseAppDataLocalFileContentsDirectoryProvider } from '../../../../context/virtual-drive/shared/infrastructure/LocalFileContentsDirectoryProviders/FuseAppDataLocalFileContentsDirectoryProvider';
 
-export async function registerSharedServices(
+export async function registerVirtualDriveSharedServices(
   builder: ContainerBuilder
 ): Promise<void> {
   const localFileContentsDirectoryProvider =
