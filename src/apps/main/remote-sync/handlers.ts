@@ -9,7 +9,7 @@ import { ipcMain } from 'electron';
 import { reportError } from '../bug-report/service';
 import { sleep } from '../util';
 import { broadcastToWindows } from '../windows';
-import { updateSyncEngine } from '../background-processes/sync-engine';
+import { updateSyncEngine,fallbackSyncEngine} from '../background-processes/sync-engine';
 import { debounce } from 'lodash';
 
 const SYNC_DEBOUNCE_DELAY = 3_000;
@@ -80,9 +80,27 @@ ipcMain.handle('get-remote-sync-status', () =>
   remoteSyncManager.getSyncStatus()
 );
 
-const debouncedSynchronization = debounce(async () => {
+export async function updateRemoteSync(): Promise<void> {
+  // Wait before checking for updates, could be possible
+  // that we received the notification, but if we check
+  // for new data we don't receive it
+  await sleep(2_000);
   await startRemoteSync();
   updateSyncEngine();
+}
+export async function fallbackRemoteSync(): Promise<void> {
+  await sleep(2_000);
+  fallbackSyncEngine();
+}
+
+ipcMain.handle('SYNC_MANUALLY', async () => {
+  Logger.info('[Manual Sync] Received manual sync event');
+  await updateRemoteSync();
+  await fallbackRemoteSync();
+});
+
+const debouncedSynchronization = debounce(async () => {
+  await updateRemoteSync();
 }, SYNC_DEBOUNCE_DELAY);
 
 eventBus.on('RECEIVED_REMOTE_CHANGES', async () => {
@@ -118,9 +136,9 @@ ipcMain.on('CHECK_SYNC_CHANGE_STATUS', async (_, placeholderStates) => {
   remoteSyncManager.placeholderStatus = placeholderStates;
 });
 
-ipcMain.handle('CHECK_SYNC_IN_PROGRESS', async () => {
+ipcMain.handle('CHECK_SYNC_IN_PROGRESS', async (_, milliSeconds : number) => {
   const syncingStatus: RemoteSyncStatus = 'SYNCING';
   const isSyncing = remoteSyncManager.getSyncStatus() === syncingStatus;
-  const recentlySyncing = remoteSyncManager.recentlyWasSyncing();
-  return isSyncing || recentlySyncing; // If it's syncing or recently was syncing
+  const recentlySyncing = remoteSyncManager.recentlyWasSyncing(milliSeconds);
+  return isSyncing || recentlySyncing; // syncing or recently was syncing
 });
