@@ -2,14 +2,22 @@ import eventBus from '../event-bus';
 import { RemoteSyncManager } from './RemoteSyncManager';
 import { DriveFilesCollection } from '../database/collections/DriveFileCollection';
 import { DriveFoldersCollection } from '../database/collections/DriveFolderCollection';
-import { clearRemoteSyncStore, RemoteSyncStatus } from './helpers';
+import { RemoteSyncStatus } from './helpers';
 import { getNewTokenClient } from '../../shared/HttpClient/main-process-client';
 import Logger from 'electron-log';
 import { ipcMain } from 'electron';
 import { reportError } from '../bug-report/service';
 import { sleep } from '../util';
 import { broadcastToWindows } from '../windows';
-import { updateSyncEngine } from '../background-processes/sync-engine';
+import {
+  updateSyncEngine,
+  fallbackSyncEngine,
+  sendUpdateFilesInSyncPending,
+} from '../background-processes/sync-engine';
+import { debounce } from 'lodash';
+
+const SYNC_DEBOUNCE_DELAY = 3_000;
+
 
 let initialSyncReady = false;
 const driveFilesCollection = new DriveFilesCollection();
@@ -77,14 +85,64 @@ ipcMain.handle('get-remote-sync-status', () =>
   remoteSyncManager.getSyncStatus()
 );
 
-eventBus.on('RECEIVED_REMOTE_CHANGES', async () => {
+export async function updateRemoteSync(): Promise<void> {
   // Wait before checking for updates, could be possible
   // that we received the notification, but if we check
   // for new data we don't receive it
   await sleep(2_000);
-
-  await remoteSyncManager.startRemoteSync();
+  await startRemoteSync();
   updateSyncEngine();
+}
+export async function fallbackRemoteSync(): Promise<void> {
+  await sleep(2_000);
+  fallbackSyncEngine();
+}
+
+export function checkSyncEngineInProcess (milliSeconds: number) {
+  const syncingStatus: RemoteSyncStatus = 'SYNCING';
+  const isSyncing = remoteSyncManager.getSyncStatus() === syncingStatus;
+  const recentlySyncing = remoteSyncManager.recentlyWasSyncing(milliSeconds);
+  return isSyncing || recentlySyncing; // syncing or recently was syncing
+};
+
+export function setIsProcessing(isProcessing: boolean) {
+  remoteSyncManager.isProcessRunning = isProcessing;
+}
+
+ipcMain.handle('SYNC_MANUALLY', async () => {
+  Logger.info('[Manual Sync] Received manual sync event');
+  await updateRemoteSync();
+  await fallbackRemoteSync();
+});
+
+ipcMain.handle('GET_UNSYNC_FILE_IN_SYNC_ENGINE', async () => {
+  Logger.info('[Get UnSync] Received Get UnSync File event');
+  Logger.info(remoteSyncManager.getUnSyncFiles());
+  return remoteSyncManager.getUnSyncFiles();
+});
+
+ipcMain.handle('SEND_UPDATE_UNSYNC_FILE_IN_SYNC_ENGINE', async () => {
+  Logger.info('[UPDATE UnSync] Received update UnSync File event');
+  await sendUpdateFilesInSyncPending();
+});
+
+ipcMain.on(
+  'UPDATE_UNSYNC_FILE_IN_SYNC_ENGINE',
+  async (_, filesPath: string[]) => {
+    Logger.info('[SYNC ENGINE] update unSync files', filesPath);
+    remoteSyncManager.setUnsyncFiles(filesPath);
+  }
+);
+
+const debouncedSynchronization = debounce(async () => {
+  await updateRemoteSync();
+}, SYNC_DEBOUNCE_DELAY);
+
+eventBus.on('RECEIVED_REMOTE_CHANGES', async () => {
+  // Wait before checking for updates, could be possible
+  // that we received the notification, but if we check
+  // for new data we don't receive it
+  debouncedSynchronization();
 });
 
 eventBus.on('USER_LOGGED_IN', async () => {
@@ -99,7 +157,6 @@ eventBus.on('USER_LOGGED_IN', async () => {
 eventBus.on('USER_LOGGED_OUT', () => {
   initialSyncReady = false;
   remoteSyncManager.resetRemoteSync();
-  clearRemoteSyncStore();
 });
 
 ipcMain.on('CHECK_SYNC', (event) => {
@@ -113,9 +170,14 @@ ipcMain.on('CHECK_SYNC_CHANGE_STATUS', async (_, placeholderStates) => {
   remoteSyncManager.placeholderStatus = placeholderStates;
 });
 
-ipcMain.handle('CHECK_SYNC_IN_PROGRESS', async () => {
+export async function checkSyncInProgress(milliSeconds: number) {
   const syncingStatus: RemoteSyncStatus = 'SYNCING';
   const isSyncing = remoteSyncManager.getSyncStatus() === syncingStatus;
-  const recentlySyncing = remoteSyncManager.recentlyWasSyncing();
-  return isSyncing || recentlySyncing; // If it's syncing or recently was syncing
+  const recentlySyncing = remoteSyncManager.recentlyWasSyncing(milliSeconds);
+  return isSyncing || recentlySyncing; // syncing or recently was syncing
+}
+
+ipcMain.handle('CHECK_SYNC_IN_PROGRESS', async (_, milliSeconds: number) => {
+  return await checkSyncInProgress(milliSeconds);
 });
+

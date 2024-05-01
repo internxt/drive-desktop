@@ -296,5 +296,19 @@ contextBridge.exposeInMainWorld('electron', {
   getPreferredAppLanguage() {
     return ipcRenderer.invoke('APP:PREFERRED_LANGUAGE');
   },
+  syncManually() {
+    return ipcRenderer.invoke('SYNC_MANUALLY');
+  },
+  getUnsycFileInSyncEngine() {
+    return ipcRenderer.invoke('GET_UNSYNC_FILE_IN_SYNC_ENGINE');
+  },
+  updateUnsycFileInSyncEngine() {
+    return ipcRenderer.invoke('SEND_UPDATE_UNSYNC_FILE_IN_SYNC_ENGINE');
+  },
+  getRecentlywasSyncing() {
+    const FIVE_SECONDS = 5000;
+    return ipcRenderer.invoke('CHECK_SYNC_IN_PROGRESS', FIVE_SECONDS);
+  },
+
   path,
 });

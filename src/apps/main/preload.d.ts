@@ -167,5 +167,9 @@ declare interface Window {
     startRemoteSync: () => Promise<void>;
     openUrl: (url: string) => Promise<void>;
     getPreferredAppLanguage: () => Promise<Array<string>>;
+    syncManually: () => Promise<void>;
+    getRecentlywasSyncing: () => Promise<boolean>;
+    getUnsycFileInSyncEngine: () => Promise<string[]>;
+    updateUnsycFileInSyncEngine: () => Promise<void>;
   };
 }

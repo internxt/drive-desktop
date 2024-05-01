@@ -130,10 +130,25 @@
       },
       "dropdown": {
         "preferences": "Préférences",
+        "sync": "Synchroniser",
         "issues": "Liste d'erreurs",
         "support": "Aide",
         "logout": "Déconnecter",
-        "quit": "Fermer"
+        "quit": "Fermer",
+        "logout-confirmation": {
+          "no-sync-pending": {
+            "title": "Se déconnecter de cet appareil?",
+            "message": "Internxt Drive ne s'affichera pas sans un compte connecté.",
+            "confirm": "Se déconnecter",
+            "cancel": "Annuler"
+          },
+          "sync-pending": {
+            "title": "Des éléments ne sont pas synchronisés",
+            "message": "Si vous vous déconnectez maintenant, ces fichiers ne seront pas synchronisés et seront déplacés dans un dossier sur le bureau.",
+            "confirm": "Se déconnecter",
+            "cancel": "Forcer la synchronisation"
+          }
+        }
       }
     },
     "body": {

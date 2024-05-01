@@ -1,59 +1,5 @@
-import Store from 'electron-store';
-
-let store: Store<{
-  lastFilesSyncAt?: string;
-  lastFoldersSyncAt?: string;
-}> | null = null;
-export const getRemoteSyncStore = () => {
-  if (!store) {
-    store = new Store<{
-      lastFilesSyncAt?: string;
-      lastFoldersSyncAt?: string;
-    }>({
-      defaults: {
-        lastFilesSyncAt: undefined,
-        lastFoldersSyncAt: undefined,
-      },
-    });
-
-    return store;
-  }
-
-  return store;
-};
-
-export const clearRemoteSyncStore = () => getRemoteSyncStore().clear();
-export function getLastFilesSyncAt(): Date | undefined {
-  const value = getRemoteSyncStore().get('lastFilesSyncAt');
-
-  if (!value) return undefined;
-
-  return new Date(value);
-}
-
-export function saveLastFilesSyncAt(date: Date, offsetMs: number): Date {
-  getRemoteSyncStore().set(
-    'lastFilesSyncAt',
-    new Date(date.getTime() - offsetMs).toISOString()
-  );
-  return date;
-}
-
-export function getLastFoldersSyncAt(): Date | undefined {
-  const value = getRemoteSyncStore().get('lastFoldersSyncAt');
-
-  if (!value) return undefined;
-
-  return new Date(value);
-}
-
-export function saveLastFoldersSyncAt(date: Date, offsetMs: number): Date {
-  getRemoteSyncStore().set(
-    'lastFoldersSyncAt',
-    new Date(date.getTime() - offsetMs).toISOString()
-  );
-  return date;
-}
+export const WAITING_AFTER_SYNCING = 1000 * 60 * 3; // 5 minutes
+export const SIX_HOURS_IN_MILLISECONDS = 6 * 60 * 60 * 1000;
 
 export type RemoteSyncedFile = {
   id: number;
@@ -99,7 +45,7 @@ export type SyncConfig = {
 };
 
 export const SYNC_OFFSET_MS = 0;
-export const WAITING_AFTER_SYNCING = 1000 * 60 * 3; // 5 minutes
+export const WAITING_AFTER_SYNCING_DEFAULT = 1000 * 60 * 3;
 
 export const lastSyncedAtIsNewer = (
   itemUpdatedAt: Date,
@@ -108,3 +54,11 @@ export const lastSyncedAtIsNewer = (
 ) => {
   return itemUpdatedAt.getTime() - offset > lastItemsSyncAt.getTime();
 };
+
+export function rewind(original: Date, milliseconds: number): Date {
+  const shallowCopy = new Date(original.getTime());
+
+  shallowCopy.setTime(shallowCopy.getTime() - milliseconds);
+
+  return shallowCopy;
+}

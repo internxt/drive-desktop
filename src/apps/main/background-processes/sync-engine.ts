@@ -4,15 +4,30 @@ import Logger from 'electron-log';
 import eventBus from '../event-bus';
 import nodeSchedule from 'node-schedule';
 import * as Sentry from '@sentry/electron/main';
+import { checkSyncEngineInProcess } from '../remote-sync/handlers';
 
 let worker: BrowserWindow | null = null;
 let workerIsRunning = false;
 let startingWorker = false;
 let healthCheckSchedule: nodeSchedule.Job | null = null;
+let attemptsAlreadyStarting = 0;
+
+ipcMain.once('SYNC_ENGINE_PROCESS_SETUP_SUCCESSFUL', () => {
+  Logger.debug('[MAIN] SYNC ENGINE RUNNING');
+  workerIsRunning = true;
+  startingWorker = false;
+});
+
+ipcMain.on('SYNC_ENGINE_PROCESS_SETUP_FAILED', () => {
+  Logger.debug('[MAIN] SYNC ENGINE FAILED');
+  workerIsRunning = false;
+  startingWorker = false;
+});
 
 async function healthCheck() {
   const responsePromise = new Promise<void>((resolve, reject) => {
     ipcMain.once('SYNC_ENGINE:PONG', () => {
+      Logger.debug('Health check PONG resolved');
       resolve();
     });
 
@@ -48,17 +63,27 @@ function scheduleHeathCheck() {
         Sentry.captureMessage(warning);
         workerIsRunning = false;
         worker?.destroy();
+        if (attemptsAlreadyStarting >= 3) {
+          attemptsAlreadyStarting = 0;
+          startingWorker = false;
+          return;
+        }
         spawnSyncEngineWorker();
       });
 
   healthCheckSchedule = nodeSchedule.scheduleJob('*/30 * * * * *', async () => {
-    await relaunchOnFail();
+    const workerIsPending = checkSyncEngineInProcess(5_000);
+    Logger.debug('Health check', workerIsPending ? 'Worker is pending' : 'Worker is running');
+    if(!workerIsPending) {
+      await relaunchOnFail();
+    }
   });
 }
 
 function spawnSyncEngineWorker() {
   if (startingWorker) {
     Logger.info('[MAIN] Worker is already starting');
+    attemptsAlreadyStarting++;
     return;
   }
   if (workerIsRunning) {
@@ -99,18 +124,6 @@ function spawnSyncEngineWorker() {
       workerIsRunning = false;
       spawnSyncEngineWorker();
     }
-  });
-
-  ipcMain.once('SYNC_ENGINE_PROCESS_SETUP_SUCCESSFUL', () => {
-    Logger.debug('[MAIN] SYNC ENGINE RUNNING');
-    workerIsRunning = true;
-    startingWorker = false;
-  });
-
-  ipcMain.on('SYNC_ENGINE_PROCESS_SETUP_FAILED', () => {
-    Logger.debug('[MAIN] SYNC ENGINE NOT RUNNING');
-    workerIsRunning = false;
-    startingWorker = false;
   });
 }
 
@@ -219,11 +232,34 @@ async function stopAndClearSyncEngineWatcher() {
 
 export function updateSyncEngine() {
   try {
-    worker?.webContents.send('UPDATE_SYNC_ENGINE_PROCESS');
+    if (worker?.webContents && !worker?.isDestroyed()) {
+      worker?.webContents.send('UPDATE_SYNC_ENGINE_PROCESS');
+    }
   } catch (err) {
     // TODO: handle error
     Logger.error(err);
     Sentry.captureException(err);
+  }
+}
+
+export function fallbackSyncEngine() {
+  try {
+    if (worker?.webContents && !worker?.isDestroyed()) {
+      worker?.webContents.send('FALLBACK_SYNC_ENGINE_PROCESS');
+    }
+  } catch (err) {
+    Logger.error(err);
+  }
+}
+export async function sendUpdateFilesInSyncPending(): Promise<string[]> {
+  try {
+    if (worker?.webContents && !worker?.isDestroyed()) {
+     worker?.webContents.send('UPDATE_UNSYNC_FILE_IN_SYNC_ENGINE_PROCESS');
+    }
+    return [];
+  } catch (err) {
+    Logger.error(err);
+    return [];
   }
 }
 

@@ -1,12 +1,13 @@
 import Logger from 'electron-log';
-import * as helpers from './helpers';
 import {
   RemoteSyncStatus,
   RemoteSyncedFolder,
   RemoteSyncedFile,
   SyncConfig,
   SYNC_OFFSET_MS,
-  WAITING_AFTER_SYNCING
+  SIX_HOURS_IN_MILLISECONDS,
+  rewind,
+  WAITING_AFTER_SYNCING_DEFAULT
 } from './helpers';
 import { reportError } from '../bug-report/service';
 
@@ -14,6 +15,7 @@ import { DatabaseCollectionAdapter } from '../database/adapters/base';
 import { Axios } from 'axios';
 import { DriveFolder } from '../database/entities/DriveFolder';
 import { DriveFile } from '../database/entities/DriveFile';
+import { Nullable } from '../../shared/types/Nullable';
 
 export class RemoteSyncManager {
   private foldersSyncStatus: RemoteSyncStatus = 'IDLE';
@@ -24,8 +26,10 @@ export class RemoteSyncManager {
     (newStatus: RemoteSyncStatus) => void
   > = [];
   private totalFilesSynced = 0;
+  private totalFilesUnsynced: string[] = [];
   private totalFoldersSynced = 0;
   private lastSyncingFinishedTimestamp: Date | null = null;
+  private _isProcessRunning = false;
 
   constructor(
     private db: {
@@ -38,7 +42,7 @@ export class RemoteSyncManager {
       fetchFoldersLimitPerRequest: number;
       syncFiles: boolean;
       syncFolders: boolean;
-    } // , // private chekers: { //   fileCheker: FileCheckerStatusInRoot; // }
+    }
   ) {}
 
   set placeholderStatus(status: RemoteSyncStatus) {
@@ -53,6 +57,14 @@ export class RemoteSyncManager {
 
   getSyncStatus(): RemoteSyncStatus {
     return this.status;
+  }
+
+  getUnSyncFiles(): string[] {
+    return this.totalFilesUnsynced;
+  }
+
+  setUnsyncFiles(files: string[]): void {
+    this.totalFilesUnsynced = files;
   }
 
   private getLastSyncingFinishedTimestamp() {
@@ -72,10 +84,13 @@ export class RemoteSyncManager {
    * Consult if recently the RemoteSyncManager was syncing
    * @returns True if the RemoteSyncManager was syncing recently
    * @returns False if the RemoteSyncManager was not syncing recently
+   * @param milliseconds Time in milliseconds to check if the RemoteSyncManager was syncing
    */
-  recentlyWasSyncing() {
-    const passedTime = Date.now() - ( this.getLastSyncingFinishedTimestamp()?.getTime() ?? Date.now() );
-    return passedTime < WAITING_AFTER_SYNCING;
+  recentlyWasSyncing(milliseconds: number) {
+    const passedTime =
+      Date.now() -
+      (this.getLastSyncingFinishedTimestamp()?.getTime() ?? Date.now());
+    return passedTime < (milliseconds ?? WAITING_AFTER_SYNCING_DEFAULT);
   }
 
   resetRemoteSync() {
@@ -85,6 +100,7 @@ export class RemoteSyncManager {
     this._placeholdersStatus = 'IDLE';
     this.lastSyncingFinishedTimestamp = null;
     this.totalFilesSynced = 0;
+    this.totalFilesUnsynced = [];
     this.totalFoldersSynced = 0;
   }
   /**
@@ -104,6 +120,7 @@ export class RemoteSyncManager {
       return;
     }
     this.totalFilesSynced = 0;
+    this.totalFilesUnsynced = [];
     this.totalFoldersSynced = 0;
     await this.db.files.connect();
     await this.db.folders.connect();
@@ -129,27 +146,9 @@ export class RemoteSyncManager {
       this.changeStatus('SYNC_FAILED');
       reportError(error as Error);
     } finally {
-      // const totalDuration = Date.now() - start;
-
-      // Logger.info('-----------------');
-      // Logger.info('REMOTE SYNC STATS\n');
       Logger.info('Total synced files: ', this.totalFilesSynced);
+      Logger.info('Total unsynced files: ', this.totalFilesUnsynced);
       Logger.info('Total synced folders: ', this.totalFoldersSynced);
-
-      // Logger.info(
-      //   `Files sync speed: ${
-      //     this.totalFilesSynced / (totalDuration / 1000)
-      //   } files/second`
-      // );
-
-      // Logger.info('Total synced folders: ', this.totalFoldersSynced);
-      // Logger.info(
-      //   `Folders sync speed: ${
-      //     this.totalFoldersSynced / (totalDuration / 1000)
-      //   } folders/second`
-      // );
-      // Logger.info(`Total remote to local sync time: ${totalDuration}ms`);
-      // Logger.info('-----------------');
     }
   }
 
@@ -167,6 +166,16 @@ export class RemoteSyncManager {
 
     return true;
   }
+
+  set isProcessRunning(value: boolean) {
+    if (value) {
+      this.changeStatus('SYNCING');
+    } else {
+      this.checkRemoteSyncStatus();
+    }
+    this._isProcessRunning = value;
+  }
+
   private changeStatus(newStatus: RemoteSyncStatus) {
     this.addLastSyncingFinishedTimestamp();
     if (newStatus === this.status) return;
@@ -185,10 +194,6 @@ export class RemoteSyncManager {
   }
 
   private checkRemoteSyncStatus() {
-    if (this._placeholdersStatus === 'SYNCING') {
-      this.changeStatus('SYNCING');
-      return;
-    }
     // placeholders are still sync-pending
     if (this._placeholdersStatus === 'SYNC_PENDING') {
       this.changeStatus('SYNC_PENDING');
@@ -232,30 +237,43 @@ export class RemoteSyncManager {
     }
   }
 
+  private async getFileCheckpoint(): Promise<Nullable<Date>> {
+    const { success, result } = await this.db.files.getLastUpdated();
+
+    if (!success) return undefined;
+
+    if (!result) return undefined;
+
+    const updatedAt = new Date(result.updatedAt);
+
+    return rewind(updatedAt, SIX_HOURS_IN_MILLISECONDS);
+  }
+
   /**
    * Syncs all the remote files and saves them into the local db
    * @param syncConfig Config to execute the sync with
    * @returns
    */
-  private async syncRemoteFiles(syncConfig: SyncConfig) {
-    const lastFilesSyncAt = await helpers.getLastFilesSyncAt();
+  private async syncRemoteFiles(syncConfig: SyncConfig, from?: Date) {
+    const fileCheckpoint = from ?? (await this.getFileCheckpoint());
     try {
       Logger.info(
         `Syncing files updated from ${
-          lastFilesSyncAt ?? '(no last date provided)'
+          fileCheckpoint ?? '(no last date provided)'
         }`
       );
       const { hasMore, result } = await this.fetchFilesFromRemote(
-        lastFilesSyncAt
+        fileCheckpoint
       );
+
+      let lastFileSynced = null;
 
       for (const remoteFile of result) {
         // eslint-disable-next-line no-await-in-loop
         await this.createOrUpdateSyncedFileEntry(remoteFile);
-        const fileUpdatedAt = new Date(remoteFile.updatedAt);
 
-        helpers.saveLastFilesSyncAt(fileUpdatedAt, SYNC_OFFSET_MS);
         this.totalFilesSynced++;
+        lastFileSynced = remoteFile;
       }
 
       if (!hasMore) {
@@ -265,16 +283,19 @@ export class RemoteSyncManager {
         return;
       }
       Logger.info('Retrieving more files for sync');
-      await this.syncRemoteFiles({
-        retry: 1,
-        maxRetries: syncConfig.maxRetries,
-      });
+      await this.syncRemoteFiles(
+        {
+          retry: 1,
+          maxRetries: syncConfig.maxRetries,
+        },
+        lastFileSynced ? new Date(lastFileSynced.updatedAt) : undefined
+      );
     } catch (error) {
       Logger.error('Remote files sync failed with error: ', error);
 
       reportError(error as Error, {
-        lastFilesSyncAt: lastFilesSyncAt
-          ? lastFilesSyncAt.toISOString()
+        lastFilesSyncAt: fileCheckpoint
+          ? fileCheckpoint.toISOString()
           : 'INITIAL_FILES_SYNC',
       });
       if (syncConfig.retry >= syncConfig.maxRetries) {
@@ -291,31 +312,43 @@ export class RemoteSyncManager {
     }
   }
 
+  private async getLastFolderSyncAt(): Promise<Nullable<Date>> {
+    const { success, result } = await this.db.folders.getLastUpdated();
+
+    if (!success) return undefined;
+
+    if (!result) return undefined;
+
+    const updatedAt = new Date(result.updatedAt);
+
+    return rewind(updatedAt, SIX_HOURS_IN_MILLISECONDS);
+  }
+
   /**
    * Syncs all the remote folders and saves them into the local db
    * @param syncConfig Config to execute the sync with
    * @returns
    */
-  private async syncRemoteFolders(syncConfig: SyncConfig) {
-    const lastFoldersSyncAt = await helpers.getLastFoldersSyncAt();
+  private async syncRemoteFolders(syncConfig: SyncConfig, from?: Date) {
+    const lastFolderSyncAt = from ?? (await this.getLastFolderSyncAt());
     try {
       Logger.info(
         `Syncing folders updated from ${
-          lastFoldersSyncAt ?? '(no last date provided)'
+          lastFolderSyncAt ?? '(no last date provided)'
         }`
       );
       const { hasMore, result } = await this.fetchFoldersFromRemote(
-        lastFoldersSyncAt
+        lastFolderSyncAt
       );
+
+      let lastFolderSynced = null;
 
       for (const remoteFolder of result) {
         // eslint-disable-next-line no-await-in-loop
         await this.createOrUpdateSyncedFolderEntry(remoteFolder);
-        const foldersUpdatedAt = new Date(remoteFolder.updatedAt);
 
-        Logger.info(`Saving folders updatedAt ${foldersUpdatedAt}`);
-        helpers.saveLastFoldersSyncAt(foldersUpdatedAt, SYNC_OFFSET_MS);
         this.totalFoldersSynced++;
+        lastFolderSynced = remoteFolder;
       }
 
       if (!hasMore) {
@@ -325,15 +358,18 @@ export class RemoteSyncManager {
       }
 
       Logger.info('Retrieving more folders for sync');
-      await this.syncRemoteFolders({
-        retry: 1,
-        maxRetries: syncConfig.maxRetries,
-      });
+      await this.syncRemoteFolders(
+        {
+          retry: 1,
+          maxRetries: syncConfig.maxRetries,
+        },
+        lastFolderSynced ? new Date(lastFolderSynced.updatedAt) : undefined
+      );
     } catch (error) {
       Logger.error('Remote folders sync failed with error: ', error);
       reportError(error as Error, {
-        lastFoldersSyncAt: lastFoldersSyncAt
-          ? lastFoldersSyncAt.toISOString()
+        lastFoldersSyncAt: lastFolderSyncAt
+          ? lastFolderSyncAt.toISOString()
           : 'INITIAL_FOLDERS_SYNC',
       });
       if (syncConfig.retry >= syncConfig.maxRetries) {

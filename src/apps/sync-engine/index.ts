@@ -10,7 +10,7 @@ import * as Sentry from '@sentry/electron/renderer';
 function initSentry() {
   Sentry.init({
     dsn: process.env.SENTRY_DSN,
-    enabled: true // it is true but is using app.isPackaged from the main process
+    enabled: true, // it is true but is using app.isPackaged from the main process
   });
   Sentry.captureMessage('Sync engine process started');
 }
@@ -27,7 +27,6 @@ async function ensureTheFolderExist(path: string) {
 }
 
 async function setUp() {
-
   Logger.info('[SYNC ENGINE] Starting sync engine process');
 
   const virtualDrivePath = await ipcRenderer.invoke('get-virtual-drive-root');
@@ -69,6 +68,22 @@ async function setUp() {
     Logger.info('[SYNC ENGINE] sync engine updated successfully');
   });
 
+  ipcRenderer.on('FALLBACK_SYNC_ENGINE_PROCESS', async () => {
+    Logger.info('[SYNC ENGINE] Fallback sync engine');
+
+    await bindings.polling();
+
+    Logger.info('[SYNC ENGINE] sync engine fallback successfully');
+  });
+
+  ipcRenderer.on('UPDATE_UNSYNC_FILE_IN_SYNC_ENGINE_PROCESS', async (event) => {
+    Logger.info('[SYNC ENGINE] updating file unsync');
+
+    const filesPending = await bindings.getFileInSyncPending();
+  
+    event.sender.send('UPDATE_UNSYNC_FILE_IN_SYNC_ENGINE', filesPending);
+  });
+
   ipcRenderer.on('STOP_AND_CLEAR_SYNC_ENGINE_PROCESS', async (event) => {
     Logger.info('[SYNC ENGINE] Stopping and clearing sync engine');
 
@@ -87,6 +102,7 @@ async function setUp() {
   });
 
   ipcRenderer.on('SYNC_ENGINE:PING', (event) => {
+    Logger.info('[SYNC ENGINE] Sending Pong');
     event.sender.send('SYNC_ENGINE:PONG');
   });
 

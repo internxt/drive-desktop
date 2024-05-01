@@ -11,9 +11,12 @@ import { LocalFileWriter } from '../domain/LocalFileWriter';
 import { ContentFileDownloader } from '../domain/contentHandlers/ContentFileDownloader';
 import { TemporalFolderProvider } from './temporalFolderProvider';
 import * as fs from 'fs';
+import { CallbackDownload } from '../../../../apps/sync-engine/BindingManager';
 
 export class ContentsDownloader {
   private readableDownloader: Readable | null;
+  private WAIT_TO_SEND_PROGRESS = 20000;
+  private progressAt: Date | null = null;
   constructor(
     private readonly managerFactory: ContentsManagersFactory,
     private readonly localWriter: LocalFileWriter,
@@ -24,13 +27,14 @@ export class ContentsDownloader {
     this.readableDownloader = null;
   }
 
-  private async registerEvents(downloader: ContentFileDownloader, file: File) {
+  private async registerEvents(downloader: ContentFileDownloader, file: File, callback: CallbackDownload) {
     const location = await this.temporalFolderProvider();
     ensureFolderExists(location);
 
     const filePath = path.join(location, file.nameWithExtension);
 
     downloader.on('start', () => {
+      this.progressAt = new Date();
       this.ipc.send('FILE_DOWNLOADING', {
         name: file.name,
         extension: file.type,
@@ -47,6 +51,8 @@ export class ContentsDownloader {
       const fileSizeInBytes = stats.size;
       const progress = fileSizeInBytes / file.size;
 
+      await this.waitToCb(callback, filePath);
+
       this.ipc.send('FILE_DOWNLOADING', {
         name: file.name,
         extension: file.type,
@@ -60,6 +66,7 @@ export class ContentsDownloader {
     });
 
     downloader.on('error', (error: Error) => {
+      Logger.error('[Server] Error downloading file', error);
       this.ipc.send('FILE_DOWNLOAD_ERROR', {
         name: file.name,
         extension: file.type,
@@ -75,10 +82,17 @@ export class ContentsDownloader {
     });
   }
 
-  async run(file: File): Promise<string> {
+  private async  waitToCb(callback: CallbackDownload, filePath: string) {
+     if ( this.progressAt && (new Date().getTime() - this.progressAt.getTime()) > this.WAIT_TO_SEND_PROGRESS) {
+        await callback(true, filePath);
+        this.progressAt = new Date();
+      }
+  }
+
+  async run(file: File, callback: CallbackDownload): Promise<string> {
     const downloader = this.managerFactory.downloader();
 
-    await this.registerEvents(downloader, file);
+    await this.registerEvents(downloader, file, callback);
 
     const readable = await downloader.download(file);
     this.readableDownloader = readable;
