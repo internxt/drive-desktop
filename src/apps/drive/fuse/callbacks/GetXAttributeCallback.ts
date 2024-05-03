@@ -5,7 +5,11 @@ import { FuseCodes } from './FuseCodes';
 
 export class GetXAttributeCallback extends FuseCallback<Buffer> {
   constructor(private readonly drive: VirtualDrive) {
-    super('Get X Attribute', { input: false, elapsedTime: false });
+    super('Get X Attribute', {
+      input: true,
+      elapsedTime: false,
+      output: false,
+    });
   }
 
   private isRootFolder(path: string): boolean {

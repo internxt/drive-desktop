@@ -4,9 +4,11 @@ import { HydrationApiLogger } from './HydrationApiLogger';
 import { buildHydrationRouter } from './routes/contents';
 import { buildFilesRouter } from './routes/files';
 import { errorHandlerMiddleware } from './controllers/middlewares/errorHandlerMiddleware';
+import { Stopwatch } from '../../shared/types/Stopwatch';
 
 export interface HydrationApiOptions {
   debug: boolean;
+  timeElapsed: boolean;
 }
 
 export class HydrationApi {
@@ -38,6 +40,26 @@ export class HydrationApi {
         this.logger.debug(
           `[${new Date().toLocaleString()}] ${req.method} ${req.url}`
         );
+        next();
+      });
+    }
+
+    if (options.timeElapsed) {
+      this.app.use((req, res, next) => {
+        const stopwatch = new Stopwatch();
+
+        res.on('finish', () => {
+          const duration = stopwatch.elapsedTime();
+          const decodedBuffer = Buffer.from(req.params.path, 'base64');
+
+          const path = decodedBuffer.toString('utf-8').replaceAll('%20', ' ');
+
+          this.logger.debug(
+            `${req.method} ${req.originalUrl} ${path} took ${duration} ms`
+          );
+        });
+
+        stopwatch.start();
         next();
       });
     }

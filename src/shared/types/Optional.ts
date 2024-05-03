@@ -10,7 +10,7 @@ export class Optional<T> {
   }
 
   get(): T {
-    if (!this.value) {
+    if (this.value === undefined) {
       throw new Error('Element not found');
     }
 

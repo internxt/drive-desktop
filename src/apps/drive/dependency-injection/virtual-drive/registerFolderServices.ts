@@ -20,6 +20,7 @@ import { LocalFileSystem } from '../../../../context/virtual-drive/folders/domai
 import { AuthorizedClients } from '../../../shared/HttpClient/Clients';
 import { FolderRepository } from '../../../../context/virtual-drive/folders/domain/FolderRepository';
 import { InMemoryFolderRepository } from '../../../../context/virtual-drive/folders/infrastructure/InMemoryFolderRepository';
+import { FoldersSearcherByPartial } from '../../../../context/virtual-drive/folders/application/search/FoldersSearcherByPartial';
 
 export async function registerFolderServices(
   builder: ContainerBuilder
@@ -72,4 +73,6 @@ export async function registerFolderServices(
   builder.registerAndUse(FolderCreator);
 
   builder.registerAndUse(FolderDeleter);
+
+  builder.registerAndUse(FoldersSearcherByPartial);
 }

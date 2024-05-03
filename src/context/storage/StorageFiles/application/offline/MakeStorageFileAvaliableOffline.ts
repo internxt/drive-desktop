@@ -1,11 +1,11 @@
 import { Service } from 'diod';
-import { StorageFilesRepository } from '../../domain/StorageFilesRepository';
-import { StorageFileDownloader } from '../download/StorageFileDownloader';
-import { FileStatuses } from '../../../../virtual-drive/files/domain/FileStatus';
+import Logger from 'electron-log';
 import { SingleFileMatchingFinder } from '../../../../virtual-drive/files/application/SingleFileMatchingFinder';
+import { FileStatuses } from '../../../../virtual-drive/files/domain/FileStatus';
 import { StorageFile } from '../../domain/StorageFile';
 import { StorageFileId } from '../../domain/StorageFileId';
-import Logger from 'electron-log';
+import { StorageFilesRepository } from '../../domain/StorageFilesRepository';
+import { StorageFileDownloader } from '../download/StorageFileDownloader';
 
 @Service()
 export class MakeStorageFileAvaliableOffline {
@@ -39,7 +39,7 @@ export class MakeStorageFileAvaliableOffline {
     await this.repository.store(storage, readable);
 
     Logger.debug(
-      `File "${virtual.nameWithExtension}" with ${storage.id.value} is avaliable offline`
+      `File "${virtual.nameWithExtension}" with ${storage.id.value} is now avaliable offline`
     );
   }
 }

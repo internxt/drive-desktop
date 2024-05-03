@@ -17,7 +17,7 @@ export async function startVirtualDrive() {
 
   fuseApp = new FuseApp(virtualDrive, container, root);
 
-  await hydrationApi.start({ debug: true });
+  await hydrationApi.start({ debug: false, timeElapsed: false });
 
   await fuseApp.start();
 }

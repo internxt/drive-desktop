@@ -3,10 +3,8 @@ import os
 
 
 from gi.repository import Nautilus, GObject, Gtk, Gdk
-from urllib.parse import urlparse, unquote
 import requests
 import base64
-import xattr
 import urllib.parse
 
 try:
@@ -60,6 +58,10 @@ class InternxtVirtualDrive(GObject.Object, Nautilus.MenuProvider, Nautilus.Colum
         app.connect("window-removed", self._window_removed)
 
 
+        # Represents if is connected to the fuse folder
+        self.connected = True
+
+
         user_home = os.path.expanduser("~")
         root_folder = os.path.join(user_home, VIRTUAL_DRIVE_ROOT_FOLDER_NAME)
         self.root_folder = root_folder
@@ -82,7 +84,15 @@ class InternxtVirtualDrive(GObject.Object, Nautilus.MenuProvider, Nautilus.Colum
         file_uri = file.get_uri();
         return self.root_folder in file_uri
 
+    def _file_is_virtual_drive(self, file):
+        file_uri = file.get_uri();
+        return self.file_base_dir == file_uri
+
     def _setItemStatus(self, file, status):
+
+      if status is None:
+        return
+
       emblem = status_to_emblem_map[status]
 
       if emblem == '' or emblem is None:
@@ -92,26 +102,39 @@ class InternxtVirtualDrive(GObject.Object, Nautilus.MenuProvider, Nautilus.Colum
       file.add_emblem(emblem)
 
 
-    def _get_x_attribute(self, file, key):
-      path = file.get_uri().replace('file://', '').replace('%20', ' ')
+    def _get_availability(self, file):
+      base64_encoded = self._encode_file_path(file)
 
-      decoded_uri = urllib.parse.unquote(path)
+      if file.is_directory() :
+        url = base_url + 'folders/' + base64_encoded
+      else :
+        url = base_url + 'files/' + base64_encoded
 
-      attrs = xattr.xattr(decoded_uri)
 
-      if key.encode() in attrs:
-        return attrs.get(key.encode()).decode('utf-8')
+      response = requests.get(url)
+
+      if (response.status_code == 200):
+        data = response.json()
+
+        if data['locallyAvaliable']:
+          return 'on_local'
+        else:
+          return 'on_remote'
+
+      else:
+         return None
+
 
     def _update_file_status(self, file):
 
-      if file.is_directory():
-        return
+      status = self._get_availability(file)
 
-      status = self._get_x_attribute(file, 'hydration-status')
+      # if status is None:
+      #    file.invalidate_extension_info()
+      #    return
 
       if status is None:
-         file.invalidate_extension_info()
-         return
+        return
 
       self._setItemStatus(file, status)
       self._set_sync_status_column_attribute(file, status)
@@ -129,8 +152,8 @@ class InternxtVirtualDrive(GObject.Object, Nautilus.MenuProvider, Nautilus.Colum
         remote_files = []
 
         for file in files:
-          if self._file_is_in_virtual_drive(file) and not file.is_directory():
-            status = self._get_x_attribute(file, 'hydration-status')
+          if self._file_is_in_virtual_drive(file):
+            status = self._get_availability(file)
 
             if (status == 'on_local'):
               local_files.append(file)
@@ -172,21 +195,28 @@ class InternxtVirtualDrive(GObject.Object, Nautilus.MenuProvider, Nautilus.Colum
 
             base64_encoded = self._encode_file_path(file)
 
-            url = base_url + base64_encoded
+            if file.is_directory():
+              url = base_url + 'folders/' + base64_encoded
+            else:
+              url = base_url + 'files/' + base64_encoded
 
             response = requests.post(url)
 
             print(response.status_code)
 
-            if (response.status_code == 201):
-              self._setItemStatus(file, 'on_local')
+            # if (response.status_code == 202):
+            #   self._setItemStatus(file, 'on_local')
 
     def _make_remote_only(self, menu, files):
         for file in files:
             self._setItemStatus(file, 'removing')
 
             base64_encoded = self._encode_file_path(file)
-            url = base_url + base64_encoded
+
+            if file.is_directory() :
+              url = base_url + 'folders/' + base64_encoded
+            else:
+              url = base_url + 'files/' + base64_encoded
 
             print(url)
 
@@ -208,5 +238,14 @@ class InternxtVirtualDrive(GObject.Object, Nautilus.MenuProvider, Nautilus.Colum
       if not self._file_is_in_virtual_drive(file):
         return
 
+      if self._file_is_virtual_drive(file):
+        return
+
+      # if file.is_directory():
+      #   return
 
       self._update_file_status(file)
+
+
+
+

@@ -30,4 +30,10 @@ export class FolderPathMother {
 
     return new FolderPath(asArray.join('/'));
   }
+
+  static asPrimitive() {
+    const path = FolderPathMother.any();
+
+    return path.value;
+  }
 }
