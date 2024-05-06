@@ -9,6 +9,8 @@ import { BucketEntryIdMother } from '../../shared/domain/BucketEntryIdMother';
 const chance = new Chance();
 
 export class FileMother {
+  private static readonly MAX_ARRAY_GENERATION = 10;
+
   static any() {
     return File.from({
       id: chance.integer({ min: 1000 }),
@@ -38,5 +40,13 @@ export class FileMother {
       status: FileStatuses.EXISTS,
       ...partial,
     });
+  }
+
+  static array(partial?: Partial<FileAttributes>): Array<File> {
+    return new Array(
+      chance.integer({ min: 1, max: FileMother.MAX_ARRAY_GENERATION })
+    )
+      .fill(0)
+      .map(() => FileMother.fromPartial(partial ?? {}));
   }
 }

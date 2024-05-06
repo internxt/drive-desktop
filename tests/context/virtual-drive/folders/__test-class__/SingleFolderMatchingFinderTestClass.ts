@@ -16,12 +16,15 @@ export class SingleFolderMatchingFinderTestClass extends SingleFolderMatchingFin
     return this.mock(partial);
   }
 
-  finds(
-    values: Array<{ partial: Partial<FolderAttributes>; folder: Folder }>
-  ): void {
-    values.forEach(({ partial, folder }) => {
-      this.mock(partial);
-      this.mock.mockReturnValueOnce(folder);
-    });
+  finds(folders: Folder | Array<Folder>): void {
+    if (Array.isArray(folders)) {
+      folders.forEach((folder) => {
+        this.mock.mockReturnValueOnce(folder);
+      });
+
+      return;
+    }
+
+    this.mock.mockReturnValueOnce(folders);
   }
 }

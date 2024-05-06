@@ -9,10 +9,13 @@ import { FolderStatuses } from '../../../../../src/context/virtual-drive/folders
 import { FolderUuid } from '../../../../../src/context/virtual-drive/folders/domain/FolderUuid';
 import { FolderIdMother } from './FolderIdMother';
 import { FolderPathMother } from './FolderPathMother';
+import { partial } from 'lodash';
 
 const chance = new Chance();
 
 export class FolderMother {
+  private static readonly MAX_ARRAY_GENERATION = 10;
+
   static containing(file: File) {
     return Folder.from({
       id: file.folderId,
@@ -95,5 +98,13 @@ export class FolderMother {
       path: FolderPathMother.onFolder(new FolderPath(root.path)).value,
       parentId: root.id as number,
     });
+  }
+
+  static array(partial?: Partial<FolderAttributes>): Array<Folder> {
+    return new Array(
+      chance.integer({ min: 1, max: FolderMother.MAX_ARRAY_GENERATION })
+    )
+      .fill(0)
+      .map(() => FolderMother.fromPartial(partial ?? {}));
   }
 }

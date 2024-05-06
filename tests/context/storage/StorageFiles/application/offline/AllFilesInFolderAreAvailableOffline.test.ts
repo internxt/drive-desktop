@@ -35,9 +35,7 @@ describe('All Files In Folder Are Available Offline', () => {
 
   it('returns true if the folder is empty', async () => {
     const folderFound = FolderMother.any();
-    singleFolderFinder.finds([
-      { partial: { path: folderFound.path }, folder: folderFound },
-    ]);
+    singleFolderFinder.finds([folderFound]);
     filesByPartialSearcher.findsOnce([]);
     foldersSearcherByPartial.doesNotFindAny();
 
@@ -49,9 +47,7 @@ describe('All Files In Folder Are Available Offline', () => {
   it('returns false if the file is not avaliable offline', async () => {
     const fileFound = FileMother.any();
     const folderFound = FolderMother.any();
-    singleFolderFinder.finds([
-      { partial: { path: folderFound.path }, folder: folderFound },
-    ]);
+    singleFolderFinder.finds([folderFound]);
     filesByPartialSearcher.findsOnce([fileFound]);
     foldersSearcherByPartial.doesNotFindAny();
     const id = new StorageFileId(fileFound.contentsId);
@@ -74,9 +70,7 @@ describe('All Files In Folder Are Available Offline', () => {
     });
 
     const folderFound = FolderMother.any();
-    singleFolderFinder.finds([
-      { partial: { path: folderFound.path }, folder: folderFound },
-    ]);
+    singleFolderFinder.finds([folderFound]);
 
     filesByPartialSearcher.findsOnce(filesFound);
     foldersSearcherByPartial.doesNotFindAny();
@@ -93,9 +87,7 @@ describe('All Files In Folder Are Available Offline', () => {
     const allExists = ids.map((id) => ({ id, value: true }));
     const folderFound = FolderMother.any();
 
-    singleFolderFinder.finds([
-      { partial: { path: folderFound.path }, folder: folderFound },
-    ]);
+    singleFolderFinder.finds([folderFound]);
 
     filesByPartialSearcher.findsOnce(filesFound);
     repository.shouldExists(allExists);
@@ -109,9 +101,7 @@ describe('All Files In Folder Are Available Offline', () => {
   it('searches for subfolders files in a second level', async () => {
     const folderFound = FolderMother.any();
 
-    singleFolderFinder.finds([
-      { partial: { path: folderFound.path }, folder: folderFound },
-    ]);
+    singleFolderFinder.finds([folderFound]);
 
     // firsts level
     foldersSearcherByPartial.findsOnce([
@@ -134,9 +124,7 @@ describe('All Files In Folder Are Available Offline', () => {
     async (level: number) => {
       const folderFound = FolderMother.any();
 
-      singleFolderFinder.finds([
-        { partial: { path: folderFound.path }, folder: folderFound },
-      ]);
+      singleFolderFinder.finds([folderFound]);
 
       for (let i = 0; i < level; i++) {
         foldersSearcherByPartial.findsOnce([FolderMother.any()]);
@@ -157,9 +145,7 @@ describe('All Files In Folder Are Available Offline', () => {
     const level = 100_000;
     const folderFound = FolderMother.any();
 
-    singleFolderFinder.finds([
-      { partial: { path: folderFound.path }, folder: folderFound },
-    ]);
+    singleFolderFinder.finds([folderFound]);
 
     for (let i = 0; i < level; i++) {
       foldersSearcherByPartial.findsOnce([FolderMother.any()]);
