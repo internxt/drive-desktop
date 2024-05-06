@@ -85,7 +85,7 @@ describe('File Creator', () => {
       'file.created'
     );
     expect(eventBus.publishMock.mock.calls[0][0][0].aggregateId).toBe(
-      contentsId.value
+      fileAttributes.uuid
     );
   });
 
@@ -119,7 +119,7 @@ describe('File Creator', () => {
 
     expect(remoteFileSystemMock.persistMock).toBeCalledWith(
       expect.objectContaining({
-        contentsId: contentsId.value,
+        contentsId: contentsId,
       })
     );
     expect(fileRepository.addMock).toBeCalledWith(

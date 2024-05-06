@@ -1,8 +1,8 @@
 import { Readable } from 'stream';
-import { StorageFileDownloader } from '../../../../../src/context/storage/StorageFiles/application/download/StorageFileDownloader';
-import { StorageFile } from '../../../../../src/context/storage/StorageFiles/domain/StorageFile';
-import { DownloadProgressTrackerMock } from './DownloadProgressTrackerMock';
-import { DownloaderHandlerFactoryMock } from './DownloaderHandlerFactoryMock';
+import { StorageFileDownloader } from '../../../../../../src/context/storage/StorageFiles/application/download/StorageFileDownloader';
+import { StorageFile } from '../../../../../../src/context/storage/StorageFiles/domain/StorageFile';
+import { DownloadProgressTrackerMock } from '../../__mocks__/DownloadProgressTrackerMock';
+import { DownloaderHandlerFactoryMock } from '../../__mocks__/DownloaderHandlerFactoryMock';
 
 export class StorageFileDownloaderTestClass extends StorageFileDownloader {
   private mock = jest.fn();

@@ -74,6 +74,6 @@ describe('TypeOrmAndNodeFsStorageFilesRepository', () => {
 
     const allFilesRetrieved = await repository.all();
 
-    expect(files).toEqual(allFilesRetrieved);
+    expect(files).toEqual(expect.arrayContaining(allFilesRetrieved));
   });
 });

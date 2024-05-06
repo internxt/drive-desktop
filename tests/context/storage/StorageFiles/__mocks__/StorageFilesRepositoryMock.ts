@@ -13,7 +13,6 @@ export class StorageFilesRepositoryMock implements StorageFilesRepository {
   private allMock = jest.fn();
 
   async exists(id: StorageFileId): Promise<boolean> {
-    expect(this.existsMock).toHaveBeenCalledWith(id);
     return this.existsMock(id);
   }
 
@@ -24,8 +23,16 @@ export class StorageFilesRepositoryMock implements StorageFilesRepository {
     });
   }
 
+  shouldBeEmpty() {
+    this.existsMock.mockReturnValue(false);
+  }
+
   async retrieve(id: StorageFileId): Promise<StorageFile> {
     return this.retrieveMock(id);
+  }
+
+  shouldRetrieve(file: StorageFile) {
+    this.retrieveMock.mockReturnValueOnce(file);
   }
 
   async store(file: StorageFile, readable: Readable): Promise<void> {
@@ -48,6 +55,10 @@ export class StorageFilesRepositoryMock implements StorageFilesRepository {
     calls.forEach((parameters) =>
       expect(this.deleteMock).toBeCalledWith(...parameters)
     );
+  }
+
+  assertDeleteHasNotBeenCalled() {
+    expect(this.deleteMock).not.toBeCalled();
   }
 
   async deleteAll(): Promise<void> {

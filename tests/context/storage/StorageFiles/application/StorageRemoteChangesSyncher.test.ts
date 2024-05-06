@@ -3,7 +3,7 @@ import { StorageFile } from '../../../../../src/context/storage/StorageFiles/dom
 import { FileStatuses } from '../../../../../src/context/virtual-drive/files/domain/FileStatus';
 import { SingleFileMatchingSearcherTestClass } from '../../../virtual-drive/files/__test-class__/SingleFileMatchingSearcherTestClass';
 import { FileMother } from '../../../virtual-drive/files/domain/FileMother';
-import { StorageFileDownloaderTestClass } from '../__mocks__/StorageFileDownloaderTestClass';
+import { StorageFileDownloaderTestClass } from '../__test-class__/download/StorageFileDownloaderTestClass';
 import { StorageFilesRepositoryMock } from '../__mocks__/StorageFilesRepositoryMock';
 import { StorageFileMother } from '../domain/StorageFileMother';
 
