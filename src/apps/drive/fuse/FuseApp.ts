@@ -108,12 +108,11 @@ export class FuseApp {
       const tree = await this.container.get(TreeBuilder).run();
 
       await this.container.get(FileRepositorySynchronizer).run(tree.files);
+      await this.container.get(ThumbnailSynchronizer).run(tree.files);
 
       await this.container.get(FolderRepositorySynchronizer).run(tree.folders);
 
       await this.container.get(StorageRemoteChangesSyncher).run();
-
-      await this.container.get(ThumbnailSynchronizer).run(tree.files);
 
       Logger.info('[FUSE] Tree updated successfully');
     } catch (err) {

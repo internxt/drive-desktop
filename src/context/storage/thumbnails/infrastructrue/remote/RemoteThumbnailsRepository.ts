@@ -50,6 +50,11 @@ export class RemoteThumbnailsRepository implements ThumbnailsRepository {
 
       const data = response.data as FileMetaDataResponse;
 
+      // @ts-ignore
+      if (data.thumbnails.length === 0) {
+        return undefined;
+      }
+
       const thumbnails = data.thumbnails.map((raw) =>
         Thumbnail.from({
           id: raw.id,
