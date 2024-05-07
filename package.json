@@ -25,6 +25,7 @@
     "start:sync": "cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true webpack --config ./.erb/configs/webpack.config.sync.ts",
     "test": "jest && playwright test --config=src/test",
     "test:unit": "ELECTRON_RUN_AS_NODE=true ./node_modules/.bin/electron ./node_modules/jest-cli/bin/jest.js",
+    "test:unit:watch": "jest --watch",
     "test:e2e": "playwright test --config=src/test",
     "type-check": "tsc --noEmit --pretty --skipLibCheck",
     "prepare": "husky install"

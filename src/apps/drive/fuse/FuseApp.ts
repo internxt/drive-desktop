@@ -20,6 +20,7 @@ import { TrashFolderCallback } from './callbacks/TrashFolderCallback';
 import { WriteCallback } from './callbacks/WriteCallback';
 import { mountPromise, unmountPromise } from './helpers';
 import { StorageRemoteChangesSyncher } from '../../../context/storage/StorageFiles/application/sync/StorageRemoteChangesSyncher';
+import { ThumbnailSynchronizer } from '../../../context/storage/thumbnails/application/sync/ThumbnailSynchronizer';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const fuse = require('@gcas/fuse');
@@ -111,6 +112,8 @@ export class FuseApp {
       await this.container.get(FolderRepositorySynchronizer).run(tree.folders);
 
       await this.container.get(StorageRemoteChangesSyncher).run();
+
+      await this.container.get(ThumbnailSynchronizer).run(tree.files);
 
       Logger.info('[FUSE] Tree updated successfully');
     } catch (err) {

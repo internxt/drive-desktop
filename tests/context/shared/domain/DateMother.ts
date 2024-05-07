@@ -22,4 +22,14 @@ export class DateMother {
   static clone(original: Date): Date {
     return new Date(original.getTime());
   }
+
+  static today(): Date {
+    const today = new Date();
+
+    return today;
+  }
+
+  static yesterday(): Date {
+    return DateMother.previousDay(DateMother.today());
+  }
 }
