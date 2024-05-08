@@ -3,8 +3,10 @@ import { VirtualDrive } from './VirtualDrive';
 import { DriveDependencyContainerFactory } from './dependency-injection/DriveDependencyContainerFactory';
 import { FuseApp } from './fuse/FuseApp';
 import { HydrationApi } from './hydration-api/HydrationApi';
+import { logAndTrackError } from './trackError';
 
 let fuseApp: FuseApp;
+let hydrationApi: HydrationApi;
 
 export async function startVirtualDrive() {
   const root = getRootVirtualDrive();
@@ -13,7 +15,7 @@ export async function startVirtualDrive() {
 
   const virtualDrive = new VirtualDrive(container);
 
-  const hydrationApi = new HydrationApi(container);
+  hydrationApi = new HydrationApi(container);
 
   fuseApp = new FuseApp(virtualDrive, container, root);
 
@@ -24,11 +26,17 @@ export async function startVirtualDrive() {
 
 export async function stopSyncEngineWatcher() {
   await fuseApp.stop();
+  await hydrationApi.stop();
 }
 
 export async function stopAndClearFuseApp() {
-  await fuseApp.clearCache();
-  await fuseApp.stop();
+  try {
+    await hydrationApi.stop();
+    await fuseApp.clearCache();
+    await fuseApp.stop();
+  } catch (error) {
+    logAndTrackError(error);
+  }
 }
 
 export async function updateFuseApp() {
@@ -42,6 +50,7 @@ export function getFuseDriveState() {
   return fuseApp.getStatus();
 }
 
-export function stopFuse() {
-  fuseApp.stop();
+export async function stopFuse() {
+  await fuseApp.stop();
+  await hydrationApi.stop();
 }

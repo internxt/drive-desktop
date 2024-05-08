@@ -103,10 +103,6 @@ if (process.env.NODE_ENV === 'development') {
 app
   .whenReady()
   .then(async () => {
-    if (!AppDataSource.isInitialized) {
-      await AppDataSource.initialize();
-    }
-
     eventBus.emit('APP_IS_READY');
     const isLoggedIn = getIsLoggedIn();
 
@@ -122,6 +118,7 @@ eventBus.on('USER_LOGGED_IN', async () => {
   try {
     if (!AppDataSource.isInitialized) {
       await AppDataSource.initialize();
+      eventBus.emit('APP_DATA_SOURCE_INITIALIZED');
     }
 
     getAuthWindow()?.hide();

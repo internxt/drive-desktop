@@ -5,6 +5,7 @@ import { buildHydrationRouter } from './routes/contents';
 import { buildFilesRouter } from './routes/files';
 import { errorHandlerMiddleware } from './controllers/middlewares/errorHandlerMiddleware';
 import { Stopwatch } from '../../shared/types/Stopwatch';
+import { Server } from 'http';
 
 export interface HydrationApiOptions {
   debug: boolean;
@@ -15,6 +16,8 @@ export class HydrationApi {
   private static readonly PORT = 4567;
   private readonly app;
   private readonly logger: HydrationApiLogger;
+
+  private server: Server | null = null;
 
   constructor(private readonly container: Container) {
     this.app = express();
@@ -69,10 +72,24 @@ export class HydrationApi {
     });
 
     return new Promise((resolve) => {
-      this.app.listen(HydrationApi.PORT, () => {
+      this.server = this.app.listen(HydrationApi.PORT, () => {
         this.logger.info(`running on port ${HydrationApi.PORT}`);
         resolve();
       });
+    });
+  }
+
+  async stop(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      if (this.server)
+        this.server.close((err) => {
+          if (err) {
+            reject(err);
+            return;
+          }
+
+          resolve();
+        });
     });
   }
 }

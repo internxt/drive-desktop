@@ -30,7 +30,7 @@ eventBus.on('RECEIVED_REMOTE_CHANGES', async () => {
   await resyncRemoteSync();
 });
 
-eventBus.on('USER_LOGGED_IN', async () => {
+eventBus.on('APP_DATA_SOURCE_INITIALIZED', async () => {
   await remoteSyncManager.startRemoteSync().catch((error) => {
     Logger.error('Error starting remote sync manager', error);
     reportError(error);

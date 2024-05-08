@@ -18,6 +18,6 @@ ipcMain.handle('get-virtual-drive-status', () => {
 });
 
 ipcMain.handle('retry-virtual-drive-mount', async () => {
-  stopFuse();
+  await stopFuse();
   await startVirtualDrive();
 });

@@ -29,6 +29,8 @@ interface Events {
 
   // Used when the local DB has the most recent changes of remote
   REMOTE_CHANGES_SYNCHED: () => void;
+
+  APP_DATA_SOURCE_INITIALIZED: () => void;
 }
 
 declare interface EventBus {
