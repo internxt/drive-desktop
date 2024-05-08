@@ -42,11 +42,29 @@ export class FileMother {
     });
   }
 
-  static array(partial?: Partial<FileAttributes>): Array<File> {
+  static thumbnable() {
+    return File.from({
+      ...FileMother.any().attributes(),
+      path: FilePathMother.thumbnable(2).value,
+    });
+  }
+
+  static noThumbnable() {
+    return File.from({
+      ...FileMother.any().attributes(),
+      path: FilePathMother.withExtension('vvv', 2).value,
+    });
+  }
+
+  static array(generator?: () => Partial<FileAttributes>): Array<File> {
     return new Array(
       chance.integer({ min: 1, max: FileMother.MAX_ARRAY_GENERATION })
     )
       .fill(0)
-      .map(() => FileMother.fromPartial(partial ?? {}));
+      .map(() => {
+        const partial = generator ? generator() : undefined;
+
+        return FileMother.fromPartial(partial ?? {});
+      });
   }
 }

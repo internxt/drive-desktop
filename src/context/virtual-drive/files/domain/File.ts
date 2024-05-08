@@ -209,6 +209,14 @@ export class File extends AggregateRoot {
     return true;
   }
 
+  isThumbnable(): boolean {
+    return this._path.isThumbnable();
+  }
+
+  mimeType() {
+    return this._path.mimeType();
+  }
+
   hasStatus(status: FileStatuses): boolean {
     return this._status.is(status);
   }

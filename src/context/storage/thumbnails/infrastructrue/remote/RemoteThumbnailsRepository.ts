@@ -35,7 +35,7 @@ export class RemoteThumbnailsRepository implements ThumbnailsRepository {
     private readonly downloader: EnvironmentThumbnailDownloader
   ) {}
 
-  async retrieve(file: File): Promise<ThumbnailCollection | undefined> {
+  private async obtainThumbnails(file: File): Promise<Array<Thumbnail>> {
     try {
       const response = await this.axios.get(
         `${process.env.NEW_DRIVE_URL}/drive/folders/${file.folderId}/file`,
@@ -45,14 +45,14 @@ export class RemoteThumbnailsRepository implements ThumbnailsRepository {
       );
 
       if (response.status !== 200) {
-        return undefined;
+        return [];
       }
 
       const data = response.data as FileMetaDataResponse;
 
       // @ts-ignore
       if (data.thumbnails.length === 0) {
-        return undefined;
+        return [];
       }
 
       const thumbnails = data.thumbnails.map((raw) =>
@@ -65,11 +65,27 @@ export class RemoteThumbnailsRepository implements ThumbnailsRepository {
         })
       );
 
-      return new ThumbnailCollection(file, thumbnails);
+      return thumbnails;
     } catch (err) {
       Logger.error(err);
+      return [];
+    }
+  }
+
+  async has(file: File): Promise<boolean> {
+    const thumbnails = await this.obtainThumbnails(file);
+
+    return thumbnails.length > 0;
+  }
+
+  async retrieve(file: File): Promise<ThumbnailCollection | undefined> {
+    const thumbnails = await this.obtainThumbnails(file);
+
+    if (thumbnails.length === 0) {
       return undefined;
     }
+
+    return new ThumbnailCollection(file, thumbnails);
   }
 
   pull(thumbnail: Thumbnail): Promise<Readable> {
@@ -81,6 +97,10 @@ export class RemoteThumbnailsRepository implements ThumbnailsRepository {
   }
 
   push(_file: File, _stream: Readable): Promise<void> {
+    throw new Error('Method not implemented.');
+  }
+
+  default(_file: File): Promise<void> {
     throw new Error('Method not implemented.');
   }
 }

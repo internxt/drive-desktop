@@ -1,4 +1,3 @@
-import gi
 import os
 
 
@@ -6,17 +5,6 @@ from gi.repository import Nautilus, GObject, Gtk, Gdk
 import requests
 import base64
 import urllib.parse
-
-try:
-  gi.require_version('Gtk', '4.0')
-  gi.require_version('Nautilus', '4.0')
-except ImportError:
-    try:
-      gi.require_version('Gtk', '3.0')
-      gi.require_version('Nautilus', '3.0')
-    except ImportError:
-        print("Neither GTK 4 nor GTK 3 is available")
-
 
 
 SYNC_STATUS_ATTRIBUTE ="SYNC_STATUS"
@@ -50,6 +38,7 @@ class InternxtVirtualDrive(GObject.Object, Nautilus.MenuProvider, Nautilus.Colum
             del self.selected_files[window_id]
 
     def __init__(self):
+        print('InternxtVirtualDrive Extension loaded')
         self.display = Gdk.Display.get_default()
 
         self.selected_files = {}

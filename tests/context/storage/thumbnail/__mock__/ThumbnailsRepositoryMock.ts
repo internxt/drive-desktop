@@ -8,6 +8,24 @@ export class ThumbnailsRepositoryMock implements ThumbnailsRepository {
   private readonly retrieveMock = jest.fn();
   private readonly pullMock = jest.fn();
   private readonly pushMock = jest.fn();
+  private readonly hasMock = jest.fn();
+  private readonly defaultMock = jest.fn();
+
+  has(file: File): Promise<boolean> {
+    return this.hasMock(file);
+  }
+
+  hasWillReturn(value: boolean) {
+    this.hasMock.mockResolvedValue(value);
+  }
+
+  assertHasHasBeenCalledWith(file: File) {
+    expect(this.hasMock).toHaveBeenCalledWith(file);
+  }
+
+  assertHasHasNotBeenCalledWith() {
+    expect(this.hasMock).not.toHaveBeenCalled();
+  }
 
   retrieve(file: File): Promise<ThumbnailCollection> {
     return this.retrieveMock(file);
@@ -41,13 +59,25 @@ export class ThumbnailsRepositoryMock implements ThumbnailsRepository {
     });
   }
 
-  push(thumbnail: Thumbnail, stream: Readable): Promise<void> {
-    return this.pushMock(thumbnail, stream);
+  push(file: File, stream: Readable): Promise<void> {
+    return this.pushMock(file, stream);
   }
 
-  assertPushHasBeenCalledWith(thumbnails: Thumbnail[]) {
-    thumbnails.forEach((thumbnail) => {
-      expect(this.pushMock).toBeCalledWith(thumbnail, expect.any(Object));
+  assertPushHasBeenCalledWith(files: File[]) {
+    files.forEach((file) => {
+      expect(this.pushMock).toBeCalledWith(file, expect.any(Object));
     });
+  }
+
+  default(file: File): Promise<void> {
+    return this.defaultMock(file);
+  }
+
+  assertDefaultHasNotBeenCalled() {
+    expect(this.defaultMock).not.toHaveBeenCalled();
+  }
+
+  assertDefaultBeenCalledWith(file: File) {
+    expect(this.defaultMock).toBeCalledWith(file);
   }
 }

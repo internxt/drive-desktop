@@ -36,6 +36,10 @@ export async function copyNautilusExtensionFile(): Promise<void> {
 
   const source = extensionFile();
 
+  await fs.mkdir(path.dirname(destination), {
+    recursive: true,
+  });
+
   if (process.env.NODE_ENV !== 'production') {
     await fs.link(source, destination);
     return;

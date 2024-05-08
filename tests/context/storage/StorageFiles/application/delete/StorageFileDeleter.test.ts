@@ -63,7 +63,7 @@ describe('Storage File Deleter', () => {
     ]);
 
     repository.shouldRetrieve(storageFile);
-    storageFileCache.shouldHave(storageFile.id);
+    storageFileCache.doesHave(storageFile.id);
 
     await SUT.run(file.path);
 

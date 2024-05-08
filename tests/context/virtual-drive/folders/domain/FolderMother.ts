@@ -9,7 +9,6 @@ import { FolderStatuses } from '../../../../../src/context/virtual-drive/folders
 import { FolderUuid } from '../../../../../src/context/virtual-drive/folders/domain/FolderUuid';
 import { FolderIdMother } from './FolderIdMother';
 import { FolderPathMother } from './FolderPathMother';
-import { partial } from 'lodash';
 
 const chance = new Chance();
 

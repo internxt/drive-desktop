@@ -2,7 +2,6 @@ import { Service } from 'diod';
 import { File } from '../../../../virtual-drive/files/domain/File';
 import { ThumbnailsRepository } from '../../domain/ThumbnailsRepository';
 import { ThumbnailCollection } from '../../domain/ThumbnailCollection';
-import Logger from 'electron-log';
 
 @Service()
 export class ThumbnailSynchronizer {
@@ -46,9 +45,25 @@ export class ThumbnailSynchronizer {
   }
 
   async run(files: Array<File>): Promise<void> {
-    const remoteThumbnailsPromises = files.map((file) =>
-      this.remote.retrieve(file)
+    const grouped = files.reduce(
+      (accumulator, file) => {
+        if (file.isThumbnable()) {
+          accumulator.thumbnable.push(file);
+        } else {
+          accumulator.noThumbnable.push(file);
+        }
+
+        return accumulator;
+      },
+      {
+        thumbnable: [] as Array<File>,
+        noThumbnable: [] as Array<File>,
+      }
     );
+
+    const remoteThumbnailsPromises = grouped.thumbnable.map((file) => {
+      return this.remote.retrieve(file);
+    });
 
     const localThumbnailsPromises = files.map((file) =>
       this.local.retrieve(file)
@@ -63,5 +78,15 @@ export class ThumbnailSynchronizer {
     ).filter((c) => c !== undefined) as Array<ThumbnailCollection>;
 
     await this.sync(remoteCollections, localCollections);
+
+    const defaultPromises = grouped.noThumbnable.map(async (file) => {
+      const alreadyExists = await this.local.has(file);
+
+      if (alreadyExists) return;
+
+      return this.local.default(file);
+    });
+
+    await Promise.all(defaultPromises);
   }
 }

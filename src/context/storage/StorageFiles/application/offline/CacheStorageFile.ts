@@ -4,14 +4,14 @@ import { SingleFileMatchingFinder } from '../../../../virtual-drive/files/applic
 import { FileStatuses } from '../../../../virtual-drive/files/domain/FileStatus';
 import { StorageFile } from '../../domain/StorageFile';
 import { StorageFileId } from '../../domain/StorageFileId';
-import { StorageFilesRepository } from '../../domain/StorageFilesRepository';
 import { StorageFileDownloader } from '../download/StorageFileDownloader';
+import { StorageFileCache } from '../../domain/StorageFileCache';
 
 @Service()
-export class MakeStorageFileAvaliableOffline {
+export class CacheStorageFile {
   constructor(
-    private readonly repository: StorageFilesRepository,
     private readonly virtualFileFinder: SingleFileMatchingFinder,
+    private readonly cache: StorageFileCache,
     private readonly downloader: StorageFileDownloader
   ) {}
 
@@ -23,7 +23,7 @@ export class MakeStorageFileAvaliableOffline {
 
     const id = new StorageFileId(virtual.contentsId);
 
-    const alreadyExists = await this.repository.exists(id);
+    const alreadyExists = await this.cache.has(id);
 
     if (alreadyExists) {
       return;
@@ -36,10 +36,10 @@ export class MakeStorageFileAvaliableOffline {
     });
 
     const readable = await this.downloader.run(storage, virtual);
-    await this.repository.store(storage, readable);
+    await this.cache.pipe(id, readable);
 
     Logger.debug(
-      `File "${virtual.nameWithExtension}" with ${storage.id.value} is now avaliable locally`
+      `File "${virtual.nameWithExtension}" with ${storage.id.value} is cached`
     );
   }
 }

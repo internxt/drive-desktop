@@ -109,6 +109,8 @@ describe('Local Thumbnail Repository', () => {
     });
   });
 
+  // describe('default', () => {});
+
   describe('pull', () => {
     it('is not implemented', async () => {
       try {

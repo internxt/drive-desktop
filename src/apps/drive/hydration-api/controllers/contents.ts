@@ -9,7 +9,6 @@ import { StorageFileIsAvailableOffline } from '../../../../context/storage/Stora
 import { Optional } from '../../../../shared/types/Optional';
 import { MakeFolderAvaliableOffline } from '../../../../context/storage/StorageFolders/application/offline/MakeFolderAvaliableOffline';
 import { StorageFolderDeleter } from '../../../../context/storage/StorageFolders/application/delete/StorageFolderDeleter';
-import { Stopwatch } from '../../../shared/types/Stopwatch';
 
 export function buildContentsController(container: Container) {
   async function isFileLocallyAvailable(

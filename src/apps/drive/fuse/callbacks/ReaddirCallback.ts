@@ -18,11 +18,11 @@ export class ReaddirCallback extends FuseCallback<Array<string>> {
       .get(FoldersByParentPathLister)
       .run(path);
 
-    const documents = await this.container
+    const temporalFiles = await this.container
       .get(TemporalFileByFolderFinder)
       .run(path);
 
-    const auxiliaryFileName = documents
+    const auxiliaryFileName = temporalFiles
       .filter((file) => file.isAuxiliary())
       .map((file) => file.name);
 

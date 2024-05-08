@@ -3,11 +3,11 @@ import { extname } from 'path';
 import { Either, right } from '../../context/shared/domain/Either';
 import { StorageFileDeleter } from '../../context/storage/StorageFiles/application/delete/StorageFileDeleter';
 import { AllFilesInFolderAreAvailableOffline } from '../../context/storage/StorageFolders/application/offline/AllFilesInFolderAreAvailableOffline';
-import { MakeStorageFileAvaliableOffline } from '../../context/storage/StorageFiles/application/offline/MakeStorageFileAvaliableOffline';
 import { StorageFileIsAvailableOffline } from '../../context/storage/StorageFiles/application/offline/StorageFileIsAvailableOffline';
 import { TemporalFileByPathFinder } from '../../context/storage/TemporalFiles/application/find/TemporalFileByPathFinder';
 import { VirtualDriveError } from './errors/VirtualDriveError';
 import Logger from 'electron-log';
+import { CacheStorageFile } from '../../context/storage/StorageFiles/application/offline/CacheStorageFile';
 
 export class VirtualDrive {
   constructor(private readonly container: Container) {}
@@ -56,7 +56,7 @@ export class VirtualDrive {
   }
 
   async makeFileLocallyAvailable(path: string): Promise<void> {
-    await this.container.get(MakeStorageFileAvaliableOffline).run(path);
+    await this.container.get(CacheStorageFile).run(path);
   }
 
   async makeFileRemoteOnly(path: string): Promise<void> {

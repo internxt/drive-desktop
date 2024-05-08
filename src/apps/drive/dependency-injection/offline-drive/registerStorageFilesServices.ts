@@ -17,6 +17,7 @@ import { InMemoryStorageFileCache } from '../../../../context/storage/StorageFil
 import { TypeOrmAndNodeFsStorageFilesRepository } from '../../../../context/storage/StorageFiles/infrastructure/persistance/repository/typeorm/TypeOrmAndNodeFsStorageFilesRepository';
 import { TypeOrmStorageFilesDataSourceFactory } from '../../../../context/storage/StorageFiles/infrastructure/persistance/repository/typeorm/TypeOrmStorageFilesDataSourceFactory';
 import { DependencyInjectionMainProcessUserProvider } from '../../../shared/dependency-injection/main/DependencyInjectionMainProcessUserProvider';
+import { CacheStorageFile } from '../../../../context/storage/StorageFiles/application/offline/CacheStorageFile';
 
 export async function registerStorageFilesServices(
   builder: ContainerBuilder
@@ -55,6 +56,7 @@ export async function registerStorageFilesServices(
 
   builder.registerAndUse(StorageFileIsAvailableOffline);
   builder.registerAndUse(MakeStorageFileAvaliableOffline);
+  builder.registerAndUse(CacheStorageFile);
   builder.registerAndUse(StorageFileChunkReader);
   builder.registerAndUse(StorageCacheDeleter);
   builder.registerAndUse(StorageFileDeleter);

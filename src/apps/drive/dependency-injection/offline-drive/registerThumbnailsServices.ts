@@ -11,7 +11,7 @@ import { RelativePathToAbsoluteConverter } from '../../../../context/virtual-dri
 import { AuthorizedClients } from '../../../shared/HttpClient/Clients';
 import { DependencyInjectionMainProcessUserProvider } from '../../../shared/dependency-injection/main/DependencyInjectionMainProcessUserProvider';
 
-export function registerThumbnailsServices(builder: ContainerBuilder) {
+export async function registerThumbnailsServices(builder: ContainerBuilder) {
   const user = DependencyInjectionMainProcessUserProvider.get();
 
   builder.register(EnvironmentThumbnailDownloader).useFactory((c) => {
@@ -42,4 +42,14 @@ export function registerThumbnailsServices(builder: ContainerBuilder) {
 
     return new ThumbnailSynchronizer(remote, local);
   });
+
+  // const appData = app.getPath('appData');
+  // const local = path.join(appData, 'internxt-drive', 'thumbnails');
+
+  // const systemDefaultIconsGenerator = new SystemDefaultIconsGenerator(local);
+  // await systemDefaultIconsGenerator.init();
+
+  // builder
+  //   .register(SystemDefaultIconsGenerator)
+  //   .useInstance(systemDefaultIconsGenerator);
 }

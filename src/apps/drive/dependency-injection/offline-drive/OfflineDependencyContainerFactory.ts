@@ -9,6 +9,6 @@ export class OfflineDependencyContainerFactory {
     await registerTemporalFilesServices(builder);
     await registerStorageFilesServices(builder);
     registerStorageFoldersServices(builder);
-    registerThumbnailsServices(builder);
+    await registerThumbnailsServices(builder);
   }
 }

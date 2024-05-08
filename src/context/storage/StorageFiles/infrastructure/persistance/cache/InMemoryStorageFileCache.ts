@@ -1,6 +1,8 @@
 import { Service } from 'diod';
 import { StorageFileCache } from '../../../domain/StorageFileCache';
 import { StorageFileId } from '../../../domain/StorageFileId';
+import { Readable } from 'stream';
+import { ReadStreamToBuffer } from '../../../../../../apps/shared/fs/ReadStreamToBuffer';
 
 @Service()
 export class InMemoryStorageFileCache implements StorageFileCache {
@@ -12,6 +14,12 @@ export class InMemoryStorageFileCache implements StorageFileCache {
 
   async store(id: StorageFileId, value: Buffer): Promise<void> {
     this.buffers.set(id.value, value);
+  }
+
+  async pipe(id: StorageFileId, stream: Readable): Promise<void> {
+    const buffer = await ReadStreamToBuffer.read(stream);
+
+    await this.store(id, buffer);
   }
 
   async read(id: StorageFileId): Promise<Buffer> {

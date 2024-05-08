@@ -21,7 +21,7 @@ export class ReleaseCallback extends NotifyFuseCallback {
       if (document) {
         this.logDebugMessage('Offline File found');
         if (document.size.value === 0) {
-          this.logDebugMessage('Offline File Size is 0');
+          this.logDebugMessage('File Size is 0');
           return this.right();
         }
 
@@ -31,7 +31,7 @@ export class ReleaseCallback extends NotifyFuseCallback {
         }
 
         await this.container.get(TemporalFileUploader).run(document.path.value);
-        this.logDebugMessage('Offline File has been uploaded');
+        this.logDebugMessage('File has been uploaded');
         return this.right();
       }
 

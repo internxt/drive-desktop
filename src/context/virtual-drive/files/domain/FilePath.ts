@@ -1,5 +1,7 @@
 import path from 'path';
 import { Path } from '../../../shared/domain/value-objects/Path';
+import { thumbnableExtensions } from '../../../../apps/main/thumbnails/domain/ThumbnableExtension';
+import MimeTypesMap, { MimeType } from './MimeTypesMap';
 
 export class FilePath extends Path {
   constructor(value: string) {
@@ -54,5 +56,25 @@ export class FilePath extends Path {
 
   updateName(name: string): FilePath {
     return FilePath.fromParts([this.dirname(), name]);
+  }
+
+  isThumbnable(): boolean {
+    if (!this.hasExtension()) {
+      return false;
+    }
+
+    return thumbnableExtensions.includes(this.extension());
+  }
+
+  mimeType(): MimeType {
+    const extension = `.${this.extension()}`;
+
+    const mimeType = MimeTypesMap[extension];
+
+    if (!mimeType) {
+      return 'application/octet-stream';
+    }
+
+    return mimeType;
   }
 }

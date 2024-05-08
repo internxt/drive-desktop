@@ -20,6 +20,10 @@ export class StorageFileDownloaderTestClass extends StorageFileDownloader {
     return this.mock(file, metadata);
   }
 
+  returnsAReadable() {
+    this.mock.mockResolvedValue(Readable.from('Hello world!'));
+  }
+
   assertHasBeenCalled() {
     expect(this.mock).toHaveBeenCalled();
   }
