@@ -10,7 +10,7 @@
     "postinstall": "npm run electron-rebuild --sequential && npm run link-modules"
   },
   "dependencies": {
-    "@rudderstack/rudder-sdk-node": "^1.1.4",
+    "@rudderstack/rudder-sdk-node": "^2.0.7",
     "better-sqlite3": "^8.3.0",
     "typeorm": "^0.3.16"
   },
