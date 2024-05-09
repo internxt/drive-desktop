@@ -13,14 +13,13 @@ const destination = `${homedir}/.local/share/nautilus-python/extensions/${name}`
 
 function extensionFile() {
   if (process.env.NODE_ENV === 'development') {
-    return path.join(__dirname, name);
+    return path.join(__dirname, '../../../../assets/python-nautilus', name);
   } else {
     return path.join(
       //@ts-ignore
       process.resourcesPath,
-      'src',
-      'apps',
-      'nautilus-extension',
+      'assets',
+      'python-nautilus',
       name
     );
   }
