@@ -153,7 +153,7 @@ class InternxtVirtualDrive(GObject.Object, Nautilus.MenuProvider, Nautilus.Colum
         if len(local_files) > 0:
           clear = Nautilus.MenuItem(
               name="InternxtVirtualDrive::CLEAR" + group,
-              label="Make remote only",
+              label=" Make Available Online Only",
           )
           clear.connect("activate", self._make_remote_only, local_files)
 
