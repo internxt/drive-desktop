@@ -152,7 +152,7 @@ export class LocalThumbnailRepository implements ThumbnailsRepository {
     const iconPath = this.defaultThumbnailsPath(icon);
 
     try {
-      fs.linkSync(iconPath, were);
+      fs.symlinkSync(iconPath, were);
       Logger.debug(file.nameWithExtension, 'thumbnail created');
     } catch (err) {
       Logger.error(file.nameWithExtension, err);
