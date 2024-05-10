@@ -42,10 +42,10 @@ export class LocalThumbnailRepository implements ThumbnailsRepository {
   has(file: File): Promise<boolean> {
     const name = this.obtainName(file);
 
-    const were = path.join(this.systemThumbnailsFolder, 'normal', name);
+    const where = path.join(this.systemThumbnailsFolder, 'normal', name);
 
     return new Promise((resolve) => {
-      fs.stat(were, (err) => {
+      fs.stat(where, (err) => {
         resolve(err === null);
       });
     });
@@ -81,11 +81,11 @@ export class LocalThumbnailRepository implements ThumbnailsRepository {
   async push(file: File, stream: Readable): Promise<void> {
     const name = this.obtainName(file);
 
-    const were = path.join(this.systemThumbnailsFolder, 'normal', name);
+    const where = path.join(this.systemThumbnailsFolder, 'normal', name);
 
-    await WriteReadableToFile.write(stream, were);
+    await WriteReadableToFile.write(stream, where);
 
-    Logger.info(`Thumbnail Created for ${file.nameWithExtension} on ${were}`);
+    Logger.info(`Thumbnail Created for ${file.nameWithExtension} on ${where}`);
   }
 
   private getIconName(mimetype: string): string | undefined {
@@ -147,12 +147,13 @@ export class LocalThumbnailRepository implements ThumbnailsRepository {
     }
 
     const name = this.obtainName(file);
-    const were = path.join(this.systemThumbnailsFolder, 'normal', name);
+    const where = path.join(this.systemThumbnailsFolder, 'normal', name);
 
     const iconPath = this.defaultThumbnailsPath(icon);
 
     try {
-      fs.symlinkSync(iconPath, were);
+      const thumbnail = fs.readFileSync(iconPath);
+      fs.writeFileSync(where, thumbnail);
       Logger.debug(file.nameWithExtension, 'thumbnail created');
     } catch (err) {
       Logger.error(file.nameWithExtension, err);
