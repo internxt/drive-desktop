@@ -11,6 +11,7 @@ import { ThumbnailCollection } from '../../domain/ThumbnailCollection';
 import { ThumbnailsRepository } from '../../domain/ThumbnailsRepository';
 import { SystemThumbnailNameCalculator } from './SystemThumbnailNameCalculator';
 import { ensureFolderExists } from '../../../../../apps/shared/fs/ensure-folder-exists';
+import { forEach } from 'lodash';
 
 const isNodeError = (error: unknown): error is NodeJS.ErrnoException =>
   error instanceof Error;
@@ -35,8 +36,13 @@ export class LocalThumbnailRepository implements ThumbnailsRepository {
       this.systemThumbnailsFolder,
       'normal'
     );
+    const largeSizeThumbnailsPath = path.join(
+      this.systemThumbnailsFolder,
+      'normal'
+    );
 
     ensureFolderExists(normalSizeThumbnailsPath);
+    ensureFolderExists(largeSizeThumbnailsPath);
   }
 
   has(file: File): Promise<boolean> {
@@ -81,9 +87,12 @@ export class LocalThumbnailRepository implements ThumbnailsRepository {
   async push(file: File, stream: Readable): Promise<void> {
     const name = this.obtainName(file);
 
-    const where = path.join(this.systemThumbnailsFolder, 'normal', name);
+    const where = [
+      path.join(this.systemThumbnailsFolder, 'normal', name),
+      path.join(this.systemThumbnailsFolder, 'large', name),
+    ];
 
-    await WriteReadableToFile.write(stream, where);
+    await Promise.all(where.map((p) => WriteReadableToFile.write(stream, p)));
 
     Logger.info(`Thumbnail Created for ${file.nameWithExtension} on ${where}`);
   }
@@ -147,13 +156,17 @@ export class LocalThumbnailRepository implements ThumbnailsRepository {
     }
 
     const name = this.obtainName(file);
-    const where = path.join(this.systemThumbnailsFolder, 'normal', name);
+
+    const where = [
+      path.join(this.systemThumbnailsFolder, 'normal', name),
+      path.join(this.systemThumbnailsFolder, 'large', name),
+    ];
 
     const iconPath = this.defaultThumbnailsPath(icon);
 
     try {
       const thumbnail = fs.readFileSync(iconPath);
-      fs.writeFileSync(where, thumbnail);
+      where.forEach((p) => fs.writeFileSync(p, thumbnail));
       Logger.debug(file.nameWithExtension, 'thumbnail created');
     } catch (err) {
       Logger.error(file.nameWithExtension, err);
