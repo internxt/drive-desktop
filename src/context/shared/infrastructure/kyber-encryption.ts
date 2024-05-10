@@ -86,7 +86,7 @@ class KyberCrypto {
     }
 
     const decryptedData = await this.kem.decapsulate(encryptedData, privateKey);
-    return decryptedData.toString();
+    return new TextDecoder().decode(decryptedData.sharedSecret);
   }
 }
 
