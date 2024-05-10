@@ -10,6 +10,7 @@ import { Thumbnail } from '../../domain/Thumbnail';
 import { ThumbnailCollection } from '../../domain/ThumbnailCollection';
 import { ThumbnailsRepository } from '../../domain/ThumbnailsRepository';
 import { SystemThumbnailNameCalculator } from './SystemThumbnailNameCalculator';
+import { ensureFolderExists } from '../../../../../apps/shared/fs/ensure-folder-exists';
 
 const isNodeError = (error: unknown): error is NodeJS.ErrnoException =>
   error instanceof Error;
@@ -27,6 +28,15 @@ export class LocalThumbnailRepository implements ThumbnailsRepository {
     const uri = `file://${absolutePath}`;
 
     return this.systemThumbnailNameCalculator.thumbnailName(uri);
+  }
+
+  init(): void {
+    const normalSizeThumbnailsPath = path.join(
+      this.systemThumbnailsFolder,
+      'normal'
+    );
+
+    ensureFolderExists(normalSizeThumbnailsPath);
   }
 
   has(file: File): Promise<boolean> {

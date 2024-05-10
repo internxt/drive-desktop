@@ -40,6 +40,8 @@ export async function registerThumbnailsServices(builder: ContainerBuilder) {
       path.join(os.homedir(), '.cache', 'thumbnails')
     );
 
+    local.init();
+
     return new ThumbnailSynchronizer(remote, local);
   });
 
