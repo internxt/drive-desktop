@@ -103,6 +103,8 @@ if (process.env.NODE_ENV === 'development') {
 app
   .whenReady()
   .then(async () => {
+    await installNautilusExtension();
+
     eventBus.emit('APP_IS_READY');
     const isLoggedIn = getIsLoggedIn();
 
@@ -142,8 +144,6 @@ eventBus.on('USER_LOGGED_IN', async () => {
     } else if (widget) {
       widget.show();
     }
-
-    await installNautilusExtension();
 
     setCleanUpFunction(stopSyncEngineWatcher);
   } catch (error) {

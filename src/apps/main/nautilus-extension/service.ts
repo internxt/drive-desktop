@@ -70,6 +70,7 @@ export function reloadNautilus(): Promise<void> {
         reject(error);
         return;
       }
+
       if (stderr) {
         reject(new Error(stderr));
         return;

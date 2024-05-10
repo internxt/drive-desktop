@@ -4,6 +4,7 @@ import {
   copyNautilusExtensionFile,
   deleteNautilusExtensionFile,
   isInstalled,
+  reloadNautilus,
 } from './service';
 
 import configStore from '../config';
@@ -21,7 +22,7 @@ function isUpToDate(): boolean {
   return nautilusExtensionInstalledAt >= LATEST_NAUTILUS_EXTENSION_VERSION;
 }
 
-async function install() {
+async function install(): Promise<void> {
   await copyNautilusExtensionFile();
 
   configStore.set(
@@ -42,6 +43,10 @@ export async function installNautilusExtension() {
 
     if (!installed) {
       await install();
+      await reloadNautilus().catch((reloadError) => {
+        Logger.error(reloadError);
+        Sentry.captureException(reloadError);
+      });
       return;
     }
 
