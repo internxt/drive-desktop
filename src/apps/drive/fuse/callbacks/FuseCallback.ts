@@ -95,7 +95,7 @@ export abstract class FuseCallback<T> {
       return left(error);
     }
 
-    Logger.error(`${this.name} Error: Unknown.`);
+    Logger.error(`${this.name} Error: ${error}.`);
     return left(new FuseUnknownError());
   }
 
