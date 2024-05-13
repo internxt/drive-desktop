@@ -1,10 +1,13 @@
 import Logger from 'electron-log';
 import * as fs from 'fs';
-import { VirtualDrive } from 'virtual-drive/dist';
+import { VirtualDrive, QueueItem } from 'virtual-drive/dist';
 import { FilePlaceholderId } from '../../context/virtual-drive/files/domain/PlaceholderId';
 import { ItemsSearcher } from '../../context/virtual-drive/items/application/ItemsSearcher';
 import { PlatformPathConverter } from '../../context/virtual-drive/shared/application/PlatformPathConverter';
-import { buildControllers } from './callbacks-controllers/buildControllers';
+import {
+  IControllers,
+  buildControllers,
+} from './callbacks-controllers/buildControllers';
 import { executeControllerWithFallback } from './callbacks-controllers/middlewares/executeControllerWithFallback';
 import { DependencyContainer } from './dependency-injection/DependencyContainer';
 import { ipcRendererSyncEngine } from './ipcRendererSyncEngine';
@@ -14,6 +17,7 @@ import { ServerFileStatus } from '../../context/shared/domain/ServerFile';
 import { ServerFolderStatus } from '../../context/shared/domain/ServerFolder';
 import * as Sentry from '@sentry/electron/renderer';
 import { runner } from '../utils/runner';
+import { QueueManager } from './dependency-injection/common/QueueManager';
 
 export type CallbackDownload = (
   success: boolean,
@@ -28,13 +32,16 @@ export type FileAddedCallback = (
 export class BindingsManager {
   private static readonly PROVIDER_NAME = 'Internxt';
   private progressBuffer = 0;
+  private controllers: IControllers;
   constructor(
     private readonly container: DependencyContainer,
     private readonly paths: {
       root: string;
       icon: string;
     }
-  ) {}
+  ) {
+    this.controllers = buildControllers(this.container);
+  }
 
   async load(): Promise<void> {
     this.container.existingItemsTreeBuilder.setFilterStatusesToFilter([
@@ -67,14 +74,12 @@ export class BindingsManager {
     await this.stop();
     await this.pollingStart();
 
-    const controllers = buildControllers(this.container);
-
     const callbacks = {
       notifyDeleteCallback: (
         contentsId: string,
         callback: (response: boolean) => void
       ) => {
-        controllers.delete
+        this.controllers.delete
           .execute(contentsId)
           .then(() => {
             callback(true);
@@ -95,22 +100,22 @@ export class BindingsManager {
         callback: (response: boolean) => void
       ) => {
         const fn = executeControllerWithFallback({
-          handler: controllers.renameOrMove.execute.bind(
-            controllers.renameOrMove
+          handler: this.controllers.renameOrMove.execute.bind(
+            this.controllers.renameOrMove
           ),
-          fallback: controllers.offline.renameOrMove.execute.bind(
-            controllers.offline.renameOrMove
+          fallback: this.controllers.offline.renameOrMove.execute.bind(
+            this.controllers.offline.renameOrMove
           ),
         });
         fn(absolutePath, contentsId, callback);
         ipcRenderer.send('CHECK_SYNC');
       },
-      notifyFileAddedCallback: (
+      notifyFileAddedCallback: async (
         absolutePath: string,
         callback: FileAddedCallback
       ) => {
         Logger.debug('Path received from callback', absolutePath);
-        controllers.addFile.execute(absolutePath, callback);
+        await this.controllers.addFile.execute(absolutePath);
         ipcRenderer.send('CHECK_SYNC');
       },
       fetchDataCallback: async (
@@ -118,9 +123,12 @@ export class BindingsManager {
         callback: CallbackDownload
       ) => {
         try {
-          Logger.debug('[Fetch Data Callback] Donwloading begins',);
-          const path = await controllers.downloadFile.execute(contentsId, callback);
-          const file = controllers.downloadFile.fileFinderByContentsId(
+          Logger.debug('[Fetch Data Callback] Donwloading begins');
+          const path = await this.controllers.downloadFile.execute(
+            contentsId,
+            callback
+          );
+          const file = this.controllers.downloadFile.fileFinderByContentsId(
             contentsId
               .replace(
                 // eslint-disable-next-line no-control-regex
@@ -158,7 +166,7 @@ export class BindingsManager {
             }
             this.progressBuffer = 0;
 
-            await controllers.notifyPlaceholderHydrationFinished.execute(
+            await this.controllers.notifyPlaceholderHydrationFinished.execute(
               contentsId
             );
 
@@ -251,15 +259,44 @@ export class BindingsManager {
     await this.container.virtualDrive.connectSyncRoot();
 
     // run in order the following functions
-    await runner([
-      this.load.bind(this),
-      this.polling.bind(this),
-    ]);
-
+    await runner([this.load.bind(this), this.polling.bind(this)]);
   }
 
   watch() {
-    this.container.virtualDrive.watchAndWait(this.paths.root);
+    const queueManager = new QueueManager({
+      handleAdd: async (task: QueueItem) => {
+        try {
+          Logger.debug('Path received from callback', task.path);
+          const itemId = await this.controllers.addFile.execute(task.path);
+          if (!itemId) {
+            Logger.error('Error adding file' + task.path);
+            return;
+          }
+          await this.container.virtualDrive.convertToPlaceholder(
+            task.path,
+            itemId
+          );
+          await this.container.virtualDrive.updateSyncStatus(
+            itemId,
+            task.isFolder,
+            true
+          );
+          ipcRenderer.send('CHECK_SYNC');
+        } catch (error) {
+          Logger.error(error);
+          Sentry.captureException(error);
+        }
+      },
+      handleHidreate: async (task: QueueItem) => {
+        Logger.debug('Hidreate', task);
+      },
+      handleDehidreate: async (task: QueueItem) => {
+        Logger.debug('Dehidreate', task);
+      },
+    });
+
+    this.container.virtualDrive.watchAndWait(this.paths.root, queueManager);
+    // QM.processAll();
   }
 
   async stop() {

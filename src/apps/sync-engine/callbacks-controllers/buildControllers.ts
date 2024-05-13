@@ -6,7 +6,18 @@ import { NotifyPlaceholderHydrationFinished } from './controllers/NotifyPlacehol
 import { RenameOrMoveController } from './controllers/RenameOrMoveController';
 import { OfflineRenameOrMoveController } from './controllers/offline/OfflineRenameOrMoveController';
 
-export function buildControllers(container: DependencyContainer) {
+export interface IControllers {
+  addFile: AddController;
+  renameOrMove: RenameOrMoveController;
+  delete: DeleteController;
+  downloadFile: DownloadFileController;
+  offline: {
+    renameOrMove: OfflineRenameOrMoveController;
+  };
+  notifyPlaceholderHydrationFinished: NotifyPlaceholderHydrationFinished;
+}
+
+export function buildControllers(container: DependencyContainer): IControllers {
   const addFileController = new AddController(
     container.absolutePathToRelativeConverter,
     container.fileCreationOrchestrator,

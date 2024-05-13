@@ -32,21 +32,13 @@ export class AddController extends CallbackController {
 
   private createFile = async (
     posixRelativePath: string,
-    callback: FileAddedCallback,
     attempts = 3
-  ) => {
+  ): Promise<string> => {
     try {
       const contentsId = await this.fileCreationOrchestrator.run(
         posixRelativePath
       );
-      const confirmCreation = await callback(
-        true,
-        createFilePlaceholderId(contentsId)
-      );
-      if (confirmCreation) {
-        Logger.info('File created', posixRelativePath);
-      }
-      ipcRenderer.send('CHECK_SYNC');
+      return createFilePlaceholderId(contentsId);
     } catch (error: unknown) {
       Logger.error('Error when adding a file: ' + posixRelativePath, error);
       Sentry.captureException(error);
@@ -56,38 +48,28 @@ export class AddController extends CallbackController {
       if (attempts > 0) {
         Logger.info('[Creating file]', 'retrying...', attempts);
         await new Promise((resolve) => setTimeout(resolve, 2000));
-        await this.createFile(posixRelativePath, callback, attempts - 1);
-        return;
+        return this.createFile(posixRelativePath, attempts - 1);
       }
       Logger.error('[Creating file]', 'Max retries reached', 'callback emited');
       Sentry.captureException(error);
-      callback(false, '');
+      throw error;
     }
   };
 
   private createFolder = async (
     offlineFolder: OfflineFolder,
-    callback: FileAddedCallback,
     attempts = 3
-  ) => {
+  ): Promise<string> => {
     try {
       await this.folderCreator.run(offlineFolder);
-      const creationConfirm = await callback(
-        true,
-        createFolderPlaceholderId(offlineFolder.uuid)
-      );
-      if (creationConfirm) {
-        Logger.info('creationConfirm', creationConfirm);
-      }
-      ipcRenderer.send('CHECK_SYNC');
+      return createFilePlaceholderId(offlineFolder.uuid);
     } catch (error: unknown) {
       Logger.error('Error creating folder', error);
       Sentry.captureException(error);
       if (attempts > 0) {
         Logger.info('[Creating folder]', 'retrying...', attempts);
         await new Promise((resolve) => setTimeout(resolve, 2000));
-        await this.createFolder(offlineFolder, callback, attempts - 1);
-        return;
+        return this.createFolder(offlineFolder, attempts - 1);
       }
       Logger.error(
         '[Creating folder]',
@@ -148,10 +130,7 @@ export class AddController extends CallbackController {
     }
   }
 
-  async execute(
-    absolutePath: string,
-    callback: FileAddedCallback
-  ): Promise<void> {
+  async execute(absolutePath: string): Promise<string> {
     const win32RelativePath =
       this.absolutePathToRelativeConverter.run(absolutePath);
 
@@ -165,20 +144,20 @@ export class AddController extends CallbackController {
       let offlineFolder: OfflineFolder;
       try {
         offlineFolder = await this.createOfflineFolder(posixRelativePath);
-        await this.createFolder(offlineFolder, callback, attempts);
+        return await this.createFolder(offlineFolder, attempts);
       } catch (error) {
         Logger.error('[folder creation] Error captured:', error);
         Sentry.captureException(error);
-        callback(false, '');
+        throw error;
       }
     } else {
       Logger.debug('[Is File]', posixRelativePath);
       try {
-        await this.createFile(posixRelativePath, callback, attempts);
+        return await this.createFile(posixRelativePath, attempts);
       } catch (error) {
         Logger.error('[file creation] Error captured:', error);
         Sentry.captureException(error);
-        callback(false, '');
+        throw error;
       }
     }
   }
