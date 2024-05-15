@@ -7,7 +7,7 @@ import {
   SYNC_OFFSET_MS,
   SIX_HOURS_IN_MILLISECONDS,
   rewind,
-  WAITING_AFTER_SYNCING_DEFAULT
+  WAITING_AFTER_SYNCING_DEFAULT,
 } from './helpers';
 import { reportError } from '../bug-report/service';
 

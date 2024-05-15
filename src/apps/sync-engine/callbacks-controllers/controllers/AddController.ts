@@ -117,6 +117,12 @@ export class AddController extends CallbackController {
     try {
       return this.offlineFolderCreator.run(posixRelativePath);
     } catch (error) {
+      Logger.error(
+        'Error creating offline folder:',
+        posixRelativePath,
+        'Error: ',
+        error
+      );
       if (error instanceof FolderNotFoundError) {
         // father created
         await this.createFolderFather(posixRelativePath);
@@ -130,7 +136,7 @@ export class AddController extends CallbackController {
     }
   }
 
-  async execute(absolutePath: string): Promise<string> {
+  async execute(absolutePath: string): Promise<string | undefined> {
     const win32RelativePath =
       this.absolutePathToRelativeConverter.run(absolutePath);
 
@@ -148,7 +154,7 @@ export class AddController extends CallbackController {
       } catch (error) {
         Logger.error('[folder creation] Error captured:', error);
         Sentry.captureException(error);
-        throw error;
+        return;
       }
     } else {
       Logger.debug('[Is File]', posixRelativePath);
@@ -157,7 +163,7 @@ export class AddController extends CallbackController {
       } catch (error) {
         Logger.error('[file creation] Error captured:', error);
         Sentry.captureException(error);
-        throw error;
+        return;
       }
     }
   }

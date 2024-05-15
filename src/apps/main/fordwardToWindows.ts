@@ -100,6 +100,7 @@ ipcMainDrive.on('FILE_UPLOADING', (_, payload) => {
 
 ipcMainDrive.on('FILE_CREATED', (_, payload) => {
   const { nameWithExtension } = payload;
+  setIsProcessing(false);
 
   broadcastToWindows('sync-info-update', {
     action: 'UPLOADED',

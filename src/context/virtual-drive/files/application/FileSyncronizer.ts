@@ -29,9 +29,9 @@ export class FileSyncronizer {
     private readonly absolutePathToRelativeConverter: AbsolutePathToRelativeConverter,
     private readonly folderCreator: FolderCreator,
     private readonly offlineFolderCreator: OfflineFolderCreator,
+    // private readonly foldersFatherSyncStatusUpdater: FoldersFatherSyncStatusUpdater
     private readonly fileContentsUpdater: FileContentsUpdater
-  ) // private readonly foldersFatherSyncStatusUpdater: FoldersFatherSyncStatusUpdater
-  {}
+  ) {}
 
   async run(
     absolutePath: string,
@@ -66,6 +66,7 @@ export class FileSyncronizer {
     path: FilePath,
     upload: (path: string) => Promise<RemoteFileContents>
   ) {
+    //
     if (existingFile) {
       if (this.hasDifferentSize(existingFile, absolutePath)) {
         const contents = await upload(posixRelativePath);
@@ -77,6 +78,7 @@ export class FileSyncronizer {
         Logger.info('existingFile ', existingFile);
       }
       await this.convertAndUpdateSyncStatus(existingFile);
+      //
     } else {
       await this.retryCreation(posixRelativePath, path, upload);
     }

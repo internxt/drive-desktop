@@ -27,7 +27,11 @@ export class ContentsDownloader {
     this.readableDownloader = null;
   }
 
-  private async registerEvents(downloader: ContentFileDownloader, file: File, callback: CallbackDownload) {
+  private async registerEvents(
+    downloader: ContentFileDownloader,
+    file: File,
+    callback?: CallbackDownload
+  ) {
     const location = await this.temporalFolderProvider();
     ensureFolderExists(location);
 
@@ -51,7 +55,7 @@ export class ContentsDownloader {
       const fileSizeInBytes = stats.size;
       const progress = fileSizeInBytes / file.size;
 
-      await this.waitToCb(callback, filePath);
+      // await this.waitToCb(callback, filePath);
 
       this.ipc.send('FILE_DOWNLOADING', {
         name: file.name,
@@ -82,14 +86,18 @@ export class ContentsDownloader {
     });
   }
 
-  private async  waitToCb(callback: CallbackDownload, filePath: string) {
-     if ( this.progressAt && (new Date().getTime() - this.progressAt.getTime()) > this.WAIT_TO_SEND_PROGRESS) {
-        await callback(true, filePath);
-        this.progressAt = new Date();
-      }
+  private async waitToCb(callback: CallbackDownload, filePath: string) {
+    if (
+      this.progressAt &&
+      new Date().getTime() - this.progressAt.getTime() >
+        this.WAIT_TO_SEND_PROGRESS
+    ) {
+      await callback(true, filePath);
+      this.progressAt = new Date();
+    }
   }
 
-  async run(file: File, callback: CallbackDownload): Promise<string> {
+  async run(file: File, callback?: CallbackDownload): Promise<string> {
     const downloader = this.managerFactory.downloader();
 
     await this.registerEvents(downloader, file, callback);
