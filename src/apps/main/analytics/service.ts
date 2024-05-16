@@ -202,6 +202,23 @@ export function trackEvent(
   client.track(payload);
 }
 
+export function syncBlocked(numberOfItems = 0) {
+  const { uuid: userId } = ConfigStore.get('userData');
+
+  // Sync can be blocked because the user is unauthorized
+  // In that case we don't have user data to track
+  if (!userId) return;
+
+  client.track({
+    userId,
+    event: 'Sync Blocked',
+    properties: {
+      number_of_items: numberOfItems,
+    },
+    context: deviceContext,
+  });
+}
+
 export function trackError(
   event: TrackedActions,
   error: Error,

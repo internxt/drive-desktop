@@ -8,13 +8,15 @@ import Logger from 'electron-log';
 
 export type HeadersProvider = () => Promise<Record<string, string>>;
 export type UnauthorizedNotifier = () => void;
+export type SyncBlockedTracker = () => Promise<void>;
 
 export class AuthorizedHttpClient {
   public readonly client: AxiosInstance;
 
   constructor(
-    private headersProvider: HeadersProvider,
-    private unauthorizedNotifier: UnauthorizedNotifier
+    private readonly headersProvider: HeadersProvider,
+    private readonly unauthorizedNotifier: UnauthorizedNotifier,
+    private readonly syncBlockedTracker: SyncBlockedTracker
   ) {
     this.client = axios.create();
 
@@ -22,13 +24,20 @@ export class AuthorizedHttpClient {
 
     this.client.interceptors.response.use((response: AxiosResponse) => {
       return response;
-    }, this.handleUnauthorizedResponse.bind(this));
+    }, this.responseInterceptor.bind(this));
   }
 
-  private handleUnauthorizedResponse(error: AxiosError) {
+  private responseInterceptor(error: AxiosError) {
     if (error?.response?.status === 401) {
       Logger.warn('[AUTH] Request unauthorized', error.config.url);
       this.unauthorizedNotifier();
+    }
+
+    if (
+      error?.response?.status !== undefined &&
+      error?.response?.status >= 500
+    ) {
+      this.syncBlockedTracker();
     }
 
     // Prevent the token from being displayed in the logs

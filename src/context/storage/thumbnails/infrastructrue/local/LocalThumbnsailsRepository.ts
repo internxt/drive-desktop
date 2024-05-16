@@ -11,7 +11,6 @@ import { ThumbnailCollection } from '../../domain/ThumbnailCollection';
 import { ThumbnailsRepository } from '../../domain/ThumbnailsRepository';
 import { SystemThumbnailNameCalculator } from './SystemThumbnailNameCalculator';
 import { ensureFolderExists } from '../../../../../apps/shared/fs/ensure-folder-exists';
-import { forEach } from 'lodash';
 
 const isNodeError = (error: unknown): error is NodeJS.ErrnoException =>
   error instanceof Error;

@@ -8,13 +8,17 @@ const URL = 'http://jibuwsik.ie/ugco';
 describe.skip('Authorized Http Client', () => {
   const headerProvider = jest.fn();
   const unauthorizedNotifier = jest.fn();
+  const syncBlockedTracker = jest.fn();
 
   let client: AxiosInstance;
   let mock: MockAdapter;
 
   beforeEach(() => {
-    client = new AuthorizedHttpClient(headerProvider, unauthorizedNotifier)
-      .client;
+    client = new AuthorizedHttpClient(
+      headerProvider,
+      unauthorizedNotifier,
+      syncBlockedTracker
+    ).client;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     mock = new MockAdapter(client as any);
 

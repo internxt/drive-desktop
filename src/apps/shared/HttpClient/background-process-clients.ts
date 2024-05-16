@@ -8,17 +8,25 @@ export const onUserUnauthorized = () =>
 const driveHeadersProvider = () => ipcRenderer.invoke('get-headers');
 const newDriveHeadersProvider = () =>
   ipcRenderer.invoke('get-headers-for-new-api');
+const syncBlockedTracker = async () => {
+  // TODO: implement the function
+  // no-op
+};
 
 let clients: AuthorizedClients | null = null;
 
 export function getClients(): AuthorizedClients {
   if (!clients) {
     clients = {
-      drive: new AuthorizedHttpClient(driveHeadersProvider, onUserUnauthorized)
-        .client,
+      drive: new AuthorizedHttpClient(
+        driveHeadersProvider,
+        onUserUnauthorized,
+        syncBlockedTracker
+      ).client,
       newDrive: new AuthorizedHttpClient(
         newDriveHeadersProvider,
-        onUserUnauthorized
+        onUserUnauthorized,
+        syncBlockedTracker
       ).client,
     };
   }
