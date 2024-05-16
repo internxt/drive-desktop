@@ -70,6 +70,7 @@ if (process.env.SENTRY_DSN) {
     // Enable Sentry only when app is packaged
     enabled: app.isPackaged,
     dsn: process.env.SENTRY_DSN,
+    release: packageJson.version,
   });
   Logger.log('Sentry is ready for main process');
 } else {
