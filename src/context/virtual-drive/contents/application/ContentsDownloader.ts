@@ -55,7 +55,7 @@ export class ContentsDownloader {
       const fileSizeInBytes = stats.size;
       const progress = fileSizeInBytes / file.size;
 
-      // await this.waitToCb(callback, filePath);
+      await this.waitToCb(filePath, callback);
 
       this.ipc.send('FILE_DOWNLOADING', {
         name: file.name,
@@ -86,13 +86,15 @@ export class ContentsDownloader {
     });
   }
 
-  private async waitToCb(callback: CallbackDownload, filePath: string) {
+  private async waitToCb(filePath: string, callback?: CallbackDownload) {
     if (
       this.progressAt &&
       new Date().getTime() - this.progressAt.getTime() >
         this.WAIT_TO_SEND_PROGRESS
     ) {
-      await callback(true, filePath);
+      if (callback) {
+        await callback(true, filePath);
+      }
       this.progressAt = new Date();
     }
   }

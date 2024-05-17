@@ -2,7 +2,6 @@ import Logger from 'electron-log';
 import * as fs from 'fs';
 import { VirtualDrive, QueueItem } from 'virtual-drive/dist';
 import { FilePlaceholderId } from '../../context/virtual-drive/files/domain/PlaceholderId';
-import { ItemsSearcher } from '../../context/virtual-drive/items/application/ItemsSearcher';
 import { PlatformPathConverter } from '../../context/virtual-drive/shared/application/PlatformPathConverter';
 import {
   IControllers,
@@ -18,6 +17,7 @@ import { ServerFolderStatus } from '../../context/shared/domain/ServerFolder';
 import * as Sentry from '@sentry/electron/renderer';
 import { runner } from '../utils/runner';
 import { QueueManager } from './dependency-injection/common/QueueManager';
+import { DependencyInjectionLogWatcherPath } from './dependency-injection/common/logEnginePath';
 
 export type CallbackDownload = (
   success: boolean,
@@ -169,15 +169,12 @@ export class BindingsManager {
             await this.controllers.notifyPlaceholderHydrationFinished.execute(
               contentsId
             );
-
-            await this.container.virtualDrive.closeDownloadMutex();
           } catch (error) {
             Logger.error('notify: ', error);
             Sentry.captureException(error);
             await this.container.virtualDrive.closeDownloadMutex();
           }
 
-          // Esperar hasta que la ejecución de fetchDataCallback esté completa antes de continuar
           await new Promise((resolve) => {
             setTimeout(() => {
               Logger.debug('timeout');
@@ -258,7 +255,6 @@ export class BindingsManager {
 
     await this.container.virtualDrive.connectSyncRoot();
 
-    // run in order the following functions
     await runner([this.load.bind(this), this.polling.bind(this)]);
   }
 
@@ -290,47 +286,17 @@ export class BindingsManager {
       },
       handleHydrate: async (task: QueueItem) => {
         try {
-          Logger.debug('[Fetch Data Callback] Donwloading begins');
-          if (!task.fileId) return;
-          const path = await this.controllers.downloadFile.execute(
-            task.fileId as FilePlaceholderId
-          );
-          const file = this.controllers.downloadFile.fileFinderByContentsId(
-            task.fileId
-              .replace(
-                // eslint-disable-next-line no-control-regex
-                /[\x00-\x1F\x7F-\x9F]/g,
-                ''
-              )
-              .split(':')[1]
-          );
-          Logger.debug('[Fetch Data Callback] Preparing begins', path);
+          Logger.debug('[Handle Hydrate Callback] Preparing begins', task.path);
 
-          try {
-            const result = await this.container.virtualDrive.hydrateFile(
-              task.path
-            );
-            Logger.debug('callback result', result);
+          await this.container.virtualDrive.hydrateFile(task.path);
 
-            ipcRendererSyncEngine.send('FILE_PREPARING', {
-              name: file.name,
-              extension: file.type,
-              nameWithExtension: file.nameWithExtension,
-              size: file.size,
-              processInfo: {
-                elapsedTime: 0,
-                progress: 1,
-              },
-            });
-
-            await this.controllers.notifyPlaceholderHydrationFinished.execute(
-              task.fileId as FilePlaceholderId
-            );
-          } catch (error) {
-            Logger.error('notify: ', error);
-            Sentry.captureException(error);
-            await this.container.virtualDrive.closeDownloadMutex();
-          }
+          await new Promise((resolve) => {
+            setTimeout(() => {
+              Logger.debug('timeout');
+              resolve(true);
+            }, 1000);
+          });
+          Logger.debug('hydrate result');
         } catch (error) {
           Logger.error(`error hydrating file ${task.path}`);
           Logger.error(error);
@@ -358,8 +324,12 @@ export class BindingsManager {
         }
       },
     });
-
-    this.container.virtualDrive.watchAndWait(this.paths.root, queueManager);
+    const logWatcherPath = DependencyInjectionLogWatcherPath.get();
+    this.container.virtualDrive.watchAndWait(
+      this.paths.root,
+      queueManager,
+      logWatcherPath
+    );
     // queueManager.processAll();
   }
 

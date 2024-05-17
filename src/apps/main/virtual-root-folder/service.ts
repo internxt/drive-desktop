@@ -46,7 +46,16 @@ function setSyncRoot(pathname: string): void {
     'logs',
     'node-win.txt'
   );
+
+  const logWatcherPath = path.join(
+    app.getPath('appData'),
+    'internxt-drive',
+    'logs',
+    'watcher-win.txt'
+  );
+
   configStore.set('logEnginePath', logEnginePath);
+  configStore.set('logWatcherPath', logWatcherPath);
   configStore.set('syncRoot', pathNameWithSepInTheEnd);
   configStore.set('lastSavedListing', '');
 }

@@ -13,3 +13,17 @@ export class DependencyInjectionLogEnginePath {
     return DependencyInjectionLogEnginePath.path;
   }
 }
+
+export class DependencyInjectionLogWatcherPath {
+  private static path: string;
+
+  static get(): string {
+    if (DependencyInjectionLogWatcherPath.path) {
+      return DependencyInjectionLogWatcherPath.path;
+    }
+
+    DependencyInjectionLogWatcherPath.path = configStore.get('logWatcherPath');
+
+    return DependencyInjectionLogWatcherPath.path;
+  }
+}
