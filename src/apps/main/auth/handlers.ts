@@ -22,7 +22,7 @@ let isLoggedIn: boolean;
 export function setIsLoggedIn(value: boolean) {
   isLoggedIn = value;
 
-  getWidget()?.webContents.send('user-logged-in-changed', value);
+  getWidget()?.webContents?.send('user-logged-in-changed', value);
 }
 
 setIsLoggedIn(!!getUser());

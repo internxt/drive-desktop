@@ -35,7 +35,6 @@ ipcMainDrive.on('FILE_PREPARING', (_, payload) => {
 
 ipcMainDrive.on('FILE_DOWNLOADED', (_, payload) => {
   const { nameWithExtension } = payload;
-  setIsProcessing(false);
   broadcastToWindows('sync-info-update', {
     action: 'DOWNLOADED',
     name: nameWithExtension,

@@ -15,10 +15,13 @@ export type QueueHandler = {
   handleChangeSize: HandleAction;
 };
 
+// const queueFilePath = path.join(__dirname, 'queue.json');
 export class QueueManager implements IQueueManager {
   private _queue: QueueItem[] = [];
 
   private isProcessing = false;
+
+  // private queueFilePath = queueFilePath;
 
   actions: HandleActions;
 
@@ -30,12 +33,42 @@ export class QueueManager implements IQueueManager {
       changeSize: handlers.handleChangeSize,
       change: handlers.handleChange || (() => Promise.resolve()),
     };
+
+    // this.loadQueueFromFile();
   }
+
+  // private saveQueueToFile(): void {
+  //   const queue = this._queue.filter((item) => item.type !== 'hydrate');
+  //   fs.writeFileSync(this.queueFilePath, JSON.stringify(queue, null, 2));
+  //   Logger.debug('Queue saved to file.');
+  // }
+
+  // private loadQueueFromFile(): void {
+  //   try {
+  //     if (fs.existsSync(this.queueFilePath)) {
+  //       const data = fs.readFileSync(this.queueFilePath, 'utf-8');
+  //       this._queue = JSON.parse(data);
+  //       Logger.debug('Queue loaded from file.');
+  //     }
+  //   } catch (error) {
+  //     Logger.error('Failed to load queue from file:', error);
+  //   }
+  // }
 
   public enqueue(task: QueueItem): void {
     Logger.debug(`Task enqueued: ${JSON.stringify(task)}`);
+    // const existingTask = this._queue.find(
+    //   (item) => item.path === task.path && item.type === task.type
+    // );
+    // if (existingTask) {
+    //   Logger.debug('Task already exists in queue. Skipping.');
+    //   this.processAll();
+
+    //   return;
+    // }
     this._queue.push(task);
     this.sortQueue();
+    // this.saveQueueToFile();
     if (!this.isProcessing) {
       this.processAll();
     }
@@ -61,23 +94,37 @@ export class QueueManager implements IQueueManager {
       Logger.debug('No tasks in queue.');
       return;
     }
+
     const task = this._queue.shift();
     if (!task) return;
+
+    // this.saveQueueToFile();
+
     Logger.debug(`Processing task: ${JSON.stringify(task)}`);
-    switch (task.type) {
-      case 'add':
-        return await this.actions.add(task);
-      case 'hydrate':
-        return await this.actions.hydrate(task);
-      case 'dehydrate':
-        return await this.actions.dehydrate(task);
-      case 'change':
-        return await this.actions.change(task);
-      case 'changeSize':
-        return await this.actions.changeSize(task);
-      default:
-        Logger.debug('Unknown task type.');
-        break;
+
+    try {
+      switch (task.type) {
+        case 'add':
+          await this.actions.add(task);
+          break;
+        case 'hydrate':
+          await this.actions.hydrate(task);
+          break;
+        case 'dehydrate':
+          await this.actions.dehydrate(task);
+          break;
+        case 'change':
+          await this.actions.change(task);
+          break;
+        case 'changeSize':
+          await this.actions.changeSize(task);
+          break;
+        default:
+          Logger.debug('Unknown task type.');
+          break;
+      }
+    } catch (error) {
+      Logger.error('Failed to process task:', task);
     }
   }
 

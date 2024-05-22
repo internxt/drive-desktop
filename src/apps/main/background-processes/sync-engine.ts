@@ -31,7 +31,7 @@ async function healthCheck() {
       resolve();
     });
 
-    const millisecondsToWait = 2_000;
+    const millisecondsToWait = 8_000;
 
     setTimeout(() => {
       reject(
@@ -72,9 +72,12 @@ function scheduleHeathCheck() {
       });
 
   healthCheckSchedule = nodeSchedule.scheduleJob('*/30 * * * * *', async () => {
-    const workerIsPending = checkSyncEngineInProcess(5_000);
-    Logger.debug('Health check', workerIsPending ? 'Worker is pending' : 'Worker is running');
-    if(!workerIsPending) {
+    const workerIsPending = checkSyncEngineInProcess(15_000);
+    Logger.debug(
+      'Health check',
+      workerIsPending ? 'Worker is pending' : 'Worker is running'
+    );
+    if (!workerIsPending) {
       await relaunchOnFail();
     }
   });
@@ -254,7 +257,7 @@ export function fallbackSyncEngine() {
 export async function sendUpdateFilesInSyncPending(): Promise<string[]> {
   try {
     if (worker?.webContents && !worker?.isDestroyed()) {
-     worker?.webContents.send('UPDATE_UNSYNC_FILE_IN_SYNC_ENGINE_PROCESS');
+      worker?.webContents.send('UPDATE_UNSYNC_FILE_IN_SYNC_ENGINE_PROCESS');
     }
     return [];
   } catch (err) {

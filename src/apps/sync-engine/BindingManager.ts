@@ -33,6 +33,9 @@ export class BindingsManager {
   private static readonly PROVIDER_NAME = 'Internxt';
   private progressBuffer = 0;
   private controllers: IControllers;
+  private processingResolve?: (unknown?: unknown) => void;
+  private processingReject?: (unknown?: unknown) => void;
+
   constructor(
     private readonly container: DependencyContainer,
     private readonly paths: {
@@ -145,6 +148,10 @@ export class BindingsManager {
               finished = result.finished;
               Logger.debug('callback result', result);
 
+              if (result.progress > 1 || result.progress < 0) {
+                throw new Error('Result progress is not between 0 and 1');
+              }
+
               if (finished && result.progress === 0) {
                 throw new Error('Result progress is 0');
               } else if (this.progressBuffer == result.progress) {
@@ -165,29 +172,28 @@ export class BindingsManager {
               });
             }
             this.progressBuffer = 0;
-
-            await this.controllers.notifyPlaceholderHydrationFinished.execute(
-              contentsId
-            );
           } catch (error) {
             Logger.error('notify: ', error);
             Sentry.captureException(error);
-            await this.container.virtualDrive.closeDownloadMutex();
+            await callback(false, '');
+            // if (this.processingReject) this.processingReject(error);
           }
-
-          await new Promise((resolve) => {
-            setTimeout(() => {
-              Logger.debug('timeout');
-              resolve(true);
-            }, 500);
-          });
-
           fs.unlinkSync(path);
+
+          await this.controllers.notifyPlaceholderHydrationFinished.execute(
+            contentsId
+          );
+          if (this.processingResolve) this.processingResolve();
+
           ipcRenderer.send('CHECK_SYNC');
+          Logger.debug('[Fetch Data Callback] Finish...', path);
         } catch (error) {
           Logger.error(error);
           Sentry.captureException(error);
-          callback(false, '');
+          await callback(false, '');
+           if (this.processingResolve) this.processingResolve();
+          await this.container.virtualDrive.closeDownloadMutex();
+          ipcRenderer.send('CHECK_SYNC');
         }
       },
       notifyMessageCallback: (
@@ -288,21 +294,25 @@ export class BindingsManager {
         try {
           Logger.debug('[Handle Hydrate Callback] Preparing begins', task.path);
 
+          // Crear una promesa que será resuelta por fetchDataCallback
+          const processingPromise = new Promise((resolve, reject) => {
+            this.processingResolve = resolve;
+            this.processingReject = reject;
+          });
+
           await this.container.virtualDrive.hydrateFile(task.path);
 
-          await new Promise((resolve) => {
-            setTimeout(() => {
-              Logger.debug('timeout');
-              resolve(true);
-            }, 1000);
-          });
-          Logger.debug('hydrate result');
+          // Esperar hasta que fetchDataCallback resuelva o rechace la promesa
+          await processingPromise;
+
+          Logger.debug('[Handle Hydrate Callback] Finish begins', task.path);
         } catch (error) {
           Logger.error(`error hydrating file ${task.path}`);
           Logger.error(error);
           Sentry.captureException(error);
         }
       },
+
       handleDehydrate: async (task: QueueItem) => {
         try {
           Logger.debug('Dehydrate', task);
@@ -330,7 +340,7 @@ export class BindingsManager {
       queueManager,
       logWatcherPath
     );
-    // queueManager.processAll();
+    queueManager.processAll();
   }
 
   async stop() {
