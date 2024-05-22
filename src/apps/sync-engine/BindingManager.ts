@@ -175,25 +175,29 @@ export class BindingsManager {
           } catch (error) {
             Logger.error('notify: ', error);
             Sentry.captureException(error);
-            await callback(false, '');
-            // if (this.processingReject) this.processingReject(error);
+            // await callback(false, '');
+            fs.unlinkSync(path);
+
+            Logger.debug('[Fetch Data Callback] Finish...', path);
+
+            if (this.processingResolve) this.processingResolve();
+            return;
+          }
+          if (!this.processingResolve) {
+            await this.controllers.notifyPlaceholderHydrationFinished.execute(
+              contentsId
+            );
           }
           fs.unlinkSync(path);
-
-          await this.controllers.notifyPlaceholderHydrationFinished.execute(
-            contentsId
-          );
-          if (this.processingResolve) this.processingResolve();
-
-          ipcRenderer.send('CHECK_SYNC');
           Logger.debug('[Fetch Data Callback] Finish...', path);
+
+          if (this.processingResolve) this.processingResolve();
         } catch (error) {
           Logger.error(error);
           Sentry.captureException(error);
           await callback(false, '');
-           if (this.processingResolve) this.processingResolve();
           await this.container.virtualDrive.closeDownloadMutex();
-          ipcRenderer.send('CHECK_SYNC');
+          if (this.processingResolve) this.processingResolve();
         }
       },
       notifyMessageCallback: (
@@ -223,6 +227,7 @@ export class BindingsManager {
       },
       cancelFetchDataCallback: () => {
         // TODO: clean up temp file, free up space of placeholder
+        if (this.processingResolve) this.processingResolve();
         Logger.debug('cancelFetchDataCallback');
       },
       fetchPlaceholdersCallback: () => {
@@ -304,6 +309,8 @@ export class BindingsManager {
 
           // Esperar hasta que fetchDataCallback resuelva o rechace la promesa
           await processingPromise;
+
+          ipcRenderer.send('CHECK_SYNC');
 
           Logger.debug('[Handle Hydrate Callback] Finish begins', task.path);
         } catch (error) {
