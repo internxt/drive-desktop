@@ -40,6 +40,9 @@ class KyberCrypto {
 
   async verifyKey(publicKey: Uint8Array): Promise<boolean> {
     this.ensureInitialized();
+    if (!publicKey || publicKey.length === 0) {
+      throw new Error('Invalid public key provided.');
+    }
     return publicKey.length > 0;
   }
 
@@ -85,8 +88,16 @@ class KyberCrypto {
       );
     }
 
-    const decryptedData = await this.kem.decapsulate(encryptedData, privateKey);
-    return new TextDecoder().decode(decryptedData.sharedSecret);
+    try {
+      const decryptedData = await this.kem.decapsulate(
+        encryptedData,
+        privateKey
+      );
+      return new TextDecoder().decode(decryptedData.sharedSecret);
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
   }
 }
 
