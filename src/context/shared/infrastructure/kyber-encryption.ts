@@ -70,6 +70,10 @@ class KyberCrypto {
       );
     }
 
+    const isCorrectPublicKey = this.verifyKey(publicKey);
+
+    if (!isCorrectPublicKey) return;
+
     const { ciphertext: encryptedData, sharedSecret: secret } =
       await this.kem.encapsulate(publicKey);
     return { encryptedData, secret };
