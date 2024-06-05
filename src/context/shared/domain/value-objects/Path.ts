@@ -2,7 +2,7 @@ import path from 'path';
 import { InvalidArgumentError } from '../errors/InvalidArgumentError';
 import { ValueObject } from './ValueObject';
 
-const isWindowsRootDirectory = /[a-zA-Z]:[\\/]/;
+const isWindowsRootDirectory = /^[a-zA-Z]:[\\/]/;
 const containsNullCharacter = /\0/g;
 
 export abstract class Path extends ValueObject<string> {
