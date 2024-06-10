@@ -4,6 +4,11 @@ import kemBuilder, { KEM } from '@dashlane/pqc-kem-kyber512-node';
  * Class to manage Kyber encryption operations using KEM (Key Encapsulation Mechanism).
  */
 
+export interface KyberKeys {
+  publicKey: Uint8Array;
+  privateKey: Uint8Array;
+}
+
 class KyberCrypto {
   private kem: KEM | null;
 
@@ -46,7 +51,7 @@ class KyberCrypto {
     return publicKey.length > 0;
   }
 
-  async generateKeyPair() {
+  async generateKeyPair(): Promise<KyberKeys> {
     if (!this.kem) {
       throw new Error(
         'Kyber instance not initialized. Call `initialize()` first.'
