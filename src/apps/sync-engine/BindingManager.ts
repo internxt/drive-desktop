@@ -34,7 +34,6 @@ export class BindingsManager {
   private progressBuffer = 0;
   private controllers: IControllers;
   private processingResolve?: (unknown?: unknown) => void;
-  private processingReject?: (unknown?: unknown) => void;
 
   constructor(
     private readonly container: DependencyContainer,
@@ -300,9 +299,9 @@ export class BindingsManager {
           Logger.debug('[Handle Hydrate Callback] Preparing begins', task.path);
 
           // Crear una promesa que será resuelta por fetchDataCallback
-          const processingPromise = new Promise((resolve, reject) => {
+          const processingPromise = new Promise((resolve, _reject) => {
             this.processingResolve = resolve;
-            this.processingReject = reject;
+            // this.processingReject = reject;
           });
 
           await this.container.virtualDrive.hydrateFile(task.path);

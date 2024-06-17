@@ -15,9 +15,9 @@ import {
   sendUpdateFilesInSyncPending,
 } from '../background-processes/sync-engine';
 import { debounce } from 'lodash';
+import configStore from '../config';
 
 const SYNC_DEBOUNCE_DELAY = 3_000;
-
 
 let initialSyncReady = false;
 const driveFilesCollection = new DriveFilesCollection();
@@ -60,16 +60,66 @@ export async function getUpdatedRemoteItems() {
     throw error;
   }
 }
+export async function getUpdatedRemoteItemsByFolder(folderId: any) {
+  try {
+    const [allDriveFiles, allDriveFolders] = await Promise.all([
+      driveFilesCollection.getAll(),
+      driveFoldersCollection.getAll(),
+    ]);
+
+    if (!allDriveFiles.success)
+      throw new Error('Failed to retrieve all the drive files from local db');
+
+    if (!allDriveFolders.success)
+      throw new Error('Failed to retrieve all the drive folders from local db');
+    return {
+      files: allDriveFiles.result,
+      folders: allDriveFolders.result,
+    };
+  } catch (error) {
+    reportError(error as Error, {
+      description:
+        'Something failed when updating the local db pulling the new changes from remote',
+    });
+    throw error;
+  }
+}
 
 ipcMain.handle('GET_UPDATED_REMOTE_ITEMS', async () => {
   Logger.debug('[MAIN] Getting updated remote items');
   return getUpdatedRemoteItems();
 });
 
-export function startRemoteSync(): Promise<void> {
-  return remoteSyncManager.startRemoteSync();
+ipcMain.handle('GET_UPDATED_REMOTE_ITEMS_BY_FOLDER', async (folderId) => {
+  Logger.debug('[MAIN] Getting updated remote items');
+  return getUpdatedRemoteItemsByFolder(folderId);
+});
+
+// export async function startRemoteSync(): Promise<void> {
+//   await remoteSyncManager.startRemoteSync();
+// }
+// export async function startRemoteProgresiveSync(): Promise<void> {
+export async function startRemoteSync(folderId?: number): Promise<void> {
+  try {
+    const { files: _files, folders } = await remoteSyncManager.startRemoteSync(
+      folderId
+    );
+    Logger.info('Remote sync started', folders?.length, 'folders');
+    Logger.info('Remote sync started', _files?.length, 'files');
+
+    if (folderId && folders && folders.length > 0) {
+      await Promise.all(
+        folders.map(async (folder) => await startRemoteSync(folder.id))
+      );
+    }
+    Logger.info('Remote sync finished');
+    return;
+  } catch (error) {
+    if (error instanceof Error) reportError(error);
+  }
 }
 ipcMain.handle('START_REMOTE_SYNC', async () => {
+  Logger.info('Received start remote sync event');
   await startRemoteSync();
 });
 
@@ -89,6 +139,7 @@ export async function updateRemoteSync(): Promise<void> {
   // Wait before checking for updates, could be possible
   // that we received the notification, but if we check
   // for new data we don't receive it
+  Logger.info('Updating remote sync');
   await sleep(2_000);
   await startRemoteSync();
   updateSyncEngine();
@@ -98,12 +149,12 @@ export async function fallbackRemoteSync(): Promise<void> {
   fallbackSyncEngine();
 }
 
-export function checkSyncEngineInProcess (milliSeconds: number) {
+export function checkSyncEngineInProcess(milliSeconds: number) {
   const syncingStatus: RemoteSyncStatus = 'SYNCING';
   const isSyncing = remoteSyncManager.getSyncStatus() === syncingStatus;
   const recentlySyncing = remoteSyncManager.recentlyWasSyncing(milliSeconds);
   return isSyncing || recentlySyncing; // syncing or recently was syncing
-};
+}
 
 export function setIsProcessing(isProcessing: boolean) {
   remoteSyncManager.isProcessRunning = isProcessing;
@@ -148,10 +199,18 @@ eventBus.on('RECEIVED_REMOTE_CHANGES', async () => {
 eventBus.on('USER_LOGGED_IN', async () => {
   Logger.info('Received user logged in event');
 
-  await remoteSyncManager.startRemoteSync().catch((error) => {
+  // await remoteSyncManager.startRemoteSync().catch((error) => {
+  //   Logger.error('Error starting remote sync manager', error);
+  //   reportError(error);
+  // });
+  try {
+    const userData = configStore.get('userData');
+    await startRemoteSync();
+    // traverse de esto
+  } catch (error) {
     Logger.error('Error starting remote sync manager', error);
-    reportError(error);
-  });
+    if (error instanceof Error) reportError(error);
+  }
 });
 
 eventBus.on('USER_LOGGED_OUT', () => {
@@ -180,4 +239,3 @@ export async function checkSyncInProgress(milliSeconds: number) {
 ipcMain.handle('CHECK_SYNC_IN_PROGRESS', async (_, milliSeconds: number) => {
   return await checkSyncInProgress(milliSeconds);
 });
-

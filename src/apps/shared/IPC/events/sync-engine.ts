@@ -123,6 +123,10 @@ export type SyncEngineInvocableFunctions = {
     files: DriveFile[];
     folders: DriveFolder[];
   }>;
+  GET_UPDATED_REMOTE_ITEMS_BY_FOLDER: (folderId: number) => Promise<{
+    files: DriveFile[];
+    folders: DriveFolder[];
+  }>;
   START_REMOTE_SYNC: () => Promise<void>;
 };
 
