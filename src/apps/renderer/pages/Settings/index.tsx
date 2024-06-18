@@ -4,9 +4,12 @@ import WindowTopBar from '../../components/WindowTopBar';
 import AccountSection from './Account';
 import GeneralSection from './General';
 import Header, { Section } from './Header';
+import BackupsSection from './Backups';
+import BackupFolderSelector from './Backups/Selector/BackupFolderSelector';
 
 export default function Settings() {
   const [activeSection, setActiveSection] = useState<Section>('GENERAL');
+  const [subsection, setSubsection] = useState<'panel' | 'list'>('panel');
 
   const rootRef = useRef<HTMLDivElement>(null);
 
@@ -30,16 +33,30 @@ export default function Settings() {
   }, []);
 
   return (
-    <div ref={rootRef}>
-      <WindowTopBar
-        title="Internxt Drive"
-        className="bg-surface dark:bg-gray-5"
-      />
-      <Header active={activeSection} onClick={setActiveSection} />
-      <div className="bg-gray-1 p-5">
-        <GeneralSection active={activeSection === 'GENERAL'} />
-        <AccountSection active={activeSection === 'ACCOUNT'} />
-      </div>
+    <div
+      ref={rootRef}
+      style={{ minWidth: 600, minHeight: subsection === 'list' ? 0 : 420 }}
+    >
+      {subsection === 'list' && (
+        <BackupFolderSelector onClose={() => setSubsection('panel')} />
+      )}
+      {subsection === 'panel' && (
+        <div className="flex flex-grow flex-col">
+          <WindowTopBar
+            title="Internxt Drive"
+            className="bg-surface dark:bg-gray-5"
+          />
+          <Header active={activeSection} onClick={setActiveSection} />
+          <div className="flex bg-gray-1 p-5" style={{ minHeight: 420 }}>
+            <GeneralSection active={activeSection === 'GENERAL'} />
+            <AccountSection active={activeSection === 'ACCOUNT'} />
+            <BackupsSection
+              active={activeSection === 'BACKUPS'}
+              showBackedFolders={() => setSubsection('list')}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

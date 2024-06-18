@@ -43,7 +43,7 @@ export async function accessRequest(
 
   let accessRes;
   try {
-    accessRes = await fetch(`${process.env.API_URL}/api/access`, {
+    accessRes = await fetch(`${process.env.API_URL}/access`, {
       method: 'POST',
       body: JSON.stringify({
         email: email.toLowerCase(),
@@ -84,7 +84,7 @@ export async function loginRequest(email: string): Promise<{
   let loginRes;
 
   try {
-    loginRes = await fetch(`${process.env.API_URL}/api/login`, {
+    loginRes = await fetch(`${process.env.API_URL}/login`, {
       method: 'POST',
       body: JSON.stringify({ email }),
       headers: {

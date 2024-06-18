@@ -30,5 +30,9 @@ export default function useUsage() {
     return listener;
   }, []);
 
-  return { usage, refreshUsage: updateUsage, status };
+  return {
+    usage,
+    refreshUsage: updateUsage,
+    status,
+  };
 }

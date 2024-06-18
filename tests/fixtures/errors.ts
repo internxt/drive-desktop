@@ -1,6 +1,6 @@
 import { AppError } from '../../src/shared/issues/AppError';
 import { AppIssue } from '../../src/shared/issues/AppIssue';
-import { SyncErrorCause } from '../../src/shared/issues/SyncErrorCause';
+import { SyncError } from '../../src/shared/issues/SyncErrorCause';
 import { FatalError } from '../../src/shared/issues/FatalError';
 import { VirtualDriveIssue } from '../../src/shared/issues/VirtualDriveIssue';
 
@@ -10,7 +10,7 @@ export const createBackupFatalError = (errorName: FatalError) => ({
   errorName,
 });
 
-export const createSyncError = (cause: SyncErrorCause): VirtualDriveIssue => ({
+export const createSyncError = (cause: SyncError): VirtualDriveIssue => ({
   name: 'name',
   error: 'DELETE_ERROR',
   cause: cause,

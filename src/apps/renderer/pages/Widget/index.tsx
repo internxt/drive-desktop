@@ -5,8 +5,9 @@ import SyncInfo from './SyncInfo';
 import useSyncStatus from '../../hooks/useSyncStatus';
 import { SyncFailed } from './SyncFailed';
 import { useEffect, useState } from 'react';
-import useVirtualDriveStatus from '../../hooks/VirtualDriveStatus';
+import useVirtualDriveStatus from '../../hooks/useVirtualDriveStatus';
 import { VirtualDriveError } from './VirtualDriveError';
+import { InfoBanners } from './InfoBanners/InfoBanners';
 
 const handleRetrySync = () => {
   window.electron.startRemoteSync().catch((err) => {
@@ -27,6 +28,7 @@ export default function Widget() {
   return (
     <div className="flex h-screen flex-col overflow-hidden">
       <Header virtualDriveStatus={virtualDriveStatus} />
+      <InfoBanners />
       {virtualDriveStatus === 'ERROR' ? (
         <VirtualDriveError />
       ) : (

@@ -1,4 +1,4 @@
-import { SyncErrorCause } from '../../../shared/issues/SyncErrorCause';
+import { SyncError } from '../../../shared/issues/SyncErrorCause';
 
 export abstract class UploadProgressTracker {
   abstract uploadStarted(name: string, extension: string, size: number): void;
@@ -10,11 +10,7 @@ export abstract class UploadProgressTracker {
     progress: { elapsedTime: number; percentage: number }
   ): void;
 
-  abstract uploadError(
-    name: string,
-    extension: string,
-    cause: SyncErrorCause
-  ): void;
+  abstract uploadError(name: string, extension: string, cause: SyncError): void;
 
   abstract uploadCompleted(
     name: string,

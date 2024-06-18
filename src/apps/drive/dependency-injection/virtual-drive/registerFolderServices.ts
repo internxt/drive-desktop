@@ -1,7 +1,7 @@
 import { ContainerBuilder } from 'diod';
 import { AllParentFoldersStatusIsExists } from '../../../../context/virtual-drive/folders/application/AllParentFoldersStatusIsExists';
-import { FolderCreator } from '../../../../context/virtual-drive/folders/application/FolderCreator';
-import { FolderCreatorFromOfflineFolder } from '../../../../context/virtual-drive/folders/application/FolderCreatorFromOfflineFolder';
+import { FolderCreator } from '../../../../context/virtual-drive/folders/application/create/FolderCreator';
+import { FolderCreatorFromOfflineFolder } from '../../../../context/virtual-drive/folders/application/create/FolderCreatorFromOfflineFolder';
 import { FolderDeleter } from '../../../../context/virtual-drive/folders/application/FolderDeleter';
 import { FolderMover } from '../../../../context/virtual-drive/folders/application/FolderMover';
 import { FolderPathUpdater } from '../../../../context/virtual-drive/folders/application/FolderPathUpdater';

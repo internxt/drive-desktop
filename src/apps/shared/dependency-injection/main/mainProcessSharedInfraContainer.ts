@@ -8,8 +8,8 @@ import PhotosSubmodule from '@internxt/sdk/dist/photos/photos';
 import { DependencyInjectionMainProcessPhotosProviderPhotos } from './DependencyInjectionMainProcessPhotosProviderPhotos';
 import { UploadProgressTracker } from '../../../../context/shared/domain/UploadProgressTracker';
 import { MainProcessUploadProgressTracker } from '../../../../context/shared/infrastructure/MainProcess/MainProcessUploadProgressTracker';
-import { RemoteItemsGenerator } from '../../../../context/virtual-drive/tree/domain/RemoteItemsGenerator';
-import { SQLiteRemoteItemsGenerator } from '../../../../context/virtual-drive/tree/infrastructure/SQLiteRemoteItemsGenerator';
+import { RemoteItemsGenerator } from '../../../../context/virtual-drive/remoteTree/domain/RemoteItemsGenerator';
+import { SQLiteRemoteItemsGenerator } from '../../../../context/virtual-drive/remoteTree/infrastructure/SQLiteRemoteItemsGenerator';
 
 export async function mainProcessSharedInfraBuilder(): Promise<ContainerBuilder> {
   const builder = baseInfra();

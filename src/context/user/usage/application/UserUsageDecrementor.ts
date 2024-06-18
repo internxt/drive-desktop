@@ -9,7 +9,7 @@ export class UserUsageDecrementor {
     if (usage.drive >= weight) {
       usage.incrementDriveUsage(-weight);
 
-      await this.repository.save(usage);
+      // await this.repository.save(usage);
     }
   }
 }

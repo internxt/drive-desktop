@@ -15,7 +15,7 @@ import { getWindowTopBarTitle } from './selectors';
 import { wait } from './utils';
 import { DEFAULT_LANGUAGE } from '../src/apps/shared/Locale/Language';
 import { FatalError } from '../src/shared/issues/FatalError';
-import { SyncErrorCause } from '../src/shared/issues/SyncErrorCause';
+import { SyncError } from '../src/shared/issues/SyncErrorCause';
 import { AppIssue } from '../src/shared/issues/AppIssue';
 
 const activeTabSelector = 'button.text-neutral-500';
@@ -27,7 +27,7 @@ test.describe('process issues', () => {
   let electronApp: ElectronApplication;
   let page: Page;
 
-  const addSyncErrors = async (errors: Array<SyncErrorCause>) => {
+  const addSyncErrors = async (errors: Array<SyncError>) => {
     const emitEvents = errors
       .map(createSyncError)
       .map((error) => ipcMainEmit(electronApp, 'SYNC_INFO_UPDATE', error));

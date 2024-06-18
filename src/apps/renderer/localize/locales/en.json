@@ -191,6 +191,13 @@
       "message": "We are having issues mounting your Internxt Drive, try unmounting it manually and starting the app again",
       "mounting": "Mounting...",
       "button": "Mount"
+    },
+    "banners": {
+      "discover-backups": {
+        "title": "INTERNXT BACKUPS",
+        "body": "Keep a lifesaver copy of your most important folders and files.",
+        "action": "Backup this device"
+      }
     }
   },
   "settings": {
@@ -262,14 +269,16 @@
     },
     "backups": {
       "title": "Backup folders",
-      "selected-folder": "{{count}} folder",
-      "selected-folders": "{{count}} folders",
+      "selected-folder_one": "{{count}} folder",
+      "selected-folder_other": "{{count}} folders",
       "add-folders": "Click + to select the folders\n you want to back up",
       "activate": "Back up your folders and files",
-      "view-backups": "View your backups",
-      "select-folders": "Select folders to back up",
+      "view-backups": "Browse files",
+      "selected-folders-title": "Selected folders",
+      "select-folders": "Change folders",
       "last-backup-had-issues": "Last backup had some issues",
       "see-issues": "See issues",
+      "backing-up": "Backing up...",
       "action": {
         "start": "Backup now",
         "stop": "Stop backup",
@@ -279,22 +288,27 @@
       "frequency": {
         "title": "Upload frequency",
         "options": {
-          "6h": "Every 6h",
-          "12h": "Every 12h",
+          "6h": "Every 6 hours",
+          "12h": "Every 12 hours",
           "24h": "Every day",
-          "manually": "Manually"
+          "manually": "Backup manually"
         }
       },
       "folders": {
-        "explanation": "Folders you want to add to the next backup",
         "no-folders": "No backups yet",
-        "done": "Done",
-        "stop-baking-up": {
-          "title": "Stop backing up ",
-          "explanation": "New files added to this folder will no longer backup in your Internxt Drive. Original files will remain on your computer",
-          "confirm": "Stop backing up this folder",
-          "cancel": "Keep backing up",
-          "dont-ask-again": "Don't ask me again"
+        "save": "Save",
+        "cancel": "Cancel"
+      },
+      "delete": {
+        "title": "Delete backup",
+        "explanation": "This backup will be removed from the cloud, all folders and files will remain in this computer",
+        "action": "Delete backup",
+        "deletion-modal": {
+          "title": "Delete backup?",
+          "explanation": "This backup will be removed from the cloud permanently, all folders and files will remain in this computer.",
+          "explanation-2": "This action cannot be undone.",
+          "confirm": "Yes, delete",
+          "cancel": "Cancel"
         }
       }
     }
@@ -309,7 +323,7 @@
     "no-issues": "No issues found",
     "actions": {
       "select-folder": "Select folder",
-      "find-folder": "Find folder",
+      "find-folder": "Locate folder",
       "try-again": "Try again"
     },
     "short-error-messages": {
@@ -324,7 +338,8 @@
       "file-non-extension": "Files without extensions are not supported.",
       "duplicated-node": "It appears that there are duplicate file or folder names in this directory. Please rename one of them to ensure synchronization",
       "action-not-permitted": "Unable to complete the operation.",
-      "file-already-exists": "Unable to complete the operation. The file already exists on Internxt servers"
+      "file-already-exists": "Unable to complete the operation. The file already exists on Internxt servers",
+      "not-enough-space": "You have not enough space to complete the operation"
     },
     "error-messages": {
       "no-internet": "Looks like you are not connected to the internet, we'll try again later",
@@ -342,7 +357,8 @@
       "file-non-extension": "Files without extensions are not supported. Not synchronized.",
       "duplicated-node": "There are two elements (file or folder) with the same name on a folder. Rename one of them to sync them both",
       "action-not-permitted": "The operation could not be completed, possibly due to a conflict with another file.",
-      "file-already-exists": "Unable to complete the operation. The file already exists on Internxt servers"
+      "file-already-exists": "Unable to complete the operation. The file already exists on Internxt servers",
+      "not-enough-space": "You have not enough space to complete the operation"
     },
     "report-modal": {
       "actions": {

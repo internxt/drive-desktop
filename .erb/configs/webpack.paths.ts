@@ -8,7 +8,7 @@ const srcPath = path.join(rootPath, 'src', 'apps');
 const srcMainPath = path.join(srcPath, 'main');
 const srcRendererPath = path.join(srcPath, 'renderer');
 const srcSyncPath = path.join(srcPath, 'workers', 'sync');
-const srcBackupsPath = path.join(srcPath, 'workers', 'backups');
+const srcBackupsPath = path.join(srcPath, 'backups');
 const srcSyncEnginePath = path.join(srcPath, 'sync-engine');
 const srcVirtualDrivePath = path.join(srcPath, 'drive');
 

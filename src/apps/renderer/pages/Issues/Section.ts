@@ -1,1 +1,1 @@
-export type Section = 'virtualDrive' | 'app';
+export type Section = 'virtualDrive' | 'app' | 'backups';

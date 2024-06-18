@@ -1,6 +1,6 @@
 import logger from 'electron-log';
 import { io, Socket } from 'socket.io-client';
-import { obtainToken } from './auth/service';
+import { getUser, obtainToken } from './auth/service';
 import eventBus from './event-bus';
 import { broadcastToWindows } from './windows';
 
@@ -10,6 +10,8 @@ type XHRRequest = {
 // REMOTE TRIGGER
 
 let socket: Socket | undefined;
+
+let user = getUser();
 
 function cleanAndStartRemoteNotifications() {
   stopRemoteNotifications();
@@ -60,10 +62,21 @@ function cleanAndStartRemoteNotifications() {
   });
 
   socket.on('event', (data) => {
-    logger.log('Notification received: ', data);
-
     broadcastToWindows('remote-changes', undefined);
-    eventBus.emit('RECEIVED_REMOTE_CHANGES');
+
+    if (!user) {
+      user = getUser();
+    }
+
+    if (data.payload.bucket !== user?.backupsBucket) {
+      logger.log('Notification received: ', data);
+      eventBus.emit('RECEIVED_REMOTE_CHANGES');
+      return;
+    }
+
+    const { event, payload } = data;
+
+    logger.log('Notification received: ', event, payload.plain_name);
   });
 }
 

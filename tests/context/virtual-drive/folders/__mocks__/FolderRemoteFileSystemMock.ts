@@ -1,3 +1,4 @@
+import { Either } from '../../../../../src/context/shared/domain/Either';
 import { Folder } from '../../../../../src/context/virtual-drive/folders/domain/Folder';
 import { FolderId } from '../../../../../src/context/virtual-drive/folders/domain/FolderId';
 import { FolderPath } from '../../../../../src/context/virtual-drive/folders/domain/FolderPath';
@@ -5,6 +6,7 @@ import { FolderUuid } from '../../../../../src/context/virtual-drive/folders/dom
 import {
   FolderPersistedDto,
   RemoteFileSystem,
+  RemoteFileSystemErrors,
 } from '../../../../../src/context/virtual-drive/folders/domain/file-systems/RemoteFileSystem';
 
 export class FolderRemoteFileSystemMock implements RemoteFileSystem {
@@ -12,12 +14,20 @@ export class FolderRemoteFileSystemMock implements RemoteFileSystem {
   private readonly trashMock = jest.fn();
   private readonly moveMock = jest.fn();
   private readonly renameMock = jest.fn();
+  private readonly searchWithMock = jest.fn();
+
+  searchWith(
+    parentId: FolderId,
+    folderPath: FolderPath
+  ): Promise<Folder | undefined> {
+    return this.searchWithMock(parentId, folderPath);
+  }
 
   persist(
     path: FolderPath,
     parentId: FolderId,
     uuid?: FolderUuid | undefined
-  ): Promise<FolderPersistedDto> {
+  ): Promise<Either<RemoteFileSystemErrors, FolderPersistedDto>> {
     expect(this.persistMock).toHaveBeenCalledWith(path, parentId, uuid);
 
     return this.persistMock();

@@ -1,5 +1,5 @@
 import { aes } from '@internxt/lib';
-import { dialog } from 'electron';
+import { app, dialog } from 'electron';
 import fetch from 'electron-fetch';
 import logger from 'electron-log';
 import os from 'os';
@@ -8,8 +8,16 @@ import path from 'path';
 import { getHeaders } from '../auth/service';
 import configStore from '../config';
 import { addAppIssue } from '../issues/app';
+import { BackupInfo } from '../../backups/BackupInfo';
 
 export type Device = { name: string; id: number; bucket: string };
+
+type DeviceDTO = {
+  bucket: string;
+  removed: boolean;
+  name: string;
+  id: number;
+};
 
 export const addUnknownDeviceIssue = (error: Error) => {
   addAppIssue({
@@ -24,11 +32,24 @@ export const addUnknownDeviceIssue = (error: Error) => {
 };
 
 function createDevice(deviceName: string) {
-  return fetch(`${process.env.API_URL}/api/backup/deviceAsFolder`, {
+  return fetch(`${process.env.API_URL}/backup/deviceAsFolder`, {
     method: 'POST',
     headers: getHeaders(true),
     body: JSON.stringify({ deviceName }),
   });
+}
+
+export async function getDevices(): Promise<Array<Device>> {
+  const response = await fetch(`${process.env.API_URL}/backup/deviceAsFolder`, {
+    method: 'GET',
+    headers: getHeaders(true),
+  });
+
+  const devices = (await response.json()) as Array<DeviceDTO>;
+
+  return devices
+    .filter(({ removed }) => !removed)
+    .map((device) => decryptDeviceName(device));
 }
 
 async function tryToCreateDeviceWithDifferentNames(): Promise<Device> {
@@ -65,7 +86,7 @@ export async function getOrCreateDevice() {
 
   if (deviceIsDefined) {
     const res = await fetch(
-      `${process.env.API_URL}/api/backup/deviceAsFolder/${savedDeviceId}`,
+      `${process.env.API_URL}/backup/deviceAsFolder/${savedDeviceId}`,
       {
         method: 'GET',
         headers: getHeaders(),
@@ -99,7 +120,7 @@ export async function renameDevice(deviceName: string): Promise<Device> {
   const deviceId = getDeviceId();
 
   const res = await fetch(
-    `${process.env.API_URL}/api/backup/deviceAsFolder/${deviceId}`,
+    `${process.env.API_URL}/backup/deviceAsFolder/${deviceId}`,
     {
       method: 'PATCH',
       headers: getHeaders(true),
@@ -121,10 +142,9 @@ function decryptDeviceName({ name, ...rest }: Device): Device {
 
 export type Backup = { id: number; name: string };
 
-export async function getBackupsFromDevice(): Promise<
-  (Backup & { pathname: string })[]
-> {
+export async function getBackupsFromDevice(): Promise<Array<BackupInfo>> {
   const deviceId = getDeviceId();
+  const device = await getOrCreateDevice();
 
   const folder = await fetchFolder(deviceId);
 
@@ -139,6 +159,9 @@ export async function getBackupsFromDevice(): Promise<
     .map((backup: Backup) => ({
       ...backup,
       pathname: findBackupPathnameFromId(backup.id),
+      folderId: backup.id,
+      tmpPath: app.getPath('temp'),
+      backupsBucket: device.bucket,
     }));
 }
 
@@ -151,7 +174,7 @@ export async function getBackupsFromDevice(): Promise<
 async function postBackup(name: string): Promise<Backup> {
   const deviceId = getDeviceId();
 
-  const res = await fetch(`${process.env.API_URL}/api/storage/folder`, {
+  const res = await fetch(`${process.env.API_URL}/storage/folder`, {
     method: 'POST',
     headers: getHeaders(true),
     body: JSON.stringify({ parentFolderId: deviceId, folderName: name }),
@@ -210,7 +233,7 @@ export async function addBackup(): Promise<void> {
 
 async function fetchFolder(folderId: number) {
   const res = await fetch(
-    `${process.env.API_URL}/api/storage/v2/folder/${folderId}`,
+    `${process.env.API_URL}/storage/v2/folder/${folderId}`,
     {
       method: 'GET',
       headers: getHeaders(true),
@@ -223,9 +246,9 @@ async function fetchFolder(folderId: number) {
   throw new Error('Unsuccesful request to fetch folder');
 }
 
-export async function deleteBackup(backup: Backup): Promise<void> {
+export async function deleteBackup(backup: BackupInfo): Promise<void> {
   const res = await fetch(
-    `${process.env.API_URL}/api/storage/folder/${backup.id}`,
+    `${process.env.API_URL}/storage/folder/${backup.folderId}`,
     {
       method: 'DELETE',
       headers: getHeaders(true),
@@ -238,7 +261,7 @@ export async function deleteBackup(backup: Backup): Promise<void> {
   const backupsList = configStore.get('backupList');
 
   const entriesFiltered = Object.entries(backupsList).filter(
-    ([, b]) => b.folderId !== backup.id
+    ([, b]) => b.folderId !== backup.folderId
   );
 
   const backupListFiltered = Object.fromEntries(entriesFiltered);
@@ -246,9 +269,9 @@ export async function deleteBackup(backup: Backup): Promise<void> {
   configStore.set('backupList', backupListFiltered);
 }
 
-export async function disableBackup(backup: Backup): Promise<void> {
+export async function disableBackup(backup: BackupInfo): Promise<void> {
   const backupsList = configStore.get('backupList');
-  const pathname = findBackupPathnameFromId(backup.id)!;
+  const pathname = findBackupPathnameFromId(backup.folderId)!;
 
   backupsList[pathname].enabled = false;
 
@@ -275,7 +298,7 @@ export async function changeBackupPath(currentPath: string): Promise<boolean> {
   }
 
   const res = await fetch(
-    `${process.env.API_URL}/api/storage/folder/${existingBackup.folderId}/meta`,
+    `${process.env.API_URL}/storage/folder/${existingBackup.folderId}/meta`,
     {
       method: 'POST',
       headers: getHeaders(true),

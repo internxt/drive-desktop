@@ -5,7 +5,7 @@ import bytes from 'bytes';
 
 import { User } from '../../../main/types';
 import { useTranslationContext } from '../../context/LocalContext';
-import useBackupFatalErrors from '../../hooks/BackupFatalErrors';
+import useBackupErrors from '../../hooks/backups/useBackupErrors';
 import useGeneralIssues from '../../hooks/GeneralIssues';
 import useVirtualDriveIssues from '../../hooks/ProcessIssues';
 import useUsage from '../../hooks/useUsage';
@@ -17,11 +17,11 @@ export default function Header(props: {
 }) {
   const { translate } = useTranslationContext();
   const processIssues = useVirtualDriveIssues();
-  const generalIssues = useGeneralIssues();
-  const { backupFatalErrors } = useBackupFatalErrors();
+  const { generalIssues } = useGeneralIssues();
+  const { backupErrors } = useBackupErrors();
 
   const numberOfIssues: number =
-    processIssues.length + backupFatalErrors.length + generalIssues.length;
+    processIssues.length + backupErrors.length + generalIssues.length;
 
   const numberOfIssuesDisplay = numberOfIssues > 99 ? '99+' : numberOfIssues;
 

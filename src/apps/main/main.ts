@@ -55,6 +55,7 @@ import { stopSyncEngineWatcher } from './background-processes/sync-engine';
 import { Theme } from '../shared/types/Theme';
 import { installNautilusExtension } from './nautilus-extension/install';
 import { uninstallNautilusExtension } from './nautilus-extension/uninstall';
+import { setUpBackups } from './background-processes/backups/setUpBackups';
 
 const gotTheLock = app.requestSingleInstanceLock();
 
@@ -116,6 +117,10 @@ app
     checkForUpdates();
   })
   .catch(Logger.error);
+
+eventBus.on('WIDGET_IS_READY', () => {
+  setUpBackups();
+});
 
 eventBus.on('USER_LOGGED_IN', async () => {
   try {

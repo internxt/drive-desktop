@@ -191,6 +191,13 @@
       "message": "Estamos teniendo problemas al montar tu unidad Internxt. Intenta desmontarla manualmente y luego reiniciar la aplicación.",
       "mounting": "Montando..",
       "button": "Montar"
+    },
+    "banners": {
+      "discover-backups": {
+        "title": " COPIAS DE SEGURIDAD DE INTERNXT",
+        "body": "Mantén una copia de seguridad de tus carpetas y archivos más importantes.",
+        "action": "Hacer copia"
+      }
     }
   },
   "settings": {
@@ -262,13 +269,15 @@
     },
     "backups": {
       "add-folders": "Haz clic en + para hacer una copia de seguridad de tus carpetas",
-      "selected-folder": "{{count}} carpeta",
-      "selected-folders": "{{count}} carpetas",
+      "selected-folder_one": "{{count}} carpeta",
+      "selected-folder_other": "{{count}} carpetas",
       "activate": "Hacer copia de seguridad de tus carpetas",
-      "view-backups": "Ver copias de seguridad",
-      "select-folders": "Seleccionar carpetas",
+      "view-backups": "Explorar archivos",
+      "selected-folders-title": "Carpetas seleccionadas",
+      "select-folders": "Cambiar carpetas",
       "last-backup-had-issues": "La última copia de seguridad tuvo algunos problemas",
       "see-issues": "Ver problemas",
+      "backing-up": "Haciendo la copia",
       "action": {
         "start": "Hacer copia",
         "stop": "Stop backup",
@@ -278,22 +287,27 @@
       "frequency": {
         "title": "Frecuencia de subida",
         "options": {
-          "6h": "Cada 6 h",
-          "12h": "Cada 12 h",
+          "6h": "Cada 6 horas",
+          "12h": "Cada 12 horas",
           "24h": "Cada día",
-          "manually": "Manualmente"
+          "manually": "Manual"
         }
       },
       "folders": {
-        "explanation": "Carpetas a añadir en la siguiente copia de seguridad",
         "no-folders": "No hay carpetas seleccionadas",
-        "done": "Hecho",
-        "stop-baking-up": {
-          "title": "¿Detener la copia de seguridad de ",
-          "explanation": "Los archivos nuevos que se añadan a esta carpeta ya no se copiarán en Internxt Drive. Los archivos originales permanecerán en tu ordenador",
-          "confirm": "Detener copia de seguridad",
-          "cancel": "Continuar copia de seguridad",
-          "dont-ask-again": "No volver a preguntar"
+        "save": "Guardar",
+        "cancel": "Cancelar"
+      },
+      "delete": {
+        "title": "Eliminar copia de seguridad",
+        "explanation": "Esta copia de seguridad se eliminará de la nube, todas las carpetas y archivos permanecerán en este ordenador",
+        "action": "Eliminar copia de seguridad",
+        "deletion-modal": {
+          "title": "Borrar copia de seguridad?",
+          "explanation": "Esta copia de seguridad se eliminará permanentemente de la nube, todas las carpetas y archivos permanecerán en este ordenador.",
+          "explanation-2": "Esta acción no se puede deshacer.",
+          "confirm": "Sí, eliminar",
+          "cancel": "Cancelar"
         }
       }
     }
@@ -323,7 +337,8 @@
       "file-non-extension": "Archivos sin extensión no son soportados",
       "duplicated-node": "Hay un conflicto con el elemento",
       "action-not-permitted": "La operación no pudo completarse.",
-      "file-already-exists": "No se puede completar la operación. El archivo ya existe en los servidores de Internxt."
+      "file-already-exists": "No se puede completar la operación. El archivo ya existe en los servidores de Internxt.",
+      "not-enough-space": "No tienes suficiente espacio para completar la operación."
     },
     "error-messages": {
       "no-internet": "No estás conectado a Internet, lo intentaremos más tarde",
@@ -341,7 +356,8 @@
       "file-non-extension": "Los archivos sin extensiones no son soportados. No sincronizado",
       "duplicated-node": "Hay dos elementos (archivo o carpeta) con el mismo nombre en una carpeta. Cambia el nombre de uno de ellos para sincronizar ambos.",
       "action-not-permitted": "La operación no pudo completarse, posiblemente debido a un conflicto con otro archivo.",
-      "file-already-exists": "No se puede completar la operación. El archivo ya existe en los servidores de Internxt."
+      "file-already-exists": "No se puede completar la operación. El archivo ya existe en los servidores de Internxt.",
+      "not-enough-space": "No tienes suficiente espacio para completar la operación."
     },
     "report-modal": {
       "actions": {

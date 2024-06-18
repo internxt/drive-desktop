@@ -21,7 +21,11 @@ export default function AccountSection({ active }: { active: boolean }) {
   }, [active]);
 
   return (
-    <div className={`flex flex-col space-y-8 ${active ? 'block' : 'hidden'}`}>
+    <div
+      className={`flex w-full flex-col space-y-8 ${
+        active ? 'block' : 'hidden'
+      }`}
+    >
       {user !== null && <UserInfo user={user} />}
 
       <div className="flex items-center justify-center rounded-lg border border-gray-10 bg-surface p-4 shadow-sm dark:bg-gray-5">

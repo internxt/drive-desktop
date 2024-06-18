@@ -14,4 +14,6 @@ export type TreeEvents = {
     files: DriveFile[];
     folders: DriveFolder[];
   }>;
+
+  'remote-sync-manager.refresh': () => Promise<void>;
 };

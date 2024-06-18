@@ -3,7 +3,7 @@ import Logger from 'electron-log';
 import { StorageClearer } from '../../../context/storage/StorageFiles/application/delete/StorageClearer';
 import { FileRepositorySynchronizer } from '../../../context/virtual-drive/files/application/FileRepositorySynchronizer';
 import { FolderRepositorySynchronizer } from '../../../context/virtual-drive/folders/application/FolderRepositorySynchronizer';
-import { TreeBuilder } from '../../../context/virtual-drive/tree/application/TreeBuilder';
+import { RemoteTreeBuilder } from '../../../context/virtual-drive/remoteTree/application/RemoteTreeBuilder';
 import { VirtualDrive } from '../VirtualDrive';
 import { FuseDriveStatus } from './FuseDriveStatus';
 import { CreateCallback } from './callbacks/CreateCallback';
@@ -21,11 +21,12 @@ import { WriteCallback } from './callbacks/WriteCallback';
 import { mountPromise, unmountPromise } from './helpers';
 import { StorageRemoteChangesSyncher } from '../../../context/storage/StorageFiles/application/sync/StorageRemoteChangesSyncher';
 import { ThumbnailSynchronizer } from '../../../context/storage/thumbnails/application/sync/ThumbnailSynchronizer';
+import { EventEmitter } from 'stream';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const fuse = require('@gcas/fuse');
 
-export class FuseApp {
+export class FuseApp extends EventEmitter {
   private status: FuseDriveStatus = 'UNMOUNTED';
   private static readonly MAX_INT_32 = 2147483647;
   private _fuse: any;
@@ -33,8 +34,11 @@ export class FuseApp {
   constructor(
     private readonly virtualDrive: VirtualDrive,
     private readonly container: Container,
-    private readonly root: string
-  ) {}
+    private readonly localRoot: string,
+    private readonly remoteRoot: number
+  ) {
+    super();
+  }
 
   private getOpt() {
     const readdir = new ReaddirCallback(this.container);
@@ -71,7 +75,7 @@ export class FuseApp {
 
     await this.update();
 
-    this._fuse = new fuse(this.root, ops, {
+    this._fuse = new fuse(this.localRoot, ops, {
       debug: false,
       force: true,
       maxRead: FuseApp.MAX_INT_32,
@@ -81,6 +85,7 @@ export class FuseApp {
       await mountPromise(this._fuse);
       this.status = 'MOUNTED';
       Logger.info('[FUSE] mounted');
+      this.emit('mounted');
     } catch (firstMountError) {
       Logger.error(`[FUSE] mount error: ${firstMountError}`);
       try {
@@ -88,9 +93,11 @@ export class FuseApp {
         await mountPromise(this._fuse);
         this.status = 'MOUNTED';
         Logger.info('[FUSE] mounted');
+        this.emit('mounted');
       } catch (err) {
         this.status = 'ERROR';
         Logger.error(`[FUSE] mount error: ${err}`);
+        this.emit('mount-error');
       }
     }
   }
@@ -105,7 +112,9 @@ export class FuseApp {
 
   async update(): Promise<void> {
     try {
-      const tree = await this.container.get(TreeBuilder).run();
+      const tree = await this.container
+        .get(RemoteTreeBuilder)
+        .run(this.remoteRoot);
 
       await this.container.get(FileRepositorySynchronizer).run(tree.files);
       await this.container.get(ThumbnailSynchronizer).run(tree.files);
@@ -133,6 +142,8 @@ export class FuseApp {
       this.status = 'ERROR';
       Logger.error(`[FUSE] mount error: ${err}`);
     }
+
+    this.emit('mounted');
 
     return this.status;
   }
