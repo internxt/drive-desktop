@@ -130,9 +130,7 @@ export class NodeTemporalFileRepository implements TemporalFileRepository {
       throw new Error(`Document with path ${documentPath.value} not found`);
     }
 
-    const pathToRead = path.join(this.folder, id);
-
-    return readFile(pathToRead);
+    return readFile(id);
   }
 
   async write(
