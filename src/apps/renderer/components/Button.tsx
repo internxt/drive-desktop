@@ -29,14 +29,18 @@ export default function Button(props: ButtonProps) {
     '2xl': 'h-12 px-5 rounded-lg text-lg',
   };
 
+  const { className, ...propsWithOutClassName } = props;
+
+  const styles = `whitespace-nowrap shadow-sm outline-none transition-all duration-75 ease-in-out focus-visible:outline-none ${
+    variants[props.variant ?? 'primary']
+  } ${sizes[props.size ?? 'md']} ${props.customClassName ?? ''} ${className}`;
+
   return (
     <button
       type={props.type ?? 'button'}
       disabled={props.disabled ?? false}
-      className={`whitespace-nowrap shadow-sm outline-none transition-all duration-75 ease-in-out focus-visible:outline-none ${
-        variants[props.variant ?? 'primary']
-      } ${sizes[props.size ?? 'md']} ${props.customClassName ?? ''}`}
-      {...props}
+      className={styles}
+      {...propsWithOutClassName}
     >
       {props.children}
     </button>

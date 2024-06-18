@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
 
-import { Backup } from '../../main/device/service';
+import { BackupInfo } from '../../backups/BackupInfo';
 
 export function useBackups() {
   const [backups, setBackups] = useState<
-    { status: 'LOADING' | 'ERROR' } | { status: 'SUCCESS'; backups: Backup[] }
+    | { status: 'LOADING' | 'ERROR' }
+    | { status: 'SUCCESS'; backups: BackupInfo[] }
   >({ status: 'LOADING' });
 
   function fetchBackups() {
@@ -29,7 +30,7 @@ export function useBackups() {
     }
   }
 
-  async function disableBackup(backup: Backup) {
+  async function disableBackup(backup: BackupInfo) {
     setBackups({ status: 'LOADING' });
     try {
       await window.electron.disableBackup(backup);
@@ -40,7 +41,7 @@ export function useBackups() {
     }
   }
 
-  async function deleteBackup(backup: Backup) {
+  async function deleteBackup(backup: BackupInfo) {
     setBackups({ status: 'LOADING' });
     try {
       await window.electron.deleteBackup(backup);

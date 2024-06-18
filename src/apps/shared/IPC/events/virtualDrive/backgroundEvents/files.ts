@@ -1,4 +1,4 @@
-import { SyncErrorCause } from '../../../../../../shared/issues/SyncErrorCause';
+import { SyncError } from '../../../../../../shared/issues/SyncErrorCause';
 
 type ProcessInfo = {
   elapsedTime: number;
@@ -18,28 +18,28 @@ export type FileErrorEvents = {
     name: string;
     extension: string;
     nameWithExtension: string;
-    cause: SyncErrorCause;
+    cause: SyncError;
   }) => void;
 
   FILE_UPLOAD_ERROR: (payload: {
     name: string;
     extension: string;
     nameWithExtension: string;
-    cause: SyncErrorCause;
+    cause: SyncError;
   }) => void;
 
   FILE_DELETION_ERROR: (payload: {
     name: string;
     extension: string;
     nameWithExtension: string;
-    cause: SyncErrorCause;
+    cause: SyncError;
   }) => void;
 
   FILE_RENAME_ERROR: (payload: {
     name: string;
     extension: string;
     nameWithExtension: string;
-    cause: SyncErrorCause;
+    cause: SyncError;
   }) => void;
 };
 

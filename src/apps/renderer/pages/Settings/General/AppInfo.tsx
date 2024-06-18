@@ -13,7 +13,8 @@ export default function AppInfo() {
   };
 
   return (
-    <div className="flex flex-col space-y-4">
+    <div className="mt-auto flex flex-col space-y-4">
+      <div className="relative flex h-2 before:absolute before:inset-x-0 before:top-1/2 before:h-px before:-translate-y-1/2 before:bg-gray-10" />
       <p className="text-sm leading-4 text-gray-100">
         Internxt Drive v{packageJson.version}
       </p>

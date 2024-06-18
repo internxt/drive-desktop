@@ -151,6 +151,9 @@ contextBridge.exposeInMainWorld('electron', {
   getBackupsStatus() {
     return ipcRenderer.invoke('get-backups-status');
   },
+  getBackupFatalIssue(id) {
+    return ipcRenderer.invoke('backups.get-backup-issues', id);
+  },
   openVirtualDrive() {
     return ipcRenderer.invoke('open-virtual-drive');
   },
@@ -179,6 +182,11 @@ contextBridge.exposeInMainWorld('electron', {
   },
   renameDevice(deviceName) {
     return ipcRenderer.invoke('rename-device', deviceName);
+  },
+  devices: {
+    getDevices: () => {
+      return ipcRenderer.invoke('devices.get-all');
+    },
   },
   getBackups() {
     return ipcRenderer.invoke('get-backups');
@@ -297,4 +305,12 @@ contextBridge.exposeInMainWorld('electron', {
     return ipcRenderer.invoke('APP:PREFERRED_LANGUAGE');
   },
   path,
+  user: {
+    hasDiscoveredBackups() {
+      return ipcRenderer.invoke('user.get-has-discovered-backups');
+    },
+    discoveredBackups() {
+      ipcRenderer.send('user.set-has-discovered-backups');
+    },
+  },
 });

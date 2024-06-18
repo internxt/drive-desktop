@@ -4,7 +4,7 @@ import { SyncStatus } from '../../../../context/desktop/sync/domain/SyncStatus';
 import Spinner from '../../assets/spinner.svg';
 import Button from '../../components/Button';
 import { useTranslationContext } from '../../context/LocalContext';
-import useVirtualDriveStatus from '../../hooks/VirtualDriveStatus';
+import useVirtualDriveStatus from '../../hooks/useVirtualDriveStatus';
 import useSyncStatus from '../../hooks/useSyncStatus';
 import useUsage from '../../hooks/useUsage';
 

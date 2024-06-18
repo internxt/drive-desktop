@@ -1,4 +1,4 @@
-import { FolderCreatorFromOfflineFolder } from '../../../../../src/context/virtual-drive/folders/application/FolderCreatorFromOfflineFolder';
+import { FolderCreatorFromOfflineFolder } from '../../../../../src/context/virtual-drive/folders/application/create/FolderCreatorFromOfflineFolder';
 import { EventBusMock } from '../../shared/__mock__/EventBusMock';
 import { FolderRemoteFileSystemMock } from '../__mocks__/FolderRemoteFileSystemMock';
 import { FolderRepositoryMock } from '../__mocks__/FolderRepositoryMock';

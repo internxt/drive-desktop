@@ -1,32 +1,35 @@
-export type SyncErrorCause =
-  // File or folder does not exist
-  | 'NOT_EXISTS'
+const FatalErrors = [
+  'NOT_ENOUGH_SPACE',
+  'NO_INTERNET',
+  'NO_REMOTE_CONNECTION',
+  'INSUFFICIENT_PERMISSION',
+  'BASE_DIRECTORY_DOES_NOT_EXIST',
+] as const;
 
-  // No permission to read or write file or folder
-  | 'NO_PERMISSION'
+export type FatalError = (typeof FatalErrors)[number];
 
-  // No internet connection
-  | 'NO_INTERNET'
+const NonFatalErrors = [
+  'NOT_EXISTS',
+  'BAD_RESPONSE',
+  'EMPTY_FILE',
+  'FILE_TOO_BIG',
+  'FILE_NON_EXTENSION',
+  'DUPLICATED_NODE',
+  'ACTION_NOT_PERMITTED',
+  'FILE_ALREADY_EXISTS',
+  'COULD_NOT_ENCRYPT_NAME',
+  'BAD_REQUEST',
+  'UNKNOWN',
+] as const;
 
-  // Could not connect to Internxt servers
-  | 'NO_REMOTE_CONNECTION'
+const Errors = [...FatalErrors, ...NonFatalErrors] as const;
 
-  // Had a bad response (not in the 200 status range) from the server
-  | 'BAD_RESPONSE'
+export type SyncError = (typeof Errors)[number];
 
-  // The file has a size of 0 bytes
-  | 'EMPTY_FILE'
+export function isSyncError(maybe: string): maybe is SyncError {
+  return Errors.includes(maybe as SyncError);
+}
 
-  // The file is bigger than the current upload limit
-  | 'FILE_TOO_BIG'
-
-  // The file don't have an extension
-  | 'FILE_NON_EXTENSION'
-
-  // Unknown error
-  | 'UNKNOWN'
-
-  // Duplicated node path
-  | 'DUPLICATED_NODE'
-  | 'ACTION_NOT_PERMITTED'
-  | 'FILE_ALREADY_EXISTS';
+export function isFatalError(maybe: string): maybe is FatalError {
+  return FatalErrors.includes(maybe as FatalError);
+}

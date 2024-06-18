@@ -1,3 +1,5 @@
+import { Either } from '../../../../../src/context/shared/domain/Either';
+import { DriveDesktopError } from '../../../../../src/context/shared/domain/errors/DriveDesktopError';
 import { File } from '../../../../../src/context/virtual-drive/files/domain/File';
 import {
   FileDataToPersist,
@@ -8,16 +10,23 @@ import {
 export class RemoteFileSystemMock implements RemoteFileSystem {
   public readonly persistMock = jest.fn();
   public readonly trashMock = jest.fn();
+  public readonly deleteMock = jest.fn();
   public readonly moveMock = jest.fn();
   public readonly renameMock = jest.fn();
   public readonly overrideMock = jest.fn();
 
-  persist(offline: FileDataToPersist): Promise<PersistedFileData> {
+  persist(
+    offline: FileDataToPersist
+  ): Promise<Either<DriveDesktopError, PersistedFileData>> {
     return this.persistMock(offline);
   }
 
   trash(contentsId: string): Promise<void> {
     return this.trashMock(contentsId);
+  }
+
+  delete(file: File): Promise<void> {
+    return this.deleteMock(file);
   }
 
   move(file: File): Promise<void> {

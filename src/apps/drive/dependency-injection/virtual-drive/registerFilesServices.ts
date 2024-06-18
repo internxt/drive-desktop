@@ -14,7 +14,7 @@ import { RemoteFileSystem } from '../../../../context/virtual-drive/files/domain
 import { SDKRemoteFileSystem } from '../../../../context/virtual-drive/files/infrastructure/SDKRemoteFileSystem';
 import { MainProcessSyncFileMessenger } from '../../../../context/virtual-drive/files/infrastructure/SyncFileMessengers/MainProcessSyncFileMessenger';
 import { DependencyInjectionMainProcessStorageSdk } from '../../../shared/dependency-injection/main/DependencyInjectionMainProcessStorageSdk';
-import { DependencyInjectionMainProcessUserProvider } from '../../../shared/dependency-injection/main/DependencyInjectionMainProcessUserProvider';
+import { DependencyInjectionUserProvider } from '../../../shared/dependency-injection/DependencyInjectionUserProvider';
 import { AuthorizedClients } from '../../../shared/HttpClient/Clients';
 import { FileRepository } from '../../../../context/virtual-drive/files/domain/FileRepository';
 import { InMemoryFileRepository } from '../../../../context/virtual-drive/files/infrastructure/InMemoryFileRepository';
@@ -35,7 +35,7 @@ export async function registerFilesServices(
     .asSingleton()
     .private();
 
-  const user = DependencyInjectionMainProcessUserProvider.get();
+  const user = DependencyInjectionUserProvider.get();
   const sdk = await DependencyInjectionMainProcessStorageSdk.get();
 
   builder.register(SyncFileMessenger).use(MainProcessSyncFileMessenger);

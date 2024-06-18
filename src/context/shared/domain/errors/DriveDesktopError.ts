@@ -1,7 +1,7 @@
-import { SyncErrorCause } from '../../../../shared/issues/SyncErrorCause';
+import { SyncError } from '../../../../shared/issues/SyncErrorCause';
 
 export class DriveDesktopError extends Error {
-  constructor(public readonly syncErrorCause: SyncErrorCause, message: string) {
+  constructor(public readonly cause: SyncError, message?: string) {
     super(message);
   }
 }

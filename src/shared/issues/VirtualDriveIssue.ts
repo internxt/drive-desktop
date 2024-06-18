@@ -1,4 +1,4 @@
-import { SyncErrorCause } from './SyncErrorCause';
+import { SyncError } from './SyncErrorCause';
 import {
   VirtualDriveError,
   VirtualDriveFileError,
@@ -7,17 +7,17 @@ import {
 
 export type VirtualDriveFolderIssue = {
   error: VirtualDriveFolderError;
-  cause: SyncErrorCause;
+  cause: SyncError;
   name: string;
 };
 export type VirtualDriveFileIssue = {
   error: VirtualDriveFileError;
-  cause: SyncErrorCause;
+  cause: SyncError;
   name: string;
 };
 
 export type VirtualDriveIssue = {
   error: VirtualDriveError;
-  cause: SyncErrorCause;
+  cause: SyncError;
   name: string;
 };

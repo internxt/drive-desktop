@@ -58,7 +58,7 @@ export class FileTrasher {
       Logger.error('[File Deleter]', message);
 
       const cause =
-        error instanceof DriveDesktopError ? error.syncErrorCause : 'UNKNOWN';
+        error instanceof DriveDesktopError ? error.cause : 'UNKNOWN';
 
       await this.notifier.issues({
         error: 'DELETE_ERROR',

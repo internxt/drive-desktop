@@ -15,6 +15,7 @@ export const fieldsToSave = [
   'deviceId',
   'backupList',
   'nautilusExtensionVersion',
+  'discoveredBackup',
 ] as const;
 
 export interface AppStore {
@@ -40,6 +41,7 @@ export interface AppStore {
   preferedTheme?: string;
   virtualdriveWindowsLetter: string;
   nautilusExtensionVersion: number;
+  discoveredBackup: number;
 }
 
 const schema: Schema<AppStore> = {
@@ -107,6 +109,7 @@ const schema: Schema<AppStore> = {
     type: 'string',
   },
   nautilusExtensionVersion: { type: 'number' },
+  discoveredBackup: { type: 'number' },
 } as const;
 
 export const defaults: AppStore = {
@@ -132,6 +135,7 @@ export const defaults: AppStore = {
   preferedTheme: 'system',
   virtualdriveWindowsLetter: 'I',
   nautilusExtensionVersion: 0,
+  discoveredBackup: 0,
 };
 
 const configStore = new Store({ schema, defaults });

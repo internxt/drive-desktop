@@ -6,7 +6,7 @@ import {
   ServerFolderStatus,
   ServerFolder,
 } from '../../../../../src/context/shared/domain/ServerFolder';
-import { Traverser } from '../../../../../src/context/virtual-drive/tree/application/Traverser';
+import { Traverser } from '../../../../../src/context/virtual-drive/remoteTree/application/Traverser';
 import { UuidMother } from '../../../shared/domain/UuidMother';
 import { BucketEntryIdMother } from '../../shared/domain/BucketEntryIdMother';
 import { FakeNameDecrypt } from '../infrastructure/FakeNameDecrypt';
@@ -31,12 +31,11 @@ describe('Traverser', () => {
     };
     const SUT = new Traverser(
       nameDecrypt,
-      baseFolderId,
       [ServerFileStatus.EXISTS, ServerFileStatus.TRASHED],
       [ServerFolderStatus.EXISTS]
     );
 
-    const tree = SUT.run(rawTree);
+    const tree = SUT.run(baseFolderId, rawTree);
 
     expect(tree.filePaths).toEqual(['/file A']);
     expect(tree.folderPaths).toEqual(['/']);
@@ -67,12 +66,11 @@ describe('Traverser', () => {
     };
     const SUT = new Traverser(
       nameDecrypt,
-      baseFolderId,
       [ServerFileStatus.EXISTS, ServerFileStatus.TRASHED],
       [ServerFolderStatus.EXISTS]
     );
 
-    const tree = SUT.run(rawTree);
+    const tree = SUT.run(baseFolderId, rawTree);
 
     expect(tree.filePaths).toEqual(['/folder A/file A']);
     expect(tree.folderPaths).toEqual(['/', '/folder A']);
@@ -94,12 +92,11 @@ describe('Traverser', () => {
     };
     const SUT = new Traverser(
       nameDecrypt,
-      baseFolderId,
       [ServerFileStatus.EXISTS, ServerFileStatus.TRASHED],
       [ServerFolderStatus.EXISTS]
     );
 
-    const tree = SUT.run(rawTree);
+    const tree = SUT.run(baseFolderId, rawTree);
 
     expect(tree.folderPaths).toEqual(['/', '/folder A']);
   });
@@ -127,12 +124,11 @@ describe('Traverser', () => {
     };
     const SUT = new Traverser(
       nameDecrypt,
-      baseFolderId,
       [ServerFileStatus.EXISTS, ServerFileStatus.TRASHED],
       [ServerFolderStatus.EXISTS]
     );
 
-    const tree = SUT.run(rawTree);
+    const tree = SUT.run(baseFolderId, rawTree);
 
     expect(tree.folderPaths).toEqual(['/', '/folder A', '/folder A/folder B']);
   });
@@ -160,12 +156,11 @@ describe('Traverser', () => {
     };
     const SUT = new Traverser(
       nameDecrypt,
-      baseFolderId,
       [ServerFileStatus.EXISTS, ServerFileStatus.TRASHED],
       [ServerFolderStatus.EXISTS]
     );
 
-    const tree = SUT.run(rawTree);
+    const tree = SUT.run(baseFolderId, rawTree);
 
     expect(tree.folderPaths).toEqual(['/', '/folder A', '/folder A/folder B']);
   });
@@ -203,12 +198,11 @@ describe('Traverser', () => {
     };
     const SUT = new Traverser(
       nameDecrypt,
-      baseFolderId,
       [ServerFileStatus.EXISTS, ServerFileStatus.TRASHED],
       [ServerFolderStatus.EXISTS]
     );
 
-    const tree = SUT.run(rawTree);
+    const tree = SUT.run(baseFolderId, rawTree);
 
     expect(tree.filePaths).toEqual(['/valid_name']);
   });
@@ -230,12 +224,11 @@ describe('Traverser', () => {
     };
     const SUT = new Traverser(
       nameDecrypt,
-      baseFolderId,
       [ServerFileStatus.EXISTS, ServerFileStatus.TRASHED],
       [ServerFolderStatus.EXISTS]
     );
 
-    const tree = SUT.run(rawTree);
+    const tree = SUT.run(baseFolderId, rawTree);
 
     expect(tree.filePaths).toEqual([]);
     expect(tree.folderPaths).toEqual(['/', '/folder A']);
@@ -266,12 +259,11 @@ describe('Traverser', () => {
     };
     const SUT = new Traverser(
       nameDecrypt,
-      baseFolderId,
       [ServerFileStatus.EXISTS, ServerFileStatus.TRASHED],
       [ServerFolderStatus.EXISTS]
     );
 
-    const tree = SUT.run(rawTree);
+    const tree = SUT.run(baseFolderId, rawTree);
 
     expect(tree.filePaths).toEqual(['/file A']);
     expect(tree.folderPaths).toEqual(['/']);
@@ -302,12 +294,11 @@ describe('Traverser', () => {
     };
     const SUT = new Traverser(
       nameDecrypt,
-      baseFolderId,
       [ServerFileStatus.EXISTS, ServerFileStatus.TRASHED],
       [ServerFolderStatus.EXISTS]
     );
 
-    const tree = SUT.run(rawTree);
+    const tree = SUT.run(baseFolderId, rawTree);
 
     expect(tree.filePaths).toEqual(['/file A']);
     expect(tree.folderPaths).toEqual(['/']);

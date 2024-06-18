@@ -5,7 +5,7 @@ import { Either, left, right } from '../../../../context/shared/domain/Either';
 import { FolderStatuses } from '../../../../context/virtual-drive/folders/domain/FolderStatus';
 import { Folder } from '../../../../context/virtual-drive/folders/domain/Folder';
 import { DriveDesktopError } from '../../../../context/shared/domain/errors/DriveDesktopError';
-import { SyncErrorCause } from '../../../../shared/issues/SyncErrorCause';
+import { SyncError } from '../../../../shared/issues/SyncErrorCause';
 import { Container } from 'diod';
 import { SyncFileMessenger } from '../../../../context/virtual-drive/files/domain/SyncFileMessenger';
 import { FolderDeleter } from '../../../../context/virtual-drive/folders/application/FolderDeleter';
@@ -26,8 +26,8 @@ export class RenameMoveOrTrashFolder {
       await this.container.get(FolderDeleter).run(folder.uuid);
       return undefined;
     } catch (trowed: unknown) {
-      const cause: SyncErrorCause =
-        trowed instanceof DriveDesktopError ? trowed.syncErrorCause : 'UNKNOWN';
+      const cause: SyncError =
+        trowed instanceof DriveDesktopError ? trowed.cause : 'UNKNOWN';
 
       await this.container.get(SyncFileMessenger).issues({
         error: 'DELETE_ERROR',

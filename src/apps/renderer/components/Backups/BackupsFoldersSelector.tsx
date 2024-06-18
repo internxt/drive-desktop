@@ -89,19 +89,6 @@ export const BackupsFoldersSelector: React.FC<BackupsFoldersSelectorProps> = (
   };
   const handleOnCompleted = () => props.onFinish(backupFolders);
 
-  const getBackupFoldersCount = () => {
-    if (!backupFolders.length || backupFolders.length > 1)
-      return translate('settings.backups.selected-folders', {
-        count: backupFolders.length,
-      });
-
-    if (backupFolders.length === 1)
-      return translate('settings.backups.selected-folder', {
-        count: backupFolders.length,
-      });
-
-    return '';
-  };
   const renderBackupFolders = () => {
     return backupFolders.map((backupFolder, index) => {
       const isSelected = !!selectedBackupFolders.find(
@@ -143,7 +130,11 @@ export const BackupsFoldersSelector: React.FC<BackupsFoldersSelectorProps> = (
           <h1 className="font-medium text-gray-80">
             {translate('settings.backups.title')}
           </h1>
-          <h4 className="text-gray-50">{getBackupFoldersCount()}</h4>
+          <h4 className="text-gray-50">
+            {translate('settings.backups.selected-folders', {
+              count: backupFolders.length,
+            })}
+          </h4>
         </div>
         <div className="my-3 flex w-full flex-1 overflow-hidden rounded-lg border border-gray-30">
           {backupFolders.length === 0 ? (

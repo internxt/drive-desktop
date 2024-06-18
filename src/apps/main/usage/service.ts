@@ -1,6 +1,6 @@
 import { Storage } from '@internxt/sdk/dist/drive';
 import PhotosSubmodule from '@internxt/sdk/dist/photos/photos';
-import { Usage } from './Usage';
+import { RawUsage, Usage } from './Usage';
 const INFINITE_SPACE_TRHESHOLD = 108851651149824 as const;
 const OFFER_UPGRADE_TRHESHOLD = 2199023255552 as const;
 
@@ -39,6 +39,20 @@ export class UserUsageService {
       limitInBytes,
       isInfinite: limitInBytes >= INFINITE_SPACE_TRHESHOLD,
       offerUpgrade: limitInBytes < OFFER_UPGRADE_TRHESHOLD,
+    };
+  }
+
+  async raw(): Promise<RawUsage> {
+    const [driveUsage, photosUsage, limitInBytes] = await Promise.all([
+      this.getDriveUsage(),
+      this.getPhotosUsage(),
+      this.getLimit(),
+    ]);
+
+    return {
+      driveUsage,
+      photosUsage,
+      limitInBytes,
     };
   }
 }

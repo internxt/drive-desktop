@@ -9,6 +9,11 @@ import {
   resyncRemoteSync,
   startRemoteSync,
 } from './service';
+import { MainProcessSyncEngineIPC } from '../MainProcessSyncEngineIPC';
+
+MainProcessSyncEngineIPC.handle('remote-sync-manager.refresh', async () => {
+  await startRemoteSync();
+});
 
 ipcMain.handle('GET_UPDATED_REMOTE_ITEMS', async () => {
   Logger.debug('[MAIN] Getting updated remote items');

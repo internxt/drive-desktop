@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import WindowTopBar from '../../components/WindowTopBar';
 import { useTranslationContext } from '../../context/LocalContext';
-import useBackupFatalErrors from '../../hooks/BackupFatalErrors';
+import useBackupErrors from '../../hooks/backups/useBackupErrors';
 import useGeneralIssues from '../../hooks/GeneralIssues';
 import useVirtualDriveIssues from '../../hooks/ProcessIssues';
 import IssuesAccordions from './IssuesAccordions';
@@ -11,21 +11,28 @@ import { Section } from './Section';
 export default function IssuesPage() {
   const { translate } = useTranslationContext();
   const virtualDriveIssues = useVirtualDriveIssues();
-  const appIssues = useGeneralIssues();
-  const { backupFatalErrors } = useBackupFatalErrors();
+  const { generalIssues } = useGeneralIssues();
+  const { backupErrors } = useBackupErrors();
 
   const [activeSection, setActiveSection] = useState<Section>('virtualDrive');
 
   useEffect(() => {
-    if (activeSection === 'virtualDrive' && appIssues.length > 0) {
+    if (generalIssues.length) {
       setActiveSection('app');
-    } else if (
-      backupFatalErrors.length === 0 &&
-      virtualDriveIssues.length > 0
-    ) {
-      setActiveSection('virtualDrive');
+      return;
     }
-  }, [virtualDriveIssues, appIssues]);
+    if (virtualDriveIssues.length) {
+      setActiveSection('virtualDrive');
+      return;
+    }
+
+    if (backupErrors.length) {
+      setActiveSection('virtualDrive');
+      return;
+    }
+
+    setActiveSection('app');
+  }, [virtualDriveIssues, generalIssues, backupErrors]);
 
   return (
     <div className="flex h-screen flex-col overflow-hidden">
@@ -37,7 +44,11 @@ export default function IssuesPage() {
 
       <IssuesAccordions
         selectedTab={activeSection}
-        issues={{ app: appIssues, virtualDrive: virtualDriveIssues }}
+        issues={{
+          app: generalIssues,
+          virtualDrive: virtualDriveIssues,
+          backups: backupErrors,
+        }}
       />
     </div>
   );

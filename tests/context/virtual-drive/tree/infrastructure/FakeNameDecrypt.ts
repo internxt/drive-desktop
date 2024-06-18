@@ -1,4 +1,4 @@
-import { NameDecrypt } from '../../../../../src/context/virtual-drive/tree/domain/NameDecrypt';
+import { NameDecrypt } from '../../../../../src/context/virtual-drive/remoteTree/domain/NameDecrypt';
 
 export class FakeNameDecrypt implements NameDecrypt {
   decryptName(

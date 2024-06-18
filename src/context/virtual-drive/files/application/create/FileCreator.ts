@@ -49,13 +49,18 @@ export class FileCreator {
       const folder = await this.parentFolderFinder.run(filePath);
       const fileFolderId = new FileFolderId(folder.id);
 
-      const { modificationTime, id, uuid, createdAt } =
-        await this.remote.persist({
-          contentsId: fileContentsId,
-          path: filePath,
-          size: fileSize,
-          folderId: fileFolderId,
-        });
+      const either = await this.remote.persist({
+        contentsId: fileContentsId,
+        path: filePath,
+        size: fileSize,
+        folderId: fileFolderId,
+      });
+
+      if (either.isLeft()) {
+        throw either.getLeft();
+      }
+
+      const { modificationTime, id, uuid, createdAt } = either.getRight();
 
       const file = File.create({
         id,
@@ -80,7 +85,7 @@ export class FileCreator {
       Logger.error(`[File Creator] ${path}`, message);
 
       const cause =
-        error instanceof DriveDesktopError ? error.syncErrorCause : 'UNKNOWN';
+        error instanceof DriveDesktopError ? error.cause : 'UNKNOWN';
 
       await this.notifier.issues({
         error: 'UPLOAD_ERROR',

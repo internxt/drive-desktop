@@ -17,11 +17,11 @@ import { TemporalFileRepository } from '../../../../context/storage/TemporalFile
 import { TemporalFileUploaderFactory } from '../../../../context/storage/TemporalFiles/domain/upload/TemporalFileUploaderFactory';
 import { NodeTemporalFileRepository } from '../../../../context/storage/TemporalFiles/infrastructure/NodeTemporalFileRepository';
 import { EnvironmentTemporalFileUploaderFactory } from '../../../../context/storage/TemporalFiles/infrastructure/upload/EnvironmentTemporalFileUploaderFactory';
-import { DependencyInjectionMainProcessUserProvider } from '../../../shared/dependency-injection/main/DependencyInjectionMainProcessUserProvider';
+import { DependencyInjectionUserProvider } from '../../../shared/dependency-injection/DependencyInjectionUserProvider';
 
 export async function registerTemporalFilesServices(builder: ContainerBuilder) {
   // Infra
-  const user = DependencyInjectionMainProcessUserProvider.get();
+  const user = DependencyInjectionUserProvider.get();
 
   const temporal = app.getPath('temp');
   const write = path.join(temporal, 'internxt-drive-tmp');

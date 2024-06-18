@@ -15,9 +15,7 @@ export class CachedHttpUserUsageRepository implements UserUsageRepository {
   ) {}
 
   private async getDriveUsage(): Promise<number> {
-    const response = await this.driveClient.get(
-      `${process.env.API_URL}/api/usage`
-    );
+    const response = await this.driveClient.get(`${process.env.API_URL}/usage`);
 
     if (response.status !== 200) {
       throw new Error('Error retrieving drive usage');
@@ -28,7 +26,7 @@ export class CachedHttpUserUsageRepository implements UserUsageRepository {
 
   private async getLimit(): Promise<number> {
     const response = await this.driveClient.get<UserUsageLimitDTO>(
-      `${process.env.API_URL}/api/limit`
+      `${process.env.API_URL}/limit`
     );
 
     if (response.status !== 200) {

@@ -16,7 +16,7 @@ import { EnvironmentFileDownloaderHandlerFactory } from '../../../../context/sto
 import { InMemoryStorageFileCache } from '../../../../context/storage/StorageFiles/infrastructure/persistance/cache/InMemoryStorageFileCache';
 import { TypeOrmAndNodeFsStorageFilesRepository } from '../../../../context/storage/StorageFiles/infrastructure/persistance/repository/typeorm/TypeOrmAndNodeFsStorageFilesRepository';
 import { TypeOrmStorageFilesDataSourceFactory } from '../../../../context/storage/StorageFiles/infrastructure/persistance/repository/typeorm/TypeOrmStorageFilesDataSourceFactory';
-import { DependencyInjectionMainProcessUserProvider } from '../../../shared/dependency-injection/main/DependencyInjectionMainProcessUserProvider';
+import { DependencyInjectionUserProvider } from '../../../shared/dependency-injection/DependencyInjectionUserProvider';
 import { CacheStorageFile } from '../../../../context/storage/StorageFiles/application/offline/CacheStorageFile';
 
 export async function registerStorageFilesServices(
@@ -27,7 +27,7 @@ export async function registerStorageFilesServices(
   const appData = app.getPath('appData');
   const local = path.join(appData, 'internxt-drive', 'downloaded');
 
-  const user = DependencyInjectionMainProcessUserProvider.get();
+  const user = DependencyInjectionUserProvider.get();
 
   const dataSource = await TypeOrmStorageFilesDataSourceFactory.create();
 

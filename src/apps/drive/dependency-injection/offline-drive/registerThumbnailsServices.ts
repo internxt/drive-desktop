@@ -9,10 +9,10 @@ import { EnvironmentThumbnailDownloader } from '../../../../context/storage/thum
 import { RemoteThumbnailsRepository } from '../../../../context/storage/thumbnails/infrastructrue/remote/RemoteThumbnailsRepository';
 import { RelativePathToAbsoluteConverter } from '../../../../context/virtual-drive/shared/application/RelativePathToAbsoluteConverter';
 import { AuthorizedClients } from '../../../shared/HttpClient/Clients';
-import { DependencyInjectionMainProcessUserProvider } from '../../../shared/dependency-injection/main/DependencyInjectionMainProcessUserProvider';
+import { DependencyInjectionUserProvider } from '../../../shared/dependency-injection/DependencyInjectionUserProvider';
 
 export async function registerThumbnailsServices(builder: ContainerBuilder) {
-  const user = DependencyInjectionMainProcessUserProvider.get();
+  const user = DependencyInjectionUserProvider.get();
 
   builder.register(EnvironmentThumbnailDownloader).useFactory((c) => {
     return new EnvironmentThumbnailDownloader(

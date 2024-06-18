@@ -1,5 +1,5 @@
 import { InvalidArgumentError } from '../../../../../src/context/shared/domain/errors/InvalidArgumentError';
-import { FolderCreator } from '../../../../../src/context/virtual-drive/folders/application/FolderCreator';
+import { FolderCreator } from '../../../../../src/context/virtual-drive/folders/application/create/FolderCreator';
 import { ParentFolderFinder } from '../../../../../src/context/virtual-drive/folders/application/ParentFolderFinder';
 import { FolderStatuses } from '../../../../../src/context/virtual-drive/folders/domain/FolderStatus';
 import { FolderInPathAlreadyExistsError } from '../../../../../src/context/virtual-drive/folders/domain/errors/FolderInPathAlreadyExistsError';

@@ -15,7 +15,6 @@ export function Accordion({ title, collapsed, elements }: AccordionProps) {
     <>
       <div className="flex space-x-2.5">
         <WarnIcon className="h-5 w-5" />
-
         <div className="flex grow flex-col space-y-1">
           <h1
             className="flex flex-1 flex-col text-base font-medium leading-5 text-gray-100"
@@ -28,7 +27,6 @@ export function Accordion({ title, collapsed, elements }: AccordionProps) {
             {elements.length} files
           </p>
         </div>
-
         <div className="flex items-center">
           <CaretDown
             className={`transform transition-all duration-200 ${

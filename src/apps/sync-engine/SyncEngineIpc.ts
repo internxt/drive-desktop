@@ -1,4 +1,4 @@
-import { TypedIPC } from '../shared/IPC/IPCs';
+import { TypedIPC } from '../shared/IPC/TypedIPC';
 import { BackgroundProcessVirtualDriveEvents } from '../shared/IPC/events/virtualDrive/BackgroundProcessVirtualDriveEvents';
 import { MainProcessVirtualDriveEvents } from '../shared/IPC/events/virtualDrive/MainProcessVirtualDriveEvents';
 import { ipcRenderer } from 'electron';

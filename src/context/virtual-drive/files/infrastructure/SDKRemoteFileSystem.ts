@@ -1,9 +1,12 @@
 import { Storage } from '@internxt/sdk/dist/drive/storage';
 import { EncryptionVersion } from '@internxt/sdk/dist/drive/storage/types';
+import { isAxiosError } from 'axios';
 import { Service } from 'diod';
 import Logger from 'electron-log';
 import * as uuid from 'uuid';
 import { AuthorizedClients } from '../../../../apps/shared/HttpClient/Clients';
+import { Either, left, right } from '../../../shared/domain/Either';
+import { DriveDesktopError } from '../../../shared/domain/errors/DriveDesktopError';
 import { Crypt } from '../../shared/domain/Crypt';
 import { File } from '../domain/File';
 import {
@@ -22,14 +25,23 @@ export class SDKRemoteFileSystem implements RemoteFileSystem {
     private readonly bucket: string
   ) {}
 
-  async persist(dataToPersists: FileDataToPersist): Promise<PersistedFileData> {
+  async persist(
+    dataToPersists: FileDataToPersist
+  ): Promise<Either<DriveDesktopError, PersistedFileData>> {
+    const plainName = dataToPersists.path.name();
+
     const encryptedName = this.crypt.encryptName(
-      dataToPersists.path.name(),
-      dataToPersists.folderId.toString()
+      plainName,
+      dataToPersists.folderId.value.toString()
     );
 
     if (!encryptedName) {
-      throw new Error('Failed to encrypt name');
+      return left(
+        new DriveDesktopError(
+          'COULD_NOT_ENCRYPT_NAME',
+          `Could not encrypt the file name: ${plainName} with salt: ${dataToPersists.folderId.value.toString()}`
+        )
+      );
     }
 
     const body: CreateFileDTO = {
@@ -39,26 +51,70 @@ export class SDKRemoteFileSystem implements RemoteFileSystem {
         type: dataToPersists.path.extension(),
         size: dataToPersists.size.value,
         name: encryptedName,
-        plain_name: dataToPersists.path.name(),
+        plain_name: plainName,
         bucket: this.bucket,
         folder_id: dataToPersists.folderId.value,
         encrypt_version: EncryptionVersion.Aes03,
       },
     };
 
-    const { data } = await this.clients.drive.post(
-      `${process.env.API_URL}/api/storage/file`,
-      body
-    );
+    try {
+      const { data } = await this.clients.drive.post(
+        `${process.env.API_URL}/storage/file`,
+        body
+      );
 
-    const result: PersistedFileData = {
-      modificationTime: data.updatedAt,
-      id: data.id,
-      uuid: data.uuid,
-      createdAt: data.createdAt,
-    };
+      const result: PersistedFileData = {
+        modificationTime: data.updatedAt,
+        id: data.id,
+        uuid: data.uuid,
+        createdAt: data.createdAt,
+      };
 
-    return result;
+      return right(result);
+    } catch (err: unknown) {
+      if (!isAxiosError(err) || !err.response) {
+        return left(
+          new DriveDesktopError('UNKNOWN', `Creating file ${plainName}: ${err}`)
+        );
+      }
+
+      const { status } = err.response;
+
+      if (status === 400) {
+        return left(
+          new DriveDesktopError(
+            'BAD_REQUEST',
+            `Some data was not valid for ${plainName}: ${body.file}`
+          )
+        );
+      }
+
+      if (status === 409) {
+        return left(
+          new DriveDesktopError(
+            'FILE_ALREADY_EXISTS',
+            `File with name ${plainName} on ${dataToPersists.folderId.value} already exists`
+          )
+        );
+      }
+
+      if (status >= 500) {
+        return left(
+          new DriveDesktopError(
+            'BAD_RESPONSE',
+            `The server could not handle the creation of ${plainName}: ${body.file}`
+          )
+        );
+      }
+
+      return left(
+        new DriveDesktopError(
+          'UNKNOWN',
+          `Response with status ${status} not expected`
+        )
+      );
+    }
   }
 
   async trash(contentsId: string): Promise<void> {
@@ -78,6 +134,10 @@ export class SDKRemoteFileSystem implements RemoteFileSystem {
 
       throw new Error('Error when deleting file');
     }
+  }
+
+  async delete(file: File): Promise<void> {
+    await this.trash(file.contentsId);
   }
 
   async rename(file: File): Promise<void> {

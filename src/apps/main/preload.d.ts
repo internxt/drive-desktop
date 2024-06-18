@@ -103,6 +103,30 @@ declare interface Window {
 
     stopBackupsProcess(): void;
 
+    getBackupsStatus(): Promise<
+      import('./background-processes/backups/BackupsProcessStatus/BackupsStatus').BackupsStatus
+    >;
+
+    getBackupFatalIssue(
+      id: number
+    ): Promise<import('../../shared/issues/SyncErrorCause').SyncError>;
+
+    onBackupsStatusChanged(
+      func: (
+        value: import('./background-processes/backups/BackupsProcessStatus/BackupsStatus').BackupsStatus
+      ) => void
+    ): () => void;
+
+    onBackupProgress(
+      func: (
+        value: import('./background-processes/backups/types/BackupsProgress').BackupsProgress
+      ) => void
+    ): () => void;
+
+    getBackupFatalErrors(): Promise<
+      import('../main/background-processes/backups/BackupFatalErrors/BackupFatalErrors').BackupErrorsCollection
+    >;
+
     getVirtualDriveRoot(): Promise<string>;
 
     chooseSyncRootWithDialog: typeof import('./virtual-root-folder/service').chooseSyncRootWithDialog;
@@ -112,6 +136,10 @@ declare interface Window {
     getOrCreateDevice: typeof import('../main/device/service').getOrCreateDevice;
 
     renameDevice: typeof import('../main/device/service').renameDevice;
+
+    devices: {
+      getDevices: () => Promise<Array<import('../main/device/service').Device>>;
+    };
 
     getBackups: typeof import('../main/device/service').getBackupsFromDevice;
 
@@ -129,7 +157,17 @@ declare interface Window {
 
     getLastBackupTimestamp: () => Promise<number>;
 
+    getLastBackupExitReason: () => Promise<
+      import('../main/background-processes/backups/BackupsProcessTracker/BackupsProcessTracker').WorkerExitCause
+    >;
+
     deleteBackupError(folderId: number): Promise<void>;
+
+    onBackupFatalErrorsChanged(
+      fn: (
+        value: import('../main/background-processes/backups/BackupFatalErrors/BackupFatalErrors').BackupErrorsCollection
+      ) => void
+    ): () => void;
 
     changeBackupPath: typeof import('../main/device/service').changeBackupPath;
 
@@ -169,5 +207,9 @@ declare interface Window {
     startRemoteSync: () => Promise<void>;
     openUrl: (url: string) => Promise<void>;
     getPreferredAppLanguage: () => Promise<Array<string>>;
+    user: {
+      hasDiscoveredBackups: () => Promise<boolean>;
+      discoveredBackups: () => Promise<void>;
+    };
   };
 }

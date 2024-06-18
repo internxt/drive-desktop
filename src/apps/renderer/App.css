@@ -6,15 +6,15 @@
 
 :root {
   color-scheme: light dark;
-  
-	--color-white: 255 255 255;
-	--color-black: 0 0 0;
+
+  --color-white: 255 255 255;
+  --color-black: 0 0 0;
 }
 
 @media (prefers-color-scheme: light) {
-	:root {
+  :root {
     --color-highlight: 17 17 17;
-	  --color-surface: 255 255 255;
+    --color-surface: 255 255 255;
 
     --color-gray-1: 249 249 252;
     --color-gray-5: 243 243 248;
@@ -47,7 +47,7 @@
 }
 
 @media (prefers-color-scheme: dark) {
-	:root {
+  :root {
     --color-highlight: 255 255 255;
     --color-surface: 17 17 17;
 
@@ -84,12 +84,45 @@
 body,
 html {
   font-family: 'Instrument Sans', sans-serif;
-  @apply text-highlight bg-surface dark:bg-gray-1 select-none;
+  @apply select-none bg-surface text-highlight dark:bg-gray-1;
 }
 
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
+/* begin-scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+@media (prefers-color-scheme: dark) {
+  ::-webkit-scrollbar-track {
+    background: #555;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #888;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #f1f1f1;
+  }
+}
+/* end-scrollbar */
 
 .draggable {
   -webkit-user-select: none;
