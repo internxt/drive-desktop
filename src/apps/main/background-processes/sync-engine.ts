@@ -55,7 +55,7 @@ function scheduleHeathCheck() {
   const relaunchOnFail = () =>
     healthCheck()
       .then(() => {
-        // Logger.debug('Health check succeeded');
+        Logger.debug('Health check succeeded');
       })
       .catch(() => {
         const warning = 'Health check failed, relaunching the worker';

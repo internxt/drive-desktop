@@ -23,6 +23,14 @@ ipcMainDrive.on('FILE_DOWNLOADING', (_, payload) => {
   });
 });
 
+ipcMainDrive.on('SYNCING', () => {
+  setIsProcessing(true);
+});
+
+ipcMainDrive.on('SYNCED', () => {
+  setIsProcessing(true);
+});
+
 ipcMainDrive.on('FILE_PREPARING', (_, payload) => {
   const { nameWithExtension, processInfo } = payload;
   setIsProcessing(true);

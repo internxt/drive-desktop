@@ -137,6 +137,8 @@ export type ProcessInfoUpdate = {
     key: string;
     additionalData: Record<string, any>;
   }) => void;
+  SYNCING: () => void;
+  SYNCED: () => void;
 };
 
 export type FromProcess = FilesEvents &

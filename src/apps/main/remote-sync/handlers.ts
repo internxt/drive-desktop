@@ -111,6 +111,9 @@ export async function startRemoteSync(folderId?: number): Promise<void> {
       await Promise.all(
         folders.map(async (folder) => await startRemoteSync(folder.id))
       );
+      // for (const folder of folders) {
+      //   await startRemoteSync(folder.id);
+      // }
     }
     Logger.info('Remote sync finished');
     return;
@@ -146,6 +149,7 @@ export async function updateRemoteSync(): Promise<void> {
 }
 export async function fallbackRemoteSync(): Promise<void> {
   await sleep(2_000);
+  Logger.info('Fallback remote sync');
   fallbackSyncEngine();
 }
 
@@ -205,7 +209,7 @@ eventBus.on('USER_LOGGED_IN', async () => {
   // });
   try {
     const userData = configStore.get('userData');
-    await startRemoteSync();
+    await startRemoteSync(userData?.root_folder_id);
     // traverse de esto
   } catch (error) {
     Logger.error('Error starting remote sync manager', error);

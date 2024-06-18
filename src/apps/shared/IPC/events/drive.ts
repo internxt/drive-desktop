@@ -69,6 +69,11 @@ type MoveEvents = {
   }) => void;
 };
 
+type SyncEvents = {
+  SYNCING: () => void;
+  SYNCED: () => void;
+};
+
 type CloneEvents = {
   FILE_CLONNED: (payload: FileProgressInfo) => void;
 };
@@ -79,6 +84,7 @@ type FileEvents = UploadEvents &
   RenameEvents &
   OverwriteEvents &
   MoveEvents &
-  CloneEvents;
+  CloneEvents &
+  SyncEvents;
 
 export type DriveEvents = FolderEvents & FileEvents;

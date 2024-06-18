@@ -425,12 +425,13 @@ export class BindingsManager {
   async polling(): Promise<void> {
     try {
       Logger.info('[SYNC ENGINE] Monitoring polling...');
-
+      ipcRendererSyncEngine.send('SYNCING');
       const fileInPendingPaths =
         (await this.container.virtualDrive.getPlaceholderWithStatePending()) as Array<string>;
       Logger.info('[SYNC ENGINE] fileInPendingPaths', fileInPendingPaths);
 
       await this.container.fileSyncOrchestrator.run(fileInPendingPaths);
+      ipcRendererSyncEngine.send('SYNCED');
       ipcRenderer.send('CHECK_SYNC');
     } catch (error) {
       Logger.error('[SYNC ENGINE] Polling', error);
