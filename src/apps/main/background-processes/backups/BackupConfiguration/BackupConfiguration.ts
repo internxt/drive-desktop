@@ -62,11 +62,9 @@ class BackupConfiguration {
   }
 
   hasDiscoveredBackups(): boolean {
-    const when = configStore.get('discoveredBackup');
+    const discoveredBackup = configStore.get('discoveredBackup');
 
-    if (when <= 0) return false;
-
-    return this.enabled;
+    return discoveredBackup > 0;
   }
 
   backupsDiscovered(): void {

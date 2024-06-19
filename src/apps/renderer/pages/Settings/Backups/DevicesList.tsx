@@ -69,7 +69,7 @@ export function DevicesList({ className }: DevicesSideBarProps) {
     <aside className={className}>
       <div className="flex grow-0 flex-col">
         <h1 className="bg-gray-1">Devices</h1>
-        <ScrollableContent maxHeight={409} className="-mr-3">
+        <ScrollableContent height={409} maxHeight={409} className="-mr-3">
           <ul>
             {current && (
               <li>

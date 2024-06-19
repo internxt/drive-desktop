@@ -10,11 +10,8 @@ import useGeneralIssues from '../../hooks/GeneralIssues';
 import useVirtualDriveIssues from '../../hooks/ProcessIssues';
 import useUsage from '../../hooks/useUsage';
 import { reportError } from '../../utils/errors';
-import { FuseDriveStatus } from '../../../drive/fuse/FuseDriveStatus';
 
-export default function Header(props: {
-  virtualDriveStatus: FuseDriveStatus | undefined;
-}) {
+export default function Header() {
   const { translate } = useTranslationContext();
   const processIssues = useVirtualDriveIssues();
   const { generalIssues } = useGeneralIssues();
@@ -156,8 +153,7 @@ export default function Header(props: {
         <Globe size={22} />
       </HeaderItemWrapper>
       <HeaderItemWrapper
-        disabled={props.virtualDriveStatus !== 'MOUNTED'}
-        onClick={window.electron.openVirtualDriveFolder}
+        onClick={() => window.electron.openVirtualDriveFolder()}
       >
         <FolderSimple size={22} />
       </HeaderItemWrapper>

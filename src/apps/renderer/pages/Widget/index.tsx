@@ -27,7 +27,7 @@ export default function Widget() {
 
   return (
     <div className="flex h-screen flex-col overflow-hidden">
-      <Header virtualDriveStatus={virtualDriveStatus} />
+      <Header />
       <InfoBanners />
       {virtualDriveStatus === 'ERROR' ? (
         <VirtualDriveError />

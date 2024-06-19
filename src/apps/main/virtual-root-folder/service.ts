@@ -104,8 +104,10 @@ export async function openVirtualDriveRootFolder() {
     // shell.openPath is not working as intended with the mounted directory
     // this is only a workaround to fix it
     return new Promise<void>((resolve, reject) => {
-      exec(`xdg-open ${syncFolderPath} &`, (error) => {
-        if (error) reject(error);
+      exec(`xdg-open "${syncFolderPath}"`, (error) => {
+        if (error) {
+          reject(error);
+        }
 
         resolve();
       });

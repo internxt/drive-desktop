@@ -18,7 +18,7 @@ export default function BackupsSection({
   const [deviceState] = useContext(DeviceContext);
 
   return (
-    <div className={active ? 'block' : 'hidden'}>
+    <div className={`${active ? 'block' : 'hidden'} w-full`}>
       {deviceState.status === 'LOADING' && (
         <div className="flex h-32 items-center justify-center">
           <Spinner className=" fill-neutral-500 h-9 w-9 animate-spin" />

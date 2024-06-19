@@ -7,7 +7,7 @@ import { useTranslationContext } from '../../../../context/LocalContext';
 export function DiscoverBackups() {
   const { hasDiscovered, discover } = useDiscoverBackups();
 
-  if (!hasDiscovered) {
+  if (hasDiscovered) {
     return <></>;
   }
 
