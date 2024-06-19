@@ -101,6 +101,8 @@ export class BindingsManager {
         contentsId: string,
         callback: (response: boolean) => void
       ) => {
+        Logger.debug('Path received from rename callback', absolutePath);
+
         const fn = executeControllerWithFallback({
           handler: this.controllers.renameOrMove.execute.bind(
             this.controllers.renameOrMove
@@ -110,6 +112,13 @@ export class BindingsManager {
           ),
         });
         fn(absolutePath, contentsId, callback);
+        const isFolder = fs.lstatSync(absolutePath).isDirectory();
+
+        this.container.virtualDrive.updateSyncStatus(
+          absolutePath,
+          isFolder,
+          true
+        );
         ipcRenderer.send('CHECK_SYNC');
       },
       notifyFileAddedCallback: async (

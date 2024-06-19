@@ -141,19 +141,19 @@ export class RemoteSyncManager {
 
       const syncFilesPromise = this.config.syncFiles
         ? folderId
-          ? await this.syncRemoteFilesByFolder(syncOptions, folderId)
-          : await this.syncRemoteFiles(syncOptions)
+          ?  this.syncRemoteFilesByFolder(syncOptions, folderId)
+          :  this.syncRemoteFiles(syncOptions)
         : Promise.resolve();
 
       const syncFoldersPromise = this.config.syncFolders
         ? folderId
-          ? await this.syncRemoteFoldersByFolder(syncOptions, folderId)
-          : await this.syncRemoteFolders(syncOptions)
+          ?  this.syncRemoteFoldersByFolder(syncOptions, folderId)
+          :  this.syncRemoteFolders(syncOptions)
         : Promise.resolve();
 
       const [_files, folders] = await Promise.all([
-        syncFilesPromise,
-        syncFoldersPromise,
+        await syncFilesPromise,
+        await syncFoldersPromise,
       ]);
       return { files: _files, folders };
     } catch (error) {

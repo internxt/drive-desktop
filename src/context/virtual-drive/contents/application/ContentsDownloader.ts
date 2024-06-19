@@ -15,7 +15,7 @@ import { CallbackDownload } from '../../../../apps/sync-engine/BindingManager';
 
 export class ContentsDownloader {
   private readableDownloader: Readable | null;
-  private WAIT_TO_SEND_PROGRESS = 20000;
+  private WAIT_TO_SEND_PROGRESS = 1000;
   private progressAt: Date | null = null;
   constructor(
     private readonly managerFactory: ContentsManagersFactory,
