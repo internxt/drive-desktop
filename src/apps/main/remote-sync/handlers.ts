@@ -101,26 +101,32 @@ ipcMain.handle('GET_UPDATED_REMOTE_ITEMS_BY_FOLDER', async (folderId) => {
 // export async function startRemoteProgresiveSync(): Promise<void> {
 export async function startRemoteSync(folderId?: number): Promise<void> {
   try {
-    const { files: _files, folders } = await remoteSyncManager.startRemoteSync(
+    const { files, folders } = await remoteSyncManager.startRemoteSync(
       folderId
     );
     Logger.info('Remote sync started', folders?.length, 'folders');
-    Logger.info('Remote sync started', _files?.length, 'files');
+    Logger.info('Remote sync started', files?.length, 'files');
 
     if (folderId && folders && folders.length > 0) {
       await Promise.all(
-        folders.map(async (folder) => await startRemoteSync(folder.id))
+        folders.map(async (folder) => {
+          await sleep(100);
+          await startRemoteSync(folder.id);
+        })
       );
       // for (const folder of folders) {
       //   await startRemoteSync(folder.id);
       // }
     }
     Logger.info('Remote sync finished');
-    return;
   } catch (error) {
-    if (error instanceof Error) reportError(error);
+    if (error instanceof Error) {
+      Logger.error('Error during remote sync', error);
+      reportError(error);
+    }
   }
 }
+
 ipcMain.handle('START_REMOTE_SYNC', async () => {
   Logger.info('Received start remote sync event');
   await startRemoteSync();
