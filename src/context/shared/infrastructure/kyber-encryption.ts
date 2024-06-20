@@ -59,7 +59,7 @@ class KyberCrypto {
     }
 
     const { publicKey, privateKey } = await this.kem.keypair();
-    return { publicKey, privateKey };
+    return { publicKey, privateKey } as KyberKeys;
   }
 
   /**
