@@ -285,9 +285,7 @@ export class RemoteSyncManager {
     try {
       Logger.info(
         `Syncing files updated from ${
-          fileCheckpoint
-            ? fileCheckpoint.toISOString()
-            : '(no last date provided)'
+          fileCheckpoint ?? '(no last date provided)'
         }`
       );
 
