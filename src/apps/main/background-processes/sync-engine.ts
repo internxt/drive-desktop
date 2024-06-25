@@ -31,7 +31,7 @@ async function healthCheck() {
       resolve();
     });
 
-    const millisecondsToWait = 8_000;
+    const millisecondsToWait = 5_000;
 
     setTimeout(() => {
       reject(
@@ -71,7 +71,7 @@ function scheduleHeathCheck() {
         spawnSyncEngineWorker();
       });
 
-  healthCheckSchedule = nodeSchedule.scheduleJob('*/30 * * * * *', async () => {
+  healthCheckSchedule = nodeSchedule.scheduleJob('*/20 * * * * *', async () => {
     const workerIsPending = checkSyncEngineInProcess(15_000);
     Logger.debug(
       'Health check',

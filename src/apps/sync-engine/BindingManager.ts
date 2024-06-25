@@ -73,6 +73,7 @@ export class BindingsManager {
   }
 
   async start(version: string, providerId: string) {
+    await ipcRendererSyncEngine.send('SYNCING');
     await this.stop();
     await this.pollingStart();
 
@@ -275,6 +276,7 @@ export class BindingsManager {
     await this.container.virtualDrive.connectSyncRoot();
 
     await runner([this.load.bind(this), this.polling.bind(this)]);
+    await ipcRendererSyncEngine.send('SYNCED');
   }
 
   watch() {

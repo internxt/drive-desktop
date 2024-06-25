@@ -4,8 +4,7 @@ import {
   RemoteSyncedFolder,
   RemoteSyncedFile,
   SyncConfig,
-  SYNC_OFFSET_MS,
-  SIX_HOURS_IN_MILLISECONDS,
+  FIVETEEN_MINUTES_IN_MILLISECONDS,
   rewind,
   WAITING_AFTER_SYNCING_DEFAULT,
 } from './helpers';
@@ -16,9 +15,6 @@ import { Axios } from 'axios';
 import { DriveFolder } from '../database/entities/DriveFolder';
 import { DriveFile } from '../database/entities/DriveFile';
 import { Nullable } from '../../shared/types/Nullable';
-import configStore from '../config';
-import { result } from 'lodash';
-import { convertUTCToSpain } from '../../utils/date';
 
 export class RemoteSyncManager {
   private foldersSyncStatus: RemoteSyncStatus = 'IDLE';
@@ -141,14 +137,14 @@ export class RemoteSyncManager {
 
       const syncFilesPromise = this.config.syncFiles
         ? folderId
-          ?  this.syncRemoteFilesByFolder(syncOptions, folderId)
-          :  this.syncRemoteFiles(syncOptions)
+          ? this.syncRemoteFilesByFolder(syncOptions, folderId)
+          : this.syncRemoteFiles(syncOptions)
         : Promise.resolve();
 
       const syncFoldersPromise = this.config.syncFolders
         ? folderId
-          ?  this.syncRemoteFoldersByFolder(syncOptions, folderId)
-          :  this.syncRemoteFolders(syncOptions)
+          ? this.syncRemoteFoldersByFolder(syncOptions, folderId)
+          : this.syncRemoteFolders(syncOptions)
         : Promise.resolve();
 
       const [_files, folders] = await Promise.all([
@@ -264,7 +260,7 @@ export class RemoteSyncManager {
 
     const updatedAt = new Date(result.updatedAt);
 
-    return rewind(updatedAt, SIX_HOURS_IN_MILLISECONDS);
+    return rewind(updatedAt, FIVETEEN_MINUTES_IN_MILLISECONDS);
   }
 
   /**
@@ -422,75 +418,9 @@ export class RemoteSyncManager {
 
     const updatedAt = new Date(result.updatedAt);
 
-    return rewind(updatedAt, SIX_HOURS_IN_MILLISECONDS);
+    return rewind(updatedAt, FIVETEEN_MINUTES_IN_MILLISECONDS);
   }
 
-  /**
-   * Syncs all the remote folders and saves them into the local db
-   * @param syncConfig Config to execute the sync with
-   * @returns
-   */
-  // private async syncRemoteFolders(
-  //   syncConfig: SyncConfig,
-  //   from?: Date
-  // ): Promise<undefined | RemoteSyncedFolder[]> {
-  //   const lastFolderSyncAt = from ?? (await this.getLastFolderSyncAt());
-  //   try {
-  //     Logger.info(
-  //       `Syncing folders updated from ${
-  //         lastFolderSyncAt
-  //           ? lastFolderSyncAt?.toISOString()
-  //           : '(no last date provided)'
-  //       }`
-  //     );
-  //     const { hasMore, result } = await this.fetchFoldersFromRemote(
-  //       lastFolderSyncAt
-  //     );
-
-  //     let lastFolderSynced = null;
-
-  //     for (const remoteFolder of result) {
-  //       // eslint-disable-next-line no-await-in-loop
-  //       await this.createOrUpdateSyncedFolderEntry(remoteFolder);
-
-  //       this.totalFoldersSynced++;
-  //       lastFolderSynced = remoteFolder;
-  //     }
-
-  //     if (!hasMore) {
-  //       this.foldersSyncStatus = 'SYNCED';
-  //       this.checkRemoteSyncStatus();
-  //       return result;
-  //     }
-
-  //     Logger.info('Retrieving more folders for sync');
-  //     return await this.syncRemoteFolders(
-  //       {
-  //         retry: 1,
-  //         maxRetries: syncConfig.maxRetries,
-  //       },
-  //       lastFolderSynced ? new Date(lastFolderSynced.updatedAt) : undefined
-  //     );
-  //   } catch (error) {
-  //     Logger.error('Remote folders sync failed with error: ', error);
-  //     reportError(error as Error, {
-  //       lastFoldersSyncAt: lastFolderSyncAt
-  //         ? lastFolderSyncAt.toISOString()
-  //         : 'INITIAL_FOLDERS_SYNC',
-  //     });
-  //     if (syncConfig.retry >= syncConfig.maxRetries) {
-  //       // No more retries allowed,
-  //       this.foldersSyncStatus = 'SYNC_FAILED';
-  //       this.checkRemoteSyncStatus();
-  //       return;
-  //     }
-
-  //     return await this.syncRemoteFolders({
-  //       retry: syncConfig.retry + 1,
-  //       maxRetries: syncConfig.maxRetries,
-  //     });
-  //   }
-  // }
   private async syncRemoteFolders(
     syncConfig: SyncConfig,
     from?: Date
@@ -643,9 +573,7 @@ export class RemoteSyncManager {
       limit: this.config.fetchFilesLimitPerRequest,
       offset,
       status: 'ALL',
-      updatedAt: updatedAtCheckpoint
-        ? updatedAtCheckpoint.toISOString()
-        : undefined,
+      updatedAt: updatedAtCheckpoint ?? undefined,
     };
     const allFilesResponse = await this.fetchItems(params, 'files');
     if (allFilesResponse.status > 299) {
@@ -755,7 +683,7 @@ export class RemoteSyncManager {
       limit: number;
       offset: number;
       status: string;
-      updatedAt: string | undefined;
+      updatedAt: string | undefined | Date;
     },
     type: 'files' | 'folders'
   ) => {
@@ -778,7 +706,7 @@ export class RemoteSyncManager {
       limit: number;
       offset: number;
       status: string;
-      // updatedAt: string | undefined;
+      updatedAt: string | undefined;
     },
     folderId: number,
     type: 'files' | 'folders'
@@ -867,9 +795,7 @@ export class RemoteSyncManager {
       limit: this.config.fetchFilesLimitPerRequest,
       offset,
       status: 'ALL',
-      updatedAt: updatedAtCheckpoint
-        ? updatedAtCheckpoint.toISOString()
-        : undefined,
+      updatedAt: undefined,
     };
 
     const allFoldersResponse = await this.fetchItemsByFolder(

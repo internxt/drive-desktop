@@ -60,45 +60,17 @@ export async function getUpdatedRemoteItems() {
     throw error;
   }
 }
-export async function getUpdatedRemoteItemsByFolder(folderId: any) {
-  try {
-    const [allDriveFiles, allDriveFolders] = await Promise.all([
-      driveFilesCollection.getAll(),
-      driveFoldersCollection.getAll(),
-    ]);
-
-    if (!allDriveFiles.success)
-      throw new Error('Failed to retrieve all the drive files from local db');
-
-    if (!allDriveFolders.success)
-      throw new Error('Failed to retrieve all the drive folders from local db');
-    return {
-      files: allDriveFiles.result,
-      folders: allDriveFolders.result,
-    };
-  } catch (error) {
-    reportError(error as Error, {
-      description:
-        'Something failed when updating the local db pulling the new changes from remote',
-    });
-    throw error;
-  }
-}
 
 ipcMain.handle('GET_UPDATED_REMOTE_ITEMS', async () => {
   Logger.debug('[MAIN] Getting updated remote items');
   return getUpdatedRemoteItems();
 });
 
-ipcMain.handle('GET_UPDATED_REMOTE_ITEMS_BY_FOLDER', async (folderId) => {
-  Logger.debug('[MAIN] Getting updated remote items');
-  return getUpdatedRemoteItemsByFolder(folderId);
-});
+// ipcMain.handle('GET_UPDATED_REMOTE_ITEMS_BY_FOLDER', async (folderId) => {
+//   Logger.debug('[MAIN] Getting updated remote items');
+//   return getUpdatedRemoteItemsByFolder(folderId);
+// });
 
-// export async function startRemoteSync(): Promise<void> {
-//   await remoteSyncManager.startRemoteSync();
-// }
-// export async function startRemoteProgresiveSync(): Promise<void> {
 export async function startRemoteSync(folderId?: number): Promise<void> {
   try {
     const { files, folders } = await remoteSyncManager.startRemoteSync(
@@ -110,13 +82,10 @@ export async function startRemoteSync(folderId?: number): Promise<void> {
     if (folderId && folders && folders.length > 0) {
       await Promise.all(
         folders.map(async (folder) => {
-          await sleep(100);
+          await sleep(200);
           await startRemoteSync(folder.id);
         })
       );
-      // for (const folder of folders) {
-      //   await startRemoteSync(folder.id);
-      // }
     }
     Logger.info('Remote sync finished');
   } catch (error) {
@@ -129,7 +98,10 @@ export async function startRemoteSync(folderId?: number): Promise<void> {
 
 ipcMain.handle('START_REMOTE_SYNC', async () => {
   Logger.info('Received start remote sync event');
+  remoteSyncManager.isProcessRunning = true;
   await startRemoteSync();
+  remoteSyncManager.isProcessRunning = true;
+  return;
 });
 
 remoteSyncManager.onStatusChange((newStatus) => {
@@ -208,15 +180,11 @@ eventBus.on('RECEIVED_REMOTE_CHANGES', async () => {
 
 eventBus.on('USER_LOGGED_IN', async () => {
   Logger.info('Received user logged in event');
-
-  // await remoteSyncManager.startRemoteSync().catch((error) => {
-  //   Logger.error('Error starting remote sync manager', error);
-  //   reportError(error);
-  // });
   try {
+    remoteSyncManager.isProcessRunning = true;
     const userData = configStore.get('userData');
-    await startRemoteSync(userData?.root_folder_id);
-    // traverse de esto
+    await startRemoteSync();
+    remoteSyncManager.isProcessRunning = false;
   } catch (error) {
     Logger.error('Error starting remote sync manager', error);
     if (error instanceof Error) reportError(error);
