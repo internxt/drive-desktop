@@ -251,7 +251,7 @@ export class RemoteSyncManager {
     }
   }
 
-  private async getFileCheckpoint(): Promise<Nullable<Date>> {
+   async getFileCheckpoint(): Promise<Nullable<Date>> {
     const { success, result } = await this.db.files.getLastUpdated();
 
     if (!success) return undefined;

@@ -18,6 +18,7 @@ import * as Sentry from '@sentry/electron/renderer';
 import { runner } from '../utils/runner';
 import { QueueManager } from './dependency-injection/common/QueueManager';
 import { DependencyInjectionLogWatcherPath } from './dependency-injection/common/logEnginePath';
+import { sleep } from '../main/util';
 
 export type CallbackDownload = (
   success: boolean,
@@ -59,17 +60,14 @@ export class BindingsManager {
     ]);
 
     const tree = await this.container.existingItemsTreeBuilder.run();
-
-    await this.container.folderRepositoryInitiator.run(tree.folders);
-    await this.container.foldersPlaceholderCreator.run(tree.folders);
-
-    await this.container.repositoryPopulator.run(tree.files);
-    await this.container.filesPlaceholderCreator.run(tree.files);
-
-    await this.container?.filesPlaceholderDeleter?.run(tree.trashedFilesList);
-    await this.container?.folderPlaceholderDeleter?.run(
-      tree.trashedFoldersList
-    );
+    await Promise.all([
+      this.container.folderRepositoryInitiator.run(tree.folders),
+      this.container.foldersPlaceholderCreator.run(tree.folders),
+      this.container.repositoryPopulator.run(tree.files),
+      this.container.filesPlaceholderCreator.run(tree.files),
+      this.container?.filesPlaceholderDeleter?.run(tree.trashedFilesList),
+      this.container?.folderPlaceholderDeleter?.run(tree.trashedFoldersList),
+    ]);
   }
 
   async start(version: string, providerId: string) {
@@ -181,6 +179,11 @@ export class BindingsManager {
               });
             }
             this.progressBuffer = 0;
+            // if (!this.processingResolve) {
+            await this.controllers.notifyPlaceholderHydrationFinished.execute(
+              contentsId
+            );
+            // }
           } catch (error) {
             Logger.error('notify: ', error);
             Sentry.captureException(error);
@@ -192,15 +195,9 @@ export class BindingsManager {
             if (this.processingResolve) this.processingResolve();
             return;
           }
-          if (!this.processingResolve) {
-            await this.controllers.notifyPlaceholderHydrationFinished.execute(
-              contentsId
-            );
-          }
+
           fs.unlinkSync(path);
           Logger.debug('[Fetch Data Callback] Finish...', path);
-
-          if (this.processingResolve) this.processingResolve();
         } catch (error) {
           Logger.error(error);
           Sentry.captureException(error);
@@ -309,17 +306,8 @@ export class BindingsManager {
         try {
           Logger.debug('[Handle Hydrate Callback] Preparing begins', task.path);
 
-          // Crear una promesa que será resuelta por fetchDataCallback
-          const processingPromise = new Promise((resolve, _reject) => {
-            this.processingResolve = resolve;
-            // this.processingReject = reject;
-          });
-
           await this.container.virtualDrive.hydrateFile(task.path);
-
-          // Esperar hasta que fetchDataCallback resuelva o rechace la promesa
-          await processingPromise;
-
+          await sleep(1000);
           ipcRenderer.send('CHECK_SYNC');
 
           Logger.debug('[Handle Hydrate Callback] Finish begins', task.path);

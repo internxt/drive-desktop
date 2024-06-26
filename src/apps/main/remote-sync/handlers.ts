@@ -36,6 +36,10 @@ const remoteSyncManager = new RemoteSyncManager(
   }
 );
 
+export function setIsProcessing(isProcessing: boolean) {
+  remoteSyncManager.isProcessRunning = isProcessing;
+}
+
 export async function getUpdatedRemoteItems() {
   try {
     const [allDriveFiles, allDriveFolders] = await Promise.all([
@@ -73,6 +77,9 @@ ipcMain.handle('GET_UPDATED_REMOTE_ITEMS', async () => {
 
 export async function startRemoteSync(folderId?: number): Promise<void> {
   try {
+    Logger.info('Starting remote sync function');
+    Logger.info('Folder id', folderId);
+
     const { files, folders } = await remoteSyncManager.startRemoteSync(
       folderId
     );
@@ -82,7 +89,8 @@ export async function startRemoteSync(folderId?: number): Promise<void> {
     if (folderId && folders && folders.length > 0) {
       await Promise.all(
         folders.map(async (folder) => {
-          await sleep(200);
+          if (!folder.id) return;
+          await sleep(400);
           await startRemoteSync(folder.id);
         })
       );
@@ -98,9 +106,9 @@ export async function startRemoteSync(folderId?: number): Promise<void> {
 
 ipcMain.handle('START_REMOTE_SYNC', async () => {
   Logger.info('Received start remote sync event');
-  remoteSyncManager.isProcessRunning = true;
+  setIsProcessing(true);
   await startRemoteSync();
-  remoteSyncManager.isProcessRunning = true;
+  setIsProcessing(false);
   return;
 });
 
@@ -116,13 +124,13 @@ ipcMain.handle('get-remote-sync-status', () =>
   remoteSyncManager.getSyncStatus()
 );
 
-export async function updateRemoteSync(): Promise<void> {
+export async function updateRemoteSync(folderId?: number): Promise<void> {
   // Wait before checking for updates, could be possible
   // that we received the notification, but if we check
   // for new data we don't receive it
   Logger.info('Updating remote sync');
-  await sleep(2_000);
-  await startRemoteSync();
+  await sleep(5_000);
+  await startRemoteSync(folderId);
   updateSyncEngine();
 }
 export async function fallbackRemoteSync(): Promise<void> {
@@ -138,13 +146,14 @@ export function checkSyncEngineInProcess(milliSeconds: number) {
   return isSyncing || recentlySyncing; // syncing or recently was syncing
 }
 
-export function setIsProcessing(isProcessing: boolean) {
-  remoteSyncManager.isProcessRunning = isProcessing;
-}
-
 ipcMain.handle('SYNC_MANUALLY', async () => {
   Logger.info('[Manual Sync] Received manual sync event');
-  await updateRemoteSync();
+  const isSyncing = await checkSyncEngineInProcess(5_000);
+  if (isSyncing) return;
+
+  const userData = configStore.get('userData');
+
+  await updateRemoteSync(userData?.root_folder_id);
   await fallbackRemoteSync();
 });
 
@@ -181,10 +190,13 @@ eventBus.on('RECEIVED_REMOTE_CHANGES', async () => {
 eventBus.on('USER_LOGGED_IN', async () => {
   Logger.info('Received user logged in event');
   try {
-    remoteSyncManager.isProcessRunning = true;
+    setIsProcessing(true);
     const userData = configStore.get('userData');
-    await startRemoteSync();
-    remoteSyncManager.isProcessRunning = false;
+    const lastFilesSyncAt = await remoteSyncManager.getFileCheckpoint();
+    Logger.info('Last files sync at', lastFilesSyncAt);
+    const folderId = lastFilesSyncAt ? undefined : userData?.root_folder_id;
+    await startRemoteSync(folderId);
+    setIsProcessing(false);
   } catch (error) {
     Logger.error('Error starting remote sync manager', error);
     if (error instanceof Error) reportError(error);

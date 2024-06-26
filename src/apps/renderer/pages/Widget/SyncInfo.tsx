@@ -5,6 +5,7 @@ import { useSyncInfoSubscriber } from '../../hooks/useSyncInfoSubscriber';
 import { AnimationWrapper } from './AnimationWrapper';
 import { Item } from './Item';
 import { NoInfoToShow } from './NoInfoToShow';
+import { useInterval } from '../../hooks/useInterval';
 
 export default function SyncInfo() {
   const { processInfoUpdatedPayload, clearItems, removeOnProgressItems } =
@@ -13,6 +14,7 @@ export default function SyncInfo() {
   useOnSyncStopped(removeOnProgressItems);
   useOnSyncRunning(clearItems);
 
+  useInterval(clearItems, 15000);
   return (
     <div className="no-scrollbar relative flex flex-1 flex-col overflow-y-auto">
       {processInfoUpdatedPayload.length === 0 && <NoInfoToShow />}
