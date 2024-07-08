@@ -185,7 +185,8 @@ export class RemoteSyncManager {
     if (value) {
       this.changeStatus('SYNCING');
     } else {
-      this.checkRemoteSyncStatus();
+      // this.checkRemoteSyncStatus();
+      this.changeStatus('SYNCED');
     }
     this._isProcessRunning = value;
   }
@@ -251,7 +252,7 @@ export class RemoteSyncManager {
     }
   }
 
-   async getFileCheckpoint(): Promise<Nullable<Date>> {
+  async getFileCheckpoint(): Promise<Nullable<Date>> {
     const { success, result } = await this.db.files.getLastUpdated();
 
     if (!success) return undefined;
@@ -307,8 +308,6 @@ export class RemoteSyncManager {
       }
 
       Logger.info('Remote files sync finished');
-      this.filesSyncStatus = 'SYNCED';
-      this.checkRemoteSyncStatus();
       return allResults;
     } catch (error) {
       Logger.error('Remote files sync failed with error: ', error);
@@ -379,8 +378,7 @@ export class RemoteSyncManager {
       }
 
       Logger.info('Remote files sync finished');
-      this.filesSyncStatus = 'SYNCED';
-      this.checkRemoteSyncStatus();
+
       return allResults;
     } catch (error) {
       Logger.error('Remote files sync failed with error: ', error);
@@ -457,9 +455,6 @@ export class RemoteSyncManager {
           Logger.info('Retrieving more folders for sync');
         }
       }
-
-      this.foldersSyncStatus = 'SYNCED';
-      this.checkRemoteSyncStatus();
       return allResults;
     } catch (error) {
       Logger.error('Remote folders sync failed with error: ', error);
@@ -527,9 +522,6 @@ export class RemoteSyncManager {
           Logger.info('Retrieving more folders for sync');
         }
       }
-
-      this.foldersSyncStatus = 'SYNCED';
-      this.checkRemoteSyncStatus();
       return allResults;
     } catch (error) {
       Logger.error('Remote folders sync failed with error: ', error);

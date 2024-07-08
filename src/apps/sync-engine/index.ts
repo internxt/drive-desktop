@@ -62,9 +62,7 @@ async function setUp() {
 
   ipcRenderer.on('UPDATE_SYNC_ENGINE_PROCESS', async () => {
     Logger.info('[SYNC ENGINE] Updating sync engine');
-
     await bindings.update();
-
     Logger.info('[SYNC ENGINE] sync engine updated successfully');
   });
 

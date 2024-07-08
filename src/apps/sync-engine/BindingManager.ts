@@ -100,24 +100,29 @@ export class BindingsManager {
         contentsId: string,
         callback: (response: boolean) => void
       ) => {
-        Logger.debug('Path received from rename callback', absolutePath);
+        try {
+          Logger.debug('Path received from rename callback', absolutePath);
 
-        const fn = executeControllerWithFallback({
-          handler: this.controllers.renameOrMove.execute.bind(
-            this.controllers.renameOrMove
-          ),
-          fallback: this.controllers.offline.renameOrMove.execute.bind(
-            this.controllers.offline.renameOrMove
-          ),
-        });
-        fn(absolutePath, contentsId, callback);
-        const isFolder = fs.lstatSync(absolutePath).isDirectory();
+          const fn = executeControllerWithFallback({
+            handler: this.controllers.renameOrMove.execute.bind(
+              this.controllers.renameOrMove
+            ),
+            fallback: this.controllers.offline.renameOrMove.execute.bind(
+              this.controllers.offline.renameOrMove
+            ),
+          });
+          fn(absolutePath, contentsId, callback);
+          const isFolder = fs.lstatSync(absolutePath).isDirectory();
 
-        this.container.virtualDrive.updateSyncStatus(
-          absolutePath,
-          isFolder,
-          true
-        );
+          this.container.virtualDrive.updateSyncStatus(
+            absolutePath,
+            isFolder,
+            true
+          );
+        } catch (error) {
+          Logger.error('Error during rename or move operation', error);
+        }
+        ipcRendererSyncEngine.send('SYNCED');
         ipcRenderer.send('CHECK_SYNC');
       },
       notifyFileAddedCallback: async (
@@ -306,8 +311,20 @@ export class BindingsManager {
         try {
           Logger.debug('[Handle Hydrate Callback] Preparing begins', task.path);
 
+          const atributtes =
+            await this.container.virtualDrive.getPlaceholderAttribute(
+              task.path
+            );
+          Logger.debug('atributtes', atributtes);
+
+          const status = await this.container.virtualDrive.getPlaceholderState(
+            task.path
+          );
+
+          Logger.debug('status', status);
+
           await this.container.virtualDrive.hydrateFile(task.path);
-          await sleep(1000);
+          // await sleep(1000);
           ipcRenderer.send('CHECK_SYNC');
 
           Logger.debug('[Handle Hydrate Callback] Finish begins', task.path);
@@ -317,7 +334,6 @@ export class BindingsManager {
           Sentry.captureException(error);
         }
       },
-
       handleDehydrate: async (task: QueueItem) => {
         try {
           Logger.debug('Dehydrate', task);
@@ -397,6 +413,7 @@ export class BindingsManager {
 
   async update() {
     Logger.info('[SYNC ENGINE]: Updating placeholders');
+    ipcRendererSyncEngine.send('SYNCING');
 
     try {
       const tree = await this.container.existingItemsTreeBuilder.run();
@@ -410,6 +427,8 @@ export class BindingsManager {
       // Create all the placeholders that are in the tree
       await this.container.folderPlaceholderUpdater.run(tree.folders);
       await this.container.filesPlaceholderUpdater.run(tree.files);
+      ipcRendererSyncEngine.send('SYNCED');
+      ipcRenderer.send('CHECK_SYNC');
     } catch (error) {
       Logger.error('[SYNC ENGINE] ', error);
       Sentry.captureException(error);

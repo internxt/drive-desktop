@@ -166,7 +166,7 @@ export async function stopSyncEngineWatcher() {
   });
 
   try {
-    worker?.webContents.send('STOP_SYNC_ENGINE_PROCESS');
+    worker?.webContents?.send('STOP_SYNC_ENGINE_PROCESS');
 
     await stopPromise;
   } catch (err) {
@@ -219,7 +219,7 @@ async function stopAndClearSyncEngineWatcher() {
   });
 
   try {
-    worker?.webContents.send('STOP_AND_CLEAR_SYNC_ENGINE_PROCESS');
+    worker?.webContents?.send('STOP_AND_CLEAR_SYNC_ENGINE_PROCESS');
 
     await response;
   } catch (err) {
@@ -235,8 +235,13 @@ async function stopAndClearSyncEngineWatcher() {
 
 export function updateSyncEngine() {
   try {
-    if (worker?.webContents && !worker?.isDestroyed()) {
-      worker?.webContents.send('UPDATE_SYNC_ENGINE_PROCESS');
+    if (
+      worker &&
+      !worker.isDestroyed() &&
+      worker.webContents &&
+      !worker.webContents.isDestroyed()
+    ) {
+      worker.webContents?.send('UPDATE_SYNC_ENGINE_PROCESS');
     }
   } catch (err) {
     // TODO: handle error
@@ -247,8 +252,13 @@ export function updateSyncEngine() {
 
 export function fallbackSyncEngine() {
   try {
-    if (worker?.webContents && !worker?.isDestroyed()) {
-      worker?.webContents.send('FALLBACK_SYNC_ENGINE_PROCESS');
+    if (
+      worker &&
+      !worker.isDestroyed() &&
+      worker.webContents &&
+      !worker.webContents.isDestroyed()
+    ) {
+      worker?.webContents?.send('FALLBACK_SYNC_ENGINE_PROCESS');
     }
   } catch (err) {
     Logger.error(err);
@@ -256,8 +266,13 @@ export function fallbackSyncEngine() {
 }
 export async function sendUpdateFilesInSyncPending(): Promise<string[]> {
   try {
-    if (worker?.webContents && !worker?.isDestroyed()) {
-      worker?.webContents.send('UPDATE_UNSYNC_FILE_IN_SYNC_ENGINE_PROCESS');
+    if (
+      worker &&
+      !worker.isDestroyed() &&
+      worker.webContents &&
+      !worker.webContents.isDestroyed()
+    ) {
+      worker?.webContents?.send('UPDATE_UNSYNC_FILE_IN_SYNC_ENGINE_PROCESS');
     }
     return [];
   } catch (err) {

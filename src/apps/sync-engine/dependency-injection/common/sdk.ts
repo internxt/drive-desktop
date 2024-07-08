@@ -11,7 +11,7 @@ export class DependencyInjectionStorageSdk {
       return DependencyInjectionStorageSdk.sdk;
     }
 
-    const url = `${process.env.API_URL}/api`;
+    const url = `${process.env.API_URL}`;
     const { name: clientName, version: clientVersion } = packageJson;
 
     const token = await ipcRenderer.invoke('get-token');

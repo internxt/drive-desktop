@@ -7,7 +7,7 @@ import { UserUsageService } from './service';
 import { onUserUnauthorized } from '../auth/handlers';
 
 export function buildUsageService() {
-  const driveUrl = `${process.env.API_URL}/api`;
+  const driveUrl = `${process.env.API_URL}`;
   const photosUrl = process.env.PHOTOS_URL;
 
   const { name: clientName, version: clientVersion } = appInfo;

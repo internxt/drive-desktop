@@ -9,6 +9,7 @@ import { FileRepository } from '../domain/FileRepository';
 import { RemoteFileSystem } from '../domain/file-systems/RemoteFileSystem';
 import { LocalFileSystem } from '../domain/file-systems/LocalFileSystem';
 import { SyncEngineIpc } from '../../../../apps/sync-engine/ipcRendererSyncEngine';
+import Logger from 'electron-log';
 
 export class FilePathUpdater {
   constructor(
@@ -32,13 +33,20 @@ export class FilePathUpdater {
   }
 
   private async move(file: File, destination: FilePath) {
-    const trackerId = await this.local.getLocalFileId(file);
-
+    Logger.debug('[MOVE]', file.name, destination.value);
     const destinationFolder = this.folderFinder.run(destination.dirname());
 
-    file.moveTo(destinationFolder, trackerId);
+    Logger.debug('[MOVE TO]', file.path, destinationFolder.name);
+    try {
+      const trackerId = await this.local.getFileIdentity(file.path);
+      file.moveTo(destinationFolder, trackerId);
+    } catch (error: any) {
+      Logger.warn(`Error in FilePathUpdater.move: ${error?.message}`);
+    }
 
+    Logger.debug('[REMOTE MOVE]', file.name, destinationFolder.name);
     await this.remote.move(file);
+    Logger.debug('[REPOSITORY MOVE]', file.name, destinationFolder.name);
     await this.repository.update(file);
 
     const events = file.pullDomainEvents();
@@ -46,44 +54,57 @@ export class FilePathUpdater {
   }
 
   async run(contentsId: string, posixRelativePath: string) {
-    const destination = new FilePath(posixRelativePath);
-    const file = this.fileFinderByContentsId.run(contentsId);
+    try {
+      const destination = new FilePath(posixRelativePath);
+      const file = this.fileFinderByContentsId.run(contentsId);
 
-    if (file.dirname !== destination.dirname()) {
-      if (file.nameWithExtension !== destination.nameWithExtension()) {
-        throw new ActionNotPermittedError('rename and change folder');
+      if (file.dirname !== destination.dirname()) {
+        if (file.nameWithExtension !== destination.nameWithExtension()) {
+          throw new ActionNotPermittedError('rename and change folder');
+        }
+        Logger.error('[RUN MOVE]', file.name, destination.value);
+        await this.move(file, destination);
+        return;
       }
-      await this.move(file, destination);
-      return;
-    }
 
-    const destinationFile = this.repository.searchByPartial({
-      path: destination.value,
-    });
-
-    if (destinationFile) {
-      this.ipc.send('FILE_RENAME_ERROR', {
-        name: file.name,
-        extension: file.type,
-        nameWithExtension: file.nameWithExtension,
-        error: 'Renaming error: file already exists',
+      const destinationFile = this.repository.searchByPartial({
+        path: destination.value,
       });
-      throw new FileAlreadyExistsError(destination.name());
-    }
 
-    if (destination.extensionMatch(file.type)) {
-      this.ipc.send('FILE_RENAMING', {
-        oldName: file.name,
-        nameWithExtension: destination.nameWithExtension(),
-      });
-      await this.rename(file, destination);
-      this.ipc.send('FILE_RENAMED', {
-        oldName: file.name,
-        nameWithExtension: destination.nameWithExtension(),
-      });
-      return;
-    }
+      if (destinationFile) {
+        this.ipc.send('FILE_RENAME_ERROR', {
+          name: file.name,
+          extension: file.type,
+          nameWithExtension: file.nameWithExtension,
+          error: 'Renaming error: file already exists',
+        });
+        throw new FileAlreadyExistsError(destination.name());
+      }
 
-    throw new Error('Cannot reupload files atm');
+      Logger.debug('[RUN RENAME]', file.name, destination.value);
+      Logger.debug('[RUN RENAME]', file.name, destination.nameWithExtension());
+      Logger.debug(
+        '[RUN RENAME]',
+        file.nameWithExtension,
+        destination.extensionMatch(file.type)
+      );
+      if (destination.extensionMatch(file.type)) {
+        this.ipc.send('FILE_RENAMING', {
+          oldName: file.name,
+          nameWithExtension: destination.nameWithExtension(),
+        });
+        await this.rename(file, destination);
+        this.ipc.send('FILE_RENAMED', {
+          oldName: file.name,
+          nameWithExtension: destination.nameWithExtension(),
+        });
+        return;
+      }
+
+      throw new Error('Cannot reupload files atm');
+    } catch (error: any) {
+      Logger.error(`Error in FilePathUpdater.run: ${error.message}`);
+      throw error;
+    }
   }
 }

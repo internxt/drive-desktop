@@ -14,7 +14,7 @@ async function obtainTokens() {
   try {
     Logger.debug('[TOKEN] Obtaining new tokens');
     const res = await authorizedClient.get(
-      `${process.env.API_URL}/api/user/refresh`
+      `${process.env.API_URL}/user/refresh`
     );
 
     return res.data;

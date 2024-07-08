@@ -13,7 +13,10 @@ export class DownloadFileController extends CallbackController {
     super();
   }
 
-  private async action(id: string, callback?: CallbackDownload): Promise<string> {
+  private async action(
+    id: string,
+    callback: CallbackDownload
+  ): Promise<string> {
     const file = this.fileFinder.run(id);
     Logger.info('[Begin] Download: ', file.path);
     return await this.downloader.run(file, callback);
@@ -23,7 +26,10 @@ export class DownloadFileController extends CallbackController {
     return this.fileFinder.run(contentsId);
   }
 
-  async execute(filePlaceholderId: FilePlaceholderId, callback?: CallbackDownload): Promise<string> {
+  async execute(
+    filePlaceholderId: FilePlaceholderId,
+    callback: CallbackDownload
+  ): Promise<string> {
     const trimmedId = this.trim(filePlaceholderId);
 
     try {
