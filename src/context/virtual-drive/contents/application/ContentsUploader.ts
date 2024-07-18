@@ -38,7 +38,6 @@ export class ContentsUploader {
         size: localFileContents.size,
         processInfo: { elapsedTime: uploader.elapsedTime(), progress },
       });
-      // ipcRenderer.send('CHECK_SYNC');
     });
 
     uploader.on('error', (error: Error) => {

@@ -18,7 +18,6 @@ import * as Sentry from '@sentry/electron/renderer';
 import { runner } from '../utils/runner';
 import { QueueManager } from './dependency-injection/common/QueueManager';
 import { DependencyInjectionLogWatcherPath } from './dependency-injection/common/logEnginePath';
-import { sleep } from '../main/util';
 
 export type CallbackDownload = (
   success: boolean,
@@ -184,11 +183,9 @@ export class BindingsManager {
               });
             }
             this.progressBuffer = 0;
-            // if (!this.processingResolve) {
             await this.controllers.notifyPlaceholderHydrationFinished.execute(
               contentsId
             );
-            // }
           } catch (error) {
             Logger.error('notify: ', error);
             Sentry.captureException(error);
@@ -324,7 +321,6 @@ export class BindingsManager {
           Logger.debug('status', status);
 
           await this.container.virtualDrive.hydrateFile(task.path);
-          // await sleep(1000);
           ipcRenderer.send('CHECK_SYNC');
 
           Logger.debug('[Handle Hydrate Callback] Finish begins', task.path);

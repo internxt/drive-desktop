@@ -78,11 +78,6 @@ ipcMain.handle('GET_UPDATED_REMOTE_ITEMS', async () => {
   return getUpdatedRemoteItems();
 });
 
-// ipcMain.handle('GET_UPDATED_REMOTE_ITEMS_BY_FOLDER', async (folderId) => {
-//   Logger.debug('[MAIN] Getting updated remote items');
-//   return getUpdatedRemoteItemsByFolder(folderId);
-// });
-
 export async function startRemoteSync(folderId?: number): Promise<void> {
   try {
     Logger.info('Starting remote sync function');
@@ -122,7 +117,6 @@ ipcMain.handle('START_REMOTE_SYNC', async () => {
   setIsProcessing(true);
   await startRemoteSync();
   setIsProcessing(false);
-  return;
 });
 
 remoteSyncManager.onStatusChange((newStatus) => {

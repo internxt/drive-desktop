@@ -86,9 +86,6 @@ export class QueueManager implements IQueueManager {
       if (task) {
         Logger.debug(`Processing ${type} task: ${JSON.stringify(task)}`);
         try {
-          // if (task.type === 'change') {
-          //   await this.actions.change(task);
-          // }
           await this.actions[task.type](task);
         } catch (error) {
           Logger.error(`Failed to process ${type} task:`, task, error);

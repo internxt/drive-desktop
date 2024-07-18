@@ -135,17 +135,13 @@ export class RemoteSyncManager {
         maxRetries: 3,
       };
 
-      const syncFilesPromise = this.config.syncFiles
-        ? folderId
-          ? this.syncRemoteFilesByFolder(syncOptions, folderId)
-          : this.syncRemoteFiles(syncOptions)
-        : Promise.resolve();
+      const syncFilesPromise = folderId
+        ? this.syncRemoteFilesByFolder(syncOptions, folderId)
+        : this.syncRemoteFiles(syncOptions);
 
-      const syncFoldersPromise = this.config.syncFolders
-        ? folderId
-          ? this.syncRemoteFoldersByFolder(syncOptions, folderId)
-          : this.syncRemoteFolders(syncOptions)
-        : Promise.resolve();
+      const syncFoldersPromise = folderId
+        ? this.syncRemoteFoldersByFolder(syncOptions, folderId)
+        : this.syncRemoteFolders(syncOptions);
 
       const [_files, folders] = await Promise.all([
         await syncFilesPromise,
@@ -182,12 +178,7 @@ export class RemoteSyncManager {
   }
 
   set isProcessRunning(value: boolean) {
-    if (value) {
-      this.changeStatus('SYNCING');
-    } else {
-      // this.checkRemoteSyncStatus();
-      this.changeStatus('SYNCED');
-    }
+    this.changeStatus(value ? 'SYNCING' : 'SYNCED');
     this._isProcessRunning = value;
   }
 
