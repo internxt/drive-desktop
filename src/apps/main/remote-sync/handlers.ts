@@ -146,7 +146,7 @@ ipcMain.handle('get-remote-sync-status', () =>
   remoteSyncManager.getSyncStatus()
 );
 
-export async function updateRemoteSync(folderId?: number): Promise<void> {
+export async function updateRemoteSync(): Promise<void> {
   // Wait before checking for updates, could be possible
   // that we received the notification, but if we check
   // for new data we don't receive it
@@ -156,7 +156,10 @@ export async function updateRemoteSync(folderId?: number): Promise<void> {
     Logger.info('Remote sync is already running');
     return;
   }
-  await sleep(5_000);
+  const userData = configStore.get('userData');
+  const lastFilesSyncAt = await remoteSyncManager.getFileCheckpoint();
+  Logger.info('Last files sync at', lastFilesSyncAt);
+  const folderId = lastFilesSyncAt ? undefined : userData?.root_folder_id;
   await startRemoteSync(folderId);
   updateSyncEngine();
 }
@@ -170,10 +173,7 @@ ipcMain.handle('SYNC_MANUALLY', async () => {
   Logger.info('[Manual Sync] Received manual sync event');
   const isSyncing = await checkSyncEngineInProcess(5_000);
   if (isSyncing) return;
-
-  const userData = configStore.get('userData');
-
-  await updateRemoteSync(userData?.root_folder_id);
+  await updateRemoteSync();
   await fallbackRemoteSync();
 });
 

@@ -12,6 +12,7 @@ import { OfflineFile } from '../domain/OfflineFile';
 import { SyncEngineIpc } from '../../../../apps/sync-engine/ipcRendererSyncEngine';
 import { FileStatuses } from '../domain/FileStatus';
 import { ipcRenderer } from 'electron';
+import Logger from 'electron-log';
 
 export class FileCreator {
   constructor(
@@ -39,18 +40,30 @@ export class FileCreator {
           await this.fileDeleter.run(existingFile.contentsId);
         }
       }
-
+      Logger.debug('[DEBUG IN FILECREATOR STEEP 1]' + filePath.value);
       const size = new FileSize(contents.size);
 
       const folder = this.folderFinder.findFromFilePath(filePath);
 
+      Logger.debug('[DEBUG IN FILECREATOR STEEP 2]' + filePath.value);
+
       const offline = OfflineFile.create(contents.id, folder, size, filePath);
 
+      Logger.debug('[DEBUG IN FILECREATOR STEEP 3]' + filePath.value);
+
+      const existingPersistedFile = await this.remote.checkStatusFile(contents.id);
+
+      Logger.debug('[DEBUG IN FILECREATOR STEEP 3.1]' + existingPersistedFile);
+
       const persistedAttributes = await this.remote.persist(offline);
+
+      Logger.debug('[DEBUG IN FILECREATOR STEEP 4]' + filePath.value);
       const file = File.from(persistedAttributes);
 
+      Logger.debug('[DEBUG IN FILECREATOR STEEP 5]' + filePath.value);
       await this.repository.add(file);
 
+      Logger.debug('[DEBUG IN FILECREATOR STEEP 6]' + filePath.value);
       await this.eventBus.publish(offline.pullDomainEvents());
       this.ipc.send('FILE_CREATED', {
         name: file.name,
@@ -59,9 +72,12 @@ export class FileCreator {
       });
       ipcRenderer.send('CHECK_SYNC');
 
+      Logger.debug('[DEBUG IN FILECREATOR STEEP 7]' + filePath.value);
       return file;
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : 'unknown error';
+
+      Logger.debug('[DEBUG ERROR IN FILECREATOR]' + filePath.value, error);
 
       this.ipc.send('FILE_UPLOAD_ERROR', {
         name: filePath.name(),

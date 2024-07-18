@@ -7,7 +7,7 @@ import { PlatformPathConverter } from '../../shared/application/PlatformPathConv
 import { RelativePathToAbsoluteConverter } from '../../shared/application/RelativePathToAbsoluteConverter';
 import { SyncEngineIpc } from '../../../../apps/sync-engine/ipcRendererSyncEngine';
 import { ipcRenderer } from 'electron';
-
+import Logger from 'electron-log';
 export class ContentsUploader {
   constructor(
     private readonly remoteContentsManagersFactory: ContentsManagersFactory,
@@ -64,27 +64,35 @@ export class ContentsUploader {
   }
 
   async run(posixRelativePath: string): Promise<RemoteFileContents> {
-    const win32RelativePath =
-      PlatformPathConverter.posixToWin(posixRelativePath);
+    try {
+      const win32RelativePath =
+        PlatformPathConverter.posixToWin(posixRelativePath);
 
-    const absolutePath =
-      this.relativePathToAbsoluteConverter.run(win32RelativePath);
+      const absolutePath =
+        this.relativePathToAbsoluteConverter.run(win32RelativePath);
 
-    const { contents, abortSignal } = await this.contentProvider.provide(
-      absolutePath
-    );
+      Logger.debug('[DEBUG UPLOAD]:', posixRelativePath, absolutePath);
 
-    const uploader = this.remoteContentsManagersFactory.uploader(
-      contents,
-      abortSignal
-    );
+      const { contents, abortSignal } = await this.contentProvider.provide(
+        absolutePath
+      );
+      Logger.debug('[DEBUG UPLOAD STEEP 1]: ');
 
-    this.registerEvents(uploader, contents);
+      const uploader = this.remoteContentsManagersFactory.uploader(
+        contents,
+        abortSignal
+      );
 
-    const contentsId = await uploader.upload(contents.stream, contents.size);
+      this.registerEvents(uploader, contents);
 
-    const fileContents = RemoteFileContents.create(contentsId, contents.size);
+      const contentsId = await uploader.upload(contents.stream, contents.size);
 
-    return fileContents;
+      const fileContents = RemoteFileContents.create(contentsId, contents.size);
+
+      return fileContents;
+    } catch (error: unknown) {
+      Logger.error('[ERROR DEBUG]', error);
+      throw error;
+    }
   }
 }

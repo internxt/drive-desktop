@@ -113,14 +113,14 @@ export class RemoteSyncManager {
     Logger.info('Starting remote to local sync');
     Logger.info('Checking if we are in a valid state to start the sync');
 
-    // const testPassed = this.smokeTest();
+    const testPassed = this.smokeTest();
 
-    // if (!testPassed) {
-    //   return {
-    //     files: [],
-    //     folders: [],
-    //   };
-    // }
+    if (!testPassed && !folderId) {
+      return {
+        files: [],
+        folders: [],
+      };
+    }
     this.totalFilesSynced = 0;
     this.totalFilesUnsynced = [];
     this.totalFoldersSynced = 0;

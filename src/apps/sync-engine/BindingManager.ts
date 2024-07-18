@@ -71,7 +71,7 @@ export class BindingsManager {
   }
 
   async start(version: string, providerId: string) {
-    await ipcRendererSyncEngine.send('SYNCING');
+    ipcRendererSyncEngine.send('SYNCING');
     await this.stop();
     await this.pollingStart();
 
@@ -278,10 +278,10 @@ export class BindingsManager {
     await this.container.virtualDrive.connectSyncRoot();
 
     await runner([this.load.bind(this), this.polling.bind(this)]);
-    await ipcRendererSyncEngine.send('SYNCED');
+    ipcRendererSyncEngine.send('SYNCED');
   }
 
-  watch() {
+  async watch() {
     const queueManager = new QueueManager({
       handleAdd: async (task: QueueItem) => {
         try {
@@ -361,7 +361,7 @@ export class BindingsManager {
       queueManager,
       logWatcherPath
     );
-    queueManager.processAll();
+    await queueManager.processAll();
   }
 
   async stop() {
