@@ -27,6 +27,10 @@ export class ContentsDownloader {
     this.readableDownloader = null;
   }
 
+  private downloaderIntance: ContentFileDownloader | null = null;
+  private downloaderIntanceCB: CallbackDownload | null = null;
+  private downloaderFile: File | null = null;
+
   private async registerEvents(
     downloader: ContentFileDownloader,
     file: File,
@@ -86,22 +90,12 @@ export class ContentsDownloader {
     });
   }
 
-  // private async waitToCb(filePath: string, callback?: CallbackDownload) {
-  //   if (
-  //     this.progressAt &&
-  //     new Date().getTime() - this.progressAt.getTime() >
-  //       this.WAIT_TO_SEND_PROGRESS
-  //   ) {
-  //     if (callback) {
-  //       await callback(true, filePath);
-  //     }
-  //     this.progressAt = new Date();
-  //   }
-  // }
-
   async run(file: File, callback: CallbackDownload): Promise<string> {
     const downloader = this.managerFactory.downloader();
 
+    this.downloaderIntance = downloader;
+    this.downloaderIntanceCB = callback;
+    this.downloaderFile = file;
     await this.registerEvents(downloader, file, callback);
 
     const readable = await downloader.download(file);
@@ -127,5 +121,30 @@ export class ContentsDownloader {
     // });
 
     return write;
+  }
+
+  async stop() {
+    Logger.info('[Server] Stopping download 1');
+    if (
+      !this.downloaderIntance ||
+      !this.downloaderIntanceCB ||
+      !this.downloaderFile
+    )
+      return;
+
+    Logger.info('[Server] Stopping download 2');
+    this.downloaderIntance.forceStop();
+    this.downloaderIntanceCB(false, '');
+
+    this.ipc.send('FILE_DOWNLOAD_CANCEL', {
+      name: this.downloaderFile.name,
+      extension: this.downloaderFile.type,
+      nameWithExtension: this.downloaderFile.nameWithExtension,
+      size: this.downloaderFile.size,
+    });
+
+    this.downloaderIntanceCB = null;
+    this.downloaderIntance = null;
+    this.downloaderFile = null;
   }
 }

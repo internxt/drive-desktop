@@ -54,4 +54,8 @@ export class DownloadFileController extends CallbackController {
       });
     }
   }
+
+  async cancel() {
+    await this.downloader.stop();
+  }
 }

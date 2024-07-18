@@ -161,6 +161,7 @@
           "uploading": "Uploading",
           "encrypting": "Encrypting",
           "downloaded": "Downloaded",
+          "cancel_downloaded": "Downloaded Cancel",
           "uploaded": "Uploaded",
           "deleting": "Moving to trash",
           "deleted": "Moved to trash",

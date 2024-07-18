@@ -49,6 +49,14 @@ ipcMainDrive.on('FILE_DOWNLOADED', (_, payload) => {
     name: nameWithExtension,
   });
 });
+ipcMainDrive.on('FILE_DOWNLOAD_CANCEL', (_, payload) => {
+  setIsProcessing(false);
+  const { nameWithExtension } = payload;
+  broadcastToWindows('sync-info-update', {
+    action: 'DOWNLOAD_CANCEL',
+    name: nameWithExtension,
+  });
+});
 
 ipcMainDrive.on('FILE_MOVED', (_, payload) => {
   const { nameWithExtension } = payload;

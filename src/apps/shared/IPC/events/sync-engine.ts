@@ -68,6 +68,7 @@ export type FilesEvents = {
   FILE_DOWNLOADING: (payload: FileUpdatePayload) => void;
   FILE_PREPARING: (payload: FileUpdatePayload) => void;
   FILE_DOWNLOADED: (payload: FileUpdatePayload) => void;
+  FILE_DOWNLOAD_CANCEL: (payload: Partial<FileUpdatePayload>) => void;
   FILE_UPLOAD_ERROR: (payload: {
     name: string;
     extension: string;

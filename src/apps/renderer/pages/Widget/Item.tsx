@@ -35,6 +35,8 @@ export function Item({
       : translate('widget.body.activity.operation.encrypting');
   } else if (action === 'DOWNLOADED') {
     description = translate('widget.body.activity.operation.downloaded');
+  } else if (action === 'DOWNLOAD_CANCEL') {
+    description = translate('widget.body.activity.operation.cancel_downloaded');
   } else if (action === 'UPLOADED') {
     description = translate('widget.body.activity.operation.uploaded');
   } else if (action === 'DELETING') {
@@ -117,6 +119,7 @@ export function Item({
           {action &&
             (action === 'DELETED' ||
               action === 'DOWNLOADED' ||
+              action === 'DOWNLOAD_CANCEL' ||
               action === 'UPLOADED' ||
               action === 'RENAMED') && (
               <Check size={24} className="text-green" weight="bold" />

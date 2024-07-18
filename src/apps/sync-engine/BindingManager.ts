@@ -33,7 +33,6 @@ export class BindingsManager {
   private static readonly PROVIDER_NAME = 'Internxt';
   private progressBuffer = 0;
   private controllers: IControllers;
-  private processingResolve?: (unknown?: unknown) => void;
 
   constructor(
     private readonly container: DependencyContainer,
@@ -193,8 +192,6 @@ export class BindingsManager {
             fs.unlinkSync(path);
 
             Logger.debug('[Fetch Data Callback] Finish...', path);
-
-            if (this.processingResolve) this.processingResolve();
             return;
           }
 
@@ -205,7 +202,6 @@ export class BindingsManager {
           Sentry.captureException(error);
           await callback(false, '');
           await this.container.virtualDrive.closeDownloadMutex();
-          if (this.processingResolve) this.processingResolve();
         }
       },
       notifyMessageCallback: (
@@ -233,9 +229,8 @@ export class BindingsManager {
       validateDataCallback: () => {
         Logger.debug('validateDataCallback');
       },
-      cancelFetchDataCallback: () => {
-        // TODO: clean up temp file, free up space of placeholder
-        if (this.processingResolve) this.processingResolve();
+      cancelFetchDataCallback: async () => {
+        await this.controllers.downloadFile.cancel();
         Logger.debug('cancelFetchDataCallback');
       },
       fetchPlaceholdersCallback: () => {

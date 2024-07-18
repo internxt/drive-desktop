@@ -44,6 +44,10 @@ ipcMainDrive.on('FILE_DOWNLOADED', () => {
   setTrayStatus('IDLE');
 });
 
+ipcMainDrive.on('FILE_DOWNLOAD_CANCEL', () => {
+  setTrayStatus('IDLE');
+});
+
 ipcMainDrive.on('FILE_MOVED', () => {
   setTrayStatus('IDLE');
 });
