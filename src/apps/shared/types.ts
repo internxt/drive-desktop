@@ -236,7 +236,12 @@ export type ProcessInfoUpdatePayload =
             progress: number;
           }
         | {
-            action: 'UPLOADED' | 'DOWNLOADED' | 'RENAMED' | 'DELETED';
+            action:
+              | 'UPLOADED'
+              | 'DOWNLOADED'
+              | 'RENAMED'
+              | 'DELETED'
+              | 'DOWNLOAD_CANCEL';
           }
       ))
   | ProcessIssue;

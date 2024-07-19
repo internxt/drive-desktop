@@ -15,7 +15,7 @@ import { CallbackDownload } from '../../../../apps/sync-engine/BindingManager';
 
 export class ContentsDownloader {
   private readableDownloader: Readable | null;
-  private WAIT_TO_SEND_PROGRESS = 20000;
+  private WAIT_TO_SEND_PROGRESS = 1000;
   private progressAt: Date | null = null;
   constructor(
     private readonly managerFactory: ContentsManagersFactory,
@@ -27,10 +27,14 @@ export class ContentsDownloader {
     this.readableDownloader = null;
   }
 
+  private downloaderIntance: ContentFileDownloader | null = null;
+  private downloaderIntanceCB: CallbackDownload | null = null;
+  private downloaderFile: File | null = null;
+
   private async registerEvents(
     downloader: ContentFileDownloader,
     file: File,
-    callback?: CallbackDownload
+    callback: CallbackDownload
   ) {
     const location = await this.temporalFolderProvider();
     ensureFolderExists(location);
@@ -55,7 +59,7 @@ export class ContentsDownloader {
       const fileSizeInBytes = stats.size;
       const progress = fileSizeInBytes / file.size;
 
-      await this.waitToCb(filePath, callback);
+      await callback(true, filePath);
 
       this.ipc.send('FILE_DOWNLOADING', {
         name: file.name,
@@ -86,22 +90,12 @@ export class ContentsDownloader {
     });
   }
 
-  private async waitToCb(filePath: string, callback?: CallbackDownload) {
-    if (
-      this.progressAt &&
-      new Date().getTime() - this.progressAt.getTime() >
-        this.WAIT_TO_SEND_PROGRESS
-    ) {
-      if (callback) {
-        await callback(true, filePath);
-      }
-      this.progressAt = new Date();
-    }
-  }
-
-  async run(file: File, callback?: CallbackDownload): Promise<string> {
+  async run(file: File, callback: CallbackDownload): Promise<string> {
     const downloader = this.managerFactory.downloader();
 
+    this.downloaderIntance = downloader;
+    this.downloaderIntanceCB = callback;
+    this.downloaderFile = file;
     await this.registerEvents(downloader, file, callback);
 
     const readable = await downloader.download(file);
@@ -118,14 +112,39 @@ export class ContentsDownloader {
     const events = localContents.pullDomainEvents();
     await this.eventBus.publish(events);
 
-    this.ipc.send('FILE_DOWNLOADED', {
-      name: file.name,
-      extension: file.type,
-      nameWithExtension: file.nameWithExtension,
-      size: file.size,
-      processInfo: { elapsedTime: downloader.elapsedTime() },
-    });
+    // this.ipc.send('FILE_DOWNLOADED', {
+    //   name: file.name,
+    //   extension: file.type,
+    //   nameWithExtension: file.nameWithExtension,
+    //   size: file.size,
+    //   processInfo: { elapsedTime: downloader.elapsedTime() },
+    // });
 
     return write;
+  }
+
+  async stop() {
+    Logger.info('[Server] Stopping download 1');
+    if (
+      !this.downloaderIntance ||
+      !this.downloaderIntanceCB ||
+      !this.downloaderFile
+    )
+      return;
+
+    Logger.info('[Server] Stopping download 2');
+    this.downloaderIntance.forceStop();
+    this.downloaderIntanceCB(false, '');
+
+    this.ipc.send('FILE_DOWNLOAD_CANCEL', {
+      name: this.downloaderFile.name,
+      extension: this.downloaderFile.type,
+      nameWithExtension: this.downloaderFile.nameWithExtension,
+      size: this.downloaderFile.size,
+    });
+
+    this.downloaderIntanceCB = null;
+    this.downloaderIntance = null;
+    this.downloaderFile = null;
   }
 }

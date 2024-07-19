@@ -33,8 +33,6 @@ export class BindingsManager {
   private static readonly PROVIDER_NAME = 'Internxt';
   private progressBuffer = 0;
   private controllers: IControllers;
-  private processingResolve?: (unknown?: unknown) => void;
-  private processingReject?: (unknown?: unknown) => void;
 
   constructor(
     private readonly container: DependencyContainer,
@@ -60,20 +58,18 @@ export class BindingsManager {
     ]);
 
     const tree = await this.container.existingItemsTreeBuilder.run();
-
-    await this.container.folderRepositoryInitiator.run(tree.folders);
-    await this.container.foldersPlaceholderCreator.run(tree.folders);
-
-    await this.container.repositoryPopulator.run(tree.files);
-    await this.container.filesPlaceholderCreator.run(tree.files);
-
-    await this.container?.filesPlaceholderDeleter?.run(tree.trashedFilesList);
-    await this.container?.folderPlaceholderDeleter?.run(
-      tree.trashedFoldersList
-    );
+    await Promise.all([
+      this.container.folderRepositoryInitiator.run(tree.folders),
+      this.container.foldersPlaceholderCreator.run(tree.folders),
+      this.container.repositoryPopulator.run(tree.files),
+      this.container.filesPlaceholderCreator.run(tree.files),
+      this.container?.filesPlaceholderDeleter?.run(tree.trashedFilesList),
+      this.container?.folderPlaceholderDeleter?.run(tree.trashedFoldersList),
+    ]);
   }
 
   async start(version: string, providerId: string) {
+    ipcRendererSyncEngine.send('SYNCING');
     await this.stop();
     await this.pollingStart();
 
@@ -102,15 +98,29 @@ export class BindingsManager {
         contentsId: string,
         callback: (response: boolean) => void
       ) => {
-        const fn = executeControllerWithFallback({
-          handler: this.controllers.renameOrMove.execute.bind(
-            this.controllers.renameOrMove
-          ),
-          fallback: this.controllers.offline.renameOrMove.execute.bind(
-            this.controllers.offline.renameOrMove
-          ),
-        });
-        fn(absolutePath, contentsId, callback);
+        try {
+          Logger.debug('Path received from rename callback', absolutePath);
+
+          const fn = executeControllerWithFallback({
+            handler: this.controllers.renameOrMove.execute.bind(
+              this.controllers.renameOrMove
+            ),
+            fallback: this.controllers.offline.renameOrMove.execute.bind(
+              this.controllers.offline.renameOrMove
+            ),
+          });
+          fn(absolutePath, contentsId, callback);
+          const isFolder = fs.lstatSync(absolutePath).isDirectory();
+
+          this.container.virtualDrive.updateSyncStatus(
+            absolutePath,
+            isFolder,
+            true
+          );
+        } catch (error) {
+          Logger.error('Error during rename or move operation', error);
+        }
+        ipcRendererSyncEngine.send('SYNCED');
         ipcRenderer.send('CHECK_SYNC');
       },
       notifyFileAddedCallback: async (
@@ -172,6 +182,9 @@ export class BindingsManager {
               });
             }
             this.progressBuffer = 0;
+            await this.controllers.notifyPlaceholderHydrationFinished.execute(
+              contentsId
+            );
           } catch (error) {
             Logger.error('notify: ', error);
             Sentry.captureException(error);
@@ -179,25 +192,16 @@ export class BindingsManager {
             fs.unlinkSync(path);
 
             Logger.debug('[Fetch Data Callback] Finish...', path);
-
-            if (this.processingResolve) this.processingResolve();
             return;
           }
-          if (!this.processingResolve) {
-            await this.controllers.notifyPlaceholderHydrationFinished.execute(
-              contentsId
-            );
-          }
+
           fs.unlinkSync(path);
           Logger.debug('[Fetch Data Callback] Finish...', path);
-
-          if (this.processingResolve) this.processingResolve();
         } catch (error) {
           Logger.error(error);
           Sentry.captureException(error);
           await callback(false, '');
           await this.container.virtualDrive.closeDownloadMutex();
-          if (this.processingResolve) this.processingResolve();
         }
       },
       notifyMessageCallback: (
@@ -225,9 +229,8 @@ export class BindingsManager {
       validateDataCallback: () => {
         Logger.debug('validateDataCallback');
       },
-      cancelFetchDataCallback: () => {
-        // TODO: clean up temp file, free up space of placeholder
-        if (this.processingResolve) this.processingResolve();
+      cancelFetchDataCallback: async () => {
+        await this.controllers.downloadFile.cancel();
         Logger.debug('cancelFetchDataCallback');
       },
       fetchPlaceholdersCallback: () => {
@@ -267,9 +270,10 @@ export class BindingsManager {
     await this.container.virtualDrive.connectSyncRoot();
 
     await runner([this.load.bind(this), this.polling.bind(this)]);
+    ipcRendererSyncEngine.send('SYNCED');
   }
 
-  watch() {
+  async watch() {
     const queueManager = new QueueManager({
       handleAdd: async (task: QueueItem) => {
         try {
@@ -299,17 +303,19 @@ export class BindingsManager {
         try {
           Logger.debug('[Handle Hydrate Callback] Preparing begins', task.path);
 
-          // Crear una promesa que será resuelta por fetchDataCallback
-          const processingPromise = new Promise((resolve, reject) => {
-            this.processingResolve = resolve;
-            this.processingReject = reject;
-          });
+          const atributtes =
+            await this.container.virtualDrive.getPlaceholderAttribute(
+              task.path
+            );
+          Logger.debug('atributtes', atributtes);
+
+          const status = await this.container.virtualDrive.getPlaceholderState(
+            task.path
+          );
+
+          Logger.debug('status', status);
 
           await this.container.virtualDrive.hydrateFile(task.path);
-
-          // Esperar hasta que fetchDataCallback resuelva o rechace la promesa
-          await processingPromise;
-
           ipcRenderer.send('CHECK_SYNC');
 
           Logger.debug('[Handle Hydrate Callback] Finish begins', task.path);
@@ -319,7 +325,6 @@ export class BindingsManager {
           Sentry.captureException(error);
         }
       },
-
       handleDehydrate: async (task: QueueItem) => {
         try {
           Logger.debug('Dehydrate', task);
@@ -347,7 +352,7 @@ export class BindingsManager {
       queueManager,
       logWatcherPath
     );
-    queueManager.processAll();
+    await queueManager.processAll();
   }
 
   async stop() {
@@ -399,6 +404,7 @@ export class BindingsManager {
 
   async update() {
     Logger.info('[SYNC ENGINE]: Updating placeholders');
+    ipcRendererSyncEngine.send('SYNCING');
 
     try {
       const tree = await this.container.existingItemsTreeBuilder.run();
@@ -412,6 +418,8 @@ export class BindingsManager {
       // Create all the placeholders that are in the tree
       await this.container.folderPlaceholderUpdater.run(tree.folders);
       await this.container.filesPlaceholderUpdater.run(tree.files);
+      ipcRendererSyncEngine.send('SYNCED');
+      ipcRenderer.send('CHECK_SYNC');
     } catch (error) {
       Logger.error('[SYNC ENGINE] ', error);
       Sentry.captureException(error);
@@ -426,12 +434,13 @@ export class BindingsManager {
   async polling(): Promise<void> {
     try {
       Logger.info('[SYNC ENGINE] Monitoring polling...');
-
+      ipcRendererSyncEngine.send('SYNCING');
       const fileInPendingPaths =
         (await this.container.virtualDrive.getPlaceholderWithStatePending()) as Array<string>;
       Logger.info('[SYNC ENGINE] fileInPendingPaths', fileInPendingPaths);
 
       await this.container.fileSyncOrchestrator.run(fileInPendingPaths);
+      ipcRendererSyncEngine.send('SYNCED');
       ipcRenderer.send('CHECK_SYNC');
     } catch (error) {
       Logger.error('[SYNC ENGINE] Polling', error);

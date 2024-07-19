@@ -4,8 +4,7 @@ import {
   RemoteSyncedFolder,
   RemoteSyncedFile,
   SyncConfig,
-  SYNC_OFFSET_MS,
-  SIX_HOURS_IN_MILLISECONDS,
+  FIVETEEN_MINUTES_IN_MILLISECONDS,
   rewind,
   WAITING_AFTER_SYNCING_DEFAULT,
 } from './helpers';
@@ -109,15 +108,18 @@ export class RemoteSyncManager {
    *
    * Throws an error if there's a sync in progress for this class instance
    */
-  async startRemoteSync() {
+  async startRemoteSync(folderId?: number) {
     // const start = Date.now();
     Logger.info('Starting remote to local sync');
     Logger.info('Checking if we are in a valid state to start the sync');
 
     const testPassed = this.smokeTest();
 
-    if (!testPassed) {
-      return;
+    if (!testPassed && !folderId) {
+      return {
+        files: [],
+        folders: [],
+      };
     }
     this.totalFilesSynced = 0;
     this.totalFilesUnsynced = [];
@@ -128,20 +130,24 @@ export class RemoteSyncManager {
     Logger.info('Starting RemoteSyncManager');
     this.changeStatus('SYNCING');
     try {
-      await Promise.all([
-        this.config.syncFiles
-          ? this.syncRemoteFiles({
-              retry: 1,
-              maxRetries: 3,
-            })
-          : Promise.resolve(),
-        this.config.syncFolders
-          ? this.syncRemoteFolders({
-              retry: 1,
-              maxRetries: 3,
-            })
-          : Promise.resolve(),
+      const syncOptions = {
+        retry: 1,
+        maxRetries: 3,
+      };
+
+      const syncFilesPromise = folderId
+        ? this.syncRemoteFilesByFolder(syncOptions, folderId)
+        : this.syncRemoteFiles(syncOptions);
+
+      const syncFoldersPromise = folderId
+        ? this.syncRemoteFoldersByFolder(syncOptions, folderId)
+        : this.syncRemoteFolders(syncOptions);
+
+      const [_files, folders] = await Promise.all([
+        await syncFilesPromise,
+        await syncFoldersPromise,
       ]);
+      return { files: _files, folders };
     } catch (error) {
       this.changeStatus('SYNC_FAILED');
       reportError(error as Error);
@@ -150,6 +156,10 @@ export class RemoteSyncManager {
       Logger.info('Total unsynced files: ', this.totalFilesUnsynced);
       Logger.info('Total synced folders: ', this.totalFoldersSynced);
     }
+    return {
+      files: [],
+      folders: [],
+    };
   }
 
   /**
@@ -168,11 +178,7 @@ export class RemoteSyncManager {
   }
 
   set isProcessRunning(value: boolean) {
-    if (value) {
-      this.changeStatus('SYNCING');
-    } else {
-      this.checkRemoteSyncStatus();
-    }
+    this.changeStatus(value ? 'SYNCING' : 'SYNCED');
     this._isProcessRunning = value;
   }
 
@@ -237,7 +243,7 @@ export class RemoteSyncManager {
     }
   }
 
-  private async getFileCheckpoint(): Promise<Nullable<Date>> {
+  async getFileCheckpoint(): Promise<Nullable<Date>> {
     const { success, result } = await this.db.files.getLastUpdated();
 
     if (!success) return undefined;
@@ -246,7 +252,7 @@ export class RemoteSyncManager {
 
     const updatedAt = new Date(result.updatedAt);
 
-    return rewind(updatedAt, SIX_HOURS_IN_MILLISECONDS);
+    return rewind(updatedAt, FIVETEEN_MINUTES_IN_MILLISECONDS);
   }
 
   /**
@@ -254,42 +260,46 @@ export class RemoteSyncManager {
    * @param syncConfig Config to execute the sync with
    * @returns
    */
-  private async syncRemoteFiles(syncConfig: SyncConfig, from?: Date) {
+
+  private async syncRemoteFiles(
+    syncConfig: SyncConfig,
+    from?: Date
+  ): Promise<undefined | RemoteSyncedFile[]> {
     const fileCheckpoint = from ?? (await this.getFileCheckpoint());
+    let offset = 0;
+    let hasMore = true;
+    const allResults: RemoteSyncedFile[] = [];
+
     try {
       Logger.info(
         `Syncing files updated from ${
           fileCheckpoint ?? '(no last date provided)'
         }`
       );
-      const { hasMore, result } = await this.fetchFilesFromRemote(
-        fileCheckpoint
-      );
 
-      let lastFileSynced = null;
+      while (hasMore) {
+        const { hasMore: newHasMore, result } = await this.fetchFilesFromRemote(
+          fileCheckpoint,
+          offset
+        );
 
-      for (const remoteFile of result) {
-        // eslint-disable-next-line no-await-in-loop
-        await this.createOrUpdateSyncedFileEntry(remoteFile);
+        for (const remoteFile of result) {
+          // eslint-disable-next-line no-await-in-loop
+          await this.createOrUpdateSyncedFileEntry(remoteFile);
+          this.totalFilesSynced++;
+        }
 
-        this.totalFilesSynced++;
-        lastFileSynced = remoteFile;
+        allResults.push(...result);
+        hasMore = newHasMore;
+        offset += this.config.fetchFilesLimitPerRequest;
+
+        if (hasMore) {
+          Logger.info('Retrieving more files for sync');
+        }
       }
 
-      if (!hasMore) {
-        Logger.info('Remote files sync finished');
-        this.filesSyncStatus = 'SYNCED';
-        this.checkRemoteSyncStatus();
-        return;
-      }
-      Logger.info('Retrieving more files for sync');
-      await this.syncRemoteFiles(
-        {
-          retry: 1,
-          maxRetries: syncConfig.maxRetries,
-        },
-        lastFileSynced ? new Date(lastFileSynced.updatedAt) : undefined
-      );
+      Logger.info('Remote files sync finished');
+      return allResults;
     } catch (error) {
       Logger.error('Remote files sync failed with error: ', error);
 
@@ -298,6 +308,7 @@ export class RemoteSyncManager {
           ? fileCheckpoint.toISOString()
           : 'INITIAL_FILES_SYNC',
       });
+
       if (syncConfig.retry >= syncConfig.maxRetries) {
         // No more retries allowed,
         this.filesSyncStatus = 'SYNC_FAILED';
@@ -305,10 +316,85 @@ export class RemoteSyncManager {
         return;
       }
 
-      await this.syncRemoteFiles({
-        retry: syncConfig.retry + 1,
-        maxRetries: syncConfig.maxRetries,
+      return await this.syncRemoteFiles(
+        {
+          retry: syncConfig.retry + 1,
+          maxRetries: syncConfig.maxRetries,
+        },
+        from
+      );
+    }
+  }
+
+  private async syncRemoteFilesByFolder(
+    syncConfig: SyncConfig,
+    folderId: number,
+    from?: Date
+  ): Promise<undefined | RemoteSyncedFile[]> {
+    const fileCheckpoint = from ?? (await this.getFileCheckpoint());
+    let offset = 0;
+    let hasMore = true;
+    const allResults: RemoteSyncedFile[] = [];
+
+    try {
+      Logger.info(
+        `Syncing files updated from ${
+          fileCheckpoint
+            ? fileCheckpoint.toISOString()
+            : '(no last date provided)'
+        }`
+      );
+
+      while (hasMore) {
+        const { hasMore: newHasMore, result } =
+          await this.fetchFilesByFolderFromRemote(
+            folderId,
+            fileCheckpoint,
+            offset
+          );
+
+        for (const remoteFile of result) {
+          // eslint-disable-next-line no-await-in-loop
+          await this.createOrUpdateSyncedFileEntry(remoteFile);
+          this.totalFilesSynced++;
+        }
+
+        allResults.push(...result);
+        hasMore = newHasMore;
+        offset += this.config.fetchFilesLimitPerRequest;
+
+        if (hasMore) {
+          Logger.info('Retrieving more files for sync');
+        }
+      }
+
+      Logger.info('Remote files sync finished');
+
+      return allResults;
+    } catch (error) {
+      Logger.error('Remote files sync failed with error: ', error);
+
+      reportError(error as Error, {
+        lastFilesSyncAt: fileCheckpoint
+          ? fileCheckpoint.toISOString()
+          : 'INITIAL_FILES_SYNC',
       });
+
+      if (syncConfig.retry >= syncConfig.maxRetries) {
+        // No more retries allowed,
+        this.filesSyncStatus = 'SYNC_FAILED';
+        this.checkRemoteSyncStatus();
+        return;
+      }
+
+      return await this.syncRemoteFilesByFolder(
+        {
+          retry: syncConfig.retry + 1,
+          maxRetries: syncConfig.maxRetries,
+        },
+        folderId,
+        from
+      );
     }
   }
 
@@ -321,50 +407,46 @@ export class RemoteSyncManager {
 
     const updatedAt = new Date(result.updatedAt);
 
-    return rewind(updatedAt, SIX_HOURS_IN_MILLISECONDS);
+    return rewind(updatedAt, FIVETEEN_MINUTES_IN_MILLISECONDS);
   }
 
-  /**
-   * Syncs all the remote folders and saves them into the local db
-   * @param syncConfig Config to execute the sync with
-   * @returns
-   */
-  private async syncRemoteFolders(syncConfig: SyncConfig, from?: Date) {
+  private async syncRemoteFolders(
+    syncConfig: SyncConfig,
+    from?: Date
+  ): Promise<undefined | RemoteSyncedFolder[]> {
     const lastFolderSyncAt = from ?? (await this.getLastFolderSyncAt());
+    let offset = 0;
+    let hasMore = true;
+    const allResults: RemoteSyncedFolder[] = [];
+
     try {
       Logger.info(
         `Syncing folders updated from ${
-          lastFolderSyncAt ?? '(no last date provided)'
+          lastFolderSyncAt
+            ? lastFolderSyncAt.toISOString()
+            : '(no last date provided)'
         }`
       );
-      const { hasMore, result } = await this.fetchFoldersFromRemote(
-        lastFolderSyncAt
-      );
 
-      let lastFolderSynced = null;
+      while (hasMore) {
+        const { hasMore: newHasMore, result } =
+          await this.fetchFoldersFromRemote(lastFolderSyncAt, offset);
 
-      for (const remoteFolder of result) {
-        // eslint-disable-next-line no-await-in-loop
-        await this.createOrUpdateSyncedFolderEntry(remoteFolder);
+        for (const remoteFolder of result) {
+          // eslint-disable-next-line no-await-in-loop
+          await this.createOrUpdateSyncedFolderEntry(remoteFolder);
+          this.totalFoldersSynced++;
+        }
 
-        this.totalFoldersSynced++;
-        lastFolderSynced = remoteFolder;
+        allResults.push(...result);
+        hasMore = newHasMore;
+        offset += this.config.fetchFilesLimitPerRequest;
+
+        if (hasMore) {
+          Logger.info('Retrieving more folders for sync');
+        }
       }
-
-      if (!hasMore) {
-        this.foldersSyncStatus = 'SYNCED';
-        this.checkRemoteSyncStatus();
-        return;
-      }
-
-      Logger.info('Retrieving more folders for sync');
-      await this.syncRemoteFolders(
-        {
-          retry: 1,
-          maxRetries: syncConfig.maxRetries,
-        },
-        lastFolderSynced ? new Date(lastFolderSynced.updatedAt) : undefined
-      );
+      return allResults;
     } catch (error) {
       Logger.error('Remote folders sync failed with error: ', error);
       reportError(error as Error, {
@@ -372,6 +454,7 @@ export class RemoteSyncManager {
           ? lastFolderSyncAt.toISOString()
           : 'INITIAL_FOLDERS_SYNC',
       });
+
       if (syncConfig.retry >= syncConfig.maxRetries) {
         // No more retries allowed,
         this.foldersSyncStatus = 'SYNC_FAILED';
@@ -379,10 +462,81 @@ export class RemoteSyncManager {
         return;
       }
 
-      await this.syncRemoteFolders({
-        retry: syncConfig.retry + 1,
-        maxRetries: syncConfig.maxRetries,
+      return await this.syncRemoteFolders(
+        {
+          retry: syncConfig.retry + 1,
+          maxRetries: syncConfig.maxRetries,
+        },
+        from
+      );
+    }
+  }
+
+  private async syncRemoteFoldersByFolder(
+    syncConfig: SyncConfig,
+    folderId: number,
+    from?: Date
+  ): Promise<undefined | RemoteSyncedFolder[]> {
+    const lastFolderSyncAt = from ?? (await this.getLastFolderSyncAt());
+    let offset = 0;
+    let hasMore = true;
+    const allResults: RemoteSyncedFolder[] = [];
+
+    try {
+      Logger.info(
+        `Syncing folders updated from ${
+          lastFolderSyncAt
+            ? lastFolderSyncAt.toISOString()
+            : '(no last date provided)'
+        }`
+      );
+
+      while (hasMore) {
+        const { hasMore: newHasMore, result } =
+          await this.fetchFoldersByFolderFromRemote(
+            folderId,
+            lastFolderSyncAt,
+            offset
+          );
+
+        for (const remoteFolder of result) {
+          // eslint-disable-next-line no-await-in-loop
+          await this.createOrUpdateSyncedFolderEntry(remoteFolder);
+          this.totalFoldersSynced++;
+        }
+
+        allResults.push(...result);
+        hasMore = newHasMore;
+        offset += this.config.fetchFilesLimitPerRequest;
+
+        if (hasMore) {
+          Logger.info('Retrieving more folders for sync');
+        }
+      }
+      return allResults;
+    } catch (error) {
+      Logger.error('Remote folders sync failed with error: ', error);
+      reportError(error as Error, {
+        lastFoldersSyncAt: lastFolderSyncAt
+          ? lastFolderSyncAt.toISOString()
+          : 'INITIAL_FOLDERS_SYNC',
       });
+
+      if (syncConfig.retry >= syncConfig.maxRetries) {
+        // No more retries allowed,
+        this.foldersSyncStatus = 'SYNC_FAILED';
+        this.checkRemoteSyncStatus();
+        return;
+      }
+
+      return await this.syncRemoteFoldersByFolder(
+        {
+          retry: syncConfig.retry + 1,
+          maxRetries: syncConfig.maxRetries,
+        },
+        folderId,
+        from
+      );
     }
   }
 
@@ -391,17 +545,18 @@ export class RemoteSyncManager {
    *
    * @param updatedAtCheckpoint Retrieve files that were updated after this date
    */
-  private async fetchFilesFromRemote(updatedAtCheckpoint?: Date): Promise<{
+  private async fetchFilesFromRemote(
+    updatedAtCheckpoint?: Date,
+    offset = 0
+  ): Promise<{
     hasMore: boolean;
     result: RemoteSyncedFile[];
   }> {
     const params = {
       limit: this.config.fetchFilesLimitPerRequest,
-      offset: 0,
+      offset,
       status: 'ALL',
-      updatedAt: updatedAtCheckpoint
-        ? updatedAtCheckpoint.toISOString()
-        : undefined,
+      updatedAt: updatedAtCheckpoint ?? undefined,
     };
     const allFilesResponse = await this.fetchItems(params, 'files');
     if (allFilesResponse.status > 299) {
@@ -440,19 +595,117 @@ export class RemoteSyncManager {
     };
   }
 
+  /**
+   * Fetch the files that were updated after the given date
+   *
+   * @param updatedAtCheckpoint Retrieve files that were updated after this date
+   */
+  private async fetchFilesByFolderFromRemote(
+    folderId: number,
+    updatedAtCheckpoint?: Date,
+    offset = 0
+  ): Promise<{
+    hasMore: boolean;
+    result: RemoteSyncedFile[];
+  }> {
+    const params = {
+      limit: this.config.fetchFilesLimitPerRequest,
+      offset,
+      status: 'ALL',
+      updatedAt: updatedAtCheckpoint
+        ? updatedAtCheckpoint.toISOString()
+        : undefined,
+    };
+    const allFilesResponse = await this.fetchItemsByFolder(
+      params,
+      folderId,
+      'files'
+    );
+    if (allFilesResponse.status > 299) {
+      throw new Error(
+        `Fetch files response not ok with body ${JSON.stringify(
+          allFilesResponse.data,
+          null,
+          2
+        )} and status ${allFilesResponse.status}`
+      );
+    }
+
+    if (Array.isArray(allFilesResponse.data.result)) {
+      Logger.info(
+        `Received ${allFilesResponse.data.result.length} fetched files`
+      );
+    } else {
+      // Logger.info(
+      //   `Expected to receive an array of files, but instead received ${JSON.stringify(
+      //     allFilesResponse,
+      //     null,
+      //     2
+      //   )}`
+      // );
+
+      throw new Error('Did not receive an array of files');
+    }
+
+    const hasMore =
+      allFilesResponse.data.result.length ===
+      this.config.fetchFilesLimitPerRequest;
+
+    return {
+      hasMore,
+      result:
+        allFilesResponse.data.result &&
+        Array.isArray(allFilesResponse.data.result)
+          ? allFilesResponse.data.result.map(this.patchDriveFileResponseItem)
+          : [],
+    };
+  }
+
   private fetchItems = async (
+    params: {
+      limit: number;
+      offset: number;
+      status: string;
+      updatedAt: string | undefined | Date;
+    },
+    type: 'files' | 'folders'
+  ) => {
+    const response = await this.config.httpClient.get(
+      `${process.env.NEW_DRIVE_URL}/drive/${type}`,
+      { params }
+    );
+    Logger.info(
+      `Fetching item ${type} response: ${JSON.stringify(
+        response.data[0],
+        null,
+        2
+      )}`
+    );
+    return response;
+  };
+
+  private fetchItemsByFolder = async (
     params: {
       limit: number;
       offset: number;
       status: string;
       updatedAt: string | undefined;
     },
+    folderId: number,
     type: 'files' | 'folders'
   ) => {
-    return await this.config.httpClient.get(
-      `${process.env.NEW_DRIVE_URL}/drive/${type}`,
-      { params }
+    const response = await this.config.httpClient.get(
+      `${process.env.NEW_DRIVE_URL}/drive/folders/${folderId}/${type}`,
+      { params: { ...params, sort: 'ASC' } }
     );
+    Logger.info(
+      `Fetching by folder ${type} by folder response: ${JSON.stringify(
+        response.data.result[0],
+        null,
+        2
+      )}`
+    );
+    return response;
   };
 
   /**
@@ -460,13 +713,16 @@ export class RemoteSyncManager {
    *
    * @param updatedAtCheckpoint Retrieve folders that were updated after this date
    */
-  private async fetchFoldersFromRemote(updatedAtCheckpoint?: Date): Promise<{
+  private async fetchFoldersFromRemote(
+    updatedAtCheckpoint?: Date,
+    offset = 0
+  ): Promise<{
     hasMore: boolean;
     result: RemoteSyncedFolder[];
   }> {
     const params = {
       limit: this.config.fetchFilesLimitPerRequest,
-      offset: 0,
+      offset,
       status: 'ALL',
       updatedAt: updatedAtCheckpoint
         ? updatedAtCheckpoint.toISOString()
@@ -507,6 +763,68 @@ export class RemoteSyncManager {
       result:
         allFoldersResponse.data && Array.isArray(allFoldersResponse.data)
           ? allFoldersResponse.data.map(this.patchDriveFolderResponseItem)
+          : [],
+    };
+  }
+  private async fetchFoldersByFolderFromRemote(
+    folderId: number,
+    updatedAtCheckpoint?: Date,
+    offset = 0
+  ): Promise<{
+    hasMore: boolean;
+    result: RemoteSyncedFolder[];
+  }> {
+    const params = {
+      limit: this.config.fetchFilesLimitPerRequest,
+      offset,
+      status: 'ALL',
+      updatedAt: undefined,
+    };
+
+    const allFoldersResponse = await this.fetchItemsByFolder(
+      params,
+      folderId,
+      'folders'
+    );
+
+    if (allFoldersResponse.status > 299) {
+      throw new Error(
+        `Fetch files response not ok with body ${JSON.stringify(
+          allFoldersResponse.data.result,
+          null,
+          2
+        )} and status ${allFoldersResponse.status}`
+      );
+    }
+
+    if (Array.isArray(allFoldersResponse.data.result)) {
+      Logger.info(
+        `Received ${allFoldersResponse.data.result.length} fetched files`
+      );
+    } else {
+      Logger.info(
+        `Expected to receive an array of files, but instead received ${JSON.stringify(
+          allFoldersResponse.status,
+          null,
+          2
+        )}`
+      );
+
+      throw new Error('Did not receive an array of files');
+    }
+
+    const hasMore =
+      allFoldersResponse.data.result.length ===
+      this.config.fetchFilesLimitPerRequest;
+
+    return {
+      hasMore,
+      result:
+        allFoldersResponse.data.result &&
+        Array.isArray(allFoldersResponse.data.result)
+          ? allFoldersResponse.data.result.map(
+              this.patchDriveFolderResponseItem
+            )
           : [],
     };
   }

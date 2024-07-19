@@ -42,6 +42,7 @@ export class FolderPathUpdater {
       return await this.folderRenamer.run(folder, desiredPath);
     }
 
-    throw new Error('No path change detected for folder path update');
+    // throw new Error('No path change detected for folder path update');
+    Logger.warn('No path change detected for folder path update');
   }
 }

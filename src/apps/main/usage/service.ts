@@ -28,7 +28,7 @@ export class UserUsageService {
   }
 
   async calculateUsage(): Promise<Usage> {
-    const [driveUsage, photosUsage, limitInBytes] = await Promise.all([
+    const [driveUsage, photosUsage, limitInBytes] =  await Promise.all([
       this.getDriveUsage(),
       this.getPhotosUsage(),
       this.getLimit(),

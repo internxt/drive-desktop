@@ -35,7 +35,7 @@ export const addUnknownDeviceIssue = (error: Error) => {
 };
 
 function createDevice(deviceName: string) {
-  return fetch(`${process.env.API_URL}/api/backup/deviceAsFolder`, {
+  return fetch(`${process.env.API_URL}/backup/deviceAsFolder`, {
     method: 'POST',
     headers: getHeaders(true),
     body: JSON.stringify({ deviceName }),
@@ -76,7 +76,7 @@ export async function getOrCreateDevice() {
 
   if (deviceIsDefined) {
     const res = await fetch(
-      `${process.env.API_URL}/api/backup/deviceAsFolder/${savedDeviceId}`,
+      `${process.env.API_URL}/backup/deviceAsFolder/${savedDeviceId}`,
       {
         method: 'GET',
         headers: getHeaders(),
@@ -110,7 +110,7 @@ export async function renameDevice(deviceName: string): Promise<Device> {
   const deviceId = getDeviceId();
 
   const res = await fetch(
-    `${process.env.API_URL}/api/backup/deviceAsFolder/${deviceId}`,
+    `${process.env.API_URL}/backup/deviceAsFolder/${deviceId}`,
     {
       method: 'PATCH',
       headers: getHeaders(true),
@@ -221,7 +221,7 @@ export async function addBackup(): Promise<void> {
 
 async function fetchFolder(folderId: number) {
   const res = await fetch(
-    `${process.env.API_URL}/api/storage/v2/folder/${folderId}`,
+    `${process.env.API_URL}/storage/v2/folder/${folderId}`,
     {
       method: 'GET',
       headers: getHeaders(true),
@@ -236,7 +236,7 @@ async function fetchFolder(folderId: number) {
 
 export async function deleteBackup(backup: Backup): Promise<void> {
   const res = await fetch(
-    `${process.env.API_URL}/api/storage/folder/${backup.id}`,
+    `${process.env.API_URL}/storage/folder/${backup.id}`,
     {
       method: 'DELETE',
       headers: getHeaders(true),
@@ -286,7 +286,7 @@ export async function changeBackupPath(currentPath: string): Promise<boolean> {
   }
 
   const res = await fetch(
-    `${process.env.API_URL}/api/storage/folder/${existingBackup.folderId}/meta`,
+    `${process.env.API_URL}/storage/folder/${existingBackup.folderId}/meta`,
     {
       method: 'POST',
       headers: getHeaders(true),

@@ -38,12 +38,23 @@ export class RenameOrMoveController extends CallbackController {
 
       if (this.isFilePlaceholder(trimmedId)) {
         const [_, contentsId] = trimmedId.split(':');
+        Logger.debug('[RUN File Path Updater]', contentsId, posixRelativePath);
         await this.filePathUpdater.run(contentsId, posixRelativePath);
+        Logger.debug(
+          '[FINISH File Path Updater]',
+          contentsId,
+          posixRelativePath
+        );
         return callback(true);
       }
 
       if (this.isFolderPlaceholder(trimmedId)) {
         const [_, folderUuid] = trimmedId.split(':');
+        Logger.debug(
+          '[RUN Folder Path Updater]',
+          contentsId,
+          posixRelativePath
+        );
         await this.folderPathUpdater.run(folderUuid, posixRelativePath);
         return callback(true);
       }
@@ -51,7 +62,7 @@ export class RenameOrMoveController extends CallbackController {
       Logger.error('Unidentified placeholder id: ', trimmedId);
       callback(false);
     } catch (error: unknown) {
-      Logger.error(error);
+      Logger.error('[ERROR Rename or move]', error);
       Sentry.captureException(error);
       callback(false);
     }

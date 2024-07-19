@@ -161,6 +161,7 @@
           "uploading": "Subiendo",
           "encrypting": "Encriptando",
           "downloaded": "Descargado",
+          "cancel_downloaded": "Descarga Cancelada",
           "uploaded": "Subido",
           "deleting": "Moviendo a la papelera",
           "deleted": "Movido a la papelera",

@@ -37,6 +37,7 @@ type DownloadEvents = {
   FILE_DOWNLOADING: (payload: FileProgressInfo) => void;
   FILE_PREPARING: (payload: FileProgressInfo) => void;
   FILE_DOWNLOADED: (payload: FileProgressInfo) => void;
+  FILE_DOWNLOAD_CANCEL: (payload: Partial<FileProgressInfo>) => void;
   FILE_DOWNLOAD_ERROR: (payload: FileErrorInfo) => void;
 };
 
@@ -69,6 +70,11 @@ type MoveEvents = {
   }) => void;
 };
 
+type SyncEvents = {
+  SYNCING: () => void;
+  SYNCED: () => void;
+};
+
 type CloneEvents = {
   FILE_CLONNED: (payload: FileProgressInfo) => void;
 };
@@ -79,6 +85,7 @@ type FileEvents = UploadEvents &
   RenameEvents &
   OverwriteEvents &
   MoveEvents &
-  CloneEvents;
+  CloneEvents &
+  SyncEvents;
 
 export type DriveEvents = FolderEvents & FileEvents;

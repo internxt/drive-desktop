@@ -23,6 +23,14 @@ ipcMainDrive.on('FILE_DOWNLOADING', (_, payload) => {
   });
 });
 
+ipcMainDrive.on('SYNCING', () => {
+  setIsProcessing(true);
+});
+
+ipcMainDrive.on('SYNCED', () => {
+  setIsProcessing(false);
+});
+
 ipcMainDrive.on('FILE_PREPARING', (_, payload) => {
   const { nameWithExtension, processInfo } = payload;
   setIsProcessing(true);
@@ -34,9 +42,18 @@ ipcMainDrive.on('FILE_PREPARING', (_, payload) => {
 });
 
 ipcMainDrive.on('FILE_DOWNLOADED', (_, payload) => {
+  setIsProcessing(false);
   const { nameWithExtension } = payload;
   broadcastToWindows('sync-info-update', {
     action: 'DOWNLOADED',
+    name: nameWithExtension,
+  });
+});
+ipcMainDrive.on('FILE_DOWNLOAD_CANCEL', (_, payload) => {
+  setIsProcessing(false);
+  const { nameWithExtension } = payload;
+  broadcastToWindows('sync-info-update', {
+    action: 'DOWNLOAD_CANCEL',
     name: nameWithExtension,
   });
 });
@@ -94,6 +111,15 @@ ipcMainDrive.on('FILE_UPLOADING', (_, payload) => {
     action: 'UPLOADING',
     name: nameWithExtension,
     progress: processInfo.progress,
+  });
+});
+
+ipcMainDrive.on('FILE_UPLOADED', (_, payload) => {
+  const { nameWithExtension } = payload;
+  setIsProcessing(false);
+  broadcastToWindows('sync-info-update', {
+    action: 'UPLOADED',
+    name: nameWithExtension,
   });
 });
 

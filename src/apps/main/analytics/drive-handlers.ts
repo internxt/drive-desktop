@@ -35,6 +35,16 @@ ipcMainDrive.on('FILE_DOWNLOADED', (_, payload) => {
   });
 });
 
+ipcMainDrive.on('FILE_DOWNLOAD_CANCEL', (_, payload) => {
+  const { name, extension, size } = payload;
+
+  trackEvent('Download Aborted', {
+    file_name: name,
+    file_extension: extension,
+    file_size: size,
+  });
+});
+
 ipcMainDrive.on('FILE_CLONNED', (_, payload) => {
   const { name, extension, size, processInfo } = payload;
 

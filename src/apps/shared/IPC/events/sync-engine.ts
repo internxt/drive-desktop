@@ -68,6 +68,7 @@ export type FilesEvents = {
   FILE_DOWNLOADING: (payload: FileUpdatePayload) => void;
   FILE_PREPARING: (payload: FileUpdatePayload) => void;
   FILE_DOWNLOADED: (payload: FileUpdatePayload) => void;
+  FILE_DOWNLOAD_CANCEL: (payload: Partial<FileUpdatePayload>) => void;
   FILE_UPLOAD_ERROR: (payload: {
     name: string;
     extension: string;
@@ -123,6 +124,10 @@ export type SyncEngineInvocableFunctions = {
     files: DriveFile[];
     folders: DriveFolder[];
   }>;
+  GET_UPDATED_REMOTE_ITEMS_BY_FOLDER: (folderId: number) => Promise<{
+    files: DriveFile[];
+    folders: DriveFolder[];
+  }>;
   START_REMOTE_SYNC: () => Promise<void>;
 };
 
@@ -133,6 +138,8 @@ export type ProcessInfoUpdate = {
     key: string;
     additionalData: Record<string, any>;
   }) => void;
+  SYNCING: () => void;
+  SYNCED: () => void;
 };
 
 export type FromProcess = FilesEvents &

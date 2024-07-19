@@ -62,9 +62,7 @@ async function setUp() {
 
   ipcRenderer.on('UPDATE_SYNC_ENGINE_PROCESS', async () => {
     Logger.info('[SYNC ENGINE] Updating sync engine');
-
     await bindings.update();
-
     Logger.info('[SYNC ENGINE] sync engine updated successfully');
   });
 
@@ -80,7 +78,7 @@ async function setUp() {
     Logger.info('[SYNC ENGINE] updating file unsync');
 
     const filesPending = await bindings.getFileInSyncPending();
-  
+
     event.sender.send('UPDATE_UNSYNC_FILE_IN_SYNC_ENGINE', filesPending);
   });
 
@@ -111,7 +109,7 @@ async function setUp() {
     '{E9D7EB38-B229-5DC5-9396-017C449D59CD}'
   );
 
-  bindings.watch();
+  await bindings.watch();
 
   ipcRenderer.send('CHECK_SYNC');
 }

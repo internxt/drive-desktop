@@ -1,5 +1,6 @@
 export const WAITING_AFTER_SYNCING = 1000 * 60 * 3; // 5 minutes
 export const SIX_HOURS_IN_MILLISECONDS = 6 * 60 * 60 * 1000;
+export const FIVETEEN_MINUTES_IN_MILLISECONDS = 15 * 60 * 1000;
 
 export type RemoteSyncedFile = {
   id: number;

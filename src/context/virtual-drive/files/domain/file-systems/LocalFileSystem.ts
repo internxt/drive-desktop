@@ -4,6 +4,8 @@ import { PlaceholderState } from '../PlaceholderState';
 export interface LocalFileSystem {
   createPlaceHolder(file: File): Promise<void>;
 
+  fileExists(filePath: string): Promise<boolean>;
+
   getLocalFileId(file: File): Promise<`${string}-${string}`>;
 
   updateSyncStatus(file: File): Promise<void>;
@@ -20,8 +22,5 @@ export interface LocalFileSystem {
     relativePath: string
   ): Promise<PlaceholderState>;
 
-  updateFileIdentity(
-    path: File['path'],
-    newIdentity: string
-  ): Promise<void>;
+  updateFileIdentity(path: File['path'], newIdentity: string): Promise<void>;
 }
