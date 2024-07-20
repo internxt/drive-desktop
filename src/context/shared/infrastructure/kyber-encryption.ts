@@ -46,6 +46,7 @@ class KyberCrypto {
   async verifyKey(publicKey: Uint8Array): Promise<boolean> {
     this.ensureInitialized();
     if (!publicKey || publicKey.length === 0) {
+      console.error('Invalid public key detected.');
       throw new Error('Invalid public key provided.');
     }
     return publicKey.length > 0;
