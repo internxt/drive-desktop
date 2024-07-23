@@ -1,19 +1,18 @@
-import { Device } from '../../../main/device/service';
 import useUsage from '../../hooks/useUsage';
 import { SizePill } from './SizePill';
-import { useEffect } from 'react';
+import { useContext, useEffect } from 'react';
 import { useBackupProgress } from '../../hooks/backups/useBackupProgress';
 import useBackupStatus from '../../hooks/backups/useBackupsStatus';
 import { BackupsProgressBar } from './BackupsProgressBar';
 import { BackupsProgressPercentage } from './BackupsProgressPercent';
 import { ArrowCircleUp } from 'phosphor-react';
 import { LastBackupMade } from './LastBackupMade';
-import { useLastBackup } from '../../hooks/backups/useLastBackup';
 import { ShowBackupsIssues } from './ShowBackupsIssues';
 import { useBackups } from '../../hooks/backups/useBackups';
+import { ActualDeviceContext } from '../../context/ActualDeviceContext';
+import { BackupContext } from '../../context/BackupContext';
 
 interface DetailedDevicePillProps {
-  device: Device;
   showIssues: () => void;
 }
 
@@ -26,15 +25,15 @@ function BackingUp() {
 }
 
 export function DetailedDevicePill({
-  device,
   showIssues,
 }: DetailedDevicePillProps) {
   const { usage } = useUsage();
   const { backupStatus } = useBackupStatus();
-  const { lastBackupHadIssues } = useLastBackup();
   const { backups } = useBackups();
   const { thereIsProgress, percentualProgress, clearProgress } =
     useBackupProgress();
+  const { current, selected } = useContext(ActualDeviceContext);
+  const { lastBackupHadIssues } = useContext(BackupContext);
 
   useEffect(() => {
     if (backupStatus === 'STANDBY') {
@@ -48,20 +47,20 @@ export function DetailedDevicePill({
     <div className="rounded-lg  border border-gray-10 bg-surface px-6 py-4 shadow-sm dark:bg-gray-5">
       <div className="flex w-full items-center">
         <div className="grow">
-          {device.name}
+          {selected?.name}
           <br />
-          {thereIsProgress() ? <BackingUp /> : <LastBackupMade />}
+          {thereIsProgress ? <BackingUp /> : <LastBackupMade />}
         </div>
-        {thereIsProgress() ? (
-          <BackupsProgressPercentage progress={percentualProgress()} />
+        {thereIsProgress ? (
+          <BackupsProgressPercentage progress={percentualProgress} />
         ) : (
-          <SizePill size={usage?.limitInBytes ?? 0}></SizePill>
+          <SizePill size={usage?.limitInBytes ?? 0} />
         )}
       </div>
-      {thereIsProgress() && (
-        <BackupsProgressBar progress={percentualProgress()} />
+      {thereIsProgress && (
+        <BackupsProgressBar progress={percentualProgress} />
       )}
-      {displayIssues && <ShowBackupsIssues show={showIssues} />}
+      {selected === current && displayIssues && <ShowBackupsIssues show={showIssues} />}
     </div>
   );
 }

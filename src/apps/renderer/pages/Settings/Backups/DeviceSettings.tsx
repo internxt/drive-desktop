@@ -11,15 +11,15 @@ interface DeviceSettingsProps extends React.HTMLAttributes<HTMLBaseElement> {
 export function DeviceSettings({ onGoToList, className }: DeviceSettingsProps) {
   const { enabled, toggleEnabled } = useBackupsEnabled();
 
-  const [state] = useContext(DeviceContext);
+  const { deviceState } = useContext(DeviceContext);
 
   return (
     <section className={className}>
-      {!enabled || state.status !== 'SUCCESS' ? (
+      {!enabled || deviceState.status !== 'SUCCESS' ? (
         <EnableBackups enable={toggleEnabled} />
       ) : (
         <>
-          <DeviceBackups device={state.device} onGoToList={onGoToList} />
+          <DeviceBackups onGoToList={onGoToList} />
         </>
       )}
     </section>

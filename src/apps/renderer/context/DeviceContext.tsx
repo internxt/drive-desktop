@@ -1,6 +1,6 @@
 import { createContext, ReactNode, useEffect, useState } from 'react';
-
 import { Device } from '../../main/device/service';
+import { BackupProvider } from './BackupContext';
 
 type DeviceState =
   | { status: 'LOADING' | 'ERROR' }
@@ -8,39 +8,52 @@ type DeviceState =
 
 const defaultState = { status: 'LOADING' } as const;
 
-export const DeviceContext = createContext<
-  [DeviceState, (deviceName: string) => void]
->([defaultState, () => undefined]);
+interface DeviceContextProps {
+  deviceState: DeviceState;
+  deviceRename: (deviceName: string) => Promise<void>;
+}
+
+export const DeviceContext = createContext<DeviceContextProps>({
+  deviceState: defaultState,
+  deviceRename: async () => undefined,
+});
 
 export function DeviceProvider({ children }: { children: ReactNode }) {
-  const [state, setState] = useState<DeviceState>(defaultState);
+  const [deviceState, setDeviceState] = useState<DeviceState>(defaultState);
 
   useEffect(() => {
     window.electron
       .getOrCreateDevice()
       .then((device) => {
-        setState({ status: 'SUCCESS', device });
+        setDeviceState({ status: 'SUCCESS', device });
       })
       .catch(() => {
-        setState({ status: 'ERROR' });
+        setDeviceState({ status: 'ERROR' });
       });
   }, []);
 
-  async function handleRename(deviceName: string) {
-    setState({ status: 'LOADING' });
+  const deviceRename = async (deviceName: string) => {
+    setDeviceState({ status: 'LOADING' });
 
     try {
       const updatedDevice = await window.electron.renameDevice(deviceName);
-      setState({ status: 'SUCCESS', device: updatedDevice });
+      setDeviceState({ status: 'SUCCESS', device: updatedDevice });
     } catch (err) {
       console.log(err);
-      setState({ status: 'ERROR' });
+      setDeviceState({ status: 'ERROR' });
     }
-  }
+  };
 
   return (
-    <DeviceContext.Provider value={[state, handleRename]}>
-      {children}
-    </DeviceContext.Provider>
+    <BackupProvider>
+      <DeviceContext.Provider value={
+        {
+          deviceState,
+          deviceRename,
+        }
+      }>
+        {children}
+      </DeviceContext.Provider>
+    </BackupProvider>
   );
 }

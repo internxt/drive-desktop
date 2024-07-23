@@ -11,7 +11,7 @@ export default function DeviceName({
   onChangeView: boolean;
 }) {
   const { translate } = useTranslationContext();
-  const [deviceState, renameDevice] = useContext(DeviceContext);
+  const { deviceState, deviceRename } = useContext(DeviceContext);
   const [showEdit, setShowEdit] = useState(false);
   const [newName, setNewName] = useState<string | undefined>(undefined);
   const DEFAULT_DEVICE_NAME = 'Your Device';
@@ -29,7 +29,7 @@ export default function DeviceName({
   const setDeviceName = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (newName && validateName(newName)) {
-      renameDevice(newName);
+      deviceRename(newName);
     }
     setShowEdit(false);
     setNewName(undefined);

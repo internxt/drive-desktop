@@ -3,8 +3,8 @@ import { DeviceContext } from '../../../context/DeviceContext';
 import { DeviceSettings } from './DeviceSettings';
 import { DevicesList } from './DevicesList';
 import { ScrollableContent } from '../../../components/ScrollableContent';
-
 import Spinner from '../../../assets/spinner.svg';
+import { ActualDeviceProvider } from '../../../context/ActualDeviceContext';
 
 interface BackupsSectionProps {
   active: boolean;
@@ -15,7 +15,7 @@ export default function BackupsSection({
   active,
   showBackedFolders,
 }: BackupsSectionProps) {
-  const [deviceState] = useContext(DeviceContext);
+  const { deviceState } = useContext(DeviceContext);
 
   return (
     <div className={`${active ? 'block' : 'hidden'} w-full`}>
@@ -32,13 +32,15 @@ export default function BackupsSection({
         </div>
       )}
       {deviceState.status === 'SUCCESS' && (
-        <section className="flex h-full">
-          <DevicesList className="w-1/3" />
-          <div className="mx-4 border-l border-gray-10"></div>
-          <ScrollableContent className="w-2/3">
-            <DeviceSettings onGoToList={showBackedFolders} />
-          </ScrollableContent>
-        </section>
+        <ActualDeviceProvider device={deviceState.device}>
+          <section className="flex h-full">
+            <DevicesList className="w-1/3" />
+            <div className="mx-4 border-l border-gray-10"></div>
+            <ScrollableContent className="w-2/3">
+              <DeviceSettings onGoToList={showBackedFolders} />
+            </ScrollableContent>
+          </section>
+        </ActualDeviceProvider>
       )}
     </div>
   );
