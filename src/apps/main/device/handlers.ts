@@ -7,6 +7,7 @@ import {
   createBackupsFromLocalPaths,
   deleteBackup,
   disableBackup,
+  downloadBackup,
   getBackupsFromDevice,
   getDevices,
   getOrCreateDevice,
@@ -20,7 +21,7 @@ ipcMain.handle('get-or-create-device', getOrCreateDevice);
 
 ipcMain.handle('rename-device', (_, v) => renameDevice(v));
 
-ipcMain.handle('get-backups', getBackupsFromDevice);
+ipcMain.handle('get-backups', (_, d) => getBackupsFromDevice(d));
 
 ipcMain.handle('add-backup', () =>
   addBackup().catch((err) => {
@@ -30,6 +31,8 @@ ipcMain.handle('add-backup', () =>
 ipcMain.handle('add-multiple-backups', (_, folderPaths) =>
   createBackupsFromLocalPaths(folderPaths)
 );
+
+ipcMain.handle('download-backup', (_, v) => downloadBackup(v));
 
 ipcMain.handle('delete-backup', (_, v) => deleteBackup(v));
 

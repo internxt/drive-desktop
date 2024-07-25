@@ -188,11 +188,14 @@ contextBridge.exposeInMainWorld('electron', {
       return ipcRenderer.invoke('devices.get-all');
     },
   },
-  getBackups() {
-    return ipcRenderer.invoke('get-backups');
+  getBackups(device) {
+    return ipcRenderer.invoke('get-backups', device);
   },
   addBackup() {
     return ipcRenderer.invoke('add-backup');
+  },
+  downloadBackup(backup) {
+    return ipcRenderer.invoke('download-backup', backup);
   },
   addBackupsFromLocalPaths(localPaths) {
     return ipcRenderer.invoke('add-multiple-backups', localPaths);

@@ -246,6 +246,16 @@ async function fetchFolder(folderId: number) {
   throw new Error('Unsuccesful request to fetch folder');
 }
 
+export async function downloadBackup(device: Device): Promise<void> {
+  const chosenItem = await getPathFromDialog();
+  if (!chosenItem || !chosenItem.path) {
+    return;
+  }
+
+  const chosenPath = chosenItem.path;
+  logger.info(`[!!!!!] Device: "${device.name}", ChosenPath "${chosenPath}"`);
+}
+
 export async function deleteBackup(backup: BackupInfo): Promise<void> {
   const res = await fetch(
     `${process.env.API_URL}/storage/folder/${backup.folderId}`,
