@@ -1,10 +1,10 @@
+import { useContext } from 'react';
 import Button from '../../../components/Button';
 import { SecondaryText } from '../../../components/SecondaryText';
 import { SectionHeader } from '../../../components/SectionHeader';
 import { useTranslationContext } from '../../../context/LocalContext';
-import { useBackups } from '../../../hooks/backups/useBackups';
-
 import useBackupStatus from '../../../hooks/backups/useBackupsStatus';
+import { BackupContext } from '../../../context/BackupContext';
 
 interface SelectedFoldersSectionProps
   extends React.HTMLAttributes<HTMLBaseElement> {
@@ -17,7 +17,7 @@ export function SelectedFoldersSection({
 }: SelectedFoldersSectionProps) {
   const { translate } = useTranslationContext();
   const { backupStatus } = useBackupStatus();
-  const { backups } = useBackups();
+  const { backups } = useContext(BackupContext);
 
   return (
     <section className={`${className}`}>

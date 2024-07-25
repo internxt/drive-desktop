@@ -1,6 +1,5 @@
 import { createContext, ReactNode, useEffect, useState } from 'react';
 import { Device } from '../../main/device/service';
-import { BackupProvider } from './BackupContext';
 
 type DeviceState =
   | { status: 'LOADING' | 'ERROR' }
@@ -45,15 +44,13 @@ export function DeviceProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <BackupProvider>
-      <DeviceContext.Provider value={
-        {
-          deviceState,
-          deviceRename,
-        }
-      }>
-        {children}
-      </DeviceContext.Provider>
-    </BackupProvider>
+    <DeviceContext.Provider value={
+      {
+        deviceState,
+        deviceRename,
+      }
+    }>
+      {children}
+    </DeviceContext.Provider>
   );
 }

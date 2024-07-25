@@ -1,27 +1,18 @@
 import { createContext, ReactNode} from 'react';
-import { useLastBackup } from '../hooks/backups/useLastBackup';
-import { WorkerExitCause } from '../../main/background-processes/backups/BackupsProcessTracker/BackupsProcessTracker';
+import { LastBackupContextProps, useLastBackup } from '../hooks/backups/useLastBackup';
+import { BackupContextProps, useBackups } from '../hooks/backups/useBackups';
 
 
-interface BackupContextProps {
-  lastBackupTimestamp: number | undefined;
-  lastExistReason: WorkerExitCause | undefined;
-  fromNow: () => string;
-  lastBackupHadIssues: boolean;
-}
+type BackupContext = LastBackupContextProps & BackupContextProps;
 
-export const BackupContext = createContext<BackupContextProps>({
-  lastBackupTimestamp: undefined,
-  lastExistReason: undefined,
-  fromNow: () => '',
-  lastBackupHadIssues: false,
-});
+export const BackupContext = createContext<BackupContext>({} as BackupContext);
 
 export function BackupProvider({ children }: { children: ReactNode }) {
   const lastBackup = useLastBackup();
+  const backupsManager = useBackups();
 
   return (
-    <BackupContext.Provider value={lastBackup}>
+    <BackupContext.Provider value={{...lastBackup, ...backupsManager}}>
       {children}
     </BackupContext.Provider>
   );

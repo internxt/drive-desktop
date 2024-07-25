@@ -1,15 +1,24 @@
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { BackupInfo } from '../../../backups/BackupInfo';
+import { ActualDeviceContext } from '../../context/ActualDeviceContext';
 
 export type BackupsState = 'LOADING' | 'ERROR' | 'SUCCESS';
 
+export interface BackupContextProps {
+  state: BackupsState;
+  backups: BackupInfo[];
+  disableBackup: (backup: BackupInfo) => Promise<void>;
+  addBackup: () => Promise<void>;
+  deleteBackup: (backup: BackupInfo) => Promise<void>;
+}
+
 export function useBackups() {
+  const { selected } = useContext(ActualDeviceContext);
   const [state, setState] = useState<BackupsState>('LOADING');
   const [backups, setBackups] = useState<Array<BackupInfo>>([]);
 
   async function fetchBackups(): Promise<void> {
-    const backups = await window.electron.getBackups();
-
+    const backups = await window.electron.getBackups(selected);
     setBackups(backups);
   }
 
@@ -27,6 +36,10 @@ export function useBackups() {
   useEffect(() => {
     loadBackups();
   }, []);
+
+  useEffect(() => {
+    loadBackups();
+  }, [selected]);
 
   async function addBackup() {
     try {

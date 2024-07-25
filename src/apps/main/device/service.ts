@@ -142,11 +142,8 @@ function decryptDeviceName({ name, ...rest }: Device): Device {
 
 export type Backup = { id: number; name: string };
 
-export async function getBackupsFromDevice(): Promise<Array<BackupInfo>> {
-  const deviceId = getDeviceId();
-  const device = await getOrCreateDevice();
-
-  const folder = await fetchFolder(deviceId);
+export async function getBackupsFromDevice(device: Device): Promise<Array<BackupInfo>> {
+  const folder = await fetchFolder(device.id);
 
   const backupsList = configStore.get('backupList');
 

@@ -1,11 +1,11 @@
 import { UilMinus, UilPlus } from '@iconscout/react-unicons';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import Button from '../../../../components/Button';
 import { useTranslationContext } from '../../../../context/LocalContext';
-import { useBackups } from '../../../../hooks/backups/useBackups';
 import { LoadingFolders } from './LoadingFolders';
 import { BackupsList } from './BackupsList';
 import { BackupInfo } from '../../../../../backups/BackupInfo';
+import { BackupContext } from '../../../../context/BackupContext';
 
 interface BackupFolderSelectorProps {
   onClose: () => void;
@@ -16,7 +16,7 @@ export default function BackupFolderSelector({
 }: BackupFolderSelectorProps) {
   const { translate } = useTranslationContext();
 
-  const { backups, state, addBackup, disableBackup } = useBackups();
+  const { backups, state, addBackup, disableBackup } = useContext(BackupContext);
 
   const [selectedBackup, setSelectedBackup] = useState<BackupInfo | null>(null);
 

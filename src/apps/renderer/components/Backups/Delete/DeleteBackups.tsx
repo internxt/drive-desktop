@@ -2,12 +2,12 @@ import { SecondaryText } from '../../SecondaryText';
 import { SectionHeader } from '../../SectionHeader';
 import Button from '../../Button';
 import { ConfirmationModal } from './ConfirmationModal';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import { useTranslationContext } from '../../../context/LocalContext';
-import { useBackups } from '../../../hooks/backups/useBackups';
+import { BackupContext } from '../../../context/BackupContext';
 
 export function DeleteBackups() {
-  const { backups, deleteBackup } = useBackups();
+  const { backups, deleteBackup } = useContext(BackupContext);
   const [askConfirmation, setAskConfirmation] = useState(false);
 
   const { translate } = useTranslationContext();
