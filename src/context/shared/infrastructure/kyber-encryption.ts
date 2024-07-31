@@ -92,21 +92,16 @@ class KyberCrypto {
    * @returns {string} El mensaje desencriptado.
    */
   async decrypt(encryptedData: Uint8Array, privateKey: Uint8Array) {
-    if (!this.kem) {
-      throw new Error(
-        'Kyber instance not initialized. Call `initialize()` first.'
-      );
-    }
-
+    this.ensureInitialized();
     try {
-      const decryptedData = await this.kem.decapsulate(
+      const decryptedData = await this.kem!.decapsulate(
         encryptedData,
         privateKey
       );
       return new TextDecoder().decode(decryptedData.sharedSecret);
     } catch (error) {
-      console.log(error);
-      throw error;
+      console.error('Decryption error:', error);
+      throw new Error('Decryption failed.');
     }
   }
 }
