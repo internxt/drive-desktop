@@ -188,8 +188,8 @@ contextBridge.exposeInMainWorld('electron', {
       return ipcRenderer.invoke('devices.get-all');
     },
   },
-  getBackups(device) {
-    return ipcRenderer.invoke('get-backups', device);
+  getBackupsFromDevice(device, isCurrent) {
+    return ipcRenderer.invoke('get-backups-from-device', device, isCurrent);
   },
   addBackup() {
     return ipcRenderer.invoke('add-backup');
@@ -200,8 +200,11 @@ contextBridge.exposeInMainWorld('electron', {
   addBackupsFromLocalPaths(localPaths) {
     return ipcRenderer.invoke('add-multiple-backups', localPaths);
   },
-  deleteBackup(backup) {
-    return ipcRenderer.invoke('delete-backup', backup);
+  deleteBackup(backup, isCurrent) {
+    return ipcRenderer.invoke('delete-backup', backup, isCurrent);
+  },
+  deleteBackupsFromDevice(device, isCurrent) {
+    return ipcRenderer.invoke('delete-backups-from-device', device, isCurrent);
   },
   disableBackup(backup) {
     return ipcRenderer.invoke('disable-backup', backup);

@@ -5,9 +5,11 @@ import { ConfirmationModal } from './ConfirmationModal';
 import { useContext, useState } from 'react';
 import { useTranslationContext } from '../../../context/LocalContext';
 import { BackupContext } from '../../../context/BackupContext';
+import { ActualDeviceContext } from '../../../context/ActualDeviceContext';
 
 export function DeleteBackups() {
-  const { backups, deleteBackup } = useContext(BackupContext);
+  const { backups, deleteBackups } = useContext(BackupContext);
+  const { selected, current } = useContext(ActualDeviceContext);
   const [askConfirmation, setAskConfirmation] = useState(false);
 
   const { translate } = useTranslationContext();
@@ -16,10 +18,8 @@ export function DeleteBackups() {
     setAskConfirmation(!askConfirmation);
   }
 
-  async function deleteBackups() {
-    const deletionPromises = backups.map((backup) => deleteBackup(backup));
-
-    await Promise.all(deletionPromises);
+  async function deleteBackupsFromDevice() {
+    await deleteBackups(selected, selected === current);
     toggleConfirmation();
   }
 
@@ -41,7 +41,7 @@ export function DeleteBackups() {
       <ConfirmationModal
         show={askConfirmation}
         onCanceled={toggleConfirmation}
-        onConfirmed={deleteBackups}
+        onConfirmed={deleteBackupsFromDevice}
       />
     </section>
   );

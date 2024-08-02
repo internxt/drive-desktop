@@ -141,7 +141,7 @@ declare interface Window {
       getDevices: () => Promise<Array<import('../main/device/service').Device>>;
     };
 
-    getBackups: typeof import('../main/device/service').getBackupsFromDevice;
+    getBackupsFromDevice: typeof import('../main/device/service').getBackupsFromDevice;
 
     addBackup: typeof import('../main/device/service').addBackup;
 
@@ -150,6 +150,8 @@ declare interface Window {
     addBackupsFromLocalPaths: typeof import('../main/device/service').createBackupsFromLocalPaths;
 
     deleteBackup: typeof import('../main/device/service').deleteBackup;
+
+    deleteBackupsFromDevice: typeof import('../main/device/service').deleteBackupsFromDevice;
 
     disableBackup: typeof import('../main/device/service').disableBackup;
 

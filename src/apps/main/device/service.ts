@@ -143,28 +143,40 @@ function decryptDeviceName({ name, ...rest }: Device): Device {
   };
 }
 
-export type Backup = { id: number; name: string };
+export type Backup = { id: number; name: string; uuid: string };
 
 export async function getBackupsFromDevice(
-  device: Device
+  device: Device,
+  isCurrent?: boolean
 ): Promise<Array<BackupInfo>> {
   const folder = await fetchFolder(device.id);
 
+  if (isCurrent) {
   const backupsList = configStore.get('backupList');
 
   return folder.children
     .filter((backup: Backup) => {
       const pathname = findBackupPathnameFromId(backup.id);
-
       return pathname && backupsList[pathname].enabled;
     })
     .map((backup: Backup) => ({
       ...backup,
       pathname: findBackupPathnameFromId(backup.id),
       folderId: backup.id,
+        folderUuid: backup.uuid,
       tmpPath: app.getPath('temp'),
+        backupsBucket: device.bucket,
+      }));
+  } else {
+    return folder.children.map((backup: Backup) => ({
+      ...backup,
+      folderId: backup.id,
+      folderUuid: backup.uuid,
       backupsBucket: device.bucket,
+      tmpPath: '',
+      pathname: '',
     }));
+  }
 }
 
 /**
@@ -263,7 +275,7 @@ export async function fetchFolderTree(folderUuid: string): Promise<{
   );
 
   if (res.ok) {
-    const { tree } = (await res.json()) as any as { tree: FolderTree };
+    const { tree } = (await res.json()) as unknown as { tree: FolderTree };
 
     const size = tree.size;
     const folderDecryptedNames: Record<number, string> = {};
@@ -358,7 +370,10 @@ async function downloadDeviceBackupZip(
   );
 }
 
-export async function deleteBackup(backup: BackupInfo): Promise<void> {
+export async function deleteBackup(
+  backup: BackupInfo,
+  isCurrent?: boolean
+): Promise<void> {
   const res = await fetch(
     `${process.env.API_URL}/storage/folder/${backup.folderId}`,
     {
@@ -370,6 +385,7 @@ export async function deleteBackup(backup: BackupInfo): Promise<void> {
     throw new Error('Request to delete backup wasnt succesful');
   }
 
+  if (isCurrent) {
   const backupsList = configStore.get('backupList');
 
   const entriesFiltered = Object.entries(backupsList).filter(
@@ -379,6 +395,17 @@ export async function deleteBackup(backup: BackupInfo): Promise<void> {
   const backupListFiltered = Object.fromEntries(entriesFiltered);
 
   configStore.set('backupList', backupListFiltered);
+  }
+}
+
+export async function deleteBackupsFromDevice(
+  device: Device,
+  isCurrent?: boolean
+): Promise<void> {
+  const backups = await getBackupsFromDevice(device, isCurrent);
+
+  const deletionPromises = backups.map((backup) => deleteBackup(backup, isCurrent));
+  await Promise.all(deletionPromises);
 }
 
 export async function disableBackup(backup: BackupInfo): Promise<void> {

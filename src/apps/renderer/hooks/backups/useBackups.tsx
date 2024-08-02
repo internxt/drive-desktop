@@ -1,6 +1,7 @@
 import { useContext, useEffect, useState } from 'react';
 import { BackupInfo } from '../../../backups/BackupInfo';
 import { ActualDeviceContext } from '../../context/ActualDeviceContext';
+import { Device } from '../../../main/device/service';
 
 export type BackupsState = 'LOADING' | 'ERROR' | 'SUCCESS';
 
@@ -9,27 +10,29 @@ export interface BackupContextProps {
   backups: BackupInfo[];
   disableBackup: (backup: BackupInfo) => Promise<void>;
   addBackup: () => Promise<void>;
-  deleteBackup: (backup: BackupInfo) => Promise<void>;
+  deleteBackups: (device: Device, isCurrent?: boolean) => Promise<void>;
 }
 
 export function useBackups() {
-  const { selected } = useContext(ActualDeviceContext);
+  const { selected, current } = useContext(ActualDeviceContext);
   const [state, setState] = useState<BackupsState>('LOADING');
   const [backups, setBackups] = useState<Array<BackupInfo>>([]);
 
   async function fetchBackups(): Promise<void> {
-    const backups = await window.electron.getBackups(selected);
+    const backups = await window.electron.getBackupsFromDevice(selected, selected === current);
     setBackups(backups);
   }
 
   async function loadBackups() {
     setState('LOADING');
+    setBackups([]);
 
     try {
       await fetchBackups();
       setState('SUCCESS');
     } catch {
       setState('ERROR');
+      setBackups([]);
     }
   }
 
@@ -55,10 +58,10 @@ export function useBackups() {
     await loadBackups();
   }
 
-  async function deleteBackup(backup: BackupInfo) {
+  async function deleteBackups(device: Device, isCurrent?: boolean) {
     setState('LOADING');
     try {
-      await window.electron.deleteBackup(backup);
+      await window.electron.deleteBackupsFromDevice(device, isCurrent);
       await fetchBackups();
     } catch (err) {
       console.log(err);
@@ -66,5 +69,5 @@ export function useBackups() {
     }
   }
 
-  return { state, backups, disableBackup, addBackup, deleteBackup };
+  return { state, backups, disableBackup, addBackup, deleteBackups };
 }

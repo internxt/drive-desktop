@@ -52,28 +52,28 @@ async function backupFolder() {
     const error = await backup.run(data, abortController);
 
     if (error) {
+      Logger.info('[BACKUPS] failed');
       BackupsIPCRenderer.send(
         'backups.backup-failed',
         data.folderId,
         error.cause
       );
+    } else {
+      Logger.info('[BACKUPS] done');
+      BackupsIPCRenderer.send('backups.backup-completed', data.folderId);
     }
-
-    Logger.info('[BACKUPS] done');
-
-    BackupsIPCRenderer.send('backups.backup-completed', data.folderId);
   } catch (error) {
     Logger.error('[BACKUPS] ', error);
     if (error instanceof DriveDesktopError) {
+      Logger.error('[BACKUPS] ', {cause: error.cause});
       BackupsIPCRenderer.send(
         'backups.backup-failed',
         data.folderId,
         error.cause
       );
-      return;
+    } else {
+      BackupsIPCRenderer.send('backups.backup-failed', data.folderId, 'UNKNOWN');
     }
-
-    BackupsIPCRenderer.send('backups.backup-failed', data.folderId, 'UNKNOWN');
   }
 }
 
