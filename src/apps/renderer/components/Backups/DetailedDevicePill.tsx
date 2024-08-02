@@ -8,7 +8,7 @@ import { BackupsProgressPercentage } from './BackupsProgressPercent';
 import { ArrowCircleUp } from 'phosphor-react';
 import { LastBackupMade } from './LastBackupMade';
 import { ShowBackupsIssues } from './ShowBackupsIssues';
-import { ActualDeviceContext } from '../../context/ActualDeviceContext';
+import { DeviceContext } from '../../context/DeviceContext';
 import { BackupContext } from '../../context/BackupContext';
 
 interface DetailedDevicePillProps {
@@ -30,7 +30,7 @@ export function DetailedDevicePill({
   const { backupStatus } = useBackupStatus();
   const { thereIsProgress, percentualProgress, clearProgress } =
     useBackupProgress();
-  const { current, selected } = useContext(ActualDeviceContext);
+  const { current, selected } = useContext(DeviceContext);
   const { lastBackupHadIssues, backups } = useContext(BackupContext);
 
   useEffect(() => {

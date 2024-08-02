@@ -4,7 +4,6 @@ import { Question } from '@phosphor-icons/react';
 import { useDevices } from '../../../hooks/devices/useDevices';
 import { Device } from '../../../../main/device/service';
 import { ScrollableContent } from '../../../components/ScrollableContent';
-import { ActualDeviceContext } from '../../../context/ActualDeviceContext';
 
 interface DevicePillProps {
   device: Device;
@@ -50,8 +49,7 @@ function Help() {
 type DevicesSideBarProps = React.HTMLAttributes<HTMLBaseElement>;
 
 export function DevicesList({ className }: DevicesSideBarProps) {
-  const { deviceState } = useContext(DeviceContext);
-  const { current, selected, setSelected } = useContext(ActualDeviceContext);
+  const { deviceState, current, selected, setSelected } = useContext(DeviceContext);
   const { devices } = useDevices();
 
   const devicesWithoutCurrent = devices.filter(

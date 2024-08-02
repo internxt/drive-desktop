@@ -13,7 +13,7 @@ export interface LastBackupContextProps {
   lastBackupHadIssues: boolean;
 }
 
-export function useLastBackup() {
+export function useLastBackup(): LastBackupContextProps {
   const [lastBackupTimestamp, setLastBackupTimestamp] = useState<
     number | undefined
   >(undefined);

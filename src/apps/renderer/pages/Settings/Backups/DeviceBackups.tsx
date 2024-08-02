@@ -5,7 +5,7 @@ import { Frequency } from './Frequency';
 import { StartBackup } from './StartBackup';
 import { ViewBackups } from './ViewBackups';
 import { useContext } from 'react';
-import { ActualDeviceContext } from '../../../context/ActualDeviceContext';
+import { DeviceContext } from '../../../context/DeviceContext';
 import { DownloadBackups } from './DownloadBackups';
 
 interface DeviceBackupsProps {
@@ -13,7 +13,7 @@ interface DeviceBackupsProps {
 }
 
 export function DeviceBackups({ onGoToList }: DeviceBackupsProps) {
-  const { current, selected } = useContext(ActualDeviceContext);
+  const { current, selected } = useContext(DeviceContext);
 
   return (
     <div className="flex flex-col gap-2">

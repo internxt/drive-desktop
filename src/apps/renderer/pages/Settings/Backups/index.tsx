@@ -4,8 +4,6 @@ import { DeviceSettings } from './DeviceSettings';
 import { DevicesList } from './DevicesList';
 import { ScrollableContent } from '../../../components/ScrollableContent';
 import Spinner from '../../../assets/spinner.svg';
-import { ActualDeviceProvider } from '../../../context/ActualDeviceContext';
-import { BackupProvider } from '../../../context/BackupContext';
 
 interface BackupsSectionProps {
   active: boolean;
@@ -33,17 +31,13 @@ export default function BackupsSection({
         </div>
       )}
       {deviceState.status === 'SUCCESS' && (
-        <ActualDeviceProvider device={deviceState.device}>
-          <BackupProvider>
-            <section className="flex h-full">
-              <DevicesList className="w-1/3" />
-              <div className="mx-4 border-l border-gray-10"></div>
-              <ScrollableContent className="w-2/3">
-                <DeviceSettings onGoToList={showBackedFolders} />
-              </ScrollableContent>
-            </section>
-          </BackupProvider>
-        </ActualDeviceProvider>
+        <section className="flex h-full">
+          <DevicesList className="w-1/3" />
+          <div className="mx-4 border-l border-gray-10"></div>
+          <ScrollableContent className="w-2/3">
+            <DeviceSettings onGoToList={showBackedFolders} />
+          </ScrollableContent>
+        </section>
       )}
     </div>
   );
