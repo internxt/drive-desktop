@@ -37,7 +37,7 @@ export abstract class FuseCallback<T> {
     // Ensure that an Either is always returned
 
     const stopwatch = new Stopwatch();
-    let interval: NodeJS.Timer | undefined = undefined;
+    let interval: NodeJS.Timeout | undefined = undefined;
 
     if (this.debug.detectSlowCallbacks) {
       interval = setInterval(() => {

@@ -52,14 +52,14 @@ export function useBackups() {
 
   async function disableBackup(backup: BackupInfo) {
     await window.electron.disableBackup(backup);
-    loadBackups();
+    await loadBackups();
   }
 
   async function deleteBackup(backup: BackupInfo) {
     setState('LOADING');
     try {
       await window.electron.deleteBackup(backup);
-      fetchBackups();
+      await fetchBackups();
     } catch (err) {
       console.log(err);
       setState('ERROR');
